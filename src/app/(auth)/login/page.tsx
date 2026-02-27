@@ -1,219 +1,357 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
-import { Loader2, AlertCircle, Lock, Mail, Eye, EyeOff, ShieldCheck, Sparkles, CheckCircle2 } from "lucide-react";
-import { toast } from "sonner";
+import { useActionState, useState } from "react";
+import { useFormStatus } from "react-dom";
+import Image from "next/image";
+import { Loader2, Eye, EyeOff } from "lucide-react";
 import { loginAction } from "@/lib/auth/actions";
-import { useIsClient } from "@/lib/hooks/use-is-client";
-import { getClientLocale } from "@/lib/i18n/client";
-import { t } from "@/lib/i18n/messages";
-import { AppLogo } from "@/components/shared/app-logo";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import type { AuthActionState } from "@/lib/auth/types";
 
-const initialState = { error: undefined };
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <button type="submit" disabled={pending} className="lc-btn">
+      {pending ? <Loader2 className="animate-spin" size={17} /> : "Iniciar sesión"}
+    </button>
+  );
+}
+
+const initialState: AuthActionState = {};
 
 export default function LoginPage() {
-  const [state, action, pending] = useActionState(loginAction, initialState);
-  const mounted = useIsClient();
-  const [focusedField, setFocusedField] = useState<"email" | "password" | null>(null);
+  const [state, formAction] = useActionState(loginAction, initialState);
   const [showPassword, setShowPassword] = useState(false);
-  const locale = mounted ? getClientLocale() : "es-MX";
-  const highlights = [
-    t(locale, "login_panel_feature_1"),
-    t(locale, "login_panel_feature_2"),
-    t(locale, "login_panel_feature_3"),
-  ];
-
-  useEffect(() => {
-    if (state.error) {
-      toast.error(state.error);
-    }
-  }, [state.error]);
 
   return (
-    <div className="relative animate-in fade-in duration-500">
-      <div className="absolute right-0 top-0 z-20">
-        <div className="rounded-full border border-border/70 bg-card/70 p-0.5 shadow-sm backdrop-blur">
-          <ThemeToggle />
-        </div>
-      </div>
+    <>
+      <style>{`
+        /* ══ LIGHT tokens ══ */
+        :root {
+          --lc-bg:         #f4f8f0;
+          --lc-noise1:     rgba(120,185,90,0.12);
+          --lc-noise2:     rgba(80,150,55,0.08);
+          --lc-card-bg:    rgba(255,255,255,0.82);
+          --lc-card-border:rgba(60,130,40,0.14);
+          --lc-card-shadow:0 2px 40px rgba(0,0,0,0.07),0 1px 0 rgba(80,160,50,0.06) inset;
+          --lc-brand-c:    rgba(22,68,12,0.85);
+          --lc-brand-sub:  rgba(50,110,28,0.45);
+          --lc-title-c:    #163a0a;
+          --lc-sub-c:      rgba(50,110,28,0.5);
+          --lc-div-c:      rgba(60,130,40,0.15);
+          --lc-label-c:    rgba(40,100,18,0.55);
+          --lc-input-bg:   rgba(240,250,232,0.7);
+          --lc-input-border:rgba(60,130,40,0.18);
+          --lc-input-c:    #163a0a;
+          --lc-placeholder:rgba(70,130,38,0.32);
+          --lc-focus-b:    rgba(50,120,28,0.6);
+          --lc-focus-s:    rgba(50,120,28,0.09);
+          --lc-pw-c:       rgba(60,120,28,0.38);
+          --lc-err-c:      #7a1a1a;
+          --lc-err-bg:     rgba(180,40,40,0.05);
+          --lc-err-b:      rgba(180,40,40,0.16);
+          --lc-btn1:       #2d6a20; --lc-btn2: #3a8c2a;
+          --lc-btn1h:      #357828; --lc-btn2h: #44a034;
+          --lc-btn-c:      #f0ffe8;
+          --lc-btn-border: rgba(50,120,28,0.25);
+          --lc-btn-glow:   rgba(45,106,30,0.22);
+          --lc-verse-c:    rgba(50,120,28,0.35);
+        }
 
-      <div className="grid gap-5 md:grid-cols-[1.05fr_0.95fr] md:gap-6">
-        <section className="relative overflow-hidden rounded-2xl border border-border/70 bg-card/55 p-6 shadow-[0_16px_40px_rgba(15,23,42,0.12)] backdrop-blur animate-in fade-in slide-in-from-left-2 duration-500 md:p-7 dark:shadow-[0_22px_50px_rgba(0,0,0,0.35)]">
-          <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-primary/20 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-20 -left-8 h-36 w-36 rounded-full bg-primary/12 blur-3xl" />
+        /* ══ DARK tokens ══ */
+        @media (prefers-color-scheme: dark) {
+          :root {
+            --lc-bg:         #0c1a10;
+            --lc-noise1:     rgba(52,140,80,0.12);
+            --lc-noise2:     rgba(30,100,55,0.08);
+            --lc-card-bg:    rgba(12,28,16,0.72);
+            --lc-card-border:rgba(82,183,136,0.14);
+            --lc-card-shadow:0 2px 50px rgba(0,0,0,0.4),0 1px 0 rgba(82,183,136,0.08) inset;
+            --lc-brand-c:    rgba(200,240,210,0.88);
+            --lc-brand-sub:  rgba(140,200,160,0.45);
+            --lc-title-c:    #d4f0de;
+            --lc-sub-c:      rgba(140,200,160,0.5);
+            --lc-div-c:      rgba(82,183,136,0.16);
+            --lc-label-c:    rgba(160,215,180,0.55);
+            --lc-input-bg:   rgba(255,255,255,0.05);
+            --lc-input-border:rgba(82,183,136,0.18);
+            --lc-input-c:    #d4f0de;
+            --lc-placeholder:rgba(140,200,160,0.28);
+            --lc-focus-b:    rgba(82,183,136,0.5);
+            --lc-focus-s:    rgba(82,183,136,0.1);
+            --lc-pw-c:       rgba(140,200,160,0.4);
+            --lc-err-c:      #fca5a5;
+            --lc-err-bg:     rgba(220,38,38,0.08);
+            --lc-err-b:      rgba(220,38,38,0.18);
+            --lc-btn1:       #2d7a4f; --lc-btn2: #3a9960;
+            --lc-btn1h:      #358a5a; --lc-btn2h: #44aa6e;
+            --lc-btn-c:      #e8f5ec;
+            --lc-btn-border: rgba(82,183,136,0.25);
+            --lc-btn-glow:   rgba(45,122,79,0.28);
+            --lc-verse-c:    rgba(120,180,140,0.36);
+          }
+        }
 
-          <div className="relative">
-            <div className="flex items-center gap-3">
-              <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-border/70 bg-card/85 shadow-sm">
-                <AppLogo className="h-10 w-10" priority />
-              </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                  {t(locale, "login_brand_subtitle")}
-                </p>
-                <h1 className="text-2xl font-bold tracking-tight text-foreground">SACDIA</h1>
-              </div>
+        .lc-root {
+          font-family: var(--font-geist-sans, system-ui, sans-serif);
+          min-height: 100svh;
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 2rem 1rem;
+          overflow: hidden;
+          background-color: var(--lc-bg);
+        }
+
+        /* ── Soft background blobs ── */
+        .lc-blobs {
+          position: absolute; inset: 0;
+          pointer-events: none; z-index: 0;
+        }
+        .lc-blobs::before,
+        .lc-blobs::after {
+          content: '';
+          position: absolute;
+          border-radius: 50%;
+          filter: blur(90px);
+          animation: lc-drift 20s ease-in-out infinite alternate;
+        }
+        .lc-blobs::before {
+          width: 60vw; height: 50vh;
+          background: radial-gradient(ellipse, var(--lc-noise1) 0%, transparent 70%);
+          top: -10%; left: -15%;
+        }
+        .lc-blobs::after {
+          width: 50vw; height: 45vh;
+          background: radial-gradient(ellipse, var(--lc-noise2) 0%, transparent 70%);
+          bottom: -10%; right: -10%;
+          animation-delay: -10s;
+        }
+        @keyframes lc-drift {
+          from { transform: translate(0,0) scale(1); }
+          to   { transform: translate(30px,20px) scale(1.08); }
+        }
+
+        /* ── Card ── */
+        .lc-card-wrap {
+          position: relative;
+          z-index: 10;
+          width: 100%;
+          max-width: 400px;
+          animation: lc-reveal 0.7s cubic-bezier(0.16,1,0.3,1) 0.1s both;
+        }
+
+        @keyframes lc-reveal {
+          from { opacity:0; transform: translateY(28px) scale(0.97); }
+          to   { opacity:1; transform: translateY(0) scale(1); }
+        }
+
+        .lc-card {
+          background: var(--lc-card-bg);
+          border: 1px solid var(--lc-card-border);
+          border-radius: 20px;
+          padding: 2.5rem 2rem 2rem;
+          backdrop-filter: blur(24px) saturate(160%);
+          -webkit-backdrop-filter: blur(24px) saturate(160%);
+          box-shadow: var(--lc-card-shadow);
+        }
+
+        /* ── Brand ── */
+        .lc-brand {
+          display: flex;
+          align-items: center;
+          gap: 0.6rem;
+          margin-bottom: 1.75rem;
+          animation: lc-up 0.5s cubic-bezier(0.16,1,0.3,1) 0.3s both;
+        }
+        .lc-brand-name {
+          font-size: 0.875rem; font-weight: 600;
+          color: var(--lc-brand-c);
+          letter-spacing: 0.04em; text-transform: uppercase;
+        }
+        .lc-brand-dot {
+          width: 4px; height: 4px; border-radius: 50%;
+          background: var(--lc-div-c); margin: 0 0.1rem;
+        }
+        .lc-brand-sub {
+          font-size: 0.75rem; color: var(--lc-brand-sub); letter-spacing: 0.06em;
+        }
+
+        /* ── Title ── */
+        .lc-title {
+          font-size: 1.5rem; font-weight: 600;
+          color: var(--lc-title-c);
+          letter-spacing: -0.02em; line-height: 1.2;
+          margin: 0 0 0.4rem;
+          animation: lc-up 0.5s cubic-bezier(0.16,1,0.3,1) 0.35s both;
+        }
+        .lc-subtitle {
+          font-size: 0.8125rem; color: var(--lc-sub-c);
+          margin-bottom: 1.75rem;
+          animation: lc-up 0.5s cubic-bezier(0.16,1,0.3,1) 0.4s both;
+        }
+
+        /* ── Divider ── */
+        .lc-divider {
+          height: 1px;
+          background: linear-gradient(90deg, transparent, var(--lc-div-c), transparent);
+          margin-bottom: 1.75rem;
+          animation: lc-up 0.5s cubic-bezier(0.16,1,0.3,1) 0.4s both;
+        }
+
+        /* ── Form ── */
+        .lc-form { display: flex; flex-direction: column; gap: 1.125rem; }
+
+        .lc-field {
+          display: flex;
+          flex-direction: column;
+          gap: 0.4rem;
+          animation: lc-up 0.5s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        .lc-field:nth-of-type(1) { animation-delay: 0.44s; }
+        .lc-field:nth-of-type(2) { animation-delay: 0.50s; }
+
+        .lc-label {
+          font-size: 0.75rem; font-weight: 500;
+          color: var(--lc-label-c);
+          letter-spacing: 0.05em; text-transform: uppercase;
+        }
+        .lc-input-wrap { position: relative; display: flex; align-items: center; }
+        .lc-input {
+          font-family: inherit; font-size: 0.9375rem;
+          color: var(--lc-input-c);
+          background: var(--lc-input-bg);
+          border: 1px solid var(--lc-input-border);
+          border-radius: 10px; padding: 0.7rem 0.875rem;
+          outline: none; width: 100%;
+          transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
+        .lc-input::placeholder { color: var(--lc-placeholder); }
+        .lc-input:focus {
+          border-color: var(--lc-focus-b);
+          box-shadow: 0 0 0 3px var(--lc-focus-s);
+        }
+        .lc-input-pw { padding-right: 2.75rem; }
+
+        .lc-pw-toggle {
+          position: absolute; right: 0.75rem;
+          background: none; border: none; cursor: pointer;
+          color: var(--lc-pw-c);
+          display: flex; align-items: center; padding: 0;
+          transition: color 0.15s;
+        }
+        .lc-pw-toggle:hover { filter: brightness(1.4); }
+
+        /* ── Error ── */
+        .lc-error {
+          font-size: 0.8125rem;
+          color: var(--lc-err-c);
+          background: var(--lc-err-bg);
+          border: 1px solid var(--lc-err-b);
+          border-radius: 10px;
+          padding: 0.6rem 0.875rem;
+          animation: lc-up 0.25s ease both;
+        }
+
+        /* ── Button ── */
+        .lc-btn {
+          margin-top: 0.5rem; width: 100%;
+          background: linear-gradient(135deg, var(--lc-btn1) 0%, var(--lc-btn2) 100%);
+          color: var(--lc-btn-c);
+          font-family: inherit; font-size: 0.875rem; font-weight: 600;
+          letter-spacing: 0.07em; text-transform: uppercase;
+          border: 1px solid var(--lc-btn-border);
+          border-radius: 10px; padding: 0.8rem 1.25rem;
+          cursor: pointer;
+          display: flex; align-items: center; justify-content: center;
+          transition: all 0.2s ease;
+          animation: lc-up 0.5s cubic-bezier(0.16,1,0.3,1) 0.56s both;
+          box-shadow: 0 2px 20px var(--lc-btn-glow);
+        }
+        .lc-btn:hover:not(:disabled) {
+          background: linear-gradient(135deg, var(--lc-btn1h) 0%, var(--lc-btn2h) 100%);
+          box-shadow: 0 4px 28px var(--lc-btn-glow);
+          transform: translateY(-1px);
+        }
+        .lc-btn:active:not(:disabled) { transform: translateY(0); }
+        .lc-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* ── Verse ── */
+        .lc-verse {
+          margin-top: 1.5rem; text-align: center;
+          font-size: 0.6875rem; color: var(--lc-verse-c);
+          letter-spacing: 0.04em; font-style: italic;
+          animation: lc-up 0.5s cubic-bezier(0.16,1,0.3,1) 0.62s both;
+        }
+
+        @keyframes lc-up {
+          from { opacity:0; transform: translateY(10px); }
+          to   { opacity:1; transform: translateY(0); }
+        }
+      `}</style>
+
+      <div className="lc-root">
+        {/* Background blobs */}
+        <div className="lc-blobs" aria-hidden="true" />
+
+        {/* Card */}
+        <div className="lc-card-wrap">
+          <div className="lc-card">
+            <div className="lc-brand">
+              <Image src="/svg/LogoSACDIA.svg" alt="SACDIA" width={26} height={26} priority />
+              <span className="lc-brand-name">SACDIA</span>
+              <span className="lc-brand-dot" />
+              <span className="lc-brand-sub">Sistema Administrativo</span>
             </div>
 
-            <p className="mt-4 text-sm text-muted-foreground">
-              {t(locale, "login_panel_description")}
-            </p>
+            <h1 className="lc-title">Bienvenido de nuevo</h1>
+            <p className="lc-subtitle">Ingresa tus credenciales para acceder al panel</p>
+            <div className="lc-divider" />
 
-            <div className="mt-5 flex flex-wrap gap-2">
-              <Badge variant="default" className="rounded-full px-3 py-1 text-[11px]">
-                <span className="inline-flex items-center gap-1.5">
-                  <Sparkles className="h-3.5 w-3.5" />
-                  {t(locale, "login_security_badge")}
-                </span>
-              </Badge>
-            </div>
+            <form action={formAction} className="lc-form">
+              {state.error && <div className="lc-error">{state.error}</div>}
 
-            <Separator className="my-5 bg-border/70" />
-
-            <ul className="space-y-3">
-              {highlights.map((item, index) => (
-                <li
-                  key={item}
-                  className="flex items-start gap-3 rounded-lg border border-border/50 bg-background/45 px-3.5 py-3 animate-in fade-in slide-in-from-bottom-2 duration-300"
-                  style={{ animationDelay: `${120 + index * 80}ms`, animationFillMode: "backwards" }}
-                >
-                  <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary/12 text-primary">
-                    <CheckCircle2 className="h-3.5 w-3.5" />
-                  </span>
-                  <span className="text-sm text-foreground/90">{item}</span>
-                </li>
-              ))}
-            </ul>
-
-            <p className="mt-6 text-[11px] text-muted-foreground/80">
-              {t(locale, "login_footer")}
-            </p>
-          </div>
-        </section>
-
-        <Card className="relative overflow-hidden border-border/80 bg-card shadow-[0_20px_70px_rgba(15,23,42,0.16),0_0_0_1px_rgba(255,255,255,0.04)] animate-in fade-in slide-in-from-bottom-2 duration-500 dark:shadow-[0_24px_70px_rgba(0,0,0,0.52)]">
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary/30 via-primary to-primary/30" />
-
-          <CardHeader className="space-y-3 p-7 pb-3">
-            <Badge variant="default" className="w-fit rounded-full px-3 py-1 text-[11px]">
-              <span className="inline-flex items-center gap-1.5">
-                <ShieldCheck className="h-3.5 w-3.5" />
-                {t(locale, "login_security_badge")}
-              </span>
-            </Badge>
-            <CardTitle className="text-xl font-semibold tracking-tight text-foreground">
-              {t(locale, "login_welcome_title")}
-            </CardTitle>
-            <CardDescription className="text-[13px]">
-              {t(locale, "login_welcome_description")}
-            </CardDescription>
-          </CardHeader>
-
-          <CardContent className="p-7 pt-1">
-            <form action={action} method="POST" autoComplete="on" className="space-y-5">
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-xs uppercase tracking-wider text-muted-foreground">
-                  {t(locale, "login_email_label")}
-                </Label>
-                <div className="group relative">
-                  <Mail
-                    className={`absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 transition-colors duration-200 ${
-                      focusedField === "email" ? "text-primary" : "text-muted-foreground"
-                    }`}
-                  />
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
+              <div className="lc-field">
+                <label htmlFor="email" className="lc-label">Correo electrónico</label>
+                <div className="lc-input-wrap">
+                  <input
+                    id="email" name="email" type="email"
                     placeholder="admin@sacdia.org"
-                    required
-                    autoComplete="username"
-                    inputMode="email"
-                    autoCapitalize="none"
-                    spellCheck={false}
-                    onFocus={() => setFocusedField("email")}
-                    onBlur={() => setFocusedField(null)}
-                    className="h-12 rounded-xl border-input bg-background/85 pl-11 text-foreground placeholder:text-muted-foreground transition-colors focus-visible:border-primary/45 focus-visible:bg-background focus-visible:ring-primary/20"
+                    required autoComplete="email" autoFocus
+                    className="lc-input"
                   />
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-xs uppercase tracking-wider text-muted-foreground">
-                  {t(locale, "login_password_label")}
-                </Label>
-                <div className="group relative">
-                  <Lock
-                    className={`absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 transition-colors duration-200 ${
-                      focusedField === "password" ? "text-primary" : "text-muted-foreground"
-                    }`}
-                  />
-                  <Input
-                    id="password"
-                    name="password"
+              <div className="lc-field">
+                <label htmlFor="password" className="lc-label">Contraseña</label>
+                <div className="lc-input-wrap">
+                  <input
+                    id="password" name="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
-                    required
-                    autoComplete="current-password"
-                    onFocus={() => setFocusedField("password")}
-                    onBlur={() => setFocusedField(null)}
-                    className="h-12 rounded-xl border-input bg-background/85 pl-11 pr-11 text-foreground placeholder:text-muted-foreground transition-colors focus-visible:border-primary/45 focus-visible:bg-background focus-visible:ring-primary/20"
+                    required autoComplete="current-password" minLength={8}
+                    className="lc-input lc-input-pw"
                   />
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="ghost"
-                    onMouseDown={(event) => event.preventDefault()}
-                    onClick={() => setShowPassword((current) => !current)}
-                    aria-label={showPassword ? t(locale, "login_hide_password") : t(locale, "login_show_password")}
-                    className="absolute right-2 top-1/2 h-8 w-8 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  <button
+                    type="button" className="lc-pw-toggle"
+                    onClick={() => setShowPassword(v => !v)}
+                    tabIndex={-1}
+                    aria-label={showPassword ? "Ocultar" : "Mostrar"}
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </Button>
+                    {showPassword ? <EyeOff size={16}/> : <Eye size={16}/>}
+                  </button>
                 </div>
-                <p className="text-xs text-muted-foreground">{t(locale, "login_password_hint")}</p>
               </div>
 
-              {state.error ? (
-                <div className="flex items-center gap-2.5 rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-[13px] text-destructive animate-in fade-in slide-in-from-top-1">
-                  <AlertCircle className="h-4 w-4 shrink-0" />
-                  {state.error}
-                </div>
-              ) : null}
-
-              <Button
-                type="submit"
-                disabled={pending}
-                size="lg"
-                className="group relative h-12 w-full overflow-hidden rounded-xl bg-gradient-to-r from-primary to-primary/85 text-sm font-semibold shadow-[0_6px_24px_rgba(43,43,238,0.3)] transition-all duration-200 hover:brightness-110 hover:shadow-[0_8px_34px_rgba(43,43,238,0.42)] active:scale-[0.99]"
-              >
-                <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/15 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-                <span className="relative">
-                  {pending ? (
-                    <span className="flex items-center gap-2">
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      {t(locale, "login_submit_loading")}
-                    </span>
-                  ) : (
-                    t(locale, "login_submit_idle")
-                  )}
-                </span>
-              </Button>
-
-              <p className="rounded-lg border border-border/70 bg-muted/40 px-3 py-2 text-[11px] text-muted-foreground">
-                {t(locale, "login_access_notice")}
-              </p>
+              <SubmitButton />
             </form>
-          </CardContent>
-        </Card>
+
+            <p className="lc-verse">&ldquo;Todo lo puedo en Cristo que me fortalece&rdquo; — Fil. 4:13</p>
+          </div>
+        </div>
+
       </div>
-    </div>
+    </>
   );
 }

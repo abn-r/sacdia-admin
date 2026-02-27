@@ -7,6 +7,11 @@ export type AuthUser = {
   paternal_last_name?: string | null;
   maternal_last_name?: string | null;
   picture_url?: string | null;
+  user_image?: string | null;
+  avatar_url?: string | null;
+  photo_url?: string | null;
+  profile_picture?: string | null;
+  profile_picture_url?: string | null;
   role?: string | null;
   roles?: string[];
   permissions?: string[];

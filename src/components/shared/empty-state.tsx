@@ -1,29 +1,23 @@
-import type { LucideIcon } from "lucide-react";
-import { Inbox } from "lucide-react";
-import type { ReactNode } from "react";
-import { Card } from "@/components/ui/card";
+import { type LucideIcon } from "lucide-react";
 
-export function EmptyState({
-  title,
-  description,
-  action,
-  icon: Icon = Inbox,
-}: {
+interface EmptyStateProps {
+  icon: LucideIcon;
   title: string;
   description?: string;
-  action?: ReactNode;
-  icon?: LucideIcon;
-}) {
+  children?: React.ReactNode;
+}
+
+export function EmptyState({ icon: Icon, title, description, children }: EmptyStateProps) {
   return (
-    <Card className="border-dashed">
-      <div className="flex flex-col items-center justify-center px-6 py-12 text-center">
-        <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-          <Icon className="h-5 w-5 text-muted-foreground" />
-        </div>
-        <h3 className="text-sm font-semibold">{title}</h3>
-        {description ? <p className="mt-1 max-w-sm text-[13px] text-muted-foreground">{description}</p> : null}
-        {action ? <div className="mt-4">{action}</div> : null}
+    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
+      <div className="flex size-12 items-center justify-center rounded-full bg-muted">
+        <Icon className="size-6 text-muted-foreground" />
       </div>
-    </Card>
+      <h3 className="mt-4 text-lg font-semibold">{title}</h3>
+      {description && (
+        <p className="mt-1 max-w-sm text-sm text-muted-foreground">{description}</p>
+      )}
+      {children && <div className="mt-4">{children}</div>}
+    </div>
   );
 }

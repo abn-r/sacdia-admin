@@ -112,11 +112,12 @@ export async function getEntityItemById(entityKey: EntityKey, id: number) {
   return items.find((item) => getIdValue(item, config) === id) ?? null;
 }
 
-export async function getSelectOptions(entityKey: EntityKey) {
+export async function getSelectOptions(entityKey: EntityKey, includeInactive = false) {
   const config = entityConfigs[entityKey];
-  const items = (await listEntityItems(entityKey)).filter((item) => item.active !== false);
+  const items = await listEntityItems(entityKey);
+  const filteredItems = includeInactive ? items : items.filter((item) => item.active !== false);
 
-  return items.map((item) => ({
+  return filteredItems.map((item) => ({
     label: String(item[config.nameField] ?? `#${item[config.idField] ?? ""}`),
     value: Number(item[config.idField]),
   }));
@@ -165,7 +166,7 @@ export async function createEntityItem(entityKey: EntityKey, payload: Record<str
   });
 }
 
-export async function updateEntityItem(entityKey: EntityKey, id: number, payload: Record<string, unknown>) {
+export async function updateEntityItem(entityKey: EntityKey, id: number | string, payload: Record<string, unknown>) {
   const config = entityConfigs[entityKey];
   return apiRequest(`${config.adminEndpoint}/${id}`, {
     method: "PATCH",
@@ -173,7 +174,7 @@ export async function updateEntityItem(entityKey: EntityKey, id: number, payload
   });
 }
 
-export async function deleteEntityItem(entityKey: EntityKey, id: number) {
+export async function deleteEntityItem(entityKey: EntityKey, id: number | string) {
   const config = entityConfigs[entityKey];
   return apiRequest(`${config.adminEndpoint}/${id}`, {
     method: "DELETE",

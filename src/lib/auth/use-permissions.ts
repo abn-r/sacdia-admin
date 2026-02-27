@@ -3,6 +3,7 @@
 import { useCallback, useMemo } from "react";
 import { useAuth } from "@/lib/auth/auth-context";
 import { extractRoles, ALLOWED_ADMIN_ROLES } from "@/lib/auth/roles";
+import { extractPermissions } from "@/lib/auth/permission-utils";
 
 /**
  * Hook para verificar permisos del usuario autenticado.
@@ -22,8 +23,8 @@ export function usePermissions() {
   const isSuperAdmin = useMemo(() => roles.has("super_admin"), [roles]);
 
   const permissionSet = useMemo(
-    () => new Set(user?.permissions ?? []),
-    [user?.permissions],
+    () => new Set(extractPermissions(user)),
+    [user],
   );
 
   // Verifica si el usuario tiene UN permiso específico

@@ -35,6 +35,12 @@ export const CLUBS_READ = "clubs:read";
 export const CLUBS_CREATE = "clubs:create";
 export const CLUBS_UPDATE = "clubs:update";
 export const CLUBS_DELETE = "clubs:delete";
+// Canonical naming for club instances (new RBAC plan)
+export const CLUBS_INSTANCES_READ = "clubs_instances:read";
+export const CLUBS_INSTANCES_CREATE = "clubs_instances:create";
+export const CLUBS_INSTANCES_UPDATE = "clubs_instances:update";
+export const CLUBS_INSTANCES_DELETE = "clubs_instances:delete";
+// Legacy aliases kept for backward compatibility during migration.
 export const CLUB_INSTANCES_READ = "club_instances:read";
 export const CLUB_INSTANCES_CREATE = "club_instances:create";
 export const CLUB_INSTANCES_UPDATE = "club_instances:update";
@@ -148,10 +154,10 @@ export const PERMISSION_GROUPS = {
       { key: CLUBS_CREATE, label: "Crear club" },
       { key: CLUBS_UPDATE, label: "Editar club" },
       { key: CLUBS_DELETE, label: "Eliminar club" },
-      { key: CLUB_INSTANCES_READ, label: "Ver instancias" },
-      { key: CLUB_INSTANCES_CREATE, label: "Crear instancia" },
-      { key: CLUB_INSTANCES_UPDATE, label: "Editar instancia" },
-      { key: CLUB_INSTANCES_DELETE, label: "Eliminar instancia" },
+      { key: CLUBS_INSTANCES_READ, label: "Ver instancias" },
+      { key: CLUBS_INSTANCES_CREATE, label: "Crear instancia" },
+      { key: CLUBS_INSTANCES_UPDATE, label: "Editar instancia" },
+      { key: CLUBS_INSTANCES_DELETE, label: "Eliminar instancia" },
       { key: CLUB_ROLES_READ, label: "Ver roles de club" },
       { key: CLUB_ROLES_ASSIGN, label: "Asignar rol de club" },
       { key: CLUB_ROLES_REVOKE, label: "Revocar rol de club" },

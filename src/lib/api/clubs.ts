@@ -52,8 +52,13 @@ export type ClubInstance = {
 export type ClubInstanceType = ClubInstance["instance_type"];
 
 export type ClubInstancePayload = {
-  club_type_id: number;
-  name: string;
+  type: ClubInstanceType;
+  club_type_id?: number;
+  name?: string;
+  souls_target?: number;
+  fee?: number;
+  meeting_day?: Array<{ day: string }>;
+  meeting_time?: Array<{ time: string }>;
   active?: boolean;
 };
 

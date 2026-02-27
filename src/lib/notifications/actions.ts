@@ -1,16 +1,11 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { getActionErrorMessage } from "@/lib/api/action-error";
 import {
-  broadcastNotification,
-  deleteFcmToken,
-  registerFcmToken,
   sendNotification,
-  sendNotificationToClub,
-  type FcmDeviceType,
-  type NotificationClubInstanceType,
+  broadcastNotification,
+  sendClubNotification,
+  type ClubInstanceType,
 } from "@/lib/api/notifications";
 
 export type NotificationActionState = {
@@ -18,82 +13,8 @@ export type NotificationActionState = {
   success?: string;
 };
 
-function readString(formData: FormData, fieldName: string) {
-  return String(formData.get(fieldName) ?? "").trim();
-}
-
-function parseOptionalJson(value: string, label: string) {
-  if (!value) {
-    return undefined;
-  }
-
-  try {
-    const parsed = JSON.parse(value);
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-      throw new Error("JSON invalido");
-    }
-
-    return parsed as Record<string, unknown>;
-  } catch {
-    throw new Error(`El campo ${label} debe ser un JSON valido`);
-  }
-}
-
-function parseInstanceType(rawValue: string) {
-  const value = rawValue.trim().toLowerCase();
-  if (value === "adv" || value === "adventurers") {
-    return "adventurers" as NotificationClubInstanceType;
-  }
-
-  if (value === "mg" || value === "master_guilds") {
-    return "master_guilds" as NotificationClubInstanceType;
-  }
-
-  if (value === "pathf" || value === "pathfinders") {
-    return "pathfinders" as NotificationClubInstanceType;
-  }
-
-  throw new Error("Tipo de instancia invalido. Usa adv, pathf o mg");
-}
-
-function parseDeviceType(value: string) {
-  if (!value) {
-    return undefined;
-  }
-
-  if (value === "ios" || value === "android" || value === "web") {
-    return value as FcmDeviceType;
-  }
-
-  throw new Error("Tipo de dispositivo invalido");
-}
-
-export async function registerFcmTokenAction(
-  _: NotificationActionState,
-  formData: FormData,
-): Promise<NotificationActionState> {
-  const token = readString(formData, "token");
-  if (!token) {
-    return { error: "El token FCM es obligatorio" };
-  }
-
-  try {
-    const deviceType = parseDeviceType(readString(formData, "device_type"));
-    await registerFcmToken({
-      token,
-      device_type: deviceType,
-      device_name: readString(formData, "device_name") || undefined,
-    });
-  } catch (error) {
-    return {
-      error: getActionErrorMessage(error, "No se pudo registrar el token FCM", {
-        endpointLabel: "/fcm-tokens",
-      }),
-    };
-  }
-
-  revalidatePath("/dashboard/notifications");
-  return { success: "Token FCM registrado correctamente" };
+function readString(formData: FormData, key: string) {
+  return String(formData.get(key) ?? "").trim();
 }
 
 export async function sendDirectNotificationAction(
@@ -104,30 +25,21 @@ export async function sendDirectNotificationAction(
   const title = readString(formData, "title");
   const body = readString(formData, "body");
 
-  if (!userId) {
-    return { error: "El user_id es obligatorio" };
-  }
-
-  if (!title || !body) {
-    return { error: "El titulo y el mensaje son obligatorios" };
-  }
+  if (!userId) return { error: "El ID de usuario es obligatorio" };
+  if (!title) return { error: "El título es obligatorio" };
+  if (!body) return { error: "El mensaje es obligatorio" };
 
   try {
-    await sendNotification({
-      userId,
-      title,
-      body,
-      data: parseOptionalJson(readString(formData, "data_json"), "Data JSON"),
-    });
+    await sendNotification({ user_id: userId, title, body });
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo enviar la notificacion directa", {
+      error: getActionErrorMessage(error, "No se pudo enviar la notificación", {
         endpointLabel: "/notifications/send",
       }),
     };
   }
 
-  return { success: "Notificacion enviada al usuario" };
+  return { success: "Notificación enviada correctamente" };
 }
 
 export async function broadcastNotificationAction(
@@ -137,16 +49,11 @@ export async function broadcastNotificationAction(
   const title = readString(formData, "title");
   const body = readString(formData, "body");
 
-  if (!title || !body) {
-    return { error: "El titulo y el mensaje son obligatorios" };
-  }
+  if (!title) return { error: "El título es obligatorio" };
+  if (!body) return { error: "El mensaje es obligatorio" };
 
   try {
-    await broadcastNotification({
-      title,
-      body,
-      data: parseOptionalJson(readString(formData, "data_json"), "Data JSON"),
-    });
+    await broadcastNotification({ title, body });
   } catch (error) {
     return {
       error: getActionErrorMessage(error, "No se pudo enviar el broadcast", {
@@ -158,54 +65,34 @@ export async function broadcastNotificationAction(
   return { success: "Broadcast enviado correctamente" };
 }
 
-export async function sendClubNotificationAction(
+export async function clubNotificationAction(
   _: NotificationActionState,
   formData: FormData,
 ): Promise<NotificationActionState> {
-  const instanceTypeRaw = readString(formData, "instance_type");
+  const instanceType = readString(formData, "instance_type") as ClubInstanceType;
   const instanceIdRaw = readString(formData, "instance_id");
   const title = readString(formData, "title");
   const body = readString(formData, "body");
 
-  if (!instanceTypeRaw || !instanceIdRaw) {
-    return { error: "El tipo e ID de instancia son obligatorios" };
-  }
-
-  if (!title || !body) {
-    return { error: "El titulo y el mensaje son obligatorios" };
-  }
+  if (!instanceType) return { error: "El tipo de instancia es obligatorio" };
+  if (!instanceIdRaw) return { error: "El ID de instancia es obligatorio" };
+  if (!title) return { error: "El título es obligatorio" };
+  if (!body) return { error: "El mensaje es obligatorio" };
 
   const instanceId = Number(instanceIdRaw);
   if (!Number.isFinite(instanceId) || instanceId <= 0) {
-    return { error: "El instance_id debe ser un numero mayor a cero" };
+    return { error: "El ID de instancia no es válido" };
   }
 
   try {
-    await sendNotificationToClub({
-      instanceType: parseInstanceType(instanceTypeRaw),
-      instanceId,
-      title,
-      body,
-      data: parseOptionalJson(readString(formData, "data_json"), "Data JSON"),
-    });
+    await sendClubNotification(instanceType, instanceId, { title, body });
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo enviar la notificacion al club", {
-        endpointLabel: "/notifications/club/:instanceType/:instanceId",
+      error: getActionErrorMessage(error, "No se pudo enviar la notificación al club", {
+        endpointLabel: `/notifications/club/${instanceType}/${instanceId}`,
       }),
     };
   }
 
-  return { success: "Notificacion enviada al club" };
-}
-
-export async function deleteFcmTokenAction(formData: FormData) {
-  const token = readString(formData, "token");
-  if (!token) {
-    return;
-  }
-
-  await deleteFcmToken(token);
-  revalidatePath("/dashboard/notifications");
-  redirect("/dashboard/notifications");
+  return { success: "Notificación de club enviada correctamente" };
 }

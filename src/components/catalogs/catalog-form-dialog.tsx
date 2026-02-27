@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { format, isValid, parseISO } from "date-fns";
+import { useActionState, useEffect, useState } from "react";
+import { useFormStatus } from "react-dom";
+import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -10,157 +12,188 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { EntityField } from "@/lib/catalogs/entities";
 import type { CatalogItem } from "@/lib/catalogs/service";
+import { showAppAlert } from "@/lib/ui/app-alerts";
 
-type CatalogFormDialogProps = {
+function SubmitButton({ label }: { label: string }) {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" disabled={pending}>
+      {pending && <Loader2 className="mr-2 size-4 animate-spin" />}
+      {label}
+    </Button>
+  );
+}
+
+type SelectOption = { label: string; value: number };
+
+interface CatalogFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
+  description?: string;
   fields: EntityField[];
-  item?: CatalogItem | null;
-  onSubmit: (payload: Record<string, unknown>) => Promise<void>;
-};
+  initialValues?: CatalogItem | null;
+  selectOptions?: Record<string, SelectOption[]>;
+  formAction: (prevState: { error?: string }, formData: FormData) => Promise<{ error?: string }>;
+}
 
 export function CatalogFormDialog({
   open,
   onOpenChange,
   title,
+  description,
   fields,
-  item,
-  onSubmit,
+  initialValues,
+  selectOptions = {},
+  formAction,
 }: CatalogFormDialogProps) {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const isEdit = !!item;
-  const visibleFields = fields.filter((f) => f.name !== "active" || isEdit);
-
-  function getDefaultValue(field: EntityField): string {
-    if (!item) return "";
-    const val = item[field.name];
-    if (val === null || val === undefined) return "";
-    if (field.type === "date" && typeof val === "string") {
-      const parsed = parseISO(val);
-      if (isValid(parsed)) return format(parsed, "yyyy-MM-dd");
+  const [state, action] = useActionState(formAction, {});
+  const [checkboxValues, setCheckboxValues] = useState<Record<string, boolean>>({});
+  const initialCheckboxValues = fields.reduce<Record<string, boolean>>((acc, field) => {
+    if (field.type === "checkbox") {
+      acc[field.name] = initialValues?.[field.name] === true || initialValues?.[field.name] === undefined;
     }
-    return String(val);
-  }
+    return acc;
+  }, {});
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    const formData = new FormData(e.currentTarget);
-    const payload: Record<string, unknown> = {};
-
-    for (const field of fields) {
-      if (field.type === "checkbox") {
-        payload[field.name] = formData.get(field.name) === "on";
-        continue;
-      }
-      const raw = formData.get(field.name);
-      if (raw === null || raw === "") {
-        if (field.required) {
-          setError(`El campo "${field.label}" es obligatorio.`);
-          setLoading(false);
-          return;
-        }
-        continue;
-      }
-      if (field.type === "number" || field.type === "select") {
-        payload[field.name] = Number(raw);
-      } else {
-        payload[field.name] = String(raw).trim();
-      }
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen) {
+      setCheckboxValues({});
     }
+    onOpenChange(nextOpen);
+  };
 
-    try {
-      await onSubmit(payload);
-      onOpenChange(false);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al guardar");
-    } finally {
-      setLoading(false);
-    }
-  }
+  useEffect(() => {
+    if (!state.error) return;
+
+    showAppAlert({
+      type: "error",
+      title: "No se pudo guardar",
+      description: state.error,
+    });
+  }, [state.error]);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:w-sm">
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>{isEdit ? `Editar ${title}` : `Nuevo ${title}`}</DialogTitle>
-          <DialogDescription>
-            {isEdit
-              ? `Modifica los campos del registro y presiona guardar.`
-              : `Completa los campos para crear un nuevo registro.`}
-          </DialogDescription>
+          <DialogTitle>{title}</DialogTitle>
+          {description && <DialogDescription>{description}</DialogDescription>}
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 py-2">
-          {visibleFields.map((field) => (
-            <div key={field.name} className="space-y-2">
-              <Label htmlFor={field.name}>
-                {field.label}
-                {field.required && <span className="ml-0.5 text-destructive">*</span>}
-              </Label>
-              {field.type === "textarea" ? (
-                <Textarea
-                  id={field.name}
-                  name={field.name}
-                  defaultValue={getDefaultValue(field)}
-                  placeholder={field.placeholder}
-                  rows={3}
-                  className="transition-all duration-200 focus:ring-2 focus:ring-primary/30"
-                />
-              ) : field.type === "checkbox" ? (
-                <div className="flex items-center gap-3">
-                  <Switch
+        <form action={action} className="space-y-4">
+          {state.error && (
+            <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {state.error}
+            </div>
+          )}
+
+          {fields.map((field) => {
+            const defaultValue = initialValues?.[field.name];
+
+            if (field.type === "checkbox") {
+              return (
+                <div key={field.name} className="flex items-center gap-2">
+                  <input
+                    type="hidden"
+                    name={field.name}
+                    value={(checkboxValues[field.name] ?? initialCheckboxValues[field.name]) ? "on" : ""}
+                  />
+                  <Checkbox
+                    id={field.name}
+                    checked={checkboxValues[field.name] ?? initialCheckboxValues[field.name]}
+                    onCheckedChange={(checked) =>
+                      setCheckboxValues((prev) => ({ ...prev, [field.name]: !!checked }))
+                    }
+                  />
+                  <Label htmlFor={field.name}>{field.label}</Label>
+                </div>
+              );
+            }
+
+            if (field.type === "select") {
+              const options = selectOptions[field.optionsEntityKey ?? ""] ?? [];
+              return (
+                <div key={field.name} className="space-y-2">
+                  <Label htmlFor={field.name}>
+                    {field.label}
+                    {field.required && <span className="text-destructive"> *</span>}
+                  </Label>
+                  <Select
+                    name={field.name}
+                    defaultValue={defaultValue != null ? String(defaultValue) : undefined}
+                    required={field.required}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={`Seleccionar ${field.label.toLowerCase()}`} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {options.map((opt) => (
+                        <SelectItem key={opt.value} value={String(opt.value)}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              );
+            }
+
+            if (field.type === "textarea") {
+              return (
+                <div key={field.name} className="space-y-2">
+                  <Label htmlFor={field.name}>
+                    {field.label}
+                    {field.required && <span className="text-destructive"> *</span>}
+                  </Label>
+                  <Textarea
                     id={field.name}
                     name={field.name}
-                    defaultChecked={item ? Boolean(item[field.name]) : true}
+                    defaultValue={typeof defaultValue === "string" ? defaultValue : ""}
+                    placeholder={field.placeholder}
+                    required={field.required}
+                    rows={3}
                   />
-                  <Label htmlFor={field.name} className="text-sm text-muted-foreground">
-                    {Boolean(item?.[field.name]) !== false ? "Activo" : "Inactivo"}
-                  </Label>
                 </div>
-              ) : (
+              );
+            }
+
+            return (
+              <div key={field.name} className="space-y-2">
+                <Label htmlFor={field.name}>
+                  {field.label}
+                  {field.required && <span className="text-destructive"> *</span>}
+                </Label>
                 <Input
                   id={field.name}
                   name={field.name}
                   type={field.type === "date" ? "date" : field.type === "number" ? "number" : "text"}
-                  defaultValue={getDefaultValue(field)}
+                  defaultValue={defaultValue != null ? String(defaultValue) : ""}
                   placeholder={field.placeholder}
                   required={field.required}
-                  className="transition-all duration-200 focus:ring-2 focus:ring-primary/30"
                 />
-              )}
-            </div>
-          ))}
+              </div>
+            );
+          })}
 
-          {error && (
-            <p className="rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 text-sm text-destructive animate-in fade-in slide-in-from-top-1">
-              {error}
-            </p>
-          )}
-
-          <DialogFooter className="gap-2 pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={loading}
-            >
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? "Guardando..." : isEdit ? "Guardar cambios" : "Crear"}
-            </Button>
+            <SubmitButton label={initialValues ? "Guardar cambios" : "Crear"} />
           </DialogFooter>
         </form>
       </DialogContent>

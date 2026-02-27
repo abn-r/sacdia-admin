@@ -1,33 +1,41 @@
 import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AppToaster } from "@/components/shared/app-toaster";
-import { ThemeProvider } from "@/components/theme-provider";
+import { AppAlertListener } from "@/components/shared/app-alert-listener";
 import "./globals.css";
 
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
-  title: "SACDIA Admin Panel",
-  description: "Panel administrativo para SACDIA",
+  title: "SACDIA Panel Administrativo",
+  description: "Panel de administración de SACDIA",
+  icons: { icon: "/logo.ico" },
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="es" suppressHydrationWarning>
-      <body className="antialiased">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <TooltipProvider delayDuration={300}>
-            {children}
-          </TooltipProvider>
-          <AppToaster />
-        </ThemeProvider>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
+      >
+        <TooltipProvider delayDuration={300}>
+          {children}
+          <AppAlertListener />
+        </TooltipProvider>
+        <Toaster position="top-center" richColors closeButton />
       </body>
     </html>
   );

@@ -26,6 +26,7 @@ export type AdminUser = {
   paternal_last_name?: string | null;
   maternal_last_name?: string | null;
   full_name?: string | null;
+  user_image?: string | null;
   country_id?: number | null;
   union_id?: number | null;
   local_field_id?: number | null;
@@ -402,6 +403,7 @@ function normalizeAdminUser(item: Record<string, unknown>): AdminUser | null {
     paternal_last_name: pickString(item.paternal_last_name),
     maternal_last_name: pickString(item.maternal_last_name),
     full_name: fullName,
+    user_image: pickString(item.user_image) ?? pickString(item.avatar_url) ?? pickString(item.picture_url) ?? pickString(item.photo_url),
     country_id: country.id ?? pickNumber(item.country_id),
     union_id: union.id ?? pickNumber(item.union_id),
     local_field_id: localField.id ?? pickNumber(item.local_field_id),
