@@ -82,7 +82,7 @@ export async function clearSession() {
       await apiRequest<{ message: string }>("/auth/logout", {
         method: "POST",
         token: accessToken,
-        body: { refresh_token: refreshToken },
+        body: { refreshToken },
       });
     } catch {
       // If backend logout fails we still clear local cookies.

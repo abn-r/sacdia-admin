@@ -17,7 +17,7 @@ import { requireAdminUser } from "@/lib/auth/session";
 export type ColumnDef = {
   key: string;
   label: string;
-  format?: (value: unknown) => string;
+  format?: (value: unknown, item: Record<string, unknown>) => React.ReactNode;
 };
 
 interface ModuleListPageProps {
@@ -120,15 +120,19 @@ export async function ModuleListPage({
                 const key = String(item[idKey] ?? idx);
                 return (
                   <TableRow key={key}>
-                    {columns.map((col) => (
-                      <TableCell key={col.key} className="text-sm">
-                        {col.format
-                          ? col.format(item[col.key])
-                          : col.key.includes("date") || col.key.includes("_at")
-                            ? formatDate(item[col.key] as string)
-                            : String(item[col.key] ?? "—")}
-                      </TableCell>
-                    ))}
+                    {columns.map((col) => {
+                      const renderedValue = col.format
+                        ? col.format(item[col.key], item)
+                        : col.key.includes("date") || col.key.includes("_at")
+                          ? formatDate(item[col.key] as string)
+                          : String(item[col.key] ?? "—");
+
+                      return (
+                        <TableCell key={col.key} className="text-sm">
+                          {renderedValue}
+                        </TableCell>
+                      );
+                    })}
                     <TableCell>
                       <Badge
                         variant={item.active !== false ? "default" : "outline"}

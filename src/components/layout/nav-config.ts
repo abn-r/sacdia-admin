@@ -73,6 +73,7 @@ export const navConfig: NavGroup[] = [
           { title: "Años eclesiásticos", url: "/dashboard/catalogs/ecclesiastical-years", permission: "ecclesiastical_years:read" },
           { title: "Tipos de club", url: "/dashboard/catalogs/club-types", permission: "catalogs:read" },
           { title: "Ideales de club", url: "/dashboard/catalogs/club-ideals", permission: "catalogs:read" },
+          { title: "Categorías de especialidades", url: "/dashboard/catalogs/honor-categories", permission: "honor_categories:read" },
         ],
       },
       {
@@ -94,7 +95,7 @@ export const navConfig: NavGroup[] = [
       { title: "Clubes", url: "/dashboard/clubs", icon: Building2, permission: "clubs:read" },
       { title: "Camporees", url: "/dashboard/camporees", icon: Tent, permission: "camporees:read" },
       { title: "Clases", url: "/dashboard/classes", icon: GraduationCap, permission: "classes:read" },
-      { title: "Honores", url: "/dashboard/honors", icon: Award, permission: "honors:read" },
+      { title: "Especialidades", url: "/dashboard/honors", icon: Award, permission: "honors:read" },
       { title: "Actividades", url: "/dashboard/activities", icon: Calendar, permission: "activities:read" },
       { title: "Finanzas", url: "/dashboard/finances", icon: DollarSign, permission: "finances:read" },
       { title: "Inventario", url: "/dashboard/inventory", icon: Package, permission: "inventory:read" },

@@ -174,9 +174,9 @@ async function StatsSection() {
         icon={Tent}
       />
       <StatCard
-        title="Honores"
+        title="Especialidades"
         value={stats.totalHonors}
-        subtitle={stats.totalClasses !== null ? `${stats.totalClasses} clases registradas` : "Total de honores"}
+        subtitle={stats.totalClasses !== null ? `${stats.totalClasses} clases registradas` : "Total de especialidades"}
         icon={Award}
       />
     </div>
@@ -264,7 +264,7 @@ const quickLinks = [
   { title: "Usuarios", description: "Gestionar", href: "/dashboard/users", icon: Users },
   { title: "Clubes", description: "Gestionar", href: "/dashboard/clubs", icon: Building2 },
   { title: "Clases", description: "Gestionar", href: "/dashboard/classes", icon: GraduationCap },
-  { title: "Honores", description: "Gestionar", href: "/dashboard/honors", icon: Award },
+  { title: "Especialidades", description: "Gestionar", href: "/dashboard/honors", icon: Award },
 ];
 
 function StatsSkeleton() {

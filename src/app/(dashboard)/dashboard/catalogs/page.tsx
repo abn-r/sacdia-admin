@@ -11,8 +11,9 @@ import {
   CalendarDays,
   Tent,
   Star,
+  Layers,
 } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/shared/page-header";
 import { requireAdminUser } from "@/lib/auth/session";
 
@@ -38,6 +39,12 @@ const referenceCards: CatalogCard[] = [
   { title: "Años eclesiásticos", description: "Períodos anuales", href: "/dashboard/catalogs/ecclesiastical-years", icon: CalendarDays },
   { title: "Tipos de club", description: "Tipos de club disponibles", href: "/dashboard/catalogs/club-types", icon: Tent },
   { title: "Ideales de club", description: "Ideales por tipo de club", href: "/dashboard/catalogs/club-ideals", icon: Star },
+  {
+    title: "Categorías de especialidades",
+    description: "Categorías para el catálogo de especialidades",
+    href: "/dashboard/catalogs/honor-categories",
+    icon: Layers,
+  },
 ];
 
 function CatalogGrid({ title, cards }: { title: string; cards: CatalogCard[] }) {
