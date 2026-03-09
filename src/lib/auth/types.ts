@@ -1,5 +1,28 @@
 export type AdminRole = "super_admin" | "admin" | "coordinator";
 
+export type AuthorizationGrant = {
+  assignment_id?: string | null;
+  permissions?: string[];
+  [key: string]: unknown;
+};
+
+export type AuthorizationSnapshot = {
+  effective?: {
+    permissions?: string[];
+    [key: string]: unknown;
+  };
+  grants?: {
+    global_roles?: AuthorizationGrant[];
+    club_assignments?: AuthorizationGrant[];
+    [key: string]: unknown;
+  };
+  active_assignment?: {
+    assignment_id?: string | null;
+    [key: string]: unknown;
+  };
+  [key: string]: unknown;
+};
+
 export type AuthUser = {
   id: string;
   email: string;
@@ -15,6 +38,7 @@ export type AuthUser = {
   role?: string | null;
   roles?: string[];
   permissions?: string[];
+  authorization?: AuthorizationSnapshot;
   active?: boolean;
   [key: string]: unknown;
 };

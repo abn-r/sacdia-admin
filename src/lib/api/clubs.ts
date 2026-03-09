@@ -68,24 +68,31 @@ export type ClubInstanceMembersQuery = {
 };
 
 export type ClubInstanceMember = {
+  assignment_id?: string;
   user_id: string;
   name: string;
   picture_url?: string | null;
   role?: string | null;
   role_display_name?: string | null;
-  role_id?: number;
+  role_id?: string;
   start_date?: string;
   active?: boolean;
 };
 
-export type ClubInstanceMemberPayload = {
+export type ClubRoleAssignmentCreatePayload = {
   user_id: string;
-  role_id: number;
+  role_id: string;
   ecclesiastical_year_id: number;
+  start_date: string;
+  end_date?: string;
 };
 
-export type ClubInstanceMemberRolePayload = {
-  role_id: number;
+export type ClubRoleAssignmentUpdatePayload = {
+  role_id?: string;
+  ecclesiastical_year_id?: number;
+  start_date?: string;
+  end_date?: string;
+  status?: string;
 };
 
 export async function listClubs(query: ClubListQuery = {}) {
@@ -150,38 +157,30 @@ export async function listClubInstanceMembers(
   });
 }
 
-export async function addClubInstanceMember(
+export async function createClubRoleAssignment(
   clubId: number,
   instanceType: ClubInstanceType,
   instanceId: number,
-  payload: ClubInstanceMemberPayload,
+  payload: ClubRoleAssignmentCreatePayload,
 ) {
-  return apiRequest(`/clubs/${clubId}/instances/${instanceType}/${instanceId}/members`, {
+  return apiRequest(`/clubs/${clubId}/instances/${instanceType}/${instanceId}/roles`, {
     method: "POST",
     body: payload,
   });
 }
 
-export async function updateClubInstanceMemberRole(
-  clubId: number,
-  instanceType: ClubInstanceType,
-  instanceId: number,
-  userId: string,
-  payload: ClubInstanceMemberRolePayload,
+export async function updateClubRoleAssignment(
+  assignmentId: string,
+  payload: ClubRoleAssignmentUpdatePayload,
 ) {
-  return apiRequest(`/clubs/${clubId}/instances/${instanceType}/${instanceId}/members/${userId}/role`, {
+  return apiRequest(`/club-roles/${assignmentId}`, {
     method: "PATCH",
     body: payload,
   });
 }
 
-export async function removeClubInstanceMember(
-  clubId: number,
-  instanceType: ClubInstanceType,
-  instanceId: number,
-  userId: string,
-) {
-  return apiRequest(`/clubs/${clubId}/instances/${instanceType}/${instanceId}/members/${userId}`, {
+export async function revokeClubRoleAssignment(assignmentId: string) {
+  return apiRequest(`/club-roles/${assignmentId}`, {
     method: "DELETE",
   });
 }

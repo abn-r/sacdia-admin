@@ -14,7 +14,6 @@ import {
   HONOR_CATEGORIES_DELETE,
   HONOR_CATEGORIES_UPDATE,
 } from "@/lib/auth/permissions";
-import { extractRoles } from "@/lib/auth/roles";
 import { requireAdminUser } from "@/lib/auth/session";
 
 const HONOR_CATEGORIES_PATH = "/dashboard/catalogs/honor-categories";
@@ -83,11 +82,12 @@ export async function createHonorCategoryAction(
   formData: FormData,
 ): Promise<HonorCategoryActionState> {
   const user = await requireAdminUser();
-  const roleSet = new Set(extractRoles(user));
-  const canCreate = roleSet.has("super_admin") || hasAnyPermission(user, [HONOR_CATEGORIES_CREATE]);
+  const canCreate = hasAnyPermission(user, [HONOR_CATEGORIES_CREATE]);
 
   if (!canCreate) {
-    return { error: "No tienes permisos para crear categorías de especialidades." };
+    return {
+      error: "No tienes permisos para crear categorías de especialidades.",
+    };
   }
 
   try {
@@ -95,7 +95,10 @@ export async function createHonorCategoryAction(
     await createHonorCategory(payload);
   } catch (error) {
     return {
-      error: error instanceof Error ? error.message : "No se pudo crear la categoría",
+      error:
+        error instanceof Error
+          ? error.message
+          : "No se pudo crear la categoría",
     };
   }
 
@@ -108,11 +111,12 @@ export async function updateHonorCategoryAction(
   formData: FormData,
 ): Promise<HonorCategoryActionState> {
   const user = await requireAdminUser();
-  const roleSet = new Set(extractRoles(user));
-  const canUpdate = roleSet.has("super_admin") || hasAnyPermission(user, [HONOR_CATEGORIES_UPDATE]);
+  const canUpdate = hasAnyPermission(user, [HONOR_CATEGORIES_UPDATE]);
 
   if (!canUpdate) {
-    return { error: "No tienes permisos para editar categorías de especialidades." };
+    return {
+      error: "No tienes permisos para editar categorías de especialidades.",
+    };
   }
 
   const honorCategoryId = parsePositiveNumber(formData, "id");
@@ -125,7 +129,10 @@ export async function updateHonorCategoryAction(
     await updateHonorCategory(honorCategoryId, payload);
   } catch (error) {
     return {
-      error: error instanceof Error ? error.message : "No se pudo actualizar la categoría",
+      error:
+        error instanceof Error
+          ? error.message
+          : "No se pudo actualizar la categoría",
     };
   }
 
@@ -139,11 +146,12 @@ export async function deleteHonorCategoryAction(
   formData: FormData,
 ): Promise<HonorCategoryActionState> {
   const user = await requireAdminUser();
-  const roleSet = new Set(extractRoles(user));
-  const canDelete = roleSet.has("super_admin") || hasAnyPermission(user, [HONOR_CATEGORIES_DELETE]);
+  const canDelete = hasAnyPermission(user, [HONOR_CATEGORIES_DELETE]);
 
   if (!canDelete) {
-    return { error: "No tienes permisos para eliminar categorías de especialidades." };
+    return {
+      error: "No tienes permisos para eliminar categorías de especialidades.",
+    };
   }
 
   const honorCategoryId = parsePositiveNumber(formData, "id");
@@ -155,7 +163,10 @@ export async function deleteHonorCategoryAction(
     await deleteHonorCategory(honorCategoryId);
   } catch (error) {
     return {
-      error: error instanceof Error ? error.message : "No se pudo eliminar la categoría",
+      error:
+        error instanceof Error
+          ? error.message
+          : "No se pudo eliminar la categoría",
     };
   }
 

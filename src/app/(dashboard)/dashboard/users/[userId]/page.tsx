@@ -8,11 +8,13 @@ import { Separator } from "@/components/ui/separator";
 import { PageHeader } from "@/components/shared/page-header";
 import { UserApprovalActions } from "@/components/users/user-approval-actions";
 import { UserAvatar } from "@/components/users/user-avatar";
-import { getAdminUserDetail, type AdminUserDetail } from "@/lib/api/admin-users";
+import {
+  getAdminUserDetail,
+  type AdminUserDetail,
+} from "@/lib/api/admin-users";
 import { requireAdminUser } from "@/lib/auth/session";
 
 type Params = Promise<{ userId: string }>;
-
 
 function extractRoleNames(user: AdminUserDetail): string[] {
   const roles: string[] = [];
@@ -27,6 +29,21 @@ function extractRoleNames(user: AdminUserDetail): string[] {
 
 function extractPermissions(user: AdminUserDetail): string[] {
   const perms: string[] = [];
+
+  const authorization = (user as Record<string, unknown>).authorization;
+  const canonicalPermissions =
+    authorization &&
+    typeof authorization === "object" &&
+    !Array.isArray(authorization)
+      ? (authorization as { effective?: { permissions?: unknown } }).effective
+          ?.permissions
+      : undefined;
+  if (Array.isArray(canonicalPermissions) && canonicalPermissions.length > 0) {
+    return [
+      ...new Set(canonicalPermissions.map((permission) => String(permission))),
+    ].sort();
+  }
+
   if (Array.isArray((user as Record<string, unknown>).permissions)) {
     perms.push(...((user as Record<string, unknown>).permissions as string[]));
   }
@@ -34,7 +51,9 @@ function extractPermissions(user: AdminUserDetail): string[] {
     for (const ur of user.users_roles) {
       const role = ur.roles as Record<string, unknown> | null;
       if (role && Array.isArray(role.role_permissions)) {
-        for (const rp of role.role_permissions as Array<Record<string, unknown>>) {
+        for (const rp of role.role_permissions as Array<
+          Record<string, unknown>
+        >) {
           const perm = rp.permissions as Record<string, unknown> | undefined;
           if (perm?.permission_name) perms.push(String(perm.permission_name));
         }
@@ -71,7 +90,9 @@ function formatDate(dateStr?: string | null): string {
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-4">
-      <span className="min-w-[160px] text-sm font-medium text-muted-foreground">{label}</span>
+      <span className="min-w-[160px] text-sm font-medium text-muted-foreground">
+        {label}
+      </span>
       <span className="text-sm">{value ?? "—"}</span>
     </div>
   );
@@ -88,9 +109,12 @@ export default async function UserDetailPage({ params }: { params: Params }) {
     notFound();
   }
 
-  const fullName = [user.name, user.paternal_last_name, user.maternal_last_name]
-    .filter(Boolean)
-    .join(" ") || user.email || "Usuario";
+  const fullName =
+    [user.name, user.paternal_last_name, user.maternal_last_name]
+      .filter(Boolean)
+      .join(" ") ||
+    user.email ||
+    "Usuario";
   const roleNames = extractRoleNames(user);
 
   return (
@@ -120,11 +144,16 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                 {user.active !== false ? "Activo" : "Inactivo"}
               </Badge>
               {roleNames.map((role) => (
-                <Badge key={role} variant="secondary">{role}</Badge>
+                <Badge key={role} variant="secondary">
+                  {role}
+                </Badge>
               ))}
             </div>
             <div className="mt-2">
-              <UserApprovalActions userId={user.user_id} currentApproval={user.approval} />
+              <UserApprovalActions
+                userId={user.user_id}
+                currentApproval={user.approval}
+              />
             </div>
           </div>
         </CardContent>
@@ -140,7 +169,10 @@ export default async function UserDetailPage({ params }: { params: Params }) {
             <InfoRow label="Apellido paterno" value={user.paternal_last_name} />
             <InfoRow label="Apellido materno" value={user.maternal_last_name} />
             <InfoRow label="Email" value={user.email} />
-            <InfoRow label="Fecha de nacimiento" value={formatDate(user.birthday)} />
+            <InfoRow
+              label="Fecha de nacimiento"
+              value={formatDate(user.birthday)}
+            />
             <InfoRow label="Género" value={user.gender} />
             <InfoRow label="Tipo de sangre" value={user.blood} />
             <InfoRow
@@ -190,10 +222,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                 </Badge>
               }
             />
-            <InfoRow
-              label="Aprobación"
-              value={String(user.approval ?? "—")}
-            />
+            <InfoRow label="Aprobación" value={String(user.approval ?? "—")} />
           </CardContent>
         </Card>
 
@@ -205,22 +234,32 @@ export default async function UserDetailPage({ params }: { params: Params }) {
             <InfoRow
               label="Completado"
               value={
-                <Badge variant={user.post_registration?.complete ? "default" : "outline"}>
+                <Badge
+                  variant={
+                    user.post_registration?.complete ? "default" : "outline"
+                  }
+                >
                   {user.post_registration?.complete ? "Completo" : "Pendiente"}
                 </Badge>
               }
             />
             <InfoRow
               label="Foto de perfil"
-              value={user.post_registration?.profile_picture_complete ? "Sí" : "No"}
+              value={
+                user.post_registration?.profile_picture_complete ? "Sí" : "No"
+              }
             />
             <InfoRow
               label="Info personal"
-              value={user.post_registration?.personal_info_complete ? "Sí" : "No"}
+              value={
+                user.post_registration?.personal_info_complete ? "Sí" : "No"
+              }
             />
             <InfoRow
               label="Selección de club"
-              value={user.post_registration?.club_selection_complete ? "Sí" : "No"}
+              value={
+                user.post_registration?.club_selection_complete ? "Sí" : "No"
+              }
             />
           </CardContent>
         </Card>
@@ -233,11 +272,15 @@ export default async function UserDetailPage({ params }: { params: Params }) {
             {roleNames.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {roleNames.map((role) => (
-                  <Badge key={role} variant="secondary">{role}</Badge>
+                  <Badge key={role} variant="secondary">
+                    {role}
+                  </Badge>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">Sin roles globales asignados.</p>
+              <p className="text-sm text-muted-foreground">
+                Sin roles globales asignados.
+              </p>
             )}
           </CardContent>
         </Card>
@@ -251,12 +294,21 @@ export default async function UserDetailPage({ params }: { params: Params }) {
               <>
                 <InfoRow label="Tipo de scope" value={user.scope.type} />
                 <InfoRow label="Union ID (scope)" value={user.scope.union_id} />
-                <InfoRow label="Campo Local ID (scope)" value={user.scope.local_field_id} />
+                <InfoRow
+                  label="Campo Local ID (scope)"
+                  value={user.scope.local_field_id}
+                />
                 <Separator className="my-2" />
               </>
             )}
-            <InfoRow label="Fecha de registro" value={formatDate(user.created_at)} />
-            <InfoRow label="Última actualización" value={formatDate(user.updated_at ?? user.modified_at)} />
+            <InfoRow
+              label="Fecha de registro"
+              value={formatDate(user.created_at)}
+            />
+            <InfoRow
+              label="Última actualización"
+              value={formatDate(user.updated_at ?? user.modified_at)}
+            />
           </CardContent>
         </Card>
       </div>
@@ -269,12 +321,22 @@ export default async function UserDetailPage({ params }: { params: Params }) {
           {(() => {
             const perms = extractPermissions(user);
             if (perms.length === 0) {
-              return <p className="text-sm text-muted-foreground">Sin permisos asignados (o se resuelven desde roles).</p>;
+              return (
+                <p className="text-sm text-muted-foreground">
+                  Sin permisos asignados (o se resuelven desde roles).
+                </p>
+              );
             }
             return (
               <div className="flex flex-wrap gap-1">
                 {perms.map((p) => (
-                  <Badge key={p} variant="outline" className="text-xs font-mono">{p}</Badge>
+                  <Badge
+                    key={p}
+                    variant="outline"
+                    className="text-xs font-mono"
+                  >
+                    {p}
+                  </Badge>
                 ))}
               </div>
             );
@@ -282,41 +344,54 @@ export default async function UserDetailPage({ params }: { params: Params }) {
         </CardContent>
       </Card>
 
-      {user.club_assignments && (user.club_assignments as ClubAssignment[]).length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Roles de club</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="rounded-md border">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b bg-muted/50">
-                    <th className="px-4 py-2 text-left font-medium">Club</th>
-                    <th className="px-4 py-2 text-left font-medium">Instancia</th>
-                    <th className="px-4 py-2 text-left font-medium">Rol</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(user.club_assignments as ClubAssignment[]).map((ca, idx) => (
-                    <tr key={ca.club_role_assignment_id ?? idx} className="border-b last:border-b-0">
-                      <td className="px-4 py-2">{ca.club?.name ?? ca.club_name ?? "—"}</td>
-                      <td className="px-4 py-2">
-                        {ca.instance?.name ?? ca.instance?.instance_type ?? ca.instance_type ?? "—"}
-                      </td>
-                      <td className="px-4 py-2">
-                        <Badge variant="secondary" className="text-xs">
-                          {ca.role?.role_name ?? ca.role_name ?? "—"}
-                        </Badge>
-                      </td>
+      {user.club_assignments &&
+        (user.club_assignments as ClubAssignment[]).length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Roles de club</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="rounded-md border">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b bg-muted/50">
+                      <th className="px-4 py-2 text-left font-medium">Club</th>
+                      <th className="px-4 py-2 text-left font-medium">
+                        Instancia
+                      </th>
+                      <th className="px-4 py-2 text-left font-medium">Rol</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+                  </thead>
+                  <tbody>
+                    {(user.club_assignments as ClubAssignment[]).map(
+                      (ca, idx) => (
+                        <tr
+                          key={ca.club_role_assignment_id ?? idx}
+                          className="border-b last:border-b-0"
+                        >
+                          <td className="px-4 py-2">
+                            {ca.club?.name ?? ca.club_name ?? "—"}
+                          </td>
+                          <td className="px-4 py-2">
+                            {ca.instance?.name ??
+                              ca.instance?.instance_type ??
+                              ca.instance_type ??
+                              "—"}
+                          </td>
+                          <td className="px-4 py-2">
+                            <Badge variant="secondary" className="text-xs">
+                              {ca.role?.role_name ?? ca.role_name ?? "—"}
+                            </Badge>
+                          </td>
+                        </tr>
+                      ),
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        )}
     </div>
   );
 }

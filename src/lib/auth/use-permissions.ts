@@ -5,16 +5,13 @@ import { useAuth } from "@/lib/auth/auth-context";
 import { extractRoles, ALLOWED_ADMIN_ROLES } from "@/lib/auth/roles";
 import { extractPermissions } from "@/lib/auth/permission-utils";
 
+function normalizePermission(permission: string) {
+  return permission.trim().toLowerCase();
+}
+
 /**
  * Hook para verificar permisos del usuario autenticado.
- *
- * Los permisos vienen del backend (tabla permissions → role_permissions → roles).
- * super_admin tiene acceso total sin verificar permisos individuales.
- *
- * Uso:
- *   const { can, canAny, canAll } = usePermissions();
- *   if (can(USERS_CREATE)) { ... }
- *   if (canAny([USERS_CREATE, USERS_UPDATE])) { ... }
+ * Fuente oficial: authorization.effective.permissions (+ grants) resuelta por backend.
  */
 export function usePermissions() {
   const { user } = useAuth();
@@ -30,28 +27,25 @@ export function usePermissions() {
   // Verifica si el usuario tiene UN permiso específico
   const can = useCallback(
     (permission: string): boolean => {
-      if (isSuperAdmin) return true;
-      return permissionSet.has(permission);
+      return permissionSet.has(normalizePermission(permission));
     },
-    [isSuperAdmin, permissionSet],
+    [permissionSet],
   );
 
   // Verifica si tiene AL MENOS UNO de los permisos
   const canAny = useCallback(
     (permissions: string[]): boolean => {
-      if (isSuperAdmin) return true;
-      return permissions.some((p) => permissionSet.has(p));
+      return permissions.some((p) => permissionSet.has(normalizePermission(p)));
     },
-    [isSuperAdmin, permissionSet],
+    [permissionSet],
   );
 
   // Verifica si tiene TODOS los permisos
   const canAll = useCallback(
     (permissions: string[]): boolean => {
-      if (isSuperAdmin) return true;
-      return permissions.every((p) => permissionSet.has(p));
+      return permissions.every((p) => permissionSet.has(normalizePermission(p)));
     },
-    [isSuperAdmin, permissionSet],
+    [permissionSet],
   );
 
   // Verifica si tiene un rol administrativo válido

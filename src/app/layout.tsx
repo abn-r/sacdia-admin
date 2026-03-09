@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -33,7 +34,9 @@ export default function RootLayout({
       >
         <TooltipProvider delayDuration={300}>
           {children}
-          <AppAlertListener />
+          <Suspense fallback={null}>
+            <AppAlertListener />
+          </Suspense>
         </TooltipProvider>
         <Toaster position="top-center" richColors closeButton />
       </body>

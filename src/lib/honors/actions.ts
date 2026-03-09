@@ -4,9 +4,12 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createHonor, updateHonor, type HonorPayload } from "@/lib/api/honors";
 import { requireAdminUser } from "@/lib/auth/session";
-import { extractRoles } from "@/lib/auth/roles";
 import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import { HONORS_CREATE, HONORS_UPDATE } from "@/lib/auth/permissions";
+import {
+  HONORS_CREATE,
+  HONORS_DELETE,
+  HONORS_UPDATE,
+} from "@/lib/auth/permissions";
 
 export type HonorActionState = {
   error?: string;
@@ -105,8 +108,7 @@ export async function createHonorAction(
   formData: FormData,
 ): Promise<HonorActionState> {
   const user = await requireAdminUser();
-  const roleSet = new Set(extractRoles(user));
-  const canCreate = roleSet.has("super_admin") || hasAnyPermission(user, [HONORS_CREATE]);
+  const canCreate = hasAnyPermission(user, [HONORS_CREATE]);
   if (!canCreate) {
     return {
       error: "No tienes permisos para crear especialidades.",
@@ -118,7 +120,10 @@ export async function createHonorAction(
     await createHonor(payload);
   } catch (error) {
     return {
-      error: error instanceof Error ? error.message : "No se pudo crear la especialidad",
+      error:
+        error instanceof Error
+          ? error.message
+          : "No se pudo crear la especialidad",
     };
   }
 
@@ -132,8 +137,7 @@ export async function updateHonorAction(
   formData: FormData,
 ): Promise<HonorActionState> {
   const user = await requireAdminUser();
-  const roleSet = new Set(extractRoles(user));
-  const canUpdate = roleSet.has("super_admin") || hasAnyPermission(user, [HONORS_UPDATE]);
+  const canUpdate = hasAnyPermission(user, [HONORS_UPDATE]);
   if (!canUpdate) {
     return {
       error: "No tienes permisos para editar especialidades.",
@@ -145,7 +149,10 @@ export async function updateHonorAction(
     await updateHonor(honorId, payload);
   } catch (error) {
     return {
-      error: error instanceof Error ? error.message : "No se pudo actualizar la especialidad",
+      error:
+        error instanceof Error
+          ? error.message
+          : "No se pudo actualizar la especialidad",
     };
   }
 
@@ -159,11 +166,9 @@ export async function deactivateHonorAction(
   formData: FormData,
 ): Promise<HonorActionState> {
   const user = await requireAdminUser();
-  const roleSet = new Set(extractRoles(user));
-
-  if (!roleSet.has("super_admin")) {
+  if (!hasAnyPermission(user, [HONORS_DELETE])) {
     return {
-      error: "Solo super_admin puede eliminar especialidades.",
+      error: "No tienes permisos para eliminar especialidades.",
     };
   }
 
@@ -178,7 +183,10 @@ export async function deactivateHonorAction(
     await updateHonor(honorId, { active: false });
   } catch (error) {
     return {
-      error: error instanceof Error ? error.message : "No se pudo eliminar la especialidad",
+      error:
+        error instanceof Error
+          ? error.message
+          : "No se pudo eliminar la especialidad",
     };
   }
 

@@ -12,7 +12,6 @@ import {
   HONOR_CATEGORIES_READ,
   HONOR_CATEGORIES_UPDATE,
 } from "@/lib/auth/permissions";
-import { extractRoles } from "@/lib/auth/roles";
 import { requireAdminUser } from "@/lib/auth/session";
 import {
   createHonorCategoryAction,
@@ -67,7 +66,10 @@ function toRecord(value: unknown): GenericRecord | null {
   return value as GenericRecord;
 }
 
-function readParam(raw: Record<string, string | string[] | undefined>, key: string): string | undefined {
+function readParam(
+  raw: Record<string, string | string[] | undefined>,
+  key: string,
+): string | undefined {
   const value = raw[key];
   if (typeof value === "string") {
     return value;
@@ -78,7 +80,10 @@ function readParam(raw: Record<string, string | string[] | undefined>, key: stri
   return undefined;
 }
 
-function readPositiveNumberParam(raw: Record<string, string | string[] | undefined>, key: string): number | undefined {
+function readPositiveNumberParam(
+  raw: Record<string, string | string[] | undefined>,
+  key: string,
+): number | undefined {
   const value = readParam(raw, key);
   if (!value) return undefined;
 
@@ -90,12 +95,12 @@ function readPositiveNumberParam(raw: Record<string, string | string[] | undefin
   return parsed;
 }
 
-function parseSearchParams(raw: Record<string, string | string[] | undefined>): HonorCategoryListQuery {
+function parseSearchParams(
+  raw: Record<string, string | string[] | undefined>,
+): HonorCategoryListQuery {
   const activeRaw = readParam(raw, "active");
   const searchRaw =
-    readParam(raw, "search") ??
-    readParam(raw, "name") ??
-    readParam(raw, "q");
+    readParam(raw, "search") ?? readParam(raw, "name") ?? readParam(raw, "q");
   const page = readPositiveNumberParam(raw, "page") ?? 1;
   const limit = readPositiveNumberParam(raw, "limit") ?? 20;
 
@@ -135,9 +140,7 @@ function extractMeta(
 ): HonorCategoriesMeta {
   const root = toRecord(payload);
   const nestedData = toRecord(root?.data);
-  const metaRecord =
-    toRecord(nestedData?.meta) ??
-    toRecord(root?.meta);
+  const metaRecord = toRecord(nestedData?.meta) ?? toRecord(root?.meta);
 
   const page = toPositiveNumber(metaRecord?.page) ?? fallbackPage;
   const limit = toPositiveNumber(metaRecord?.limit) ?? fallbackLimit;
@@ -165,7 +168,10 @@ function normalizeSearchText(value: string): string {
     .toLowerCase();
 }
 
-function applyLocalFilters(items: GenericRecord[], query: HonorCategoryListQuery): GenericRecord[] {
+function applyLocalFilters(
+  items: GenericRecord[],
+  query: HonorCategoryListQuery,
+): GenericRecord[] {
   const search = typeof query.search === "string" ? query.search.trim() : "";
   const normalizedSearch = search ? normalizeSearchText(search) : "";
   const active = query.active;
@@ -176,7 +182,8 @@ function applyLocalFilters(items: GenericRecord[], query: HonorCategoryListQuery
 
   return items.filter((item) => {
     if (normalizedSearch) {
-      const name = toNonEmptyString(item.name) ?? toNonEmptyString(item.title) ?? "";
+      const name =
+        toNonEmptyString(item.name) ?? toNonEmptyString(item.title) ?? "";
       if (!normalizeSearchText(name).includes(normalizedSearch)) {
         return false;
       }
@@ -218,7 +225,10 @@ function paginateItems(
 }
 
 async function listAllHonorCategoriesForFiltering(): Promise<GenericRecord[]> {
-  const payload = await listHonorCategoriesAdmin({ page: 1, limit: HONOR_CATEGORIES_FILTER_FETCH_LIMIT });
+  const payload = await listHonorCategoriesAdmin({
+    page: 1,
+    limit: HONOR_CATEGORIES_FILTER_FETCH_LIMIT,
+  });
   return extractItems(payload);
 }
 
@@ -228,10 +238,7 @@ export default async function HonorCategoriesPage({
   searchParams: SearchParams;
 }) {
   const user = await requireAdminUser();
-  const roleSet = new Set(extractRoles(user));
-  const isSuperAdmin = roleSet.has("super_admin");
-
-  const canRead = isSuperAdmin || hasAnyPermission(user, [HONOR_CATEGORIES_READ]);
+  const canRead = hasAnyPermission(user, [HONOR_CATEGORIES_READ]);
 
   if (!canRead) {
     return (
@@ -256,21 +263,29 @@ export default async function HonorCategoriesPage({
 
   try {
     const hasAnyFilter = Boolean(
-      query.search ||
-      typeof query.active === "boolean",
+      query.search || typeof query.active === "boolean",
     );
 
     if (hasAnyFilter) {
       const fetchedItems = await listAllHonorCategoriesForFiltering();
       const filteredItems = applyLocalFilters(fetchedItems, query);
-      const paginated = paginateItems(filteredItems, query.page ?? 1, query.limit ?? 20);
+      const paginated = paginateItems(
+        filteredItems,
+        query.page ?? 1,
+        query.limit ?? 20,
+      );
 
       items = paginated.pagedItems;
       meta = paginated.meta;
     } else {
       const payload = await listHonorCategoriesAdmin(query);
       items = extractItems(payload);
-      meta = extractMeta(payload, query.page ?? 1, query.limit ?? 20, items.length);
+      meta = extractMeta(
+        payload,
+        query.page ?? 1,
+        query.limit ?? 20,
+        items.length,
+      );
     }
   } catch (error) {
     if (error instanceof ApiError && error.status === 429) {
@@ -282,19 +297,20 @@ export default async function HonorCategoriesPage({
         totalPages: 1,
       };
     } else {
-      loadError = error instanceof ApiError ? error.message : "No se pudieron cargar las categorías de especialidades.";
+      loadError =
+        error instanceof ApiError
+          ? error.message
+          : "No se pudieron cargar las categorías de especialidades.";
     }
   }
 
-  const canCreate = isSuperAdmin || hasAnyPermission(user, [HONOR_CATEGORIES_CREATE]);
-  const canEdit = isSuperAdmin || hasAnyPermission(user, [HONOR_CATEGORIES_UPDATE]);
-  const canDelete = isSuperAdmin || hasAnyPermission(user, [HONOR_CATEGORIES_DELETE]);
+  const canCreate = hasAnyPermission(user, [HONOR_CATEGORIES_CREATE]);
+  const canEdit = hasAnyPermission(user, [HONOR_CATEGORIES_UPDATE]);
+  const canDelete = hasAnyPermission(user, [HONOR_CATEGORIES_DELETE]);
 
   return (
     <div className="space-y-6">
-      {loadError && (
-        <EndpointErrorBanner state="missing" detail={loadError} />
-      )}
+      {loadError && <EndpointErrorBanner state="missing" detail={loadError} />}
 
       <HonorCategoriesCrudPage
         items={items}

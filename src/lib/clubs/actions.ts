@@ -4,15 +4,15 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getActionErrorMessage } from "@/lib/api/action-error";
 import {
-  addClubInstanceMember,
   createClub,
   createClubInstance,
+  createClubRoleAssignment,
   deleteClub,
   listClubInstances,
-  removeClubInstanceMember,
+  revokeClubRoleAssignment,
   updateClub,
   updateClubInstance,
-  updateClubInstanceMemberRole,
+  updateClubRoleAssignment,
   type ClubInstance,
   type ClubInstanceType,
 } from "@/lib/api/clubs";
@@ -669,32 +669,40 @@ export async function addClubInstanceMemberAction(
     return { error: "El ID del usuario es obligatorio" };
   }
 
-  let roleId = 0;
-  let ecclesiasticalYearId = 0;
-  try {
-    roleId = parseRequiredNumber(formData, "role_id", "Rol");
-    ecclesiasticalYearId = parseRequiredNumber(formData, "ecclesiastical_year_id", "Año eclesiastico");
-  } catch (error) {
-    return { error: error instanceof Error ? error.message : "Datos invalidos" };
+  const roleId = readString(formData, "role_id");
+  if (!roleId) {
+    return { error: "El rol es obligatorio" };
   }
 
+  let ecclesiasticalYearId = 0;
   try {
-    await addClubInstanceMember(clubId, instanceType, instanceId, {
+    ecclesiasticalYearId = parseRequiredNumber(formData, "ecclesiastical_year_id", "Año eclesiastico");
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Año eclesiástico invalido" };
+  }
+
+  const startDate = readString(formData, "start_date") || new Date().toISOString();
+  const endDate = readString(formData, "end_date") || undefined;
+
+  try {
+    await createClubRoleAssignment(clubId, instanceType, instanceId, {
       user_id: userId,
       role_id: roleId,
       ecclesiastical_year_id: ecclesiasticalYearId,
+      start_date: startDate,
+      ...(endDate ? { end_date: endDate } : {}),
     });
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo agregar el miembro", {
-        endpointLabel: `/clubs/${clubId}/instances/${instanceType}/${instanceId}/members`,
+      error: getActionErrorMessage(error, "No se pudo crear la asignación de rol", {
+        endpointLabel: `/clubs/${clubId}/instances/${instanceType}/${instanceId}/roles`,
       }),
     };
   }
 
   revalidatePath(`/dashboard/clubs/${clubId}`);
   revalidatePath(buildClubInstancePath(clubId, instanceType, instanceId));
-  return { success: "Miembro agregado correctamente" };
+  return { success: "Asignación creada correctamente" };
 }
 
 export async function updateClubInstanceMemberRoleAction(
@@ -709,6 +717,11 @@ export async function updateClubInstanceMemberRoleAction(
     return { error: "No se pudo identificar al miembro" };
   }
 
+  const assignmentId = readString(formData, "assignment_id");
+  if (!assignmentId) {
+    return { error: "No se pudo identificar la asignación a actualizar" };
+  }
+
   let instanceType: ClubInstanceType;
   try {
     instanceType = parseInstanceType(instanceTypeValue);
@@ -716,19 +729,31 @@ export async function updateClubInstanceMemberRoleAction(
     return { error: error instanceof Error ? error.message : "Tipo de instancia invalido" };
   }
 
-  let roleId = 0;
-  try {
-    roleId = parseRequiredNumber(formData, "role_id", "Rol");
-  } catch (error) {
-    return { error: error instanceof Error ? error.message : "Rol invalido" };
+  const roleId = readString(formData, "role_id");
+  if (!roleId) {
+    return { error: "El rol es obligatorio" };
   }
 
+  let ecclesiasticalYearId = 0;
   try {
-    await updateClubInstanceMemberRole(clubId, instanceType, instanceId, userId, { role_id: roleId });
+    ecclesiasticalYearId = parseRequiredNumber(formData, "ecclesiastical_year_id", "Año eclesiastico");
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Año eclesiástico invalido" };
+  }
+
+  const startDate = readString(formData, "start_date") || new Date().toISOString();
+
+  try {
+    await updateClubRoleAssignment(assignmentId, {
+      role_id: roleId,
+      ecclesiastical_year_id: ecclesiasticalYearId,
+      start_date: startDate,
+      status: "active",
+    });
   } catch (error) {
     return {
       error: getActionErrorMessage(error, "No se pudo actualizar el rol", {
-        endpointLabel: `/clubs/${clubId}/instances/${instanceType}/${instanceId}/members/${userId}/role`,
+        endpointLabel: `/club-roles/${assignmentId}`,
       }),
     };
   }
@@ -751,22 +776,22 @@ export async function removeClubInstanceMemberAction(
     return { error: error instanceof Error ? error.message : "Tipo de instancia invalido" };
   }
 
-  const userId = readString(formData, "user_id");
-  if (!userId) {
-    return { error: "No se pudo identificar el miembro a remover" };
+  const assignmentId = readString(formData, "assignment_id");
+  if (!assignmentId) {
+    return { error: "No se pudo identificar la asignación a remover" };
   }
 
   try {
-    await removeClubInstanceMember(clubId, instanceType, instanceId, userId);
+    await revokeClubRoleAssignment(assignmentId);
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo remover el miembro", {
-        endpointLabel: `/clubs/${clubId}/instances/${instanceType}/${instanceId}/members/${userId}`,
+      error: getActionErrorMessage(error, "No se pudo remover la asignación", {
+        endpointLabel: `/club-roles/${assignmentId}`,
       }),
     };
   }
 
   revalidatePath(`/dashboard/clubs/${clubId}`);
   revalidatePath(buildClubInstancePath(clubId, instanceType, instanceId));
-  return { success: "Miembro removido correctamente" };
+  return { success: "Asignación removida correctamente" };
 }

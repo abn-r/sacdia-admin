@@ -14,13 +14,28 @@ import type { AuthUser } from "@/lib/auth/types";
 
 type UnknownRecord = Record<string, unknown>;
 
+type RbacTelemetryEvent = "rbac_canonical_used" | "rbac_legacy_fallback_used";
+
+const emittedEvents = new Set<string>();
+export const RBAC_LEGACY_FALLBACK_ENABLED =
+  process.env.NEXT_PUBLIC_RBAC_LEGACY_FALLBACK === "true";
+
 export const CLUBS_READ_KEYS = [CLUBS_READ];
 export const CLUBS_CREATE_KEYS = [CLUBS_CREATE];
 export const CLUBS_UPDATE_KEYS = [CLUBS_UPDATE];
 
-export const CLUBS_INSTANCES_READ_KEYS = [CLUBS_INSTANCES_READ, CLUB_INSTANCES_READ];
-export const CLUBS_INSTANCES_CREATE_KEYS = [CLUBS_INSTANCES_CREATE, CLUB_INSTANCES_CREATE];
-export const CLUBS_INSTANCES_UPDATE_KEYS = [CLUBS_INSTANCES_UPDATE, CLUB_INSTANCES_UPDATE];
+export const CLUBS_INSTANCES_READ_KEYS = [
+  CLUBS_INSTANCES_READ,
+  CLUB_INSTANCES_READ,
+];
+export const CLUBS_INSTANCES_CREATE_KEYS = [
+  CLUBS_INSTANCES_CREATE,
+  CLUB_INSTANCES_CREATE,
+];
+export const CLUBS_INSTANCES_UPDATE_KEYS = [
+  CLUBS_INSTANCES_UPDATE,
+  CLUB_INSTANCES_UPDATE,
+];
 
 function isRecord(value: unknown): value is UnknownRecord {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -80,35 +95,70 @@ function collectFromRoleRecord(set: Set<string>, roleRecord: UnknownRecord) {
   addPermissionFromUnknown(set, roleRecord.role_permissions);
 }
 
-function unwrapUserPayload(user: AuthUser | null | undefined): UnknownRecord | null {
+function unwrapUserPayload(
+  user: AuthUser | null | undefined,
+): UnknownRecord | null {
   if (!user || !isRecord(user)) {
     return null;
   }
 
   const status = user.status;
   const nestedData = user.data;
-  if (
-    typeof status === "string" &&
-    isRecord(nestedData)
-  ) {
+  if (typeof status === "string" && isRecord(nestedData)) {
     return nestedData;
   }
 
   return user;
 }
 
-export function extractPermissions(user: AuthUser | null | undefined): string[] {
-  const root = unwrapUserPayload(user);
-  if (!root) {
+function emitRbacEvent(
+  event: RbacTelemetryEvent,
+  payload: Record<string, unknown>,
+) {
+  const key = `${event}:${JSON.stringify(payload)}`;
+  if (emittedEvents.has(key)) {
+    return;
+  }
+  emittedEvents.add(key);
+
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent(event, { detail: payload }));
+  }
+
+  // Simple telemetry sink until analytics provider is wired.
+  // eslint-disable-next-line no-console
+  console.info(`[rbac] ${event}`, payload);
+}
+
+function extractCanonicalPermissions(root: UnknownRecord): string[] {
+  const permissionSet = new Set<string>();
+
+  const authorization = isRecord(root.authorization)
+    ? root.authorization
+    : null;
+  if (!authorization) {
     return [];
   }
 
+  const effective = isRecord(authorization.effective)
+    ? authorization.effective
+    : null;
+  if (effective) {
+    addPermissionFromUnknown(permissionSet, effective.permissions);
+  }
+
+  return Array.from(permissionSet);
+}
+
+function extractLegacyPermissions(root: UnknownRecord): string[] {
   const permissionSet = new Set<string>();
 
   addPermissionFromUnknown(permissionSet, root.permissions);
 
   if (Array.isArray(root.role_permissions)) {
-    root.role_permissions.forEach((rolePermission) => addPermissionFromUnknown(permissionSet, rolePermission));
+    root.role_permissions.forEach((rolePermission) =>
+      addPermissionFromUnknown(permissionSet, rolePermission),
+    );
   }
 
   if (Array.isArray(root.users_roles)) {
@@ -137,6 +187,32 @@ export function extractPermissions(user: AuthUser | null | undefined): string[] 
   return Array.from(permissionSet);
 }
 
+export function extractPermissions(
+  user: AuthUser | null | undefined,
+): string[] {
+  const root = unwrapUserPayload(user);
+  if (!root) {
+    return [];
+  }
+
+  const canonicalPermissions = extractCanonicalPermissions(root);
+  if (canonicalPermissions.length > 0) {
+    emitRbacEvent("rbac_canonical_used", { source: "authorization" });
+    return canonicalPermissions;
+  }
+
+  if (!RBAC_LEGACY_FALLBACK_ENABLED) {
+    return [];
+  }
+
+  const legacyPermissions = extractLegacyPermissions(root);
+  if (legacyPermissions.length > 0) {
+    emitRbacEvent("rbac_legacy_fallback_used", { source: "legacy" });
+  }
+
+  return legacyPermissions;
+}
+
 export function hasPermission(
   user: AuthUser | null | undefined,
   permissionKey: string,
@@ -150,7 +226,9 @@ export function hasAnyPermission(
   permissionKeys: string[],
 ) {
   const permissions = new Set(extractPermissions(user));
-  return permissionKeys.some((permissionKey) => permissions.has(normalizePermission(permissionKey)));
+  return permissionKeys.some((permissionKey) =>
+    permissions.has(normalizePermission(permissionKey)),
+  );
 }
 
 export function hasAnyRole(
@@ -181,11 +259,21 @@ export function canByPermissionOrRole(
     return true;
   }
 
-  if (allowAdminFallback && hasAnyRole(user, ALLOWED_ADMIN_ROLES)) {
+  if (
+    allowAdminFallback &&
+    RBAC_LEGACY_FALLBACK_ENABLED &&
+    hasAnyRole(user, ALLOWED_ADMIN_ROLES)
+  ) {
+    emitRbacEvent("rbac_legacy_fallback_used", { source: "legacy_admin_role" });
     return true;
   }
 
-  if (allowClubRoleFallback && hasClubRole(user)) {
+  if (
+    allowClubRoleFallback &&
+    RBAC_LEGACY_FALLBACK_ENABLED &&
+    hasClubRole(user)
+  ) {
+    emitRbacEvent("rbac_legacy_fallback_used", { source: "legacy_club_role" });
     return true;
   }
 

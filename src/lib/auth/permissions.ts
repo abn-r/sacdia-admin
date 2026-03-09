@@ -108,6 +108,11 @@ export const INVENTORY_CREATE = "inventory:create";
 export const INVENTORY_UPDATE = "inventory:update";
 export const INVENTORY_DELETE = "inventory:delete";
 
+// --- Notificaciones ---
+export const NOTIFICATIONS_SEND = "notifications:send";
+export const NOTIFICATIONS_BROADCAST = "notifications:broadcast";
+export const NOTIFICATIONS_CLUB = "notifications:club";
+
 // --- Reportes y Dashboard ---
 export const REPORTS_VIEW = "reports:view";
 export const REPORTS_EXPORT = "reports:export";
@@ -246,6 +251,14 @@ export const PERMISSION_GROUPS = {
       { key: REPORTS_VIEW, label: "Ver reportes" },
       { key: REPORTS_EXPORT, label: "Exportar reportes" },
       { key: DASHBOARD_VIEW, label: "Ver dashboard" },
+    ],
+  },
+  notifications: {
+    label: "Notificaciones",
+    permissions: [
+      { key: NOTIFICATIONS_SEND, label: "Enviar directa" },
+      { key: NOTIFICATIONS_BROADCAST, label: "Enviar broadcast" },
+      { key: NOTIFICATIONS_CLUB, label: "Enviar por club" },
     ],
   },
   system: {
