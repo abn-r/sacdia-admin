@@ -8,6 +8,8 @@ import {
   CLUB_INSTANCES_CREATE,
   CLUB_INSTANCES_READ,
   CLUB_INSTANCES_UPDATE,
+  USERS_READ_DETAIL,
+  USERS_UPDATE,
 } from "@/lib/auth/permissions";
 import { ALLOWED_ADMIN_ROLES, extractRoles } from "@/lib/auth/roles";
 import type { AuthUser } from "@/lib/auth/types";
@@ -126,7 +128,6 @@ function emitRbacEvent(
   }
 
   // Simple telemetry sink until analytics provider is wired.
-  // eslint-disable-next-line no-console
   console.info(`[rbac] ${event}`, payload);
 }
 
@@ -229,6 +230,22 @@ export function hasAnyPermission(
   return permissionKeys.some((permissionKey) =>
     permissions.has(normalizePermission(permissionKey)),
   );
+}
+
+export function canReadSensitiveUserData(user: AuthUser | null | undefined) {
+  return hasPermission(user, USERS_READ_DETAIL);
+}
+
+export function canViewAdministrativeCompletion(
+  user: AuthUser | null | undefined,
+) {
+  return hasAnyPermission(user, [USERS_READ_DETAIL, USERS_UPDATE]);
+}
+
+export function canManageAdministrativeCompletion(
+  user: AuthUser | null | undefined,
+) {
+  return hasPermission(user, USERS_UPDATE);
 }
 
 export function hasAnyRole(

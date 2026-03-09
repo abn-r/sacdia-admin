@@ -12,6 +12,12 @@ import {
   getAdminUserDetail,
   type AdminUserDetail,
 } from "@/lib/api/admin-users";
+import { ApiError } from "@/lib/api/client";
+import {
+  canManageAdministrativeCompletion,
+  canReadSensitiveUserData,
+  canViewAdministrativeCompletion,
+} from "@/lib/auth/permission-utils";
 import { requireAdminUser } from "@/lib/auth/session";
 
 type Params = Promise<{ userId: string }>;
@@ -99,16 +105,34 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
 }
 
 export default async function UserDetailPage({ params }: { params: Params }) {
-  await requireAdminUser();
+  const currentUser = await requireAdminUser();
   const { userId } = await params;
 
   let user: AdminUserDetail;
   try {
     user = await getAdminUserDetail(userId);
-  } catch {
+  } catch (error) {
+    if (error instanceof ApiError && [401, 403].includes(error.status)) {
+      return (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Acceso restringido</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm text-muted-foreground">
+            Necesitas autorizacion global resuelta para consultar datos de terceros.
+          </CardContent>
+        </Card>
+      );
+    }
+
     notFound();
   }
 
+  const canSeeSensitiveData = canReadSensitiveUserData(currentUser);
+  const canSeeAdministrativeCompletion =
+    canViewAdministrativeCompletion(currentUser);
+  const canUpdateAdministrativeCompletion =
+    canManageAdministrativeCompletion(currentUser);
   const fullName =
     [user.name, user.paternal_last_name, user.maternal_last_name]
       .filter(Boolean)
@@ -150,10 +174,12 @@ export default async function UserDetailPage({ params }: { params: Params }) {
               ))}
             </div>
             <div className="mt-2">
-              <UserApprovalActions
-                userId={user.user_id}
-                currentApproval={user.approval}
-              />
+              {canUpdateAdministrativeCompletion ? (
+                <UserApprovalActions
+                  userId={user.user_id}
+                  currentApproval={user.approval}
+                />
+              ) : null}
             </div>
           </div>
         </CardContent>
@@ -169,22 +195,31 @@ export default async function UserDetailPage({ params }: { params: Params }) {
             <InfoRow label="Apellido paterno" value={user.paternal_last_name} />
             <InfoRow label="Apellido materno" value={user.maternal_last_name} />
             <InfoRow label="Email" value={user.email} />
-            <InfoRow
-              label="Fecha de nacimiento"
-              value={formatDate(user.birthday)}
-            />
-            <InfoRow label="Género" value={user.gender} />
-            <InfoRow label="Tipo de sangre" value={user.blood} />
-            <InfoRow
-              label="Bautismo"
-              value={
-                user.baptism !== null && user.baptism !== undefined
-                  ? user.baptism
-                    ? `Sí${user.baptism_date ? ` (${formatDate(user.baptism_date)})` : ""}`
-                    : "No"
-                  : "—"
-              }
-            />
+            {canSeeSensitiveData ? (
+              <>
+                <InfoRow
+                  label="Fecha de nacimiento"
+                  value={formatDate(user.birthday)}
+                />
+                <InfoRow label="Género" value={user.gender} />
+                <InfoRow label="Tipo de sangre" value={user.blood} />
+                <InfoRow
+                  label="Bautismo"
+                  value={
+                    user.baptism !== null && user.baptism !== undefined
+                      ? user.baptism
+                        ? `Sí${user.baptism_date ? ` (${formatDate(user.baptism_date)})` : ""}`
+                        : "No"
+                      : "—"
+                  }
+                />
+              </>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Los datos sensibles enviados por el usuario solo se muestran con
+                autorizacion global de lectura resuelta.
+              </p>
+            )}
           </CardContent>
         </Card>
 
@@ -226,43 +261,45 @@ export default async function UserDetailPage({ params }: { params: Params }) {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Post-registro</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <InfoRow
-              label="Completado"
-              value={
-                <Badge
-                  variant={
-                    user.post_registration?.complete ? "default" : "outline"
-                  }
-                >
-                  {user.post_registration?.complete ? "Completo" : "Pendiente"}
-                </Badge>
-              }
-            />
-            <InfoRow
-              label="Foto de perfil"
-              value={
-                user.post_registration?.profile_picture_complete ? "Sí" : "No"
-              }
-            />
-            <InfoRow
-              label="Info personal"
-              value={
-                user.post_registration?.personal_info_complete ? "Sí" : "No"
-              }
-            />
-            <InfoRow
-              label="Selección de club"
-              value={
-                user.post_registration?.club_selection_complete ? "Sí" : "No"
-              }
-            />
-          </CardContent>
-        </Card>
+        {canSeeAdministrativeCompletion ? (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Post-registro</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <InfoRow
+                label="Completado"
+                value={
+                  <Badge
+                    variant={
+                      user.post_registration?.complete ? "default" : "outline"
+                    }
+                  >
+                    {user.post_registration?.complete ? "Completo" : "Pendiente"}
+                  </Badge>
+                }
+              />
+              <InfoRow
+                label="Foto de perfil"
+                value={
+                  user.post_registration?.profile_picture_complete ? "Sí" : "No"
+                }
+              />
+              <InfoRow
+                label="Info personal"
+                value={
+                  user.post_registration?.personal_info_complete ? "Sí" : "No"
+                }
+              />
+              <InfoRow
+                label="Selección de club"
+                value={
+                  user.post_registration?.club_selection_complete ? "Sí" : "No"
+                }
+              />
+            </CardContent>
+          </Card>
+        ) : null}
 
         <Card>
           <CardHeader>
