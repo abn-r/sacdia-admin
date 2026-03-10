@@ -11,11 +11,6 @@ import {
 } from "@/components/ui/table";
 import type { AdminUser } from "@/lib/api/admin-users";
 
-function getInitials(name?: string | null, email?: string | null): string {
-  if (name) return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
-  return (email?.[0] ?? "?").toUpperCase();
-}
-
 function extractRoleNames(user: AdminUser): string[] {
   const roles: string[] = [];
   if (user.roles) roles.push(...user.roles);
@@ -51,9 +46,13 @@ function formatDate(dateStr?: string | null): string {
 
 interface UsersTableProps {
   users: AdminUser[];
+  showAdministrativeCompletion?: boolean;
 }
 
-export function UsersTable({ users }: UsersTableProps) {
+export function UsersTable({
+  users,
+  showAdministrativeCompletion = false,
+}: UsersTableProps) {
   return (
     <div className="rounded-md border">
       <Table>
@@ -64,7 +63,9 @@ export function UsersTable({ users }: UsersTableProps) {
             <TableHead className="hidden lg:table-cell">Ubicación</TableHead>
             <TableHead>Estado</TableHead>
             <TableHead className="hidden sm:table-cell">Accesos</TableHead>
-            <TableHead className="hidden lg:table-cell">Post-registro</TableHead>
+            {showAdministrativeCompletion ? (
+              <TableHead className="hidden lg:table-cell">Post-registro</TableHead>
+            ) : null}
             <TableHead className="hidden md:table-cell">Fecha de alta</TableHead>
           </TableRow>
         </TableHeader>
@@ -138,14 +139,16 @@ export function UsersTable({ users }: UsersTableProps) {
                     </Badge>
                   </div>
                 </TableCell>
-                <TableCell className="hidden lg:table-cell">
-                  <Badge
-                    variant={user.post_registration?.complete ? "default" : "outline"}
-                    className="text-xs"
-                  >
-                    {user.post_registration?.complete ? "Completo" : "Pendiente"}
-                  </Badge>
-                </TableCell>
+                {showAdministrativeCompletion ? (
+                  <TableCell className="hidden lg:table-cell">
+                    <Badge
+                      variant={user.post_registration?.complete ? "default" : "outline"}
+                      className="text-xs"
+                    >
+                      {user.post_registration?.complete ? "Completo" : "Pendiente"}
+                    </Badge>
+                  </TableCell>
+                ) : null}
                 <TableCell className="hidden text-xs text-muted-foreground md:table-cell">
                   {formatDate(user.created_at)}
                 </TableCell>

@@ -9,6 +9,8 @@ import { UsersFilters } from "@/components/users/users-filters";
 import { UsersTable } from "@/components/users/users-table";
 import { listAdminUsers, type AdminUsersQuery } from "@/lib/api/admin-users";
 import { requireAdminUser } from "@/lib/auth/session";
+import { canViewAdministrativeCompletion } from "@/lib/auth/permission-utils";
+import type { AuthUser } from "@/lib/auth/types";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -33,8 +35,15 @@ function parseSearchParams(raw: Record<string, string | string[] | undefined>): 
   };
 }
 
-async function UsersContent({ query }: { query: AdminUsersQuery }) {
+async function UsersContent({
+  query,
+  currentUser,
+}: {
+  query: AdminUsersQuery;
+  currentUser: AuthUser;
+}) {
   const result = await listAdminUsers(query);
+  const showAdministrativeCompletion = canViewAdministrativeCompletion(currentUser);
 
   if (!result.endpointAvailable) {
     return (
@@ -67,7 +76,10 @@ async function UsersContent({ query }: { query: AdminUsersQuery }) {
 
   return (
     <div className="space-y-4">
-      <UsersTable users={result.items} />
+      <UsersTable
+        users={result.items}
+        showAdministrativeCompletion={showAdministrativeCompletion}
+      />
       {meta && (
         <DataTablePagination
           page={meta.page}
@@ -110,7 +122,7 @@ export default async function UsersPage({
 }: {
   searchParams: SearchParams;
 }) {
-  await requireAdminUser();
+  const currentUser = await requireAdminUser();
   const rawParams = await searchParams;
   const query = parseSearchParams(rawParams);
 
@@ -123,7 +135,7 @@ export default async function UsersPage({
 
       <Suspense fallback={<UsersListSkeleton />}>
         <UsersFilters />
-        <UsersContent query={query} />
+        <UsersContent query={query} currentUser={currentUser} />
       </Suspense>
     </div>
   );

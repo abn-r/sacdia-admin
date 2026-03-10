@@ -20,6 +20,14 @@ export const USERS_CREATE = "users:create";
 export const USERS_UPDATE = "users:update";
 export const USERS_DELETE = "users:delete";
 export const USERS_EXPORT = "users:export";
+export const HEALTH_READ = "health:read";
+export const HEALTH_UPDATE = "health:update";
+export const EMERGENCY_CONTACTS_READ = "emergency_contacts:read";
+export const EMERGENCY_CONTACTS_UPDATE = "emergency_contacts:update";
+export const LEGAL_REPRESENTATIVE_READ = "legal_representative:read";
+export const LEGAL_REPRESENTATIVE_UPDATE = "legal_representative:update";
+export const POST_REGISTRATION_READ = "post_registration:read";
+export const POST_REGISTRATION_UPDATE = "post_registration:update";
 
 // --- Roles y Permisos ---
 export const ROLES_READ = "roles:read";

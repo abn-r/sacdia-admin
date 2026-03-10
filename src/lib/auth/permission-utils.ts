@@ -8,6 +8,16 @@ import {
   CLUB_INSTANCES_CREATE,
   CLUB_INSTANCES_READ,
   CLUB_INSTANCES_UPDATE,
+  EMERGENCY_CONTACTS_READ,
+  EMERGENCY_CONTACTS_UPDATE,
+  HEALTH_READ,
+  HEALTH_UPDATE,
+  LEGAL_REPRESENTATIVE_READ,
+  LEGAL_REPRESENTATIVE_UPDATE,
+  POST_REGISTRATION_READ,
+  POST_REGISTRATION_UPDATE,
+  USERS_READ_DETAIL,
+  USERS_UPDATE,
 } from "@/lib/auth/permissions";
 import { ALLOWED_ADMIN_ROLES, extractRoles } from "@/lib/auth/roles";
 import type { AuthUser } from "@/lib/auth/types";
@@ -36,6 +46,26 @@ export const CLUBS_INSTANCES_UPDATE_KEYS = [
   CLUBS_INSTANCES_UPDATE,
   CLUB_INSTANCES_UPDATE,
 ];
+
+export type SensitiveUserFamily =
+  | "health"
+  | "emergency_contacts"
+  | "legal_representative"
+  | "post_registration";
+
+const SENSITIVE_USER_READ_KEYS: Record<SensitiveUserFamily, string[]> = {
+  health: [HEALTH_READ, USERS_READ_DETAIL],
+  emergency_contacts: [EMERGENCY_CONTACTS_READ, USERS_READ_DETAIL],
+  legal_representative: [LEGAL_REPRESENTATIVE_READ, USERS_READ_DETAIL],
+  post_registration: [POST_REGISTRATION_READ, USERS_READ_DETAIL],
+};
+
+const SENSITIVE_USER_UPDATE_KEYS: Record<SensitiveUserFamily, string[]> = {
+  health: [HEALTH_UPDATE, USERS_UPDATE],
+  emergency_contacts: [EMERGENCY_CONTACTS_UPDATE, USERS_UPDATE],
+  legal_representative: [LEGAL_REPRESENTATIVE_UPDATE, USERS_UPDATE],
+  post_registration: [POST_REGISTRATION_UPDATE, USERS_UPDATE],
+};
 
 function isRecord(value: unknown): value is UnknownRecord {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -126,7 +156,6 @@ function emitRbacEvent(
   }
 
   // Simple telemetry sink until analytics provider is wired.
-  // eslint-disable-next-line no-console
   console.info(`[rbac] ${event}`, payload);
 }
 
@@ -229,6 +258,42 @@ export function hasAnyPermission(
   return permissionKeys.some((permissionKey) =>
     permissions.has(normalizePermission(permissionKey)),
   );
+}
+
+export function canReadSensitiveUserData(user: AuthUser | null | undefined) {
+  return ["health", "emergency_contacts", "legal_representative"]
+    .some((family) =>
+      canReadSensitiveUserFamily(user, family as SensitiveUserFamily),
+    );
+}
+
+export function canReadSensitiveUserFamily(
+  user: AuthUser | null | undefined,
+  family: SensitiveUserFamily,
+) {
+  return hasAnyPermission(user, SENSITIVE_USER_READ_KEYS[family]);
+}
+
+export function canUpdateSensitiveUserFamily(
+  user: AuthUser | null | undefined,
+  family: SensitiveUserFamily,
+) {
+  return hasAnyPermission(user, SENSITIVE_USER_UPDATE_KEYS[family]);
+}
+
+export function canViewAdministrativeCompletion(
+  user: AuthUser | null | undefined,
+) {
+  return hasAnyPermission(user, [
+    ...SENSITIVE_USER_READ_KEYS.post_registration,
+    ...SENSITIVE_USER_UPDATE_KEYS.post_registration,
+  ]);
+}
+
+export function canManageAdministrativeCompletion(
+  user: AuthUser | null | undefined,
+) {
+  return canUpdateSensitiveUserFamily(user, "post_registration");
 }
 
 export function hasAnyRole(

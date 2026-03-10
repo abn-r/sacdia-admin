@@ -75,7 +75,13 @@ export type AdminUserDetail = AdminUser & {
   modified_at?: string | null;
   classes?: unknown[];
   club_assignments?: unknown[];
-  emergency_contacts?: unknown[];
+  health?: {
+    blood?: string | null;
+    allergies?: unknown[];
+    diseases?: unknown[];
+    medicines?: unknown[];
+  } | null;
+  emergency_contacts?: unknown[] | null;
   legal_representative?: Record<string, unknown> | null;
   scope?: ScopeMeta | null;
 };
@@ -337,6 +343,20 @@ function normalizePostRegistration(value: unknown): AdminUser["post_registration
   };
 }
 
+function normalizeHealthBlock(value: unknown): AdminUserDetail["health"] {
+  const record = asRecord(value);
+  if (!record) {
+    return null;
+  }
+
+  return {
+    blood: pickString(record.blood),
+    allergies: Array.isArray(record.allergies) ? record.allergies : [],
+    diseases: Array.isArray(record.diseases) ? record.diseases : [],
+    medicines: Array.isArray(record.medicines) ? record.medicines : [],
+  };
+}
+
 function normalizeActive(item: Record<string, unknown>) {
   if (typeof item.active === "boolean") {
     return item.active;
@@ -534,7 +554,14 @@ function normalizeDetailPayload(payload: unknown): AdminUserDetail | null {
     modified_at: pickString(record.modified_at),
     classes: Array.isArray(record.classes) ? record.classes : [],
     club_assignments: Array.isArray(record.club_assignments) ? record.club_assignments : [],
-    emergency_contacts: Array.isArray(record.emergency_contacts) ? record.emergency_contacts : [],
+    health:
+      record.health === null ? null : normalizeHealthBlock(record.health),
+    emergency_contacts:
+      record.emergency_contacts === null
+        ? null
+        : Array.isArray(record.emergency_contacts)
+          ? record.emergency_contacts
+          : undefined,
     legal_representative: asRecord(record.legal_representative),
     scope: normalizeScope(record.scope),
   };
