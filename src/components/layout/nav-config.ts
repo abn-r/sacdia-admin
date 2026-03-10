@@ -69,6 +69,7 @@ export const navConfig: NavGroup[] = [
           { title: "Iglesias", url: "/dashboard/catalogs/geography/churches", permission: "churches:read" },
           { title: "Alergias", url: "/dashboard/catalogs/allergies", permission: "catalogs:read" },
           { title: "Enfermedades", url: "/dashboard/catalogs/diseases", permission: "catalogs:read" },
+          { title: "Medicamentos", url: "/dashboard/catalogs/medicines", permission: "catalogs:read" },
           { title: "Tipos de relación", url: "/dashboard/catalogs/relationship-types", permission: "catalogs:read" },
           { title: "Años eclesiásticos", url: "/dashboard/catalogs/ecclesiastical-years", permission: "ecclesiastical_years:read" },
           { title: "Tipos de club", url: "/dashboard/catalogs/club-types", permission: "catalogs:read" },

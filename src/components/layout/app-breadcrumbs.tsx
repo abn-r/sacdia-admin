@@ -24,6 +24,7 @@ const labelMap: Record<string, string> = {
   churches: "Iglesias",
   allergies: "Alergias",
   diseases: "Enfermedades",
+  medicines: "Medicamentos",
   "relationship-types": "Tipos de relación",
   "ecclesiastical-years": "Años eclesiásticos",
   "club-types": "Tipos de club",
