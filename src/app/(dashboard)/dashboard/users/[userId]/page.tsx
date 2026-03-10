@@ -15,7 +15,7 @@ import {
 import { ApiError } from "@/lib/api/client";
 import {
   canManageAdministrativeCompletion,
-  canReadSensitiveUserData,
+  canReadSensitiveUserFamily,
   canViewAdministrativeCompletion,
 } from "@/lib/auth/permission-utils";
 import { requireAdminUser } from "@/lib/auth/session";
@@ -80,6 +80,18 @@ type ClubAssignment = {
   [key: string]: unknown;
 };
 
+type HealthItem = {
+  name?: string | null;
+};
+
+type LegalRepresentative = {
+  name?: string | null;
+  paternal_last_name?: string | null;
+  maternal_last_name?: string | null;
+  phone?: string | null;
+  relationship_type_id?: number | null;
+};
+
 function formatDate(dateStr?: string | null): string {
   if (!dateStr) return "—";
   try {
@@ -102,6 +114,39 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
       <span className="text-sm">{value ?? "—"}</span>
     </div>
   );
+}
+
+function formatNames(items: unknown[] | undefined) {
+  if (!Array.isArray(items) || items.length === 0) {
+    return "—";
+  }
+
+  const names = items
+    .map((item) => (item as HealthItem | null)?.name?.trim())
+    .filter((value): value is string => Boolean(value));
+
+  return names.length > 0 ? names.join(", ") : "—";
+}
+
+function formatLegalRepresentative(value: Record<string, unknown> | null | undefined) {
+  if (!value) {
+    return null;
+  }
+
+  const representative = value as LegalRepresentative;
+  const fullName = [
+    representative.name,
+    representative.paternal_last_name,
+    representative.maternal_last_name,
+  ]
+    .filter((part): part is string => typeof part === "string" && part.trim().length > 0)
+    .join(" ");
+
+  return {
+    fullName: fullName || "—",
+    phone: representative.phone ?? "—",
+    relationshipTypeId: representative.relationship_type_id ?? "—",
+  };
 }
 
 export default async function UserDetailPage({ params }: { params: Params }) {
@@ -128,7 +173,19 @@ export default async function UserDetailPage({ params }: { params: Params }) {
     notFound();
   }
 
-  const canSeeSensitiveData = canReadSensitiveUserData(currentUser);
+  const canSeeHealthData = canReadSensitiveUserFamily(currentUser, "health");
+  const canSeeEmergencyContacts = canReadSensitiveUserFamily(
+    currentUser,
+    "emergency_contacts",
+  );
+  const canSeeLegalRepresentative = canReadSensitiveUserFamily(
+    currentUser,
+    "legal_representative",
+  );
+  const canSeePostRegistrationDetail = canReadSensitiveUserFamily(
+    currentUser,
+    "post_registration",
+  );
   const canSeeAdministrativeCompletion =
     canViewAdministrativeCompletion(currentUser);
   const canUpdateAdministrativeCompletion =
@@ -140,6 +197,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
     user.email ||
     "Usuario";
   const roleNames = extractRoleNames(user);
+  const legalRepresentative = formatLegalRepresentative(user.legal_representative);
 
   return (
     <div className="space-y-6">
@@ -195,31 +253,21 @@ export default async function UserDetailPage({ params }: { params: Params }) {
             <InfoRow label="Apellido paterno" value={user.paternal_last_name} />
             <InfoRow label="Apellido materno" value={user.maternal_last_name} />
             <InfoRow label="Email" value={user.email} />
-            {canSeeSensitiveData ? (
-              <>
-                <InfoRow
-                  label="Fecha de nacimiento"
-                  value={formatDate(user.birthday)}
-                />
-                <InfoRow label="Género" value={user.gender} />
-                <InfoRow label="Tipo de sangre" value={user.blood} />
-                <InfoRow
-                  label="Bautismo"
-                  value={
-                    user.baptism !== null && user.baptism !== undefined
-                      ? user.baptism
-                        ? `Sí${user.baptism_date ? ` (${formatDate(user.baptism_date)})` : ""}`
-                        : "No"
-                      : "—"
-                  }
-                />
-              </>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                Los datos sensibles enviados por el usuario solo se muestran con
-                autorizacion global de lectura resuelta.
-              </p>
-            )}
+            <InfoRow
+              label="Fecha de nacimiento"
+              value={formatDate(user.birthday)}
+            />
+            <InfoRow label="Género" value={user.gender} />
+            <InfoRow
+              label="Bautismo"
+              value={
+                user.baptism !== null && user.baptism !== undefined
+                  ? user.baptism
+                    ? `Sí${user.baptism_date ? ` (${formatDate(user.baptism_date)})` : ""}`
+                    : "No"
+                  : "—"
+              }
+            />
           </CardContent>
         </Card>
 
@@ -261,42 +309,134 @@ export default async function UserDetailPage({ params }: { params: Params }) {
           </CardContent>
         </Card>
 
+        {canSeeHealthData ? (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Salud</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {user.health ? (
+                <>
+                  <InfoRow label="Tipo de sangre" value={user.health.blood} />
+                  <InfoRow
+                    label="Alergias"
+                    value={formatNames(user.health.allergies)}
+                  />
+                  <InfoRow
+                    label="Enfermedades"
+                    value={formatNames(user.health.diseases)}
+                  />
+                  <InfoRow
+                    label="Medicamentos"
+                    value={formatNames(user.health.medicines)}
+                  />
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Este payload no incluyó el bloque sensible de salud.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        ) : null}
+
+        {canSeeEmergencyContacts ? (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Contactos de emergencia</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {user.emergency_contacts ? (
+                user.emergency_contacts.length > 0 ? (
+                  user.emergency_contacts.map((contact, index) => (
+                    <div key={index} className="rounded-md border p-3 text-sm">
+                      <pre className="whitespace-pre-wrap font-sans text-sm">
+                        {JSON.stringify(contact, null, 2)}
+                      </pre>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    Sin contactos de emergencia registrados.
+                  </p>
+                )
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Este payload no incluyó el bloque de contactos de emergencia.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        ) : null}
+
+        {canSeeLegalRepresentative ? (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Representante legal</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {legalRepresentative ? (
+                <>
+                  <InfoRow label="Nombre" value={legalRepresentative.fullName} />
+                  <InfoRow label="Teléfono" value={legalRepresentative.phone} />
+                  <InfoRow
+                    label="Tipo de relación"
+                    value={legalRepresentative.relationshipTypeId}
+                  />
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Este payload no incluyó el bloque de representante legal.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        ) : null}
+
         {canSeeAdministrativeCompletion ? (
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Post-registro</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <InfoRow
-                label="Completado"
-                value={
-                  <Badge
-                    variant={
-                      user.post_registration?.complete ? "default" : "outline"
+              {canSeePostRegistrationDetail && user.post_registration ? (
+                <>
+                  <InfoRow
+                    label="Completado"
+                    value={
+                      <Badge
+                        variant={
+                          user.post_registration.complete ? "default" : "outline"
+                        }
+                      >
+                        {user.post_registration.complete ? "Completo" : "Pendiente"}
+                      </Badge>
                     }
-                  >
-                    {user.post_registration?.complete ? "Completo" : "Pendiente"}
-                  </Badge>
-                }
-              />
-              <InfoRow
-                label="Foto de perfil"
-                value={
-                  user.post_registration?.profile_picture_complete ? "Sí" : "No"
-                }
-              />
-              <InfoRow
-                label="Info personal"
-                value={
-                  user.post_registration?.personal_info_complete ? "Sí" : "No"
-                }
-              />
-              <InfoRow
-                label="Selección de club"
-                value={
-                  user.post_registration?.club_selection_complete ? "Sí" : "No"
-                }
-              />
+                  />
+                  <InfoRow
+                    label="Foto de perfil"
+                    value={
+                      user.post_registration.profile_picture_complete ? "Sí" : "No"
+                    }
+                  />
+                  <InfoRow
+                    label="Info personal"
+                    value={
+                      user.post_registration.personal_info_complete ? "Sí" : "No"
+                    }
+                  />
+                  <InfoRow
+                    label="Selección de club"
+                    value={
+                      user.post_registration.club_selection_complete ? "Sí" : "No"
+                    }
+                  />
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Tu acceso actual solo permite completion administrativa mínima.
+                </p>
+              )}
             </CardContent>
           </Card>
         ) : null}
