@@ -38,7 +38,7 @@ cp .env.local.example .env.local
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to view the admin panel.
+Open [http://localhost:3001](http://localhost:3001) to view the admin panel.
 
 ## Project Structure
 
@@ -61,7 +61,7 @@ See `.env.local.example` for required environment variables:
 
 - `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase project URL
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Your Supabase anonymous key
-- `NEXT_PUBLIC_API_URL`: Backend API URL (default: http://localhost:3001/api)
+- `NEXT_PUBLIC_API_URL`: Backend API URL (default: http://localhost:3000/api/v1)
 
 ## Related Repositories
 
