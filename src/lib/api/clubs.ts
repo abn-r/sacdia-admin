@@ -40,20 +40,21 @@ export type ClubPayload = {
   active?: boolean;
 };
 
-export type ClubInstance = {
-  instance_id: number;
-  instance_type: "adventurers" | "pathfinders" | "master_guilds";
+export type ClubSection = {
+  club_section_id: number;
   club_type_id: number;
+  club_type?: { name?: string; slug?: string } | null;
   name: string;
   active: boolean;
+  souls_target?: number;
+  fee?: number;
+  meeting_day?: Array<{ day: string }>;
+  meeting_time?: Array<{ time: string }>;
   members_count?: number;
 };
 
-export type ClubInstanceType = ClubInstance["instance_type"];
-
-export type ClubInstancePayload = {
-  type: ClubInstanceType;
-  club_type_id?: number;
+export type ClubSectionPayload = {
+  club_type_id: number;
   name?: string;
   souls_target?: number;
   fee?: number;
@@ -62,12 +63,12 @@ export type ClubInstancePayload = {
   active?: boolean;
 };
 
-export type ClubInstanceMembersQuery = {
+export type ClubSectionMembersQuery = {
   yearId?: number;
   active?: boolean;
 };
 
-export type ClubInstanceMember = {
+export type ClubSectionMember = {
   assignment_id?: string;
   user_id: string;
   name: string;
@@ -123,47 +124,44 @@ export async function deleteClub(clubId: number) {
   });
 }
 
-export async function listClubInstances(clubId: number) {
-  return apiRequest(`/clubs/${clubId}/instances`);
+export async function listClubSections(clubId: number) {
+  return apiRequest(`/clubs/${clubId}/sections`);
 }
 
-export async function createClubInstance(clubId: number, payload: ClubInstancePayload) {
-  return apiRequest(`/clubs/${clubId}/instances`, {
+export async function createClubSection(clubId: number, payload: ClubSectionPayload) {
+  return apiRequest(`/clubs/${clubId}/sections`, {
     method: "POST",
     body: payload,
   });
 }
 
-export async function updateClubInstance(
+export async function updateClubSection(
   clubId: number,
-  instanceType: ClubInstanceType,
-  instanceId: number,
-  payload: Partial<ClubInstancePayload>,
+  sectionId: number,
+  payload: Partial<ClubSectionPayload>,
 ) {
-  return apiRequest(`/clubs/${clubId}/instances/${instanceType}/${instanceId}`, {
+  return apiRequest(`/clubs/${clubId}/sections/${sectionId}`, {
     method: "PATCH",
     body: payload,
   });
 }
 
-export async function listClubInstanceMembers(
+export async function listClubSectionMembers(
   clubId: number,
-  instanceType: ClubInstanceType,
-  instanceId: number,
-  query: ClubInstanceMembersQuery = {},
+  sectionId: number,
+  query: ClubSectionMembersQuery = {},
 ) {
-  return apiRequest(`/clubs/${clubId}/instances/${instanceType}/${instanceId}/members`, {
+  return apiRequest(`/clubs/${clubId}/sections/${sectionId}/members`, {
     params: query,
   });
 }
 
 export async function createClubRoleAssignment(
   clubId: number,
-  instanceType: ClubInstanceType,
-  instanceId: number,
+  sectionId: number,
   payload: ClubRoleAssignmentCreatePayload,
 ) {
-  return apiRequest(`/clubs/${clubId}/instances/${instanceType}/${instanceId}/roles`, {
+  return apiRequest(`/clubs/${clubId}/sections/${sectionId}/roles`, {
     method: "POST",
     body: payload,
   });

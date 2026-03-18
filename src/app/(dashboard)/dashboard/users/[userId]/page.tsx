@@ -72,11 +72,11 @@ function extractPermissions(user: AdminUserDetail): string[] {
 type ClubAssignment = {
   club_role_assignment_id?: number;
   club?: { name?: string; club_id?: number } | null;
-  instance?: { name?: string; instance_type?: string } | null;
+  section?: { name?: string; club_type?: { name?: string } | null } | null;
   role?: { role_name?: string } | null;
   role_name?: string;
   club_name?: string;
-  instance_type?: string;
+  section_name?: string;
   [key: string]: unknown;
 };
 
@@ -534,7 +534,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                     <tr className="border-b bg-muted/50">
                       <th className="px-4 py-2 text-left font-medium">Club</th>
                       <th className="px-4 py-2 text-left font-medium">
-                        Instancia
+                        Seccion
                       </th>
                       <th className="px-4 py-2 text-left font-medium">Rol</th>
                     </tr>
@@ -550,9 +550,9 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                             {ca.club?.name ?? ca.club_name ?? "—"}
                           </td>
                           <td className="px-4 py-2">
-                            {ca.instance?.name ??
-                              ca.instance?.instance_type ??
-                              ca.instance_type ??
+                            {ca.section?.name ??
+                              ca.section?.club_type?.name ??
+                              ca.section_name ??
                               "—"}
                           </td>
                           <td className="px-4 py-2">

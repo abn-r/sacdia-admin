@@ -9,13 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   sendDirectNotificationAction,
   broadcastNotificationAction,
   clubNotificationAction,
@@ -137,35 +130,18 @@ export function ClubNotificationForm() {
       <CardHeader>
         <div className="flex items-center gap-2">
           <Users className="size-5 text-primary" />
-          <CardTitle className="text-base">Por club / instancia</CardTitle>
+          <CardTitle className="text-base">Por sección de club</CardTitle>
         </div>
-        <CardDescription>Enviar notificación a todos los miembros de una instancia de club.</CardDescription>
+        <CardDescription>Enviar notificación a todos los miembros de una sección de club.</CardDescription>
       </CardHeader>
       <CardContent>
         <form action={action} className="space-y-4">
           <StatusBanner state={state} />
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="club_instance_type">
-                Tipo de instancia <span className="text-destructive">*</span>
-              </Label>
-              <Select name="instance_type" required>
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="adventurers">Aventureros</SelectItem>
-                  <SelectItem value="pathfinders">Conquistadores</SelectItem>
-                  <SelectItem value="master_guilds">Guías Mayores</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="club_instance_id">
-                ID de instancia <span className="text-destructive">*</span>
-              </Label>
-              <Input id="club_instance_id" name="instance_id" type="number" placeholder="ID numérico" required />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="club_section_id">
+              ID de sección <span className="text-destructive">*</span>
+            </Label>
+            <Input id="club_section_id" name="section_id" type="number" placeholder="ID numérico de la sección" required />
           </div>
           <div className="space-y-2">
             <Label htmlFor="club_title">
@@ -179,7 +155,7 @@ export function ClubNotificationForm() {
             </Label>
             <Textarea id="club_body" name="body" placeholder="Contenido del mensaje" rows={3} required />
           </div>
-          <SubmitButton label="Enviar a instancia" />
+          <SubmitButton label="Enviar a sección" />
         </form>
       </CardContent>
     </Card>

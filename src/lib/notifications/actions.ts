@@ -5,7 +5,6 @@ import {
   sendNotification,
   broadcastNotification,
   sendClubNotification,
-  type ClubInstanceType,
 } from "@/lib/api/notifications";
 
 export type NotificationActionState = {
@@ -69,30 +68,28 @@ export async function clubNotificationAction(
   _: NotificationActionState,
   formData: FormData,
 ): Promise<NotificationActionState> {
-  const instanceType = readString(formData, "instance_type") as ClubInstanceType;
-  const instanceIdRaw = readString(formData, "instance_id");
+  const sectionIdRaw = readString(formData, "section_id");
   const title = readString(formData, "title");
   const body = readString(formData, "body");
 
-  if (!instanceType) return { error: "El tipo de instancia es obligatorio" };
-  if (!instanceIdRaw) return { error: "El ID de instancia es obligatorio" };
+  if (!sectionIdRaw) return { error: "El ID de sección es obligatorio" };
   if (!title) return { error: "El título es obligatorio" };
   if (!body) return { error: "El mensaje es obligatorio" };
 
-  const instanceId = Number(instanceIdRaw);
-  if (!Number.isFinite(instanceId) || instanceId <= 0) {
-    return { error: "El ID de instancia no es válido" };
+  const sectionId = Number(sectionIdRaw);
+  if (!Number.isFinite(sectionId) || sectionId <= 0) {
+    return { error: "El ID de sección no es válido" };
   }
 
   try {
-    await sendClubNotification(instanceType, instanceId, { title, body });
+    await sendClubNotification(sectionId, { title, body });
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo enviar la notificación al club", {
-        endpointLabel: `/notifications/club/${instanceType}/${instanceId}`,
+      error: getActionErrorMessage(error, "No se pudo enviar la notificación a la sección", {
+        endpointLabel: `/notifications/section/${sectionId}`,
       }),
     };
   }
 
-  return { success: "Notificación de club enviada correctamente" };
+  return { success: "Notificación de sección enviada correctamente" };
 }

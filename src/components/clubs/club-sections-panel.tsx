@@ -16,34 +16,32 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createClubInstanceAction, type ClubActionState } from "@/lib/clubs/actions";
+import { createClubSectionAction, type ClubActionState } from "@/lib/clubs/actions";
 
-type Instance = {
-  instance_id?: number;
-  instance_type?: string;
+type Section = {
+  club_section_id?: number;
   club_type_id?: number;
   club_type?: { name?: string } | null;
-  type?: string;
   name?: string;
   active?: boolean;
-  soul_goal?: number | null;
-  membership_fee?: number | null;
+  souls_target?: number | null;
+  fee?: number | null;
   members_count?: number;
 };
 
-const INSTANCE_TYPE_LABELS: Record<string, string> = {
+const SECTION_TYPE_LABELS: Record<string, string> = {
   adventurers: "Aventureros",
   pathfinders: "Conquistadores",
-  master_guilds: "Guías Mayores",
+  master_guilds: "Guias Mayores",
 };
 
 const DAYS_OF_WEEK = [
   { value: "Monday", label: "Lunes" },
   { value: "Tuesday", label: "Martes" },
-  { value: "Wednesday", label: "Miércoles" },
+  { value: "Wednesday", label: "Miercoles" },
   { value: "Thursday", label: "Jueves" },
   { value: "Friday", label: "Viernes" },
-  { value: "Saturday", label: "Sábado" },
+  { value: "Saturday", label: "Sabado" },
   { value: "Sunday", label: "Domingo" },
 ];
 
@@ -67,17 +65,17 @@ function SubmitButton({ label }: { label: string }) {
   );
 }
 
-function CreateInstanceForm({
+function CreateSectionForm({
   clubId,
-  instanceType,
+  clubTypeId,
   onSuccess,
 }: {
   clubId: number;
-  instanceType: string;
+  clubTypeId: number;
   onSuccess: () => void;
 }) {
   const router = useRouter();
-  const boundAction = createClubInstanceAction.bind(null, clubId);
+  const boundAction = createClubSectionAction.bind(null, clubId);
   const [state, action] = useActionState(boundAction, {} as ClubActionState);
 
   useEffect(() => {
@@ -89,7 +87,7 @@ function CreateInstanceForm({
 
   return (
     <form action={action} className="mt-4 space-y-4 border-t pt-4">
-      <input type="hidden" name="instance_type" value={instanceType} />
+      <input type="hidden" name="club_type_id" value={clubTypeId} />
 
       {state.error && (
         <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">{state.error}</p>
@@ -97,20 +95,20 @@ function CreateInstanceForm({
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-1">
-          <Label htmlFor={`souls_${instanceType}`}>Meta de almas</Label>
-          <Input id={`souls_${instanceType}`} name="souls_target" type="number" min="0" defaultValue="0" />
+          <Label htmlFor={`souls_${clubTypeId}`}>Meta de almas</Label>
+          <Input id={`souls_${clubTypeId}`} name="souls_target" type="number" min="0" defaultValue="0" />
         </div>
 
         <div className="space-y-1">
-          <Label htmlFor={`fee_${instanceType}`}>Cuota de membresía</Label>
-          <Input id={`fee_${instanceType}`} name="fee" type="number" min="0" step="0.01" defaultValue="0" />
+          <Label htmlFor={`fee_${clubTypeId}`}>Cuota de membresia</Label>
+          <Input id={`fee_${clubTypeId}`} name="fee" type="number" min="0" step="0.01" defaultValue="0" />
         </div>
 
         <div className="space-y-1">
-          <Label htmlFor={`day_${instanceType}`}>Día de reunión</Label>
+          <Label htmlFor={`day_${clubTypeId}`}>Dia de reunion</Label>
           <Select name="meeting_day">
-            <SelectTrigger id={`day_${instanceType}`}>
-              <SelectValue placeholder="Seleccionar día" />
+            <SelectTrigger id={`day_${clubTypeId}`}>
+              <SelectValue placeholder="Seleccionar dia" />
             </SelectTrigger>
             <SelectContent>
               {DAYS_OF_WEEK.map((d) => (
@@ -121,9 +119,9 @@ function CreateInstanceForm({
         </div>
 
         <div className="space-y-1">
-          <Label htmlFor={`time_${instanceType}`}>Hora de reunión</Label>
+          <Label htmlFor={`time_${clubTypeId}`}>Hora de reunion</Label>
           <Input
-            id={`time_${instanceType}`}
+            id={`time_${clubTypeId}`}
             name="meeting_time"
             type="time"
             defaultValue="09:00"
@@ -133,49 +131,55 @@ function CreateInstanceForm({
       </div>
 
       <div className="flex justify-end">
-        <SubmitButton label="Crear instancia" />
+        <SubmitButton label="Crear seccion" />
       </div>
     </form>
   );
 }
 
-interface ClubInstancesPanelProps {
+interface ClubSectionsPanelProps {
   clubId: number;
-  instances: Instance[];
+  sections: Section[];
+  clubTypes?: Array<{ club_type_id: number; name: string }>;
 }
 
-export function ClubInstancesPanel({ clubId, instances }: ClubInstancesPanelProps) {
-  const allTypes = ["adventurers", "pathfinders", "master_guilds"] as const;
-  const [openForms, setOpenForms] = useState<Set<string>>(new Set());
+export function ClubSectionsPanel({ clubId, sections, clubTypes }: ClubSectionsPanelProps) {
+  const [openForms, setOpenForms] = useState<Set<number>>(new Set());
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const existingByType = new Map(
-    instances.map((inst) => [inst.instance_type ?? inst.type, inst]),
+  const existingByTypeId = new Map(
+    sections.map((s) => [s.club_type_id, s]),
   );
 
-  const toggleForm = (type: string) => {
+  const toggleForm = (typeId: number) => {
     setOpenForms((prev) => {
       const next = new Set(prev);
-      if (next.has(type)) next.delete(type);
-      else next.add(type);
+      if (next.has(typeId)) next.delete(typeId);
+      else next.add(typeId);
       return next;
     });
   };
 
+  // If clubTypes are provided, iterate over them; otherwise show existing sections only
+  const typesToRender = clubTypes ?? sections.map((s) => ({
+    club_type_id: s.club_type_id ?? 0,
+    name: s.club_type?.name ?? s.name ?? `Seccion ${s.club_section_id}`,
+  }));
+
   return (
     <div className="space-y-4" key={refreshKey}>
       <p className="text-sm text-muted-foreground">
-        Un club puede tener hasta 3 instancias: Aventureros, Conquistadores y Guías Mayores.
+        Un club puede tener secciones para cada tipo de club (Aventureros, Conquistadores, Guias Mayores).
       </p>
 
-      {allTypes.map((type) => {
-        const instance = existingByType.get(type);
-        const label = INSTANCE_TYPE_LABELS[type] ?? type;
-        const isOpen = openForms.has(type);
+      {typesToRender.map((clubType) => {
+        const section = existingByTypeId.get(clubType.club_type_id);
+        const label = clubType.name;
+        const isOpen = openForms.has(clubType.club_type_id);
 
-        if (!instance) {
+        if (!section) {
           return (
-            <Card key={type} className="border-dashed">
+            <Card key={clubType.club_type_id} className="border-dashed">
               <CardContent className="py-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -188,7 +192,7 @@ export function ClubInstancesPanel({ clubId, instances }: ClubInstancesPanelProp
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => toggleForm(type)}
+                    onClick={() => toggleForm(clubType.club_type_id)}
                     type="button"
                   >
                     {isOpen ? (
@@ -200,9 +204,9 @@ export function ClubInstancesPanel({ clubId, instances }: ClubInstancesPanelProp
                 </div>
 
                 {isOpen && (
-                  <CreateInstanceForm
+                  <CreateSectionForm
                     clubId={clubId}
-                    instanceType={type}
+                    clubTypeId={clubType.club_type_id}
                     onSuccess={() => {
                       setOpenForms(new Set());
                       setRefreshKey((k) => k + 1);
@@ -215,38 +219,38 @@ export function ClubInstancesPanel({ clubId, instances }: ClubInstancesPanelProp
         }
 
         return (
-          <Card key={type}>
+          <Card key={clubType.club_type_id}>
             <CardHeader className="flex flex-row items-center justify-between pb-3">
               <div className="flex items-center gap-3">
-                {instance.active !== false ? (
+                {section.active !== false ? (
                   <CheckCircle className="size-5 text-green-600" />
                 ) : (
                   <XCircle className="size-5 text-muted-foreground" />
                 )}
                 <CardTitle className="text-base">
-                  {instance.name ?? instance.club_type?.name ?? label}
+                  {section.name ?? section.club_type?.name ?? label}
                 </CardTitle>
               </div>
-              <Badge variant={instance.active !== false ? "default" : "outline"}>
-                {instance.active !== false ? "Activa" : "Inactiva"}
+              <Badge variant={section.active !== false ? "default" : "outline"}>
+                {section.active !== false ? "Activa" : "Inactiva"}
               </Badge>
             </CardHeader>
             <CardContent className="space-y-2">
               <InfoRow label="Tipo" value={label} />
-              <InfoRow label="ID instancia" value={instance.instance_id} />
-              {instance.soul_goal != null && (
-                <InfoRow label="Meta de almas" value={instance.soul_goal} />
+              <InfoRow label="ID seccion" value={section.club_section_id} />
+              {section.souls_target != null && (
+                <InfoRow label="Meta de almas" value={section.souls_target} />
               )}
-              {instance.membership_fee != null && (
-                <InfoRow label="Cuota de membresía" value={`$${instance.membership_fee}`} />
+              {section.fee != null && (
+                <InfoRow label="Cuota" value={`$${section.fee}`} />
               )}
-              {instance.members_count != null && (
+              {section.members_count != null && (
                 <InfoRow
                   label="Miembros"
                   value={
                     <span className="flex items-center gap-1">
                       <Users className="size-3.5" />
-                      {instance.members_count}
+                      {section.members_count}
                     </span>
                   }
                 />

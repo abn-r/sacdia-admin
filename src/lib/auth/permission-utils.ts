@@ -1,13 +1,10 @@
 import {
   CLUBS_CREATE,
-  CLUBS_INSTANCES_CREATE,
-  CLUBS_INSTANCES_READ,
-  CLUBS_INSTANCES_UPDATE,
+  CLUB_SECTIONS_CREATE,
+  CLUB_SECTIONS_READ,
+  CLUB_SECTIONS_UPDATE,
   CLUBS_READ,
   CLUBS_UPDATE,
-  CLUB_INSTANCES_CREATE,
-  CLUB_INSTANCES_READ,
-  CLUB_INSTANCES_UPDATE,
   EMERGENCY_CONTACTS_READ,
   EMERGENCY_CONTACTS_UPDATE,
   HEALTH_READ,
@@ -34,18 +31,9 @@ export const CLUBS_READ_KEYS = [CLUBS_READ];
 export const CLUBS_CREATE_KEYS = [CLUBS_CREATE];
 export const CLUBS_UPDATE_KEYS = [CLUBS_UPDATE];
 
-export const CLUBS_INSTANCES_READ_KEYS = [
-  CLUBS_INSTANCES_READ,
-  CLUB_INSTANCES_READ,
-];
-export const CLUBS_INSTANCES_CREATE_KEYS = [
-  CLUBS_INSTANCES_CREATE,
-  CLUB_INSTANCES_CREATE,
-];
-export const CLUBS_INSTANCES_UPDATE_KEYS = [
-  CLUBS_INSTANCES_UPDATE,
-  CLUB_INSTANCES_UPDATE,
-];
+export const CLUB_SECTIONS_READ_KEYS = [CLUB_SECTIONS_READ];
+export const CLUB_SECTIONS_CREATE_KEYS = [CLUB_SECTIONS_CREATE];
+export const CLUB_SECTIONS_UPDATE_KEYS = [CLUB_SECTIONS_UPDATE];
 
 export type SensitiveUserFamily =
   | "health"
@@ -366,22 +354,22 @@ export function canUpdateClubs(user: AuthUser | null | undefined) {
   });
 }
 
-export function canReadClubInstances(user: AuthUser | null | undefined) {
-  return canByPermissionOrRole(user, CLUBS_INSTANCES_READ_KEYS, {
+export function canReadClubSections(user: AuthUser | null | undefined) {
+  return canByPermissionOrRole(user, CLUB_SECTIONS_READ_KEYS, {
     allowAdminFallback: true,
     allowClubRoleFallback: true,
   });
 }
 
-export function canCreateClubInstances(user: AuthUser | null | undefined) {
-  return canByPermissionOrRole(user, CLUBS_INSTANCES_CREATE_KEYS, {
+export function canCreateClubSections(user: AuthUser | null | undefined) {
+  return canByPermissionOrRole(user, CLUB_SECTIONS_CREATE_KEYS, {
     allowAdminFallback: true,
     allowClubRoleFallback: true,
   });
 }
 
-export function canUpdateClubInstances(user: AuthUser | null | undefined) {
-  return canByPermissionOrRole(user, CLUBS_INSTANCES_UPDATE_KEYS, {
+export function canUpdateClubSections(user: AuthUser | null | undefined) {
+  return canByPermissionOrRole(user, CLUB_SECTIONS_UPDATE_KEYS, {
     allowAdminFallback: true,
     allowClubRoleFallback: true,
   });

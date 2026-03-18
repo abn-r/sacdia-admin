@@ -5,66 +5,38 @@ import { redirect } from "next/navigation";
 import { getActionErrorMessage } from "@/lib/api/action-error";
 import {
   createClub,
-  createClubInstance,
+  createClubSection,
   createClubRoleAssignment,
   deleteClub,
-  listClubInstances,
+  listClubSections,
   revokeClubRoleAssignment,
   updateClub,
-  updateClubInstance,
+  updateClubSection,
   updateClubRoleAssignment,
-  type ClubInstance,
-  type ClubInstanceType,
+  type ClubSection,
 } from "@/lib/api/clubs";
 import { unwrapList, unwrapObject } from "@/lib/api/response";
 
-const MANAGED_INSTANCE_TYPES = ["adventurers", "pathfinders", "master_guilds"] as const;
-type ManagedInstanceType = (typeof MANAGED_INSTANCE_TYPES)[number];
-
-type ClubInstanceSyncInput = {
-  type: ManagedInstanceType;
-  enabled: boolean;
-  name: string;
-  clubTypeId: number | null;
-};
-
-export type ClubInstanceSyncResult = {
-  type: ManagedInstanceType;
+export type ClubSectionSyncResult = {
   action: "created" | "updated" | "deactivated" | "unchanged" | "failed";
   ok: boolean;
   message: string;
-  instanceId?: number;
+  sectionId?: number;
 };
 
 export type ClubActionState = {
   error?: string;
   success?: string;
   createdClubId?: number;
-  instanceResults?: ClubInstanceSyncResult[];
+  sectionResults?: ClubSectionSyncResult[];
 };
 
 function readString(formData: FormData, fieldName: string) {
   return String(formData.get(fieldName) ?? "").trim();
 }
 
-function parseInstanceType(value: string): ClubInstanceType {
-  if (value === "adventurers" || value === "pathfinders" || value === "master_guilds") {
-    return value;
-  }
-
-  throw new Error("Tipo de instancia no valido");
-}
-
-function parseManagedInstanceType(value: string): ManagedInstanceType {
-  if (value === "adventurers" || value === "pathfinders" || value === "master_guilds") {
-    return value;
-  }
-
-  throw new Error("Tipo de instancia no valido");
-}
-
-function buildClubInstancePath(clubId: number, instanceType: ClubInstanceType, instanceId: number) {
-  return `/dashboard/clubs/${clubId}/instances/${instanceType}/${instanceId}`;
+function buildClubSectionPath(clubId: number, sectionId: number) {
+  return `/dashboard/clubs/${clubId}/sections/${sectionId}`;
 }
 
 function parseRequiredNumber(formData: FormData, fieldName: string, label: string) {
@@ -199,32 +171,6 @@ function buildUpdatePayload(formData: FormData) {
   return payload;
 }
 
-function readManagedInstanceInput(formData: FormData, type: ManagedInstanceType): ClubInstanceSyncInput {
-  const enabledRaw = readString(formData, `instance_enabled_${type}`);
-  const enabled = enabledRaw === "on" || enabledRaw === "true" || enabledRaw === "1";
-
-  const name = readString(formData, `instance_name_${type}`);
-  const clubTypeRaw = readString(formData, `instance_club_type_id_${type}`);
-  let clubTypeId: number | null = null;
-  if (clubTypeRaw) {
-    const parsed = Number(clubTypeRaw);
-    if (Number.isFinite(parsed) && parsed > 0) {
-      clubTypeId = parsed;
-    }
-  }
-
-  return {
-    type,
-    enabled,
-    name,
-    clubTypeId,
-  };
-}
-
-function readManagedInstanceInputs(formData: FormData) {
-  return MANAGED_INSTANCE_TYPES.map((type) => readManagedInstanceInput(formData, type));
-}
-
 function normalizeCreatedClubId(payload: unknown) {
   const createdClub = unwrapObject<Record<string, unknown>>(payload);
   const candidateIds = [createdClub?.club_id, createdClub?.id];
@@ -238,9 +184,9 @@ function normalizeCreatedClubId(payload: unknown) {
   return null;
 }
 
-function normalizeCreatedInstanceId(payload: unknown) {
+function normalizeCreatedSectionId(payload: unknown) {
   const created = unwrapObject<Record<string, unknown>>(payload);
-  const candidateIds = [created?.instance_id, created?.id];
+  const candidateIds = [created?.club_section_id, created?.id];
   for (const candidateId of candidateIds) {
     const parsed = Number(candidateId);
     if (Number.isFinite(parsed) && parsed > 0) {
@@ -249,110 +195,6 @@ function normalizeCreatedInstanceId(payload: unknown) {
   }
 
   return undefined;
-}
-
-function getInstanceByType(instances: ClubInstance[], type: ManagedInstanceType) {
-  return instances.find((instance) => instance.instance_type === type);
-}
-
-async function executeInstanceSyncAction(
-  clubId: number,
-  input: ClubInstanceSyncInput,
-  existingInstance: ClubInstance | undefined,
-): Promise<ClubInstanceSyncResult> {
-  if (!input.enabled) {
-    if (!existingInstance || !existingInstance.active) {
-      return {
-        type: input.type,
-        action: "unchanged",
-        ok: true,
-        message: "Sin cambios (instancia inactiva o inexistente).",
-        instanceId: existingInstance?.instance_id,
-      };
-    }
-
-    await updateClubInstance(clubId, input.type, existingInstance.instance_id, { active: false });
-    return {
-      type: input.type,
-      action: "deactivated",
-      ok: true,
-      message: "Instancia desactivada.",
-      instanceId: existingInstance.instance_id,
-    };
-  }
-
-  if (!input.name) {
-    return {
-      type: input.type,
-      action: "failed",
-      ok: false,
-      message: "Nombre obligatorio para instancias activas.",
-      instanceId: existingInstance?.instance_id,
-    };
-  }
-
-  if (!input.clubTypeId) {
-    return {
-      type: input.type,
-      action: "failed",
-      ok: false,
-      message: "Tipo de club obligatorio para instancias activas.",
-      instanceId: existingInstance?.instance_id,
-    };
-  }
-
-  if (!existingInstance) {
-    const createdPayload = await createClubInstance(clubId, {
-      type: input.type,
-      name: input.name,
-      club_type_id: input.clubTypeId ?? undefined,
-    });
-
-    return {
-      type: input.type,
-      action: "created",
-      ok: true,
-      message: "Instancia creada.",
-      instanceId: normalizeCreatedInstanceId(createdPayload),
-    };
-  }
-
-  const payload: {
-    name?: string;
-    active?: boolean;
-    club_type_id?: number;
-  } = {};
-
-  if (existingInstance.name !== input.name) {
-    payload.name = input.name;
-  }
-
-  if (!existingInstance.active) {
-    payload.active = true;
-  }
-
-  if (existingInstance.club_type_id !== input.clubTypeId) {
-    payload.club_type_id = input.clubTypeId;
-  }
-
-  if (Object.keys(payload).length === 0) {
-    return {
-      type: input.type,
-      action: "unchanged",
-      ok: true,
-      message: "Sin cambios en la configuracion.",
-      instanceId: existingInstance.instance_id,
-    };
-  }
-
-  await updateClubInstance(clubId, input.type, existingInstance.instance_id, payload);
-  return {
-    type: input.type,
-    action: "updated",
-    ok: true,
-    message: "Instancia actualizada.",
-    instanceId: existingInstance.instance_id,
-  };
 }
 
 export async function createClubAction(
@@ -374,7 +216,7 @@ export async function createClubAction(
   redirect("/dashboard/clubs");
 }
 
-export async function createClubWithInstancesAction(
+export async function createClubWithSectionsAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
@@ -394,39 +236,55 @@ export async function createClubWithInstancesAction(
 
   if (!clubId) {
     return {
-      error: "Club creado, pero no se pudo resolver su ID para continuar con instancias.",
+      error: "Club creado, pero no se pudo resolver su ID para continuar con secciones.",
     };
   }
 
-  const instanceInputs = readManagedInstanceInputs(formData).filter((input) => input.enabled);
-  const instanceResults: ClubInstanceSyncResult[] = [];
+  // Parse sections from form — form fields: section_club_type_id_0, section_name_0, etc.
+  const sectionResults: ClubSectionSyncResult[] = [];
+  let idx = 0;
+  while (formData.has(`section_club_type_id_${idx}`)) {
+    const clubTypeId = Number(readString(formData, `section_club_type_id_${idx}`));
+    const sectionName = readString(formData, `section_name_${idx}`);
 
-  for (const input of instanceInputs) {
+    if (!Number.isFinite(clubTypeId) || clubTypeId <= 0) {
+      idx++;
+      continue;
+    }
+
     try {
-      const result = await executeInstanceSyncAction(clubId, input, undefined);
-      instanceResults.push(result);
+      const result = await createClubSection(clubId, {
+        club_type_id: clubTypeId,
+        name: sectionName || undefined,
+      });
+      sectionResults.push({
+        action: "created",
+        ok: true,
+        message: "Sección creada.",
+        sectionId: normalizeCreatedSectionId(result),
+      });
     } catch (error) {
-      instanceResults.push({
-        type: input.type,
+      sectionResults.push({
         action: "failed",
         ok: false,
-        message: getActionErrorMessage(error, "No se pudo crear la instancia", {
-          endpointLabel: `/clubs/${clubId}/instances`,
+        message: getActionErrorMessage(error, "No se pudo crear la sección", {
+          endpointLabel: `/clubs/${clubId}/sections`,
         }),
       });
     }
+    idx++;
   }
 
   revalidatePath("/dashboard/clubs");
   revalidatePath(`/dashboard/clubs/${clubId}`);
 
-  const failed = instanceResults.filter((result) => !result.ok);
+  const failed = sectionResults.filter((r) => !r.ok);
   if (failed.length > 0) {
     return {
-      error: "El club se creo, pero una o mas instancias fallaron.",
-      success: "Puedes continuar al detalle del club y reintentar las instancias fallidas.",
+      error: "El club se creó, pero una o más secciones fallaron.",
+      success: "Puedes continuar al detalle del club y reintentar las secciones fallidas.",
       createdClubId: clubId,
-      instanceResults,
+      sectionResults,
     };
   }
 
@@ -454,77 +312,50 @@ export async function updateClubAction(
   redirect("/dashboard/clubs");
 }
 
-export async function syncClubInstancesAction(
+export async function syncClubSectionsAction(
   clubId: number,
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
-  const retryTypeRaw = readString(formData, "instance_retry_type");
-  let retryType: ManagedInstanceType | null = null;
-  if (retryTypeRaw) {
-    try {
-      retryType = parseManagedInstanceType(retryTypeRaw);
-    } catch {
-      return { error: "El tipo de instancia a reintentar no es valido." };
-    }
+  const sectionIdRaw = readString(formData, "section_id");
+  const name = readString(formData, "name");
+  const clubTypeIdRaw = readString(formData, "club_type_id");
+  const activeRaw = readString(formData, "active");
+
+  const sectionId = sectionIdRaw ? Number(sectionIdRaw) : null;
+  const clubTypeId = clubTypeIdRaw ? Number(clubTypeIdRaw) : null;
+
+  if (!clubTypeId || !Number.isFinite(clubTypeId)) {
+    return { error: "Tipo de club obligatorio." };
   }
 
-  let instances: ClubInstance[] = [];
   try {
-    const instancesPayload = await listClubInstances(clubId);
-    instances = unwrapList<ClubInstance>(instancesPayload);
+    if (sectionId && Number.isFinite(sectionId)) {
+      // Update existing section
+      const payload: Record<string, unknown> = {};
+      if (name) payload.name = name;
+      if (clubTypeId) payload.club_type_id = clubTypeId;
+      if (activeRaw) payload.active = activeRaw === "true";
+
+      await updateClubSection(clubId, sectionId, payload);
+      revalidatePath(`/dashboard/clubs/${clubId}`);
+      return { success: "Sección actualizada correctamente." };
+    } else {
+      // Create new section
+      await createClubSection(clubId, {
+        club_type_id: clubTypeId,
+        name: name || undefined,
+      });
+      revalidatePath(`/dashboard/clubs/${clubId}`);
+      return { success: "Sección creada correctamente." };
+    }
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo consultar el estado actual de instancias", {
-        endpointLabel: `/clubs/${clubId}/instances`,
+      error: getActionErrorMessage(error, "No se pudo sincronizar la sección", {
+        endpointLabel: `/clubs/${clubId}/sections`,
       }),
     };
   }
-
-  const instanceInputs = readManagedInstanceInputs(formData);
-  const instanceResults: ClubInstanceSyncResult[] = [];
-
-  for (const input of instanceInputs) {
-    if (retryType && input.type !== retryType) {
-      continue;
-    }
-
-    const existing = getInstanceByType(instances, input.type);
-    try {
-      const result = await executeInstanceSyncAction(clubId, input, existing);
-      instanceResults.push(result);
-    } catch (error) {
-      instanceResults.push({
-        type: input.type,
-        action: "failed",
-        ok: false,
-        message: getActionErrorMessage(error, "No se pudo sincronizar la instancia", {
-          endpointLabel: existing
-            ? `/clubs/${clubId}/instances/${input.type}/${existing.instance_id}`
-            : `/clubs/${clubId}/instances`,
-        }),
-        instanceId: existing?.instance_id,
-      });
-    }
-  }
-
-  revalidatePath(`/dashboard/clubs/${clubId}`);
-
-  const failed = instanceResults.filter((result) => !result.ok);
-  if (failed.length > 0) {
-    return {
-      error: "Una o mas instancias no pudieron sincronizarse.",
-      instanceResults,
-    };
-  }
-
-  return {
-    success:
-      retryType && instanceResults.length === 1
-        ? "Instancia reintentada correctamente."
-        : "Instancias sincronizadas correctamente.",
-    instanceResults,
-  };
 }
 
 export async function deleteClubAction(formData: FormData) {
@@ -538,17 +369,15 @@ export async function deleteClubAction(formData: FormData) {
   redirect("/dashboard/clubs");
 }
 
-export async function createClubInstanceAction(
+export async function createClubSectionAction(
   clubId: number,
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
-  const instanceTypeRaw = readString(formData, "instance_type");
-  let instanceType: ClubInstanceType;
-  try {
-    instanceType = parseInstanceType(instanceTypeRaw);
-  } catch {
-    return { error: "Tipo de instancia no válido" };
+  const clubTypeIdRaw = readString(formData, "club_type_id");
+  const clubTypeId = Number(clubTypeIdRaw);
+  if (!Number.isFinite(clubTypeId) || clubTypeId <= 0) {
+    return { error: "Tipo de club no válido" };
   }
 
   const soulsTarget = Number(readString(formData, "souls_target") || "0");
@@ -562,20 +391,11 @@ export async function createClubInstanceAction(
   }
 
   const meetingDayRaw = readString(formData, "meeting_day");
-  // Normalize to HH:MM — browsers may send HH:MM:SS with step=60
   const meetingTimeRaw = readString(formData, "meeting_time").slice(0, 5) || "09:00";
 
-  const payload: Parameters<typeof createClubInstance>[1] = {
-    type: instanceType,
+  const payload: Parameters<typeof createClubSection>[1] = {
+    club_type_id: clubTypeId,
   };
-
-  const clubTypeRaw = readString(formData, "club_type_id");
-  if (clubTypeRaw) {
-    const clubTypeId = Number(clubTypeRaw);
-    if (Number.isFinite(clubTypeId) && clubTypeId > 0) {
-      payload.club_type_id = clubTypeId;
-    }
-  }
 
   const name = readString(formData, "name");
   if (name) payload.name = name;
@@ -585,33 +405,25 @@ export async function createClubInstanceAction(
   payload.meeting_time = [{ time: meetingTimeRaw }];
 
   try {
-    await createClubInstance(clubId, payload);
+    await createClubSection(clubId, payload);
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo crear la instancia", {
-        endpointLabel: `/clubs/${clubId}/instances`,
+      error: getActionErrorMessage(error, "No se pudo crear la sección", {
+        endpointLabel: `/clubs/${clubId}/sections`,
       }),
     };
   }
 
   revalidatePath(`/dashboard/clubs/${clubId}`);
-  return { success: "Instancia creada correctamente" };
+  return { success: "Sección creada correctamente" };
 }
 
-export async function updateClubInstanceAction(
+export async function updateClubSectionAction(
   clubId: number,
-  instanceTypeValue: string,
-  instanceId: number,
+  sectionId: number,
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
-  let instanceType: ClubInstanceType;
-  try {
-    instanceType = parseInstanceType(instanceTypeValue);
-  } catch (error) {
-    return { error: error instanceof Error ? error.message : "Tipo de instancia invalido" };
-  }
-
   const payload: { name?: string; active?: boolean; club_type_id?: number } = {};
   const name = readString(formData, "name");
   if (name) {
@@ -621,7 +433,7 @@ export async function updateClubInstanceAction(
   const activeRaw = readString(formData, "active");
   if (activeRaw) {
     if (activeRaw !== "true" && activeRaw !== "false") {
-      return { error: "El estado de la instancia no es valido" };
+      return { error: "El estado de la sección no es válido" };
     }
     payload.active = activeRaw === "true";
   }
@@ -632,38 +444,30 @@ export async function updateClubInstanceAction(
   }
 
   if (Object.keys(payload).length === 0) {
-    return { error: "No hay cambios para guardar en la instancia" };
+    return { error: "No hay cambios para guardar en la sección" };
   }
 
   try {
-    await updateClubInstance(clubId, instanceType, instanceId, payload);
+    await updateClubSection(clubId, sectionId, payload);
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo actualizar la instancia", {
-        endpointLabel: `/clubs/${clubId}/instances/${instanceType}/${instanceId}`,
+      error: getActionErrorMessage(error, "No se pudo actualizar la sección", {
+        endpointLabel: `/clubs/${clubId}/sections/${sectionId}`,
       }),
     };
   }
 
   revalidatePath(`/dashboard/clubs/${clubId}`);
-  revalidatePath(buildClubInstancePath(clubId, instanceType, instanceId));
-  return { success: "Instancia actualizada correctamente" };
+  revalidatePath(buildClubSectionPath(clubId, sectionId));
+  return { success: "Sección actualizada correctamente" };
 }
 
-export async function addClubInstanceMemberAction(
+export async function addClubSectionMemberAction(
   clubId: number,
-  instanceTypeValue: string,
-  instanceId: number,
+  sectionId: number,
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
-  let instanceType: ClubInstanceType;
-  try {
-    instanceType = parseInstanceType(instanceTypeValue);
-  } catch (error) {
-    return { error: error instanceof Error ? error.message : "Tipo de instancia invalido" };
-  }
-
   const userId = readString(formData, "user_id");
   if (!userId) {
     return { error: "El ID del usuario es obligatorio" };
@@ -676,16 +480,16 @@ export async function addClubInstanceMemberAction(
 
   let ecclesiasticalYearId = 0;
   try {
-    ecclesiasticalYearId = parseRequiredNumber(formData, "ecclesiastical_year_id", "Año eclesiastico");
+    ecclesiasticalYearId = parseRequiredNumber(formData, "ecclesiastical_year_id", "Año eclesiástico");
   } catch (error) {
-    return { error: error instanceof Error ? error.message : "Año eclesiástico invalido" };
+    return { error: error instanceof Error ? error.message : "Año eclesiástico inválido" };
   }
 
   const startDate = readString(formData, "start_date") || new Date().toISOString();
   const endDate = readString(formData, "end_date") || undefined;
 
   try {
-    await createClubRoleAssignment(clubId, instanceType, instanceId, {
+    await createClubRoleAssignment(clubId, sectionId, {
       user_id: userId,
       role_id: roleId,
       ecclesiastical_year_id: ecclesiasticalYearId,
@@ -695,20 +499,19 @@ export async function addClubInstanceMemberAction(
   } catch (error) {
     return {
       error: getActionErrorMessage(error, "No se pudo crear la asignación de rol", {
-        endpointLabel: `/clubs/${clubId}/instances/${instanceType}/${instanceId}/roles`,
+        endpointLabel: `/clubs/${clubId}/sections/${sectionId}/roles`,
       }),
     };
   }
 
   revalidatePath(`/dashboard/clubs/${clubId}`);
-  revalidatePath(buildClubInstancePath(clubId, instanceType, instanceId));
+  revalidatePath(buildClubSectionPath(clubId, sectionId));
   return { success: "Asignación creada correctamente" };
 }
 
-export async function updateClubInstanceMemberRoleAction(
+export async function updateClubSectionMemberRoleAction(
   clubId: number,
-  instanceTypeValue: string,
-  instanceId: number,
+  sectionId: number,
   userId: string,
   _: ClubActionState,
   formData: FormData,
@@ -722,13 +525,6 @@ export async function updateClubInstanceMemberRoleAction(
     return { error: "No se pudo identificar la asignación a actualizar" };
   }
 
-  let instanceType: ClubInstanceType;
-  try {
-    instanceType = parseInstanceType(instanceTypeValue);
-  } catch (error) {
-    return { error: error instanceof Error ? error.message : "Tipo de instancia invalido" };
-  }
-
   const roleId = readString(formData, "role_id");
   if (!roleId) {
     return { error: "El rol es obligatorio" };
@@ -736,9 +532,9 @@ export async function updateClubInstanceMemberRoleAction(
 
   let ecclesiasticalYearId = 0;
   try {
-    ecclesiasticalYearId = parseRequiredNumber(formData, "ecclesiastical_year_id", "Año eclesiastico");
+    ecclesiasticalYearId = parseRequiredNumber(formData, "ecclesiastical_year_id", "Año eclesiástico");
   } catch (error) {
-    return { error: error instanceof Error ? error.message : "Año eclesiástico invalido" };
+    return { error: error instanceof Error ? error.message : "Año eclesiástico inválido" };
   }
 
   const startDate = readString(formData, "start_date") || new Date().toISOString();
@@ -758,24 +554,16 @@ export async function updateClubInstanceMemberRoleAction(
     };
   }
 
-  revalidatePath(buildClubInstancePath(clubId, instanceType, instanceId));
+  revalidatePath(buildClubSectionPath(clubId, sectionId));
   return { success: "Rol actualizado correctamente" };
 }
 
-export async function removeClubInstanceMemberAction(
+export async function removeClubSectionMemberAction(
   clubId: number,
-  instanceTypeValue: string,
-  instanceId: number,
+  sectionId: number,
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
-  let instanceType: ClubInstanceType;
-  try {
-    instanceType = parseInstanceType(instanceTypeValue);
-  } catch (error) {
-    return { error: error instanceof Error ? error.message : "Tipo de instancia invalido" };
-  }
-
   const assignmentId = readString(formData, "assignment_id");
   if (!assignmentId) {
     return { error: "No se pudo identificar la asignación a remover" };
@@ -792,6 +580,6 @@ export async function removeClubInstanceMemberAction(
   }
 
   revalidatePath(`/dashboard/clubs/${clubId}`);
-  revalidatePath(buildClubInstancePath(clubId, instanceType, instanceId));
+  revalidatePath(buildClubSectionPath(clubId, sectionId));
   return { success: "Asignación removida correctamente" };
 }

@@ -19,8 +19,6 @@ export type ClubNotificationPayload = {
   data?: Record<string, string>;
 };
 
-export type ClubInstanceType = "adventurers" | "pathfinders" | "master_guilds";
-
 export async function sendNotification(payload: SendNotificationPayload) {
   return apiRequest("/notifications/send", {
     method: "POST",
@@ -36,11 +34,10 @@ export async function broadcastNotification(payload: BroadcastNotificationPayloa
 }
 
 export async function sendClubNotification(
-  instanceType: ClubInstanceType,
-  instanceId: number,
+  sectionId: number,
   payload: ClubNotificationPayload,
 ) {
-  return apiRequest(`/notifications/club/${instanceType}/${instanceId}`, {
+  return apiRequest(`/notifications/section/${sectionId}`, {
     method: "POST",
     body: payload,
   });

@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/shared/page-header";
 import { EditClubForm } from "@/components/clubs/edit-club-form";
-import { ClubInstancesPanel } from "@/components/clubs/club-instances-panel";
+import { ClubSectionsPanel } from "@/components/clubs/club-sections-panel";
 import { apiRequest, ApiError } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
 import { getSelectOptions } from "@/lib/catalogs/service";
@@ -32,16 +32,14 @@ type Club = {
   local_field?: { name?: string } | null;
   district?: { name?: string } | null;
   church?: { name?: string } | null;
-  instances?: Array<{
-    instance_id?: number;
-    instance_type?: string;
+  sections?: Array<{
+    club_section_id?: number;
     club_type_id?: number;
     club_type?: { name?: string } | null;
-    type?: string;
     name?: string;
     active?: boolean;
-    soul_goal?: number | null;
-    membership_fee?: number | null;
+    souls_target?: number | null;
+    fee?: number | null;
     members_count?: number;
   }>;
   [key: string]: unknown;
@@ -108,7 +106,7 @@ export default async function ClubDetailPage({ params }: { params: Params }) {
 
   const clubId = Number(club.club_id ?? club.id ?? id);
   const clubName = club.name ?? "Club";
-  const instances = club.instances ?? [];
+  const sections = club.sections ?? [];
 
   const [localFields, districts, churches] = await Promise.all([
     getSelectOptions("local-fields").catch(() => []),
@@ -141,7 +139,7 @@ export default async function ClubDetailPage({ params }: { params: Params }) {
         <TabsList>
           <TabsTrigger value="view">Ver</TabsTrigger>
           <TabsTrigger value="edit">Editar</TabsTrigger>
-          <TabsTrigger value="instances">Instancias ({instances.length})</TabsTrigger>
+          <TabsTrigger value="sections">Secciones ({sections.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="view" className="mt-4">
@@ -158,8 +156,8 @@ export default async function ClubDetailPage({ params }: { params: Params }) {
           />
         </TabsContent>
 
-        <TabsContent value="instances" className="mt-4 space-y-4">
-          <ClubInstancesPanel clubId={clubId} instances={instances} />
+        <TabsContent value="sections" className="mt-4 space-y-4">
+          <ClubSectionsPanel clubId={clubId} sections={sections} />
         </TabsContent>
       </Tabs>
     </div>

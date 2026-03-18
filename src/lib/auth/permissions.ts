@@ -43,16 +43,11 @@ export const CLUBS_READ = "clubs:read";
 export const CLUBS_CREATE = "clubs:create";
 export const CLUBS_UPDATE = "clubs:update";
 export const CLUBS_DELETE = "clubs:delete";
-// Canonical naming for club instances (new RBAC plan)
-export const CLUBS_INSTANCES_READ = "clubs_instances:read";
-export const CLUBS_INSTANCES_CREATE = "clubs_instances:create";
-export const CLUBS_INSTANCES_UPDATE = "clubs_instances:update";
-export const CLUBS_INSTANCES_DELETE = "clubs_instances:delete";
-// Legacy aliases kept for backward compatibility during migration.
-export const CLUB_INSTANCES_READ = "club_instances:read";
-export const CLUB_INSTANCES_CREATE = "club_instances:create";
-export const CLUB_INSTANCES_UPDATE = "club_instances:update";
-export const CLUB_INSTANCES_DELETE = "club_instances:delete";
+// Club sections (consolidated from club_instances)
+export const CLUB_SECTIONS_READ = "club_sections:read";
+export const CLUB_SECTIONS_CREATE = "club_sections:create";
+export const CLUB_SECTIONS_UPDATE = "club_sections:update";
+export const CLUB_SECTIONS_DELETE = "club_sections:delete";
 export const CLUB_ROLES_READ = "club_roles:read";
 export const CLUB_ROLES_ASSIGN = "club_roles:assign";
 export const CLUB_ROLES_REVOKE = "club_roles:revoke";
@@ -167,10 +162,10 @@ export const PERMISSION_GROUPS = {
       { key: CLUBS_CREATE, label: "Crear club" },
       { key: CLUBS_UPDATE, label: "Editar club" },
       { key: CLUBS_DELETE, label: "Eliminar club" },
-      { key: CLUBS_INSTANCES_READ, label: "Ver instancias" },
-      { key: CLUBS_INSTANCES_CREATE, label: "Crear instancia" },
-      { key: CLUBS_INSTANCES_UPDATE, label: "Editar instancia" },
-      { key: CLUBS_INSTANCES_DELETE, label: "Eliminar instancia" },
+      { key: CLUB_SECTIONS_READ, label: "Ver secciones" },
+      { key: CLUB_SECTIONS_CREATE, label: "Crear sección" },
+      { key: CLUB_SECTIONS_UPDATE, label: "Editar sección" },
+      { key: CLUB_SECTIONS_DELETE, label: "Eliminar sección" },
       { key: CLUB_ROLES_READ, label: "Ver roles de club" },
       { key: CLUB_ROLES_ASSIGN, label: "Asignar rol de club" },
       { key: CLUB_ROLES_REVOKE, label: "Revocar rol de club" },
