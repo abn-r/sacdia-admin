@@ -14,6 +14,7 @@ import {
   FolderOpen,
   ShieldCheck,
   Heart,
+  Star,
   type LucideIcon,
 } from "lucide-react";
 
@@ -101,6 +102,7 @@ export const navConfig: NavGroup[] = [
       { title: "Inventario", url: "/dashboard/inventory", icon: Package, permission: "inventory:read" },
       { title: "Certificaciones", url: "/dashboard/certifications", icon: ShieldCheck, permission: "certifications:read" },
       { title: "Seguros", url: "/dashboard/insurance", icon: Heart, permission: "insurance:read" },
+      { title: "Investiduras", url: "/dashboard/investiture", icon: Star, permission: "investiture:read" },
     ],
   },
   {
