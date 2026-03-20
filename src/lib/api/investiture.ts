@@ -173,3 +173,112 @@ export async function markAsInvestido(
     { method: "POST", body: payload },
   );
 }
+
+// ─── Config types ─────────────────────────────────────────────────────────────
+
+export type InvestitureConfig = {
+  investiture_config_id: number;
+  local_field_id: number;
+  ecclesiastical_year_id: number;
+  submission_deadline: string;
+  investiture_date: string;
+  active: boolean;
+  created_at?: string | null;
+  updated_at?: string | null;
+  local_fields?: { name: string } | null;
+  ecclesiastical_years?: {
+    ecclesiastical_year_id: number;
+    name: string;
+    start_date?: string | null;
+    end_date?: string | null;
+  } | null;
+};
+
+export type CreateInvestitureConfigPayload = {
+  local_field_id: number;
+  ecclesiastical_year_id: number;
+  submission_deadline: string;
+  investiture_date: string;
+};
+
+export type UpdateInvestitureConfigPayload = {
+  submission_deadline?: string;
+  investiture_date?: string;
+  active?: boolean;
+};
+
+// ─── Config API functions ─────────────────────────────────────────────────────
+
+/**
+ * GET /api/v1/admin/investiture/config
+ * GlobalRolesGuard (admin, coordinator)
+ */
+export async function getInvestitureConfigs(
+  localFieldId?: number,
+): Promise<InvestitureConfig[]> {
+  const params: Record<string, string | number | boolean | undefined> = {};
+  if (localFieldId) params.local_field_id = localFieldId;
+  const res = await apiRequest<{ status: string; data: InvestitureConfig[] }>(
+    "/admin/investiture/config",
+    { params },
+  );
+  return Array.isArray(res) ? res : (res as { data: InvestitureConfig[] }).data ?? [];
+}
+
+/**
+ * GET /api/v1/admin/investiture/config/:configId
+ * GlobalRolesGuard (admin, coordinator)
+ */
+export async function getInvestitureConfig(
+  configId: number,
+): Promise<InvestitureConfig> {
+  const res = await apiRequest<{ status: string; data: InvestitureConfig }>(
+    `/admin/investiture/config/${configId}`,
+  );
+  return (res as { data: InvestitureConfig }).data ?? (res as unknown as InvestitureConfig);
+}
+
+/**
+ * POST /api/v1/admin/investiture/config
+ * GlobalRolesGuard (admin)
+ * Client-side only (mutation)
+ */
+export async function createInvestitureConfig(
+  payload: CreateInvestitureConfigPayload,
+): Promise<InvestitureConfig> {
+  const res = await apiRequestFromClient<{ status: string; data: InvestitureConfig }>(
+    "/admin/investiture/config",
+    { method: "POST", body: payload },
+  );
+  return (res as { data: InvestitureConfig }).data ?? (res as unknown as InvestitureConfig);
+}
+
+/**
+ * PATCH /api/v1/admin/investiture/config/:configId
+ * GlobalRolesGuard (admin)
+ * Client-side only (mutation)
+ */
+export async function updateInvestitureConfig(
+  configId: number,
+  payload: UpdateInvestitureConfigPayload,
+): Promise<InvestitureConfig> {
+  const res = await apiRequestFromClient<{ status: string; data: InvestitureConfig }>(
+    `/admin/investiture/config/${configId}`,
+    { method: "PATCH", body: payload },
+  );
+  return (res as { data: InvestitureConfig }).data ?? (res as unknown as InvestitureConfig);
+}
+
+/**
+ * DELETE /api/v1/admin/investiture/config/:configId
+ * GlobalRolesGuard (admin)
+ * Client-side only (soft-delete sets active=false)
+ */
+export async function deleteInvestitureConfig(
+  configId: number,
+): Promise<unknown> {
+  return apiRequestFromClient<unknown>(
+    `/admin/investiture/config/${configId}`,
+    { method: "DELETE" },
+  );
+}

@@ -102,7 +102,16 @@ export const navConfig: NavGroup[] = [
       { title: "Inventario", url: "/dashboard/inventory", icon: Package, permission: "inventory:read" },
       { title: "Certificaciones", url: "/dashboard/certifications", icon: ShieldCheck, permission: "certifications:read" },
       { title: "Seguros", url: "/dashboard/insurance", icon: Heart, permission: "insurance:read" },
-      { title: "Investiduras", url: "/dashboard/investiture", icon: Star, permission: "investiture:read" },
+      {
+        title: "Investiduras",
+        url: "/dashboard/investiture",
+        icon: Star,
+        permission: "investiture:read",
+        children: [
+          { title: "Pendientes", url: "/dashboard/investiture", permission: "investiture:read" },
+          { title: "Configuración", url: "/dashboard/investiture/config", permission: "investiture:read" },
+        ],
+      },
     ],
   },
   {
