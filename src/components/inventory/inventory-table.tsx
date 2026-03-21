@@ -1,6 +1,7 @@
 "use client";
 
-import { Package, Pencil, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { Package, Pencil, Trash2, History } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
+import { InventoryHistoryDialog } from "@/components/inventory/inventory-history-dialog";
 import type { InventoryItem } from "@/lib/api/inventory";
 
 // ─── Props ─────────────────────────────────────────────────────────────────────
@@ -25,6 +27,14 @@ interface InventoryTableProps {
 // ─── Component ─────────────────────────────────────────────────────────────────
 
 export function InventoryTable({ items, onEdit, onDelete }: InventoryTableProps) {
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyItem, setHistoryItem] = useState<InventoryItem | null>(null);
+
+  function handleHistory(item: InventoryItem) {
+    setHistoryItem(item);
+    setHistoryOpen(true);
+  }
+
   if (items.length === 0) {
     return (
       <EmptyState
@@ -55,7 +65,7 @@ export function InventoryTable({ items, onEdit, onDelete }: InventoryTableProps)
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
               Estado
             </TableHead>
-            <TableHead className="h-9 w-24 px-3" />
+            <TableHead className="h-9 w-32 px-3" />
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -86,6 +96,15 @@ export function InventoryTable({ items, onEdit, onDelete }: InventoryTableProps)
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle">
                   <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={() => handleHistory(item)}
+                      title="Ver historial"
+                    >
+                      <History className="size-3.5" />
+                      <span className="sr-only">Historial</span>
+                    </Button>
                     {onEdit && (
                       <Button
                         variant="ghost"
@@ -116,6 +135,12 @@ export function InventoryTable({ items, onEdit, onDelete }: InventoryTableProps)
           })}
         </TableBody>
       </Table>
+      <InventoryHistoryDialog
+        open={historyOpen}
+        onOpenChange={setHistoryOpen}
+        inventoryId={historyItem?.inventory_id ?? null}
+        itemName={historyItem?.name}
+      />
     </div>
   );
 }

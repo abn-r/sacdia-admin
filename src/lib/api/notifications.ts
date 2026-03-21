@@ -19,6 +19,35 @@ export type ClubNotificationPayload = {
   data?: Record<string, string>;
 };
 
+export type NotificationLogSender = {
+  user_id: string;
+  name: string | null;
+  paternal_last_name: string | null;
+  email: string;
+};
+
+export type NotificationLog = {
+  log_id: number;
+  title: string;
+  body: string;
+  type: string;
+  target_type: string;
+  target_id: string | null;
+  sent_by: string;
+  tokens_sent: number;
+  tokens_failed: number;
+  created_at: string;
+  users: NotificationLogSender;
+};
+
+export type NotificationHistoryResponse = {
+  data: NotificationLog[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
 export async function sendNotification(payload: SendNotificationPayload) {
   return apiRequest("/notifications/send", {
     method: "POST",
@@ -40,5 +69,14 @@ export async function sendClubNotification(
   return apiRequest(`/notifications/section/${sectionId}`, {
     method: "POST",
     body: payload,
+  });
+}
+
+export async function getNotificationHistory(
+  page = 1,
+  limit = 20,
+): Promise<NotificationHistoryResponse> {
+  return apiRequest<NotificationHistoryResponse>("/notifications/history", {
+    params: { page, limit },
   });
 }

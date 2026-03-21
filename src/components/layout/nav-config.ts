@@ -117,7 +117,16 @@ export const navConfig: NavGroup[] = [
   {
     label: "Comunicaciones",
     items: [
-      { title: "Notificaciones", url: "/dashboard/notifications", icon: Bell, permission: "notifications:send" },
+      {
+        title: "Notificaciones",
+        url: "/dashboard/notifications",
+        icon: Bell,
+        permission: "notifications:send",
+        children: [
+          { title: "Enviar", url: "/dashboard/notifications", permission: "notifications:send" },
+          { title: "Historial", url: "/dashboard/notifications/history", permission: "notifications:send" },
+        ],
+      },
       { title: "Folders", url: "/dashboard/folders", icon: FolderOpen, permission: "folders:read" },
     ],
   },

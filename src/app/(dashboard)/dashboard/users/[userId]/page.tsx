@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { PageHeader } from "@/components/shared/page-header";
 import { UserApprovalActions } from "@/components/users/user-approval-actions";
 import { UserAvatar } from "@/components/users/user-avatar";
+import { UserPermissionsPanel } from "@/components/rbac/user-permissions-panel";
 import {
   getAdminUserDetail,
   type AdminUserDetail,
@@ -19,6 +20,8 @@ import {
   canViewAdministrativeCompletion,
 } from "@/lib/auth/permission-utils";
 import { requireAdminUser } from "@/lib/auth/session";
+import { getUserPermissions, listPermissions } from "@/lib/rbac/service";
+import type { UserPermission, Permission } from "@/lib/rbac/types";
 
 type Params = Promise<{ userId: string }>;
 
@@ -154,8 +157,18 @@ export default async function UserDetailPage({ params }: { params: Params }) {
   const { userId } = await params;
 
   let user: AdminUserDetail;
+  let userPermissions: UserPermission[] = [];
+  let allPermissions: Permission[] = [];
+
   try {
-    user = await getAdminUserDetail(userId);
+    const results = await Promise.all([
+      getAdminUserDetail(userId),
+      getUserPermissions(userId).catch(() => [] as UserPermission[]),
+      listPermissions().catch(() => [] as Permission[]),
+    ]);
+    user = results[0];
+    userPermissions = results[1];
+    allPermissions = results[2];
   } catch (error) {
     if (error instanceof ApiError && [401, 403].includes(error.status)) {
       return (
@@ -520,6 +533,12 @@ export default async function UserDetailPage({ params }: { params: Params }) {
           })()}
         </CardContent>
       </Card>
+
+      <UserPermissionsPanel
+        userId={userId}
+        initialUserPermissions={userPermissions}
+        allPermissions={allPermissions}
+      />
 
       {user.club_assignments &&
         (user.club_assignments as ClubAssignment[]).length > 0 && (

@@ -2,6 +2,22 @@ import { apiRequest, apiRequestFromClient } from "@/lib/api/client";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
+export type InventoryAction = "CREATE" | "UPDATE" | "DELETE";
+
+export type InventoryHistoryEntry = {
+  history_id: number;
+  inventory_id: number;
+  action: InventoryAction;
+  field_changed: string | null;
+  old_value: string | null;
+  new_value: string | null;
+  performed_by: {
+    name: string;
+    paternal_last_name: string;
+  } | null;
+  created_at: string;
+};
+
 export type InstanceType = "adv" | "pathf" | "mg";
 
 export const INSTANCE_TYPE_LABELS: Record<InstanceType, string> = {
@@ -93,4 +109,12 @@ export async function deleteInventoryItem(inventoryId: number): Promise<unknown>
   return apiRequestFromClient(`/inventory/inventory/${inventoryId}`, {
     method: "DELETE",
   });
+}
+
+export async function getInventoryHistory(
+  inventoryId: number,
+): Promise<InventoryHistoryEntry[]> {
+  return apiRequestFromClient<InventoryHistoryEntry[]>(
+    `/inventory/${inventoryId}/history`,
+  );
 }
