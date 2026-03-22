@@ -14,6 +14,7 @@ import {
   FolderOpen,
   ShieldCheck,
   Heart,
+  Star,
   type LucideIcon,
 } from "lucide-react";
 
@@ -69,6 +70,7 @@ export const navConfig: NavGroup[] = [
           { title: "Iglesias", url: "/dashboard/catalogs/geography/churches", permission: "churches:read" },
           { title: "Alergias", url: "/dashboard/catalogs/allergies", permission: "catalogs:read" },
           { title: "Enfermedades", url: "/dashboard/catalogs/diseases", permission: "catalogs:read" },
+          { title: "Medicamentos", url: "/dashboard/catalogs/medicines", permission: "catalogs:read" },
           { title: "Tipos de relación", url: "/dashboard/catalogs/relationship-types", permission: "catalogs:read" },
           { title: "Años eclesiásticos", url: "/dashboard/catalogs/ecclesiastical-years", permission: "ecclesiastical_years:read" },
           { title: "Tipos de club", url: "/dashboard/catalogs/club-types", permission: "catalogs:read" },
@@ -101,12 +103,31 @@ export const navConfig: NavGroup[] = [
       { title: "Inventario", url: "/dashboard/inventory", icon: Package, permission: "inventory:read" },
       { title: "Certificaciones", url: "/dashboard/certifications", icon: ShieldCheck, permission: "certifications:read" },
       { title: "Seguros", url: "/dashboard/insurance", icon: Heart, permission: "insurance:read" },
+      {
+        title: "Investiduras",
+        url: "/dashboard/investiture",
+        icon: Star,
+        permission: "investiture:read",
+        children: [
+          { title: "Pendientes", url: "/dashboard/investiture", permission: "investiture:read" },
+          { title: "Configuración", url: "/dashboard/investiture/config", permission: "investiture:read" },
+        ],
+      },
     ],
   },
   {
     label: "Comunicaciones",
     items: [
-      { title: "Notificaciones", url: "/dashboard/notifications", icon: Bell, permission: "notifications:send" },
+      {
+        title: "Notificaciones",
+        url: "/dashboard/notifications",
+        icon: Bell,
+        permission: "notifications:send",
+        children: [
+          { title: "Enviar", url: "/dashboard/notifications", permission: "notifications:send" },
+          { title: "Historial", url: "/dashboard/notifications/history", permission: "notifications:send" },
+        ],
+      },
       { title: "Folders", url: "/dashboard/folders", icon: FolderOpen, permission: "folders:read" },
     ],
   },

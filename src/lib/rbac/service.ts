@@ -1,5 +1,5 @@
 import { apiRequest, ApiError } from "@/lib/api/client";
-import type { Permission, Role } from "@/lib/rbac/types";
+import type { Permission, Role, UserPermission } from "@/lib/rbac/types";
 
 type ApiResponse<T> = { status: string; data: T };
 
@@ -100,6 +100,39 @@ export async function syncRolePermissions(roleId: string, permissionIds: string[
 export async function removePermissionFromRole(roleId: string, permissionId: string) {
   return apiRequest<{ success: boolean }>(
     `/admin/rbac/roles/${roleId}/permissions/${permissionId}`,
+    { method: "DELETE" },
+  );
+}
+
+// ─── Permisos directos de usuario ───────────────────────────
+
+export async function getUserPermissions(userId: string): Promise<UserPermission[]> {
+  try {
+    const response = await apiRequest<ApiResponse<UserPermission[]>>(
+      `/admin/rbac/users/${encodeURIComponent(userId)}/permissions`,
+    );
+    return unwrap(response);
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) {
+      return [];
+    }
+    throw error;
+  }
+}
+
+export async function assignPermissionToUser(userId: string, permissionId: string) {
+  return apiRequest<{ success: boolean; message: string }>(
+    `/admin/rbac/users/${encodeURIComponent(userId)}/permissions`,
+    {
+      method: "POST",
+      body: { permission_ids: [permissionId] },
+    },
+  );
+}
+
+export async function removePermissionFromUser(userId: string, permissionId: string) {
+  return apiRequest<{ success: boolean }>(
+    `/admin/rbac/users/${encodeURIComponent(userId)}/permissions/${encodeURIComponent(permissionId)}`,
     { method: "DELETE" },
   );
 }
