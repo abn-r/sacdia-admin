@@ -7,6 +7,7 @@ import {
   Map,
   Heart,
   Stethoscope,
+  Pill,
   Link2,
   CalendarDays,
   Tent,
@@ -35,6 +36,7 @@ const geographyCards: CatalogCard[] = [
 const referenceCards: CatalogCard[] = [
   { title: "Alergias", description: "Catálogo de alergias", href: "/dashboard/catalogs/allergies", icon: Heart },
   { title: "Enfermedades", description: "Catálogo de enfermedades", href: "/dashboard/catalogs/diseases", icon: Stethoscope },
+  { title: "Medicamentos", description: "Catálogo de medicamentos", href: "/dashboard/catalogs/medicines", icon: Pill },
   { title: "Tipos de relación", description: "Tipos de relación familiar", href: "/dashboard/catalogs/relationship-types", icon: Link2 },
   { title: "Años eclesiásticos", description: "Períodos anuales", href: "/dashboard/catalogs/ecclesiastical-years", icon: CalendarDays },
   { title: "Tipos de club", description: "Tipos de club disponibles", href: "/dashboard/catalogs/club-types", icon: Tent },
