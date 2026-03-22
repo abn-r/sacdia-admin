@@ -68,7 +68,39 @@ export type UpdateInsurancePayload = Partial<CreateInsurancePayload> & {
   active?: boolean;
 };
 
+// ─── Expiring insurance types ─────────────────────────────────────────────────
+
+export type ExpiringInsurance = {
+  insurance_id: number;
+  user_id: string;
+  user_name: string | null;
+  name: string | null;
+  paternal_last_name: string | null;
+  maternal_last_name: string | null;
+  local_field_id: number | null;
+  club: { club_id: number; name: string } | null;
+  club_section: { club_section_id: number; name: string } | null;
+  insurance_type: InsuranceType | null;
+  policy_number: string | null;
+  provider: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  coverage_amount: number | null;
+  days_remaining: number;
+  is_expiring_soon: boolean;
+};
+
 // ─── Server-side API functions ────────────────────────────────────────────────
+
+export async function getExpiringInsurance(
+  daysAhead = 30,
+): Promise<ExpiringInsurance[]> {
+  const payload = await apiRequest<{ status: string; data: ExpiringInsurance[] }>(
+    "/insurance/expiring",
+    { params: { days_ahead: daysAhead } },
+  );
+  return Array.isArray(payload?.data) ? payload.data : [];
+}
 
 export async function listMembersInsurance(
   clubId: number,

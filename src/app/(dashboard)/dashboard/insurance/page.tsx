@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { InsuranceView } from "@/components/insurance/insurance-view";
+import { ExpiringInsuranceAlert } from "@/components/insurance/expiring-insurance-alert";
 import { ApiError, apiRequest } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
 import type { MemberInsurance } from "@/lib/api/insurance";
@@ -177,6 +178,8 @@ export default async function InsurancePage() {
         title="Seguros"
         description="Gestión de seguros de miembros por sección de club."
       />
+
+      <ExpiringInsuranceAlert />
 
       {loadError && <EndpointErrorBanner state="missing" detail={loadError} />}
 
