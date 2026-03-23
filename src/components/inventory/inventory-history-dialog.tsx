@@ -19,7 +19,7 @@ const actionConfig: Record<
   InventoryAction,
   {
     label: string;
-    badgeVariant: "success" | "default" | "destructive";
+    badgeVariant: "success" | "default" | "destructive" | "secondary";
     icon: React.ElementType;
     iconClassName: string;
     dotClassName: string;
