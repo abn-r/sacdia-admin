@@ -7,8 +7,8 @@ export async function GET() {
   const token = cookieStore.get(ACCESS_TOKEN_COOKIE)?.value;
 
   if (!token) {
-    return NextResponse.json({ token: null }, { status: 401 });
+    return NextResponse.json({ token: null }, { status: 401, headers: { "Cache-Control": "no-store" } });
   }
 
-  return NextResponse.json({ token });
+  return NextResponse.json({ token }, { headers: { "Cache-Control": "no-store" } });
 }

@@ -16,7 +16,7 @@ const loginSchema = z.object({
 
 const COOKIE_OPTIONS = {
   path: "/",
-  sameSite: "lax" as const,
+  sameSite: "strict" as const,
   secure: process.env.NODE_ENV === "production",
   httpOnly: true,
 };
@@ -28,7 +28,8 @@ function getLoginErrorMessage(error: ApiError, step: "login" | "profile") {
     }
 
     if (error.status === 404) {
-      return "No se encontro el endpoint de login. Revisa NEXT_PUBLIC_API_URL (ej. http://localhost:3000/api/v1).";
+      console.warn("[auth] Login endpoint not found. Check NEXT_PUBLIC_API_URL configuration.");
+      return "Error de conexion. Contacta al administrador del sistema.";
     }
   }
 
@@ -38,7 +39,8 @@ function getLoginErrorMessage(error: ApiError, step: "login" | "profile") {
     }
 
     if (error.status === 404) {
-      return "Inicio de sesion exitoso, pero no se pudo validar rol admin (/auth/me devolvio 404). Verifica la configuracion de la API.";
+      console.warn("[auth] /auth/me returned 404. Check API configuration.");
+      return "Error de conexion. Contacta al administrador del sistema.";
     }
   }
 
@@ -46,7 +48,8 @@ function getLoginErrorMessage(error: ApiError, step: "login" | "profile") {
     return "El servidor no respondio correctamente. Intenta nuevamente en unos minutos.";
   }
 
-  return error.message;
+  console.warn("[auth] Unhandled API error", { status: error.status, step });
+  return "Error al iniciar sesion. Intenta nuevamente.";
 }
 
 function asRecord(value: unknown): Record<string, unknown> | null {

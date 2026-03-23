@@ -26,7 +26,6 @@ components/
 └── [features]/     - Componentes por feature
 
 lib/
-├── supabase/       - Cliente Supabase (SSR)
 └── utils.ts        - Utilidades (cn, etc.)
 ```
 
@@ -36,42 +35,27 @@ lib/
 - **UI**: shadcn/ui + Tailwind CSS v4
 - **Icons**: lucide-react
 - **Forms**: React Hook Form + Zod
-- **Auth**: Supabase Auth (SSR)
+- **Auth**: JWT cookies via backend API (sin dependencia Supabase)
 - **State**: React Context (sin estado global complejo)
 
 ## Particularidades
 
 - **App Router**: Usa `app/` directory
 - **Server Components**: Por defecto, marcar con `'use client'` solo cuando necesario
-- **Supabase SSR**: Usar `createClient()` con cookies para SSR
+- **Auth**: JWT almacenado en cookie httpOnly, validado contra el backend API (no hay cliente Supabase)
 - **Styling**: Tailwind v4 + `cn()` utility de class-variance-authority
 - **Forms**: Siempre validar con Zod + React Hook Form
 
 ## Autenticación
 
-```typescript
-// Server Component
-import { createClient } from "@/lib/supabase/server";
-
-const supabase = createClient();
-const {
-  data: { user },
-} = await supabase.auth.getUser();
-
-// Client Component
-("use client");
-import { createClient } from "@/lib/supabase/client";
-
-const supabase = createClient();
-```
+El admin no usa Supabase. La auth se resuelve llamando al backend API (`NEXT_PUBLIC_API_URL`).
+No importar ni usar `@/lib/supabase/client` o `@/lib/supabase/server` — ese código fue eliminado en Wave 3.
 
 ## Variables de Entorno
 
 Ver `.env.local.example`:
 
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `NEXT_PUBLIC_API_URL` (backend URL)
+- `NEXT_PUBLIC_API_URL` (backend URL, ej: http://localhost:3000)
 
 ## Deployment
 
