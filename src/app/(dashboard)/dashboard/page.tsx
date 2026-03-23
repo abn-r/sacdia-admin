@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { apiRequest } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
+import { RoleDistributionChart, type RoleDistributionEntry } from "@/components/dashboard/role-distribution-chart";
 
 type StatsData = {
   totalUsers: number | null;
@@ -89,6 +90,47 @@ async function fetchRecentUsers(): Promise<RecentUser[]> {
     return [];
   } catch {
     return [];
+  }
+}
+
+type RoleDistributionResult = {
+  data: RoleDistributionEntry[];
+  sampleSize: number;
+};
+
+async function fetchRoleDistribution(): Promise<RoleDistributionResult> {
+  try {
+    const res = await apiRequest<{ status?: string; data?: { data?: RecentUser[] } }>("/admin/users?limit=100&page=1");
+    const list = res?.data?.data;
+    if (!Array.isArray(list) || list.length === 0) return { data: [], sampleSize: 0 };
+
+    const counts = new Map<string, number>();
+    for (const user of list) {
+      const roles: string[] = [];
+      if (Array.isArray(user.roles)) roles.push(...user.roles);
+      if (Array.isArray(user.users_roles)) {
+        for (const ur of user.users_roles) {
+          if (ur.roles?.role_name) roles.push(ur.roles.role_name);
+        }
+      }
+      const unique = [...new Set(roles)];
+      if (unique.length === 0) {
+        counts.set("sin_rol", (counts.get("sin_rol") ?? 0) + 1);
+      } else {
+        for (const role of unique) {
+          counts.set(role, (counts.get(role) ?? 0) + 1);
+        }
+      }
+    }
+
+    const total = [...counts.values()].reduce((sum, n) => sum + n, 0);
+    const data: RoleDistributionEntry[] = [...counts.entries()]
+      .map(([role, count]) => ({ role, count, percentage: total > 0 ? (count / total) * 100 : 0 }))
+      .sort((a, b) => b.count - a.count);
+
+    return { data, sampleSize: list.length };
+  } catch {
+    return { data: [], sampleSize: 0 };
   }
 }
 
@@ -285,6 +327,41 @@ function StatsSkeleton() {
   );
 }
 
+async function RoleDistributionSection() {
+  const { data, sampleSize } = await fetchRoleDistribution();
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">Distribución de roles</CardTitle>
+        <CardDescription>Roles con más usuarios asignados</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <RoleDistributionChart data={data} sampleSize={sampleSize} />
+      </CardContent>
+    </Card>
+  );
+}
+
+function RoleDistributionSkeleton() {
+  return (
+    <Card>
+      <CardHeader>
+        <Skeleton className="h-5 w-44" />
+        <Skeleton className="h-3 w-36" />
+      </CardHeader>
+      <CardContent className="space-y-2">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-2">
+            <Skeleton className="h-3 w-20" />
+            <Skeleton className="h-4 flex-1 rounded" />
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  );
+}
+
 function RecentUsersSkeleton() {
   return (
     <Card className="col-span-2">
@@ -325,17 +402,9 @@ export default async function DashboardPage() {
           <RecentUsersSection />
         </Suspense>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Distribución de roles</CardTitle>
-            <CardDescription>Roles con más usuarios asignados</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              La distribución de roles se mostrará cuando el endpoint de estadísticas esté disponible.
-            </p>
-          </CardContent>
-        </Card>
+        <Suspense fallback={<RoleDistributionSkeleton />}>
+          <RoleDistributionSection />
+        </Suspense>
       </div>
 
       <div>
