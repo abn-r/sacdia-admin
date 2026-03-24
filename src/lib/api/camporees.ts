@@ -195,3 +195,64 @@ export async function updatePayment(paymentId: number, payload: UpdatePaymentPay
     body: payload,
   });
 }
+
+// ─── Union camporees ───────────────────────────────────────────────────────────
+
+export type UnionCamporee = {
+  union_camporee_id?: number;
+  id?: number;
+  name: string;
+  description?: string | null;
+  start_date: string;
+  end_date: string;
+  union_id?: number | null;
+  union_name?: string | null;
+  includes_adventurers?: boolean;
+  includes_pathfinders?: boolean;
+  includes_master_guides?: boolean;
+  place?: string | null;
+  registration_cost?: number | null;
+  active?: boolean;
+};
+
+export type UnionCamporeePayload = {
+  name: string;
+  description?: string;
+  start_date: string;
+  end_date: string;
+  union_id: number;
+  includes_adventurers: boolean;
+  includes_pathfinders: boolean;
+  includes_master_guides: boolean;
+  place: string;
+  registration_cost?: number;
+  active?: boolean;
+};
+
+export async function listUnionCamporees() {
+  return apiRequest<UnionCamporee[]>("/camporees/union");
+}
+
+export async function getUnionCamporeeById(id: number) {
+  return apiRequest<UnionCamporee>(`/camporees/union/${id}`);
+}
+
+export async function createUnionCamporee(payload: UnionCamporeePayload) {
+  return apiRequest("/camporees/union", {
+    method: "POST",
+    body: payload,
+  });
+}
+
+export async function updateUnionCamporee(id: number, payload: Partial<UnionCamporeePayload>) {
+  return apiRequest(`/camporees/union/${id}`, {
+    method: "PATCH",
+    body: payload,
+  });
+}
+
+export async function deleteUnionCamporee(id: number) {
+  return apiRequest(`/camporees/union/${id}`, {
+    method: "DELETE",
+  });
+}

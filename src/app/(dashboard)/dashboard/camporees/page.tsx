@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Tent } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -5,6 +6,7 @@ import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { CampoReesView } from "@/components/camporees/camporees-view";
 import { ApiError, apiRequest } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
+import { Button } from "@/components/ui/button";
 import type { Camporee } from "@/lib/api/camporees";
 
 type AnyRecord = Record<string, unknown>;
@@ -38,7 +40,11 @@ export default async function CamporeesPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Camporees" description="Gestión de camporees y eventos." />
+      <PageHeader title="Camporees" description="Gestión de camporees y eventos.">
+        <Button variant="outline" size="sm" asChild>
+          <Link href="/dashboard/camporees/union">Ver camporees de unión</Link>
+        </Button>
+      </PageHeader>
 
       {loadError && <EndpointErrorBanner state="missing" detail={loadError} />}
 

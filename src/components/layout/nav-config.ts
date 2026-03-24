@@ -21,6 +21,7 @@ import {
   FolderArchive,
   ArrowRightLeft,
   Settings2,
+  CalendarOff,
   type LucideIcon,
 } from "lucide-react";
 
@@ -101,13 +102,28 @@ export const navConfig: NavGroup[] = [
         icon: Settings2,
         permission: "system_config:read",
       },
+      {
+        title: "Cierre de año",
+        url: "/dashboard/year-end",
+        icon: CalendarOff,
+        permission: "system_config:read",
+      },
     ],
   },
   {
     label: "Operativo",
     items: [
       { title: "Clubes", url: "/dashboard/clubs", icon: Building2, permission: "clubs:read" },
-      { title: "Camporees", url: "/dashboard/camporees", icon: Tent, permission: "camporees:read" },
+      {
+        title: "Camporees",
+        url: "/dashboard/camporees",
+        icon: Tent,
+        permission: "camporees:read",
+        children: [
+          { title: "Locales", url: "/dashboard/camporees", permission: "camporees:read" },
+          { title: "Unión", url: "/dashboard/camporees/union", permission: "camporees:read" },
+        ],
+      },
       { title: "Clases", url: "/dashboard/classes", icon: GraduationCap, permission: "classes:read" },
       { title: "Inscripciones", url: "/dashboard/enrollments", icon: ClipboardList, permission: "classes:read" },
       { title: "Especialidades", url: "/dashboard/honors", icon: Award, permission: "honors:read" },
