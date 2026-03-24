@@ -224,7 +224,7 @@ export async function loginAction(_: AuthActionState, formData: FormData): Promi
   if (!hasAdminRole(profile)) {
     return {
       error:
-        "Tu cuenta no tiene permisos para este panel. Solicita rol admin, super_admin o coordinator.",
+        "Tu cuenta no tiene permisos para este panel. Necesitas un rol global de administración.",
     };
   }
 

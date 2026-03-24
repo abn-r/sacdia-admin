@@ -797,6 +797,13 @@ function normalizeApprovalPayload(payload: UpdateAdminUserApprovalPayload) {
   };
 }
 
+export type UpdateAdminUserPayload = {
+  access_app?: boolean;
+  access_panel?: boolean;
+  active?: boolean;
+  approval_status?: "pending" | "approved" | "rejected";
+};
+
 export async function updateAdminUserApproval(payload: UpdateAdminUserApprovalPayload) {
   const userId = payload.userId.trim();
 

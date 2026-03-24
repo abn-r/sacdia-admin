@@ -1,9 +1,18 @@
 import type { AuthUser } from "@/lib/auth/types";
 
 export const ALLOWED_ADMIN_ROLES = [
-  "super_admin",
+  "super-admin",
   "admin",
   "coordinator",
+  "zone-coordinator",
+  "general-coordinator",
+  "pastor",
+  "assistant-lf",
+  "director-lf",
+  "assistant-union",
+  "director-union",
+  "assistant-dia",
+  "director-dia",
 ] as const;
 const RBAC_LEGACY_FALLBACK_ENABLED =
   process.env.NEXT_PUBLIC_RBAC_LEGACY_FALLBACK === "true";

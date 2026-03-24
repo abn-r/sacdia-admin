@@ -8,7 +8,12 @@ import { Separator } from "@/components/ui/separator";
 import { PageHeader } from "@/components/shared/page-header";
 import { UserApprovalActions } from "@/components/users/user-approval-actions";
 import { UserAvatar } from "@/components/users/user-avatar";
+import {
+  UserAccessToggles,
+  normalizeApprovalStatus,
+} from "@/components/users/user-access-toggles";
 import { UserPermissionsPanel } from "@/components/rbac/user-permissions-panel";
+import { UserRolesPanel } from "@/components/rbac/user-roles-panel";
 import {
   getAdminUserDetail,
   type AdminUserDetail,
@@ -20,8 +25,13 @@ import {
   canViewAdministrativeCompletion,
 } from "@/lib/auth/permission-utils";
 import { requireAdminUser } from "@/lib/auth/session";
-import { getUserPermissions, listPermissions } from "@/lib/rbac/service";
-import type { UserPermission, Permission } from "@/lib/rbac/types";
+import {
+  getUserPermissions,
+  getUserRoles,
+  listPermissions,
+  listRoles,
+} from "@/lib/rbac/service";
+import type { UserPermission, Permission, UserRole, Role } from "@/lib/rbac/types";
 
 type Params = Promise<{ userId: string }>;
 
@@ -159,16 +169,22 @@ export default async function UserDetailPage({ params }: { params: Params }) {
   let user: AdminUserDetail;
   let userPermissions: UserPermission[] = [];
   let allPermissions: Permission[] = [];
+  let userRoles: UserRole[] = [];
+  let allRoles: Role[] = [];
 
   try {
     const results = await Promise.all([
       getAdminUserDetail(userId),
       getUserPermissions(userId).catch(() => [] as UserPermission[]),
       listPermissions().catch(() => [] as Permission[]),
+      getUserRoles(userId).catch(() => [] as UserRole[]),
+      listRoles().catch(() => [] as Role[]),
     ]);
     user = results[0];
     userPermissions = results[1];
     allPermissions = results[2];
+    userRoles = results[3];
+    allRoles = results[4];
   } catch (error) {
     if (error instanceof ApiError && [401, 403].includes(error.status)) {
       return (
@@ -297,30 +313,13 @@ export default async function UserDetailPage({ params }: { params: Params }) {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Accesos</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <InfoRow
-              label="Acceso a App"
-              value={
-                <Badge variant={user.access_app ? "default" : "outline"}>
-                  {user.access_app ? "Sí" : "No"}
-                </Badge>
-              }
-            />
-            <InfoRow
-              label="Acceso a Panel"
-              value={
-                <Badge variant={user.access_panel ? "default" : "outline"}>
-                  {user.access_panel ? "Sí" : "No"}
-                </Badge>
-              }
-            />
-            <InfoRow label="Aprobación" value={String(user.approval ?? "—")} />
-          </CardContent>
-        </Card>
+        <UserAccessToggles
+          userId={user.user_id}
+          initialAccessApp={user.access_app}
+          initialAccessPanel={user.access_panel}
+          initialActive={user.active}
+          initialApprovalStatus={normalizeApprovalStatus(user.approval)}
+        />
 
         {canSeeHealthData ? (
           <Card>
@@ -454,26 +453,11 @@ export default async function UserDetailPage({ params }: { params: Params }) {
           </Card>
         ) : null}
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Roles globales</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {roleNames.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {roleNames.map((role) => (
-                  <Badge key={role} variant="secondary">
-                    {role}
-                  </Badge>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                Sin roles globales asignados.
-              </p>
-            )}
-          </CardContent>
-        </Card>
+        <UserRolesPanel
+          userId={userId}
+          initialUserRoles={userRoles}
+          allRoles={allRoles}
+        />
 
         <Card>
           <CardHeader>
