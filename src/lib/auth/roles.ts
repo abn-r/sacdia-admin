@@ -56,36 +56,39 @@ function addRole(set: Set<string>, value: unknown) {
 
 function extractCanonicalRoles(resolved: AuthUser): string[] {
   const roles = new Set<string>();
+
+  // 1. Flat roles array (from login response: data.user.roles = ['super-admin', ...])
+  if (Array.isArray(resolved.roles)) {
+    resolved.roles.forEach((role) => addRole(roles, role));
+  }
+
+  // 2. Canonical authorization structure (from /auth/me: authorization.grants.global_roles[])
   const authorization = resolved.authorization;
 
-  if (!isRecord(authorization)) {
-    return [];
-  }
+  if (isRecord(authorization)) {
+    const grants = authorization.grants;
+    if (isRecord(grants)) {
+      const addRolesFromGrantList = (grantList: unknown) => {
+        if (!Array.isArray(grantList)) {
+          return;
+        }
 
-  const grants = authorization.grants;
-  if (!isRecord(grants)) {
-    return [];
-  }
+        for (const grant of grantList) {
+          if (!isRecord(grant)) {
+            continue;
+          }
 
-  const addRolesFromGrantList = (grantList: unknown) => {
-    if (!Array.isArray(grantList)) {
-      return;
+          addRole(roles, grant.role_name);
+          addRole(roles, grant.role);
+          addRole(roles, grant.name);
+          addRole(roles, grant.key);
+        }
+      };
+
+      addRolesFromGrantList(grants.global_roles);
+      addRolesFromGrantList(grants.club_assignments);
     }
-
-    for (const grant of grantList) {
-      if (!isRecord(grant)) {
-        continue;
-      }
-
-      addRole(roles, grant.role_name);
-      addRole(roles, grant.role);
-      addRole(roles, grant.name);
-      addRole(roles, grant.key);
-    }
-  };
-
-  addRolesFromGrantList(grants.global_roles);
-  addRolesFromGrantList(grants.club_assignments);
+  }
 
   return Array.from(roles);
 }
