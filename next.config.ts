@@ -16,17 +16,6 @@ const nextConfig: NextConfig = {
   },
   images: {
     remotePatterns: [
-      // Supabase Storage (auth avatars, user-uploaded content)
-      {
-        protocol: "https",
-        hostname: "**.supabase.co",
-        pathname: "/storage/v1/**",
-      },
-      {
-        protocol: "https",
-        hostname: "**.supabase.in",
-        pathname: "/storage/v1/**",
-      },
       // Google OAuth profile pictures
       {
         protocol: "https",

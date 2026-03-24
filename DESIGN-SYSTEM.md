@@ -1384,7 +1384,7 @@ src/
 │   └── theme-toggle.tsx
 └── lib/
     ├── utils.ts             # cn() utility
-    ├── auth/                # Autenticacion Supabase
+    ├── auth/                # Autenticación JWT + Better Auth
     ├── catalogs/            # Logica de catalogos
     └── providers/           # React Query, etc.
 ```

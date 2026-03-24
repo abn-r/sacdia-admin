@@ -8,7 +8,7 @@ Panel de administración para el Sistema de Administración de Clubes de Conquis
 - **Language:** TypeScript
 - **Styling:** Tailwind CSS v4
 - **UI Components:** shadcn/ui
-- **Backend:** Supabase
+- **Backend:** NestJS API (sacdia-backend)
 - **Forms:** React Hook Form + Zod
 - **Package Manager:** pnpm
 
@@ -28,7 +28,7 @@ pnpm install
 # Copy environment variables
 cp .env.local.example .env.local
 
-# Update .env.local with your Supabase credentials
+# Update .env.local with your API credentials
 ```
 
 ### Development
@@ -49,7 +49,6 @@ sacdia-admin/
 │   ├── components/       # React components
 │   │   └── ui/          # shadcn/ui components
 │   └── lib/
-│       ├── supabase/    # Supabase clients
 │       └── utils.ts     # Utility functions
 ├── public/              # Static assets
 └── ...config files
@@ -59,9 +58,7 @@ sacdia-admin/
 
 See `.env.local.example` for required environment variables:
 
-- `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase project URL
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Your Supabase anonymous key
-- `NEXT_PUBLIC_API_URL`: Backend API URL (default: http://localhost:3000/api/v1)
+- `NEXT_PUBLIC_API_URL`: Backend API URL (default: http://localhost:3000)
 
 ## Related Repositories
 
