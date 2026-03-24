@@ -16,6 +16,9 @@ import {
   Heart,
   Star,
   ClipboardList,
+  ClipboardCheck,
+  FileText,
+  FolderArchive,
   type LucideIcon,
 } from "lucide-react";
 
@@ -106,15 +109,23 @@ export const navConfig: NavGroup[] = [
       { title: "Certificaciones", url: "/dashboard/certifications", icon: ShieldCheck, permission: "certifications:read" },
       { title: "Seguros", url: "/dashboard/insurance", icon: Heart, permission: "insurance:read" },
       {
+        title: "Validación",
+        url: "/dashboard/validation",
+        icon: ClipboardCheck,
+        permission: "investiture:read",
+      },
+      {
         title: "Investiduras",
         url: "/dashboard/investiture",
         icon: Star,
         permission: "investiture:read",
         children: [
           { title: "Pendientes", url: "/dashboard/investiture", permission: "investiture:read" },
+          { title: "Pipeline", url: "/dashboard/investiture/pipeline", permission: "investiture:read" },
           { title: "Configuración", url: "/dashboard/investiture/config", permission: "investiture:read" },
         ],
       },
+      { title: "Reportes", url: "/dashboard/reports", icon: FileText, permission: "classes:read" },
     ],
   },
   {
@@ -131,6 +142,16 @@ export const navConfig: NavGroup[] = [
         ],
       },
       { title: "Folders", url: "/dashboard/folders", icon: FolderOpen, permission: "folders:read" },
+      {
+        title: "Carpeta Anual",
+        url: "/dashboard/annual-folders",
+        icon: FolderArchive,
+        permission: "annual_folders:read",
+        children: [
+          { title: "Plantillas", url: "/dashboard/annual-folders/templates", permission: "annual_folders:read" },
+          { title: "Mi Carpeta", url: "/dashboard/annual-folders", permission: "annual_folders:read" },
+        ],
+      },
     ],
   },
 ];

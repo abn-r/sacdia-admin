@@ -5,8 +5,13 @@ import { apiRequest, apiRequestFromClient } from "@/lib/api/client";
 export type InvestitureStatus =
   | "IN_PROGRESS"
   | "SUBMITTED_FOR_VALIDATION"
+  | "SUBMITTED"
+  | "CLUB_APPROVED"
+  | "COORDINATOR_APPROVED"
+  | "FIELD_APPROVED"
   | "APPROVED"
   | "REJECTED"
+  | "INVESTED"
   | "INVESTIDO";
 
 export type InvestitureAction =
@@ -280,5 +285,158 @@ export async function deleteInvestitureConfig(
   return apiRequestFromClient<unknown>(
     `/admin/investiture/config/${configId}`,
     { method: "DELETE" },
+  );
+}
+
+// ─── Multi-stage pipeline types ───────────────────────────────────────────────
+
+export type PipelineStatus =
+  | "SUBMITTED"
+  | "CLUB_APPROVED"
+  | "COORDINATOR_APPROVED"
+  | "FIELD_APPROVED"
+  | "INVESTED"
+  | "REJECTED";
+
+export type PipelineEnrollment = {
+  enrollment_id: number;
+  status: PipelineStatus;
+  submitted_at?: string | null;
+  updated_at?: string | null;
+  rejection_reason?: string | null;
+  user?: InvestitureUser | null;
+  class?: InvestitureClass | null;
+  club?: InvestitureClub | null;
+  section?: { section_id: number; name: string } | null;
+  ecclesiastical_year?: EcclesiasticalYear | null;
+};
+
+export type PipelineHistoryEntry = {
+  history_id: number;
+  enrollment_id: number;
+  action: string;
+  performed_by?: string | null;
+  reason?: string | null;
+  created_at: string;
+  performer?: InvestitureUser | null;
+};
+
+export type RejectPipelinePayload = {
+  reason: string;
+};
+
+// ─── Multi-stage pipeline API functions ───────────────────────────────────────
+
+/**
+ * GET /api/v1/investiture/pending?status=
+ * List enrollments in the approval pipeline filtered by status.
+ */
+export async function getPipelineEnrollments(
+  status?: PipelineStatus,
+): Promise<PipelineEnrollment[]> {
+  const params: Record<string, string | number | boolean | undefined> = {};
+  if (status) params.status = status;
+
+  const res = await apiRequest<
+    PipelineEnrollment[] | { data: PipelineEnrollment[] } | { status: string; data: PipelineEnrollment[] }
+  >("/investiture/pending", { params });
+
+  if (Array.isArray(res)) return res;
+  if (res && typeof res === "object" && "data" in res && Array.isArray((res as { data: unknown }).data)) {
+    return (res as { data: PipelineEnrollment[] }).data;
+  }
+  return [];
+}
+
+/**
+ * GET /api/v1/investiture/enrollments/:enrollmentId/investiture-history
+ * History for a specific enrollment in the pipeline.
+ */
+export async function getPipelineHistory(
+  enrollmentId: number,
+): Promise<PipelineHistoryEntry[]> {
+  const res = await apiRequest<
+    PipelineHistoryEntry[] | { data: PipelineHistoryEntry[] }
+  >(`/investiture/enrollments/${enrollmentId}/investiture-history`);
+
+  if (Array.isArray(res)) return res;
+  if (res && typeof res === "object" && "data" in res && Array.isArray((res as { data: unknown }).data)) {
+    return (res as { data: PipelineHistoryEntry[] }).data;
+  }
+  return [];
+}
+
+/**
+ * POST /api/v1/investiture/enrollments/:enrollmentId/submit
+ * Counselor submits an enrollment for the approval pipeline.
+ * Client-side only.
+ */
+export async function pipelineSubmit(enrollmentId: number): Promise<unknown> {
+  return apiRequestFromClient<unknown>(
+    `/investiture/enrollments/${enrollmentId}/submit`,
+    { method: "POST" },
+  );
+}
+
+/**
+ * POST /api/v1/investiture/enrollments/:enrollmentId/club-approve
+ * Director approves at the club level.
+ * Client-side only.
+ */
+export async function pipelineClubApprove(enrollmentId: number): Promise<unknown> {
+  return apiRequestFromClient<unknown>(
+    `/investiture/enrollments/${enrollmentId}/club-approve`,
+    { method: "POST" },
+  );
+}
+
+/**
+ * POST /api/v1/investiture/enrollments/:enrollmentId/coordinator-approve
+ * Coordinator approves.
+ * Client-side only.
+ */
+export async function pipelineCoordinatorApprove(enrollmentId: number): Promise<unknown> {
+  return apiRequestFromClient<unknown>(
+    `/investiture/enrollments/${enrollmentId}/coordinator-approve`,
+    { method: "POST" },
+  );
+}
+
+/**
+ * POST /api/v1/investiture/enrollments/:enrollmentId/field-approve
+ * Field officer approves.
+ * Client-side only.
+ */
+export async function pipelineFieldApprove(enrollmentId: number): Promise<unknown> {
+  return apiRequestFromClient<unknown>(
+    `/investiture/enrollments/${enrollmentId}/field-approve`,
+    { method: "POST" },
+  );
+}
+
+/**
+ * POST /api/v1/investiture/enrollments/:enrollmentId/invest
+ * Mark the enrollment as invested (ceremony done).
+ * Client-side only.
+ */
+export async function pipelineInvest(enrollmentId: number): Promise<unknown> {
+  return apiRequestFromClient<unknown>(
+    `/investiture/enrollments/${enrollmentId}/invest`,
+    { method: "POST" },
+  );
+}
+
+/**
+ * POST /api/v1/investiture/enrollments/:enrollmentId/reject
+ * Reject an enrollment at any stage.
+ * Client-side only.
+ */
+export async function pipelineReject(
+  enrollmentId: number,
+  payload: RejectPipelinePayload,
+): Promise<unknown> {
+  return apiRequestFromClient<unknown>(
+    `/investiture/enrollments/${enrollmentId}/reject`,
+    { method: "POST", body: payload },
   );
 }
