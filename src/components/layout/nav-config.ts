@@ -19,6 +19,8 @@ import {
   ClipboardCheck,
   FileText,
   FolderArchive,
+  ArrowRightLeft,
+  Settings2,
   type LucideIcon,
 } from "lucide-react";
 
@@ -93,6 +95,12 @@ export const navConfig: NavGroup[] = [
           { title: "Matriz", url: "/dashboard/rbac/matrix", permission: "permissions:read" },
         ],
       },
+      {
+        title: "Configuración",
+        url: "/dashboard/settings",
+        icon: Settings2,
+        permission: "system_config:read",
+      },
     ],
   },
   {
@@ -126,6 +134,16 @@ export const navConfig: NavGroup[] = [
         ],
       },
       { title: "Reportes", url: "/dashboard/reports", icon: FileText, permission: "classes:read" },
+      {
+        title: "Solicitudes",
+        url: "/dashboard/requests/transfers",
+        icon: ArrowRightLeft,
+        permission: "requests:read",
+        children: [
+          { title: "Transferencias", url: "/dashboard/requests/transfers", permission: "requests:read" },
+          { title: "Asignaciones", url: "/dashboard/requests/assignments", permission: "requests:read" },
+        ],
+      },
     ],
   },
   {

@@ -6,6 +6,51 @@ export type CamporeeQuery = {
   type?: "local" | "union";
 };
 
+// ─── Club enrollment ──────────────────────────────────────────────────────────
+
+export type CamporeeClub = {
+  camporee_club_id: number;
+  camporee_id: number;
+  club_section_id: number;
+  section_name?: string | null;
+  club_name?: string | null;
+  status?: string | null;
+  registered_by?: string | null;
+  registered_by_name?: string | null;
+  created_at?: string | null;
+};
+
+export type EnrollClubPayload = {
+  club_section_id: number;
+};
+
+// ─── Payments ─────────────────────────────────────────────────────────────────
+
+export type PaymentType = "inscription" | "materials" | "other";
+
+export type CamporeePayment = {
+  payment_id: number;
+  camporee_id: number;
+  member_id: string;
+  member_name?: string | null;
+  amount: number;
+  payment_type: PaymentType;
+  reference?: string | null;
+  notes?: string | null;
+  paid_at?: string | null;
+  created_at?: string | null;
+};
+
+export type CreatePaymentPayload = {
+  amount: number;
+  payment_type: PaymentType;
+  reference?: string;
+  notes?: string;
+  paid_at?: string;
+};
+
+export type UpdatePaymentPayload = Partial<CreatePaymentPayload>;
+
 export type Camporee = {
   camporee_id?: number;
   local_camporee_id?: number;
@@ -99,5 +144,54 @@ export async function registerCamporeeMember(
 export async function removeCamporeeMember(camporeeId: number, userId: string) {
   return apiRequest(`/camporees/${camporeeId}/members/${userId}`, {
     method: "DELETE",
+  });
+}
+
+// ─── Club enrollment functions ────────────────────────────────────────────────
+
+export async function enrollClub(camporeeId: number, payload: EnrollClubPayload) {
+  return apiRequest(`/camporees/${camporeeId}/clubs`, {
+    method: "POST",
+    body: payload,
+  });
+}
+
+export async function getEnrolledClubs(camporeeId: number) {
+  return apiRequest<CamporeeClub[]>(`/camporees/${camporeeId}/clubs`);
+}
+
+export async function cancelClubEnrollment(camporeeId: number, camporeeClubId: number) {
+  return apiRequest(`/camporees/${camporeeId}/clubs/${camporeeClubId}`, {
+    method: "DELETE",
+  });
+}
+
+// ─── Payment functions ────────────────────────────────────────────────────────
+
+export async function createPayment(
+  camporeeId: number,
+  memberId: string,
+  payload: CreatePaymentPayload,
+) {
+  return apiRequest(`/camporees/${camporeeId}/members/${memberId}/payments`, {
+    method: "POST",
+    body: payload,
+  });
+}
+
+export async function getMemberPayments(camporeeId: number, memberId: string) {
+  return apiRequest<CamporeePayment[]>(
+    `/camporees/${camporeeId}/members/${memberId}/payments`,
+  );
+}
+
+export async function getCamporeePayments(camporeeId: number) {
+  return apiRequest<CamporeePayment[]>(`/camporees/${camporeeId}/payments`);
+}
+
+export async function updatePayment(paymentId: number, payload: UpdatePaymentPayload) {
+  return apiRequest(`/camporees/payments/${paymentId}`, {
+    method: "PATCH",
+    body: payload,
   });
 }
