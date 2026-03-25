@@ -20,7 +20,7 @@ import type { MemberInsurance, InsuranceType } from "@/lib/api/insurance";
 function formatDate(value: string | null | undefined): string {
   if (!value) return "—";
   try {
-    return new Date(value).toLocaleDateString("es-AR", {
+    return new Date(value).toLocaleDateString("es-MX", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
@@ -32,7 +32,7 @@ function formatDate(value: string | null | undefined): string {
 
 function formatCurrency(value: number | null | undefined): string {
   if (value == null) return "—";
-  return new Intl.NumberFormat("es-AR", {
+  return new Intl.NumberFormat("es-MX", {
     style: "currency",
     currency: "ARS",
     maximumFractionDigits: 0,

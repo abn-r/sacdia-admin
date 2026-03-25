@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/shared/page-header";
 import { EditClubForm } from "@/components/clubs/edit-club-form";
 import { ClubSectionsPanel } from "@/components/clubs/club-sections-panel";
+import { PendingMembersPanel } from "@/components/membership/pending-members-panel";
 import { apiRequest, ApiError } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
 import { getSelectOptions } from "@/lib/catalogs/service";
@@ -140,6 +141,7 @@ export default async function ClubDetailPage({ params }: { params: Params }) {
           <TabsTrigger value="view">Ver</TabsTrigger>
           <TabsTrigger value="edit">Editar</TabsTrigger>
           <TabsTrigger value="sections">Secciones ({sections.length})</TabsTrigger>
+          <TabsTrigger value="membership">Solicitudes de membresía</TabsTrigger>
         </TabsList>
 
         <TabsContent value="view" className="mt-4">
@@ -158,6 +160,10 @@ export default async function ClubDetailPage({ params }: { params: Params }) {
 
         <TabsContent value="sections" className="mt-4 space-y-4">
           <ClubSectionsPanel clubId={clubId} sections={sections} />
+        </TabsContent>
+
+        <TabsContent value="membership" className="mt-4 space-y-4">
+          <PendingMembersPanel sections={sections} />
         </TabsContent>
       </Tabs>
     </div>

@@ -16,7 +16,7 @@ import {
 import { deleteFinance, type Finance } from "@/lib/api/finances";
 
 function formatAmount(cents: number): string {
-  return new Intl.NumberFormat("es-AR", {
+  return new Intl.NumberFormat("es-MX", {
     style: "currency",
     currency: "ARS",
     minimumFractionDigits: 2,

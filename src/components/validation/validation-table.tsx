@@ -35,7 +35,7 @@ function getMemberName(v: PendingValidation): string {
 function formatDate(iso?: string | null): string {
   if (!iso) return "—";
   try {
-    return new Intl.DateTimeFormat("es-AR", {
+    return new Intl.DateTimeFormat("es-MX", {
       day: "2-digit",
       month: "short",
       year: "numeric",

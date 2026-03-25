@@ -27,7 +27,7 @@ import type { Finance } from "@/lib/api/finances";
 
 function formatAmount(cents: number): string {
   const pesos = cents / 100;
-  return new Intl.NumberFormat("es-AR", {
+  return new Intl.NumberFormat("es-MX", {
     style: "currency",
     currency: "ARS",
     minimumFractionDigits: 2,
@@ -36,7 +36,7 @@ function formatAmount(cents: number): string {
 
 function formatDate(dateStr: string): string {
   try {
-    return new Intl.DateTimeFormat("es-AR", {
+    return new Intl.DateTimeFormat("es-MX", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",

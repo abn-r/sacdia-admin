@@ -50,7 +50,7 @@ interface FolderClientPageProps {
 
 function formatDate(dateString: string | null): string {
   if (!dateString) return "—";
-  return new Date(dateString).toLocaleDateString("es-AR", {
+  return new Date(dateString).toLocaleDateString("es-MX", {
     day: "2-digit",
     month: "long",
     year: "numeric",

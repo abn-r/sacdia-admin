@@ -9,7 +9,7 @@ import type { FinanceSummary } from "@/lib/api/finances";
 
 function formatAmount(cents: number): string {
   const pesos = cents / 100;
-  return new Intl.NumberFormat("es-AR", {
+  return new Intl.NumberFormat("es-MX", {
     style: "currency",
     currency: "ARS",
     minimumFractionDigits: 2,

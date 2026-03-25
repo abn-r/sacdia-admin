@@ -158,6 +158,7 @@ export const navConfig: NavGroup[] = [
         children: [
           { title: "Transferencias", url: "/dashboard/requests/transfers", permission: "requests:read" },
           { title: "Asignaciones", url: "/dashboard/requests/assignments", permission: "requests:read" },
+          { title: "Membresías", url: "/dashboard/requests/membership", permission: "club_members:approve" },
         ],
       },
     ],

@@ -51,6 +51,10 @@ export const CLUB_SECTIONS_DELETE = "club_sections:delete";
 export const CLUB_ROLES_READ = "club_roles:read";
 export const CLUB_ROLES_ASSIGN = "club_roles:assign";
 export const CLUB_ROLES_REVOKE = "club_roles:revoke";
+// Club membership approval
+export const CLUB_MEMBERS_APPROVE = "club_members:approve";
+export const CLUB_MEMBERS_REJECT = "club_members:reject";
+export const CLUB_MEMBERS_LIST_PENDING = "club_members:list_pending";
 
 // --- Jerarquía Geográfica ---
 export const COUNTRIES_READ = "countries:read";
@@ -169,6 +173,9 @@ export const PERMISSION_GROUPS = {
       { key: CLUB_ROLES_READ, label: "Ver roles de club" },
       { key: CLUB_ROLES_ASSIGN, label: "Asignar rol de club" },
       { key: CLUB_ROLES_REVOKE, label: "Revocar rol de club" },
+      { key: CLUB_MEMBERS_APPROVE, label: "Aprobar membresía" },
+      { key: CLUB_MEMBERS_REJECT, label: "Rechazar membresía" },
+      { key: CLUB_MEMBERS_LIST_PENDING, label: "Ver solicitudes pendientes" },
     ],
   },
   geography: {

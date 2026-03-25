@@ -112,7 +112,9 @@ function pickCategoryDescription(item: HonorCategoryRecord): string {
 }
 
 function pickHonorCount(item: HonorCategoryRecord): number | null {
-  return toPositiveNumber(item.honors_count ?? item.honorsCount ?? item.honors_total ?? item.honors);
+  const countObj = item._count;
+  const nestedCount = countObj && typeof countObj === "object" ? (countObj as Record<string, unknown>).honors : undefined;
+  return toPositiveNumber(item.honors_count ?? item.honorsCount ?? item.honors_total ?? nestedCount);
 }
 
 function getDefaultCheckboxValue(item?: HonorCategoryRecord | null): boolean {

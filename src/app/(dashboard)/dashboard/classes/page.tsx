@@ -24,6 +24,14 @@ export default async function ClassesPage() {
       icon={GraduationCap}
       idKey="class_id"
       columns={[
+        {
+          key: "display_order",
+          label: "Orden",
+          format: (value) => {
+            const order = typeof value === "number" ? value : Number(value);
+            return Number.isFinite(order) ? String(order) : "—";
+          },
+        },
         { key: "name", label: "Nombre" },
         { key: "description", label: "Descripción" },
         {

@@ -25,7 +25,7 @@ import { ApiError } from "@/lib/api/client";
 
 function formatDate(iso: string): string {
   try {
-    return new Intl.DateTimeFormat("es-AR", {
+    return new Intl.DateTimeFormat("es-MX", {
       day: "2-digit",
       month: "short",
       year: "numeric",

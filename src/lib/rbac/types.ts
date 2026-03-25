@@ -43,6 +43,21 @@ export type UserPermission = {
   };
 };
 
+export type UserRole = {
+  user_role_id: string;
+  user_id: string;
+  role_id: string;
+  active: boolean;
+  created_at: string | null;
+  modified_at: string | null;
+  roles: {
+    role_id: string;
+    role_name: string;
+    role_category: string;
+    active: boolean;
+  };
+};
+
 export type RbacActionState = {
   error?: string;
   success?: string;

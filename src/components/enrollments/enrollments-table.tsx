@@ -83,7 +83,7 @@ function resolveClassName(enrollment: Enrollment): string {
 function resolveDate(dateStr: string | null | undefined): string {
   if (!dateStr) return "—";
   try {
-    return new Intl.DateTimeFormat("es", {
+    return new Intl.DateTimeFormat("es-MX", {
       day: "2-digit",
       month: "short",
       year: "numeric",

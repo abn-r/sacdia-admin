@@ -72,7 +72,7 @@ const MONTHS = Object.entries(MONTH_NAMES).map(([value, label]) => ({
 function formatDate(dateStr?: string | null): string {
   if (!dateStr) return "—";
   try {
-    return new Intl.DateTimeFormat("es-AR", {
+    return new Intl.DateTimeFormat("es-MX", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",

@@ -33,7 +33,7 @@ function getUserName(user?: AssignmentRequest["target_user"] | AssignmentRequest
 function formatDate(iso?: string | null): string {
   if (!iso) return "—";
   try {
-    return new Intl.DateTimeFormat("es-AR", {
+    return new Intl.DateTimeFormat("es-MX", {
       day: "2-digit",
       month: "short",
       year: "numeric",
