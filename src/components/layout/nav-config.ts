@@ -22,6 +22,7 @@ import {
   ArrowRightLeft,
   Settings2,
   CalendarOff,
+  LibraryBig,
   type LucideIcon,
 } from "lucide-react";
 
@@ -159,6 +160,21 @@ export const navConfig: NavGroup[] = [
           { title: "Transferencias", url: "/dashboard/requests/transfers", permission: "requests:read" },
           { title: "Asignaciones", url: "/dashboard/requests/assignments", permission: "requests:read" },
           { title: "Membresías", url: "/dashboard/requests/membership", permission: "club_members:approve" },
+        ],
+      },
+    ],
+  },
+  {
+    label: "Recursos",
+    items: [
+      {
+        title: "Recursos",
+        url: "/dashboard/resources",
+        icon: LibraryBig,
+        permission: "resources:read",
+        children: [
+          { title: "Todos los recursos", url: "/dashboard/resources", permission: "resources:read" },
+          { title: "Categorías", url: "/dashboard/resources/categories", permission: "resource_categories:read" },
         ],
       },
     ],

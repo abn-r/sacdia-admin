@@ -125,6 +125,16 @@ export const REPORTS_VIEW = "reports:view";
 export const REPORTS_EXPORT = "reports:export";
 export const DASHBOARD_VIEW = "dashboard:view";
 
+// --- Recursos ---
+export const RESOURCES_READ = "resources:read";
+export const RESOURCES_CREATE = "resources:create";
+export const RESOURCES_UPDATE = "resources:update";
+export const RESOURCES_DELETE = "resources:delete";
+export const RESOURCE_CATEGORIES_READ = "resource_categories:read";
+export const RESOURCE_CATEGORIES_CREATE = "resource_categories:create";
+export const RESOURCE_CATEGORIES_UPDATE = "resource_categories:update";
+export const RESOURCE_CATEGORIES_DELETE = "resource_categories:delete";
+
 // --- Sistema ---
 export const SETTINGS_READ = "settings:read";
 export const SETTINGS_UPDATE = "settings:update";
@@ -269,6 +279,19 @@ export const PERMISSION_GROUPS = {
       { key: NOTIFICATIONS_SEND, label: "Enviar directa" },
       { key: NOTIFICATIONS_BROADCAST, label: "Enviar broadcast" },
       { key: NOTIFICATIONS_CLUB, label: "Enviar por club" },
+    ],
+  },
+  resources: {
+    label: "Recursos",
+    permissions: [
+      { key: RESOURCES_READ, label: "Ver recursos" },
+      { key: RESOURCES_CREATE, label: "Subir recurso" },
+      { key: RESOURCES_UPDATE, label: "Editar recurso" },
+      { key: RESOURCES_DELETE, label: "Eliminar recurso" },
+      { key: RESOURCE_CATEGORIES_READ, label: "Ver categorías de recursos" },
+      { key: RESOURCE_CATEGORIES_CREATE, label: "Crear categoría de recursos" },
+      { key: RESOURCE_CATEGORIES_UPDATE, label: "Editar categoría de recursos" },
+      { key: RESOURCE_CATEGORIES_DELETE, label: "Eliminar categoría de recursos" },
     ],
   },
   system: {
