@@ -19,11 +19,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PipelineStatusBadge } from "@/components/investiture/pipeline-status-badge";
 import { PipelineRejectDialog } from "@/components/investiture/pipeline-reject-dialog";
 import { PipelineHistoryDialog } from "@/components/investiture/pipeline-history-dialog";
+import { BulkActionBar } from "@/components/investiture/bulk-action-bar";
 import {
   pipelineClubApprove,
   pipelineCoordinatorApprove,
@@ -98,6 +100,15 @@ function canReject(status: PipelineStatus, _role: UserRole): boolean {
   return (
     status !== "INVESTED" && status !== "REJECTED"
   );
+}
+
+/**
+ * Returns true when this enrollment's status can be acted upon (approve or
+ * invest) by the current user role — used to decide whether to render a
+ * selectable checkbox for that row.
+ */
+function isSelectableForRole(status: PipelineStatus, role: UserRole): boolean {
+  return canApprove(status, role) || canInvest(status, role) || canReject(status, role);
 }
 
 async function runApprove(enrollmentId: number, status: PipelineStatus): Promise<void> {
@@ -264,10 +275,60 @@ export function PipelineTable({
   onRefresh,
 }: PipelineTableProps) {
   const [dialog, setDialog] = useState<DialogState>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
 
   function closeDialog() {
     setDialog(null);
   }
+
+  // ── Selection helpers ──────────────────────────────────────────────────────
+
+  /** Only enrollments actionable by this role participate in bulk selection */
+  const selectableEnrollments = enrollments.filter((e) =>
+    isSelectableForRole(e.status, userRole),
+  );
+
+  const allSelected =
+    selectableEnrollments.length > 0 &&
+    selectableEnrollments.every((e) => selectedIds.has(e.enrollment_id));
+
+  const someSelected =
+    !allSelected && selectableEnrollments.some((e) => selectedIds.has(e.enrollment_id));
+
+  function toggleSelectAll(checked: boolean) {
+    if (checked) {
+      setSelectedIds(new Set(selectableEnrollments.map((e) => e.enrollment_id)));
+    } else {
+      setSelectedIds(new Set());
+    }
+  }
+
+  function toggleRow(id: number, selectable: boolean) {
+    if (!selectable) return;
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }
+
+  function clearSelection() {
+    setSelectedIds(new Set());
+  }
+
+  // Derive the dominant status of the selection (all selected items share a status
+  // when the user is on a filtered tab; on "ALL" tab it may be mixed — we pass null
+  // to the action bar which hides the approve button).
+  const selectedEnrollments = enrollments.filter((e) =>
+    selectedIds.has(e.enrollment_id),
+  );
+  const uniqueStatuses = new Set(selectedEnrollments.map((e) => e.status));
+  const selectedStatus: PipelineStatus | null =
+    uniqueStatuses.size === 1 ? [...uniqueStatuses][0] : null;
 
   if (enrollments.length === 0) {
     return (
@@ -288,6 +349,16 @@ export function PipelineTable({
         <Table>
           <TableHeader>
             <TableRow>
+              {/* Bulk-select all */}
+              <TableHead className="h-9 w-10 px-3">
+                {selectableEnrollments.length > 0 && (
+                  <Checkbox
+                    checked={allSelected ? true : someSelected ? "indeterminate" : false}
+                    onCheckedChange={(checked) => toggleSelectAll(!!checked)}
+                    aria-label="Seleccionar todo"
+                  />
+                )}
+              </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 Miembro
               </TableHead>
@@ -312,41 +383,60 @@ export function PipelineTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {enrollments.map((enrollment) => (
-              <TableRow
-                key={enrollment.enrollment_id}
-                className="hover:bg-muted/30"
-              >
-                <TableCell className="px-3 py-2.5 align-middle">
-                  <span className="font-medium">{getMemberName(enrollment)}</span>
-                </TableCell>
-                <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
-                  {enrollment.class?.name ?? "—"}
-                </TableCell>
-                <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
-                  {enrollment.club?.name ?? "—"}
-                </TableCell>
-                <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
-                  {enrollment.section?.name ?? "—"}
-                </TableCell>
-                <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums text-muted-foreground">
-                  {formatDate(enrollment.submitted_at)}
-                </TableCell>
-                <TableCell className="px-3 py-2.5 align-middle">
-                  <PipelineStatusBadge status={enrollment.status} />
-                </TableCell>
-                <TableCell className="px-3 py-2.5 align-middle">
-                  <RowActions
-                    enrollment={enrollment}
-                    userRole={userRole}
-                    onApproved={() => { onRefresh(); }}
-                    onInvested={() => { onRefresh(); }}
-                    onReject={() => setDialog({ type: "reject", enrollment })}
-                    onHistory={() => setDialog({ type: "history", enrollment })}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
+            {enrollments.map((enrollment) => {
+              const isSelected = selectedIds.has(enrollment.enrollment_id);
+              const selectable = isSelectableForRole(enrollment.status, userRole);
+
+              return (
+                <TableRow
+                  key={enrollment.enrollment_id}
+                  className={`hover:bg-muted/30 ${isSelected ? "bg-muted/50" : ""}`}
+                >
+                  {/* Checkbox cell */}
+                  <TableCell className="px-3 py-2.5 align-middle">
+                    {selectable ? (
+                      <Checkbox
+                        checked={isSelected}
+                        onCheckedChange={() =>
+                          toggleRow(enrollment.enrollment_id, selectable)
+                        }
+                        aria-label={`Seleccionar ${getMemberName(enrollment)}`}
+                      />
+                    ) : (
+                      <span className="inline-block size-4" />
+                    )}
+                  </TableCell>
+                  <TableCell className="px-3 py-2.5 align-middle">
+                    <span className="font-medium">{getMemberName(enrollment)}</span>
+                  </TableCell>
+                  <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
+                    {enrollment.class?.name ?? "—"}
+                  </TableCell>
+                  <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
+                    {enrollment.club?.name ?? "—"}
+                  </TableCell>
+                  <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
+                    {enrollment.section?.name ?? "—"}
+                  </TableCell>
+                  <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums text-muted-foreground">
+                    {formatDate(enrollment.submitted_at)}
+                  </TableCell>
+                  <TableCell className="px-3 py-2.5 align-middle">
+                    <PipelineStatusBadge status={enrollment.status} />
+                  </TableCell>
+                  <TableCell className="px-3 py-2.5 align-middle">
+                    <RowActions
+                      enrollment={enrollment}
+                      userRole={userRole}
+                      onApproved={() => { onRefresh(); }}
+                      onInvested={() => { onRefresh(); }}
+                      onReject={() => setDialog({ type: "reject", enrollment })}
+                      onHistory={() => setDialog({ type: "history", enrollment })}
+                    />
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </div>
@@ -369,6 +459,20 @@ export function PipelineTable({
           enrollmentId={dialog.enrollment.enrollment_id}
           memberName={memberName}
           onOpenChange={(open) => { if (!open) closeDialog(); }}
+        />
+      )}
+
+      {/* Bulk action bar — shown only when there is a selection */}
+      {selectedIds.size > 0 && (
+        <BulkActionBar
+          selectedIds={[...selectedIds]}
+          selectedStatus={selectedStatus}
+          userRole={userRole}
+          onClearSelection={clearSelection}
+          onSuccess={() => {
+            clearSelection();
+            onRefresh();
+          }}
         />
       )}
     </>

@@ -440,3 +440,65 @@ export async function pipelineReject(
     { method: "POST", body: payload },
   );
 }
+
+// ─── Bulk operation types ─────────────────────────────────────────────────────
+
+export type BulkApproveAction =
+  | "club-approve"
+  | "coordinator-approve"
+  | "field-approve"
+  | "invest";
+
+export type BulkApprovePayload = {
+  enrollmentIds: number[];
+  action: BulkApproveAction;
+  comments?: string;
+};
+
+export type BulkRejectPayload = {
+  enrollmentIds: number[];
+  comments: string;
+};
+
+export type BulkOperationResult = {
+  succeeded: number[];
+  failed: { id: number; reason: string }[];
+};
+
+// ─── Bulk operation API functions ─────────────────────────────────────────────
+
+/**
+ * POST /api/v1/investiture/enrollments/bulk-approve
+ * Approve multiple enrollments at once.
+ * Client-side only.
+ */
+export async function bulkApproveEnrollments(
+  payload: BulkApprovePayload,
+): Promise<BulkOperationResult> {
+  const res = await apiRequestFromClient<{
+    status: string;
+    data: BulkOperationResult;
+  }>("/investiture/enrollments/bulk-approve", {
+    method: "POST",
+    body: payload,
+  });
+  return (res as { data: BulkOperationResult }).data ?? (res as unknown as BulkOperationResult);
+}
+
+/**
+ * POST /api/v1/investiture/enrollments/bulk-reject
+ * Reject multiple enrollments at once.
+ * Client-side only.
+ */
+export async function bulkRejectEnrollments(
+  payload: BulkRejectPayload,
+): Promise<BulkOperationResult> {
+  const res = await apiRequestFromClient<{
+    status: string;
+    data: BulkOperationResult;
+  }>("/investiture/enrollments/bulk-reject", {
+    method: "POST",
+    body: payload,
+  });
+  return (res as { data: BulkOperationResult }).data ?? (res as unknown as BulkOperationResult);
+}
