@@ -2,18 +2,25 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { EvidenceType } from "@/lib/api/evidence-review";
 
-const typeConfig: Record<EvidenceType, { label: string; className: string }> = {
+const typeConfig: Record<
+  EvidenceType,
+  { label: string; className: string }
+> = {
   folder: {
     label: "Carpeta",
-    className: "bg-blue-500/10 text-blue-600 border-blue-500/20",
+    // Uses primary semantic token for a neutral-blue feel
+    className: "bg-primary/10 text-primary border-primary/20",
   },
   class: {
     label: "Clase",
-    className: "bg-purple-500/10 text-purple-600 border-purple-500/20",
+    // Uses secondary for a muted-accent distinction
+    className: "bg-secondary text-secondary-foreground border-border",
   },
   honor: {
     label: "Honor",
-    className: "bg-teal-500/10 text-teal-600 border-teal-500/20",
+    // Uses success variant colors via semantic tokens
+    className:
+      "bg-green-600/10 text-green-700 border-green-600/20 dark:text-green-400 dark:bg-green-600/15 dark:border-green-500/25",
   },
 };
 

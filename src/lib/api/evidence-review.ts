@@ -82,12 +82,13 @@ export async function getEvidencePending(
 
 /**
  * GET /api/v1/evidence-review/:type/:id
+ * Client-side only — called from the detail dialog component.
  */
 export async function getEvidenceDetail(
   type: EvidenceType,
   id: number,
 ): Promise<EvidenceDetail> {
-  const res = await apiRequest<{ status: string; data: EvidenceDetail }>(
+  const res = await apiRequestFromClient<{ status: string; data: EvidenceDetail }>(
     `/evidence-review/${type}/${id}`,
   );
   return (res as { data: EvidenceDetail }).data;
