@@ -24,6 +24,7 @@ import {
   CalendarOff,
   LibraryBig,
   Activity,
+  FileSearch,
   type LucideIcon,
 } from "lucide-react";
 
@@ -141,6 +142,12 @@ export const navConfig: NavGroup[] = [
         permission: "investiture:read",
       },
       {
+        title: "Revisión de Evidencias",
+        url: "/dashboard/evidence-review",
+        icon: FileSearch,
+        permission: "investiture:read",
+      },
+      {
         title: "Investiduras",
         url: "/dashboard/investiture",
         icon: Star,
@@ -208,6 +215,7 @@ export const navConfig: NavGroup[] = [
         children: [
           { title: "Plantillas", url: "/dashboard/annual-folders/templates", permission: "annual_folders:read" },
           { title: "Mi Carpeta", url: "/dashboard/annual-folders", permission: "annual_folders:read" },
+          { title: "Evaluación", url: "/dashboard/annual-folders/evaluate", permission: "annual_folders:read" },
         ],
       },
     ],
