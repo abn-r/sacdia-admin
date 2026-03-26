@@ -11,6 +11,8 @@ import {
   GripVertical,
   CheckCircle2,
   Circle,
+  Trophy,
+  CalendarClock,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -207,12 +209,34 @@ export function TemplatesClientPage({
             </Button>
             <div>
               <h2 className="text-lg font-semibold">{activeTemplate.name}</h2>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
                 <span>{activeTemplate.club_type?.name ?? `Tipo ${activeTemplate.club_type_id}`}</span>
                 <span aria-hidden>·</span>
                 <span>{activeTemplate.ecclesiastical_year?.name ?? `Año ${activeTemplate.ecclesiastical_year_id}`}</span>
                 <span aria-hidden>·</span>
                 <span>{sortedSections.length} {sortedSections.length === 1 ? "sección" : "secciones"}</span>
+                {(activeTemplate.minimum_points ?? 0) > 0 && (
+                  <>
+                    <span aria-hidden>·</span>
+                    <span className="inline-flex items-center gap-1">
+                      <Trophy className="size-3" />
+                      {activeTemplate.minimum_points} pts mínimos
+                    </span>
+                  </>
+                )}
+                {activeTemplate.closing_date && (
+                  <>
+                    <span aria-hidden>·</span>
+                    <span className="inline-flex items-center gap-1">
+                      <CalendarClock className="size-3" />
+                      Cierre:{" "}
+                      {new Date(activeTemplate.closing_date).toLocaleDateString(
+                        "es-AR",
+                        { day: "2-digit", month: "short", year: "numeric" },
+                      )}
+                    </span>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -250,6 +274,8 @@ export function TemplatesClientPage({
                   <TableHead>Nombre</TableHead>
                   <TableHead className="hidden sm:table-cell">Descripción</TableHead>
                   <TableHead className="w-28 text-center">Requerida</TableHead>
+                  <TableHead className="hidden w-24 text-center md:table-cell">Max Pts</TableHead>
+                  <TableHead className="hidden w-24 text-center md:table-cell">Min Pts</TableHead>
                   <TableHead className="w-20 text-right">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
@@ -273,6 +299,12 @@ export function TemplatesClientPage({
                       ) : (
                         <Circle className="mx-auto size-4 text-muted-foreground/40" />
                       )}
+                    </TableCell>
+                    <TableCell className="hidden text-center text-sm text-muted-foreground md:table-cell">
+                      {section.max_points}
+                    </TableCell>
+                    <TableCell className="hidden text-center text-sm text-muted-foreground md:table-cell">
+                      {section.minimum_points}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">

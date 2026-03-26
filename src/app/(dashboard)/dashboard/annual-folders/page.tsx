@@ -18,22 +18,18 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 function getEnrollmentId(
   raw: Record<string, string | string[] | undefined>,
-): number | null {
+): string | null {
   const v = raw["enrollment"];
   const str = typeof v === "string" ? v.trim() : undefined;
-  if (!str) return null;
-  const n = Number(str);
-  return Number.isFinite(n) && n > 0 ? n : null;
+  return str ?? null;
 }
 
 function getFolderId(
   raw: Record<string, string | string[] | undefined>,
-): number | null {
+): string | null {
   const v = raw["folder"];
   const str = typeof v === "string" ? v.trim() : undefined;
-  if (!str) return null;
-  const n = Number(str);
-  return Number.isFinite(n) && n > 0 ? n : null;
+  return str ?? null;
 }
 
 // ─── Page ──────────────────────────────────────────────────────────────────────

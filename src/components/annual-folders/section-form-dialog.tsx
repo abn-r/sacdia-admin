@@ -37,6 +37,14 @@ const formSchema = z.object({
     .optional(),
   order: z.coerce.number().int().min(1, "El orden debe ser al menos 1"),
   required: z.boolean(),
+  max_points: z.coerce
+    .number()
+    .int()
+    .min(0, "Los puntos máximos no pueden ser negativos"),
+  minimum_points: z.coerce
+    .number()
+    .int()
+    .min(0, "Los puntos mínimos no pueden ser negativos"),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -46,7 +54,7 @@ type FormValues = z.infer<typeof formSchema>;
 interface SectionFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  templateId: number;
+  templateId: string;
   section?: FolderTemplateSection | null;
   nextOrder?: number;
   onSuccess: () => void;
@@ -79,6 +87,8 @@ export function SectionFormDialog({
       description: "",
       order: nextOrder,
       required: true,
+      max_points: 0,
+      minimum_points: 0,
     },
   });
 
@@ -92,6 +102,8 @@ export function SectionFormDialog({
           description: section.description ?? "",
           order: section.order,
           required: section.required,
+          max_points: section.max_points,
+          minimum_points: section.minimum_points,
         });
       } else {
         reset({
@@ -99,6 +111,8 @@ export function SectionFormDialog({
           description: "",
           order: nextOrder,
           required: true,
+          max_points: 0,
+          minimum_points: 0,
         });
       }
     }
@@ -113,6 +127,8 @@ export function SectionFormDialog({
           description: values.description || undefined,
           order: values.order,
           required: values.required,
+          max_points: values.max_points,
+          minimum_points: values.minimum_points,
         });
         toast.success("Sección actualizada correctamente");
       } else {
@@ -121,6 +137,8 @@ export function SectionFormDialog({
           description: values.description || undefined,
           order: values.order,
           required: values.required,
+          max_points: values.max_points,
+          minimum_points: values.minimum_points,
         });
         toast.success("Sección creada correctamente");
       }
@@ -204,6 +222,43 @@ export function SectionFormDialog({
               checked={requiredValue}
               onCheckedChange={(checked) => setValue("required", checked)}
             />
+          </div>
+
+          {/* Puntos */}
+          <div className="grid grid-cols-2 gap-3">
+            {/* Puntos máximos */}
+            <div className="space-y-1.5">
+              <Label htmlFor="section-max-points">Puntos máximos *</Label>
+              <Input
+                id="section-max-points"
+                type="number"
+                min={0}
+                {...register("max_points")}
+                placeholder="0"
+              />
+              {errors.max_points && (
+                <p className="text-xs text-destructive">
+                  {errors.max_points.message}
+                </p>
+              )}
+            </div>
+
+            {/* Puntos mínimos */}
+            <div className="space-y-1.5">
+              <Label htmlFor="section-minimum-points">Puntos mínimos</Label>
+              <Input
+                id="section-minimum-points"
+                type="number"
+                min={0}
+                {...register("minimum_points")}
+                placeholder="0"
+              />
+              {errors.minimum_points && (
+                <p className="text-xs text-destructive">
+                  {errors.minimum_points.message}
+                </p>
+              )}
+            </div>
           </div>
 
           <DialogFooter className="pt-2">

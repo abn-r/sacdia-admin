@@ -215,7 +215,9 @@ export const navConfig: NavGroup[] = [
         children: [
           { title: "Plantillas", url: "/dashboard/annual-folders/templates", permission: "annual_folders:read" },
           { title: "Mi Carpeta", url: "/dashboard/annual-folders", permission: "annual_folders:read" },
-          { title: "Evaluación", url: "/dashboard/annual-folders/evaluate", permission: "annual_folders:read" },
+          { title: "Evaluacion", url: "/dashboard/annual-folders/evaluate", permission: "annual_folders:evaluate" },
+          { title: "Rankings", url: "/dashboard/annual-folders/rankings", permission: "rankings:read" },
+          { title: "Categorias de premios", url: "/dashboard/annual-folders/categories", permission: "award_categories:read" },
         ],
       },
     ],

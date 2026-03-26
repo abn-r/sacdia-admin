@@ -38,6 +38,11 @@ const formSchema = z.object({
     .number()
     .int()
     .positive("Selecciona un año eclesiástico"),
+  minimum_points: z.coerce
+    .number()
+    .int()
+    .min(0, "Los puntos mínimos no pueden ser negativos"),
+  closing_date: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -79,6 +84,8 @@ export function TemplateFormDialog({
         ecclesiasticalYears.find((y) => y.active)?.ecclesiastical_year_id ??
         ecclesiasticalYears[0]?.ecclesiastical_year_id ??
         0,
+      minimum_points: 0,
+      closing_date: "",
     },
   });
 
@@ -94,6 +101,8 @@ export function TemplateFormDialog({
           ecclesiasticalYears.find((y) => y.active)?.ecclesiastical_year_id ??
           ecclesiasticalYears[0]?.ecclesiastical_year_id ??
           0,
+        minimum_points: 0,
+        closing_date: "",
       });
     }
   }, [open, clubTypes, ecclesiasticalYears, reset]);
@@ -105,6 +114,8 @@ export function TemplateFormDialog({
         name: values.name,
         club_type_id: values.club_type_id,
         ecclesiastical_year_id: values.ecclesiastical_year_id,
+        minimum_points: values.minimum_points,
+        closing_date: values.closing_date ? values.closing_date : null,
       });
       toast.success("Plantilla creada correctamente");
       onSuccess();
@@ -212,6 +223,41 @@ export function TemplateFormDialog({
                 {errors.ecclesiastical_year_id.message}
               </p>
             )}
+          </div>
+
+          {/* Puntos mínimos / Fecha de cierre — row */}
+          <div className="grid grid-cols-2 gap-3">
+            {/* Puntos mínimos */}
+            <div className="space-y-1.5">
+              <Label htmlFor="template-minimum-points">Pts. mínimos para aprobar</Label>
+              <Input
+                id="template-minimum-points"
+                type="number"
+                min={0}
+                {...register("minimum_points")}
+                placeholder="0"
+              />
+              {errors.minimum_points && (
+                <p className="text-xs text-destructive">
+                  {errors.minimum_points.message}
+                </p>
+              )}
+            </div>
+
+            {/* Fecha de cierre */}
+            <div className="space-y-1.5">
+              <Label htmlFor="template-closing-date">Fecha de cierre</Label>
+              <Input
+                id="template-closing-date"
+                type="datetime-local"
+                {...register("closing_date")}
+              />
+              {errors.closing_date && (
+                <p className="text-xs text-destructive">
+                  {errors.closing_date.message}
+                </p>
+              )}
+            </div>
           </div>
 
           <DialogFooter className="pt-2">

@@ -20,8 +20,8 @@ import { uploadEvidence } from "@/lib/api/annual-folders";
 interface EvidenceUploadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  folderId: number;
-  sectionId: number;
+  folderId: string;
+  sectionId: string;
   sectionName: string;
   onSuccess: () => void;
 }

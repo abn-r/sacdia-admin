@@ -10,8 +10,8 @@ import { Label } from "@/components/ui/label";
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface FolderByEnrollmentViewProps {
-  currentEnrollmentId: number | null;
-  currentFolderId: number | null;
+  currentEnrollmentId: string | null;
+  currentFolderId: string | null;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -22,10 +22,10 @@ export function FolderByEnrollmentView({
 }: FolderByEnrollmentViewProps) {
   const router = useRouter();
   const [enrollmentInput, setEnrollmentInput] = useState(
-    currentEnrollmentId ? String(currentEnrollmentId) : "",
+    currentEnrollmentId ?? "",
   );
   const [folderInput, setFolderInput] = useState(
-    currentFolderId ? String(currentFolderId) : "",
+    currentFolderId ?? "",
   );
 
   function handleSearchByEnrollment(e: React.FormEvent) {
@@ -59,9 +59,8 @@ export function FolderByEnrollmentView({
             </Label>
             <Input
               id="enrollment-id"
-              type="number"
-              min={1}
-              placeholder="Ej. 42"
+              type="text"
+              placeholder="UUID de inscripción"
               value={enrollmentInput}
               onChange={(e) => setEnrollmentInput(e.target.value)}
               className="h-9"
@@ -86,9 +85,8 @@ export function FolderByEnrollmentView({
             </Label>
             <Input
               id="folder-id"
-              type="number"
-              min={1}
-              placeholder="Ej. 7"
+              type="text"
+              placeholder="UUID de carpeta"
               value={folderInput}
               onChange={(e) => setFolderInput(e.target.value)}
               className="h-9"
