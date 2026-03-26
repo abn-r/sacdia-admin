@@ -18,6 +18,7 @@ import {
   listCamporeeMembers,
   getEnrolledClubs,
   getCamporeePayments,
+  getCamporeePendingApprovals,
 } from "@/lib/api/camporees";
 import { requireAdminUser } from "@/lib/auth/session";
 import type {
@@ -25,6 +26,7 @@ import type {
   CamporeeMember,
   CamporeeClub,
   CamporeePayment,
+  PendingApprovals,
 } from "@/lib/api/camporees";
 
 type Params = Promise<{ id: string }>;
@@ -139,6 +141,7 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
   let clubsError: string | null = null;
   let payments: CamporeePayment[] = [];
   let paymentsError: string | null = null;
+  let pending: PendingApprovals = { clubs: [], members: [], payments: [] };
 
   // Fetch camporee detail
   try {
@@ -186,6 +189,16 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
         : "No se pudo cargar la lista de pagos.";
   }
 
+  // Fetch pending approvals — best effort (non-blocking)
+  try {
+    const pendingPayload = await getCamporeePendingApprovals(camporeeId);
+    if (pendingPayload && typeof pendingPayload === "object") {
+      pending = pendingPayload as PendingApprovals;
+    }
+  } catch {
+    // Silently ignore — pending count is informational only
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader title={camporee.name} description="Detalle del camporee">
@@ -212,6 +225,14 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
                 {members.length}
               </Badge>
             )}
+            {pending.members.length > 0 && (
+              <Badge
+                variant="outline"
+                className="ml-1 border-yellow-400/50 bg-yellow-50 text-yellow-700 dark:bg-yellow-950/20 dark:text-yellow-400"
+              >
+                {pending.members.length}
+              </Badge>
+            )}
           </TabsTrigger>
           <TabsTrigger value="clubs">
             Clubes
@@ -220,12 +241,28 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
                 {clubs.length}
               </Badge>
             )}
+            {pending.clubs.length > 0 && (
+              <Badge
+                variant="outline"
+                className="ml-1 border-yellow-400/50 bg-yellow-50 text-yellow-700 dark:bg-yellow-950/20 dark:text-yellow-400"
+              >
+                {pending.clubs.length}
+              </Badge>
+            )}
           </TabsTrigger>
           <TabsTrigger value="payments">
             Pagos
             {payments.length > 0 && (
               <Badge variant="secondary" className="ml-2">
                 {payments.length}
+              </Badge>
+            )}
+            {pending.payments.length > 0 && (
+              <Badge
+                variant="outline"
+                className="ml-1 border-yellow-400/50 bg-yellow-50 text-yellow-700 dark:bg-yellow-950/20 dark:text-yellow-400"
+              >
+                {pending.payments.length}
               </Badge>
             )}
           </TabsTrigger>

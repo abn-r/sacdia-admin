@@ -105,6 +105,7 @@ export function CamporeePaymentsTab({
       <CamporeePaymentsPanel
         payments={payments}
         onEdit={handleEditPayment}
+        onPaymentsChange={refreshPayments}
       />
 
       <PaymentDialog

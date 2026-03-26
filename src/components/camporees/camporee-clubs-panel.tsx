@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Building2, Trash2 } from "lucide-react";
+import { Building2, CheckCircle2, Loader2, Trash2, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Table,
   TableBody,
@@ -14,8 +15,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
-import { cancelClubEnrollment } from "@/lib/api/camporees";
+import {
+  cancelClubEnrollment,
+  approveCamporeeClub,
+  rejectCamporeeClub,
+} from "@/lib/api/camporees";
 import type { CamporeeClub } from "@/lib/api/camporees";
+import {
+  CamporeeApprovalDialog,
+  type ApprovalDialogMode,
+} from "@/components/camporees/camporee-approval-dialog";
+import { ApiError } from "@/lib/api/client";
 
 // ─── Status badge ──────────────────────────────────────────────────────────────
 
@@ -37,6 +47,39 @@ function ClubStatusBadge({ status }: { status?: string | null }) {
         className="border-green-400/50 bg-green-50 text-green-700 dark:bg-green-950/20 dark:text-green-400"
       >
         Activo
+      </Badge>
+    );
+  }
+
+  if (normalized === "approved") {
+    return (
+      <Badge
+        variant="outline"
+        className="border-green-400/50 bg-green-50 text-green-700 dark:bg-green-950/20 dark:text-green-400"
+      >
+        Aprobado
+      </Badge>
+    );
+  }
+
+  if (normalized === "pending_approval") {
+    return (
+      <Badge
+        variant="outline"
+        className="border-yellow-400/50 bg-yellow-50 text-yellow-700 dark:bg-yellow-950/20 dark:text-yellow-400"
+      >
+        Pendiente
+      </Badge>
+    );
+  }
+
+  if (normalized === "rejected") {
+    return (
+      <Badge
+        variant="outline"
+        className="border-destructive/40 bg-destructive/5 text-destructive"
+      >
+        Rechazado
       </Badge>
     );
   }
@@ -74,6 +117,13 @@ function formatDate(dateStr?: string | null): string {
   }
 }
 
+// ─── Dialog state ─────────────────────────────────────────────────────────────
+
+type DialogState = {
+  club: CamporeeClub;
+  mode: ApprovalDialogMode;
+} | null;
+
 // ─── Props ─────────────────────────────────────────────────────────────────────
 
 interface CamporeeClubsPanelProps {
@@ -90,6 +140,8 @@ export function CamporeeClubsPanel({
   onClubsChange,
 }: CamporeeClubsPanelProps) {
   const [cancellingId, setCancellingId] = useState<number | null>(null);
+  const [approvingId, setApprovingId] = useState<number | null>(null);
+  const [dialog, setDialog] = useState<DialogState>(null);
 
   async function handleCancel(camporeeClubId: number, sectionName?: string | null) {
     if (cancellingId !== null) return;
@@ -98,19 +150,47 @@ export function CamporeeClubsPanel({
       await cancelClubEnrollment(camporeeId, camporeeClubId);
       toast.success(
         sectionName
-          ? `Inscripción de "${sectionName}" cancelada`
-          : "Inscripción de club cancelada",
+          ? `Inscripcion de "${sectionName}" cancelada`
+          : "Inscripcion de club cancelada",
       );
       onClubsChange();
     } catch (err: unknown) {
       const message =
         err instanceof Error
           ? err.message
-          : "No se pudo cancelar la inscripción del club";
+          : "No se pudo cancelar la inscripcion del club";
       toast.error(message);
     } finally {
       setCancellingId(null);
     }
+  }
+
+  async function handleApprove(camporeeClubId: number) {
+    if (approvingId !== null) return;
+    setApprovingId(camporeeClubId);
+    try {
+      await approveCamporeeClub(camporeeId, camporeeClubId);
+      const club = clubs.find((c) => c.camporee_club_id === camporeeClubId);
+      toast.success(
+        club?.section_name
+          ? `Inscripcion de "${club.section_name}" aprobada`
+          : "Inscripcion de club aprobada",
+      );
+      onClubsChange();
+    } catch (err: unknown) {
+      const message =
+        err instanceof ApiError ? err.message : "No se pudo aprobar la inscripcion del club";
+      toast.error(message);
+    } finally {
+      setApprovingId(null);
+    }
+  }
+
+  async function handleRejectConfirm(rejectionReason?: string) {
+    if (!dialog) return;
+    await rejectCamporeeClub(camporeeId, dialog.club.camporee_club_id, {
+      rejection_reason: rejectionReason,
+    });
   }
 
   if (clubs.length === 0) {
@@ -118,70 +198,137 @@ export function CamporeeClubsPanel({
       <EmptyState
         icon={Building2}
         title="Sin clubes inscritos"
-        description="No hay clubes inscritos en este camporee todavía."
+        description="No hay clubes inscritos en este camporee todavia."
       />
     );
   }
 
+  const dialogClubName = dialog?.club.section_name ?? `Club #${dialog?.club.camporee_club_id}`;
+
   return (
-    <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Sección
-            </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Estado
-            </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Registrado por
-            </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Fecha
-            </TableHead>
-            <TableHead className="h-9 w-20 px-3" />
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {clubs.map((club) => (
-            <TableRow key={club.camporee_club_id} className="hover:bg-muted/30">
-              <TableCell className="px-3 py-2.5 align-middle">
-                <div className="space-y-0.5">
-                  <span className="text-sm font-medium">
-                    {club.section_name ?? `Sección #${club.club_section_id}`}
-                  </span>
-                  {club.club_name && (
-                    <p className="text-xs text-muted-foreground">{club.club_name}</p>
-                  )}
-                </div>
-              </TableCell>
-              <TableCell className="px-3 py-2.5 align-middle">
-                <ClubStatusBadge status={club.status} />
-              </TableCell>
-              <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
-                {club.registered_by_name ?? club.registered_by ?? "—"}
-              </TableCell>
-              <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
-                {formatDate(club.created_at)}
-              </TableCell>
-              <TableCell className="px-3 py-2.5 align-middle">
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  onClick={() => handleCancel(club.camporee_club_id, club.section_name)}
-                  disabled={cancellingId === club.camporee_club_id}
-                  title="Cancelar inscripción"
-                  className="text-destructive hover:text-destructive"
-                >
-                  <Trash2 className="size-3.5" />
-                  <span className="sr-only">Cancelar</span>
-                </Button>
-              </TableCell>
+    <>
+      <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Seccion
+              </TableHead>
+              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Estado
+              </TableHead>
+              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Registrado por
+              </TableHead>
+              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Fecha
+              </TableHead>
+              <TableHead className="h-9 w-28 px-3" />
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+          </TableHeader>
+          <TableBody>
+            {clubs.map((club) => {
+              const isPending = club.status?.toLowerCase() === "pending_approval";
+              const isApproving = approvingId === club.camporee_club_id;
+
+              return (
+                <TableRow key={club.camporee_club_id} className="hover:bg-muted/30">
+                  <TableCell className="px-3 py-2.5 align-middle">
+                    <div className="space-y-0.5">
+                      <span className="text-sm font-medium">
+                        {club.section_name ?? `Seccion #${club.club_section_id}`}
+                      </span>
+                      {club.club_name && (
+                        <p className="text-xs text-muted-foreground">{club.club_name}</p>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell className="px-3 py-2.5 align-middle">
+                    <ClubStatusBadge status={club.status} />
+                  </TableCell>
+                  <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
+                    {club.registered_by_name ?? club.registered_by ?? "—"}
+                  </TableCell>
+                  <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
+                    {formatDate(club.created_at)}
+                  </TableCell>
+                  <TableCell className="px-3 py-2.5 align-middle">
+                    <div className="flex items-center justify-end gap-1">
+                      {isPending && (
+                        <>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon-sm"
+                                className="text-success hover:bg-success/10 hover:text-success"
+                                onClick={() => handleApprove(club.camporee_club_id)}
+                                disabled={isApproving}
+                                aria-label="Aprobar inscripcion"
+                              >
+                                {isApproving ? (
+                                  <Loader2 className="size-4 animate-spin" />
+                                ) : (
+                                  <CheckCircle2 className="size-4" />
+                                )}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Aprobar inscripcion</TooltipContent>
+                          </Tooltip>
+
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon-sm"
+                                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                onClick={() => setDialog({ club, mode: "reject" })}
+                                aria-label="Rechazar inscripcion"
+                              >
+                                <XCircle className="size-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Rechazar inscripcion</TooltipContent>
+                          </Tooltip>
+                        </>
+                      )}
+
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            onClick={() => handleCancel(club.camporee_club_id, club.section_name)}
+                            disabled={cancellingId === club.camporee_club_id}
+                            aria-label="Cancelar inscripcion"
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="size-3.5" />
+                            <span className="sr-only">Cancelar</span>
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Cancelar inscripcion</TooltipContent>
+                      </Tooltip>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
+
+      {dialog && (
+        <CamporeeApprovalDialog
+          open
+          mode={dialog.mode}
+          entityLabel="Club"
+          entityName={dialogClubName}
+          onOpenChange={(open) => { if (!open) setDialog(null); }}
+          onConfirm={handleRejectConfirm}
+          onSuccess={() => { setDialog(null); onClubsChange(); }}
+        />
+      )}
+    </>
   );
 }

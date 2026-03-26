@@ -18,6 +18,7 @@ export type CamporeeClub = {
   registered_by?: string | null;
   registered_by_name?: string | null;
   created_at?: string | null;
+  rejection_reason?: string | null;
 };
 
 export type EnrollClubPayload = {
@@ -30,6 +31,7 @@ export type PaymentType = "inscription" | "materials" | "other";
 
 export type CamporeePayment = {
   payment_id: number;
+  camporee_payment_id?: string | null;
   camporee_id: number;
   member_id: string;
   member_name?: string | null;
@@ -39,6 +41,7 @@ export type CamporeePayment = {
   notes?: string | null;
   paid_at?: string | null;
   created_at?: string | null;
+  status?: string | null;
 };
 
 export type CreatePaymentPayload = {
@@ -84,12 +87,15 @@ export type CamporeePayload = {
 
 export type CamporeeMember = {
   user_id: string;
+  camporee_member_id?: number | null;
   name?: string;
   picture_url?: string | null;
   club_name?: string | null;
   camporee_type?: "local" | "union";
   insurance_id?: number | null;
   insurance_status?: string | null;
+  status?: string | null;
+  rejection_reason?: string | null;
 };
 
 export type CamporeeRegisterMemberPayload = {
@@ -254,5 +260,113 @@ export async function updateUnionCamporee(id: number, payload: Partial<UnionCamp
 export async function deleteUnionCamporee(id: number) {
   return apiRequest(`/camporees/union/${id}`, {
     method: "DELETE",
+  });
+}
+
+// ─── Late-enrollment approvals ────────────────────────────────────────────────
+
+export type PendingApprovals = {
+  clubs: CamporeeClub[];
+  members: CamporeeMember[];
+  payments: CamporeePayment[];
+};
+
+export type RejectPayload = {
+  rejection_reason?: string;
+};
+
+// Local camporee pending
+
+export async function getCamporeePendingApprovals(camporeeId: number) {
+  return apiRequest<PendingApprovals>(`/camporees/${camporeeId}/pending`);
+}
+
+export async function approveCamporeeClub(camporeeId: number, camporeeClubId: number) {
+  return apiRequest(`/camporees/${camporeeId}/clubs/${camporeeClubId}/approve`, {
+    method: "PATCH",
+  });
+}
+
+export async function rejectCamporeeClub(
+  camporeeId: number,
+  camporeeClubId: number,
+  payload: RejectPayload,
+) {
+  return apiRequest(`/camporees/${camporeeId}/clubs/${camporeeClubId}/reject`, {
+    method: "PATCH",
+    body: payload,
+  });
+}
+
+export async function approveCamporeeMember(camporeeId: number, camporeeMemberId: number) {
+  return apiRequest(`/camporees/${camporeeId}/members/${camporeeMemberId}/approve`, {
+    method: "PATCH",
+  });
+}
+
+export async function rejectCamporeeMember(
+  camporeeId: number,
+  camporeeMemberId: number,
+  payload: RejectPayload,
+) {
+  return apiRequest(`/camporees/${camporeeId}/members/${camporeeMemberId}/reject`, {
+    method: "PATCH",
+    body: payload,
+  });
+}
+
+export async function approveCamporeePayment(camporeePaymentId: string) {
+  return apiRequest(`/camporees/payments/${camporeePaymentId}/approve`, {
+    method: "PATCH",
+  });
+}
+
+export async function rejectCamporeePayment(
+  camporeePaymentId: string,
+  payload: RejectPayload,
+) {
+  return apiRequest(`/camporees/payments/${camporeePaymentId}/reject`, {
+    method: "PATCH",
+    body: payload,
+  });
+}
+
+// Union camporee pending
+
+export async function getUnionCamporeePendingApprovals(camporeeId: number) {
+  return apiRequest<PendingApprovals>(`/camporees/union/${camporeeId}/pending`);
+}
+
+export async function approveUnionCamporeeClub(camporeeId: number, camporeeClubId: number) {
+  return apiRequest(`/camporees/union/${camporeeId}/clubs/${camporeeClubId}/approve`, {
+    method: "PATCH",
+  });
+}
+
+export async function rejectUnionCamporeeClub(
+  camporeeId: number,
+  camporeeClubId: number,
+  payload: RejectPayload,
+) {
+  return apiRequest(`/camporees/union/${camporeeId}/clubs/${camporeeClubId}/reject`, {
+    method: "PATCH",
+    body: payload,
+  });
+}
+
+export async function approveUnionCamporeeMember(camporeeId: number, camporeeMemberId: number) {
+  return apiRequest(`/camporees/union/${camporeeId}/members/${camporeeMemberId}/approve`, {
+    method: "PATCH",
+  });
+}
+
+export async function rejectUnionCamporeeMember(
+  camporeeId: number,
+  camporeeMemberId: number,
+  payload: RejectPayload,
+) {
+  return apiRequest(`/camporees/union/${camporeeId}/members/${camporeeMemberId}/reject`, {
+    method: "PATCH",
+    body: payload,
   });
 }
