@@ -23,6 +23,7 @@ import {
   Settings2,
   CalendarOff,
   LibraryBig,
+  Activity,
   type LucideIcon,
 } from "lucide-react";
 
@@ -151,6 +152,12 @@ export const navConfig: NavGroup[] = [
         ],
       },
       { title: "Reportes", url: "/dashboard/reports", icon: FileText, permission: "classes:read" },
+      {
+        title: "SLA Dashboard",
+        url: "/dashboard/sla",
+        icon: Activity,
+        permission: "investiture:read",
+      },
       {
         title: "Solicitudes",
         url: "/dashboard/requests/transfers",
