@@ -4,6 +4,9 @@ import { getSlaDashboard } from "@/lib/api/analytics";
 import { SlaDashboardClient } from "@/components/sla/sla-dashboard-client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { SlaRefreshButton } from "@/components/sla/sla-refresh-button";
+
+export const revalidate = 60;
 
 // ─── Skeleton Fallback ────────────────────────────────────────────────────────
 
@@ -76,19 +79,13 @@ async function SlaContent() {
 
 function SlaError() {
   return (
-    <div className="space-y-4">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">SLA Dashboard</h1>
-        <p className="text-muted-foreground">Metricas operativas de investiduras, validaciones y camporees.</p>
-      </div>
-      <Card>
-        <CardContent className="py-10 text-center">
-          <p className="text-sm text-muted-foreground">
-            No se pudieron cargar las metricas. Verifica que el backend este disponible e intentalo de nuevo.
-          </p>
-        </CardContent>
-      </Card>
-    </div>
+    <Card>
+      <CardContent className="py-10 text-center">
+        <p className="text-sm text-muted-foreground">
+          No se pudieron cargar las metricas. Verifica que el backend este disponible e intentalo de nuevo.
+        </p>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -97,7 +94,8 @@ function SlaError() {
 async function SlaContentWithErrorBoundary() {
   try {
     return await SlaContent();
-  } catch {
+  } catch (error) {
+    console.error("[SlaPage] Failed to load SLA dashboard data:", error);
     return <SlaError />;
   }
 }
@@ -108,8 +106,17 @@ export default async function SlaPage() {
   await requireAdminUser();
 
   return (
-    <Suspense fallback={<SlaDashboardSkeleton />}>
-      <SlaContentWithErrorBoundary />
-    </Suspense>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">SLA Dashboard</h1>
+          <p className="text-muted-foreground">Metricas operativas de investiduras, validaciones y camporees.</p>
+        </div>
+        <SlaRefreshButton />
+      </div>
+      <Suspense fallback={<SlaDashboardSkeleton />}>
+        <SlaContentWithErrorBoundary />
+      </Suspense>
+    </div>
   );
 }
