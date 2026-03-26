@@ -443,8 +443,12 @@ export async function pipelineReject(
 
 // ─── Bulk operation types ─────────────────────────────────────────────────────
 
+/**
+ * club-approve is intentionally absent — the bulk endpoint only supports
+ * coordinator-approve, field-approve, and invest. Club directors must use
+ * the individual /club-approve endpoint.
+ */
 export type BulkApproveAction =
-  | "club-approve"
   | "coordinator-approve"
   | "field-approve"
   | "invest";

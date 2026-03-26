@@ -29,10 +29,13 @@ import type { PipelineStatus } from "@/lib/api/investiture";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+/**
+ * Maps a pipeline status to the corresponding bulk approve action.
+ * "SUBMITTED" is intentionally absent — club directors must use the
+ * individual /club-approve endpoint which enforces ClubRolesGuard.
+ */
 function resolveAction(status: PipelineStatus): BulkApproveAction | null {
   switch (status) {
-    case "SUBMITTED":
-      return "club-approve";
     case "CLUB_APPROVED":
       return "coordinator-approve";
     case "COORDINATOR_APPROVED":
@@ -103,11 +106,11 @@ export function BulkActionBar({
   // Derive the correct approve action from the current filter status
   const approveAction = selectedStatus ? resolveAction(selectedStatus) : null;
 
-  // Only show the approve button when there's a valid action for this role
+  // Only show the approve button when there's a valid action for this role.
+  // club-approve is not available in bulk (directors use individual actions).
   const canShowApprove =
     approveAction !== null &&
     (userRole === "admin" ||
-      (approveAction === "club-approve" && userRole === "director") ||
       (approveAction === "coordinator-approve" && userRole === "coordinator") ||
       (approveAction === "field-approve" && userRole === "field") ||
       (approveAction === "invest" &&

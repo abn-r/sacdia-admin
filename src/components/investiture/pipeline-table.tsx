@@ -96,10 +96,17 @@ function canInvest(status: PipelineStatus, role: UserRole): boolean {
   );
 }
 
-function canReject(status: PipelineStatus, _role: UserRole): boolean {
-  return (
-    status !== "INVESTED" && status !== "REJECTED"
-  );
+/**
+ * Returns true when this enrollment can be rejected by the given role.
+ * Mirrors the backend RBAC — a director can only reject at the club step,
+ * a coordinator at club/coordinator steps, field/admin at any rejectable step.
+ */
+function canReject(status: PipelineStatus, role: UserRole): boolean {
+  if (status === "INVESTED" || status === "REJECTED") return false;
+  if (role === "director") return status === "SUBMITTED";
+  if (role === "coordinator") return status === "SUBMITTED" || status === "CLUB_APPROVED";
+  // admin and field can reject any non-terminal status
+  return true;
 }
 
 /**
