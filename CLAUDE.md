@@ -23,11 +23,19 @@ app/
 
 components/
 ├── ui/             - Componentes shadcn/ui
+├── evidence-review/ - Validación de evidencias (gallery, filters, bulk ops)
+├── sla/            - SLA Dashboard (métricas, gráficos, tarjetas)
+├── investiture/    - Investiduras (bulk-action-bar.tsx para operaciones masivas)
 └── [features]/     - Componentes por feature
 
 lib/
 └── utils.ts        - Utilidades (cn, etc.)
 ```
+
+## Páginas de Coordinador/Admin
+
+- `/dashboard/evidence-review` — Validación de evidencias (carpetas, clases, honores)
+- `/dashboard/sla` — Dashboard SLA con métricas operacionales
 
 ## Stack
 
