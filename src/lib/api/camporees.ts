@@ -370,3 +370,19 @@ export async function rejectUnionCamporeeMember(
     body: payload,
   });
 }
+
+export async function approveUnionCamporeePayment(camporeePaymentId: string) {
+  return apiRequest(`/camporees/union/payments/${camporeePaymentId}/approve`, {
+    method: "PATCH",
+  });
+}
+
+export async function rejectUnionCamporeePayment(
+  camporeePaymentId: string,
+  payload: RejectPayload,
+) {
+  return apiRequest(`/camporees/union/payments/${camporeePaymentId}/reject`, {
+    method: "PATCH",
+    body: payload,
+  });
+}

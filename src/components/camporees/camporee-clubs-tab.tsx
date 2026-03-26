@@ -11,11 +11,15 @@ import type { CamporeeClub } from "@/lib/api/camporees";
 interface CamporeeClubsTabProps {
   camporeeId: number;
   initialClubs: CamporeeClub[];
+  isUnionCamporee?: boolean;
+  onAfterChange?: () => void;
 }
 
 export function CamporeeClubsTab({
   camporeeId,
   initialClubs,
+  isUnionCamporee = false,
+  onAfterChange,
 }: CamporeeClubsTabProps) {
   const [clubs, setClubs] = useState<CamporeeClub[]>(initialClubs);
   const [isLoading, setIsLoading] = useState(false);
@@ -38,6 +42,7 @@ export function CamporeeClubsTab({
         }
       }
       setClubs(list);
+      onAfterChange?.();
     } catch (err: unknown) {
       const message =
         err instanceof Error
@@ -47,7 +52,7 @@ export function CamporeeClubsTab({
     } finally {
       setIsLoading(false);
     }
-  }, [camporeeId]);
+  }, [camporeeId, onAfterChange]);
 
   return (
     <div className="space-y-4">
@@ -86,6 +91,7 @@ export function CamporeeClubsTab({
         camporeeId={camporeeId}
         clubs={clubs}
         onClubsChange={refreshClubs}
+        isUnionCamporee={isUnionCamporee}
       />
 
       <EnrollClubDialog

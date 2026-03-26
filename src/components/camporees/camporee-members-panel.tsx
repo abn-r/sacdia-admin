@@ -19,6 +19,8 @@ import {
   removeCamporeeMember,
   approveCamporeeMember,
   rejectCamporeeMember,
+  approveUnionCamporeeMember,
+  rejectUnionCamporeeMember,
 } from "@/lib/api/camporees";
 import type { CamporeeMember } from "@/lib/api/camporees";
 import {
@@ -27,18 +29,43 @@ import {
 } from "@/components/camporees/camporee-approval-dialog";
 import { ApiError } from "@/lib/api/client";
 
+// ─── Member status badge ───────────────────────────────────────────────────────
+
+function MemberStatusBadge({ status }: { status?: string | null }) {
+  if (!status) {
+    return <Badge variant="secondary" className="text-xs">—</Badge>;
+  }
+
+  const normalized = status.toLowerCase();
+
+  if (normalized === "approved" || normalized === "registered") {
+    return <Badge variant="success">{normalized === "registered" ? "Registrado" : "Aprobado"}</Badge>;
+  }
+
+  if (normalized === "pending_approval") {
+    return <Badge variant="warning">Pendiente</Badge>;
+  }
+
+  if (normalized === "rejected") {
+    return <Badge variant="destructive">Rechazado</Badge>;
+  }
+
+  if (normalized === "cancelled" || normalized === "cancelado") {
+    return <Badge variant="destructive">Cancelado</Badge>;
+  }
+
+  return (
+    <Badge variant="secondary" className="text-xs capitalize">
+      {status}
+    </Badge>
+  );
+}
+
 // ─── Insurance badge ───────────────────────────────────────────────────────────
 
 function InsuranceBadge({ status }: { status?: string | null }) {
   if (!status) {
-    return (
-      <Badge
-        variant="outline"
-        className="border-yellow-400/50 bg-yellow-50 text-yellow-700 dark:bg-yellow-950/20 dark:text-yellow-400"
-      >
-        Sin seguro
-      </Badge>
-    );
+    return <Badge variant="warning">Sin seguro</Badge>;
   }
 
   const isVerified =
@@ -47,24 +74,10 @@ function InsuranceBadge({ status }: { status?: string | null }) {
     status.toLowerCase() === "active";
 
   if (isVerified) {
-    return (
-      <Badge
-        variant="outline"
-        className="border-green-400/50 bg-green-50 text-green-700 dark:bg-green-950/20 dark:text-green-400"
-      >
-        Seguro verificado
-      </Badge>
-    );
+    return <Badge variant="success">Seguro verificado</Badge>;
   }
 
-  return (
-    <Badge
-      variant="outline"
-      className="border-yellow-400/50 bg-yellow-50 text-yellow-700 dark:bg-yellow-950/20 dark:text-yellow-400"
-    >
-      Seguro pendiente
-    </Badge>
-  );
+  return <Badge variant="warning">Seguro pendiente</Badge>;
 }
 
 // ─── Dialog state ─────────────────────────────────────────────────────────────
@@ -80,6 +93,7 @@ interface CamporeeMembersPanelProps {
   camporeeId: number;
   members: CamporeeMember[];
   onMembersChange: () => void;
+  isUnionCamporee?: boolean;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -88,6 +102,7 @@ export function CamporeeMembersPanel({
   camporeeId,
   members,
   onMembersChange,
+  isUnionCamporee = false,
 }: CamporeeMembersPanelProps) {
   const [removingUserId, setRemovingUserId] = useState<string | null>(null);
   const [approvingMemberId, setApprovingMemberId] = useState<number | null>(null);
@@ -120,7 +135,11 @@ export function CamporeeMembersPanel({
     if (!memberId || approvingMemberId !== null) return;
     setApprovingMemberId(memberId);
     try {
-      await approveCamporeeMember(camporeeId, memberId);
+      if (isUnionCamporee) {
+        await approveUnionCamporeeMember(camporeeId, memberId);
+      } else {
+        await approveCamporeeMember(camporeeId, memberId);
+      }
       toast.success(
         member.name
           ? `Inscripcion de "${member.name}" aprobada`
@@ -140,9 +159,12 @@ export function CamporeeMembersPanel({
     if (!dialog) return;
     const memberId = dialog.member.camporee_member_id;
     if (!memberId) throw new Error("ID de inscripcion no disponible");
-    await rejectCamporeeMember(camporeeId, memberId, {
-      rejection_reason: rejectionReason,
-    });
+    const payload = { rejection_reason: rejectionReason };
+    if (isUnionCamporee) {
+      await rejectUnionCamporeeMember(camporeeId, memberId, payload);
+    } else {
+      await rejectCamporeeMember(camporeeId, memberId, payload);
+    }
   }
 
   if (members.length === 0) {
@@ -170,6 +192,9 @@ export function CamporeeMembersPanel({
                 Club
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Estado
+              </TableHead>
+              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 Tipo
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
@@ -180,7 +205,9 @@ export function CamporeeMembersPanel({
           </TableHeader>
           <TableBody>
             {members.map((member) => {
-              const isPending = member.status?.toLowerCase() === "pending_approval";
+              const statusNorm = member.status?.toLowerCase();
+              const isPending = statusNorm === "pending_approval";
+              const isRemovable = statusNorm !== "cancelled" && statusNorm !== "cancelado" && statusNorm !== "rejected";
               const isApproving =
                 member.camporee_member_id != null &&
                 approvingMemberId === member.camporee_member_id;
@@ -195,6 +222,9 @@ export function CamporeeMembersPanel({
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
                     {member.club_name ?? "—"}
+                  </TableCell>
+                  <TableCell className="px-3 py-2.5 align-middle">
+                    <MemberStatusBadge status={member.status} />
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle">
                     {member.camporee_type && (
@@ -247,22 +277,24 @@ export function CamporeeMembersPanel({
                         </>
                       )}
 
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon-sm"
-                            onClick={() => handleRemove(member.user_id, member.name)}
-                            disabled={removingUserId === member.user_id}
-                            aria-label="Remover del camporee"
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <UserMinus className="size-3.5" />
-                            <span className="sr-only">Remover</span>
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Remover del camporee</TooltipContent>
-                      </Tooltip>
+                      {isRemovable && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon-sm"
+                              onClick={() => handleRemove(member.user_id, member.name)}
+                              disabled={removingUserId === member.user_id}
+                              aria-label="Remover del camporee"
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <UserMinus className="size-3.5" />
+                              <span className="sr-only">Remover</span>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Remover del camporee</TooltipContent>
+                        </Tooltip>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>

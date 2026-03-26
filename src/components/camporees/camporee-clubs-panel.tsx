@@ -19,6 +19,8 @@ import {
   cancelClubEnrollment,
   approveCamporeeClub,
   rejectCamporeeClub,
+  approveUnionCamporeeClub,
+  rejectUnionCamporeeClub,
 } from "@/lib/api/camporees";
 import type { CamporeeClub } from "@/lib/api/camporees";
 import {
@@ -41,58 +43,23 @@ function ClubStatusBadge({ status }: { status?: string | null }) {
   const normalized = status.toLowerCase();
 
   if (normalized === "active" || normalized === "activo" || normalized === "enrolled") {
-    return (
-      <Badge
-        variant="outline"
-        className="border-green-400/50 bg-green-50 text-green-700 dark:bg-green-950/20 dark:text-green-400"
-      >
-        Activo
-      </Badge>
-    );
+    return <Badge variant="success">Activo</Badge>;
   }
 
   if (normalized === "approved") {
-    return (
-      <Badge
-        variant="outline"
-        className="border-green-400/50 bg-green-50 text-green-700 dark:bg-green-950/20 dark:text-green-400"
-      >
-        Aprobado
-      </Badge>
-    );
+    return <Badge variant="success">Aprobado</Badge>;
   }
 
   if (normalized === "pending_approval") {
-    return (
-      <Badge
-        variant="outline"
-        className="border-yellow-400/50 bg-yellow-50 text-yellow-700 dark:bg-yellow-950/20 dark:text-yellow-400"
-      >
-        Pendiente
-      </Badge>
-    );
+    return <Badge variant="warning">Pendiente</Badge>;
   }
 
   if (normalized === "rejected") {
-    return (
-      <Badge
-        variant="outline"
-        className="border-destructive/40 bg-destructive/5 text-destructive"
-      >
-        Rechazado
-      </Badge>
-    );
+    return <Badge variant="destructive">Rechazado</Badge>;
   }
 
   if (normalized === "cancelled" || normalized === "cancelado") {
-    return (
-      <Badge
-        variant="outline"
-        className="border-destructive/40 bg-destructive/5 text-destructive"
-      >
-        Cancelado
-      </Badge>
-    );
+    return <Badge variant="destructive">Cancelado</Badge>;
   }
 
   return (
@@ -130,6 +97,7 @@ interface CamporeeClubsPanelProps {
   camporeeId: number;
   clubs: CamporeeClub[];
   onClubsChange: () => void;
+  isUnionCamporee?: boolean;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -138,6 +106,7 @@ export function CamporeeClubsPanel({
   camporeeId,
   clubs,
   onClubsChange,
+  isUnionCamporee = false,
 }: CamporeeClubsPanelProps) {
   const [cancellingId, setCancellingId] = useState<number | null>(null);
   const [approvingId, setApprovingId] = useState<number | null>(null);
@@ -169,7 +138,11 @@ export function CamporeeClubsPanel({
     if (approvingId !== null) return;
     setApprovingId(camporeeClubId);
     try {
-      await approveCamporeeClub(camporeeId, camporeeClubId);
+      if (isUnionCamporee) {
+        await approveUnionCamporeeClub(camporeeId, camporeeClubId);
+      } else {
+        await approveCamporeeClub(camporeeId, camporeeClubId);
+      }
       const club = clubs.find((c) => c.camporee_club_id === camporeeClubId);
       toast.success(
         club?.section_name
@@ -188,9 +161,12 @@ export function CamporeeClubsPanel({
 
   async function handleRejectConfirm(rejectionReason?: string) {
     if (!dialog) return;
-    await rejectCamporeeClub(camporeeId, dialog.club.camporee_club_id, {
-      rejection_reason: rejectionReason,
-    });
+    const payload = { rejection_reason: rejectionReason };
+    if (isUnionCamporee) {
+      await rejectUnionCamporeeClub(camporeeId, dialog.club.camporee_club_id, payload);
+    } else {
+      await rejectCamporeeClub(camporeeId, dialog.club.camporee_club_id, payload);
+    }
   }
 
   if (clubs.length === 0) {
@@ -228,7 +204,9 @@ export function CamporeeClubsPanel({
           </TableHeader>
           <TableBody>
             {clubs.map((club) => {
-              const isPending = club.status?.toLowerCase() === "pending_approval";
+              const statusNorm = club.status?.toLowerCase();
+              const isPending = statusNorm === "pending_approval";
+              const isCancellable = statusNorm !== "cancelled" && statusNorm !== "cancelado" && statusNorm !== "rejected";
               const isApproving = approvingId === club.camporee_club_id;
 
               return (
@@ -293,22 +271,24 @@ export function CamporeeClubsPanel({
                         </>
                       )}
 
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon-sm"
-                            onClick={() => handleCancel(club.camporee_club_id, club.section_name)}
-                            disabled={cancellingId === club.camporee_club_id}
-                            aria-label="Cancelar inscripcion"
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="size-3.5" />
-                            <span className="sr-only">Cancelar</span>
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Cancelar inscripcion</TooltipContent>
-                      </Tooltip>
+                      {isCancellable && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon-sm"
+                              onClick={() => handleCancel(club.camporee_club_id, club.section_name)}
+                              disabled={cancellingId === club.camporee_club_id}
+                              aria-label="Cancelar inscripcion"
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="size-3.5" />
+                              <span className="sr-only">Cancelar</span>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Cancelar inscripcion</TooltipContent>
+                        </Tooltip>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>

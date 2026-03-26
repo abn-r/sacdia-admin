@@ -4,14 +4,10 @@ import { ArrowLeft, CalendarRange, MapPin, DollarSign, Hash } from "lucide-react
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/shared/page-header";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { CamporeeInfoCard } from "@/components/camporees/camporee-info-card";
 import { CamporeeDetailActions } from "@/components/camporees/camporee-detail-actions";
-import { CamporeeMembersTab } from "@/components/camporees/camporee-members-tab";
-import { CamporeeClubsTab } from "@/components/camporees/camporee-clubs-tab";
-import { CamporeePaymentsTab } from "@/components/camporees/camporee-payments-tab";
+import { CamporeeDetailTabs } from "@/components/camporees/camporee-detail-tabs";
 import { ApiError } from "@/lib/api/client";
 import {
   getCamporeeById,
@@ -215,61 +211,16 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
       <CamporeeInfoCard camporee={camporee} />
 
       {/* Tabs */}
-      <Tabs defaultValue="info">
-        <TabsList>
-          <TabsTrigger value="info">Informacion</TabsTrigger>
-          <TabsTrigger value="members">
-            Miembros
-            {members.length > 0 && (
-              <Badge variant="secondary" className="ml-2">
-                {members.length}
-              </Badge>
-            )}
-            {pending.members.length > 0 && (
-              <Badge
-                variant="outline"
-                className="ml-1 border-yellow-400/50 bg-yellow-50 text-yellow-700 dark:bg-yellow-950/20 dark:text-yellow-400"
-              >
-                {pending.members.length}
-              </Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="clubs">
-            Clubes
-            {clubs.length > 0 && (
-              <Badge variant="secondary" className="ml-2">
-                {clubs.length}
-              </Badge>
-            )}
-            {pending.clubs.length > 0 && (
-              <Badge
-                variant="outline"
-                className="ml-1 border-yellow-400/50 bg-yellow-50 text-yellow-700 dark:bg-yellow-950/20 dark:text-yellow-400"
-              >
-                {pending.clubs.length}
-              </Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="payments">
-            Pagos
-            {payments.length > 0 && (
-              <Badge variant="secondary" className="ml-2">
-                {payments.length}
-              </Badge>
-            )}
-            {pending.payments.length > 0 && (
-              <Badge
-                variant="outline"
-                className="ml-1 border-yellow-400/50 bg-yellow-50 text-yellow-700 dark:bg-yellow-950/20 dark:text-yellow-400"
-              >
-                {pending.payments.length}
-              </Badge>
-            )}
-          </TabsTrigger>
-        </TabsList>
-
-        {/* ── Informacion ── */}
-        <TabsContent value="info" className="mt-4">
+      <CamporeeDetailTabs
+        camporeeId={camporeeId}
+        initialMembers={members}
+        initialClubs={clubs}
+        initialPayments={payments}
+        initialPending={pending}
+        membersError={membersError}
+        clubsError={clubsError}
+        paymentsError={paymentsError}
+        infoContent={
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Detalles del camporee</CardTitle>
@@ -339,66 +290,8 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
               )}
             </CardContent>
           </Card>
-        </TabsContent>
-
-        {/* ── Miembros ── */}
-        <TabsContent value="members" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Miembros inscritos</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {membersError ? (
-                <EndpointErrorBanner state="missing" detail={membersError} />
-              ) : (
-                <CamporeeMembersTab
-                  camporeeId={camporeeId}
-                  initialMembers={members}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* ── Clubes ── */}
-        <TabsContent value="clubs" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Clubes inscritos</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {clubsError ? (
-                <EndpointErrorBanner state="missing" detail={clubsError} />
-              ) : (
-                <CamporeeClubsTab
-                  camporeeId={camporeeId}
-                  initialClubs={clubs}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* ── Pagos ── */}
-        <TabsContent value="payments" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Pagos</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {paymentsError ? (
-                <EndpointErrorBanner state="missing" detail={paymentsError} />
-              ) : (
-                <CamporeePaymentsTab
-                  camporeeId={camporeeId}
-                  initialPayments={payments}
-                  members={members}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+        }
+      />
     </div>
   );
 }

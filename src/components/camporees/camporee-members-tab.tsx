@@ -11,11 +11,15 @@ import type { CamporeeMember } from "@/lib/api/camporees";
 interface CamporeeMembersTabProps {
   camporeeId: number;
   initialMembers: CamporeeMember[];
+  isUnionCamporee?: boolean;
+  onAfterChange?: () => void;
 }
 
 export function CamporeeMembersTab({
   camporeeId,
   initialMembers,
+  isUnionCamporee = false,
+  onAfterChange,
 }: CamporeeMembersTabProps) {
   const [members, setMembers] = useState<CamporeeMember[]>(initialMembers);
   const [isLoading, setIsLoading] = useState(false);
@@ -38,6 +42,7 @@ export function CamporeeMembersTab({
         }
       }
       setMembers(list);
+      onAfterChange?.();
     } catch (err: unknown) {
       const message =
         err instanceof Error
@@ -47,7 +52,7 @@ export function CamporeeMembersTab({
     } finally {
       setIsLoading(false);
     }
-  }, [camporeeId]);
+  }, [camporeeId, onAfterChange]);
 
   return (
     <div className="space-y-4">
@@ -86,6 +91,7 @@ export function CamporeeMembersTab({
         camporeeId={camporeeId}
         members={members}
         onMembersChange={refreshMembers}
+        isUnionCamporee={isUnionCamporee}
       />
 
       <RegisterMemberDialog

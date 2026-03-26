@@ -12,12 +12,16 @@ interface CamporeePaymentsTabProps {
   camporeeId: number;
   initialPayments: CamporeePayment[];
   members: CamporeeMember[];
+  isUnionCamporee?: boolean;
+  onAfterChange?: () => void;
 }
 
 export function CamporeePaymentsTab({
   camporeeId,
   initialPayments,
   members,
+  isUnionCamporee = false,
+  onAfterChange,
 }: CamporeePaymentsTabProps) {
   const [payments, setPayments] = useState<CamporeePayment[]>(initialPayments);
   const [isLoading, setIsLoading] = useState(false);
@@ -41,6 +45,7 @@ export function CamporeePaymentsTab({
         }
       }
       setPayments(list);
+      onAfterChange?.();
     } catch (err: unknown) {
       const message =
         err instanceof Error
@@ -50,7 +55,7 @@ export function CamporeePaymentsTab({
     } finally {
       setIsLoading(false);
     }
-  }, [camporeeId]);
+  }, [camporeeId, onAfterChange]);
 
   function handleNewPayment() {
     setEditingPayment(null);
@@ -106,6 +111,7 @@ export function CamporeePaymentsTab({
         payments={payments}
         onEdit={handleEditPayment}
         onPaymentsChange={refreshPayments}
+        isUnionCamporee={isUnionCamporee}
       />
 
       <PaymentDialog

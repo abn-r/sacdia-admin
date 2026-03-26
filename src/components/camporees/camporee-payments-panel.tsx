@@ -18,6 +18,8 @@ import { EmptyState } from "@/components/shared/empty-state";
 import {
   approveCamporeePayment,
   rejectCamporeePayment,
+  approveUnionCamporeePayment,
+  rejectUnionCamporeePayment,
 } from "@/lib/api/camporees";
 import type { CamporeePayment, PaymentType } from "@/lib/api/camporees";
 import {
@@ -28,31 +30,17 @@ import { ApiError } from "@/lib/api/client";
 
 // ─── Payment type badge ────────────────────────────────────────────────────────
 
-const PAYMENT_TYPE_CONFIG: Record<
-  PaymentType,
-  { label: string; className: string }
-> = {
-  inscription: {
-    label: "Inscripcion",
-    className:
-      "border-blue-400/50 bg-blue-50 text-blue-700 dark:bg-blue-950/20 dark:text-blue-400",
-  },
-  materials: {
-    label: "Materiales",
-    className:
-      "border-purple-400/50 bg-purple-50 text-purple-700 dark:bg-purple-950/20 dark:text-purple-400",
-  },
-  other: {
-    label: "Otro",
-    className: "",
-  },
+const PAYMENT_TYPE_LABELS: Record<PaymentType, string> = {
+  inscription: "Inscripcion",
+  materials: "Materiales",
+  other: "Otro",
 };
 
 function PaymentTypeBadge({ type }: { type: PaymentType }) {
-  const config = PAYMENT_TYPE_CONFIG[type] ?? PAYMENT_TYPE_CONFIG.other;
+  const label = PAYMENT_TYPE_LABELS[type] ?? type;
   return (
-    <Badge variant="outline" className={`text-xs ${config.className}`}>
-      {config.label}
+    <Badge variant="secondary" className="text-xs">
+      {label}
     </Badge>
   );
 }
@@ -64,36 +52,15 @@ function PaymentStatusBadge({ status }: { status?: string | null }) {
   const normalized = status.toLowerCase();
 
   if (normalized === "approved") {
-    return (
-      <Badge
-        variant="outline"
-        className="border-green-400/50 bg-green-50 text-xs text-green-700 dark:bg-green-950/20 dark:text-green-400"
-      >
-        Aprobado
-      </Badge>
-    );
+    return <Badge variant="success">Aprobado</Badge>;
   }
 
   if (normalized === "pending_approval") {
-    return (
-      <Badge
-        variant="outline"
-        className="border-yellow-400/50 bg-yellow-50 text-xs text-yellow-700 dark:bg-yellow-950/20 dark:text-yellow-400"
-      >
-        Pendiente
-      </Badge>
-    );
+    return <Badge variant="warning">Pendiente</Badge>;
   }
 
   if (normalized === "rejected") {
-    return (
-      <Badge
-        variant="outline"
-        className="border-destructive/40 bg-destructive/5 text-xs text-destructive"
-      >
-        Rechazado
-      </Badge>
-    );
+    return <Badge variant="destructive">Rechazado</Badge>;
   }
 
   return (
@@ -153,11 +120,11 @@ function PaymentSummary({ payments }: PaymentSummaryProps) {
       {/* By type */}
       {(["inscription", "materials", "other"] as PaymentType[]).map((key) => {
         const amount = byType[key] ?? 0;
-        const config = PAYMENT_TYPE_CONFIG[key];
+        const label = PAYMENT_TYPE_LABELS[key];
         return (
           <div key={key} className="rounded-xl border border-border bg-card px-4 py-3 shadow-sm">
             <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              {config.label}
+              {label}
             </p>
             <p className="mt-1 text-lg font-semibold tabular-nums text-muted-foreground">
               {formatCurrency(amount)}
@@ -182,6 +149,7 @@ interface CamporeePaymentsPanelProps {
   payments: CamporeePayment[];
   onEdit: (payment: CamporeePayment) => void;
   onPaymentsChange?: () => void;
+  isUnionCamporee?: boolean;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -190,6 +158,7 @@ export function CamporeePaymentsPanel({
   payments,
   onEdit,
   onPaymentsChange,
+  isUnionCamporee = false,
 }: CamporeePaymentsPanelProps) {
   const [approvingId, setApprovingId] = useState<string | null>(null);
   const [dialog, setDialog] = useState<DialogState>(null);
@@ -199,7 +168,11 @@ export function CamporeePaymentsPanel({
     if (!paymentUuid || approvingId !== null) return;
     setApprovingId(paymentUuid);
     try {
-      await approveCamporeePayment(paymentUuid);
+      if (isUnionCamporee) {
+        await approveUnionCamporeePayment(paymentUuid);
+      } else {
+        await approveCamporeePayment(paymentUuid);
+      }
       toast.success(
         payment.member_name
           ? `Pago de "${payment.member_name}" aprobado`
@@ -219,7 +192,12 @@ export function CamporeePaymentsPanel({
     if (!dialog) return;
     const paymentUuid = dialog.payment.camporee_payment_id;
     if (!paymentUuid) throw new Error("UUID de pago no disponible");
-    await rejectCamporeePayment(paymentUuid, { rejection_reason: rejectionReason });
+    const payload = { rejection_reason: rejectionReason };
+    if (isUnionCamporee) {
+      await rejectUnionCamporeePayment(paymentUuid, payload);
+    } else {
+      await rejectCamporeePayment(paymentUuid, payload);
+    }
   }
 
   if (payments.length === 0) {
