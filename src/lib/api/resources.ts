@@ -131,6 +131,14 @@ export async function updateResource(id: number, payload: Partial<ResourcePayloa
   return apiRequest(`/resources/${id}`, { method: "PATCH", body: payload });
 }
 
+export async function getResourceById(id: number) {
+  return apiRequest<Resource>(`/resources/${id}`);
+}
+
 export async function deleteResource(id: number) {
   return apiRequest(`/resources/${id}`, { method: "DELETE" });
+}
+
+export async function getResourceSignedUrl(id: number) {
+  return apiRequest<{ signed_url: string }>(`/resources/${id}/signed-url`);
 }

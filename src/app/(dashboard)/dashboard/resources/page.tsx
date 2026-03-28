@@ -3,6 +3,8 @@ import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { ApiError } from "@/lib/api/client";
 import { listResources, listResourceCategories } from "@/lib/api/resources";
 import type { ResourceType, ClubTypeTarget, ScopeLevel } from "@/lib/api/resources";
+import { listUnions, listLocalFields } from "@/lib/api/geography";
+import type { Union, LocalField } from "@/lib/api/geography";
 import { hasAnyPermission } from "@/lib/auth/permission-utils";
 import {
   RESOURCES_CREATE,
@@ -111,6 +113,30 @@ function extractCategories(payload: unknown): CategoryRecord[] {
     .filter((c): c is CategoryRecord => c !== null);
 }
 
+function extractUnions(payload: unknown): Union[] {
+  const items = extractItems(payload);
+  return items
+    .map((item) => {
+      const id = toPositiveNumber(item.union_id ?? item.id);
+      const name = typeof item.name === "string" ? item.name.trim() : null;
+      if (!id || !name) return null;
+      return { union_id: id, name, country_id: Number(item.country_id ?? 0), active: item.active as boolean | undefined } satisfies Union;
+    })
+    .filter((u): u is Union => u !== null && u.active !== false);
+}
+
+function extractLocalFields(payload: unknown): LocalField[] {
+  const items = extractItems(payload);
+  return items
+    .map((item) => {
+      const id = toPositiveNumber(item.local_field_id ?? item.id);
+      const name = typeof item.name === "string" ? item.name.trim() : null;
+      if (!id || !name) return null;
+      return { local_field_id: id, name, union_id: Number(item.union_id ?? 0), active: item.active as boolean | undefined } satisfies LocalField;
+    })
+    .filter((lf): lf is LocalField => lf !== null && lf.active !== false);
+}
+
 export default async function ResourcesPage({
   searchParams,
 }: {
@@ -153,12 +179,17 @@ export default async function ResourcesPage({
   let meta: PageMeta = { page, limit, total: 0, totalPages: 1 };
   let loadError: string | null = null;
   let categories: CategoryRecord[] = [];
+  let unions: Union[] = [];
+  let localFields: LocalField[] = [];
 
-  // Fetch resources and categories in parallel
-  const [resourcesResult, categoriesResult] = await Promise.allSettled([
-    listResources({ page, limit, resource_type: resourceType, category_id: categoryId, club_type: clubType, scope_level: scopeLevel, search }),
-    listResourceCategories({ limit: 500 }),
-  ]);
+  // Fetch all data in parallel
+  const [resourcesResult, categoriesResult, unionsResult, localFieldsResult] =
+    await Promise.allSettled([
+      listResources({ page, limit, resource_type: resourceType, category_id: categoryId, club_type: clubType, scope_level: scopeLevel, search }),
+      listResourceCategories({ limit: 500 }),
+      listUnions(),
+      listLocalFields(),
+    ]);
 
   if (resourcesResult.status === "fulfilled") {
     items = extractItems(resourcesResult.value);
@@ -177,6 +208,14 @@ export default async function ResourcesPage({
     categories = extractCategories(categoriesResult.value);
   }
 
+  if (unionsResult.status === "fulfilled") {
+    unions = extractUnions(unionsResult.value);
+  }
+
+  if (localFieldsResult.status === "fulfilled") {
+    localFields = extractLocalFields(localFieldsResult.value);
+  }
+
   const canCreate = hasAnyPermission(user, [RESOURCES_CREATE]);
   const canEdit = hasAnyPermission(user, [RESOURCES_UPDATE]);
   const canDelete = hasAnyPermission(user, [RESOURCES_DELETE]);
@@ -189,6 +228,8 @@ export default async function ResourcesPage({
         items={items}
         meta={meta}
         categories={categories}
+        unions={unions}
+        localFields={localFields}
         canCreate={canCreate}
         canEdit={canEdit}
         canDelete={canDelete}

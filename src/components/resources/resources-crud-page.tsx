@@ -1,9 +1,12 @@
 "use client";
 
 import { useActionState, useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useFormStatus } from "react-dom";
 import {
+  Download,
+  ExternalLink,
   FileText,
   Loader2,
   MoreHorizontal,
@@ -15,6 +18,9 @@ import {
   Image,
   Video,
   BookOpen,
+  Globe,
+  MapPin,
+  Building,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -49,6 +55,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -59,11 +66,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import type { ResourceActionState } from "@/lib/resources/resource-actions";
 import type { ResourceType, ClubTypeTarget, ScopeLevel } from "@/lib/api/resources";
+import { apiRequestFromClient } from "@/lib/api/client";
+import type { Union, LocalField } from "@/lib/api/geography";
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
 
@@ -83,7 +97,7 @@ const CLUB_TYPE_LABELS: Record<ClubTypeTarget, string> = {
 };
 
 const SCOPE_LEVEL_LABELS: Record<ScopeLevel, string> = {
-  system: "Sistema (global)",
+  system: "Sistema",
   union: "Unión",
   local_field: "Campo local",
 };
@@ -102,6 +116,8 @@ interface ResourcesCrudPageProps {
   items: ResourceRecord[];
   meta: { page: number; limit: number; total: number; totalPages: number };
   categories: CategoryRecord[];
+  unions: Union[];
+  localFields: LocalField[];
   canCreate: boolean;
   canEdit: boolean;
   canDelete: boolean;
@@ -153,9 +169,32 @@ function pickUploader(item: ResourceRecord): string {
   const uploader = item.uploader;
   if (uploader && typeof uploader === "object") {
     const u = uploader as Record<string, unknown>;
-    return toText(u.name) ?? toText(u.email) ?? "—";
+    const name = toText(u.name);
+    const lastName = toText(u.last_name);
+    if (name && lastName) return `${name} ${lastName}`;
+    return name ?? toText(u.email) ?? "—";
   }
   return "—";
+}
+
+function pickScopeLevel(item: ResourceRecord): ScopeLevel | null {
+  const level = item.scope_level;
+  if (typeof level === "string" && level in SCOPE_LEVEL_LABELS) {
+    return level as ScopeLevel;
+  }
+  return null;
+}
+
+function pickScopeId(item: ResourceRecord): number | null {
+  return toPositiveNumber(item.scope_id);
+}
+
+function pickClubType(item: ResourceRecord): ClubTypeTarget | null {
+  const ct = item.club_type;
+  if (typeof ct === "string" && ct in CLUB_TYPE_LABELS) {
+    return ct as ClubTypeTarget;
+  }
+  return null;
 }
 
 function formatDate(value: unknown): string {
@@ -167,38 +206,102 @@ function formatDate(value: unknown): string {
   }
 }
 
+function formatFileSize(bytes: unknown): string {
+  const size = toPositiveNumber(bytes);
+  if (!size) return "";
+  if (size < 1024) return `${size} B`;
+  if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
+  return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 // ─── Badge helpers ──────────────────────────────────────────────────────────────
 
-type BadgeVariant = "default" | "secondary" | "destructive" | "outline";
-
+// Badge colors: hardcoded with dark mode variants (design system exception for
+// distinctive visual identification of resource types/scopes)
 function resourceTypeBadgeConfig(type: ResourceType | null): {
   label: string;
-  variant: BadgeVariant;
   className: string;
   Icon: React.ElementType;
 } {
   switch (type) {
     case "document":
-      return { label: "Documento", variant: "default", className: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300", Icon: FileText };
+      return {
+        label: "Documento",
+        className:
+          "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700",
+        Icon: FileText,
+      };
     case "audio":
-      return { label: "Audio", variant: "secondary", className: "bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300", Icon: Music };
+      return {
+        label: "Audio",
+        className:
+          "bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-700",
+        Icon: Music,
+      };
     case "image":
-      return { label: "Imagen", variant: "secondary", className: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300", Icon: Image };
+      return {
+        label: "Imagen",
+        className:
+          "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-700",
+        Icon: Image,
+      };
     case "video_link":
-      return { label: "Video", variant: "destructive", className: "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-300", Icon: Video };
+      return {
+        label: "Video",
+        className:
+          "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-700",
+        Icon: Video,
+      };
     case "text":
-      return { label: "Texto", variant: "outline", className: "bg-gray-100 text-gray-700 border-gray-300 dark:bg-gray-800/30 dark:text-gray-300", Icon: BookOpen };
+      return {
+        label: "Texto",
+        className:
+          "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700",
+        Icon: BookOpen,
+      };
     default:
-      return { label: "Desconocido", variant: "outline", className: "", Icon: FileText };
+      return { label: "Desconocido", className: "", Icon: FileText };
+  }
+}
+
+function scopeLevelBadgeConfig(level: ScopeLevel | null): {
+  label: string;
+  className: string;
+  Icon: React.ElementType;
+} {
+  switch (level) {
+    case "system":
+      return {
+        label: "Sistema",
+        className:
+          "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800/40 dark:text-slate-300 dark:border-slate-600",
+        Icon: Globe,
+      };
+    case "union":
+      return {
+        label: "Unión",
+        className:
+          "bg-indigo-100 text-indigo-800 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-700",
+        Icon: Building,
+      };
+    case "local_field":
+      return {
+        label: "Campo",
+        className:
+          "bg-teal-100 text-teal-800 border-teal-200 dark:bg-teal-900/30 dark:text-teal-300 dark:border-teal-700",
+        Icon: MapPin,
+      };
+    default:
+      return { label: "—", className: "", Icon: Globe };
   }
 }
 
 // ─── Sub-components ─────────────────────────────────────────────────────────────
 
-function SubmitButton({ label }: { label: string }) {
+function SubmitButton({ label, extraDisabled }: { label: string; extraDisabled?: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending || extraDisabled}>
       {pending && <Loader2 className="mr-2 size-4 animate-spin" />}
       {label}
     </Button>
@@ -210,8 +313,8 @@ function DeleteButton() {
   return (
     <Button
       type="submit"
+      variant="destructive"
       disabled={pending}
-      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
     >
       {pending && <Loader2 className="mr-2 size-4 animate-spin" />}
       Eliminar
@@ -223,23 +326,72 @@ function ResourceTypeBadge({ type }: { type: ResourceType | null }) {
   const config = resourceTypeBadgeConfig(type);
   const Icon = config.Icon;
   return (
-    <Badge variant={config.variant} className={`gap-1 text-xs ${config.className}`}>
+    <Badge
+      variant="outline"
+      className={`gap-1 border text-xs font-medium ${config.className}`}
+    >
       <Icon className="size-3" />
       {config.label}
     </Badge>
   );
 }
 
+function ScopeBadge({
+  level,
+  scopeId,
+  unions,
+  localFields,
+}: {
+  level: ScopeLevel | null;
+  scopeId: number | null;
+  unions: Union[];
+  localFields: LocalField[];
+}) {
+  const config = scopeLevelBadgeConfig(level);
+  const Icon = config.Icon;
+
+  let label = config.label;
+  if (level === "union" && scopeId) {
+    const union = unions.find((u) => u.union_id === scopeId);
+    if (union) label = `Unión: ${union.name}`;
+  } else if (level === "local_field" && scopeId) {
+    const lf = localFields.find((lf) => lf.local_field_id === scopeId);
+    if (lf) label = `Campo: ${lf.name}`;
+  }
+
+  if (!level) return <span className="text-muted-foreground">—</span>;
+
+  return (
+    <Badge
+      variant="outline"
+      className={`gap-1 border text-xs font-medium ${config.className}`}
+    >
+      <Icon className="size-3 shrink-0" />
+      <span className="truncate max-w-[140px]" title={label}>
+        {label}
+      </span>
+    </Badge>
+  );
+}
+
 // ─── Create/Edit form ───────────────────────────────────────────────────────────
+
+const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
 
 function ResourceFormFields({
   item,
   categories,
+  unions,
+  localFields,
   isEdit,
+  onFileSizeError,
 }: {
   item?: ResourceRecord | null;
   categories: CategoryRecord[];
+  unions: Union[];
+  localFields: LocalField[];
   isEdit?: boolean;
+  onFileSizeError?: (error: string | null) => void;
 }) {
   const [resourceType, setResourceType] = useState<ResourceType>(
     (item?.resource_type as ResourceType) ?? "document",
@@ -247,25 +399,54 @@ function ResourceFormFields({
   const [scopeLevel, setScopeLevel] = useState<ScopeLevel>(
     (item?.scope_level as ScopeLevel) ?? "system",
   );
+  const [fileSizeError, setFileSizeError] = useState<string | null>(null);
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file && file.size > MAX_FILE_SIZE) {
+      const msg = `El archivo excede el límite de 50 MB (${(file.size / 1024 / 1024).toFixed(1)} MB)`;
+      setFileSizeError(msg);
+      onFileSizeError?.(msg);
+      e.target.value = "";
+    } else {
+      setFileSizeError(null);
+      onFileSizeError?.(null);
+    }
+  }
 
   const showFileUpload = !isEdit && ["document", "audio", "image"].includes(resourceType);
   const showExternalUrl = resourceType === "video_link";
   const showContent = resourceType === "text";
   const showScopeId = scopeLevel !== "system";
 
+  const acceptedFileTypes: Record<string, string> = {
+    document: ".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx",
+    audio: ".mp3,.wav,.ogg,.aac,.m4a",
+    image: "image/*",
+  };
+
+  const fileTypeDescriptions: Record<string, string> = {
+    document: "PDF, Word, PowerPoint o Excel — máx. 50 MB",
+    audio: "MP3, WAV, OGG, AAC, M4A — máx. 50 MB",
+    image: "JPG, PNG, WebP, GIF — máx. 50 MB",
+  };
+
+  const currentScopeIdValue = toPositiveNumber(item?.scope_id)?.toString() ?? "";
+
   return (
     <div className="space-y-4">
       {/* Title */}
       <div className="space-y-2">
         <Label htmlFor="res-title">
-          Título <span className="text-destructive">*</span>
+          Título <span className="ml-0.5 text-destructive">*</span>
         </Label>
         <Input
           id="res-title"
           name="title"
           defaultValue={toText(item?.title) ?? ""}
           required
-          placeholder="Ej. Manual del Conquistador 2024"
+          maxLength={255}
+          placeholder="Ej. Manual del Conquistador 2025"
         />
       </div>
 
@@ -277,7 +458,7 @@ function ResourceFormFields({
           name="description"
           rows={2}
           defaultValue={toText(item?.description) ?? ""}
-          placeholder="Descripción breve del recurso"
+          placeholder="Descripción breve del recurso (opcional)"
         />
       </div>
 
@@ -285,7 +466,7 @@ function ResourceFormFields({
         {/* Resource Type */}
         <div className="space-y-2">
           <Label htmlFor="res-type">
-            Tipo de recurso <span className="text-destructive">*</span>
+            Tipo de recurso <span className="ml-0.5 text-destructive">*</span>
           </Label>
           <Select
             name="resource_type"
@@ -298,13 +479,20 @@ function ResourceFormFields({
               <SelectValue placeholder="Seleccionar tipo" />
             </SelectTrigger>
             <SelectContent>
-              {(Object.entries(RESOURCE_TYPE_LABELS) as [ResourceType, string][]).map(([value, label]) => (
-                <SelectItem key={value} value={value}>
-                  {label}
-                </SelectItem>
-              ))}
+              {(Object.entries(RESOURCE_TYPE_LABELS) as [ResourceType, string][]).map(
+                ([value, label]) => (
+                  <SelectItem key={value} value={value}>
+                    {label}
+                  </SelectItem>
+                ),
+              )}
             </SelectContent>
           </Select>
+          {isEdit && (
+            <p className="text-xs text-muted-foreground">
+              El tipo no puede modificarse. Crea un nuevo recurso si necesitas cambiarlo.
+            </p>
+          )}
         </div>
 
         {/* Category */}
@@ -312,15 +500,18 @@ function ResourceFormFields({
           <Label htmlFor="res-category">Categoría</Label>
           <Select
             name="category_id"
-            defaultValue={toPositiveNumber(item?.category_id)?.toString() ?? ""}
+            defaultValue={toPositiveNumber(item?.category_id)?.toString() ?? "none"}
           >
             <SelectTrigger id="res-category">
               <SelectValue placeholder="Sin categoría" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Sin categoría</SelectItem>
+              <SelectItem value="none">Sin categoría</SelectItem>
               {categories.map((cat) => (
-                <SelectItem key={cat.resource_category_id} value={String(cat.resource_category_id)}>
+                <SelectItem
+                  key={cat.resource_category_id}
+                  value={String(cat.resource_category_id)}
+                >
                   {cat.name}
                 </SelectItem>
               ))}
@@ -339,91 +530,142 @@ function ResourceFormFields({
               <SelectValue placeholder="Todos los clubes" />
             </SelectTrigger>
             <SelectContent>
-              {(Object.entries(CLUB_TYPE_LABELS) as [ClubTypeTarget, string][]).map(([value, label]) => (
-                <SelectItem key={value} value={value}>
-                  {label}
-                </SelectItem>
-              ))}
+              {(Object.entries(CLUB_TYPE_LABELS) as [ClubTypeTarget, string][]).map(
+                ([value, label]) => (
+                  <SelectItem key={value} value={value}>
+                    {label}
+                  </SelectItem>
+                ),
+              )}
             </SelectContent>
           </Select>
         </div>
 
         {/* Scope Level */}
         <div className="space-y-2">
-          <Label htmlFor="res-scope-level">Alcance</Label>
+          <Label htmlFor="res-scope-level">
+            Alcance <span className="ml-0.5 text-destructive">*</span>
+          </Label>
           <Select
             name="scope_level"
             value={scopeLevel}
             onValueChange={(v) => setScopeLevel(v as ScopeLevel)}
+            disabled={isEdit}
           >
             <SelectTrigger id="res-scope-level">
               <SelectValue placeholder="Alcance" />
             </SelectTrigger>
             <SelectContent>
-              {(Object.entries(SCOPE_LEVEL_LABELS) as [ScopeLevel, string][]).map(([value, label]) => (
-                <SelectItem key={value} value={value}>
-                  {label}
-                </SelectItem>
-              ))}
+              {(Object.entries(SCOPE_LEVEL_LABELS) as [ScopeLevel, string][]).map(
+                ([value, label]) => (
+                  <SelectItem key={value} value={value}>
+                    {label}
+                  </SelectItem>
+                ),
+              )}
             </SelectContent>
           </Select>
         </div>
       </div>
 
-      {/* Scope ID — only when scope is union or local_field */}
+      {/* Scope ID — union or local_field dropdown */}
       {showScopeId && (
         <div className="space-y-2">
           <Label htmlFor="res-scope-id">
-            ID de {scopeLevel === "union" ? "unión" : "campo local"}
+            {scopeLevel === "union" ? "Unión" : "Campo local"}{" "}
+            <span className="ml-0.5 text-destructive">*</span>
           </Label>
-          <Input
-            id="res-scope-id"
-            name="scope_id"
-            type="number"
-            min={1}
-            defaultValue={toPositiveNumber(item?.scope_id)?.toString() ?? ""}
-            placeholder={`ID de la ${scopeLevel === "union" ? "unión" : "campo local"}`}
-          />
-          <p className="text-xs text-muted-foreground">
-            Ingresa el ID numérico de la{" "}
-            {scopeLevel === "union" ? "unión" : "campo local"} a la que pertenece el recurso.
-          </p>
+          {scopeLevel === "union" ? (
+            unions.length > 0 ? (
+              <Select
+                name="scope_id"
+                defaultValue={currentScopeIdValue || undefined}
+                required
+              >
+                <SelectTrigger id="res-scope-id">
+                  <SelectValue placeholder="Seleccionar unión" />
+                </SelectTrigger>
+                <SelectContent>
+                  {unions.map((u) => (
+                    <SelectItem key={u.union_id} value={String(u.union_id)}>
+                      {u.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <Input
+                id="res-scope-id"
+                name="scope_id"
+                type="number"
+                min={1}
+                defaultValue={currentScopeIdValue}
+                required
+                placeholder="ID de la unión"
+              />
+            )
+          ) : localFields.length > 0 ? (
+            <Select
+              name="scope_id"
+              defaultValue={currentScopeIdValue || undefined}
+              required
+            >
+              <SelectTrigger id="res-scope-id">
+                <SelectValue placeholder="Seleccionar campo local" />
+              </SelectTrigger>
+              <SelectContent>
+                {localFields.map((lf) => (
+                  <SelectItem key={lf.local_field_id} value={String(lf.local_field_id)}>
+                    {lf.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : (
+            <Input
+              id="res-scope-id"
+              name="scope_id"
+              type="number"
+              min={1}
+              defaultValue={currentScopeIdValue}
+              required
+              placeholder="ID del campo local"
+            />
+          )}
         </div>
       )}
 
-      {/* File upload — only for create, not edit */}
+      {/* File upload — only for create */}
       {showFileUpload && (
         <div className="space-y-2">
-          <Label htmlFor="res-file">
-            Archivo
-            {resourceType !== "image" && <span className="ml-1 text-muted-foreground">(opcional)</span>}
-          </Label>
-          <Input
-            id="res-file"
-            name="file"
-            type="file"
-            accept={
-              resourceType === "document"
-                ? ".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx"
-                : resourceType === "audio"
-                  ? ".mp3,.wav,.ogg,.aac,.m4a"
-                  : "image/*"
-            }
-            className="file:mr-3 file:rounded file:border-0 file:bg-muted file:px-3 file:py-1 file:text-sm file:font-medium"
-          />
-          <p className="text-xs text-muted-foreground">
-            {resourceType === "document" && "PDF, Word, PowerPoint, Excel"}
-            {resourceType === "audio" && "MP3, WAV, OGG, AAC, M4A"}
-            {resourceType === "image" && "JPG, PNG, GIF, WebP, SVG"}
-          </p>
+          <Label htmlFor="res-file">Archivo</Label>
+          <div className="rounded-lg border-2 border-dashed border-border bg-muted/30 p-4 transition-colors hover:border-primary/40 hover:bg-muted/50">
+            <input
+              id="res-file"
+              name="file"
+              type="file"
+              accept={acceptedFileTypes[resourceType] ?? "*"}
+              onChange={handleFileChange}
+              className="block w-full cursor-pointer text-sm text-muted-foreground
+                file:mr-3 file:cursor-pointer file:rounded-md file:border-0
+                file:bg-primary file:px-3 file:py-1.5 file:text-xs file:font-medium
+                file:text-primary-foreground hover:file:bg-primary/90"
+            />
+            <p className="mt-2 text-xs text-muted-foreground">
+              {fileTypeDescriptions[resourceType] ?? "Selecciona un archivo"}
+            </p>
+          </div>
+          {fileSizeError && (
+            <p className="text-sm text-destructive">{fileSizeError}</p>
+          )}
         </div>
       )}
 
-      {/* External URL — only for video_link */}
+      {/* External URL — video_link */}
       {showExternalUrl && (
         <div className="space-y-2">
           <Label htmlFor="res-external-url">
-            URL del video <span className="text-destructive">*</span>
+            URL del video <span className="ml-0.5 text-destructive">*</span>
           </Label>
           <Input
             id="res-external-url"
@@ -431,24 +673,28 @@ function ResourceFormFields({
             type="url"
             defaultValue={toText(item?.external_url) ?? ""}
             required={showExternalUrl}
-            placeholder="https://youtube.com/watch?v=..."
+            placeholder="https://youtube.com/watch?v=... o https://vimeo.com/..."
           />
+          <p className="text-xs text-muted-foreground">
+            Enlace a YouTube, Vimeo u otro servicio de video.
+          </p>
         </div>
       )}
 
-      {/* Content — only for text type */}
+      {/* Content — text type */}
       {showContent && (
         <div className="space-y-2">
           <Label htmlFor="res-content">
-            Contenido <span className="text-destructive">*</span>
+            Contenido <span className="ml-0.5 text-destructive">*</span>
           </Label>
           <Textarea
             id="res-content"
             name="content"
-            rows={6}
+            rows={8}
             defaultValue={toText(item?.content) ?? ""}
             required={showContent}
             placeholder="Escribe el contenido del recurso aquí..."
+            className="resize-y"
           />
         </div>
       )}
@@ -462,6 +708,8 @@ export function ResourcesCrudPage({
   items,
   meta,
   categories,
+  unions,
+  localFields,
   canCreate,
   canEdit,
   canDelete,
@@ -479,10 +727,20 @@ export function ResourcesCrudPage({
   const [createOpen, setCreateOpen] = useState(false);
   const [editItem, setEditItem] = useState<ResourceRecord | null>(null);
   const [deleteItem, setDeleteItem] = useState<ResourceRecord | null>(null);
+  const [createFileSizeError, setCreateFileSizeError] = useState<string | null>(null);
 
-  const [createState, createFormAction] = useActionState<ResourceActionState, FormData>(createAction, {});
-  const [updateState, updateFormAction] = useActionState<ResourceActionState, FormData>(updateAction, {});
-  const [deleteState, deleteFormAction] = useActionState<ResourceActionState, FormData>(deleteAction, {});
+  const [createState, createFormAction] = useActionState<ResourceActionState, FormData>(
+    createAction,
+    {},
+  );
+  const [updateState, updateFormAction] = useActionState<ResourceActionState, FormData>(
+    updateAction,
+    {},
+  );
+  const [deleteState, deleteFormAction] = useActionState<ResourceActionState, FormData>(
+    deleteAction,
+    {},
+  );
 
   useEffect(() => {
     latestParamsRef.current = searchParamsString;
@@ -517,7 +775,10 @@ export function ResourcesCrudPage({
       params.set("page", "1");
       const queryString = params.toString();
       const nextUrl = queryString ? `${pathname}?${queryString}` : pathname;
-      if (mode === "replace") { router.replace(nextUrl); return; }
+      if (mode === "replace") {
+        router.replace(nextUrl);
+        return;
+      }
       router.push(nextUrl);
     },
     [pathname, router],
@@ -548,16 +809,41 @@ export function ResourcesCrudPage({
 
   const hasActiveFilters = Boolean(
     currentSearch ||
-    currentTypeFilter !== "all" ||
-    currentCategoryFilter !== "all" ||
-    currentClubTypeFilter !== "all" ||
-    currentScopeFilter !== "all",
+      currentTypeFilter !== "all" ||
+      currentCategoryFilter !== "all" ||
+      currentClubTypeFilter !== "all" ||
+      currentScopeFilter !== "all",
   );
 
   const canMutate = canCreate || canEdit || canDelete;
   const safePage = Math.max(1, meta.page || 1);
   const safeLimit = Math.max(1, meta.limit || 20);
   const safeTotalPages = Math.max(1, meta.totalPages || 1);
+
+  async function handleOpenSignedUrl(item: ResourceRecord) {
+    const id = pickId(item);
+    if (!id) return;
+    const type = pickResourceType(item);
+    const externalUrl = toText(item.external_url as string);
+
+    if (type === "video_link" && externalUrl && /^https?:\/\//i.test(externalUrl)) {
+      window.open(externalUrl, "_blank", "noopener,noreferrer");
+      return;
+    }
+
+    // For file-based resources, fetch a signed URL through the authenticated client
+    try {
+      const result = await apiRequestFromClient<{ signed_url?: string; url?: string }>(
+        `/resources/${id}/signed-url`,
+      );
+      const url = result.signed_url ?? result.url;
+      if (url) {
+        window.open(url, "_blank", "noopener,noreferrer");
+      }
+    } catch {
+      toast.error("No se pudo obtener el enlace de descarga. Intenta de nuevo.");
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -578,100 +864,138 @@ export function ResourcesCrudPage({
         <div className="rounded-xl border bg-muted/20 p-4">
           <div className="mb-3 flex items-center justify-between gap-2">
             <h3 className="text-sm font-semibold tracking-wide text-foreground">Filtros</h3>
-            <span className="text-xs text-muted-foreground">Refina el listado</span>
+            {hasActiveFilters && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 text-xs text-muted-foreground hover:text-foreground"
+                onClick={() => {
+                  router.push(pathname);
+                }}
+              >
+                Limpiar filtros
+              </Button>
+            )}
           </div>
 
           <div className="overflow-x-auto pb-1">
-            <div className="flex min-w-max flex-wrap items-end gap-4">
+            <div className="flex min-w-max flex-wrap items-end gap-3">
               {/* Search */}
-              <div className="w-[280px] space-y-1">
-                <Label htmlFor="res-filter-search">Buscar</Label>
+              <div className="w-[260px] space-y-1">
+                <Label htmlFor="res-filter-search" className="text-xs font-medium text-muted-foreground">
+                  Buscar
+                </Label>
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <Search className="absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="res-filter-search"
                     placeholder="Buscar por título..."
                     value={searchInput}
                     onChange={(e) => handleSearchInputChange(e.target.value)}
-                    className="bg-background pl-9"
+                    className="bg-background pl-8 h-8 text-sm"
                   />
                 </div>
               </div>
 
               {/* Type */}
-              <div className="w-[180px] space-y-1">
-                <Label htmlFor="res-filter-type">Tipo</Label>
+              <div className="w-[170px] space-y-1">
+                <Label htmlFor="res-filter-type" className="text-xs font-medium text-muted-foreground">
+                  Tipo
+                </Label>
                 <Select
                   value={currentTypeFilter}
                   onValueChange={(v) => updateParam("resource_type", v)}
                 >
-                  <SelectTrigger id="res-filter-type" className="bg-background">
+                  <SelectTrigger id="res-filter-type" className="bg-background h-8 text-sm">
                     <SelectValue placeholder="Todos los tipos" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Todos los tipos</SelectItem>
-                    {(Object.entries(RESOURCE_TYPE_LABELS) as [ResourceType, string][]).map(([value, label]) => (
-                      <SelectItem key={value} value={value}>{label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Category */}
-              <div className="w-[200px] space-y-1">
-                <Label htmlFor="res-filter-category">Categoría</Label>
-                <Select
-                  value={currentCategoryFilter}
-                  onValueChange={(v) => updateParam("category_id", v)}
-                >
-                  <SelectTrigger id="res-filter-category" className="bg-background">
-                    <SelectValue placeholder="Todas las categorías" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todas las categorías</SelectItem>
-                    {categories.map((cat) => (
-                      <SelectItem key={cat.resource_category_id} value={String(cat.resource_category_id)}>
-                        {cat.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Club Type */}
-              <div className="w-[200px] space-y-1">
-                <Label htmlFor="res-filter-club-type">Tipo de club</Label>
-                <Select
-                  value={currentClubTypeFilter}
-                  onValueChange={(v) => updateParam("club_type", v)}
-                >
-                  <SelectTrigger id="res-filter-club-type" className="bg-background">
-                    <SelectValue placeholder="Todos los clubes" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todos los clubes</SelectItem>
-                    {(Object.entries(CLUB_TYPE_LABELS) as [ClubTypeTarget, string][]).map(([value, label]) => (
-                      <SelectItem key={value} value={value}>{label}</SelectItem>
-                    ))}
+                    {(Object.entries(RESOURCE_TYPE_LABELS) as [ResourceType, string][]).map(
+                      ([value, label]) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      ),
+                    )}
                   </SelectContent>
                 </Select>
               </div>
 
               {/* Scope */}
-              <div className="w-[190px] space-y-1">
-                <Label htmlFor="res-filter-scope">Alcance</Label>
+              <div className="w-[170px] space-y-1">
+                <Label htmlFor="res-filter-scope" className="text-xs font-medium text-muted-foreground">
+                  Alcance
+                </Label>
                 <Select
                   value={currentScopeFilter}
                   onValueChange={(v) => updateParam("scope_level", v)}
                 >
-                  <SelectTrigger id="res-filter-scope" className="bg-background">
-                    <SelectValue placeholder="Todos los alcances" />
+                  <SelectTrigger id="res-filter-scope" className="bg-background h-8 text-sm">
+                    <SelectValue placeholder="Todos" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Todos los alcances</SelectItem>
-                    {(Object.entries(SCOPE_LEVEL_LABELS) as [ScopeLevel, string][]).map(([value, label]) => (
-                      <SelectItem key={value} value={value}>{label}</SelectItem>
-                    ))}
+                    {(Object.entries(SCOPE_LEVEL_LABELS) as [ScopeLevel, string][]).map(
+                      ([value, label]) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      ),
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Category */}
+              {categories.length > 0 && (
+                <div className="w-[190px] space-y-1">
+                  <Label htmlFor="res-filter-category" className="text-xs font-medium text-muted-foreground">
+                    Categoría
+                  </Label>
+                  <Select
+                    value={currentCategoryFilter}
+                    onValueChange={(v) => updateParam("category_id", v)}
+                  >
+                    <SelectTrigger id="res-filter-category" className="bg-background h-8 text-sm">
+                      <SelectValue placeholder="Todas" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todas las categorías</SelectItem>
+                      {categories.map((cat) => (
+                        <SelectItem
+                          key={cat.resource_category_id}
+                          value={String(cat.resource_category_id)}
+                        >
+                          {cat.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {/* Club Type */}
+              <div className="w-[185px] space-y-1">
+                <Label htmlFor="res-filter-club-type" className="text-xs font-medium text-muted-foreground">
+                  Tipo de club
+                </Label>
+                <Select
+                  value={currentClubTypeFilter}
+                  onValueChange={(v) => updateParam("club_type", v)}
+                >
+                  <SelectTrigger id="res-filter-club-type" className="bg-background h-8 text-sm">
+                    <SelectValue placeholder="Todos" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos los clubes</SelectItem>
+                    {(Object.entries(CLUB_TYPE_LABELS) as [ClubTypeTarget, string][]).map(
+                      ([value, label]) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      ),
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -686,8 +1010,8 @@ export function ResourcesCrudPage({
             title={hasActiveFilters ? "Sin resultados" : "No hay recursos"}
             description={
               hasActiveFilters
-                ? "No hay recursos que coincidan con los filtros aplicados."
-                : "Sube el primer recurso para los clubes."
+                ? "Ningún recurso coincide con los filtros aplicados. Intenta ajustarlos."
+                : "Sube el primer recurso para ponerlo a disposición de los clubes."
             }
           >
             {canCreate && !hasActiveFilters && (
@@ -699,22 +1023,34 @@ export function ResourcesCrudPage({
           </EmptyState>
         ) : (
           <>
-            <div className="overflow-x-auto rounded-md border">
+            <div className="overflow-x-auto rounded-xl border bg-card shadow-sm">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead className="min-w-[220px]">Título</TableHead>
-                    <TableHead>Tipo</TableHead>
-                    <TableHead>Categoría</TableHead>
-                    <TableHead>Club</TableHead>
-                    <TableHead>Alcance</TableHead>
-                    <TableHead>Subido por</TableHead>
-                    <TableHead>Fecha</TableHead>
-                    {(canEdit || canDelete) && (
-                      <TableHead className="sticky right-0 z-20 w-[100px] border-l bg-background">
-                        Acciones
-                      </TableHead>
-                    )}
+                  <TableRow className="bg-muted/30">
+                    <TableHead className="min-w-[200px] h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Título
+                    </TableHead>
+                    <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Tipo
+                    </TableHead>
+                    <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Categoría
+                    </TableHead>
+                    <TableHead className="min-w-[160px] h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Alcance
+                    </TableHead>
+                    <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Club
+                    </TableHead>
+                    <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Subido por
+                    </TableHead>
+                    <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Fecha
+                    </TableHead>
+                    <TableHead className="sticky right-0 z-20 w-[110px] border-l bg-card h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Acciones
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -724,96 +1060,159 @@ export function ResourcesCrudPage({
                     const type = pickResourceType(item);
                     const categoryName = pickCategoryName(item);
                     const uploader = pickUploader(item);
+                    const scopeLevel = pickScopeLevel(item);
+                    const scopeId = pickScopeId(item);
+                    const clubType = pickClubType(item);
+                    const fileSize = formatFileSize(item.file_size);
                     const rowKey = itemId
                       ? `res-${itemId}`
                       : `res-row-${(safePage - 1) * safeLimit + idx}`;
-                    const clubType = toText(item.club_type as string);
-                    const scopeLevel = toText(item.scope_level as string);
 
                     return (
-                      <TableRow key={rowKey}>
-                        <TableCell className="font-medium">{title}</TableCell>
-                        <TableCell>
+                      <TableRow key={rowKey} className="transition-colors hover:bg-muted/30">
+                        <TableCell className="px-3 py-2.5 align-middle">
+                          <div className="flex flex-col gap-0.5">
+                            <span className="font-medium text-sm">{title}</span>
+                            {fileSize && (
+                              <span className="text-xs text-muted-foreground">{fileSize}</span>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="px-3 py-2.5 align-middle">
                           <ResourceTypeBadge type={type} />
                         </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
+                        <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
                           {categoryName}
                         </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {clubType
-                            ? CLUB_TYPE_LABELS[clubType as ClubTypeTarget] ?? clubType
-                            : "—"}
+                        <TableCell className="px-3 py-2.5 align-middle">
+                          <ScopeBadge
+                            level={scopeLevel}
+                            scopeId={scopeId}
+                            unions={unions}
+                            localFields={localFields}
+                          />
                         </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {scopeLevel
-                            ? SCOPE_LEVEL_LABELS[scopeLevel as ScopeLevel] ?? scopeLevel
-                            : "—"}
+                        <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
+                          {clubType ? CLUB_TYPE_LABELS[clubType] ?? "—" : "Todos"}
                         </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">{uploader}</TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
+                        <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
+                          {uploader}
+                        </TableCell>
+                        <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
                           {formatDate(item.created_at)}
                         </TableCell>
-                        {(canEdit || canDelete) && (
-                          <TableCell className="sticky right-0 z-10 border-l bg-background">
-                            <div className="hidden gap-1 md:flex">
-                              {canEdit && (
+                        <TableCell className="sticky right-0 z-10 border-l bg-card px-3 py-2.5 align-middle">
+                          {/* Desktop: icon buttons */}
+                          <div className="hidden items-center gap-0.5 md:flex">
+                            {type !== "text" && (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="size-8 text-muted-foreground hover:text-foreground"
+                                    disabled={!itemId}
+                                    onClick={() => handleOpenSignedUrl(item)}
+                                  >
+                                    {type === "video_link" ? (
+                                      <ExternalLink className="size-3.5" />
+                                    ) : (
+                                      <Download className="size-3.5" />
+                                    )}
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  {type === "video_link" ? "Abrir enlace" : "Descargar"}
+                                </TooltipContent>
+                              </Tooltip>
+                            )}
+
+                            {canEdit && (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="size-8 text-muted-foreground hover:text-foreground"
+                                    disabled={!itemId}
+                                    onClick={() => setEditItem(item)}
+                                  >
+                                    <Pencil className="size-3.5" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Editar</TooltipContent>
+                              </Tooltip>
+                            )}
+
+                            {canDelete && (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="size-8 text-destructive/70 hover:text-destructive"
+                                    disabled={!itemId}
+                                    onClick={() => setDeleteItem(item)}
+                                  >
+                                    <Trash2 className="size-3.5" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Eliminar</TooltipContent>
+                              </Tooltip>
+                            )}
+                          </div>
+
+                          {/* Mobile: dropdown */}
+                          <div className="md:hidden">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
                                 <Button
                                   variant="ghost"
                                   size="icon"
                                   className="size-8"
-                                  disabled={!itemId}
-                                  onClick={() => setEditItem(item)}
-                                  title="Editar"
+                                  title="Acciones"
                                 >
-                                  <Pencil className="size-3.5" />
+                                  <MoreHorizontal className="size-4" />
                                 </Button>
-                              )}
-                              {canDelete && (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="size-8 text-destructive hover:text-destructive"
-                                  disabled={!itemId}
-                                  onClick={() => setDeleteItem(item)}
-                                  title="Eliminar"
-                                >
-                                  <Trash2 className="size-3.5" />
-                                </Button>
-                              )}
-                            </div>
-
-                            <div className="md:hidden">
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="size-8" title="Acciones">
-                                    <MoreHorizontal className="size-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  {canEdit && (
-                                    <DropdownMenuItem
-                                      disabled={!itemId}
-                                      onSelect={() => setEditItem(item)}
-                                    >
-                                      <Pencil className="size-4" />
-                                      Editar
-                                    </DropdownMenuItem>
-                                  )}
-                                  {canDelete && (
-                                    <DropdownMenuItem
-                                      disabled={!itemId}
-                                      variant="destructive"
-                                      onSelect={() => setDeleteItem(item)}
-                                    >
-                                      <Trash2 className="size-4" />
-                                      Eliminar
-                                    </DropdownMenuItem>
-                                  )}
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </div>
-                          </TableCell>
-                        )}
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                {type !== "text" && (
+                                  <DropdownMenuItem
+                                    disabled={!itemId}
+                                    onSelect={() => handleOpenSignedUrl(item)}
+                                  >
+                                    {type === "video_link" ? (
+                                      <ExternalLink className="size-4" />
+                                    ) : (
+                                      <Download className="size-4" />
+                                    )}
+                                    {type === "video_link" ? "Abrir enlace" : "Descargar"}
+                                  </DropdownMenuItem>
+                                )}
+                                {(canEdit || canDelete) && <DropdownMenuSeparator />}
+                                {canEdit && (
+                                  <DropdownMenuItem
+                                    disabled={!itemId}
+                                    onSelect={() => setEditItem(item)}
+                                  >
+                                    <Pencil className="size-4" />
+                                    Editar
+                                  </DropdownMenuItem>
+                                )}
+                                {canDelete && (
+                                  <DropdownMenuItem
+                                    disabled={!itemId}
+                                    variant="destructive"
+                                    onSelect={() => setDeleteItem(item)}
+                                  >
+                                    <Trash2 className="size-4" />
+                                    Eliminar
+                                  </DropdownMenuItem>
+                                )}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        </TableCell>
                       </TableRow>
                     );
                   })}
@@ -833,27 +1232,41 @@ export function ResourcesCrudPage({
       </div>
 
       {/* Create Dialog */}
+      {/* Excepción documentada al Design System: se usa Dialog en lugar de páginas dedicadas
+          porque el formulario es relativamente simple y el file upload se beneficia de
+          mantener el contexto de la lista. Ver design system §CRUD patterns. */}
       {canCreate && (
-        <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <Dialog
+          open={createOpen}
+          onOpenChange={(open) => {
+            setCreateOpen(open);
+            if (!open) setCreateFileSizeError(null);
+          }}
+        >
           <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Subir recurso</DialogTitle>
               <DialogDescription>
-                Completa los campos para registrar el nuevo recurso.
+                Completa los campos para registrar el nuevo recurso en el sistema.
               </DialogDescription>
             </DialogHeader>
             <form action={createFormAction} encType="multipart/form-data" className="space-y-4">
-              {createState.error && (
+              {createOpen && createState.error && (
                 <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
                   {createState.error}
                 </div>
               )}
-              <ResourceFormFields categories={categories} />
+              <ResourceFormFields
+                categories={categories}
+                unions={unions}
+                localFields={localFields}
+                onFileSizeError={setCreateFileSizeError}
+              />
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setCreateOpen(false)}>
                   Cancelar
                 </Button>
-                <SubmitButton label="Subir recurso" />
+                <SubmitButton label="Subir recurso" extraDisabled={!!createFileSizeError} />
               </DialogFooter>
             </form>
           </DialogContent>
@@ -861,23 +1274,38 @@ export function ResourcesCrudPage({
       )}
 
       {/* Edit Dialog */}
+      {/* Excepción documentada al Design System: se usa Dialog en lugar de páginas dedicadas
+          porque el formulario es relativamente simple y el file upload se beneficia de
+          mantener el contexto de la lista. Ver design system §CRUD patterns. */}
       {canEdit && editItem && (
-        <Dialog open={!!editItem} onOpenChange={(open) => { if (!open) setEditItem(null); }}>
+        <Dialog
+          open={!!editItem}
+          onOpenChange={(open) => {
+            if (!open) setEditItem(null);
+          }}
+        >
           <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Editar recurso</DialogTitle>
               <DialogDescription>
-                Solo se puede editar la metadata. Para cambiar el archivo, elimina y vuelve a crear el recurso.
+                Modifica los metadatos del recurso. Para cambiar el archivo, elimínalo y vuelve a
+                subirlo.
               </DialogDescription>
             </DialogHeader>
             <form action={updateFormAction} className="space-y-4">
               <input type="hidden" name="id" value={String(pickId(editItem) ?? "")} />
-              {updateState.error && (
+              {!!editItem && updateState.error && (
                 <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
                   {updateState.error}
                 </div>
               )}
-              <ResourceFormFields item={editItem} categories={categories} isEdit />
+              <ResourceFormFields
+                item={editItem}
+                categories={categories}
+                unions={unions}
+                localFields={localFields}
+                isEdit
+              />
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setEditItem(null)}>
                   Cancelar
@@ -893,15 +1321,19 @@ export function ResourcesCrudPage({
       {canDelete && deleteItem && (
         <AlertDialog
           open={!!deleteItem}
-          onOpenChange={(open) => { if (!open) setDeleteItem(null); }}
+          onOpenChange={(open) => {
+            if (!open) setDeleteItem(null);
+          }}
         >
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>¿Eliminar recurso?</AlertDialogTitle>
               <AlertDialogDescription>
                 Se eliminará el recurso{" "}
-                <span className="font-medium">&quot;{pickTitle(deleteItem)}&quot;</span>. Esta
-                acción no se puede deshacer.
+                <span className="font-medium text-foreground">
+                  &quot;{pickTitle(deleteItem)}&quot;
+                </span>
+                . El archivo asociado también será removido. Esta acción no se puede deshacer.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
