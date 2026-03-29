@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus, PenLine, Check, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -27,12 +27,21 @@ import type { EntityField } from "@/lib/catalogs/entities";
 import type { CatalogItem } from "@/lib/catalogs/service";
 import { showAppAlert } from "@/lib/ui/app-alerts";
 
-function SubmitButton({ label }: { label: string }) {
+function SubmitButton({ isEdit }: { isEdit: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending}>
-      {pending && <Loader2 className="mr-2 size-4 animate-spin" />}
-      {label}
+    <Button type="submit" variant="default" disabled={pending}>
+      {pending ? (
+        <>
+          <Loader2 className="size-4 animate-spin" />
+          Guardando...
+        </>
+      ) : (
+        <>
+          {isEdit ? <Check className="size-4" /> : <Plus className="size-4" />}
+          {isEdit ? "Guardar cambios" : "Crear"}
+        </>
+      )}
     </Button>
   );
 }
@@ -43,6 +52,7 @@ interface CatalogFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
+  singularTitle?: string;
   description?: string;
   fields: EntityField[];
   initialValues?: CatalogItem | null;
@@ -54,12 +64,14 @@ export function CatalogFormDialog({
   open,
   onOpenChange,
   title,
+  singularTitle,
   description,
   fields,
   initialValues,
   selectOptions = {},
   formAction,
 }: CatalogFormDialogProps) {
+  const isEdit = !!initialValues;
   const [state, action] = useActionState(formAction, {});
   const [checkboxValues, setCheckboxValues] = useState<Record<string, boolean>>({});
   const initialCheckboxValues = fields.reduce<Record<string, boolean>>((acc, field) => {
@@ -88,16 +100,30 @@ export function CatalogFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          {description && <DialogDescription>{description}</DialogDescription>}
+          <DialogTitle>
+            <span className="flex items-center gap-2">
+              {isEdit
+                ? <PenLine className="size-5 text-muted-foreground" />
+                : <Plus className="size-5 text-muted-foreground" />
+              }
+              {singularTitle
+                ? (isEdit ? `Editar ${singularTitle}` : `Crear ${singularTitle}`)
+                : title
+              }
+            </span>
+          </DialogTitle>
+          <DialogDescription>
+            {description ?? (isEdit ? "Modificá los campos necesarios" : "Completá los campos requeridos")}
+          </DialogDescription>
         </DialogHeader>
 
-        <form action={action} className="space-y-4">
+        <form action={action} className="space-y-5">
           {state.error && (
-            <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-              {state.error}
+            <div className="rounded-lg bg-destructive/10 border border-destructive/20 px-3 py-2.5 flex items-start gap-2">
+              <AlertCircle className="size-4 text-destructive mt-0.5 shrink-0" />
+              <span className="text-sm text-destructive">{state.error}</span>
             </div>
           )}
 
@@ -127,10 +153,10 @@ export function CatalogFormDialog({
             if (field.type === "select") {
               const options = selectOptions[field.optionsEntityKey ?? ""] ?? [];
               return (
-                <div key={field.name} className="space-y-2">
-                  <Label htmlFor={field.name}>
+                <div key={field.name} className="space-y-1.5">
+                  <Label htmlFor={field.name} className="text-sm font-medium">
                     {field.label}
-                    {field.required && <span className="text-destructive"> *</span>}
+                    {field.required && <span className="text-destructive/70 ml-0.5">*</span>}
                   </Label>
                   <Select
                     name={field.name}
@@ -154,10 +180,10 @@ export function CatalogFormDialog({
 
             if (field.type === "textarea") {
               return (
-                <div key={field.name} className="space-y-2">
-                  <Label htmlFor={field.name}>
+                <div key={field.name} className="space-y-1.5">
+                  <Label htmlFor={field.name} className="text-sm font-medium">
                     {field.label}
-                    {field.required && <span className="text-destructive"> *</span>}
+                    {field.required && <span className="text-destructive/70 ml-0.5">*</span>}
                   </Label>
                   <Textarea
                     id={field.name}
@@ -166,16 +192,17 @@ export function CatalogFormDialog({
                     placeholder={field.placeholder}
                     required={field.required}
                     rows={3}
+                    className="min-h-[80px] resize-none"
                   />
                 </div>
               );
             }
 
             return (
-              <div key={field.name} className="space-y-2">
-                <Label htmlFor={field.name}>
+              <div key={field.name} className="space-y-1.5">
+                <Label htmlFor={field.name} className="text-sm font-medium">
                   {field.label}
-                  {field.required && <span className="text-destructive"> *</span>}
+                  {field.required && <span className="text-destructive/70 ml-0.5">*</span>}
                 </Label>
                 <Input
                   id={field.name}
@@ -190,10 +217,10 @@ export function CatalogFormDialog({
           })}
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <SubmitButton label={initialValues ? "Guardar cambios" : "Crear"} />
+            <SubmitButton isEdit={isEdit} />
           </DialogFooter>
         </form>
       </DialogContent>

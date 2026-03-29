@@ -206,7 +206,7 @@ export const navConfig: NavGroup[] = [
           { title: "Historial", url: "/dashboard/notifications/history", permission: "notifications:send" },
         ],
       },
-      { title: "Folders", url: "/dashboard/folders", icon: FolderOpen, permission: "folders:read" },
+      { title: "Carpetas de Evidencias", url: "/dashboard/folders", icon: FolderOpen, permission: "folders:read" },
       {
         title: "Carpeta Anual",
         url: "/dashboard/annual-folders",

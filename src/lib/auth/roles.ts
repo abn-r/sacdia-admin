@@ -28,7 +28,7 @@ function normalizeRole(role: unknown): string | null {
     return null;
   }
 
-  return role.trim().toLowerCase();
+  return role.trim().toLowerCase().replace(/_/g, "-");
 }
 
 function unwrapResponse(user: AuthUser): AuthUser {

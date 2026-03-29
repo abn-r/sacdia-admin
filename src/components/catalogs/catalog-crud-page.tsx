@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Pencil, Trash2, BookOpen } from "lucide-react";
+import { Plus, Pencil, Trash2, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -12,7 +13,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { CatalogFormDialog } from "@/components/catalogs/catalog-form-dialog";
 import { CatalogDeleteDialog } from "@/components/catalogs/catalog-delete-dialog";
@@ -71,40 +71,51 @@ export function CatalogCrudPage({
 
   return (
     <div className="space-y-6">
-      <PageHeader title={config.title} description={config.description}>
-        {!canMutate && <Badge variant="outline">Solo lectura</Badge>}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-semibold tracking-tight">{config.title}</h1>
+            <Badge variant="secondary" className="text-xs">
+              {items.length} {items.length === 1 ? "registro" : "registros"}
+            </Badge>
+            {!canMutate && <Badge variant="outline">Solo lectura</Badge>}
+          </div>
+          {config.description && (
+            <p className="text-sm text-muted-foreground">{config.description}</p>
+          )}
+        </div>
         {canMutate && (
-          <Button onClick={() => setCreateOpen(true)}>
-            <Plus className="mr-2 size-4" />
+          <Button size="default" onClick={() => setCreateOpen(true)}>
+            <Plus className="mr-1.5 size-4" />
             Crear {config.singularTitle.toLowerCase()}
           </Button>
         )}
-      </PageHeader>
+      </div>
 
       {items.length === 0 ? (
         <EmptyState
-          icon={BookOpen}
+          icon={Package}
           title={`No hay ${config.title.toLowerCase()}`}
           description="No se encontraron registros."
         >
           {canMutate && (
-            <Button onClick={() => setCreateOpen(true)}>
-              <Plus className="mr-2 size-4" />
+            <Button size="default" onClick={() => setCreateOpen(true)}>
+              <Plus className="mr-1.5 size-4" />
               Crear {config.singularTitle.toLowerCase()}
             </Button>
           )}
         </EmptyState>
       ) : (
-        <div className="rounded-md border">
+        <Card className="overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[60px]">ID</TableHead>
+                <TableHead className="w-[60px] text-xs uppercase tracking-wider text-muted-foreground font-medium">ID</TableHead>
                 {displayFields.map((f) => (
-                  <TableHead key={f.name}>{f.label}</TableHead>
+                  <TableHead key={f.name} className="text-xs uppercase tracking-wider text-muted-foreground font-medium">{f.label}</TableHead>
                 ))}
-                <TableHead>Estado</TableHead>
-                {canMutate && <TableHead className="w-[100px]">Acciones</TableHead>}
+                <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-medium">Estado</TableHead>
+                {canMutate && <TableHead className="w-[100px] text-xs uppercase tracking-wider text-muted-foreground font-medium">Acciones</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -113,7 +124,7 @@ export function CatalogCrudPage({
                 const rowKey = itemId ? `${config.key}-${itemId}` : `${config.key}-row-${idx}`;
 
                 return (
-                  <TableRow key={rowKey}>
+                  <TableRow key={rowKey} className="hover:bg-muted/50 transition-colors">
                     <TableCell className="text-xs text-muted-foreground">{itemId ?? "—"}</TableCell>
                     {displayFields.map((f) => {
                       const val = item[f.name];
@@ -138,7 +149,7 @@ export function CatalogCrudPage({
                     })}
                     <TableCell>
                       <Badge
-                        variant={item.active !== false ? "default" : "outline"}
+                        variant={item.active !== false ? "success" : "secondary"}
                         className="text-xs"
                       >
                         {item.active !== false ? "Activo" : "Inactivo"}
@@ -150,7 +161,7 @@ export function CatalogCrudPage({
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="size-8"
+                            className="size-8 hover:bg-muted"
                             disabled={!itemId}
                             onClick={() => setEditItem(item)}
                             title="Editar"
@@ -160,7 +171,7 @@ export function CatalogCrudPage({
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="size-8 text-destructive hover:text-destructive"
+                            className="size-8 text-destructive hover:text-destructive hover:bg-muted"
                             disabled={!itemId}
                             onClick={() => setDeleteItem(item)}
                             title="Eliminar"
@@ -175,7 +186,7 @@ export function CatalogCrudPage({
               })}
             </TableBody>
           </Table>
-        </div>
+        </Card>
       )}
 
       {canMutate && (
