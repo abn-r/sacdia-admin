@@ -151,3 +151,125 @@ export async function updateHonor(honorId: number, payload: Partial<HonorPayload
 export async function listHonorCategories() {
   return apiRequest<HonorCategory[]>("/honors/categories");
 }
+
+// ─── Requirement types ────────────────────────────────────────────────────────
+
+export type RequirementNode = {
+  requirement_id: number;
+  honor_id: number;
+  parent_id: number | null;
+  requirement_number: number;
+  display_label: string | null;
+  requirement_text: string;
+  reference_text: string | null;
+  has_sub_items: boolean;
+  is_choice_group: boolean;
+  choice_min: number | null;
+  requires_evidence: boolean;
+  needs_review: boolean;
+  active: boolean;
+  created_at: string;
+  modified_at: string;
+  children: RequirementNode[];
+};
+
+export type CreateRequirementPayload = {
+  parentId?: number | null;
+  requirementNumber: number;
+  displayLabel?: string | null;
+  requirementText: string;
+  referenceText?: string | null;
+  isChoiceGroup?: boolean;
+  choiceMin?: number | null;
+  requiresEvidence?: boolean;
+};
+
+export type UpdateRequirementPayload = {
+  requirementNumber?: number;
+  displayLabel?: string | null;
+  requirementText?: string;
+  referenceText?: string | null;
+  hasSubItems?: boolean;
+  isChoiceGroup?: boolean;
+  choiceMin?: number | null;
+  requiresEvidence?: boolean;
+  needsReview?: boolean;
+};
+
+export type ReviewRequirement = {
+  requirement_id: number;
+  honor_id: number;
+  requirement_number: number;
+  requirement_text: string;
+  has_sub_items: boolean;
+  needs_review: boolean;
+  created_at: string;
+  honors: {
+    honor_id: number;
+    name: string;
+  };
+};
+
+export type ReviewFilters = {
+  honorId?: number;
+  categoryId?: number;
+};
+
+export type PaginatedResponse<T> = {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+};
+
+// ─── Admin Requirements CRUD ──────────────────────────────────────────────────
+
+export async function listAdminRequirements(honorId: number) {
+  return apiRequest<RequirementNode[]>(`/admin/honors/${honorId}/requirements`);
+}
+
+export async function createRequirement(honorId: number, payload: CreateRequirementPayload) {
+  return apiRequest<RequirementNode>(`/admin/honors/${honorId}/requirements`, {
+    method: "POST",
+    body: payload,
+  });
+}
+
+export async function updateRequirement(requirementId: number, payload: UpdateRequirementPayload) {
+  return apiRequest<RequirementNode>(`/admin/honors/requirements/${requirementId}`, {
+    method: "PATCH",
+    body: payload,
+  });
+}
+
+export async function deleteRequirement(requirementId: number) {
+  return apiRequest(`/admin/honors/requirements/${requirementId}`, {
+    method: "DELETE",
+  });
+}
+
+export async function reorderRequirements(honorId: number, requirementIds: number[]) {
+  return apiRequest(`/admin/honors/${honorId}/requirements/reorder`, {
+    method: "PATCH",
+    body: { requirementIds },
+  });
+}
+
+// ─── Review workflow ──────────────────────────────────────────────────────────
+
+export async function getPendingReview(page = 1, limit = 20, filters?: ReviewFilters) {
+  const params: Record<string, number> = { page, limit };
+  if (filters?.honorId !== undefined) params.honorId = filters.honorId;
+  if (filters?.categoryId !== undefined) params.categoryId = filters.categoryId;
+  return apiRequest<PaginatedResponse<ReviewRequirement>>(
+    `/admin/honors/requirements/pending-review`,
+    { params },
+  );
+}
+
+export async function batchReview(requirementIds: number[], approved: boolean) {
+  return apiRequest(`/admin/honors/requirements/batch-review`, {
+    method: "PATCH",
+    body: { requirementIds, approved },
+  });
+}
