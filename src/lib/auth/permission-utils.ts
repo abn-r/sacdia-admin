@@ -13,6 +13,7 @@ import {
   LEGAL_REPRESENTATIVE_UPDATE,
   POST_REGISTRATION_READ,
   POST_REGISTRATION_UPDATE,
+  REGISTRATION_COMPLETE,
   USERS_READ_DETAIL,
   USERS_UPDATE,
 } from "@/lib/auth/permissions";
@@ -278,10 +279,16 @@ export function canViewAdministrativeCompletion(
   ]);
 }
 
+export function canCompleteRegistrationForOthers(
+  user: AuthUser | null | undefined,
+) {
+  return hasPermission(user, REGISTRATION_COMPLETE);
+}
+
 export function canManageAdministrativeCompletion(
   user: AuthUser | null | undefined,
 ) {
-  return canUpdateSensitiveUserFamily(user, "post_registration");
+  return canCompleteRegistrationForOthers(user);
 }
 
 export function hasAnyRole(

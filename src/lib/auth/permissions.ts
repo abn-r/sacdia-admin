@@ -28,6 +28,7 @@ export const LEGAL_REPRESENTATIVE_READ = "legal_representative:read";
 export const LEGAL_REPRESENTATIVE_UPDATE = "legal_representative:update";
 export const POST_REGISTRATION_READ = "post_registration:read";
 export const POST_REGISTRATION_UPDATE = "post_registration:update";
+export const REGISTRATION_COMPLETE = "registration:complete";
 
 // --- Roles y Permisos ---
 export const ROLES_READ = "roles:read";
