@@ -122,7 +122,8 @@ function extractUnions(payload: unknown): Union[] {
       if (!id || !name) return null;
       return { union_id: id, name, country_id: Number(item.country_id ?? 0), active: item.active as boolean | undefined } satisfies Union;
     })
-    .filter((u): u is Union => u !== null && u.active !== false);
+    .filter((u): u is Union => u !== null)
+    .filter((u) => u.active !== false);
 }
 
 function extractLocalFields(payload: unknown): LocalField[] {
