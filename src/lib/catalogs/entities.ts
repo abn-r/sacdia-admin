@@ -42,6 +42,7 @@ export const ENTITY_KEYS = [
   "ecclesiastical-years",
   "club-types",
   "club-ideals",
+  "activity-types",
 ] as const;
 
 export type EntityKey = (typeof ENTITY_KEYS)[number];
@@ -276,6 +277,23 @@ export const entityConfigs: Record<EntityKey, EntityConfig> = {
         required: true,
         optionsEntityKey: "club-types",
       },
+      { name: "active", label: "Activo", type: "checkbox", required: false },
+    ],
+  },
+  "activity-types": {
+    key: "activity-types",
+    title: "Tipos de Actividad",
+    singularTitle: "Tipo de Actividad",
+    description: "Catálogo de tipos de actividad para clasificar las actividades del club.",
+    routeBase: "/dashboard/catalogs/activity-types",
+    listEndpoint: "/admin/activity-types",
+    adminEndpoint: "/admin/activity-types",
+    idField: "activity_type_id",
+    nameField: "name",
+    fields: [
+      { name: "code", label: "Código", type: "text", required: true, placeholder: "CULTO" },
+      { name: "name", label: "Nombre", type: "text", required: true, placeholder: "Culto de Adoración" },
+      { name: "description", label: "Descripción", type: "textarea" },
       { name: "active", label: "Activo", type: "checkbox", required: false },
     ],
   },

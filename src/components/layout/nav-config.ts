@@ -86,6 +86,7 @@ export const navConfig: NavGroup[] = [
           { title: "Tipos de club", url: "/dashboard/catalogs/club-types", permission: "catalogs:read" },
           { title: "Ideales de club", url: "/dashboard/catalogs/club-ideals", permission: "catalogs:read" },
           { title: "Categorías de especialidades", url: "/dashboard/catalogs/honor-categories", permission: "honor_categories:read" },
+          { title: "Tipos de actividad", url: "/dashboard/catalogs/activity-types", permission: "catalogs:read" },
         ],
       },
       {
