@@ -94,10 +94,15 @@ export type ExpiringInsurance = {
 
 export async function getExpiringInsurance(
   daysAhead = 30,
+  localFieldId?: number,
 ): Promise<ExpiringInsurance[]> {
+  const params: Record<string, number> = { days_ahead: daysAhead };
+  if (localFieldId !== undefined) {
+    params.local_field_id = localFieldId;
+  }
   const payload = await apiRequest<{ status: string; data: ExpiringInsurance[] }>(
     "/insurance/expiring",
-    { params: { days_ahead: daysAhead } },
+    { params },
   );
   return Array.isArray(payload?.data) ? payload.data : [];
 }

@@ -134,7 +134,16 @@ export const navConfig: NavGroup[] = [
       { title: "Finanzas", url: "/dashboard/finances", icon: DollarSign, permission: "finances:read" },
       { title: "Inventario", url: "/dashboard/inventory", icon: Package, permission: "inventory:read" },
       { title: "Certificaciones", url: "/dashboard/certifications", icon: ShieldCheck, permission: "certifications:read" },
-      { title: "Seguros", url: "/dashboard/insurance", icon: Heart, permission: "insurance:read" },
+      {
+        title: "Seguros",
+        url: "/dashboard/insurance",
+        icon: Heart,
+        permission: "insurance:read",
+        children: [
+          { title: "Por sección", url: "/dashboard/insurance", permission: "insurance:read" },
+          { title: "Por vencer", url: "/dashboard/insurance/expiring", permission: "insurance:read" },
+        ],
+      },
       {
         title: "Validación",
         url: "/dashboard/validation",

@@ -1,4 +1,5 @@
-import { AlertTriangle, Clock } from "lucide-react";
+import Link from "next/link";
+import { AlertTriangle, Clock, ArrowRight } from "lucide-react";
 import { getExpiringInsurance, INSURANCE_TYPE_LABELS } from "@/lib/api/insurance";
 import type { ExpiringInsurance } from "@/lib/api/insurance";
 
@@ -61,6 +62,13 @@ export async function ExpiringInsuranceAlert() {
             )}
           </span>
         </div>
+        <Link
+          href="/dashboard/insurance/expiring"
+          className="flex items-center gap-1 text-xs font-medium text-amber-700 hover:text-amber-900 dark:text-amber-400 dark:hover:text-amber-200 shrink-0"
+        >
+          Ver todos
+          <ArrowRight className="size-3" />
+        </Link>
       </div>
 
       {/* List */}
