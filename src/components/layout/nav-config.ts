@@ -105,6 +105,10 @@ export const navConfig: NavGroup[] = [
         url: "/dashboard/settings",
         icon: Settings2,
         permission: "system_config:read",
+        children: [
+          { title: "Sistema", url: "/dashboard/settings", permission: "system_config:read" },
+          { title: "Categorías de Puntuación", url: "/dashboard/settings/scoring-categories", permission: "system_config:read" },
+        ],
       },
       {
         title: "Cierre de año",
