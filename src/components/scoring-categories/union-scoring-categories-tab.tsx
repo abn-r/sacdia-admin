@@ -49,9 +49,7 @@ export function UnionScoringCategoriesTab({
 
   const handleToggleActive = useCallback(
     async (id: number, active: boolean): Promise<ScoringCategory> =>
-      updateUnionScoringCategory(unionId, id, {
-        active,
-      } as UpdateScoringCategoryPayload & { active?: boolean }),
+      updateUnionScoringCategory(unionId, id, { active }),
     [unionId],
   );
 

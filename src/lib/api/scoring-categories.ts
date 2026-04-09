@@ -23,6 +23,7 @@ export type CreateScoringCategoryPayload = {
 export type UpdateScoringCategoryPayload = {
   name?: string;
   max_points?: number;
+  active?: boolean;
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

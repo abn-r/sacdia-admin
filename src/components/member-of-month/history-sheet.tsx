@@ -37,7 +37,7 @@ function HistoryEntry({ item }: { item: MemberOfMonthHistoryItem }) {
     <div className="rounded-lg border bg-card px-4 py-3">
       {/* Period header */}
       <div className="mb-2 flex items-center gap-2">
-        <Trophy className="size-3.5 shrink-0 text-warning" />
+        <Trophy className="size-3.5 shrink-0 text-amber-500" />
         <span className="text-sm font-semibold">
           {MONTH_NAMES[item.month]} {item.year}
         </span>
@@ -175,7 +175,7 @@ export function MemberOfMonthHistorySheet({
       <SheetContent className="flex w-full flex-col sm:max-w-md">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
-            <Trophy className="size-4 text-warning" />
+            <Trophy className="size-4 text-amber-500" />
             Miembro del Mes — Historial
           </SheetTitle>
           <SheetDescription>

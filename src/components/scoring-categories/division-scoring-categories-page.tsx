@@ -43,9 +43,7 @@ export function DivisionScoringCategoriesPage() {
   // Toggle active via update endpoint
   const handleToggleActive = useCallback(
     async (id: number, active: boolean): Promise<ScoringCategory> =>
-      updateDivisionScoringCategory(id, { active } as UpdateScoringCategoryPayload & {
-        active?: boolean;
-      }),
+      updateDivisionScoringCategory(id, { active }),
     [],
   );
 

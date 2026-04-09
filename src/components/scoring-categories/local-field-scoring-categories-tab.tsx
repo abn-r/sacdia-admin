@@ -49,9 +49,7 @@ export function LocalFieldScoringCategoriesTab({
 
   const handleToggleActive = useCallback(
     async (id: number, active: boolean): Promise<ScoringCategory> =>
-      updateLocalFieldScoringCategory(fieldId, id, {
-        active,
-      } as UpdateScoringCategoryPayload & { active?: boolean }),
+      updateLocalFieldScoringCategory(fieldId, id, { active }),
     [fieldId],
   );
 
