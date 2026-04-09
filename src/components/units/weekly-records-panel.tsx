@@ -112,9 +112,9 @@ function AddRecordDialog({
       await createWeeklyRecord(clubId, unitId, {
         user_id: userId,
         week,
+        year: new Date().getFullYear(),
         attendance,
         punctuality,
-        points: totalPoints,
         scores,
       });
       toast.success("Registro semanal creado");
@@ -397,9 +397,11 @@ export function WeeklyRecordsPanel({
   }, [clubId, unitId, localFieldId]);
 
   // Lazy load on first render of this panel
-  if (!loaded && !loading) {
-    loadAll();
-  }
+  useEffect(() => {
+    if (!loaded && !loading) {
+      loadAll();
+    }
+  }, [loaded, loading, loadAll]);
 
   // ─── Update handler ─────────────────────────────────────────────────────────
 

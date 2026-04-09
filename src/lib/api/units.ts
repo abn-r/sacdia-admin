@@ -47,6 +47,7 @@ export type WeeklyRecord = {
   record_id: number;
   user_id: string;
   week: number;
+  year: number;
   attendance: number;
   punctuality: number;
   points: number;
@@ -78,16 +79,15 @@ export type ScoreEntry = {
 export type CreateWeeklyRecordPayload = {
   user_id: string;
   week: number;
+  year: number;
   attendance: number;
   punctuality: number;
-  points: number;
   scores?: ScoreEntry[];
 };
 
 export type UpdateWeeklyRecordPayload = {
   attendance?: number;
   punctuality?: number;
-  points?: number;
   active?: boolean;
   scores?: ScoreEntry[];
 };
