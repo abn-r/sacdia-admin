@@ -94,6 +94,7 @@ function MemberRow({ member, onRemove }: MemberRowProps) {
 interface UnitDetailPanelProps {
   unit: Unit;
   clubId: number;
+  localFieldId?: number | null;
   onEdit: (unit: Unit) => void;
   onDelete: (unit: Unit) => void;
   onMembersChanged: () => void;
@@ -104,6 +105,7 @@ interface UnitDetailPanelProps {
 export function UnitDetailPanel({
   unit,
   clubId,
+  localFieldId,
   onEdit,
   onDelete,
   onMembersChanged,
@@ -278,6 +280,7 @@ export function UnitDetailPanel({
                     clubId={clubId}
                     unitId={unit.unit_id}
                     members={members}
+                    localFieldId={localFieldId}
                   />
                 </TabsContent>
               </Tabs>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Plus, CalendarDays, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -36,7 +36,9 @@ import {
   updateWeeklyRecord,
   getUnitUserDisplayName,
 } from "@/lib/api/units";
-import type { WeeklyRecord, UnitMember } from "@/lib/api/units";
+import { getLocalFieldScoringCategories } from "@/lib/api/scoring-categories";
+import type { WeeklyRecord, UnitMember, ScoreEntry } from "@/lib/api/units";
+import type { ScoringCategory } from "@/lib/api/scoring-categories";
 
 // ─── Add Record Dialog ────────────────────────────────────────────────────────
 
@@ -46,6 +48,7 @@ interface AddRecordDialogProps {
   clubId: number;
   unitId: number;
   members: UnitMember[];
+  categories: ScoringCategory[];
   onSuccess: () => void;
 }
 
@@ -55,38 +58,64 @@ function AddRecordDialog({
   clubId,
   unitId,
   members,
+  categories,
   onSuccess,
 }: AddRecordDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [values, setValues] = useState({
-    user_id: "",
-    week: 1,
-    attendance: 0,
-    punctuality: 0,
-    points: 0,
-  });
+  const [userId, setUserId] = useState("");
+  const [week, setWeek] = useState(1);
+  const [attendance, setAttendance] = useState(0);
+  const [punctuality, setPunctuality] = useState(0);
+  // Map of category_id → points value
+  const [scoreMap, setScoreMap] = useState<Record<number, number>>({});
 
+  // Reset on close
   function handleClose(val: boolean) {
     if (!val) {
-      setValues({ user_id: "", week: 1, attendance: 0, punctuality: 0, points: 0 });
+      setUserId("");
+      setWeek(1);
+      setAttendance(0);
+      setPunctuality(0);
+      setScoreMap({});
     }
     onOpenChange(val);
   }
 
+  const activeCategories = categories.filter((c) => c.active);
+
+  function getCategoryScore(categoryId: number): number {
+    return scoreMap[categoryId] ?? 0;
+  }
+
+  function setCategoryScore(categoryId: number, value: number) {
+    setScoreMap((prev) => ({ ...prev, [categoryId]: value }));
+  }
+
+  const totalPoints = activeCategories.reduce(
+    (sum, cat) => sum + getCategoryScore(cat.scoring_category_id),
+    0,
+  );
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!values.user_id) {
+    if (!userId) {
       toast.error("Selecciona un miembro");
       return;
     }
     setIsSubmitting(true);
     try {
+      const scores: ScoreEntry[] = activeCategories.map((cat) => ({
+        category_id: cat.scoring_category_id,
+        points: getCategoryScore(cat.scoring_category_id),
+      }));
+
       await createWeeklyRecord(clubId, unitId, {
-        user_id: values.user_id,
-        week: values.week,
-        attendance: values.attendance,
-        punctuality: values.punctuality,
-        points: values.points,
+        user_id: userId,
+        week,
+        attendance,
+        punctuality,
+        points: totalPoints,
+        scores,
       });
       toast.success("Registro semanal creado");
       onSuccess();
@@ -102,7 +131,7 @@ function AddRecordDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-sm">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Nuevo registro semanal</DialogTitle>
         </DialogHeader>
@@ -113,10 +142,7 @@ function AddRecordDialog({
             <Label htmlFor="record_user">
               Miembro <span className="ml-0.5 text-destructive">*</span>
             </Label>
-            <Select
-              value={values.user_id}
-              onValueChange={(val) => setValues((v) => ({ ...v, user_id: val }))}
-            >
+            <Select value={userId} onValueChange={setUserId}>
               <SelectTrigger id="record_user" className="w-full">
                 <SelectValue placeholder="Seleccionar miembro" />
               </SelectTrigger>
@@ -140,28 +166,21 @@ function AddRecordDialog({
               type="number"
               min={1}
               max={52}
-              value={values.week}
-              onChange={(e) =>
-                setValues((v) => ({ ...v, week: Number(e.target.value) }))
-              }
+              value={week}
+              onChange={(e) => setWeek(Number(e.target.value))}
             />
           </div>
 
-          {/* Points grid */}
-          <div className="grid grid-cols-3 gap-3">
+          {/* Fixed fields: attendance and punctuality */}
+          <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="record_attendance">Asistencia</Label>
               <Input
                 id="record_attendance"
                 type="number"
                 min={0}
-                value={values.attendance}
-                onChange={(e) =>
-                  setValues((v) => ({
-                    ...v,
-                    attendance: Number(e.target.value),
-                  }))
-                }
+                value={attendance}
+                onChange={(e) => setAttendance(Number(e.target.value))}
               />
             </div>
             <div className="space-y-1.5">
@@ -170,29 +189,56 @@ function AddRecordDialog({
                 id="record_punctuality"
                 type="number"
                 min={0}
-                value={values.punctuality}
-                onChange={(e) =>
-                  setValues((v) => ({
-                    ...v,
-                    punctuality: Number(e.target.value),
-                  }))
-                }
+                value={punctuality}
+                onChange={(e) => setPunctuality(Number(e.target.value))}
               />
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="record_points">Total</Label>
-              <Input
-                id="record_points"
-                type="number"
-                min={0}
-                value={values.points}
-                onChange={(e) =>
-                  setValues((v) => ({
-                    ...v,
-                    points: Number(e.target.value),
-                  }))
-                }
-              />
+          </div>
+
+          {/* Dynamic scoring categories */}
+          {activeCategories.length > 0 && (
+            <div className="space-y-3">
+              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Categorías de puntaje
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                {activeCategories.map((cat) => (
+                  <div key={cat.scoring_category_id} className="space-y-1.5">
+                    <Label htmlFor={`sc_${cat.scoring_category_id}`}>
+                      {cat.name}
+                      <span className="ml-1 text-[11px] text-muted-foreground">
+                        (máx. {cat.max_points})
+                      </span>
+                    </Label>
+                    <Input
+                      id={`sc_${cat.scoring_category_id}`}
+                      type="number"
+                      min={0}
+                      max={cat.max_points}
+                      value={getCategoryScore(cat.scoring_category_id)}
+                      onChange={(e) =>
+                        setCategoryScore(
+                          cat.scoring_category_id,
+                          Math.min(
+                            cat.max_points,
+                            Math.max(0, Number(e.target.value)),
+                          ),
+                        )
+                      }
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Total (read-only) */}
+          <div className="rounded-lg bg-muted/40 px-3 py-2">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">Total</span>
+              <span className="text-sm font-semibold tabular-nums">
+                {totalPoints} pts
+              </span>
             </div>
           </div>
 
@@ -206,7 +252,14 @@ function AddRecordDialog({
               Cancelar
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Guardando..." : "Guardar registro"}
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 size-4 animate-spin" />
+                  Guardando...
+                </>
+              ) : (
+                "Guardar registro"
+              )}
             </Button>
           </DialogFooter>
         </form>
@@ -219,10 +272,12 @@ function AddRecordDialog({
 
 interface EditableCellProps {
   value: number;
+  min?: number;
+  max?: number;
   onSave: (val: number) => Promise<void>;
 }
 
-function EditableCell({ value, onSave }: EditableCellProps) {
+function EditableCell({ value, min = 0, max, onSave }: EditableCellProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
   const [saving, setSaving] = useState(false);
@@ -248,11 +303,15 @@ function EditableCell({ value, onSave }: EditableCellProps) {
     return (
       <Input
         type="number"
-        min={0}
+        min={min}
+        max={max}
         className="h-7 w-20 px-2 text-xs tabular-nums"
         value={draft}
         autoFocus
-        onChange={(e) => setDraft(Number(e.target.value))}
+        onChange={(e) => {
+          const v = Number(e.target.value);
+          setDraft(max !== undefined ? Math.min(max, Math.max(min, v)) : Math.max(min, v));
+        }}
         onBlur={handleBlur}
         onKeyDown={(e) => {
           if (e.key === "Enter") handleBlur();
@@ -281,47 +340,72 @@ function EditableCell({ value, onSave }: EditableCellProps) {
   );
 }
 
+// ─── Read-only total cell ─────────────────────────────────────────────────────
+
+function TotalCell({ value }: { value: number }) {
+  return (
+    <span className="font-semibold tabular-nums text-primary">{value}</span>
+  );
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 interface WeeklyRecordsPanelProps {
   clubId: number;
   unitId: number;
   members: UnitMember[];
+  /** Local field ID to fetch active scoring categories. Optional for backward compat. */
+  localFieldId?: number | null;
 }
 
 export function WeeklyRecordsPanel({
   clubId,
   unitId,
   members,
+  localFieldId,
 }: WeeklyRecordsPanelProps) {
   const [records, setRecords] = useState<WeeklyRecord[] | null>(null);
+  const [categories, setCategories] = useState<ScoringCategory[]>([]);
   const [loading, setLoading] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
 
-  const loadRecords = useCallback(async () => {
+  const loadAll = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await listWeeklyRecords(clubId, unitId);
-      setRecords(data);
+      const [recordsData, categoriesData] = await Promise.allSettled([
+        listWeeklyRecords(clubId, unitId),
+        localFieldId
+          ? getLocalFieldScoringCategories(localFieldId)
+          : Promise.resolve([] as ScoringCategory[]),
+      ]);
+
+      if (recordsData.status === "fulfilled") {
+        setRecords(recordsData.value);
+      } else {
+        toast.error("No se pudieron cargar los registros");
+      }
+
+      if (categoriesData.status === "fulfilled") {
+        setCategories(categoriesData.value.filter((c) => c.active));
+      }
+
       setLoaded(true);
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "No se pudieron cargar los registros";
-      toast.error(message);
     } finally {
       setLoading(false);
     }
-  }, [clubId, unitId]);
+  }, [clubId, unitId, localFieldId]);
 
   // Lazy load on first render of this panel
   if (!loaded && !loading) {
-    loadRecords();
+    loadAll();
   }
 
-  async function handleUpdate(
+  // ─── Update handler ─────────────────────────────────────────────────────────
+
+  async function handleUpdateFixed(
     recordId: number,
-    field: "attendance" | "punctuality" | "points",
+    field: "attendance" | "punctuality",
     value: number,
   ) {
     await updateWeeklyRecord(clubId, unitId, recordId, { [field]: value });
@@ -334,7 +418,51 @@ export function WeeklyRecordsPanel({
     );
   }
 
+  async function handleUpdateScore(
+    recordId: number,
+    categoryId: number,
+    value: number,
+  ) {
+    // Build scores array for update: only the category being changed
+    await updateWeeklyRecord(clubId, unitId, recordId, {
+      scores: [{ category_id: categoryId, points: value }],
+    });
+
+    setRecords((prev) => {
+      if (!prev) return prev;
+      return prev.map((r) => {
+        if (r.record_id !== recordId) return r;
+        const existingScores = r.scores ?? [];
+        const updatedScores = existingScores.some(
+          (s) => s.category_id === categoryId,
+        )
+          ? existingScores.map((s) =>
+              s.category_id === categoryId ? { ...s, points: value } : s,
+            )
+          : [...existingScores, { category_id: categoryId, points: value }];
+        // Recalculate total
+        const newTotal = updatedScores.reduce((sum, s) => sum + s.points, 0);
+        return { ...r, scores: updatedScores, points: newTotal };
+      });
+    });
+  }
+
+  // ─── Helpers ────────────────────────────────────────────────────────────────
+
+  function getScoreForCategory(record: WeeklyRecord, categoryId: number): number {
+    return record.scores?.find((s) => s.category_id === categoryId)?.points ?? 0;
+  }
+
+  function calculateTotal(record: WeeklyRecord): number {
+    if (record.scores && record.scores.length > 0) {
+      return record.scores.reduce((sum, s) => sum + s.points, 0);
+    }
+    return record.points;
+  }
+
   const activeMembers = members.filter((m) => m.active);
+
+  // ─── Loading state ──────────────────────────────────────────────────────────
 
   if (loading && !loaded) {
     return (
@@ -345,11 +473,14 @@ export function WeeklyRecordsPanel({
     );
   }
 
+  // ─── Render ─────────────────────────────────────────────────────────────────
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          Registros de asistencia y puntaje semanal. Haz clic en un valor para editarlo.
+          Registros de asistencia y puntaje semanal. Haz clic en un valor para
+          editarlo.
         </p>
         {activeMembers.length > 0 && (
           <Button size="sm" onClick={() => setAddOpen(true)}>
@@ -366,7 +497,7 @@ export function WeeklyRecordsPanel({
           description={
             activeMembers.length === 0
               ? "Agrega miembros a la unidad primero para poder registrar asistencia."
-              : "No hay registros de asistencia aun. Crea el primero."
+              : "No hay registros de asistencia aún. Crea el primero."
           }
         >
           {activeMembers.length > 0 && (
@@ -393,6 +524,18 @@ export function WeeklyRecordsPanel({
                 <TableHead className="h-9 px-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Puntualidad
                 </TableHead>
+
+                {/* Dynamic category columns */}
+                {categories.map((cat) => (
+                  <TableHead
+                    key={cat.scoring_category_id}
+                    className="h-9 px-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground"
+                    title={`Máx. ${cat.max_points} pts`}
+                  >
+                    {cat.name}
+                  </TableHead>
+                ))}
+
                 <TableHead className="h-9 px-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Total
                 </TableHead>
@@ -413,7 +556,7 @@ export function WeeklyRecordsPanel({
                     <EditableCell
                       value={record.attendance}
                       onSave={(val) =>
-                        handleUpdate(record.record_id, "attendance", val)
+                        handleUpdateFixed(record.record_id, "attendance", val)
                       }
                     />
                   </TableCell>
@@ -421,17 +564,38 @@ export function WeeklyRecordsPanel({
                     <EditableCell
                       value={record.punctuality}
                       onSave={(val) =>
-                        handleUpdate(record.record_id, "punctuality", val)
+                        handleUpdateFixed(record.record_id, "punctuality", val)
                       }
                     />
                   </TableCell>
+
+                  {/* Dynamic category score cells */}
+                  {categories.map((cat) => (
+                    <TableCell
+                      key={cat.scoring_category_id}
+                      className="px-3 py-2.5 text-right align-middle text-sm"
+                    >
+                      <EditableCell
+                        value={getScoreForCategory(
+                          record,
+                          cat.scoring_category_id,
+                        )}
+                        min={0}
+                        max={cat.max_points}
+                        onSave={(val) =>
+                          handleUpdateScore(
+                            record.record_id,
+                            cat.scoring_category_id,
+                            val,
+                          )
+                        }
+                      />
+                    </TableCell>
+                  ))}
+
+                  {/* Total (calculated) */}
                   <TableCell className="px-3 py-2.5 text-right align-middle">
-                    <EditableCell
-                      value={record.points}
-                      onSave={(val) =>
-                        handleUpdate(record.record_id, "points", val)
-                      }
-                    />
+                    <TotalCell value={calculateTotal(record)} />
                   </TableCell>
                 </TableRow>
               ))}
@@ -446,7 +610,8 @@ export function WeeklyRecordsPanel({
         clubId={clubId}
         unitId={unitId}
         members={activeMembers}
-        onSuccess={loadRecords}
+        categories={categories}
+        onSuccess={loadAll}
       />
     </div>
   );

@@ -184,7 +184,7 @@ export default async function ClubDetailPage({
         </TabsContent>
 
         <TabsContent value="units" className="mt-4">
-          <UnitsTab clubId={clubId} />
+          <UnitsTab clubId={clubId} localFieldId={club.local_field_id ?? null} />
         </TabsContent>
 
         <TabsContent value="membership" className="mt-4 space-y-4">

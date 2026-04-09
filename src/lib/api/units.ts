@@ -36,6 +36,13 @@ export type Unit = {
   unit_members?: UnitMember[];
 };
 
+export type WeeklyRecordScore = {
+  category_id: number;
+  category_name?: string;
+  points: number;
+  max_points?: number;
+};
+
 export type WeeklyRecord = {
   record_id: number;
   user_id: string;
@@ -46,6 +53,7 @@ export type WeeklyRecord = {
   active: boolean;
   created_at?: string;
   users?: UnitUser | null;
+  scores?: WeeklyRecordScore[];
 };
 
 export type CreateUnitPayload = {
@@ -62,12 +70,18 @@ export type UpdateUnitPayload = Partial<CreateUnitPayload> & {
   active?: boolean;
 };
 
+export type ScoreEntry = {
+  category_id: number;
+  points: number;
+};
+
 export type CreateWeeklyRecordPayload = {
   user_id: string;
   week: number;
   attendance: number;
   punctuality: number;
   points: number;
+  scores?: ScoreEntry[];
 };
 
 export type UpdateWeeklyRecordPayload = {
@@ -75,6 +89,7 @@ export type UpdateWeeklyRecordPayload = {
   punctuality?: number;
   points?: number;
   active?: boolean;
+  scores?: ScoreEntry[];
 };
 
 // ─── Units ────────────────────────────────────────────────────────────────────

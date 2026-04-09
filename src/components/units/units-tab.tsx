@@ -38,11 +38,12 @@ function UnitsSkeleton() {
 
 interface UnitsTabProps {
   clubId: number;
+  localFieldId?: number | null;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function UnitsTab({ clubId }: UnitsTabProps) {
+export function UnitsTab({ clubId, localFieldId }: UnitsTabProps) {
   const router = useRouter();
   const [units, setUnits] = useState<Unit[]>([]);
   const [loading, setLoading] = useState(true);
@@ -142,6 +143,7 @@ export function UnitsTab({ clubId }: UnitsTabProps) {
               key={unit.unit_id}
               unit={unit}
               clubId={clubId}
+              localFieldId={localFieldId}
               onEdit={(u) => {
                 router.push(`/dashboard/clubs/${clubId}/units/${u.unit_id}`);
               }}
