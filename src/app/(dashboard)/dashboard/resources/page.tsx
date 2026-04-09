@@ -115,27 +115,26 @@ function extractCategories(payload: unknown): CategoryRecord[] {
 
 function extractUnions(payload: unknown): Union[] {
   const items = extractItems(payload);
-  return items
-    .map((item) => {
-      const id = toPositiveNumber(item.union_id ?? item.id);
-      const name = typeof item.name === "string" ? item.name.trim() : null;
-      if (!id || !name) return null;
-      return { union_id: id, name, country_id: Number(item.country_id ?? 0), active: item.active as boolean | undefined } satisfies Union;
-    })
-    .filter((u): u is Union => u !== null)
-    .filter((u) => u.active !== false);
+  return items.reduce<Union[]>((acc, item) => {
+    const id = toPositiveNumber(item.union_id ?? item.id);
+    const name = typeof item.name === "string" ? item.name.trim() : null;
+    if (id && name && item.active !== false) {
+      acc.push({ union_id: id, name, country_id: Number(item.country_id ?? 0), active: item.active as boolean | undefined });
+    }
+    return acc;
+  }, []);
 }
 
 function extractLocalFields(payload: unknown): LocalField[] {
   const items = extractItems(payload);
-  return items
-    .map((item) => {
-      const id = toPositiveNumber(item.local_field_id ?? item.id);
-      const name = typeof item.name === "string" ? item.name.trim() : null;
-      if (!id || !name) return null;
-      return { local_field_id: id, name, union_id: Number(item.union_id ?? 0), active: item.active as boolean | undefined } satisfies LocalField;
-    })
-    .filter((lf): lf is LocalField => lf !== null && lf.active !== false);
+  return items.reduce<LocalField[]>((acc, item) => {
+    const id = toPositiveNumber(item.local_field_id ?? item.id);
+    const name = typeof item.name === "string" ? item.name.trim() : null;
+    if (id && name && item.active !== false) {
+      acc.push({ local_field_id: id, name, union_id: Number(item.union_id ?? 0), active: item.active as boolean | undefined });
+    }
+    return acc;
+  }, []);
 }
 
 export default async function ResourcesPage({

@@ -113,8 +113,7 @@ export function BulkActionBar({
     (userRole === "admin" ||
       (approveAction === "coordinator-approve" && userRole === "coordinator") ||
       (approveAction === "field-approve" && userRole === "field") ||
-      (approveAction === "invest" &&
-        (userRole === "field" || userRole === "admin")));
+      (approveAction === "invest" && userRole === "field"));
 
   // ─── Approve confirmation ────────────────────────────────────────────────────
 
