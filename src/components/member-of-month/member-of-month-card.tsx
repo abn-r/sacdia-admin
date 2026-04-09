@@ -10,14 +10,7 @@ import { EvaluateMemberOfMonthDialog } from "@/components/member-of-month/evalua
 import { MemberOfMonthHistorySheet } from "@/components/member-of-month/history-sheet";
 import { getMemberOfMonth } from "@/lib/api/member-of-month";
 import type { MemberOfMonth, MemberOfMonthEntry } from "@/lib/api/member-of-month";
-
-// ─── Month names ──────────────────────────────────────────────────────────────
-
-const MONTH_NAMES: Record<number, string> = {
-  1: "Enero", 2: "Febrero", 3: "Marzo", 4: "Abril",
-  5: "Mayo", 6: "Junio", 7: "Julio", 8: "Agosto",
-  9: "Septiembre", 10: "Octubre", 11: "Noviembre", 12: "Diciembre",
-};
+import { MONTH_NAMES } from "@/lib/constants";
 
 // ─── Member avatar ────────────────────────────────────────────────────────────
 

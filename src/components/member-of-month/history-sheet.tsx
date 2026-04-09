@@ -19,14 +19,9 @@ import type {
   MemberOfMonthHistoryItem,
   MemberOfMonthHistoryResponse,
 } from "@/lib/api/member-of-month";
+import { MONTH_NAMES } from "@/lib/constants";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-
-const MONTH_NAMES: Record<number, string> = {
-  1: "Enero", 2: "Febrero", 3: "Marzo", 4: "Abril",
-  5: "Mayo", 6: "Junio", 7: "Julio", 8: "Agosto",
-  9: "Septiembre", 10: "Octubre", 11: "Noviembre", 12: "Diciembre",
-};
 
 const PAGE_LIMIT = 12;
 
