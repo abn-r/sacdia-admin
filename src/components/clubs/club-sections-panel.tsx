@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { createClubSectionAction, type ClubActionState } from "@/lib/clubs/actions";
+import { MemberOfMonthCard } from "@/components/member-of-month/member-of-month-card";
 
 type Section = {
   club_section_id?: number;
@@ -235,24 +236,36 @@ export function ClubSectionsPanel({ clubId, sections, clubTypes }: ClubSectionsP
                 {section.active !== false ? "Activa" : "Inactiva"}
               </Badge>
             </CardHeader>
-            <CardContent className="space-y-2">
-              <InfoRow label="Tipo" value={label} />
-              <InfoRow label="ID seccion" value={section.club_section_id} />
-              {section.souls_target != null && (
-                <InfoRow label="Meta de almas" value={section.souls_target} />
-              )}
-              {section.fee != null && (
-                <InfoRow label="Cuota" value={`$${section.fee}`} />
-              )}
-              {section.members_count != null && (
-                <InfoRow
-                  label="Miembros"
-                  value={
-                    <span className="flex items-center gap-1">
-                      <Users className="size-3.5" />
-                      {section.members_count}
-                    </span>
-                  }
+            <CardContent className="space-y-3">
+              <div className="space-y-2">
+                <InfoRow label="Tipo" value={label} />
+                <InfoRow label="ID seccion" value={section.club_section_id} />
+                {section.souls_target != null && (
+                  <InfoRow label="Meta de almas" value={section.souls_target} />
+                )}
+                {section.fee != null && (
+                  <InfoRow label="Cuota" value={`$${section.fee}`} />
+                )}
+                {section.members_count != null && (
+                  <InfoRow
+                    label="Miembros"
+                    value={
+                      <span className="flex items-center gap-1">
+                        <Users className="size-3.5" />
+                        {section.members_count}
+                      </span>
+                    }
+                  />
+                )}
+              </div>
+
+              {/* Member of the Month card — only shown when section has an ID */}
+              {section.club_section_id != null && (
+                <MemberOfMonthCard
+                  clubId={clubId}
+                  sectionId={section.club_section_id}
+                  sectionName={section.name ?? section.club_type?.name ?? label}
+                  isDirector={false}
                 />
               )}
             </CardContent>
