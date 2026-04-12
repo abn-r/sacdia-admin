@@ -150,8 +150,7 @@ function normalizeEcclesiasticalYear(value: unknown): EnrollmentEcclesiasticalYe
   const r = asRecord(value);
   if (!r) return null;
   return {
-    ecclesiastical_year_id:
-      pickNumber(r.ecclesiastical_year_id) ?? pickNumber(r.year_id),
+    ecclesiastical_year_id: pickNumber(r.ecclesiastical_year_id),
     name: pickString(r.name),
     start_date: pickString(r.start_date),
     end_date: pickString(r.end_date),

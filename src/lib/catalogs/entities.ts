@@ -232,8 +232,8 @@ export const entityConfigs: Record<EntityKey, EntityConfig> = {
     routeBase: "/dashboard/catalogs/ecclesiastical-years",
     listEndpoint: "/admin/ecclesiastical-years",
     adminEndpoint: "/admin/ecclesiastical-years",
-    idField: "year_id",
-    nameField: "year_id",
+    idField: "ecclesiastical_year_id",
+    nameField: "name",
     fields: [
       { name: "start_date", label: "Fecha inicio", type: "date", required: true },
       { name: "end_date", label: "Fecha fin", type: "date", required: true },
