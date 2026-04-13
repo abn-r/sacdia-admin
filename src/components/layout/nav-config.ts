@@ -25,6 +25,7 @@ import {
   LibraryBig,
   Activity,
   FileSearch,
+  Trophy,
   type LucideIcon,
 } from "lucide-react";
 
@@ -135,6 +136,7 @@ export const navConfig: NavGroup[] = [
       { title: "Clases", url: "/dashboard/classes", icon: GraduationCap, permission: "classes:read" },
       { title: "Inscripciones", url: "/dashboard/enrollments", icon: ClipboardList, permission: "classes:read" },
       { title: "Especialidades", url: "/dashboard/honors", icon: Award, permission: "honors:read" },
+      { title: "Logros", url: "/dashboard/achievements", icon: Trophy, permission: "achievements:read" },
       { title: "Actividades", url: "/dashboard/activities", icon: Calendar, permission: "activities:read" },
       { title: "Finanzas", url: "/dashboard/finances", icon: DollarSign, permission: "finances:read" },
       { title: "Inventario", url: "/dashboard/inventory", icon: Package, permission: "inventory:read" },
