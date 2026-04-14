@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import {
   Plus,
   RefreshCw,
@@ -13,10 +14,22 @@ import {
   Circle,
   Trophy,
   CalendarClock,
+  Search,
+  Building2,
+  MapPin,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -53,6 +66,8 @@ interface TemplatesClientPageProps {
   ecclesiasticalYears: EcclesiasticalYear[];
 }
 
+type OwnerTierFilter = "all" | "union" | "local_field";
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function extractTemplates(payload: unknown): FolderTemplate[] {
@@ -64,6 +79,19 @@ function extractTemplates(payload: unknown): FolderTemplate[] {
   return [];
 }
 
+function resolveOwnerLabel(template: FolderTemplate): string {
+  if (template.owner_union_id !== null && template.owner_union_id !== undefined) {
+    return template.owner_union?.name ?? `Unión ${template.owner_union_id}`;
+  }
+  if (
+    template.owner_local_field_id !== null &&
+    template.owner_local_field_id !== undefined
+  ) {
+    return template.owner_local_field?.name ?? `Campo ${template.owner_local_field_id}`;
+  }
+  return "—";
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function TemplatesClientPage({
@@ -71,11 +99,18 @@ export function TemplatesClientPage({
   clubTypes,
   ecclesiasticalYears,
 }: TemplatesClientPageProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const latestParamsRef = useRef(searchParams.toString());
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const [templates, setTemplates] = useState<FolderTemplate[]>(initialTemplates);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Template CRUD state
   const [templateFormOpen, setTemplateFormOpen] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState<FolderTemplate | null>(null);
 
   // Detail view state
   const [activeTemplate, setActiveTemplate] = useState<FolderTemplate | null>(null);
@@ -87,6 +122,70 @@ export function TemplatesClientPage({
   const [deleteSectionOpen, setDeleteSectionOpen] = useState(false);
   const [deletingSection, setDeletingSection] = useState<FolderTemplateSection | null>(null);
   const [isDeletingSection, setIsDeletingSection] = useState(false);
+
+  // ─── Filter state (URL-driven) ─────────────────────────────────────────────
+
+  const currentOwnerTierFilter = (searchParams.get("owner_tier") ?? "all") as OwnerTierFilter;
+  const currentOwnerIdFilter = searchParams.get("owner_id") ?? "";
+  const [searchInput, setSearchInput] = useState(searchParams.get("search") ?? "");
+
+  const updateParam = useCallback(
+    (key: string, value: string) => {
+      const params = new URLSearchParams(latestParamsRef.current);
+      if (!value || value === "all") {
+        params.delete(key);
+      } else {
+        params.set(key, value);
+      }
+      const qs = params.toString();
+      const next = qs ? `${pathname}?${qs}` : pathname;
+      latestParamsRef.current = params.toString();
+      router.replace(next);
+    },
+    [pathname, router],
+  );
+
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      setSearchInput(value);
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(() => {
+        updateParam("search", value);
+      }, 400);
+    },
+    [updateParam],
+  );
+
+  // ─── Filtered templates ────────────────────────────────────────────────────
+
+  const filteredTemplates = templates.filter((t) => {
+    const searchTerm = searchParams.get("search") ?? "";
+    if (searchTerm && !t.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+      return false;
+    }
+
+    if (currentOwnerTierFilter === "union") {
+      if (t.owner_union_id === null || t.owner_union_id === undefined) return false;
+    } else if (currentOwnerTierFilter === "local_field") {
+      if (t.owner_local_field_id === null || t.owner_local_field_id === undefined) return false;
+    }
+
+    if (currentOwnerIdFilter) {
+      const filterId = Number(currentOwnerIdFilter);
+      if (currentOwnerTierFilter === "union") {
+        if (t.owner_union_id !== filterId) return false;
+      } else if (currentOwnerTierFilter === "local_field") {
+        if (t.owner_local_field_id !== filterId) return false;
+      }
+    }
+
+    return true;
+  });
+
+  const hasActiveFilters =
+    Boolean(searchParams.get("search")) ||
+    currentOwnerTierFilter !== "all" ||
+    Boolean(currentOwnerIdFilter);
 
   // ─── Refresh list ──────────────────────────────────────────────────────────
 
@@ -136,6 +235,19 @@ export function TemplatesClientPage({
       // Non-fatal; user can go back and re-open
     }
   }, [activeTemplate]);
+
+  // ─── Template edit ─────────────────────────────────────────────────────────
+
+  function handleEditTemplate(template: FolderTemplate, e: React.MouseEvent) {
+    e.stopPropagation();
+    setEditingTemplate(template);
+    setTemplateFormOpen(true);
+  }
+
+  function handleTemplateFormClose(open: boolean) {
+    setTemplateFormOpen(open);
+    if (!open) setEditingTemplate(null);
+  }
 
   // ─── Section add ──────────────────────────────────────────────────────────
 
@@ -189,9 +301,8 @@ export function TemplatesClientPage({
       ? Math.max(...sortedSections.map((s) => s.order)) + 1
       : 1;
 
-  // ─── Render ────────────────────────────────────────────────────────────────
+  // ─── Render: detail view ───────────────────────────────────────────────────
 
-  // Detail view
   if (activeTemplate) {
     return (
       <div className="space-y-5">
@@ -295,7 +406,7 @@ export function TemplatesClientPage({
                     </TableCell>
                     <TableCell className="text-center">
                       {section.required ? (
-                        <CheckCircle2 className="mx-auto size-4 text-green-600" />
+                        <CheckCircle2 className="mx-auto size-4 text-success" />
                       ) : (
                         <Circle className="mx-auto size-4 text-muted-foreground/40" />
                       )}
@@ -374,7 +485,7 @@ export function TemplatesClientPage({
     );
   }
 
-  // ─── Templates list view ───────────────────────────────────────────────────
+  // ─── Render: templates list view ───────────────────────────────────────────
 
   return (
     <div className="space-y-5">
@@ -382,7 +493,12 @@ export function TemplatesClientPage({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <p className="text-sm text-muted-foreground">
-            <span className="font-medium text-foreground">{templates.length}</span>{" "}
+            <span className="font-medium text-foreground">
+              {filteredTemplates.length}
+            </span>
+            {filteredTemplates.length !== templates.length && (
+              <span className="text-muted-foreground"> de {templates.length}</span>
+            )}{" "}
             {templates.length === 1 ? "plantilla" : "plantillas"}
           </p>
           <Button
@@ -396,27 +512,97 @@ export function TemplatesClientPage({
             <span className="sr-only">Actualizar</span>
           </Button>
         </div>
-        <Button size="sm" onClick={() => setTemplateFormOpen(true)}>
+        <Button size="sm" onClick={() => { setEditingTemplate(null); setTemplateFormOpen(true); }}>
           <Plus className="size-4" />
           Nueva plantilla
         </Button>
       </div>
 
+      {/* Filters */}
+      <div className="rounded-xl border bg-muted/20 p-4">
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <h3 className="text-sm font-semibold tracking-wide text-foreground">Filtros</h3>
+          {hasActiveFilters && (
+            <Button
+              variant="ghost"
+              size="xs"
+              onClick={() => {
+                setSearchInput("");
+                latestParamsRef.current = "";
+                router.replace(pathname);
+              }}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              Limpiar filtros
+            </Button>
+          )}
+        </div>
+        <div className="overflow-x-auto pb-1">
+          <div className="flex min-w-max items-end gap-4">
+            {/* Search */}
+            <div className="w-[260px] space-y-1">
+              <Label htmlFor="tmpl-filter-search">Nombre</Label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  id="tmpl-filter-search"
+                  placeholder="Buscar por nombre..."
+                  value={searchInput}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  className="bg-background pl-9"
+                />
+              </div>
+            </div>
+
+            {/* Owner tier */}
+            <div className="w-[200px] space-y-1">
+              <Label htmlFor="tmpl-filter-owner-tier">Nivel de propietario</Label>
+              <Select
+                value={currentOwnerTierFilter}
+                onValueChange={(val) => {
+                  updateParam("owner_tier", val);
+                  // Clear specific owner when switching tier
+                  updateParam("owner_id", "");
+                }}
+              >
+                <SelectTrigger id="tmpl-filter-owner-tier" className="bg-background">
+                  <SelectValue placeholder="Nivel" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos los niveles</SelectItem>
+                  <SelectItem value="union">Unión</SelectItem>
+                  <SelectItem value="local_field">Campo local</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* List */}
-      {templates.length === 0 ? (
+      {filteredTemplates.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
           <div className="flex size-12 items-center justify-center rounded-full bg-muted">
             <Plus className="size-6 text-muted-foreground" />
           </div>
-          <h3 className="mt-4 text-base font-semibold">Sin plantillas</h3>
+          <h3 className="mt-4 text-base font-semibold">
+            {hasActiveFilters ? "Sin resultados" : "Sin plantillas"}
+          </h3>
           <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-            Crea la primera plantilla para definir la estructura de carpetas
-            anuales por tipo de club y año eclesiástico.
+            {hasActiveFilters
+              ? "No hay plantillas que coincidan con los filtros aplicados."
+              : "Crea la primera plantilla para definir la estructura de carpetas anuales por tipo de club y año eclesiástico."}
           </p>
-          <Button size="sm" className="mt-4" onClick={() => setTemplateFormOpen(true)}>
-            <Plus className="size-4" />
-            Nueva plantilla
-          </Button>
+          {!hasActiveFilters && (
+            <Button
+              size="sm"
+              className="mt-4"
+              onClick={() => { setEditingTemplate(null); setTemplateFormOpen(true); }}
+            >
+              <Plus className="size-4" />
+              Nueva plantilla
+            </Button>
+          )}
         </div>
       ) : (
         <div className="rounded-lg border border-border">
@@ -426,13 +612,14 @@ export function TemplatesClientPage({
                 <TableHead>Nombre</TableHead>
                 <TableHead>Tipo de club</TableHead>
                 <TableHead>Año eclesiástico</TableHead>
+                <TableHead>Propietario</TableHead>
                 <TableHead className="w-24 text-center">Secciones</TableHead>
                 <TableHead className="w-16 text-center">Estado</TableHead>
-                <TableHead className="w-12" />
+                <TableHead className="w-16 text-right">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {templates.map((template) => (
+              {filteredTemplates.map((template) => (
                 <TableRow
                   key={template.template_id}
                   className="cursor-pointer"
@@ -444,6 +631,23 @@ export function TemplatesClientPage({
                   </TableCell>
                   <TableCell className="text-muted-foreground">
                     {template.ecclesiastical_year?.name ?? `Año ${template.ecclesiastical_year_id}`}
+                  </TableCell>
+                  <TableCell>
+                    {template.owner_union_id !== null &&
+                    template.owner_union_id !== undefined ? (
+                      <Badge variant="default" className="gap-1 text-xs">
+                        <Building2 className="size-3" />
+                        {resolveOwnerLabel(template)}
+                      </Badge>
+                    ) : template.owner_local_field_id !== null &&
+                      template.owner_local_field_id !== undefined ? (
+                      <Badge variant="secondary" className="gap-1 text-xs">
+                        <MapPin className="size-3" />
+                        {resolveOwnerLabel(template)}
+                      </Badge>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
                   </TableCell>
                   <TableCell className="text-center">
                     <span className="text-sm text-muted-foreground">
@@ -458,8 +662,19 @@ export function TemplatesClientPage({
                       {template.active ? "Activa" : "Inactiva"}
                     </Badge>
                   </TableCell>
-                  <TableCell>
-                    <ChevronRight className="ml-auto size-4 text-muted-foreground" />
+                  <TableCell className="text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon-xs"
+                        onClick={(e) => handleEditTemplate(template, e)}
+                        title="Editar plantilla"
+                      >
+                        <Pencil className="size-3.5" />
+                        <span className="sr-only">Editar</span>
+                      </Button>
+                      <ChevronRight className="size-4 text-muted-foreground" />
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -468,12 +683,13 @@ export function TemplatesClientPage({
         </div>
       )}
 
-      {/* Create template dialog */}
+      {/* Create / edit template dialog */}
       <TemplateFormDialog
         open={templateFormOpen}
-        onOpenChange={setTemplateFormOpen}
+        onOpenChange={handleTemplateFormClose}
         clubTypes={clubTypes}
         ecclesiasticalYears={ecclesiasticalYears}
+        template={editingTemplate}
         onSuccess={refreshTemplates}
       />
     </div>

@@ -4,6 +4,24 @@ import { apiRequest, apiRequestFromClient } from "@/lib/api/client";
 
 export type FolderStatus = "open" | "submitted" | "under_evaluation" | "evaluated" | "closed";
 
+/** Per-section evaluation lifecycle status returned by GET /annual-folders/:id */
+export type SectionEvaluationStatus =
+  | "PENDING"
+  | "SUBMITTED"
+  | "PREAPPROVED_LF"
+  | "VALIDATED"
+  | "REJECTED";
+
+/** Union-level decision when both actors have acted */
+export type UnionDecision = "APPROVED" | "REJECTED_OVERRIDE" | null;
+
+/** Compact user reference hydrated in evaluation actor fields */
+export type UserSummary = {
+  id: string;
+  name: string;
+  email: string;
+};
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type FolderTemplateSection = {
@@ -27,8 +45,22 @@ export type SectionEvaluation = {
   earned_points: number;
   max_points: number;
   notes: string | null;
+  /** @deprecated Use `status` instead — backend no longer returns `evaluator`/`evaluated_at` at top level */
   evaluator: string | null;
   evaluated_at: string;
+  // ── Dual-actor fields (T-B2-8) ─────────────────────────────────────────────
+  /** Current evaluation lifecycle status */
+  status: SectionEvaluationStatus;
+  /** Local Field approver — present once LF has reviewed */
+  lf_approver: UserSummary | null;
+  /** ISO timestamp of LF approval */
+  lf_approved_at: string | null;
+  /** Union approver — present once Union has reviewed */
+  union_approver: UserSummary | null;
+  /** ISO timestamp of Union approval */
+  union_approved_at: string | null;
+  /** Union-level decision; non-null only when union has acted */
+  union_decision: UnionDecision;
 };
 
 export type FolderTemplate = {
@@ -40,8 +72,14 @@ export type FolderTemplate = {
   minimum_points: number;
   closing_date: string | null;
   created_at: string | null;
+  /** Exactly one of these will be set; the other will be null (DB CHECK constraint). */
+  owner_union_id: number | null;
+  owner_local_field_id: number | null;
   club_type?: { club_type_id: number; name: string } | null;
   ecclesiastical_year?: { ecclesiastical_year_id: number; name: string } | null;
+  /** Populated when the template is fetched with relations. */
+  owner_union?: { union_id: number; name: string } | null;
+  owner_local_field?: { local_field_id: number; name: string } | null;
   sections?: FolderTemplateSection[];
 };
 
@@ -104,7 +142,12 @@ export type CreateTemplatePayload = {
   ecclesiastical_year_id: number;
   minimum_points?: number;
   closing_date?: string | null;
+  /** Exactly one must be provided; the other must be omitted / null. */
+  owner_union_id?: number | null;
+  owner_local_field_id?: number | null;
 };
+
+export type UpdateTemplatePayload = Partial<CreateTemplatePayload>;
 
 export type CreateTemplateSectionPayload = {
   name: string;
@@ -164,6 +207,20 @@ export async function createTemplate(
     method: "POST",
     body: payload,
   });
+}
+
+/**
+ * PATCH /api/v1/annual-folders/templates/:templateId
+ * Updates an existing annual-folder template.
+ */
+export async function updateTemplate(
+  templateId: string,
+  payload: UpdateTemplatePayload,
+): Promise<FolderTemplate> {
+  return apiRequestFromClient<FolderTemplate>(
+    `/annual-folders/templates/${templateId}`,
+    { method: "PATCH", body: payload },
+  );
 }
 
 /**

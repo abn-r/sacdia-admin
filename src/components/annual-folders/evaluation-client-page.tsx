@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { FolderStatusBadge } from "@/components/annual-folders/folder-status-badge";
 import { EvaluateSectionDialog } from "@/components/annual-folders/evaluate-section-dialog";
+import { SectionStatusBadge } from "@/components/annual-folders/section-evaluation-card";
 import {
   getFolder,
   getFolderEvaluations,
@@ -81,6 +82,7 @@ function EvalSectionRow({
 }: EvalSectionRowProps) {
   const maxPoints = section.max_points ?? 0;
   const isEvaluated = !!evaluation;
+  const evalStatus = evaluation?.status;
 
   return (
     <div className="rounded-lg border border-border bg-card">
@@ -89,10 +91,10 @@ function EvalSectionRow({
         {/* Section info */}
         <div className="flex items-start gap-3">
           <div className="mt-0.5 shrink-0">
-            {isEvaluated ? (
-              <CheckCircle2 className="size-4 text-green-600" />
+            {evalStatus === "VALIDATED" ? (
+              <CheckCircle2 className="size-4 text-success" />
             ) : section.required ? (
-              <AlertCircle className="size-4 text-amber-500" />
+              <AlertCircle className="size-4 text-warning/80" />
             ) : (
               <div className="size-4 rounded-full border-2 border-muted-foreground/30" />
             )}
@@ -105,13 +107,8 @@ function EvalSectionRow({
                   Requerida
                 </Badge>
               )}
-              {isEvaluated ? (
-                <Badge
-                  variant="outline"
-                  className="border-green-500/20 bg-green-500/10 text-xs text-green-700 dark:text-green-400"
-                >
-                  Evaluada
-                </Badge>
+              {evalStatus ? (
+                <SectionStatusBadge status={evalStatus} />
               ) : (
                 <Badge variant="secondary" className="text-xs">
                   Sin evaluar
@@ -143,7 +140,7 @@ function EvalSectionRow({
               variant="outline"
               size="xs"
               onClick={() => onReopen(section)}
-              className="text-amber-600 hover:text-amber-700"
+              className="text-warning hover:text-warning/80"
             >
               <RotateCcw className="size-3.5" />
               Reabrir
@@ -159,35 +156,56 @@ function EvalSectionRow({
       {/* Evaluation detail (when evaluated) */}
       {isEvaluated && (
         <div className="border-t border-border bg-muted/30 px-4 py-3">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <div className="space-y-0.5">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-foreground">
-                  {evaluation.earned_points}
-                  <span className="font-normal text-muted-foreground">
-                    {" "}/ {maxPoints} pts
-                  </span>
+          <div className="space-y-1.5">
+            {/* Score */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold text-foreground">
+                {evaluation.earned_points}
+                <span className="font-normal text-muted-foreground">
+                  {" "}/ {maxPoints} pts
                 </span>
-                <span className="text-xs text-muted-foreground">
-                  ({maxPoints > 0
-                    ? Math.round((evaluation.earned_points / maxPoints) * 100)
-                    : 0}
-                  %)
-                </span>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Por{" "}
-                <span className="font-medium text-foreground">
-                  {evaluation.evaluator ?? "—"}
-                </span>{" "}
-                · {formatDateTime(evaluation.evaluated_at)}
-              </p>
-              {evaluation.notes && (
-                <p className="mt-1 rounded-md bg-muted px-2 py-1.5 text-xs text-muted-foreground">
-                  {evaluation.notes}
-                </p>
-              )}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                ({maxPoints > 0
+                  ? Math.round((evaluation.earned_points / maxPoints) * 100)
+                  : 0}
+                %)
+              </span>
             </div>
+
+            {/* LF actor */}
+            {evaluation.lf_approver && (
+              <p className="flex flex-wrap gap-1 text-xs text-muted-foreground">
+                <span className="font-medium text-foreground">LF:</span>
+                {evaluation.lf_approver.name}
+                {evaluation.lf_approved_at
+                  ? ` · ${formatDateTime(evaluation.lf_approved_at)}`
+                  : ""}
+              </p>
+            )}
+
+            {/* Union actor */}
+            {evaluation.union_approver && (
+              <p className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
+                <span className="font-medium text-foreground">Unión:</span>
+                {evaluation.union_approver.name}
+                {evaluation.union_approved_at
+                  ? ` · ${formatDateTime(evaluation.union_approved_at)}`
+                  : ""}
+                {evaluation.union_decision === "REJECTED_OVERRIDE" && (
+                  <Badge variant="destructive" className="text-xs">
+                    Rechazo por unión
+                  </Badge>
+                )}
+              </p>
+            )}
+
+            {/* Notes */}
+            {evaluation.notes && (
+              <p className="mt-1 rounded-md bg-muted px-2 py-1.5 text-xs text-muted-foreground">
+                {evaluation.notes}
+              </p>
+            )}
           </div>
         </div>
       )}
@@ -572,7 +590,7 @@ export function EvaluationClientPage() {
             <AlertDialogAction
               onClick={confirmReopen}
               disabled={isReopening}
-              className="bg-amber-600 text-white hover:bg-amber-700"
+              className="bg-warning text-white hover:bg-warning/90"
             >
               {isReopening ? "Reabriendo..." : "Reabrir sección"}
             </AlertDialogAction>
