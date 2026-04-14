@@ -345,7 +345,7 @@ export function RankingsClientPage({
           </h3>
           <p className="mt-1 max-w-sm text-sm text-muted-foreground">
             No hay rankings calculados para estos filtros. Selecciona un tipo de
-            club y ano, luego usa "Recalcular rankings" para generarlos.
+            club y ano, luego usa &quot;Recalcular rankings&quot; para generarlos.
           </p>
           <Button
             variant="outline"

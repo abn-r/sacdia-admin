@@ -61,7 +61,7 @@ export function ScoringCategoryDeleteDialog({
           <AlertDialogTitle>Eliminar categoría</AlertDialogTitle>
           <AlertDialogDescription>
             ¿Estás seguro que querés eliminar la categoría{" "}
-            <strong>"{category?.name}"</strong>? Esta acción la desactivará y no
+            <strong>&quot;{category?.name}&quot;</strong>? Esta acción la desactivará y no
             podrá usarse en nuevos registros. Los registros históricos se
             conservarán.
           </AlertDialogDescription>
