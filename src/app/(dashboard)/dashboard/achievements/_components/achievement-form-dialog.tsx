@@ -69,9 +69,9 @@ const ACHIEVEMENT_TIERS: { value: AchievementTier; label: string; color: string 
 ];
 
 const ACHIEVEMENT_SCOPES: { value: AchievementScope; label: string }[] = [
-  { value: "GLOBAL", label: "Global" },
-  { value: "CLUB", label: "Club" },
-  { value: "UNIT", label: "Unidad" },
+  { value: "GLOBAL",              label: "Global" },
+  { value: "CLUB_TYPE",           label: "Tipo de club" },
+  { value: "ECCLESIASTICAL_YEAR", label: "Año eclesiástico" },
 ];
 
 function toText(value: unknown): string {

@@ -4,7 +4,7 @@ import { apiRequest, apiRequestFromClient } from "@/lib/api/client";
 
 export type AchievementTier = "BRONZE" | "SILVER" | "GOLD" | "PLATINUM" | "DIAMOND";
 export type AchievementType = "THRESHOLD" | "STREAK" | "COMPOUND" | "MILESTONE" | "COLLECTION";
-export type AchievementScope = "GLOBAL" | "CLUB" | "UNIT";
+export type AchievementScope = "GLOBAL" | "CLUB_TYPE" | "ECCLESIASTICAL_YEAR";
 export type CriteriaOperator = "gte" | "lte" | "eq";
 export type StreakUnit = "day" | "week" | "month";
 export type CompoundLogic = "AND" | "OR";
@@ -95,12 +95,11 @@ export type AchievementStats = {
   total_categories: number;
 };
 
+// tier and search reserved — not accepted by backend as of 2026-04-15
 export type AchievementListQuery = {
-  category_id?: number;
+  categoryId?: number;
   type?: AchievementType;
-  tier?: AchievementTier;
   active?: boolean;
-  search?: string;
   page?: number;
   limit?: number;
 };
@@ -155,7 +154,7 @@ export async function listAchievementCategoriesAdmin(query: CategoryListQuery = 
   if (query.page) params.page = query.page;
   if (query.limit) params.limit = query.limit;
 
-  return apiRequest<unknown>("/achievements/categories", { params });
+  return apiRequest<unknown>("/admin/achievements/categories", { params });
 }
 
 export async function createAchievementCategory(payload: AchievementCategoryPayload) {
@@ -170,7 +169,7 @@ export async function updateAchievementCategory(
   payload: Partial<AchievementCategoryPayload>,
 ) {
   return apiRequest<AchievementCategory>(`/admin/achievements/categories/${categoryId}`, {
-    method: "PUT",
+    method: "PATCH",
     body: payload,
   });
 }
@@ -185,10 +184,8 @@ export async function deleteAchievementCategory(categoryId: number) {
 
 export async function listAchievementsAdmin(query: AchievementListQuery = {}) {
   const params: Record<string, string | number | boolean | undefined> = {};
-  if (query.category_id) params.category_id = query.category_id;
+  if (query.categoryId) params.categoryId = query.categoryId;
   if (query.type) params.type = query.type;
-  if (query.tier) params.tier = query.tier;
-  if (query.search) params.search = query.search;
   if (typeof query.active === "boolean") params.active = query.active;
   if (query.page) params.page = query.page;
   if (query.limit) params.limit = query.limit;
@@ -209,7 +206,7 @@ export async function createAchievement(payload: AchievementPayload) {
 
 export async function updateAchievement(achievementId: number, payload: Partial<AchievementPayload>) {
   return apiRequest<Achievement>(`/admin/achievements/${achievementId}`, {
-    method: "PUT",
+    method: "PATCH",
     body: payload,
   });
 }
@@ -226,12 +223,15 @@ export async function getAchievementStats() {
 
 export async function uploadAchievementImage(achievementId: number, file: File) {
   const formData = new FormData();
-  formData.append("image", file);
+  formData.append("file", file);
 
-  return apiRequestFromClient<{ url: string }>(`/admin/achievements/${achievementId}/image`, {
-    method: "POST",
-    body: formData,
-  });
+  return apiRequestFromClient<{ badge_image_key: string; badge_image_url: string }>(
+    `/admin/achievements/${achievementId}/image`,
+    {
+      method: "POST",
+      body: formData,
+    },
+  );
 }
 
 export async function triggerRetroactiveEvaluation(achievementId: number) {

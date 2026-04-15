@@ -69,7 +69,7 @@ export function BadgeImageUpload({
     try {
       setUploading(true);
       const result = await uploadAchievementImage(achievementId, file);
-      onUploaded?.(result.url);
+      onUploaded?.(result.badge_image_url);
       toast.success("Imagen del logro actualizada correctamente.");
     } catch {
       toast.error("No se pudo subir la imagen. Intenta de nuevo.");

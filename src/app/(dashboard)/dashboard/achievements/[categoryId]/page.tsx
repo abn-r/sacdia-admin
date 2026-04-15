@@ -3,6 +3,7 @@ import { ApiError } from "@/lib/api/client";
 import {
   listAchievementsAdmin,
   listAchievementCategoriesAdmin,
+  type AchievementListQuery,
 } from "@/lib/api/achievements";
 import { requireAdminUser } from "@/lib/auth/session";
 import { AchievementsCrudPage } from "@/app/(dashboard)/dashboard/achievements/_components/achievements-crud-page";
@@ -114,9 +115,7 @@ export default async function CategoryAchievementsPage({
   }
 
   const rawSearchParams = await searchParams;
-  const search = toNonEmptyString(readParam(rawSearchParams, "search") ?? "") ?? undefined;
   const typeFilter = (readParam(rawSearchParams, "type") ?? "") || undefined;
-  const tierFilter = (readParam(rawSearchParams, "tier") ?? "") || undefined;
   const activeRaw = readParam(rawSearchParams, "active");
   const active = activeRaw === "true" ? true : activeRaw === "false" ? false : undefined;
   const page = toPositiveNumber(readParam(rawSearchParams, "page")) ?? 1;
@@ -131,10 +130,8 @@ export default async function CategoryAchievementsPage({
   try {
     const [achievementsPayload, categoriesPayload] = await Promise.all([
       listAchievementsAdmin({
-        category_id: categoryId,
-        type: typeFilter as Parameters<typeof listAchievementsAdmin>[0]["type"],
-        tier: tierFilter as Parameters<typeof listAchievementsAdmin>[0]["tier"],
-        search,
+        categoryId: categoryId,
+        type: typeFilter as AchievementListQuery["type"],
         active,
         page,
         limit,
