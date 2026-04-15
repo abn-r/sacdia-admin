@@ -128,6 +128,9 @@ export type AnnualFolder = {
   total_max_points?: number;
   progress_percentage?: number;
   evaluated_at?: string | null;
+  local_camporee_id: number | null;
+  union_camporee_id: number | null;
+  requires_union_confirmation: boolean;
   template?: Pick<FolderTemplate, "template_id" | "name"> | null;
   sections?: FolderSectionWithEvidences[];
   // Enrollment info (available when fetched via evaluation endpoint)
