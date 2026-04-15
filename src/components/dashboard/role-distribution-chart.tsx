@@ -19,26 +19,38 @@ export type RoleDistributionEntry = {
 const ROLE_LABELS: Record<string, string> = {
   super_admin: "Super Admin",
   admin: "Admin",
+  assistant_admin: "Asist. Admin",
+  coordinator: "Coordinador",
+  pastor: "Pastor",
   user: "Usuario",
-  club_director: "Director",
-  club_secretary: "Secretario",
-  club_treasurer: "Tesorero",
+  director: "Director",
+  deputy_director: "Subdirector",
+  secretary: "Secretario",
+  treasurer: "Tesorero",
+  counselor: "Consejero",
   instructor: "Instructor",
-  staff: "Staff",
+  member: "Miembro",
+  sin_rol: "Sin rol",
 };
 
 const ROLE_COLORS: Record<string, string> = {
-  super_admin: "hsl(var(--destructive))",
-  admin: "hsl(var(--primary))",
-  user: "hsl(var(--muted-foreground))",
-  club_director: "hsl(var(--chart-1, 220 70% 50%))",
-  club_secretary: "hsl(var(--chart-2, 160 60% 45%))",
-  club_treasurer: "hsl(var(--chart-3, 30 80% 55%))",
-  instructor: "hsl(var(--chart-4, 280 65% 60%))",
-  staff: "hsl(var(--chart-5, 340 75% 55%))",
+  super_admin: "var(--destructive)",
+  admin: "var(--primary)",
+  assistant_admin: "color-mix(in oklch, var(--primary) 70%, transparent)",
+  coordinator: "var(--info)",
+  pastor: "var(--warning)",
+  user: "var(--success)",
+  director: "var(--chart-1)",
+  deputy_director: "var(--chart-2)",
+  secretary: "var(--chart-3)",
+  treasurer: "var(--chart-4)",
+  counselor: "var(--chart-5)",
+  instructor: "color-mix(in oklch, var(--chart-1) 60%, var(--chart-3) 40%)",
+  member: "color-mix(in oklch, var(--muted-foreground) 80%, transparent)",
+  sin_rol: "color-mix(in oklch, var(--muted-foreground) 50%, transparent)",
 };
 
-const DEFAULT_COLOR = "hsl(var(--primary) / 0.6)";
+const DEFAULT_COLOR = "color-mix(in oklch, var(--muted-foreground) 40%, transparent)";
 
 function roleLabel(role: string): string {
   return ROLE_LABELS[role] ?? role.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -90,11 +102,11 @@ export function RoleDistributionChart({ data, sampleSize }: RoleDistributionChar
             dataKey="role"
             tickFormatter={roleLabel}
             width={80}
-            tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+            tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
             tickLine={false}
             axisLine={false}
           />
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: "hsl(var(--muted) / 0.4)" }} />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: "color-mix(in oklch, var(--muted) 40%, transparent)" }} />
           <Bar dataKey="count" radius={[0, 4, 4, 0]} maxBarSize={18}>
             {data.map((entry) => (
               <Cell key={entry.role} fill={roleColor(entry.role)} />

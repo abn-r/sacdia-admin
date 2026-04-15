@@ -59,39 +59,39 @@ interface CloseResultPanelProps {
 
 function CloseResultPanel({ result }: CloseResultPanelProps) {
   return (
-    <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-5 dark:border-emerald-900 dark:bg-emerald-950/30">
+    <div className="rounded-lg border border-success/20 bg-success/5 p-5">
       <div className="flex items-start gap-3">
-        <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+        <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-success" />
         <div className="space-y-2">
-          <p className="font-semibold text-emerald-900 dark:text-emerald-100">
+          <p className="font-semibold text-success">
             Año eclesiástico cerrado correctamente
           </p>
           {result.message && (
-            <p className="text-sm text-emerald-800 dark:text-emerald-200">{result.message}</p>
+            <p className="text-sm text-success/90">{result.message}</p>
           )}
           <div className="grid grid-cols-3 gap-3 pt-1">
             {typeof result.closed_enrollments === "number" && (
               <div className="text-center">
-                <p className="text-xl font-bold tabular-nums text-emerald-700 dark:text-emerald-300">
+                <p className="text-xl font-bold tabular-nums text-success">
                   {result.closed_enrollments}
                 </p>
-                <p className="text-xs text-emerald-600 dark:text-emerald-400">Inscripciones</p>
+                <p className="text-xs text-success/80">Inscripciones</p>
               </div>
             )}
             {typeof result.closed_folders === "number" && (
               <div className="text-center">
-                <p className="text-xl font-bold tabular-nums text-emerald-700 dark:text-emerald-300">
+                <p className="text-xl font-bold tabular-nums text-success">
                   {result.closed_folders}
                 </p>
-                <p className="text-xs text-emerald-600 dark:text-emerald-400">Carpetas</p>
+                <p className="text-xs text-success/80">Carpetas</p>
               </div>
             )}
             {typeof result.closed_reports === "number" && (
               <div className="text-center">
-                <p className="text-xl font-bold tabular-nums text-emerald-700 dark:text-emerald-300">
+                <p className="text-xl font-bold tabular-nums text-success">
                   {result.closed_reports}
                 </p>
-                <p className="text-xs text-emerald-600 dark:text-emerald-400">Reportes</p>
+                <p className="text-xs text-success/80">Reportes</p>
               </div>
             )}
           </div>
@@ -256,10 +256,10 @@ export function YearEndClientPage({ ecclesiasticalYears }: YearEndClientPageProp
               />
             </div>
 
-            <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-900 dark:bg-amber-950/30">
+            <div className="rounded-lg border border-warning/30 bg-warning/10 px-4 py-3">
               <div className="flex items-start gap-2">
-                <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" />
-                <p className="text-sm text-amber-800 dark:text-amber-200">
+                <AlertTriangle className="mt-0.5 size-4 shrink-0 text-warning-foreground dark:text-warning" />
+                <p className="text-sm text-warning-foreground dark:text-warning">
                   Esta acción es <strong>irreversible</strong>. Todos los registros del año serán
                   cerrados y no podrán editarse nuevamente.
                 </p>

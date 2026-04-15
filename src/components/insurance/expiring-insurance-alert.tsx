@@ -23,7 +23,7 @@ function formatDate(iso: string | null): string {
 
 function urgencyClass(days: number): string {
   if (days <= 7) return "text-destructive font-semibold";
-  if (days <= 15) return "text-amber-600 dark:text-amber-400 font-medium";
+  if (days <= 15) return "text-warning-foreground dark:text-warning font-medium";
   return "text-muted-foreground";
 }
 
@@ -44,15 +44,15 @@ export async function ExpiringInsuranceAlert() {
   const critical = items.filter((i) => i.days_remaining <= 7).length;
 
   return (
-    <div className="rounded-lg border border-amber-300/60 bg-amber-50/60 dark:border-amber-800/40 dark:bg-amber-950/20">
+    <div className="rounded-lg border border-warning/30 bg-warning/5">
       {/* Header */}
-      <div className="flex items-center gap-2.5 border-b border-amber-200/60 px-4 py-3 dark:border-amber-800/30">
-        <AlertTriangle className="size-4 shrink-0 text-amber-600 dark:text-amber-400" />
+      <div className="flex items-center gap-2.5 border-b border-warning/20 px-4 py-3">
+        <AlertTriangle className="size-4 shrink-0 text-warning-foreground dark:text-warning" />
         <div className="flex flex-1 flex-wrap items-baseline gap-x-2 gap-y-0.5">
-          <span className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+          <span className="text-sm font-semibold text-warning-foreground dark:text-warning">
             Seguros próximos a vencer
           </span>
-          <span className="text-xs text-amber-700/70 dark:text-amber-400/70">
+          <span className="text-xs text-warning-foreground/70 dark:text-warning/80">
             {items.length} {items.length === 1 ? "seguro vence" : "seguros vencen"} en los
             próximos 30 días
             {critical > 0 && (
@@ -64,7 +64,7 @@ export async function ExpiringInsuranceAlert() {
         </div>
         <Link
           href="/dashboard/insurance/expiring"
-          className="flex items-center gap-1 text-xs font-medium text-amber-700 hover:text-amber-900 dark:text-amber-400 dark:hover:text-amber-200 shrink-0"
+          className="flex items-center gap-1 text-xs font-medium text-warning-foreground hover:text-foreground dark:text-warning dark:hover:text-foreground shrink-0"
         >
           Ver todos
           <ArrowRight className="size-3" />
@@ -72,7 +72,7 @@ export async function ExpiringInsuranceAlert() {
       </div>
 
       {/* List */}
-      <ul className="divide-y divide-amber-200/40 dark:divide-amber-800/20">
+      <ul className="divide-y divide-warning/15">
         {items.map((item) => (
           <li
             key={item.insurance_id}

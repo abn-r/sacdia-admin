@@ -1,20 +1,10 @@
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { StatusBadge, type StatusIntent } from "@/components/ui/status-badge";
 import type { RequestStatus } from "@/lib/api/requests";
 
-const statusConfig: Record<RequestStatus, { label: string; className: string }> = {
-  PENDING: {
-    label: "Pendiente",
-    className: "bg-warning/10 text-warning border-warning/20",
-  },
-  APPROVED: {
-    label: "Aprobado",
-    className: "bg-success/10 text-success border-success/20",
-  },
-  REJECTED: {
-    label: "Rechazado",
-    className: "bg-destructive/10 text-destructive border-destructive/20",
-  },
+const statusMap: Record<RequestStatus, { label: string; intent: StatusIntent }> = {
+  PENDING: { label: "Pendiente", intent: "warning" },
+  APPROVED: { label: "Aprobado", intent: "success" },
+  REJECTED: { label: "Rechazado", intent: "destructive" },
 };
 
 interface RequestStatusBadgeProps {
@@ -23,14 +13,9 @@ interface RequestStatusBadgeProps {
 }
 
 export function RequestStatusBadge({ status, className }: RequestStatusBadgeProps) {
-  const config = statusConfig[status as RequestStatus] ?? {
+  const config = statusMap[status as RequestStatus] ?? {
     label: status,
-    className: "bg-muted text-muted-foreground border-border",
+    intent: "neutral" as StatusIntent,
   };
-
-  return (
-    <Badge variant="outline" className={cn(config.className, className)}>
-      {config.label}
-    </Badge>
-  );
+  return <StatusBadge intent={config.intent} label={config.label} className={className} />;
 }

@@ -1,24 +1,11 @@
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { StatusBadge, type StatusIntent } from "@/components/ui/status-badge";
 import type { ValidationStatus } from "@/lib/api/validation";
 
-const statusConfig: Record<ValidationStatus, { label: string; className: string }> = {
-  PENDING: {
-    label: "Pendiente",
-    className: "bg-warning/10 text-warning border-warning/20",
-  },
-  APPROVED: {
-    label: "Aprobado",
-    className: "bg-success/10 text-success border-success/20",
-  },
-  REJECTED: {
-    label: "Rechazado",
-    className: "bg-destructive/10 text-destructive border-destructive/20",
-  },
-  NEEDS_REVISION: {
-    label: "Revisión",
-    className: "bg-muted text-muted-foreground border-border",
-  },
+const statusMap: Record<ValidationStatus, { label: string; intent: StatusIntent }> = {
+  PENDING: { label: "Pendiente", intent: "warning" },
+  APPROVED: { label: "Aprobado", intent: "success" },
+  REJECTED: { label: "Rechazado", intent: "destructive" },
+  NEEDS_REVISION: { label: "Revisión", intent: "neutral" },
 };
 
 interface ValidationStatusBadgeProps {
@@ -27,14 +14,6 @@ interface ValidationStatusBadgeProps {
 }
 
 export function ValidationStatusBadge({ status, className }: ValidationStatusBadgeProps) {
-  const config = statusConfig[status] ?? {
-    label: status,
-    className: "bg-muted text-muted-foreground border-border",
-  };
-
-  return (
-    <Badge variant="outline" className={cn(config.className, className)}>
-      {config.label}
-    </Badge>
-  );
+  const config = statusMap[status] ?? { label: status, intent: "neutral" as StatusIntent };
+  return <StatusBadge intent={config.intent} label={config.label} className={className} />;
 }

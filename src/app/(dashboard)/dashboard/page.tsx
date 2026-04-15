@@ -26,6 +26,7 @@ import {
   type RoleDistributionEntry,
 } from "@/components/dashboard/role-distribution-chart";
 import { cn } from "@/lib/utils";
+import { PageHeader } from "@/components/shared/page-header";
 
 type StatsData = {
   totalUsers: number | null;
@@ -193,23 +194,24 @@ async function fetchRoleDistribution(): Promise<RoleDistributionResult> {
   }
 }
 
-// Stat card config: icon color classes per card
+// Stat card config: semantic tokens (Ember palette)
+// 0: primary | 1: success | 2: warning | 3: info
 const statCardConfig = [
   {
-    iconBg: "bg-blue-500/10 dark:bg-blue-500/15",
-    iconColor: "text-blue-600 dark:text-blue-400",
+    iconBg: "bg-primary/10",
+    iconColor: "text-primary",
   },
   {
-    iconBg: "bg-emerald-500/10 dark:bg-emerald-500/15",
-    iconColor: "text-emerald-600 dark:text-emerald-400",
+    iconBg: "bg-success/10",
+    iconColor: "text-success",
   },
   {
-    iconBg: "bg-amber-500/10 dark:bg-amber-500/15",
-    iconColor: "text-amber-600 dark:text-amber-400",
+    iconBg: "bg-warning/15",
+    iconColor: "text-warning-foreground dark:text-warning",
   },
   {
-    iconBg: "bg-violet-500/10 dark:bg-violet-500/15",
-    iconColor: "text-violet-600 dark:text-violet-400",
+    iconBg: "bg-info/10",
+    iconColor: "text-info",
   },
 ];
 
@@ -244,7 +246,7 @@ function StatCard({
         </div>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold tracking-tight">
+        <div className="text-3xl font-bold tracking-tight tabular-nums">
           {value !== null ? value.toLocaleString("es-MX") : (
             <span className="text-muted-foreground/40">—</span>
           )}
@@ -441,7 +443,7 @@ async function RecentUsersSection() {
                     className={cn(
                       "inline-block size-1.5 rounded-full",
                       user.active !== false
-                        ? "bg-emerald-500"
+                        ? "bg-success"
                         : "bg-muted-foreground/30"
                     )}
                   />
@@ -464,28 +466,28 @@ const quickLinks = [
     description: "Gestionar cuentas",
     href: "/dashboard/users",
     icon: Users,
-    colorIndex: 0,
+    colorIndex: 0, // primary
   },
   {
     title: "Clubes",
     description: "Administrar clubes",
     href: "/dashboard/clubs",
     icon: Building2,
-    colorIndex: 1,
+    colorIndex: 3, // info
   },
   {
     title: "Clases",
     description: "Ver y editar clases",
     href: "/dashboard/classes",
     icon: GraduationCap,
-    colorIndex: 3,
+    colorIndex: 1, // success
   },
   {
     title: "Especialidades",
     description: "Gestionar honores",
     href: "/dashboard/honors",
     icon: Award,
-    colorIndex: 2,
+    colorIndex: 2, // warning
   },
 ];
 
@@ -519,8 +521,8 @@ async function RoleDistributionSection() {
             <CardTitle className="text-base">Distribución de roles</CardTitle>
             <CardDescription>Asignaciones en los últimos 100 usuarios</CardDescription>
           </div>
-          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-rose-500/10 dark:bg-rose-500/15">
-            <TrendingUp className="size-4 text-rose-600 dark:text-rose-400" />
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+            <TrendingUp className="size-4 text-primary" />
           </div>
         </div>
       </CardHeader>
@@ -591,15 +593,10 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      {/* Page header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
-          <p className="mt-0.5 text-sm text-muted-foreground">
-            Resumen general del sistema SACDIA.
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        title="Dashboard"
+        description="Resumen general del sistema SACDIA."
+      />
 
       {/* Stats grid */}
       <Suspense fallback={<StatsSkeleton />}>

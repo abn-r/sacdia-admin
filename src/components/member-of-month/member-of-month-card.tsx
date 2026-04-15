@@ -25,16 +25,16 @@ function MemberAvatar({ member }: { member: MemberOfMonthEntry }) {
   return (
     <div className="flex flex-col items-center gap-1.5">
       <div className="relative">
-        <Avatar className="size-14 ring-2 ring-amber-400/60 ring-offset-2">
+        <Avatar className="size-14 ring-2 ring-warning/60 ring-offset-2 ring-offset-background">
           {member.photo_url && (
             <AvatarImage src={member.photo_url} alt={member.name} />
           )}
-          <AvatarFallback className="bg-amber-100 text-sm font-bold text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+          <AvatarFallback className="bg-warning/15 text-sm font-bold text-warning-foreground dark:text-warning">
             {initials}
           </AvatarFallback>
         </Avatar>
-        <div className="absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full bg-amber-500 text-[10px]">
-          <Trophy className="size-3 text-white" />
+        <div className="absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full bg-warning text-[10px]">
+          <Trophy className="size-3 text-warning-foreground" />
         </div>
       </div>
       <div className="text-center">
@@ -114,11 +114,11 @@ export function MemberOfMonthCard({
   return (
     <>
       {hasWinners && data ? (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900/40 dark:bg-amber-950/20">
+        <div className="rounded-xl border border-warning/25 bg-warning/5 p-4">
           {/* Header */}
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Trophy className="size-4 text-amber-600 dark:text-amber-400" />
+              <Trophy className="size-4 text-warning-foreground dark:text-warning" />
               <span className="text-sm font-semibold">
                 Miembro del Mes —{" "}
                 {MONTH_NAMES[data.month]} {data.year}
@@ -139,7 +139,7 @@ export function MemberOfMonthCard({
           </div>
 
           {/* Actions row */}
-          <div className="mt-3 flex items-center justify-end gap-2 border-t border-amber-200/80 pt-3 dark:border-amber-900/30">
+          <div className="mt-3 flex items-center justify-end gap-2 border-t border-warning/20 pt-3">
             <Button
               variant="ghost"
               size="sm"
