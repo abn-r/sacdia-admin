@@ -14,15 +14,18 @@ export default async function EvidenceReviewPage() {
 
   let items: EvidenceItem[] = [];
   let loadError: string | null = null;
+  let loadErrorStatus: number | null = null;
 
   try {
     const result = await getEvidencePending(undefined, 1, 200);
     items = result.data;
   } catch (error) {
-    loadError =
-      error instanceof ApiError
-        ? error.message
-        : "No se pudieron cargar las evidencias pendientes.";
+    if (error instanceof ApiError) {
+      loadError = error.message;
+      loadErrorStatus = error.status;
+    } else {
+      loadError = "No se pudieron cargar las evidencias pendientes.";
+    }
   }
 
   const pendingCount = items.filter((item) =>
@@ -37,7 +40,10 @@ export default async function EvidenceReviewPage() {
       />
 
       {loadError && (
-        <EndpointErrorBanner state="missing" detail={loadError} />
+        <EndpointErrorBanner
+          state={loadErrorStatus === 403 ? "forbidden" : "missing"}
+          detail={loadError}
+        />
       )}
 
       {!loadError && items.length === 0 && (

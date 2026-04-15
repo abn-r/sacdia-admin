@@ -6,14 +6,15 @@ import { PipelineClientPage } from "@/components/investiture/pipeline-client-pag
 import { getPipelineEnrollments, type PipelineEnrollment } from "@/lib/api/investiture";
 import { ApiError } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
-import { extractRoles } from "@/lib/auth/roles";
+import { extractRoles, SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
 import type { UserRole } from "@/components/investiture/pipeline-table";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function resolveUserRole(roles: string[]): UserRole {
   const set = new Set(roles);
-  if (set.has("super_admin") || set.has("admin")) return "admin";
+  // extractRoles() normalizes underscores to hyphens — compare with SUPER_ADMIN_ROLE
+  if (set.has(SUPER_ADMIN_ROLE) || set.has("admin")) return "admin";
   if (set.has("coordinator")) return "coordinator";
   if (set.has("field")) return "field";
   return "director";
@@ -29,14 +30,17 @@ export default async function InvestiturePipelinePage() {
 
   let enrollments: PipelineEnrollment[] = [];
   let loadError: string | null = null;
+  let loadErrorStatus: number | null = null;
 
   try {
     enrollments = await getPipelineEnrollments();
   } catch (error) {
-    loadError =
-      error instanceof ApiError
-        ? error.message
-        : "No se pudieron cargar las investiduras.";
+    if (error instanceof ApiError) {
+      loadError = error.message;
+      loadErrorStatus = error.status;
+    } else {
+      loadError = "No se pudieron cargar las investiduras.";
+    }
   }
 
   return (
@@ -46,7 +50,12 @@ export default async function InvestiturePipelinePage() {
         description="Seguimiento del proceso de aprobación en cadena: director, coordinación y campo."
       />
 
-      {loadError && <EndpointErrorBanner state="missing" detail={loadError} />}
+      {loadError && (
+        <EndpointErrorBanner
+          state={loadErrorStatus === 403 ? "forbidden" : "missing"}
+          detail={loadError}
+        />
+      )}
 
       {!loadError && enrollments.length === 0 && (
         <EmptyState

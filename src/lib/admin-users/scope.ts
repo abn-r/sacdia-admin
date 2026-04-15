@@ -1,4 +1,4 @@
-import { extractRoles } from "@/lib/auth/roles";
+import { extractRoles, SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
 import type { AuthUser } from "@/lib/auth/types";
 import type { AdminUser } from "@/lib/api/admin-users";
 
@@ -116,7 +116,7 @@ export function applyAdminUsersScope(
   const roles = new Set(extractRoles(currentUser));
   const { selfId, countryId, unionId, localFieldId } = getProfileScope(currentUser);
 
-  if (roles.has("super_admin")) {
+  if (roles.has(SUPER_ADMIN_ROLE)) {
     return {
       items,
       applied: false,

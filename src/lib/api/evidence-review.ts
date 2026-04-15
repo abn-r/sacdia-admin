@@ -5,12 +5,10 @@ import { apiRequest, apiRequestFromClient } from "@/lib/api/client";
 export type EvidenceType = "folder" | "class" | "honor";
 
 export type EvidenceStatus =
-  | "pendiente"
-  | "validado"
-  | "rechazado"
-  | "in_progress"
-  | "validated"
-  | "rejected";
+  | "PENDING"
+  | "SUBMITTED"
+  | "VALIDATED"
+  | "REJECTED";
 
 export type EvidenceItem = {
   id: number;

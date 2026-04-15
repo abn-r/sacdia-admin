@@ -46,6 +46,7 @@ function formatDate(iso?: string | null): string {
 }
 
 function isPending(status: string, type: EvidenceType): boolean {
+  if (status === "SUBMITTED") return true;
   if (type === "honor") return status === "in_progress";
   return status === "pendiente";
 }
@@ -230,7 +231,7 @@ export function EvidenceReviewTable({ items, onRefresh }: EvidenceReviewTablePro
 
   return (
     <>
-      <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
+      <div className="overflow-x-auto rounded-xl border border-border/60 bg-card shadow-xs">
         <Table>
           <TableHeader>
             <TableRow>

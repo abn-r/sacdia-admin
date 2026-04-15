@@ -1,5 +1,13 @@
 import type { AuthUser } from "@/lib/auth/types";
 
+/**
+ * Normalized form of the super-admin role as produced by extractRoles()
+ * (normalizeRole converts underscores to hyphens).
+ * Use this constant everywhere instead of a raw string literal to avoid
+ * the super_admin / super-admin mismatch bug.
+ */
+export const SUPER_ADMIN_ROLE = "super-admin" as const;
+
 export const ALLOWED_ADMIN_ROLES = [
   "super-admin",
   "admin",

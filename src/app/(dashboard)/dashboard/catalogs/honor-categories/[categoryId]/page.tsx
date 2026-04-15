@@ -11,7 +11,7 @@ import { ApiError } from "@/lib/api/client";
 import { getHonorCategoryById } from "@/lib/api/honor-categories";
 import { hasAnyPermission } from "@/lib/auth/permission-utils";
 import { HONOR_CATEGORIES_READ } from "@/lib/auth/permissions";
-import { extractRoles } from "@/lib/auth/roles";
+import { extractRoles, SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
 import { requireAdminUser } from "@/lib/auth/session";
 
 type Params = Promise<{ categoryId: string }>;
@@ -73,7 +73,7 @@ function InfoRow({ label, value }: { label: string; value: ReactNode }) {
 export default async function HonorCategoryDetailPage({ params }: { params: Params }) {
   const user = await requireAdminUser();
   const roleSet = new Set(extractRoles(user));
-  const canRead = roleSet.has("super_admin") || hasAnyPermission(user, [HONOR_CATEGORIES_READ]);
+  const canRead = roleSet.has(SUPER_ADMIN_ROLE) || hasAnyPermission(user, [HONOR_CATEGORIES_READ]);
 
   if (!canRead) {
     return (
