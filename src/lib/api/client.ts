@@ -220,6 +220,14 @@ function ensureClientInterceptors() {
 }
 
 export async function apiRequest<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
+  // Auto-detect execution context. In the browser, delegate to
+  // apiRequestFromClient so the Bearer token is attached via the
+  // httpOnly cookie relay at /api/auth/token. Server-side keeps the
+  // original path that reads the cookie directly via next/headers.
+  if (typeof window !== "undefined") {
+    return apiRequestFromClient<T>(path, options);
+  }
+
   const { method = "GET", body, headers, token, params, cache } = options;
   const resolvedToken = await resolveToken(token);
   const requestHeaders = new Headers(toRecord(headers));
