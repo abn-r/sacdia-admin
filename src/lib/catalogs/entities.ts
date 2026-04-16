@@ -118,7 +118,7 @@ export const entityConfigs: Record<EntityKey, EntityConfig> = {
     routeBase: "/dashboard/catalogs/geography/districts",
     listEndpoint: "/admin/districts",
     adminEndpoint: "/admin/districts",
-    idField: "district_id",
+    idField: "districlub_type_id",
     nameField: "name",
     parentFilter: {
       entityKey: "local-fields",
@@ -246,9 +246,8 @@ export const entityConfigs: Record<EntityKey, EntityConfig> = {
     singularTitle: "Tipo de Club",
     description: "Catálogo de tipos de club.",
     routeBase: "/dashboard/catalogs/club-types",
-    listEndpoint: "/catalogs/club-types",
-    adminEndpoint: "/catalogs/club-types",
-    allowMutations: false,
+    listEndpoint: "/admin/club-types",
+    adminEndpoint: "/admin/club-types",
     idField: "club_type_id",
     nameField: "name",
     fields: [
@@ -264,7 +263,6 @@ export const entityConfigs: Record<EntityKey, EntityConfig> = {
     routeBase: "/dashboard/catalogs/club-ideals",
     listEndpoint: "/admin/club-ideals",
     adminEndpoint: "/admin/club-ideals",
-    allowMutations: false,
     idField: "club_ideal_id",
     nameField: "name",
     fields: [

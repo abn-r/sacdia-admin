@@ -152,6 +152,10 @@ export function CatalogFormDialog({
 
             if (field.type === "select") {
               const options = selectOptions[field.optionsEntityKey ?? ""] ?? [];
+              // Filter out entries with null/undefined/NaN values to prevent duplicate key warnings
+              const validOptions = options.filter(
+                (opt) => opt.value != null && Number.isFinite(opt.value) && opt.value > 0,
+              );
               return (
                 <div key={field.name} className="space-y-1.5">
                   <Label htmlFor={field.name} className="text-sm font-medium">
@@ -160,15 +164,15 @@ export function CatalogFormDialog({
                   </Label>
                   <Select
                     name={field.name}
-                    defaultValue={defaultValue != null ? String(defaultValue) : undefined}
+                    defaultValue={defaultValue != null && String(defaultValue) !== "0" ? String(defaultValue) : undefined}
                     required={field.required}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder={`Seleccionar ${field.label.toLowerCase()}`} />
                     </SelectTrigger>
                     <SelectContent>
-                      {options.map((opt) => (
-                        <SelectItem key={opt.value} value={String(opt.value)}>
+                      {validOptions.map((opt, idx) => (
+                        <SelectItem key={`${opt.value}-${idx}`} value={String(opt.value)}>
                           {opt.label}
                         </SelectItem>
                       ))}
