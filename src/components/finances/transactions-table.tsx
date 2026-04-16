@@ -176,7 +176,7 @@ export function TransactionsTable({ items, onEdit, onDelete }: TransactionsTable
                   {MONTH_NAMES[finance.month] ?? finance.month}/{finance.year}
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle">
-                  <Badge variant={isIncome ? "default" : "destructive"} className={isIncome ? "bg-green-600 text-white" : ""}>
+                  <Badge variant={isIncome ? "success" : "destructive"}>
                     {isIncome ? "Ingreso" : "Egreso"}
                   </Badge>
                 </TableCell>

@@ -35,7 +35,7 @@ function StatusBanner({ state }: { state: NotificationActionState }) {
   }
   if (state.success) {
     return (
-      <div className="rounded-md bg-green-500/10 px-3 py-2 text-sm text-green-700 dark:text-green-400">
+      <div className="rounded-md bg-success/10 px-3 py-2 text-sm text-success">
         {state.success}
       </div>
     );
@@ -100,7 +100,7 @@ export function BroadcastNotificationForm() {
       <CardContent>
         <form action={action} className="space-y-4">
           <StatusBanner state={state} />
-          <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200">
+          <div className="rounded-md border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-warning-foreground dark:text-warning">
             Esta acción enviará la notificación a <strong>todos</strong> los usuarios con token FCM registrado.
           </div>
           <div className="space-y-2">

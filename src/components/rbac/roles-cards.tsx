@@ -118,7 +118,7 @@ export function RolesCards({ roles, allPermissions, syncAction }: RolesCardsProp
                 <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">{syncState.error}</div>
               )}
               {syncState.success && (
-                <div className="rounded-md bg-green-500/10 px-3 py-2 text-sm text-green-700 dark:text-green-400">{syncState.success}</div>
+                <div className="rounded-md bg-success/10 px-3 py-2 text-sm text-success">{syncState.success}</div>
               )}
 
               <input type="hidden" name="permission_ids" value={Array.from(selectedPerms).join(",")} />

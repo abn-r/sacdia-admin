@@ -65,7 +65,7 @@ function RankBadge({ position }: { position: number | null }) {
     return (
       <span
         title="1er lugar"
-        className="inline-flex size-7 items-center justify-center rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
+        className="inline-flex size-7 items-center justify-center rounded-full bg-warning/15 text-warning-foreground dark:text-warning"
       >
         <Trophy className="size-4" />
       </span>
@@ -75,7 +75,7 @@ function RankBadge({ position }: { position: number | null }) {
     return (
       <span
         title="2do lugar"
-        className="inline-flex size-7 items-center justify-center rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+        className="inline-flex size-7 items-center justify-center rounded-full bg-muted text-muted-foreground"
       >
         <Medal className="size-4" />
       </span>
@@ -85,7 +85,7 @@ function RankBadge({ position }: { position: number | null }) {
     return (
       <span
         title="3er lugar"
-        className="inline-flex size-7 items-center justify-center rounded-full bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400"
+        className="inline-flex size-7 items-center justify-center rounded-full bg-primary/15 text-primary"
       >
         <Medal className="size-4" />
       </span>
@@ -99,9 +99,9 @@ function RankBadge({ position }: { position: number | null }) {
 }
 
 function rowHighlight(position: number | null): string {
-  if (position === 1) return "bg-yellow-50/50 dark:bg-yellow-950/20";
-  if (position === 2) return "bg-slate-50/50 dark:bg-slate-900/20";
-  if (position === 3) return "bg-orange-50/50 dark:bg-orange-950/20";
+  if (position === 1) return "bg-warning/10";
+  if (position === 2) return "bg-muted/40";
+  if (position === 3) return "bg-primary/10";
   return "";
 }
 

@@ -91,8 +91,8 @@ export function PermissionMatrix({ roles, permissions, syncAction }: PermissionM
   return (
     <div className="space-y-4">
       {dirtyRoles.size > 0 && (
-        <div className="flex items-center justify-between rounded-md border border-yellow-400/40 bg-yellow-50 px-4 py-2 dark:bg-yellow-950/30">
-          <p className="text-sm text-yellow-800 dark:text-yellow-300">
+        <div className="flex items-center justify-between rounded-md border border-warning/30 bg-warning/10 px-4 py-2">
+          <p className="text-sm text-warning-foreground dark:text-warning">
             {dirtyRoles.size} rol{dirtyRoles.size > 1 ? "es" : ""} con cambios sin guardar.
           </p>
           <Button size="sm" onClick={saveAll} disabled={isPending}>
@@ -134,7 +134,7 @@ export function PermissionMatrix({ roles, permissions, syncAction }: PermissionM
                         </Button>
                       )}
                       {saveState[role.role_id] === "saved" && (
-                        <Check className="size-3 text-green-500" />
+                        <Check className="size-3 text-success" />
                       )}
                       {saveState[role.role_id] === "error" && (
                         <span className="text-[10px] text-destructive">!</span>

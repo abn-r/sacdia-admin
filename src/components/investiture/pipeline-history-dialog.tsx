@@ -60,20 +60,23 @@ const actionConfig: Record<
   CLUB_APPROVED: {
     label: "Aprobado por director",
     icon: CheckCircle2,
-    iconClass: "text-blue-600",
-    dotClass: "bg-blue-500/20 border-blue-500/40",
+    iconClass: "text-[var(--chart-1)]",
+    dotClass:
+      "bg-[color-mix(in_oklch,var(--chart-1)_20%,transparent)] border-[color-mix(in_oklch,var(--chart-1)_40%,transparent)]",
   },
   COORDINATOR_APPROVED: {
     label: "Aprobado por coordinación",
     icon: CheckCircle2,
-    iconClass: "text-purple-600",
-    dotClass: "bg-purple-500/20 border-purple-500/40",
+    iconClass: "text-[var(--chart-2)]",
+    dotClass:
+      "bg-[color-mix(in_oklch,var(--chart-2)_20%,transparent)] border-[color-mix(in_oklch,var(--chart-2)_40%,transparent)]",
   },
   FIELD_APPROVED: {
     label: "Aprobado por campo",
     icon: CheckCircle2,
-    iconClass: "text-teal-600",
-    dotClass: "bg-teal-500/20 border-teal-500/40",
+    iconClass: "text-[var(--chart-3)]",
+    dotClass:
+      "bg-[color-mix(in_oklch,var(--chart-3)_20%,transparent)] border-[color-mix(in_oklch,var(--chart-3)_40%,transparent)]",
   },
   INVESTED: {
     label: "Investido",

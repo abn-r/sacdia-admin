@@ -53,13 +53,13 @@ export default function LoginPage() {
 
       {/* Ambient glow — top left */}
       <div
-        className="pointer-events-none absolute -top-32 -left-32 size-[480px] rounded-full bg-emerald-500/10 dark:bg-emerald-500/8 blur-3xl"
+        className="pointer-events-none absolute -top-32 -left-32 size-[480px] rounded-full bg-primary/10 dark:bg-primary/15 blur-3xl"
         aria-hidden="true"
       />
 
       {/* Ambient glow — bottom right */}
       <div
-        className="pointer-events-none absolute -bottom-32 -right-32 size-[360px] rounded-full bg-emerald-700/8 dark:bg-emerald-400/6 blur-3xl"
+        className="pointer-events-none absolute -bottom-32 -right-32 size-[360px] rounded-full bg-primary/8 dark:bg-primary/10 blur-3xl"
         aria-hidden="true"
       />
 
