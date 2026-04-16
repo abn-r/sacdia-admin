@@ -216,8 +216,9 @@ function formatFileSize(bytes: unknown): string {
 
 // ─── Badge helpers ──────────────────────────────────────────────────────────────
 
-// Badge colors: hardcoded with dark mode variants (design system exception for
-// distinctive visual identification of resource types/scopes)
+// Resource type badges use Ember chart tokens (chart-2..5 + destructive) for
+// distinctive per-type identification while staying within the design system.
+// Pattern matches pipeline-history-dialog.tsx: text + color-mix backgrounds.
 function resourceTypeBadgeConfig(type: ResourceType | null): {
   label: string;
   className: string;
@@ -228,35 +229,34 @@ function resourceTypeBadgeConfig(type: ResourceType | null): {
       return {
         label: "Documento",
         className:
-          "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700",
+          "border-[color-mix(in_oklch,var(--chart-2)_35%,transparent)] bg-[color-mix(in_oklch,var(--chart-2)_15%,transparent)] text-[var(--chart-2)]",
         Icon: FileText,
       };
     case "audio":
       return {
         label: "Audio",
         className:
-          "bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-700",
+          "border-[color-mix(in_oklch,var(--chart-5)_35%,transparent)] bg-[color-mix(in_oklch,var(--chart-5)_15%,transparent)] text-[var(--chart-5)]",
         Icon: Music,
       };
     case "image":
       return {
         label: "Imagen",
         className:
-          "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-700",
+          "border-[color-mix(in_oklch,var(--chart-3)_35%,transparent)] bg-[color-mix(in_oklch,var(--chart-3)_15%,transparent)] text-[var(--chart-3)]",
         Icon: Image,
       };
     case "video_link":
       return {
         label: "Video",
-        className:
-          "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-700",
+        className: "border-destructive/35 bg-destructive/10 text-destructive",
         Icon: Video,
       };
     case "text":
       return {
         label: "Texto",
         className:
-          "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700",
+          "border-[color-mix(in_oklch,var(--chart-4)_35%,transparent)] bg-[color-mix(in_oklch,var(--chart-4)_15%,transparent)] text-[var(--chart-4)]",
         Icon: BookOpen,
       };
     default:
@@ -264,6 +264,9 @@ function resourceTypeBadgeConfig(type: ResourceType | null): {
   }
 }
 
+// Scope level badges use semantic neutrals (muted/secondary) because scope
+// differentiation is conveyed by icon + label, not color. Avoids chromatic
+// collision with resource-type badges in the same row.
 function scopeLevelBadgeConfig(level: ScopeLevel | null): {
   label: string;
   className: string;
@@ -273,22 +276,19 @@ function scopeLevelBadgeConfig(level: ScopeLevel | null): {
     case "system":
       return {
         label: "Sistema",
-        className:
-          "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800/40 dark:text-slate-300 dark:border-slate-600",
+        className: "border-border bg-muted text-muted-foreground",
         Icon: Globe,
       };
     case "union":
       return {
         label: "Unión",
-        className:
-          "bg-indigo-100 text-indigo-800 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-700",
+        className: "border-border bg-secondary text-secondary-foreground",
         Icon: Building,
       };
     case "local_field":
       return {
         label: "Campo",
-        className:
-          "bg-teal-100 text-teal-800 border-teal-200 dark:bg-teal-900/30 dark:text-teal-300 dark:border-teal-700",
+        className: "border-border bg-muted/60 text-foreground",
         Icon: MapPin,
       };
     default:
