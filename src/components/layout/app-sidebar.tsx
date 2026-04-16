@@ -56,9 +56,9 @@ function NavItemWithChildren({ item, pathname }: { item: NavItem; pathname: stri
       <SidebarMenuItem>
         <CollapsibleTrigger asChild>
           <SidebarMenuButton tooltip={item.title} isActive={isActive}>
-            <item.icon className="size-4" />
-            <span>{item.title}</span>
-            <ChevronRight className="ml-auto size-4 transition-transform group-data-[state=open]/collapsible:rotate-90" />
+            <item.icon className="size-4 shrink-0" />
+            <span className="truncate">{item.title}</span>
+            <ChevronRight className="ml-auto size-4 shrink-0 transition-transform group-data-[state=open]/collapsible:rotate-90" />
           </SidebarMenuButton>
         </CollapsibleTrigger>
         <CollapsibleContent>
@@ -66,7 +66,9 @@ function NavItemWithChildren({ item, pathname }: { item: NavItem; pathname: stri
             {item.children!.map((child) => (
               <SidebarMenuSubItem key={child.url}>
                 <SidebarMenuSubButton asChild isActive={pathname === child.url}>
-                  <Link href={child.url}>{child.title}</Link>
+                  <Link href={child.url}>
+                    <span className="truncate" title={child.title}>{child.title}</span>
+                  </Link>
                 </SidebarMenuSubButton>
               </SidebarMenuSubItem>
             ))}
@@ -84,8 +86,8 @@ function NavItemSimple({ item, pathname }: { item: NavItem; pathname: string }) 
     <SidebarMenuItem>
       <SidebarMenuButton asChild tooltip={item.title} isActive={isActive}>
         <Link href={item.url}>
-          <item.icon className="size-4" />
-          <span>{item.title}</span>
+          <item.icon className="size-4 shrink-0" />
+          <span className="truncate">{item.title}</span>
         </Link>
       </SidebarMenuButton>
     </SidebarMenuItem>

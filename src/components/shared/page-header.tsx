@@ -45,7 +45,7 @@ export function PageHeader({
                   >
                     {crumb.label}
                   </Link>
-                ) : (
+                ) : ( 
                   <span className={cn(isLast && "text-foreground/80")}>
                     {crumb.label}
                   </span>
@@ -58,7 +58,7 @@ export function PageHeader({
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 space-y-1">
-          <h1 className="font-display text-3xl font-normal leading-[1.05] tracking-tight text-foreground sm:text-4xl">
+          <h1 className="font-display text-3xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-4xl">
             {title}
           </h1>
           {description && (

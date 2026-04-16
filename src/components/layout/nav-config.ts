@@ -49,6 +49,7 @@ export type NavGroup = {
 };
 
 export const navConfig: NavGroup[] = [
+  // ─── Top-level (no group label) ──────────────────────────────────────────────
   {
     items: [
       {
@@ -65,8 +66,13 @@ export const navConfig: NavGroup[] = [
       },
     ],
   },
+
+  // ─── Catálogos ───────────────────────────────────────────────────────────────
+  // Static reference data that admins configure once and rarely change:
+  // geographic hierarchy, medical lookups, ecclesiastical years, club metadata,
+  // specialty categories, activity types, resource library, award/scoring tiers.
   {
-    label: "Sistema",
+    label: "Catálogos",
     items: [
       {
         title: "Catálogos",
@@ -91,6 +97,27 @@ export const navConfig: NavGroup[] = [
         ],
       },
       {
+        title: "Recursos",
+        url: "/dashboard/resources",
+        icon: LibraryBig,
+        permission: "resources:read",
+        children: [
+          { title: "Todos los recursos", url: "/dashboard/resources", permission: "resources:read" },
+          { title: "Categorías", url: "/dashboard/resources/categories", permission: "resource_categories:read" },
+        ],
+      },
+    ],
+  },
+
+  // ─── Sistema ─────────────────────────────────────────────────────────────────
+  // Platform administration: RBAC, system configuration, and scoring tiers.
+  // Distinct from Catálogos because these entries govern how the platform
+  // itself behaves (access control, runtime config, point rules) rather than
+  // describing domain entities.
+  {
+    label: "Sistema",
+    items: [
+      {
         title: "Roles y permisos",
         url: "/dashboard/rbac",
         icon: Shield,
@@ -98,7 +125,6 @@ export const navConfig: NavGroup[] = [
         children: [
           { title: "Permisos", url: "/dashboard/rbac/permissions", permission: "permissions:read" },
           { title: "Roles", url: "/dashboard/rbac/roles", permission: "roles:read" },
-          { title: "Matriz", url: "/dashboard/rbac/matrix", permission: "permissions:read" },
         ],
       },
       {
@@ -111,16 +137,14 @@ export const navConfig: NavGroup[] = [
           { title: "Categorías de Puntuación", url: "/dashboard/settings/scoring-categories", permission: "system_config:read" },
         ],
       },
-      {
-        title: "Cierre de año",
-        url: "/dashboard/year-end",
-        icon: CalendarOff,
-        permission: "system_config:read",
-      },
     ],
   },
+
+  // ─── Gestión de Clubes ───────────────────────────────────────────────────────
+  // Daily and weekly workflows tied to club operations: enrollments, activities,
+  // finances, inventory, certifications, insurance, and camporees.
   {
-    label: "Operativo",
+    label: "Gestión de Clubes",
     items: [
       { title: "Clubes", url: "/dashboard/clubs", icon: Building2, permission: "clubs:read" },
       {
@@ -151,6 +175,17 @@ export const navConfig: NavGroup[] = [
           { title: "Por vencer", url: "/dashboard/insurance/expiring", permission: "insurance:read" },
         ],
       },
+    ],
+  },
+
+  // ─── Validación e Investiduras ───────────────────────────────────────────────
+  // Time-sensitive approval workflows: evidence review, investiture pipeline,
+  // SLA monitoring, and the annual year-end closing action.
+  // Cierre de año lives here (not Sistema) because it is a one-time irreversible
+  // operational trigger per ecclesiastical year, not a platform config.
+  {
+    label: "Validación e Investiduras",
+    items: [
       {
         title: "Validación",
         url: "/dashboard/validation",
@@ -174,7 +209,6 @@ export const navConfig: NavGroup[] = [
           { title: "Configuración", url: "/dashboard/investiture/config", permission: "investiture:read" },
         ],
       },
-      { title: "Reportes", url: "/dashboard/reports", icon: FileText, permission: "classes:read" },
       {
         title: "SLA Dashboard",
         url: "/dashboard/sla",
@@ -182,33 +216,20 @@ export const navConfig: NavGroup[] = [
         permission: "investiture:read",
       },
       {
-        title: "Solicitudes",
-        url: "/dashboard/requests/transfers",
-        icon: ArrowRightLeft,
-        permission: "requests:read",
-        children: [
-          { title: "Transferencias", url: "/dashboard/requests/transfers", permission: "requests:read" },
-          { title: "Asignaciones", url: "/dashboard/requests/assignments", permission: "requests:read" },
-          { title: "Membresías", url: "/dashboard/requests/membership", permission: "club_members:approve" },
-        ],
+        title: "Cierre de año",
+        url: "/dashboard/year-end",
+        icon: CalendarOff,
+        permission: "system_config:read",
       },
     ],
   },
-  {
-    label: "Recursos",
-    items: [
-      {
-        title: "Recursos",
-        url: "/dashboard/resources",
-        icon: LibraryBig,
-        permission: "resources:read",
-        children: [
-          { title: "Todos los recursos", url: "/dashboard/resources", permission: "resources:read" },
-          { title: "Categorías", url: "/dashboard/resources/categories", permission: "resource_categories:read" },
-        ],
-      },
-    ],
-  },
+
+  // ─── Comunicaciones ──────────────────────────────────────────────────────────
+  // Outbound notifications and evidence/annual folder workflows.
+  // Annual Folders kept unified here (not split) because all five children
+  // belong to the same user journey (coordinators manage their folder end-to-end).
+  // Plantillas and Categorias de premios are catalog-like but splitting them out
+  // would leave the parent entry orphaned and fragment a naturally cohesive flow.
   {
     label: "Comunicaciones",
     items: [
@@ -236,6 +257,27 @@ export const navConfig: NavGroup[] = [
           { title: "Categorias de premios", url: "/dashboard/annual-folders/categories", permission: "award_categories:read" },
         ],
       },
+    ],
+  },
+
+  // ─── Solicitudes y Reportes ──────────────────────────────────────────────────
+  // Cross-club approval flows (transfers, assignments, memberships) and
+  // generated reports — all transactional, time-bound, actor-initiated.
+  {
+    label: "Solicitudes y Reportes",
+    items: [
+      {
+        title: "Solicitudes",
+        url: "/dashboard/requests/transfers",
+        icon: ArrowRightLeft,
+        permission: "requests:read",
+        children: [
+          { title: "Transferencias", url: "/dashboard/requests/transfers", permission: "requests:read" },
+          { title: "Asignaciones", url: "/dashboard/requests/assignments", permission: "requests:read" },
+          { title: "Membresías", url: "/dashboard/requests/membership", permission: "club_members:approve" },
+        ],
+      },
+      { title: "Reportes", url: "/dashboard/reports", icon: FileText, permission: "classes:read" },
     ],
   },
 ];
