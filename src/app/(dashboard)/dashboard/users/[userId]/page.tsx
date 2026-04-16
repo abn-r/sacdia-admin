@@ -9,15 +9,21 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/shared/page-header";
 import { UserApprovalActions } from "@/components/users/user-approval-actions";
 import { UserAvatar } from "@/components/users/user-avatar";
-import {
-  UserAccessToggles,
-  normalizeApprovalStatus,
-} from "@/components/users/user-access-toggles";
+import { UserAccessToggles } from "@/components/users/user-access-toggles";
+import { normalizeApprovalStatus } from "@/lib/admin-users/approval-status";
 import { PostRegistrationTab } from "@/components/users/post-registration-tab";
 import { MfaTab } from "@/components/users/mfa-tab";
 import { SessionsTab } from "@/components/users/sessions-tab";
 import { UserPermissionsPanel } from "@/components/rbac/user-permissions-panel";
 import { UserRolesPanel } from "@/components/rbac/user-roles-panel";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   getAdminUserDetail,
   type AdminUserDetail,
@@ -122,6 +128,15 @@ type LegalRepresentative = {
   relationship_type_id?: number | null;
 };
 
+type EmergencyContact = {
+  emergency_id?: number | null;
+  name?: string | null;
+  phone?: string | null;
+  primary?: boolean | null;
+  relationship_type_id?: number | null;
+  [key: string]: unknown;
+};
+
 function formatDate(dateStr?: string | null): string {
   if (!dateStr) return "—";
   try {
@@ -133,6 +148,22 @@ function formatDate(dateStr?: string | null): string {
   } catch {
     return "—";
   }
+}
+
+const BLOOD_TYPE_LABELS: Record<string, string> = {
+  O_POSITIVE: "O+",
+  O_NEGATIVE: "O-",
+  A_POSITIVE: "A+",
+  A_NEGATIVE: "A-",
+  B_POSITIVE: "B+",
+  B_NEGATIVE: "B-",
+  AB_POSITIVE: "AB+",
+  AB_NEGATIVE: "AB-",
+};
+
+function formatBloodType(raw?: string | null): string {
+  if (raw === null || raw === undefined || raw.trim() === "") return "No especificado";
+  return BLOOD_TYPE_LABELS[raw] ?? raw;
 }
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
@@ -314,8 +345,8 @@ export default async function UserDetailPage({ params }: { params: Params }) {
           {canSeeAdministrativeCompletion ? (
             <TabsTrigger value="post-registration">Post-registro</TabsTrigger>
           ) : null}
-          <TabsTrigger value="seguridad">Seguridad</TabsTrigger>
-          <TabsTrigger value="sesiones">Sesiones</TabsTrigger>
+          {/* <TabsTrigger value="seguridad">Seguridad</TabsTrigger> */}
+          {/* <TabsTrigger value="sesiones">Sesiones</TabsTrigger> */}
         </TabsList>
 
         {/* ── Tab 1: User detail ── */}
@@ -378,7 +409,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                   <CardContent className="space-y-3">
                     {user.health ? (
                       <>
-                        <InfoRow label="Tipo de sangre" value={user.health.blood} />
+                        <InfoRow label="Tipo de sangre" value={formatBloodType(user.health.blood)} />
                         <InfoRow
                           label="Alergias"
                           value={formatNames(user.health.allergies)}
@@ -406,25 +437,52 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                   <CardHeader>
                     <CardTitle className="text-base">Contactos de emergencia</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-3">
-                    {user.emergency_contacts ? (
-                      user.emergency_contacts.length > 0 ? (
-                        user.emergency_contacts.map((contact, index) => (
-                          <div key={index} className="rounded-md border p-3 text-sm">
-                            <pre className="whitespace-pre-wrap font-sans text-sm">
-                              {JSON.stringify(contact, null, 2)}
-                            </pre>
-                          </div>
-                        ))
-                      ) : (
-                        <p className="text-sm text-muted-foreground">
-                          Sin contactos de emergencia registrados.
-                        </p>
-                      )
-                    ) : (
+                  <CardContent>
+                    {!user.emergency_contacts ? (
                       <p className="text-sm text-muted-foreground">
                         Este payload no incluyo el bloque de contactos de emergencia.
                       </p>
+                    ) : user.emergency_contacts.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">
+                        Sin contactos de emergencia registrados.
+                      </p>
+                    ) : (
+                      <div className="rounded-md border">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Nombre</TableHead>
+                              <TableHead>Telefono</TableHead>
+                              <TableHead>Parentesco ID</TableHead>
+                              <TableHead>Principal</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {(user.emergency_contacts as EmergencyContact[]).map((contact, index) => (
+                              <TableRow key={contact.emergency_id ?? index}>
+                                <TableCell className="font-medium">
+                                  {contact.name ?? "—"}
+                                </TableCell>
+                                <TableCell>{contact.phone ?? "—"}</TableCell>
+                                <TableCell>
+                                  {contact.relationship_type_id != null
+                                    ? `#${contact.relationship_type_id}`
+                                    : "—"}
+                                </TableCell>
+                                <TableCell>
+                                  {contact.primary ? (
+                                    <Badge variant="secondary" className="text-xs">
+                                      Principal
+                                    </Badge>
+                                  ) : (
+                                    <span className="text-muted-foreground text-sm">No</span>
+                                  )}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
                     )}
                   </CardContent>
                 </Card>
@@ -488,7 +546,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
               </Card>
             </div>
 
-            <Card>
+            {/* <Card>
               <CardHeader>
                 <CardTitle className="text-base">Permisos efectivos</CardTitle>
               </CardHeader>
@@ -517,15 +575,15 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                   );
                 })()}
               </CardContent>
-            </Card>
+            </Card> */}
 
-            <UserPermissionsPanel
+            {/* <UserPermissionsPanel
               userId={userId}
               initialUserPermissions={userPermissions}
               allPermissions={allPermissions}
-            />
+            /> */}
 
-            {user.club_assignments &&
+            {/* {user.club_assignments &&
               (user.club_assignments as ClubAssignment[]).length > 0 && (
                 <Card>
                   <CardHeader>
@@ -572,7 +630,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                     </div>
                   </CardContent>
                 </Card>
-              )}
+              )} */}
           </div>
         </TabsContent>
 

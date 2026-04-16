@@ -7,14 +7,24 @@ import {
   updateAdminUserApproval,
   type AdminApprovalDecision,
 } from "@/lib/api/admin-users";
+import {
+  APP_ALERT_PARAM_TYPE,
+  APP_ALERT_PARAM_TITLE,
+  APP_ALERT_PARAM_DESCRIPTION,
+} from "@/lib/ui/app-alert-params";
 
 function readString(formData: FormData, fieldName: string) {
   return String(formData.get(fieldName) ?? "").trim();
 }
 
-function createResultUrl(params: Record<string, string>) {
-  const query = new URLSearchParams(params);
-  return `/dashboard/approvals?${query.toString()}`;
+function userDetailUrl(userId: string, alertType: string, alertTitle: string, alertDescription?: string): string {
+  const params = new URLSearchParams();
+  params.set(APP_ALERT_PARAM_TYPE, alertType);
+  params.set(APP_ALERT_PARAM_TITLE, alertTitle);
+  if (alertDescription) {
+    params.set(APP_ALERT_PARAM_DESCRIPTION, alertDescription);
+  }
+  return `/dashboard/users/${encodeURIComponent(userId)}?${params.toString()}`;
 }
 
 export async function submitApprovalDecisionAction(formData: FormData) {
@@ -23,21 +33,11 @@ export async function submitApprovalDecisionAction(formData: FormData) {
   const reason = readString(formData, "reason");
 
   if (!userId) {
-    redirect(
-      createResultUrl({
-        status: "approval_error_validation",
-        message: "Usuario invalido",
-      }),
-    );
+    redirect("/dashboard/users");
   }
 
   if (decision !== "approve" && decision !== "reject") {
-    redirect(
-      createResultUrl({
-        status: "approval_error_validation",
-        message: "Decision invalida",
-      }),
-    );
+    redirect(userDetailUrl(userId, "error", "Decision invalida", "El valor de la decision no es valido."));
   }
 
   try {
@@ -49,64 +49,27 @@ export async function submitApprovalDecisionAction(formData: FormData) {
   } catch (error) {
     if (error instanceof ApiError) {
       if (error.status === 429) {
-        redirect(
-          createResultUrl({
-            status: "approval_error_rate_limited",
-            decision,
-            user: userId,
-          }),
-        );
+        redirect(userDetailUrl(userId, "warning", "Demasiadas solicitudes", "Espera un momento antes de intentarlo de nuevo."));
       }
 
       if (error.status === 401 || error.status === 403) {
-        redirect(
-          createResultUrl({
-            status: "approval_error_forbidden",
-            decision,
-            user: userId,
-          }),
-        );
+        redirect(userDetailUrl(userId, "error", "Sin permisos", "No tienes permisos para realizar esta accion."));
       }
 
       if (error.status === 404 || error.status === 405) {
-        redirect(
-          createResultUrl({
-            status: "approval_error_missing_endpoint",
-            decision,
-            user: userId,
-          }),
-        );
+        redirect(userDetailUrl(userId, "error", "Endpoint no disponible", "El endpoint de aprobacion no esta disponible en este momento."));
       }
 
-      redirect(
-        createResultUrl({
-          status: "approval_error_api",
-          decision,
-          user: userId,
-          message: error.message,
-        }),
-      );
+      redirect(userDetailUrl(userId, "error", "Error al procesar", error.message));
     }
 
-    redirect(
-      createResultUrl({
-        status: "approval_error_unknown",
-        decision,
-        user: userId,
-      }),
-    );
+    redirect(userDetailUrl(userId, "error", "Error inesperado", "No se pudo procesar la aprobacion. Intenta de nuevo."));
   }
 
-  revalidatePath("/dashboard/approvals");
   revalidatePath("/dashboard/users");
+  revalidatePath(`/dashboard/users/${userId}`);
   revalidatePath("/dashboard");
-  revalidatePath("/dashboard/settings");
 
-  redirect(
-    createResultUrl({
-      status: "approval_success",
-      decision,
-      user: userId,
-    }),
-  );
+  const decisionLabel = decision === "approve" ? "aprobado" : "rechazado";
+  redirect(userDetailUrl(userId, "success", `Usuario ${decisionLabel}`, `La decision se registro correctamente.`));
 }

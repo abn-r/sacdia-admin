@@ -14,9 +14,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { apiRequestFromClient } from "@/lib/api/client";
-import type { UpdateAdminUserPayload } from "@/lib/api/admin-users";
-
-type ApprovalStatus = "pending" | "approved" | "rejected";
+import {
+  updateAdminUserApprovalFromClient,
+  type UpdateAdminUserPayload,
+} from "@/lib/api/admin-users";
+import {
+  normalizeApprovalStatus,
+  type ApprovalStatus,
+} from "@/lib/admin-users/approval-status";
 
 interface UserAccessTogglesProps {
   userId: string;
@@ -31,17 +36,6 @@ async function patchUser(userId: string, payload: UpdateAdminUserPayload): Promi
     method: "PATCH",
     body: payload,
   });
-}
-
-function normalizeApprovalStatus(
-  raw: number | string | boolean | null | undefined,
-): ApprovalStatus | null {
-  if (raw === null || raw === undefined) return null;
-  if (raw === "approved" || raw === 1 || raw === true) return "approved";
-  if (raw === "rejected" || raw === -1) return "rejected";
-  if (raw === "pending" || raw === 0 || raw === false) return "pending";
-  if (typeof raw === "string") return raw as ApprovalStatus;
-  return null;
 }
 
 export function UserAccessToggles({
@@ -96,7 +90,18 @@ export function UserAccessToggles({
 
     startTransition(async () => {
       try {
-        await patchUser(userId, { approval_status: next });
+        // Use dedicated PATCH /admin/users/:userId/approval endpoint.
+        // Falls back to generic PATCH on 404/405/422 automatically.
+        const decision = next === "approved" ? "approve" : next === "rejected" ? "reject" : null;
+        if (decision) {
+          await updateAdminUserApprovalFromClient({ userId, decision });
+        } else {
+          // "pending" state — reset via generic PATCH since dedicated endpoint only handles approve/reject
+          await apiRequestFromClient<unknown>(`/admin/users/${encodeURIComponent(userId)}`, {
+            method: "PATCH",
+            body: { approval: 0, approval_status: "pending", approved: false },
+          });
+        }
         toast.success("Estado de aprobación actualizado.");
       } catch {
         setApprovalStatus(previous);
@@ -197,4 +202,4 @@ export function UserAccessToggles({
   );
 }
 
-export { normalizeApprovalStatus };
+export { normalizeApprovalStatus } from "@/lib/admin-users/approval-status";
