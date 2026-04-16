@@ -15,7 +15,7 @@ import {
   POST_REGISTRATION_UPDATE,
   REGISTRATION_COMPLETE,
   USERS_READ_DETAIL,
-  USERS_UPDATE,
+  USERS_UPDATE_PROFILE,
 } from "@/lib/auth/permissions";
 import { ALLOWED_ADMIN_ROLES, extractRoles } from "@/lib/auth/roles";
 import type { AuthUser } from "@/lib/auth/types";
@@ -50,10 +50,10 @@ const SENSITIVE_USER_READ_KEYS: Record<SensitiveUserFamily, string[]> = {
 };
 
 const SENSITIVE_USER_UPDATE_KEYS: Record<SensitiveUserFamily, string[]> = {
-  health: [HEALTH_UPDATE, USERS_UPDATE],
-  emergency_contacts: [EMERGENCY_CONTACTS_UPDATE, USERS_UPDATE],
-  legal_representative: [LEGAL_REPRESENTATIVE_UPDATE, USERS_UPDATE],
-  post_registration: [POST_REGISTRATION_UPDATE, USERS_UPDATE],
+  health: [HEALTH_UPDATE, USERS_UPDATE_PROFILE],
+  emergency_contacts: [EMERGENCY_CONTACTS_UPDATE, USERS_UPDATE_PROFILE],
+  legal_representative: [LEGAL_REPRESENTATIVE_UPDATE, USERS_UPDATE_PROFILE],
+  post_registration: [POST_REGISTRATION_UPDATE, USERS_UPDATE_PROFILE],
 };
 
 function isRecord(value: unknown): value is UnknownRecord {
