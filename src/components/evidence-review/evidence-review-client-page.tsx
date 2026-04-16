@@ -115,15 +115,15 @@ export function EvidenceReviewClientPage({
         value={activeTab}
         onValueChange={(v) => setActiveTab(v as TabKey)}
       >
-        <div className="overflow-x-auto">
-          <TabsList className="inline-flex h-auto gap-1 rounded-lg bg-muted p-1">
+        <div className="overflow-x-auto border-b border-border">
+          <TabsList variant="line" className="gap-4">
             {TABS.map(({ key, label }) => {
               const pendingCount = countForTab(key);
               return (
                 <TabsTrigger
                   key={key}
                   value={key}
-                  className="whitespace-nowrap rounded-md px-3 py-1.5 text-sm"
+                  className="whitespace-nowrap"
                 >
                   {label}
                   {pendingCount > 0 && (
