@@ -146,24 +146,26 @@ export function ValidationClientPage({
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as ValidationEntityType)}>
-        <TabsList>
-          <TabsTrigger value="class">
-            Clases
-            {filteredClasses.length > 0 && (
-              <span className="ml-1.5 inline-flex size-5 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
-                {filteredClasses.length}
-              </span>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="honor">
-            Especialidades
-            {filteredHonors.length > 0 && (
-              <span className="ml-1.5 inline-flex size-5 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
-                {filteredHonors.length}
-              </span>
-            )}
-          </TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto border-b border-border">
+          <TabsList variant="line" className="gap-4">
+            <TabsTrigger value="class" className="whitespace-nowrap">
+              Clases
+              {filteredClasses.length > 0 && (
+                <span className="ml-1.5 inline-flex size-5 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
+                  {filteredClasses.length}
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="honor" className="whitespace-nowrap">
+              Especialidades
+              {filteredHonors.length > 0 && (
+                <span className="ml-1.5 inline-flex size-5 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
+                  {filteredHonors.length}
+                </span>
+              )}
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="class" className="mt-4">
           <ValidationTable

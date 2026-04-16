@@ -93,24 +93,26 @@ export function AssignmentsClientPage({ initialRequests }: AssignmentsClientPage
 
       {/* Status tabs */}
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as StatusTab)}>
-        <TabsList>
-          <TabsTrigger value="ALL">
-            Todas
-            {tabBadge(requests.length)}
-          </TabsTrigger>
-          <TabsTrigger value="PENDING">
-            Pendientes
-            {tabBadge(pendingCount)}
-          </TabsTrigger>
-          <TabsTrigger value="APPROVED">
-            Aprobadas
-            {tabBadge(approvedCount)}
-          </TabsTrigger>
-          <TabsTrigger value="REJECTED">
-            Rechazadas
-            {tabBadge(rejectedCount)}
-          </TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto border-b border-border">
+          <TabsList variant="line" className="gap-4">
+            <TabsTrigger value="ALL" className="whitespace-nowrap">
+              Todas
+              {tabBadge(requests.length)}
+            </TabsTrigger>
+            <TabsTrigger value="PENDING" className="whitespace-nowrap">
+              Pendientes
+              {tabBadge(pendingCount)}
+            </TabsTrigger>
+            <TabsTrigger value="APPROVED" className="whitespace-nowrap">
+              Aprobadas
+              {tabBadge(approvedCount)}
+            </TabsTrigger>
+            <TabsTrigger value="REJECTED" className="whitespace-nowrap">
+              Rechazadas
+              {tabBadge(rejectedCount)}
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value={activeTab} className="mt-4">
           <AssignmentsTable requests={filteredRequests} onRefresh={refresh} />
