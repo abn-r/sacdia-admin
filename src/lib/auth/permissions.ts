@@ -18,6 +18,8 @@ export const USERS_READ = "users:read";
 export const USERS_READ_DETAIL = "users:read_detail";
 export const USERS_CREATE = "users:create";
 export const USERS_UPDATE = "users:update";
+export const USERS_UPDATE_PROFILE = "users:update_profile";
+export const USERS_UPDATE_ADMIN = "users:update_admin";
 export const USERS_DELETE = "users:delete";
 export const USERS_EXPORT = "users:export";
 export const HEALTH_READ = "health:read";
@@ -85,11 +87,15 @@ export const CATALOGS_DELETE = "catalogs:delete";
 export const CLASSES_READ = "classes:read";
 export const CLASSES_CREATE = "classes:create";
 export const CLASSES_UPDATE = "classes:update";
+export const CLASSES_SUBMIT_PROGRESS = "classes:submit_progress";
+export const CLASSES_VALIDATE = "classes:validate";
 export const CLASSES_DELETE = "classes:delete";
 export const HONORS_READ = "honors:read";
 export const HONORS_CREATE = "honors:create";
 export const HONORS_UPDATE = "honors:update";
 export const HONORS_DELETE = "honors:delete";
+export const USER_HONORS_SUBMIT = "user_honors:submit";
+export const USER_HONORS_VALIDATE = "user_honors:validate";
 export const HONOR_CATEGORIES_READ = "honor_categories:read";
 export const HONOR_CATEGORIES_CREATE = "honor_categories:create";
 export const HONOR_CATEGORIES_UPDATE = "honor_categories:update";
@@ -154,6 +160,8 @@ export const PERMISSION_GROUPS = {
       { key: USERS_READ_DETAIL, label: "Ver detalle" },
       { key: USERS_CREATE, label: "Crear" },
       { key: USERS_UPDATE, label: "Editar" },
+      { key: USERS_UPDATE_PROFILE, label: "Editar perfil propio" },
+      { key: USERS_UPDATE_ADMIN, label: "Gestión admin de usuarios" },
       { key: USERS_DELETE, label: "Eliminar" },
       { key: USERS_EXPORT, label: "Exportar" },
     ],
@@ -225,11 +233,15 @@ export const PERMISSION_GROUPS = {
       { key: CLASSES_READ, label: "Ver clases" },
       { key: CLASSES_CREATE, label: "Crear clase" },
       { key: CLASSES_UPDATE, label: "Editar clase" },
+      { key: CLASSES_SUBMIT_PROGRESS, label: "Enviar progreso de clase" },
+      { key: CLASSES_VALIDATE, label: "Validar clases" },
       { key: CLASSES_DELETE, label: "Eliminar clase" },
       { key: HONORS_READ, label: "Ver especialidades" },
       { key: HONORS_CREATE, label: "Crear especialidad" },
       { key: HONORS_UPDATE, label: "Editar especialidad" },
       { key: HONORS_DELETE, label: "Eliminar especialidad" },
+      { key: USER_HONORS_SUBMIT, label: "Enviar progreso de honor" },
+      { key: USER_HONORS_VALIDATE, label: "Validar honores" },
       { key: HONOR_CATEGORIES_READ, label: "Ver categorías" },
       { key: HONOR_CATEGORIES_CREATE, label: "Crear categoría" },
       { key: HONOR_CATEGORIES_UPDATE, label: "Editar categoría" },

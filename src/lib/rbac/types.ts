@@ -62,3 +62,15 @@ export type RbacActionState = {
   error?: string;
   success?: string;
 };
+
+export type CreateRoleInput = {
+  role_name: string;
+  description: string;
+  role_category: "GLOBAL" | "CLUB";
+  permission_ids?: string[];
+};
+
+export type UpdateRoleInput = {
+  description?: string;
+  permission_ids?: string[];
+};
