@@ -3,6 +3,18 @@
 > Documento de referencia para todas las interfaces del panel administrativo.
 > Cada nueva pantalla, componente o modal debe seguir estas definiciones.
 
+> **Auditado: 2026-04-16**
+>
+> **Changelog de esta auditoria**:
+> - **Drift encontrado (6 items)**:
+>   1. `globals.css` confirma que `--font-display` esta mapeado a `--font-geist-sans` (NOT Instrument Serif) — el token CSS apunta a Geist. La referencia en seccion 3.1 a "Instrument Serif" como `--font-display` requiere verificacion en `layout.tsx`; el archivo CSS actual lo sobreescribe con Geist Sans. Anotado como posible regresion en Fase 4.
+>   2. `badge.tsx` tiene una variante adicional no documentada: `link` (`text-primary underline-offset-4 [a&]:hover:underline`). Documentada en seccion 5.2.
+>   3. Nuevos componentes de `ui/` no documentados: `calendar.tsx`, `command.tsx`, `popover.tsx`, `progress.tsx`, `radio-group.tsx`, `scroll-area.tsx`, `sonner.tsx`. Documentados en seccion 5.18 (Nuevos componentes UI).
+>   4. Nuevo componente shared `endpoint-error-banner.tsx` no documentado. Documentado en seccion 7.11.
+>   5. Nuevo componente shared `module-list-page.tsx` (Server Component para listados de modulos genericos). Documentado en seccion 7.12.
+>   6. CRUD pattern actualizado: la regla de la seccion 6.1 dice "Crear/Editar = Dialog modal" pero el doc Ember ya la cambio a "flujo por paginas". Confirmado como correcto — Dialog solo para excepciones puntuales. Sin drift, solo clarificacion.
+> - **Sin drift**: paleta OKLCH (todas las secciones 2.x), radio tokens (4.1), spacing (4.2-4.4), Button variants y sizes (5.1), Badge variants (5.2 salvo `link`), Tabs `line` variant (seccion nueva), iconos (8.x), animaciones (9.x), dark mode (13.x).
+
 > **Actualizado 2026-04-15 — Ember Redesign (fases 1-4)**. Este documento refleja el estado actual del sistema despues del rediseno "Ember". Cambios principales desde la version original:
 >
 > - **Paleta**: migrada de azul-violeta a naranja cobre. Primary `oklch(0.66 0.21 42)` (~#F05A28). Sidebar claro con pill naranja en item activo (estilo Finexy). Ver seccion 2.
@@ -294,6 +306,7 @@ Badge ahora tiene 11 variantes — las 6 clasicas (pleno + outline) mas las 4 `s
 | `warning` | Estado pendiente pleno | `bg-warning text-warning-foreground` |
 | `outline` | Etiquetas sutiles | `border-border text-foreground` |
 | `ghost` | Hover only | `[a&]:hover:bg-accent` |
+| `link` | Badge como enlace inline | `text-primary underline-offset-4 [a&]:hover:underline` |
 
 **Variantes soft (tinted — preferidas para status)**:
 
@@ -560,6 +573,67 @@ La sombra default paso de `shadow-sm` a `shadow-xs` en Fase 2. El border cambio 
 - Soporta `side`: `top | right | bottom | left`
 - Default: `right`, ancho `w-3/4 sm:max-w-sm`
 
+### 5.18 Tabs
+
+**Import:** `@/components/ui/tabs`
+
+Tabs con dos variantes:
+
+| Variante de `TabsList` | Estilo | Uso |
+|------------------------|--------|-----|
+| `default` | `bg-muted rounded-lg p-[3px]` — tabs con fondo muted, active con `bg-background` | Tabs dentro de cards, paneles internos |
+| `line` | Fondo transparente, sin pill — active muestra underline naranja (`after:bg-primary`) con `text-primary` | Tabs de navegacion de seccion, separacion por categorias |
+
+```tsx
+// Variante default (pill style)
+<Tabs defaultValue="tab1">
+  <TabsList>
+    <TabsTrigger value="tab1">Pestaña 1</TabsTrigger>
+    <TabsTrigger value="tab2">Pestaña 2</TabsTrigger>
+  </TabsList>
+  <TabsContent value="tab1">...</TabsContent>
+</Tabs>
+
+// Variante line (underline style — commit fab11df)
+<Tabs defaultValue="tab1">
+  <TabsList variant="line">
+    <TabsTrigger value="tab1">Pestaña 1</TabsTrigger>
+    <TabsTrigger value="tab2">Pestaña 2</TabsTrigger>
+  </TabsList>
+  <TabsContent value="tab1">...</TabsContent>
+</Tabs>
+```
+
+**Orientacion**: soporta `horizontal` (default) y `vertical` via prop `orientation` en `<Tabs>`.
+
+### 5.19 Progress
+
+**Import:** `@/components/ui/progress`
+
+Barra de progreso lineal de Radix UI.
+
+```tsx
+<Progress value={75} />           // 75% completado
+<Progress value={null} />         // indeterminado (animacion de barrido)
+```
+
+- Track: `bg-primary/20 h-2 rounded-full`
+- Fill: `bg-primary`
+- Para progreso con label o gradiente custom, usar el patron de seccion 12.2 (Progress Bars DIY).
+
+### 5.20 Otros componentes UI instalados
+
+Los siguientes componentes estan instalados en `src/components/ui/` pero se usan en contextos puntuales. Seguir las mismas reglas de tokens y dark mode si se usan:
+
+| Componente | Archivo | Uso tipico |
+|------------|---------|------------|
+| `Calendar` | `calendar.tsx` | Seleccion de fecha en formularios con fecha expandida |
+| `Command` | `command.tsx` | Combobox con busqueda (base de selects con search) |
+| `Popover` | `popover.tsx` | Contenedor flotante sin modal (anchored overlay) |
+| `RadioGroup` | `radio-group.tsx` | Seleccion de una opcion entre varias |
+| `ScrollArea` | `scroll-area.tsx` | Scroll personalizado en contenedores acotados |
+| `Sonner` | `sonner.tsx` | Wrapper del provider de toasts (ver seccion 7.10) |
+
 ---
 
 ## 6. Patrones de CRUD
@@ -590,6 +664,30 @@ No usar `Dialog` como patron principal de CRUD.
 - Crear (`/new`): submit -> POST -> `toast.success` -> redirect al listado.
 - Editar (`/[id]`): submit -> PUT/PATCH -> `toast.success` -> redirect al listado.
 - Mantener `PageHeader`, boton "Volver" y estado loading del submit.
+
+### 6.1.1 Dialog — Excepciones Permitidas
+
+La regla "Crear/Editar = paginas dedicadas" aplica a entidades de primera clase (clubs, usuarios, actividades, etc.). Existen cuatro patrones de excepcion donde un `Dialog` es correcto:
+
+| Patron | Archivo de referencia | Por que es Dialog y no pagina |
+|--------|----------------------|-------------------------------|
+| **Catalogo inline** | `src/components/catalogs/catalog-form-dialog.tsx` | Catalogos simples (1-3 campos) que viven como sub-entidad de una pagina padre. Navegar a una pagina dedicada rompe el flujo de la pagina padre. |
+| **Accion puntual con parametros** | `src/components/member-of-month/evaluate-dialog.tsx` | El dialogo lanza un calculo/operacion (no crea un registro editable) y captura un par de parametros (mes + año). No hay pantalla de edicion posterior. |
+| **Historial inline / log viewer** | `src/components/investiture/pipeline-history-dialog.tsx` | Muestra informacion de solo lectura (log de eventos) como overlay sobre la pantalla actual. Abrir una pagina nueva perderia el contexto del listado. |
+| **Panel embebido con formulario secundario** | `src/components/clubs/club-sections-panel.tsx` | El formulario de "nueva seccion" esta embebido dentro de un panel de detalle de club. Un dialog permite crear la seccion sin perder el contexto del club. |
+
+**Regla de decision para futuros casos:**
+
+Usar `Dialog` cuando se cumplan TODOS de los siguientes criterios:
+1. La operacion es secundaria respecto a la pantalla actual (no es el flujo principal).
+2. El formulario tiene 4 campos o menos, o es una accion parametrizada (no un recurso editable completo).
+3. Volver a la pantalla padre despues de la accion es el comportamiento esperado (no hay navegacion downstream).
+4. El contenido mostrado es de solo lectura (log, historial) o es una micro-entidad sin CRUD propio.
+
+Usar pagina dedicada (`/new`, `/[id]`) cuando:
+- El recurso tiene su propio ciclo de vida (puede editarse de nuevo mas adelante).
+- El formulario tiene 5+ campos o logica compleja (validaciones cruzadas, selects encadenados, uploads).
+- Se espera navegacion posterior al guardar (ej. ver detalle del recurso creado).
 
 ### 6.2 Eliminar / Desactivar -> Confirmacion (AlertDialog)
 
@@ -868,12 +966,45 @@ Wrapper reutilizable de AlertDialog para acciones destructivas.
 />
 ```
 
-### 7.8 CatalogFormPage
+### 7.8 CatalogEntityPage (orquestador canonico)
 
-**Import:** `@/components/catalogs/catalog-form-page`
+**Import:** `@/components/catalogs/catalog-entity-page`
 
-Componente de pagina para formularios CRUD de catalogos.  
-Exponer `CatalogNewPage` y `CatalogEditPage` como patron oficial para `/new` y `/[id]`.
+**Este es el punto de entrada oficial para las ~13 paginas de catalogo.** Cada pagina en `app/(dashboard)/dashboard/catalogs/*/page.tsx` usa exclusivamente este componente. Es un Server Component asincrono.
+
+**Props:**
+
+| Prop | Tipo | Descripcion |
+|------|------|-------------|
+| `entityKey` | `EntityKey` | Clave del catalogo — resuelve config, endpoint, campos, y routeBase desde `entityConfigs` en `lib/catalogs/entities.ts` |
+
+**Responsabilidades internas de CatalogEntityPage:**
+1. `requireAdminUser()` — protege la ruta sin repetir logica en cada page.
+2. Fetcha items con `listEntityItems(entityKey)` — envuelve el error en un `EndpointErrorBanner` si falla.
+3. Resuelve `selectOptions` para campos tipo `select` con entidades relacionadas.
+4. Pasa todo a `CatalogCrudPage` (client component que maneja el estado de UI del listado + dialogo inline).
+
+**Uso tipico (consumer):**
+
+```tsx
+// src/app/(dashboard)/dashboard/catalogs/allergies/page.tsx
+import { CatalogEntityPage } from "@/components/catalogs/catalog-entity-page";
+
+export default function AllergiesPage() {
+  return <CatalogEntityPage entityKey="allergies" />;
+}
+```
+
+Para agregar un nuevo catalogo: (1) registrar la config en `lib/catalogs/entities.ts`, (2) crear la carpeta en `app/(dashboard)/dashboard/catalogs/{entity}/`, (3) agregar `page.tsx` con el snippet de arriba. No hay mas codigo.
+
+**Jerarquia de componentes internos** (para referencia — no usar directamente en pages):
+
+| Componente | Archivo | Rol |
+|------------|---------|-----|
+| `CatalogEntityPage` | `catalog-entity-page.tsx` | **Orquestador** — Server Component, fetching, auth |
+| `CatalogCrudPage` | `catalog-crud-page.tsx` | Client Component — tabla + estado de UI + dialogo de crear/editar |
+| `CatalogFormDialog` | `catalog-form-dialog.tsx` | Dialog de crear/editar (excepcion permitida per §6.1.1) |
+| `CatalogDeleteDialog` | `catalog-delete-dialog.tsx` | AlertDialog de desactivacion |
 
 ### 7.9 CatalogDeleteDialog
 
@@ -898,6 +1029,55 @@ toast.success("Registro creado correctamente");
 toast.error("Error al guardar el registro");
 toast.warning("El registro ya existe");
 ```
+
+### 7.11 EndpointErrorBanner
+
+**Import:** `@/components/shared/endpoint-error-banner`
+
+Banner de error para endpoints no disponibles, prohibidos o limitados por rate. Usado dentro de Server Components cuando el fetch falla.
+
+```tsx
+<EndpointErrorBanner
+  state="forbidden"     // "forbidden" | "missing" | "rate-limited"
+  detail="No tienes permisos para ver este recurso."
+  showLoginLink={true}  // Opcional: muestra boton "Ir a login"
+/>
+```
+
+| Estado | Icono | Badge variant |
+|--------|-------|---------------|
+| `forbidden` | `ShieldOff` | `destructive` |
+| `missing` | `ServerOff` | `secondary` |
+| `rate-limited` | `Clock` | `outline` |
+
+Estilo del contenedor: `rounded-lg border border-destructive/30 bg-destructive/5 p-4`.
+
+### 7.12 ModuleListPage
+
+**Import:** `@/components/shared/module-list-page`
+
+Server Component asincrono para paginas de listado de modulos con fetch de API integrado. Alternativa lightweight a `DataTable` cuando no se necesita busqueda client-side.
+
+```tsx
+// En un page.tsx (Server Component)
+<ModuleListPage
+  title="Recursos"
+  description="Lista de recursos del sistema."
+  endpoint="/resources"
+  icon={BookOpen}
+  columns={[
+    { key: "name", label: "Nombre" },
+    { key: "type", label: "Tipo", format: (v) => <Badge>{String(v)}</Badge> },
+    { key: "createdAt", label: "Fecha" },
+  ]}
+  idKey="id"
+/>
+```
+
+- Llama internamente a `apiRequest(endpoint)` y extrae el array del payload (soporta `[]`, `{data:[]}`, `{data:{data:[]}}`).
+- Si falla el fetch, renderiza `<EndpointErrorBanner>` en lugar de lanzar.
+- Columna de formato con `format?: (value, item) => ReactNode` para celdas custom.
+- Llama a `requireAdminUser()` — solo para rutas del dashboard admin.
 
 ---
 
@@ -1282,12 +1462,69 @@ className="bg-blue-50 text-blue-600"
 className="bg-amber-100 text-amber-800"
 ```
 
-### 13.4 Login (Dark-only)
+### 13.4 Login Page
 
-La pagina de login siempre usa fondo oscuro (`bg-[#101022]`) con:
-- Card: `bg-[#16162c] border-white/10`
-- Texto: `text-white`, `text-slate-400`, `text-white/40`
-- Inputs: `border-slate-700 bg-slate-900/50 text-white`
+**File:** `src/app/(auth)/login/page.tsx`
+
+La pagina de login es DUAL-MODE (se adapta a light y dark) usando exclusivamente tokens semanticos. NO usa colores hardcoded ni dark-only. La descripcion anterior ("`bg-[#101022]`") era incorrecta — esos colores pertenecian al diseno anterior pre-Ember.
+
+#### Layout structure
+
+```
+div.relative.min-h-svh.overflow-hidden.bg-background   ← fondo semantico
+  ├── div.absolute.inset-0  (grid pattern — aria-hidden)
+  ├── div.absolute.-top-32.-left-32  (ambient glow top-left — aria-hidden)
+  ├── div.absolute.-bottom-32.-right-32  (ambient glow bottom-right — aria-hidden)
+  └── div.relative.z-10.w-full.max-w-sm  (card container — centered)
+       ├── Brand header (logo + wordmark — OUTSIDE the card)
+       ├── div.rounded-2xl.border.bg-card  (card body)
+       │    ├── h1 + subtitle
+       │    └── form (email + password + submit)
+       └── Bible verse (OUTSIDE the card, below)
+```
+
+#### Tokens utilizados
+
+| Elemento | Token / Clase |
+|----------|--------------|
+| Fondo de pagina | `bg-background` |
+| Grid pattern | `opacity-[0.03] dark:opacity-[0.06]` sobre `currentColor` |
+| Glow top-left | `size-[480px] rounded-full bg-primary/10 dark:bg-primary/15 blur-3xl` |
+| Glow bottom-right | `size-[360px] rounded-full bg-primary/8 dark:bg-primary/10 blur-3xl` |
+| Card border | `border-border/60` |
+| Card fondo | `bg-card` |
+| Card shadow | `shadow-sm` |
+| Card radius | `rounded-2xl` |
+| Logo container | `rounded-xl border border-border/60 bg-card shadow-sm` |
+| Titulo h1 | `text-xl font-semibold tracking-tight text-foreground` |
+| Subtitulo | `text-sm text-muted-foreground` |
+| Labels | `text-sm font-medium` |
+| Inputs | `h-10` (usa el InputDecorationTheme global) |
+| Password toggle | `text-muted-foreground/50 hover:text-muted-foreground` |
+| Error banner | `border-destructive/20 bg-destructive/5 text-destructive dark:border-destructive/30 dark:bg-destructive/10` |
+| Versiculo bible | `text-[11px] italic text-muted-foreground/40 dark:text-muted-foreground/30` |
+
+#### Grid pattern inline (no hay clase Tailwind equivalente)
+
+```tsx
+style={{
+  backgroundImage:
+    "linear-gradient(to right, currentColor 1px, transparent 1px), linear-gradient(to bottom, currentColor 1px, transparent 1px)",
+  backgroundSize: "64px 64px",
+}}
+```
+
+#### Animacion de entrada
+
+El contenedor de la card usa: `animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out`
+
+#### Comportamiento responsive
+
+Padding de pagina: `p-4` en todos los breakpoints. La card tiene `max-w-sm` (384px) y se centra con `flex items-center justify-center`. No hay layout diferente en mobile vs desktop.
+
+#### Regla para replicar
+
+Toda nueva pagina de auth (futura pantalla de registro, recuperacion de password, etc.) debe seguir este mismo patron: `bg-background` + glows `bg-primary/10` + card `bg-card border-border/60`. Nunca usar fondos oscuros hardcoded.
 
 ---
 
@@ -1467,29 +1704,41 @@ src/
 │   │   ├── badge.tsx
 │   │   ├── breadcrumb.tsx
 │   │   ├── button.tsx
+│   │   ├── calendar.tsx           # Nuevo (auditoria 2026-04-16)
 │   │   ├── card.tsx
 │   │   ├── checkbox.tsx
 │   │   ├── collapsible.tsx
+│   │   ├── command.tsx            # Nuevo (auditoria 2026-04-16)
 │   │   ├── dialog.tsx
 │   │   ├── dropdown-menu.tsx
 │   │   ├── input.tsx
 │   │   ├── label.tsx
+│   │   ├── popover.tsx            # Nuevo (auditoria 2026-04-16)
+│   │   ├── progress.tsx           # Nuevo (auditoria 2026-04-16)
+│   │   ├── radio-group.tsx        # Nuevo (auditoria 2026-04-16)
+│   │   ├── scroll-area.tsx        # Nuevo (auditoria 2026-04-16)
 │   │   ├── select.tsx
 │   │   ├── separator.tsx
 │   │   ├── sheet.tsx
 │   │   ├── skeleton.tsx
+│   │   ├── sonner.tsx             # Nuevo (auditoria 2026-04-16)
+│   │   ├── status-badge.tsx
 │   │   ├── switch.tsx
 │   │   ├── table.tsx
+│   │   ├── tabs.tsx               # Nuevo (auditoria 2026-04-16)
 │   │   ├── textarea.tsx
 │   │   └── tooltip.tsx
 │   ├── shared/              # Componentes reutilizables
+│   │   ├── app-alert-listener.tsx
 │   │   ├── app-toaster.tsx
 │   │   ├── confirm-dialog.tsx
 │   │   ├── data-table.tsx
 │   │   ├── data-table-pagination.tsx
 │   │   ├── data-table-toolbar.tsx
 │   │   ├── empty-state.tsx
+│   │   ├── endpoint-error-banner.tsx  # Nuevo (auditoria 2026-04-16)
 │   │   ├── loading-skeleton.tsx
+│   │   ├── module-list-page.tsx       # Nuevo (auditoria 2026-04-16)
 │   │   ├── page-header.tsx
 │   │   └── status-badge.tsx
 │   ├── layout/              # Componentes de layout
