@@ -166,6 +166,16 @@ export async function listCamporeeMembers(
   });
 }
 
+export async function listUnionCamporeeMembers(
+  unionCamporeeId: number | string,
+  params?: ListCamporeeMembersParams,
+): Promise<PaginatedCamporeeMembers> {
+  return apiRequest<PaginatedCamporeeMembers>(
+    `/camporees/union/${unionCamporeeId}/members`,
+    { params },
+  );
+}
+
 export async function registerCamporeeMember(
   camporeeId: number,
   payload: CamporeeRegisterMemberPayload,

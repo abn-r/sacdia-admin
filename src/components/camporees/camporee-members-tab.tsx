@@ -5,10 +5,11 @@ import { UserPlus, RefreshCw, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CamporeeMembersPanel } from "@/components/camporees/camporee-members-panel";
 import { RegisterMemberDialog } from "@/components/camporees/register-member-dialog";
-import { listCamporeeMembers } from "@/lib/api/camporees";
+import { listCamporeeMembers, listUnionCamporeeMembers } from "@/lib/api/camporees";
 import type { CamporeeMember, PaginationMeta } from "@/lib/api/camporees";
 
-const DEFAULT_LIMIT = 50;
+const LOCAL_DEFAULT_LIMIT = 50;
+const UNION_DEFAULT_LIMIT = 100;
 
 interface CamporeeMembersTabProps {
   camporeeId: number;
@@ -37,9 +38,11 @@ export function CamporeeMembersTab({
       setIsLoading(true);
       setLoadError(null);
       try {
-        const result = await listCamporeeMembers(camporeeId, {
+        const fetcher = isUnionCamporee ? listUnionCamporeeMembers : listCamporeeMembers;
+        const limit = isUnionCamporee ? UNION_DEFAULT_LIMIT : LOCAL_DEFAULT_LIMIT;
+        const result = await fetcher(camporeeId, {
           page: targetPage,
-          limit: DEFAULT_LIMIT,
+          limit,
         });
         setMembers(result.data);
         setMeta(result.meta);
@@ -55,7 +58,7 @@ export function CamporeeMembersTab({
         setIsLoading(false);
       }
     },
-    [camporeeId, onAfterChange],
+    [camporeeId, isUnionCamporee, onAfterChange],
   );
 
   const refreshMembers = useCallback(() => fetchPage(page, true), [fetchPage, page]);
