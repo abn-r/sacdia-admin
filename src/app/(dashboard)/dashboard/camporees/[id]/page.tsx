@@ -23,6 +23,7 @@ import type {
   CamporeeClub,
   CamporeePayment,
   PendingApprovals,
+  PaginationMeta,
 } from "@/lib/api/camporees";
 
 type Params = Promise<{ id: string }>;
@@ -132,6 +133,7 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
 
   let camporee: Camporee;
   let members: CamporeeMember[] = [];
+  let membersMeta: PaginationMeta | undefined;
   let membersError: string | null = null;
   let clubs: CamporeeClub[] = [];
   let clubsError: string | null = null;
@@ -154,8 +156,9 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
 
   // Fetch members — best effort
   try {
-    const membersPayload = await listCamporeeMembers(camporeeId);
-    members = extractList<CamporeeMember>(membersPayload);
+    const membersPayload = await listCamporeeMembers(camporeeId, { page: 1, limit: 50 });
+    members = membersPayload.data;
+    membersMeta = membersPayload.meta;
   } catch (err) {
     membersError =
       err instanceof ApiError
@@ -214,6 +217,7 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
       <CamporeeDetailTabs
         camporeeId={camporeeId}
         initialMembers={members}
+        initialMembersMeta={membersMeta}
         initialClubs={clubs}
         initialPayments={payments}
         initialPending={pending}

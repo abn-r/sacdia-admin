@@ -14,6 +14,7 @@ import type {
   CamporeeClub,
   CamporeePayment,
   PendingApprovals,
+  PaginationMeta,
 } from "@/lib/api/camporees";
 
 // ─── Props ─────────────────────────────────────────────────────────────────────
@@ -21,6 +22,7 @@ import type {
 interface CamporeeDetailTabsProps {
   camporeeId: number;
   initialMembers: CamporeeMember[];
+  initialMembersMeta?: PaginationMeta;
   initialClubs: CamporeeClub[];
   initialPayments: CamporeePayment[];
   initialPending: PendingApprovals;
@@ -37,6 +39,7 @@ interface CamporeeDetailTabsProps {
 export function CamporeeDetailTabs({
   camporeeId,
   initialMembers,
+  initialMembersMeta,
   initialClubs,
   initialPayments,
   initialPending,
@@ -66,9 +69,9 @@ export function CamporeeDetailTabs({
 
         <TabsTrigger value="members">
           Miembros
-          {initialMembers.length > 0 && (
+          {(initialMembersMeta?.total ?? initialMembers.length) > 0 && (
             <Badge variant="secondary" className="ml-2">
-              {initialMembers.length}
+              {initialMembersMeta?.total ?? initialMembers.length}
             </Badge>
           )}
           {pending.members.length > 0 && (
@@ -125,6 +128,7 @@ export function CamporeeDetailTabs({
               <CamporeeMembersTab
                 camporeeId={camporeeId}
                 initialMembers={initialMembers}
+                initialMeta={initialMembersMeta}
                 isUnionCamporee={isUnionCamporee}
                 onAfterChange={refreshPending}
               />

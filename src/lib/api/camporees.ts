@@ -6,6 +6,22 @@ export type CamporeeQuery = {
   type?: "local" | "union";
 };
 
+// ─── Shared pagination types ──────────────────────────────────────────────────
+
+export type PaginationMeta = {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+};
+
+export type PaginatedResult<T> = {
+  data: T[];
+  meta: PaginationMeta;
+};
+
 // ─── Club enrollment ──────────────────────────────────────────────────────────
 
 export type CamporeeClub = {
@@ -105,6 +121,14 @@ export type CamporeeRegisterMemberPayload = {
   insurance_id?: number;
 };
 
+export type PaginatedCamporeeMembers = PaginatedResult<CamporeeMember>;
+
+export type ListCamporeeMembersParams = {
+  page?: number;
+  limit?: number;
+  status?: string;
+};
+
 export async function listCamporees(query: CamporeeQuery = {}) {
   return apiRequest("/camporees", { params: query });
 }
@@ -133,8 +157,13 @@ export async function deleteCamporee(camporeeId: number) {
   });
 }
 
-export async function listCamporeeMembers(camporeeId: number) {
-  return apiRequest<CamporeeMember[]>(`/camporees/${camporeeId}/members`);
+export async function listCamporeeMembers(
+  camporeeId: number | string,
+  params?: ListCamporeeMembersParams,
+): Promise<PaginatedCamporeeMembers> {
+  return apiRequest<PaginatedCamporeeMembers>(`/camporees/${camporeeId}/members`, {
+    params,
+  });
 }
 
 export async function registerCamporeeMember(
