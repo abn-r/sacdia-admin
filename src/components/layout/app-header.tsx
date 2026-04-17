@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { LogOut, User } from "lucide-react";
 import Link from "next/link";
+import { useQueryClient } from "@tanstack/react-query";
 
 function getInitials(name?: string | null, email?: string | null): string {
   if (name) {
@@ -26,8 +27,11 @@ function getInitials(name?: string | null, email?: string | null): string {
   return (email?.[0] ?? "A").toUpperCase();
 }
 
+const LOGOUT_URL = "/api/auth/logout?next=/login";
+
 export function AppHeader() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const displayName = user?.name ?? user?.email ?? "Admin";
   const photoUrl =
     user?.picture_url ??
@@ -77,10 +81,16 @@ export function AppHeader() {
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <a href="/api/auth/logout?next=/login">
+              <button
+                onClick={() => {
+                  queryClient.clear();
+                  window.location.href = LOGOUT_URL;
+                }}
+                aria-label="Cerrar sesión"
+              >
                 <LogOut className="mr-2 size-4" />
                 Cerrar sesión
-              </a>
+              </button>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

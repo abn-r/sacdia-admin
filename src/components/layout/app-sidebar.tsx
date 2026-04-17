@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ChevronRight, LogOut, User } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Sidebar,
   SidebarContent,
@@ -122,8 +123,11 @@ function SidebarNavGroup({ group }: { group: NavGroup }) {
   );
 }
 
+const LOGOUT_URL = "/api/auth/logout?next=/login";
+
 function SidebarUserFooter() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const displayName = user?.name ?? user?.email ?? "Admin";
   const email = user?.email ?? "";
   const photoUrl =
@@ -171,10 +175,16 @@ function SidebarUserFooter() {
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <a href="/api/auth/logout?next=/login">
+                <button
+                  onClick={() => {
+                    queryClient.clear();
+                    window.location.href = LOGOUT_URL;
+                  }}
+                  aria-label="Cerrar sesión"
+                >
                   <LogOut className="mr-2 size-4" />
                   Cerrar sesión
-                </a>
+                </button>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
