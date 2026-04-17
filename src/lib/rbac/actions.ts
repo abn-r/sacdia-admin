@@ -12,6 +12,7 @@ import {
   updateRole,
   deactivateRole,
 } from "@/lib/rbac/service";
+import { requireAdminUser } from "@/lib/auth/session";
 
 const PERMISSIONS_PATH = "/dashboard/rbac/permissions";
 const ROLES_PATH = "/dashboard/rbac/roles";
@@ -20,6 +21,8 @@ export async function createPermissionAction(
   _: RbacActionState,
   formData: FormData,
 ): Promise<RbacActionState> {
+  await requireAdminUser();
+
   const permissionName = String(formData.get("permission_name") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
 
@@ -51,6 +54,8 @@ export async function updatePermissionAction(
   _: RbacActionState,
   formData: FormData,
 ): Promise<RbacActionState> {
+  await requireAdminUser();
+
   const permissionName = String(formData.get("permission_name") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   const active = formData.get("active") === "on" || formData.get("active") === "true";
@@ -80,6 +85,8 @@ export async function updatePermissionAction(
 }
 
 export async function deletePermissionAction(formData: FormData) {
+  await requireAdminUser();
+
   const id = String(formData.get("id"));
 
   if (!id) {
@@ -97,6 +104,8 @@ export async function createRoleAction(
   _: RbacActionState,
   formData: FormData,
 ): Promise<RbacActionState> {
+  await requireAdminUser();
+
   const roleName = String(formData.get("role_name") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   const roleCategory = String(formData.get("role_category") ?? "").trim();
@@ -151,6 +160,8 @@ export async function updateRoleAction(
   _: RbacActionState,
   formData: FormData,
 ): Promise<RbacActionState> {
+  await requireAdminUser();
+
   const description = String(formData.get("description") ?? "").trim();
   const permissionIdsRaw = formData.get("permission_ids");
   const permissionIds: string[] = permissionIdsRaw !== null
@@ -183,6 +194,8 @@ export async function updateRoleAction(
 export async function deactivateRoleAction(
   roleId: string,
 ): Promise<{ error?: string }> {
+  await requireAdminUser();
+
   try {
     await deactivateRole(roleId);
   } catch (error) {
@@ -200,6 +213,8 @@ export async function syncRolePermissionsAction(
   _: RbacActionState,
   formData: FormData,
 ): Promise<RbacActionState> {
+  await requireAdminUser();
+
   const permissionIdsRaw = formData.get("permission_ids");
   const permissionIds: string[] = permissionIdsRaw
     ? String(permissionIdsRaw).split(",").filter(Boolean)

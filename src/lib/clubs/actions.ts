@@ -16,6 +16,7 @@ import {
   type ClubSection,
 } from "@/lib/api/clubs";
 import { unwrapList, unwrapObject } from "@/lib/api/response";
+import { requireAdminUser } from "@/lib/auth/session";
 
 export type ClubSectionSyncResult = {
   action: "created" | "updated" | "deactivated" | "unchanged" | "failed";
@@ -201,6 +202,8 @@ export async function createClubAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
+  await requireAdminUser();
+
   try {
     const payload = buildCreatePayload(formData);
     await createClub(payload);
@@ -220,6 +223,8 @@ export async function createClubWithSectionsAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
+  await requireAdminUser();
+
   let clubId: number | null = null;
 
   try {
@@ -296,6 +301,8 @@ export async function updateClubAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
+  await requireAdminUser();
+
   try {
     const payload = buildUpdatePayload(formData);
     await updateClub(clubId, payload);
@@ -317,6 +324,8 @@ export async function syncClubSectionsAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
+  await requireAdminUser();
+
   const sectionIdRaw = readString(formData, "section_id");
   const name = readString(formData, "name");
   const clubTypeIdRaw = readString(formData, "club_type_id");
@@ -359,6 +368,8 @@ export async function syncClubSectionsAction(
 }
 
 export async function deleteClubAction(formData: FormData) {
+  await requireAdminUser();
+
   const clubId = Number(formData.get("id"));
   if (!Number.isFinite(clubId) || clubId <= 0) {
     return;
@@ -374,6 +385,8 @@ export async function createClubSectionAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
+  await requireAdminUser();
+
   const clubTypeIdRaw = readString(formData, "club_type_id");
   const clubTypeId = Number(clubTypeIdRaw);
   if (!Number.isFinite(clubTypeId) || clubTypeId <= 0) {
@@ -424,6 +437,8 @@ export async function updateClubSectionAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
+  await requireAdminUser();
+
   const payload: { name?: string; active?: boolean; club_type_id?: number } = {};
   const name = readString(formData, "name");
   if (name) {
@@ -468,6 +483,8 @@ export async function addClubSectionMemberAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
+  await requireAdminUser();
+
   const userId = readString(formData, "user_id");
   if (!userId) {
     return { error: "El ID del usuario es obligatorio" };
@@ -516,6 +533,8 @@ export async function updateClubSectionMemberRoleAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
+  await requireAdminUser();
+
   if (!userId) {
     return { error: "No se pudo identificar al miembro" };
   }
@@ -564,6 +583,8 @@ export async function removeClubSectionMemberAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
+  await requireAdminUser();
+
   const assignmentId = readString(formData, "assignment_id");
   if (!assignmentId) {
     return { error: "No se pudo identificar la asignación a remover" };

@@ -9,6 +9,7 @@ import {
   removeCamporeeMember,
   updateCamporee,
 } from "@/lib/api/camporees";
+import { requireAdminUser } from "@/lib/auth/session";
 
 export type CamporeeActionState = {
   error?: string;
@@ -150,6 +151,8 @@ export async function createCamporeeAction(
   _: CamporeeActionState,
   formData: FormData,
 ): Promise<CamporeeActionState> {
+  await requireAdminUser();
+
   try {
     const payload = buildCreatePayload(formData);
     await createCamporee(payload);
@@ -168,6 +171,8 @@ export async function updateCamporeeAction(
   _: CamporeeActionState,
   formData: FormData,
 ): Promise<CamporeeActionState> {
+  await requireAdminUser();
+
   try {
     const payload = buildUpdatePayload(formData);
     await updateCamporee(camporeeId, payload);
@@ -182,6 +187,8 @@ export async function updateCamporeeAction(
 }
 
 export async function deleteCamporeeAction(formData: FormData) {
+  await requireAdminUser();
+
   const camporeeId = Number(formData.get("id"));
   if (!Number.isFinite(camporeeId) || camporeeId <= 0) {
     return;
@@ -197,6 +204,8 @@ export async function registerCamporeeMemberAction(
   _: CamporeeActionState,
   formData: FormData,
 ): Promise<CamporeeActionState> {
+  await requireAdminUser();
+
   const userId = readString(formData, "user_id");
   if (!userId) {
     return { error: "El ID del usuario es obligatorio." };
@@ -238,6 +247,8 @@ export async function removeCamporeeMemberAction(
   _: CamporeeActionState,
   formData: FormData,
 ): Promise<CamporeeActionState> {
+  await requireAdminUser();
+
   const userId = readString(formData, "user_id");
   if (!userId) {
     return { error: "No se pudo identificar al miembro a remover." };

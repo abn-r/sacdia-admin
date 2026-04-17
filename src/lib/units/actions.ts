@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { getActionErrorMessage } from "@/lib/api/action-error";
 import { apiRequest } from "@/lib/api/client";
 import type { CreateUnitPayload, UpdateUnitPayload } from "@/lib/api/units";
+import { requireAdminUser } from "@/lib/auth/session";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -75,6 +76,8 @@ export async function createUnitAction(
   _: UnitActionState,
   formData: FormData,
 ): Promise<UnitActionState> {
+  await requireAdminUser();
+
   try {
     const payload = buildPayload(formData);
     await apiRequest<unknown>(`/clubs/${clubId}/units`, {
@@ -101,6 +104,8 @@ export async function updateUnitAction(
   _: UnitActionState,
   formData: FormData,
 ): Promise<UnitActionState> {
+  await requireAdminUser();
+
   try {
     const payload: UpdateUnitPayload = buildPayload(formData);
     await apiRequest<unknown>(`/clubs/${clubId}/units/${unitId}`, {

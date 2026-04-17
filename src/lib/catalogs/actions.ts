@@ -15,6 +15,7 @@ import {
   deleteEntityItem,
   updateEntityItem,
 } from "@/lib/catalogs/service";
+import { requireAdminUser } from "@/lib/auth/session";
 
 export type CatalogActionState = {
   error?: string;
@@ -57,6 +58,8 @@ export async function createCatalogItemAction(
   _: CatalogActionState,
   formData: FormData,
 ): Promise<CatalogActionState> {
+  await requireAdminUser();
+
   const config = getEntityConfig(entityKey);
 
   if (!config) {
@@ -91,6 +94,8 @@ export async function updateCatalogItemAction(
   _: CatalogActionState,
   formData: FormData,
 ): Promise<CatalogActionState> {
+  await requireAdminUser();
+
   const config = getEntityConfig(entityKey);
 
   if (!config) {
@@ -122,6 +127,8 @@ export async function deleteCatalogItemAction(
   _: CatalogActionState,
   formData: FormData,
 ): Promise<CatalogActionState> {
+  await requireAdminUser();
+
   const entityKey = String(formData.get("entityKey")) as EntityKey;
   const rawId = formData.get("id");
   const id = typeof rawId === "string" ? rawId.trim() : "";

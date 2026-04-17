@@ -6,6 +6,7 @@ import {
   broadcastNotification,
   sendClubNotification,
 } from "@/lib/api/notifications";
+import { requireAdminUser } from "@/lib/auth/session";
 
 export type NotificationActionState = {
   error?: string;
@@ -20,6 +21,8 @@ export async function sendDirectNotificationAction(
   _: NotificationActionState,
   formData: FormData,
 ): Promise<NotificationActionState> {
+  await requireAdminUser();
+
   const userId = readString(formData, "user_id");
   const title = readString(formData, "title");
   const body = readString(formData, "body");
@@ -45,6 +48,8 @@ export async function broadcastNotificationAction(
   _: NotificationActionState,
   formData: FormData,
 ): Promise<NotificationActionState> {
+  await requireAdminUser();
+
   const title = readString(formData, "title");
   const body = readString(formData, "body");
 
@@ -68,6 +73,8 @@ export async function clubNotificationAction(
   _: NotificationActionState,
   formData: FormData,
 ): Promise<NotificationActionState> {
+  await requireAdminUser();
+
   const sectionIdRaw = readString(formData, "section_id");
   const title = readString(formData, "title");
   const body = readString(formData, "body");

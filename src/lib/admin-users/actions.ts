@@ -12,6 +12,7 @@ import {
   APP_ALERT_PARAM_TITLE,
   APP_ALERT_PARAM_DESCRIPTION,
 } from "@/lib/ui/app-alert-params";
+import { requireAdminUser } from "@/lib/auth/session";
 
 function readString(formData: FormData, fieldName: string) {
   return String(formData.get(fieldName) ?? "").trim();
@@ -28,6 +29,8 @@ function userDetailUrl(userId: string, alertType: string, alertTitle: string, al
 }
 
 export async function submitApprovalDecisionAction(formData: FormData) {
+  await requireAdminUser();
+
   const userId = readString(formData, "user_id");
   const decision = readString(formData, "decision");
   const reason = readString(formData, "reason");
