@@ -134,8 +134,14 @@ export const navConfig: NavGroup[] = [
         permission: "system_config:read",
         children: [
           { title: "Sistema", url: "/dashboard/settings", permission: "system_config:read" },
-          { title: "Categorías de Puntuación", url: "/dashboard/settings/scoring-categories", permission: "system_config:read" },
+          { title: "Categorías de Puntuación", url: "/dashboard/settings/scoring-categories", permission: "scoring_categories:read" },
         ],
+      },
+      {
+        title: "Jobs & Colas",
+        url: "/dashboard/system/jobs",
+        icon: Activity,
+        permission: "system_config:read",
       },
     ],
   },
@@ -160,11 +166,11 @@ export const navConfig: NavGroup[] = [
       { title: "Clases", url: "/dashboard/classes", icon: GraduationCap, permission: "classes:read" },
       { title: "Inscripciones", url: "/dashboard/enrollments", icon: ClipboardList, permission: "classes:read" },
       { title: "Especialidades", url: "/dashboard/honors", icon: Award, permission: "honors:read" },
-      { title: "Logros", url: "/dashboard/achievements", icon: Trophy, permission: "achievements:read" },
+      { title: "Logros", url: "/dashboard/achievements", icon: Trophy, permission: "achievements:manage" },
       { title: "Actividades", url: "/dashboard/activities", icon: Calendar, permission: "activities:read" },
       { title: "Finanzas", url: "/dashboard/finances", icon: DollarSign, permission: "finances:read" },
       { title: "Inventario", url: "/dashboard/inventory", icon: Package, permission: "inventory:read" },
-      { title: "Certificaciones", url: "/dashboard/certifications", icon: ShieldCheck, permission: "certifications:read" },
+      { title: "Certificaciones", url: "/dashboard/certifications", icon: ShieldCheck, permission: "user_certifications:read" },
       {
         title: "Seguros",
         url: "/dashboard/insurance",
@@ -190,7 +196,7 @@ export const navConfig: NavGroup[] = [
         title: "Validación",
         url: "/dashboard/validation",
         icon: ClipboardCheck,
-        permission: "investiture:read",
+        permission: "validation:read",
       },
       {
         title: "Revisión de Evidencias",
@@ -243,7 +249,7 @@ export const navConfig: NavGroup[] = [
           { title: "Historial", url: "/dashboard/notifications/history", permission: "notifications:send" },
         ],
       },
-      { title: "Carpetas de Evidencias", url: "/dashboard/folders", icon: FolderOpen, permission: "folders:read" },
+      { title: "Carpetas de Evidencias", url: "/dashboard/folders", icon: FolderOpen, permission: "user_folders:read" },
       {
         title: "Carpeta Anual",
         url: "/dashboard/annual-folders",
@@ -277,7 +283,22 @@ export const navConfig: NavGroup[] = [
           { title: "Membresías", url: "/dashboard/requests/membership", permission: "club_members:approve" },
         ],
       },
-      { title: "Reportes", url: "/dashboard/reports", icon: FileText, permission: "classes:read" },
+      {
+        title: "Reportes Mensuales",
+        url: "/dashboard/reports",
+        icon: FileText,
+        permission: "reports:read",
+        children: [
+          { title: "Mis reportes", url: "/dashboard/reports", permission: "reports:read" },
+          { title: "Supervisión", url: "/dashboard/reports/supervision", permission: "reports:read" },
+        ],
+      },
+      {
+        title: "Miembro del Mes",
+        url: "/dashboard/member-of-month",
+        icon: Trophy,
+        permission: "mom:supervise",
+      },
     ],
   },
 ];

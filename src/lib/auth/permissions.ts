@@ -109,6 +109,17 @@ export const ACTIVITIES_DELETE = "activities:delete";
 export const ATTENDANCE_READ = "attendance:read";
 export const ATTENDANCE_MANAGE = "attendance:manage";
 
+// --- Camporees (management) ---
+export const CAMPOREES_READ   = "camporees:read";
+export const CAMPOREES_CREATE = "camporees:create";
+export const CAMPOREES_UPDATE = "camporees:update";
+export const CAMPOREES_DELETE = "camporees:delete";
+
+// --- Validación (Validation) ---
+export const VALIDATION_SUBMIT = "validation:submit";
+export const VALIDATION_REVIEW = "validation:review";
+export const VALIDATION_READ   = "validation:read";
+
 // --- Finanzas ---
 export const FINANCES_READ = "finances:read";
 export const FINANCES_CREATE = "finances:create";
@@ -127,9 +138,49 @@ export const NOTIFICATIONS_SEND = "notifications:send";
 export const NOTIFICATIONS_BROADCAST = "notifications:broadcast";
 export const NOTIFICATIONS_CLUB = "notifications:club";
 
+// --- Unidades (Units) ---
+export const UNITS_READ = "units:read";
+
+// --- Miembro del Mes ---
+export const MOM_READ      = "mom:read";
+export const MOM_SUPERVISE = "mom:supervise";
+export const MOM_EVALUATE  = "mom:evaluate";
+
+// --- Scoring Categories ---
+export const SCORING_CATEGORIES_READ   = "scoring_categories:read";
+export const SCORING_CATEGORIES_MANAGE = "scoring_categories:manage";
+
+// --- Solicitudes (Requests) ---
+export const REQUESTS_READ   = "requests:read";
+export const REQUESTS_REVIEW = "requests:review";
+
+// --- Certificaciones de Usuario (User Certifications) ---
+export const USER_CERTIFICATIONS_READ   = "user_certifications:read";
+export const USER_CERTIFICATIONS_MANAGE = "user_certifications:manage";
+
+// --- Carpetas de Usuario (User Folders) ---
+export const USER_FOLDERS_READ   = "user_folders:read";
+export const USER_FOLDERS_MANAGE = "user_folders:manage";
+
+// --- Logros (Achievements) ---
+export const ACHIEVEMENTS_READ = "achievements:read";
+export const ACHIEVEMENTS_MANAGE = "achievements:manage";
+
+// --- Rankings ---
+export const RANKINGS_READ = "rankings:read";
+export const RANKINGS_RECALCULATE = "rankings:recalculate";
+
+// --- Categorías de Premios (Award Categories) ---
+export const AWARD_CATEGORIES_CREATE = "award_categories:create";
+export const AWARD_CATEGORIES_READ = "award_categories:read";
+export const AWARD_CATEGORIES_UPDATE = "award_categories:update";
+export const AWARD_CATEGORIES_DELETE = "award_categories:delete";
+
 // --- Reportes y Dashboard ---
 export const REPORTS_VIEW = "reports:view";
 export const REPORTS_EXPORT = "reports:export";
+export const REPORTS_READ = "reports:read";
+export const REPORTS_DOWNLOAD = "reports:download";
 export const DASHBOARD_VIEW = "dashboard:view";
 
 // --- Recursos ---
@@ -197,6 +248,48 @@ export const PERMISSION_GROUPS = {
       { key: CLUB_MEMBERS_LIST_PENDING, label: "Ver solicitudes pendientes" },
     ],
   },
+  units: {
+    label: "Unidades",
+    permissions: [
+      { key: UNITS_READ, label: "Ver unidades / miembro del mes" },
+    ],
+  },
+  member_of_month: {
+    label: "Miembro del Mes",
+    permissions: [
+      { key: MOM_READ,      label: "Ver miembro del mes" },
+      { key: MOM_SUPERVISE, label: "Supervisar multi-sección (admin/coordinador)" },
+      { key: MOM_EVALUATE,  label: "Disparar evaluación manual" },
+    ],
+  },
+  scoring_categories: {
+    label: "Categorías de Puntuación",
+    permissions: [
+      { key: SCORING_CATEGORIES_READ,   label: "Ver categorías de puntuación" },
+      { key: SCORING_CATEGORIES_MANAGE, label: "Gestionar categorías de puntuación (unions + campos locales)" },
+    ],
+  },
+  requests: {
+    label: "Solicitudes",
+    permissions: [
+      { key: REQUESTS_READ,   label: "Ver solicitudes de transferencia y asignación" },
+      { key: REQUESTS_REVIEW, label: "Aprobar/rechazar solicitudes" },
+    ],
+  },
+  user_certifications: {
+    label: "Certificaciones de Usuario (Admin)",
+    permissions: [
+      { key: USER_CERTIFICATIONS_READ,   label: "Ver progreso de certificaciones" },
+      { key: USER_CERTIFICATIONS_MANAGE, label: "Inscribir / actualizar / borrar certificaciones" },
+    ],
+  },
+  user_folders: {
+    label: "Carpetas de Usuario (Admin)",
+    permissions: [
+      { key: USER_FOLDERS_READ,   label: "Ver inscripción y progreso de carpetas" },
+      { key: USER_FOLDERS_MANAGE, label: "Inscribir / actualizar / borrar asignaciones de carpeta" },
+    ],
+  },
   geography: {
     label: "Jerarquía Geográfica",
     permissions: [
@@ -259,6 +352,23 @@ export const PERMISSION_GROUPS = {
       { key: ATTENDANCE_MANAGE, label: "Gestionar asistencia" },
     ],
   },
+  camporees: {
+    label: "Camporees",
+    permissions: [
+      { key: CAMPOREES_READ,   label: "Ver camporees" },
+      { key: CAMPOREES_CREATE, label: "Crear camporees" },
+      { key: CAMPOREES_UPDATE, label: "Actualizar camporees" },
+      { key: CAMPOREES_DELETE, label: "Desactivar camporees" },
+    ],
+  },
+  validation: {
+    label: "Validación",
+    permissions: [
+      { key: VALIDATION_READ,   label: "Ver cola pendiente, historial y elegibilidad" },
+      { key: VALIDATION_SUBMIT, label: "Enviar progreso para revisión" },
+      { key: VALIDATION_REVIEW, label: "Aprobar/rechazar progreso enviado" },
+    ],
+  },
   finances: {
     label: "Finanzas",
     permissions: [
@@ -283,6 +393,8 @@ export const PERMISSION_GROUPS = {
     permissions: [
       { key: REPORTS_VIEW, label: "Ver reportes" },
       { key: REPORTS_EXPORT, label: "Exportar reportes" },
+      { key: REPORTS_READ, label: "Leer reportes mensuales" },
+      { key: REPORTS_DOWNLOAD, label: "Descargar PDF de reportes" },
       { key: DASHBOARD_VIEW, label: "Ver dashboard" },
     ],
   },

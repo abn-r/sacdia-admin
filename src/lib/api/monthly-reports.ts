@@ -171,3 +171,69 @@ export function getReportPdfUrl(reportId: number): string {
   const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "http://localhost:3000/api/v1";
   return `${base}/monthly-reports/${reportId}/pdf`;
 }
+
+// ─── Admin list ───────────────────────────────────────────────────────────────
+
+export type AdminReportItem = {
+  monthly_report_id: string;
+  club_enrollment_id: string;
+  month: number;
+  year: number;
+  status: ReportStatus;
+  generated_at: string | null;
+  submitted_at: string | null;
+  club_name: string | null;
+  club_type: string | null;
+  club_type_id: number | null;
+  local_field: string | null;
+  local_field_id: number | null;
+  submitter_name: string | null;
+  member_count: number | null;
+};
+
+export type AdminReportFilters = {
+  clubTypeId?: number;
+  localFieldId?: number;
+  year?: number;
+  month?: number;
+  status?: string;
+  page?: number;
+  limit?: number;
+};
+
+export type AdminReportsPage = {
+  total: number;
+  page: number;
+  limit: number;
+  items: AdminReportItem[];
+};
+
+type AdminReportsEnvelope = {
+  status: string;
+  data: AdminReportsPage;
+};
+
+/**
+ * GET /api/v1/monthly-reports/admin/list
+ * Paginated multi-club report list for admins. Server-side safe.
+ */
+export async function listAdminReports(
+  filters: AdminReportFilters,
+): Promise<AdminReportsPage> {
+  const params: Record<string, string | number | boolean | undefined> = {};
+
+  if (filters.clubTypeId !== undefined) params.club_type_id = filters.clubTypeId;
+  if (filters.localFieldId !== undefined) params.local_field_id = filters.localFieldId;
+  if (filters.year !== undefined) params.year = filters.year;
+  if (filters.month !== undefined) params.month = filters.month;
+  if (filters.status !== undefined) params.status = filters.status;
+  if (filters.page !== undefined) params.page = filters.page;
+  if (filters.limit !== undefined) params.limit = filters.limit;
+
+  const envelope = await apiRequest<AdminReportsEnvelope>(
+    "/monthly-reports/admin/list",
+    { params },
+  );
+
+  return envelope.data;
+}

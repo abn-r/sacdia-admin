@@ -5,8 +5,19 @@ import {
   sendNotification,
   broadcastNotification,
   sendClubNotification,
+  type NotificationInstanceType,
 } from "@/lib/api/notifications";
 import { requireAdminUser } from "@/lib/auth/session";
+
+const VALID_INSTANCE_TYPES: NotificationInstanceType[] = [
+  'adventurers',
+  'pathfinders',
+  'master_guilds',
+];
+
+function isValidInstanceType(value: string): value is NotificationInstanceType {
+  return (VALID_INSTANCE_TYPES as string[]).includes(value);
+}
 
 export type NotificationActionState = {
   error?: string;
@@ -75,28 +86,33 @@ export async function clubNotificationAction(
 ): Promise<NotificationActionState> {
   await requireAdminUser();
 
-  const sectionIdRaw = readString(formData, "section_id");
+  const instanceType = readString(formData, "instance_type");
+  const instanceIdRaw = readString(formData, "instance_id");
   const title = readString(formData, "title");
   const body = readString(formData, "body");
 
-  if (!sectionIdRaw) return { error: "El ID de sección es obligatorio" };
+  if (!instanceType) return { error: "El tipo de club es obligatorio" };
+  if (!isValidInstanceType(instanceType)) {
+    return { error: "El tipo de club no es válido" };
+  }
+  if (!instanceIdRaw) return { error: "El ID de instancia es obligatorio" };
   if (!title) return { error: "El título es obligatorio" };
   if (!body) return { error: "El mensaje es obligatorio" };
 
-  const sectionId = Number(sectionIdRaw);
-  if (!Number.isFinite(sectionId) || sectionId <= 0) {
-    return { error: "El ID de sección no es válido" };
+  const instanceId = Number(instanceIdRaw);
+  if (!Number.isFinite(instanceId) || instanceId <= 0) {
+    return { error: "El ID de instancia no es válido" };
   }
 
   try {
-    await sendClubNotification(sectionId, { title, body });
+    await sendClubNotification(instanceType, instanceId, { title, body });
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo enviar la notificación a la sección", {
-        endpointLabel: `/notifications/section/${sectionId}`,
+      error: getActionErrorMessage(error, "No se pudo enviar la notificación al club", {
+        endpointLabel: `/notifications/club/${instanceType}/${instanceId}`,
       }),
     };
   }
 
-  return { success: "Notificación de sección enviada correctamente" };
+  return { success: "Notificación de club enviada correctamente" };
 }

@@ -118,3 +118,75 @@ export async function evaluateMemberOfMonth(
     { method: "POST", body: payload },
   );
 }
+
+// ─── Admin supervision types ──────────────────────────────────────────────────
+
+export type AdminMomFilters = {
+  club_type_id?: number;
+  local_field_id?: number;
+  club_id?: number;
+  section_id?: number;
+  year?: number;
+  month?: number;
+  notified?: boolean;
+  page?: number;
+  limit?: number;
+};
+
+export type AdminMomItem = {
+  member_of_month_id: number;
+  user_id: string;
+  user_name: string | null;
+  user_image: string | null;
+  club_section_id: number;
+  section_name: string | null;
+  club_type: string | null;
+  club_id: number | null;
+  club_name: string | null;
+  local_field: string | null;
+  local_field_id: number | null;
+  month: number;
+  year: number;
+  total_points: number;
+  notified: boolean;
+  created_at: string;
+};
+
+export type AdminMomPage = {
+  total: number;
+  page: number;
+  limit: number;
+  items: AdminMomItem[];
+};
+
+type AdminMomEnvelope = {
+  status: string;
+  data: AdminMomPage;
+};
+
+/**
+ * GET /member-of-month/admin/list — supervision multi-sección
+ * Server-safe (uses apiRequest identical pattern to listAdminReports).
+ */
+export async function listAdminMemberOfMonth(
+  filters: AdminMomFilters,
+): Promise<AdminMomPage> {
+  const params: Record<string, string | number | boolean | undefined> = {};
+
+  if (filters.club_type_id !== undefined) params.club_type_id = filters.club_type_id;
+  if (filters.local_field_id !== undefined) params.local_field_id = filters.local_field_id;
+  if (filters.club_id !== undefined) params.club_id = filters.club_id;
+  if (filters.section_id !== undefined) params.section_id = filters.section_id;
+  if (filters.year !== undefined) params.year = filters.year;
+  if (filters.month !== undefined) params.month = filters.month;
+  if (filters.notified !== undefined) params.notified = filters.notified;
+  if (filters.page !== undefined) params.page = filters.page;
+  if (filters.limit !== undefined) params.limit = filters.limit;
+
+  const envelope = await apiRequest<AdminMomEnvelope>(
+    "/member-of-month/admin/list",
+    { params },
+  );
+
+  return envelope.data;
+}

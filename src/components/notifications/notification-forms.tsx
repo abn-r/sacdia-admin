@@ -7,6 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import {
   sendDirectNotificationAction,
@@ -130,18 +137,33 @@ export function ClubNotificationForm() {
       <CardHeader>
         <div className="flex items-center gap-2">
           <Users className="size-5 text-primary" />
-          <CardTitle className="text-base">Por sección de club</CardTitle>
+          <CardTitle className="text-base">Por club</CardTitle>
         </div>
-        <CardDescription>Enviar notificación a todos los miembros de una sección de club.</CardDescription>
+        <CardDescription>Enviar notificación a todos los miembros de un club.</CardDescription>
       </CardHeader>
       <CardContent>
         <form action={action} className="space-y-4">
           <StatusBanner state={state} />
           <div className="space-y-2">
-            <Label htmlFor="club_section_id">
-              ID de sección <span className="text-destructive">*</span>
+            <Label htmlFor="club_instance_type">
+              Tipo de club <span className="text-destructive">*</span>
             </Label>
-            <Input id="club_section_id" name="section_id" type="number" placeholder="ID numérico de la sección" required />
+            <Select name="instance_type" required>
+              <SelectTrigger id="club_instance_type">
+                <SelectValue placeholder="Seleccionar tipo de club..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="adventurers">Aventureros</SelectItem>
+                <SelectItem value="pathfinders">Conquistadores</SelectItem>
+                <SelectItem value="master_guilds">Guías Mayores</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="club_instance_id">
+              ID de instancia <span className="text-destructive">*</span>
+            </Label>
+            <Input id="club_instance_id" name="instance_id" type="number" placeholder="ID numérico del club" required />
           </div>
           <div className="space-y-2">
             <Label htmlFor="club_title">
@@ -155,7 +177,7 @@ export function ClubNotificationForm() {
             </Label>
             <Textarea id="club_body" name="body" placeholder="Contenido del mensaje" rows={3} required />
           </div>
-          <SubmitButton label="Enviar a sección" />
+          <SubmitButton label="Enviar a club" />
         </form>
       </CardContent>
     </Card>
