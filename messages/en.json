@@ -500,5 +500,23 @@
       "video_url_required": "The video URL is required for video resources.",
       "content_required": "The content is required for text resources."
     }
+  },
+  "investiture": {
+    "bulk": {
+      "errors": {
+        "approve_failed": "Bulk approve failed",
+        "reject_failed": "Bulk reject failed"
+      },
+      "validation": {
+        "reason_required": "The rejection reason is required",
+        "reason_max": "Maximum 1000 characters"
+      },
+      "toasts": {
+        "verb_approved": "approved",
+        "verb_rejected": "rejected",
+        "succeeded_count": "{count} {verb} successfully",
+        "failed_count": "{count} failed"
+      }
+    }
   }
 }

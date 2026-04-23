@@ -500,5 +500,23 @@
       "video_url_required": "A URL do vídeo é obrigatória para recursos do tipo vídeo.",
       "content_required": "O conteúdo é obrigatório para recursos do tipo texto."
     }
+  },
+  "investiture": {
+    "bulk": {
+      "errors": {
+        "approve_failed": "Erro ao aprovar em massa",
+        "reject_failed": "Erro ao rejeitar em massa"
+      },
+      "validation": {
+        "reason_required": "O motivo da rejeição é obrigatório",
+        "reason_max": "Máximo de 1000 caracteres"
+      },
+      "toasts": {
+        "verb_approved": "aprovados",
+        "verb_rejected": "rejeitados",
+        "succeeded_count": "{count} {verb} com sucesso",
+        "failed_count": "{count} falharam"
+      }
+    }
   }
 }
