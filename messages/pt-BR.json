@@ -106,23 +106,17 @@
   },
   "auth": {
     "login": {
-      "brand_subtitle": "Painel administrativo",
-      "panel_description": "Gerencie operações, catálogos e permissões em um único console administrativo.",
-      "feature_1": "Fluxos por páginas com ações CRUD e validação operacional.",
-      "feature_2": "Controle de acesso por papéis para equipes administrativas.",
-      "feature_3": "Interface preparada para UAT e implantação progressiva.",
-      "welcome_title": "Bem-vindo",
-      "welcome_description": "Entre com sua conta de administrador.",
-      "security_badge": "Acesso seguro",
+      "brand_subtitle": "Sistema Administrativo",
+      "welcome_title": "Bem-vindo de volta",
+      "welcome_description": "Insira suas credenciais para continuar",
       "email_label": "E-mail",
+      "email_placeholder": "admin@sacdia.org",
       "password_label": "Senha",
-      "password_hint": "Seu navegador pode lembrar essas credenciais para futuros logins.",
       "submit_idle": "Entrar",
       "submit_loading": "Verificando…",
       "show_password": "Mostrar senha",
       "hide_password": "Ocultar senha",
-      "access_notice": "Acesso exclusivo para usuários autorizados do painel administrativo.",
-      "footer": "Sistema de Administração de Clubes · Igreja Adventista"
+      "verse": "“Tudo posso naquele que me fortalece” — Fp. 4:13"
     }
   }
 }

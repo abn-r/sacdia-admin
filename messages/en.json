@@ -106,23 +106,17 @@
   },
   "auth": {
     "login": {
-      "brand_subtitle": "Admin panel",
-      "panel_description": "Manage operations, catalogs, and permissions from a single administrative console.",
-      "feature_1": "Page-based flows with CRUD actions and operational validation.",
-      "feature_2": "Role-based access control for administrative teams.",
-      "feature_3": "Interface prepared for UAT and progressive rollout.",
-      "welcome_title": "Welcome",
-      "welcome_description": "Sign in with your administrator account.",
-      "security_badge": "Secure access",
+      "brand_subtitle": "Administrative System",
+      "welcome_title": "Welcome back",
+      "welcome_description": "Enter your credentials to continue",
       "email_label": "Email",
+      "email_placeholder": "admin@sacdia.org",
       "password_label": "Password",
-      "password_hint": "Your browser may remember these credentials for future sign-ins.",
       "submit_idle": "Sign in",
       "submit_loading": "Verifying…",
       "show_password": "Show password",
       "hide_password": "Hide password",
-      "access_notice": "Exclusive access for authorized administrators.",
-      "footer": "Club Administration System · Adventist Church"
+      "verse": "“I can do all things through Christ who strengthens me” — Phil. 4:13"
     }
   }
 }

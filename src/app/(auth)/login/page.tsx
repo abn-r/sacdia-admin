@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import Image from "next/image";
 import { Loader2, Eye, EyeOff, AlertCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { loginAction } from "@/lib/auth/actions";
 import type { AuthActionState } from "@/lib/auth/types";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
 function SubmitButton() {
+  const t = useTranslations("auth.login");
   const { pending } = useFormStatus();
   return (
     <Button
@@ -23,10 +25,10 @@ function SubmitButton() {
       {pending ? (
         <>
           <Loader2 className="animate-spin" />
-          Verificando...
+          {t("submit_loading")}
         </>
       ) : (
-        "Iniciar sesión"
+        t("submit_idle")
       )}
     </Button>
   );
@@ -35,6 +37,7 @@ function SubmitButton() {
 const initialState: AuthActionState = {};
 
 export default function LoginPage() {
+  const t = useTranslations("auth.login");
   const [state, formAction] = useActionState(loginAction, initialState);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -86,7 +89,7 @@ export default function LoginPage() {
               SACDIA
             </p>
             <p className="text-[11px] tracking-wide text-muted-foreground/60">
-              Sistema Administrativo
+              {t("brand_subtitle")}
             </p>
           </div>
         </div>
@@ -96,10 +99,10 @@ export default function LoginPage() {
           {/* Title */}
           <div className="mb-6">
             <h1 className="text-xl font-semibold tracking-tight text-foreground">
-              Bienvenido de nuevo
+              {t("welcome_title")}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Ingresá tus credenciales para acceder
+              {t("welcome_description")}
             </p>
           </div>
 
@@ -116,13 +119,13 @@ export default function LoginPage() {
             {/* Email field */}
             <div className="space-y-1.5">
               <Label htmlFor="email" className="text-sm font-medium">
-                Correo electrónico
+                {t("email_label")}
               </Label>
               <Input
                 id="email"
                 name="email"
                 type="email"
-                placeholder="admin@sacdia.org"
+                placeholder={t("email_placeholder")}
                 required
                 autoComplete="email"
                 autoFocus
@@ -133,7 +136,7 @@ export default function LoginPage() {
             {/* Password field */}
             <div className="space-y-1.5">
               <Label htmlFor="password" className="text-sm font-medium">
-                Contraseña
+                {t("password_label")}
               </Label>
               <div className="relative">
                 <Input
@@ -150,7 +153,7 @@ export default function LoginPage() {
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
                   tabIndex={-1}
-                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  aria-label={showPassword ? t("hide_password") : t("show_password")}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/50 transition-colors hover:text-muted-foreground"
                 >
                   {showPassword ? (
@@ -170,7 +173,7 @@ export default function LoginPage() {
 
         {/* Bible verse — outside the card, below */}
         <p className="mt-6 text-center text-[11px] italic text-muted-foreground/40 dark:text-muted-foreground/30">
-          &ldquo;Todo lo puedo en Cristo que me fortalece&rdquo; &mdash; Fil.&nbsp;4:13
+          {t("verse")}
         </p>
       </div>
     </div>
