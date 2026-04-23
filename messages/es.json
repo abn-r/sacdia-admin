@@ -105,6 +105,80 @@
       "system": "Sistema"
     }
   },
+  "catalogs": {
+    "actions": {
+      "create": "Crear {entity}",
+      "edit": "Editar {entity}",
+      "empty_state": "No hay {entity}"
+    },
+    "entities": {
+      "countries": {
+        "title": "Países",
+        "singular": "país",
+        "description": "Gestión del catálogo de países."
+      },
+      "unions": {
+        "title": "Uniones",
+        "singular": "unión",
+        "description": "Gestión de uniones por país."
+      },
+      "local-fields": {
+        "title": "Campos locales",
+        "singular": "campo local",
+        "description": "Gestión de campos locales por unión."
+      },
+      "districts": {
+        "title": "Distritos",
+        "singular": "distrito",
+        "description": "Gestión de distritos por campo local."
+      },
+      "churches": {
+        "title": "Iglesias",
+        "singular": "iglesia",
+        "description": "Gestión de iglesias por distrito."
+      },
+      "relationship-types": {
+        "title": "Tipos de relación",
+        "singular": "tipo de relación",
+        "description": "Catálogo de tipos de relación para contactos de emergencia y tutores."
+      },
+      "allergies": {
+        "title": "Alergias",
+        "singular": "alergia",
+        "description": "Catálogo de alergias para post-registro."
+      },
+      "diseases": {
+        "title": "Enfermedades",
+        "singular": "enfermedad",
+        "description": "Catálogo de enfermedades para post-registro."
+      },
+      "medicines": {
+        "title": "Medicamentos",
+        "singular": "medicamento",
+        "description": "Catálogo de medicamentos para perfil de salud."
+      },
+      "ecclesiastical-years": {
+        "title": "Años eclesiásticos",
+        "singular": "año eclesiástico",
+        "description": "Gestión de períodos eclesiásticos."
+      },
+      "club-types": {
+        "title": "Tipos de club",
+        "singular": "tipo de club",
+        "description": "Catálogo de tipos de club."
+      },
+      "club-ideals": {
+        "title": "Ideales de club",
+        "singular": "ideal de club",
+        "description": "Gestión de ideales por tipo de club."
+      },
+      "activity-types": {
+        "title": "Tipos de actividad",
+        "singular": "tipo de actividad",
+        "description": "Catálogo de tipos de actividad para clasificar las actividades del club."
+      }
+    }
+  },
   "auth": {
     "login": {
       "brand_subtitle": "Sistema Administrativo",

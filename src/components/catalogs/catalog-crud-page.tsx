@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { Plus, Pencil, Trash2, Package, SearchX } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -108,6 +109,13 @@ export function CatalogCrudPage({
   entityKey,
   routeBase,
 }: CatalogCrudPageProps) {
+  const tEntities = useTranslations("catalogs.entities");
+  const tActions = useTranslations("catalogs.actions");
+  const entityTitle = tEntities(`${config.key}.title`);
+  const entitySingular = tEntities(`${config.key}.singular`);
+  const entityDescription = tEntities(`${config.key}.description`);
+  const entityTitleLower = entityTitle.toLowerCase();
+
   const [createOpen, setCreateOpen] = useState(false);
   const [editItem, setEditItem] = useState<CatalogItem | null>(null);
   const [deleteItem, setDeleteItem] = useState<CatalogItem | null>(null);
@@ -157,17 +165,17 @@ export function CatalogCrudPage({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-semibold tracking-tight">{config.title}</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">{entityTitle}</h1>
             {!canMutate && <Badge variant="outline">Solo lectura</Badge>}
           </div>
-          {config.description && (
-            <p className="text-sm text-muted-foreground">{config.description}</p>
+          {entityDescription && (
+            <p className="text-sm text-muted-foreground">{entityDescription}</p>
           )}
         </div>
         {canMutate && (
           <Button size="default" onClick={() => setCreateOpen(true)}>
             <Plus className="mr-1.5 size-4" aria-hidden="true" />
-            Crear {config.singularTitle.toLowerCase()}
+            {tActions("create", { entity: entitySingular })}
           </Button>
         )}
       </div>
@@ -175,7 +183,7 @@ export function CatalogCrudPage({
       {/* ── Filter bar (only when there is data to filter) ── */}
       {items.length > 0 && (
         <CatalogFilterBar
-          entityLabel={config.title.toLowerCase()}
+          entityLabel={entityTitleLower}
           searchValue={searchQuery}
           onSearchChange={setSearchQuery}
           statusFilter={activeFilter}
@@ -194,7 +202,7 @@ export function CatalogCrudPage({
             <Package className="size-6 text-muted-foreground" aria-hidden="true" />
           </div>
           <h3 className="mt-4 text-lg font-semibold">
-            No hay {config.title.toLowerCase()}
+            {tActions("empty_state", { entity: entityTitleLower })}
           </h3>
           <p className="mt-1 max-w-sm text-sm text-muted-foreground">
             No se encontraron registros.
@@ -203,7 +211,7 @@ export function CatalogCrudPage({
             <div className="mt-4">
               <Button size="default" onClick={() => setCreateOpen(true)}>
                 <Plus className="mr-1.5 size-4" aria-hidden="true" />
-                Crear {config.singularTitle.toLowerCase()}
+                {tActions("create", { entity: entitySingular })}
               </Button>
             </div>
           )}
@@ -211,7 +219,7 @@ export function CatalogCrudPage({
       ) : filteredItems.length === 0 ? (
         /* Data exists but filters return nothing */
         <NoFilterResults
-          entityLabel={config.title.toLowerCase()}
+          entityLabel={entityTitleLower}
           onClear={handleClearFilters}
         />
       ) : (
@@ -363,7 +371,7 @@ export function CatalogCrudPage({
         <CatalogFormDialog
           open={createOpen}
           onOpenChange={setCreateOpen}
-          title={`Crear ${config.singularTitle.toLowerCase()}`}
+          title={tActions("create", { entity: entitySingular })}
           fields={config.fields}
           selectOptions={selectOptions}
           formAction={createAction}
@@ -376,7 +384,7 @@ export function CatalogCrudPage({
           onOpenChange={(open) => {
             if (!open) setEditItem(null);
           }}
-          title={`Editar ${config.singularTitle.toLowerCase()}`}
+          title={tActions("edit", { entity: entitySingular })}
           fields={config.fields}
           initialValues={editItem}
           selectOptions={selectOptions}

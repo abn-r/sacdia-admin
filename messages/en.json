@@ -105,6 +105,80 @@
       "system": "System"
     }
   },
+  "catalogs": {
+    "actions": {
+      "create": "Create {entity}",
+      "edit": "Edit {entity}",
+      "empty_state": "No {entity} yet"
+    },
+    "entities": {
+      "countries": {
+        "title": "Countries",
+        "singular": "country",
+        "description": "Country catalog management."
+      },
+      "unions": {
+        "title": "Unions",
+        "singular": "union",
+        "description": "Union management, grouped by country."
+      },
+      "local-fields": {
+        "title": "Local fields",
+        "singular": "local field",
+        "description": "Local field management, grouped by union."
+      },
+      "districts": {
+        "title": "Districts",
+        "singular": "district",
+        "description": "District management, grouped by local field."
+      },
+      "churches": {
+        "title": "Churches",
+        "singular": "church",
+        "description": "Church management, grouped by district."
+      },
+      "relationship-types": {
+        "title": "Relationship types",
+        "singular": "relationship type",
+        "description": "Relationship type catalog for emergency contacts and guardians."
+      },
+      "allergies": {
+        "title": "Allergies",
+        "singular": "allergy",
+        "description": "Allergy catalog for post-registration."
+      },
+      "diseases": {
+        "title": "Diseases",
+        "singular": "disease",
+        "description": "Disease catalog for post-registration."
+      },
+      "medicines": {
+        "title": "Medicines",
+        "singular": "medicine",
+        "description": "Medicine catalog for the health profile."
+      },
+      "ecclesiastical-years": {
+        "title": "Ecclesiastical years",
+        "singular": "ecclesiastical year",
+        "description": "Ecclesiastical period management."
+      },
+      "club-types": {
+        "title": "Club types",
+        "singular": "club type",
+        "description": "Club type catalog."
+      },
+      "club-ideals": {
+        "title": "Club ideals",
+        "singular": "club ideal",
+        "description": "Ideal management, grouped by club type."
+      },
+      "activity-types": {
+        "title": "Activity types",
+        "singular": "activity type",
+        "description": "Activity type catalog used to classify club activities."
+      }
+    }
+  },
   "auth": {
     "login": {
       "brand_subtitle": "Administrative System",
