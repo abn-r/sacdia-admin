@@ -6,6 +6,13 @@ Sentry.init({
   tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 1.0,
   enableLogs: true,
   sendDefaultPii: false,
+  ignoreErrors: [
+    "ResizeObserver loop limit exceeded",
+    "ResizeObserver loop completed with undelivered notifications",
+    "Network request failed",
+    "NetworkError",
+    "AbortError",
+  ],
   beforeSend(event) {
     if (event.request?.cookies) delete event.request.cookies;
     if (event.request?.headers) {
@@ -15,3 +22,5 @@ Sentry.init({
     return event;
   },
 });
+
+export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
