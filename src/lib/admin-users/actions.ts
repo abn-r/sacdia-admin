@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { ApiError } from "@/lib/api/client";
 import {
   updateAdminUserApproval,
@@ -30,6 +31,7 @@ function userDetailUrl(userId: string, alertType: string, alertTitle: string, al
 
 export async function submitApprovalDecisionAction(formData: FormData) {
   await requireAdminUser();
+  const t = await getTranslations("admin_users");
 
   const userId = readString(formData, "user_id");
   const decision = readString(formData, "decision");
@@ -40,7 +42,14 @@ export async function submitApprovalDecisionAction(formData: FormData) {
   }
 
   if (decision !== "approve" && decision !== "reject") {
-    redirect(userDetailUrl(userId, "error", "Decision invalida", "El valor de la decision no es valido."));
+    redirect(
+      userDetailUrl(
+        userId,
+        "error",
+        t("errors.invalid_decision_title"),
+        t("errors.invalid_decision_description"),
+      ),
+    );
   }
 
   try {
@@ -52,27 +61,67 @@ export async function submitApprovalDecisionAction(formData: FormData) {
   } catch (error) {
     if (error instanceof ApiError) {
       if (error.status === 429) {
-        redirect(userDetailUrl(userId, "warning", "Demasiadas solicitudes", "Espera un momento antes de intentarlo de nuevo."));
+        redirect(
+          userDetailUrl(
+            userId,
+            "warning",
+            t("errors.too_many_requests_title"),
+            t("errors.too_many_requests_description"),
+          ),
+        );
       }
 
       if (error.status === 401 || error.status === 403) {
-        redirect(userDetailUrl(userId, "error", "Sin permisos", "No tienes permisos para realizar esta accion."));
+        redirect(
+          userDetailUrl(
+            userId,
+            "error",
+            t("errors.forbidden_title"),
+            t("errors.forbidden_description"),
+          ),
+        );
       }
 
       if (error.status === 404 || error.status === 405) {
-        redirect(userDetailUrl(userId, "error", "Endpoint no disponible", "El endpoint de aprobacion no esta disponible en este momento."));
+        redirect(
+          userDetailUrl(
+            userId,
+            "error",
+            t("errors.endpoint_unavailable_title"),
+            t("errors.endpoint_unavailable_description"),
+          ),
+        );
       }
 
-      redirect(userDetailUrl(userId, "error", "Error al procesar", error.message));
+      redirect(
+        userDetailUrl(
+          userId,
+          "error",
+          t("errors.processing_title"),
+          error.message,
+        ),
+      );
     }
 
-    redirect(userDetailUrl(userId, "error", "Error inesperado", "No se pudo procesar la aprobacion. Intenta de nuevo."));
+    redirect(
+      userDetailUrl(
+        userId,
+        "error",
+        t("errors.unexpected_title"),
+        t("errors.unexpected_description"),
+      ),
+    );
   }
 
   revalidatePath("/dashboard/users");
   revalidatePath(`/dashboard/users/${userId}`);
   revalidatePath("/dashboard");
 
-  const decisionLabel = decision === "approve" ? "aprobado" : "rechazado";
-  redirect(userDetailUrl(userId, "success", `Usuario ${decisionLabel}`, `La decision se registro correctamente.`));
+  const title =
+    decision === "approve"
+      ? t("success.user_approved_title")
+      : t("success.user_rejected_title");
+  redirect(
+    userDetailUrl(userId, "success", title, t("success.decision_recorded")),
+  );
 }

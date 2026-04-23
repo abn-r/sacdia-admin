@@ -274,5 +274,72 @@
       "church": "Church",
       "ecclesiastical_year": "Ecclesiastical year"
     }
+  },
+  "post_registration": {
+    "errors": {
+      "step_failed": "Failed to complete step {step}"
+    },
+    "success": {
+      "step_completed": "Step {step} completed"
+    }
+  },
+  "admin_users": {
+    "errors": {
+      "invalid_decision_title": "Invalid decision",
+      "invalid_decision_description": "The decision value is not valid.",
+      "too_many_requests_title": "Too many requests",
+      "too_many_requests_description": "Please wait a moment before trying again.",
+      "forbidden_title": "No permissions",
+      "forbidden_description": "You do not have permission to perform this action.",
+      "endpoint_unavailable_title": "Endpoint unavailable",
+      "endpoint_unavailable_description": "The approval endpoint is not available at the moment.",
+      "processing_title": "Processing error",
+      "unexpected_title": "Unexpected error",
+      "unexpected_description": "The approval could not be processed. Please try again."
+    },
+    "success": {
+      "user_approved_title": "User approved",
+      "user_rejected_title": "User rejected",
+      "decision_recorded": "The decision was recorded successfully."
+    }
+  },
+  "notifications": {
+    "errors": {
+      "send_failed": "The notification could not be sent",
+      "broadcast_failed": "The broadcast could not be sent",
+      "club_send_failed": "The club notification could not be sent"
+    },
+    "validation": {
+      "user_id_required": "Enter the user ID",
+      "title_required": "Enter the title",
+      "body_required": "Enter the message",
+      "instance_type_required": "Select the club type",
+      "instance_type_invalid": "The club type is invalid",
+      "instance_id_required": "Enter the instance ID",
+      "instance_id_invalid": "The instance ID is invalid"
+    },
+    "success": {
+      "sent": "Notification sent successfully",
+      "broadcast_sent": "Broadcast sent successfully",
+      "club_sent": "Club notification sent successfully"
+    }
+  },
+  "units": {
+    "errors": {
+      "create_failed": "The unit could not be created",
+      "update_failed": "The unit could not be updated"
+    },
+    "validation": {
+      "name_required": "Enter the name",
+      "club_type_required": "Select the club type",
+      "member_required": "Select a member for {field}",
+      "member_invalid": "Select a valid member for {field}"
+    },
+    "fields": {
+      "captain": "Captain",
+      "secretary": "Secretary",
+      "advisor": "Advisor",
+      "substitute_advisor": "Substitute advisor"
+    }
   }
 }

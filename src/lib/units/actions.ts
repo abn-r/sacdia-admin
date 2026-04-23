@@ -2,10 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { getActionErrorMessage } from "@/lib/api/action-error";
 import { apiRequest } from "@/lib/api/client";
 import type { CreateUnitPayload, UpdateUnitPayload } from "@/lib/api/units";
 import { requireAdminUser } from "@/lib/auth/session";
+
+type UnitsTranslator = Awaited<ReturnType<typeof getTranslations<"units">>>;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -23,40 +26,71 @@ function readString(formData: FormData, field: string): string {
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-function requireUuid(formData: FormData, field: string, label: string): string {
+function requireUuid(
+  t: UnitsTranslator,
+  formData: FormData,
+  field: string,
+  label: string,
+): string {
   const value = readString(formData, field);
-  if (!value) throw new Error(`${label} es obligatorio — selecciona un miembro`);
-  if (!uuidPattern.test(value)) throw new Error(`${label}: selecciona un miembro valido`);
+  if (!value) {
+    throw new Error(t("validation.member_required", { field: label }));
+  }
+  if (!uuidPattern.test(value)) {
+    throw new Error(t("validation.member_invalid", { field: label }));
+  }
   return value;
 }
 
 function optionalUuid(
+  t: UnitsTranslator,
   formData: FormData,
   field: string,
   label: string,
 ): string | undefined {
   const value = readString(formData, field);
   if (!value) return undefined;
-  if (!uuidPattern.test(value)) throw new Error(`${label}: selecciona un miembro valido`);
+  if (!uuidPattern.test(value)) {
+    throw new Error(t("validation.member_invalid", { field: label }));
+  }
   return value;
 }
 
-function buildPayload(formData: FormData): CreateUnitPayload {
+function buildPayload(
+  t: UnitsTranslator,
+  formData: FormData,
+): CreateUnitPayload {
   const name = readString(formData, "name");
-  if (!name) throw new Error("El nombre es obligatorio");
+  if (!name) throw new Error(t("validation.name_required"));
 
   const clubTypeId = Number(readString(formData, "club_type_id"));
   if (!Number.isFinite(clubTypeId) || clubTypeId <= 0) {
-    throw new Error("El tipo de club es obligatorio");
+    throw new Error(t("validation.club_type_required"));
   }
 
-  const captain_id = requireUuid(formData, "captain_id", "Capitán");
-  const secretary_id = requireUuid(formData, "secretary_id", "Secretario");
-  const advisor_id = requireUuid(formData, "advisor_id", "Consejero");
+  const captain_id = requireUuid(
+    t,
+    formData,
+    "captain_id",
+    t("fields.captain"),
+  );
+  const secretary_id = requireUuid(
+    t,
+    formData,
+    "secretary_id",
+    t("fields.secretary"),
+  );
+  const advisor_id = requireUuid(
+    t,
+    formData,
+    "advisor_id",
+    t("fields.advisor"),
+  );
   const substitute_advisor_id = optionalUuid(
+    t,
     formData,
     "substitute_advisor_id",
-    "Consejero suplente",
+    t("fields.substitute_advisor"),
   );
 
   return {
@@ -77,16 +111,17 @@ export async function createUnitAction(
   formData: FormData,
 ): Promise<UnitActionState> {
   await requireAdminUser();
+  const t = await getTranslations("units");
 
   try {
-    const payload = buildPayload(formData);
+    const payload = buildPayload(t, formData);
     await apiRequest<unknown>(`/clubs/${clubId}/units`, {
       method: "POST",
       body: payload,
     });
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo crear la unidad", {
+      error: getActionErrorMessage(error, t("errors.create_failed"), {
         endpointLabel: `/clubs/${clubId}/units`,
       }),
     };
@@ -105,16 +140,17 @@ export async function updateUnitAction(
   formData: FormData,
 ): Promise<UnitActionState> {
   await requireAdminUser();
+  const t = await getTranslations("units");
 
   try {
-    const payload: UpdateUnitPayload = buildPayload(formData);
+    const payload: UpdateUnitPayload = buildPayload(t, formData);
     await apiRequest<unknown>(`/clubs/${clubId}/units/${unitId}`, {
       method: "PATCH",
       body: payload,
     });
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo actualizar la unidad", {
+      error: getActionErrorMessage(error, t("errors.update_failed"), {
         endpointLabel: `/clubs/${clubId}/units/${unitId}`,
       }),
     };

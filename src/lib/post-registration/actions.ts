@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { apiRequest, ApiError } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
 
@@ -13,6 +14,7 @@ async function completeStep(
   step: 1 | 2 | 3,
 ): Promise<CompleteStepResult> {
   await requireAdminUser();
+  const t = await getTranslations("post_registration");
 
   try {
     const payload = await apiRequest<{ status: string; message: string }>(
@@ -20,12 +22,15 @@ async function completeStep(
       { method: "POST" },
     );
     revalidatePath(`/dashboard/users/${userId}`);
-    return { ok: true, message: payload.message ?? `Paso ${step} completado` };
+    return {
+      ok: true,
+      message: payload.message ?? t("success.step_completed", { step }),
+    };
   } catch (error) {
     if (error instanceof ApiError) {
       return { ok: false, error: error.message };
     }
-    return { ok: false, error: `Error al completar el paso ${step}` };
+    return { ok: false, error: t("errors.step_failed", { step }) };
   }
 }
 
