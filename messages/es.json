@@ -111,6 +111,20 @@
       "edit": "Editar {entity}",
       "empty_state": "No hay {entity}"
     },
+    "fields": {
+      "name": "Nombre",
+      "description": "Descripción",
+      "active": "Activo",
+      "abbreviation": "Abreviatura",
+      "code": "Código",
+      "start_date": "Fecha inicio",
+      "end_date": "Fecha fin",
+      "country": "País",
+      "union": "Unión",
+      "local_field": "Campo local",
+      "district": "Distrito",
+      "club_type": "Tipo de club"
+    },
     "entities": {
       "countries": {
         "title": "Países",

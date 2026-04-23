@@ -59,9 +59,9 @@ export const entityConfigs: Record<EntityKey, EntityConfig> = {
     idField: "country_id",
     nameField: "name",
     fields: [
-      { name: "name", label: "Nombre", type: "text", required: true },
-      { name: "abbreviation", label: "Abreviatura", type: "text", required: true, placeholder: "MX" },
-      { name: "active", label: "Activo", type: "checkbox", required: false },
+      { name: "name", label: "fields.name", type: "text", required: true },
+      { name: "abbreviation", label: "fields.abbreviation", type: "text", required: true, placeholder: "MX" },
+      { name: "active", label: "fields.active", type: "checkbox", required: false },
     ],
   },
   unions: {
@@ -78,13 +78,13 @@ export const entityConfigs: Record<EntityKey, EntityConfig> = {
       entityKey: "countries",
       fieldName: "country_id",
       queryParam: "countryId",
-      label: "País",
+      label: "fields.country",
     },
     fields: [
-      { name: "name", label: "Nombre", type: "text", required: true },
-      { name: "abbreviation", label: "Abreviatura", type: "text", required: true, placeholder: "UMN" },
-      { name: "country_id", label: "País", type: "select", required: true, optionsEntityKey: "countries" },
-      { name: "active", label: "Activo", type: "checkbox", required: false },
+      { name: "name", label: "fields.name", type: "text", required: true },
+      { name: "abbreviation", label: "fields.abbreviation", type: "text", required: true, placeholder: "UMN" },
+      { name: "country_id", label: "fields.country", type: "select", required: true, optionsEntityKey: "countries" },
+      { name: "active", label: "fields.active", type: "checkbox", required: false },
     ],
   },
   "local-fields": {
@@ -101,13 +101,13 @@ export const entityConfigs: Record<EntityKey, EntityConfig> = {
       entityKey: "unions",
       fieldName: "union_id",
       queryParam: "unionId",
-      label: "Unión",
+      label: "fields.union",
     },
     fields: [
-      { name: "name", label: "Nombre", type: "text", required: true },
-      { name: "abbreviation", label: "Abreviatura", type: "text", required: true, placeholder: "CN" },
-      { name: "union_id", label: "Unión", type: "select", required: true, optionsEntityKey: "unions" },
-      { name: "active", label: "Activo", type: "checkbox", required: false },
+      { name: "name", label: "fields.name", type: "text", required: true },
+      { name: "abbreviation", label: "fields.abbreviation", type: "text", required: true, placeholder: "CN" },
+      { name: "union_id", label: "fields.union", type: "select", required: true, optionsEntityKey: "unions" },
+      { name: "active", label: "fields.active", type: "checkbox", required: false },
     ],
   },
   districts: {
@@ -124,18 +124,18 @@ export const entityConfigs: Record<EntityKey, EntityConfig> = {
       entityKey: "local-fields",
       fieldName: "local_field_id",
       queryParam: "localFieldId",
-      label: "Campo Local",
+      label: "fields.local_field",
     },
     fields: [
-      { name: "name", label: "Nombre", type: "text", required: true },
+      { name: "name", label: "fields.name", type: "text", required: true },
       {
         name: "local_field_id",
-        label: "Campo Local",
+        label: "fields.local_field",
         type: "select",
         required: true,
         optionsEntityKey: "local-fields",
       },
-      { name: "active", label: "Activo", type: "checkbox", required: false },
+      { name: "active", label: "fields.active", type: "checkbox", required: false },
     ],
   },
   churches: {
@@ -152,12 +152,12 @@ export const entityConfigs: Record<EntityKey, EntityConfig> = {
       entityKey: "districts",
       fieldName: "district_id",
       queryParam: "districtId",
-      label: "Distrito",
+      label: "fields.district",
     },
     fields: [
-      { name: "name", label: "Nombre", type: "text", required: true },
-      { name: "district_id", label: "Distrito", type: "select", required: true, optionsEntityKey: "districts" },
-      { name: "active", label: "Activo", type: "checkbox", required: false },
+      { name: "name", label: "fields.name", type: "text", required: true },
+      { name: "district_id", label: "fields.district", type: "select", required: true, optionsEntityKey: "districts" },
+      { name: "active", label: "fields.active", type: "checkbox", required: false },
     ],
   },
   "relationship-types": {
@@ -171,9 +171,9 @@ export const entityConfigs: Record<EntityKey, EntityConfig> = {
     idField: "relationship_type_id",
     nameField: "name",
     fields: [
-      { name: "name", label: "Nombre", type: "text", required: true },
-      { name: "description", label: "Descripción", type: "textarea" },
-      { name: "active", label: "Activo", type: "checkbox", required: false },
+      { name: "name", label: "fields.name", type: "text", required: true },
+      { name: "description", label: "fields.description", type: "textarea" },
+      { name: "active", label: "fields.active", type: "checkbox", required: false },
     ],
   },
   allergies: {
@@ -187,9 +187,9 @@ export const entityConfigs: Record<EntityKey, EntityConfig> = {
     idField: "allergy_id",
     nameField: "name",
     fields: [
-      { name: "name", label: "Nombre", type: "text", required: true },
-      { name: "description", label: "Descripción", type: "textarea" },
-      { name: "active", label: "Activo", type: "checkbox", required: false },
+      { name: "name", label: "fields.name", type: "text", required: true },
+      { name: "description", label: "fields.description", type: "textarea" },
+      { name: "active", label: "fields.active", type: "checkbox", required: false },
     ],
   },
   diseases: {
@@ -203,9 +203,9 @@ export const entityConfigs: Record<EntityKey, EntityConfig> = {
     idField: "disease_id",
     nameField: "name",
     fields: [
-      { name: "name", label: "Nombre", type: "text", required: true },
-      { name: "description", label: "Descripción", type: "textarea" },
-      { name: "active", label: "Activo", type: "checkbox", required: false },
+      { name: "name", label: "fields.name", type: "text", required: true },
+      { name: "description", label: "fields.description", type: "textarea" },
+      { name: "active", label: "fields.active", type: "checkbox", required: false },
     ],
   },
   medicines: {
@@ -219,9 +219,9 @@ export const entityConfigs: Record<EntityKey, EntityConfig> = {
     idField: "medicine_id",
     nameField: "name",
     fields: [
-      { name: "name", label: "Nombre", type: "text", required: true },
-      { name: "description", label: "Descripción", type: "textarea" },
-      { name: "active", label: "Activo", type: "checkbox", required: false },
+      { name: "name", label: "fields.name", type: "text", required: true },
+      { name: "description", label: "fields.description", type: "textarea" },
+      { name: "active", label: "fields.active", type: "checkbox", required: false },
     ],
   },
   "ecclesiastical-years": {
@@ -235,9 +235,9 @@ export const entityConfigs: Record<EntityKey, EntityConfig> = {
     idField: "ecclesiastical_year_id",
     nameField: "name",
     fields: [
-      { name: "start_date", label: "Fecha inicio", type: "date", required: true },
-      { name: "end_date", label: "Fecha fin", type: "date", required: true },
-      { name: "active", label: "Activo", type: "checkbox", required: false },
+      { name: "start_date", label: "fields.start_date", type: "date", required: true },
+      { name: "end_date", label: "fields.end_date", type: "date", required: true },
+      { name: "active", label: "fields.active", type: "checkbox", required: false },
     ],
   },
   "club-types": {
@@ -251,8 +251,8 @@ export const entityConfigs: Record<EntityKey, EntityConfig> = {
     idField: "club_type_id",
     nameField: "name",
     fields: [
-      { name: "name", label: "Nombre", type: "text", required: true },
-      { name: "active", label: "Activo", type: "checkbox", required: false },
+      { name: "name", label: "fields.name", type: "text", required: true },
+      { name: "active", label: "fields.active", type: "checkbox", required: false },
     ],
   },
   "club-ideals": {
@@ -266,16 +266,16 @@ export const entityConfigs: Record<EntityKey, EntityConfig> = {
     idField: "club_ideal_id",
     nameField: "name",
     fields: [
-      { name: "name", label: "Nombre", type: "text", required: true },
-      { name: "description", label: "Descripción", type: "textarea" },
+      { name: "name", label: "fields.name", type: "text", required: true },
+      { name: "description", label: "fields.description", type: "textarea" },
       {
         name: "club_type_id",
-        label: "Tipo de club",
+        label: "fields.club_type",
         type: "select",
         required: true,
         optionsEntityKey: "club-types",
       },
-      { name: "active", label: "Activo", type: "checkbox", required: false },
+      { name: "active", label: "fields.active", type: "checkbox", required: false },
     ],
   },
   "activity-types": {
@@ -289,10 +289,10 @@ export const entityConfigs: Record<EntityKey, EntityConfig> = {
     idField: "activity_type_id",
     nameField: "name",
     fields: [
-      { name: "code", label: "Código", type: "text", required: true, placeholder: "CULTO" },
-      { name: "name", label: "Nombre", type: "text", required: true, placeholder: "Culto de Adoración" },
-      { name: "description", label: "Descripción", type: "textarea" },
-      { name: "active", label: "Activo", type: "checkbox", required: false },
+      { name: "code", label: "fields.code", type: "text", required: true, placeholder: "CULTO" },
+      { name: "name", label: "fields.name", type: "text", required: true, placeholder: "Culto de Adoración" },
+      { name: "description", label: "fields.description", type: "textarea" },
+      { name: "active", label: "fields.active", type: "checkbox", required: false },
     ],
   },
 };

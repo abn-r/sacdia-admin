@@ -111,6 +111,7 @@ export function CatalogCrudPage({
 }: CatalogCrudPageProps) {
   const tEntities = useTranslations("catalogs.entities");
   const tActions = useTranslations("catalogs.actions");
+  const tCatalogs = useTranslations("catalogs");
   const entityTitle = tEntities(`${config.key}.title`);
   const entitySingular = tEntities(`${config.key}.singular`);
   const entityDescription = tEntities(`${config.key}.description`);
@@ -240,7 +241,7 @@ export function CatalogCrudPage({
                       key={f.name}
                       className={`${TH_BASE} ${COL_MID}`}
                     >
-                      {f.label}
+                      {tCatalogs(f.label)}
                     </TableHead>
                   ))}
 

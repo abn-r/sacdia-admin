@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { Loader2, Plus, PenLine, Check, AlertCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -71,6 +72,7 @@ export function CatalogFormDialog({
   selectOptions = {},
   formAction,
 }: CatalogFormDialogProps) {
+  const t = useTranslations("catalogs");
   const isEdit = !!initialValues;
   const [state, action] = useActionState(formAction, {});
   const [checkboxValues, setCheckboxValues] = useState<Record<string, boolean>>({});
@@ -145,7 +147,7 @@ export function CatalogFormDialog({
                       setCheckboxValues((prev) => ({ ...prev, [field.name]: !!checked }))
                     }
                   />
-                  <Label htmlFor={field.name}>{field.label}</Label>
+                  <Label htmlFor={field.name}>{t(field.label)}</Label>
                 </div>
               );
             }
@@ -159,7 +161,7 @@ export function CatalogFormDialog({
               return (
                 <div key={field.name} className="space-y-1.5">
                   <Label htmlFor={field.name} className="text-sm font-medium">
-                    {field.label}
+                    {t(field.label)}
                     {field.required && <span className="text-destructive/70 ml-0.5">*</span>}
                   </Label>
                   <Select
@@ -168,7 +170,7 @@ export function CatalogFormDialog({
                     required={field.required}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder={`Seleccionar ${field.label.toLowerCase()}`} />
+                      <SelectValue placeholder={`Seleccionar ${t(field.label).toLowerCase()}`} />
                     </SelectTrigger>
                     <SelectContent>
                       {validOptions.map((opt, idx) => (
@@ -186,7 +188,7 @@ export function CatalogFormDialog({
               return (
                 <div key={field.name} className="space-y-1.5">
                   <Label htmlFor={field.name} className="text-sm font-medium">
-                    {field.label}
+                    {t(field.label)}
                     {field.required && <span className="text-destructive/70 ml-0.5">*</span>}
                   </Label>
                   <Textarea
@@ -205,7 +207,7 @@ export function CatalogFormDialog({
             return (
               <div key={field.name} className="space-y-1.5">
                 <Label htmlFor={field.name} className="text-sm font-medium">
-                  {field.label}
+                  {t(field.label)}
                   {field.required && <span className="text-destructive/70 ml-0.5">*</span>}
                 </Label>
                 <Input
