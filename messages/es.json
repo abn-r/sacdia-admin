@@ -191,6 +191,24 @@
         "singular": "tipo de actividad",
         "description": "Catálogo de tipos de actividad para clasificar las actividades del club."
       }
+    },
+    "errors": {
+      "entity_not_supported": "Entidad no soportada",
+      "read_only_catalog": "Este catálogo es de solo lectura en la API oficial",
+      "op_create_failed": "No se pudo crear el registro",
+      "op_update_failed": "No se pudo actualizar el registro",
+      "op_delete_failed": "No se pudo eliminar el registro"
+    },
+    "validation": {
+      "delete_target_not_identified": "No se pudo identificar el registro a eliminar"
+    },
+    "success": {
+      "op_create_title": "Registro creado",
+      "op_create_description": "El registro se creó correctamente.",
+      "op_update_title": "Registro actualizado",
+      "op_update_description": "El registro se actualizó correctamente.",
+      "op_delete_title": "Registro eliminado",
+      "op_delete_description": "El registro se eliminó correctamente."
     }
   },
   "auth": {

@@ -191,6 +191,24 @@
         "singular": "activity type",
         "description": "Activity type catalog used to classify club activities."
       }
+    },
+    "errors": {
+      "entity_not_supported": "Unsupported entity",
+      "read_only_catalog": "This catalog is read-only in the official API",
+      "op_create_failed": "Could not create the record",
+      "op_update_failed": "Could not update the record",
+      "op_delete_failed": "Could not delete the record"
+    },
+    "validation": {
+      "delete_target_not_identified": "Could not identify the record to delete"
+    },
+    "success": {
+      "op_create_title": "Record created",
+      "op_create_description": "The record was created successfully.",
+      "op_update_title": "Record updated",
+      "op_update_description": "The record was updated successfully.",
+      "op_delete_title": "Record deleted",
+      "op_delete_description": "The record was deleted successfully."
     }
   },
   "auth": {
