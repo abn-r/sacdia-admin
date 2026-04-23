@@ -69,7 +69,7 @@ const cspValue = [
   `default-src 'self'`,
   `script-src ${scriptSrc}`,
   `style-src 'self' 'unsafe-inline'`,
-  `img-src 'self' data: blob: https://lh3.googleusercontent.com https://avatars.githubusercontent.com https://pub-c8aa231ae66c46ff96fc5e811994d9d2.r2.dev https://5da196c051c48c7a4ebeea275a2b23d1.r2.cloudflarestorage.com`,
+  `img-src 'self' data: blob: https://lh3.googleusercontent.com https://avatars.githubusercontent.com https://pub-c8aa231ae66c46ff96fc5e811994d9d2.r2.dev https://pub-c0e79f5fa4634581867fab5b0fed605c.r2.dev https://5da196c051c48c7a4ebeea275a2b23d1.r2.cloudflarestorage.com`,
   `font-src 'self' data:`,
   `connect-src 'self' ${backendOrigin} https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.us.sentry.io`,
   `frame-ancestors 'none'`,
@@ -113,6 +113,13 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "pub-c8aa231ae66c46ff96fc5e811994d9d2.r2.dev",
+        pathname: "/**",
+      },
+      // Cloudflare R2 — public CDN bucket (member photos, club assets)
+      {
+        protocol: "https",
+        hostname: "pub-c0e79f5fa4634581867fab5b0fed605c.r2.dev",
+        pathname: "/**",
       },
       // Cloudflare R2 — private S3-compatible endpoint (user profiles, secure documents)
       {

@@ -186,7 +186,7 @@ export const navConfig: NavGroup[] = [
 
   // ─── Validación e Investiduras ───────────────────────────────────────────────
   {
-    label: "sections.administration",
+    label: "sections.validation",
     items: [
       {
         title: "items.validation",
