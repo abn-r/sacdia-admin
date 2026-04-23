@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
+import { getActionErrorMessage } from "@/lib/api/action-error";
 import {
   createAchievementCategory,
   updateAchievementCategory,
@@ -17,6 +19,10 @@ import {
   type AchievementCriteria,
 } from "@/lib/api/achievements";
 import { requireAdminUser } from "@/lib/auth/session";
+
+type AchievementsTranslator = Awaited<
+  ReturnType<typeof getTranslations<"achievements">>
+>;
 
 const ACHIEVEMENTS_PATH = "/dashboard/achievements";
 
@@ -53,9 +59,12 @@ function parseNumber(formData: FormData, fieldName: string): number | null {
 
 // ─── Category Actions ─────────────────────────────────────────────────────────
 
-function buildCategoryPayload(formData: FormData): AchievementCategoryPayload {
+function buildCategoryPayload(
+  t: AchievementsTranslator,
+  formData: FormData,
+): AchievementCategoryPayload {
   const name = readString(formData, "name");
-  if (!name) throw new Error("El nombre de la categoría es obligatorio");
+  if (!name) throw new Error(t("validation.category_name_required"));
 
   const display_order = parseNumber(formData, "display_order");
 
@@ -73,13 +82,16 @@ export async function createAchievementCategoryAction(
   formData: FormData,
 ): Promise<AchievementActionState> {
   await requireAdminUser();
+  const t = await getTranslations("achievements");
 
   try {
-    const payload = buildCategoryPayload(formData);
+    const payload = buildCategoryPayload(t, formData);
     await createAchievementCategory(payload);
   } catch (error) {
     return {
-      error: error instanceof Error ? error.message : "No se pudo crear la categoría",
+      error: getActionErrorMessage(error, t("errors.create_category_failed"), {
+        endpointLabel: "/achievement-categories",
+      }),
     };
   }
 
@@ -92,16 +104,19 @@ export async function updateAchievementCategoryAction(
   formData: FormData,
 ): Promise<AchievementActionState> {
   await requireAdminUser();
+  const t = await getTranslations("achievements");
 
   const categoryId = parsePositiveNumber(formData, "id");
-  if (!categoryId) return { error: "No se pudo identificar la categoría a editar." };
+  if (!categoryId) return { error: t("validation.category_edit_not_identified") };
 
   try {
-    const payload = buildCategoryPayload(formData);
+    const payload = buildCategoryPayload(t, formData);
     await updateAchievementCategory(categoryId, payload);
   } catch (error) {
     return {
-      error: error instanceof Error ? error.message : "No se pudo actualizar la categoría",
+      error: getActionErrorMessage(error, t("errors.update_category_failed"), {
+        endpointLabel: `/achievement-categories/${categoryId}`,
+      }),
     };
   }
 
@@ -114,15 +129,18 @@ export async function deleteAchievementCategoryAction(
   formData: FormData,
 ): Promise<AchievementActionState> {
   await requireAdminUser();
+  const t = await getTranslations("achievements");
 
   const categoryId = parsePositiveNumber(formData, "id");
-  if (!categoryId) return { error: "No se pudo identificar la categoría a eliminar." };
+  if (!categoryId) return { error: t("validation.category_delete_not_identified") };
 
   try {
     await deleteAchievementCategory(categoryId);
   } catch (error) {
     return {
-      error: error instanceof Error ? error.message : "No se pudo eliminar la categoría",
+      error: getActionErrorMessage(error, t("errors.delete_category_failed"), {
+        endpointLabel: `/achievement-categories/${categoryId}`,
+      }),
     };
   }
 
@@ -132,28 +150,31 @@ export async function deleteAchievementCategoryAction(
 
 // ─── Achievement Actions ──────────────────────────────────────────────────────
 
-function buildAchievementPayload(formData: FormData): AchievementPayload {
+function buildAchievementPayload(
+  t: AchievementsTranslator,
+  formData: FormData,
+): AchievementPayload {
   const name = readString(formData, "name");
-  if (!name) throw new Error("El nombre del logro es obligatorio");
+  if (!name) throw new Error(t("validation.achievement_name_required"));
 
   const type = readString(formData, "type") as AchievementType;
-  if (!type) throw new Error("El tipo de logro es obligatorio");
+  if (!type) throw new Error(t("validation.type_required"));
 
   const tier = readString(formData, "tier") as AchievementTier;
-  if (!tier) throw new Error("El nivel del logro es obligatorio");
+  if (!tier) throw new Error(t("validation.tier_required"));
 
   const scope = readString(formData, "scope") as AchievementScope;
-  if (!scope) throw new Error("El alcance del logro es obligatorio");
+  if (!scope) throw new Error(t("validation.scope_required"));
 
   const points = parsePositiveNumber(formData, "points");
-  if (points === null) throw new Error("Los puntos deben ser un número positivo");
+  if (points === null) throw new Error(t("validation.points_positive"));
 
   const criteriaRaw = readString(formData, "criteria");
   let criteria: AchievementCriteria;
   try {
     criteria = JSON.parse(criteriaRaw) as AchievementCriteria;
   } catch {
-    throw new Error("Los criterios del logro tienen un formato inválido");
+    throw new Error(t("validation.criteria_invalid"));
   }
 
   const category_id = parsePositiveNumber(formData, "category_id");
@@ -183,15 +204,18 @@ export async function createAchievementAction(
   formData: FormData,
 ): Promise<AchievementActionState> {
   await requireAdminUser();
+  const t = await getTranslations("achievements");
 
   const categoryId = parsePositiveNumber(formData, "category_id");
 
   try {
-    const payload = buildAchievementPayload(formData);
+    const payload = buildAchievementPayload(t, formData);
     await createAchievement(payload);
   } catch (error) {
     return {
-      error: error instanceof Error ? error.message : "No se pudo crear el logro",
+      error: getActionErrorMessage(error, t("errors.create_achievement_failed"), {
+        endpointLabel: "/achievements",
+      }),
     };
   }
 
@@ -208,18 +232,21 @@ export async function updateAchievementAction(
   formData: FormData,
 ): Promise<AchievementActionState> {
   await requireAdminUser();
+  const t = await getTranslations("achievements");
 
   const achievementId = parsePositiveNumber(formData, "id");
-  if (!achievementId) return { error: "No se pudo identificar el logro a editar." };
+  if (!achievementId) return { error: t("validation.achievement_edit_not_identified") };
 
   const categoryId = parsePositiveNumber(formData, "category_id");
 
   try {
-    const payload = buildAchievementPayload(formData);
+    const payload = buildAchievementPayload(t, formData);
     await updateAchievement(achievementId, payload);
   } catch (error) {
     return {
-      error: error instanceof Error ? error.message : "No se pudo actualizar el logro",
+      error: getActionErrorMessage(error, t("errors.update_achievement_failed"), {
+        endpointLabel: `/achievements/${achievementId}`,
+      }),
     };
   }
 
@@ -236,9 +263,10 @@ export async function deleteAchievementAction(
   formData: FormData,
 ): Promise<AchievementActionState> {
   await requireAdminUser();
+  const t = await getTranslations("achievements");
 
   const achievementId = parsePositiveNumber(formData, "id");
-  if (!achievementId) return { error: "No se pudo identificar el logro a eliminar." };
+  if (!achievementId) return { error: t("validation.achievement_delete_not_identified") };
 
   const categoryId = parsePositiveNumber(formData, "category_id");
 
@@ -246,7 +274,9 @@ export async function deleteAchievementAction(
     await deleteAchievement(achievementId);
   } catch (error) {
     return {
-      error: error instanceof Error ? error.message : "No se pudo eliminar el logro",
+      error: getActionErrorMessage(error, t("errors.delete_achievement_failed"), {
+        endpointLabel: `/achievements/${achievementId}`,
+      }),
     };
   }
 

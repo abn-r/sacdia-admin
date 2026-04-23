@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
+import { getActionErrorMessage } from "@/lib/api/action-error";
 import {
   createResourceCategory,
   deleteResourceCategory,
@@ -17,6 +19,10 @@ import {
 import { requireAdminUser } from "@/lib/auth/session";
 
 const RESOURCE_CATEGORIES_PATH = "/dashboard/resources/categories";
+
+type ResourceCategoriesTranslator = Awaited<
+  ReturnType<typeof getTranslations<"resource_categories">>
+>;
 
 export type ResourceCategoryActionState = {
   error?: string;
@@ -38,9 +44,12 @@ function parsePositiveNumber(formData: FormData, field: string) {
   return Math.floor(parsed);
 }
 
-function buildCreatePayload(formData: FormData): ResourceCategoryPayload {
+function buildCreatePayload(
+  t: ResourceCategoriesTranslator,
+  formData: FormData,
+): ResourceCategoryPayload {
   const name = readString(formData, "name");
-  if (!name) throw new Error("El nombre de la categoría es obligatorio.");
+  if (!name) throw new Error(t("validation.name_required"));
   return {
     name,
     description: readString(formData, "description") || undefined,
@@ -62,14 +71,19 @@ export async function createResourceCategoryAction(
   formData: FormData,
 ): Promise<ResourceCategoryActionState> {
   const user = await requireAdminUser();
+  const t = await getTranslations("resource_categories");
   if (!hasAnyPermission(user, [RESOURCE_CATEGORIES_CREATE])) {
-    return { error: "No tienes permisos para crear categorías de recursos." };
+    return { error: t("errors.no_permission_create") };
   }
   try {
-    const payload = buildCreatePayload(formData);
+    const payload = buildCreatePayload(t, formData);
     await createResourceCategory(payload);
   } catch (error) {
-    return { error: error instanceof Error ? error.message : "No se pudo crear la categoría." };
+    return {
+      error: getActionErrorMessage(error, t("errors.create_failed"), {
+        endpointLabel: "/resource-categories",
+      }),
+    };
   }
   revalidatePath(RESOURCE_CATEGORIES_PATH);
   redirect(RESOURCE_CATEGORIES_PATH);
@@ -80,16 +94,21 @@ export async function updateResourceCategoryAction(
   formData: FormData,
 ): Promise<ResourceCategoryActionState> {
   const user = await requireAdminUser();
+  const t = await getTranslations("resource_categories");
   if (!hasAnyPermission(user, [RESOURCE_CATEGORIES_UPDATE])) {
-    return { error: "No tienes permisos para editar categorías de recursos." };
+    return { error: t("errors.no_permission_update") };
   }
   const id = parsePositiveNumber(formData, "id");
-  if (!id) return { error: "No se pudo identificar la categoría a editar." };
+  if (!id) return { error: t("validation.category_not_identified_update") };
   try {
     const payload = buildUpdatePayload(formData);
     await updateResourceCategory(id, payload);
   } catch (error) {
-    return { error: error instanceof Error ? error.message : "No se pudo actualizar la categoría." };
+    return {
+      error: getActionErrorMessage(error, t("errors.update_failed"), {
+        endpointLabel: `/resource-categories/${id}`,
+      }),
+    };
   }
   revalidatePath(RESOURCE_CATEGORIES_PATH);
   redirect(RESOURCE_CATEGORIES_PATH);
@@ -100,15 +119,20 @@ export async function deleteResourceCategoryAction(
   formData: FormData,
 ): Promise<ResourceCategoryActionState> {
   const user = await requireAdminUser();
+  const t = await getTranslations("resource_categories");
   if (!hasAnyPermission(user, [RESOURCE_CATEGORIES_DELETE])) {
-    return { error: "No tienes permisos para eliminar categorías de recursos." };
+    return { error: t("errors.no_permission_delete") };
   }
   const id = parsePositiveNumber(formData, "id");
-  if (!id) return { error: "No se pudo identificar la categoría a eliminar." };
+  if (!id) return { error: t("validation.category_not_identified_delete") };
   try {
     await deleteResourceCategory(id);
   } catch (error) {
-    return { error: error instanceof Error ? error.message : "No se pudo eliminar la categoría." };
+    return {
+      error: getActionErrorMessage(error, t("errors.delete_failed"), {
+        endpointLabel: `/resource-categories/${id}`,
+      }),
+    };
   }
   revalidatePath(RESOURCE_CATEGORIES_PATH);
   redirect(RESOURCE_CATEGORIES_PATH);

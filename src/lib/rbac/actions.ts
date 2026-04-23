@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
+import { getActionErrorMessage } from "@/lib/api/action-error";
 import type { RbacActionState } from "@/lib/rbac/types";
 import {
   createPermission,
@@ -22,16 +24,17 @@ export async function createPermissionAction(
   formData: FormData,
 ): Promise<RbacActionState> {
   await requireAdminUser();
+  const t = await getTranslations("rbac");
 
   const permissionName = String(formData.get("permission_name") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
 
   if (!permissionName) {
-    return { error: "El nombre del permiso es obligatorio" };
+    return { error: t("validation.permission_name_required") };
   }
 
   if (!/^[a-z_]+:[a-z_]+$/.test(permissionName)) {
-    return { error: "El formato debe ser resource:action (minusculas, separado por :)" };
+    return { error: t("validation.permission_name_format") };
   }
 
   try {
@@ -41,7 +44,9 @@ export async function createPermissionAction(
     });
   } catch (error) {
     return {
-      error: error instanceof Error ? error.message : "No se pudo crear el permiso",
+      error: getActionErrorMessage(error, t("errors.create_permission_failed"), {
+        endpointLabel: "/rbac/permissions",
+      }),
     };
   }
 
@@ -55,17 +60,18 @@ export async function updatePermissionAction(
   formData: FormData,
 ): Promise<RbacActionState> {
   await requireAdminUser();
+  const t = await getTranslations("rbac");
 
   const permissionName = String(formData.get("permission_name") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   const active = formData.get("active") === "on" || formData.get("active") === "true";
 
   if (!permissionName) {
-    return { error: "El nombre del permiso es obligatorio" };
+    return { error: t("validation.permission_name_required") };
   }
 
   if (!/^[a-z_]+:[a-z_]+$/.test(permissionName)) {
-    return { error: "El formato debe ser resource:action (minusculas, separado por :)" };
+    return { error: t("validation.permission_name_format") };
   }
 
   try {
@@ -76,7 +82,9 @@ export async function updatePermissionAction(
     });
   } catch (error) {
     return {
-      error: error instanceof Error ? error.message : "No se pudo actualizar el permiso",
+      error: getActionErrorMessage(error, t("errors.update_permission_failed"), {
+        endpointLabel: `/rbac/permissions/${id}`,
+      }),
     };
   }
 
@@ -105,6 +113,7 @@ export async function createRoleAction(
   formData: FormData,
 ): Promise<RbacActionState> {
   await requireAdminUser();
+  const t = await getTranslations("rbac");
 
   const roleName = String(formData.get("role_name") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
@@ -115,27 +124,27 @@ export async function createRoleAction(
     : [];
 
   if (!roleName) {
-    return { error: "El nombre del rol es obligatorio" };
+    return { error: t("validation.role_name_required") };
   }
 
   if (!/^[a-z_]{3,64}$/.test(roleName)) {
-    return { error: "El nombre debe tener entre 3 y 64 caracteres en minúsculas (solo letras y guiones bajos)" };
+    return { error: t("validation.role_name_format") };
   }
 
   if (roleName === "super_admin") {
-    return { error: "No se puede crear un rol con el nombre 'super_admin'" };
+    return { error: t("validation.role_name_reserved") };
   }
 
   if (description.length < 10) {
-    return { error: "La descripción debe tener al menos 10 caracteres" };
+    return { error: t("validation.description_min_length") };
   }
 
   if (description.length > 500) {
-    return { error: "La descripción no puede superar los 500 caracteres" };
+    return { error: t("validation.description_max_length") };
   }
 
   if (!["GLOBAL", "CLUB"].includes(roleCategory)) {
-    return { error: "La categoría debe ser GLOBAL o CLUB" };
+    return { error: t("validation.role_category_invalid") };
   }
 
   try {
@@ -147,7 +156,9 @@ export async function createRoleAction(
     });
   } catch (error) {
     return {
-      error: error instanceof Error ? error.message : "No se pudo crear el rol",
+      error: getActionErrorMessage(error, t("errors.create_role_failed"), {
+        endpointLabel: "/rbac/roles",
+      }),
     };
   }
 
@@ -161,6 +172,7 @@ export async function updateRoleAction(
   formData: FormData,
 ): Promise<RbacActionState> {
   await requireAdminUser();
+  const t = await getTranslations("rbac");
 
   const description = String(formData.get("description") ?? "").trim();
   const permissionIdsRaw = formData.get("permission_ids");
@@ -169,11 +181,11 @@ export async function updateRoleAction(
     : [];
 
   if (description.length < 10) {
-    return { error: "La descripción debe tener al menos 10 caracteres" };
+    return { error: t("validation.description_min_length") };
   }
 
   if (description.length > 500) {
-    return { error: "La descripción no puede superar los 500 caracteres" };
+    return { error: t("validation.description_max_length") };
   }
 
   try {
@@ -183,7 +195,9 @@ export async function updateRoleAction(
     });
   } catch (error) {
     return {
-      error: error instanceof Error ? error.message : "No se pudo actualizar el rol",
+      error: getActionErrorMessage(error, t("errors.update_role_failed"), {
+        endpointLabel: `/rbac/roles/${roleId}`,
+      }),
     };
   }
 
@@ -195,12 +209,15 @@ export async function deactivateRoleAction(
   roleId: string,
 ): Promise<{ error?: string }> {
   await requireAdminUser();
+  const t = await getTranslations("rbac");
 
   try {
     await deactivateRole(roleId);
   } catch (error) {
     return {
-      error: error instanceof Error ? error.message : "No se pudo desactivar el rol",
+      error: getActionErrorMessage(error, t("errors.deactivate_role_failed"), {
+        endpointLabel: `/rbac/roles/${roleId}`,
+      }),
     };
   }
 
@@ -214,6 +231,7 @@ export async function syncRolePermissionsAction(
   formData: FormData,
 ): Promise<RbacActionState> {
   await requireAdminUser();
+  const t = await getTranslations("rbac");
 
   const permissionIdsRaw = formData.get("permission_ids");
   const permissionIds: string[] = permissionIdsRaw
@@ -224,10 +242,12 @@ export async function syncRolePermissionsAction(
     await syncRolePermissions(roleId, permissionIds);
   } catch (error) {
     return {
-      error: error instanceof Error ? error.message : "No se pudieron sincronizar los permisos",
+      error: getActionErrorMessage(error, t("errors.sync_permissions_failed"), {
+        endpointLabel: `/rbac/roles/${roleId}/permissions`,
+      }),
     };
   }
 
   revalidatePath(ROLES_PATH);
-  return { success: "Permisos actualizados correctamente" };
+  return { success: t("success.permissions_updated") };
 }

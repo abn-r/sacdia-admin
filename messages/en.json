@@ -341,5 +341,125 @@
       "advisor": "Advisor",
       "substitute_advisor": "Substitute advisor"
     }
+  },
+  "honors": {
+    "errors": {
+      "no_permission_create": "You do not have permission to create honors.",
+      "no_permission_update": "You do not have permission to edit honors.",
+      "no_permission_delete": "You do not have permission to delete honors.",
+      "create_failed": "The honor could not be created",
+      "update_failed": "The honor could not be updated",
+      "delete_failed": "The honor could not be deleted"
+    },
+    "validation": {
+      "honor_name_required": "The honor name is required",
+      "field_invalid": "The {field} field is invalid",
+      "no_changes": "No changes to save",
+      "honor_not_identified": "The honor to delete could not be identified."
+    }
+  },
+  "honor_categories": {
+    "errors": {
+      "no_permission_create": "You do not have permission to create honor categories.",
+      "no_permission_update": "You do not have permission to edit honor categories.",
+      "no_permission_delete": "You do not have permission to delete honor categories.",
+      "create_failed": "The category could not be created",
+      "update_failed": "The category could not be updated",
+      "delete_failed": "The category could not be deleted"
+    },
+    "validation": {
+      "name_required": "The category name is required",
+      "no_changes": "No changes to save",
+      "category_not_identified_update": "The category to edit could not be identified.",
+      "category_not_identified_delete": "The category to delete could not be identified."
+    }
+  },
+  "rbac": {
+    "errors": {
+      "create_permission_failed": "The permission could not be created",
+      "update_permission_failed": "The permission could not be updated",
+      "create_role_failed": "The role could not be created",
+      "update_role_failed": "The role could not be updated",
+      "deactivate_role_failed": "The role could not be deactivated",
+      "sync_permissions_failed": "Permissions could not be synchronized"
+    },
+    "validation": {
+      "permission_name_required": "The permission name is required",
+      "permission_name_format": "The format must be resource:action (lowercase, separated by :)",
+      "role_name_required": "The role name is required",
+      "role_name_format": "The name must be 3 to 64 lowercase characters (letters and underscores only)",
+      "role_name_reserved": "Cannot create a role named 'super_admin'",
+      "description_min_length": "The description must be at least 10 characters",
+      "description_max_length": "The description cannot exceed 500 characters",
+      "role_category_invalid": "The category must be GLOBAL or CLUB"
+    },
+    "success": {
+      "permissions_updated": "Permissions updated successfully"
+    }
+  },
+  "resource_categories": {
+    "errors": {
+      "no_permission_create": "You do not have permission to create resource categories.",
+      "no_permission_update": "You do not have permission to edit resource categories.",
+      "no_permission_delete": "You do not have permission to delete resource categories.",
+      "create_failed": "The category could not be created.",
+      "update_failed": "The category could not be updated.",
+      "delete_failed": "The category could not be deleted."
+    },
+    "validation": {
+      "name_required": "The category name is required.",
+      "category_not_identified_update": "The category to edit could not be identified.",
+      "category_not_identified_delete": "The category to delete could not be identified."
+    }
+  },
+  "achievements": {
+    "errors": {
+      "create_category_failed": "The category could not be created",
+      "update_category_failed": "The category could not be updated",
+      "delete_category_failed": "The category could not be deleted",
+      "create_achievement_failed": "The achievement could not be created",
+      "update_achievement_failed": "The achievement could not be updated",
+      "delete_achievement_failed": "The achievement could not be deleted"
+    },
+    "validation": {
+      "category_name_required": "The category name is required",
+      "category_edit_not_identified": "The category to edit could not be identified.",
+      "category_delete_not_identified": "The category to delete could not be identified.",
+      "achievement_name_required": "The achievement name is required",
+      "type_required": "The achievement type is required",
+      "tier_required": "The achievement tier is required",
+      "scope_required": "The achievement scope is required",
+      "points_positive": "Points must be a positive number",
+      "criteria_invalid": "The achievement criteria have an invalid format",
+      "achievement_edit_not_identified": "The achievement to edit could not be identified.",
+      "achievement_delete_not_identified": "The achievement to delete could not be identified."
+    }
+  },
+  "camporees": {
+    "errors": {
+      "create_failed": "The camporee could not be created",
+      "update_failed": "The camporee could not be updated",
+      "register_member_failed": "The member could not be registered to the camporee",
+      "remove_member_failed": "The member could not be removed from the camporee"
+    },
+    "validation": {
+      "field_required": "The {field} field is required",
+      "field_invalid": "The {field} field is invalid",
+      "name_required": "The camporee name is required",
+      "dates_required": "Start and end dates are required",
+      "place_required": "The camporee location is required",
+      "no_changes": "No changes to save",
+      "user_id_required": "The user ID is required.",
+      "camporee_type_invalid": "The camporee type must be local or union.",
+      "insurance_invalid": "Invalid insurance.",
+      "member_remove_not_identified": "The member to remove could not be identified."
+    },
+    "success": {
+      "member_registered": "Member registered successfully.",
+      "member_removed": "Member removed successfully."
+    },
+    "fields": {
+      "local_field": "Local field"
+    }
   }
 }

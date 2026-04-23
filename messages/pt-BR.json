@@ -341,5 +341,125 @@
       "advisor": "Conselheiro",
       "substitute_advisor": "Conselheiro suplente"
     }
+  },
+  "honors": {
+    "errors": {
+      "no_permission_create": "Você não tem permissão para criar especialidades.",
+      "no_permission_update": "Você não tem permissão para editar especialidades.",
+      "no_permission_delete": "Você não tem permissão para excluir especialidades.",
+      "create_failed": "Não foi possível criar a especialidade",
+      "update_failed": "Não foi possível atualizar a especialidade",
+      "delete_failed": "Não foi possível excluir a especialidade"
+    },
+    "validation": {
+      "honor_name_required": "O nome da especialidade é obrigatório",
+      "field_invalid": "O campo {field} não é válido",
+      "no_changes": "Não há alterações para salvar",
+      "honor_not_identified": "Não foi possível identificar a especialidade a excluir."
+    }
+  },
+  "honor_categories": {
+    "errors": {
+      "no_permission_create": "Você não tem permissão para criar categorias de especialidades.",
+      "no_permission_update": "Você não tem permissão para editar categorias de especialidades.",
+      "no_permission_delete": "Você não tem permissão para excluir categorias de especialidades.",
+      "create_failed": "Não foi possível criar a categoria",
+      "update_failed": "Não foi possível atualizar a categoria",
+      "delete_failed": "Não foi possível excluir a categoria"
+    },
+    "validation": {
+      "name_required": "O nome da categoria é obrigatório",
+      "no_changes": "Não há alterações para salvar",
+      "category_not_identified_update": "Não foi possível identificar a categoria a editar.",
+      "category_not_identified_delete": "Não foi possível identificar a categoria a excluir."
+    }
+  },
+  "rbac": {
+    "errors": {
+      "create_permission_failed": "Não foi possível criar a permissão",
+      "update_permission_failed": "Não foi possível atualizar a permissão",
+      "create_role_failed": "Não foi possível criar o papel",
+      "update_role_failed": "Não foi possível atualizar o papel",
+      "deactivate_role_failed": "Não foi possível desativar o papel",
+      "sync_permissions_failed": "Não foi possível sincronizar as permissões"
+    },
+    "validation": {
+      "permission_name_required": "O nome da permissão é obrigatório",
+      "permission_name_format": "O formato deve ser resource:action (minúsculas, separado por :)",
+      "role_name_required": "O nome do papel é obrigatório",
+      "role_name_format": "O nome deve ter entre 3 e 64 caracteres minúsculos (apenas letras e underscores)",
+      "role_name_reserved": "Não é possível criar um papel com o nome 'super_admin'",
+      "description_min_length": "A descrição deve ter pelo menos 10 caracteres",
+      "description_max_length": "A descrição não pode exceder 500 caracteres",
+      "role_category_invalid": "A categoria deve ser GLOBAL ou CLUB"
+    },
+    "success": {
+      "permissions_updated": "Permissões atualizadas com sucesso"
+    }
+  },
+  "resource_categories": {
+    "errors": {
+      "no_permission_create": "Você não tem permissão para criar categorias de recursos.",
+      "no_permission_update": "Você não tem permissão para editar categorias de recursos.",
+      "no_permission_delete": "Você não tem permissão para excluir categorias de recursos.",
+      "create_failed": "Não foi possível criar a categoria.",
+      "update_failed": "Não foi possível atualizar a categoria.",
+      "delete_failed": "Não foi possível excluir a categoria."
+    },
+    "validation": {
+      "name_required": "O nome da categoria é obrigatório.",
+      "category_not_identified_update": "Não foi possível identificar a categoria a editar.",
+      "category_not_identified_delete": "Não foi possível identificar a categoria a excluir."
+    }
+  },
+  "achievements": {
+    "errors": {
+      "create_category_failed": "Não foi possível criar a categoria",
+      "update_category_failed": "Não foi possível atualizar a categoria",
+      "delete_category_failed": "Não foi possível excluir a categoria",
+      "create_achievement_failed": "Não foi possível criar a conquista",
+      "update_achievement_failed": "Não foi possível atualizar a conquista",
+      "delete_achievement_failed": "Não foi possível excluir a conquista"
+    },
+    "validation": {
+      "category_name_required": "O nome da categoria é obrigatório",
+      "category_edit_not_identified": "Não foi possível identificar a categoria a editar.",
+      "category_delete_not_identified": "Não foi possível identificar a categoria a excluir.",
+      "achievement_name_required": "O nome da conquista é obrigatório",
+      "type_required": "O tipo da conquista é obrigatório",
+      "tier_required": "O nível da conquista é obrigatório",
+      "scope_required": "O alcance da conquista é obrigatório",
+      "points_positive": "Os pontos devem ser um número positivo",
+      "criteria_invalid": "Os critérios da conquista têm um formato inválido",
+      "achievement_edit_not_identified": "Não foi possível identificar a conquista a editar.",
+      "achievement_delete_not_identified": "Não foi possível identificar a conquista a excluir."
+    }
+  },
+  "camporees": {
+    "errors": {
+      "create_failed": "Não foi possível criar o camporee",
+      "update_failed": "Não foi possível atualizar o camporee",
+      "register_member_failed": "Não foi possível registrar o membro no camporee",
+      "remove_member_failed": "Não foi possível remover o membro do camporee"
+    },
+    "validation": {
+      "field_required": "O campo {field} é obrigatório",
+      "field_invalid": "O campo {field} não é válido",
+      "name_required": "O nome do camporee é obrigatório",
+      "dates_required": "As datas de início e fim são obrigatórias",
+      "place_required": "O local do camporee é obrigatório",
+      "no_changes": "Não há alterações para salvar",
+      "user_id_required": "O ID do usuário é obrigatório.",
+      "camporee_type_invalid": "O tipo de camporee deve ser local ou union.",
+      "insurance_invalid": "Seguro inválido.",
+      "member_remove_not_identified": "Não foi possível identificar o membro a remover."
+    },
+    "success": {
+      "member_registered": "Membro registrado com sucesso.",
+      "member_removed": "Membro removido com sucesso."
+    },
+    "fields": {
+      "local_field": "Campo local"
+    }
   }
 }

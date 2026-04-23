@@ -341,5 +341,125 @@
       "advisor": "Consejero",
       "substitute_advisor": "Consejero suplente"
     }
+  },
+  "honors": {
+    "errors": {
+      "no_permission_create": "No tiene permisos para crear especialidades.",
+      "no_permission_update": "No tiene permisos para editar especialidades.",
+      "no_permission_delete": "No tiene permisos para eliminar especialidades.",
+      "create_failed": "No se pudo crear la especialidad",
+      "update_failed": "No se pudo actualizar la especialidad",
+      "delete_failed": "No se pudo eliminar la especialidad"
+    },
+    "validation": {
+      "honor_name_required": "El nombre de la especialidad es obligatorio",
+      "field_invalid": "El campo {field} no es válido",
+      "no_changes": "No hay cambios para guardar",
+      "honor_not_identified": "No se pudo identificar la especialidad a eliminar."
+    }
+  },
+  "honor_categories": {
+    "errors": {
+      "no_permission_create": "No tiene permisos para crear categorías de especialidades.",
+      "no_permission_update": "No tiene permisos para editar categorías de especialidades.",
+      "no_permission_delete": "No tiene permisos para eliminar categorías de especialidades.",
+      "create_failed": "No se pudo crear la categoría",
+      "update_failed": "No se pudo actualizar la categoría",
+      "delete_failed": "No se pudo eliminar la categoría"
+    },
+    "validation": {
+      "name_required": "El nombre de la categoría es obligatorio",
+      "no_changes": "No hay cambios para guardar",
+      "category_not_identified_update": "No se pudo identificar la categoría a editar.",
+      "category_not_identified_delete": "No se pudo identificar la categoría a eliminar."
+    }
+  },
+  "rbac": {
+    "errors": {
+      "create_permission_failed": "No se pudo crear el permiso",
+      "update_permission_failed": "No se pudo actualizar el permiso",
+      "create_role_failed": "No se pudo crear el rol",
+      "update_role_failed": "No se pudo actualizar el rol",
+      "deactivate_role_failed": "No se pudo desactivar el rol",
+      "sync_permissions_failed": "No se pudieron sincronizar los permisos"
+    },
+    "validation": {
+      "permission_name_required": "El nombre del permiso es obligatorio",
+      "permission_name_format": "El formato debe ser resource:action (minúsculas, separado por :)",
+      "role_name_required": "El nombre del rol es obligatorio",
+      "role_name_format": "El nombre debe tener entre 3 y 64 caracteres en minúsculas (solo letras y guiones bajos)",
+      "role_name_reserved": "No se puede crear un rol con el nombre 'super_admin'",
+      "description_min_length": "La descripción debe tener al menos 10 caracteres",
+      "description_max_length": "La descripción no puede superar los 500 caracteres",
+      "role_category_invalid": "La categoría debe ser GLOBAL o CLUB"
+    },
+    "success": {
+      "permissions_updated": "Permisos actualizados correctamente"
+    }
+  },
+  "resource_categories": {
+    "errors": {
+      "no_permission_create": "No tiene permisos para crear categorías de recursos.",
+      "no_permission_update": "No tiene permisos para editar categorías de recursos.",
+      "no_permission_delete": "No tiene permisos para eliminar categorías de recursos.",
+      "create_failed": "No se pudo crear la categoría.",
+      "update_failed": "No se pudo actualizar la categoría.",
+      "delete_failed": "No se pudo eliminar la categoría."
+    },
+    "validation": {
+      "name_required": "El nombre de la categoría es obligatorio.",
+      "category_not_identified_update": "No se pudo identificar la categoría a editar.",
+      "category_not_identified_delete": "No se pudo identificar la categoría a eliminar."
+    }
+  },
+  "achievements": {
+    "errors": {
+      "create_category_failed": "No se pudo crear la categoría",
+      "update_category_failed": "No se pudo actualizar la categoría",
+      "delete_category_failed": "No se pudo eliminar la categoría",
+      "create_achievement_failed": "No se pudo crear el logro",
+      "update_achievement_failed": "No se pudo actualizar el logro",
+      "delete_achievement_failed": "No se pudo eliminar el logro"
+    },
+    "validation": {
+      "category_name_required": "El nombre de la categoría es obligatorio",
+      "category_edit_not_identified": "No se pudo identificar la categoría a editar.",
+      "category_delete_not_identified": "No se pudo identificar la categoría a eliminar.",
+      "achievement_name_required": "El nombre del logro es obligatorio",
+      "type_required": "El tipo de logro es obligatorio",
+      "tier_required": "El nivel del logro es obligatorio",
+      "scope_required": "El alcance del logro es obligatorio",
+      "points_positive": "Los puntos deben ser un número positivo",
+      "criteria_invalid": "Los criterios del logro tienen un formato inválido",
+      "achievement_edit_not_identified": "No se pudo identificar el logro a editar.",
+      "achievement_delete_not_identified": "No se pudo identificar el logro a eliminar."
+    }
+  },
+  "camporees": {
+    "errors": {
+      "create_failed": "No se pudo crear el camporee",
+      "update_failed": "No se pudo actualizar el camporee",
+      "register_member_failed": "No se pudo registrar el miembro al camporee",
+      "remove_member_failed": "No se pudo remover el miembro del camporee"
+    },
+    "validation": {
+      "field_required": "El campo {field} es obligatorio",
+      "field_invalid": "El campo {field} no es válido",
+      "name_required": "El nombre del camporee es obligatorio",
+      "dates_required": "Las fechas de inicio y fin son obligatorias",
+      "place_required": "El lugar del camporee es obligatorio",
+      "no_changes": "No hay cambios para guardar",
+      "user_id_required": "El ID del usuario es obligatorio.",
+      "camporee_type_invalid": "El tipo de camporee debe ser local o union.",
+      "insurance_invalid": "Seguro inválido.",
+      "member_remove_not_identified": "No se pudo identificar al miembro a remover."
+    },
+    "success": {
+      "member_registered": "Miembro registrado correctamente.",
+      "member_removed": "Miembro removido correctamente."
+    },
+    "fields": {
+      "local_field": "Campo local"
+    }
   }
 }

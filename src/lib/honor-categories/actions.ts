@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
+import { getActionErrorMessage } from "@/lib/api/action-error";
 import {
   createHonorCategory,
   deleteHonorCategory,
@@ -17,6 +19,10 @@ import {
 import { requireAdminUser } from "@/lib/auth/session";
 
 const HONOR_CATEGORIES_PATH = "/dashboard/catalogs/honor-categories";
+
+type HonorCategoriesTranslator = Awaited<
+  ReturnType<typeof getTranslations<"honor_categories">>
+>;
 
 export type HonorCategoryActionState = {
   error?: string;
@@ -44,10 +50,13 @@ function parsePositiveNumber(formData: FormData, fieldName: string) {
   return Math.floor(parsed);
 }
 
-function buildCreatePayload(formData: FormData): HonorCategoryPayload {
+function buildCreatePayload(
+  t: HonorCategoriesTranslator,
+  formData: FormData,
+): HonorCategoryPayload {
   const name = readString(formData, "name");
   if (!name) {
-    throw new Error("El nombre de la categoría es obligatorio");
+    throw new Error(t("validation.name_required"));
   }
 
   return {
@@ -57,7 +66,10 @@ function buildCreatePayload(formData: FormData): HonorCategoryPayload {
   };
 }
 
-function buildUpdatePayload(formData: FormData): Partial<HonorCategoryPayload> {
+function buildUpdatePayload(
+  t: HonorCategoriesTranslator,
+  formData: FormData,
+): Partial<HonorCategoryPayload> {
   const payload: Partial<HonorCategoryPayload> = {};
 
   const name = readString(formData, "name");
@@ -71,7 +83,7 @@ function buildUpdatePayload(formData: FormData): Partial<HonorCategoryPayload> {
   }
 
   if (Object.keys(payload).length === 0) {
-    throw new Error("No hay cambios para guardar");
+    throw new Error(t("validation.no_changes"));
   }
 
   return payload;
@@ -82,23 +94,23 @@ export async function createHonorCategoryAction(
   formData: FormData,
 ): Promise<HonorCategoryActionState> {
   const user = await requireAdminUser();
+  const t = await getTranslations("honor_categories");
   const canCreate = hasAnyPermission(user, [HONOR_CATEGORIES_CREATE]);
 
   if (!canCreate) {
     return {
-      error: "No tienes permisos para crear categorías de especialidades.",
+      error: t("errors.no_permission_create"),
     };
   }
 
   try {
-    const payload = buildCreatePayload(formData);
+    const payload = buildCreatePayload(t, formData);
     await createHonorCategory(payload);
   } catch (error) {
     return {
-      error:
-        error instanceof Error
-          ? error.message
-          : "No se pudo crear la categoría",
+      error: getActionErrorMessage(error, t("errors.create_failed"), {
+        endpointLabel: "/honor-categories",
+      }),
     };
   }
 
@@ -111,28 +123,28 @@ export async function updateHonorCategoryAction(
   formData: FormData,
 ): Promise<HonorCategoryActionState> {
   const user = await requireAdminUser();
+  const t = await getTranslations("honor_categories");
   const canUpdate = hasAnyPermission(user, [HONOR_CATEGORIES_UPDATE]);
 
   if (!canUpdate) {
     return {
-      error: "No tienes permisos para editar categorías de especialidades.",
+      error: t("errors.no_permission_update"),
     };
   }
 
   const honorCategoryId = parsePositiveNumber(formData, "id");
   if (!honorCategoryId) {
-    return { error: "No se pudo identificar la categoría a editar." };
+    return { error: t("validation.category_not_identified_update") };
   }
 
   try {
-    const payload = buildUpdatePayload(formData);
+    const payload = buildUpdatePayload(t, formData);
     await updateHonorCategory(honorCategoryId, payload);
   } catch (error) {
     return {
-      error:
-        error instanceof Error
-          ? error.message
-          : "No se pudo actualizar la categoría",
+      error: getActionErrorMessage(error, t("errors.update_failed"), {
+        endpointLabel: `/honor-categories/${honorCategoryId}`,
+      }),
     };
   }
 
@@ -146,27 +158,27 @@ export async function deleteHonorCategoryAction(
   formData: FormData,
 ): Promise<HonorCategoryActionState> {
   const user = await requireAdminUser();
+  const t = await getTranslations("honor_categories");
   const canDelete = hasAnyPermission(user, [HONOR_CATEGORIES_DELETE]);
 
   if (!canDelete) {
     return {
-      error: "No tienes permisos para eliminar categorías de especialidades.",
+      error: t("errors.no_permission_delete"),
     };
   }
 
   const honorCategoryId = parsePositiveNumber(formData, "id");
   if (!honorCategoryId) {
-    return { error: "No se pudo identificar la categoría a eliminar." };
+    return { error: t("validation.category_not_identified_delete") };
   }
 
   try {
     await deleteHonorCategory(honorCategoryId);
   } catch (error) {
     return {
-      error:
-        error instanceof Error
-          ? error.message
-          : "No se pudo eliminar la categoría",
+      error: getActionErrorMessage(error, t("errors.delete_failed"), {
+        endpointLabel: `/honor-categories/${honorCategoryId}`,
+      }),
     };
   }
 
