@@ -224,6 +224,27 @@
       "show_password": "Mostrar senha",
       "hide_password": "Ocultar senha",
       "verse": "“Tudo posso naquele que me fortalece” — Fp. 4:13"
+    },
+    "validation": {
+      "email_invalid": "Insira um e-mail válido",
+      "password_min": "A senha deve ter pelo menos 8 caracteres",
+      "credentials_invalid": "Credenciais inválidas"
+    },
+    "errors": {
+      "invalid_credentials": "E-mail ou senha incorretos.",
+      "connection": "Erro de conexão. Contate o administrador do sistema.",
+      "session_no_permissions": "Sua sessão não tem permissões para abrir o painel administrativo.",
+      "server_unavailable": "O servidor não respondeu corretamente. Tente novamente em alguns minutos.",
+      "generic_login": "Erro ao entrar. Tente novamente.",
+      "login_failed": "Não foi possível entrar. Tente novamente.",
+      "profile_validation_failed": "Login incompleto. Não foi possível validar o perfil.",
+      "admin_role_required": "Sua conta não tem permissões para este painel. É necessário um papel global de administração.",
+      "denied_no_admin_role": "Sua conta não tem papel administrativo para acessar este painel.",
+      "denied_incomplete_registration": "Você precisa concluir seu registro antes de acessar o painel.",
+      "denied_inactive": "Sua conta está inativa ou bloqueada. Contate o administrador.",
+      "denied_email_unconfirmed": "Você precisa confirmar seu e-mail antes de entrar.",
+      "denied_unauthorized": "Não foi possível autenticar seu acesso ao painel.",
+      "denied_default": "Sua conta não tem permissões para este painel."
     }
   },
   "clubs": {
@@ -460,6 +481,24 @@
     },
     "fields": {
       "local_field": "Campo local"
+    }
+  },
+  "resources": {
+    "errors": {
+      "create_permission_denied": "Você não tem permissão para criar recursos.",
+      "update_permission_denied": "Você não tem permissão para editar recursos.",
+      "delete_permission_denied": "Você não tem permissão para excluir recursos.",
+      "create_failed": "Não foi possível criar o recurso.",
+      "update_failed": "Não foi possível atualizar o recurso.",
+      "delete_failed": "Não foi possível excluir o recurso.",
+      "update_not_found": "Não foi possível identificar o recurso a editar.",
+      "delete_not_found": "Não foi possível identificar o recurso a excluir."
+    },
+    "validation": {
+      "title_required": "O título do recurso é obrigatório.",
+      "resource_type_required": "O tipo de recurso é obrigatório.",
+      "video_url_required": "A URL do vídeo é obrigatória para recursos do tipo vídeo.",
+      "content_required": "O conteúdo é obrigatório para recursos do tipo texto."
     }
   }
 }

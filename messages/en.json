@@ -224,6 +224,27 @@
       "show_password": "Show password",
       "hide_password": "Hide password",
       "verse": "“I can do all things through Christ who strengthens me” — Phil. 4:13"
+    },
+    "validation": {
+      "email_invalid": "Enter a valid email",
+      "password_min": "The password must be at least 8 characters",
+      "credentials_invalid": "Invalid credentials"
+    },
+    "errors": {
+      "invalid_credentials": "Incorrect email or password.",
+      "connection": "Connection error. Contact the system administrator.",
+      "session_no_permissions": "Your session does not have permissions to open the administrative panel.",
+      "server_unavailable": "The server did not respond correctly. Try again in a few minutes.",
+      "generic_login": "Sign-in error. Please try again.",
+      "login_failed": "Unable to sign in. Please try again.",
+      "profile_validation_failed": "Incomplete sign-in. The profile could not be validated.",
+      "admin_role_required": "Your account does not have permissions for this panel. A global administration role is required.",
+      "denied_no_admin_role": "Your account does not have an administrative role to access this panel.",
+      "denied_incomplete_registration": "You must complete your registration before accessing the panel.",
+      "denied_inactive": "Your account is inactive or blocked. Contact the administrator.",
+      "denied_email_unconfirmed": "You must confirm your email before signing in.",
+      "denied_unauthorized": "Could not authenticate your access to the panel.",
+      "denied_default": "Your account does not have permissions for this panel."
     }
   },
   "clubs": {
@@ -460,6 +481,24 @@
     },
     "fields": {
       "local_field": "Local field"
+    }
+  },
+  "resources": {
+    "errors": {
+      "create_permission_denied": "You do not have permission to create resources.",
+      "update_permission_denied": "You do not have permission to edit resources.",
+      "delete_permission_denied": "You do not have permission to delete resources.",
+      "create_failed": "The resource could not be created.",
+      "update_failed": "The resource could not be updated.",
+      "delete_failed": "The resource could not be deleted.",
+      "update_not_found": "Could not identify the resource to edit.",
+      "delete_not_found": "Could not identify the resource to delete."
+    },
+    "validation": {
+      "title_required": "The resource title is required.",
+      "resource_type_required": "The resource type is required.",
+      "video_url_required": "The video URL is required for video resources.",
+      "content_required": "The content is required for text resources."
     }
   }
 }

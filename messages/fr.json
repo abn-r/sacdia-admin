@@ -224,6 +224,27 @@
       "show_password": "Afficher le mot de passe",
       "hide_password": "Masquer le mot de passe",
       "verse": "« Je puis tout par Celui qui me fortifie » — Phil. 4:13"
+    },
+    "validation": {
+      "email_invalid": "Saisissez un e-mail valide",
+      "password_min": "Le mot de passe doit contenir au moins 8 caractères",
+      "credentials_invalid": "Identifiants invalides"
+    },
+    "errors": {
+      "invalid_credentials": "E-mail ou mot de passe incorrects.",
+      "connection": "Erreur de connexion. Contactez l'administrateur du système.",
+      "session_no_permissions": "Votre session n'a pas les autorisations pour ouvrir le panneau administratif.",
+      "server_unavailable": "Le serveur n'a pas répondu correctement. Réessayez dans quelques minutes.",
+      "generic_login": "Erreur de connexion. Réessayez.",
+      "login_failed": "Impossible de se connecter. Réessayez.",
+      "profile_validation_failed": "Connexion incomplète. Le profil n'a pas pu être validé.",
+      "admin_role_required": "Votre compte n'a pas les autorisations pour ce panneau. Un rôle global d'administration est requis.",
+      "denied_no_admin_role": "Votre compte n'a pas de rôle administratif pour accéder à ce panneau.",
+      "denied_incomplete_registration": "Vous devez terminer votre inscription avant d'accéder au panneau.",
+      "denied_inactive": "Votre compte est inactif ou bloqué. Contactez l'administrateur.",
+      "denied_email_unconfirmed": "Vous devez confirmer votre e-mail avant de vous connecter.",
+      "denied_unauthorized": "Impossible d'authentifier votre accès au panneau.",
+      "denied_default": "Votre compte n'a pas les autorisations pour ce panneau."
     }
   },
   "clubs": {
@@ -460,6 +481,24 @@
     },
     "fields": {
       "local_field": "Champ local"
+    }
+  },
+  "resources": {
+    "errors": {
+      "create_permission_denied": "Vous n'avez pas la permission de créer des ressources.",
+      "update_permission_denied": "Vous n'avez pas la permission de modifier des ressources.",
+      "delete_permission_denied": "Vous n'avez pas la permission de supprimer des ressources.",
+      "create_failed": "Impossible de créer la ressource.",
+      "update_failed": "Impossible de mettre à jour la ressource.",
+      "delete_failed": "Impossible de supprimer la ressource.",
+      "update_not_found": "Impossible d'identifier la ressource à modifier.",
+      "delete_not_found": "Impossible d'identifier la ressource à supprimer."
+    },
+    "validation": {
+      "title_required": "Le titre de la ressource est obligatoire.",
+      "resource_type_required": "Le type de ressource est obligatoire.",
+      "video_url_required": "L'URL de la vidéo est obligatoire pour les ressources de type vidéo.",
+      "content_required": "Le contenu est obligatoire pour les ressources de type texte."
     }
   }
 }

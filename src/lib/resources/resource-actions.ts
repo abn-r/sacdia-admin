@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import {
   createResource,
   deleteResource,
@@ -18,6 +19,8 @@ import {
   RESOURCES_UPDATE,
 } from "@/lib/auth/permissions";
 import { requireAdminUser } from "@/lib/auth/session";
+
+type ResourcesTranslator = Awaited<ReturnType<typeof getTranslations<"resources">>>;
 
 const RESOURCES_PATH = "/dashboard/resources";
 
@@ -53,12 +56,12 @@ function toScopeLevel(value: string): ScopeLevel | null {
   return VALID_SCOPE_LEVELS.includes(value as ScopeLevel) ? (value as ScopeLevel) : null;
 }
 
-function buildCreateFormData(formData: FormData): FormData {
+function buildCreateFormData(t: ResourcesTranslator, formData: FormData): FormData {
   const title = readString(formData, "title");
-  if (!title) throw new Error("El título del recurso es obligatorio.");
+  if (!title) throw new Error(t("validation.title_required"));
 
   const resourceType = toResourceType(readString(formData, "resource_type"));
-  if (!resourceType) throw new Error("El tipo de recurso es obligatorio.");
+  if (!resourceType) throw new Error(t("validation.resource_type_required"));
 
   const out = new FormData();
   out.set("title", title);
@@ -83,11 +86,11 @@ function buildCreateFormData(formData: FormData): FormData {
 
   if (resourceType === "video_link") {
     const externalUrl = readString(formData, "external_url");
-    if (!externalUrl) throw new Error("La URL del video es obligatoria para recursos de tipo video.");
+    if (!externalUrl) throw new Error(t("validation.video_url_required"));
     out.set("external_url", externalUrl);
   } else if (resourceType === "text") {
     const content = readString(formData, "content");
-    if (!content) throw new Error("El contenido es obligatorio para recursos de tipo texto.");
+    if (!content) throw new Error(t("validation.content_required"));
     out.set("content", content);
   } else {
     const file = formData.get("file");
@@ -137,14 +140,15 @@ export async function createResourceAction(
   formData: FormData,
 ): Promise<ResourceActionState> {
   const user = await requireAdminUser();
+  const t = await getTranslations("resources");
   if (!hasAnyPermission(user, [RESOURCES_CREATE])) {
-    return { error: "No tienes permisos para crear recursos." };
+    return { error: t("errors.create_permission_denied") };
   }
   try {
-    const outFormData = buildCreateFormData(formData);
+    const outFormData = buildCreateFormData(t, formData);
     await createResource(outFormData);
   } catch (error) {
-    return { error: error instanceof Error ? error.message : "No se pudo crear el recurso." };
+    return { error: error instanceof Error ? error.message : t("errors.create_failed") };
   }
   revalidatePath(RESOURCES_PATH);
   redirect(RESOURCES_PATH);
@@ -155,16 +159,17 @@ export async function updateResourceAction(
   formData: FormData,
 ): Promise<ResourceActionState> {
   const user = await requireAdminUser();
+  const t = await getTranslations("resources");
   if (!hasAnyPermission(user, [RESOURCES_UPDATE])) {
-    return { error: "No tienes permisos para editar recursos." };
+    return { error: t("errors.update_permission_denied") };
   }
   const id = parsePositiveNumber(formData, "id");
-  if (!id) return { error: "No se pudo identificar el recurso a editar." };
+  if (!id) return { error: t("errors.update_not_found") };
   try {
     const payload = buildUpdatePayload(formData);
     await updateResource(id, payload);
   } catch (error) {
-    return { error: error instanceof Error ? error.message : "No se pudo actualizar el recurso." };
+    return { error: error instanceof Error ? error.message : t("errors.update_failed") };
   }
   revalidatePath(RESOURCES_PATH);
   redirect(RESOURCES_PATH);
@@ -175,15 +180,16 @@ export async function deleteResourceAction(
   formData: FormData,
 ): Promise<ResourceActionState> {
   const user = await requireAdminUser();
+  const t = await getTranslations("resources");
   if (!hasAnyPermission(user, [RESOURCES_DELETE])) {
-    return { error: "No tienes permisos para eliminar recursos." };
+    return { error: t("errors.delete_permission_denied") };
   }
   const id = parsePositiveNumber(formData, "id");
-  if (!id) return { error: "No se pudo identificar el recurso a eliminar." };
+  if (!id) return { error: t("errors.delete_not_found") };
   try {
     await deleteResource(id);
   } catch (error) {
-    return { error: error instanceof Error ? error.message : "No se pudo eliminar el recurso." };
+    return { error: error instanceof Error ? error.message : t("errors.delete_failed") };
   }
   revalidatePath(RESOURCES_PATH);
   redirect(RESOURCES_PATH);

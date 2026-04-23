@@ -3,16 +3,14 @@
 import { z } from "zod";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE } from "@/lib/auth/cookies";
 import { hasAdminRole } from "@/lib/auth/roles";
 import { apiRequest, ApiError } from "@/lib/api/client";
 import { clearSession } from "@/lib/auth/session";
 import type { AuthActionState, AuthUser, LoginResponse } from "@/lib/auth/types";
 
-const loginSchema = z.object({
-  email: z.string().email("Ingresa un correo valido"),
-  password: z.string().min(8, "La contrasena debe tener al menos 8 caracteres"),
-});
+type AuthTranslator = Awaited<ReturnType<typeof getTranslations<"auth">>>;
 
 const COOKIE_OPTIONS = {
   path: "/",
@@ -21,35 +19,46 @@ const COOKIE_OPTIONS = {
   httpOnly: true,
 };
 
-function getLoginErrorMessage(error: ApiError, step: "login" | "profile") {
+function buildLoginSchema(t: AuthTranslator) {
+  return z.object({
+    email: z.string().email(t("validation.email_invalid")),
+    password: z.string().min(8, t("validation.password_min")),
+  });
+}
+
+function getLoginErrorMessage(
+  t: AuthTranslator,
+  error: ApiError,
+  step: "login" | "profile",
+) {
   if (step === "login") {
     if (error.status === 400 || error.status === 401) {
-      return "Correo o contrasena incorrectos.";
+      return t("errors.invalid_credentials");
     }
 
     if (error.status === 404) {
       console.warn("[auth] Login endpoint not found. Check NEXT_PUBLIC_API_URL configuration.");
-      return "Error de conexion. Contacta al administrador del sistema.";
+      return t("errors.connection");
     }
   }
 
   if (step === "profile") {
     if (error.status === 401 || error.status === 403) {
-      return "Tu sesion no tiene permisos para abrir el panel administrativo.";
+      return t("errors.session_no_permissions");
     }
 
     if (error.status === 404) {
       console.warn("[auth] /auth/me returned 404. Check API configuration.");
-      return "Error de conexion. Contacta al administrador del sistema.";
+      return t("errors.connection");
     }
   }
 
   if (error.status >= 500) {
-    return "El servidor no respondio correctamente. Intenta nuevamente en unos minutos.";
+    return t("errors.server_unavailable");
   }
 
   console.warn("[auth] Unhandled API error", { status: error.status, step });
-  return "Error al iniciar sesion. Intenta nuevamente.";
+  return t("errors.generic_login");
 }
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -82,7 +91,7 @@ function normalizeText(value: string): string {
   return value.trim().toLowerCase();
 }
 
-function mapDeniedAccessMessage(rawMessage?: string): string | undefined {
+function mapDeniedAccessMessage(t: AuthTranslator, rawMessage?: string): string | undefined {
   if (!rawMessage) {
     return undefined;
   }
@@ -97,7 +106,7 @@ function mapDeniedAccessMessage(rawMessage?: string): string | undefined {
     text.includes("admin privileges") ||
     text.includes("insufficient permissions")
   ) {
-    return "Tu cuenta no tiene rol administrativo para acceder a este panel.";
+    return t("errors.denied_no_admin_role");
   }
 
   if (
@@ -107,7 +116,7 @@ function mapDeniedAccessMessage(rawMessage?: string): string | undefined {
     text.includes("registro incompleto") ||
     text.includes("profile incomplete")
   ) {
-    return "Necesitas completar tu registro antes de ingresar al panel.";
+    return t("errors.denied_incomplete_registration");
   }
 
   if (
@@ -117,7 +126,7 @@ function mapDeniedAccessMessage(rawMessage?: string): string | undefined {
     text.includes("blocked") ||
     text.includes("suspended")
   ) {
-    return "Tu cuenta esta inactiva o bloqueada. Contacta al administrador.";
+    return t("errors.denied_inactive");
   }
 
   if (
@@ -125,17 +134,20 @@ function mapDeniedAccessMessage(rawMessage?: string): string | undefined {
     text.includes("correo no confirmado") ||
     text.includes("email unconfirmed")
   ) {
-    return "Debes confirmar tu correo antes de ingresar.";
+    return t("errors.denied_email_unconfirmed");
   }
 
   if (text.includes("unauthorized") || text.includes("no autorizado")) {
-    return "No fue posible autenticar tu acceso al panel.";
+    return t("errors.denied_unauthorized");
   }
 
   return undefined;
 }
 
-function getDeniedAccessInfo(auth: LoginResponse): { userMessage: string; technicalMessage?: string } {
+function getDeniedAccessInfo(
+  t: AuthTranslator,
+  auth: LoginResponse,
+): { userMessage: string; technicalMessage?: string } {
   const data = asRecord(auth.data);
   const statusText = typeof auth.status === "string" ? auth.status.trim() : "";
   const statusMessage =
@@ -154,7 +166,10 @@ function getDeniedAccessInfo(auth: LoginResponse): { userMessage: string; techni
   );
 
   return {
-    userMessage: mapDeniedAccessMessage(technicalMessage) ?? technicalMessage ?? "Tu cuenta no tiene permisos para este panel.",
+    userMessage:
+      mapDeniedAccessMessage(t, technicalMessage) ??
+      technicalMessage ??
+      t("errors.denied_default"),
     technicalMessage,
   };
 }
@@ -168,13 +183,15 @@ function logDeniedAccess(context: "missing_token" | "login_role", email: string,
 }
 
 export async function loginAction(_: AuthActionState, formData: FormData): Promise<AuthActionState> {
+  const t = await getTranslations("auth");
+  const loginSchema = buildLoginSchema(t);
   const parsed = loginSchema.safeParse({
     email: formData.get("email"),
     password: formData.get("password"),
   });
 
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Credenciales invalidas" };
+    return { error: parsed.error.issues[0]?.message ?? t("validation.credentials_invalid") };
   }
 
   let auth: LoginResponse;
@@ -185,14 +202,14 @@ export async function loginAction(_: AuthActionState, formData: FormData): Promi
     });
   } catch (error) {
     if (error instanceof ApiError) {
-      return { error: getLoginErrorMessage(error, "login") };
+      return { error: getLoginErrorMessage(t, error, "login") };
     }
 
-    return { error: "No fue posible iniciar sesion. Intenta nuevamente." };
+    return { error: t("errors.login_failed") };
   }
 
   const { accessToken, refreshToken, user } = normalizeLoginResponse(auth);
-  const deniedAccessInfo = getDeniedAccessInfo(auth);
+  const deniedAccessInfo = getDeniedAccessInfo(t, auth);
 
   if (user && !hasAdminRole(user)) {
     logDeniedAccess("login_role", parsed.data.email, deniedAccessInfo);
@@ -215,16 +232,15 @@ export async function loginAction(_: AuthActionState, formData: FormData): Promi
     });
   } catch (error) {
     if (error instanceof ApiError) {
-      return { error: getLoginErrorMessage(error, "profile") };
+      return { error: getLoginErrorMessage(t, error, "profile") };
     }
 
-    return { error: "Inicio de sesion incompleto. No se pudo validar el perfil." };
+    return { error: t("errors.profile_validation_failed") };
   }
 
   if (!hasAdminRole(profile)) {
     return {
-      error:
-        "Tu cuenta no tiene permisos para este panel. Necesitas un rol global de administración.",
+      error: t("errors.admin_role_required"),
     };
   }
 
