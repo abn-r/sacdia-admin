@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppAlertListener } from "@/components/shared/app-alert-listener";
@@ -32,23 +34,28 @@ export const metadata: Metadata = {
   icons: { icon: "/logo.ico" },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+  const htmlLang = locale.startsWith("pt") ? "pt" : locale;
   return (
-    <html lang="es" suppressHydrationWarning>
+    <html lang={htmlLang} suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} font-sans antialiased`}
       >
-        <TooltipProvider delayDuration={300}>
-          {children}
-          <Suspense fallback={null}>
-            <AppAlertListener />
-          </Suspense>
-        </TooltipProvider>
-        <Toaster position="top-center" richColors closeButton />
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <TooltipProvider delayDuration={300}>
+            {children}
+            <Suspense fallback={null}>
+              <AppAlertListener />
+            </Suspense>
+          </TooltipProvider>
+          <Toaster position="top-center" richColors closeButton />
+        </NextIntlClientProvider>
       </body>
     </html>
   );
