@@ -25,7 +25,7 @@ interface Props {
   onOpenChange: (open: boolean) => void;
   mode: "create" | "edit";
   item?: CategoryRecord | null;
-  formAction: (prevState: AchievementActionState, formData: FormData) => Promise<AchievementActionState>;
+  formAction: (formData: FormData) => void;
   actionState: AchievementActionState;
 }
 

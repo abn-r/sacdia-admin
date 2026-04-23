@@ -478,7 +478,7 @@ export function AchievementsCrudPage({
                           ) : (
                             <Eye className="size-4 text-muted-foreground/40" aria-label="Visible" />
                           )}
-                          {item.repeatable && (
+                          {Boolean(item.repeatable) && (
                             <RefreshCw className="ml-1 inline size-3.5 text-muted-foreground" aria-label="Repetible" />
                           )}
                         </TableCell>

@@ -45,10 +45,7 @@ interface Props {
   categoryId?: number | null;
   categories?: { id: number; name: string }[];
   allAchievements?: { id: number; name: string }[];
-  formAction: (
-    prevState: AchievementActionState,
-    formData: FormData,
-  ) => Promise<AchievementActionState>;
+  formAction: (formData: FormData) => void;
   actionState: AchievementActionState;
 }
 
