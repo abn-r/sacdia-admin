@@ -36,7 +36,7 @@ import {
   hasAnyPermission,
 } from "@/lib/auth/permission-utils";
 import { getAdminUserMfaStatus } from "@/lib/api/mfa";
-import { USERS_UPDATE } from "@/lib/auth/permissions";
+import { USERS_UPDATE_ADMIN } from "@/lib/auth/permissions";
 import { requireAdminUser } from "@/lib/auth/session";
 import {
   getUserPermissions,
@@ -266,7 +266,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
 
   // Fetch MFA status — returns null when backend admin endpoint is not yet available
   const mfaStatus = await getAdminUserMfaStatus(userId).catch(() => null);
-  const canManageMfa = hasAnyPermission(currentUser, [USERS_UPDATE]);
+  const canManageMfa = hasAnyPermission(currentUser, [USERS_UPDATE_ADMIN]);
 
   // Fetch sessions for the target user via the admin-scoped endpoint.
   sessionsData = await getAdminUserSessions(userId).catch(() => null);

@@ -16,12 +16,8 @@
 // --- Gestión de Usuarios ---
 export const USERS_READ = "users:read";
 export const USERS_READ_DETAIL = "users:read_detail";
-export const USERS_CREATE = "users:create";
-export const USERS_UPDATE = "users:update";
 export const USERS_UPDATE_PROFILE = "users:update_profile";
 export const USERS_UPDATE_ADMIN = "users:update_admin";
-export const USERS_DELETE = "users:delete";
-export const USERS_EXPORT = "users:export";
 export const HEALTH_READ = "health:read";
 export const HEALTH_UPDATE = "health:update";
 export const EMERGENCY_CONTACTS_READ = "emergency_contacts:read";
@@ -29,15 +25,10 @@ export const EMERGENCY_CONTACTS_UPDATE = "emergency_contacts:update";
 export const LEGAL_REPRESENTATIVE_READ = "legal_representative:read";
 export const LEGAL_REPRESENTATIVE_UPDATE = "legal_representative:update";
 export const POST_REGISTRATION_READ = "post_registration:read";
-export const POST_REGISTRATION_UPDATE = "post_registration:update";
 export const REGISTRATION_COMPLETE = "registration:complete";
 
 // --- Roles y Permisos ---
 export const ROLES_READ = "roles:read";
-export const ROLES_CREATE = "roles:create";
-export const ROLES_UPDATE = "roles:update";
-export const ROLES_DELETE = "roles:delete";
-export const ROLES_ASSIGN = "roles:assign";
 export const PERMISSIONS_READ = "permissions:read";
 export const PERMISSIONS_ASSIGN = "permissions:assign";
 
@@ -50,7 +41,6 @@ export const CLUBS_DELETE = "clubs:delete";
 export const CLUB_SECTIONS_READ = "club_sections:read";
 export const CLUB_SECTIONS_CREATE = "club_sections:create";
 export const CLUB_SECTIONS_UPDATE = "club_sections:update";
-export const CLUB_SECTIONS_DELETE = "club_sections:delete";
 export const CLUB_ROLES_READ = "club_roles:read";
 export const CLUB_ROLES_ASSIGN = "club_roles:assign";
 export const CLUB_ROLES_REVOKE = "club_roles:revoke";
@@ -85,11 +75,7 @@ export const CATALOGS_DELETE = "catalogs:delete";
 
 // --- Clases y Honores ---
 export const CLASSES_READ = "classes:read";
-export const CLASSES_CREATE = "classes:create";
-export const CLASSES_UPDATE = "classes:update";
 export const CLASSES_SUBMIT_PROGRESS = "classes:submit_progress";
-export const CLASSES_VALIDATE = "classes:validate";
-export const CLASSES_DELETE = "classes:delete";
 export const HONORS_READ = "honors:read";
 export const HONORS_CREATE = "honors:create";
 export const HONORS_UPDATE = "honors:update";
@@ -125,7 +111,6 @@ export const FINANCES_READ = "finances:read";
 export const FINANCES_CREATE = "finances:create";
 export const FINANCES_UPDATE = "finances:update";
 export const FINANCES_DELETE = "finances:delete";
-export const FINANCES_EXPORT = "finances:export";
 
 // --- Inventario ---
 export const INVENTORY_READ = "inventory:read";
@@ -177,8 +162,6 @@ export const AWARD_CATEGORIES_UPDATE = "award_categories:update";
 export const AWARD_CATEGORIES_DELETE = "award_categories:delete";
 
 // --- Reportes y Dashboard ---
-export const REPORTS_VIEW = "reports:view";
-export const REPORTS_EXPORT = "reports:export";
 export const REPORTS_READ = "reports:read";
 export const REPORTS_DOWNLOAD = "reports:download";
 export const DASHBOARD_VIEW = "dashboard:view";
@@ -194,8 +177,6 @@ export const RESOURCE_CATEGORIES_UPDATE = "resource_categories:update";
 export const RESOURCE_CATEGORIES_DELETE = "resource_categories:delete";
 
 // --- Sistema ---
-export const SETTINGS_READ = "settings:read";
-export const SETTINGS_UPDATE = "settings:update";
 export const ECCLESIASTICAL_YEARS_READ = "ecclesiastical_years:read";
 export const ECCLESIASTICAL_YEARS_CREATE = "ecclesiastical_years:create";
 export const ECCLESIASTICAL_YEARS_UPDATE = "ecclesiastical_years:update";
@@ -209,22 +190,14 @@ export const PERMISSION_GROUPS = {
     permissions: [
       { key: USERS_READ, label: "Ver listado" },
       { key: USERS_READ_DETAIL, label: "Ver detalle" },
-      { key: USERS_CREATE, label: "Crear" },
-      { key: USERS_UPDATE, label: "Editar" },
       { key: USERS_UPDATE_PROFILE, label: "Editar perfil propio" },
       { key: USERS_UPDATE_ADMIN, label: "Gestión admin de usuarios" },
-      { key: USERS_DELETE, label: "Eliminar" },
-      { key: USERS_EXPORT, label: "Exportar" },
     ],
   },
   roles: {
     label: "Roles y Permisos",
     permissions: [
       { key: ROLES_READ, label: "Ver roles" },
-      { key: ROLES_CREATE, label: "Crear rol" },
-      { key: ROLES_UPDATE, label: "Editar rol" },
-      { key: ROLES_DELETE, label: "Eliminar rol" },
-      { key: ROLES_ASSIGN, label: "Asignar roles" },
       { key: PERMISSIONS_READ, label: "Ver permisos" },
       { key: PERMISSIONS_ASSIGN, label: "Asignar permisos" },
     ],
@@ -239,7 +212,6 @@ export const PERMISSION_GROUPS = {
       { key: CLUB_SECTIONS_READ, label: "Ver secciones" },
       { key: CLUB_SECTIONS_CREATE, label: "Crear sección" },
       { key: CLUB_SECTIONS_UPDATE, label: "Editar sección" },
-      { key: CLUB_SECTIONS_DELETE, label: "Eliminar sección" },
       { key: CLUB_ROLES_READ, label: "Ver roles de club" },
       { key: CLUB_ROLES_ASSIGN, label: "Asignar rol de club" },
       { key: CLUB_ROLES_REVOKE, label: "Revocar rol de club" },
@@ -324,11 +296,7 @@ export const PERMISSION_GROUPS = {
     label: "Clases y Especialidades",
     permissions: [
       { key: CLASSES_READ, label: "Ver clases" },
-      { key: CLASSES_CREATE, label: "Crear clase" },
-      { key: CLASSES_UPDATE, label: "Editar clase" },
       { key: CLASSES_SUBMIT_PROGRESS, label: "Enviar progreso de clase" },
-      { key: CLASSES_VALIDATE, label: "Validar clases" },
-      { key: CLASSES_DELETE, label: "Eliminar clase" },
       { key: HONORS_READ, label: "Ver especialidades" },
       { key: HONORS_CREATE, label: "Crear especialidad" },
       { key: HONORS_UPDATE, label: "Editar especialidad" },
@@ -376,7 +344,6 @@ export const PERMISSION_GROUPS = {
       { key: FINANCES_CREATE, label: "Crear registro" },
       { key: FINANCES_UPDATE, label: "Editar registro" },
       { key: FINANCES_DELETE, label: "Eliminar registro" },
-      { key: FINANCES_EXPORT, label: "Exportar" },
     ],
   },
   inventory: {
@@ -391,8 +358,6 @@ export const PERMISSION_GROUPS = {
   reports: {
     label: "Reportes",
     permissions: [
-      { key: REPORTS_VIEW, label: "Ver reportes" },
-      { key: REPORTS_EXPORT, label: "Exportar reportes" },
       { key: REPORTS_READ, label: "Leer reportes mensuales" },
       { key: REPORTS_DOWNLOAD, label: "Descargar PDF de reportes" },
       { key: DASHBOARD_VIEW, label: "Ver dashboard" },
@@ -422,8 +387,6 @@ export const PERMISSION_GROUPS = {
   system: {
     label: "Sistema",
     permissions: [
-      { key: SETTINGS_READ, label: "Ver configuración" },
-      { key: SETTINGS_UPDATE, label: "Editar configuración" },
       { key: ECCLESIASTICAL_YEARS_READ, label: "Ver años eclesiásticos" },
       { key: ECCLESIASTICAL_YEARS_CREATE, label: "Crear año eclesiástico" },
       { key: ECCLESIASTICAL_YEARS_UPDATE, label: "Editar año eclesiástico" },
