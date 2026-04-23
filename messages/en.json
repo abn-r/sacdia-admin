@@ -207,5 +207,54 @@
       "hide_password": "Hide password",
       "verse": "“I can do all things through Christ who strengthens me” — Phil. 4:13"
     }
+  },
+  "clubs": {
+    "errors": {
+      "create_club_failed": "The club could not be created",
+      "update_club_failed": "The club could not be updated",
+      "create_section_failed": "The section could not be created",
+      "update_section_failed": "The section could not be updated",
+      "sync_section_failed": "The section could not be synchronized",
+      "create_role_assignment_failed": "The role assignment could not be created",
+      "update_role_failed": "The role could not be updated",
+      "remove_assignment_failed": "The assignment could not be removed",
+      "club_created_no_id": "Club created, but its ID could not be resolved to continue with sections",
+      "club_created_sections_failed": "The club was created, but one or more sections failed"
+    },
+    "validation": {
+      "field_required": "The {field} field is required",
+      "field_invalid": "The {field} field is invalid",
+      "coordinates_incomplete": "To save coordinates you must provide latitude and longitude",
+      "coordinates_invalid": "The coordinates are invalid",
+      "club_name_required": "The club name is required",
+      "club_type_required": "Club type is required",
+      "club_type_invalid": "Club type is invalid",
+      "souls_target_positive": "Souls target must be a positive number",
+      "fee_positive": "The fee must be a positive number",
+      "section_status_invalid": "The section status is invalid",
+      "no_changes": "No changes to save",
+      "no_changes_section": "No changes to save on the section",
+      "user_id_required": "The user ID is required",
+      "role_required": "The role is required",
+      "ecclesiastical_year_invalid": "Invalid ecclesiastical year",
+      "member_not_identified": "The member could not be identified",
+      "assignment_not_identified": "The assignment to update could not be identified",
+      "assignment_remove_not_identified": "The assignment to remove could not be identified"
+    },
+    "success": {
+      "section_created": "Section created successfully",
+      "section_created_short": "Section created",
+      "section_updated": "Section updated successfully",
+      "assignment_created": "Assignment created successfully",
+      "assignment_removed": "Assignment removed successfully",
+      "role_updated": "Role updated successfully",
+      "retry_failed_sections": "You can continue to the club detail and retry the failed sections"
+    },
+    "fields": {
+      "local_field": "Local field",
+      "district": "District",
+      "church": "Church",
+      "ecclesiastical_year": "Ecclesiastical year"
+    }
   }
 }

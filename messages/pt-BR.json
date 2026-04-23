@@ -207,5 +207,54 @@
       "hide_password": "Ocultar senha",
       "verse": "“Tudo posso naquele que me fortalece” — Fp. 4:13"
     }
+  },
+  "clubs": {
+    "errors": {
+      "create_club_failed": "Não foi possível criar o clube",
+      "update_club_failed": "Não foi possível atualizar o clube",
+      "create_section_failed": "Não foi possível criar a seção",
+      "update_section_failed": "Não foi possível atualizar a seção",
+      "sync_section_failed": "Não foi possível sincronizar a seção",
+      "create_role_assignment_failed": "Não foi possível criar a atribuição de papel",
+      "update_role_failed": "Não foi possível atualizar o papel",
+      "remove_assignment_failed": "Não foi possível remover a atribuição",
+      "club_created_no_id": "Clube criado, mas não foi possível resolver o ID para continuar com as seções",
+      "club_created_sections_failed": "O clube foi criado, mas uma ou mais seções falharam"
+    },
+    "validation": {
+      "field_required": "O campo {field} é obrigatório",
+      "field_invalid": "O campo {field} não é válido",
+      "coordinates_incomplete": "Para salvar coordenadas é preciso informar latitude e longitude",
+      "coordinates_invalid": "As coordenadas não são válidas",
+      "club_name_required": "O nome do clube é obrigatório",
+      "club_type_required": "Tipo de clube obrigatório",
+      "club_type_invalid": "Tipo de clube inválido",
+      "souls_target_positive": "A meta de almas deve ser um número positivo",
+      "fee_positive": "A mensalidade deve ser um número positivo",
+      "section_status_invalid": "O status da seção não é válido",
+      "no_changes": "Não há alterações para salvar",
+      "no_changes_section": "Não há alterações para salvar na seção",
+      "user_id_required": "O ID do usuário é obrigatório",
+      "role_required": "O papel é obrigatório",
+      "ecclesiastical_year_invalid": "Ano eclesiástico inválido",
+      "member_not_identified": "Não foi possível identificar o membro",
+      "assignment_not_identified": "Não foi possível identificar a atribuição a atualizar",
+      "assignment_remove_not_identified": "Não foi possível identificar a atribuição a remover"
+    },
+    "success": {
+      "section_created": "Seção criada com sucesso",
+      "section_created_short": "Seção criada",
+      "section_updated": "Seção atualizada com sucesso",
+      "assignment_created": "Atribuição criada com sucesso",
+      "assignment_removed": "Atribuição removida com sucesso",
+      "role_updated": "Papel atualizado com sucesso",
+      "retry_failed_sections": "Você pode continuar no detalhe do clube e tentar novamente as seções que falharam"
+    },
+    "fields": {
+      "local_field": "Campo local",
+      "district": "Distrito",
+      "church": "Igreja",
+      "ecclesiastical_year": "Ano eclesiástico"
+    }
   }
 }

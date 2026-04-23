@@ -207,5 +207,54 @@
       "hide_password": "Masquer le mot de passe",
       "verse": "« Je puis tout par Celui qui me fortifie » — Phil. 4:13"
     }
+  },
+  "clubs": {
+    "errors": {
+      "create_club_failed": "Impossible de créer le club",
+      "update_club_failed": "Impossible de mettre à jour le club",
+      "create_section_failed": "Impossible de créer la section",
+      "update_section_failed": "Impossible de mettre à jour la section",
+      "sync_section_failed": "Impossible de synchroniser la section",
+      "create_role_assignment_failed": "Impossible de créer l'affectation de rôle",
+      "update_role_failed": "Impossible de mettre à jour le rôle",
+      "remove_assignment_failed": "Impossible de supprimer l'affectation",
+      "club_created_no_id": "Club créé, mais son ID n'a pas pu être résolu pour continuer avec les sections",
+      "club_created_sections_failed": "Le club a été créé, mais une ou plusieurs sections ont échoué"
+    },
+    "validation": {
+      "field_required": "Le champ {field} est obligatoire",
+      "field_invalid": "Le champ {field} n'est pas valide",
+      "coordinates_incomplete": "Pour enregistrer les coordonnées, saisissez la latitude et la longitude",
+      "coordinates_invalid": "Les coordonnées ne sont pas valides",
+      "club_name_required": "Le nom du club est obligatoire",
+      "club_type_required": "Type de club obligatoire",
+      "club_type_invalid": "Type de club non valide",
+      "souls_target_positive": "L'objectif d'âmes doit être un nombre positif",
+      "fee_positive": "La cotisation doit être un nombre positif",
+      "section_status_invalid": "Le statut de la section n'est pas valide",
+      "no_changes": "Aucune modification à enregistrer",
+      "no_changes_section": "Aucune modification à enregistrer pour la section",
+      "user_id_required": "L'identifiant de l'utilisateur est obligatoire",
+      "role_required": "Le rôle est obligatoire",
+      "ecclesiastical_year_invalid": "Année ecclésiastique non valide",
+      "member_not_identified": "Impossible d'identifier le membre",
+      "assignment_not_identified": "Impossible d'identifier l'affectation à mettre à jour",
+      "assignment_remove_not_identified": "Impossible d'identifier l'affectation à supprimer"
+    },
+    "success": {
+      "section_created": "Section créée avec succès",
+      "section_created_short": "Section créée",
+      "section_updated": "Section mise à jour avec succès",
+      "assignment_created": "Affectation créée avec succès",
+      "assignment_removed": "Affectation supprimée avec succès",
+      "role_updated": "Rôle mis à jour avec succès",
+      "retry_failed_sections": "Vous pouvez continuer vers le détail du club et relancer les sections en échec"
+    },
+    "fields": {
+      "local_field": "Champ local",
+      "district": "District",
+      "church": "Église",
+      "ecclesiastical_year": "Année ecclésiastique"
+    }
   }
 }

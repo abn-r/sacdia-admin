@@ -207,5 +207,54 @@
       "hide_password": "Ocultar contraseña",
       "verse": "«Todo lo puedo en Cristo que me fortalece» — Fil. 4:13"
     }
+  },
+  "clubs": {
+    "errors": {
+      "create_club_failed": "No se pudo crear el club",
+      "update_club_failed": "No se pudo actualizar el club",
+      "create_section_failed": "No se pudo crear la sección",
+      "update_section_failed": "No se pudo actualizar la sección",
+      "sync_section_failed": "No se pudo sincronizar la sección",
+      "create_role_assignment_failed": "No se pudo crear la asignación de rol",
+      "update_role_failed": "No se pudo actualizar el rol",
+      "remove_assignment_failed": "No se pudo remover la asignación",
+      "club_created_no_id": "Club creado, pero no se pudo resolver su ID para continuar con secciones",
+      "club_created_sections_failed": "El club se creó, pero una o más secciones fallaron"
+    },
+    "validation": {
+      "field_required": "El campo {field} es obligatorio",
+      "field_invalid": "El campo {field} no es válido",
+      "coordinates_incomplete": "Para guardar coordenadas debe capturar latitud y longitud",
+      "coordinates_invalid": "Las coordenadas no son válidas",
+      "club_name_required": "El nombre del club es obligatorio",
+      "club_type_required": "Tipo de club obligatorio",
+      "club_type_invalid": "Tipo de club no válido",
+      "souls_target_positive": "La meta de almas debe ser un número positivo",
+      "fee_positive": "La cuota debe ser un número positivo",
+      "section_status_invalid": "El estado de la sección no es válido",
+      "no_changes": "No hay cambios para guardar",
+      "no_changes_section": "No hay cambios para guardar en la sección",
+      "user_id_required": "El ID del usuario es obligatorio",
+      "role_required": "El rol es obligatorio",
+      "ecclesiastical_year_invalid": "Año eclesiástico no válido",
+      "member_not_identified": "No se pudo identificar al miembro",
+      "assignment_not_identified": "No se pudo identificar la asignación a actualizar",
+      "assignment_remove_not_identified": "No se pudo identificar la asignación a remover"
+    },
+    "success": {
+      "section_created": "Sección creada correctamente",
+      "section_created_short": "Sección creada",
+      "section_updated": "Sección actualizada correctamente",
+      "assignment_created": "Asignación creada correctamente",
+      "assignment_removed": "Asignación removida correctamente",
+      "role_updated": "Rol actualizado correctamente",
+      "retry_failed_sections": "Puede continuar al detalle del club y reintentar las secciones fallidas"
+    },
+    "fields": {
+      "local_field": "Campo local",
+      "district": "Distrito",
+      "church": "Iglesia",
+      "ecclesiastical_year": "Año eclesiástico"
+    }
   }
 }
