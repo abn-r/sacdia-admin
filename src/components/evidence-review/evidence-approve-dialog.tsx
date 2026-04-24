@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import {
   Dialog,
@@ -36,6 +37,7 @@ export function EvidenceApproveDialog({
   onOpenChange,
   onSuccess,
 }: EvidenceApproveDialogProps) {
+  const t = useTranslations("evidence_review");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [comments, setComments] = useState("");
 
@@ -43,12 +45,12 @@ export function EvidenceApproveDialog({
     setIsSubmitting(true);
     try {
       await approveEvidence(type, id, comments.trim() || undefined);
-      toast.success("Evidencia aprobada correctamente");
+      toast.success(t("toasts.evidence_approved"));
       setComments("");
       onSuccess();
     } catch (error) {
       const message =
-        error instanceof ApiError ? error.message : "Error al aprobar la evidencia";
+        error instanceof ApiError ? error.message : t("errors.approve");
       toast.error(message);
     } finally {
       setIsSubmitting(false);

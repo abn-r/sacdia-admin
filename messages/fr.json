@@ -544,5 +544,35 @@
       "submission_deadline_required": "Saisissez la date limite de soumission",
       "investiture_date_required": "Saisissez la date de l'investiture"
     }
+  },
+  "evidence_review": {
+    "bulk": {
+      "toasts": {
+        "verb_approved": "approuvées",
+        "verb_rejected": "rejetées",
+        "succeeded_count": "{count} {verb} avec succès",
+        "failed_count": "{count} ont échoué"
+      },
+      "errors": {
+        "approve_failed": "Échec de l'approbation en lot",
+        "reject_failed": "Échec du rejet en lot"
+      },
+      "validation": {
+        "reason_required": "Le motif de rejet est obligatoire",
+        "reason_max": "Maximum 1000 caractères"
+      }
+    },
+    "toasts": {
+      "evidence_approved": "Preuve approuvée avec succès",
+      "evidence_rejected": "Preuve rejetée"
+    },
+    "errors": {
+      "approve": "Erreur lors de l'approbation de la preuve",
+      "reject": "Erreur lors du rejet de la preuve"
+    },
+    "validation": {
+      "reason_required": "Le motif de rejet est obligatoire",
+      "reason_max": "Maximum 1000 caractères"
+    }
   }
 }

@@ -544,5 +544,35 @@
       "submission_deadline_required": "Ingresá la fecha límite de envío",
       "investiture_date_required": "Ingresá la fecha de investidura"
     }
+  },
+  "evidence_review": {
+    "bulk": {
+      "toasts": {
+        "verb_approved": "aprobados",
+        "verb_rejected": "rechazados",
+        "succeeded_count": "{count} {verb} correctamente",
+        "failed_count": "{count} fallaron"
+      },
+      "errors": {
+        "approve_failed": "Error al aprobar en bloque",
+        "reject_failed": "Error al rechazar en bloque"
+      },
+      "validation": {
+        "reason_required": "El motivo de rechazo es obligatorio",
+        "reason_max": "Máximo 1000 caracteres"
+      }
+    },
+    "toasts": {
+      "evidence_approved": "Evidencia aprobada correctamente",
+      "evidence_rejected": "Evidencia rechazada"
+    },
+    "errors": {
+      "approve": "Error al aprobar la evidencia",
+      "reject": "Error al rechazar la evidencia"
+    },
+    "validation": {
+      "reason_required": "El motivo de rechazo es obligatorio",
+      "reason_max": "Máximo 1000 caracteres"
+    }
   }
 }

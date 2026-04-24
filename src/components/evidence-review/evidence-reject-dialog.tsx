@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { XCircle, Loader2 } from "lucide-react";
 import {
   Dialog,
@@ -20,14 +21,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { rejectEvidence, type EvidenceType } from "@/lib/api/evidence-review";
 import { ApiError } from "@/lib/api/client";
 
-const rejectSchema = z.object({
-  reason: z
-    .string()
-    .min(1, "El motivo de rechazo es obligatorio")
-    .max(1000, "Máximo 1000 caracteres"),
-});
+type RejectTranslator = (key: string, values?: Record<string, string | number>) => string;
 
-type RejectFormValues = z.infer<typeof rejectSchema>;
+function buildRejectSchema(t: RejectTranslator) {
+  return z.object({
+    reason: z
+      .string()
+      .min(1, t("validation.reason_required"))
+      .max(1000, t("validation.reason_max")),
+  });
+}
+
+type RejectFormValues = { reason: string };
 
 interface EvidenceRejectDialogProps {
   open: boolean;
@@ -48,7 +53,10 @@ export function EvidenceRejectDialog({
   onOpenChange,
   onSuccess,
 }: EvidenceRejectDialogProps) {
+  const t = useTranslations("evidence_review");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const rejectSchema = useMemo(() => buildRejectSchema(t), [t]);
 
   const form = useForm<RejectFormValues>({
     resolver: zodResolver(rejectSchema),
@@ -59,12 +67,12 @@ export function EvidenceRejectDialog({
     setIsSubmitting(true);
     try {
       await rejectEvidence(type, id, values.reason);
-      toast.success("Evidencia rechazada");
+      toast.success(t("toasts.evidence_rejected"));
       form.reset();
       onSuccess();
     } catch (error) {
       const message =
-        error instanceof ApiError ? error.message : "Error al rechazar la evidencia";
+        error instanceof ApiError ? error.message : t("errors.reject");
       toast.error(message);
     } finally {
       setIsSubmitting(false);

@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { CheckCircle2, XCircle, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,27 +28,35 @@ import { ApiError } from "@/lib/api/client";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function buildToastMessage(result: BulkEvidenceResult, verb: string): string {
+type BulkTranslator = (key: string, values?: Record<string, string | number>) => string;
+
+function buildToastMessage(
+  t: BulkTranslator,
+  result: BulkEvidenceResult,
+  verb: string,
+): string {
   const parts: string[] = [];
   if (result.succeeded.length > 0) {
-    parts.push(`${result.succeeded.length} ${verb} correctamente`);
+    parts.push(t("bulk.toasts.succeeded_count", { count: result.succeeded.length, verb }));
   }
   if (result.failed.length > 0) {
-    parts.push(`${result.failed.length} fallaron`);
+    parts.push(t("bulk.toasts.failed_count", { count: result.failed.length }));
   }
   return parts.join(" · ");
 }
 
 // ─── Reject schema ────────────────────────────────────────────────────────────
 
-const rejectSchema = z.object({
-  reason: z
-    .string()
-    .min(1, "El motivo de rechazo es obligatorio")
-    .max(1000, "Máximo 1000 caracteres"),
-});
+function buildRejectSchema(t: BulkTranslator) {
+  return z.object({
+    reason: z
+      .string()
+      .min(1, t("bulk.validation.reason_required"))
+      .max(1000, t("bulk.validation.reason_max")),
+  });
+}
 
-type RejectFormValues = z.infer<typeof rejectSchema>;
+type RejectFormValues = { reason: string };
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -66,10 +75,13 @@ export function EvidenceBulkActionBar({
   onClearSelection,
   onSuccess,
 }: EvidenceBulkActionBarProps) {
+  const t = useTranslations("evidence_review");
   const [approveDialogOpen, setApproveDialogOpen] = useState(false);
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
+
+  const rejectSchema = useMemo(() => buildRejectSchema(t), [t]);
 
   const rejectForm = useForm<RejectFormValues>({
     resolver: zodResolver(rejectSchema),
@@ -89,7 +101,7 @@ export function EvidenceBulkActionBar({
         ids: selectedIds,
         type: selectedType,
       });
-      const message = buildToastMessage(result, "aprobados");
+      const message = buildToastMessage(t, result, t("bulk.toasts.verb_approved"));
       if (result.failed.length === 0) {
         toast.success(message);
       } else {
@@ -100,7 +112,7 @@ export function EvidenceBulkActionBar({
       onSuccess();
     } catch (error) {
       const message =
-        error instanceof ApiError ? error.message : "Error al aprobar en bloque";
+        error instanceof ApiError ? error.message : t("bulk.errors.approve_failed");
       toast.error(message);
     } finally {
       setIsApproving(false);
@@ -118,7 +130,7 @@ export function EvidenceBulkActionBar({
         type: selectedType,
         reason: values.reason,
       });
-      const message = buildToastMessage(result, "rechazados");
+      const message = buildToastMessage(t, result, t("bulk.toasts.verb_rejected"));
       if (result.failed.length === 0) {
         toast.success(message);
       } else {
@@ -130,7 +142,7 @@ export function EvidenceBulkActionBar({
       onSuccess();
     } catch (error) {
       const message =
-        error instanceof ApiError ? error.message : "Error al rechazar en bloque";
+        error instanceof ApiError ? error.message : t("bulk.errors.reject_failed");
       toast.error(message);
     } finally {
       setIsRejecting(false);

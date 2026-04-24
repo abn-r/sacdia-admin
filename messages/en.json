@@ -544,5 +544,35 @@
       "submission_deadline_required": "Enter the submission deadline",
       "investiture_date_required": "Enter the investiture date"
     }
+  },
+  "evidence_review": {
+    "bulk": {
+      "toasts": {
+        "verb_approved": "approved",
+        "verb_rejected": "rejected",
+        "succeeded_count": "{count} {verb} successfully",
+        "failed_count": "{count} failed"
+      },
+      "errors": {
+        "approve_failed": "Bulk approve failed",
+        "reject_failed": "Bulk reject failed"
+      },
+      "validation": {
+        "reason_required": "The rejection reason is required",
+        "reason_max": "Maximum 1000 characters"
+      }
+    },
+    "toasts": {
+      "evidence_approved": "Evidence approved successfully",
+      "evidence_rejected": "Evidence rejected"
+    },
+    "errors": {
+      "approve": "Error approving the evidence",
+      "reject": "Error rejecting the evidence"
+    },
+    "validation": {
+      "reason_required": "The rejection reason is required",
+      "reason_max": "Maximum 1000 characters"
+    }
   }
 }
