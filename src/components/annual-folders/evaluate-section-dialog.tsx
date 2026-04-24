@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -43,6 +44,7 @@ export function EvaluateSectionDialog({
   currentNotes,
   onSuccess,
 }: EvaluateSectionDialogProps) {
+  const t = useTranslations("annual_folders");
   const [earnedPoints, setEarnedPoints] = useState("");
   const [notes, setNotes] = useState("");
   const [pointsError, setPointsError] = useState<string | null>(null);
@@ -106,7 +108,7 @@ export function EvaluateSectionDialog({
         earned_points: num,
         notes: notes.trim() || undefined,
       });
-      toast.success("Sección evaluada correctamente");
+      toast.success(t("toasts.section_evaluated"));
       handleOpenChange(false);
       onSuccess();
     } catch (err) {

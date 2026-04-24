@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import type { Resolver, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -78,6 +79,7 @@ export function AwardCategoryFormDialog({
   clubTypes,
   onSuccess,
 }: AwardCategoryFormDialogProps) {
+  const t = useTranslations("annual_folders");
   const isEdit = !!category;
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -151,10 +153,10 @@ export function AwardCategoryFormDialog({
 
       if (isEdit && category) {
         await updateAwardCategory(category.award_category_id, payload);
-        toast.success("Categoría actualizada correctamente");
+        toast.success(t("toasts.category_updated"));
       } else {
         await createAwardCategory(payload);
-        toast.success("Categoría creada correctamente");
+        toast.success(t("toasts.category_created"));
       }
 
       onSuccess();

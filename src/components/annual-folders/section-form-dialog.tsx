@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import type { Resolver, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -70,6 +71,7 @@ export function SectionFormDialog({
   nextOrder = 1,
   onSuccess,
 }: SectionFormDialogProps) {
+  const t = useTranslations("annual_folders");
   const isEdit = !!section;
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -130,7 +132,7 @@ export function SectionFormDialog({
           max_points: values.max_points,
           minimum_points: values.minimum_points,
         });
-        toast.success("Sección actualizada correctamente");
+        toast.success(t("toasts.section_updated"));
       } else {
         await createTemplateSection(templateId, {
           name: values.name,
@@ -140,7 +142,7 @@ export function SectionFormDialog({
           max_points: values.max_points,
           minimum_points: values.minimum_points,
         });
-        toast.success("Sección creada correctamente");
+        toast.success(t("toasts.section_created"));
       }
       onSuccess();
       onOpenChange(false);

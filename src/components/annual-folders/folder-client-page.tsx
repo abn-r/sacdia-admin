@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import {
   Upload,
   Trash2,
@@ -188,6 +189,7 @@ function SectionRow({
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function FolderClientPage({ initialFolder }: FolderClientPageProps) {
+  const t = useTranslations("annual_folders");
   const [folder, setFolder] = useState<AnnualFolder>(initialFolder);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -244,7 +246,7 @@ export function FolderClientPage({ initialFolder }: FolderClientPageProps) {
     setIsDeletingEvidence(true);
     try {
       await deleteEvidence(deletingEvidence.evidence_id);
-      toast.success("Evidencia eliminada correctamente");
+      toast.success(t("toasts.evidence_deleted"));
       setDeleteEvidenceOpen(false);
       setDeletingEvidence(null);
       await refreshFolder();
@@ -266,7 +268,7 @@ export function FolderClientPage({ initialFolder }: FolderClientPageProps) {
     try {
       const updated = await submitFolder(folder.folder_id);
       setFolder(updated);
-      toast.success("Carpeta enviada para revisión");
+      toast.success(t("toasts.folder_submitted"));
       setSubmitOpen(false);
     } catch (err) {
       const message =
@@ -284,7 +286,7 @@ export function FolderClientPage({ initialFolder }: FolderClientPageProps) {
     try {
       const updated = await closeFolder(folder.folder_id);
       setFolder(updated);
-      toast.success("Carpeta cerrada correctamente");
+      toast.success(t("toasts.folder_closed"));
       setCloseOpen(false);
     } catch (err) {
       const message =

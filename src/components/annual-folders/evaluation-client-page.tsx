@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import {
   Search,
   RefreshCw,
@@ -320,6 +321,7 @@ function FolderSummaryCard({
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export function EvaluationClientPage() {
+  const t = useTranslations("annual_folders");
   const [folderInput, setFolderInput] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -427,7 +429,7 @@ export function EvaluationClientPage() {
     setIsReopening(true);
     try {
       await reopenSection(folder.folder_id, reopeningSection.section_id);
-      toast.success("Sección reabierta correctamente");
+      toast.success(t("toasts.section_reopened"));
       setReopenOpen(false);
       setReopeningSection(null);
       await refreshFolder();

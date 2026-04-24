@@ -606,5 +606,29 @@
       "all_sessions_revoked": "Todas las sesiones fueron revocadas.",
       "all_sessions_revoke_failed": "No se pudieron revocar las sesiones. Intenta nuevamente."
     }
+  },
+  "annual_folders": {
+    "toasts": {
+      "section_deleted": "Sección eliminada correctamente",
+      "section_evaluated": "Sección evaluada correctamente",
+      "file_required": "Selecciona un archivo para subir",
+      "evidence_uploaded": "Evidencia subida correctamente",
+      "rankings_recalculated": "Rankings recalculados: {count} clubes actualizados",
+      "section_updated": "Sección actualizada correctamente",
+      "section_created": "Sección creada correctamente",
+      "category_deleted": "Categoría eliminada correctamente",
+      "evidence_deleted": "Evidencia eliminada correctamente",
+      "folder_submitted": "Carpeta enviada para revisión",
+      "folder_closed": "Carpeta cerrada correctamente",
+      "section_reopened": "Sección reabierta correctamente",
+      "category_updated": "Categoría actualizada correctamente",
+      "category_created": "Categoría creada correctamente",
+      "template_updated": "Plantilla actualizada correctamente",
+      "template_created": "Plantilla creada correctamente",
+      "owner_catalogs_load_failed": "No se pudieron cargar los catálogos de propietario"
+    },
+    "errors": {
+      "recalculate_rankings": "Error al recalcular los rankings"
+    }
   }
 }

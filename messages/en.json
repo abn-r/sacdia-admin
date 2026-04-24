@@ -606,5 +606,29 @@
       "all_sessions_revoked": "All sessions were revoked.",
       "all_sessions_revoke_failed": "Could not revoke sessions. Try again."
     }
+  },
+  "annual_folders": {
+    "toasts": {
+      "section_deleted": "Section deleted successfully",
+      "section_evaluated": "Section evaluated successfully",
+      "file_required": "Select a file to upload",
+      "evidence_uploaded": "Evidence uploaded successfully",
+      "rankings_recalculated": "Rankings recalculated: {count} clubs updated",
+      "section_updated": "Section updated successfully",
+      "section_created": "Section created successfully",
+      "category_deleted": "Category deleted successfully",
+      "evidence_deleted": "Evidence deleted successfully",
+      "folder_submitted": "Folder submitted for review",
+      "folder_closed": "Folder closed successfully",
+      "section_reopened": "Section reopened successfully",
+      "category_updated": "Category updated successfully",
+      "category_created": "Category created successfully",
+      "template_updated": "Template updated successfully",
+      "template_created": "Template created successfully",
+      "owner_catalogs_load_failed": "Could not load owner catalogs"
+    },
+    "errors": {
+      "recalculate_rankings": "Error recalculating the rankings"
+    }
   }
 }

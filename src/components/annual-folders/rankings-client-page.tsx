@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import {
   Search,
   RefreshCw,
@@ -115,6 +116,7 @@ export function RankingsClientPage({
   initialClubTypeId,
   initialYearId,
 }: RankingsClientPageProps) {
+  const t = useTranslations("annual_folders");
   // Filter state
   const [selectedClubTypeId, setSelectedClubTypeId] = useState<number>(
     initialClubTypeId,
@@ -174,7 +176,7 @@ export function RankingsClientPage({
       const result = await recalculateRankings(selectedYearId);
       toast.success(
         result.message ??
-          `Rankings recalculados: ${result.rankings_updated} clubes actualizados`,
+          t("toasts.rankings_recalculated", { count: result.rankings_updated }),
       );
       setRecalcOpen(false);
       // Reload rankings after recalculation
@@ -183,7 +185,7 @@ export function RankingsClientPage({
       const message =
         err instanceof ApiError
           ? err.message
-          : "Error al recalcular los rankings";
+          : t("errors.recalculate_rankings");
       toast.error(message);
     } finally {
       setIsRecalculating(false);

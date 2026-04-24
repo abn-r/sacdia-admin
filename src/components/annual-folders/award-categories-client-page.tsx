@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { Plus, RefreshCw, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -65,6 +66,7 @@ export function AwardCategoriesClientPage({
   initialCategories,
   clubTypes,
 }: AwardCategoriesClientPageProps) {
+  const t = useTranslations("annual_folders");
   const [categories, setCategories] =
     useState<AwardCategory[]>(initialCategories);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -124,7 +126,7 @@ export function AwardCategoriesClientPage({
     setIsDeleting(true);
     try {
       await deleteAwardCategory(deletingCategory.award_category_id);
-      toast.success("Categoria eliminada correctamente");
+      toast.success(t("toasts.category_deleted"));
       setDeleteOpen(false);
       setDeletingCategory(null);
       await refreshCategories();

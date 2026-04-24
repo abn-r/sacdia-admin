@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import {
   Plus,
@@ -99,6 +100,7 @@ export function TemplatesClientPage({
   clubTypes,
   ecclesiasticalYears,
 }: TemplatesClientPageProps) {
+  const t = useTranslations("annual_folders");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -275,7 +277,7 @@ export function TemplatesClientPage({
     setIsDeletingSection(true);
     try {
       await deleteTemplateSection(deletingSection.section_id);
-      toast.success("Sección eliminada correctamente");
+      toast.success(t("toasts.section_deleted"));
       setDeleteSectionOpen(false);
       setDeletingSection(null);
       await refreshActiveTemplate();

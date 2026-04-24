@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useForm, Controller } from "react-hook-form";
 import type { Resolver, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -106,6 +107,7 @@ export function TemplateFormDialog({
   template,
   onSuccess,
 }: TemplateFormDialogProps) {
+  const t = useTranslations("annual_folders");
   const isEdit = Boolean(template);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -159,7 +161,7 @@ export function TemplateFormDialog({
         setUnions(Array.isArray(fetchedUnions) ? fetchedUnions : []);
         setLocalFields(Array.isArray(fetchedLocalFields) ? fetchedLocalFields : []);
       })
-      .catch(() => toast.error("No se pudieron cargar los catálogos de propietario"))
+      .catch(() => toast.error(t("toasts.owner_catalogs_load_failed")))
       .finally(() => setLoadingOwnerCatalogs(false));
   }, [open]);
 
@@ -204,10 +206,10 @@ export function TemplateFormDialog({
 
       if (isEdit && template) {
         await updateTemplate(template.template_id, payload);
-        toast.success("Plantilla actualizada correctamente");
+        toast.success(t("toasts.template_updated"));
       } else {
         await createTemplate(payload);
-        toast.success("Plantilla creada correctamente");
+        toast.success(t("toasts.template_created"));
       }
 
       onSuccess();

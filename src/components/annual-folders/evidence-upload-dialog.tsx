@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Upload, FileText } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -36,6 +37,7 @@ export function EvidenceUploadDialog({
   sectionName,
   onSuccess,
 }: EvidenceUploadDialogProps) {
+  const t = useTranslations("annual_folders");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [description, setDescription] = useState("");
@@ -72,7 +74,7 @@ export function EvidenceUploadDialog({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!selectedFile) {
-      toast.error("Selecciona un archivo para subir");
+      toast.error(t("toasts.file_required"));
       return;
     }
 
@@ -84,7 +86,7 @@ export function EvidenceUploadDialog({
         selectedFile,
         description.trim() || undefined,
       );
-      toast.success("Evidencia subida correctamente");
+      toast.success(t("toasts.evidence_uploaded"));
       handleReset();
       onSuccess();
       onOpenChange(false);

@@ -606,5 +606,29 @@
       "all_sessions_revoked": "Toutes les sessions ont été révoquées.",
       "all_sessions_revoke_failed": "Impossible de révoquer les sessions. Réessayez."
     }
+  },
+  "annual_folders": {
+    "toasts": {
+      "section_deleted": "Section supprimée avec succès",
+      "section_evaluated": "Section évaluée avec succès",
+      "file_required": "Sélectionnez un fichier à téléverser",
+      "evidence_uploaded": "Preuve téléversée avec succès",
+      "rankings_recalculated": "Classements recalculés : {count} clubs mis à jour",
+      "section_updated": "Section mise à jour avec succès",
+      "section_created": "Section créée avec succès",
+      "category_deleted": "Catégorie supprimée avec succès",
+      "evidence_deleted": "Preuve supprimée avec succès",
+      "folder_submitted": "Dossier soumis pour révision",
+      "folder_closed": "Dossier clôturé avec succès",
+      "section_reopened": "Section rouverte avec succès",
+      "category_updated": "Catégorie mise à jour avec succès",
+      "category_created": "Catégorie créée avec succès",
+      "template_updated": "Modèle mis à jour avec succès",
+      "template_created": "Modèle créé avec succès",
+      "owner_catalogs_load_failed": "Impossible de charger les catalogues du propriétaire"
+    },
+    "errors": {
+      "recalculate_rankings": "Erreur lors du recalcul des classements"
+    }
   }
 }
