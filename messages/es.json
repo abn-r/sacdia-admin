@@ -590,5 +590,21 @@
       "reason_required": "El motivo de rechazo es obligatorio",
       "reason_max": "Máximo 1000 caracteres"
     }
+  },
+  "users": {
+    "toasts": {
+      "access_updated": "Acceso actualizado correctamente.",
+      "access_update_failed": "No se pudo actualizar el acceso. Intenta de nuevo.",
+      "approval_updated": "Estado de aprobación actualizado.",
+      "approval_update_failed": "No se pudo actualizar la aprobación. Intenta de nuevo.",
+      "mfa_reset": "MFA reseteado correctamente",
+      "mfa_reset_failed": "No se pudo resetear el MFA",
+      "mfa_disabled": "MFA deshabilitado",
+      "mfa_disable_failed": "No se pudo deshabilitar el MFA",
+      "session_revoked": "Sesión revocada correctamente.",
+      "session_revoke_failed": "No se pudo revocar la sesión. Intenta nuevamente.",
+      "all_sessions_revoked": "Todas las sesiones fueron revocadas.",
+      "all_sessions_revoke_failed": "No se pudieron revocar las sesiones. Intenta nuevamente."
+    }
   }
 }

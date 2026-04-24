@@ -590,5 +590,21 @@
       "reason_required": "The rejection reason is required",
       "reason_max": "Maximum 1000 characters"
     }
+  },
+  "users": {
+    "toasts": {
+      "access_updated": "Access updated successfully.",
+      "access_update_failed": "Could not update access. Try again.",
+      "approval_updated": "Approval status updated.",
+      "approval_update_failed": "Could not update approval. Try again.",
+      "mfa_reset": "MFA reset successfully",
+      "mfa_reset_failed": "Could not reset MFA",
+      "mfa_disabled": "MFA disabled",
+      "mfa_disable_failed": "Could not disable MFA",
+      "session_revoked": "Session revoked successfully.",
+      "session_revoke_failed": "Could not revoke the session. Try again.",
+      "all_sessions_revoked": "All sessions were revoked.",
+      "all_sessions_revoke_failed": "Could not revoke sessions. Try again."
+    }
   }
 }

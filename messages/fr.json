@@ -590,5 +590,21 @@
       "reason_required": "Le motif de rejet est obligatoire",
       "reason_max": "Maximum 1000 caractères"
     }
+  },
+  "users": {
+    "toasts": {
+      "access_updated": "Accès mis à jour avec succès.",
+      "access_update_failed": "Impossible de mettre à jour l'accès. Réessayez.",
+      "approval_updated": "Statut d'approbation mis à jour.",
+      "approval_update_failed": "Impossible de mettre à jour l'approbation. Réessayez.",
+      "mfa_reset": "MFA réinitialisé avec succès",
+      "mfa_reset_failed": "Impossible de réinitialiser le MFA",
+      "mfa_disabled": "MFA désactivé",
+      "mfa_disable_failed": "Impossible de désactiver le MFA",
+      "session_revoked": "Session révoquée avec succès.",
+      "session_revoke_failed": "Impossible de révoquer la session. Réessayez.",
+      "all_sessions_revoked": "Toutes les sessions ont été révoquées.",
+      "all_sessions_revoke_failed": "Impossible de révoquer les sessions. Réessayez."
+    }
   }
 }

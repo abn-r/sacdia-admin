@@ -11,6 +11,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -86,20 +87,21 @@ function ResetMfaDialog({
   userId: string;
   onSuccess: () => void;
 }) {
+  const t = useTranslations("users");
   const [isPending, startTransition] = useTransition();
 
   function handleConfirm() {
     startTransition(async () => {
       try {
         await adminResetUserMfa(userId);
-        toast.success("MFA reseteado correctamente", {
+        toast.success(t("toasts.mfa_reset"), {
           description: "El usuario debera re-enrolarse en su proximo inicio de sesion.",
         });
         onSuccess();
       } catch (error) {
         const message =
           error instanceof Error ? error.message : "Error al resetear MFA";
-        toast.error("No se pudo resetear el MFA", { description: message });
+        toast.error(t("toasts.mfa_reset_failed"), { description: message });
       }
     });
   }
@@ -162,20 +164,21 @@ function DisableMfaDialog({
   userId: string;
   onSuccess: () => void;
 }) {
+  const t = useTranslations("users");
   const [isPending, startTransition] = useTransition();
 
   function handleConfirm() {
     startTransition(async () => {
       try {
         await adminResetUserMfa(userId);
-        toast.success("MFA deshabilitado", {
+        toast.success(t("toasts.mfa_disabled"), {
           description: "La autenticacion de dos factores fue removida del usuario.",
         });
         onSuccess();
       } catch (error) {
         const message =
           error instanceof Error ? error.message : "Error al deshabilitar MFA";
-        toast.error("No se pudo deshabilitar el MFA", { description: message });
+        toast.error(t("toasts.mfa_disable_failed"), { description: message });
       }
     });
   }

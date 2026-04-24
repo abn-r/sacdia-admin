@@ -12,6 +12,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -313,6 +314,7 @@ export type SessionsTabProps = {
 };
 
 export function SessionsTab({ userId, initialData }: SessionsTabProps) {
+  const t = useTranslations("users");
   const [data, setData] = useState<AdminSessionListData | null>(initialData);
   const [error, setError] = useState<string | null>(
     initialData === null ? "load_failed" : null,
@@ -344,9 +346,9 @@ export function SessionsTab({ userId, initialData }: SessionsTabProps) {
         const updated = prev.sessions.filter((s) => s.sessionId !== sessionId);
         return { ...prev, sessions: updated, totalSessions: updated.length };
       });
-      toast.success("Sesion revocada correctamente.");
+      toast.success(t("toasts.session_revoked"));
     } catch {
-      toast.error("No se pudo revocar la sesion. Intenta nuevamente.");
+      toast.error(t("toasts.session_revoke_failed"));
     }
   }
 
@@ -360,9 +362,9 @@ export function SessionsTab({ userId, initialData }: SessionsTabProps) {
           if (!prev) return prev;
           return { ...prev, sessions: [], totalSessions: 0 };
         });
-        toast.success("Todas las sesiones fueron revocadas.");
+        toast.success(t("toasts.all_sessions_revoked"));
       } catch {
-        toast.error("No se pudieron revocar las sesiones. Intenta nuevamente.");
+        toast.error(t("toasts.all_sessions_revoke_failed"));
       }
     });
   }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -45,6 +46,7 @@ export function UserAccessToggles({
   initialActive,
   initialApprovalStatus,
 }: UserAccessTogglesProps) {
+  const t = useTranslations("users");
   const [accessApp, setAccessApp] = useState(initialAccessApp ?? false);
   const [accessPanel, setAccessPanel] = useState(initialAccessPanel ?? false);
   const [active, setActive] = useState(initialActive ?? true);
@@ -72,10 +74,10 @@ export function UserAccessToggles({
     startTransition(async () => {
       try {
         await patchUser(userId, patch);
-        toast.success("Acceso actualizado correctamente.");
+        toast.success(t("toasts.access_updated"));
       } catch {
         setter(currentValue);
-        toast.error("No se pudo actualizar el acceso. Intenta de nuevo.");
+        toast.error(t("toasts.access_update_failed"));
       } finally {
         setPendingField(null);
       }
@@ -102,10 +104,10 @@ export function UserAccessToggles({
             body: { approval: 0, approval_status: "pending", approved: false },
           });
         }
-        toast.success("Estado de aprobación actualizado.");
+        toast.success(t("toasts.approval_updated"));
       } catch {
         setApprovalStatus(previous);
-        toast.error("No se pudo actualizar la aprobación. Intenta de nuevo.");
+        toast.error(t("toasts.approval_update_failed"));
       } finally {
         setPendingField(null);
       }
