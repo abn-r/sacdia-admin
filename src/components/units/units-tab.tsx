@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DeleteUnitDialog } from "@/components/units/delete-unit-dialog";
 import { UnitDetailPanel } from "@/components/units/unit-detail-panel";
+import { useTranslations } from "next-intl";
 import { listUnits } from "@/lib/api/units";
 import type { Unit } from "@/lib/api/units";
 
@@ -44,6 +45,7 @@ interface UnitsTabProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function UnitsTab({ clubId, localFieldId }: UnitsTabProps) {
+  const t = useTranslations("units_admin");
   const router = useRouter();
   const [units, setUnits] = useState<Unit[]>([]);
   const [loading, setLoading] = useState(true);
@@ -60,7 +62,7 @@ export function UnitsTab({ clubId, localFieldId }: UnitsTabProps) {
       setUnits(data);
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "No se pudieron cargar las unidades";
+        err instanceof Error ? err.message : t("errors.load_units_failed");
       setError(message);
       toast.error(message);
     } finally {

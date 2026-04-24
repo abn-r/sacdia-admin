@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useTranslations } from "next-intl";
 import { createInsurance, updateInsurance, INSURANCE_TYPE_LABELS } from "@/lib/api/insurance";
 import type { MemberInsurance, InsuranceType } from "@/lib/api/insurance";
 
@@ -78,6 +79,7 @@ export function InsuranceFormDialog({
 }: InsuranceFormDialogProps) {
   const ins = member?.insurance ?? null;
   const isEdit = !!ins;
+  const t = useTranslations("insurance");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [evidenceFile, setEvidenceFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -144,7 +146,7 @@ export function InsuranceFormDialog({
           coverage_amount: values.coverage_amount,
           evidence: evidenceFile ?? undefined,
         });
-        toast.success("Seguro actualizado correctamente");
+        toast.success(t("toasts.updated"));
       } else {
         await createInsurance(member.user_id, {
           insurance_type: values.insurance_type,
@@ -155,13 +157,13 @@ export function InsuranceFormDialog({
           coverage_amount: values.coverage_amount,
           evidence: evidenceFile ?? undefined,
         });
-        toast.success("Seguro registrado correctamente");
+        toast.success(t("toasts.created"));
       }
       onSuccess();
       onOpenChange(false);
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "Error al guardar el seguro";
+        err instanceof Error ? err.message : t("errors.save_failed");
       toast.error(message);
     } finally {
       setIsSubmitting(false);

@@ -26,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useTranslations } from "next-intl";
 import {
   getFinanceCategories,
   createFinance,
@@ -110,6 +111,7 @@ export function TransactionFormDialog({
   onSuccess,
 }: TransactionFormDialogProps) {
   const isEdit = !!finance;
+  const t = useTranslations("finances");
   const [categories, setCategories] = useState<FinanceCategory[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -120,7 +122,7 @@ export function TransactionFormDialog({
     setLoadingCategories(true);
     getFinanceCategories()
       .then(setCategories)
-      .catch(() => toast.error("No se pudieron cargar las categorías"))
+      .catch(() => toast.error(t("toasts.categories_load_failed")))
       .finally(() => setLoadingCategories(false));
   }, [open]);
 
@@ -181,10 +183,10 @@ export function TransactionFormDialog({
           finance_category_id: values.finance_category_id,
           finance_date: values.finance_date,
         });
-        toast.success("Movimiento actualizado correctamente");
+        toast.success(t("toasts.transaction_updated"));
       } else {
         if (!values.club_section_id || !values.club_type_id) {
-          toast.error("Seleccioná una sección del club");
+          toast.error(t("validation.section_required"));
           return;
         }
         const payload: CreateFinancePayload = {
@@ -198,7 +200,7 @@ export function TransactionFormDialog({
           club_section_id: values.club_section_id,
         };
         await createFinance(clubId, payload);
-        toast.success("Movimiento creado correctamente");
+        toast.success(t("toasts.transaction_created"));
       }
       onSuccess();
       onOpenChange(false);

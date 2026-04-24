@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { apiRequestFromClient } from "@/lib/api/client";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 type SectionProgress = {
   section_id: number;
@@ -71,6 +72,7 @@ function ModuleProgressNode({
   certificationId: number;
   onUpdated: () => void;
 }) {
+  const t = useTranslations("certifications");
   const [open, setOpen] = useState(true);
   const [isPending, startTransition] = useTransition();
   const [pendingSectionId, setPendingSectionId] = useState<number | null>(null);
@@ -96,7 +98,7 @@ function ModuleProgressNode({
         );
         onUpdated();
       } catch {
-        toast.error("No se pudo actualizar el progreso");
+        toast.error(t("toasts.progress_update_failed"));
       } finally {
         setPendingSectionId(null);
       }

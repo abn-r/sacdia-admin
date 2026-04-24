@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { useTranslations } from "next-intl";
 import { getEvidenceDetail, type EvidenceDetail, type EvidenceType } from "@/lib/api/evidence-review";
 import { EvidenceStatusBadge } from "@/components/evidence-review/evidence-status-badge";
 import { EvidenceTypeBadge } from "@/components/evidence-review/evidence-type-badge";
@@ -139,6 +140,7 @@ export function EvidenceDetailDialog({
   id,
   onOpenChange,
 }: EvidenceDetailDialogProps) {
+  const t = useTranslations("evidence_review");
   const [detail, setDetail] = useState<EvidenceDetail | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -158,7 +160,7 @@ export function EvidenceDetailDialog({
         setDetail(data);
       } catch (err) {
         const message =
-          err instanceof ApiError ? err.message : "No se pudo cargar el detalle";
+          err instanceof ApiError ? err.message : t("errors.load_detail_failed");
         setError(message);
       } finally {
         setIsLoading(false);

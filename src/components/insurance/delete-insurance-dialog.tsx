@@ -12,6 +12,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useTranslations } from "next-intl";
 import { deactivateInsurance } from "@/lib/api/insurance";
 import type { MemberInsurance } from "@/lib/api/insurance";
 
@@ -40,6 +41,7 @@ export function DeleteInsuranceDialog({
   member,
   onSuccess,
 }: DeleteInsuranceDialogProps) {
+  const t = useTranslations("insurance");
   const [isDeleting, setIsDeleting] = useState(false);
 
   async function handleConfirm() {
@@ -49,12 +51,12 @@ export function DeleteInsuranceDialog({
     setIsDeleting(true);
     try {
       await deactivateInsurance(insuranceId);
-      toast.success("Seguro desactivado correctamente");
+      toast.success(t("toasts.deactivated"));
       onSuccess();
       onOpenChange(false);
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "No se pudo desactivar el seguro";
+        err instanceof Error ? err.message : t("errors.deactivate_failed");
       toast.error(message);
     } finally {
       setIsDeleting(false);

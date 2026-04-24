@@ -47,6 +47,7 @@ import {
   updateRequirement,
   type RequirementNode,
 } from "@/lib/api/honors";
+import { useTranslations } from "next-intl";
 import { RequirementEditDialog } from "@/components/honors/requirement-edit-dialog";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -300,6 +301,7 @@ export function RequirementsTree({
   initialData,
   onDataChange,
 }: RequirementsTreeProps) {
+  const t = useTranslations("honors");
   const [roots, setRoots] = useState<RequirementNode[]>(initialData);
   const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
 
@@ -398,7 +400,7 @@ export function RequirementsTree({
       onDataChange();
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : "No se pudo eliminar el requisito.";
+        err instanceof Error ? err.message : t("errors.delete_requirement_failed");
       setDeleteDialog((prev) => ({ ...prev, loading: false, error: message }));
     }
   }

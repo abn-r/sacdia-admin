@@ -36,6 +36,7 @@ import {
   updateWeeklyRecord,
   getUnitUserDisplayName,
 } from "@/lib/api/units";
+import { useTranslations } from "next-intl";
 import { getLocalFieldScoringCategories } from "@/lib/api/scoring-categories";
 import type { WeeklyRecord, UnitMember, ScoreEntry } from "@/lib/api/units";
 import type { ScoringCategory } from "@/lib/api/scoring-categories";
@@ -61,6 +62,7 @@ function AddRecordDialog({
   categories,
   onSuccess,
 }: AddRecordDialogProps) {
+  const t = useTranslations("units_admin");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userId, setUserId] = useState("");
   const [week, setWeek] = useState(1);
@@ -99,7 +101,7 @@ function AddRecordDialog({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!userId) {
-      toast.error("Selecciona un miembro");
+      toast.error(t("validation.member_required"));
       return;
     }
     setIsSubmitting(true);
@@ -122,7 +124,7 @@ function AddRecordDialog({
       handleClose(false);
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "No se pudo crear el registro";
+        err instanceof Error ? err.message : t("errors.create_record_failed");
       toast.error(message);
     } finally {
       setIsSubmitting(false);

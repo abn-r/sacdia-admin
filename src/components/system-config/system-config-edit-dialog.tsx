@@ -17,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { useTranslations } from "next-intl";
 import { updateSystemConfig, type SystemConfig } from "@/lib/api/system-config";
 import { ApiError } from "@/lib/api/client";
 
@@ -45,6 +46,7 @@ export function SystemConfigEditDialog({
   onOpenChange,
   onSuccess,
 }: SystemConfigEditDialogProps) {
+  const t = useTranslations("system_config");
   const [isPending, setIsPending] = useState(false);
 
   const form = useForm<FormValues>({
@@ -69,7 +71,7 @@ export function SystemConfigEditDialog({
       onSuccess();
     } catch (error) {
       const message =
-        error instanceof ApiError ? error.message : "Ocurrió un error inesperado";
+        error instanceof ApiError ? error.message : t("errors.unexpected");
       toast.error(message);
     } finally {
       setIsPending(false);

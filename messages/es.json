@@ -197,7 +197,8 @@
       "read_only_catalog": "Este catálogo es de solo lectura en la API oficial",
       "op_create_failed": "No se pudo crear el registro",
       "op_update_failed": "No se pudo actualizar el registro",
-      "op_delete_failed": "No se pudo eliminar el registro"
+      "op_delete_failed": "No se pudo eliminar el registro",
+      "load_data_failed": "Error al cargar datos"
     },
     "validation": {
       "delete_target_not_identified": "No se pudo identificar el registro a eliminar"
@@ -370,7 +371,12 @@
       "no_permission_delete": "No tiene permisos para eliminar especialidades.",
       "create_failed": "No se pudo crear la especialidad",
       "update_failed": "No se pudo actualizar la especialidad",
-      "delete_failed": "No se pudo eliminar la especialidad"
+      "delete_failed": "No se pudo eliminar la especialidad",
+      "unexpected": "Ocurrió un error inesperado.",
+      "approve_failed": "Error al aprobar.",
+      "save_approve_failed": "Error al guardar y aprobar.",
+      "reject_failed": "Error al rechazar.",
+      "delete_requirement_failed": "No se pudo eliminar el requisito."
     },
     "validation": {
       "honor_name_required": "El nombre de la especialidad es obligatorio",
@@ -514,6 +520,9 @@
       "resource_type_required": "El tipo de recurso es obligatorio.",
       "video_url_required": "La URL del video es obligatoria para recursos de tipo video.",
       "content_required": "El contenido es obligatorio para recursos de tipo texto."
+    },
+    "toasts": {
+      "download_link_failed": "No se pudo obtener el enlace de descarga. Intenta de nuevo."
     }
   },
   "investiture": {
@@ -583,7 +592,8 @@
     },
     "errors": {
       "approve": "Error al aprobar la evidencia",
-      "reject": "Error al rechazar la evidencia"
+      "reject": "Error al rechazar la evidencia",
+      "load_detail_failed": "No se pudo cargar el detalle"
     },
     "validation": {
       "reason_required": "El motivo de rechazo es obligatorio",
@@ -604,6 +614,10 @@
       "session_revoke_failed": "No se pudo revocar la sesión. Intenta nuevamente.",
       "all_sessions_revoked": "Todas las sesiones fueron revocadas.",
       "all_sessions_revoke_failed": "No se pudieron revocar las sesiones. Intenta nuevamente."
+    },
+    "errors": {
+      "mfa_reset_description": "Error al resetear MFA",
+      "mfa_disable_description": "Error al deshabilitar MFA"
     }
   },
   "annual_folders": {
@@ -683,6 +697,84 @@
   "requests": {
     "errors": {
       "unexpected": "Ocurrió un error inesperado"
+    }
+  },
+  "insurance": {
+    "toasts": {
+      "updated": "Seguro actualizado correctamente",
+      "created": "Seguro registrado correctamente",
+      "deactivated": "Seguro desactivado correctamente"
+    },
+    "errors": {
+      "save_failed": "Error al guardar el seguro",
+      "deactivate_failed": "No se pudo desactivar el seguro"
+    }
+  },
+  "finances": {
+    "toasts": {
+      "categories_load_failed": "No se pudieron cargar las categorías",
+      "transaction_updated": "Movimiento actualizado correctamente",
+      "transaction_created": "Movimiento creado correctamente",
+      "transaction_deleted": "Movimiento eliminado correctamente"
+    },
+    "validation": {
+      "section_required": "Seleccioná una sección del club"
+    },
+    "errors": {
+      "delete_transaction_failed": "No se pudo eliminar el movimiento"
+    }
+  },
+  "certifications": {
+    "toasts": {
+      "progress_load_failed": "No se pudo cargar el progreso del usuario",
+      "progress_update_failed": "No se pudo actualizar el progreso"
+    }
+  },
+  "activities": {
+    "toasts": {
+      "updated": "Actividad actualizada correctamente",
+      "created": "Actividad creada correctamente",
+      "deleted": "Actividad eliminada correctamente"
+    },
+    "errors": {
+      "save_failed": "Error al guardar la actividad",
+      "delete_failed": "No se pudo eliminar la actividad"
+    }
+  },
+  "year_end": {
+    "toasts": {
+      "year_closed": "Año eclesiástico cerrado correctamente"
+    }
+  },
+  "inventory": {
+    "toasts": {
+      "item_deleted": "Ítem eliminado correctamente",
+      "item_updated": "Ítem actualizado correctamente",
+      "item_created": "Ítem creado correctamente"
+    },
+    "errors": {
+      "delete_failed": "No se pudo eliminar el ítem"
+    }
+  },
+  "units_admin": {
+    "validation": {
+      "member_required": "Selecciona un miembro"
+    },
+    "errors": {
+      "create_record_failed": "No se pudo crear el registro",
+      "add_member_failed": "No se pudo agregar el miembro",
+      "load_units_failed": "No se pudieron cargar las unidades",
+      "remove_member_failed": "No se pudo remover el miembro"
+    }
+  },
+  "system_config": {
+    "errors": {
+      "unexpected": "Ocurrió un error inesperado"
+    }
+  },
+  "shared": {
+    "errors": {
+      "unexpected": "Error inesperado"
     }
   }
 }

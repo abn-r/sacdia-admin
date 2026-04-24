@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { useTranslations } from "next-intl";
 import {
   createRequirement,
   updateRequirement,
@@ -95,6 +96,7 @@ export function RequirementEditDialog({
   onSuccess,
 }: RequirementEditDialogProps) {
   const isEdit = mode === "edit";
+  const t = useTranslations("honors");
 
   const [form, setForm] = useState<FormState>(() =>
     buildInitialState(mode, requirement),
@@ -159,7 +161,7 @@ export function RequirementEditDialog({
       onOpenChange(false);
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : "Ocurrió un error inesperado.";
+        err instanceof Error ? err.message : t("errors.unexpected");
       setError(message);
     } finally {
       setLoading(false);

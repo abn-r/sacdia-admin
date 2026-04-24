@@ -197,7 +197,8 @@
       "read_only_catalog": "Ce catalogue est en lecture seule dans l'API officielle",
       "op_create_failed": "Impossible de créer l'enregistrement",
       "op_update_failed": "Impossible de mettre à jour l'enregistrement",
-      "op_delete_failed": "Impossible de supprimer l'enregistrement"
+      "op_delete_failed": "Impossible de supprimer l'enregistrement",
+      "load_data_failed": "Erreur lors du chargement des données"
     },
     "validation": {
       "delete_target_not_identified": "Impossible d'identifier l'enregistrement à supprimer"
@@ -370,7 +371,12 @@
       "no_permission_delete": "Vous n'avez pas la permission de supprimer des spécialités.",
       "create_failed": "Impossible de créer la spécialité",
       "update_failed": "Impossible de mettre à jour la spécialité",
-      "delete_failed": "Impossible de supprimer la spécialité"
+      "delete_failed": "Impossible de supprimer la spécialité",
+      "unexpected": "Une erreur inattendue s'est produite.",
+      "approve_failed": "Erreur lors de l'approbation.",
+      "save_approve_failed": "Erreur lors de l'enregistrement et de l'approbation.",
+      "reject_failed": "Erreur lors du rejet.",
+      "delete_requirement_failed": "Impossible de supprimer l'exigence."
     },
     "validation": {
       "honor_name_required": "Le nom de la spécialité est obligatoire",
@@ -514,6 +520,9 @@
       "resource_type_required": "Le type de ressource est obligatoire.",
       "video_url_required": "L'URL de la vidéo est obligatoire pour les ressources de type vidéo.",
       "content_required": "Le contenu est obligatoire pour les ressources de type texte."
+    },
+    "toasts": {
+      "download_link_failed": "Impossible d'obtenir le lien de téléchargement. Réessayez."
     }
   },
   "investiture": {
@@ -583,7 +592,8 @@
     },
     "errors": {
       "approve": "Erreur lors de l'approbation de la preuve",
-      "reject": "Erreur lors du rejet de la preuve"
+      "reject": "Erreur lors du rejet de la preuve",
+      "load_detail_failed": "Impossible de charger le détail"
     },
     "validation": {
       "reason_required": "Le motif de rejet est obligatoire",
@@ -604,6 +614,10 @@
       "session_revoke_failed": "Impossible de révoquer la session. Réessayez.",
       "all_sessions_revoked": "Toutes les sessions ont été révoquées.",
       "all_sessions_revoke_failed": "Impossible de révoquer les sessions. Réessayez."
+    },
+    "errors": {
+      "mfa_reset_description": "Erreur lors de la réinitialisation MFA",
+      "mfa_disable_description": "Erreur lors de la désactivation MFA"
     }
   },
   "annual_folders": {
@@ -683,6 +697,84 @@
   "requests": {
     "errors": {
       "unexpected": "Une erreur inattendue s'est produite"
+    }
+  },
+  "insurance": {
+    "toasts": {
+      "updated": "Assurance mise à jour avec succès",
+      "created": "Assurance enregistrée avec succès",
+      "deactivated": "Assurance désactivée avec succès"
+    },
+    "errors": {
+      "save_failed": "Erreur lors de l'enregistrement de l'assurance",
+      "deactivate_failed": "Impossible de désactiver l'assurance"
+    }
+  },
+  "finances": {
+    "toasts": {
+      "categories_load_failed": "Impossible de charger les catégories",
+      "transaction_updated": "Transaction mise à jour avec succès",
+      "transaction_created": "Transaction créée avec succès",
+      "transaction_deleted": "Transaction supprimée avec succès"
+    },
+    "validation": {
+      "section_required": "Sélectionnez une section du club"
+    },
+    "errors": {
+      "delete_transaction_failed": "Impossible de supprimer la transaction"
+    }
+  },
+  "certifications": {
+    "toasts": {
+      "progress_load_failed": "Impossible de charger la progression de l'utilisateur",
+      "progress_update_failed": "Impossible de mettre à jour la progression"
+    }
+  },
+  "activities": {
+    "toasts": {
+      "updated": "Activité mise à jour avec succès",
+      "created": "Activité créée avec succès",
+      "deleted": "Activité supprimée avec succès"
+    },
+    "errors": {
+      "save_failed": "Erreur lors de l'enregistrement de l'activité",
+      "delete_failed": "Impossible de supprimer l'activité"
+    }
+  },
+  "year_end": {
+    "toasts": {
+      "year_closed": "Année ecclésiastique clôturée avec succès"
+    }
+  },
+  "inventory": {
+    "toasts": {
+      "item_deleted": "Élément supprimé avec succès",
+      "item_updated": "Élément mis à jour avec succès",
+      "item_created": "Élément créé avec succès"
+    },
+    "errors": {
+      "delete_failed": "Impossible de supprimer l'élément"
+    }
+  },
+  "units_admin": {
+    "validation": {
+      "member_required": "Sélectionnez un membre"
+    },
+    "errors": {
+      "create_record_failed": "Impossible de créer l'enregistrement",
+      "add_member_failed": "Impossible d'ajouter le membre",
+      "load_units_failed": "Impossible de charger les unités",
+      "remove_member_failed": "Impossible de retirer le membre"
+    }
+  },
+  "system_config": {
+    "errors": {
+      "unexpected": "Une erreur inattendue s'est produite"
+    }
+  },
+  "shared": {
+    "errors": {
+      "unexpected": "Erreur inattendue"
     }
   }
 }

@@ -36,6 +36,7 @@ import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { AddMemberDialog } from "@/components/units/add-member-dialog";
 import { WeeklyRecordsPanel } from "@/components/units/weekly-records-panel";
+import { useTranslations } from "next-intl";
 import { removeUnitMember, getUnitUserDisplayName } from "@/lib/api/units";
 import type { Unit, UnitMember } from "@/lib/api/units";
 
@@ -110,6 +111,7 @@ export function UnitDetailPanel({
   onDelete,
   onMembersChanged,
 }: UnitDetailPanelProps) {
+  const t = useTranslations("units_admin");
   const [expanded, setExpanded] = useState(false);
   const [addMemberOpen, setAddMemberOpen] = useState(false);
   const [removingMember, setRemovingMember] = useState<UnitMember | null>(null);
@@ -128,7 +130,7 @@ export function UnitDetailPanel({
       setRemovingMember(null);
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "No se pudo remover el miembro";
+        err instanceof Error ? err.message : t("errors.remove_member_failed");
       toast.error(message);
     } finally {
       setIsRemoving(false);

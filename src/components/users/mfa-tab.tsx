@@ -100,7 +100,7 @@ function ResetMfaDialog({
         onSuccess();
       } catch (error) {
         const message =
-          error instanceof Error ? error.message : "Error al resetear MFA";
+          error instanceof Error ? error.message : t("errors.mfa_reset_description");
         toast.error(t("toasts.mfa_reset_failed"), { description: message });
       }
     });
@@ -177,7 +177,7 @@ function DisableMfaDialog({
         onSuccess();
       } catch (error) {
         const message =
-          error instanceof Error ? error.message : "Error al deshabilitar MFA";
+          error instanceof Error ? error.message : t("errors.mfa_disable_description");
         toast.error(t("toasts.mfa_disable_failed"), { description: message });
       }
     });

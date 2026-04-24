@@ -197,7 +197,8 @@
       "read_only_catalog": "This catalog is read-only in the official API",
       "op_create_failed": "Could not create the record",
       "op_update_failed": "Could not update the record",
-      "op_delete_failed": "Could not delete the record"
+      "op_delete_failed": "Could not delete the record",
+      "load_data_failed": "Error loading data"
     },
     "validation": {
       "delete_target_not_identified": "Could not identify the record to delete"
@@ -370,7 +371,12 @@
       "no_permission_delete": "You do not have permission to delete honors.",
       "create_failed": "The honor could not be created",
       "update_failed": "The honor could not be updated",
-      "delete_failed": "The honor could not be deleted"
+      "delete_failed": "The honor could not be deleted",
+      "unexpected": "An unexpected error occurred.",
+      "approve_failed": "Error approving.",
+      "save_approve_failed": "Error saving and approving.",
+      "reject_failed": "Error rejecting.",
+      "delete_requirement_failed": "Could not delete the requirement."
     },
     "validation": {
       "honor_name_required": "The honor name is required",
@@ -514,6 +520,9 @@
       "resource_type_required": "The resource type is required.",
       "video_url_required": "The video URL is required for video resources.",
       "content_required": "The content is required for text resources."
+    },
+    "toasts": {
+      "download_link_failed": "Could not get the download link. Try again."
     }
   },
   "investiture": {
@@ -583,7 +592,8 @@
     },
     "errors": {
       "approve": "Error approving the evidence",
-      "reject": "Error rejecting the evidence"
+      "reject": "Error rejecting the evidence",
+      "load_detail_failed": "Could not load the detail"
     },
     "validation": {
       "reason_required": "The rejection reason is required",
@@ -604,6 +614,10 @@
       "session_revoke_failed": "Could not revoke the session. Try again.",
       "all_sessions_revoked": "All sessions were revoked.",
       "all_sessions_revoke_failed": "Could not revoke sessions. Try again."
+    },
+    "errors": {
+      "mfa_reset_description": "Error resetting MFA",
+      "mfa_disable_description": "Error disabling MFA"
     }
   },
   "annual_folders": {
@@ -683,6 +697,84 @@
   "requests": {
     "errors": {
       "unexpected": "An unexpected error occurred"
+    }
+  },
+  "insurance": {
+    "toasts": {
+      "updated": "Insurance updated successfully",
+      "created": "Insurance registered successfully",
+      "deactivated": "Insurance deactivated successfully"
+    },
+    "errors": {
+      "save_failed": "Error saving the insurance",
+      "deactivate_failed": "Could not deactivate the insurance"
+    }
+  },
+  "finances": {
+    "toasts": {
+      "categories_load_failed": "Could not load the categories",
+      "transaction_updated": "Transaction updated successfully",
+      "transaction_created": "Transaction created successfully",
+      "transaction_deleted": "Transaction deleted successfully"
+    },
+    "validation": {
+      "section_required": "Select a club section"
+    },
+    "errors": {
+      "delete_transaction_failed": "Could not delete the transaction"
+    }
+  },
+  "certifications": {
+    "toasts": {
+      "progress_load_failed": "Could not load the user's progress",
+      "progress_update_failed": "Could not update the progress"
+    }
+  },
+  "activities": {
+    "toasts": {
+      "updated": "Activity updated successfully",
+      "created": "Activity created successfully",
+      "deleted": "Activity deleted successfully"
+    },
+    "errors": {
+      "save_failed": "Error saving the activity",
+      "delete_failed": "Could not delete the activity"
+    }
+  },
+  "year_end": {
+    "toasts": {
+      "year_closed": "Ecclesiastical year closed successfully"
+    }
+  },
+  "inventory": {
+    "toasts": {
+      "item_deleted": "Item deleted successfully",
+      "item_updated": "Item updated successfully",
+      "item_created": "Item created successfully"
+    },
+    "errors": {
+      "delete_failed": "Could not delete the item"
+    }
+  },
+  "units_admin": {
+    "validation": {
+      "member_required": "Select a member"
+    },
+    "errors": {
+      "create_record_failed": "Could not create the record",
+      "add_member_failed": "Could not add the member",
+      "load_units_failed": "Could not load the units",
+      "remove_member_failed": "Could not remove the member"
+    }
+  },
+  "system_config": {
+    "errors": {
+      "unexpected": "An unexpected error occurred"
+    }
+  },
+  "shared": {
+    "errors": {
+      "unexpected": "Unexpected error"
     }
   }
 }

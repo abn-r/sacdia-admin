@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { requireAdminUser } from "@/lib/auth/session";
 import { entityConfigs, type EntityKey } from "@/lib/catalogs/entities";
 import { listEntityItems, getSelectOptions } from "@/lib/catalogs/service";
@@ -15,6 +16,7 @@ interface CatalogEntityPageProps {
 
 export async function CatalogEntityPage({ entityKey }: CatalogEntityPageProps) {
   await requireAdminUser();
+  const t = await getTranslations("catalogs");
 
   const config = entityConfigs[entityKey];
 
@@ -24,7 +26,7 @@ export async function CatalogEntityPage({ entityKey }: CatalogEntityPageProps) {
   try {
     items = await listEntityItems(entityKey);
   } catch (error) {
-    loadError = error instanceof ApiError ? error.message : "Error al cargar datos";
+    loadError = error instanceof ApiError ? error.message : t("errors.load_data_failed");
   }
 
   const selectOptionsMap: Record<string, { label: string; value: number }[]> = {};

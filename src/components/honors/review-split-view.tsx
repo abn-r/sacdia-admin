@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { useTranslations } from "next-intl";
 import {
   deleteRequirement,
   updateRequirement,
@@ -73,6 +74,7 @@ export function ReviewSplitView({
   hasNext,
   positionLabel,
 }: ReviewSplitViewProps) {
+  const t = useTranslations("honors");
   const [form, setForm] = useState<ReviewFormState>(() =>
     buildInitialForm(requirement),
   );
@@ -101,7 +103,7 @@ export function ReviewSplitView({
       });
       onAction({ type: "approve", requirementId: requirement.requirement_id });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al aprobar.");
+      setError(err instanceof Error ? err.message : t("errors.approve_failed"));
     } finally {
       setLoading(false);
     }
@@ -130,7 +132,7 @@ export function ReviewSplitView({
       });
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Error al guardar y aprobar.",
+        err instanceof Error ? err.message : t("errors.save_approve_failed"),
       );
     } finally {
       setLoading(false);
@@ -144,7 +146,7 @@ export function ReviewSplitView({
       await deleteRequirement(requirement.requirement_id);
       onAction({ type: "reject", requirementId: requirement.requirement_id });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al rechazar.");
+      setError(err instanceof Error ? err.message : t("errors.reject_failed"));
     } finally {
       setLoading(false);
     }

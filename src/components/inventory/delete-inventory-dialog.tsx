@@ -12,6 +12,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useTranslations } from "next-intl";
 import { deleteInventoryItem } from "@/lib/api/inventory";
 import type { InventoryItem } from "@/lib/api/inventory";
 
@@ -32,6 +33,7 @@ export function DeleteInventoryDialog({
   item,
   onSuccess,
 }: DeleteInventoryDialogProps) {
+  const t = useTranslations("inventory");
   const [isDeleting, setIsDeleting] = useState(false);
 
   async function handleConfirm() {
@@ -39,12 +41,12 @@ export function DeleteInventoryDialog({
     setIsDeleting(true);
     try {
       await deleteInventoryItem(item.inventory_id);
-      toast.success("Ítem eliminado correctamente");
+      toast.success(t("toasts.item_deleted"));
       onSuccess();
       onOpenChange(false);
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "No se pudo eliminar el ítem";
+        err instanceof Error ? err.message : t("errors.delete_failed");
       toast.error(message);
     } finally {
       setIsDeleting(false);

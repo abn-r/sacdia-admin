@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { MemberCombobox } from "@/components/units/member-combobox";
+import { useTranslations } from "next-intl";
 import { addUnitMember } from "@/lib/api/units";
 import type { UnitMember } from "@/lib/api/units";
 
@@ -36,6 +37,7 @@ export function AddMemberDialog({
   existingMembers = [],
   onSuccess,
 }: AddMemberDialogProps) {
+  const t = useTranslations("units_admin");
   const [userId, setUserId] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -70,7 +72,7 @@ export function AddMemberDialog({
       onOpenChange(false);
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "No se pudo agregar el miembro";
+        err instanceof Error ? err.message : t("errors.add_member_failed");
       toast.error(message);
     } finally {
       setIsSubmitting(false);

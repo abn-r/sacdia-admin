@@ -13,6 +13,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useTranslations } from "next-intl";
 import { deleteFinance, type Finance } from "@/lib/api/finances";
 
 function formatAmount(cents: number): string {
@@ -36,6 +37,7 @@ export function DeleteTransactionDialog({
   finance,
   onSuccess,
 }: DeleteTransactionDialogProps) {
+  const t = useTranslations("finances");
   const [isDeleting, setIsDeleting] = useState(false);
 
   async function handleDelete() {
@@ -43,11 +45,11 @@ export function DeleteTransactionDialog({
     setIsDeleting(true);
     try {
       await deleteFinance(finance.finance_id);
-      toast.success("Movimiento eliminado correctamente");
+      toast.success(t("toasts.transaction_deleted"));
       onSuccess();
       onOpenChange(false);
     } catch {
-      toast.error("No se pudo eliminar el movimiento");
+      toast.error(t("errors.delete_transaction_failed"));
     } finally {
       setIsDeleting(false);
     }

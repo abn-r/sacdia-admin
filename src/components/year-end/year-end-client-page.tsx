@@ -23,6 +23,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useTranslations } from "next-intl";
 import { getYearEndPreview, closeYear } from "@/lib/api/year-end";
 import type { YearEndPreview, YearEndCloseResult } from "@/lib/api/year-end";
 import type { EcclesiasticalYear } from "@/lib/api/catalogs";
@@ -110,6 +111,7 @@ interface YearEndClientPageProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function YearEndClientPage({ ecclesiasticalYears }: YearEndClientPageProps) {
+  const t = useTranslations("year_end");
   const [selectedYearId, setSelectedYearId] = useState<string>("");
   const [preview, setPreview] = useState<YearEndPreview | null>(null);
   const [closeResult, setCloseResult] = useState<YearEndCloseResult | null>(null);
@@ -150,7 +152,7 @@ export function YearEndClientPage({ ecclesiasticalYears }: YearEndClientPageProp
       const result = await closeYear(Number(selectedYearId));
       setCloseResult(result);
       setPreview(null);
-      toast.success("Año eclesiástico cerrado correctamente");
+      toast.success(t("toasts.year_closed"));
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : "No se pudo cerrar el año eclesiástico.";

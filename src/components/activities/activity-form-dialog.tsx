@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useTranslations } from "next-intl";
 import { createActivity, updateActivity } from "@/lib/api/activities";
 import type { Activity } from "@/lib/api/activities";
 
@@ -89,6 +90,7 @@ export function ActivityFormDialog({
   onSuccess,
 }: ActivityFormDialogProps) {
   const isEdit = !!activity;
+  const t = useTranslations("activities");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -169,7 +171,7 @@ export function ActivityFormDialog({
           platform: values.platform,
           link_meet: values.link_meet,
         });
-        toast.success("Actividad actualizada correctamente");
+        toast.success(t("toasts.updated"));
       } else {
         await createActivity(clubId, {
           name: values.name,
@@ -185,13 +187,13 @@ export function ActivityFormDialog({
           platform: values.platform,
           link_meet: values.link_meet,
         });
-        toast.success("Actividad creada correctamente");
+        toast.success(t("toasts.created"));
       }
       onSuccess();
       onOpenChange(false);
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "Error al guardar la actividad";
+        err instanceof Error ? err.message : t("errors.save_failed");
       toast.error(message);
     } finally {
       setIsSubmitting(false);

@@ -78,6 +78,7 @@ import type { ResourceActionState } from "@/lib/resources/resource-actions";
 import type { ResourceType, ClubTypeTarget, ScopeLevel } from "@/lib/api/resources";
 import { apiRequestFromClient } from "@/lib/api/client";
 import type { Union, LocalField } from "@/lib/api/geography";
+import { useTranslations } from "next-intl";
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
 
@@ -717,6 +718,7 @@ export function ResourcesCrudPage({
   updateAction,
   deleteAction,
 }: ResourcesCrudPageProps) {
+  const t = useTranslations("resources");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -841,7 +843,7 @@ export function ResourcesCrudPage({
         window.open(url, "_blank", "noopener,noreferrer");
       }
     } catch {
-      toast.error("No se pudo obtener el enlace de descarga. Intenta de nuevo.");
+      toast.error(t("toasts.download_link_failed"));
     }
   }
 
