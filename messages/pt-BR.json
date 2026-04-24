@@ -473,30 +473,29 @@
     }
   },
   "camporees": {
+    "toasts": {
+      "payment_updated": "Pagamento atualizado",
+      "payment_created": "Pagamento registrado",
+      "camporee_deleted": "Campori excluído com sucesso",
+      "union_camporee_updated": "Campori de união atualizado com sucesso",
+      "union_camporee_created": "Campori de união criado com sucesso",
+      "union_camporee_deleted": "Campori de união excluído com sucesso",
+      "member_registered": "Membro registrado no campori",
+      "camporee_updated": "Campori atualizado com sucesso",
+      "camporee_created": "Campori criado com sucesso",
+      "club_enrolled": "Clube inscrito no campori"
+    },
     "errors": {
-      "create_failed": "Não foi possível criar o camporee",
-      "update_failed": "Não foi possível atualizar o camporee",
-      "register_member_failed": "Não foi possível registrar o membro no camporee",
-      "remove_member_failed": "Não foi possível remover o membro do camporee"
-    },
-    "validation": {
-      "field_required": "O campo {field} é obrigatório",
-      "field_invalid": "O campo {field} não é válido",
-      "name_required": "O nome do camporee é obrigatório",
-      "dates_required": "As datas de início e fim são obrigatórias",
-      "place_required": "O local do camporee é obrigatório",
-      "no_changes": "Não há alterações para salvar",
-      "user_id_required": "O ID do usuário é obrigatório.",
-      "camporee_type_invalid": "O tipo de camporee deve ser local ou union.",
-      "insurance_invalid": "Seguro inválido.",
-      "member_remove_not_identified": "Não foi possível identificar o membro a remover."
-    },
-    "success": {
-      "member_registered": "Membro registrado com sucesso.",
-      "member_removed": "Membro removido com sucesso."
-    },
-    "fields": {
-      "local_field": "Campo local"
+      "save_payment": "Não foi possível salvar o pagamento",
+      "load_list": "Não foi possível carregar a lista",
+      "approve_club": "Não foi possível aprovar a inscrição do clube",
+      "delete_camporee": "Não foi possível excluir o campori",
+      "save_camporee": "Erro ao salvar o campori",
+      "register_member": "Não foi possível registrar o membro",
+      "unexpected": "Ocorreu um erro inesperado",
+      "approve_member": "Não foi possível aprovar a inscrição do membro",
+      "approve_payment": "Não foi possível aprovar o pagamento",
+      "enroll_club": "Não foi possível inscrever o clube"
     }
   },
   "resources": {

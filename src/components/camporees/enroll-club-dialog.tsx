@@ -16,6 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useTranslations } from "next-intl";
 import { enrollClub } from "@/lib/api/camporees";
 
 // ─── Schema ────────────────────────────────────────────────────────────────────
@@ -46,6 +47,7 @@ export function EnrollClubDialog({
   camporeeId,
   onSuccess,
 }: EnrollClubDialogProps) {
+  const t = useTranslations("camporees");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -71,12 +73,12 @@ export function EnrollClubDialog({
     setIsSubmitting(true);
     try {
       await enrollClub(camporeeId, { club_section_id: values.club_section_id });
-      toast.success("Club inscrito en el camporee");
+      toast.success(t("toasts.club_enrolled"));
       onSuccess();
       handleOpenChange(false);
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "No se pudo inscribir el club";
+        err instanceof Error ? err.message : t("errors.enroll_club");
       toast.error(message);
     } finally {
       setIsSubmitting(false);

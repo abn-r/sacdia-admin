@@ -26,6 +26,7 @@ import {
   CamporeeApprovalDialog,
   type ApprovalDialogMode,
 } from "@/components/camporees/camporee-approval-dialog";
+import { useTranslations } from "next-intl";
 import { ApiError } from "@/lib/api/client";
 
 // ─── Payment type badge ────────────────────────────────────────────────────────
@@ -160,6 +161,7 @@ export function CamporeePaymentsPanel({
   onPaymentsChange,
   isUnionCamporee = false,
 }: CamporeePaymentsPanelProps) {
+  const t = useTranslations("camporees");
   const [approvingId, setApprovingId] = useState<string | null>(null);
   const [dialog, setDialog] = useState<DialogState>(null);
 
@@ -181,7 +183,7 @@ export function CamporeePaymentsPanel({
       onPaymentsChange?.();
     } catch (err: unknown) {
       const message =
-        err instanceof ApiError ? err.message : "No se pudo aprobar el pago";
+        err instanceof ApiError ? err.message : t("errors.approve_payment");
       toast.error(message);
     } finally {
       setApprovingId(null);

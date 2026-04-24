@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useTranslations } from "next-intl";
 import { createUnionCamporee, updateUnionCamporee } from "@/lib/api/camporees";
 import type { UnionCamporee } from "@/lib/api/camporees";
 import type { Union } from "@/lib/api/geography";
@@ -77,6 +78,7 @@ export function UnionCamporeeFormDialog({
   unions,
   onSuccess,
 }: UnionCamporeeFormDialogProps) {
+  const t = useTranslations("camporees");
   const isEdit = !!camporee;
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -159,17 +161,17 @@ export function UnionCamporeeFormDialog({
       if (isEdit && camporee) {
         const id = camporee.union_camporee_id ?? camporee.id ?? 0;
         await updateUnionCamporee(id, payload);
-        toast.success("Camporee de unión actualizado correctamente");
+        toast.success(t("toasts.union_camporee_updated"));
       } else {
         await createUnionCamporee(payload);
-        toast.success("Camporee de unión creado correctamente");
+        toast.success(t("toasts.union_camporee_created"));
       }
 
       onSuccess();
       onOpenChange(false);
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "Error al guardar el camporee";
+        err instanceof Error ? err.message : t("errors.save_camporee");
       toast.error(message);
     } finally {
       setIsSubmitting(false);

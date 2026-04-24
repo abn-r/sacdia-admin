@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useTranslations } from "next-intl";
 import { createPayment, updatePayment } from "@/lib/api/camporees";
 import type { CamporeePayment, CamporeeMember, PaymentType } from "@/lib/api/camporees";
 
@@ -82,6 +83,7 @@ export function PaymentDialog({
   payment,
   onSuccess,
 }: PaymentDialogProps) {
+  const t = useTranslations("camporees");
   const isEditing = payment != null;
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -148,17 +150,17 @@ export function PaymentDialog({
 
       if (isEditing && payment) {
         await updatePayment(payment.payment_id, payloadBase);
-        toast.success("Pago actualizado");
+        toast.success(t("toasts.payment_updated"));
       } else {
         await createPayment(camporeeId, values.member_id, payloadBase);
-        toast.success("Pago registrado");
+        toast.success(t("toasts.payment_created"));
       }
 
       onSuccess();
       handleOpenChange(false);
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "No se pudo guardar el pago";
+        err instanceof Error ? err.message : t("errors.save_payment");
       toast.error(message);
     } finally {
       setIsSubmitting(false);

@@ -473,30 +473,29 @@
     }
   },
   "camporees": {
+    "toasts": {
+      "payment_updated": "Payment updated",
+      "payment_created": "Payment recorded",
+      "camporee_deleted": "Camporee deleted successfully",
+      "union_camporee_updated": "Union camporee updated successfully",
+      "union_camporee_created": "Union camporee created successfully",
+      "union_camporee_deleted": "Union camporee deleted successfully",
+      "member_registered": "Member registered in the camporee",
+      "camporee_updated": "Camporee updated successfully",
+      "camporee_created": "Camporee created successfully",
+      "club_enrolled": "Club enrolled in the camporee"
+    },
     "errors": {
-      "create_failed": "The camporee could not be created",
-      "update_failed": "The camporee could not be updated",
-      "register_member_failed": "The member could not be registered to the camporee",
-      "remove_member_failed": "The member could not be removed from the camporee"
-    },
-    "validation": {
-      "field_required": "The {field} field is required",
-      "field_invalid": "The {field} field is invalid",
-      "name_required": "The camporee name is required",
-      "dates_required": "Start and end dates are required",
-      "place_required": "The camporee location is required",
-      "no_changes": "No changes to save",
-      "user_id_required": "The user ID is required.",
-      "camporee_type_invalid": "The camporee type must be local or union.",
-      "insurance_invalid": "Invalid insurance.",
-      "member_remove_not_identified": "The member to remove could not be identified."
-    },
-    "success": {
-      "member_registered": "Member registered successfully.",
-      "member_removed": "Member removed successfully."
-    },
-    "fields": {
-      "local_field": "Local field"
+      "save_payment": "Could not save the payment",
+      "load_list": "Could not load the list",
+      "approve_club": "Could not approve the club enrollment",
+      "delete_camporee": "Could not delete the camporee",
+      "save_camporee": "Error saving the camporee",
+      "register_member": "Could not register the member",
+      "unexpected": "An unexpected error occurred",
+      "approve_member": "Could not approve the member enrollment",
+      "approve_payment": "Could not approve the payment",
+      "enroll_club": "Could not enroll the club"
     }
   },
   "resources": {

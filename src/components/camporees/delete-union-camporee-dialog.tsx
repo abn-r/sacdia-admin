@@ -12,6 +12,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useTranslations } from "next-intl";
 import { deleteUnionCamporee } from "@/lib/api/camporees";
 import type { UnionCamporee } from "@/lib/api/camporees";
 
@@ -28,6 +29,7 @@ export function DeleteUnionCamporeeDialog({
   camporee,
   onSuccess,
 }: DeleteUnionCamporeeDialogProps) {
+  const t = useTranslations("camporees");
   const [isDeleting, setIsDeleting] = useState(false);
 
   async function handleConfirm() {
@@ -38,12 +40,12 @@ export function DeleteUnionCamporeeDialog({
     setIsDeleting(true);
     try {
       await deleteUnionCamporee(id);
-      toast.success("Camporee de unión eliminado correctamente");
+      toast.success(t("toasts.union_camporee_deleted"));
       onOpenChange(false);
       onSuccess?.();
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "No se pudo eliminar el camporee";
+        err instanceof Error ? err.message : t("errors.delete_camporee");
       toast.error(message);
     } finally {
       setIsDeleting(false);

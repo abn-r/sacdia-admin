@@ -27,6 +27,7 @@ import {
   CamporeeApprovalDialog,
   type ApprovalDialogMode,
 } from "@/components/camporees/camporee-approval-dialog";
+import { useTranslations } from "next-intl";
 import { ApiError } from "@/lib/api/client";
 
 // ─── Member status badge ───────────────────────────────────────────────────────
@@ -104,6 +105,7 @@ export function CamporeeMembersPanel({
   onMembersChange,
   isUnionCamporee = false,
 }: CamporeeMembersPanelProps) {
+  const t = useTranslations("camporees");
   const [removingUserId, setRemovingUserId] = useState<string | null>(null);
   const [approvingMemberId, setApprovingMemberId] = useState<number | null>(null);
   const [dialog, setDialog] = useState<DialogState>(null);
@@ -148,7 +150,7 @@ export function CamporeeMembersPanel({
       onMembersChange();
     } catch (err: unknown) {
       const message =
-        err instanceof ApiError ? err.message : "No se pudo aprobar la inscripcion del miembro";
+        err instanceof ApiError ? err.message : t("errors.approve_member");
       toast.error(message);
     } finally {
       setApprovingMemberId(null);

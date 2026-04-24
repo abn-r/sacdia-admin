@@ -15,6 +15,7 @@ import {
 import { EmptyState } from "@/components/shared/empty-state";
 import { UnionCamporeeFormDialog } from "@/components/camporees/union-camporee-form-dialog";
 import { DeleteUnionCamporeeDialog } from "@/components/camporees/delete-union-camporee-dialog";
+import { useTranslations } from "next-intl";
 import { listUnionCamporees } from "@/lib/api/camporees";
 import type { UnionCamporee } from "@/lib/api/camporees";
 import type { Union } from "@/lib/api/geography";
@@ -57,6 +58,7 @@ interface UnionCampoReesViewProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function UnionCampoReesView({ initialCamporees, unions }: UnionCampoReesViewProps) {
+  const t = useTranslations("camporees");
   const [camporees, setCamporees] = useState<UnionCamporee[]>(initialCamporees);
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -75,12 +77,12 @@ export function UnionCampoReesView({ initialCamporees, unions }: UnionCampoReesV
       setCamporees(extractCamporees(payload));
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "No se pudo cargar la lista";
+        err instanceof Error ? err.message : t("errors.load_list");
       setLoadError(message);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [t]);
 
   function handleEdit(camporee: UnionCamporee) {
     setEditingCamporee(camporee);

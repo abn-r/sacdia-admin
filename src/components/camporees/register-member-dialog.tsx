@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useTranslations } from "next-intl";
 import { registerCamporeeMember } from "@/lib/api/camporees";
 
 // ─── Schema ────────────────────────────────────────────────────────────────────
@@ -53,6 +54,7 @@ export function RegisterMemberDialog({
   camporeeId,
   onSuccess,
 }: RegisterMemberDialogProps) {
+  const t = useTranslations("camporees");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [insuranceError, setInsuranceError] = useState<string | null>(null);
 
@@ -96,12 +98,12 @@ export function RegisterMemberDialog({
             ? Number(values.insurance_id)
             : undefined,
       });
-      toast.success("Miembro registrado en el camporee");
+      toast.success(t("toasts.member_registered"));
       onSuccess();
       handleOpenChange(false);
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "No se pudo registrar al miembro";
+        err instanceof Error ? err.message : t("errors.register_member");
 
       // Insurance-related errors get a dedicated callout
       if (

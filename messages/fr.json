@@ -473,30 +473,29 @@
     }
   },
   "camporees": {
+    "toasts": {
+      "payment_updated": "Paiement mis à jour",
+      "payment_created": "Paiement enregistré",
+      "camporee_deleted": "Camporée supprimée avec succès",
+      "union_camporee_updated": "Camporée d'union mise à jour avec succès",
+      "union_camporee_created": "Camporée d'union créée avec succès",
+      "union_camporee_deleted": "Camporée d'union supprimée avec succès",
+      "member_registered": "Membre enregistré dans la camporée",
+      "camporee_updated": "Camporée mise à jour avec succès",
+      "camporee_created": "Camporée créée avec succès",
+      "club_enrolled": "Club inscrit dans la camporée"
+    },
     "errors": {
-      "create_failed": "Impossible de créer le camporee",
-      "update_failed": "Impossible de mettre à jour le camporee",
-      "register_member_failed": "Impossible d'inscrire le membre au camporee",
-      "remove_member_failed": "Impossible de retirer le membre du camporee"
-    },
-    "validation": {
-      "field_required": "Le champ {field} est obligatoire",
-      "field_invalid": "Le champ {field} n'est pas valide",
-      "name_required": "Le nom du camporee est obligatoire",
-      "dates_required": "Les dates de début et de fin sont obligatoires",
-      "place_required": "Le lieu du camporee est obligatoire",
-      "no_changes": "Aucune modification à enregistrer",
-      "user_id_required": "L'identifiant de l'utilisateur est obligatoire.",
-      "camporee_type_invalid": "Le type de camporee doit être local ou union.",
-      "insurance_invalid": "Assurance invalide.",
-      "member_remove_not_identified": "Impossible d'identifier le membre à retirer."
-    },
-    "success": {
-      "member_registered": "Membre inscrit avec succès.",
-      "member_removed": "Membre retiré avec succès."
-    },
-    "fields": {
-      "local_field": "Champ local"
+      "save_payment": "Impossible d'enregistrer le paiement",
+      "load_list": "Impossible de charger la liste",
+      "approve_club": "Impossible d'approuver l'inscription du club",
+      "delete_camporee": "Impossible de supprimer la camporée",
+      "save_camporee": "Erreur lors de l'enregistrement de la camporée",
+      "register_member": "Impossible d'enregistrer le membre",
+      "unexpected": "Une erreur inattendue s'est produite",
+      "approve_member": "Impossible d'approuver l'inscription du membre",
+      "approve_payment": "Impossible d'approuver le paiement",
+      "enroll_club": "Impossible d'inscrire le club"
     }
   },
   "resources": {

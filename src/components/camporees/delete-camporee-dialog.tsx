@@ -13,6 +13,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useTranslations } from "next-intl";
 import { deleteCamporee } from "@/lib/api/camporees";
 import type { Camporee } from "@/lib/api/camporees";
 
@@ -32,6 +33,7 @@ export function DeleteCamporeeDialog({
   redirectTo,
   onSuccess,
 }: DeleteCamporeeDialogProps) {
+  const t = useTranslations("camporees");
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -43,7 +45,7 @@ export function DeleteCamporeeDialog({
     setIsDeleting(true);
     try {
       await deleteCamporee(id);
-      toast.success("Camporee eliminado correctamente");
+      toast.success(t("toasts.camporee_deleted"));
       onOpenChange(false);
       if (redirectTo) {
         router.push(redirectTo);
@@ -53,7 +55,7 @@ export function DeleteCamporeeDialog({
       }
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "No se pudo eliminar el camporee";
+        err instanceof Error ? err.message : t("errors.delete_camporee");
       toast.error(message);
     } finally {
       setIsDeleting(false);

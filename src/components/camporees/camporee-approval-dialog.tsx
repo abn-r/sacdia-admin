@@ -17,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useTranslations } from "next-intl";
 import { ApiError } from "@/lib/api/client";
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
@@ -55,6 +56,7 @@ export function CamporeeApprovalDialog({
   onConfirm,
   onSuccess,
 }: CamporeeApprovalDialogProps) {
+  const t = useTranslations("camporees");
   const [isPending, setIsPending] = useState(false);
 
   const form = useForm<RejectFormValues>({
@@ -78,7 +80,7 @@ export function CamporeeApprovalDialog({
       onSuccess();
     } catch (error) {
       const message =
-        error instanceof ApiError ? error.message : "Ocurrio un error inesperado";
+        error instanceof ApiError ? error.message : t("errors.unexpected");
       toast.error(message);
     } finally {
       setIsPending(false);
