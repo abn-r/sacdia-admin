@@ -402,7 +402,12 @@
       "create_role_failed": "The role could not be created",
       "update_role_failed": "The role could not be updated",
       "deactivate_role_failed": "The role could not be deactivated",
-      "sync_permissions_failed": "Permissions could not be synchronized"
+      "sync_permissions_failed": "Permissions could not be synchronized",
+      "assign_role_failed": "Could not assign the role.",
+      "remove_role_failed": "Could not remove the role.",
+      "assign_permission_failed": "Could not assign the permission.",
+      "remove_permission_failed": "Could not remove the permission.",
+      "load_user_permissions_failed": "Could not load the user's permissions."
     },
     "validation": {
       "permission_name_required": "The permission name is required",
@@ -412,10 +417,21 @@
       "role_name_reserved": "Cannot create a role named 'super_admin'",
       "description_min_length": "The description must be at least 10 characters",
       "description_max_length": "The description cannot exceed 500 characters",
-      "role_category_invalid": "The category must be GLOBAL or CLUB"
+      "role_category_invalid": "The category must be GLOBAL or CLUB",
+      "role_required": "Select a role before assigning.",
+      "permission_required": "Select a permission before assigning.",
+      "user_id_required": "Enter the user's UUID.",
+      "uuid_invalid": "The ID entered is not a valid UUID."
     },
     "success": {
       "permissions_updated": "Permissions updated successfully"
+    },
+    "toasts": {
+      "role_assigned": "Role assigned successfully.",
+      "role_removed": "Role removed successfully.",
+      "permission_assigned": "Permission assigned successfully.",
+      "permission_removed": "Permission removed successfully.",
+      "role_deactivated": "Role \"{name}\" deactivated successfully."
     }
   },
   "resource_categories": {

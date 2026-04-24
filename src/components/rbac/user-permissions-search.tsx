@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { Search, User, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,6 +19,7 @@ const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export function UserPermissionsSearch({ allPermissions }: UserPermissionsSearchProps) {
+  const t = useTranslations("rbac");
   const [userIdInput, setUserIdInput] = useState("");
   const [loadedUserId, setLoadedUserId] = useState<string | null>(null);
   const [userPermissions, setUserPermissions] = useState<UserPermission[]>([]);
@@ -27,12 +29,12 @@ export function UserPermissionsSearch({ allPermissions }: UserPermissionsSearchP
     const trimmed = userIdInput.trim();
 
     if (!trimmed) {
-      toast.error("Ingresá el UUID del usuario.");
+      toast.error(t("validation.user_id_required"));
       return;
     }
 
     if (!UUID_REGEX.test(trimmed)) {
-      toast.error("El ID ingresado no es un UUID válido.");
+      toast.error(t("validation.uuid_invalid"));
       return;
     }
 
@@ -50,7 +52,7 @@ export function UserPermissionsSearch({ allPermissions }: UserPermissionsSearchP
         toast.error(
           error instanceof Error
             ? error.message
-            : "No se pudo cargar los permisos del usuario.",
+            : t("errors.load_user_permissions_failed"),
         );
       }
     });

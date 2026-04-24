@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { Plus, X, ShieldCheck, Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,6 +40,7 @@ export function UserPermissionsPanel({
   initialUserPermissions,
   allPermissions,
 }: UserPermissionsPanelProps) {
+  const t = useTranslations("rbac");
   const [userPermissions, setUserPermissions] = useState<UserPermission[]>(initialUserPermissions);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [permToRemove, setPermToRemove] = useState<UserPermission | null>(null);
@@ -65,7 +67,7 @@ export function UserPermissionsPanel({
 
   function handleAssign() {
     if (!selectedPermId) {
-      toast.error("Seleccioná un permiso antes de asignar.");
+      toast.error(t("validation.permission_required"));
       return;
     }
 
@@ -102,10 +104,10 @@ export function UserPermissionsPanel({
           );
         }
 
-        toast.success("Permiso asignado correctamente.");
+        toast.success(t("toasts.permission_assigned"));
         setAddDialogOpen(false);
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : "No se pudo asignar el permiso.");
+        toast.error(error instanceof Error ? error.message : t("errors.assign_permission_failed"));
       }
     });
   }
@@ -122,10 +124,10 @@ export function UserPermissionsPanel({
         setUserPermissions((prev) =>
           prev.filter((up) => up.user_permission_id !== permToRemove.user_permission_id),
         );
-        toast.success("Permiso removido correctamente.");
+        toast.success(t("toasts.permission_removed"));
         setPermToRemove(null);
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : "No se pudo remover el permiso.");
+        toast.error(error instanceof Error ? error.message : t("errors.remove_permission_failed"));
       }
     });
   }

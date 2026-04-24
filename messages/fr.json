@@ -402,7 +402,12 @@
       "create_role_failed": "Impossible de créer le rôle",
       "update_role_failed": "Impossible de mettre à jour le rôle",
       "deactivate_role_failed": "Impossible de désactiver le rôle",
-      "sync_permissions_failed": "Impossible de synchroniser les permissions"
+      "sync_permissions_failed": "Impossible de synchroniser les permissions",
+      "assign_role_failed": "Impossible d'attribuer le rôle.",
+      "remove_role_failed": "Impossible de retirer le rôle.",
+      "assign_permission_failed": "Impossible d'attribuer la permission.",
+      "remove_permission_failed": "Impossible de retirer la permission.",
+      "load_user_permissions_failed": "Impossible de charger les permissions de l'utilisateur."
     },
     "validation": {
       "permission_name_required": "Le nom de la permission est obligatoire",
@@ -412,10 +417,21 @@
       "role_name_reserved": "Impossible de créer un rôle nommé 'super_admin'",
       "description_min_length": "La description doit comporter au moins 10 caractères",
       "description_max_length": "La description ne peut pas dépasser 500 caractères",
-      "role_category_invalid": "La catégorie doit être GLOBAL ou CLUB"
+      "role_category_invalid": "La catégorie doit être GLOBAL ou CLUB",
+      "role_required": "Sélectionnez un rôle avant d'attribuer.",
+      "permission_required": "Sélectionnez une permission avant d'attribuer.",
+      "user_id_required": "Saisissez l'UUID de l'utilisateur.",
+      "uuid_invalid": "L'ID saisi n'est pas un UUID valide."
     },
     "success": {
       "permissions_updated": "Permissions mises à jour avec succès"
+    },
+    "toasts": {
+      "role_assigned": "Rôle attribué avec succès.",
+      "role_removed": "Rôle retiré avec succès.",
+      "permission_assigned": "Permission attribuée avec succès.",
+      "permission_removed": "Permission retirée avec succès.",
+      "role_deactivated": "Rôle « {name} » désactivé avec succès."
     }
   },
   "resource_categories": {

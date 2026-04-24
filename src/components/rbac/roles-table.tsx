@@ -15,6 +15,7 @@ import {
   Users,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -141,6 +142,7 @@ function parseUsersCount(errorMessage: string): number | null {
 }
 
 function DeactivateDialog({ role, open, onClose, onSuccess }: DeactivateDialogProps) {
+  const t = useTranslations("rbac");
   const [loading, setLoading] = useState(false);
   const [blockError, setBlockError] = useState<{ usersCount: number } | null>(null);
 
@@ -158,7 +160,7 @@ function DeactivateDialog({ role, open, onClose, onSuccess }: DeactivateDialogPr
           onClose();
         }
       } else {
-        toast.success(`Rol "${role.role_name}" desactivado correctamente.`);
+        toast.success(t("toasts.role_deactivated", { name: role.role_name }));
         onSuccess();
         onClose();
       }

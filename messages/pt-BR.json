@@ -402,7 +402,12 @@
       "create_role_failed": "Não foi possível criar o papel",
       "update_role_failed": "Não foi possível atualizar o papel",
       "deactivate_role_failed": "Não foi possível desativar o papel",
-      "sync_permissions_failed": "Não foi possível sincronizar as permissões"
+      "sync_permissions_failed": "Não foi possível sincronizar as permissões",
+      "assign_role_failed": "Não foi possível atribuir o papel.",
+      "remove_role_failed": "Não foi possível remover o papel.",
+      "assign_permission_failed": "Não foi possível atribuir a permissão.",
+      "remove_permission_failed": "Não foi possível remover a permissão.",
+      "load_user_permissions_failed": "Não foi possível carregar as permissões do usuário."
     },
     "validation": {
       "permission_name_required": "O nome da permissão é obrigatório",
@@ -412,10 +417,21 @@
       "role_name_reserved": "Não é possível criar um papel com o nome 'super_admin'",
       "description_min_length": "A descrição deve ter pelo menos 10 caracteres",
       "description_max_length": "A descrição não pode exceder 500 caracteres",
-      "role_category_invalid": "A categoria deve ser GLOBAL ou CLUB"
+      "role_category_invalid": "A categoria deve ser GLOBAL ou CLUB",
+      "role_required": "Selecione um papel antes de atribuir.",
+      "permission_required": "Selecione uma permissão antes de atribuir.",
+      "user_id_required": "Insira o UUID do usuário.",
+      "uuid_invalid": "O ID fornecido não é um UUID válido."
     },
     "success": {
       "permissions_updated": "Permissões atualizadas com sucesso"
+    },
+    "toasts": {
+      "role_assigned": "Papel atribuído com sucesso.",
+      "role_removed": "Papel removido com sucesso.",
+      "permission_assigned": "Permissão atribuída com sucesso.",
+      "permission_removed": "Permissão removida com sucesso.",
+      "role_deactivated": "Papel \"{name}\" desativado com sucesso."
     }
   },
   "resource_categories": {

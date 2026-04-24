@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { Plus, X, ShieldAlert, Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -49,6 +50,7 @@ export function UserRolesPanel({
   initialUserRoles,
   allRoles,
 }: UserRolesPanelProps) {
+  const t = useTranslations("rbac");
   const [userRoles, setUserRoles] = useState<UserRole[]>(initialUserRoles);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [roleToRemove, setRoleToRemove] = useState<UserRole | null>(null);
@@ -76,7 +78,7 @@ export function UserRolesPanel({
 
   function handleAssign() {
     if (!selectedRoleId) {
-      toast.error("Selecciona un rol antes de asignar.");
+      toast.error(t("validation.role_required"));
       return;
     }
 
@@ -113,11 +115,11 @@ export function UserRolesPanel({
           );
         }
 
-        toast.success("Rol asignado correctamente.");
+        toast.success(t("toasts.role_assigned"));
         setAddDialogOpen(false);
       } catch (error) {
         toast.error(
-          error instanceof Error ? error.message : "No se pudo asignar el rol.",
+          error instanceof Error ? error.message : t("errors.assign_role_failed"),
         );
       }
     });
@@ -135,11 +137,11 @@ export function UserRolesPanel({
         setUserRoles((prev) =>
           prev.filter((ur) => ur.user_role_id !== roleToRemove.user_role_id),
         );
-        toast.success("Rol removido correctamente.");
+        toast.success(t("toasts.role_removed"));
         setRoleToRemove(null);
       } catch (error) {
         toast.error(
-          error instanceof Error ? error.message : "No se pudo remover el rol.",
+          error instanceof Error ? error.message : t("errors.remove_role_failed"),
         );
       }
     });
