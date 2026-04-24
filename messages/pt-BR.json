@@ -629,5 +629,60 @@
     "errors": {
       "recalculate_rankings": "Erro ao recalcular os rankings"
     }
+  },
+  "folders": {
+    "toasts": {
+      "deleted": "Pasta excluída com sucesso",
+      "updated": "Pasta atualizada com sucesso",
+      "created": "Pasta criada com sucesso"
+    }
+  },
+  "validation_admin": {
+    "errors": {
+      "unexpected": "Ocorreu um erro inesperado"
+    }
+  },
+  "scoring_categories": {
+    "toasts": {
+      "deleted": "Categoria excluída"
+    },
+    "validation": {
+      "name_required": "O nome é obrigatório",
+      "name_max": "O nome não pode exceder 100 caracteres",
+      "points_invalid": "Os pontos máximos devem ser um inteiro maior que 0"
+    },
+    "errors": {
+      "status_change_failed": "Não foi possível alterar o status",
+      "delete_failed": "Não foi possível excluir a categoria",
+      "save_failed": "Não foi possível salvar a categoria"
+    }
+  },
+  "member_of_month": {
+    "toasts": {
+      "evaluation_completed": "Avaliação concluída"
+    },
+    "errors": {
+      "evaluation_failed": "Não foi possível concluir a avaliação"
+    }
+  },
+  "reports": {
+    "toasts": {
+      "manual_data_saved": "Dados manuais salvos com sucesso.",
+      "report_generated": "Relatório gerado com sucesso. Os dados foram congelados.",
+      "report_sent": "Relatório enviado ao campo com sucesso.",
+      "data_updated": "Dados atualizados."
+    },
+    "errors": {
+      "save_manual_data": "Erro ao salvar os dados manuais.",
+      "generate_report": "Erro ao gerar o relatório.",
+      "send_report": "Erro ao enviar o relatório.",
+      "load_reports": "Erro ao carregar os relatórios.",
+      "create_report": "Erro ao criar o relatório."
+    }
+  },
+  "requests": {
+    "errors": {
+      "unexpected": "Ocorreu um erro inesperado"
+    }
   }
 }

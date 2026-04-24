@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -121,6 +122,7 @@ interface ReportsListClientProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
+  const t = useTranslations("reports");
   const router = useRouter();
 
   // Filters
@@ -151,7 +153,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
       }
       setReports(data);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Error al cargar los reportes.";
+      const message = error instanceof Error ? error.message : t("errors.load_reports");
       toast.error(message);
       setReports([]);
     } finally {
@@ -172,7 +174,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
       toast.success(`Reporte para ${MONTH_NAMES[createMonth]} ${createYear} creado/abierto.`);
       router.push(`/dashboard/reports/${report.report_id}`);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Error al crear el reporte.";
+      const message = error instanceof Error ? error.message : t("errors.create_report");
       toast.error(message);
     } finally {
       setCreating(false);
@@ -188,7 +190,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
       );
       toast.success(`Reporte de ${MONTH_NAMES[report.month]} ${report.year} generado.`);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Error al generar el reporte.";
+      const message = error instanceof Error ? error.message : t("errors.generate_report");
       toast.error(message);
     } finally {
       setActionLoading((prev) => {
@@ -208,7 +210,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
       );
       toast.success(`Reporte de ${MONTH_NAMES[report.month]} ${report.year} enviado al campo.`);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Error al enviar el reporte.";
+      const message = error instanceof Error ? error.message : t("errors.send_report");
       toast.error(message);
     } finally {
       setActionLoading((prev) => {

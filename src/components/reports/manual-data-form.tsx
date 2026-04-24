@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import type { SubmitHandler, Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -123,6 +124,7 @@ export function ManualDataForm({
   disabled = false,
   onSuccess,
 }: ManualDataFormProps) {
+  const t = useTranslations("reports");
   const [saving, setSaving] = useState(false);
 
   const {
@@ -158,11 +160,11 @@ export function ManualDataForm({
     try {
       const payload: MonthlyReportManualData = { ...values };
       const updated = await updateManualData(reportId, payload);
-      toast.success("Datos manuales guardados correctamente.");
+      toast.success(t("toasts.manual_data_saved"));
       onSuccess?.(updated.manual_data ?? payload);
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Error al guardar los datos manuales.";
+        error instanceof Error ? error.message : t("errors.save_manual_data");
       toast.error(message);
     } finally {
       setSaving(false);

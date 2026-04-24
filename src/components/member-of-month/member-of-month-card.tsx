@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Trophy, Clock, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -65,6 +66,7 @@ export function MemberOfMonthCard({
   sectionName = "la sección",
   isDirector = false,
 }: MemberOfMonthCardProps) {
+  const t = useTranslations("member_of_month");
   const [data, setData] = useState<MemberOfMonth | null>(null);
   const [loading, setLoading] = useState(true);
   const [evaluateOpen, setEvaluateOpen] = useState(false);
@@ -88,7 +90,7 @@ export function MemberOfMonthCard({
   }, [loadMemberOfMonth]);
 
   function handleEvaluateSuccess() {
-    toast.success("Evaluación completada");
+    toast.success(t("toasts.evaluation_completed"));
     loadMemberOfMonth();
   }
 

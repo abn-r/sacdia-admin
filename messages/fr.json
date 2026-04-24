@@ -629,5 +629,60 @@
     "errors": {
       "recalculate_rankings": "Erreur lors du recalcul des classements"
     }
+  },
+  "folders": {
+    "toasts": {
+      "deleted": "Dossier supprimé avec succès",
+      "updated": "Dossier mis à jour avec succès",
+      "created": "Dossier créé avec succès"
+    }
+  },
+  "validation_admin": {
+    "errors": {
+      "unexpected": "Une erreur inattendue s'est produite"
+    }
+  },
+  "scoring_categories": {
+    "toasts": {
+      "deleted": "Catégorie supprimée"
+    },
+    "validation": {
+      "name_required": "Le nom est obligatoire",
+      "name_max": "Le nom ne peut pas dépasser 100 caractères",
+      "points_invalid": "Les points maximum doivent être un entier supérieur à 0"
+    },
+    "errors": {
+      "status_change_failed": "Impossible de changer le statut",
+      "delete_failed": "Impossible de supprimer la catégorie",
+      "save_failed": "Impossible d'enregistrer la catégorie"
+    }
+  },
+  "member_of_month": {
+    "toasts": {
+      "evaluation_completed": "Évaluation terminée"
+    },
+    "errors": {
+      "evaluation_failed": "Impossible de terminer l'évaluation"
+    }
+  },
+  "reports": {
+    "toasts": {
+      "manual_data_saved": "Données manuelles enregistrées avec succès.",
+      "report_generated": "Rapport généré avec succès. Les données ont été figées.",
+      "report_sent": "Rapport envoyé au champ avec succès.",
+      "data_updated": "Données mises à jour."
+    },
+    "errors": {
+      "save_manual_data": "Erreur lors de l'enregistrement des données manuelles.",
+      "generate_report": "Erreur lors de la génération du rapport.",
+      "send_report": "Erreur lors de l'envoi du rapport.",
+      "load_reports": "Erreur lors du chargement des rapports.",
+      "create_report": "Erreur lors de la création du rapport."
+    }
+  },
+  "requests": {
+    "errors": {
+      "unexpected": "Une erreur inattendue s'est produite"
+    }
   }
 }

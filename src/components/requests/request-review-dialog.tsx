@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -55,6 +56,7 @@ export function RequestReviewDialog({
   onSubmit,
   onSuccess,
 }: RequestReviewDialogProps) {
+  const t = useTranslations("requests");
   const [isPending, setIsPending] = useState(false);
   const isApprove = action === "approved";
   const schema = isApprove ? approveSchema : rejectSchema;
@@ -78,7 +80,7 @@ export function RequestReviewDialog({
       onSuccess();
     } catch (error) {
       const message =
-        error instanceof ApiError ? error.message : "Ocurrió un error inesperado";
+        error instanceof ApiError ? error.message : t("errors.unexpected");
       toast.error(message);
     } finally {
       setIsPending(false);

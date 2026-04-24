@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Plus, Pencil, Trash2, Tags, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -125,6 +126,7 @@ export function ScoringCategoriesTable({
   onToggleActive,
   showOriginBadge = false,
 }: ScoringCategoriesTableProps) {
+  const t = useTranslations("scoring_categories");
   const [categories, setCategories] = useState<ScoringCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -212,7 +214,7 @@ export function ScoringCategoriesTable({
       );
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "No se pudo cambiar el estado";
+        err instanceof Error ? err.message : t("errors.status_change_failed");
       toast.error(message);
     } finally {
       setTogglingIds((prev) => {

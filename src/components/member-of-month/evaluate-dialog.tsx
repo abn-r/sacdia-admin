@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Loader2, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -58,6 +59,7 @@ export function EvaluateMemberOfMonthDialog({
   sectionName,
   onSuccess,
 }: EvaluateMemberOfMonthDialogProps) {
+  const t = useTranslations("member_of_month");
   const defaultPeriod = getPreviousMonth();
   const [month, setMonth] = useState(defaultPeriod.month);
   const [year, setYear] = useState(defaultPeriod.year);
@@ -86,7 +88,7 @@ export function EvaluateMemberOfMonthDialog({
       onOpenChange(false);
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "No se pudo completar la evaluación";
+        err instanceof Error ? err.message : t("errors.evaluation_failed");
       toast.error(message);
     } finally {
       setIsSubmitting(false);

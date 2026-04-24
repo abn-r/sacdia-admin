@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -33,6 +34,7 @@ export function FolderDeleteDialog({
   folder,
   onSuccess,
 }: FolderDeleteDialogProps) {
+  const t = useTranslations("folders");
   const [isDeleting, setIsDeleting] = useState(false);
 
   async function handleConfirm() {
@@ -40,7 +42,7 @@ export function FolderDeleteDialog({
     setIsDeleting(true);
     try {
       await deleteFolder(folder.folder_id);
-      toast.success("Carpeta eliminada correctamente");
+      toast.success(t("toasts.deleted"));
       onOpenChange(false);
       onSuccess();
     } catch (err) {

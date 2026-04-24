@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,7 @@ export function ScoringCategoryDeleteDialog({
   onDelete,
   onSuccess,
 }: ScoringCategoryDeleteDialogProps) {
+  const t = useTranslations("scoring_categories");
   const [isDeleting, setIsDeleting] = useState(false);
 
   async function handleConfirm() {
@@ -42,12 +44,12 @@ export function ScoringCategoryDeleteDialog({
     setIsDeleting(true);
     try {
       await onDelete(category.scoring_category_id);
-      toast.success("Categoría eliminada");
+      toast.success(t("toasts.deleted"));
       onSuccess(category.scoring_category_id);
       onOpenChange(false);
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "No se pudo eliminar la categoría";
+        err instanceof Error ? err.message : t("errors.delete_failed");
       toast.error(message);
     } finally {
       setIsDeleting(false);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import type { Resolver, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -54,6 +55,7 @@ export function FolderFormDialog({
   folder,
   onSuccess,
 }: FolderFormDialogProps) {
+  const t = useTranslations("folders");
   const isEdit = !!folder;
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -104,10 +106,10 @@ export function FolderFormDialog({
 
       if (isEdit && folder) {
         await updateFolder(folder.folder_id, payload);
-        toast.success("Carpeta actualizada correctamente");
+        toast.success(t("toasts.updated"));
       } else {
         await createFolder(payload);
-        toast.success("Carpeta creada correctamente");
+        toast.success(t("toasts.created"));
       }
 
       onSuccess();

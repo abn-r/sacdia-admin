@@ -629,5 +629,60 @@
     "errors": {
       "recalculate_rankings": "Error recalculating the rankings"
     }
+  },
+  "folders": {
+    "toasts": {
+      "deleted": "Folder deleted successfully",
+      "updated": "Folder updated successfully",
+      "created": "Folder created successfully"
+    }
+  },
+  "validation_admin": {
+    "errors": {
+      "unexpected": "An unexpected error occurred"
+    }
+  },
+  "scoring_categories": {
+    "toasts": {
+      "deleted": "Category deleted"
+    },
+    "validation": {
+      "name_required": "Name is required",
+      "name_max": "Name cannot exceed 100 characters",
+      "points_invalid": "Max points must be an integer greater than 0"
+    },
+    "errors": {
+      "status_change_failed": "Could not change the status",
+      "delete_failed": "Could not delete the category",
+      "save_failed": "Could not save the category"
+    }
+  },
+  "member_of_month": {
+    "toasts": {
+      "evaluation_completed": "Evaluation completed"
+    },
+    "errors": {
+      "evaluation_failed": "Could not complete the evaluation"
+    }
+  },
+  "reports": {
+    "toasts": {
+      "manual_data_saved": "Manual data saved successfully.",
+      "report_generated": "Report generated successfully. Data has been frozen.",
+      "report_sent": "Report sent to the field successfully.",
+      "data_updated": "Data updated."
+    },
+    "errors": {
+      "save_manual_data": "Error saving manual data.",
+      "generate_report": "Error generating the report.",
+      "send_report": "Error sending the report.",
+      "load_reports": "Error loading the reports.",
+      "create_report": "Error creating the report."
+    }
+  },
+  "requests": {
+    "errors": {
+      "unexpected": "An unexpected error occurred"
+    }
   }
 }

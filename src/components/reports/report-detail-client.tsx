@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
@@ -145,6 +146,7 @@ interface ReportDetailClientProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function ReportDetailClient({ report: initialReport }: ReportDetailClientProps) {
+  const t = useTranslations("reports");
   const router = useRouter();
   const [report, setReport] = useState<MonthlyReport>(initialReport);
   const [generating, setGenerating] = useState(false);
@@ -160,10 +162,10 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
     try {
       const updated = await generateReport(report.report_id);
       setReport(updated);
-      toast.success("Reporte generado correctamente. Los datos quedaron congelados.");
+      toast.success(t("toasts.report_generated"));
       router.refresh();
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Error al generar el reporte.";
+      const message = error instanceof Error ? error.message : t("errors.generate_report");
       toast.error(message);
     } finally {
       setGenerating(false);
@@ -175,10 +177,10 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
     try {
       const updated = await submitReport(report.report_id);
       setReport(updated);
-      toast.success("Reporte enviado al campo exitosamente.");
+      toast.success(t("toasts.report_sent"));
       router.refresh();
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Error al enviar el reporte.";
+      const message = error instanceof Error ? error.message : t("errors.send_report");
       toast.error(message);
     } finally {
       setSubmitting(false);
@@ -306,7 +308,7 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
             initialData={report.manual_data}
             disabled={isSubmitted}
             onSuccess={() => {
-              toast.success("Datos actualizados.");
+              toast.success(t("toasts.data_updated"));
             }}
           />
         </TabsContent>

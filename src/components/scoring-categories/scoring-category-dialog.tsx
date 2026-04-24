@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -44,6 +45,7 @@ export function ScoringCategoryDialog({
   onSuccess,
   onSave,
 }: ScoringCategoryDialogProps) {
+  const t = useTranslations("scoring_categories");
   const isEdit = Boolean(category);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [name, setName] = useState("");
@@ -67,15 +69,15 @@ export function ScoringCategoryDialog({
     e.preventDefault();
     const trimmedName = name.trim();
     if (!trimmedName) {
-      toast.error("El nombre es requerido");
+      toast.error(t("validation.name_required"));
       return;
     }
     if (trimmedName.length > 100) {
-      toast.error("El nombre no puede superar los 100 caracteres");
+      toast.error(t("validation.name_max"));
       return;
     }
     if (!Number.isInteger(maxPoints) || maxPoints < 1) {
-      toast.error("Los puntos máximos deben ser un entero mayor a 0");
+      toast.error(t("validation.points_invalid"));
       return;
     }
 
@@ -92,7 +94,7 @@ export function ScoringCategoryDialog({
       onOpenChange(false);
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "No se pudo guardar la categoría";
+        err instanceof Error ? err.message : t("errors.save_failed");
       toast.error(message);
     } finally {
       setIsSubmitting(false);
