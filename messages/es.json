@@ -641,7 +641,13 @@
       "owner_catalogs_load_failed": "No se pudieron cargar los catálogos de propietario"
     },
     "errors": {
-      "recalculate_rankings": "Error al recalcular los rankings"
+      "recalculate_rankings": "Error al recalcular los rankings",
+      "save_evaluation_failed": "No se pudo guardar la evaluación",
+      "upload_evidence_failed": "Error al subir la evidencia",
+      "save_section_failed": "Error al guardar la sección",
+      "submit_folder_failed": "No se pudo enviar la carpeta",
+      "close_folder_failed": "No se pudo cerrar la carpeta",
+      "save_template_failed": "Error al guardar la plantilla"
     }
   },
   "folders": {
@@ -744,6 +750,10 @@
   "year_end": {
     "toasts": {
       "year_closed": "Año eclesiástico cerrado correctamente"
+    },
+    "errors": {
+      "preview_failed": "No se pudo obtener la vista previa.",
+      "close_year_failed": "No se pudo cerrar el año eclesiástico."
     }
   },
   "inventory": {
@@ -753,7 +763,8 @@
       "item_created": "Ítem creado correctamente"
     },
     "errors": {
-      "delete_failed": "No se pudo eliminar el ítem"
+      "delete_failed": "No se pudo eliminar el ítem",
+      "save_item_failed": "Error al guardar el ítem"
     }
   },
   "units_admin": {
@@ -764,7 +775,16 @@
       "create_record_failed": "No se pudo crear el registro",
       "add_member_failed": "No se pudo agregar el miembro",
       "load_units_failed": "No se pudieron cargar las unidades",
-      "remove_member_failed": "No se pudo remover el miembro"
+      "remove_member_failed": "No se pudo remover el miembro",
+      "update_value_failed": "No se pudo actualizar el valor",
+      "load_records_failed": "No se pudieron cargar los registros",
+      "deactivate_unit_failed": "No se pudo desactivar la unidad"
+    },
+    "toasts": {
+      "member_added": "Miembro agregado correctamente",
+      "member_removed": "Miembro removido de la unidad",
+      "weekly_record_created": "Registro semanal creado",
+      "unit_deactivated": "Unidad desactivada correctamente"
     }
   },
   "system_config": {

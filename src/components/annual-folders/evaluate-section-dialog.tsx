@@ -113,7 +113,7 @@ export function EvaluateSectionDialog({
       onSuccess();
     } catch (err) {
       const message =
-        err instanceof ApiError ? err.message : "No se pudo guardar la evaluación";
+        err instanceof ApiError ? err.message : t("errors.save_evaluation_failed");
       toast.error(message);
     } finally {
       setIsSubmitting(false);

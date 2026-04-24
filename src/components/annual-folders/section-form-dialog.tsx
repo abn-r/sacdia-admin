@@ -148,7 +148,7 @@ export function SectionFormDialog({
       onOpenChange(false);
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "Error al guardar la sección";
+        err instanceof Error ? err.message : t("errors.save_section_failed");
       toast.error(message);
     } finally {
       setIsSubmitting(false);

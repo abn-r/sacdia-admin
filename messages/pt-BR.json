@@ -641,7 +641,13 @@
       "owner_catalogs_load_failed": "Não foi possível carregar os catálogos do proprietário"
     },
     "errors": {
-      "recalculate_rankings": "Erro ao recalcular os rankings"
+      "recalculate_rankings": "Erro ao recalcular os rankings",
+      "save_evaluation_failed": "Não foi possível salvar a avaliação",
+      "upload_evidence_failed": "Erro ao enviar a evidência",
+      "save_section_failed": "Erro ao salvar a seção",
+      "submit_folder_failed": "Não foi possível enviar a pasta",
+      "close_folder_failed": "Não foi possível fechar a pasta",
+      "save_template_failed": "Erro ao salvar o modelo"
     }
   },
   "folders": {
@@ -744,6 +750,10 @@
   "year_end": {
     "toasts": {
       "year_closed": "Ano eclesiástico encerrado com sucesso"
+    },
+    "errors": {
+      "preview_failed": "Não foi possível obter a pré-visualização.",
+      "close_year_failed": "Não foi possível encerrar o ano eclesiástico."
     }
   },
   "inventory": {
@@ -753,7 +763,8 @@
       "item_created": "Item criado com sucesso"
     },
     "errors": {
-      "delete_failed": "Não foi possível excluir o item"
+      "delete_failed": "Não foi possível excluir o item",
+      "save_item_failed": "Erro ao salvar o item"
     }
   },
   "units_admin": {
@@ -764,7 +775,16 @@
       "create_record_failed": "Não foi possível criar o registro",
       "add_member_failed": "Não foi possível adicionar o membro",
       "load_units_failed": "Não foi possível carregar as unidades",
-      "remove_member_failed": "Não foi possível remover o membro"
+      "remove_member_failed": "Não foi possível remover o membro",
+      "update_value_failed": "Não foi possível atualizar o valor",
+      "load_records_failed": "Não foi possível carregar os registros",
+      "deactivate_unit_failed": "Não foi possível desativar a unidade"
+    },
+    "toasts": {
+      "member_added": "Membro adicionado com sucesso",
+      "member_removed": "Membro removido da unidade",
+      "weekly_record_created": "Registro semanal criado",
+      "unit_deactivated": "Unidade desativada com sucesso"
     }
   },
   "system_config": {

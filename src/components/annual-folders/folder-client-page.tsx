@@ -272,7 +272,7 @@ export function FolderClientPage({ initialFolder }: FolderClientPageProps) {
       setSubmitOpen(false);
     } catch (err) {
       const message =
-        err instanceof ApiError ? err.message : "No se pudo enviar la carpeta";
+        err instanceof ApiError ? err.message : t("errors.submit_folder_failed");
       toast.error(message);
     } finally {
       setIsActioning(false);
@@ -290,7 +290,7 @@ export function FolderClientPage({ initialFolder }: FolderClientPageProps) {
       setCloseOpen(false);
     } catch (err) {
       const message =
-        err instanceof ApiError ? err.message : "No se pudo cerrar la carpeta";
+        err instanceof ApiError ? err.message : t("errors.close_folder_failed");
       toast.error(message);
     } finally {
       setIsActioning(false);

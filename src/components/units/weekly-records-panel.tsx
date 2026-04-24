@@ -119,7 +119,7 @@ function AddRecordDialog({
         punctuality,
         scores,
       });
-      toast.success("Registro semanal creado");
+      toast.success(t("toasts.weekly_record_created"));
       onSuccess();
       handleClose(false);
     } catch (err: unknown) {
@@ -280,6 +280,7 @@ interface EditableCellProps {
 }
 
 function EditableCell({ value, min = 0, max, onSave }: EditableCellProps) {
+  const t = useTranslations("units_admin");
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
   const [saving, setSaving] = useState(false);
@@ -294,7 +295,7 @@ function EditableCell({ value, min = 0, max, onSave }: EditableCellProps) {
       await onSave(draft);
     } catch {
       setDraft(value);
-      toast.error("No se pudo actualizar el valor");
+      toast.error(t("errors.update_value_failed"));
     } finally {
       setSaving(false);
       setEditing(false);
@@ -366,6 +367,7 @@ export function WeeklyRecordsPanel({
   members,
   localFieldId,
 }: WeeklyRecordsPanelProps) {
+  const t = useTranslations("units_admin");
   const [records, setRecords] = useState<WeeklyRecord[] | null>(null);
   const [categories, setCategories] = useState<ScoringCategory[]>([]);
   const [loading, setLoading] = useState(false);
@@ -385,7 +387,7 @@ export function WeeklyRecordsPanel({
       if (recordsData.status === "fulfilled") {
         setRecords(recordsData.value);
       } else {
-        toast.error("No se pudieron cargar los registros");
+        toast.error(t("errors.load_records_failed"));
       }
 
       if (categoriesData.status === "fulfilled") {

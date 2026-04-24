@@ -641,7 +641,13 @@
       "owner_catalogs_load_failed": "Could not load owner catalogs"
     },
     "errors": {
-      "recalculate_rankings": "Error recalculating the rankings"
+      "recalculate_rankings": "Error recalculating the rankings",
+      "save_evaluation_failed": "Could not save the evaluation",
+      "upload_evidence_failed": "Error uploading the evidence",
+      "save_section_failed": "Error saving the section",
+      "submit_folder_failed": "Could not submit the folder",
+      "close_folder_failed": "Could not close the folder",
+      "save_template_failed": "Error saving the template"
     }
   },
   "folders": {
@@ -744,6 +750,10 @@
   "year_end": {
     "toasts": {
       "year_closed": "Ecclesiastical year closed successfully"
+    },
+    "errors": {
+      "preview_failed": "Could not get the preview.",
+      "close_year_failed": "Could not close the ecclesiastical year."
     }
   },
   "inventory": {
@@ -753,7 +763,8 @@
       "item_created": "Item created successfully"
     },
     "errors": {
-      "delete_failed": "Could not delete the item"
+      "delete_failed": "Could not delete the item",
+      "save_item_failed": "Error saving the item"
     }
   },
   "units_admin": {
@@ -764,7 +775,16 @@
       "create_record_failed": "Could not create the record",
       "add_member_failed": "Could not add the member",
       "load_units_failed": "Could not load the units",
-      "remove_member_failed": "Could not remove the member"
+      "remove_member_failed": "Could not remove the member",
+      "update_value_failed": "Could not update the value",
+      "load_records_failed": "Could not load the records",
+      "deactivate_unit_failed": "Could not deactivate the unit"
+    },
+    "toasts": {
+      "member_added": "Member added successfully",
+      "member_removed": "Member removed from the unit",
+      "weekly_record_created": "Weekly record created",
+      "unit_deactivated": "Unit deactivated successfully"
     }
   },
   "system_config": {

@@ -137,7 +137,7 @@ export function YearEndClientPage({ ecclesiasticalYears }: YearEndClientPageProp
       setPreview(data);
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "No se pudo obtener la vista previa.";
+        err instanceof Error ? err.message : t("errors.preview_failed");
       setPreviewError(message);
     } finally {
       setIsPreviewing(false);
@@ -155,7 +155,7 @@ export function YearEndClientPage({ ecclesiasticalYears }: YearEndClientPageProp
       toast.success(t("toasts.year_closed"));
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "No se pudo cerrar el año eclesiástico.";
+        err instanceof Error ? err.message : t("errors.close_year_failed");
       toast.error(message);
     } finally {
       setIsClosing(false);

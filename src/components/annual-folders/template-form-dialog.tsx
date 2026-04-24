@@ -216,7 +216,7 @@ export function TemplateFormDialog({
       onOpenChange(false);
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "Error al guardar la plantilla";
+        err instanceof Error ? err.message : t("errors.save_template_failed");
       toast.error(message);
     } finally {
       setIsSubmitting(false);

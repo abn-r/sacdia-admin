@@ -641,7 +641,13 @@
       "owner_catalogs_load_failed": "Impossible de charger les catalogues du propriétaire"
     },
     "errors": {
-      "recalculate_rankings": "Erreur lors du recalcul des classements"
+      "recalculate_rankings": "Erreur lors du recalcul des classements",
+      "save_evaluation_failed": "Impossible d'enregistrer l'évaluation",
+      "upload_evidence_failed": "Erreur lors du téléversement de la preuve",
+      "save_section_failed": "Erreur lors de l'enregistrement de la section",
+      "submit_folder_failed": "Impossible de soumettre le dossier",
+      "close_folder_failed": "Impossible de clôturer le dossier",
+      "save_template_failed": "Erreur lors de l'enregistrement du modèle"
     }
   },
   "folders": {
@@ -744,6 +750,10 @@
   "year_end": {
     "toasts": {
       "year_closed": "Année ecclésiastique clôturée avec succès"
+    },
+    "errors": {
+      "preview_failed": "Impossible d'obtenir l'aperçu.",
+      "close_year_failed": "Impossible de clôturer l'année ecclésiastique."
     }
   },
   "inventory": {
@@ -753,7 +763,8 @@
       "item_created": "Élément créé avec succès"
     },
     "errors": {
-      "delete_failed": "Impossible de supprimer l'élément"
+      "delete_failed": "Impossible de supprimer l'élément",
+      "save_item_failed": "Erreur lors de l'enregistrement de l'élément"
     }
   },
   "units_admin": {
@@ -764,7 +775,16 @@
       "create_record_failed": "Impossible de créer l'enregistrement",
       "add_member_failed": "Impossible d'ajouter le membre",
       "load_units_failed": "Impossible de charger les unités",
-      "remove_member_failed": "Impossible de retirer le membre"
+      "remove_member_failed": "Impossible de retirer le membre",
+      "update_value_failed": "Impossible de mettre à jour la valeur",
+      "load_records_failed": "Impossible de charger les registres",
+      "deactivate_unit_failed": "Impossible de désactiver l'unité"
+    },
+    "toasts": {
+      "member_added": "Membre ajouté avec succès",
+      "member_removed": "Membre retiré de l'unité",
+      "weekly_record_created": "Registre hebdomadaire créé",
+      "unit_deactivated": "Unité désactivée avec succès"
     }
   },
   "system_config": {

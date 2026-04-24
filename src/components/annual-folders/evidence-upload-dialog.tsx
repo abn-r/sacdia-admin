@@ -92,7 +92,7 @@ export function EvidenceUploadDialog({
       onOpenChange(false);
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "Error al subir la evidencia";
+        err instanceof Error ? err.message : t("errors.upload_evidence_failed");
       toast.error(message);
     } finally {
       setIsSubmitting(false);

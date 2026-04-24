@@ -125,7 +125,7 @@ export function UnitDetailPanel({
     setIsRemoving(true);
     try {
       await removeUnitMember(clubId, unit.unit_id, removingMember.unit_member_id);
-      toast.success("Miembro removido de la unidad");
+      toast.success(t("toasts.member_removed"));
       onMembersChanged();
       setRemovingMember(null);
     } catch (err: unknown) {

@@ -66,7 +66,7 @@ export function AddMemberDialog({
     setIsSubmitting(true);
     try {
       await addUnitMember(clubId, unitId, userId);
-      toast.success("Miembro agregado correctamente");
+      toast.success(t("toasts.member_added"));
       setUserId("");
       onSuccess();
       onOpenChange(false);

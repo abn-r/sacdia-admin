@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { AlertTriangle } from "lucide-react";
 import {
   AlertDialog,
@@ -32,6 +33,7 @@ export function DeleteUnitDialog({
   unit,
   onSuccess,
 }: DeleteUnitDialogProps) {
+  const t = useTranslations("units_admin");
   const [isDeleting, setIsDeleting] = useState(false);
 
   async function handleConfirm() {
@@ -39,12 +41,12 @@ export function DeleteUnitDialog({
     setIsDeleting(true);
     try {
       await deleteUnit(clubId, unit.unit_id);
-      toast.success("Unidad desactivada correctamente");
+      toast.success(t("toasts.unit_deactivated"));
       onSuccess();
       onOpenChange(false);
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "No se pudo desactivar la unidad";
+        err instanceof Error ? err.message : t("errors.deactivate_unit_failed");
       toast.error(message);
     } finally {
       setIsDeleting(false);
