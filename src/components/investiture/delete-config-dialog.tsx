@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
 import {
   AlertDialog,
@@ -32,6 +33,7 @@ export function DeleteConfigDialog({
   config,
   onSuccess,
 }: DeleteConfigDialogProps) {
+  const t = useTranslations("investiture");
   const [isDeleting, setIsDeleting] = useState(false);
 
   async function handleDelete() {
@@ -39,14 +41,14 @@ export function DeleteConfigDialog({
     setIsDeleting(true);
     try {
       await deleteInvestitureConfig(config.investiture_config_id);
-      toast.success("Configuración desactivada correctamente");
+      toast.success(t("toasts.config_deactivated"));
       onSuccess();
       onOpenChange(false);
     } catch (err: unknown) {
       const message =
         err instanceof Error
           ? err.message
-          : "No se pudo desactivar la configuración";
+          : t("errors.config_deactivate");
       toast.error(message);
     } finally {
       setIsDeleting(false);

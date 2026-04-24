@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { XCircle, Loader2 } from "lucide-react";
 import {
   Dialog,
@@ -47,6 +48,7 @@ export function PipelineRejectDialog({
   onOpenChange,
   onSuccess,
 }: PipelineRejectDialogProps) {
+  const t = useTranslations("investiture");
   const [isPending, setIsPending] = useState(false);
 
   const form = useForm<FormValues>({
@@ -58,13 +60,13 @@ export function PipelineRejectDialog({
     setIsPending(true);
     try {
       await pipelineReject(enrollmentId, { reason: values.reason });
-      toast.success(`Investidura de ${memberName} rechazada`);
+      toast.success(t("toasts.rejected_member", { name: memberName }));
       form.reset();
       onOpenChange(false);
       onSuccess();
     } catch (error) {
       const message =
-        error instanceof ApiError ? error.message : "Ocurrió un error inesperado";
+        error instanceof ApiError ? error.message : t("errors.unexpected");
       toast.error(message);
     } finally {
       setIsPending(false);

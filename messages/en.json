@@ -517,6 +517,32 @@
         "succeeded_count": "{count} {verb} successfully",
         "failed_count": "{count} failed"
       }
+    },
+    "toasts": {
+      "approved": "Approved successfully",
+      "invested": "Marked as invested",
+      "config_updated": "Configuration updated successfully",
+      "config_created": "Configuration created successfully",
+      "config_deactivated": "Configuration deactivated successfully",
+      "catalogs_load_failed": "Could not load catalogs",
+      "invested_member": "{name} has been marked as invested",
+      "rejected_member": "Investiture of {name} rejected",
+      "validation_approved": "Investiture approved successfully",
+      "validation_rejected": "Investiture rejected successfully"
+    },
+    "errors": {
+      "approve": "Error approving",
+      "invest": "Error marking as invested",
+      "config_update": "Could not update the configuration",
+      "config_create": "Could not create the configuration",
+      "config_deactivate": "Could not deactivate the configuration",
+      "unexpected": "An unexpected error occurred"
+    },
+    "validation": {
+      "local_field_required": "Select a local field",
+      "year_required": "Select an ecclesiastical year",
+      "submission_deadline_required": "Enter the submission deadline",
+      "investiture_date_required": "Enter the investiture date"
     }
   }
 }

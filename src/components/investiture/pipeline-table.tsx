@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import {
   CheckCircle2,
   XCircle,
@@ -152,6 +153,7 @@ function RowActions({
   onReject,
   onHistory,
 }: RowActionsProps) {
+  const t = useTranslations("investiture");
   const [approving, setApproving] = useState(false);
   const [investing, setInvesting] = useState(false);
 
@@ -164,11 +166,11 @@ function RowActions({
     setApproving(true);
     try {
       await runApprove(enrollment.enrollment_id, status);
-      toast.success("Aprobado correctamente");
+      toast.success(t("toasts.approved"));
       onApproved();
     } catch (error) {
       const message =
-        error instanceof ApiError ? error.message : "Error al aprobar";
+        error instanceof ApiError ? error.message : t("errors.approve");
       toast.error(message);
     } finally {
       setApproving(false);
@@ -179,11 +181,11 @@ function RowActions({
     setInvesting(true);
     try {
       await pipelineInvest(enrollment.enrollment_id);
-      toast.success("Marcado como investido");
+      toast.success(t("toasts.invested"));
       onInvested();
     } catch (error) {
       const message =
-        error instanceof ApiError ? error.message : "Error al marcar como investido";
+        error instanceof ApiError ? error.message : t("errors.invest");
       toast.error(message);
     } finally {
       setInvesting(false);

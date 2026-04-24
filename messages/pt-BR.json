@@ -517,6 +517,32 @@
         "succeeded_count": "{count} {verb} com sucesso",
         "failed_count": "{count} falharam"
       }
+    },
+    "toasts": {
+      "approved": "Aprovado com sucesso",
+      "invested": "Marcado como investido",
+      "config_updated": "Configuração atualizada com sucesso",
+      "config_created": "Configuração criada com sucesso",
+      "config_deactivated": "Configuração desativada com sucesso",
+      "catalogs_load_failed": "Não foi possível carregar os catálogos",
+      "invested_member": "{name} foi marcado(a) como investido(a)",
+      "rejected_member": "Investidura de {name} rejeitada",
+      "validation_approved": "Investidura aprovada com sucesso",
+      "validation_rejected": "Investidura rejeitada com sucesso"
+    },
+    "errors": {
+      "approve": "Erro ao aprovar",
+      "invest": "Erro ao marcar como investido",
+      "config_update": "Não foi possível atualizar a configuração",
+      "config_create": "Não foi possível criar a configuração",
+      "config_deactivate": "Não foi possível desativar a configuração",
+      "unexpected": "Ocorreu um erro inesperado"
+    },
+    "validation": {
+      "local_field_required": "Selecione um campo local",
+      "year_required": "Selecione um ano eclesiástico",
+      "submission_deadline_required": "Insira a data-limite de envio",
+      "investiture_date_required": "Insira a data da investidura"
     }
   }
 }

@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { Award, Loader2 } from "lucide-react";
 import {
   Dialog,
@@ -47,6 +48,7 @@ export function InvestidoDialog({
   onOpenChange,
   onSuccess,
 }: InvestidoDialogProps) {
+  const t = useTranslations("investiture");
   const [isPending, setIsPending] = useState(false);
 
   const form = useForm<FormValues>({
@@ -61,7 +63,7 @@ export function InvestidoDialog({
         comments: values.comments || undefined,
       });
 
-      toast.success(`${memberName} ha sido marcado/a como investido/a`);
+      toast.success(t("toasts.invested_member", { name: memberName }));
       form.reset();
       onOpenChange(false);
       onSuccess();
@@ -69,7 +71,7 @@ export function InvestidoDialog({
       const message =
         error instanceof ApiError
           ? error.message
-          : "Ocurrió un error inesperado";
+          : t("errors.unexpected");
       toast.error(message);
     } finally {
       setIsPending(false);
