@@ -267,19 +267,19 @@ export type AdminHonorCatalog = {
 };
 
 export async function listAdminHonorsCatalog(params?: Record<string, string | number | boolean>) {
-  return apiRequest<unknown>("/admin/honors", { params });
+  return apiRequest<unknown>("/admin/honors-catalog", { params });
 }
 
 export async function createAdminHonorCatalog(payload: TranslatablePayload & Record<string, unknown>) {
-  return apiRequest("/admin/honors", { method: "POST", body: payload });
+  return apiRequest("/admin/honors-catalog", { method: "POST", body: payload });
 }
 
 export async function updateAdminHonorCatalog(id: number, payload: Partial<TranslatablePayload> & Record<string, unknown>) {
-  return apiRequest(`/admin/honors/${id}`, { method: "PATCH", body: payload });
+  return apiRequest(`/admin/honors-catalog/${id}`, { method: "PATCH", body: payload });
 }
 
 export async function deleteAdminHonorCatalog(id: number) {
-  return apiRequest(`/admin/honors/${id}`, { method: "DELETE" });
+  return apiRequest(`/admin/honors-catalog/${id}`, { method: "DELETE" });
 }
 
 // ─── Master Honors ────────────────────────────────────────────────────────────
