@@ -14,6 +14,8 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { TranslationsTabsField } from "@/components/forms/translations-tabs-field";
+import type { CatalogTranslation } from "@/lib/types/catalog-translation";
 import type {
   ScoringCategory,
   CreateScoringCategoryPayload,
@@ -50,12 +52,14 @@ export function ScoringCategoryDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [name, setName] = useState("");
   const [maxPoints, setMaxPoints] = useState(1);
+  const [translations, setTranslations] = useState<CatalogTranslation[]>([]);
 
   // Sync form state when category changes or dialog opens
   useEffect(() => {
     if (open) {
       setName(category?.name ?? "");
       setMaxPoints(category?.max_points ?? 1);
+      setTranslations(category?.translations ?? []);
     }
   }, [open, category]);
 
@@ -81,10 +85,20 @@ export function ScoringCategoryDialog({
       return;
     }
 
+    const nonEmptyTranslations = translations.filter(
+      (tr) => Boolean(tr.name) || Boolean(tr.description),
+    );
+
     setIsSubmitting(true);
     try {
       const saved = await onSave(
-        { name: trimmedName, max_points: maxPoints },
+        {
+          name: trimmedName,
+          max_points: maxPoints,
+          ...(nonEmptyTranslations.length > 0
+            ? { translations: nonEmptyTranslations }
+            : { translations: [] }),
+        },
         category?.scoring_category_id,
       );
       toast.success(
@@ -103,7 +117,7 @@ export function ScoringCategoryDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-sm">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
             {isEdit ? "Editar categoría" : "Nueva categoría de puntuación"}
@@ -111,24 +125,7 @@ export function ScoringCategoryDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Nombre */}
-          <div className="space-y-1.5">
-            <Label htmlFor="sc_name">
-              Nombre <span className="ml-0.5 text-destructive">*</span>
-            </Label>
-            <Input
-              id="sc_name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Ej. Uniforme"
-              maxLength={100}
-              required
-              disabled={isSubmitting}
-            />
-          </div>
-
-          {/* Puntos Máximos */}
+          {/* Puntos Máximos — always visible above tabs */}
           <div className="space-y-1.5">
             <Label htmlFor="sc_max_points">
               Puntos máximos <span className="ml-0.5 text-destructive">*</span>
@@ -146,6 +143,31 @@ export function ScoringCategoryDialog({
               Techo de puntos por sesión para esta categoría.
             </p>
           </div>
+
+          {/* Translations tabs (es tab = name field, other tabs = translations) */}
+          <TranslationsTabsField
+            esContent={
+              <div className="space-y-1.5">
+                <Label htmlFor="sc_name">
+                  Nombre <span className="ml-0.5 text-destructive">*</span>
+                </Label>
+                <Input
+                  id="sc_name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Ej. Uniforme"
+                  maxLength={100}
+                  required
+                  disabled={isSubmitting}
+                />
+              </div>
+            }
+            translations={translations}
+            onTranslationsChange={setTranslations}
+            includeDescription={false}
+            disabled={isSubmitting}
+          />
 
           <DialogFooter>
             <Button

@@ -1,4 +1,5 @@
 import { apiRequest, apiRequestFromClient } from "@/lib/api/client";
+import type { CatalogTranslation } from "@/lib/types/catalog-translation";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -13,17 +14,20 @@ export type ScoringCategory = {
   origin_badge: string;
   active: boolean;
   readonly: boolean;
+  translations?: CatalogTranslation[];
 };
 
 export type CreateScoringCategoryPayload = {
   name: string;
   max_points: number;
+  translations?: CatalogTranslation[];
 };
 
 export type UpdateScoringCategoryPayload = {
   name?: string;
   max_points?: number;
   active?: boolean;
+  translations?: CatalogTranslation[];
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
