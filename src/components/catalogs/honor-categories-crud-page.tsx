@@ -13,6 +13,8 @@ import {
   Search,
   Trash2,
 } from "lucide-react";
+import { TranslationsTabsField } from "@/components/forms/translations-tabs-field";
+import type { CatalogTranslation } from "@/lib/types/catalog-translation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -146,10 +148,18 @@ type HonorCategoryFormFieldsProps = {
   item?: HonorCategoryRecord | null;
   activeChecked: boolean;
   onActiveChange: (checked: boolean) => void;
+  translations: CatalogTranslation[];
+  onTranslationsChange: (t: CatalogTranslation[]) => void;
 };
 
-function HonorCategoryFormFields({ item, activeChecked, onActiveChange }: HonorCategoryFormFieldsProps) {
-  return (
+function HonorCategoryFormFields({
+  item,
+  activeChecked,
+  onActiveChange,
+  translations,
+  onTranslationsChange,
+}: HonorCategoryFormFieldsProps) {
+  const esContent = (
     <div className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="honor-category-name">
@@ -180,6 +190,16 @@ function HonorCategoryFormFields({ item, activeChecked, onActiveChange }: HonorC
       </div>
     </div>
   );
+
+  return (
+    <TranslationsTabsField
+      esContent={esContent}
+      translations={translations}
+      onTranslationsChange={onTranslationsChange}
+      includeDescription={true}
+      fieldNamePrefix="translations"
+    />
+  );
 }
 
 export function HonorCategoriesCrudPage({
@@ -204,6 +224,8 @@ export function HonorCategoriesCrudPage({
   const [deleteItem, setDeleteItem] = useState<HonorCategoryRecord | null>(null);
   const [createActiveChecked, setCreateActiveChecked] = useState(true);
   const [editActiveChecked, setEditActiveChecked] = useState(true);
+  const [createTranslations, setCreateTranslations] = useState<CatalogTranslation[]>([]);
+  const [editTranslations, setEditTranslations] = useState<CatalogTranslation[]>([]);
 
   const [createState, createFormAction] = useActionState<HonorCategoryActionState, FormData>(createAction, {});
   const [updateState, updateFormAction] = useActionState<HonorCategoryActionState, FormData>(updateAction, {});
@@ -211,7 +233,10 @@ export function HonorCategoriesCrudPage({
 
   const handleCreateDialogChange = (open: boolean) => {
     setCreateOpen(open);
-    if (open) setCreateActiveChecked(true);
+    if (open) {
+      setCreateActiveChecked(true);
+      setCreateTranslations([]);
+    }
   };
 
   const handleEditDialogChange = (open: boolean) => {
@@ -423,6 +448,11 @@ export function HonorCategoriesCrudPage({
                                   onClick={() => {
                                     setEditItem(item);
                                     setEditActiveChecked(getDefaultCheckboxValue(item));
+                                    setEditTranslations(
+                                      Array.isArray(item.translations)
+                                        ? (item.translations as CatalogTranslation[])
+                                        : [],
+                                    );
                                   }}
                                   title="Editar"
                                 >
@@ -457,6 +487,11 @@ export function HonorCategoriesCrudPage({
                                       onSelect={() => {
                                         setEditItem(item);
                                         setEditActiveChecked(getDefaultCheckboxValue(item));
+                                        setEditTranslations(
+                                          Array.isArray(item.translations)
+                                            ? (item.translations as CatalogTranslation[])
+                                            : [],
+                                        );
                                       }}
                                     >
                                       <Pencil className="size-4" />
@@ -498,7 +533,7 @@ export function HonorCategoriesCrudPage({
 
       {canCreate && (
         <Dialog open={createOpen} onOpenChange={handleCreateDialogChange}>
-          <DialogContent className="max-w-xl">
+          <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Crear categoría</DialogTitle>
               <DialogDescription>
@@ -514,6 +549,8 @@ export function HonorCategoriesCrudPage({
               <HonorCategoryFormFields
                 activeChecked={createActiveChecked}
                 onActiveChange={setCreateActiveChecked}
+                translations={createTranslations}
+                onTranslationsChange={setCreateTranslations}
               />
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setCreateOpen(false)}>
@@ -528,7 +565,7 @@ export function HonorCategoriesCrudPage({
 
       {canEdit && editItem && (
         <Dialog open={!!editItem} onOpenChange={handleEditDialogChange}>
-          <DialogContent className="max-w-xl">
+          <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Editar categoría</DialogTitle>
             </DialogHeader>
@@ -543,6 +580,8 @@ export function HonorCategoriesCrudPage({
                 item={editItem}
                 activeChecked={editActiveChecked}
                 onActiveChange={setEditActiveChecked}
+                translations={editTranslations}
+                onTranslationsChange={setEditTranslations}
               />
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setEditItem(null)}>

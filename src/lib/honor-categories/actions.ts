@@ -10,6 +10,10 @@ import {
   type HonorCategoryPayload,
   updateHonorCategory,
 } from "@/lib/api/honor-categories";
+import {
+  CATALOG_LOCALES,
+  type CatalogTranslation,
+} from "@/lib/types/catalog-translation";
 import { hasAnyPermission } from "@/lib/auth/permission-utils";
 import {
   HONOR_CATEGORIES_CREATE,
@@ -50,6 +54,42 @@ function parsePositiveNumber(formData: FormData, fieldName: string) {
   return Math.floor(parsed);
 }
 
+/**
+ * Parse translations[N][locale/name/description] from FormData.
+ * Skips es locale (backend rejects it). Omits entries with no fields.
+ */
+function parseTranslations(formData: FormData): CatalogTranslation[] {
+  const result: CatalogTranslation[] = [];
+
+  // Collect all indices present
+  const indices = new Set<number>();
+  for (const key of formData.keys()) {
+    const match = key.match(/^translations\[(\d+)\]\[locale\]$/);
+    if (match) {
+      indices.add(Number(match[1]));
+    }
+  }
+
+  for (const idx of Array.from(indices).sort((a, b) => a - b)) {
+    const locale = readString(formData, `translations[${idx}][locale]`);
+    // Guard: only accept known non-es locales
+    if (!CATALOG_LOCALES.includes(locale as CatalogTranslation["locale"])) {
+      continue;
+    }
+    const name = readString(formData, `translations[${idx}][name]`) || null;
+    const description =
+      readString(formData, `translations[${idx}][description]`) || null;
+    if (!name && !description) continue;
+    result.push({
+      locale: locale as CatalogTranslation["locale"],
+      ...(name ? { name } : {}),
+      ...(description ? { description } : {}),
+    });
+  }
+
+  return result;
+}
+
 function buildCreatePayload(
   t: HonorCategoriesTranslator,
   formData: FormData,
@@ -59,10 +99,13 @@ function buildCreatePayload(
     throw new Error(t("validation.name_required"));
   }
 
+  const translations = parseTranslations(formData);
+
   return {
     name,
     description: readString(formData, "description") || undefined,
     active: formData.has("active") ? parseBool(formData, "active") : true,
+    ...(translations.length > 0 ? { translations } : {}),
   };
 }
 
@@ -81,6 +124,9 @@ function buildUpdatePayload(
   if (formData.has("active")) {
     payload.active = parseBool(formData, "active");
   }
+
+  const translations = parseTranslations(formData);
+  payload.translations = translations;
 
   if (Object.keys(payload).length === 0) {
     throw new Error(t("validation.no_changes"));
