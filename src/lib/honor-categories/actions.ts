@@ -125,8 +125,14 @@ function buildUpdatePayload(
     payload.active = parseBool(formData, "active");
   }
 
-  const translations = parseTranslations(formData);
-  payload.translations = translations;
+  // Only include translations when admin explicitly touched a non-es tab.
+  // `translations_dirty` is emitted as a hidden input by TranslationsTabsField
+  // when fieldNamePrefix is set. '0' (or absent) = admin never touched a tab
+  // → omit key so the backend leaves existing rows intact.
+  const translationsDirty = formData.get("translations_dirty");
+  if (translationsDirty === "1") {
+    payload.translations = parseTranslations(formData);
+  }
 
   if (Object.keys(payload).length === 0) {
     throw new Error(t("validation.no_changes"));

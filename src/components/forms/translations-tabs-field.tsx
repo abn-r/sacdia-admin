@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -33,10 +33,18 @@ interface TranslationsTabsFieldProps {
   /**
    * When set, emit hidden <input> elements for FormData mode.
    * The name format will be `{prefix}[N][locale]`, `{prefix}[N][name]`, etc.
+   * Also emits a `translations_dirty` hidden input ('1' | '0') so server
+   * actions can detect whether the admin actually touched a non-es tab.
    */
   fieldNamePrefix?: string;
   /** Disable all inputs (loading state). */
   disabled?: boolean;
+  /**
+   * Called when the dirty state changes — i.e. the first time the admin
+   * directly edits a non-es input. Programmatic updates via
+   * `onTranslationsChange` from the parent do NOT trigger this.
+   */
+  onDirtyChange?: (dirty: boolean) => void;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -129,14 +137,24 @@ export function TranslationsTabsField({
   includeDescription = true,
   fieldNamePrefix,
   disabled = false,
+  onDirtyChange,
 }: TranslationsTabsFieldProps) {
   const t = useTranslations("translations");
+  const [dirty, setDirty] = useState(false);
+
+  function markDirty() {
+    if (!dirty) {
+      setDirty(true);
+      onDirtyChange?.(true);
+    }
+  }
 
   function handleChange(
     locale: CatalogLocale,
     field: "name" | "description",
     value: string,
   ) {
+    markDirty();
     onTranslationsChange(updateTranslations(translations, locale, field, value));
   }
 
@@ -201,11 +219,18 @@ export function TranslationsTabsField({
 
       {/* Hidden inputs for FormData serialization */}
       {fieldNamePrefix && (
-        <FormDataHiddenInputs
-          prefix={fieldNamePrefix}
-          translations={translations}
-          includeDescription={includeDescription}
-        />
+        <>
+          <input
+            type="hidden"
+            name="translations_dirty"
+            value={dirty ? "1" : "0"}
+          />
+          <FormDataHiddenInputs
+            prefix={fieldNamePrefix}
+            translations={translations}
+            includeDescription={includeDescription}
+          />
+        </>
       )}
     </Tabs>
   );

@@ -53,13 +53,16 @@ export function ScoringCategoryDialog({
   const [name, setName] = useState("");
   const [maxPoints, setMaxPoints] = useState(1);
   const [translations, setTranslations] = useState<CatalogTranslation[]>([]);
+  // dirty = admin directly touched a non-es tab input; pre-populate does not set this
+  const [translationsDirty, setTranslationsDirty] = useState(false);
 
-  // Sync form state when category changes or dialog opens
+  // Sync form state when category changes or dialog opens; reset dirty flag
   useEffect(() => {
     if (open) {
       setName(category?.name ?? "");
       setMaxPoints(category?.max_points ?? 1);
       setTranslations(category?.translations ?? []);
+      setTranslationsDirty(false);
     }
   }, [open, category]);
 
@@ -89,15 +92,23 @@ export function ScoringCategoryDialog({
       (tr) => Boolean(tr.name) || Boolean(tr.description),
     );
 
+    // For UPDATE flows, only send translations when admin explicitly touched a
+    // non-es tab. Omitting the key tells the backend to leave existing rows alone.
+    // For CREATE flows always include it (empty array = no translations seeded).
+    const translationsPayload: { translations?: CatalogTranslation[] } = {};
+    if (!isEdit || translationsDirty) {
+      translationsPayload.translations = nonEmptyTranslations.length > 0
+        ? nonEmptyTranslations
+        : [];
+    }
+
     setIsSubmitting(true);
     try {
       const saved = await onSave(
         {
           name: trimmedName,
           max_points: maxPoints,
-          ...(nonEmptyTranslations.length > 0
-            ? { translations: nonEmptyTranslations }
-            : { translations: [] }),
+          ...translationsPayload,
         },
         category?.scoring_category_id,
       );
@@ -165,6 +176,7 @@ export function ScoringCategoryDialog({
             }
             translations={translations}
             onTranslationsChange={setTranslations}
+            onDirtyChange={setTranslationsDirty}
             includeDescription={false}
             disabled={isSubmitting}
           />
