@@ -77,7 +77,17 @@
       "reports": "Reports",
       "reports_mine": "My reports",
       "reports_supervision": "Supervision",
-      "member_of_month": "Member of the month"
+      "member_of_month": "Member of the month",
+      "catalog_classes": "Classes",
+      "catalog_class_modules": "Class modules",
+      "catalog_class_sections": "Class sections",
+      "catalog_folders": "Folders",
+      "catalog_folder_modules": "Folder modules",
+      "catalog_folder_sections": "Folder sections",
+      "catalog_finance_categories": "Finance categories",
+      "catalog_inventory_categories": "Inventory categories",
+      "catalog_honors": "Honors (catalog)",
+      "catalog_master_honors": "Master honors"
     }
   },
   "permissions": {

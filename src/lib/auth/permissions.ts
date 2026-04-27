@@ -76,16 +76,29 @@ export const CATALOGS_DELETE = "catalogs:delete";
 // --- Clases y Honores ---
 export const CLASSES_READ = "classes:read";
 export const CLASSES_SUBMIT_PROGRESS = "classes:submit_progress";
+export const CLASSES_MANAGE = "classes:manage";
+export const CLASS_MODULES_MANAGE = "class_modules:manage";
+export const CLASS_SECTIONS_MANAGE = "class_sections:manage";
 export const HONORS_READ = "honors:read";
 export const HONORS_CREATE = "honors:create";
 export const HONORS_UPDATE = "honors:update";
 export const HONORS_DELETE = "honors:delete";
+export const MASTER_HONORS_MANAGE = "master_honors:manage";
 export const USER_HONORS_SUBMIT = "user_honors:submit";
 export const USER_HONORS_VALIDATE = "user_honors:validate";
 export const HONOR_CATEGORIES_READ = "honor_categories:read";
 export const HONOR_CATEGORIES_CREATE = "honor_categories:create";
 export const HONOR_CATEGORIES_UPDATE = "honor_categories:update";
 export const HONOR_CATEGORIES_DELETE = "honor_categories:delete";
+
+// --- Carpetas (Folders) ---
+export const FOLDERS_MANAGE = "folders:manage";
+export const FOLDER_MODULES_MANAGE = "folder_modules:manage";
+export const FOLDER_SECTIONS_MANAGE = "folder_sections:manage";
+
+// --- Categorías de Finanzas e Inventario ---
+export const FINANCE_CATEGORIES_MANAGE = "finance_categories:manage";
+export const INVENTORY_CATEGORIES_MANAGE = "inventory_categories:manage";
 
 // --- Actividades ---
 export const ACTIVITIES_READ = "activities:read";
