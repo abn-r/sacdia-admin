@@ -796,5 +796,10 @@
     "errors": {
       "unexpected": "Unexpected error"
     }
+  },
+  "translations": {
+    "label_name": "Name",
+    "label_description": "Description",
+    "helper_optional": "Optional. If left empty, Spanish will be shown."
   }
 }
