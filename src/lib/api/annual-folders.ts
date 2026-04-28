@@ -396,10 +396,18 @@ export type ClubRanking = {
   rank_position: number | null;
   club_name: string;
   club_enrollment_id: string;
+  ecclesiastical_year_id: number;
   total_earned_points: number;
   total_max_points: number;
   progress_percentage: number;
   award_category_name: string | null;
+  // ── Composite scoring (8.4-C extended institutional rankings) ──────────────
+  folder_score_pct: number;
+  finance_score_pct: number;
+  camporee_score_pct: number;
+  evidence_score_pct: number;
+  composite_score_pct: number;
+  composite_calculated_at: string | null;
 };
 
 export type RecalculateResult = {
