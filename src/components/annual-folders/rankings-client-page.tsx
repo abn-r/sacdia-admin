@@ -4,15 +4,17 @@ import { useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import {
   Search,
-  RefreshCw,
   Medal,
   Trophy,
   TrendingUp,
   BarChart3,
+  ArrowRight,
 } from "lucide-react";
+import Link from "next/link";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { RankingScoreBadge } from "@/components/rankings/ranking-score-badge";
 import {
   Select,
   SelectContent,
@@ -366,6 +368,21 @@ export function RankingsClientPage({
               <TableRow>
                 <TableHead className="w-16 text-center">Posicion</TableHead>
                 <TableHead>Club</TableHead>
+                <TableHead className="w-28 text-center">
+                  Composite
+                </TableHead>
+                <TableHead className="hidden w-24 text-center lg:table-cell">
+                  Carpeta
+                </TableHead>
+                <TableHead className="hidden w-24 text-center lg:table-cell">
+                  Finanzas
+                </TableHead>
+                <TableHead className="hidden w-24 text-center lg:table-cell">
+                  Camporees
+                </TableHead>
+                <TableHead className="hidden w-24 text-center lg:table-cell">
+                  Evidencias
+                </TableHead>
                 <TableHead className="hidden w-32 text-center md:table-cell">
                   Pts Obtenidos
                 </TableHead>
@@ -376,6 +393,7 @@ export function RankingsClientPage({
                 <TableHead className="hidden w-32 sm:table-cell">
                   Categoria
                 </TableHead>
+                <TableHead className="w-24 text-center">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -397,6 +415,21 @@ export function RankingsClientPage({
                     >
                       {item.club_name}
                     </span>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <RankingScoreBadge value={item.composite_score_pct} />
+                  </TableCell>
+                  <TableCell className="hidden text-center text-sm tabular-nums text-muted-foreground lg:table-cell">
+                    {item.folder_score_pct.toFixed(1)}%
+                  </TableCell>
+                  <TableCell className="hidden text-center text-sm tabular-nums text-muted-foreground lg:table-cell">
+                    {item.finance_score_pct.toFixed(1)}%
+                  </TableCell>
+                  <TableCell className="hidden text-center text-sm tabular-nums text-muted-foreground lg:table-cell">
+                    {item.camporee_score_pct.toFixed(1)}%
+                  </TableCell>
+                  <TableCell className="hidden text-center text-sm tabular-nums text-muted-foreground lg:table-cell">
+                    {item.evidence_score_pct.toFixed(1)}%
                   </TableCell>
                   <TableCell className="hidden text-center text-sm font-medium md:table-cell">
                     {item.total_earned_points}
@@ -425,6 +458,15 @@ export function RankingsClientPage({
                         Sin categoria
                       </span>
                     )}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <Link
+                      href={`/dashboard/annual-folders/rankings/${item.club_enrollment_id}/breakdown?year_id=${item.ecclesiastical_year_id ?? selectedYearId}`}
+                      className="inline-flex items-center gap-1 text-xs text-primary underline-offset-4 hover:underline"
+                    >
+                      Ver detalle
+                      <ArrowRight className="size-3" />
+                    </Link>
                   </TableCell>
                 </TableRow>
               ))}

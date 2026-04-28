@@ -6,6 +6,7 @@ import { Plus, RefreshCw, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -42,6 +43,8 @@ interface AwardCategoriesClientPageProps {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+type FilterTab = "active" | "legacy";
+
 function extractCategories(payload: unknown): AwardCategory[] {
   if (Array.isArray(payload)) return payload as AwardCategory[];
   if (payload && typeof payload === "object") {
@@ -60,6 +63,11 @@ function clubTypeLabel(
   return found?.name ?? `Tipo ${clubTypeId}`;
 }
 
+function formatPct(value: number | null): string {
+  if (value === null) return "—";
+  return `${value}%`;
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function AwardCategoriesClientPage({
@@ -70,6 +78,7 @@ export function AwardCategoriesClientPage({
   const [categories, setCategories] =
     useState<AwardCategory[]>(initialCategories);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [filter, setFilter] = useState<FilterTab>("active");
 
   // Form dialog state
   const [formOpen, setFormOpen] = useState(false);
@@ -84,21 +93,37 @@ export function AwardCategoriesClientPage({
 
   // ─── Refresh ──────────────────────────────────────────────────────────────
 
-  const refreshCategories = useCallback(async () => {
-    setIsRefreshing(true);
-    try {
-      const payload = await getAwardCategoriesFromClient();
-      setCategories(extractCategories(payload));
-    } catch (err) {
-      const message =
-        err instanceof ApiError
-          ? err.message
-          : "No se pudieron actualizar las categorias";
-      toast.error(message);
-    } finally {
-      setIsRefreshing(false);
-    }
-  }, []);
+  const refreshCategories = useCallback(
+    async (tab: FilterTab = filter) => {
+      setIsRefreshing(true);
+      try {
+        const includeLegacy = tab === "legacy" ? true : undefined;
+        const payload = await getAwardCategoriesFromClient(
+          undefined,
+          undefined,
+          includeLegacy,
+        );
+        setCategories(extractCategories(payload));
+      } catch (err) {
+        const message =
+          err instanceof ApiError
+            ? err.message
+            : "No se pudieron actualizar las categorias";
+        toast.error(message);
+      } finally {
+        setIsRefreshing(false);
+      }
+    },
+    [filter],
+  );
+
+  // ─── Tab change ───────────────────────────────────────────────────────────
+
+  function handleFilterChange(value: string) {
+    const tab = value as FilterTab;
+    setFilter(tab);
+    void refreshCategories(tab);
+  }
 
   // ─── Create ───────────────────────────────────────────────────────────────
 
@@ -141,9 +166,13 @@ export function AwardCategoriesClientPage({
     }
   }
 
-  // ─── Sorted by order ──────────────────────────────────────────────────────
+  // ─── Derived list ─────────────────────────────────────────────────────────
 
-  const sortedCategories = [...categories].sort((a, b) => a.order - b.order);
+  const filteredCategories = [...categories]
+    .filter((cat) =>
+      filter === "legacy" ? cat.is_legacy === true : cat.is_legacy !== true,
+    )
+    .sort((a, b) => a.order - b.order);
 
   // ─── Render ───────────────────────────────────────────────────────────────
 
@@ -154,14 +183,14 @@ export function AwardCategoriesClientPage({
         <div className="flex items-center gap-2">
           <p className="text-sm text-muted-foreground">
             <span className="font-medium text-foreground">
-              {categories.length}
+              {filteredCategories.length}
             </span>{" "}
-            {categories.length === 1 ? "categoria" : "categorias"}
+            {filteredCategories.length === 1 ? "categoria" : "categorias"}
           </p>
           <Button
             variant="outline"
             size="icon-sm"
-            onClick={refreshCategories}
+            onClick={() => refreshCategories()}
             disabled={isRefreshing}
             title="Actualizar"
           >
@@ -177,23 +206,36 @@ export function AwardCategoriesClientPage({
         </Button>
       </div>
 
+      {/* Tabs filter */}
+      <Tabs value={filter} onValueChange={handleFilterChange}>
+        <TabsList>
+          <TabsTrigger value="active">Activas</TabsTrigger>
+          <TabsTrigger value="legacy">Legacy</TabsTrigger>
+        </TabsList>
+      </Tabs>
+
       {/* List */}
-      {sortedCategories.length === 0 ? (
+      {filteredCategories.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
           <div className="flex size-12 items-center justify-center rounded-full bg-muted">
             <Plus className="size-6 text-muted-foreground" />
           </div>
           <h3 className="mt-4 text-base font-semibold">
-            Sin categorias de premio
+            {filter === "legacy"
+              ? "Sin categorias legacy"
+              : "Sin categorias de premio"}
           </h3>
           <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-            Crea categorias para clasificar los clubes segun sus puntos obtenidos
-            en la carpeta anual.
+            {filter === "legacy"
+              ? "No hay categorias marcadas como legacy en este momento."
+              : "Crea categorias para clasificar los clubes segun sus puntos obtenidos en la carpeta anual."}
           </p>
-          <Button size="sm" className="mt-4" onClick={handleCreate}>
-            <Plus className="size-4" />
-            Nueva categoria
-          </Button>
+          {filter === "active" && (
+            <Button size="sm" className="mt-4" onClick={handleCreate}>
+              <Plus className="size-4" />
+              Nueva categoria
+            </Button>
+          )}
         </div>
       ) : (
         <div className="rounded-lg border border-border">
@@ -209,13 +251,22 @@ export function AwardCategoriesClientPage({
                 <TableHead className="hidden w-24 text-center md:table-cell">
                   Pts Max
                 </TableHead>
+                <TableHead className="hidden w-24 text-center lg:table-cell">
+                  % Min
+                </TableHead>
+                <TableHead className="hidden w-24 text-center lg:table-cell">
+                  % Max
+                </TableHead>
                 <TableHead className="w-20 text-center">Estado</TableHead>
                 <TableHead className="w-20 text-right">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sortedCategories.map((cat) => (
-                <TableRow key={cat.award_category_id}>
+              {filteredCategories.map((cat) => (
+                <TableRow
+                  key={cat.award_category_id}
+                  className={cat.is_legacy ? "opacity-60" : ""}
+                >
                   <TableCell className="text-center">
                     <span className="inline-flex size-6 items-center justify-center rounded-full bg-muted text-xs font-medium">
                       {cat.order}
@@ -223,7 +274,14 @@ export function AwardCategoriesClientPage({
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-col gap-0.5">
-                      <span className="font-medium">{cat.name}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{cat.name}</span>
+                        {cat.is_legacy && (
+                          <Badge variant="outline" className="text-xs">
+                            Legacy
+                          </Badge>
+                        )}
+                      </div>
                       {cat.description && (
                         <span className="line-clamp-1 text-xs text-muted-foreground">
                           {cat.description}
@@ -244,6 +302,12 @@ export function AwardCategoriesClientPage({
                       </span>
                     )}
                   </TableCell>
+                  <TableCell className="hidden text-center text-sm text-muted-foreground lg:table-cell">
+                    {formatPct(cat.min_composite_pct)}
+                  </TableCell>
+                  <TableCell className="hidden text-center text-sm text-muted-foreground lg:table-cell">
+                    {formatPct(cat.max_composite_pct)}
+                  </TableCell>
                   <TableCell className="text-center">
                     <Badge
                       variant={cat.active ? "success" : "secondary"}
@@ -259,6 +323,7 @@ export function AwardCategoriesClientPage({
                         size="icon-xs"
                         onClick={() => handleEdit(cat)}
                         title="Editar categoria"
+                        disabled={cat.is_legacy}
                       >
                         <Pencil className="size-3.5" />
                         <span className="sr-only">Editar</span>

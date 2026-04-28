@@ -390,16 +390,28 @@ export type AwardCategory = {
   icon: string | null;
   order: number;
   active: boolean;
+  // ── 8.4-C extended institutional rankings ─────────────────────────────────
+  min_composite_pct: number | null;
+  max_composite_pct: number | null;
+  is_legacy: boolean;
 };
 
 export type ClubRanking = {
   rank_position: number | null;
   club_name: string;
   club_enrollment_id: string;
+  ecclesiastical_year_id: number;
   total_earned_points: number;
   total_max_points: number;
   progress_percentage: number;
   award_category_name: string | null;
+  // ── Composite scoring (8.4-C extended institutional rankings) ──────────────
+  folder_score_pct: number;
+  finance_score_pct: number;
+  camporee_score_pct: number;
+  evidence_score_pct: number;
+  composite_score_pct: number;
+  composite_calculated_at: string | null;
 };
 
 export type RecalculateResult = {
@@ -407,8 +419,13 @@ export type RecalculateResult = {
   rankings_updated: number;
 };
 
-export type CreateAwardCategoryPayload = Omit<AwardCategory, "award_category_id" | "active">;
-export type UpdateAwardCategoryPayload = Partial<AwardCategory>;
+export type CreateAwardCategoryPayload = Omit<
+  AwardCategory,
+  "award_category_id" | "active" | "is_legacy"
+>;
+export type UpdateAwardCategoryPayload = Partial<
+  Omit<AwardCategory, "is_legacy">
+>;
 
 // ─── Rankings — Server-side ───────────────────────────────────────────────────
 
@@ -469,17 +486,19 @@ export async function recalculateRankings(
 // ─── Award Categories — Server-side ──────────────────────────────────────────
 
 /**
- * GET /api/v1/award-categories?club_type_id=X&active=true
+ * GET /api/v1/award-categories?club_type_id=X&active=true&include_legacy=true
  * Returns the list of award categories.
  */
 export async function getAwardCategories(
   clubTypeId?: number,
   active?: boolean,
+  includeLegacy?: boolean,
 ): Promise<AwardCategory[]> {
   return apiRequest<AwardCategory[]>("/award-categories", {
     params: {
       ...(clubTypeId !== undefined ? { club_type_id: clubTypeId } : {}),
       ...(active !== undefined ? { active } : {}),
+      ...(includeLegacy !== undefined ? { include_legacy: includeLegacy } : {}),
     },
   });
 }
@@ -496,16 +515,18 @@ export async function getAwardCategory(categoryId: string): Promise<AwardCategor
 
 /**
  * GET /api/v1/award-categories (client-side)
- * For re-fetching.
+ * For re-fetching. Pass includeLegacy=true to include legacy rows.
  */
 export async function getAwardCategoriesFromClient(
   clubTypeId?: number,
   active?: boolean,
+  includeLegacy?: boolean,
 ): Promise<AwardCategory[]> {
   return apiRequestFromClient<AwardCategory[]>("/award-categories", {
     params: {
       ...(clubTypeId !== undefined ? { club_type_id: clubTypeId } : {}),
       ...(active !== undefined ? { active } : {}),
+      ...(includeLegacy !== undefined ? { include_legacy: includeLegacy } : {}),
     },
   });
 }
@@ -545,4 +566,90 @@ export async function deleteAwardCategory(categoryId: string): Promise<void> {
   await apiRequestFromClient<unknown>(`/award-categories/${categoryId}`, {
     method: "DELETE",
   });
+}
+
+// ─── Ranking Breakdown ────────────────────────────────────────────────────────
+
+export interface RankingBreakdownComponentFolder {
+  score_pct: number;
+  earned_points: number;
+  max_points: number;
+  sections_evaluated: number;
+}
+
+export interface RankingBreakdownComponentFinance {
+  score_pct: number;
+  months_closed_on_time: number;
+  months_total: number;
+  deadline_day: number;
+  missed_months: number[];
+}
+
+export interface RankingBreakdownCamporeeEvent {
+  id: string;
+  name: string;
+  status: "approved" | null;
+}
+
+export interface RankingBreakdownComponentCamporee {
+  score_pct: number;
+  attended: number;
+  available_in_scope: number;
+  events: RankingBreakdownCamporeeEvent[];
+}
+
+export interface RankingBreakdownComponentEvidence {
+  score_pct: number;
+  validated: number;
+  rejected: number;
+  pending_excluded: number;
+}
+
+export interface RankingBreakdownWeightsApplied {
+  folder: number;
+  finance: number;
+  camporee: number;
+  evidence: number;
+  source: "default" | "club_type_override";
+}
+
+export interface RankingBreakdown {
+  enrollment_id: string;
+  year_id: number;
+  composite_score_pct: number;
+  weights_applied: RankingBreakdownWeightsApplied;
+  components: {
+    folder: RankingBreakdownComponentFolder;
+    finance: RankingBreakdownComponentFinance;
+    camporee: RankingBreakdownComponentCamporee;
+    evidence: RankingBreakdownComponentEvidence;
+  };
+}
+
+/**
+ * GET /api/v1/annual-folders/rankings/:enrollmentId/breakdown?year_id=Y
+ * Returns the per-component breakdown for a single enrollment's ranking.
+ */
+export async function fetchRankingBreakdown(
+  enrollmentId: string,
+  yearId: number,
+): Promise<RankingBreakdown> {
+  return apiRequest<RankingBreakdown>(
+    `/annual-folders/rankings/${enrollmentId}/breakdown`,
+    { params: { year_id: yearId } },
+  );
+}
+
+/**
+ * GET /api/v1/annual-folders/rankings/:enrollmentId/breakdown?year_id=Y (client-side)
+ * For use in client components.
+ */
+export async function fetchRankingBreakdownFromClient(
+  enrollmentId: string,
+  yearId: number,
+): Promise<RankingBreakdown> {
+  return apiRequestFromClient<RankingBreakdown>(
+    `/annual-folders/rankings/${enrollmentId}/breakdown`,
+    { params: { year_id: yearId } },
+  );
 }
