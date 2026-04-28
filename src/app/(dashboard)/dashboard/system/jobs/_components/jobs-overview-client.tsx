@@ -234,9 +234,22 @@ function FailedJobsTable({ jobs }: { jobs: FailedJob[] }) {
               {jobs.map((job, index) => (
                 <TableRow key={`${job.queue}-${job.job_id ?? index}`}>
                   <TableCell className="pl-6">
-                    <Badge variant="outline" className="text-xs font-mono">
-                      {job.queue}
-                    </Badge>
+                    {job.queue === 'background-jobs' ? (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Badge variant="outline" className="text-xs font-mono cursor-default">
+                            {job.queue}
+                          </Badge>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="font-mono text-xs">
+                          {job.name}
+                        </TooltipContent>
+                      </Tooltip>
+                    ) : (
+                      <Badge variant="outline" className="text-xs font-mono">
+                        {job.queue}
+                      </Badge>
+                    )}
                   </TableCell>
                   <TableCell className="text-sm font-medium">{job.name}</TableCell>
                   <TableCell className="max-w-[280px]">
