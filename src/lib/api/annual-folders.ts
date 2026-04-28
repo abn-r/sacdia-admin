@@ -554,3 +554,89 @@ export async function deleteAwardCategory(categoryId: string): Promise<void> {
     method: "DELETE",
   });
 }
+
+// ─── Ranking Breakdown ────────────────────────────────────────────────────────
+
+export interface RankingBreakdownComponentFolder {
+  score_pct: number;
+  earned_points: number;
+  max_points: number;
+  sections_evaluated: number;
+}
+
+export interface RankingBreakdownComponentFinance {
+  score_pct: number;
+  months_closed_on_time: number;
+  months_total: number;
+  deadline_day: number;
+  missed_months: number[];
+}
+
+export interface RankingBreakdownCamporeeEvent {
+  id: string;
+  name: string;
+  status: "approved" | null;
+}
+
+export interface RankingBreakdownComponentCamporee {
+  score_pct: number;
+  attended: number;
+  available_in_scope: number;
+  events: RankingBreakdownCamporeeEvent[];
+}
+
+export interface RankingBreakdownComponentEvidence {
+  score_pct: number;
+  validated: number;
+  rejected: number;
+  pending_excluded: number;
+}
+
+export interface RankingBreakdownWeightsApplied {
+  folder: number;
+  finance: number;
+  camporee: number;
+  evidence: number;
+  source: "default" | "club_type_override";
+}
+
+export interface RankingBreakdown {
+  enrollment_id: string;
+  year_id: number;
+  composite_score_pct: number;
+  weights_applied: RankingBreakdownWeightsApplied;
+  components: {
+    folder: RankingBreakdownComponentFolder;
+    finance: RankingBreakdownComponentFinance;
+    camporee: RankingBreakdownComponentCamporee;
+    evidence: RankingBreakdownComponentEvidence;
+  };
+}
+
+/**
+ * GET /api/v1/annual-folders/rankings/:enrollmentId/breakdown?year_id=Y
+ * Returns the per-component breakdown for a single enrollment's ranking.
+ */
+export async function fetchRankingBreakdown(
+  enrollmentId: string,
+  yearId: number,
+): Promise<RankingBreakdown> {
+  return apiRequest<RankingBreakdown>(
+    `/annual-folders/rankings/${enrollmentId}/breakdown`,
+    { params: { year_id: yearId } },
+  );
+}
+
+/**
+ * GET /api/v1/annual-folders/rankings/:enrollmentId/breakdown?year_id=Y (client-side)
+ * For use in client components.
+ */
+export async function fetchRankingBreakdownFromClient(
+  enrollmentId: string,
+  yearId: number,
+): Promise<RankingBreakdown> {
+  return apiRequestFromClient<RankingBreakdown>(
+    `/annual-folders/rankings/${enrollmentId}/breakdown`,
+    { params: { year_id: yearId } },
+  );
+}
