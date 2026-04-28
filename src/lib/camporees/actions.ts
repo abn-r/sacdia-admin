@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
+import { getActionErrorMessage } from "@/lib/api/action-error";
 import {
   createCamporee,
   deleteCamporee,
@@ -9,6 +11,11 @@ import {
   removeCamporeeMember,
   updateCamporee,
 } from "@/lib/api/camporees";
+import { requireAdminUser } from "@/lib/auth/session";
+
+type CamporeesTranslator = Awaited<
+  ReturnType<typeof getTranslations<"camporees">>
+>;
 
 export type CamporeeActionState = {
   error?: string;
@@ -19,21 +26,30 @@ function readString(formData: FormData, fieldName: string) {
   return String(formData.get(fieldName) ?? "").trim();
 }
 
-function parseRequiredNumber(formData: FormData, fieldName: string, label: string) {
+function parseRequiredNumber(
+  t: CamporeesTranslator,
+  formData: FormData,
+  fieldName: string,
+  label: string,
+) {
   const value = readString(formData, fieldName);
   if (!value) {
-    throw new Error(`El campo ${label} es obligatorio`);
+    throw new Error(t("validation.field_required", { field: label }));
   }
 
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) {
-    throw new Error(`El campo ${label} no es valido`);
+    throw new Error(t("validation.field_invalid", { field: label }));
   }
 
   return parsed;
 }
 
-function parseOptionalNumber(formData: FormData, fieldName: string) {
+function parseOptionalNumber(
+  t: CamporeesTranslator,
+  formData: FormData,
+  fieldName: string,
+) {
   const value = readString(formData, fieldName);
   if (!value) {
     return undefined;
@@ -41,7 +57,7 @@ function parseOptionalNumber(formData: FormData, fieldName: string) {
 
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) {
-    throw new Error(`El campo ${fieldName} no es valido`);
+    throw new Error(t("validation.field_invalid", { field: fieldName }));
   }
 
   return parsed;
@@ -51,10 +67,10 @@ function parseBool(formData: FormData, fieldName: string) {
   return formData.get(fieldName) === "on" || formData.get(fieldName) === "true";
 }
 
-function buildCreatePayload(formData: FormData) {
+function buildCreatePayload(t: CamporeesTranslator, formData: FormData) {
   const name = readString(formData, "name");
   if (!name) {
-    throw new Error("El nombre del camporee es obligatorio");
+    throw new Error(t("validation.name_required"));
   }
 
   const startDate = readString(formData, "start_date");
@@ -62,11 +78,11 @@ function buildCreatePayload(formData: FormData) {
   const place = readString(formData, "local_camporee_place");
 
   if (!startDate || !endDate) {
-    throw new Error("Las fechas de inicio y fin son obligatorias");
+    throw new Error(t("validation.dates_required"));
   }
 
   if (!place) {
-    throw new Error("El lugar del camporee es obligatorio");
+    throw new Error(t("validation.place_required"));
   }
 
   return {
@@ -74,16 +90,21 @@ function buildCreatePayload(formData: FormData) {
     description: readString(formData, "description") || undefined,
     start_date: startDate,
     end_date: endDate,
-    local_field_id: parseRequiredNumber(formData, "local_field_id", "Campo local"),
+    local_field_id: parseRequiredNumber(
+      t,
+      formData,
+      "local_field_id",
+      t("fields.local_field"),
+    ),
     includes_adventurers: parseBool(formData, "includes_adventurers"),
     includes_pathfinders: parseBool(formData, "includes_pathfinders"),
     includes_master_guides: parseBool(formData, "includes_master_guides"),
     local_camporee_place: place,
-    registration_cost: parseOptionalNumber(formData, "registration_cost"),
+    registration_cost: parseOptionalNumber(t, formData, "registration_cost"),
   };
 }
 
-function buildUpdatePayload(formData: FormData) {
+function buildUpdatePayload(t: CamporeesTranslator, formData: FormData) {
   const payload: Record<string, unknown> = {};
 
   const name = readString(formData, "name");
@@ -112,8 +133,8 @@ function buildUpdatePayload(formData: FormData) {
     payload.local_camporee_place = place;
   }
 
-  const localFieldId = parseOptionalNumber(formData, "local_field_id");
-  const registrationCost = parseOptionalNumber(formData, "registration_cost");
+  const localFieldId = parseOptionalNumber(t, formData, "local_field_id");
+  const registrationCost = parseOptionalNumber(t, formData, "registration_cost");
 
   if (localFieldId !== undefined) {
     payload.local_field_id = localFieldId;
@@ -140,7 +161,7 @@ function buildUpdatePayload(formData: FormData) {
   }
 
   if (Object.keys(payload).length === 0) {
-    throw new Error("No hay cambios para guardar");
+    throw new Error(t("validation.no_changes"));
   }
 
   return payload;
@@ -150,12 +171,17 @@ export async function createCamporeeAction(
   _: CamporeeActionState,
   formData: FormData,
 ): Promise<CamporeeActionState> {
+  await requireAdminUser();
+  const t = await getTranslations("camporees");
+
   try {
-    const payload = buildCreatePayload(formData);
+    const payload = buildCreatePayload(t, formData);
     await createCamporee(payload);
   } catch (error) {
     return {
-      error: error instanceof Error ? error.message : "No se pudo crear el camporee",
+      error: getActionErrorMessage(error, t("errors.create_failed"), {
+        endpointLabel: "/camporees",
+      }),
     };
   }
 
@@ -168,12 +194,17 @@ export async function updateCamporeeAction(
   _: CamporeeActionState,
   formData: FormData,
 ): Promise<CamporeeActionState> {
+  await requireAdminUser();
+  const t = await getTranslations("camporees");
+
   try {
-    const payload = buildUpdatePayload(formData);
+    const payload = buildUpdatePayload(t, formData);
     await updateCamporee(camporeeId, payload);
   } catch (error) {
     return {
-      error: error instanceof Error ? error.message : "No se pudo actualizar el camporee",
+      error: getActionErrorMessage(error, t("errors.update_failed"), {
+        endpointLabel: `/camporees/${camporeeId}`,
+      }),
     };
   }
 
@@ -182,6 +213,8 @@ export async function updateCamporeeAction(
 }
 
 export async function deleteCamporeeAction(formData: FormData) {
+  await requireAdminUser();
+
   const camporeeId = Number(formData.get("id"));
   if (!Number.isFinite(camporeeId) || camporeeId <= 0) {
     return;
@@ -197,23 +230,28 @@ export async function registerCamporeeMemberAction(
   _: CamporeeActionState,
   formData: FormData,
 ): Promise<CamporeeActionState> {
+  await requireAdminUser();
+  const t = await getTranslations("camporees");
+
   const userId = readString(formData, "user_id");
   if (!userId) {
-    return { error: "El ID del usuario es obligatorio." };
+    return { error: t("validation.user_id_required") };
   }
 
   const camporeeTypeRaw = readString(formData, "camporee_type");
   if (camporeeTypeRaw !== "local" && camporeeTypeRaw !== "union") {
-    return { error: "El tipo de camporee debe ser local o union." };
+    return { error: t("validation.camporee_type_invalid") };
   }
 
   const clubName = readString(formData, "club_name");
   let insuranceId: number | undefined;
 
   try {
-    insuranceId = parseOptionalNumber(formData, "insurance_id");
+    insuranceId = parseOptionalNumber(t, formData, "insurance_id");
   } catch (error) {
-    return { error: error instanceof Error ? error.message : "Seguro invalido." };
+    return {
+      error: error instanceof Error ? error.message : t("validation.insurance_invalid"),
+    };
   }
 
   try {
@@ -225,12 +263,14 @@ export async function registerCamporeeMemberAction(
     });
   } catch (error) {
     return {
-      error: error instanceof Error ? error.message : "No se pudo registrar el miembro al camporee",
+      error: getActionErrorMessage(error, t("errors.register_member_failed"), {
+        endpointLabel: `/camporees/${camporeeId}/members`,
+      }),
     };
   }
 
   revalidatePath(`/dashboard/camporees/${camporeeId}`);
-  return { success: "Miembro registrado correctamente." };
+  return { success: t("success.member_registered") };
 }
 
 export async function removeCamporeeMemberAction(
@@ -238,19 +278,24 @@ export async function removeCamporeeMemberAction(
   _: CamporeeActionState,
   formData: FormData,
 ): Promise<CamporeeActionState> {
+  await requireAdminUser();
+  const t = await getTranslations("camporees");
+
   const userId = readString(formData, "user_id");
   if (!userId) {
-    return { error: "No se pudo identificar al miembro a remover." };
+    return { error: t("validation.member_remove_not_identified") };
   }
 
   try {
     await removeCamporeeMember(camporeeId, userId);
   } catch (error) {
     return {
-      error: error instanceof Error ? error.message : "No se pudo remover el miembro del camporee",
+      error: getActionErrorMessage(error, t("errors.remove_member_failed"), {
+        endpointLabel: `/camporees/${camporeeId}/members/${userId}`,
+      }),
     };
   }
 
   revalidatePath(`/dashboard/camporees/${camporeeId}`);
-  return { success: "Miembro removido correctamente." };
+  return { success: t("success.member_removed") };
 }

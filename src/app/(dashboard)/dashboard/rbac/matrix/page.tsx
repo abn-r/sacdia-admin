@@ -2,7 +2,6 @@ import { Grid3X3 } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-import { PermissionMatrix } from "@/components/rbac/permission-matrix";
 import { requireAdminUser } from "@/lib/auth/session";
 import { listRoles, listPermissions } from "@/lib/rbac/service";
 import { syncRolePermissionsAction } from "@/lib/rbac/actions";
@@ -38,14 +37,6 @@ export default async function MatrixPage() {
           icon={Grid3X3}
           title="Sin datos"
           description="No hay roles o permisos registrados para mostrar la matriz."
-        />
-      )}
-
-      {!loadError && roles.length > 0 && permissions.length > 0 && (
-        <PermissionMatrix
-          roles={roles}
-          permissions={permissions}
-          syncAction={syncRolePermissionsAction}
         />
       )}
     </div>

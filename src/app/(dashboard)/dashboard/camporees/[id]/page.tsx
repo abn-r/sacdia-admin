@@ -4,16 +4,27 @@ import { ArrowLeft, CalendarRange, MapPin, DollarSign, Hash } from "lucide-react
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/shared/page-header";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { CamporeeInfoCard } from "@/components/camporees/camporee-info-card";
 import { CamporeeDetailActions } from "@/components/camporees/camporee-detail-actions";
-import { CamporeeMembersTab } from "@/components/camporees/camporee-members-tab";
+import { CamporeeDetailTabs } from "@/components/camporees/camporee-detail-tabs";
 import { ApiError } from "@/lib/api/client";
-import { getCamporeeById, listCamporeeMembers } from "@/lib/api/camporees";
+import {
+  getCamporeeById,
+  listCamporeeMembers,
+  getEnrolledClubs,
+  getCamporeePayments,
+  getCamporeePendingApprovals,
+} from "@/lib/api/camporees";
 import { requireAdminUser } from "@/lib/auth/session";
-import type { Camporee, CamporeeMember } from "@/lib/api/camporees";
+import type {
+  Camporee,
+  CamporeeMember,
+  CamporeeClub,
+  CamporeePayment,
+  PendingApprovals,
+  PaginationMeta,
+} from "@/lib/api/camporees";
 
 type Params = Promise<{ id: string }>;
 type AnyRecord = Record<string, unknown>;
@@ -63,11 +74,11 @@ function normalizeCamporee(raw: AnyRecord): Camporee {
   };
 }
 
-function extractMembers(payload: unknown): CamporeeMember[] {
-  if (Array.isArray(payload)) return payload as CamporeeMember[];
+function extractList<T>(payload: unknown): T[] {
+  if (Array.isArray(payload)) return payload as T[];
   if (payload && typeof payload === "object") {
     const root = payload as AnyRecord;
-    if (Array.isArray(root.data)) return root.data as CamporeeMember[];
+    if (Array.isArray(root.data)) return root.data as T[];
   }
   return [];
 }
@@ -122,7 +133,13 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
 
   let camporee: Camporee;
   let members: CamporeeMember[] = [];
+  let membersMeta: PaginationMeta | undefined;
   let membersError: string | null = null;
+  let clubs: CamporeeClub[] = [];
+  let clubsError: string | null = null;
+  let payments: CamporeePayment[] = [];
+  let paymentsError: string | null = null;
+  let pending: PendingApprovals = { clubs: [], members: [], payments: [] };
 
   // Fetch camporee detail
   try {
@@ -139,13 +156,46 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
 
   // Fetch members — best effort
   try {
-    const membersPayload = await listCamporeeMembers(camporeeId);
-    members = extractMembers(membersPayload);
+    const membersPayload = await listCamporeeMembers(camporeeId, { page: 1, limit: 50 });
+    members = membersPayload.data;
+    membersMeta = membersPayload.meta;
   } catch (err) {
     membersError =
       err instanceof ApiError
         ? err.message
         : "No se pudo cargar la lista de miembros.";
+  }
+
+  // Fetch enrolled clubs — best effort
+  try {
+    const clubsPayload = await getEnrolledClubs(camporeeId);
+    clubs = extractList<CamporeeClub>(clubsPayload);
+  } catch (err) {
+    clubsError =
+      err instanceof ApiError
+        ? err.message
+        : "No se pudo cargar la lista de clubes.";
+  }
+
+  // Fetch payments — best effort
+  try {
+    const paymentsPayload = await getCamporeePayments(camporeeId);
+    payments = extractList<CamporeePayment>(paymentsPayload);
+  } catch (err) {
+    paymentsError =
+      err instanceof ApiError
+        ? err.message
+        : "No se pudo cargar la lista de pagos.";
+  }
+
+  // Fetch pending approvals — best effort (non-blocking)
+  try {
+    const pendingPayload = await getCamporeePendingApprovals(camporeeId);
+    if (pendingPayload && typeof pendingPayload === "object") {
+      pending = pendingPayload as PendingApprovals;
+    }
+  } catch {
+    // Silently ignore — pending count is informational only
   }
 
   return (
@@ -164,21 +214,17 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
       <CamporeeInfoCard camporee={camporee} />
 
       {/* Tabs */}
-      <Tabs defaultValue="info">
-        <TabsList>
-          <TabsTrigger value="info">Información</TabsTrigger>
-          <TabsTrigger value="members">
-            Miembros
-            {members.length > 0 && (
-              <Badge variant="secondary" className="ml-2">
-                {members.length}
-              </Badge>
-            )}
-          </TabsTrigger>
-        </TabsList>
-
-        {/* ── Información ── */}
-        <TabsContent value="info" className="mt-4">
+      <CamporeeDetailTabs
+        camporeeId={camporeeId}
+        initialMembers={members}
+        initialMembersMeta={membersMeta}
+        initialClubs={clubs}
+        initialPayments={payments}
+        initialPending={pending}
+        membersError={membersError}
+        clubsError={clubsError}
+        paymentsError={paymentsError}
+        infoContent={
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Detalles del camporee</CardTitle>
@@ -205,7 +251,7 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
                 icon={MapPin}
               />
               <InfoRow
-                label="Costo de inscripción"
+                label="Costo de inscripcion"
                 value={
                   camporee.registration_cost != null
                     ? camporee.registration_cost.toLocaleString("es-MX", {
@@ -233,7 +279,7 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
                       <Badge variant="secondary">Conquistadores</Badge>
                     )}
                     {camporee.includes_master_guides && (
-                      <Badge variant="secondary">Guías Mayores</Badge>
+                      <Badge variant="secondary">Guias Mayores</Badge>
                     )}
                     {!camporee.includes_adventurers &&
                       !camporee.includes_pathfinders &&
@@ -244,31 +290,12 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
                 }
               />
               {camporee.description && (
-                <InfoRow label="Descripción" value={camporee.description} />
+                <InfoRow label="Descripcion" value={camporee.description} />
               )}
             </CardContent>
           </Card>
-        </TabsContent>
-
-        {/* ── Miembros ── */}
-        <TabsContent value="members" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Miembros inscritos</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {membersError ? (
-                <EndpointErrorBanner state="missing" detail={membersError} />
-              ) : (
-                <CamporeeMembersTab
-                  camporeeId={camporeeId}
-                  initialMembers={members}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+        }
+      />
     </div>
   );
 }

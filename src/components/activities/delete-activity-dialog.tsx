@@ -12,6 +12,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useTranslations } from "next-intl";
 import { deleteActivity } from "@/lib/api/activities";
 import type { Activity } from "@/lib/api/activities";
 
@@ -28,6 +29,7 @@ export function DeleteActivityDialog({
   activity,
   onSuccess,
 }: DeleteActivityDialogProps) {
+  const t = useTranslations("activities");
   const [isDeleting, setIsDeleting] = useState(false);
 
   async function handleConfirm() {
@@ -35,12 +37,12 @@ export function DeleteActivityDialog({
     setIsDeleting(true);
     try {
       await deleteActivity(activity.activity_id);
-      toast.success("Actividad eliminada correctamente");
+      toast.success(t("toasts.deleted"));
       onSuccess();
       onOpenChange(false);
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "No se pudo eliminar la actividad";
+        err instanceof Error ? err.message : t("errors.delete_failed");
       toast.error(message);
     } finally {
       setIsDeleting(false);

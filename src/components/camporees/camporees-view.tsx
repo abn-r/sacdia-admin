@@ -16,6 +16,7 @@ import {
 import { EmptyState } from "@/components/shared/empty-state";
 import { CamporeeFormDialog } from "@/components/camporees/camporee-form-dialog";
 import { DeleteCamporeeDialog } from "@/components/camporees/delete-camporee-dialog";
+import { useTranslations } from "next-intl";
 import { listCamporees } from "@/lib/api/camporees";
 import type { Camporee } from "@/lib/api/camporees";
 import { Tent } from "lucide-react";
@@ -57,6 +58,7 @@ interface CampoReesViewProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function CampoReesView({ initialCamporees }: CampoReesViewProps) {
+  const t = useTranslations("camporees");
   const [camporees, setCamporees] = useState<Camporee[]>(initialCamporees);
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -73,12 +75,12 @@ export function CampoReesView({ initialCamporees }: CampoReesViewProps) {
       setCamporees(extractCamporees(payload));
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "No se pudo cargar la lista";
+        err instanceof Error ? err.message : t("errors.load_list");
       setLoadError(message);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [t]);
 
   function handleDelete(camporee: Camporee) {
     setDeletingCamporee(camporee);

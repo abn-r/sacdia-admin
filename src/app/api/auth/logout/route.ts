@@ -5,7 +5,9 @@ export async function GET(request: NextRequest) {
   await clearSession();
 
   const next = request.nextUrl.searchParams.get("next") || "/login";
-  return NextResponse.redirect(new URL(next, request.url));
+  // Only allow relative paths to prevent open redirect attacks
+  const safePath = next.startsWith("/") && !next.startsWith("//") ? next : "/login";
+  return NextResponse.redirect(new URL(safePath, request.url));
 }
 
 export async function POST() {

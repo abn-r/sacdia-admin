@@ -20,17 +20,6 @@ function getIdValue(item: CatalogItem, config: EntityConfig): number {
 function normalizeItem(entityKey: EntityKey, item: CatalogItem): CatalogItem {
   const normalized: CatalogItem = { ...item };
 
-  // Legacy naming in districts/churches still uses districlub_type_id in backend.
-  if (entityKey === "districts" || entityKey === "churches") {
-    if (normalized.district_id === undefined && normalized.districlub_type_id !== undefined) {
-      normalized.district_id = normalized.districlub_type_id;
-    }
-  }
-
-  if (entityKey === "ecclesiastical-years" && normalized.name === undefined && normalized.year_id !== undefined) {
-    normalized.name = `Anio ${normalized.year_id}`;
-  }
-
   if (typeof normalized.active !== "boolean") {
     normalized.active = true;
   }

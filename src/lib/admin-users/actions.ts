@@ -2,41 +2,53 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { ApiError } from "@/lib/api/client";
 import {
   updateAdminUserApproval,
   type AdminApprovalDecision,
 } from "@/lib/api/admin-users";
+import {
+  APP_ALERT_PARAM_TYPE,
+  APP_ALERT_PARAM_TITLE,
+  APP_ALERT_PARAM_DESCRIPTION,
+} from "@/lib/ui/app-alert-params";
+import { requireAdminUser } from "@/lib/auth/session";
 
 function readString(formData: FormData, fieldName: string) {
   return String(formData.get(fieldName) ?? "").trim();
 }
 
-function createResultUrl(params: Record<string, string>) {
-  const query = new URLSearchParams(params);
-  return `/dashboard/approvals?${query.toString()}`;
+function userDetailUrl(userId: string, alertType: string, alertTitle: string, alertDescription?: string): string {
+  const params = new URLSearchParams();
+  params.set(APP_ALERT_PARAM_TYPE, alertType);
+  params.set(APP_ALERT_PARAM_TITLE, alertTitle);
+  if (alertDescription) {
+    params.set(APP_ALERT_PARAM_DESCRIPTION, alertDescription);
+  }
+  return `/dashboard/users/${encodeURIComponent(userId)}?${params.toString()}`;
 }
 
 export async function submitApprovalDecisionAction(formData: FormData) {
+  await requireAdminUser();
+  const t = await getTranslations("admin_users");
+
   const userId = readString(formData, "user_id");
   const decision = readString(formData, "decision");
   const reason = readString(formData, "reason");
 
   if (!userId) {
-    redirect(
-      createResultUrl({
-        status: "approval_error_validation",
-        message: "Usuario invalido",
-      }),
-    );
+    redirect("/dashboard/users");
   }
 
   if (decision !== "approve" && decision !== "reject") {
     redirect(
-      createResultUrl({
-        status: "approval_error_validation",
-        message: "Decision invalida",
-      }),
+      userDetailUrl(
+        userId,
+        "error",
+        t("errors.invalid_decision_title"),
+        t("errors.invalid_decision_description"),
+      ),
     );
   }
 
@@ -50,63 +62,66 @@ export async function submitApprovalDecisionAction(formData: FormData) {
     if (error instanceof ApiError) {
       if (error.status === 429) {
         redirect(
-          createResultUrl({
-            status: "approval_error_rate_limited",
-            decision,
-            user: userId,
-          }),
+          userDetailUrl(
+            userId,
+            "warning",
+            t("errors.too_many_requests_title"),
+            t("errors.too_many_requests_description"),
+          ),
         );
       }
 
       if (error.status === 401 || error.status === 403) {
         redirect(
-          createResultUrl({
-            status: "approval_error_forbidden",
-            decision,
-            user: userId,
-          }),
+          userDetailUrl(
+            userId,
+            "error",
+            t("errors.forbidden_title"),
+            t("errors.forbidden_description"),
+          ),
         );
       }
 
       if (error.status === 404 || error.status === 405) {
         redirect(
-          createResultUrl({
-            status: "approval_error_missing_endpoint",
-            decision,
-            user: userId,
-          }),
+          userDetailUrl(
+            userId,
+            "error",
+            t("errors.endpoint_unavailable_title"),
+            t("errors.endpoint_unavailable_description"),
+          ),
         );
       }
 
       redirect(
-        createResultUrl({
-          status: "approval_error_api",
-          decision,
-          user: userId,
-          message: error.message,
-        }),
+        userDetailUrl(
+          userId,
+          "error",
+          t("errors.processing_title"),
+          error.message,
+        ),
       );
     }
 
     redirect(
-      createResultUrl({
-        status: "approval_error_unknown",
-        decision,
-        user: userId,
-      }),
+      userDetailUrl(
+        userId,
+        "error",
+        t("errors.unexpected_title"),
+        t("errors.unexpected_description"),
+      ),
     );
   }
 
-  revalidatePath("/dashboard/approvals");
   revalidatePath("/dashboard/users");
+  revalidatePath(`/dashboard/users/${userId}`);
   revalidatePath("/dashboard");
-  revalidatePath("/dashboard/settings");
 
+  const title =
+    decision === "approve"
+      ? t("success.user_approved_title")
+      : t("success.user_rejected_title");
   redirect(
-    createResultUrl({
-      status: "approval_success",
-      decision,
-      user: userId,
-    }),
+    userDetailUrl(userId, "success", title, t("success.decision_recorded")),
   );
 }

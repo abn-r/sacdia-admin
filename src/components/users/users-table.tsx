@@ -22,13 +22,20 @@ function extractRoleNames(user: AdminUser): string[] {
   return [...new Set(roles)];
 }
 
-function formatLocation(user: AdminUser): string {
-  const parts = [
-    user.country?.name,
-    user.union?.name,
-    user.local_field?.name,
-  ].filter(Boolean);
-  return parts.join(" / ") || "—";
+function LocationCell({ user }: { user: AdminUser }) {
+  const union = user.union?.name;
+  const localField = user.local_field?.name;
+  if (!union && !localField) {
+    return <span className="text-xs text-muted-foreground">—</span>;
+  }
+  return (
+    <div className="min-w-0">
+      <p className="truncate text-xs">{union ?? "—"}</p>
+      {localField && (
+        <p className="truncate text-xs text-muted-foreground">{localField}</p>
+      )}
+    </div>
+  );
 }
 
 function formatDate(dateStr?: string | null): string {
@@ -58,7 +65,7 @@ export function UsersTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Usuario</TableHead>
+            <TableHead className="pl-6">Usuario</TableHead>
             <TableHead className="hidden md:table-cell">Roles</TableHead>
             <TableHead className="hidden lg:table-cell">Ubicación</TableHead>
             <TableHead>Estado</TableHead>
@@ -66,7 +73,7 @@ export function UsersTable({
             {showAdministrativeCompletion ? (
               <TableHead className="hidden lg:table-cell">Post-registro</TableHead>
             ) : null}
-            <TableHead className="hidden md:table-cell">Fecha de alta</TableHead>
+            <TableHead className="hidden pr-6 md:table-cell">Fecha de alta</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -79,7 +86,7 @@ export function UsersTable({
 
             return (
               <TableRow key={user.user_id}>
-                <TableCell>
+                <TableCell className="pl-6">
                   <div className="flex items-center gap-3">
                     <UserAvatar
                       src={user.user_image}
@@ -114,9 +121,7 @@ export function UsersTable({
                   </div>
                 </TableCell>
                 <TableCell className="hidden max-w-[200px] lg:table-cell">
-                  <span className="truncate text-xs text-muted-foreground" title={formatLocation(user)}>
-                    {formatLocation(user)}
-                  </span>
+                  <LocationCell user={user} />
                 </TableCell>
                 <TableCell>
                   <Badge variant={user.active !== false ? "default" : "outline"} className="text-xs">
@@ -149,7 +154,7 @@ export function UsersTable({
                     </Badge>
                   </TableCell>
                 ) : null}
-                <TableCell className="hidden text-xs text-muted-foreground md:table-cell">
+                <TableCell className="hidden pr-6 text-xs text-muted-foreground md:table-cell">
                   {formatDate(user.created_at)}
                 </TableCell>
               </TableRow>

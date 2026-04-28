@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ChevronRight, LogOut, User } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Sidebar,
   SidebarContent,
@@ -31,9 +32,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useTranslations } from "next-intl";
 import { useAuth } from "@/lib/auth/auth-context";
 import { usePermissions } from "@/lib/auth/use-permissions";
 import { navConfig, type NavGroup, type NavItem } from "@/components/layout/nav-config";
+import { LocaleSwitcherMenu } from "@/components/layout/locale-switcher";
 
 function getInitials(name?: string | null, email?: string | null): string {
   if (name) {
@@ -48,28 +51,35 @@ function getInitials(name?: string | null, email?: string | null): string {
 }
 
 function NavItemWithChildren({ item, pathname }: { item: NavItem; pathname: string }) {
+  const t = useTranslations("nav");
   const isChildActive = item.children?.some((child) => pathname === child.url) ?? false;
   const isActive = pathname === item.url || isChildActive;
+  const title = t(item.title);
 
   return (
     <Collapsible asChild defaultOpen={isActive}>
       <SidebarMenuItem>
         <CollapsibleTrigger asChild>
-          <SidebarMenuButton tooltip={item.title} isActive={isActive}>
-            <item.icon className="size-4" />
-            <span>{item.title}</span>
-            <ChevronRight className="ml-auto size-4 transition-transform group-data-[state=open]/collapsible:rotate-90" />
+          <SidebarMenuButton tooltip={title} isActive={isActive}>
+            <item.icon className="size-4 shrink-0" />
+            <span className="truncate">{title}</span>
+            <ChevronRight className="ml-auto size-4 shrink-0 transition-transform group-data-[state=open]/collapsible:rotate-90" />
           </SidebarMenuButton>
         </CollapsibleTrigger>
         <CollapsibleContent>
           <SidebarMenuSub>
-            {item.children!.map((child) => (
-              <SidebarMenuSubItem key={child.url}>
-                <SidebarMenuSubButton asChild isActive={pathname === child.url}>
-                  <Link href={child.url}>{child.title}</Link>
-                </SidebarMenuSubButton>
-              </SidebarMenuSubItem>
-            ))}
+            {item.children!.map((child) => {
+              const childTitle = t(child.title);
+              return (
+                <SidebarMenuSubItem key={child.url}>
+                  <SidebarMenuSubButton asChild isActive={pathname === child.url}>
+                    <Link href={child.url}>
+                      <span className="truncate" title={childTitle}>{childTitle}</span>
+                    </Link>
+                  </SidebarMenuSubButton>
+                </SidebarMenuSubItem>
+              );
+            })}
           </SidebarMenuSub>
         </CollapsibleContent>
       </SidebarMenuItem>
@@ -78,14 +88,16 @@ function NavItemWithChildren({ item, pathname }: { item: NavItem; pathname: stri
 }
 
 function NavItemSimple({ item, pathname }: { item: NavItem; pathname: string }) {
+  const t = useTranslations("nav");
   const isActive = pathname === item.url || (item.url !== "/dashboard" && pathname.startsWith(item.url + "/"));
+  const title = t(item.title);
 
   return (
     <SidebarMenuItem>
-      <SidebarMenuButton asChild tooltip={item.title} isActive={isActive}>
+      <SidebarMenuButton asChild tooltip={title} isActive={isActive}>
         <Link href={item.url}>
-          <item.icon className="size-4" />
-          <span>{item.title}</span>
+          <item.icon className="size-4 shrink-0" />
+          <span className="truncate">{title}</span>
         </Link>
       </SidebarMenuButton>
     </SidebarMenuItem>
@@ -93,6 +105,7 @@ function NavItemSimple({ item, pathname }: { item: NavItem; pathname: string }) 
 }
 
 function SidebarNavGroup({ group }: { group: NavGroup }) {
+  const t = useTranslations("nav");
   const pathname = usePathname();
   const { can, isSuperAdmin } = usePermissions();
 
@@ -106,7 +119,7 @@ function SidebarNavGroup({ group }: { group: NavGroup }) {
 
   return (
     <SidebarGroup>
-      {group.label && <SidebarGroupLabel>{group.label}</SidebarGroupLabel>}
+      {group.label && <SidebarGroupLabel>{t(group.label)}</SidebarGroupLabel>}
       <SidebarMenu>
         {visibleItems.map((item) =>
           item.children ? (
@@ -120,8 +133,11 @@ function SidebarNavGroup({ group }: { group: NavGroup }) {
   );
 }
 
+const LOGOUT_URL = "/api/auth/logout?next=/login";
+
 function SidebarUserFooter() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const displayName = user?.name ?? user?.email ?? "Admin";
   const email = user?.email ?? "";
   const photoUrl =
@@ -168,11 +184,19 @@ function SidebarUserFooter() {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
+              <LocaleSwitcherMenu />
+              <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <a href="/api/auth/logout?next=/login">
+                <button
+                  onClick={() => {
+                    queryClient.clear();
+                    window.location.href = LOGOUT_URL;
+                  }}
+                  aria-label="Cerrar sesión"
+                >
                   <LogOut className="mr-2 size-4" />
                   Cerrar sesión
-                </a>
+                </button>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

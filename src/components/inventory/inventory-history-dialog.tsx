@@ -19,7 +19,7 @@ const actionConfig: Record<
   InventoryAction,
   {
     label: string;
-    badgeVariant: "success" | "default" | "destructive";
+    badgeVariant: "success" | "default" | "destructive" | "secondary";
     icon: React.ElementType;
     iconClassName: string;
     dotClassName: string;
@@ -52,7 +52,7 @@ const actionConfig: Record<
 
 function formatDate(isoDate: string): string {
   try {
-    return new Intl.DateTimeFormat("es-AR", {
+    return new Intl.DateTimeFormat("es-MX", {
       day: "2-digit",
       month: "short",
       year: "numeric",

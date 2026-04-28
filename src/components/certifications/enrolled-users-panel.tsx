@@ -16,6 +16,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { UserProgressDialog } from "@/components/certifications/user-progress-dialog";
 import { apiRequestFromClient } from "@/lib/api/client";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 type EnrolledUser = {
   user_id: string;
@@ -82,6 +83,7 @@ interface EnrolledUsersPanelProps {
 }
 
 export function EnrolledUsersPanel({ enrollments, certificationId }: EnrolledUsersPanelProps) {
+  const t = useTranslations("certifications");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [progressData, setProgressData] = useState<UserProgressData | null>(null);
   const [loadingUserId, setLoadingUserId] = useState<string | null>(null);
@@ -100,7 +102,7 @@ export function EnrolledUsersPanel({ enrollments, certificationId }: EnrolledUse
       const data = normalizeProgressPayload(raw, userId, certificationId, enrollment);
       setProgressData(data);
     } catch {
-      toast.error("No se pudo cargar el progreso del usuario");
+      toast.error(t("toasts.progress_load_failed"));
       setDialogOpen(false);
     } finally {
       setLoadingUserId(null);

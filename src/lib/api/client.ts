@@ -182,6 +182,23 @@ function ensureClientInterceptors() {
     return;
   }
 
+  // Attach the Bearer token from the httpOnly cookie via a Next.js API route.
+  // Using native fetch (NOT clientApi) to avoid an infinite loop.
+  clientApi.interceptors.request.use(async (config) => {
+    try {
+      const res = await fetch("/api/auth/token");
+      if (res.ok) {
+        const { token } = (await res.json()) as { token: string | null };
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+      }
+    } catch {
+      // Silently fail — the backend will return 401 if the token is missing.
+    }
+    return config;
+  });
+
   clientApi.interceptors.response.use(
     (response) => response,
     (error: unknown) => {
@@ -203,6 +220,14 @@ function ensureClientInterceptors() {
 }
 
 export async function apiRequest<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
+  // Auto-detect execution context. In the browser, delegate to
+  // apiRequestFromClient so the Bearer token is attached via the
+  // httpOnly cookie relay at /api/auth/token. Server-side keeps the
+  // original path that reads the cookie directly via next/headers.
+  if (typeof window !== "undefined") {
+    return apiRequestFromClient<T>(path, options);
+  }
+
   const { method = "GET", body, headers, token, params, cache } = options;
   const resolvedToken = await resolveToken(token);
   const requestHeaders = new Headers(toRecord(headers));

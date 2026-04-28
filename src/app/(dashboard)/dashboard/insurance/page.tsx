@@ -1,9 +1,11 @@
-import { ShieldCheck } from "lucide-react";
+import Link from "next/link";
+import { ShieldCheck, Clock } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { InsuranceView } from "@/components/insurance/insurance-view";
 import { ExpiringInsuranceAlert } from "@/components/insurance/expiring-insurance-alert";
+import { Button } from "@/components/ui/button";
 import { ApiError, apiRequest } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
 import type { MemberInsurance } from "@/lib/api/insurance";
@@ -177,7 +179,14 @@ export default async function InsurancePage() {
       <PageHeader
         title="Seguros"
         description="Gestión de seguros de miembros por sección de club."
-      />
+      >
+        <Button variant="outline" size="sm" asChild>
+          <Link href="/dashboard/insurance/expiring">
+            <Clock className="mr-1.5 size-4" />
+            Ver por vencer
+          </Link>
+        </Button>
+      </PageHeader>
 
       <ExpiringInsuranceAlert />
 

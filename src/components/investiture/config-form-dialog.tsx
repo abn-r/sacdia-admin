@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { Resolver, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -37,18 +38,27 @@ import { listEcclesiasticalYears, type EcclesiasticalYear } from "@/lib/api/cata
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
 
-const formSchema = z.object({
-  local_field_id: z.coerce
-    .number({ error: "Seleccioná un campo local" })
-    .min(1, "Seleccioná un campo local"),
-  ecclesiastical_year_id: z.coerce
-    .number({ error: "Seleccioná un año eclesiástico" })
-    .min(1, "Seleccioná un año eclesiástico"),
-  submission_deadline: z.string().min(1, "Ingresá la fecha límite de envío"),
-  investiture_date: z.string().min(1, "Ingresá la fecha de investidura"),
-});
+type ConfigTranslator = (key: string, values?: Record<string, string | number>) => string;
 
-type FormValues = z.infer<typeof formSchema>;
+function buildFormSchema(t: ConfigTranslator) {
+  return z.object({
+    local_field_id: z.coerce
+      .number({ error: t("validation.local_field_required") })
+      .min(1, t("validation.local_field_required")),
+    ecclesiastical_year_id: z.coerce
+      .number({ error: t("validation.year_required") })
+      .min(1, t("validation.year_required")),
+    submission_deadline: z.string().min(1, t("validation.submission_deadline_required")),
+    investiture_date: z.string().min(1, t("validation.investiture_date_required")),
+  });
+}
+
+type FormValues = {
+  local_field_id: number;
+  ecclesiastical_year_id: number;
+  submission_deadline: string;
+  investiture_date: string;
+};
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -68,11 +78,14 @@ export function ConfigFormDialog({
   config,
   onSuccess,
 }: ConfigFormDialogProps) {
+  const t = useTranslations("investiture");
   const isEdit = !!config;
   const [localFields, setLocalFields] = useState<LocalField[]>([]);
   const [years, setYears] = useState<EcclesiasticalYear[]>([]);
   const [loadingCatalogs, setLoadingCatalogs] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const formSchema = useMemo(() => buildFormSchema(t), [t]);
 
   const {
     register,
@@ -102,7 +115,7 @@ export function ConfigFormDialog({
         setLocalFields(fieldsArr);
         setYears(yearsArr);
       })
-      .catch(() => toast.error("No se pudieron cargar los catálogos"))
+      .catch(() => toast.error(t("toasts.catalogs_load_failed")))
       .finally(() => setLoadingCatalogs(false));
   }, [open]);
 
@@ -135,7 +148,7 @@ export function ConfigFormDialog({
           investiture_date: values.investiture_date,
         };
         await updateInvestitureConfig(config.investiture_config_id, payload);
-        toast.success("Configuración actualizada correctamente");
+        toast.success(t("toasts.config_updated"));
       } else {
         const payload: CreateInvestitureConfigPayload = {
           local_field_id: values.local_field_id,
@@ -144,7 +157,7 @@ export function ConfigFormDialog({
           investiture_date: values.investiture_date,
         };
         await createInvestitureConfig(payload);
-        toast.success("Configuración creada correctamente");
+        toast.success(t("toasts.config_created"));
       }
       onSuccess();
       onOpenChange(false);
@@ -153,8 +166,8 @@ export function ConfigFormDialog({
         err instanceof Error
           ? err.message
           : isEdit
-            ? "No se pudo actualizar la configuración"
-            : "No se pudo crear la configuración";
+            ? t("errors.config_update")
+            : t("errors.config_create");
       toast.error(message);
     } finally {
       setIsSubmitting(false);

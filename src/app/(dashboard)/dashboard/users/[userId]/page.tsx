@@ -5,10 +5,25 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/shared/page-header";
 import { UserApprovalActions } from "@/components/users/user-approval-actions";
 import { UserAvatar } from "@/components/users/user-avatar";
+import { UserAccessToggles } from "@/components/users/user-access-toggles";
+import { normalizeApprovalStatus } from "@/lib/admin-users/approval-status";
+import { PostRegistrationTab } from "@/components/users/post-registration-tab";
+import { MfaTab } from "@/components/users/mfa-tab";
+import { SessionsTab } from "@/components/users/sessions-tab";
 import { UserPermissionsPanel } from "@/components/rbac/user-permissions-panel";
+import { UserRolesPanel } from "@/components/rbac/user-roles-panel";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   getAdminUserDetail,
   type AdminUserDetail,
@@ -18,10 +33,28 @@ import {
   canManageAdministrativeCompletion,
   canReadSensitiveUserFamily,
   canViewAdministrativeCompletion,
+  hasAnyPermission,
 } from "@/lib/auth/permission-utils";
+import { getAdminUserMfaStatus } from "@/lib/api/mfa";
+import { USERS_UPDATE_ADMIN } from "@/lib/auth/permissions";
 import { requireAdminUser } from "@/lib/auth/session";
-import { getUserPermissions, listPermissions } from "@/lib/rbac/service";
-import type { UserPermission, Permission } from "@/lib/rbac/types";
+import {
+  getUserPermissions,
+  getUserRoles,
+  listPermissions,
+  listRoles,
+} from "@/lib/rbac/service";
+import {
+  getPostRegistrationStatus,
+  getPostRegistrationPhotoStatus,
+  type PostRegistrationStatus,
+  type PhotoStatusResponse,
+} from "@/lib/api/post-registration";
+import {
+  getAdminUserSessions,
+  type AdminSessionListData,
+} from "@/lib/api/sessions";
+import type { UserPermission, Permission, UserRole, Role } from "@/lib/rbac/types";
 
 type Params = Promise<{ userId: string }>;
 
@@ -95,6 +128,15 @@ type LegalRepresentative = {
   relationship_type_id?: number | null;
 };
 
+type EmergencyContact = {
+  emergency_id?: number | null;
+  name?: string | null;
+  phone?: string | null;
+  primary?: boolean | null;
+  relationship_type_id?: number | null;
+  [key: string]: unknown;
+};
+
 function formatDate(dateStr?: string | null): string {
   if (!dateStr) return "—";
   try {
@@ -106,6 +148,22 @@ function formatDate(dateStr?: string | null): string {
   } catch {
     return "—";
   }
+}
+
+const BLOOD_TYPE_LABELS: Record<string, string> = {
+  O_POSITIVE: "O+",
+  O_NEGATIVE: "O-",
+  A_POSITIVE: "A+",
+  A_NEGATIVE: "A-",
+  B_POSITIVE: "B+",
+  B_NEGATIVE: "B-",
+  AB_POSITIVE: "AB+",
+  AB_NEGATIVE: "AB-",
+};
+
+function formatBloodType(raw?: string | null): string {
+  if (raw === null || raw === undefined || raw.trim() === "") return "No especificado";
+  return BLOOD_TYPE_LABELS[raw] ?? raw;
 }
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
@@ -159,16 +217,25 @@ export default async function UserDetailPage({ params }: { params: Params }) {
   let user: AdminUserDetail;
   let userPermissions: UserPermission[] = [];
   let allPermissions: Permission[] = [];
+  let userRoles: UserRole[] = [];
+  let allRoles: Role[] = [];
+  let postRegistrationStatus: PostRegistrationStatus | null = null;
+  let photoStatus: PhotoStatusResponse | null = null;
+  let sessionsData: AdminSessionListData | null = null;
 
   try {
     const results = await Promise.all([
       getAdminUserDetail(userId),
       getUserPermissions(userId).catch(() => [] as UserPermission[]),
       listPermissions().catch(() => [] as Permission[]),
+      getUserRoles(userId).catch(() => [] as UserRole[]),
+      listRoles().catch(() => [] as Role[]),
     ]);
     user = results[0];
     userPermissions = results[1];
     allPermissions = results[2];
+    userRoles = results[3];
+    allRoles = results[4];
   } catch (error) {
     if (error instanceof ApiError && [401, 403].includes(error.status)) {
       return (
@@ -186,6 +253,24 @@ export default async function UserDetailPage({ params }: { params: Params }) {
     notFound();
   }
 
+  // Fetch post-registration data separately so failures don't block the whole page
+  const canSeeAdministrativeCompletionEarly = canViewAdministrativeCompletion(currentUser);
+  if (canSeeAdministrativeCompletionEarly) {
+    const [prStatus, prPhotoStatus] = await Promise.all([
+      getPostRegistrationStatus(userId).catch(() => null),
+      getPostRegistrationPhotoStatus(userId).catch(() => null),
+    ]);
+    postRegistrationStatus = prStatus;
+    photoStatus = prPhotoStatus;
+  }
+
+  // Fetch MFA status — returns null when backend admin endpoint is not yet available
+  const mfaStatus = await getAdminUserMfaStatus(userId).catch(() => null);
+  const canManageMfa = hasAnyPermission(currentUser, [USERS_UPDATE_ADMIN]);
+
+  // Fetch sessions for the target user via the admin-scoped endpoint.
+  sessionsData = await getAdminUserSessions(userId).catch(() => null);
+
   const canSeeHealthData = canReadSensitiveUserFamily(currentUser, "health");
   const canSeeEmergencyContacts = canReadSensitiveUserFamily(
     currentUser,
@@ -194,10 +279,6 @@ export default async function UserDetailPage({ params }: { params: Params }) {
   const canSeeLegalRepresentative = canReadSensitiveUserFamily(
     currentUser,
     "legal_representative",
-  );
-  const canSeePostRegistrationDetail = canReadSensitiveUserFamily(
-    currentUser,
-    "post_registration",
   );
   const canSeeAdministrativeCompletion =
     canViewAdministrativeCompletion(currentUser);
@@ -223,6 +304,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
         </Button>
       </PageHeader>
 
+      {/* Identity card — always visible */}
       <Card>
         <CardContent className="flex items-center gap-4">
           <UserAvatar
@@ -256,338 +338,338 @@ export default async function UserDetailPage({ params }: { params: Params }) {
         </CardContent>
       </Card>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Datos personales</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <InfoRow label="Nombre" value={user.name} />
-            <InfoRow label="Apellido paterno" value={user.paternal_last_name} />
-            <InfoRow label="Apellido materno" value={user.maternal_last_name} />
-            <InfoRow label="Email" value={user.email} />
-            <InfoRow
-              label="Fecha de nacimiento"
-              value={formatDate(user.birthday)}
-            />
-            <InfoRow label="Género" value={user.gender} />
-            <InfoRow
-              label="Bautismo"
-              value={
-                user.baptism !== null && user.baptism !== undefined
-                  ? user.baptism
-                    ? `Sí${user.baptism_date ? ` (${formatDate(user.baptism_date)})` : ""}`
-                    : "No"
-                  : "—"
-              }
-            />
-          </CardContent>
-        </Card>
+      {/* Tabbed content */}
+      <Tabs defaultValue="info">
+        <TabsList>
+          <TabsTrigger value="info">Informacion</TabsTrigger>
+          {canSeeAdministrativeCompletion ? (
+            <TabsTrigger value="post-registration">Post-registro</TabsTrigger>
+          ) : null}
+          {/* <TabsTrigger value="seguridad">Seguridad</TabsTrigger> */}
+          {/* <TabsTrigger value="sesiones">Sesiones</TabsTrigger> */}
+        </TabsList>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Ubicación</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <InfoRow label="País" value={user.country?.name} />
-            <InfoRow label="Unión" value={user.union?.name} />
-            <InfoRow label="Campo local" value={user.local_field?.name} />
-            <InfoRow label="Distrito ID" value={user.district_id} />
-            <InfoRow label="Iglesia ID" value={user.church_id} />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Accesos</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <InfoRow
-              label="Acceso a App"
-              value={
-                <Badge variant={user.access_app ? "default" : "outline"}>
-                  {user.access_app ? "Sí" : "No"}
-                </Badge>
-              }
-            />
-            <InfoRow
-              label="Acceso a Panel"
-              value={
-                <Badge variant={user.access_panel ? "default" : "outline"}>
-                  {user.access_panel ? "Sí" : "No"}
-                </Badge>
-              }
-            />
-            <InfoRow label="Aprobación" value={String(user.approval ?? "—")} />
-          </CardContent>
-        </Card>
-
-        {canSeeHealthData ? (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Salud</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {user.health ? (
-                <>
-                  <InfoRow label="Tipo de sangre" value={user.health.blood} />
+        {/* ── Tab 1: User detail ── */}
+        <TabsContent value="info" className="mt-4">
+          <div className="space-y-6">
+            <div className="grid gap-6 lg:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Datos personales</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <InfoRow label="Nombre" value={user.name} />
+                  <InfoRow label="Apellido paterno" value={user.paternal_last_name} />
+                  <InfoRow label="Apellido materno" value={user.maternal_last_name} />
+                  <InfoRow label="Email" value={user.email} />
                   <InfoRow
-                    label="Alergias"
-                    value={formatNames(user.health.allergies)}
+                    label="Fecha de nacimiento"
+                    value={formatDate(user.birthday)}
                   />
+                  <InfoRow label="Genero" value={user.gender} />
                   <InfoRow
-                    label="Enfermedades"
-                    value={formatNames(user.health.diseases)}
-                  />
-                  <InfoRow
-                    label="Medicamentos"
-                    value={formatNames(user.health.medicines)}
-                  />
-                </>
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  Este payload no incluyó el bloque sensible de salud.
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        ) : null}
-
-        {canSeeEmergencyContacts ? (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Contactos de emergencia</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {user.emergency_contacts ? (
-                user.emergency_contacts.length > 0 ? (
-                  user.emergency_contacts.map((contact, index) => (
-                    <div key={index} className="rounded-md border p-3 text-sm">
-                      <pre className="whitespace-pre-wrap font-sans text-sm">
-                        {JSON.stringify(contact, null, 2)}
-                      </pre>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-sm text-muted-foreground">
-                    Sin contactos de emergencia registrados.
-                  </p>
-                )
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  Este payload no incluyó el bloque de contactos de emergencia.
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        ) : null}
-
-        {canSeeLegalRepresentative ? (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Representante legal</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {legalRepresentative ? (
-                <>
-                  <InfoRow label="Nombre" value={legalRepresentative.fullName} />
-                  <InfoRow label="Teléfono" value={legalRepresentative.phone} />
-                  <InfoRow
-                    label="Tipo de relación"
-                    value={legalRepresentative.relationshipTypeId}
-                  />
-                </>
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  Este payload no incluyó el bloque de representante legal.
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        ) : null}
-
-        {canSeeAdministrativeCompletion ? (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Post-registro</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {canSeePostRegistrationDetail && user.post_registration ? (
-                <>
-                  <InfoRow
-                    label="Completado"
+                    label="Bautismo"
                     value={
-                      <Badge
-                        variant={
-                          user.post_registration.complete ? "default" : "outline"
-                        }
-                      >
-                        {user.post_registration.complete ? "Completo" : "Pendiente"}
-                      </Badge>
+                      user.baptism !== null && user.baptism !== undefined
+                        ? user.baptism
+                          ? `Si${user.baptism_date ? ` (${formatDate(user.baptism_date)})` : ""}`
+                          : "No"
+                        : "—"
                     }
                   />
-                  <InfoRow
-                    label="Foto de perfil"
-                    value={
-                      user.post_registration.profile_picture_complete ? "Sí" : "No"
-                    }
-                  />
-                  <InfoRow
-                    label="Info personal"
-                    value={
-                      user.post_registration.personal_info_complete ? "Sí" : "No"
-                    }
-                  />
-                  <InfoRow
-                    label="Selección de club"
-                    value={
-                      user.post_registration.club_selection_complete ? "Sí" : "No"
-                    }
-                  />
-                </>
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  Tu acceso actual solo permite completion administrativa mínima.
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        ) : null}
+                </CardContent>
+              </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Roles globales</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {roleNames.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {roleNames.map((role) => (
-                  <Badge key={role} variant="secondary">
-                    {role}
-                  </Badge>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                Sin roles globales asignados.
-              </p>
-            )}
-          </CardContent>
-        </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Ubicacion</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <InfoRow label="Pais" value={user.country?.name} />
+                  <InfoRow label="Union" value={user.union?.name} />
+                  <InfoRow label="Campo local" value={user.local_field?.name} />
+                  <InfoRow label="Distrito ID" value={user.district_id} />
+                  <InfoRow label="Iglesia ID" value={user.church_id} />
+                </CardContent>
+              </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Scope y metadatos</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {user.scope && (
-              <>
-                <InfoRow label="Tipo de scope" value={user.scope.type} />
-                <InfoRow label="Union ID (scope)" value={user.scope.union_id} />
-                <InfoRow
-                  label="Campo Local ID (scope)"
-                  value={user.scope.local_field_id}
-                />
-                <Separator className="my-2" />
-              </>
-            )}
-            <InfoRow
-              label="Fecha de registro"
-              value={formatDate(user.created_at)}
-            />
-            <InfoRow
-              label="Última actualización"
-              value={formatDate(user.updated_at ?? user.modified_at)}
-            />
-          </CardContent>
-        </Card>
-      </div>
+              <UserAccessToggles
+                userId={user.user_id}
+                initialAccessApp={user.access_app}
+                initialAccessPanel={user.access_panel}
+                initialActive={user.active}
+                initialApprovalStatus={normalizeApprovalStatus(user.approval)}
+              />
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Permisos efectivos</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {(() => {
-            const perms = extractPermissions(user);
-            if (perms.length === 0) {
-              return (
-                <p className="text-sm text-muted-foreground">
-                  Sin permisos asignados (o se resuelven desde roles).
-                </p>
-              );
-            }
-            return (
-              <div className="flex flex-wrap gap-1">
-                {perms.map((p) => (
-                  <Badge
-                    key={p}
-                    variant="outline"
-                    className="text-xs font-mono"
-                  >
-                    {p}
-                  </Badge>
-                ))}
-              </div>
-            );
-          })()}
-        </CardContent>
-      </Card>
-
-      <UserPermissionsPanel
-        userId={userId}
-        initialUserPermissions={userPermissions}
-        allPermissions={allPermissions}
-      />
-
-      {user.club_assignments &&
-        (user.club_assignments as ClubAssignment[]).length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Roles de club</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="rounded-md border">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b bg-muted/50">
-                      <th className="px-4 py-2 text-left font-medium">Club</th>
-                      <th className="px-4 py-2 text-left font-medium">
-                        Seccion
-                      </th>
-                      <th className="px-4 py-2 text-left font-medium">Rol</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(user.club_assignments as ClubAssignment[]).map(
-                      (ca, idx) => (
-                        <tr
-                          key={ca.club_role_assignment_id ?? idx}
-                          className="border-b last:border-b-0"
-                        >
-                          <td className="px-4 py-2">
-                            {ca.club?.name ?? ca.club_name ?? "—"}
-                          </td>
-                          <td className="px-4 py-2">
-                            {ca.section?.name ??
-                              ca.section?.club_type?.name ??
-                              ca.section_name ??
-                              "—"}
-                          </td>
-                          <td className="px-4 py-2">
-                            <Badge variant="secondary" className="text-xs">
-                              {ca.role?.role_name ?? ca.role_name ?? "—"}
-                            </Badge>
-                          </td>
-                        </tr>
-                      ),
+              {canSeeHealthData ? (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Salud</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {user.health ? (
+                      <>
+                        <InfoRow label="Tipo de sangre" value={formatBloodType(user.health.blood)} />
+                        <InfoRow
+                          label="Alergias"
+                          value={formatNames(user.health.allergies)}
+                        />
+                        <InfoRow
+                          label="Enfermedades"
+                          value={formatNames(user.health.diseases)}
+                        />
+                        <InfoRow
+                          label="Medicamentos"
+                          value={formatNames(user.health.medicines)}
+                        />
+                      </>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        Este payload no incluyo el bloque sensible de salud.
+                      </p>
                     )}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+                  </CardContent>
+                </Card>
+              ) : null}
+
+              {canSeeEmergencyContacts ? (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Contactos de emergencia</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {!user.emergency_contacts ? (
+                      <p className="text-sm text-muted-foreground">
+                        Este payload no incluyo el bloque de contactos de emergencia.
+                      </p>
+                    ) : user.emergency_contacts.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">
+                        Sin contactos de emergencia registrados.
+                      </p>
+                    ) : (
+                      <div className="rounded-md border">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Nombre</TableHead>
+                              <TableHead>Telefono</TableHead>
+                              <TableHead>Parentesco ID</TableHead>
+                              <TableHead>Principal</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {(user.emergency_contacts as EmergencyContact[]).map((contact, index) => (
+                              <TableRow key={contact.emergency_id ?? index}>
+                                <TableCell className="font-medium">
+                                  {contact.name ?? "—"}
+                                </TableCell>
+                                <TableCell>{contact.phone ?? "—"}</TableCell>
+                                <TableCell>
+                                  {contact.relationship_type_id != null
+                                    ? `#${contact.relationship_type_id}`
+                                    : "—"}
+                                </TableCell>
+                                <TableCell>
+                                  {contact.primary ? (
+                                    <Badge variant="secondary" className="text-xs">
+                                      Principal
+                                    </Badge>
+                                  ) : (
+                                    <span className="text-muted-foreground text-sm">No</span>
+                                  )}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ) : null}
+
+              {canSeeLegalRepresentative ? (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Representante legal</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {legalRepresentative ? (
+                      <>
+                        <InfoRow label="Nombre" value={legalRepresentative.fullName} />
+                        <InfoRow label="Telefono" value={legalRepresentative.phone} />
+                        <InfoRow
+                          label="Tipo de relacion"
+                          value={legalRepresentative.relationshipTypeId}
+                        />
+                      </>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        Este payload no incluyo el bloque de representante legal.
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              ) : null}
+
+              <UserRolesPanel
+                userId={userId}
+                initialUserRoles={userRoles}
+                allRoles={allRoles}
+              />
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Scope y metadatos</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {user.scope && (
+                    <>
+                      <InfoRow label="Tipo de scope" value={user.scope.type} />
+                      <InfoRow label="Union ID (scope)" value={user.scope.union_id} />
+                      <InfoRow
+                        label="Campo Local ID (scope)"
+                        value={user.scope.local_field_id}
+                      />
+                      <Separator className="my-2" />
+                    </>
+                  )}
+                  <InfoRow
+                    label="Fecha de registro"
+                    value={formatDate(user.created_at)}
+                  />
+                  <InfoRow
+                    label="Ultima actualizacion"
+                    value={formatDate(user.updated_at ?? user.modified_at)}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Permisos efectivos</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {(() => {
+                  const perms = extractPermissions(user);
+                  if (perms.length === 0) {
+                    return (
+                      <p className="text-sm text-muted-foreground">
+                        Sin permisos asignados (o se resuelven desde roles).
+                      </p>
+                    );
+                  }
+                  return (
+                    <div className="flex flex-wrap gap-1">
+                      {perms.map((p) => (
+                        <Badge
+                          key={p}
+                          variant="outline"
+                          className="text-xs font-mono"
+                        >
+                          {p}
+                        </Badge>
+                      ))}
+                    </div>
+                  );
+                })()}
+              </CardContent>
+            </Card> */}
+
+            {/* <UserPermissionsPanel
+              userId={userId}
+              initialUserPermissions={userPermissions}
+              allPermissions={allPermissions}
+            /> */}
+
+            {/* {user.club_assignments &&
+              (user.club_assignments as ClubAssignment[]).length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Roles de club</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="rounded-md border">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b bg-muted/50">
+                            <th className="px-4 py-2 text-left font-medium">Club</th>
+                            <th className="px-4 py-2 text-left font-medium">
+                              Seccion
+                            </th>
+                            <th className="px-4 py-2 text-left font-medium">Rol</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(user.club_assignments as ClubAssignment[]).map(
+                            (ca, idx) => (
+                              <tr
+                                key={ca.club_role_assignment_id ?? idx}
+                                className="border-b last:border-b-0"
+                              >
+                                <td className="px-4 py-2">
+                                  {ca.club?.name ?? ca.club_name ?? "—"}
+                                </td>
+                                <td className="px-4 py-2">
+                                  {ca.section?.name ??
+                                    ca.section?.club_type?.name ??
+                                    ca.section_name ??
+                                    "—"}
+                                </td>
+                                <td className="px-4 py-2">
+                                  <Badge variant="secondary" className="text-xs">
+                                    {ca.role?.role_name ?? ca.role_name ?? "—"}
+                                  </Badge>
+                                </td>
+                              </tr>
+                            ),
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </CardContent>
+                </Card>
+              )} */}
+          </div>
+        </TabsContent>
+
+        {/* ── Tab 2: Post-registration monitor ── */}
+        {canSeeAdministrativeCompletion ? (
+          <TabsContent value="post-registration" className="mt-4">
+            {postRegistrationStatus && photoStatus ? (
+              <PostRegistrationTab
+                userId={userId}
+                status={postRegistrationStatus}
+                photoStatus={photoStatus}
+                canOverride={canUpdateAdministrativeCompletion}
+              />
+            ) : (
+              <Card>
+                <CardContent className="py-6">
+                  <p className="text-center text-sm text-muted-foreground">
+                    No se pudo obtener el estado del post-registro. El usuario puede no haber iniciado el proceso o puede haber un error de conectividad.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        ) : null}
+
+        {/* ── Tab 3: Security / MFA ── */}
+        <TabsContent value="seguridad" className="mt-4">
+          <MfaTab
+            userId={userId}
+            mfaEnabled={mfaStatus?.enabled ?? null}
+            canManageMfa={canManageMfa}
+          />
+        </TabsContent>
+
+        {/* ── Tab 4: Sessions ── */}
+        <TabsContent value="sesiones" className="mt-4">
+          <SessionsTab userId={userId} initialData={sessionsData} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

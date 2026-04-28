@@ -1,4 +1,5 @@
 import { apiRequest } from "@/lib/api/client";
+import type { CatalogTranslation } from "@/lib/types/catalog-translation";
 
 export type HonorCategory = {
   honor_category_id?: number;
@@ -9,12 +10,14 @@ export type HonorCategory = {
   active?: boolean;
   created_at?: string | null;
   updated_at?: string | null;
+  translations?: CatalogTranslation[];
 };
 
 export type HonorCategoryPayload = {
   name: string;
   description?: string;
   active?: boolean;
+  translations?: CatalogTranslation[];
 };
 
 export type HonorCategoryListQuery = {

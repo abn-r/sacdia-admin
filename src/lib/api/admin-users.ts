@@ -1,4 +1,4 @@
-import { ApiError, apiRequest } from "@/lib/api/client";
+import { ApiError, apiRequest, apiRequestFromClient } from "@/lib/api/client";
 
 export type ScopeType = "ALL" | "UNION" | "LOCAL_FIELD";
 
@@ -797,6 +797,17 @@ function normalizeApprovalPayload(payload: UpdateAdminUserApprovalPayload) {
   };
 }
 
+export type UpdateAdminUserPayload = {
+  access_app?: boolean;
+  access_panel?: boolean;
+  active?: boolean;
+  approval_status?: "pending" | "approved" | "rejected";
+  /** Numeric approval value accepted by PATCH /admin/users/:id (0=pending, 1=approved, -1=rejected) */
+  approval?: number;
+  /** Boolean approved flag accepted by some backend variants */
+  approved?: boolean;
+};
+
 export async function updateAdminUserApproval(payload: UpdateAdminUserApprovalPayload) {
   const userId = payload.userId.trim();
 
@@ -828,6 +839,68 @@ export async function updateAdminUserApproval(payload: UpdateAdminUserApprovalPa
   for (const attempt of attempts) {
     try {
       return await apiRequest<unknown>(attempt.path, {
+        method: "PATCH",
+        body: attempt.body,
+      });
+    } catch (error) {
+      if (error instanceof ApiError) {
+        lastKnownError = error;
+
+        if ([404, 405, 422].includes(error.status)) {
+          continue;
+        }
+
+        throw error;
+      }
+
+      throw error;
+    }
+  }
+
+  if (lastKnownError) {
+    throw lastKnownError;
+  }
+
+  throw new Error("No se pudo actualizar la aprobacion del usuario");
+}
+
+/**
+ * Client-side version of updateAdminUserApproval.
+ * Uses apiRequestFromClient so it attaches the Bearer token from the browser cookie.
+ * Tries PATCH /admin/users/:userId/approval first (dedicated endpoint), then falls
+ * back to generic PATCH /admin/users/:userId on 404/405/422.
+ */
+export async function updateAdminUserApprovalFromClient(payload: UpdateAdminUserApprovalPayload) {
+  const userId = payload.userId.trim();
+
+  if (!userId) {
+    throw new Error("Usuario invalido");
+  }
+
+  const data = normalizeApprovalPayload(payload);
+  const attempts = [
+    {
+      path: `/admin/users/${encodeURIComponent(userId)}/approval`,
+      body: {
+        approved: data.approved,
+        rejection_reason: data.rejection_reason,
+      },
+    },
+    {
+      path: `/admin/users/${encodeURIComponent(userId)}`,
+      body: {
+        approval: data.approval,
+        status: data.status,
+        rejection_reason: data.rejection_reason,
+      },
+    },
+  ] as const;
+
+  let lastKnownError: ApiError | null = null;
+
+  for (const attempt of attempts) {
+    try {
+      return await apiRequestFromClient<unknown>(attempt.path, {
         method: "PATCH",
         body: attempt.body,
       });

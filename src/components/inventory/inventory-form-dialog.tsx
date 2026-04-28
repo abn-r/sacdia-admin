@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useTranslations } from "next-intl";
 import {
   createInventoryItem,
   updateInventoryItem,
@@ -72,6 +73,7 @@ export function InventoryFormDialog({
   onSuccess,
 }: InventoryFormDialogProps) {
   const isEdit = !!item;
+  const t = useTranslations("inventory");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -122,7 +124,7 @@ export function InventoryFormDialog({
           inventory_category_id: values.inventory_category_id,
           amount: values.amount,
         });
-        toast.success("Ítem actualizado correctamente");
+        toast.success(t("toasts.item_updated"));
       } else {
         await createInventoryItem(clubId, {
           name: values.name,
@@ -131,13 +133,13 @@ export function InventoryFormDialog({
           amount: values.amount,
           instanceType,
         });
-        toast.success("Ítem creado correctamente");
+        toast.success(t("toasts.item_created"));
       }
       onSuccess();
       onOpenChange(false);
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "Error al guardar el ítem";
+        err instanceof Error ? err.message : t("errors.save_item_failed");
       toast.error(message);
     } finally {
       setIsSubmitting(false);

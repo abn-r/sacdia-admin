@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import {
   Dialog,
@@ -54,6 +55,7 @@ export function ValidateDialog({
   onOpenChange,
   onSuccess,
 }: ValidateDialogProps) {
+  const t = useTranslations("investiture");
   const [isPending, setIsPending] = useState(false);
 
   const isApprove = action === "APPROVED";
@@ -72,11 +74,7 @@ export function ValidateDialog({
         comments: values.comments || undefined,
       });
 
-      toast.success(
-        isApprove
-          ? "Investidura aprobada correctamente"
-          : "Investidura rechazada correctamente",
-      );
+      toast.success(t(isApprove ? "toasts.validation_approved" : "toasts.validation_rejected"));
       form.reset();
       onOpenChange(false);
       onSuccess();
@@ -84,7 +82,7 @@ export function ValidateDialog({
       const message =
         error instanceof ApiError
           ? error.message
-          : "Ocurrió un error inesperado";
+          : t("errors.unexpected");
       toast.error(message);
     } finally {
       setIsPending(false);

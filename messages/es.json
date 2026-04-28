@@ -1,0 +1,815 @@
+{
+  "nav": {
+    "sections": {
+      "overview": "Resumen",
+      "catalogs": "Catálogos",
+      "administration": "Administración",
+      "clubs": "Gestión de clubes",
+      "validation": "Validación e investiduras",
+      "communications": "Comunicaciones",
+      "requests_reports": "Solicitudes y reportes",
+      "members": "Miembros"
+    },
+    "items": {
+      "dashboard": "Dashboard",
+      "users": "Usuarios",
+      "catalogs_root": "Catálogos",
+      "geography_countries": "Países",
+      "geography_unions": "Uniones",
+      "geography_local_fields": "Campos locales",
+      "geography_districts": "Distritos",
+      "geography_churches": "Iglesias",
+      "allergies": "Alergias",
+      "diseases": "Enfermedades",
+      "medicines": "Medicamentos",
+      "relationship_types": "Tipos de relación",
+      "ecclesiastical_years": "Años eclesiásticos",
+      "club_types": "Tipos de club",
+      "club_ideals": "Ideales de club",
+      "honor_categories": "Categorías de especialidades",
+      "activity_types": "Tipos de actividad",
+      "resources": "Recursos",
+      "resources_all": "Todos los recursos",
+      "resources_categories": "Categorías",
+      "rbac": "Roles y permisos",
+      "rbac_permissions": "Permisos",
+      "rbac_roles": "Roles",
+      "configuration": "Configuración",
+      "settings_system": "Sistema",
+      "settings_scoring": "Categorías de Puntuación",
+      "jobs_queues": "Jobs y colas",
+      "clubs": "Clubes",
+      "camporees": "Camporees",
+      "camporees_local": "Locales",
+      "camporees_union": "Unión",
+      "classes": "Clases",
+      "enrollments": "Inscripciones",
+      "honors": "Especialidades",
+      "achievements": "Logros",
+      "activities": "Actividades",
+      "finances": "Finanzas",
+      "inventory": "Inventario",
+      "certifications": "Certificaciones",
+      "insurance": "Seguros",
+      "insurance_by_section": "Por sección",
+      "insurance_expiring": "Por vencer",
+      "validation": "Validación",
+      "investiture": "Investidura",
+      "investiture_pending": "Pendientes",
+      "investiture_pipeline": "Pipeline",
+      "investiture_config": "Configuración",
+      "sla": "SLA",
+      "year_end": "Cierre de año",
+      "notifications": "Notificaciones",
+      "notifications_send": "Enviar",
+      "notifications_history": "Historial",
+      "evidence_folders": "Carpetas de evidencias",
+      "annual_folders": "Carpeta anual",
+      "annual_folders_templates": "Plantillas",
+      "annual_folders_mine": "Mi carpeta",
+      "annual_folders_evaluate": "Evaluación",
+      "annual_folders_rankings": "Rankings",
+      "annual_folders_categories": "Categorías de premios",
+      "requests": "Solicitudes",
+      "requests_transfers": "Transferencias",
+      "requests_assignments": "Asignaciones",
+      "requests_membership": "Membresías",
+      "reports": "Reportes",
+      "reports_mine": "Mis reportes",
+      "reports_supervision": "Supervisión",
+      "member_of_month": "Miembro del mes",
+      "catalog_classes": "Clases",
+      "catalog_class_modules": "Módulos de clase",
+      "catalog_class_sections": "Secciones de clase",
+      "catalog_folders": "Carpetas",
+      "catalog_folder_modules": "Módulos de carpeta",
+      "catalog_folder_sections": "Secciones de carpeta",
+      "catalog_finance_categories": "Categorías de finanzas",
+      "catalog_inventory_categories": "Categorías de inventario",
+      "catalog_honors": "Especialidades (catálogo)",
+      "catalog_master_honors": "Honores maestros"
+    }
+  },
+  "permissions": {
+    "groups": {
+      "users": "Usuarios",
+      "roles": "Roles y permisos",
+      "clubs": "Clubes",
+      "units": "Unidades",
+      "member_of_month": "Miembro del mes",
+      "scoring_categories": "Categorías de puntuación",
+      "requests": "Solicitudes",
+      "user_certifications": "Certificaciones de usuario",
+      "user_folders": "Carpetas de usuario",
+      "geography": "Jerarquía geográfica",
+      "catalogs": "Catálogos",
+      "classes_honors": "Clases y especialidades",
+      "activities": "Actividades",
+      "camporees": "Camporees",
+      "validation": "Validación",
+      "finances": "Finanzas",
+      "inventory": "Inventario",
+      "reports": "Reportes",
+      "notifications": "Notificaciones",
+      "resources": "Recursos",
+      "system": "Sistema"
+    }
+  },
+  "catalogs": {
+    "actions": {
+      "create": "Crear {entity}",
+      "edit": "Editar {entity}",
+      "empty_state": "No hay {entity}"
+    },
+    "fields": {
+      "name": "Nombre",
+      "description": "Descripción",
+      "active": "Activo",
+      "abbreviation": "Abreviatura",
+      "code": "Código",
+      "start_date": "Fecha inicio",
+      "end_date": "Fecha fin",
+      "country": "País",
+      "union": "Unión",
+      "local_field": "Campo local",
+      "district": "Distrito",
+      "club_type": "Tipo de club"
+    },
+    "entities": {
+      "countries": {
+        "title": "Países",
+        "singular": "país",
+        "description": "Gestión del catálogo de países."
+      },
+      "unions": {
+        "title": "Uniones",
+        "singular": "unión",
+        "description": "Gestión de uniones por país."
+      },
+      "local-fields": {
+        "title": "Campos locales",
+        "singular": "campo local",
+        "description": "Gestión de campos locales por unión."
+      },
+      "districts": {
+        "title": "Distritos",
+        "singular": "distrito",
+        "description": "Gestión de distritos por campo local."
+      },
+      "churches": {
+        "title": "Iglesias",
+        "singular": "iglesia",
+        "description": "Gestión de iglesias por distrito."
+      },
+      "relationship-types": {
+        "title": "Tipos de relación",
+        "singular": "tipo de relación",
+        "description": "Catálogo de tipos de relación para contactos de emergencia y tutores."
+      },
+      "allergies": {
+        "title": "Alergias",
+        "singular": "alergia",
+        "description": "Catálogo de alergias para post-registro."
+      },
+      "diseases": {
+        "title": "Enfermedades",
+        "singular": "enfermedad",
+        "description": "Catálogo de enfermedades para post-registro."
+      },
+      "medicines": {
+        "title": "Medicamentos",
+        "singular": "medicamento",
+        "description": "Catálogo de medicamentos para perfil de salud."
+      },
+      "ecclesiastical-years": {
+        "title": "Años eclesiásticos",
+        "singular": "año eclesiástico",
+        "description": "Gestión de períodos eclesiásticos."
+      },
+      "club-types": {
+        "title": "Tipos de club",
+        "singular": "tipo de club",
+        "description": "Catálogo de tipos de club."
+      },
+      "club-ideals": {
+        "title": "Ideales de club",
+        "singular": "ideal de club",
+        "description": "Gestión de ideales por tipo de club."
+      },
+      "activity-types": {
+        "title": "Tipos de actividad",
+        "singular": "tipo de actividad",
+        "description": "Catálogo de tipos de actividad para clasificar las actividades del club."
+      }
+    },
+    "errors": {
+      "entity_not_supported": "Entidad no soportada",
+      "read_only_catalog": "Este catálogo es de solo lectura en la API oficial",
+      "op_create_failed": "No se pudo crear el registro",
+      "op_update_failed": "No se pudo actualizar el registro",
+      "op_delete_failed": "No se pudo eliminar el registro",
+      "load_data_failed": "Error al cargar datos"
+    },
+    "validation": {
+      "delete_target_not_identified": "No se pudo identificar el registro a eliminar"
+    },
+    "success": {
+      "op_create_title": "Registro creado",
+      "op_create_description": "El registro se creó correctamente.",
+      "op_update_title": "Registro actualizado",
+      "op_update_description": "El registro se actualizó correctamente.",
+      "op_delete_title": "Registro eliminado",
+      "op_delete_description": "El registro se eliminó correctamente."
+    }
+  },
+  "auth": {
+    "login": {
+      "brand_subtitle": "Sistema Administrativo",
+      "welcome_title": "Bienvenido de nuevo",
+      "welcome_description": "Ingrese sus credenciales para acceder",
+      "email_label": "Correo electrónico",
+      "email_placeholder": "admin@sacdia.org",
+      "password_label": "Contraseña",
+      "submit_idle": "Iniciar sesión",
+      "submit_loading": "Verificando…",
+      "show_password": "Mostrar contraseña",
+      "hide_password": "Ocultar contraseña",
+      "verse": "«Todo lo puedo en Cristo que me fortalece» — Fil. 4:13"
+    },
+    "validation": {
+      "email_invalid": "Ingresa un correo válido",
+      "password_min": "La contraseña debe tener al menos 8 caracteres",
+      "credentials_invalid": "Credenciales inválidas"
+    },
+    "errors": {
+      "invalid_credentials": "Correo o contraseña incorrectos.",
+      "connection": "Error de conexión. Contacta al administrador del sistema.",
+      "session_no_permissions": "Tu sesión no tiene permisos para abrir el panel administrativo.",
+      "server_unavailable": "El servidor no respondió correctamente. Intenta nuevamente en unos minutos.",
+      "generic_login": "Error al iniciar sesión. Intenta nuevamente.",
+      "login_failed": "No fue posible iniciar sesión. Intenta nuevamente.",
+      "profile_validation_failed": "Inicio de sesión incompleto. No se pudo validar el perfil.",
+      "admin_role_required": "Tu cuenta no tiene permisos para este panel. Necesitas un rol global de administración.",
+      "denied_no_admin_role": "Tu cuenta no tiene rol administrativo para acceder a este panel.",
+      "denied_incomplete_registration": "Necesitas completar tu registro antes de ingresar al panel.",
+      "denied_inactive": "Tu cuenta está inactiva o bloqueada. Contacta al administrador.",
+      "denied_email_unconfirmed": "Debes confirmar tu correo antes de ingresar.",
+      "denied_unauthorized": "No fue posible autenticar tu acceso al panel.",
+      "denied_default": "Tu cuenta no tiene permisos para este panel."
+    }
+  },
+  "clubs": {
+    "errors": {
+      "create_club_failed": "No se pudo crear el club",
+      "update_club_failed": "No se pudo actualizar el club",
+      "create_section_failed": "No se pudo crear la sección",
+      "update_section_failed": "No se pudo actualizar la sección",
+      "sync_section_failed": "No se pudo sincronizar la sección",
+      "create_role_assignment_failed": "No se pudo crear la asignación de rol",
+      "update_role_failed": "No se pudo actualizar el rol",
+      "remove_assignment_failed": "No se pudo remover la asignación",
+      "club_created_no_id": "Club creado, pero no se pudo resolver su ID para continuar con secciones",
+      "club_created_sections_failed": "El club se creó, pero una o más secciones fallaron"
+    },
+    "validation": {
+      "field_required": "El campo {field} es obligatorio",
+      "field_invalid": "El campo {field} no es válido",
+      "coordinates_incomplete": "Para guardar coordenadas debe capturar latitud y longitud",
+      "coordinates_invalid": "Las coordenadas no son válidas",
+      "club_name_required": "El nombre del club es obligatorio",
+      "club_type_required": "Tipo de club obligatorio",
+      "club_type_invalid": "Tipo de club no válido",
+      "souls_target_positive": "La meta de almas debe ser un número positivo",
+      "fee_positive": "La cuota debe ser un número positivo",
+      "section_status_invalid": "El estado de la sección no es válido",
+      "no_changes": "No hay cambios para guardar",
+      "no_changes_section": "No hay cambios para guardar en la sección",
+      "user_id_required": "El ID del usuario es obligatorio",
+      "role_required": "El rol es obligatorio",
+      "ecclesiastical_year_invalid": "Año eclesiástico no válido",
+      "member_not_identified": "No se pudo identificar al miembro",
+      "assignment_not_identified": "No se pudo identificar la asignación a actualizar",
+      "assignment_remove_not_identified": "No se pudo identificar la asignación a remover"
+    },
+    "success": {
+      "section_created": "Sección creada correctamente",
+      "section_created_short": "Sección creada",
+      "section_updated": "Sección actualizada correctamente",
+      "assignment_created": "Asignación creada correctamente",
+      "assignment_removed": "Asignación removida correctamente",
+      "role_updated": "Rol actualizado correctamente",
+      "retry_failed_sections": "Puede continuar al detalle del club y reintentar las secciones fallidas"
+    },
+    "fields": {
+      "local_field": "Campo local",
+      "district": "Distrito",
+      "church": "Iglesia",
+      "ecclesiastical_year": "Año eclesiástico"
+    }
+  },
+  "post_registration": {
+    "errors": {
+      "step_failed": "Error al completar el paso {step}"
+    },
+    "success": {
+      "step_completed": "Paso {step} completado"
+    }
+  },
+  "admin_users": {
+    "errors": {
+      "invalid_decision_title": "Decisión inválida",
+      "invalid_decision_description": "El valor de la decisión no es válido.",
+      "too_many_requests_title": "Demasiadas solicitudes",
+      "too_many_requests_description": "Espere un momento antes de intentarlo de nuevo.",
+      "forbidden_title": "Sin permisos",
+      "forbidden_description": "No tiene permisos para realizar esta acción.",
+      "endpoint_unavailable_title": "Endpoint no disponible",
+      "endpoint_unavailable_description": "El endpoint de aprobación no está disponible en este momento.",
+      "processing_title": "Error al procesar",
+      "unexpected_title": "Error inesperado",
+      "unexpected_description": "No se pudo procesar la aprobación. Intente de nuevo."
+    },
+    "success": {
+      "user_approved_title": "Usuario aprobado",
+      "user_rejected_title": "Usuario rechazado",
+      "decision_recorded": "La decisión se registró correctamente."
+    }
+  },
+  "notifications": {
+    "errors": {
+      "send_failed": "No se pudo enviar la notificación",
+      "broadcast_failed": "No se pudo enviar el broadcast",
+      "club_send_failed": "No se pudo enviar la notificación al club"
+    },
+    "validation": {
+      "user_id_required": "Ingrese el ID de usuario",
+      "title_required": "Ingrese el título",
+      "body_required": "Ingrese el mensaje",
+      "instance_type_required": "Seleccione el tipo de club",
+      "instance_type_invalid": "El tipo de club no es válido",
+      "instance_id_required": "Ingrese el ID de instancia",
+      "instance_id_invalid": "El ID de instancia no es válido"
+    },
+    "success": {
+      "sent": "Notificación enviada correctamente",
+      "broadcast_sent": "Broadcast enviado correctamente",
+      "club_sent": "Notificación de club enviada correctamente"
+    }
+  },
+  "units": {
+    "errors": {
+      "create_failed": "No se pudo crear la unidad",
+      "update_failed": "No se pudo actualizar la unidad"
+    },
+    "validation": {
+      "name_required": "Ingrese el nombre",
+      "club_type_required": "Seleccione el tipo de club",
+      "member_required": "Seleccione un miembro para {field}",
+      "member_invalid": "Seleccione un miembro válido para {field}"
+    },
+    "fields": {
+      "captain": "Capitán",
+      "secretary": "Secretario",
+      "advisor": "Consejero",
+      "substitute_advisor": "Consejero suplente"
+    }
+  },
+  "honors": {
+    "errors": {
+      "no_permission_create": "No tiene permisos para crear especialidades.",
+      "no_permission_update": "No tiene permisos para editar especialidades.",
+      "no_permission_delete": "No tiene permisos para eliminar especialidades.",
+      "create_failed": "No se pudo crear la especialidad",
+      "update_failed": "No se pudo actualizar la especialidad",
+      "delete_failed": "No se pudo eliminar la especialidad",
+      "unexpected": "Ocurrió un error inesperado.",
+      "approve_failed": "Error al aprobar.",
+      "save_approve_failed": "Error al guardar y aprobar.",
+      "reject_failed": "Error al rechazar.",
+      "delete_requirement_failed": "No se pudo eliminar el requisito."
+    },
+    "validation": {
+      "honor_name_required": "El nombre de la especialidad es obligatorio",
+      "field_invalid": "El campo {field} no es válido",
+      "no_changes": "No hay cambios para guardar",
+      "honor_not_identified": "No se pudo identificar la especialidad a eliminar."
+    }
+  },
+  "honor_categories": {
+    "errors": {
+      "no_permission_create": "No tiene permisos para crear categorías de especialidades.",
+      "no_permission_update": "No tiene permisos para editar categorías de especialidades.",
+      "no_permission_delete": "No tiene permisos para eliminar categorías de especialidades.",
+      "create_failed": "No se pudo crear la categoría",
+      "update_failed": "No se pudo actualizar la categoría",
+      "delete_failed": "No se pudo eliminar la categoría"
+    },
+    "validation": {
+      "name_required": "El nombre de la categoría es obligatorio",
+      "no_changes": "No hay cambios para guardar",
+      "category_not_identified_update": "No se pudo identificar la categoría a editar.",
+      "category_not_identified_delete": "No se pudo identificar la categoría a eliminar."
+    }
+  },
+  "rbac": {
+    "errors": {
+      "create_permission_failed": "No se pudo crear el permiso",
+      "update_permission_failed": "No se pudo actualizar el permiso",
+      "create_role_failed": "No se pudo crear el rol",
+      "update_role_failed": "No se pudo actualizar el rol",
+      "deactivate_role_failed": "No se pudo desactivar el rol",
+      "sync_permissions_failed": "No se pudieron sincronizar los permisos",
+      "assign_role_failed": "No se pudo asignar el rol.",
+      "remove_role_failed": "No se pudo remover el rol.",
+      "assign_permission_failed": "No se pudo asignar el permiso.",
+      "remove_permission_failed": "No se pudo remover el permiso.",
+      "load_user_permissions_failed": "No se pudo cargar los permisos del usuario."
+    },
+    "validation": {
+      "permission_name_required": "El nombre del permiso es obligatorio",
+      "permission_name_format": "El formato debe ser resource:action (minúsculas, separado por :)",
+      "role_name_required": "El nombre del rol es obligatorio",
+      "role_name_format": "El nombre debe tener entre 3 y 64 caracteres en minúsculas (solo letras y guiones bajos)",
+      "role_name_reserved": "No se puede crear un rol con el nombre 'super_admin'",
+      "description_min_length": "La descripción debe tener al menos 10 caracteres",
+      "description_max_length": "La descripción no puede superar los 500 caracteres",
+      "role_category_invalid": "La categoría debe ser GLOBAL o CLUB",
+      "role_required": "Selecciona un rol antes de asignar.",
+      "permission_required": "Seleccioná un permiso antes de asignar.",
+      "user_id_required": "Ingresá el UUID del usuario.",
+      "uuid_invalid": "El ID ingresado no es un UUID válido."
+    },
+    "success": {
+      "permissions_updated": "Permisos actualizados correctamente"
+    },
+    "toasts": {
+      "role_assigned": "Rol asignado correctamente.",
+      "role_removed": "Rol removido correctamente.",
+      "permission_assigned": "Permiso asignado correctamente.",
+      "permission_removed": "Permiso removido correctamente.",
+      "role_deactivated": "Rol \"{name}\" desactivado correctamente."
+    }
+  },
+  "resource_categories": {
+    "errors": {
+      "no_permission_create": "No tiene permisos para crear categorías de recursos.",
+      "no_permission_update": "No tiene permisos para editar categorías de recursos.",
+      "no_permission_delete": "No tiene permisos para eliminar categorías de recursos.",
+      "create_failed": "No se pudo crear la categoría.",
+      "update_failed": "No se pudo actualizar la categoría.",
+      "delete_failed": "No se pudo eliminar la categoría."
+    },
+    "validation": {
+      "name_required": "El nombre de la categoría es obligatorio.",
+      "category_not_identified_update": "No se pudo identificar la categoría a editar.",
+      "category_not_identified_delete": "No se pudo identificar la categoría a eliminar."
+    }
+  },
+  "achievements": {
+    "errors": {
+      "create_category_failed": "No se pudo crear la categoría",
+      "update_category_failed": "No se pudo actualizar la categoría",
+      "delete_category_failed": "No se pudo eliminar la categoría",
+      "create_achievement_failed": "No se pudo crear el logro",
+      "update_achievement_failed": "No se pudo actualizar el logro",
+      "delete_achievement_failed": "No se pudo eliminar el logro"
+    },
+    "validation": {
+      "category_name_required": "El nombre de la categoría es obligatorio",
+      "category_edit_not_identified": "No se pudo identificar la categoría a editar.",
+      "category_delete_not_identified": "No se pudo identificar la categoría a eliminar.",
+      "achievement_name_required": "El nombre del logro es obligatorio",
+      "type_required": "El tipo de logro es obligatorio",
+      "tier_required": "El nivel del logro es obligatorio",
+      "scope_required": "El alcance del logro es obligatorio",
+      "points_positive": "Los puntos deben ser un número positivo",
+      "criteria_invalid": "Los criterios del logro tienen un formato inválido",
+      "achievement_edit_not_identified": "No se pudo identificar el logro a editar.",
+      "achievement_delete_not_identified": "No se pudo identificar el logro a eliminar."
+    }
+  },
+  "camporees": {
+    "toasts": {
+      "payment_updated": "Pago actualizado",
+      "payment_created": "Pago registrado",
+      "camporee_deleted": "Camporee eliminado correctamente",
+      "union_camporee_updated": "Camporee de unión actualizado correctamente",
+      "union_camporee_created": "Camporee de unión creado correctamente",
+      "union_camporee_deleted": "Camporee de unión eliminado correctamente",
+      "member_registered": "Miembro registrado en el camporee",
+      "camporee_updated": "Camporee actualizado correctamente",
+      "camporee_created": "Camporee creado correctamente",
+      "club_enrolled": "Club inscrito en el camporee"
+    },
+    "errors": {
+      "save_payment": "No se pudo guardar el pago",
+      "load_list": "No se pudo cargar la lista",
+      "approve_club": "No se pudo aprobar la inscripción del club",
+      "delete_camporee": "No se pudo eliminar el camporee",
+      "save_camporee": "Error al guardar el camporee",
+      "register_member": "No se pudo registrar al miembro",
+      "unexpected": "Ocurrió un error inesperado",
+      "approve_member": "No se pudo aprobar la inscripción del miembro",
+      "approve_payment": "No se pudo aprobar el pago",
+      "enroll_club": "No se pudo inscribir el club"
+    }
+  },
+  "resources": {
+    "errors": {
+      "create_permission_denied": "No tienes permisos para crear recursos.",
+      "update_permission_denied": "No tienes permisos para editar recursos.",
+      "delete_permission_denied": "No tienes permisos para eliminar recursos.",
+      "create_failed": "No se pudo crear el recurso.",
+      "update_failed": "No se pudo actualizar el recurso.",
+      "delete_failed": "No se pudo eliminar el recurso.",
+      "update_not_found": "No se pudo identificar el recurso a editar.",
+      "delete_not_found": "No se pudo identificar el recurso a eliminar."
+    },
+    "validation": {
+      "title_required": "El título del recurso es obligatorio.",
+      "resource_type_required": "El tipo de recurso es obligatorio.",
+      "video_url_required": "La URL del video es obligatoria para recursos de tipo video.",
+      "content_required": "El contenido es obligatorio para recursos de tipo texto."
+    },
+    "toasts": {
+      "download_link_failed": "No se pudo obtener el enlace de descarga. Intenta de nuevo."
+    }
+  },
+  "investiture": {
+    "bulk": {
+      "errors": {
+        "approve_failed": "Error al aprobar en bloque",
+        "reject_failed": "Error al rechazar en bloque"
+      },
+      "validation": {
+        "reason_required": "El motivo de rechazo es obligatorio",
+        "reason_max": "Máximo 1000 caracteres"
+      },
+      "toasts": {
+        "verb_approved": "aprobados",
+        "verb_rejected": "rechazados",
+        "succeeded_count": "{count} {verb} correctamente",
+        "failed_count": "{count} fallaron"
+      }
+    },
+    "toasts": {
+      "approved": "Aprobado correctamente",
+      "invested": "Marcado como investido",
+      "config_updated": "Configuración actualizada correctamente",
+      "config_created": "Configuración creada correctamente",
+      "config_deactivated": "Configuración desactivada correctamente",
+      "catalogs_load_failed": "No se pudieron cargar los catálogos",
+      "invested_member": "{name} ha sido marcado/a como investido/a",
+      "rejected_member": "Investidura de {name} rechazada",
+      "validation_approved": "Investidura aprobada correctamente",
+      "validation_rejected": "Investidura rechazada correctamente"
+    },
+    "errors": {
+      "approve": "Error al aprobar",
+      "invest": "Error al marcar como investido",
+      "config_update": "No se pudo actualizar la configuración",
+      "config_create": "No se pudo crear la configuración",
+      "config_deactivate": "No se pudo desactivar la configuración",
+      "unexpected": "Ocurrió un error inesperado"
+    },
+    "validation": {
+      "local_field_required": "Seleccioná un campo local",
+      "year_required": "Seleccioná un año eclesiástico",
+      "submission_deadline_required": "Ingresá la fecha límite de envío",
+      "investiture_date_required": "Ingresá la fecha de investidura"
+    }
+  },
+  "evidence_review": {
+    "bulk": {
+      "toasts": {
+        "verb_approved": "aprobados",
+        "verb_rejected": "rechazados",
+        "succeeded_count": "{count} {verb} correctamente",
+        "failed_count": "{count} fallaron"
+      },
+      "errors": {
+        "approve_failed": "Error al aprobar en bloque",
+        "reject_failed": "Error al rechazar en bloque"
+      },
+      "validation": {
+        "reason_required": "El motivo de rechazo es obligatorio",
+        "reason_max": "Máximo 1000 caracteres"
+      }
+    },
+    "toasts": {
+      "evidence_approved": "Evidencia aprobada correctamente",
+      "evidence_rejected": "Evidencia rechazada"
+    },
+    "errors": {
+      "approve": "Error al aprobar la evidencia",
+      "reject": "Error al rechazar la evidencia",
+      "load_detail_failed": "No se pudo cargar el detalle"
+    },
+    "validation": {
+      "reason_required": "El motivo de rechazo es obligatorio",
+      "reason_max": "Máximo 1000 caracteres"
+    }
+  },
+  "users": {
+    "toasts": {
+      "access_updated": "Acceso actualizado correctamente.",
+      "access_update_failed": "No se pudo actualizar el acceso. Intenta de nuevo.",
+      "approval_updated": "Estado de aprobación actualizado.",
+      "approval_update_failed": "No se pudo actualizar la aprobación. Intenta de nuevo.",
+      "mfa_reset": "MFA reseteado correctamente",
+      "mfa_reset_failed": "No se pudo resetear el MFA",
+      "mfa_disabled": "MFA deshabilitado",
+      "mfa_disable_failed": "No se pudo deshabilitar el MFA",
+      "session_revoked": "Sesión revocada correctamente.",
+      "session_revoke_failed": "No se pudo revocar la sesión. Intenta nuevamente.",
+      "all_sessions_revoked": "Todas las sesiones fueron revocadas.",
+      "all_sessions_revoke_failed": "No se pudieron revocar las sesiones. Intenta nuevamente."
+    },
+    "errors": {
+      "mfa_reset_description": "Error al resetear MFA",
+      "mfa_disable_description": "Error al deshabilitar MFA"
+    }
+  },
+  "annual_folders": {
+    "toasts": {
+      "section_deleted": "Sección eliminada correctamente",
+      "section_evaluated": "Sección evaluada correctamente",
+      "file_required": "Selecciona un archivo para subir",
+      "evidence_uploaded": "Evidencia subida correctamente",
+      "rankings_recalculated": "Rankings recalculados: {count} clubes actualizados",
+      "section_updated": "Sección actualizada correctamente",
+      "section_created": "Sección creada correctamente",
+      "category_deleted": "Categoría eliminada correctamente",
+      "evidence_deleted": "Evidencia eliminada correctamente",
+      "folder_submitted": "Carpeta enviada para revisión",
+      "folder_closed": "Carpeta cerrada correctamente",
+      "section_reopened": "Sección reabierta correctamente",
+      "category_updated": "Categoría actualizada correctamente",
+      "category_created": "Categoría creada correctamente",
+      "template_updated": "Plantilla actualizada correctamente",
+      "template_created": "Plantilla creada correctamente",
+      "owner_catalogs_load_failed": "No se pudieron cargar los catálogos de propietario"
+    },
+    "errors": {
+      "recalculate_rankings": "Error al recalcular los rankings",
+      "save_evaluation_failed": "No se pudo guardar la evaluación",
+      "upload_evidence_failed": "Error al subir la evidencia",
+      "save_section_failed": "Error al guardar la sección",
+      "submit_folder_failed": "No se pudo enviar la carpeta",
+      "close_folder_failed": "No se pudo cerrar la carpeta",
+      "save_template_failed": "Error al guardar la plantilla"
+    }
+  },
+  "folders": {
+    "toasts": {
+      "deleted": "Carpeta eliminada correctamente",
+      "updated": "Carpeta actualizada correctamente",
+      "created": "Carpeta creada correctamente"
+    }
+  },
+  "validation_admin": {
+    "errors": {
+      "unexpected": "Ocurrió un error inesperado"
+    }
+  },
+  "scoring_categories": {
+    "toasts": {
+      "deleted": "Categoría eliminada"
+    },
+    "validation": {
+      "name_required": "El nombre es requerido",
+      "name_max": "El nombre no puede superar los 100 caracteres",
+      "points_invalid": "Los puntos máximos deben ser un entero mayor a 0"
+    },
+    "errors": {
+      "status_change_failed": "No se pudo cambiar el estado",
+      "delete_failed": "No se pudo eliminar la categoría",
+      "save_failed": "No se pudo guardar la categoría"
+    }
+  },
+  "member_of_month": {
+    "toasts": {
+      "evaluation_completed": "Evaluación completada"
+    },
+    "errors": {
+      "evaluation_failed": "No se pudo completar la evaluación"
+    }
+  },
+  "reports": {
+    "toasts": {
+      "manual_data_saved": "Datos manuales guardados correctamente.",
+      "report_generated": "Reporte generado correctamente. Los datos quedaron congelados.",
+      "report_sent": "Reporte enviado al campo exitosamente.",
+      "data_updated": "Datos actualizados."
+    },
+    "errors": {
+      "save_manual_data": "Error al guardar los datos manuales.",
+      "generate_report": "Error al generar el reporte.",
+      "send_report": "Error al enviar el reporte.",
+      "load_reports": "Error al cargar los reportes.",
+      "create_report": "Error al crear el reporte."
+    }
+  },
+  "requests": {
+    "errors": {
+      "unexpected": "Ocurrió un error inesperado"
+    }
+  },
+  "insurance": {
+    "toasts": {
+      "updated": "Seguro actualizado correctamente",
+      "created": "Seguro registrado correctamente",
+      "deactivated": "Seguro desactivado correctamente"
+    },
+    "errors": {
+      "save_failed": "Error al guardar el seguro",
+      "deactivate_failed": "No se pudo desactivar el seguro"
+    }
+  },
+  "finances": {
+    "toasts": {
+      "categories_load_failed": "No se pudieron cargar las categorías",
+      "transaction_updated": "Movimiento actualizado correctamente",
+      "transaction_created": "Movimiento creado correctamente",
+      "transaction_deleted": "Movimiento eliminado correctamente"
+    },
+    "validation": {
+      "section_required": "Seleccioná una sección del club"
+    },
+    "errors": {
+      "delete_transaction_failed": "No se pudo eliminar el movimiento"
+    }
+  },
+  "certifications": {
+    "toasts": {
+      "progress_load_failed": "No se pudo cargar el progreso del usuario",
+      "progress_update_failed": "No se pudo actualizar el progreso"
+    }
+  },
+  "activities": {
+    "toasts": {
+      "updated": "Actividad actualizada correctamente",
+      "created": "Actividad creada correctamente",
+      "deleted": "Actividad eliminada correctamente"
+    },
+    "errors": {
+      "save_failed": "Error al guardar la actividad",
+      "delete_failed": "No se pudo eliminar la actividad"
+    }
+  },
+  "year_end": {
+    "toasts": {
+      "year_closed": "Año eclesiástico cerrado correctamente"
+    },
+    "errors": {
+      "preview_failed": "No se pudo obtener la vista previa.",
+      "close_year_failed": "No se pudo cerrar el año eclesiástico."
+    }
+  },
+  "inventory": {
+    "toasts": {
+      "item_deleted": "Ítem eliminado correctamente",
+      "item_updated": "Ítem actualizado correctamente",
+      "item_created": "Ítem creado correctamente"
+    },
+    "errors": {
+      "delete_failed": "No se pudo eliminar el ítem",
+      "save_item_failed": "Error al guardar el ítem"
+    }
+  },
+  "units_admin": {
+    "validation": {
+      "member_required": "Selecciona un miembro"
+    },
+    "errors": {
+      "create_record_failed": "No se pudo crear el registro",
+      "add_member_failed": "No se pudo agregar el miembro",
+      "load_units_failed": "No se pudieron cargar las unidades",
+      "remove_member_failed": "No se pudo remover el miembro",
+      "update_value_failed": "No se pudo actualizar el valor",
+      "load_records_failed": "No se pudieron cargar los registros",
+      "deactivate_unit_failed": "No se pudo desactivar la unidad"
+    },
+    "toasts": {
+      "member_added": "Miembro agregado correctamente",
+      "member_removed": "Miembro removido de la unidad",
+      "weekly_record_created": "Registro semanal creado",
+      "unit_deactivated": "Unidad desactivada correctamente"
+    }
+  },
+  "system_config": {
+    "errors": {
+      "unexpected": "Ocurrió un error inesperado"
+    }
+  },
+  "shared": {
+    "errors": {
+      "unexpected": "Error inesperado"
+    }
+  },
+  "translations": {
+    "label_name": "Nombre",
+    "label_description": "Descripción",
+    "helper_optional": "Opcional. Si se deja vacío, se mostrará el español."
+  }
+}

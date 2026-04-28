@@ -65,7 +65,7 @@ export function EditClubForm({ club, localFields, districts, churches, formActio
         </div>
       )}
       {state.success && (
-        <div className="rounded-md bg-green-500/10 px-3 py-2 text-sm text-green-700 dark:text-green-400">
+        <div className="rounded-md bg-success/10 px-3 py-2 text-sm text-success">
           {state.success}
         </div>
       )}

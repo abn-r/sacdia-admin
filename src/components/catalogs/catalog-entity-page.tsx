@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { requireAdminUser } from "@/lib/auth/session";
 import { entityConfigs, type EntityKey } from "@/lib/catalogs/entities";
 import { listEntityItems, getSelectOptions } from "@/lib/catalogs/service";
@@ -15,6 +16,7 @@ interface CatalogEntityPageProps {
 
 export async function CatalogEntityPage({ entityKey }: CatalogEntityPageProps) {
   await requireAdminUser();
+  const t = await getTranslations("catalogs");
 
   const config = entityConfigs[entityKey];
 
@@ -24,7 +26,7 @@ export async function CatalogEntityPage({ entityKey }: CatalogEntityPageProps) {
   try {
     items = await listEntityItems(entityKey);
   } catch (error) {
-    loadError = error instanceof ApiError ? error.message : "Error al cargar datos";
+    loadError = error instanceof ApiError ? error.message : t("errors.load_data_failed");
   }
 
   const selectOptionsMap: Record<string, { label: string; value: number }[]> = {};
@@ -35,8 +37,11 @@ export async function CatalogEntityPage({ entityKey }: CatalogEntityPageProps) {
     selectFields.map(async (field) => {
       if (!field.optionsEntityKey) return;
       try {
+        // Always include inactive entries in form options so:
+        // (a) Edit dialogs can preselect an existing inactive parent
+        // (b) Parent dropdowns show all records for both create and edit
         const [formOptions, displayOptions] = await Promise.all([
-          getSelectOptions(field.optionsEntityKey),
+          getSelectOptions(field.optionsEntityKey, true),
           getSelectOptions(field.optionsEntityKey, true),
         ]);
 
