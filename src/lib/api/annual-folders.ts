@@ -390,6 +390,10 @@ export type AwardCategory = {
   icon: string | null;
   order: number;
   active: boolean;
+  // ── 8.4-C extended institutional rankings ─────────────────────────────────
+  min_composite_pct: number | null;
+  max_composite_pct: number | null;
+  is_legacy: boolean;
 };
 
 export type ClubRanking = {
@@ -415,8 +419,13 @@ export type RecalculateResult = {
   rankings_updated: number;
 };
 
-export type CreateAwardCategoryPayload = Omit<AwardCategory, "award_category_id" | "active">;
-export type UpdateAwardCategoryPayload = Partial<AwardCategory>;
+export type CreateAwardCategoryPayload = Omit<
+  AwardCategory,
+  "award_category_id" | "active" | "is_legacy"
+>;
+export type UpdateAwardCategoryPayload = Partial<
+  Omit<AwardCategory, "is_legacy">
+>;
 
 // ─── Rankings — Server-side ───────────────────────────────────────────────────
 
@@ -477,17 +486,19 @@ export async function recalculateRankings(
 // ─── Award Categories — Server-side ──────────────────────────────────────────
 
 /**
- * GET /api/v1/award-categories?club_type_id=X&active=true
+ * GET /api/v1/award-categories?club_type_id=X&active=true&include_legacy=true
  * Returns the list of award categories.
  */
 export async function getAwardCategories(
   clubTypeId?: number,
   active?: boolean,
+  includeLegacy?: boolean,
 ): Promise<AwardCategory[]> {
   return apiRequest<AwardCategory[]>("/award-categories", {
     params: {
       ...(clubTypeId !== undefined ? { club_type_id: clubTypeId } : {}),
       ...(active !== undefined ? { active } : {}),
+      ...(includeLegacy !== undefined ? { include_legacy: includeLegacy } : {}),
     },
   });
 }
@@ -504,16 +515,18 @@ export async function getAwardCategory(categoryId: string): Promise<AwardCategor
 
 /**
  * GET /api/v1/award-categories (client-side)
- * For re-fetching.
+ * For re-fetching. Pass includeLegacy=true to include legacy rows.
  */
 export async function getAwardCategoriesFromClient(
   clubTypeId?: number,
   active?: boolean,
+  includeLegacy?: boolean,
 ): Promise<AwardCategory[]> {
   return apiRequestFromClient<AwardCategory[]>("/award-categories", {
     params: {
       ...(clubTypeId !== undefined ? { club_type_id: clubTypeId } : {}),
       ...(active !== undefined ? { active } : {}),
+      ...(includeLegacy !== undefined ? { include_legacy: includeLegacy } : {}),
     },
   });
 }
