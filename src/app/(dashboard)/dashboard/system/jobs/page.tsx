@@ -138,7 +138,7 @@ export default async function JobsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Jobs & Colas</h1>
-          <p className="text-muted-foreground">Estado de las colas BullMQ y trabajos recientes fallidos.</p>
+          <p className="text-muted-foreground">Estado de las colas BullMQ y trabajos recientes fallidos. Las colas low-priority (reportes, finanzas, rankings, exports) se agruparon en background-jobs.</p>
         </div>
       </div>
       <Suspense fallback={<JobsOverviewSkeleton />}>

@@ -61,11 +61,18 @@ function clubTypeLabel(
   return found?.name ?? `Tipo ${clubTypeId}`;
 }
 
+// ── 8.4-A: scope labels ────────────────────────────────────────────────────
 const SCOPE_LABELS: Record<AwardCategoryScope, string> = {
   club: "Club",
   section: "Sección",
   member: "Miembro",
 };
+
+// ── 8.4-C: composite % formatting ─────────────────────────────────────────
+function formatPct(value: number | null): string {
+  if (value === null) return "—";
+  return `${value}%`;
+}
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -75,9 +82,9 @@ export function AwardCategoriesClientPage({
 }: AwardCategoriesClientPageProps) {
   const t = useTranslations("annual_folders");
 
-  // Outer tab: scope
+  // Outer tab: scope (8.4-A)
   const [scope, setScope] = useState<AwardCategoryScope>("club");
-  // Inner tab: active filter
+  // Inner tab: active/legacy filter
   const [activeFilter, setActiveFilter] = useState<"active" | "legacy">("active");
 
   const [categories, setCategories] = useState<AwardCategory[]>(
@@ -189,9 +196,9 @@ export function AwardCategoriesClientPage({
     }
   }
 
-  // ─── Sorted by order ──────────────────────────────────────────────────────
+  // ─── Derived list ─────────────────────────────────────────────────────────
 
-  const sortedCategories = [...categories].sort((a, b) => a.order - b.order);
+  const filteredCategories = [...categories].sort((a, b) => a.order - b.order);
 
   const scopeLabel = SCOPE_LABELS[scope];
   const filterLabel = activeFilter === "active" ? "activas" : "legacy";
@@ -200,7 +207,7 @@ export function AwardCategoriesClientPage({
 
   return (
     <div className="space-y-5">
-      {/* Scope tabs (outer) */}
+      {/* Scope tabs (outer — 8.4-A) */}
       <Tabs value={scope} onValueChange={handleScopeChange}>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <TabsList>
@@ -246,7 +253,7 @@ export function AwardCategoriesClientPage({
 
             <TabsContent value={activeFilter} className="mt-4">
               {/* List */}
-              {sortedCategories.length === 0 ? (
+              {filteredCategories.length === 0 ? (
                 <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
                   <div className="flex size-12 items-center justify-center rounded-full bg-muted">
                     <Plus className="size-6 text-muted-foreground" />
@@ -282,13 +289,23 @@ export function AwardCategoriesClientPage({
                         <TableHead className="hidden w-24 text-center md:table-cell">
                           Pts Max
                         </TableHead>
+                        {/* 8.4-C composite % columns */}
+                        <TableHead className="hidden w-24 text-center lg:table-cell">
+                          % Min
+                        </TableHead>
+                        <TableHead className="hidden w-24 text-center lg:table-cell">
+                          % Max
+                        </TableHead>
                         <TableHead className="w-20 text-center">Estado</TableHead>
                         <TableHead className="w-20 text-right">Acciones</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {sortedCategories.map((cat) => (
-                        <TableRow key={cat.award_category_id}>
+                      {filteredCategories.map((cat) => (
+                        <TableRow
+                          key={cat.award_category_id}
+                          className={cat.is_legacy ? "opacity-60" : ""}
+                        >
                           <TableCell className="text-center">
                             <span className="inline-flex size-6 items-center justify-center rounded-full bg-muted text-xs font-medium">
                               {cat.order}
@@ -296,7 +313,14 @@ export function AwardCategoriesClientPage({
                           </TableCell>
                           <TableCell>
                             <div className="flex flex-col gap-0.5">
-                              <span className="font-medium">{cat.name}</span>
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium">{cat.name}</span>
+                                {cat.is_legacy && (
+                                  <Badge variant="outline" className="text-xs">
+                                    Legacy
+                                  </Badge>
+                                )}
+                              </div>
                               {cat.description && (
                                 <span className="line-clamp-1 text-xs text-muted-foreground">
                                   {cat.description}
@@ -319,6 +343,13 @@ export function AwardCategoriesClientPage({
                               </span>
                             )}
                           </TableCell>
+                          {/* 8.4-C composite % cells */}
+                          <TableCell className="hidden text-center text-sm text-muted-foreground lg:table-cell">
+                            {formatPct(cat.min_composite_pct)}
+                          </TableCell>
+                          <TableCell className="hidden text-center text-sm text-muted-foreground lg:table-cell">
+                            {formatPct(cat.max_composite_pct)}
+                          </TableCell>
                           <TableCell className="text-center">
                             <Badge
                               variant={cat.active ? "success" : "secondary"}
@@ -334,6 +365,7 @@ export function AwardCategoriesClientPage({
                                 size="icon-xs"
                                 onClick={() => handleEdit(cat)}
                                 title="Editar categoría"
+                                disabled={cat.is_legacy}
                               >
                                 <Pencil className="size-3.5" />
                                 <span className="sr-only">Editar</span>
