@@ -8,6 +8,10 @@ import { apiRequest, ApiError } from "@/lib/api/client";
  * uses `MemberRankingItem` (nested `user`/`section` objects) for better
  * resilience against backend envelope variations. Task 18 (breakdown page)
  * should import `MemberRankingItem` from this file, NOT `MemberRankingResponse`.
+ *
+ * FIELD NAME DIVERGENCE (Task 18): The plan spec calls the weights field
+ * `weights_applied`. The backend DTO (Task 12 verified) uses `weights`.
+ * This client uses `weights` to match the actual backend contract.
  */
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -41,6 +45,60 @@ export type MemberRankingItem = {
     section_id?: number | null;
     name?: string | null;
   } | null;
+};
+
+// ─── Breakdown types (Task 18) ─────────────────────────────────────────────────
+
+export type MemberClassBreakdown = {
+  completed_sections: number;
+  required_sections: number;
+  /** Folder review status returned by backend, or null if not evaluated. */
+  folder_status: string | null;
+};
+
+export type MemberInvestitureBreakdown = {
+  /** Ceremony / candidacy status string from backend, or null if not recorded. */
+  status: string | null;
+};
+
+export type MemberCamporeeBreakdown = {
+  participated: boolean;
+  /** Total camporees available for the year; null if backend does not track it. */
+  total_camporees: number | null;
+};
+
+/**
+ * Weights applied when computing this member's composite score.
+ *
+ * NOTE — plan divergence: the plan spec calls this field `weights_applied`.
+ * The actual backend DTO (Task 12) returns `weights`. This type and all
+ * consumers use `weights` to match the real contract.
+ */
+export type MemberRankingWeights = {
+  class_pct: number;
+  investiture_pct: number;
+  camporee_pct: number;
+  /** Origin of the weights: e.g. "club-override", "global-default". */
+  source: string;
+};
+
+/**
+ * Full breakdown DTO returned by
+ * GET /api/v1/member-rankings/:enrollmentId/breakdown?year_id=N
+ *
+ * Extends the base ranking item with sub-score details and weights.
+ */
+export type MemberBreakdown = MemberRankingItem & {
+  /** Backend field name is `club_section` (not `section`). */
+  club_section?: {
+    section_id?: number | null;
+    name?: string | null;
+  } | null;
+  composite_calculated_at?: string | null;
+  class_breakdown: MemberClassBreakdown;
+  investiture_breakdown: MemberInvestitureBreakdown;
+  camporee_breakdown: MemberCamporeeBreakdown;
+  weights: MemberRankingWeights;
 };
 
 export type MemberRankingsQuery = {
@@ -210,6 +268,88 @@ function normalizeEndpointDetail(error: ApiError): string {
 
 // ─── API functions ─────────────────────────────────────────────────────────────
 
+// ─── Breakdown normalizer (Task 18) ────────────────────────────────────────────
+
+function normalizeClassBreakdown(value: unknown): MemberClassBreakdown {
+  const r = asRecord(value);
+  return {
+    completed_sections: pickNumber(r?.completed_sections) ?? 0,
+    required_sections: pickNumber(r?.required_sections) ?? 0,
+    folder_status: pickString(r?.folder_status),
+  };
+}
+
+function normalizeInvestitureBreakdown(value: unknown): MemberInvestitureBreakdown {
+  const r = asRecord(value);
+  return {
+    status: pickString(r?.status),
+  };
+}
+
+function normalizeCamporeeBreakdown(value: unknown): MemberCamporeeBreakdown {
+  const r = asRecord(value);
+  const participated =
+    r && typeof r.participated === "boolean" ? r.participated : false;
+  return {
+    participated,
+    total_camporees: pickNumber(r?.total_camporees),
+  };
+}
+
+function normalizeWeights(value: unknown): MemberRankingWeights {
+  const r = asRecord(value);
+  return {
+    class_pct: pickNumber(r?.class_pct) ?? 0,
+    investiture_pct: pickNumber(r?.investiture_pct) ?? 0,
+    camporee_pct: pickNumber(r?.camporee_pct) ?? 0,
+    source: pickString(r?.source) ?? "global-default",
+  };
+}
+
+function extractBreakdownPayload(payload: unknown): GenericRecord | null {
+  const candidates: string[][] = [
+    ["data", "data"],
+    ["data"],
+    [],
+  ];
+
+  for (const path of candidates) {
+    let current: unknown = payload;
+    for (const key of path) {
+      current = asRecord(current)?.[key];
+    }
+    const r = asRecord(current);
+    // A valid breakdown record must have at least one breakdown sub-object.
+    if (r && (r.class_breakdown !== undefined || r.weights !== undefined || r.weights_applied !== undefined)) {
+      return r;
+    }
+  }
+
+  return null;
+}
+
+function normalizeMemberBreakdown(raw: GenericRecord): MemberBreakdown | null {
+  const base = normalizeMemberRankingItem(raw);
+  if (!base) return null;
+
+  const clubSectionRaw = asRecord(raw.club_section ?? raw.section ?? raw.sections);
+
+  return {
+    ...base,
+    club_section: clubSectionRaw
+      ? {
+          section_id: pickNumber(clubSectionRaw.section_id),
+          name: pickString(clubSectionRaw.name),
+        }
+      : null,
+    composite_calculated_at: pickString(raw.composite_calculated_at),
+    class_breakdown: normalizeClassBreakdown(raw.class_breakdown),
+    investiture_breakdown: normalizeInvestitureBreakdown(raw.investiture_breakdown),
+    camporee_breakdown: normalizeCamporeeBreakdown(raw.camporee_breakdown),
+    weights: normalizeWeights(raw.weights ?? raw.weights_applied),
+  };
+}
+
 /**
  * GET /api/v1/member-rankings
  * Fetches paginated member rankings for a given ecclesiastical year.
@@ -259,4 +399,35 @@ export async function listMemberRankings(
     }
     throw error;
   }
+}
+
+/**
+ * GET /api/v1/member-rankings/:enrollmentId/breakdown?year_id=N
+ *
+ * Returns the full score breakdown for a single member enrollment.
+ * Throws ApiError (re-thrown) so the caller can handle 404 → notFound().
+ *
+ * Field name note: the plan spec uses `weights_applied`; the real backend
+ * DTO uses `weights`. The normalizer accepts both to be forward-safe.
+ */
+export async function getMemberBreakdown(
+  enrollmentId: number,
+  yearId: number,
+): Promise<MemberBreakdown> {
+  const payload = await apiRequest<unknown>(
+    `/member-rankings/${enrollmentId}/breakdown`,
+    { params: { year_id: yearId } },
+  );
+
+  const raw = extractBreakdownPayload(payload);
+  if (!raw) {
+    throw new ApiError("Breakdown payload vacío o inesperado", 404, payload);
+  }
+
+  const normalized = normalizeMemberBreakdown(raw);
+  if (!normalized) {
+    throw new ApiError("No se pudo normalizar el breakdown del miembro", 404, payload);
+  }
+
+  return normalized;
 }
