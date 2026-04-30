@@ -68,14 +68,14 @@ const STEPS: StepConfig[] = [
   {
     key: "personalInfo",
     number: 2,
-    label: "Informacion personal",
+    label: "Información personal",
     description:
-      "Requiere genero, fecha de nacimiento, bautismo, al menos un contacto de emergencia y representante legal si es menor de 18.",
+      "Requiere género, fecha de nacimiento, bautismo, al menos un contacto de emergencia y representante legal si es menor de 18.",
     icon: User,
     requires: [
-      "Genero",
+      "Género",
       "Fecha de nacimiento",
-      "Bautismo (si/no)",
+      "Bautismo (sí/no)",
       "Al menos 1 contacto de emergencia",
       "Representante legal (si es menor de 18)",
     ],
@@ -83,14 +83,14 @@ const STEPS: StepConfig[] = [
   {
     key: "clubSelection",
     number: 3,
-    label: "Seleccion de club",
+    label: "Selección de club",
     description:
-      "Asigna pais, union, campo local y membresía de club al usuario. Esta accion requiere datos adicionales y no puede forzarse desde aqui.",
+      "Asigna país, unión, campo local y membresía de club al usuario. Esta acción requiere datos adicionales y no puede forzarse desde aquí.",
     icon: Building2,
     requires: [
-      "Seleccion de club y seccion",
-      "Seleccion de clase",
-      "Pais, union y campo local",
+      "Selección de club y sección",
+      "Selección de clase",
+      "País, unión y campo local",
     ],
   },
 ];
@@ -240,13 +240,13 @@ function OverrideButton({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Confirmar accion administrativa
+              Confirmar acción administrativa
             </AlertDialogTitle>
             <AlertDialogDescription>
               Vas a marcar como completado el <strong>Paso {stepNumber}: {stepLabel}</strong> de forma manual, sin que el usuario haya cumplido todos los requisitos desde la app.
               <br />
               <br />
-              Esta accion queda registrada bajo tu sesion de administrador. Asegurate de que el usuario realmente cumple las condiciones del paso antes de continuar.
+              Esta acción queda registrada bajo tu sesión de administrador. Asegurate de que el usuario realmente cumple las condiciones del paso antes de continuar.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

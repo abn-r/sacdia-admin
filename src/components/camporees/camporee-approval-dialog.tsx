@@ -109,7 +109,7 @@ export function CamporeeApprovalDialog({
           <DialogDescription>
             {isReject
               ? `Se rechazara la solicitud de "${entityName}".`
-              : `Se aprobara la solicitud de "${entityName}". Esta accion no se puede deshacer.`}
+              : `Se aprobará la solicitud de "${entityName}". Esta acción no se puede deshacer.`}
           </DialogDescription>
         </DialogHeader>
 

@@ -31,7 +31,7 @@ export default async function AwardCategoriesPage() {
   let loadError: string | null = null;
 
   const [categoriesResult, clubTypesResult] = await Promise.allSettled([
-    getAwardCategories(),
+    getAwardCategories(undefined, true, "club"),
     listClubTypes(),
   ]);
 
@@ -44,7 +44,7 @@ export default async function AwardCategoriesPage() {
     loadError =
       err instanceof ApiError
         ? err.message
-        : "No se pudieron cargar las categorias de premio.";
+        : "No se pudieron cargar las categorías de premio.";
   }
 
   if (clubTypesResult.status === "fulfilled") {
@@ -56,8 +56,8 @@ export default async function AwardCategoriesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Categorias de premios"
-        description="Gestiona las categorias que clasifican a los clubes segun sus puntos obtenidos."
+        title="Categorías de premios"
+        description="Gestión de categorías de premio por alcance: Club, Sección y Miembro."
       />
 
       {loadError && (
