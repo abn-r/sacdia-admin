@@ -32,13 +32,26 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import type { JobsOverview, JobCounts, FailedJob } from "@/lib/api/analytics";
+import type { JobsOverview, JobCounts, FailedJob, KnownQueueName } from "@/lib/api/analytics";
 import { retryJob } from "@/lib/api/analytics";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface JobsOverviewClientProps {
   data: JobsOverview;
+}
+
+// ─── Queue Metadata ───────────────────────────────────────────────────────────
+
+const QUEUE_META: Record<KnownQueueName, { label: string; description: string }> = {
+  'notifications': { label: 'Notificaciones', description: 'Push notifications y realtime cache' },
+  'email': { label: 'Emails', description: 'Transaccionales (rate-limited 90/día)' },
+  'achievements': { label: 'Logros', description: 'Evaluación y matching de logros' },
+  'background-jobs': { label: 'Background Jobs', description: 'Reportes, finanzas, rankings, exports' },
+};
+
+function getQueueMeta(name: string): { label: string; description: string } {
+  return QUEUE_META[name as KnownQueueName] ?? { label: name, description: '' };
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -81,13 +94,19 @@ function QueueStatRow({ label, value, destructive }: QueueStatRowProps) {
 
 function QueueCard({ queue }: { queue: JobCounts }) {
   const hasActive = queue.active > 0;
+  const meta = getQueueMeta(queue.name);
 
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-semibold truncate">{queue.name}</CardTitle>
+        <div className="min-w-0 flex-1">
+          <CardTitle className="text-sm font-semibold truncate">{meta.label}</CardTitle>
+          {meta.description && (
+            <p className="text-xs text-muted-foreground">{meta.description}</p>
+          )}
+        </div>
         {hasActive && (
-          <Badge variant="default" className="text-[10px] px-1.5 py-0 shrink-0">
+          <Badge variant="default" className="text-[10px] px-1.5 py-0 shrink-0 ml-2">
             activo
           </Badge>
         )}
@@ -215,9 +234,22 @@ function FailedJobsTable({ jobs }: { jobs: FailedJob[] }) {
               {jobs.map((job, index) => (
                 <TableRow key={`${job.queue}-${job.job_id ?? index}`}>
                   <TableCell className="pl-6">
-                    <Badge variant="outline" className="text-xs font-mono">
-                      {job.queue}
-                    </Badge>
+                    {job.queue === 'background-jobs' ? (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Badge variant="outline" className="text-xs font-mono cursor-default">
+                            {job.queue}
+                          </Badge>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="font-mono text-xs">
+                          {job.name}
+                        </TooltipContent>
+                      </Tooltip>
+                    ) : (
+                      <Badge variant="outline" className="text-xs font-mono">
+                        {job.queue}
+                      </Badge>
+                    )}
                   </TableCell>
                   <TableCell className="text-sm font-medium">{job.name}</TableCell>
                   <TableCell className="max-w-[280px]">

@@ -69,6 +69,8 @@ export async function getSlaDashboard(): Promise<SlaDashboard> {
 
 // ─── Jobs & Queues ────────────────────────────────────────────────────────────
 
+export type KnownQueueName = 'notifications' | 'email' | 'achievements' | 'background-jobs';
+
 export type JobCounts = {
   name: string;
   waiting: number;

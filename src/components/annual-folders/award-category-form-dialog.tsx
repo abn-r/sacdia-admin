@@ -34,30 +34,56 @@ import type { ClubType } from "@/lib/api/catalogs";
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
 
-const formSchema = z.object({
-  name: z
-    .string()
-    .min(2, "El nombre debe tener al menos 2 caracteres")
-    .max(200, "El nombre no puede superar 200 caracteres"),
-  description: z
-    .string()
-    .max(500, "La descripción no puede superar 500 caracteres")
-    .optional(),
-  scope: z.enum(["club", "section", "member"] as const),
-  club_type_id: z.string(), // "all" | stringified number
-  min_points: z.coerce.number().int().min(0, "Debe ser 0 o mayor"),
-  max_points: z.coerce
-    .number()
-    .int()
-    .min(0, "Debe ser 0 o mayor")
-    .optional()
-    .nullable(),
-  icon: z
-    .string()
-    .max(100, "El ícono no puede superar 100 caracteres")
-    .optional(),
-  order: z.coerce.number().int().min(0, "El orden debe ser 0 o mayor"),
-});
+const formSchema = z
+  .object({
+    name: z
+      .string()
+      .min(2, "El nombre debe tener al menos 2 caracteres")
+      .max(200, "El nombre no puede superar 200 caracteres"),
+    description: z
+      .string()
+      .max(500, "La descripción no puede superar 500 caracteres")
+      .optional(),
+    // ── 8.4-A scope (member / section / club) ────────────────────────────────
+    scope: z.enum(["club", "section", "member"] as const),
+    club_type_id: z.string(), // "all" | stringified number
+    min_points: z.coerce.number().int().min(0, "Debe ser 0 o mayor"),
+    max_points: z.coerce
+      .number()
+      .int()
+      .min(0, "Debe ser 0 o mayor")
+      .optional()
+      .nullable(),
+    icon: z
+      .string()
+      .max(100, "El ícono no puede superar 100 caracteres")
+      .optional(),
+    order: z.coerce.number().int().min(0, "El orden debe ser 0 o mayor"),
+    // ── 8.4-C composite scoring ──────────────────────────────────────────────
+    min_composite_pct: z.coerce
+      .number()
+      .min(0, "Debe ser 0 o mayor")
+      .max(100, "No puede superar 100")
+      .optional()
+      .nullable(),
+    max_composite_pct: z.coerce
+      .number()
+      .min(0, "Debe ser 0 o mayor")
+      .max(100, "No puede superar 100")
+      .optional()
+      .nullable(),
+  })
+  .superRefine((data, ctx) => {
+    const min = data.min_composite_pct;
+    const max = data.max_composite_pct;
+    if (min != null && max != null && min >= max) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "El min_composite_pct debe ser menor que el max_composite_pct.",
+        path: ["min_composite_pct"],
+      });
+    }
+  });
 
 type FormValues = z.infer<typeof formSchema>;
 
@@ -105,6 +131,8 @@ export function AwardCategoryFormDialog({
       max_points: null,
       icon: "",
       order: 0,
+      min_composite_pct: null,
+      max_composite_pct: null,
     },
   });
 
@@ -126,6 +154,8 @@ export function AwardCategoryFormDialog({
           max_points: category.max_points ?? null,
           icon: category.icon ?? "",
           order: category.order,
+          min_composite_pct: category.min_composite_pct ?? null,
+          max_composite_pct: category.max_composite_pct ?? null,
         });
       } else {
         reset({
@@ -137,6 +167,8 @@ export function AwardCategoryFormDialog({
           max_points: null,
           icon: "",
           order: 0,
+          min_composite_pct: null,
+          max_composite_pct: null,
         });
       }
     }
@@ -158,6 +190,16 @@ export function AwardCategoryFormDialog({
             : null,
         icon: values.icon || null,
         order: values.order,
+        min_composite_pct:
+          values.min_composite_pct !== null &&
+          values.min_composite_pct !== undefined
+            ? values.min_composite_pct
+            : null,
+        max_composite_pct:
+          values.max_composite_pct !== null &&
+          values.max_composite_pct !== undefined
+            ? values.max_composite_pct
+            : null,
       };
 
       if (isEdit && category) {
@@ -300,6 +342,45 @@ export function AwardCategoryFormDialog({
               {errors.max_points && (
                 <p className="text-xs text-destructive">
                   {errors.max_points.message}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Composite % min / max */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="cat-min-composite-pct">Min composite %</Label>
+              <Input
+                id="cat-min-composite-pct"
+                type="number"
+                min={0}
+                max={100}
+                step="0.01"
+                {...register("min_composite_pct")}
+                placeholder="Ej. 60"
+              />
+              {errors.min_composite_pct && (
+                <p className="text-xs text-destructive">
+                  {errors.min_composite_pct.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="cat-max-composite-pct">Max composite %</Label>
+              <Input
+                id="cat-max-composite-pct"
+                type="number"
+                min={0}
+                max={100}
+                step="0.01"
+                {...register("max_composite_pct")}
+                placeholder="Ej. 80"
+              />
+              {errors.max_composite_pct && (
+                <p className="text-xs text-destructive">
+                  {errors.max_composite_pct.message}
                 </p>
               )}
             </div>
