@@ -380,6 +380,8 @@ export async function getFolderEvaluations(
 
 // ─── Rankings & Award Categories — Types ──────────────────────────────────────
 
+export type AwardCategoryScope = 'club' | 'section' | 'member';
+
 export type AwardCategory = {
   award_category_id: string;
   name: string;
@@ -390,6 +392,7 @@ export type AwardCategory = {
   icon: string | null;
   order: number;
   active: boolean;
+  scope: AwardCategoryScope;
 };
 
 export type ClubRanking = {
@@ -408,7 +411,7 @@ export type RecalculateResult = {
 };
 
 export type CreateAwardCategoryPayload = Omit<AwardCategory, "award_category_id" | "active">;
-export type UpdateAwardCategoryPayload = Partial<AwardCategory>;
+export type UpdateAwardCategoryPayload = Partial<Omit<AwardCategory, "award_category_id">>;
 
 // ─── Rankings — Server-side ───────────────────────────────────────────────────
 
@@ -469,17 +472,19 @@ export async function recalculateRankings(
 // ─── Award Categories — Server-side ──────────────────────────────────────────
 
 /**
- * GET /api/v1/award-categories?club_type_id=X&active=true
+ * GET /api/v1/award-categories?club_type_id=X&active=true&scope=club|section|member
  * Returns the list of award categories.
  */
 export async function getAwardCategories(
   clubTypeId?: number,
   active?: boolean,
+  scope?: AwardCategoryScope,
 ): Promise<AwardCategory[]> {
   return apiRequest<AwardCategory[]>("/award-categories", {
     params: {
       ...(clubTypeId !== undefined ? { club_type_id: clubTypeId } : {}),
       ...(active !== undefined ? { active } : {}),
+      ...(scope !== undefined ? { scope } : {}),
     },
   });
 }
@@ -501,11 +506,13 @@ export async function getAwardCategory(categoryId: string): Promise<AwardCategor
 export async function getAwardCategoriesFromClient(
   clubTypeId?: number,
   active?: boolean,
+  scope?: AwardCategoryScope,
 ): Promise<AwardCategory[]> {
   return apiRequestFromClient<AwardCategory[]>("/award-categories", {
     params: {
       ...(clubTypeId !== undefined ? { club_type_id: clubTypeId } : {}),
       ...(active !== undefined ? { active } : {}),
+      ...(scope !== undefined ? { scope } : {}),
     },
   });
 }
