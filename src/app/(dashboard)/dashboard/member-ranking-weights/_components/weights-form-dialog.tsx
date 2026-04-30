@@ -158,7 +158,7 @@ export function WeightsFormDialog({
 
       if (isEdit && editingRow) {
         await updateMemberRankingWeights(editingRow.id, payload);
-        toast.success("Configuracion de pesos actualizada");
+        toast.success("Configuración de pesos actualizada");
       } else {
         await createMemberRankingWeights(payload);
         toast.success("Sobreescritura de pesos creada");
@@ -188,7 +188,7 @@ export function WeightsFormDialog({
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? "Editar configuracion de pesos" : "Nueva sobreescritura de pesos"}
+            {isEdit ? "Editar configuración de pesos" : "Nueva sobreescritura de pesos"}
           </DialogTitle>
         </DialogHeader>
 

@@ -78,10 +78,6 @@ function pickNumber(value: unknown): number | null {
   return null;
 }
 
-function pickBoolean(value: unknown): boolean | null {
-  if (typeof value === "boolean") return value;
-  return null;
-}
 
 function normalizeAwardedCategory(value: unknown): AwardedCategoryRef | null {
   const r = asRecord(value);
@@ -203,13 +199,13 @@ function normalizeEndpointState(
 }
 
 function normalizeEndpointDetail(error: ApiError): string {
-  if (error.status === 401) return "Sesion expirada o token invalido.";
+  if (error.status === 401) return "Sesión expirada o token inválido.";
   if (error.status === 403)
     return "Tu rol no tiene permisos para ver rankings de secciones.";
   if (error.status === 429)
     return "Demasiadas solicitudes. Reintenta en unos segundos.";
   if (error.status >= 500)
-    return "El backend no esta disponible temporalmente.";
+    return "El backend no está disponible temporalmente.";
   return "Endpoint no disponible en backend.";
 }
 
@@ -367,7 +363,3 @@ export async function getSectionMembers(
     .filter((item): item is MemberRankingItem => Boolean(item));
 }
 
-// ─── Unused import guard ───────────────────────────────────────────────────────
-// pickBoolean is defined for forward-safe resilience (e.g., participated field
-// if the drill-down contract evolves). Suppress unused-vars warning:
-void (pickBoolean as unknown);

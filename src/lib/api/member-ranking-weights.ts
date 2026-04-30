@@ -191,10 +191,10 @@ function normalizeEndpointState(
 }
 
 function normalizeEndpointDetail(error: ApiError): string {
-  if (error.status === 401) return "Sesion expirada o token invalido.";
+  if (error.status === 401) return "Sesión expirada o token inválido.";
   if (error.status === 403) return "Tu rol no tiene permisos para ver pesos de rankings.";
   if (error.status === 429) return "Demasiadas solicitudes. Reintenta en unos segundos.";
-  if (error.status >= 500) return "El backend no esta disponible temporalmente.";
+  if (error.status >= 500) return "El backend no está disponible temporalmente.";
   return "Endpoint no disponible en backend.";
 }
 
@@ -229,11 +229,11 @@ export function mapWeightsErrorMessage(error: unknown): string {
         : "La suma de los porcentajes debe ser 100";
     }
     case "WEIGHTS_CONFLICT":
-      return "Ya existe configuracion para este tipo de club y ano";
+      return "Ya existe configuración para este tipo de club y año";
     case "DEFAULT_WEIGHTS_NOT_DELETABLE":
-      return "No se puede eliminar la configuracion por defecto";
+      return "No se puede eliminar la configuración por defecto";
     case "WEIGHTS_NOT_FOUND":
-      return "Configuracion no encontrada";
+      return "Configuración no encontrada";
     default:
       if (error instanceof ApiError) return error.message;
       if (error instanceof Error) return error.message;

@@ -259,10 +259,10 @@ function normalizeEndpointState(
 }
 
 function normalizeEndpointDetail(error: ApiError): string {
-  if (error.status === 401) return "Sesion expirada o token invalido.";
+  if (error.status === 401) return "Sesión expirada o token inválido.";
   if (error.status === 403) return "Tu rol no tiene permisos para ver rankings de miembros.";
   if (error.status === 429) return "Demasiadas solicitudes. Reintenta en unos segundos.";
-  if (error.status >= 500) return "El backend no esta disponible temporalmente.";
+  if (error.status >= 500) return "El backend no está disponible temporalmente.";
   return "Endpoint no disponible en backend.";
 }
 

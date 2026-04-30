@@ -38,8 +38,8 @@ function yearLabel(
   id: number | null,
   years: EcclesiasticalYear[],
 ): string {
-  if (id === null) return "Todos los anos";
-  return years.find((y) => y.ecclesiastical_year_id === id)?.name ?? `Ano ${id}`;
+  if (id === null) return "Todos los años";
+  return years.find((y) => y.ecclesiastical_year_id === id)?.name ?? `Año ${id}`;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -63,14 +63,14 @@ export function WeightsTable({
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <CardTitle className="text-base">Configuracion por defecto</CardTitle>
+                <CardTitle className="text-base">Configuración por defecto</CardTitle>
                 <Badge variant="soft">Global</Badge>
               </div>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => onEdit(defaultRow)}
-                title="Editar configuracion por defecto"
+                title="Editar configuración por defecto"
               >
                 <Pencil className="size-3.5" />
                 Editar
@@ -92,7 +92,7 @@ export function WeightsTable({
               </div>
               <div className="h-6 w-px bg-border" />
               <div className="space-y-0.5">
-                <p className="text-xs text-muted-foreground">Campana</p>
+                <p className="text-xs text-muted-foreground">Campaña</p>
                 <p className="text-sm font-semibold">
                   {defaultRow.camporee_pct.toFixed(2)}%
                 </p>
@@ -115,7 +115,7 @@ export function WeightsTable({
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h2 className="text-sm font-medium">Sobreescrituras por tipo de club / ano</h2>
+            <h2 className="text-sm font-medium">Sobreescrituras por tipo de club / año</h2>
             <Badge variant="secondary">{overrides.length}</Badge>
           </div>
           <Button size="sm" onClick={onCreate}>
@@ -128,7 +128,7 @@ export function WeightsTable({
           <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
             <p className="text-sm text-muted-foreground">Sin sobreescrituras</p>
             <p className="mt-1 max-w-xs text-xs text-muted-foreground">
-              Se aplica la configuracion por defecto a todos los clubes y anos.
+              Se aplica la configuración por defecto a todos los clubes y años.
             </p>
             <Button size="sm" variant="outline" className="mt-4" onClick={onCreate}>
               <Plus className="size-4" />
@@ -141,10 +141,10 @@ export function WeightsTable({
               <TableHeader>
                 <TableRow>
                   <TableHead>Tipo de club</TableHead>
-                  <TableHead>Ano eclesiastico</TableHead>
+                  <TableHead>Año eclesiástico</TableHead>
                   <TableHead className="text-right">Clase</TableHead>
                   <TableHead className="text-right">Investidura</TableHead>
-                  <TableHead className="text-right">Campana</TableHead>
+                  <TableHead className="text-right">Campaña</TableHead>
                   <TableHead className="text-center">Suma</TableHead>
                   <TableHead className="w-20 text-right">Acciones</TableHead>
                 </TableRow>

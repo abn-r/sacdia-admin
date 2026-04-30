@@ -112,9 +112,9 @@ function RejectDialog({ enrollmentId, disabled, onConfirm }: RejectDialogProps) 
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Rechazar inscripcion</AlertDialogTitle>
+          <AlertDialogTitle>Rechazar inscripción</AlertDialogTitle>
           <AlertDialogDescription>
-            Esta accion marcara la inscripcion como rechazada. El miembro no
+            Esta acción marcará la inscripción como rechazada. El miembro no
             podra continuar con el proceso de investidura con esta inscripcion.
           </AlertDialogDescription>
         </AlertDialogHeader>

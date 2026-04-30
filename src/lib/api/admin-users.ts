@@ -581,7 +581,7 @@ function normalizeEndpointState(error: ApiError): AdminUsersResult["endpointStat
 
 function normalizeEndpointDetail(error: ApiError): string {
   if (error.status === 401) {
-    return "Sesion expirada o token invalido. Cierra sesion y vuelve a iniciar.";
+    return "Sesión expirada o token inválido. Cierra sesión y vuelve a iniciar.";
   }
 
   if (error.status === 403) {
