@@ -815,5 +815,15 @@
     "label_name": "Name",
     "label_description": "Description",
     "helper_optional": "Optional. If left empty, Spanish will be shown."
+  },
+  "memberRankingWeights": {
+    "formDialog": {
+      "clasePercent": "Class (%)",
+      "investiduraPercent": "Investiture (%)",
+      "campanaPercent": "Campaign (%)",
+      "allTypes": "All types",
+      "anoEclesiastico": "Ecclesiastical year",
+      "allYears": "All years"
+    }
   }
 }

@@ -164,6 +164,7 @@ export function AwardCategoriesClientPage({
 
   function handleScopeChange(value: string) {
     setScope(value as AwardCategoryScope);
+    setActiveFilter("active");
   }
 
   // ─── Active filter tab change ─────────────────────────────────────────────
@@ -227,7 +228,7 @@ export function AwardCategoriesClientPage({
       {/* Scope tabs (outer — 8.4-A) */}
       <Tabs value={scope} onValueChange={handleScopeChange}>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <TabsList>
+          <TabsList aria-label="Alcance de la categoría">
             <TabsTrigger value="club">Club</TabsTrigger>
             <TabsTrigger value="section">Sección</TabsTrigger>
             <TabsTrigger value="member">Miembro</TabsTrigger>
@@ -263,7 +264,7 @@ export function AwardCategoriesClientPage({
         <TabsContent value={scope} className="mt-4 space-y-4">
           {/* Active / Legacy inner tabs */}
           <Tabs value={activeFilter} onValueChange={handleActiveFilterChange}>
-            <TabsList variant="line">
+            <TabsList variant="line" aria-label="Estado de la categoría">
               <TabsTrigger value="active">Activas</TabsTrigger>
               <TabsTrigger value="legacy">Legacy</TabsTrigger>
             </TabsList>

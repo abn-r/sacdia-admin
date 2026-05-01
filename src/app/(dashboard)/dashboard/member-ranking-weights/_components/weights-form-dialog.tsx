@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import type { Resolver, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -112,6 +113,7 @@ export function WeightsFormDialog({
   onSuccess,
 }: WeightsFormDialogProps) {
   const isEdit = !!editingRow;
+  const t = useTranslations("memberRankingWeights.formDialog");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -196,7 +198,7 @@ export function WeightsFormDialog({
           {/* Porcentajes */}
           <div className="grid grid-cols-3 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="w-class">Clase (%)</Label>
+              <Label htmlFor="w-class">{t("clasePercent")}</Label>
               <Input
                 id="w-class"
                 type="number"
@@ -214,7 +216,7 @@ export function WeightsFormDialog({
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="w-investiture">Investidura (%)</Label>
+              <Label htmlFor="w-investiture">{t("investiduraPercent")}</Label>
               <Input
                 id="w-investiture"
                 type="number"
@@ -232,7 +234,7 @@ export function WeightsFormDialog({
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="w-camporee">Campaña (%)</Label>
+              <Label htmlFor="w-camporee">{t("campanaPercent")}</Label>
               <Input
                 id="w-camporee"
                 type="number"
@@ -267,7 +269,7 @@ export function WeightsFormDialog({
                 <SelectValue placeholder="Seleccionar tipo de club" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos los tipos</SelectItem>
+                <SelectItem value="all">{t("allTypes")}</SelectItem>
                 {clubTypes.map((ct) => (
                   <SelectItem
                     key={ct.club_type_id}
@@ -287,7 +289,7 @@ export function WeightsFormDialog({
 
           {/* Ano eclesiastico — catalog Select */}
           <div className="space-y-1.5">
-            <Label>Ano eclesiastico</Label>
+            <Label>{t("anoEclesiastico")}</Label>
             <Select
               value={yearValue}
               onValueChange={(val) =>
@@ -299,7 +301,7 @@ export function WeightsFormDialog({
                 <SelectValue placeholder="Seleccionar ano" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos los anos</SelectItem>
+                <SelectItem value="all">{t("allYears")}</SelectItem>
                 {ecclesiasticalYears.map((y) => (
                   <SelectItem
                     key={y.ecclesiastical_year_id}
