@@ -96,6 +96,7 @@ export function SectionRankingsTable({
 
           <TableBody>
             {data.map((item) => {
+              // Note: requires Node.js full-icu support (default in Node 22.x runtime)
               const calculatedAt = item.composite_calculated_at
                 ? new Date(item.composite_calculated_at).toLocaleString("es-MX")
                 : "—";

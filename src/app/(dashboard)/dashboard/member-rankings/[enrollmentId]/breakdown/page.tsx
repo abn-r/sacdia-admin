@@ -75,6 +75,7 @@ export default async function MemberBreakdownPage({
   const memberName = data.user?.name ?? `Miembro #${enrollmentId}`;
   const sectionName = data.club_section?.name ?? data.section?.name ?? "sección desconocida";
 
+  // Note: requires Node.js full-icu support (default in Node 22.x runtime)
   const calculatedAt = data.composite_calculated_at
     ? new Date(data.composite_calculated_at).toLocaleString("es-MX")
     : null;
