@@ -1,4 +1,4 @@
-import { apiRequest, ApiError } from "@/lib/api/client";
+import { apiRequest, apiRequestFromClient, ApiError } from "@/lib/api/client";
 
 /**
  * Member Ranking Weights API client.
@@ -321,7 +321,7 @@ export async function getMemberRankingWeights(
 export async function createMemberRankingWeights(
   dto: CreateEnrollmentRankingWeightDto,
 ): Promise<EnrollmentRankingWeight> {
-  const payload = await apiRequest<unknown>("/member-ranking-weights", {
+  const payload = await apiRequestFromClient<unknown>("/member-ranking-weights", {
     method: "POST",
     body: dto,
   });
@@ -349,7 +349,7 @@ export async function updateMemberRankingWeights(
   id: string,
   dto: UpdateEnrollmentRankingWeightDto,
 ): Promise<EnrollmentRankingWeight> {
-  const payload = await apiRequest<unknown>(`/member-ranking-weights/${id}`, {
+  const payload = await apiRequestFromClient<unknown>(`/member-ranking-weights/${id}`, {
     method: "PATCH",
     body: dto,
   });
@@ -374,7 +374,7 @@ export async function updateMemberRankingWeights(
  * Throws ApiError — caller maps via mapWeightsErrorMessage().
  */
 export async function deleteMemberRankingWeights(id: string): Promise<void> {
-  await apiRequest<unknown>(`/member-ranking-weights/${id}`, {
+  await apiRequestFromClient<unknown>(`/member-ranking-weights/${id}`, {
     method: "DELETE",
   });
 }
