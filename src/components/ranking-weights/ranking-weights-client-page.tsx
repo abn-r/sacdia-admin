@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import {
   Card,
   CardContent,
@@ -75,6 +76,7 @@ function OverrideRowActions({
   onUpdate,
   onDelete,
 }: OverrideRowActionsProps) {
+  const t = useTranslations("rankingWeights.clientPage");
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -83,12 +85,12 @@ function OverrideRowActions({
     setIsDeleting(true);
     try {
       await deleteRankingWeights(row.ranking_weight_config_id);
-      toast.success("Override eliminado");
+      toast.success(t("overrideDeleted"));
       onDelete(row.ranking_weight_config_id);
       setDeleteOpen(false);
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "Error al eliminar el override";
+        err instanceof Error ? err.message : t("overrideDeleteError");
       toast.error(message);
     } finally {
       setIsDeleting(false);
@@ -101,12 +103,12 @@ function OverrideRowActions({
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogTrigger asChild>
           <Button size="xs" variant="outline">
-            Editar
+            {t("editButton")}
           </Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Editar override</DialogTitle>
+            <DialogTitle>{t("editOverrideTitle")}</DialogTitle>
           </DialogHeader>
           <WeightsForm
             initial={{
@@ -121,14 +123,14 @@ function OverrideRowActions({
                   row.ranking_weight_config_id,
                   values,
                 );
-                toast.success("Override actualizado");
+                toast.success(t("overrideUpdated"));
                 onUpdate(updated);
                 setEditOpen(false);
               } catch (err: unknown) {
                 const message =
                   err instanceof Error
                     ? err.message
-                    : "Error al actualizar el override";
+                    : t("overrideUpdateError");
                 toast.error(message);
                 throw err;
               }
@@ -144,19 +146,18 @@ function OverrideRowActions({
           variant="destructive"
           onClick={() => setDeleteOpen(true)}
         >
-          Eliminar
+          {t("deleteButton")}
         </Button>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Eliminar override?</AlertDialogTitle>
+            <AlertDialogTitle>{t("deleteOverrideTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acción no se puede deshacer. El tipo de club volverá a usar
-              los pesos del default global.
+              {t("deleteOverrideDescription")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isDeleting}>
-              Cancelar
+              {t("cancelButton")}
             </AlertDialogCancel>
             <Button
               variant="destructive"
@@ -166,10 +167,10 @@ function OverrideRowActions({
               {isDeleting ? (
                 <>
                   <Loader2 className="animate-spin" />
-                  Eliminando...
+                  {t("deletingLabel")}
                 </>
               ) : (
-                "Eliminar"
+                t("deleteButton")
               )}
             </Button>
           </AlertDialogFooter>
@@ -184,6 +185,7 @@ function OverrideRowActions({
 export function RankingWeightsClientPage({
   initial,
 }: RankingWeightsClientPageProps) {
+  const t = useTranslations("rankingWeights.clientPage");
   const [rows, setRows] = useState<RankingWeights[]>(initial);
   const [newOverrideOpen, setNewOverrideOpen] = useState(false);
   const router = useRouter();
@@ -216,11 +218,8 @@ export function RankingWeightsClientPage({
       {/* Default global */}
       <Card>
         <CardHeader>
-          <CardTitle>Default global</CardTitle>
-          <CardDescription>
-            Pesos aplicados a todos los tipos de club que no tienen un override
-            configurado. La suma debe ser exactamente 100.
-          </CardDescription>
+          <CardTitle>{t("defaultGlobalTitle")}</CardTitle>
+          <CardDescription>{t("defaultGlobalDescription")}</CardDescription>
         </CardHeader>
         <CardContent>
           {def ? (
@@ -237,13 +236,13 @@ export function RankingWeightsClientPage({
                     def.ranking_weight_config_id,
                     values,
                   );
-                  toast.success("Default global actualizado");
+                  toast.success(t("defaultGlobalUpdated"));
                   handleUpdate(updated);
                 } catch (err: unknown) {
                   const message =
                     err instanceof Error
                       ? err.message
-                      : "Error al actualizar el default";
+                      : t("defaultGlobalUpdateError");
                   toast.error(message);
                   throw err;
                 }
@@ -251,8 +250,7 @@ export function RankingWeightsClientPage({
             />
           ) : (
             <p className="text-sm text-muted-foreground">
-              Default global no encontrado. Contacta al administrador del
-              sistema.
+              {t("defaultGlobalNotFound")}
             </p>
           )}
         </CardContent>
@@ -262,22 +260,19 @@ export function RankingWeightsClientPage({
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-4">
           <div className="space-y-1">
-            <CardTitle>Overrides por tipo de club</CardTitle>
-            <CardDescription>
-              Pesos específicos que reemplazan el default para un tipo de club
-              determinado.
-            </CardDescription>
+            <CardTitle>{t("overridesTitle")}</CardTitle>
+            <CardDescription>{t("overridesDescription")}</CardDescription>
           </div>
           <Dialog open={newOverrideOpen} onOpenChange={setNewOverrideOpen}>
             <DialogTrigger asChild>
               <Button>
                 <Plus />
-                Agregar override
+                {t("addOverride")}
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Nuevo override</DialogTitle>
+                <DialogTitle>{t("newOverrideTitle")}</DialogTitle>
               </DialogHeader>
               <NewOverrideForm
                 existingClubTypeIds={overrides
@@ -291,20 +286,19 @@ export function RankingWeightsClientPage({
         <CardContent>
           {overrides.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No hay overrides configurados. Todos los tipos de club usan el
-              default global.
+              {t("overridesEmpty")}
             </p>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Tipo de club</TableHead>
-                  <TableHead>Folder</TableHead>
-                  <TableHead>Finance</TableHead>
-                  <TableHead>Camporee</TableHead>
-                  <TableHead>Evidence</TableHead>
-                  <TableHead>Suma</TableHead>
-                  <TableHead>Acciones</TableHead>
+                  <TableHead>{t("colClubType")}</TableHead>
+                  <TableHead>{t("colFolder")}</TableHead>
+                  <TableHead>{t("colFinance")}</TableHead>
+                  <TableHead>{t("colCamporee")}</TableHead>
+                  <TableHead>{t("colEvidence")}</TableHead>
+                  <TableHead>{t("colSuma")}</TableHead>
+                  <TableHead>{t("colAcciones")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
