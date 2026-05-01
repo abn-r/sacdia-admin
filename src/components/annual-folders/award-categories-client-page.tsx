@@ -31,7 +31,7 @@ import {
   deleteAwardCategory,
 } from "@/lib/api/annual-folders";
 import { ApiError } from "@/lib/api/client";
-import type { AwardCategory, AwardCategoryScope } from "@/lib/api/annual-folders";
+import type { AwardCategory, AwardCategoryScope, AwardTier } from "@/lib/api/annual-folders";
 import type { ClubType } from "@/lib/api/catalogs";
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -73,6 +73,23 @@ function formatPct(value: number | null): string {
   if (value === null) return "—";
   return `${value}%`;
 }
+
+// ── 8.4-C Phase C: tier display ────────────────────────────────────────────
+const TIER_LABELS: Record<AwardTier, string> = {
+  BRONZE: "Bronce",
+  SILVER: "Plata",
+  GOLD: "Oro",
+  DIAMOND: "Diamante",
+};
+
+type BadgeVariant = "default" | "secondary" | "success" | "destructive" | "warning" | "outline";
+
+const TIER_BADGE_VARIANT: Record<AwardTier, BadgeVariant> = {
+  BRONZE: "secondary",
+  SILVER: "outline",
+  GOLD: "warning",
+  DIAMOND: "default",
+};
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -296,6 +313,10 @@ export function AwardCategoriesClientPage({
                         <TableHead className="hidden w-24 text-center lg:table-cell">
                           % Max
                         </TableHead>
+                        {/* 8.4-C Phase C tier column */}
+                        <TableHead className="hidden w-28 text-center xl:table-cell">
+                          Nivel
+                        </TableHead>
                         <TableHead className="w-20 text-center">Estado</TableHead>
                         <TableHead className="w-20 text-right">Acciones</TableHead>
                       </TableRow>
@@ -349,6 +370,19 @@ export function AwardCategoriesClientPage({
                           </TableCell>
                           <TableCell className="hidden text-center text-sm text-muted-foreground lg:table-cell">
                             {formatPct(cat.max_composite_pct)}
+                          </TableCell>
+                          {/* 8.4-C Phase C tier cell */}
+                          <TableCell className="hidden text-center xl:table-cell">
+                            {cat.tier !== null ? (
+                              <Badge
+                                variant={TIER_BADGE_VARIANT[cat.tier]}
+                                className="text-xs"
+                              >
+                                {TIER_LABELS[cat.tier]}
+                              </Badge>
+                            ) : (
+                              <span className="text-sm text-muted-foreground/60">—</span>
+                            )}
                           </TableCell>
                           <TableCell className="text-center">
                             <Badge
