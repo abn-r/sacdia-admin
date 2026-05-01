@@ -29,7 +29,7 @@ import {
   createAwardCategory,
   updateAwardCategory,
 } from "@/lib/api/annual-folders";
-import type { AwardCategory, AwardCategoryScope } from "@/lib/api/annual-folders";
+import type { AwardCategory, AwardCategoryScope, AwardTier } from "@/lib/api/annual-folders";
 import type { ClubType } from "@/lib/api/catalogs";
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
@@ -72,6 +72,8 @@ const formSchema = z
       .max(100, "No puede superar 100")
       .optional()
       .nullable(),
+    // ── 8.4-C Phase C — visual tier ──────────────────────────────────────────
+    tier: z.enum(["BRONZE", "SILVER", "GOLD", "DIAMOND"] as const).nullable().optional(),
   })
   .superRefine((data, ctx) => {
     const min = data.min_composite_pct;
@@ -133,11 +135,13 @@ export function AwardCategoryFormDialog({
       order: 0,
       min_composite_pct: null,
       max_composite_pct: null,
+      tier: null,
     },
   });
 
   const clubTypeValue = watch("club_type_id");
   const scopeValue = watch("scope");
+  const tierValue = watch("tier");
 
   useEffect(() => {
     if (open) {
@@ -156,6 +160,7 @@ export function AwardCategoryFormDialog({
           order: category.order,
           min_composite_pct: category.min_composite_pct ?? null,
           max_composite_pct: category.max_composite_pct ?? null,
+          tier: category.tier ?? null,
         });
       } else {
         reset({
@@ -169,6 +174,7 @@ export function AwardCategoryFormDialog({
           order: 0,
           min_composite_pct: null,
           max_composite_pct: null,
+          tier: null,
         });
       }
     }
@@ -200,6 +206,7 @@ export function AwardCategoryFormDialog({
           values.max_composite_pct !== undefined
             ? values.max_composite_pct
             : null,
+        tier: values.tier ?? null,
       };
 
       if (isEdit && category) {
@@ -280,6 +287,31 @@ export function AwardCategoryFormDialog({
             </Select>
             {errors.scope && (
               <p className="text-xs text-destructive">{errors.scope.message}</p>
+            )}
+          </div>
+
+          {/* Tier visual */}
+          <div className="space-y-1.5">
+            <Label htmlFor="cat-tier">Nivel visual</Label>
+            <Select
+              value={tierValue ?? "none"}
+              onValueChange={(val) =>
+                setValue("tier", val === "none" ? null : (val as AwardTier))
+              }
+            >
+              <SelectTrigger id="cat-tier">
+                <SelectValue placeholder="Sin clasificación" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Sin clasificación</SelectItem>
+                <SelectItem value="BRONZE">Bronce</SelectItem>
+                <SelectItem value="SILVER">Plata</SelectItem>
+                <SelectItem value="GOLD">Oro</SelectItem>
+                <SelectItem value="DIAMOND">Diamante</SelectItem>
+              </SelectContent>
+            </Select>
+            {errors.tier && (
+              <p className="text-xs text-destructive">{errors.tier.message}</p>
             )}
           </div>
 

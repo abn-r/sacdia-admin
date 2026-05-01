@@ -382,6 +382,9 @@ export async function getFolderEvaluations(
 
 export type AwardCategoryScope = 'club' | 'section' | 'member';
 
+/** Visual tier assigned to an award category — maps to Prisma AwardTier enum (nullable). */
+export type AwardTier = 'BRONZE' | 'SILVER' | 'GOLD' | 'DIAMOND';
+
 export type AwardCategory = {
   award_category_id: string;
   name: string;
@@ -398,6 +401,8 @@ export type AwardCategory = {
   min_composite_pct: number | null;
   max_composite_pct: number | null;
   is_legacy: boolean;
+  // ── 8.4-C Phase C — visual tier ──────────────────────────────────────────
+  tier: AwardTier | null;
 };
 
 export type ClubRanking = {
