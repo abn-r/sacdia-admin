@@ -22,6 +22,7 @@ interface MemberRankingsTableProps {
   page: number;
   limit: number;
   totalPages: number;
+  selectedYearId: number;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -62,6 +63,7 @@ export function MemberRankingsTable({
   page,
   limit,
   totalPages,
+  selectedYearId,
 }: MemberRankingsTableProps) {
   if (data.length === 0) {
     return (
@@ -172,7 +174,7 @@ export function MemberRankingsTable({
                 <TableCell className="px-3 py-2.5 align-middle text-right">
                   <Button variant="ghost" size="sm" asChild>
                     <Link
-                      href={`/dashboard/member-rankings/${item.enrollment_id}/breakdown`}
+                      href={`/dashboard/member-rankings/${item.enrollment_id}/breakdown?year_id=${selectedYearId}`}
                     >
                       Ver detalle
                     </Link>

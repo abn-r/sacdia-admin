@@ -108,6 +108,7 @@ async function MemberRankingsContent({ query }: { query: MemberRankingsQuery }) 
       page={result.page}
       limit={result.limit}
       totalPages={result.totalPages}
+      selectedYearId={query.year_id ?? DEFAULT_YEAR}
     />
   );
 }
