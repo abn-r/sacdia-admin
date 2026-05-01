@@ -168,6 +168,24 @@ export const ACHIEVEMENTS_MANAGE = "achievements:manage";
 export const RANKINGS_READ = "rankings:read";
 export const RANKINGS_RECALCULATE = "rankings:recalculate";
 
+// 8.4-C extended institutional rankings
+export const RANKING_WEIGHTS_READ = "ranking_weights:read";
+export const RANKING_WEIGHTS_WRITE = "ranking_weights:write";
+
+// 8.4-A enrollment-level rankings
+export const MEMBER_RANKINGS_READ_SELF = "member_rankings:read_self";
+export const MEMBER_RANKINGS_READ_SECTION = "member_rankings:read_section";
+export const MEMBER_RANKINGS_READ_CLUB = "member_rankings:read_club";
+export const MEMBER_RANKINGS_READ_LF = "member_rankings:read_lf";
+export const MEMBER_RANKINGS_READ_GLOBAL = "member_rankings:read_global";
+
+export const MEMBER_RANKING_WEIGHTS_READ = "member_ranking_weights:read";
+export const MEMBER_RANKING_WEIGHTS_WRITE = "member_ranking_weights:write";
+
+export const SECTION_RANKINGS_READ_CLUB = "section_rankings:read_club";
+export const SECTION_RANKINGS_READ_LF = "section_rankings:read_lf";
+export const SECTION_RANKINGS_READ_GLOBAL = "section_rankings:read_global";
+
 // --- Categorías de Premios (Award Categories) ---
 export const AWARD_CATEGORIES_CREATE = "award_categories:create";
 export const AWARD_CATEGORIES_READ = "award_categories:read";

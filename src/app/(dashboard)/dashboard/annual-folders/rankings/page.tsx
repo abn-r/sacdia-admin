@@ -67,7 +67,7 @@ export default async function RankingsPage() {
   if (!loadError) {
     const [rankingsResult, categoriesResult] = await Promise.allSettled([
       getRankings(defaultClubTypeId, defaultYearId),
-      getAwardCategories(defaultClubTypeId, true),
+      getAwardCategories(defaultClubTypeId, true, "club", false),
     ]);
 
     if (rankingsResult.status === "fulfilled") {

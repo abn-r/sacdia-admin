@@ -155,7 +155,7 @@ export function RankingsClientPage({
           selectedYearId,
           selectedCategoryId !== "all" ? selectedCategoryId : undefined,
         ),
-        getAwardCategoriesFromClient(selectedClubTypeId, true),
+        getAwardCategoriesFromClient(selectedClubTypeId, true, "club", false),
       ]);
       setRankings(Array.isArray(newRankings) ? newRankings : []);
       setCategories(Array.isArray(newCategories) ? newCategories : []);
