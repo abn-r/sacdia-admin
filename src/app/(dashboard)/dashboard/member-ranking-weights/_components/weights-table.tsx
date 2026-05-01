@@ -1,6 +1,7 @@
 "use client";
 
 import { Pencil, Trash2, Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,21 +28,6 @@ interface WeightsTableProps {
   onCreate: () => void;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function clubTypeLabel(id: number | null, clubTypes: ClubType[]): string {
-  if (id === null) return "Todos los tipos";
-  return clubTypes.find((ct) => ct.club_type_id === id)?.name ?? `Tipo ${id}`;
-}
-
-function yearLabel(
-  id: number | null,
-  years: EcclesiasticalYear[],
-): string {
-  if (id === null) return "Todos los años";
-  return years.find((y) => y.ecclesiastical_year_id === id)?.name ?? `Año ${id}`;
-}
-
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function WeightsTable({
@@ -52,6 +38,25 @@ export function WeightsTable({
   onDelete,
   onCreate,
 }: WeightsTableProps) {
+  const t = useTranslations("memberRankingWeights.table");
+  const tForm = useTranslations("memberRankingWeights.formDialog");
+
+  function clubTypeLabel(id: number | null): string {
+    if (id === null) return tForm("allTypes");
+    return (
+      clubTypes.find((ct) => ct.club_type_id === id)?.name ??
+      t("fallbackClubType", { id })
+    );
+  }
+
+  function yearLabel(id: number | null): string {
+    if (id === null) return tForm("allYears");
+    return (
+      ecclesiasticalYears.find((y) => y.ecclesiastical_year_id === id)?.name ??
+      t("fallbackYear", { id })
+    );
+  }
+
   const defaultRow = items.find((r) => r.is_default) ?? null;
   const overrides = items.filter((r) => !r.is_default);
 
@@ -63,36 +68,46 @@ export function WeightsTable({
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <CardTitle className="text-base">Configuración por defecto</CardTitle>
-                <Badge variant="soft">Global</Badge>
+                <CardTitle className="text-base">
+                  {t("defaultCardTitle")}
+                </CardTitle>
+                <Badge variant="soft">{t("defaultBadge")}</Badge>
               </div>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => onEdit(defaultRow)}
-                title="Editar configuración por defecto"
+                title={t("editDefaultTitle")}
               >
                 <Pencil className="size-3.5" />
-                Editar
+                {t("editButton")}
               </Button>
             </div>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap items-center gap-4">
               <div className="space-y-0.5">
-                <p className="text-xs text-muted-foreground">Clase</p>
-                <p className="text-sm font-semibold">{defaultRow.class_pct.toFixed(2)}%</p>
+                <p className="text-xs text-muted-foreground">
+                  {t("labelClase")}
+                </p>
+                <p className="text-sm font-semibold">
+                  {defaultRow.class_pct.toFixed(2)}%
+                </p>
               </div>
               <div className="h-6 w-px bg-border" />
               <div className="space-y-0.5">
-                <p className="text-xs text-muted-foreground">Investidura</p>
+                <p className="text-xs text-muted-foreground">
+                  {t("labelInvestidura")}
+                </p>
                 <p className="text-sm font-semibold">
                   {defaultRow.investiture_pct.toFixed(2)}%
                 </p>
               </div>
               <div className="h-6 w-px bg-border" />
               <div className="space-y-0.5">
-                <p className="text-xs text-muted-foreground">Campaña</p>
+                <p className="text-xs text-muted-foreground">
+                  {t("labelCampana")}
+                </p>
                 <p className="text-sm font-semibold">
                   {defaultRow.camporee_pct.toFixed(2)}%
                 </p>
@@ -115,24 +130,24 @@ export function WeightsTable({
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h2 className="text-sm font-medium">Sobreescrituras por tipo de club / año</h2>
+            <h2 className="text-sm font-medium">{t("overridesHeading")}</h2>
             <Badge variant="secondary">{overrides.length}</Badge>
           </div>
           <Button size="sm" onClick={onCreate}>
             <Plus className="size-4" />
-            Crear sobreescritura
+            {t("createOverride")}
           </Button>
         </div>
 
         {overrides.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
-            <p className="text-sm text-muted-foreground">Sin sobreescrituras</p>
+            <p className="text-sm text-muted-foreground">{t("emptyTitle")}</p>
             <p className="mt-1 max-w-xs text-xs text-muted-foreground">
-              Se aplica la configuración por defecto a todos los clubes y años.
+              {t("emptyDescription")}
             </p>
             <Button size="sm" variant="outline" className="mt-4" onClick={onCreate}>
               <Plus className="size-4" />
-              Crear sobreescritura
+              {t("createOverride")}
             </Button>
           </div>
         ) : (
@@ -140,23 +155,29 @@ export function WeightsTable({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Tipo de club</TableHead>
-                  <TableHead>Año eclesiástico</TableHead>
-                  <TableHead className="text-right">Clase</TableHead>
-                  <TableHead className="text-right">Investidura</TableHead>
-                  <TableHead className="text-right">Campaña</TableHead>
-                  <TableHead className="text-center">Suma</TableHead>
-                  <TableHead className="w-20 text-right">Acciones</TableHead>
+                  <TableHead>{t("colClubType")}</TableHead>
+                  <TableHead>{tForm("anoEclesiastico")}</TableHead>
+                  <TableHead className="text-right">{t("colClase")}</TableHead>
+                  <TableHead className="text-right">
+                    {t("colInvestidura")}
+                  </TableHead>
+                  <TableHead className="text-right">
+                    {t("colCampana")}
+                  </TableHead>
+                  <TableHead className="text-center">{t("colSuma")}</TableHead>
+                  <TableHead className="w-20 text-right">
+                    {t("colAcciones")}
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {overrides.map((row) => (
                   <TableRow key={row.id}>
                     <TableCell className="text-sm">
-                      {clubTypeLabel(row.club_type_id, clubTypes)}
+                      {clubTypeLabel(row.club_type_id)}
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {yearLabel(row.ecclesiastical_year_id, ecclesiasticalYears)}
+                      {yearLabel(row.ecclesiastical_year_id)}
                     </TableCell>
                     <TableCell className="text-right text-sm font-medium">
                       {row.class_pct.toFixed(2)}%
@@ -182,20 +203,20 @@ export function WeightsTable({
                           variant="ghost"
                           size="icon-xs"
                           onClick={() => onEdit(row)}
-                          title="Editar sobreescritura"
+                          title={t("editOverrideTitle")}
                         >
                           <Pencil className="size-3.5" />
-                          <span className="sr-only">Editar</span>
+                          <span className="sr-only">{t("editButton")}</span>
                         </Button>
                         <Button
                           variant="ghost"
                           size="icon-xs"
                           onClick={() => onDelete(row)}
-                          title="Eliminar sobreescritura"
+                          title={t("deleteOverrideTitle")}
                           className="text-destructive hover:text-destructive"
                         >
                           <Trash2 className="size-3.5" />
-                          <span className="sr-only">Eliminar</span>
+                          <span className="sr-only">{t("deleteButton")}</span>
                         </Button>
                       </div>
                     </TableCell>
