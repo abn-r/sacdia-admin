@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Shield, Key, Users, Grid3X3 } from "lucide-react";
+import { Shield, Key, Users, Grid3X3, ShieldCheck } from "lucide-react";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/shared/page-header";
 import { requireAdminUser } from "@/lib/auth/session";
@@ -18,6 +18,12 @@ const rbacSections = [
     icon: Users,
   },
   {
+    title: "Permisos por usuario",
+    description: "Asignar permisos directamente a usuarios sin pasar por roles",
+    href: "/dashboard/rbac/user-permissions",
+    icon: ShieldCheck,
+  },
+  {
     title: "Matriz de seguridad",
     description: "Vista matricial de roles vs permisos",
     href: "/dashboard/rbac/matrix",
@@ -34,7 +40,7 @@ export default async function RbacPage() {
         title="Roles y permisos"
         description="Sistema de control de acceso basado en roles (RBAC)."
       />
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {rbacSections.map((section) => (
           <Link key={section.href} href={section.href}>
             <Card className="transition-colors hover:bg-muted/50">

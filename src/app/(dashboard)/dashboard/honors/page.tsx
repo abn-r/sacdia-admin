@@ -2,7 +2,7 @@ import { ApiError } from "@/lib/api/client";
 import { listClubTypes } from "@/lib/api/catalogs";
 import { listHonorCategories, listHonors, type HonorListQuery } from "@/lib/api/honors";
 import { requireAdminUser } from "@/lib/auth/session";
-import { extractRoles } from "@/lib/auth/roles";
+import { extractRoles, SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
 import { hasAnyPermission } from "@/lib/auth/permission-utils";
 import { HONORS_CREATE, HONORS_UPDATE } from "@/lib/auth/permissions";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
@@ -336,7 +336,7 @@ export default async function HonorsPage({
 }) {
   const user = await requireAdminUser();
   const roleSet = new Set(extractRoles(user));
-  const isSuperAdmin = roleSet.has("super_admin");
+  const isSuperAdmin = roleSet.has(SUPER_ADMIN_ROLE);
 
   const rawSearchParams = await searchParams;
   const query = parseSearchParams(rawSearchParams);

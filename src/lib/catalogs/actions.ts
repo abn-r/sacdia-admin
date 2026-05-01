@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { getEntityConfig, type EntityKey } from "@/lib/catalogs/entities";
 import {
   APP_ALERT_PARAM_DESCRIPTION,
@@ -15,6 +16,9 @@ import {
   deleteEntityItem,
   updateEntityItem,
 } from "@/lib/catalogs/service";
+import { requireAdminUser } from "@/lib/auth/session";
+
+type CatalogsTranslator = Awaited<ReturnType<typeof getTranslations<"catalogs">>>;
 
 export type CatalogActionState = {
   error?: string;
@@ -51,20 +55,27 @@ function withAlertRedirect(path: string, alert: RedirectAlert) {
   return `${pathname}${query ? `?${query}` : ""}${hash}`;
 }
 
+function getErrorMessage(t: CatalogsTranslator, error: unknown, fallbackKey: Parameters<CatalogsTranslator>[0]) {
+  return error instanceof Error ? error.message : t(fallbackKey);
+}
+
 export async function createCatalogItemAction(
   entityKey: EntityKey,
   redirectTo: string,
   _: CatalogActionState,
   formData: FormData,
 ): Promise<CatalogActionState> {
+  await requireAdminUser();
+  const t = await getTranslations("catalogs");
+
   const config = getEntityConfig(entityKey);
 
   if (!config) {
-    return { error: "Entidad no soportada" };
+    return { error: t("errors.entity_not_supported") };
   }
 
   if (config.allowMutations === false) {
-    return { error: "Este catalogo es de solo lectura en la API oficial" };
+    return { error: t("errors.read_only_catalog") };
   }
 
   try {
@@ -72,15 +83,15 @@ export async function createCatalogItemAction(
     await createEntityItem(entityKey, payload);
   } catch (error) {
     return {
-      error: error instanceof Error ? error.message : "No se pudo crear el registro",
+      error: getErrorMessage(t, error, "errors.op_create_failed"),
     };
   }
 
   revalidatePath(config.routeBase);
   redirect(withAlertRedirect(redirectTo, {
     type: "success",
-    title: "Registro creado",
-    description: "El registro se creó correctamente.",
+    title: t("success.op_create_title"),
+    description: t("success.op_create_description"),
   }));
 }
 
@@ -91,14 +102,17 @@ export async function updateCatalogItemAction(
   _: CatalogActionState,
   formData: FormData,
 ): Promise<CatalogActionState> {
+  await requireAdminUser();
+  const t = await getTranslations("catalogs");
+
   const config = getEntityConfig(entityKey);
 
   if (!config) {
-    return { error: "Entidad no soportada" };
+    return { error: t("errors.entity_not_supported") };
   }
 
   if (config.allowMutations === false) {
-    return { error: "Este catalogo es de solo lectura en la API oficial" };
+    return { error: t("errors.read_only_catalog") };
   }
 
   try {
@@ -106,15 +120,15 @@ export async function updateCatalogItemAction(
     await updateEntityItem(entityKey, id, payload);
   } catch (error) {
     return {
-      error: error instanceof Error ? error.message : "No se pudo actualizar el registro",
+      error: getErrorMessage(t, error, "errors.op_update_failed"),
     };
   }
 
   revalidatePath(config.routeBase);
   redirect(withAlertRedirect(redirectTo, {
     type: "success",
-    title: "Registro actualizado",
-    description: "El registro se actualizó correctamente.",
+    title: t("success.op_update_title"),
+    description: t("success.op_update_description"),
   }));
 }
 
@@ -122,6 +136,9 @@ export async function deleteCatalogItemAction(
   _: CatalogActionState,
   formData: FormData,
 ): Promise<CatalogActionState> {
+  await requireAdminUser();
+  const t = await getTranslations("catalogs");
+
   const entityKey = String(formData.get("entityKey")) as EntityKey;
   const rawId = formData.get("id");
   const id = typeof rawId === "string" ? rawId.trim() : "";
@@ -129,18 +146,18 @@ export async function deleteCatalogItemAction(
   const config = getEntityConfig(entityKey);
 
   if (!config || !id) {
-    return { error: "No se pudo identificar el registro a eliminar." };
+    return { error: t("validation.delete_target_not_identified") };
   }
 
   if (config.allowMutations === false) {
-    return { error: "Este catálogo es de solo lectura en la API oficial." };
+    return { error: t("errors.read_only_catalog") };
   }
 
   try {
     await deleteEntityItem(entityKey, id);
   } catch (error) {
     return {
-      error: error instanceof Error ? error.message : "No se pudo eliminar el registro.",
+      error: getErrorMessage(t, error, "errors.op_delete_failed"),
     };
   }
 
@@ -149,8 +166,8 @@ export async function deleteCatalogItemAction(
   if (returnPath.startsWith("/")) {
     redirect(withAlertRedirect(returnPath, {
       type: "success",
-      title: "Registro eliminado",
-      description: "El registro se eliminó correctamente.",
+      title: t("success.op_delete_title"),
+      description: t("success.op_delete_description"),
     }));
   }
 

@@ -128,6 +128,9 @@ function extractItems(payload: unknown): GenericRecord[] {
   if (nestedData && Array.isArray(nestedData.data)) {
     return nestedData.data as GenericRecord[];
   }
+  if (nestedData && Array.isArray(nestedData.items)) {
+    return nestedData.items as GenericRecord[];
+  }
 
   return [];
 }
@@ -140,7 +143,7 @@ function extractMeta(
 ): HonorCategoriesMeta {
   const root = toRecord(payload);
   const nestedData = toRecord(root?.data);
-  const metaRecord = toRecord(nestedData?.meta) ?? toRecord(root?.meta);
+  const metaRecord = toRecord(nestedData?.meta) ?? toRecord(root?.meta) ?? nestedData;
 
   const page = toPositiveNumber(metaRecord?.page) ?? fallbackPage;
   const limit = toPositiveNumber(metaRecord?.limit) ?? fallbackLimit;

@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo } from "react";
 import { useAuth } from "@/lib/auth/auth-context";
-import { extractRoles, ALLOWED_ADMIN_ROLES } from "@/lib/auth/roles";
+import { extractRoles, ALLOWED_ADMIN_ROLES, SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
 import { extractPermissions } from "@/lib/auth/permission-utils";
 
 function normalizePermission(permission: string) {
@@ -17,7 +17,8 @@ export function usePermissions() {
   const { user } = useAuth();
 
   const roles = useMemo(() => new Set(extractRoles(user)), [user]);
-  const isSuperAdmin = useMemo(() => roles.has("super_admin"), [roles]);
+  // extractRoles() normalizes underscores to hyphens — use SUPER_ADMIN_ROLE ("super-admin")
+  const isSuperAdmin = useMemo(() => roles.has(SUPER_ADMIN_ROLE), [roles]);
 
   const permissionSet = useMemo(
     () => new Set(extractPermissions(user)),

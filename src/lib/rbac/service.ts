@@ -1,5 +1,5 @@
 import { apiRequest, ApiError } from "@/lib/api/client";
-import type { Permission, Role } from "@/lib/rbac/types";
+import type { Permission, Role, UserPermission, UserRole, CreateRoleInput, UpdateRoleInput } from "@/lib/rbac/types";
 
 type ApiResponse<T> = { status: string; data: T };
 
@@ -61,9 +61,10 @@ export async function deletePermission(id: string) {
 
 // ─── Roles ──────────────────────────────────────────────────
 
-export async function listRoles(): Promise<Role[]> {
+export async function listRoles(active?: "true" | "false" | "all"): Promise<Role[]> {
   try {
-    const response = await apiRequest<ApiResponse<Role[]>>("/admin/rbac/roles");
+    const params = active ? { active } : undefined;
+    const response = await apiRequest<ApiResponse<Role[]>>("/admin/rbac/roles", { params });
     return unwrap(response);
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) {
@@ -71,6 +72,28 @@ export async function listRoles(): Promise<Role[]> {
     }
     throw error;
   }
+}
+
+export async function createRole(data: CreateRoleInput): Promise<Role> {
+  const response = await apiRequest<ApiResponse<Role>>("/admin/rbac/roles", {
+    method: "POST",
+    body: data,
+  });
+  return unwrap(response);
+}
+
+export async function updateRole(id: string, data: UpdateRoleInput): Promise<Role> {
+  const response = await apiRequest<ApiResponse<Role>>(`/admin/rbac/roles/${id}`, {
+    method: "PATCH",
+    body: data,
+  });
+  return unwrap(response);
+}
+
+export async function deactivateRole(id: string): Promise<void> {
+  await apiRequest<ApiResponse<unknown>>(`/admin/rbac/roles/${id}`, {
+    method: "DELETE",
+  });
 }
 
 export async function getRoleWithPermissions(id: string): Promise<Role | null> {
@@ -100,6 +123,72 @@ export async function syncRolePermissions(roleId: string, permissionIds: string[
 export async function removePermissionFromRole(roleId: string, permissionId: string) {
   return apiRequest<{ success: boolean }>(
     `/admin/rbac/roles/${roleId}/permissions/${permissionId}`,
+    { method: "DELETE" },
+  );
+}
+
+// ─── Permisos directos de usuario ───────────────────────────
+
+export async function getUserPermissions(userId: string): Promise<UserPermission[]> {
+  try {
+    const response = await apiRequest<ApiResponse<UserPermission[]>>(
+      `/admin/rbac/users/${encodeURIComponent(userId)}/permissions`,
+    );
+    return unwrap(response);
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) {
+      return [];
+    }
+    throw error;
+  }
+}
+
+export async function assignPermissionToUser(userId: string, permissionId: string) {
+  return apiRequest<{ success: boolean; message: string }>(
+    `/admin/rbac/users/${encodeURIComponent(userId)}/permissions`,
+    {
+      method: "POST",
+      body: { permission_ids: [permissionId] },
+    },
+  );
+}
+
+export async function removePermissionFromUser(userId: string, permissionId: string) {
+  return apiRequest<{ success: boolean }>(
+    `/admin/rbac/users/${encodeURIComponent(userId)}/permissions/${encodeURIComponent(permissionId)}`,
+    { method: "DELETE" },
+  );
+}
+
+// ─── Roles de usuario ───────────────────────────────────────
+
+export async function getUserRoles(userId: string): Promise<UserRole[]> {
+  try {
+    const response = await apiRequest<ApiResponse<UserRole[]>>(
+      `/admin/rbac/users/${encodeURIComponent(userId)}/roles`,
+    );
+    return unwrap(response);
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) {
+      return [];
+    }
+    throw error;
+  }
+}
+
+export async function assignRoleToUser(userId: string, roleId: string) {
+  return apiRequest<{ success: boolean; message: string }>(
+    `/admin/rbac/users/${encodeURIComponent(userId)}/roles`,
+    {
+      method: "POST",
+      body: { role_id: roleId },
+    },
+  );
+}
+
+export async function removeRoleFromUser(userId: string, roleId: string) {
+  return apiRequest<{ success: boolean }>(
+    `/admin/rbac/users/${encodeURIComponent(userId)}/roles/${encodeURIComponent(roleId)}`,
     { method: "DELETE" },
   );
 }

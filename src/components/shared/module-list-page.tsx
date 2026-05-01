@@ -11,6 +11,7 @@ import {
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { getTranslations } from "next-intl/server";
 import { apiRequest, ApiError } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
 
@@ -65,6 +66,7 @@ export async function ModuleListPage({
   children,
 }: ModuleListPageProps) {
   await requireAdminUser();
+  const t = await getTranslations("shared");
 
   let items: Record<string, unknown>[] = [];
   let available = true;
@@ -75,7 +77,7 @@ export async function ModuleListPage({
     items = extractItems(payload);
   } catch (error) {
     available = false;
-    errorMsg = error instanceof ApiError ? error.message : "Error inesperado";
+    errorMsg = error instanceof ApiError ? error.message : t("errors.unexpected");
   }
 
   return (

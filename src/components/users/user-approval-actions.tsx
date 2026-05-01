@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useFormStatus } from "react-dom";
 import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -48,7 +49,38 @@ export function UserApprovalActions({ userId, currentApproval }: UserApprovalAct
     currentApproval === 0 ||
     currentApproval === "pending";
 
-  if (!isPending) return null;
+  const isApproved =
+    currentApproval === 1 ||
+    currentApproval === true ||
+    currentApproval === "approved";
+
+  const isRejected =
+    currentApproval === -1 ||
+    currentApproval === "rejected";
+
+  if (!isPending) {
+    return (
+      <div className="mt-1">
+        {isApproved && (
+          <Badge variant="success" className="gap-1.5">
+            <CheckCircle className="size-3.5" />
+            Aprobado
+          </Badge>
+        )}
+        {isRejected && (
+          <Badge variant="destructive" className="gap-1.5">
+            <XCircle className="size-3.5" />
+            Rechazado
+          </Badge>
+        )}
+        {!isApproved && !isRejected && (
+          <Badge variant="outline" className="text-muted-foreground">
+            Estado desconocido
+          </Badge>
+        )}
+      </div>
+    );
+  }
 
   return (
     <>

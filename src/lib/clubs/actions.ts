@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { getActionErrorMessage } from "@/lib/api/action-error";
 import {
   createClub,
@@ -16,6 +17,9 @@ import {
   type ClubSection,
 } from "@/lib/api/clubs";
 import { unwrapList, unwrapObject } from "@/lib/api/response";
+import { requireAdminUser } from "@/lib/auth/session";
+
+type ClubsTranslator = Awaited<ReturnType<typeof getTranslations<"clubs">>>;
 
 export type ClubSectionSyncResult = {
   action: "created" | "updated" | "deactivated" | "unchanged" | "failed";
@@ -39,21 +43,30 @@ function buildClubSectionPath(clubId: number, sectionId: number) {
   return `/dashboard/clubs/${clubId}/sections/${sectionId}`;
 }
 
-function parseRequiredNumber(formData: FormData, fieldName: string, label: string) {
+function parseRequiredNumber(
+  t: ClubsTranslator,
+  formData: FormData,
+  fieldName: string,
+  label: string,
+) {
   const value = readString(formData, fieldName);
   if (!value) {
-    throw new Error(`El campo ${label} es obligatorio`);
+    throw new Error(t("validation.field_required", { field: label }));
   }
 
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) {
-    throw new Error(`El campo ${label} no es valido`);
+    throw new Error(t("validation.field_invalid", { field: label }));
   }
 
   return parsed;
 }
 
-function parseOptionalNumber(formData: FormData, fieldName: string) {
+function parseOptionalNumber(
+  t: ClubsTranslator,
+  formData: FormData,
+  fieldName: string,
+) {
   const value = readString(formData, fieldName);
   if (!value) {
     return undefined;
@@ -61,13 +74,13 @@ function parseOptionalNumber(formData: FormData, fieldName: string) {
 
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) {
-    throw new Error(`El campo ${fieldName} no es valido`);
+    throw new Error(t("validation.field_invalid", { field: fieldName }));
   }
 
   return parsed;
 }
 
-function parseCoordinates(formData: FormData) {
+function parseCoordinates(t: ClubsTranslator, formData: FormData) {
   const latRaw = readString(formData, "coordinates_lat");
   const lngRaw = readString(formData, "coordinates_lng");
 
@@ -76,20 +89,24 @@ function parseCoordinates(formData: FormData) {
   }
 
   if (!latRaw || !lngRaw) {
-    throw new Error("Para guardar coordenadas debes capturar latitud y longitud");
+    throw new Error(t("validation.coordinates_incomplete"));
   }
 
   const lat = Number(latRaw);
   const lng = Number(lngRaw);
 
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-    throw new Error("Las coordenadas no son validas");
+    throw new Error(t("validation.coordinates_invalid"));
   }
 
   return { lat, lng };
 }
 
-function parseOptionalPositiveNumber(formData: FormData, fieldName: string) {
+function parseOptionalPositiveNumber(
+  t: ClubsTranslator,
+  formData: FormData,
+  fieldName: string,
+) {
   const value = readString(formData, fieldName);
   if (!value) {
     return undefined;
@@ -97,30 +114,45 @@ function parseOptionalPositiveNumber(formData: FormData, fieldName: string) {
 
   const parsed = Number(value);
   if (!Number.isFinite(parsed) || parsed <= 0) {
-    throw new Error(`El campo ${fieldName} no es valido`);
+    throw new Error(t("validation.field_invalid", { field: fieldName }));
   }
 
   return parsed;
 }
 
-function buildCreatePayload(formData: FormData) {
+function buildCreatePayload(t: ClubsTranslator, formData: FormData) {
   const name = readString(formData, "name");
   if (!name) {
-    throw new Error("El nombre del club es obligatorio");
+    throw new Error(t("validation.club_name_required"));
   }
 
   return {
     name,
     description: readString(formData, "description") || undefined,
-    local_field_id: parseRequiredNumber(formData, "local_field_id", "Campo local"),
-    district_id: parseRequiredNumber(formData, "district_id", "Distrito"),
-    church_id: parseRequiredNumber(formData, "church_id", "Iglesia"),
+    local_field_id: parseRequiredNumber(
+      t,
+      formData,
+      "local_field_id",
+      t("fields.local_field"),
+    ),
+    district_id: parseRequiredNumber(
+      t,
+      formData,
+      "district_id",
+      t("fields.district"),
+    ),
+    church_id: parseRequiredNumber(
+      t,
+      formData,
+      "church_id",
+      t("fields.church"),
+    ),
     address: readString(formData, "address") || undefined,
-    coordinates: parseCoordinates(formData),
+    coordinates: parseCoordinates(t, formData),
   };
 }
 
-function buildUpdatePayload(formData: FormData) {
+function buildUpdatePayload(t: ClubsTranslator, formData: FormData) {
   const payload: Record<string, unknown> = {};
 
   const name = readString(formData, "name");
@@ -139,9 +171,9 @@ function buildUpdatePayload(formData: FormData) {
     payload.address = address;
   }
 
-  const localFieldId = parseOptionalNumber(formData, "local_field_id");
-  const districtId = parseOptionalNumber(formData, "district_id");
-  const churchId = parseOptionalNumber(formData, "church_id");
+  const localFieldId = parseOptionalNumber(t, formData, "local_field_id");
+  const districtId = parseOptionalNumber(t, formData, "district_id");
+  const churchId = parseOptionalNumber(t, formData, "church_id");
 
   if (localFieldId !== undefined) {
     payload.local_field_id = localFieldId;
@@ -155,7 +187,7 @@ function buildUpdatePayload(formData: FormData) {
     payload.church_id = churchId;
   }
 
-  const coordinates = parseCoordinates(formData);
+  const coordinates = parseCoordinates(t, formData);
   if (coordinates) {
     payload.coordinates = coordinates;
   }
@@ -165,7 +197,7 @@ function buildUpdatePayload(formData: FormData) {
   }
 
   if (Object.keys(payload).length === 0) {
-    throw new Error("No hay cambios para guardar");
+    throw new Error(t("validation.no_changes"));
   }
 
   return payload;
@@ -201,12 +233,15 @@ export async function createClubAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
+  await requireAdminUser();
+  const t = await getTranslations("clubs");
+
   try {
-    const payload = buildCreatePayload(formData);
+    const payload = buildCreatePayload(t, formData);
     await createClub(payload);
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo crear el club", {
+      error: getActionErrorMessage(error, t("errors.create_club_failed"), {
         endpointLabel: "/clubs",
       }),
     };
@@ -220,15 +255,18 @@ export async function createClubWithSectionsAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
+  await requireAdminUser();
+  const t = await getTranslations("clubs");
+
   let clubId: number | null = null;
 
   try {
-    const payload = buildCreatePayload(formData);
+    const payload = buildCreatePayload(t, formData);
     const createdPayload = await createClub(payload);
     clubId = normalizeCreatedClubId(createdPayload);
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo crear el club", {
+      error: getActionErrorMessage(error, t("errors.create_club_failed"), {
         endpointLabel: "/clubs",
       }),
     };
@@ -236,7 +274,7 @@ export async function createClubWithSectionsAction(
 
   if (!clubId) {
     return {
-      error: "Club creado, pero no se pudo resolver su ID para continuar con secciones.",
+      error: t("errors.club_created_no_id"),
     };
   }
 
@@ -260,14 +298,14 @@ export async function createClubWithSectionsAction(
       sectionResults.push({
         action: "created",
         ok: true,
-        message: "Sección creada.",
+        message: t("success.section_created_short"),
         sectionId: normalizeCreatedSectionId(result),
       });
     } catch (error) {
       sectionResults.push({
         action: "failed",
         ok: false,
-        message: getActionErrorMessage(error, "No se pudo crear la sección", {
+        message: getActionErrorMessage(error, t("errors.create_section_failed"), {
           endpointLabel: `/clubs/${clubId}/sections`,
         }),
       });
@@ -281,8 +319,8 @@ export async function createClubWithSectionsAction(
   const failed = sectionResults.filter((r) => !r.ok);
   if (failed.length > 0) {
     return {
-      error: "El club se creó, pero una o más secciones fallaron.",
-      success: "Puedes continuar al detalle del club y reintentar las secciones fallidas.",
+      error: t("errors.club_created_sections_failed"),
+      success: t("success.retry_failed_sections"),
       createdClubId: clubId,
       sectionResults,
     };
@@ -296,12 +334,15 @@ export async function updateClubAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
+  await requireAdminUser();
+  const t = await getTranslations("clubs");
+
   try {
-    const payload = buildUpdatePayload(formData);
+    const payload = buildUpdatePayload(t, formData);
     await updateClub(clubId, payload);
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo actualizar el club", {
+      error: getActionErrorMessage(error, t("errors.update_club_failed"), {
         endpointLabel: `/clubs/${clubId}`,
       }),
     };
@@ -317,6 +358,9 @@ export async function syncClubSectionsAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
+  await requireAdminUser();
+  const t = await getTranslations("clubs");
+
   const sectionIdRaw = readString(formData, "section_id");
   const name = readString(formData, "name");
   const clubTypeIdRaw = readString(formData, "club_type_id");
@@ -326,7 +370,7 @@ export async function syncClubSectionsAction(
   const clubTypeId = clubTypeIdRaw ? Number(clubTypeIdRaw) : null;
 
   if (!clubTypeId || !Number.isFinite(clubTypeId)) {
-    return { error: "Tipo de club obligatorio." };
+    return { error: t("validation.club_type_required") };
   }
 
   try {
@@ -339,7 +383,7 @@ export async function syncClubSectionsAction(
 
       await updateClubSection(clubId, sectionId, payload);
       revalidatePath(`/dashboard/clubs/${clubId}`);
-      return { success: "Sección actualizada correctamente." };
+      return { success: t("success.section_updated") };
     } else {
       // Create new section
       await createClubSection(clubId, {
@@ -347,11 +391,11 @@ export async function syncClubSectionsAction(
         name: name || undefined,
       });
       revalidatePath(`/dashboard/clubs/${clubId}`);
-      return { success: "Sección creada correctamente." };
+      return { success: t("success.section_created") };
     }
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo sincronizar la sección", {
+      error: getActionErrorMessage(error, t("errors.sync_section_failed"), {
         endpointLabel: `/clubs/${clubId}/sections`,
       }),
     };
@@ -359,6 +403,8 @@ export async function syncClubSectionsAction(
 }
 
 export async function deleteClubAction(formData: FormData) {
+  await requireAdminUser();
+
   const clubId = Number(formData.get("id"));
   if (!Number.isFinite(clubId) || clubId <= 0) {
     return;
@@ -374,20 +420,23 @@ export async function createClubSectionAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
+  await requireAdminUser();
+  const t = await getTranslations("clubs");
+
   const clubTypeIdRaw = readString(formData, "club_type_id");
   const clubTypeId = Number(clubTypeIdRaw);
   if (!Number.isFinite(clubTypeId) || clubTypeId <= 0) {
-    return { error: "Tipo de club no válido" };
+    return { error: t("validation.club_type_invalid") };
   }
 
   const soulsTarget = Number(readString(formData, "souls_target") || "0");
   if (!Number.isFinite(soulsTarget) || soulsTarget < 0) {
-    return { error: "Meta de almas debe ser un número positivo" };
+    return { error: t("validation.souls_target_positive") };
   }
 
   const fee = Number(readString(formData, "fee") || "0");
   if (!Number.isFinite(fee) || fee < 0) {
-    return { error: "La cuota debe ser un número positivo" };
+    return { error: t("validation.fee_positive") };
   }
 
   const meetingDayRaw = readString(formData, "meeting_day");
@@ -408,14 +457,14 @@ export async function createClubSectionAction(
     await createClubSection(clubId, payload);
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo crear la sección", {
+      error: getActionErrorMessage(error, t("errors.create_section_failed"), {
         endpointLabel: `/clubs/${clubId}/sections`,
       }),
     };
   }
 
   revalidatePath(`/dashboard/clubs/${clubId}`);
-  return { success: "Sección creada correctamente" };
+  return { success: t("success.section_created") };
 }
 
 export async function updateClubSectionAction(
@@ -424,6 +473,9 @@ export async function updateClubSectionAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
+  await requireAdminUser();
+  const t = await getTranslations("clubs");
+
   const payload: { name?: string; active?: boolean; club_type_id?: number } = {};
   const name = readString(formData, "name");
   if (name) {
@@ -433,25 +485,25 @@ export async function updateClubSectionAction(
   const activeRaw = readString(formData, "active");
   if (activeRaw) {
     if (activeRaw !== "true" && activeRaw !== "false") {
-      return { error: "El estado de la sección no es válido" };
+      return { error: t("validation.section_status_invalid") };
     }
     payload.active = activeRaw === "true";
   }
 
-  const clubTypeId = parseOptionalPositiveNumber(formData, "club_type_id");
+  const clubTypeId = parseOptionalPositiveNumber(t, formData, "club_type_id");
   if (clubTypeId !== undefined) {
     payload.club_type_id = clubTypeId;
   }
 
   if (Object.keys(payload).length === 0) {
-    return { error: "No hay cambios para guardar en la sección" };
+    return { error: t("validation.no_changes_section") };
   }
 
   try {
     await updateClubSection(clubId, sectionId, payload);
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo actualizar la sección", {
+      error: getActionErrorMessage(error, t("errors.update_section_failed"), {
         endpointLabel: `/clubs/${clubId}/sections/${sectionId}`,
       }),
     };
@@ -459,7 +511,7 @@ export async function updateClubSectionAction(
 
   revalidatePath(`/dashboard/clubs/${clubId}`);
   revalidatePath(buildClubSectionPath(clubId, sectionId));
-  return { success: "Sección actualizada correctamente" };
+  return { success: t("success.section_updated") };
 }
 
 export async function addClubSectionMemberAction(
@@ -468,21 +520,31 @@ export async function addClubSectionMemberAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
+  await requireAdminUser();
+  const t = await getTranslations("clubs");
+
   const userId = readString(formData, "user_id");
   if (!userId) {
-    return { error: "El ID del usuario es obligatorio" };
+    return { error: t("validation.user_id_required") };
   }
 
   const roleId = readString(formData, "role_id");
   if (!roleId) {
-    return { error: "El rol es obligatorio" };
+    return { error: t("validation.role_required") };
   }
 
   let ecclesiasticalYearId = 0;
   try {
-    ecclesiasticalYearId = parseRequiredNumber(formData, "ecclesiastical_year_id", "Año eclesiástico");
+    ecclesiasticalYearId = parseRequiredNumber(
+      t,
+      formData,
+      "ecclesiastical_year_id",
+      t("fields.ecclesiastical_year"),
+    );
   } catch (error) {
-    return { error: error instanceof Error ? error.message : "Año eclesiástico inválido" };
+    return {
+      error: error instanceof Error ? error.message : t("validation.ecclesiastical_year_invalid"),
+    };
   }
 
   const startDate = readString(formData, "start_date") || new Date().toISOString();
@@ -498,7 +560,7 @@ export async function addClubSectionMemberAction(
     });
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo crear la asignación de rol", {
+      error: getActionErrorMessage(error, t("errors.create_role_assignment_failed"), {
         endpointLabel: `/clubs/${clubId}/sections/${sectionId}/roles`,
       }),
     };
@@ -506,7 +568,7 @@ export async function addClubSectionMemberAction(
 
   revalidatePath(`/dashboard/clubs/${clubId}`);
   revalidatePath(buildClubSectionPath(clubId, sectionId));
-  return { success: "Asignación creada correctamente" };
+  return { success: t("success.assignment_created") };
 }
 
 export async function updateClubSectionMemberRoleAction(
@@ -516,25 +578,35 @@ export async function updateClubSectionMemberRoleAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
+  await requireAdminUser();
+  const t = await getTranslations("clubs");
+
   if (!userId) {
-    return { error: "No se pudo identificar al miembro" };
+    return { error: t("validation.member_not_identified") };
   }
 
   const assignmentId = readString(formData, "assignment_id");
   if (!assignmentId) {
-    return { error: "No se pudo identificar la asignación a actualizar" };
+    return { error: t("validation.assignment_not_identified") };
   }
 
   const roleId = readString(formData, "role_id");
   if (!roleId) {
-    return { error: "El rol es obligatorio" };
+    return { error: t("validation.role_required") };
   }
 
   let ecclesiasticalYearId = 0;
   try {
-    ecclesiasticalYearId = parseRequiredNumber(formData, "ecclesiastical_year_id", "Año eclesiástico");
+    ecclesiasticalYearId = parseRequiredNumber(
+      t,
+      formData,
+      "ecclesiastical_year_id",
+      t("fields.ecclesiastical_year"),
+    );
   } catch (error) {
-    return { error: error instanceof Error ? error.message : "Año eclesiástico inválido" };
+    return {
+      error: error instanceof Error ? error.message : t("validation.ecclesiastical_year_invalid"),
+    };
   }
 
   const startDate = readString(formData, "start_date") || new Date().toISOString();
@@ -548,14 +620,14 @@ export async function updateClubSectionMemberRoleAction(
     });
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo actualizar el rol", {
+      error: getActionErrorMessage(error, t("errors.update_role_failed"), {
         endpointLabel: `/club-roles/${assignmentId}`,
       }),
     };
   }
 
   revalidatePath(buildClubSectionPath(clubId, sectionId));
-  return { success: "Rol actualizado correctamente" };
+  return { success: t("success.role_updated") };
 }
 
 export async function removeClubSectionMemberAction(
@@ -564,16 +636,19 @@ export async function removeClubSectionMemberAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
+  await requireAdminUser();
+  const t = await getTranslations("clubs");
+
   const assignmentId = readString(formData, "assignment_id");
   if (!assignmentId) {
-    return { error: "No se pudo identificar la asignación a remover" };
+    return { error: t("validation.assignment_remove_not_identified") };
   }
 
   try {
     await revokeClubRoleAssignment(assignmentId);
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo remover la asignación", {
+      error: getActionErrorMessage(error, t("errors.remove_assignment_failed"), {
         endpointLabel: `/club-roles/${assignmentId}`,
       }),
     };
@@ -581,5 +656,5 @@ export async function removeClubSectionMemberAction(
 
   revalidatePath(`/dashboard/clubs/${clubId}`);
   revalidatePath(buildClubSectionPath(clubId, sectionId));
-  return { success: "Asignación removida correctamente" };
+  return { success: t("success.assignment_removed") };
 }

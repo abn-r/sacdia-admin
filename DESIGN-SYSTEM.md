@@ -3,6 +3,30 @@
 > Documento de referencia para todas las interfaces del panel administrativo.
 > Cada nueva pantalla, componente o modal debe seguir estas definiciones.
 
+> **Auditado: 2026-04-16**
+>
+> **Changelog de esta auditoria**:
+> - **Drift encontrado (6 items)**:
+>   1. `globals.css` confirma que `--font-display` esta mapeado a `--font-geist-sans` (NOT Instrument Serif) — el token CSS apunta a Geist. La referencia en seccion 3.1 a "Instrument Serif" como `--font-display` requiere verificacion en `layout.tsx`; el archivo CSS actual lo sobreescribe con Geist Sans. Anotado como posible regresion en Fase 4.
+>   2. `badge.tsx` tiene una variante adicional no documentada: `link` (`text-primary underline-offset-4 [a&]:hover:underline`). Documentada en seccion 5.2.
+>   3. Nuevos componentes de `ui/` no documentados: `calendar.tsx`, `command.tsx`, `popover.tsx`, `progress.tsx`, `radio-group.tsx`, `scroll-area.tsx`, `sonner.tsx`. Documentados en seccion 5.18 (Nuevos componentes UI).
+>   4. Nuevo componente shared `endpoint-error-banner.tsx` no documentado. Documentado en seccion 7.11.
+>   5. Nuevo componente shared `module-list-page.tsx` (Server Component para listados de modulos genericos). Documentado en seccion 7.12.
+>   6. CRUD pattern actualizado: la regla de la seccion 6.1 dice "Crear/Editar = Dialog modal" pero el doc Ember ya la cambio a "flujo por paginas". Confirmado como correcto — Dialog solo para excepciones puntuales. Sin drift, solo clarificacion.
+> - **Sin drift**: paleta OKLCH (todas las secciones 2.x), radio tokens (4.1), spacing (4.2-4.4), Button variants y sizes (5.1), Badge variants (5.2 salvo `link`), Tabs `line` variant (seccion nueva), iconos (8.x), animaciones (9.x), dark mode (13.x).
+
+> **Actualizado 2026-04-15 — Ember Redesign (fases 1-4)**. Este documento refleja el estado actual del sistema despues del rediseno "Ember". Cambios principales desde la version original:
+>
+> - **Paleta**: migrada de azul-violeta a naranja cobre. Primary `oklch(0.66 0.21 42)` (~#F05A28). Sidebar claro con pill naranja en item activo (estilo Finexy). Ver seccion 2.
+> - **Tipografia**: `Instrument Serif` como `--font-display` para h1 de PageHeader. Geist Sans para el resto. Ver seccion 3.
+> - **Radius**: base `0.75rem` (12px), escala completa `xs` -> `3xl`. Ver seccion 4.1.
+> - **Sombras**: escala custom con `--shadow-xs` (casi imperceptible) para cards. Ver globals.css.
+> - **Semanticos nuevos**: tokens `--success`, `--warning`, `--info` + foregrounds pareados. Badge variants `soft`, `soft-info`, `soft-success`, `soft-warning` para status tinted.
+> - **Componentes nuevos**: `<StatusBadge>` unificado con 9 intents (incluye `progress-1/2/3` para pipelines ordenados). `<PageHeader>` extendido con `font-display` + breadcrumbs.
+> - **Dark mode**: noise texture sutil via `body::before` para dar profundidad sin glassmorphism.
+>
+> Commits de referencia en `development`: `3734d87` (Fase 1 tokens+fonts) -> `4d9fb20` (Fase 2 base components) -> `cb78d20` (Fase 3 StatusBadge+PageHeader+Ola A) -> `bf7f4d0` (polish RBAC+enum) -> `ce59e93` (Fase 4 shell layout) -> `76452a3` (apiRequest auto-detect) -> `84f799c` (Ola B color cleanup) -> `fab11df` (tabs line variant).
+
 ---
 
 ## 1. Stack de UI
@@ -29,60 +53,71 @@
 
 ---
 
-## 2. Paleta de Color (OKLCH)
+## 2. Paleta de Color (OKLCH — Ember)
 
-El sistema usa CSS custom properties en OKLCH para precision de color perceptual. Todas las clases de Tailwind referencian estos tokens.
+El sistema usa CSS custom properties en OKLCH para precision de color perceptual. Todas las clases de Tailwind referencian estos tokens. Los valores de abajo reflejan el estado actual de `src/app/globals.css` post-Ember.
 
 ### 2.1 Tokens de Superficie
 
 | Token | Light Mode | Dark Mode | Uso |
 |-------|-----------|-----------|-----|
-| `--background` | `oklch(0.985 0.001 75)` | `oklch(0.16 0.025 280)` | Fondo general de la app |
-| `--foreground` | `oklch(0.147 0.004 49.25)` | `oklch(1 0 0)` | Texto principal |
-| `--card` | `oklch(1 0 0)` | `oklch(0.195 0.028 280)` | Fondo de tarjetas |
-| `--card-foreground` | `oklch(0.147 0.004 49.25)` | `oklch(1 0 0)` | Texto en tarjetas |
-| `--popover` | `oklch(1 0 0)` | `oklch(0.195 0.028 280)` | Fondo de popovers/menus |
-| `--muted` | `oklch(0.97 0.001 75)` | `oklch(0.22 0.025 280)` | Superficies secundarias |
-| `--muted-foreground` | `oklch(0.553 0.013 58)` | `oklch(0.65 0.02 250)` | Texto secundario/auxiliar |
-| `--accent` | `oklch(0.97 0.001 75)` | `oklch(0.395 0.27 264 / 10%)` | Hover backgrounds |
-| `--secondary` | `oklch(0.97 0.001 75)` | `oklch(0.22 0.025 280)` | Botones secundarios |
+| `--background` | `oklch(0.975 0.004 75)` | `oklch(0.155 0.012 60)` | Fondo general (stone calido) |
+| `--foreground` | `oklch(0.18 0.015 60)` | `oklch(0.96 0.005 75)` | Texto principal |
+| `--card` | `oklch(1 0 0)` | `oklch(0.19 0.014 60)` | Fondo de tarjetas |
+| `--card-foreground` | `oklch(0.18 0.015 60)` | `oklch(0.96 0.005 75)` | Texto en tarjetas |
+| `--popover` | `oklch(1 0 0)` | `oklch(0.21 0.015 60)` | Fondo de popovers/menus |
+| `--muted` | `oklch(0.96 0.008 75)` | `oklch(0.23 0.015 60)` | Superficies secundarias |
+| `--muted-foreground` | `oklch(0.52 0.012 60)` | `oklch(0.68 0.012 60)` | Texto secundario/auxiliar |
+| `--accent` | `oklch(0.94 0.015 70)` | `oklch(0.26 0.018 60)` | Hover backgrounds |
+| `--secondary` | `oklch(0.96 0.008 75)` | `oklch(0.23 0.015 60)` | Botones secundarios |
 
 ### 2.2 Colores Semanticos
 
 | Token | Light | Dark | Clase Tailwind | Uso |
 |-------|-------|------|----------------|-----|
-| `--primary` | `oklch(0.395 0.27 264)` | `oklch(0.395 0.27 264)` | `text-primary`, `bg-primary` | Acciones principales, enlaces, brand |
-| `--destructive` | `oklch(0.577 0.245 27.325)` | `oklch(0.65 0.2 25)` | `text-destructive`, `bg-destructive` | Errores, eliminaciones, alertas |
-| `--success` | `oklch(0.52 0.17 152)` | `oklch(0.62 0.17 152)` | `text-success`, `bg-success` | Estados activos, confirmaciones |
-| `--warning` | `oklch(0.75 0.15 80)` | `oklch(0.78 0.14 80)` | `text-warning`, `bg-warning` | Advertencias, estados pendientes |
+| `--primary` | `oklch(0.66 0.21 42)` | `oklch(0.72 0.19 42)` | `text-primary`, `bg-primary` | Acciones principales, enlaces, brand (naranja cobre Ember ~#F05A28) |
+| `--destructive` | `oklch(0.58 0.22 27)` | `oklch(0.67 0.22 27)` | `text-destructive`, `bg-destructive` | Errores, eliminaciones, alertas |
+| `--success` | `oklch(0.56 0.15 152)` | `oklch(0.66 0.16 152)` | `text-success`, `bg-success` | Estados activos, confirmaciones |
+| `--warning` | `oklch(0.74 0.16 75)` | `oklch(0.78 0.16 75)` | `text-warning`, `bg-warning` | Advertencias, estados pendientes |
+| `--info` | `oklch(0.58 0.14 235)` | `oklch(0.68 0.14 235)` | `text-info`, `bg-info` | Info general, estados "enviado" |
+
+Cada semantico tiene un `*-foreground` pareado para texto sobre fondo pleno:
+- `--destructive-foreground`, `--success-foreground`, `--warning-foreground`, `--info-foreground`
+
+**Patron soft tint**: para fondos translucidos con texto legible, usar `bg-{token}/10` o `/15` + `text-{token}`. En dark mode, algunos tokens (ej. warning) requieren override explicito `dark:text-{token}` porque el `*-foreground` en light es oscuro y colapsa contra bg translucido.
 
 ### 2.3 Colores de Borde e Input
 
 | Token | Light | Dark |
 |-------|-------|------|
-| `--border` | `oklch(0.923 0.003 48.72)` | `oklch(0.6 0.02 250 / 15%)` |
-| `--input` | `oklch(0.923 0.003 48.72)` | `oklch(0.6 0.02 250 / 12%)` |
-| `--ring` | `oklch(0.395 0.27 264)` | `oklch(0.395 0.27 264)` |
+| `--border` | `oklch(0.91 0.008 75)` | `oklch(1 0 0 / 0.08)` (translucido) |
+| `--input` | `oklch(0.91 0.008 75)` | `oklch(1 0 0 / 0.10)` |
+| `--ring` | `oklch(0.66 0.21 42 / 0.4)` | `oklch(0.72 0.19 42 / 0.5)` |
 
-### 2.4 Colores de Grafico
+### 2.4 Colores de Grafico (Paleta Ember)
 
-| Token | Uso | Clase |
-|-------|-----|-------|
-| `--chart-1` | Serie primaria | `var(--chart-1)` |
-| `--chart-2` | Serie secundaria | `var(--chart-2)` |
-| `--chart-3` | Serie terciaria | `var(--chart-3)` |
-| `--chart-4` | Serie cuaternaria (success-like) | `var(--chart-4)` |
-| `--chart-5` | Serie quinaria (warning-like) | `var(--chart-5)` |
+Los 5 chart tokens son la paleta ordenada que usa `StatusBadge progress-1/2/3`, `role-distribution-chart.tsx` y otros graficos/listados:
 
-### 2.5 Colores de Sidebar
+| Token | Light | Dark | Uso semantico |
+|-------|-------|------|---------------|
+| `--chart-1` | `oklch(0.66 0.21 42)` | `oklch(0.72 0.19 42)` | = primary (naranja cobre) — director, pipeline stage 1 |
+| `--chart-2` | `oklch(0.58 0.14 235)` | `oklch(0.68 0.14 235)` | azul — coordinacion, pipeline stage 2 |
+| `--chart-3` | `oklch(0.56 0.15 152)` | `oklch(0.66 0.16 152)` | verde — campo, pipeline stage 3 |
+| `--chart-4` | `oklch(0.74 0.16 75)` | `oklch(0.78 0.16 75)` | ambar warning-like |
+| `--chart-5` | `oklch(0.48 0.09 300)` | `oklch(0.6 0.1 300)` | purpura apagado |
 
-| Token | Uso |
-|-------|-----|
-| `--sidebar` | Fondo del sidebar |
-| `--sidebar-foreground` | Texto normal del sidebar |
-| `--sidebar-primary` | Color primario del sidebar (= primary) |
-| `--sidebar-accent` | Background hover/activo en sidebar |
-| `--sidebar-border` | Borde del sidebar |
+### 2.5 Colores de Sidebar (Light pill pattern)
+
+El sidebar usa el pattern Finexy: fondo claro con pill naranja relleno en el item activo.
+
+| Token | Light | Dark | Uso |
+|-------|-------|------|-----|
+| `--sidebar` | `oklch(0.985 0.004 75)` | `oklch(0.175 0.013 60)` | Fondo del sidebar (ligeramente mas claro que bg en light; mas oscuro en dark) |
+| `--sidebar-foreground` | `oklch(0.42 0.015 60)` | `oklch(0.72 0.012 60)` | Texto normal del sidebar |
+| `--sidebar-primary` | `oklch(0.66 0.21 42)` | `oklch(0.72 0.19 42)` | Pill naranja del item activo |
+| `--sidebar-primary-foreground` | `oklch(0.99 0.005 75)` | `oklch(0.15 0.015 60)` | Texto sobre pill activo |
+| `--sidebar-accent` | `oklch(0.94 0.01 75)` | `oklch(0.24 0.016 60)` | Hover bg (items inactivos) |
+| `--sidebar-border` | `transparent` | `oklch(1 0 0 / 0.06)` | Sin border visible en light |
 
 ### 2.6 Reglas de Uso de Color
 
@@ -111,10 +146,15 @@ EXCEPCION:
 
 ### 3.1 Fuentes
 
-| Variable | Stack | Uso |
-|----------|-------|-----|
-| `--font-geist-sans` | `"Inter", "SF Pro Display", -apple-system, sans-serif` | Todo el texto de la app |
-| `--font-geist-mono` | `"JetBrains Mono", "SF Mono", monospace` | Codigo, valores tabulares |
+Cargadas via `next/font/google` en `src/app/layout.tsx` y expuestas como CSS variables en `globals.css @theme`:
+
+| Variable | Fuente | Uso |
+|----------|--------|-----|
+| `--font-geist-sans` | `Geist` (Vercel) | Todo el texto de UI — geometrica, distintiva, con stylistic alternates activadas (`cv02`, `cv03`, `cv04`, `cv11`, `ss01`) |
+| `--font-geist-mono` | `Geist Mono` (Vercel) | Codigo, valores tabulares |
+| `--font-display` | `Instrument Serif` (Google Fonts) | **SOLO h1 de `<PageHeader>`** — serif elegante para titulos de pagina |
+
+**Regla critica**: Instrument Serif SOLO en h1 via `<PageHeader>`. NO usarla en body, numeros KPI, o cualquier otro contexto. Los numeros KPI van en Geist bold con `tabular-nums` (ver seccion 3.2). El serif en body es ilegible a `text-sm`.
 
 ### 3.2 Escala Tipografica
 
@@ -150,29 +190,34 @@ EXCEPCION:
 
 ### 4.1 Radios de Borde
 
+Base 12px (mas generoso que shadcn default) con escala de 6 pasos:
+
 | Token | Valor | Uso |
 |-------|-------|-----|
-| `--radius` | `0.5rem` (8px) | Base |
-| `--radius-sm` | `calc(var(--radius) - 4px)` = 4px | Checkboxes, badges pequeños |
-| `--radius-md` | `calc(var(--radius) - 2px)` = 6px | Inputs, buttons |
-| `--radius-lg` | `var(--radius)` = 8px | Cards, dialogs |
-| `--radius-xl` | `calc(var(--radius) + 4px)` = 12px | Cards grandes, login |
-| `--radius-2xl` | `calc(var(--radius) + 8px)` = 16px | Elementos especiales |
+| `--radius` | `0.75rem` (12px) | Base |
+| `--radius-xs` | `calc(var(--radius) - 8px)` = 4px | Elementos micro |
+| `--radius-sm` | `calc(var(--radius) - 6px)` = 6px | Checkboxes, badges pequenos |
+| `--radius-md` | `calc(var(--radius) - 4px)` = 8px | Inputs, buttons |
+| `--radius-lg` | `calc(var(--radius) - 2px)` = 10px | Menu items, dropdowns |
+| `--radius-xl` | `var(--radius)` = 12px | Cards, dialogs |
+| `--radius-2xl` | `calc(var(--radius) + 4px)` = 16px | Cards grandes, containers destacados |
+| `--radius-3xl` | `calc(var(--radius) + 8px)` = 20px | Elementos especiales, hero |
 
 **Clases principales:**
-- `rounded-md` -> Inputs, buttons, selects (6px)
-- `rounded-lg` -> Sidebar items, icons containers (8px)
+- `rounded-md` -> Inputs, buttons, selects (8px)
+- `rounded-lg` -> Dropdown content, menu items (10px)
 - `rounded-xl` -> Cards, modals, containers principales (12px)
-- `rounded-full` -> Avatars, dots, badges circulares
+- `rounded-2xl` -> Cards destacadas, contenedores con presencia (16px)
+- `rounded-full` -> Avatars, dots, badges circulares, search bars
 
 ### 4.2 Grid del Dashboard
 
 ```
 Layout principal:
-  Sidebar (w-64, sticky top-0, h-screen) | Contenido (flex-1)
+  Sidebar (w-60 = 240px, sticky top-0, h-screen) | Contenido (flex-1, max-w-[1536px] mx-auto)
 
 Contenido:
-  Header (h-16, sticky top-0, border-b)
+  Header (h-14, sticky top-0, border-b)
   Main (padding: p-4 md:p-6)
 
 Spacing vertical entre secciones:
@@ -215,13 +260,15 @@ Spacing de padding en Cards:
 
 | Variante | Uso | Clase |
 |----------|-----|-------|
-| `default` | Acciones primarias (Crear, Guardar) | `bg-primary text-primary-foreground` |
-| `destructive` | Eliminar, desactivar | `bg-destructive text-white` |
-| `outline` | Acciones secundarias, filtros, cancelar | `border bg-background` |
-| `secondary` | Alternativa neutra | `bg-secondary text-secondary-foreground` |
-| `ghost` | Iconos, acciones sutiles en tablas | `hover:bg-accent` |
-| `link` | Links en texto, "Ver todos" | `text-primary underline-offset-4` |
-| `success` | Confirmaciones positivas | `bg-success text-success-foreground` |
+| `default` | Acciones primarias (Crear, Guardar) | `bg-primary text-primary-foreground hover:bg-primary/90` |
+| `destructive` | Eliminar, desactivar | `bg-destructive text-white hover:bg-destructive/90` |
+| `outline` | Acciones secundarias, filtros, cancelar | `border bg-background shadow-xs hover:bg-accent` |
+| `secondary` | Alternativa neutra | `bg-secondary text-secondary-foreground hover:bg-secondary/80` |
+| `ghost` | Iconos, acciones sutiles en tablas | `hover:bg-accent hover:text-accent-foreground` |
+| `soft` | CTA secundario con color sin llenar | `bg-primary/10 text-primary hover:bg-primary/15` |
+| `link` | Links en texto, "Ver todos" | `text-primary underline-offset-4 hover:underline` |
+
+**Nuevo en Ember (Fase 2)**: la variante `soft` cubre el gap entre `default` (lleno, grita) y `ghost`/`secondary` (gris plano). Ideal para "Ver mas", "Exportar", CTAs de card header donde queres color sin competir con la accion primaria de la pagina.
 
 | Tamano | Uso | Valor |
 |--------|-----|-------|
@@ -246,20 +293,40 @@ Spacing de padding en Cards:
 
 **Import:** `@/components/ui/badge`
 
+Badge ahora tiene 11 variantes — las 6 clasicas (pleno + outline) mas las 4 `soft-*` tinted + `soft` primary que agregamos en Fase 2/3 como base del `<StatusBadge>` unificado.
+
+**Variantes plenas (filled)**:
+
 | Variante | Uso | Estilo |
 |----------|-----|--------|
-| `default` | Tags genericos, conteos | `bg-primary/10 text-primary border-primary/20` |
+| `default` | Tags genericos, conteos | `bg-primary text-primary-foreground` |
 | `secondary` | Labels neutros | `bg-secondary text-secondary-foreground` |
-| `success` | Estado activo | `bg-success/10 text-success border-success/20` |
-| `destructive` | Estado error/inactivo | `bg-destructive/10 text-destructive` |
-| `warning` | Estado pendiente | `bg-warning/10 text-warning-foreground` |
-| `outline` | Etiquetas sutiles | `bg-transparent text-foreground border-border` |
+| `destructive` | Estado error/inactivo | `bg-destructive text-white` |
+| `success` | Estado activo pleno | `bg-success text-success-foreground` |
+| `warning` | Estado pendiente pleno | `bg-warning text-warning-foreground` |
+| `outline` | Etiquetas sutiles | `border-border text-foreground` |
+| `ghost` | Hover only | `[a&]:hover:bg-accent` |
+| `link` | Badge como enlace inline | `text-primary underline-offset-4 [a&]:hover:underline` |
 
-**Patron de uso:**
+**Variantes soft (tinted — preferidas para status)**:
+
+| Variante | Uso | Estilo |
+|----------|-----|--------|
+| `soft` | Tag primary tinted | `bg-primary/10 text-primary border-primary/20` |
+| `soft-info` | Status "enviado/en proceso" | `bg-info/10 text-info border-info/20` |
+| `soft-success` | Status "validado/aprobado" | `bg-success/10 text-success border-success/20` |
+| `soft-warning` | Status "pendiente/atencion" | `bg-warning/15 text-warning-foreground border-warning/30 dark:text-warning` |
+
+**Regla de uso**: para status de dominio (submitted, approved, rejected, pending, etc.) **NO** uses `<Badge variant="...">` directo — usa `<StatusBadge intent="...">` de la seccion 7.4 que delega a Badge con el variant correcto. Badge directo solo para tags genericos o labels estaticos.
+
+**Patron de uso**:
 ```tsx
-<Badge variant="success">Activo</Badge>
-<Badge variant="warning">Pendiente</Badge>
-<Badge variant="destructive">Inactivo</Badge>
+// Status de dominio — preferir StatusBadge
+<StatusBadge intent="success" label="Aprobado" />
+
+// Tag estatico generico
+<Badge variant="outline">Solo lectura</Badge>
+<Badge variant="soft">Nuevo</Badge>
 ```
 
 ### 5.3 Card
@@ -298,14 +365,16 @@ Estructura base: `Card > CardHeader > CardTitle + CardDescription > CardContent 
 </Card>
 ```
 
-**Clases base de Card:** `rounded-xl border bg-card text-card-foreground shadow-sm`
+**Clases base de Card** (Ember — sombra casi imperceptible + border sutil): `rounded-xl border border-border/60 bg-card text-card-foreground shadow-xs`
+
+La sombra default paso de `shadow-sm` a `shadow-xs` en Fase 2. El border cambio de `border` a `border-border/60`. Motivo: Finexy-style cards deben flotar sobre `bg-background` con contraste minimo, confiando en el microcontraste de luminosidad (card blanco sobre stone-50) mas que en el elevation visible.
 
 ### 5.4 Table
 
 **Import:** `@/components/ui/table`
 
 ```tsx
-<div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
+<div className="overflow-x-auto rounded-xl border border-border/60 bg-card shadow-xs">
   <Table>
     <TableHeader>
       <TableRow>
@@ -504,6 +573,67 @@ Estructura base: `Card > CardHeader > CardTitle + CardDescription > CardContent 
 - Soporta `side`: `top | right | bottom | left`
 - Default: `right`, ancho `w-3/4 sm:max-w-sm`
 
+### 5.18 Tabs
+
+**Import:** `@/components/ui/tabs`
+
+Tabs con dos variantes:
+
+| Variante de `TabsList` | Estilo | Uso |
+|------------------------|--------|-----|
+| `default` | `bg-muted rounded-lg p-[3px]` — tabs con fondo muted, active con `bg-background` | Tabs dentro de cards, paneles internos |
+| `line` | Fondo transparente, sin pill — active muestra underline naranja (`after:bg-primary`) con `text-primary` | Tabs de navegacion de seccion, separacion por categorias |
+
+```tsx
+// Variante default (pill style)
+<Tabs defaultValue="tab1">
+  <TabsList>
+    <TabsTrigger value="tab1">Pestaña 1</TabsTrigger>
+    <TabsTrigger value="tab2">Pestaña 2</TabsTrigger>
+  </TabsList>
+  <TabsContent value="tab1">...</TabsContent>
+</Tabs>
+
+// Variante line (underline style — commit fab11df)
+<Tabs defaultValue="tab1">
+  <TabsList variant="line">
+    <TabsTrigger value="tab1">Pestaña 1</TabsTrigger>
+    <TabsTrigger value="tab2">Pestaña 2</TabsTrigger>
+  </TabsList>
+  <TabsContent value="tab1">...</TabsContent>
+</Tabs>
+```
+
+**Orientacion**: soporta `horizontal` (default) y `vertical` via prop `orientation` en `<Tabs>`.
+
+### 5.19 Progress
+
+**Import:** `@/components/ui/progress`
+
+Barra de progreso lineal de Radix UI.
+
+```tsx
+<Progress value={75} />           // 75% completado
+<Progress value={null} />         // indeterminado (animacion de barrido)
+```
+
+- Track: `bg-primary/20 h-2 rounded-full`
+- Fill: `bg-primary`
+- Para progreso con label o gradiente custom, usar el patron de seccion 12.2 (Progress Bars DIY).
+
+### 5.20 Otros componentes UI instalados
+
+Los siguientes componentes estan instalados en `src/components/ui/` pero se usan en contextos puntuales. Seguir las mismas reglas de tokens y dark mode si se usan:
+
+| Componente | Archivo | Uso tipico |
+|------------|---------|------------|
+| `Calendar` | `calendar.tsx` | Seleccion de fecha en formularios con fecha expandida |
+| `Command` | `command.tsx` | Combobox con busqueda (base de selects con search) |
+| `Popover` | `popover.tsx` | Contenedor flotante sin modal (anchored overlay) |
+| `RadioGroup` | `radio-group.tsx` | Seleccion de una opcion entre varias |
+| `ScrollArea` | `scroll-area.tsx` | Scroll personalizado en contenedores acotados |
+| `Sonner` | `sonner.tsx` | Wrapper del provider de toasts (ver seccion 7.10) |
+
 ---
 
 ## 6. Patrones de CRUD
@@ -534,6 +664,30 @@ No usar `Dialog` como patron principal de CRUD.
 - Crear (`/new`): submit -> POST -> `toast.success` -> redirect al listado.
 - Editar (`/[id]`): submit -> PUT/PATCH -> `toast.success` -> redirect al listado.
 - Mantener `PageHeader`, boton "Volver" y estado loading del submit.
+
+### 6.1.1 Dialog — Excepciones Permitidas
+
+La regla "Crear/Editar = paginas dedicadas" aplica a entidades de primera clase (clubs, usuarios, actividades, etc.). Existen cuatro patrones de excepcion donde un `Dialog` es correcto:
+
+| Patron | Archivo de referencia | Por que es Dialog y no pagina |
+|--------|----------------------|-------------------------------|
+| **Catalogo inline** | `src/components/catalogs/catalog-form-dialog.tsx` | Catalogos simples (1-3 campos) que viven como sub-entidad de una pagina padre. Navegar a una pagina dedicada rompe el flujo de la pagina padre. |
+| **Accion puntual con parametros** | `src/components/member-of-month/evaluate-dialog.tsx` | El dialogo lanza un calculo/operacion (no crea un registro editable) y captura un par de parametros (mes + año). No hay pantalla de edicion posterior. |
+| **Historial inline / log viewer** | `src/components/investiture/pipeline-history-dialog.tsx` | Muestra informacion de solo lectura (log de eventos) como overlay sobre la pantalla actual. Abrir una pagina nueva perderia el contexto del listado. |
+| **Panel embebido con formulario secundario** | `src/components/clubs/club-sections-panel.tsx` | El formulario de "nueva seccion" esta embebido dentro de un panel de detalle de club. Un dialog permite crear la seccion sin perder el contexto del club. |
+
+**Regla de decision para futuros casos:**
+
+Usar `Dialog` cuando se cumplan TODOS de los siguientes criterios:
+1. La operacion es secundaria respecto a la pantalla actual (no es el flujo principal).
+2. El formulario tiene 4 campos o menos, o es una accion parametrizada (no un recurso editable completo).
+3. Volver a la pantalla padre despues de la accion es el comportamiento esperado (no hay navegacion downstream).
+4. El contenido mostrado es de solo lectura (log, historial) o es una micro-entidad sin CRUD propio.
+
+Usar pagina dedicada (`/new`, `/[id]`) cuando:
+- El recurso tiene su propio ciclo de vida (puede editarse de nuevo mas adelante).
+- El formulario tiene 5+ campos o logica compleja (validaciones cruzadas, selects encadenados, uploads).
+- Se espera navegacion posterior al guardar (ej. ver detalle del recurso creado).
 
 ### 6.2 Eliminar / Desactivar -> Confirmacion (AlertDialog)
 
@@ -628,7 +782,7 @@ import {
   </div>
 
   {/* Tabla */}
-  <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
+  <div className="overflow-x-auto rounded-xl border border-border/60 bg-card shadow-xs">
     <Table>...</Table>
   </div>
 
@@ -650,18 +804,32 @@ import {
 
 **Import:** `@/components/shared/page-header`
 
+Consumido por ~61 paginas del admin. **La firma tipografica del rediseno Ember vive aqui** — el h1 renderiza con `font-display` (Instrument Serif) para dar presencia editorial a los titulos de pagina.
+
 ```tsx
 <PageHeader
-  icon={ShieldCheck}           // Opcional: LucideIcon
   title="Titulo de la pagina"
   description="Descripcion corta de la seccion."
-  actions={<Button>Accion</Button>}  // Opcional: ReactNode
-/>
+  breadcrumbs={[                        // Opcional: array de breadcrumbs
+    { label: "Dashboard", href: "/dashboard" },
+    { label: "Seccion", href: "/dashboard/seccion" },
+    { label: "Detalle" },               // El ultimo sin href
+  ]}
+  actions={<Button>Accion</Button>}     // Opcional: ReactNode
+>
+  {/* Legacy: `children` tambien se renderiza como actions (retrocompat) */}
+</PageHeader>
 ```
 
-- Icono en contenedor `h-9 w-9 rounded-lg bg-primary/10 text-primary`
-- Titulo: `text-xl font-semibold tracking-tight`
-- Descripcion: `text-[13px] text-muted-foreground`
+**Estilo aplicado al h1**: `font-display text-3xl font-normal leading-[1.05] tracking-tight text-foreground sm:text-4xl`.
+
+**Reglas**:
+- **NO** uses `font-bold` en el h1 — Instrument Serif solo tiene weight 400 en Google Fonts y bold visualmente colapsa el caracter del serif.
+- El titulo va en `font-normal` (400) con tracking negativo + leading apretado. Confiar en el peso del serif.
+- `text-3xl` en mobile, `text-4xl` en desktop (≥640px).
+- Breadcrumbs opcionales con separador chevron, semanticos (`<nav aria-label="Breadcrumb">`).
+- Description tiene `max-w-prose` para que no se estire todo el ancho.
+- Actions se agrupan a la derecha en desktop, debajo en mobile.
 
 ### 7.2 EmptyState
 
@@ -693,12 +861,66 @@ import {
 
 ### 7.4 StatusBadge
 
-**Import:** `@/components/shared/status-badge`
+**Import:** `@/components/ui/status-badge` (vive en `ui/`, no `shared/`, desde Fase 3)
+
+Componente unificado para **todos los badges de status de dominio**. Reemplaza el patron anterior de "un wrapper por feature hardcodeando colores por estado". Los 7 wrappers existentes (`investiture-status-badge`, `pipeline-status-badge`, `folder-status-badge`, `evidence-status-badge`, `evidence-type-badge`, `validation-status-badge`, `request-status-badge`) son ahora thin wrappers sobre `StatusBadge` que solo mapean enums de dominio al intent generico.
+
+**API:**
 
 ```tsx
-<StatusBadge active={true} />  // -> Badge variant="success" "Activo"
-<StatusBadge active={false} /> // -> Badge variant="destructive" "Inactivo"
+<StatusBadge
+  intent="success"                     // Requerido: ver tabla abajo
+  label="Aprobado"                     // Requerido: string
+  icon={CheckCircle2}                  // Opcional: LucideIcon
+  size="default"                       // Opcional: "xs" | "sm" | "default"
+  className="..."                      // Opcional: overrides
+/>
 ```
+
+**Intents disponibles (9)**:
+
+| Intent | Badge variant usado | Uso |
+|--------|---------------------|-----|
+| `neutral` | `outline` | Estados inactivos, "sin enviar", draft |
+| `info` | `soft-info` | Enviado, en cola, info general |
+| `success` | `soft-success` | Aprobado, validado, completado |
+| `warning` | `soft-warning` | Pendiente, necesita atencion |
+| `destructive` | `destructive` (pleno) | Rechazado, fallo |
+| `primary` | `soft` | Estado final positivo (ej. investido) |
+| `progress-1` | `outline` + chart-1 tint | Pipeline stage 1 (ej. aprobado por director) |
+| `progress-2` | `outline` + chart-2 tint | Pipeline stage 2 (ej. aprobado por coordinacion) |
+| `progress-3` | `outline` + chart-3 tint | Pipeline stage 3 (ej. aprobado por campo) |
+
+**Los `progress-*`** reutilizan los chart tokens (`--chart-1/2/3`) con `color-mix(in oklch, ..., transparent)` para tints translucidos. Representan progresion ordenada en pipelines (ej. el pipeline de investidura tiene 3 etapas antes de `INVESTED`). Cada stage se ve con un tono distinto de la paleta ordenada de charts.
+
+**Patron wrapper feature-specific** (ejemplo real):
+
+```tsx
+// src/components/investiture/investiture-status-badge.tsx
+import { StatusBadge, type StatusIntent } from "@/components/ui/status-badge";
+import type { InvestitureStatus } from "@/lib/api/investiture";
+
+const statusMap: Record<InvestitureStatus, { label: string; intent: StatusIntent }> = {
+  IN_PROGRESS: { label: "En progreso", intent: "neutral" },
+  SUBMITTED: { label: "Enviado", intent: "warning" },
+  CLUB_APPROVED: { label: "Aprobado por club", intent: "progress-1" },
+  COORDINATOR_APPROVED: { label: "Aprobado por coordinacion", intent: "progress-2" },
+  FIELD_APPROVED: { label: "Aprobado por campo", intent: "progress-3" },
+  APPROVED: { label: "Aprobado", intent: "success" },
+  REJECTED: { label: "Rechazado", intent: "destructive" },
+  INVESTED: { label: "Investido", intent: "primary" },
+};
+
+export function InvestitureStatusBadge({ status }: { status: InvestitureStatus }) {
+  const config = statusMap[status] ?? { label: status, intent: "neutral" as StatusIntent };
+  return <StatusBadge intent={config.intent} label={config.label} />;
+}
+```
+
+**Reglas**:
+- **NO** pongas logica de dominio dentro de `StatusBadge` — el componente no sabe que es "SUBMITTED". Los wrappers feature-specific son los unicos que conocen enums del backend.
+- **NO** dupliques estilos — siempre delegar a `<Badge variant="soft-*">`. La unica excepcion son los 3 `progress-*` que usan `color-mix` + `var(--chart-N)` inline.
+- Cuando el backend cambia un enum (ej. la migracion `20260413130000` que paso evidence status a uppercase), hay que actualizar el map del wrapper correspondiente.
 
 ### 7.5 DataTable
 
@@ -744,12 +966,45 @@ Wrapper reutilizable de AlertDialog para acciones destructivas.
 />
 ```
 
-### 7.8 CatalogFormPage
+### 7.8 CatalogEntityPage (orquestador canonico)
 
-**Import:** `@/components/catalogs/catalog-form-page`
+**Import:** `@/components/catalogs/catalog-entity-page`
 
-Componente de pagina para formularios CRUD de catalogos.  
-Exponer `CatalogNewPage` y `CatalogEditPage` como patron oficial para `/new` y `/[id]`.
+**Este es el punto de entrada oficial para las ~13 paginas de catalogo.** Cada pagina en `app/(dashboard)/dashboard/catalogs/*/page.tsx` usa exclusivamente este componente. Es un Server Component asincrono.
+
+**Props:**
+
+| Prop | Tipo | Descripcion |
+|------|------|-------------|
+| `entityKey` | `EntityKey` | Clave del catalogo — resuelve config, endpoint, campos, y routeBase desde `entityConfigs` en `lib/catalogs/entities.ts` |
+
+**Responsabilidades internas de CatalogEntityPage:**
+1. `requireAdminUser()` — protege la ruta sin repetir logica en cada page.
+2. Fetcha items con `listEntityItems(entityKey)` — envuelve el error en un `EndpointErrorBanner` si falla.
+3. Resuelve `selectOptions` para campos tipo `select` con entidades relacionadas.
+4. Pasa todo a `CatalogCrudPage` (client component que maneja el estado de UI del listado + dialogo inline).
+
+**Uso tipico (consumer):**
+
+```tsx
+// src/app/(dashboard)/dashboard/catalogs/allergies/page.tsx
+import { CatalogEntityPage } from "@/components/catalogs/catalog-entity-page";
+
+export default function AllergiesPage() {
+  return <CatalogEntityPage entityKey="allergies" />;
+}
+```
+
+Para agregar un nuevo catalogo: (1) registrar la config en `lib/catalogs/entities.ts`, (2) crear la carpeta en `app/(dashboard)/dashboard/catalogs/{entity}/`, (3) agregar `page.tsx` con el snippet de arriba. No hay mas codigo.
+
+**Jerarquia de componentes internos** (para referencia — no usar directamente en pages):
+
+| Componente | Archivo | Rol |
+|------------|---------|-----|
+| `CatalogEntityPage` | `catalog-entity-page.tsx` | **Orquestador** — Server Component, fetching, auth |
+| `CatalogCrudPage` | `catalog-crud-page.tsx` | Client Component — tabla + estado de UI + dialogo de crear/editar |
+| `CatalogFormDialog` | `catalog-form-dialog.tsx` | Dialog de crear/editar (excepcion permitida per §6.1.1) |
+| `CatalogDeleteDialog` | `catalog-delete-dialog.tsx` | AlertDialog de desactivacion |
 
 ### 7.9 CatalogDeleteDialog
 
@@ -774,6 +1029,55 @@ toast.success("Registro creado correctamente");
 toast.error("Error al guardar el registro");
 toast.warning("El registro ya existe");
 ```
+
+### 7.11 EndpointErrorBanner
+
+**Import:** `@/components/shared/endpoint-error-banner`
+
+Banner de error para endpoints no disponibles, prohibidos o limitados por rate. Usado dentro de Server Components cuando el fetch falla.
+
+```tsx
+<EndpointErrorBanner
+  state="forbidden"     // "forbidden" | "missing" | "rate-limited"
+  detail="No tienes permisos para ver este recurso."
+  showLoginLink={true}  // Opcional: muestra boton "Ir a login"
+/>
+```
+
+| Estado | Icono | Badge variant |
+|--------|-------|---------------|
+| `forbidden` | `ShieldOff` | `destructive` |
+| `missing` | `ServerOff` | `secondary` |
+| `rate-limited` | `Clock` | `outline` |
+
+Estilo del contenedor: `rounded-lg border border-destructive/30 bg-destructive/5 p-4`.
+
+### 7.12 ModuleListPage
+
+**Import:** `@/components/shared/module-list-page`
+
+Server Component asincrono para paginas de listado de modulos con fetch de API integrado. Alternativa lightweight a `DataTable` cuando no se necesita busqueda client-side.
+
+```tsx
+// En un page.tsx (Server Component)
+<ModuleListPage
+  title="Recursos"
+  description="Lista de recursos del sistema."
+  endpoint="/resources"
+  icon={BookOpen}
+  columns={[
+    { key: "name", label: "Nombre" },
+    { key: "type", label: "Tipo", format: (v) => <Badge>{String(v)}</Badge> },
+    { key: "createdAt", label: "Fecha" },
+  ]}
+  idKey="id"
+/>
+```
+
+- Llama internamente a `apiRequest(endpoint)` y extrae el array del payload (soporta `[]`, `{data:[]}`, `{data:{data:[]}}`).
+- Si falla el fetch, renderiza `<EndpointErrorBanner>` en lugar de lanzar.
+- Columna de formato con `format?: (value, item) => ReactNode` para celdas custom.
+- Llama a `requireAdminUser()` — solo para rutas del dashboard admin.
 
 ---
 
@@ -915,7 +1219,7 @@ Los componentes Dialog y AlertDialog incluyen automaticamente:
 
 ```
 +-------------------------------------------------------------------+
-| Sidebar (w-64)  |  Header (h-16, sticky)                         |
+| Sidebar (w-60)  |  Header (h-14, sticky)                         |
 | - Brand logo    |  [Mobile menu] [Breadcrumbs] ... [Search]      |
 | - Nav groups    |  [Theme] [Notifications] [User]                |
 | - Separators    |                                                 |
@@ -929,7 +1233,7 @@ Los componentes Dialog y AlertDialog incluyen automaticamente:
 
 ### 10.2 Sidebar
 
-- Ancho fijo: `w-64`
+- Ancho fijo: `w-60` (240px, set via `--sidebar-width: 15rem` en SidebarProvider)
 - Oculto en mobile (`hidden md:block`)
 - Mobile: usa `Sheet` (panel lateral)
 - Brand: icono `h-8 w-8 rounded-lg` + nombre `text-lg font-bold`
@@ -941,7 +1245,7 @@ Los componentes Dialog y AlertDialog incluyen automaticamente:
 
 ### 10.3 Header
 
-- Altura: `h-16`
+- Altura: `h-14` (56px, reducido de 64px en Fase 4 para ganar espacio vertical)
 - Sticky: `sticky top-0 z-30`
 - Background: `bg-card/80 backdrop-blur-sm`
 - Border: `border-b border-border`
@@ -1158,12 +1462,69 @@ className="bg-blue-50 text-blue-600"
 className="bg-amber-100 text-amber-800"
 ```
 
-### 13.4 Login (Dark-only)
+### 13.4 Login Page
 
-La pagina de login siempre usa fondo oscuro (`bg-[#101022]`) con:
-- Card: `bg-[#16162c] border-white/10`
-- Texto: `text-white`, `text-slate-400`, `text-white/40`
-- Inputs: `border-slate-700 bg-slate-900/50 text-white`
+**File:** `src/app/(auth)/login/page.tsx`
+
+La pagina de login es DUAL-MODE (se adapta a light y dark) usando exclusivamente tokens semanticos. NO usa colores hardcoded ni dark-only. La descripcion anterior ("`bg-[#101022]`") era incorrecta — esos colores pertenecian al diseno anterior pre-Ember.
+
+#### Layout structure
+
+```
+div.relative.min-h-svh.overflow-hidden.bg-background   ← fondo semantico
+  ├── div.absolute.inset-0  (grid pattern — aria-hidden)
+  ├── div.absolute.-top-32.-left-32  (ambient glow top-left — aria-hidden)
+  ├── div.absolute.-bottom-32.-right-32  (ambient glow bottom-right — aria-hidden)
+  └── div.relative.z-10.w-full.max-w-sm  (card container — centered)
+       ├── Brand header (logo + wordmark — OUTSIDE the card)
+       ├── div.rounded-2xl.border.bg-card  (card body)
+       │    ├── h1 + subtitle
+       │    └── form (email + password + submit)
+       └── Bible verse (OUTSIDE the card, below)
+```
+
+#### Tokens utilizados
+
+| Elemento | Token / Clase |
+|----------|--------------|
+| Fondo de pagina | `bg-background` |
+| Grid pattern | `opacity-[0.03] dark:opacity-[0.06]` sobre `currentColor` |
+| Glow top-left | `size-[480px] rounded-full bg-primary/10 dark:bg-primary/15 blur-3xl` |
+| Glow bottom-right | `size-[360px] rounded-full bg-primary/8 dark:bg-primary/10 blur-3xl` |
+| Card border | `border-border/60` |
+| Card fondo | `bg-card` |
+| Card shadow | `shadow-sm` |
+| Card radius | `rounded-2xl` |
+| Logo container | `rounded-xl border border-border/60 bg-card shadow-sm` |
+| Titulo h1 | `text-xl font-semibold tracking-tight text-foreground` |
+| Subtitulo | `text-sm text-muted-foreground` |
+| Labels | `text-sm font-medium` |
+| Inputs | `h-10` (usa el InputDecorationTheme global) |
+| Password toggle | `text-muted-foreground/50 hover:text-muted-foreground` |
+| Error banner | `border-destructive/20 bg-destructive/5 text-destructive dark:border-destructive/30 dark:bg-destructive/10` |
+| Versiculo bible | `text-[11px] italic text-muted-foreground/40 dark:text-muted-foreground/30` |
+
+#### Grid pattern inline (no hay clase Tailwind equivalente)
+
+```tsx
+style={{
+  backgroundImage:
+    "linear-gradient(to right, currentColor 1px, transparent 1px), linear-gradient(to bottom, currentColor 1px, transparent 1px)",
+  backgroundSize: "64px 64px",
+}}
+```
+
+#### Animacion de entrada
+
+El contenedor de la card usa: `animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out`
+
+#### Comportamiento responsive
+
+Padding de pagina: `p-4` en todos los breakpoints. La card tiene `max-w-sm` (384px) y se centra con `flex items-center justify-center`. No hay layout diferente en mobile vs desktop.
+
+#### Regla para replicar
+
+Toda nueva pagina de auth (futura pantalla de registro, recuperacion de password, etc.) debe seguir este mismo patron: `bg-background` + glows `bg-primary/10` + card `bg-card border-border/60`. Nunca usar fondos oscuros hardcoded.
 
 ---
 
@@ -1343,29 +1704,41 @@ src/
 │   │   ├── badge.tsx
 │   │   ├── breadcrumb.tsx
 │   │   ├── button.tsx
+│   │   ├── calendar.tsx           # Nuevo (auditoria 2026-04-16)
 │   │   ├── card.tsx
 │   │   ├── checkbox.tsx
 │   │   ├── collapsible.tsx
+│   │   ├── command.tsx            # Nuevo (auditoria 2026-04-16)
 │   │   ├── dialog.tsx
 │   │   ├── dropdown-menu.tsx
 │   │   ├── input.tsx
 │   │   ├── label.tsx
+│   │   ├── popover.tsx            # Nuevo (auditoria 2026-04-16)
+│   │   ├── progress.tsx           # Nuevo (auditoria 2026-04-16)
+│   │   ├── radio-group.tsx        # Nuevo (auditoria 2026-04-16)
+│   │   ├── scroll-area.tsx        # Nuevo (auditoria 2026-04-16)
 │   │   ├── select.tsx
 │   │   ├── separator.tsx
 │   │   ├── sheet.tsx
 │   │   ├── skeleton.tsx
+│   │   ├── sonner.tsx             # Nuevo (auditoria 2026-04-16)
+│   │   ├── status-badge.tsx
 │   │   ├── switch.tsx
 │   │   ├── table.tsx
+│   │   ├── tabs.tsx               # Nuevo (auditoria 2026-04-16)
 │   │   ├── textarea.tsx
 │   │   └── tooltip.tsx
 │   ├── shared/              # Componentes reutilizables
+│   │   ├── app-alert-listener.tsx
 │   │   ├── app-toaster.tsx
 │   │   ├── confirm-dialog.tsx
 │   │   ├── data-table.tsx
 │   │   ├── data-table-pagination.tsx
 │   │   ├── data-table-toolbar.tsx
 │   │   ├── empty-state.tsx
+│   │   ├── endpoint-error-banner.tsx  # Nuevo (auditoria 2026-04-16)
 │   │   ├── loading-skeleton.tsx
+│   │   ├── module-list-page.tsx       # Nuevo (auditoria 2026-04-16)
 │   │   ├── page-header.tsx
 │   │   └── status-badge.tsx
 │   ├── layout/              # Componentes de layout
@@ -1384,7 +1757,7 @@ src/
 │   └── theme-toggle.tsx
 └── lib/
     ├── utils.ts             # cn() utility
-    ├── auth/                # Autenticacion Supabase
+    ├── auth/                # Autenticación JWT + Better Auth
     ├── catalogs/            # Logica de catalogos
     └── providers/           # React Query, etc.
 ```

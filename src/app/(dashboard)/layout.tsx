@@ -20,12 +20,21 @@ export default async function DashboardLayout({
   return (
     <AuthProvider>
       <QueryProvider>
-        <SidebarProvider defaultOpen={defaultOpen}>
+        <SidebarProvider
+          defaultOpen={defaultOpen}
+          style={
+            {
+              "--sidebar-width": "15rem",
+            } as React.CSSProperties
+          }
+        >
           <AppSidebar />
           <SidebarInset>
             <AppHeader />
-            <main className="flex-1 overflow-auto p-4 md:p-6">
-              {children}
+            <main className="flex-1 overflow-auto">
+              <div className="mx-auto max-w-[1536px] px-4 py-4 md:px-6 md:py-6">
+                {children}
+              </div>
             </main>
           </SidebarInset>
         </SidebarProvider>

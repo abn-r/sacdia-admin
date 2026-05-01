@@ -8,6 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/shared/page-header";
 import { EditClubForm } from "@/components/clubs/edit-club-form";
 import { ClubSectionsPanel } from "@/components/clubs/club-sections-panel";
+import { PendingMembersPanel } from "@/components/membership/pending-members-panel";
+import { UnitsTab } from "@/components/units/units-tab";
 import { apiRequest, ApiError } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
 import { getSelectOptions } from "@/lib/catalogs/service";
@@ -15,6 +17,7 @@ import { updateClubAction, deleteClubAction } from "@/lib/clubs/actions";
 import type { ClubActionState } from "@/lib/clubs/actions";
 
 type Params = Promise<{ id: string }>;
+type SearchParams = Promise<{ tab?: string }>;
 
 type Club = {
   club_id?: number;
@@ -88,9 +91,27 @@ function ClubViewCard({ club }: { club: Club }) {
   );
 }
 
-export default async function ClubDetailPage({ params }: { params: Params }) {
+const VALID_TABS = ["view", "edit", "sections", "units", "membership"] as const;
+type ValidTab = (typeof VALID_TABS)[number];
+
+function resolveTab(raw: string | undefined): ValidTab {
+  if (raw && (VALID_TABS as readonly string[]).includes(raw)) {
+    return raw as ValidTab;
+  }
+  return "view";
+}
+
+export default async function ClubDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Params;
+  searchParams: SearchParams;
+}) {
   await requireAdminUser();
   const { id } = await params;
+  const { tab: tabParam } = await searchParams;
+  const defaultTab = resolveTab(tabParam);
 
   let club: Club;
   try {
@@ -135,11 +156,13 @@ export default async function ClubDetailPage({ params }: { params: Params }) {
         </div>
       </PageHeader>
 
-      <Tabs defaultValue="view">
+      <Tabs defaultValue={defaultTab}>
         <TabsList>
           <TabsTrigger value="view">Ver</TabsTrigger>
           <TabsTrigger value="edit">Editar</TabsTrigger>
           <TabsTrigger value="sections">Secciones ({sections.length})</TabsTrigger>
+          <TabsTrigger value="units">Unidades</TabsTrigger>
+          <TabsTrigger value="membership">Solicitudes de membresía</TabsTrigger>
         </TabsList>
 
         <TabsContent value="view" className="mt-4">
@@ -158,6 +181,14 @@ export default async function ClubDetailPage({ params }: { params: Params }) {
 
         <TabsContent value="sections" className="mt-4 space-y-4">
           <ClubSectionsPanel clubId={clubId} sections={sections} />
+        </TabsContent>
+
+        <TabsContent value="units" className="mt-4">
+          <UnitsTab clubId={clubId} localFieldId={club.local_field_id ?? null} />
+        </TabsContent>
+
+        <TabsContent value="membership" className="mt-4 space-y-4">
+          <PendingMembersPanel sections={sections} />
         </TabsContent>
       </Tabs>
     </div>
