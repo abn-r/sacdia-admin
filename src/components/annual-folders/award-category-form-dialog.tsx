@@ -29,7 +29,7 @@ import {
   createAwardCategory,
   updateAwardCategory,
 } from "@/lib/api/annual-folders";
-import type { AwardCategory } from "@/lib/api/annual-folders";
+import type { AwardCategory, AwardCategoryScope, AwardTier } from "@/lib/api/annual-folders";
 import type { ClubType } from "@/lib/api/catalogs";
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
@@ -44,6 +44,8 @@ const formSchema = z
       .string()
       .max(500, "La descripción no puede superar 500 caracteres")
       .optional(),
+    // ── 8.4-A scope (member / section / club) ────────────────────────────────
+    scope: z.enum(["club", "section", "member"] as const),
     club_type_id: z.string(), // "all" | stringified number
     min_points: z.coerce.number().int().min(0, "Debe ser 0 o mayor"),
     max_points: z.coerce
@@ -70,6 +72,8 @@ const formSchema = z
       .max(100, "No puede superar 100")
       .optional()
       .nullable(),
+    // ── 8.4-C Phase C — visual tier ──────────────────────────────────────────
+    tier: z.enum(["BRONZE", "SILVER", "GOLD", "DIAMOND"] as const).nullable().optional(),
   })
   .superRefine((data, ctx) => {
     const min = data.min_composite_pct;
@@ -92,6 +96,8 @@ interface AwardCategoryFormDialogProps {
   onOpenChange: (open: boolean) => void;
   category?: AwardCategory | null;
   clubTypes: ClubType[];
+  /** Default scope for create mode — passed by parent based on active scope tab */
+  defaultScope?: AwardCategoryScope;
   onSuccess: () => void;
 }
 
@@ -102,6 +108,7 @@ export function AwardCategoryFormDialog({
   onOpenChange,
   category,
   clubTypes,
+  defaultScope = "club",
   onSuccess,
 }: AwardCategoryFormDialogProps) {
   const t = useTranslations("annual_folders");
@@ -120,6 +127,7 @@ export function AwardCategoryFormDialog({
     defaultValues: {
       name: "",
       description: "",
+      scope: defaultScope,
       club_type_id: "all",
       min_points: 0,
       max_points: null,
@@ -127,10 +135,13 @@ export function AwardCategoryFormDialog({
       order: 0,
       min_composite_pct: null,
       max_composite_pct: null,
+      tier: null,
     },
   });
 
   const clubTypeValue = watch("club_type_id");
+  const scopeValue = watch("scope");
+  const tierValue = watch("tier");
 
   useEffect(() => {
     if (open) {
@@ -138,6 +149,7 @@ export function AwardCategoryFormDialog({
         reset({
           name: category.name,
           description: category.description ?? "",
+          scope: category.scope ?? defaultScope,
           club_type_id:
             category.club_type_id !== null
               ? String(category.club_type_id)
@@ -148,11 +160,13 @@ export function AwardCategoryFormDialog({
           order: category.order,
           min_composite_pct: category.min_composite_pct ?? null,
           max_composite_pct: category.max_composite_pct ?? null,
+          tier: category.tier ?? null,
         });
       } else {
         reset({
           name: "",
           description: "",
+          scope: defaultScope,
           club_type_id: "all",
           min_points: 0,
           max_points: null,
@@ -160,10 +174,11 @@ export function AwardCategoryFormDialog({
           order: 0,
           min_composite_pct: null,
           max_composite_pct: null,
+          tier: null,
         });
       }
     }
-  }, [open, category, reset]);
+  }, [open, category, defaultScope, reset]);
 
   const onSubmit: SubmitHandler<FormValues> = async (values) => {
     setIsSubmitting(true);
@@ -171,6 +186,7 @@ export function AwardCategoryFormDialog({
       const payload = {
         name: values.name,
         description: values.description || null,
+        scope: values.scope,
         club_type_id:
           values.club_type_id === "all" ? null : Number(values.club_type_id),
         min_points: values.min_points,
@@ -190,6 +206,7 @@ export function AwardCategoryFormDialog({
           values.max_composite_pct !== undefined
             ? values.max_composite_pct
             : null,
+        tier: values.tier ?? null,
       };
 
       if (isEdit && category) {
@@ -238,11 +255,11 @@ export function AwardCategoryFormDialog({
 
           {/* Descripcion */}
           <div className="space-y-1.5">
-            <Label htmlFor="cat-description">Descripcion</Label>
+            <Label htmlFor="cat-description">Descripción</Label>
             <Textarea
               id="cat-description"
               {...register("description")}
-              placeholder="Descripcion opcional de la categoria"
+              placeholder="Descripción opcional de la categoría"
               rows={3}
             />
             {errors.description && (
@@ -252,14 +269,60 @@ export function AwardCategoryFormDialog({
             )}
           </div>
 
+          {/* Alcance */}
+          <div className="space-y-1.5">
+            <Label htmlFor="cat-scope">Alcance *</Label>
+            <Select
+              value={scopeValue}
+              onValueChange={(val) => setValue("scope", val as AwardCategoryScope)}
+            >
+              <SelectTrigger id="cat-scope">
+                <SelectValue placeholder="Seleccionar alcance" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="club">Club</SelectItem>
+                <SelectItem value="section">Sección</SelectItem>
+                <SelectItem value="member">Miembro</SelectItem>
+              </SelectContent>
+            </Select>
+            {errors.scope && (
+              <p className="text-xs text-destructive">{errors.scope.message}</p>
+            )}
+          </div>
+
+          {/* Tier visual */}
+          <div className="space-y-1.5">
+            <Label htmlFor="cat-tier">Nivel visual</Label>
+            <Select
+              value={tierValue ?? "none"}
+              onValueChange={(val) =>
+                setValue("tier", val === "none" ? null : (val as AwardTier))
+              }
+            >
+              <SelectTrigger id="cat-tier">
+                <SelectValue placeholder="Sin clasificación" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Sin clasificación</SelectItem>
+                <SelectItem value="BRONZE">Bronce</SelectItem>
+                <SelectItem value="SILVER">Plata</SelectItem>
+                <SelectItem value="GOLD">Oro</SelectItem>
+                <SelectItem value="DIAMOND">Diamante</SelectItem>
+              </SelectContent>
+            </Select>
+            {errors.tier && (
+              <p className="text-xs text-destructive">{errors.tier.message}</p>
+            )}
+          </div>
+
           {/* Tipo de club */}
           <div className="space-y-1.5">
-            <Label>Tipo de club</Label>
+            <Label htmlFor="cat-club-type">Tipo de club</Label>
             <Select
               value={clubTypeValue}
               onValueChange={(val) => setValue("club_type_id", val)}
             >
-              <SelectTrigger>
+              <SelectTrigger id="cat-club-type">
                 <SelectValue placeholder="Seleccionar tipo de club" />
               </SelectTrigger>
               <SelectContent>
@@ -284,7 +347,7 @@ export function AwardCategoryFormDialog({
           {/* Puntos min / max */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="cat-min-points">Puntos minimos *</Label>
+              <Label htmlFor="cat-min-points">Puntos mínimos *</Label>
               <Input
                 id="cat-min-points"
                 type="number"
@@ -300,13 +363,13 @@ export function AwardCategoryFormDialog({
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="cat-max-points">Puntos maximos</Label>
+              <Label htmlFor="cat-max-points">Puntos máximos</Label>
               <Input
                 id="cat-max-points"
                 type="number"
                 min={0}
                 {...register("max_points")}
-                placeholder="Sin limite"
+                placeholder="Sin límite"
               />
               {errors.max_points && (
                 <p className="text-xs text-destructive">
@@ -358,7 +421,7 @@ export function AwardCategoryFormDialog({
           {/* Icono / Orden */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="cat-icon">Icono</Label>
+              <Label htmlFor="cat-icon">Ícono</Label>
               <Input
                 id="cat-icon"
                 {...register("icon")}
@@ -405,7 +468,7 @@ export function AwardCategoryFormDialog({
                   : "Creando..."
                 : isEdit
                   ? "Guardar cambios"
-                  : "Crear categoria"}
+                  : "Crear categoría"}
             </Button>
           </DialogFooter>
         </form>

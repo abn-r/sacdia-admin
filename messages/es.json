@@ -70,6 +70,10 @@
       "annual_folders_evaluate": "Evaluación",
       "annual_folders_rankings": "Rankings",
       "annual_folders_categories": "Categorías de premios",
+      "member_rankings": "Rankings de miembros",
+      "member_ranking_weights": "Pesos de rankings de miembros",
+      "ranking_weights": "Pesos de rankings",
+      "section_rankings": "Rankings de secciones",
       "requests": "Solicitudes",
       "requests_transfers": "Transferencias",
       "requests_assignments": "Asignaciones",
@@ -811,5 +815,15 @@
     "label_name": "Nombre",
     "label_description": "Descripción",
     "helper_optional": "Opcional. Si se deja vacío, se mostrará el español."
+  },
+  "memberRankingWeights": {
+    "formDialog": {
+      "clasePercent": "Clase (%)",
+      "investiduraPercent": "Investidura (%)",
+      "campanaPercent": "Campaña (%)",
+      "allTypes": "Todos los tipos",
+      "anoEclesiastico": "Año eclesiástico",
+      "allYears": "Todos los años"
+    }
   }
 }

@@ -182,7 +182,7 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
       </div>
       <p className="text-sm font-medium">Error al cargar sesiones</p>
       <p className="text-[13px] text-muted-foreground">
-        No se pudieron obtener los datos de sesion.
+        No se pudieron obtener los datos de sesión.
       </p>
       <Button variant="outline" size="sm" onClick={onRetry}>
         <RefreshCw className="mr-2 size-3.5" />
@@ -230,7 +230,7 @@ function SessionRow({ session, index, onRevoke, isRevoking }: SessionRowProps) {
             </p>
             {isCurrent && (
               <Badge variant="success" className="mt-0.5 text-[10px]">
-                Sesion actual
+                Sesión actual
               </Badge>
             )}
           </div>
@@ -272,16 +272,16 @@ function SessionRow({ session, index, onRevoke, isRevoking }: SessionRowProps) {
               variant="ghost"
               size="icon-sm"
               disabled={isRevoking}
-              title="Revocar sesion"
+              title="Revocar sesión"
             >
               <Trash2 className="size-3.5 text-muted-foreground" />
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Revocar sesion</AlertDialogTitle>
+              <AlertDialogTitle>Revocar sesión</AlertDialogTitle>
               <AlertDialogDescription>
-                Esta accion cerrara la sesion de{" "}
+                Esta acción cerrará la sesión de{" "}
                 <strong>
                   {device.browser} en {device.os}
                 </strong>{" "}
@@ -382,7 +382,7 @@ export function SessionsTab({ userId, initialData }: SessionsTabProps) {
             <CardTitle className="text-base">Sesiones activas</CardTitle>
             {data && (
               <p className="text-[13px] text-muted-foreground">
-                {data.totalSessions} {data.totalSessions === 1 ? "sesion activa" : "sesiones activas"}
+                {data.totalSessions} {data.totalSessions === 1 ? "sesión activa" : "sesiones activas"}
               </p>
             )}
           </div>
@@ -418,9 +418,9 @@ export function SessionsTab({ userId, initialData }: SessionsTabProps) {
                       Revocar todas las sesiones
                     </AlertDialogTitle>
                     <AlertDialogDescription>
-                      Se cerraran todas las{" "}
-                      <strong>{sessions.length} sesion(es)</strong>{" "}
-                      del usuario. Debera iniciar sesion nuevamente en todos
+                      Se cerrarán todas las{" "}
+                      <strong>{sessions.length} sesión(es)</strong>{" "}
+                      del usuario. Deberá iniciar sesión nuevamente en todos
                       sus dispositivos.
                     </AlertDialogDescription>
                   </AlertDialogHeader>

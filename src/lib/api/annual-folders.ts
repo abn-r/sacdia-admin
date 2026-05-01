@@ -380,6 +380,11 @@ export async function getFolderEvaluations(
 
 // ─── Rankings & Award Categories — Types ──────────────────────────────────────
 
+export type AwardCategoryScope = 'club' | 'section' | 'member';
+
+/** Visual tier assigned to an award category — maps to Prisma AwardTier enum (nullable). */
+export type AwardTier = 'BRONZE' | 'SILVER' | 'GOLD' | 'DIAMOND';
+
 export type AwardCategory = {
   award_category_id: string;
   name: string;
@@ -390,10 +395,14 @@ export type AwardCategory = {
   icon: string | null;
   order: number;
   active: boolean;
+  // ── 8.4-A scope (member / section / club categories) ─────────────────────
+  scope: AwardCategoryScope;
   // ── 8.4-C extended institutional rankings ─────────────────────────────────
   min_composite_pct: number | null;
   max_composite_pct: number | null;
   is_legacy: boolean;
+  // ── 8.4-C Phase C — visual tier ──────────────────────────────────────────
+  tier: AwardTier | null;
 };
 
 export type ClubRanking = {
@@ -486,18 +495,20 @@ export async function recalculateRankings(
 // ─── Award Categories — Server-side ──────────────────────────────────────────
 
 /**
- * GET /api/v1/award-categories?club_type_id=X&active=true&include_legacy=true
+ * GET /api/v1/award-categories?club_type_id=X&active=true&scope=club|section|member&include_legacy=true
  * Returns the list of award categories.
  */
 export async function getAwardCategories(
   clubTypeId?: number,
   active?: boolean,
+  scope?: AwardCategoryScope,
   includeLegacy?: boolean,
 ): Promise<AwardCategory[]> {
   return apiRequest<AwardCategory[]>("/award-categories", {
     params: {
       ...(clubTypeId !== undefined ? { club_type_id: clubTypeId } : {}),
       ...(active !== undefined ? { active } : {}),
+      ...(scope !== undefined ? { scope } : {}),
       ...(includeLegacy !== undefined ? { include_legacy: includeLegacy } : {}),
     },
   });
@@ -515,17 +526,19 @@ export async function getAwardCategory(categoryId: string): Promise<AwardCategor
 
 /**
  * GET /api/v1/award-categories (client-side)
- * For re-fetching. Pass includeLegacy=true to include legacy rows.
+ * For re-fetching. Pass scope to filter by scope, includeLegacy=true to include legacy rows.
  */
 export async function getAwardCategoriesFromClient(
   clubTypeId?: number,
   active?: boolean,
+  scope?: AwardCategoryScope,
   includeLegacy?: boolean,
 ): Promise<AwardCategory[]> {
   return apiRequestFromClient<AwardCategory[]>("/award-categories", {
     params: {
       ...(clubTypeId !== undefined ? { club_type_id: clubTypeId } : {}),
       ...(active !== undefined ? { active } : {}),
+      ...(scope !== undefined ? { scope } : {}),
       ...(includeLegacy !== undefined ? { include_legacy: includeLegacy } : {}),
     },
   });

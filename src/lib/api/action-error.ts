@@ -16,19 +16,19 @@ export function getActionErrorMessage(
   const endpointLabel = options.endpointLabel ? ` (${options.endpointLabel})` : "";
 
   if (error.status === 401 || error.status === 403) {
-    return "No tienes permisos para realizar esta accion.";
+    return "No tienes permisos para realizar esta acción.";
   }
 
   if (error.status === 404 || error.status === 405) {
-    return `El endpoint no esta disponible en este entorno${endpointLabel}.`;
+    return `El endpoint no está disponible en este entorno${endpointLabel}.`;
   }
 
   if (error.status === 409) {
-    return "No se pudo completar la accion por conflicto de datos.";
+    return "No se pudo completar la acción por conflicto de datos.";
   }
 
   if (error.status === 422) {
-    return "Los datos enviados no son validos para esta accion.";
+    return "Los datos enviados no son válidos para esta acción.";
   }
 
   if (error.status === 429) {
@@ -36,7 +36,7 @@ export function getActionErrorMessage(
   }
 
   if (error.status >= 500) {
-    return "El backend no esta disponible temporalmente. Intenta de nuevo mas tarde.";
+    return "El backend no está disponible temporalmente. Intenta de nuevo más tarde.";
   }
 
   return error.message || fallbackMessage;

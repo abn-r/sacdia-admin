@@ -26,8 +26,18 @@ import {
   Activity,
   FileSearch,
   Trophy,
+  Users2,
+  Layers,
+  SlidersHorizontal,
   type LucideIcon,
 } from "lucide-react";
+import {
+  RANKINGS_READ,
+  RANKING_WEIGHTS_READ,
+  MEMBER_RANKINGS_READ_GLOBAL,
+  MEMBER_RANKING_WEIGHTS_READ,
+  SECTION_RANKINGS_READ_GLOBAL,
+} from "@/lib/auth/permissions";
 
 /**
  * `title` and `label` fields hold i18n keys — NOT user-facing strings.
@@ -260,9 +270,33 @@ export const navConfig: NavGroup[] = [
           { title: "items.annual_folders_templates", url: "/dashboard/annual-folders/templates", permission: "annual_folder_templates:read" },
           { title: "items.annual_folders_mine", url: "/dashboard/annual-folders", permission: "annual_folder_templates:read" },
           { title: "items.annual_folders_evaluate", url: "/dashboard/annual-folders/evaluate", permission: "evidence_folders:update" },
-          { title: "items.annual_folders_rankings", url: "/dashboard/annual-folders/rankings", permission: "rankings:read" },
+          { title: "items.annual_folders_rankings", url: "/dashboard/annual-folders/rankings", permission: RANKINGS_READ },
           { title: "items.annual_folders_categories", url: "/dashboard/annual-folders/categories", permission: "award_categories:read" },
         ],
+      },
+      {
+        title: "items.ranking_weights",
+        url: "/dashboard/ranking-weights",
+        icon: SlidersHorizontal,
+        permission: RANKING_WEIGHTS_READ,
+      },
+      {
+        title: "items.member_rankings",
+        url: "/dashboard/member-rankings",
+        icon: Users2,
+        permission: MEMBER_RANKINGS_READ_GLOBAL,
+      },
+      {
+        title: "items.member_ranking_weights",
+        url: "/dashboard/member-ranking-weights",
+        icon: SlidersHorizontal,
+        permission: MEMBER_RANKING_WEIGHTS_READ,
+      },
+      {
+        title: "items.section_rankings",
+        url: "/dashboard/section-rankings",
+        icon: Layers,
+        permission: SECTION_RANKINGS_READ_GLOBAL,
       },
     ],
   },

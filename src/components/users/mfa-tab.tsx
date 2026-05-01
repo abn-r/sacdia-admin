@@ -69,7 +69,7 @@ function MfaNotConfigured() {
           <div className="space-y-1">
             <p className="text-sm font-medium">MFA no configurado</p>
             <p className="text-[13px] text-muted-foreground">
-              Este usuario no ha configurado la autenticacion de dos factores.
+              Este usuario no ha configurado la autenticación de dos factores.
             </p>
           </div>
         </div>
@@ -95,7 +95,7 @@ function ResetMfaDialog({
       try {
         await adminResetUserMfa(userId);
         toast.success(t("toasts.mfa_reset"), {
-          description: "El usuario debera re-enrolarse en su proximo inicio de sesion.",
+          description: "El usuario deberá re-enrolarse en su próximo inicio de sesión.",
         });
         onSuccess();
       } catch (error) {
@@ -118,15 +118,15 @@ function ResetMfaDialog({
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
             <ShieldAlert size={18} className="text-warning-foreground" />
-            Resetear autenticacion de dos factores
+            Resetear autenticación de dos factores
           </AlertDialogTitle>
           <AlertDialogDescription className="space-y-2">
             <span className="block">
-              Esta accion elimina el secreto TOTP y todos los codigos de respaldo del usuario.
+              Esta acción elimina el secreto TOTP y todos los códigos de respaldo del usuario.
             </span>
             <span className="block font-medium text-foreground">
-              El usuario debera configurar MFA nuevamente desde su cuenta. Si el usuario
-              perdio acceso a su app autenticadora, esta accion le permite recuperar el acceso.
+              El usuario deberá configurar MFA nuevamente desde su cuenta. Si el usuario
+              perdió acceso a su app autenticadora, esta acción le permite recuperar el acceso.
             </span>
           </AlertDialogDescription>
         </AlertDialogHeader>
@@ -172,7 +172,7 @@ function DisableMfaDialog({
       try {
         await adminResetUserMfa(userId);
         toast.success(t("toasts.mfa_disabled"), {
-          description: "La autenticacion de dos factores fue removida del usuario.",
+          description: "La autenticación de dos factores fue removida del usuario.",
         });
         onSuccess();
       } catch (error) {
@@ -195,15 +195,15 @@ function DisableMfaDialog({
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
             <ShieldOff size={18} className="text-destructive" />
-            Deshabilitar autenticacion de dos factores
+            Deshabilitar autenticación de dos factores
           </AlertDialogTitle>
           <AlertDialogDescription className="space-y-2">
             <span className="block">
-              Esta es una accion de soporte para casos donde el usuario no puede acceder
-              a su cuenta. Se eliminara permanentemente el secreto TOTP y los codigos de respaldo.
+              Esta es una acción de soporte para casos donde el usuario no puede acceder
+              a su cuenta. Se eliminará permanentemente el secreto TOTP y los códigos de respaldo.
             </span>
             <span className="block font-medium text-destructive">
-              La cuenta del usuario quedara protegida unicamente con contrasena.
+              La cuenta del usuario quedará protegida únicamente con contraseña.
               Usar solo cuando el usuario haya solicitado este soporte.
             </span>
           </AlertDialogDescription>
@@ -254,7 +254,7 @@ export function MfaTab({ userId, mfaEnabled, canManageMfa }: MfaTabProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <ShieldCheck size={16} className="text-success" />
-            Autenticacion de dos factores
+            Autenticación de dos factores
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -277,7 +277,7 @@ export function MfaTab({ userId, mfaEnabled, canManageMfa }: MfaTabProps) {
               <Smartphone size={14} className="text-primary" />
             </div>
             <div className="space-y-0.5">
-              <p className="text-sm font-medium">Metodo</p>
+              <p className="text-sm font-medium">Método</p>
               <p className="text-[13px] text-muted-foreground">
                 TOTP — App autenticadora (Google Authenticator, Authy, etc.)
               </p>
@@ -297,8 +297,8 @@ export function MfaTab({ userId, mfaEnabled, canManageMfa }: MfaTabProps) {
           <CardContent className="space-y-4">
             <p className="text-[13px] text-muted-foreground">
               Estas acciones son irreversibles y estan destinadas a casos de soporte donde
-              el usuario perdio acceso a su app autenticadora. Cada accion elimina el secreto
-              TOTP y los codigos de respaldo almacenados.
+              el usuario perdió acceso a su app autenticadora. Cada acción elimina el secreto
+              TOTP y los códigos de respaldo almacenados.
             </p>
 
             <div className="flex flex-wrap gap-3">
