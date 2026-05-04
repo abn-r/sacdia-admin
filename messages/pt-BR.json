@@ -815,5 +815,72 @@
     "label_name": "Nome",
     "label_description": "Descrição",
     "helper_optional": "Opcional. Se deixado vazio, o espanhol será exibido."
+  },
+  "memberRankingWeights": {
+    "formDialog": {
+      "clasePercent": "Classe (%)",
+      "investiduraPercent": "Investidura (%)",
+      "campanaPercent": "Campanha (%)",
+      "allTypes": "Todos os tipos",
+      "anoEclesiastico": "Ano eclesiástico",
+      "allYears": "Todos os anos"
+    },
+    "table": {
+      "fallbackClubType": "Tipo {id}",
+      "fallbackYear": "Ano {id}",
+      "defaultCardTitle": "Configuração padrão",
+      "defaultBadge": "Global",
+      "editDefaultTitle": "Editar configuração padrão",
+      "editButton": "Editar",
+      "labelClase": "Classe",
+      "labelInvestidura": "Investidura",
+      "labelCampana": "Campanha",
+      "overridesHeading": "Substituições por tipo de clube / ano",
+      "createOverride": "Criar substituição",
+      "emptyTitle": "Sem substituições",
+      "emptyDescription": "A configuração padrão aplica-se a todos os clubes e anos.",
+      "colClubType": "Tipo de clube",
+      "colAnoEclesiastico": "Ano eclesiástico",
+      "colClase": "Classe",
+      "colInvestidura": "Investidura",
+      "colCampana": "Campanha",
+      "colSuma": "Soma",
+      "colAcciones": "Ações",
+      "editOverrideTitle": "Editar substituição",
+      "deleteOverrideTitle": "Excluir substituição",
+      "deleteButton": "Excluir"
+    }
+  },
+  "rankingWeights": {
+    "clientPage": {
+      "defaultGlobalTitle": "Padrão global",
+      "defaultGlobalDescription": "Pesos aplicados a todos os tipos de clube sem substituição configurada. A soma deve ser exatamente 100.",
+      "defaultGlobalUpdated": "Padrão global atualizado",
+      "defaultGlobalUpdateError": "Erro ao atualizar o padrão",
+      "defaultGlobalNotFound": "Padrão global não encontrado. Contate o administrador do sistema.",
+      "overridesTitle": "Substituições por tipo de clube",
+      "overridesDescription": "Pesos específicos que substituem o padrão para um determinado tipo de clube.",
+      "addOverride": "Adicionar substituição",
+      "newOverrideTitle": "Nova substituição",
+      "overridesEmpty": "Nenhuma substituição configurada. Todos os tipos de clube usam o padrão global.",
+      "colClubType": "Tipo de clube",
+      "colFolder": "Pasta",
+      "colFinance": "Finanças",
+      "colCamporee": "Camporee",
+      "colEvidence": "Evidência",
+      "colSuma": "Soma",
+      "colAcciones": "Ações",
+      "editButton": "Editar",
+      "editOverrideTitle": "Editar substituição",
+      "overrideUpdated": "Substituição atualizada",
+      "overrideUpdateError": "Erro ao atualizar a substituição",
+      "deleteButton": "Excluir",
+      "deleteOverrideTitle": "Excluir substituição?",
+      "deleteOverrideDescription": "Esta ação não pode ser desfeita. O tipo de clube voltará a usar os pesos do padrão global.",
+      "cancelButton": "Cancelar",
+      "deletingLabel": "Excluindo...",
+      "overrideDeleted": "Substituição excluída",
+      "overrideDeleteError": "Erro ao excluir a substituição"
+    }
   }
 }
