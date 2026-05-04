@@ -815,5 +815,72 @@
     "label_name": "Nom",
     "label_description": "Description",
     "helper_optional": "Optionnel. Si laissé vide, l'espagnol sera affiché."
+  },
+  "memberRankingWeights": {
+    "formDialog": {
+      "clasePercent": "Classe (%)",
+      "investiduraPercent": "Investiture (%)",
+      "campanaPercent": "Campagne (%)",
+      "allTypes": "Tous les types",
+      "anoEclesiastico": "Année ecclésiastique",
+      "allYears": "Toutes les années"
+    },
+    "table": {
+      "fallbackClubType": "Type {id}",
+      "fallbackYear": "Année {id}",
+      "defaultCardTitle": "Configuration par défaut",
+      "defaultBadge": "Global",
+      "editDefaultTitle": "Modifier la configuration par défaut",
+      "editButton": "Modifier",
+      "labelClase": "Classe",
+      "labelInvestidura": "Investiture",
+      "labelCampana": "Campagne",
+      "overridesHeading": "Remplacements par type de club / année",
+      "createOverride": "Créer un remplacement",
+      "emptyTitle": "Aucun remplacement",
+      "emptyDescription": "La configuration par défaut s'applique à tous les clubs et années.",
+      "colClubType": "Type de club",
+      "colAnoEclesiastico": "Année ecclésiastique",
+      "colClase": "Classe",
+      "colInvestidura": "Investiture",
+      "colCampana": "Campagne",
+      "colSuma": "Somme",
+      "colAcciones": "Actions",
+      "editOverrideTitle": "Modifier le remplacement",
+      "deleteOverrideTitle": "Supprimer le remplacement",
+      "deleteButton": "Supprimer"
+    }
+  },
+  "rankingWeights": {
+    "clientPage": {
+      "defaultGlobalTitle": "Défaut global",
+      "defaultGlobalDescription": "Poids appliqués à tous les types de clubs sans remplacement configuré. La somme doit être exactement 100.",
+      "defaultGlobalUpdated": "Défaut global mis à jour",
+      "defaultGlobalUpdateError": "Erreur lors de la mise à jour du défaut",
+      "defaultGlobalNotFound": "Défaut global introuvable. Contactez l'administrateur système.",
+      "overridesTitle": "Remplacements par type de club",
+      "overridesDescription": "Poids spécifiques qui remplacent le défaut pour un type de club donné.",
+      "addOverride": "Ajouter un remplacement",
+      "newOverrideTitle": "Nouveau remplacement",
+      "overridesEmpty": "Aucun remplacement configuré. Tous les types de clubs utilisent le défaut global.",
+      "colClubType": "Type de club",
+      "colFolder": "Dossier",
+      "colFinance": "Finance",
+      "colCamporee": "Camporée",
+      "colEvidence": "Preuve",
+      "colSuma": "Somme",
+      "colAcciones": "Actions",
+      "editButton": "Modifier",
+      "editOverrideTitle": "Modifier le remplacement",
+      "overrideUpdated": "Remplacement mis à jour",
+      "overrideUpdateError": "Erreur lors de la mise à jour du remplacement",
+      "deleteButton": "Supprimer",
+      "deleteOverrideTitle": "Supprimer le remplacement ?",
+      "deleteOverrideDescription": "Cette action est irréversible. Le type de club reviendra aux poids du défaut global.",
+      "cancelButton": "Annuler",
+      "deletingLabel": "Suppression...",
+      "overrideDeleted": "Remplacement supprimé",
+      "overrideDeleteError": "Erreur lors de la suppression du remplacement"
+    }
   }
 }
