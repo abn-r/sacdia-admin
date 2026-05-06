@@ -63,7 +63,7 @@ interface ManualDataFormProps {
 interface NumberFieldProps {
   label: string;
   name: keyof FormValues;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   register: ReturnType<typeof useForm<FormValues>>["register"];
   error?: string;
   disabled?: boolean;
@@ -91,7 +91,7 @@ function NumberField({ label, name, register, error, disabled }: NumberFieldProp
 interface TextareaFieldProps {
   label: string;
   name: keyof FormValues;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   register: ReturnType<typeof useForm<FormValues>>["register"];
   error?: string;
   disabled?: boolean;
@@ -132,7 +132,7 @@ export function ManualDataForm({
     handleSubmit,
     formState: { errors, isDirty },
   } = useForm<FormValues>({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     resolver: zodResolver(manualDataSchema) as unknown as Resolver<FormValues>,
     defaultValues: {
       weekly_meetings_held: initialData?.weekly_meetings_held ?? undefined,
