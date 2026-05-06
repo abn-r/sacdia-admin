@@ -10,6 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { AdminUser } from "@/lib/api/admin-users";
+import { DataTableShell } from "@/components/shared/data-table-shell";
 
 function extractRoleNames(user: AdminUser): string[] {
   const roles: string[] = [];
@@ -61,7 +62,7 @@ export function UsersTable({
   showAdministrativeCompletion = false,
 }: UsersTableProps) {
   return (
-    <div className="rounded-md border">
+    <DataTableShell>
       <Table>
         <TableHeader>
           <TableRow>
@@ -162,6 +163,6 @@ export function UsersTable({
           })}
         </TableBody>
       </Table>
-    </div>
+    </DataTableShell>
   );
 }

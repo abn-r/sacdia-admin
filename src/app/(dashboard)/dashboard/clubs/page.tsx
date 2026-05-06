@@ -15,6 +15,7 @@ import {
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { DataTableShell } from "@/components/shared/data-table-shell";
 import { apiRequest, ApiError } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
 import { hasPermission } from "@/lib/auth/permission-utils";
@@ -92,7 +93,7 @@ async function ClubsContent() {
   }
 
   return (
-    <div className="rounded-md border">
+    <DataTableShell>
       <Table>
         <TableHeader>
           <TableRow>
@@ -134,7 +135,7 @@ async function ClubsContent() {
           })}
         </TableBody>
       </Table>
-    </div>
+    </DataTableShell>
   );
 }
 
