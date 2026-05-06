@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { Plus, Pencil, Trash2, Package, SearchX } from "lucide-react";
+import { EmptyState } from "@/components/shared/empty-state";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +20,7 @@ import { CatalogDeleteDialog } from "@/components/catalogs/catalog-delete-dialog
 import type { EntityConfig, EntityKey } from "@/lib/catalogs/entities";
 import type { CatalogItem } from "@/lib/catalogs/service";
 import type { CatalogActionState } from "@/lib/catalogs/actions";
+import { DataTableShell } from "@/components/shared/data-table-shell";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -68,34 +70,7 @@ const TH_BASE = "h-11 bg-muted/40 text-xs font-medium uppercase tracking-wider t
 // Row height — comfortable default; can be swapped to "h-10" for density
 const ROW_H = "h-14";
 
-// ─── NoFilterResults (inline empty state for filtered queries) ───────────────
-
-interface NoFilterResultsProps {
-  entityLabel: string;
-  onClear: () => void;
-}
-
-function NoFilterResults({ entityLabel, onClear }: NoFilterResultsProps) {
-  return (
-    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-14 text-center">
-      <div className="flex size-12 items-center justify-center rounded-full bg-muted">
-        <SearchX className="size-6 text-muted-foreground" aria-hidden="true" />
-      </div>
-      <h3 className="mt-4 text-base font-semibold">Sin resultados</h3>
-      <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-        No hay {entityLabel} que coincidan con los filtros aplicados.
-      </p>
-      <Button
-        variant="outline"
-        size="sm"
-        className="mt-5"
-        onClick={onClear}
-      >
-        Limpiar filtros
-      </Button>
-    </div>
-  );
-}
+// NoFilterResults removed — replaced by <EmptyState variant="no-results" />
 
 // ─── CatalogCrudPage ──────────────────────────────────────────────────────────
 
@@ -198,34 +173,33 @@ export function CatalogCrudPage({
       {/* ── Content area ── */}
       {items.length === 0 ? (
         /* No data at all */
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
-          <div className="flex size-12 items-center justify-center rounded-full bg-muted">
-            <Package className="size-6 text-muted-foreground" aria-hidden="true" />
-          </div>
-          <h3 className="mt-4 text-lg font-semibold">
-            {tActions("empty_state", { entity: entityTitleLower })}
-          </h3>
-          <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-            No se encontraron registros.
-          </p>
+        <EmptyState
+          icon={Package}
+          title={tActions("empty_state", { entity: entityTitleLower })}
+          description="No se encontraron registros."
+        >
           {canMutate && (
-            <div className="mt-4">
-              <Button size="default" onClick={() => setCreateOpen(true)}>
-                <Plus className="mr-1.5 size-4" aria-hidden="true" />
-                {tActions("create", { entity: entitySingular })}
-              </Button>
-            </div>
+            <Button size="default" onClick={() => setCreateOpen(true)}>
+              <Plus className="mr-1.5 size-4" aria-hidden="true" />
+              {tActions("create", { entity: entitySingular })}
+            </Button>
           )}
-        </div>
+        </EmptyState>
       ) : filteredItems.length === 0 ? (
         /* Data exists but filters return nothing */
-        <NoFilterResults
-          entityLabel={entityTitleLower}
-          onClear={handleClearFilters}
-        />
+        <EmptyState
+          variant="no-results"
+          icon={SearchX}
+          title="Sin resultados"
+          description={`No hay ${entityTitleLower} que coincidan con los filtros aplicados.`}
+        >
+          <Button variant="outline" size="sm" onClick={handleClearFilters}>
+            Limpiar filtros
+          </Button>
+        </EmptyState>
       ) : (
         /* ── Table ── */
-        <div className="overflow-hidden rounded-lg border border-border">
+        <DataTableShell>
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
@@ -364,7 +338,7 @@ export function CatalogCrudPage({
               </TableBody>
             </Table>
           </div>
-        </div>
+        </DataTableShell>
       )}
 
       {/* ── Dialogs ── */}
