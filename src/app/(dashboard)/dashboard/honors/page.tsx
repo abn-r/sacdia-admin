@@ -24,7 +24,7 @@ type HonorsListMeta = {
   totalPages: number;
 };
 
-const HONORS_FILTER_FETCH_LIMIT = 100;
+const HONORS_FILTER_FETCH_LIMIT = 5000;
 const CATALOGS_CACHE_TTL_MS = 5 * 60 * 1000;
 const EMPTY_ARRAY: unknown[] = [];
 
@@ -270,7 +270,13 @@ async function listAllHonorsForFiltering(): Promise<GenericRecord[]> {
     page: 1,
     limit: HONORS_FILTER_FETCH_LIMIT,
   });
-  return extractItems(payload);
+  const items = extractItems(payload);
+  if (items.length === HONORS_FILTER_FETCH_LIMIT) {
+    console.warn(
+      `[honors] Filter dropdown fetch saturated at limit ${HONORS_FILTER_FETCH_LIMIT} — some options may be missing. Consider raising HONORS_FILTER_FETCH_LIMIT or implementing server-side filter resolution.`,
+    );
+  }
+  return items;
 }
 
 async function getCachedHonorCategoriesPayload() {
