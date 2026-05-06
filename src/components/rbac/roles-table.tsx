@@ -61,7 +61,7 @@ function ReadOnlyAlert() {
       <ShieldCheck className="mt-0.5 size-4 shrink-0 text-info" />
       <p className="text-muted-foreground">
         <span className="font-medium text-foreground">Vista de solo lectura.</span>{" "}
-        Contacta un super_admin para crear o modificar roles.
+        Contacta un super-admin para crear o modificar roles.
       </p>
     </div>
   );
@@ -274,7 +274,7 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
     );
   }, [roles, activeTab, search]);
 
-  const isProtected = (role: Role) => role.role_name === "super_admin";
+  const isProtected = (role: Role) => role.role_name === "super-admin";
 
   return (
     <div className="space-y-5">
@@ -352,7 +352,7 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
                     className="transition-colors hover:bg-muted/30 animate-in fade-in slide-in-from-bottom-2 duration-300"
                     style={{ animationDelay: `${index * 40}ms`, animationFillMode: "backwards" }}
                   >
-                    {/* role_name — mono, lock icon for super_admin */}
+                    {/* role_name — mono, lock icon for super-admin */}
                     <TableCell className="px-3 py-2.5 align-middle">
                       <div className="flex items-center gap-1.5">
                         {protected_ && (
@@ -402,7 +402,7 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
                       </Badge>
                     </TableCell>
 
-                    {/* actions — super_admin only */}
+                    {/* actions — super-admin only */}
                     {isSuperAdmin && (
                       <TableCell className="px-3 py-2.5 align-middle text-right">
                         <div className="flex items-center justify-end gap-1">

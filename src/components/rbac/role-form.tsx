@@ -55,11 +55,11 @@ export function CreateRoleForm({ allPermissions }: CreateRoleFormProps) {
   // Client-side validation mirrors server-side
   function validate(): string | null {
     if (!roleName.trim()) return "El nombre del rol es obligatorio";
-    if (!/^[a-z_]{3,64}$/.test(roleName.trim())) {
-      return "El nombre debe tener entre 3 y 64 caracteres en minúsculas (solo letras y guiones bajos)";
+    if (!/^[a-z][a-z0-9-]{1,62}[a-z0-9]$/.test(roleName.trim())) {
+      return "El nombre debe tener entre 3 y 64 caracteres en minúsculas (letras, números y guiones medios)";
     }
-    if (roleName.trim() === "super_admin") {
-      return "No se puede crear un rol con el nombre 'super_admin'";
+    if (roleName.trim() === "super-admin") {
+      return "No se puede crear un rol con el nombre 'super-admin'";
     }
     if (description.trim().length < 10) {
       return "La descripción debe tener al menos 10 caracteres";
@@ -121,14 +121,14 @@ export function CreateRoleForm({ allPermissions }: CreateRoleFormProps) {
               id="role_name"
               value={roleName}
               onChange={(e) => setRoleName(e.target.value)}
-              placeholder="ej: club_director"
-              pattern="^[a-z_]{3,64}$"
-              title="Solo minúsculas y guiones bajos, entre 3 y 64 caracteres"
+              placeholder="ej: club-director"
+              pattern="^[a-z][a-z0-9-]{1,62}[a-z0-9]$"
+              title="Solo minúsculas, números y guiones medios, entre 3 y 64 caracteres"
               autoComplete="off"
               required
             />
             <p className="text-xs text-muted-foreground">
-              Formato: solo letras minúsculas y guiones bajos (<code className="font-mono">a-z_</code>). Este identificador es inmutable una vez creado.
+              Formato: letras minúsculas, números y guiones medios (<code className="font-mono">a-z0-9-</code>). Este identificador es inmutable una vez creado.
             </p>
           </div>
 
