@@ -6,16 +6,9 @@ import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { ApiError } from "@/lib/api/client";
 import { getMemberBreakdown } from "@/lib/api/member-rankings";
+import { getActiveEcclesiasticalYearId } from "@/lib/api/catalogs";
 import { MemberRankingScoreBadge } from "@/app/(dashboard)/dashboard/member-rankings/_components/member-ranking-score-badge";
 import { MemberBreakdownCard } from "./_components/member-breakdown-card";
-
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-/**
- * TODO: replace with a real year selector once the ecclesiastical year
- * management feature is built. Same pattern as Task 17 list page.
- */
-const DEFAULT_YEAR_ID = 2026;
 
 // ─── Route params ─────────────────────────────────────────────────────────────
 
@@ -59,8 +52,16 @@ export default async function MemberBreakdownPage({
     notFound();
   }
 
-  const parsedYearId = yearIdRaw ? Number(yearIdRaw) : DEFAULT_YEAR_ID;
-  const yearId = Number.isFinite(parsedYearId) && parsedYearId > 0 ? parsedYearId : DEFAULT_YEAR_ID;
+  const parsedYearId = yearIdRaw ? Number(yearIdRaw) : null;
+  const queryYearId =
+    parsedYearId !== null && Number.isFinite(parsedYearId) && parsedYearId > 0
+      ? parsedYearId
+      : null;
+  const yearId = queryYearId ?? (await getActiveEcclesiasticalYearId());
+
+  if (yearId === null) {
+    notFound();
+  }
 
   let data: Awaited<ReturnType<typeof getMemberBreakdown>>;
   try {
