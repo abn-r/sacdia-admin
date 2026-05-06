@@ -1,10 +1,11 @@
 import type { AuthUser } from "@/lib/auth/types";
 
 /**
- * Normalized form of the super-admin role as produced by extractRoles()
- * (normalizeRole converts underscores to hyphens).
- * Use this constant everywhere instead of a raw string literal to avoid
- * the super_admin / super-admin mismatch bug.
+ * Canonical name of the super-admin role.
+ * Backend PR #77 standardized all role names to hyphen form in the DB.
+ * The super_admin / super-admin mismatch bug is resolved — there are no
+ * more underscore role names in the API payload.
+ * Use this constant everywhere instead of a raw string literal.
  */
 export const SUPER_ADMIN_ROLE = "super-admin" as const;
 
@@ -31,12 +32,18 @@ function isRecord(value: unknown): value is UnknownRecord {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
+/**
+ * Defensive normalizer: lowercase + trim only.
+ * The underscore→hyphen replacement was removed in tandem with backend PR #77,
+ * which standardized all role names to hyphen form in the DB. Incoming
+ * payloads no longer contain underscore role names.
+ */
 function normalizeRole(role: unknown): string | null {
   if (typeof role !== "string") {
     return null;
   }
 
-  return role.trim().toLowerCase().replace(/_/g, "-");
+  return role.trim().toLowerCase();
 }
 
 function unwrapResponse(user: AuthUser): AuthUser {

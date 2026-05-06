@@ -585,7 +585,7 @@ function normalizeEndpointDetail(error: ApiError): string {
   }
 
   if (error.status === 403) {
-    return "Tu rol no tiene alcance configurado para consultar usuarios. Contacta a un super_admin.";
+    return "Tu rol no tiene alcance configurado para consultar usuarios. Contacta a un super-admin.";
   }
 
   if (error.status === 429) {

@@ -74,7 +74,7 @@ export function UsersFilters({ scope }: UsersFiltersProps) {
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">Todos los roles</SelectItem>
-          <SelectItem value="super_admin">Super Admin</SelectItem>
+          <SelectItem value="super-admin">Super Admin</SelectItem>
           <SelectItem value="admin">Admin</SelectItem>
           <SelectItem value="coordinator">Coordinator</SelectItem>
         </SelectContent>
