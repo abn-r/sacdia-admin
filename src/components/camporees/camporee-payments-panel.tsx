@@ -112,7 +112,7 @@ function PaymentSummary({ payments }: PaymentSummaryProps) {
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       {/* Total */}
-      <div className="rounded-xl border border-border bg-card px-4 py-3 shadow-sm">
+      <div className="rounded-xl border border-border bg-card px-4 py-3 shadow-xs">
         <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
           Total recaudado
         </p>
@@ -124,7 +124,7 @@ function PaymentSummary({ payments }: PaymentSummaryProps) {
         const amount = byType[key] ?? 0;
         const label = PAYMENT_TYPE_LABELS[key];
         return (
-          <div key={key} className="rounded-xl border border-border bg-card px-4 py-3 shadow-sm">
+          <div key={key} className="rounded-xl border border-border bg-card px-4 py-3 shadow-xs">
             <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
               {label}
             </p>
@@ -220,7 +220,7 @@ export function CamporeePaymentsPanel({
       <div className="space-y-4">
         <PaymentSummary payments={payments} />
 
-        <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
+        <div className="overflow-x-auto rounded-xl border border-border/60 bg-card shadow-xs">
           <Table>
             <TableHeader>
               <TableRow>

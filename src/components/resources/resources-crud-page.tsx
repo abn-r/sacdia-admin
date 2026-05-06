@@ -1025,7 +1025,7 @@ export function ResourcesCrudPage({
           </EmptyState>
         ) : (
           <>
-            <div className="overflow-x-auto rounded-xl border bg-card shadow-sm">
+            <div className="overflow-x-auto rounded-xl border bg-card shadow-xs">
               <Table>
                 <TableHeader>
                   <TableRow className="bg-muted/30">

@@ -362,7 +362,7 @@ export function RankingsClientPage({
           </Button>
         </div>
       ) : (
-        <div className="rounded-lg border border-border">
+        <div className="rounded-lg border border-border/60">
           <Table>
             <TableHeader>
               <TableRow>
