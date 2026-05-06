@@ -224,7 +224,7 @@ export function ClubSectionsPanel({ clubId, sections, clubTypes }: ClubSectionsP
             <CardHeader className="flex flex-row items-center justify-between pb-3">
               <div className="flex items-center gap-3">
                 {section.active !== false ? (
-                  <CheckCircle className="size-5 text-green-600" />
+                  <CheckCircle className="size-5 text-success" />
                 ) : (
                   <XCircle className="size-5 text-muted-foreground" />
                 )}

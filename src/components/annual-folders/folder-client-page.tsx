@@ -83,9 +83,9 @@ function SectionRow({
         <div className="flex items-start gap-3">
           <div className="mt-0.5">
             {hasEvidences ? (
-              <CheckCircle2 className="size-4 text-green-600" />
+              <CheckCircle2 className="size-4 text-success" />
             ) : section.required ? (
-              <AlertCircle className="size-4 text-amber-500" />
+              <AlertCircle className="size-4 text-warning" />
             ) : (
               <div className="size-4 rounded-full border-2 border-muted-foreground/30" />
             )}

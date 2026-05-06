@@ -100,7 +100,7 @@ function ModuleRows({ module }: { module: FolderModule }) {
             </TableCell>
             <TableCell className="text-center">
               {section.required ? (
-                <CheckCircle2 className="mx-auto size-4 text-green-600" />
+                <CheckCircle2 className="mx-auto size-4 text-success" />
               ) : (
                 <Circle className="mx-auto size-4 text-muted-foreground/40" />
               )}
@@ -233,7 +233,7 @@ export function FolderDetailClient({ initialFolder }: FolderDetailClientProps) {
               </p>
             </div>
           ) : (
-            <div className="rounded-lg border border-border">
+            <div className="rounded-lg border border-border/60">
               <Table>
                 <TableHeader>
                   <TableRow>

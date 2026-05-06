@@ -74,11 +74,11 @@ type CronStatus = "completed" | "failed" | "skipped" | "running";
 
 function statusVariant(
   status: string,
-): "default" | "destructive" | "secondary" | "outline" {
+): "soft-info" | "success" | "destructive" | "secondary" | "outline" {
   switch (status as CronStatus) {
-    case "completed": return "default";
+    case "completed": return "success";
     case "failed":    return "destructive";
-    case "running":   return "default";
+    case "running":   return "soft-info";
     case "skipped":   return "secondary";
     default:          return "secondary";
   }
@@ -113,7 +113,7 @@ function StatusBadge({
   const badge = (
     <Badge
       variant={statusVariant(status)}
-      className={`text-xs ${status === "running" ? "bg-blue-500 hover:bg-blue-500/80 text-white" : ""}`}
+      className="text-xs"
     >
       {statusLabel(status)}
     </Badge>
