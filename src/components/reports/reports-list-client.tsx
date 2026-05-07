@@ -16,6 +16,7 @@ import {
   Filter,
   Loader2,
   FileText,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -36,6 +37,7 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/empty-state";
+import { DataTableShell } from "@/components/shared/data-table-shell";
 import {
   listMonthlyReports,
   createOrGetDraftReport,
@@ -327,7 +329,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
         </div>
       </div>
 
-      {/* Table */}
+      {/* Table / Cards */}
       {loading ? (
         <ReportsTableSkeleton />
       ) : reports.length === 0 ? (
@@ -337,110 +339,226 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
           description="No se encontraron reportes mensuales para los filtros seleccionados."
         />
       ) : (
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Mes</TableHead>
-                <TableHead>Año</TableHead>
-                <TableHead>Estado</TableHead>
-                <TableHead className="hidden md:table-cell">Generado</TableHead>
-                <TableHead className="hidden md:table-cell">Enviado</TableHead>
-                <TableHead className="w-[200px]">Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {reports.map((report) => {
-                const statusConfig = STATUS_CONFIG[report.status] ?? STATUS_CONFIG.draft;
-                const loadingAction = actionLoading[report.report_id];
-                const isDisabled = Boolean(loadingAction);
-                const isSubmitted = report.status === "submitted";
-                const isGenerated = report.status === "generated";
+        <>
+          {/* Desktop: full table */}
+          <div className="hidden md:block">
+            <DataTableShell>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Mes</TableHead>
+                    <TableHead>Año</TableHead>
+                    <TableHead>Estado</TableHead>
+                    <TableHead className="hidden md:table-cell">Generado</TableHead>
+                    <TableHead className="hidden md:table-cell">Enviado</TableHead>
+                    <TableHead className="w-[200px]">Acciones</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {reports.map((report) => {
+                    const statusConfig = STATUS_CONFIG[report.status] ?? STATUS_CONFIG.draft;
+                    const loadingAction = actionLoading[report.report_id];
+                    const isDisabled = Boolean(loadingAction);
+                    const isSubmitted = report.status === "submitted";
+                    const isGenerated = report.status === "generated";
 
-                return (
-                  <TableRow key={report.report_id}>
-                    <TableCell className="font-medium">
-                      {MONTH_NAMES[report.month] ?? report.month}
-                    </TableCell>
-                    <TableCell className="tabular-nums">{report.year}</TableCell>
-                    <TableCell>
+                    return (
+                      <TableRow key={report.report_id}>
+                        <TableCell className="font-medium">
+                          {MONTH_NAMES[report.month] ?? report.month}
+                        </TableCell>
+                        <TableCell className="tabular-nums">{report.year}</TableCell>
+                        <TableCell>
+                          <Badge variant={statusConfig.variant} className="text-xs">
+                            {statusConfig.label}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
+                          {formatDate(report.generated_at)}
+                        </TableCell>
+                        <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
+                          {formatDate(report.submitted_at)}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1.5">
+                            <Button variant="ghost" size="xs" asChild>
+                              <Link href={`/dashboard/reports/${report.report_id}`}>
+                                {isSubmitted ? (
+                                  <Eye className="size-3" />
+                                ) : (
+                                  <Pencil className="size-3" />
+                                )}
+                                {isSubmitted ? "Ver" : "Editar"}
+                              </Link>
+                            </Button>
+
+                            {!isSubmitted && (
+                              <Button
+                                variant="ghost"
+                                size="xs"
+                                onClick={() => handleGenerate(report)}
+                                disabled={isDisabled}
+                              >
+                                {loadingAction === "generate" ? (
+                                  <Loader2 className="size-3 animate-spin" />
+                                ) : (
+                                  <Zap className="size-3" />
+                                )}
+                                Generar
+                              </Button>
+                            )}
+
+                            {isGenerated && (
+                              <Button
+                                variant="ghost"
+                                size="xs"
+                                onClick={() => handleSubmit(report)}
+                                disabled={isDisabled}
+                              >
+                                {loadingAction === "submit" ? (
+                                  <Loader2 className="size-3 animate-spin" />
+                                ) : (
+                                  <Send className="size-3" />
+                                )}
+                                Enviar
+                              </Button>
+                            )}
+
+                            {(isGenerated || isSubmitted) && (
+                              <Button
+                                variant="ghost"
+                                size="xs"
+                                onClick={() => handleDownloadPdf(report)}
+                              >
+                                <Download className="size-3" />
+                                PDF
+                              </Button>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </DataTableShell>
+          </div>
+
+          {/* Mobile: descriptive cards */}
+          <ul className="space-y-3 md:hidden" aria-label="Lista de reportes">
+            {reports.map((report) => {
+              const statusConfig = STATUS_CONFIG[report.status] ?? STATUS_CONFIG.draft;
+              const loadingAction = actionLoading[report.report_id];
+              const isDisabled = Boolean(loadingAction);
+              const isSubmitted = report.status === "submitted";
+              const isGenerated = report.status === "generated";
+
+              return (
+                <li key={report.report_id}>
+                  <div className="rounded-xl border border-border/60 bg-card p-4 shadow-xs">
+                    <div className="flex items-center gap-3">
+                      <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                        <FileText className="size-5 text-primary" aria-hidden="true" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium">
+                          {MONTH_NAMES[report.month] ?? report.month} {report.year}
+                        </p>
+                        <p className="truncate text-xs text-muted-foreground tabular-nums">
+                          #{report.report_id}
+                        </p>
+                      </div>
+                      <Link
+                        href={`/dashboard/reports/${report.report_id}`}
+                        className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        aria-label={isSubmitted ? "Ver reporte" : "Editar reporte"}
+                      >
+                        <ChevronRight className="size-4" aria-hidden="true" />
+                      </Link>
+                    </div>
+
+                    <div className="mt-3 flex flex-wrap items-center gap-1.5">
                       <Badge variant={statusConfig.variant} className="text-xs">
                         {statusConfig.label}
                       </Badge>
-                    </TableCell>
-                    <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
-                      {formatDate(report.generated_at)}
-                    </TableCell>
-                    <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
-                      {formatDate(report.submitted_at)}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1.5">
-                        {/* View / Edit */}
-                        <Button variant="ghost" size="xs" asChild>
-                          <Link href={`/dashboard/reports/${report.report_id}`}>
-                            {isSubmitted ? (
-                              <Eye className="size-3" />
-                            ) : (
-                              <Pencil className="size-3" />
-                            )}
-                            {isSubmitted ? "Ver" : "Editar"}
-                          </Link>
+                    </div>
+
+                    <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
+                      {report.generated_at && (
+                        <div>
+                          <dt className="text-muted-foreground">Generado</dt>
+                          <dd>{formatDate(report.generated_at)}</dd>
+                        </div>
+                      )}
+                      {report.submitted_at && (
+                        <div>
+                          <dt className="text-muted-foreground">Enviado</dt>
+                          <dd>{formatDate(report.submitted_at)}</dd>
+                        </div>
+                      )}
+                    </dl>
+
+                    <div className="mt-3 flex flex-wrap gap-1.5 border-t border-border/40 pt-3">
+                      <Button variant="outline" size="xs" asChild>
+                        <Link href={`/dashboard/reports/${report.report_id}`}>
+                          {isSubmitted ? (
+                            <Eye className="size-3" />
+                          ) : (
+                            <Pencil className="size-3" />
+                          )}
+                          {isSubmitted ? "Ver" : "Editar"}
+                        </Link>
+                      </Button>
+
+                      {!isSubmitted && (
+                        <Button
+                          variant="outline"
+                          size="xs"
+                          onClick={() => handleGenerate(report)}
+                          disabled={isDisabled}
+                        >
+                          {loadingAction === "generate" ? (
+                            <Loader2 className="size-3 animate-spin" />
+                          ) : (
+                            <Zap className="size-3" />
+                          )}
+                          Generar
                         </Button>
+                      )}
 
-                        {/* Generate */}
-                        {!isSubmitted && (
-                          <Button
-                            variant="ghost"
-                            size="xs"
-                            onClick={() => handleGenerate(report)}
-                            disabled={isDisabled}
-                          >
-                            {loadingAction === "generate" ? (
-                              <Loader2 className="size-3 animate-spin" />
-                            ) : (
-                              <Zap className="size-3" />
-                            )}
-                            Generar
-                          </Button>
-                        )}
+                      {isGenerated && (
+                        <Button
+                          variant="outline"
+                          size="xs"
+                          onClick={() => handleSubmit(report)}
+                          disabled={isDisabled}
+                        >
+                          {loadingAction === "submit" ? (
+                            <Loader2 className="size-3 animate-spin" />
+                          ) : (
+                            <Send className="size-3" />
+                          )}
+                          Enviar
+                        </Button>
+                      )}
 
-                        {/* Submit */}
-                        {isGenerated && (
-                          <Button
-                            variant="ghost"
-                            size="xs"
-                            onClick={() => handleSubmit(report)}
-                            disabled={isDisabled}
-                          >
-                            {loadingAction === "submit" ? (
-                              <Loader2 className="size-3 animate-spin" />
-                            ) : (
-                              <Send className="size-3" />
-                            )}
-                            Enviar
-                          </Button>
-                        )}
-
-                        {/* PDF */}
-                        {(isGenerated || isSubmitted) && (
-                          <Button
-                            variant="ghost"
-                            size="xs"
-                            onClick={() => handleDownloadPdf(report)}
-                          >
-                            <Download className="size-3" />
-                            PDF
-                          </Button>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
+                      {(isGenerated || isSubmitted) && (
+                        <Button
+                          variant="outline"
+                          size="xs"
+                          onClick={() => handleDownloadPdf(report)}
+                        >
+                          <Download className="size-3" />
+                          PDF
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </>
       )}
     </div>
   );
