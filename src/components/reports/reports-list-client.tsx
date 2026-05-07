@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Eye,
   Pencil,
@@ -131,97 +132,114 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
   const [filterYear, setFilterYear] = useState<number | undefined>(currentYear);
   const [filterStatus, setFilterStatus] = useState<ReportStatus | "all">("all");
 
-  // Data
-  const [reports, setReports] = useState<MonthlyReport[]>([]);
-  const [loading, setLoading] = useState(true);
-
   // Action loading per report
   const [actionLoading, setActionLoading] = useState<Record<number, string>>({});
 
   // New report creation state
   const [createMonth, setCreateMonth] = useState<number>(new Date().getMonth() + 1);
   const [createYear, setCreateYear] = useState<number>(currentYear);
-  const [creating, setCreating] = useState(false);
 
-  const fetchReports = useCallback(async () => {
-    setLoading(true);
-    try {
-      let data = await listMonthlyReports(
+  const queryClient = useQueryClient();
+
+  const {
+    data: rawReports = [],
+    isFetching: loading,
+    refetch: fetchReports,
+  } = useQuery({
+    queryKey: ["monthly-reports", enrollmentId, filterStatus],
+    queryFn: () =>
+      listMonthlyReports(
         enrollmentId,
         filterStatus !== "all" ? filterStatus : undefined,
-      );
-      if (filterYear) {
-        data = data.filter((r) => r.year === filterYear);
-      }
-      setReports(data);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : t("errors.load_reports");
-      toast.error(message);
-      setReports([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [enrollmentId, filterYear, filterStatus]);
+      ),
+    staleTime: 30_000,
+  });
 
-  useEffect(() => {
-    fetchReports();
-  }, [fetchReports]);
+  const reports = filterYear
+    ? rawReports.filter((r) => r.year === filterYear)
+    : rawReports;
 
   // ─── Action handlers ──────────────────────────────────────────────────────
 
-  async function handleCreateReport() {
-    setCreating(true);
-    try {
-      const report = await createOrGetDraftReport(enrollmentId, createMonth, createYear);
-      toast.success(`Reporte para ${MONTH_NAMES[createMonth]} ${createYear} creado/abierto.`);
+  const createMutation = useMutation({
+    mutationFn: () =>
+      createOrGetDraftReport(enrollmentId, createMonth, createYear),
+    onSuccess: (report) => {
+      toast.success(
+        `Reporte para ${MONTH_NAMES[createMonth]} ${createYear} creado/abierto.`,
+      );
       router.push(`/dashboard/reports/${report.report_id}`);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : t("errors.create_report");
+    },
+    onError: (error) => {
+      const message =
+        error instanceof Error ? error.message : t("errors.create_report");
       toast.error(message);
-    } finally {
-      setCreating(false);
-    }
-  }
+    },
+  });
 
-  async function handleGenerate(report: MonthlyReport) {
-    setActionLoading((prev) => ({ ...prev, [report.report_id]: "generate" }));
-    try {
-      const updated = await generateReport(report.report_id);
-      setReports((prev) =>
-        prev.map((r) => (r.report_id === updated.report_id ? updated : r)),
+  const generateMutation = useMutation({
+    mutationFn: (report: MonthlyReport) => {
+      setActionLoading((prev) => ({ ...prev, [report.report_id]: "generate" }));
+      return generateReport(report.report_id);
+    },
+    onSuccess: (_, report) => {
+      toast.success(
+        `Reporte de ${MONTH_NAMES[report.month]} ${report.year} generado.`,
       );
-      toast.success(`Reporte de ${MONTH_NAMES[report.month]} ${report.year} generado.`);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : t("errors.generate_report");
+      void queryClient.invalidateQueries({
+        queryKey: ["monthly-reports", enrollmentId],
+      });
+    },
+    onError: (error, report) => {
+      const message =
+        error instanceof Error ? error.message : t("errors.generate_report");
       toast.error(message);
-    } finally {
       setActionLoading((prev) => {
         const next = { ...prev };
         delete next[report.report_id];
         return next;
       });
-    }
-  }
-
-  async function handleSubmit(report: MonthlyReport) {
-    setActionLoading((prev) => ({ ...prev, [report.report_id]: "submit" }));
-    try {
-      const updated = await submitReport(report.report_id);
-      setReports((prev) =>
-        prev.map((r) => (r.report_id === updated.report_id ? updated : r)),
-      );
-      toast.success(`Reporte de ${MONTH_NAMES[report.month]} ${report.year} enviado al campo.`);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : t("errors.send_report");
-      toast.error(message);
-    } finally {
+    },
+    onSettled: (_, __, report) => {
       setActionLoading((prev) => {
         const next = { ...prev };
         delete next[report.report_id];
         return next;
       });
-    }
-  }
+    },
+  });
+
+  const submitMutation = useMutation({
+    mutationFn: (report: MonthlyReport) => {
+      setActionLoading((prev) => ({ ...prev, [report.report_id]: "submit" }));
+      return submitReport(report.report_id);
+    },
+    onSuccess: (_, report) => {
+      toast.success(
+        `Reporte de ${MONTH_NAMES[report.month]} ${report.year} enviado al campo.`,
+      );
+      void queryClient.invalidateQueries({
+        queryKey: ["monthly-reports", enrollmentId],
+      });
+    },
+    onError: (error, report) => {
+      const message =
+        error instanceof Error ? error.message : t("errors.send_report");
+      toast.error(message);
+      setActionLoading((prev) => {
+        const next = { ...prev };
+        delete next[report.report_id];
+        return next;
+      });
+    },
+    onSettled: (_, __, report) => {
+      setActionLoading((prev) => {
+        const next = { ...prev };
+        delete next[report.report_id];
+        return next;
+      });
+    },
+  });
 
   function handleDownloadPdf(report: MonthlyReport) {
     const url = getReportPdfUrl(report.report_id);
@@ -318,8 +336,12 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
             </SelectContent>
           </Select>
 
-          <Button size="sm" onClick={handleCreateReport} disabled={creating}>
-            {creating ? (
+          <Button
+            size="sm"
+            onClick={() => createMutation.mutate()}
+            disabled={createMutation.isPending}
+          >
+            {createMutation.isPending ? (
               <Loader2 className="size-4 animate-spin" />
             ) : (
               <Plus className="size-4" />
@@ -396,7 +418,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                               <Button
                                 variant="ghost"
                                 size="xs"
-                                onClick={() => handleGenerate(report)}
+                                onClick={() => generateMutation.mutate(report)}
                                 disabled={isDisabled}
                               >
                                 {loadingAction === "generate" ? (
@@ -412,7 +434,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                               <Button
                                 variant="ghost"
                                 size="xs"
-                                onClick={() => handleSubmit(report)}
+                                onClick={() => submitMutation.mutate(report)}
                                 disabled={isDisabled}
                               >
                                 {loadingAction === "submit" ? (
@@ -514,7 +536,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                         <Button
                           variant="outline"
                           size="xs"
-                          onClick={() => handleGenerate(report)}
+                          onClick={() => generateMutation.mutate(report)}
                           disabled={isDisabled}
                         >
                           {loadingAction === "generate" ? (
@@ -530,7 +552,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                         <Button
                           variant="outline"
                           size="xs"
-                          onClick={() => handleSubmit(report)}
+                          onClick={() => submitMutation.mutate(report)}
                           disabled={isDisabled}
                         >
                           {loadingAction === "submit" ? (
