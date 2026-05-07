@@ -5,15 +5,8 @@ import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
 import { ApiError } from "@/lib/api/client";
 import { getSectionMembers } from "@/lib/api/section-rankings";
+import { getActiveEcclesiasticalYearId } from "@/lib/api/catalogs";
 import { SectionMembersTable } from "./_components/section-members-table";
-
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-/**
- * TODO: replace with a real year selector once the ecclesiastical year
- * management feature is built. Same pattern as Task 17/18 list + breakdown pages.
- */
-const DEFAULT_YEAR_ID = 2026;
 
 // ─── Route params ─────────────────────────────────────────────────────────────
 
@@ -39,11 +32,16 @@ export default async function SectionMembersPage({
   }
 
   // Validate + fallback yearId
-  const parsedYearId = yearIdRaw ? Number(yearIdRaw) : DEFAULT_YEAR_ID;
-  const yearId =
-    Number.isFinite(parsedYearId) && parsedYearId > 0
+  const parsedYearId = yearIdRaw ? Number(yearIdRaw) : null;
+  const queryYearId =
+    parsedYearId !== null && Number.isFinite(parsedYearId) && parsedYearId > 0
       ? parsedYearId
-      : DEFAULT_YEAR_ID;
+      : null;
+  const yearId = queryYearId ?? (await getActiveEcclesiasticalYearId());
+
+  if (yearId === null) {
+    notFound();
+  }
 
   let members: Awaited<ReturnType<typeof getSectionMembers>>;
   try {

@@ -513,7 +513,7 @@ La sombra default paso de `shadow-sm` a `shadow-xs` en Fase 2. El border cambio 
 **Import:** `@/components/ui/separator`
 
 - Horizontal (default): `h-px w-full bg-border`
-- Vertical: `className="mx-1.5 h-6 w-px"` (no soporta prop `orientation`)
+- Vertical: `className="mx-1.5 h-6 w-px"` o pasar `orientation="vertical"` (la primitiva Radix sí soporta el prop)
 
 ### 5.14 Tooltip
 
@@ -850,14 +850,23 @@ Consumido por ~61 paginas del admin. **La firma tipografica del rediseno Ember v
 
 ### 7.3 LoadingSkeleton
 
-**Import:** `@/components/shared/loading-skeleton`
+**Status: NO existe como componente shared.** Usar `<Skeleton>` directo de `@/components/ui/skeleton` con dimensiones que simulen el contenido final.
 
 ```tsx
-<LoadingSkeleton rows={5} />
+import { Skeleton } from "@/components/ui/skeleton";
+
+<DataTableShell>
+  {Array.from({ length: 6 }).map((_, i) => (
+    <div key={i} className="flex items-center gap-4 border-b p-4 last:border-b-0">
+      <Skeleton className="h-4 w-40" />
+      <Skeleton className="hidden h-4 w-24 md:block" />
+      <Skeleton className="h-5 w-14" />
+    </div>
+  ))}
+</DataTableShell>
 ```
 
-- Simula toolbar + tabla con Skeleton pulses
-- Envuelto en Card
+Patrón ejemplar en `src/app/(dashboard)/dashboard/clubs/page.tsx` (`ClubsSkeleton`).
 
 ### 7.4 StatusBadge
 
@@ -924,22 +933,22 @@ export function InvestitureStatusBadge({ status }: { status: InvestitureStatus }
 
 ### 7.5 DataTable
 
-**Import:** `@/components/shared/data-table`
+**Status: NO existe.** No hay componente `<DataTable>` de alto nivel. El proyecto usa `<DataTableShell>` (chrome canónico) wrappeando el `<Table>` primitivo de shadcn directamente. La búsqueda y filtros viven en `<CatalogFilterBar>` o se implementan inline. Ver §7.5b.
 
-Tabla completa con busqueda integrada, basada en TanStack Table.
+### 7.5b DataTableShell
+
+**Import:** `@/components/shared/data-table-shell`
 
 ```tsx
-<DataTable
-  columns={[
-    { key: "name", title: "Nombre", render: (item) => item.name, searchableValue: (item) => item.name },
-    { key: "status", title: "Estado", render: (item) => <StatusBadge active={item.active} /> },
-  ]}
-  rows={items}
-  searchPlaceholder="Buscar miembros..."
-  emptyTitle="Sin miembros"
-  emptyDescription="No hay miembros registrados aun."
-/>
+<DataTableShell>
+  <Table>
+    <TableHeader>{/* ... */}</TableHeader>
+    <TableBody>{/* ... */}</TableBody>
+  </Table>
+</DataTableShell>
 ```
+
+Chrome canónico para tablas: `rounded-xl border-border/60 bg-card shadow-xs overflow-hidden`. Reemplazó las 3 conventions previas (`rounded-md`, `rounded-lg`, etc.) que coexistían en el codebase.
 
 ### 7.6 DataTablePagination
 
@@ -951,19 +960,21 @@ Tabla completa con busqueda integrada, basada en TanStack Table.
 
 ### 7.7 ConfirmDialog
 
-**Import:** `@/components/shared/confirm-dialog`
-
-Wrapper reutilizable de AlertDialog para acciones destructivas.
+**Status: NO existe como componente shared.** Las confirmaciones destructivas usan `<AlertDialog>` directamente. Ver `catalog-delete-dialog`, `delete-activity-dialog`, `delete-camporee-dialog`, etc. — patrones específicos por feature en lugar de un wrapper genérico.
 
 ```tsx
-<ConfirmDialog
-  title="¿Desactivar usuario?"
-  description="El usuario dejara de tener acceso al sistema."
-  triggerLabel="Desactivar"
-  confirmLabel="Si, desactivar"
-  onConfirm={async () => { await deleteUser(id); }}
-  triggerVariant="destructive"
-/>
+<AlertDialog open={open} onOpenChange={onOpenChange}>
+  <AlertDialogContent>
+    <AlertDialogHeader>
+      <AlertDialogTitle>¿Desactivar usuario?</AlertDialogTitle>
+      <AlertDialogDescription>El usuario dejará de tener acceso al sistema.</AlertDialogDescription>
+    </AlertDialogHeader>
+    <AlertDialogFooter>
+      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+      <AlertDialogAction onClick={handleConfirm}>Sí, desactivar</AlertDialogAction>
+    </AlertDialogFooter>
+  </AlertDialogContent>
+</AlertDialog>
 ```
 
 ### 7.8 CatalogEntityPage (orquestador canonico)
@@ -1012,12 +1023,13 @@ Para agregar un nuevo catalogo: (1) registrar la config en `lib/catalogs/entitie
 
 AlertDialog generico para desactivacion de registros de catalogo.
 
-### 7.10 AppToaster
+### 7.10 Toaster (Sonner)
 
-**Import:** `@/components/shared/app-toaster`
+**Import:** `@/components/ui/sonner` (re-export de `sonner`'s `Toaster`)
 
-- Provider global de Sonner
-- Posicion: `top-right`
+Montado en `src/app/layout.tsx` directamente — no hay wrapper `AppToaster` shared.
+
+- Posición: `top-center`
 - `richColors` habilitado
 - `closeButton` habilitado
 
@@ -1563,7 +1575,7 @@ className="p-4 md:p-6"
 
 ### 15.1 Posicion y Config
 
-- Posicion: `top-right`
+- Posicion: `top-center` (montado en `src/app/layout.tsx`)
 - Rich colors: habilitado
 - Close button: habilitado
 
@@ -1730,16 +1742,14 @@ src/
 │   │   └── tooltip.tsx
 │   ├── shared/              # Componentes reutilizables
 │   │   ├── app-alert-listener.tsx
-│   │   ├── app-toaster.tsx
-│   │   ├── confirm-dialog.tsx
-│   │   ├── data-table.tsx
 │   │   ├── data-table-pagination.tsx
+│   │   ├── data-table-shell.tsx       # Chrome canónico de tabla (2026-05)
 │   │   ├── data-table-toolbar.tsx
-│   │   ├── empty-state.tsx
+│   │   ├── empty-state.tsx            # Acepta variant: default | no-results
 │   │   ├── endpoint-error-banner.tsx  # Nuevo (auditoria 2026-04-16)
-│   │   ├── loading-skeleton.tsx
 │   │   ├── module-list-page.tsx       # Nuevo (auditoria 2026-04-16)
 │   │   ├── page-header.tsx
+│   │   ├── status-badge.tsx           # Wrapper genérico (alternativo a ui/status-badge)
 │   │   └── status-badge.tsx
 │   ├── layout/              # Componentes de layout
 │   │   ├── app-sidebar.tsx

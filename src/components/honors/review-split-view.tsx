@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { useTranslations } from "next-intl";
 import {
   deleteRequirement,
@@ -185,7 +185,7 @@ export function ReviewSplitView({
         </div>
 
         <div className="flex items-center gap-2">
-          <Badge variant="warning">Pendiente de revisión</Badge>
+          <StatusBadge intent="warning" label="Pendiente de revisión" />
           <span className="text-sm font-medium text-muted-foreground">
             {requirement.honors.name}
           </span>

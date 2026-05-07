@@ -87,11 +87,11 @@ function formatDuration(ms: number | null): string {
 
 function statusVariant(
   status: string,
-): "default" | "destructive" | "secondary" | "outline" {
+): "soft-info" | "success" | "destructive" | "secondary" | "outline" {
   switch (status) {
-    case "completed": return "default";
+    case "completed": return "success";
     case "failed":    return "destructive";
-    case "running":   return "default";
+    case "running":   return "soft-info";
     case "skipped":   return "secondary";
     default:          return "secondary";
   }
@@ -109,10 +109,7 @@ function statusLabel(status: string): string {
 
 function StatusBadge({ status }: { status: string }) {
   return (
-    <Badge
-      variant={statusVariant(status)}
-      className={`text-xs ${status === "running" ? "bg-blue-500 hover:bg-blue-500/80 text-white" : status === "completed" ? "bg-green-600 hover:bg-green-600/80 text-white" : ""}`}
-    >
+    <Badge variant={statusVariant(status)} className="text-xs">
       {statusLabel(status)}
     </Badge>
   );

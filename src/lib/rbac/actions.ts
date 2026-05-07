@@ -127,11 +127,11 @@ export async function createRoleAction(
     return { error: t("validation.role_name_required") };
   }
 
-  if (!/^[a-z_]{3,64}$/.test(roleName)) {
+  if (!/^[a-z][a-z0-9-]{1,62}[a-z0-9]$/.test(roleName)) {
     return { error: t("validation.role_name_format") };
   }
 
-  if (roleName === "super_admin") {
+  if (roleName === "super-admin") {
     return { error: t("validation.role_name_reserved") };
   }
 

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
-import type { SubmitHandler, Resolver } from "react-hook-form";
+import type { SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -63,7 +63,7 @@ interface ManualDataFormProps {
 interface NumberFieldProps {
   label: string;
   name: keyof FormValues;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   register: ReturnType<typeof useForm<FormValues>>["register"];
   error?: string;
   disabled?: boolean;
@@ -83,7 +83,7 @@ function NumberField({ label, name, register, error, disabled }: NumberFieldProp
         className="h-8"
         {...register(name)}
       />
-      {error && <p className="text-xs text-destructive">{error}</p>}
+      {error && <p className="text-xs text-destructive" role="alert" aria-live="polite">{error}</p>}
     </div>
   );
 }
@@ -91,7 +91,7 @@ function NumberField({ label, name, register, error, disabled }: NumberFieldProp
 interface TextareaFieldProps {
   label: string;
   name: keyof FormValues;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   register: ReturnType<typeof useForm<FormValues>>["register"];
   error?: string;
   disabled?: boolean;
@@ -111,7 +111,7 @@ function TextareaField({ label, name, register, error, disabled, rows = 3 }: Tex
         className="resize-none text-sm"
         {...register(name)}
       />
-      {error && <p className="text-xs text-destructive">{error}</p>}
+      {error && <p className="text-xs text-destructive" role="alert" aria-live="polite">{error}</p>}
     </div>
   );
 }
@@ -132,8 +132,8 @@ export function ManualDataForm({
     handleSubmit,
     formState: { errors, isDirty },
   } = useForm<FormValues>({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resolver: zodResolver(manualDataSchema) as unknown as Resolver<FormValues>,
+     
+    resolver: zodResolver(manualDataSchema as z.ZodType<FormValues>),
     defaultValues: {
       weekly_meetings_held: initialData?.weekly_meetings_held ?? undefined,
       leadership_meetings: initialData?.leadership_meetings ?? undefined,
@@ -172,7 +172,7 @@ export function ManualDataForm({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
       {/* Administración */}
       <Card>
         <CardHeader className="pb-3">
@@ -341,9 +341,9 @@ export function ManualDataForm({
       <div className="flex justify-end">
         <Button type="submit" disabled={disabled || saving || !isDirty} size="sm">
           {saving ? (
-            <Loader2 className="size-4 animate-spin" />
+            <Loader2 className="size-4 animate-spin" aria-hidden="true" />
           ) : (
-            <Save className="size-4" />
+            <Save className="size-4" aria-hidden="true" />
           )}
           Guardar datos manuales
         </Button>

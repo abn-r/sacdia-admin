@@ -100,7 +100,7 @@ export function EvaluateMemberOfMonthDialog({
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Trophy className="size-4 text-amber-500" />
+            <Trophy className="size-4 text-warning" />
             Evaluar Miembro del Mes
           </DialogTitle>
           <DialogDescription>

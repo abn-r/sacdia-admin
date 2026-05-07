@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Loader2, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -40,6 +41,8 @@ export default function LoginPage() {
   const t = useTranslations("auth.login");
   const [state, formAction] = useActionState(loginAction, initialState);
   const [showPassword, setShowPassword] = useState(false);
+  const searchParams = useSearchParams();
+  const nextParam = searchParams.get("next") ?? "";
 
   return (
     <div className="relative min-h-svh overflow-hidden bg-background flex items-center justify-center p-4">
@@ -75,7 +78,7 @@ export default function LoginPage() {
       >
         {/* Brand header — outside the card */}
         <div className="mb-8 flex flex-col items-center gap-3">
-          <div className="flex size-12 items-center justify-center rounded-xl border border-border/60 bg-card shadow-sm">
+          <div className="flex size-12 items-center justify-center rounded-xl border border-border/60 bg-card shadow-xs">
             <Image
               src="/svg/LogoSACDIA.svg"
               alt="SACDIA"
@@ -95,7 +98,7 @@ export default function LoginPage() {
         </div>
 
         {/* Card body */}
-        <div className="rounded-2xl border border-border/60 bg-card shadow-sm px-8 py-8">
+        <div className="rounded-2xl border border-border/60 bg-card shadow-xs px-8 py-8">
           {/* Title */}
           <div className="mb-6">
             <h1 className="text-xl font-semibold tracking-tight text-foreground">
@@ -108,6 +111,7 @@ export default function LoginPage() {
 
           {/* Form */}
           <form action={formAction} className="space-y-4">
+            <input type="hidden" name="next" value={nextParam} />
             {/* Error message */}
             {state.error && (
               <div className="flex items-start gap-2.5 rounded-lg border border-destructive/20 bg-destructive/5 px-3.5 py-3 text-sm text-destructive dark:border-destructive/30 dark:bg-destructive/10">

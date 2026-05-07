@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Eye,
   Pencil,
@@ -16,6 +17,7 @@ import {
   Filter,
   Loader2,
   FileText,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -36,6 +38,7 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/empty-state";
+import { DataTableShell } from "@/components/shared/data-table-shell";
 import {
   listMonthlyReports,
   createOrGetDraftReport,
@@ -129,97 +132,114 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
   const [filterYear, setFilterYear] = useState<number | undefined>(currentYear);
   const [filterStatus, setFilterStatus] = useState<ReportStatus | "all">("all");
 
-  // Data
-  const [reports, setReports] = useState<MonthlyReport[]>([]);
-  const [loading, setLoading] = useState(true);
-
   // Action loading per report
   const [actionLoading, setActionLoading] = useState<Record<number, string>>({});
 
   // New report creation state
   const [createMonth, setCreateMonth] = useState<number>(new Date().getMonth() + 1);
   const [createYear, setCreateYear] = useState<number>(currentYear);
-  const [creating, setCreating] = useState(false);
 
-  const fetchReports = useCallback(async () => {
-    setLoading(true);
-    try {
-      let data = await listMonthlyReports(
+  const queryClient = useQueryClient();
+
+  const {
+    data: rawReports = [],
+    isFetching: loading,
+    refetch: fetchReports,
+  } = useQuery({
+    queryKey: ["monthly-reports", enrollmentId, filterStatus],
+    queryFn: () =>
+      listMonthlyReports(
         enrollmentId,
         filterStatus !== "all" ? filterStatus : undefined,
-      );
-      if (filterYear) {
-        data = data.filter((r) => r.year === filterYear);
-      }
-      setReports(data);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : t("errors.load_reports");
-      toast.error(message);
-      setReports([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [enrollmentId, filterYear, filterStatus]);
+      ),
+    staleTime: 30_000,
+  });
 
-  useEffect(() => {
-    fetchReports();
-  }, [fetchReports]);
+  const reports = filterYear
+    ? rawReports.filter((r) => r.year === filterYear)
+    : rawReports;
 
   // ─── Action handlers ──────────────────────────────────────────────────────
 
-  async function handleCreateReport() {
-    setCreating(true);
-    try {
-      const report = await createOrGetDraftReport(enrollmentId, createMonth, createYear);
-      toast.success(`Reporte para ${MONTH_NAMES[createMonth]} ${createYear} creado/abierto.`);
+  const createMutation = useMutation({
+    mutationFn: () =>
+      createOrGetDraftReport(enrollmentId, createMonth, createYear),
+    onSuccess: (report) => {
+      toast.success(
+        `Reporte para ${MONTH_NAMES[createMonth]} ${createYear} creado/abierto.`,
+      );
       router.push(`/dashboard/reports/${report.report_id}`);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : t("errors.create_report");
+    },
+    onError: (error) => {
+      const message =
+        error instanceof Error ? error.message : t("errors.create_report");
       toast.error(message);
-    } finally {
-      setCreating(false);
-    }
-  }
+    },
+  });
 
-  async function handleGenerate(report: MonthlyReport) {
-    setActionLoading((prev) => ({ ...prev, [report.report_id]: "generate" }));
-    try {
-      const updated = await generateReport(report.report_id);
-      setReports((prev) =>
-        prev.map((r) => (r.report_id === updated.report_id ? updated : r)),
+  const generateMutation = useMutation({
+    mutationFn: (report: MonthlyReport) => {
+      setActionLoading((prev) => ({ ...prev, [report.report_id]: "generate" }));
+      return generateReport(report.report_id);
+    },
+    onSuccess: (_, report) => {
+      toast.success(
+        `Reporte de ${MONTH_NAMES[report.month]} ${report.year} generado.`,
       );
-      toast.success(`Reporte de ${MONTH_NAMES[report.month]} ${report.year} generado.`);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : t("errors.generate_report");
+      void queryClient.invalidateQueries({
+        queryKey: ["monthly-reports", enrollmentId],
+      });
+    },
+    onError: (error, report) => {
+      const message =
+        error instanceof Error ? error.message : t("errors.generate_report");
       toast.error(message);
-    } finally {
       setActionLoading((prev) => {
         const next = { ...prev };
         delete next[report.report_id];
         return next;
       });
-    }
-  }
-
-  async function handleSubmit(report: MonthlyReport) {
-    setActionLoading((prev) => ({ ...prev, [report.report_id]: "submit" }));
-    try {
-      const updated = await submitReport(report.report_id);
-      setReports((prev) =>
-        prev.map((r) => (r.report_id === updated.report_id ? updated : r)),
-      );
-      toast.success(`Reporte de ${MONTH_NAMES[report.month]} ${report.year} enviado al campo.`);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : t("errors.send_report");
-      toast.error(message);
-    } finally {
+    },
+    onSettled: (_, __, report) => {
       setActionLoading((prev) => {
         const next = { ...prev };
         delete next[report.report_id];
         return next;
       });
-    }
-  }
+    },
+  });
+
+  const submitMutation = useMutation({
+    mutationFn: (report: MonthlyReport) => {
+      setActionLoading((prev) => ({ ...prev, [report.report_id]: "submit" }));
+      return submitReport(report.report_id);
+    },
+    onSuccess: (_, report) => {
+      toast.success(
+        `Reporte de ${MONTH_NAMES[report.month]} ${report.year} enviado al campo.`,
+      );
+      void queryClient.invalidateQueries({
+        queryKey: ["monthly-reports", enrollmentId],
+      });
+    },
+    onError: (error, report) => {
+      const message =
+        error instanceof Error ? error.message : t("errors.send_report");
+      toast.error(message);
+      setActionLoading((prev) => {
+        const next = { ...prev };
+        delete next[report.report_id];
+        return next;
+      });
+    },
+    onSettled: (_, __, report) => {
+      setActionLoading((prev) => {
+        const next = { ...prev };
+        delete next[report.report_id];
+        return next;
+      });
+    },
+  });
 
   function handleDownloadPdf(report: MonthlyReport) {
     const url = getReportPdfUrl(report.report_id);
@@ -316,8 +336,12 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
             </SelectContent>
           </Select>
 
-          <Button size="sm" onClick={handleCreateReport} disabled={creating}>
-            {creating ? (
+          <Button
+            size="sm"
+            onClick={() => createMutation.mutate()}
+            disabled={createMutation.isPending}
+          >
+            {createMutation.isPending ? (
               <Loader2 className="size-4 animate-spin" />
             ) : (
               <Plus className="size-4" />
@@ -327,7 +351,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
         </div>
       </div>
 
-      {/* Table */}
+      {/* Table / Cards */}
       {loading ? (
         <ReportsTableSkeleton />
       ) : reports.length === 0 ? (
@@ -337,110 +361,226 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
           description="No se encontraron reportes mensuales para los filtros seleccionados."
         />
       ) : (
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Mes</TableHead>
-                <TableHead>Año</TableHead>
-                <TableHead>Estado</TableHead>
-                <TableHead className="hidden md:table-cell">Generado</TableHead>
-                <TableHead className="hidden md:table-cell">Enviado</TableHead>
-                <TableHead className="w-[200px]">Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {reports.map((report) => {
-                const statusConfig = STATUS_CONFIG[report.status] ?? STATUS_CONFIG.draft;
-                const loadingAction = actionLoading[report.report_id];
-                const isDisabled = Boolean(loadingAction);
-                const isSubmitted = report.status === "submitted";
-                const isGenerated = report.status === "generated";
+        <>
+          {/* Desktop: full table */}
+          <div className="hidden md:block">
+            <DataTableShell>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Mes</TableHead>
+                    <TableHead>Año</TableHead>
+                    <TableHead>Estado</TableHead>
+                    <TableHead className="hidden md:table-cell">Generado</TableHead>
+                    <TableHead className="hidden md:table-cell">Enviado</TableHead>
+                    <TableHead className="w-[200px]">Acciones</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {reports.map((report) => {
+                    const statusConfig = STATUS_CONFIG[report.status] ?? STATUS_CONFIG.draft;
+                    const loadingAction = actionLoading[report.report_id];
+                    const isDisabled = Boolean(loadingAction);
+                    const isSubmitted = report.status === "submitted";
+                    const isGenerated = report.status === "generated";
 
-                return (
-                  <TableRow key={report.report_id}>
-                    <TableCell className="font-medium">
-                      {MONTH_NAMES[report.month] ?? report.month}
-                    </TableCell>
-                    <TableCell className="tabular-nums">{report.year}</TableCell>
-                    <TableCell>
+                    return (
+                      <TableRow key={report.report_id}>
+                        <TableCell className="font-medium">
+                          {MONTH_NAMES[report.month] ?? report.month}
+                        </TableCell>
+                        <TableCell className="tabular-nums">{report.year}</TableCell>
+                        <TableCell>
+                          <Badge variant={statusConfig.variant} className="text-xs">
+                            {statusConfig.label}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
+                          {formatDate(report.generated_at)}
+                        </TableCell>
+                        <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
+                          {formatDate(report.submitted_at)}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1.5">
+                            <Button variant="ghost" size="xs" asChild>
+                              <Link href={`/dashboard/reports/${report.report_id}`}>
+                                {isSubmitted ? (
+                                  <Eye className="size-3" />
+                                ) : (
+                                  <Pencil className="size-3" />
+                                )}
+                                {isSubmitted ? "Ver" : "Editar"}
+                              </Link>
+                            </Button>
+
+                            {!isSubmitted && (
+                              <Button
+                                variant="ghost"
+                                size="xs"
+                                onClick={() => generateMutation.mutate(report)}
+                                disabled={isDisabled}
+                              >
+                                {loadingAction === "generate" ? (
+                                  <Loader2 className="size-3 animate-spin" />
+                                ) : (
+                                  <Zap className="size-3" />
+                                )}
+                                Generar
+                              </Button>
+                            )}
+
+                            {isGenerated && (
+                              <Button
+                                variant="ghost"
+                                size="xs"
+                                onClick={() => submitMutation.mutate(report)}
+                                disabled={isDisabled}
+                              >
+                                {loadingAction === "submit" ? (
+                                  <Loader2 className="size-3 animate-spin" />
+                                ) : (
+                                  <Send className="size-3" />
+                                )}
+                                Enviar
+                              </Button>
+                            )}
+
+                            {(isGenerated || isSubmitted) && (
+                              <Button
+                                variant="ghost"
+                                size="xs"
+                                onClick={() => handleDownloadPdf(report)}
+                              >
+                                <Download className="size-3" />
+                                PDF
+                              </Button>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </DataTableShell>
+          </div>
+
+          {/* Mobile: descriptive cards */}
+          <ul className="space-y-3 md:hidden" aria-label="Lista de reportes">
+            {reports.map((report) => {
+              const statusConfig = STATUS_CONFIG[report.status] ?? STATUS_CONFIG.draft;
+              const loadingAction = actionLoading[report.report_id];
+              const isDisabled = Boolean(loadingAction);
+              const isSubmitted = report.status === "submitted";
+              const isGenerated = report.status === "generated";
+
+              return (
+                <li key={report.report_id}>
+                  <div className="rounded-xl border border-border/60 bg-card p-4 shadow-xs">
+                    <div className="flex items-center gap-3">
+                      <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                        <FileText className="size-5 text-primary" aria-hidden="true" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium">
+                          {MONTH_NAMES[report.month] ?? report.month} {report.year}
+                        </p>
+                        <p className="truncate text-xs text-muted-foreground tabular-nums">
+                          #{report.report_id}
+                        </p>
+                      </div>
+                      <Link
+                        href={`/dashboard/reports/${report.report_id}`}
+                        className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        aria-label={isSubmitted ? "Ver reporte" : "Editar reporte"}
+                      >
+                        <ChevronRight className="size-4" aria-hidden="true" />
+                      </Link>
+                    </div>
+
+                    <div className="mt-3 flex flex-wrap items-center gap-1.5">
                       <Badge variant={statusConfig.variant} className="text-xs">
                         {statusConfig.label}
                       </Badge>
-                    </TableCell>
-                    <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
-                      {formatDate(report.generated_at)}
-                    </TableCell>
-                    <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
-                      {formatDate(report.submitted_at)}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1.5">
-                        {/* View / Edit */}
-                        <Button variant="ghost" size="xs" asChild>
-                          <Link href={`/dashboard/reports/${report.report_id}`}>
-                            {isSubmitted ? (
-                              <Eye className="size-3" />
-                            ) : (
-                              <Pencil className="size-3" />
-                            )}
-                            {isSubmitted ? "Ver" : "Editar"}
-                          </Link>
+                    </div>
+
+                    <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
+                      {report.generated_at && (
+                        <div>
+                          <dt className="text-muted-foreground">Generado</dt>
+                          <dd>{formatDate(report.generated_at)}</dd>
+                        </div>
+                      )}
+                      {report.submitted_at && (
+                        <div>
+                          <dt className="text-muted-foreground">Enviado</dt>
+                          <dd>{formatDate(report.submitted_at)}</dd>
+                        </div>
+                      )}
+                    </dl>
+
+                    <div className="mt-3 flex flex-wrap gap-1.5 border-t border-border/40 pt-3">
+                      <Button variant="outline" size="xs" asChild>
+                        <Link href={`/dashboard/reports/${report.report_id}`}>
+                          {isSubmitted ? (
+                            <Eye className="size-3" />
+                          ) : (
+                            <Pencil className="size-3" />
+                          )}
+                          {isSubmitted ? "Ver" : "Editar"}
+                        </Link>
+                      </Button>
+
+                      {!isSubmitted && (
+                        <Button
+                          variant="outline"
+                          size="xs"
+                          onClick={() => generateMutation.mutate(report)}
+                          disabled={isDisabled}
+                        >
+                          {loadingAction === "generate" ? (
+                            <Loader2 className="size-3 animate-spin" />
+                          ) : (
+                            <Zap className="size-3" />
+                          )}
+                          Generar
                         </Button>
+                      )}
 
-                        {/* Generate */}
-                        {!isSubmitted && (
-                          <Button
-                            variant="ghost"
-                            size="xs"
-                            onClick={() => handleGenerate(report)}
-                            disabled={isDisabled}
-                          >
-                            {loadingAction === "generate" ? (
-                              <Loader2 className="size-3 animate-spin" />
-                            ) : (
-                              <Zap className="size-3" />
-                            )}
-                            Generar
-                          </Button>
-                        )}
+                      {isGenerated && (
+                        <Button
+                          variant="outline"
+                          size="xs"
+                          onClick={() => submitMutation.mutate(report)}
+                          disabled={isDisabled}
+                        >
+                          {loadingAction === "submit" ? (
+                            <Loader2 className="size-3 animate-spin" />
+                          ) : (
+                            <Send className="size-3" />
+                          )}
+                          Enviar
+                        </Button>
+                      )}
 
-                        {/* Submit */}
-                        {isGenerated && (
-                          <Button
-                            variant="ghost"
-                            size="xs"
-                            onClick={() => handleSubmit(report)}
-                            disabled={isDisabled}
-                          >
-                            {loadingAction === "submit" ? (
-                              <Loader2 className="size-3 animate-spin" />
-                            ) : (
-                              <Send className="size-3" />
-                            )}
-                            Enviar
-                          </Button>
-                        )}
-
-                        {/* PDF */}
-                        {(isGenerated || isSubmitted) && (
-                          <Button
-                            variant="ghost"
-                            size="xs"
-                            onClick={() => handleDownloadPdf(report)}
-                          >
-                            <Download className="size-3" />
-                            PDF
-                          </Button>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
+                      {(isGenerated || isSubmitted) && (
+                        <Button
+                          variant="outline"
+                          size="xs"
+                          onClick={() => handleDownloadPdf(report)}
+                        >
+                          <Download className="size-3" />
+                          PDF
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </>
       )}
     </div>
   );

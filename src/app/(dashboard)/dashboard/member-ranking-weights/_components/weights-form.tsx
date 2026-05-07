@@ -1,19 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import type { Resolver, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
 import { WeightSumIndicator } from "./weight-sum-indicator";
 import {
   createMemberRankingWeights,
@@ -68,19 +63,19 @@ type FormValues = z.infer<typeof formSchema>;
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
-interface WeightsFormDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  /** When provided, the dialog operates in edit mode. */
-  editingRow?: EnrollmentRankingWeight | null;
+export interface WeightsFormProps {
+  mode: "create" | "edit";
+  /** Required when mode === "edit" */
+  defaultValues?: EnrollmentRankingWeight;
   clubTypes: ClubType[];
   ecclesiasticalYears: EcclesiasticalYear[];
-  onSuccess: () => void;
+  /** URL to redirect to on success or cancel. Defaults to /dashboard/member-ranking-weights */
+  backHref?: string;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function rowToDefaultValues(row: EnrollmentRankingWeight): FormValues {
+function rowToFormValues(row: EnrollmentRankingWeight): FormValues {
   return {
     class_pct: row.class_pct,
     investiture_pct: row.investiture_pct,
@@ -104,17 +99,21 @@ const EMPTY_DEFAULTS: FormValues = {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function WeightsFormDialog({
-  open,
-  onOpenChange,
-  editingRow,
+export function WeightsForm({
+  mode,
+  defaultValues,
   clubTypes,
   ecclesiasticalYears,
-  onSuccess,
-}: WeightsFormDialogProps) {
-  const isEdit = !!editingRow;
+  backHref = "/dashboard/member-ranking-weights",
+}: WeightsFormProps) {
+  const isEdit = mode === "edit";
   const t = useTranslations("memberRankingWeights.formDialog");
+  const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const initialValues = isEdit && defaultValues
+    ? rowToFormValues(defaultValues)
+    : EMPTY_DEFAULTS;
 
   const {
     register,
@@ -128,20 +127,19 @@ export function WeightsFormDialog({
     // so zodResolver's inferred Resolver type doesn't match useForm<FormValues>'s
     // unified signature. Cast is safe because runtime behavior is identical.
     resolver: zodResolver(formSchema) as unknown as Resolver<FormValues>,
-    defaultValues: EMPTY_DEFAULTS,
+    defaultValues: initialValues,
   });
+
+  // Re-seed if the server data changes (e.g. navigating between edit pages)
+  useEffect(() => {
+    reset(isEdit && defaultValues ? rowToFormValues(defaultValues) : EMPTY_DEFAULTS);
+  }, [isEdit, defaultValues, reset]);
 
   const classPct = watch("class_pct");
   const investiturePct = watch("investiture_pct");
   const camporeePct = watch("camporee_pct");
   const clubTypeValue = watch("club_type_id");
   const yearValue = watch("ecclesiastical_year_id");
-
-  useEffect(() => {
-    if (open) {
-      reset(editingRow ? rowToDefaultValues(editingRow) : EMPTY_DEFAULTS);
-    }
-  }, [open, editingRow, reset]);
 
   const onSubmit: SubmitHandler<FormValues> = async (values) => {
     setIsSubmitting(true);
@@ -158,16 +156,16 @@ export function WeightsFormDialog({
             : Number(values.ecclesiastical_year_id),
       };
 
-      if (isEdit && editingRow) {
-        await updateMemberRankingWeights(editingRow.id, payload);
+      if (isEdit && defaultValues) {
+        await updateMemberRankingWeights(defaultValues.id, payload);
         toast.success("Configuración de pesos actualizada");
       } else {
         await createMemberRankingWeights(payload);
         toast.success("Sobreescritura de pesos creada");
       }
 
-      onSuccess();
-      onOpenChange(false);
+      router.push(backHref);
+      router.refresh();
     } catch (err: unknown) {
       toast.error(mapWeightsErrorMessage(err));
     } finally {
@@ -186,17 +184,11 @@ export function WeightsFormDialog({
     isSubmitting || !sumIsValid || (isEdit && !isDirty);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>
-            {isEdit ? "Editar configuración de pesos" : "Nueva sobreescritura de pesos"}
-          </DialogTitle>
-        </DialogHeader>
-
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+    <Card>
+      <CardContent className="pt-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Porcentajes */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="space-y-1.5">
               <Label htmlFor="w-class">{t("clasePercent")}</Label>
               <Input
@@ -257,13 +249,13 @@ export function WeightsFormDialog({
             <WeightSumIndicator values={sumValues} />
           </div>
 
-          {/* Tipo de club — catalog Select */}
+          {/* Tipo de club */}
           <div className="space-y-1.5">
             <Label>Tipo de club</Label>
             <Select
               value={clubTypeValue}
               onValueChange={(val) => setValue("club_type_id", val, { shouldDirty: true })}
-              disabled={isEdit && editingRow?.is_default}
+              disabled={isEdit && defaultValues?.is_default}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Seleccionar tipo de club" />
@@ -287,7 +279,7 @@ export function WeightsFormDialog({
             )}
           </div>
 
-          {/* Ano eclesiastico — catalog Select */}
+          {/* Ano eclesiastico */}
           <div className="space-y-1.5">
             <Label>{t("anoEclesiastico")}</Label>
             <Select
@@ -295,7 +287,7 @@ export function WeightsFormDialog({
               onValueChange={(val) =>
                 setValue("ecclesiastical_year_id", val, { shouldDirty: true })
               }
-              disabled={isEdit && editingRow?.is_default}
+              disabled={isEdit && defaultValues?.is_default}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Seleccionar ano" />
@@ -319,17 +311,18 @@ export function WeightsFormDialog({
             )}
           </div>
 
-          {isEdit && editingRow?.is_default && (
+          {isEdit && defaultValues?.is_default && (
             <p className="text-xs text-muted-foreground">
               La fila por defecto no puede cambiar su tipo de club ni ano eclesiastico.
             </p>
           )}
 
-          <DialogFooter className="pt-2">
+          {/* Actions */}
+          <div className="flex items-center justify-end gap-3 pt-2">
             <Button
               type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
+              onClick={() => router.push(backHref)}
               disabled={isSubmitting}
             >
               Cancelar
@@ -343,9 +336,9 @@ export function WeightsFormDialog({
                   ? "Guardar cambios"
                   : "Crear sobreescritura"}
             </Button>
-          </DialogFooter>
+          </div>
         </form>
-      </DialogContent>
-    </Dialog>
+      </CardContent>
+    </Card>
   );
 }

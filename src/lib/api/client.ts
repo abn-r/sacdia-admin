@@ -209,7 +209,8 @@ function ensureClientInterceptors() {
         (normalized.status === 401 || normalized.status === 403) &&
         !window.location.pathname.startsWith("/login")
       ) {
-        window.location.assign("/login");
+        const next = window.location.pathname + window.location.search;
+        window.location.assign(`/login?next=${encodeURIComponent(next)}`);
       }
 
       return Promise.reject(normalized);

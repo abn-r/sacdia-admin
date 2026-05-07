@@ -251,7 +251,16 @@ export async function loginAction(_: AuthActionState, formData: FormData): Promi
     cookieStore.set(REFRESH_TOKEN_COOKIE, refreshToken, COOKIE_OPTIONS);
   }
 
-  redirect("/dashboard");
+  const rawNext = formData.get("next");
+  const nextPath = typeof rawNext === "string" ? sanitizeNextPath(rawNext) : null;
+  redirect(nextPath ?? "/dashboard");
+}
+
+function sanitizeNextPath(value: string): string | null {
+  if (!value.startsWith("/")) return null;
+  if (value.startsWith("//") || value.startsWith("/\\")) return null;
+  if (!value.startsWith("/dashboard")) return null;
+  return value;
 }
 
 export async function logoutAction() {

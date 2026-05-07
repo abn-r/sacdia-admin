@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Building2, CheckCircle2, Loader2, Trash2, XCircle } from "lucide-react";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
@@ -35,38 +35,34 @@ import { ApiError } from "@/lib/api/client";
 function ClubStatusBadge({ status }: { status?: string | null }) {
   if (!status) {
     return (
-      <Badge variant="secondary" className="text-xs">
-        —
-      </Badge>
+      <StatusBadge intent="neutral" label="—" className="text-xs" />
     );
   }
 
   const normalized = status.toLowerCase();
 
   if (normalized === "active" || normalized === "activo" || normalized === "enrolled") {
-    return <Badge variant="success">Activo</Badge>;
+    return <StatusBadge intent="success" label="Activo" />;
   }
 
   if (normalized === "approved") {
-    return <Badge variant="success">Aprobado</Badge>;
+    return <StatusBadge intent="success" label="Aprobado" />;
   }
 
   if (normalized === "pending_approval") {
-    return <Badge variant="warning">Pendiente</Badge>;
+    return <StatusBadge intent="warning" label="Pendiente" />;
   }
 
   if (normalized === "rejected") {
-    return <Badge variant="destructive">Rechazado</Badge>;
+    return <StatusBadge intent="destructive" label="Rechazado" />;
   }
 
   if (normalized === "cancelled" || normalized === "cancelado") {
-    return <Badge variant="destructive">Cancelado</Badge>;
+    return <StatusBadge intent="destructive" label="Cancelado" />;
   }
 
   return (
-    <Badge variant="secondary" className="text-xs capitalize">
-      {status}
-    </Badge>
+    <StatusBadge intent="neutral" label={status} className="text-xs capitalize" />
   );
 }
 
@@ -185,7 +181,7 @@ export function CamporeeClubsPanel({
 
   return (
     <>
-      <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
+      <div className="overflow-x-auto rounded-xl border border-border/60 bg-card shadow-xs">
         <Table>
           <TableHeader>
             <TableRow>

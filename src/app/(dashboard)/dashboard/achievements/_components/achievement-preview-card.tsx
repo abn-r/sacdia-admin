@@ -46,7 +46,7 @@ export function AchievementPreviewCard({
 
   return (
     <div
-      className="flex flex-col items-center gap-4 rounded-xl border bg-card p-6 text-center shadow-sm transition-all"
+      className="flex flex-col items-center gap-4 rounded-xl border bg-card p-6 text-center shadow-xs transition-all"
       style={{ borderColor: `${tierConfig.ring}40` }}
     >
       {/* Badge image */}
