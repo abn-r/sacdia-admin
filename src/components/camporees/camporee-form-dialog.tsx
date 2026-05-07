@@ -185,17 +185,18 @@ export function CamporeeFormDialog({
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
           {/* Nombre */}
           <div className="space-y-1.5">
-            <Label htmlFor="name">Nombre *</Label>
+            <Label htmlFor="name">Nombre <span aria-hidden="true" className="text-destructive">*</span></Label>
             <Input
               id="name"
               {...register("name")}
               placeholder="Ej. Camporee de Primavera 2025"
+              aria-required="true"
             />
             {errors.name && (
-              <p className="text-xs text-destructive">{errors.name.message}</p>
+              <p className="text-xs text-destructive" role="alert" aria-live="polite">{errors.name.message}</p>
             )}
           </div>
 
@@ -213,19 +214,19 @@ export function CamporeeFormDialog({
           {/* Fechas */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="start_date">Fecha de inicio *</Label>
-              <Input id="start_date" type="date" {...register("start_date")} />
+              <Label htmlFor="start_date">Fecha de inicio <span aria-hidden="true" className="text-destructive">*</span></Label>
+              <Input id="start_date" type="date" {...register("start_date")} aria-required="true" />
               {errors.start_date && (
-                <p className="text-xs text-destructive">
+                <p className="text-xs text-destructive" role="alert" aria-live="polite">
                   {errors.start_date.message}
                 </p>
               )}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="end_date">Fecha de fin *</Label>
-              <Input id="end_date" type="date" {...register("end_date")} />
+              <Label htmlFor="end_date">Fecha de fin <span aria-hidden="true" className="text-destructive">*</span></Label>
+              <Input id="end_date" type="date" {...register("end_date")} aria-required="true" />
               {errors.end_date && (
-                <p className="text-xs text-destructive">
+                <p className="text-xs text-destructive" role="alert" aria-live="polite">
                   {errors.end_date.message}
                 </p>
               )}
@@ -234,14 +235,15 @@ export function CamporeeFormDialog({
 
           {/* Lugar */}
           <div className="space-y-1.5">
-            <Label htmlFor="local_camporee_place">Lugar *</Label>
+            <Label htmlFor="local_camporee_place">Lugar <span aria-hidden="true" className="text-destructive">*</span></Label>
             <Input
               id="local_camporee_place"
               {...register("local_camporee_place")}
               placeholder="Ej. Centro Recreacional La Montaña"
+              aria-required="true"
             />
             {errors.local_camporee_place && (
-              <p className="text-xs text-destructive">
+              <p className="text-xs text-destructive" role="alert" aria-live="polite">
                 {errors.local_camporee_place.message}
               </p>
             )}
@@ -249,16 +251,17 @@ export function CamporeeFormDialog({
 
           {/* Campo local */}
           <div className="space-y-1.5">
-            <Label htmlFor="local_field_id">ID del campo local *</Label>
+            <Label htmlFor="local_field_id">ID del campo local <span aria-hidden="true" className="text-destructive">*</span></Label>
             <Input
               id="local_field_id"
               type="number"
               min={1}
               {...register("local_field_id")}
               placeholder="1"
+              aria-required="true"
             />
             {errors.local_field_id && (
-              <p className="text-xs text-destructive">
+              <p className="text-xs text-destructive" role="alert" aria-live="polite">
                 {errors.local_field_id.message}
               </p>
             )}
@@ -276,7 +279,7 @@ export function CamporeeFormDialog({
               placeholder="0.00"
             />
             {errors.registration_cost && (
-              <p className="text-xs text-destructive">
+              <p className="text-xs text-destructive" role="alert" aria-live="polite">
                 {errors.registration_cost.message}
               </p>
             )}
