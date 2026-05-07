@@ -9,7 +9,7 @@ import {
   Download,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { StatusBadge } from "@/components/shared/status-badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import {
   Select,
   SelectContent,
@@ -72,12 +72,12 @@ function formatShortDate(iso: string | null): string {
 
 function ReportStatusBadge({ status }: { status: AdminReportItem["status"] }) {
   if (status === "submitted") {
-    return <StatusBadge intent="success">Enviado</StatusBadge>;
+    return <StatusBadge intent="success" label="Enviado" />;
   }
   if (status === "generated") {
-    return <StatusBadge intent="neutral">Generado</StatusBadge>;
+    return <StatusBadge intent="neutral" label="Generado" />;
   }
-  return <StatusBadge intent="secondary">Borrador</StatusBadge>;
+  return <StatusBadge intent="neutral" label="Borrador" />;
 }
 
 // ─── Props ────────────────────────────────────────────────────────────────────

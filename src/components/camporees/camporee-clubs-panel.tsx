@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Building2, CheckCircle2, Loader2, Trash2, XCircle } from "lucide-react";
 import { toast } from "sonner";
-import { StatusBadge } from "@/components/shared/status-badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
@@ -35,38 +35,34 @@ import { ApiError } from "@/lib/api/client";
 function ClubStatusBadge({ status }: { status?: string | null }) {
   if (!status) {
     return (
-      <StatusBadge intent="secondary" className="text-xs">
-        —
-      </StatusBadge>
+      <StatusBadge intent="neutral" label="—" className="text-xs" />
     );
   }
 
   const normalized = status.toLowerCase();
 
   if (normalized === "active" || normalized === "activo" || normalized === "enrolled") {
-    return <StatusBadge intent="success">Activo</StatusBadge>;
+    return <StatusBadge intent="success" label="Activo" />;
   }
 
   if (normalized === "approved") {
-    return <StatusBadge intent="success">Aprobado</StatusBadge>;
+    return <StatusBadge intent="success" label="Aprobado" />;
   }
 
   if (normalized === "pending_approval") {
-    return <StatusBadge intent="warning">Pendiente</StatusBadge>;
+    return <StatusBadge intent="warning" label="Pendiente" />;
   }
 
   if (normalized === "rejected") {
-    return <StatusBadge intent="destructive">Rechazado</StatusBadge>;
+    return <StatusBadge intent="destructive" label="Rechazado" />;
   }
 
   if (normalized === "cancelled" || normalized === "cancelado") {
-    return <StatusBadge intent="destructive">Cancelado</StatusBadge>;
+    return <StatusBadge intent="destructive" label="Cancelado" />;
   }
 
   return (
-    <StatusBadge intent="secondary" className="text-xs capitalize">
-      {status}
-    </StatusBadge>
+    <StatusBadge intent="neutral" label={status} className="text-xs capitalize" />
   );
 }
 
