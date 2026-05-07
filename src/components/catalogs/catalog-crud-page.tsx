@@ -198,147 +198,276 @@ export function CatalogCrudPage({
           </Button>
         </EmptyState>
       ) : (
-        /* ── Table ── */
-        <DataTableShell>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-b border-border hover:bg-transparent">
-                  {/* ID — first column */}
-                  <TableHead className={`${TH_BASE} ${COL_FIRST} w-[72px]`}>
-                    ID
-                  </TableHead>
-
-                  {/* Data fields — middle columns */}
-                  {displayFields.map((f) => (
-                    <TableHead
-                      key={f.name}
-                      className={`${TH_BASE} ${COL_MID}`}
-                    >
-                      {tCatalogs(f.label)}
-                    </TableHead>
-                  ))}
-
-                  {/* Estado — middle or last depending on canMutate */}
-                  <TableHead
-                    className={`${TH_BASE} ${lastColIsActions ? COL_MID : COL_LAST}`}
-                  >
-                    Estado
-                  </TableHead>
-
-                  {/* Acciones — last column (only when mutations allowed) */}
-                  {canMutate && (
-                    <TableHead
-                      className={`${TH_BASE} ${COL_LAST} w-[108px]`}
-                    >
-                      Acciones
-                    </TableHead>
-                  )}
-                </TableRow>
-              </TableHeader>
-
-              <TableBody>
-                {filteredItems.map((item, idx) => {
-                  const itemId = getItemId(item);
-                  const rowKey = itemId
-                    ? `${config.key}-${itemId}`
-                    : `${config.key}-row-${idx}`;
-
-                  return (
-                    <TableRow
-                      key={rowKey}
-                      className={`${ROW_H} border-b border-border transition-colors hover:bg-muted/30`}
-                    >
+        <>
+          {/* ── Desktop table ── */}
+          <div className="hidden md:block">
+            <DataTableShell>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-b border-border hover:bg-transparent">
                       {/* ID — first column */}
-                      <TableCell
-                        className={`${COL_FIRST} text-xs tabular-nums text-muted-foreground`}
-                      >
-                        {itemId ?? "—"}
-                      </TableCell>
+                      <TableHead className={`${TH_BASE} ${COL_FIRST} w-[72px]`}>
+                        ID
+                      </TableHead>
 
                       {/* Data fields — middle columns */}
-                      {displayFields.map((f) => {
-                        const val = item[f.name];
-                        let display: string;
-
-                        if (f.type === "select" && f.optionsEntityKey) {
-                          const opts =
-                            displaySelectOptions[f.optionsEntityKey] ??
-                            selectOptions[f.optionsEntityKey] ??
-                            [];
-                          const match = opts.find((o) => o.value === Number(val));
-                          display = match?.label ?? String(val ?? "—");
-                        } else {
-                          display = val != null ? String(val) : "—";
-                        }
-
-                        const isLongText = f.type === "textarea";
-
-                        return (
-                          <TableCell
-                            key={f.name}
-                            className={`${COL_MID} ${isLongText ? "max-w-[260px]" : ""}`}
-                          >
-                            {isLongText ? (
-                              <span
-                                className="block truncate text-sm text-muted-foreground"
-                                title={display}
-                              >
-                                {display}
-                              </span>
-                            ) : (
-                              <span className="text-sm">{display}</span>
-                            )}
-                          </TableCell>
-                        );
-                      })}
-
-                      {/* Estado — middle or last */}
-                      <TableCell
-                        className={lastColIsActions ? COL_MID : COL_LAST}
-                      >
-                        <Badge
-                          variant={item.active !== false ? "success" : "secondary"}
-                          className="text-xs"
+                      {displayFields.map((f) => (
+                        <TableHead
+                          key={f.name}
+                          className={`${TH_BASE} ${COL_MID}`}
                         >
-                          {item.active !== false ? "Activo" : "Inactivo"}
-                        </Badge>
-                      </TableCell>
+                          {tCatalogs(f.label)}
+                        </TableHead>
+                      ))}
 
-                      {/* Acciones — last column */}
+                      {/* Estado — middle or last depending on canMutate */}
+                      <TableHead
+                        className={`${TH_BASE} ${lastColIsActions ? COL_MID : COL_LAST}`}
+                      >
+                        Estado
+                      </TableHead>
+
+                      {/* Acciones — last column (only when mutations allowed) */}
                       {canMutate && (
-                        <TableCell className={COL_LAST}>
-                          <div className="flex gap-1">
-                            <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              className="hover:bg-muted"
-                              disabled={!itemId}
-                              onClick={() => setEditItem(item)}
-                              aria-label="Editar registro"
-                            >
-                              <Pencil className="size-3.5" aria-hidden="true" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              className="text-destructive hover:bg-muted hover:text-destructive"
-                              disabled={!itemId}
-                              onClick={() => setDeleteItem(item)}
-                              aria-label="Eliminar registro"
-                            >
-                              <Trash2 className="size-3.5" aria-hidden="true" />
-                            </Button>
-                          </div>
-                        </TableCell>
+                        <TableHead
+                          className={`${TH_BASE} ${COL_LAST} w-[108px]`}
+                        >
+                          Acciones
+                        </TableHead>
                       )}
                     </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+                  </TableHeader>
+
+                  <TableBody>
+                    {filteredItems.map((item, idx) => {
+                      const itemId = getItemId(item);
+                      const rowKey = itemId
+                        ? `${config.key}-${itemId}`
+                        : `${config.key}-row-${idx}`;
+
+                      return (
+                        <TableRow
+                          key={rowKey}
+                          className={`${ROW_H} border-b border-border transition-colors hover:bg-muted/30`}
+                        >
+                          {/* ID — first column */}
+                          <TableCell
+                            className={`${COL_FIRST} text-xs tabular-nums text-muted-foreground`}
+                          >
+                            {itemId ?? "—"}
+                          </TableCell>
+
+                          {/* Data fields — middle columns */}
+                          {displayFields.map((f) => {
+                            const val = item[f.name];
+                            let display: string;
+
+                            if (f.type === "select" && f.optionsEntityKey) {
+                              const opts =
+                                displaySelectOptions[f.optionsEntityKey] ??
+                                selectOptions[f.optionsEntityKey] ??
+                                [];
+                              const match = opts.find((o) => o.value === Number(val));
+                              display = match?.label ?? String(val ?? "—");
+                            } else {
+                              display = val != null ? String(val) : "—";
+                            }
+
+                            const isLongText = f.type === "textarea";
+
+                            return (
+                              <TableCell
+                                key={f.name}
+                                className={`${COL_MID} ${isLongText ? "max-w-[260px]" : ""}`}
+                              >
+                                {isLongText ? (
+                                  <span
+                                    className="block truncate text-sm text-muted-foreground"
+                                    title={display}
+                                  >
+                                    {display}
+                                  </span>
+                                ) : (
+                                  <span className="text-sm">{display}</span>
+                                )}
+                              </TableCell>
+                            );
+                          })}
+
+                          {/* Estado — middle or last */}
+                          <TableCell
+                            className={lastColIsActions ? COL_MID : COL_LAST}
+                          >
+                            <Badge
+                              variant={item.active !== false ? "success" : "secondary"}
+                              className="text-xs"
+                            >
+                              {item.active !== false ? "Activo" : "Inactivo"}
+                            </Badge>
+                          </TableCell>
+
+                          {/* Acciones — last column */}
+                          {canMutate && (
+                            <TableCell className={COL_LAST}>
+                              <div className="flex gap-1">
+                                <Button
+                                  variant="ghost"
+                                  size="icon-sm"
+                                  className="hover:bg-muted"
+                                  disabled={!itemId}
+                                  onClick={() => setEditItem(item)}
+                                  aria-label="Editar registro"
+                                >
+                                  <Pencil className="size-3.5" aria-hidden="true" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon-sm"
+                                  className="text-destructive hover:bg-muted hover:text-destructive"
+                                  disabled={!itemId}
+                                  onClick={() => setDeleteItem(item)}
+                                  aria-label="Eliminar registro"
+                                >
+                                  <Trash2 className="size-3.5" aria-hidden="true" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          )}
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            </DataTableShell>
           </div>
-        </DataTableShell>
+
+          {/* ── Mobile cards ── */}
+          <ul
+            className="space-y-3 md:hidden"
+            aria-label={`Lista de ${entityTitleLower}`}
+          >
+            {filteredItems.map((item, idx) => {
+              const itemId = getItemId(item);
+              const rowKey = itemId
+                ? `${config.key}-${itemId}`
+                : `${config.key}-row-${idx}`;
+
+              // Primary display: first displayField value
+              const primaryField = displayFields[0];
+              const primaryVal = primaryField
+                ? (() => {
+                    const val = item[primaryField.name];
+                    if (primaryField.type === "select" && primaryField.optionsEntityKey) {
+                      const opts =
+                        displaySelectOptions[primaryField.optionsEntityKey] ??
+                        selectOptions[primaryField.optionsEntityKey] ??
+                        [];
+                      const match = opts.find((o) => o.value === Number(val));
+                      return match?.label ?? String(val ?? "—");
+                    }
+                    return val != null ? String(val) : "—";
+                  })()
+                : "—";
+
+              // Secondary fields: remaining displayFields (up to 2 shown as dl pairs)
+              const secondaryFields = displayFields.slice(1, 3);
+
+              return (
+                <li key={rowKey}>
+                  <div className="rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40 focus-visible:outline-none">
+                    {/* Card header: icon + name + edit chevron */}
+                    <div className="flex items-center gap-3">
+                      <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                        <Package className="size-5 text-primary" aria-hidden="true" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium">{primaryVal}</p>
+                        <p className="text-xs tabular-nums text-muted-foreground">
+                          #{itemId ?? "—"}
+                        </p>
+                      </div>
+                      {canMutate && itemId && (
+                        <button
+                          type="button"
+                          className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                          onClick={() => setEditItem(item)}
+                          aria-label={`Editar ${primaryVal}`}
+                        >
+                          <Pencil className="size-4" aria-hidden="true" />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Status badge */}
+                    <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                      <Badge
+                        variant={item.active !== false ? "success" : "secondary"}
+                        className="text-xs"
+                      >
+                        {item.active !== false ? "Activo" : "Inactivo"}
+                      </Badge>
+                    </div>
+
+                    {/* Secondary data fields */}
+                    {secondaryFields.length > 0 && (
+                      <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
+                        {secondaryFields.map((f) => {
+                          const val = item[f.name];
+                          let display: string;
+                          if (f.type === "select" && f.optionsEntityKey) {
+                            const opts =
+                              displaySelectOptions[f.optionsEntityKey] ??
+                              selectOptions[f.optionsEntityKey] ??
+                              [];
+                            const match = opts.find((o) => o.value === Number(val));
+                            display = match?.label ?? String(val ?? "—");
+                          } else {
+                            display = val != null ? String(val) : "—";
+                          }
+                          return (
+                            <div key={f.name}>
+                              <dt className="text-muted-foreground">
+                                {tCatalogs(f.label)}
+                              </dt>
+                              <dd className="truncate">{display}</dd>
+                            </div>
+                          );
+                        })}
+                      </dl>
+                    )}
+
+                    {/* Actions row */}
+                    {canMutate && itemId && (
+                      <div className="mt-3 flex flex-wrap gap-1.5 border-t border-border/40 pt-3">
+                        <Button
+                          variant="outline"
+                          size="xs"
+                          onClick={() => setEditItem(item)}
+                          aria-label={`Editar ${primaryVal}`}
+                        >
+                          <Pencil className="size-3" aria-hidden="true" />
+                          Editar
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="xs"
+                          className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                          onClick={() => setDeleteItem(item)}
+                          aria-label={`Eliminar ${primaryVal}`}
+                        >
+                          <Trash2 className="size-3" aria-hidden="true" />
+                          Eliminar
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </>
       )}
 
       {/* ── Dialogs ── */}
