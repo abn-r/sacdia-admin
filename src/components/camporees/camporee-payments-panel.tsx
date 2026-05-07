@@ -4,6 +4,7 @@ import { useState } from "react";
 import { CheckCircle2, DollarSign, Loader2, Pencil, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/shared/status-badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
@@ -53,21 +54,21 @@ function PaymentStatusBadge({ status }: { status?: string | null }) {
   const normalized = status.toLowerCase();
 
   if (normalized === "approved") {
-    return <Badge variant="success">Aprobado</Badge>;
+    return <StatusBadge intent="success">Aprobado</StatusBadge>;
   }
 
   if (normalized === "pending_approval") {
-    return <Badge variant="warning">Pendiente</Badge>;
+    return <StatusBadge intent="warning">Pendiente</StatusBadge>;
   }
 
   if (normalized === "rejected") {
-    return <Badge variant="destructive">Rechazado</Badge>;
+    return <StatusBadge intent="destructive">Rechazado</StatusBadge>;
   }
 
   return (
-    <Badge variant="secondary" className="text-xs capitalize">
+    <StatusBadge intent="secondary" className="text-xs capitalize">
       {status}
-    </Badge>
+    </StatusBadge>
   );
 }
 
