@@ -2,6 +2,7 @@
 
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { AppBreadcrumbs } from "@/components/layout/app-breadcrumbs";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { useAuth } from "@/lib/auth/auth-context";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -51,8 +52,10 @@ export function AppHeader() {
 
       <AppBreadcrumbs />
 
-      {/* Right side: user avatar */}
-      <div className="ml-auto flex items-center gap-2">
+      {/* Right side: theme toggle + user avatar */}
+      <div className="ml-auto flex items-center gap-1.5">
+        <ThemeToggle />
+        <div className="h-4 w-px bg-border" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button

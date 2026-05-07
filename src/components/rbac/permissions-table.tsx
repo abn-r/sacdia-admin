@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
-import { Plus, Pencil, Trash2, Key, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Key, Loader2, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -98,49 +98,119 @@ export function PermissionsTable({ items, createAction, updateAction, deleteActi
           </Button>
         </EmptyState>
       ) : (
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[60px]">ID</TableHead>
-                <TableHead>Clave</TableHead>
-                <TableHead className="hidden md:table-cell">Descripción</TableHead>
-                <TableHead>Estado</TableHead>
-                <TableHead className="w-[100px]">Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {items.map((perm) => (
-                <TableRow key={perm.permission_id}>
-                  <TableCell className="text-xs text-muted-foreground">{perm.permission_id}</TableCell>
-                  <TableCell>
-                    <code className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono">
-                      {perm.permission_name}
-                    </code>
-                  </TableCell>
-                  <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
-                    {perm.description ?? "—"}
-                  </TableCell>
-                  <TableCell>
+        <>
+          {/* Desktop table */}
+          <div className="hidden md:block">
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[60px]">ID</TableHead>
+                    <TableHead>Clave</TableHead>
+                    <TableHead className="hidden md:table-cell">Descripción</TableHead>
+                    <TableHead>Estado</TableHead>
+                    <TableHead className="w-[100px]">Acciones</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {items.map((perm) => (
+                    <TableRow key={perm.permission_id}>
+                      <TableCell className="text-xs text-muted-foreground">{perm.permission_id}</TableCell>
+                      <TableCell>
+                        <code className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono">
+                          {perm.permission_name}
+                        </code>
+                      </TableCell>
+                      <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
+                        {perm.description ?? "—"}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={perm.active !== false ? "default" : "outline"} className="text-xs">
+                          {perm.active !== false ? "Activo" : "Inactivo"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-1">
+                          <Button variant="ghost" size="icon" className="size-8" onClick={() => setEditItem(perm)} title="Editar">
+                            <Pencil className="size-3.5" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="size-8 text-destructive hover:text-destructive" onClick={() => setDeleteItem(perm)} title="Eliminar">
+                            <Trash2 className="size-3.5" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+
+          {/* Mobile cards */}
+          <ul className="space-y-3 md:hidden" aria-label="Lista de permisos">
+            {items.map((perm) => (
+              <li key={perm.permission_id}>
+                <div className="rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40 focus-visible:outline-none">
+                  <div className="flex items-center gap-3">
+                    <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                      <Key className="size-5 text-primary" aria-hidden="true" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <code className="block truncate rounded bg-muted px-1.5 py-0.5 text-xs font-mono">
+                        {perm.permission_name}
+                      </code>
+                      <p className="mt-0.5 text-xs tabular-nums text-muted-foreground">
+                        #{perm.permission_id}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      onClick={() => setEditItem(perm)}
+                      aria-label={`Editar ${perm.permission_name}`}
+                    >
+                      <ChevronRight className="size-4" aria-hidden="true" />
+                    </button>
+                  </div>
+
+                  <div className="mt-3 flex flex-wrap items-center gap-1.5">
                     <Badge variant={perm.active !== false ? "default" : "outline"} className="text-xs">
                       {perm.active !== false ? "Activo" : "Inactivo"}
                     </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-1">
-                      <Button variant="ghost" size="icon" className="size-8" onClick={() => setEditItem(perm)} title="Editar">
-                        <Pencil className="size-3.5" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="size-8 text-destructive hover:text-destructive" onClick={() => setDeleteItem(perm)} title="Eliminar">
-                        <Trash2 className="size-3.5" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+                  </div>
+
+                  {perm.description && (
+                    <p className="mt-2 text-xs text-muted-foreground line-clamp-2">
+                      {perm.description}
+                    </p>
+                  )}
+
+                  <div className="mt-3 flex flex-wrap gap-1.5 border-t border-border/40 pt-3">
+                    <Button
+                      variant="outline"
+                      size="xs"
+                      onClick={() => setEditItem(perm)}
+                      aria-label={`Editar ${perm.permission_name}`}
+                    >
+                      <Pencil className="size-3" aria-hidden="true" />
+                      Editar
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="xs"
+                      className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                      onClick={() => setDeleteItem(perm)}
+                      aria-label={`Eliminar ${perm.permission_name}`}
+                    >
+                      <Trash2 className="size-3" aria-hidden="true" />
+                      Eliminar
+                    </Button>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </>
       )}
 
       {/* Create Dialog */}

@@ -36,9 +36,9 @@ interface UserRolesPanelProps {
 }
 
 const ROLE_VARIANT_MAP: Record<string, "default" | "destructive" | "secondary" | "outline"> = {
-  super_admin: "destructive",
+  "super-admin": "destructive",
   admin: "default",
-  assistant_admin: "default",
+  "assistant-admin": "default",
 };
 
 function getRoleBadgeVariant(roleName: string): "default" | "destructive" | "secondary" | "outline" {

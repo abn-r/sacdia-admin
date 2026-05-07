@@ -1,16 +1,17 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Trophy, Clock, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EvaluateMemberOfMonthDialog } from "@/components/member-of-month/evaluate-dialog";
 import { MemberOfMonthHistorySheet } from "@/components/member-of-month/history-sheet";
 import { getMemberOfMonth } from "@/lib/api/member-of-month";
-import type { MemberOfMonth, MemberOfMonthEntry } from "@/lib/api/member-of-month";
+import type { MemberOfMonthEntry } from "@/lib/api/member-of-month";
 import { MONTH_NAMES } from "@/lib/constants";
 
 // ─── Member avatar ────────────────────────────────────────────────────────────
@@ -60,6 +61,8 @@ interface MemberOfMonthCardProps {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
+export const MEMBER_OF_MONTH_QUERY_KEY = "member-of-month" as const;
+
 export function MemberOfMonthCard({
   clubId,
   sectionId,
@@ -67,36 +70,27 @@ export function MemberOfMonthCard({
   isDirector = false,
 }: MemberOfMonthCardProps) {
   const t = useTranslations("member_of_month");
-  const [data, setData] = useState<MemberOfMonth | null>(null);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [evaluateOpen, setEvaluateOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
 
-  const loadMemberOfMonth = useCallback(async () => {
-    setLoading(true);
-    try {
-      const result = await getMemberOfMonth(clubId, sectionId);
-      setData(result);
-    } catch (err: unknown) {
-      // Non-critical: silently ignore — card simply won't render
-      void err;
-    } finally {
-      setLoading(false);
-    }
-  }, [clubId, sectionId]);
-
-  useEffect(() => {
-    loadMemberOfMonth();
-  }, [loadMemberOfMonth]);
+  const { data, isLoading } = useQuery({
+    queryKey: [MEMBER_OF_MONTH_QUERY_KEY, clubId, sectionId],
+    queryFn: () => getMemberOfMonth(clubId, sectionId),
+    // Non-critical data — silently swallow errors so the card simply doesn't render.
+    throwOnError: false,
+  });
 
   function handleEvaluateSuccess() {
     toast.success(t("toasts.evaluation_completed"));
-    loadMemberOfMonth();
+    void queryClient.invalidateQueries({
+      queryKey: [MEMBER_OF_MONTH_QUERY_KEY, clubId, sectionId],
+    });
   }
 
   // ─── Loading state ──────────────────────────────────────────────────────────
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center gap-2 py-2 text-xs text-muted-foreground">
         <Loader2 className="size-3 animate-spin" />
@@ -107,7 +101,7 @@ export function MemberOfMonthCard({
 
   // ─── No data — render nothing ───────────────────────────────────────────────
 
-  const hasWinners = data && data.members && data.members.length > 0;
+  const hasWinners = data?.members && data.members.length > 0;
 
   if (!hasWinners && !isDirector) return null;
 
@@ -115,7 +109,7 @@ export function MemberOfMonthCard({
 
   return (
     <>
-      {hasWinners && data ? (
+      {hasWinners && data !== undefined ? (
         <div className="rounded-xl border border-warning/25 bg-warning/5 p-4">
           {/* Header */}
           <div className="mb-3 flex items-center justify-between">

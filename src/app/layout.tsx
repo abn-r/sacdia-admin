@@ -6,6 +6,7 @@ import { getLocale, getMessages } from "next-intl/server";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppAlertListener } from "@/components/shared/app-alert-listener";
+import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -47,15 +48,22 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} font-sans antialiased`}
       >
-        <NextIntlClientProvider locale={locale} messages={messages}>
-          <TooltipProvider delayDuration={300}>
-            {children}
-            <Suspense fallback={null}>
-              <AppAlertListener />
-            </Suspense>
-          </TooltipProvider>
-          <Toaster position="top-center" richColors closeButton />
-        </NextIntlClientProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem={false}
+          disableTransitionOnChange
+        >
+          <NextIntlClientProvider locale={locale} messages={messages}>
+            <TooltipProvider delayDuration={300}>
+              {children}
+              <Suspense fallback={null}>
+                <AppAlertListener />
+              </Suspense>
+            </TooltipProvider>
+            <Toaster position="top-center" richColors closeButton />
+          </NextIntlClientProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

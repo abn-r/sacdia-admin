@@ -294,107 +294,164 @@ export function AwardCategoriesClientPage({
                   )}
                 </div>
               ) : (
-                <div className="rounded-lg border border-border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-16 text-center">Orden</TableHead>
-                        <TableHead>Nombre</TableHead>
-                        <TableHead className="hidden sm:table-cell">
-                          Tipo club
-                        </TableHead>
-                        <TableHead className="w-24 text-center">Pts Min</TableHead>
-                        <TableHead className="hidden w-24 text-center md:table-cell">
-                          Pts Max
-                        </TableHead>
-                        {/* 8.4-C composite % columns */}
-                        <TableHead className="hidden w-24 text-center lg:table-cell">
-                          % Min
-                        </TableHead>
-                        <TableHead className="hidden w-24 text-center lg:table-cell">
-                          % Max
-                        </TableHead>
-                        {/* 8.4-C Phase C tier column */}
-                        <TableHead className="hidden w-28 text-center xl:table-cell">
-                          Nivel
-                        </TableHead>
-                        <TableHead className="w-20 text-center">Estado</TableHead>
-                        <TableHead className="w-20 text-right">Acciones</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredCategories.map((cat) => (
-                        <TableRow
-                          key={cat.award_category_id}
-                          className={cat.is_legacy ? "opacity-60" : ""}
-                        >
-                          <TableCell className="text-center">
-                            <span className="inline-flex size-6 items-center justify-center rounded-full bg-muted text-xs font-medium">
-                              {cat.order}
-                            </span>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex flex-col gap-0.5">
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium">{cat.name}</span>
-                                {cat.is_legacy && (
-                                  <Badge variant="outline" className="text-xs">
-                                    Legacy
-                                  </Badge>
+                <>
+                  {/* Desktop: categories table */}
+                  <div className="hidden rounded-lg border border-border/60 md:block">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-16 text-center">Orden</TableHead>
+                          <TableHead>Nombre</TableHead>
+                          <TableHead>Tipo club</TableHead>
+                          <TableHead className="w-24 text-center">Pts Min</TableHead>
+                          <TableHead className="w-24 text-center">
+                            Pts Max
+                          </TableHead>
+                          {/* 8.4-C composite % columns */}
+                          <TableHead className="hidden w-24 text-center lg:table-cell">
+                            % Min
+                          </TableHead>
+                          <TableHead className="hidden w-24 text-center lg:table-cell">
+                            % Max
+                          </TableHead>
+                          {/* 8.4-C Phase C tier column */}
+                          <TableHead className="hidden w-28 text-center xl:table-cell">
+                            Nivel
+                          </TableHead>
+                          <TableHead className="w-20 text-center">Estado</TableHead>
+                          <TableHead className="w-20 text-right">Acciones</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredCategories.map((cat) => (
+                          <TableRow
+                            key={cat.award_category_id}
+                            className={cat.is_legacy ? "opacity-60" : ""}
+                          >
+                            <TableCell className="text-center">
+                              <span className="inline-flex size-6 items-center justify-center rounded-full bg-muted text-xs font-medium">
+                                {cat.order}
+                              </span>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex flex-col gap-0.5">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-medium">{cat.name}</span>
+                                  {cat.is_legacy && (
+                                    <Badge variant="outline" className="text-xs">
+                                      Legacy
+                                    </Badge>
+                                  )}
+                                </div>
+                                {cat.description && (
+                                  <span className="line-clamp-1 text-xs text-muted-foreground">
+                                    {cat.description}
+                                  </span>
                                 )}
                               </div>
-                              {cat.description && (
-                                <span className="line-clamp-1 text-xs text-muted-foreground">
-                                  {cat.description}
+                            </TableCell>
+                            <TableCell className="text-sm text-muted-foreground">
+                              {clubTypeLabel(cat.club_type_id, clubTypes)}
+                            </TableCell>
+                            <TableCell className="text-center text-sm">
+                              {cat.min_points}
+                            </TableCell>
+                            <TableCell className="text-center text-sm text-muted-foreground">
+                              {cat.max_points !== null ? (
+                                cat.max_points
+                              ) : (
+                                <span className="italic text-muted-foreground/60">
+                                  Sin límite
                                 </span>
                               )}
-                            </div>
-                          </TableCell>
-                          <TableCell className="hidden text-sm text-muted-foreground sm:table-cell">
-                            {clubTypeLabel(cat.club_type_id, clubTypes)}
-                          </TableCell>
-                          <TableCell className="text-center text-sm">
-                            {cat.min_points}
-                          </TableCell>
-                          <TableCell className="hidden text-center text-sm text-muted-foreground md:table-cell">
-                            {cat.max_points !== null ? (
-                              cat.max_points
-                            ) : (
-                              <span className="italic text-muted-foreground/60">
-                                Sin límite
-                              </span>
-                            )}
-                          </TableCell>
-                          {/* 8.4-C composite % cells */}
-                          <TableCell className="hidden text-center text-sm text-muted-foreground lg:table-cell">
-                            {formatPct(cat.min_composite_pct)}
-                          </TableCell>
-                          <TableCell className="hidden text-center text-sm text-muted-foreground lg:table-cell">
-                            {formatPct(cat.max_composite_pct)}
-                          </TableCell>
-                          {/* 8.4-C Phase C tier cell */}
-                          <TableCell className="hidden text-center xl:table-cell">
-                            {cat.tier !== null ? (
+                            </TableCell>
+                            {/* 8.4-C composite % cells */}
+                            <TableCell className="hidden text-center text-sm text-muted-foreground lg:table-cell">
+                              {formatPct(cat.min_composite_pct)}
+                            </TableCell>
+                            <TableCell className="hidden text-center text-sm text-muted-foreground lg:table-cell">
+                              {formatPct(cat.max_composite_pct)}
+                            </TableCell>
+                            {/* 8.4-C Phase C tier cell */}
+                            <TableCell className="hidden text-center xl:table-cell">
+                              {cat.tier !== null ? (
+                                <Badge
+                                  variant={TIER_BADGE_VARIANT[cat.tier]}
+                                  className="text-xs"
+                                >
+                                  {TIER_LABELS[cat.tier]}
+                                </Badge>
+                              ) : (
+                                <span className="text-sm text-muted-foreground/60">—</span>
+                              )}
+                            </TableCell>
+                            <TableCell className="text-center">
                               <Badge
-                                variant={TIER_BADGE_VARIANT[cat.tier]}
+                                variant={cat.active ? "success" : "secondary"}
                                 className="text-xs"
                               >
-                                {TIER_LABELS[cat.tier]}
+                                {cat.active ? "Activa" : "Inactiva"}
                               </Badge>
-                            ) : (
-                              <span className="text-sm text-muted-foreground/60">—</span>
-                            )}
-                          </TableCell>
-                          <TableCell className="text-center">
-                            <Badge
-                              variant={cat.active ? "success" : "secondary"}
-                              className="text-xs"
-                            >
-                              {cat.active ? "Activa" : "Inactiva"}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex items-center justify-end gap-1">
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex items-center justify-end gap-1">
+                                <Button
+                                  variant="ghost"
+                                  size="icon-xs"
+                                  onClick={() => handleEdit(cat)}
+                                  title="Editar categoría"
+                                  disabled={cat.is_legacy}
+                                >
+                                  <Pencil className="size-3.5" />
+                                  <span className="sr-only">Editar</span>
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon-xs"
+                                  onClick={() => handleDelete(cat)}
+                                  title="Eliminar categoría"
+                                  className="text-destructive hover:text-destructive"
+                                >
+                                  <Trash2 className="size-3.5" />
+                                  <span className="sr-only">Eliminar</span>
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+
+                  {/* Mobile: category cards */}
+                  <ul className="space-y-3 md:hidden" aria-label={`Categorías de ${scopeLabel}`}>
+                    {filteredCategories.map((cat) => (
+                      <li key={cat.award_category_id}>
+                        <div
+                          className={`rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40 focus-visible:outline-none${cat.is_legacy ? " opacity-60" : ""}`}
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                              <span className="inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium">
+                                {cat.order}
+                              </span>
+                              <div className="min-w-0 flex-1">
+                                <div className="flex flex-wrap items-center gap-1.5">
+                                  <span className="font-medium">{cat.name}</span>
+                                  {cat.is_legacy && (
+                                    <Badge variant="outline" className="text-xs">
+                                      Legacy
+                                    </Badge>
+                                  )}
+                                </div>
+                                {cat.description && (
+                                  <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
+                                    {cat.description}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex shrink-0 items-center gap-1">
                               <Button
                                 variant="ghost"
                                 size="icon-xs"
@@ -416,12 +473,61 @@ export function AwardCategoriesClientPage({
                                 <span className="sr-only">Eliminar</span>
                               </Button>
                             </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
+                          </div>
+
+                          <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+                            <Badge
+                              variant={cat.active ? "success" : "secondary"}
+                              className="text-xs"
+                            >
+                              {cat.active ? "Activa" : "Inactiva"}
+                            </Badge>
+                            {cat.tier !== null && (
+                              <Badge
+                                variant={TIER_BADGE_VARIANT[cat.tier]}
+                                className="text-xs"
+                              >
+                                {TIER_LABELS[cat.tier]}
+                              </Badge>
+                            )}
+                            <span className="text-xs text-muted-foreground">
+                              {clubTypeLabel(cat.club_type_id, clubTypes)}
+                            </span>
+                          </div>
+
+                          <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
+                            <div>
+                              <dt className="text-muted-foreground">Pts mín</dt>
+                              <dd>{cat.min_points}</dd>
+                            </div>
+                            <div>
+                              <dt className="text-muted-foreground">Pts máx</dt>
+                              <dd>
+                                {cat.max_points !== null ? (
+                                  cat.max_points
+                                ) : (
+                                  <span className="italic text-muted-foreground/60">Sin límite</span>
+                                )}
+                              </dd>
+                            </div>
+                            {(cat.min_composite_pct !== null || cat.max_composite_pct !== null) && (
+                              <>
+                                <div>
+                                  <dt className="text-muted-foreground">% mín</dt>
+                                  <dd>{formatPct(cat.min_composite_pct)}</dd>
+                                </div>
+                                <div>
+                                  <dt className="text-muted-foreground">% máx</dt>
+                                  <dd>{formatPct(cat.max_composite_pct)}</dd>
+                                </div>
+                              </>
+                            )}
+                          </dl>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </>
               )}
             </TabsContent>
           </Tabs>

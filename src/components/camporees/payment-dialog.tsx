@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import type { Resolver, SubmitHandler } from "react-hook-form";
+import type { SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -95,7 +95,7 @@ export function PaymentDialog({
     watch,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(formSchema) as unknown as Resolver<FormValues>,
+    resolver: zodResolver(formSchema as z.ZodType<FormValues>),
     defaultValues: {
       member_id: "",
       amount: undefined,
@@ -176,10 +176,12 @@ export function PaymentDialog({
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
           {/* Member */}
           <div className="space-y-1.5">
-            <Label>Miembro *</Label>
+            <Label htmlFor="member_id">
+              Miembro <span aria-hidden="true" className="text-destructive">*</span>
+            </Label>
             {isEditing ? (
               <p className="rounded-md border border-border bg-muted/40 px-3 py-2 text-sm">
                 {payment?.member_name ?? payment?.member_id}
@@ -189,7 +191,7 @@ export function PaymentDialog({
                 value={memberId}
                 onValueChange={(val) => setValue("member_id", val)}
               >
-                <SelectTrigger>
+                <SelectTrigger id="member_id" aria-required="true">
                   <SelectValue placeholder="Seleccionar miembro" />
                 </SelectTrigger>
                 <SelectContent>
@@ -208,12 +210,15 @@ export function PaymentDialog({
 
           {/* Amount */}
           <div className="space-y-1.5">
-            <Label htmlFor="amount">Monto *</Label>
+            <Label htmlFor="amount">
+              Monto <span aria-hidden="true" className="text-destructive">*</span>
+            </Label>
             <Input
               id="amount"
               type="number"
               min={0.01}
               step={0.01}
+              aria-required="true"
               {...register("amount")}
               placeholder="0.00"
             />
@@ -224,14 +229,16 @@ export function PaymentDialog({
 
           {/* Payment type */}
           <div className="space-y-1.5">
-            <Label>Tipo de pago *</Label>
+            <Label htmlFor="payment_type">
+              Tipo de pago <span aria-hidden="true" className="text-destructive">*</span>
+            </Label>
             <Select
               value={paymentType}
               onValueChange={(val) =>
                 setValue("payment_type", val as PaymentType)
               }
             >
-              <SelectTrigger>
+              <SelectTrigger id="payment_type" aria-required="true">
                 <SelectValue placeholder="Seleccionar tipo" />
               </SelectTrigger>
               <SelectContent>

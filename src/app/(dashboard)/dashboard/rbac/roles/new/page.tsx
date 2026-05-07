@@ -15,7 +15,7 @@ export default async function NewRolePage() {
   const user = await requireAdminUser();
   const isSuperAdmin = extractRoles(user).includes(SUPER_ADMIN_ROLE);
 
-  // Only super_admin can create roles — redirect otherwise
+  // Only super-admin can create roles — redirect otherwise
   if (!isSuperAdmin) {
     redirect("/dashboard/rbac/roles");
   }

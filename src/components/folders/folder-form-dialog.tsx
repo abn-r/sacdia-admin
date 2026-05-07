@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
-import type { Resolver, SubmitHandler } from "react-hook-form";
+import type { SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -67,7 +67,7 @@ export function FolderFormDialog({
     watch,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(formSchema) as unknown as Resolver<FormValues>,
+    resolver: zodResolver(formSchema as z.ZodType<FormValues>),
     defaultValues: {
       name: "",
       description: "",
@@ -136,12 +136,15 @@ export function FolderFormDialog({
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
           {/* Nombre */}
           <div className="space-y-1.5">
-            <Label htmlFor="folder-name">Nombre *</Label>
+            <Label htmlFor="folder-name">
+              Nombre <span aria-hidden="true" className="text-destructive">*</span>
+            </Label>
             <Input
               id="folder-name"
+              aria-required="true"
               {...register("name")}
               placeholder="Ej. Carpeta Conquistadores 2025"
             />

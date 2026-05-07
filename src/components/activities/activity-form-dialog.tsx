@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import type { Resolver, SubmitHandler } from "react-hook-form";
+import type { SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -101,7 +101,7 @@ export function ActivityFormDialog({
     watch,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(formSchema) as unknown as Resolver<FormValues>,
+    resolver: zodResolver(formSchema as z.ZodType<FormValues>),
     defaultValues: {
       name: "",
       description: "",
@@ -217,11 +217,18 @@ export function ActivityFormDialog({
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
           {/* Nombre */}
           <div className="space-y-1.5">
-            <Label htmlFor="name">Nombre *</Label>
-            <Input id="name" {...register("name")} placeholder="Nombre de la actividad" />
+            <Label htmlFor="name">
+              Nombre <span aria-hidden="true" className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="name"
+              aria-required="true"
+              {...register("name")}
+              placeholder="Nombre de la actividad"
+            />
             {errors.name && (
               <p className="text-xs text-destructive">{errors.name.message}</p>
             )}
@@ -240,12 +247,14 @@ export function ActivityFormDialog({
 
           {/* Tipo de actividad */}
           <div className="space-y-1.5">
-            <Label>Tipo de actividad *</Label>
+            <Label htmlFor="activity_type_id">
+              Tipo de actividad <span aria-hidden="true" className="text-destructive">*</span>
+            </Label>
             <Select
               defaultValue={String(activity?.activity_type_id ?? 1)}
               onValueChange={(val) => setValue("activity_type_id", Number(val))}
             >
-              <SelectTrigger>
+              <SelectTrigger id="activity_type_id" aria-required="true">
                 <SelectValue placeholder="Seleccionar tipo" />
               </SelectTrigger>
               <SelectContent>
@@ -267,7 +276,9 @@ export function ActivityFormDialog({
           {!isEdit && (
             <>
               <div className="space-y-1.5">
-                <Label>Tipo de club *</Label>
+                <Label htmlFor="club_type_id">
+                  Tipo de club <span aria-hidden="true" className="text-destructive">*</span>
+                </Label>
                 <Select
                   defaultValue={String(sections[0]?.club_type_id ?? 1)}
                   onValueChange={(val) => {
@@ -279,7 +290,7 @@ export function ActivityFormDialog({
                     setValue("club_section_id", firstMatch?.club_section_id ?? 0);
                   }}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger id="club_type_id" aria-required="true">
                     <SelectValue placeholder="Seleccionar tipo de club" />
                   </SelectTrigger>
                   <SelectContent>
@@ -298,12 +309,14 @@ export function ActivityFormDialog({
               </div>
 
               <div className="space-y-1.5">
-                <Label>Sección del club *</Label>
+                <Label htmlFor="club_section_id">
+                  Sección del club <span aria-hidden="true" className="text-destructive">*</span>
+                </Label>
                 <Select
                   value={String(watch("club_section_id"))}
                   onValueChange={(val) => setValue("club_section_id", Number(val))}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger id="club_section_id" aria-required="true">
                     <SelectValue placeholder="Seleccionar sección" />
                   </SelectTrigger>
                   <SelectContent>
@@ -334,9 +347,12 @@ export function ActivityFormDialog({
 
           {/* Lugar */}
           <div className="space-y-1.5">
-            <Label htmlFor="activity_place">Lugar *</Label>
+            <Label htmlFor="activity_place">
+              Lugar <span aria-hidden="true" className="text-destructive">*</span>
+            </Label>
             <Input
               id="activity_place"
+              aria-required="true"
               {...register("activity_place")}
               placeholder="Ej. Iglesia Central"
             />
@@ -360,11 +376,14 @@ export function ActivityFormDialog({
           {/* Coordenadas */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="lat">Latitud *</Label>
+              <Label htmlFor="lat">
+                Latitud <span aria-hidden="true" className="text-destructive">*</span>
+              </Label>
               <Input
                 id="lat"
                 type="number"
                 step="any"
+                aria-required="true"
                 {...register("lat")}
                 placeholder="0.000000"
               />
@@ -373,11 +392,14 @@ export function ActivityFormDialog({
               )}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="long">Longitud *</Label>
+              <Label htmlFor="long">
+                Longitud <span aria-hidden="true" className="text-destructive">*</span>
+              </Label>
               <Input
                 id="long"
                 type="number"
                 step="any"
+                aria-required="true"
                 {...register("long")}
                 placeholder="0.000000"
               />
@@ -391,12 +413,12 @@ export function ActivityFormDialog({
 
           {/* Modalidad */}
           <div className="space-y-1.5">
-            <Label>Modalidad</Label>
+            <Label htmlFor="platform">Modalidad</Label>
             <Select
               defaultValue={String(activity?.platform ?? 0)}
               onValueChange={(val) => setValue("platform", Number(val))}
             >
-              <SelectTrigger>
+              <SelectTrigger id="platform">
                 <SelectValue placeholder="Seleccionar modalidad" />
               </SelectTrigger>
               <SelectContent>
@@ -424,9 +446,12 @@ export function ActivityFormDialog({
 
           {/* URL de imagen */}
           <div className="space-y-1.5">
-            <Label htmlFor="image">URL de imagen *</Label>
+            <Label htmlFor="image">
+              URL de imagen <span aria-hidden="true" className="text-destructive">*</span>
+            </Label>
             <Input
               id="image"
+              aria-required="true"
               {...register("image")}
               placeholder="https://..."
               type="url"

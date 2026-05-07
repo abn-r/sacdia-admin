@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { toast } from "sonner";
 import { History, Clock, CheckCircle2, XCircle } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import {
   Dialog,
   DialogContent,
@@ -83,6 +83,13 @@ interface ValidationHistoryDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+// ─── Query key factory ────────────────────────────────────────────────────────
+
+export const validationHistoryQueryKey = (
+  entityType: ValidationEntityType,
+  entityId: number | string,
+) => ["validation-history", entityType, entityId] as const;
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function ValidationHistoryDialog({
@@ -92,40 +99,28 @@ export function ValidationHistoryDialog({
   title,
   onOpenChange,
 }: ValidationHistoryDialogProps) {
-  const [entries, setEntries] = useState<ValidationHistoryEntry[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [loaded, setLoaded] = useState(false);
-
-  async function loadHistory() {
-    if (loaded) return;
-    setLoading(true);
-    try {
-      const data = await getValidationHistory(entityType, entityId);
-      setEntries(data);
-      setLoaded(true);
-    } catch (error) {
-      const message =
-        error instanceof ApiError
-          ? error.message
-          : "No se pudo cargar el historial";
-      toast.error(message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  function handleOpenChange(isOpen: boolean) {
-    if (isOpen) {
-      loadHistory();
-    } else {
-      setEntries([]);
-      setLoaded(false);
-    }
-    onOpenChange(isOpen);
-  }
+  const { data: entries = [], isLoading: loading } = useQuery({
+    queryKey: validationHistoryQueryKey(entityType, entityId),
+    queryFn: async () => {
+      try {
+        return await getValidationHistory(entityType, entityId);
+      } catch (error) {
+        const message =
+          error instanceof ApiError
+            ? error.message
+            : "No se pudo cargar el historial";
+        toast.error(message);
+        throw error;
+      }
+    },
+    // Validation history is append-only — once fetched it never changes.
+    staleTime: Infinity,
+    // Only fetch when the dialog is open.
+    enabled: open,
+  });
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">

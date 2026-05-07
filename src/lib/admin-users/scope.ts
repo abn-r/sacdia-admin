@@ -121,7 +121,7 @@ export function applyAdminUsersScope(
       items,
       applied: false,
       key: "none",
-      label: "Acceso global (super_admin)",
+      label: "Acceso global (super-admin)",
       sourceTotal,
       scopedTotal: items.length,
     };

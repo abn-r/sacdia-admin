@@ -379,48 +379,97 @@ export function TemplatesClientPage({
             </Button>
           </div>
         ) : (
-          <div className="rounded-lg border border-border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-12 text-center">Orden</TableHead>
-                  <TableHead>Nombre</TableHead>
-                  <TableHead className="hidden sm:table-cell">Descripción</TableHead>
-                  <TableHead className="w-28 text-center">Requerida</TableHead>
-                  <TableHead className="hidden w-24 text-center md:table-cell">Max Pts</TableHead>
-                  <TableHead className="hidden w-24 text-center md:table-cell">Min Pts</TableHead>
-                  <TableHead className="w-20 text-right">Acciones</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {sortedSections.map((section) => (
-                  <TableRow key={section.section_id}>
-                    <TableCell className="text-center">
-                      <span className="inline-flex size-6 items-center justify-center rounded-full bg-muted text-xs font-medium">
-                        {section.order}
-                      </span>
-                    </TableCell>
-                    <TableCell className="font-medium">{section.name}</TableCell>
-                    <TableCell className="hidden max-w-xs truncate text-muted-foreground sm:table-cell">
-                      {section.description ?? (
-                        <span className="italic text-muted-foreground/60">Sin descripción</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {section.required ? (
-                        <CheckCircle2 className="mx-auto size-4 text-success" />
-                      ) : (
-                        <Circle className="mx-auto size-4 text-muted-foreground/40" />
-                      )}
-                    </TableCell>
-                    <TableCell className="hidden text-center text-sm text-muted-foreground md:table-cell">
-                      {section.max_points}
-                    </TableCell>
-                    <TableCell className="hidden text-center text-sm text-muted-foreground md:table-cell">
-                      {section.minimum_points}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1">
+          <>
+            {/* Desktop: sections table */}
+            <div className="hidden rounded-lg border border-border/60 md:block">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12 text-center">Orden</TableHead>
+                    <TableHead>Nombre</TableHead>
+                    <TableHead>Descripción</TableHead>
+                    <TableHead className="w-28 text-center">Requerida</TableHead>
+                    <TableHead className="w-24 text-center">Max Pts</TableHead>
+                    <TableHead className="w-24 text-center">Min Pts</TableHead>
+                    <TableHead className="w-20 text-right">Acciones</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {sortedSections.map((section) => (
+                    <TableRow key={section.section_id}>
+                      <TableCell className="text-center">
+                        <span className="inline-flex size-6 items-center justify-center rounded-full bg-muted text-xs font-medium">
+                          {section.order}
+                        </span>
+                      </TableCell>
+                      <TableCell className="font-medium">{section.name}</TableCell>
+                      <TableCell className="max-w-xs truncate text-muted-foreground">
+                        {section.description ?? (
+                          <span className="italic text-muted-foreground/60">Sin descripción</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {section.required ? (
+                          <CheckCircle2 className="mx-auto size-4 text-success" />
+                        ) : (
+                          <Circle className="mx-auto size-4 text-muted-foreground/40" />
+                        )}
+                      </TableCell>
+                      <TableCell className="text-center text-sm text-muted-foreground">
+                        {section.max_points}
+                      </TableCell>
+                      <TableCell className="text-center text-sm text-muted-foreground">
+                        {section.minimum_points}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon-xs"
+                            onClick={() => handleEditSection(section)}
+                            title="Editar sección"
+                          >
+                            <Pencil className="size-3.5" />
+                            <span className="sr-only">Editar</span>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon-xs"
+                            onClick={() => handleDeleteSection(section)}
+                            title="Eliminar sección"
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="size-3.5" />
+                            <span className="sr-only">Eliminar</span>
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Mobile: section cards */}
+            <ul className="space-y-3 md:hidden" aria-label="Secciones de la plantilla">
+              {sortedSections.map((section) => (
+                <li key={section.section_id}>
+                  <div className="rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40 focus-visible:outline-none">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                        <span className="inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium">
+                          {section.order}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate font-medium">{section.name}</p>
+                          {section.description && (
+                            <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
+                              {section.description}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-1">
                         <Button
                           variant="ghost"
                           size="icon-xs"
@@ -441,12 +490,33 @@ export function TemplatesClientPage({
                           <span className="sr-only">Eliminar</span>
                         </Button>
                       </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                    </div>
+
+                    <dl className="mt-3 grid grid-cols-3 gap-x-3 gap-y-1.5 text-xs">
+                      <div>
+                        <dt className="text-muted-foreground">Requerida</dt>
+                        <dd className="mt-0.5">
+                          {section.required ? (
+                            <CheckCircle2 className="size-4 text-success" />
+                          ) : (
+                            <Circle className="size-4 text-muted-foreground/40" />
+                          )}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-muted-foreground">Max Pts</dt>
+                        <dd>{section.max_points}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-muted-foreground">Min Pts</dt>
+                        <dd>{section.minimum_points}</dd>
+                      </div>
+                    </dl>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </>
         )}
 
         {/* Section dialogs */}
@@ -607,34 +677,125 @@ export function TemplatesClientPage({
           )}
         </div>
       ) : (
-        <div className="rounded-lg border border-border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nombre</TableHead>
-                <TableHead>Tipo de club</TableHead>
-                <TableHead>Año eclesiástico</TableHead>
-                <TableHead>Propietario</TableHead>
-                <TableHead className="w-24 text-center">Secciones</TableHead>
-                <TableHead className="w-16 text-center">Estado</TableHead>
-                <TableHead className="w-16 text-right">Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredTemplates.map((template) => (
-                <TableRow
-                  key={template.template_id}
-                  className="cursor-pointer"
+        <>
+          {/* Desktop: templates table */}
+          <div className="hidden rounded-lg border border-border/60 md:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nombre</TableHead>
+                  <TableHead>Tipo de club</TableHead>
+                  <TableHead>Año eclesiástico</TableHead>
+                  <TableHead>Propietario</TableHead>
+                  <TableHead className="w-24 text-center">Secciones</TableHead>
+                  <TableHead className="w-16 text-center">Estado</TableHead>
+                  <TableHead className="w-16 text-right">Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredTemplates.map((template) => (
+                  <TableRow
+                    key={template.template_id}
+                    className="cursor-pointer"
+                    onClick={() => handleOpenTemplate(template)}
+                  >
+                    <TableCell className="font-medium">{template.name}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {template.club_type?.name ?? `Tipo ${template.club_type_id}`}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {template.ecclesiastical_year?.name ?? `Año ${template.ecclesiastical_year_id}`}
+                    </TableCell>
+                    <TableCell>
+                      {template.owner_union_id !== null &&
+                      template.owner_union_id !== undefined ? (
+                        <Badge variant="default" className="gap-1 text-xs">
+                          <Building2 className="size-3" />
+                          {resolveOwnerLabel(template)}
+                        </Badge>
+                      ) : template.owner_local_field_id !== null &&
+                        template.owner_local_field_id !== undefined ? (
+                        <Badge variant="secondary" className="gap-1 text-xs">
+                          <MapPin className="size-3" />
+                          {resolveOwnerLabel(template)}
+                        </Badge>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <span className="text-sm text-muted-foreground">
+                        {template.sections?.length ?? "—"}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Badge
+                        variant={template.active ? "success" : "secondary"}
+                        className="text-xs"
+                      >
+                        {template.active ? "Activa" : "Inactiva"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
+                          onClick={(e) => handleEditTemplate(template, e)}
+                          title="Editar plantilla"
+                        >
+                          <Pencil className="size-3.5" />
+                          <span className="sr-only">Editar</span>
+                        </Button>
+                        <ChevronRight className="size-4 text-muted-foreground" />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Mobile: template cards */}
+          <ul className="space-y-3 md:hidden" aria-label="Lista de plantillas">
+            {filteredTemplates.map((template) => (
+              <li key={template.template_id}>
+                <button
+                  type="button"
+                  className="w-full rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring text-left"
                   onClick={() => handleOpenTemplate(template)}
+                  aria-label={`Abrir plantilla ${template.name}`}
                 >
-                  <TableCell className="font-medium">{template.name}</TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {template.club_type?.name ?? `Tipo ${template.club_type_id}`}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {template.ecclesiastical_year?.name ?? `Año ${template.ecclesiastical_year_id}`}
-                  </TableCell>
-                  <TableCell>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium">{template.name}</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        {template.club_type?.name ?? `Tipo ${template.club_type_id}`}
+                        {" · "}
+                        {template.ecclesiastical_year?.name ?? `Año ${template.ecclesiastical_year_id}`}
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-1.5">
+                      <Badge
+                        variant={template.active ? "success" : "secondary"}
+                        className="text-xs"
+                      >
+                        {template.active ? "Activa" : "Inactiva"}
+                      </Badge>
+                      <Button
+                        variant="ghost"
+                        size="icon-xs"
+                        onClick={(e) => handleEditTemplate(template, e)}
+                        title="Editar plantilla"
+                      >
+                        <Pencil className="size-3.5" />
+                        <span className="sr-only">Editar</span>
+                      </Button>
+                      <ChevronRight className="size-4 text-muted-foreground" aria-hidden="true" />
+                    </div>
+                  </div>
+
+                  <div className="mt-3 flex flex-wrap items-center gap-1.5">
                     {template.owner_union_id !== null &&
                     template.owner_union_id !== undefined ? (
                       <Badge variant="default" className="gap-1 text-xs">
@@ -647,42 +808,17 @@ export function TemplatesClientPage({
                         <MapPin className="size-3" />
                         {resolveOwnerLabel(template)}
                       </Badge>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">—</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <span className="text-sm text-muted-foreground">
-                      {template.sections?.length ?? "—"}
+                    ) : null}
+                    <span className="text-xs text-muted-foreground">
+                      {template.sections?.length ?? 0}{" "}
+                      {(template.sections?.length ?? 0) === 1 ? "sección" : "secciones"}
                     </span>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <Badge
-                      variant={template.active ? "success" : "secondary"}
-                      className="text-xs"
-                    >
-                      {template.active ? "Activa" : "Inactiva"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon-xs"
-                        onClick={(e) => handleEditTemplate(template, e)}
-                        title="Editar plantilla"
-                      >
-                        <Pencil className="size-3.5" />
-                        <span className="sr-only">Editar</span>
-                      </Button>
-                      <ChevronRight className="size-4 text-muted-foreground" />
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+                  </div>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </>
       )}
 
       {/* Create / edit template dialog */}

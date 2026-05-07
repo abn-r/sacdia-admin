@@ -94,7 +94,7 @@ export function InsuranceTable({ items, onEdit, onDelete }: InsuranceTableProps)
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
+    <div className="overflow-x-auto rounded-xl border border-border/60 bg-card shadow-xs">
       <Table>
         <TableHeader>
           <TableRow>
