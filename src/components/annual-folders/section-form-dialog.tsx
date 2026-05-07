@@ -164,17 +164,18 @@ export function SectionFormDialog({
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
           {/* Nombre */}
           <div className="space-y-1.5">
-            <Label htmlFor="section-name">Nombre *</Label>
+            <Label htmlFor="section-name">Nombre <span aria-hidden="true" className="text-destructive">*</span></Label>
             <Input
               id="section-name"
               {...register("name")}
               placeholder="Ej. Evidencias de actividades"
+              aria-required="true"
             />
             {errors.name && (
-              <p className="text-xs text-destructive">{errors.name.message}</p>
+              <p className="text-xs text-destructive" role="alert" aria-live="polite">{errors.name.message}</p>
             )}
           </div>
 
@@ -188,7 +189,7 @@ export function SectionFormDialog({
               rows={3}
             />
             {errors.description && (
-              <p className="text-xs text-destructive">
+              <p className="text-xs text-destructive" role="alert" aria-live="polite">
                 {errors.description.message}
               </p>
             )}
@@ -196,16 +197,17 @@ export function SectionFormDialog({
 
           {/* Orden */}
           <div className="space-y-1.5">
-            <Label htmlFor="section-order">Orden *</Label>
+            <Label htmlFor="section-order">Orden <span aria-hidden="true" className="text-destructive">*</span></Label>
             <Input
               id="section-order"
               type="number"
               min={1}
               {...register("order")}
               placeholder="1"
+              aria-required="true"
             />
             {errors.order && (
-              <p className="text-xs text-destructive">{errors.order.message}</p>
+              <p className="text-xs text-destructive" role="alert" aria-live="polite">{errors.order.message}</p>
             )}
           </div>
 
@@ -230,16 +232,17 @@ export function SectionFormDialog({
           <div className="grid grid-cols-2 gap-3">
             {/* Puntos máximos */}
             <div className="space-y-1.5">
-              <Label htmlFor="section-max-points">Puntos máximos *</Label>
+              <Label htmlFor="section-max-points">Puntos máximos <span aria-hidden="true" className="text-destructive">*</span></Label>
               <Input
                 id="section-max-points"
                 type="number"
                 min={0}
                 {...register("max_points")}
                 placeholder="0"
+                aria-required="true"
               />
               {errors.max_points && (
-                <p className="text-xs text-destructive">
+                <p className="text-xs text-destructive" role="alert" aria-live="polite">
                   {errors.max_points.message}
                 </p>
               )}
@@ -256,7 +259,7 @@ export function SectionFormDialog({
                 placeholder="0"
               />
               {errors.minimum_points && (
-                <p className="text-xs text-destructive">
+                <p className="text-xs text-destructive" role="alert" aria-live="polite">
                   {errors.minimum_points.message}
                 </p>
               )}

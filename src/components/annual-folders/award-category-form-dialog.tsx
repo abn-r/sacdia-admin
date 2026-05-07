@@ -239,17 +239,18 @@ export function AwardCategoryFormDialog({
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
           {/* Nombre */}
           <div className="space-y-1.5">
-            <Label htmlFor="cat-name">Nombre *</Label>
+            <Label htmlFor="cat-name">Nombre <span aria-hidden="true" className="text-destructive">*</span></Label>
             <Input
               id="cat-name"
               {...register("name")}
               placeholder="Ej. Oro, Plata, Bronce"
+              aria-required="true"
             />
             {errors.name && (
-              <p className="text-xs text-destructive">{errors.name.message}</p>
+              <p className="text-xs text-destructive" role="alert" aria-live="polite">{errors.name.message}</p>
             )}
           </div>
 
@@ -263,7 +264,7 @@ export function AwardCategoryFormDialog({
               rows={3}
             />
             {errors.description && (
-              <p className="text-xs text-destructive">
+              <p className="text-xs text-destructive" role="alert" aria-live="polite">
                 {errors.description.message}
               </p>
             )}
@@ -271,12 +272,12 @@ export function AwardCategoryFormDialog({
 
           {/* Alcance */}
           <div className="space-y-1.5">
-            <Label htmlFor="cat-scope">Alcance *</Label>
+            <Label htmlFor="cat-scope">Alcance <span aria-hidden="true" className="text-destructive">*</span></Label>
             <Select
               value={scopeValue}
               onValueChange={(val) => setValue("scope", val as AwardCategoryScope)}
             >
-              <SelectTrigger id="cat-scope">
+              <SelectTrigger id="cat-scope" aria-required="true">
                 <SelectValue placeholder="Seleccionar alcance" />
               </SelectTrigger>
               <SelectContent>
@@ -286,7 +287,7 @@ export function AwardCategoryFormDialog({
               </SelectContent>
             </Select>
             {errors.scope && (
-              <p className="text-xs text-destructive">{errors.scope.message}</p>
+              <p className="text-xs text-destructive" role="alert" aria-live="polite">{errors.scope.message}</p>
             )}
           </div>
 
@@ -311,7 +312,7 @@ export function AwardCategoryFormDialog({
               </SelectContent>
             </Select>
             {errors.tier && (
-              <p className="text-xs text-destructive">{errors.tier.message}</p>
+              <p className="text-xs text-destructive" role="alert" aria-live="polite">{errors.tier.message}</p>
             )}
           </div>
 
@@ -338,7 +339,7 @@ export function AwardCategoryFormDialog({
               </SelectContent>
             </Select>
             {errors.club_type_id && (
-              <p className="text-xs text-destructive">
+              <p className="text-xs text-destructive" role="alert" aria-live="polite">
                 {errors.club_type_id.message}
               </p>
             )}
@@ -347,16 +348,17 @@ export function AwardCategoryFormDialog({
           {/* Puntos min / max */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="cat-min-points">Puntos mínimos *</Label>
+              <Label htmlFor="cat-min-points">Puntos mínimos <span aria-hidden="true" className="text-destructive">*</span></Label>
               <Input
                 id="cat-min-points"
                 type="number"
                 min={0}
                 {...register("min_points")}
                 placeholder="0"
+                aria-required="true"
               />
               {errors.min_points && (
-                <p className="text-xs text-destructive">
+                <p className="text-xs text-destructive" role="alert" aria-live="polite">
                   {errors.min_points.message}
                 </p>
               )}
@@ -372,7 +374,7 @@ export function AwardCategoryFormDialog({
                 placeholder="Sin límite"
               />
               {errors.max_points && (
-                <p className="text-xs text-destructive">
+                <p className="text-xs text-destructive" role="alert" aria-live="polite">
                   {errors.max_points.message}
                 </p>
               )}
@@ -393,7 +395,7 @@ export function AwardCategoryFormDialog({
                 placeholder="Ej. 60"
               />
               {errors.min_composite_pct && (
-                <p className="text-xs text-destructive">
+                <p className="text-xs text-destructive" role="alert" aria-live="polite">
                   {errors.min_composite_pct.message}
                 </p>
               )}
@@ -411,7 +413,7 @@ export function AwardCategoryFormDialog({
                 placeholder="Ej. 80"
               />
               {errors.max_composite_pct && (
-                <p className="text-xs text-destructive">
+                <p className="text-xs text-destructive" role="alert" aria-live="polite">
                   {errors.max_composite_pct.message}
                 </p>
               )}
@@ -429,23 +431,24 @@ export function AwardCategoryFormDialog({
                 maxLength={100}
               />
               {errors.icon && (
-                <p className="text-xs text-destructive">
+                <p className="text-xs text-destructive" role="alert" aria-live="polite">
                   {errors.icon.message}
                 </p>
               )}
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="cat-order">Orden *</Label>
+              <Label htmlFor="cat-order">Orden <span aria-hidden="true" className="text-destructive">*</span></Label>
               <Input
                 id="cat-order"
                 type="number"
                 min={0}
                 {...register("order")}
                 placeholder="0"
+                aria-required="true"
               />
               {errors.order && (
-                <p className="text-xs text-destructive">
+                <p className="text-xs text-destructive" role="alert" aria-live="polite">
                   {errors.order.message}
                 </p>
               )}
