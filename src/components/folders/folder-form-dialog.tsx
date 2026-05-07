@@ -136,12 +136,15 @@ export function FolderFormDialog({
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
           {/* Nombre */}
           <div className="space-y-1.5">
-            <Label htmlFor="folder-name">Nombre *</Label>
+            <Label htmlFor="folder-name">
+              Nombre <span aria-hidden="true" className="text-destructive">*</span>
+            </Label>
             <Input
               id="folder-name"
+              aria-required="true"
               {...register("name")}
               placeholder="Ej. Carpeta Conquistadores 2025"
             />
