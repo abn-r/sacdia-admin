@@ -230,7 +230,8 @@
     "login": {
       "brand_subtitle": "Système administratif",
       "welcome_title": "Bon retour",
-      "welcome_description": "Saisissez vos identifiants pour continuer",
+      "welcome_description": "Saisissez vos identifiants pour accéder au panneau de votre club.",
+      "eyebrow": "Accès · Administrateur",
       "email_label": "Adresse e-mail",
       "email_placeholder": "admin@sacdia.org",
       "password_label": "Mot de passe",
@@ -238,7 +239,11 @@
       "submit_loading": "Vérification…",
       "show_password": "Afficher le mot de passe",
       "hide_password": "Masquer le mot de passe",
-      "verse": "« Je puis tout par Celui qui me fortifie » — Phil. 4:13"
+      "verse_reference": "Philippiens 4:13",
+      "verse_text": "« Je puis tout par Celui qui me fortifie. »",
+      "brand_description": "Plateforme pour les clubs d'Aventuriers, d'Éclaireurs et de Guides Maîtres. Inscriptions, classes, spécialités et finances en un seul endroit.",
+      "version_label": "v1.0 · 2026",
+      "region_label": "Association Nord-Pacifique"
     },
     "validation": {
       "email_invalid": "Saisissez un e-mail valide",
