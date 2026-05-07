@@ -19,9 +19,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
+import {
+  SortableHeader,
+  type SortDirection,
+} from "@/components/shared/sortable-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DollarSign } from "lucide-react";
-import type { Finance } from "@/lib/api/finances";
+import type { Finance, FinanceSortField } from "@/lib/api/finances";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -114,9 +118,19 @@ interface TransactionsTableProps {
   items: Finance[];
   onEdit: (finance: Finance) => void;
   onDelete: (finance: Finance) => void;
+  sortField: FinanceSortField;
+  sortDirection: SortDirection;
+  onSort: (field: FinanceSortField, direction: SortDirection) => void;
 }
 
-export function TransactionsTable({ items, onEdit, onDelete }: TransactionsTableProps) {
+export function TransactionsTable({
+  items,
+  onEdit,
+  onDelete,
+  sortField,
+  sortDirection,
+  onSort,
+}: TransactionsTableProps) {
   if (items.length === 0) {
     return (
       <EmptyState
@@ -132,14 +146,46 @@ export function TransactionsTable({ items, onEdit, onDelete }: TransactionsTable
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Fecha
+            <TableHead
+              className="h-9 px-3"
+              aria-sort={
+                sortField === "date"
+                  ? sortDirection === "asc"
+                    ? "ascending"
+                    : "descending"
+                  : "none"
+              }
+            >
+              <SortableHeader
+                field="date"
+                activeField={sortField}
+                direction={sortDirection}
+                onSort={onSort}
+              >
+                Fecha
+              </SortableHeader>
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
               Descripción
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Categoría
+            <TableHead
+              className="h-9 px-3"
+              aria-sort={
+                sortField === "category"
+                  ? sortDirection === "asc"
+                    ? "ascending"
+                    : "descending"
+                  : "none"
+              }
+            >
+              <SortableHeader
+                field="category"
+                activeField={sortField}
+                direction={sortDirection}
+                onSort={onSort}
+              >
+                Categoría
+              </SortableHeader>
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
               Período
@@ -147,8 +193,25 @@ export function TransactionsTable({ items, onEdit, onDelete }: TransactionsTable
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
               Tipo
             </TableHead>
-            <TableHead className="h-9 px-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Monto
+            <TableHead
+              className="h-9 px-3 text-right"
+              aria-sort={
+                sortField === "amount"
+                  ? sortDirection === "asc"
+                    ? "ascending"
+                    : "descending"
+                  : "none"
+              }
+            >
+              <SortableHeader
+                field="amount"
+                activeField={sortField}
+                direction={sortDirection}
+                onSort={onSort}
+                align="right"
+              >
+                Monto
+              </SortableHeader>
             </TableHead>
             <TableHead className="h-9 w-12 px-3" />
           </TableRow>
