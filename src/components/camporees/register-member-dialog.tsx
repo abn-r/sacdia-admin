@@ -127,10 +127,14 @@ export function RegisterMemberDialog({
           <DialogTitle>Registrar miembro</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
           {/* Insurance error callout */}
           {insuranceError && (
-            <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+            <div
+              role="alert"
+              aria-live="polite"
+              className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive"
+            >
               <p className="font-medium">Error de validación de seguro</p>
               <p className="mt-0.5">{insuranceError}</p>
             </div>
@@ -138,9 +142,12 @@ export function RegisterMemberDialog({
 
           {/* User ID */}
           <div className="space-y-1.5">
-            <Label htmlFor="user_id">ID del usuario (UUID) *</Label>
+            <Label htmlFor="user_id">
+              ID del usuario (UUID) <span aria-hidden="true" className="text-destructive">*</span>
+            </Label>
             <Input
               id="user_id"
+              aria-required="true"
               {...register("user_id")}
               placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
               className="font-mono text-sm"
@@ -154,14 +161,16 @@ export function RegisterMemberDialog({
 
           {/* Tipo de camporee */}
           <div className="space-y-1.5">
-            <Label>Tipo de camporee *</Label>
+            <Label htmlFor="camporee_type">
+              Tipo de camporee <span aria-hidden="true" className="text-destructive">*</span>
+            </Label>
             <Select
               value={camporeeType}
               onValueChange={(val) =>
                 setValue("camporee_type", val as "local" | "union")
               }
             >
-              <SelectTrigger>
+              <SelectTrigger id="camporee_type" aria-required="true">
                 <SelectValue placeholder="Seleccionar tipo" />
               </SelectTrigger>
               <SelectContent>
