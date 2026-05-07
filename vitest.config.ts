@@ -8,13 +8,7 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["./vitest.setup.ts"],
     globals: false,
-    // permission-utils.test.ts uses Node's built-in `node:test` runner (not
-    // Vitest) and must be excluded so Vitest does not try to execute it.
-    exclude: [
-      "**/node_modules/**",
-      "**/dist/**",
-      "src/lib/auth/permission-utils.test.ts",
-    ],
+    exclude: ["**/node_modules/**", "**/dist/**"],
   },
   resolve: {
     alias: {
