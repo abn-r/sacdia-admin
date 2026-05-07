@@ -142,7 +142,7 @@ export function TemplateFormDialog({
     control,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(formSchema as z.ZodType<FormValues>),
+    resolver: zodResolver(formSchema as z.ZodType<FormValues, FormValues>),
     defaultValues,
   });
 
