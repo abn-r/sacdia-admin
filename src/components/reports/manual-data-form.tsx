@@ -133,7 +133,7 @@ export function ManualDataForm({
     formState: { errors, isDirty },
   } = useForm<FormValues>({
      
-    resolver: zodResolver(manualDataSchema as z.ZodType<FormValues>),
+    resolver: zodResolver(manualDataSchema as z.ZodType<FormValues, FormValues>),
     defaultValues: {
       weekly_meetings_held: initialData?.weekly_meetings_held ?? undefined,
       leadership_meetings: initialData?.leadership_meetings ?? undefined,

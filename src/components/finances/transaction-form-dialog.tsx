@@ -136,7 +136,7 @@ export function TransactionFormDialog({
     watch,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(formSchema as z.ZodType<FormValues>),
+    resolver: zodResolver(formSchema as z.ZodType<FormValues, FormValues>),
     defaultValues: {
       year: currentYear,
       month: new Date().getMonth() + 1,

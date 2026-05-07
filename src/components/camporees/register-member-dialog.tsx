@@ -66,7 +66,7 @@ export function RegisterMemberDialog({
     watch,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(formSchema as z.ZodType<FormValues>),
+    resolver: zodResolver(formSchema as z.ZodType<FormValues, FormValues>),
     defaultValues: {
       user_id: "",
       camporee_type: "local",
