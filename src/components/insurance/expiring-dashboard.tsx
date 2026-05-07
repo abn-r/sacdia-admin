@@ -372,119 +372,175 @@ export function ExpiringDashboard({ items, daysAhead }: ExpiringDashboardProps) 
             </div>
           ) : (
             <>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>
-                      <SortButton
-                        field="user_name"
-                        label="Miembro"
-                        current={sortField}
-                        direction={sortDir}
-                        onSort={handleSort}
-                      />
-                    </TableHead>
-                    <TableHead className="hidden md:table-cell">
-                      <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                        Club
-                      </span>
-                    </TableHead>
-                    <TableHead className="hidden lg:table-cell">
-                      <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                        Tipo
-                      </span>
-                    </TableHead>
-                    <TableHead className="hidden sm:table-cell">
-                      <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                        N° Poliza
-                      </span>
-                    </TableHead>
-                    <TableHead>
-                      <SortButton
-                        field="end_date"
-                        label="Vencimiento"
-                        current={sortField}
-                        direction={sortDir}
-                        onSort={handleSort}
-                      />
-                    </TableHead>
-                    <TableHead>
-                      <SortButton
-                        field="days_remaining"
-                        label="Dias"
-                        current={sortField}
-                        direction={sortDir}
-                        onSort={handleSort}
-                      />
-                    </TableHead>
-                    <TableHead>
-                      <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                        Estado
-                      </span>
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {paginated.map((item) => {
-                    const status = getUrgencyStatus(item.days_remaining);
-                    return (
-                      <TableRow key={item.insurance_id}>
-                        <TableCell>
-                          <div className="font-medium">{formatMemberName(item)}</div>
-                          {item.club_section && (
-                            <div className="mt-0.5 text-xs text-muted-foreground md:hidden">
-                              {item.club?.name ?? "—"}
-                              {item.club_section
-                                ? ` · ${item.club_section.name}`
-                                : ""}
+              {/* Desktop table */}
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>
+                        <SortButton
+                          field="user_name"
+                          label="Miembro"
+                          current={sortField}
+                          direction={sortDir}
+                          onSort={handleSort}
+                        />
+                      </TableHead>
+                      <TableHead>
+                        <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                          Club
+                        </span>
+                      </TableHead>
+                      <TableHead className="hidden lg:table-cell">
+                        <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                          Tipo
+                        </span>
+                      </TableHead>
+                      <TableHead className="hidden lg:table-cell">
+                        <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                          N° Poliza
+                        </span>
+                      </TableHead>
+                      <TableHead>
+                        <SortButton
+                          field="end_date"
+                          label="Vencimiento"
+                          current={sortField}
+                          direction={sortDir}
+                          onSort={handleSort}
+                        />
+                      </TableHead>
+                      <TableHead>
+                        <SortButton
+                          field="days_remaining"
+                          label="Dias"
+                          current={sortField}
+                          direction={sortDir}
+                          onSort={handleSort}
+                        />
+                      </TableHead>
+                      <TableHead>
+                        <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                          Estado
+                        </span>
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {paginated.map((item) => {
+                      const status = getUrgencyStatus(item.days_remaining);
+                      return (
+                        <TableRow key={item.insurance_id}>
+                          <TableCell>
+                            <div className="font-medium">{formatMemberName(item)}</div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="text-sm">
+                              {item.club?.name ?? (
+                                <span className="text-muted-foreground">—</span>
+                              )}
                             </div>
-                          )}
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          <div className="text-sm">
-                            {item.club?.name ?? (
+                            {item.club_section && (
+                              <div className="text-xs text-muted-foreground">
+                                {item.club_section.name}
+                              </div>
+                            )}
+                          </TableCell>
+                          <TableCell className="hidden lg:table-cell">
+                            {item.insurance_type ? (
+                              <span className="text-sm">
+                                {INSURANCE_TYPE_LABELS[item.insurance_type] ??
+                                  item.insurance_type}
+                              </span>
+                            ) : (
                               <span className="text-muted-foreground">—</span>
                             )}
+                          </TableCell>
+                          <TableCell className="hidden lg:table-cell">
+                            <span className="font-mono text-xs text-muted-foreground">
+                              {item.policy_number ?? "—"}
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            <span className="text-sm tabular-nums">
+                              {formatDate(item.end_date)}
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            <span className={getDaysColor(item.days_remaining)}>
+                              {item.days_remaining}d
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={status.variant}>{status.label}</Badge>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Mobile cards */}
+              <ul className="space-y-3 md:hidden" aria-label="Seguros por vencer">
+                {paginated.map((item) => {
+                  const status = getUrgencyStatus(item.days_remaining);
+                  return (
+                    <li key={item.insurance_id}>
+                      <div className="rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40 focus-visible:outline-none">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate font-medium">
+                              {formatMemberName(item)}
+                            </p>
+                            {(item.club?.name || item.club_section) && (
+                              <p className="mt-0.5 text-xs text-muted-foreground">
+                                {item.club?.name ?? "—"}
+                                {item.club_section
+                                  ? ` · ${item.club_section.name}`
+                                  : ""}
+                              </p>
+                            )}
                           </div>
-                          {item.club_section && (
-                            <div className="text-xs text-muted-foreground">
-                              {item.club_section.name}
+                          <Badge variant={status.variant} className="shrink-0">
+                            {status.label}
+                          </Badge>
+                        </div>
+
+                        <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
+                          <div>
+                            <dt className="text-muted-foreground">Vencimiento</dt>
+                            <dd className="tabular-nums">{formatDate(item.end_date)}</dd>
+                          </div>
+                          <div>
+                            <dt className="text-muted-foreground">Días restantes</dt>
+                            <dd>
+                              <span className={getDaysColor(item.days_remaining)}>
+                                {item.days_remaining}d
+                              </span>
+                            </dd>
+                          </div>
+                          {item.insurance_type && (
+                            <div>
+                              <dt className="text-muted-foreground">Tipo</dt>
+                              <dd>
+                                {INSURANCE_TYPE_LABELS[item.insurance_type] ??
+                                  item.insurance_type}
+                              </dd>
                             </div>
                           )}
-                        </TableCell>
-                        <TableCell className="hidden lg:table-cell">
-                          {item.insurance_type ? (
-                            <span className="text-sm">
-                              {INSURANCE_TYPE_LABELS[item.insurance_type] ??
-                                item.insurance_type}
-                            </span>
-                          ) : (
-                            <span className="text-muted-foreground">—</span>
+                          {item.policy_number && (
+                            <div>
+                              <dt className="text-muted-foreground">N° Póliza</dt>
+                              <dd className="font-mono">{item.policy_number}</dd>
+                            </div>
                           )}
-                        </TableCell>
-                        <TableCell className="hidden sm:table-cell">
-                          <span className="font-mono text-xs text-muted-foreground">
-                            {item.policy_number ?? "—"}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-sm tabular-nums">
-                            {formatDate(item.end_date)}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <span className={getDaysColor(item.days_remaining)}>
-                            {item.days_remaining}d
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={status.variant}>{status.label}</Badge>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+                        </dl>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
 
               {/* Pagination */}
               {totalPages > 1 && (
