@@ -362,82 +362,149 @@ export function RankingsClientPage({
           </Button>
         </div>
       ) : (
-        <div className="rounded-lg border border-border/60">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-16 text-center">Posicion</TableHead>
-                <TableHead>Club</TableHead>
-                <TableHead className="w-28 text-center">
-                  Composite
-                </TableHead>
-                <TableHead className="hidden w-24 text-center lg:table-cell">
-                  Carpeta
-                </TableHead>
-                <TableHead className="hidden w-24 text-center lg:table-cell">
-                  Finanzas
-                </TableHead>
-                <TableHead className="hidden w-24 text-center lg:table-cell">
-                  Camporees
-                </TableHead>
-                <TableHead className="hidden w-24 text-center lg:table-cell">
-                  Evidencias
-                </TableHead>
-                <TableHead className="hidden w-32 text-center md:table-cell">
-                  Pts Obtenidos
-                </TableHead>
-                <TableHead className="hidden w-28 text-center md:table-cell">
-                  Pts Maximos
-                </TableHead>
-                <TableHead className="w-40">Progreso</TableHead>
-                <TableHead className="hidden w-32 sm:table-cell">
-                  Categoria
-                </TableHead>
-                <TableHead className="w-24 text-center">Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {sortedRankings.map((item) => (
-                <TableRow
-                  key={item.club_enrollment_id}
-                  className={rowHighlight(item.rank_position)}
+        <>
+          {/* Desktop: rankings table */}
+          <div className="hidden rounded-lg border border-border/60 md:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-16 text-center">Posicion</TableHead>
+                  <TableHead>Club</TableHead>
+                  <TableHead className="w-28 text-center">
+                    Composite
+                  </TableHead>
+                  <TableHead className="hidden w-24 text-center lg:table-cell">
+                    Carpeta
+                  </TableHead>
+                  <TableHead className="hidden w-24 text-center lg:table-cell">
+                    Finanzas
+                  </TableHead>
+                  <TableHead className="hidden w-24 text-center lg:table-cell">
+                    Camporees
+                  </TableHead>
+                  <TableHead className="hidden w-24 text-center lg:table-cell">
+                    Evidencias
+                  </TableHead>
+                  <TableHead className="w-32 text-center">
+                    Pts Obtenidos
+                  </TableHead>
+                  <TableHead className="hidden w-28 text-center lg:table-cell">
+                    Pts Maximos
+                  </TableHead>
+                  <TableHead className="w-40">Progreso</TableHead>
+                  <TableHead className="hidden w-32 lg:table-cell">
+                    Categoria
+                  </TableHead>
+                  <TableHead className="w-24 text-center">Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {sortedRankings.map((item) => (
+                  <TableRow
+                    key={item.club_enrollment_id}
+                    className={rowHighlight(item.rank_position)}
+                  >
+                    <TableCell className="text-center">
+                      <RankBadge position={item.rank_position} />
+                    </TableCell>
+                    <TableCell>
+                      <span
+                        className={
+                          item.rank_position !== null && item.rank_position <= 3
+                            ? "font-semibold"
+                            : "font-medium"
+                        }
+                      >
+                        {item.club_name}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <RankingScoreBadge value={item.composite_score_pct} />
+                    </TableCell>
+                    <TableCell className="hidden text-center text-sm tabular-nums text-muted-foreground lg:table-cell">
+                      {item.folder_score_pct.toFixed(1)}%
+                    </TableCell>
+                    <TableCell className="hidden text-center text-sm tabular-nums text-muted-foreground lg:table-cell">
+                      {item.finance_score_pct.toFixed(1)}%
+                    </TableCell>
+                    <TableCell className="hidden text-center text-sm tabular-nums text-muted-foreground lg:table-cell">
+                      {item.camporee_score_pct.toFixed(1)}%
+                    </TableCell>
+                    <TableCell className="hidden text-center text-sm tabular-nums text-muted-foreground lg:table-cell">
+                      {item.evidence_score_pct.toFixed(1)}%
+                    </TableCell>
+                    <TableCell className="text-center text-sm font-medium">
+                      {item.total_earned_points}
+                    </TableCell>
+                    <TableCell className="hidden text-center text-sm text-muted-foreground lg:table-cell">
+                      {item.total_max_points}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Progress
+                          value={Math.min(item.progress_percentage, 100)}
+                          className="h-2 flex-1"
+                        />
+                        <span className="w-10 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
+                          {item.progress_percentage.toFixed(1)}%
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="hidden lg:table-cell">
+                      {item.award_category_name ? (
+                        <Badge variant="outline" className="text-xs">
+                          {item.award_category_name}
+                        </Badge>
+                      ) : (
+                        <span className="text-xs italic text-muted-foreground/60">
+                          Sin categoria
+                        </span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Link
+                        href={`/dashboard/annual-folders/rankings/${item.club_enrollment_id}/breakdown?year_id=${item.ecclesiastical_year_id ?? selectedYearId}`}
+                        className="inline-flex items-center gap-1 text-xs text-primary underline-offset-4 hover:underline"
+                      >
+                        Ver detalle
+                        <ArrowRight className="size-3" />
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Mobile: ranking cards */}
+          <ul className="space-y-3 md:hidden" aria-label="Rankings de clubes">
+            {sortedRankings.map((item) => (
+              <li key={item.club_enrollment_id}>
+                <div
+                  className={`rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40 focus-visible:outline-none${item.rank_position === 1 ? " bg-warning/10" : item.rank_position === 2 ? " bg-muted/40" : item.rank_position === 3 ? " bg-primary/10" : ""}`}
                 >
-                  <TableCell className="text-center">
+                  <div className="flex items-start gap-3">
                     <RankBadge position={item.rank_position} />
-                  </TableCell>
-                  <TableCell>
-                    <span
-                      className={
-                        item.rank_position !== null && item.rank_position <= 3
-                          ? "font-semibold"
-                          : "font-medium"
-                      }
-                    >
-                      {item.club_name}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <RankingScoreBadge value={item.composite_score_pct} />
-                  </TableCell>
-                  <TableCell className="hidden text-center text-sm tabular-nums text-muted-foreground lg:table-cell">
-                    {item.folder_score_pct.toFixed(1)}%
-                  </TableCell>
-                  <TableCell className="hidden text-center text-sm tabular-nums text-muted-foreground lg:table-cell">
-                    {item.finance_score_pct.toFixed(1)}%
-                  </TableCell>
-                  <TableCell className="hidden text-center text-sm tabular-nums text-muted-foreground lg:table-cell">
-                    {item.camporee_score_pct.toFixed(1)}%
-                  </TableCell>
-                  <TableCell className="hidden text-center text-sm tabular-nums text-muted-foreground lg:table-cell">
-                    {item.evidence_score_pct.toFixed(1)}%
-                  </TableCell>
-                  <TableCell className="hidden text-center text-sm font-medium md:table-cell">
-                    {item.total_earned_points}
-                  </TableCell>
-                  <TableCell className="hidden text-center text-sm text-muted-foreground md:table-cell">
-                    {item.total_max_points}
-                  </TableCell>
-                  <TableCell>
+                    <div className="min-w-0 flex-1">
+                      <p
+                        className={`truncate ${item.rank_position !== null && item.rank_position <= 3 ? "font-semibold" : "font-medium"}`}
+                      >
+                        {item.club_name}
+                      </p>
+                      {item.award_category_name && (
+                        <p className="mt-0.5">
+                          <Badge variant="outline" className="text-xs">
+                            {item.award_category_name}
+                          </Badge>
+                        </p>
+                      )}
+                    </div>
+                    <div className="shrink-0">
+                      <RankingScoreBadge value={item.composite_score_pct} />
+                    </div>
+                  </div>
+
+                  <div className="mt-3">
                     <div className="flex items-center gap-2">
                       <Progress
                         value={Math.min(item.progress_percentage, 100)}
@@ -447,19 +514,36 @@ export function RankingsClientPage({
                         {item.progress_percentage.toFixed(1)}%
                       </span>
                     </div>
-                  </TableCell>
-                  <TableCell className="hidden sm:table-cell">
-                    {item.award_category_name ? (
-                      <Badge variant="outline" className="text-xs">
-                        {item.award_category_name}
-                      </Badge>
-                    ) : (
-                      <span className="text-xs italic text-muted-foreground/60">
-                        Sin categoria
-                      </span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-center">
+                  </div>
+
+                  <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
+                    <div>
+                      <dt className="text-muted-foreground">Pts obtenidos</dt>
+                      <dd className="font-medium tabular-nums">{item.total_earned_points}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-muted-foreground">Pts máximos</dt>
+                      <dd className="tabular-nums text-muted-foreground">{item.total_max_points}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-muted-foreground">Carpeta</dt>
+                      <dd className="tabular-nums">{item.folder_score_pct.toFixed(1)}%</dd>
+                    </div>
+                    <div>
+                      <dt className="text-muted-foreground">Finanzas</dt>
+                      <dd className="tabular-nums">{item.finance_score_pct.toFixed(1)}%</dd>
+                    </div>
+                    <div>
+                      <dt className="text-muted-foreground">Camporees</dt>
+                      <dd className="tabular-nums">{item.camporee_score_pct.toFixed(1)}%</dd>
+                    </div>
+                    <div>
+                      <dt className="text-muted-foreground">Evidencias</dt>
+                      <dd className="tabular-nums">{item.evidence_score_pct.toFixed(1)}%</dd>
+                    </div>
+                  </dl>
+
+                  <div className="mt-3 border-t pt-3">
                     <Link
                       href={`/dashboard/annual-folders/rankings/${item.club_enrollment_id}/breakdown?year_id=${item.ecclesiastical_year_id ?? selectedYearId}`}
                       className="inline-flex items-center gap-1 text-xs text-primary underline-offset-4 hover:underline"
@@ -467,12 +551,12 @@ export function RankingsClientPage({
                       Ver detalle
                       <ArrowRight className="size-3" />
                     </Link>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </>
       )}
 
       {/* Recalculate confirmation */}
