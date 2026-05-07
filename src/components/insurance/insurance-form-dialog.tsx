@@ -186,15 +186,18 @@ export function InsuranceFormDialog({
           )}
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
           {/* Tipo de seguro */}
           <div className="space-y-1.5">
-            <Label>Tipo de seguro *</Label>
+            <Label htmlFor="insurance_type">
+              Tipo de seguro{" "}
+              <span aria-hidden="true" className="text-destructive">*</span>
+            </Label>
             <Select
               value={insuranceTypeValue}
               onValueChange={(val) => setValue("insurance_type", val as InsuranceType)}
             >
-              <SelectTrigger>
+              <SelectTrigger id="insurance_type" aria-required="true">
                 <SelectValue placeholder="Seleccionar tipo" />
               </SelectTrigger>
               <SelectContent>
@@ -233,10 +236,14 @@ export function InsuranceFormDialog({
           {/* Fechas */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="start_date">Fecha de inicio *</Label>
+              <Label htmlFor="start_date">
+                Fecha de inicio{" "}
+                <span aria-hidden="true" className="text-destructive">*</span>
+              </Label>
               <Input
                 id="start_date"
                 type="date"
+                aria-required="true"
                 {...register("start_date")}
               />
               {errors.start_date && (
@@ -244,10 +251,14 @@ export function InsuranceFormDialog({
               )}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="end_date">Fecha de vencimiento *</Label>
+              <Label htmlFor="end_date">
+                Fecha de vencimiento{" "}
+                <span aria-hidden="true" className="text-destructive">*</span>
+              </Label>
               <Input
                 id="end_date"
                 type="date"
+                aria-required="true"
                 {...register("end_date")}
               />
               {errors.end_date && (
@@ -283,7 +294,7 @@ export function InsuranceFormDialog({
                 onClick={() => fileInputRef.current?.click()}
                 className="gap-1.5"
               >
-                <Paperclip className="size-3.5" />
+                <Paperclip aria-hidden="true" className="size-3.5" />
                 {evidenceFile ? "Cambiar archivo" : "Adjuntar archivo"}
               </Button>
               {evidenceFile && (
@@ -298,7 +309,7 @@ export function InsuranceFormDialog({
                       if (fileInputRef.current) fileInputRef.current.value = "";
                     }}
                   >
-                    <X className="size-3" />
+                    <X aria-hidden="true" className="size-3" />
                     <span className="sr-only">Quitar archivo</span>
                   </Button>
                 </div>
