@@ -230,7 +230,8 @@
     "login": {
       "brand_subtitle": "Sistema Administrativo",
       "welcome_title": "Bienvenido de nuevo",
-      "welcome_description": "Ingrese sus credenciales para acceder",
+      "welcome_description": "Ingresa tus credenciales para continuar al panel de tu club.",
+      "eyebrow": "Acceso · Administrador",
       "email_label": "Correo electrónico",
       "email_placeholder": "admin@sacdia.org",
       "password_label": "Contraseña",
@@ -238,7 +239,11 @@
       "submit_loading": "Verificando…",
       "show_password": "Mostrar contraseña",
       "hide_password": "Ocultar contraseña",
-      "verse": "«Todo lo puedo en Cristo que me fortalece» — Fil. 4:13"
+      "verse_reference": "Filipenses 4:13",
+      "verse_text": "«Todo lo puedo en Cristo que me fortalece.»",
+      "brand_description": "Plataforma para clubes de Aventureros, Conquistadores y Guías Mayores. Inscripciones, clases, especialidades y finanzas en un solo lugar.",
+      "version_label": "v1.0 · 2026",
+      "region_label": "Asociación Norte · Pacífico"
     },
     "validation": {
       "email_invalid": "Ingresa un correo válido",
