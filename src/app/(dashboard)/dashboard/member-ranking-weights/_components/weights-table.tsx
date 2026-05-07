@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Pencil, Trash2, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
@@ -23,9 +24,7 @@ interface WeightsTableProps {
   items: EnrollmentRankingWeight[];
   clubTypes: ClubType[];
   ecclesiasticalYears: EcclesiasticalYear[];
-  onEdit: (row: EnrollmentRankingWeight) => void;
   onDelete: (row: EnrollmentRankingWeight) => void;
-  onCreate: () => void;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -34,9 +33,7 @@ export function WeightsTable({
   items,
   clubTypes,
   ecclesiasticalYears,
-  onEdit,
   onDelete,
-  onCreate,
 }: WeightsTableProps) {
   const t = useTranslations("memberRankingWeights.table");
   const tForm = useTranslations("memberRankingWeights.formDialog");
@@ -76,11 +73,13 @@ export function WeightsTable({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => onEdit(defaultRow)}
+                asChild
                 title={t("editDefaultTitle")}
               >
-                <Pencil className="size-3.5" />
-                {t("editButton")}
+                <Link href={`/dashboard/member-ranking-weights/${defaultRow.id}/edit`}>
+                  <Pencil className="size-3.5" />
+                  {t("editButton")}
+                </Link>
               </Button>
             </div>
           </CardHeader>
@@ -133,9 +132,11 @@ export function WeightsTable({
             <h2 className="text-sm font-medium">{t("overridesHeading")}</h2>
             <Badge variant="secondary">{overrides.length}</Badge>
           </div>
-          <Button size="sm" onClick={onCreate}>
-            <Plus className="size-4" />
-            {t("createOverride")}
+          <Button size="sm" asChild>
+            <Link href="/dashboard/member-ranking-weights/new">
+              <Plus className="size-4" />
+              {t("createOverride")}
+            </Link>
           </Button>
         </div>
 
@@ -145,9 +146,11 @@ export function WeightsTable({
             <p className="mt-1 max-w-xs text-xs text-muted-foreground">
               {t("emptyDescription")}
             </p>
-            <Button size="sm" variant="outline" className="mt-4" onClick={onCreate}>
-              <Plus className="size-4" />
-              {t("createOverride")}
+            <Button size="sm" variant="outline" className="mt-4" asChild>
+              <Link href="/dashboard/member-ranking-weights/new">
+                <Plus className="size-4" />
+                {t("createOverride")}
+              </Link>
             </Button>
           </div>
         ) : (
@@ -202,11 +205,13 @@ export function WeightsTable({
                         <Button
                           variant="ghost"
                           size="icon-xs"
-                          onClick={() => onEdit(row)}
+                          asChild
                           title={t("editOverrideTitle")}
                         >
-                          <Pencil className="size-3.5" />
-                          <span className="sr-only">{t("editButton")}</span>
+                          <Link href={`/dashboard/member-ranking-weights/${row.id}/edit`}>
+                            <Pencil className="size-3.5" />
+                            <span className="sr-only">{t("editButton")}</span>
+                          </Link>
                         </Button>
                         <Button
                           variant="ghost"
