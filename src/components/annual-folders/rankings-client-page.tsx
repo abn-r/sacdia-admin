@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import {
   Search,
@@ -47,8 +47,21 @@ import {
   recalculateRankings,
 } from "@/lib/api/annual-folders";
 import { ApiError } from "@/lib/api/client";
+import {
+  SortableHeader,
+  type SortDirection,
+} from "@/components/shared/sortable-header";
 import type { ClubRanking, AwardCategory } from "@/lib/api/annual-folders";
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
+
+// ─── Sort types ───────────────────────────────────────────────────────────────
+
+type SortField =
+  | "rank_position"
+  | "club_name"
+  | "composite_score_pct"
+  | "total_earned_points"
+  | "progress_percentage";
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -132,6 +145,15 @@ export function RankingsClientPage({
     useState<AwardCategory[]>(initialCategories);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Sort state
+  const [sortField, setSortField] = useState<SortField>("rank_position");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+
+  const handleSort = (field: SortField, direction: SortDirection) => {
+    setSortField(field);
+    setSortDirection(direction);
+  };
+
   // Recalculate dialog
   const [recalcOpen, setRecalcOpen] = useState(false);
   const [isRecalculating, setIsRecalculating] = useState(false);
@@ -196,11 +218,28 @@ export function RankingsClientPage({
 
   // ─── Sorted rankings ──────────────────────────────────────────────────────
 
-  const sortedRankings = [...rankings].sort((a, b) => {
-    const posA = a.rank_position ?? Number.MAX_SAFE_INTEGER;
-    const posB = b.rank_position ?? Number.MAX_SAFE_INTEGER;
-    return posA - posB;
-  });
+  const sortedRankings = useMemo(() => {
+    return [...rankings].sort((a, b) => {
+      const dir = sortDirection === "asc" ? 1 : -1;
+      switch (sortField) {
+        case "rank_position": {
+          const posA = a.rank_position ?? Number.MAX_SAFE_INTEGER;
+          const posB = b.rank_position ?? Number.MAX_SAFE_INTEGER;
+          return (posA - posB) * dir;
+        }
+        case "club_name":
+          return a.club_name.localeCompare(b.club_name) * dir;
+        case "composite_score_pct":
+          return (a.composite_score_pct - b.composite_score_pct) * dir;
+        case "total_earned_points":
+          return (a.total_earned_points - b.total_earned_points) * dir;
+        case "progress_percentage":
+          return (a.progress_percentage - b.progress_percentage) * dir;
+        default:
+          return 0;
+      }
+    });
+  }, [rankings, sortField, sortDirection]);
 
   const activeYear = ecclesiasticalYears.find(
     (y) => y.ecclesiastical_year_id === selectedYearId,
@@ -368,34 +407,65 @@ export function RankingsClientPage({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-16 text-center">Posicion</TableHead>
-                  <TableHead>Club</TableHead>
-                  <TableHead className="w-28 text-center">
-                    Composite
+                  <TableHead
+                    className="h-9 w-16 px-3 text-center"
+                    aria-sort={sortField === "rank_position" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+                  >
+                    <SortableHeader field="rank_position" activeField={sortField} direction={sortDirection} onSort={handleSort}>
+                      Posicion
+                    </SortableHeader>
                   </TableHead>
-                  <TableHead className="hidden w-24 text-center lg:table-cell">
+                  <TableHead
+                    className="h-9 px-3"
+                    aria-sort={sortField === "club_name" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+                  >
+                    <SortableHeader field="club_name" activeField={sortField} direction={sortDirection} onSort={handleSort}>
+                      Club
+                    </SortableHeader>
+                  </TableHead>
+                  <TableHead
+                    className="h-9 w-28 px-3 text-center"
+                    aria-sort={sortField === "composite_score_pct" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+                  >
+                    <SortableHeader field="composite_score_pct" activeField={sortField} direction={sortDirection} onSort={handleSort} align="right">
+                      Composite
+                    </SortableHeader>
+                  </TableHead>
+                  <TableHead className="hidden h-9 w-24 px-3 text-center lg:table-cell text-xs font-medium uppercase tracking-wider text-muted-foreground">
                     Carpeta
                   </TableHead>
-                  <TableHead className="hidden w-24 text-center lg:table-cell">
+                  <TableHead className="hidden h-9 w-24 px-3 text-center lg:table-cell text-xs font-medium uppercase tracking-wider text-muted-foreground">
                     Finanzas
                   </TableHead>
-                  <TableHead className="hidden w-24 text-center lg:table-cell">
+                  <TableHead className="hidden h-9 w-24 px-3 text-center lg:table-cell text-xs font-medium uppercase tracking-wider text-muted-foreground">
                     Camporees
                   </TableHead>
-                  <TableHead className="hidden w-24 text-center lg:table-cell">
+                  <TableHead className="hidden h-9 w-24 px-3 text-center lg:table-cell text-xs font-medium uppercase tracking-wider text-muted-foreground">
                     Evidencias
                   </TableHead>
-                  <TableHead className="w-32 text-center">
-                    Pts Obtenidos
+                  <TableHead
+                    className="h-9 w-32 px-3 text-center"
+                    aria-sort={sortField === "total_earned_points" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+                  >
+                    <SortableHeader field="total_earned_points" activeField={sortField} direction={sortDirection} onSort={handleSort} align="right">
+                      Pts Obtenidos
+                    </SortableHeader>
                   </TableHead>
-                  <TableHead className="hidden w-28 text-center lg:table-cell">
+                  <TableHead className="hidden h-9 w-28 px-3 text-center lg:table-cell text-xs font-medium uppercase tracking-wider text-muted-foreground">
                     Pts Maximos
                   </TableHead>
-                  <TableHead className="w-40">Progreso</TableHead>
-                  <TableHead className="hidden w-32 lg:table-cell">
+                  <TableHead
+                    className="h-9 w-40 px-3"
+                    aria-sort={sortField === "progress_percentage" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+                  >
+                    <SortableHeader field="progress_percentage" activeField={sortField} direction={sortDirection} onSort={handleSort}>
+                      Progreso
+                    </SortableHeader>
+                  </TableHead>
+                  <TableHead className="hidden h-9 w-32 px-3 lg:table-cell text-xs font-medium uppercase tracking-wider text-muted-foreground">
                     Categoria
                   </TableHead>
-                  <TableHead className="w-24 text-center">Acciones</TableHead>
+                  <TableHead className="h-9 w-24 px-3 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

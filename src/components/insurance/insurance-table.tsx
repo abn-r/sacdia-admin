@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import { Pencil, Trash2, ExternalLink, ShieldCheck, Shield, ShieldAlert } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
+import {
+  SortableHeader,
+  type SortDirection,
+} from "@/components/shared/sortable-header";
 import { INSURANCE_TYPE_LABELS } from "@/lib/api/insurance";
 import type { MemberInsurance, InsuranceType } from "@/lib/api/insurance";
 
@@ -72,6 +77,16 @@ function isExpired(endDate: string | null | undefined): boolean {
   return new Date(endDate) < new Date();
 }
 
+// ─── Sort types ───────────────────────────────────────────────────────────────
+
+type SortField =
+  | "member_name"
+  | "insurance_type"
+  | "provider"
+  | "end_date"
+  | "coverage_amount"
+  | "active";
+
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface InsuranceTableProps {
@@ -83,6 +98,54 @@ interface InsuranceTableProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function InsuranceTable({ items, onEdit, onDelete }: InsuranceTableProps) {
+  const [sortField, setSortField] = useState<SortField>("member_name");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+
+  const handleSort = (field: SortField, direction: SortDirection) => {
+    setSortField(field);
+    setSortDirection(direction);
+  };
+
+  const sortedItems = useMemo(() => {
+    return [...items].sort((a, b) => {
+      const dir = sortDirection === "asc" ? 1 : -1;
+      switch (sortField) {
+        case "member_name": {
+          const aName = memberFullName(a);
+          const bName = memberFullName(b);
+          return aName.localeCompare(bName) * dir;
+        }
+        case "insurance_type": {
+          const aType = a.insurance?.insurance_type ?? "";
+          const bType = b.insurance?.insurance_type ?? "";
+          return aType.localeCompare(bType) * dir;
+        }
+        case "provider": {
+          const aProv = a.insurance?.provider ?? "";
+          const bProv = b.insurance?.provider ?? "";
+          return aProv.localeCompare(bProv) * dir;
+        }
+        case "end_date": {
+          const aDate = a.insurance?.end_date ? new Date(a.insurance.end_date).getTime() : 0;
+          const bDate = b.insurance?.end_date ? new Date(b.insurance.end_date).getTime() : 0;
+          return (aDate - bDate) * dir;
+        }
+        case "coverage_amount": {
+          const aCov = a.insurance?.coverage_amount ?? 0;
+          const bCov = b.insurance?.coverage_amount ?? 0;
+          return (aCov - bCov) * dir;
+        }
+        case "active": {
+          const aAct = a.insurance?.active ? 1 : 0;
+          const bAct = b.insurance?.active ? 1 : 0;
+          return (aAct - bAct) * dir;
+        }
+        default:
+          return 0;
+      }
+    });
+  }, [items, sortField, sortDirection]);
+
   if (items.length === 0) {
     return (
       <EmptyState
@@ -98,32 +161,62 @@ export function InsuranceTable({ items, onEdit, onDelete }: InsuranceTableProps)
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Miembro
+            <TableHead
+              className="h-9 px-3"
+              aria-sort={sortField === "member_name" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+            >
+              <SortableHeader field="member_name" activeField={sortField} direction={sortDirection} onSort={handleSort}>
+                Miembro
+              </SortableHeader>
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Tipo
+            <TableHead
+              className="h-9 px-3"
+              aria-sort={sortField === "insurance_type" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+            >
+              <SortableHeader field="insurance_type" activeField={sortField} direction={sortDirection} onSort={handleSort}>
+                Tipo
+              </SortableHeader>
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
               N° Póliza
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Aseguradora
+            <TableHead
+              className="h-9 px-3"
+              aria-sort={sortField === "provider" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+            >
+              <SortableHeader field="provider" activeField={sortField} direction={sortDirection} onSort={handleSort}>
+                Aseguradora
+              </SortableHeader>
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Vigencia
+            <TableHead
+              className="h-9 px-3"
+              aria-sort={sortField === "end_date" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+            >
+              <SortableHeader field="end_date" activeField={sortField} direction={sortDirection} onSort={handleSort}>
+                Vigencia
+              </SortableHeader>
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Cobertura
+            <TableHead
+              className="h-9 px-3"
+              aria-sort={sortField === "coverage_amount" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+            >
+              <SortableHeader field="coverage_amount" activeField={sortField} direction={sortDirection} onSort={handleSort} align="right">
+                Cobertura
+              </SortableHeader>
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Estado
+            <TableHead
+              className="h-9 px-3"
+              aria-sort={sortField === "active" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+            >
+              <SortableHeader field="active" activeField={sortField} direction={sortDirection} onSort={handleSort}>
+                Estado
+              </SortableHeader>
             </TableHead>
             <TableHead className="h-9 w-32 px-3" />
           </TableRow>
         </TableHeader>
         <TableBody>
-          {items.map((member) => {
+          {sortedItems.map((member) => {
             const ins = member.insurance;
             const expired = isExpired(ins?.end_date);
 
