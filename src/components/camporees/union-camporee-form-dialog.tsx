@@ -187,17 +187,18 @@ export function UnionCamporeeFormDialog({
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
           {/* Nombre */}
           <div className="space-y-1.5">
-            <Label htmlFor="uc-name">Nombre *</Label>
+            <Label htmlFor="uc-name">Nombre <span aria-hidden="true" className="text-destructive">*</span></Label>
             <Input
               id="uc-name"
               {...register("name")}
               placeholder="Ej. Camporee de Unión 2025"
+              aria-required="true"
             />
             {errors.name && (
-              <p className="text-xs text-destructive">{errors.name.message}</p>
+              <p className="text-xs text-destructive" role="alert" aria-live="polite">{errors.name.message}</p>
             )}
           </div>
 
@@ -215,29 +216,29 @@ export function UnionCamporeeFormDialog({
           {/* Fechas */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="uc-start_date">Fecha de inicio *</Label>
-              <Input id="uc-start_date" type="date" {...register("start_date")} />
+              <Label htmlFor="uc-start_date">Fecha de inicio <span aria-hidden="true" className="text-destructive">*</span></Label>
+              <Input id="uc-start_date" type="date" {...register("start_date")} aria-required="true" />
               {errors.start_date && (
-                <p className="text-xs text-destructive">{errors.start_date.message}</p>
+                <p className="text-xs text-destructive" role="alert" aria-live="polite">{errors.start_date.message}</p>
               )}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="uc-end_date">Fecha de fin *</Label>
-              <Input id="uc-end_date" type="date" {...register("end_date")} />
+              <Label htmlFor="uc-end_date">Fecha de fin <span aria-hidden="true" className="text-destructive">*</span></Label>
+              <Input id="uc-end_date" type="date" {...register("end_date")} aria-required="true" />
               {errors.end_date && (
-                <p className="text-xs text-destructive">{errors.end_date.message}</p>
+                <p className="text-xs text-destructive" role="alert" aria-live="polite">{errors.end_date.message}</p>
               )}
             </div>
           </div>
 
           {/* Unión */}
           <div className="space-y-1.5">
-            <Label htmlFor="uc-union_id">Unión *</Label>
+            <Label htmlFor="uc-union_id">Unión <span aria-hidden="true" className="text-destructive">*</span></Label>
             <Select
               value={unionId > 0 ? String(unionId) : ""}
               onValueChange={(val) => setValue("union_id", Number(val))}
             >
-              <SelectTrigger id="uc-union_id" className="w-full">
+              <SelectTrigger id="uc-union_id" className="w-full" aria-required="true">
                 <SelectValue placeholder="Selecciona una unión..." />
               </SelectTrigger>
               <SelectContent>
@@ -249,20 +250,21 @@ export function UnionCamporeeFormDialog({
               </SelectContent>
             </Select>
             {errors.union_id && (
-              <p className="text-xs text-destructive">{errors.union_id.message}</p>
+              <p className="text-xs text-destructive" role="alert" aria-live="polite">{errors.union_id.message}</p>
             )}
           </div>
 
           {/* Lugar */}
           <div className="space-y-1.5">
-            <Label htmlFor="uc-place">Lugar *</Label>
+            <Label htmlFor="uc-place">Lugar <span aria-hidden="true" className="text-destructive">*</span></Label>
             <Input
               id="uc-place"
               {...register("place")}
               placeholder="Ej. Centro Recreacional Nacional"
+              aria-required="true"
             />
             {errors.place && (
-              <p className="text-xs text-destructive">{errors.place.message}</p>
+              <p className="text-xs text-destructive" role="alert" aria-live="polite">{errors.place.message}</p>
             )}
           </div>
 
@@ -278,7 +280,7 @@ export function UnionCamporeeFormDialog({
               placeholder="0.00"
             />
             {errors.registration_cost && (
-              <p className="text-xs text-destructive">{errors.registration_cost.message}</p>
+              <p className="text-xs text-destructive" role="alert" aria-live="polite">{errors.registration_cost.message}</p>
             )}
           </div>
 
