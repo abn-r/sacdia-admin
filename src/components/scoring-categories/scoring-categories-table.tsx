@@ -242,13 +242,16 @@ export function ScoringCategoriesTable({
 
   // ─── Sorted categories (must be before early returns to satisfy Rules of Hooks) ──
 
+  const editableCategories = useMemo(
+    () => categories.filter((c) => c.origin_level === editableLevel),
+    [categories, editableLevel],
+  );
+  const inheritedCategories = useMemo(
+    () => categories.filter((c) => c.origin_level !== editableLevel),
+    [categories, editableLevel],
+  );
+
   const sortedCategories = useMemo(() => {
-    const editableCategories = categories.filter(
-      (c) => c.origin_level === editableLevel,
-    );
-    const inheritedCategories = categories.filter(
-      (c) => c.origin_level !== editableLevel,
-    );
     const combined = [...inheritedCategories, ...editableCategories];
     return combined.sort((a, b) => {
       const dir = sortDirection === "asc" ? 1 : -1;
@@ -269,7 +272,7 @@ export function ScoringCategoriesTable({
           return 0;
       }
     });
-  }, [categories, editableLevel, sortField, sortDirection]);
+  }, [editableCategories, inheritedCategories, sortField, sortDirection]);
 
   // ─── Render ─────────────────────────────────────────────────────────────────
 
