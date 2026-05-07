@@ -106,41 +106,33 @@ export async function fetchFolder(id: string): Promise<FolderTemplate> {
 /**
  * POST /api/v1/folders/folders
  * Creates a new folder template.
- * TODO: Backend endpoint not yet implemented — FoldersController only exposes GET routes.
+ * FIXME: Backend endpoint not yet implemented — guarded with throw to prevent silent failures.
  */
 export async function createFolder(
-  data: CreateFolderPayload,
+  _data: CreateFolderPayload,
 ): Promise<FolderTemplate> {
-  return apiRequestFromClient<FolderTemplate>("/folders/folders", {
-    method: "POST",
-    body: data,
-  });
+  throw new Error("Not implemented: backend endpoint pending. See FoldersController.");
 }
 
 /**
  * PATCH /api/v1/folders/folders/:id
  * Updates a folder template.
- * TODO: Backend endpoint not yet implemented — FoldersController only exposes GET routes.
+ * FIXME: Backend endpoint not yet implemented — guarded with throw to prevent silent failures.
  */
 export async function updateFolder(
-  id: string,
-  data: UpdateFolderPayload,
+  _id: string,
+  _data: UpdateFolderPayload,
 ): Promise<FolderTemplate> {
-  return apiRequestFromClient<FolderTemplate>(`/folders/folders/${id}`, {
-    method: "PATCH",
-    body: data,
-  });
+  throw new Error("Not implemented: backend endpoint pending. See FoldersController.");
 }
 
 /**
  * DELETE /api/v1/folders/folders/:id
  * Deletes a folder template.
- * TODO: Backend endpoint not yet implemented — FoldersController only exposes GET routes.
+ * FIXME: Backend endpoint not yet implemented — guarded with throw to prevent silent failures.
  */
-export async function deleteFolder(id: string): Promise<void> {
-  await apiRequestFromClient<unknown>(`/folders/folders/${id}`, {
-    method: "DELETE",
-  });
+export async function deleteFolder(_id: string): Promise<void> {
+  throw new Error("Not implemented: backend endpoint pending. See FoldersController.");
 }
 
 /**
