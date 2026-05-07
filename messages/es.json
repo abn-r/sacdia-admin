@@ -316,6 +316,70 @@
       "ecclesiastical_year": "Año eclesiástico"
     }
   },
+  "dashboardHub": {
+    "title": "Dashboard",
+    "description": "Resumen general del sistema SACDIA.",
+    "stats": {
+      "registeredUsers": "Usuarios registrados",
+      "pendingApproval": "{count} pendientes de aprobación",
+      "totalInSystem": "Total en el sistema",
+      "activeClubs": "Clubes activos",
+      "totalClubs": "{count} clubes en total",
+      "activeClubsStatus": "Clubes con estado activo",
+      "camporees": "Camporees",
+      "activeEvents": "Eventos activos",
+      "honors": "Especialidades",
+      "totalClasses": "{count} clases registradas",
+      "totalHonors": "Total de especialidades"
+    },
+    "recentUsers": {
+      "title": "Usuarios recientes",
+      "description": "Últimos registros en el sistema",
+      "viewAll": "Ver todos",
+      "noRole": "Sin rol",
+      "loadError": "No se pudieron cargar los usuarios recientes."
+    },
+    "relativeDate": {
+      "today": "Hoy",
+      "yesterday": "Ayer",
+      "daysAgo": "Hace {count} días",
+      "weeksAgo": "Hace {count} sem."
+    },
+    "roleChart": {
+      "title": "Distribución de roles",
+      "description": "Asignaciones en los últimos 100 usuarios",
+      "noRolesFound": "No se encontraron roles asignados en la muestra.",
+      "basedOn": "Basado en los últimos {count} usuarios registrados",
+      "userCount": "{count, plural, one {{count} usuario} other {{count} usuarios}} — {percentage}%"
+    },
+    "quickLinks": {
+      "title": "Accesos rápidos",
+      "users": "Usuarios",
+      "usersDesc": "Gestionar cuentas",
+      "clubs": "Clubes",
+      "clubsDesc": "Administrar clubes",
+      "classes": "Clases",
+      "classesDesc": "Ver y editar clases",
+      "honors": "Especialidades",
+      "honorsDesc": "Gestionar honores"
+    },
+    "roleLabels": {
+      "superAdmin": "Super Admin",
+      "admin": "Admin",
+      "assistantAdmin": "Asist. Admin",
+      "coordinator": "Coordinador",
+      "pastor": "Pastor",
+      "user": "Usuario",
+      "director": "Director",
+      "deputyDirector": "Subdirector",
+      "secretary": "Secretario",
+      "treasurer": "Tesorero",
+      "counselor": "Consejero",
+      "instructor": "Instructor",
+      "member": "Miembro",
+      "noRole": "Sin rol"
+    }
+  },
   "post_registration": {
     "errors": {
       "step_failed": "Error al completar el paso {step}"

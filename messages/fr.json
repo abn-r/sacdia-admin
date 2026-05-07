@@ -316,6 +316,70 @@
       "ecclesiastical_year": "Année ecclésiastique"
     }
   },
+  "dashboardHub": {
+    "title": "Tableau de bord",
+    "description": "Vue d'ensemble générale du système SACDIA.",
+    "stats": {
+      "registeredUsers": "Utilisateurs enregistrés",
+      "pendingApproval": "{count} en attente d'approbation",
+      "totalInSystem": "Total dans le système",
+      "activeClubs": "Clubs actifs",
+      "totalClubs": "{count} clubs au total",
+      "activeClubsStatus": "Clubs avec statut actif",
+      "camporees": "Camporees",
+      "activeEvents": "Événements actifs",
+      "honors": "Spécialités",
+      "totalClasses": "{count} classes enregistrées",
+      "totalHonors": "Total des spécialités"
+    },
+    "recentUsers": {
+      "title": "Utilisateurs récents",
+      "description": "Dernières inscriptions dans le système",
+      "viewAll": "Voir tout",
+      "noRole": "Sans rôle",
+      "loadError": "Impossible de charger les utilisateurs récents."
+    },
+    "relativeDate": {
+      "today": "Aujourd'hui",
+      "yesterday": "Hier",
+      "daysAgo": "Il y a {count} jours",
+      "weeksAgo": "Il y a {count} sem."
+    },
+    "roleChart": {
+      "title": "Répartition des rôles",
+      "description": "Attributions dans les 100 derniers utilisateurs",
+      "noRolesFound": "Aucun rôle attribué trouvé dans l'échantillon.",
+      "basedOn": "Basé sur les {count} derniers utilisateurs enregistrés",
+      "userCount": "{count, plural, one {{count} utilisateur} other {{count} utilisateurs}} — {percentage}%"
+    },
+    "quickLinks": {
+      "title": "Accès rapides",
+      "users": "Utilisateurs",
+      "usersDesc": "Gérer les comptes",
+      "clubs": "Clubs",
+      "clubsDesc": "Administrer les clubs",
+      "classes": "Classes",
+      "classesDesc": "Voir et modifier les classes",
+      "honors": "Spécialités",
+      "honorsDesc": "Gérer les spécialités"
+    },
+    "roleLabels": {
+      "superAdmin": "Super Admin",
+      "admin": "Admin",
+      "assistantAdmin": "Assist. Admin",
+      "coordinator": "Coordinateur",
+      "pastor": "Pasteur",
+      "user": "Utilisateur",
+      "director": "Directeur",
+      "deputyDirector": "Sous-directeur",
+      "secretary": "Secrétaire",
+      "treasurer": "Trésorier",
+      "counselor": "Conseiller",
+      "instructor": "Instructeur",
+      "member": "Membre",
+      "noRole": "Sans rôle"
+    }
+  },
   "post_registration": {
     "errors": {
       "step_failed": "Échec de l'étape {step}"
