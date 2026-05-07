@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { Plus, Pencil, Trash2, Tags, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -18,6 +18,10 @@ import {
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/empty-state";
+import {
+  SortableHeader,
+  type SortDirection,
+} from "@/components/shared/sortable-header";
 import { ScoringCategoryDialog } from "@/components/scoring-categories/scoring-category-dialog";
 import { ScoringCategoryDeleteDialog } from "@/components/scoring-categories/scoring-category-delete-dialog";
 import type {
@@ -90,6 +94,10 @@ function TableSkeleton() {
   );
 }
 
+// ─── Sort types ───────────────────────────────────────────────────────────────
+
+type SortField = "name" | "max_points" | "active";
+
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface ScoringCategoriesTableProps {
@@ -130,6 +138,13 @@ export function ScoringCategoriesTable({
   const [categories, setCategories] = useState<ScoringCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [sortField, setSortField] = useState<SortField>("name");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+
+  const handleSort = (field: SortField, direction: SortDirection) => {
+    setSortField(field);
+    setSortDirection(direction);
+  };
 
   const [createOpen, setCreateOpen] = useState(false);
   const [editCategory, setEditCategory] = useState<ScoringCategory | null>(
@@ -225,6 +240,37 @@ export function ScoringCategoriesTable({
     }
   }
 
+  // ─── Sorted categories (must be before early returns to satisfy Rules of Hooks) ──
+
+  const sortedCategories = useMemo(() => {
+    const editableCategories = categories.filter(
+      (c) => c.origin_level === editableLevel,
+    );
+    const inheritedCategories = categories.filter(
+      (c) => c.origin_level !== editableLevel,
+    );
+    const combined = [...inheritedCategories, ...editableCategories];
+    return combined.sort((a, b) => {
+      const dir = sortDirection === "asc" ? 1 : -1;
+      switch (sortField) {
+        case "name":
+          return a.name.localeCompare(b.name) * dir;
+        case "max_points": {
+          const aMax = a.max_points ?? 0;
+          const bMax = b.max_points ?? 0;
+          return (aMax - bMax) * dir;
+        }
+        case "active": {
+          const aAct = a.active ? 1 : 0;
+          const bAct = b.active ? 1 : 0;
+          return (aAct - bAct) * dir;
+        }
+        default:
+          return 0;
+      }
+    });
+  }, [categories, editableLevel, sortField, sortDirection]);
+
   // ─── Render ─────────────────────────────────────────────────────────────────
 
   if (loading) return <TableSkeleton />;
@@ -243,14 +289,6 @@ export function ScoringCategoriesTable({
       </div>
     );
   }
-
-  const editableCategories = categories.filter(
-    (c) => c.origin_level === editableLevel,
-  );
-  const inheritedCategories = categories.filter(
-    (c) => c.origin_level !== editableLevel,
-  );
-  const sortedCategories = [...inheritedCategories, ...editableCategories];
 
   return (
     <div className="space-y-4">
@@ -284,19 +322,34 @@ export function ScoringCategoriesTable({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Nombre
+                <TableHead
+                  className="h-9 px-3"
+                  aria-sort={sortField === "name" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+                >
+                  <SortableHeader field="name" activeField={sortField} direction={sortDirection} onSort={handleSort}>
+                    Nombre
+                  </SortableHeader>
                 </TableHead>
-                <TableHead className="h-9 px-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Pts. Máx.
+                <TableHead
+                  className="h-9 px-3"
+                  aria-sort={sortField === "max_points" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+                >
+                  <SortableHeader field="max_points" activeField={sortField} direction={sortDirection} onSort={handleSort} align="right">
+                    Pts. Máx.
+                  </SortableHeader>
                 </TableHead>
                 {showOriginBadge && (
                   <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                     Origen
                   </TableHead>
                 )}
-                <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Estado
+                <TableHead
+                  className="h-9 px-3"
+                  aria-sort={sortField === "active" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+                >
+                  <SortableHeader field="active" activeField={sortField} direction={sortDirection} onSort={handleSort}>
+                    Estado
+                  </SortableHeader>
                 </TableHead>
                 <TableHead className="h-9 px-3 w-[100px] text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Acciones

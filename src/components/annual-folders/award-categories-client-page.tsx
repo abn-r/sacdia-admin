@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { Plus, RefreshCw, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -25,6 +25,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  SortableHeader,
+  type SortDirection,
+} from "@/components/shared/sortable-header";
 import { AwardCategoryFormDialog } from "@/components/annual-folders/award-category-form-dialog";
 import {
   getAwardCategoriesFromClient,
@@ -33,6 +37,10 @@ import {
 import { ApiError } from "@/lib/api/client";
 import type { AwardCategory, AwardCategoryScope, AwardTier } from "@/lib/api/annual-folders";
 import type { ClubType } from "@/lib/api/catalogs";
+
+// ─── Sort types ───────────────────────────────────────────────────────────────
+
+type SortField = "order" | "name" | "min_points" | "max_points" | "active";
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -117,6 +125,15 @@ export function AwardCategoriesClientPage({
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deletingCategory, setDeletingCategory] = useState<AwardCategory | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Sort state
+  const [sortField, setSortField] = useState<SortField>("order");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+
+  const handleSort = (field: SortField, direction: SortDirection) => {
+    setSortField(field);
+    setSortDirection(direction);
+  };
 
   // ─── First-render guard — skip the effect on mount (SSR data already correct) ──
 
@@ -216,7 +233,31 @@ export function AwardCategoriesClientPage({
 
   // ─── Derived list ─────────────────────────────────────────────────────────
 
-  const filteredCategories = [...categories].sort((a, b) => a.order - b.order);
+  const filteredCategories = useMemo(() => {
+    return [...categories].sort((a, b) => {
+      const dir = sortDirection === "asc" ? 1 : -1;
+      switch (sortField) {
+        case "order":
+          return (a.order - b.order) * dir;
+        case "name":
+          return a.name.localeCompare(b.name) * dir;
+        case "min_points":
+          return (a.min_points - b.min_points) * dir;
+        case "max_points": {
+          const aMax = a.max_points ?? Number.MAX_SAFE_INTEGER;
+          const bMax = b.max_points ?? Number.MAX_SAFE_INTEGER;
+          return (aMax - bMax) * dir;
+        }
+        case "active": {
+          const aAct = a.active ? 1 : 0;
+          const bAct = b.active ? 1 : 0;
+          return (aAct - bAct) * dir;
+        }
+        default:
+          return 0;
+      }
+    });
+  }, [categories, sortField, sortDirection]);
 
   const scopeLabel = SCOPE_LABELS[scope];
   const filterLabel = activeFilter === "active" ? "activas" : "legacy";
@@ -300,26 +341,59 @@ export function AwardCategoriesClientPage({
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead className="w-16 text-center">Orden</TableHead>
-                          <TableHead>Nombre</TableHead>
-                          <TableHead>Tipo club</TableHead>
-                          <TableHead className="w-24 text-center">Pts Min</TableHead>
-                          <TableHead className="w-24 text-center">
-                            Pts Max
+                          <TableHead
+                            className="h-9 w-16 px-3 text-center"
+                            aria-sort={sortField === "order" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+                          >
+                            <SortableHeader field="order" activeField={sortField} direction={sortDirection} onSort={handleSort}>
+                              Orden
+                            </SortableHeader>
+                          </TableHead>
+                          <TableHead
+                            className="h-9 px-3"
+                            aria-sort={sortField === "name" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+                          >
+                            <SortableHeader field="name" activeField={sortField} direction={sortDirection} onSort={handleSort}>
+                              Nombre
+                            </SortableHeader>
+                          </TableHead>
+                          <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">Tipo club</TableHead>
+                          <TableHead
+                            className="h-9 w-24 px-3 text-center"
+                            aria-sort={sortField === "min_points" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+                          >
+                            <SortableHeader field="min_points" activeField={sortField} direction={sortDirection} onSort={handleSort} align="right">
+                              Pts Min
+                            </SortableHeader>
+                          </TableHead>
+                          <TableHead
+                            className="h-9 w-24 px-3 text-center"
+                            aria-sort={sortField === "max_points" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+                          >
+                            <SortableHeader field="max_points" activeField={sortField} direction={sortDirection} onSort={handleSort} align="right">
+                              Pts Max
+                            </SortableHeader>
                           </TableHead>
                           {/* 8.4-C composite % columns */}
-                          <TableHead className="hidden w-24 text-center lg:table-cell">
+                          <TableHead className="hidden h-9 w-24 px-3 text-center lg:table-cell text-xs font-medium uppercase tracking-wider text-muted-foreground">
                             % Min
                           </TableHead>
-                          <TableHead className="hidden w-24 text-center lg:table-cell">
+                          <TableHead className="hidden h-9 w-24 px-3 text-center lg:table-cell text-xs font-medium uppercase tracking-wider text-muted-foreground">
                             % Max
                           </TableHead>
                           {/* 8.4-C Phase C tier column */}
-                          <TableHead className="hidden w-28 text-center xl:table-cell">
+                          <TableHead className="hidden h-9 w-28 px-3 text-center xl:table-cell text-xs font-medium uppercase tracking-wider text-muted-foreground">
                             Nivel
                           </TableHead>
-                          <TableHead className="w-20 text-center">Estado</TableHead>
-                          <TableHead className="w-20 text-right">Acciones</TableHead>
+                          <TableHead
+                            className="h-9 w-20 px-3 text-center"
+                            aria-sort={sortField === "active" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+                          >
+                            <SortableHeader field="active" activeField={sortField} direction={sortDirection} onSort={handleSort}>
+                              Estado
+                            </SortableHeader>
+                          </TableHead>
+                          <TableHead className="h-9 w-20 px-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">Acciones</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
