@@ -188,19 +188,19 @@ export function ConfigFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
           {/* Campo Local — solo al crear */}
           {!isEdit && (
             <div className="space-y-1.5">
-              <Label>
-                Campo Local <span className="ml-0.5 text-destructive">*</span>
+              <Label htmlFor="cfg-local_field_id">
+                Campo Local <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
               </Label>
               <Select
                 value={selectedLocalFieldId?.toString() ?? ""}
                 onValueChange={(v) => setValue("local_field_id", Number(v))}
                 disabled={loadingCatalogs}
               >
-                <SelectTrigger>
+                <SelectTrigger id="cfg-local_field_id" aria-required="true">
                   <SelectValue
                     placeholder={
                       loadingCatalogs ? "Cargando campos..." : "Seleccioná un campo local"
@@ -219,7 +219,7 @@ export function ConfigFormDialog({
                 </SelectContent>
               </Select>
               {errors.local_field_id && (
-                <p className="text-xs text-destructive">
+                <p className="text-xs text-destructive" role="alert" aria-live="polite">
                   {errors.local_field_id.message}
                 </p>
               )}
@@ -229,15 +229,15 @@ export function ConfigFormDialog({
           {/* Año Eclesiástico — solo al crear */}
           {!isEdit && (
             <div className="space-y-1.5">
-              <Label>
-                Año Eclesiástico <span className="ml-0.5 text-destructive">*</span>
+              <Label htmlFor="cfg-ecclesiastical_year_id">
+                Año Eclesiástico <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
               </Label>
               <Select
                 value={selectedYearId?.toString() ?? ""}
                 onValueChange={(v) => setValue("ecclesiastical_year_id", Number(v))}
                 disabled={loadingCatalogs}
               >
-                <SelectTrigger>
+                <SelectTrigger id="cfg-ecclesiastical_year_id" aria-required="true">
                   <SelectValue
                     placeholder={
                       loadingCatalogs ? "Cargando años..." : "Seleccioná un año"
@@ -261,7 +261,7 @@ export function ConfigFormDialog({
                 </SelectContent>
               </Select>
               {errors.ecclesiastical_year_id && (
-                <p className="text-xs text-destructive">
+                <p className="text-xs text-destructive" role="alert" aria-live="polite">
                   {errors.ecclesiastical_year_id.message}
                 </p>
               )}
@@ -271,15 +271,16 @@ export function ConfigFormDialog({
           {/* Fecha límite de envío */}
           <div className="space-y-1.5">
             <Label htmlFor="submission_deadline">
-              Límite de Envío <span className="ml-0.5 text-destructive">*</span>
+              Límite de Envío <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
             </Label>
             <Input
               id="submission_deadline"
               type="date"
               {...register("submission_deadline")}
+              aria-required="true"
             />
             {errors.submission_deadline && (
-              <p className="text-xs text-destructive">
+              <p className="text-xs text-destructive" role="alert" aria-live="polite">
                 {errors.submission_deadline.message}
               </p>
             )}
@@ -288,15 +289,16 @@ export function ConfigFormDialog({
           {/* Fecha de investidura */}
           <div className="space-y-1.5">
             <Label htmlFor="investiture_date">
-              Fecha de Investidura <span className="ml-0.5 text-destructive">*</span>
+              Fecha de Investidura <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
             </Label>
             <Input
               id="investiture_date"
               type="date"
               {...register("investiture_date")}
+              aria-required="true"
             />
             {errors.investiture_date && (
-              <p className="text-xs text-destructive">
+              <p className="text-xs text-destructive" role="alert" aria-live="polite">
                 {errors.investiture_date.message}
               </p>
             )}
@@ -312,7 +314,7 @@ export function ConfigFormDialog({
               Cancelar
             </Button>
             <Button type="submit" disabled={isSubmitting || loadingCatalogs}>
-              {isSubmitting && <Loader2 className="size-4 animate-spin" />}
+              {isSubmitting && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
               {isEdit ? "Guardar cambios" : "Crear configuración"}
             </Button>
           </DialogFooter>
