@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Plus, Layers, Loader2 } from "lucide-react";
-import { toast } from "sonner";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -35,6 +35,10 @@ function UnitsSkeleton() {
   );
 }
 
+// ─── Query key ───────────────────────────────────────────────────────────────
+
+export const UNITS_QUERY_KEY = "units" as const;
+
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface UnitsTabProps {
@@ -47,32 +51,27 @@ interface UnitsTabProps {
 export function UnitsTab({ clubId, localFieldId }: UnitsTabProps) {
   const t = useTranslations("units_admin");
   const router = useRouter();
-  const [units, setUnits] = useState<Unit[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
+  const queryClient = useQueryClient();
   const [deletingUnit, setDeletingUnit] = useState<Unit | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
-  const loadUnits = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await listUnits(clubId);
-      setUnits(data);
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : t("errors.load_units_failed");
-      setError(message);
-      toast.error(message);
-    } finally {
-      setLoading(false);
-    }
-  }, [clubId]);
+  const {
+    data: units = [],
+    isLoading: loading,
+    error: queryError,
+    refetch: loadUnits,
+  } = useQuery({
+    queryKey: [UNITS_QUERY_KEY, clubId],
+    queryFn: () => listUnits(clubId),
+    staleTime: 30_000,
+  });
 
-  useEffect(() => {
-    loadUnits();
-  }, [loadUnits]);
+  const error =
+    queryError instanceof Error
+      ? queryError.message
+      : queryError != null
+        ? t("errors.load_units_failed")
+        : null;
 
   function handleOpenDelete(unit: Unit) {
     setDeletingUnit(unit);
@@ -82,7 +81,7 @@ export function UnitsTab({ clubId, localFieldId }: UnitsTabProps) {
   function handleDeleteSuccess() {
     setDeleteOpen(false);
     setDeletingUnit(null);
-    loadUnits();
+    void queryClient.invalidateQueries({ queryKey: [UNITS_QUERY_KEY, clubId] });
   }
 
   // ─── Render ───────────────────────────────────────────────────────────────
@@ -114,7 +113,7 @@ export function UnitsTab({ clubId, localFieldId }: UnitsTabProps) {
           <button
             type="button"
             className="ml-2 underline underline-offset-2"
-            onClick={loadUnits}
+            onClick={() => void loadUnits()}
           >
             Reintentar
           </button>
@@ -150,7 +149,7 @@ export function UnitsTab({ clubId, localFieldId }: UnitsTabProps) {
                 router.push(`/dashboard/clubs/${clubId}/units/${u.unit_id}`);
               }}
               onDelete={handleOpenDelete}
-              onMembersChanged={loadUnits}
+              onMembersChanged={() => void queryClient.invalidateQueries({ queryKey: [UNITS_QUERY_KEY, clubId] })}
             />
           ))}
         </div>
