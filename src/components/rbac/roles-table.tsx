@@ -52,6 +52,10 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DataTableShell } from "@/components/shared/data-table-shell";
+import {
+  SortableHeader,
+  type SortDirection,
+} from "@/components/shared/sortable-header";
 import { deactivateRoleAction } from "@/lib/rbac/actions";
 import type { Role } from "@/lib/rbac/types";
 
@@ -247,6 +251,7 @@ function DeactivateDialog({ role, open, onClose, onSuccess }: DeactivateDialogPr
 
 // ─── Main roles table ────────────────────────────────────────────────────────
 type ActiveFilter = "true" | "false" | "all";
+type SortField = "role_name" | "role_category" | "permissions" | "active";
 
 interface RolesTableProps {
   roles: Role[];
@@ -256,8 +261,15 @@ interface RolesTableProps {
 export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<ActiveFilter>("true");
+  const [sortField, setSortField] = useState<SortField>("role_name");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [deactivateTarget, setDeactivateTarget] = useState<Role | null>(null);
   const router = useRouter();
+
+  const handleSort = (field: SortField, direction: SortDirection) => {
+    setSortField(field);
+    setSortDirection(direction);
+  };
 
   const filtered = useMemo(() => {
     const byStatus = roles.filter((r) => {
@@ -266,15 +278,40 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
       return true;
     });
 
-    if (!search.trim()) return byStatus;
+    const bySearch = !search.trim()
+      ? byStatus
+      : byStatus.filter((r) => {
+          const q = search.toLowerCase();
+          return (
+            r.role_name.toLowerCase().includes(q) ||
+            (r.description?.toLowerCase().includes(q) ?? false)
+          );
+        });
 
-    const q = search.toLowerCase();
-    return byStatus.filter(
-      (r) =>
-        r.role_name.toLowerCase().includes(q) ||
-        (r.description?.toLowerCase().includes(q) ?? false),
-    );
-  }, [roles, activeTab, search]);
+    const sorted = [...bySearch].sort((a, b) => {
+      const dir = sortDirection === "asc" ? 1 : -1;
+      switch (sortField) {
+        case "role_name":
+          return a.role_name.localeCompare(b.role_name) * dir;
+        case "role_category":
+          return a.role_category.localeCompare(b.role_category) * dir;
+        case "permissions": {
+          const ap = a.role_permissions?.length ?? 0;
+          const bp = b.role_permissions?.length ?? 0;
+          return (ap - bp) * dir;
+        }
+        case "active": {
+          const av = a.active === false ? 0 : 1;
+          const bv = b.active === false ? 0 : 1;
+          return (av - bv) * dir;
+        }
+        default:
+          return 0;
+      }
+    });
+
+    return sorted;
+  }, [roles, activeTab, search, sortField, sortDirection]);
 
   const isProtected = (role: Role) => role.role_name === "super-admin";
 
@@ -326,20 +363,84 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Nombre
+                    <TableHead
+                      className="h-9 px-3"
+                      aria-sort={
+                        sortField === "role_name"
+                          ? sortDirection === "asc"
+                            ? "ascending"
+                            : "descending"
+                          : "none"
+                      }
+                    >
+                      <SortableHeader
+                        field="role_name"
+                        activeField={sortField}
+                        direction={sortDirection}
+                        onSort={handleSort}
+                      >
+                        Nombre
+                      </SortableHeader>
                     </TableHead>
-                    <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Categoría
+                    <TableHead
+                      className="h-9 px-3"
+                      aria-sort={
+                        sortField === "role_category"
+                          ? sortDirection === "asc"
+                            ? "ascending"
+                            : "descending"
+                          : "none"
+                      }
+                    >
+                      <SortableHeader
+                        field="role_category"
+                        activeField={sortField}
+                        direction={sortDirection}
+                        onSort={handleSort}
+                      >
+                        Categoría
+                      </SortableHeader>
                     </TableHead>
                     <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground hidden md:table-cell">
                       Descripción
                     </TableHead>
-                    <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Permisos
+                    <TableHead
+                      className="h-9 px-3"
+                      aria-sort={
+                        sortField === "permissions"
+                          ? sortDirection === "asc"
+                            ? "ascending"
+                            : "descending"
+                          : "none"
+                      }
+                    >
+                      <SortableHeader
+                        field="permissions"
+                        activeField={sortField}
+                        direction={sortDirection}
+                        onSort={handleSort}
+                      >
+                        Permisos
+                      </SortableHeader>
                     </TableHead>
-                    <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Estado
+                    <TableHead
+                      className="h-9 px-3"
+                      aria-sort={
+                        sortField === "active"
+                          ? sortDirection === "asc"
+                            ? "ascending"
+                            : "descending"
+                          : "none"
+                      }
+                    >
+                      <SortableHeader
+                        field="active"
+                        activeField={sortField}
+                        direction={sortDirection}
+                        onSort={handleSort}
+                      >
+                        Estado
+                      </SortableHeader>
                     </TableHead>
                     {isSuperAdmin && (
                       <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground text-right">

@@ -25,8 +25,10 @@ import {
   getFinanceSummary,
   type Finance,
   type FinanceSummary,
+  type FinanceSortField,
   type PaginatedFinances,
 } from "@/lib/api/finances";
+import type { SortDirection } from "@/components/shared/sortable-header";
 import type { ClubSection } from "@/components/finances/transaction-form-dialog";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -68,6 +70,10 @@ export function FinancesDashboard({
   const [year, setYear] = useState<number | undefined>(currentYear);
   const [month, setMonth] = useState<number | undefined>(undefined);
 
+  // Sort
+  const [sortField, setSortField] = useState<FinanceSortField>("date");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+
   // Data
   const [summary, setSummary] = useState<FinanceSummary | null>(null);
   const [result, setResult] = useState<PaginatedFinances | null>(null);
@@ -97,14 +103,25 @@ export function FinancesDashboard({
   const fetchTransactions = useCallback(async () => {
     setLoadingTable(true);
     try {
-      const data = await listFinances(clubId, { year, month, limit: 50 });
+      const data = await listFinances(clubId, {
+        year,
+        month,
+        limit: 50,
+        sortBy: sortField,
+        sortOrder: sortDirection,
+      });
       setResult(data);
     } catch {
       setResult(null);
     } finally {
       setLoadingTable(false);
     }
-  }, [clubId, year, month]);
+  }, [clubId, year, month, sortField, sortDirection]);
+
+  const handleSort = (field: FinanceSortField, direction: SortDirection) => {
+    setSortField(field);
+    setSortDirection(direction);
+  };
 
   // Refresh both on mount and filter change
   const refresh = useCallback(() => {
@@ -219,6 +236,9 @@ export function FinancesDashboard({
             items={result?.data ?? []}
             onEdit={handleEdit}
             onDelete={handleDelete}
+            sortField={sortField}
+            sortDirection={sortDirection}
+            onSort={handleSort}
           />
         )}
 
