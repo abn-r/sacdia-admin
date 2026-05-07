@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { Loader2, Trophy, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState } from "react";
+import { Trophy, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,10 +16,7 @@ import {
 } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getMemberOfMonthHistory } from "@/lib/api/member-of-month";
-import type {
-  MemberOfMonthHistoryItem,
-  MemberOfMonthHistoryResponse,
-} from "@/lib/api/member-of-month";
+import type { MemberOfMonthHistoryItem } from "@/lib/api/member-of-month";
 import { MONTH_NAMES } from "@/lib/constants";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -107,6 +105,14 @@ interface MemberOfMonthHistorySheetProps {
   sectionName: string;
 }
 
+// ─── Query key factory ────────────────────────────────────────────────────────
+
+export const memberOfMonthHistoryQueryKey = (
+  clubId: number,
+  sectionId: number,
+  page: number,
+) => ["member-of-month-history", clubId, sectionId, page] as const;
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function MemberOfMonthHistorySheet({
@@ -117,47 +123,32 @@ export function MemberOfMonthHistorySheet({
   sectionName,
 }: MemberOfMonthHistorySheetProps) {
   const [page, setPage] = useState(1);
-  const [data, setData] = useState<MemberOfMonthHistoryResponse | null>(null);
-  const [loading, setLoading] = useState(false);
 
-  const loadHistory = useCallback(
-    async (pageNum: number) => {
-      setLoading(true);
+  const { data, isLoading: loading } = useQuery({
+    queryKey: memberOfMonthHistoryQueryKey(clubId, sectionId, page),
+    queryFn: async () => {
       try {
-        const result = await getMemberOfMonthHistory(
-          clubId,
-          sectionId,
-          pageNum,
-          PAGE_LIMIT,
-        );
-        setData(result);
+        return await getMemberOfMonthHistory(clubId, sectionId, page, PAGE_LIMIT);
       } catch (err: unknown) {
         const message =
-          err instanceof Error
-            ? err.message
-            : "No se pudo cargar el historial";
+          err instanceof Error ? err.message : "No se pudo cargar el historial";
         toast.error(message);
-      } finally {
-        setLoading(false);
+        throw err;
       }
     },
-    [clubId, sectionId],
-  );
+    // Each page is a historical snapshot — rarely changes.
+    staleTime: 5 * 60_000,
+    // Only fetch when the sheet is open.
+    enabled: open,
+    // Reset to page 1 when sheet re-opens
+    placeholderData: (prev) => prev,
+  });
 
-  // Load on open or page change
-  useEffect(() => {
-    if (open) {
-      loadHistory(page);
-    }
-  }, [open, page, loadHistory]);
-
-  // Reset page when sheet closes
-  useEffect(() => {
-    if (!open) {
-      setPage(1);
-      setData(null);
-    }
-  }, [open]);
+  // Reset to page 1 when the sheet closes.
+  function handleOpenChange(isOpen: boolean) {
+    if (!isOpen) setPage(1);
+    onOpenChange(isOpen);
+  }
 
   const items: MemberOfMonthHistoryItem[] = data?.data ?? [];
   const total = data?.pagination.total ?? 0;
@@ -166,7 +157,7 @@ export function MemberOfMonthHistorySheet({
   const hasNext = page < totalPages;
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <Sheet open={open} onOpenChange={handleOpenChange}>
       <SheetContent className="flex w-full flex-col sm:max-w-md">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">

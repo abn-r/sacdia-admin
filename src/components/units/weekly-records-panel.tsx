@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState } from "react";
 import { Plus, CalendarDays, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -63,7 +64,6 @@ function AddRecordDialog({
   onSuccess,
 }: AddRecordDialogProps) {
   const t = useTranslations("units_admin");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [userId, setUserId] = useState("");
   const [week, setWeek] = useState(1);
   const [attendance, setAttendance] = useState(0);
@@ -98,20 +98,13 @@ function AddRecordDialog({
     0,
   );
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!userId) {
-      toast.error(t("validation.member_required"));
-      return;
-    }
-    setIsSubmitting(true);
-    try {
+  const { mutate: createRecord, isPending: isSubmitting } = useMutation({
+    mutationFn: () => {
       const scores: ScoreEntry[] = activeCategories.map((cat) => ({
         category_id: cat.scoring_category_id,
         points: getCategoryScore(cat.scoring_category_id),
       }));
-
-      await createWeeklyRecord(clubId, unitId, {
+      return createWeeklyRecord(clubId, unitId, {
         user_id: userId,
         week,
         year: new Date().getFullYear(),
@@ -119,16 +112,26 @@ function AddRecordDialog({
         punctuality,
         scores,
       });
+    },
+    onSuccess: () => {
       toast.success(t("toasts.weekly_record_created"));
       onSuccess();
       handleClose(false);
-    } catch (err: unknown) {
+    },
+    onError: (err: unknown) => {
       const message =
         err instanceof Error ? err.message : t("errors.create_record_failed");
       toast.error(message);
-    } finally {
-      setIsSubmitting(false);
+    },
+  });
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!userId) {
+      toast.error(t("validation.member_required"));
+      return;
     }
+    createRecord();
   }
 
   return (
@@ -351,6 +354,14 @@ function TotalCell({ value }: { value: number }) {
   );
 }
 
+// ─── Query key factories ─────────────────────────────────────────────────────
+
+export const weeklyRecordsQueryKey = (clubId: number, unitId: number) =>
+  ["weekly-records", clubId, unitId] as const;
+
+export const scoringCategoriesQueryKey = (localFieldId: number) =>
+  ["scoring-categories", localFieldId] as const;
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 interface WeeklyRecordsPanelProps {
@@ -368,60 +379,89 @@ export function WeeklyRecordsPanel({
   localFieldId,
 }: WeeklyRecordsPanelProps) {
   const t = useTranslations("units_admin");
-  const [records, setRecords] = useState<WeeklyRecord[] | null>(null);
-  const [categories, setCategories] = useState<ScoringCategory[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [loaded, setLoaded] = useState(false);
+  const queryClient = useQueryClient();
   const [addOpen, setAddOpen] = useState(false);
 
-  const loadAll = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [recordsData, categoriesData] = await Promise.allSettled([
-        listWeeklyRecords(clubId, unitId),
-        localFieldId
-          ? getLocalFieldScoringCategories(localFieldId)
-          : Promise.resolve([] as ScoringCategory[]),
-      ]);
+  // ─── Queries ────────────────────────────────────────────────────────────────
 
-      if (recordsData.status === "fulfilled") {
-        setRecords(recordsData.value);
-      } else {
+  const {
+    data: records = null,
+    isLoading: recordsLoading,
+  } = useQuery({
+    queryKey: weeklyRecordsQueryKey(clubId, unitId),
+    queryFn: async () => {
+      try {
+        return await listWeeklyRecords(clubId, unitId);
+      } catch {
         toast.error(t("errors.load_records_failed"));
+        throw new Error(t("errors.load_records_failed"));
       }
+    },
+    staleTime: 30_000,
+  });
 
-      if (categoriesData.status === "fulfilled") {
-        setCategories(categoriesData.value.filter((c) => c.active));
-      }
+  const { data: allCategories = [] } = useQuery({
+    queryKey: scoringCategoriesQueryKey(localFieldId ?? 0),
+    queryFn: () =>
+      localFieldId
+        ? getLocalFieldScoringCategories(localFieldId)
+        : Promise.resolve([] as ScoringCategory[]),
+    // Scoring categories are catalog data — refresh every 5 min.
+    staleTime: 5 * 60_000,
+    enabled: true,
+  });
 
-      setLoaded(true);
-    } finally {
-      setLoading(false);
-    }
-  }, [clubId, unitId, localFieldId]);
+  const categories = allCategories.filter((c) => c.active);
 
-  // Lazy load on first render of this panel
-  useEffect(() => {
-    if (!loaded && !loading) {
-      loadAll();
-    }
-  }, [loaded, loading, loadAll]);
+  // ─── Mutations ───────────────────────────────────────────────────────────────
 
-  // ─── Update handler ─────────────────────────────────────────────────────────
+  const { mutateAsync: updateFixed } = useMutation({
+    mutationFn: ({
+      recordId,
+      field,
+      value,
+    }: {
+      recordId: number;
+      field: "attendance" | "punctuality";
+      value: number;
+    }) => updateWeeklyRecord(clubId, unitId, recordId, { [field]: value }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: weeklyRecordsQueryKey(clubId, unitId) });
+    },
+    onError: () => {
+      toast.error(t("errors.update_value_failed"));
+    },
+  });
+
+  const { mutateAsync: updateScore } = useMutation({
+    mutationFn: ({
+      recordId,
+      categoryId,
+      value,
+    }: {
+      recordId: number;
+      categoryId: number;
+      value: number;
+    }) =>
+      updateWeeklyRecord(clubId, unitId, recordId, {
+        scores: [{ category_id: categoryId, points: value }],
+      }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: weeklyRecordsQueryKey(clubId, unitId) });
+    },
+    onError: () => {
+      toast.error(t("errors.update_value_failed"));
+    },
+  });
+
+  // ─── Handlers for EditableCell ───────────────────────────────────────────────
 
   async function handleUpdateFixed(
     recordId: number,
     field: "attendance" | "punctuality",
     value: number,
   ) {
-    await updateWeeklyRecord(clubId, unitId, recordId, { [field]: value });
-    setRecords((prev) =>
-      prev
-        ? prev.map((r) =>
-            r.record_id === recordId ? { ...r, [field]: value } : r,
-          )
-        : prev,
-    );
+    await updateFixed({ recordId, field, value });
   }
 
   async function handleUpdateScore(
@@ -429,28 +469,7 @@ export function WeeklyRecordsPanel({
     categoryId: number,
     value: number,
   ) {
-    // Build scores array for update: only the category being changed
-    await updateWeeklyRecord(clubId, unitId, recordId, {
-      scores: [{ category_id: categoryId, points: value }],
-    });
-
-    setRecords((prev) => {
-      if (!prev) return prev;
-      return prev.map((r) => {
-        if (r.record_id !== recordId) return r;
-        const existingScores = r.scores ?? [];
-        const updatedScores = existingScores.some(
-          (s) => s.category_id === categoryId,
-        )
-          ? existingScores.map((s) =>
-              s.category_id === categoryId ? { ...s, points: value } : s,
-            )
-          : [...existingScores, { category_id: categoryId, points: value }];
-        // Recalculate total
-        const newTotal = updatedScores.reduce((sum, s) => sum + s.points, 0);
-        return { ...r, scores: updatedScores, points: newTotal };
-      });
-    });
+    await updateScore({ recordId, categoryId, value });
   }
 
   // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -470,7 +489,7 @@ export function WeeklyRecordsPanel({
 
   // ─── Loading state ──────────────────────────────────────────────────────────
 
-  if (loading && !loaded) {
+  if (recordsLoading) {
     return (
       <div className="flex items-center justify-center py-8 text-muted-foreground">
         <Loader2 className="mr-2 size-4 animate-spin" />
@@ -617,7 +636,7 @@ export function WeeklyRecordsPanel({
         unitId={unitId}
         members={activeMembers}
         categories={categories}
-        onSuccess={loadAll}
+        onSuccess={() => void queryClient.invalidateQueries({ queryKey: weeklyRecordsQueryKey(clubId, unitId) })}
       />
     </div>
   );

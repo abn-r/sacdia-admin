@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { toast } from "sonner";
 import { History, Clock, CheckCircle2, XCircle, Send } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import {
   Dialog,
   DialogContent,
@@ -84,6 +84,11 @@ interface EvidenceHistoryDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+// ─── Query key factory ────────────────────────────────────────────────────────
+
+export const evidenceHistoryQueryKey = (type: EvidenceType, id: number) =>
+  ["evidence-history", type, id] as const;
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function EvidenceHistoryDialog({
@@ -93,40 +98,28 @@ export function EvidenceHistoryDialog({
   memberName,
   onOpenChange,
 }: EvidenceHistoryDialogProps) {
-  const [entries, setEntries] = useState<EvidenceHistoryEntry[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [loaded, setLoaded] = useState(false);
-
-  async function loadHistory() {
-    if (loaded) return;
-    setLoading(true);
-    try {
-      const data = await getEvidenceHistory(type, id);
-      setEntries(data);
-      setLoaded(true);
-    } catch (error) {
-      const message =
-        error instanceof ApiError
-          ? error.message
-          : "No se pudo cargar el historial";
-      toast.error(message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  function handleOpenChange(isOpen: boolean) {
-    if (isOpen) {
-      void loadHistory();
-    } else {
-      setEntries([]);
-      setLoaded(false);
-    }
-    onOpenChange(isOpen);
-  }
+  // Evidence history is append-only — once fetched it never changes.
+  const { data: entries = [], isLoading: loading } = useQuery({
+    queryKey: evidenceHistoryQueryKey(type, id),
+    queryFn: async () => {
+      try {
+        return await getEvidenceHistory(type, id);
+      } catch (error) {
+        const message =
+          error instanceof ApiError
+            ? error.message
+            : "No se pudo cargar el historial";
+        toast.error(message);
+        throw error;
+      }
+    },
+    staleTime: Infinity,
+    // Only fetch when the dialog is open.
+    enabled: open,
+  });
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
