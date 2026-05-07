@@ -7,12 +7,11 @@ import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { MemberRankingsFilters } from "./_components/member-rankings-filters";
 import { MemberRankingsTable } from "./_components/member-rankings-table";
 import { listMemberRankings, type MemberRankingsQuery } from "@/lib/api/member-rankings";
+import { getActiveEcclesiasticalYearId } from "@/lib/api/catalogs";
 import { requireAdminUser } from "@/lib/auth/session";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-// TODO: derive from active ecclesiastical year via API once endpoint is available
-const DEFAULT_YEAR = 2026;
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 20;
 
@@ -22,6 +21,7 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 function parseSearchParams(
   raw: Record<string, string | string[] | undefined>,
+  fallbackYearId: number,
 ): MemberRankingsQuery {
   const getString = (key: string) => {
     const v = raw[key];
@@ -33,7 +33,7 @@ function parseSearchParams(
   };
 
   return {
-    year_id: getNumber("year_id") ?? DEFAULT_YEAR,
+    year_id: getNumber("year_id") ?? fallbackYearId,
     club_id: getNumber("club_id"),
     section_id: getNumber("section_id"),
     page: getNumber("page") ?? DEFAULT_PAGE,
@@ -108,7 +108,7 @@ async function MemberRankingsContent({ query }: { query: MemberRankingsQuery }) 
       page={result.page}
       limit={result.limit}
       totalPages={result.totalPages}
-      selectedYearId={query.year_id ?? DEFAULT_YEAR}
+      selectedYearId={query.year_id!}
     />
   );
 }
@@ -122,7 +122,25 @@ export default async function MemberRankingsPage({
 }) {
   await requireAdminUser();
   const rawParams = await searchParams;
-  const query = parseSearchParams(rawParams);
+  const fallbackYearId = await getActiveEcclesiasticalYearId();
+
+  if (fallbackYearId === null) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title="Ranking de miembros"
+          description="Clasificación general por categoría con composite calculado."
+        />
+        <EmptyState
+          icon={Trophy}
+          title="No hay año eclesiástico activo"
+          description="Configurá un año eclesiástico activo en el catálogo para ver los rankings."
+        />
+      </div>
+    );
+  }
+
+  const query = parseSearchParams(rawParams, fallbackYearId);
 
   return (
     <div className="space-y-6">
