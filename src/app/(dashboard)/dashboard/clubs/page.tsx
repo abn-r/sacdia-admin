@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { Building2, Plus } from "lucide-react";
+import { Building2, ChevronRight, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -187,49 +187,117 @@ async function ClubsContent({
 
   return (
     <div className="space-y-4">
-      <DataTableShell>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nombre</TableHead>
-              <TableHead className="hidden md:table-cell">Campo local</TableHead>
-              <TableHead className="hidden lg:table-cell">Distrito</TableHead>
-              <TableHead className="hidden lg:table-cell">Iglesia</TableHead>
-              <TableHead>Estado</TableHead>
-              <TableHead className="w-[100px]">Acciones</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {result.items.map((club) => {
-              const clubId = club.club_id ?? club.id;
-              return (
-                <TableRow key={clubId}>
-                  <TableCell className="font-medium">{club.name ?? "—"}</TableCell>
-                  <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
-                    {club.local_field?.name ?? club.local_field_id ?? "—"}
-                  </TableCell>
-                  <TableCell className="hidden text-sm text-muted-foreground lg:table-cell">
-                    {club.district?.name ?? club.district_id ?? "—"}
-                  </TableCell>
-                  <TableCell className="hidden text-sm text-muted-foreground lg:table-cell">
-                    {club.church?.name ?? club.church_id ?? "—"}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={club.active !== false ? "default" : "outline"} className="text-xs">
-                      {club.active !== false ? "Activo" : "Inactivo"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Button variant="ghost" size="sm" asChild>
-                      <Link href={`/dashboard/clubs/${clubId}`}>Ver</Link>
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </DataTableShell>
+      {/* Desktop: full table */}
+      <div className="hidden md:block">
+        <DataTableShell>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nombre</TableHead>
+                <TableHead className="hidden md:table-cell">Campo local</TableHead>
+                <TableHead className="hidden lg:table-cell">Distrito</TableHead>
+                <TableHead className="hidden lg:table-cell">Iglesia</TableHead>
+                <TableHead>Estado</TableHead>
+                <TableHead className="w-[100px]">Acciones</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {result.items.map((club) => {
+                const clubId = club.club_id ?? club.id;
+                return (
+                  <TableRow key={clubId}>
+                    <TableCell className="font-medium">{club.name ?? "—"}</TableCell>
+                    <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
+                      {club.local_field?.name ?? club.local_field_id ?? "—"}
+                    </TableCell>
+                    <TableCell className="hidden text-sm text-muted-foreground lg:table-cell">
+                      {club.district?.name ?? club.district_id ?? "—"}
+                    </TableCell>
+                    <TableCell className="hidden text-sm text-muted-foreground lg:table-cell">
+                      {club.church?.name ?? club.church_id ?? "—"}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={club.active !== false ? "default" : "outline"} className="text-xs">
+                        {club.active !== false ? "Activo" : "Inactivo"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Button variant="ghost" size="sm" asChild>
+                        <Link href={`/dashboard/clubs/${clubId}`}>Ver</Link>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </DataTableShell>
+      </div>
+
+      {/* Mobile: descriptive cards */}
+      <ul className="space-y-3 md:hidden" aria-label="Lista de clubes">
+        {result.items.map((club) => {
+          const clubId = club.club_id ?? club.id;
+          const localField = club.local_field?.name ?? (club.local_field_id ? String(club.local_field_id) : null);
+          const district = club.district?.name ?? (club.district_id ? String(club.district_id) : null);
+          const church = club.church?.name ?? (club.church_id ? String(club.church_id) : null);
+
+          return (
+            <li key={clubId}>
+              <Link
+                href={`/dashboard/clubs/${clubId}`}
+                className="block rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                    <Building2 className="size-5 text-primary" aria-hidden="true" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">{club.name ?? "—"}</p>
+                    {localField && (
+                      <p className="truncate text-xs text-muted-foreground">{localField}</p>
+                    )}
+                  </div>
+                  <ChevronRight
+                    className="size-4 shrink-0 text-muted-foreground"
+                    aria-hidden="true"
+                  />
+                </div>
+
+                <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                  <Badge
+                    variant={club.active !== false ? "default" : "outline"}
+                    className="text-xs"
+                  >
+                    {club.active !== false ? "Activo" : "Inactivo"}
+                  </Badge>
+                </div>
+
+                <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
+                  {localField && (
+                    <div className="col-span-2">
+                      <dt className="text-muted-foreground">Campo local</dt>
+                      <dd className="truncate">{localField}</dd>
+                    </div>
+                  )}
+                  {district && (
+                    <div>
+                      <dt className="text-muted-foreground">Distrito</dt>
+                      <dd className="truncate">{district}</dd>
+                    </div>
+                  )}
+                  {church && (
+                    <div>
+                      <dt className="text-muted-foreground">Iglesia</dt>
+                      <dd className="truncate">{church}</dd>
+                    </div>
+                  )}
+                </dl>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
 
       <DataTablePagination
         page={result.meta.page}

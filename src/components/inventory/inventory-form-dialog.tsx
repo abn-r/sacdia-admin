@@ -157,12 +157,16 @@ export function InventoryFormDialog({
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
           {/* Nombre */}
           <div className="space-y-1.5">
-            <Label htmlFor="name">Nombre *</Label>
+            <Label htmlFor="name">
+              Nombre{" "}
+              <span aria-hidden="true" className="text-destructive">*</span>
+            </Label>
             <Input
               id="name"
+              aria-required="true"
               {...register("name")}
               placeholder="Ej. Carpas 4 personas"
             />
@@ -187,14 +191,17 @@ export function InventoryFormDialog({
 
           {/* Categoría */}
           <div className="space-y-1.5">
-            <Label>Categoría *</Label>
+            <Label htmlFor="inventory_category_id">
+              Categoría{" "}
+              <span aria-hidden="true" className="text-destructive">*</span>
+            </Label>
             <Select
               value={String(selectedCategoryId)}
               onValueChange={(val) =>
                 setValue("inventory_category_id", Number(val))
               }
             >
-              <SelectTrigger>
+              <SelectTrigger id="inventory_category_id" aria-required="true">
                 <SelectValue placeholder="Seleccionar categoría" />
               </SelectTrigger>
               <SelectContent>
@@ -223,11 +230,15 @@ export function InventoryFormDialog({
 
           {/* Cantidad */}
           <div className="space-y-1.5">
-            <Label htmlFor="amount">Cantidad *</Label>
+            <Label htmlFor="amount">
+              Cantidad{" "}
+              <span aria-hidden="true" className="text-destructive">*</span>
+            </Label>
             <Input
               id="amount"
               type="number"
               min={0}
+              aria-required="true"
               {...register("amount")}
               placeholder="0"
             />

@@ -13,6 +13,7 @@ import {
   Loader2,
   ShieldCheck,
   Users,
+  ChevronRight,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
@@ -50,6 +51,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState } from "@/components/shared/empty-state";
+import { DataTableShell } from "@/components/shared/data-table-shell";
 import { deactivateRoleAction } from "@/lib/rbac/actions";
 import type { Role } from "@/lib/rbac/types";
 
@@ -317,173 +319,265 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
           }
         />
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-border/60 bg-card shadow-xs">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Nombre
-                </TableHead>
-                <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Categoría
-                </TableHead>
-                <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground hidden md:table-cell">
-                  Descripción
-                </TableHead>
-                <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Permisos
-                </TableHead>
-                <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Estado
-                </TableHead>
-                {isSuperAdmin && (
-                  <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground text-right">
-                    Acciones
-                  </TableHead>
-                )}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((role, index) => {
-                const protected_ = isProtected(role);
-                return (
-                  <TableRow
-                    key={role.role_id}
-                    className="transition-colors hover:bg-muted/30 animate-in fade-in slide-in-from-bottom-2 duration-300"
-                    style={{ animationDelay: `${index * 40}ms`, animationFillMode: "backwards" }}
-                  >
-                    {/* role_name — mono, lock icon for super-admin */}
-                    <TableCell className="px-3 py-2.5 align-middle">
-                      <div className="flex items-center gap-1.5">
-                        {protected_ && (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Lock className="size-3.5 shrink-0 text-muted-foreground" />
-                            </TooltipTrigger>
-                            <TooltipContent>Rol protegido del sistema</TooltipContent>
-                          </Tooltip>
-                        )}
-                        <span className="font-mono text-sm font-medium">{role.role_name}</span>
-                      </div>
-                    </TableCell>
-
-                    {/* role_category badge */}
-                    <TableCell className="px-3 py-2.5 align-middle">
-                      <Badge variant={role.role_category === "GLOBAL" ? "secondary" : "outline"}>
-                        {role.role_category}
-                      </Badge>
-                    </TableCell>
-
-                    {/* description — truncated with tooltip */}
-                    <TableCell className="px-3 py-2.5 align-middle hidden md:table-cell max-w-[260px]">
-                      {role.description ? (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="block truncate text-sm text-muted-foreground cursor-default">
-                              {role.description}
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent className="max-w-xs">{role.description}</TooltipContent>
-                        </Tooltip>
-                      ) : (
-                        <span className="text-sm text-muted-foreground">—</span>
-                      )}
-                    </TableCell>
-
-                    {/* permissions count with popover */}
-                    <TableCell className="px-3 py-2.5 align-middle">
-                      <PermissionsPopover role={role} />
-                    </TableCell>
-
-                    {/* active status */}
-                    <TableCell className="px-3 py-2.5 align-middle">
-                      <Badge variant={role.active !== false ? "soft-success" : "outline"}>
-                        {role.active !== false ? "Activo" : "Inactivo"}
-                      </Badge>
-                    </TableCell>
-
-                    {/* actions — super-admin only */}
+        <>
+          {/* Desktop: full table */}
+          <div className="hidden md:block">
+            <DataTableShell>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Nombre
+                    </TableHead>
+                    <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Categoría
+                    </TableHead>
+                    <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground hidden md:table-cell">
+                      Descripción
+                    </TableHead>
+                    <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Permisos
+                    </TableHead>
+                    <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Estado
+                    </TableHead>
                     {isSuperAdmin && (
-                      <TableCell className="px-3 py-2.5 align-middle text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          {protected_ ? (
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <span className="inline-flex">
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="size-8 opacity-40"
-                                    disabled
-                                    aria-label="Editar rol protegido"
-                                  >
-                                    <Pencil className="size-3.5" />
-                                  </Button>
-                                </span>
-                              </TooltipTrigger>
-                              <TooltipContent>Rol protegido — no se puede modificar desde la UI</TooltipContent>
-                            </Tooltip>
-                          ) : (
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="size-8"
-                                  asChild
-                                >
-                                  <Link href={`/dashboard/rbac/roles/${role.role_id}`}>
-                                    <Pencil className="size-3.5" />
-                                    <span className="sr-only">Editar {role.role_name}</span>
-                                  </Link>
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Editar rol</TooltipContent>
-                            </Tooltip>
-                          )}
-
-                          {protected_ ? (
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <span className="inline-flex">
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="size-8 opacity-40"
-                                    disabled
-                                    aria-label="Desactivar rol protegido"
-                                  >
-                                    <Power className="size-3.5" />
-                                  </Button>
-                                </span>
-                              </TooltipTrigger>
-                              <TooltipContent>Rol protegido — no se puede modificar desde la UI</TooltipContent>
-                            </Tooltip>
-                          ) : role.active !== false ? (
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="size-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                                  onClick={() => setDeactivateTarget(role)}
-                                  aria-label={`Desactivar ${role.role_name}`}
-                                >
-                                  <Power className="size-3.5" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Desactivar rol</TooltipContent>
-                            </Tooltip>
-                          ) : null}
-                        </div>
-                      </TableCell>
+                      <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground text-right">
+                        Acciones
+                      </TableHead>
                     )}
                   </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
+                </TableHeader>
+                <TableBody>
+                  {filtered.map((role, index) => {
+                    const protected_ = isProtected(role);
+                    return (
+                      <TableRow
+                        key={role.role_id}
+                        className="transition-colors hover:bg-muted/30 animate-in fade-in slide-in-from-bottom-2 duration-300"
+                        style={{ animationDelay: `${index * 40}ms`, animationFillMode: "backwards" }}
+                      >
+                        {/* role_name — mono, lock icon for super-admin */}
+                        <TableCell className="px-3 py-2.5 align-middle">
+                          <div className="flex items-center gap-1.5">
+                            {protected_ && (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Lock className="size-3.5 shrink-0 text-muted-foreground" />
+                                </TooltipTrigger>
+                                <TooltipContent>Rol protegido del sistema</TooltipContent>
+                              </Tooltip>
+                            )}
+                            <span className="font-mono text-sm font-medium">{role.role_name}</span>
+                          </div>
+                        </TableCell>
+
+                        {/* role_category badge */}
+                        <TableCell className="px-3 py-2.5 align-middle">
+                          <Badge variant={role.role_category === "GLOBAL" ? "secondary" : "outline"}>
+                            {role.role_category}
+                          </Badge>
+                        </TableCell>
+
+                        {/* description — truncated with tooltip */}
+                        <TableCell className="px-3 py-2.5 align-middle hidden md:table-cell max-w-[260px]">
+                          {role.description ? (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="block truncate text-sm text-muted-foreground cursor-default">
+                                  {role.description}
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent className="max-w-xs">{role.description}</TooltipContent>
+                            </Tooltip>
+                          ) : (
+                            <span className="text-sm text-muted-foreground">—</span>
+                          )}
+                        </TableCell>
+
+                        {/* permissions count with popover */}
+                        <TableCell className="px-3 py-2.5 align-middle">
+                          <PermissionsPopover role={role} />
+                        </TableCell>
+
+                        {/* active status */}
+                        <TableCell className="px-3 py-2.5 align-middle">
+                          <Badge variant={role.active !== false ? "soft-success" : "outline"}>
+                            {role.active !== false ? "Activo" : "Inactivo"}
+                          </Badge>
+                        </TableCell>
+
+                        {/* actions — super-admin only */}
+                        {isSuperAdmin && (
+                          <TableCell className="px-3 py-2.5 align-middle text-right">
+                            <div className="flex items-center justify-end gap-1">
+                              {protected_ ? (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span className="inline-flex">
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="size-8 opacity-40"
+                                        disabled
+                                        aria-label="Editar rol protegido"
+                                      >
+                                        <Pencil className="size-3.5" />
+                                      </Button>
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent>Rol protegido — no se puede modificar desde la UI</TooltipContent>
+                                </Tooltip>
+                              ) : (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="size-8"
+                                      asChild
+                                    >
+                                      <Link href={`/dashboard/rbac/roles/${role.role_id}`}>
+                                        <Pencil className="size-3.5" />
+                                        <span className="sr-only">Editar {role.role_name}</span>
+                                      </Link>
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>Editar rol</TooltipContent>
+                                </Tooltip>
+                              )}
+
+                              {protected_ ? (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span className="inline-flex">
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="size-8 opacity-40"
+                                        disabled
+                                        aria-label="Desactivar rol protegido"
+                                      >
+                                        <Power className="size-3.5" />
+                                      </Button>
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent>Rol protegido — no se puede modificar desde la UI</TooltipContent>
+                                </Tooltip>
+                              ) : role.active !== false ? (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="size-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                      onClick={() => setDeactivateTarget(role)}
+                                      aria-label={`Desactivar ${role.role_name}`}
+                                    >
+                                      <Power className="size-3.5" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>Desactivar rol</TooltipContent>
+                                </Tooltip>
+                              ) : null}
+                            </div>
+                          </TableCell>
+                        )}
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </DataTableShell>
+          </div>
+
+          {/* Mobile: descriptive cards */}
+          <ul className="space-y-3 md:hidden" aria-label="Lista de roles">
+            {filtered.map((role) => {
+              const protected_ = isProtected(role);
+              const permCount = role.role_permissions?.length ?? 0;
+
+              return (
+                <li key={role.role_id}>
+                  <div className="rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40 focus-visible:outline-none">
+                    <div className="flex items-center gap-3">
+                      <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                        {protected_ ? (
+                          <Lock className="size-5 text-primary" aria-hidden="true" />
+                        ) : (
+                          <ShieldCheck className="size-5 text-primary" aria-hidden="true" />
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-mono text-sm font-medium">{role.role_name}</p>
+                        {role.description && (
+                          <p className="line-clamp-1 text-xs text-muted-foreground">
+                            {role.description}
+                          </p>
+                        )}
+                      </div>
+                      {!protected_ && isSuperAdmin && (
+                        <Link
+                          href={`/dashboard/rbac/roles/${role.role_id}`}
+                          className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                          aria-label={`Editar ${role.role_name}`}
+                        >
+                          <ChevronRight className="size-4" aria-hidden="true" />
+                        </Link>
+                      )}
+                    </div>
+
+                    <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                      <Badge variant={role.active !== false ? "soft-success" : "outline"} className="text-xs">
+                        {role.active !== false ? "Activo" : "Inactivo"}
+                      </Badge>
+                      <Badge variant={role.role_category === "GLOBAL" ? "secondary" : "outline"} className="text-xs">
+                        {role.role_category}
+                      </Badge>
+                      {protected_ && (
+                        <Badge variant="outline" className="text-xs">
+                          Protegido
+                        </Badge>
+                      )}
+                    </div>
+
+                    <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
+                      <div>
+                        <dt className="text-muted-foreground">Permisos</dt>
+                        <dd>{permCount}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-muted-foreground">Categoría</dt>
+                        <dd>{role.role_category}</dd>
+                      </div>
+                    </dl>
+
+                    {isSuperAdmin && !protected_ && role.active !== false && (
+                      <div className="mt-3 flex flex-wrap gap-1.5 border-t border-border/40 pt-3">
+                        <Button variant="outline" size="xs" asChild>
+                          <Link href={`/dashboard/rbac/roles/${role.role_id}`}>
+                            <Pencil className="size-3" />
+                            Editar
+                          </Link>
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="xs"
+                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                          onClick={() => setDeactivateTarget(role)}
+                          aria-label={`Desactivar ${role.role_name}`}
+                        >
+                          <Power className="size-3" />
+                          Desactivar
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </>
       )}
 
       {/* Footer count */}
