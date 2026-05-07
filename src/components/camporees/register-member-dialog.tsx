@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import type { Resolver, SubmitHandler } from "react-hook-form";
+import type { SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -66,7 +66,7 @@ export function RegisterMemberDialog({
     watch,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(formSchema) as unknown as Resolver<FormValues>,
+    resolver: zodResolver(formSchema as z.ZodType<FormValues>),
     defaultValues: {
       user_id: "",
       camporee_type: "local",
