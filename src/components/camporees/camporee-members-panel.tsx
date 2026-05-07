@@ -4,7 +4,7 @@ import { useState } from "react";
 import { CheckCircle2, Loader2, UserMinus, Users, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
-import { StatusBadge } from "@/components/shared/status-badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
@@ -35,31 +35,29 @@ import { ApiError } from "@/lib/api/client";
 
 function MemberStatusBadge({ status }: { status?: string | null }) {
   if (!status) {
-    return <StatusBadge intent="secondary" className="text-xs">—</StatusBadge>;
+    return <StatusBadge intent="neutral" label="—" className="text-xs" />;
   }
 
   const normalized = status.toLowerCase();
 
   if (normalized === "approved" || normalized === "registered") {
-    return <StatusBadge intent="success">{normalized === "registered" ? "Registrado" : "Aprobado"}</StatusBadge>;
+    return <StatusBadge intent="success" label={normalized === "registered" ? "Registrado" : "Aprobado"} />;
   }
 
   if (normalized === "pending_approval") {
-    return <StatusBadge intent="warning">Pendiente</StatusBadge>;
+    return <StatusBadge intent="warning" label="Pendiente" />;
   }
 
   if (normalized === "rejected") {
-    return <StatusBadge intent="destructive">Rechazado</StatusBadge>;
+    return <StatusBadge intent="destructive" label="Rechazado" />;
   }
 
   if (normalized === "cancelled" || normalized === "cancelado") {
-    return <StatusBadge intent="destructive">Cancelado</StatusBadge>;
+    return <StatusBadge intent="destructive" label="Cancelado" />;
   }
 
   return (
-    <StatusBadge intent="secondary" className="text-xs capitalize">
-      {status}
-    </StatusBadge>
+    <StatusBadge intent="neutral" label={status} className="text-xs capitalize" />
   );
 }
 
@@ -67,7 +65,7 @@ function MemberStatusBadge({ status }: { status?: string | null }) {
 
 function InsuranceBadge({ status }: { status?: string | null }) {
   if (!status) {
-    return <StatusBadge intent="warning">Sin seguro</StatusBadge>;
+    return <StatusBadge intent="warning" label="Sin seguro" />;
   }
 
   const isVerified =
@@ -76,10 +74,10 @@ function InsuranceBadge({ status }: { status?: string | null }) {
     status.toLowerCase() === "active";
 
   if (isVerified) {
-    return <StatusBadge intent="success">Seguro verificado</StatusBadge>;
+    return <StatusBadge intent="success" label="Seguro verificado" />;
   }
 
-  return <StatusBadge intent="warning">Seguro pendiente</StatusBadge>;
+  return <StatusBadge intent="warning" label="Seguro pendiente" />;
 }
 
 // ─── Dialog state ─────────────────────────────────────────────────────────────
