@@ -379,7 +379,7 @@ export function TemplatesClientPage({
             </Button>
           </div>
         ) : (
-          <div className="rounded-lg border border-border">
+          <div className="rounded-lg border border-border/60">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -607,7 +607,7 @@ export function TemplatesClientPage({
           )}
         </div>
       ) : (
-        <div className="rounded-lg border border-border">
+        <div className="rounded-lg border border-border/60">
           <Table>
             <TableHeader>
               <TableRow>

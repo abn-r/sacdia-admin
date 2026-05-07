@@ -514,7 +514,7 @@ export function WeeklyRecordsPanel({
           )}
         </EmptyState>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
+        <div className="overflow-x-auto rounded-xl border border-border/60 bg-card shadow-xs">
           <Table>
             <TableHeader>
               <TableRow>

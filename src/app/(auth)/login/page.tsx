@@ -78,7 +78,7 @@ export default function LoginPage() {
       >
         {/* Brand header — outside the card */}
         <div className="mb-8 flex flex-col items-center gap-3">
-          <div className="flex size-12 items-center justify-center rounded-xl border border-border/60 bg-card shadow-sm">
+          <div className="flex size-12 items-center justify-center rounded-xl border border-border/60 bg-card shadow-xs">
             <Image
               src="/svg/LogoSACDIA.svg"
               alt="SACDIA"
@@ -98,7 +98,7 @@ export default function LoginPage() {
         </div>
 
         {/* Card body */}
-        <div className="rounded-2xl border border-border/60 bg-card shadow-sm px-8 py-8">
+        <div className="rounded-2xl border border-border/60 bg-card shadow-xs px-8 py-8">
           {/* Title */}
           <div className="mb-6">
             <h1 className="text-xl font-semibold tracking-tight text-foreground">
