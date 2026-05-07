@@ -9,7 +9,7 @@ import {
   Download,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import {
   Select,
   SelectContent,
@@ -70,14 +70,14 @@ function formatShortDate(iso: string | null): string {
   }).format(date);
 }
 
-function StatusBadge({ status }: { status: AdminReportItem["status"] }) {
+function ReportStatusBadge({ status }: { status: AdminReportItem["status"] }) {
   if (status === "submitted") {
-    return <Badge variant="success">Enviado</Badge>;
+    return <StatusBadge intent="success" label="Enviado" />;
   }
   if (status === "generated") {
-    return <Badge variant="outline">Generado</Badge>;
+    return <StatusBadge intent="neutral" label="Generado" />;
   }
-  return <Badge variant="secondary">Borrador</Badge>;
+  return <StatusBadge intent="neutral" label="Borrador" />;
 }
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -276,7 +276,7 @@ export function ReportsSupervisionClient({
                     {formatPeriod(item.month, item.year)}
                   </TableCell>
                   <TableCell>
-                    <StatusBadge status={item.status} />
+                    <ReportStatusBadge status={item.status} />
                   </TableCell>
                   <TableCell>{formatShortDate(item.generated_at)}</TableCell>
                   <TableCell>{formatShortDate(item.submitted_at)}</TableCell>

@@ -22,7 +22,7 @@ export default async function EditRolePage({ params }: EditRolePageProps) {
   const user = await requireAdminUser();
   const isSuperAdmin = extractRoles(user).includes(SUPER_ADMIN_ROLE);
 
-  // Only super_admin can edit roles
+  // Only super-admin can edit roles
   if (!isSuperAdmin) {
     redirect("/dashboard/rbac/roles");
   }
@@ -45,8 +45,8 @@ export default async function EditRolePage({ params }: EditRolePageProps) {
     notFound();
   }
 
-  // Protect super_admin role from edit via UI
-  if (role?.role_name === "super_admin") {
+  // Protect super-admin role from edit via UI
+  if (role?.role_name === "super-admin") {
     redirect("/dashboard/rbac/roles");
   }
 

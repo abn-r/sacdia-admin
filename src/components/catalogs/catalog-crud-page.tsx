@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { Plus, Pencil, Trash2, Package, SearchX } from "lucide-react";
+import { EmptyState } from "@/components/shared/empty-state";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +20,7 @@ import { CatalogDeleteDialog } from "@/components/catalogs/catalog-delete-dialog
 import type { EntityConfig, EntityKey } from "@/lib/catalogs/entities";
 import type { CatalogItem } from "@/lib/catalogs/service";
 import type { CatalogActionState } from "@/lib/catalogs/actions";
+import { DataTableShell } from "@/components/shared/data-table-shell";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -68,34 +70,7 @@ const TH_BASE = "h-11 bg-muted/40 text-xs font-medium uppercase tracking-wider t
 // Row height — comfortable default; can be swapped to "h-10" for density
 const ROW_H = "h-14";
 
-// ─── NoFilterResults (inline empty state for filtered queries) ───────────────
-
-interface NoFilterResultsProps {
-  entityLabel: string;
-  onClear: () => void;
-}
-
-function NoFilterResults({ entityLabel, onClear }: NoFilterResultsProps) {
-  return (
-    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-14 text-center">
-      <div className="flex size-12 items-center justify-center rounded-full bg-muted">
-        <SearchX className="size-6 text-muted-foreground" aria-hidden="true" />
-      </div>
-      <h3 className="mt-4 text-base font-semibold">Sin resultados</h3>
-      <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-        No hay {entityLabel} que coincidan con los filtros aplicados.
-      </p>
-      <Button
-        variant="outline"
-        size="sm"
-        className="mt-5"
-        onClick={onClear}
-      >
-        Limpiar filtros
-      </Button>
-    </div>
-  );
-}
+// NoFilterResults removed — replaced by <EmptyState variant="no-results" />
 
 // ─── CatalogCrudPage ──────────────────────────────────────────────────────────
 
@@ -198,173 +173,301 @@ export function CatalogCrudPage({
       {/* ── Content area ── */}
       {items.length === 0 ? (
         /* No data at all */
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
-          <div className="flex size-12 items-center justify-center rounded-full bg-muted">
-            <Package className="size-6 text-muted-foreground" aria-hidden="true" />
-          </div>
-          <h3 className="mt-4 text-lg font-semibold">
-            {tActions("empty_state", { entity: entityTitleLower })}
-          </h3>
-          <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-            No se encontraron registros.
-          </p>
+        <EmptyState
+          icon={Package}
+          title={tActions("empty_state", { entity: entityTitleLower })}
+          description="No se encontraron registros."
+        >
           {canMutate && (
-            <div className="mt-4">
-              <Button size="default" onClick={() => setCreateOpen(true)}>
-                <Plus className="mr-1.5 size-4" aria-hidden="true" />
-                {tActions("create", { entity: entitySingular })}
-              </Button>
-            </div>
+            <Button size="default" onClick={() => setCreateOpen(true)}>
+              <Plus className="mr-1.5 size-4" aria-hidden="true" />
+              {tActions("create", { entity: entitySingular })}
+            </Button>
           )}
-        </div>
+        </EmptyState>
       ) : filteredItems.length === 0 ? (
         /* Data exists but filters return nothing */
-        <NoFilterResults
-          entityLabel={entityTitleLower}
-          onClear={handleClearFilters}
-        />
+        <EmptyState
+          variant="no-results"
+          icon={SearchX}
+          title="Sin resultados"
+          description={`No hay ${entityTitleLower} que coincidan con los filtros aplicados.`}
+        >
+          <Button variant="outline" size="sm" onClick={handleClearFilters}>
+            Limpiar filtros
+          </Button>
+        </EmptyState>
       ) : (
-        /* ── Table ── */
-        <div className="overflow-hidden rounded-lg border border-border">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-b border-border hover:bg-transparent">
-                  {/* ID — first column */}
-                  <TableHead className={`${TH_BASE} ${COL_FIRST} w-[72px]`}>
-                    ID
-                  </TableHead>
-
-                  {/* Data fields — middle columns */}
-                  {displayFields.map((f) => (
-                    <TableHead
-                      key={f.name}
-                      className={`${TH_BASE} ${COL_MID}`}
-                    >
-                      {tCatalogs(f.label)}
-                    </TableHead>
-                  ))}
-
-                  {/* Estado — middle or last depending on canMutate */}
-                  <TableHead
-                    className={`${TH_BASE} ${lastColIsActions ? COL_MID : COL_LAST}`}
-                  >
-                    Estado
-                  </TableHead>
-
-                  {/* Acciones — last column (only when mutations allowed) */}
-                  {canMutate && (
-                    <TableHead
-                      className={`${TH_BASE} ${COL_LAST} w-[108px]`}
-                    >
-                      Acciones
-                    </TableHead>
-                  )}
-                </TableRow>
-              </TableHeader>
-
-              <TableBody>
-                {filteredItems.map((item, idx) => {
-                  const itemId = getItemId(item);
-                  const rowKey = itemId
-                    ? `${config.key}-${itemId}`
-                    : `${config.key}-row-${idx}`;
-
-                  return (
-                    <TableRow
-                      key={rowKey}
-                      className={`${ROW_H} border-b border-border transition-colors hover:bg-muted/30`}
-                    >
+        <>
+          {/* ── Desktop table ── */}
+          <div className="hidden md:block">
+            <DataTableShell>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-b border-border hover:bg-transparent">
                       {/* ID — first column */}
-                      <TableCell
-                        className={`${COL_FIRST} text-xs tabular-nums text-muted-foreground`}
-                      >
-                        {itemId ?? "—"}
-                      </TableCell>
+                      <TableHead className={`${TH_BASE} ${COL_FIRST} w-[72px]`}>
+                        ID
+                      </TableHead>
 
                       {/* Data fields — middle columns */}
-                      {displayFields.map((f) => {
-                        const val = item[f.name];
-                        let display: string;
-
-                        if (f.type === "select" && f.optionsEntityKey) {
-                          const opts =
-                            displaySelectOptions[f.optionsEntityKey] ??
-                            selectOptions[f.optionsEntityKey] ??
-                            [];
-                          const match = opts.find((o) => o.value === Number(val));
-                          display = match?.label ?? String(val ?? "—");
-                        } else {
-                          display = val != null ? String(val) : "—";
-                        }
-
-                        const isLongText = f.type === "textarea";
-
-                        return (
-                          <TableCell
-                            key={f.name}
-                            className={`${COL_MID} ${isLongText ? "max-w-[260px]" : ""}`}
-                          >
-                            {isLongText ? (
-                              <span
-                                className="block truncate text-sm text-muted-foreground"
-                                title={display}
-                              >
-                                {display}
-                              </span>
-                            ) : (
-                              <span className="text-sm">{display}</span>
-                            )}
-                          </TableCell>
-                        );
-                      })}
-
-                      {/* Estado — middle or last */}
-                      <TableCell
-                        className={lastColIsActions ? COL_MID : COL_LAST}
-                      >
-                        <Badge
-                          variant={item.active !== false ? "success" : "secondary"}
-                          className="text-xs"
+                      {displayFields.map((f) => (
+                        <TableHead
+                          key={f.name}
+                          className={`${TH_BASE} ${COL_MID}`}
                         >
-                          {item.active !== false ? "Activo" : "Inactivo"}
-                        </Badge>
-                      </TableCell>
+                          {tCatalogs(f.label)}
+                        </TableHead>
+                      ))}
 
-                      {/* Acciones — last column */}
+                      {/* Estado — middle or last depending on canMutate */}
+                      <TableHead
+                        className={`${TH_BASE} ${lastColIsActions ? COL_MID : COL_LAST}`}
+                      >
+                        Estado
+                      </TableHead>
+
+                      {/* Acciones — last column (only when mutations allowed) */}
                       {canMutate && (
-                        <TableCell className={COL_LAST}>
-                          <div className="flex gap-1">
-                            <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              className="hover:bg-muted"
-                              disabled={!itemId}
-                              onClick={() => setEditItem(item)}
-                              aria-label="Editar registro"
-                            >
-                              <Pencil className="size-3.5" aria-hidden="true" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              className="text-destructive hover:bg-muted hover:text-destructive"
-                              disabled={!itemId}
-                              onClick={() => setDeleteItem(item)}
-                              aria-label="Eliminar registro"
-                            >
-                              <Trash2 className="size-3.5" aria-hidden="true" />
-                            </Button>
-                          </div>
-                        </TableCell>
+                        <TableHead
+                          className={`${TH_BASE} ${COL_LAST} w-[108px]`}
+                        >
+                          Acciones
+                        </TableHead>
                       )}
                     </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+                  </TableHeader>
+
+                  <TableBody>
+                    {filteredItems.map((item, idx) => {
+                      const itemId = getItemId(item);
+                      const rowKey = itemId
+                        ? `${config.key}-${itemId}`
+                        : `${config.key}-row-${idx}`;
+
+                      return (
+                        <TableRow
+                          key={rowKey}
+                          className={`${ROW_H} border-b border-border transition-colors hover:bg-muted/30`}
+                        >
+                          {/* ID — first column */}
+                          <TableCell
+                            className={`${COL_FIRST} text-xs tabular-nums text-muted-foreground`}
+                          >
+                            {itemId ?? "—"}
+                          </TableCell>
+
+                          {/* Data fields — middle columns */}
+                          {displayFields.map((f) => {
+                            const val = item[f.name];
+                            let display: string;
+
+                            if (f.type === "select" && f.optionsEntityKey) {
+                              const opts =
+                                displaySelectOptions[f.optionsEntityKey] ??
+                                selectOptions[f.optionsEntityKey] ??
+                                [];
+                              const match = opts.find((o) => o.value === Number(val));
+                              display = match?.label ?? String(val ?? "—");
+                            } else {
+                              display = val != null ? String(val) : "—";
+                            }
+
+                            const isLongText = f.type === "textarea";
+
+                            return (
+                              <TableCell
+                                key={f.name}
+                                className={`${COL_MID} ${isLongText ? "max-w-[260px]" : ""}`}
+                              >
+                                {isLongText ? (
+                                  <span
+                                    className="block truncate text-sm text-muted-foreground"
+                                    title={display}
+                                  >
+                                    {display}
+                                  </span>
+                                ) : (
+                                  <span className="text-sm">{display}</span>
+                                )}
+                              </TableCell>
+                            );
+                          })}
+
+                          {/* Estado — middle or last */}
+                          <TableCell
+                            className={lastColIsActions ? COL_MID : COL_LAST}
+                          >
+                            <Badge
+                              variant={item.active !== false ? "success" : "secondary"}
+                              className="text-xs"
+                            >
+                              {item.active !== false ? "Activo" : "Inactivo"}
+                            </Badge>
+                          </TableCell>
+
+                          {/* Acciones — last column */}
+                          {canMutate && (
+                            <TableCell className={COL_LAST}>
+                              <div className="flex gap-1">
+                                <Button
+                                  variant="ghost"
+                                  size="icon-sm"
+                                  className="hover:bg-muted"
+                                  disabled={!itemId}
+                                  onClick={() => setEditItem(item)}
+                                  aria-label="Editar registro"
+                                >
+                                  <Pencil className="size-3.5" aria-hidden="true" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon-sm"
+                                  className="text-destructive hover:bg-muted hover:text-destructive"
+                                  disabled={!itemId}
+                                  onClick={() => setDeleteItem(item)}
+                                  aria-label="Eliminar registro"
+                                >
+                                  <Trash2 className="size-3.5" aria-hidden="true" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          )}
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            </DataTableShell>
           </div>
-        </div>
+
+          {/* ── Mobile cards ── */}
+          <ul
+            className="space-y-3 md:hidden"
+            aria-label={`Lista de ${entityTitleLower}`}
+          >
+            {filteredItems.map((item, idx) => {
+              const itemId = getItemId(item);
+              const rowKey = itemId
+                ? `${config.key}-${itemId}`
+                : `${config.key}-row-${idx}`;
+
+              // Primary display: first displayField value
+              const primaryField = displayFields[0];
+              const primaryVal = primaryField
+                ? (() => {
+                    const val = item[primaryField.name];
+                    if (primaryField.type === "select" && primaryField.optionsEntityKey) {
+                      const opts =
+                        displaySelectOptions[primaryField.optionsEntityKey] ??
+                        selectOptions[primaryField.optionsEntityKey] ??
+                        [];
+                      const match = opts.find((o) => o.value === Number(val));
+                      return match?.label ?? String(val ?? "—");
+                    }
+                    return val != null ? String(val) : "—";
+                  })()
+                : "—";
+
+              // Secondary fields: remaining displayFields (up to 2 shown as dl pairs)
+              const secondaryFields = displayFields.slice(1, 3);
+
+              return (
+                <li key={rowKey}>
+                  <div className="rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40 focus-visible:outline-none">
+                    {/* Card header: icon + name + edit chevron */}
+                    <div className="flex items-center gap-3">
+                      <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                        <Package className="size-5 text-primary" aria-hidden="true" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium">{primaryVal}</p>
+                        <p className="text-xs tabular-nums text-muted-foreground">
+                          #{itemId ?? "—"}
+                        </p>
+                      </div>
+                      {canMutate && itemId && (
+                        <button
+                          type="button"
+                          className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                          onClick={() => setEditItem(item)}
+                          aria-label={`Editar ${primaryVal}`}
+                        >
+                          <Pencil className="size-4" aria-hidden="true" />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Status badge */}
+                    <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                      <Badge
+                        variant={item.active !== false ? "success" : "secondary"}
+                        className="text-xs"
+                      >
+                        {item.active !== false ? "Activo" : "Inactivo"}
+                      </Badge>
+                    </div>
+
+                    {/* Secondary data fields */}
+                    {secondaryFields.length > 0 && (
+                      <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
+                        {secondaryFields.map((f) => {
+                          const val = item[f.name];
+                          let display: string;
+                          if (f.type === "select" && f.optionsEntityKey) {
+                            const opts =
+                              displaySelectOptions[f.optionsEntityKey] ??
+                              selectOptions[f.optionsEntityKey] ??
+                              [];
+                            const match = opts.find((o) => o.value === Number(val));
+                            display = match?.label ?? String(val ?? "—");
+                          } else {
+                            display = val != null ? String(val) : "—";
+                          }
+                          return (
+                            <div key={f.name}>
+                              <dt className="text-muted-foreground">
+                                {tCatalogs(f.label)}
+                              </dt>
+                              <dd className="truncate">{display}</dd>
+                            </div>
+                          );
+                        })}
+                      </dl>
+                    )}
+
+                    {/* Actions row */}
+                    {canMutate && itemId && (
+                      <div className="mt-3 flex flex-wrap gap-1.5 border-t border-border/40 pt-3">
+                        <Button
+                          variant="outline"
+                          size="xs"
+                          onClick={() => setEditItem(item)}
+                          aria-label={`Editar ${primaryVal}`}
+                        >
+                          <Pencil className="size-3" aria-hidden="true" />
+                          Editar
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="xs"
+                          className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                          onClick={() => setDeleteItem(item)}
+                          aria-label={`Eliminar ${primaryVal}`}
+                        >
+                          <Trash2 className="size-3" aria-hidden="true" />
+                          Eliminar
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </>
       )}
 
       {/* ── Dialogs ── */}

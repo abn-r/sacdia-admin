@@ -17,14 +17,14 @@ export type RoleDistributionEntry = {
 };
 
 const ROLE_LABELS: Record<string, string> = {
-  super_admin: "Super Admin",
+  "super-admin": "Super Admin",
   admin: "Admin",
-  assistant_admin: "Asist. Admin",
+  "assistant-admin": "Asist. Admin",
   coordinator: "Coordinador",
   pastor: "Pastor",
   user: "Usuario",
   director: "Director",
-  deputy_director: "Subdirector",
+  "deputy-director": "Subdirector",
   secretary: "Secretario",
   treasurer: "Tesorero",
   counselor: "Consejero",
@@ -34,14 +34,14 @@ const ROLE_LABELS: Record<string, string> = {
 };
 
 const ROLE_COLORS: Record<string, string> = {
-  super_admin: "var(--destructive)",
+  "super-admin": "var(--destructive)",
   admin: "var(--primary)",
-  assistant_admin: "color-mix(in oklch, var(--primary) 70%, transparent)",
+  "assistant-admin": "color-mix(in oklch, var(--primary) 70%, transparent)",
   coordinator: "var(--info)",
   pastor: "var(--warning)",
   user: "var(--success)",
   director: "var(--chart-1)",
-  deputy_director: "var(--chart-2)",
+  "deputy-director": "var(--chart-2)",
   secretary: "var(--chart-3)",
   treasurer: "var(--chart-4)",
   counselor: "var(--chart-5)",

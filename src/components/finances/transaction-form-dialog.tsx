@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import type { Resolver, SubmitHandler } from "react-hook-form";
+import type { SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -136,7 +136,7 @@ export function TransactionFormDialog({
     watch,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(formSchema) as unknown as Resolver<FormValues>,
+    resolver: zodResolver(formSchema as z.ZodType<FormValues>),
     defaultValues: {
       year: currentYear,
       month: new Date().getMonth() + 1,
@@ -229,18 +229,19 @@ export function TransactionFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
           {/* Categoría */}
           <div className="space-y-1.5">
-            <Label>
-              Categoría <span className="ml-0.5 text-destructive">*</span>
+            <Label htmlFor="finance_category_id">
+              Categoría{" "}
+              <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
             </Label>
             <Select
               value={selectedCategoryId?.toString() ?? ""}
               onValueChange={(v) => setValue("finance_category_id", Number(v))}
               disabled={loadingCategories}
             >
-              <SelectTrigger>
+              <SelectTrigger id="finance_category_id" aria-required="true">
                 <SelectValue
                   placeholder={
                     loadingCategories ? "Cargando categorías..." : "Seleccioná una categoría"
@@ -268,9 +269,15 @@ export function TransactionFormDialog({
           {/* Fecha */}
           <div className="space-y-1.5">
             <Label htmlFor="finance_date">
-              Fecha <span className="ml-0.5 text-destructive">*</span>
+              Fecha{" "}
+              <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
             </Label>
-            <Input id="finance_date" type="date" {...register("finance_date")} />
+            <Input
+              id="finance_date"
+              type="date"
+              aria-required="true"
+              {...register("finance_date")}
+            />
             {errors.finance_date && (
               <p className="text-xs text-destructive">{errors.finance_date.message}</p>
             )}
@@ -279,7 +286,8 @@ export function TransactionFormDialog({
           {/* Monto */}
           <div className="space-y-1.5">
             <Label htmlFor="amount">
-              Monto (ARS) <span className="ml-0.5 text-destructive">*</span>
+              Monto (ARS){" "}
+              <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
             </Label>
             <Input
               id="amount"
@@ -287,6 +295,7 @@ export function TransactionFormDialog({
               min="0.01"
               step="0.01"
               placeholder="0.00"
+              aria-required="true"
               {...register("amount")}
             />
             {errors.amount && (
@@ -297,15 +306,16 @@ export function TransactionFormDialog({
           {/* Año y Mes */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label>
-                Año <span className="ml-0.5 text-destructive">*</span>
+              <Label htmlFor="year">
+                Año{" "}
+                <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
               </Label>
               <Select
                 value={selectedYear?.toString() ?? ""}
                 onValueChange={(v) => setValue("year", Number(v))}
                 disabled={isEdit}
               >
-                <SelectTrigger>
+                <SelectTrigger id="year" aria-required="true">
                   <SelectValue placeholder="Año" />
                 </SelectTrigger>
                 <SelectContent>
@@ -322,15 +332,16 @@ export function TransactionFormDialog({
             </div>
 
             <div className="space-y-1.5">
-              <Label>
-                Mes <span className="ml-0.5 text-destructive">*</span>
+              <Label htmlFor="month">
+                Mes{" "}
+                <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
               </Label>
               <Select
                 value={selectedMonth?.toString() ?? ""}
                 onValueChange={(v) => setValue("month", Number(v))}
                 disabled={isEdit}
               >
-                <SelectTrigger>
+                <SelectTrigger id="month" aria-required="true">
                   <SelectValue placeholder="Mes" />
                 </SelectTrigger>
                 <SelectContent>
@@ -350,8 +361,9 @@ export function TransactionFormDialog({
           {/* Sección del club (solo al crear) */}
           {!isEdit && (
             <div className="space-y-1.5">
-              <Label>
-                Sección del club <span className="ml-0.5 text-destructive">*</span>
+              <Label htmlFor="club_section_id">
+                Sección del club{" "}
+                <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
               </Label>
               <Select
                 value={selectedSectionId?.toString() ?? ""}
@@ -366,7 +378,7 @@ export function TransactionFormDialog({
                   }
                 }}
               >
-                <SelectTrigger>
+                <SelectTrigger id="club_section_id" aria-required="true">
                   <SelectValue placeholder="Seleccioná una sección" />
                 </SelectTrigger>
                 <SelectContent>
@@ -411,7 +423,7 @@ export function TransactionFormDialog({
               Cancelar
             </Button>
             <Button type="submit" disabled={isSubmitting || loadingCategories}>
-              {isSubmitting && <Loader2 className="size-4 animate-spin" />}
+              {isSubmitting && <Loader2 aria-hidden="true" className="size-4 animate-spin" />}
               {isEdit ? "Guardar cambios" : "Crear movimiento"}
             </Button>
           </DialogFooter>

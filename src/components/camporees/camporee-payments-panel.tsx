@@ -4,6 +4,7 @@ import { useState } from "react";
 import { CheckCircle2, DollarSign, Loader2, Pencil, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
@@ -53,21 +54,19 @@ function PaymentStatusBadge({ status }: { status?: string | null }) {
   const normalized = status.toLowerCase();
 
   if (normalized === "approved") {
-    return <Badge variant="success">Aprobado</Badge>;
+    return <StatusBadge intent="success" label="Aprobado" />;
   }
 
   if (normalized === "pending_approval") {
-    return <Badge variant="warning">Pendiente</Badge>;
+    return <StatusBadge intent="warning" label="Pendiente" />;
   }
 
   if (normalized === "rejected") {
-    return <Badge variant="destructive">Rechazado</Badge>;
+    return <StatusBadge intent="destructive" label="Rechazado" />;
   }
 
   return (
-    <Badge variant="secondary" className="text-xs capitalize">
-      {status}
-    </Badge>
+    <StatusBadge intent="neutral" label={status} className="text-xs capitalize" />
   );
 }
 
@@ -111,7 +110,7 @@ function PaymentSummary({ payments }: PaymentSummaryProps) {
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       {/* Total */}
-      <div className="rounded-xl border border-border bg-card px-4 py-3 shadow-sm">
+      <div className="rounded-xl border border-border bg-card px-4 py-3 shadow-xs">
         <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
           Total recaudado
         </p>
@@ -123,7 +122,7 @@ function PaymentSummary({ payments }: PaymentSummaryProps) {
         const amount = byType[key] ?? 0;
         const label = PAYMENT_TYPE_LABELS[key];
         return (
-          <div key={key} className="rounded-xl border border-border bg-card px-4 py-3 shadow-sm">
+          <div key={key} className="rounded-xl border border-border bg-card px-4 py-3 shadow-xs">
             <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
               {label}
             </p>
@@ -219,7 +218,7 @@ export function CamporeePaymentsPanel({
       <div className="space-y-4">
         <PaymentSummary payments={payments} />
 
-        <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
+        <div className="overflow-x-auto rounded-xl border border-border/60 bg-card shadow-xs">
           <Table>
             <TableHeader>
               <TableRow>

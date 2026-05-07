@@ -23,7 +23,7 @@ function SubmitButton() {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending}>
-      {pending && <Loader2 className="mr-2 size-4 animate-spin" />}
+      {pending && <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />}
       Crear club
     </Button>
   );
@@ -42,9 +42,13 @@ export function CreateClubForm({ localFields, districts, churches, formAction }:
   const [state, action] = useActionState(formAction, initialState);
 
   return (
-    <form action={action} className="space-y-6">
+    <form action={action} className="space-y-6" noValidate>
       {state.error && (
-        <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+        <div
+          role="alert"
+          aria-live="polite"
+          className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive"
+        >
           {state.error}
         </div>
       )}
@@ -56,22 +60,39 @@ export function CreateClubForm({ localFields, districts, churches, formAction }:
         <CardContent className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2 sm:col-span-2">
             <Label htmlFor="name">
-              Nombre <span className="text-destructive">*</span>
+              Nombre{" "}
+              <span className="text-destructive" aria-hidden="true">
+                *
+              </span>
             </Label>
-            <Input id="name" name="name" placeholder="Nombre del club" required />
+            <Input
+              id="name"
+              name="name"
+              placeholder="Nombre del club"
+              required
+              aria-required="true"
+            />
           </div>
 
           <div className="space-y-2 sm:col-span-2">
             <Label htmlFor="description">Descripción</Label>
-            <Textarea id="description" name="description" placeholder="Descripción opcional" rows={3} />
+            <Textarea
+              id="description"
+              name="description"
+              placeholder="Descripción opcional"
+              rows={3}
+            />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="local_field_id">
-              Campo local <span className="text-destructive">*</span>
+              Campo local{" "}
+              <span className="text-destructive" aria-hidden="true">
+                *
+              </span>
             </Label>
             <Select name="local_field_id" required>
-              <SelectTrigger>
+              <SelectTrigger id="local_field_id" aria-required="true">
                 <SelectValue placeholder="Seleccionar campo local" />
               </SelectTrigger>
               <SelectContent>
@@ -86,10 +107,13 @@ export function CreateClubForm({ localFields, districts, churches, formAction }:
 
           <div className="space-y-2">
             <Label htmlFor="district_id">
-              Distrito <span className="text-destructive">*</span>
+              Distrito{" "}
+              <span className="text-destructive" aria-hidden="true">
+                *
+              </span>
             </Label>
             <Select name="district_id" required>
-              <SelectTrigger>
+              <SelectTrigger id="district_id" aria-required="true">
                 <SelectValue placeholder="Seleccionar distrito" />
               </SelectTrigger>
               <SelectContent>
@@ -104,10 +128,13 @@ export function CreateClubForm({ localFields, districts, churches, formAction }:
 
           <div className="space-y-2">
             <Label htmlFor="church_id">
-              Iglesia <span className="text-destructive">*</span>
+              Iglesia{" "}
+              <span className="text-destructive" aria-hidden="true">
+                *
+              </span>
             </Label>
             <Select name="church_id" required>
-              <SelectTrigger>
+              <SelectTrigger id="church_id" aria-required="true">
                 <SelectValue placeholder="Seleccionar iglesia" />
               </SelectTrigger>
               <SelectContent>
@@ -122,7 +149,11 @@ export function CreateClubForm({ localFields, districts, churches, formAction }:
 
           <div className="space-y-2">
             <Label htmlFor="address">Dirección</Label>
-            <Input id="address" name="address" placeholder="Dirección del club" />
+            <Input
+              id="address"
+              name="address"
+              placeholder="Dirección del club"
+            />
           </div>
         </CardContent>
       </Card>
@@ -134,11 +165,23 @@ export function CreateClubForm({ localFields, districts, churches, formAction }:
         <CardContent className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="coordinates_lat">Latitud</Label>
-            <Input id="coordinates_lat" name="coordinates_lat" type="number" step="any" placeholder="19.4326" />
+            <Input
+              id="coordinates_lat"
+              name="coordinates_lat"
+              type="number"
+              step="any"
+              placeholder="19.4326"
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="coordinates_lng">Longitud</Label>
-            <Input id="coordinates_lng" name="coordinates_lng" type="number" step="any" placeholder="-99.1332" />
+            <Input
+              id="coordinates_lng"
+              name="coordinates_lng"
+              type="number"
+              step="any"
+              placeholder="-99.1332"
+            />
           </div>
         </CardContent>
       </Card>

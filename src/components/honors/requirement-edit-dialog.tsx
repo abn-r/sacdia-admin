@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { AlertCircle, Check, Loader2, PenLine, Plus } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -55,6 +56,11 @@ interface FormState {
   needsReview: boolean;
 }
 
+// ─── Query key factory ────────────────────────────────────────────────────────
+
+export const requirementsQueryKey = (honorId: number) =>
+  ["requirements", honorId] as const;
+
 function buildInitialState(
   mode: DialogMode,
   requirement?: RequirementNode | null,
@@ -97,75 +103,86 @@ export function RequirementEditDialog({
 }: RequirementEditDialogProps) {
   const isEdit = mode === "edit";
   const t = useTranslations("honors");
+  const queryClient = useQueryClient();
 
   const [form, setForm] = useState<FormState>(() =>
     buildInitialState(mode, requirement),
   );
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   // Reset form state whenever the dialog opens or the target requirement changes.
   useEffect(() => {
     if (open) {
       setForm(buildInitialState(mode, requirement));
-      setError(null);
+      setValidationError(null);
     }
   }, [open, mode, requirement]);
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setForm((prev) => ({ ...prev, [key]: value }));
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
+  // ─── Mutation ─────────────────────────────────────────────────────────────
 
-    const trimmedText = form.requirementText.trim();
-    if (!trimmedText) {
-      setError("El texto del requisito es obligatorio.");
-      return;
-    }
-
-    setLoading(true);
-    try {
+  const { mutate: submitForm, isPending: loading, error: mutationError } = useMutation({
+    mutationFn: async (formData: FormState) => {
+      const trimmedText = formData.requirementText.trim();
       if (isEdit && requirement) {
         const payload: UpdateRequirementPayload = {
-          displayLabel: form.displayLabel.trim() || null,
+          displayLabel: formData.displayLabel.trim() || null,
           requirementText: trimmedText,
-          referenceText: form.referenceText.trim() || null,
-          isChoiceGroup: form.isChoiceGroup,
+          referenceText: formData.referenceText.trim() || null,
+          isChoiceGroup: formData.isChoiceGroup,
           choiceMin:
-            form.isChoiceGroup && form.choiceMin !== ""
-              ? Number(form.choiceMin)
+            formData.isChoiceGroup && formData.choiceMin !== ""
+              ? Number(formData.choiceMin)
               : null,
-          requiresEvidence: form.requiresEvidence,
-          needsReview: form.needsReview,
+          requiresEvidence: formData.requiresEvidence,
+          needsReview: formData.needsReview,
         };
         await updateRequirement(requirement.requirement_id, payload);
       } else {
         const payload: CreateRequirementPayload = {
           parentId: parentId ?? null,
           requirementNumber: nextNumber,
-          displayLabel: form.displayLabel.trim() || null,
+          displayLabel: formData.displayLabel.trim() || null,
           requirementText: trimmedText,
-          referenceText: form.referenceText.trim() || null,
-          isChoiceGroup: form.isChoiceGroup,
+          referenceText: formData.referenceText.trim() || null,
+          isChoiceGroup: formData.isChoiceGroup,
           choiceMin:
-            form.isChoiceGroup && form.choiceMin !== ""
-              ? Number(form.choiceMin)
+            formData.isChoiceGroup && formData.choiceMin !== ""
+              ? Number(formData.choiceMin)
               : null,
-          requiresEvidence: form.requiresEvidence,
+          requiresEvidence: formData.requiresEvidence,
         };
         await createRequirement(honorId, payload);
       }
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: requirementsQueryKey(honorId) });
       onSuccess();
       onOpenChange(false);
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : t("errors.unexpected");
-      setError(message);
-    } finally {
-      setLoading(false);
+    },
+  });
+
+  const error =
+    validationError ??
+    (mutationError instanceof Error
+      ? mutationError.message
+      : mutationError != null
+        ? t("errors.unexpected")
+        : null);
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setValidationError(null);
+
+    const trimmedText = form.requirementText.trim();
+    if (!trimmedText) {
+      setValidationError("El texto del requisito es obligatorio.");
+      return;
     }
+
+    submitForm(form);
   }
 
   const titleLabel = isEdit

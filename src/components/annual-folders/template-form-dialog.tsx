@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useForm, Controller } from "react-hook-form";
-import type { Resolver, SubmitHandler } from "react-hook-form";
+import type { SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -142,7 +142,7 @@ export function TemplateFormDialog({
     control,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(formSchema) as unknown as Resolver<FormValues>,
+    resolver: zodResolver(formSchema as z.ZodType<FormValues>),
     defaultValues,
   });
 
@@ -230,32 +230,33 @@ export function TemplateFormDialog({
           <DialogTitle>{isEdit ? "Editar plantilla" : "Nueva plantilla"}</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
           {/* Nombre */}
           <div className="space-y-1.5">
             <Label htmlFor="template-name">
-              Nombre <span className="ml-0.5 text-destructive">*</span>
+              Nombre <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
             </Label>
             <Input
               id="template-name"
               {...register("name")}
               placeholder="Ej. Carpeta Conquistadores 2025"
+              aria-required="true"
             />
             {errors.name && (
-              <p className="text-xs text-destructive">{errors.name.message}</p>
+              <p className="text-xs text-destructive" role="alert" aria-live="polite">{errors.name.message}</p>
             )}
           </div>
 
           {/* Tipo de club */}
           <div className="space-y-1.5">
-            <Label>
-              Tipo de club <span className="ml-0.5 text-destructive">*</span>
+            <Label htmlFor="template-club-type">
+              Tipo de club <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
             </Label>
             <Select
               value={String(clubTypeValue)}
               onValueChange={(val) => setValue("club_type_id", Number(val))}
             >
-              <SelectTrigger>
+              <SelectTrigger id="template-club-type" aria-required="true">
                 <SelectValue placeholder="Seleccionar tipo de club" />
               </SelectTrigger>
               <SelectContent>
@@ -276,7 +277,7 @@ export function TemplateFormDialog({
               </SelectContent>
             </Select>
             {errors.club_type_id && (
-              <p className="text-xs text-destructive">
+              <p className="text-xs text-destructive" role="alert" aria-live="polite">
                 {errors.club_type_id.message}
               </p>
             )}
@@ -284,8 +285,8 @@ export function TemplateFormDialog({
 
           {/* Año eclesiástico */}
           <div className="space-y-1.5">
-            <Label>
-              Año eclesiástico <span className="ml-0.5 text-destructive">*</span>
+            <Label htmlFor="template-ecclesiastical-year">
+              Año eclesiástico <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
             </Label>
             <Select
               value={String(yearValue)}
@@ -293,7 +294,7 @@ export function TemplateFormDialog({
                 setValue("ecclesiastical_year_id", Number(val))
               }
             >
-              <SelectTrigger>
+              <SelectTrigger id="template-ecclesiastical-year" aria-required="true">
                 <SelectValue placeholder="Seleccionar año" />
               </SelectTrigger>
               <SelectContent>
@@ -319,7 +320,7 @@ export function TemplateFormDialog({
               </SelectContent>
             </Select>
             {errors.ecclesiastical_year_id && (
-              <p className="text-xs text-destructive">
+              <p className="text-xs text-destructive" role="alert" aria-live="polite">
                 {errors.ecclesiastical_year_id.message}
               </p>
             )}
@@ -328,7 +329,7 @@ export function TemplateFormDialog({
           {/* Owner tier — radio group */}
           <div className="space-y-2">
             <Label>
-              Propietario <span className="ml-0.5 text-destructive">*</span>
+              Propietario <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
             </Label>
             <Controller
               name="owner_tier"
@@ -367,8 +368,8 @@ export function TemplateFormDialog({
           {/* Conditional owner select */}
           {ownerTier === "union" ? (
             <div className="space-y-1.5">
-              <Label>
-                Unión <span className="ml-0.5 text-destructive">*</span>
+              <Label htmlFor="template-owner-union">
+                Unión <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
               </Label>
               <Select
                 disabled={loadingOwnerCatalogs}
@@ -377,7 +378,7 @@ export function TemplateFormDialog({
                   setValue("owner_union_id", Number(val), { shouldValidate: true })
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger id="template-owner-union" aria-required="true">
                   <SelectValue
                     placeholder={
                       loadingOwnerCatalogs ? "Cargando..." : "Seleccionar unión"
@@ -399,15 +400,15 @@ export function TemplateFormDialog({
                 </SelectContent>
               </Select>
               {errors.owner_union_id && (
-                <p className="text-xs text-destructive">
+                <p className="text-xs text-destructive" role="alert" aria-live="polite">
                   {errors.owner_union_id.message}
                 </p>
               )}
             </div>
           ) : (
             <div className="space-y-1.5">
-              <Label>
-                Campo local <span className="ml-0.5 text-destructive">*</span>
+              <Label htmlFor="template-owner-local-field">
+                Campo local <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
               </Label>
               <Select
                 disabled={loadingOwnerCatalogs}
@@ -416,7 +417,7 @@ export function TemplateFormDialog({
                   setValue("owner_local_field_id", Number(val), { shouldValidate: true })
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger id="template-owner-local-field" aria-required="true">
                   <SelectValue
                     placeholder={
                       loadingOwnerCatalogs ? "Cargando..." : "Seleccionar campo local"
@@ -441,7 +442,7 @@ export function TemplateFormDialog({
                 </SelectContent>
               </Select>
               {errors.owner_local_field_id && (
-                <p className="text-xs text-destructive">
+                <p className="text-xs text-destructive" role="alert" aria-live="polite">
                   {errors.owner_local_field_id.message}
                 </p>
               )}
@@ -460,7 +461,7 @@ export function TemplateFormDialog({
                 placeholder="0"
               />
               {errors.minimum_points && (
-                <p className="text-xs text-destructive">
+                <p className="text-xs text-destructive" role="alert" aria-live="polite">
                   {errors.minimum_points.message}
                 </p>
               )}
@@ -474,7 +475,7 @@ export function TemplateFormDialog({
                 {...register("closing_date")}
               />
               {errors.closing_date && (
-                <p className="text-xs text-destructive">
+                <p className="text-xs text-destructive" role="alert" aria-live="polite">
                   {errors.closing_date.message}
                 </p>
               )}

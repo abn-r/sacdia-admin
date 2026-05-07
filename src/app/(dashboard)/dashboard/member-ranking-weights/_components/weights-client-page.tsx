@@ -14,7 +14,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { WeightsTable } from "./weights-table";
-import { WeightsFormDialog } from "./weights-form-dialog";
 import {
   deleteMemberRankingWeights,
   mapWeightsErrorMessage,
@@ -39,31 +38,15 @@ export function WeightsClientPage({
 }: WeightsClientPageProps) {
   const router = useRouter();
 
-  // ── Form dialog state ─────────────────────────────────────────────────────
-  const [formOpen, setFormOpen] = useState(false);
-  const [editingRow, setEditingRow] = useState<EnrollmentRankingWeight | null>(null);
-
   // ── Delete dialog state ───────────────────────────────────────────────────
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deletingRow, setDeletingRow] = useState<EnrollmentRankingWeight | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // ── Refresh after mutations ───────────────────────────────────────────────
+  // ── Refresh after delete ──────────────────────────────────────────────────
   const refresh = useCallback(() => {
     router.refresh();
   }, [router]);
-
-  // ── Create ────────────────────────────────────────────────────────────────
-  function handleCreate() {
-    setEditingRow(null);
-    setFormOpen(true);
-  }
-
-  // ── Edit ──────────────────────────────────────────────────────────────────
-  function handleEdit(row: EnrollmentRankingWeight) {
-    setEditingRow(row);
-    setFormOpen(true);
-  }
 
   // ── Delete ────────────────────────────────────────────────────────────────
   function handleDelete(row: EnrollmentRankingWeight) {
@@ -94,19 +77,7 @@ export function WeightsClientPage({
         items={initialData}
         clubTypes={clubTypes}
         ecclesiasticalYears={ecclesiasticalYears}
-        onEdit={handleEdit}
         onDelete={handleDelete}
-        onCreate={handleCreate}
-      />
-
-      {/* Form dialog — create & edit */}
-      <WeightsFormDialog
-        open={formOpen}
-        onOpenChange={setFormOpen}
-        editingRow={editingRow}
-        clubTypes={clubTypes}
-        ecclesiasticalYears={ecclesiasticalYears}
-        onSuccess={refresh}
       />
 
       {/* Delete confirmation — AlertDialog per design system */}

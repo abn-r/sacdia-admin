@@ -28,3 +28,28 @@ export async function listEcclesiasticalYears(active?: boolean) {
     `/catalogs/ecclesiastical-years${params.toString() ? `?${params.toString()}` : ""}`,
   );
 }
+
+/**
+ * Returns the ecclesiastical_year_id of the currently active year, or the most
+ * recent one by start_date if no year is flagged active. Returns null if the
+ * endpoint fails or the catalog is empty — callers should render an empty state
+ * in that case rather than passing a guessed numeric default.
+ */
+export async function getActiveEcclesiasticalYearId(): Promise<number | null> {
+  try {
+    const activeYears = await listEcclesiasticalYears(true);
+    if (activeYears.length > 0) {
+      return activeYears[0].ecclesiastical_year_id;
+    }
+
+    const allYears = await listEcclesiasticalYears();
+    if (allYears.length === 0) return null;
+
+    const sorted = [...allYears].sort((a, b) =>
+      b.start_date.localeCompare(a.start_date),
+    );
+    return sorted[0].ecclesiastical_year_id;
+  } catch {
+    return null;
+  }
+}

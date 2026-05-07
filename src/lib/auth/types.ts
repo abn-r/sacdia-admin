@@ -1,4 +1,4 @@
-export type AdminRole = "super_admin" | "admin" | "coordinator";
+export type AdminRole = "super-admin" | "admin" | "coordinator";
 
 export type AuthorizationGrant = {
   assignment_id?: string | null;

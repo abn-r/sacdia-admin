@@ -8,6 +8,7 @@ import {
   Search,
   FolderOpen,
   Layers,
+  FileStack,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -141,78 +142,134 @@ export function FoldersManagementClient({
         </div>
       )}
 
-      {/* Table */}
+      {/* Table / Cards */}
       {filteredFolders.length > 0 && (
-        <div className="rounded-lg border border-border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nombre</TableHead>
-                <TableHead className="hidden sm:table-cell">
-                  Descripción
-                </TableHead>
-                <TableHead className="hidden w-28 text-center md:table-cell">
-                  Módulos
-                </TableHead>
-                <TableHead className="hidden w-28 text-center lg:table-cell">
-                  Secciones
-                </TableHead>
-                <TableHead className="w-20 text-center">Estado</TableHead>
-                <TableHead className="w-8" />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredFolders.map((folder) => {
-                const moduleCount = folder.modules?.length ?? 0;
-                const sectionCount = countTotalSections(folder);
-
-                return (
-                  <TableRow
-                    key={folder.folder_id}
-                    className="cursor-pointer hover:bg-muted/50"
-                  >
-                    <TableCell>
-                      <Link
-                        href={`/dashboard/folders/${folder.folder_id}`}
-                        className="block font-medium hover:underline"
-                      >
-                        {folder.name}
-                      </Link>
-                    </TableCell>
-                    <TableCell className="hidden max-w-xs text-muted-foreground sm:table-cell">
-                      <span className="line-clamp-1">
-                        {folder.description ?? (
-                          <span className="italic text-muted-foreground/60">
-                            Sin descripción
-                          </span>
-                        )}
-                      </span>
-                    </TableCell>
-                    <TableCell className="hidden text-center md:table-cell">
-                      <Badge variant="outline" className="gap-1 text-xs">
-                        <Layers className="size-3" />
-                        {moduleCount}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="hidden text-center lg:table-cell">
-                      <span className="text-sm text-muted-foreground">
-                        {sectionCount}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <FolderStatusBadge active={folder.active} />
-                    </TableCell>
-                    <TableCell>
-                      <Link href={`/dashboard/folders/${folder.folder_id}`}>
-                        <ChevronRight className="size-4 text-muted-foreground" />
-                      </Link>
-                    </TableCell>
+        <>
+          {/* Desktop table */}
+          <div className="hidden md:block">
+            <div className="rounded-lg border border-border/60">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nombre</TableHead>
+                    <TableHead className="hidden sm:table-cell">
+                      Descripción
+                    </TableHead>
+                    <TableHead className="hidden w-28 text-center md:table-cell">
+                      Módulos
+                    </TableHead>
+                    <TableHead className="hidden w-28 text-center lg:table-cell">
+                      Secciones
+                    </TableHead>
+                    <TableHead className="w-20 text-center">Estado</TableHead>
+                    <TableHead className="w-8" />
                   </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
+                </TableHeader>
+                <TableBody>
+                  {filteredFolders.map((folder) => {
+                    const moduleCount = folder.modules?.length ?? 0;
+                    const sectionCount = countTotalSections(folder);
+
+                    return (
+                      <TableRow
+                        key={folder.folder_id}
+                        className="cursor-pointer hover:bg-muted/50"
+                      >
+                        <TableCell>
+                          <Link
+                            href={`/dashboard/folders/${folder.folder_id}`}
+                            className="block font-medium hover:underline"
+                          >
+                            {folder.name}
+                          </Link>
+                        </TableCell>
+                        <TableCell className="hidden max-w-xs text-muted-foreground sm:table-cell">
+                          <span className="line-clamp-1">
+                            {folder.description ?? (
+                              <span className="italic text-muted-foreground/60">
+                                Sin descripción
+                              </span>
+                            )}
+                          </span>
+                        </TableCell>
+                        <TableCell className="hidden text-center md:table-cell">
+                          <Badge variant="outline" className="gap-1 text-xs">
+                            <Layers className="size-3" />
+                            {moduleCount}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="hidden text-center lg:table-cell">
+                          <span className="text-sm text-muted-foreground">
+                            {sectionCount}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <FolderStatusBadge active={folder.active} />
+                        </TableCell>
+                        <TableCell>
+                          <Link href={`/dashboard/folders/${folder.folder_id}`}>
+                            <ChevronRight className="size-4 text-muted-foreground" />
+                          </Link>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+
+          {/* Mobile cards */}
+          <ul className="space-y-3 md:hidden" aria-label="Lista de carpetas">
+            {filteredFolders.map((folder) => {
+              const moduleCount = folder.modules?.length ?? 0;
+              const sectionCount = countTotalSections(folder);
+
+              return (
+                <li key={folder.folder_id}>
+                  <Link
+                    href={`/dashboard/folders/${folder.folder_id}`}
+                    className="block rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    aria-label={`Ver carpeta ${folder.name}`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                        <FileStack className="size-5 text-primary" aria-hidden="true" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium">{folder.name}</p>
+                        {folder.description && (
+                          <p className="line-clamp-1 text-xs text-muted-foreground">
+                            {folder.description}
+                          </p>
+                        )}
+                      </div>
+                      <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                    </div>
+
+                    <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                      <FolderStatusBadge active={folder.active} />
+                    </div>
+
+                    <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
+                      <div>
+                        <dt className="text-muted-foreground">Módulos</dt>
+                        <dd className="flex items-center gap-1">
+                          <Layers className="size-3 text-muted-foreground" aria-hidden="true" />
+                          {moduleCount}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-muted-foreground">Secciones</dt>
+                        <dd>{sectionCount}</dd>
+                      </div>
+                    </dl>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </>
       )}
     </div>
   );

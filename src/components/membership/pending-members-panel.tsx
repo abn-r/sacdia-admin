@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { toast } from "sonner";
+import { useState } from "react";
 import { UserPlus } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import {
   Select,
   SelectContent,
@@ -16,9 +16,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { PendingMembersTable } from "@/components/membership/pending-members-table";
 import {
   listMembershipRequestsFromClient,
-  type MembershipRequest,
 } from "@/lib/api/membership-requests";
-import { ApiError } from "@/lib/api/client";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -42,34 +40,24 @@ export function PendingMembersPanel({ sections }: PendingMembersPanelProps) {
   const [selectedSectionId, setSelectedSectionId] = useState<number | null>(
     activeSections[0]?.club_section_id ?? null,
   );
-  const [requests, setRequests] = useState<MembershipRequest[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [loadError, setLoadError] = useState<string | null>(null);
 
-  const loadRequests = useCallback(async (sectionId: number) => {
-    setIsLoading(true);
-    setLoadError(null);
-    try {
-      const data = await listMembershipRequestsFromClient(sectionId);
-      setRequests(data);
-    } catch (error) {
-      const message =
-        error instanceof ApiError
-          ? error.message
-          : "No se pudieron cargar las solicitudes de membresía.";
-      setLoadError(message);
-      setRequests([]);
-      toast.error(message);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  const {
+    data: requests = [],
+    isFetching: isLoading,
+    error: queryError,
+  } = useQuery({
+    queryKey: ["membership-requests", selectedSectionId],
+    queryFn: () => listMembershipRequestsFromClient(selectedSectionId!),
+    enabled: selectedSectionId !== null,
+    staleTime: 30_000,
+  });
 
-  useEffect(() => {
-    if (selectedSectionId) {
-      loadRequests(selectedSectionId);
-    }
-  }, [selectedSectionId, loadRequests]);
+  const loadError =
+    queryError instanceof Error
+      ? queryError.message
+      : queryError
+        ? "No se pudieron cargar las solicitudes de membresía."
+        : null;
 
   if (activeSections.length === 0) {
     return (

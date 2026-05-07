@@ -10,12 +10,11 @@ import {
   listSectionRankings,
   type SectionRankingsQuery,
 } from "@/lib/api/section-rankings";
+import { getActiveEcclesiasticalYearId } from "@/lib/api/catalogs";
 import { requireAdminUser } from "@/lib/auth/session";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-// TODO: derive from active ecclesiastical year via API once endpoint is available
-const DEFAULT_YEAR = 2026;
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 20;
 
@@ -25,6 +24,7 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 function parseSearchParams(
   raw: Record<string, string | string[] | undefined>,
+  fallbackYearId: number,
 ): SectionRankingsQuery & { year_id: number; page: number; limit: number } {
   const getString = (key: string) => {
     const v = raw[key];
@@ -38,7 +38,7 @@ function parseSearchParams(
   };
 
   return {
-    year_id: getNumber("year_id") ?? DEFAULT_YEAR,
+    year_id: getNumber("year_id") ?? fallbackYearId,
     club_id: getNumber("club_id"),
     page: getNumber("page") ?? DEFAULT_PAGE,
     limit: getNumber("limit") ?? DEFAULT_LIMIT,
@@ -133,7 +133,25 @@ export default async function SectionRankingsPage({
 }) {
   await requireAdminUser();
   const rawParams = await searchParams;
-  const query = parseSearchParams(rawParams);
+  const fallbackYearId = await getActiveEcclesiasticalYearId();
+
+  if (fallbackYearId === null) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title="Ranking de secciones"
+          description="Clasificación general de secciones por composite score."
+        />
+        <EmptyState
+          icon={BarChart3}
+          title="No hay año eclesiástico activo"
+          description="Configurá un año eclesiástico activo en el catálogo para ver los rankings."
+        />
+      </div>
+    );
+  }
+
+  const query = parseSearchParams(rawParams, fallbackYearId);
 
   return (
     <div className="space-y-6">

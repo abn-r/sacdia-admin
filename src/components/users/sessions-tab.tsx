@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -229,9 +229,7 @@ function SessionRow({ session, index, onRevoke, isRevoking }: SessionRowProps) {
               {device.browser} en {device.os}
             </p>
             {isCurrent && (
-              <Badge variant="success" className="mt-0.5 text-[10px]">
-                Sesión actual
-              </Badge>
+              <StatusBadge intent="success" label="Sesión actual" className="mt-0.5 text-[10px]" />
             )}
           </div>
         </div>
@@ -261,7 +259,7 @@ function SessionRow({ session, index, onRevoke, isRevoking }: SessionRowProps) {
 
       {/* Status */}
       <TableCell>
-        <Badge variant="success">Activa</Badge>
+        <StatusBadge intent="success" label="Activa" />
       </TableCell>
 
       {/* Actions */}

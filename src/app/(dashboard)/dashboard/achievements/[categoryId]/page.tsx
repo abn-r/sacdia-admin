@@ -7,11 +7,7 @@ import {
 } from "@/lib/api/achievements";
 import { requireAdminUser } from "@/lib/auth/session";
 import { AchievementsCrudPage } from "@/app/(dashboard)/dashboard/achievements/_components/achievements-crud-page";
-import {
-  createAchievementAction,
-  updateAchievementAction,
-  deleteAchievementAction,
-} from "@/lib/achievements/actions";
+import { deleteAchievementAction } from "@/lib/achievements/actions";
 
 type Params = Promise<{ categoryId: string }>;
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -124,7 +120,6 @@ export default async function CategoryAchievementsPage({
   let achievements: GenericRecord[] = [];
   let meta: Meta = { page, limit, total: 0, totalPages: 1 };
   let categoryName = `Categoría ${categoryId}`;
-  let categories: { id: number; name: string }[] = [];
   let loadError: string | null = null;
 
   try {
@@ -144,10 +139,6 @@ export default async function CategoryAchievementsPage({
 
     const catItems = extractItems(categoriesPayload);
     categoryName = pickCategoryName(catItems, categoryId);
-    categories = catItems.map((item) => ({
-      id: toPositiveNumber(item.achievement_category_id ?? item.category_id ?? item.id) ?? 0,
-      name: toNonEmptyString(item.name) ?? "Sin nombre",
-    })).filter((c) => c.id > 0);
   } catch (error) {
     if (error instanceof ApiError && error.status === 429) {
       achievements = [];
@@ -167,9 +158,6 @@ export default async function CategoryAchievementsPage({
         meta={meta}
         categoryId={categoryId}
         categoryName={categoryName}
-        categories={categories}
-        createAction={createAchievementAction}
-        updateAction={updateAchievementAction}
         deleteAction={deleteAchievementAction}
       />
     </div>

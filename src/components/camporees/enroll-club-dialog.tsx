@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import type { Resolver, SubmitHandler } from "react-hook-form";
+import type { SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -56,7 +56,7 @@ export function EnrollClubDialog({
     reset,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(formSchema) as unknown as Resolver<FormValues>,
+    resolver: zodResolver(formSchema as z.ZodType<FormValues>),
     defaultValues: {
       club_section_id: undefined,
     },
@@ -92,19 +92,20 @@ export function EnrollClubDialog({
           <DialogTitle>Inscribir club</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
           {/* Club section ID */}
           <div className="space-y-1.5">
-            <Label htmlFor="club_section_id">ID de sección de club *</Label>
+            <Label htmlFor="club_section_id">ID de sección de club <span aria-hidden="true" className="text-destructive">*</span></Label>
             <Input
               id="club_section_id"
               type="number"
               min={1}
               {...register("club_section_id")}
               placeholder="Ej. 42"
+              aria-required="true"
             />
             {errors.club_section_id && (
-              <p className="text-xs text-destructive">
+              <p className="text-xs text-destructive" role="alert" aria-live="polite">
                 {errors.club_section_id.message}
               </p>
             )}
