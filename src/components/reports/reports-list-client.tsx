@@ -294,7 +294,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
         <Button
           variant="outline"
           size="sm"
-          onClick={fetchReports}
+          onClick={() => fetchReports()}
           disabled={loading}
         >
           <RefreshCw className={`size-4 ${loading ? "animate-spin" : ""}`} />
