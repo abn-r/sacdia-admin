@@ -59,7 +59,6 @@ import {
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
-import { AchievementFormDialog } from "@/app/(dashboard)/dashboard/achievements/_components/achievement-form-dialog";
 import type { AchievementTier, AchievementType } from "@/lib/api/achievements";
 import type { AchievementActionState } from "@/lib/achievements/actions";
 
@@ -76,9 +75,6 @@ interface Props {
   meta: { page: number; limit: number; total: number; totalPages: number };
   categoryId: number;
   categoryName: string;
-  categories: { id: number; name: string }[];
-  createAction: FormAction;
-  updateAction: FormAction;
   deleteAction: FormAction;
 }
 
@@ -164,9 +160,6 @@ export function AchievementsCrudPage({
   meta,
   categoryId,
   categoryName,
-  categories,
-  createAction,
-  updateAction,
   deleteAction,
 }: Props) {
   const router = useRouter();
@@ -176,18 +169,8 @@ export function AchievementsCrudPage({
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latestParamsRef = useRef(searchParamsString);
 
-  const [createOpen, setCreateOpen] = useState(false);
-  const [editItem, setEditItem] = useState<AchievementRecord | null>(null);
   const [deleteItem, setDeleteItem] = useState<AchievementRecord | null>(null);
 
-  const [createState, createFormAction] = useActionState<AchievementActionState, FormData>(
-    createAction,
-    {},
-  );
-  const [updateState, updateFormAction] = useActionState<AchievementActionState, FormData>(
-    updateAction,
-    {},
-  );
   const [deleteState, deleteFormAction] = useActionState<AchievementActionState, FormData>(
     deleteAction,
     {},
@@ -290,9 +273,11 @@ export function AchievementsCrudPage({
           <h1 className="text-2xl font-bold tracking-tight">{categoryName}</h1>
           <p className="text-muted-foreground">Logros en esta categoría.</p>
         </div>
-        <Button onClick={() => setCreateOpen(true)}>
-          <Plus className="mr-2 size-4" />
-          Nuevo logro
+        <Button asChild>
+          <Link href={`/dashboard/achievements/${categoryId}/new`}>
+            <Plus className="mr-2 size-4" />
+            Nuevo logro
+          </Link>
         </Button>
       </div>
 
@@ -390,9 +375,11 @@ export function AchievementsCrudPage({
             }
           >
             {!hasActiveFilters && (
-              <Button onClick={() => setCreateOpen(true)}>
-                <Plus className="mr-2 size-4" />
-                Nuevo logro
+              <Button asChild>
+                <Link href={`/dashboard/achievements/${categoryId}/new`}>
+                  <Plus className="mr-2 size-4" />
+                  Nuevo logro
+                </Link>
               </Button>
             )}
           </EmptyState>
@@ -494,16 +481,31 @@ export function AchievementsCrudPage({
 
                         <TableCell className="sticky right-0 z-10 border-l bg-background">
                           <div className="hidden gap-1 md:flex">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="size-8"
-                              disabled={!achId}
-                              onClick={() => setEditItem(item)}
-                              title="Editar"
-                            >
-                              <Pencil className="size-3.5" />
-                            </Button>
+                            {achId ? (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="size-8"
+                                asChild
+                                title="Editar"
+                              >
+                                <Link
+                                  href={`/dashboard/achievements/${categoryId}/${achId}/edit`}
+                                >
+                                  <Pencil className="size-3.5" />
+                                </Link>
+                              </Button>
+                            ) : (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="size-8"
+                                disabled
+                                title="Editar"
+                              >
+                                <Pencil className="size-3.5" />
+                              </Button>
+                            )}
                             <Button
                               variant="ghost"
                               size="icon"
@@ -524,13 +526,21 @@ export function AchievementsCrudPage({
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
-                                <DropdownMenuItem
-                                  disabled={!achId}
-                                  onSelect={() => setEditItem(item)}
-                                >
-                                  <Pencil className="size-4" />
-                                  Editar
-                                </DropdownMenuItem>
+                                {achId ? (
+                                  <DropdownMenuItem asChild>
+                                    <Link
+                                      href={`/dashboard/achievements/${categoryId}/${achId}/edit`}
+                                    >
+                                      <Pencil className="size-4" />
+                                      Editar
+                                    </Link>
+                                  </DropdownMenuItem>
+                                ) : (
+                                  <DropdownMenuItem disabled>
+                                    <Pencil className="size-4" />
+                                    Editar
+                                  </DropdownMenuItem>
+                                )}
                                 <DropdownMenuItem
                                   disabled={!achId}
                                   variant="destructive"
@@ -560,31 +570,6 @@ export function AchievementsCrudPage({
           </>
         )}
       </div>
-
-      {/* Create Dialog */}
-      <AchievementFormDialog
-        open={createOpen}
-        onOpenChange={setCreateOpen}
-        mode="create"
-        categoryId={categoryId}
-        categories={categories}
-        formAction={createFormAction}
-        actionState={createState}
-      />
-
-      {/* Edit Dialog */}
-      {editItem && (
-        <AchievementFormDialog
-          open={!!editItem}
-          onOpenChange={(open) => { if (!open) setEditItem(null); }}
-          mode="edit"
-          achievement={editItem}
-          categoryId={categoryId}
-          categories={categories}
-          formAction={updateFormAction}
-          actionState={updateState}
-        />
-      )}
 
       {/* Delete AlertDialog */}
       {deleteItem && (
