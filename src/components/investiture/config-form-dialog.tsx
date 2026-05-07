@@ -95,7 +95,7 @@ export function ConfigFormDialog({
     watch,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(formSchema as z.ZodType<FormValues>),
+    resolver: zodResolver(formSchema as z.ZodType<FormValues, FormValues>),
     defaultValues: {
       local_field_id: undefined,
       ecclesiastical_year_id: undefined,
