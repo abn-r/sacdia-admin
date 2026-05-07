@@ -230,7 +230,8 @@
     "login": {
       "brand_subtitle": "Administrative System",
       "welcome_title": "Welcome back",
-      "welcome_description": "Enter your credentials to continue",
+      "welcome_description": "Enter your credentials to access your club's panel.",
+      "eyebrow": "Admin · Access",
       "email_label": "Email",
       "email_placeholder": "admin@sacdia.org",
       "password_label": "Password",
@@ -238,7 +239,11 @@
       "submit_loading": "Verifying…",
       "show_password": "Show password",
       "hide_password": "Hide password",
-      "verse": "“I can do all things through Christ who strengthens me” — Phil. 4:13"
+      "verse_reference": "Philippians 4:13",
+      "verse_text": "“I can do all things through Christ who strengthens me.”",
+      "brand_description": "Platform for Adventurer, Pathfinder and Master Guide clubs. Memberships, classes, honors and finance in one place.",
+      "version_label": "v1.0 · 2026",
+      "region_label": "North Pacific Association"
     },
     "validation": {
       "email_invalid": "Enter a valid email",

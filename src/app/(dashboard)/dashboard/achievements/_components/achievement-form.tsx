@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
@@ -37,7 +37,10 @@ interface AchievementFormProps {
   categoryId?: number | null;
   categories?: { id: number; name: string }[];
   allAchievements?: { id: number; name: string }[];
-  formAction: (formData: FormData) => void;
+  formAction: (
+    state: AchievementActionState,
+    formData: FormData,
+  ) => Promise<AchievementActionState>;
   actionState: AchievementActionState;
   /** href for the cancel button — defaults to /dashboard/achievements */
   cancelHref?: string;
@@ -111,6 +114,7 @@ export function AchievementForm({
   actionState,
   cancelHref = "/dashboard/achievements",
 }: AchievementFormProps) {
+  const [state, action] = useActionState(formAction, actionState);
   const isEdit = mode === "edit";
 
   const resolvedAchievementId =
@@ -147,7 +151,7 @@ export function AchievementForm({
   );
 
   return (
-    <form action={formAction} className="space-y-6">
+    <form action={action} className="space-y-6">
       {/* Hidden fields */}
       {isEdit && resolvedAchievementId !== null && (
         <input type="hidden" name="id" value={String(resolvedAchievementId)} />
@@ -159,9 +163,9 @@ export function AchievementForm({
       <input type="hidden" name="secret" value={secret ? "on" : ""} />
       <input type="hidden" name="repeatable" value={repeatable ? "on" : ""} />
 
-      {actionState.error && (
+      {state.error && (
         <p className="rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 text-sm text-destructive animate-in fade-in slide-in-from-top-1">
-          {actionState.error}
+          {state.error}
         </p>
       )}
 

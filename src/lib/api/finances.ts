@@ -58,6 +58,9 @@ export type PaginatedFinances = {
   limit: number;
 };
 
+export type FinanceSortField = "date" | "amount" | "category";
+export type FinanceSortOrder = "asc" | "desc";
+
 export type FinanceFilters = {
   year?: number;
   month?: number;
@@ -65,6 +68,8 @@ export type FinanceFilters = {
   categoryId?: number;
   page?: number;
   limit?: number;
+  sortBy?: FinanceSortField;
+  sortOrder?: FinanceSortOrder;
 };
 
 export type CreateFinancePayload = {
@@ -106,13 +111,15 @@ export async function listFinances(
   clubId: number,
   filters: FinanceFilters = {},
 ): Promise<PaginatedFinances> {
-  const params: Record<string, number | undefined> = {};
+  const params: Record<string, string | number | undefined> = {};
   if (filters.year) params.year = filters.year;
   if (filters.month) params.month = filters.month;
   if (filters.clubTypeId) params.clubTypeId = filters.clubTypeId;
   if (filters.categoryId) params.categoryId = filters.categoryId;
   if (filters.page) params.page = filters.page;
   if (filters.limit) params.limit = filters.limit;
+  if (filters.sortBy) params.sortBy = filters.sortBy;
+  if (filters.sortOrder) params.sortOrder = filters.sortOrder;
 
   return apiRequest<PaginatedFinances>(`/clubs/${clubId}/finances`, { params });
 }

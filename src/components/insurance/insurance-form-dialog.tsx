@@ -92,7 +92,7 @@ export function InsuranceFormDialog({
     watch,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(formSchema as z.ZodType<FormValues>),
+    resolver: zodResolver(formSchema as z.ZodType<FormValues, FormValues>),
     defaultValues: {
       insurance_type: "GENERAL_ACTIVITIES",
       start_date: "",
