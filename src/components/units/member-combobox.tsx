@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState } from "react";
 import { Check, ChevronsUpDown, X, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useQuery } from "@tanstack/react-query";
 import { listClubMembers } from "@/lib/api/clubs";
 import type { ClubSectionMember } from "@/lib/api/clubs";
 
@@ -63,39 +64,35 @@ export function MemberCombobox({
   onMembersLoaded,
 }: MemberComboboxProps) {
   const [open, setOpen] = useState(false);
-  const [members, setMembers] = useState<ClubSectionMember[]>(externalMembers ?? []);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const hasFetched = useRef(false);
+  // Delay enabling the query until the popover is opened at least once,
+  // and only when no external list was provided.
+  const [hasOpened, setHasOpened] = useState(false);
 
-  // Load members once when the popover is opened for the first time,
-  // unless the parent already provided the list via the `members` prop.
-  const loadMembers = useCallback(async () => {
-    if (externalMembers !== undefined || hasFetched.current) return;
-    hasFetched.current = true;
-    setLoading(true);
-    setError(null);
-    try {
+  const {
+    data: fetchedMembers = [],
+    isFetching: loading,
+    error: fetchError,
+  } = useQuery({
+    queryKey: ["club-members", clubId],
+    queryFn: async () => {
       const data = await listClubMembers(clubId);
-      setMembers(data);
       onMembersLoaded?.(data);
-    } catch {
-      setError("No se pudieron cargar los miembros");
-    } finally {
-      setLoading(false);
-    }
-  }, [clubId, externalMembers, onMembersLoaded]);
+      return data;
+    },
+    enabled: hasOpened && externalMembers === undefined,
+    staleTime: 60_000,
+  });
 
-  // Sync if parent provides / updates the external list
-  useEffect(() => {
-    if (externalMembers !== undefined) {
-      setMembers(externalMembers);
-    }
-  }, [externalMembers]);
+  const members: ClubSectionMember[] = externalMembers ?? fetchedMembers;
+  const error = fetchError
+    ? fetchError instanceof Error
+      ? fetchError.message
+      : "No se pudieron cargar los miembros"
+    : null;
 
   function handleOpenChange(nextOpen: boolean) {
     setOpen(nextOpen);
-    if (nextOpen) loadMembers();
+    if (nextOpen && !hasOpened) setHasOpened(true);
   }
 
   const filteredMembers = excludeUserIds?.length
