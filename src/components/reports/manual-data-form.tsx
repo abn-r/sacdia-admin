@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
-import type { SubmitHandler, Resolver } from "react-hook-form";
+import type { SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -133,7 +133,7 @@ export function ManualDataForm({
     formState: { errors, isDirty },
   } = useForm<FormValues>({
      
-    resolver: zodResolver(manualDataSchema) as unknown as Resolver<FormValues>,
+    resolver: zodResolver(manualDataSchema as z.ZodType<FormValues>),
     defaultValues: {
       weekly_meetings_held: initialData?.weekly_meetings_held ?? undefined,
       leadership_meetings: initialData?.leadership_meetings ?? undefined,
