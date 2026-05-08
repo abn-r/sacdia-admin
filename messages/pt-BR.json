@@ -385,19 +385,23 @@
     "pages": {
       "countries": {
         "title": "Países",
-        "description": "Catálogo de países do sistema."
+        "description": "Catálogo de países do sistema.",
+        "metadataTitle": "Países"
       },
       "churches": {
         "title": "Igrejas",
-        "description": "Catálogo de igrejas do sistema."
+        "description": "Catálogo de igrejas do sistema.",
+        "metadataTitle": "Igrejas"
       },
       "districts": {
         "title": "Distritos",
-        "description": "Catálogo de distritos do sistema."
+        "description": "Catálogo de distritos do sistema.",
+        "metadataTitle": "Distritos"
       },
       "unions": {
         "title": "Uniões",
-        "description": "Catálogo de uniões do sistema."
+        "description": "Catálogo de uniões do sistema.",
+        "metadataTitle": "Uniões"
       },
       "unionsDetail": {
         "back": "Voltar",
@@ -413,7 +417,8 @@
       },
       "localFields": {
         "title": "Campos Locais",
-        "description": "Catálogo de campos locais do sistema."
+        "description": "Catálogo de campos locais do sistema.",
+        "metadataTitle": "Campos locais"
       },
       "localFieldsDetail": {
         "back": "Voltar",
@@ -429,7 +434,8 @@
       },
       "activityTypes": {
         "title": "Tipos de atividade",
-        "description": "Catálogo de tipos de atividade do sistema."
+        "description": "Catálogo de tipos de atividade do sistema.",
+        "metadataTitle": "Tipos de atividade"
       },
       "folderSections": {
         "title": "Seções de pasta",
@@ -548,6 +554,41 @@
         "tableName": "Nome",
         "tableLevel": "Nível",
         "tableStatus": "Status"
+      },
+      "diseases": {
+        "title": "Doenças",
+        "description": "Doenças crônicas ou condições médicas relevantes.",
+        "metadataTitle": "Doenças"
+      },
+      "clubTypes": {
+        "title": "Tipos de clube",
+        "description": "Tipos de clube disponíveis no sistema.",
+        "metadataTitle": "Tipos de clube"
+      },
+      "medicines": {
+        "title": "Medicamentos",
+        "description": "Medicamentos de uso habitual dos membros.",
+        "metadataTitle": "Medicamentos"
+      },
+      "clubIdeals": {
+        "title": "Ideais de clube",
+        "description": "Ideais associados a cada tipo de clube.",
+        "metadataTitle": "Ideais de clube"
+      },
+      "allergies": {
+        "title": "Alergias",
+        "description": "Lista de alergias para o perfil de saúde dos membros.",
+        "metadataTitle": "Alergias"
+      },
+      "relationshipTypes": {
+        "title": "Tipos de relacionamento",
+        "description": "Vínculos familiares ou de contato de emergência.",
+        "metadataTitle": "Tipos de relacionamento"
+      },
+      "ecclesiasticalYears": {
+        "title": "Anos eclesiásticos",
+        "description": "Períodos anuais para a organização de atividades.",
+        "metadataTitle": "Anos eclesiásticos"
       }
     }
   },
@@ -1340,6 +1381,265 @@
         "defaultName": "Sem nome",
         "defaultCategoryName": "Categoria {id}",
         "defaultAchievementName": "Conquista {id}"
+      }
+    },
+    "imageUpload": {
+      "dropzoneAriaLabel": "Área de upload da imagem da conquista",
+      "uploading": "Enviando imagem...",
+      "dropzonePrompt": "Arraste uma imagem ou clique para selecionar",
+      "dropzoneHint": "PNG, SVG ou WebP — máximo 2 MB",
+      "previewAlt": "Pré-visualização da conquista",
+      "previewTitle": "Pré-visualização",
+      "tierLabel": "Nível:",
+      "noImageLabel": "Sem imagem",
+      "removeAriaLabel": "Remover imagem",
+      "toastSuccess": "Imagem da conquista atualizada com sucesso.",
+      "toastError": "Não foi possível enviar a imagem. Tente novamente.",
+      "toastSaveFirst": "Salve a conquista primeiro para poder enviar a imagem.",
+      "validateTypeError": "Apenas imagens PNG, SVG ou WebP são permitidas.",
+      "validateSizeError": "O arquivo não pode exceder 2 MB."
+    },
+    "cards": {
+      "preview": {
+        "tierLabels": {
+          "BRONZE": "Bronze",
+          "SILVER": "Prata",
+          "GOLD": "Ouro",
+          "PLATINUM": "Platina",
+          "DIAMOND": "Diamante"
+        },
+        "typeLabels": {
+          "THRESHOLD": "Limiar",
+          "STREAK": "Sequência",
+          "MILESTONE": "Marco",
+          "COLLECTION": "Coleção",
+          "COMPOUND": "Composto"
+        },
+        "repeatableBadge": "Repetível",
+        "secretBadge": "Secreto",
+        "pointsSuffix": "pts",
+        "defaultName": "Nome da conquista"
+      }
+    },
+    "forms": {
+      "category": {
+        "titleCreate": "Nova categoria",
+        "titleEdit": "Editar categoria",
+        "descriptionCreate": "Preencha os campos para criar uma nova categoria de conquistas.",
+        "descriptionEdit": "Modifique os dados da categoria de conquistas.",
+        "labelName": "Nome",
+        "placeholderName": "Ex. Participação",
+        "labelDescription": "Descrição",
+        "placeholderDescription": "Descreva esta categoria...",
+        "labelIcon": "Ícone",
+        "placeholderIcon": "trophy",
+        "labelIconHint": "(nome de ícone lucide-react, ex: trophy)",
+        "labelOrder": "Ordem de exibição",
+        "placeholderOrder": "0",
+        "labelActive": "Categoria ativa",
+        "cancelButton": "Cancelar",
+        "submitCreate": "Criar categoria",
+        "submitEdit": "Salvar alterações"
+      },
+      "achievement": {
+        "tabBasic": "Informações básicas",
+        "tabCriteria": "Critérios",
+        "tabMedia": "Imagem",
+        "labelName": "Nome",
+        "placeholderName": "Ex. Participante Dedicado",
+        "labelDescription": "Descrição",
+        "placeholderDescription": "Descreva esta conquista...",
+        "labelPoints": "Pontos",
+        "labelTier": "Nível",
+        "placeholderTier": "Nível...",
+        "labelType": "Tipo",
+        "placeholderType": "Tipo de conquista...",
+        "labelScope": "Escopo",
+        "placeholderScope": "Escopo...",
+        "labelCategory": "Categoria",
+        "placeholderCategory": "Selecione uma categoria...",
+        "labelPrerequisite": "Pré-requisito",
+        "placeholderPrerequisite": "Sem pré-requisito...",
+        "labelRepeatable": "Conquista repetível",
+        "labelMaxRepeats": "Máximo de repetições",
+        "labelSecret": "Conquista secreta",
+        "labelActive": "Ativo",
+        "labelPreview": "Pré-visualização",
+        "cancelButton": "Cancelar",
+        "submitCreate": "Criar conquista",
+        "submitEdit": "Salvar alterações",
+        "scopeLabels": {
+          "CLUB": "Clube",
+          "SECTION": "Seção",
+          "INDIVIDUAL": "Individual",
+          "GLOBAL": "Global",
+          "CLUB_TYPE": "Tipo de clube",
+          "ECCLESIASTICAL_YEAR": "Ano eclesiástico"
+        },
+        "defaultName": "Nome da conquista",
+        "tierLabels": {
+          "BRONZE": "Bronze",
+          "SILVER": "Prata",
+          "GOLD": "Ouro",
+          "PLATINUM": "Platina",
+          "DIAMOND": "Diamante"
+        },
+        "typeLabels": {
+          "THRESHOLD": "Limiar",
+          "STREAK": "Sequência",
+          "COMPOUND": "Composto",
+          "MILESTONE": "Marco",
+          "COLLECTION": "Coleção"
+        }
+      },
+      "criteria": {
+        "typeDescriptions": {
+          "THRESHOLD": "Concedida quando o usuário atinge um número determinado de eventos.",
+          "STREAK": "Concedida quando o usuário mantém uma sequência consecutiva de eventos.",
+          "MILESTONE": "Concedida quando um campo específico de um evento atinge certo valor.",
+          "COLLECTION": "Concedida quando o usuário completa N itens distintos de uma coleção.",
+          "COMPOUND": "Concedida quando várias condições são atendidas simultaneamente."
+        },
+        "labelEvent": "Evento",
+        "placeholderEvent": "Selecione um evento...",
+        "labelField": "Campo",
+        "placeholderField": "Ex. level",
+        "labelTarget": "Objetivo",
+        "labelTargetValue": "Valor alvo",
+        "placeholderTargetValue": "Ex. gold",
+        "labelOperator": "Operador",
+        "placeholderOperator": "Operador...",
+        "labelStreakTarget": "Objetivo de sequência",
+        "labelUnit": "Unidade",
+        "placeholderUnit": "Unidade...",
+        "labelGrace": "Período de tolerância",
+        "labelGraceHint": "(opcional)",
+        "labelDistinctField": "Campo distinto",
+        "placeholderDistinctField": "Ex. honor_id",
+        "labelQuantityTarget": "Quantidade alvo",
+        "labelLogic": "Lógica de combinação",
+        "logicAnd": "Todas as condições (AND)",
+        "logicOr": "Qualquer condição (OR)",
+        "conditionLabel": "Condição {index}",
+        "addConditionButton": "Adicionar condição",
+        "eventLabels": {
+          "CLASS_COMPLETED": "Classe concluída",
+          "HONOR_EARNED": "Honra conquistada",
+          "INVESTITURE_ACHIEVED": "Investidura realizada",
+          "CAMPOREE_ATTENDED": "Acampamento assistido",
+          "MEETING_ATTENDED": "Reunião assistida",
+          "ACTIVITY_COMPLETED": "Atividade concluída",
+          "REPORT_SUBMITTED": "Relatório enviado",
+          "POINTS_EARNED": "Pontos obtidos",
+          "activity_attendance": "Presença em atividade",
+          "honor_completed": "Especialidade concluída",
+          "class_completed": "Aula concluída",
+          "investiture_completed": "Investidura concluída",
+          "camporee_attended": "Campori assistido",
+          "evidence_submitted": "Evidência enviada",
+          "evidence_approved": "Evidência aprovada",
+          "consecutive_attendance": "Presença consecutiva",
+          "profile_completed": "Perfil concluído",
+          "club_role_assigned": "Função de clube atribuída"
+        },
+        "operatorLabels": {
+          "gt": "Maior que",
+          "gte": ">= (maior ou igual)",
+          "lt": "Menor que",
+          "lte": "<= (menor ou igual)",
+          "eq": "= (igual a)",
+          "ne": "Diferente de"
+        },
+        "streakUnitLabels": {
+          "day": "Dias",
+          "week": "Semanas",
+          "month": "Meses"
+        }
+      }
+    },
+    "crud": {
+      "list": {
+        "page": "Conquistas",
+        "pageDescription": "Conquistas nesta categoria.",
+        "breadcrumbRoot": "Conquistas",
+        "newButton": "Nova conquista",
+        "filtersTitle": "Filtros",
+        "filterName": "Nome",
+        "filterNamePlaceholder": "Buscar conquista...",
+        "search": "Pesquisar",
+        "filterTier": "Nível",
+        "filterTierPlaceholder": "Nível",
+        "filterTierAll": "Todos os níveis",
+        "filterType": "Tipo",
+        "filterTypePlaceholder": "Tipo",
+        "filterTypeAll": "Todos os tipos",
+        "filterStatus": "Estado",
+        "filterStatusPlaceholder": "Estado",
+        "filterStatusAll": "Todos",
+        "filterStatusActive": "Ativos",
+        "filterStatusInactive": "Inativos",
+        "tableColName": "Nome",
+        "tableColTier": "Nível",
+        "tableColType": "Tipo",
+        "tableColPoints": "Pontos",
+        "tableColScope": "Escopo",
+        "tableColSecret": "Secreto",
+        "tableColStatus": "Estado",
+        "tableColActions": "Ações",
+        "ariaRepeatable": "Repetível",
+        "ariaSecret": "Secreto",
+        "ariaVisible": "Visível",
+        "statusActive": "Ativo",
+        "statusInactive": "Inativo",
+        "active": "Ativo",
+        "tier": "Nível",
+        "type": "Tipo",
+        "emptyNoFiltersTitle": "Nenhuma conquista nesta categoria",
+        "emptyNoFiltersDescription": "Crie a primeira conquista para esta categoria.",
+        "emptyFiltersTitle": "Sem resultados",
+        "emptyFiltersDescription": "Nenhuma conquista corresponde aos filtros.",
+        "deleteTitle": "Excluir conquista?",
+        "deleteDescription": "A conquista \"{name}\" será excluída. Esta ação não pode ser desfeita.",
+        "deleteCancelButton": "Cancelar",
+        "deleteConfirmButton": "Excluir",
+        "actionEdit": "Editar",
+        "actionDelete": "Excluir"
+      },
+      "categories": {
+        "pageTitle": "Conquistas",
+        "page": "Categorias",
+        "pageDescription": "Categorias e conquistas do sistema de recompensas.",
+        "newButton": "Nova categoria",
+        "filtersTitle": "Filtros",
+        "filtersSubtitle": "Refinar a lista",
+        "filterName": "Nome",
+        "filterNamePlaceholder": "Buscar por nome...",
+        "search": "Pesquisar",
+        "q": "Pesquisar",
+        "filterStatus": "Estado",
+        "filterStatusPlaceholder": "Estado",
+        "filterStatusAll": "Todos os estados",
+        "filterStatusActive": "Ativas",
+        "filterStatusInactive": "Inativas",
+        "tableColName": "Nome",
+        "tableColDescription": "Descrição",
+        "tableColIcon": "Ícone",
+        "tableColOrder": "Ordem",
+        "tableColStatus": "Estado",
+        "tableColActions": "Ações",
+        "statusActive": "Ativa",
+        "statusInactive": "Inativa",
+        "active": "Ativa",
+        "emptyNoFiltersTitle": "Nenhuma categoria de conquistas",
+        "emptyNoFiltersDescription": "Crie a primeira categoria para organizar as conquistas.",
+        "emptyFiltersTitle": "Sem resultados",
+        "emptyFiltersDescription": "Nenhuma categoria corresponde aos filtros.",
+        "deleteTitle": "Excluir categoria?",
+        "deleteDescription": "A categoria \"{name}\" será excluída. Esta ação não pode ser desfeita.",
+        "deleteCancelButton": "Cancelar",
+        "deleteConfirmButton": "Excluir",
+        "actionEdit": "Editar",
+        "actionDelete": "Excluir"
       }
     }
   },
@@ -2559,6 +2859,37 @@
       "errorFallback": "Não foi possível carregar os vencedores. Verifique a conexão com o servidor.",
       "emptyNoTypesTitle": "Sem catálogos disponíveis",
       "emptyNoTypesDescription": "Não foi possível carregar os tipos de clube para os filtros."
+    },
+    "supervision": {
+      "filterClubTypePlaceholder": "Tipo de clube",
+      "filterClubTypeAll": "Todos os tipos",
+      "filterLocalFieldPlaceholder": "Campo local",
+      "filterLocalFieldAll": "Todos os campos",
+      "filterYearPlaceholder": "Ano",
+      "filterMonthPlaceholder": "Mês",
+      "filterMonthAll": "Todos os meses",
+      "filterNotifiedPlaceholder": "Notificado",
+      "filterNotifiedAll": "Qualquer",
+      "filterNotifiedTrue": "Notificado",
+      "filterNotifiedFalse": "Pendente",
+      "tableColMember": "Membro",
+      "tableColSection": "Seção",
+      "tableColClubType": "Tipo de clube",
+      "tableColClub": "Clube",
+      "tableColLocalField": "Campo local",
+      "tableColPeriod": "Período",
+      "tableColPoints": "Pontos",
+      "tableColNotified": "Notificado",
+      "tableColActions": "Ações",
+      "badgeNotified": "Notificado",
+      "badgePending": "Pendente",
+      "emptyTitle": "Sem ganhadores para os filtros selecionados.",
+      "emptyHint": "Ajuste os filtros para ver resultados.",
+      "paginationTotal": "{total, plural, =0 {Sem resultados} one {# ganhador no total} other {# ganhadores no total}}",
+      "paginationPage": "Página {page} de {totalPages}",
+      "paginationPrev": "Anterior",
+      "paginationNext": "Próximo",
+      "reevaluateButton": "Reavaliar"
     }
   },
   "reports": {
@@ -2695,6 +3026,53 @@
       "empty_no_catalogs_title": "Sem catálogos disponíveis",
       "empty_no_catalogs_description": "Não foi possível carregar os tipos de clube para os filtros.",
       "error_load_reports": "Não foi possível carregar os relatórios. Verifique a conexão com o servidor."
+    },
+    "supervisionClient": {
+      "filterClubTypePlaceholder": "Tipo de clube",
+      "filterClubTypeAll": "Todos os tipos",
+      "filterLocalFieldPlaceholder": "Campo local",
+      "filterLocalFieldAll": "Todos os campos",
+      "filterYearPlaceholder": "Ano",
+      "filterMonthPlaceholder": "Mês",
+      "filterMonthAll": "Todos os meses",
+      "filterStatusPlaceholder": "Estado",
+      "filterStatusAll": "Todos os estados",
+      "months": {
+        "1": "Janeiro",
+        "2": "Fevereiro",
+        "3": "Março",
+        "4": "Abril",
+        "5": "Maio",
+        "6": "Junho",
+        "7": "Julho",
+        "8": "Agosto",
+        "9": "Setembro",
+        "10": "Outubro",
+        "11": "Novembro",
+        "12": "Dezembro"
+      },
+      "statusOptions": {
+        "draft": "Rascunho",
+        "generated": "Gerado",
+        "submitted": "Enviado"
+      },
+      "tableColClub": "Clube",
+      "tableColType": "Tipo",
+      "tableColLocalField": "Campo local",
+      "tableColPeriod": "Período",
+      "tableColStatus": "Estado",
+      "tableColGenerated": "Gerado",
+      "tableColSubmitted": "Enviado",
+      "tableColActions": "Ações",
+      "memberCount": "({count} membros)",
+      "emptyTitle": "Nenhum relatório encontrado",
+      "emptyHint": "Ajuste os filtros para ver resultados.",
+      "paginationTotal": "{total, plural, =0 {Sem resultados} one {# relatório no total} other {# relatórios no total}}",
+      "paginationPage": "Página {page} de {totalPages}",
+      "paginationPrev": "Anterior",
+      "paginationNext": "Próximo",
+      "actionView": "Ver",
+      "actionPdf": "PDF"
     }
   },
   "requests": {
@@ -3300,7 +3678,16 @@
   },
   "shared": {
     "errors": {
-      "unexpected": "Erro inesperado"
+      "unexpected": "Erro inesperado",
+      "dashboardTitle": "Algo deu errado",
+      "dashboardDescription": "Ocorreu um erro ao carregar esta seção.",
+      "dashboardHeading": "Não foi possível carregar a página",
+      "dashboardBody": "O erro foi reportado automaticamente. Você pode tentar novamente ou voltar ao painel.",
+      "dashboardRetry": "Tentar novamente",
+      "dashboardGoHome": "Ir ao painel",
+      "notFoundTitle": "Página não encontrada",
+      "notFoundBody": "A rota que você procura não existe ou foi movida.",
+      "notFoundGoHome": "Ir ao painel"
     },
     "pagination": {
       "showing": "Mostrando {from}–{to} de {total} registros",
@@ -3322,6 +3709,10 @@
       "missing": "Não disponível",
       "rateLimited": "Limite de requisições atingido",
       "goToLogin": "Ir para login"
+    },
+    "appMetadata": {
+      "title": "SACDIA Painel Administrativo",
+      "description": "Painel de administração do SACDIA"
     }
   },
   "translations": {
@@ -3385,6 +3776,19 @@
         "back": "Voltar",
         "cannotLoad": "Não foi possível carregar a configuração"
       }
+    },
+    "weightsPage": {
+      "deleteTitle": "Excluir substituição de pesos",
+      "deleteDescription": "Os cálculos de ranking que usavam esta configuração voltarão a usar a configuração padrão global. Esta ação não pode ser desfeita.",
+      "deleteCancel": "Cancelar",
+      "deleteConfirm": "Excluir",
+      "deleteConfirmLoading": "Excluindo...",
+      "deleteSuccess": "Substituição excluída"
+    },
+    "sumIndicator": {
+      "label": "Soma: {sum}%",
+      "valid": "✓",
+      "invalid": "— deve ser 100"
     }
   },
   "rankingWeights": {
@@ -3732,6 +4136,75 @@
       "back": "Voltar para seções",
       "breadcrumbParent": "Ranking de seções",
       "breadcrumbCurrent": "Seção #{sectionId}"
+    },
+    "filters": {
+      "labelYear": "Ano eclesiástico",
+      "labelClub": "ID do clube",
+      "labelSection": "ID da seção",
+      "placeholderYear": "2026",
+      "placeholderClub": "Todos",
+      "placeholderSection": "Todas",
+      "apply": "Filtrar",
+      "clear": "Limpar"
+    },
+    "table": {
+      "colRank": "#",
+      "colMember": "Membro",
+      "colSection": "Seção",
+      "colComposite": "Composite",
+      "colClass": "Classe",
+      "colInvestiture": "Investidura",
+      "colCamporee": "Camporees",
+      "colCategory": "Categoria",
+      "colAction": "Ação",
+      "emptyTitle": "Sem rankings disponíveis",
+      "emptyDescription": "Sem rankings para os filtros selecionados.",
+      "countSingular": "{total} membro classificado",
+      "countPlural": "{total} membros classificados",
+      "investedLabel": "Investido",
+      "inProgressLabel": "Em andamento",
+      "viewDetail": "Ver detalhe"
+    },
+    "breakdownCard": {
+      "weightLabel": "Peso: {weight}%",
+      "scoreLabel": "Pontuação"
+    },
+    "sectionFilters": {
+      "labelYear": "Ano eclesiástico",
+      "labelClub": "ID do clube",
+      "placeholderYear": "2026",
+      "placeholderClub": "Todos",
+      "apply": "Filtrar",
+      "clear": "Limpar"
+    },
+    "sectionTable": {
+      "colRank": "#",
+      "colSection": "Seção",
+      "colComposite": "Composite",
+      "colActiveMembers": "Membros ativos",
+      "colCategory": "Categoria",
+      "colCalculated": "Calculado",
+      "colAction": "Ação",
+      "emptyTitle": "Sem rankings disponíveis",
+      "emptyDescription": "Sem rankings para os filtros selecionados.",
+      "countSingular": "{total} seção classificada",
+      "countPlural": "{total} seções classificadas",
+      "viewMembers": "Ver membros"
+    },
+    "sectionMembersTable": {
+      "colRank": "#",
+      "colMember": "Membro",
+      "colComposite": "Composite",
+      "colClass": "Classe",
+      "colInvestiture": "Investidura",
+      "colCamporee": "Camporees",
+      "colCategory": "Categoria",
+      "colAction": "Ação",
+      "emptyTitle": "Sem membros com ranking",
+      "emptyDescription": "Esta seção não tem membros com ranking calculado.",
+      "investedLabel": "Investido",
+      "inProgressLabel": "Em andamento",
+      "viewDetail": "Ver detalhe"
     }
   },
   "system_jobs": {
@@ -3753,6 +4226,116 @@
       "description": "Registro paginado de todas as execuções dos jobs programados.",
       "back": "Voltar",
       "errorLoad": "Não foi possível carregar o histórico de cron runs. Verifique se o backend está disponível e tente novamente."
+    },
+    "cronRuns": {
+      "cardTitle": "Cron Jobs",
+      "colJob": "Job",
+      "colLastRun": "Última execução",
+      "colStatus": "Status",
+      "colDuration": "Duração",
+      "colItems": "Itens",
+      "colLastSuccess": "Último sucesso",
+      "colLastFailure": "Última falha",
+      "colFailureRate": "Taxa de falha 7d",
+      "colRuns7d": "Runs 7d",
+      "noRuns": "Sem execuções",
+      "statusCompleted": "Concluído",
+      "statusFailed": "Falhou",
+      "statusRunning": "Executando",
+      "statusSkipped": "Ignorado",
+      "jobMonthlyReports": "Relatórios mensais (auto-gerar)",
+      "jobRankingsRecalculate": "Rankings anuais (recalcular)",
+      "jobDataExportCleanup": "Limpeza de exports vencidos",
+      "jobMemberOfMonth": "Membro do mês (auto-avaliar)",
+      "jobFinancePeriod": "Fechamento de período financeiro",
+      "jobActivitiesReminder": "Lembretes de atividades",
+      "jobMembershipExpiry": "Expirar solicitações de adesão",
+      "jobCleanupExpired": "Limpeza de sessões/tokens vencidos",
+      "jobFcmCleanup": "Limpeza de tokens FCM órfãos"
+    },
+    "overview": {
+      "queuesTitle": "Filas",
+      "queuesCountSingular": "{count} fila registrada",
+      "queuesCountPlural": "{count} filas registradas",
+      "refreshButton": "Atualizar",
+      "refreshLoading": "Atualizando...",
+      "noQueues": "Nenhuma fila ativa encontrada.",
+      "activeLabel": "ativo",
+      "statWaiting": "Aguardando",
+      "statActive": "Ativos",
+      "statCompleted": "Concluídos",
+      "statFailed": "Com falha",
+      "statDelayed": "Adiados",
+      "statPaused": "Pausados",
+      "failedJobsTitle": "Últimas falhas",
+      "failedJobsEmpty": "Sem falhas recentes",
+      "colQueue": "Fila",
+      "colJob": "Job",
+      "colReason": "Motivo",
+      "colAttempts": "Tentativas",
+      "colDate": "Data",
+      "colAction": "Ação",
+      "retryButton": "Tentar novamente",
+      "retryLoading": "Tentando novamente...",
+      "retryDialogTitle": "Tentar novamente este job?",
+      "retryDialogDescription": "O job {jobName} será reenfileirado na fila {queue}.",
+      "retryDialogCancel": "Cancelar",
+      "retryDialogConfirm": "Tentar novamente",
+      "retrySuccess": "Job reenfileirado",
+      "retrySuccessDescription": "O job \"{name}\" foi reenfileirado com sucesso.",
+      "retryErrorTitle": "Erro ao tentar novamente",
+      "retryErrorFallback": "Erro desconhecido ao tentar novamente o job.",
+      "queueNotifications": "Notificações",
+      "queueNotificationsDesc": "Push notifications e cache em tempo real",
+      "queueEmail": "E-mails",
+      "queueEmailDesc": "Transacionais (rate-limited 90/dia)",
+      "queueAchievements": "Conquistas",
+      "queueAchievementsDesc": "Avaliação e correspondência de conquistas",
+      "queueBackgroundJobs": "Jobs em segundo plano",
+      "queueBackgroundJobsDesc": "Relatórios, finanças, rankings, exports"
+    },
+    "history": {
+      "filterLabelJob": "Job",
+      "filterLabelStatus": "Status",
+      "filterLabelSince": "De",
+      "filterLabelUntil": "Até",
+      "filterAllJobs": "Todos os jobs",
+      "filterAllStatuses": "Todos os status",
+      "statusCompleted": "Concluído",
+      "statusFailed": "Falhou",
+      "statusSkipped": "Ignorado",
+      "statusRunning": "Executando",
+      "recordCount": "{total} registros",
+      "noResults": "Nenhuma execução encontrada com os filtros aplicados.",
+      "colJob": "Job",
+      "colStart": "Início",
+      "colStatus": "Status",
+      "colDuration": "Duração",
+      "colItems": "Itens",
+      "colError": "Erro",
+      "colDetails": "Detalhes",
+      "viewButton": "Ver",
+      "pagination": "Página {page} de {totalPages}",
+      "paginationPrev": "Anterior",
+      "paginationNext": "Próximo",
+      "detailTitle": "Detalhes do run #{runId}",
+      "detailLabelJob": "Job",
+      "detailLabelStatus": "Status",
+      "detailLabelStart": "Início",
+      "detailLabelEnd": "Fim",
+      "detailLabelDuration": "Duração",
+      "detailLabelItems": "Itens processados",
+      "detailLabelError": "Mensagem de erro",
+      "detailLabelMetadata": "Metadados",
+      "jobMonthlyReports": "Relatórios mensais (auto-gerar)",
+      "jobRankingsRecalculate": "Rankings anuais (recalcular)",
+      "jobDataExportCleanup": "Limpeza de exports vencidos",
+      "jobMemberOfMonth": "Membro do mês (auto-avaliar)",
+      "jobFinancePeriod": "Fechamento de período financeiro",
+      "jobActivitiesReminder": "Lembretes de atividades",
+      "jobMembershipExpiry": "Expirar solicitações de adesão",
+      "jobCleanupExpired": "Limpeza de sessões/tokens vencidos",
+      "jobFcmCleanup": "Limpeza de tokens FCM órfãos"
     }
   },
   "settings": {
@@ -3766,7 +4349,8 @@
       },
       "scoringCategories": {
         "title": "Categorias de pontuação",
-        "description": "Gestão de categorias de pontuação por divisão."
+        "description": "Gestão de categorias de pontuação por divisão.",
+        "metadataTitle": "Categorias de pontuação"
       }
     }
   }

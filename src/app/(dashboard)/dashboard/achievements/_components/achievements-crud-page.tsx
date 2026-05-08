@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useActionState, useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   Eye,
   EyeOff,
@@ -88,22 +89,6 @@ const TIER_COLORS: Record<AchievementTier, string> = {
   DIAMOND: "#B9F2FF",
 };
 
-const TIER_LABELS: Record<AchievementTier, string> = {
-  BRONZE: "Bronce",
-  SILVER: "Plata",
-  GOLD: "Oro",
-  PLATINUM: "Platino",
-  DIAMOND: "Diamante",
-};
-
-const TYPE_LABELS: Record<AchievementType, string> = {
-  THRESHOLD: "Umbral",
-  STREAK: "Racha",
-  COMPOUND: "Compuesto",
-  MILESTONE: "Hito",
-  COLLECTION: "Colección",
-};
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function toText(value: unknown): string | null {
@@ -138,7 +123,7 @@ function pickType(item: AchievementRecord): AchievementType | null {
   return type as AchievementType;
 }
 
-function DeleteButton() {
+function DeleteButton({ label }: { label: string }) {
   const [pending, setPending] = useState(false);
   return (
     <Button
@@ -148,7 +133,7 @@ function DeleteButton() {
       disabled={pending}
     >
       {pending && <Loader2 className="size-4 animate-spin" />}
-      Eliminar
+      {label}
     </Button>
   );
 }
@@ -162,6 +147,8 @@ export function AchievementsCrudPage({
   categoryName,
   deleteAction,
 }: Props) {
+  const t = useTranslations("achievements.crud.list");
+  const tPreview = useTranslations("achievements.cards.preview");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -257,7 +244,7 @@ export function AchievementsCrudPage({
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link href="/dashboard/achievements">Logros</Link>
+              <Link href="/dashboard/achievements">{t("breadcrumbRoot")}</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
@@ -271,12 +258,12 @@ export function AchievementsCrudPage({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{categoryName}</h1>
-          <p className="text-muted-foreground">Logros en esta categoría.</p>
+          <p className="text-muted-foreground">{t("pageDescription")}</p>
         </div>
         <Button asChild>
           <Link href={`/dashboard/achievements/${categoryId}/new`}>
             <Plus className="size-4" />
-            Nuevo logro
+            {t("newButton")}
           </Link>
         </Button>
       </div>
@@ -285,17 +272,17 @@ export function AchievementsCrudPage({
         {/* Filters */}
         <div className="rounded-xl border bg-muted/20 p-4">
           <div className="mb-3 flex items-center justify-between gap-2">
-            <h3 className="text-sm font-semibold tracking-wide text-foreground">Filtros</h3>
+            <h3 className="text-sm font-semibold tracking-wide text-foreground">{t("filtersTitle")}</h3>
           </div>
           <div className="overflow-x-auto pb-1">
             <div className="flex min-w-max flex-wrap items-end gap-4">
               <div className="w-[260px] space-y-1">
-                <Label htmlFor="ach-filter-name">Nombre</Label>
+                <Label htmlFor="ach-filter-name">{t("filterName")}</Label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="ach-filter-name"
-                    placeholder="Buscar logro..."
+                    placeholder={t("filterNamePlaceholder")}
                     value={searchInput}
                     onChange={(e) => handleSearchInputChange(e.target.value)}
                     className="bg-background pl-9"
@@ -304,58 +291,58 @@ export function AchievementsCrudPage({
               </div>
 
               <div className="w-[160px] space-y-1">
-                <Label htmlFor="ach-filter-type">Tipo</Label>
+                <Label htmlFor="ach-filter-type">{t("filterType")}</Label>
                 <Select
                   value={currentTypeFilter}
                   onValueChange={(v) => updateParam("type", v)}
                 >
                   <SelectTrigger id="ach-filter-type" className="bg-background">
-                    <SelectValue placeholder="Tipo" />
+                    <SelectValue placeholder={t("filterTypePlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Todos los tipos</SelectItem>
-                    <SelectItem value="THRESHOLD">Umbral</SelectItem>
-                    <SelectItem value="STREAK">Racha</SelectItem>
-                    <SelectItem value="COMPOUND">Compuesto</SelectItem>
-                    <SelectItem value="MILESTONE">Hito</SelectItem>
-                    <SelectItem value="COLLECTION">Colección</SelectItem>
+                    <SelectItem value="all">{t("filterTypeAll")}</SelectItem>
+                    <SelectItem value="THRESHOLD">{tPreview("typeLabels.THRESHOLD")}</SelectItem>
+                    <SelectItem value="STREAK">{tPreview("typeLabels.STREAK")}</SelectItem>
+                    <SelectItem value="COMPOUND">{tPreview("typeLabels.COMPOUND")}</SelectItem>
+                    <SelectItem value="MILESTONE">{tPreview("typeLabels.MILESTONE")}</SelectItem>
+                    <SelectItem value="COLLECTION">{tPreview("typeLabels.COLLECTION")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="w-[160px] space-y-1">
-                <Label htmlFor="ach-filter-tier">Nivel</Label>
+                <Label htmlFor="ach-filter-tier">{t("filterTier")}</Label>
                 <Select
                   value={currentTierFilter}
                   onValueChange={(v) => updateParam("tier", v)}
                 >
                   <SelectTrigger id="ach-filter-tier" className="bg-background">
-                    <SelectValue placeholder="Nivel" />
+                    <SelectValue placeholder={t("filterTierPlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Todos los niveles</SelectItem>
-                    <SelectItem value="BRONZE">Bronce</SelectItem>
-                    <SelectItem value="SILVER">Plata</SelectItem>
-                    <SelectItem value="GOLD">Oro</SelectItem>
-                    <SelectItem value="PLATINUM">Platino</SelectItem>
-                    <SelectItem value="DIAMOND">Diamante</SelectItem>
+                    <SelectItem value="all">{t("filterTierAll")}</SelectItem>
+                    <SelectItem value="BRONZE">{tPreview("tierLabels.BRONZE")}</SelectItem>
+                    <SelectItem value="SILVER">{tPreview("tierLabels.SILVER")}</SelectItem>
+                    <SelectItem value="GOLD">{tPreview("tierLabels.GOLD")}</SelectItem>
+                    <SelectItem value="PLATINUM">{tPreview("tierLabels.PLATINUM")}</SelectItem>
+                    <SelectItem value="DIAMOND">{tPreview("tierLabels.DIAMOND")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="w-[160px] space-y-1">
-                <Label htmlFor="ach-filter-status">Estado</Label>
+                <Label htmlFor="ach-filter-status">{t("filterStatus")}</Label>
                 <Select
                   value={currentStatusFilter}
                   onValueChange={(v) => updateParam("active", v)}
                 >
                   <SelectTrigger id="ach-filter-status" className="bg-background">
-                    <SelectValue placeholder="Estado" />
+                    <SelectValue placeholder={t("filterStatusPlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Todos</SelectItem>
-                    <SelectItem value="true">Activos</SelectItem>
-                    <SelectItem value="false">Inactivos</SelectItem>
+                    <SelectItem value="all">{t("filterStatusAll")}</SelectItem>
+                    <SelectItem value="true">{t("filterStatusActive")}</SelectItem>
+                    <SelectItem value="false">{t("filterStatusInactive")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -367,18 +354,18 @@ export function AchievementsCrudPage({
         {achievements.length === 0 ? (
           <EmptyState
             icon={Trophy}
-            title={hasActiveFilters ? "Sin resultados" : "No hay logros en esta categoría"}
+            title={hasActiveFilters ? t("emptyFiltersTitle") : t("emptyNoFiltersTitle")}
             description={
               hasActiveFilters
-                ? "No hay logros que coincidan con los filtros."
-                : "Crea el primer logro para esta categoría."
+                ? t("emptyFiltersDescription")
+                : t("emptyNoFiltersDescription")
             }
           >
             {!hasActiveFilters && (
               <Button asChild>
                 <Link href={`/dashboard/achievements/${categoryId}/new`}>
                   <Plus className="size-4" />
-                  Nuevo logro
+                  {t("newButton")}
                 </Link>
               </Button>
             )}
@@ -389,15 +376,15 @@ export function AchievementsCrudPage({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Nombre</TableHead>
-                    <TableHead>Tipo</TableHead>
-                    <TableHead>Nivel</TableHead>
-                    <TableHead>Puntos</TableHead>
-                    <TableHead>Alcance</TableHead>
-                    <TableHead>Secreto</TableHead>
-                    <TableHead>Estado</TableHead>
+                    <TableHead>{t("tableColName")}</TableHead>
+                    <TableHead>{t("tableColType")}</TableHead>
+                    <TableHead>{t("tableColTier")}</TableHead>
+                    <TableHead>{t("tableColPoints")}</TableHead>
+                    <TableHead>{t("tableColScope")}</TableHead>
+                    <TableHead>{t("tableColSecret")}</TableHead>
+                    <TableHead>{t("tableColStatus")}</TableHead>
                     <TableHead className="sticky right-0 z-20 w-[120px] border-l bg-background text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Acciones
+                      {t("tableColActions")}
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -422,7 +409,7 @@ export function AchievementsCrudPage({
                         <TableCell>
                           {type ? (
                             <Badge variant="secondary" className="text-xs">
-                              {TYPE_LABELS[type]}
+                              {tPreview(`typeLabels.${type}`)}
                             </Badge>
                           ) : (
                             "—"
@@ -444,7 +431,7 @@ export function AchievementsCrudPage({
                                 style={{ backgroundColor: TIER_COLORS[tier] }}
                                 aria-hidden
                               />
-                              {TIER_LABELS[tier]}
+                              {tPreview(`tierLabels.${tier}`)}
                             </Badge>
                           ) : (
                             "—"
@@ -461,12 +448,12 @@ export function AchievementsCrudPage({
 
                         <TableCell>
                           {item.secret ? (
-                            <EyeOff className="size-4 text-muted-foreground" aria-label="Secreto" />
+                            <EyeOff className="size-4 text-muted-foreground" aria-label={t("ariaSecret")} />
                           ) : (
-                            <Eye className="size-4 text-muted-foreground/40" aria-label="Visible" />
+                            <Eye className="size-4 text-muted-foreground/40" aria-label={t("ariaVisible")} />
                           )}
                           {Boolean(item.repeatable) && (
-                            <RefreshCw className="ml-1 inline size-3.5 text-muted-foreground" aria-label="Repetible" />
+                            <RefreshCw className="ml-1 inline size-3.5 text-muted-foreground" aria-label={t("ariaRepeatable")} />
                           )}
                         </TableCell>
 
@@ -475,7 +462,7 @@ export function AchievementsCrudPage({
                             variant={item.active !== false ? "success" : "secondary"}
                             className="text-xs"
                           >
-                            {item.active !== false ? "Activo" : "Inactivo"}
+                            {item.active !== false ? t("statusActive") : t("statusInactive")}
                           </Badge>
                         </TableCell>
 
@@ -487,7 +474,7 @@ export function AchievementsCrudPage({
                                 size="icon"
                                 className="size-8"
                                 asChild
-                                title="Editar"
+                                title={t("actionEdit")}
                               >
                                 <Link
                                   href={`/dashboard/achievements/${categoryId}/${achId}/edit`}
@@ -501,7 +488,7 @@ export function AchievementsCrudPage({
                                 size="icon"
                                 className="size-8"
                                 disabled
-                                title="Editar"
+                                title={t("actionEdit")}
                               >
                                 <Pencil className="size-3.5" />
                               </Button>
@@ -512,7 +499,7 @@ export function AchievementsCrudPage({
                               className="size-8 text-destructive hover:text-destructive"
                               disabled={!achId}
                               onClick={() => setDeleteItem(item)}
-                              title="Eliminar"
+                              title={t("actionDelete")}
                             >
                               <Trash2 className="size-3.5" />
                             </Button>
@@ -532,13 +519,13 @@ export function AchievementsCrudPage({
                                       href={`/dashboard/achievements/${categoryId}/${achId}/edit`}
                                     >
                                       <Pencil className="size-4" />
-                                      Editar
+                                      {t("actionEdit")}
                                     </Link>
                                   </DropdownMenuItem>
                                 ) : (
                                   <DropdownMenuItem disabled>
                                     <Pencil className="size-4" />
-                                    Editar
+                                    {t("actionEdit")}
                                   </DropdownMenuItem>
                                 )}
                                 <DropdownMenuItem
@@ -547,7 +534,7 @@ export function AchievementsCrudPage({
                                   onSelect={() => setDeleteItem(item)}
                                 >
                                   <Trash2 className="size-4" />
-                                  Eliminar
+                                  {t("actionDelete")}
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
@@ -579,24 +566,20 @@ export function AchievementsCrudPage({
         >
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>¿Eliminar logro?</AlertDialogTitle>
+              <AlertDialogTitle>{t("deleteTitle")}</AlertDialogTitle>
               <AlertDialogDescription>
-                Se eliminará el logro{" "}
-                <strong className="text-foreground">
-                  &quot;{pickName(deleteItem)}&quot;
-                </strong>
-                . Esta acción no puede deshacerse.
+                {t("deleteDescription", { name: pickName(deleteItem) })}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogCancel>{t("deleteCancelButton")}</AlertDialogCancel>
               <form action={deleteFormAction}>
                 <input type="hidden" name="id" value={String(pickId(deleteItem) ?? "")} />
                 <input type="hidden" name="category_id" value={String(categoryId)} />
                 {deleteState.error && (
                   <p className="mb-2 text-xs text-destructive">{deleteState.error}</p>
                 )}
-                <DeleteButton />
+                <DeleteButton label={t("deleteConfirmButton")} />
               </form>
             </AlertDialogFooter>
           </AlertDialogContent>

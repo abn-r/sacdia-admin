@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,30 +27,24 @@ import type {
   CompoundLogic,
 } from "@/lib/api/achievements";
 
-const EVENT_OPTIONS = [
-  { value: "activity_attendance", label: "Asistencia a actividad" },
-  { value: "honor_completed", label: "Especialidad completada" },
-  { value: "class_completed", label: "Clase completada" },
-  { value: "investiture_completed", label: "Investidura completada" },
-  { value: "camporee_attended", label: "Camporee asistido" },
-  { value: "evidence_submitted", label: "Evidencia enviada" },
-  { value: "evidence_approved", label: "Evidencia aprobada" },
-  { value: "consecutive_attendance", label: "Asistencia consecutiva" },
-  { value: "profile_completed", label: "Perfil completado" },
-  { value: "club_role_assigned", label: "Rol de club asignado" },
-];
+// Event, operator and streak-unit option value lists (values stay in code,
+// labels resolved via t() inside components — pattern rule #2).
+const EVENT_VALUES = [
+  "activity_attendance",
+  "honor_completed",
+  "class_completed",
+  "investiture_completed",
+  "camporee_attended",
+  "evidence_submitted",
+  "evidence_approved",
+  "consecutive_attendance",
+  "profile_completed",
+  "club_role_assigned",
+] as const;
 
-const OPERATOR_OPTIONS: { value: CriteriaOperator; label: string }[] = [
-  { value: "gte", label: ">= (mayor o igual)" },
-  { value: "lte", label: "<= (menor o igual)" },
-  { value: "eq", label: "= (igual a)" },
-];
+const OPERATOR_VALUES: CriteriaOperator[] = ["gte", "lte", "eq"];
 
-const STREAK_UNIT_OPTIONS: { value: StreakUnit; label: string }[] = [
-  { value: "day", label: "Días" },
-  { value: "week", label: "Semanas" },
-  { value: "month", label: "Meses" },
-];
+const STREAK_UNIT_VALUES: StreakUnit[] = ["day", "week", "month"];
 
 // ─── Sub-editors ──────────────────────────────────────────────────────────────
 
@@ -60,21 +55,22 @@ function ThresholdEditor({
   value: ThresholdCriteria;
   onChange: (val: ThresholdCriteria) => void;
 }) {
+  const t = useTranslations("achievements.forms.criteria");
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label>Evento</Label>
+        <Label>{t("labelEvent")}</Label>
         <Select
           value={value.event}
           onValueChange={(event) => onChange({ ...value, event })}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Selecciona un evento..." />
+            <SelectValue placeholder={t("placeholderEvent")} />
           </SelectTrigger>
           <SelectContent>
-            {EVENT_OPTIONS.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>
-                {opt.label}
+            {EVENT_VALUES.map((v) => (
+              <SelectItem key={v} value={v}>
+                {t(`eventLabels.${v}`)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -83,7 +79,7 @@ function ThresholdEditor({
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>Operador</Label>
+          <Label>{t("labelOperator")}</Label>
           <Select
             value={value.operator}
             onValueChange={(operator) =>
@@ -91,12 +87,12 @@ function ThresholdEditor({
             }
           >
             <SelectTrigger>
-              <SelectValue placeholder="Operador..." />
+              <SelectValue placeholder={t("placeholderOperator")} />
             </SelectTrigger>
             <SelectContent>
-              {OPERATOR_OPTIONS.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
+              {OPERATOR_VALUES.map((v) => (
+                <SelectItem key={v} value={v}>
+                  {t(`operatorLabels.${v}`)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -104,7 +100,7 @@ function ThresholdEditor({
         </div>
 
         <div className="space-y-2">
-          <Label>Objetivo</Label>
+          <Label>{t("labelTarget")}</Label>
           <Input
             type="number"
             min={1}
@@ -127,21 +123,22 @@ function StreakEditor({
   value: StreakCriteria;
   onChange: (val: StreakCriteria) => void;
 }) {
+  const t = useTranslations("achievements.forms.criteria");
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label>Evento</Label>
+        <Label>{t("labelEvent")}</Label>
         <Select
           value={value.event}
           onValueChange={(event) => onChange({ ...value, event })}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Selecciona un evento..." />
+            <SelectValue placeholder={t("placeholderEvent")} />
           </SelectTrigger>
           <SelectContent>
-            {EVENT_OPTIONS.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>
-                {opt.label}
+            {EVENT_VALUES.map((v) => (
+              <SelectItem key={v} value={v}>
+                {t(`eventLabels.${v}`)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -150,7 +147,7 @@ function StreakEditor({
 
       <div className="grid grid-cols-3 gap-4">
         <div className="space-y-2">
-          <Label>Racha objetivo</Label>
+          <Label>{t("labelStreakTarget")}</Label>
           <Input
             type="number"
             min={1}
@@ -163,7 +160,7 @@ function StreakEditor({
         </div>
 
         <div className="space-y-2">
-          <Label>Unidad</Label>
+          <Label>{t("labelUnit")}</Label>
           <Select
             value={value.streak_unit}
             onValueChange={(streak_unit) =>
@@ -171,12 +168,12 @@ function StreakEditor({
             }
           >
             <SelectTrigger>
-              <SelectValue placeholder="Unidad..." />
+              <SelectValue placeholder={t("placeholderUnit")} />
             </SelectTrigger>
             <SelectContent>
-              {STREAK_UNIT_OPTIONS.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
+              {STREAK_UNIT_VALUES.map((v) => (
+                <SelectItem key={v} value={v}>
+                  {t(`streakUnitLabels.${v}`)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -185,8 +182,8 @@ function StreakEditor({
 
         <div className="space-y-2">
           <Label>
-            Gracia{" "}
-            <span className="text-xs text-muted-foreground">(opcional)</span>
+            {t("labelGrace")}{" "}
+            <span className="text-xs text-muted-foreground">{t("labelGraceHint")}</span>
           </Label>
           <Input
             type="number"
@@ -217,11 +214,12 @@ function CompoundConditionRow({
   onChange: (val: CompoundCondition) => void;
   onRemove: () => void;
 }) {
+  const t = useTranslations("achievements.forms.criteria");
   return (
     <div className="rounded-lg border bg-muted/20 p-3 space-y-3">
       <div className="flex items-center justify-between">
         <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-          Condición {index + 1}
+          {t("conditionLabel", { index: index + 1 })}
         </span>
         <Button
           type="button"
@@ -235,18 +233,18 @@ function CompoundConditionRow({
       </div>
 
       <div className="space-y-2">
-        <Label className="text-xs">Evento</Label>
+        <Label className="text-xs">{t("labelEvent")}</Label>
         <Select
           value={condition.event}
           onValueChange={(event) => onChange({ ...condition, event })}
         >
           <SelectTrigger className="h-8 text-sm">
-            <SelectValue placeholder="Evento..." />
+            <SelectValue placeholder={t("placeholderEvent")} />
           </SelectTrigger>
           <SelectContent>
-            {EVENT_OPTIONS.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>
-                {opt.label}
+            {EVENT_VALUES.map((v) => (
+              <SelectItem key={v} value={v}>
+                {t(`eventLabels.${v}`)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -255,7 +253,7 @@ function CompoundConditionRow({
 
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1">
-          <Label className="text-xs">Operador</Label>
+          <Label className="text-xs">{t("labelOperator")}</Label>
           <Select
             value={condition.operator}
             onValueChange={(operator) =>
@@ -263,12 +261,12 @@ function CompoundConditionRow({
             }
           >
             <SelectTrigger className="h-8 text-sm">
-              <SelectValue placeholder="Op..." />
+              <SelectValue placeholder={t("placeholderOperator")} />
             </SelectTrigger>
             <SelectContent>
-              {OPERATOR_OPTIONS.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
+              {OPERATOR_VALUES.map((v) => (
+                <SelectItem key={v} value={v}>
+                  {t(`operatorLabels.${v}`)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -276,7 +274,7 @@ function CompoundConditionRow({
         </div>
 
         <div className="space-y-1">
-          <Label className="text-xs">Objetivo</Label>
+          <Label className="text-xs">{t("labelTarget")}</Label>
           <Input
             type="number"
             min={1}
@@ -300,6 +298,8 @@ function CompoundEditor({
   value: CompoundCriteria;
   onChange: (val: CompoundCriteria) => void;
 }) {
+  const t = useTranslations("achievements.forms.criteria");
+
   const addCondition = () => {
     onChange({
       ...value,
@@ -327,7 +327,7 @@ function CompoundEditor({
     <div className="space-y-4">
       {/* Logic selector */}
       <div className="space-y-2">
-        <Label>Lógica de combinación</Label>
+        <Label>{t("labelLogic")}</Label>
         <div className="flex gap-3">
           {(["AND", "OR"] as CompoundLogic[]).map((logic) => (
             <label
@@ -343,7 +343,7 @@ function CompoundEditor({
                 className="accent-primary"
               />
               <span className="text-sm font-medium">
-                {logic === "AND" ? "Todas las condiciones (AND)" : "Cualquier condición (OR)"}
+                {logic === "AND" ? t("logicAnd") : t("logicOr")}
               </span>
             </label>
           ))}
@@ -370,7 +370,7 @@ function CompoundEditor({
         onClick={addCondition}
       >
         <Plus className="mr-2 size-3.5" />
-        Agregar condición
+        {t("addConditionButton")}
       </Button>
     </div>
   );
@@ -383,21 +383,22 @@ function MilestoneEditor({
   value: MilestoneCriteria;
   onChange: (val: MilestoneCriteria) => void;
 }) {
+  const t = useTranslations("achievements.forms.criteria");
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label>Evento</Label>
+        <Label>{t("labelEvent")}</Label>
         <Select
           value={value.event}
           onValueChange={(event) => onChange({ ...value, event })}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Selecciona un evento..." />
+            <SelectValue placeholder={t("placeholderEvent")} />
           </SelectTrigger>
           <SelectContent>
-            {EVENT_OPTIONS.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>
-                {opt.label}
+            {EVENT_VALUES.map((v) => (
+              <SelectItem key={v} value={v}>
+                {t(`eventLabels.${v}`)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -406,16 +407,16 @@ function MilestoneEditor({
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>Campo</Label>
+          <Label>{t("labelField")}</Label>
           <Input
             value={value.field}
             onChange={(e) => onChange({ ...value, field: e.target.value })}
-            placeholder="Ej. level"
+            placeholder={t("placeholderField")}
           />
         </div>
 
         <div className="space-y-2">
-          <Label>Operador</Label>
+          <Label>{t("labelOperator")}</Label>
           <Select
             value={value.operator}
             onValueChange={(operator) =>
@@ -423,12 +424,12 @@ function MilestoneEditor({
             }
           >
             <SelectTrigger>
-              <SelectValue placeholder="Operador..." />
+              <SelectValue placeholder={t("placeholderOperator")} />
             </SelectTrigger>
             <SelectContent>
-              {OPERATOR_OPTIONS.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
+              {OPERATOR_VALUES.map((v) => (
+                <SelectItem key={v} value={v}>
+                  {t(`operatorLabels.${v}`)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -437,11 +438,11 @@ function MilestoneEditor({
       </div>
 
       <div className="space-y-2">
-        <Label>Valor objetivo</Label>
+        <Label>{t("labelTargetValue")}</Label>
         <Input
           value={value.target}
           onChange={(e) => onChange({ ...value, target: e.target.value })}
-          placeholder="Ej. gold"
+          placeholder={t("placeholderTargetValue")}
         />
       </div>
     </div>
@@ -455,21 +456,22 @@ function CollectionEditor({
   value: CollectionCriteria;
   onChange: (val: CollectionCriteria) => void;
 }) {
+  const t = useTranslations("achievements.forms.criteria");
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label>Evento</Label>
+        <Label>{t("labelEvent")}</Label>
         <Select
           value={value.event}
           onValueChange={(event) => onChange({ ...value, event })}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Selecciona un evento..." />
+            <SelectValue placeholder={t("placeholderEvent")} />
           </SelectTrigger>
           <SelectContent>
-            {EVENT_OPTIONS.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>
-                {opt.label}
+            {EVENT_VALUES.map((v) => (
+              <SelectItem key={v} value={v}>
+                {t(`eventLabels.${v}`)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -478,16 +480,16 @@ function CollectionEditor({
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>Campo único</Label>
+          <Label>{t("labelDistinctField")}</Label>
           <Input
             value={value.distinct_field}
             onChange={(e) => onChange({ ...value, distinct_field: e.target.value })}
-            placeholder="Ej. honor_id"
+            placeholder={t("placeholderDistinctField")}
           />
         </div>
 
         <div className="space-y-2">
-          <Label>Cantidad objetivo</Label>
+          <Label>{t("labelQuantityTarget")}</Label>
           <Input
             type="number"
             min={1}
@@ -534,6 +536,7 @@ interface CriteriaEditorProps {
 }
 
 export function CriteriaEditor({ type, initialValue, onChange }: CriteriaEditorProps) {
+  const t = useTranslations("achievements.forms.criteria");
   const [criteria, setCriteria] = useState<AchievementCriteria>(
     () => initialValue ?? getDefaultCriteria(type),
   );
@@ -543,17 +546,9 @@ export function CriteriaEditor({ type, initialValue, onChange }: CriteriaEditorP
     onChange?.(newCriteria);
   };
 
-  const typeDescriptions: Record<AchievementType, string> = {
-    THRESHOLD: "Se otorga cuando el usuario alcanza un número determinado de eventos.",
-    STREAK: "Se otorga cuando el usuario mantiene una racha consecutiva de eventos.",
-    COMPOUND: "Se otorga cuando se cumplen múltiples condiciones al mismo tiempo.",
-    MILESTONE: "Se otorga cuando un campo específico de un evento alcanza cierto valor.",
-    COLLECTION: "Se otorga cuando el usuario completa N elementos distintos de una colección.",
-  };
-
   return (
     <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">{typeDescriptions[type]}</p>
+      <p className="text-sm text-muted-foreground">{t(`typeDescriptions.${type}`)}</p>
 
       {type === "THRESHOLD" && (
         <ThresholdEditor

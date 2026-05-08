@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -18,26 +19,42 @@ import {
 } from "@/components/ui/tooltip";
 import type { CronRunsSummary, CronRecentRun, CronJobStats } from "@/lib/api/analytics";
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 
-type JobDefinition = {
-  canonical_name: string;
-  display_name: string;
-};
+type CronJobKey =
+  | "monthly-reports-auto-generate"
+  | "rankings-recalculate"
+  | "data-export-cleanup"
+  | "member-of-month-auto-evaluate"
+  | "finance-period-closing"
+  | "activities-reminder"
+  | "membership-requests-expiry"
+  | "cleanup-expired-records"
+  | "fcm-tokens-cleanup";
 
-const JOB_DEFINITIONS: JobDefinition[] = [
-  { canonical_name: "monthly-reports-auto-generate",  display_name: "Reportes mensuales (auto-generar)" },
-  { canonical_name: "rankings-recalculate",           display_name: "Rankings anuales (recalcular)" },
-  { canonical_name: "data-export-cleanup",            display_name: "Cleanup exportes vencidos" },
-  { canonical_name: "member-of-month-auto-evaluate",  display_name: "Miembro del mes (auto-evaluar)" },
-  { canonical_name: "finance-period-closing",         display_name: "Cierre de periodo financiero" },
-  { canonical_name: "activities-reminder",            display_name: "Recordatorios de actividades" },
-  { canonical_name: "membership-requests-expiry",     display_name: "Expirar solicitudes de membresía" },
-  { canonical_name: "cleanup-expired-records",        display_name: "Cleanup sesiones/tokens vencidos" },
-  { canonical_name: "fcm-tokens-cleanup",             display_name: "Cleanup FCM tokens huérfanos" },
+const JOB_CANONICAL_NAMES: CronJobKey[] = [
+  "monthly-reports-auto-generate",
+  "rankings-recalculate",
+  "data-export-cleanup",
+  "member-of-month-auto-evaluate",
+  "finance-period-closing",
+  "activities-reminder",
+  "membership-requests-expiry",
+  "cleanup-expired-records",
+  "fcm-tokens-cleanup",
 ];
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+const JOB_I18N_KEYS: Record<CronJobKey, string> = {
+  "monthly-reports-auto-generate":  "jobMonthlyReports",
+  "rankings-recalculate":           "jobRankingsRecalculate",
+  "data-export-cleanup":            "jobDataExportCleanup",
+  "member-of-month-auto-evaluate":  "jobMemberOfMonth",
+  "finance-period-closing":         "jobFinancePeriod",
+  "activities-reminder":            "jobActivitiesReminder",
+  "membership-requests-expiry":     "jobMembershipExpiry",
+  "cleanup-expired-records":        "jobCleanupExpired",
+  "fcm-tokens-cleanup":             "jobFcmCleanup",
+};
 
 interface CronRunsSectionProps {
   data: CronRunsSummary;
@@ -84,17 +101,8 @@ function statusVariant(
   }
 }
 
-function statusLabel(status: string): string {
-  switch (status as CronStatus) {
-    case "completed": return "Completado";
-    case "failed":    return "Fallido";
-    case "running":   return "Ejecutando";
-    case "skipped":   return "Omitido";
-    default:          return status;
-  }
-}
+// ─── Status Badge ─────────────────────────────────────────────────────────────
 
-// Running gets a blue-ish look via className override
 function StatusBadge({
   status,
   errorMessage,
@@ -102,20 +110,29 @@ function StatusBadge({
   status: string | null;
   errorMessage?: string | null;
 }) {
+  const t = useTranslations("system_jobs.cronRuns");
+
   if (!status) {
     return (
       <Badge variant="outline" className="text-xs text-muted-foreground">
-        Sin ejecuciones
+        {t("noRuns")}
       </Badge>
     );
   }
 
+  function getStatusLabel(s: string): string {
+    switch (s as CronStatus) {
+      case "completed": return t("statusCompleted");
+      case "failed":    return t("statusFailed");
+      case "running":   return t("statusRunning");
+      case "skipped":   return t("statusSkipped");
+      default:          return s;
+    }
+  }
+
   const badge = (
-    <Badge
-      variant={statusVariant(status)}
-      className="text-xs"
-    >
-      {statusLabel(status)}
+    <Badge variant={statusVariant(status)} className="text-xs">
+      {getStatusLabel(status)}
     </Badge>
   );
 
@@ -138,6 +155,8 @@ function StatusBadge({
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export function CronRunsSection({ data }: CronRunsSectionProps) {
+  const t = useTranslations("system_jobs.cronRuns");
+
   // Index server data by job_name for O(1) lookups
   const recentByName = new Map<string, CronRecentRun>(
     data.recent.map((r) => [r.job_name, r]),
@@ -149,40 +168,41 @@ export function CronRunsSection({ data }: CronRunsSectionProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Cron Jobs</CardTitle>
+        <CardTitle className="text-base">{t("cardTitle")}</CardTitle>
       </CardHeader>
       <CardContent className="p-0">
         <TooltipProvider>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="pl-6 min-w-[200px]">Job</TableHead>
-                <TableHead>Última ejecución</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Duración</TableHead>
-                <TableHead className="text-right">Items</TableHead>
-                <TableHead>Último éxito</TableHead>
-                <TableHead>Último fallo</TableHead>
-                <TableHead className="text-right">Tasa fallo 7d</TableHead>
-                <TableHead className="text-right pr-6">Runs 7d</TableHead>
+                <TableHead className="pl-6 min-w-[200px]">{t("colJob")}</TableHead>
+                <TableHead>{t("colLastRun")}</TableHead>
+                <TableHead>{t("colStatus")}</TableHead>
+                <TableHead>{t("colDuration")}</TableHead>
+                <TableHead className="text-right">{t("colItems")}</TableHead>
+                <TableHead>{t("colLastSuccess")}</TableHead>
+                <TableHead>{t("colLastFailure")}</TableHead>
+                <TableHead className="text-right">{t("colFailureRate")}</TableHead>
+                <TableHead className="text-right pr-6">{t("colRuns7d")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {JOB_DEFINITIONS.map((def) => {
-                const run   = recentByName.get(def.canonical_name) ?? null;
-                const stats = statsByName.get(def.canonical_name) ?? null;
+              {JOB_CANONICAL_NAMES.map((canonicalName) => {
+                const i18nKey = JOB_I18N_KEYS[canonicalName];
+                const run   = recentByName.get(canonicalName) ?? null;
+                const stats = statsByName.get(canonicalName) ?? null;
 
                 return (
-                  <TableRow key={def.canonical_name}>
+                  <TableRow key={canonicalName}>
                     {/* Job name */}
                     <TableCell className="pl-6">
-                      <span className="text-sm font-medium">{def.display_name}</span>
+                      <span className="text-sm font-medium">{t(i18nKey)}</span>
                       <span className="block text-[11px] text-muted-foreground font-mono">
-                        {def.canonical_name}
+                        {canonicalName}
                       </span>
                     </TableCell>
 
-                    {/* Última ejecución */}
+                    {/* Last run */}
                     <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
                       {formatDate(run?.started_at ?? null)}
                     </TableCell>
@@ -195,29 +215,29 @@ export function CronRunsSection({ data }: CronRunsSectionProps) {
                       />
                     </TableCell>
 
-                    {/* Duración */}
+                    {/* Duration */}
                     <TableCell className="tabular-nums text-sm">
                       {formatDuration(run?.duration_ms ?? null)}
                     </TableCell>
 
-                    {/* Items procesados */}
+                    {/* Items processed */}
                     <TableCell className="text-right tabular-nums text-sm">
                       {run?.items_processed !== undefined && run.items_processed !== null
                         ? run.items_processed.toLocaleString("es-MX")
                         : "—"}
                     </TableCell>
 
-                    {/* Último éxito */}
+                    {/* Last success */}
                     <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
                       {formatDate(stats?.last_success ?? null)}
                     </TableCell>
 
-                    {/* Último fallo */}
+                    {/* Last failure */}
                     <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
                       {formatDate(stats?.last_failure ?? null)}
                     </TableCell>
 
-                    {/* Tasa fallo 7d */}
+                    {/* Failure rate 7d */}
                     <TableCell className="text-right tabular-nums text-sm">
                       {formatFailureRate(stats?.failure_rate_7d ?? null)}
                     </TableCell>
