@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ interface TransfersClientPageProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function TransfersClientPage({ initialRequests }: TransfersClientPageProps) {
+  const t = useTranslations("requests");
   const [activeTab, setActiveTab] = useState<StatusTab>("PENDING");
   const [requests, setRequests] = useState<TransferRequest[]>(initialRequests);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -43,12 +45,12 @@ export function TransfersClientPage({ initialRequests }: TransfersClientPageProp
       const message =
         error instanceof ApiError
           ? error.message
-          : "No se pudo actualizar la lista";
+          : t("errors.refresh");
       toast.error(message);
     } finally {
       setIsRefreshing(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (isInitialMount.current) {
@@ -75,8 +77,7 @@ export function TransfersClientPage({ initialRequests }: TransfersClientPageProp
       {/* Toolbar */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">{filteredRequests.length}</span>{" "}
-          {filteredRequests.length === 1 ? "solicitud" : "solicitudes"}
+          {t("client.count", { count: filteredRequests.length })}
         </p>
         <Button
           variant="outline"
@@ -87,7 +88,7 @@ export function TransfersClientPage({ initialRequests }: TransfersClientPageProp
           <RefreshCw
             className={`size-4 ${isRefreshing ? "animate-spin" : ""}`}
           />
-          Actualizar
+          {t("client.refresh")}
         </Button>
       </div>
 
@@ -96,19 +97,19 @@ export function TransfersClientPage({ initialRequests }: TransfersClientPageProp
         <div className="overflow-x-auto border-b border-border">
           <TabsList variant="line" className="gap-4">
             <TabsTrigger value="ALL" className="whitespace-nowrap">
-              Todas
+              {t("client.tabs.all")}
               {tabBadge(requests.length)}
             </TabsTrigger>
             <TabsTrigger value="PENDING" className="whitespace-nowrap">
-              Pendientes
+              {t("client.tabs.pending")}
               {tabBadge(pendingCount)}
             </TabsTrigger>
             <TabsTrigger value="APPROVED" className="whitespace-nowrap">
-              Aprobadas
+              {t("client.tabs.approved")}
               {tabBadge(approvedCount)}
             </TabsTrigger>
             <TabsTrigger value="REJECTED" className="whitespace-nowrap">
-              Rechazadas
+              {t("client.tabs.rejected")}
               {tabBadge(rejectedCount)}
             </TabsTrigger>
           </TabsList>

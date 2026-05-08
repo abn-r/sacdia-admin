@@ -1280,6 +1280,51 @@
     "validation": {
       "reason_required": "O motivo da rejeição é obrigatório",
       "reason_max": "Máximo de 1000 caracteres"
+    },
+    "table": {
+      "col_member": "Membro",
+      "col_type": "Tipo",
+      "col_section": "Seção / Honra",
+      "col_files": "Arquivos",
+      "col_submitted": "Enviado",
+      "col_status": "Estado",
+      "col_actions": "Ações",
+      "select_all": "Selecionar tudo",
+      "select_row": "Selecionar {name}",
+      "action_view_files": "Ver arquivos",
+      "action_view_history": "Ver histórico",
+      "action_approve": "Aprovar",
+      "action_reject": "Rejeitar",
+      "empty_title": "Sem evidências pendentes",
+      "empty_description": "Não há evidências pendentes de revisão neste estado."
+    },
+    "typeBadge": {
+      "folder": "Pasta",
+      "class": "Classe",
+      "honor": "Honra"
+    },
+    "statusBadge": {
+      "no_submit": "Não enviado",
+      "submitted": "Enviado",
+      "validated": "Validado",
+      "rejected": "Rejeitado"
+    },
+    "client": {
+      "tab_all": "Todos",
+      "tab_folders": "Pastas",
+      "tab_classes": "Classes",
+      "tab_honors": "Honras",
+      "btn_refresh": "Atualizar",
+      "error_refresh": "Não foi possível atualizar a lista"
+    },
+    "history": {
+      "title": "Histórico de validação",
+      "empty": "Nenhum histórico de validação ainda.",
+      "system": "Sistema",
+      "action_approved": "Aprovado",
+      "action_rejected": "Rejeitado",
+      "action_submitted": "Enviado para revisão",
+      "error_load": "Não foi possível carregar o histórico"
     }
   },
   "users": {
@@ -1648,7 +1693,57 @@
   },
   "validation_admin": {
     "errors": {
-      "unexpected": "Ocorreu um erro inesperado"
+      "unexpected": "Ocorreu um erro inesperado",
+      "loadHistory": "Não foi possível carregar o histórico de validação",
+      "refresh": "Não foi possível atualizar a lista"
+    },
+    "status": {
+      "PENDING": "Pendente",
+      "APPROVED": "Aprovado",
+      "REJECTED": "Rejeitado",
+      "NEEDS_REVISION": "Revisão"
+    },
+    "table": {
+      "columns": {
+        "member": "Membro",
+        "class": "Classe",
+        "honor": "Especialidade",
+        "section": "Seção",
+        "submitted": "Enviado",
+        "status": "Status",
+        "actions": "Ações"
+      },
+      "empty": {
+        "title": "Sem pendências",
+        "description": "Não há validações pendentes no momento."
+      },
+      "actions": {
+        "viewHistory": "Ver histórico",
+        "approve": "Aprovar",
+        "reject": "Rejeitar"
+      }
+    },
+    "history": {
+      "title": "Histórico de validação",
+      "empty": "Nenhum histórico de validação ainda.",
+      "performer": {
+        "system": "Sistema"
+      },
+      "actions": {
+        "APPROVED": "Aprovado",
+        "REJECTED": "Rejeitado"
+      }
+    },
+    "client": {
+      "filters": {
+        "allSections": "Todas as seções"
+      },
+      "count": "{count, plural, one {# pendente} other {# pendentes}}",
+      "refresh": "Atualizar",
+      "tabs": {
+        "class": "Classes",
+        "honor": "Especialidades"
+      }
     }
   },
   "scoring_categories": {
@@ -1836,7 +1931,81 @@
   },
   "requests": {
     "errors": {
-      "unexpected": "Ocorreu um erro inesperado"
+      "unexpected": "Ocorreu um erro inesperado",
+      "refresh": "Não foi possível atualizar a lista"
+    },
+    "status": {
+      "PENDING": "Pendente",
+      "APPROVED": "Aprovado",
+      "REJECTED": "Rejeitado"
+    },
+    "client": {
+      "count": "{count, plural, one {# solicitação} other {# solicitações}}",
+      "refresh": "Atualizar",
+      "tabs": {
+        "all": "Todas",
+        "pending": "Pendentes",
+        "approved": "Aprovadas",
+        "rejected": "Rejeitadas"
+      }
+    },
+    "transfers": {
+      "table": {
+        "columns": {
+          "requester": "Solicitante",
+          "from": "De",
+          "to": "Para",
+          "reason": "Motivo",
+          "status": "Status",
+          "date": "Data",
+          "actions": "Ações"
+        },
+        "empty": {
+          "title": "Sem solicitações",
+          "description": "Não há solicitações de transferência neste estado."
+        },
+        "actions": {
+          "approve": "Aprovar",
+          "reject": "Rejeitar",
+          "approveAriaLabel": "Aprovar transferência",
+          "rejectAriaLabel": "Rejeitar transferência"
+        }
+      },
+      "dialog": {
+        "approveTitle": "Aprovar transferência",
+        "rejectTitle": "Rejeitar transferência",
+        "approveDescription": "A solicitação de transferência de {name} será aprovada.",
+        "rejectDescription": "A solicitação de {name} será rejeitada. O motivo é obrigatório."
+      }
+    },
+    "assignments": {
+      "table": {
+        "columns": {
+          "targetUser": "Usuário alvo",
+          "section": "Seção",
+          "roleToAssign": "Função a atribuir",
+          "requestedBy": "Solicitado por",
+          "status": "Status",
+          "date": "Data",
+          "actions": "Ações"
+        },
+        "empty": {
+          "title": "Sem solicitações",
+          "description": "Não há solicitações de atribuição de função neste estado."
+        },
+        "actions": {
+          "approve": "Aprovar",
+          "reject": "Rejeitar",
+          "approveAriaLabel": "Aprovar atribuição",
+          "rejectAriaLabel": "Rejeitar atribuição"
+        }
+      },
+      "dialog": {
+        "approveTitle": "Aprovar atribuição de função",
+        "rejectTitle": "Rejeitar atribuição de função",
+        "approveDescription": "A atribuição de função para {name} será aprovada.",
+        "rejectDescription": "A solicitação de atribuição para {name} será rejeitada. O motivo é obrigatório."
+      }
     }
   },
   "insurance": {
@@ -2198,16 +2367,87 @@
       "member_removed": "Membro removido da unidade",
       "weekly_record_created": "Registro semanal criado",
       "unit_deactivated": "Unidade desativada com sucesso"
+    },
+    "memberCombobox": {
+      "searchPlaceholder": "Buscar por nome...",
+      "loading": "Carregando membros...",
+      "empty": "Sem membros disponíveis.",
+      "clearSelection": "Limpar seleção",
+      "loadError": "Não foi possível carregar os membros"
+    },
+    "unitForm": {
+      "generalData": "Dados da unidade",
+      "leaders": "Líderes da unidade",
+      "requiredHint": "Os campos marcados com",
+      "requiredHintSuffix": "são obrigatórios.",
+      "name": "Nome",
+      "namePlaceholder": "Ex. Unidade Águias",
+      "clubType": "Tipo de clube",
+      "captain": "Capitão",
+      "captainPlaceholder": "Selecionar capitão...",
+      "secretary": "Secretário",
+      "secretaryPlaceholder": "Selecionar secretário...",
+      "advisor": "Conselheiro",
+      "advisorPlaceholder": "Selecionar conselheiro...",
+      "substituteAdvisor": "Conselheiro substituto",
+      "substituteAdvisorOptional": "(opcional)",
+      "substituteAdvisorPlaceholder": "Selecionar conselheiro substituto (opcional)...",
+      "submitCreate": "Criar unidade",
+      "submitEdit": "Salvar alterações",
+      "submittingCreate": "Criando...",
+      "submittingEdit": "Salvando...",
+      "clubTypeAdventurers": "Aventureiros",
+      "clubTypePathfinders": "Conquistadores",
+      "clubTypeMasterGuides": "Guias Maiores"
     }
   },
   "system_config": {
     "errors": {
       "unexpected": "Ocorreu um erro inesperado"
+    },
+    "table": {
+      "col_key": "Chave",
+      "col_value": "Valor",
+      "col_description": "Descrição",
+      "col_type": "Tipo",
+      "col_actions": "Ações",
+      "action_edit": "Editar valor",
+      "action_edit_key": "Editar {key}",
+      "no_description": "—",
+      "no_type": "—",
+      "empty_title": "Sem configurações",
+      "empty_description": "Não há entradas de configuração do sistema registradas."
+    },
+    "client": {
+      "entry_count": "{count, plural, one {# entrada} other {# entradas}}",
+      "btn_refresh": "Atualizar",
+      "error_refresh": "Não foi possível atualizar a configuração"
     }
   },
   "shared": {
     "errors": {
       "unexpected": "Erro inesperado"
+    },
+    "pagination": {
+      "showing": "Mostrando {from}–{to} de {total} registros",
+      "perPage": "Por página",
+      "pageOf": "Página {page} de {totalPages}",
+      "prevPage": "Página anterior",
+      "nextPage": "Próxima página"
+    },
+    "sortable": {
+      "sortBy": "Ordenar por {field}",
+      "sortedAscending": "Ordenado por {field} crescente. Clique para inverter.",
+      "sortedDescending": "Ordenado por {field} decrescente. Clique para inverter."
+    },
+    "pageHeader": {
+      "breadcrumbNav": "Navegação de breadcrumb"
+    },
+    "errorBanner": {
+      "forbidden": "Acesso negado",
+      "missing": "Não disponível",
+      "rateLimited": "Limite de requisições atingido",
+      "goToLogin": "Ir para login"
     }
   },
   "translations": {

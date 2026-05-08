@@ -3,6 +3,7 @@
 import { useActionState, useState, useCallback } from "react";
 import { useFormStatus } from "react-dom";
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,28 +13,21 @@ import type { UnitActionState } from "@/lib/units/actions";
 import type { Unit } from "@/lib/api/units";
 import type { ClubSectionMember } from "@/lib/api/clubs";
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-const CLUB_TYPES = [
-  { value: 1, label: "Aventureros" },
-  { value: 2, label: "Conquistadores" },
-  { value: 3, label: "Guías Mayores" },
-];
-
 // ─── Submit button ────────────────────────────────────────────────────────────
 
 function SubmitButton({ mode }: { mode: "create" | "edit" }) {
   const { pending } = useFormStatus();
+  const t = useTranslations("units_admin.unitForm");
   return (
     <Button type="submit" disabled={pending}>
       {pending && <Loader2 className="size-4 animate-spin" />}
       {pending
         ? mode === "create"
-          ? "Creando..."
-          : "Guardando..."
+          ? t("submittingCreate")
+          : t("submittingEdit")
         : mode === "create"
-          ? "Crear unidad"
-          : "Guardar cambios"}
+          ? t("submitCreate")
+          : t("submitEdit")}
     </Button>
   );
 }
@@ -55,6 +49,15 @@ interface UnitFormProps {
 const initialState: UnitActionState = {};
 
 export function UnitForm({ mode, clubId, initialData, formAction }: UnitFormProps) {
+  const t = useTranslations("units_admin.unitForm");
+
+  // Club type options must live inside the component so t() is in scope
+  const CLUB_TYPES = [
+    { value: 1, label: t("clubTypeAdventurers") },
+    { value: 2, label: t("clubTypePathfinders") },
+    { value: 3, label: t("clubTypeMasterGuides") },
+  ];
+
   const [state, action] = useActionState(formAction, initialState);
 
   const defaultClubType = initialData?.club_type_id ?? 2;
@@ -84,19 +87,19 @@ export function UnitForm({ mode, clubId, initialData, formAction }: UnitFormProp
       {/* ── Datos generales ── */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Datos de la unidad</CardTitle>
+          <CardTitle className="text-base">{t("generalData")}</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
           {/* Nombre */}
           <div className="space-y-2 sm:col-span-2">
             <Label htmlFor="name">
-              Nombre <span className="text-destructive">*</span>
+              {t("name")} <span className="text-destructive">*</span>
             </Label>
             <Input
               id="name"
               name="name"
               defaultValue={initialData?.name ?? ""}
-              placeholder="Ej. Unidad Aguilas"
+              placeholder={t("namePlaceholder")}
               required
             />
           </div>
@@ -104,7 +107,7 @@ export function UnitForm({ mode, clubId, initialData, formAction }: UnitFormProp
           {/* Tipo de club */}
           <div className="space-y-2 sm:col-span-2">
             <Label htmlFor="club_type_id">
-              Tipo de club <span className="text-destructive">*</span>
+              {t("clubType")} <span className="text-destructive">*</span>
             </Label>
             <select
               id="club_type_id"
@@ -125,24 +128,25 @@ export function UnitForm({ mode, clubId, initialData, formAction }: UnitFormProp
       {/* ── Lideres de la unidad ── */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Lideres de la unidad</CardTitle>
+          <CardTitle className="text-base">{t("leaders")}</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
           <p className="text-xs text-muted-foreground sm:col-span-2">
-            Los campos marcados con{" "}
-            <span className="text-destructive">*</span> son obligatorios.
+            {t("requiredHint")}{" "}
+            <span className="text-destructive">*</span>{" "}
+            {t("requiredHintSuffix")}
           </p>
 
           {/* Capitan */}
           <div className="space-y-2 sm:col-span-2">
             <Label>
-              Capitan <span className="text-destructive">*</span>
+              {t("captain")} <span className="text-destructive">*</span>
             </Label>
             <MemberCombobox
               clubId={clubId}
               value={captainId}
               onChange={setCaptainId}
-              placeholder="Seleccionar capitan..."
+              placeholder={t("captainPlaceholder")}
               excludeUserIds={[secretaryId, advisorId, substituteAdvisorId].filter(Boolean)}
               members={sharedMembers}
               onMembersLoaded={handleMembersLoaded}
@@ -154,13 +158,13 @@ export function UnitForm({ mode, clubId, initialData, formAction }: UnitFormProp
           {/* Secretario */}
           <div className="space-y-2 sm:col-span-2">
             <Label>
-              Secretario <span className="text-destructive">*</span>
+              {t("secretary")} <span className="text-destructive">*</span>
             </Label>
             <MemberCombobox
               clubId={clubId}
               value={secretaryId}
               onChange={setSecretaryId}
-              placeholder="Seleccionar secretario..."
+              placeholder={t("secretaryPlaceholder")}
               excludeUserIds={[captainId, advisorId, substituteAdvisorId].filter(Boolean)}
               members={sharedMembers}
               onMembersLoaded={handleMembersLoaded}
@@ -171,13 +175,13 @@ export function UnitForm({ mode, clubId, initialData, formAction }: UnitFormProp
           {/* Consejero */}
           <div className="space-y-2 sm:col-span-2">
             <Label>
-              Consejero <span className="text-destructive">*</span>
+              {t("advisor")} <span className="text-destructive">*</span>
             </Label>
             <MemberCombobox
               clubId={clubId}
               value={advisorId}
               onChange={setAdvisorId}
-              placeholder="Seleccionar consejero..."
+              placeholder={t("advisorPlaceholder")}
               excludeUserIds={[captainId, secretaryId, substituteAdvisorId].filter(Boolean)}
               members={sharedMembers}
               onMembersLoaded={handleMembersLoaded}
@@ -188,14 +192,14 @@ export function UnitForm({ mode, clubId, initialData, formAction }: UnitFormProp
           {/* Consejero suplente */}
           <div className="space-y-2 sm:col-span-2">
             <Label>
-              Consejero suplente{" "}
-              <span className="text-muted-foreground">(opcional)</span>
+              {t("substituteAdvisor")}{" "}
+              <span className="text-muted-foreground">{t("substituteAdvisorOptional")}</span>
             </Label>
             <MemberCombobox
               clubId={clubId}
               value={substituteAdvisorId}
               onChange={setSubstituteAdvisorId}
-              placeholder="Seleccionar consejero suplente (opcional)..."
+              placeholder={t("substituteAdvisorPlaceholder")}
               excludeUserIds={[captainId, secretaryId, advisorId].filter(Boolean)}
               members={sharedMembers}
               onMembersLoaded={handleMembersLoaded}
