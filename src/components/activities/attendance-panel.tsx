@@ -1,6 +1,7 @@
 "use client";
 
 import { Users } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   Table,
   TableBody,
@@ -43,12 +44,14 @@ function getUserDisplayName(
 }
 
 export function AttendancePanel({ records }: AttendancePanelProps) {
+  const t = useTranslations("activities");
+
   if (records.length === 0) {
     return (
       <EmptyState
         icon={Users}
-        title="Sin registros de asistencia"
-        description="No hay asistentes registrados para esta actividad."
+        title={t("attendance.emptyTitle")}
+        description={t("attendance.emptyDescription")}
       />
     );
   }
@@ -59,13 +62,13 @@ export function AttendancePanel({ records }: AttendancePanelProps) {
         <TableHeader>
           <TableRow>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Usuario
+              {t("attendance.colUser")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Email
+              {t("attendance.colEmail")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Registrado
+              {t("attendance.colRegistered")}
             </TableHead>
           </TableRow>
         </TableHeader>

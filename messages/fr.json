@@ -1556,6 +1556,53 @@
     "errors": {
       "save_failed": "Erreur lors de l'enregistrement de l'activité",
       "delete_failed": "Impossible de supprimer l'activité"
+    },
+    "view": {
+      "selectClubPlaceholder": "Sélectionner un club",
+      "allTypes": "Tous les types",
+      "refresh": "Actualiser",
+      "newActivity": "Nouvelle activité",
+      "loading": "Chargement des activités...",
+      "activitiesFoundOne": "activité trouvée",
+      "activitiesFoundOther": "activités trouvées",
+      "errors": {
+        "loadFailed": "Impossible de charger les activités"
+      },
+      "types": {
+        "regular": "Régulier",
+        "especial": "Spécial",
+        "camporee": "Camporee"
+      }
+    },
+    "table": {
+      "emptyTitle": "Aucune activité",
+      "emptyDescription": "Aucune activité trouvée pour les filtres sélectionnés.",
+      "colName": "Nom",
+      "colType": "Type",
+      "colTime": "Heure",
+      "colPlace": "Lieu",
+      "colMode": "Mode",
+      "colStatus": "Statut",
+      "editTitle": "Modifier l'activité",
+      "editLabel": "Modifier",
+      "deleteTitle": "Supprimer l'activité",
+      "deleteLabel": "Supprimer",
+      "viewDetail": "Voir le détail",
+      "statusActive": "Active",
+      "statusInactive": "Inactive",
+      "platformInPerson": "En présentiel"
+    },
+    "detailActions": {
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "sectionFallback": "Section {id}"
+    },
+    "attendance": {
+      "emptyTitle": "Aucun enregistrement de présence",
+      "emptyDescription": "Aucun participant enregistré pour cette activité.",
+      "colUser": "Utilisateur",
+      "colEmail": "E-mail",
+      "colRegistered": "Enregistré"
     }
   },
   "year_end": {

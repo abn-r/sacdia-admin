@@ -1556,6 +1556,53 @@
     "errors": {
       "save_failed": "Error al guardar la actividad",
       "delete_failed": "No se pudo eliminar la actividad"
+    },
+    "view": {
+      "selectClubPlaceholder": "Seleccionar club",
+      "allTypes": "Todos los tipos",
+      "refresh": "Actualizar",
+      "newActivity": "Nueva actividad",
+      "loading": "Cargando actividades...",
+      "activitiesFoundOne": "actividad encontrada",
+      "activitiesFoundOther": "actividades encontradas",
+      "errors": {
+        "loadFailed": "No se pudieron cargar las actividades"
+      },
+      "types": {
+        "regular": "Regular",
+        "especial": "Especial",
+        "camporee": "Camporee"
+      }
+    },
+    "table": {
+      "emptyTitle": "Sin actividades",
+      "emptyDescription": "No se encontraron actividades para los filtros seleccionados.",
+      "colName": "Nombre",
+      "colType": "Tipo",
+      "colTime": "Hora",
+      "colPlace": "Lugar",
+      "colMode": "Modalidad",
+      "colStatus": "Estado",
+      "editTitle": "Editar actividad",
+      "editLabel": "Editar",
+      "deleteTitle": "Eliminar actividad",
+      "deleteLabel": "Eliminar",
+      "viewDetail": "Ver detalle",
+      "statusActive": "Activa",
+      "statusInactive": "Inactiva",
+      "platformInPerson": "Presencial"
+    },
+    "detailActions": {
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "sectionFallback": "Sección {id}"
+    },
+    "attendance": {
+      "emptyTitle": "Sin registros de asistencia",
+      "emptyDescription": "No hay asistentes registrados para esta actividad.",
+      "colUser": "Usuario",
+      "colEmail": "Email",
+      "colRegistered": "Registrado"
     }
   },
   "year_end": {

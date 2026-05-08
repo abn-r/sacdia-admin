@@ -1556,6 +1556,53 @@
     "errors": {
       "save_failed": "Error saving the activity",
       "delete_failed": "Could not delete the activity"
+    },
+    "view": {
+      "selectClubPlaceholder": "Select club",
+      "allTypes": "All types",
+      "refresh": "Refresh",
+      "newActivity": "New activity",
+      "loading": "Loading activities...",
+      "activitiesFoundOne": "activity found",
+      "activitiesFoundOther": "activities found",
+      "errors": {
+        "loadFailed": "Could not load activities"
+      },
+      "types": {
+        "regular": "Regular",
+        "especial": "Special",
+        "camporee": "Camporee"
+      }
+    },
+    "table": {
+      "emptyTitle": "No activities",
+      "emptyDescription": "No activities found for the selected filters.",
+      "colName": "Name",
+      "colType": "Type",
+      "colTime": "Time",
+      "colPlace": "Location",
+      "colMode": "Mode",
+      "colStatus": "Status",
+      "editTitle": "Edit activity",
+      "editLabel": "Edit",
+      "deleteTitle": "Delete activity",
+      "deleteLabel": "Delete",
+      "viewDetail": "View detail",
+      "statusActive": "Active",
+      "statusInactive": "Inactive",
+      "platformInPerson": "In-person"
+    },
+    "detailActions": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "sectionFallback": "Section {id}"
+    },
+    "attendance": {
+      "emptyTitle": "No attendance records",
+      "emptyDescription": "No attendees registered for this activity.",
+      "colUser": "User",
+      "colEmail": "Email",
+      "colRegistered": "Registered"
     }
   },
   "year_end": {
