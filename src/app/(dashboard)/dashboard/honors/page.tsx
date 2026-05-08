@@ -7,11 +7,7 @@ import { hasAnyPermission } from "@/lib/auth/permission-utils";
 import { HONORS_CREATE, HONORS_UPDATE } from "@/lib/auth/permissions";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { HonorsCrudPage } from "@/components/honors/honors-crud-page";
-import {
-  createHonorAction,
-  deactivateHonorAction,
-  updateHonorAction,
-} from "@/lib/honors/actions";
+import { deactivateHonorAction } from "@/lib/honors/actions";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 type SelectOption = { label: string; value: number };
@@ -443,8 +439,6 @@ export default async function HonorsPage({
         canCreate={canCreate}
         canEdit={canEdit}
         canDelete={canDelete}
-        createAction={createHonorAction}
-        updateActionBase={updateHonorAction}
         deactivateAction={deactivateHonorAction}
       />
     </div>
