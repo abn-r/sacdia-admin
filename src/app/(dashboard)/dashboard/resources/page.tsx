@@ -1,5 +1,6 @@
 import { ResourcesCrudPage } from "@/components/resources/resources-crud-page";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { getTranslations } from "next-intl/server";
 import { ApiError } from "@/lib/api/client";
 import { listResources, listResourceCategories } from "@/lib/api/resources";
 import type { ResourceType, ClubTypeTarget, ScopeLevel } from "@/lib/api/resources";
@@ -143,12 +144,13 @@ export default async function ResourcesPage({
   searchParams: SearchParams;
 }) {
   const user = await requireAdminUser();
+  const t = await getTranslations("resources.pages.list");
 
   if (!hasAnyPermission(user, [RESOURCES_READ])) {
     return (
       <EndpointErrorBanner
         state="forbidden"
-        detail="No cuentas con permisos para ver recursos."
+        detail={t("forbiddenDetail")}
       />
     );
   }

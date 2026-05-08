@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -57,7 +58,11 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
-function ClubViewCard({ club }: { club: Club }) {
+function ClubViewCard({ club, labels }: { club: Club; labels: {
+  infoCardTitle: string; labelName: string; labelDescription: string; labelStatus: string;
+  labelLocalField: string; labelDistrict: string; labelChurch: string; labelAddress: string;
+  labelCoordinates: string; statusActive: string; statusInactive: string;
+} }) {
   const lat = (club.coordinates as { lat?: number } | null)?.lat ?? club.latitude;
   const lng = (club.coordinates as { lng?: number } | null)?.lng ?? club.longitude;
 
@@ -65,25 +70,25 @@ function ClubViewCard({ club }: { club: Club }) {
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Información general</CardTitle>
+          <CardTitle className="text-base">{labels.infoCardTitle}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <InfoRow label="Nombre" value={club.name} />
-          <InfoRow label="Descripción" value={club.description} />
+          <InfoRow label={labels.labelName} value={club.name} />
+          <InfoRow label={labels.labelDescription} value={club.description} />
           <InfoRow
-            label="Estado"
+            label={labels.labelStatus}
             value={
               <Badge variant={club.active !== false ? "soft-success" : "outline"}>
-                {club.active !== false ? "Activo" : "Inactivo"}
+                {club.active !== false ? labels.statusActive : labels.statusInactive}
               </Badge>
             }
           />
-          <InfoRow label="Campo local" value={club.local_field?.name} />
-          <InfoRow label="Distrito" value={club.district?.name} />
-          <InfoRow label="Iglesia" value={club.church?.name} />
-          <InfoRow label="Dirección" value={club.address} />
+          <InfoRow label={labels.labelLocalField} value={club.local_field?.name} />
+          <InfoRow label={labels.labelDistrict} value={club.district?.name} />
+          <InfoRow label={labels.labelChurch} value={club.church?.name} />
+          <InfoRow label={labels.labelAddress} value={club.address} />
           {(lat != null || lng != null) && (
-            <InfoRow label="Coordenadas" value={`${lat ?? "—"}, ${lng ?? "—"}`} />
+            <InfoRow label={labels.labelCoordinates} value={`${lat ?? "—"}, ${lng ?? "—"}`} />
           )}
         </CardContent>
       </Card>
@@ -109,6 +114,7 @@ export default async function ClubDetailPage({
   searchParams: SearchParams;
 }) {
   await requireAdminUser();
+  const t = await getTranslations("clubs.pages.detail");
   const { id } = await params;
   const { tab: tabParam } = await searchParams;
   const defaultTab = resolveTab(tabParam);
@@ -144,13 +150,13 @@ export default async function ClubDetailPage({
           <form action={deleteClubAction}>
             <input type="hidden" name="id" value={clubId} />
             <Button variant="destructive" size="sm" type="submit">
-              Eliminar
+              {t("deleteButton")}
             </Button>
           </form>
           <Button variant="outline" size="sm" asChild>
             <Link href="/dashboard/clubs">
               <ArrowLeft className="size-4" />
-              Volver
+              {t("back")}
             </Link>
           </Button>
         </div>
@@ -158,15 +164,27 @@ export default async function ClubDetailPage({
 
       <Tabs defaultValue={defaultTab}>
         <TabsList>
-          <TabsTrigger value="view">Ver</TabsTrigger>
-          <TabsTrigger value="edit">Editar</TabsTrigger>
-          <TabsTrigger value="sections">Secciones ({sections.length})</TabsTrigger>
-          <TabsTrigger value="units">Unidades</TabsTrigger>
-          <TabsTrigger value="membership">Solicitudes de membresía</TabsTrigger>
+          <TabsTrigger value="view">{t("tabView")}</TabsTrigger>
+          <TabsTrigger value="edit">{t("tabEdit")}</TabsTrigger>
+          <TabsTrigger value="sections">{t("tabSections", { count: sections.length })}</TabsTrigger>
+          <TabsTrigger value="units">{t("tabUnits")}</TabsTrigger>
+          <TabsTrigger value="membership">{t("tabMembership")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="view" className="mt-4">
-          <ClubViewCard club={club} />
+          <ClubViewCard club={club} labels={{
+            infoCardTitle: t("infoCardTitle"),
+            labelName: t("labelName"),
+            labelDescription: t("labelDescription"),
+            labelStatus: t("labelStatus"),
+            labelLocalField: t("labelLocalField"),
+            labelDistrict: t("labelDistrict"),
+            labelChurch: t("labelChurch"),
+            labelAddress: t("labelAddress"),
+            labelCoordinates: t("labelCoordinates"),
+            statusActive: t("statusActive"),
+            statusInactive: t("statusInactive"),
+          }} />
         </TabsContent>
 
         <TabsContent value="edit" className="mt-4">

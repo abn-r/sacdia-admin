@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { HonorForm } from "@/components/honors/honor-form";
@@ -36,6 +37,7 @@ export default async function EditHonorPage({ params }: { params: Params }) {
   }
 
   const user = await requireAdminUser();
+  const t = await getTranslations("honors.pages.edit");
   const roleSet = new Set(extractRoles(user));
   const isSuperAdmin = roleSet.has(SUPER_ADMIN_ROLE);
   const canEdit = isSuperAdmin || hasAnyPermission(user, [HONORS_UPDATE]);
@@ -65,13 +67,13 @@ export default async function EditHonorPage({ params }: { params: Params }) {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Editar especialidad"
-        description="Modifica los datos de la especialidad."
+        title={t("title")}
+        description={t("description")}
       >
         <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/honors">
             <ArrowLeft className="size-4" />
-            Volver
+            {t("backButton")}
           </Link>
         </Button>
       </PageHeader>

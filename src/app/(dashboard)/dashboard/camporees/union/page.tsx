@@ -1,4 +1,5 @@
 import { Tent } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
@@ -25,6 +26,7 @@ function extractCamporees(payload: unknown): UnionCamporee[] {
 
 export default async function UnionCamporeesPage() {
   await requireAdminUser();
+  const t = await getTranslations("camporees.pages.union");
 
   let camporees: UnionCamporee[] = [];
   let unions: Union[] = [];
@@ -42,7 +44,7 @@ export default async function UnionCamporeesPage() {
       loadError =
         camporeesPayload.reason instanceof ApiError
           ? camporeesPayload.reason.message
-          : "No se pudo cargar la lista de camporees de unión.";
+          : t("loadFailed");
     }
 
     if (unionsPayload.status === "fulfilled") {
@@ -50,14 +52,14 @@ export default async function UnionCamporeesPage() {
     }
   } catch (err) {
     loadError =
-      err instanceof ApiError ? err.message : "No se pudo cargar la página.";
+      err instanceof ApiError ? err.message : t("pageFailed");
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Camporees de Unión"
-        description="Gestión de camporees a nivel de unión."
+        title={t("title")}
+        description={t("description")}
       />
 
       {loadError && <EndpointErrorBanner state="missing" detail={loadError} />}
@@ -65,7 +67,7 @@ export default async function UnionCamporeesPage() {
       {loadError && (
         <EmptyState
           icon={Tent}
-          title="No se pudieron cargar los camporees de unión"
+          title={t("emptyTitle")}
           description={loadError}
         />
       )}

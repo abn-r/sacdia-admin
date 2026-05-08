@@ -1,4 +1,5 @@
 import { Key } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
@@ -14,6 +15,7 @@ import type { Permission } from "@/lib/rbac/types";
 import { ApiError } from "@/lib/api/client";
 
 export default async function PermissionsPage() {
+  const t = await getTranslations("rbac.pages.permissions");
   await requireAdminUser();
 
   let items: Permission[] = [];
@@ -22,20 +24,20 @@ export default async function PermissionsPage() {
   try {
     items = await listPermissions();
   } catch (error) {
-    loadError = error instanceof ApiError ? error.message : "Error inesperado";
+    loadError = error instanceof ApiError ? error.message : t("loadError");
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Catálogo de permisos"
-        description="Permisos disponibles en el sistema."
+        title={t("title")}
+        description={t("description")}
       />
 
       {loadError && (
         <>
           <EndpointErrorBanner state="missing" detail={loadError} />
-          <EmptyState icon={Key} title="No se pudo cargar el catálogo" description={loadError} />
+          <EmptyState icon={Key} title={t("emptyLoadTitle")} description={loadError} />
         </>
       )}
 

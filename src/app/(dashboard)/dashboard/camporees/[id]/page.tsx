@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, CalendarRange, MapPin, DollarSign, Hash } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -154,6 +155,8 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
     throw error;
   }
 
+  const t = await getTranslations("camporees.pages.detail");
+
   // Fetch members — best effort
   try {
     const membersPayload = await listCamporeeMembers(camporeeId, { page: 1, limit: 50 });
@@ -163,7 +166,7 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
     membersError =
       err instanceof ApiError
         ? err.message
-        : "No se pudo cargar la lista de miembros.";
+        : t("loadFailed");
   }
 
   // Fetch enrolled clubs — best effort
@@ -174,7 +177,7 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
     clubsError =
       err instanceof ApiError
         ? err.message
-        : "No se pudo cargar la lista de clubes.";
+        : t("loadClubsFailed");
   }
 
   // Fetch payments — best effort
@@ -185,7 +188,7 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
     paymentsError =
       err instanceof ApiError
         ? err.message
-        : "No se pudo cargar la lista de pagos.";
+        : t("loadPaymentsFailed");
   }
 
   // Fetch pending approvals — best effort (non-blocking)
@@ -200,11 +203,11 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
 
   return (
     <div className="space-y-6">
-      <PageHeader title={camporee.name} description="Detalle del camporee">
+      <PageHeader title={camporee.name} description={t("description")}>
         <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/camporees">
             <ArrowLeft className="size-4" />
-            Volver
+            {t("back")}
           </Link>
         </Button>
         <CamporeeDetailActions camporee={camporee} />
@@ -227,31 +230,31 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
         infoContent={
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Detalles del camporee</CardTitle>
+              <CardTitle className="text-base">{t("cardTitle")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <InfoRow
-                label="ID"
+                label={t("labelId")}
                 value={camporee.camporee_id ?? camporee.id}
                 icon={Hash}
               />
               <InfoRow
-                label="Fecha de inicio"
+                label={t("labelStartDate")}
                 value={formatDate(camporee.start_date)}
                 icon={CalendarRange}
               />
               <InfoRow
-                label="Fecha de fin"
+                label={t("labelEndDate")}
                 value={formatDate(camporee.end_date)}
                 icon={CalendarRange}
               />
               <InfoRow
-                label="Lugar"
+                label={t("labelPlace")}
                 value={camporee.local_camporee_place ?? "—"}
                 icon={MapPin}
               />
               <InfoRow
-                label="Costo de inscripción"
+                label={t("labelCost")}
                 value={
                   camporee.registration_cost != null
                     ? camporee.registration_cost.toLocaleString("es-MX", {
@@ -264,12 +267,12 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
                 icon={DollarSign}
               />
               <InfoRow
-                label="Campo local ID"
+                label={t("labelLocalFieldId")}
                 value={camporee.local_field_id ?? "—"}
                 icon={Hash}
               />
               <InfoRow
-                label="Incluye"
+                label={t("labelIncludes")}
                 value={
                   <div className="flex flex-wrap gap-1.5">
                     {camporee.includes_adventurers && (
@@ -290,7 +293,7 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
                 }
               />
               {camporee.description && (
-                <InfoRow label="Descripción" value={camporee.description} />
+                <InfoRow label={t("labelDescription")} value={camporee.description} />
               )}
             </CardContent>
           </Card>

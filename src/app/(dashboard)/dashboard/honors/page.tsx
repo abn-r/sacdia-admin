@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { ApiError } from "@/lib/api/client";
 import { listClubTypes } from "@/lib/api/catalogs";
 import { listHonorCategories, listHonors, type HonorListQuery } from "@/lib/api/honors";
@@ -337,6 +338,7 @@ export default async function HonorsPage({
   searchParams: SearchParams;
 }) {
   const user = await requireAdminUser();
+  const t = await getTranslations("honors.pages.list");
   const roleSet = new Set(extractRoles(user));
   const isSuperAdmin = roleSet.has(SUPER_ADMIN_ROLE);
 
@@ -392,7 +394,7 @@ export default async function HonorsPage({
         totalPages: 1,
       };
     } else {
-      loadError = error instanceof ApiError ? error.message : "No se pudieron cargar las especialidades.";
+      loadError = error instanceof ApiError ? error.message : t("loadError");
     }
   }
 

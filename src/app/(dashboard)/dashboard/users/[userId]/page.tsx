@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -212,6 +213,7 @@ function formatLegalRepresentative(value: Record<string, unknown> | null | undef
 
 export default async function UserDetailPage({ params }: { params: Params }) {
   const currentUser = await requireAdminUser();
+  const t = await getTranslations("users.pages.detail");
   const { userId } = await params;
 
   let user: AdminUserDetail;
@@ -241,10 +243,10 @@ export default async function UserDetailPage({ params }: { params: Params }) {
       return (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Acceso restringido</CardTitle>
+            <CardTitle className="text-base">{t("restrictedTitle")}</CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground">
-            Necesitas autorización global resuelta para consultar datos de terceros.
+            {t("restrictedDescription")}
           </CardContent>
         </Card>
       );
@@ -295,11 +297,11 @@ export default async function UserDetailPage({ params }: { params: Params }) {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Detalle de usuario">
+      <PageHeader title={t("title")}>
         <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/users">
             <ArrowLeft className="size-4" />
-            Volver
+            {t("back")}
           </Link>
         </Button>
       </PageHeader>
@@ -318,7 +320,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
             <p className="text-sm text-muted-foreground">{user.email ?? "—"}</p>
             <div className="mt-1 flex flex-wrap gap-2">
               <Badge variant={user.active !== false ? "soft-success" : "outline"}>
-                {user.active !== false ? "Activo" : "Inactivo"}
+                {user.active !== false ? t("statusActive") : t("statusInactive")}
               </Badge>
               {roleNames.map((role) => (
                 <Badge key={role} variant="secondary">
@@ -341,9 +343,9 @@ export default async function UserDetailPage({ params }: { params: Params }) {
       {/* Tabbed content */}
       <Tabs defaultValue="info">
         <TabsList>
-          <TabsTrigger value="info">Información</TabsTrigger>
+          <TabsTrigger value="info">{t("tabInfo")}</TabsTrigger>
           {canSeeAdministrativeCompletion ? (
-            <TabsTrigger value="post-registration">Post-registro</TabsTrigger>
+            <TabsTrigger value="post-registration">{t("tabPostRegistration")}</TabsTrigger>
           ) : null}
           {/* <TabsTrigger value="seguridad">Seguridad</TabsTrigger> */}
           {/* <TabsTrigger value="sesiones">Sesiones</TabsTrigger> */}
@@ -648,7 +650,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
               <Card>
                 <CardContent className="py-6">
                   <p className="text-center text-sm text-muted-foreground">
-                    No se pudo obtener el estado del post-registro. El usuario puede no haber iniciado el proceso o puede haber un error de conectividad.
+                    {t("postRegistrationUnavailable")}
                   </p>
                 </CardContent>
               </Card>

@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { Users } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -43,6 +44,7 @@ async function UsersContent({
   query: AdminUsersQuery;
   currentUser: AuthUser;
 }) {
+  const t = await getTranslations("users.pages.list");
   const result = await listAdminUsers(query);
   const showAdministrativeCompletion = canViewAdministrativeCompletion(currentUser);
 
@@ -56,7 +58,7 @@ async function UsersContent({
         />
         <EmptyState
           icon={Users}
-          title="No se pueden mostrar usuarios"
+          title={t("cannotShow")}
           description={result.endpointDetail}
         />
       </div>
@@ -67,8 +69,8 @@ async function UsersContent({
     return (
       <EmptyState
         icon={Users}
-        title="No se encontraron usuarios"
-        description="Intenta ajustar los filtros de búsqueda."
+        title={t("emptyTitle")}
+        description={t("emptyDescription")}
       />
     );
   }
@@ -124,14 +126,15 @@ export default async function UsersPage({
   searchParams: SearchParams;
 }) {
   const currentUser = await requireAdminUser();
+  const t = await getTranslations("users.pages.list");
   const rawParams = await searchParams;
   const query = parseSearchParams(rawParams);
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Usuarios"
-        description="Gestión de usuarios del sistema."
+        title={t("title")}
+        description={t("description")}
       />
 
       <Suspense fallback={<UsersListSkeleton />}>

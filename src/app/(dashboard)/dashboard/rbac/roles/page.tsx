@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ShieldCheck, Plus } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -12,6 +13,7 @@ import { ApiError } from "@/lib/api/client";
 import type { Role } from "@/lib/rbac/types";
 
 export default async function RolesPage() {
+  const t = await getTranslations("rbac.pages.roles");
   const user = await requireAdminUser();
   const isSuperAdmin = extractRoles(user).includes(SUPER_ADMIN_ROLE);
 
@@ -22,20 +24,20 @@ export default async function RolesPage() {
     // Fetch all roles — client-side tab filtering drives the active/inactive split
     roles = await listRoles("all");
   } catch (error) {
-    loadError = error instanceof ApiError ? error.message : "Error inesperado al cargar los roles";
+    loadError = error instanceof ApiError ? error.message : t("loadError");
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Roles"
-        description="Gestión de roles del sistema y asignación de permisos."
+        title={t("title")}
+        description={t("description")}
         actions={
           isSuperAdmin ? (
             <Button asChild>
               <Link href="/dashboard/rbac/roles/new">
                 <Plus className="size-4" />
-                Nuevo rol
+                {t("newRole")}
               </Link>
             </Button>
           ) : undefined
@@ -47,7 +49,7 @@ export default async function RolesPage() {
           <EndpointErrorBanner state="missing" detail={loadError} />
           <EmptyState
             icon={ShieldCheck}
-            title="No se pudo cargar roles"
+            title={t("emptyLoadTitle")}
             description={loadError}
           />
         </>
@@ -56,14 +58,14 @@ export default async function RolesPage() {
       {!loadError && roles.length === 0 && (
         <EmptyState
           icon={ShieldCheck}
-          title="Sin roles"
-          description="No se encontraron roles registrados en el sistema."
+          title={t("emptyTitle")}
+          description={t("emptyDescription")}
         >
           {isSuperAdmin && (
             <Button asChild>
               <Link href="/dashboard/rbac/roles/new">
                 <Plus className="size-4" />
-                Nuevo rol
+                {t("newRole")}
               </Link>
             </Button>
           )}

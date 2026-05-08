@@ -1,4 +1,5 @@
 import { BookOpen } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { PhaseECatalogCrudPage } from "@/components/catalogs/phase-e-catalog-crud-page";
 import { ApiError } from "@/lib/api/client";
@@ -16,6 +17,7 @@ import {
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 export default async function AdminClassModulesPage({ searchParams }: { searchParams: SearchParams }) {
+  const t = await getTranslations("catalogs.pages.classModules");
   const user = await requireAdminUser();
   const raw = await searchParams;
 
@@ -39,7 +41,7 @@ export default async function AdminClassModulesPage({ searchParams }: { searchPa
     meta = extractMeta(payload, page, limit, items.length);
   } catch (error) {
     if (!(error instanceof ApiError && error.status === 429)) {
-      loadError = error instanceof ApiError ? error.message : "No se pudieron cargar los módulos de clase.";
+      loadError = error instanceof ApiError ? error.message : t("loadError");
     }
   }
 
@@ -51,9 +53,9 @@ export default async function AdminClassModulesPage({ searchParams }: { searchPa
     <div className="space-y-6">
       {loadError && <EndpointErrorBanner state="missing" detail={loadError} />}
       <PhaseECatalogCrudPage
-        title="Módulos de clase"
-        description="Catálogo de módulos que componen las clases del sistema."
-        entityLabel="Módulo"
+        title={t("title")}
+        description={t("description")}
+        entityLabel={t("entityLabel")}
         emptyIcon={BookOpen}
         includeDescription={true}
         idField="module_id"

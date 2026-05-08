@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { ApiError } from "@/lib/api/client";
 import { listAchievementCategoriesAdmin } from "@/lib/api/achievements";
@@ -80,6 +81,7 @@ export default async function AchievementsPage({
   searchParams: SearchParams;
 }) {
   await requireAdminUser();
+  const t = await getTranslations("achievements.pages.list");
 
   const rawSearchParams = await searchParams;
   const search = toNonEmptyString(readParam(rawSearchParams, "search") ?? "") ?? undefined;
@@ -103,7 +105,7 @@ export default async function AchievementsPage({
       loadError =
         error instanceof ApiError
           ? error.message
-          : "No se pudieron cargar las categorías de logros.";
+          : t("loadError");
     }
   }
 
