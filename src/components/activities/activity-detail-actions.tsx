@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Pencil, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { ActivityFormDialog } from "@/components/activities/activity-form-dialog";
 import { DeleteActivityDialog } from "@/components/activities/delete-activity-dialog";
@@ -13,6 +14,7 @@ interface ActivityDetailActionsProps {
 }
 
 export function ActivityDetailActions({ activity }: ActivityDetailActionsProps) {
+  const t = useTranslations("activities");
   const router = useRouter();
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -29,7 +31,7 @@ export function ActivityDetailActions({ activity }: ActivityDetailActionsProps) 
     <>
       <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
         <Pencil className="mr-2 size-3.5" />
-        Editar
+        {t("detailActions.edit")}
       </Button>
       <Button
         variant="outline"
@@ -38,7 +40,7 @@ export function ActivityDetailActions({ activity }: ActivityDetailActionsProps) 
         className="text-destructive hover:bg-destructive/10 hover:text-destructive"
       >
         <Trash2 className="mr-2 size-3.5" />
-        Eliminar
+        {t("detailActions.delete")}
       </Button>
 
       <ActivityFormDialog
@@ -48,7 +50,7 @@ export function ActivityDetailActions({ activity }: ActivityDetailActionsProps) 
         sections={[
           {
             club_section_id: activity.club_section_id,
-            name: `Sección ${activity.club_section_id}`,
+            name: t("detailActions.sectionFallback", { id: activity.club_section_id }),
             club_type_id: activity.club_type_id,
           },
         ]}

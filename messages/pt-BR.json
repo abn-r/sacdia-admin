@@ -1424,6 +1424,53 @@
     "errors": {
       "save_failed": "Erro ao salvar a atividade",
       "delete_failed": "Não foi possível excluir a atividade"
+    },
+    "view": {
+      "selectClubPlaceholder": "Selecionar clube",
+      "allTypes": "Todos os tipos",
+      "refresh": "Atualizar",
+      "newActivity": "Nova atividade",
+      "loading": "Carregando atividades...",
+      "activitiesFoundOne": "atividade encontrada",
+      "activitiesFoundOther": "atividades encontradas",
+      "errors": {
+        "loadFailed": "Não foi possível carregar as atividades"
+      },
+      "types": {
+        "regular": "Regular",
+        "especial": "Especial",
+        "camporee": "Camporee"
+      }
+    },
+    "table": {
+      "emptyTitle": "Sem atividades",
+      "emptyDescription": "Nenhuma atividade encontrada para os filtros selecionados.",
+      "colName": "Nome",
+      "colType": "Tipo",
+      "colTime": "Horário",
+      "colPlace": "Local",
+      "colMode": "Modalidade",
+      "colStatus": "Status",
+      "editTitle": "Editar atividade",
+      "editLabel": "Editar",
+      "deleteTitle": "Excluir atividade",
+      "deleteLabel": "Excluir",
+      "viewDetail": "Ver detalhe",
+      "statusActive": "Ativa",
+      "statusInactive": "Inativa",
+      "platformInPerson": "Presencial"
+    },
+    "detailActions": {
+      "edit": "Editar",
+      "delete": "Excluir",
+      "sectionFallback": "Seção {id}"
+    },
+    "attendance": {
+      "emptyTitle": "Sem registros de presença",
+      "emptyDescription": "Nenhum participante registrado para esta atividade.",
+      "colUser": "Usuário",
+      "colEmail": "E-mail",
+      "colRegistered": "Registrado"
     }
   },
   "year_end": {
