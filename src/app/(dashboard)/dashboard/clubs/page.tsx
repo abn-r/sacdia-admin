@@ -17,9 +17,11 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { DataTableShell } from "@/components/shared/data-table-shell";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
+import { ClubsTableActionsCell } from "@/components/clubs/clubs-table-actions-cell";
 import { apiRequest, ApiError } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
 import { hasPermission } from "@/lib/auth/permission-utils";
+import { CLUBS_UPDATE, CLUBS_DELETE } from "@/lib/auth/permissions";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -159,6 +161,8 @@ async function ClubsContent({
 }) {
   const user = await requireAdminUser();
   const canCreate = hasPermission(user, "clubs:create");
+  const canEdit = hasPermission(user, CLUBS_UPDATE);
+  const canDelete = hasPermission(user, CLUBS_DELETE);
   const result = await fetchClubs(query);
 
   if (!result.available) {
@@ -198,7 +202,11 @@ async function ClubsContent({
                 <TableHead className="hidden lg:table-cell">Distrito</TableHead>
                 <TableHead className="hidden lg:table-cell">Iglesia</TableHead>
                 <TableHead>Estado</TableHead>
-                <TableHead className="w-[100px]">Acciones</TableHead>
+                {(canEdit || canDelete) && (
+                  <TableHead className="sticky right-0 z-20 w-[100px] border-l bg-background">
+                    Acciones
+                  </TableHead>
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -221,11 +229,15 @@ async function ClubsContent({
                         {club.active !== false ? "Activo" : "Inactivo"}
                       </Badge>
                     </TableCell>
-                    <TableCell>
-                      <Button variant="ghost" size="sm" asChild>
-                        <Link href={`/dashboard/clubs/${clubId}`}>Ver</Link>
-                      </Button>
-                    </TableCell>
+                    {(canEdit || canDelete) && (
+                      <TableCell className="sticky right-0 z-10 border-l bg-background">
+                        <ClubsTableActionsCell
+                          club={{ id: clubId ?? 0, name: club.name ?? "" }}
+                          canEdit={canEdit}
+                          canDelete={canDelete}
+                        />
+                      </TableCell>
+                    )}
                   </TableRow>
                 );
               })}
