@@ -117,12 +117,12 @@ export function UserAccessToggles({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Accesos</CardTitle>
+        <CardTitle className="text-base">{t("access.card_title")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between gap-4">
           <Label htmlFor="toggle-access-app" className="text-sm text-muted-foreground">
-            Acceso a App
+            {t("access.access_app_label")}
           </Label>
           <div className="flex items-center gap-2">
             {isPending && pendingField === "access_app" && (
@@ -141,7 +141,7 @@ export function UserAccessToggles({
 
         <div className="flex items-center justify-between gap-4">
           <Label htmlFor="toggle-access-panel" className="text-sm text-muted-foreground">
-            Acceso a Panel
+            {t("access.access_panel_label")}
           </Label>
           <div className="flex items-center gap-2">
             {isPending && pendingField === "access_panel" && (
@@ -160,7 +160,7 @@ export function UserAccessToggles({
 
         <div className="flex items-center justify-between gap-4">
           <Label htmlFor="toggle-active" className="text-sm text-muted-foreground">
-            Activo
+            {t("access.active_label")}
           </Label>
           <div className="flex items-center gap-2">
             {isPending && pendingField === "active" && (
@@ -178,7 +178,7 @@ export function UserAccessToggles({
         </div>
 
         <div className="flex items-center justify-between gap-4">
-          <Label className="text-sm text-muted-foreground">Aprobación</Label>
+          <Label className="text-sm text-muted-foreground">{t("access.approval_label")}</Label>
           <div className="flex items-center gap-2">
             {isPending && pendingField === "approval_status" && (
               <Loader2 className="size-3.5 animate-spin text-muted-foreground" />
@@ -192,9 +192,9 @@ export function UserAccessToggles({
                 <SelectValue placeholder="—" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="pending">Pendiente</SelectItem>
-                <SelectItem value="approved">Aprobado</SelectItem>
-                <SelectItem value="rejected">Rechazado</SelectItem>
+                <SelectItem value="pending">{t("access.approval_pending")}</SelectItem>
+                <SelectItem value="approved">{t("access.approval_approved")}</SelectItem>
+                <SelectItem value="rejected">{t("access.approval_rejected")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
