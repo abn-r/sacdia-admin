@@ -316,6 +316,70 @@
       "ecclesiastical_year": "Ecclesiastical year"
     }
   },
+  "dashboardHub": {
+    "title": "Dashboard",
+    "description": "General system overview for SACDIA.",
+    "stats": {
+      "registeredUsers": "Registered users",
+      "pendingApproval": "{count} pending approval",
+      "totalInSystem": "Total in the system",
+      "activeClubs": "Active clubs",
+      "totalClubs": "{count} clubs total",
+      "activeClubsStatus": "Clubs with active status",
+      "camporees": "Camporees",
+      "activeEvents": "Active events",
+      "honors": "Honors",
+      "totalClasses": "{count} classes registered",
+      "totalHonors": "Total honors"
+    },
+    "recentUsers": {
+      "title": "Recent users",
+      "description": "Latest registrations in the system",
+      "viewAll": "View all",
+      "noRole": "No role",
+      "loadError": "Could not load recent users."
+    },
+    "relativeDate": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "daysAgo": "{count} days ago",
+      "weeksAgo": "{count} wk. ago"
+    },
+    "roleChart": {
+      "title": "Role distribution",
+      "description": "Assignments in the last 100 users",
+      "noRolesFound": "No assigned roles found in the sample.",
+      "basedOn": "Based on the last {count} registered users",
+      "userCount": "{count, plural, one {{count} user} other {{count} users}} — {percentage}%"
+    },
+    "quickLinks": {
+      "title": "Quick links",
+      "users": "Users",
+      "usersDesc": "Manage accounts",
+      "clubs": "Clubs",
+      "clubsDesc": "Manage clubs",
+      "classes": "Classes",
+      "classesDesc": "View and edit classes",
+      "honors": "Honors",
+      "honorsDesc": "Manage honors"
+    },
+    "roleLabels": {
+      "superAdmin": "Super Admin",
+      "admin": "Admin",
+      "assistantAdmin": "Asst. Admin",
+      "coordinator": "Coordinator",
+      "pastor": "Pastor",
+      "user": "User",
+      "director": "Director",
+      "deputyDirector": "Deputy Director",
+      "secretary": "Secretary",
+      "treasurer": "Treasurer",
+      "counselor": "Counselor",
+      "instructor": "Instructor",
+      "member": "Member",
+      "noRole": "No role"
+    }
+  },
   "post_registration": {
     "errors": {
       "step_failed": "Failed to complete step {step}"

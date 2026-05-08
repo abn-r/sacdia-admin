@@ -27,6 +27,7 @@ import {
 } from "@/components/dashboard/role-distribution-chart";
 import { cn } from "@/lib/utils";
 import { PageHeader } from "@/components/shared/page-header";
+import { getTranslations } from "next-intl/server";
 
 type StatsData = {
   totalUsers: number | null;
@@ -279,18 +280,29 @@ function extractRoleNames(user: RecentUser): string[] {
   return [...new Set(roles)];
 }
 
-function formatRelativeDate(dateStr?: string | null): string {
+type RelativeDateTranslations = {
+  today: string;
+  yesterday: string;
+  daysAgo: (count: number) => string;
+  weeksAgo: (count: number) => string;
+};
+
+function formatRelativeDate(
+  dateStr: string | null | undefined,
+  tx: RelativeDateTranslations,
+  locale: string
+): string {
   if (!dateStr) return "—";
   try {
     const date = new Date(dateStr);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    if (diffDays === 0) return "Hoy";
-    if (diffDays === 1) return "Ayer";
-    if (diffDays < 7) return `Hace ${diffDays} días`;
-    if (diffDays < 30) return `Hace ${Math.floor(diffDays / 7)} sem.`;
-    return date.toLocaleDateString("es-MX", {
+    if (diffDays === 0) return tx.today;
+    if (diffDays === 1) return tx.yesterday;
+    if (diffDays < 7) return tx.daysAgo(diffDays);
+    if (diffDays < 30) return tx.weeksAgo(Math.floor(diffDays / 7));
+    return date.toLocaleDateString(locale, {
       day: "numeric",
       month: "short",
       year: "numeric",
@@ -301,40 +313,41 @@ function formatRelativeDate(dateStr?: string | null): string {
 }
 
 async function StatsSection() {
+  const t = await getTranslations("dashboardHub");
   const stats = await fetchStats();
 
   const statCards = [
     {
-      title: "Usuarios registrados",
+      title: t("stats.registeredUsers"),
       value: stats.totalUsers,
       subtitle:
         stats.pendingUsers !== null
-          ? `${stats.pendingUsers} pendientes de aprobación`
-          : "Total en el sistema",
+          ? t("stats.pendingApproval", { count: stats.pendingUsers })
+          : t("stats.totalInSystem"),
       icon: Users,
     },
     {
-      title: "Clubes activos",
+      title: t("stats.activeClubs"),
       value: stats.activeClubs,
       subtitle:
         stats.totalClubs !== null
-          ? `${stats.totalClubs} clubes en total`
-          : "Clubes con estado activo",
+          ? t("stats.totalClubs", { count: stats.totalClubs })
+          : t("stats.activeClubsStatus"),
       icon: Building2,
     },
     {
-      title: "Camporees",
+      title: t("stats.camporees"),
       value: stats.activeCamporees,
-      subtitle: "Eventos activos",
+      subtitle: t("stats.activeEvents"),
       icon: Tent,
     },
     {
-      title: "Especialidades",
+      title: t("stats.honors"),
       value: stats.totalHonors,
       subtitle:
         stats.totalClasses !== null
-          ? `${stats.totalClasses} clases registradas`
-          : "Total de especialidades",
+          ? t("stats.totalClasses", { count: stats.totalClasses })
+          : t("stats.totalHonors"),
       icon: Award,
     },
   ];
@@ -349,27 +362,35 @@ async function StatsSection() {
 }
 
 async function RecentUsersSection() {
+  const t = await getTranslations("dashboardHub");
   const users = await fetchRecentUsers();
+
+  const relativeDateTx: RelativeDateTranslations = {
+    today: t("relativeDate.today"),
+    yesterday: t("relativeDate.yesterday"),
+    daysAgo: (count) => t("relativeDate.daysAgo", { count }),
+    weeksAgo: (count) => t("relativeDate.weeksAgo", { count }),
+  };
 
   if (users.length === 0) {
     return (
       <Card className="col-span-2">
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle className="text-base">Usuarios recientes</CardTitle>
-            <CardDescription>Últimos registros en el sistema</CardDescription>
+            <CardTitle className="text-base">{t("recentUsers.title")}</CardTitle>
+            <CardDescription>{t("recentUsers.description")}</CardDescription>
           </div>
           <Link
             href="/dashboard/users"
             className="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
           >
-            Ver todos
+            {t("recentUsers.viewAll")}
             <ArrowRight className="size-3" />
           </Link>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            No se pudieron cargar los usuarios recientes.
+            {t("recentUsers.loadError")}
           </p>
         </CardContent>
       </Card>
@@ -380,14 +401,14 @@ async function RecentUsersSection() {
     <Card className="col-span-2">
       <CardHeader className="flex flex-row items-center justify-between pb-4">
         <div>
-          <CardTitle className="text-base">Usuarios recientes</CardTitle>
-          <CardDescription>Últimos registros en el sistema</CardDescription>
+          <CardTitle className="text-base">{t("recentUsers.title")}</CardTitle>
+          <CardDescription>{t("recentUsers.description")}</CardDescription>
         </div>
         <Link
           href="/dashboard/users"
           className="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
         >
-          Ver todos
+          {t("recentUsers.viewAll")}
           <ArrowRight className="size-3" />
         </Link>
       </CardHeader>
@@ -434,7 +455,7 @@ async function RecentUsersSection() {
                     ))
                   ) : (
                     <Badge variant="outline" className="text-xs font-normal">
-                      Sin rol
+                      {t("recentUsers.noRole")}
                     </Badge>
                   )}
                 </div>
@@ -448,7 +469,7 @@ async function RecentUsersSection() {
                     )}
                   />
                   <span className="hidden text-xs tabular-nums text-muted-foreground lg:inline">
-                    {formatRelativeDate(user.created_at)}
+                    {formatRelativeDate(user.created_at, relativeDateTx, "es-MX")}
                   </span>
                 </div>
               </div>
@@ -460,36 +481,38 @@ async function RecentUsersSection() {
   );
 }
 
-const quickLinks = [
-  {
-    title: "Usuarios",
-    description: "Gestionar cuentas",
-    href: "/dashboard/users",
-    icon: Users,
-    colorIndex: 0, // primary
-  },
-  {
-    title: "Clubes",
-    description: "Administrar clubes",
-    href: "/dashboard/clubs",
-    icon: Building2,
-    colorIndex: 3, // info
-  },
-  {
-    title: "Clases",
-    description: "Ver y editar clases",
-    href: "/dashboard/classes",
-    icon: GraduationCap,
-    colorIndex: 1, // success
-  },
-  {
-    title: "Especialidades",
-    description: "Gestionar honores",
-    href: "/dashboard/honors",
-    icon: Award,
-    colorIndex: 2, // warning
-  },
-];
+async function buildQuickLinks(t: Awaited<ReturnType<typeof getTranslations<"dashboardHub">>>) {
+  return [
+    {
+      title: t("quickLinks.users"),
+      description: t("quickLinks.usersDesc"),
+      href: "/dashboard/users",
+      icon: Users,
+      colorIndex: 0, // primary
+    },
+    {
+      title: t("quickLinks.clubs"),
+      description: t("quickLinks.clubsDesc"),
+      href: "/dashboard/clubs",
+      icon: Building2,
+      colorIndex: 3, // info
+    },
+    {
+      title: t("quickLinks.classes"),
+      description: t("quickLinks.classesDesc"),
+      href: "/dashboard/classes",
+      icon: GraduationCap,
+      colorIndex: 1, // success
+    },
+    {
+      title: t("quickLinks.honors"),
+      description: t("quickLinks.honorsDesc"),
+      href: "/dashboard/honors",
+      icon: Award,
+      colorIndex: 2, // warning
+    },
+  ];
+}
 
 function StatsSkeleton() {
   return (
@@ -511,6 +534,7 @@ function StatsSkeleton() {
 }
 
 async function RoleDistributionSection() {
+  const t = await getTranslations("dashboardHub");
   const { data, sampleSize } = await fetchRoleDistribution();
 
   return (
@@ -518,8 +542,8 @@ async function RoleDistributionSection() {
       <CardHeader className="pb-4">
         <div className="flex items-start justify-between">
           <div>
-            <CardTitle className="text-base">Distribución de roles</CardTitle>
-            <CardDescription>Asignaciones en los últimos 100 usuarios</CardDescription>
+            <CardTitle className="text-base">{t("roleChart.title")}</CardTitle>
+            <CardDescription>{t("roleChart.description")}</CardDescription>
           </div>
           <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
             <TrendingUp className="size-4 text-primary" />
@@ -590,12 +614,14 @@ function RecentUsersSkeleton() {
 
 export default async function DashboardPage() {
   await requireAdminUser();
+  const t = await getTranslations("dashboardHub");
+  const quickLinks = await buildQuickLinks(t);
 
   return (
     <div className="space-y-8">
       <PageHeader
-        title="Dashboard"
-        description="Resumen general del sistema SACDIA."
+        title={t("title")}
+        description={t("description")}
       />
 
       {/* Stats grid */}
@@ -617,7 +643,7 @@ export default async function DashboardPage() {
       {/* Quick links */}
       <div>
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-base font-semibold">Accesos rápidos</h2>
+          <h2 className="text-base font-semibold">{t("quickLinks.title")}</h2>
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {quickLinks.map((link) => {
