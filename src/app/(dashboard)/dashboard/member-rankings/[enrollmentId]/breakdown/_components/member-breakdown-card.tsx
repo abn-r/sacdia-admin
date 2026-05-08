@@ -1,4 +1,7 @@
+"use client";
+
 import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { MemberRankingScoreBadge } from "@/app/(dashboard)/dashboard/member-rankings/_components/member-ranking-score-badge";
@@ -15,9 +18,8 @@ interface MemberBreakdownCardProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 /**
- * Pure server component. Renders a single signal card (class / investiture /
- * camporee) with a progress bar, score badge, weight pill, and slot for
- * the signal-specific breakdown detail.
+ * Renders a single signal card (class / investiture / camporee) with a progress
+ * bar, score badge, weight pill, and slot for the signal-specific breakdown detail.
  */
 export function MemberBreakdownCard({
   title,
@@ -25,6 +27,8 @@ export function MemberBreakdownCard({
   weight,
   breakdown,
 }: MemberBreakdownCardProps) {
+  const t = useTranslations("rankings.breakdownCard");
+
   const progressValue = score !== null ? Math.min(100, Math.max(0, score)) : 0;
 
   return (
@@ -33,7 +37,7 @@ export function MemberBreakdownCard({
         <div className="flex items-start justify-between gap-2">
           <CardTitle className="text-base">{title}</CardTitle>
           <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-            Peso: {weight}%
+            {t("weightLabel", { weight })}
           </span>
         </div>
       </CardHeader>
@@ -42,7 +46,7 @@ export function MemberBreakdownCard({
         {/* Score badge + progress bar */}
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Puntuación</span>
+            <span className="text-muted-foreground">{t("scoreLabel")}</span>
             <MemberRankingScoreBadge score={score} />
           </div>
           <Progress value={progressValue} />

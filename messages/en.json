@@ -385,19 +385,23 @@
     "pages": {
       "countries": {
         "title": "Countries",
-        "description": "System country catalog."
+        "description": "System country catalog.",
+        "metadataTitle": "Countries"
       },
       "churches": {
         "title": "Churches",
-        "description": "System church catalog."
+        "description": "System church catalog.",
+        "metadataTitle": "Churches"
       },
       "districts": {
         "title": "Districts",
-        "description": "System district catalog."
+        "description": "System district catalog.",
+        "metadataTitle": "Districts"
       },
       "unions": {
         "title": "Unions",
-        "description": "System union catalog."
+        "description": "System union catalog.",
+        "metadataTitle": "Unions"
       },
       "unionsDetail": {
         "back": "Back",
@@ -413,7 +417,8 @@
       },
       "localFields": {
         "title": "Local Fields",
-        "description": "System local field catalog."
+        "description": "System local field catalog.",
+        "metadataTitle": "Local fields"
       },
       "localFieldsDetail": {
         "back": "Back",
@@ -429,7 +434,8 @@
       },
       "activityTypes": {
         "title": "Activity types",
-        "description": "System activity type catalog."
+        "description": "System activity type catalog.",
+        "metadataTitle": "Activity types"
       },
       "folderSections": {
         "title": "Folder sections",
@@ -548,6 +554,41 @@
         "tableName": "Name",
         "tableLevel": "Level",
         "tableStatus": "Status"
+      },
+      "diseases": {
+        "title": "Diseases",
+        "description": "Chronic diseases or relevant medical conditions.",
+        "metadataTitle": "Diseases"
+      },
+      "clubTypes": {
+        "title": "Club types",
+        "description": "Club types available in the system.",
+        "metadataTitle": "Club types"
+      },
+      "medicines": {
+        "title": "Medicines",
+        "description": "Commonly used medications for members.",
+        "metadataTitle": "Medicines"
+      },
+      "clubIdeals": {
+        "title": "Club ideals",
+        "description": "Ideals associated with each club type.",
+        "metadataTitle": "Club ideals"
+      },
+      "allergies": {
+        "title": "Allergies",
+        "description": "List of allergies for the members' health profile.",
+        "metadataTitle": "Allergies"
+      },
+      "relationshipTypes": {
+        "title": "Relationship types",
+        "description": "Family or emergency contact relationships.",
+        "metadataTitle": "Relationship types"
+      },
+      "ecclesiasticalYears": {
+        "title": "Ecclesiastical years",
+        "description": "Annual periods for organizing activities.",
+        "metadataTitle": "Ecclesiastical years"
       }
     }
   },
@@ -1340,6 +1381,265 @@
         "defaultName": "No name",
         "defaultCategoryName": "Category {id}",
         "defaultAchievementName": "Achievement {id}"
+      }
+    },
+    "imageUpload": {
+      "dropzoneAriaLabel": "Upload area for achievement image",
+      "uploading": "Uploading image...",
+      "dropzonePrompt": "Drag an image or click to select",
+      "dropzoneHint": "PNG, SVG or WebP — maximum 2 MB",
+      "previewAlt": "Achievement preview",
+      "previewTitle": "Preview",
+      "tierLabel": "Tier:",
+      "noImageLabel": "No image",
+      "removeAriaLabel": "Remove image",
+      "toastSuccess": "Achievement image updated successfully.",
+      "toastError": "Could not upload the image. Try again.",
+      "toastSaveFirst": "Save the achievement first to upload an image.",
+      "validateTypeError": "Only PNG, SVG or WebP images are allowed.",
+      "validateSizeError": "File cannot exceed 2 MB."
+    },
+    "cards": {
+      "preview": {
+        "tierLabels": {
+          "BRONZE": "Bronze",
+          "SILVER": "Silver",
+          "GOLD": "Gold",
+          "PLATINUM": "Platinum",
+          "DIAMOND": "Diamond"
+        },
+        "typeLabels": {
+          "THRESHOLD": "Threshold",
+          "STREAK": "Streak",
+          "MILESTONE": "Milestone",
+          "COLLECTION": "Collection",
+          "COMPOUND": "Compound"
+        },
+        "repeatableBadge": "Repeatable",
+        "secretBadge": "Secret",
+        "pointsSuffix": "pts",
+        "defaultName": "Achievement name"
+      }
+    },
+    "forms": {
+      "category": {
+        "titleCreate": "New category",
+        "titleEdit": "Edit category",
+        "descriptionCreate": "Fill in the fields to create a new achievement category.",
+        "descriptionEdit": "Modify the achievement category data.",
+        "labelName": "Name",
+        "placeholderName": "E.g. Participation",
+        "labelDescription": "Description",
+        "placeholderDescription": "Describe this category...",
+        "labelIcon": "Icon",
+        "placeholderIcon": "trophy",
+        "labelIconHint": "(lucide-react icon name, e.g. trophy)",
+        "labelOrder": "Display order",
+        "placeholderOrder": "0",
+        "labelActive": "Active category",
+        "cancelButton": "Cancel",
+        "submitCreate": "Create category",
+        "submitEdit": "Save changes"
+      },
+      "achievement": {
+        "tabBasic": "Basic information",
+        "tabCriteria": "Criteria",
+        "tabMedia": "Image",
+        "labelName": "Name",
+        "placeholderName": "E.g. Dedicated Attendee",
+        "labelDescription": "Description",
+        "placeholderDescription": "Describe this achievement...",
+        "labelPoints": "Points",
+        "labelTier": "Tier",
+        "placeholderTier": "Tier...",
+        "labelType": "Type",
+        "placeholderType": "Achievement type...",
+        "labelScope": "Scope",
+        "placeholderScope": "Scope...",
+        "labelCategory": "Category",
+        "placeholderCategory": "Select a category...",
+        "labelPrerequisite": "Prerequisite",
+        "placeholderPrerequisite": "No prerequisite...",
+        "labelRepeatable": "Repeatable achievement",
+        "labelMaxRepeats": "Maximum repeats",
+        "labelSecret": "Secret achievement",
+        "labelActive": "Active",
+        "labelPreview": "Preview",
+        "cancelButton": "Cancel",
+        "submitCreate": "Create achievement",
+        "submitEdit": "Save changes",
+        "scopeLabels": {
+          "CLUB": "Club",
+          "SECTION": "Section",
+          "INDIVIDUAL": "Individual",
+          "GLOBAL": "Global",
+          "CLUB_TYPE": "Club type",
+          "ECCLESIASTICAL_YEAR": "Ecclesiastical year"
+        },
+        "defaultName": "Achievement name",
+        "tierLabels": {
+          "BRONZE": "Bronze",
+          "SILVER": "Silver",
+          "GOLD": "Gold",
+          "PLATINUM": "Platinum",
+          "DIAMOND": "Diamond"
+        },
+        "typeLabels": {
+          "THRESHOLD": "Threshold",
+          "STREAK": "Streak",
+          "COMPOUND": "Compound",
+          "MILESTONE": "Milestone",
+          "COLLECTION": "Collection"
+        }
+      },
+      "criteria": {
+        "typeDescriptions": {
+          "THRESHOLD": "Awarded when the user reaches a set number of events.",
+          "STREAK": "Awarded when the user maintains a consecutive streak of events.",
+          "MILESTONE": "Awarded when a specific field of an event reaches a certain value.",
+          "COLLECTION": "Awarded when the user completes N distinct items in a collection.",
+          "COMPOUND": "Awarded when multiple conditions are met at the same time."
+        },
+        "labelEvent": "Event",
+        "placeholderEvent": "Select an event...",
+        "labelField": "Field",
+        "placeholderField": "E.g. level",
+        "labelTarget": "Target",
+        "labelTargetValue": "Target value",
+        "placeholderTargetValue": "E.g. gold",
+        "labelOperator": "Operator",
+        "placeholderOperator": "Operator...",
+        "labelStreakTarget": "Streak target",
+        "labelUnit": "Unit",
+        "placeholderUnit": "Unit...",
+        "labelGrace": "Grace period",
+        "labelGraceHint": "(optional)",
+        "labelDistinctField": "Distinct field",
+        "placeholderDistinctField": "E.g. honor_id",
+        "labelQuantityTarget": "Target quantity",
+        "labelLogic": "Combination logic",
+        "logicAnd": "All conditions (AND)",
+        "logicOr": "Any condition (OR)",
+        "conditionLabel": "Condition {index}",
+        "addConditionButton": "Add condition",
+        "eventLabels": {
+          "CLASS_COMPLETED": "Class completed",
+          "HONOR_EARNED": "Honor earned",
+          "INVESTITURE_ACHIEVED": "Investiture achieved",
+          "CAMPOREE_ATTENDED": "Camporee attended",
+          "MEETING_ATTENDED": "Meeting attended",
+          "ACTIVITY_COMPLETED": "Activity completed",
+          "REPORT_SUBMITTED": "Report submitted",
+          "POINTS_EARNED": "Points earned",
+          "activity_attendance": "Activity attendance",
+          "honor_completed": "Honor completed",
+          "class_completed": "Class completed",
+          "investiture_completed": "Investiture completed",
+          "camporee_attended": "Camporee attended",
+          "evidence_submitted": "Evidence submitted",
+          "evidence_approved": "Evidence approved",
+          "consecutive_attendance": "Consecutive attendance",
+          "profile_completed": "Profile completed",
+          "club_role_assigned": "Club role assigned"
+        },
+        "operatorLabels": {
+          "gt": "Greater than",
+          "gte": ">= (greater or equal)",
+          "lt": "Less than",
+          "lte": "<= (less or equal)",
+          "eq": "= (equal to)",
+          "ne": "Not equal to"
+        },
+        "streakUnitLabels": {
+          "day": "Days",
+          "week": "Weeks",
+          "month": "Months"
+        }
+      }
+    },
+    "crud": {
+      "list": {
+        "page": "Achievements",
+        "pageDescription": "Achievements in this category.",
+        "breadcrumbRoot": "Achievements",
+        "newButton": "New achievement",
+        "filtersTitle": "Filters",
+        "filterName": "Name",
+        "filterNamePlaceholder": "Search achievement...",
+        "search": "Search",
+        "filterTier": "Tier",
+        "filterTierPlaceholder": "Tier",
+        "filterTierAll": "All tiers",
+        "filterType": "Type",
+        "filterTypePlaceholder": "Type",
+        "filterTypeAll": "All types",
+        "filterStatus": "Status",
+        "filterStatusPlaceholder": "Status",
+        "filterStatusAll": "All",
+        "filterStatusActive": "Active",
+        "filterStatusInactive": "Inactive",
+        "tableColName": "Name",
+        "tableColTier": "Tier",
+        "tableColType": "Type",
+        "tableColPoints": "Points",
+        "tableColScope": "Scope",
+        "tableColSecret": "Secret",
+        "tableColStatus": "Status",
+        "tableColActions": "Actions",
+        "ariaRepeatable": "Repeatable",
+        "ariaSecret": "Secret",
+        "ariaVisible": "Visible",
+        "statusActive": "Active",
+        "statusInactive": "Inactive",
+        "active": "Active",
+        "tier": "Tier",
+        "type": "Type",
+        "emptyNoFiltersTitle": "No achievements in this category",
+        "emptyNoFiltersDescription": "Create the first achievement for this category.",
+        "emptyFiltersTitle": "No results",
+        "emptyFiltersDescription": "No achievements match the filters.",
+        "deleteTitle": "Delete achievement?",
+        "deleteDescription": "The achievement \"{name}\" will be deleted. This action cannot be undone.",
+        "deleteCancelButton": "Cancel",
+        "deleteConfirmButton": "Delete",
+        "actionEdit": "Edit",
+        "actionDelete": "Delete"
+      },
+      "categories": {
+        "pageTitle": "Achievements",
+        "page": "Categories",
+        "pageDescription": "Categories and achievements of the rewards system.",
+        "newButton": "New category",
+        "filtersTitle": "Filters",
+        "filtersSubtitle": "Refine the list",
+        "filterName": "Name",
+        "filterNamePlaceholder": "Search by name...",
+        "search": "Search",
+        "q": "Search",
+        "filterStatus": "Status",
+        "filterStatusPlaceholder": "Status",
+        "filterStatusAll": "All statuses",
+        "filterStatusActive": "Active",
+        "filterStatusInactive": "Inactive",
+        "tableColName": "Name",
+        "tableColDescription": "Description",
+        "tableColIcon": "Icon",
+        "tableColOrder": "Order",
+        "tableColStatus": "Status",
+        "tableColActions": "Actions",
+        "statusActive": "Active",
+        "statusInactive": "Inactive",
+        "active": "Active",
+        "emptyNoFiltersTitle": "No achievement categories",
+        "emptyNoFiltersDescription": "Create the first category to organize achievements.",
+        "emptyFiltersTitle": "No results",
+        "emptyFiltersDescription": "No categories match the filters.",
+        "deleteTitle": "Delete category?",
+        "deleteDescription": "The category \"{name}\" will be deleted. This action cannot be undone.",
+        "deleteCancelButton": "Cancel",
+        "deleteConfirmButton": "Delete",
+        "actionEdit": "Edit",
+        "actionDelete": "Delete"
       }
     }
   },
@@ -2559,6 +2859,37 @@
       "errorFallback": "Could not load winners. Check your server connection.",
       "emptyNoTypesTitle": "No catalogs available",
       "emptyNoTypesDescription": "Could not load club types for the filters."
+    },
+    "supervision": {
+      "filterClubTypePlaceholder": "Club type",
+      "filterClubTypeAll": "All types",
+      "filterLocalFieldPlaceholder": "Local field",
+      "filterLocalFieldAll": "All fields",
+      "filterYearPlaceholder": "Year",
+      "filterMonthPlaceholder": "Month",
+      "filterMonthAll": "All months",
+      "filterNotifiedPlaceholder": "Notified",
+      "filterNotifiedAll": "Any",
+      "filterNotifiedTrue": "Notified",
+      "filterNotifiedFalse": "Pending",
+      "tableColMember": "Member",
+      "tableColSection": "Section",
+      "tableColClubType": "Club type",
+      "tableColClub": "Club",
+      "tableColLocalField": "Local field",
+      "tableColPeriod": "Period",
+      "tableColPoints": "Points",
+      "tableColNotified": "Notified",
+      "tableColActions": "Actions",
+      "badgeNotified": "Notified",
+      "badgePending": "Pending",
+      "emptyTitle": "No winners for the selected filters.",
+      "emptyHint": "Adjust the filters to see results.",
+      "paginationTotal": "{total, plural, =0 {No results} one {# winner total} other {# winners total}}",
+      "paginationPage": "Page {page} of {totalPages}",
+      "paginationPrev": "Previous",
+      "paginationNext": "Next",
+      "reevaluateButton": "Re-evaluate"
     }
   },
   "reports": {
@@ -2695,6 +3026,53 @@
       "empty_no_catalogs_title": "No catalogs available",
       "empty_no_catalogs_description": "Club type catalogs could not be loaded for the filters.",
       "error_load_reports": "Could not load reports. Please check the server connection."
+    },
+    "supervisionClient": {
+      "filterClubTypePlaceholder": "Club type",
+      "filterClubTypeAll": "All types",
+      "filterLocalFieldPlaceholder": "Local field",
+      "filterLocalFieldAll": "All fields",
+      "filterYearPlaceholder": "Year",
+      "filterMonthPlaceholder": "Month",
+      "filterMonthAll": "All months",
+      "filterStatusPlaceholder": "Status",
+      "filterStatusAll": "All statuses",
+      "months": {
+        "1": "January",
+        "2": "February",
+        "3": "March",
+        "4": "April",
+        "5": "May",
+        "6": "June",
+        "7": "July",
+        "8": "August",
+        "9": "September",
+        "10": "October",
+        "11": "November",
+        "12": "December"
+      },
+      "statusOptions": {
+        "draft": "Draft",
+        "generated": "Generated",
+        "submitted": "Submitted"
+      },
+      "tableColClub": "Club",
+      "tableColType": "Type",
+      "tableColLocalField": "Local field",
+      "tableColPeriod": "Period",
+      "tableColStatus": "Status",
+      "tableColGenerated": "Generated",
+      "tableColSubmitted": "Submitted",
+      "tableColActions": "Actions",
+      "memberCount": "({count} members)",
+      "emptyTitle": "No reports found",
+      "emptyHint": "Adjust the filters to see results.",
+      "paginationTotal": "{total, plural, =0 {No results} one {# report total} other {# reports total}}",
+      "paginationPage": "Page {page} of {totalPages}",
+      "paginationPrev": "Previous",
+      "paginationNext": "Next",
+      "actionView": "View",
+      "actionPdf": "PDF"
     }
   },
   "requests": {
@@ -3300,7 +3678,16 @@
   },
   "shared": {
     "errors": {
-      "unexpected": "Unexpected error"
+      "unexpected": "Unexpected error",
+      "dashboardTitle": "Something went wrong",
+      "dashboardDescription": "An error occurred while loading this section.",
+      "dashboardHeading": "Could not load the page",
+      "dashboardBody": "The error has been reported automatically. You can retry or go back to the dashboard.",
+      "dashboardRetry": "Retry",
+      "dashboardGoHome": "Go to dashboard",
+      "notFoundTitle": "Page not found",
+      "notFoundBody": "The route you are looking for does not exist or has been moved.",
+      "notFoundGoHome": "Go to Dashboard"
     },
     "pagination": {
       "showing": "Showing {from}–{to} of {total} records",
@@ -3322,6 +3709,10 @@
       "missing": "Not available",
       "rateLimited": "Rate limit reached",
       "goToLogin": "Go to login"
+    },
+    "appMetadata": {
+      "title": "SACDIA Admin Panel",
+      "description": "SACDIA administration panel"
     }
   },
   "translations": {
@@ -3385,6 +3776,19 @@
         "back": "Back",
         "cannotLoad": "Could not load the configuration"
       }
+    },
+    "weightsPage": {
+      "deleteTitle": "Delete weight override",
+      "deleteDescription": "Rankings that used this configuration will revert to the global default. This action cannot be undone.",
+      "deleteCancel": "Cancel",
+      "deleteConfirm": "Delete",
+      "deleteConfirmLoading": "Deleting...",
+      "deleteSuccess": "Override deleted"
+    },
+    "sumIndicator": {
+      "label": "Sum: {sum}%",
+      "valid": "✓",
+      "invalid": "— must be 100"
     }
   },
   "rankingWeights": {
@@ -3732,6 +4136,75 @@
       "back": "Back to sections",
       "breadcrumbParent": "Section Rankings",
       "breadcrumbCurrent": "Section #{sectionId}"
+    },
+    "filters": {
+      "labelYear": "Ecclesiastical year",
+      "labelClub": "Club ID",
+      "labelSection": "Section ID",
+      "placeholderYear": "2026",
+      "placeholderClub": "All",
+      "placeholderSection": "All",
+      "apply": "Filter",
+      "clear": "Clear"
+    },
+    "table": {
+      "colRank": "#",
+      "colMember": "Member",
+      "colSection": "Section",
+      "colComposite": "Composite",
+      "colClass": "Class",
+      "colInvestiture": "Investiture",
+      "colCamporee": "Camporees",
+      "colCategory": "Category",
+      "colAction": "Action",
+      "emptyTitle": "No rankings available",
+      "emptyDescription": "No rankings for the selected filters.",
+      "countSingular": "{total} ranked member",
+      "countPlural": "{total} ranked members",
+      "investedLabel": "Invested",
+      "inProgressLabel": "In progress",
+      "viewDetail": "View detail"
+    },
+    "breakdownCard": {
+      "weightLabel": "Weight: {weight}%",
+      "scoreLabel": "Score"
+    },
+    "sectionFilters": {
+      "labelYear": "Ecclesiastical year",
+      "labelClub": "Club ID",
+      "placeholderYear": "2026",
+      "placeholderClub": "All",
+      "apply": "Filter",
+      "clear": "Clear"
+    },
+    "sectionTable": {
+      "colRank": "#",
+      "colSection": "Section",
+      "colComposite": "Composite",
+      "colActiveMembers": "Active members",
+      "colCategory": "Category",
+      "colCalculated": "Calculated",
+      "colAction": "Action",
+      "emptyTitle": "No rankings available",
+      "emptyDescription": "No rankings for the selected filters.",
+      "countSingular": "{total} ranked section",
+      "countPlural": "{total} ranked sections",
+      "viewMembers": "View members"
+    },
+    "sectionMembersTable": {
+      "colRank": "#",
+      "colMember": "Member",
+      "colComposite": "Composite",
+      "colClass": "Class",
+      "colInvestiture": "Investiture",
+      "colCamporee": "Camporees",
+      "colCategory": "Category",
+      "colAction": "Action",
+      "emptyTitle": "No members with ranking",
+      "emptyDescription": "This section has no members with a calculated ranking.",
+      "investedLabel": "Invested",
+      "inProgressLabel": "In progress",
+      "viewDetail": "View detail"
     }
   },
   "system_jobs": {
@@ -3753,6 +4226,116 @@
       "description": "Paginated record of all scheduled job executions.",
       "back": "Back",
       "errorLoad": "Could not load cron run history. Make sure the backend is available and try again."
+    },
+    "cronRuns": {
+      "cardTitle": "Cron Jobs",
+      "colJob": "Job",
+      "colLastRun": "Last run",
+      "colStatus": "Status",
+      "colDuration": "Duration",
+      "colItems": "Items",
+      "colLastSuccess": "Last success",
+      "colLastFailure": "Last failure",
+      "colFailureRate": "Failure rate 7d",
+      "colRuns7d": "Runs 7d",
+      "noRuns": "No runs",
+      "statusCompleted": "Completed",
+      "statusFailed": "Failed",
+      "statusRunning": "Running",
+      "statusSkipped": "Skipped",
+      "jobMonthlyReports": "Monthly reports (auto-generate)",
+      "jobRankingsRecalculate": "Annual rankings (recalculate)",
+      "jobDataExportCleanup": "Cleanup expired exports",
+      "jobMemberOfMonth": "Member of the month (auto-evaluate)",
+      "jobFinancePeriod": "Finance period closing",
+      "jobActivitiesReminder": "Activities reminders",
+      "jobMembershipExpiry": "Expire membership requests",
+      "jobCleanupExpired": "Cleanup expired sessions/tokens",
+      "jobFcmCleanup": "Cleanup orphaned FCM tokens"
+    },
+    "overview": {
+      "queuesTitle": "Queues",
+      "queuesCountSingular": "{count} registered queue",
+      "queuesCountPlural": "{count} registered queues",
+      "refreshButton": "Refresh",
+      "refreshLoading": "Refreshing...",
+      "noQueues": "No active queues found.",
+      "activeLabel": "active",
+      "statWaiting": "Waiting",
+      "statActive": "Active",
+      "statCompleted": "Completed",
+      "statFailed": "Failed",
+      "statDelayed": "Delayed",
+      "statPaused": "Paused",
+      "failedJobsTitle": "Recent failures",
+      "failedJobsEmpty": "No recent failures",
+      "colQueue": "Queue",
+      "colJob": "Job",
+      "colReason": "Reason",
+      "colAttempts": "Attempts",
+      "colDate": "Date",
+      "colAction": "Action",
+      "retryButton": "Retry",
+      "retryLoading": "Retrying...",
+      "retryDialogTitle": "Retry this job?",
+      "retryDialogDescription": "The job {jobName} will be re-queued in the {queue} queue.",
+      "retryDialogCancel": "Cancel",
+      "retryDialogConfirm": "Retry",
+      "retrySuccess": "Job retried",
+      "retrySuccessDescription": "The job \"{name}\" was successfully re-queued.",
+      "retryErrorTitle": "Retry error",
+      "retryErrorFallback": "Unknown error when retrying the job.",
+      "queueNotifications": "Notifications",
+      "queueNotificationsDesc": "Push notifications and realtime cache",
+      "queueEmail": "Emails",
+      "queueEmailDesc": "Transactional (rate-limited 90/day)",
+      "queueAchievements": "Achievements",
+      "queueAchievementsDesc": "Achievement evaluation and matching",
+      "queueBackgroundJobs": "Background Jobs",
+      "queueBackgroundJobsDesc": "Reports, finances, rankings, exports"
+    },
+    "history": {
+      "filterLabelJob": "Job",
+      "filterLabelStatus": "Status",
+      "filterLabelSince": "From",
+      "filterLabelUntil": "To",
+      "filterAllJobs": "All jobs",
+      "filterAllStatuses": "All statuses",
+      "statusCompleted": "Completed",
+      "statusFailed": "Failed",
+      "statusSkipped": "Skipped",
+      "statusRunning": "Running",
+      "recordCount": "{total} records",
+      "noResults": "No executions found with the applied filters.",
+      "colJob": "Job",
+      "colStart": "Start",
+      "colStatus": "Status",
+      "colDuration": "Duration",
+      "colItems": "Items",
+      "colError": "Error",
+      "colDetails": "Details",
+      "viewButton": "View",
+      "pagination": "Page {page} of {totalPages}",
+      "paginationPrev": "Previous",
+      "paginationNext": "Next",
+      "detailTitle": "Run #{runId} details",
+      "detailLabelJob": "Job",
+      "detailLabelStatus": "Status",
+      "detailLabelStart": "Start",
+      "detailLabelEnd": "End",
+      "detailLabelDuration": "Duration",
+      "detailLabelItems": "Items processed",
+      "detailLabelError": "Error message",
+      "detailLabelMetadata": "Metadata",
+      "jobMonthlyReports": "Monthly reports (auto-generate)",
+      "jobRankingsRecalculate": "Annual rankings (recalculate)",
+      "jobDataExportCleanup": "Cleanup expired exports",
+      "jobMemberOfMonth": "Member of the month (auto-evaluate)",
+      "jobFinancePeriod": "Finance period closing",
+      "jobActivitiesReminder": "Activities reminders",
+      "jobMembershipExpiry": "Expire membership requests",
+      "jobCleanupExpired": "Cleanup expired sessions/tokens",
+      "jobFcmCleanup": "Cleanup orphaned FCM tokens"
     }
   },
   "settings": {
@@ -3766,7 +4349,8 @@
       },
       "scoringCategories": {
         "title": "Scoring categories",
-        "description": "Management of scoring categories by division."
+        "description": "Management of scoring categories by division.",
+        "metadataTitle": "Scoring categories"
       }
     }
   }

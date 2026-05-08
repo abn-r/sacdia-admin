@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -46,26 +47,26 @@ interface AchievementFormProps {
   cancelHref?: string;
 }
 
-const ACHIEVEMENT_TYPES: { value: AchievementType; label: string }[] = [
-  { value: "THRESHOLD", label: "Umbral" },
-  { value: "STREAK", label: "Racha" },
-  { value: "COMPOUND", label: "Compuesto" },
-  { value: "MILESTONE", label: "Hito" },
-  { value: "COLLECTION", label: "Colección" },
+const ACHIEVEMENT_TYPE_VALUES: AchievementType[] = [
+  "THRESHOLD",
+  "STREAK",
+  "COMPOUND",
+  "MILESTONE",
+  "COLLECTION",
 ];
 
-const ACHIEVEMENT_TIERS: { value: AchievementTier; label: string; color: string }[] = [
-  { value: "BRONZE", label: "Bronce", color: "#CD7F32" },
-  { value: "SILVER", label: "Plata", color: "#C0C0C0" },
-  { value: "GOLD", label: "Oro", color: "#FFD700" },
-  { value: "PLATINUM", label: "Platino", color: "#E5E4E2" },
-  { value: "DIAMOND", label: "Diamante", color: "#B9F2FF" },
+const ACHIEVEMENT_TIER_VALUES: { value: AchievementTier; color: string }[] = [
+  { value: "BRONZE", color: "#CD7F32" },
+  { value: "SILVER", color: "#C0C0C0" },
+  { value: "GOLD", color: "#FFD700" },
+  { value: "PLATINUM", color: "#E5E4E2" },
+  { value: "DIAMOND", color: "#B9F2FF" },
 ];
 
-const ACHIEVEMENT_SCOPES: { value: AchievementScope; label: string }[] = [
-  { value: "GLOBAL", label: "Global" },
-  { value: "CLUB_TYPE", label: "Tipo de club" },
-  { value: "ECCLESIASTICAL_YEAR", label: "Año eclesiástico" },
+const ACHIEVEMENT_SCOPE_VALUES: AchievementScope[] = [
+  "GLOBAL",
+  "CLUB_TYPE",
+  "ECCLESIASTICAL_YEAR",
 ];
 
 function toText(value: unknown): string {
@@ -114,6 +115,8 @@ export function AchievementForm({
   actionState,
   cancelHref = "/dashboard/achievements",
 }: AchievementFormProps) {
+  const t = useTranslations("achievements.forms.achievement");
+  const tPreview = useTranslations("achievements.cards.preview");
   const [state, action] = useActionState(formAction, actionState);
   const isEdit = mode === "edit";
 
@@ -172,13 +175,13 @@ export function AchievementForm({
       <Tabs defaultValue="basic" className="w-full">
         <TabsList className="w-full">
           <TabsTrigger value="basic" className="flex-1">
-            Información básica
+            {t("tabBasic")}
           </TabsTrigger>
           <TabsTrigger value="criteria" className="flex-1">
-            Criterios
+            {t("tabCriteria")}
           </TabsTrigger>
           <TabsTrigger value="media" className="flex-1">
-            Imagen
+            {t("tabMedia")}
           </TabsTrigger>
         </TabsList>
 
@@ -187,12 +190,12 @@ export function AchievementForm({
           {/* Name */}
           <div className="space-y-2">
             <Label htmlFor="ach-name">
-              Nombre <span className="ml-0.5 text-destructive">*</span>
+              {t("labelName")} <span className="ml-0.5 text-destructive">*</span>
             </Label>
             <Input
               id="ach-name"
               name="name"
-              placeholder="Ej. Asistente Dedicado"
+              placeholder={t("placeholderName")}
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
@@ -201,12 +204,12 @@ export function AchievementForm({
 
           {/* Description */}
           <div className="space-y-2">
-            <Label htmlFor="ach-description">Descripción</Label>
+            <Label htmlFor="ach-description">{t("labelDescription")}</Label>
             <Textarea
               id="ach-description"
               name="description"
               rows={2}
-              placeholder="Describe este logro..."
+              placeholder={t("placeholderDescription")}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="min-h-[70px] resize-none"
@@ -216,13 +219,13 @@ export function AchievementForm({
           {/* Category */}
           {categories.length > 0 && (
             <div className="space-y-2">
-              <Label htmlFor="ach-category">Categoría</Label>
+              <Label htmlFor="ach-category">{t("labelCategory")}</Label>
               <Select
                 name="category_id"
                 defaultValue={selectedCategoryId ? String(selectedCategoryId) : undefined}
               >
                 <SelectTrigger id="ach-category">
-                  <SelectValue placeholder="Selecciona una categoría..." />
+                  <SelectValue placeholder={t("placeholderCategory")} />
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map((cat) => (
@@ -238,7 +241,7 @@ export function AchievementForm({
           {/* Type */}
           <div className="space-y-2">
             <Label htmlFor="ach-type">
-              Tipo <span className="ml-0.5 text-destructive">*</span>
+              {t("labelType")} <span className="ml-0.5 text-destructive">*</span>
             </Label>
             <Select
               name="type"
@@ -247,12 +250,12 @@ export function AchievementForm({
               required
             >
               <SelectTrigger id="ach-type">
-                <SelectValue placeholder="Tipo de logro..." />
+                <SelectValue placeholder={t("placeholderType")} />
               </SelectTrigger>
               <SelectContent>
-                {ACHIEVEMENT_TYPES.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
+                {ACHIEVEMENT_TYPE_VALUES.map((v) => (
+                  <SelectItem key={v} value={v}>
+                    {tPreview(`typeLabels.${v}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -263,7 +266,7 @@ export function AchievementForm({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="ach-tier">
-                Nivel <span className="ml-0.5 text-destructive">*</span>
+                {t("labelTier")} <span className="ml-0.5 text-destructive">*</span>
               </Label>
               <Select
                 name="tier"
@@ -272,10 +275,10 @@ export function AchievementForm({
                 required
               >
                 <SelectTrigger id="ach-tier">
-                  <SelectValue placeholder="Nivel..." />
+                  <SelectValue placeholder={t("placeholderTier")} />
                 </SelectTrigger>
                 <SelectContent>
-                  {ACHIEVEMENT_TIERS.map((opt) => (
+                  {ACHIEVEMENT_TIER_VALUES.map((opt) => (
                     <SelectItem key={opt.value} value={opt.value}>
                       <span className="flex items-center gap-2">
                         <span
@@ -283,7 +286,7 @@ export function AchievementForm({
                           style={{ backgroundColor: opt.color }}
                           aria-hidden
                         />
-                        {opt.label}
+                        {tPreview(`tierLabels.${opt.value}`)}
                       </span>
                     </SelectItem>
                   ))}
@@ -293,7 +296,7 @@ export function AchievementForm({
 
             <div className="space-y-2">
               <Label htmlFor="ach-points">
-                Puntos <span className="ml-0.5 text-destructive">*</span>
+                {t("labelPoints")} <span className="ml-0.5 text-destructive">*</span>
               </Label>
               <Input
                 id="ach-points"
@@ -310,7 +313,7 @@ export function AchievementForm({
           {/* Scope */}
           <div className="space-y-2">
             <Label htmlFor="ach-scope">
-              Alcance <span className="ml-0.5 text-destructive">*</span>
+              {t("labelScope")} <span className="ml-0.5 text-destructive">*</span>
             </Label>
             <Select
               name="scope"
@@ -319,12 +322,12 @@ export function AchievementForm({
               required
             >
               <SelectTrigger id="ach-scope">
-                <SelectValue placeholder="Alcance..." />
+                <SelectValue placeholder={t("placeholderScope")} />
               </SelectTrigger>
               <SelectContent>
-                {ACHIEVEMENT_SCOPES.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
+                {ACHIEVEMENT_SCOPE_VALUES.map((v) => (
+                  <SelectItem key={v} value={v}>
+                    {t(`scopeLabels.${v}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -334,7 +337,7 @@ export function AchievementForm({
           {/* Prerequisite */}
           {allAchievements.length > 0 && (
             <div className="space-y-2">
-              <Label htmlFor="ach-prerequisite">Prerequisito</Label>
+              <Label htmlFor="ach-prerequisite">{t("labelPrerequisite")}</Label>
               <Select
                 name="prerequisite_id"
                 defaultValue={
@@ -344,7 +347,7 @@ export function AchievementForm({
                 }
               >
                 <SelectTrigger id="ach-prerequisite">
-                  <SelectValue placeholder="Sin prerequisito..." />
+                  <SelectValue placeholder={t("placeholderPrerequisite")} />
                 </SelectTrigger>
                 <SelectContent>
                   {allAchievements
@@ -364,14 +367,14 @@ export function AchievementForm({
             <div className="flex items-center gap-3">
               <Switch id="ach-secret" checked={secret} onCheckedChange={setSecret} />
               <Label htmlFor="ach-secret" className="cursor-pointer">
-                Logro secreto
+                {t("labelSecret")}
               </Label>
             </div>
 
             <div className="flex items-center gap-3">
               <Switch id="ach-active" checked={active} onCheckedChange={setActive} />
               <Label htmlFor="ach-active" className="cursor-pointer">
-                Activo
+                {t("labelActive")}
               </Label>
             </div>
           </div>
@@ -385,12 +388,12 @@ export function AchievementForm({
                 onCheckedChange={setRepeatable}
               />
               <Label htmlFor="ach-repeatable" className="cursor-pointer">
-                Logro repetible
+                {t("labelRepeatable")}
               </Label>
             </div>
             {repeatable && (
               <div className="space-y-2 pl-9">
-                <Label htmlFor="ach-max-repeats">Máximo de repeticiones</Label>
+                <Label htmlFor="ach-max-repeats">{t("labelMaxRepeats")}</Label>
                 <Input
                   id="ach-max-repeats"
                   name="max_repeats"
@@ -407,10 +410,10 @@ export function AchievementForm({
           {/* Live preview */}
           <div className="pt-2">
             <p className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Vista previa
+              {t("labelPreview")}
             </p>
             <AchievementPreviewCard
-              name={name || "Nombre del logro"}
+              name={name || tPreview("defaultName")}
               description={description}
               tier={tier}
               type={type}
@@ -452,9 +455,9 @@ export function AchievementForm({
       {/* Form actions */}
       <div className="flex items-center justify-end gap-3 border-t pt-4">
         <Button type="button" variant="outline" asChild>
-          <Link href={cancelHref}>Cancelar</Link>
+          <Link href={cancelHref}>{t("cancelButton")}</Link>
         </Button>
-        <SubmitButton label={isEdit ? "Guardar cambios" : "Crear logro"} />
+        <SubmitButton label={isEdit ? t("submitEdit") : t("submitCreate")} />
       </div>
     </form>
   );

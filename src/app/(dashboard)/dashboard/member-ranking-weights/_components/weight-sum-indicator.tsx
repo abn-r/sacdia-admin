@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 
 interface WeightSumIndicatorProps {
@@ -13,6 +14,8 @@ interface WeightSumIndicatorProps {
  *   Math.abs(sum - 100) <= 0.01
  */
 export function WeightSumIndicator({ values }: WeightSumIndicatorProps) {
+  const t = useTranslations("memberRankingWeights.sumIndicator");
+
   const sum = values.reduce(
     (acc, v) => acc + (Number.isFinite(v) ? v : 0),
     0,
@@ -21,7 +24,7 @@ export function WeightSumIndicator({ values }: WeightSumIndicatorProps) {
 
   return (
     <Badge variant={isValid ? "success" : "destructive"}>
-      Suma: {sum.toFixed(2)}% {isValid ? "✓" : "— debe ser 100"}
+      {t("label", { sum: sum.toFixed(2) })} {isValid ? t("valid") : t("invalid")}
     </Badge>
   );
 }
