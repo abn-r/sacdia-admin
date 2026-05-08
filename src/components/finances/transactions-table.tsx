@@ -26,16 +26,12 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { DollarSign } from "lucide-react";
 import type { Finance, FinanceSortField } from "@/lib/api/finances";
+import { formatCurrency } from "@/lib/currency";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatAmount(cents: number): string {
-  const pesos = cents / 100;
-  return new Intl.NumberFormat("es-MX", {
-    style: "currency",
-    currency: "ARS",
-    minimumFractionDigits: 2,
-  }).format(pesos);
+  return formatCurrency(cents / 100);
 }
 
 function formatDate(dateStr: string): string {

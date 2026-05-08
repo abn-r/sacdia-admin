@@ -15,13 +15,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useTranslations } from "next-intl";
 import { deleteFinance, type Finance } from "@/lib/api/finances";
+import { formatCurrency } from "@/lib/currency";
 
 function formatAmount(cents: number): string {
-  return new Intl.NumberFormat("es-MX", {
-    style: "currency",
-    currency: "ARS",
-    minimumFractionDigits: 2,
-  }).format(cents / 100);
+  return formatCurrency(cents / 100);
 }
 
 interface DeleteTransactionDialogProps {
