@@ -96,7 +96,7 @@ export function ActivitiesTable({ items, onEdit, onDelete }: ActivitiesTableProp
                   {platformLabel}
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle">
-                  <Badge variant={activity.active !== false ? "default" : "outline"}>
+                  <Badge variant={activity.active !== false ? "soft-success" : "outline"}>
                     {activity.active !== false ? "Activa" : "Inactiva"}
                   </Badge>
                 </TableCell>

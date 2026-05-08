@@ -105,7 +105,7 @@ function UserMobileCard({
 
       <div className="mt-3 flex flex-wrap items-center gap-1.5">
         <Badge
-          variant={user.active !== false ? "default" : "outline"}
+          variant={user.active !== false ? "soft-success" : "outline"}
           className="text-xs"
         >
           {user.active !== false ? "Activo" : "Inactivo"}
@@ -226,7 +226,7 @@ export function UsersTable({
                       <LocationCell user={user} />
                     </TableCell>
                     <TableCell>
-                      <Badge variant={user.active !== false ? "default" : "outline"} className="text-xs">
+                      <Badge variant={user.active !== false ? "soft-success" : "outline"} className="text-xs">
                         {user.active !== false ? "Activo" : "Inactivo"}
                       </Badge>
                     </TableCell>

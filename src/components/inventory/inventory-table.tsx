@@ -90,7 +90,7 @@ export function InventoryTable({ items, onEdit, onDelete }: InventoryTableProps)
                   {item.amount}
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle">
-                  <Badge variant={item.active !== false ? "default" : "outline"}>
+                  <Badge variant={item.active !== false ? "soft-success" : "outline"}>
                     {item.active !== false ? "Activo" : "Inactivo"}
                   </Badge>
                 </TableCell>

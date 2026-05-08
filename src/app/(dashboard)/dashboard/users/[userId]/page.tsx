@@ -317,7 +317,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
             <h2 className="text-xl font-bold">{fullName}</h2>
             <p className="text-sm text-muted-foreground">{user.email ?? "—"}</p>
             <div className="mt-1 flex flex-wrap gap-2">
-              <Badge variant={user.active !== false ? "default" : "outline"}>
+              <Badge variant={user.active !== false ? "soft-success" : "outline"}>
                 {user.active !== false ? "Activo" : "Inactivo"}
               </Badge>
               {roleNames.map((role) => (

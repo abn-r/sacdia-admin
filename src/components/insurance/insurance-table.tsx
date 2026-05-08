@@ -272,7 +272,7 @@ export function InsuranceTable({ items, onEdit, onDelete }: InsuranceTableProps)
                   ) : expired ? (
                     <Badge variant="destructive">Vencido</Badge>
                   ) : ins.active ? (
-                    <Badge variant="default">Vigente</Badge>
+                    <Badge variant="soft-success">Vigente</Badge>
                   ) : (
                     <Badge variant="outline">Inactivo</Badge>
                   )}

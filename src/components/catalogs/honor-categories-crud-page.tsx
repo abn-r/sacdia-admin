@@ -432,7 +432,7 @@ export function HonorCategoriesCrudPage({
                         <TableCell className="max-w-[380px] text-sm text-muted-foreground">{description}</TableCell>
                         <TableCell className="text-sm">{honorCount ?? "—"}</TableCell>
                         <TableCell>
-                          <Badge variant={item.active !== false ? "default" : "outline"} className="text-xs">
+                          <Badge variant={item.active !== false ? "soft-success" : "outline"} className="text-xs">
                             {item.active !== false ? "Activa" : "Inactiva"}
                           </Badge>
                         </TableCell>

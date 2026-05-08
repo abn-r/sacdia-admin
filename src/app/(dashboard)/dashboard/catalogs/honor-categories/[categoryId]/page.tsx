@@ -160,7 +160,7 @@ export default async function HonorCategoryDetailPage({ params }: { params: Para
             <p className="text-sm text-muted-foreground">Categoría de especialidades</p>
           </div>
 
-          <Badge variant={category.active !== false ? "default" : "outline"} className="w-fit">
+          <Badge variant={category.active !== false ? "soft-success" : "outline"} className="w-fit">
             {category.active !== false ? "Activa" : "Inactiva"}
           </Badge>
         </CardContent>

@@ -73,7 +73,7 @@ function ClubViewCard({ club }: { club: Club }) {
           <InfoRow
             label="Estado"
             value={
-              <Badge variant={club.active !== false ? "default" : "outline"}>
+              <Badge variant={club.active !== false ? "soft-success" : "outline"}>
                 {club.active !== false ? "Activo" : "Inactivo"}
               </Badge>
             }

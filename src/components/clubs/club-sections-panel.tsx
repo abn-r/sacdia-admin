@@ -232,7 +232,7 @@ export function ClubSectionsPanel({ clubId, sections, clubTypes }: ClubSectionsP
                   {section.name ?? section.club_type?.name ?? label}
                 </CardTitle>
               </div>
-              <Badge variant={section.active !== false ? "default" : "outline"}>
+              <Badge variant={section.active !== false ? "soft-success" : "outline"}>
                 {section.active !== false ? "Activa" : "Inactiva"}
               </Badge>
             </CardHeader>

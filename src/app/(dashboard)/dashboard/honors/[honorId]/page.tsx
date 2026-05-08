@@ -342,7 +342,7 @@ export default async function HonorDetailPage({ params }: { params: Params }) {
           </div>
 
           {/* Badge de estado */}
-          <Badge variant={honor.active !== false ? "default" : "outline"} className="shrink-0 w-fit">
+          <Badge variant={honor.active !== false ? "soft-success" : "outline"} className="shrink-0 w-fit">
             {honor.active !== false ? "Activo" : "Inactivo"}
           </Badge>
         </CardContent>

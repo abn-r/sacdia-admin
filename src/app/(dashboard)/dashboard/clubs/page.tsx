@@ -217,7 +217,7 @@ async function ClubsContent({
                       {club.church?.name ?? club.church_id ?? "—"}
                     </TableCell>
                     <TableCell>
-                      <Badge variant={club.active !== false ? "default" : "outline"} className="text-xs">
+                      <Badge variant={club.active !== false ? "soft-success" : "outline"} className="text-xs">
                         {club.active !== false ? "Activo" : "Inactivo"}
                       </Badge>
                     </TableCell>
@@ -266,7 +266,7 @@ async function ClubsContent({
 
                 <div className="mt-3 flex flex-wrap items-center gap-1.5">
                   <Badge
-                    variant={club.active !== false ? "default" : "outline"}
+                    variant={club.active !== false ? "soft-success" : "outline"}
                     className="text-xs"
                   >
                     {club.active !== false ? "Activo" : "Inactivo"}
