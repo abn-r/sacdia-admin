@@ -112,7 +112,7 @@ export function CamporeeMembersTab({
       {totalPages > 1 && (
         <div className="flex items-center justify-between pt-2">
           <p className="text-sm text-muted-foreground">
-            Pagina {page} de {totalPages}
+            Página {page} de {totalPages}
           </p>
           <div className="flex items-center gap-1">
             <Button
@@ -121,7 +121,7 @@ export function CamporeeMembersTab({
               className="size-8"
               onClick={() => fetchPage(page - 1)}
               disabled={!hasPrev || isLoading}
-              aria-label="Pagina anterior"
+              aria-label="Página anterior"
             >
               <ChevronLeft className="size-4" />
             </Button>
@@ -131,7 +131,7 @@ export function CamporeeMembersTab({
               className="size-8"
               onClick={() => fetchPage(page + 1)}
               disabled={!hasNext || isLoading}
-              aria-label="Pagina siguiente"
+              aria-label="Página siguiente"
             >
               <ChevronRight className="size-4" />
             </Button>

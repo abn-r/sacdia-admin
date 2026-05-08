@@ -25,8 +25,8 @@ export function SlaCamporeeCard({ camporee }: SlaCamporeeCardProps) {
         <CardTitle className="text-base">Aprobaciones de Camporee</CardTitle>
         <CardDescription>
           {total > 0
-            ? `${total.toLocaleString("es-MX")} registro${total !== 1 ? "s" : ""} pendiente${total !== 1 ? "s" : ""} de aprobacion`
-            : "Sin registros pendientes de aprobacion"}
+            ? `${total.toLocaleString("es-MX")} registro${total !== 1 ? "s" : ""} pendiente${total !== 1 ? "s" : ""} de aprobación`
+            : "Sin registros pendientes de aprobación"}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -37,7 +37,7 @@ export function SlaCamporeeCard({ camporee }: SlaCamporeeCardProps) {
             </div>
             <div>
               <p className="text-sm font-medium">Clubes registrados</p>
-              <p className="text-xs text-muted-foreground">Pendientes de aprobacion</p>
+              <p className="text-xs text-muted-foreground">Pendientes de aprobación</p>
             </div>
           </div>
           <Badge variant={badgeVariant(clubs_pending)}>
@@ -52,7 +52,7 @@ export function SlaCamporeeCard({ camporee }: SlaCamporeeCardProps) {
             </div>
             <div>
               <p className="text-sm font-medium">Miembros registrados</p>
-              <p className="text-xs text-muted-foreground">Pendientes de aprobacion</p>
+              <p className="text-xs text-muted-foreground">Pendientes de aprobación</p>
             </div>
           </div>
           <Badge variant={badgeVariant(members_pending)}>
@@ -67,7 +67,7 @@ export function SlaCamporeeCard({ camporee }: SlaCamporeeCardProps) {
             </div>
             <div>
               <p className="text-sm font-medium">Pagos registrados</p>
-              <p className="text-xs text-muted-foreground">Pendientes de aprobacion</p>
+              <p className="text-xs text-muted-foreground">Pendientes de aprobación</p>
             </div>
           </div>
           <Badge variant={badgeVariant(payments_pending)}>

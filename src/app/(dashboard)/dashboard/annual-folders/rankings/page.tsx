@@ -54,7 +54,7 @@ export default async function RankingsPage() {
 
   if (clubTypes.length === 0 || ecclesiasticalYears.length === 0) {
     loadError =
-      "No se pudieron cargar los tipos de club o anos eclesiasticos. Verifica la conexion con el servidor.";
+      "No se pudieron cargar los tipos de club o años eclesiásticos. Verifica la conexión con el servidor.";
   }
 
   // Pick sensible defaults: first club type, active year (or first)
@@ -97,7 +97,7 @@ export default async function RankingsPage() {
       {!loadError && clubTypes.length === 0 && (
         <EmptyState
           icon={TrendingUp}
-          title="Sin datos de catalogo"
+          title="Sin datos de catálogo"
           description="No hay tipos de club disponibles para mostrar rankings."
         />
       )}

@@ -58,7 +58,7 @@ async function fetchActiveEnrollment(): Promise<ActiveEnrollmentResult> {
     return {
       enrollment_id: null,
       available: false,
-      error: "No se encontro una inscripcion activa para tu usuario.",
+      error: "No se encontró una inscripción activa para tu usuario.",
     };
   } catch (error) {
     if (error instanceof ApiError) {
@@ -66,21 +66,21 @@ async function fetchActiveEnrollment(): Promise<ActiveEnrollmentResult> {
         return {
           enrollment_id: null,
           available: false,
-          error: "No tenés una inscripcion activa en el sistema.",
+          error: "No tenés una inscripción activa en el sistema.",
         };
       }
       if (error.status === 403) {
         return {
           enrollment_id: null,
           available: false,
-          error: "Tu rol no tiene acceso al modulo de reportes mensuales.",
+          error: "Tu rol no tiene acceso al módulo de reportes mensuales.",
         };
       }
     }
     return {
       enrollment_id: null,
       available: false,
-      error: "No se pudo determinar tu inscripcion activa. Intentá de nuevo.",
+      error: "No se pudo determinar tu inscripción activa. Intentá de nuevo.",
     };
   }
 }
@@ -127,7 +127,7 @@ async function ReportsContent() {
         <EndpointErrorBanner state="missing" detail={result.error} />
         <EmptyState
           icon={FileText}
-          title="Sin inscripcion activa"
+          title="Sin inscripción activa"
           description={result.error}
         />
       </div>
@@ -146,7 +146,7 @@ export default async function ReportsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Reportes Mensuales"
-        description="Gestion de reportes mensuales de actividades del club."
+        description="Gestión de reportes mensuales de actividades del club."
       />
 
       <Suspense fallback={<ReportsPageSkeleton />}>

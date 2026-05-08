@@ -43,7 +43,7 @@ function CustomTooltip({ active, payload }: TooltipProps) {
     <div className="rounded-lg border bg-background px-3 py-2 text-sm shadow-md">
       <p className="font-medium">{entry.label}</p>
       <p className="text-muted-foreground">
-        {entry.count.toLocaleString("es-MX")} inscripcion{entry.count !== 1 ? "es" : ""}
+        {entry.count.toLocaleString("es-MX")} inscripción{entry.count !== 1 ? "es" : ""}
       </p>
     </div>
   );
@@ -70,7 +70,7 @@ export function SlaPipelineChart({ pipeline }: SlaPipelineChartProps) {
     <Card>
       <CardHeader>
         <CardTitle className="text-base">Pipeline de Investidura</CardTitle>
-        <CardDescription>Inscripciones activas por estado de aprobacion</CardDescription>
+        <CardDescription>Inscripciones activas por estado de aprobación</CardDescription>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={220}>

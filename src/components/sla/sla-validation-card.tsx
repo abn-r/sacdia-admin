@@ -15,11 +15,11 @@ export function SlaValidationCard({ validation }: SlaValidationCardProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Cola de Validacion</CardTitle>
+        <CardTitle className="text-base">Cola de Validación</CardTitle>
         <CardDescription>
           {total_pending > 0
-            ? `${total_pending.toLocaleString("es-MX")} item${total_pending !== 1 ? "s" : ""} esperando validacion`
-            : "Sin items pendientes de validacion"}
+            ? `${total_pending.toLocaleString("es-MX")} item${total_pending !== 1 ? "s" : ""} esperando validación`
+            : "Sin items pendientes de validación"}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

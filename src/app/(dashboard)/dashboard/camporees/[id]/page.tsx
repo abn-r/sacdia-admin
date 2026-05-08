@@ -251,7 +251,7 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
                 icon={MapPin}
               />
               <InfoRow
-                label="Costo de inscripcion"
+                label="Costo de inscripción"
                 value={
                   camporee.registration_cost != null
                     ? camporee.registration_cost.toLocaleString("es-MX", {
@@ -279,7 +279,7 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
                       <Badge variant="secondary">Conquistadores</Badge>
                     )}
                     {camporee.includes_master_guides && (
-                      <Badge variant="secondary">Guias Mayores</Badge>
+                      <Badge variant="secondary">Guías Mayores</Badge>
                     )}
                     {!camporee.includes_adventurers &&
                       !camporee.includes_pathfinders &&
@@ -290,7 +290,7 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
                 }
               />
               {camporee.description && (
-                <InfoRow label="Descripcion" value={camporee.description} />
+                <InfoRow label="Descripción" value={camporee.description} />
               )}
             </CardContent>
           </Card>

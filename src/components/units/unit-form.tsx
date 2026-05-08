@@ -17,7 +17,7 @@ import type { ClubSectionMember } from "@/lib/api/clubs";
 const CLUB_TYPES = [
   { value: 1, label: "Aventureros" },
   { value: 2, label: "Conquistadores" },
-  { value: 3, label: "Guias Mayores" },
+  { value: 3, label: "Guías Mayores" },
 ];
 
 // ─── Submit button ────────────────────────────────────────────────────────────
