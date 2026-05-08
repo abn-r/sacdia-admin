@@ -908,6 +908,111 @@
       "year_required": "Sélectionnez une année ecclésiastique",
       "submission_deadline_required": "Saisissez la date limite de soumission",
       "investiture_date_required": "Saisissez la date de l'investiture"
+    },
+    "configClient": {
+      "countSingular": "configuration",
+      "countPlural": "configurations",
+      "refresh": "Actualiser",
+      "newConfig": "Nouvelle configuration",
+      "errorRefresh": "Impossible de mettre à jour les configurations"
+    },
+    "configTable": {
+      "emptyTitle": "Aucune configuration",
+      "emptyDescription": "Aucune configuration d'investiture enregistrée. Créez-en une pour commencer.",
+      "colLocalField": "Champ local",
+      "colYear": "Année ecclésiastique",
+      "colSubmissionDeadline": "Date limite d'envoi",
+      "colInvestitureDate": "Date d'investiture",
+      "colStatus": "Statut",
+      "colActions": "Actions",
+      "statusActive": "Actif",
+      "statusInactive": "Inactif",
+      "tooltipEdit": "Modifier",
+      "tooltipDeactivate": "Désactiver",
+      "tooltipAlreadyInactive": "Déjà inactif",
+      "ariaEdit": "Modifier la configuration",
+      "ariaDeactivate": "Désactiver la configuration",
+      "fieldFallback": "Champ #{id}",
+      "yearFallback": "Année #{id}"
+    },
+    "client": {
+      "allYears": "Toutes les années",
+      "yearActive": "(actif)",
+      "countSingular": "en attente",
+      "countPlural": "en attente",
+      "refresh": "Actualiser",
+      "errorRefresh": "Impossible de mettre à jour la liste"
+    },
+    "pipeline": {
+      "refresh": "Actualiser",
+      "errorRefresh": "Impossible de mettre à jour la liste",
+      "tabAll": "Tous",
+      "tabSubmitted": "Soumis",
+      "tabClubApproved": "Approuvés club",
+      "tabCoordinatorApproved": "Approuvés coord.",
+      "tabFieldApproved": "Approuvés terrain",
+      "tabInvested": "Investis",
+      "tabRejected": "Rejetés"
+    },
+    "historyDialog": {
+      "title": "Historique d'investiture",
+      "errorLoad": "Impossible de charger l'historique",
+      "emptyHistory": "Aucun historique pour le moment.",
+      "system": "Système",
+      "actionSubmitted": "Soumis",
+      "actionClubApproved": "Approuvé par le directeur",
+      "actionCoordinatorApproved": "Approuvé par la coordination",
+      "actionFieldApproved": "Approuvé par le terrain",
+      "actionInvested": "Investi",
+      "actionRejected": "Rejeté"
+    },
+    "history": {
+      "emptyHistory": "Aucun historique de validation pour le moment.",
+      "system": "Système",
+      "actionSubmitted": "Soumis pour validation",
+      "actionApproved": "Approuvé",
+      "actionRejected": "Rejeté",
+      "actionReinvestitureRequested": "Réinvestiture demandée"
+    },
+    "pendingTable": {
+      "emptyTitle": "Aucun en attente",
+      "emptyDescription": "Aucune investiture en attente de validation pour le moment.",
+      "colMember": "Membre",
+      "colClass": "Classe",
+      "colClub": "Club",
+      "colSubmitted": "Soumis",
+      "colStatus": "Statut",
+      "colActions": "Actions",
+      "ariaHistory": "Voir l'historique",
+      "ariaApprove": "Approuver",
+      "ariaReject": "Rejeter",
+      "ariaMarkInvested": "Marquer comme investi",
+      "tooltipHistory": "Voir l'historique",
+      "tooltipApprove": "Approuver",
+      "tooltipReject": "Rejeter",
+      "tooltipMarkInvested": "Marquer comme investi",
+      "historyTitle": "Historique d'investiture",
+      "errorLoadHistory": "Impossible de charger l'historique",
+      "enrollmentFallback": "Inscription #{id}"
+    },
+    "statusBadge": {
+      "inProgress": "En cours",
+      "submittedForValidation": "Soumis",
+      "submitted": "Soumis",
+      "clubApproved": "Approuvé par le club",
+      "coordinatorApproved": "Approuvé par la coordination",
+      "fieldApproved": "Approuvé par le terrain",
+      "approved": "Approuvé",
+      "rejected": "Rejeté",
+      "invested": "Investi"
+    },
+    "pipelineStatusBadge": {
+      "submitted": "Soumis",
+      "clubApproved": "Approuvé par le club",
+      "coordinatorApproved": "Approuvé par la coordination",
+      "fieldApproved": "Approuvé par le terrain",
+      "invested": "Investi",
+      "rejected": "Rejeté"
     }
   },
   "evidence_review": {

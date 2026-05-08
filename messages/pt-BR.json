@@ -908,6 +908,111 @@
       "year_required": "Selecione um ano eclesiástico",
       "submission_deadline_required": "Insira a data-limite de envio",
       "investiture_date_required": "Insira a data da investidura"
+    },
+    "configClient": {
+      "countSingular": "configuração",
+      "countPlural": "configurações",
+      "refresh": "Atualizar",
+      "newConfig": "Nova configuração",
+      "errorRefresh": "Não foi possível atualizar as configurações"
+    },
+    "configTable": {
+      "emptyTitle": "Sem configurações",
+      "emptyDescription": "Nenhuma configuração de investidura registrada. Crie uma para começar.",
+      "colLocalField": "Campo Local",
+      "colYear": "Ano Eclesiástico",
+      "colSubmissionDeadline": "Prazo de Envio",
+      "colInvestitureDate": "Data de Investidura",
+      "colStatus": "Status",
+      "colActions": "Ações",
+      "statusActive": "Ativo",
+      "statusInactive": "Inativo",
+      "tooltipEdit": "Editar",
+      "tooltipDeactivate": "Desativar",
+      "tooltipAlreadyInactive": "Já inativo",
+      "ariaEdit": "Editar configuração",
+      "ariaDeactivate": "Desativar configuração",
+      "fieldFallback": "Campo #{id}",
+      "yearFallback": "Ano #{id}"
+    },
+    "client": {
+      "allYears": "Todos os anos",
+      "yearActive": "(ativo)",
+      "countSingular": "pendente",
+      "countPlural": "pendentes",
+      "refresh": "Atualizar",
+      "errorRefresh": "Não foi possível atualizar a lista"
+    },
+    "pipeline": {
+      "refresh": "Atualizar",
+      "errorRefresh": "Não foi possível atualizar a lista",
+      "tabAll": "Todos",
+      "tabSubmitted": "Enviados",
+      "tabClubApproved": "Aprovados clube",
+      "tabCoordinatorApproved": "Aprovados coord.",
+      "tabFieldApproved": "Aprovados campo",
+      "tabInvested": "Investidos",
+      "tabRejected": "Rejeitados"
+    },
+    "historyDialog": {
+      "title": "Histórico de investidura",
+      "errorLoad": "Não foi possível carregar o histórico",
+      "emptyHistory": "Sem histórico ainda.",
+      "system": "Sistema",
+      "actionSubmitted": "Enviado",
+      "actionClubApproved": "Aprovado pelo diretor",
+      "actionCoordinatorApproved": "Aprovado pela coordenação",
+      "actionFieldApproved": "Aprovado pelo campo",
+      "actionInvested": "Investido",
+      "actionRejected": "Rejeitado"
+    },
+    "history": {
+      "emptyHistory": "Sem histórico de validação ainda.",
+      "system": "Sistema",
+      "actionSubmitted": "Enviado para validação",
+      "actionApproved": "Aprovado",
+      "actionRejected": "Rejeitado",
+      "actionReinvestitureRequested": "Reinvestidura solicitada"
+    },
+    "pendingTable": {
+      "emptyTitle": "Sem pendentes",
+      "emptyDescription": "Não há investiduras pendentes de validação no momento.",
+      "colMember": "Membro",
+      "colClass": "Classe",
+      "colClub": "Clube",
+      "colSubmitted": "Enviado",
+      "colStatus": "Status",
+      "colActions": "Ações",
+      "ariaHistory": "Ver histórico",
+      "ariaApprove": "Aprovar",
+      "ariaReject": "Rejeitar",
+      "ariaMarkInvested": "Marcar como investido",
+      "tooltipHistory": "Ver histórico",
+      "tooltipApprove": "Aprovar",
+      "tooltipReject": "Rejeitar",
+      "tooltipMarkInvested": "Marcar como investido",
+      "historyTitle": "Histórico de investidura",
+      "errorLoadHistory": "Não foi possível carregar o histórico",
+      "enrollmentFallback": "Inscrição #{id}"
+    },
+    "statusBadge": {
+      "inProgress": "Em andamento",
+      "submittedForValidation": "Enviado",
+      "submitted": "Enviado",
+      "clubApproved": "Aprovado pelo clube",
+      "coordinatorApproved": "Aprovado pela coordenação",
+      "fieldApproved": "Aprovado pelo campo",
+      "approved": "Aprovado",
+      "rejected": "Rejeitado",
+      "invested": "Investido"
+    },
+    "pipelineStatusBadge": {
+      "submitted": "Enviado",
+      "clubApproved": "Aprovado pelo clube",
+      "coordinatorApproved": "Aprovado pela coordenação",
+      "fieldApproved": "Aprovado pelo campo",
+      "invested": "Investido",
+      "rejected": "Rejeitado"
     }
   },
   "evidence_review": {
