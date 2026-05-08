@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -37,6 +38,8 @@ interface HonorFormFieldsProps {
 }
 
 export function HonorFormFields({ item, categoryOptions, clubTypeOptions }: HonorFormFieldsProps) {
+  const t = useTranslations("honors.form");
+
   const currentCategoryId = toPositiveNumber(item?.honors_category_id ?? item?.category_id);
   const currentClubTypeId = toPositiveNumber(item?.club_type_id);
   const currentSkillLevel = toPositiveNumber(item?.skill_level) ?? 1;
@@ -47,42 +50,42 @@ export function HonorFormFields({ item, categoryOptions, clubTypeOptions }: Hono
     <>
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Datos de la especialidad</CardTitle>
+          <CardTitle className="text-base">{t("sectionDataTitle")}</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2 sm:col-span-2">
             <Label htmlFor="honor_name">
-              Nombre <span aria-hidden="true" className="text-destructive">*</span>
+              {t("nameLabel")} <span aria-hidden="true" className="text-destructive">*</span>
             </Label>
             <Input
               id="honor_name"
               name="name"
               defaultValue={toText(item?.name) ?? ""}
-              placeholder="Nombre de la especialidad"
+              placeholder={t("namePlaceholder")}
               required
               aria-required="true"
             />
           </div>
 
           <div className="space-y-2 sm:col-span-2">
-            <Label htmlFor="honor_description">Descripción</Label>
+            <Label htmlFor="honor_description">{t("descriptionLabel")}</Label>
             <Textarea
               id="honor_description"
               name="description"
               rows={3}
               defaultValue={toText(item?.description) ?? ""}
-              placeholder="Descripción opcional"
+              placeholder={t("descriptionPlaceholder")}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="honors_category_id">Categoría</Label>
+            <Label htmlFor="honors_category_id">{t("categoryLabel")}</Label>
             <Select
               name="honors_category_id"
               defaultValue={currentCategoryId ? String(currentCategoryId) : undefined}
             >
               <SelectTrigger id="honors_category_id">
-                <SelectValue placeholder="Seleccionar categoría" />
+                <SelectValue placeholder={t("categoryPlaceholder")} />
               </SelectTrigger>
               <SelectContent>
                 {categoryOptions.map((option) => (
@@ -95,13 +98,13 @@ export function HonorFormFields({ item, categoryOptions, clubTypeOptions }: Hono
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="club_type_id">Tipo de club</Label>
+            <Label htmlFor="club_type_id">{t("clubTypeLabel")}</Label>
             <Select
               name="club_type_id"
               defaultValue={currentClubTypeId ? String(currentClubTypeId) : undefined}
             >
               <SelectTrigger id="club_type_id">
-                <SelectValue placeholder="Seleccionar club" />
+                <SelectValue placeholder={t("clubTypePlaceholder")} />
               </SelectTrigger>
               <SelectContent>
                 {clubTypeOptions.map((option) => (
@@ -114,7 +117,7 @@ export function HonorFormFields({ item, categoryOptions, clubTypeOptions }: Hono
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="skill_level">Nivel</Label>
+            <Label htmlFor="skill_level">{t("levelLabel")}</Label>
             <Input
               id="skill_level"
               name="skill_level"
@@ -125,7 +128,7 @@ export function HonorFormFields({ item, categoryOptions, clubTypeOptions }: Hono
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="master_honors">Master honor</Label>
+            <Label htmlFor="master_honors">{t("masterHonorLabel")}</Label>
             <Input
               id="master_honors"
               name="master_honors"
@@ -149,43 +152,43 @@ export function HonorFormFields({ item, categoryOptions, clubTypeOptions }: Hono
                 }
               }}
             />
-            <Label htmlFor="active">Especialidad activa</Label>
+            <Label htmlFor="active">{t("activeLabel")}</Label>
           </div>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Recursos (opcional)</CardTitle>
+          <CardTitle className="text-base">{t("sectionResourcesTitle")}</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2 sm:col-span-2">
-            <Label htmlFor="honor_image">Imagen (URL relativa o archivo)</Label>
+            <Label htmlFor="honor_image">{t("imageLabel")}</Label>
             <Input
               id="honor_image"
               name="honor_image"
               defaultValue={toText(item?.honor_image ?? item?.patch_image) ?? ""}
-              placeholder="Especialidades/acolchado.png"
+              placeholder={t("imagePlaceholder")}
             />
           </div>
 
           <div className="space-y-2 sm:col-span-2">
-            <Label htmlFor="material_url">Material (PDF)</Label>
+            <Label htmlFor="material_url">{t("materialLabel")}</Label>
             <Input
               id="material_url"
               name="material_url"
               defaultValue={toText(item?.material_url ?? item?.material_honor) ?? ""}
-              placeholder="Especialidades/Material/acolchado.pdf"
+              placeholder={t("materialPlaceholder")}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="year">Año</Label>
+            <Label htmlFor="year">{t("yearLabel")}</Label>
             <Input
               id="year"
               name="year"
               defaultValue={toText(item?.year) ?? ""}
-              placeholder="2026"
+              placeholder={t("yearPlaceholder")}
             />
           </div>
         </CardContent>

@@ -2,6 +2,7 @@
 
 import { useState, useCallback, Fragment } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import {
   ArrowLeft,
   ChevronDown,
@@ -38,6 +39,7 @@ interface FolderDetailClientProps {
 // ─── Module rows (expandable) ─────────────────────────────────────────────────
 
 function ModuleRows({ module }: { module: FolderModule }) {
+  const t = useTranslations("folders.detail");
   const [open, setOpen] = useState(false);
   const sortedSections = [...(module.sections ?? [])].sort(
     (a, b) => a.order - b.order,
@@ -61,7 +63,7 @@ function ModuleRows({ module }: { module: FolderModule }) {
         <TableCell className="hidden text-muted-foreground sm:table-cell">
           {module.description ?? (
             <span className="italic text-muted-foreground/60">
-              Sin descripción
+              {t("noDescription")}
             </span>
           )}
         </TableCell>
@@ -72,8 +74,7 @@ function ModuleRows({ module }: { module: FolderModule }) {
         </TableCell>
         <TableCell className="w-24 text-center">
           <Badge variant="outline" className="text-xs">
-            {sortedSections.length}{" "}
-            {sortedSections.length === 1 ? "sección" : "secciones"}
+            {t("sectionsBadge", { count: sortedSections.length })}
           </Badge>
         </TableCell>
       </TableRow>
@@ -94,7 +95,7 @@ function ModuleRows({ module }: { module: FolderModule }) {
             <TableCell className="hidden text-sm text-muted-foreground sm:table-cell">
               {section.description ?? (
                 <span className="italic text-muted-foreground/60">
-                  Sin descripción
+                  {t("noDescription")}
                 </span>
               )}
             </TableCell>
@@ -114,7 +115,7 @@ function ModuleRows({ module }: { module: FolderModule }) {
             colSpan={5}
             className="py-3 pl-8 text-sm text-muted-foreground"
           >
-            Este módulo no tiene secciones todavía.
+            {t("noSectionsInModule")}
           </TableCell>
         </TableRow>
       )}
@@ -125,6 +126,9 @@ function ModuleRows({ module }: { module: FolderModule }) {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function FolderDetailClient({ initialFolder }: FolderDetailClientProps) {
+  const t = useTranslations("folders.detail");
+  const tErrors = useTranslations("folders.errors");
+
   const [folder, setFolder] = useState<FolderTemplate>(initialFolder);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -148,12 +152,12 @@ export function FolderDetailClient({ initialFolder }: FolderDetailClientProps) {
       const message =
         err instanceof ApiError
           ? err.message
-          : "No se pudo actualizar la carpeta";
+          : tErrors("folder_refresh_failed");
       toast.error(message);
     } finally {
       setIsRefreshing(false);
     }
-  }, [folder.folder_id]);
+  }, [folder.folder_id, tErrors]);
 
   // ─── Render ────────────────────────────────────────────────────────────────
 
@@ -162,10 +166,10 @@ export function FolderDetailClient({ initialFolder }: FolderDetailClientProps) {
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-start gap-3">
-          <Button variant="ghost" size="icon-sm" asChild title="Volver a carpetas">
+          <Button variant="ghost" size="icon-sm" asChild title={t("backButton")}>
             <Link href="/dashboard/folders">
               <ArrowLeft className="size-4" />
-              <span className="sr-only">Volver</span>
+              <span className="sr-only">{t("backLabel")}</span>
             </Link>
           </Button>
           <div className="space-y-1">
@@ -179,14 +183,12 @@ export function FolderDetailClient({ initialFolder }: FolderDetailClientProps) {
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
               <span className="inline-flex items-center gap-1">
                 <Layers className="size-3" />
-                {sortedModules.length}{" "}
-                {sortedModules.length === 1 ? "módulo" : "módulos"}
+                {t("moduleCount", { count: sortedModules.length })}
               </span>
               <span aria-hidden>·</span>
               <span className="inline-flex items-center gap-1">
                 <FolderOpen className="size-3" />
-                {totalSections}{" "}
-                {totalSections === 1 ? "sección" : "secciones"}
+                {t("sectionCount", { count: totalSections })}
               </span>
             </div>
           </div>
@@ -203,12 +205,12 @@ export function FolderDetailClient({ initialFolder }: FolderDetailClientProps) {
             size="icon-sm"
             onClick={refreshFolder}
             disabled={isRefreshing}
-            title="Actualizar"
+            title={t("refreshButton")}
           >
             <RefreshCw
               className={`size-3.5 ${isRefreshing ? "animate-spin" : ""}`}
             />
-            <span className="sr-only">Actualizar</span>
+            <span className="sr-only">{t("refreshButton")}</span>
           </Button>
         </div>
       </div>
@@ -216,8 +218,8 @@ export function FolderDetailClient({ initialFolder }: FolderDetailClientProps) {
       {/* Tabs */}
       <Tabs defaultValue="structure">
         <TabsList>
-          <TabsTrigger value="structure">Estructura</TabsTrigger>
-          <TabsTrigger value="info">Información</TabsTrigger>
+          <TabsTrigger value="structure">{t("tabStructure")}</TabsTrigger>
+          <TabsTrigger value="info">{t("tabInfo")}</TabsTrigger>
         </TabsList>
 
         {/* Structure tab */}
@@ -227,9 +229,9 @@ export function FolderDetailClient({ initialFolder }: FolderDetailClientProps) {
               <div className="flex size-12 items-center justify-center rounded-full bg-muted">
                 <Layers className="size-6 text-muted-foreground" />
               </div>
-              <h3 className="mt-4 text-base font-semibold">Sin módulos</h3>
+              <h3 className="mt-4 text-base font-semibold">{t("noModulesTitle")}</h3>
               <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-                Esta carpeta no tiene módulos ni secciones configurados todavía.
+                {t("noModulesDescription")}
               </p>
             </div>
           ) : (
@@ -238,12 +240,12 @@ export function FolderDetailClient({ initialFolder }: FolderDetailClientProps) {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-8" />
-                    <TableHead>Módulo / Sección</TableHead>
+                    <TableHead>{t("tableHeaderModule")}</TableHead>
                     <TableHead className="hidden sm:table-cell">
-                      Descripción
+                      {t("tableHeaderDescription")}
                     </TableHead>
-                    <TableHead className="w-20 text-center">Orden</TableHead>
-                    <TableHead className="w-24 text-center">Secciones</TableHead>
+                    <TableHead className="w-20 text-center">{t("tableHeaderOrder")}</TableHead>
+                    <TableHead className="w-24 text-center">{t("tableHeaderSections")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -260,38 +262,38 @@ export function FolderDetailClient({ initialFolder }: FolderDetailClientProps) {
         <TabsContent value="info" className="mt-4">
           <div className="rounded-lg border border-border divide-y divide-border">
             <div className="grid grid-cols-2 gap-2 px-4 py-3 text-sm">
-              <span className="text-muted-foreground">ID</span>
+              <span className="text-muted-foreground">{t("infoId")}</span>
               <span className="font-mono text-xs">{folder.folder_id}</span>
             </div>
             <div className="grid grid-cols-2 gap-2 px-4 py-3 text-sm">
-              <span className="text-muted-foreground">Nombre</span>
+              <span className="text-muted-foreground">{t("infoName")}</span>
               <span>{folder.name}</span>
             </div>
             <div className="grid grid-cols-2 gap-2 px-4 py-3 text-sm">
-              <span className="text-muted-foreground">Descripción</span>
+              <span className="text-muted-foreground">{t("infoDescription")}</span>
               <span>
                 {folder.description ?? (
                   <span className="italic text-muted-foreground/60">
-                    Sin descripción
+                    {t("noDescription")}
                   </span>
                 )}
               </span>
             </div>
             <div className="grid grid-cols-2 gap-2 px-4 py-3 text-sm">
-              <span className="text-muted-foreground">Estado</span>
+              <span className="text-muted-foreground">{t("infoStatus")}</span>
               <FolderStatusBadge active={folder.active} />
             </div>
             <div className="grid grid-cols-2 gap-2 px-4 py-3 text-sm">
-              <span className="text-muted-foreground">Módulos</span>
+              <span className="text-muted-foreground">{t("infoModules")}</span>
               <span>{sortedModules.length}</span>
             </div>
             <div className="grid grid-cols-2 gap-2 px-4 py-3 text-sm">
-              <span className="text-muted-foreground">Secciones totales</span>
+              <span className="text-muted-foreground">{t("infoTotalSections")}</span>
               <span>{totalSections}</span>
             </div>
             {folder.created_at && (
               <div className="grid grid-cols-2 gap-2 px-4 py-3 text-sm">
-                <span className="text-muted-foreground">Creada</span>
+                <span className="text-muted-foreground">{t("infoCreated")}</span>
                 <span>
                   {new Date(folder.created_at).toLocaleDateString("es-AR", {
                     day: "2-digit",
@@ -303,7 +305,7 @@ export function FolderDetailClient({ initialFolder }: FolderDetailClientProps) {
             )}
             {folder.updated_at && (
               <div className="grid grid-cols-2 gap-2 px-4 py-3 text-sm">
-                <span className="text-muted-foreground">Actualizada</span>
+                <span className="text-muted-foreground">{t("infoUpdated")}</span>
                 <span>
                   {new Date(folder.updated_at).toLocaleDateString("es-AR", {
                     day: "2-digit",

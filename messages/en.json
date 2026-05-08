@@ -93,6 +93,47 @@
       "catalog_inventory_categories": "Inventory categories",
       "catalog_honors": "Honors (catalog)",
       "catalog_master_honors": "Master honors"
+    },
+    "breadcrumbs": {
+      "dashboard": "Dashboard",
+      "users": "Users",
+      "catalogs": "Catalogs",
+      "geography": "Geography",
+      "countries": "Countries",
+      "unions": "Unions",
+      "local-fields": "Local fields",
+      "districts": "Districts",
+      "churches": "Churches",
+      "allergies": "Allergies",
+      "diseases": "Diseases",
+      "medicines": "Medicines",
+      "relationship-types": "Relationship types",
+      "ecclesiastical-years": "Ecclesiastical years",
+      "club-types": "Club types",
+      "club-ideals": "Club ideals",
+      "honor-categories": "Honor categories",
+      "clubs": "Clubs",
+      "new": "New",
+      "instances": "Instances",
+      "camporees": "Camporees",
+      "classes": "Classes",
+      "honors": "Honors",
+      "activities": "Activities",
+      "finances": "Finances",
+      "inventory": "Inventory",
+      "certifications": "Certifications",
+      "insurance": "Insurance",
+      "notifications": "Notifications",
+      "folders": "Folders",
+      "rbac": "Roles and permissions",
+      "permissions": "Permissions",
+      "roles": "Roles",
+      "matrix": "Matrix"
+    },
+    "themeToggle": {
+      "switchToLight": "Switch to light mode",
+      "switchToDark": "Switch to dark mode",
+      "switchTheme": "Toggle theme"
     }
   },
   "permissions": {
@@ -585,6 +626,50 @@
       "sent": "Notification sent successfully",
       "broadcast_sent": "Broadcast sent successfully",
       "club_sent": "Club notification sent successfully"
+    },
+    "forms": {
+      "direct_title": "Direct send",
+      "direct_description": "Send a push notification to a specific user.",
+      "broadcast_title": "Broadcast",
+      "broadcast_description": "Send a push notification to all registered users.",
+      "broadcast_warning": "This action will send the notification to all users with a registered FCM token.",
+      "club_title": "By club",
+      "club_description": "Send a notification to all members of a club.",
+      "label_user_id": "User ID",
+      "placeholder_user_id": "User UUID",
+      "label_title": "Title",
+      "placeholder_title_notification": "Notification title",
+      "placeholder_title_broadcast": "Broadcast title",
+      "label_body": "Message",
+      "placeholder_body": "Message body",
+      "label_instance_type": "Club type",
+      "placeholder_instance_type": "Select club type...",
+      "option_adventurers": "Adventurers",
+      "option_pathfinders": "Pathfinders",
+      "option_master_guilds": "Master Guides",
+      "label_instance_id": "Instance ID",
+      "placeholder_instance_id": "Numeric club ID",
+      "submit_send": "Send notification",
+      "submit_broadcast": "Send broadcast",
+      "submit_club": "Send to club"
+    },
+    "history": {
+      "col_title": "Title",
+      "col_type": "Type",
+      "col_target": "Target",
+      "col_sent": "Sent",
+      "col_failed": "Failed",
+      "col_sent_by": "Sent by",
+      "col_date": "Date",
+      "empty_title": "No history",
+      "empty_description": "No notifications have been sent yet.",
+      "error_load": "Could not load notification history.",
+      "type_broadcast": "Broadcast",
+      "type_user": "User",
+      "type_club": "Club",
+      "target_all": "All",
+      "target_user": "User",
+      "target_club_section": "Club section"
     }
   },
   "units": {
@@ -624,6 +709,75 @@
       "field_invalid": "The {field} field is invalid",
       "no_changes": "No changes to save",
       "honor_not_identified": "The honor to delete could not be identified."
+    },
+    "crud": {
+      "pageTitle": "Honors",
+      "pageDescription": "Honors catalog.",
+      "createButton": "Create honor",
+      "filtersTitle": "Filters",
+      "filtersSubtitle": "Refine the list by field",
+      "filterNameLabel": "Name",
+      "filterNamePlaceholder": "Search by name...",
+      "filterCategoryLabel": "Category",
+      "filterCategoryPlaceholder": "Category",
+      "filterCategoryAll": "All categories",
+      "filterClubTypeLabel": "Club type",
+      "filterClubTypePlaceholder": "Club type",
+      "filterClubTypeAll": "All types",
+      "filterLevelLabel": "Level",
+      "filterLevelPlaceholder": "Level",
+      "filterLevelAll": "All levels",
+      "filterLevelItem": "Level {level}",
+      "filterStatusLabel": "Status",
+      "filterStatusPlaceholder": "Status",
+      "filterStatusAll": "All statuses",
+      "filterStatusActive": "Active",
+      "filterStatusInactive": "Inactive",
+      "emptyTitle": "No honors",
+      "emptyDescription": "No records found.",
+      "emptyFilterTitle": "No results",
+      "emptyFilterDescription": "No honors match the filters.",
+      "tableHeaderHonor": "Honor",
+      "tableHeaderCategory": "Category",
+      "tableHeaderClubType": "Club type",
+      "tableHeaderLevel": "Level",
+      "tableHeaderStatus": "Status",
+      "tableHeaderActions": "Actions",
+      "badgeActive": "Active",
+      "badgeInactive": "Inactive",
+      "editButton": "Edit",
+      "editAriaLabel": "Edit {name}",
+      "deleteButton": "Delete",
+      "actionsButton": "Actions",
+      "noPermissionBanner": "You do not have permission to modify honors.",
+      "deleteDialogTitle": "Delete honor?",
+      "deleteDialogDescription": "The honor \"{name}\" will be logically deactivated.",
+      "deleteDialogCancel": "Cancel",
+      "deleteDialogConfirm": "Delete"
+    },
+    "form": {
+      "submitCreate": "Create honor",
+      "submitEdit": "Save changes",
+      "cancelButton": "Cancel",
+      "sectionDataTitle": "Honor data",
+      "sectionResourcesTitle": "Resources (optional)",
+      "nameLabel": "Name",
+      "namePlaceholder": "Honor name",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Optional description",
+      "categoryLabel": "Category",
+      "categoryPlaceholder": "Select category",
+      "clubTypeLabel": "Club type",
+      "clubTypePlaceholder": "Select club",
+      "levelLabel": "Level",
+      "masterHonorLabel": "Master honor",
+      "activeLabel": "Honor active",
+      "imageLabel": "Image (relative URL or file)",
+      "imagePlaceholder": "Honors/quilting.png",
+      "materialLabel": "Material (PDF)",
+      "materialPlaceholder": "Honors/Material/quilting.pdf",
+      "yearLabel": "Year",
+      "yearPlaceholder": "2026"
     }
   },
   "honor_categories": {
@@ -1689,6 +1843,59 @@
       "deleted": "Folder deleted successfully",
       "updated": "Folder updated successfully",
       "created": "Folder created successfully"
+    },
+    "statusBadge": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "management": {
+      "searchPlaceholder": "Search folder...",
+      "refreshButton": "Refresh",
+      "folderCount": "{count, plural, one {# folder} other {# folders}}",
+      "noDescription": "No description",
+      "noResultsTitle": "No results",
+      "noResultsDescription": "No folders matching \"{search}\" were found.",
+      "emptyTitle": "No folders",
+      "emptyDescription": "No evidence folders have been configured yet.",
+      "tableHeaderName": "Name",
+      "tableHeaderDescription": "Description",
+      "tableHeaderModules": "Modules",
+      "tableHeaderSections": "Sections",
+      "tableHeaderStatus": "Status",
+      "ariaFolderLink": "View folder {name}",
+      "ariaList": "Folders list",
+      "modulesLabel": "Modules",
+      "sectionsLabel": "Sections"
+    },
+    "detail": {
+      "backButton": "Back to folders",
+      "backLabel": "Back",
+      "refreshButton": "Refresh",
+      "moduleCount": "{count, plural, one {# module} other {# modules}}",
+      "sectionCount": "{count, plural, one {# section} other {# sections}}",
+      "noDescription": "No description",
+      "tabStructure": "Structure",
+      "tabInfo": "Information",
+      "noModulesTitle": "No modules",
+      "noModulesDescription": "This folder has no modules or sections configured yet.",
+      "tableHeaderModule": "Module / Section",
+      "tableHeaderDescription": "Description",
+      "tableHeaderOrder": "Order",
+      "tableHeaderSections": "Sections",
+      "sectionsBadge": "{count, plural, one {# section} other {# sections}}",
+      "noSectionsInModule": "This module has no sections yet.",
+      "infoId": "ID",
+      "infoName": "Name",
+      "infoDescription": "Description",
+      "infoStatus": "Status",
+      "infoModules": "Modules",
+      "infoTotalSections": "Total sections",
+      "infoCreated": "Created",
+      "infoUpdated": "Updated"
+    },
+    "errors": {
+      "refresh_failed": "Folders could not be refreshed",
+      "folder_refresh_failed": "The folder could not be refreshed"
     }
   },
   "validation_admin": {
@@ -2520,6 +2727,17 @@
       "deletingLabel": "Deleting...",
       "overrideDeleted": "Override deleted",
       "overrideDeleteError": "Error deleting the override"
+    },
+    "form": {
+      "saving": "Saving..."
+    },
+    "sum": {
+      "label": "Sum: {sum}"
+    },
+    "override": {
+      "selectPlaceholder": "Select club type",
+      "noTypesAvailable": "No types available",
+      "createLabel": "Create override"
     }
   },
   "classes": {
@@ -2600,6 +2818,122 @@
     "errors": {
       "approve": "An error occurred while approving the request",
       "reject": "An error occurred while rejecting the request"
+    }
+  },
+  "sla": {
+    "client": {
+      "title": "SLA Dashboard",
+      "description": "Operational metrics for investitures, validations, and camporees.",
+      "updated": "Updated {ago}",
+      "cached": " (cached)"
+    },
+    "stats": {
+      "total_pending": "Total pending",
+      "total_pending_subtitle": "{count} under active review",
+      "overdue": "Overdue",
+      "overdue_subtitle": "Submitted more than 30 days ago",
+      "overdue_badge_ok": "Up to date",
+      "overdue_badge_attention": "Needs attention",
+      "avg_approval": "Avg. approval time",
+      "avg_approval_subtitle": "From enrollment to investiture",
+      "avg_approval_days": "{days} day avg.",
+      "avg_approval_no_data": "No data",
+      "approval_rate": "Approval rate",
+      "approval_rate_subtitle": "{count} resolved (90 days)",
+      "approval_rate_badge": "{count} approved"
+    },
+    "pipeline": {
+      "title": "Investiture Pipeline",
+      "description": "Active enrollments by approval stage",
+      "description_distribution": "Distribution by status",
+      "empty": "No active enrollments in the pipeline.",
+      "tooltip_enrollments": "{count, plural, =1 {enrollment} other {enrollments}}"
+    },
+    "throughput": {
+      "title": "Throughput — Last 12 weeks",
+      "description": "Approved and rejected investitures per week",
+      "empty": "No throughput data available.",
+      "legend_approved": "Approved",
+      "legend_rejected": "Rejected"
+    },
+    "validation": {
+      "title": "Validation Queue",
+      "description_pending": "{count, plural, =1 {1 item awaiting validation} other {{count} items awaiting validation}}",
+      "description_empty": "No items pending validation",
+      "class_sections_label": "Class Sections",
+      "class_sections_subtitle": "Progress pending validation",
+      "honors_label": "Honors",
+      "honors_subtitle": "Honors pending validation"
+    },
+    "camporee": {
+      "title": "Camporee Approvals",
+      "description_pending": "{count, plural, =1 {1 record pending approval} other {{count} records pending approval}}",
+      "description_empty": "No records pending approval",
+      "clubs_label": "Registered clubs",
+      "clubs_subtitle": "Pending approval",
+      "members_label": "Registered members",
+      "members_subtitle": "Pending approval",
+      "payments_label": "Registered payments",
+      "payments_subtitle": "Pending approval"
+    },
+    "actions": {
+      "refresh": "Refresh",
+      "refreshing": "Refreshing..."
+    }
+  },
+  "enrollments": {
+    "table": {
+      "col_member": "Member",
+      "col_class": "Class",
+      "col_status": "Status",
+      "col_enrollment_date": "Enrollment date",
+      "col_submitted_at": "Submitted on",
+      "col_actions": "Actions",
+      "empty": "No enrollments to display.",
+      "status": {
+        "IN_PROGRESS": "In progress",
+        "SUBMITTED_FOR_VALIDATION": "Pending validation",
+        "APPROVED": "Approved",
+        "REJECTED": "Rejected",
+        "INVESTIDO": "Invested"
+      }
+    },
+    "actions": {
+      "approve": "Approve",
+      "reject": "Reject",
+      "view_user": "View user",
+      "reject_dialog_title": "Reject enrollment",
+      "reject_dialog_description": "This action will mark the enrollment as rejected. The member will not be able to continue the investiture process with this enrollment.",
+      "reject_dialog_cancel": "Cancel",
+      "reject_dialog_confirm": "Confirm rejection"
+    },
+    "toasts": {
+      "approved": "Enrollment approved successfully.",
+      "rejected": "Enrollment rejected successfully."
+    },
+    "errors": {
+      "generic": "An error occurred. Please try again."
+    }
+  },
+  "rankings": {
+    "breakdown": {
+      "compositeScore": "Institutional composite score",
+      "weightsApplied": "Applied weights",
+      "weightsSource": "Source",
+      "weightsSourceDefault": "Global default",
+      "weightsSourceOverride": "Override by club type",
+      "componentFolder": "Folders",
+      "componentFinance": "Finance",
+      "componentCamporee": "Camporees",
+      "componentEvidence": "Evidence",
+      "pointsOf": "{earned} / {max} points",
+      "sectionsEvaluated": "{count} sections evaluated",
+      "monthsClosedOnTime": "{closed} / {total} months closed on time",
+      "deadlineDay": "Deadline: day {day} of the following month",
+      "missedMonths": "Missed months: {months}",
+      "camporeeEventsOf": "{attended} / {available} events in scope",
+      "evidenceValidatedRejected": "{validated} validated / {rejected} rejected",
+      "evidencePendingExcluded": "{pending} pending (excluded from calculation)"
     }
   }
 }

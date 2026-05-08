@@ -9,6 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { getTranslations } from "next-intl/server";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
@@ -19,18 +20,6 @@ interface NotificationHistoryTableProps {
   page: number;
   limit: number;
 }
-
-const TYPE_LABELS: Record<string, string> = {
-  BROADCAST: "Broadcast",
-  USER: "Usuario",
-  CLUB: "Club",
-};
-
-const TARGET_TYPE_LABELS: Record<string, string> = {
-  all: "Todos",
-  user: "Usuario",
-  club_section: "Sección de club",
-};
 
 function typeVariant(type: string): "default" | "secondary" | "outline" {
   if (type === "BROADCAST") return "default";
@@ -58,10 +47,24 @@ function senderName(log: NotificationLog): string {
   return log.users?.email ?? log.sent_by;
 }
 
+const TYPE_LABEL_KEYS: Record<string, string> = {
+  BROADCAST: "type_broadcast",
+  USER: "type_user",
+  CLUB: "type_club",
+};
+
+const TARGET_TYPE_LABEL_KEYS: Record<string, string> = {
+  all: "target_all",
+  user: "target_user",
+  club_section: "target_club_section",
+};
+
 export async function NotificationHistoryTable({
   page,
   limit,
 }: NotificationHistoryTableProps) {
+  const t = await getTranslations("notifications.history");
+
   let result: Awaited<ReturnType<typeof getNotificationHistory>> | null = null;
   let errorMessage: string | null = null;
 
@@ -71,7 +74,7 @@ export async function NotificationHistoryTable({
     errorMessage =
       error instanceof ApiError
         ? error.message
-        : "No se pudo cargar el historial de notificaciones.";
+        : t("error_load");
   }
 
   if (errorMessage) {
@@ -82,8 +85,8 @@ export async function NotificationHistoryTable({
     return (
       <EmptyState
         icon={Bell}
-        title="Sin historial"
-        description="Aún no se han enviado notificaciones."
+        title={t("empty_title")}
+        description={t("empty_description")}
       />
     );
   }
@@ -95,59 +98,63 @@ export async function NotificationHistoryTable({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Título</TableHead>
-                <TableHead>Tipo</TableHead>
-                <TableHead>Destino</TableHead>
-                <TableHead className="text-center">Enviados</TableHead>
-                <TableHead className="text-center">Fallidos</TableHead>
-                <TableHead>Enviado por</TableHead>
-                <TableHead>Fecha</TableHead>
+                <TableHead>{t("col_title")}</TableHead>
+                <TableHead>{t("col_type")}</TableHead>
+                <TableHead>{t("col_target")}</TableHead>
+                <TableHead className="text-center">{t("col_sent")}</TableHead>
+                <TableHead className="text-center">{t("col_failed")}</TableHead>
+                <TableHead>{t("col_sent_by")}</TableHead>
+                <TableHead>{t("col_date")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {result.data.map((log) => (
-                <TableRow key={log.log_id}>
-                  <TableCell>
-                    <div className="max-w-[200px]">
-                      <p className="truncate font-medium text-sm">{log.title}</p>
-                      <p className="truncate text-xs text-muted-foreground">{log.body}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={typeVariant(log.type)}>
-                      {TYPE_LABELS[log.type] ?? log.type}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <span className="text-sm text-muted-foreground">
-                      {TARGET_TYPE_LABELS[log.target_type] ?? log.target_type}
-                      {log.target_id && (
-                        <span className="ml-1 font-mono text-xs">({log.target_id})</span>
-                      )}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <span className="inline-flex items-center gap-1 text-sm text-success">
-                      <CheckCircle2 className="size-3.5" />
-                      {log.tokens_sent}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <span className="inline-flex items-center gap-1 text-sm text-destructive">
-                      <XCircle className="size-3.5" />
-                      {log.tokens_failed}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <span className="text-sm">{senderName(log)}</span>
-                  </TableCell>
-                  <TableCell>
-                    <span className="whitespace-nowrap text-sm text-muted-foreground">
-                      {formatDate(log.created_at)}
-                    </span>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {result.data.map((log) => {
+                const typeLabelKey = TYPE_LABEL_KEYS[log.type];
+                const targetLabelKey = TARGET_TYPE_LABEL_KEYS[log.target_type];
+                return (
+                  <TableRow key={log.log_id}>
+                    <TableCell>
+                      <div className="max-w-[200px]">
+                        <p className="truncate font-medium text-sm">{log.title}</p>
+                        <p className="truncate text-xs text-muted-foreground">{log.body}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={typeVariant(log.type)}>
+                        {typeLabelKey ? t(typeLabelKey as Parameters<typeof t>[0]) : log.type}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-sm text-muted-foreground">
+                        {targetLabelKey ? t(targetLabelKey as Parameters<typeof t>[0]) : log.target_type}
+                        {log.target_id && (
+                          <span className="ml-1 font-mono text-xs">({log.target_id})</span>
+                        )}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <span className="inline-flex items-center gap-1 text-sm text-success">
+                        <CheckCircle2 className="size-3.5" />
+                        {log.tokens_sent}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <span className="inline-flex items-center gap-1 text-sm text-destructive">
+                        <XCircle className="size-3.5" />
+                        {log.tokens_failed}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-sm">{senderName(log)}</span>
+                    </TableCell>
+                    <TableCell>
+                      <span className="whitespace-nowrap text-sm text-muted-foreground">
+                        {formatDate(log.created_at)}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </CardContent>

@@ -93,6 +93,47 @@
       "catalog_inventory_categories": "Categorías de inventario",
       "catalog_honors": "Especialidades (catálogo)",
       "catalog_master_honors": "Honores maestros"
+    },
+    "breadcrumbs": {
+      "dashboard": "Dashboard",
+      "users": "Usuarios",
+      "catalogs": "Catálogos",
+      "geography": "Geografía",
+      "countries": "Países",
+      "unions": "Uniones",
+      "local-fields": "Campos locales",
+      "districts": "Distritos",
+      "churches": "Iglesias",
+      "allergies": "Alergias",
+      "diseases": "Enfermedades",
+      "medicines": "Medicamentos",
+      "relationship-types": "Tipos de relación",
+      "ecclesiastical-years": "Años eclesiásticos",
+      "club-types": "Tipos de club",
+      "club-ideals": "Ideales de club",
+      "honor-categories": "Categorías de especialidades",
+      "clubs": "Clubes",
+      "new": "Nuevo",
+      "instances": "Instancias",
+      "camporees": "Camporees",
+      "classes": "Clases",
+      "honors": "Especialidades",
+      "activities": "Actividades",
+      "finances": "Finanzas",
+      "inventory": "Inventario",
+      "certifications": "Certificaciones",
+      "insurance": "Seguros",
+      "notifications": "Notificaciones",
+      "folders": "Folders",
+      "rbac": "Roles y permisos",
+      "permissions": "Permisos",
+      "roles": "Roles",
+      "matrix": "Matriz"
+    },
+    "themeToggle": {
+      "switchToLight": "Cambiar a modo claro",
+      "switchToDark": "Cambiar a modo oscuro",
+      "switchTheme": "Cambiar tema"
     }
   },
   "permissions": {
@@ -585,6 +626,50 @@
       "sent": "Notificación enviada correctamente",
       "broadcast_sent": "Broadcast enviado correctamente",
       "club_sent": "Notificación de club enviada correctamente"
+    },
+    "forms": {
+      "direct_title": "Envío directo",
+      "direct_description": "Enviar una notificación push a un usuario específico.",
+      "broadcast_title": "Broadcast",
+      "broadcast_description": "Enviar notificación push a todos los usuarios registrados.",
+      "broadcast_warning": "Esta acción enviará la notificación a todos los usuarios con token FCM registrado.",
+      "club_title": "Por club",
+      "club_description": "Enviar notificación a todos los miembros de un club.",
+      "label_user_id": "ID de usuario",
+      "placeholder_user_id": "UUID del usuario",
+      "label_title": "Título",
+      "placeholder_title_notification": "Título de la notificación",
+      "placeholder_title_broadcast": "Título del broadcast",
+      "label_body": "Mensaje",
+      "placeholder_body": "Contenido del mensaje",
+      "label_instance_type": "Tipo de club",
+      "placeholder_instance_type": "Seleccionar tipo de club...",
+      "option_adventurers": "Aventureros",
+      "option_pathfinders": "Conquistadores",
+      "option_master_guilds": "Guías Mayores",
+      "label_instance_id": "ID de instancia",
+      "placeholder_instance_id": "ID numérico del club",
+      "submit_send": "Enviar notificación",
+      "submit_broadcast": "Enviar broadcast",
+      "submit_club": "Enviar a club"
+    },
+    "history": {
+      "col_title": "Título",
+      "col_type": "Tipo",
+      "col_target": "Destino",
+      "col_sent": "Enviados",
+      "col_failed": "Fallidos",
+      "col_sent_by": "Enviado por",
+      "col_date": "Fecha",
+      "empty_title": "Sin historial",
+      "empty_description": "Aún no se han enviado notificaciones.",
+      "error_load": "No se pudo cargar el historial de notificaciones.",
+      "type_broadcast": "Broadcast",
+      "type_user": "Usuario",
+      "type_club": "Club",
+      "target_all": "Todos",
+      "target_user": "Usuario",
+      "target_club_section": "Sección de club"
     }
   },
   "units": {
@@ -624,6 +709,75 @@
       "field_invalid": "El campo {field} no es válido",
       "no_changes": "No hay cambios para guardar",
       "honor_not_identified": "No se pudo identificar la especialidad a eliminar."
+    },
+    "crud": {
+      "pageTitle": "Especialidades",
+      "pageDescription": "Catálogo de especialidades.",
+      "createButton": "Crear especialidad",
+      "filtersTitle": "Filtros",
+      "filtersSubtitle": "Refina el listado por campo",
+      "filterNameLabel": "Nombre",
+      "filterNamePlaceholder": "Buscar por nombre...",
+      "filterCategoryLabel": "Categoría",
+      "filterCategoryPlaceholder": "Categoría",
+      "filterCategoryAll": "Todas las categorías",
+      "filterClubTypeLabel": "Tipo de club",
+      "filterClubTypePlaceholder": "Tipo de club",
+      "filterClubTypeAll": "Todos los tipos",
+      "filterLevelLabel": "Nivel",
+      "filterLevelPlaceholder": "Nivel",
+      "filterLevelAll": "Todos los niveles",
+      "filterLevelItem": "Nivel {level}",
+      "filterStatusLabel": "Estado",
+      "filterStatusPlaceholder": "Estado",
+      "filterStatusAll": "Todos los estados",
+      "filterStatusActive": "Activos",
+      "filterStatusInactive": "Inactivos",
+      "emptyTitle": "No hay especialidades",
+      "emptyDescription": "No se encontraron registros.",
+      "emptyFilterTitle": "Sin resultados",
+      "emptyFilterDescription": "No hay especialidades que coincidan con los filtros.",
+      "tableHeaderHonor": "Especialidad",
+      "tableHeaderCategory": "Categoría",
+      "tableHeaderClubType": "Tipo de club",
+      "tableHeaderLevel": "Nivel",
+      "tableHeaderStatus": "Estado",
+      "tableHeaderActions": "Acciones",
+      "badgeActive": "Activo",
+      "badgeInactive": "Inactivo",
+      "editButton": "Editar",
+      "editAriaLabel": "Editar {name}",
+      "deleteButton": "Eliminar",
+      "actionsButton": "Acciones",
+      "noPermissionBanner": "No cuentas con permisos para modificar especialidades.",
+      "deleteDialogTitle": "¿Eliminar especialidad?",
+      "deleteDialogDescription": "Se desactivará de forma lógica la especialidad \"{name}\".",
+      "deleteDialogCancel": "Cancelar",
+      "deleteDialogConfirm": "Eliminar"
+    },
+    "form": {
+      "submitCreate": "Crear especialidad",
+      "submitEdit": "Guardar cambios",
+      "cancelButton": "Cancelar",
+      "sectionDataTitle": "Datos de la especialidad",
+      "sectionResourcesTitle": "Recursos (opcional)",
+      "nameLabel": "Nombre",
+      "namePlaceholder": "Nombre de la especialidad",
+      "descriptionLabel": "Descripción",
+      "descriptionPlaceholder": "Descripción opcional",
+      "categoryLabel": "Categoría",
+      "categoryPlaceholder": "Seleccionar categoría",
+      "clubTypeLabel": "Tipo de club",
+      "clubTypePlaceholder": "Seleccionar club",
+      "levelLabel": "Nivel",
+      "masterHonorLabel": "Master honor",
+      "activeLabel": "Especialidad activa",
+      "imageLabel": "Imagen (URL relativa o archivo)",
+      "imagePlaceholder": "Especialidades/acolchado.png",
+      "materialLabel": "Material (PDF)",
+      "materialPlaceholder": "Especialidades/Material/acolchado.pdf",
+      "yearLabel": "Año",
+      "yearPlaceholder": "2026"
     }
   },
   "honor_categories": {
@@ -1689,6 +1843,59 @@
       "deleted": "Carpeta eliminada correctamente",
       "updated": "Carpeta actualizada correctamente",
       "created": "Carpeta creada correctamente"
+    },
+    "statusBadge": {
+      "active": "Activa",
+      "inactive": "Inactiva"
+    },
+    "management": {
+      "searchPlaceholder": "Buscar carpeta...",
+      "refreshButton": "Actualizar",
+      "folderCount": "{count, plural, one {# carpeta} other {# carpetas}}",
+      "noDescription": "Sin descripción",
+      "noResultsTitle": "Sin resultados",
+      "noResultsDescription": "No se encontraron carpetas que coincidan con \"{search}\".",
+      "emptyTitle": "Sin carpetas",
+      "emptyDescription": "No hay carpetas de evidencias configuradas todavía.",
+      "tableHeaderName": "Nombre",
+      "tableHeaderDescription": "Descripción",
+      "tableHeaderModules": "Módulos",
+      "tableHeaderSections": "Secciones",
+      "tableHeaderStatus": "Estado",
+      "ariaFolderLink": "Ver carpeta {name}",
+      "ariaList": "Lista de carpetas",
+      "modulesLabel": "Módulos",
+      "sectionsLabel": "Secciones"
+    },
+    "detail": {
+      "backButton": "Volver a carpetas",
+      "backLabel": "Volver",
+      "refreshButton": "Actualizar",
+      "moduleCount": "{count, plural, one {# módulo} other {# módulos}}",
+      "sectionCount": "{count, plural, one {# sección} other {# secciones}}",
+      "noDescription": "Sin descripción",
+      "tabStructure": "Estructura",
+      "tabInfo": "Información",
+      "noModulesTitle": "Sin módulos",
+      "noModulesDescription": "Esta carpeta no tiene módulos ni secciones configurados todavía.",
+      "tableHeaderModule": "Módulo / Sección",
+      "tableHeaderDescription": "Descripción",
+      "tableHeaderOrder": "Orden",
+      "tableHeaderSections": "Secciones",
+      "sectionsBadge": "{count, plural, one {# sección} other {# secciones}}",
+      "noSectionsInModule": "Este módulo no tiene secciones todavía.",
+      "infoId": "ID",
+      "infoName": "Nombre",
+      "infoDescription": "Descripción",
+      "infoStatus": "Estado",
+      "infoModules": "Módulos",
+      "infoTotalSections": "Secciones totales",
+      "infoCreated": "Creada",
+      "infoUpdated": "Actualizada"
+    },
+    "errors": {
+      "refresh_failed": "No se pudieron actualizar las carpetas",
+      "folder_refresh_failed": "No se pudo actualizar la carpeta"
     }
   },
   "validation_admin": {
@@ -2520,6 +2727,17 @@
       "deletingLabel": "Eliminando...",
       "overrideDeleted": "Override eliminado",
       "overrideDeleteError": "Error al eliminar el override"
+    },
+    "form": {
+      "saving": "Guardando..."
+    },
+    "sum": {
+      "label": "Suma: {sum}"
+    },
+    "override": {
+      "selectPlaceholder": "Seleccionar tipo de club",
+      "noTypesAvailable": "Sin tipos disponibles",
+      "createLabel": "Crear override"
     }
   },
   "classes": {
@@ -2600,6 +2818,122 @@
     "errors": {
       "approve": "Ocurrió un error al aprobar la solicitud",
       "reject": "Ocurrió un error al rechazar la solicitud"
+    }
+  },
+  "sla": {
+    "client": {
+      "title": "SLA Dashboard",
+      "description": "Métricas operativas de investiduras, validaciones y camporees.",
+      "updated": "Actualizado {ago}",
+      "cached": " (cache)"
+    },
+    "stats": {
+      "total_pending": "Total pendientes",
+      "total_pending_subtitle": "{count} en revisión activa",
+      "overdue": "Vencidos",
+      "overdue_subtitle": "Enviados hace más de 30 días",
+      "overdue_badge_ok": "Al día",
+      "overdue_badge_attention": "Requieren atención",
+      "avg_approval": "Promedio de aprobación",
+      "avg_approval_subtitle": "De inscripción a investido",
+      "avg_approval_days": "{days} días promedio",
+      "avg_approval_no_data": "Sin datos",
+      "approval_rate": "Tasa de aprobación",
+      "approval_rate_subtitle": "{count} resueltos (90 días)",
+      "approval_rate_badge": "{count} aprobados"
+    },
+    "pipeline": {
+      "title": "Pipeline de Investidura",
+      "description": "Inscripciones activas por estado de aprobación",
+      "description_distribution": "Distribución por estado",
+      "empty": "No hay inscripciones activas en el pipeline.",
+      "tooltip_enrollments": "{count, plural, =1 {inscripción} other {inscripciones}}"
+    },
+    "throughput": {
+      "title": "Throughput — Últimas 12 semanas",
+      "description": "Investiduras aprobadas y rechazadas por semana",
+      "empty": "No hay datos de throughput disponibles.",
+      "legend_approved": "Aprobados",
+      "legend_rejected": "Rechazados"
+    },
+    "validation": {
+      "title": "Cola de Validación",
+      "description_pending": "{count, plural, =1 {1 ítem esperando validación} other {{count} ítems esperando validación}}",
+      "description_empty": "Sin ítems pendientes de validación",
+      "class_sections_label": "Secciones de Clase",
+      "class_sections_subtitle": "Progreso pendiente de validar",
+      "honors_label": "Especialidades",
+      "honors_subtitle": "Honores pendientes de validar"
+    },
+    "camporee": {
+      "title": "Aprobaciones de Camporee",
+      "description_pending": "{count, plural, =1 {1 registro pendiente de aprobación} other {{count} registros pendientes de aprobación}}",
+      "description_empty": "Sin registros pendientes de aprobación",
+      "clubs_label": "Clubes registrados",
+      "clubs_subtitle": "Pendientes de aprobación",
+      "members_label": "Miembros registrados",
+      "members_subtitle": "Pendientes de aprobación",
+      "payments_label": "Pagos registrados",
+      "payments_subtitle": "Pendientes de aprobación"
+    },
+    "actions": {
+      "refresh": "Actualizar",
+      "refreshing": "Actualizando..."
+    }
+  },
+  "enrollments": {
+    "table": {
+      "col_member": "Miembro",
+      "col_class": "Clase",
+      "col_status": "Estado",
+      "col_enrollment_date": "Fecha inscripción",
+      "col_submitted_at": "Enviado el",
+      "col_actions": "Acciones",
+      "empty": "No hay inscripciones para mostrar.",
+      "status": {
+        "IN_PROGRESS": "En progreso",
+        "SUBMITTED_FOR_VALIDATION": "Pendiente validación",
+        "APPROVED": "Aprobado",
+        "REJECTED": "Rechazado",
+        "INVESTIDO": "Investido"
+      }
+    },
+    "actions": {
+      "approve": "Aprobar",
+      "reject": "Rechazar",
+      "view_user": "Ver usuario",
+      "reject_dialog_title": "Rechazar inscripción",
+      "reject_dialog_description": "Esta acción marcará la inscripción como rechazada. El miembro no podrá continuar con el proceso de investidura con esta inscripción.",
+      "reject_dialog_cancel": "Cancelar",
+      "reject_dialog_confirm": "Confirmar rechazo"
+    },
+    "toasts": {
+      "approved": "Inscripción aprobada correctamente.",
+      "rejected": "Inscripción rechazada correctamente."
+    },
+    "errors": {
+      "generic": "Ocurrió un error. Intenta de nuevo."
+    }
+  },
+  "rankings": {
+    "breakdown": {
+      "compositeScore": "Puntaje compuesto institucional",
+      "weightsApplied": "Pesos aplicados",
+      "weightsSource": "Fuente",
+      "weightsSourceDefault": "Default global",
+      "weightsSourceOverride": "Override por tipo de club",
+      "componentFolder": "Carpetas",
+      "componentFinance": "Finanzas",
+      "componentCamporee": "Camporees",
+      "componentEvidence": "Evidencias",
+      "pointsOf": "{earned} / {max} puntos",
+      "sectionsEvaluated": "{count} secciones evaluadas",
+      "monthsClosedOnTime": "{closed} / {total} meses cerrados a tiempo",
+      "deadlineDay": "Deadline: día {day} del mes siguiente",
+      "missedMonths": "Meses faltantes: {months}",
+      "camporeeEventsOf": "{attended} / {available} eventos del scope",
+      "evidenceValidatedRejected": "{validated} validadas / {rejected} rechazadas",
+      "evidencePendingExcluded": "{pending} pendientes (excluidas del cálculo)"
     }
   }
 }
