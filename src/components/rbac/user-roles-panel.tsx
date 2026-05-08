@@ -156,16 +156,16 @@ export function UserRolesPanel({
               <ShieldAlert className="size-4 text-primary" />
             </div>
             <div>
-              <CardTitle className="text-base">Roles globales</CardTitle>
+              <CardTitle className="text-base">{t("userRolesPanel.title")}</CardTitle>
               <p className="text-xs text-muted-foreground">
-                Roles asignados a este usuario que determinan su nivel de acceso
+                {t("userRolesPanel.subtitle")}
               </p>
             </div>
           </div>
           {availableRoles.length > 0 && (
             <Button size="sm" onClick={handleOpenAddDialog} disabled={isPending}>
               <Plus className="mr-1 size-3.5" />
-              Asignar rol
+              {t("userRolesPanel.assignRole")}
             </Button>
           )}
         </CardHeader>
@@ -174,7 +174,7 @@ export function UserRolesPanel({
             <div className="flex flex-col items-center gap-3 py-6 text-center">
               <ShieldAlert className="size-8 text-muted-foreground/40" />
               <p className="text-sm text-muted-foreground">
-                Este usuario no tiene roles globales asignados.
+                {t("userRolesPanel.emptyState")}
               </p>
               {availableRoles.length > 0 && (
                 <Button
@@ -184,7 +184,7 @@ export function UserRolesPanel({
                   disabled={isPending}
                 >
                   <Plus className="mr-1 size-3.5" />
-                  Asignar rol
+                  {t("userRolesPanel.assignRole")}
                 </Button>
               )}
             </div>
@@ -202,10 +202,10 @@ export function UserRolesPanel({
                     onClick={() => setRoleToRemove(ur)}
                     disabled={isPending}
                     className="ml-0.5 rounded-sm opacity-60 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
-                    title={`Remover ${ur.roles.role_name}`}
+                    title={t("userRolesPanel.removeRoleTitle", { name: ur.roles.role_name })}
                   >
                     <X className="size-3" />
-                    <span className="sr-only">Remover</span>
+                    <span className="sr-only">{t("userRolesPanel.removeSrOnly")}</span>
                   </button>
                 </Badge>
               ))}
@@ -218,10 +218,9 @@ export function UserRolesPanel({
       <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
         <DialogContent className="max-h-[80vh] max-w-md">
           <DialogHeader>
-            <DialogTitle>Asignar rol global</DialogTitle>
+            <DialogTitle>{t("userRolesPanel.assignDialogTitle")}</DialogTitle>
             <DialogDescription>
-              Selecciona un rol para asignar a este usuario. Los roles determinan
-              el nivel de acceso al sistema.
+              {t("userRolesPanel.assignDialogDesc")}
             </DialogDescription>
           </DialogHeader>
 
@@ -229,7 +228,7 @@ export function UserRolesPanel({
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
               <Input
-                placeholder="Buscar rol..."
+                placeholder={t("userRolesPanel.searchPlaceholder")}
                 value={search}
                 onChange={(e) => {
                   setSearch(e.target.value);
@@ -242,8 +241,8 @@ export function UserRolesPanel({
             {filteredRoles.length === 0 ? (
               <p className="py-4 text-center text-sm text-muted-foreground">
                 {search
-                  ? "No se encontraron roles que coincidan."
-                  : "No hay roles disponibles para asignar."}
+                  ? t("userRolesPanel.noMatchingRoles")
+                  : t("userRolesPanel.noAvailableRoles")}
               </p>
             ) : (
               <div className="max-h-64 overflow-y-auto rounded-md border">
@@ -264,7 +263,7 @@ export function UserRolesPanel({
                   >
                     <span className="text-sm font-medium">{role.role_name}</span>
                     <span className="text-xs text-muted-foreground">
-                      Categoría: {role.role_category}
+                      {t("userRolesPanel.categoryLabel")}: {role.role_category}
                     </span>
                   </button>
                 ))}
@@ -279,7 +278,7 @@ export function UserRolesPanel({
               onClick={() => setAddDialogOpen(false)}
               disabled={isPending}
             >
-              Cancelar
+              {t("userRolesPanel.cancel")}
             </Button>
             <Button
               type="button"
@@ -287,7 +286,7 @@ export function UserRolesPanel({
               disabled={isPending || !selectedRoleId}
             >
               {isPending && <Loader2 className="size-4 animate-spin" />}
-              Asignar rol
+              {t("userRolesPanel.assignRole")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -303,25 +302,24 @@ export function UserRolesPanel({
         >
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Remover rol global?</AlertDialogTitle>
+              <AlertDialogTitle>{t("userRolesPanel.removeDialogTitle")}</AlertDialogTitle>
               <AlertDialogDescription>
-                Se removera el rol{" "}
+                {t("userRolesPanel.removeDialogDescPre")}{" "}
                 <code className="rounded bg-muted px-1 py-0.5 text-xs font-semibold">
                   {roleToRemove.roles.role_name}
                 </code>{" "}
-                de este usuario. Esto puede cambiar significativamente su nivel de
-                acceso al sistema.
+                {t("userRolesPanel.removeDialogDescPost")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
+              <AlertDialogCancel disabled={isPending}>{t("userRolesPanel.cancel")}</AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleRemove}
                 disabled={isPending}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
                 {isPending && <Loader2 className="size-4 animate-spin" />}
-                Remover
+                {t("userRolesPanel.remove")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

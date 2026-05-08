@@ -33,11 +33,7 @@ import type {
 
 // ─── Origin badge config ──────────────────────────────────────────────────────
 
-const ORIGIN_BADGE_LABELS: Record<OriginLevel, string> = {
-  DIVISION: "División",
-  UNION: "Unión",
-  LOCAL_FIELD: "Campo Local",
-};
+// Origin badge labels are now resolved via i18n (scoring_categories.table.origin.*)
 
 const ORIGIN_BADGE_VARIANTS: Record<
   OriginLevel,
@@ -51,12 +47,13 @@ const ORIGIN_BADGE_VARIANTS: Record<
 // ─── Loading skeleton ─────────────────────────────────────────────────────────
 
 function TableSkeleton() {
+  const t = useTranslations("scoring_categories.table");
   return (
     <div className="overflow-x-auto rounded-xl border border-border/60 bg-card shadow-xs">
       <Table>
         <TableHeader>
           <TableRow>
-            {["Nombre", "Pts. Máx.", "Origen", "Estado", "Acciones"].map(
+            {[t("colName"), t("colMaxPoints"), t("colOrigin"), t("colStatus"), t("colActions")].map(
               (h) => (
                 <TableHead
                   key={h}
@@ -135,6 +132,7 @@ export function ScoringCategoriesTable({
   showOriginBadge = false,
 }: ScoringCategoriesTableProps) {
   const t = useTranslations("scoring_categories");
+  const tTable = useTranslations("scoring_categories.table");
   const [categories, setCategories] = useState<ScoringCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -165,13 +163,13 @@ export function ScoringCategoriesTable({
       const message =
         err instanceof Error
           ? err.message
-          : "No se pudieron cargar las categorías";
+          : tTable("loadFailed");
       setError(message);
       toast.error(message);
     } finally {
       setLoading(false);
     }
-  }, [fetchCategories]);
+  }, [fetchCategories, tTable]);
 
   useEffect(() => {
     loadCategories();
@@ -287,7 +285,7 @@ export function ScoringCategoriesTable({
           className="ml-2 underline underline-offset-2"
           onClick={loadCategories}
         >
-          Reintentar
+          {tTable("retry")}
         </button>
       </div>
     );
@@ -299,12 +297,12 @@ export function ScoringCategoriesTable({
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
           {inheritedCategories.length > 0 &&
-            `${inheritedCategories.length} heredada${inheritedCategories.length !== 1 ? "s" : ""}, `}
-          {editableCategories.length} propia{editableCategories.length !== 1 ? "s" : ""}
+            tTable("inheritedCount", { count: inheritedCategories.length })}
+          {tTable("ownCount", { count: editableCategories.length })}
         </p>
         <Button size="sm" onClick={() => setCreateOpen(true)}>
           <Plus className="mr-1.5 size-3.5" />
-          Nueva categoría
+          {tTable("newCategory")}
         </Button>
       </div>
 
@@ -312,12 +310,12 @@ export function ScoringCategoriesTable({
       {sortedCategories.length === 0 ? (
         <EmptyState
           icon={Tags}
-          title="Sin categorías"
-          description="No hay categorías de puntuación configuradas. Crea la primera para empezar."
+          title={tTable("emptyTitle")}
+          description={tTable("emptyDesc")}
         >
           <Button size="sm" onClick={() => setCreateOpen(true)}>
             <Plus className="mr-1.5 size-3.5" />
-            Nueva categoría
+            {tTable("newCategory")}
           </Button>
         </EmptyState>
       ) : (
@@ -330,7 +328,7 @@ export function ScoringCategoriesTable({
                   aria-sort={sortField === "name" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
                 >
                   <SortableHeader field="name" activeField={sortField} direction={sortDirection} onSort={handleSort}>
-                    Nombre
+                    {tTable("colName")}
                   </SortableHeader>
                 </TableHead>
                 <TableHead
@@ -338,12 +336,12 @@ export function ScoringCategoriesTable({
                   aria-sort={sortField === "max_points" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
                 >
                   <SortableHeader field="max_points" activeField={sortField} direction={sortDirection} onSort={handleSort} align="right">
-                    Pts. Máx.
+                    {tTable("colMaxPoints")}
                   </SortableHeader>
                 </TableHead>
                 {showOriginBadge && (
                   <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Origen
+                    {tTable("colOrigin")}
                   </TableHead>
                 )}
                 <TableHead
@@ -351,11 +349,11 @@ export function ScoringCategoriesTable({
                   aria-sort={sortField === "active" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
                 >
                   <SortableHeader field="active" activeField={sortField} direction={sortDirection} onSort={handleSort}>
-                    Estado
+                    {tTable("colStatus")}
                   </SortableHeader>
                 </TableHead>
                 <TableHead className="h-9 px-3 w-[100px] text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Acciones
+                  {tTable("colActions")}
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -384,7 +382,7 @@ export function ScoringCategoriesTable({
                           className="text-xs"
                         >
                           {cat.origin_badge ||
-                            ORIGIN_BADGE_LABELS[cat.origin_level]}
+                            tTable(`origin.${cat.origin_level.toLowerCase()}`)}
                         </Badge>
                       </TableCell>
                     )}
@@ -397,8 +395,8 @@ export function ScoringCategoriesTable({
                             disabled={isToggling}
                             aria-label={
                               cat.active
-                                ? "Desactivar categoría"
-                                : "Activar categoría"
+                                ? tTable("deactivate")
+                                : tTable("activate")
                             }
                           />
                           {isToggling && (
@@ -410,7 +408,7 @@ export function ScoringCategoriesTable({
                           variant={cat.active ? "success" : "secondary"}
                           className="text-xs"
                         >
-                          {cat.active ? "Activa" : "Inactiva"}
+                          {cat.active ? tTable("statusActive") : tTable("statusInactive")}
                         </Badge>
                       )}
                     </TableCell>
@@ -422,7 +420,7 @@ export function ScoringCategoriesTable({
                             size="icon"
                             className="size-8 hover:bg-muted"
                             onClick={() => setEditCategory(cat)}
-                            title="Editar"
+                            title={tTable("edit")}
                           >
                             <Pencil className="size-3.5" />
                           </Button>
@@ -434,14 +432,14 @@ export function ScoringCategoriesTable({
                               setDeleteCategory(cat);
                               setDeleteOpen(true);
                             }}
-                            title="Eliminar"
+                            title={tTable("delete")}
                           >
                             <Trash2 className="size-3.5" />
                           </Button>
                         </div>
                       ) : (
                         <span className="text-xs text-muted-foreground">
-                          Solo lectura
+                          {tTable("readOnly")}
                         </span>
                       )}
                     </TableCell>

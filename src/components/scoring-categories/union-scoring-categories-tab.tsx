@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { ScoringCategoriesTable } from "@/components/scoring-categories/scoring-categories-table";
 import {
   getUnionScoringCategories,
@@ -25,6 +26,7 @@ interface UnionScoringCategoriesTabProps {
 export function UnionScoringCategoriesTab({
   unionId,
 }: UnionScoringCategoriesTabProps) {
+  const t = useTranslations("scoring_categories.unionTab");
   const fetchCategories = useCallback(
     () => getUnionScoringCategories(unionId),
     [unionId],
@@ -56,8 +58,7 @@ export function UnionScoringCategoriesTab({
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Categorías de puntuación de esta unión. Las heredadas de la División se
-        muestran en modo lectura. Podés agregar categorías propias de esta unión.
+        {t("description")}
       </p>
       <ScoringCategoriesTable
         editableLevel="UNION"
