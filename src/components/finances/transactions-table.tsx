@@ -28,23 +28,12 @@ import { DollarSign } from "lucide-react";
 import type { Finance, FinanceSortField } from "@/lib/api/finances";
 import { formatCurrency } from "@/lib/currency";
 import { useTranslations } from "next-intl";
+import { useFormatDate } from "@/lib/format-locale";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatAmount(cents: number): string {
   return formatCurrency(cents / 100);
-}
-
-function formatDate(dateStr: string): string {
-  try {
-    return new Intl.DateTimeFormat("es-MX", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    }).format(new Date(dateStr));
-  } catch {
-    return dateStr;
-  }
 }
 
 const MONTH_KEYS: Record<number, string> = {
@@ -138,6 +127,7 @@ export function TransactionsTable({
   onSort,
 }: TransactionsTableProps) {
   const t = useTranslations("finances");
+  const formatDate = useFormatDate();
 
   if (items.length === 0) {
     return (
@@ -239,7 +229,7 @@ export function TransactionsTable({
             return (
               <TableRow key={finance.finance_id} className="hover:bg-muted/30">
                 <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums">
-                  {formatDate(finance.finance_date)}
+                  {formatDate(finance.finance_date, { day: "2-digit", month: "2-digit", year: "numeric" })}
                 </TableCell>
                 <TableCell className="max-w-xs px-3 py-2.5 align-middle">
                   <span className="truncate text-sm">

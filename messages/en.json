@@ -1914,6 +1914,18 @@
         "pageFailed": "Could not load the page.",
         "emptyTitle": "Could not load union camporees"
       }
+    },
+    "validation": {
+      "member_required": "Select a member",
+      "amount_positive": "Amount must be greater than zero",
+      "name_required": "Name is required",
+      "start_date_required": "Start date is required",
+      "end_date_required": "End date is required",
+      "union_required": "Union is required",
+      "place_required": "Location is required",
+      "local_field_required": "Local field is required",
+      "end_date_after_start": "End date must be equal to or after the start date",
+      "end_date_after_start_full": "End date must be equal to or after the start date"
     }
   },
   "resources": {
@@ -2023,7 +2035,9 @@
       "local_field_required": "Select a local field",
       "year_required": "Select an ecclesiastical year",
       "submission_deadline_required": "Enter the submission deadline",
-      "investiture_date_required": "Enter the investiture date"
+      "investiture_date_required": "Enter the investiture date",
+      "comments_required": "Rejection reason is required",
+      "reason_required": "Rejection reason is required"
     },
     "configClient": {
       "countSingular": "configuration",
@@ -2648,6 +2662,23 @@
       "description": "Component detail for enrollment {enrollmentId}",
       "errorFallback": "Could not load the ranking breakdown. Check your server connection.",
       "paramsRequired": "The enrollmentId and year_id parameters are required."
+    },
+    "validation": {
+      "name_min": "Name must be at least {min} characters",
+      "name_max": "Name cannot exceed {max} characters",
+      "description_max": "Description cannot exceed {max} characters",
+      "order_min": "Order must be at least {min}",
+      "max_points_min": "Maximum points cannot be negative",
+      "minimum_points_min": "Minimum points cannot be negative",
+      "club_type_required": "Select a club type",
+      "ecclesiastical_year_required": "Select an ecclesiastical year",
+      "owner_union_required": "Select a union",
+      "owner_local_field_required": "Select a local field",
+      "name_min_2": "Name must be at least {min} characters",
+      "composite_pct_min": "Must be 0 or greater",
+      "composite_pct_max": "Cannot exceed {max}",
+      "order_min_0": "Order must be 0 or greater",
+      "composite_pct_invalid": "Minimum percentage must be less than maximum"
     }
   },
   "folders": {
@@ -2716,6 +2747,11 @@
     },
     "pageDetail": {
       "errorLoad": "Could not load the evidence folder."
+    },
+    "validation": {
+      "name_min": "Name must be at least {min} characters",
+      "name_max": "Name cannot exceed {max} characters",
+      "description_max": "Description cannot exceed {max} characters"
     }
   },
   "validation_admin": {
@@ -2780,6 +2816,9 @@
       "errorLoadGeneric": "Could not load pending validations.",
       "emptyTitle": "No pending validations",
       "emptyDescription": "There are no classes or honors pending validation at this time."
+    },
+    "validation": {
+      "comment_required": "Rejection reason is required"
     }
   },
   "scoring_categories": {
@@ -3173,6 +3212,9 @@
       "errorLoad": "Could not load role assignment requests.",
       "emptyTitle": "No requests",
       "emptyDescription": "There are no role assignment requests registered at this time."
+    },
+    "validation": {
+      "comment_required": "Rejection reason is required"
     }
   },
   "insurance": {
@@ -3268,6 +3310,10 @@
       "description": "Active insurance policies expiring soon, sorted by urgency.",
       "window_label": "Window: {days} days",
       "error_load_failed": "Could not load the expiring insurance list."
+    },
+    "validation": {
+      "start_date_required": "Start date is required",
+      "end_date_required": "End date is required"
     }
   },
   "finances": {
@@ -3518,6 +3564,14 @@
       "info_meet_link": "Meeting link",
       "info_coordinates": "Coordinates",
       "error_attendance_load": "Could not load the attendance list."
+    },
+    "validation": {
+      "name_required": "Name is required",
+      "activity_type_required": "Select a type",
+      "club_type_required": "Select the club type",
+      "club_section_required": "Select the section",
+      "activity_place_required": "Location is required",
+      "image_required": "Image URL is required"
     }
   },
   "year_end": {
@@ -3599,6 +3653,13 @@
       "description": "Manage inventory by club.",
       "empty_no_clubs_title": "No clubs registered",
       "empty_no_clubs_description": "Register at least one club to manage its inventory."
+    },
+    "validation": {
+      "name_min": "Name must be at least {min} characters",
+      "name_max": "Name cannot exceed {max} characters",
+      "description_max": "Description cannot exceed {max} characters",
+      "category_required": "Select a category",
+      "amount_min": "Quantity cannot be negative"
     }
   },
   "units_admin": {
@@ -3674,6 +3735,9 @@
       "entry_count": "{count, plural, one {# entry} other {# entries}}",
       "btn_refresh": "Refresh",
       "error_refresh": "Could not refresh the configuration"
+    },
+    "validation": {
+      "config_value_required": "Value cannot be empty"
     }
   },
   "shared": {

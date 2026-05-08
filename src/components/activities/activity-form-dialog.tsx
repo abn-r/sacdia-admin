@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,24 +28,26 @@ import { useTranslations } from "next-intl";
 import { createActivity, updateActivity } from "@/lib/api/activities";
 import type { Activity } from "@/lib/api/activities";
 
-// ─── Schema ───────────────────────────────────────────────────────────────────
+// ─── Schema factory ───────────────────────────────────────────────────────────
 
-const formSchema = z.object({
-  name: z.string().min(1, "El nombre es obligatorio"),
-  description: z.string().optional(),
-  activity_type_id: z.coerce.number().int().min(1, "Selecciona un tipo"),
-  club_type_id: z.coerce.number().int().min(1, "Selecciona el tipo de club"),
-  club_section_id: z.coerce.number().int().min(1, "Selecciona la sección"),
-  lat: z.coerce.number().min(-90).max(90),
-  long: z.coerce.number().min(-180).max(180),
-  activity_time: z.string().optional(),
-  activity_place: z.string().min(1, "El lugar es obligatorio"),
-  image: z.string().min(1, "La URL de imagen es obligatoria"),
-  platform: z.coerce.number().int().min(0).max(2).optional(),
-  link_meet: z.string().optional(),
-});
+function buildSchema(t: ReturnType<typeof useTranslations<"activities.validation">>) {
+  return z.object({
+    name: z.string().min(1, t("name_required")),
+    description: z.string().optional(),
+    activity_type_id: z.coerce.number().int().min(1, t("activity_type_required")),
+    club_type_id: z.coerce.number().int().min(1, t("club_type_required")),
+    club_section_id: z.coerce.number().int().min(1, t("club_section_required")),
+    lat: z.coerce.number().min(-90).max(90),
+    long: z.coerce.number().min(-180).max(180),
+    activity_time: z.string().optional(),
+    activity_place: z.string().min(1, t("activity_place_required")),
+    image: z.string().min(1, t("image_required")),
+    platform: z.coerce.number().int().min(0).max(2).optional(),
+    link_meet: z.string().optional(),
+  });
+}
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof buildSchema>>;
 
 // ─── Catalog options ──────────────────────────────────────────────────────────
 
@@ -91,7 +93,9 @@ export function ActivityFormDialog({
 }: ActivityFormDialogProps) {
   const isEdit = !!activity;
   const t = useTranslations("activities");
+  const tVal = useTranslations("activities.validation");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const schema = useMemo(() => buildSchema(tVal), [tVal]);
 
   const {
     register,
@@ -101,7 +105,7 @@ export function ActivityFormDialog({
     watch,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(formSchema as z.ZodType<FormValues, FormValues>),
+    resolver: zodResolver(schema as z.ZodType<FormValues, FormValues>),
     defaultValues: {
       name: "",
       description: "",

@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/select";
 import { createClubSectionAction, type ClubActionState } from "@/lib/clubs/actions";
 import { MemberOfMonthCard } from "@/components/member-of-month/member-of-month-card";
-import { formatCurrency } from "@/lib/currency";
+import { useFormatCurrency } from "@/lib/format-locale";
 
 type Section = {
   club_section_id?: number;
@@ -149,6 +149,7 @@ interface ClubSectionsPanelProps {
 
 export function ClubSectionsPanel({ clubId, sections, clubTypes }: ClubSectionsPanelProps) {
   const t = useTranslations("clubs");
+  const formatCurrency = useFormatCurrency();
   const [openForms, setOpenForms] = useState<Set<number>>(new Set());
   const [refreshKey, setRefreshKey] = useState(0);
 

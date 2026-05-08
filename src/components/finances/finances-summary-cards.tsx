@@ -4,14 +4,8 @@ import { TrendingUp, TrendingDown, Wallet } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { FinanceSummary } from "@/lib/api/finances";
-import { formatCurrency } from "@/lib/currency";
+import { useFormatCurrency } from "@/lib/format-locale";
 import { useTranslations } from "next-intl";
-
-// ─── Amount formatter ─────────────────────────────────────────────────────────
-
-function formatAmount(cents: number): string {
-  return formatCurrency(cents / 100);
-}
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 
@@ -44,7 +38,12 @@ interface FinancesSummaryCardsProps {
 
 export function FinancesSummaryCards({ summary }: FinancesSummaryCardsProps) {
   const t = useTranslations("finances");
+  const formatCurrency = useFormatCurrency();
   const isPositiveBalance = summary.balance >= 0;
+
+  function formatAmount(cents: number): string {
+    return formatCurrency(cents / 100);
+  }
 
   const movementsSub =
     summary.movement_count === 1

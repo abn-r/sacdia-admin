@@ -18,6 +18,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import type { CronRunsSummary, CronRecentRun, CronJobStats } from "@/lib/api/analytics";
+import { useFormatDateTime, useFormatNumber } from "@/lib/format-locale";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -61,17 +62,6 @@ interface CronRunsSectionProps {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-const dateFormatter = new Intl.DateTimeFormat("es-MX", {
-  dateStyle: "short",
-  timeStyle: "short",
-});
-
-function formatDate(iso: string | null): string {
-  if (!iso) return "—";
-  const d = new Date(iso);
-  return isNaN(d.getTime()) ? "—" : dateFormatter.format(d);
-}
 
 function formatDuration(ms: number | null): string {
   if (ms === null) return "—";
@@ -156,6 +146,14 @@ function StatusBadge({
 
 export function CronRunsSection({ data }: CronRunsSectionProps) {
   const t = useTranslations("system_jobs.cronRuns");
+  const formatDateTime = useFormatDateTime();
+  const formatNumber = useFormatNumber();
+
+  function formatDate(iso: string | null): string {
+    if (!iso) return "—";
+    const d = new Date(iso);
+    return isNaN(d.getTime()) ? "—" : formatDateTime(d, { dateStyle: "short", timeStyle: "short" });
+  }
 
   // Index server data by job_name for O(1) lookups
   const recentByName = new Map<string, CronRecentRun>(
@@ -223,7 +221,7 @@ export function CronRunsSection({ data }: CronRunsSectionProps) {
                     {/* Items processed */}
                     <TableCell className="text-right tabular-nums text-sm">
                       {run?.items_processed !== undefined && run.items_processed !== null
-                        ? run.items_processed.toLocaleString("es-MX")
+                        ? formatNumber(run.items_processed)
                         : "—"}
                     </TableCell>
 
@@ -244,7 +242,7 @@ export function CronRunsSection({ data }: CronRunsSectionProps) {
 
                     {/* Runs 7d */}
                     <TableCell className="text-right tabular-nums text-sm pr-6">
-                      {stats !== null ? stats.total_runs_7d.toLocaleString("es-MX") : "—"}
+                      {stats !== null ? formatNumber(stats.total_runs_7d) : "—"}
                     </TableCell>
                   </TableRow>
                 );

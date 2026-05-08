@@ -22,6 +22,7 @@ import {
   type ReviewAction,
   type ReviewRequestPayload,
 } from "@/lib/api/requests";
+import { useFormatDate } from "@/lib/format-locale";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -29,19 +30,6 @@ function getUserName(user?: TransferRequest["requester"]): string {
   if (!user) return "—";
   const full = [user.first_name, user.last_name].filter(Boolean).join(" ");
   return full || user.email || "—";
-}
-
-function formatDate(iso?: string | null): string {
-  if (!iso) return "—";
-  try {
-    return new Intl.DateTimeFormat("es-MX", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    }).format(new Date(iso));
-  } catch {
-    return iso;
-  }
 }
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -60,6 +48,7 @@ interface TransfersTableProps {
 
 export function TransfersTable({ requests, onRefresh }: TransfersTableProps) {
   const t = useTranslations("requests");
+  const formatDate = useFormatDate();
   const [dialog, setDialog] = useState<DialogState>(null);
 
   if (requests.length === 0) {
@@ -132,7 +121,7 @@ export function TransfersTable({ requests, onRefresh }: TransfersTableProps) {
                     <RequestStatusBadge status={req.status} />
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums text-muted-foreground">
-                    {formatDate(req.created_at)}
+                    {req.created_at ? formatDate(req.created_at) : "—"}
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle">
                     <div className="flex items-center justify-end gap-1">

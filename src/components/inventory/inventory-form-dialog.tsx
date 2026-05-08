@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,22 +32,24 @@ import {
 } from "@/lib/api/inventory";
 import type { InventoryItem, InventoryCategory, InstanceType } from "@/lib/api/inventory";
 
-// ─── Schema ───────────────────────────────────────────────────────────────────
+// ─── Schema factory ───────────────────────────────────────────────────────────
 
-const formSchema = z.object({
-  name: z
-    .string()
-    .min(3, "El nombre debe tener al menos 3 caracteres")
-    .max(100, "El nombre no puede superar 100 caracteres"),
-  description: z.string().max(500, "La descripción no puede superar 500 caracteres").optional(),
-  inventory_category_id: z.coerce
-    .number()
-    .int()
-    .positive("Selecciona una categoría"),
-  amount: z.coerce.number().int().min(0, "La cantidad no puede ser negativa"),
-});
+function buildSchema(t: ReturnType<typeof useTranslations<"inventory.validation">>) {
+  return z.object({
+    name: z
+      .string()
+      .min(3, t("name_min", { min: 3 }))
+      .max(100, t("name_max", { max: 100 })),
+    description: z.string().max(500, t("description_max", { max: 500 })).optional(),
+    inventory_category_id: z.coerce
+      .number()
+      .int()
+      .positive(t("category_required")),
+    amount: z.coerce.number().int().min(0, t("amount_min")),
+  });
+}
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof buildSchema>>;
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -74,7 +76,9 @@ export function InventoryFormDialog({
 }: InventoryFormDialogProps) {
   const isEdit = !!item;
   const t = useTranslations("inventory");
+  const tVal = useTranslations("inventory.validation");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const schema = useMemo(() => buildSchema(tVal), [tVal]);
 
   const {
     register,
@@ -84,7 +88,7 @@ export function InventoryFormDialog({
     watch,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(formSchema as z.ZodType<FormValues, FormValues>),
+    resolver: zodResolver(schema as z.ZodType<FormValues, FormValues>),
     defaultValues: {
       name: "",
       description: "",

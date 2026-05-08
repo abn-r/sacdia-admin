@@ -17,22 +17,7 @@ import {
   type EvidenceType,
 } from "@/lib/api/evidence-review";
 import { ApiError } from "@/lib/api/client";
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatDate(iso: string): string {
-  try {
-    return new Intl.DateTimeFormat("es-MX", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(new Date(iso));
-  } catch {
-    return iso;
-  }
-}
+import { useFormatDateTime } from "@/lib/format-locale";
 
 // Action intent data (no user-facing strings here — labels resolved via t() below)
 const actionIntentMap: Record<
@@ -89,6 +74,7 @@ export function EvidenceHistoryDialog({
   onOpenChange,
 }: EvidenceHistoryDialogProps) {
   const t = useTranslations("evidence_review.history");
+  const formatDate = useFormatDateTime();
 
   // Evidence history is append-only — once fetched it never changes.
   const { data: entries = [], isLoading: loading } = useQuery({

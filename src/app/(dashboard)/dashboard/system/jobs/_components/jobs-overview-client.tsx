@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import type { JobsOverview, JobCounts, FailedJob, KnownQueueName } from "@/lib/api/analytics";
 import { retryJob } from "@/lib/api/analytics";
+import { useFormatDateTime, useFormatNumber } from "@/lib/format-locale";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -51,22 +52,6 @@ const QUEUE_I18N_KEYS: Record<KnownQueueName, { labelKey: string; descKey: strin
   'background-jobs': { labelKey: 'queueBackgroundJobs',   descKey: 'queueBackgroundJobsDesc' },
 };
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-const dateFormatter = new Intl.DateTimeFormat("es-MX", {
-  day: "2-digit",
-  month: "short",
-  year: "numeric",
-  hour: "2-digit",
-  minute: "2-digit",
-});
-
-function formatDate(timestamp: string | null): string {
-  if (!timestamp) return "—";
-  const date = new Date(timestamp);
-  return isNaN(date.getTime()) ? "—" : dateFormatter.format(date);
-}
-
 // ─── Queue Card ───────────────────────────────────────────────────────────────
 
 type QueueStatRowProps = {
@@ -76,6 +61,7 @@ type QueueStatRowProps = {
 };
 
 function QueueStatRow({ label, value, destructive }: QueueStatRowProps) {
+  const formatNumber = useFormatNumber();
   return (
     <div className="flex items-center justify-between py-0.5">
       <span className="text-xs text-muted-foreground">{label}</span>
@@ -83,7 +69,7 @@ function QueueStatRow({ label, value, destructive }: QueueStatRowProps) {
         variant={destructive && value > 0 ? "destructive" : "secondary"}
         className="text-xs tabular-nums"
       >
-        {value.toLocaleString("es-MX")}
+        {formatNumber(value)}
       </Badge>
     </div>
   );
@@ -177,6 +163,13 @@ function FailedJobsTable({ jobs }: { jobs: FailedJob[] }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [pendingRowId, setPendingRowId] = useState<string | number | null>(null);
+  const formatDateTime = useFormatDateTime();
+
+  function formatDate(timestamp: string | null): string {
+    if (!timestamp) return "—";
+    const date = new Date(timestamp);
+    return isNaN(date.getTime()) ? "—" : formatDateTime(date);
+  }
 
   function handleRetry(job: FailedJob) {
     if (job.job_id === null) return;

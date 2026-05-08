@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -21,13 +21,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { pipelineReject } from "@/lib/api/investiture";
 import { ApiError } from "@/lib/api/client";
 
-// ─── Schema ───────────────────────────────────────────────────────────────────
+// ─── Schema factory ───────────────────────────────────────────────────────────
 
-const schema = z.object({
-  reason: z.string().min(1, "El motivo de rechazo es obligatorio"),
-});
+function buildSchema(t: ReturnType<typeof useTranslations<"investiture.validation">>) {
+  return z.object({
+    reason: z.string().min(1, t("reason_required")),
+  });
+}
 
-type FormValues = z.infer<typeof schema>;
+type FormValues = z.infer<ReturnType<typeof buildSchema>>;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -49,7 +51,9 @@ export function PipelineRejectDialog({
   onSuccess,
 }: PipelineRejectDialogProps) {
   const t = useTranslations("investiture");
+  const tVal = useTranslations("investiture.validation");
   const [isPending, setIsPending] = useState(false);
+  const schema = useMemo(() => buildSchema(tVal), [tVal]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),

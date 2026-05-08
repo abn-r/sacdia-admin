@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
@@ -22,21 +22,23 @@ import { Switch } from "@/components/ui/switch";
 import { createFolder, updateFolder } from "@/lib/api/folders";
 import type { FolderTemplate } from "@/lib/api/folders";
 
-// ─── Schema ───────────────────────────────────────────────────────────────────
+// ─── Schema factory ───────────────────────────────────────────────────────────
 
-const formSchema = z.object({
-  name: z
-    .string()
-    .min(3, "El nombre debe tener al menos 3 caracteres")
-    .max(100, "El nombre no puede superar 100 caracteres"),
-  description: z
-    .string()
-    .max(500, "La descripción no puede superar 500 caracteres")
-    .optional(),
-  active: z.boolean(),
-});
+function buildSchema(t: ReturnType<typeof useTranslations<"folders.validation">>) {
+  return z.object({
+    name: z
+      .string()
+      .min(3, t("name_min", { min: 3 }))
+      .max(100, t("name_max", { max: 100 })),
+    description: z
+      .string()
+      .max(500, t("description_max", { max: 500 }))
+      .optional(),
+    active: z.boolean(),
+  });
+}
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof buildSchema>>;
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -56,8 +58,10 @@ export function FolderFormDialog({
   onSuccess,
 }: FolderFormDialogProps) {
   const t = useTranslations("folders");
+  const tVal = useTranslations("folders.validation");
   const isEdit = !!folder;
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const schema = useMemo(() => buildSchema(tVal), [tVal]);
 
   const {
     register,
@@ -67,7 +71,7 @@ export function FolderFormDialog({
     watch,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(formSchema as z.ZodType<FormValues, FormValues>),
+    resolver: zodResolver(schema as z.ZodType<FormValues, FormValues>),
     defaultValues: {
       name: "",
       description: "",

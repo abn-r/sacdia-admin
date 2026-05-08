@@ -15,6 +15,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { getNotificationHistory, type NotificationLog } from "@/lib/api/notifications";
 import { ApiError } from "@/lib/api/client";
+import { getFormatDateTime } from "@/lib/format-locale";
 
 interface NotificationHistoryTableProps {
   page: number;
@@ -25,20 +26,6 @@ function typeVariant(type: string): "default" | "secondary" | "outline" {
   if (type === "BROADCAST") return "default";
   if (type === "USER") return "secondary";
   return "outline";
-}
-
-function formatDate(isoDate: string): string {
-  try {
-    return new Intl.DateTimeFormat("es-MX", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(new Date(isoDate));
-  } catch {
-    return isoDate;
-  }
 }
 
 function senderName(log: NotificationLog): string {
@@ -64,6 +51,7 @@ export async function NotificationHistoryTable({
   limit,
 }: NotificationHistoryTableProps) {
   const t = await getTranslations("notifications.history");
+  const formatDate = await getFormatDateTime();
 
   let result: Awaited<ReturnType<typeof getNotificationHistory>> | null = null;
   let errorMessage: string | null = null;

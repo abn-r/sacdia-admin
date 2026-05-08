@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
@@ -32,62 +32,64 @@ import {
 import type { AwardCategory, AwardCategoryScope, AwardTier } from "@/lib/api/annual-folders";
 import type { ClubType } from "@/lib/api/catalogs";
 
-// ─── Schema ───────────────────────────────────────────────────────────────────
+// ─── Schema factory ───────────────────────────────────────────────────────────
 
-const formSchema = z
-  .object({
-    name: z
-      .string()
-      .min(2, "El nombre debe tener al menos 2 caracteres")
-      .max(200, "El nombre no puede superar 200 caracteres"),
-    description: z
-      .string()
-      .max(500, "La descripción no puede superar 500 caracteres")
-      .optional(),
-    // ── 8.4-A scope (member / section / club) ────────────────────────────────
-    scope: z.enum(["club", "section", "member"] as const),
-    club_type_id: z.string(), // "all" | stringified number
-    min_points: z.coerce.number().int().min(0, "Debe ser 0 o mayor"),
-    max_points: z.coerce
-      .number()
-      .int()
-      .min(0, "Debe ser 0 o mayor")
-      .optional()
-      .nullable(),
-    icon: z
-      .string()
-      .max(100, "El ícono no puede superar 100 caracteres")
-      .optional(),
-    order: z.coerce.number().int().min(0, "El orden debe ser 0 o mayor"),
-    // ── 8.4-C composite scoring ──────────────────────────────────────────────
-    min_composite_pct: z.coerce
-      .number()
-      .min(0, "Debe ser 0 o mayor")
-      .max(100, "No puede superar 100")
-      .optional()
-      .nullable(),
-    max_composite_pct: z.coerce
-      .number()
-      .min(0, "Debe ser 0 o mayor")
-      .max(100, "No puede superar 100")
-      .optional()
-      .nullable(),
-    // ── 8.4-C Phase C — visual tier ──────────────────────────────────────────
-    tier: z.enum(["BRONZE", "SILVER", "GOLD", "DIAMOND"] as const).nullable().optional(),
-  })
-  .superRefine((data, ctx) => {
-    const min = data.min_composite_pct;
-    const max = data.max_composite_pct;
-    if (min != null && max != null && min >= max) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "El min_composite_pct debe ser menor que el max_composite_pct.",
-        path: ["min_composite_pct"],
-      });
-    }
-  });
+function buildSchema(t: ReturnType<typeof useTranslations<"annual_folders.validation">>) {
+  return z
+    .object({
+      name: z
+        .string()
+        .min(2, t("name_min", { min: 2 }))
+        .max(200, t("name_max", { max: 200 })),
+      description: z
+        .string()
+        .max(500, t("description_max", { max: 500 }))
+        .optional(),
+      // ── 8.4-A scope (member / section / club) ────────────────────────────────
+      scope: z.enum(["club", "section", "member"] as const),
+      club_type_id: z.string(), // "all" | stringified number
+      min_points: z.coerce.number().int().min(0, t("composite_pct_min")),
+      max_points: z.coerce
+        .number()
+        .int()
+        .min(0, t("composite_pct_min"))
+        .optional()
+        .nullable(),
+      icon: z
+        .string()
+        .max(100, t("name_max", { max: 100 }))
+        .optional(),
+      order: z.coerce.number().int().min(0, t("order_min_0")),
+      // ── 8.4-C composite scoring ──────────────────────────────────────────────
+      min_composite_pct: z.coerce
+        .number()
+        .min(0, t("composite_pct_min"))
+        .max(100, t("composite_pct_max", { max: 100 }))
+        .optional()
+        .nullable(),
+      max_composite_pct: z.coerce
+        .number()
+        .min(0, t("composite_pct_min"))
+        .max(100, t("composite_pct_max", { max: 100 }))
+        .optional()
+        .nullable(),
+      // ── 8.4-C Phase C — visual tier ──────────────────────────────────────────
+      tier: z.enum(["BRONZE", "SILVER", "GOLD", "DIAMOND"] as const).nullable().optional(),
+    })
+    .superRefine((data, ctx) => {
+      const min = data.min_composite_pct;
+      const max = data.max_composite_pct;
+      if (min != null && max != null && min >= max) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: t("composite_pct_invalid"),
+          path: ["min_composite_pct"],
+        });
+      }
+    });
+}
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof buildSchema>>;
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -112,8 +114,10 @@ export function AwardCategoryFormDialog({
   onSuccess,
 }: AwardCategoryFormDialogProps) {
   const t = useTranslations("annual_folders");
+  const tVal = useTranslations("annual_folders.validation");
   const isEdit = !!category;
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const schema = useMemo(() => buildSchema(tVal), [tVal]);
 
   const {
     register,
@@ -123,7 +127,7 @@ export function AwardCategoryFormDialog({
     watch,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(formSchema as z.ZodType<FormValues, FormValues>),
+    resolver: zodResolver(schema as z.ZodType<FormValues, FormValues>),
     defaultValues: {
       name: "",
       description: "",

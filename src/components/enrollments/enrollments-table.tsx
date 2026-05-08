@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { validateEnrollment, type Enrollment, type InvestitureStatus } from "@/lib/api/enrollments";
 import { ApiError } from "@/lib/api/client";
+import { useFormatDate } from "@/lib/format-locale";
 
 // ─── Status badge ─────────────────────────────────────────────────────────────
 
@@ -71,19 +72,6 @@ function resolveEmail(enrollment: Enrollment): string {
 
 function resolveClassName(enrollment: Enrollment): string {
   return enrollment.class?.name ?? enrollment.classes?.name ?? "—";
-}
-
-function resolveDate(dateStr: string | null | undefined): string {
-  if (!dateStr) return "—";
-  try {
-    return new Intl.DateTimeFormat("es-MX", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    }).format(new Date(dateStr));
-  } catch {
-    return dateStr;
-  }
 }
 
 // ─── Reject confirmation dialog ───────────────────────────────────────────────
@@ -137,6 +125,7 @@ export function EnrollmentsTable({ enrollments, onRefresh }: EnrollmentsTablePro
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [processingId, setProcessingId] = useState<number | null>(null);
+  const formatDate = useFormatDate();
 
   const handleAction = async (
     enrollmentId: number,
@@ -239,12 +228,12 @@ export function EnrollmentsTable({ enrollments, onRefresh }: EnrollmentsTablePro
 
                 {/* Enrollment date */}
                 <TableCell className="text-sm text-muted-foreground">
-                  {resolveDate(enrollment.enrollment_date)}
+                  {enrollment.enrollment_date ? formatDate(enrollment.enrollment_date) : "—"}
                 </TableCell>
 
                 {/* Submitted at */}
                 <TableCell className="text-sm text-muted-foreground">
-                  {resolveDate(enrollment.submitted_at)}
+                  {enrollment.submitted_at ? formatDate(enrollment.submitted_at) : "—"}
                 </TableCell>
 
                 {/* Actions */}

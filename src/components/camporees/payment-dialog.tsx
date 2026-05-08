@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,20 +28,22 @@ import { useTranslations } from "next-intl";
 import { createPayment, updatePayment } from "@/lib/api/camporees";
 import type { CamporeePayment, CamporeeMember, PaymentType } from "@/lib/api/camporees";
 
-// ─── Schema ────────────────────────────────────────────────────────────────────
+// ─── Schema factory ────────────────────────────────────────────────────────────
 
-const formSchema = z.object({
-  member_id: z.string().min(1, "Seleccione un miembro"),
-  amount: z.coerce
-    .number()
-    .positive("El monto debe ser mayor a cero"),
-  payment_type: z.enum(["inscription", "materials", "other"] as const),
-  reference: z.string().optional(),
-  notes: z.string().optional(),
-  paid_at: z.string().optional(),
-});
+function buildSchema(t: ReturnType<typeof useTranslations<"camporees.validation">>) {
+  return z.object({
+    member_id: z.string().min(1, t("member_required")),
+    amount: z.coerce
+      .number()
+      .positive(t("amount_positive")),
+    payment_type: z.enum(["inscription", "materials", "other"] as const),
+    reference: z.string().optional(),
+    notes: z.string().optional(),
+    paid_at: z.string().optional(),
+  });
+}
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof buildSchema>>;
 
 // ─── Labels ───────────────────────────────────────────────────────────────────
 
@@ -85,8 +87,10 @@ export function PaymentDialog({
   onSuccess,
 }: PaymentDialogProps) {
   const t = useTranslations("camporees");
+  const tVal = useTranslations("camporees.validation");
   const isEditing = payment != null;
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const schema = useMemo(() => buildSchema(tVal), [tVal]);
 
   const {
     register,
@@ -96,7 +100,7 @@ export function PaymentDialog({
     watch,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(formSchema as z.ZodType<FormValues, FormValues>),
+    resolver: zodResolver(schema as z.ZodType<FormValues, FormValues>),
     defaultValues: {
       member_id: "",
       amount: undefined,

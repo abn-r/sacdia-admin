@@ -16,21 +16,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { EmptyState } from "@/components/shared/empty-state";
 import { Settings2 } from "lucide-react";
 import type { InvestitureConfig } from "@/lib/api/investiture";
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatDate(iso?: string | null): string {
-  if (!iso) return "—";
-  try {
-    return new Intl.DateTimeFormat("es-MX", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    }).format(new Date(iso));
-  } catch {
-    return iso;
-  }
-}
+import { useFormatDate } from "@/lib/format-locale";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -44,6 +30,7 @@ interface ConfigTableProps {
 
 export function ConfigTable({ configs, onEdit, onDelete }: ConfigTableProps) {
   const t = useTranslations("investiture");
+  const formatDate = useFormatDate();
 
   if (configs.length === 0) {
     return (
@@ -90,10 +77,10 @@ export function ConfigTable({ configs, onEdit, onDelete }: ConfigTableProps) {
                 {config.ecclesiastical_years?.name ?? t("configTable.yearFallback", { id: config.ecclesiastical_year_id })}
               </TableCell>
               <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums text-muted-foreground">
-                {formatDate(config.submission_deadline)}
+                {config.submission_deadline ? formatDate(config.submission_deadline) : "—"}
               </TableCell>
               <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums text-muted-foreground">
-                {formatDate(config.investiture_date)}
+                {config.investiture_date ? formatDate(config.investiture_date) : "—"}
               </TableCell>
               <TableCell className="px-3 py-2.5 align-middle">
                 {config.active ? (
