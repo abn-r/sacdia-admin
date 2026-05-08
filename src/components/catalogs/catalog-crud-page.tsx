@@ -87,6 +87,7 @@ export function CatalogCrudPage({
   const tEntities = useTranslations("catalogs.entities");
   const tActions = useTranslations("catalogs.actions");
   const tCatalogs = useTranslations("catalogs");
+  const tCrud = useTranslations("catalogs.crudPage");
   const entityTitle = tEntities(`${config.key}.title`);
   const entitySingular = tEntities(`${config.key}.singular`);
   const entityDescription = tEntities(`${config.key}.description`);
@@ -142,7 +143,7 @@ export function CatalogCrudPage({
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-semibold tracking-tight">{entityTitle}</h1>
-            {!canMutate && <Badge variant="outline">Solo lectura</Badge>}
+            {!canMutate && <Badge variant="outline">{tCrud("readOnly")}</Badge>}
           </div>
           {entityDescription && (
             <p className="text-sm text-muted-foreground">{entityDescription}</p>
@@ -176,7 +177,7 @@ export function CatalogCrudPage({
         <EmptyState
           icon={Package}
           title={tActions("empty_state", { entity: entityTitleLower })}
-          description="No se encontraron registros."
+          description={tCrud("noRecords")}
         >
           {canMutate && (
             <Button size="default" onClick={() => setCreateOpen(true)}>
@@ -190,11 +191,11 @@ export function CatalogCrudPage({
         <EmptyState
           variant="no-results"
           icon={SearchX}
-          title="Sin resultados"
-          description={`No hay ${entityTitleLower} que coincidan con los filtros aplicados.`}
+          title={tCrud("noResults")}
+          description={tCrud("noResultsDesc", { entity: entityTitleLower })}
         >
           <Button variant="outline" size="sm" onClick={handleClearFilters}>
-            Limpiar filtros
+            {tCrud("clearFilters")}
           </Button>
         </EmptyState>
       ) : (
@@ -225,7 +226,7 @@ export function CatalogCrudPage({
                       <TableHead
                         className={`${TH_BASE} ${lastColIsActions ? COL_MID : COL_LAST}`}
                       >
-                        Estado
+                        {tCrud("colStatus")}
                       </TableHead>
 
                       {/* Acciones — last column (only when mutations allowed) */}
@@ -233,7 +234,7 @@ export function CatalogCrudPage({
                         <TableHead
                           className={`${TH_BASE} ${COL_LAST} w-[108px]`}
                         >
-                          Acciones
+                          {tCrud("colActions")}
                         </TableHead>
                       )}
                     </TableRow>
@@ -303,7 +304,7 @@ export function CatalogCrudPage({
                               variant={item.active !== false ? "success" : "secondary"}
                               className="text-xs"
                             >
-                              {item.active !== false ? "Activo" : "Inactivo"}
+                              {item.active !== false ? tCrud("statusActive") : tCrud("statusInactive")}
                             </Badge>
                           </TableCell>
 
@@ -317,7 +318,7 @@ export function CatalogCrudPage({
                                   className="hover:bg-muted"
                                   disabled={!itemId}
                                   onClick={() => setEditItem(item)}
-                                  aria-label="Editar registro"
+                                  aria-label={tCrud("editRecord")}
                                 >
                                   <Pencil className="size-3.5" aria-hidden="true" />
                                 </Button>
@@ -327,7 +328,7 @@ export function CatalogCrudPage({
                                   className="text-destructive hover:bg-muted hover:text-destructive"
                                   disabled={!itemId}
                                   onClick={() => setDeleteItem(item)}
-                                  aria-label="Eliminar registro"
+                                  aria-label={tCrud("deleteRecord")}
                                 >
                                   <Trash2 className="size-3.5" aria-hidden="true" />
                                 </Button>
@@ -346,7 +347,7 @@ export function CatalogCrudPage({
           {/* ── Mobile cards ── */}
           <ul
             className="space-y-3 md:hidden"
-            aria-label={`Lista de ${entityTitleLower}`}
+            aria-label={tCrud("listOf", { entity: entityTitleLower })}
           >
             {filteredItems.map((item, idx) => {
               const itemId = getItemId(item);
@@ -393,7 +394,7 @@ export function CatalogCrudPage({
                           type="button"
                           className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                           onClick={() => setEditItem(item)}
-                          aria-label={`Editar ${primaryVal}`}
+                          aria-label={tCrud("editItem", { item: primaryVal })}
                         >
                           <Pencil className="size-4" aria-hidden="true" />
                         </button>
@@ -406,7 +407,7 @@ export function CatalogCrudPage({
                         variant={item.active !== false ? "success" : "secondary"}
                         className="text-xs"
                       >
-                        {item.active !== false ? "Activo" : "Inactivo"}
+                        {item.active !== false ? tCrud("statusActive") : tCrud("statusInactive")}
                       </Badge>
                     </div>
 
@@ -445,20 +446,20 @@ export function CatalogCrudPage({
                           variant="outline"
                           size="xs"
                           onClick={() => setEditItem(item)}
-                          aria-label={`Editar ${primaryVal}`}
+                          aria-label={tCrud("editItem", { item: primaryVal })}
                         >
                           <Pencil className="size-3" aria-hidden="true" />
-                          Editar
+                          {tCrud("edit")}
                         </Button>
                         <Button
                           variant="outline"
                           size="xs"
                           className="text-destructive hover:bg-destructive/10 hover:text-destructive"
                           onClick={() => setDeleteItem(item)}
-                          aria-label={`Eliminar ${primaryVal}`}
+                          aria-label={tCrud("deleteItem", { item: primaryVal })}
                         >
                           <Trash2 className="size-3" aria-hidden="true" />
-                          Eliminar
+                          {tCrud("delete")}
                         </Button>
                       </div>
                     )}

@@ -59,6 +59,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
@@ -136,10 +137,11 @@ function SubmitButton({ label }: { label: string }) {
 
 function DeleteButton() {
   const { pending } = useFormStatus();
+  const t = useTranslations("catalogs.honorCategories");
   return (
     <Button type="submit" disabled={pending} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
       {pending && <Loader2 className="size-4 animate-spin" />}
-      Eliminar
+      {t("delete")}
     </Button>
   );
 }
@@ -159,23 +161,24 @@ function HonorCategoryFormFields({
   translations,
   onTranslationsChange,
 }: HonorCategoryFormFieldsProps) {
+  const t = useTranslations("catalogs.honorCategories");
   const esContent = (
     <div className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="honor-category-name">
-          Nombre <span className="text-destructive">*</span>
+          {t("fieldName")} <span className="text-destructive">*</span>
         </Label>
         <Input id="honor-category-name" name="name" defaultValue={toText(item?.name) ?? ""} required />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="honor-category-description">Descripción</Label>
+        <Label htmlFor="honor-category-description">{t("fieldDescription")}</Label>
         <Textarea
           id="honor-category-description"
           name="description"
           rows={3}
           defaultValue={toText(item?.description) ?? ""}
-          placeholder="Describe esta categoría"
+          placeholder={t("fieldDescriptionPlaceholder")}
         />
       </div>
 
@@ -186,7 +189,7 @@ function HonorCategoryFormFields({
           checked={activeChecked}
           onCheckedChange={(checked) => onActiveChange(!!checked)}
         />
-        <Label htmlFor="honor-category-active">Activa</Label>
+        <Label htmlFor="honor-category-active">{t("fieldActive")}</Label>
       </div>
     </div>
   );
@@ -212,6 +215,7 @@ export function HonorCategoriesCrudPage({
   updateAction,
   deleteAction,
 }: HonorCategoriesCrudPageProps) {
+  const t = useTranslations("catalogs.honorCategories");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -328,11 +332,11 @@ export function HonorCategoriesCrudPage({
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Categorías de especialidades" description="Catálogo de categorías para especialidades.">
+      <PageHeader title={t("pageTitle")} description={t("pageDescription")}>
         {canCreate && (
           <Button onClick={() => handleCreateDialogChange(true)}>
             <Plus className="size-4" />
-            Crear categoría
+            {t("createCategory")}
           </Button>
         )}
       </PageHeader>
@@ -340,19 +344,19 @@ export function HonorCategoriesCrudPage({
       <div className="space-y-4">
         <div className="rounded-xl border bg-muted/20 p-4">
           <div className="mb-3 flex items-center justify-between gap-2">
-            <h3 className="text-sm font-semibold tracking-wide text-foreground">Filtros</h3>
-            <span className="text-xs text-muted-foreground">Refina el listado por campo</span>
+            <h3 className="text-sm font-semibold tracking-wide text-foreground">{t("filtersTitle")}</h3>
+            <span className="text-xs text-muted-foreground">{t("filtersSubtitle")}</span>
           </div>
 
           <div className="overflow-x-auto pb-1">
             <div className="flex min-w-max items-end gap-4">
               <div className="w-[300px] space-y-1">
-                <Label htmlFor="honor-category-filter-name">Nombre</Label>
+                <Label htmlFor="honor-category-filter-name">{t("filterName")}</Label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="honor-category-filter-name"
-                    placeholder="Buscar por nombre..."
+                    placeholder={t("filterNamePlaceholder")}
                     value={searchInput}
                     onChange={(event) => handleSearchInputChange(event.target.value)}
                     className="bg-background pl-9"
@@ -361,15 +365,15 @@ export function HonorCategoriesCrudPage({
               </div>
 
               <div className="w-[200px] space-y-1">
-                <Label htmlFor="honor-category-filter-status">Estado</Label>
+                <Label htmlFor="honor-category-filter-status">{t("filterStatus")}</Label>
                 <Select value={currentStatusFilter} onValueChange={(value) => updateParam("active", value)}>
                   <SelectTrigger id="honor-category-filter-status" className="bg-background">
-                    <SelectValue placeholder="Estado" />
+                    <SelectValue placeholder={t("filterStatus")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Todos los estados</SelectItem>
-                    <SelectItem value="true">Activas</SelectItem>
-                    <SelectItem value="false">Inactivas</SelectItem>
+                    <SelectItem value="all">{t("statusAll")}</SelectItem>
+                    <SelectItem value="true">{t("statusActive")}</SelectItem>
+                    <SelectItem value="false">{t("statusInactive")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -380,13 +384,13 @@ export function HonorCategoriesCrudPage({
         {items.length === 0 ? (
           <EmptyState
             icon={Award}
-            title={hasActiveFilters ? "Sin resultados" : "No hay categorías de especialidades"}
-            description={hasActiveFilters ? "No hay categorías que coincidan con los filtros." : "No se encontraron registros."}
+            title={hasActiveFilters ? t("noResults") : t("emptyTitle")}
+            description={hasActiveFilters ? t("noResultsDesc") : t("emptyDesc")}
           >
             {canCreate && !hasActiveFilters && (
               <Button onClick={() => handleCreateDialogChange(true)}>
                 <Plus className="size-4" />
-                Crear categoría
+                {t("createCategory")}
               </Button>
             )}
           </EmptyState>
@@ -396,13 +400,13 @@ export function HonorCategoriesCrudPage({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Categoría</TableHead>
-                    <TableHead>Descripción</TableHead>
-                    <TableHead>Especialidades asociadas</TableHead>
-                    <TableHead>Estado</TableHead>
+                    <TableHead>{t("colCategory")}</TableHead>
+                    <TableHead>{t("colDescription")}</TableHead>
+                    <TableHead>{t("colHonorsCount")}</TableHead>
+                    <TableHead>{t("colStatus")}</TableHead>
                     {(canEdit || canDelete) && (
                       <TableHead className="sticky right-0 z-20 w-[100px] border-l bg-background">
-                        Acciones
+                        {t("colActions")}
                       </TableHead>
                     )}
                   </TableRow>
@@ -433,7 +437,7 @@ export function HonorCategoriesCrudPage({
                         <TableCell className="text-sm">{honorCount ?? "—"}</TableCell>
                         <TableCell>
                           <Badge variant={item.active !== false ? "soft-success" : "outline"} className="text-xs">
-                            {item.active !== false ? "Activa" : "Inactiva"}
+                            {item.active !== false ? t("statusActive") : t("statusInactive")}
                           </Badge>
                         </TableCell>
                         {(canEdit || canDelete) && (
@@ -454,7 +458,7 @@ export function HonorCategoriesCrudPage({
                                         : [],
                                     );
                                   }}
-                                  title="Editar"
+                                  title={t("edit")}
                                 >
                                   <Pencil className="size-3.5" />
                                 </Button>
@@ -466,7 +470,7 @@ export function HonorCategoriesCrudPage({
                                   className="size-8 text-destructive hover:text-destructive"
                                   disabled={!categoryId}
                                   onClick={() => setDeleteItem(item)}
-                                  title="Eliminar"
+                                  title={t("delete")}
                                 >
                                   <Trash2 className="size-3.5" />
                                 </Button>
@@ -476,7 +480,7 @@ export function HonorCategoriesCrudPage({
                             <div className="md:hidden">
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="size-8" title="Acciones">
+                                  <Button variant="ghost" size="icon" className="size-8" title={t("colActions")}>
                                     <MoreHorizontal className="size-4" />
                                   </Button>
                                 </DropdownMenuTrigger>
@@ -495,7 +499,7 @@ export function HonorCategoriesCrudPage({
                                       }}
                                     >
                                       <Pencil className="size-4" />
-                                      Editar
+                                      {t("edit")}
                                     </DropdownMenuItem>
                                   )}
                                   {canDelete && (
@@ -505,7 +509,7 @@ export function HonorCategoriesCrudPage({
                                       onSelect={() => setDeleteItem(item)}
                                     >
                                       <Trash2 className="size-4" />
-                                      Eliminar
+                                      {t("delete")}
                                     </DropdownMenuItem>
                                   )}
                                 </DropdownMenuContent>
@@ -535,9 +539,9 @@ export function HonorCategoriesCrudPage({
         <Dialog open={createOpen} onOpenChange={handleCreateDialogChange}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>Crear categoría</DialogTitle>
+              <DialogTitle>{t("createDialogTitle")}</DialogTitle>
               <DialogDescription>
-                Completa los campos necesarios para registrar la categoría.
+                {t("createDialogDesc")}
               </DialogDescription>
             </DialogHeader>
             <form action={createFormAction} className="space-y-4">
@@ -554,9 +558,9 @@ export function HonorCategoriesCrudPage({
               />
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setCreateOpen(false)}>
-                  Cancelar
+                  {t("cancel")}
                 </Button>
-                <SubmitButton label="Crear" />
+                <SubmitButton label={t("create")} />
               </DialogFooter>
             </form>
           </DialogContent>
@@ -567,7 +571,7 @@ export function HonorCategoriesCrudPage({
         <Dialog open={!!editItem} onOpenChange={handleEditDialogChange}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>Editar categoría</DialogTitle>
+              <DialogTitle>{t("editDialogTitle")}</DialogTitle>
             </DialogHeader>
             <form action={updateFormAction} className="space-y-4">
               <input type="hidden" name="id" value={String(pickCategoryId(editItem) ?? "")} />
@@ -585,9 +589,9 @@ export function HonorCategoriesCrudPage({
               />
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setEditItem(null)}>
-                  Cancelar
+                  {t("cancel")}
                 </Button>
-                <SubmitButton label="Guardar cambios" />
+                <SubmitButton label={t("saveChanges")} />
               </DialogFooter>
             </form>
           </DialogContent>
@@ -598,15 +602,13 @@ export function HonorCategoriesCrudPage({
         <AlertDialog open={!!deleteItem} onOpenChange={(open) => { if (!open) setDeleteItem(null); }}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>¿Eliminar categoría?</AlertDialogTitle>
+              <AlertDialogTitle>{t("deleteDialogTitle")}</AlertDialogTitle>
               <AlertDialogDescription>
-                Se eliminará la categoría
-                {" "}
-                <span className="font-medium">&quot;{pickCategoryName(deleteItem)}&quot;</span>.
+                {t("deleteDialogDesc", { name: pickCategoryName(deleteItem) })}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
               <form action={deleteFormAction} className="space-y-2">
                 <input type="hidden" name="id" value={String(pickCategoryId(deleteItem) ?? "")} />
                 {deleteState.error && (
@@ -621,7 +623,7 @@ export function HonorCategoriesCrudPage({
 
       {!canMutate && (
         <div className="rounded-md border border-dashed px-4 py-3 text-sm text-muted-foreground">
-          No cuentas con permisos para modificar categorías de especialidades.
+          {t("noPermissions")}
         </div>
       )}
     </div>

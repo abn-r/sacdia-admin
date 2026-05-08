@@ -8,6 +8,7 @@ import {
   Save,
   ArrowLeft,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -44,6 +45,7 @@ interface CreateRoleFormProps {
 }
 
 export function CreateRoleForm({ allPermissions }: CreateRoleFormProps) {
+  const t = useTranslations("rbac");
   const [isPending, startTransition] = useTransition();
 
   const [roleName, setRoleName] = useState("");
@@ -54,18 +56,18 @@ export function CreateRoleForm({ allPermissions }: CreateRoleFormProps) {
 
   // Client-side validation mirrors server-side
   function validate(): string | null {
-    if (!roleName.trim()) return "El nombre del rol es obligatorio";
+    if (!roleName.trim()) return t("validation.role_name_required");
     if (!/^[a-z][a-z0-9-]{1,62}[a-z0-9]$/.test(roleName.trim())) {
-      return "El nombre debe tener entre 3 y 64 caracteres en minúsculas (letras, números y guiones medios)";
+      return t("validation.role_name_format");
     }
     if (roleName.trim() === "super-admin") {
-      return "No se puede crear un rol con el nombre 'super-admin'";
+      return t("validation.role_name_reserved");
     }
     if (description.trim().length < 10) {
-      return "La descripción debe tener al menos 10 caracteres";
+      return t("validation.description_min_length");
     }
     if (description.trim().length > MAX_DESCRIPTION) {
-      return `La descripción no puede superar los ${MAX_DESCRIPTION} caracteres`;
+      return t("validation.description_max_length");
     }
     return null;
   }
@@ -106,36 +108,36 @@ export function CreateRoleForm({ allPermissions }: CreateRoleFormProps) {
       {/* Card: General info */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Información general</CardTitle>
+          <CardTitle className="text-base">{t("roleForm.generalInfo")}</CardTitle>
           <CardDescription>
-            Define el nombre, categoría y propósito de este rol.
+            {t("roleForm.generalInfoDesc")}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
           {/* role_name */}
           <div className="space-y-2">
             <Label htmlFor="role_name">
-              Nombre del rol <span className="ml-0.5 text-destructive">*</span>
+              {t("roleForm.roleName")} <span className="ml-0.5 text-destructive">*</span>
             </Label>
             <Input
               id="role_name"
               value={roleName}
               onChange={(e) => setRoleName(e.target.value)}
-              placeholder="ej: club-director"
+              placeholder={t("roleForm.roleNamePlaceholder")}
               pattern="^[a-z][a-z0-9-]{1,62}[a-z0-9]$"
-              title="Solo minúsculas, números y guiones medios, entre 3 y 64 caracteres"
+              title={t("roleForm.roleNameTitle")}
               autoComplete="off"
               required
             />
             <p className="text-xs text-muted-foreground">
-              Formato: letras minúsculas, números y guiones medios (<code className="font-mono">a-z0-9-</code>). Este identificador es inmutable una vez creado.
+              {t("roleForm.roleNameHint")}
             </p>
           </div>
 
           {/* role_category */}
           <div className="space-y-2">
             <Label htmlFor="role_category">
-              Categoría <span className="ml-0.5 text-destructive">*</span>
+              {t("roleForm.category")} <span className="ml-0.5 text-destructive">*</span>
             </Label>
             <Select
               value={roleCategory}
@@ -145,8 +147,8 @@ export function CreateRoleForm({ allPermissions }: CreateRoleFormProps) {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="GLOBAL">GLOBAL — aplica en toda la plataforma</SelectItem>
-                <SelectItem value="CLUB">CLUB — aplica dentro de un club específico</SelectItem>
+                <SelectItem value="GLOBAL">{t("roleForm.categoryGlobal")}</SelectItem>
+                <SelectItem value="CLUB">{t("roleForm.categoryClub")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -155,7 +157,7 @@ export function CreateRoleForm({ allPermissions }: CreateRoleFormProps) {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="description">
-                Descripción <span className="ml-0.5 text-destructive">*</span>
+                {t("roleForm.description")} <span className="ml-0.5 text-destructive">*</span>
               </Label>
               <span
                 className={`text-xs tabular-nums ${
@@ -171,14 +173,14 @@ export function CreateRoleForm({ allPermissions }: CreateRoleFormProps) {
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Explica el propósito del rol y qué tipo de usuarios deberían tenerlo."
+              placeholder={t("roleForm.descriptionPlaceholder")}
               className="min-h-[100px] resize-none"
               minLength={10}
               maxLength={MAX_DESCRIPTION}
               required
             />
             <p className="text-xs text-muted-foreground">
-              Mínimo 10 caracteres. Explica el propósito del rol y qué tipo de usuarios deberían tenerlo.
+              {t("roleForm.descriptionHint")}
             </p>
           </div>
         </CardContent>
@@ -187,9 +189,9 @@ export function CreateRoleForm({ allPermissions }: CreateRoleFormProps) {
       {/* Card: Permissions */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Permisos</CardTitle>
+          <CardTitle className="text-base">{t("roleForm.permissions")}</CardTitle>
           <CardDescription>
-            Asigna los permisos que tendrá este rol. Se pueden modificar después.
+            {t("roleForm.permissionsDesc")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -207,19 +209,19 @@ export function CreateRoleForm({ allPermissions }: CreateRoleFormProps) {
           <Button type="button" variant="outline" asChild>
             <Link href={ROLES_PATH}>
               <ArrowLeft className="size-4" />
-              Cancelar
+              {t("roleForm.cancel")}
             </Link>
           </Button>
           <Button type="submit" disabled={isPending}>
             {isPending ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                Creando...
+                {t("roleForm.creating")}
               </>
             ) : (
               <>
                 <Save className="size-4" />
-                Crear rol
+                {t("roleForm.createRole")}
               </>
             )}
           </Button>
@@ -236,6 +238,7 @@ interface EditRoleFormProps {
 }
 
 export function EditRoleForm({ role, allPermissions }: EditRoleFormProps) {
+  const t = useTranslations("rbac");
   const [isPending, startTransition] = useTransition();
 
   const initialSelectedIds = new Set(
@@ -257,10 +260,10 @@ export function EditRoleForm({ role, allPermissions }: EditRoleFormProps) {
 
   function validate(): string | null {
     if (description.trim().length < 10) {
-      return "La descripción debe tener al menos 10 caracteres";
+      return t("validation.description_min_length");
     }
     if (description.trim().length > MAX_DESCRIPTION) {
-      return `La descripción no puede superar los ${MAX_DESCRIPTION} caracteres`;
+      return t("validation.description_max_length");
     }
     return null;
   }
@@ -299,22 +302,22 @@ export function EditRoleForm({ role, allPermissions }: EditRoleFormProps) {
       {/* Card: General info */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Información general</CardTitle>
+          <CardTitle className="text-base">{t("roleForm.generalInfo")}</CardTitle>
           <CardDescription>
-            El nombre y la categoría del rol son inmutables tras la creación.
+            {t("roleForm.editGeneralInfoDesc")}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
           {/* role_name — static, immutable */}
           <div className="space-y-2">
             <div className="flex items-center gap-1.5">
-              <Label>Nombre del rol</Label>
+              <Label>{t("roleForm.roleName")}</Label>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Lock className="size-3.5 text-muted-foreground cursor-help" />
                 </TooltipTrigger>
                 <TooltipContent className="max-w-[220px] text-center">
-                  El nombre del rol es inmutable. Crea uno nuevo si necesitas cambiarlo.
+                  {t("roleForm.roleNameImmutableTooltip")}
                 </TooltipContent>
               </Tooltip>
             </div>
@@ -326,12 +329,12 @@ export function EditRoleForm({ role, allPermissions }: EditRoleFormProps) {
           {/* role_category — static, immutable */}
           <div className="space-y-2">
             <div className="flex items-center gap-1.5">
-              <Label>Categoría</Label>
+              <Label>{t("roleForm.category")}</Label>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Lock className="size-3.5 text-muted-foreground cursor-help" />
                 </TooltipTrigger>
-                <TooltipContent>La categoría es inmutable tras la creación.</TooltipContent>
+                <TooltipContent>{t("roleForm.categoryImmutableTooltip")}</TooltipContent>
               </Tooltip>
             </div>
             <div className="flex h-9 items-center rounded-md border border-input bg-muted/40 px-3">
@@ -343,7 +346,7 @@ export function EditRoleForm({ role, allPermissions }: EditRoleFormProps) {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="description">
-                Descripción <span className="ml-0.5 text-destructive">*</span>
+                {t("roleForm.description")} <span className="ml-0.5 text-destructive">*</span>
               </Label>
               <span
                 className={`text-xs tabular-nums ${
@@ -359,14 +362,14 @@ export function EditRoleForm({ role, allPermissions }: EditRoleFormProps) {
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Explica el propósito del rol y qué tipo de usuarios deberían tenerlo."
+              placeholder={t("roleForm.descriptionPlaceholder")}
               className="min-h-[100px] resize-none"
               minLength={10}
               maxLength={MAX_DESCRIPTION}
               required
             />
             <p className="text-xs text-muted-foreground">
-              Mínimo 10 caracteres. Explica el propósito del rol y qué tipo de usuarios deberían tenerlo.
+              {t("roleForm.descriptionHint")}
             </p>
           </div>
         </CardContent>
@@ -375,9 +378,9 @@ export function EditRoleForm({ role, allPermissions }: EditRoleFormProps) {
       {/* Card: Permissions */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Permisos</CardTitle>
+          <CardTitle className="text-base">{t("roleForm.permissions")}</CardTitle>
           <CardDescription>
-            Al guardar se sincronizarán los permisos — los que no estén en la selección serán removidos.
+            {t("roleForm.editPermissionsDesc")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -396,19 +399,19 @@ export function EditRoleForm({ role, allPermissions }: EditRoleFormProps) {
           <Button type="button" variant="outline" asChild>
             <Link href={ROLES_PATH}>
               <ArrowLeft className="size-4" />
-              Cancelar
+              {t("roleForm.cancel")}
             </Link>
           </Button>
           <Button type="submit" disabled={isPending}>
             {isPending ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                Guardando...
+                {t("roleForm.saving")}
               </>
             ) : (
               <>
                 <Save className="size-4" />
-                Guardar cambios
+                {t("roleForm.saveChanges")}
               </>
             )}
           </Button>

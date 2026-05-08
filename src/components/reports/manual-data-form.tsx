@@ -63,7 +63,7 @@ interface ManualDataFormProps {
 interface NumberFieldProps {
   label: string;
   name: keyof FormValues;
-   
+
   register: ReturnType<typeof useForm<FormValues>>["register"];
   error?: string;
   disabled?: boolean;
@@ -91,7 +91,7 @@ function NumberField({ label, name, register, error, disabled }: NumberFieldProp
 interface TextareaFieldProps {
   label: string;
   name: keyof FormValues;
-   
+
   register: ReturnType<typeof useForm<FormValues>>["register"];
   error?: string;
   disabled?: boolean;
@@ -132,7 +132,7 @@ export function ManualDataForm({
     handleSubmit,
     formState: { errors, isDirty },
   } = useForm<FormValues>({
-     
+
     resolver: zodResolver(manualDataSchema as z.ZodType<FormValues, FormValues>),
     defaultValues: {
       weekly_meetings_held: initialData?.weekly_meetings_held ?? undefined,
@@ -176,33 +176,33 @@ export function ManualDataForm({
       {/* Administración */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">Administración</CardTitle>
-          <CardDescription>Reuniones y eventos administrativos del mes.</CardDescription>
+          <CardTitle className="text-base">{t("manualData.sectionAdmin")}</CardTitle>
+          <CardDescription>{t("manualData.sectionAdminDescription")}</CardDescription>
         </CardHeader>
         <CardContent className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <NumberField
-            label="Reuniones semanales"
+            label={t("manualData.fieldWeeklyMeetings")}
             name="weekly_meetings_held"
             register={register}
             error={errors.weekly_meetings_held?.message}
             disabled={disabled || saving}
           />
           <NumberField
-            label="Reuniones de liderazgo"
+            label={t("manualData.fieldLeadershipMeetings")}
             name="leadership_meetings"
             register={register}
             error={errors.leadership_meetings?.message}
             disabled={disabled || saving}
           />
           <NumberField
-            label="Reuniones de padres"
+            label={t("manualData.fieldParentMeetings")}
             name="parent_meetings"
             register={register}
             error={errors.parent_meetings?.message}
             disabled={disabled || saving}
           />
           <NumberField
-            label="Eventos especiales"
+            label={t("manualData.fieldSpecialEvents")}
             name="special_events"
             register={register}
             error={errors.special_events?.message}
@@ -210,7 +210,7 @@ export function ManualDataForm({
           />
           <div className="col-span-2 sm:col-span-4">
             <TextareaField
-              label="Notas administrativas"
+              label={t("manualData.fieldAdminNotes")}
               name="administrative_notes"
               register={register}
               error={errors.administrative_notes?.message}
@@ -223,33 +223,33 @@ export function ManualDataForm({
       {/* Actividad misionera */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">Actividad Misionera</CardTitle>
-          <CardDescription>Estudios biblicos, almas y actividades de mision.</CardDescription>
+          <CardTitle className="text-base">{t("manualData.sectionMissionary")}</CardTitle>
+          <CardDescription>{t("manualData.sectionMissionaryDescription")}</CardDescription>
         </CardHeader>
         <CardContent className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <NumberField
-            label="Estudios biblicos"
+            label={t("manualData.fieldBibleStudies")}
             name="bible_studies_conducted"
             register={register}
             error={errors.bible_studies_conducted?.message}
             disabled={disabled || saving}
           />
           <NumberField
-            label="Almas ganadas"
+            label={t("manualData.fieldSoulsWon")}
             name="souls_won"
             register={register}
             error={errors.souls_won?.message}
             disabled={disabled || saving}
           />
           <NumberField
-            label="Eventos comunitarios"
+            label={t("manualData.fieldCommunityEvents")}
             name="community_outreach_events"
             register={register}
             error={errors.community_outreach_events?.message}
             disabled={disabled || saving}
           />
           <NumberField
-            label="Viajes misioneros"
+            label={t("manualData.fieldMissionaryTrips")}
             name="missionary_trips"
             register={register}
             error={errors.missionary_trips?.message}
@@ -257,7 +257,7 @@ export function ManualDataForm({
           />
           <div className="col-span-2 sm:col-span-4">
             <TextareaField
-              label="Notas misioneras"
+              label={t("manualData.fieldMissionaryNotes")}
               name="missionary_notes"
               register={register}
               error={errors.missionary_notes?.message}
@@ -270,26 +270,26 @@ export function ManualDataForm({
       {/* Servicio */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">Servicio</CardTitle>
-          <CardDescription>Horas de servicio, proyectos y voluntarios.</CardDescription>
+          <CardTitle className="text-base">{t("manualData.sectionService")}</CardTitle>
+          <CardDescription>{t("manualData.sectionServiceDescription")}</CardDescription>
         </CardHeader>
         <CardContent className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <NumberField
-            label="Horas de servicio"
+            label={t("manualData.fieldServiceHours")}
             name="service_hours_total"
             register={register}
             error={errors.service_hours_total?.message}
             disabled={disabled || saving}
           />
           <NumberField
-            label="Proyectos de servicio"
+            label={t("manualData.fieldServiceProjects")}
             name="service_projects"
             register={register}
             error={errors.service_projects?.message}
             disabled={disabled || saving}
           />
           <NumberField
-            label="Voluntarios"
+            label={t("manualData.fieldVolunteers")}
             name="volunteers_count"
             register={register}
             error={errors.volunteers_count?.message}
@@ -297,7 +297,7 @@ export function ManualDataForm({
           />
           <div className="col-span-2 sm:col-span-4">
             <TextareaField
-              label="Notas de servicio"
+              label={t("manualData.fieldServiceNotes")}
               name="service_notes"
               register={register}
               error={errors.service_notes?.message}
@@ -310,26 +310,26 @@ export function ManualDataForm({
       {/* Observaciones generales */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">Observaciones Generales</CardTitle>
-          <CardDescription>Desafíos, logros y pedidos de oración del mes.</CardDescription>
+          <CardTitle className="text-base">{t("manualData.sectionGeneral")}</CardTitle>
+          <CardDescription>{t("manualData.sectionGeneralDescription")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <TextareaField
-            label="Desafíos"
+            label={t("manualData.fieldChallenges")}
             name="challenges"
             register={register}
             error={errors.challenges?.message}
             disabled={disabled || saving}
           />
           <TextareaField
-            label="Destacados del mes"
+            label={t("manualData.fieldHighlights")}
             name="highlights"
             register={register}
             error={errors.highlights?.message}
             disabled={disabled || saving}
           />
           <TextareaField
-            label="Pedidos de oración"
+            label={t("manualData.fieldPrayerRequests")}
             name="prayer_requests"
             register={register}
             error={errors.prayer_requests?.message}
@@ -345,7 +345,7 @@ export function ManualDataForm({
           ) : (
             <Save className="size-4" aria-hidden="true" />
           )}
-          Guardar datos manuales
+          {t("manualData.saveButton")}
         </Button>
       </div>
     </form>
