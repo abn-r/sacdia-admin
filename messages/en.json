@@ -1280,6 +1280,51 @@
     "validation": {
       "reason_required": "The rejection reason is required",
       "reason_max": "Maximum 1000 characters"
+    },
+    "table": {
+      "col_member": "Member",
+      "col_type": "Type",
+      "col_section": "Section / Honor",
+      "col_files": "Files",
+      "col_submitted": "Submitted",
+      "col_status": "Status",
+      "col_actions": "Actions",
+      "select_all": "Select all",
+      "select_row": "Select {name}",
+      "action_view_files": "View files",
+      "action_view_history": "View history",
+      "action_approve": "Approve",
+      "action_reject": "Reject",
+      "empty_title": "No pending evidence",
+      "empty_description": "There is no evidence pending review in this state."
+    },
+    "typeBadge": {
+      "folder": "Folder",
+      "class": "Class",
+      "honor": "Honor"
+    },
+    "statusBadge": {
+      "no_submit": "Not submitted",
+      "submitted": "Submitted",
+      "validated": "Validated",
+      "rejected": "Rejected"
+    },
+    "client": {
+      "tab_all": "All",
+      "tab_folders": "Folders",
+      "tab_classes": "Classes",
+      "tab_honors": "Honors",
+      "btn_refresh": "Refresh",
+      "error_refresh": "Could not refresh the list"
+    },
+    "history": {
+      "title": "Validation history",
+      "empty": "No validation history yet.",
+      "system": "System",
+      "action_approved": "Approved",
+      "action_rejected": "Rejected",
+      "action_submitted": "Submitted for review",
+      "error_load": "Could not load history"
     }
   },
   "users": {
@@ -1648,7 +1693,57 @@
   },
   "validation_admin": {
     "errors": {
-      "unexpected": "An unexpected error occurred"
+      "unexpected": "An unexpected error occurred",
+      "loadHistory": "Could not load validation history",
+      "refresh": "Could not refresh the list"
+    },
+    "status": {
+      "PENDING": "Pending",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "NEEDS_REVISION": "Needs Revision"
+    },
+    "table": {
+      "columns": {
+        "member": "Member",
+        "class": "Class",
+        "honor": "Honor",
+        "section": "Section",
+        "submitted": "Submitted",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "empty": {
+        "title": "No pending items",
+        "description": "There are no pending validations at this time."
+      },
+      "actions": {
+        "viewHistory": "View history",
+        "approve": "Approve",
+        "reject": "Reject"
+      }
+    },
+    "history": {
+      "title": "Validation history",
+      "empty": "No validation history yet.",
+      "performer": {
+        "system": "System"
+      },
+      "actions": {
+        "APPROVED": "Approved",
+        "REJECTED": "Rejected"
+      }
+    },
+    "client": {
+      "filters": {
+        "allSections": "All sections"
+      },
+      "count": "{count, plural, one {# pending} other {# pending}}",
+      "refresh": "Refresh",
+      "tabs": {
+        "class": "Classes",
+        "honor": "Honors"
+      }
     }
   },
   "scoring_categories": {
@@ -1836,7 +1931,81 @@
   },
   "requests": {
     "errors": {
-      "unexpected": "An unexpected error occurred"
+      "unexpected": "An unexpected error occurred",
+      "refresh": "Could not refresh the list"
+    },
+    "status": {
+      "PENDING": "Pending",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected"
+    },
+    "client": {
+      "count": "{count, plural, one {# request} other {# requests}}",
+      "refresh": "Refresh",
+      "tabs": {
+        "all": "All",
+        "pending": "Pending",
+        "approved": "Approved",
+        "rejected": "Rejected"
+      }
+    },
+    "transfers": {
+      "table": {
+        "columns": {
+          "requester": "Requester",
+          "from": "From",
+          "to": "To",
+          "reason": "Reason",
+          "status": "Status",
+          "date": "Date",
+          "actions": "Actions"
+        },
+        "empty": {
+          "title": "No requests",
+          "description": "There are no transfer requests in this status."
+        },
+        "actions": {
+          "approve": "Approve",
+          "reject": "Reject",
+          "approveAriaLabel": "Approve transfer",
+          "rejectAriaLabel": "Reject transfer"
+        }
+      },
+      "dialog": {
+        "approveTitle": "Approve transfer",
+        "rejectTitle": "Reject transfer",
+        "approveDescription": "The transfer request from {name} will be approved.",
+        "rejectDescription": "The request from {name} will be rejected. A reason is required."
+      }
+    },
+    "assignments": {
+      "table": {
+        "columns": {
+          "targetUser": "Target user",
+          "section": "Section",
+          "roleToAssign": "Role to assign",
+          "requestedBy": "Requested by",
+          "status": "Status",
+          "date": "Date",
+          "actions": "Actions"
+        },
+        "empty": {
+          "title": "No requests",
+          "description": "There are no role assignment requests in this status."
+        },
+        "actions": {
+          "approve": "Approve",
+          "reject": "Reject",
+          "approveAriaLabel": "Approve assignment",
+          "rejectAriaLabel": "Reject assignment"
+        }
+      },
+      "dialog": {
+        "approveTitle": "Approve role assignment",
+        "rejectTitle": "Reject role assignment",
+        "approveDescription": "The role assignment for {name} will be approved.",
+        "rejectDescription": "The assignment request for {name} will be rejected. A reason is required."
+      }
     }
   },
   "insurance": {
@@ -2198,16 +2367,87 @@
       "member_removed": "Member removed from the unit",
       "weekly_record_created": "Weekly record created",
       "unit_deactivated": "Unit deactivated successfully"
+    },
+    "memberCombobox": {
+      "searchPlaceholder": "Search by name...",
+      "loading": "Loading members...",
+      "empty": "No members available.",
+      "clearSelection": "Clear selection",
+      "loadError": "Could not load members"
+    },
+    "unitForm": {
+      "generalData": "Unit data",
+      "leaders": "Unit leaders",
+      "requiredHint": "Fields marked with",
+      "requiredHintSuffix": "are required.",
+      "name": "Name",
+      "namePlaceholder": "E.g. Eagles Unit",
+      "clubType": "Club type",
+      "captain": "Captain",
+      "captainPlaceholder": "Select captain...",
+      "secretary": "Secretary",
+      "secretaryPlaceholder": "Select secretary...",
+      "advisor": "Advisor",
+      "advisorPlaceholder": "Select advisor...",
+      "substituteAdvisor": "Substitute advisor",
+      "substituteAdvisorOptional": "(optional)",
+      "substituteAdvisorPlaceholder": "Select substitute advisor (optional)...",
+      "submitCreate": "Create unit",
+      "submitEdit": "Save changes",
+      "submittingCreate": "Creating...",
+      "submittingEdit": "Saving...",
+      "clubTypeAdventurers": "Adventurers",
+      "clubTypePathfinders": "Pathfinders",
+      "clubTypeMasterGuides": "Master Guides"
     }
   },
   "system_config": {
     "errors": {
       "unexpected": "An unexpected error occurred"
+    },
+    "table": {
+      "col_key": "Key",
+      "col_value": "Value",
+      "col_description": "Description",
+      "col_type": "Type",
+      "col_actions": "Actions",
+      "action_edit": "Edit value",
+      "action_edit_key": "Edit {key}",
+      "no_description": "—",
+      "no_type": "—",
+      "empty_title": "No configurations",
+      "empty_description": "There are no system configuration entries registered."
+    },
+    "client": {
+      "entry_count": "{count, plural, one {# entry} other {# entries}}",
+      "btn_refresh": "Refresh",
+      "error_refresh": "Could not refresh the configuration"
     }
   },
   "shared": {
     "errors": {
       "unexpected": "Unexpected error"
+    },
+    "pagination": {
+      "showing": "Showing {from}–{to} of {total} records",
+      "perPage": "Per page",
+      "pageOf": "Page {page} of {totalPages}",
+      "prevPage": "Previous page",
+      "nextPage": "Next page"
+    },
+    "sortable": {
+      "sortBy": "Sort by {field}",
+      "sortedAscending": "Sorted by {field} ascending. Click to reverse.",
+      "sortedDescending": "Sorted by {field} descending. Click to reverse."
+    },
+    "pageHeader": {
+      "breadcrumbNav": "Breadcrumb navigation"
+    },
+    "errorBanner": {
+      "forbidden": "Access denied",
+      "missing": "Not available",
+      "rateLimited": "Rate limit reached",
+      "goToLogin": "Go to login"
     }
   },
   "translations": {

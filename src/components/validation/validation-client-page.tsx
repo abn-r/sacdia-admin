@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,7 @@ export function ValidationClientPage({
   initialHonors,
   sections,
 }: ValidationClientPageProps) {
+  const t = useTranslations("validation_admin");
   const [activeTab, setActiveTab] = useState<ValidationEntityType>("class");
   const [sectionId, setSectionId] = useState<string>("all");
   const [classValidations, setClassValidations] =
@@ -83,12 +85,12 @@ export function ValidationClientPage({
       const message =
         error instanceof ApiError
           ? error.message
-          : "No se pudo actualizar la lista";
+          : t("errors.refresh");
       toast.error(message);
     } finally {
       setIsRefreshing(false);
     }
-  }, [sectionId]);
+  }, [sectionId, t]);
 
   // Refresh when section filter changes, skip on initial mount (data comes from server)
   useEffect(() => {
@@ -111,10 +113,10 @@ export function ValidationClientPage({
           {sections.length > 0 && (
             <Select value={sectionId} onValueChange={setSectionId}>
               <SelectTrigger className="w-52">
-                <SelectValue placeholder="Todas las secciones" />
+                <SelectValue placeholder={t("client.filters.allSections")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todas las secciones</SelectItem>
+                <SelectItem value="all">{t("client.filters.allSections")}</SelectItem>
                 {sections.map((s) => (
                   <SelectItem key={s.section_id} value={String(s.section_id)}>
                     {s.name}
@@ -127,8 +129,7 @@ export function ValidationClientPage({
 
         <div className="flex items-center gap-2">
           <p className="text-sm text-muted-foreground">
-            <span className="font-medium text-foreground">{currentCount}</span>{" "}
-            {currentCount === 1 ? "pendiente" : "pendientes"}
+            {t("client.count", { count: currentCount })}
           </p>
           <Button
             variant="outline"
@@ -139,7 +140,7 @@ export function ValidationClientPage({
             <RefreshCw
               className={`size-4 ${isRefreshing ? "animate-spin" : ""}`}
             />
-            Actualizar
+            {t("client.refresh")}
           </Button>
         </div>
       </div>
@@ -149,7 +150,7 @@ export function ValidationClientPage({
         <div className="overflow-x-auto border-b border-border">
           <TabsList variant="line" className="gap-4">
             <TabsTrigger value="class" className="whitespace-nowrap">
-              Clases
+              {t("client.tabs.class")}
               {filteredClasses.length > 0 && (
                 <span className="ml-1.5 inline-flex size-5 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
                   {filteredClasses.length}
@@ -157,7 +158,7 @@ export function ValidationClientPage({
               )}
             </TabsTrigger>
             <TabsTrigger value="honor" className="whitespace-nowrap">
-              Especialidades
+              {t("client.tabs.honor")}
               {filteredHonors.length > 0 && (
                 <span className="ml-1.5 inline-flex size-5 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
                   {filteredHonors.length}

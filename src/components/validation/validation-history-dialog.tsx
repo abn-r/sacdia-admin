@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { History, Clock, CheckCircle2, XCircle } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -34,44 +35,23 @@ function formatDate(iso: string): string {
   }
 }
 
-function getPerformerName(entry: ValidationHistoryEntry): string {
-  if (entry.performer?.first_name || entry.performer?.last_name) {
-    return [entry.performer.first_name, entry.performer.last_name]
-      .filter(Boolean)
-      .join(" ");
-  }
-  if (entry.performed_by) return entry.performed_by;
-  return "Sistema";
-}
+// ─── Action config (visual/structural only — labels resolved via t()) ─────────
 
-const actionConfig: Record<
+const actionVisual: Record<
   string,
-  { label: string; icon: React.ElementType; iconClass: string; dotClass: string }
+  { icon: React.ElementType; iconClass: string; dotClass: string }
 > = {
   APPROVED: {
-    label: "Aprobado",
     icon: CheckCircle2,
     iconClass: "text-success",
     dotClass: "bg-success/20 border-success/40",
   },
   REJECTED: {
-    label: "Rechazado",
     icon: XCircle,
     iconClass: "text-destructive",
     dotClass: "bg-destructive/20 border-destructive/40",
   },
 };
-
-function getActionConfig(action: string) {
-  return (
-    actionConfig[action] ?? {
-      label: action,
-      icon: Clock,
-      iconClass: "text-muted-foreground",
-      dotClass: "bg-muted border-border",
-    }
-  );
-}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -99,6 +79,26 @@ export function ValidationHistoryDialog({
   title,
   onOpenChange,
 }: ValidationHistoryDialogProps) {
+  const t = useTranslations("validation_admin");
+
+  function getPerformerName(entry: ValidationHistoryEntry): string {
+    if (entry.performer?.first_name || entry.performer?.last_name) {
+      return [entry.performer.first_name, entry.performer.last_name]
+        .filter(Boolean)
+        .join(" ");
+    }
+    if (entry.performed_by) return entry.performed_by;
+    return t("history.performer.system");
+  }
+
+  function getActionLabel(action: string): string {
+    const known = ["APPROVED", "REJECTED"] as const;
+    if ((known as readonly string[]).includes(action)) {
+      return t(`history.actions.${action as (typeof known)[number]}`);
+    }
+    return action;
+  }
+
   const { data: entries = [], isLoading: loading } = useQuery({
     queryKey: validationHistoryQueryKey(entityType, entityId),
     queryFn: async () => {
@@ -108,7 +108,7 @@ export function ValidationHistoryDialog({
         const message =
           error instanceof ApiError
             ? error.message
-            : "No se pudo cargar el historial";
+            : t("errors.loadHistory");
         toast.error(message);
         throw error;
       }
@@ -125,7 +125,7 @@ export function ValidationHistoryDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <History className="size-5 text-muted-foreground" />
-            Historial de validación
+            {t("history.title")}
           </DialogTitle>
           <p className="text-sm text-muted-foreground">{title}</p>
         </DialogHeader>
@@ -140,13 +140,17 @@ export function ValidationHistoryDialog({
           ) : entries.length === 0 ? (
             <div className="flex items-center gap-2 rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
               <Clock className="size-4 shrink-0" />
-              <span>No hay historial de validación aún.</span>
+              <span>{t("history.empty")}</span>
             </div>
           ) : (
             <ol className="relative space-y-0">
               {entries.map((entry, idx) => {
-                const config = getActionConfig(entry.action);
-                const Icon = config.icon;
+                const visual = actionVisual[entry.action] ?? {
+                  icon: Clock,
+                  iconClass: "text-muted-foreground",
+                  dotClass: "bg-muted border-border",
+                };
+                const Icon = visual.icon;
                 const isLast = idx === entries.length - 1;
 
                 return (
@@ -155,15 +159,17 @@ export function ValidationHistoryDialog({
                       <div
                         className={cn(
                           "flex size-7 shrink-0 items-center justify-center rounded-full border",
-                          config.dotClass,
+                          visual.dotClass,
                         )}
                       >
-                        <Icon className={cn("size-3.5", config.iconClass)} />
+                        <Icon className={cn("size-3.5", visual.iconClass)} />
                       </div>
                       {!isLast && <div className="mt-1 w-px flex-1 bg-border" />}
                     </div>
                     <div className={cn("pb-4", isLast && "pb-0")}>
-                      <p className="text-sm font-medium leading-tight">{config.label}</p>
+                      <p className="text-sm font-medium leading-tight">
+                        {getActionLabel(entry.action)}
+                      </p>
                       <p className="mt-0.5 text-xs text-muted-foreground">
                         {getPerformerName(entry)} &middot; {formatDate(entry.created_at)}
                       </p>

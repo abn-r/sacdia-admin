@@ -1,14 +1,18 @@
+"use client";
+
 import Link from "next/link";
 import { AlertCircle, ShieldOff, Clock, ServerOff } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 type EndpointState = "forbidden" | "missing" | "rate-limited";
+type ErrorBannerLabelKey = "forbidden" | "missing" | "rateLimited";
 
-const stateConfig: Record<EndpointState, { icon: React.ElementType; label: string; variant: "destructive" | "secondary" | "outline" }> = {
-  forbidden: { icon: ShieldOff, label: "Acceso denegado", variant: "destructive" },
-  missing: { icon: ServerOff, label: "No disponible", variant: "secondary" },
-  "rate-limited": { icon: Clock, label: "Límite de solicitudes", variant: "outline" },
+const stateConfig: Record<EndpointState, { icon: React.ElementType; labelKey: ErrorBannerLabelKey; variant: "destructive" | "secondary" | "outline" }> = {
+  forbidden: { icon: ShieldOff, labelKey: "forbidden", variant: "destructive" },
+  missing: { icon: ServerOff, labelKey: "missing", variant: "secondary" },
+  "rate-limited": { icon: Clock, labelKey: "rateLimited", variant: "outline" },
 };
 
 interface EndpointErrorBannerProps {
@@ -18,6 +22,7 @@ interface EndpointErrorBannerProps {
 }
 
 export function EndpointErrorBanner({ state, detail, showLoginLink }: EndpointErrorBannerProps) {
+  const t = useTranslations("shared.errorBanner");
   const config = stateConfig[state];
   const Icon = config.icon;
 
@@ -29,13 +34,13 @@ export function EndpointErrorBanner({ state, detail, showLoginLink }: EndpointEr
           <div className="flex items-center gap-2">
             <Badge variant={config.variant} className="gap-1">
               <Icon className="size-3" />
-              {config.label}
+              {t(config.labelKey)}
             </Badge>
           </div>
           <p className="text-sm text-muted-foreground">{detail}</p>
           {showLoginLink && (
             <Button variant="outline" size="sm" asChild>
-              <Link href="/login">Ir a login</Link>
+              <Link href="/login">{t("goToLogin")}</Link>
             </Button>
           )}
         </div>

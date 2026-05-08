@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -36,6 +37,7 @@ interface SystemConfigClientPageProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function SystemConfigClientPage({ initialConfigs }: SystemConfigClientPageProps) {
+  const t = useTranslations("system_config.client");
   const [configs, setConfigs] = useState<SystemConfig[]>(initialConfigs);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [editingConfig, setEditingConfig] = useState<SystemConfig | null>(null);
@@ -50,12 +52,12 @@ export function SystemConfigClientPage({ initialConfigs }: SystemConfigClientPag
       const message =
         error instanceof ApiError
           ? error.message
-          : "No se pudo actualizar la configuración";
+          : t("error_refresh");
       toast.error(message);
     } finally {
       setIsRefreshing(false);
     }
-  }, []);
+  }, [t]);
 
   function openEdit(config: SystemConfig) {
     setEditingConfig(config);
@@ -69,8 +71,7 @@ export function SystemConfigClientPage({ initialConfigs }: SystemConfigClientPag
       {/* Toolbar */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">{configs.length}</span>{" "}
-          {configs.length === 1 ? "entrada" : "entradas"}
+          {t("entry_count", { count: configs.length })}
         </p>
         <Button
           variant="outline"
@@ -81,7 +82,7 @@ export function SystemConfigClientPage({ initialConfigs }: SystemConfigClientPag
           <RefreshCw
             className={`size-4 ${isRefreshing ? "animate-spin" : ""}`}
           />
-          Actualizar
+          {t("btn_refresh")}
         </Button>
       </div>
 

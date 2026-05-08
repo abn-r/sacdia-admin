@@ -1280,6 +1280,51 @@
     "validation": {
       "reason_required": "Le motif de rejet est obligatoire",
       "reason_max": "Maximum 1000 caractères"
+    },
+    "table": {
+      "col_member": "Membre",
+      "col_type": "Type",
+      "col_section": "Section / Honneur",
+      "col_files": "Fichiers",
+      "col_submitted": "Envoyé",
+      "col_status": "Statut",
+      "col_actions": "Actions",
+      "select_all": "Tout sélectionner",
+      "select_row": "Sélectionner {name}",
+      "action_view_files": "Voir les fichiers",
+      "action_view_history": "Voir l'historique",
+      "action_approve": "Approuver",
+      "action_reject": "Rejeter",
+      "empty_title": "Aucune preuve en attente",
+      "empty_description": "Il n'y a aucune preuve en attente de révision dans cet état."
+    },
+    "typeBadge": {
+      "folder": "Dossier",
+      "class": "Classe",
+      "honor": "Honneur"
+    },
+    "statusBadge": {
+      "no_submit": "Non envoyé",
+      "submitted": "Envoyé",
+      "validated": "Validé",
+      "rejected": "Rejeté"
+    },
+    "client": {
+      "tab_all": "Tous",
+      "tab_folders": "Dossiers",
+      "tab_classes": "Classes",
+      "tab_honors": "Honneurs",
+      "btn_refresh": "Actualiser",
+      "error_refresh": "Impossible de mettre à jour la liste"
+    },
+    "history": {
+      "title": "Historique de validation",
+      "empty": "Il n'y a pas encore d'historique de validation.",
+      "system": "Système",
+      "action_approved": "Approuvé",
+      "action_rejected": "Rejeté",
+      "action_submitted": "Envoyé en révision",
+      "error_load": "Impossible de charger l'historique"
     }
   },
   "users": {
@@ -1648,7 +1693,57 @@
   },
   "validation_admin": {
     "errors": {
-      "unexpected": "Une erreur inattendue s'est produite"
+      "unexpected": "Une erreur inattendue s'est produite",
+      "loadHistory": "Impossible de charger l'historique de validation",
+      "refresh": "Impossible de rafraîchir la liste"
+    },
+    "status": {
+      "PENDING": "En attente",
+      "APPROVED": "Approuvé",
+      "REJECTED": "Rejeté",
+      "NEEDS_REVISION": "À réviser"
+    },
+    "table": {
+      "columns": {
+        "member": "Membre",
+        "class": "Classe",
+        "honor": "Spécialité",
+        "section": "Section",
+        "submitted": "Soumis",
+        "status": "Statut",
+        "actions": "Actions"
+      },
+      "empty": {
+        "title": "Aucun élément en attente",
+        "description": "Il n'y a aucune validation en attente pour le moment."
+      },
+      "actions": {
+        "viewHistory": "Voir l'historique",
+        "approve": "Approuver",
+        "reject": "Rejeter"
+      }
+    },
+    "history": {
+      "title": "Historique de validation",
+      "empty": "Aucun historique de validation pour le moment.",
+      "performer": {
+        "system": "Système"
+      },
+      "actions": {
+        "APPROVED": "Approuvé",
+        "REJECTED": "Rejeté"
+      }
+    },
+    "client": {
+      "filters": {
+        "allSections": "Toutes les sections"
+      },
+      "count": "{count, plural, one {# en attente} other {# en attente}}",
+      "refresh": "Actualiser",
+      "tabs": {
+        "class": "Classes",
+        "honor": "Spécialités"
+      }
     }
   },
   "scoring_categories": {
@@ -1836,7 +1931,81 @@
   },
   "requests": {
     "errors": {
-      "unexpected": "Une erreur inattendue s'est produite"
+      "unexpected": "Une erreur inattendue s'est produite",
+      "refresh": "Impossible de rafraîchir la liste"
+    },
+    "status": {
+      "PENDING": "En attente",
+      "APPROVED": "Approuvé",
+      "REJECTED": "Rejeté"
+    },
+    "client": {
+      "count": "{count, plural, one {# demande} other {# demandes}}",
+      "refresh": "Actualiser",
+      "tabs": {
+        "all": "Toutes",
+        "pending": "En attente",
+        "approved": "Approuvées",
+        "rejected": "Rejetées"
+      }
+    },
+    "transfers": {
+      "table": {
+        "columns": {
+          "requester": "Demandeur",
+          "from": "De",
+          "to": "Vers",
+          "reason": "Motif",
+          "status": "Statut",
+          "date": "Date",
+          "actions": "Actions"
+        },
+        "empty": {
+          "title": "Aucune demande",
+          "description": "Il n'y a aucune demande de transfert dans cet état."
+        },
+        "actions": {
+          "approve": "Approuver",
+          "reject": "Rejeter",
+          "approveAriaLabel": "Approuver le transfert",
+          "rejectAriaLabel": "Rejeter le transfert"
+        }
+      },
+      "dialog": {
+        "approveTitle": "Approuver le transfert",
+        "rejectTitle": "Rejeter le transfert",
+        "approveDescription": "La demande de transfert de {name} sera approuvée.",
+        "rejectDescription": "La demande de {name} sera rejetée. Un motif est obligatoire."
+      }
+    },
+    "assignments": {
+      "table": {
+        "columns": {
+          "targetUser": "Utilisateur cible",
+          "section": "Section",
+          "roleToAssign": "Rôle à assigner",
+          "requestedBy": "Demandé par",
+          "status": "Statut",
+          "date": "Date",
+          "actions": "Actions"
+        },
+        "empty": {
+          "title": "Aucune demande",
+          "description": "Il n'y a aucune demande d'attribution de rôle dans cet état."
+        },
+        "actions": {
+          "approve": "Approuver",
+          "reject": "Rejeter",
+          "approveAriaLabel": "Approuver l'attribution",
+          "rejectAriaLabel": "Rejeter l'attribution"
+        }
+      },
+      "dialog": {
+        "approveTitle": "Approuver l'attribution de rôle",
+        "rejectTitle": "Rejeter l'attribution de rôle",
+        "approveDescription": "L'attribution de rôle pour {name} sera approuvée.",
+        "rejectDescription": "La demande d'attribution pour {name} sera rejetée. Un motif est obligatoire."
+      }
     }
   },
   "insurance": {
@@ -2198,16 +2367,87 @@
       "member_removed": "Membre retiré de l'unité",
       "weekly_record_created": "Registre hebdomadaire créé",
       "unit_deactivated": "Unité désactivée avec succès"
+    },
+    "memberCombobox": {
+      "searchPlaceholder": "Rechercher par nom...",
+      "loading": "Chargement des membres...",
+      "empty": "Aucun membre disponible.",
+      "clearSelection": "Effacer la sélection",
+      "loadError": "Impossible de charger les membres"
+    },
+    "unitForm": {
+      "generalData": "Données de l'unité",
+      "leaders": "Leaders de l'unité",
+      "requiredHint": "Les champs marqués avec",
+      "requiredHintSuffix": "sont obligatoires.",
+      "name": "Nom",
+      "namePlaceholder": "Ex. Unité Aigles",
+      "clubType": "Type de club",
+      "captain": "Capitaine",
+      "captainPlaceholder": "Sélectionner le capitaine...",
+      "secretary": "Secrétaire",
+      "secretaryPlaceholder": "Sélectionner le secrétaire...",
+      "advisor": "Conseiller",
+      "advisorPlaceholder": "Sélectionner le conseiller...",
+      "substituteAdvisor": "Conseiller suppléant",
+      "substituteAdvisorOptional": "(facultatif)",
+      "substituteAdvisorPlaceholder": "Sélectionner le conseiller suppléant (facultatif)...",
+      "submitCreate": "Créer l'unité",
+      "submitEdit": "Enregistrer les modifications",
+      "submittingCreate": "Création en cours...",
+      "submittingEdit": "Enregistrement...",
+      "clubTypeAdventurers": "Aventuriers",
+      "clubTypePathfinders": "Conquistadores",
+      "clubTypeMasterGuides": "Guides Majeurs"
     }
   },
   "system_config": {
     "errors": {
       "unexpected": "Une erreur inattendue s'est produite"
+    },
+    "table": {
+      "col_key": "Clé",
+      "col_value": "Valeur",
+      "col_description": "Description",
+      "col_type": "Type",
+      "col_actions": "Actions",
+      "action_edit": "Modifier la valeur",
+      "action_edit_key": "Modifier {key}",
+      "no_description": "—",
+      "no_type": "—",
+      "empty_title": "Aucune configuration",
+      "empty_description": "Il n'y a aucune entrée de configuration système enregistrée."
+    },
+    "client": {
+      "entry_count": "{count, plural, one {# entrée} other {# entrées}}",
+      "btn_refresh": "Actualiser",
+      "error_refresh": "Impossible de mettre à jour la configuration"
     }
   },
   "shared": {
     "errors": {
       "unexpected": "Erreur inattendue"
+    },
+    "pagination": {
+      "showing": "Affichage {from}–{to} sur {total} enregistrements",
+      "perPage": "Par page",
+      "pageOf": "Page {page} sur {totalPages}",
+      "prevPage": "Page précédente",
+      "nextPage": "Page suivante"
+    },
+    "sortable": {
+      "sortBy": "Trier par {field}",
+      "sortedAscending": "Trié par {field} croissant. Cliquez pour inverser.",
+      "sortedDescending": "Trié par {field} décroissant. Cliquez pour inverser."
+    },
+    "pageHeader": {
+      "breadcrumbNav": "Navigation fil d'Ariane"
+    },
+    "errorBanner": {
+      "forbidden": "Accès refusé",
+      "missing": "Non disponible",
+      "rateLimited": "Limite de requêtes atteinte",
+      "goToLogin": "Aller à la connexion"
     }
   },
   "translations": {

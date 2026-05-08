@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { CheckCircle2, XCircle, History, ClipboardList } from "lucide-react";
 import {
@@ -65,6 +66,7 @@ export function ValidationTable({
   entityType,
   onRefresh,
 }: ValidationTableProps) {
+  const t = useTranslations("validation_admin");
   const [dialog, setDialog] = useState<DialogState>(null);
 
   function closeDialog() {
@@ -75,8 +77,8 @@ export function ValidationTable({
     return (
       <EmptyState
         icon={ClipboardList}
-        title="Sin pendientes"
-        description="No hay validaciones pendientes en este momento."
+        title={t("table.empty.title")}
+        description={t("table.empty.description")}
       />
     );
   }
@@ -85,6 +87,11 @@ export function ValidationTable({
   const memberName = activeValidation ? getMemberName(activeValidation) : "";
   const entityName = activeValidation?.entity?.name ?? "—";
 
+  const entityColumnHeader =
+    entityType === "class"
+      ? t("table.columns.class")
+      : t("table.columns.honor");
+
   return (
     <>
       <div className="overflow-x-auto rounded-xl border border-border/60 bg-card shadow-xs">
@@ -92,22 +99,22 @@ export function ValidationTable({
           <TableHeader>
             <TableRow>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Miembro
+                {t("table.columns.member")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                {entityType === "class" ? "Clase" : "Especialidad"}
+                {entityColumnHeader}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Sección
+                {t("table.columns.section")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Enviado
+                {t("table.columns.submitted")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Estado
+                {t("table.columns.status")}
               </TableHead>
               <TableHead className="h-9 px-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Acciones
+                {t("table.columns.actions")}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -142,12 +149,12 @@ export function ValidationTable({
                             variant="ghost"
                             size="icon-sm"
                             onClick={() => setDialog({ type: "history", validation: v })}
-                            aria-label="Ver historial"
+                            aria-label={t("table.actions.viewHistory")}
                           >
                             <History className="size-4" />
                           </Button>
                         </TooltipTrigger>
-                        <TooltipContent>Ver historial</TooltipContent>
+                        <TooltipContent>{t("table.actions.viewHistory")}</TooltipContent>
                       </Tooltip>
 
                       {/* Approve — only for PENDING */}
@@ -161,12 +168,12 @@ export function ValidationTable({
                               onClick={() =>
                                 setDialog({ type: "review", validation: v, action: "APPROVED" })
                               }
-                              aria-label="Aprobar"
+                              aria-label={t("table.actions.approve")}
                             >
                               <CheckCircle2 className="size-4" />
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent>Aprobar</TooltipContent>
+                          <TooltipContent>{t("table.actions.approve")}</TooltipContent>
                         </Tooltip>
                       )}
 
@@ -181,12 +188,12 @@ export function ValidationTable({
                               onClick={() =>
                                 setDialog({ type: "review", validation: v, action: "REJECTED" })
                               }
-                              aria-label="Rechazar"
+                              aria-label={t("table.actions.reject")}
                             >
                               <XCircle className="size-4" />
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent>Rechazar</TooltipContent>
+                          <TooltipContent>{t("table.actions.reject")}</TooltipContent>
                         </Tooltip>
                       )}
                     </div>
