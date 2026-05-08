@@ -315,6 +315,48 @@
       "district": "District",
       "church": "Church",
       "ecclesiastical_year": "Ecclesiastical year"
+    },
+    "form": {
+      "labelName": "Name",
+      "labelDescription": "Description",
+      "labelAddress": "Address",
+      "labelLatitude": "Latitude",
+      "labelLongitude": "Longitude",
+      "coordinatesTitle": "Coordinates (optional)"
+    },
+    "create": {
+      "cardTitle": "Club data",
+      "submitButton": "Create club",
+      "placeholderName": "Club name",
+      "placeholderDescription": "Optional description",
+      "placeholderLocalField": "Select local field",
+      "placeholderDistrict": "Select district",
+      "placeholderChurch": "Select church",
+      "placeholderAddress": "Club address"
+    },
+    "edit": {
+      "cardTitle": "General information",
+      "submitButton": "Save changes",
+      "placeholderSelect": "Select",
+      "labelActive": "Active club"
+    },
+    "sections": {
+      "description": "A club can have sections for each club type (Adventurers, Pathfinders, Master Guides).",
+      "labelSoulsTarget": "Souls target",
+      "labelFee": "Membership fee",
+      "labelMeetingDay": "Meeting day",
+      "placeholderMeetingDay": "Select day",
+      "labelMeetingTime": "Meeting time",
+      "createButton": "Create section",
+      "notCreated": "Not created",
+      "cancelButton": "Cancel",
+      "addButton": "Add",
+      "statusActive": "Active",
+      "statusInactive": "Inactive",
+      "infoType": "Type",
+      "infoSectionId": "Section ID",
+      "infoCuota": "Fee",
+      "infoMembers": "Members"
     }
   },
   "dashboardHub": {
