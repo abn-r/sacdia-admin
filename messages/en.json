@@ -381,6 +381,174 @@
       "cancel": "Cancel",
       "saveChanges": "Save changes",
       "noPermissions": "You do not have permission to modify this catalog."
+    },
+    "pages": {
+      "countries": {
+        "title": "Countries",
+        "description": "System country catalog."
+      },
+      "churches": {
+        "title": "Churches",
+        "description": "System church catalog."
+      },
+      "districts": {
+        "title": "Districts",
+        "description": "System district catalog."
+      },
+      "unions": {
+        "title": "Unions",
+        "description": "System union catalog."
+      },
+      "unionsDetail": {
+        "back": "Back",
+        "tabInfo": "Information",
+        "tabScoringCategories": "Scoring Categories",
+        "cardTitle": "Union details",
+        "labelName": "Name",
+        "labelAbbreviation": "Abbreviation",
+        "labelCountry": "Country",
+        "labelStatus": "Status",
+        "statusActive": "Active",
+        "statusInactive": "Inactive"
+      },
+      "localFields": {
+        "title": "Local Fields",
+        "description": "System local field catalog."
+      },
+      "localFieldsDetail": {
+        "back": "Back",
+        "tabInfo": "Information",
+        "tabScoringCategories": "Scoring Categories",
+        "cardTitle": "Local field details",
+        "labelName": "Name",
+        "labelAbbreviation": "Abbreviation",
+        "labelUnion": "Union",
+        "labelStatus": "Status",
+        "statusActive": "Active",
+        "statusInactive": "Inactive"
+      },
+      "activityTypes": {
+        "title": "Activity types",
+        "description": "System activity type catalog."
+      },
+      "folderSections": {
+        "title": "Folder sections",
+        "description": "Catalog of sections that make up folder modules.",
+        "entityLabel": "Section",
+        "loadError": "Could not load folder sections."
+      },
+      "folderModules": {
+        "title": "Folder modules",
+        "description": "Catalog of modules that make up progress folders.",
+        "entityLabel": "Module",
+        "loadError": "Could not load folder modules."
+      },
+      "catalogFolders": {
+        "title": "Folders",
+        "description": "System progress folder catalog.",
+        "entityLabel": "Folder",
+        "loadError": "Could not load folders."
+      },
+      "classSections": {
+        "title": "Class sections",
+        "description": "Catalog of sections that make up class modules.",
+        "entityLabel": "Section",
+        "loadError": "Could not load class sections."
+      },
+      "classModules": {
+        "title": "Class modules",
+        "description": "Catalog of modules that make up system classes.",
+        "entityLabel": "Module",
+        "loadError": "Could not load class modules."
+      },
+      "classes": {
+        "title": "Classes",
+        "description": "Catalog of classes in the club education system.",
+        "entityLabel": "Class",
+        "loadError": "Could not load classes."
+      },
+      "root": {
+        "title": "Catalogs",
+        "description": "Reference data management.",
+        "sectionGeography": "Geography",
+        "sectionReference": "Reference data",
+        "readOnly": "Read-only",
+        "cardCountries": "Countries",
+        "cardCountriesDesc": "Manage the available countries in the system.",
+        "cardUnions": "Unions",
+        "cardUnionsDesc": "Manage the registered ecclesiastical unions.",
+        "cardLocalFields": "Local fields",
+        "cardLocalFieldsDesc": "Configure local fields by union.",
+        "cardDistricts": "Districts",
+        "cardDistrictsDesc": "Organize districts within each field.",
+        "cardChurches": "Churches",
+        "cardChurchesDesc": "Manage churches associated with each district.",
+        "cardAllergies": "Allergies",
+        "cardAllergiesDesc": "List of allergies for members' health profile.",
+        "cardDiseases": "Diseases",
+        "cardDiseasesDesc": "Chronic illnesses or relevant medical conditions.",
+        "cardMedicines": "Medicines",
+        "cardMedicinesDesc": "Common medicines for members.",
+        "cardRelationshipTypes": "Relationship types",
+        "cardRelationshipTypesDesc": "Family or emergency contact relationships.",
+        "cardEcclesiasticalYears": "Ecclesiastical years",
+        "cardEcclesiasticalYearsDesc": "Annual periods for activity organization.",
+        "cardClubTypes": "Club types",
+        "cardClubTypesDesc": "Available club types in the system.",
+        "cardClubIdeals": "Club ideals",
+        "cardClubIdealsDesc": "Ideals associated with each club type.",
+        "cardHonorCategories": "Honor categories",
+        "cardHonorCategoriesDesc": "Categories to classify the honors catalog."
+      },
+      "financeCategories": {
+        "title": "Finance categories",
+        "description": "Catalog of categories for classifying financial transactions.",
+        "entityLabel": "Category",
+        "loadError": "Could not load finance categories."
+      },
+      "inventoryCategories": {
+        "title": "Inventory categories",
+        "description": "Catalog of categories for classifying inventory items.",
+        "entityLabel": "Category",
+        "loadError": "Could not load inventory categories."
+      },
+      "honorsCatalog": {
+        "title": "Honors (catalog)",
+        "description": "Master catalog of honors with multilingual support.",
+        "entityLabel": "Honor",
+        "loadError": "Could not load honors."
+      },
+      "masterHonors": {
+        "title": "Master honors",
+        "description": "Master honors catalog with multilingual support.",
+        "entityLabel": "Master honor",
+        "loadError": "Could not load master honors."
+      },
+      "honorCategoriesList": {
+        "forbidden": "You do not have permission to view honor categories.",
+        "loadError": "Could not load honor categories."
+      },
+      "honorCategoriesDetail": {
+        "forbidden": "You do not have permission to view honor categories.",
+        "pageTitle": "Honor category detail",
+        "backButton": "Back",
+        "categorySubtitle": "Honor categories",
+        "active": "Active",
+        "inactive": "Inactive",
+        "cardGeneralTitle": "General information",
+        "infoId": "ID",
+        "infoName": "Name",
+        "infoHonorsCount": "Associated honors",
+        "infoStatus": "Status",
+        "cardDescriptionTitle": "Description",
+        "noDescription": "No description recorded.",
+        "cardHonorsTitle": "Honors in this category",
+        "noHonors": "No honors found for this category, or the endpoint did not respond.",
+        "tableId": "ID",
+        "tableName": "Name",
+        "tableLevel": "Level",
+        "tableStatus": "Status"
+      }
     }
   },
   "auth": {
@@ -513,6 +681,61 @@
       "infoSectionId": "Section ID",
       "infoCuota": "Fee",
       "infoMembers": "Members"
+    },
+    "pages": {
+      "list": {
+        "title": "Clubs",
+        "description": "System club management.",
+        "createButton": "Create club",
+        "colName": "Name",
+        "colLocalField": "Local field",
+        "colDistrict": "District",
+        "colChurch": "Church",
+        "colStatus": "Status",
+        "colActions": "Actions",
+        "statusActive": "Active",
+        "statusInactive": "Inactive",
+        "mobileListLabel": "Clubs list",
+        "endpointError": "Endpoint unavailable",
+        "cannotShow": "Cannot display clubs",
+        "emptyTitle": "No clubs registered",
+        "emptyDescription": "Create the first club to get started.",
+        "emptyCreateButton": "Create club"
+      },
+      "new": {
+        "title": "Create club",
+        "back": "Back"
+      },
+      "detail": {
+        "back": "Back",
+        "deleteButton": "Delete",
+        "tabView": "View",
+        "tabEdit": "Edit",
+        "tabSections": "Sections ({count})",
+        "tabUnits": "Units",
+        "tabMembership": "Membership requests",
+        "infoCardTitle": "General information",
+        "labelName": "Name",
+        "labelDescription": "Description",
+        "labelStatus": "Status",
+        "labelLocalField": "Local field",
+        "labelDistrict": "District",
+        "labelChurch": "Church",
+        "labelAddress": "Address",
+        "labelCoordinates": "Coordinates",
+        "statusActive": "Active",
+        "statusInactive": "Inactive"
+      },
+      "unitsNew": {
+        "title": "New unit",
+        "descriptionTemplate": "Add a new unit to {clubName}",
+        "back": "Back to club"
+      },
+      "unitsDetail": {
+        "title": "Edit unit",
+        "descriptionTemplate": "Modify the data of \"{unitName}\" in {clubName}",
+        "back": "Back to club"
+      }
     }
   },
   "dashboardHub": {
@@ -787,6 +1010,77 @@
       "materialPlaceholder": "Honors/Material/quilting.pdf",
       "yearLabel": "Year",
       "yearPlaceholder": "2026"
+    },
+    "pages": {
+      "list": {
+        "loadError": "Could not load honors."
+      },
+      "new": {
+        "title": "Create honor",
+        "description": "Register a new honor in the catalog.",
+        "backButton": "Back"
+      },
+      "detail": {
+        "title": "Honor detail",
+        "backButton": "Back",
+        "active": "Active",
+        "inactive": "Inactive",
+        "cardGeneralTitle": "General information",
+        "infoId": "ID",
+        "infoCategory": "Category",
+        "infoClubType": "Club type",
+        "infoLevel": "Level",
+        "infoRequirements": "Requirements",
+        "infoMaterial": "Material",
+        "openMaterial": "Open material",
+        "downloadMaterial": "Download",
+        "cardDescriptionTitle": "Description",
+        "noDescription": "No description recorded."
+      },
+      "edit": {
+        "title": "Edit honor",
+        "description": "Modify the honor data.",
+        "backButton": "Back"
+      },
+      "requirements": {
+        "title": "Requirements",
+        "addButton": "Add requirement",
+        "backButton": "Back",
+        "errorTitle": "Could not load information",
+        "retryButton": "Retry",
+        "invalidIdError": "Invalid honor ID."
+      },
+      "requirementsReview": {
+        "title": "Requirements Review",
+        "description": "Review and approve imported requirements that need validation.",
+        "backToList": "Back to list",
+        "reviewItemTitle": "Requirement review",
+        "pendingBadge": "{count} pending",
+        "filterAllHonors": "All honors",
+        "filterAllCategories": "All categories",
+        "perPage": "Per page",
+        "pageOf": "Page {page} of {total}",
+        "showing": "Showing {from}–{to} of {total} requirements",
+        "selectedCount": "{count} selected",
+        "selectedCountPlural": "{count} selected",
+        "approveSelected": "Approve selected",
+        "rejectSelected": "Reject selected",
+        "selectAll": "Select all",
+        "selectRequirement": "Select requirement {id}",
+        "prevPage": "Previous page",
+        "nextPage": "Next page",
+        "colHonor": "Honor",
+        "colLabel": "Label",
+        "colText": "Requirement text",
+        "colActions": "Actions",
+        "reviewButton": "Review",
+        "emptyTitle": "No pending requirements",
+        "emptyDescription": "There are no requirements awaiting review at this time.",
+        "errorTitle": "Could not load information",
+        "retryButton": "Retry",
+        "batchError": "Error in bulk operation.",
+        "loadError": "Could not load pending requirements."
+      }
     }
   },
   "honor_categories": {
@@ -926,6 +1220,62 @@
       "removeDialogDescPre": "The role",
       "removeDialogDescPost": "will be removed from this user. This may significantly change their access level to the system.",
       "remove": "Remove"
+    },
+    "pages": {
+      "root": {
+        "title": "Roles and permissions",
+        "description": "Role-based access control system (RBAC).",
+        "sectionPermissions": "Permissions",
+        "sectionPermissionsDesc": "System permissions catalog",
+        "sectionRoles": "Roles",
+        "sectionRolesDesc": "Role management and permission assignment",
+        "sectionUserPermissions": "User permissions",
+        "sectionUserPermissionsDesc": "Assign permissions directly to users without going through roles",
+        "sectionMatrix": "Security matrix",
+        "sectionMatrixDesc": "Matrix view of roles vs permissions"
+      },
+      "matrix": {
+        "title": "Permission matrix",
+        "description": "Assign permissions to roles directly from the table. Each column is a role, each row a permission.",
+        "emptyTitle": "No data",
+        "emptyDescription": "No roles or permissions registered to display the matrix.",
+        "loadError": "Unexpected error"
+      },
+      "permissions": {
+        "title": "Permissions catalog",
+        "description": "Permissions available in the system.",
+        "loadError": "Unexpected error",
+        "emptyLoadTitle": "Could not load catalog"
+      },
+      "userPermissions": {
+        "title": "Direct user permissions",
+        "description": "Assign or remove permissions directly to specific users, without going through roles.",
+        "loadError": "Unexpected error",
+        "emptyLoadTitle": "Could not load"
+      },
+      "roles": {
+        "title": "Roles",
+        "description": "System role management and permission assignment.",
+        "newRole": "New role",
+        "loadError": "Unexpected error loading roles",
+        "emptyLoadTitle": "Could not load roles",
+        "emptyTitle": "No roles",
+        "emptyDescription": "No roles registered in the system."
+      },
+      "rolesNew": {
+        "title": "New role",
+        "description": "Define the name, category and initial permissions of the role.",
+        "backAriaLabel": "Back to roles",
+        "loadError": "Error loading available permissions"
+      },
+      "rolesDetail": {
+        "backAriaLabel": "Back to roles",
+        "editTitle": "Edit role: {name}",
+        "editTitleFallback": "Edit role",
+        "description": "Modify the description and assigned permissions.",
+        "loadError": "Error loading role",
+        "emptyLoadTitle": "Could not load role"
+      }
     }
   },
   "resource_categories": {
@@ -964,6 +1314,33 @@
       "criteria_invalid": "The achievement criteria have an invalid format",
       "achievement_edit_not_identified": "The achievement to edit could not be identified.",
       "achievement_delete_not_identified": "The achievement to delete could not be identified."
+    },
+    "pages": {
+      "list": {
+        "loadError": "Could not load achievement categories."
+      },
+      "detail": {
+        "missingCategory": "The requested category was not found.",
+        "loadError": "Could not load achievements.",
+        "defaultCategoryName": "Category {id}"
+      },
+      "detailNew": {
+        "title": "Create achievement",
+        "descriptionTemplate": "New achievement in category \"{categoryName}\".",
+        "breadcrumbRoot": "Achievements",
+        "breadcrumbNew": "New achievement",
+        "loadError": "Could not load the required data.",
+        "defaultName": "No name",
+        "defaultCategoryName": "Category {id}"
+      },
+      "detailEdit": {
+        "title": "Edit achievement",
+        "breadcrumbRoot": "Achievements",
+        "loadError": "Could not load achievement data.",
+        "defaultName": "No name",
+        "defaultCategoryName": "Category {id}",
+        "defaultAchievementName": "Achievement {id}"
+      }
     }
   },
   "camporees": {
@@ -1205,6 +1582,38 @@
       "cancel": "Cancel",
       "registering": "Registering...",
       "register": "Register member"
+    },
+    "pages": {
+      "list": {
+        "title": "Camporees",
+        "description": "Management of camporees and events.",
+        "viewUnion": "View union camporees",
+        "loadFailed": "Could not load the camporees list.",
+        "emptyTitle": "Could not load camporees"
+      },
+      "detail": {
+        "description": "Camporee detail",
+        "back": "Back",
+        "cardTitle": "Camporee details",
+        "labelId": "ID",
+        "labelStartDate": "Start date",
+        "labelEndDate": "End date",
+        "labelPlace": "Location",
+        "labelCost": "Registration cost",
+        "labelLocalFieldId": "Local field ID",
+        "labelIncludes": "Includes",
+        "labelDescription": "Description",
+        "loadFailed": "Could not load the members list.",
+        "loadClubsFailed": "Could not load the clubs list.",
+        "loadPaymentsFailed": "Could not load the payments list."
+      },
+      "union": {
+        "title": "Union Camporees",
+        "description": "Management of union-level camporees.",
+        "loadFailed": "Could not load the union camporees list.",
+        "pageFailed": "Could not load the page.",
+        "emptyTitle": "Could not load union camporees"
+      }
     }
   },
   "resources": {
@@ -1263,6 +1672,14 @@
       "createSubmit": "Create",
       "saveChanges": "Save changes",
       "noPermissions": "You do not have permission to modify resource categories."
+    },
+    "pages": {
+      "list": {
+        "forbiddenDetail": "You do not have permission to view resources."
+      },
+      "categories": {
+        "forbiddenDetail": "You do not have permission to view resource categories."
+      }
     }
   },
   "investiture": {
@@ -1710,6 +2127,28 @@
       "step3_req1": "Representante legal",
       "step3_req2": "Documento de identidad",
       "step3_req3": "Consentimiento"
+    },
+    "pages": {
+      "list": {
+        "title": "Users",
+        "description": "System user management.",
+        "cannotShow": "Cannot display users",
+        "emptyTitle": "No users found",
+        "emptyDescription": "Try adjusting the search filters."
+      },
+      "detail": {
+        "title": "User detail",
+        "back": "Back",
+        "restrictedTitle": "Restricted access",
+        "restrictedDescription": "You need resolved global authorization to query data for other users.",
+        "statusActive": "Active",
+        "statusInactive": "Inactive",
+        "tabInfo": "Information",
+        "tabPostRegistration": "Post-registration",
+        "tabSecurity": "Security",
+        "tabSessions": "Sessions",
+        "postRegistrationUnavailable": "Could not retrieve post-registration status. The user may not have started the process or there may be a connectivity error."
+      }
     }
   },
   "annual_folders": {
@@ -2593,6 +3032,32 @@
       "required": "Required",
       "expand_all": "Expand all",
       "collapse_all": "Collapse all"
+    },
+    "pages": {
+      "list": {
+        "title": "Certifications",
+        "description": "Browse certifications and enrolled user progress.",
+        "loadFailed": "Could not load certifications.",
+        "countSingular": "certification found",
+        "countPlural": "certifications found"
+      },
+      "detail": {
+        "description": "Certification detail",
+        "back": "Back",
+        "infoCardTitle": "General information",
+        "labelId": "ID",
+        "labelDuration": "Duration",
+        "labelModules": "Modules",
+        "labelSections": "Total sections",
+        "durationWeeks": "{count} weeks",
+        "statusActive": "Active",
+        "statusInactive": "Inactive",
+        "tabModules": "Modules & sections",
+        "tabUsers": "Enrolled users",
+        "programCardTitle": "Program structure",
+        "enrolledCardTitle": "Enrolled users",
+        "enrollmentsEndpointMissing": "The certifications endpoint does not include the enrolled users list in the detail response. Check directly from each user's profile."
+      }
     }
   },
   "activities": {
@@ -2897,6 +3362,29 @@
       "editOverrideTitle": "Edit override",
       "deleteOverrideTitle": "Delete override",
       "deleteButton": "Delete"
+    },
+    "pages": {
+      "list": {
+        "title": "Ranking weights",
+        "description": "Configure the class, investiture, and campaign percentages used to calculate each member's composite score.",
+        "breadcrumbLabel": "Ranking weights",
+        "cannotShow": "Cannot display ranking weights"
+      },
+      "new": {
+        "title": "New weight override",
+        "description": "Define the class, investiture, and campaign percentages for a specific club type and ecclesiastical year combination.",
+        "breadcrumbLabel": "New override",
+        "back": "Back"
+      },
+      "edit": {
+        "titleDefault": "Edit default configuration",
+        "titleOverride": "Edit weight override",
+        "description": "Modify the class, investiture, and campaign percentages. The sum must be exactly 100.",
+        "breadcrumbDefault": "Default configuration",
+        "breadcrumbOverride": "Edit override",
+        "back": "Back",
+        "cannotLoad": "Could not load the configuration"
+      }
     }
   },
   "rankingWeights": {
@@ -2940,6 +3428,15 @@
       "selectPlaceholder": "Select club type",
       "noTypesAvailable": "No types available",
       "createLabel": "Create override"
+    },
+    "pages": {
+      "list": {
+        "title": "Ranking weights",
+        "description": "Configure the weight of each dimension (folder, finance, camporee, evidence) for the annual ranking calculation. The sum of the 4 weights must be exactly 100.",
+        "loadFailed": "Could not load ranking weights. Check the server connection.",
+        "emptyTitle": "No configuration",
+        "emptyDescription": "No weight configurations found. The backend should have created a global default at startup."
+      }
     }
   },
   "classes": {
@@ -2967,6 +3464,33 @@
     "status": {
       "active": "Active",
       "inactive": "Inactive"
+    },
+    "pages": {
+      "list": {
+        "title": "Progressive classes",
+        "description": "System progressive classes catalog by club type.",
+        "loadFailed": "Could not load progressive classes.",
+        "countSingular": "class found",
+        "countPlural": "classes found"
+      },
+      "detail": {
+        "description": "Progressive class detail",
+        "back": "Back",
+        "infoCardTitle": "General information",
+        "labelId": "ID",
+        "labelClubType": "Club type",
+        "labelOrder": "Display order",
+        "labelStatus": "Status",
+        "labelMaxPoints": "Maximum points",
+        "labelMinPoints": "Minimum points",
+        "statOrder": "Order",
+        "statModules": "Modules",
+        "statSections": "Total sections",
+        "statPoints": "Required points",
+        "tabStructure": "Program structure",
+        "structureCardTitle": "Modules & sections",
+        "modulesEndpointMissing": "The classes endpoint did not return modules in the detail response. Modules load from GET /classes/:id — verify the backend includes them."
+      }
     }
   },
   "membership": {
@@ -3229,6 +3753,21 @@
       "description": "Paginated record of all scheduled job executions.",
       "back": "Back",
       "errorLoad": "Could not load cron run history. Make sure the backend is available and try again."
+    }
+  },
+  "settings": {
+    "pages": {
+      "root": {
+        "title": "System Configuration",
+        "description": "Global system parameters grouped by module.",
+        "loadFailed": "Could not load system configuration.",
+        "emptyTitle": "No configurations",
+        "emptyDescription": "No system configuration entries registered."
+      },
+      "scoringCategories": {
+        "title": "Scoring categories",
+        "description": "Management of scoring categories by division."
+      }
     }
   }
 }

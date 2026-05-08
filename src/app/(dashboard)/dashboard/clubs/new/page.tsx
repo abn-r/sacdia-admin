@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { requireAdminUser } from "@/lib/auth/session";
@@ -9,6 +10,7 @@ import { createClubAction } from "@/lib/clubs/actions";
 
 export default async function NewClubPage() {
   await requireAdminUser();
+  const t = await getTranslations("clubs.pages.new");
 
   const [localFields, districts, churches] = await Promise.all([
     getSelectOptions("local-fields").catch(() => []),
@@ -18,11 +20,11 @@ export default async function NewClubPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Crear club">
+      <PageHeader title={t("title")}>
         <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/clubs">
             <ArrowLeft className="size-4" />
-            Volver
+            {t("back")}
           </Link>
         </Button>
       </PageHeader>

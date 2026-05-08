@@ -1,4 +1,5 @@
 import { Layers } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { PhaseECatalogCrudPage } from "@/components/catalogs/phase-e-catalog-crud-page";
 import { ApiError } from "@/lib/api/client";
@@ -16,6 +17,7 @@ import {
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 export default async function AdminClassSectionsPage({ searchParams }: { searchParams: SearchParams }) {
+  const t = await getTranslations("catalogs.pages.classSections");
   const user = await requireAdminUser();
   const raw = await searchParams;
 
@@ -39,7 +41,7 @@ export default async function AdminClassSectionsPage({ searchParams }: { searchP
     meta = extractMeta(payload, page, limit, items.length);
   } catch (error) {
     if (!(error instanceof ApiError && error.status === 429)) {
-      loadError = error instanceof ApiError ? error.message : "No se pudieron cargar las secciones de clase.";
+      loadError = error instanceof ApiError ? error.message : t("loadError");
     }
   }
 
@@ -51,9 +53,9 @@ export default async function AdminClassSectionsPage({ searchParams }: { searchP
     <div className="space-y-6">
       {loadError && <EndpointErrorBanner state="missing" detail={loadError} />}
       <PhaseECatalogCrudPage
-        title="Secciones de clase"
-        description="Catálogo de secciones que componen los módulos de clase."
-        entityLabel="Sección"
+        title={t("title")}
+        description={t("description")}
+        entityLabel={t("entityLabel")}
         emptyIcon={Layers}
         includeDescription={true}
         idField="section_id"

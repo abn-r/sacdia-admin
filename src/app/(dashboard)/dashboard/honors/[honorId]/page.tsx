@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -253,6 +254,7 @@ function resolveClubTypeName(honor: GenericRecord, clubTypeNameById: Map<number,
 
 export default async function HonorDetailPage({ params }: { params: Params }) {
   await requireAdminUser();
+  const t = await getTranslations("honors.pages.detail");
 
   const { honorId } = await params;
   const parsedHonorId = toPositiveNumber(honorId);
@@ -315,18 +317,18 @@ export default async function HonorDetailPage({ params }: { params: Params }) {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Detalle de especialidad">
+      <PageHeader title={t("title")}>
         <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/honors">
             <ArrowLeft className="size-4" />
-            Volver
+            {t("backButton")}
           </Link>
         </Button>
       </PageHeader>
 
       <Card>
         <CardContent className="flex flex-row items-center justify-start overflow-x-auto pt-6" style={{ gap: '50px' }}>
-          {/* Imagen de la especialidad */}
+          {/* Honor image */}
           <HonorImageCell
             name={name}
             rawImage={image}
@@ -334,32 +336,31 @@ export default async function HonorDetailPage({ params }: { params: Params }) {
             sizeClassName="h-[52px] w-[72px]"
           />
 
-
-          {/* Nombre y categoría en columna */}
+          {/* Name and category column */}
           <div className="shrink-0 space-y-1">
             <h2 className="text-xl font-bold">{name}</h2>
             <p className="text-sm text-muted-foreground">{categoryName}</p>
           </div>
 
-          {/* Badge de estado */}
+          {/* Status badge */}
           <Badge variant={honor.active !== false ? "soft-success" : "outline"} className="shrink-0 w-fit">
-            {honor.active !== false ? "Activo" : "Inactivo"}
+            {honor.active !== false ? t("active") : t("inactive")}
           </Badge>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Información general</CardTitle>
+          <CardTitle className="text-base">{t("cardGeneralTitle")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <InfoRow label="ID" value={honorPrimaryId} />
-          <InfoRow label="Categoría" value={categoryName} />
-          <InfoRow label="Tipo de club" value={clubTypeName} />
-          <InfoRow label="Nivel" value={skillLevel ?? "—"} />
-          <InfoRow label="Requisitos" value={requirementsCount ?? "—"} />
+          <InfoRow label={t("infoId")} value={honorPrimaryId} />
+          <InfoRow label={t("infoCategory")} value={categoryName} />
+          <InfoRow label={t("infoClubType")} value={clubTypeName} />
+          <InfoRow label={t("infoLevel")} value={skillLevel ?? "—"} />
+          <InfoRow label={t("infoRequirements")} value={requirementsCount ?? "—"} />
           <InfoRow
-            label="Material"
+            label={t("infoMaterial")}
             value={materialUrl ? (
               <div className="flex items-center gap-4">
                 <a
@@ -368,14 +369,14 @@ export default async function HonorDetailPage({ params }: { params: Params }) {
                   rel="noreferrer"
                   className="font-medium text-primary hover:underline"
                 >
-                  Abrir material
+                  {t("openMaterial")}
                 </a>
                 <a
                   href={materialUrl}
                   download
                   className="font-medium text-primary hover:underline"
                 >
-                  Descargar
+                  {t("downloadMaterial")}
                 </a>
               </div>
             ) : "—"}
@@ -385,11 +386,11 @@ export default async function HonorDetailPage({ params }: { params: Params }) {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Descripción</CardTitle>
+          <CardTitle className="text-base">{t("cardDescriptionTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            {description ?? "Sin descripción registrada."}
+            {description ?? t("noDescription")}
           </p>
         </CardContent>
       </Card>

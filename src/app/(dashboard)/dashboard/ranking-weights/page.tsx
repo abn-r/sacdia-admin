@@ -1,4 +1,5 @@
 import { Settings2 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -12,6 +13,7 @@ import type { RankingWeights } from "@/lib/api/ranking-weights";
 
 export default async function RankingWeightsPage() {
   await requireAdminUser();
+  const t = await getTranslations("rankingWeights.pages.list");
 
   let weights: RankingWeights[] = [];
   let loadError: string | null = null;
@@ -23,16 +25,15 @@ export default async function RankingWeightsPage() {
     if (err instanceof ApiError) {
       loadError = err.message;
     } else {
-      loadError =
-        "No se pudieron cargar los pesos de ranking. Verificá la conexión con el servidor.";
+      loadError = t("loadFailed");
     }
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Pesos de ranking"
-        description="Configurá la ponderación de cada dimensión (folder, finance, camporee, evidence) para el cálculo del ranking anual. La suma de los 4 pesos debe ser exactamente 100."
+        title={t("title")}
+        description={t("description")}
       />
 
       {loadError && (
@@ -42,8 +43,8 @@ export default async function RankingWeightsPage() {
       {!loadError && weights.length === 0 && (
         <EmptyState
           icon={Settings2}
-          title="Sin configuración"
-          description="No se encontraron configuraciones de pesos. El backend debería haber creado un default global al iniciarse."
+          title={t("emptyTitle")}
+          description={t("emptyDescription")}
         />
       )}
 

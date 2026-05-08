@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { UnitForm } from "@/components/units/unit-form";
@@ -25,6 +26,7 @@ type ClubMinimal = {
 
 export default async function EditUnitPage({ params }: { params: Params }) {
   await requireAdminUser();
+  const t = await getTranslations("clubs.pages.unitsDetail");
   const { id, unitId } = await params;
 
   const clubId = Number(id);
@@ -74,13 +76,13 @@ export default async function EditUnitPage({ params }: { params: Params }) {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Editar unidad"
-        description={`Modificar los datos de "${unit.name}" en ${clubName}`}
+        title={t("title")}
+        description={t("descriptionTemplate", { unitName: unit.name, clubName })}
       >
         <Button variant="outline" size="sm" asChild>
           <Link href={`/dashboard/clubs/${clubId}`}>
             <ArrowLeft className="size-4" />
-            Volver al club
+            {t("back")}
           </Link>
         </Button>
       </PageHeader>

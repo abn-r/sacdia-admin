@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { Scale } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -45,6 +46,7 @@ function WeightsSkeleton() {
 // ─── Content ──────────────────────────────────────────────────────────────────
 
 async function WeightsContent() {
+  const t = await getTranslations("memberRankingWeights.pages.list");
   const [weightsResult, clubTypes, ecclesiasticalYears] = await Promise.all([
     listMemberRankingWeights({ limit: 100 }),
     listClubTypes().catch(() => [] as Awaited<ReturnType<typeof listClubTypes>>),
@@ -57,7 +59,7 @@ async function WeightsContent() {
     return (
       <EmptyState
         icon={Scale}
-        title="No se pueden mostrar los pesos de ranking"
+        title={t("cannotShow")}
         description={weightsResult.endpointDetail}
       />
     );
@@ -76,15 +78,16 @@ async function WeightsContent() {
 
 export default async function MemberRankingWeightsPage() {
   await requireAdminUser();
+  const t = await getTranslations("memberRankingWeights.pages.list");
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Pesos de ranking"
-        description="Configura los porcentajes de clase, investidura y campaña usados para calcular el composite score de cada miembro."
+        title={t("title")}
+        description={t("description")}
         breadcrumbs={[
           { label: "Dashboard", href: "/dashboard" },
-          { label: "Pesos de ranking" },
+          { label: t("breadcrumbLabel") },
         ]}
       />
 

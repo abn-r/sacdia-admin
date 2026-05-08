@@ -16,6 +16,7 @@ import {
   ArrowRight,
   BookOpen,
 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/shared/page-header";
 import { requireAdminUser } from "@/lib/auth/session";
@@ -29,105 +30,6 @@ type CatalogCard = {
   colorClass: string;
   readOnly?: boolean;
 };
-
-const geographyCards: CatalogCard[] = [
-  {
-    title: "Países",
-    description: "Administrá los países disponibles en el sistema.",
-    href: "/dashboard/catalogs/geography/countries",
-    icon: Globe,
-    colorClass: "bg-[color-mix(in_oklch,var(--chart-2)_12%,transparent)] text-[var(--chart-2)]",
-  },
-  {
-    title: "Uniones",
-    description: "Gestioná las uniones eclesiásticas registradas.",
-    href: "/dashboard/catalogs/geography/unions",
-    icon: Building2,
-    colorClass: "bg-[color-mix(in_oklch,var(--chart-2)_12%,transparent)] text-[var(--chart-2)]",
-  },
-  {
-    title: "Campos locales",
-    description: "Configurá los campos locales por unión.",
-    href: "/dashboard/catalogs/geography/local-fields",
-    icon: MapPin,
-    colorClass: "bg-[color-mix(in_oklch,var(--chart-2)_12%,transparent)] text-[var(--chart-2)]",
-  },
-  {
-    title: "Distritos",
-    description: "Organizá los distritos dentro de cada campo.",
-    href: "/dashboard/catalogs/geography/districts",
-    icon: Map,
-    colorClass: "bg-[color-mix(in_oklch,var(--chart-2)_12%,transparent)] text-[var(--chart-2)]",
-  },
-  {
-    title: "Iglesias",
-    description: "Gestioná las iglesias asociadas a cada distrito.",
-    href: "/dashboard/catalogs/geography/churches",
-    icon: Church,
-    colorClass: "bg-[color-mix(in_oklch,var(--chart-2)_12%,transparent)] text-[var(--chart-2)]",
-  },
-];
-
-const referenceCards: CatalogCard[] = [
-  {
-    title: "Alergias",
-    description: "Listado de alergias para el perfil de salud de los miembros.",
-    href: "/dashboard/catalogs/allergies",
-    icon: Heart,
-    colorClass: "bg-[color-mix(in_oklch,var(--chart-4)_12%,transparent)] text-[var(--chart-4)]",
-  },
-  {
-    title: "Enfermedades",
-    description: "Enfermedades crónicas o condiciones médicas relevantes.",
-    href: "/dashboard/catalogs/diseases",
-    icon: Stethoscope,
-    colorClass: "bg-[color-mix(in_oklch,var(--chart-4)_12%,transparent)] text-[var(--chart-4)]",
-  },
-  {
-    title: "Medicamentos",
-    description: "Medicamentos de uso habitual para los miembros.",
-    href: "/dashboard/catalogs/medicines",
-    icon: Pill,
-    colorClass: "bg-[color-mix(in_oklch,var(--chart-4)_12%,transparent)] text-[var(--chart-4)]",
-  },
-  {
-    title: "Tipos de relación",
-    description: "Vínculos familiares o de contacto de emergencia.",
-    href: "/dashboard/catalogs/relationship-types",
-    icon: Users,
-    colorClass: "bg-[color-mix(in_oklch,var(--chart-3)_14%,transparent)] text-[var(--chart-3)]",
-  },
-  {
-    title: "Años eclesiásticos",
-    description: "Períodos anuales para la organización de actividades.",
-    href: "/dashboard/catalogs/ecclesiastical-years",
-    icon: CalendarDays,
-    colorClass: "bg-[color-mix(in_oklch,var(--chart-3)_14%,transparent)] text-[var(--chart-3)]",
-  },
-  {
-    title: "Tipos de club",
-    description: "Tipos de club disponibles en el sistema.",
-    href: "/dashboard/catalogs/club-types",
-    icon: Tent,
-    colorClass: "bg-[color-mix(in_oklch,var(--chart-3)_14%,transparent)] text-[var(--chart-3)]",
-    readOnly: true,
-  },
-  {
-    title: "Ideales de club",
-    description: "Ideales asociados a cada tipo de club.",
-    href: "/dashboard/catalogs/club-ideals",
-    icon: Shield,
-    colorClass: "bg-[color-mix(in_oklch,var(--chart-3)_14%,transparent)] text-[var(--chart-3)]",
-    readOnly: true,
-  },
-  {
-    title: "Categorías de especialidades",
-    description: "Categorías para clasificar el catálogo de especialidades.",
-    href: "/dashboard/catalogs/honor-categories",
-    icon: Award,
-    colorClass: "bg-primary/10 text-primary",
-  },
-];
 
 function SectionHeader({
   title,
@@ -151,10 +53,12 @@ function CatalogGrid({
   sectionTitle,
   sectionIcon,
   cards,
+  readOnlyLabel,
 }: {
   sectionTitle: string;
   sectionIcon: React.ElementType;
   cards: CatalogCard[];
+  readOnlyLabel: string;
 }) {
   return (
     <div>
@@ -185,7 +89,7 @@ function CatalogGrid({
                       </span>
                       {card.readOnly && (
                         <Badge variant="secondary" className="text-xs py-0">
-                          Solo lectura
+                          {readOnlyLabel}
                         </Badge>
                       )}
                     </div>
@@ -206,22 +110,124 @@ function CatalogGrid({
 
 export default async function CatalogsPage() {
   await requireAdminUser();
+  const t = await getTranslations("catalogs.pages.root");
+
+  const geographyCards: CatalogCard[] = [
+    {
+      title: t("cardCountries"),
+      description: t("cardCountriesDesc"),
+      href: "/dashboard/catalogs/geography/countries",
+      icon: Globe,
+      colorClass: "bg-[color-mix(in_oklch,var(--chart-2)_12%,transparent)] text-[var(--chart-2)]",
+    },
+    {
+      title: t("cardUnions"),
+      description: t("cardUnionsDesc"),
+      href: "/dashboard/catalogs/geography/unions",
+      icon: Building2,
+      colorClass: "bg-[color-mix(in_oklch,var(--chart-2)_12%,transparent)] text-[var(--chart-2)]",
+    },
+    {
+      title: t("cardLocalFields"),
+      description: t("cardLocalFieldsDesc"),
+      href: "/dashboard/catalogs/geography/local-fields",
+      icon: MapPin,
+      colorClass: "bg-[color-mix(in_oklch,var(--chart-2)_12%,transparent)] text-[var(--chart-2)]",
+    },
+    {
+      title: t("cardDistricts"),
+      description: t("cardDistrictsDesc"),
+      href: "/dashboard/catalogs/geography/districts",
+      icon: Map,
+      colorClass: "bg-[color-mix(in_oklch,var(--chart-2)_12%,transparent)] text-[var(--chart-2)]",
+    },
+    {
+      title: t("cardChurches"),
+      description: t("cardChurchesDesc"),
+      href: "/dashboard/catalogs/geography/churches",
+      icon: Church,
+      colorClass: "bg-[color-mix(in_oklch,var(--chart-2)_12%,transparent)] text-[var(--chart-2)]",
+    },
+  ];
+
+  const referenceCards: CatalogCard[] = [
+    {
+      title: t("cardAllergies"),
+      description: t("cardAllergiesDesc"),
+      href: "/dashboard/catalogs/allergies",
+      icon: Heart,
+      colorClass: "bg-[color-mix(in_oklch,var(--chart-4)_12%,transparent)] text-[var(--chart-4)]",
+    },
+    {
+      title: t("cardDiseases"),
+      description: t("cardDiseasesDesc"),
+      href: "/dashboard/catalogs/diseases",
+      icon: Stethoscope,
+      colorClass: "bg-[color-mix(in_oklch,var(--chart-4)_12%,transparent)] text-[var(--chart-4)]",
+    },
+    {
+      title: t("cardMedicines"),
+      description: t("cardMedicinesDesc"),
+      href: "/dashboard/catalogs/medicines",
+      icon: Pill,
+      colorClass: "bg-[color-mix(in_oklch,var(--chart-4)_12%,transparent)] text-[var(--chart-4)]",
+    },
+    {
+      title: t("cardRelationshipTypes"),
+      description: t("cardRelationshipTypesDesc"),
+      href: "/dashboard/catalogs/relationship-types",
+      icon: Users,
+      colorClass: "bg-[color-mix(in_oklch,var(--chart-3)_14%,transparent)] text-[var(--chart-3)]",
+    },
+    {
+      title: t("cardEcclesiasticalYears"),
+      description: t("cardEcclesiasticalYearsDesc"),
+      href: "/dashboard/catalogs/ecclesiastical-years",
+      icon: CalendarDays,
+      colorClass: "bg-[color-mix(in_oklch,var(--chart-3)_14%,transparent)] text-[var(--chart-3)]",
+    },
+    {
+      title: t("cardClubTypes"),
+      description: t("cardClubTypesDesc"),
+      href: "/dashboard/catalogs/club-types",
+      icon: Tent,
+      colorClass: "bg-[color-mix(in_oklch,var(--chart-3)_14%,transparent)] text-[var(--chart-3)]",
+      readOnly: true,
+    },
+    {
+      title: t("cardClubIdeals"),
+      description: t("cardClubIdealsDesc"),
+      href: "/dashboard/catalogs/club-ideals",
+      icon: Shield,
+      colorClass: "bg-[color-mix(in_oklch,var(--chart-3)_14%,transparent)] text-[var(--chart-3)]",
+      readOnly: true,
+    },
+    {
+      title: t("cardHonorCategories"),
+      description: t("cardHonorCategoriesDesc"),
+      href: "/dashboard/catalogs/honor-categories",
+      icon: Award,
+      colorClass: "bg-primary/10 text-primary",
+    },
+  ];
 
   return (
     <div className="space-y-8">
       <PageHeader
-        title="Catálogos"
-        description="Gestión de datos de referencia del sistema."
+        title={t("title")}
+        description={t("description")}
       />
       <CatalogGrid
-        sectionTitle="Geografía"
+        sectionTitle={t("sectionGeography")}
         sectionIcon={Globe}
         cards={geographyCards}
+        readOnlyLabel={t("readOnly")}
       />
       <CatalogGrid
-        sectionTitle="Datos de referencia"
+        sectionTitle={t("sectionReference")}
         sectionIcon={BookOpen}
         cards={referenceCards}
+        readOnlyLabel={t("readOnly")}
       />
     </div>
   );

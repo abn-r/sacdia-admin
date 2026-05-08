@@ -1,4 +1,5 @@
 import { GraduationCap } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -32,6 +33,8 @@ function toPositiveNumber(value: unknown): number | null {
 
 export default async function ClassesPage() {
   await requireAdminUser();
+  const t = await getTranslations("classes.pages.list");
+  const tList = await getTranslations("classes.list");
 
   // Build club type lookup map
   const clubTypeNameById = new Map<number, string>();
@@ -99,14 +102,14 @@ export default async function ClassesPage() {
     loadError =
       error instanceof ApiError
         ? error.message
-        : "No se pudieron cargar las clases progresivas.";
+        : t("loadFailed");
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Clases progresivas"
-        description="Catálogo de clases progresivas del sistema por tipo de club."
+        title={t("title")}
+        description={t("description")}
       />
 
       {loadError && (
@@ -116,8 +119,8 @@ export default async function ClassesPage() {
       {!loadError && rows.length === 0 && (
         <EmptyState
           icon={GraduationCap}
-          title="No hay clases registradas"
-          description="No se encontraron clases progresivas en el catálogo."
+          title={tList("empty_title")}
+          description={tList("empty_description")}
         />
       )}
 
@@ -125,7 +128,7 @@ export default async function ClassesPage() {
         <>
           <p className="text-sm text-muted-foreground">
             <span className="font-medium text-foreground">{rows.length}</span>{" "}
-            {rows.length === 1 ? "clase encontrada" : "clases encontradas"}
+            {rows.length === 1 ? t("countSingular") : t("countPlural")}
           </p>
           <ClassesList items={rows} />
         </>

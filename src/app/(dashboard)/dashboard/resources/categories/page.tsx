@@ -1,5 +1,6 @@
 import { ResourceCategoriesCrudPage } from "@/components/resources/resource-categories-crud-page";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { getTranslations } from "next-intl/server";
 import { ApiError } from "@/lib/api/client";
 import { listResourceCategories } from "@/lib/api/resources";
 import { hasAnyPermission } from "@/lib/auth/permission-utils";
@@ -93,12 +94,13 @@ export default async function ResourceCategoriesPage({
   searchParams: SearchParams;
 }) {
   const user = await requireAdminUser();
+  const t = await getTranslations("resources.pages.categories");
 
   if (!hasAnyPermission(user, [RESOURCE_CATEGORIES_READ])) {
     return (
       <EndpointErrorBanner
         state="forbidden"
-        detail="No cuentas con permisos para ver categorías de recursos."
+        detail={t("forbiddenDetail")}
       />
     );
   }

@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { HonorCategoriesCrudPage } from "@/components/catalogs/honor-categories-crud-page";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { ApiError } from "@/lib/api/client";
@@ -241,13 +242,14 @@ export default async function HonorCategoriesPage({
   searchParams: SearchParams;
 }) {
   const user = await requireAdminUser();
+  const t = await getTranslations("catalogs.pages.honorCategoriesList");
   const canRead = hasAnyPermission(user, [HONOR_CATEGORIES_READ]);
 
   if (!canRead) {
     return (
       <EndpointErrorBanner
         state="forbidden"
-        detail="No cuentas con permisos para ver categorías de especialidades."
+        detail={t("forbidden")}
       />
     );
   }
@@ -303,7 +305,7 @@ export default async function HonorCategoriesPage({
       loadError =
         error instanceof ApiError
           ? error.message
-          : "No se pudieron cargar las categorías de especialidades.";
+          : t("loadError");
     }
   }
 

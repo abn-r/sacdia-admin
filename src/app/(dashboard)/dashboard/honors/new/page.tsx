@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { HonorForm } from "@/components/honors/honor-form";
@@ -13,6 +14,7 @@ import { loadHonorCatalogOptions } from "@/lib/honors/catalogs";
 
 export default async function NewHonorPage() {
   const user = await requireAdminUser();
+  const t = await getTranslations("honors.pages.new");
   const roleSet = new Set(extractRoles(user));
   const isSuperAdmin = roleSet.has(SUPER_ADMIN_ROLE);
   const canCreate = isSuperAdmin || hasAnyPermission(user, [HONORS_CREATE]);
@@ -26,13 +28,13 @@ export default async function NewHonorPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Crear especialidad"
-        description="Registra una nueva especialidad en el catálogo."
+        title={t("title")}
+        description={t("description")}
       >
         <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/honors">
             <ArrowLeft className="size-4" />
-            Volver
+            {t("backButton")}
           </Link>
         </Button>
       </PageHeader>

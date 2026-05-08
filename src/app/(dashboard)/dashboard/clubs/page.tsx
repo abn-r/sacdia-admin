@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { Building2, ChevronRight, Plus } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -160,6 +161,7 @@ async function ClubsContent({
   query: { page: number; limit: number };
 }) {
   const user = await requireAdminUser();
+  const t = await getTranslations("clubs.pages.list");
   const canCreate = hasPermission(user, "clubs:create");
   const canEdit = hasPermission(user, CLUBS_UPDATE);
   const canDelete = hasPermission(user, CLUBS_DELETE);
@@ -168,20 +170,20 @@ async function ClubsContent({
   if (!result.available) {
     return (
       <div className="space-y-4">
-        <EndpointErrorBanner state="missing" detail={result.error ?? "Endpoint no disponible"} />
-        <EmptyState icon={Building2} title="No se pueden mostrar clubes" description={result.error} />
+        <EndpointErrorBanner state="missing" detail={result.error ?? t("endpointError")} />
+        <EmptyState icon={Building2} title={t("cannotShow")} description={result.error} />
       </div>
     );
   }
 
   if (result.items.length === 0) {
     return (
-      <EmptyState icon={Building2} title="No hay clubes registrados" description="Crea el primer club para comenzar.">
+      <EmptyState icon={Building2} title={t("emptyTitle")} description={t("emptyDescription")}>
         {canCreate && (
           <Button asChild>
             <Link href="/dashboard/clubs/new">
               <Plus className="size-4" />
-              Crear club
+              {t("emptyCreateButton")}
             </Link>
           </Button>
         )}
@@ -197,14 +199,14 @@ async function ClubsContent({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Nombre</TableHead>
-                <TableHead className="hidden md:table-cell">Campo local</TableHead>
-                <TableHead className="hidden lg:table-cell">Distrito</TableHead>
-                <TableHead className="hidden lg:table-cell">Iglesia</TableHead>
-                <TableHead>Estado</TableHead>
+                <TableHead>{t("colName")}</TableHead>
+                <TableHead className="hidden md:table-cell">{t("colLocalField")}</TableHead>
+                <TableHead className="hidden lg:table-cell">{t("colDistrict")}</TableHead>
+                <TableHead className="hidden lg:table-cell">{t("colChurch")}</TableHead>
+                <TableHead>{t("colStatus")}</TableHead>
                 {(canEdit || canDelete) && (
                   <TableHead className="sticky right-0 z-20 w-[100px] border-l bg-background">
-                    Acciones
+                    {t("colActions")}
                   </TableHead>
                 )}
               </TableRow>
@@ -226,7 +228,7 @@ async function ClubsContent({
                     </TableCell>
                     <TableCell>
                       <Badge variant={club.active !== false ? "soft-success" : "outline"} className="text-xs">
-                        {club.active !== false ? "Activo" : "Inactivo"}
+                        {club.active !== false ? t("statusActive") : t("statusInactive")}
                       </Badge>
                     </TableCell>
                     {(canEdit || canDelete) && (
@@ -247,7 +249,7 @@ async function ClubsContent({
       </div>
 
       {/* Mobile: descriptive cards */}
-      <ul className="space-y-3 md:hidden" aria-label="Lista de clubes">
+      <ul className="space-y-3 md:hidden" aria-label={t("mobileListLabel")}>
         {result.items.map((club) => {
           const clubId = club.club_id ?? club.id;
           const localField = club.local_field?.name ?? (club.local_field_id ? String(club.local_field_id) : null);
@@ -281,26 +283,26 @@ async function ClubsContent({
                     variant={club.active !== false ? "soft-success" : "outline"}
                     className="text-xs"
                   >
-                    {club.active !== false ? "Activo" : "Inactivo"}
+                    {club.active !== false ? t("statusActive") : t("statusInactive")}
                   </Badge>
                 </div>
 
                 <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
                   {localField && (
                     <div className="col-span-2">
-                      <dt className="text-muted-foreground">Campo local</dt>
+                      <dt className="text-muted-foreground">{t("colLocalField")}</dt>
                       <dd className="truncate">{localField}</dd>
                     </div>
                   )}
                   {district && (
                     <div>
-                      <dt className="text-muted-foreground">Distrito</dt>
+                      <dt className="text-muted-foreground">{t("colDistrict")}</dt>
                       <dd className="truncate">{district}</dd>
                     </div>
                   )}
                   {church && (
                     <div>
-                      <dt className="text-muted-foreground">Iglesia</dt>
+                      <dt className="text-muted-foreground">{t("colChurch")}</dt>
                       <dd className="truncate">{church}</dd>
                     </div>
                   )}
@@ -355,18 +357,19 @@ export default async function ClubsPage({
   searchParams: SearchParams;
 }) {
   const user = await requireAdminUser();
+  const t = await getTranslations("clubs.pages.list");
   const canCreate = hasPermission(user, "clubs:create");
   const rawParams = await searchParams;
   const query = parseSearchParams(rawParams);
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Clubes" description="Gestión de clubes del sistema.">
+      <PageHeader title={t("title")} description={t("description")}>
         {canCreate && (
           <Button asChild>
             <Link href="/dashboard/clubs/new">
               <Plus className="size-4" />
-              Crear club
+              {t("createButton")}
             </Link>
           </Button>
         )}

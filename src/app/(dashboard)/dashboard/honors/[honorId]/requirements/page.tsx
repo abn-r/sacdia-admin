@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { AlertCircle, ArrowLeft, Loader2, Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { RequirementsTree } from "@/components/honors/requirements-tree";
@@ -22,6 +23,7 @@ type PageStatus = "loading" | "error" | "ready";
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function HonorRequirementsPage() {
+  const t = useTranslations("honors.pages.requirements");
   const params = useParams<{ honorId: string }>();
   const honorId = Number(params.honorId);
 
@@ -37,7 +39,7 @@ export default function HonorRequirementsPage() {
 
   const load = useCallback(async () => {
     if (!Number.isFinite(honorId) || honorId <= 0) {
-      setErrorMessage("ID de especialidad inválido.");
+      setErrorMessage(t("invalidIdError"));
       setStatus("error");
       return;
     }
@@ -62,11 +64,11 @@ export default function HonorRequirementsPage() {
       const message =
         err instanceof Error
           ? err.message
-          : "No se pudieron cargar los requisitos.";
+          : t("invalidIdError");
       setErrorMessage(message);
       setStatus("error");
     }
-  }, [honorId]);
+  }, [honorId, t]);
 
   useEffect(() => {
     void load();
@@ -91,20 +93,20 @@ export default function HonorRequirementsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Requisitos"
+        title={t("title")}
         description={status === "ready" ? honorName : undefined}
       >
         <Button variant="outline" size="sm" asChild>
           <Link href={backHref}>
             <ArrowLeft className="size-4" />
-            Volver
+            {t("backButton")}
           </Link>
         </Button>
 
         {status === "ready" && (
           <Button size="sm" onClick={() => setAddRootOpen(true)}>
             <Plus className="size-4" />
-            Agregar requisito
+            {t("addButton")}
           </Button>
         )}
       </PageHeader>
@@ -122,10 +124,10 @@ export default function HonorRequirementsPage() {
           <AlertCircle className="mt-0.5 size-5 shrink-0 text-destructive" />
           <div className="space-y-1">
             <p className="text-sm font-medium text-destructive">
-              No se pudo cargar la información
+              {t("errorTitle")}
             </p>
             <p className="text-sm text-destructive/80">
-              {errorMessage ?? "Error desconocido."}
+              {errorMessage ?? t("invalidIdError")}
             </p>
             <Button
               variant="outline"
@@ -133,7 +135,7 @@ export default function HonorRequirementsPage() {
               className="mt-2"
               onClick={() => void load()}
             >
-              Reintentar
+              {t("retryButton")}
             </Button>
           </div>
         </div>
@@ -148,7 +150,7 @@ export default function HonorRequirementsPage() {
         />
       )}
 
-      {/* Dialog for top-level "Agregar requisito" button */}
+      {/* Dialog for top-level add button */}
       <RequirementEditDialog
         open={addRootOpen}
         onOpenChange={setAddRootOpen}

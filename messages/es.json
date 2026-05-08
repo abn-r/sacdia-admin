@@ -381,6 +381,174 @@
       "cancel": "Cancelar",
       "saveChanges": "Guardar cambios",
       "noPermissions": "No cuentas con permisos para modificar este catálogo."
+    },
+    "pages": {
+      "countries": {
+        "title": "Países",
+        "description": "Catálogo de países del sistema."
+      },
+      "churches": {
+        "title": "Iglesias",
+        "description": "Catálogo de iglesias del sistema."
+      },
+      "districts": {
+        "title": "Distritos",
+        "description": "Catálogo de distritos del sistema."
+      },
+      "unions": {
+        "title": "Uniones",
+        "description": "Catálogo de uniones del sistema."
+      },
+      "unionsDetail": {
+        "back": "Volver",
+        "tabInfo": "Información",
+        "tabScoringCategories": "Categorías de Puntuación",
+        "cardTitle": "Datos de la unión",
+        "labelName": "Nombre",
+        "labelAbbreviation": "Abreviatura",
+        "labelCountry": "País",
+        "labelStatus": "Estado",
+        "statusActive": "Activa",
+        "statusInactive": "Inactiva"
+      },
+      "localFields": {
+        "title": "Campos Locales",
+        "description": "Catálogo de campos locales del sistema."
+      },
+      "localFieldsDetail": {
+        "back": "Volver",
+        "tabInfo": "Información",
+        "tabScoringCategories": "Categorías de Puntuación",
+        "cardTitle": "Datos del campo local",
+        "labelName": "Nombre",
+        "labelAbbreviation": "Abreviatura",
+        "labelUnion": "Unión",
+        "labelStatus": "Estado",
+        "statusActive": "Activo",
+        "statusInactive": "Inactivo"
+      },
+      "activityTypes": {
+        "title": "Tipos de actividad",
+        "description": "Catálogo de tipos de actividad del sistema."
+      },
+      "folderSections": {
+        "title": "Secciones de carpeta",
+        "description": "Catálogo de secciones que componen los módulos de carpeta.",
+        "entityLabel": "Sección",
+        "loadError": "No se pudieron cargar las secciones de carpeta."
+      },
+      "folderModules": {
+        "title": "Módulos de carpeta",
+        "description": "Catálogo de módulos que componen las carpetas de progreso.",
+        "entityLabel": "Módulo",
+        "loadError": "No se pudieron cargar los módulos de carpeta."
+      },
+      "catalogFolders": {
+        "title": "Carpetas",
+        "description": "Catálogo de carpetas de progreso del sistema.",
+        "entityLabel": "Carpeta",
+        "loadError": "No se pudieron cargar las carpetas."
+      },
+      "classSections": {
+        "title": "Secciones de clase",
+        "description": "Catálogo de secciones que componen los módulos de clase.",
+        "entityLabel": "Sección",
+        "loadError": "No se pudieron cargar las secciones de clase."
+      },
+      "classModules": {
+        "title": "Módulos de clase",
+        "description": "Catálogo de módulos que componen las clases del sistema.",
+        "entityLabel": "Módulo",
+        "loadError": "No se pudieron cargar los módulos de clase."
+      },
+      "classes": {
+        "title": "Clases",
+        "description": "Catálogo de clases del sistema educativo de clubes.",
+        "entityLabel": "Clase",
+        "loadError": "No se pudieron cargar las clases."
+      },
+      "root": {
+        "title": "Catálogos",
+        "description": "Gestión de datos de referencia del sistema.",
+        "sectionGeography": "Geografía",
+        "sectionReference": "Datos de referencia",
+        "readOnly": "Solo lectura",
+        "cardCountries": "Países",
+        "cardCountriesDesc": "Administra los países disponibles en el sistema.",
+        "cardUnions": "Uniones",
+        "cardUnionsDesc": "Gestiona las uniones eclesiásticas registradas.",
+        "cardLocalFields": "Campos locales",
+        "cardLocalFieldsDesc": "Configura los campos locales por unión.",
+        "cardDistricts": "Distritos",
+        "cardDistrictsDesc": "Organiza los distritos dentro de cada campo.",
+        "cardChurches": "Iglesias",
+        "cardChurchesDesc": "Gestiona las iglesias asociadas a cada distrito.",
+        "cardAllergies": "Alergias",
+        "cardAllergiesDesc": "Listado de alergias para el perfil de salud de los miembros.",
+        "cardDiseases": "Enfermedades",
+        "cardDiseasesDesc": "Enfermedades crónicas o condiciones médicas relevantes.",
+        "cardMedicines": "Medicamentos",
+        "cardMedicinesDesc": "Medicamentos de uso habitual para los miembros.",
+        "cardRelationshipTypes": "Tipos de relación",
+        "cardRelationshipTypesDesc": "Vínculos familiares o de contacto de emergencia.",
+        "cardEcclesiasticalYears": "Años eclesiásticos",
+        "cardEcclesiasticalYearsDesc": "Períodos anuales para la organización de actividades.",
+        "cardClubTypes": "Tipos de club",
+        "cardClubTypesDesc": "Tipos de club disponibles en el sistema.",
+        "cardClubIdeals": "Ideales de club",
+        "cardClubIdealsDesc": "Ideales asociados a cada tipo de club.",
+        "cardHonorCategories": "Categorías de especialidades",
+        "cardHonorCategoriesDesc": "Categorías para clasificar el catálogo de especialidades."
+      },
+      "financeCategories": {
+        "title": "Categorías de finanzas",
+        "description": "Catálogo de categorías para clasificar transacciones financieras.",
+        "entityLabel": "Categoría",
+        "loadError": "No se pudieron cargar las categorías de finanzas."
+      },
+      "inventoryCategories": {
+        "title": "Categorías de inventario",
+        "description": "Catálogo de categorías para clasificar ítems de inventario.",
+        "entityLabel": "Categoría",
+        "loadError": "No se pudieron cargar las categorías de inventario."
+      },
+      "honorsCatalog": {
+        "title": "Especialidades (catálogo)",
+        "description": "Catálogo maestro de especialidades con soporte multilingüe.",
+        "entityLabel": "Especialidad",
+        "loadError": "No se pudieron cargar las especialidades."
+      },
+      "masterHonors": {
+        "title": "Honores maestros",
+        "description": "Catálogo de honores maestros con soporte multilingüe.",
+        "entityLabel": "Honor maestro",
+        "loadError": "No se pudieron cargar los honores maestros."
+      },
+      "honorCategoriesList": {
+        "forbidden": "No cuentas con permisos para ver categorías de especialidades.",
+        "loadError": "No se pudieron cargar las categorías de especialidades."
+      },
+      "honorCategoriesDetail": {
+        "forbidden": "No cuentas con permisos para ver categorías de especialidades.",
+        "pageTitle": "Detalle de categoría de especialidad",
+        "backButton": "Volver",
+        "categorySubtitle": "Categoría de especialidades",
+        "active": "Activa",
+        "inactive": "Inactiva",
+        "cardGeneralTitle": "Información general",
+        "infoId": "ID",
+        "infoName": "Nombre",
+        "infoHonorsCount": "Especialidades asociadas",
+        "infoStatus": "Estado",
+        "cardDescriptionTitle": "Descripción",
+        "noDescription": "Sin descripción registrada.",
+        "cardHonorsTitle": "Especialidades en esta categoría",
+        "noHonors": "No se encontraron especialidades asignadas a esta categoría, o el endpoint no respondió.",
+        "tableId": "ID",
+        "tableName": "Nombre",
+        "tableLevel": "Nivel",
+        "tableStatus": "Estado"
+      }
     }
   },
   "auth": {
@@ -513,6 +681,61 @@
       "infoSectionId": "ID sección",
       "infoCuota": "Cuota",
       "infoMembers": "Miembros"
+    },
+    "pages": {
+      "list": {
+        "title": "Clubes",
+        "description": "Gestión de clubes del sistema.",
+        "createButton": "Crear club",
+        "colName": "Nombre",
+        "colLocalField": "Campo local",
+        "colDistrict": "Distrito",
+        "colChurch": "Iglesia",
+        "colStatus": "Estado",
+        "colActions": "Acciones",
+        "statusActive": "Activo",
+        "statusInactive": "Inactivo",
+        "mobileListLabel": "Lista de clubes",
+        "endpointError": "Endpoint no disponible",
+        "cannotShow": "No se pueden mostrar clubes",
+        "emptyTitle": "No hay clubes registrados",
+        "emptyDescription": "Crea el primer club para comenzar.",
+        "emptyCreateButton": "Crear club"
+      },
+      "new": {
+        "title": "Crear club",
+        "back": "Volver"
+      },
+      "detail": {
+        "back": "Volver",
+        "deleteButton": "Eliminar",
+        "tabView": "Ver",
+        "tabEdit": "Editar",
+        "tabSections": "Secciones ({count})",
+        "tabUnits": "Unidades",
+        "tabMembership": "Solicitudes de membresía",
+        "infoCardTitle": "Información general",
+        "labelName": "Nombre",
+        "labelDescription": "Descripción",
+        "labelStatus": "Estado",
+        "labelLocalField": "Campo local",
+        "labelDistrict": "Distrito",
+        "labelChurch": "Iglesia",
+        "labelAddress": "Dirección",
+        "labelCoordinates": "Coordenadas",
+        "statusActive": "Activo",
+        "statusInactive": "Inactivo"
+      },
+      "unitsNew": {
+        "title": "Nueva unidad",
+        "descriptionTemplate": "Agregar una nueva unidad a {clubName}",
+        "back": "Volver al club"
+      },
+      "unitsDetail": {
+        "title": "Editar unidad",
+        "descriptionTemplate": "Modificar los datos de \"{unitName}\" en {clubName}",
+        "back": "Volver al club"
+      }
     }
   },
   "dashboardHub": {
@@ -787,6 +1010,77 @@
       "materialPlaceholder": "Especialidades/Material/acolchado.pdf",
       "yearLabel": "Año",
       "yearPlaceholder": "2026"
+    },
+    "pages": {
+      "list": {
+        "loadError": "No se pudieron cargar las especialidades."
+      },
+      "new": {
+        "title": "Crear especialidad",
+        "description": "Registra una nueva especialidad en el catálogo.",
+        "backButton": "Volver"
+      },
+      "detail": {
+        "title": "Detalle de especialidad",
+        "backButton": "Volver",
+        "active": "Activo",
+        "inactive": "Inactivo",
+        "cardGeneralTitle": "Información general",
+        "infoId": "ID",
+        "infoCategory": "Categoría",
+        "infoClubType": "Tipo de club",
+        "infoLevel": "Nivel",
+        "infoRequirements": "Requisitos",
+        "infoMaterial": "Material",
+        "openMaterial": "Abrir material",
+        "downloadMaterial": "Descargar",
+        "cardDescriptionTitle": "Descripción",
+        "noDescription": "Sin descripción registrada."
+      },
+      "edit": {
+        "title": "Editar especialidad",
+        "description": "Modifica los datos de la especialidad.",
+        "backButton": "Volver"
+      },
+      "requirements": {
+        "title": "Requisitos",
+        "addButton": "Agregar requisito",
+        "backButton": "Volver",
+        "errorTitle": "No se pudo cargar la información",
+        "retryButton": "Reintentar",
+        "invalidIdError": "ID de especialidad inválido."
+      },
+      "requirementsReview": {
+        "title": "Revisión de Requisitos",
+        "description": "Revisa y aprueba los requisitos importados que necesitan validación.",
+        "backToList": "Volver a la lista",
+        "reviewItemTitle": "Revisión de requisito",
+        "pendingBadge": "{count} pendientes",
+        "filterAllHonors": "Todas las especialidades",
+        "filterAllCategories": "Todas las categorías",
+        "perPage": "Por página",
+        "pageOf": "Página {page} de {total}",
+        "showing": "Mostrando {from}–{to} de {total} requisitos",
+        "selectedCount": "{count} seleccionado",
+        "selectedCountPlural": "{count} seleccionados",
+        "approveSelected": "Aprobar seleccionados",
+        "rejectSelected": "Rechazar seleccionados",
+        "selectAll": "Seleccionar todos",
+        "selectRequirement": "Seleccionar requisito {id}",
+        "prevPage": "Página anterior",
+        "nextPage": "Página siguiente",
+        "colHonor": "Especialidad",
+        "colLabel": "Etiqueta",
+        "colText": "Texto del requisito",
+        "colActions": "Acciones",
+        "reviewButton": "Revisar",
+        "emptyTitle": "Sin requisitos pendientes",
+        "emptyDescription": "No hay requisitos esperando revisión en este momento.",
+        "errorTitle": "No se pudo cargar la información",
+        "retryButton": "Reintentar",
+        "batchError": "Error en la operación masiva.",
+        "loadError": "No se pudieron cargar los requisitos pendientes."
+      }
     }
   },
   "honor_categories": {
@@ -926,6 +1220,62 @@
       "removeDialogDescPre": "Se removera el rol",
       "removeDialogDescPost": "de este usuario. Esto puede cambiar significativamente su nivel de acceso al sistema.",
       "remove": "Remover"
+    },
+    "pages": {
+      "root": {
+        "title": "Roles y permisos",
+        "description": "Sistema de control de acceso basado en roles (RBAC).",
+        "sectionPermissions": "Permisos",
+        "sectionPermissionsDesc": "Catálogo de permisos del sistema",
+        "sectionRoles": "Roles",
+        "sectionRolesDesc": "Gestión de roles y asignación de permisos",
+        "sectionUserPermissions": "Permisos por usuario",
+        "sectionUserPermissionsDesc": "Asignar permisos directamente a usuarios sin pasar por roles",
+        "sectionMatrix": "Matriz de seguridad",
+        "sectionMatrixDesc": "Vista matricial de roles vs permisos"
+      },
+      "matrix": {
+        "title": "Matriz de permisos",
+        "description": "Asigna permisos a roles directamente desde la tabla. Cada columna es un rol, cada fila un permiso.",
+        "emptyTitle": "Sin datos",
+        "emptyDescription": "No hay roles o permisos registrados para mostrar la matriz.",
+        "loadError": "Error inesperado"
+      },
+      "permissions": {
+        "title": "Catálogo de permisos",
+        "description": "Permisos disponibles en el sistema.",
+        "loadError": "Error inesperado",
+        "emptyLoadTitle": "No se pudo cargar el catálogo"
+      },
+      "userPermissions": {
+        "title": "Permisos directos de usuario",
+        "description": "Asigna o remueve permisos directamente a usuarios específicos, sin pasar por roles.",
+        "loadError": "Error inesperado",
+        "emptyLoadTitle": "No se pudo cargar"
+      },
+      "roles": {
+        "title": "Roles",
+        "description": "Gestión de roles del sistema y asignación de permisos.",
+        "newRole": "Nuevo rol",
+        "loadError": "Error inesperado al cargar los roles",
+        "emptyLoadTitle": "No se pudo cargar roles",
+        "emptyTitle": "Sin roles",
+        "emptyDescription": "No se encontraron roles registrados en el sistema."
+      },
+      "rolesNew": {
+        "title": "Nuevo rol",
+        "description": "Define el nombre, categoría y permisos iniciales del rol.",
+        "backAriaLabel": "Volver a roles",
+        "loadError": "Error al cargar los permisos disponibles"
+      },
+      "rolesDetail": {
+        "backAriaLabel": "Volver a roles",
+        "editTitle": "Editar rol: {name}",
+        "editTitleFallback": "Editar rol",
+        "description": "Modifica la descripción y los permisos asignados.",
+        "loadError": "Error al cargar el rol",
+        "emptyLoadTitle": "No se pudo cargar el rol"
+      }
     }
   },
   "resource_categories": {
@@ -964,6 +1314,33 @@
       "criteria_invalid": "Los criterios del logro tienen un formato inválido",
       "achievement_edit_not_identified": "No se pudo identificar el logro a editar.",
       "achievement_delete_not_identified": "No se pudo identificar el logro a eliminar."
+    },
+    "pages": {
+      "list": {
+        "loadError": "No se pudieron cargar las categorías de logros."
+      },
+      "detail": {
+        "missingCategory": "No se encontró la categoría solicitada.",
+        "loadError": "No se pudieron cargar los logros.",
+        "defaultCategoryName": "Categoría {id}"
+      },
+      "detailNew": {
+        "title": "Crear logro",
+        "descriptionTemplate": "Nuevo logro en la categoría \"{categoryName}\".",
+        "breadcrumbRoot": "Logros",
+        "breadcrumbNew": "Nuevo logro",
+        "loadError": "No se pudieron cargar los datos necesarios.",
+        "defaultName": "Sin nombre",
+        "defaultCategoryName": "Categoría {id}"
+      },
+      "detailEdit": {
+        "title": "Editar logro",
+        "breadcrumbRoot": "Logros",
+        "loadError": "No se pudieron cargar los datos del logro.",
+        "defaultName": "Sin nombre",
+        "defaultCategoryName": "Categoría {id}",
+        "defaultAchievementName": "Logro {id}"
+      }
     }
   },
   "camporees": {
@@ -1205,6 +1582,38 @@
       "cancel": "Cancelar",
       "registering": "Registrando...",
       "register": "Registrar miembro"
+    },
+    "pages": {
+      "list": {
+        "title": "Camporees",
+        "description": "Gestión de camporees y eventos.",
+        "viewUnion": "Ver camporees de unión",
+        "loadFailed": "No se pudo cargar la lista de camporees.",
+        "emptyTitle": "No se pudieron cargar los camporees"
+      },
+      "detail": {
+        "description": "Detalle del camporee",
+        "back": "Volver",
+        "cardTitle": "Detalles del camporee",
+        "labelId": "ID",
+        "labelStartDate": "Fecha de inicio",
+        "labelEndDate": "Fecha de fin",
+        "labelPlace": "Lugar",
+        "labelCost": "Costo de inscripción",
+        "labelLocalFieldId": "Campo local ID",
+        "labelIncludes": "Incluye",
+        "labelDescription": "Descripción",
+        "loadFailed": "No se pudo cargar la lista de miembros.",
+        "loadClubsFailed": "No se pudo cargar la lista de clubes.",
+        "loadPaymentsFailed": "No se pudo cargar la lista de pagos."
+      },
+      "union": {
+        "title": "Camporees de Unión",
+        "description": "Gestión de camporees a nivel de unión.",
+        "loadFailed": "No se pudo cargar la lista de camporees de unión.",
+        "pageFailed": "No se pudo cargar la página.",
+        "emptyTitle": "No se pudieron cargar los camporees de unión"
+      }
     }
   },
   "resources": {
@@ -1263,6 +1672,14 @@
       "createSubmit": "Crear",
       "saveChanges": "Guardar cambios",
       "noPermissions": "No cuentas con permisos para modificar categorías de recursos."
+    },
+    "pages": {
+      "list": {
+        "forbiddenDetail": "No cuentas con permisos para ver recursos."
+      },
+      "categories": {
+        "forbiddenDetail": "No cuentas con permisos para ver categorías de recursos."
+      }
     }
   },
   "investiture": {
@@ -1710,6 +2127,28 @@
       "step3_req1": "Representante legal",
       "step3_req2": "Documento de identidad",
       "step3_req3": "Consentimiento"
+    },
+    "pages": {
+      "list": {
+        "title": "Usuarios",
+        "description": "Gestión de usuarios del sistema.",
+        "cannotShow": "No se pueden mostrar usuarios",
+        "emptyTitle": "No se encontraron usuarios",
+        "emptyDescription": "Intenta ajustar los filtros de búsqueda."
+      },
+      "detail": {
+        "title": "Detalle de usuario",
+        "back": "Volver",
+        "restrictedTitle": "Acceso restringido",
+        "restrictedDescription": "Necesitas autorización global resuelta para consultar datos de terceros.",
+        "statusActive": "Activo",
+        "statusInactive": "Inactivo",
+        "tabInfo": "Información",
+        "tabPostRegistration": "Post-registro",
+        "tabSecurity": "Seguridad",
+        "tabSessions": "Sesiones",
+        "postRegistrationUnavailable": "No se pudo obtener el estado del post-registro. El usuario puede no haber iniciado el proceso o puede haber un error de conectividad."
+      }
     }
   },
   "annual_folders": {
@@ -2593,6 +3032,32 @@
       "required": "Requerido",
       "expand_all": "Expandir todos",
       "collapse_all": "Colapsar todos"
+    },
+    "pages": {
+      "list": {
+        "title": "Certificaciones",
+        "description": "Consulta de certificaciones y progreso de usuarios inscritos.",
+        "loadFailed": "No se pudieron cargar las certificaciones.",
+        "countSingular": "certificación encontrada",
+        "countPlural": "certificaciones encontradas"
+      },
+      "detail": {
+        "description": "Detalle de certificación",
+        "back": "Volver",
+        "infoCardTitle": "Información general",
+        "labelId": "ID",
+        "labelDuration": "Duración",
+        "labelModules": "Módulos",
+        "labelSections": "Secciones totales",
+        "durationWeeks": "{count} semanas",
+        "statusActive": "Activo",
+        "statusInactive": "Inactivo",
+        "tabModules": "Módulos y secciones",
+        "tabUsers": "Usuarios inscritos",
+        "programCardTitle": "Estructura del programa",
+        "enrolledCardTitle": "Usuarios inscritos",
+        "enrollmentsEndpointMissing": "El endpoint de certificaciones no incluye la lista de usuarios inscritos en la respuesta de detalle. Consulta directamente desde el perfil de cada usuario."
+      }
     }
   },
   "activities": {
@@ -2897,6 +3362,29 @@
       "editOverrideTitle": "Editar sobreescritura",
       "deleteOverrideTitle": "Eliminar sobreescritura",
       "deleteButton": "Eliminar"
+    },
+    "pages": {
+      "list": {
+        "title": "Pesos de ranking",
+        "description": "Configura los porcentajes de clase, investidura y campaña usados para calcular el composite score de cada miembro.",
+        "breadcrumbLabel": "Pesos de ranking",
+        "cannotShow": "No se pueden mostrar los pesos de ranking"
+      },
+      "new": {
+        "title": "Nueva sobreescritura de pesos",
+        "description": "Define los porcentajes de clase, investidura y campaña para una combinación específica de tipo de club y año eclesiástico.",
+        "breadcrumbLabel": "Nueva sobreescritura",
+        "back": "Volver"
+      },
+      "edit": {
+        "titleDefault": "Editar configuración por defecto",
+        "titleOverride": "Editar sobreescritura de pesos",
+        "description": "Modifica los porcentajes de clase, investidura y campaña. La suma debe ser exactamente 100.",
+        "breadcrumbDefault": "Configuración por defecto",
+        "breadcrumbOverride": "Editar sobreescritura",
+        "back": "Volver",
+        "cannotLoad": "No se pudo cargar la configuración"
+      }
     }
   },
   "rankingWeights": {
@@ -2940,6 +3428,15 @@
       "selectPlaceholder": "Seleccionar tipo de club",
       "noTypesAvailable": "Sin tipos disponibles",
       "createLabel": "Crear override"
+    },
+    "pages": {
+      "list": {
+        "title": "Pesos de ranking",
+        "description": "Configurá la ponderación de cada dimensión (folder, finance, camporee, evidence) para el cálculo del ranking anual. La suma de los 4 pesos debe ser exactamente 100.",
+        "loadFailed": "No se pudieron cargar los pesos de ranking. Verificá la conexión con el servidor.",
+        "emptyTitle": "Sin configuración",
+        "emptyDescription": "No se encontraron configuraciones de pesos. El backend debería haber creado un default global al iniciarse."
+      }
     }
   },
   "classes": {
@@ -2967,6 +3464,33 @@
     "status": {
       "active": "Activo",
       "inactive": "Inactivo"
+    },
+    "pages": {
+      "list": {
+        "title": "Clases progresivas",
+        "description": "Catálogo de clases progresivas del sistema por tipo de club.",
+        "loadFailed": "No se pudieron cargar las clases progresivas.",
+        "countSingular": "clase encontrada",
+        "countPlural": "clases encontradas"
+      },
+      "detail": {
+        "description": "Detalle de clase progresiva",
+        "back": "Volver",
+        "infoCardTitle": "Información general",
+        "labelId": "ID",
+        "labelClubType": "Tipo de club",
+        "labelOrder": "Orden de visualización",
+        "labelStatus": "Estado",
+        "labelMaxPoints": "Puntos máximos",
+        "labelMinPoints": "Puntos mínimos",
+        "statOrder": "Orden",
+        "statModules": "Módulos",
+        "statSections": "Secciones totales",
+        "statPoints": "Puntos requeridos",
+        "tabStructure": "Estructura del programa",
+        "structureCardTitle": "Módulos y secciones",
+        "modulesEndpointMissing": "El endpoint de clases no retornó módulos en la respuesta de detalle. Los módulos se cargan desde GET /classes/:id — verifica que el backend los incluya."
+      }
     }
   },
   "membership": {
@@ -3229,6 +3753,21 @@
       "description": "Registro paginado de todas las ejecuciones de los jobs programados.",
       "back": "Volver",
       "errorLoad": "No se pudo cargar el historial de cron runs. Verifica que el backend esté disponible e intentalo de nuevo."
+    }
+  },
+  "settings": {
+    "pages": {
+      "root": {
+        "title": "Configuración del Sistema",
+        "description": "Parámetros globales del sistema agrupados por módulo.",
+        "loadFailed": "No se pudo cargar la configuración del sistema.",
+        "emptyTitle": "Sin configuraciones",
+        "emptyDescription": "No hay entradas de configuración del sistema registradas."
+      },
+      "scoringCategories": {
+        "title": "Categorías de puntuación",
+        "description": "Gestión de categorías de puntuación por división."
+      }
     }
   }
 }

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { ApiError } from "@/lib/api/client";
 import {
   getAchievementById,
@@ -40,6 +41,7 @@ function extractItems(payload: unknown): GenericRecord[] {
 
 export default async function EditAchievementPage({ params }: { params: Params }) {
   await requireAdminUser();
+  const t = await getTranslations("achievements.pages.detailEdit");
 
   const { categoryId: categoryIdRaw, achievementId: achievementIdRaw } = await params;
   const categoryId = toPositiveNumber(categoryIdRaw);
@@ -47,10 +49,14 @@ export default async function EditAchievementPage({ params }: { params: Params }
 
   if (!categoryId || !achievementId) notFound();
 
+  const defaultName = t("defaultName");
+  const defaultCategoryName = t("defaultCategoryName", { id: categoryId });
+  const defaultAchievementName = t("defaultAchievementName", { id: achievementId });
+
   let achievement: GenericRecord | null = null;
   let categories: { id: number; name: string }[] = [];
   let allAchievements: { id: number; name: string }[] = [];
-  let categoryName = `Categoría ${categoryId}`;
+  let categoryName = defaultCategoryName;
   let loadError: string | null = null;
 
   try {
@@ -69,7 +75,7 @@ export default async function EditAchievementPage({ params }: { params: Params }
           toPositiveNumber(
             item.achievement_category_id ?? item.category_id ?? item.id,
           ) ?? 0,
-        name: toNonEmptyString(item.name) ?? "Sin nombre",
+        name: toNonEmptyString(item.name) ?? defaultName,
       }))
       .filter((c) => c.id > 0);
 
@@ -85,7 +91,7 @@ export default async function EditAchievementPage({ params }: { params: Params }
     allAchievements = achItems
       .map((item) => ({
         id: toPositiveNumber(item.achievement_id ?? item.id) ?? 0,
-        name: toNonEmptyString(item.name) ?? "Sin nombre",
+        name: toNonEmptyString(item.name) ?? defaultName,
       }))
       .filter((a) => a.id > 0);
   } catch (error) {
@@ -96,7 +102,7 @@ export default async function EditAchievementPage({ params }: { params: Params }
       loadError =
         error instanceof ApiError
           ? error.message
-          : "No se pudieron cargar los datos del logro.";
+          : t("loadError");
     }
   }
 
@@ -104,17 +110,17 @@ export default async function EditAchievementPage({ params }: { params: Params }
 
   const cancelHref = `/dashboard/achievements/${categoryId}`;
   const achievementName =
-    toNonEmptyString(achievement?.name) ?? `Logro ${achievementId}`;
+    toNonEmptyString(achievement?.name) ?? defaultAchievementName;
 
   return (
     <div className="space-y-6">
       {loadError && <EndpointErrorBanner state="missing" detail={loadError} />}
 
       <PageHeader
-        title="Editar logro"
+        title={t("title")}
         description={achievementName}
         breadcrumbs={[
-          { label: "Logros", href: "/dashboard/achievements" },
+          { label: t("breadcrumbRoot"), href: "/dashboard/achievements" },
           { label: categoryName, href: cancelHref },
           { label: achievementName },
         ]}

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft, Scale } from "lucide-react";
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -20,6 +21,8 @@ export default async function EditWeightsPage({ params }: EditWeightsPageProps) 
   const { id } = await params;
 
   await requireAdminUser();
+  const t = await getTranslations("memberRankingWeights.pages.edit");
+  const tList = await getTranslations("memberRankingWeights.pages.list");
 
   let weightRow;
   let loadError: string | null = null;
@@ -39,25 +42,23 @@ export default async function EditWeightsPage({ params }: EditWeightsPageProps) 
   ]);
 
   const isDefault = weightRow?.is_default ?? false;
-  const pageTitle = isDefault
-    ? "Editar configuración por defecto"
-    : "Editar sobreescritura de pesos";
+  const pageTitle = isDefault ? t("titleDefault") : t("titleOverride");
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <PageHeader
         title={pageTitle}
-        description="Modifica los porcentajes de clase, investidura y campaña. La suma debe ser exactamente 100."
+        description={t("description")}
         breadcrumbs={[
           { label: "Dashboard", href: "/dashboard" },
-          { label: "Pesos de ranking", href: BACK_HREF },
-          { label: isDefault ? "Configuración por defecto" : "Editar sobreescritura" },
+          { label: tList("breadcrumbLabel"), href: BACK_HREF },
+          { label: isDefault ? t("breadcrumbDefault") : t("breadcrumbOverride") },
         ]}
       >
         <Button variant="outline" size="sm" asChild>
           <Link href={BACK_HREF}>
             <ArrowLeft className="size-4" />
-            Volver
+            {t("back")}
           </Link>
         </Button>
       </PageHeader>
@@ -65,7 +66,7 @@ export default async function EditWeightsPage({ params }: EditWeightsPageProps) 
       {loadError && (
         <EmptyState
           icon={Scale}
-          title="No se pudo cargar la configuración"
+          title={t("cannotLoad")}
           description={loadError}
         />
       )}

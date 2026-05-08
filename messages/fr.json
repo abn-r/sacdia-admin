@@ -381,6 +381,174 @@
       "cancel": "Annuler",
       "saveChanges": "Enregistrer les modifications",
       "noPermissions": "Vous n'avez pas la permission de modifier ce catalogue."
+    },
+    "pages": {
+      "countries": {
+        "title": "Pays",
+        "description": "Catalogue des pays du système."
+      },
+      "churches": {
+        "title": "Églises",
+        "description": "Catalogue des églises du système."
+      },
+      "districts": {
+        "title": "Districts",
+        "description": "Catalogue des districts du système."
+      },
+      "unions": {
+        "title": "Unions",
+        "description": "Catalogue des unions du système."
+      },
+      "unionsDetail": {
+        "back": "Retour",
+        "tabInfo": "Informations",
+        "tabScoringCategories": "Catégories de notation",
+        "cardTitle": "Détails de l'union",
+        "labelName": "Nom",
+        "labelAbbreviation": "Abréviation",
+        "labelCountry": "Pays",
+        "labelStatus": "Statut",
+        "statusActive": "Active",
+        "statusInactive": "Inactive"
+      },
+      "localFields": {
+        "title": "Champs locaux",
+        "description": "Catalogue des champs locaux du système."
+      },
+      "localFieldsDetail": {
+        "back": "Retour",
+        "tabInfo": "Informations",
+        "tabScoringCategories": "Catégories de notation",
+        "cardTitle": "Détails du champ local",
+        "labelName": "Nom",
+        "labelAbbreviation": "Abréviation",
+        "labelUnion": "Union",
+        "labelStatus": "Statut",
+        "statusActive": "Actif",
+        "statusInactive": "Inactif"
+      },
+      "activityTypes": {
+        "title": "Types d'activité",
+        "description": "Catalogue des types d'activité du système."
+      },
+      "folderSections": {
+        "title": "Sections de dossier",
+        "description": "Catalogue des sections composant les modules de dossier.",
+        "entityLabel": "Section",
+        "loadError": "Impossible de charger les sections de dossier."
+      },
+      "folderModules": {
+        "title": "Modules de dossier",
+        "description": "Catalogue des modules composant les dossiers de progression.",
+        "entityLabel": "Module",
+        "loadError": "Impossible de charger les modules de dossier."
+      },
+      "catalogFolders": {
+        "title": "Dossiers",
+        "description": "Catalogue des dossiers de progression du système.",
+        "entityLabel": "Dossier",
+        "loadError": "Impossible de charger les dossiers."
+      },
+      "classSections": {
+        "title": "Sections de classe",
+        "description": "Catalogue des sections composant les modules de classe.",
+        "entityLabel": "Section",
+        "loadError": "Impossible de charger les sections de classe."
+      },
+      "classModules": {
+        "title": "Modules de classe",
+        "description": "Catalogue des modules composant les classes du système.",
+        "entityLabel": "Module",
+        "loadError": "Impossible de charger les modules de classe."
+      },
+      "classes": {
+        "title": "Classes",
+        "description": "Catalogue des classes du système éducatif des clubs.",
+        "entityLabel": "Classe",
+        "loadError": "Impossible de charger les classes."
+      },
+      "root": {
+        "title": "Catalogues",
+        "description": "Gestion des données de référence du système.",
+        "sectionGeography": "Géographie",
+        "sectionReference": "Données de référence",
+        "readOnly": "Lecture seule",
+        "cardCountries": "Pays",
+        "cardCountriesDesc": "Gérez les pays disponibles dans le système.",
+        "cardUnions": "Unions",
+        "cardUnionsDesc": "Gérez les unions ecclésiastiques enregistrées.",
+        "cardLocalFields": "Champs locaux",
+        "cardLocalFieldsDesc": "Configurez les champs locaux par union.",
+        "cardDistricts": "Districts",
+        "cardDistrictsDesc": "Organisez les districts de chaque champ.",
+        "cardChurches": "Églises",
+        "cardChurchesDesc": "Gérez les églises associées à chaque district.",
+        "cardAllergies": "Allergies",
+        "cardAllergiesDesc": "Liste des allergies pour le profil de santé des membres.",
+        "cardDiseases": "Maladies",
+        "cardDiseasesDesc": "Maladies chroniques ou conditions médicales pertinentes.",
+        "cardMedicines": "Médicaments",
+        "cardMedicinesDesc": "Médicaments courants pour les membres.",
+        "cardRelationshipTypes": "Types de relation",
+        "cardRelationshipTypesDesc": "Liens familiaux ou de contact d'urgence.",
+        "cardEcclesiasticalYears": "Années ecclésiastiques",
+        "cardEcclesiasticalYearsDesc": "Périodes annuelles pour l'organisation des activités.",
+        "cardClubTypes": "Types de club",
+        "cardClubTypesDesc": "Types de club disponibles dans le système.",
+        "cardClubIdeals": "Idéaux de club",
+        "cardClubIdealsDesc": "Idéaux associés à chaque type de club.",
+        "cardHonorCategories": "Catégories de spécialités",
+        "cardHonorCategoriesDesc": "Catégories pour classer le catalogue de spécialités."
+      },
+      "financeCategories": {
+        "title": "Catégories de finances",
+        "description": "Catalogue de catégories pour classer les transactions financières.",
+        "entityLabel": "Catégorie",
+        "loadError": "Impossible de charger les catégories de finances."
+      },
+      "inventoryCategories": {
+        "title": "Catégories d'inventaire",
+        "description": "Catalogue de catégories pour classer les articles d'inventaire.",
+        "entityLabel": "Catégorie",
+        "loadError": "Impossible de charger les catégories d'inventaire."
+      },
+      "honorsCatalog": {
+        "title": "Spécialités (catalogue)",
+        "description": "Catalogue principal de spécialités avec support multilingue.",
+        "entityLabel": "Spécialité",
+        "loadError": "Impossible de charger les spécialités."
+      },
+      "masterHonors": {
+        "title": "Honneurs maîtres",
+        "description": "Catalogue des honneurs maîtres avec support multilingue.",
+        "entityLabel": "Honneur maître",
+        "loadError": "Impossible de charger les honneurs maîtres."
+      },
+      "honorCategoriesList": {
+        "forbidden": "Vous n'avez pas la permission de voir les catégories de spécialités.",
+        "loadError": "Impossible de charger les catégories de spécialités."
+      },
+      "honorCategoriesDetail": {
+        "forbidden": "Vous n'avez pas la permission de voir les catégories de spécialités.",
+        "pageTitle": "Détail de la catégorie de spécialité",
+        "backButton": "Retour",
+        "categorySubtitle": "Catégorie de spécialités",
+        "active": "Active",
+        "inactive": "Inactive",
+        "cardGeneralTitle": "Informations générales",
+        "infoId": "ID",
+        "infoName": "Nom",
+        "infoHonorsCount": "Spécialités associées",
+        "infoStatus": "Statut",
+        "cardDescriptionTitle": "Description",
+        "noDescription": "Aucune description enregistrée.",
+        "cardHonorsTitle": "Spécialités dans cette catégorie",
+        "noHonors": "Aucune spécialité trouvée pour cette catégorie, ou le point de terminaison n'a pas répondu.",
+        "tableId": "ID",
+        "tableName": "Nom",
+        "tableLevel": "Niveau",
+        "tableStatus": "Statut"
+      }
     }
   },
   "auth": {
@@ -513,6 +681,61 @@
       "infoSectionId": "ID section",
       "infoCuota": "Cotisation",
       "infoMembers": "Membres"
+    },
+    "pages": {
+      "list": {
+        "title": "Clubs",
+        "description": "Gestion des clubs du système.",
+        "createButton": "Créer un club",
+        "colName": "Nom",
+        "colLocalField": "Champ local",
+        "colDistrict": "District",
+        "colChurch": "Église",
+        "colStatus": "Statut",
+        "colActions": "Actions",
+        "statusActive": "Actif",
+        "statusInactive": "Inactif",
+        "mobileListLabel": "Liste des clubs",
+        "endpointError": "Point de terminaison non disponible",
+        "cannotShow": "Impossible d’afficher les clubs",
+        "emptyTitle": "Aucun club enregistré",
+        "emptyDescription": "Créez le premier club pour commencer.",
+        "emptyCreateButton": "Créer un club"
+      },
+      "new": {
+        "title": "Créer un club",
+        "back": "Retour"
+      },
+      "detail": {
+        "back": "Retour",
+        "deleteButton": "Supprimer",
+        "tabView": "Voir",
+        "tabEdit": "Modifier",
+        "tabSections": "Sections ({count})",
+        "tabUnits": "Unités",
+        "tabMembership": "Demandes d’adhésion",
+        "infoCardTitle": "Informations générales",
+        "labelName": "Nom",
+        "labelDescription": "Description",
+        "labelStatus": "Statut",
+        "labelLocalField": "Champ local",
+        "labelDistrict": "District",
+        "labelChurch": "Église",
+        "labelAddress": "Adresse",
+        "labelCoordinates": "Coordonnées",
+        "statusActive": "Actif",
+        "statusInactive": "Inactif"
+      },
+      "unitsNew": {
+        "title": "Nouvelle unité",
+        "descriptionTemplate": "Ajouter une nouvelle unité à {clubName}",
+        "back": "Retour au club"
+      },
+      "unitsDetail": {
+        "title": "Modifier l’unité",
+        "descriptionTemplate": "Modifier les données de « {unitName} » dans {clubName}",
+        "back": "Retour au club"
+      }
     }
   },
   "dashboardHub": {
@@ -787,6 +1010,77 @@
       "materialPlaceholder": "Spécialités/Matériel/matelassage.pdf",
       "yearLabel": "Année",
       "yearPlaceholder": "2026"
+    },
+    "pages": {
+      "list": {
+        "loadError": "Impossible de charger les spécialités."
+      },
+      "new": {
+        "title": "Créer une spécialité",
+        "description": "Enregistrez une nouvelle spécialité dans le catalogue.",
+        "backButton": "Retour"
+      },
+      "detail": {
+        "title": "Détail de la spécialité",
+        "backButton": "Retour",
+        "active": "Actif",
+        "inactive": "Inactif",
+        "cardGeneralTitle": "Informations générales",
+        "infoId": "ID",
+        "infoCategory": "Catégorie",
+        "infoClubType": "Type de club",
+        "infoLevel": "Niveau",
+        "infoRequirements": "Exigences",
+        "infoMaterial": "Matériel",
+        "openMaterial": "Ouvrir le matériel",
+        "downloadMaterial": "Télécharger",
+        "cardDescriptionTitle": "Description",
+        "noDescription": "Aucune description enregistrée."
+      },
+      "edit": {
+        "title": "Modifier la spécialité",
+        "description": "Modifiez les données de la spécialité.",
+        "backButton": "Retour"
+      },
+      "requirements": {
+        "title": "Exigences",
+        "addButton": "Ajouter une exigence",
+        "backButton": "Retour",
+        "errorTitle": "Impossible de charger les informations",
+        "retryButton": "Réessayer",
+        "invalidIdError": "ID de spécialité invalide."
+      },
+      "requirementsReview": {
+        "title": "Révision des exigences",
+        "description": "Révisez et approuvez les exigences importées qui nécessitent une validation.",
+        "backToList": "Retour à la liste",
+        "reviewItemTitle": "Révision d'exigence",
+        "pendingBadge": "{count} en attente",
+        "filterAllHonors": "Toutes les spécialités",
+        "filterAllCategories": "Toutes les catégories",
+        "perPage": "Par page",
+        "pageOf": "Page {page} sur {total}",
+        "showing": "Affichage {from}–{to} sur {total} exigences",
+        "selectedCount": "{count} sélectionné",
+        "selectedCountPlural": "{count} sélectionnés",
+        "approveSelected": "Approuver la sélection",
+        "rejectSelected": "Rejeter la sélection",
+        "selectAll": "Tout sélectionner",
+        "selectRequirement": "Sélectionner l'exigence {id}",
+        "prevPage": "Page précédente",
+        "nextPage": "Page suivante",
+        "colHonor": "Spécialité",
+        "colLabel": "Étiquette",
+        "colText": "Texte de l'exigence",
+        "colActions": "Actions",
+        "reviewButton": "Réviser",
+        "emptyTitle": "Aucune exigence en attente",
+        "emptyDescription": "Il n'y a aucune exigence en attente de révision pour l'instant.",
+        "errorTitle": "Impossible de charger les informations",
+        "retryButton": "Réessayer",
+        "batchError": "Erreur lors de l'opération en masse.",
+        "loadError": "Impossible de charger les exigences en attente."
+      }
     }
   },
   "honor_categories": {
@@ -926,6 +1220,62 @@
       "removeDialogDescPre": "Le rôle",
       "removeDialogDescPost": "sera retiré de cet utilisateur. Cela peut modifier significativement son niveau d'accès au système.",
       "remove": "Retirer"
+    },
+    "pages": {
+      "root": {
+        "title": "Rôles et permissions",
+        "description": "Système de contrôle d'accès basé sur les rôles (RBAC).",
+        "sectionPermissions": "Permissions",
+        "sectionPermissionsDesc": "Catalogue des permissions du système",
+        "sectionRoles": "Rôles",
+        "sectionRolesDesc": "Gestion des rôles et attribution des permissions",
+        "sectionUserPermissions": "Permissions par utilisateur",
+        "sectionUserPermissionsDesc": "Attribuer des permissions directement aux utilisateurs sans passer par les rôles",
+        "sectionMatrix": "Matrice de sécurité",
+        "sectionMatrixDesc": "Vue matricielle des rôles vs permissions"
+      },
+      "matrix": {
+        "title": "Matrice des permissions",
+        "description": "Attribuez des permissions aux rôles directement depuis le tableau. Chaque colonne est un rôle, chaque ligne une permission.",
+        "emptyTitle": "Aucune donnée",
+        "emptyDescription": "Aucun rôle ou permission enregistré pour afficher la matrice.",
+        "loadError": "Erreur inattendue"
+      },
+      "permissions": {
+        "title": "Catalogue des permissions",
+        "description": "Permissions disponibles dans le système.",
+        "loadError": "Erreur inattendue",
+        "emptyLoadTitle": "Impossible de charger le catalogue"
+      },
+      "userPermissions": {
+        "title": "Permissions directes de l'utilisateur",
+        "description": "Attribuez ou retirez des permissions directement à des utilisateurs spécifiques, sans passer par les rôles.",
+        "loadError": "Erreur inattendue",
+        "emptyLoadTitle": "Impossible de charger"
+      },
+      "roles": {
+        "title": "Rôles",
+        "description": "Gestion des rôles du système et attribution des permissions.",
+        "newRole": "Nouveau rôle",
+        "loadError": "Erreur inattendue lors du chargement des rôles",
+        "emptyLoadTitle": "Impossible de charger les rôles",
+        "emptyTitle": "Aucun rôle",
+        "emptyDescription": "Aucun rôle enregistré dans le système."
+      },
+      "rolesNew": {
+        "title": "Nouveau rôle",
+        "description": "Définissez le nom, la catégorie et les permissions initiales du rôle.",
+        "backAriaLabel": "Retour aux rôles",
+        "loadError": "Erreur lors du chargement des permissions disponibles"
+      },
+      "rolesDetail": {
+        "backAriaLabel": "Retour aux rôles",
+        "editTitle": "Modifier le rôle : {name}",
+        "editTitleFallback": "Modifier le rôle",
+        "description": "Modifiez la description et les permissions attribuées.",
+        "loadError": "Erreur lors du chargement du rôle",
+        "emptyLoadTitle": "Impossible de charger le rôle"
+      }
     }
   },
   "resource_categories": {
@@ -964,6 +1314,33 @@
       "criteria_invalid": "Les critères de la réalisation ont un format invalide",
       "achievement_edit_not_identified": "Impossible d'identifier la réalisation à modifier.",
       "achievement_delete_not_identified": "Impossible d'identifier la réalisation à supprimer."
+    },
+    "pages": {
+      "list": {
+        "loadError": "Impossible de charger les catégories de réalisations."
+      },
+      "detail": {
+        "missingCategory": "La catégorie demandée est introuvable.",
+        "loadError": "Impossible de charger les réalisations.",
+        "defaultCategoryName": "Catégorie {id}"
+      },
+      "detailNew": {
+        "title": "Créer une réalisation",
+        "descriptionTemplate": "Nouvelle réalisation dans la catégorie \"{categoryName}\".",
+        "breadcrumbRoot": "Réalisations",
+        "breadcrumbNew": "Nouvelle réalisation",
+        "loadError": "Impossible de charger les données nécessaires.",
+        "defaultName": "Sans nom",
+        "defaultCategoryName": "Catégorie {id}"
+      },
+      "detailEdit": {
+        "title": "Modifier la réalisation",
+        "breadcrumbRoot": "Réalisations",
+        "loadError": "Impossible de charger les données de la réalisation.",
+        "defaultName": "Sans nom",
+        "defaultCategoryName": "Catégorie {id}",
+        "defaultAchievementName": "Réalisation {id}"
+      }
     }
   },
   "camporees": {
@@ -1205,6 +1582,38 @@
       "cancel": "Annuler",
       "registering": "Enregistrement...",
       "register": "Enregistrer le membre"
+    },
+    "pages": {
+      "list": {
+        "title": "Camporees",
+        "description": "Gestion des camporees et événements.",
+        "viewUnion": "Voir les camporees de l’union",
+        "loadFailed": "Impossible de charger la liste des camporees.",
+        "emptyTitle": "Impossible de charger les camporees"
+      },
+      "detail": {
+        "description": "Détail du camporee",
+        "back": "Retour",
+        "cardTitle": "Détails du camporee",
+        "labelId": "ID",
+        "labelStartDate": "Date de début",
+        "labelEndDate": "Date de fin",
+        "labelPlace": "Lieu",
+        "labelCost": "Coût d’inscription",
+        "labelLocalFieldId": "ID champ local",
+        "labelIncludes": "Inclut",
+        "labelDescription": "Description",
+        "loadFailed": "Impossible de charger la liste des membres.",
+        "loadClubsFailed": "Impossible de charger la liste des clubs.",
+        "loadPaymentsFailed": "Impossible de charger la liste des paiements."
+      },
+      "union": {
+        "title": "Camporees de l’Union",
+        "description": "Gestion des camporees au niveau de l’union.",
+        "loadFailed": "Impossible de charger la liste des camporees de l’union.",
+        "pageFailed": "Impossible de charger la page.",
+        "emptyTitle": "Impossible de charger les camporees de l’union"
+      }
     }
   },
   "resources": {
@@ -1263,6 +1672,14 @@
       "createSubmit": "Créer",
       "saveChanges": "Enregistrer les modifications",
       "noPermissions": "Vous n'avez pas la permission de modifier les catégories de ressources."
+    },
+    "pages": {
+      "list": {
+        "forbiddenDetail": "Vous n’avez pas les permissions pour voir les ressources."
+      },
+      "categories": {
+        "forbiddenDetail": "Vous n’avez pas les permissions pour voir les catégories de ressources."
+      }
     }
   },
   "investiture": {
@@ -1710,6 +2127,28 @@
       "step3_req1": "Representante legal",
       "step3_req2": "Documento de identidad",
       "step3_req3": "Consentimiento"
+    },
+    "pages": {
+      "list": {
+        "title": "Utilisateurs",
+        "description": "Gestion des utilisateurs du système.",
+        "cannotShow": "Impossible d’afficher les utilisateurs",
+        "emptyTitle": "Aucun utilisateur trouvé",
+        "emptyDescription": "Essayez d’ajuster les filtres de recherche."
+      },
+      "detail": {
+        "title": "Détail de l’utilisateur",
+        "back": "Retour",
+        "restrictedTitle": "Accès restreint",
+        "restrictedDescription": "Vous avez besoin d’une autorisation globale résolue pour consulter les données d’autres utilisateurs.",
+        "statusActive": "Actif",
+        "statusInactive": "Inactif",
+        "tabInfo": "Informations",
+        "tabPostRegistration": "Post-inscription",
+        "tabSecurity": "Sécurité",
+        "tabSessions": "Sessions",
+        "postRegistrationUnavailable": "Impossible de récupérer le statut post-inscription. L’utilisateur n’a peut-être pas commencé le processus ou il y a une erreur de connectivité."
+      }
     }
   },
   "annual_folders": {
@@ -2593,6 +3032,32 @@
       "required": "Requis",
       "expand_all": "Tout développer",
       "collapse_all": "Tout réduire"
+    },
+    "pages": {
+      "list": {
+        "title": "Certifications",
+        "description": "Consultation des certifications et de la progression des utilisateurs inscrits.",
+        "loadFailed": "Impossible de charger les certifications.",
+        "countSingular": "certification trouvée",
+        "countPlural": "certifications trouvées"
+      },
+      "detail": {
+        "description": "Détail de la certification",
+        "back": "Retour",
+        "infoCardTitle": "Informations générales",
+        "labelId": "ID",
+        "labelDuration": "Durée",
+        "labelModules": "Modules",
+        "labelSections": "Sections totales",
+        "durationWeeks": "{count} semaines",
+        "statusActive": "Actif",
+        "statusInactive": "Inactif",
+        "tabModules": "Modules et sections",
+        "tabUsers": "Utilisateurs inscrits",
+        "programCardTitle": "Structure du programme",
+        "enrolledCardTitle": "Utilisateurs inscrits",
+        "enrollmentsEndpointMissing": "Le point de terminaison des certifications n’inclut pas la liste des utilisateurs inscrits dans la réponse de détail. Consultez directement le profil de chaque utilisateur."
+      }
     }
   },
   "activities": {
@@ -2897,6 +3362,29 @@
       "editOverrideTitle": "Modifier le remplacement",
       "deleteOverrideTitle": "Supprimer le remplacement",
       "deleteButton": "Supprimer"
+    },
+    "pages": {
+      "list": {
+        "title": "Pondérations du classement",
+        "description": "Configurez les pourcentages de classe, d’investiture et de campagne utilisés pour calculer le score composite de chaque membre.",
+        "breadcrumbLabel": "Pondérations du classement",
+        "cannotShow": "Impossible d’afficher les pondérations du classement"
+      },
+      "new": {
+        "title": "Nouvelle substitution de pondération",
+        "description": "Définissez les pourcentages de classe, d’investiture et de campagne pour une combinaison spécifique de type de club et d’année ecclésiastique.",
+        "breadcrumbLabel": "Nouvelle substitution",
+        "back": "Retour"
+      },
+      "edit": {
+        "titleDefault": "Modifier la configuration par défaut",
+        "titleOverride": "Modifier la substitution de pondération",
+        "description": "Modifiez les pourcentages de classe, d’investiture et de campagne. La somme doit être exactement 100.",
+        "breadcrumbDefault": "Configuration par défaut",
+        "breadcrumbOverride": "Modifier la substitution",
+        "back": "Retour",
+        "cannotLoad": "Impossible de charger la configuration"
+      }
     }
   },
   "rankingWeights": {
@@ -2940,6 +3428,15 @@
       "selectPlaceholder": "Sélectionner le type de club",
       "noTypesAvailable": "Aucun type disponible",
       "createLabel": "Créer un remplacement"
+    },
+    "pages": {
+      "list": {
+        "title": "Pondérations du classement",
+        "description": "Configurez la pondération de chaque dimension (dossier, finance, camporee, preuve) pour le calcul du classement annuel. La somme des 4 pondérations doit être exactement 100.",
+        "loadFailed": "Impossible de charger les pondérations du classement. Vérifiez la connexion au serveur.",
+        "emptyTitle": "Aucune configuration",
+        "emptyDescription": "Aucune configuration de pondération trouvée. Le backend aurait dû créer un défaut global au démarrage."
+      }
     }
   },
   "classes": {
@@ -2967,6 +3464,33 @@
     "status": {
       "active": "Actif",
       "inactive": "Inactif"
+    },
+    "pages": {
+      "list": {
+        "title": "Classes progressives",
+        "description": "Catalogue des classes progressives du système par type de club.",
+        "loadFailed": "Impossible de charger les classes progressives.",
+        "countSingular": "classe trouvée",
+        "countPlural": "classes trouvées"
+      },
+      "detail": {
+        "description": "Détail de la classe progressive",
+        "back": "Retour",
+        "infoCardTitle": "Informations générales",
+        "labelId": "ID",
+        "labelClubType": "Type de club",
+        "labelOrder": "Ordre d’affichage",
+        "labelStatus": "Statut",
+        "labelMaxPoints": "Points maximum",
+        "labelMinPoints": "Points minimum",
+        "statOrder": "Ordre",
+        "statModules": "Modules",
+        "statSections": "Sections totales",
+        "statPoints": "Points requis",
+        "tabStructure": "Structure du programme",
+        "structureCardTitle": "Modules et sections",
+        "modulesEndpointMissing": "Le point de terminaison des classes n’a pas retourné de modules dans la réponse de détail. Les modules se chargent depuis GET /classes/:id — vérifiez que le backend les inclut."
+      }
     }
   },
   "membership": {
@@ -3229,6 +3753,21 @@
       "description": "Registre paginé de toutes les exécutions des jobs programmés.",
       "back": "Retour",
       "errorLoad": "Impossible de charger l'historique des cron runs. Vérifiez que le backend est disponible et réessayez."
+    }
+  },
+  "settings": {
+    "pages": {
+      "root": {
+        "title": "Configuration du système",
+        "description": "Paramètres globaux du système regroupés par module.",
+        "loadFailed": "Impossible de charger la configuration du système.",
+        "emptyTitle": "Aucune configuration",
+        "emptyDescription": "Aucune entrée de configuration système enregistrée."
+      },
+      "scoringCategories": {
+        "title": "Catégories de notation",
+        "description": "Gestion des catégories de notation par division."
+      }
     }
   }
 }
