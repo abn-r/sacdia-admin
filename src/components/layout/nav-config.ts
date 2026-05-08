@@ -215,7 +215,7 @@ export const navConfig: NavGroup[] = [
         permission: "validation:read",
       },
       {
-        title: "items.evidence_folders",
+        title: "items.evidence_review",
         url: "/dashboard/evidence-review",
         icon: FileSearch,
         permission: "investiture:read",
