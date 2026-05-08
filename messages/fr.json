@@ -1078,10 +1078,103 @@
       "transaction_deleted": "Transaction supprimée avec succès"
     },
     "validation": {
-      "section_required": "Sélectionnez une section du club"
+      "section_required": "Sélectionnez une section du club",
+      "year_invalid": "Saisissez une année valide",
+      "year_range": "Année invalide",
+      "month_invalid": "Saisissez un mois valide",
+      "month_range": "Mois invalide",
+      "amount_invalid": "Saisissez un montant valide",
+      "amount_positive": "Le montant doit être positif",
+      "category_required": "Sélectionnez une catégorie",
+      "date_required": "Saisissez la date"
     },
     "errors": {
-      "delete_transaction_failed": "Impossible de supprimer la transaction"
+      "delete_transaction_failed": "Impossible de supprimer la transaction",
+      "update_transaction_failed": "Impossible de mettre à jour la transaction",
+      "create_transaction_failed": "Impossible de créer la transaction"
+    },
+    "dashboard": {
+      "filtersLabel": "Filtres :",
+      "allYears": "Toutes les années",
+      "allMonths": "Tous les mois",
+      "refreshButton": "Actualiser",
+      "newTransactionButton": "Nouvelle transaction",
+      "transactionsTitle": "Transactions",
+      "showing": "Affichage de {shown} sur {total} transactions."
+    },
+    "form": {
+      "titleNew": "Nouvelle transaction",
+      "titleEdit": "Modifier la transaction",
+      "descriptionNew": "Enregistrez un nouveau revenu ou une dépense pour le club.",
+      "descriptionEdit": "Modifiez les données de la transaction financière.",
+      "categoryLabel": "Catégorie",
+      "categoryPlaceholder": "Sélectionnez une catégorie",
+      "categoryLoading": "Chargement des catégories...",
+      "dateLabel": "Date",
+      "amountLabel": "Montant",
+      "yearLabel": "Année",
+      "yearPlaceholder": "Année",
+      "monthLabel": "Mois",
+      "monthPlaceholder": "Mois",
+      "sectionLabel": "Section du club",
+      "sectionPlaceholder": "Sélectionnez une section",
+      "sectionEmpty": "Aucune section disponible",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Description de la transaction (optionnel)",
+      "cancelButton": "Annuler",
+      "saveButton": "Enregistrer les modifications",
+      "createButton": "Créer la transaction"
+    },
+    "table": {
+      "colDate": "Date",
+      "colDescription": "Description",
+      "colCategory": "Catégorie",
+      "colPeriod": "Période",
+      "colType": "Type",
+      "colAmount": "Montant",
+      "emptyTitle": "Aucune transaction",
+      "emptyDescription": "Aucune transaction financière trouvée pour les filtres sélectionnés.",
+      "actionsLabel": "Actions",
+      "actionEdit": "Modifier",
+      "actionDelete": "Supprimer",
+      "typeIncome": "Revenu",
+      "typeExpense": "Dépense"
+    },
+    "delete": {
+      "title": "Supprimer la transaction ?",
+      "descriptionPre": "Vous êtes sur le point de supprimer la transaction de",
+      "cannotUndo": "Cette action est irréversible.",
+      "descriptionFallback": "Cette action est irréversible.",
+      "cancelButton": "Annuler",
+      "confirmButton": "Supprimer"
+    },
+    "summary": {
+      "totalIncome": "Total des revenus",
+      "totalExpense": "Total des dépenses",
+      "balance": "Solde",
+      "movementsCount": "{count} transaction",
+      "movementsCountPlural": "{count} transactions",
+      "inPeriod": "sur la période",
+      "positiveBalance": "Solde positif",
+      "negativeBalance": "Solde négatif"
+    },
+    "months": {
+      "january": "Janvier",
+      "february": "Février",
+      "march": "Mars",
+      "april": "Avril",
+      "may": "Mai",
+      "june": "Juin",
+      "july": "Juillet",
+      "august": "Août",
+      "september": "Septembre",
+      "october": "Octobre",
+      "november": "Novembre",
+      "december": "Décembre"
+    },
+    "categoryType": {
+      "income": "Revenu",
+      "expense": "Dépense"
     }
   },
   "certifications": {

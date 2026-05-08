@@ -27,6 +27,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { DollarSign } from "lucide-react";
 import type { Finance, FinanceSortField } from "@/lib/api/finances";
 import { formatCurrency } from "@/lib/currency";
+import { useTranslations } from "next-intl";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -46,32 +47,41 @@ function formatDate(dateStr: string): string {
   }
 }
 
-const MONTH_NAMES: Record<number, string> = {
-  1: "Enero",
-  2: "Febrero",
-  3: "Marzo",
-  4: "Abril",
-  5: "Mayo",
-  6: "Junio",
-  7: "Julio",
-  8: "Agosto",
-  9: "Septiembre",
-  10: "Octubre",
-  11: "Noviembre",
-  12: "Diciembre",
+const MONTH_KEYS: Record<number, string> = {
+  1: "january",
+  2: "february",
+  3: "march",
+  4: "april",
+  5: "may",
+  6: "june",
+  7: "july",
+  8: "august",
+  9: "september",
+  10: "october",
+  11: "november",
+  12: "december",
 };
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 
 export function TransactionsTableSkeleton() {
+  const t = useTranslations("finances");
+
   return (
     <div className="overflow-x-auto rounded-xl border border-border/60 bg-card shadow-xs">
       <Table>
         <TableHeader>
           <TableRow>
-            {["Fecha", "Descripción", "Categoría", "Tipo", "Monto", ""].map((h) => (
+            {[
+              t("table.colDate"),
+              t("table.colDescription"),
+              t("table.colCategory"),
+              t("table.colType"),
+              t("table.colAmount"),
+              "",
+            ].map((h, i) => (
               <TableHead
-                key={h}
+                key={i}
                 className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground"
               >
                 {h}
@@ -127,14 +137,24 @@ export function TransactionsTable({
   sortDirection,
   onSort,
 }: TransactionsTableProps) {
+  const t = useTranslations("finances");
+
   if (items.length === 0) {
     return (
       <EmptyState
         icon={DollarSign}
-        title="Sin movimientos"
-        description="No se encontraron movimientos financieros para los filtros seleccionados."
+        title={t("table.emptyTitle")}
+        description={t("table.emptyDescription")}
       />
     );
+  }
+
+  function monthName(month: number): string {
+    const key = MONTH_KEYS[month];
+    if (key) {
+      return t(`months.${key}` as Parameters<typeof t>[0]);
+    }
+    return String(month);
   }
 
   return (
@@ -158,11 +178,11 @@ export function TransactionsTable({
                 direction={sortDirection}
                 onSort={onSort}
               >
-                Fecha
+                {t("table.colDate")}
               </SortableHeader>
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Descripción
+              {t("table.colDescription")}
             </TableHead>
             <TableHead
               className="h-9 px-3"
@@ -180,14 +200,14 @@ export function TransactionsTable({
                 direction={sortDirection}
                 onSort={onSort}
               >
-                Categoría
+                {t("table.colCategory")}
               </SortableHeader>
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Período
+              {t("table.colPeriod")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Tipo
+              {t("table.colType")}
             </TableHead>
             <TableHead
               className="h-9 px-3 text-right"
@@ -206,7 +226,7 @@ export function TransactionsTable({
                 onSort={onSort}
                 align="right"
               >
-                Monto
+                {t("table.colAmount")}
               </SortableHeader>
             </TableHead>
             <TableHead className="h-9 w-12 px-3" />
@@ -232,11 +252,11 @@ export function TransactionsTable({
                   </span>
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground tabular-nums">
-                  {MONTH_NAMES[finance.month] ?? finance.month}/{finance.year}
+                  {monthName(finance.month)}/{finance.year}
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle">
                   <Badge variant={isIncome ? "success" : "destructive"}>
-                    {isIncome ? "Ingreso" : "Egreso"}
+                    {isIncome ? t("table.typeIncome") : t("table.typeExpense")}
                   </Badge>
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle text-right">
@@ -254,13 +274,13 @@ export function TransactionsTable({
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon-sm">
                         <MoreHorizontal className="size-4" />
-                        <span className="sr-only">Acciones</span>
+                        <span className="sr-only">{t("table.actionsLabel")}</span>
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => onEdit(finance)}>
                         <Pencil className="size-4" />
-                        Editar
+                        {t("table.actionEdit")}
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
@@ -268,7 +288,7 @@ export function TransactionsTable({
                         onClick={() => onDelete(finance)}
                       >
                         <Trash2 className="size-4" />
-                        Eliminar
+                        {t("table.actionDelete")}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
