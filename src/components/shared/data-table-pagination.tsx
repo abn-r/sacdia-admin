@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -68,15 +67,25 @@ export function DataTablePagination({
           <span className="text-sm text-muted-foreground">
             Página {page} de {totalPages}
           </span>
-          <Button variant="outline" size="icon" className="size-8" asChild disabled={page <= 1}>
-            <Link href={buildHref(page - 1)} aria-label="Página anterior">
-              <ChevronLeft className="size-4" />
-            </Link>
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-8"
+            disabled={page <= 1}
+            aria-label="Página anterior"
+            onClick={() => router.push(buildHref(page - 1))}
+          >
+            <ChevronLeft className="size-4" />
           </Button>
-          <Button variant="outline" size="icon" className="size-8" asChild disabled={page >= totalPages}>
-            <Link href={buildHref(page + 1)} aria-label="Página siguiente">
-              <ChevronRight className="size-4" />
-            </Link>
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-8"
+            disabled={page >= totalPages}
+            aria-label="Página siguiente"
+            onClick={() => router.push(buildHref(page + 1))}
+          >
+            <ChevronRight className="size-4" />
           </Button>
         </div>
       </div>
