@@ -79,7 +79,7 @@ export default async function EditUnitPage({ params }: { params: Params }) {
       >
         <Button variant="outline" size="sm" asChild>
           <Link href={`/dashboard/clubs/${clubId}`}>
-            <ArrowLeft className="mr-2 size-4" />
+            <ArrowLeft className="size-4" />
             Volver al club
           </Link>
         </Button>

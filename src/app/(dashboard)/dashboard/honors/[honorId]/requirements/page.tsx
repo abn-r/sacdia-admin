@@ -96,7 +96,7 @@ export default function HonorRequirementsPage() {
       >
         <Button variant="outline" size="sm" asChild>
           <Link href={backHref}>
-            <ArrowLeft className="mr-2 size-4" />
+            <ArrowLeft className="size-4" />
             Volver
           </Link>
         </Button>

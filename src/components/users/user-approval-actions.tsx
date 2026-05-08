@@ -30,7 +30,7 @@ function SubmitButton({ variant }: { variant: "approve" | "reject" }) {
       disabled={pending}
       variant={isApprove ? "default" : "destructive"}
     >
-      {pending && <Loader2 className="mr-2 size-4 animate-spin" />}
+      {pending && <Loader2 className="size-4 animate-spin" />}
       {isApprove ? t("approval.actionApprove") : t("approval.actionReject")}
     </Button>
   );
@@ -95,7 +95,7 @@ export function UserApprovalActions({ userId, currentApproval }: UserApprovalAct
             setDialogOpen(true);
           }}
         >
-          <CheckCircle className="mr-2 size-4" />
+          <CheckCircle className="size-4" />
           {t("approval.actionApprove")}
         </Button>
         <Button
@@ -106,7 +106,7 @@ export function UserApprovalActions({ userId, currentApproval }: UserApprovalAct
             setDialogOpen(true);
           }}
         >
-          <XCircle className="mr-2 size-4" />
+          <XCircle className="size-4" />
           {t("approval.actionReject")}
         </Button>
       </div>

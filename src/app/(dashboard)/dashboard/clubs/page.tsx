@@ -176,7 +176,7 @@ async function ClubsContent({
         {canCreate && (
           <Button asChild>
             <Link href="/dashboard/clubs/new">
-              <Plus className="mr-2 size-4" />
+              <Plus className="size-4" />
               Crear club
             </Link>
           </Button>
@@ -353,7 +353,7 @@ export default async function ClubsPage({
         {canCreate && (
           <Button asChild>
             <Link href="/dashboard/clubs/new">
-              <Plus className="mr-2 size-4" />
+              <Plus className="size-4" />
               Crear club
             </Link>
           </Button>

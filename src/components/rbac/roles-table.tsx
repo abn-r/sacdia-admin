@@ -220,7 +220,7 @@ function DeactivateDialog({ role, open, onClose, onSuccess }: DeactivateDialogPr
           {isBlocked ? (
             <Button variant="outline" asChild>
               <Link href="/dashboard/rbac/user-permissions">
-                <Users className="mr-2 size-4" />
+                <Users className="size-4" />
                 Ver usuarios asignados
               </Link>
             </Button>

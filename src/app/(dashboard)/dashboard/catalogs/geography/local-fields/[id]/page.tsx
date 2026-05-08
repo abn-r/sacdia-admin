@@ -87,7 +87,7 @@ export default async function LocalFieldDetailPage({
       <PageHeader title={fieldName}>
         <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/catalogs/geography/local-fields">
-            <ArrowLeft className="mr-2 size-4" />
+            <ArrowLeft className="size-4" />
             Volver
           </Link>
         </Button>

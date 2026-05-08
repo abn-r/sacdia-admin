@@ -298,7 +298,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
       <PageHeader title="Detalle de usuario">
         <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/users">
-            <ArrowLeft className="mr-2 size-4" />
+            <ArrowLeft className="size-4" />
             Volver
           </Link>
         </Button>

@@ -305,7 +305,7 @@ export default function ReviewPage() {
         {/* Back + header row */}
         <div className="flex items-center gap-3">
           <Button variant="outline" size="sm" onClick={closeSplit}>
-            <ArrowLeft className="mr-2 size-4" />
+            <ArrowLeft className="size-4" />
             Volver a la lista
           </Button>
           <div className="flex-1">

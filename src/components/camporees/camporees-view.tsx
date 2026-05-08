@@ -108,7 +108,7 @@ export function CampoReesView({ initialCamporees }: CampoReesViewProps) {
           </Button>
         </div>
         <Button size="sm" onClick={() => setCreateOpen(true)}>
-          <Plus className="mr-2 size-4" />
+          <Plus className="size-4" />
           {t("list.newCamporee")}
         </Button>
       </div>

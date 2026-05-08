@@ -78,7 +78,7 @@ export function AppHeader() {
           <DropdownMenuContent align="end" className="w-48" sideOffset={6}>
             <DropdownMenuItem asChild>
               <Link href={`/dashboard/users/${user?.id ?? ""}`}>
-                <User className="mr-2 size-4" />
+                <User className="size-4" />
                 Mi perfil
               </Link>
             </DropdownMenuItem>
@@ -91,7 +91,7 @@ export function AppHeader() {
                 }}
                 aria-label="Cerrar sesión"
               >
-                <LogOut className="mr-2 size-4" />
+                <LogOut className="size-4" />
                 Cerrar sesión
               </button>
             </DropdownMenuItem>

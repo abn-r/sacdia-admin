@@ -259,7 +259,7 @@ function AddRecordDialog({
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
-                  <Loader2 className="mr-2 size-4 animate-spin" />
+                  <Loader2 className="size-4 animate-spin" />
                   Guardando...
                 </>
               ) : (
@@ -492,7 +492,7 @@ export function WeeklyRecordsPanel({
   if (recordsLoading) {
     return (
       <div className="flex items-center justify-center py-8 text-muted-foreground">
-        <Loader2 className="mr-2 size-4 animate-spin" />
+        <Loader2 className="size-4 animate-spin" />
         <span className="text-sm">Cargando registros...</span>
       </div>
     );

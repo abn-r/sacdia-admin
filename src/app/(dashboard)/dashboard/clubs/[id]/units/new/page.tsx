@@ -50,7 +50,7 @@ export default async function NewUnitPage({ params }: { params: Params }) {
       <PageHeader title="Nueva unidad" description={`Agregar una nueva unidad a ${clubName}`}>
         <Button variant="outline" size="sm" asChild>
           <Link href={`/dashboard/clubs/${clubId}`}>
-            <ArrowLeft className="mr-2 size-4" />
+            <ArrowLeft className="size-4" />
             Volver al club
           </Link>
         </Button>

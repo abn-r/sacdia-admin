@@ -194,7 +194,7 @@ export default async function ClassDetailPage({ params }: { params: Params }) {
       <PageHeader title={name} description="Detalle de clase progresiva">
         <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/classes">
-            <ArrowLeft className="mr-2 size-4" />
+            <ArrowLeft className="size-4" />
             Volver
           </Link>
         </Button>

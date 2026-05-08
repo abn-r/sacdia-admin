@@ -151,7 +151,7 @@ export function CamporeeApprovalDialog({
               variant={isReject ? "destructive" : "default"}
               disabled={isPending}
             >
-              {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
+              {isPending && <Loader2 className="size-4 animate-spin" />}
               {isReject ? "Rechazar" : "Aprobar"}
             </Button>
           </DialogFooter>

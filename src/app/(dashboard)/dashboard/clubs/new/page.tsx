@@ -21,7 +21,7 @@ export default async function NewClubPage() {
       <PageHeader title="Crear club">
         <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/clubs">
-            <ArrowLeft className="mr-2 size-4" />
+            <ArrowLeft className="size-4" />
             Volver
           </Link>
         </Button>

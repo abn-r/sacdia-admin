@@ -163,7 +163,7 @@ export default async function ActivityDetailPage({ params }: { params: Params })
       <PageHeader title={activity.name} description="Detalle de actividad">
         <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/activities">
-            <ArrowLeft className="mr-2 size-4" />
+            <ArrowLeft className="size-4" />
             Volver
           </Link>
         </Button>

@@ -211,7 +211,7 @@ export default async function CertificationDetailPage({ params }: { params: Para
       <PageHeader title={name} description="Detalle de certificación">
         <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/certifications">
-            <ArrowLeft className="mr-2 size-4" />
+            <ArrowLeft className="size-4" />
             Volver
           </Link>
         </Button>

@@ -124,7 +124,7 @@ export function PipelineRejectDialog({
               Cancelar
             </Button>
             <Button type="submit" variant="destructive" disabled={isPending}>
-              {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
+              {isPending && <Loader2 className="size-4 animate-spin" />}
               Rechazar
             </Button>
           </DialogFooter>

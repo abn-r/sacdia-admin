@@ -72,7 +72,7 @@ export default async function SectionMembersPage({
       >
         <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/section-rankings">
-            <ArrowLeft className="mr-2 size-4" />
+            <ArrowLeft className="size-4" />
             Volver a secciones
           </Link>
         </Button>

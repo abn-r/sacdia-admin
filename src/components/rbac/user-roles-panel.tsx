@@ -286,7 +286,7 @@ export function UserRolesPanel({
               onClick={handleAssign}
               disabled={isPending || !selectedRoleId}
             >
-              {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
+              {isPending && <Loader2 className="size-4 animate-spin" />}
               Asignar rol
             </Button>
           </DialogFooter>
@@ -320,7 +320,7 @@ export function UserRolesPanel({
                 disabled={isPending}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
-                {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
+                {isPending && <Loader2 className="size-4 animate-spin" />}
                 Remover
               </AlertDialogAction>
             </AlertDialogFooter>

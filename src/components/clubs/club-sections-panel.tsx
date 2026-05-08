@@ -62,7 +62,7 @@ function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" size="sm" disabled={pending}>
-      {pending ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Plus className="mr-2 size-4" />}
+      {pending ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
       {label}
     </Button>
   );
@@ -201,9 +201,9 @@ export function ClubSectionsPanel({ clubId, sections, clubTypes }: ClubSectionsP
                     type="button"
                   >
                     {isOpen ? (
-                      <><ChevronUp className="mr-2 size-4" />{t("sections.cancelButton")}</>
+                      <><ChevronUp className="size-4" />{t("sections.cancelButton")}</>
                     ) : (
-                      <><Plus className="mr-2 size-4" />{t("sections.addButton")}</>
+                      <><Plus className="size-4" />{t("sections.addButton")}</>
                     )}
                   </Button>
                 </div>

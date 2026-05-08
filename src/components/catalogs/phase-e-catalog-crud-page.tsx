@@ -119,7 +119,7 @@ function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending}>
-      {pending && <Loader2 className="mr-2 size-4 animate-spin" />}
+      {pending && <Loader2 className="size-4 animate-spin" />}
       {label}
     </Button>
   );
@@ -133,7 +133,7 @@ function DeleteButton() {
       disabled={pending}
       className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
     >
-      {pending && <Loader2 className="mr-2 size-4 animate-spin" />}
+      {pending && <Loader2 className="size-4 animate-spin" />}
       Eliminar
     </Button>
   );
@@ -356,7 +356,7 @@ export function PhaseECatalogCrudPage({
       <PageHeader title={title} description={description}>
         {canCreate && (
           <Button onClick={() => handleCreateOpen(true)}>
-            <Plus className="mr-2 size-4" />
+            <Plus className="size-4" />
             Crear {entityLabel.toLowerCase()}
           </Button>
         )}
@@ -417,7 +417,7 @@ export function PhaseECatalogCrudPage({
           >
             {canCreate && !hasActiveFilters && (
               <Button onClick={() => handleCreateOpen(true)}>
-                <Plus className="mr-2 size-4" />
+                <Plus className="size-4" />
                 Crear {entityLabel.toLowerCase()}
               </Button>
             )}

@@ -75,14 +75,14 @@ export function ConfigClientPage({ initialConfigs }: ConfigClientPageProps) {
             disabled={isRefreshing}
           >
             <RefreshCw
-              className={`mr-2 size-4 ${isRefreshing ? "animate-spin" : ""}`}
+              className={`size-4 ${isRefreshing ? "animate-spin" : ""}`}
             />
             Actualizar
           </Button>
         </div>
 
         <Button size="sm" onClick={openCreate}>
-          <Plus className="mr-2 size-4" />
+          <Plus className="size-4" />
           Nueva configuración
         </Button>
       </div>

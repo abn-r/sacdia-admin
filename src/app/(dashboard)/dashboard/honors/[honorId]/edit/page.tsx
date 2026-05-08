@@ -70,7 +70,7 @@ export default async function EditHonorPage({ params }: { params: Params }) {
       >
         <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/honors">
-            <ArrowLeft className="mr-2 size-4" />
+            <ArrowLeft className="size-4" />
             Volver
           </Link>
         </Button>
