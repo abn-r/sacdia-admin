@@ -124,7 +124,7 @@ export function RegisterMemberDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Registrar miembro</DialogTitle>
+          <DialogTitle>{t("registerMemberDialog.title")}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
@@ -135,7 +135,7 @@ export function RegisterMemberDialog({
               aria-live="polite"
               className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive"
             >
-              <p className="font-medium">Error de validación de seguro</p>
+              <p className="font-medium">{t("registerMemberDialog.insuranceErrorTitle")}</p>
               <p className="mt-0.5">{insuranceError}</p>
             </div>
           )}
@@ -143,7 +143,7 @@ export function RegisterMemberDialog({
           {/* User ID */}
           <div className="space-y-1.5">
             <Label htmlFor="user_id">
-              ID del usuario (UUID) <span aria-hidden="true" className="text-destructive">*</span>
+              {t("registerMemberDialog.labelUserId")} <span aria-hidden="true" className="text-destructive">*</span>
             </Label>
             <Input
               id="user_id"
@@ -162,7 +162,7 @@ export function RegisterMemberDialog({
           {/* Tipo de camporee */}
           <div className="space-y-1.5">
             <Label htmlFor="camporee_type">
-              Tipo de camporee <span aria-hidden="true" className="text-destructive">*</span>
+              {t("registerMemberDialog.labelCamporeeType")} <span aria-hidden="true" className="text-destructive">*</span>
             </Label>
             <Select
               value={camporeeType}
@@ -171,11 +171,11 @@ export function RegisterMemberDialog({
               }
             >
               <SelectTrigger id="camporee_type" aria-required="true">
-                <SelectValue placeholder="Seleccionar tipo" />
+                <SelectValue placeholder={t("registerMemberDialog.placeholderCamporeeType")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="local">Local</SelectItem>
-                <SelectItem value="union">Unión</SelectItem>
+                <SelectItem value="local">{t("registerMemberDialog.typeLocal")}</SelectItem>
+                <SelectItem value="union">{t("registerMemberDialog.typeUnion")}</SelectItem>
               </SelectContent>
             </Select>
             {errors.camporee_type && (
@@ -188,30 +188,30 @@ export function RegisterMemberDialog({
           {/* Club name (required for union) */}
           <div className="space-y-1.5">
             <Label htmlFor="club_name">
-              Nombre del club
+              {t("registerMemberDialog.labelClubName")}
               {camporeeType === "union" && (
-                <span className="text-muted-foreground"> (requerido para Unión)</span>
+                <span className="text-muted-foreground"> {t("registerMemberDialog.clubNameRequiredForUnion")}</span>
               )}
             </Label>
             <Input
               id="club_name"
               {...register("club_name")}
-              placeholder="Ej. Club Conquistadores Central"
+              placeholder={t("registerMemberDialog.placeholderClubName")}
             />
           </div>
 
           {/* Insurance ID */}
           <div className="space-y-1.5">
-            <Label htmlFor="insurance_id">ID de póliza de seguro</Label>
+            <Label htmlFor="insurance_id">{t("registerMemberDialog.labelInsuranceId")}</Label>
             <Input
               id="insurance_id"
               type="number"
               min={1}
               {...register("insurance_id")}
-              placeholder="Opcional"
+              placeholder={t("registerMemberDialog.placeholderInsuranceId")}
             />
             <p className="text-xs text-muted-foreground">
-              El registro fallará si el seguro no está validado.
+              {t("registerMemberDialog.helpInsurance")}
             </p>
             {errors.insurance_id && (
               <p className="text-xs text-destructive">
@@ -227,10 +227,10 @@ export function RegisterMemberDialog({
               onClick={() => handleOpenChange(false)}
               disabled={isSubmitting}
             >
-              Cancelar
+              {t("registerMemberDialog.cancel")}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Registrando..." : "Registrar miembro"}
+              {isSubmitting ? t("registerMemberDialog.registering") : t("registerMemberDialog.register")}
             </Button>
           </DialogFooter>
         </form>

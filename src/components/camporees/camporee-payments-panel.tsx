@@ -32,14 +32,13 @@ import { ApiError } from "@/lib/api/client";
 
 // ─── Payment type badge ────────────────────────────────────────────────────────
 
-const PAYMENT_TYPE_LABELS: Record<PaymentType, string> = {
-  inscription: "Inscripcion",
-  materials: "Materiales",
-  other: "Otro",
-};
-
-function PaymentTypeBadge({ type }: { type: PaymentType }) {
-  const label = PAYMENT_TYPE_LABELS[type] ?? type;
+function PaymentTypeBadge({ type, t }: { type: PaymentType; t: ReturnType<typeof useTranslations<"camporees">> }) {
+  const typeLabels: Record<PaymentType, string> = {
+    inscription: t("paymentsPanel.paymentTypeInscription"),
+    materials: t("paymentsPanel.paymentTypeMaterials"),
+    other: t("paymentsPanel.paymentTypeOther"),
+  };
+  const label = typeLabels[type] ?? type;
   return (
     <Badge variant="secondary" className="text-xs">
       {label}
@@ -49,20 +48,20 @@ function PaymentTypeBadge({ type }: { type: PaymentType }) {
 
 // ─── Payment status badge ──────────────────────────────────────────────────────
 
-function PaymentStatusBadge({ status }: { status?: string | null }) {
+function PaymentStatusBadge({ status, t }: { status?: string | null; t: ReturnType<typeof useTranslations<"camporees">> }) {
   if (!status) return null;
   const normalized = status.toLowerCase();
 
   if (normalized === "approved") {
-    return <StatusBadge intent="success" label="Aprobado" />;
+    return <StatusBadge intent="success" label={t("paymentsPanel.statusApproved")} />;
   }
 
   if (normalized === "pending_approval") {
-    return <StatusBadge intent="warning" label="Pendiente" />;
+    return <StatusBadge intent="warning" label={t("paymentsPanel.statusPending")} />;
   }
 
   if (normalized === "rejected") {
-    return <StatusBadge intent="destructive" label="Rechazado" />;
+    return <StatusBadge intent="destructive" label={t("paymentsPanel.statusRejected")} />;
   }
 
   return (
@@ -97,9 +96,10 @@ function formatCurrency(amount: number): string {
 
 interface PaymentSummaryProps {
   payments: CamporeePayment[];
+  t: ReturnType<typeof useTranslations<"camporees">>;
 }
 
-function PaymentSummary({ payments }: PaymentSummaryProps) {
+function PaymentSummary({ payments, t }: PaymentSummaryProps) {
   const total = payments.reduce((sum, p) => sum + p.amount, 0);
 
   const byType = payments.reduce<Record<string, number>>((acc, p) => {
@@ -112,7 +112,7 @@ function PaymentSummary({ payments }: PaymentSummaryProps) {
       {/* Total */}
       <div className="rounded-xl border border-border bg-card px-4 py-3 shadow-xs">
         <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-          Total recaudado
+          {t("paymentsPanel.summaryTotal")}
         </p>
         <p className="mt-1 text-xl font-bold tabular-nums">{formatCurrency(total)}</p>
       </div>
@@ -120,7 +120,12 @@ function PaymentSummary({ payments }: PaymentSummaryProps) {
       {/* By type */}
       {(["inscription", "materials", "other"] as PaymentType[]).map((key) => {
         const amount = byType[key] ?? 0;
-        const label = PAYMENT_TYPE_LABELS[key];
+        const typeLabels: Record<PaymentType, string> = {
+          inscription: t("paymentsPanel.paymentTypeInscription"),
+          materials: t("paymentsPanel.paymentTypeMaterials"),
+          other: t("paymentsPanel.paymentTypeOther"),
+        };
+        const label = typeLabels[key];
         return (
           <div key={key} className="rounded-xl border border-border bg-card px-4 py-3 shadow-xs">
             <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
@@ -176,8 +181,8 @@ export function CamporeePaymentsPanel({
       }
       toast.success(
         payment.member_name
-          ? `Pago de "${payment.member_name}" aprobado`
-          : "Pago aprobado",
+          ? t("paymentsPanel.approvedWithName", { name: payment.member_name })
+          : t("paymentsPanel.approvedGeneric"),
       );
       onPaymentsChange?.();
     } catch (err: unknown) {
@@ -192,7 +197,7 @@ export function CamporeePaymentsPanel({
   async function handleRejectConfirm(rejectionReason?: string) {
     if (!dialog) return;
     const paymentUuid = dialog.payment.camporee_payment_id;
-    if (!paymentUuid) throw new Error("UUID de pago no disponible");
+    if (!paymentUuid) throw new Error(t("paymentsPanel.errorNoPaymentUuid"));
     const payload = { rejection_reason: rejectionReason };
     if (isUnionCamporee) {
       await rejectUnionCamporeePayment(paymentUuid, payload);
@@ -205,40 +210,40 @@ export function CamporeePaymentsPanel({
     return (
       <EmptyState
         icon={DollarSign}
-        title="Sin pagos registrados"
-        description="No hay pagos registrados para este camporee todavia."
+        title={t("paymentsPanel.emptyTitle")}
+        description={t("paymentsPanel.emptyDescription")}
       />
     );
   }
 
-  const dialogPaymentName = dialog?.payment.member_name ?? `Pago #${dialog?.payment.payment_id}`;
+  const dialogPaymentName = dialog?.payment.member_name ?? t("paymentsPanel.fallbackPayment", { id: dialog?.payment.payment_id ?? "" });
 
   return (
     <>
       <div className="space-y-4">
-        <PaymentSummary payments={payments} />
+        <PaymentSummary payments={payments} t={t} />
 
         <div className="overflow-x-auto rounded-xl border border-border/60 bg-card shadow-xs">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Miembro
+                  {t("paymentsPanel.colMember")}
                 </TableHead>
                 <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Monto
+                  {t("paymentsPanel.colAmount")}
                 </TableHead>
                 <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Tipo
+                  {t("paymentsPanel.colType")}
                 </TableHead>
                 <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Estado
+                  {t("paymentsPanel.colStatus")}
                 </TableHead>
                 <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Referencia
+                  {t("paymentsPanel.colReference")}
                 </TableHead>
                 <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Fecha
+                  {t("paymentsPanel.colDate")}
                 </TableHead>
                 <TableHead className="h-9 w-24 px-3" />
               </TableRow>
@@ -265,10 +270,10 @@ export function CamporeePaymentsPanel({
                       </span>
                     </TableCell>
                     <TableCell className="px-3 py-2.5 align-middle">
-                      <PaymentTypeBadge type={payment.payment_type} />
+                      <PaymentTypeBadge type={payment.payment_type} t={t} />
                     </TableCell>
                     <TableCell className="px-3 py-2.5 align-middle">
-                      <PaymentStatusBadge status={payment.status} />
+                      <PaymentStatusBadge status={payment.status} t={t} />
                     </TableCell>
                     <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
                       {payment.reference ?? "—"}
@@ -288,7 +293,7 @@ export function CamporeePaymentsPanel({
                                   className="text-success hover:bg-success/10 hover:text-success"
                                   onClick={() => handleApprove(payment)}
                                   disabled={isApproving}
-                                  aria-label="Aprobar pago"
+                                  aria-label={t("paymentsPanel.approveLabel")}
                                 >
                                   {isApproving ? (
                                     <Loader2 className="size-4 animate-spin" />
@@ -297,7 +302,7 @@ export function CamporeePaymentsPanel({
                                   )}
                                 </Button>
                               </TooltipTrigger>
-                              <TooltipContent>Aprobar pago</TooltipContent>
+                              <TooltipContent>{t("paymentsPanel.approveLabel")}</TooltipContent>
                             </Tooltip>
 
                             <Tooltip>
@@ -307,12 +312,12 @@ export function CamporeePaymentsPanel({
                                   size="icon-sm"
                                   className="text-destructive hover:bg-destructive/10 hover:text-destructive"
                                   onClick={() => setDialog({ payment, mode: "reject" })}
-                                  aria-label="Rechazar pago"
+                                  aria-label={t("paymentsPanel.rejectLabel")}
                                 >
                                   <XCircle className="size-4" />
                                 </Button>
                               </TooltipTrigger>
-                              <TooltipContent>Rechazar pago</TooltipContent>
+                              <TooltipContent>{t("paymentsPanel.rejectLabel")}</TooltipContent>
                             </Tooltip>
                           </>
                         )}
@@ -323,13 +328,13 @@ export function CamporeePaymentsPanel({
                               variant="ghost"
                               size="icon-sm"
                               onClick={() => onEdit(payment)}
-                              aria-label="Editar pago"
+                              aria-label={t("paymentsPanel.editLabel")}
                             >
                               <Pencil className="size-3.5" />
-                              <span className="sr-only">Editar</span>
+                              <span className="sr-only">{t("paymentsPanel.editLabel")}</span>
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent>Editar pago</TooltipContent>
+                          <TooltipContent>{t("paymentsPanel.editLabel")}</TooltipContent>
                         </Tooltip>
                       </div>
                     </TableCell>
@@ -345,7 +350,7 @@ export function CamporeePaymentsPanel({
         <CamporeeApprovalDialog
           open
           mode={dialog.mode}
-          entityLabel="Pago"
+          entityLabel={t("paymentsPanel.entityLabel")}
           entityName={dialogPaymentName}
           onOpenChange={(open) => { if (!open) setDialog(null); }}
           onConfirm={handleRejectConfirm}
