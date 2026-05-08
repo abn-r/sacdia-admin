@@ -4,6 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { DataTableShell } from "@/components/shared/data-table-shell";
 import { ReportsListClient } from "@/components/reports/reports-list-client";
 import { requireAdminUser } from "@/lib/auth/session";
 import { apiRequest, ApiError } from "@/lib/api/client";
@@ -99,7 +100,7 @@ function ReportsPageSkeleton() {
           <Skeleton className="h-8 w-[120px]" />
         </div>
       </div>
-      <div className="rounded-md border">
+      <DataTableShell>
         {Array.from({ length: 5 }).map((_, i) => (
           <div key={i} className="flex items-center gap-4 border-b p-4 last:border-b-0">
             <Skeleton className="h-4 w-24" />
@@ -110,7 +111,7 @@ function ReportsPageSkeleton() {
             <Skeleton className="h-8 w-40" />
           </div>
         ))}
-      </div>
+      </DataTableShell>
     </div>
   );
 }

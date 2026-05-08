@@ -4,6 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { DataTableShell } from "@/components/shared/data-table-shell";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import { UsersFilters } from "@/components/users/users-filters";
 import { UsersTable } from "@/components/users/users-table";
@@ -100,7 +101,7 @@ function UsersListSkeleton() {
         <Skeleton className="h-9 w-[160px]" />
         <Skeleton className="h-9 w-[140px]" />
       </div>
-      <div className="rounded-md border">
+      <DataTableShell>
         {Array.from({ length: 8 }).map((_, i) => (
           <div key={i} className="flex items-center gap-4 border-b p-4 last:border-b-0">
             <Skeleton className="size-8 rounded-full" />
@@ -112,7 +113,7 @@ function UsersListSkeleton() {
             <Skeleton className="h-5 w-14" />
           </div>
         ))}
-      </div>
+      </DataTableShell>
     </div>
   );
 }

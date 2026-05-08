@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { DataTableShell } from "@/components/shared/data-table-shell";
 import { EnrollmentsTable } from "@/components/enrollments/enrollments-table";
 import { listEnrollments, type EnrollmentsQuery } from "@/lib/api/enrollments";
 import { requireAdminUser } from "@/lib/auth/session";
@@ -39,7 +40,7 @@ function EnrollmentsListSkeleton() {
       <div className="flex gap-3">
         <Skeleton className="h-9 flex-1 max-w-xs" />
       </div>
-      <div className="rounded-md border">
+      <DataTableShell>
         {Array.from({ length: 6 }).map((_, i) => (
           <div
             key={i}
@@ -56,7 +57,7 @@ function EnrollmentsListSkeleton() {
             <Skeleton className="h-8 w-28" />
           </div>
         ))}
-      </div>
+      </DataTableShell>
     </div>
   );
 }
