@@ -45,6 +45,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 // ─── Labels ───────────────────────────────────────────────────────────────────
 
+// Kept for fallback; actual rendering uses t() at call sites
 const PAYMENT_TYPE_LABELS: Record<PaymentType, string> = {
   inscription: "Inscripción",
   materials: "Materiales",
@@ -172,7 +173,7 @@ export function PaymentDialog({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {isEditing ? "Editar pago" : "Registrar pago"}
+            {isEditing ? t("paymentDialog.titleEdit") : t("paymentDialog.titleCreate")}
           </DialogTitle>
         </DialogHeader>
 
@@ -180,7 +181,7 @@ export function PaymentDialog({
           {/* Member */}
           <div className="space-y-1.5">
             <Label htmlFor="member_id">
-              Miembro <span aria-hidden="true" className="text-destructive">*</span>
+              {t("paymentDialog.labelMember")} <span aria-hidden="true" className="text-destructive">*</span>
             </Label>
             {isEditing ? (
               <p className="rounded-md border border-border bg-muted/40 px-3 py-2 text-sm">
@@ -192,7 +193,7 @@ export function PaymentDialog({
                 onValueChange={(val) => setValue("member_id", val)}
               >
                 <SelectTrigger id="member_id" aria-required="true">
-                  <SelectValue placeholder="Seleccionar miembro" />
+                  <SelectValue placeholder={t("paymentDialog.placeholderMember")} />
                 </SelectTrigger>
                 <SelectContent>
                   {members.map((m) => (
@@ -211,7 +212,7 @@ export function PaymentDialog({
           {/* Amount */}
           <div className="space-y-1.5">
             <Label htmlFor="amount">
-              Monto <span aria-hidden="true" className="text-destructive">*</span>
+              {t("paymentDialog.labelAmount")} <span aria-hidden="true" className="text-destructive">*</span>
             </Label>
             <Input
               id="amount"
@@ -230,7 +231,7 @@ export function PaymentDialog({
           {/* Payment type */}
           <div className="space-y-1.5">
             <Label htmlFor="payment_type">
-              Tipo de pago <span aria-hidden="true" className="text-destructive">*</span>
+              {t("paymentDialog.labelPaymentType")} <span aria-hidden="true" className="text-destructive">*</span>
             </Label>
             <Select
               value={paymentType}
@@ -239,14 +240,21 @@ export function PaymentDialog({
               }
             >
               <SelectTrigger id="payment_type" aria-required="true">
-                <SelectValue placeholder="Seleccionar tipo" />
+                <SelectValue placeholder={t("paymentDialog.placeholderPaymentType")} />
               </SelectTrigger>
               <SelectContent>
-                {(Object.keys(PAYMENT_TYPE_LABELS) as PaymentType[]).map((key) => (
-                  <SelectItem key={key} value={key}>
-                    {PAYMENT_TYPE_LABELS[key]}
-                  </SelectItem>
-                ))}
+                {(Object.keys(PAYMENT_TYPE_LABELS) as PaymentType[]).map((key) => {
+                  const typeLabels: Record<PaymentType, string> = {
+                    inscription: t("paymentDialog.paymentTypeInscription"),
+                    materials: t("paymentDialog.paymentTypeMaterials"),
+                    other: t("paymentDialog.paymentTypeOther"),
+                  };
+                  return (
+                    <SelectItem key={key} value={key}>
+                      {typeLabels[key]}
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
             {errors.payment_type && (
@@ -256,27 +264,27 @@ export function PaymentDialog({
 
           {/* Reference */}
           <div className="space-y-1.5">
-            <Label htmlFor="reference">Referencia</Label>
+            <Label htmlFor="reference">{t("paymentDialog.labelReference")}</Label>
             <Input
               id="reference"
               {...register("reference")}
-              placeholder="Ej. TRANS-00123"
+              placeholder={t("paymentDialog.placeholderReference")}
             />
           </div>
 
           {/* Paid at */}
           <div className="space-y-1.5">
-            <Label htmlFor="paid_at">Fecha de pago</Label>
+            <Label htmlFor="paid_at">{t("paymentDialog.labelPaidAt")}</Label>
             <Input id="paid_at" type="date" {...register("paid_at")} />
           </div>
 
           {/* Notes */}
           <div className="space-y-1.5">
-            <Label htmlFor="notes">Notas</Label>
+            <Label htmlFor="notes">{t("paymentDialog.labelNotes")}</Label>
             <Textarea
               id="notes"
               {...register("notes")}
-              placeholder="Observaciones opcionales"
+              placeholder={t("paymentDialog.placeholderNotes")}
               rows={2}
             />
           </div>
@@ -288,16 +296,16 @@ export function PaymentDialog({
               onClick={() => handleOpenChange(false)}
               disabled={isSubmitting}
             >
-              Cancelar
+              {t("paymentDialog.cancel")}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting
                 ? isEditing
-                  ? "Guardando..."
-                  : "Registrando..."
+                  ? t("paymentDialog.saving")
+                  : t("paymentDialog.registering")
                 : isEditing
-                  ? "Guardar cambios"
-                  : "Registrar pago"}
+                  ? t("paymentDialog.saveChanges")
+                  : t("paymentDialog.registerPayment")}
             </Button>
           </DialogFooter>
         </form>

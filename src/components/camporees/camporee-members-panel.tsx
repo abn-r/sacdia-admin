@@ -33,7 +33,7 @@ import { ApiError } from "@/lib/api/client";
 
 // ─── Member status badge ───────────────────────────────────────────────────────
 
-function MemberStatusBadge({ status }: { status?: string | null }) {
+function MemberStatusBadge({ status, t }: { status?: string | null; t: ReturnType<typeof useTranslations<"camporees">> }) {
   if (!status) {
     return <StatusBadge intent="neutral" label="—" className="text-xs" />;
   }
@@ -41,19 +41,19 @@ function MemberStatusBadge({ status }: { status?: string | null }) {
   const normalized = status.toLowerCase();
 
   if (normalized === "approved" || normalized === "registered") {
-    return <StatusBadge intent="success" label={normalized === "registered" ? "Registrado" : "Aprobado"} />;
+    return <StatusBadge intent="success" label={normalized === "registered" ? t("membersPanel.statusRegistered") : t("membersPanel.statusApproved")} />;
   }
 
   if (normalized === "pending_approval") {
-    return <StatusBadge intent="warning" label="Pendiente" />;
+    return <StatusBadge intent="warning" label={t("membersPanel.statusPending")} />;
   }
 
   if (normalized === "rejected") {
-    return <StatusBadge intent="destructive" label="Rechazado" />;
+    return <StatusBadge intent="destructive" label={t("membersPanel.statusRejected")} />;
   }
 
   if (normalized === "cancelled" || normalized === "cancelado") {
-    return <StatusBadge intent="destructive" label="Cancelado" />;
+    return <StatusBadge intent="destructive" label={t("membersPanel.statusCancelled")} />;
   }
 
   return (
@@ -63,9 +63,9 @@ function MemberStatusBadge({ status }: { status?: string | null }) {
 
 // ─── Insurance badge ───────────────────────────────────────────────────────────
 
-function InsuranceBadge({ status }: { status?: string | null }) {
+function InsuranceBadge({ status, t }: { status?: string | null; t: ReturnType<typeof useTranslations<"camporees">> }) {
   if (!status) {
-    return <StatusBadge intent="warning" label="Sin seguro" />;
+    return <StatusBadge intent="warning" label={t("membersPanel.insuranceNone")} />;
   }
 
   const isVerified =
@@ -74,10 +74,10 @@ function InsuranceBadge({ status }: { status?: string | null }) {
     status.toLowerCase() === "active";
 
   if (isVerified) {
-    return <StatusBadge intent="success" label="Seguro verificado" />;
+    return <StatusBadge intent="success" label={t("membersPanel.insuranceVerified")} />;
   }
 
-  return <StatusBadge intent="warning" label="Seguro pendiente" />;
+  return <StatusBadge intent="warning" label={t("membersPanel.insurancePending")} />;
 }
 
 // ─── Dialog state ─────────────────────────────────────────────────────────────
@@ -116,15 +116,15 @@ export function CamporeeMembersPanel({
       await removeCamporeeMember(camporeeId, userId);
       toast.success(
         userName
-          ? `${userName} fue removido del camporee`
-          : "Miembro removido del camporee",
+          ? t("membersPanel.removedWithName", { name: userName })
+          : t("membersPanel.removedGeneric"),
       );
       onMembersChange();
     } catch (err: unknown) {
       const message =
         err instanceof Error
           ? err.message
-          : "No se pudo remover al miembro del camporee";
+          : t("membersPanel.errorRemove");
       toast.error(message);
     } finally {
       setRemovingUserId(null);
@@ -143,8 +143,8 @@ export function CamporeeMembersPanel({
       }
       toast.success(
         member.name
-          ? `Inscripcion de "${member.name}" aprobada`
-          : "Inscripcion de miembro aprobada",
+          ? t("membersPanel.approvedWithName", { name: member.name })
+          : t("membersPanel.approvedGeneric"),
       );
       onMembersChange();
     } catch (err: unknown) {
@@ -159,7 +159,7 @@ export function CamporeeMembersPanel({
   async function handleRejectConfirm(rejectionReason?: string) {
     if (!dialog) return;
     const memberId = dialog.member.camporee_member_id;
-    if (!memberId) throw new Error("ID de inscripcion no disponible");
+    if (!memberId) throw new Error(t("membersPanel.errorNoMemberId"));
     const payload = { rejection_reason: rejectionReason };
     if (isUnionCamporee) {
       await rejectUnionCamporeeMember(camporeeId, memberId, payload);
@@ -172,13 +172,13 @@ export function CamporeeMembersPanel({
     return (
       <EmptyState
         icon={Users}
-        title="Sin miembros registrados"
-        description="No hay miembros inscritos en este camporee todavia."
+        title={t("membersPanel.emptyTitle")}
+        description={t("membersPanel.emptyDescription")}
       />
     );
   }
 
-  const dialogMemberName = dialog?.member.name ?? dialog?.member.user_id ?? "Miembro";
+  const dialogMemberName = dialog?.member.name ?? dialog?.member.user_id ?? t("membersPanel.fallbackMember");
 
   return (
     <>
@@ -187,19 +187,19 @@ export function CamporeeMembersPanel({
           <TableHeader>
             <TableRow>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Miembro
+                {t("membersPanel.colMember")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Club
+                {t("membersPanel.colClub")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Estado
+                {t("membersPanel.colStatus")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Tipo
+                {t("membersPanel.colType")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Seguro
+                {t("membersPanel.colInsurance")}
               </TableHead>
               <TableHead className="h-9 w-28 px-3" />
             </TableRow>
@@ -225,17 +225,17 @@ export function CamporeeMembersPanel({
                     {member.club_name ?? "—"}
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle">
-                    <MemberStatusBadge status={member.status} />
+                    <MemberStatusBadge status={member.status} t={t} />
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle">
                     {member.camporee_type && (
                       <Badge variant="outline" className="text-xs capitalize">
-                        {member.camporee_type === "local" ? "Local" : "Union"}
+                        {member.camporee_type === "local" ? t("membersPanel.typeLocal") : t("membersPanel.typeUnion")}
                       </Badge>
                     )}
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle">
-                    <InsuranceBadge status={member.insurance_status} />
+                    <InsuranceBadge status={member.insurance_status} t={t} />
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle">
                     <div className="flex items-center justify-end gap-1">
@@ -249,7 +249,7 @@ export function CamporeeMembersPanel({
                                 className="text-success hover:bg-success/10 hover:text-success"
                                 onClick={() => handleApprove(member)}
                                 disabled={isApproving}
-                                aria-label="Aprobar inscripcion"
+                                aria-label={t("membersPanel.approveLabel")}
                               >
                                 {isApproving ? (
                                   <Loader2 className="size-4 animate-spin" />
@@ -258,7 +258,7 @@ export function CamporeeMembersPanel({
                                 )}
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent>Aprobar inscripcion</TooltipContent>
+                            <TooltipContent>{t("membersPanel.approveLabel")}</TooltipContent>
                           </Tooltip>
 
                           <Tooltip>
@@ -268,12 +268,12 @@ export function CamporeeMembersPanel({
                                 size="icon-sm"
                                 className="text-destructive hover:bg-destructive/10 hover:text-destructive"
                                 onClick={() => setDialog({ member, mode: "reject" })}
-                                aria-label="Rechazar inscripcion"
+                                aria-label={t("membersPanel.rejectLabel")}
                               >
                                 <XCircle className="size-4" />
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent>Rechazar inscripcion</TooltipContent>
+                            <TooltipContent>{t("membersPanel.rejectLabel")}</TooltipContent>
                           </Tooltip>
                         </>
                       )}
@@ -286,14 +286,14 @@ export function CamporeeMembersPanel({
                               size="icon-sm"
                               onClick={() => handleRemove(member.user_id, member.name)}
                               disabled={removingUserId === member.user_id}
-                              aria-label="Remover del camporee"
+                              aria-label={t("membersPanel.removeLabel")}
                               className="text-destructive hover:text-destructive"
                             >
                               <UserMinus className="size-3.5" />
-                              <span className="sr-only">Remover</span>
+                              <span className="sr-only">{t("membersPanel.removeLabel")}</span>
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent>Remover del camporee</TooltipContent>
+                          <TooltipContent>{t("membersPanel.removeLabel")}</TooltipContent>
                         </Tooltip>
                       )}
                     </div>
@@ -309,7 +309,7 @@ export function CamporeeMembersPanel({
         <CamporeeApprovalDialog
           open
           mode={dialog.mode}
-          entityLabel="Miembro"
+          entityLabel={t("membersPanel.entityLabel")}
           entityName={dialogMemberName}
           onOpenChange={(open) => { if (!open) setDialog(null); }}
           onConfirm={handleRejectConfirm}
