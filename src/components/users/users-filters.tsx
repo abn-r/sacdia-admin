@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useTranslations } from "next-intl";
 import type { ScopeMeta } from "@/lib/api/admin-users";
 
 interface UsersFiltersProps {
@@ -18,6 +19,7 @@ interface UsersFiltersProps {
 }
 
 export function UsersFilters({ scope }: UsersFiltersProps) {
+  const t = useTranslations("users");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -61,7 +63,7 @@ export function UsersFilters({ scope }: UsersFiltersProps) {
       <div className="relative flex-1">
         <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
-          placeholder="Buscar por nombre o email..."
+          placeholder={t("filters.searchPlaceholder")}
           defaultValue={searchParams.get("search") ?? ""}
           className="pl-9"
           onChange={(e) => handleSearchChange(e.target.value)}
@@ -70,30 +72,30 @@ export function UsersFilters({ scope }: UsersFiltersProps) {
 
       <Select value={currentRole} onValueChange={(v) => updateParam("role", v)}>
         <SelectTrigger className="w-[160px]">
-          <SelectValue placeholder="Rol" />
+          <SelectValue placeholder={t("filters.rolePlaceholder")} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">Todos los roles</SelectItem>
-          <SelectItem value="super-admin">Super Admin</SelectItem>
-          <SelectItem value="admin">Admin</SelectItem>
-          <SelectItem value="coordinator">Coordinator</SelectItem>
+          <SelectItem value="all">{t("filters.allRoles")}</SelectItem>
+          <SelectItem value="super-admin">{t("filters.roleOptions.superAdmin")}</SelectItem>
+          <SelectItem value="admin">{t("filters.roleOptions.admin")}</SelectItem>
+          <SelectItem value="coordinator">{t("filters.roleOptions.coordinator")}</SelectItem>
         </SelectContent>
       </Select>
 
       <Select value={currentActive} onValueChange={(v) => updateParam("active", v)}>
         <SelectTrigger className="w-[140px]">
-          <SelectValue placeholder="Estado" />
+          <SelectValue placeholder={t("filters.statusPlaceholder")} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">Todos</SelectItem>
-          <SelectItem value="true">Activos</SelectItem>
-          <SelectItem value="false">Inactivos</SelectItem>
+          <SelectItem value="all">{t("filters.statusAll")}</SelectItem>
+          <SelectItem value="true">{t("filters.statusActive")}</SelectItem>
+          <SelectItem value="false">{t("filters.statusInactive")}</SelectItem>
         </SelectContent>
       </Select>
 
       {isScopeLocked && (
         <div className="text-xs text-muted-foreground">
-          Alcance: <span className="font-medium">{scope?.type}</span>
+          {t("filters.scopeLabel")} <span className="font-medium">{scope?.type}</span>
         </div>
       )}
     </div>

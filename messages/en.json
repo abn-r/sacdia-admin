@@ -702,6 +702,61 @@
     "errors": {
       "mfa_reset_description": "Error resetting MFA",
       "mfa_disable_description": "Error disabling MFA"
+    },
+    "list": {
+      "ariaLabel": "User list",
+      "columns": {
+        "user": "User",
+        "roles": "Roles",
+        "location": "Location",
+        "status": "Status",
+        "access": "Access",
+        "postRegistration": "Post-registration",
+        "registrationDate": "Registration date"
+      },
+      "fields": {
+        "location": "Location",
+        "registrationDate": "Registration date"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "postReg": {
+        "complete": "Post-registration",
+        "pending": "Pending",
+        "completeDesktop": "Complete"
+      },
+      "noRole": "No role"
+    },
+    "filters": {
+      "searchPlaceholder": "Search by name or email...",
+      "rolePlaceholder": "Role",
+      "allRoles": "All roles",
+      "roleOptions": {
+        "superAdmin": "Super Admin",
+        "admin": "Admin",
+        "coordinator": "Coordinator"
+      },
+      "statusPlaceholder": "Status",
+      "statusAll": "All",
+      "statusActive": "Active",
+      "statusInactive": "Inactive",
+      "scopeLabel": "Scope:"
+    },
+    "approval": {
+      "statusApproved": "Approved",
+      "statusRejected": "Rejected",
+      "statusUnknown": "Unknown status",
+      "actionApprove": "Approve",
+      "actionReject": "Reject",
+      "dialogApproveTitle": "Approve user?",
+      "dialogRejectTitle": "Reject user?",
+      "dialogApproveDescription": "The user will be approved and will be able to access the system.",
+      "dialogRejectDescription": "The user will be rejected. You can include a reason.",
+      "rejectReasonLabel": "Rejection reason (optional)",
+      "rejectReasonPlaceholder": "Describe the reason for rejection...",
+      "cancelButton": "Cancel"
     }
   },
   "annual_folders": {

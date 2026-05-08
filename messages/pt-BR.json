@@ -702,6 +702,61 @@
     "errors": {
       "mfa_reset_description": "Erro ao redefinir MFA",
       "mfa_disable_description": "Erro ao desativar MFA"
+    },
+    "list": {
+      "ariaLabel": "Lista de usuários",
+      "columns": {
+        "user": "Usuário",
+        "roles": "Funções",
+        "location": "Localização",
+        "status": "Status",
+        "access": "Acessos",
+        "postRegistration": "Pós-registro",
+        "registrationDate": "Data de cadastro"
+      },
+      "fields": {
+        "location": "Localização",
+        "registrationDate": "Data de cadastro"
+      },
+      "status": {
+        "active": "Ativo",
+        "inactive": "Inativo"
+      },
+      "postReg": {
+        "complete": "Pós-registro",
+        "pending": "Pendente",
+        "completeDesktop": "Completo"
+      },
+      "noRole": "Sem função"
+    },
+    "filters": {
+      "searchPlaceholder": "Buscar por nome ou e-mail...",
+      "rolePlaceholder": "Função",
+      "allRoles": "Todas as funções",
+      "roleOptions": {
+        "superAdmin": "Super Admin",
+        "admin": "Admin",
+        "coordinator": "Coordenador"
+      },
+      "statusPlaceholder": "Status",
+      "statusAll": "Todos",
+      "statusActive": "Ativos",
+      "statusInactive": "Inativos",
+      "scopeLabel": "Escopo:"
+    },
+    "approval": {
+      "statusApproved": "Aprovado",
+      "statusRejected": "Rejeitado",
+      "statusUnknown": "Status desconhecido",
+      "actionApprove": "Aprovar",
+      "actionReject": "Rejeitar",
+      "dialogApproveTitle": "Aprovar usuário?",
+      "dialogRejectTitle": "Rejeitar usuário?",
+      "dialogApproveDescription": "O usuário será aprovado e poderá acessar o sistema.",
+      "dialogRejectDescription": "O usuário será rejeitado. Você pode incluir um motivo.",
+      "rejectReasonLabel": "Motivo da rejeição (opcional)",
+      "rejectReasonPlaceholder": "Descreva o motivo da rejeição...",
+      "cancelButton": "Cancelar"
     }
   },
   "annual_folders": {

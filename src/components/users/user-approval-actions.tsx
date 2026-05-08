@@ -17,8 +17,10 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { submitApprovalDecisionAction } from "@/lib/admin-users/actions";
+import { useTranslations } from "next-intl";
 
 function SubmitButton({ variant }: { variant: "approve" | "reject" }) {
+  const t = useTranslations("users");
   const { pending } = useFormStatus();
   const isApprove = variant === "approve";
 
@@ -29,7 +31,7 @@ function SubmitButton({ variant }: { variant: "approve" | "reject" }) {
       variant={isApprove ? "default" : "destructive"}
     >
       {pending && <Loader2 className="mr-2 size-4 animate-spin" />}
-      {isApprove ? "Aprobar" : "Rechazar"}
+      {isApprove ? t("approval.actionApprove") : t("approval.actionReject")}
     </Button>
   );
 }
@@ -40,6 +42,7 @@ interface UserApprovalActionsProps {
 }
 
 export function UserApprovalActions({ userId, currentApproval }: UserApprovalActionsProps) {
+  const t = useTranslations("users");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [decision, setDecision] = useState<"approve" | "reject">("approve");
 
@@ -64,18 +67,18 @@ export function UserApprovalActions({ userId, currentApproval }: UserApprovalAct
         {isApproved && (
           <Badge variant="success" className="gap-1.5">
             <CheckCircle className="size-3.5" />
-            Aprobado
+            {t("approval.statusApproved")}
           </Badge>
         )}
         {isRejected && (
           <Badge variant="destructive" className="gap-1.5">
             <XCircle className="size-3.5" />
-            Rechazado
+            {t("approval.statusRejected")}
           </Badge>
         )}
         {!isApproved && !isRejected && (
           <Badge variant="outline" className="text-muted-foreground">
-            Estado desconocido
+            {t("approval.statusUnknown")}
           </Badge>
         )}
       </div>
@@ -93,7 +96,7 @@ export function UserApprovalActions({ userId, currentApproval }: UserApprovalAct
           }}
         >
           <CheckCircle className="mr-2 size-4" />
-          Aprobar
+          {t("approval.actionApprove")}
         </Button>
         <Button
           size="sm"
@@ -104,7 +107,7 @@ export function UserApprovalActions({ userId, currentApproval }: UserApprovalAct
           }}
         >
           <XCircle className="mr-2 size-4" />
-          Rechazar
+          {t("approval.actionReject")}
         </Button>
       </div>
 
@@ -112,12 +115,14 @@ export function UserApprovalActions({ userId, currentApproval }: UserApprovalAct
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {decision === "approve" ? "¿Aprobar usuario?" : "¿Rechazar usuario?"}
+              {decision === "approve"
+                ? t("approval.dialogApproveTitle")
+                : t("approval.dialogRejectTitle")}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {decision === "approve"
-                ? "El usuario será aprobado y podrá acceder al sistema."
-                : "El usuario será rechazado. Puedes incluir una razón."}
+                ? t("approval.dialogApproveDescription")
+                : t("approval.dialogRejectDescription")}
             </AlertDialogDescription>
           </AlertDialogHeader>
 
@@ -127,18 +132,18 @@ export function UserApprovalActions({ userId, currentApproval }: UserApprovalAct
 
             {decision === "reject" && (
               <div className="mb-4 space-y-2">
-                <Label htmlFor="reason">Razón del rechazo (opcional)</Label>
+                <Label htmlFor="reason">{t("approval.rejectReasonLabel")}</Label>
                 <Textarea
                   id="reason"
                   name="reason"
-                  placeholder="Describe la razón del rechazo..."
+                  placeholder={t("approval.rejectReasonPlaceholder")}
                   rows={3}
                 />
               </div>
             )}
 
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogCancel>{t("approval.cancelButton")}</AlertDialogCancel>
               <SubmitButton variant={decision} />
             </AlertDialogFooter>
           </form>

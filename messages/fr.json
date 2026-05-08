@@ -702,6 +702,61 @@
     "errors": {
       "mfa_reset_description": "Erreur lors de la réinitialisation MFA",
       "mfa_disable_description": "Erreur lors de la désactivation MFA"
+    },
+    "list": {
+      "ariaLabel": "Liste des utilisateurs",
+      "columns": {
+        "user": "Utilisateur",
+        "roles": "Rôles",
+        "location": "Localisation",
+        "status": "Statut",
+        "access": "Accès",
+        "postRegistration": "Post-inscription",
+        "registrationDate": "Date d'inscription"
+      },
+      "fields": {
+        "location": "Localisation",
+        "registrationDate": "Date d'inscription"
+      },
+      "status": {
+        "active": "Actif",
+        "inactive": "Inactif"
+      },
+      "postReg": {
+        "complete": "Post-inscription",
+        "pending": "En attente",
+        "completeDesktop": "Complet"
+      },
+      "noRole": "Sans rôle"
+    },
+    "filters": {
+      "searchPlaceholder": "Rechercher par nom ou email...",
+      "rolePlaceholder": "Rôle",
+      "allRoles": "Tous les rôles",
+      "roleOptions": {
+        "superAdmin": "Super Admin",
+        "admin": "Admin",
+        "coordinator": "Coordinateur"
+      },
+      "statusPlaceholder": "Statut",
+      "statusAll": "Tous",
+      "statusActive": "Actifs",
+      "statusInactive": "Inactifs",
+      "scopeLabel": "Portée :"
+    },
+    "approval": {
+      "statusApproved": "Approuvé",
+      "statusRejected": "Rejeté",
+      "statusUnknown": "Statut inconnu",
+      "actionApprove": "Approuver",
+      "actionReject": "Rejeter",
+      "dialogApproveTitle": "Approuver l'utilisateur ?",
+      "dialogRejectTitle": "Rejeter l'utilisateur ?",
+      "dialogApproveDescription": "L'utilisateur sera approuvé et pourra accéder au système.",
+      "dialogRejectDescription": "L'utilisateur sera rejeté. Vous pouvez inclure une raison.",
+      "rejectReasonLabel": "Raison du rejet (facultatif)",
+      "rejectReasonPlaceholder": "Décrivez la raison du rejet...",
+      "cancelButton": "Annuler"
     }
   },
   "annual_folders": {
