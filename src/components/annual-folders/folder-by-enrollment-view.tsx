@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +21,7 @@ export function FolderByEnrollmentView({
   currentEnrollmentId,
   currentFolderId,
 }: FolderByEnrollmentViewProps) {
+  const t = useTranslations("annual_folders");
   const router = useRouter();
   const [enrollmentInput, setEnrollmentInput] = useState(
     currentEnrollmentId ?? "",
@@ -46,7 +48,7 @@ export function FolderByEnrollmentView({
 
   return (
     <div className="rounded-lg border border-border bg-card p-4">
-      <p className="mb-3 text-sm font-medium">Buscar carpeta</p>
+      <p className="mb-3 text-sm font-medium">{t("byEnrollment.title")}</p>
       <div className="flex flex-col gap-4 sm:flex-row">
         {/* By enrollment ID */}
         <form
@@ -55,12 +57,12 @@ export function FolderByEnrollmentView({
         >
           <div className="flex-1 space-y-1.5">
             <Label htmlFor="enrollment-id" className="text-xs text-muted-foreground">
-              Por ID de inscripción
+              {t("byEnrollment.enrollmentIdLabel")}
             </Label>
             <Input
               id="enrollment-id"
               type="text"
-              placeholder="UUID de inscripción"
+              placeholder={t("byEnrollment.enrollmentIdPlaceholder")}
               value={enrollmentInput}
               onChange={(e) => setEnrollmentInput(e.target.value)}
               className="h-9"
@@ -68,7 +70,7 @@ export function FolderByEnrollmentView({
           </div>
           <Button type="submit" size="sm" disabled={!enrollmentInput.trim()}>
             <Search className="size-4" />
-            Buscar
+            {t("byEnrollment.searchButton")}
           </Button>
         </form>
 
@@ -81,12 +83,12 @@ export function FolderByEnrollmentView({
         >
           <div className="flex-1 space-y-1.5">
             <Label htmlFor="folder-id" className="text-xs text-muted-foreground">
-              Por ID de carpeta
+              {t("byEnrollment.folderIdLabel")}
             </Label>
             <Input
               id="folder-id"
               type="text"
-              placeholder="UUID de carpeta"
+              placeholder={t("byEnrollment.folderIdPlaceholder")}
               value={folderInput}
               onChange={(e) => setFolderInput(e.target.value)}
               className="h-9"
@@ -94,7 +96,7 @@ export function FolderByEnrollmentView({
           </div>
           <Button type="submit" size="sm" disabled={!folderInput.trim()}>
             <Search className="size-4" />
-            Buscar
+            {t("byEnrollment.searchButton")}
           </Button>
         </form>
       </div>

@@ -160,18 +160,21 @@ export function SectionFormDialog({
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? "Editar sección" : "Nueva sección"}
+            {isEdit ? t("sectionDialog.titleEdit") : t("sectionDialog.titleCreate")}
           </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
           {/* Nombre */}
           <div className="space-y-1.5">
-            <Label htmlFor="section-name">Nombre <span aria-hidden="true" className="text-destructive">*</span></Label>
+            <Label htmlFor="section-name">
+              {t("sectionDialog.fieldName")}{" "}
+              <span aria-hidden="true" className="text-destructive">*</span>
+            </Label>
             <Input
               id="section-name"
               {...register("name")}
-              placeholder="Ej. Evidencias de actividades"
+              placeholder={t("sectionDialog.fieldNamePlaceholder")}
               aria-required="true"
             />
             {errors.name && (
@@ -181,11 +184,11 @@ export function SectionFormDialog({
 
           {/* Descripción */}
           <div className="space-y-1.5">
-            <Label htmlFor="section-description">Descripción</Label>
+            <Label htmlFor="section-description">{t("sectionDialog.fieldDescription")}</Label>
             <Textarea
               id="section-description"
               {...register("description")}
-              placeholder="Descripción opcional de la sección"
+              placeholder={t("sectionDialog.fieldDescriptionPlaceholder")}
               rows={3}
             />
             {errors.description && (
@@ -197,7 +200,10 @@ export function SectionFormDialog({
 
           {/* Orden */}
           <div className="space-y-1.5">
-            <Label htmlFor="section-order">Orden <span aria-hidden="true" className="text-destructive">*</span></Label>
+            <Label htmlFor="section-order">
+              {t("sectionDialog.fieldOrder")}{" "}
+              <span aria-hidden="true" className="text-destructive">*</span>
+            </Label>
             <Input
               id="section-order"
               type="number"
@@ -215,10 +221,10 @@ export function SectionFormDialog({
           <div className="flex items-center justify-between rounded-lg border border-border px-3 py-2.5">
             <div className="space-y-0.5">
               <Label htmlFor="section-required" className="cursor-pointer text-sm font-medium">
-                Sección requerida
+                {t("sectionDialog.fieldRequired")}
               </Label>
               <p className="text-xs text-muted-foreground">
-                El miembro debe subir evidencia para esta sección
+                {t("sectionDialog.fieldRequiredDescription")}
               </p>
             </div>
             <Switch
@@ -232,7 +238,10 @@ export function SectionFormDialog({
           <div className="grid grid-cols-2 gap-3">
             {/* Puntos máximos */}
             <div className="space-y-1.5">
-              <Label htmlFor="section-max-points">Puntos máximos <span aria-hidden="true" className="text-destructive">*</span></Label>
+              <Label htmlFor="section-max-points">
+                {t("sectionDialog.fieldMaxPoints")}{" "}
+                <span aria-hidden="true" className="text-destructive">*</span>
+              </Label>
               <Input
                 id="section-max-points"
                 type="number"
@@ -250,7 +259,7 @@ export function SectionFormDialog({
 
             {/* Puntos mínimos */}
             <div className="space-y-1.5">
-              <Label htmlFor="section-minimum-points">Puntos mínimos</Label>
+              <Label htmlFor="section-minimum-points">{t("sectionDialog.fieldMinPoints")}</Label>
               <Input
                 id="section-minimum-points"
                 type="number"
@@ -273,16 +282,16 @@ export function SectionFormDialog({
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
             >
-              Cancelar
+              {t("sectionDialog.cancel")}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting
                 ? isEdit
-                  ? "Guardando..."
-                  : "Creando..."
+                  ? t("sectionDialog.submittingEdit")
+                  : t("sectionDialog.submittingCreate")
                 : isEdit
-                  ? "Guardar cambios"
-                  : "Crear sección"}
+                  ? t("sectionDialog.submitEdit")
+                  : t("sectionDialog.submitCreate")}
             </Button>
           </DialogFooter>
         </form>
