@@ -13,6 +13,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { getInventoryHistory } from "@/lib/api/inventory";
 import type { InventoryHistoryEntry, InventoryAction } from "@/lib/api/inventory";
+import { useFormatDateTime } from "@/lib/format-locale";
 
 // ─── Action config (visual/structural constants — labels resolved via t() inside component) ──
 
@@ -46,20 +47,6 @@ const ACTION_META: Record<
 };
 
 // ─── Helpers ────────────────────────────────────────────────────────────────────
-
-function formatDate(isoDate: string): string {
-  try {
-    return new Intl.DateTimeFormat("es-MX", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(new Date(isoDate));
-  } catch {
-    return isoDate;
-  }
-}
 
 function getPerformerName(
   entry: InventoryHistoryEntry,
@@ -97,6 +84,7 @@ interface HistoryTimelineProps {
 
 function HistoryTimeline({ entries }: HistoryTimelineProps) {
   const t = useTranslations("inventory");
+  const formatDate = useFormatDateTime();
 
   if (entries.length === 0) {
     return (

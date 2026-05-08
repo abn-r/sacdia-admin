@@ -4,20 +4,7 @@ import { CheckCircle2, XCircle, Send, RefreshCw, Clock } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import type { InvestitureHistoryEntry, InvestitureAction } from "@/lib/api/investiture";
-
-function formatDate(isoDate: string): string {
-  try {
-    return new Intl.DateTimeFormat("es-MX", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(new Date(isoDate));
-  } catch {
-    return isoDate;
-  }
-}
+import { useFormatDateTime } from "@/lib/format-locale";
 
 function getPerformerName(entry: InvestitureHistoryEntry, systemLabel: string): string {
   if (entry.performer?.first_name || entry.performer?.last_name) {
@@ -35,6 +22,7 @@ interface HistoryTimelineProps {
 
 export function HistoryTimeline({ entries }: HistoryTimelineProps) {
   const t = useTranslations("investiture");
+  const formatDate = useFormatDateTime();
 
   const actionConfig: Record<
     InvestitureAction,

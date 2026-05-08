@@ -30,21 +30,7 @@ import { EvidenceDetailDialog } from "@/components/evidence-review/evidence-deta
 import { EvidenceHistoryDialog } from "@/components/evidence-review/evidence-history-dialog";
 import { EvidenceBulkActionBar } from "@/components/evidence-review/evidence-bulk-action-bar";
 import type { EvidenceItem, EvidenceType } from "@/lib/api/evidence-review";
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatDate(iso?: string | null): string {
-  if (!iso) return "—";
-  try {
-    return new Intl.DateTimeFormat("es-MX", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    }).format(new Date(iso));
-  } catch {
-    return iso;
-  }
-}
+import { useFormatDate } from "@/lib/format-locale";
 
 function isPending(status: string, type: EvidenceType): boolean {
   if (status === "SUBMITTED") return true;
@@ -169,6 +155,7 @@ interface EvidenceReviewTableProps {
 
 export function EvidenceReviewTable({ items, onRefresh }: EvidenceReviewTableProps) {
   const t = useTranslations("evidence_review.table");
+  const formatDate = useFormatDate();
   const [dialog, setDialog] = useState<DialogState>(null);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
 
@@ -314,7 +301,7 @@ export function EvidenceReviewTable({ items, onRefresh }: EvidenceReviewTablePro
                   </TableCell>
 
                   <TableCell className="px-3 py-2.5 align-middle tabular-nums text-sm text-muted-foreground">
-                    {formatDate(item.submitted_at)}
+                    {item.submitted_at ? formatDate(item.submitted_at) : "—"}
                   </TableCell>
 
                   <TableCell className="px-3 py-2.5 align-middle">

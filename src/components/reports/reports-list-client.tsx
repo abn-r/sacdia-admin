@@ -48,6 +48,7 @@ import {
   type MonthlyReport,
   type ReportStatus,
 } from "@/lib/api/monthly-reports";
+import { useFormatDate } from "@/lib/format-locale";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -56,20 +57,11 @@ const YEARS = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
 
 const MONTH_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as const;
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatDate(dateStr?: string | null): string {
-  if (!dateStr) return "—";
-  try {
-    return new Intl.DateTimeFormat("es-MX", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    }).format(new Date(dateStr));
-  } catch {
-    return dateStr;
-  }
-}
+const REPORTS_DATE_OPTIONS: Intl.DateTimeFormatOptions = {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+};
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 
@@ -112,6 +104,7 @@ interface ReportsListClientProps {
 export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
   const t = useTranslations("reports");
   const router = useRouter();
+  const formatDate = useFormatDate();
 
   // Filters
   const [filterYear, setFilterYear] = useState<number | undefined>(currentYear);
@@ -405,10 +398,10 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                           </Badge>
                         </TableCell>
                         <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
-                          {formatDate(report.generated_at)}
+                          {report.generated_at ? formatDate(report.generated_at, REPORTS_DATE_OPTIONS) : "—"}
                         </TableCell>
                         <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
-                          {formatDate(report.submitted_at)}
+                          {report.submitted_at ? formatDate(report.submitted_at, REPORTS_DATE_OPTIONS) : "—"}
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-1.5">
@@ -524,13 +517,13 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                       {report.generated_at && (
                         <div>
                           <dt className="text-muted-foreground">{t("list.tableHeaderGenerated")}</dt>
-                          <dd>{formatDate(report.generated_at)}</dd>
+                          <dd>{formatDate(report.generated_at, REPORTS_DATE_OPTIONS)}</dd>
                         </div>
                       )}
                       {report.submitted_at && (
                         <div>
                           <dt className="text-muted-foreground">{t("list.tableHeaderSubmitted")}</dt>
-                          <dd>{formatDate(report.submitted_at)}</dd>
+                          <dd>{formatDate(report.submitted_at, REPORTS_DATE_OPTIONS)}</dd>
                         </div>
                       )}
                     </dl>

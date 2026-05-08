@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useForm, Controller } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
@@ -31,51 +31,53 @@ import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
 import { listUnions, listLocalFields } from "@/lib/api/geography";
 import type { Union, LocalField } from "@/lib/api/geography";
 
-// ─── Schema ───────────────────────────────────────────────────────────────────
+// ─── Schema factory ───────────────────────────────────────────────────────────
 
 const ownerTierSchema = z.enum(["union", "local_field"]);
 
-const formSchema = z
-  .object({
-    name: z
-      .string()
-      .min(3, "El nombre debe tener al menos 3 caracteres")
-      .max(100, "El nombre no puede superar 100 caracteres"),
-    club_type_id: z.coerce.number().int().positive("Selecciona un tipo de club"),
-    ecclesiastical_year_id: z.coerce
-      .number()
-      .int()
-      .positive("Selecciona un año eclesiástico"),
-    minimum_points: z.coerce
-      .number()
-      .int()
-      .min(0, "Los puntos mínimos no pueden ser negativos"),
-    closing_date: z.string().optional(),
-    owner_tier: ownerTierSchema,
-    owner_union_id: z.coerce.number().int().nullable().optional(),
-    owner_local_field_id: z.coerce.number().int().nullable().optional(),
-  })
-  .superRefine((data, ctx) => {
-    if (data.owner_tier === "union") {
-      if (!data.owner_union_id || data.owner_union_id <= 0) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["owner_union_id"],
-          message: "Selecciona una unión",
-        });
+function buildSchema(t: ReturnType<typeof useTranslations<"annual_folders.validation">>) {
+  return z
+    .object({
+      name: z
+        .string()
+        .min(3, t("name_min", { min: 3 }))
+        .max(100, t("name_max", { max: 100 })),
+      club_type_id: z.coerce.number().int().positive(t("club_type_required")),
+      ecclesiastical_year_id: z.coerce
+        .number()
+        .int()
+        .positive(t("ecclesiastical_year_required")),
+      minimum_points: z.coerce
+        .number()
+        .int()
+        .min(0, t("minimum_points_min")),
+      closing_date: z.string().optional(),
+      owner_tier: ownerTierSchema,
+      owner_union_id: z.coerce.number().int().nullable().optional(),
+      owner_local_field_id: z.coerce.number().int().nullable().optional(),
+    })
+    .superRefine((data, ctx) => {
+      if (data.owner_tier === "union") {
+        if (!data.owner_union_id || data.owner_union_id <= 0) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["owner_union_id"],
+            message: t("owner_union_required"),
+          });
+        }
+      } else {
+        if (!data.owner_local_field_id || data.owner_local_field_id <= 0) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["owner_local_field_id"],
+            message: t("owner_local_field_required"),
+          });
+        }
       }
-    } else {
-      if (!data.owner_local_field_id || data.owner_local_field_id <= 0) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["owner_local_field_id"],
-          message: "Selecciona un campo local",
-        });
-      }
-    }
-  });
+    });
+}
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof buildSchema>>;
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -108,8 +110,10 @@ export function TemplateFormDialog({
   onSuccess,
 }: TemplateFormDialogProps) {
   const t = useTranslations("annual_folders");
+  const tVal = useTranslations("annual_folders.validation");
   const isEdit = Boolean(template);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const schema = useMemo(() => buildSchema(tVal), [tVal]);
 
   // Owner catalog data
   const [unions, setUnions] = useState<Union[]>([]);
@@ -142,7 +146,7 @@ export function TemplateFormDialog({
     control,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(formSchema as z.ZodType<FormValues, FormValues>),
+    resolver: zodResolver(schema as z.ZodType<FormValues, FormValues>),
     defaultValues,
   });
 

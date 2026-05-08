@@ -15,11 +15,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useTranslations } from "next-intl";
 import { deleteFinance, type Finance } from "@/lib/api/finances";
-import { formatCurrency } from "@/lib/currency";
-
-function formatAmount(cents: number): string {
-  return formatCurrency(cents / 100);
-}
+import { useFormatCurrency } from "@/lib/format-locale";
 
 interface DeleteTransactionDialogProps {
   open: boolean;
@@ -35,7 +31,12 @@ export function DeleteTransactionDialog({
   onSuccess,
 }: DeleteTransactionDialogProps) {
   const t = useTranslations("finances");
+  const formatCurrency = useFormatCurrency();
   const [isDeleting, setIsDeleting] = useState(false);
+
+  function formatAmount(cents: number): string {
+    return formatCurrency(cents / 100);
+  }
 
   async function handleDelete() {
     if (!finance) return;

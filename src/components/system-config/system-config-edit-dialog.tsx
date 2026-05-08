@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -21,13 +21,15 @@ import { useTranslations } from "next-intl";
 import { updateSystemConfig, type SystemConfig } from "@/lib/api/system-config";
 import { ApiError } from "@/lib/api/client";
 
-// ─── Schema ───────────────────────────────────────────────────────────────────
+// ─── Schema factory ───────────────────────────────────────────────────────────
 
-const formSchema = z.object({
-  config_value: z.string().min(1, "El valor no puede estar vacío"),
-});
+function buildSchema(t: ReturnType<typeof useTranslations<"system_config.validation">>) {
+  return z.object({
+    config_value: z.string().min(1, t("config_value_required")),
+  });
+}
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof buildSchema>>;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -47,10 +49,12 @@ export function SystemConfigEditDialog({
   onSuccess,
 }: SystemConfigEditDialogProps) {
   const t = useTranslations("system_config");
+  const tVal = useTranslations("system_config.validation");
   const [isPending, setIsPending] = useState(false);
+  const schema = useMemo(() => buildSchema(tVal), [tVal]);
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(schema),
     defaultValues: { config_value: config?.config_value ?? "" },
   });
 

@@ -36,6 +36,7 @@ import {
   type PipelineStatus,
 } from "@/lib/api/investiture";
 import { ApiError } from "@/lib/api/client";
+import { useFormatDate } from "@/lib/format-locale";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -44,19 +45,6 @@ function getMemberName(e: PipelineEnrollment): string {
   if (!u) return `Inscripción #${e.enrollment_id}`;
   const full = [u.first_name, u.last_name].filter(Boolean).join(" ");
   return full || u.email || `Inscripción #${e.enrollment_id}`;
-}
-
-function formatDate(iso?: string | null): string {
-  if (!iso) return "—";
-  try {
-    return new Intl.DateTimeFormat("es-MX", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    }).format(new Date(iso));
-  } catch {
-    return iso;
-  }
 }
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -283,6 +271,7 @@ export function PipelineTable({
   userRole,
   onRefresh,
 }: PipelineTableProps) {
+  const formatDate = useFormatDate();
   const [dialog, setDialog] = useState<DialogState>(null);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
 
@@ -428,7 +417,7 @@ export function PipelineTable({
                     {enrollment.section?.name ?? "—"}
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums text-muted-foreground">
-                    {formatDate(enrollment.submitted_at)}
+                    {enrollment.submitted_at ? formatDate(enrollment.submitted_at) : "—"}
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle">
                     <PipelineStatusBadge status={enrollment.status} />

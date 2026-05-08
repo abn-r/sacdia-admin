@@ -29,23 +29,15 @@ import {
   type MonthlyReport,
   type MonthlyReportAutoData,
 } from "@/lib/api/monthly-reports";
+import { useFormatDateTime } from "@/lib/format-locale";
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatDate(dateStr?: string | null): string {
-  if (!dateStr) return "—";
-  try {
-    return new Intl.DateTimeFormat("es-MX", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(new Date(dateStr));
-  } catch {
-    return dateStr;
-  }
-}
+const REPORT_DATE_OPTIONS: Intl.DateTimeFormatOptions = {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+};
 
 // ─── Auto-data card ────────────────────────────────────────────────────────────
 
@@ -126,6 +118,7 @@ interface ReportDetailClientProps {
 export function ReportDetailClient({ report: initialReport }: ReportDetailClientProps) {
   const t = useTranslations("reports");
   const router = useRouter();
+  const formatDate = useFormatDateTime();
   const [report, setReport] = useState<MonthlyReport>(initialReport);
   const [generating, setGenerating] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -226,7 +219,7 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
             <div className="text-sm text-muted-foreground">
               {t("detail.labelGenerated")}{" "}
               <span className="font-medium text-foreground">
-                {formatDate(report.generated_at)}
+                {report.generated_at ? formatDate(report.generated_at, REPORT_DATE_OPTIONS) : "—"}
               </span>
             </div>
           </>
@@ -237,7 +230,7 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
             <div className="text-sm text-muted-foreground">
               {t("detail.labelSubmitted")}{" "}
               <span className="font-medium text-foreground">
-                {formatDate(report.submitted_at)}
+                {report.submitted_at ? formatDate(report.submitted_at, REPORT_DATE_OPTIONS) : "—"}
               </span>
             </div>
           </>

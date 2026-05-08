@@ -18,22 +18,7 @@ import {
   type ValidationHistoryEntry,
 } from "@/lib/api/validation";
 import { ApiError } from "@/lib/api/client";
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatDate(iso: string): string {
-  try {
-    return new Intl.DateTimeFormat("es-MX", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(new Date(iso));
-  } catch {
-    return iso;
-  }
-}
+import { useFormatDateTime } from "@/lib/format-locale";
 
 // ─── Action config (visual/structural only — labels resolved via t()) ─────────
 
@@ -80,6 +65,7 @@ export function ValidationHistoryDialog({
   onOpenChange,
 }: ValidationHistoryDialogProps) {
   const t = useTranslations("validation_admin");
+  const formatDateTime = useFormatDateTime();
 
   function getPerformerName(entry: ValidationHistoryEntry): string {
     if (entry.performer?.first_name || entry.performer?.last_name) {
@@ -171,7 +157,7 @@ export function ValidationHistoryDialog({
                         {getActionLabel(entry.action)}
                       </p>
                       <p className="mt-0.5 text-xs text-muted-foreground">
-                        {getPerformerName(entry)} &middot; {formatDate(entry.created_at)}
+                        {getPerformerName(entry)} &middot; {formatDateTime(entry.created_at)}
                       </p>
                       {entry.comment && (
                         <p className="mt-1.5 rounded-md bg-muted px-3 py-2 text-xs text-foreground">

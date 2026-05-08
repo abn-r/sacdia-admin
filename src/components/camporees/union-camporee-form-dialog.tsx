@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -30,27 +30,29 @@ import { createUnionCamporee, updateUnionCamporee } from "@/lib/api/camporees";
 import type { UnionCamporee } from "@/lib/api/camporees";
 import type { Union } from "@/lib/api/geography";
 
-// ─── Schema ────────────────────────────────────────────────────────────────────
+// ─── Schema factory ────────────────────────────────────────────────────────────
 
-const formSchema = z
-  .object({
-    name: z.string().min(1, "El nombre es obligatorio"),
-    description: z.string().optional(),
-    start_date: z.string().min(1, "La fecha de inicio es obligatoria"),
-    end_date: z.string().min(1, "La fecha de fin es obligatoria"),
-    union_id: z.coerce.number().int().min(1, "La unión es obligatoria"),
-    place: z.string().min(1, "El lugar es obligatorio"),
-    registration_cost: z.coerce.number().min(0).optional(),
-    includes_adventurers: z.boolean(),
-    includes_pathfinders: z.boolean(),
-    includes_master_guides: z.boolean(),
-  })
-  .refine((data) => data.start_date <= data.end_date, {
-    message: "La fecha de fin debe ser igual o posterior a la de inicio",
-    path: ["end_date"],
-  });
+function buildSchema(t: ReturnType<typeof useTranslations<"camporees.validation">>) {
+  return z
+    .object({
+      name: z.string().min(1, t("name_required")),
+      description: z.string().optional(),
+      start_date: z.string().min(1, t("start_date_required")),
+      end_date: z.string().min(1, t("end_date_required")),
+      union_id: z.coerce.number().int().min(1, t("union_required")),
+      place: z.string().min(1, t("place_required")),
+      registration_cost: z.coerce.number().min(0).optional(),
+      includes_adventurers: z.boolean(),
+      includes_pathfinders: z.boolean(),
+      includes_master_guides: z.boolean(),
+    })
+    .refine((data) => data.start_date <= data.end_date, {
+      message: t("end_date_after_start"),
+      path: ["end_date"],
+    });
+}
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof buildSchema>>;
 
 // ─── Props ─────────────────────────────────────────────────────────────────────
 
@@ -79,8 +81,10 @@ export function UnionCamporeeFormDialog({
   onSuccess,
 }: UnionCamporeeFormDialogProps) {
   const t = useTranslations("camporees");
+  const tVal = useTranslations("camporees.validation");
   const isEdit = !!camporee;
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const schema = useMemo(() => buildSchema(tVal), [tVal]);
 
   const {
     register,
@@ -90,7 +94,7 @@ export function UnionCamporeeFormDialog({
     watch,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(formSchema as z.ZodType<FormValues, FormValues>),
+    resolver: zodResolver(schema as z.ZodType<FormValues, FormValues>),
     defaultValues: {
       name: "",
       description: "",

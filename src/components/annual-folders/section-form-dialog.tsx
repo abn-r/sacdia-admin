@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
@@ -25,30 +25,32 @@ import {
 } from "@/lib/api/annual-folders";
 import type { FolderTemplateSection } from "@/lib/api/annual-folders";
 
-// ─── Schema ───────────────────────────────────────────────────────────────────
+// ─── Schema factory ───────────────────────────────────────────────────────────
 
-const formSchema = z.object({
-  name: z
-    .string()
-    .min(3, "El nombre debe tener al menos 3 caracteres")
-    .max(100, "El nombre no puede superar 100 caracteres"),
-  description: z
-    .string()
-    .max(500, "La descripción no puede superar 500 caracteres")
-    .optional(),
-  order: z.coerce.number().int().min(1, "El orden debe ser al menos 1"),
-  required: z.boolean(),
-  max_points: z.coerce
-    .number()
-    .int()
-    .min(0, "Los puntos máximos no pueden ser negativos"),
-  minimum_points: z.coerce
-    .number()
-    .int()
-    .min(0, "Los puntos mínimos no pueden ser negativos"),
-});
+function buildSchema(t: ReturnType<typeof useTranslations<"annual_folders.validation">>) {
+  return z.object({
+    name: z
+      .string()
+      .min(3, t("name_min", { min: 3 }))
+      .max(100, t("name_max", { max: 100 })),
+    description: z
+      .string()
+      .max(500, t("description_max", { max: 500 }))
+      .optional(),
+    order: z.coerce.number().int().min(1, t("order_min", { min: 1 })),
+    required: z.boolean(),
+    max_points: z.coerce
+      .number()
+      .int()
+      .min(0, t("max_points_min")),
+    minimum_points: z.coerce
+      .number()
+      .int()
+      .min(0, t("minimum_points_min")),
+  });
+}
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof buildSchema>>;
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -72,8 +74,10 @@ export function SectionFormDialog({
   onSuccess,
 }: SectionFormDialogProps) {
   const t = useTranslations("annual_folders");
+  const tVal = useTranslations("annual_folders.validation");
   const isEdit = !!section;
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const schema = useMemo(() => buildSchema(tVal), [tVal]);
 
   const {
     register,
@@ -83,7 +87,7 @@ export function SectionFormDialog({
     watch,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(formSchema as z.ZodType<FormValues, FormValues>),
+    resolver: zodResolver(schema as z.ZodType<FormValues, FormValues>),
     defaultValues: {
       name: "",
       description: "",

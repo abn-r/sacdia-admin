@@ -30,23 +30,7 @@ import { getReportPdfUrl } from "@/lib/api/monthly-reports";
 import type { AdminReportsPage, AdminReportItem } from "@/lib/api/monthly-reports";
 import type { ClubType } from "@/lib/api/catalogs";
 import type { LocalField } from "@/lib/api/geography";
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatPeriod(month: number, year: number): string {
-  const date = new Date(year, month - 1, 1);
-  return new Intl.DateTimeFormat("es-MX", { month: "long", year: "numeric" }).format(date);
-}
-
-function formatShortDate(iso: string | null): string {
-  if (!iso) return "—";
-  const date = new Date(iso);
-  return new Intl.DateTimeFormat("es-MX", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).format(date);
-}
+import { useFormatDate } from "@/lib/format-locale";
 
 function ReportStatusBadge({ status }: { status: AdminReportItem["status"] }) {
   const t = useTranslations("reports.supervisionClient");
@@ -85,6 +69,7 @@ export function ReportsSupervisionClient({
 }: ReportsSupervisionClientProps) {
   const t = useTranslations("reports.supervisionClient");
   const router = useRouter();
+  const formatDate = useFormatDate();
 
   const currentPage = Number(searchParams.page ?? "1");
   const { total, limit, items } = initialData;
@@ -257,13 +242,13 @@ export function ReportsSupervisionClient({
                   <TableCell>{item.club_type ?? "—"}</TableCell>
                   <TableCell>{item.local_field ?? "—"}</TableCell>
                   <TableCell className="capitalize">
-                    {formatPeriod(item.month, item.year)}
+                    {formatDate(new Date(item.year, item.month - 1, 1), { month: "long", year: "numeric" })}
                   </TableCell>
                   <TableCell>
                     <ReportStatusBadge status={item.status} />
                   </TableCell>
-                  <TableCell>{formatShortDate(item.generated_at)}</TableCell>
-                  <TableCell>{formatShortDate(item.submitted_at)}</TableCell>
+                  <TableCell>{item.generated_at ? formatDate(item.generated_at) : "—"}</TableCell>
+                  <TableCell>{item.submitted_at ? formatDate(item.submitted_at) : "—"}</TableCell>
                   <TableCell>
                     <div className="flex items-center justify-end gap-2">
                       <Button asChild variant="outline" size="sm">

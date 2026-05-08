@@ -36,6 +36,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type { CronHistoryItem, CronHistoryPage } from "@/lib/api/analytics";
+import { useFormatDateTime, useFormatNumber } from "@/lib/format-locale";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -75,17 +76,6 @@ const JOB_I18N_KEYS: Record<CronJobKey, string> = {
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-const dateFormatter = new Intl.DateTimeFormat("es-MX", {
-  dateStyle: "short",
-  timeStyle: "short",
-});
-
-function formatDate(iso: string | null): string {
-  if (!iso) return "—";
-  const d = new Date(iso);
-  return isNaN(d.getTime()) ? "—" : dateFormatter.format(d);
-}
 
 function formatDuration(ms: number | null): string {
   if (ms === null) return "—";
@@ -139,6 +129,14 @@ interface DetailDialogProps {
 
 function DetailDialog({ item, onClose }: DetailDialogProps) {
   const t = useTranslations("system_jobs.history");
+  const formatDateTime = useFormatDateTime();
+  const formatNumber = useFormatNumber();
+
+  function formatDate(iso: string | null): string {
+    if (!iso) return "—";
+    const d = new Date(iso);
+    return isNaN(d.getTime()) ? "—" : formatDateTime(d, { dateStyle: "short", timeStyle: "short" });
+  }
 
   function jobDisplayName(canonicalName: string): string {
     const key = JOB_I18N_KEYS[canonicalName as CronJobKey];
@@ -179,7 +177,7 @@ function DetailDialog({ item, onClose }: DetailDialogProps) {
               </div>
               <div>
                 <p className="text-xs text-muted-foreground mb-0.5">{t("detailLabelItems")}</p>
-                <p>{item.items_processed !== null ? item.items_processed.toLocaleString("es-MX") : "—"}</p>
+                <p>{item.items_processed !== null ? formatNumber(item.items_processed) : "—"}</p>
               </div>
             </div>
             {item.error_message && (
@@ -229,6 +227,14 @@ export function CronHistoryClient({
   const t = useTranslations("system_jobs.history");
   const router = useRouter();
   const [selectedItem, setSelectedItem] = useState<CronHistoryItem | null>(null);
+  const formatDateTime = useFormatDateTime();
+  const formatNumber = useFormatNumber();
+
+  function formatDate(iso: string | null): string {
+    if (!iso) return "—";
+    const d = new Date(iso);
+    return isNaN(d.getTime()) ? "—" : formatDateTime(d, { dateStyle: "short", timeStyle: "short" });
+  }
 
   const currentPage = initialData.page;
   const totalPages = Math.ceil(initialData.total / initialData.limit);
@@ -358,7 +364,7 @@ export function CronHistoryClient({
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0 pt-4">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              {t("recordCount", { total: initialData.total.toLocaleString("es-MX") })}
+              {t("recordCount", { total: formatNumber(initialData.total) })}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
@@ -413,7 +419,7 @@ export function CronHistoryClient({
                         {/* Items */}
                         <TableCell className="text-right tabular-nums text-sm">
                           {item.items_processed !== null
-                            ? item.items_processed.toLocaleString("es-MX")
+                            ? formatNumber(item.items_processed)
                             : "—"}
                         </TableCell>
 

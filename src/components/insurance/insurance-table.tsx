@@ -19,28 +19,8 @@ import {
 } from "@/components/shared/sortable-header";
 import { INSURANCE_TYPE_LABELS } from "@/lib/api/insurance";
 import type { MemberInsurance, InsuranceType } from "@/lib/api/insurance";
-import { formatCurrency as formatCurrencyUtil } from "@/lib/currency";
+import { useFormatDate, useFormatCurrency } from "@/lib/format-locale";
 import { useTranslations } from "next-intl";
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatDate(value: string | null | undefined): string {
-  if (!value) return "—";
-  try {
-    return new Date(value).toLocaleDateString("es-MX", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  } catch {
-    return value;
-  }
-}
-
-function formatCurrency(value: number | null | undefined): string {
-  if (value == null) return "—";
-  return formatCurrencyUtil(value);
-}
 
 function memberFullName(member: MemberInsurance): string {
   const parts = [member.name, member.paternal_last_name, member.maternal_last_name].filter(Boolean);
@@ -97,8 +77,24 @@ interface InsuranceTableProps {
 
 export function InsuranceTable({ items, onEdit, onDelete }: InsuranceTableProps) {
   const t = useTranslations("insurance");
+  const formatDateLocale = useFormatDate();
+  const formatCurrencyLocale = useFormatCurrency();
   const [sortField, setSortField] = useState<SortField>("member_name");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+
+  function formatDate(value: string | null | undefined): string {
+    if (!value) return "—";
+    try {
+      return formatDateLocale(value, { day: "2-digit", month: "2-digit", year: "numeric" });
+    } catch {
+      return value;
+    }
+  }
+
+  function formatCurrency(value: number | null | undefined): string {
+    if (value == null) return "—";
+    return formatCurrencyLocale(value);
+  }
 
   const handleSort = (field: SortField, direction: SortDirection) => {
     setSortField(field);

@@ -34,6 +34,7 @@ import {
   type MembershipRequest,
 } from "@/lib/api/membership-requests";
 import { ApiError } from "@/lib/api/client";
+import { useFormatDate, useFormatDateTime } from "@/lib/format-locale";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -46,34 +47,6 @@ function getUserName(user?: MembershipRequest["users"]): string {
 
 function getUserEmail(user?: MembershipRequest["users"]): string {
   return user?.email ?? "\u2014";
-}
-
-function formatDate(iso?: string | null): string {
-  if (!iso) return "\u2014";
-  try {
-    return new Intl.DateTimeFormat("es-MX", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    }).format(new Date(iso));
-  } catch {
-    return iso;
-  }
-}
-
-function formatDatetime(iso?: string | null): string {
-  if (!iso) return "\u2014";
-  try {
-    return new Intl.DateTimeFormat("es-MX", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(new Date(iso));
-  } catch {
-    return iso;
-  }
 }
 
 function getRoleName(role?: MembershipRequest["roles"]): string {
@@ -101,6 +74,8 @@ export function PendingMembersTable({
   initialRequests,
 }: PendingMembersTableProps) {
   const t = useTranslations("membership");
+  const formatDate = useFormatDate();
+  const formatDatetime = useFormatDateTime();
   const [requests, setRequests] = useState<MembershipRequest[]>(initialRequests);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [processingId, setProcessingId] = useState<string | null>(null);
@@ -223,7 +198,7 @@ export function PendingMembersTable({
 
                     {/* Requested date */}
                     <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums text-muted-foreground">
-                      {formatDate(req.created_at)}
+                      {req.created_at ? formatDate(req.created_at) : "—"}
                     </TableCell>
 
                     {/* Expires at */}
@@ -239,7 +214,7 @@ export function PendingMembersTable({
                               : "text-muted-foreground"
                           }`}
                         >
-                          {formatDatetime(req.expires_at)}
+                          {req.expires_at ? formatDatetime(req.expires_at) : "—"}
                         </span>
                       </div>
                     </TableCell>

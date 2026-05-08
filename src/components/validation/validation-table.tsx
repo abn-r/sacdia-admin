@@ -23,6 +23,7 @@ import type {
   ValidationAction,
   ValidationEntityType,
 } from "@/lib/api/validation";
+import { useFormatDate } from "@/lib/format-locale";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -31,19 +32,6 @@ function getMemberName(v: PendingValidation): string {
   if (!u) return `Validación #${String(v.validation_id)}`;
   const full = [u.first_name, u.last_name].filter(Boolean).join(" ");
   return full || u.email || `Validación #${String(v.validation_id)}`;
-}
-
-function formatDate(iso?: string | null): string {
-  if (!iso) return "—";
-  try {
-    return new Intl.DateTimeFormat("es-MX", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    }).format(new Date(iso));
-  } catch {
-    return iso;
-  }
 }
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -67,6 +55,7 @@ export function ValidationTable({
   onRefresh,
 }: ValidationTableProps) {
   const t = useTranslations("validation_admin");
+  const formatDate = useFormatDate();
   const [dialog, setDialog] = useState<DialogState>(null);
 
   function closeDialog() {
@@ -135,7 +124,7 @@ export function ValidationTable({
                     {v.section?.name ?? "—"}
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums text-muted-foreground">
-                    {formatDate(v.submitted_at)}
+                    {v.submitted_at ? formatDate(v.submitted_at) : "—"}
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle">
                     <ValidationStatusBadge status={v.status} />

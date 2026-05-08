@@ -33,6 +33,7 @@ import {
   type ValidateAction,
 } from "@/lib/api/investiture";
 import { ApiError } from "@/lib/api/client";
+import { useFormatDate } from "@/lib/format-locale";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -41,19 +42,6 @@ function getMemberName(enrollment: PendingEnrollment, fallback: string): string 
   if (!u) return fallback;
   const full = [u.first_name, u.last_name].filter(Boolean).join(" ");
   return full || u.email || fallback;
-}
-
-function formatDate(iso?: string | null): string {
-  if (!iso) return "—";
-  try {
-    return new Intl.DateTimeFormat("es-MX", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    }).format(new Date(iso));
-  } catch {
-    return iso;
-  }
 }
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -75,6 +63,7 @@ type DialogState =
 
 export function PendingTable({ enrollments, onRefresh }: PendingTableProps) {
   const t = useTranslations("investiture");
+  const formatDate = useFormatDate();
   const [dialog, setDialog] = useState<DialogState>(null);
   const [historyEntries, setHistoryEntries] = useState<InvestitureHistoryEntry[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
@@ -171,7 +160,7 @@ export function PendingTable({ enrollments, onRefresh }: PendingTableProps) {
                     {enrollment.club?.name ?? "—"}
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums text-muted-foreground">
-                    {formatDate(enrollment.submitted_at)}
+                    {enrollment.submitted_at ? formatDate(enrollment.submitted_at) : "—"}
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle">
                     <InvestitureStatusBadge

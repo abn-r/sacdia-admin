@@ -27,13 +27,7 @@ import { MONTH_NAMES } from "@/lib/constants";
 import type { AdminMomPage, AdminMomItem } from "@/lib/api/member-of-month";
 import type { ClubType } from "@/lib/api/catalogs";
 import type { LocalField } from "@/lib/api/geography";
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatPeriod(month: number, year: number): string {
-  const date = new Date(year, month - 1, 1);
-  return new Intl.DateTimeFormat("es-MX", { month: "long", year: "numeric" }).format(date);
-}
+import { useFormatDate, useFormatNumber } from "@/lib/format-locale";
 
 function getInitials(name: string | null): string {
   if (!name) return "?";
@@ -89,6 +83,8 @@ export function MemberOfMonthSupervisionClient({
 }: MemberOfMonthSupervisionClientProps) {
   const t = useTranslations("member_of_month.supervision");
   const router = useRouter();
+  const formatDate = useFormatDate();
+  const formatNumber = useFormatNumber();
 
   const currentPage = Number(searchParams.page ?? "1");
   const { total, limit, items } = initialData;
@@ -271,10 +267,10 @@ export function MemberOfMonthSupervisionClient({
                   <TableCell>{item.club_name ?? "—"}</TableCell>
                   <TableCell>{item.local_field ?? "—"}</TableCell>
                   <TableCell className="capitalize">
-                    {formatPeriod(item.month, item.year)}
+                    {formatDate(new Date(item.year, item.month - 1, 1), { month: "long", year: "numeric" })}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
-                    {item.total_points.toLocaleString("es-MX")}
+                    {formatNumber(item.total_points)}
                   </TableCell>
                   <TableCell>
                     <NotifiedBadge notified={item.notified} />

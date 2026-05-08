@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,15 +25,17 @@ import {
 } from "@/lib/api/validation";
 import { ApiError } from "@/lib/api/client";
 
-// ─── Schemas ──────────────────────────────────────────────────────────────────
+// ─── Schema factories ─────────────────────────────────────────────────────────
 
 const approveSchema = z.object({
   comment: z.string().optional(),
 });
 
-const rejectSchema = z.object({
-  comment: z.string().min(1, "El motivo de rechazo es obligatorio"),
-});
+function buildRejectSchema(t: ReturnType<typeof useTranslations<"validation_admin.validation">>) {
+  return z.object({
+    comment: z.string().min(1, t("comment_required")),
+  });
+}
 
 type FormValues = { comment?: string };
 
@@ -63,8 +65,10 @@ export function ValidationReviewDialog({
   onSuccess,
 }: ValidationReviewDialogProps) {
   const t = useTranslations("validation_admin");
+  const tVal = useTranslations("validation_admin.validation");
   const [isPending, setIsPending] = useState(false);
   const isApprove = action === "APPROVED";
+  const rejectSchema = useMemo(() => buildRejectSchema(tVal), [tVal]);
   const schema = isApprove ? approveSchema : rejectSchema;
 
   const form = useForm<FormValues>({

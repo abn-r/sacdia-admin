@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,7 +28,7 @@ import { useTranslations } from "next-intl";
 import { createInsurance, updateInsurance, INSURANCE_TYPE_LABELS } from "@/lib/api/insurance";
 import type { MemberInsurance, InsuranceType } from "@/lib/api/insurance";
 
-// ─── Schema ───────────────────────────────────────────────────────────────────
+// ─── Schema factory ───────────────────────────────────────────────────────────
 
 const INSURANCE_TYPES: InsuranceType[] = [
   "GENERAL_ACTIVITIES",
@@ -36,16 +36,18 @@ const INSURANCE_TYPES: InsuranceType[] = [
   "HIGH_RISK",
 ];
 
-const formSchema = z.object({
-  insurance_type: z.enum(["GENERAL_ACTIVITIES", "CAMPOREE", "HIGH_RISK"]),
-  start_date: z.string().min(1, "La fecha de inicio es obligatoria"),
-  end_date: z.string().min(1, "La fecha de fin es obligatoria"),
-  policy_number: z.string().optional(),
-  provider: z.string().optional(),
-  coverage_amount: z.coerce.number().min(0).optional(),
-});
+function buildSchema(t: ReturnType<typeof useTranslations<"insurance.validation">>) {
+  return z.object({
+    insurance_type: z.enum(["GENERAL_ACTIVITIES", "CAMPOREE", "HIGH_RISK"]),
+    start_date: z.string().min(1, t("start_date_required")),
+    end_date: z.string().min(1, t("end_date_required")),
+    policy_number: z.string().optional(),
+    provider: z.string().optional(),
+    coverage_amount: z.coerce.number().min(0).optional(),
+  });
+}
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof buildSchema>>;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -80,9 +82,11 @@ export function InsuranceFormDialog({
   const ins = member?.insurance ?? null;
   const isEdit = !!ins;
   const t = useTranslations("insurance");
+  const tVal = useTranslations("insurance.validation");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [evidenceFile, setEvidenceFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const schema = useMemo(() => buildSchema(tVal), [tVal]);
 
   const {
     register,
@@ -92,7 +96,7 @@ export function InsuranceFormDialog({
     watch,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(formSchema as z.ZodType<FormValues, FormValues>),
+    resolver: zodResolver(schema as z.ZodType<FormValues, FormValues>),
     defaultValues: {
       insurance_type: "GENERAL_ACTIVITIES",
       start_date: "",

@@ -1914,6 +1914,18 @@
         "pageFailed": "Não foi possível carregar a página.",
         "emptyTitle": "Não foi possível carregar os camporees da união"
       }
+    },
+    "validation": {
+      "member_required": "Selecione um membro",
+      "amount_positive": "O valor deve ser maior que zero",
+      "name_required": "O nome é obrigatório",
+      "start_date_required": "A data de início é obrigatória",
+      "end_date_required": "A data de fim é obrigatória",
+      "union_required": "A união é obrigatória",
+      "place_required": "O local é obrigatório",
+      "local_field_required": "O campo local é obrigatório",
+      "end_date_after_start": "A data de fim deve ser igual ou posterior à data de início",
+      "end_date_after_start_full": "A data de fim deve ser igual ou posterior à data de início"
     }
   },
   "resources": {
@@ -2023,7 +2035,9 @@
       "local_field_required": "Selecione um campo local",
       "year_required": "Selecione um ano eclesiástico",
       "submission_deadline_required": "Insira a data-limite de envio",
-      "investiture_date_required": "Insira a data da investidura"
+      "investiture_date_required": "Insira a data da investidura",
+      "comments_required": "O motivo da rejeição é obrigatório",
+      "reason_required": "O motivo da rejeição é obrigatório"
     },
     "configClient": {
       "countSingular": "configuração",
@@ -2648,6 +2662,23 @@
       "description": "Detalhe por componente para a inscrição {enrollmentId}",
       "errorFallback": "Não foi possível carregar o detalhamento do ranking. Verifique a conexão com o servidor.",
       "paramsRequired": "Os parâmetros enrollmentId e year_id são obrigatórios."
+    },
+    "validation": {
+      "name_min": "O nome deve ter pelo menos {min} caracteres",
+      "name_max": "O nome não pode ultrapassar {max} caracteres",
+      "description_max": "A descrição não pode ultrapassar {max} caracteres",
+      "order_min": "A ordem deve ser pelo menos {min}",
+      "max_points_min": "Os pontos máximos não podem ser negativos",
+      "minimum_points_min": "Os pontos mínimos não podem ser negativos",
+      "club_type_required": "Selecione um tipo de clube",
+      "ecclesiastical_year_required": "Selecione um ano eclesiástico",
+      "owner_union_required": "Selecione uma união",
+      "owner_local_field_required": "Selecione um campo local",
+      "name_min_2": "O nome deve ter pelo menos {min} caracteres",
+      "composite_pct_min": "Deve ser 0 ou maior",
+      "composite_pct_max": "Não pode ultrapassar {max}",
+      "order_min_0": "A ordem deve ser 0 ou maior",
+      "composite_pct_invalid": "O percentual mínimo deve ser menor que o máximo"
     }
   },
   "folders": {
@@ -2716,6 +2747,11 @@
     },
     "pageDetail": {
       "errorLoad": "Não foi possível carregar a pasta de evidências."
+    },
+    "validation": {
+      "name_min": "O nome deve ter pelo menos {min} caracteres",
+      "name_max": "O nome não pode ultrapassar {max} caracteres",
+      "description_max": "A descrição não pode ultrapassar {max} caracteres"
     }
   },
   "validation_admin": {
@@ -2780,6 +2816,9 @@
       "errorLoadGeneric": "Não foi possível carregar as validações pendentes.",
       "emptyTitle": "Sem validações pendentes",
       "emptyDescription": "Não há classes nem especialidades pendentes de validação no momento."
+    },
+    "validation": {
+      "comment_required": "O motivo da rejeição é obrigatório"
     }
   },
   "scoring_categories": {
@@ -3173,6 +3212,9 @@
       "errorLoad": "Não foi possível carregar as solicitações de atribuição de função.",
       "emptyTitle": "Sem solicitações",
       "emptyDescription": "Não há solicitações de atribuição de função registradas no momento."
+    },
+    "validation": {
+      "comment_required": "O motivo da rejeição é obrigatório"
     }
   },
   "insurance": {
@@ -3268,6 +3310,10 @@
       "description": "Seguros ativos prestes a vencer, ordenados por urgência.",
       "window_label": "Janela: {days} dias",
       "error_load_failed": "Não foi possível carregar a lista de seguros a vencer."
+    },
+    "validation": {
+      "start_date_required": "A data de início é obrigatória",
+      "end_date_required": "A data de fim é obrigatória"
     }
   },
   "finances": {
@@ -3518,6 +3564,14 @@
       "info_meet_link": "Link da reunião",
       "info_coordinates": "Coordenadas",
       "error_attendance_load": "Não foi possível carregar a lista de presença."
+    },
+    "validation": {
+      "name_required": "O nome é obrigatório",
+      "activity_type_required": "Selecione um tipo",
+      "club_type_required": "Selecione o tipo de clube",
+      "club_section_required": "Selecione a seção",
+      "activity_place_required": "O local é obrigatório",
+      "image_required": "A URL da imagem é obrigatória"
     }
   },
   "year_end": {
@@ -3599,6 +3653,13 @@
       "description": "Gestão de inventário por clube.",
       "empty_no_clubs_title": "Nenhum clube cadastrado",
       "empty_no_clubs_description": "Cadastre pelo menos um clube para gerenciar seu inventário."
+    },
+    "validation": {
+      "name_min": "O nome deve ter pelo menos {min} caracteres",
+      "name_max": "O nome não pode ultrapassar {max} caracteres",
+      "description_max": "A descrição não pode ultrapassar {max} caracteres",
+      "category_required": "Selecione uma categoria",
+      "amount_min": "A quantidade não pode ser negativa"
     }
   },
   "units_admin": {
@@ -3674,6 +3735,9 @@
       "entry_count": "{count, plural, one {# entrada} other {# entradas}}",
       "btn_refresh": "Atualizar",
       "error_refresh": "Não foi possível atualizar a configuração"
+    },
+    "validation": {
+      "config_value_required": "O valor não pode estar vazio"
     }
   },
   "shared": {

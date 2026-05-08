@@ -21,22 +21,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { getPipelineHistory, type PipelineHistoryEntry } from "@/lib/api/investiture";
 import { ApiError } from "@/lib/api/client";
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatDate(iso: string): string {
-  try {
-    return new Intl.DateTimeFormat("es-MX", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(new Date(iso));
-  } catch {
-    return iso;
-  }
-}
+import { useFormatDateTime } from "@/lib/format-locale";
 
 function getPerformerName(
   entry: PipelineHistoryEntry,
@@ -81,6 +66,7 @@ export function PipelineHistoryDialog({
   onOpenChange,
 }: PipelineHistoryDialogProps) {
   const t = useTranslations("investiture");
+  const formatDate = useFormatDateTime();
 
   const actionConfig: Record<string, ActionEntryConfig> = {
     SUBMITTED: {
