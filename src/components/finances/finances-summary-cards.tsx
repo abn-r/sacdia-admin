@@ -4,16 +4,12 @@ import { TrendingUp, TrendingDown, Wallet } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { FinanceSummary } from "@/lib/api/finances";
+import { formatCurrency } from "@/lib/currency";
 
 // ─── Amount formatter ─────────────────────────────────────────────────────────
 
 function formatAmount(cents: number): string {
-  const pesos = cents / 100;
-  return new Intl.NumberFormat("es-MX", {
-    style: "currency",
-    currency: "ARS",
-    minimumFractionDigits: 2,
-  }).format(pesos);
+  return formatCurrency(cents / 100);
 }
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────

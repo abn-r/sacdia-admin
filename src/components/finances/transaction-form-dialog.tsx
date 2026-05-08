@@ -286,7 +286,7 @@ export function TransactionFormDialog({
           {/* Monto */}
           <div className="space-y-1.5">
             <Label htmlFor="amount">
-              Monto (ARS){" "}
+              Monto{" "}
               <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
             </Label>
             <Input

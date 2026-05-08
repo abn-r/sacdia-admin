@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/select";
 import { createClubSectionAction, type ClubActionState } from "@/lib/clubs/actions";
 import { MemberOfMonthCard } from "@/components/member-of-month/member-of-month-card";
+import { formatCurrency } from "@/lib/currency";
 
 type Section = {
   club_section_id?: number;
@@ -244,7 +245,7 @@ export function ClubSectionsPanel({ clubId, sections, clubTypes }: ClubSectionsP
                   <InfoRow label="Meta de almas" value={section.souls_target} />
                 )}
                 {section.fee != null && (
-                  <InfoRow label="Cuota" value={`$${section.fee}`} />
+                  <InfoRow label="Cuota" value={formatCurrency(section.fee)} />
                 )}
                 {section.members_count != null && (
                   <InfoRow

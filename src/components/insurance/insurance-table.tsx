@@ -19,6 +19,7 @@ import {
 } from "@/components/shared/sortable-header";
 import { INSURANCE_TYPE_LABELS } from "@/lib/api/insurance";
 import type { MemberInsurance, InsuranceType } from "@/lib/api/insurance";
+import { formatCurrency as formatCurrencyUtil } from "@/lib/currency";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -37,11 +38,7 @@ function formatDate(value: string | null | undefined): string {
 
 function formatCurrency(value: number | null | undefined): string {
   if (value == null) return "—";
-  return new Intl.NumberFormat("es-MX", {
-    style: "currency",
-    currency: "ARS",
-    maximumFractionDigits: 0,
-  }).format(value);
+  return formatCurrencyUtil(value);
 }
 
 function memberFullName(member: MemberInsurance): string {
