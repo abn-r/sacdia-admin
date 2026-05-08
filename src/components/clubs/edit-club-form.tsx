@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -22,10 +23,11 @@ type SelectOption = { label: string; value: number };
 
 function SubmitButton() {
   const { pending } = useFormStatus();
+  const t = useTranslations("clubs");
   return (
     <Button type="submit" disabled={pending}>
       {pending && <Loader2 className="mr-2 size-4 animate-spin" />}
-      Guardar cambios
+      {t("edit.submitButton")}
     </Button>
   );
 }
@@ -53,6 +55,7 @@ const initialState: ClubActionState = {};
 
 export function EditClubForm({ club, localFields, districts, churches, formAction }: EditClubFormProps) {
   const [state, action] = useActionState(formAction, initialState);
+  const t = useTranslations("clubs");
 
   const lat = club.coordinates?.lat ?? club.latitude;
   const lng = club.coordinates?.lng ?? club.longitude;
@@ -72,24 +75,24 @@ export function EditClubForm({ club, localFields, districts, churches, formActio
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Información general</CardTitle>
+          <CardTitle className="text-base">{t("edit.cardTitle")}</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2 sm:col-span-2">
-            <Label htmlFor="name">Nombre <span className="text-destructive">*</span></Label>
+            <Label htmlFor="name">{t("form.labelName")} <span className="text-destructive">*</span></Label>
             <Input id="name" name="name" defaultValue={club.name ?? ""} required />
           </div>
 
           <div className="space-y-2 sm:col-span-2">
-            <Label htmlFor="description">Descripción</Label>
+            <Label htmlFor="description">{t("form.labelDescription")}</Label>
             <Textarea id="description" name="description" defaultValue={club.description ?? ""} rows={3} />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="local_field_id">Campo local</Label>
+            <Label htmlFor="local_field_id">{t("fields.local_field")}</Label>
             <Select name="local_field_id" defaultValue={club.local_field_id ? String(club.local_field_id) : undefined}>
               <SelectTrigger>
-                <SelectValue placeholder="Seleccionar" />
+                <SelectValue placeholder={t("edit.placeholderSelect")} />
               </SelectTrigger>
               <SelectContent>
                 {localFields.map((opt) => (
@@ -100,10 +103,10 @@ export function EditClubForm({ club, localFields, districts, churches, formActio
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="district_id">Distrito</Label>
+            <Label htmlFor="district_id">{t("fields.district")}</Label>
             <Select name="district_id" defaultValue={club.district_id ? String(club.district_id) : undefined}>
               <SelectTrigger>
-                <SelectValue placeholder="Seleccionar" />
+                <SelectValue placeholder={t("edit.placeholderSelect")} />
               </SelectTrigger>
               <SelectContent>
                 {districts.map((opt) => (
@@ -114,10 +117,10 @@ export function EditClubForm({ club, localFields, districts, churches, formActio
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="church_id">Iglesia</Label>
+            <Label htmlFor="church_id">{t("fields.church")}</Label>
             <Select name="church_id" defaultValue={club.church_id ? String(club.church_id) : undefined}>
               <SelectTrigger>
-                <SelectValue placeholder="Seleccionar" />
+                <SelectValue placeholder={t("edit.placeholderSelect")} />
               </SelectTrigger>
               <SelectContent>
                 {churches.map((opt) => (
@@ -128,7 +131,7 @@ export function EditClubForm({ club, localFields, districts, churches, formActio
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="address">Dirección</Label>
+            <Label htmlFor="address">{t("form.labelAddress")}</Label>
             <Input id="address" name="address" defaultValue={club.address ?? ""} />
           </div>
 
@@ -142,22 +145,22 @@ export function EditClubForm({ club, localFields, districts, churches, formActio
                 if (hidden) hidden.value = checked ? "true" : "false";
               }}
             />
-            <Label htmlFor="active">Club activo</Label>
+            <Label htmlFor="active">{t("edit.labelActive")}</Label>
           </div>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Coordenadas (opcional)</CardTitle>
+          <CardTitle className="text-base">{t("form.coordinatesTitle")}</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="coordinates_lat">Latitud</Label>
+            <Label htmlFor="coordinates_lat">{t("form.labelLatitude")}</Label>
             <Input id="coordinates_lat" name="coordinates_lat" type="number" step="any" defaultValue={lat ?? ""} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="coordinates_lng">Longitud</Label>
+            <Label htmlFor="coordinates_lng">{t("form.labelLongitude")}</Label>
             <Input id="coordinates_lng" name="coordinates_lng" type="number" step="any" defaultValue={lng ?? ""} />
           </div>
         </CardContent>

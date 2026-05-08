@@ -315,6 +315,48 @@
       "district": "District",
       "church": "Église",
       "ecclesiastical_year": "Année ecclésiastique"
+    },
+    "form": {
+      "labelName": "Nom",
+      "labelDescription": "Description",
+      "labelAddress": "Adresse",
+      "labelLatitude": "Latitude",
+      "labelLongitude": "Longitude",
+      "coordinatesTitle": "Coordonnées (facultatif)"
+    },
+    "create": {
+      "cardTitle": "Données du club",
+      "submitButton": "Créer un club",
+      "placeholderName": "Nom du club",
+      "placeholderDescription": "Description facultative",
+      "placeholderLocalField": "Sélectionner un champ local",
+      "placeholderDistrict": "Sélectionner un district",
+      "placeholderChurch": "Sélectionner une église",
+      "placeholderAddress": "Adresse du club"
+    },
+    "edit": {
+      "cardTitle": "Informations générales",
+      "submitButton": "Enregistrer les modifications",
+      "placeholderSelect": "Sélectionner",
+      "labelActive": "Club actif"
+    },
+    "sections": {
+      "description": "Un club peut avoir des sections pour chaque type de club (Aventuriers, Éclaireurs, Guides Maîtres).",
+      "labelSoulsTarget": "Objectif d'âmes",
+      "labelFee": "Cotisation d'adhésion",
+      "labelMeetingDay": "Jour de réunion",
+      "placeholderMeetingDay": "Sélectionner un jour",
+      "labelMeetingTime": "Heure de réunion",
+      "createButton": "Créer une section",
+      "notCreated": "Non créée",
+      "cancelButton": "Annuler",
+      "addButton": "Ajouter",
+      "statusActive": "Active",
+      "statusInactive": "Inactive",
+      "infoType": "Type",
+      "infoSectionId": "ID section",
+      "infoCuota": "Cotisation",
+      "infoMembers": "Membres"
     }
   },
   "dashboardHub": {
