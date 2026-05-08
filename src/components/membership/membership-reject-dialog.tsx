@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { XCircle, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   Dialog,
   DialogContent,
@@ -58,6 +59,7 @@ export function MembershipRejectDialog({
   onOpenChange,
   onSuccess,
 }: MembershipRejectDialogProps) {
+  const t = useTranslations("membership");
   const [isPending, setIsPending] = useState(false);
   const userName = getUserName(request.users);
 
@@ -75,7 +77,7 @@ export function MembershipRejectDialog({
         values.reason || undefined,
       );
 
-      toast.success(`Solicitud de membresía rechazada para ${userName}`);
+      toast.success(t("toasts.rejected", { name: userName }));
       form.reset();
       onOpenChange(false);
       onSuccess();
@@ -83,7 +85,7 @@ export function MembershipRejectDialog({
       const message =
         error instanceof ApiError
           ? error.message
-          : "Ocurrió un error al rechazar la solicitud";
+          : t("errors.reject");
       toast.error(message);
     } finally {
       setIsPending(false);
@@ -103,21 +105,19 @@ export function MembershipRejectDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <XCircle className="size-5 text-destructive" />
-            Rechazar solicitud de membresía
+            {t("dialogs.reject.title")}
           </DialogTitle>
           <DialogDescription>
-            Se rechazará la solicitud de membresía de{" "}
-            <span className="font-medium text-foreground">{userName}</span>.
-            Opcionalmente puedes indicar un motivo.
+            {t("dialogs.reject.description", { userName })}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="reject-reason">Motivo de rechazo (opcional)</Label>
+            <Label htmlFor="reject-reason">{t("dialogs.reject.reason_label")}</Label>
             <Textarea
               id="reject-reason"
-              placeholder="Describe el motivo del rechazo..."
+              placeholder={t("dialogs.reject.reason_placeholder")}
               rows={3}
               {...form.register("reason")}
               disabled={isPending}
@@ -131,11 +131,11 @@ export function MembershipRejectDialog({
               onClick={() => handleClose(false)}
               disabled={isPending}
             >
-              Cancelar
+              {t("dialogs.reject.cancel")}
             </Button>
             <Button type="submit" variant="destructive" disabled={isPending}>
               {isPending && <Loader2 className="size-4 animate-spin" />}
-              Rechazar
+              {isPending ? t("dialogs.reject.confirming") : t("dialogs.reject.confirm")}
             </Button>
           </DialogFooter>
         </form>

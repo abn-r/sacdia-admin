@@ -1707,7 +1707,17 @@
       "evaluation_completed": "Évaluation terminée"
     },
     "errors": {
-      "evaluation_failed": "Impossible de terminer l'évaluation"
+      "evaluation_failed": "Impossible de terminer l'évaluation",
+      "load_history_failed": "Impossible de charger l’historique"
+    },
+    "history": {
+      "title": "Membre du Mois — Historique",
+      "description": "Historique des gagnants pour {sectionName}",
+      "tie": "Égalité",
+      "empty_title": "Aucun historique",
+      "empty_description": "Aucune donnée de membre du mois pour l’instant.",
+      "pagination_label": "Page {page} sur {total}",
+      "points": "{count} pts"
     }
   },
   "reports": {
@@ -2021,6 +2031,28 @@
     "toasts": {
       "progress_load_failed": "Impossible de charger la progression de l'utilisateur",
       "progress_update_failed": "Impossible de mettre à jour la progression"
+    },
+    "list": {
+      "empty_title": "Aucune certification",
+      "empty_description": "Aucune certification enregistrée n'a été trouvée.",
+      "col_name": "Nom",
+      "col_description": "Description",
+      "col_duration": "Durée",
+      "col_modules": "Modules",
+      "col_status": "Statut",
+      "view_detail": "Voir le détail",
+      "status_active": "Actif",
+      "status_inactive": "Inactif",
+      "duration_weeks": "{count} sem."
+    },
+    "tree": {
+      "no_modules": "Cette certification n'a aucun module enregistré.",
+      "sections_count": "{count, plural, one {# section} other {# sections}}",
+      "modules_count": "{count, plural, one {# module} other {# modules}}",
+      "no_sections": "Aucune section enregistrée.",
+      "required": "Requis",
+      "expand_all": "Tout développer",
+      "collapse_all": "Tout réduire"
     }
   },
   "activities": {
@@ -2098,7 +2130,54 @@
     },
     "errors": {
       "delete_failed": "Impossible de supprimer l'élément",
-      "save_item_failed": "Erreur lors de l'enregistrement de l'élément"
+      "save_item_failed": "Erreur lors de l'enregistrement de l'élément",
+      "load_history_failed": "Impossible de charger l'historique",
+      "load_items_failed": "Impossible de charger les articles d'inventaire"
+    },
+    "table": {
+      "col_name": "Nom",
+      "col_description": "Description",
+      "col_category": "Catégorie",
+      "col_amount": "Quantité",
+      "col_status": "Statut",
+      "empty_title": "Aucun article d'inventaire",
+      "empty_description": "Aucun article trouvé pour les filtres sélectionnés.",
+      "category_fallback": "Catégorie {id}"
+    },
+    "status": {
+      "active": "Actif",
+      "inactive": "Inactif"
+    },
+    "actions": {
+      "view_history": "Voir l'historique",
+      "history_sr": "Historique",
+      "edit_item": "Modifier l'article",
+      "edit_sr": "Modifier",
+      "delete_item": "Supprimer l'article",
+      "delete_sr": "Supprimer"
+    },
+    "history": {
+      "dialog_title": "Historique des modifications",
+      "loading": "Chargement de l'historique ...",
+      "empty": "Cet article n'a pas encore d'historique de modifications.",
+      "action_create": "Création",
+      "action_update": "Mise à jour",
+      "action_delete": "Suppression",
+      "performed_by_system": "Système",
+      "field_name": "Nom",
+      "field_description": "Description",
+      "field_amount": "Quantité",
+      "field_category": "Catégorie",
+      "field_active": "Statut"
+    },
+    "view": {
+      "select_club_placeholder": "Sélectionner un club",
+      "all_categories": "Toutes les catégories",
+      "refresh_title": "Actualiser",
+      "refresh_sr": "Actualiser",
+      "new_item": "Nouvel article",
+      "loading": "Chargement de l'inventaire ...",
+      "items_found_label": "{count, plural, =0 {article trouvé} one {article trouvé} other {articles trouvés}}"
     }
   },
   "units_admin": {
@@ -2201,6 +2280,86 @@
       "deletingLabel": "Suppression...",
       "overrideDeleted": "Remplacement supprimé",
       "overrideDeleteError": "Erreur lors de la suppression du remplacement"
+    }
+  },
+  "classes": {
+    "list": {
+      "empty_title": "Aucune classe enregistrée",
+      "empty_description": "Aucune classe progressive n'a été trouvée dans le catalogue.",
+      "col_order": "Ordre",
+      "col_name": "Nom",
+      "col_club_type": "Type de club",
+      "col_modules": "Modules",
+      "col_status": "Statut",
+      "view_detail": "Voir le détail de {name}"
+    },
+    "tree": {
+      "no_modules": "Cette classe n'a aucun module enregistré.",
+      "sections_count": "{count, plural, one {# section} other {# sections}}",
+      "modules_count": "{count, plural, one {# module} other {# modules}}",
+      "no_sections": "Aucune section enregistrée.",
+      "expand_all": "Tout développer",
+      "collapse_all": "Tout réduire",
+      "section_fallback": "Section {id}",
+      "module_fallback": "Module {id}",
+      "status_inactive": "Inactif"
+    },
+    "status": {
+      "active": "Actif",
+      "inactive": "Inactif"
+    }
+  },
+  "membership": {
+    "pending": {
+      "description": "Demandes d’adhésion en attente d’approbation. Les utilisateurs qui s’inscrivent dans l’application restent en attente jusqu’à ce qu’un directeur ou responsable de club approuve leur entrée.",
+      "no_active_sections_title": "Aucune section active",
+      "no_active_sections_description": "Ce club n’a pas de sections actives. Créez une section pour gérer les demandes d’adhésion.",
+      "section_label": "Section",
+      "section_placeholder": "Sélectionner une section",
+      "section_fallback": "Section {id}",
+      "load_error": "Impossible de charger les demandes d’adhésion."
+    },
+    "table": {
+      "count_one": "{count} demande en attente",
+      "count_other": "{count} demandes en attente",
+      "refresh": "Actualiser",
+      "refresh_error": "Impossible d’actualiser la liste",
+      "col_member": "Membre",
+      "col_role": "Rôle",
+      "col_requested": "Demande",
+      "col_expires": "Expire",
+      "col_actions": "Actions",
+      "empty_title": "Aucune demande en attente",
+      "empty_description": "Il n’y a pas de demandes d’adhésion en attente pour cette section.",
+      "aria_approve": "Approuver l’adhésion",
+      "aria_reject": "Refuser l’adhésion",
+      "tooltip_approve": "Approuver",
+      "tooltip_reject": "Refuser"
+    },
+    "dialogs": {
+      "reject": {
+        "title": "Refuser la demande d’adhésion",
+        "description": "La demande d’adhésion de {userName} sera refusée. Vous pouvez indiquer un motif de manière optionnelle.",
+        "reason_label": "Motif du refus (optionnel)",
+        "reason_placeholder": "Décrivez le motif du refus ...",
+        "cancel": "Annuler",
+        "confirm": "Refuser",
+        "confirming": "Refus en cours ..."
+      }
+    },
+    "client": {
+      "section_label": "Section du club",
+      "section_placeholder": "Sélectionner une section",
+      "load_error_permission": "Vous n’avez pas la permission de voir les demandes de cette section.",
+      "load_error_generic": "Impossible de charger les demandes d’adhésion."
+    },
+    "toasts": {
+      "approved": "Adhésion approuvée pour {name}",
+      "rejected": "Demande d’adhésion refusée pour {name}"
+    },
+    "errors": {
+      "approve": "Une erreur s’est produite lors de l’approbation de la demande",
+      "reject": "Une erreur s’est produite lors du refus de la demande"
     }
   }
 }

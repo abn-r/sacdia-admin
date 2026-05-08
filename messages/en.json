@@ -1707,7 +1707,17 @@
       "evaluation_completed": "Evaluation completed"
     },
     "errors": {
-      "evaluation_failed": "Could not complete the evaluation"
+      "evaluation_failed": "Could not complete the evaluation",
+      "load_history_failed": "Could not load history"
+    },
+    "history": {
+      "title": "Member of the Month — History",
+      "description": "Winners history for {sectionName}",
+      "tie": "Tie",
+      "empty_title": "No history",
+      "empty_description": "No member of the month data yet.",
+      "pagination_label": "Page {page} of {total}",
+      "points": "{count} pts"
     }
   },
   "reports": {
@@ -2021,6 +2031,28 @@
     "toasts": {
       "progress_load_failed": "Could not load the user's progress",
       "progress_update_failed": "Could not update the progress"
+    },
+    "list": {
+      "empty_title": "No certifications",
+      "empty_description": "No certifications have been registered.",
+      "col_name": "Name",
+      "col_description": "Description",
+      "col_duration": "Duration",
+      "col_modules": "Modules",
+      "col_status": "Status",
+      "view_detail": "View detail",
+      "status_active": "Active",
+      "status_inactive": "Inactive",
+      "duration_weeks": "{count} wks."
+    },
+    "tree": {
+      "no_modules": "This certification has no registered modules.",
+      "sections_count": "{count, plural, one {# section} other {# sections}}",
+      "modules_count": "{count, plural, one {# module} other {# modules}}",
+      "no_sections": "No sections registered.",
+      "required": "Required",
+      "expand_all": "Expand all",
+      "collapse_all": "Collapse all"
     }
   },
   "activities": {
@@ -2098,7 +2130,54 @@
     },
     "errors": {
       "delete_failed": "Could not delete the item",
-      "save_item_failed": "Error saving the item"
+      "save_item_failed": "Error saving the item",
+      "load_history_failed": "Could not load history",
+      "load_items_failed": "Could not load inventory items"
+    },
+    "table": {
+      "col_name": "Name",
+      "col_description": "Description",
+      "col_category": "Category",
+      "col_amount": "Quantity",
+      "col_status": "Status",
+      "empty_title": "No inventory items",
+      "empty_description": "No items found for the selected filters.",
+      "category_fallback": "Category {id}"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "actions": {
+      "view_history": "View history",
+      "history_sr": "History",
+      "edit_item": "Edit item",
+      "edit_sr": "Edit",
+      "delete_item": "Delete item",
+      "delete_sr": "Delete"
+    },
+    "history": {
+      "dialog_title": "Change history",
+      "loading": "Loading history...",
+      "empty": "This item has no change history yet.",
+      "action_create": "Created",
+      "action_update": "Updated",
+      "action_delete": "Deleted",
+      "performed_by_system": "System",
+      "field_name": "Name",
+      "field_description": "Description",
+      "field_amount": "Quantity",
+      "field_category": "Category",
+      "field_active": "Status"
+    },
+    "view": {
+      "select_club_placeholder": "Select club",
+      "all_categories": "All categories",
+      "refresh_title": "Refresh",
+      "refresh_sr": "Refresh",
+      "new_item": "New item",
+      "loading": "Loading inventory...",
+      "items_found_label": "{count, plural, =0 {items found} one {item found} other {items found}}"
     }
   },
   "units_admin": {
@@ -2201,6 +2280,86 @@
       "deletingLabel": "Deleting...",
       "overrideDeleted": "Override deleted",
       "overrideDeleteError": "Error deleting the override"
+    }
+  },
+  "classes": {
+    "list": {
+      "empty_title": "No classes registered",
+      "empty_description": "No progressive classes were found in the catalog.",
+      "col_order": "Order",
+      "col_name": "Name",
+      "col_club_type": "Club type",
+      "col_modules": "Modules",
+      "col_status": "Status",
+      "view_detail": "View detail for {name}"
+    },
+    "tree": {
+      "no_modules": "This class has no registered modules.",
+      "sections_count": "{count, plural, one {# section} other {# sections}}",
+      "modules_count": "{count, plural, one {# module} other {# modules}}",
+      "no_sections": "No sections registered.",
+      "expand_all": "Expand all",
+      "collapse_all": "Collapse all",
+      "section_fallback": "Section {id}",
+      "module_fallback": "Module {id}",
+      "status_inactive": "Inactive"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    }
+  },
+  "membership": {
+    "pending": {
+      "description": "Membership requests pending approval. Users who register in the app remain in pending status until a club director or leader approves their entry.",
+      "no_active_sections_title": "No active sections",
+      "no_active_sections_description": "This club has no active sections. Create a section to manage membership requests.",
+      "section_label": "Section",
+      "section_placeholder": "Select section",
+      "section_fallback": "Section {id}",
+      "load_error": "Could not load membership requests."
+    },
+    "table": {
+      "count_one": "{count} pending request",
+      "count_other": "{count} pending requests",
+      "refresh": "Refresh",
+      "refresh_error": "Could not refresh the list",
+      "col_member": "Member",
+      "col_role": "Role",
+      "col_requested": "Requested",
+      "col_expires": "Expires",
+      "col_actions": "Actions",
+      "empty_title": "No pending requests",
+      "empty_description": "There are no pending membership requests for this section.",
+      "aria_approve": "Approve membership",
+      "aria_reject": "Reject membership",
+      "tooltip_approve": "Approve",
+      "tooltip_reject": "Reject"
+    },
+    "dialogs": {
+      "reject": {
+        "title": "Reject membership request",
+        "description": "The membership request for {userName} will be rejected. You may optionally provide a reason.",
+        "reason_label": "Rejection reason (optional)",
+        "reason_placeholder": "Describe the reason for rejection...",
+        "cancel": "Cancel",
+        "confirm": "Reject",
+        "confirming": "Rejecting..."
+      }
+    },
+    "client": {
+      "section_label": "Club section",
+      "section_placeholder": "Select section",
+      "load_error_permission": "You do not have permission to view requests for this section.",
+      "load_error_generic": "Could not load membership requests."
+    },
+    "toasts": {
+      "approved": "Membership approved for {name}",
+      "rejected": "Membership request rejected for {name}"
+    },
+    "errors": {
+      "approve": "An error occurred while approving the request",
+      "reject": "An error occurred while rejecting the request"
     }
   }
 }
