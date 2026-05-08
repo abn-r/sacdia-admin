@@ -175,7 +175,7 @@ export function CampoReesView({ initialCamporees }: CampoReesViewProps) {
                     </TableCell>
                     <TableCell className="px-3 py-2.5 align-middle">
                       <Badge
-                        variant={camporee.active !== false ? "default" : "outline"}
+                        variant={camporee.active !== false ? "soft-success" : "outline"}
                         className="text-xs"
                       >
                         {camporee.active !== false ? "Activo" : "Inactivo"}

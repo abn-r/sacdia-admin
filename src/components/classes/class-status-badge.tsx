@@ -6,7 +6,7 @@ interface ClassStatusBadgeProps {
 
 export function ClassStatusBadge({ active }: ClassStatusBadgeProps) {
   return (
-    <Badge variant={active ? "default" : "outline"}>
+    <Badge variant={active ? "soft-success" : "outline"}>
       {active ? "Activo" : "Inactivo"}
     </Badge>
   );

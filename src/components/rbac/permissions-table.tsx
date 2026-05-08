@@ -125,7 +125,7 @@ export function PermissionsTable({ items, createAction, updateAction, deleteActi
                         {perm.description ?? "—"}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={perm.active !== false ? "default" : "outline"} className="text-xs">
+                        <Badge variant={perm.active !== false ? "soft-success" : "outline"} className="text-xs">
                           {perm.active !== false ? "Activo" : "Inactivo"}
                         </Badge>
                       </TableCell>
@@ -174,7 +174,7 @@ export function PermissionsTable({ items, createAction, updateAction, deleteActi
                   </div>
 
                   <div className="mt-3 flex flex-wrap items-center gap-1.5">
-                    <Badge variant={perm.active !== false ? "default" : "outline"} className="text-xs">
+                    <Badge variant={perm.active !== false ? "soft-success" : "outline"} className="text-xs">
                       {perm.active !== false ? "Activo" : "Inactivo"}
                     </Badge>
                   </div>

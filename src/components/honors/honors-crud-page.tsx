@@ -680,7 +680,7 @@ export function HonorsCrudPage({
                         <TableCell className="text-sm">{clubTypeName}</TableCell>
                         <TableCell className="text-sm">{skillLevel ?? "—"}</TableCell>
                         <TableCell>
-                          <Badge variant={item.active !== false ? "default" : "outline"} className="text-xs">
+                          <Badge variant={item.active !== false ? "soft-success" : "outline"} className="text-xs">
                             {item.active !== false ? "Activo" : "Inactivo"}
                           </Badge>
                         </TableCell>

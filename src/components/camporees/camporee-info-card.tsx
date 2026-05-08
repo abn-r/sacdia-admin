@@ -93,7 +93,7 @@ export function CamporeeInfoCard({ camporee }: CamporeeInfoCardProps) {
           </div>
 
           {/* Status badge */}
-          <Badge variant={camporee.active !== false ? "default" : "outline"}>
+          <Badge variant={camporee.active !== false ? "soft-success" : "outline"}>
             {camporee.active !== false ? "Activo" : "Inactivo"}
           </Badge>
         </div>

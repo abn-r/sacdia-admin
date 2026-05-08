@@ -81,7 +81,7 @@ export function CertificationsList({ items }: CertificationsListProps) {
                 {cert.modules_count ?? "—"}
               </TableCell>
               <TableCell className="px-3 py-2.5 align-middle">
-                <Badge variant={cert.active !== false ? "default" : "outline"}>
+                <Badge variant={cert.active !== false ? "soft-success" : "outline"}>
                   {cert.active !== false ? "Activo" : "Inactivo"}
                 </Badge>
               </TableCell>

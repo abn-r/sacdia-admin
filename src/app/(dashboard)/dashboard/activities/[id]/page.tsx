@@ -186,7 +186,7 @@ export default async function ActivityDetailPage({ params }: { params: Params })
           </div>
           <div className="flex items-center gap-2">
             <Badge variant="secondary">{typeLabel}</Badge>
-            <Badge variant={activity.active ? "default" : "outline"}>
+            <Badge variant={activity.active ? "soft-success" : "outline"}>
               {activity.active ? "Activa" : "Inactiva"}
             </Badge>
           </div>

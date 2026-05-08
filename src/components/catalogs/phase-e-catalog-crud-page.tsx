@@ -454,7 +454,7 @@ export function PhaseECatalogCrudPage({
                         )}
                         <TableCell>
                           <Badge
-                            variant={item.active !== false ? "default" : "outline"}
+                            variant={item.active !== false ? "soft-success" : "outline"}
                             className="text-xs"
                           >
                             {item.active !== false ? "Activo" : "Inactivo"}
