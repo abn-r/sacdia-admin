@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { UserPlus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   Select,
   SelectContent,
@@ -36,6 +37,7 @@ interface MembershipRequestsClientPageProps {
 export function MembershipRequestsClientPage({
   sections,
 }: MembershipRequestsClientPageProps) {
+  const t = useTranslations("membership");
   const [selectedSectionId, setSelectedSectionId] = useState<number>(
     sections[0]?.club_section_id ?? 0,
   );
@@ -51,19 +53,19 @@ export function MembershipRequestsClientPage({
       setRequests(data);
     } catch (error) {
       if (error instanceof ApiError && (error.status === 403 || error.status === 401)) {
-        setLoadError("No tienes permisos para ver solicitudes de esta sección.");
+        setLoadError(t("client.load_error_permission"));
       } else {
         const message =
           error instanceof ApiError
             ? error.message
-            : "No se pudieron cargar las solicitudes.";
+            : t("client.load_error_generic");
         setLoadError(message);
       }
       setRequests([]);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (selectedSectionId) {
@@ -75,13 +77,13 @@ export function MembershipRequestsClientPage({
     <div className="space-y-4">
       {/* Section selector */}
       <div className="max-w-md space-y-1.5">
-        <Label htmlFor="section-select">Sección de club</Label>
+        <Label htmlFor="section-select">{t("client.section_label")}</Label>
         <Select
           value={String(selectedSectionId)}
           onValueChange={(value) => setSelectedSectionId(Number(value))}
         >
           <SelectTrigger id="section-select">
-            <SelectValue placeholder="Seleccionar sección" />
+            <SelectValue placeholder={t("client.section_placeholder")} />
           </SelectTrigger>
           <SelectContent>
             {sections.map((section) => (

@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 
 interface ClassStatusBadgeProps {
@@ -5,9 +8,10 @@ interface ClassStatusBadgeProps {
 }
 
 export function ClassStatusBadge({ active }: ClassStatusBadgeProps) {
+  const t = useTranslations("classes.status");
   return (
     <Badge variant={active ? "soft-success" : "outline"}>
-      {active ? "Activo" : "Inactivo"}
+      {active ? t("active") : t("inactive")}
     </Badge>
   );
 }

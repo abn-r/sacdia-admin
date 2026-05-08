@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { PlusCircle, Pencil, Trash2, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -13,12 +14,11 @@ import { Badge } from "@/components/ui/badge";
 import { getInventoryHistory } from "@/lib/api/inventory";
 import type { InventoryHistoryEntry, InventoryAction } from "@/lib/api/inventory";
 
-// ─── Action config ──────────────────────────────────────────────────────────────
+// ─── Action config (visual/structural constants — labels resolved via t() inside component) ──
 
-const actionConfig: Record<
+const ACTION_META: Record<
   InventoryAction,
   {
-    label: string;
     badgeVariant: "success" | "default" | "destructive" | "secondary";
     icon: React.ElementType;
     iconClassName: string;
@@ -26,21 +26,18 @@ const actionConfig: Record<
   }
 > = {
   CREATE: {
-    label: "Creación",
     badgeVariant: "success",
     icon: PlusCircle,
     iconClassName: "text-success",
     dotClassName: "bg-success/20 border-success/40",
   },
   UPDATE: {
-    label: "Actualización",
     badgeVariant: "default",
     icon: Pencil,
     iconClassName: "text-primary",
     dotClassName: "bg-primary/20 border-primary/40",
   },
   DELETE: {
-    label: "Eliminación",
     badgeVariant: "destructive",
     icon: Trash2,
     iconClassName: "text-destructive",
@@ -64,25 +61,32 @@ function formatDate(isoDate: string): string {
   }
 }
 
-function getPerformerName(entry: InventoryHistoryEntry): string {
+function getPerformerName(
+  entry: InventoryHistoryEntry,
+  systemLabel: string,
+): string {
   if (entry.performed_by?.name || entry.performed_by?.paternal_last_name) {
     return [entry.performed_by.name, entry.performed_by.paternal_last_name]
       .filter(Boolean)
       .join(" ");
   }
-  return "Sistema";
+  return systemLabel;
 }
 
-function formatFieldName(field: string | null): string {
+function getFieldLabel(
+  field: string | null,
+  t: ReturnType<typeof useTranslations<"inventory">>,
+): string {
   if (!field) return "";
-  const labels: Record<string, string> = {
-    name: "Nombre",
-    description: "Descripción",
-    amount: "Cantidad",
-    inventory_category_id: "Categoría",
-    active: "Estado",
+  const keyMap: Record<string, string> = {
+    name: "history.field_name",
+    description: "history.field_description",
+    amount: "history.field_amount",
+    inventory_category_id: "history.field_category",
+    active: "history.field_active",
   };
-  return labels[field] ?? field;
+  const key = keyMap[field];
+  return key ? t(key as Parameters<typeof t>[0]) : field;
 }
 
 // ─── Timeline ───────────────────────────────────────────────────────────────────
@@ -92,28 +96,41 @@ interface HistoryTimelineProps {
 }
 
 function HistoryTimeline({ entries }: HistoryTimelineProps) {
+  const t = useTranslations("inventory");
+
   if (entries.length === 0) {
     return (
       <div className="flex items-center gap-2 rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
         <Clock className="size-4 shrink-0" />
-        <span>Este ítem no tiene historial de cambios aún.</span>
+        <span>{t("history.empty")}</span>
       </div>
     );
   }
 
+  const actionLabelMap: Record<InventoryAction, string> = {
+    CREATE: t("history.action_create"),
+    UPDATE: t("history.action_update"),
+    DELETE: t("history.action_delete"),
+  };
+
+  const systemLabel = t("history.performed_by_system");
+
   return (
     <ol className="relative space-y-0">
       {entries.map((entry, idx) => {
-        const config = actionConfig[entry.action] ?? {
-          label: entry.action,
-          badgeVariant: "secondary" as const,
-          icon: Clock,
-          iconClassName: "text-muted-foreground",
-          dotClassName: "bg-muted border-border",
-        };
+        const meta = ACTION_META[entry.action];
+        const config = meta
+          ? { ...meta, label: actionLabelMap[entry.action] }
+          : {
+              label: entry.action,
+              badgeVariant: "secondary" as const,
+              icon: Clock,
+              iconClassName: "text-muted-foreground",
+              dotClassName: "bg-muted border-border",
+            };
         const Icon = config.icon;
         const isLast = idx === entries.length - 1;
-        const fieldLabel = formatFieldName(entry.field_changed);
+        const fieldLabel = getFieldLabel(entry.field_changed, t);
 
         return (
           <li key={entry.history_id} className="flex gap-3">
@@ -144,7 +161,7 @@ function HistoryTimeline({ entries }: HistoryTimelineProps) {
               </div>
 
               <p className="mt-0.5 text-xs text-muted-foreground">
-                {getPerformerName(entry)} &middot; {formatDate(entry.created_at)}
+                {getPerformerName(entry, systemLabel)} &middot; {formatDate(entry.created_at)}
               </p>
 
               {/* old → new values (UPDATE only) */}
@@ -189,6 +206,7 @@ export function InventoryHistoryDialog({
   inventoryId,
   itemName,
 }: InventoryHistoryDialogProps) {
+  const t = useTranslations("inventory");
   const [entries, setEntries] = useState<InventoryHistoryEntry[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -213,7 +231,7 @@ export function InventoryHistoryDialog({
           setError(
             err instanceof Error
               ? err.message
-              : "No se pudo cargar el historial",
+              : t("errors.load_history_failed"),
           );
         }
       })
@@ -224,14 +242,14 @@ export function InventoryHistoryDialog({
     return () => {
       cancelled = true;
     };
-  }, [open, inventoryId]);
+  }, [open, inventoryId, t]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            Historial de cambios
+            {t("history.dialog_title")}
             {itemName && (
               <span className="ml-1.5 text-sm font-normal text-muted-foreground">
                 — {itemName}
@@ -243,7 +261,7 @@ export function InventoryHistoryDialog({
         <div className="pt-2">
           {isLoading ? (
             <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
-              Cargando historial...
+              {t("history.loading")}
             </div>
           ) : error ? (
             <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">

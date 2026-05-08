@@ -10,6 +10,7 @@ import {
   UserPlus,
   Clock,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   Table,
   TableBody,
@@ -99,6 +100,7 @@ export function PendingMembersTable({
   clubSectionId,
   initialRequests,
 }: PendingMembersTableProps) {
+  const t = useTranslations("membership");
   const [requests, setRequests] = useState<MembershipRequest[]>(initialRequests);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [processingId, setProcessingId] = useState<string | null>(null);
@@ -113,26 +115,24 @@ export function PendingMembersTable({
       const message =
         error instanceof ApiError
           ? error.message
-          : "No se pudo actualizar la lista";
+          : t("table.refresh_error");
       toast.error(message);
     } finally {
       setIsRefreshing(false);
     }
-  }, [clubSectionId]);
+  }, [clubSectionId, t]);
 
   const handleApprove = async (req: MembershipRequest) => {
     setProcessingId(req.assignment_id);
     try {
       await approveMembershipRequest(clubSectionId, req.assignment_id);
-      toast.success(
-        `Membresía aprobada para ${getUserName(req.users)}`,
-      );
+      toast.success(t("toasts.approved", { name: getUserName(req.users) }));
       await refresh();
     } catch (error) {
       const message =
         error instanceof ApiError
           ? error.message
-          : "Ocurrió un error al aprobar la solicitud";
+          : t("errors.approve");
       toast.error(message);
     } finally {
       setProcessingId(null);
@@ -144,10 +144,10 @@ export function PendingMembersTable({
       {/* Toolbar */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">{requests.length}</span>{" "}
-          {requests.length === 1
-            ? "solicitud pendiente"
-            : "solicitudes pendientes"}
+          {t(
+            requests.length === 1 ? "table.count_one" : "table.count_other",
+            { count: requests.length },
+          )}
         </p>
         <Button
           variant="outline"
@@ -158,7 +158,7 @@ export function PendingMembersTable({
           <RefreshCw
             className={`size-4 ${isRefreshing ? "animate-spin" : ""}`}
           />
-          Actualizar
+          {t("table.refresh")}
         </Button>
       </div>
 
@@ -166,8 +166,8 @@ export function PendingMembersTable({
       {requests.length === 0 ? (
         <EmptyState
           icon={UserPlus}
-          title="Sin solicitudes pendientes"
-          description="No hay solicitudes de membresía pendientes para esta sección."
+          title={t("table.empty_title")}
+          description={t("table.empty_description")}
         />
       ) : (
         /* Table */
@@ -176,19 +176,19 @@ export function PendingMembersTable({
             <TableHeader>
               <TableRow>
                 <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Miembro
+                  {t("table.col_member")}
                 </TableHead>
                 <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Rol
+                  {t("table.col_role")}
                 </TableHead>
                 <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Fecha solicitud
+                  {t("table.col_requested")}
                 </TableHead>
                 <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Expira
+                  {t("table.col_expires")}
                 </TableHead>
                 <TableHead className="h-9 px-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Acciones
+                  {t("table.col_actions")}
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -259,12 +259,12 @@ export function PendingMembersTable({
                               className="text-success hover:bg-success/10 hover:text-success"
                               onClick={() => handleApprove(req)}
                               disabled={isProcessing || isRefreshing}
-                              aria-label="Aprobar membresía"
+                              aria-label={t("table.aria_approve")}
                             >
                               <CheckCircle2 className="size-4" />
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent>Aprobar</TooltipContent>
+                          <TooltipContent>{t("table.tooltip_approve")}</TooltipContent>
                         </Tooltip>
 
                         <Tooltip>
@@ -275,12 +275,12 @@ export function PendingMembersTable({
                               className="text-destructive hover:bg-destructive/10 hover:text-destructive"
                               onClick={() => setRejectDialog(req)}
                               disabled={isProcessing || isRefreshing}
-                              aria-label="Rechazar membresía"
+                              aria-label={t("table.aria_reject")}
                             >
                               <XCircle className="size-4" />
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent>Rechazar</TooltipContent>
+                          <TooltipContent>{t("table.tooltip_reject")}</TooltipContent>
                         </Tooltip>
                       </div>
                     </TableCell>

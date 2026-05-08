@@ -1707,7 +1707,17 @@
       "evaluation_completed": "Avaliação concluída"
     },
     "errors": {
-      "evaluation_failed": "Não foi possível concluir a avaliação"
+      "evaluation_failed": "Não foi possível concluir a avaliação",
+      "load_history_failed": "Não foi possível carregar o histórico"
+    },
+    "history": {
+      "title": "Membro do Mês — Histórico",
+      "description": "Histórico de vencedores em {sectionName}",
+      "tie": "Empate",
+      "empty_title": "Sem histórico",
+      "empty_description": "Nenhum dado de membro do mês ainda.",
+      "pagination_label": "Página {page} de {total}",
+      "points": "{count} pts"
     }
   },
   "reports": {
@@ -2021,6 +2031,28 @@
     "toasts": {
       "progress_load_failed": "Não foi possível carregar o progresso do usuário",
       "progress_update_failed": "Não foi possível atualizar o progresso"
+    },
+    "list": {
+      "empty_title": "Nenhuma certificação",
+      "empty_description": "Nenhuma certificação registrada foi encontrada.",
+      "col_name": "Nome",
+      "col_description": "Descrição",
+      "col_duration": "Duração",
+      "col_modules": "Módulos",
+      "col_status": "Status",
+      "view_detail": "Ver detalhe",
+      "status_active": "Ativo",
+      "status_inactive": "Inativo",
+      "duration_weeks": "{count} sem."
+    },
+    "tree": {
+      "no_modules": "Esta certificação não possui módulos registrados.",
+      "sections_count": "{count, plural, one {# seção} other {# seções}}",
+      "modules_count": "{count, plural, one {# módulo} other {# módulos}}",
+      "no_sections": "Nenhuma seção registrada.",
+      "required": "Obrigatório",
+      "expand_all": "Expandir todos",
+      "collapse_all": "Recolher todos"
     }
   },
   "activities": {
@@ -2098,7 +2130,54 @@
     },
     "errors": {
       "delete_failed": "Não foi possível excluir o item",
-      "save_item_failed": "Erro ao salvar o item"
+      "save_item_failed": "Erro ao salvar o item",
+      "load_history_failed": "Não foi possível carregar o histórico",
+      "load_items_failed": "Não foi possível carregar os itens do inventário"
+    },
+    "table": {
+      "col_name": "Nome",
+      "col_description": "Descrição",
+      "col_category": "Categoria",
+      "col_amount": "Quantidade",
+      "col_status": "Status",
+      "empty_title": "Nenhum item de inventário",
+      "empty_description": "Nenhum item encontrado para os filtros selecionados.",
+      "category_fallback": "Categoria {id}"
+    },
+    "status": {
+      "active": "Ativo",
+      "inactive": "Inativo"
+    },
+    "actions": {
+      "view_history": "Ver histórico",
+      "history_sr": "Histórico",
+      "edit_item": "Editar item",
+      "edit_sr": "Editar",
+      "delete_item": "Excluir item",
+      "delete_sr": "Excluir"
+    },
+    "history": {
+      "dialog_title": "Histórico de alterações",
+      "loading": "Carregando histórico...",
+      "empty": "Este item ainda não possui histórico de alterações.",
+      "action_create": "Criação",
+      "action_update": "Atualização",
+      "action_delete": "Exclusão",
+      "performed_by_system": "Sistema",
+      "field_name": "Nome",
+      "field_description": "Descrição",
+      "field_amount": "Quantidade",
+      "field_category": "Categoria",
+      "field_active": "Status"
+    },
+    "view": {
+      "select_club_placeholder": "Selecionar clube",
+      "all_categories": "Todas as categorias",
+      "refresh_title": "Atualizar",
+      "refresh_sr": "Atualizar",
+      "new_item": "Novo item",
+      "loading": "Carregando inventário...",
+      "items_found_label": "{count, plural, =0 {itens encontrados} one {item encontrado} other {itens encontrados}}"
     }
   },
   "units_admin": {
@@ -2201,6 +2280,86 @@
       "deletingLabel": "Excluindo...",
       "overrideDeleted": "Substituição excluída",
       "overrideDeleteError": "Erro ao excluir a substituição"
+    }
+  },
+  "classes": {
+    "list": {
+      "empty_title": "Nenhuma classe registrada",
+      "empty_description": "Nenhuma classe progressiva foi encontrada no catálogo.",
+      "col_order": "Ordem",
+      "col_name": "Nome",
+      "col_club_type": "Tipo de clube",
+      "col_modules": "Módulos",
+      "col_status": "Status",
+      "view_detail": "Ver detalhe de {name}"
+    },
+    "tree": {
+      "no_modules": "Esta classe não possui módulos registrados.",
+      "sections_count": "{count, plural, one {# seção} other {# seções}}",
+      "modules_count": "{count, plural, one {# módulo} other {# módulos}}",
+      "no_sections": "Nenhuma seção registrada.",
+      "expand_all": "Expandir todos",
+      "collapse_all": "Recolher todos",
+      "section_fallback": "Seção {id}",
+      "module_fallback": "Módulo {id}",
+      "status_inactive": "Inativo"
+    },
+    "status": {
+      "active": "Ativo",
+      "inactive": "Inativo"
+    }
+  },
+  "membership": {
+    "pending": {
+      "description": "Solicitações de adesão pendentes de aprovação. Os usuários que se cadastram no aplicativo ficam com status pendente até que um diretor ou líder do clube aprove sua entrada.",
+      "no_active_sections_title": "Sem seções ativas",
+      "no_active_sections_description": "Este clube não possui seções ativas. Crie uma seção para gerenciar as solicitações de adesão.",
+      "section_label": "Seção",
+      "section_placeholder": "Selecionar seção",
+      "section_fallback": "Seção {id}",
+      "load_error": "Não foi possível carregar as solicitações de adesão."
+    },
+    "table": {
+      "count_one": "{count} solicitação pendente",
+      "count_other": "{count} solicitações pendentes",
+      "refresh": "Atualizar",
+      "refresh_error": "Não foi possível atualizar a lista",
+      "col_member": "Membro",
+      "col_role": "Função",
+      "col_requested": "Data da solicitação",
+      "col_expires": "Expira",
+      "col_actions": "Ações",
+      "empty_title": "Sem solicitações pendentes",
+      "empty_description": "Não há solicitações de adesão pendentes para esta seção.",
+      "aria_approve": "Aprovar adesão",
+      "aria_reject": "Rejeitar adesão",
+      "tooltip_approve": "Aprovar",
+      "tooltip_reject": "Rejeitar"
+    },
+    "dialogs": {
+      "reject": {
+        "title": "Rejeitar solicitação de adesão",
+        "description": "A solicitação de adesão de {userName} será rejeitada. Opcionalmente, você pode indicar um motivo.",
+        "reason_label": "Motivo da rejeição (opcional)",
+        "reason_placeholder": "Descreva o motivo da rejeição...",
+        "cancel": "Cancelar",
+        "confirm": "Rejeitar",
+        "confirming": "Rejeitando..."
+      }
+    },
+    "client": {
+      "section_label": "Seção do clube",
+      "section_placeholder": "Selecionar seção",
+      "load_error_permission": "Você não tem permissão para ver as solicitações desta seção.",
+      "load_error_generic": "Não foi possível carregar as solicitações."
+    },
+    "toasts": {
+      "approved": "Adesão aprovada para {name}",
+      "rejected": "Solicitação de adesão rejeitada para {name}"
+    },
+    "errors": {
+      "approve": "Ocorreu um erro ao aprovar a solicitação",
+      "reject": "Ocorreu um erro ao rejeitar a solicitação"
     }
   }
 }

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ChevronRight, GraduationCap } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,12 +32,14 @@ interface ClassesListProps {
 }
 
 export function ClassesList({ items }: ClassesListProps) {
+  const t = useTranslations("classes.list");
+
   if (items.length === 0) {
     return (
       <EmptyState
         icon={GraduationCap}
-        title="No hay clases registradas"
-        description="No se encontraron clases progresivas en el catálogo."
+        title={t("empty_title")}
+        description={t("empty_description")}
       />
     );
   }
@@ -47,19 +50,19 @@ export function ClassesList({ items }: ClassesListProps) {
         <TableHeader>
           <TableRow>
             <TableHead className="h-9 w-16 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Orden
+              {t("col_order")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Nombre
+              {t("col_name")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Tipo de club
+              {t("col_club_type")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Módulos
+              {t("col_modules")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Estado
+              {t("col_status")}
             </TableHead>
             <TableHead className="h-9 w-12 px-3" />
           </TableRow>
@@ -93,7 +96,7 @@ export function ClassesList({ items }: ClassesListProps) {
                 <Button variant="ghost" size="icon-sm" asChild>
                   <Link href={`/dashboard/classes/${cls.class_id}`}>
                     <ChevronRight className="size-4" />
-                    <span className="sr-only">Ver detalle de {cls.name}</span>
+                    <span className="sr-only">{t("view_detail", { name: cls.name })}</span>
                   </Link>
                 </Button>
               </TableCell>

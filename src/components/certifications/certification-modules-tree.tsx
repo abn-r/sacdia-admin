@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ChevronDown, ChevronRight, BookOpen, FileText } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -28,6 +29,7 @@ interface ModuleNodeProps {
 }
 
 function ModuleNode({ mod, defaultOpen = false }: ModuleNodeProps) {
+  const t = useTranslations("certifications.tree");
   const [open, setOpen] = useState(defaultOpen);
   const sectionCount = mod.sections?.length ?? 0;
 
@@ -48,7 +50,7 @@ function ModuleNode({ mod, defaultOpen = false }: ModuleNodeProps) {
           )}
         </div>
         <Badge variant="secondary" className="shrink-0">
-          {sectionCount} {sectionCount === 1 ? "sección" : "secciones"}
+          {t("sections_count", { count: sectionCount })}
         </Badge>
         {open ? (
           <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
@@ -60,7 +62,7 @@ function ModuleNode({ mod, defaultOpen = false }: ModuleNodeProps) {
       {open && (
         <div className="border-t border-border px-4 py-3">
           {sectionCount === 0 ? (
-            <p className="text-sm text-muted-foreground">Sin secciones registradas.</p>
+            <p className="text-sm text-muted-foreground">{t("no_sections")}</p>
           ) : (
             <ul className="space-y-2">
               {mod.sections.map((section) => (
@@ -77,7 +79,7 @@ function ModuleNode({ mod, defaultOpen = false }: ModuleNodeProps) {
                   </div>
                   {section.is_required && (
                     <Badge variant="secondary" className="shrink-0 text-xs">
-                      Requerido
+                      {t("required")}
                     </Badge>
                   )}
                 </li>
@@ -95,6 +97,7 @@ interface CertificationModulesTreeProps {
 }
 
 export function CertificationModulesTree({ modules }: CertificationModulesTreeProps) {
+  const t = useTranslations("certifications.tree");
   const [allOpen, setAllOpen] = useState(false);
   const [key, setKey] = useState(0);
 
@@ -106,7 +109,7 @@ export function CertificationModulesTree({ modules }: CertificationModulesTreePr
   if (modules.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
-        Esta certificación no tiene módulos registrados.
+        {t("no_modules")}
       </p>
     );
   }
@@ -115,10 +118,10 @@ export function CertificationModulesTree({ modules }: CertificationModulesTreePr
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          {modules.length} {modules.length === 1 ? "módulo" : "módulos"}
+          {t("modules_count", { count: modules.length })}
         </p>
         <Button variant="ghost" size="sm" onClick={toggleAll}>
-          {allOpen ? "Colapsar todos" : "Expandir todos"}
+          {allOpen ? t("collapse_all") : t("expand_all")}
         </Button>
       </div>
       <div
