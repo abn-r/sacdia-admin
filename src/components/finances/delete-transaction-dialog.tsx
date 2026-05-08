@@ -58,31 +58,33 @@ export function DeleteTransactionDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>¿Eliminar movimiento?</AlertDialogTitle>
+          <AlertDialogTitle>{t("delete.title")}</AlertDialogTitle>
           <AlertDialogDescription>
             {finance ? (
               <>
-                Estás por eliminar el movimiento de{" "}
+                {t("delete.descriptionPre")}{" "}
                 <strong className={isIncome ? "text-success" : "text-destructive"}>
                   {formatAmount(Math.abs(finance.amount))}
                 </strong>
                 {finance.description ? ` — ${finance.description}` : ""}.{" "}
-                Esta acción no se puede deshacer.
+                {t("delete.cannotUndo")}
               </>
             ) : (
-              "Esta acción no se puede deshacer."
+              t("delete.descriptionFallback")
             )}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+          <AlertDialogCancel disabled={isDeleting}>
+            {t("delete.cancelButton")}
+          </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
             disabled={isDeleting}
             className="bg-destructive text-white hover:bg-destructive/90"
           >
             {isDeleting && <Loader2 className="size-4 animate-spin" />}
-            Eliminar
+            {t("delete.confirmButton")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

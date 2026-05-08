@@ -1078,10 +1078,103 @@
       "transaction_deleted": "Movimiento eliminado correctamente"
     },
     "validation": {
-      "section_required": "Seleccioná una sección del club"
+      "section_required": "Seleccioná una sección del club",
+      "year_invalid": "Ingresá un año válido",
+      "year_range": "Año inválido",
+      "month_invalid": "Ingresá un mes válido",
+      "month_range": "Mes inválido",
+      "amount_invalid": "Ingresá un monto válido",
+      "amount_positive": "El monto debe ser positivo",
+      "category_required": "Seleccioná una categoría",
+      "date_required": "Ingresá la fecha"
     },
     "errors": {
-      "delete_transaction_failed": "No se pudo eliminar el movimiento"
+      "delete_transaction_failed": "No se pudo eliminar el movimiento",
+      "update_transaction_failed": "No se pudo actualizar el movimiento",
+      "create_transaction_failed": "No se pudo crear el movimiento"
+    },
+    "dashboard": {
+      "filtersLabel": "Filtros:",
+      "allYears": "Todos los años",
+      "allMonths": "Todos los meses",
+      "refreshButton": "Actualizar",
+      "newTransactionButton": "Nuevo movimiento",
+      "transactionsTitle": "Movimientos",
+      "showing": "Mostrando {shown} de {total} movimientos."
+    },
+    "form": {
+      "titleNew": "Nuevo movimiento",
+      "titleEdit": "Editar movimiento",
+      "descriptionNew": "Registrá un nuevo ingreso o egreso del club.",
+      "descriptionEdit": "Modificá los datos del movimiento financiero.",
+      "categoryLabel": "Categoría",
+      "categoryPlaceholder": "Seleccioná una categoría",
+      "categoryLoading": "Cargando categorías...",
+      "dateLabel": "Fecha",
+      "amountLabel": "Monto",
+      "yearLabel": "Año",
+      "yearPlaceholder": "Año",
+      "monthLabel": "Mes",
+      "monthPlaceholder": "Mes",
+      "sectionLabel": "Sección del club",
+      "sectionPlaceholder": "Seleccioná una sección",
+      "sectionEmpty": "No hay secciones disponibles",
+      "descriptionLabel": "Descripción",
+      "descriptionPlaceholder": "Descripción del movimiento (opcional)",
+      "cancelButton": "Cancelar",
+      "saveButton": "Guardar cambios",
+      "createButton": "Crear movimiento"
+    },
+    "table": {
+      "colDate": "Fecha",
+      "colDescription": "Descripción",
+      "colCategory": "Categoría",
+      "colPeriod": "Período",
+      "colType": "Tipo",
+      "colAmount": "Monto",
+      "emptyTitle": "Sin movimientos",
+      "emptyDescription": "No se encontraron movimientos financieros para los filtros seleccionados.",
+      "actionsLabel": "Acciones",
+      "actionEdit": "Editar",
+      "actionDelete": "Eliminar",
+      "typeIncome": "Ingreso",
+      "typeExpense": "Egreso"
+    },
+    "delete": {
+      "title": "¿Eliminar movimiento?",
+      "descriptionPre": "Estás por eliminar el movimiento de",
+      "cannotUndo": "Esta acción no se puede deshacer.",
+      "descriptionFallback": "Esta acción no se puede deshacer.",
+      "cancelButton": "Cancelar",
+      "confirmButton": "Eliminar"
+    },
+    "summary": {
+      "totalIncome": "Total Ingresos",
+      "totalExpense": "Total Egresos",
+      "balance": "Balance",
+      "movementsCount": "{count} movimiento",
+      "movementsCountPlural": "{count} movimientos",
+      "inPeriod": "en el período",
+      "positiveBalance": "Saldo positivo",
+      "negativeBalance": "Saldo negativo"
+    },
+    "months": {
+      "january": "Enero",
+      "february": "Febrero",
+      "march": "Marzo",
+      "april": "Abril",
+      "may": "Mayo",
+      "june": "Junio",
+      "july": "Julio",
+      "august": "Agosto",
+      "september": "Septiembre",
+      "october": "Octubre",
+      "november": "Noviembre",
+      "december": "Diciembre"
+    },
+    "categoryType": {
+      "income": "Ingreso",
+      "expense": "Egreso"
     }
   },
   "certifications": {

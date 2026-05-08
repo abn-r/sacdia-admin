@@ -40,21 +40,21 @@ import {
 
 const formSchema = z.object({
   year: z.coerce
-    .number({ error: "Ingresá un año válido" })
-    .min(2000, "Año inválido")
-    .max(2100, "Año inválido"),
+    .number()
+    .min(2000)
+    .max(2100),
   month: z.coerce
-    .number({ error: "Ingresá un mes válido" })
-    .min(1, "Mes inválido")
-    .max(12, "Mes inválido"),
+    .number()
+    .min(1)
+    .max(12),
   amount: z.coerce
-    .number({ error: "Ingresá un monto válido" })
-    .positive("El monto debe ser positivo"),
+    .number()
+    .positive(),
   description: z.string().optional(),
   finance_category_id: z.coerce
-    .number({ error: "Seleccioná una categoría" })
-    .min(1, "Seleccioná una categoría"),
-  finance_date: z.string().min(1, "Ingresá la fecha"),
+    .number()
+    .min(1),
+  finance_date: z.string().min(1),
   club_type_id: z.coerce.number().optional(),
   club_section_id: z.coerce.number().optional(),
 });
@@ -63,20 +63,20 @@ type FormValues = z.infer<typeof formSchema>;
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const MONTHS = [
-  { value: 1, label: "Enero" },
-  { value: 2, label: "Febrero" },
-  { value: 3, label: "Marzo" },
-  { value: 4, label: "Abril" },
-  { value: 5, label: "Mayo" },
-  { value: 6, label: "Junio" },
-  { value: 7, label: "Julio" },
-  { value: 8, label: "Agosto" },
-  { value: 9, label: "Septiembre" },
-  { value: 10, label: "Octubre" },
-  { value: 11, label: "Noviembre" },
-  { value: 12, label: "Diciembre" },
-];
+const MONTH_KEYS = [
+  "january",
+  "february",
+  "march",
+  "april",
+  "may",
+  "june",
+  "july",
+  "august",
+  "september",
+  "october",
+  "november",
+  "december",
+] as const;
 
 const currentYear = new Date().getFullYear();
 const YEARS = Array.from({ length: 6 }, (_, i) => currentYear - 2 + i);
@@ -124,7 +124,7 @@ export function TransactionFormDialog({
       .then(setCategories)
       .catch(() => toast.error(t("toasts.categories_load_failed")))
       .finally(() => setLoadingCategories(false));
-  }, [open]);
+  }, [open, t]);
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -209,23 +209,23 @@ export function TransactionFormDialog({
         err instanceof Error
           ? err.message
           : isEdit
-            ? "No se pudo actualizar el movimiento"
-            : "No se pudo crear el movimiento";
+            ? t("errors.update_transaction_failed")
+            : t("errors.create_transaction_failed");
       toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Editar movimiento" : "Nuevo movimiento"}</DialogTitle>
+          <DialogTitle>
+            {isEdit ? t("form.titleEdit") : t("form.titleNew")}
+          </DialogTitle>
           <DialogDescription>
-            {isEdit
-              ? "Modificá los datos del movimiento financiero."
-              : "Registrá un nuevo ingreso o egreso del club."}
+            {isEdit ? t("form.descriptionEdit") : t("form.descriptionNew")}
           </DialogDescription>
         </DialogHeader>
 
@@ -233,7 +233,7 @@ export function TransactionFormDialog({
           {/* Categoría */}
           <div className="space-y-1.5">
             <Label htmlFor="finance_category_id">
-              Categoría{" "}
+              {t("form.categoryLabel")}{" "}
               <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
             </Label>
             <Select
@@ -244,7 +244,9 @@ export function TransactionFormDialog({
               <SelectTrigger id="finance_category_id" aria-required="true">
                 <SelectValue
                   placeholder={
-                    loadingCategories ? "Cargando categorías..." : "Seleccioná una categoría"
+                    loadingCategories
+                      ? t("form.categoryLoading")
+                      : t("form.categoryPlaceholder")
                   }
                 />
               </SelectTrigger>
@@ -254,14 +256,17 @@ export function TransactionFormDialog({
                     key={cat.finance_category_id}
                     value={cat.finance_category_id.toString()}
                   >
-                    {cat.name} — {cat.type === 0 ? "Ingreso" : "Egreso"}
+                    {cat.name} —{" "}
+                    {cat.type === 0
+                      ? t("categoryType.income")
+                      : t("categoryType.expense")}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
             {errors.finance_category_id && (
               <p className="text-xs text-destructive">
-                {errors.finance_category_id.message}
+                {t("validation.category_required")}
               </p>
             )}
           </div>
@@ -269,7 +274,7 @@ export function TransactionFormDialog({
           {/* Fecha */}
           <div className="space-y-1.5">
             <Label htmlFor="finance_date">
-              Fecha{" "}
+              {t("form.dateLabel")}{" "}
               <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
             </Label>
             <Input
@@ -279,14 +284,16 @@ export function TransactionFormDialog({
               {...register("finance_date")}
             />
             {errors.finance_date && (
-              <p className="text-xs text-destructive">{errors.finance_date.message}</p>
+              <p className="text-xs text-destructive">
+                {t("validation.date_required")}
+              </p>
             )}
           </div>
 
           {/* Monto */}
           <div className="space-y-1.5">
             <Label htmlFor="amount">
-              Monto{" "}
+              {t("form.amountLabel")}{" "}
               <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
             </Label>
             <Input
@@ -299,7 +306,9 @@ export function TransactionFormDialog({
               {...register("amount")}
             />
             {errors.amount && (
-              <p className="text-xs text-destructive">{errors.amount.message}</p>
+              <p className="text-xs text-destructive">
+                {t("validation.amount_positive")}
+              </p>
             )}
           </div>
 
@@ -307,7 +316,7 @@ export function TransactionFormDialog({
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="year">
-                Año{" "}
+                {t("form.yearLabel")}{" "}
                 <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
               </Label>
               <Select
@@ -316,7 +325,7 @@ export function TransactionFormDialog({
                 disabled={isEdit}
               >
                 <SelectTrigger id="year" aria-required="true">
-                  <SelectValue placeholder="Año" />
+                  <SelectValue placeholder={t("form.yearPlaceholder")} />
                 </SelectTrigger>
                 <SelectContent>
                   {YEARS.map((y) => (
@@ -327,13 +336,15 @@ export function TransactionFormDialog({
                 </SelectContent>
               </Select>
               {errors.year && (
-                <p className="text-xs text-destructive">{errors.year.message}</p>
+                <p className="text-xs text-destructive">
+                  {t("validation.year_invalid")}
+                </p>
               )}
             </div>
 
             <div className="space-y-1.5">
               <Label htmlFor="month">
-                Mes{" "}
+                {t("form.monthLabel")}{" "}
                 <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
               </Label>
               <Select
@@ -342,18 +353,20 @@ export function TransactionFormDialog({
                 disabled={isEdit}
               >
                 <SelectTrigger id="month" aria-required="true">
-                  <SelectValue placeholder="Mes" />
+                  <SelectValue placeholder={t("form.monthPlaceholder")} />
                 </SelectTrigger>
                 <SelectContent>
-                  {MONTHS.map((m) => (
-                    <SelectItem key={m.value} value={m.value.toString()}>
-                      {m.label}
+                  {MONTH_KEYS.map((key, index) => (
+                    <SelectItem key={key} value={String(index + 1)}>
+                      {t(`months.${key}`)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               {errors.month && (
-                <p className="text-xs text-destructive">{errors.month.message}</p>
+                <p className="text-xs text-destructive">
+                  {t("validation.month_invalid")}
+                </p>
               )}
             </div>
           </div>
@@ -362,7 +375,7 @@ export function TransactionFormDialog({
           {!isEdit && (
             <div className="space-y-1.5">
               <Label htmlFor="club_section_id">
-                Sección del club{" "}
+                {t("form.sectionLabel")}{" "}
                 <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
               </Label>
               <Select
@@ -379,7 +392,7 @@ export function TransactionFormDialog({
                 }}
               >
                 <SelectTrigger id="club_section_id" aria-required="true">
-                  <SelectValue placeholder="Seleccioná una sección" />
+                  <SelectValue placeholder={t("form.sectionPlaceholder")} />
                 </SelectTrigger>
                 <SelectContent>
                   {sections.length > 0 ? (
@@ -394,7 +407,7 @@ export function TransactionFormDialog({
                     ))
                   ) : (
                     <SelectItem value="0" disabled>
-                      No hay secciones disponibles
+                      {t("form.sectionEmpty")}
                     </SelectItem>
                   )}
                 </SelectContent>
@@ -404,10 +417,10 @@ export function TransactionFormDialog({
 
           {/* Descripción */}
           <div className="space-y-1.5">
-            <Label htmlFor="description">Descripción</Label>
+            <Label htmlFor="description">{t("form.descriptionLabel")}</Label>
             <Textarea
               id="description"
-              placeholder="Descripción del movimiento (opcional)"
+              placeholder={t("form.descriptionPlaceholder")}
               className="min-h-[80px] resize-none"
               {...register("description")}
             />
@@ -420,11 +433,11 @@ export function TransactionFormDialog({
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
             >
-              Cancelar
+              {t("form.cancelButton")}
             </Button>
             <Button type="submit" disabled={isSubmitting || loadingCategories}>
               {isSubmitting && <Loader2 aria-hidden="true" className="size-4 animate-spin" />}
-              {isEdit ? "Guardar cambios" : "Crear movimiento"}
+              {isEdit ? t("form.saveButton") : t("form.createButton")}
             </Button>
           </DialogFooter>
         </form>
