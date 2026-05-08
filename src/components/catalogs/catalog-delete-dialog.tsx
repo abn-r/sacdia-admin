@@ -54,7 +54,7 @@ export function CatalogDeleteDialog({
       <AlertDialogContent className="sm:max-w-sm">
         <AlertDialogHeader>
           <div className="rounded-full bg-destructive/10 p-2.5 mx-auto mb-3 w-fit">
-            <AlertTriangle className="size-10 text-destructive" />
+            <AlertTriangle className="size-5 text-destructive" />
           </div>
           <AlertDialogTitle className="text-center">
             Eliminar {itemName}
