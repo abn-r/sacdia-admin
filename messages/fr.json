@@ -93,6 +93,47 @@
       "catalog_inventory_categories": "Categories d'inventaire",
       "catalog_honors": "Specialites (catalogue)",
       "catalog_master_honors": "Honneurs maitres"
+    },
+    "breadcrumbs": {
+      "dashboard": "Tableau de bord",
+      "users": "Utilisateurs",
+      "catalogs": "Catalogues",
+      "geography": "Géographie",
+      "countries": "Pays",
+      "unions": "Unions",
+      "local-fields": "Champs locaux",
+      "districts": "Districts",
+      "churches": "Églises",
+      "allergies": "Allergies",
+      "diseases": "Maladies",
+      "medicines": "Médicaments",
+      "relationship-types": "Types de relation",
+      "ecclesiastical-years": "Années ecclésiastiques",
+      "club-types": "Types de club",
+      "club-ideals": "Idéaux de club",
+      "honor-categories": "Catégories de spécialités",
+      "clubs": "Clubs",
+      "new": "Nouveau",
+      "instances": "Instances",
+      "camporees": "Camporées",
+      "classes": "Classes",
+      "honors": "Spécialités",
+      "activities": "Activités",
+      "finances": "Finances",
+      "inventory": "Inventaire",
+      "certifications": "Certifications",
+      "insurance": "Assurances",
+      "notifications": "Notifications",
+      "folders": "Dossiers",
+      "rbac": "Rôles et permissions",
+      "permissions": "Permissions",
+      "roles": "Rôles",
+      "matrix": "Matrice"
+    },
+    "themeToggle": {
+      "switchToLight": "Passer en mode clair",
+      "switchToDark": "Passer en mode sombre",
+      "switchTheme": "Changer le thème"
     }
   },
   "permissions": {
@@ -585,6 +626,50 @@
       "sent": "Notification envoyée avec succès",
       "broadcast_sent": "Diffusion envoyée avec succès",
       "club_sent": "Notification du club envoyée avec succès"
+    },
+    "forms": {
+      "direct_title": "Envoi direct",
+      "direct_description": "Envoyer une notification push à un utilisateur spécifique.",
+      "broadcast_title": "Diffusion",
+      "broadcast_description": "Envoyer une notification push à tous les utilisateurs enregistrés.",
+      "broadcast_warning": "Cette action enverra la notification à tous les utilisateurs avec un token FCM enregistré.",
+      "club_title": "Par club",
+      "club_description": "Envoyer une notification à tous les membres d'un club.",
+      "label_user_id": "ID utilisateur",
+      "placeholder_user_id": "UUID de l'utilisateur",
+      "label_title": "Titre",
+      "placeholder_title_notification": "Titre de la notification",
+      "placeholder_title_broadcast": "Titre de la diffusion",
+      "label_body": "Message",
+      "placeholder_body": "Corps du message",
+      "label_instance_type": "Type de club",
+      "placeholder_instance_type": "Sélectionner le type de club ...",
+      "option_adventurers": "Aventuriers",
+      "option_pathfinders": "Éclaireurs",
+      "option_master_guilds": "Guides principaux",
+      "label_instance_id": "ID instance",
+      "placeholder_instance_id": "ID numérique du club",
+      "submit_send": "Envoyer la notification",
+      "submit_broadcast": "Envoyer la diffusion",
+      "submit_club": "Envoyer au club"
+    },
+    "history": {
+      "col_title": "Titre",
+      "col_type": "Type",
+      "col_target": "Destinataire",
+      "col_sent": "Envoyés",
+      "col_failed": "Échoués",
+      "col_sent_by": "Envoyé par",
+      "col_date": "Date",
+      "empty_title": "Aucun historique",
+      "empty_description": "Aucune notification n'a encore été envoyée.",
+      "error_load": "Impossible de charger l'historique des notifications.",
+      "type_broadcast": "Diffusion",
+      "type_user": "Utilisateur",
+      "type_club": "Club",
+      "target_all": "Tous",
+      "target_user": "Utilisateur",
+      "target_club_section": "Section de club"
     }
   },
   "units": {
@@ -624,6 +709,75 @@
       "field_invalid": "Le champ {field} n'est pas valide",
       "no_changes": "Aucune modification à enregistrer",
       "honor_not_identified": "Impossible d'identifier la spécialité à supprimer."
+    },
+    "crud": {
+      "pageTitle": "Spécialités",
+      "pageDescription": "Catalogue des spécialités.",
+      "createButton": "Créer une spécialité",
+      "filtersTitle": "Filtres",
+      "filtersSubtitle": "Affiner la liste par champ",
+      "filterNameLabel": "Nom",
+      "filterNamePlaceholder": "Rechercher par nom ...",
+      "filterCategoryLabel": "Catégorie",
+      "filterCategoryPlaceholder": "Catégorie",
+      "filterCategoryAll": "Toutes les catégories",
+      "filterClubTypeLabel": "Type de club",
+      "filterClubTypePlaceholder": "Type de club",
+      "filterClubTypeAll": "Tous les types",
+      "filterLevelLabel": "Niveau",
+      "filterLevelPlaceholder": "Niveau",
+      "filterLevelAll": "Tous les niveaux",
+      "filterLevelItem": "Niveau {level}",
+      "filterStatusLabel": "État",
+      "filterStatusPlaceholder": "État",
+      "filterStatusAll": "Tous les états",
+      "filterStatusActive": "Actifs",
+      "filterStatusInactive": "Inactifs",
+      "emptyTitle": "Aucune spécialité",
+      "emptyDescription": "Aucun enregistrement trouvé.",
+      "emptyFilterTitle": "Aucun résultat",
+      "emptyFilterDescription": "Aucune spécialité ne correspond aux filtres.",
+      "tableHeaderHonor": "Spécialité",
+      "tableHeaderCategory": "Catégorie",
+      "tableHeaderClubType": "Type de club",
+      "tableHeaderLevel": "Niveau",
+      "tableHeaderStatus": "État",
+      "tableHeaderActions": "Actions",
+      "badgeActive": "Actif",
+      "badgeInactive": "Inactif",
+      "editButton": "Éditer",
+      "editAriaLabel": "Éditer {name}",
+      "deleteButton": "Supprimer",
+      "actionsButton": "Actions",
+      "noPermissionBanner": "Vous n’avez pas la permission de modifier les spécialités.",
+      "deleteDialogTitle": "Supprimer la spécialité ?",
+      "deleteDialogDescription": "La spécialité « {name} » sera désactivée de façon logique.",
+      "deleteDialogCancel": "Annuler",
+      "deleteDialogConfirm": "Supprimer"
+    },
+    "form": {
+      "submitCreate": "Créer la spécialité",
+      "submitEdit": "Enregistrer les modifications",
+      "cancelButton": "Annuler",
+      "sectionDataTitle": "Données de la spécialité",
+      "sectionResourcesTitle": "Ressources (facultatif)",
+      "nameLabel": "Nom",
+      "namePlaceholder": "Nom de la spécialité",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Description facultative",
+      "categoryLabel": "Catégorie",
+      "categoryPlaceholder": "Sélectionner une catégorie",
+      "clubTypeLabel": "Type de club",
+      "clubTypePlaceholder": "Sélectionner un club",
+      "levelLabel": "Niveau",
+      "masterHonorLabel": "Spécialité maître",
+      "activeLabel": "Spécialité active",
+      "imageLabel": "Image (URL relative ou fichier)",
+      "imagePlaceholder": "Spécialités/matelassage.png",
+      "materialLabel": "Matériel (PDF)",
+      "materialPlaceholder": "Spécialités/Matériel/matelassage.pdf",
+      "yearLabel": "Année",
+      "yearPlaceholder": "2026"
     }
   },
   "honor_categories": {
@@ -1689,6 +1843,59 @@
       "deleted": "Dossier supprimé avec succès",
       "updated": "Dossier mis à jour avec succès",
       "created": "Dossier créé avec succès"
+    },
+    "statusBadge": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "management": {
+      "searchPlaceholder": "Rechercher un dossier ...",
+      "refreshButton": "Actualiser",
+      "folderCount": "{count, plural, one {# dossier} other {# dossiers}}",
+      "noDescription": "Sans description",
+      "noResultsTitle": "Aucun résultat",
+      "noResultsDescription": "Aucun dossier correspondant à « {search} » n’a été trouvé.",
+      "emptyTitle": "Aucun dossier",
+      "emptyDescription": "Aucun dossier de preuves n’a encore été configuré.",
+      "tableHeaderName": "Nom",
+      "tableHeaderDescription": "Description",
+      "tableHeaderModules": "Modules",
+      "tableHeaderSections": "Sections",
+      "tableHeaderStatus": "État",
+      "ariaFolderLink": "Voir le dossier {name}",
+      "ariaList": "Liste des dossiers",
+      "modulesLabel": "Modules",
+      "sectionsLabel": "Sections"
+    },
+    "detail": {
+      "backButton": "Retour aux dossiers",
+      "backLabel": "Retour",
+      "refreshButton": "Actualiser",
+      "moduleCount": "{count, plural, one {# module} other {# modules}}",
+      "sectionCount": "{count, plural, one {# section} other {# sections}}",
+      "noDescription": "Sans description",
+      "tabStructure": "Structure",
+      "tabInfo": "Informations",
+      "noModulesTitle": "Aucun module",
+      "noModulesDescription": "Ce dossier n’a pas encore de modules ni de sections configurés.",
+      "tableHeaderModule": "Module / Section",
+      "tableHeaderDescription": "Description",
+      "tableHeaderOrder": "Ordre",
+      "tableHeaderSections": "Sections",
+      "sectionsBadge": "{count, plural, one {# section} other {# sections}}",
+      "noSectionsInModule": "Ce module n’a pas encore de sections.",
+      "infoId": "ID",
+      "infoName": "Nom",
+      "infoDescription": "Description",
+      "infoStatus": "État",
+      "infoModules": "Modules",
+      "infoTotalSections": "Sections totales",
+      "infoCreated": "Créé",
+      "infoUpdated": "Mis à jour"
+    },
+    "errors": {
+      "refresh_failed": "Impossible de rafraîchir les dossiers",
+      "folder_refresh_failed": "Impossible de rafraîchir le dossier"
     }
   },
   "validation_admin": {
@@ -2520,6 +2727,17 @@
       "deletingLabel": "Suppression...",
       "overrideDeleted": "Remplacement supprimé",
       "overrideDeleteError": "Erreur lors de la suppression du remplacement"
+    },
+    "form": {
+      "saving": "Enregistrement..."
+    },
+    "sum": {
+      "label": "Somme : {sum}"
+    },
+    "override": {
+      "selectPlaceholder": "Sélectionner le type de club",
+      "noTypesAvailable": "Aucun type disponible",
+      "createLabel": "Créer un remplacement"
     }
   },
   "classes": {
@@ -2600,6 +2818,122 @@
     "errors": {
       "approve": "Une erreur s’est produite lors de l’approbation de la demande",
       "reject": "Une erreur s’est produite lors du refus de la demande"
+    }
+  },
+  "sla": {
+    "client": {
+      "title": "Tableau de bord SLA",
+      "description": "Métriques opérationnelles des investitures, validations et camporées.",
+      "updated": "Mis à jour {ago}",
+      "cached": " (cache)"
+    },
+    "stats": {
+      "total_pending": "Total en attente",
+      "total_pending_subtitle": "{count} en révision active",
+      "overdue": "En retard",
+      "overdue_subtitle": "Soumis il y a plus de 30 jours",
+      "overdue_badge_ok": "À jour",
+      "overdue_badge_attention": "Nécessite attention",
+      "avg_approval": "Délai moy. d'approbation",
+      "avg_approval_subtitle": "De l'inscription à l'investiture",
+      "avg_approval_days": "{days} jour(s) en moy.",
+      "avg_approval_no_data": "Aucune donnée",
+      "approval_rate": "Taux d'approbation",
+      "approval_rate_subtitle": "{count} résolus (90 jours)",
+      "approval_rate_badge": "{count} approuvés"
+    },
+    "pipeline": {
+      "title": "Pipeline d'investiture",
+      "description": "Inscriptions actives par étape d'approbation",
+      "description_distribution": "Distribution par statut",
+      "empty": "Aucune inscription active dans le pipeline.",
+      "tooltip_enrollments": "{count, plural, =1 {inscription} other {inscriptions}}"
+    },
+    "throughput": {
+      "title": "Débit — 12 dernières semaines",
+      "description": "Investitures approuvées et rejetées par semaine",
+      "empty": "Aucune donnée de débit disponible.",
+      "legend_approved": "Approuvés",
+      "legend_rejected": "Rejetés"
+    },
+    "validation": {
+      "title": "File de validation",
+      "description_pending": "{count, plural, =1 {1 élément en attente de validation} other {{count} éléments en attente de validation}}",
+      "description_empty": "Aucun élément en attente de validation",
+      "class_sections_label": "Sections de classe",
+      "class_sections_subtitle": "Progression en attente de validation",
+      "honors_label": "Spécialités",
+      "honors_subtitle": "Honneurs en attente de validation"
+    },
+    "camporee": {
+      "title": "Approbations de camporée",
+      "description_pending": "{count, plural, =1 {1 enregistrement en attente d'approbation} other {{count} enregistrements en attente d'approbation}}",
+      "description_empty": "Aucun enregistrement en attente d'approbation",
+      "clubs_label": "Clubs enregistrés",
+      "clubs_subtitle": "En attente d'approbation",
+      "members_label": "Membres enregistrés",
+      "members_subtitle": "En attente d'approbation",
+      "payments_label": "Paiements enregistrés",
+      "payments_subtitle": "En attente d'approbation"
+    },
+    "actions": {
+      "refresh": "Actualiser",
+      "refreshing": "Actualisation..."
+    }
+  },
+  "enrollments": {
+    "table": {
+      "col_member": "Membre",
+      "col_class": "Classe",
+      "col_status": "Statut",
+      "col_enrollment_date": "Date d'inscription",
+      "col_submitted_at": "Soumis le",
+      "col_actions": "Actions",
+      "empty": "Aucune inscription à afficher.",
+      "status": {
+        "IN_PROGRESS": "En cours",
+        "SUBMITTED_FOR_VALIDATION": "Validation en attente",
+        "APPROVED": "Approuvé",
+        "REJECTED": "Rejeté",
+        "INVESTIDO": "Investi"
+      }
+    },
+    "actions": {
+      "approve": "Approuver",
+      "reject": "Rejeter",
+      "view_user": "Voir l'utilisateur",
+      "reject_dialog_title": "Rejeter l'inscription",
+      "reject_dialog_description": "Cette action marquera l'inscription comme rejetée. Le membre ne pourra pas continuer le processus d'investiture avec cette inscription.",
+      "reject_dialog_cancel": "Annuler",
+      "reject_dialog_confirm": "Confirmer le rejet"
+    },
+    "toasts": {
+      "approved": "Inscription approuvée avec succès.",
+      "rejected": "Inscription rejetée avec succès."
+    },
+    "errors": {
+      "generic": "Une erreur s'est produite. Veuillez réessayer."
+    }
+  },
+  "rankings": {
+    "breakdown": {
+      "compositeScore": "Score composite institutionnel",
+      "weightsApplied": "Poids appliqués",
+      "weightsSource": "Source",
+      "weightsSourceDefault": "Défaut global",
+      "weightsSourceOverride": "Remplacement par type de club",
+      "componentFolder": "Dossiers",
+      "componentFinance": "Finances",
+      "componentCamporee": "Camporées",
+      "componentEvidence": "Preuves",
+      "pointsOf": "{earned} / {max} points",
+      "sectionsEvaluated": "{count} sections évaluées",
+      "monthsClosedOnTime": "{closed} / {total} mois clôturés à temps",
+      "deadlineDay": "Date limite : jour {day} du mois suivant",
+      "missedMonths": "Mois manquants : {months}",
+      "camporeeEventsOf": "{attended} / {available} événements dans la portée",
+      "evidenceValidatedRejected": "{validated} validées / {rejected} rejetées",
+      "evidencePendingExcluded": "{pending} en attente (exclues du calcul)"
     }
   }
 }

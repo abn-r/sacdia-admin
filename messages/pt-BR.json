@@ -93,6 +93,47 @@
       "catalog_inventory_categories": "Categorias de inventário",
       "catalog_honors": "Especialidades (catálogo)",
       "catalog_master_honors": "Honras mestres"
+    },
+    "breadcrumbs": {
+      "dashboard": "Painel",
+      "users": "Usuários",
+      "catalogs": "Catálogos",
+      "geography": "Geografia",
+      "countries": "Países",
+      "unions": "Uniões",
+      "local-fields": "Campos locais",
+      "districts": "Distritos",
+      "churches": "Igrejas",
+      "allergies": "Alergias",
+      "diseases": "Doenças",
+      "medicines": "Medicamentos",
+      "relationship-types": "Tipos de relacionamento",
+      "ecclesiastical-years": "Anos eclesiásticos",
+      "club-types": "Tipos de clube",
+      "club-ideals": "Ideais de clube",
+      "honor-categories": "Categorias de especialidades",
+      "clubs": "Clubes",
+      "new": "Novo",
+      "instances": "Instâncias",
+      "camporees": "Camporees",
+      "classes": "Classes",
+      "honors": "Especialidades",
+      "activities": "Atividades",
+      "finances": "Finanças",
+      "inventory": "Inventário",
+      "certifications": "Certificações",
+      "insurance": "Seguros",
+      "notifications": "Notificações",
+      "folders": "Pastas",
+      "rbac": "Funções e permissões",
+      "permissions": "Permissões",
+      "roles": "Funções",
+      "matrix": "Matriz"
+    },
+    "themeToggle": {
+      "switchToLight": "Mudar para modo claro",
+      "switchToDark": "Mudar para modo escuro",
+      "switchTheme": "Alternar tema"
     }
   },
   "permissions": {
@@ -585,6 +626,50 @@
       "sent": "Notificação enviada com sucesso",
       "broadcast_sent": "Broadcast enviado com sucesso",
       "club_sent": "Notificação do clube enviada com sucesso"
+    },
+    "forms": {
+      "direct_title": "Envio direto",
+      "direct_description": "Enviar uma notificação push para um usuário específico.",
+      "broadcast_title": "Broadcast",
+      "broadcast_description": "Enviar notificação push para todos os usuários registrados.",
+      "broadcast_warning": "Esta ação enviará a notificação para todos os usuários com token FCM registrado.",
+      "club_title": "Por clube",
+      "club_description": "Enviar notificação para todos os membros de um clube.",
+      "label_user_id": "ID do usuário",
+      "placeholder_user_id": "UUID do usuário",
+      "label_title": "Título",
+      "placeholder_title_notification": "Título da notificação",
+      "placeholder_title_broadcast": "Título do broadcast",
+      "label_body": "Mensagem",
+      "placeholder_body": "Conteúdo da mensagem",
+      "label_instance_type": "Tipo de clube",
+      "placeholder_instance_type": "Selecionar tipo de clube...",
+      "option_adventurers": "Aventureiros",
+      "option_pathfinders": "Desbravadores",
+      "option_master_guilds": "Guias Máster",
+      "label_instance_id": "ID da instância",
+      "placeholder_instance_id": "ID numérico do clube",
+      "submit_send": "Enviar notificação",
+      "submit_broadcast": "Enviar broadcast",
+      "submit_club": "Enviar ao clube"
+    },
+    "history": {
+      "col_title": "Título",
+      "col_type": "Tipo",
+      "col_target": "Destino",
+      "col_sent": "Enviados",
+      "col_failed": "Falhas",
+      "col_sent_by": "Enviado por",
+      "col_date": "Data",
+      "empty_title": "Sem histórico",
+      "empty_description": "Nenhuma notificação foi enviada ainda.",
+      "error_load": "Não foi possível carregar o histórico de notificações.",
+      "type_broadcast": "Broadcast",
+      "type_user": "Usuário",
+      "type_club": "Clube",
+      "target_all": "Todos",
+      "target_user": "Usuário",
+      "target_club_section": "Seção de clube"
     }
   },
   "units": {
@@ -624,6 +709,75 @@
       "field_invalid": "O campo {field} não é válido",
       "no_changes": "Não há alterações para salvar",
       "honor_not_identified": "Não foi possível identificar a especialidade a excluir."
+    },
+    "crud": {
+      "pageTitle": "Especialidades",
+      "pageDescription": "Catálogo de especialidades.",
+      "createButton": "Criar especialidade",
+      "filtersTitle": "Filtros",
+      "filtersSubtitle": "Refinar a lista por campo",
+      "filterNameLabel": "Nome",
+      "filterNamePlaceholder": "Buscar por nome...",
+      "filterCategoryLabel": "Categoria",
+      "filterCategoryPlaceholder": "Categoria",
+      "filterCategoryAll": "Todas as categorias",
+      "filterClubTypeLabel": "Tipo de clube",
+      "filterClubTypePlaceholder": "Tipo de clube",
+      "filterClubTypeAll": "Todos os tipos",
+      "filterLevelLabel": "Nível",
+      "filterLevelPlaceholder": "Nível",
+      "filterLevelAll": "Todos os níveis",
+      "filterLevelItem": "Nível {level}",
+      "filterStatusLabel": "Status",
+      "filterStatusPlaceholder": "Status",
+      "filterStatusAll": "Todos os status",
+      "filterStatusActive": "Ativos",
+      "filterStatusInactive": "Inativos",
+      "emptyTitle": "Sem especialidades",
+      "emptyDescription": "Nenhum registro encontrado.",
+      "emptyFilterTitle": "Sem resultados",
+      "emptyFilterDescription": "Nenhuma especialidade corresponde aos filtros.",
+      "tableHeaderHonor": "Especialidade",
+      "tableHeaderCategory": "Categoria",
+      "tableHeaderClubType": "Tipo de clube",
+      "tableHeaderLevel": "Nível",
+      "tableHeaderStatus": "Status",
+      "tableHeaderActions": "Ações",
+      "badgeActive": "Ativo",
+      "badgeInactive": "Inativo",
+      "editButton": "Editar",
+      "editAriaLabel": "Editar {name}",
+      "deleteButton": "Excluir",
+      "actionsButton": "Ações",
+      "noPermissionBanner": "Você não tem permissão para modificar especialidades.",
+      "deleteDialogTitle": "Excluir especialidade?",
+      "deleteDialogDescription": "A especialidade “{name}” será desativada de forma lógica.",
+      "deleteDialogCancel": "Cancelar",
+      "deleteDialogConfirm": "Excluir"
+    },
+    "form": {
+      "submitCreate": "Criar especialidade",
+      "submitEdit": "Salvar alterações",
+      "cancelButton": "Cancelar",
+      "sectionDataTitle": "Dados da especialidade",
+      "sectionResourcesTitle": "Recursos (opcional)",
+      "nameLabel": "Nome",
+      "namePlaceholder": "Nome da especialidade",
+      "descriptionLabel": "Descrição",
+      "descriptionPlaceholder": "Descrição opcional",
+      "categoryLabel": "Categoria",
+      "categoryPlaceholder": "Selecionar categoria",
+      "clubTypeLabel": "Tipo de clube",
+      "clubTypePlaceholder": "Selecionar clube",
+      "levelLabel": "Nível",
+      "masterHonorLabel": "Master honor",
+      "activeLabel": "Especialidade ativa",
+      "imageLabel": "Imagem (URL relativa ou arquivo)",
+      "imagePlaceholder": "Especialidades/acolchoado.png",
+      "materialLabel": "Material (PDF)",
+      "materialPlaceholder": "Especialidades/Material/acolchoado.pdf",
+      "yearLabel": "Ano",
+      "yearPlaceholder": "2026"
     }
   },
   "honor_categories": {
@@ -1689,6 +1843,59 @@
       "deleted": "Pasta excluída com sucesso",
       "updated": "Pasta atualizada com sucesso",
       "created": "Pasta criada com sucesso"
+    },
+    "statusBadge": {
+      "active": "Ativa",
+      "inactive": "Inativa"
+    },
+    "management": {
+      "searchPlaceholder": "Buscar pasta...",
+      "refreshButton": "Atualizar",
+      "folderCount": "{count, plural, one {# pasta} other {# pastas}}",
+      "noDescription": "Sem descrição",
+      "noResultsTitle": "Sem resultados",
+      "noResultsDescription": "Nenhuma pasta correspondendo a “{search}” foi encontrada.",
+      "emptyTitle": "Sem pastas",
+      "emptyDescription": "Nenhuma pasta de evidências foi configurada ainda.",
+      "tableHeaderName": "Nome",
+      "tableHeaderDescription": "Descrição",
+      "tableHeaderModules": "Módulos",
+      "tableHeaderSections": "Seções",
+      "tableHeaderStatus": "Status",
+      "ariaFolderLink": "Ver pasta {name}",
+      "ariaList": "Lista de pastas",
+      "modulesLabel": "Módulos",
+      "sectionsLabel": "Seções"
+    },
+    "detail": {
+      "backButton": "Voltar para pastas",
+      "backLabel": "Voltar",
+      "refreshButton": "Atualizar",
+      "moduleCount": "{count, plural, one {# módulo} other {# módulos}}",
+      "sectionCount": "{count, plural, one {# seção} other {# seções}}",
+      "noDescription": "Sem descrição",
+      "tabStructure": "Estrutura",
+      "tabInfo": "Informações",
+      "noModulesTitle": "Sem módulos",
+      "noModulesDescription": "Esta pasta ainda não tem módulos nem seções configurados.",
+      "tableHeaderModule": "Módulo / Seção",
+      "tableHeaderDescription": "Descrição",
+      "tableHeaderOrder": "Ordem",
+      "tableHeaderSections": "Seções",
+      "sectionsBadge": "{count, plural, one {# seção} other {# seções}}",
+      "noSectionsInModule": "Este módulo ainda não tem seções.",
+      "infoId": "ID",
+      "infoName": "Nome",
+      "infoDescription": "Descrição",
+      "infoStatus": "Status",
+      "infoModules": "Módulos",
+      "infoTotalSections": "Seções totais",
+      "infoCreated": "Criada",
+      "infoUpdated": "Atualizada"
+    },
+    "errors": {
+      "refresh_failed": "Não foi possível atualizar as pastas",
+      "folder_refresh_failed": "Não foi possível atualizar a pasta"
     }
   },
   "validation_admin": {
@@ -2520,6 +2727,17 @@
       "deletingLabel": "Excluindo...",
       "overrideDeleted": "Substituição excluída",
       "overrideDeleteError": "Erro ao excluir a substituição"
+    },
+    "form": {
+      "saving": "Salvando..."
+    },
+    "sum": {
+      "label": "Soma: {sum}"
+    },
+    "override": {
+      "selectPlaceholder": "Selecionar tipo de clube",
+      "noTypesAvailable": "Sem tipos disponíveis",
+      "createLabel": "Criar substituição"
     }
   },
   "classes": {
@@ -2600,6 +2818,122 @@
     "errors": {
       "approve": "Ocorreu um erro ao aprovar a solicitação",
       "reject": "Ocorreu um erro ao rejeitar a solicitação"
+    }
+  },
+  "sla": {
+    "client": {
+      "title": "Painel SLA",
+      "description": "Métricas operacionais de investiduras, validações e camporês.",
+      "updated": "Atualizado {ago}",
+      "cached": " (cache)"
+    },
+    "stats": {
+      "total_pending": "Total pendente",
+      "total_pending_subtitle": "{count} em revisão ativa",
+      "overdue": "Atrasados",
+      "overdue_subtitle": "Enviados há mais de 30 dias",
+      "overdue_badge_ok": "Em dia",
+      "overdue_badge_attention": "Requer atenção",
+      "avg_approval": "Tempo méd. de aprovação",
+      "avg_approval_subtitle": "Da inscrição à investidura",
+      "avg_approval_days": "Méd. de {days} dias",
+      "avg_approval_no_data": "Sem dados",
+      "approval_rate": "Taxa de aprovação",
+      "approval_rate_subtitle": "{count} resolvidos (90 dias)",
+      "approval_rate_badge": "{count} aprovados"
+    },
+    "pipeline": {
+      "title": "Pipeline de Investidura",
+      "description": "Inscrições ativas por etapa de aprovação",
+      "description_distribution": "Distribuição por status",
+      "empty": "Nenhuma inscrição ativa no pipeline.",
+      "tooltip_enrollments": "{count, plural, =1 {inscrição} other {inscrições}}"
+    },
+    "throughput": {
+      "title": "Produtividade — Últimas 12 semanas",
+      "description": "Investiduras aprovadas e rejeitadas por semana",
+      "empty": "Nenhum dado de produtividade disponível.",
+      "legend_approved": "Aprovados",
+      "legend_rejected": "Rejeitados"
+    },
+    "validation": {
+      "title": "Fila de Validação",
+      "description_pending": "{count, plural, =1 {1 item aguardando validação} other {{count} itens aguardando validação}}",
+      "description_empty": "Nenhum item pendente de validação",
+      "class_sections_label": "Seções de Classe",
+      "class_sections_subtitle": "Progresso pendente de validação",
+      "honors_label": "Especialidades",
+      "honors_subtitle": "Honras pendentes de validação"
+    },
+    "camporee": {
+      "title": "Aprovações de Camporê",
+      "description_pending": "{count, plural, =1 {1 registro pendente de aprovação} other {{count} registros pendentes de aprovação}}",
+      "description_empty": "Nenhum registro pendente de aprovação",
+      "clubs_label": "Clubes registrados",
+      "clubs_subtitle": "Pendentes de aprovação",
+      "members_label": "Membros registrados",
+      "members_subtitle": "Pendentes de aprovação",
+      "payments_label": "Pagamentos registrados",
+      "payments_subtitle": "Pendentes de aprovação"
+    },
+    "actions": {
+      "refresh": "Atualizar",
+      "refreshing": "Atualizando..."
+    }
+  },
+  "enrollments": {
+    "table": {
+      "col_member": "Membro",
+      "col_class": "Classe",
+      "col_status": "Status",
+      "col_enrollment_date": "Data de inscrição",
+      "col_submitted_at": "Enviado em",
+      "col_actions": "Ações",
+      "empty": "Nenhuma inscrição para exibir.",
+      "status": {
+        "IN_PROGRESS": "Em andamento",
+        "SUBMITTED_FOR_VALIDATION": "Validação pendente",
+        "APPROVED": "Aprovado",
+        "REJECTED": "Rejeitado",
+        "INVESTIDO": "Investido"
+      }
+    },
+    "actions": {
+      "approve": "Aprovar",
+      "reject": "Rejeitar",
+      "view_user": "Ver usuário",
+      "reject_dialog_title": "Rejeitar inscrição",
+      "reject_dialog_description": "Esta ação marcará a inscrição como rejeitada. O membro não poderá continuar o processo de investidura com esta inscrição.",
+      "reject_dialog_cancel": "Cancelar",
+      "reject_dialog_confirm": "Confirmar rejeição"
+    },
+    "toasts": {
+      "approved": "Inscrição aprovada com sucesso.",
+      "rejected": "Inscrição rejeitada com sucesso."
+    },
+    "errors": {
+      "generic": "Ocorreu um erro. Tente novamente."
+    }
+  },
+  "rankings": {
+    "breakdown": {
+      "compositeScore": "Pontuação composta institucional",
+      "weightsApplied": "Pesos aplicados",
+      "weightsSource": "Fonte",
+      "weightsSourceDefault": "Padrão global",
+      "weightsSourceOverride": "Substituição por tipo de clube",
+      "componentFolder": "Pastas",
+      "componentFinance": "Finanças",
+      "componentCamporee": "Camporees",
+      "componentEvidence": "Evidências",
+      "pointsOf": "{earned} / {max} pontos",
+      "sectionsEvaluated": "{count} seções avaliadas",
+      "monthsClosedOnTime": "{closed} / {total} meses fechados no prazo",
+      "deadlineDay": "Prazo: dia {day} do mês seguinte",
+      "missedMonths": "Meses em falta: {months}",
+      "camporeeEventsOf": "{attended} / {available} eventos no escopo",
+      "evidenceValidatedRejected": "{validated} validadas / {rejected} rejeitadas",
+      "evidencePendingExcluded": "{pending} pendentes (excluídas do cálculo)"
     }
   }
 }

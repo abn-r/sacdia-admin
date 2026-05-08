@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
+import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HonorFormFields } from "@/components/honors/honor-form-fields";
@@ -42,8 +43,9 @@ export function HonorForm({
   clubTypeOptions,
   formAction,
 }: HonorFormProps) {
+  const t = useTranslations("honors.form");
   const [state, action] = useActionState(formAction, initialState);
-  const submitLabel = mode === "create" ? "Crear especialidad" : "Guardar cambios";
+  const submitLabel = mode === "create" ? t("submitCreate") : t("submitEdit");
 
   return (
     <form action={action} className="space-y-6" noValidate>
@@ -65,7 +67,7 @@ export function HonorForm({
 
       <div className="flex justify-end gap-2">
         <Button variant="outline" asChild>
-          <Link href="/dashboard/honors">Cancelar</Link>
+          <Link href="/dashboard/honors">{t("cancelButton")}</Link>
         </Button>
         <SubmitButton label={submitLabel} />
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WeightInput } from "./weight-input";
@@ -30,6 +31,7 @@ export function WeightsForm({
   submitLabel = "Guardar",
   onSubmit,
 }: WeightsFormProps) {
+  const t = useTranslations("rankingWeights.form");
   const [v, setV] = useState<WeightsValues>(initial);
   const [busy, setBusy] = useState(false);
 
@@ -84,7 +86,7 @@ export function WeightsForm({
           {busy ? (
             <>
               <Loader2 className="animate-spin" />
-              Guardando...
+              {t("saving")}
             </>
           ) : (
             submitLabel

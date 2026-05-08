@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useFormStatus } from "react-dom";
+import { useTranslations } from "next-intl";
 import {
   Award,
   Loader2,
@@ -170,12 +171,12 @@ function resolveClubTypeName(item: HonorRecord, clubTypeById: Map<number, string
   return clubTypeById.get(id) ?? `#${id}`;
 }
 
-function DeleteButton() {
+function DeleteButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
       {pending && <Loader2 className="size-4 animate-spin" />}
-      Eliminar
+      {label}
     </Button>
   );
 }
@@ -190,6 +191,8 @@ export function HonorsCrudPage({
   canDelete,
   deactivateAction,
 }: HonorsCrudPageProps) {
+  const t = useTranslations("honors.crud");
+
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -339,12 +342,12 @@ export function HonorsCrudPage({
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Especialidades" description="Catálogo de especialidades.">
+      <PageHeader title={t("pageTitle")} description={t("pageDescription")}>
         {canCreate && (
           <Button asChild>
             <Link href="/dashboard/honors/new">
               <Plus className="size-4" />
-              Crear especialidad
+              {t("createButton")}
             </Link>
           </Button>
         )}
@@ -353,17 +356,17 @@ export function HonorsCrudPage({
       <div className="space-y-4">
         <div className="rounded-xl border bg-muted/20 p-4">
           <div className="mb-3 flex items-center justify-between gap-2">
-            <h3 className="text-sm font-semibold tracking-wide text-foreground">Filtros</h3>
-            <span className="text-xs text-muted-foreground">Refina el listado por campo</span>
+            <h3 className="text-sm font-semibold tracking-wide text-foreground">{t("filtersTitle")}</h3>
+            <span className="text-xs text-muted-foreground">{t("filtersSubtitle")}</span>
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
               <div className="space-y-1">
-                <Label htmlFor="honors-filter-name">Nombre</Label>
+                <Label htmlFor="honors-filter-name">{t("filterNameLabel")}</Label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="honors-filter-name"
-                    placeholder="Buscar por nombre..."
+                    placeholder={t("filterNamePlaceholder")}
                     value={searchInput}
                     onChange={(event) => handleSearchInputChange(event.target.value)}
                     className="bg-background pl-9"
@@ -372,13 +375,13 @@ export function HonorsCrudPage({
               </div>
 
               <div className="space-y-1">
-                <Label htmlFor="honors-filter-category">Categoría</Label>
+                <Label htmlFor="honors-filter-category">{t("filterCategoryLabel")}</Label>
                 <Select value={currentCategoryFilter} onValueChange={(value) => updateParam("categoryId", value)}>
                   <SelectTrigger id="honors-filter-category" className="bg-background">
-                    <SelectValue placeholder="Categoría" />
+                    <SelectValue placeholder={t("filterCategoryPlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Todas las categorías</SelectItem>
+                    <SelectItem value="all">{t("filterCategoryAll")}</SelectItem>
                     {categoryOptions.map((option) => (
                       <SelectItem key={option.value} value={String(option.value)}>
                         {option.label}
@@ -389,13 +392,13 @@ export function HonorsCrudPage({
               </div>
 
               <div className="space-y-1">
-                <Label htmlFor="honors-filter-club-type">Tipo de club</Label>
+                <Label htmlFor="honors-filter-club-type">{t("filterClubTypeLabel")}</Label>
                 <Select value={currentClubTypeFilter} onValueChange={(value) => updateParam("clubTypeId", value)}>
                   <SelectTrigger id="honors-filter-club-type" className="bg-background">
-                    <SelectValue placeholder="Tipo de club" />
+                    <SelectValue placeholder={t("filterClubTypePlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Todos los tipos</SelectItem>
+                    <SelectItem value="all">{t("filterClubTypeAll")}</SelectItem>
                     {clubTypeOptions.map((option) => (
                       <SelectItem key={option.value} value={String(option.value)}>
                         {option.label}
@@ -406,16 +409,16 @@ export function HonorsCrudPage({
               </div>
 
               <div className="space-y-1">
-                <Label htmlFor="honors-filter-level">Nivel</Label>
+                <Label htmlFor="honors-filter-level">{t("filterLevelLabel")}</Label>
                 <Select value={currentLevelFilter} onValueChange={(value) => updateParam("skillLevel", value)}>
                   <SelectTrigger id="honors-filter-level" className="bg-background">
-                    <SelectValue placeholder="Nivel" />
+                    <SelectValue placeholder={t("filterLevelPlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Todos los niveles</SelectItem>
+                    <SelectItem value="all">{t("filterLevelAll")}</SelectItem>
                     {levelFilterOptions.map((option) => (
                       <SelectItem key={option} value={String(option)}>
-                        Nivel {option}
+                        {t("filterLevelItem", { level: option })}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -423,15 +426,15 @@ export function HonorsCrudPage({
               </div>
 
               <div className="space-y-1">
-                <Label htmlFor="honors-filter-status">Estado</Label>
+                <Label htmlFor="honors-filter-status">{t("filterStatusLabel")}</Label>
                 <Select value={currentStatusFilter} onValueChange={(value) => updateParam("active", value)}>
                   <SelectTrigger id="honors-filter-status" className="bg-background">
-                    <SelectValue placeholder="Estado" />
+                    <SelectValue placeholder={t("filterStatusPlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Todos los estados</SelectItem>
-                    <SelectItem value="true">Activos</SelectItem>
-                    <SelectItem value="false">Inactivos</SelectItem>
+                    <SelectItem value="all">{t("filterStatusAll")}</SelectItem>
+                    <SelectItem value="true">{t("filterStatusActive")}</SelectItem>
+                    <SelectItem value="false">{t("filterStatusInactive")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -441,14 +444,14 @@ export function HonorsCrudPage({
         {items.length === 0 ? (
           <EmptyState
             icon={Award}
-            title={hasActiveFilters ? "Sin resultados" : "No hay especialidades"}
-            description={hasActiveFilters ? "No hay especialidades que coincidan con los filtros." : "No se encontraron registros."}
+            title={hasActiveFilters ? t("emptyFilterTitle") : t("emptyTitle")}
+            description={hasActiveFilters ? t("emptyFilterDescription") : t("emptyDescription")}
           >
             {canCreate && !hasActiveFilters && (
               <Button asChild>
                 <Link href="/dashboard/honors/new">
                   <Plus className="size-4" />
-                  Crear especialidad
+                  {t("createButton")}
                 </Link>
               </Button>
             )}
@@ -459,14 +462,14 @@ export function HonorsCrudPage({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Especialidad</TableHead>
-                    <TableHead>Categoría</TableHead>
-                    <TableHead>Tipo de club</TableHead>
-                    <TableHead>Nivel</TableHead>
-                    <TableHead>Estado</TableHead>
+                    <TableHead>{t("tableHeaderHonor")}</TableHead>
+                    <TableHead>{t("tableHeaderCategory")}</TableHead>
+                    <TableHead>{t("tableHeaderClubType")}</TableHead>
+                    <TableHead>{t("tableHeaderLevel")}</TableHead>
+                    <TableHead>{t("tableHeaderStatus")}</TableHead>
                     {(canEdit || canDelete) && (
                       <TableHead className="sticky right-0 z-20 w-[100px] border-l bg-background">
-                        Acciones
+                        {t("tableHeaderActions")}
                       </TableHead>
                     )}
                   </TableRow>
@@ -496,7 +499,7 @@ export function HonorsCrudPage({
                         <TableCell className="text-sm">{skillLevel ?? "—"}</TableCell>
                         <TableCell>
                           <Badge variant={item.active !== false ? "soft-success" : "outline"} className="text-xs">
-                            {item.active !== false ? "Activo" : "Inactivo"}
+                            {item.active !== false ? t("badgeActive") : t("badgeInactive")}
                           </Badge>
                         </TableCell>
                         {(canEdit || canDelete) && (
@@ -508,9 +511,9 @@ export function HonorsCrudPage({
                                   size="icon"
                                   className="size-8"
                                   asChild
-                                  title="Editar"
+                                  title={t("editButton")}
                                 >
-                                  <Link href={editHref} aria-label={`Editar ${honorName}`}>
+                                  <Link href={editHref} aria-label={t("editAriaLabel", { name: honorName })}>
                                     <Pencil className="size-3.5" />
                                   </Link>
                                 </Button>
@@ -522,7 +525,7 @@ export function HonorsCrudPage({
                                   className="size-8 text-destructive hover:text-destructive"
                                   disabled={!honorId}
                                   onClick={() => setDeleteItem(item)}
-                                  title="Eliminar"
+                                  title={t("deleteButton")}
                                 >
                                   <Trash2 className="size-3.5" />
                                 </Button>
@@ -531,7 +534,7 @@ export function HonorsCrudPage({
                             <div className="md:hidden">
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="size-8" title="Acciones">
+                                  <Button variant="ghost" size="icon" className="size-8" title={t("actionsButton")}>
                                     <MoreHorizontal className="size-4" />
                                   </Button>
                                 </DropdownMenuTrigger>
@@ -540,7 +543,7 @@ export function HonorsCrudPage({
                                     <DropdownMenuItem asChild>
                                       <Link href={editHref}>
                                         <Pencil className="size-4" />
-                                        Editar
+                                        {t("editButton")}
                                       </Link>
                                     </DropdownMenuItem>
                                   )}
@@ -551,7 +554,7 @@ export function HonorsCrudPage({
                                       onSelect={() => setDeleteItem(item)}
                                     >
                                       <Trash2 className="size-4" />
-                                      Eliminar
+                                      {t("deleteButton")}
                                     </DropdownMenuItem>
                                   )}
                                 </DropdownMenuContent>
@@ -581,20 +584,19 @@ export function HonorsCrudPage({
         <AlertDialog open={!!deleteItem} onOpenChange={(open) => { if (!open) setDeleteItem(null); }}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>¿Eliminar especialidad?</AlertDialogTitle>
+              <AlertDialogTitle>{t("deleteDialogTitle")}</AlertDialogTitle>
               <AlertDialogDescription>
-                Se desactivará de forma lógica la especialidad{" "}
-                <span className="font-medium">&quot;{pickHonorName(deleteItem)}&quot;</span>.
+                {t("deleteDialogDescription", { name: pickHonorName(deleteItem) })}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogCancel>{t("deleteDialogCancel")}</AlertDialogCancel>
               <form action={deleteFormAction} className="space-y-2">
                 <input type="hidden" name="id" value={String(pickHonorId(deleteItem) ?? "")} />
                 {deleteState.error && (
                   <p className="text-xs text-destructive">{deleteState.error}</p>
                 )}
-                <DeleteButton />
+                <DeleteButton label={t("deleteDialogConfirm")} />
               </form>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -603,7 +605,7 @@ export function HonorsCrudPage({
 
       {!canMutate && (
         <div className="rounded-md border border-dashed px-4 py-3 text-sm text-muted-foreground">
-          No cuentas con permisos para modificar especialidades.
+          {t("noPermissionBanner")}
         </div>
       )}
     </div>
