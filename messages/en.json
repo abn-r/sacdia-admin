@@ -908,6 +908,111 @@
       "year_required": "Select an ecclesiastical year",
       "submission_deadline_required": "Enter the submission deadline",
       "investiture_date_required": "Enter the investiture date"
+    },
+    "configClient": {
+      "countSingular": "configuration",
+      "countPlural": "configurations",
+      "refresh": "Refresh",
+      "newConfig": "New configuration",
+      "errorRefresh": "Could not refresh configurations"
+    },
+    "configTable": {
+      "emptyTitle": "No configurations",
+      "emptyDescription": "No investiture configurations found. Create one to get started.",
+      "colLocalField": "Local Field",
+      "colYear": "Ecclesiastical Year",
+      "colSubmissionDeadline": "Submission Deadline",
+      "colInvestitureDate": "Investiture Date",
+      "colStatus": "Status",
+      "colActions": "Actions",
+      "statusActive": "Active",
+      "statusInactive": "Inactive",
+      "tooltipEdit": "Edit",
+      "tooltipDeactivate": "Deactivate",
+      "tooltipAlreadyInactive": "Already inactive",
+      "ariaEdit": "Edit configuration",
+      "ariaDeactivate": "Deactivate configuration",
+      "fieldFallback": "Field #{id}",
+      "yearFallback": "Year #{id}"
+    },
+    "client": {
+      "allYears": "All years",
+      "yearActive": "(active)",
+      "countSingular": "pending",
+      "countPlural": "pending",
+      "refresh": "Refresh",
+      "errorRefresh": "Could not refresh the list"
+    },
+    "pipeline": {
+      "refresh": "Refresh",
+      "errorRefresh": "Could not refresh the list",
+      "tabAll": "All",
+      "tabSubmitted": "Submitted",
+      "tabClubApproved": "Club approved",
+      "tabCoordinatorApproved": "Coord. approved",
+      "tabFieldApproved": "Field approved",
+      "tabInvested": "Invested",
+      "tabRejected": "Rejected"
+    },
+    "historyDialog": {
+      "title": "Investiture history",
+      "errorLoad": "Could not load history",
+      "emptyHistory": "No history yet.",
+      "system": "System",
+      "actionSubmitted": "Submitted",
+      "actionClubApproved": "Approved by director",
+      "actionCoordinatorApproved": "Approved by coordinator",
+      "actionFieldApproved": "Approved by field",
+      "actionInvested": "Invested",
+      "actionRejected": "Rejected"
+    },
+    "history": {
+      "emptyHistory": "No validation history yet.",
+      "system": "System",
+      "actionSubmitted": "Submitted for validation",
+      "actionApproved": "Approved",
+      "actionRejected": "Rejected",
+      "actionReinvestitureRequested": "Reinvestiture requested"
+    },
+    "pendingTable": {
+      "emptyTitle": "No pending",
+      "emptyDescription": "No investitures pending validation at this time.",
+      "colMember": "Member",
+      "colClass": "Class",
+      "colClub": "Club",
+      "colSubmitted": "Submitted",
+      "colStatus": "Status",
+      "colActions": "Actions",
+      "ariaHistory": "View history",
+      "ariaApprove": "Approve",
+      "ariaReject": "Reject",
+      "ariaMarkInvested": "Mark as invested",
+      "tooltipHistory": "View history",
+      "tooltipApprove": "Approve",
+      "tooltipReject": "Reject",
+      "tooltipMarkInvested": "Mark as invested",
+      "historyTitle": "Investiture history",
+      "errorLoadHistory": "Could not load history",
+      "enrollmentFallback": "Enrollment #{id}"
+    },
+    "statusBadge": {
+      "inProgress": "In progress",
+      "submittedForValidation": "Submitted",
+      "submitted": "Submitted",
+      "clubApproved": "Club approved",
+      "coordinatorApproved": "Coordinator approved",
+      "fieldApproved": "Field approved",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "invested": "Invested"
+    },
+    "pipelineStatusBadge": {
+      "submitted": "Submitted",
+      "clubApproved": "Club approved",
+      "coordinatorApproved": "Coordinator approved",
+      "fieldApproved": "Field approved",
+      "invested": "Invested",
+      "rejected": "Rejected"
     }
   },
   "evidence_review": {

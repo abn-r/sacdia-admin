@@ -1,6 +1,7 @@
 "use client";
 
 import { Pencil, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   Table,
   TableBody,
@@ -42,12 +43,14 @@ interface ConfigTableProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function ConfigTable({ configs, onEdit, onDelete }: ConfigTableProps) {
+  const t = useTranslations("investiture");
+
   if (configs.length === 0) {
     return (
       <EmptyState
         icon={Settings2}
-        title="Sin configuraciones"
-        description="No hay configuraciones de investidura registradas. Creá una para comenzar."
+        title={t("configTable.emptyTitle")}
+        description={t("configTable.emptyDescription")}
       />
     );
   }
@@ -58,22 +61,22 @@ export function ConfigTable({ configs, onEdit, onDelete }: ConfigTableProps) {
         <TableHeader>
           <TableRow>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Campo Local
+              {t("configTable.colLocalField")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Año Eclesiástico
+              {t("configTable.colYear")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Límite de Envío
+              {t("configTable.colSubmissionDeadline")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Fecha de Investidura
+              {t("configTable.colInvestitureDate")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Estado
+              {t("configTable.colStatus")}
             </TableHead>
             <TableHead className="h-9 px-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Acciones
+              {t("configTable.colActions")}
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -81,10 +84,10 @@ export function ConfigTable({ configs, onEdit, onDelete }: ConfigTableProps) {
           {configs.map((config) => (
             <TableRow key={config.investiture_config_id} className="hover:bg-muted/30">
               <TableCell className="px-3 py-2.5 align-middle font-medium">
-                {config.local_fields?.name ?? `Campo #${config.local_field_id}`}
+                {config.local_fields?.name ?? t("configTable.fieldFallback", { id: config.local_field_id })}
               </TableCell>
               <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
-                {config.ecclesiastical_years?.name ?? `Año #${config.ecclesiastical_year_id}`}
+                {config.ecclesiastical_years?.name ?? t("configTable.yearFallback", { id: config.ecclesiastical_year_id })}
               </TableCell>
               <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums text-muted-foreground">
                 {formatDate(config.submission_deadline)}
@@ -95,10 +98,10 @@ export function ConfigTable({ configs, onEdit, onDelete }: ConfigTableProps) {
               <TableCell className="px-3 py-2.5 align-middle">
                 {config.active ? (
                   <Badge className="bg-success/10 text-success border-success/20">
-                    Activo
+                    {t("configTable.statusActive")}
                   </Badge>
                 ) : (
-                  <Badge variant="destructive">Inactivo</Badge>
+                  <Badge variant="destructive">{t("configTable.statusInactive")}</Badge>
                 )}
               </TableCell>
               <TableCell className="px-3 py-2.5 align-middle">
@@ -109,12 +112,12 @@ export function ConfigTable({ configs, onEdit, onDelete }: ConfigTableProps) {
                         variant="ghost"
                         size="icon-sm"
                         onClick={() => onEdit(config)}
-                        aria-label="Editar configuración"
+                        aria-label={t("configTable.ariaEdit")}
                       >
                         <Pencil className="size-4" />
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent>Editar</TooltipContent>
+                    <TooltipContent>{t("configTable.tooltipEdit")}</TooltipContent>
                   </Tooltip>
 
                   <Tooltip>
@@ -124,14 +127,16 @@ export function ConfigTable({ configs, onEdit, onDelete }: ConfigTableProps) {
                         size="icon-sm"
                         className="text-destructive hover:bg-destructive/10 hover:text-destructive"
                         onClick={() => onDelete(config)}
-                        aria-label="Desactivar configuración"
+                        aria-label={t("configTable.ariaDeactivate")}
                         disabled={!config.active}
                       >
                         <Trash2 className="size-4" />
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      {config.active ? "Desactivar" : "Ya inactivo"}
+                      {config.active
+                        ? t("configTable.tooltipDeactivate")
+                        : t("configTable.tooltipAlreadyInactive")}
                     </TooltipContent>
                   </Tooltip>
                 </div>

@@ -9,6 +9,7 @@ import {
   Send,
   Award,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
 import {
   Dialog,
@@ -37,71 +38,25 @@ function formatDate(iso: string): string {
   }
 }
 
-function getPerformerName(entry: PipelineHistoryEntry): string {
+function getPerformerName(
+  entry: PipelineHistoryEntry,
+  systemLabel: string,
+): string {
   if (entry.performer?.first_name || entry.performer?.last_name) {
     return [entry.performer.first_name, entry.performer.last_name]
       .filter(Boolean)
       .join(" ");
   }
   if (entry.performed_by) return entry.performed_by;
-  return "Sistema";
+  return systemLabel;
 }
 
-const actionConfig: Record<
-  string,
-  { label: string; icon: React.ElementType; iconClass: string; dotClass: string }
-> = {
-  SUBMITTED: {
-    label: "Enviado",
-    icon: Send,
-    iconClass: "text-warning",
-    dotClass: "bg-warning/20 border-warning/40",
-  },
-  CLUB_APPROVED: {
-    label: "Aprobado por director",
-    icon: CheckCircle2,
-    iconClass: "text-[var(--chart-1)]",
-    dotClass:
-      "bg-[color-mix(in_oklch,var(--chart-1)_20%,transparent)] border-[color-mix(in_oklch,var(--chart-1)_40%,transparent)]",
-  },
-  COORDINATOR_APPROVED: {
-    label: "Aprobado por coordinación",
-    icon: CheckCircle2,
-    iconClass: "text-[var(--chart-2)]",
-    dotClass:
-      "bg-[color-mix(in_oklch,var(--chart-2)_20%,transparent)] border-[color-mix(in_oklch,var(--chart-2)_40%,transparent)]",
-  },
-  FIELD_APPROVED: {
-    label: "Aprobado por campo",
-    icon: CheckCircle2,
-    iconClass: "text-[var(--chart-3)]",
-    dotClass:
-      "bg-[color-mix(in_oklch,var(--chart-3)_20%,transparent)] border-[color-mix(in_oklch,var(--chart-3)_40%,transparent)]",
-  },
-  INVESTED: {
-    label: "Investido",
-    icon: Award,
-    iconClass: "text-primary",
-    dotClass: "bg-primary/20 border-primary/40",
-  },
-  REJECTED: {
-    label: "Rechazado",
-    icon: XCircle,
-    iconClass: "text-destructive",
-    dotClass: "bg-destructive/20 border-destructive/40",
-  },
+type ActionEntryConfig = {
+  label: string;
+  icon: React.ElementType;
+  iconClass: string;
+  dotClass: string;
 };
-
-function getConfig(action: string) {
-  return (
-    actionConfig[action] ?? {
-      label: action,
-      icon: Clock,
-      iconClass: "text-muted-foreground",
-      dotClass: "bg-muted border-border",
-    }
-  );
-}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -125,6 +80,50 @@ export function PipelineHistoryDialog({
   memberName,
   onOpenChange,
 }: PipelineHistoryDialogProps) {
+  const t = useTranslations("investiture");
+
+  const actionConfig: Record<string, ActionEntryConfig> = {
+    SUBMITTED: {
+      label: t("historyDialog.actionSubmitted"),
+      icon: Send,
+      iconClass: "text-warning",
+      dotClass: "bg-warning/20 border-warning/40",
+    },
+    CLUB_APPROVED: {
+      label: t("historyDialog.actionClubApproved"),
+      icon: CheckCircle2,
+      iconClass: "text-[var(--chart-1)]",
+      dotClass:
+        "bg-[color-mix(in_oklch,var(--chart-1)_20%,transparent)] border-[color-mix(in_oklch,var(--chart-1)_40%,transparent)]",
+    },
+    COORDINATOR_APPROVED: {
+      label: t("historyDialog.actionCoordinatorApproved"),
+      icon: CheckCircle2,
+      iconClass: "text-[var(--chart-2)]",
+      dotClass:
+        "bg-[color-mix(in_oklch,var(--chart-2)_20%,transparent)] border-[color-mix(in_oklch,var(--chart-2)_40%,transparent)]",
+    },
+    FIELD_APPROVED: {
+      label: t("historyDialog.actionFieldApproved"),
+      icon: CheckCircle2,
+      iconClass: "text-[var(--chart-3)]",
+      dotClass:
+        "bg-[color-mix(in_oklch,var(--chart-3)_20%,transparent)] border-[color-mix(in_oklch,var(--chart-3)_40%,transparent)]",
+    },
+    INVESTED: {
+      label: t("historyDialog.actionInvested"),
+      icon: Award,
+      iconClass: "text-primary",
+      dotClass: "bg-primary/20 border-primary/40",
+    },
+    REJECTED: {
+      label: t("historyDialog.actionRejected"),
+      icon: XCircle,
+      iconClass: "text-destructive",
+      dotClass: "bg-destructive/20 border-destructive/40",
+    },
+  };
+
   // Pipeline history is append-only — once fetched it never changes.
   const { data: entries = [], isLoading: loading } = useQuery({
     queryKey: pipelineHistoryQueryKey(enrollmentId),
@@ -135,7 +134,7 @@ export function PipelineHistoryDialog({
         const message =
           error instanceof ApiError
             ? error.message
-            : "No se pudo cargar el historial";
+            : t("historyDialog.errorLoad");
         toast.error(message);
         throw error;
       }
@@ -151,7 +150,7 @@ export function PipelineHistoryDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <History className="size-5 text-muted-foreground" />
-            Historial de investidura
+            {t("historyDialog.title")}
           </DialogTitle>
           <p className="text-sm text-muted-foreground">{memberName}</p>
         </DialogHeader>
@@ -166,12 +165,17 @@ export function PipelineHistoryDialog({
           ) : entries.length === 0 ? (
             <div className="flex items-center gap-2 rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
               <Clock className="size-4 shrink-0" />
-              <span>No hay historial aún.</span>
+              <span>{t("historyDialog.emptyHistory")}</span>
             </div>
           ) : (
             <ol className="relative space-y-0">
               {entries.map((entry, idx) => {
-                const config = getConfig(entry.action);
+                const config = actionConfig[entry.action] ?? {
+                  label: entry.action,
+                  icon: Clock,
+                  iconClass: "text-muted-foreground",
+                  dotClass: "bg-muted border-border",
+                };
                 const Icon = config.icon;
                 const isLast = idx === entries.length - 1;
 
@@ -193,7 +197,7 @@ export function PipelineHistoryDialog({
                         {config.label}
                       </p>
                       <p className="mt-0.5 text-xs text-muted-foreground">
-                        {getPerformerName(entry)} &middot; {formatDate(entry.created_at)}
+                        {getPerformerName(entry, t("historyDialog.system"))} &middot; {formatDate(entry.created_at)}
                       </p>
                       {entry.reason && (
                         <p className="mt-1.5 rounded-md bg-muted px-3 py-2 text-xs text-foreground">

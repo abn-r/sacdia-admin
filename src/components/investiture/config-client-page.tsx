@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import { Plus, RefreshCw } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { ConfigTable } from "@/components/investiture/config-table";
 import { ConfigFormDialog } from "@/components/investiture/config-form-dialog";
@@ -19,6 +20,7 @@ interface ConfigClientPageProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function ConfigClientPage({ initialConfigs }: ConfigClientPageProps) {
+  const t = useTranslations("investiture");
   const [configs, setConfigs] = useState<InvestitureConfig[]>(initialConfigs);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -37,12 +39,12 @@ export function ConfigClientPage({ initialConfigs }: ConfigClientPageProps) {
       const message =
         error instanceof ApiError
           ? error.message
-          : "No se pudieron actualizar las configuraciones";
+          : t("configClient.errorRefresh");
       toast.error(message);
     } finally {
       setIsRefreshing(false);
     }
-  }, []);
+  }, [t]);
 
   function openCreate() {
     setEditingConfig(null);
@@ -66,7 +68,9 @@ export function ConfigClientPage({ initialConfigs }: ConfigClientPageProps) {
         <div className="flex items-center gap-2">
           <p className="text-sm text-muted-foreground">
             <span className="font-medium text-foreground">{configs.length}</span>{" "}
-            {configs.length === 1 ? "configuración" : "configuraciones"}
+            {configs.length === 1
+              ? t("configClient.countSingular")
+              : t("configClient.countPlural")}
           </p>
           <Button
             variant="outline"
@@ -77,13 +81,13 @@ export function ConfigClientPage({ initialConfigs }: ConfigClientPageProps) {
             <RefreshCw
               className={`size-4 ${isRefreshing ? "animate-spin" : ""}`}
             />
-            Actualizar
+            {t("configClient.refresh")}
           </Button>
         </div>
 
         <Button size="sm" onClick={openCreate}>
           <Plus className="size-4" />
-          Nueva configuración
+          {t("configClient.newConfig")}
         </Button>
       </div>
 

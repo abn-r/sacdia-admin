@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { RefreshCw } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PipelineTable, type UserRole } from "@/components/investiture/pipeline-table";
@@ -17,16 +18,6 @@ import { ApiError } from "@/lib/api/client";
 
 type TabKey = PipelineStatus | "ALL";
 
-const TABS: { key: TabKey; label: string }[] = [
-  { key: "ALL", label: "Todos" },
-  { key: "SUBMITTED", label: "Enviados" },
-  { key: "CLUB_APPROVED", label: "Aprobados club" },
-  { key: "COORDINATOR_APPROVED", label: "Aprobados coord." },
-  { key: "FIELD_APPROVED", label: "Aprobados campo" },
-  { key: "INVESTED", label: "Investidos" },
-  { key: "REJECTED", label: "Rechazados" },
-];
-
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface PipelineClientPageProps {
@@ -40,6 +31,18 @@ export function PipelineClientPage({
   initialEnrollments,
   userRole,
 }: PipelineClientPageProps) {
+  const t = useTranslations("investiture");
+
+  const TABS: { key: TabKey; label: string }[] = [
+    { key: "ALL", label: t("pipeline.tabAll") },
+    { key: "SUBMITTED", label: t("pipeline.tabSubmitted") },
+    { key: "CLUB_APPROVED", label: t("pipeline.tabClubApproved") },
+    { key: "COORDINATOR_APPROVED", label: t("pipeline.tabCoordinatorApproved") },
+    { key: "FIELD_APPROVED", label: t("pipeline.tabFieldApproved") },
+    { key: "INVESTED", label: t("pipeline.tabInvested") },
+    { key: "REJECTED", label: t("pipeline.tabRejected") },
+  ];
+
   const [activeTab, setActiveTab] = useState<TabKey>("ALL");
   const [enrollments, setEnrollments] =
     useState<PipelineEnrollment[]>(initialEnrollments);
@@ -66,14 +69,14 @@ export function PipelineClientPage({
       const message =
         error instanceof ApiError
           ? error.message
-          : "No se pudo actualizar la lista";
+          : t("pipeline.errorRefresh");
       toast.error(message);
     } finally {
       if (isMounted.current) {
         setIsRefreshing(false);
       }
     }
-  }, [activeTab]);
+  }, [activeTab, t]);
 
   // Reload data on tab change (server returns all on initial load)
   useEffect(() => {
@@ -104,7 +107,7 @@ export function PipelineClientPage({
           <RefreshCw
             className={`size-4 ${isRefreshing ? "animate-spin" : ""}`}
           />
-          Actualizar
+          {t("pipeline.refresh")}
         </Button>
       </div>
 
