@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { FileText } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -11,9 +12,11 @@ import { apiRequest, ApiError } from "@/lib/api/client";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
+type EnrollmentErrorCode = "no_active_enrollment" | "no_role_access" | "unknown";
+
 type ActiveEnrollmentResult =
   | { enrollment_id: number; available: true }
-  | { enrollment_id: null; available: false; error: string };
+  | { enrollment_id: null; available: false; errorCode: EnrollmentErrorCode };
 
 // ─── Data fetching ────────────────────────────────────────────────────────────
 
@@ -58,7 +61,7 @@ async function fetchActiveEnrollment(): Promise<ActiveEnrollmentResult> {
     return {
       enrollment_id: null,
       available: false,
-      error: "No se encontró una inscripción activa para tu usuario.",
+      errorCode: "no_active_enrollment" as const,
     };
   } catch (error) {
     if (error instanceof ApiError) {
@@ -66,21 +69,21 @@ async function fetchActiveEnrollment(): Promise<ActiveEnrollmentResult> {
         return {
           enrollment_id: null,
           available: false,
-          error: "No tenés una inscripción activa en el sistema.",
+          errorCode: "no_active_enrollment" as const,
         };
       }
       if (error.status === 403) {
         return {
           enrollment_id: null,
           available: false,
-          error: "Tu rol no tiene acceso al módulo de reportes mensuales.",
+          errorCode: "no_role_access" as const,
         };
       }
     }
     return {
       enrollment_id: null,
       available: false,
-      error: "No se pudo determinar tu inscripción activa. Intentá de nuevo.",
+      errorCode: "unknown" as const,
     };
   }
 }
@@ -118,17 +121,22 @@ function ReportsPageSkeleton() {
 
 // ─── Content ──────────────────────────────────────────────────────────────────
 
-async function ReportsContent() {
+async function ReportsContent({
+  t,
+}: {
+  t: Awaited<ReturnType<typeof getTranslations<"reports">>>;
+}) {
   const result = await fetchActiveEnrollment();
 
   if (!result.available) {
+    const errorMessage = t(`errors.${result.errorCode}`);
     return (
       <div className="space-y-4">
-        <EndpointErrorBanner state="missing" detail={result.error} />
+        <EndpointErrorBanner state="missing" detail={errorMessage} />
         <EmptyState
           icon={FileText}
-          title="Sin inscripción activa"
-          description={result.error}
+          title={t("page.empty_no_active_enrollment_title")}
+          description={errorMessage}
         />
       </div>
     );
@@ -141,16 +149,17 @@ async function ReportsContent() {
 
 export default async function ReportsPage() {
   await requireAdminUser();
+  const t = await getTranslations("reports");
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Reportes Mensuales"
-        description="Gestión de reportes mensuales de actividades del club."
+        title={t("page.title")}
+        description={t("page.description")}
       />
 
       <Suspense fallback={<ReportsPageSkeleton />}>
-        <ReportsContent />
+        <ReportsContent t={t} />
       </Suspense>
     </div>
   );

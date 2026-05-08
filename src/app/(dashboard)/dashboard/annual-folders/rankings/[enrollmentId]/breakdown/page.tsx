@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { BreakdownView } from "@/components/rankings/breakdown-view";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
@@ -20,6 +21,7 @@ export default async function BreakdownPage({
   searchParams,
 }: PageProps) {
   await requireAdminUser();
+  const t = await getTranslations("annual_folders");
 
   const { enrollmentId } = await params;
   const { year_id } = await searchParams;
@@ -28,8 +30,7 @@ export default async function BreakdownPage({
   if (!enrollmentId || !Number.isFinite(yearId) || yearId <= 0) {
     return (
       <div className="p-6 text-sm text-muted-foreground">
-        Los parámetros <code>enrollmentId</code> y <code>year_id</code> son
-        requeridos.
+        {t("pageRankingsBreakdown.paramsRequired")}
       </div>
     );
   }
@@ -45,14 +46,14 @@ export default async function BreakdownPage({
     result.status === "rejected"
       ? result.reason instanceof ApiError
         ? result.reason.message
-        : "No se pudo cargar el breakdown de ranking. Verificá la conexión con el servidor."
+        : t("pageRankingsBreakdown.errorFallback")
       : null;
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Breakdown de ranking"
-        description={`Detalle por componente para la inscripción ${enrollmentId}`}
+        title={t("pageRankingsBreakdown.title")}
+        description={t("pageRankingsBreakdown.description", { enrollmentId })}
       />
 
       {loadError && <EndpointErrorBanner state="missing" detail={loadError} />}

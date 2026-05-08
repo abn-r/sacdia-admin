@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ShieldCheck, Clock } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
@@ -113,6 +114,7 @@ function normalizeMemberInsurance(raw: AnyRecord): MemberInsurance {
 
 export default async function InsurancePage() {
   await requireAdminUser();
+  const t = await getTranslations("insurance");
 
   let clubs: Club[] = [];
   let sectionsByClub: Record<number, Section[]> = {};
@@ -129,7 +131,7 @@ export default async function InsurancePage() {
     loadError =
       err instanceof ApiError
         ? err.message
-        : "No se pudo cargar la lista de clubes.";
+        : t("errors.failed_load_clubs");
   }
 
   // 2. Load sections for all clubs
@@ -177,13 +179,13 @@ export default async function InsurancePage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Seguros"
-        description="Gestión de seguros de miembros por sección de club."
+        title={t("page.title")}
+        description={t("page.description")}
       >
         <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/insurance/expiring">
             <Clock className="mr-1.5 size-4" />
-            Ver por vencer
+            {t("page.button_view_expiring")}
           </Link>
         </Button>
       </PageHeader>
@@ -195,8 +197,8 @@ export default async function InsurancePage() {
       {!loadError && clubs.length === 0 && (
         <EmptyState
           icon={ShieldCheck}
-          title="No hay clubes registrados"
-          description="Registra al menos un club para gestionar los seguros de sus miembros."
+          title={t("page.empty_no_clubs_title")}
+          description={t("page.empty_no_clubs_description")}
         />
       )}
 

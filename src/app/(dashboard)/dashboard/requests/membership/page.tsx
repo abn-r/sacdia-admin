@@ -1,4 +1,5 @@
 import { UserPlus } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -62,33 +63,34 @@ async function fetchClubSections(): Promise<FetchResult> {
     if (error instanceof ApiError) {
       return { sections: [], available: false, error: error.message };
     }
-    return { sections: [], available: false, error: "Error inesperado" };
+    return { sections: [], available: false, error: "unexpected" };
   }
 }
 
 export default async function MembershipRequestsPage() {
   await requireAdminUser();
+  const t = await getTranslations("requests");
   const result = await fetchClubSections();
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Solicitudes de Membresía"
-        description="Aprobación y rechazo de solicitudes de nuevos miembros en secciones de club."
+        title={t("pageMembership.title")}
+        description={t("pageMembership.description")}
       />
 
       {!result.available && (
         <EndpointErrorBanner
           state="missing"
-          detail={result.error ?? "No se pudieron cargar los clubes"}
+          detail={result.error ?? t("pageMembership.errorLoad")}
         />
       )}
 
       {result.available && result.sections.length === 0 && (
         <EmptyState
           icon={UserPlus}
-          title="Sin secciones disponibles"
-          description="No se encontraron secciones de club activas para gestionar solicitudes."
+          title={t("pageMembership.emptyTitle")}
+          description={t("pageMembership.emptyDescription")}
         />
       )}
 

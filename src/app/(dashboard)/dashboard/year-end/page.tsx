@@ -1,4 +1,5 @@
 import { CalendarOff } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -9,6 +10,7 @@ import { requireAdminUser } from "@/lib/auth/session";
 
 export default async function YearEndPage() {
   await requireAdminUser();
+  const t = await getTranslations("year_end");
 
   let years: EcclesiasticalYear[] = [];
   let loadError: string | null = null;
@@ -20,14 +22,14 @@ export default async function YearEndPage() {
     loadError =
       err instanceof ApiError
         ? err.message
-        : "No se pudieron cargar los años eclesiásticos.";
+        : t("page.error_load_years");
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Cierre de año"
-        description="Cierra el año eclesiástico activo para archivar inscripciones, carpetas y reportes."
+        title={t("page.title")}
+        description={t("page.description")}
       />
 
       {loadError && <EndpointErrorBanner state="missing" detail={loadError} />}
@@ -35,8 +37,8 @@ export default async function YearEndPage() {
       {!loadError && years.length === 0 && (
         <EmptyState
           icon={CalendarOff}
-          title="Sin años eclesiásticos"
-          description="No hay años eclesiásticos registrados en el sistema."
+          title={t("page.empty_no_years_title")}
+          description={t("page.empty_no_years_description")}
         />
       )}
 

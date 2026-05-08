@@ -1,4 +1,5 @@
 import { Star } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -24,6 +25,7 @@ function resolveUserRole(roles: string[]): UserRole {
 
 export default async function InvestiturePipelinePage() {
   const user = await requireAdminUser();
+  const t = await getTranslations("investiture");
 
   const roles = extractRoles(user);
   const userRole = resolveUserRole(roles);
@@ -39,15 +41,15 @@ export default async function InvestiturePipelinePage() {
       loadError = error.message;
       loadErrorStatus = error.status;
     } else {
-      loadError = "No se pudieron cargar las investiduras.";
+      loadError = t("pagePipeline.errorFallback");
     }
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Pipeline de Investiduras"
-        description="Seguimiento del proceso de aprobación en cadena: director, coordinación y campo."
+        title={t("pagePipeline.title")}
+        description={t("pagePipeline.description")}
       />
 
       {loadError && (
@@ -60,8 +62,8 @@ export default async function InvestiturePipelinePage() {
       {!loadError && enrollments.length === 0 && (
         <EmptyState
           icon={Star}
-          title="Sin solicitudes de investidura"
-          description="No hay solicitudes de investidura en el sistema en este momento."
+          title={t("pagePipeline.emptyTitle")}
+          description={t("pagePipeline.emptyDescription")}
         />
       )}
 

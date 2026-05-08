@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Calendar, MapPin, Clock, Monitor, Link2 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -110,6 +111,7 @@ function InfoRow({
 
 export default async function ActivityDetailPage({ params }: { params: Params }) {
   await requireAdminUser();
+  const t = await getTranslations("activities");
 
   const { id } = await params;
   const activityId = toPositiveNumber(id);
@@ -140,7 +142,7 @@ export default async function ActivityDetailPage({ params }: { params: Params })
     attendanceError =
       err instanceof ApiError
         ? err.message
-        : "No se pudo cargar la lista de asistencia.";
+        : t("pageDetail.error_attendance_load");
   }
 
   const typeLabel =
@@ -151,7 +153,7 @@ export default async function ActivityDetailPage({ params }: { params: Params })
   const platformLabel =
     activity.platform != null
       ? (PLATFORM_LABELS[activity.platform] ?? "—")
-      : "Presencial";
+      : t("pageDetail.badge_in_person");
 
   const mapsUrl =
     activity.lat !== 0 && activity.long !== 0
@@ -160,11 +162,11 @@ export default async function ActivityDetailPage({ params }: { params: Params })
 
   return (
     <div className="space-y-6">
-      <PageHeader title={activity.name} description="Detalle de actividad">
+      <PageHeader title={activity.name} description={t("pageDetail.description")}>
         <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/activities">
             <ArrowLeft className="size-4" />
-            Volver
+            {t("pageDetail.back_link")}
           </Link>
         </Button>
         <ActivityDetailActions activity={activity} />
@@ -187,7 +189,7 @@ export default async function ActivityDetailPage({ params }: { params: Params })
           <div className="flex items-center gap-2">
             <Badge variant="secondary">{typeLabel}</Badge>
             <Badge variant={activity.active ? "soft-success" : "outline"}>
-              {activity.active ? "Activa" : "Inactiva"}
+              {activity.active ? t("pageDetail.badge_active") : t("pageDetail.badge_inactive")}
             </Badge>
           </div>
         </CardContent>
@@ -196,28 +198,28 @@ export default async function ActivityDetailPage({ params }: { params: Params })
       {/* Info card */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Información general</CardTitle>
+          <CardTitle className="text-base">{t("pageDetail.card_info_title")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <InfoRow label="ID" value={activity.activity_id} />
           <InfoRow
-            label="Lugar"
+            label={t("pageDetail.info_place")}
             value={activity.activity_place || "—"}
             icon={MapPin}
           />
           <InfoRow
-            label="Hora"
+            label={t("pageDetail.info_time")}
             value={activity.activity_time ?? "—"}
             icon={Clock}
           />
           <InfoRow
-            label="Modalidad"
+            label={t("pageDetail.info_mode")}
             value={platformLabel}
             icon={Monitor}
           />
           {activity.link_meet && (
             <InfoRow
-              label="Enlace de reunión"
+              label={t("pageDetail.info_meet_link")}
               value={
                 <a
                   href={activity.link_meet}
@@ -233,7 +235,7 @@ export default async function ActivityDetailPage({ params }: { params: Params })
           )}
           {mapsUrl && (
             <InfoRow
-              label="Coordenadas"
+              label={t("pageDetail.info_coordinates")}
               value={
                 <a
                   href={mapsUrl}
@@ -254,7 +256,7 @@ export default async function ActivityDetailPage({ params }: { params: Params })
       {activity.image && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Imagen</CardTitle>
+            <CardTitle className="text-base">{t("pageDetail.card_image_title")}</CardTitle>
           </CardHeader>
           <CardContent>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -271,7 +273,7 @@ export default async function ActivityDetailPage({ params }: { params: Params })
       <Tabs defaultValue="attendance">
         <TabsList>
           <TabsTrigger value="attendance">
-            Asistencia
+            {t("pageDetail.tab_attendance")}
             {attendance.length > 0 && (
               <Badge variant="secondary" className="ml-2">
                 {attendance.length}
@@ -283,7 +285,7 @@ export default async function ActivityDetailPage({ params }: { params: Params })
         <TabsContent value="attendance" className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Lista de asistentes</CardTitle>
+              <CardTitle className="text-base">{t("pageDetail.card_attendance_title")}</CardTitle>
             </CardHeader>
             <CardContent>
               {attendanceError ? (

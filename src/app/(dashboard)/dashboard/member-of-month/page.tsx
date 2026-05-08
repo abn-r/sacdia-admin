@@ -1,4 +1,5 @@
 import { Trophy } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { requireAdminUser } from "@/lib/auth/session";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
@@ -32,6 +33,7 @@ export default async function MemberOfMonthSupervisionPage({
   searchParams,
 }: MemberOfMonthPageProps) {
   await requireAdminUser();
+  const t = await getTranslations("member_of_month");
 
   const params = await searchParams;
 
@@ -80,18 +82,17 @@ export default async function MemberOfMonthSupervisionPage({
       "[MemberOfMonthSupervisionPage] Failed to load admin MoM list:",
       momResult.reason,
     );
-    loadError =
-      "No se pudieron cargar los ganadores. Verifica la conexión con el servidor.";
+    loadError = t("page.errorFallback");
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Miembro del Mes"
-        description="Vista consolidada de ganadores por sección en todos los clubes."
+        title={t("page.title")}
+        description={t("page.description")}
         breadcrumbs={[
-          { label: "Reportes", href: "/dashboard/reports" },
-          { label: "Miembro del Mes" },
+          { label: t("page.breadcrumbParent"), href: t("page.breadcrumbParentHref") },
+          { label: t("page.breadcrumbLabel") },
         ]}
       />
 
@@ -102,8 +103,8 @@ export default async function MemberOfMonthSupervisionPage({
       {!loadError && clubTypes.length === 0 && (
         <EmptyState
           icon={Trophy}
-          title="Sin catálogos disponibles"
-          description="No se pudieron cargar los tipos de club para los filtros."
+          title={t("page.emptyNoTypesTitle")}
+          description={t("page.emptyNoTypesDescription")}
         />
       )}
 

@@ -1,4 +1,5 @@
 import { FileSearch } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -11,6 +12,7 @@ import { requireAdminUser } from "@/lib/auth/session";
 
 export default async function EvidenceReviewPage() {
   await requireAdminUser();
+  const t = await getTranslations("evidence_review");
 
   let items: EvidenceItem[] = [];
   let loadError: string | null = null;
@@ -24,7 +26,7 @@ export default async function EvidenceReviewPage() {
       loadError = error.message;
       loadErrorStatus = error.status;
     } else {
-      loadError = "No se pudieron cargar las evidencias pendientes.";
+      loadError = t("page.errorLoad");
     }
   }
 
@@ -35,8 +37,8 @@ export default async function EvidenceReviewPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Revisión de Evidencias"
-        description="Valida las evidencias subidas por los miembros para carpetas, clases y honores."
+        title={t("page.title")}
+        description={t("page.description")}
       />
 
       {loadError && (
@@ -49,8 +51,8 @@ export default async function EvidenceReviewPage() {
       {!loadError && items.length === 0 && (
         <EmptyState
           icon={FileSearch}
-          title="Sin evidencias pendientes"
-          description="No hay evidencias pendientes de revisión en este momento."
+          title={t("page.emptyTitle")}
+          description={t("page.emptyDescription")}
         />
       )}
 
@@ -60,7 +62,7 @@ export default async function EvidenceReviewPage() {
 
       {!loadError && pendingCount === 0 && items.length > 0 && (
         <p className="text-center text-sm text-muted-foreground">
-          Todas las evidencias han sido revisadas.
+          {t("page.allReviewed")}
         </p>
       )}
     </div>

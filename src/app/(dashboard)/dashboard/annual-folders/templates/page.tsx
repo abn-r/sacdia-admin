@@ -1,4 +1,4 @@
-import { FolderOpen } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { TemplatesClientPage } from "@/components/annual-folders/templates-client-page";
@@ -25,6 +25,7 @@ function extractArray(payload: unknown): AnyRecord[] {
 
 export default async function TemplatesPage() {
   await requireAdminUser();
+  const t = await getTranslations("annual_folders");
 
   let templates: FolderTemplate[] = [];
   let clubTypes: ClubType[] = [];
@@ -44,7 +45,7 @@ export default async function TemplatesPage() {
     loadError =
       err instanceof ApiError
         ? err.message
-        : "No se pudieron cargar las plantillas.";
+        : t("pageTemplates.errorFallback");
   }
 
   if (clubTypesResult.status === "fulfilled") {
@@ -62,8 +63,8 @@ export default async function TemplatesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Plantillas de carpeta anual"
-        description="Define la estructura de secciones para cada tipo de club y año eclesiástico."
+        title={t("pageTemplates.title")}
+        description={t("pageTemplates.description")}
       />
 
       {loadError && (
