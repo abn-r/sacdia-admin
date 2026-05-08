@@ -264,7 +264,7 @@ export function UserRolesPanel({
                   >
                     <span className="text-sm font-medium">{role.role_name}</span>
                     <span className="text-xs text-muted-foreground">
-                      Categoria: {role.role_category}
+                      Categoría: {role.role_category}
                     </span>
                   </button>
                 ))}

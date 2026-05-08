@@ -81,7 +81,7 @@ export default async function MemberOfMonthSupervisionPage({
       momResult.reason,
     );
     loadError =
-      "No se pudieron cargar los ganadores. Verifica la conexion con el servidor.";
+      "No se pudieron cargar los ganadores. Verifica la conexión con el servidor.";
   }
 
   return (
@@ -102,7 +102,7 @@ export default async function MemberOfMonthSupervisionPage({
       {!loadError && clubTypes.length === 0 && (
         <EmptyState
           icon={Trophy}
-          title="Sin catalogos disponibles"
+          title="Sin catálogos disponibles"
           description="No se pudieron cargar los tipos de club para los filtros."
         />
       )}

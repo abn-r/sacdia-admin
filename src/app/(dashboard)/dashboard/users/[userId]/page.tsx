@@ -244,7 +244,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
             <CardTitle className="text-base">Acceso restringido</CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground">
-            Necesitas autorizacion global resuelta para consultar datos de terceros.
+            Necesitas autorización global resuelta para consultar datos de terceros.
           </CardContent>
         </Card>
       );
@@ -341,7 +341,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
       {/* Tabbed content */}
       <Tabs defaultValue="info">
         <TabsList>
-          <TabsTrigger value="info">Informacion</TabsTrigger>
+          <TabsTrigger value="info">Información</TabsTrigger>
           {canSeeAdministrativeCompletion ? (
             <TabsTrigger value="post-registration">Post-registro</TabsTrigger>
           ) : null}
@@ -366,13 +366,13 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                     label="Fecha de nacimiento"
                     value={formatDate(user.birthday)}
                   />
-                  <InfoRow label="Genero" value={user.gender} />
+                  <InfoRow label="Género" value={user.gender} />
                   <InfoRow
                     label="Bautismo"
                     value={
                       user.baptism !== null && user.baptism !== undefined
                         ? user.baptism
-                          ? `Si${user.baptism_date ? ` (${formatDate(user.baptism_date)})` : ""}`
+                          ? `Sí${user.baptism_date ? ` (${formatDate(user.baptism_date)})` : ""}`
                           : "No"
                         : "—"
                     }
@@ -382,10 +382,10 @@ export default async function UserDetailPage({ params }: { params: Params }) {
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-base">Ubicacion</CardTitle>
+                  <CardTitle className="text-base">Ubicación</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <InfoRow label="Pais" value={user.country?.name} />
+                  <InfoRow label="País" value={user.country?.name} />
                   <InfoRow label="Union" value={user.union?.name} />
                   <InfoRow label="Campo local" value={user.local_field?.name} />
                   <InfoRow label="Distrito ID" value={user.district_id} />
@@ -425,7 +425,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                       </>
                     ) : (
                       <p className="text-sm text-muted-foreground">
-                        Este payload no incluyo el bloque sensible de salud.
+                        Este payload no incluyó el bloque sensible de salud.
                       </p>
                     )}
                   </CardContent>
@@ -440,7 +440,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                   <CardContent>
                     {!user.emergency_contacts ? (
                       <p className="text-sm text-muted-foreground">
-                        Este payload no incluyo el bloque de contactos de emergencia.
+                        Este payload no incluyó el bloque de contactos de emergencia.
                       </p>
                     ) : user.emergency_contacts.length === 0 ? (
                       <p className="text-sm text-muted-foreground">
@@ -452,7 +452,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                           <TableHeader>
                             <TableRow>
                               <TableHead>Nombre</TableHead>
-                              <TableHead>Telefono</TableHead>
+                              <TableHead>Teléfono</TableHead>
                               <TableHead>Parentesco ID</TableHead>
                               <TableHead>Principal</TableHead>
                             </TableRow>
@@ -497,15 +497,15 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                     {legalRepresentative ? (
                       <>
                         <InfoRow label="Nombre" value={legalRepresentative.fullName} />
-                        <InfoRow label="Telefono" value={legalRepresentative.phone} />
+                        <InfoRow label="Teléfono" value={legalRepresentative.phone} />
                         <InfoRow
-                          label="Tipo de relacion"
+                          label="Tipo de relación"
                           value={legalRepresentative.relationshipTypeId}
                         />
                       </>
                     ) : (
                       <p className="text-sm text-muted-foreground">
-                        Este payload no incluyo el bloque de representante legal.
+                        Este payload no incluyó el bloque de representante legal.
                       </p>
                     )}
                   </CardContent>
@@ -539,7 +539,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                     value={formatDate(user.created_at)}
                   />
                   <InfoRow
-                    label="Ultima actualizacion"
+                    label="Última actualización"
                     value={formatDate(user.updated_at ?? user.modified_at)}
                   />
                 </CardContent>

@@ -115,7 +115,7 @@ function RejectDialog({ enrollmentId, disabled, onConfirm }: RejectDialogProps) 
           <AlertDialogTitle>Rechazar inscripción</AlertDialogTitle>
           <AlertDialogDescription>
             Esta acción marcará la inscripción como rechazada. El miembro no
-            podra continuar con el proceso de investidura con esta inscripcion.
+            podrá continuar con el proceso de investidura con esta inscripción.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -153,8 +153,8 @@ export function EnrollmentsTable({ enrollments, onRefresh }: EnrollmentsTablePro
       await validateEnrollment(enrollmentId, action);
       toast.success(
         action === "APPROVED"
-          ? "Inscripcion aprobada correctamente."
-          : "Inscripcion rechazada correctamente.",
+          ? "Inscripción aprobada correctamente."
+          : "Inscripción rechazada correctamente.",
       );
       startTransition(() => {
         router.refresh();
@@ -164,7 +164,7 @@ export function EnrollmentsTable({ enrollments, onRefresh }: EnrollmentsTablePro
       const message =
         error instanceof ApiError
           ? error.message
-          : "Ocurrio un error. Intenta de nuevo.";
+          : "Ocurrió un error. Intenta de nuevo.";
       toast.error(message);
     } finally {
       setProcessingId(null);
@@ -180,7 +180,7 @@ export function EnrollmentsTable({ enrollments, onRefresh }: EnrollmentsTablePro
               <TableHead>Miembro</TableHead>
               <TableHead>Clase</TableHead>
               <TableHead>Estado</TableHead>
-              <TableHead>Fecha inscripcion</TableHead>
+              <TableHead>Fecha inscripción</TableHead>
               <TableHead>Enviado el</TableHead>
               <TableHead className="text-right">Acciones</TableHead>
             </TableRow>
@@ -205,7 +205,7 @@ export function EnrollmentsTable({ enrollments, onRefresh }: EnrollmentsTablePro
             <TableHead>Miembro</TableHead>
             <TableHead>Clase</TableHead>
             <TableHead>Estado</TableHead>
-            <TableHead>Fecha inscripcion</TableHead>
+            <TableHead>Fecha inscripción</TableHead>
             <TableHead>Enviado el</TableHead>
             <TableHead className="text-right">Acciones</TableHead>
           </TableRow>

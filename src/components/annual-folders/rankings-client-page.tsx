@@ -279,17 +279,17 @@ export function RankingsClientPage({
           </Select>
         </div>
 
-        {/* Ano eclesiastico */}
+        {/* Año eclesiástico */}
         <div className="flex min-w-44 flex-col gap-1.5">
           <span className="text-xs font-medium text-muted-foreground">
-            Ano eclesiastico
+            Año eclesiástico
           </span>
           <Select
             value={String(selectedYearId)}
             onValueChange={(val) => setSelectedYearId(Number(val))}
           >
             <SelectTrigger className="h-9">
-              <SelectValue placeholder="Seleccionar ano" />
+              <SelectValue placeholder="Seleccionar año" />
             </SelectTrigger>
             <SelectContent>
               {ecclesiasticalYears.map((year) => (
@@ -309,20 +309,20 @@ export function RankingsClientPage({
           </Select>
         </div>
 
-        {/* Categoria */}
+        {/* Categoría */}
         <div className="flex min-w-44 flex-col gap-1.5">
           <span className="text-xs font-medium text-muted-foreground">
-            Categoria de premio
+            Categoría de premio
           </span>
           <Select
             value={selectedCategoryId}
             onValueChange={setSelectedCategoryId}
           >
             <SelectTrigger className="h-9">
-              <SelectValue placeholder="Todas las categorias" />
+              <SelectValue placeholder="Todas las categorías" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todas las categorias</SelectItem>
+              <SelectItem value="all">Todas las categorías</SelectItem>
               {filteredCategories.map((cat) => (
                 <SelectItem
                   key={cat.award_category_id}
@@ -388,7 +388,7 @@ export function RankingsClientPage({
           </h3>
           <p className="mt-1 max-w-sm text-sm text-muted-foreground">
             No hay rankings calculados para estos filtros. Selecciona un tipo de
-            club y ano, luego usa &quot;Recalcular rankings&quot; para generarlos.
+            club y año, luego usa &quot;Recalcular rankings&quot; para generarlos.
           </p>
           <Button
             variant="outline"
@@ -412,7 +412,7 @@ export function RankingsClientPage({
                     aria-sort={sortField === "rank_position" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
                   >
                     <SortableHeader field="rank_position" activeField={sortField} direction={sortDirection} onSort={handleSort}>
-                      Posicion
+                      Posición
                     </SortableHeader>
                   </TableHead>
                   <TableHead
@@ -463,7 +463,7 @@ export function RankingsClientPage({
                     </SortableHeader>
                   </TableHead>
                   <TableHead className="hidden h-9 w-32 px-3 lg:table-cell text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Categoria
+                    Categoría
                   </TableHead>
                   <TableHead className="h-9 w-24 px-3 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">Acciones</TableHead>
                 </TableRow>
@@ -527,7 +527,7 @@ export function RankingsClientPage({
                         </Badge>
                       ) : (
                         <span className="text-xs italic text-muted-foreground/60">
-                          Sin categoria
+                          Sin categoría
                         </span>
                       )}
                     </TableCell>
@@ -635,9 +635,9 @@ export function RankingsClientPage({
           <AlertDialogHeader>
             <AlertDialogTitle>Recalcular rankings</AlertDialogTitle>
             <AlertDialogDescription>
-              Se recalcularan los rankings para el ano{" "}
+              Se recalcularán los rankings para el año{" "}
               <strong>{activeYear?.name ?? selectedYearId}</strong>. Este proceso
-              puede tomar unos segundos. Los resultados anteriores seran
+              puede tomar unos segundos. Los resultados anteriores serán
               reemplazados.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -649,7 +649,7 @@ export function RankingsClientPage({
               onClick={confirmRecalculate}
               disabled={isRecalculating}
             >
-              {isRecalculating ? "Recalculando..." : "Confirmar recalculo"}
+              {isRecalculating ? "Recalculando..." : "Confirmar recálculo"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

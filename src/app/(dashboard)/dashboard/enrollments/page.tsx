@@ -89,7 +89,7 @@ async function EnrollmentsContent({ query }: { query: EnrollmentsQuery }) {
       <EmptyState
         icon={ClipboardList}
         title="No hay inscripciones pendientes"
-        description="No existen inscripciones enviadas para validacion de investidura en este momento."
+        description="No existen inscripciones enviadas para validación de investidura en este momento."
       />
     );
   }
@@ -99,8 +99,8 @@ async function EnrollmentsContent({ query }: { query: EnrollmentsQuery }) {
       <p className="text-sm text-muted-foreground">
         <span className="font-medium text-foreground">{result.items.length}</span>{" "}
         {result.items.length === 1
-          ? "inscripcion pendiente de validacion"
-          : "inscripciones pendientes de validacion"}
+          ? "inscripción pendiente de validación"
+          : "inscripciones pendientes de validación"}
       </p>
 
       <EnrollmentsTable enrollments={result.items} />
@@ -138,7 +138,7 @@ export default async function EnrollmentsPage({
     <div className="space-y-6">
       <PageHeader
         title="Inscripciones"
-        description="Inscripciones enviadas para validacion de investidura. Aprueba o rechaza cada solicitud."
+        description="Inscripciones enviadas para validación de investidura. Aprueba o rechaza cada solicitud."
       />
 
       <Suspense fallback={<EnrollmentsListSkeleton />}>

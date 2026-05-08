@@ -35,16 +35,16 @@ type Section = {
 const SECTION_TYPE_LABELS: Record<string, string> = {
   adventurers: "Aventureros",
   pathfinders: "Conquistadores",
-  master_guilds: "Guias Mayores",
+  master_guilds: "Guías Mayores",
 };
 
 const DAYS_OF_WEEK = [
   { value: "Monday", label: "Lunes" },
   { value: "Tuesday", label: "Martes" },
-  { value: "Wednesday", label: "Miercoles" },
+  { value: "Wednesday", label: "Miércoles" },
   { value: "Thursday", label: "Jueves" },
   { value: "Friday", label: "Viernes" },
-  { value: "Saturday", label: "Sabado" },
+  { value: "Saturday", label: "Sábado" },
   { value: "Sunday", label: "Domingo" },
 ];
 

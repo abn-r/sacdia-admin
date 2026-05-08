@@ -73,17 +73,17 @@ export default async function ReportsSupervisionPage({
       reportsResult.reason,
     );
     loadError =
-      "No se pudieron cargar los reportes. Verifica la conexion con el servidor.";
+      "No se pudieron cargar los reportes. Verifica la conexión con el servidor.";
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Supervision de Reportes"
+        title="Supervisión de Reportes"
         description="Vista consolidada de reportes mensuales de todos los clubes."
         breadcrumbs={[
           { label: "Reportes", href: "/dashboard/reports" },
-          { label: "Supervision" },
+          { label: "Supervisión" },
         ]}
       />
 
@@ -94,7 +94,7 @@ export default async function ReportsSupervisionPage({
       {!loadError && clubTypes.length === 0 && (
         <EmptyState
           icon={ClipboardList}
-          title="Sin catalogos disponibles"
+          title="Sin catálogos disponibles"
           description="No se pudieron cargar los tipos de club para los filtros."
         />
       )}

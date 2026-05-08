@@ -176,7 +176,7 @@ export function ManualDataForm({
       {/* Administración */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">Administracion</CardTitle>
+          <CardTitle className="text-base">Administración</CardTitle>
           <CardDescription>Reuniones y eventos administrativos del mes.</CardDescription>
         </CardHeader>
         <CardContent className="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -311,11 +311,11 @@ export function ManualDataForm({
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Observaciones Generales</CardTitle>
-          <CardDescription>Desafios, logros y pedidos de oracion del mes.</CardDescription>
+          <CardDescription>Desafíos, logros y pedidos de oración del mes.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <TextareaField
-            label="Desafios"
+            label="Desafíos"
             name="challenges"
             register={register}
             error={errors.challenges?.message}
@@ -329,7 +329,7 @@ export function ManualDataForm({
             disabled={disabled || saving}
           />
           <TextareaField
-            label="Pedidos de oracion"
+            label="Pedidos de oración"
             name="prayer_requests"
             register={register}
             error={errors.prayer_requests?.message}
