@@ -303,7 +303,7 @@ function SubmitButton({ label, extraDisabled }: { label: string; extraDisabled?:
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending || extraDisabled}>
-      {pending && <Loader2 className="mr-2 size-4 animate-spin" />}
+      {pending && <Loader2 className="size-4 animate-spin" />}
       {label}
     </Button>
   );
@@ -317,7 +317,7 @@ function DeleteButton() {
       variant="destructive"
       disabled={pending}
     >
-      {pending && <Loader2 className="mr-2 size-4 animate-spin" />}
+      {pending && <Loader2 className="size-4 animate-spin" />}
       Eliminar
     </Button>
   );
@@ -855,7 +855,7 @@ export function ResourcesCrudPage({
       >
         {canCreate && (
           <Button onClick={() => setCreateOpen(true)}>
-            <Plus className="mr-2 size-4" />
+            <Plus className="size-4" />
             Subir recurso
           </Button>
         )}
@@ -1018,7 +1018,7 @@ export function ResourcesCrudPage({
           >
             {canCreate && !hasActiveFilters && (
               <Button onClick={() => setCreateOpen(true)}>
-                <Plus className="mr-2 size-4" />
+                <Plus className="size-4" />
                 Subir recurso
               </Button>
             )}

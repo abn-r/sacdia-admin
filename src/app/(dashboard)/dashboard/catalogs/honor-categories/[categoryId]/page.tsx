@@ -147,7 +147,7 @@ export default async function HonorCategoryDetailPage({ params }: { params: Para
       <PageHeader title="Detalle de categoría de especialidad">
         <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/catalogs/honor-categories">
-            <ArrowLeft className="mr-2 size-4" />
+            <ArrowLeft className="size-4" />
             Volver
           </Link>
         </Button>

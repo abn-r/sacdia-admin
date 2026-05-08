@@ -25,7 +25,7 @@ function SubmitButton() {
   const t = useTranslations("clubs");
   return (
     <Button type="submit" disabled={pending}>
-      {pending && <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />}
+      {pending && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
       {t("create.submitButton")}
     </Button>
   );

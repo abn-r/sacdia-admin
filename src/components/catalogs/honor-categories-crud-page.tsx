@@ -128,7 +128,7 @@ function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending}>
-      {pending && <Loader2 className="mr-2 size-4 animate-spin" />}
+      {pending && <Loader2 className="size-4 animate-spin" />}
       {label}
     </Button>
   );
@@ -138,7 +138,7 @@ function DeleteButton() {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-      {pending && <Loader2 className="mr-2 size-4 animate-spin" />}
+      {pending && <Loader2 className="size-4 animate-spin" />}
       Eliminar
     </Button>
   );
@@ -331,7 +331,7 @@ export function HonorCategoriesCrudPage({
       <PageHeader title="Categorías de especialidades" description="Catálogo de categorías para especialidades.">
         {canCreate && (
           <Button onClick={() => handleCreateDialogChange(true)}>
-            <Plus className="mr-2 size-4" />
+            <Plus className="size-4" />
             Crear categoría
           </Button>
         )}
@@ -385,7 +385,7 @@ export function HonorCategoriesCrudPage({
           >
             {canCreate && !hasActiveFilters && (
               <Button onClick={() => handleCreateDialogChange(true)}>
-                <Plus className="mr-2 size-4" />
+                <Plus className="size-4" />
                 Crear categoría
               </Button>
             )}

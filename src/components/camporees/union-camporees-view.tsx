@@ -115,7 +115,7 @@ export function UnionCampoReesView({ initialCamporees, unions }: UnionCampoReesV
           </Button>
         </div>
         <Button size="sm" onClick={() => setCreateOpen(true)}>
-          <Plus className="mr-2 size-4" />
+          <Plus className="size-4" />
           {t("unionList.newCamporee")}
         </Button>
       </div>

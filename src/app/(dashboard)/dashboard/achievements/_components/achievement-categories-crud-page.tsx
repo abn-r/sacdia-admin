@@ -98,7 +98,7 @@ function DeleteButton() {
       onClick={() => setPending(true)}
       disabled={pending}
     >
-      {pending && <Loader2 className="mr-2 size-4 animate-spin" />}
+      {pending && <Loader2 className="size-4 animate-spin" />}
       Eliminar
     </Button>
   );
@@ -202,7 +202,7 @@ export function AchievementCategoriesCrudPage({
         description="Categorías y logros del sistema de recompensas."
       >
         <Button onClick={() => setCreateOpen(true)}>
-          <Plus className="mr-2 size-4" />
+          <Plus className="size-4" />
           Nueva categoría
         </Button>
       </PageHeader>
@@ -262,7 +262,7 @@ export function AchievementCategoriesCrudPage({
           >
             {!hasActiveFilters && (
               <Button onClick={() => setCreateOpen(true)}>
-                <Plus className="mr-2 size-4" />
+                <Plus className="size-4" />
                 Nueva categoría
               </Button>
             )}

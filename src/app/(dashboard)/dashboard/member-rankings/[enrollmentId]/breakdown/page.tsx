@@ -94,7 +94,7 @@ export default async function MemberBreakdownPage({
       >
         <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/member-rankings">
-            <ArrowLeft className="mr-2 size-4" />
+            <ArrowLeft className="size-4" />
             Volver a rankings
           </Link>
         </Button>

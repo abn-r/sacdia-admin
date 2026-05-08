@@ -203,9 +203,9 @@ function OverrideButton({
         className="mt-3"
       >
         {isPending ? (
-          <Loader2 className="mr-2 size-4 animate-spin" />
+          <Loader2 className="size-4 animate-spin" />
         ) : (
-          <ShieldAlert className="mr-2 size-4" />
+          <ShieldAlert className="size-4" />
         )}
         {t("postRegistration.force_complete_button")}
       </Button>
@@ -234,7 +234,7 @@ function OverrideButton({
               disabled={isPending}
               onClick={handleConfirm}
             >
-              {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
+              {isPending && <Loader2 className="size-4 animate-spin" />}
               {t("postRegistration.force_confirming")}
             </AlertDialogAction>
           </AlertDialogFooter>

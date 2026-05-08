@@ -269,7 +269,7 @@ export function UserPermissionsPanel({
               onClick={handleAssign}
               disabled={isPending || !selectedPermId}
             >
-              {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
+              {isPending && <Loader2 className="size-4 animate-spin" />}
               Asignar permiso
             </Button>
           </DialogFooter>
@@ -303,7 +303,7 @@ export function UserPermissionsPanel({
                 disabled={isPending}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
-                {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
+                {isPending && <Loader2 className="size-4 animate-spin" />}
                 Remover
               </AlertDialogAction>
             </AlertDialogFooter>

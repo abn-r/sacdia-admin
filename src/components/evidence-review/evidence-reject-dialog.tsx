@@ -132,7 +132,7 @@ export function EvidenceRejectDialog({
               Cancelar
             </Button>
             <Button type="submit" variant="destructive" disabled={isSubmitting}>
-              {isSubmitting && <Loader2 className="mr-2 size-4 animate-spin" />}
+              {isSubmitting && <Loader2 className="size-4 animate-spin" />}
               Rechazar
             </Button>
           </DialogFooter>

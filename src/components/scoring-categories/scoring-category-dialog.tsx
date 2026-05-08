@@ -193,7 +193,7 @@ export function ScoringCategoryDialog({
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
-                  <Loader2 className="mr-2 size-4 animate-spin" />
+                  <Loader2 className="size-4 animate-spin" />
                   Guardando...
                 </>
               ) : isEdit ? (

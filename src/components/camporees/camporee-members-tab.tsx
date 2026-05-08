@@ -88,7 +88,7 @@ export function CamporeeMembersTab({
             <span className="sr-only">Actualizar</span>
           </Button>
           <Button size="sm" onClick={() => setRegisterOpen(true)}>
-            <UserPlus className="mr-2 size-4" />
+            <UserPlus className="size-4" />
             Registrar miembro
           </Button>
         </div>

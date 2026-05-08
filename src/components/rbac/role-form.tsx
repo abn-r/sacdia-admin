@@ -206,19 +206,19 @@ export function CreateRoleForm({ allPermissions }: CreateRoleFormProps) {
         <div className="flex items-center justify-end gap-3">
           <Button type="button" variant="outline" asChild>
             <Link href={ROLES_PATH}>
-              <ArrowLeft className="mr-2 size-4" />
+              <ArrowLeft className="size-4" />
               Cancelar
             </Link>
           </Button>
           <Button type="submit" disabled={isPending}>
             {isPending ? (
               <>
-                <Loader2 className="mr-2 size-4 animate-spin" />
+                <Loader2 className="size-4 animate-spin" />
                 Creando...
               </>
             ) : (
               <>
-                <Save className="mr-2 size-4" />
+                <Save className="size-4" />
                 Crear rol
               </>
             )}
@@ -395,19 +395,19 @@ export function EditRoleForm({ role, allPermissions }: EditRoleFormProps) {
         <div className="flex items-center justify-end gap-3">
           <Button type="button" variant="outline" asChild>
             <Link href={ROLES_PATH}>
-              <ArrowLeft className="mr-2 size-4" />
+              <ArrowLeft className="size-4" />
               Cancelar
             </Link>
           </Button>
           <Button type="submit" disabled={isPending}>
             {isPending ? (
               <>
-                <Loader2 className="mr-2 size-4 animate-spin" />
+                <Loader2 className="size-4 animate-spin" />
                 Guardando...
               </>
             ) : (
               <>
-                <Save className="mr-2 size-4" />
+                <Save className="size-4" />
                 Guardar cambios
               </>
             )}

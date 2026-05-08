@@ -104,7 +104,7 @@ export function EvidenceReviewClientPage({
           disabled={isRefreshing}
         >
           <RefreshCw
-            className={`mr-2 size-4 ${isRefreshing ? "animate-spin" : ""}`}
+            className={`size-4 ${isRefreshing ? "animate-spin" : ""}`}
           />
           Actualizar
         </Button>

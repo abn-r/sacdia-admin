@@ -87,7 +87,7 @@ export default async function UnionDetailPage({
       <PageHeader title={unionName}>
         <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/catalogs/geography/unions">
-            <ArrowLeft className="mr-2 size-4" />
+            <ArrowLeft className="size-4" />
             Volver
           </Link>
         </Button>

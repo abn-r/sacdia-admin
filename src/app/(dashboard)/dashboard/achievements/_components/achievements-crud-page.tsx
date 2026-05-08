@@ -147,7 +147,7 @@ function DeleteButton() {
       onClick={() => setPending(true)}
       disabled={pending}
     >
-      {pending && <Loader2 className="mr-2 size-4 animate-spin" />}
+      {pending && <Loader2 className="size-4 animate-spin" />}
       Eliminar
     </Button>
   );
@@ -275,7 +275,7 @@ export function AchievementsCrudPage({
         </div>
         <Button asChild>
           <Link href={`/dashboard/achievements/${categoryId}/new`}>
-            <Plus className="mr-2 size-4" />
+            <Plus className="size-4" />
             Nuevo logro
           </Link>
         </Button>
@@ -377,7 +377,7 @@ export function AchievementsCrudPage({
             {!hasActiveFilters && (
               <Button asChild>
                 <Link href={`/dashboard/achievements/${categoryId}/new`}>
-                  <Plus className="mr-2 size-4" />
+                  <Plus className="size-4" />
                   Nuevo logro
                 </Link>
               </Button>
