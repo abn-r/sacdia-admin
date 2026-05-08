@@ -232,7 +232,7 @@ function StatCard({
   const config = statCardConfig[colorIndex % statCardConfig.length];
 
   return (
-    <Card className="relative overflow-hidden transition-shadow hover:shadow-md">
+    <Card className="group relative overflow-hidden transition-all hover:border-primary/20 hover:shadow-md">
       <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-3">
         <CardTitle className="text-sm font-medium text-muted-foreground">
           {title}
@@ -243,7 +243,7 @@ function StatCard({
             config.iconBg
           )}
         >
-          <Icon className={cn("size-4", config.iconColor)} />
+          <Icon className={cn("size-[18px]", config.iconColor)} />
         </div>
       </CardHeader>
       <CardContent>
@@ -651,7 +651,7 @@ export default async function DashboardPage() {
               statCardConfig[link.colorIndex % statCardConfig.length];
             return (
               <Link key={link.href} href={link.href}>
-                <Card className="group h-full transition-all hover:shadow-md hover:-translate-y-0.5">
+                <Card className="group h-full transition-all hover:border-primary/20 hover:shadow-md">
                   <CardContent className="flex items-center gap-3.5 p-4">
                     <div
                       className={cn(
