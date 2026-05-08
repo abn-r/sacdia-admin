@@ -356,9 +356,8 @@ export function HonorsCrudPage({
             <h3 className="text-sm font-semibold tracking-wide text-foreground">Filtros</h3>
             <span className="text-xs text-muted-foreground">Refina el listado por campo</span>
           </div>
-          <div className="overflow-x-auto pb-1">
-            <div className="flex min-w-max items-end gap-4">
-              <div className="w-[280px] space-y-1">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+              <div className="space-y-1">
                 <Label htmlFor="honors-filter-name">Nombre</Label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -372,7 +371,7 @@ export function HonorsCrudPage({
                 </div>
               </div>
 
-              <div className="w-[210px] space-y-1">
+              <div className="space-y-1">
                 <Label htmlFor="honors-filter-category">Categoría</Label>
                 <Select value={currentCategoryFilter} onValueChange={(value) => updateParam("categoryId", value)}>
                   <SelectTrigger id="honors-filter-category" className="bg-background">
@@ -389,7 +388,7 @@ export function HonorsCrudPage({
                 </Select>
               </div>
 
-              <div className="w-[210px] space-y-1">
+              <div className="space-y-1">
                 <Label htmlFor="honors-filter-club-type">Tipo de club</Label>
                 <Select value={currentClubTypeFilter} onValueChange={(value) => updateParam("clubTypeId", value)}>
                   <SelectTrigger id="honors-filter-club-type" className="bg-background">
@@ -406,7 +405,7 @@ export function HonorsCrudPage({
                 </Select>
               </div>
 
-              <div className="w-[170px] space-y-1">
+              <div className="space-y-1">
                 <Label htmlFor="honors-filter-level">Nivel</Label>
                 <Select value={currentLevelFilter} onValueChange={(value) => updateParam("skillLevel", value)}>
                   <SelectTrigger id="honors-filter-level" className="bg-background">
@@ -423,7 +422,7 @@ export function HonorsCrudPage({
                 </Select>
               </div>
 
-              <div className="w-[170px] space-y-1">
+              <div className="space-y-1">
                 <Label htmlFor="honors-filter-status">Estado</Label>
                 <Select value={currentStatusFilter} onValueChange={(value) => updateParam("active", value)}>
                   <SelectTrigger id="honors-filter-status" className="bg-background">
@@ -436,7 +435,6 @@ export function HonorsCrudPage({
                   </SelectContent>
                 </Select>
               </div>
-            </div>
           </div>
         </div>
 
