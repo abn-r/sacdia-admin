@@ -314,7 +314,7 @@ async function ClubsContent({
 function ClubsSkeleton() {
   return (
     <div className="space-y-4">
-      <div className="rounded-md border">
+      <DataTableShell>
         {Array.from({ length: 6 }).map((_, i) => (
           <div key={i} className="flex items-center gap-4 border-b p-4 last:border-b-0">
             <Skeleton className="h-4 w-40" />
@@ -322,7 +322,7 @@ function ClubsSkeleton() {
             <Skeleton className="h-5 w-14" />
           </div>
         ))}
-      </div>
+      </DataTableShell>
       <div className="flex items-center justify-between">
         <Skeleton className="h-4 w-40" />
         <div className="flex items-center gap-2">
