@@ -40,18 +40,19 @@ export type MfaTabProps = {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function MfaStatusBadge({ enabled }: { enabled: boolean }) {
+  const t = useTranslations("users");
   if (enabled) {
     return (
       <Badge variant="success" className="gap-1">
         <ShieldCheck size={12} />
-        Habilitado
+        {t("mfa.status_enabled")}
       </Badge>
     );
   }
   return (
     <Badge variant="warning" className="gap-1">
       <ShieldOff size={12} />
-      No configurado
+      {t("mfa.status_not_configured")}
     </Badge>
   );
 }
@@ -59,6 +60,7 @@ function MfaStatusBadge({ enabled }: { enabled: boolean }) {
 // ─── Empty state ──────────────────────────────────────────────────────────────
 
 function MfaNotConfigured() {
+  const t = useTranslations("users");
   return (
     <Card>
       <CardContent className="py-8">
@@ -67,9 +69,9 @@ function MfaNotConfigured() {
             <Shield size={18} className="text-muted-foreground" />
           </div>
           <div className="space-y-1">
-            <p className="text-sm font-medium">MFA no configurado</p>
+            <p className="text-sm font-medium">{t("mfa.not_configured_title")}</p>
             <p className="text-[13px] text-muted-foreground">
-              Este usuario no ha configurado la autenticación de dos factores.
+              {t("mfa.not_configured_description")}
             </p>
           </div>
         </div>
@@ -95,7 +97,7 @@ function ResetMfaDialog({
       try {
         await adminResetUserMfa(userId);
         toast.success(t("toasts.mfa_reset"), {
-          description: "El usuario deberá re-enrolarse en su próximo inicio de sesión.",
+          description: t("mfa.reset_toast_description"),
         });
         onSuccess();
       } catch (error) {
@@ -111,27 +113,26 @@ function ResetMfaDialog({
       <AlertDialogTrigger asChild>
         <Button variant="outline" size="sm" className="gap-2">
           <RefreshCw size={14} />
-          Resetear MFA
+          {t("mfa.reset_button")}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
             <ShieldAlert size={18} className="text-warning-foreground" />
-            Resetear autenticación de dos factores
+            {t("mfa.reset_dialog_title")}
           </AlertDialogTitle>
           <AlertDialogDescription className="space-y-2">
             <span className="block">
-              Esta acción elimina el secreto TOTP y todos los códigos de respaldo del usuario.
+              {t("mfa.reset_dialog_body1")}
             </span>
             <span className="block font-medium text-foreground">
-              El usuario deberá configurar MFA nuevamente desde su cuenta. Si el usuario
-              perdió acceso a su app autenticadora, esta acción le permite recuperar el acceso.
+              {t("mfa.reset_dialog_body2")}
             </span>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
+          <AlertDialogCancel disabled={isPending}>{t("mfa.cancel")}</AlertDialogCancel>
           <AlertDialogAction
             onClick={(e) => {
               e.preventDefault();
@@ -143,10 +144,10 @@ function ResetMfaDialog({
             {isPending ? (
               <>
                 <Loader2 size={14} className="animate-spin" />
-                Reseteando...
+                {t("mfa.reset_confirming")}
               </>
             ) : (
-              "Confirmar reset"
+              t("mfa.reset_confirm")
             )}
           </AlertDialogAction>
         </AlertDialogFooter>
@@ -172,7 +173,7 @@ function DisableMfaDialog({
       try {
         await adminResetUserMfa(userId);
         toast.success(t("toasts.mfa_disabled"), {
-          description: "La autenticación de dos factores fue removida del usuario.",
+          description: t("mfa.disable_toast_description"),
         });
         onSuccess();
       } catch (error) {
@@ -188,28 +189,26 @@ function DisableMfaDialog({
       <AlertDialogTrigger asChild>
         <Button variant="destructive" size="sm" className="gap-2">
           <ShieldOff size={14} />
-          Deshabilitar MFA
+          {t("mfa.disable_button")}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
             <ShieldOff size={18} className="text-destructive" />
-            Deshabilitar autenticación de dos factores
+            {t("mfa.disable_dialog_title")}
           </AlertDialogTitle>
           <AlertDialogDescription className="space-y-2">
             <span className="block">
-              Esta es una acción de soporte para casos donde el usuario no puede acceder
-              a su cuenta. Se eliminará permanentemente el secreto TOTP y los códigos de respaldo.
+              {t("mfa.disable_dialog_body1")}
             </span>
             <span className="block font-medium text-destructive">
-              La cuenta del usuario quedará protegida únicamente con contraseña.
-              Usar solo cuando el usuario haya solicitado este soporte.
+              {t("mfa.disable_dialog_body2")}
             </span>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
+          <AlertDialogCancel disabled={isPending}>{t("mfa.cancel")}</AlertDialogCancel>
           <AlertDialogAction
             onClick={(e) => {
               e.preventDefault();
@@ -221,10 +220,10 @@ function DisableMfaDialog({
             {isPending ? (
               <>
                 <Loader2 size={14} className="animate-spin" />
-                Deshabilitando...
+                {t("mfa.disable_confirming")}
               </>
             ) : (
-              "Confirmar, deshabilitar MFA"
+              t("mfa.disable_confirm")
             )}
           </AlertDialogAction>
         </AlertDialogFooter>
@@ -236,6 +235,7 @@ function DisableMfaDialog({
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export function MfaTab({ userId, mfaEnabled, canManageMfa }: MfaTabProps) {
+  const t = useTranslations("users");
   const [enabled, setEnabled] = useState(mfaEnabled);
 
   // MFA not configured for this user
@@ -254,16 +254,16 @@ export function MfaTab({ userId, mfaEnabled, canManageMfa }: MfaTabProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <ShieldCheck size={16} className="text-success" />
-            Autenticación de dos factores
+            {t("mfa.card_title")}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Status row */}
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <p className="text-sm font-medium">Estado</p>
+              <p className="text-sm font-medium">{t("mfa.status_label")}</p>
               <p className="text-[13px] text-muted-foreground">
-                El usuario tiene MFA activo en su cuenta.
+                {t("mfa.status_description")}
               </p>
             </div>
             <MfaStatusBadge enabled={true} />
@@ -277,9 +277,9 @@ export function MfaTab({ userId, mfaEnabled, canManageMfa }: MfaTabProps) {
               <Smartphone size={14} className="text-primary" />
             </div>
             <div className="space-y-0.5">
-              <p className="text-sm font-medium">Método</p>
+              <p className="text-sm font-medium">{t("mfa.method_label")}</p>
               <p className="text-[13px] text-muted-foreground">
-                TOTP — App autenticadora (Google Authenticator, Authy, etc.)
+                {t("mfa.method_description")}
               </p>
             </div>
           </div>
@@ -291,14 +291,12 @@ export function MfaTab({ userId, mfaEnabled, canManageMfa }: MfaTabProps) {
         <Card>
           <CardHeader>
             <CardTitle className="text-base text-destructive">
-              Acciones de administrador
+              {t("mfa.admin_actions_title")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-[13px] text-muted-foreground">
-              Estas acciones son irreversibles y estan destinadas a casos de soporte donde
-              el usuario perdió acceso a su app autenticadora. Cada acción elimina el secreto
-              TOTP y los códigos de respaldo almacenados.
+              {t("mfa.admin_actions_description")}
             </p>
 
             <div className="flex flex-wrap gap-3">

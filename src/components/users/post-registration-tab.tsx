@@ -12,6 +12,7 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -38,12 +39,15 @@ import type {
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
-interface StepConfig {
+interface StepStaticConfig {
   key: keyof PostRegistrationStatus["steps"];
   number: 1 | 2 | 3;
+  icon: React.ElementType;
+}
+
+interface StepConfig extends StepStaticConfig {
   label: string;
   description: string;
-  icon: React.ElementType;
   requires: string[];
 }
 
@@ -54,45 +58,12 @@ interface PostRegistrationTabProps {
   canOverride: boolean;
 }
 
-// ─── Step definitions ────────────────────────────────────────────────────────
+// ─── Static step structure (no translatable strings) ─────────────────────────
 
-const STEPS: StepConfig[] = [
-  {
-    key: "profilePicture",
-    number: 1,
-    label: "Foto de perfil",
-    description: "El usuario debe subir una foto de perfil para completar este paso.",
-    icon: ImageIcon,
-    requires: ["Foto de perfil subida"],
-  },
-  {
-    key: "personalInfo",
-    number: 2,
-    label: "Información personal",
-    description:
-      "Requiere género, fecha de nacimiento, bautismo, al menos un contacto de emergencia y representante legal si es menor de 18.",
-    icon: User,
-    requires: [
-      "Género",
-      "Fecha de nacimiento",
-      "Bautismo (sí/no)",
-      "Al menos 1 contacto de emergencia",
-      "Representante legal (si es menor de 18)",
-    ],
-  },
-  {
-    key: "clubSelection",
-    number: 3,
-    label: "Selección de club",
-    description:
-      "Asigna país, unión, campo local y membresía de club al usuario. Esta acción requiere datos adicionales y no puede forzarse desde aquí.",
-    icon: Building2,
-    requires: [
-      "Selección de club y sección",
-      "Selección de clase",
-      "País, unión y campo local",
-    ],
-  },
+const STEPS_STATIC: StepStaticConfig[] = [
+  { key: "profilePicture", number: 1, icon: ImageIcon },
+  { key: "personalInfo", number: 2, icon: User },
+  { key: "clubSelection", number: 3, icon: Building2 },
 ];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -117,14 +88,16 @@ function formatDate(iso: string | null): string {
 function StepStatusIcon({
   completed,
   isNext,
+  t,
 }: {
   completed: boolean;
   isNext: boolean;
+  t: ReturnType<typeof useTranslations<"users">>;
 }) {
   if (completed) {
     return (
       <span
-        aria-label="Completado"
+        aria-label={t("postRegistration.step_aria_completed")}
         className="flex size-8 items-center justify-center rounded-full bg-success/10"
       >
         <CheckCircle2 className="size-5 text-success" />
@@ -134,7 +107,7 @@ function StepStatusIcon({
   if (isNext) {
     return (
       <span
-        aria-label="Pendiente"
+        aria-label={t("postRegistration.step_aria_pending")}
         className="flex size-8 items-center justify-center rounded-full bg-warning/10"
       >
         <Clock className="size-5 text-warning-foreground" />
@@ -143,7 +116,7 @@ function StepStatusIcon({
   }
   return (
     <span
-      aria-label="No iniciado"
+      aria-label={t("postRegistration.step_aria_not_started")}
       className="flex size-8 items-center justify-center rounded-full bg-muted"
     >
       <Circle className="size-5 text-muted-foreground" />
@@ -195,6 +168,7 @@ function OverrideButton({
   userId,
   disabled,
 }: OverrideButtonProps) {
+  const t = useTranslations("users");
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
@@ -233,30 +207,35 @@ function OverrideButton({
         ) : (
           <ShieldAlert className="mr-2 size-4" />
         )}
-        Forzar completado
+        {t("postRegistration.force_complete_button")}
       </Button>
 
       <AlertDialog open={open} onOpenChange={setOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Confirmar acción administrativa
+              {t("postRegistration.force_dialog_title")}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Vas a marcar como completado el <strong>Paso {stepNumber}: {stepLabel}</strong> de forma manual, sin que el usuario haya cumplido todos los requisitos desde la app.
+              {t("postRegistration.force_dialog_description", {
+                number: stepNumber,
+                label: stepLabel,
+              })}
               <br />
               <br />
-              Esta acción queda registrada bajo tu sesión de administrador. Asegurate de que el usuario realmente cumple las condiciones del paso antes de continuar.
+              {t("postRegistration.force_dialog_detail")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel disabled={isPending}>
+              {t("postRegistration.cancel")}
+            </AlertDialogCancel>
             <AlertDialogAction
               disabled={isPending}
               onClick={handleConfirm}
             >
               {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
-              Confirmar
+              {t("postRegistration.force_confirming")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -273,23 +252,62 @@ export function PostRegistrationTab({
   photoStatus,
   canOverride,
 }: PostRegistrationTabProps) {
+  const t = useTranslations("users");
   const nextStep = status.nextStep;
+
+  // Build step config with translated strings inside the component
+  const STEPS: StepConfig[] = [
+    {
+      ...STEPS_STATIC[0]!,
+      label: t("postRegistration.step1_label"),
+      description: t("postRegistration.step1_description"),
+      requires: [t("postRegistration.step1_req1")],
+    },
+    {
+      ...STEPS_STATIC[1]!,
+      label: t("postRegistration.step2_label"),
+      description: t("postRegistration.step2_description"),
+      requires: [
+        t("postRegistration.step2_req1"),
+        t("postRegistration.step2_req2"),
+        t("postRegistration.step2_req3"),
+        t("postRegistration.step2_req4"),
+        t("postRegistration.step2_req5"),
+      ],
+    },
+    {
+      ...STEPS_STATIC[2]!,
+      label: t("postRegistration.step3_label"),
+      description: t("postRegistration.step3_description"),
+      requires: [
+        t("postRegistration.step3_req1"),
+        t("postRegistration.step3_req2"),
+        t("postRegistration.step3_req3"),
+      ],
+    },
+  ];
 
   return (
     <div className="space-y-6">
       {/* Overall status banner */}
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">Estado del post-registro</CardTitle>
+          <CardTitle className="text-base">
+            {t("postRegistration.status_card_title")}
+          </CardTitle>
         </CardHeader>
         <CardContent className="flex items-center justify-between gap-4 pt-0 pb-4">
           <p className="text-sm text-muted-foreground">
             {status.complete
-              ? `Completado el ${formatDate(status.dateCompleted)}`
-              : "Proceso de onboarding en curso"}
+              ? t("postRegistration.status_complete", {
+                  date: formatDate(status.dateCompleted),
+                })
+              : t("postRegistration.status_in_progress")}
           </p>
           <Badge variant={status.complete ? "success" : "warning"}>
-            {status.complete ? "Completo" : "Pendiente"}
+            {status.complete
+              ? t("postRegistration.badge_complete")
+              : t("postRegistration.badge_pending")}
           </Badge>
         </CardContent>
       </Card>
@@ -297,7 +315,9 @@ export function PostRegistrationTab({
       {/* Step progress — horizontal timeline */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Pasos del proceso</CardTitle>
+          <CardTitle className="text-base">
+            {t("postRegistration.steps_card_title")}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {/* Timeline header row — vertical on mobile, horizontal on desktop */}
@@ -309,9 +329,13 @@ export function PostRegistrationTab({
                   <StepStatusIcon
                     completed={status.steps[step.key]}
                     isNext={nextStep === step.key}
+                    t={t}
                   />
                   <span className="text-xs font-medium leading-tight">
-                    Paso {step.number} — {step.label}
+                    {t("postRegistration.step_label_full", {
+                      number: step.number,
+                      label: step.label,
+                    })}
                   </span>
                 </div>
                 {index < STEPS.length - 1 && (
@@ -332,9 +356,10 @@ export function PostRegistrationTab({
                   <StepStatusIcon
                     completed={status.steps[step.key]}
                     isNext={nextStep === step.key}
+                    t={t}
                   />
                   <span className="text-xs font-medium text-center leading-tight max-w-[80px]">
-                    Paso {step.number}
+                    {t("postRegistration.step_label", { number: step.number })}
                   </span>
                 </div>
                 {index < STEPS.length - 1 && (
@@ -391,10 +416,10 @@ export function PostRegistrationTab({
                           }
                         >
                           {completed
-                            ? "Completado"
+                            ? t("postRegistration.step_status_completed")
                             : isNext
-                              ? "Pendiente"
-                              : "No iniciado"}
+                              ? t("postRegistration.step_status_pending")
+                              : t("postRegistration.step_status_not_started")}
                         </Badge>
                       </div>
 
@@ -432,7 +457,7 @@ export function PostRegistrationTab({
                       {/* Step 3 note when not completed */}
                       {!completed && step.number === 3 && (
                         <p className="mt-3 text-[11px] text-muted-foreground italic">
-                          La seleccion de club requiere datos especificos (club, clase, ubicacion) que el usuario debe ingresar desde la app movil.
+                          {t("postRegistration.step3_note")}
                         </p>
                       )}
                     </div>
@@ -447,12 +472,18 @@ export function PostRegistrationTab({
       {/* Photo status card */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Estado de foto de perfil</CardTitle>
+          <CardTitle className="text-base">
+            {t("postRegistration.photo_card_title")}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-3">
             <span
-              aria-label={photoStatus.has_photo ? "Foto subida" : "Sin foto de perfil"}
+              aria-label={
+                photoStatus.has_photo
+                  ? t("postRegistration.photo_aria_has")
+                  : t("postRegistration.photo_aria_none")
+              }
               className={cn(
                 "flex size-9 shrink-0 items-center justify-center rounded-lg",
                 photoStatus.has_photo
@@ -465,18 +496,20 @@ export function PostRegistrationTab({
             <div>
               <p className="text-sm font-medium">
                 {photoStatus.has_photo
-                  ? "Foto subida"
-                  : "Sin foto de perfil"}
+                  ? t("postRegistration.photo_has_label")
+                  : t("postRegistration.photo_none_label")}
               </p>
               <p className="text-[13px] text-muted-foreground">
                 {photoStatus.has_photo
-                  ? "El usuario tiene una foto de perfil registrada en el sistema."
-                  : "El usuario aun no ha subido una foto de perfil. El Paso 1 del post-registro requiere esta accion."}
+                  ? t("postRegistration.photo_has_description")
+                  : t("postRegistration.photo_none_description")}
               </p>
             </div>
             <div className="ml-auto shrink-0">
               <Badge variant={photoStatus.has_photo ? "success" : "warning"}>
-                {photoStatus.has_photo ? "Tiene foto" : "Sin foto"}
+                {photoStatus.has_photo
+                  ? t("postRegistration.photo_badge_has")
+                  : t("postRegistration.photo_badge_none")}
               </Badge>
             </div>
           </div>
@@ -486,7 +519,7 @@ export function PostRegistrationTab({
       {/* Permission notice for read-only admins */}
       {!canOverride && (
         <p className="text-center text-sm text-muted-foreground">
-          Tu rol actual solo permite visualizar el estado del post-registro. Para forzar la completitud de pasos, se requiere el permiso{" "}
+          {t("postRegistration.readonly_notice")}{" "}
           <code className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono">
             registration:complete
           </code>
