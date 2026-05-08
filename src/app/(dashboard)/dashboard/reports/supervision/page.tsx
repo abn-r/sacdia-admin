@@ -1,4 +1,5 @@
 import { ClipboardList } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { requireAdminUser } from "@/lib/auth/session";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
@@ -30,6 +31,7 @@ export default async function ReportsSupervisionPage({
   searchParams,
 }: SupervisionPageProps) {
   await requireAdminUser();
+  const t = await getTranslations("reports");
 
   const params = await searchParams;
 
@@ -72,18 +74,17 @@ export default async function ReportsSupervisionPage({
       "[ReportsSupervisionPage] Failed to load admin reports:",
       reportsResult.reason,
     );
-    loadError =
-      "No se pudieron cargar los reportes. Verifica la conexión con el servidor.";
+    loadError = t("supervision.error_load_reports");
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Supervisión de Reportes"
-        description="Vista consolidada de reportes mensuales de todos los clubes."
+        title={t("supervision.page_title")}
+        description={t("supervision.page_description")}
         breadcrumbs={[
-          { label: "Reportes", href: "/dashboard/reports" },
-          { label: "Supervisión" },
+          { label: t("supervision.breadcrumb_reports"), href: "/dashboard/reports" },
+          { label: t("supervision.breadcrumb_supervision") },
         ]}
       />
 
@@ -94,8 +95,8 @@ export default async function ReportsSupervisionPage({
       {!loadError && clubTypes.length === 0 && (
         <EmptyState
           icon={ClipboardList}
-          title="Sin catálogos disponibles"
-          description="No se pudieron cargar los tipos de club para los filtros."
+          title={t("supervision.empty_no_catalogs_title")}
+          description={t("supervision.empty_no_catalogs_description")}
         />
       )}
 

@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { AwardCategoriesClientPage } from "@/components/annual-folders/award-categories-client-page";
@@ -25,6 +26,7 @@ function extractArray(payload: unknown): AnyRecord[] {
 
 export default async function AwardCategoriesPage() {
   await requireAdminUser();
+  const t = await getTranslations("annual_folders");
 
   let categories: AwardCategory[] = [];
   let clubTypes: ClubType[] = [];
@@ -44,7 +46,7 @@ export default async function AwardCategoriesPage() {
     loadError =
       err instanceof ApiError
         ? err.message
-        : "No se pudieron cargar las categorías de premio.";
+        : t("pageCategories.errorFallback");
   }
 
   if (clubTypesResult.status === "fulfilled") {
@@ -56,8 +58,8 @@ export default async function AwardCategoriesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Categorías de premios"
-        description="Gestión de categorías de premio por alcance: Club, Sección y Miembro."
+        title={t("pageCategories.title")}
+        description={t("pageCategories.description")}
       />
 
       {loadError && (

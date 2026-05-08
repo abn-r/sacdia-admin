@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { requireAdminUser } from "@/lib/auth/session";
 import {
@@ -8,12 +9,13 @@ import {
 
 export default async function NotificationsPage() {
   await requireAdminUser();
+  const t = await getTranslations("notifications");
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Notificaciones"
-        description="Envío de notificaciones push a usuarios."
+        title={t("page.title")}
+        description={t("page.description")}
       />
       <div className="grid gap-6 lg:grid-cols-2">
         <DirectNotificationForm />

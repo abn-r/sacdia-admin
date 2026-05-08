@@ -1,4 +1,5 @@
 import { ClipboardCheck } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -28,6 +29,7 @@ function extractSections(
 
 export default async function ValidationPage() {
   await requireAdminUser();
+  const t = await getTranslations("validation_admin");
 
   let classValidations: PendingValidation[] = [];
   let honorValidations: PendingValidation[] = [];
@@ -46,7 +48,7 @@ export default async function ValidationPage() {
       loadError =
         err instanceof ApiError
           ? err.message
-          : "No se pudieron cargar las validaciones de clases.";
+          : t("page.errorLoadClasses");
     }
 
     if (honorResult.status === "fulfilled") {
@@ -56,13 +58,13 @@ export default async function ValidationPage() {
       loadError =
         err instanceof ApiError
           ? err.message
-          : "No se pudieron cargar las validaciones de especialidades.";
+          : t("page.errorLoadHonors");
     }
   } catch (error) {
     loadError =
       error instanceof ApiError
         ? error.message
-        : "No se pudieron cargar las validaciones pendientes.";
+        : t("page.errorLoadGeneric");
   }
 
   const sections = extractSections([...classValidations, ...honorValidations]);
@@ -71,8 +73,8 @@ export default async function ValidationPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Validación"
-        description="Revisión y aprobación de clases y especialidades enviadas para validación."
+        title={t("page.title")}
+        description={t("page.description")}
       />
 
       {loadError && <EndpointErrorBanner state="missing" detail={loadError} />}
@@ -80,8 +82,8 @@ export default async function ValidationPage() {
       {!loadError && totalPending === 0 && (
         <EmptyState
           icon={ClipboardCheck}
-          title="Sin validaciones pendientes"
-          description="No hay clases ni especialidades pendientes de validación en este momento."
+          title={t("page.emptyTitle")}
+          description={t("page.emptyDescription")}
         />
       )}
 

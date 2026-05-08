@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { getTranslations } from "next-intl/server";
 import { requireAdminUser } from "@/lib/auth/session";
 import { getSlaDashboard } from "@/lib/api/analytics";
 import { SlaDashboardClient } from "@/components/sla/sla-dashboard-client";
@@ -77,13 +78,11 @@ async function SlaContent() {
 
 // ─── Error Fallback ───────────────────────────────────────────────────────────
 
-function SlaError() {
+function SlaError({ message }: { message: string }) {
   return (
     <Card>
       <CardContent className="py-10 text-center">
-        <p className="text-sm text-muted-foreground">
-          No se pudieron cargar las metricas. Verifica que el backend este disponible e intentalo de nuevo.
-        </p>
+        <p className="text-sm text-muted-foreground">{message}</p>
       </CardContent>
     </Card>
   );
@@ -91,12 +90,16 @@ function SlaError() {
 
 // ─── Wrapped with error boundary via ErrorBoundary pattern ───────────────────
 
-async function SlaContentWithErrorBoundary() {
+async function SlaContentWithErrorBoundary({
+  errorMessage,
+}: {
+  errorMessage: string;
+}) {
   try {
     return await SlaContent();
   } catch (error) {
     console.error("[SlaPage] Failed to load SLA dashboard data:", error);
-    return <SlaError />;
+    return <SlaError message={errorMessage} />;
   }
 }
 
@@ -104,18 +107,19 @@ async function SlaContentWithErrorBoundary() {
 
 export default async function SlaPage() {
   await requireAdminUser();
+  const t = await getTranslations("sla");
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">SLA Dashboard</h1>
-          <p className="text-muted-foreground">Metricas operativas de investiduras, validaciones y camporees.</p>
+          <h1 className="text-2xl font-bold tracking-tight">{t("page.title")}</h1>
+          <p className="text-muted-foreground">{t("page.description")}</p>
         </div>
         <SlaRefreshButton />
       </div>
       <Suspense fallback={<SlaDashboardSkeleton />}>
-        <SlaContentWithErrorBoundary />
+        <SlaContentWithErrorBoundary errorMessage={t("errors.load_failed")} />
       </Suspense>
     </div>
   );

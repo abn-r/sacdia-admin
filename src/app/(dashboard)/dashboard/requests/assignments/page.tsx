@@ -1,4 +1,5 @@
 import { UserCog } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -9,6 +10,7 @@ import { requireAdminUser } from "@/lib/auth/session";
 
 export default async function AssignmentRequestsPage() {
   await requireAdminUser();
+  const t = await getTranslations("requests");
 
   let requests: AssignmentRequest[] = [];
   let loadError: string | null = null;
@@ -19,14 +21,14 @@ export default async function AssignmentRequestsPage() {
     loadError =
       error instanceof ApiError
         ? error.message
-        : "No se pudieron cargar las solicitudes de asignación de rol.";
+        : t("pageAssignments.errorLoad");
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Solicitudes de Asignación"
-        description="Revisión y aprobación de solicitudes de asignación de roles en secciones."
+        title={t("pageAssignments.title")}
+        description={t("pageAssignments.description")}
       />
 
       {loadError && <EndpointErrorBanner state="missing" detail={loadError} />}
@@ -34,8 +36,8 @@ export default async function AssignmentRequestsPage() {
       {!loadError && requests.length === 0 && (
         <EmptyState
           icon={UserCog}
-          title="Sin solicitudes"
-          description="No hay solicitudes de asignación de rol registradas en este momento."
+          title={t("pageAssignments.emptyTitle")}
+          description={t("pageAssignments.emptyDescription")}
         />
       )}
 

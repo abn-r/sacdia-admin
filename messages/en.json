@@ -670,6 +670,15 @@
       "target_all": "All",
       "target_user": "User",
       "target_club_section": "Club section"
+    },
+    "page": {
+      "title": "Notifications",
+      "description": "Send push notifications to users."
+    },
+    "pageHistory": {
+      "title": "Notification history",
+      "description": "Record of all sent notifications.",
+      "loadingFallback": "Loading history..."
     }
   },
   "units": {
@@ -1403,6 +1412,25 @@
       "fieldApproved": "Field approved",
       "invested": "Invested",
       "rejected": "Rejected"
+    },
+    "page": {
+      "title": "Investitures",
+      "description": "Validation and registration of club member investitures.",
+      "errorFallback": "Could not load pending investitures.",
+      "emptyTitle": "No pending investitures",
+      "emptyDescription": "There are no investiture requests pending validation at this time."
+    },
+    "pageConfig": {
+      "title": "Investiture Configuration",
+      "description": "Manage submission deadlines and investiture ceremony dates by local field and ecclesiastical year.",
+      "errorFallback": "Could not load investiture configurations."
+    },
+    "pagePipeline": {
+      "title": "Investiture Pipeline",
+      "description": "Track the chain approval process: director, coordination, and field.",
+      "errorFallback": "Could not load investitures.",
+      "emptyTitle": "No investiture requests",
+      "emptyDescription": "There are no investiture requests in the system at this time."
     }
   },
   "evidence_review": {
@@ -1479,6 +1507,14 @@
       "action_rejected": "Rejected",
       "action_submitted": "Submitted for review",
       "error_load": "Could not load history"
+    },
+    "page": {
+      "title": "Evidence Review",
+      "description": "Validate evidence uploaded by members for folders, classes, and honors.",
+      "errorLoad": "Could not load pending evidence.",
+      "emptyTitle": "No pending evidence",
+      "emptyDescription": "There is no evidence pending review at this time.",
+      "allReviewed": "All evidence has been reviewed."
     }
   },
   "users": {
@@ -1836,6 +1872,43 @@
       "submitEdit": "Save changes",
       "submittingCreate": "Creating...",
       "submittingEdit": "Saving..."
+    },
+    "page": {
+      "title": "Annual Folder",
+      "description": "Manage evidence by section of the member's annual folder.",
+      "errorFolderFallback": "Could not load the folder.",
+      "errorEnrollmentFallback": "Could not load the folder for that enrollment.",
+      "emptySelectTitle": "Select an enrollment",
+      "emptySelectDescription": "Enter the enrollment ID or folder ID to load the member's evidence.",
+      "emptyNotFoundTitle": "Folder not found",
+      "emptyNotFoundDescription": "No annual folder exists for the provided identifier. Check your data and try again."
+    },
+    "pageCategories": {
+      "title": "Award Categories",
+      "description": "Manage award categories by scope: Club, Section, and Member.",
+      "errorFallback": "Could not load award categories."
+    },
+    "pageTemplates": {
+      "title": "Annual Folder Templates",
+      "description": "Define the section structure for each club type and ecclesiastical year.",
+      "errorFallback": "Could not load templates."
+    },
+    "pageEvaluate": {
+      "title": "Folder Evaluation",
+      "description": "Find a folder by its ID and score each section with the corresponding points."
+    },
+    "pageRankings": {
+      "title": "Annual Folder Rankings",
+      "description": "View club rankings by points earned in the annual folder.",
+      "errorFallback": "Could not load club types or ecclesiastical years. Check your server connection.",
+      "emptyTitle": "No catalog data",
+      "emptyDescription": "No club types are available to display rankings."
+    },
+    "pageRankingsBreakdown": {
+      "title": "Ranking Breakdown",
+      "description": "Component detail for enrollment {enrollmentId}",
+      "errorFallback": "Could not load the ranking breakdown. Check your server connection.",
+      "paramsRequired": "The enrollmentId and year_id parameters are required."
     }
   },
   "folders": {
@@ -1896,6 +1969,14 @@
     "errors": {
       "refresh_failed": "Folders could not be refreshed",
       "folder_refresh_failed": "The folder could not be refreshed"
+    },
+    "page": {
+      "title": "Evidence Folders",
+      "description": "Manage the evidence folder templates available for clubs.",
+      "errorLoad": "Could not load evidence folders."
+    },
+    "pageDetail": {
+      "errorLoad": "Could not load the evidence folder."
     }
   },
   "validation_admin": {
@@ -1951,6 +2032,15 @@
         "class": "Classes",
         "honor": "Honors"
       }
+    },
+    "page": {
+      "title": "Validation",
+      "description": "Review and approval of classes and honors submitted for validation.",
+      "errorLoadClasses": "Could not load class validations.",
+      "errorLoadHonors": "Could not load honor validations.",
+      "errorLoadGeneric": "Could not load pending validations.",
+      "emptyTitle": "No pending validations",
+      "emptyDescription": "There are no classes or honors pending validation at this time."
     }
   },
   "scoring_categories": {
@@ -2020,6 +2110,16 @@
       "empty_description": "No member of the month data yet.",
       "pagination_label": "Page {page} of {total}",
       "points": "{count} pts"
+    },
+    "page": {
+      "title": "Member of the Month",
+      "description": "Consolidated view of winners by section across all clubs.",
+      "breadcrumbParent": "Reports",
+      "breadcrumbParentHref": "/dashboard/reports",
+      "breadcrumbLabel": "Member of the Month",
+      "errorFallback": "Could not load winners. Check your server connection.",
+      "emptyNoTypesTitle": "No catalogs available",
+      "emptyNoTypesDescription": "Could not load club types for the filters."
     }
   },
   "reports": {
@@ -2034,7 +2134,10 @@
       "generate_report": "Error generating the report.",
       "send_report": "Error sending the report.",
       "load_reports": "Error loading the reports.",
-      "create_report": "Error creating the report."
+      "create_report": "Error creating the report.",
+      "no_active_enrollment": "No active enrollment was found for your user.",
+      "no_role_access": "Your role does not have access to the monthly reports module.",
+      "unknown": "Could not determine your active enrollment. Please try again."
     },
     "months": {
       "1": "January",
@@ -2134,6 +2237,25 @@
       "fieldHighlights": "Month highlights",
       "fieldPrayerRequests": "Prayer requests",
       "saveButton": "Save manual data"
+    },
+    "page": {
+      "title": "Monthly Reports",
+      "description": "Manage monthly activity reports for the club.",
+      "empty_no_active_enrollment_title": "No active enrollment",
+      "empty_no_active_enrollment_description": "No active enrollment was found for your user."
+    },
+    "pageDetail": {
+      "description": "View and edit the monthly report data.",
+      "back_link": "Back to reports"
+    },
+    "supervision": {
+      "page_title": "Reports Supervision",
+      "page_description": "Consolidated view of monthly reports from all clubs.",
+      "breadcrumb_reports": "Reports",
+      "breadcrumb_supervision": "Supervision",
+      "empty_no_catalogs_title": "No catalogs available",
+      "empty_no_catalogs_description": "Club type catalogs could not be loaded for the filters.",
+      "error_load_reports": "Could not load reports. Please check the server connection."
     }
   },
   "requests": {
@@ -2213,6 +2335,27 @@
         "approveDescription": "The role assignment for {name} will be approved.",
         "rejectDescription": "The assignment request for {name} will be rejected. A reason is required."
       }
+    },
+    "pageMembership": {
+      "title": "Membership Requests",
+      "description": "Approval and rejection of new member requests in club sections.",
+      "errorLoad": "Could not load clubs",
+      "emptyTitle": "No sections available",
+      "emptyDescription": "No active club sections were found to manage requests."
+    },
+    "pageTransfers": {
+      "title": "Transfer Requests",
+      "description": "Review and approval of transfer requests between sections.",
+      "errorLoad": "Could not load transfer requests.",
+      "emptyTitle": "No requests",
+      "emptyDescription": "There are no transfer requests registered at this time."
+    },
+    "pageAssignments": {
+      "title": "Assignment Requests",
+      "description": "Review and approval of role assignment requests in sections.",
+      "errorLoad": "Could not load role assignment requests.",
+      "emptyTitle": "No requests",
+      "emptyDescription": "There are no role assignment requests registered at this time."
     }
   },
   "insurance": {
@@ -2223,7 +2366,8 @@
     },
     "errors": {
       "save_failed": "Error saving the insurance",
-      "deactivate_failed": "Could not deactivate the insurance"
+      "deactivate_failed": "Could not deactivate the insurance",
+      "failed_load_clubs": "Could not load the clubs list."
     },
     "table": {
       "no_name": "No name",
@@ -2294,6 +2438,19 @@
       "critical_note": "{count, plural, one {{count} critical ≤ 7 days} other {{count} critical ≤ 7 days}}",
       "view_all": "View all",
       "expires_on": "Expires {date} ({days}d)"
+    },
+    "page": {
+      "title": "Insurance",
+      "description": "Manage member insurance by club section.",
+      "button_view_expiring": "View expiring",
+      "empty_no_clubs_title": "No clubs registered",
+      "empty_no_clubs_description": "Register at least one club to manage member insurance."
+    },
+    "pageExpiring": {
+      "title": "Expiring Insurance",
+      "description": "Active insurance policies expiring soon, sorted by urgency.",
+      "window_label": "Window: {days} days",
+      "error_load_failed": "Could not load the expiring insurance list."
     }
   },
   "finances": {
@@ -2401,6 +2558,13 @@
     "categoryType": {
       "income": "Income",
       "expense": "Expense"
+    },
+    "page": {
+      "title": "Finances",
+      "description": "Manage income and expenses by club.",
+      "empty_no_clubs_title": "No clubs available",
+      "empty_no_clubs_description": "No active clubs were found. Create a club first to manage its finances.",
+      "error_unexpected": "Unexpected error loading clubs."
     }
   },
   "certifications": {
@@ -2487,6 +2651,30 @@
       "colUser": "User",
       "colEmail": "Email",
       "colRegistered": "Registered"
+    },
+    "page": {
+      "title": "Activities",
+      "description": "Manage activities by club.",
+      "empty_no_clubs_title": "No clubs registered",
+      "empty_no_clubs_description": "Register at least one club to manage its activities.",
+      "error_load_clubs": "Could not load the clubs list."
+    },
+    "pageDetail": {
+      "description": "Activity detail",
+      "back_link": "Back",
+      "card_info_title": "General information",
+      "card_image_title": "Image",
+      "card_attendance_title": "Attendee list",
+      "tab_attendance": "Attendance",
+      "badge_active": "Active",
+      "badge_inactive": "Inactive",
+      "badge_in_person": "In-person",
+      "info_place": "Location",
+      "info_time": "Time",
+      "info_mode": "Mode",
+      "info_meet_link": "Meeting link",
+      "info_coordinates": "Coordinates",
+      "error_attendance_load": "Could not load the attendance list."
     }
   },
   "year_end": {
@@ -2496,6 +2684,13 @@
     "errors": {
       "preview_failed": "Could not get the preview.",
       "close_year_failed": "Could not close the ecclesiastical year."
+    },
+    "page": {
+      "title": "Year-end closing",
+      "description": "Close the active ecclesiastical year to archive enrollments, folders, and reports.",
+      "empty_no_years_title": "No ecclesiastical years",
+      "empty_no_years_description": "No ecclesiastical years are registered in the system.",
+      "error_load_years": "Could not load the ecclesiastical years."
     }
   },
   "inventory": {
@@ -2508,7 +2703,8 @@
       "delete_failed": "Could not delete the item",
       "save_item_failed": "Error saving the item",
       "load_history_failed": "Could not load history",
-      "load_items_failed": "Could not load inventory items"
+      "load_items_failed": "Could not load inventory items",
+      "failed_load_clubs": "Could not load the clubs list."
     },
     "table": {
       "col_name": "Name",
@@ -2554,6 +2750,12 @@
       "new_item": "New item",
       "loading": "Loading inventory...",
       "items_found_label": "{count, plural, =0 {items found} one {item found} other {items found}}"
+    },
+    "page": {
+      "title": "Inventory",
+      "description": "Manage inventory by club.",
+      "empty_no_clubs_title": "No clubs registered",
+      "empty_no_clubs_description": "Register at least one club to manage its inventory."
     }
   },
   "units_admin": {
@@ -2879,6 +3081,13 @@
     "actions": {
       "refresh": "Refresh",
       "refreshing": "Refreshing..."
+    },
+    "page": {
+      "title": "SLA Dashboard",
+      "description": "Operational metrics for investitures, validations, and camporees."
+    },
+    "errors": {
+      "load_failed": "Could not load metrics. Please verify the backend is available and try again."
     }
   },
   "enrollments": {
@@ -2913,6 +3122,16 @@
     },
     "errors": {
       "generic": "An error occurred. Please try again."
+    },
+    "page": {
+      "title": "Enrollments",
+      "description": "Enrollments submitted for investiture validation. Approve or reject each request.",
+      "searchPlaceholder": "Search by name or email...",
+      "errorEmptyTitle": "Cannot display enrollments",
+      "emptyTitle": "No pending enrollments",
+      "emptyDescription": "There are no enrollments submitted for investiture validation at this time.",
+      "countSingular": "enrollment pending validation",
+      "countPlural": "enrollments pending validation"
     }
   },
   "rankings": {
@@ -2934,6 +3153,82 @@
       "camporeeEventsOf": "{attended} / {available} events in scope",
       "evidenceValidatedRejected": "{validated} validated / {rejected} rejected",
       "evidencePendingExcluded": "{pending} pending (excluded from calculation)"
+    },
+    "pageMember": {
+      "title": "Member Rankings",
+      "description": "General classification by category with calculated composite score.",
+      "emptyNoYearTitle": "No active ecclesiastical year",
+      "emptyNoYearDescription": "Set an active ecclesiastical year in the catalog to view rankings.",
+      "emptyTitle": "Rankings cannot be displayed",
+      "emptyDescription": "The rankings endpoint is not available at this time."
+    },
+    "pageMemberBreakdown": {
+      "back": "Back to rankings",
+      "breadcrumbParent": "Member Rankings",
+      "position": "Position",
+      "compositeScore": "Composite score",
+      "category": "Category",
+      "weightsTitle": "Applied weights",
+      "weightsSource": "Source",
+      "weightsFormula": "Class {classPct}% + Investiture {invPct}% + Camporees {campPct}%",
+      "lastCalculated": "Last recalculated:",
+      "lastCalculatedNone": "not recorded",
+      "titleClass": "Class",
+      "titleInvestiture": "Investiture",
+      "titleCamporee": "Camporees",
+      "sectionsCompleted": "Completed sections:",
+      "folder": "Folder:",
+      "status": "Status:",
+      "participation": "Participation:",
+      "availableCamporees": "Available camporees:",
+      "yes": "Yes",
+      "no": "No",
+      "statusNoRecord": "No record",
+      "statusInvestido": "Invested",
+      "statusCompleted": "Completed",
+      "statusInProgress": "In progress",
+      "statusPending": "Pending",
+      "statusNotStarted": "Not started",
+      "titleDetail": "Detail: {memberName}",
+      "descriptionDetail": "Section {sectionName} · Year {yearId}"
+    },
+    "pageSection": {
+      "title": "Section Rankings",
+      "description": "General section classification by composite score.",
+      "emptyNoYearTitle": "No active ecclesiastical year",
+      "emptyNoYearDescription": "Set an active ecclesiastical year in the catalog to view rankings.",
+      "emptyTitle": "Section rankings cannot be displayed",
+      "emptyDescription": "The section rankings endpoint is not available at this time."
+    },
+    "pageSectionMembers": {
+      "title": "Section members",
+      "description": "Section #{sectionId} · Year {yearId} · {count} {memberLabel}",
+      "memberSingular": "member",
+      "memberPlural": "members",
+      "back": "Back to sections",
+      "breadcrumbParent": "Section Rankings",
+      "breadcrumbCurrent": "Section #{sectionId}"
+    }
+  },
+  "system_jobs": {
+    "page": {
+      "title": "Jobs & Queues",
+      "description": "Status of BullMQ queues and recent failed jobs. Low-priority queues (reports, finances, rankings, exports) were grouped into background-jobs.",
+      "cronSection": {
+        "heading": "Cron Jobs",
+        "description": "Recent history and statistics of scheduled jobs.",
+        "viewHistory": "View history"
+      },
+      "errors": {
+        "bullmqLoad": "Could not load queues. Make sure the backend is available and try again.",
+        "cronLoad": "Could not load cron jobs. Make sure the backend is available and try again."
+      }
+    },
+    "pageHistory": {
+      "title": "Cron Runs History",
+      "description": "Paginated record of all scheduled job executions.",
+      "back": "Back",
+      "errorLoad": "Could not load cron run history. Make sure the backend is available and try again."
     }
   }
 }

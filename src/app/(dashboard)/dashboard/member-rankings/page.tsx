@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { Trophy } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -82,6 +83,7 @@ function MemberRankingsTableSkeleton() {
 // ─── Content ──────────────────────────────────────────────────────────────────
 
 async function MemberRankingsContent({ query }: { query: MemberRankingsQuery }) {
+  const t = await getTranslations("rankings");
   const result = await listMemberRankings(query);
 
   if (!result.endpointAvailable) {
@@ -94,7 +96,7 @@ async function MemberRankingsContent({ query }: { query: MemberRankingsQuery }) 
         />
         <EmptyState
           icon={Trophy}
-          title="No se pueden mostrar rankings"
+          title={t("pageMember.emptyTitle")}
           description={result.endpointDetail}
         />
       </div>
@@ -121,6 +123,7 @@ export default async function MemberRankingsPage({
   searchParams: SearchParams;
 }) {
   await requireAdminUser();
+  const t = await getTranslations("rankings");
   const rawParams = await searchParams;
   const fallbackYearId = await getActiveEcclesiasticalYearId();
 
@@ -128,13 +131,13 @@ export default async function MemberRankingsPage({
     return (
       <div className="space-y-6">
         <PageHeader
-          title="Ranking de miembros"
-          description="Clasificación general por categoría con composite calculado."
+          title={t("pageMember.title")}
+          description={t("pageMember.description")}
         />
         <EmptyState
           icon={Trophy}
-          title="No hay año eclesiástico activo"
-          description="Configurá un año eclesiástico activo en el catálogo para ver los rankings."
+          title={t("pageMember.emptyNoYearTitle")}
+          description={t("pageMember.emptyNoYearDescription")}
         />
       </div>
     );
@@ -145,8 +148,8 @@ export default async function MemberRankingsPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Ranking de miembros"
-        description="Clasificación general por categoría con composite calculado."
+        title={t("pageMember.title")}
+        description={t("pageMember.description")}
       />
 
       <MemberRankingsFilters

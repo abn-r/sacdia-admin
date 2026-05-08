@@ -1,4 +1,5 @@
 import { Calendar } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
@@ -109,6 +110,7 @@ function extractActivities(payload: unknown): AnyRecord[] {
 
 export default async function ActivitiesPage() {
   await requireAdminUser();
+  const t = await getTranslations("activities");
 
   let clubs: Club[] = [];
   let sectionsByClub: Record<number, Section[]> = {};
@@ -124,7 +126,7 @@ export default async function ActivitiesPage() {
     loadError =
       err instanceof ApiError
         ? err.message
-        : "No se pudo cargar la lista de clubes.";
+        : t("page.error_load_clubs");
   }
 
   // 2. If clubs loaded, fetch sections for each club and activities for the first club
@@ -164,8 +166,8 @@ export default async function ActivitiesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Actividades"
-        description="Gestión de actividades por club."
+        title={t("page.title")}
+        description={t("page.description")}
       />
 
       {loadError && (
@@ -175,8 +177,8 @@ export default async function ActivitiesPage() {
       {!loadError && clubs.length === 0 && (
         <EmptyState
           icon={Calendar}
-          title="No hay clubes registrados"
-          description="Registra al menos un club para gestionar sus actividades."
+          title={t("page.empty_no_clubs_title")}
+          description={t("page.empty_no_clubs_description")}
         />
       )}
 

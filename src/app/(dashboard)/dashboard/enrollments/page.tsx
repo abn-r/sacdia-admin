@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { ClipboardList } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/shared/page-header";
@@ -64,7 +65,21 @@ function EnrollmentsListSkeleton() {
 
 // ─── Content ──────────────────────────────────────────────────────────────────
 
-async function EnrollmentsContent({ query }: { query: EnrollmentsQuery }) {
+type EnrollmentsMessages = {
+  errorEmptyTitle: string;
+  emptyTitle: string;
+  emptyDescription: string;
+  countSingular: string;
+  countPlural: string;
+};
+
+async function EnrollmentsContent({
+  query,
+  messages,
+}: {
+  query: EnrollmentsQuery;
+  messages: EnrollmentsMessages;
+}) {
   const result = await listEnrollments(query);
 
   if (!result.endpointAvailable) {
@@ -77,7 +92,7 @@ async function EnrollmentsContent({ query }: { query: EnrollmentsQuery }) {
         />
         <EmptyState
           icon={ClipboardList}
-          title="No se pueden mostrar inscripciones"
+          title={messages.errorEmptyTitle}
           description={result.endpointDetail}
         />
       </div>
@@ -88,8 +103,8 @@ async function EnrollmentsContent({ query }: { query: EnrollmentsQuery }) {
     return (
       <EmptyState
         icon={ClipboardList}
-        title="No hay inscripciones pendientes"
-        description="No existen inscripciones enviadas para validación de investidura en este momento."
+        title={messages.emptyTitle}
+        description={messages.emptyDescription}
       />
     );
   }
@@ -98,9 +113,7 @@ async function EnrollmentsContent({ query }: { query: EnrollmentsQuery }) {
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
         <span className="font-medium text-foreground">{result.items.length}</span>{" "}
-        {result.items.length === 1
-          ? "inscripción pendiente de validación"
-          : "inscripciones pendientes de validación"}
+        {result.items.length === 1 ? messages.countSingular : messages.countPlural}
       </p>
 
       <EnrollmentsTable enrollments={result.items} />
@@ -110,12 +123,18 @@ async function EnrollmentsContent({ query }: { query: EnrollmentsQuery }) {
 
 // ─── Filters ──────────────────────────────────────────────────────────────────
 
-function EnrollmentsFilters({ defaultSearch }: { defaultSearch?: string }) {
+function EnrollmentsFilters({
+  defaultSearch,
+  searchPlaceholder,
+}: {
+  defaultSearch?: string;
+  searchPlaceholder: string;
+}) {
   return (
     <form className="flex flex-wrap gap-3" method="GET">
       <Input
         name="search"
-        placeholder="Buscar por nombre o email..."
+        placeholder={searchPlaceholder}
         defaultValue={defaultSearch}
         className="h-9 max-w-xs"
       />
@@ -131,20 +150,32 @@ export default async function EnrollmentsPage({
   searchParams: SearchParams;
 }) {
   await requireAdminUser();
+  const t = await getTranslations("enrollments");
   const rawParams = await searchParams;
   const query = parseSearchParams(rawParams);
+
+  const messages: EnrollmentsMessages = {
+    errorEmptyTitle: t("page.errorEmptyTitle"),
+    emptyTitle: t("page.emptyTitle"),
+    emptyDescription: t("page.emptyDescription"),
+    countSingular: t("page.countSingular"),
+    countPlural: t("page.countPlural"),
+  };
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Inscripciones"
-        description="Inscripciones enviadas para validación de investidura. Aprueba o rechaza cada solicitud."
+        title={t("page.title")}
+        description={t("page.description")}
       />
 
       <Suspense fallback={<EnrollmentsListSkeleton />}>
         <div className="space-y-4">
-          <EnrollmentsFilters defaultSearch={query.search} />
-          <EnrollmentsContent query={query} />
+          <EnrollmentsFilters
+            defaultSearch={query.search}
+            searchPlaceholder={t("page.searchPlaceholder")}
+          />
+          <EnrollmentsContent query={query} messages={messages} />
         </div>
       </Suspense>
     </div>
