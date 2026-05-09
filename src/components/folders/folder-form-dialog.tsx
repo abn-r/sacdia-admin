@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -138,6 +139,11 @@ export function FolderFormDialog({
           <DialogTitle>
             {isEdit ? "Editar carpeta" : "Nueva carpeta de evidencias"}
           </DialogTitle>
+          <DialogDescription>
+            {isEdit
+              ? "Modificá los datos de la carpeta de evidencias."
+              : "Completá el formulario para crear una nueva carpeta de evidencias."}
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">

@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -234,6 +235,11 @@ export function TemplateFormDialog({
           <DialogTitle>
             {isEdit ? t("templateDialog.titleEdit") : t("templateDialog.titleCreate")}
           </DialogTitle>
+          <DialogDescription>
+            {isEdit
+              ? "Modificá los datos de la plantilla de carpeta anual."
+              : "Completá el formulario para crear una nueva plantilla de carpeta anual."}
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>

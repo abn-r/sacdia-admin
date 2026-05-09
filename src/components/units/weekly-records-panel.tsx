@@ -25,6 +25,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -139,6 +140,9 @@ function AddRecordDialog({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Nuevo registro semanal</DialogTitle>
+          <DialogDescription>
+            Registrá la asistencia, puntualidad y puntajes de categorías para un miembro de la unidad.
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">

@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -241,6 +242,11 @@ export function AwardCategoryFormDialog({
           <DialogTitle>
             {isEdit ? "Editar categoría de premio" : "Nueva categoría de premio"}
           </DialogTitle>
+          <DialogDescription>
+            {isEdit
+              ? "Modificá los parámetros de la categoría de premio."
+              : "Definí una nueva categoría de premio para las carpetas anuales."}
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>

@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -104,9 +105,9 @@ export function EvidenceUploadDialog({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Subir evidencia</DialogTitle>
-          <p className="text-sm text-muted-foreground">
+          <DialogDescription>
             Sección: <span className="font-medium text-foreground">{sectionName}</span>
-          </p>
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">

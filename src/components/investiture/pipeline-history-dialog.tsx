@@ -14,6 +14,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -138,7 +139,7 @@ export function PipelineHistoryDialog({
             <History className="size-5 text-muted-foreground" />
             {t("historyDialog.title")}
           </DialogTitle>
-          <p className="text-sm text-muted-foreground">{memberName}</p>
+          <DialogDescription>{memberName}</DialogDescription>
         </DialogHeader>
 
         <ScrollArea className="max-h-96 pr-2">

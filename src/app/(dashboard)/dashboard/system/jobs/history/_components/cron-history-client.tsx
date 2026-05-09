@@ -32,6 +32,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -150,6 +151,9 @@ function DetailDialog({ item, onClose }: DetailDialogProps) {
           <DialogTitle className="text-sm font-semibold">
             {item ? t("detailTitle", { runId: item.run_id }) : ""}
           </DialogTitle>
+          <DialogDescription>
+            {item ? `Detalles de la ejecución del job ${item.job_name}` : ""}
+          </DialogDescription>
         </DialogHeader>
         {item && (
           <div className="space-y-4 text-sm">

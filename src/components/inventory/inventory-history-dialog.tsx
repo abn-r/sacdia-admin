@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -244,6 +245,9 @@ export function InventoryHistoryDialog({
               </span>
             )}
           </DialogTitle>
+          <DialogDescription>
+            Registro de movimientos del ítem en el inventario del club.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="pt-2">

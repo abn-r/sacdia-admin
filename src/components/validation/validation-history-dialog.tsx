@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -113,7 +114,7 @@ export function ValidationHistoryDialog({
             <History className="size-5 text-muted-foreground" />
             {t("history.title")}
           </DialogTitle>
-          <p className="text-sm text-muted-foreground">{title}</p>
+          <DialogDescription>{title}</DialogDescription>
         </DialogHeader>
 
         <ScrollArea className="max-h-96 pr-2">

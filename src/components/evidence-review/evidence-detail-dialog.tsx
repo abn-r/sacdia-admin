@@ -14,6 +14,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -168,6 +169,9 @@ export function EvidenceDetailDialog({
               </>
             )}
           </DialogTitle>
+          <DialogDescription>
+            Revisá los archivos y metadatos de la evidencia enviada por el miembro.
+          </DialogDescription>
         </DialogHeader>
 
         {isLoading && (
