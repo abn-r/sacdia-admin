@@ -622,23 +622,25 @@ export function AwardCategoriesClientPage({
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Eliminar categoría</AlertDialogTitle>
+            <AlertDialogTitle>{t("dialogs.deleteCategory.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acción eliminará la categoría{" "}
-              <strong>{deletingCategory?.name}</strong>. Los rankings existentes
-              que la referencien podrían verse afectados.
+              {t("dialogs.deleteCategory.description", {
+                name: deletingCategory?.name ?? "",
+              })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isDeleting}>
-              Cancelar
+              {t("dialogs.deleteCategory.cancel")}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDelete}
               disabled={isDeleting}
               className="bg-destructive text-white hover:bg-destructive/90"
             >
-              {isDeleting ? "Eliminando..." : "Eliminar categoría"}
+              {isDeleting
+                ? t("dialogs.deleteCategory.confirmLoading")
+                : t("dialogs.deleteCategory.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

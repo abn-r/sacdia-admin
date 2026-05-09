@@ -91,21 +91,19 @@ export function InvestidoDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Award className="size-5 text-primary" />
-            Registrar investidura
+            {t("investidoDialog.title")}
           </DialogTitle>
           <DialogDescription>
-            Se registrará la investidura de{" "}
-            <span className="font-medium text-foreground">{memberName}</span>.
-            Esta acción es irreversible y sincronizará el estado en el sistema.
+            {t("investidoDialog.description", { memberName })}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="investido-comments">Comentarios (opcional)</Label>
+            <Label htmlFor="investido-comments">{t("investidoDialog.commentsLabel")}</Label>
             <Textarea
               id="investido-comments"
-              placeholder="Añade un comentario opcional..."
+              placeholder={t("investidoDialog.commentsPlaceholder")}
               rows={3}
               {...form.register("comments")}
               disabled={isPending}
@@ -119,11 +117,11 @@ export function InvestidoDialog({
               onClick={() => handleClose(false)}
               disabled={isPending}
             >
-              Cancelar
+              {t("investidoDialog.cancel")}
             </Button>
             <Button type="submit" disabled={isPending}>
               {isPending && <Loader2 className="size-4 animate-spin" />}
-              Confirmar investidura
+              {t("investidoDialog.confirm")}
             </Button>
           </DialogFooter>
         </form>

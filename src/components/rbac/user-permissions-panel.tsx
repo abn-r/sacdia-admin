@@ -141,16 +141,16 @@ export function UserPermissionsPanel({
               <ShieldCheck className="size-4 text-primary" />
             </div>
             <div>
-              <CardTitle className="text-base">Permisos directos</CardTitle>
+              <CardTitle className="text-base">{t("userPermissionsPanel.title")}</CardTitle>
               <p className="text-xs text-muted-foreground">
-                Permisos asignados directamente a este usuario (sin pasar por roles)
+                {t("userPermissionsPanel.subtitle")}
               </p>
             </div>
           </div>
           {availablePermissions.length > 0 && (
             <Button size="sm" onClick={handleOpenAddDialog} disabled={isPending}>
               <Plus className="mr-1 size-3.5" />
-              Agregar permiso
+              {t("userPermissionsPanel.addPermission")}
             </Button>
           )}
         </CardHeader>
@@ -159,12 +159,12 @@ export function UserPermissionsPanel({
             <div className="flex flex-col items-center gap-3 py-6 text-center">
               <ShieldCheck className="size-8 text-muted-foreground/40" />
               <p className="text-sm text-muted-foreground">
-                Este usuario no tiene permisos directos asignados.
+                {t("userPermissionsPanel.noPermissionsTitle")}
               </p>
               {availablePermissions.length > 0 && (
                 <Button size="sm" variant="outline" onClick={handleOpenAddDialog} disabled={isPending}>
                   <Plus className="mr-1 size-3.5" />
-                  Agregar permiso
+                  {t("userPermissionsPanel.addDirectPermission")}
                 </Button>
               )}
             </div>
@@ -182,10 +182,10 @@ export function UserPermissionsPanel({
                     onClick={() => setPermToRemove(up)}
                     disabled={isPending}
                     className="ml-0.5 rounded-sm opacity-60 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
-                    title={`Remover ${up.permissions.permission_name}`}
+                    title={t("userPermissionsPanel.removePermission", { name: up.permissions.permission_name })}
                   >
                     <X className="size-3" />
-                    <span className="sr-only">Remover</span>
+                    <span className="sr-only">{t("userPermissionsPanel.removeSrOnly")}</span>
                   </button>
                 </Badge>
               ))}
@@ -198,9 +198,9 @@ export function UserPermissionsPanel({
       <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
         <DialogContent className="max-h-[80vh] max-w-md">
           <DialogHeader>
-            <DialogTitle>Agregar permiso directo</DialogTitle>
+            <DialogTitle>{t("userPermissionsPanel.addDialogTitle")}</DialogTitle>
             <DialogDescription>
-              Seleccioná un permiso para asignar directamente a este usuario.
+              {t("userPermissionsPanel.addDialogDescription")}
             </DialogDescription>
           </DialogHeader>
 
@@ -208,7 +208,7 @@ export function UserPermissionsPanel({
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
               <Input
-                placeholder="Buscar permiso..."
+                placeholder={t("userPermissionsPanel.searchPlaceholder")}
                 value={search}
                 onChange={(e) => {
                   setSearch(e.target.value);
@@ -221,8 +221,8 @@ export function UserPermissionsPanel({
             {filteredPermissions.length === 0 ? (
               <p className="py-4 text-center text-sm text-muted-foreground">
                 {search
-                  ? "No se encontraron permisos que coincidan."
-                  : "No hay permisos disponibles para asignar."}
+                  ? t("userPermissionsPanel.noMatchesSearch")
+                  : t("userPermissionsPanel.noPermissionsAvailable")}
               </p>
             ) : (
               <div className="max-h-64 overflow-y-auto rounded-md border">
@@ -262,7 +262,7 @@ export function UserPermissionsPanel({
               onClick={() => setAddDialogOpen(false)}
               disabled={isPending}
             >
-              Cancelar
+              {t("userPermissionsPanel.cancelButton")}
             </Button>
             <Button
               type="button"
@@ -270,7 +270,7 @@ export function UserPermissionsPanel({
               disabled={isPending || !selectedPermId}
             >
               {isPending && <Loader2 className="size-4 animate-spin" />}
-              Asignar permiso
+              {t("userPermissionsPanel.assignButton")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -286,25 +286,24 @@ export function UserPermissionsPanel({
         >
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>¿Remover permiso directo?</AlertDialogTitle>
+              <AlertDialogTitle>{t("userPermissionsPanel.removeDialogTitle")}</AlertDialogTitle>
               <AlertDialogDescription>
-                Se removerá el permiso{" "}
-                <code className="rounded bg-muted px-1 py-0.5 text-xs font-mono">
-                  {permToRemove.permissions.permission_name}
-                </code>{" "}
-                asignado directamente a este usuario. El usuario puede seguir teniendo el permiso
-                a través de sus roles.
+                {t("userPermissionsPanel.removeDialogDescription", {
+                  name: permToRemove.permissions.permission_name,
+                })}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
+              <AlertDialogCancel disabled={isPending}>
+                {t("userPermissionsPanel.removeCancel")}
+              </AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleRemove}
                 disabled={isPending}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
                 {isPending && <Loader2 className="size-4 animate-spin" />}
-                Remover
+                {t("userPermissionsPanel.removeConfirm")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

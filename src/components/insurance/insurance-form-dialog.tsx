@@ -205,7 +205,7 @@ export function InsuranceFormDialog({
               onValueChange={(val) => setValue("insurance_type", val as InsuranceType)}
             >
               <SelectTrigger id="insurance_type" aria-required="true">
-                <SelectValue placeholder="Seleccionar tipo" />
+                <SelectValue placeholder={t("placeholders.selectType")} />
               </SelectTrigger>
               <SelectContent>
                 {INSURANCE_TYPES.map((type) => (
@@ -226,7 +226,7 @@ export function InsuranceFormDialog({
             <Input
               id="policy_number"
               {...register("policy_number")}
-              placeholder="Ej. POL-2025-001"
+              placeholder={t("placeholders.policyNumber")}
             />
           </div>
 
@@ -236,7 +236,7 @@ export function InsuranceFormDialog({
             <Input
               id="provider"
               {...register("provider")}
-              placeholder="Ej. MAPFRE, San Cristóbal..."
+              placeholder={t("placeholders.provider")}
             />
           </div>
 
@@ -283,7 +283,7 @@ export function InsuranceFormDialog({
               min={0}
               step="0.01"
               {...register("coverage_amount")}
-              placeholder="0.00"
+              placeholder={t("placeholders.amount")}
             />
             {errors.coverage_amount && (
               <p className="text-xs text-destructive">{errors.coverage_amount.message}</p>

@@ -237,7 +237,7 @@ export function ActivityFormDialog({
               id="name"
               aria-required="true"
               {...register("name")}
-              placeholder="Nombre de la actividad"
+              placeholder={t("placeholders.name")}
             />
             {errors.name && (
               <p className="text-xs text-destructive">{errors.name.message}</p>
@@ -250,7 +250,7 @@ export function ActivityFormDialog({
             <Textarea
               id="description"
               {...register("description")}
-              placeholder="Descripción opcional"
+              placeholder={t("placeholders.description")}
               rows={3}
             />
           </div>
@@ -265,7 +265,7 @@ export function ActivityFormDialog({
               onValueChange={(val) => setValue("activity_type_id", Number(val))}
             >
               <SelectTrigger id="activity_type_id" aria-required="true">
-                <SelectValue placeholder="Seleccionar tipo" />
+                <SelectValue placeholder={t("placeholders.selectType")} />
               </SelectTrigger>
               <SelectContent>
                 {ACTIVITY_TYPES.map((t) => (
@@ -301,7 +301,7 @@ export function ActivityFormDialog({
                   }}
                 >
                   <SelectTrigger id="club_type_id" aria-required="true">
-                    <SelectValue placeholder="Seleccionar tipo de club" />
+                    <SelectValue placeholder={t("placeholders.selectClubType")} />
                   </SelectTrigger>
                   <SelectContent>
                     {CLUB_TYPES.map((ct) => (
@@ -327,7 +327,7 @@ export function ActivityFormDialog({
                   onValueChange={(val) => setValue("club_section_id", Number(val))}
                 >
                   <SelectTrigger id="club_section_id" aria-required="true">
-                    <SelectValue placeholder="Seleccionar sección" />
+                    <SelectValue placeholder={t("placeholders.selectSection")} />
                   </SelectTrigger>
                   <SelectContent>
                     {filteredSections.length > 0 ? (
@@ -364,7 +364,7 @@ export function ActivityFormDialog({
               id="activity_place"
               aria-required="true"
               {...register("activity_place")}
-              placeholder="Ej. Iglesia Central"
+              placeholder={t("placeholders.location")}
             />
             {errors.activity_place && (
               <p className="text-xs text-destructive">
@@ -395,7 +395,7 @@ export function ActivityFormDialog({
                 step="any"
                 aria-required="true"
                 {...register("lat")}
-                placeholder="0.000000"
+                placeholder={t("placeholders.latitude")}
               />
               {errors.lat && (
                 <p className="text-xs text-destructive">{errors.lat.message}</p>
@@ -411,7 +411,7 @@ export function ActivityFormDialog({
                 step="any"
                 aria-required="true"
                 {...register("long")}
-                placeholder="0.000000"
+                placeholder={t("placeholders.longitude")}
               />
               {errors.long && (
                 <p className="text-xs text-destructive">
@@ -429,7 +429,7 @@ export function ActivityFormDialog({
               onValueChange={(val) => setValue("platform", Number(val))}
             >
               <SelectTrigger id="platform">
-                <SelectValue placeholder="Seleccionar modalidad" />
+                <SelectValue placeholder={t("placeholders.selectModality")} />
               </SelectTrigger>
               <SelectContent>
                 {PLATFORMS.map((p) => (
@@ -448,7 +448,7 @@ export function ActivityFormDialog({
               <Input
                 id="link_meet"
                 {...register("link_meet")}
-                placeholder="https://meet.google.com/..."
+                placeholder={t("placeholders.meetUrl")}
                 type="url"
               />
             </div>
@@ -463,7 +463,7 @@ export function ActivityFormDialog({
               id="image"
               aria-required="true"
               {...register("image")}
-              placeholder="https://..."
+              placeholder={t("placeholders.externalUrl")}
               type="url"
             />
             {errors.image && (
