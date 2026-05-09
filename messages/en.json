@@ -134,6 +134,9 @@
       "switchToLight": "Switch to light mode",
       "switchToDark": "Switch to dark mode",
       "switchTheme": "Toggle theme"
+    },
+    "a11y": {
+      "skipToContent": "Skip to main content"
     }
   },
   "permissions": {
@@ -777,6 +780,10 @@
         "descriptionTemplate": "Modify the data of \"{unitName}\" in {clubName}",
         "back": "Back to club"
       }
+    },
+    "a11y": {
+      "deleteClub": "Delete club {name}",
+      "actionsMenu": "Actions for {name}"
     }
   },
   "dashboardHub": {
@@ -1026,7 +1033,9 @@
       "deleteDialogTitle": "Delete honor?",
       "deleteDialogDescription": "The honor \"{name}\" will be logically deactivated.",
       "deleteDialogCancel": "Cancel",
-      "deleteDialogConfirm": "Delete"
+      "deleteDialogConfirm": "Delete",
+      "deleteAriaLabel": "Delete {name}",
+      "actionsAriaLabel": "More actions for {name}"
     },
     "form": {
       "submitCreate": "Create honor",
@@ -4004,6 +4013,11 @@
     },
     "placeholders": {
       "selectMember": "Select member"
+    },
+    "a11y": {
+      "removeMember": "Remove {name} from unit",
+      "editUnit": "Edit unit {name}",
+      "deleteUnit": "Deactivate unit {name}"
     }
   },
   "system_config": {

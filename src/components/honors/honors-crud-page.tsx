@@ -526,6 +526,7 @@ export function HonorsCrudPage({
                                   disabled={!honorId}
                                   onClick={() => setDeleteItem(item)}
                                   title={t("deleteButton")}
+                                  aria-label={t("deleteAriaLabel", { name: honorName })}
                                 >
                                   <Trash2 className="size-3.5" />
                                 </Button>
@@ -534,7 +535,7 @@ export function HonorsCrudPage({
                             <div className="md:hidden">
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="size-8" title={t("actionsButton")}>
+                                  <Button variant="ghost" size="icon" className="size-8" title={t("actionsButton")} aria-label={t("actionsAriaLabel", { name: honorName })}>
                                     <MoreHorizontal className="size-4" />
                                   </Button>
                                 </DropdownMenuTrigger>

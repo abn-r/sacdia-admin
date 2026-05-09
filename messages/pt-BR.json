@@ -134,6 +134,9 @@
       "switchToLight": "Mudar para modo claro",
       "switchToDark": "Mudar para modo escuro",
       "switchTheme": "Alternar tema"
+    },
+    "a11y": {
+      "skipToContent": "Ir para o conteúdo principal"
     }
   },
   "permissions": {
@@ -777,6 +780,10 @@
         "descriptionTemplate": "Modificar os dados de \"{unitName}\" em {clubName}",
         "back": "Voltar ao clube"
       }
+    },
+    "a11y": {
+      "deleteClub": "Excluir clube {name}",
+      "actionsMenu": "Ações para {name}"
     }
   },
   "dashboardHub": {
@@ -1026,7 +1033,9 @@
       "deleteDialogTitle": "Excluir especialidade?",
       "deleteDialogDescription": "A especialidade “{name}” será desativada de forma lógica.",
       "deleteDialogCancel": "Cancelar",
-      "deleteDialogConfirm": "Excluir"
+      "deleteDialogConfirm": "Excluir",
+      "deleteAriaLabel": "Excluir {name}",
+      "actionsAriaLabel": "Mais ações para {name}"
     },
     "form": {
       "submitCreate": "Criar especialidade",
@@ -4004,6 +4013,11 @@
     },
     "placeholders": {
       "selectMember": "Selecionar membro"
+    },
+    "a11y": {
+      "removeMember": "Remover {name} da unidade",
+      "editUnit": "Editar unidade {name}",
+      "deleteUnit": "Desativar unidade {name}"
     }
   },
   "system_config": {

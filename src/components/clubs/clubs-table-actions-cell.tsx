@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useFormStatus } from "react-dom";
+import { useTranslations } from "next-intl";
 import { Loader2, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -58,6 +59,7 @@ export function ClubsTableActionsCell({
   canEdit,
   canDelete,
 }: ClubsTableActionsCellProps) {
+  const t = useTranslations("clubs.a11y");
   const [deleteItem, setDeleteItem] = useState<ClubActionItem | null>(null);
 
   const editHref = `/dashboard/clubs/${club.id}?tab=edit`;
@@ -86,6 +88,7 @@ export function ClubsTableActionsCell({
             className="size-8 text-destructive hover:text-destructive"
             onClick={() => setDeleteItem(club)}
             title="Eliminar"
+            aria-label={t("deleteClub", { name: club.name })}
           >
             <Trash2 className="size-3.5" />
           </Button>
@@ -96,7 +99,7 @@ export function ClubsTableActionsCell({
       <div className="md:hidden">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="size-8" title="Acciones">
+            <Button variant="ghost" size="icon" className="size-8" title="Acciones" aria-label={t("actionsMenu", { name: club.name })}>
               <MoreHorizontal className="size-4" />
             </Button>
           </DropdownMenuTrigger>
