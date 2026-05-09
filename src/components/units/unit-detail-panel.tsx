@@ -61,6 +61,7 @@ interface MemberRowProps {
 }
 
 function MemberRow({ member, onRemove }: MemberRowProps) {
+  const t = useTranslations("units_admin.a11y");
   const name = getUnitUserDisplayName(member.users ?? undefined);
 
   return (
@@ -80,6 +81,7 @@ function MemberRow({ member, onRemove }: MemberRowProps) {
             variant="ghost"
             className="size-7 text-muted-foreground hover:text-destructive"
             onClick={() => onRemove(member)}
+            aria-label={t("removeMember", { name })}
           >
             <UserMinus className="size-3.5" />
           </Button>
@@ -182,6 +184,7 @@ export function UnitDetailPanel({
                   size="icon-sm"
                   variant="ghost"
                   onClick={() => onEdit(unit)}
+                  aria-label={t("a11y.editUnit", { name: unit.name })}
                 >
                   <Pencil className="size-3.5" />
                 </Button>
@@ -196,6 +199,7 @@ export function UnitDetailPanel({
                   variant="ghost"
                   className="text-muted-foreground hover:text-destructive"
                   onClick={() => onDelete(unit)}
+                  aria-label={t("a11y.deleteUnit", { name: unit.name })}
                 >
                   <Trash2 className="size-3.5" />
                 </Button>

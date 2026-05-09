@@ -34,7 +34,7 @@ export default function DashboardError({ error, reset }: DashboardErrorProps) {
         <div className="flex size-12 items-center justify-center rounded-full bg-destructive/10">
           <AlertCircle className="size-6 text-destructive" aria-hidden="true" />
         </div>
-        <h3 className="mt-4 text-lg font-semibold">{t("dashboardHeading")}</h3>
+        <h2 className="mt-4 text-lg font-semibold">{t("dashboardHeading")}</h2>
         <p className="mt-1 max-w-md text-sm text-muted-foreground">
           {t("dashboardBody")}
         </p>
