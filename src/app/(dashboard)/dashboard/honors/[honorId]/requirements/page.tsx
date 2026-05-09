@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -7,14 +8,45 @@ import { AlertCircle, ArrowLeft, Loader2, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
-import { RequirementsTree } from "@/components/honors/requirements-tree";
-import { RequirementEditDialog } from "@/components/honors/requirement-edit-dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   getHonorById,
   listAdminRequirements,
   type Honor,
   type RequirementNode,
 } from "@/lib/api/honors";
+
+const RequirementsTree = dynamic(
+  () =>
+    import("@/components/honors/requirements-tree").then((m) => ({
+      default: m.RequirementsTree,
+    })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="space-y-2">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-3 rounded-lg border px-4 py-3">
+            <Skeleton className="size-5 rounded" />
+            <Skeleton className="h-4 flex-1" style={{ maxWidth: `${60 + (i % 3) * 15}%` }} />
+            <div className="flex gap-1.5">
+              <Skeleton className="h-7 w-7 rounded-md" />
+              <Skeleton className="h-7 w-7 rounded-md" />
+            </div>
+          </div>
+        ))}
+      </div>
+    ),
+  },
+);
+
+const RequirementEditDialog = dynamic(
+  () =>
+    import("@/components/honors/requirement-edit-dialog").then((m) => ({
+      default: m.RequirementEditDialog,
+    })),
+  { ssr: false },
+);
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
