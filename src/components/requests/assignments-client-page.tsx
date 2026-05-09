@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { RefreshCw } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AssignmentsTable } from "@/components/requests/assignments-table";
@@ -27,37 +28,33 @@ interface AssignmentsClientPageProps {
 export function AssignmentsClientPage({ initialRequests }: AssignmentsClientPageProps) {
   const t = useTranslations("requests");
   const [activeTab, setActiveTab] = useState<StatusTab>("PENDING");
-  const [requests, setRequests] = useState<AssignmentRequest[]>(initialRequests);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const isInitialMount = useRef(true);
+
+  const {
+    data: requests = [],
+    isFetching: isRefreshing,
+    refetch,
+  } = useQuery<AssignmentRequest[], Error>({
+    queryKey: ["requests", "assignments"],
+    queryFn: () => getAssignmentRequests(),
+    initialData: initialRequests,
+    staleTime: 60_000,
+  });
 
   const filteredRequests =
     activeTab === "ALL"
       ? requests
       : requests.filter((r) => r.status === activeTab);
 
-  const refresh = useCallback(async () => {
-    setIsRefreshing(true);
-    try {
-      const fresh = await getAssignmentRequests();
-      setRequests(fresh);
-    } catch (error) {
+  const handleRefresh = async () => {
+    const result = await refetch();
+    if (result.error) {
       const message =
-        error instanceof ApiError
-          ? error.message
+        result.error instanceof ApiError
+          ? result.error.message
           : t("errors.refresh");
       toast.error(message);
-    } finally {
-      setIsRefreshing(false);
     }
-  }, [t]);
-
-  useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
-    }
-  }, []);
+  };
 
   const pendingCount = requests.filter((r) => r.status === "PENDING").length;
   const approvedCount = requests.filter((r) => r.status === "APPROVED").length;
@@ -82,7 +79,7 @@ export function AssignmentsClientPage({ initialRequests }: AssignmentsClientPage
         <Button
           variant="outline"
           size="sm"
-          onClick={refresh}
+          onClick={handleRefresh}
           disabled={isRefreshing}
         >
           <RefreshCw
@@ -116,7 +113,7 @@ export function AssignmentsClientPage({ initialRequests }: AssignmentsClientPage
         </div>
 
         <TabsContent value={activeTab} className="mt-4">
-          <AssignmentsTable requests={filteredRequests} onRefresh={refresh} />
+          <AssignmentsTable requests={filteredRequests} onRefresh={handleRefresh} />
         </TabsContent>
       </Tabs>
     </div>

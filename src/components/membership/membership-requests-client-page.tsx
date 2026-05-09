@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { UserPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useQuery } from "@tanstack/react-query";
 import {
   Select,
   SelectContent,
@@ -41,37 +42,30 @@ export function MembershipRequestsClientPage({
   const [selectedSectionId, setSelectedSectionId] = useState<number>(
     sections[0]?.club_section_id ?? 0,
   );
-  const [requests, setRequests] = useState<MembershipRequest[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [loadError, setLoadError] = useState<string | null>(null);
 
-  const loadRequests = useCallback(async (sectionId: number) => {
-    setIsLoading(true);
-    setLoadError(null);
-    try {
-      const data = await listMembershipRequestsFromClient(sectionId);
-      setRequests(data);
-    } catch (error) {
-      if (error instanceof ApiError && (error.status === 403 || error.status === 401)) {
-        setLoadError(t("client.load_error_permission"));
-      } else {
-        const message =
-          error instanceof ApiError
-            ? error.message
-            : t("client.load_error_generic");
-        setLoadError(message);
-      }
-      setRequests([]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [t]);
+  const {
+    data: requests = [],
+    isFetching: isLoading,
+    error: queryError,
+  } = useQuery<MembershipRequest[], Error>({
+    queryKey: ["membership", "requests", selectedSectionId],
+    queryFn: () => listMembershipRequestsFromClient(selectedSectionId),
+    enabled: selectedSectionId > 0,
+    staleTime: 60_000,
+  });
 
-  useEffect(() => {
-    if (selectedSectionId) {
-      loadRequests(selectedSectionId);
+  const loadError = (() => {
+    if (!queryError) return null;
+    if (
+      queryError instanceof ApiError &&
+      (queryError.status === 403 || queryError.status === 401)
+    ) {
+      return t("client.load_error_permission");
     }
-  }, [selectedSectionId, loadRequests]);
+    return queryError instanceof ApiError
+      ? queryError.message
+      : t("client.load_error_generic");
+  })();
 
   return (
     <div className="space-y-4">
