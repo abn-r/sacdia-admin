@@ -1,3 +1,4 @@
+import dynamic from "next/dynamic";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { ApiError } from "@/lib/api/client";
@@ -8,9 +9,42 @@ import {
 } from "@/lib/api/achievements";
 import { requireAdminUser } from "@/lib/auth/session";
 import { updateAchievementAction } from "@/lib/achievements/actions";
-import { AchievementForm } from "@/app/(dashboard)/dashboard/achievements/_components/achievement-form";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const AchievementForm = dynamic(
+  () =>
+    import(
+      "@/app/(dashboard)/dashboard/achievements/_components/achievement-form"
+    ).then((m) => ({ default: m.AchievementForm })),
+  {
+    loading: () => (
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <Skeleton className="h-5 w-24" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+        <div className="space-y-2">
+          <Skeleton className="h-5 w-32" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+        <div className="space-y-2">
+          <Skeleton className="h-5 w-28" />
+          <Skeleton className="h-24 w-full rounded-lg" />
+        </div>
+        <div className="space-y-2">
+          <Skeleton className="h-5 w-36" />
+          <Skeleton className="h-48 w-full rounded-lg" />
+        </div>
+        <div className="flex justify-end gap-3">
+          <Skeleton className="h-9 w-24 rounded-md" />
+          <Skeleton className="h-9 w-32 rounded-md" />
+        </div>
+      </div>
+    ),
+  },
+);
 
 type Params = Promise<{ categoryId: string; achievementId: string }>;
 
