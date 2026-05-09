@@ -10,7 +10,6 @@ const ResourcesCrudPage = dynamic(
       default: m.ResourcesCrudPage,
     })),
   {
-    ssr: false,
     loading: () => (
       <div className="space-y-4">
         <div className="flex items-center justify-between">

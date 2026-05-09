@@ -19,7 +19,6 @@ const AchievementForm = dynamic(
       "@/app/(dashboard)/dashboard/achievements/_components/achievement-form"
     ).then((m) => ({ default: m.AchievementForm })),
   {
-    ssr: false,
     loading: () => (
       <div className="space-y-6">
         <div className="space-y-2">

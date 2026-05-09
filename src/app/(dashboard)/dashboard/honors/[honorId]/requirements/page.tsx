@@ -22,7 +22,6 @@ const RequirementsTree = dynamic(
       default: m.RequirementsTree,
     })),
   {
-    ssr: false,
     loading: () => (
       <div className="space-y-2">
         {Array.from({ length: 6 }).map((_, i) => (
@@ -45,7 +44,7 @@ const RequirementEditDialog = dynamic(
     import("@/components/honors/requirement-edit-dialog").then((m) => ({
       default: m.RequirementEditDialog,
     })),
-  { ssr: false },
+  {},
 );
 
 // ─── Types ────────────────────────────────────────────────────────────────────
