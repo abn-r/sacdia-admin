@@ -10,6 +10,7 @@ import { Paperclip, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -183,11 +184,13 @@ export function InsuranceFormDialog({
           <DialogTitle>
             {isEdit ? "Editar seguro" : "Registrar seguro"}
           </DialogTitle>
-          {member && (
-            <p className="text-sm text-muted-foreground">
-              Miembro: <span className="font-medium text-foreground">{memberFullName(member)}</span>
-            </p>
-          )}
+          <DialogDescription>
+            {member
+              ? `Miembro: ${memberFullName(member)}`
+              : isEdit
+                ? "Modificá los datos de la póliza de seguro."
+                : "Completá el formulario para registrar una nueva póliza de seguro."}
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>

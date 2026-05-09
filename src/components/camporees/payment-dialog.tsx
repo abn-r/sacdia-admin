@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -179,6 +180,11 @@ export function PaymentDialog({
           <DialogTitle>
             {isEditing ? t("paymentDialog.titleEdit") : t("paymentDialog.titleCreate")}
           </DialogTitle>
+          <DialogDescription>
+            {isEditing
+              ? "Modificá los datos del pago registrado."
+              : "Registrá un nuevo pago para un participante del camporee."}
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">

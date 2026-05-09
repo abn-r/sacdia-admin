@@ -17,6 +17,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -304,13 +305,13 @@ export function PendingTable({ enrollments, onRefresh }: PendingTableProps) {
           <DialogHeader>
             <DialogTitle>{t("pendingTable.historyTitle")}</DialogTitle>
             {activeEnrollment && (
-              <p className="text-sm text-muted-foreground">
+              <DialogDescription>
                 {memberName} &middot;{" "}
                 <InvestitureStatusBadge
                   status={activeEnrollment.investiture_status}
                   className="align-middle"
                 />
-              </p>
+              </DialogDescription>
             )}
           </DialogHeader>
           <ScrollArea className="max-h-96 pr-2">

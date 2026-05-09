@@ -6,6 +6,7 @@ import { UserPlus } from "lucide-react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -87,6 +88,9 @@ export function AddMemberDialog({
             <UserPlus className="size-4 text-muted-foreground" />
             Agregar miembro
           </DialogTitle>
+          <DialogDescription>
+            Buscá y seleccioná un miembro del club para agregarlo a la unidad {unitName}.
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">

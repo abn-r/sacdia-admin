@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -159,6 +160,11 @@ export function InventoryFormDialog({
           <DialogTitle>
             {isEdit ? "Editar ítem" : "Nuevo ítem de inventario"}
           </DialogTitle>
+          <DialogDescription>
+            {isEdit
+              ? "Modificá los datos del ítem de inventario."
+              : "Completá el formulario para agregar un nuevo ítem al inventario del club."}
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>

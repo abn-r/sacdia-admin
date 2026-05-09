@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -189,6 +190,11 @@ export function UnionCamporeeFormDialog({
           <DialogTitle>
             {isEdit ? t("unionForm.titleEdit") : t("unionForm.titleCreate")}
           </DialogTitle>
+          <DialogDescription>
+            {isEdit
+              ? "Modificá los datos del camporee de unión."
+              : "Completá el formulario para crear un nuevo camporee de unión."}
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>

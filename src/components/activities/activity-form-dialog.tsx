@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -219,6 +220,11 @@ export function ActivityFormDialog({
           <DialogTitle>
             {isEdit ? "Editar actividad" : "Nueva actividad"}
           </DialogTitle>
+          <DialogDescription>
+            {isEdit
+              ? "Modificá los datos de la actividad y guardá los cambios."
+              : "Completá el formulario para registrar una nueva actividad en el club."}
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
