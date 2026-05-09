@@ -153,7 +153,7 @@ function AddRecordDialog({
             </Label>
             <Select value={userId} onValueChange={setUserId}>
               <SelectTrigger id="record_user" className="w-full">
-                <SelectValue placeholder="Seleccionar miembro" />
+                <SelectValue placeholder={t("placeholders.selectMember")} />
               </SelectTrigger>
               <SelectContent>
                 {members.map((m) => (

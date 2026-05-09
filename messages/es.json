@@ -1317,6 +1317,190 @@
         "loadError": "Error al cargar el rol",
         "emptyLoadTitle": "No se pudo cargar el rol"
       }
+    },
+    "permissionGroups": {
+      "users": "Usuarios",
+      "roles": "Roles y Permisos",
+      "clubs": "Clubes",
+      "units": "Unidades",
+      "member_of_month": "Miembro del Mes",
+      "scoring_categories": "Categorías de Puntuación",
+      "requests": "Solicitudes",
+      "user_certifications": "Certificaciones de Usuario (Admin)",
+      "user_folders": "Carpetas de Usuario (Admin)",
+      "geography": "Jerarquía Geográfica",
+      "catalogs": "Catálogos",
+      "classes_honors": "Clases y Especialidades",
+      "activities": "Actividades",
+      "camporees": "Camporees",
+      "validation": "Validación",
+      "finances": "Finanzas",
+      "inventory": "Inventario",
+      "reports": "Reportes",
+      "notifications": "Notificaciones",
+      "resources": "Recursos",
+      "system": "Sistema"
+    },
+    "permissions": {
+      "users:read": "Ver listado",
+      "users:read_detail": "Ver detalle",
+      "users:update_profile": "Editar perfil propio",
+      "users:update_admin": "Gestión admin de usuarios",
+      "health:read": "Ver salud",
+      "health:update": "Actualizar salud",
+      "emergency_contacts:read": "Ver contactos de emergencia",
+      "emergency_contacts:update": "Actualizar contactos de emergencia",
+      "legal_representative:read": "Ver representante legal",
+      "legal_representative:update": "Actualizar representante legal",
+      "post_registration:read": "Ver post-registro",
+      "registration:complete": "Completar registro",
+      "roles:read": "Ver roles",
+      "permissions:read": "Ver permisos",
+      "permissions:assign": "Asignar permisos",
+      "clubs:read": "Ver clubes",
+      "clubs:create": "Crear club",
+      "clubs:update": "Editar club",
+      "clubs:delete": "Eliminar club",
+      "club_sections:read": "Ver secciones",
+      "club_sections:create": "Crear sección",
+      "club_sections:update": "Editar sección",
+      "club_roles:read": "Ver roles de club",
+      "club_roles:assign": "Asignar rol de club",
+      "club_roles:revoke": "Revocar rol de club",
+      "club_members:approve": "Aprobar membresía",
+      "club_members:reject": "Rechazar membresía",
+      "club_members:list_pending": "Ver solicitudes pendientes",
+      "units:read": "Ver unidades / miembro del mes",
+      "mom:read": "Ver miembro del mes",
+      "mom:supervise": "Supervisar multi-sección (admin/coordinador)",
+      "mom:evaluate": "Disparar evaluación manual",
+      "scoring_categories:read": "Ver categorías de puntuación",
+      "scoring_categories:manage": "Gestionar categorías de puntuación (uniones + campos locales)",
+      "requests:read": "Ver solicitudes de transferencia y asignación",
+      "requests:review": "Aprobar/rechazar solicitudes",
+      "user_certifications:read": "Ver progreso de certificaciones",
+      "user_certifications:manage": "Inscribir / actualizar / borrar certificaciones",
+      "user_folders:read": "Ver inscripción y progreso de carpetas",
+      "user_folders:manage": "Inscribir / actualizar / borrar asignaciones de carpeta",
+      "achievements:read": "Ver logros",
+      "achievements:manage": "Gestionar logros",
+      "rankings:read": "Ver rankings",
+      "rankings:recalculate": "Recalcular rankings",
+      "ranking_weights:read": "Ver pesos de ranking institucional",
+      "ranking_weights:write": "Editar pesos de ranking institucional",
+      "member_rankings:read_self": "Ver mi ranking",
+      "member_rankings:read_section": "Ver ranking de sección",
+      "member_rankings:read_club": "Ver ranking de club",
+      "member_rankings:read_lf": "Ver ranking de campo local",
+      "member_rankings:read_global": "Ver ranking global",
+      "member_ranking_weights:read": "Ver pesos de ranking de miembros",
+      "member_ranking_weights:write": "Editar pesos de ranking de miembros",
+      "section_rankings:read_club": "Ver ranking de secciones del club",
+      "section_rankings:read_lf": "Ver ranking de secciones del campo local",
+      "section_rankings:read_global": "Ver ranking global de secciones",
+      "award_categories:create": "Crear categoría de premios",
+      "award_categories:read": "Ver categorías de premios",
+      "award_categories:update": "Editar categoría de premios",
+      "award_categories:delete": "Eliminar categoría de premios",
+      "countries:read": "Ver países",
+      "countries:create": "Crear país",
+      "countries:update": "Editar país",
+      "countries:delete": "Eliminar país",
+      "unions:read": "Ver uniones",
+      "unions:create": "Crear unión",
+      "unions:update": "Editar unión",
+      "unions:delete": "Eliminar unión",
+      "local_fields:read": "Ver campos locales",
+      "local_fields:create": "Crear campo local",
+      "local_fields:update": "Editar campo local",
+      "local_fields:delete": "Eliminar campo local",
+      "churches:read": "Ver iglesias",
+      "churches:create": "Crear iglesia",
+      "churches:update": "Editar iglesia",
+      "churches:delete": "Eliminar iglesia",
+      "catalogs:read": "Ver catálogos",
+      "catalogs:create": "Crear ítem",
+      "catalogs:update": "Editar ítem",
+      "catalogs:delete": "Eliminar ítem",
+      "classes:read": "Ver clases",
+      "classes:submit_progress": "Enviar progreso de clase",
+      "classes:manage": "Gestionar clases",
+      "class_modules:manage": "Gestionar módulos de clase",
+      "class_sections:manage": "Gestionar secciones de clase",
+      "honors:read": "Ver especialidades",
+      "honors:create": "Crear especialidad",
+      "honors:update": "Editar especialidad",
+      "honors:delete": "Eliminar especialidad",
+      "master_honors:manage": "Gestionar especialidades maestras",
+      "user_honors:submit": "Enviar progreso de honor",
+      "user_honors:validate": "Validar honores",
+      "honor_categories:read": "Ver categorías",
+      "honor_categories:create": "Crear categoría",
+      "honor_categories:update": "Editar categoría",
+      "honor_categories:delete": "Eliminar categoría",
+      "folders:manage": "Gestionar carpetas",
+      "folder_modules:manage": "Gestionar módulos de carpeta",
+      "folder_sections:manage": "Gestionar secciones de carpeta",
+      "finance_categories:manage": "Gestionar categorías de finanzas",
+      "inventory_categories:manage": "Gestionar categorías de inventario",
+      "activities:read": "Ver actividades",
+      "activities:create": "Crear actividad",
+      "activities:update": "Editar actividad",
+      "activities:delete": "Eliminar actividad",
+      "attendance:read": "Ver asistencia",
+      "attendance:manage": "Gestionar asistencia",
+      "camporees:read": "Ver camporees",
+      "camporees:create": "Crear camporees",
+      "camporees:update": "Actualizar camporees",
+      "camporees:delete": "Desactivar camporees",
+      "validation:submit": "Enviar progreso para revisión",
+      "validation:review": "Aprobar/rechazar progreso enviado",
+      "validation:read": "Ver cola pendiente, historial y elegibilidad",
+      "finances:read": "Ver finanzas",
+      "finances:create": "Crear registro",
+      "finances:update": "Editar registro",
+      "finances:delete": "Eliminar registro",
+      "inventory:read": "Ver inventario",
+      "inventory:create": "Crear ítem",
+      "inventory:update": "Editar ítem",
+      "inventory:delete": "Eliminar ítem",
+      "notifications:send": "Enviar directa",
+      "notifications:broadcast": "Enviar broadcast",
+      "notifications:club": "Enviar por club",
+      "reports:read": "Leer reportes mensuales",
+      "reports:download": "Descargar PDF de reportes",
+      "dashboard:view": "Ver dashboard",
+      "resources:read": "Ver recursos",
+      "resources:create": "Subir recurso",
+      "resources:update": "Editar recurso",
+      "resources:delete": "Eliminar recurso",
+      "resource_categories:read": "Ver categorías de recursos",
+      "resource_categories:create": "Crear categoría de recursos",
+      "resource_categories:update": "Editar categoría de recursos",
+      "resource_categories:delete": "Eliminar categoría de recursos",
+      "ecclesiastical_years:read": "Ver años eclesiásticos",
+      "ecclesiastical_years:create": "Crear año eclesiástico",
+      "ecclesiastical_years:update": "Editar año eclesiástico"
+    },
+    "userPermissionsPanel": {
+      "title": "Permisos directos",
+      "subtitle": "Permisos asignados directamente a este usuario (sin pasar por roles)",
+      "addPermission": "Agregar permiso",
+      "noPermissionsTitle": "Este usuario no tiene permisos directos asignados.",
+      "addDirectPermission": "Agregar permiso",
+      "addDialogTitle": "Agregar permiso directo",
+      "addDialogDescription": "Selecciona un permiso para asignar directamente a este usuario.",
+      "searchPlaceholder": "Buscar permiso...",
+      "noMatchesSearch": "No se encontraron permisos que coincidan.",
+      "noPermissionsAvailable": "No hay permisos disponibles para asignar.",
+      "cancelButton": "Cancelar",
+      "assignButton": "Asignar permiso",
+      "removePermission": "Remover {name}",
+      "removeSrOnly": "Remover",
+      "removeDialogTitle": "¿Remover permiso directo?",
+      "removeDialogDescription": "Se removerá el permiso {name} asignado directamente a este usuario. El usuario puede seguir teniendo el permiso a través de sus roles.",
+      "removeCancel": "Cancelar",
+      "removeConfirm": "Remover"
     }
   },
   "resource_categories": {
@@ -1992,6 +2176,25 @@
       "categories": {
         "forbiddenDetail": "No cuentas con permisos para ver categorías de recursos."
       }
+    },
+    "placeholders": {
+      "title": "Ej. Manual del Conquistador 2025",
+      "description": "Descripción breve del recurso (opcional)",
+      "selectType": "Seleccionar tipo",
+      "selectCategory": "Sin categoría",
+      "selectClubType": "Todos los clubes",
+      "selectScope": "Alcance",
+      "selectUnion": "Seleccionar unión",
+      "unionId": "ID de la unión",
+      "selectLocalField": "Seleccionar campo local",
+      "localFieldId": "ID del campo local",
+      "videoUrl": "https://youtube.com/watch?v=... o https://vimeo.com/...",
+      "content": "Escribe el contenido del recurso aquí...",
+      "searchTitle": "Buscar por título...",
+      "filterType": "Todos los tipos",
+      "filterStatus": "Todos",
+      "filterScope": "Todas",
+      "filterClubType": "Todos"
     }
   },
   "investiture": {
@@ -2162,6 +2365,22 @@
       "errorFallback": "No se pudieron cargar las investiduras.",
       "emptyTitle": "Sin solicitudes de investidura",
       "emptyDescription": "No hay solicitudes de investidura en el sistema en este momento."
+    },
+    "investidoDialog": {
+      "title": "Registrar investidura",
+      "description": "Se registrará la investidura de {memberName}. Esta acción es irreversible y sincronizará el estado en el sistema.",
+      "commentsLabel": "Comentarios (opcional)",
+      "commentsPlaceholder": "Añade un comentario opcional...",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar investidura"
+    },
+    "pipelineRejectDialog": {
+      "title": "Rechazar investidura",
+      "description": "Se rechazará la solicitud de investidura de {memberName}. El motivo es obligatorio.",
+      "reasonLabel": "Motivo de rechazo *",
+      "reasonPlaceholder": "Describe el motivo del rechazo...",
+      "cancel": "Cancelar",
+      "confirm": "Rechazar"
     }
   },
   "evidence_review": {
@@ -2246,6 +2465,14 @@
       "emptyTitle": "Sin evidencias pendientes",
       "emptyDescription": "No hay evidencias pendientes de revisión en este momento.",
       "allReviewed": "Todas las evidencias han sido revisadas."
+    },
+    "rejectDialog": {
+      "title": "Rechazar evidencia",
+      "description": "Vas a rechazar la evidencia de {memberName} para {sectionName}. El motivo es obligatorio.",
+      "reasonLabel": "Motivo de rechazo *",
+      "reasonPlaceholder": "Describe el motivo del rechazo para que el miembro pueda corregirlo...",
+      "cancel": "Cancelar",
+      "confirm": "Rechazar"
     }
   },
   "users": {
@@ -2679,6 +2906,43 @@
       "composite_pct_max": "No puede superar {max}",
       "order_min_0": "El orden debe ser 0 o mayor",
       "composite_pct_invalid": "El porcentaje mínimo debe ser menor que el máximo"
+    },
+    "dialogs": {
+      "deleteEvidence": {
+        "title": "Eliminar evidencia",
+        "description": "Esta acción eliminará permanentemente el archivo {fileName}. No se puede deshacer.",
+        "confirm": "Eliminar",
+        "confirmLoading": "Eliminando...",
+        "cancel": "Cancelar"
+      },
+      "sendFolder": {
+        "title": "Enviar carpeta",
+        "description": "Una vez enviada, no podrás modificar ni agregar evidencias hasta que sea revisada. Asegúrate de haber subido todo lo requerido.",
+        "confirm": "Enviar carpeta",
+        "confirmLoading": "Enviando...",
+        "cancel": "Cancelar"
+      },
+      "closeFolder": {
+        "title": "Cerrar carpeta",
+        "description": "Al cerrar la carpeta se registrará como finalizada. Esta acción es definitiva y no puede revertirse.",
+        "confirm": "Cerrar carpeta",
+        "confirmLoading": "Cerrando...",
+        "cancel": "Cancelar"
+      },
+      "deleteCategory": {
+        "title": "Eliminar categoría",
+        "description": "Esta acción eliminará la categoría {name}. Los rankings existentes que la referencien podrían verse afectados.",
+        "confirm": "Eliminar categoría",
+        "confirmLoading": "Eliminando...",
+        "cancel": "Cancelar"
+      },
+      "recalculateRankings": {
+        "title": "Recalcular rankings",
+        "description": "Se recalcularán los rankings para el año {year}. Este proceso puede tomar unos segundos. Los resultados anteriores serán reemplazados.",
+        "confirm": "Confirmar recálculo",
+        "confirmLoading": "Recalculando...",
+        "cancel": "Cancelar"
+      }
     }
   },
   "folders": {
@@ -3314,6 +3578,12 @@
     "validation": {
       "start_date_required": "La fecha de inicio es obligatoria",
       "end_date_required": "La fecha de fin es obligatoria"
+    },
+    "placeholders": {
+      "selectType": "Seleccionar tipo",
+      "policyNumber": "Ej. POL-2025-001",
+      "provider": "Ej. MAPFRE, San Cristóbal...",
+      "amount": "0.00"
     }
   },
   "finances": {
@@ -3572,6 +3842,19 @@
       "club_section_required": "Selecciona la sección",
       "activity_place_required": "El lugar es obligatorio",
       "image_required": "La URL de imagen es obligatoria"
+    },
+    "placeholders": {
+      "name": "Nombre de la actividad",
+      "description": "Descripción opcional",
+      "selectType": "Seleccionar tipo",
+      "selectClubType": "Seleccionar tipo de club",
+      "selectSection": "Seleccionar sección",
+      "location": "Ej. Iglesia Central",
+      "latitude": "0.000000",
+      "longitude": "0.000000",
+      "selectModality": "Seleccionar modalidad",
+      "meetUrl": "https://meet.google.com/...",
+      "externalUrl": "https://..."
     }
   },
   "year_end": {
@@ -3660,6 +3943,12 @@
       "description_max": "La descripción no puede superar {max} caracteres",
       "category_required": "Selecciona una categoría",
       "amount_min": "La cantidad no puede ser negativa"
+    },
+    "placeholders": {
+      "name": "Ej. Carpas 4 personas",
+      "description": "Descripción opcional del ítem",
+      "selectCategory": "Seleccionar categoría",
+      "quantity": "0"
     }
   },
   "units_admin": {
@@ -3712,6 +4001,9 @@
       "clubTypeAdventurers": "Aventureros",
       "clubTypePathfinders": "Conquistadores",
       "clubTypeMasterGuides": "Guías Mayores"
+    },
+    "placeholders": {
+      "selectMember": "Seleccionar miembro"
     }
   },
   "system_config": {
@@ -3777,6 +4069,11 @@
     "appMetadata": {
       "title": "SACDIA Panel Administrativo",
       "description": "Panel de administración de SACDIA"
+    },
+    "uiPrimitives": {
+      "close": "Cerrar",
+      "more": "Más opciones",
+      "toggleSidebar": "Alternar barra lateral"
     }
   },
   "translations": {

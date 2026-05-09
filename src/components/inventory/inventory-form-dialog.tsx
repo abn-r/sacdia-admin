@@ -178,7 +178,7 @@ export function InventoryFormDialog({
               id="name"
               aria-required="true"
               {...register("name")}
-              placeholder="Ej. Carpas 4 personas"
+              placeholder={t("placeholders.name")}
             />
             {errors.name && (
               <p className="text-xs text-destructive">{errors.name.message}</p>
@@ -191,7 +191,7 @@ export function InventoryFormDialog({
             <Textarea
               id="description"
               {...register("description")}
-              placeholder="Descripción opcional del ítem"
+              placeholder={t("placeholders.description")}
               rows={3}
             />
             {errors.description && (
@@ -212,7 +212,7 @@ export function InventoryFormDialog({
               }
             >
               <SelectTrigger id="inventory_category_id" aria-required="true">
-                <SelectValue placeholder="Seleccionar categoría" />
+                <SelectValue placeholder={t("placeholders.selectCategory")} />
               </SelectTrigger>
               <SelectContent>
                 {categories.length > 0 ? (
@@ -250,7 +250,7 @@ export function InventoryFormDialog({
               min={0}
               aria-required="true"
               {...register("amount")}
-              placeholder="0"
+              placeholder={t("placeholders.quantity")}
             />
             {errors.amount && (
               <p className="text-xs text-destructive">{errors.amount.message}</p>

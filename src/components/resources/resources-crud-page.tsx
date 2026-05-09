@@ -394,6 +394,7 @@ function ResourceFormFields({
   isEdit?: boolean;
   onFileSizeError?: (error: string | null) => void;
 }) {
+  const t = useTranslations("resources");
   const [resourceType, setResourceType] = useState<ResourceType>(
     (item?.resource_type as ResourceType) ?? "document",
   );
@@ -447,7 +448,7 @@ function ResourceFormFields({
           defaultValue={toText(item?.title) ?? ""}
           required
           maxLength={255}
-          placeholder="Ej. Manual del Conquistador 2025"
+          placeholder={t("placeholders.title")}
         />
       </div>
 
@@ -459,7 +460,7 @@ function ResourceFormFields({
           name="description"
           rows={2}
           defaultValue={toText(item?.description) ?? ""}
-          placeholder="Descripción breve del recurso (opcional)"
+          placeholder={t("placeholders.description")}
         />
       </div>
 
@@ -477,7 +478,7 @@ function ResourceFormFields({
             required
           >
             <SelectTrigger id="res-type">
-              <SelectValue placeholder="Seleccionar tipo" />
+              <SelectValue placeholder={t("placeholders.selectType")} />
             </SelectTrigger>
             <SelectContent>
               {(Object.entries(RESOURCE_TYPE_LABELS) as [ResourceType, string][]).map(
@@ -504,7 +505,7 @@ function ResourceFormFields({
             defaultValue={toPositiveNumber(item?.category_id)?.toString() ?? "none"}
           >
             <SelectTrigger id="res-category">
-              <SelectValue placeholder="Sin categoría" />
+              <SelectValue placeholder={t("placeholders.selectCategory")} />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="none">Sin categoría</SelectItem>
@@ -528,7 +529,7 @@ function ResourceFormFields({
             defaultValue={(item?.club_type as string) ?? "all"}
           >
             <SelectTrigger id="res-club-type">
-              <SelectValue placeholder="Todos los clubes" />
+              <SelectValue placeholder={t("placeholders.selectClubType")} />
             </SelectTrigger>
             <SelectContent>
               {(Object.entries(CLUB_TYPE_LABELS) as [ClubTypeTarget, string][]).map(
@@ -554,7 +555,7 @@ function ResourceFormFields({
             disabled={isEdit}
           >
             <SelectTrigger id="res-scope-level">
-              <SelectValue placeholder="Alcance" />
+              <SelectValue placeholder={t("placeholders.selectScope")} />
             </SelectTrigger>
             <SelectContent>
               {(Object.entries(SCOPE_LEVEL_LABELS) as [ScopeLevel, string][]).map(
@@ -584,7 +585,7 @@ function ResourceFormFields({
                 required
               >
                 <SelectTrigger id="res-scope-id">
-                  <SelectValue placeholder="Seleccionar unión" />
+                  <SelectValue placeholder={t("placeholders.selectUnion")} />
                 </SelectTrigger>
                 <SelectContent>
                   {unions.map((u) => (
@@ -602,7 +603,7 @@ function ResourceFormFields({
                 min={1}
                 defaultValue={currentScopeIdValue}
                 required
-                placeholder="ID de la unión"
+                placeholder={t("placeholders.unionId")}
               />
             )
           ) : localFields.length > 0 ? (
@@ -612,7 +613,7 @@ function ResourceFormFields({
               required
             >
               <SelectTrigger id="res-scope-id">
-                <SelectValue placeholder="Seleccionar campo local" />
+                <SelectValue placeholder={t("placeholders.selectLocalField")} />
               </SelectTrigger>
               <SelectContent>
                 {localFields.map((lf) => (
@@ -630,7 +631,7 @@ function ResourceFormFields({
               min={1}
               defaultValue={currentScopeIdValue}
               required
-              placeholder="ID del campo local"
+              placeholder={t("placeholders.localFieldId")}
             />
           )}
         </div>
@@ -674,7 +675,7 @@ function ResourceFormFields({
             type="url"
             defaultValue={toText(item?.external_url) ?? ""}
             required={showExternalUrl}
-            placeholder="https://youtube.com/watch?v=... o https://vimeo.com/..."
+            placeholder={t("placeholders.videoUrl")}
           />
           <p className="text-xs text-muted-foreground">
             Enlace a YouTube, Vimeo u otro servicio de video.
@@ -694,7 +695,7 @@ function ResourceFormFields({
             rows={8}
             defaultValue={toText(item?.content) ?? ""}
             required={showContent}
-            placeholder="Escribe el contenido del recurso aquí..."
+            placeholder={t("placeholders.content")}
             className="resize-y"
           />
         </div>
@@ -891,7 +892,7 @@ export function ResourcesCrudPage({
                   <Search className="absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="res-filter-search"
-                    placeholder="Buscar por título..."
+                    placeholder={t("placeholders.searchTitle")}
                     value={searchInput}
                     onChange={(e) => handleSearchInputChange(e.target.value)}
                     className="bg-background pl-8 h-8 text-sm"
@@ -909,7 +910,7 @@ export function ResourcesCrudPage({
                   onValueChange={(v) => updateParam("resource_type", v)}
                 >
                   <SelectTrigger id="res-filter-type" className="bg-background h-8 text-sm">
-                    <SelectValue placeholder="Todos los tipos" />
+                    <SelectValue placeholder={t("placeholders.filterType")} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Todos los tipos</SelectItem>
@@ -934,7 +935,7 @@ export function ResourcesCrudPage({
                   onValueChange={(v) => updateParam("scope_level", v)}
                 >
                   <SelectTrigger id="res-filter-scope" className="bg-background h-8 text-sm">
-                    <SelectValue placeholder="Todos" />
+                    <SelectValue placeholder={t("placeholders.filterStatus")} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Todos los alcances</SelectItem>
@@ -960,7 +961,7 @@ export function ResourcesCrudPage({
                     onValueChange={(v) => updateParam("category_id", v)}
                   >
                     <SelectTrigger id="res-filter-category" className="bg-background h-8 text-sm">
-                      <SelectValue placeholder="Todas" />
+                      <SelectValue placeholder={t("placeholders.filterScope")} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Todas las categorías</SelectItem>
@@ -987,7 +988,7 @@ export function ResourcesCrudPage({
                   onValueChange={(v) => updateParam("club_type", v)}
                 >
                   <SelectTrigger id="res-filter-club-type" className="bg-background h-8 text-sm">
-                    <SelectValue placeholder="Todos" />
+                    <SelectValue placeholder={t("placeholders.filterClubType")} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Todos los clubes</SelectItem>

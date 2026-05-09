@@ -1317,6 +1317,190 @@
         "loadError": "Error loading role",
         "emptyLoadTitle": "Could not load role"
       }
+    },
+    "permissionGroups": {
+      "users": "Users",
+      "roles": "Roles & Permissions",
+      "clubs": "Clubs",
+      "units": "Units",
+      "member_of_month": "Member of the Month",
+      "scoring_categories": "Scoring Categories",
+      "requests": "Requests",
+      "user_certifications": "User Certifications (Admin)",
+      "user_folders": "User Folders (Admin)",
+      "geography": "Geographic Hierarchy",
+      "catalogs": "Catalogs",
+      "classes_honors": "Classes & Honors",
+      "activities": "Activities",
+      "camporees": "Camporees",
+      "validation": "Validation",
+      "finances": "Finances",
+      "inventory": "Inventory",
+      "reports": "Reports",
+      "notifications": "Notifications",
+      "resources": "Resources",
+      "system": "System"
+    },
+    "permissions": {
+      "users:read": "View list",
+      "users:read_detail": "View detail",
+      "users:update_profile": "Edit own profile",
+      "users:update_admin": "Admin user management",
+      "health:read": "View health",
+      "health:update": "Update health",
+      "emergency_contacts:read": "View emergency contacts",
+      "emergency_contacts:update": "Update emergency contacts",
+      "legal_representative:read": "View legal representative",
+      "legal_representative:update": "Update legal representative",
+      "post_registration:read": "View post-registration",
+      "registration:complete": "Complete registration",
+      "roles:read": "View roles",
+      "permissions:read": "View permissions",
+      "permissions:assign": "Assign permissions",
+      "clubs:read": "View clubs",
+      "clubs:create": "Create club",
+      "clubs:update": "Edit club",
+      "clubs:delete": "Delete club",
+      "club_sections:read": "View sections",
+      "club_sections:create": "Create section",
+      "club_sections:update": "Edit section",
+      "club_roles:read": "View club roles",
+      "club_roles:assign": "Assign club role",
+      "club_roles:revoke": "Revoke club role",
+      "club_members:approve": "Approve membership",
+      "club_members:reject": "Reject membership",
+      "club_members:list_pending": "View pending requests",
+      "units:read": "View units / member of the month",
+      "mom:read": "View member of the month",
+      "mom:supervise": "Supervise multi-section (admin/coordinator)",
+      "mom:evaluate": "Trigger manual evaluation",
+      "scoring_categories:read": "View scoring categories",
+      "scoring_categories:manage": "Manage scoring categories (unions + local fields)",
+      "requests:read": "View transfer and assignment requests",
+      "requests:review": "Approve/reject requests",
+      "user_certifications:read": "View certification progress",
+      "user_certifications:manage": "Enroll / update / delete certifications",
+      "user_folders:read": "View folder enrollment and progress",
+      "user_folders:manage": "Enroll / update / delete folder assignments",
+      "achievements:read": "View achievements",
+      "achievements:manage": "Manage achievements",
+      "rankings:read": "View rankings",
+      "rankings:recalculate": "Recalculate rankings",
+      "ranking_weights:read": "View institutional ranking weights",
+      "ranking_weights:write": "Edit institutional ranking weights",
+      "member_rankings:read_self": "View my ranking",
+      "member_rankings:read_section": "View section ranking",
+      "member_rankings:read_club": "View club ranking",
+      "member_rankings:read_lf": "View local field ranking",
+      "member_rankings:read_global": "View global ranking",
+      "member_ranking_weights:read": "View member ranking weights",
+      "member_ranking_weights:write": "Edit member ranking weights",
+      "section_rankings:read_club": "View club section rankings",
+      "section_rankings:read_lf": "View local field section rankings",
+      "section_rankings:read_global": "View global section rankings",
+      "award_categories:create": "Create award category",
+      "award_categories:read": "View award categories",
+      "award_categories:update": "Edit award category",
+      "award_categories:delete": "Delete award category",
+      "countries:read": "View countries",
+      "countries:create": "Create country",
+      "countries:update": "Edit country",
+      "countries:delete": "Delete country",
+      "unions:read": "View unions",
+      "unions:create": "Create union",
+      "unions:update": "Edit union",
+      "unions:delete": "Delete union",
+      "local_fields:read": "View local fields",
+      "local_fields:create": "Create local field",
+      "local_fields:update": "Edit local field",
+      "local_fields:delete": "Delete local field",
+      "churches:read": "View churches",
+      "churches:create": "Create church",
+      "churches:update": "Edit church",
+      "churches:delete": "Delete church",
+      "catalogs:read": "View catalogs",
+      "catalogs:create": "Create item",
+      "catalogs:update": "Edit item",
+      "catalogs:delete": "Delete item",
+      "classes:read": "View classes",
+      "classes:submit_progress": "Submit class progress",
+      "classes:manage": "Manage classes",
+      "class_modules:manage": "Manage class modules",
+      "class_sections:manage": "Manage class sections",
+      "honors:read": "View honors",
+      "honors:create": "Create honor",
+      "honors:update": "Edit honor",
+      "honors:delete": "Delete honor",
+      "master_honors:manage": "Manage master honors",
+      "user_honors:submit": "Submit honor progress",
+      "user_honors:validate": "Validate honors",
+      "honor_categories:read": "View categories",
+      "honor_categories:create": "Create category",
+      "honor_categories:update": "Edit category",
+      "honor_categories:delete": "Delete category",
+      "folders:manage": "Manage folders",
+      "folder_modules:manage": "Manage folder modules",
+      "folder_sections:manage": "Manage folder sections",
+      "finance_categories:manage": "Manage finance categories",
+      "inventory_categories:manage": "Manage inventory categories",
+      "activities:read": "View activities",
+      "activities:create": "Create activity",
+      "activities:update": "Edit activity",
+      "activities:delete": "Delete activity",
+      "attendance:read": "View attendance",
+      "attendance:manage": "Manage attendance",
+      "camporees:read": "View camporees",
+      "camporees:create": "Create camporees",
+      "camporees:update": "Update camporees",
+      "camporees:delete": "Deactivate camporees",
+      "validation:submit": "Submit progress for review",
+      "validation:review": "Approve/reject submitted progress",
+      "validation:read": "View pending queue, history and eligibility",
+      "finances:read": "View finances",
+      "finances:create": "Create record",
+      "finances:update": "Edit record",
+      "finances:delete": "Delete record",
+      "inventory:read": "View inventory",
+      "inventory:create": "Create item",
+      "inventory:update": "Edit item",
+      "inventory:delete": "Delete item",
+      "notifications:send": "Send direct",
+      "notifications:broadcast": "Send broadcast",
+      "notifications:club": "Send by club",
+      "reports:read": "Read monthly reports",
+      "reports:download": "Download PDF reports",
+      "dashboard:view": "View dashboard",
+      "resources:read": "View resources",
+      "resources:create": "Upload resource",
+      "resources:update": "Edit resource",
+      "resources:delete": "Delete resource",
+      "resource_categories:read": "View resource categories",
+      "resource_categories:create": "Create resource category",
+      "resource_categories:update": "Edit resource category",
+      "resource_categories:delete": "Delete resource category",
+      "ecclesiastical_years:read": "View ecclesiastical years",
+      "ecclesiastical_years:create": "Create ecclesiastical year",
+      "ecclesiastical_years:update": "Edit ecclesiastical year"
+    },
+    "userPermissionsPanel": {
+      "title": "Direct permissions",
+      "subtitle": "Permissions assigned directly to this user (not through roles)",
+      "addPermission": "Add permission",
+      "noPermissionsTitle": "This user has no direct permissions assigned.",
+      "addDirectPermission": "Add permission",
+      "addDialogTitle": "Add direct permission",
+      "addDialogDescription": "Select a permission to assign directly to this user.",
+      "searchPlaceholder": "Search permission...",
+      "noMatchesSearch": "No matching permissions found.",
+      "noPermissionsAvailable": "No permissions available to assign.",
+      "cancelButton": "Cancel",
+      "assignButton": "Assign permission",
+      "removePermission": "Remove {name}",
+      "removeSrOnly": "Remove",
+      "removeDialogTitle": "Remove direct permission?",
+      "removeDialogDescription": "The permission {name} directly assigned to this user will be removed. The user may still have the permission through their roles.",
+      "removeCancel": "Cancel",
+      "removeConfirm": "Remove"
     }
   },
   "resource_categories": {
@@ -1992,6 +2176,25 @@
       "categories": {
         "forbiddenDetail": "You do not have permission to view resource categories."
       }
+    },
+    "placeholders": {
+      "title": "E.g. Pathfinder Manual 2025",
+      "description": "Brief description of the resource (optional)",
+      "selectType": "Select type",
+      "selectCategory": "No category",
+      "selectClubType": "All clubs",
+      "selectScope": "Scope",
+      "selectUnion": "Select union",
+      "unionId": "Union ID",
+      "selectLocalField": "Select local field",
+      "localFieldId": "Local field ID",
+      "videoUrl": "https://youtube.com/watch?v=... or https://vimeo.com/...",
+      "content": "Write the resource content here...",
+      "searchTitle": "Search by title...",
+      "filterType": "All types",
+      "filterStatus": "All",
+      "filterScope": "All",
+      "filterClubType": "All"
     }
   },
   "investiture": {
@@ -2162,6 +2365,22 @@
       "errorFallback": "Could not load investitures.",
       "emptyTitle": "No investiture requests",
       "emptyDescription": "There are no investiture requests in the system at this time."
+    },
+    "investidoDialog": {
+      "title": "Register investiture",
+      "description": "The investiture of {memberName} will be registered. This action is irreversible and will sync the status in the system.",
+      "commentsLabel": "Comments (optional)",
+      "commentsPlaceholder": "Add an optional comment...",
+      "cancel": "Cancel",
+      "confirm": "Confirm investiture"
+    },
+    "pipelineRejectDialog": {
+      "title": "Reject investiture",
+      "description": "The investiture request for {memberName} will be rejected. The reason is required.",
+      "reasonLabel": "Rejection reason *",
+      "reasonPlaceholder": "Describe the reason for rejection...",
+      "cancel": "Cancel",
+      "confirm": "Reject"
     }
   },
   "evidence_review": {
@@ -2246,6 +2465,14 @@
       "emptyTitle": "No pending evidence",
       "emptyDescription": "There is no evidence pending review at this time.",
       "allReviewed": "All evidence has been reviewed."
+    },
+    "rejectDialog": {
+      "title": "Reject evidence",
+      "description": "You are about to reject the evidence from {memberName} for {sectionName}. The reason is required.",
+      "reasonLabel": "Rejection reason *",
+      "reasonPlaceholder": "Describe the reason for rejection so the member can correct it...",
+      "cancel": "Cancel",
+      "confirm": "Reject"
     }
   },
   "users": {
@@ -2679,6 +2906,43 @@
       "composite_pct_max": "Cannot exceed {max}",
       "order_min_0": "Order must be 0 or greater",
       "composite_pct_invalid": "Minimum percentage must be less than maximum"
+    },
+    "dialogs": {
+      "deleteEvidence": {
+        "title": "Delete evidence",
+        "description": "This action will permanently delete the file {fileName}. This cannot be undone.",
+        "confirm": "Delete",
+        "confirmLoading": "Deleting...",
+        "cancel": "Cancel"
+      },
+      "sendFolder": {
+        "title": "Submit folder",
+        "description": "Once submitted, you will not be able to modify or add evidence until it is reviewed. Make sure you have uploaded everything required.",
+        "confirm": "Submit folder",
+        "confirmLoading": "Submitting...",
+        "cancel": "Cancel"
+      },
+      "closeFolder": {
+        "title": "Close folder",
+        "description": "Closing the folder will mark it as finalized. This action is final and cannot be reversed.",
+        "confirm": "Close folder",
+        "confirmLoading": "Closing...",
+        "cancel": "Cancel"
+      },
+      "deleteCategory": {
+        "title": "Delete category",
+        "description": "This action will delete the category {name}. Existing rankings that reference it may be affected.",
+        "confirm": "Delete category",
+        "confirmLoading": "Deleting...",
+        "cancel": "Cancel"
+      },
+      "recalculateRankings": {
+        "title": "Recalculate rankings",
+        "description": "Rankings will be recalculated for year {year}. This process may take a few seconds. Previous results will be replaced.",
+        "confirm": "Confirm recalculation",
+        "confirmLoading": "Recalculating...",
+        "cancel": "Cancel"
+      }
     }
   },
   "folders": {
@@ -3314,6 +3578,12 @@
     "validation": {
       "start_date_required": "Start date is required",
       "end_date_required": "End date is required"
+    },
+    "placeholders": {
+      "selectType": "Select type",
+      "policyNumber": "E.g. POL-2025-001",
+      "provider": "E.g. MAPFRE, San Cristóbal...",
+      "amount": "0.00"
     }
   },
   "finances": {
@@ -3572,6 +3842,19 @@
       "club_section_required": "Select the section",
       "activity_place_required": "Location is required",
       "image_required": "Image URL is required"
+    },
+    "placeholders": {
+      "name": "Activity name",
+      "description": "Optional description",
+      "selectType": "Select type",
+      "selectClubType": "Select club type",
+      "selectSection": "Select section",
+      "location": "E.g. Central Church",
+      "latitude": "0.000000",
+      "longitude": "0.000000",
+      "selectModality": "Select modality",
+      "meetUrl": "https://meet.google.com/...",
+      "externalUrl": "https://..."
     }
   },
   "year_end": {
@@ -3660,6 +3943,12 @@
       "description_max": "Description cannot exceed {max} characters",
       "category_required": "Select a category",
       "amount_min": "Quantity cannot be negative"
+    },
+    "placeholders": {
+      "name": "E.g. 4-person tents",
+      "description": "Optional item description",
+      "selectCategory": "Select category",
+      "quantity": "0"
     }
   },
   "units_admin": {
@@ -3712,6 +4001,9 @@
       "clubTypeAdventurers": "Adventurers",
       "clubTypePathfinders": "Pathfinders",
       "clubTypeMasterGuides": "Master Guides"
+    },
+    "placeholders": {
+      "selectMember": "Select member"
     }
   },
   "system_config": {
@@ -3777,6 +4069,11 @@
     "appMetadata": {
       "title": "SACDIA Admin Panel",
       "description": "SACDIA administration panel"
+    },
+    "uiPrimitives": {
+      "close": "Close",
+      "more": "More",
+      "toggleSidebar": "Toggle Sidebar"
     }
   },
   "translations": {

@@ -633,23 +633,24 @@ export function RankingsClientPage({
       <AlertDialog open={recalcOpen} onOpenChange={setRecalcOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Recalcular rankings</AlertDialogTitle>
+            <AlertDialogTitle>{t("dialogs.recalculateRankings.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Se recalcularán los rankings para el año{" "}
-              <strong>{activeYear?.name ?? selectedYearId}</strong>. Este proceso
-              puede tomar unos segundos. Los resultados anteriores serán
-              reemplazados.
+              {t("dialogs.recalculateRankings.description", {
+                year: activeYear?.name ?? selectedYearId ?? "",
+              })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isRecalculating}>
-              Cancelar
+              {t("dialogs.recalculateRankings.cancel")}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmRecalculate}
               disabled={isRecalculating}
             >
-              {isRecalculating ? "Recalculando..." : "Confirmar recálculo"}
+              {isRecalculating
+                ? t("dialogs.recalculateRankings.confirmLoading")
+                : t("dialogs.recalculateRankings.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

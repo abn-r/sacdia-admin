@@ -1317,6 +1317,190 @@
         "loadError": "Erreur lors du chargement du rôle",
         "emptyLoadTitle": "Impossible de charger le rôle"
       }
+    },
+    "permissionGroups": {
+      "users": "Utilisateurs",
+      "roles": "Rôles et permissions",
+      "clubs": "Clubs",
+      "units": "Unités",
+      "member_of_month": "Membre du mois",
+      "scoring_categories": "Catégories de score",
+      "requests": "Demandes",
+      "user_certifications": "Certifications utilisateur (Admin)",
+      "user_folders": "Dossiers utilisateur (Admin)",
+      "geography": "Hiérarchie géographique",
+      "catalogs": "Catalogues",
+      "classes_honors": "Classes et spécialités",
+      "activities": "Activités",
+      "camporees": "Camporees",
+      "validation": "Validation",
+      "finances": "Finances",
+      "inventory": "Inventaire",
+      "reports": "Rapports",
+      "notifications": "Notifications",
+      "resources": "Ressources",
+      "system": "Système"
+    },
+    "permissions": {
+      "users:read": "Voir la liste",
+      "users:read_detail": "Voir le détail",
+      "users:update_profile": "Modifier son profil",
+      "users:update_admin": "Gestion admin des utilisateurs",
+      "health:read": "Voir santé",
+      "health:update": "Mettre à jour santé",
+      "emergency_contacts:read": "Voir contacts d'urgence",
+      "emergency_contacts:update": "Mettre à jour contacts d'urgence",
+      "legal_representative:read": "Voir représentant légal",
+      "legal_representative:update": "Mettre à jour représentant légal",
+      "post_registration:read": "Voir post-inscription",
+      "registration:complete": "Compléter inscription",
+      "roles:read": "Voir les rôles",
+      "permissions:read": "Voir les permissions",
+      "permissions:assign": "Assigner des permissions",
+      "clubs:read": "Voir les clubs",
+      "clubs:create": "Créer un club",
+      "clubs:update": "Modifier un club",
+      "clubs:delete": "Supprimer un club",
+      "club_sections:read": "Voir les sections",
+      "club_sections:create": "Créer une section",
+      "club_sections:update": "Modifier une section",
+      "club_roles:read": "Voir les rôles de club",
+      "club_roles:assign": "Assigner un rôle de club",
+      "club_roles:revoke": "Révoquer un rôle de club",
+      "club_members:approve": "Approuver une adhésion",
+      "club_members:reject": "Rejeter une adhésion",
+      "club_members:list_pending": "Voir les demandes en attente",
+      "units:read": "Voir unités / membre du mois",
+      "mom:read": "Voir membre du mois",
+      "mom:supervise": "Superviser multi-section (admin/coordinateur)",
+      "mom:evaluate": "Déclencher évaluation manuelle",
+      "scoring_categories:read": "Voir catégories de score",
+      "scoring_categories:manage": "Gérer catégories de score (unions + champs locaux)",
+      "requests:read": "Voir demandes de transfert et d'affectation",
+      "requests:review": "Approuver/rejeter des demandes",
+      "user_certifications:read": "Voir progrès de certifications",
+      "user_certifications:manage": "Inscrire / mettre à jour / supprimer des certifications",
+      "user_folders:read": "Voir inscription et progrès des dossiers",
+      "user_folders:manage": "Inscrire / mettre à jour / supprimer des affectations de dossier",
+      "achievements:read": "Voir réalisations",
+      "achievements:manage": "Gérer réalisations",
+      "rankings:read": "Voir classements",
+      "rankings:recalculate": "Recalculer classements",
+      "ranking_weights:read": "Voir poids classement institutionnel",
+      "ranking_weights:write": "Modifier poids classement institutionnel",
+      "member_rankings:read_self": "Voir mon classement",
+      "member_rankings:read_section": "Voir classement de section",
+      "member_rankings:read_club": "Voir classement de club",
+      "member_rankings:read_lf": "Voir classement de champ local",
+      "member_rankings:read_global": "Voir classement global",
+      "member_ranking_weights:read": "Voir poids classement membres",
+      "member_ranking_weights:write": "Modifier poids classement membres",
+      "section_rankings:read_club": "Voir classements sections du club",
+      "section_rankings:read_lf": "Voir classements sections champ local",
+      "section_rankings:read_global": "Voir classements sections global",
+      "award_categories:create": "Créer catégorie de prix",
+      "award_categories:read": "Voir catégories de prix",
+      "award_categories:update": "Modifier catégorie de prix",
+      "award_categories:delete": "Supprimer catégorie de prix",
+      "countries:read": "Voir les pays",
+      "countries:create": "Créer un pays",
+      "countries:update": "Modifier un pays",
+      "countries:delete": "Supprimer un pays",
+      "unions:read": "Voir les unions",
+      "unions:create": "Créer une union",
+      "unions:update": "Modifier une union",
+      "unions:delete": "Supprimer une union",
+      "local_fields:read": "Voir les champs locaux",
+      "local_fields:create": "Créer un champ local",
+      "local_fields:update": "Modifier un champ local",
+      "local_fields:delete": "Supprimer un champ local",
+      "churches:read": "Voir les églises",
+      "churches:create": "Créer une église",
+      "churches:update": "Modifier une église",
+      "churches:delete": "Supprimer une église",
+      "catalogs:read": "Voir les catalogues",
+      "catalogs:create": "Créer un élément",
+      "catalogs:update": "Modifier un élément",
+      "catalogs:delete": "Supprimer un élément",
+      "classes:read": "Voir les classes",
+      "classes:submit_progress": "Soumettre progrès de classe",
+      "classes:manage": "Gérer les classes",
+      "class_modules:manage": "Gérer les modules de classe",
+      "class_sections:manage": "Gérer les sections de classe",
+      "honors:read": "Voir les spécialités",
+      "honors:create": "Créer une spécialité",
+      "honors:update": "Modifier une spécialité",
+      "honors:delete": "Supprimer une spécialité",
+      "master_honors:manage": "Gérer les spécialités maîtresses",
+      "user_honors:submit": "Soumettre progrès d'honneur",
+      "user_honors:validate": "Valider les honneurs",
+      "honor_categories:read": "Voir les catégories",
+      "honor_categories:create": "Créer une catégorie",
+      "honor_categories:update": "Modifier une catégorie",
+      "honor_categories:delete": "Supprimer une catégorie",
+      "folders:manage": "Gérer les dossiers",
+      "folder_modules:manage": "Gérer les modules de dossier",
+      "folder_sections:manage": "Gérer les sections de dossier",
+      "finance_categories:manage": "Gérer les catégories de finance",
+      "inventory_categories:manage": "Gérer les catégories d'inventaire",
+      "activities:read": "Voir les activités",
+      "activities:create": "Créer une activité",
+      "activities:update": "Modifier une activité",
+      "activities:delete": "Supprimer une activité",
+      "attendance:read": "Voir les présences",
+      "attendance:manage": "Gérer les présences",
+      "camporees:read": "Voir les camporees",
+      "camporees:create": "Créer des camporees",
+      "camporees:update": "Mettre à jour des camporees",
+      "camporees:delete": "Désactiver des camporees",
+      "validation:submit": "Soumettre progrès pour révision",
+      "validation:review": "Approuver/rejeter progrès soumis",
+      "validation:read": "Voir file d'attente, historique et éligibilité",
+      "finances:read": "Voir les finances",
+      "finances:create": "Créer un enregistrement",
+      "finances:update": "Modifier un enregistrement",
+      "finances:delete": "Supprimer un enregistrement",
+      "inventory:read": "Voir l'inventaire",
+      "inventory:create": "Créer un article",
+      "inventory:update": "Modifier un article",
+      "inventory:delete": "Supprimer un article",
+      "notifications:send": "Envoyer directe",
+      "notifications:broadcast": "Envoyer broadcast",
+      "notifications:club": "Envoyer par club",
+      "reports:read": "Lire les rapports mensuels",
+      "reports:download": "Télécharger les rapports PDF",
+      "dashboard:view": "Voir le tableau de bord",
+      "resources:read": "Voir les ressources",
+      "resources:create": "Importer une ressource",
+      "resources:update": "Modifier une ressource",
+      "resources:delete": "Supprimer une ressource",
+      "resource_categories:read": "Voir les catégories de ressources",
+      "resource_categories:create": "Créer une catégorie de ressources",
+      "resource_categories:update": "Modifier une catégorie de ressources",
+      "resource_categories:delete": "Supprimer une catégorie de ressources",
+      "ecclesiastical_years:read": "Voir les années ecclésiastiques",
+      "ecclesiastical_years:create": "Créer une année ecclésiastique",
+      "ecclesiastical_years:update": "Modifier une année ecclésiastique"
+    },
+    "userPermissionsPanel": {
+      "title": "Permissions directes",
+      "subtitle": "Permissions assignées directement à cet utilisateur (pas via des rôles)",
+      "addPermission": "Ajouter une permission",
+      "noPermissionsTitle": "Cet utilisateur n'a pas de permissions directes.",
+      "addDirectPermission": "Ajouter une permission",
+      "addDialogTitle": "Ajouter une permission directe",
+      "addDialogDescription": "Sélectionnez une permission à assigner directement à cet utilisateur.",
+      "searchPlaceholder": "Rechercher une permission...",
+      "noMatchesSearch": "Aucune permission trouvée.",
+      "noPermissionsAvailable": "Aucune permission disponible à assigner.",
+      "cancelButton": "Annuler",
+      "assignButton": "Assigner la permission",
+      "removePermission": "Retirer {name}",
+      "removeSrOnly": "Retirer",
+      "removeDialogTitle": "Retirer la permission directe?",
+      "removeDialogDescription": "La permission {name} assignée directement à cet utilisateur sera retirée. L'utilisateur peut toujours avoir la permission via ses rôles.",
+      "removeCancel": "Annuler",
+      "removeConfirm": "Retirer"
     }
   },
   "resource_categories": {
@@ -1992,6 +2176,25 @@
       "categories": {
         "forbiddenDetail": "Vous n’avez pas les permissions pour voir les catégories de ressources."
       }
+    },
+    "placeholders": {
+      "title": "Ex. Manuel du Pathfinder 2025",
+      "description": "Brève description de la ressource (optionnel)",
+      "selectType": "Sélectionner le type",
+      "selectCategory": "Sans catégorie",
+      "selectClubType": "Tous les clubs",
+      "selectScope": "Portée",
+      "selectUnion": "Sélectionner l'union",
+      "unionId": "ID de l'union",
+      "selectLocalField": "Sélectionner le champ local",
+      "localFieldId": "ID du champ local",
+      "videoUrl": "https://youtube.com/watch?v=... ou https://vimeo.com/...",
+      "content": "Écrivez le contenu de la ressource ici...",
+      "searchTitle": "Rechercher par titre...",
+      "filterType": "Tous les types",
+      "filterStatus": "Tous",
+      "filterScope": "Toutes",
+      "filterClubType": "Tous"
     }
   },
   "investiture": {
@@ -2162,6 +2365,22 @@
       "errorFallback": "Impossible de charger les investitures.",
       "emptyTitle": "Aucune demande d'investiture",
       "emptyDescription": "Il n'y a aucune demande d'investiture dans le système pour l'instant."
+    },
+    "investidoDialog": {
+      "title": "Enregistrer l'investiture",
+      "description": "L'investiture de {memberName} sera enregistrée. Cette action est irréversible et synchronisera le statut dans le système.",
+      "commentsLabel": "Commentaires (optionnel)",
+      "commentsPlaceholder": "Ajoutez un commentaire optionnel...",
+      "cancel": "Annuler",
+      "confirm": "Confirmer l'investiture"
+    },
+    "pipelineRejectDialog": {
+      "title": "Rejeter l'investiture",
+      "description": "La demande d'investiture de {memberName} sera rejetée. Le motif est obligatoire.",
+      "reasonLabel": "Motif de rejet *",
+      "reasonPlaceholder": "Décrivez le motif du rejet...",
+      "cancel": "Annuler",
+      "confirm": "Rejeter"
     }
   },
   "evidence_review": {
@@ -2246,6 +2465,14 @@
       "emptyTitle": "Aucune preuve en attente",
       "emptyDescription": "Il n'y a aucune preuve en attente de révision pour le moment.",
       "allReviewed": "Toutes les preuves ont été révisées."
+    },
+    "rejectDialog": {
+      "title": "Rejeter la preuve",
+      "description": "Vous allez rejeter la preuve de {memberName} pour {sectionName}. Le motif est obligatoire.",
+      "reasonLabel": "Motif de rejet *",
+      "reasonPlaceholder": "Décrivez le motif du rejet pour que le membre puisse le corriger...",
+      "cancel": "Annuler",
+      "confirm": "Rejeter"
     }
   },
   "users": {
@@ -2679,6 +2906,43 @@
       "composite_pct_max": "Ne peut pas dépasser {max}",
       "order_min_0": "L'ordre doit être 0 ou plus",
       "composite_pct_invalid": "Le pourcentage minimum doit être inférieur au maximum"
+    },
+    "dialogs": {
+      "deleteEvidence": {
+        "title": "Supprimer la preuve",
+        "description": "Cette action supprimera définitivement le fichier {fileName}. Impossible d'annuler.",
+        "confirm": "Supprimer",
+        "confirmLoading": "Suppression...",
+        "cancel": "Annuler"
+      },
+      "sendFolder": {
+        "title": "Soumettre le dossier",
+        "description": "Une fois soumis, vous ne pourrez pas modifier ni ajouter des preuves jusqu'à révision. Assurez-vous d'avoir tout téléchargé.",
+        "confirm": "Soumettre le dossier",
+        "confirmLoading": "Envoi...",
+        "cancel": "Annuler"
+      },
+      "closeFolder": {
+        "title": "Fermer le dossier",
+        "description": "La fermeture du dossier le marquera comme finalisé. Cette action est définitive et irréversible.",
+        "confirm": "Fermer le dossier",
+        "confirmLoading": "Fermeture...",
+        "cancel": "Annuler"
+      },
+      "deleteCategory": {
+        "title": "Supprimer la catégorie",
+        "description": "Cette action supprimera la catégorie {name}. Les classements existants qui la référencent pourraient être affectés.",
+        "confirm": "Supprimer la catégorie",
+        "confirmLoading": "Suppression...",
+        "cancel": "Annuler"
+      },
+      "recalculateRankings": {
+        "title": "Recalculer les classements",
+        "description": "Les classements seront recalculés pour l'année {year}. Ce processus peut prendre quelques secondes. Les résultats précédents seront remplacés.",
+        "confirm": "Confirmer le recalcul",
+        "confirmLoading": "Recalcul...",
+        "cancel": "Annuler"
+      }
     }
   },
   "folders": {
@@ -3314,6 +3578,12 @@
     "validation": {
       "start_date_required": "La date de début est obligatoire",
       "end_date_required": "La date de fin est obligatoire"
+    },
+    "placeholders": {
+      "selectType": "Sélectionner le type",
+      "policyNumber": "Ex. POL-2025-001",
+      "provider": "Ex. MAPFRE, San Cristóbal...",
+      "amount": "0.00"
     }
   },
   "finances": {
@@ -3572,6 +3842,19 @@
       "club_section_required": "Sélectionnez la section",
       "activity_place_required": "Le lieu est obligatoire",
       "image_required": "L'URL de l'image est obligatoire"
+    },
+    "placeholders": {
+      "name": "Nom de l'activité",
+      "description": "Description optionnelle",
+      "selectType": "Sélectionner le type",
+      "selectClubType": "Sélectionner le type de club",
+      "selectSection": "Sélectionner la section",
+      "location": "Ex. Église centrale",
+      "latitude": "0.000000",
+      "longitude": "0.000000",
+      "selectModality": "Sélectionner la modalité",
+      "meetUrl": "https://meet.google.com/...",
+      "externalUrl": "https://..."
     }
   },
   "year_end": {
@@ -3660,6 +3943,12 @@
       "description_max": "La description ne peut pas dépasser {max} caractères",
       "category_required": "Sélectionnez une catégorie",
       "amount_min": "La quantité ne peut pas être négative"
+    },
+    "placeholders": {
+      "name": "Ex. Tentes 4 personnes",
+      "description": "Description optionnelle de l'article",
+      "selectCategory": "Sélectionner la catégorie",
+      "quantity": "0"
     }
   },
   "units_admin": {
@@ -3712,6 +4001,9 @@
       "clubTypeAdventurers": "Aventuriers",
       "clubTypePathfinders": "Conquistadores",
       "clubTypeMasterGuides": "Guides Majeurs"
+    },
+    "placeholders": {
+      "selectMember": "Sélectionner un membre"
     }
   },
   "system_config": {
@@ -3777,6 +4069,11 @@
     "appMetadata": {
       "title": "SACDIA Panneau d'administration",
       "description": "Panneau d'administration SACDIA"
+    },
+    "uiPrimitives": {
+      "close": "Fermer",
+      "more": "Plus",
+      "toggleSidebar": "Basculer la barre latérale"
     }
   },
   "translations": {
