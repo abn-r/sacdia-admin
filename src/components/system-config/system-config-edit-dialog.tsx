@@ -69,8 +69,8 @@ export function SystemConfigEditDialog({
     if (!config) return;
     setIsPending(true);
     try {
-      await updateSystemConfig(config.key, { config_value: values.config_value });
-      toast.success(`Configuración "${config.key}" actualizada`);
+      await updateSystemConfig(config.config_key, { config_value: values.config_value });
+      toast.success(`Configuración "${config.config_key}" actualizada`);
       onOpenChange(false);
       onSuccess();
     } catch (error) {
@@ -98,9 +98,9 @@ export function SystemConfigEditDialog({
             Editar configuración
           </DialogTitle>
           <DialogDescription>
-            {config?.key && (
+            {config?.config_key && (
               <>
-                Modificá el valor de <code className="rounded bg-muted px-1 py-0.5 text-xs">{config.key}</code>.
+                Modificá el valor de <code className="rounded bg-muted px-1 py-0.5 text-xs">{config.config_key}</code>.
                 {config.description && (
                   <span className="mt-1 block text-muted-foreground">{config.description}</span>
                 )}

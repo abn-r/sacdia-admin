@@ -73,10 +73,10 @@ export function SystemConfigTable({ configs, onEdit }: SystemConfigTableProps) {
         </TableHeader>
         <TableBody>
           {configs.map((config) => (
-            <TableRow key={config.key} className="hover:bg-muted/30">
+            <TableRow key={config.config_key} className="hover:bg-muted/30">
               <TableCell className="px-3 py-2.5 align-middle">
                 <code className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono">
-                  {config.key}
+                  {config.config_key}
                 </code>
               </TableCell>
               <TableCell className="px-3 py-2.5 align-middle max-w-52">
@@ -106,7 +106,7 @@ export function SystemConfigTable({ configs, onEdit }: SystemConfigTableProps) {
                         variant="ghost"
                         size="icon-sm"
                         onClick={() => onEdit(config)}
-                        aria-label={t("action_edit_key", { key: config.key })}
+                        aria-label={t("action_edit_key", { key: config.config_key })}
                       >
                         <Pencil className="size-4" />
                       </Button>

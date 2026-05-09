@@ -20,7 +20,7 @@ function getPrefix(key: string): string {
 function groupByPrefix(configs: SystemConfig[]): Map<string, SystemConfig[]> {
   const groups = new Map<string, SystemConfig[]>();
   for (const config of configs) {
-    const prefix = getPrefix(config.key);
+    const prefix = getPrefix(config.config_key);
     const existing = groups.get(prefix) ?? [];
     existing.push(config);
     groups.set(prefix, existing);
