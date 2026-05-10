@@ -1,13 +1,36 @@
 import { getTranslations } from "next-intl/server";
+import dynamic from "next/dynamic";
+import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-import { AwardCategoriesClientPage } from "@/components/annual-folders/award-categories-client-page";
 import { requireAdminUser } from "@/lib/auth/session";
 import { ApiError } from "@/lib/api/client";
 import { listClubTypes } from "@/lib/api/catalogs";
 import { getAwardCategories } from "@/lib/api/annual-folders";
 import type { AwardCategory } from "@/lib/api/annual-folders";
 import type { ClubType } from "@/lib/api/catalogs";
+
+const AwardCategoriesClientPage = dynamic(
+  () =>
+    import("@/components/annual-folders/award-categories-client-page").then(
+      (m) => ({ default: m.AwardCategoriesClientPage })
+    ),
+  {
+    loading: () => (
+      <div className="space-y-4">
+        <div className="flex flex-wrap gap-2">
+          <Skeleton className="h-9 w-36 rounded-md" />
+          <Skeleton className="h-9 w-28 rounded-md" />
+        </div>
+        <Skeleton className="h-10 w-full rounded-md" />
+        <Skeleton className="h-12 w-full rounded-md" />
+        <Skeleton className="h-12 w-full rounded-md" />
+        <Skeleton className="h-12 w-full rounded-md" />
+        <Skeleton className="h-12 w-full rounded-md" />
+      </div>
+    ),
+  }
+);
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

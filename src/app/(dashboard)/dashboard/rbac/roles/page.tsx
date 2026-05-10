@@ -1,16 +1,33 @@
 import Link from "next/link";
 import { ShieldCheck, Plus } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-import { RolesTable } from "@/components/rbac/roles-table";
 import { requireAdminUser } from "@/lib/auth/session";
 import { extractRoles, SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
 import { listRoles } from "@/lib/rbac/service";
 import { ApiError } from "@/lib/api/client";
 import type { Role } from "@/lib/rbac/types";
+
+const RolesTable = dynamic(
+  () => import("@/components/rbac/roles-table").then((m) => ({ default: m.RolesTable })),
+  {
+    loading: () => (
+      <div className="space-y-3">
+        <Skeleton className="h-10 w-full rounded-md" />
+        <Skeleton className="h-12 w-full rounded-md" />
+        <Skeleton className="h-12 w-full rounded-md" />
+        <Skeleton className="h-12 w-full rounded-md" />
+        <Skeleton className="h-12 w-full rounded-md" />
+        <Skeleton className="h-12 w-full rounded-md" />
+      </div>
+    ),
+  }
+);
 
 export default async function RolesPage() {
   const t = await getTranslations("rbac.pages.roles");
