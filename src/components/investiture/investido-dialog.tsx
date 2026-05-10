@@ -16,8 +16,14 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
 import { markAsInvestido } from "@/lib/api/investiture";
 import { ApiError } from "@/lib/api/client";
 
@@ -98,33 +104,42 @@ export function InvestidoDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="investido-comments">{t("investidoDialog.commentsLabel")}</Label>
-            <Textarea
-              id="investido-comments"
-              placeholder={t("investidoDialog.commentsPlaceholder")}
-              rows={3}
-              {...form.register("comments")}
-              disabled={isPending}
+        <Form {...form}>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="comments"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("investidoDialog.commentsLabel")}</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder={t("investidoDialog.commentsPlaceholder")}
+                      rows={3}
+                      {...field}
+                      disabled={isPending}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
             />
-          </div>
 
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleClose(false)}
-              disabled={isPending}
-            >
-              {t("investidoDialog.cancel")}
-            </Button>
-            <Button type="submit" disabled={isPending}>
-              {isPending && <Loader2 className="size-4 animate-spin" />}
-              {t("investidoDialog.confirm")}
-            </Button>
-          </DialogFooter>
-        </form>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleClose(false)}
+                disabled={isPending}
+              >
+                {t("investidoDialog.cancel")}
+              </Button>
+              <Button type="submit" disabled={isPending}>
+                {isPending && <Loader2 className="size-4 animate-spin" />}
+                {t("investidoDialog.confirm")}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

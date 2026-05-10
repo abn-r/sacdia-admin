@@ -16,8 +16,15 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { rejectEvidence, type EvidenceType } from "@/lib/api/evidence-review";
 import { ApiError } from "@/lib/api/client";
 
@@ -34,7 +41,7 @@ function buildRejectSchema(t: RejectTranslator) {
 
 type RejectFormValues = { reason: string };
 
-interface EvidenceRejectDialogProps {
+export interface EvidenceRejectDialogProps {
   open: boolean;
   type: EvidenceType;
   id: number;
@@ -99,41 +106,43 @@ export function EvidenceRejectDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="reject-reason">{t("rejectDialog.reasonLabel")}</Label>
-            <Textarea
-              id="reject-reason"
-              placeholder={t("rejectDialog.reasonPlaceholder")}
-              rows={4}
-              {...form.register("reason")}
-              disabled={isSubmitting}
-              aria-describedby={
-                form.formState.errors.reason ? "reject-reason-error" : undefined
-              }
+        <Form {...form}>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="reason"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("rejectDialog.reasonLabel")}</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder={t("rejectDialog.reasonPlaceholder")}
+                      rows={4}
+                      {...field}
+                      disabled={isSubmitting}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {form.formState.errors.reason && (
-              <p id="reject-reason-error" className="text-xs text-destructive">
-                {form.formState.errors.reason.message}
-              </p>
-            )}
-          </div>
 
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleClose(false)}
-              disabled={isSubmitting}
-            >
-              {t("rejectDialog.cancel")}
-            </Button>
-            <Button type="submit" variant="destructive" disabled={isSubmitting}>
-              {isSubmitting && <Loader2 className="size-4 animate-spin" />}
-              {t("rejectDialog.confirm")}
-            </Button>
-          </DialogFooter>
-        </form>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleClose(false)}
+                disabled={isSubmitting}
+              >
+                {t("rejectDialog.cancel")}
+              </Button>
+              <Button type="submit" variant="destructive" disabled={isSubmitting}>
+                {isSubmitting && <Loader2 className="size-4 animate-spin" />}
+                {t("rejectDialog.confirm")}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
