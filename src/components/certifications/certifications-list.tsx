@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ChevronRight, ShieldCheck } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -28,12 +29,14 @@ interface CertificationsListProps {
 }
 
 export function CertificationsList({ items }: CertificationsListProps) {
+  const t = useTranslations("certifications.list");
+
   if (items.length === 0) {
     return (
       <EmptyState
         icon={ShieldCheck}
-        title="No hay certificaciones"
-        description="No se encontraron certificaciones registradas."
+        title={t("empty_title")}
+        description={t("empty_description")}
       />
     );
   }
@@ -44,19 +47,19 @@ export function CertificationsList({ items }: CertificationsListProps) {
         <TableHeader>
           <TableRow>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Nombre
+              {t("col_name")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Descripción
+              {t("col_description")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Duración
+              {t("col_duration")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Módulos
+              {t("col_modules")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Estado
+              {t("col_status")}
             </TableHead>
             <TableHead className="h-9 w-12 px-3" />
           </TableRow>
@@ -74,22 +77,22 @@ export function CertificationsList({ items }: CertificationsListProps) {
               </TableCell>
               <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums">
                 {cert.duration_weeks != null
-                  ? `${cert.duration_weeks} sem.`
+                  ? t("duration_weeks", { count: cert.duration_weeks })
                   : "—"}
               </TableCell>
               <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums">
                 {cert.modules_count ?? "—"}
               </TableCell>
               <TableCell className="px-3 py-2.5 align-middle">
-                <Badge variant={cert.active !== false ? "default" : "outline"}>
-                  {cert.active !== false ? "Activo" : "Inactivo"}
+                <Badge variant={cert.active !== false ? "soft-success" : "outline"}>
+                  {cert.active !== false ? t("status_active") : t("status_inactive")}
                 </Badge>
               </TableCell>
               <TableCell className="px-3 py-2.5 align-middle">
                 <Button variant="ghost" size="icon-sm" asChild>
                   <Link href={`/dashboard/certifications/${cert.certification_id}`}>
                     <ChevronRight className="size-4" />
-                    <span className="sr-only">Ver detalle</span>
+                    <span className="sr-only">{t("view_detail")}</span>
                   </Link>
                 </Button>
               </TableCell>

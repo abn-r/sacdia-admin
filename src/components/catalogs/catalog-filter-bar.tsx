@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -50,6 +51,7 @@ interface ActiveChipProps {
 }
 
 function ActiveChip({ label, onRemove }: ActiveChipProps) {
+  const t = useTranslations("catalogs.filterBar");
   return (
     <Badge
       variant="secondary"
@@ -59,7 +61,7 @@ function ActiveChip({ label, onRemove }: ActiveChipProps) {
       <button
         type="button"
         onClick={onRemove}
-        aria-label={`Quitar filtro: ${label}`}
+        aria-label={t("removeFilter", { label })}
         className="ml-0.5 flex size-4 items-center justify-center rounded-sm opacity-60 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <X className="size-3" aria-hidden="true" />
@@ -77,6 +79,7 @@ interface ResultsCountProps {
 }
 
 function ResultsCount({ filteredCount, totalCount, isFiltered }: ResultsCountProps) {
+  const t = useTranslations("catalogs.filterBar");
   return (
     <span
       className="shrink-0 text-[13px] tabular-nums text-muted-foreground"
@@ -86,14 +89,14 @@ function ResultsCount({ filteredCount, totalCount, isFiltered }: ResultsCountPro
       {isFiltered ? (
         <>
           <span className="font-medium text-foreground">{filteredCount}</span>
-          {" de "}
+          {" "}{t("of")}{" "}
           <span className="font-medium text-foreground">{totalCount}</span>
-          {" registros"}
+          {" "}{t("records")}
         </>
       ) : (
         <>
           <span className="font-medium text-foreground">{totalCount}</span>
-          {` ${totalCount === 1 ? "registro" : "registros"}`}
+          {" "}{t("recordsCount", { count: totalCount })}
         </>
       )}
     </span>
@@ -114,6 +117,7 @@ export function CatalogFilterBar({
   extraFilters,
   className,
 }: CatalogFilterBarProps) {
+  const t = useTranslations("catalogs.filterBar");
   const searchId = useId();
   const statusId = useId();
 
@@ -122,16 +126,16 @@ export function CatalogFilterBar({
   const isFiltered = isSearchActive || isStatusActive;
 
   const statusLabel: Record<StatusFilter, string> = {
-    all: "Todos los estados",
-    active: "Activos",
-    inactive: "Inactivos",
+    all: t("statusAll"),
+    active: t("statusActive"),
+    inactive: t("statusInactive"),
   };
 
   return (
     <div
       className={cn("space-y-3", className)}
       role="search"
-      aria-label={`Filtros de ${entityLabel}`}
+      aria-label={t("filtersOf", { entity: entityLabel })}
     >
       {/* ── Primary control row ── */}
       <div className="flex flex-col gap-3 border-b border-border pb-4 md:flex-row md:items-center">
@@ -139,7 +143,7 @@ export function CatalogFilterBar({
         {/* Search input */}
         <div className="relative flex-1 md:max-w-md">
           <Label htmlFor={searchId} className="sr-only">
-            Buscar en {entityLabel}
+            {t("searchIn", { entity: entityLabel })}
           </Label>
           <Search
             className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
@@ -148,7 +152,7 @@ export function CatalogFilterBar({
           <Input
             id={searchId}
             type="search"
-            placeholder={`Buscar en ${entityLabel}...`}
+            placeholder={t("searchPlaceholder", { entity: entityLabel })}
             value={searchValue}
             onChange={(e) => onSearchChange(e.target.value)}
             className="h-10 bg-background pl-9 pr-20"
@@ -166,7 +170,7 @@ export function CatalogFilterBar({
         {/* Status filter */}
         <div className="w-full md:w-[188px]">
           <Label htmlFor={statusId} className="sr-only">
-            Filtrar por estado
+            {t("filterByStatus")}
           </Label>
           <Select
             value={statusFilter}
@@ -175,7 +179,7 @@ export function CatalogFilterBar({
             <SelectTrigger
               id={statusId}
               className="h-10 w-full"
-              aria-label="Filtrar por estado"
+              aria-label={t("filterByStatus")}
             >
               <div className="flex items-center gap-2">
                 <Filter className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
@@ -192,9 +196,9 @@ export function CatalogFilterBar({
               </div>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todos los estados</SelectItem>
-              <SelectItem value="active">Activos</SelectItem>
-              <SelectItem value="inactive">Inactivos</SelectItem>
+              <SelectItem value="all">{t("statusAll")}</SelectItem>
+              <SelectItem value="active">{t("statusActive")}</SelectItem>
+              <SelectItem value="inactive">{t("statusInactive")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -215,10 +219,10 @@ export function CatalogFilterBar({
               size="sm"
               onClick={onClearFilters}
               className="h-7 gap-1.5 px-2 text-xs text-muted-foreground hover:text-foreground"
-              aria-label="Limpiar todos los filtros activos"
+              aria-label={t("clearAllFilters")}
             >
               <X className="size-3" aria-hidden="true" />
-              Limpiar
+              {t("clear")}
             </Button>
           )}
         </div>
@@ -229,15 +233,15 @@ export function CatalogFilterBar({
         <div
           className="flex flex-wrap items-center gap-2"
           role="group"
-          aria-label="Filtros activos"
+          aria-label={t("activeFilters")}
           id={`${searchId}-status`}
         >
           <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-            Filtros:
+            {t("filtersLabel")}
           </span>
           {isSearchActive && (
             <ActiveChip
-              label={`Búsqueda: "${searchValue.trim()}"`}
+              label={t("searchChip", { value: searchValue.trim() })}
               onRemove={() => onSearchChange("")}
             />
           )}

@@ -48,53 +48,30 @@ import {
   type MonthlyReport,
   type ReportStatus,
 } from "@/lib/api/monthly-reports";
+import { useFormatDate } from "@/lib/format-locale";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-
-const MONTH_NAMES: Record<number, string> = {
-  1: "Enero", 2: "Febrero", 3: "Marzo", 4: "Abril",
-  5: "Mayo", 6: "Junio", 7: "Julio", 8: "Agosto",
-  9: "Septiembre", 10: "Octubre", 11: "Noviembre", 12: "Diciembre",
-};
-
-const STATUS_CONFIG: Record<ReportStatus, { label: string; variant: "warning" | "default" | "success" }> = {
-  draft: { label: "Borrador", variant: "warning" },
-  generated: { label: "Generado", variant: "default" },
-  submitted: { label: "Enviado", variant: "success" },
-};
 
 const currentYear = new Date().getFullYear();
 const YEARS = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
 
-const MONTHS = Object.entries(MONTH_NAMES).map(([value, label]) => ({
-  value: Number(value),
-  label,
-}));
+const MONTH_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as const;
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatDate(dateStr?: string | null): string {
-  if (!dateStr) return "—";
-  try {
-    return new Intl.DateTimeFormat("es-MX", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    }).format(new Date(dateStr));
-  } catch {
-    return dateStr;
-  }
-}
+const REPORTS_DATE_OPTIONS: Intl.DateTimeFormatOptions = {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+};
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 
-function ReportsTableSkeleton() {
+function ReportsTableSkeleton({ headers }: { headers: string[] }) {
   return (
     <div className="rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>
-            {["Mes", "Año", "Estado", "Generado", "Enviado", "Acciones"].map((h) => (
+            {headers.map((h) => (
               <TableHead key={h}>{h}</TableHead>
             ))}
           </TableRow>
@@ -127,6 +104,7 @@ interface ReportsListClientProps {
 export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
   const t = useTranslations("reports");
   const router = useRouter();
+  const formatDate = useFormatDate();
 
   // Filters
   const [filterYear, setFilterYear] = useState<number | undefined>(currentYear);
@@ -166,7 +144,10 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
       createOrGetDraftReport(enrollmentId, createMonth, createYear),
     onSuccess: (report) => {
       toast.success(
-        `Reporte para ${MONTH_NAMES[createMonth]} ${createYear} creado/abierto.`,
+        t("list.toastCreated", {
+          month: t(`months.${createMonth}`),
+          year: createYear,
+        }),
       );
       router.push(`/dashboard/reports/${report.report_id}`);
     },
@@ -184,7 +165,10 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
     },
     onSuccess: (_, report) => {
       toast.success(
-        `Reporte de ${MONTH_NAMES[report.month]} ${report.year} generado.`,
+        t("list.toastGenerated", {
+          month: t(`months.${report.month}`),
+          year: report.year,
+        }),
       );
       void queryClient.invalidateQueries({
         queryKey: ["monthly-reports", enrollmentId],
@@ -216,7 +200,10 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
     },
     onSuccess: (_, report) => {
       toast.success(
-        `Reporte de ${MONTH_NAMES[report.month]} ${report.year} enviado al campo.`,
+        t("list.toastSent", {
+          month: t(`months.${report.month}`),
+          year: report.year,
+        }),
       );
       void queryClient.invalidateQueries({
         queryKey: ["monthly-reports", enrollmentId],
@@ -248,13 +235,22 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
 
   // ─── Render ───────────────────────────────────────────────────────────────
 
+  const skeletonHeaders = [
+    t("list.tableHeaderMonth"),
+    t("list.tableHeaderYear"),
+    t("list.tableHeaderStatus"),
+    t("list.tableHeaderGenerated"),
+    t("list.tableHeaderSubmitted"),
+    t("list.tableHeaderActions"),
+  ];
+
   return (
     <div className="space-y-6">
       {/* Filters and new report bar */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
           <Filter className="size-4" />
-          <span>Filtros:</span>
+          <span>{t("list.filters")}</span>
         </div>
 
         {/* Year filter */}
@@ -263,10 +259,10 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
           onValueChange={(v) => setFilterYear(v === "all" ? undefined : Number(v))}
         >
           <SelectTrigger className="h-8 w-[110px]">
-            <SelectValue placeholder="Año" />
+            <SelectValue placeholder={t("list.yearPlaceholder")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos los años</SelectItem>
+            <SelectItem value="all">{t("list.allYears")}</SelectItem>
             {YEARS.map((y) => (
               <SelectItem key={y} value={y.toString()}>
                 {y}
@@ -281,13 +277,13 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
           onValueChange={(v) => setFilterStatus(v as ReportStatus | "all")}
         >
           <SelectTrigger className="h-8 w-[140px]">
-            <SelectValue placeholder="Estado" />
+            <SelectValue placeholder={t("list.statusPlaceholder")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos los estados</SelectItem>
-            <SelectItem value="draft">Borrador</SelectItem>
-            <SelectItem value="generated">Generado</SelectItem>
-            <SelectItem value="submitted">Enviado</SelectItem>
+            <SelectItem value="all">{t("list.allStatuses")}</SelectItem>
+            <SelectItem value="draft">{t("status.draft")}</SelectItem>
+            <SelectItem value="generated">{t("status.generated")}</SelectItem>
+            <SelectItem value="submitted">{t("status.submitted")}</SelectItem>
           </SelectContent>
         </Select>
 
@@ -298,7 +294,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
           disabled={loading}
         >
           <RefreshCw className={`size-4 ${loading ? "animate-spin" : ""}`} />
-          Actualizar
+          {t("list.refresh")}
         </Button>
 
         {/* Spacer */}
@@ -312,9 +308,9 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {MONTHS.map((m) => (
-                <SelectItem key={m.value} value={m.value.toString()}>
-                  {m.label}
+              {MONTH_NUMBERS.map((m) => (
+                <SelectItem key={m} value={m.toString()}>
+                  {t(`months.${m}`)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -346,19 +342,19 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
             ) : (
               <Plus className="size-4" />
             )}
-            Nuevo reporte
+            {t("list.newReport")}
           </Button>
         </div>
       </div>
 
       {/* Table / Cards */}
       {loading ? (
-        <ReportsTableSkeleton />
+        <ReportsTableSkeleton headers={skeletonHeaders} />
       ) : reports.length === 0 ? (
         <EmptyState
           icon={FileText}
-          title="Sin reportes"
-          description="No se encontraron reportes mensuales para los filtros seleccionados."
+          title={t("list.emptyTitle")}
+          description={t("list.emptyDescription")}
         />
       ) : (
         <>
@@ -368,17 +364,23 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Mes</TableHead>
-                    <TableHead>Año</TableHead>
-                    <TableHead>Estado</TableHead>
-                    <TableHead className="hidden md:table-cell">Generado</TableHead>
-                    <TableHead className="hidden md:table-cell">Enviado</TableHead>
-                    <TableHead className="w-[200px]">Acciones</TableHead>
+                    <TableHead>{t("list.tableHeaderMonth")}</TableHead>
+                    <TableHead>{t("list.tableHeaderYear")}</TableHead>
+                    <TableHead>{t("list.tableHeaderStatus")}</TableHead>
+                    <TableHead className="hidden md:table-cell">{t("list.tableHeaderGenerated")}</TableHead>
+                    <TableHead className="hidden md:table-cell">{t("list.tableHeaderSubmitted")}</TableHead>
+                    <TableHead className="w-[200px]">{t("list.tableHeaderActions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {reports.map((report) => {
-                    const statusConfig = STATUS_CONFIG[report.status] ?? STATUS_CONFIG.draft;
+                    const statusVariant = (
+                      {
+                        draft: "warning",
+                        generated: "default",
+                        submitted: "success",
+                      } as const
+                    )[report.status] ?? ("warning" as const);
                     const loadingAction = actionLoading[report.report_id];
                     const isDisabled = Boolean(loadingAction);
                     const isSubmitted = report.status === "submitted";
@@ -387,19 +389,19 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                     return (
                       <TableRow key={report.report_id}>
                         <TableCell className="font-medium">
-                          {MONTH_NAMES[report.month] ?? report.month}
+                          {t(`months.${report.month}`)}
                         </TableCell>
                         <TableCell className="tabular-nums">{report.year}</TableCell>
                         <TableCell>
-                          <Badge variant={statusConfig.variant} className="text-xs">
-                            {statusConfig.label}
+                          <Badge variant={statusVariant} className="text-xs">
+                            {t(`status.${report.status}`)}
                           </Badge>
                         </TableCell>
                         <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
-                          {formatDate(report.generated_at)}
+                          {report.generated_at ? formatDate(report.generated_at, REPORTS_DATE_OPTIONS) : "—"}
                         </TableCell>
                         <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
-                          {formatDate(report.submitted_at)}
+                          {report.submitted_at ? formatDate(report.submitted_at, REPORTS_DATE_OPTIONS) : "—"}
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-1.5">
@@ -410,7 +412,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                                 ) : (
                                   <Pencil className="size-3" />
                                 )}
-                                {isSubmitted ? "Ver" : "Editar"}
+                                {isSubmitted ? t("list.actionView") : t("list.actionEdit")}
                               </Link>
                             </Button>
 
@@ -426,7 +428,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                                 ) : (
                                   <Zap className="size-3" />
                                 )}
-                                Generar
+                                {t("list.actionGenerate")}
                               </Button>
                             )}
 
@@ -442,7 +444,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                                 ) : (
                                   <Send className="size-3" />
                                 )}
-                                Enviar
+                                {t("list.actionSend")}
                               </Button>
                             )}
 
@@ -453,7 +455,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                                 onClick={() => handleDownloadPdf(report)}
                               >
                                 <Download className="size-3" />
-                                PDF
+                                {t("list.actionPdf")}
                               </Button>
                             )}
                           </div>
@@ -467,9 +469,15 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
           </div>
 
           {/* Mobile: descriptive cards */}
-          <ul className="space-y-3 md:hidden" aria-label="Lista de reportes">
+          <ul className="space-y-3 md:hidden" aria-label={t("list.ariaListLabel")}>
             {reports.map((report) => {
-              const statusConfig = STATUS_CONFIG[report.status] ?? STATUS_CONFIG.draft;
+              const statusVariant = (
+                {
+                  draft: "warning",
+                  generated: "default",
+                  submitted: "success",
+                } as const
+              )[report.status] ?? ("warning" as const);
               const loadingAction = actionLoading[report.report_id];
               const isDisabled = Boolean(loadingAction);
               const isSubmitted = report.status === "submitted";
@@ -484,7 +492,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium">
-                          {MONTH_NAMES[report.month] ?? report.month} {report.year}
+                          {t(`months.${report.month}`)} {report.year}
                         </p>
                         <p className="truncate text-xs text-muted-foreground tabular-nums">
                           #{report.report_id}
@@ -493,29 +501,29 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                       <Link
                         href={`/dashboard/reports/${report.report_id}`}
                         className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                        aria-label={isSubmitted ? "Ver reporte" : "Editar reporte"}
+                        aria-label={isSubmitted ? t("list.ariaViewReport") : t("list.ariaEditReport")}
                       >
                         <ChevronRight className="size-4" aria-hidden="true" />
                       </Link>
                     </div>
 
                     <div className="mt-3 flex flex-wrap items-center gap-1.5">
-                      <Badge variant={statusConfig.variant} className="text-xs">
-                        {statusConfig.label}
+                      <Badge variant={statusVariant} className="text-xs">
+                        {t(`status.${report.status}`)}
                       </Badge>
                     </div>
 
                     <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
                       {report.generated_at && (
                         <div>
-                          <dt className="text-muted-foreground">Generado</dt>
-                          <dd>{formatDate(report.generated_at)}</dd>
+                          <dt className="text-muted-foreground">{t("list.tableHeaderGenerated")}</dt>
+                          <dd>{formatDate(report.generated_at, REPORTS_DATE_OPTIONS)}</dd>
                         </div>
                       )}
                       {report.submitted_at && (
                         <div>
-                          <dt className="text-muted-foreground">Enviado</dt>
-                          <dd>{formatDate(report.submitted_at)}</dd>
+                          <dt className="text-muted-foreground">{t("list.tableHeaderSubmitted")}</dt>
+                          <dd>{formatDate(report.submitted_at, REPORTS_DATE_OPTIONS)}</dd>
                         </div>
                       )}
                     </dl>
@@ -528,7 +536,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                           ) : (
                             <Pencil className="size-3" />
                           )}
-                          {isSubmitted ? "Ver" : "Editar"}
+                          {isSubmitted ? t("list.actionView") : t("list.actionEdit")}
                         </Link>
                       </Button>
 
@@ -544,7 +552,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                           ) : (
                             <Zap className="size-3" />
                           )}
-                          Generar
+                          {t("list.actionGenerate")}
                         </Button>
                       )}
 
@@ -560,7 +568,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                           ) : (
                             <Send className="size-3" />
                           )}
-                          Enviar
+                          {t("list.actionSend")}
                         </Button>
                       )}
 
@@ -571,7 +579,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                           onClick={() => handleDownloadPdf(report)}
                         >
                           <Download className="size-3" />
-                          PDF
+                          {t("list.actionPdf")}
                         </Button>
                       )}
                     </div>

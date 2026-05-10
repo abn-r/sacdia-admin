@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { UnitForm } from "@/components/units/unit-form";
@@ -23,6 +24,7 @@ type ClubMinimal = {
 
 export default async function NewUnitPage({ params }: { params: Params }) {
   await requireAdminUser();
+  const t = await getTranslations("clubs.pages.unitsNew");
   const { id } = await params;
 
   const clubId = Number(id);
@@ -47,11 +49,11 @@ export default async function NewUnitPage({ params }: { params: Params }) {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Nueva unidad" description={`Agregar una nueva unidad a ${clubName}`}>
+      <PageHeader title={t("title")} description={t("descriptionTemplate", { clubName })}>
         <Button variant="outline" size="sm" asChild>
           <Link href={`/dashboard/clubs/${clubId}`}>
-            <ArrowLeft className="mr-2 size-4" />
-            Volver al club
+            <ArrowLeft className="size-4" />
+            {t("back")}
           </Link>
         </Button>
       </PageHeader>

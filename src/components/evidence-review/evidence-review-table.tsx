@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   CheckCircle2,
   XCircle,
@@ -29,21 +30,7 @@ import { EvidenceDetailDialog } from "@/components/evidence-review/evidence-deta
 import { EvidenceHistoryDialog } from "@/components/evidence-review/evidence-history-dialog";
 import { EvidenceBulkActionBar } from "@/components/evidence-review/evidence-bulk-action-bar";
 import type { EvidenceItem, EvidenceType } from "@/lib/api/evidence-review";
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatDate(iso?: string | null): string {
-  if (!iso) return "—";
-  try {
-    return new Intl.DateTimeFormat("es-MX", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    }).format(new Date(iso));
-  } catch {
-    return iso;
-  }
-}
+import { useFormatDate } from "@/lib/format-locale";
 
 function isPending(status: string, type: EvidenceType): boolean {
   if (status === "SUBMITTED") return true;
@@ -77,8 +64,11 @@ function RowActions({
   onDetail,
   onHistory,
 }: RowActionsProps) {
+  const t = useTranslations("evidence_review.table");
   const [isApproving, setIsApproving] = useState(false);
   const pending = isPending(item.status, item.type);
+
+  void setIsApproving;
 
   return (
     <div className="flex items-center justify-end gap-1">
@@ -89,12 +79,12 @@ function RowActions({
             variant="ghost"
             size="icon-sm"
             onClick={onDetail}
-            aria-label="Ver archivos"
+            aria-label={t("action_view_files")}
           >
             <Eye className="size-4" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent>Ver archivos</TooltipContent>
+        <TooltipContent>{t("action_view_files")}</TooltipContent>
       </Tooltip>
 
       {/* History */}
@@ -104,12 +94,12 @@ function RowActions({
             variant="ghost"
             size="icon-sm"
             onClick={onHistory}
-            aria-label="Ver historial"
+            aria-label={t("action_view_history")}
           >
             <History className="size-4" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent>Ver historial</TooltipContent>
+        <TooltipContent>{t("action_view_history")}</TooltipContent>
       </Tooltip>
 
       {/* Approve — only when pending */}
@@ -122,7 +112,7 @@ function RowActions({
               className="text-success hover:bg-success/10 hover:text-success"
               onClick={onApprove}
               disabled={isApproving}
-              aria-label="Aprobar"
+              aria-label={t("action_approve")}
             >
               {isApproving ? (
                 <Loader2 className="size-4 animate-spin" />
@@ -131,7 +121,7 @@ function RowActions({
               )}
             </Button>
           </TooltipTrigger>
-          <TooltipContent>Aprobar</TooltipContent>
+          <TooltipContent>{t("action_approve")}</TooltipContent>
         </Tooltip>
       )}
 
@@ -144,12 +134,12 @@ function RowActions({
               size="icon-sm"
               className="text-destructive hover:bg-destructive/10 hover:text-destructive"
               onClick={onReject}
-              aria-label="Rechazar"
+              aria-label={t("action_reject")}
             >
               <XCircle className="size-4" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent>Rechazar</TooltipContent>
+          <TooltipContent>{t("action_reject")}</TooltipContent>
         </Tooltip>
       )}
     </div>
@@ -164,6 +154,8 @@ interface EvidenceReviewTableProps {
 }
 
 export function EvidenceReviewTable({ items, onRefresh }: EvidenceReviewTableProps) {
+  const t = useTranslations("evidence_review.table");
+  const formatDate = useFormatDate();
   const [dialog, setDialog] = useState<DialogState>(null);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
 
@@ -221,8 +213,8 @@ export function EvidenceReviewTable({ items, onRefresh }: EvidenceReviewTablePro
     return (
       <EmptyState
         icon={FileSearch}
-        title="Sin evidencias pendientes"
-        description="No hay evidencias pendientes de revisión en este estado."
+        title={t("empty_title")}
+        description={t("empty_description")}
       />
     );
   }
@@ -241,30 +233,30 @@ export function EvidenceReviewTable({ items, onRefresh }: EvidenceReviewTablePro
                   <Checkbox
                     checked={allSelected ? true : someSelected ? "indeterminate" : false}
                     onCheckedChange={(checked) => toggleSelectAll(!!checked)}
-                    aria-label="Seleccionar todo"
+                    aria-label={t("select_all")}
                   />
                 )}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Miembro
+                {t("col_member")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Tipo
+                {t("col_type")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Sección / Honor
+                {t("col_section")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Archivos
+                {t("col_files")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Enviado
+                {t("col_submitted")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Estado
+                {t("col_status")}
               </TableHead>
               <TableHead className="h-9 px-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Acciones
+                {t("col_actions")}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -285,7 +277,7 @@ export function EvidenceReviewTable({ items, onRefresh }: EvidenceReviewTablePro
                       <Checkbox
                         checked={isSelected}
                         onCheckedChange={() => toggleRow(item.id, selectable)}
-                        aria-label={`Seleccionar ${item.member_name}`}
+                        aria-label={t("select_row", { name: item.member_name })}
                       />
                     ) : (
                       <span className="inline-block size-4" />
@@ -309,7 +301,7 @@ export function EvidenceReviewTable({ items, onRefresh }: EvidenceReviewTablePro
                   </TableCell>
 
                   <TableCell className="px-3 py-2.5 align-middle tabular-nums text-sm text-muted-foreground">
-                    {formatDate(item.submitted_at)}
+                    {item.submitted_at ? formatDate(item.submitted_at) : "—"}
                   </TableCell>
 
                   <TableCell className="px-3 py-2.5 align-middle">

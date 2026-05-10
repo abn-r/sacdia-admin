@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
 import { ApiError } from "@/lib/api/client";
@@ -22,6 +23,8 @@ export default async function SectionMembersPage({
   params: Params;
   searchParams: SearchParams;
 }) {
+  const t = await getTranslations("rankings");
+
   const { sectionId: sectionIdRaw } = await params;
   const { year_id: yearIdRaw } = await searchParams;
 
@@ -56,24 +59,34 @@ export default async function SectionMembersPage({
     throw error;
   }
 
+  const memberLabel =
+    members.length === 1
+      ? t("pageSectionMembers.memberSingular")
+      : t("pageSectionMembers.memberPlural");
+
   return (
     <div className="space-y-6">
       {/* ── Header ── */}
       <PageHeader
-        title="Miembros de la sección"
-        description={`Sección #${sectionId} · Año ${yearId} · ${members.length} ${members.length === 1 ? "miembro" : "miembros"}`}
+        title={t("pageSectionMembers.title")}
+        description={t("pageSectionMembers.description", {
+          sectionId,
+          yearId,
+          count: members.length,
+          memberLabel,
+        })}
         breadcrumbs={[
           {
-            label: "Ranking de secciones",
+            label: t("pageSectionMembers.breadcrumbParent"),
             href: "/dashboard/section-rankings",
           },
-          { label: `Sección #${sectionId}` },
+          { label: t("pageSectionMembers.breadcrumbCurrent", { sectionId }) },
         ]}
       >
         <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/section-rankings">
-            <ArrowLeft className="mr-2 size-4" />
-            Volver a secciones
+            <ArrowLeft className="size-4" />
+            {t("pageSectionMembers.back")}
           </Link>
         </Button>
       </PageHeader>

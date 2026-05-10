@@ -1,4 +1,5 @@
 import { Package } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
@@ -82,6 +83,7 @@ function clubTypeToInstanceType(clubTypeId: number): "adv" | "pathf" | "mg" {
 
 export default async function InventoryPage() {
   await requireAdminUser();
+  const t = await getTranslations("inventory");
 
   let clubs: Club[] = [];
   let categories: InventoryCategory[] = [];
@@ -102,7 +104,7 @@ export default async function InventoryPage() {
     loadError =
       err instanceof ApiError
         ? err.message
-        : "No se pudo cargar la lista de clubes.";
+        : t("errors.failed_load_clubs");
   }
 
   if (categoriesResult.status === "fulfilled") {
@@ -129,8 +131,8 @@ export default async function InventoryPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Inventario"
-        description="Gestión de inventario por club."
+        title={t("page.title")}
+        description={t("page.description")}
       />
 
       {loadError && (
@@ -140,8 +142,8 @@ export default async function InventoryPage() {
       {!loadError && clubs.length === 0 && (
         <EmptyState
           icon={Package}
-          title="No hay clubes registrados"
-          description="Registra al menos un club para gestionar su inventario."
+          title={t("page.empty_no_clubs_title")}
+          description={t("page.empty_no_clubs_description")}
         />
       )}
 

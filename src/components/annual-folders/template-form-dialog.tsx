@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useForm, Controller } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -31,51 +32,53 @@ import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
 import { listUnions, listLocalFields } from "@/lib/api/geography";
 import type { Union, LocalField } from "@/lib/api/geography";
 
-// ─── Schema ───────────────────────────────────────────────────────────────────
+// ─── Schema factory ───────────────────────────────────────────────────────────
 
 const ownerTierSchema = z.enum(["union", "local_field"]);
 
-const formSchema = z
-  .object({
-    name: z
-      .string()
-      .min(3, "El nombre debe tener al menos 3 caracteres")
-      .max(100, "El nombre no puede superar 100 caracteres"),
-    club_type_id: z.coerce.number().int().positive("Selecciona un tipo de club"),
-    ecclesiastical_year_id: z.coerce
-      .number()
-      .int()
-      .positive("Selecciona un año eclesiástico"),
-    minimum_points: z.coerce
-      .number()
-      .int()
-      .min(0, "Los puntos mínimos no pueden ser negativos"),
-    closing_date: z.string().optional(),
-    owner_tier: ownerTierSchema,
-    owner_union_id: z.coerce.number().int().nullable().optional(),
-    owner_local_field_id: z.coerce.number().int().nullable().optional(),
-  })
-  .superRefine((data, ctx) => {
-    if (data.owner_tier === "union") {
-      if (!data.owner_union_id || data.owner_union_id <= 0) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["owner_union_id"],
-          message: "Selecciona una unión",
-        });
+function buildSchema(t: ReturnType<typeof useTranslations<"annual_folders.validation">>) {
+  return z
+    .object({
+      name: z
+        .string()
+        .min(3, t("name_min", { min: 3 }))
+        .max(100, t("name_max", { max: 100 })),
+      club_type_id: z.coerce.number().int().positive(t("club_type_required")),
+      ecclesiastical_year_id: z.coerce
+        .number()
+        .int()
+        .positive(t("ecclesiastical_year_required")),
+      minimum_points: z.coerce
+        .number()
+        .int()
+        .min(0, t("minimum_points_min")),
+      closing_date: z.string().optional(),
+      owner_tier: ownerTierSchema,
+      owner_union_id: z.coerce.number().int().nullable().optional(),
+      owner_local_field_id: z.coerce.number().int().nullable().optional(),
+    })
+    .superRefine((data, ctx) => {
+      if (data.owner_tier === "union") {
+        if (!data.owner_union_id || data.owner_union_id <= 0) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["owner_union_id"],
+            message: t("owner_union_required"),
+          });
+        }
+      } else {
+        if (!data.owner_local_field_id || data.owner_local_field_id <= 0) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["owner_local_field_id"],
+            message: t("owner_local_field_required"),
+          });
+        }
       }
-    } else {
-      if (!data.owner_local_field_id || data.owner_local_field_id <= 0) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["owner_local_field_id"],
-          message: "Selecciona un campo local",
-        });
-      }
-    }
-  });
+    });
+}
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof buildSchema>>;
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -108,8 +111,10 @@ export function TemplateFormDialog({
   onSuccess,
 }: TemplateFormDialogProps) {
   const t = useTranslations("annual_folders");
+  const tVal = useTranslations("annual_folders.validation");
   const isEdit = Boolean(template);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const schema = useMemo(() => buildSchema(tVal), [tVal]);
 
   // Owner catalog data
   const [unions, setUnions] = useState<Union[]>([]);
@@ -142,7 +147,7 @@ export function TemplateFormDialog({
     control,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(formSchema as z.ZodType<FormValues, FormValues>),
+    resolver: zodResolver(schema as z.ZodType<FormValues, FormValues>),
     defaultValues,
   });
 
@@ -163,7 +168,7 @@ export function TemplateFormDialog({
       })
       .catch(() => toast.error(t("toasts.owner_catalogs_load_failed")))
       .finally(() => setLoadingOwnerCatalogs(false));
-  }, [open]);
+  }, [open, t]);
 
   // Reset form when dialog opens or template changes
   useEffect(() => {
@@ -227,19 +232,27 @@ export function TemplateFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Editar plantilla" : "Nueva plantilla"}</DialogTitle>
+          <DialogTitle>
+            {isEdit ? t("templateDialog.titleEdit") : t("templateDialog.titleCreate")}
+          </DialogTitle>
+          <DialogDescription>
+            {isEdit
+              ? "Modificá los datos de la plantilla de carpeta anual."
+              : "Completá el formulario para crear una nueva plantilla de carpeta anual."}
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
           {/* Nombre */}
           <div className="space-y-1.5">
             <Label htmlFor="template-name">
-              Nombre <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
+              {t("templateDialog.fieldName")}{" "}
+              <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
             </Label>
             <Input
               id="template-name"
               {...register("name")}
-              placeholder="Ej. Carpeta Conquistadores 2025"
+              placeholder={t("templateDialog.fieldNamePlaceholder")}
               aria-required="true"
             />
             {errors.name && (
@@ -250,14 +263,15 @@ export function TemplateFormDialog({
           {/* Tipo de club */}
           <div className="space-y-1.5">
             <Label htmlFor="template-club-type">
-              Tipo de club <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
+              {t("templateDialog.fieldClubType")}{" "}
+              <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
             </Label>
             <Select
               value={String(clubTypeValue)}
               onValueChange={(val) => setValue("club_type_id", Number(val))}
             >
               <SelectTrigger id="template-club-type" aria-required="true">
-                <SelectValue placeholder="Seleccionar tipo de club" />
+                <SelectValue placeholder={t("templateDialog.fieldClubTypePlaceholder")} />
               </SelectTrigger>
               <SelectContent>
                 {clubTypes.length > 0 ? (
@@ -271,7 +285,7 @@ export function TemplateFormDialog({
                   ))
                 ) : (
                   <SelectItem value="0" disabled>
-                    No hay tipos disponibles
+                    {t("templateDialog.fieldClubTypeNone")}
                   </SelectItem>
                 )}
               </SelectContent>
@@ -286,7 +300,8 @@ export function TemplateFormDialog({
           {/* Año eclesiástico */}
           <div className="space-y-1.5">
             <Label htmlFor="template-ecclesiastical-year">
-              Año eclesiástico <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
+              {t("templateDialog.fieldYear")}{" "}
+              <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
             </Label>
             <Select
               value={String(yearValue)}
@@ -295,7 +310,7 @@ export function TemplateFormDialog({
               }
             >
               <SelectTrigger id="template-ecclesiastical-year" aria-required="true">
-                <SelectValue placeholder="Seleccionar año" />
+                <SelectValue placeholder={t("templateDialog.fieldYearPlaceholder")} />
               </SelectTrigger>
               <SelectContent>
                 {ecclesiasticalYears.length > 0 ? (
@@ -307,14 +322,14 @@ export function TemplateFormDialog({
                       {year.name}
                       {year.active && (
                         <span className="ml-1.5 text-xs text-muted-foreground">
-                          (activo)
+                          {t("templateDialog.fieldYearActive")}
                         </span>
                       )}
                     </SelectItem>
                   ))
                 ) : (
                   <SelectItem value="0" disabled>
-                    No hay años disponibles
+                    {t("templateDialog.fieldYearNone")}
                   </SelectItem>
                 )}
               </SelectContent>
@@ -329,7 +344,8 @@ export function TemplateFormDialog({
           {/* Owner tier — radio group */}
           <div className="space-y-2">
             <Label>
-              Propietario <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
+              {t("templateDialog.fieldOwner")}{" "}
+              <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
             </Label>
             <Controller
               name="owner_tier"
@@ -351,13 +367,13 @@ export function TemplateFormDialog({
                   <div className="flex items-center gap-2">
                     <RadioGroupItem value="union" id="owner-tier-union" />
                     <Label htmlFor="owner-tier-union" className="cursor-pointer font-normal">
-                      Unión
+                      {t("templateDialog.fieldOwnerTierUnion")}
                     </Label>
                   </div>
                   <div className="flex items-center gap-2">
                     <RadioGroupItem value="local_field" id="owner-tier-local-field" />
                     <Label htmlFor="owner-tier-local-field" className="cursor-pointer font-normal">
-                      Campo local
+                      {t("templateDialog.fieldOwnerTierLocalField")}
                     </Label>
                   </div>
                 </RadioGroup>
@@ -369,7 +385,8 @@ export function TemplateFormDialog({
           {ownerTier === "union" ? (
             <div className="space-y-1.5">
               <Label htmlFor="template-owner-union">
-                Unión <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
+                {t("templateDialog.fieldUnion")}{" "}
+                <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
               </Label>
               <Select
                 disabled={loadingOwnerCatalogs}
@@ -381,7 +398,9 @@ export function TemplateFormDialog({
                 <SelectTrigger id="template-owner-union" aria-required="true">
                   <SelectValue
                     placeholder={
-                      loadingOwnerCatalogs ? "Cargando..." : "Seleccionar unión"
+                      loadingOwnerCatalogs
+                        ? t("templateDialog.fieldLoading")
+                        : t("templateDialog.fieldUnionPlaceholder")
                     }
                   />
                 </SelectTrigger>
@@ -394,7 +413,9 @@ export function TemplateFormDialog({
                     ))
                   ) : (
                     <SelectItem value="0" disabled>
-                      {loadingOwnerCatalogs ? "Cargando..." : "Sin uniones disponibles"}
+                      {loadingOwnerCatalogs
+                        ? t("templateDialog.fieldLoading")
+                        : t("templateDialog.fieldUnionNone")}
                     </SelectItem>
                   )}
                 </SelectContent>
@@ -408,7 +429,8 @@ export function TemplateFormDialog({
           ) : (
             <div className="space-y-1.5">
               <Label htmlFor="template-owner-local-field">
-                Campo local <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
+                {t("templateDialog.fieldLocalField")}{" "}
+                <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
               </Label>
               <Select
                 disabled={loadingOwnerCatalogs}
@@ -420,7 +442,9 @@ export function TemplateFormDialog({
                 <SelectTrigger id="template-owner-local-field" aria-required="true">
                   <SelectValue
                     placeholder={
-                      loadingOwnerCatalogs ? "Cargando..." : "Seleccionar campo local"
+                      loadingOwnerCatalogs
+                        ? t("templateDialog.fieldLoading")
+                        : t("templateDialog.fieldLocalFieldPlaceholder")
                     }
                   />
                 </SelectTrigger>
@@ -436,7 +460,9 @@ export function TemplateFormDialog({
                     ))
                   ) : (
                     <SelectItem value="0" disabled>
-                      {loadingOwnerCatalogs ? "Cargando..." : "Sin campos disponibles"}
+                      {loadingOwnerCatalogs
+                        ? t("templateDialog.fieldLoading")
+                        : t("templateDialog.fieldLocalFieldNone")}
                     </SelectItem>
                   )}
                 </SelectContent>
@@ -452,7 +478,7 @@ export function TemplateFormDialog({
           {/* Puntos mínimos / Fecha de cierre */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="template-minimum-points">Pts. mínimos para aprobar</Label>
+              <Label htmlFor="template-minimum-points">{t("templateDialog.fieldMinPoints")}</Label>
               <Input
                 id="template-minimum-points"
                 type="number"
@@ -468,7 +494,7 @@ export function TemplateFormDialog({
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="template-closing-date">Fecha de cierre</Label>
+              <Label htmlFor="template-closing-date">{t("templateDialog.fieldClosingDate")}</Label>
               <Input
                 id="template-closing-date"
                 type="datetime-local"
@@ -489,16 +515,16 @@ export function TemplateFormDialog({
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
             >
-              Cancelar
+              {t("templateDialog.cancel")}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting
                 ? isEdit
-                  ? "Guardando..."
-                  : "Creando..."
+                  ? t("templateDialog.submittingEdit")
+                  : t("templateDialog.submittingCreate")
                 : isEdit
-                ? "Guardar cambios"
-                : "Crear plantilla"}
+                ? t("templateDialog.submitEdit")
+                : t("templateDialog.submitCreate")}
             </Button>
           </DialogFooter>
         </form>

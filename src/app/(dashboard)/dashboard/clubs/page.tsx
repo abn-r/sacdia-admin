@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { Building2, ChevronRight, Plus } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -17,9 +18,11 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { DataTableShell } from "@/components/shared/data-table-shell";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
+import { ClubsTableActionsCell } from "@/components/clubs/clubs-table-actions-cell";
 import { apiRequest, ApiError } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
 import { hasPermission } from "@/lib/auth/permission-utils";
+import { CLUBS_UPDATE, CLUBS_DELETE } from "@/lib/auth/permissions";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -158,26 +161,29 @@ async function ClubsContent({
   query: { page: number; limit: number };
 }) {
   const user = await requireAdminUser();
+  const t = await getTranslations("clubs.pages.list");
   const canCreate = hasPermission(user, "clubs:create");
+  const canEdit = hasPermission(user, CLUBS_UPDATE);
+  const canDelete = hasPermission(user, CLUBS_DELETE);
   const result = await fetchClubs(query);
 
   if (!result.available) {
     return (
       <div className="space-y-4">
-        <EndpointErrorBanner state="missing" detail={result.error ?? "Endpoint no disponible"} />
-        <EmptyState icon={Building2} title="No se pueden mostrar clubes" description={result.error} />
+        <EndpointErrorBanner state="missing" detail={result.error ?? t("endpointError")} />
+        <EmptyState icon={Building2} title={t("cannotShow")} description={result.error} />
       </div>
     );
   }
 
   if (result.items.length === 0) {
     return (
-      <EmptyState icon={Building2} title="No hay clubes registrados" description="Crea el primer club para comenzar.">
+      <EmptyState icon={Building2} title={t("emptyTitle")} description={t("emptyDescription")}>
         {canCreate && (
           <Button asChild>
             <Link href="/dashboard/clubs/new">
-              <Plus className="mr-2 size-4" />
-              Crear club
+              <Plus className="size-4" />
+              {t("emptyCreateButton")}
             </Link>
           </Button>
         )}
@@ -193,12 +199,16 @@ async function ClubsContent({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Nombre</TableHead>
-                <TableHead className="hidden md:table-cell">Campo local</TableHead>
-                <TableHead className="hidden lg:table-cell">Distrito</TableHead>
-                <TableHead className="hidden lg:table-cell">Iglesia</TableHead>
-                <TableHead>Estado</TableHead>
-                <TableHead className="w-[100px]">Acciones</TableHead>
+                <TableHead>{t("colName")}</TableHead>
+                <TableHead className="hidden md:table-cell">{t("colLocalField")}</TableHead>
+                <TableHead className="hidden lg:table-cell">{t("colDistrict")}</TableHead>
+                <TableHead className="hidden lg:table-cell">{t("colChurch")}</TableHead>
+                <TableHead>{t("colStatus")}</TableHead>
+                {(canEdit || canDelete) && (
+                  <TableHead className="sticky right-0 z-20 w-[100px] border-l bg-background">
+                    {t("colActions")}
+                  </TableHead>
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -217,15 +227,19 @@ async function ClubsContent({
                       {club.church?.name ?? club.church_id ?? "—"}
                     </TableCell>
                     <TableCell>
-                      <Badge variant={club.active !== false ? "default" : "outline"} className="text-xs">
-                        {club.active !== false ? "Activo" : "Inactivo"}
+                      <Badge variant={club.active !== false ? "soft-success" : "outline"} className="text-xs">
+                        {club.active !== false ? t("statusActive") : t("statusInactive")}
                       </Badge>
                     </TableCell>
-                    <TableCell>
-                      <Button variant="ghost" size="sm" asChild>
-                        <Link href={`/dashboard/clubs/${clubId}`}>Ver</Link>
-                      </Button>
-                    </TableCell>
+                    {(canEdit || canDelete) && (
+                      <TableCell className="sticky right-0 z-10 border-l bg-background">
+                        <ClubsTableActionsCell
+                          club={{ id: clubId ?? 0, name: club.name ?? "" }}
+                          canEdit={canEdit}
+                          canDelete={canDelete}
+                        />
+                      </TableCell>
+                    )}
                   </TableRow>
                 );
               })}
@@ -235,7 +249,7 @@ async function ClubsContent({
       </div>
 
       {/* Mobile: descriptive cards */}
-      <ul className="space-y-3 md:hidden" aria-label="Lista de clubes">
+      <ul className="space-y-3 md:hidden" aria-label={t("mobileListLabel")}>
         {result.items.map((club) => {
           const clubId = club.club_id ?? club.id;
           const localField = club.local_field?.name ?? (club.local_field_id ? String(club.local_field_id) : null);
@@ -266,29 +280,29 @@ async function ClubsContent({
 
                 <div className="mt-3 flex flex-wrap items-center gap-1.5">
                   <Badge
-                    variant={club.active !== false ? "default" : "outline"}
+                    variant={club.active !== false ? "soft-success" : "outline"}
                     className="text-xs"
                   >
-                    {club.active !== false ? "Activo" : "Inactivo"}
+                    {club.active !== false ? t("statusActive") : t("statusInactive")}
                   </Badge>
                 </div>
 
                 <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
                   {localField && (
                     <div className="col-span-2">
-                      <dt className="text-muted-foreground">Campo local</dt>
+                      <dt className="text-muted-foreground">{t("colLocalField")}</dt>
                       <dd className="truncate">{localField}</dd>
                     </div>
                   )}
                   {district && (
                     <div>
-                      <dt className="text-muted-foreground">Distrito</dt>
+                      <dt className="text-muted-foreground">{t("colDistrict")}</dt>
                       <dd className="truncate">{district}</dd>
                     </div>
                   )}
                   {church && (
                     <div>
-                      <dt className="text-muted-foreground">Iglesia</dt>
+                      <dt className="text-muted-foreground">{t("colChurch")}</dt>
                       <dd className="truncate">{church}</dd>
                     </div>
                   )}
@@ -314,7 +328,7 @@ async function ClubsContent({
 function ClubsSkeleton() {
   return (
     <div className="space-y-4">
-      <div className="rounded-md border">
+      <DataTableShell>
         {Array.from({ length: 6 }).map((_, i) => (
           <div key={i} className="flex items-center gap-4 border-b p-4 last:border-b-0">
             <Skeleton className="h-4 w-40" />
@@ -322,7 +336,7 @@ function ClubsSkeleton() {
             <Skeleton className="h-5 w-14" />
           </div>
         ))}
-      </div>
+      </DataTableShell>
       <div className="flex items-center justify-between">
         <Skeleton className="h-4 w-40" />
         <div className="flex items-center gap-2">
@@ -343,18 +357,19 @@ export default async function ClubsPage({
   searchParams: SearchParams;
 }) {
   const user = await requireAdminUser();
+  const t = await getTranslations("clubs.pages.list");
   const canCreate = hasPermission(user, "clubs:create");
   const rawParams = await searchParams;
   const query = parseSearchParams(rawParams);
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Clubes" description="Gestión de clubes del sistema.">
+      <PageHeader title={t("title")} description={t("description")}>
         {canCreate && (
           <Button asChild>
             <Link href="/dashboard/clubs/new">
-              <Plus className="mr-2 size-4" />
-              Crear club
+              <Plus className="size-4" />
+              {t("createButton")}
             </Link>
           </Button>
         )}

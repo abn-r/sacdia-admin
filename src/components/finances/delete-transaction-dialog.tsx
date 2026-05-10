@@ -15,14 +15,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useTranslations } from "next-intl";
 import { deleteFinance, type Finance } from "@/lib/api/finances";
-
-function formatAmount(cents: number): string {
-  return new Intl.NumberFormat("es-MX", {
-    style: "currency",
-    currency: "ARS",
-    minimumFractionDigits: 2,
-  }).format(cents / 100);
-}
+import { useFormatCurrency } from "@/lib/format-locale";
 
 interface DeleteTransactionDialogProps {
   open: boolean;
@@ -38,7 +31,12 @@ export function DeleteTransactionDialog({
   onSuccess,
 }: DeleteTransactionDialogProps) {
   const t = useTranslations("finances");
+  const formatCurrency = useFormatCurrency();
   const [isDeleting, setIsDeleting] = useState(false);
+
+  function formatAmount(cents: number): string {
+    return formatCurrency(cents / 100);
+  }
 
   async function handleDelete() {
     if (!finance) return;
@@ -61,31 +59,33 @@ export function DeleteTransactionDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>¿Eliminar movimiento?</AlertDialogTitle>
+          <AlertDialogTitle>{t("delete.title")}</AlertDialogTitle>
           <AlertDialogDescription>
             {finance ? (
               <>
-                Estás por eliminar el movimiento de{" "}
+                {t("delete.descriptionPre")}{" "}
                 <strong className={isIncome ? "text-success" : "text-destructive"}>
                   {formatAmount(Math.abs(finance.amount))}
                 </strong>
                 {finance.description ? ` — ${finance.description}` : ""}.{" "}
-                Esta acción no se puede deshacer.
+                {t("delete.cannotUndo")}
               </>
             ) : (
-              "Esta acción no se puede deshacer."
+              t("delete.descriptionFallback")
             )}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+          <AlertDialogCancel disabled={isDeleting}>
+            {t("delete.cancelButton")}
+          </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
             disabled={isDeleting}
             className="bg-destructive text-white hover:bg-destructive/90"
           >
             {isDeleting && <Loader2 className="size-4 animate-spin" />}
-            Eliminar
+            {t("delete.confirmButton")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

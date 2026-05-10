@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { FolderDetailClient } from "@/components/folders/folder-detail-client";
 import { requireAdminUser } from "@/lib/auth/session";
@@ -14,6 +15,7 @@ type Props = {
 
 export default async function FolderDetailPage({ params }: Props) {
   await requireAdminUser();
+  const t = await getTranslations("folders");
 
   const { folderId } = await params;
 
@@ -29,7 +31,7 @@ export default async function FolderDetailPage({ params }: Props) {
     loadError =
       err instanceof ApiError
         ? err.message
-        : "No se pudo cargar la carpeta de evidencias.";
+        : t("pageDetail.errorLoad");
   }
 
   if (loadError) {

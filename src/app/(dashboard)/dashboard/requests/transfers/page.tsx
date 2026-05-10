@@ -1,4 +1,5 @@
 import { ArrowRightLeft } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -9,6 +10,7 @@ import { requireAdminUser } from "@/lib/auth/session";
 
 export default async function TransferRequestsPage() {
   await requireAdminUser();
+  const t = await getTranslations("requests");
 
   let requests: TransferRequest[] = [];
   let loadError: string | null = null;
@@ -19,14 +21,14 @@ export default async function TransferRequestsPage() {
     loadError =
       error instanceof ApiError
         ? error.message
-        : "No se pudieron cargar las solicitudes de transferencia.";
+        : t("pageTransfers.errorLoad");
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Solicitudes de Transferencia"
-        description="Revisión y aprobación de solicitudes de transferencia entre secciones."
+        title={t("pageTransfers.title")}
+        description={t("pageTransfers.description")}
       />
 
       {loadError && <EndpointErrorBanner state="missing" detail={loadError} />}
@@ -34,8 +36,8 @@ export default async function TransferRequestsPage() {
       {!loadError && requests.length === 0 && (
         <EmptyState
           icon={ArrowRightLeft}
-          title="Sin solicitudes"
-          description="No hay solicitudes de transferencia registradas en este momento."
+          title={t("pageTransfers.emptyTitle")}
+          description={t("pageTransfers.emptyDescription")}
         />
       )}
 

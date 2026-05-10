@@ -214,216 +214,243 @@ export const ECCLESIASTICAL_YEARS_UPDATE = "ecclesiastical_years:update";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Agrupación por módulo (útil para UI de asignación de permisos)
+// Labels removed — use getPermissionGroupLabel(t, groupKey) and
+// getPermissionLabel(t, permissionKey) for localised display.
 // ═══════════════════════════════════════════════════════════════════════════
 export const PERMISSION_GROUPS = {
   users: {
-    label: "Usuarios",
     permissions: [
-      { key: USERS_READ, label: "Ver listado" },
-      { key: USERS_READ_DETAIL, label: "Ver detalle" },
-      { key: USERS_UPDATE_PROFILE, label: "Editar perfil propio" },
-      { key: USERS_UPDATE_ADMIN, label: "Gestión admin de usuarios" },
+      { key: USERS_READ },
+      { key: USERS_READ_DETAIL },
+      { key: USERS_UPDATE_PROFILE },
+      { key: USERS_UPDATE_ADMIN },
     ],
   },
   roles: {
-    label: "Roles y Permisos",
     permissions: [
-      { key: ROLES_READ, label: "Ver roles" },
-      { key: PERMISSIONS_READ, label: "Ver permisos" },
-      { key: PERMISSIONS_ASSIGN, label: "Asignar permisos" },
+      { key: ROLES_READ },
+      { key: PERMISSIONS_READ },
+      { key: PERMISSIONS_ASSIGN },
     ],
   },
   clubs: {
-    label: "Clubes",
     permissions: [
-      { key: CLUBS_READ, label: "Ver clubes" },
-      { key: CLUBS_CREATE, label: "Crear club" },
-      { key: CLUBS_UPDATE, label: "Editar club" },
-      { key: CLUBS_DELETE, label: "Eliminar club" },
-      { key: CLUB_SECTIONS_READ, label: "Ver secciones" },
-      { key: CLUB_SECTIONS_CREATE, label: "Crear sección" },
-      { key: CLUB_SECTIONS_UPDATE, label: "Editar sección" },
-      { key: CLUB_ROLES_READ, label: "Ver roles de club" },
-      { key: CLUB_ROLES_ASSIGN, label: "Asignar rol de club" },
-      { key: CLUB_ROLES_REVOKE, label: "Revocar rol de club" },
-      { key: CLUB_MEMBERS_APPROVE, label: "Aprobar membresía" },
-      { key: CLUB_MEMBERS_REJECT, label: "Rechazar membresía" },
-      { key: CLUB_MEMBERS_LIST_PENDING, label: "Ver solicitudes pendientes" },
+      { key: CLUBS_READ },
+      { key: CLUBS_CREATE },
+      { key: CLUBS_UPDATE },
+      { key: CLUBS_DELETE },
+      { key: CLUB_SECTIONS_READ },
+      { key: CLUB_SECTIONS_CREATE },
+      { key: CLUB_SECTIONS_UPDATE },
+      { key: CLUB_ROLES_READ },
+      { key: CLUB_ROLES_ASSIGN },
+      { key: CLUB_ROLES_REVOKE },
+      { key: CLUB_MEMBERS_APPROVE },
+      { key: CLUB_MEMBERS_REJECT },
+      { key: CLUB_MEMBERS_LIST_PENDING },
     ],
   },
   units: {
-    label: "Unidades",
     permissions: [
-      { key: UNITS_READ, label: "Ver unidades / miembro del mes" },
+      { key: UNITS_READ },
     ],
   },
   member_of_month: {
-    label: "Miembro del Mes",
     permissions: [
-      { key: MOM_READ,      label: "Ver miembro del mes" },
-      { key: MOM_SUPERVISE, label: "Supervisar multi-sección (admin/coordinador)" },
-      { key: MOM_EVALUATE,  label: "Disparar evaluación manual" },
+      { key: MOM_READ },
+      { key: MOM_SUPERVISE },
+      { key: MOM_EVALUATE },
     ],
   },
   scoring_categories: {
-    label: "Categorías de Puntuación",
     permissions: [
-      { key: SCORING_CATEGORIES_READ,   label: "Ver categorías de puntuación" },
-      { key: SCORING_CATEGORIES_MANAGE, label: "Gestionar categorías de puntuación (unions + campos locales)" },
+      { key: SCORING_CATEGORIES_READ },
+      { key: SCORING_CATEGORIES_MANAGE },
     ],
   },
   requests: {
-    label: "Solicitudes",
     permissions: [
-      { key: REQUESTS_READ,   label: "Ver solicitudes de transferencia y asignación" },
-      { key: REQUESTS_REVIEW, label: "Aprobar/rechazar solicitudes" },
+      { key: REQUESTS_READ },
+      { key: REQUESTS_REVIEW },
     ],
   },
   user_certifications: {
-    label: "Certificaciones de Usuario (Admin)",
     permissions: [
-      { key: USER_CERTIFICATIONS_READ,   label: "Ver progreso de certificaciones" },
-      { key: USER_CERTIFICATIONS_MANAGE, label: "Inscribir / actualizar / borrar certificaciones" },
+      { key: USER_CERTIFICATIONS_READ },
+      { key: USER_CERTIFICATIONS_MANAGE },
     ],
   },
   user_folders: {
-    label: "Carpetas de Usuario (Admin)",
     permissions: [
-      { key: USER_FOLDERS_READ,   label: "Ver inscripción y progreso de carpetas" },
-      { key: USER_FOLDERS_MANAGE, label: "Inscribir / actualizar / borrar asignaciones de carpeta" },
+      { key: USER_FOLDERS_READ },
+      { key: USER_FOLDERS_MANAGE },
     ],
   },
   geography: {
-    label: "Jerarquía Geográfica",
     permissions: [
-      { key: COUNTRIES_READ, label: "Ver países" },
-      { key: COUNTRIES_CREATE, label: "Crear país" },
-      { key: COUNTRIES_UPDATE, label: "Editar país" },
-      { key: COUNTRIES_DELETE, label: "Eliminar país" },
-      { key: UNIONS_READ, label: "Ver uniones" },
-      { key: UNIONS_CREATE, label: "Crear unión" },
-      { key: UNIONS_UPDATE, label: "Editar unión" },
-      { key: UNIONS_DELETE, label: "Eliminar unión" },
-      { key: LOCAL_FIELDS_READ, label: "Ver campos locales" },
-      { key: LOCAL_FIELDS_CREATE, label: "Crear campo local" },
-      { key: LOCAL_FIELDS_UPDATE, label: "Editar campo local" },
-      { key: LOCAL_FIELDS_DELETE, label: "Eliminar campo local" },
-      { key: CHURCHES_READ, label: "Ver iglesias" },
-      { key: CHURCHES_CREATE, label: "Crear iglesia" },
-      { key: CHURCHES_UPDATE, label: "Editar iglesia" },
-      { key: CHURCHES_DELETE, label: "Eliminar iglesia" },
+      { key: COUNTRIES_READ },
+      { key: COUNTRIES_CREATE },
+      { key: COUNTRIES_UPDATE },
+      { key: COUNTRIES_DELETE },
+      { key: UNIONS_READ },
+      { key: UNIONS_CREATE },
+      { key: UNIONS_UPDATE },
+      { key: UNIONS_DELETE },
+      { key: LOCAL_FIELDS_READ },
+      { key: LOCAL_FIELDS_CREATE },
+      { key: LOCAL_FIELDS_UPDATE },
+      { key: LOCAL_FIELDS_DELETE },
+      { key: CHURCHES_READ },
+      { key: CHURCHES_CREATE },
+      { key: CHURCHES_UPDATE },
+      { key: CHURCHES_DELETE },
     ],
   },
   catalogs: {
-    label: "Catálogos",
     permissions: [
-      { key: CATALOGS_READ, label: "Ver catálogos" },
-      { key: CATALOGS_CREATE, label: "Crear ítem" },
-      { key: CATALOGS_UPDATE, label: "Editar ítem" },
-      { key: CATALOGS_DELETE, label: "Eliminar ítem" },
+      { key: CATALOGS_READ },
+      { key: CATALOGS_CREATE },
+      { key: CATALOGS_UPDATE },
+      { key: CATALOGS_DELETE },
     ],
   },
   classes_honors: {
-    label: "Clases y Especialidades",
     permissions: [
-      { key: CLASSES_READ, label: "Ver clases" },
-      { key: CLASSES_SUBMIT_PROGRESS, label: "Enviar progreso de clase" },
-      { key: HONORS_READ, label: "Ver especialidades" },
-      { key: HONORS_CREATE, label: "Crear especialidad" },
-      { key: HONORS_UPDATE, label: "Editar especialidad" },
-      { key: HONORS_DELETE, label: "Eliminar especialidad" },
-      { key: USER_HONORS_SUBMIT, label: "Enviar progreso de honor" },
-      { key: USER_HONORS_VALIDATE, label: "Validar honores" },
-      { key: HONOR_CATEGORIES_READ, label: "Ver categorías" },
-      { key: HONOR_CATEGORIES_CREATE, label: "Crear categoría" },
-      { key: HONOR_CATEGORIES_UPDATE, label: "Editar categoría" },
-      { key: HONOR_CATEGORIES_DELETE, label: "Eliminar categoría" },
+      { key: CLASSES_READ },
+      { key: CLASSES_SUBMIT_PROGRESS },
+      { key: HONORS_READ },
+      { key: HONORS_CREATE },
+      { key: HONORS_UPDATE },
+      { key: HONORS_DELETE },
+      { key: USER_HONORS_SUBMIT },
+      { key: USER_HONORS_VALIDATE },
+      { key: HONOR_CATEGORIES_READ },
+      { key: HONOR_CATEGORIES_CREATE },
+      { key: HONOR_CATEGORIES_UPDATE },
+      { key: HONOR_CATEGORIES_DELETE },
     ],
   },
   activities: {
-    label: "Actividades",
     permissions: [
-      { key: ACTIVITIES_READ, label: "Ver actividades" },
-      { key: ACTIVITIES_CREATE, label: "Crear actividad" },
-      { key: ACTIVITIES_UPDATE, label: "Editar actividad" },
-      { key: ACTIVITIES_DELETE, label: "Eliminar actividad" },
-      { key: ATTENDANCE_READ, label: "Ver asistencia" },
-      { key: ATTENDANCE_MANAGE, label: "Gestionar asistencia" },
+      { key: ACTIVITIES_READ },
+      { key: ACTIVITIES_CREATE },
+      { key: ACTIVITIES_UPDATE },
+      { key: ACTIVITIES_DELETE },
+      { key: ATTENDANCE_READ },
+      { key: ATTENDANCE_MANAGE },
     ],
   },
   camporees: {
-    label: "Camporees",
     permissions: [
-      { key: CAMPOREES_READ,   label: "Ver camporees" },
-      { key: CAMPOREES_CREATE, label: "Crear camporees" },
-      { key: CAMPOREES_UPDATE, label: "Actualizar camporees" },
-      { key: CAMPOREES_DELETE, label: "Desactivar camporees" },
+      { key: CAMPOREES_READ },
+      { key: CAMPOREES_CREATE },
+      { key: CAMPOREES_UPDATE },
+      { key: CAMPOREES_DELETE },
     ],
   },
   validation: {
-    label: "Validación",
     permissions: [
-      { key: VALIDATION_READ,   label: "Ver cola pendiente, historial y elegibilidad" },
-      { key: VALIDATION_SUBMIT, label: "Enviar progreso para revisión" },
-      { key: VALIDATION_REVIEW, label: "Aprobar/rechazar progreso enviado" },
+      { key: VALIDATION_READ },
+      { key: VALIDATION_SUBMIT },
+      { key: VALIDATION_REVIEW },
     ],
   },
   finances: {
-    label: "Finanzas",
     permissions: [
-      { key: FINANCES_READ, label: "Ver finanzas" },
-      { key: FINANCES_CREATE, label: "Crear registro" },
-      { key: FINANCES_UPDATE, label: "Editar registro" },
-      { key: FINANCES_DELETE, label: "Eliminar registro" },
+      { key: FINANCES_READ },
+      { key: FINANCES_CREATE },
+      { key: FINANCES_UPDATE },
+      { key: FINANCES_DELETE },
     ],
   },
   inventory: {
-    label: "Inventario",
     permissions: [
-      { key: INVENTORY_READ, label: "Ver inventario" },
-      { key: INVENTORY_CREATE, label: "Crear ítem" },
-      { key: INVENTORY_UPDATE, label: "Editar ítem" },
-      { key: INVENTORY_DELETE, label: "Eliminar ítem" },
+      { key: INVENTORY_READ },
+      { key: INVENTORY_CREATE },
+      { key: INVENTORY_UPDATE },
+      { key: INVENTORY_DELETE },
     ],
   },
   reports: {
-    label: "Reportes",
     permissions: [
-      { key: REPORTS_READ, label: "Leer reportes mensuales" },
-      { key: REPORTS_DOWNLOAD, label: "Descargar PDF de reportes" },
-      { key: DASHBOARD_VIEW, label: "Ver dashboard" },
+      { key: REPORTS_READ },
+      { key: REPORTS_DOWNLOAD },
+      { key: DASHBOARD_VIEW },
     ],
   },
   notifications: {
-    label: "Notificaciones",
     permissions: [
-      { key: NOTIFICATIONS_SEND, label: "Enviar directa" },
-      { key: NOTIFICATIONS_BROADCAST, label: "Enviar broadcast" },
-      { key: NOTIFICATIONS_CLUB, label: "Enviar por club" },
+      { key: NOTIFICATIONS_SEND },
+      { key: NOTIFICATIONS_BROADCAST },
+      { key: NOTIFICATIONS_CLUB },
     ],
   },
   resources: {
-    label: "Recursos",
     permissions: [
-      { key: RESOURCES_READ, label: "Ver recursos" },
-      { key: RESOURCES_CREATE, label: "Subir recurso" },
-      { key: RESOURCES_UPDATE, label: "Editar recurso" },
-      { key: RESOURCES_DELETE, label: "Eliminar recurso" },
-      { key: RESOURCE_CATEGORIES_READ, label: "Ver categorías de recursos" },
-      { key: RESOURCE_CATEGORIES_CREATE, label: "Crear categoría de recursos" },
-      { key: RESOURCE_CATEGORIES_UPDATE, label: "Editar categoría de recursos" },
-      { key: RESOURCE_CATEGORIES_DELETE, label: "Eliminar categoría de recursos" },
+      { key: RESOURCES_READ },
+      { key: RESOURCES_CREATE },
+      { key: RESOURCES_UPDATE },
+      { key: RESOURCES_DELETE },
+      { key: RESOURCE_CATEGORIES_READ },
+      { key: RESOURCE_CATEGORIES_CREATE },
+      { key: RESOURCE_CATEGORIES_UPDATE },
+      { key: RESOURCE_CATEGORIES_DELETE },
     ],
   },
   system: {
-    label: "Sistema",
     permissions: [
-      { key: ECCLESIASTICAL_YEARS_READ, label: "Ver años eclesiásticos" },
-      { key: ECCLESIASTICAL_YEARS_CREATE, label: "Crear año eclesiástico" },
-      { key: ECCLESIASTICAL_YEARS_UPDATE, label: "Editar año eclesiástico" },
+      { key: ECCLESIASTICAL_YEARS_READ },
+      { key: ECCLESIASTICAL_YEARS_CREATE },
+      { key: ECCLESIASTICAL_YEARS_UPDATE },
     ],
   },
 } as const;
 
 // Tipo derivado de las constantes (acepta cualquier string para compatibilidad con DB)
 export type PermissionKey = string;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// i18n helpers — use these in all UI components instead of hardcoded strings
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Returns the localised label for a permission key.
+ * Looks up `rbac.permissions.<key>` in the active locale.
+ * Falls back to the raw key string when no translation exists.
+ *
+ * @example
+ *   const t = useTranslations("rbac");
+ *   getPermissionLabel(t, "clubs:read") // → "Ver clubes" (es)
+ */
+export function getPermissionLabel(
+  t: (key: string) => string,
+  permissionKey: string,
+): string {
+  // next-intl colon keys require dot notation for nested lookup
+  const safeKey = permissionKey.replace(":", ".");
+  try {
+    return t(`permissions.${safeKey}` as Parameters<typeof t>[0]);
+  } catch {
+    return permissionKey;
+  }
+}
+
+/**
+ * Returns the localised label for a permission group.
+ * Looks up `rbac.permissionGroups.<groupKey>` in the active locale.
+ * Falls back to the raw groupKey string when no translation exists.
+ *
+ * @example
+ *   const t = useTranslations("rbac");
+ *   getPermissionGroupLabel(t, "clubs") // → "Clubes" (es)
+ */
+export function getPermissionGroupLabel(
+  t: (key: string) => string,
+  groupKey: string,
+): string {
+  try {
+    return t(`permissionGroups.${groupKey}` as Parameters<typeof t>[0]);
+  } catch {
+    return groupKey;
+  }
+}

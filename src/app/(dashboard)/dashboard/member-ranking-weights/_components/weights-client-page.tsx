@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,6 +37,7 @@ export function WeightsClientPage({
   clubTypes,
   ecclesiasticalYears,
 }: WeightsClientPageProps) {
+  const t = useTranslations("memberRankingWeights.weightsPage");
   const router = useRouter();
 
   // ── Delete dialog state ───────────────────────────────────────────────────
@@ -59,7 +61,7 @@ export function WeightsClientPage({
     setIsDeleting(true);
     try {
       await deleteMemberRankingWeights(deletingRow.id);
-      toast.success("Sobreescritura eliminada");
+      toast.success(t("deleteSuccess"));
       setDeleteOpen(false);
       setDeletingRow(null);
       refresh();
@@ -84,20 +86,21 @@ export function WeightsClientPage({
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Eliminar sobreescritura de pesos</AlertDialogTitle>
+            <AlertDialogTitle>{t("deleteTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Los cálculos de ranking que usaban esta configuración volverán a usar
-              la configuración por defecto global. Esta acción no se puede deshacer.
+              {t("deleteDescription")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>
+              {t("deleteCancel")}
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDelete}
               disabled={isDeleting}
               className="bg-destructive text-white hover:bg-destructive/90"
             >
-              {isDeleting ? "Eliminando..." : "Eliminar"}
+              {isDeleting ? t("deleteConfirmLoading") : t("deleteConfirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

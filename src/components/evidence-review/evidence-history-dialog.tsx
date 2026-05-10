@@ -1,11 +1,13 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { History, Clock, CheckCircle2, XCircle, Send } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -14,65 +16,39 @@ import { cn } from "@/lib/utils";
 import {
   getEvidenceHistory,
   type EvidenceType,
-  type EvidenceHistoryEntry,
 } from "@/lib/api/evidence-review";
 import { ApiError } from "@/lib/api/client";
+import { useFormatDateTime } from "@/lib/format-locale";
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatDate(iso: string): string {
-  try {
-    return new Intl.DateTimeFormat("es-MX", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(new Date(iso));
-  } catch {
-    return iso;
-  }
-}
-
-const actionConfig: Record<
+// Action intent data (no user-facing strings here — labels resolved via t() below)
+const actionIntentMap: Record<
   string,
   {
-    label: string;
+    labelKey: "action_approved" | "action_rejected" | "action_submitted";
     icon: React.ElementType;
     iconClass: string;
     dotClass: string;
   }
 > = {
   APPROVED: {
-    label: "Aprobado",
+    labelKey: "action_approved",
     icon: CheckCircle2,
     iconClass: "text-success",
     dotClass: "bg-success/20 border-success/40",
   },
   REJECTED: {
-    label: "Rechazado",
+    labelKey: "action_rejected",
     icon: XCircle,
     iconClass: "text-destructive",
     dotClass: "bg-destructive/20 border-destructive/40",
   },
   SUBMITTED: {
-    label: "Enviado a revisión",
+    labelKey: "action_submitted",
     icon: Send,
     iconClass: "text-warning",
     dotClass: "bg-warning/20 border-warning/40",
   },
 };
-
-function getConfig(action: string) {
-  return (
-    actionConfig[action] ?? {
-      label: action,
-      icon: Clock,
-      iconClass: "text-muted-foreground",
-      dotClass: "bg-muted border-border",
-    }
-  );
-}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -98,6 +74,9 @@ export function EvidenceHistoryDialog({
   memberName,
   onOpenChange,
 }: EvidenceHistoryDialogProps) {
+  const t = useTranslations("evidence_review.history");
+  const formatDate = useFormatDateTime();
+
   // Evidence history is append-only — once fetched it never changes.
   const { data: entries = [], isLoading: loading } = useQuery({
     queryKey: evidenceHistoryQueryKey(type, id),
@@ -108,7 +87,7 @@ export function EvidenceHistoryDialog({
         const message =
           error instanceof ApiError
             ? error.message
-            : "No se pudo cargar el historial";
+            : t("error_load");
         toast.error(message);
         throw error;
       }
@@ -124,9 +103,9 @@ export function EvidenceHistoryDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <History className="size-5 text-muted-foreground" />
-            Historial de validación
+            {t("title")}
           </DialogTitle>
-          <p className="text-sm text-muted-foreground">{memberName}</p>
+          <DialogDescription>{memberName}</DialogDescription>
         </DialogHeader>
 
         <ScrollArea className="max-h-96 pr-2">
@@ -139,13 +118,18 @@ export function EvidenceHistoryDialog({
           ) : entries.length === 0 ? (
             <div className="flex items-center gap-2 rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
               <Clock className="size-4 shrink-0" />
-              <span>No hay historial de validación aún.</span>
+              <span>{t("empty")}</span>
             </div>
           ) : (
             <ol className="relative space-y-0">
               {entries.map((entry, idx) => {
-                const config = getConfig(entry.action);
-                const Icon = config.icon;
+                const intent = actionIntentMap[entry.action];
+                const Icon = intent?.icon ?? Clock;
+                const iconClass = intent?.iconClass ?? "text-muted-foreground";
+                const dotClass = intent?.dotClass ?? "bg-muted border-border";
+                const label = intent
+                  ? t(intent.labelKey)
+                  : entry.action;
                 const isLast = idx === entries.length - 1;
 
                 return (
@@ -154,10 +138,10 @@ export function EvidenceHistoryDialog({
                       <div
                         className={cn(
                           "flex size-7 shrink-0 items-center justify-center rounded-full border",
-                          config.dotClass,
+                          dotClass,
                         )}
                       >
-                        <Icon className={cn("size-3.5", config.iconClass)} />
+                        <Icon className={cn("size-3.5", iconClass)} />
                       </div>
                       {!isLast && (
                         <div className="mt-1 w-px flex-1 bg-border" />
@@ -165,10 +149,10 @@ export function EvidenceHistoryDialog({
                     </div>
                     <div className={cn("pb-4", isLast && "pb-0")}>
                       <p className="text-sm font-medium leading-tight">
-                        {config.label}
+                        {label}
                       </p>
                       <p className="mt-0.5 text-xs text-muted-foreground">
-                        {entry.performed_by_name ?? "Sistema"} &middot;{" "}
+                        {entry.performed_by_name ?? t("system")} &middot;{" "}
                         {formatDate(entry.created_at)}
                       </p>
                       {entry.comment && (

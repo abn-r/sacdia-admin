@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -28,23 +29,26 @@ import { useTranslations } from "next-intl";
 import { createPayment, updatePayment } from "@/lib/api/camporees";
 import type { CamporeePayment, CamporeeMember, PaymentType } from "@/lib/api/camporees";
 
-// ─── Schema ────────────────────────────────────────────────────────────────────
+// ─── Schema factory ────────────────────────────────────────────────────────────
 
-const formSchema = z.object({
-  member_id: z.string().min(1, "Seleccione un miembro"),
-  amount: z.coerce
-    .number()
-    .positive("El monto debe ser mayor a cero"),
-  payment_type: z.enum(["inscription", "materials", "other"] as const),
-  reference: z.string().optional(),
-  notes: z.string().optional(),
-  paid_at: z.string().optional(),
-});
+function buildSchema(t: ReturnType<typeof useTranslations<"camporees.validation">>) {
+  return z.object({
+    member_id: z.string().min(1, t("member_required")),
+    amount: z.coerce
+      .number()
+      .positive(t("amount_positive")),
+    payment_type: z.enum(["inscription", "materials", "other"] as const),
+    reference: z.string().optional(),
+    notes: z.string().optional(),
+    paid_at: z.string().optional(),
+  });
+}
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof buildSchema>>;
 
 // ─── Labels ───────────────────────────────────────────────────────────────────
 
+// Kept for fallback; actual rendering uses t() at call sites
 const PAYMENT_TYPE_LABELS: Record<PaymentType, string> = {
   inscription: "Inscripción",
   materials: "Materiales",
@@ -84,8 +88,10 @@ export function PaymentDialog({
   onSuccess,
 }: PaymentDialogProps) {
   const t = useTranslations("camporees");
+  const tVal = useTranslations("camporees.validation");
   const isEditing = payment != null;
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const schema = useMemo(() => buildSchema(tVal), [tVal]);
 
   const {
     register,
@@ -95,7 +101,7 @@ export function PaymentDialog({
     watch,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(formSchema as z.ZodType<FormValues, FormValues>),
+    resolver: zodResolver(schema as z.ZodType<FormValues, FormValues>),
     defaultValues: {
       member_id: "",
       amount: undefined,
@@ -172,15 +178,20 @@ export function PaymentDialog({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {isEditing ? "Editar pago" : "Registrar pago"}
+            {isEditing ? t("paymentDialog.titleEdit") : t("paymentDialog.titleCreate")}
           </DialogTitle>
+          <DialogDescription>
+            {isEditing
+              ? "Modificá los datos del pago registrado."
+              : "Registrá un nuevo pago para un participante del camporee."}
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
           {/* Member */}
           <div className="space-y-1.5">
             <Label htmlFor="member_id">
-              Miembro <span aria-hidden="true" className="text-destructive">*</span>
+              {t("paymentDialog.labelMember")} <span aria-hidden="true" className="text-destructive">*</span>
             </Label>
             {isEditing ? (
               <p className="rounded-md border border-border bg-muted/40 px-3 py-2 text-sm">
@@ -192,7 +203,7 @@ export function PaymentDialog({
                 onValueChange={(val) => setValue("member_id", val)}
               >
                 <SelectTrigger id="member_id" aria-required="true">
-                  <SelectValue placeholder="Seleccionar miembro" />
+                  <SelectValue placeholder={t("paymentDialog.placeholderMember")} />
                 </SelectTrigger>
                 <SelectContent>
                   {members.map((m) => (
@@ -211,7 +222,7 @@ export function PaymentDialog({
           {/* Amount */}
           <div className="space-y-1.5">
             <Label htmlFor="amount">
-              Monto <span aria-hidden="true" className="text-destructive">*</span>
+              {t("paymentDialog.labelAmount")} <span aria-hidden="true" className="text-destructive">*</span>
             </Label>
             <Input
               id="amount"
@@ -230,7 +241,7 @@ export function PaymentDialog({
           {/* Payment type */}
           <div className="space-y-1.5">
             <Label htmlFor="payment_type">
-              Tipo de pago <span aria-hidden="true" className="text-destructive">*</span>
+              {t("paymentDialog.labelPaymentType")} <span aria-hidden="true" className="text-destructive">*</span>
             </Label>
             <Select
               value={paymentType}
@@ -239,14 +250,21 @@ export function PaymentDialog({
               }
             >
               <SelectTrigger id="payment_type" aria-required="true">
-                <SelectValue placeholder="Seleccionar tipo" />
+                <SelectValue placeholder={t("paymentDialog.placeholderPaymentType")} />
               </SelectTrigger>
               <SelectContent>
-                {(Object.keys(PAYMENT_TYPE_LABELS) as PaymentType[]).map((key) => (
-                  <SelectItem key={key} value={key}>
-                    {PAYMENT_TYPE_LABELS[key]}
-                  </SelectItem>
-                ))}
+                {(Object.keys(PAYMENT_TYPE_LABELS) as PaymentType[]).map((key) => {
+                  const typeLabels: Record<PaymentType, string> = {
+                    inscription: t("paymentDialog.paymentTypeInscription"),
+                    materials: t("paymentDialog.paymentTypeMaterials"),
+                    other: t("paymentDialog.paymentTypeOther"),
+                  };
+                  return (
+                    <SelectItem key={key} value={key}>
+                      {typeLabels[key]}
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
             {errors.payment_type && (
@@ -256,27 +274,27 @@ export function PaymentDialog({
 
           {/* Reference */}
           <div className="space-y-1.5">
-            <Label htmlFor="reference">Referencia</Label>
+            <Label htmlFor="reference">{t("paymentDialog.labelReference")}</Label>
             <Input
               id="reference"
               {...register("reference")}
-              placeholder="Ej. TRANS-00123"
+              placeholder={t("paymentDialog.placeholderReference")}
             />
           </div>
 
           {/* Paid at */}
           <div className="space-y-1.5">
-            <Label htmlFor="paid_at">Fecha de pago</Label>
+            <Label htmlFor="paid_at">{t("paymentDialog.labelPaidAt")}</Label>
             <Input id="paid_at" type="date" {...register("paid_at")} />
           </div>
 
           {/* Notes */}
           <div className="space-y-1.5">
-            <Label htmlFor="notes">Notas</Label>
+            <Label htmlFor="notes">{t("paymentDialog.labelNotes")}</Label>
             <Textarea
               id="notes"
               {...register("notes")}
-              placeholder="Observaciones opcionales"
+              placeholder={t("paymentDialog.placeholderNotes")}
               rows={2}
             />
           </div>
@@ -288,16 +306,16 @@ export function PaymentDialog({
               onClick={() => handleOpenChange(false)}
               disabled={isSubmitting}
             >
-              Cancelar
+              {t("paymentDialog.cancel")}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting
                 ? isEditing
-                  ? "Guardando..."
-                  : "Registrando..."
+                  ? t("paymentDialog.saving")
+                  : t("paymentDialog.registering")
                 : isEditing
-                  ? "Guardar cambios"
-                  : "Registrar pago"}
+                  ? t("paymentDialog.saveChanges")
+                  : t("paymentDialog.registerPayment")}
             </Button>
           </DialogFooter>
         </form>

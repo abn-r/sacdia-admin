@@ -861,7 +861,7 @@ export async function updateAdminUserApproval(payload: UpdateAdminUserApprovalPa
     throw lastKnownError;
   }
 
-  throw new Error("No se pudo actualizar la aprobacion del usuario");
+  throw new Error("No se pudo actualizar la aprobación del usuario");
 }
 
 /**
@@ -923,5 +923,5 @@ export async function updateAdminUserApprovalFromClient(payload: UpdateAdminUser
     throw lastKnownError;
   }
 
-  throw new Error("No se pudo actualizar la aprobacion del usuario");
+  throw new Error("No se pudo actualizar la aprobación del usuario");
 }

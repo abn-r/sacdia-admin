@@ -444,23 +444,25 @@ export function FolderClientPage({ initialFolder }: FolderClientPageProps) {
       <AlertDialog open={deleteEvidenceOpen} onOpenChange={setDeleteEvidenceOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Eliminar evidencia</AlertDialogTitle>
+            <AlertDialogTitle>{t("dialogs.deleteEvidence.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acción eliminará permanentemente el archivo{" "}
-              <strong>{deletingEvidence?.file_name ?? "seleccionado"}</strong>.
-              No se puede deshacer.
+              {t("dialogs.deleteEvidence.description", {
+                fileName: deletingEvidence?.file_name ?? "seleccionado",
+              })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isDeletingEvidence}>
-              Cancelar
+              {t("dialogs.deleteEvidence.cancel")}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDeleteEvidence}
               disabled={isDeletingEvidence}
               className="bg-destructive text-white hover:bg-destructive/90"
             >
-              {isDeletingEvidence ? "Eliminando..." : "Eliminar"}
+              {isDeletingEvidence
+                ? t("dialogs.deleteEvidence.confirmLoading")
+                : t("dialogs.deleteEvidence.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -470,19 +472,22 @@ export function FolderClientPage({ initialFolder }: FolderClientPageProps) {
       <AlertDialog open={submitOpen} onOpenChange={setSubmitOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Enviar carpeta</AlertDialogTitle>
+            <AlertDialogTitle>{t("dialogs.sendFolder.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Una vez enviada, no podrás modificar ni agregar evidencias hasta
-              que sea revisada. Asegurate de haber subido todo lo requerido.
+              {t("dialogs.sendFolder.description")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isActioning}>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel disabled={isActioning}>
+              {t("dialogs.sendFolder.cancel")}
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmSubmit}
               disabled={isActioning}
             >
-              {isActioning ? "Enviando..." : "Enviar carpeta"}
+              {isActioning
+                ? t("dialogs.sendFolder.confirmLoading")
+                : t("dialogs.sendFolder.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -492,19 +497,22 @@ export function FolderClientPage({ initialFolder }: FolderClientPageProps) {
       <AlertDialog open={closeOpen} onOpenChange={setCloseOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Cerrar carpeta</AlertDialogTitle>
+            <AlertDialogTitle>{t("dialogs.closeFolder.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Al cerrar la carpeta se registrará como finalizada. Esta acción es
-              definitiva y no puede revertirse.
+              {t("dialogs.closeFolder.description")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isActioning}>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel disabled={isActioning}>
+              {t("dialogs.closeFolder.cancel")}
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmClose}
               disabled={isActioning}
             >
-              {isActioning ? "Cerrando..." : "Cerrar carpeta"}
+              {isActioning
+                ? t("dialogs.closeFolder.confirmLoading")
+                : t("dialogs.closeFolder.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

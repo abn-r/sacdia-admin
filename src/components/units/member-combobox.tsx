@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Check, ChevronsUpDown, X, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,7 +40,7 @@ export interface MemberComboboxProps {
   value: string;
   /** Called with the selected user_id, or empty string when cleared */
   onChange: (userId: string) => void;
-  /** Placeholder text shown when nothing is selected */
+  /** Placeholder text shown when nothing is selected. Defaults to the translated "searchPlaceholder" key. */
   placeholder?: string;
   /** Whether the combobox is disabled */
   disabled?: boolean;
@@ -57,12 +58,13 @@ export function MemberCombobox({
   clubId,
   value,
   onChange,
-  placeholder = "Seleccionar miembro...",
+  placeholder,
   disabled = false,
   excludeUserIds,
   members: externalMembers,
   onMembersLoaded,
 }: MemberComboboxProps) {
+  const t = useTranslations("units_admin.memberCombobox");
   const [open, setOpen] = useState(false);
   // Delay enabling the query until the popover is opened at least once,
   // and only when no external list was provided.
@@ -87,7 +89,7 @@ export function MemberCombobox({
   const error = fetchError
     ? fetchError instanceof Error
       ? fetchError.message
-      : "No se pudieron cargar los miembros"
+      : t("loadError")
     : null;
 
   function handleOpenChange(nextOpen: boolean) {
@@ -138,14 +140,14 @@ export function MemberCombobox({
               <span className="truncate text-sm">{selected.name}</span>
             </span>
           ) : (
-            <span className="truncate text-sm">{placeholder}</span>
+            <span className="truncate text-sm">{placeholder ?? t("searchPlaceholder")}</span>
           )}
 
           <span className="ml-2 flex shrink-0 items-center gap-0.5">
             {selected && !disabled && (
               <span
                 role="button"
-                aria-label="Limpiar seleccion"
+                aria-label={t("clearSelection")}
                 onClick={handleClear}
                 className="rounded p-0.5 hover:bg-muted"
               >
@@ -162,12 +164,12 @@ export function MemberCombobox({
         align="start"
       >
         <Command>
-          <CommandInput placeholder="Buscar por nombre..." />
+          <CommandInput placeholder={t("searchPlaceholder")} />
           <CommandList>
             {loading && (
               <div className="flex items-center justify-center gap-2 py-6 text-sm text-muted-foreground">
                 <Loader2 className="size-4 animate-spin" />
-                Cargando miembros...
+                {t("loading")}
               </div>
             )}
 
@@ -178,7 +180,7 @@ export function MemberCombobox({
             )}
 
             {!loading && !error && filteredMembers.length === 0 && (
-              <CommandEmpty>Sin miembros disponibles.</CommandEmpty>
+              <CommandEmpty>{t("empty")}</CommandEmpty>
             )}
 
             {!loading && !error && filteredMembers.length > 0 && (

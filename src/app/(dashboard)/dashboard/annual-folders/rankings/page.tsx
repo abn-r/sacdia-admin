@@ -1,14 +1,39 @@
 import { TrendingUp } from "lucide-react";
+import { getTranslations } from "next-intl/server";
+import dynamic from "next/dynamic";
+import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EmptyState } from "@/components/shared/empty-state";
-import { RankingsClientPage } from "@/components/annual-folders/rankings-client-page";
 import { requireAdminUser } from "@/lib/auth/session";
 import { ApiError } from "@/lib/api/client";
 import { listClubTypes, listEcclesiasticalYears } from "@/lib/api/catalogs";
 import { getRankings, getAwardCategories } from "@/lib/api/annual-folders";
 import type { ClubRanking, AwardCategory } from "@/lib/api/annual-folders";
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
+
+const RankingsClientPage = dynamic(
+  () =>
+    import("@/components/annual-folders/rankings-client-page").then((m) => ({
+      default: m.RankingsClientPage,
+    })),
+  {
+    loading: () => (
+      <div className="space-y-4">
+        <div className="flex flex-wrap gap-2">
+          <Skeleton className="h-9 w-36 rounded-md" />
+          <Skeleton className="h-9 w-36 rounded-md" />
+        </div>
+        <Skeleton className="h-10 w-full rounded-md" />
+        <Skeleton className="h-12 w-full rounded-md" />
+        <Skeleton className="h-12 w-full rounded-md" />
+        <Skeleton className="h-12 w-full rounded-md" />
+        <Skeleton className="h-12 w-full rounded-md" />
+        <Skeleton className="h-12 w-full rounded-md" />
+      </div>
+    ),
+  }
+);
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -27,6 +52,7 @@ function extractArray(payload: unknown): AnyRecord[] {
 
 export default async function RankingsPage() {
   await requireAdminUser();
+  const t = await getTranslations("annual_folders");
 
   let clubTypes: ClubType[] = [];
   let ecclesiasticalYears: EcclesiasticalYear[] = [];
@@ -53,8 +79,7 @@ export default async function RankingsPage() {
   }
 
   if (clubTypes.length === 0 || ecclesiasticalYears.length === 0) {
-    loadError =
-      "No se pudieron cargar los tipos de club o anos eclesiasticos. Verifica la conexion con el servidor.";
+    loadError = t("pageRankings.errorFallback");
   }
 
   // Pick sensible defaults: first club type, active year (or first)
@@ -86,8 +111,8 @@ export default async function RankingsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Rankings de carpeta anual"
-        description="Consulta el ranking de clubes por puntos obtenidos en la carpeta anual."
+        title={t("pageRankings.title")}
+        description={t("pageRankings.description")}
       />
 
       {loadError && (
@@ -97,8 +122,8 @@ export default async function RankingsPage() {
       {!loadError && clubTypes.length === 0 && (
         <EmptyState
           icon={TrendingUp}
-          title="Sin datos de catalogo"
-          description="No hay tipos de club disponibles para mostrar rankings."
+          title={t("pageRankings.emptyTitle")}
+          description={t("pageRankings.emptyDescription")}
         />
       )}
 

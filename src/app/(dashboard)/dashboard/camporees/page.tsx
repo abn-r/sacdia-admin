@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Tent } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
@@ -26,6 +27,7 @@ function extractCamporees(payload: unknown): Camporee[] {
 
 export default async function CamporeesPage() {
   await requireAdminUser();
+  const t = await getTranslations("camporees.pages.list");
 
   let camporees: Camporee[] = [];
   let loadError: string | null = null;
@@ -35,14 +37,14 @@ export default async function CamporeesPage() {
     camporees = extractCamporees(payload);
   } catch (err) {
     loadError =
-      err instanceof ApiError ? err.message : "No se pudo cargar la lista de camporees.";
+      err instanceof ApiError ? err.message : t("loadFailed");
   }
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Camporees" description="Gestión de camporees y eventos.">
+      <PageHeader title={t("title")} description={t("description")}>
         <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/camporees/union">Ver camporees de unión</Link>
+          <Link href="/dashboard/camporees/union">{t("viewUnion")}</Link>
         </Button>
       </PageHeader>
 
@@ -51,7 +53,7 @@ export default async function CamporeesPage() {
       {loadError && (
         <EmptyState
           icon={Tent}
-          title="No se pudieron cargar los camporees"
+          title={t("emptyTitle")}
           description={loadError}
         />
       )}

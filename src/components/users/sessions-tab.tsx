@@ -48,9 +48,9 @@ type ParsedDevice = {
   type: "desktop" | "mobile" | "tablet" | "unknown";
 };
 
-function parseUserAgent(ua: string | null): ParsedDevice {
+function parseUserAgent(ua: string | null, unknownLabel: string): ParsedDevice {
   if (!ua || ua.trim() === "") {
-    return { browser: "Desconocido", os: "Desconocido", type: "unknown" };
+    return { browser: unknownLabel, os: unknownLabel, type: "unknown" };
   }
 
   const lower = ua.toLowerCase();
@@ -65,7 +65,7 @@ function parseUserAgent(ua: string | null): ParsedDevice {
       : "desktop";
 
   // Browser
-  let browser = "Desconocido";
+  let browser = unknownLabel;
   if (/edg\//.test(lower)) browser = "Edge";
   else if (/opr\/|opera/.test(lower)) browser = "Opera";
   else if (/chrome\//.test(lower) && !/chromium/.test(lower)) browser = "Chrome";
@@ -74,7 +74,7 @@ function parseUserAgent(ua: string | null): ParsedDevice {
   else if (/msie|trident/.test(lower)) browser = "Internet Explorer";
 
   // OS
-  let os = "Desconocido";
+  let os = unknownLabel;
   if (/windows/.test(lower)) os = "Windows";
   else if (/macintosh|mac os x/.test(lower)) os = "macOS";
   else if (/android/.test(lower)) os = "Android";
@@ -102,7 +102,9 @@ function DeviceIcon({
 
 // ─── Date formatting ─────────────────────────────────────────────────────────
 
-function formatRelative(dateStr: string): string {
+type TFunction = ReturnType<typeof useTranslations<"users">>;
+
+function formatRelative(dateStr: string, t: TFunction): string {
   try {
     const date = new Date(dateStr);
     const now = new Date();
@@ -111,10 +113,10 @@ function formatRelative(dateStr: string): string {
     const diffHr = Math.floor(diffMin / 60);
     const diffDay = Math.floor(diffHr / 24);
 
-    if (diffMin < 1) return "Ahora mismo";
-    if (diffMin < 60) return `Hace ${diffMin} min`;
-    if (diffHr < 24) return `Hace ${diffHr} h`;
-    if (diffDay < 7) return `Hace ${diffDay} d`;
+    if (diffMin < 1) return t("sessions.relative_now");
+    if (diffMin < 60) return t("sessions.relative_minutes", { count: diffMin });
+    if (diffHr < 24) return t("sessions.relative_hours", { count: diffHr });
+    if (diffDay < 7) return t("sessions.relative_days", { count: diffDay });
 
     return date.toLocaleDateString("es-MX", {
       day: "numeric",
@@ -161,32 +163,34 @@ function SessionSkeleton() {
 }
 
 function EmptyState() {
+  const t = useTranslations("users");
   return (
     <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
       <div className="flex size-12 items-center justify-center rounded-full bg-muted">
         <Wifi className="size-5 text-muted-foreground" />
       </div>
-      <p className="text-sm font-medium">Sin sesiones activas</p>
+      <p className="text-sm font-medium">{t("sessions.empty_title")}</p>
       <p className="text-[13px] text-muted-foreground">
-        No hay sesiones registradas para este usuario.
+        {t("sessions.empty_description")}
       </p>
     </div>
   );
 }
 
 function ErrorState({ onRetry }: { onRetry: () => void }) {
+  const t = useTranslations("users");
   return (
     <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
       <div className="flex size-12 items-center justify-center rounded-full bg-destructive/10">
         <AlertCircle className="size-5 text-destructive" />
       </div>
-      <p className="text-sm font-medium">Error al cargar sesiones</p>
+      <p className="text-sm font-medium">{t("sessions.error_title")}</p>
       <p className="text-[13px] text-muted-foreground">
-        No se pudieron obtener los datos de sesión.
+        {t("sessions.error_description")}
       </p>
       <Button variant="outline" size="sm" onClick={onRetry}>
         <RefreshCw className="mr-2 size-3.5" />
-        Reintentar
+        {t("sessions.retry")}
       </Button>
     </div>
   );
@@ -202,9 +206,15 @@ type SessionRowProps = {
 };
 
 function SessionRow({ session, index, onRevoke, isRevoking }: SessionRowProps) {
-  const device = parseUserAgent(session.userAgent);
+  const t = useTranslations("users");
+  const unknownLabel = t("sessions.unknown");
+  const device = parseUserAgent(session.userAgent, unknownLabel);
   // Highlight the first session as the most recent (likely current)
   const isCurrent = index === 0;
+  const deviceLabel = t("sessions.device_on_os", {
+    browser: device.browser,
+    os: device.os,
+  });
 
   return (
     <TableRow className={cn(isCurrent && "bg-primary/5")}>
@@ -226,10 +236,10 @@ function SessionRow({ session, index, onRevoke, isRevoking }: SessionRowProps) {
           </div>
           <div className="min-w-0">
             <p className="truncate text-sm font-medium">
-              {device.browser} en {device.os}
+              {deviceLabel}
             </p>
             {isCurrent && (
-              <StatusBadge intent="success" label="Sesión actual" className="mt-0.5 text-[10px]" />
+              <StatusBadge intent="success" label={t("sessions.current_session_label")} className="mt-0.5 text-[10px]" />
             )}
           </div>
         </div>
@@ -247,7 +257,7 @@ function SessionRow({ session, index, onRevoke, isRevoking }: SessionRowProps) {
         <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
           <Clock className="size-3.5 shrink-0" />
           <span title={formatAbsolute(session.expiresAt)}>
-            {formatRelative(session.expiresAt)}
+            {formatRelative(session.expiresAt, t)}
           </span>
         </div>
       </TableCell>
@@ -259,7 +269,7 @@ function SessionRow({ session, index, onRevoke, isRevoking }: SessionRowProps) {
 
       {/* Status */}
       <TableCell>
-        <StatusBadge intent="success" label="Activa" />
+        <StatusBadge intent="success" label={t("sessions.status_active")} />
       </TableCell>
 
       {/* Actions */}
@@ -270,30 +280,28 @@ function SessionRow({ session, index, onRevoke, isRevoking }: SessionRowProps) {
               variant="ghost"
               size="icon-sm"
               disabled={isRevoking}
-              title="Revocar sesión"
+              title={t("sessions.revoke_session_title")}
             >
               <Trash2 className="size-3.5 text-muted-foreground" />
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Revocar sesión</AlertDialogTitle>
+              <AlertDialogTitle>{t("sessions.revoke_dialog_title")}</AlertDialogTitle>
               <AlertDialogDescription>
-                Esta acción cerrará la sesión de{" "}
-                <strong>
-                  {device.browser} en {device.os}
-                </strong>{" "}
-                (IP: {session.ipAddress || "desconocida"}). El usuario debera
-                iniciar sesion nuevamente en ese dispositivo.
+                {t("sessions.revoke_dialog_description", {
+                  device: deviceLabel,
+                  ip: session.ipAddress || t("sessions.ip_unknown"),
+                })}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogCancel>{t("sessions.cancel")}</AlertDialogCancel>
               <AlertDialogAction
                 className="bg-destructive text-white hover:bg-destructive/90"
                 onClick={() => onRevoke(session.sessionId)}
               >
-                Revocar
+                {t("sessions.revoke_confirm")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -372,15 +380,20 @@ export function SessionsTab({ userId, initialData }: SessionsTabProps) {
   const sessions = data?.sessions ?? [];
   const hasMultiple = sessions.length > 1;
 
+  const sessionCountKey =
+    data?.totalSessions === 1
+      ? "sessions.session_count_one"
+      : "sessions.session_count_other";
+
   return (
     <div className="space-y-4">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-3">
           <div className="space-y-0.5">
-            <CardTitle className="text-base">Sesiones activas</CardTitle>
+            <CardTitle className="text-base">{t("sessions.card_title")}</CardTitle>
             {data && (
               <p className="text-[13px] text-muted-foreground">
-                {data.totalSessions} {data.totalSessions === 1 ? "sesión activa" : "sesiones activas"}
+                {t(sessionCountKey, { count: data.totalSessions })}
               </p>
             )}
           </div>
@@ -391,7 +404,7 @@ export function SessionsTab({ userId, initialData }: SessionsTabProps) {
               size="icon-sm"
               onClick={refresh}
               disabled={isPending}
-              title="Actualizar"
+              title={t("sessions.refresh_title")}
             >
               <RefreshCw
                 className={cn("size-3.5", isPending && "animate-spin")}
@@ -407,28 +420,27 @@ export function SessionsTab({ userId, initialData }: SessionsTabProps) {
                     disabled={isRevokingAll || isPending}
                   >
                     <Trash2 className="mr-2 size-3.5" />
-                    Revocar todas
+                    {t("sessions.revoke_all_button")}
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle>
-                      Revocar todas las sesiones
+                      {t("sessions.revoke_all_dialog_title")}
                     </AlertDialogTitle>
                     <AlertDialogDescription>
-                      Se cerrarán todas las{" "}
-                      <strong>{sessions.length} sesión(es)</strong>{" "}
-                      del usuario. Deberá iniciar sesión nuevamente en todos
-                      sus dispositivos.
+                      {t("sessions.revoke_all_dialog_description", {
+                        count: sessions.length,
+                      })}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogCancel>{t("sessions.cancel")}</AlertDialogCancel>
                     <AlertDialogAction
                       className="bg-destructive text-white hover:bg-destructive/90"
                       onClick={handleRevokeAll}
                     >
-                      Revocar todas
+                      {t("sessions.revoke_all_confirm")}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
@@ -454,19 +466,19 @@ export function SessionsTab({ userId, initialData }: SessionsTabProps) {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Dispositivo
+                      {t("sessions.col_device")}
                     </TableHead>
                     <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      IP
+                      {t("sessions.col_ip")}
                     </TableHead>
                     <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Expira
+                      {t("sessions.col_expires")}
                     </TableHead>
                     <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Creada
+                      {t("sessions.col_created")}
                     </TableHead>
                     <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Estado
+                      {t("sessions.col_status")}
                     </TableHead>
                     <TableHead className="w-12" />
                   </TableRow>

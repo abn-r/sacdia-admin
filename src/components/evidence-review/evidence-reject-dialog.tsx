@@ -92,22 +92,19 @@ export function EvidenceRejectDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <XCircle className="size-5 text-destructive" />
-            Rechazar evidencia
+            {t("rejectDialog.title")}
           </DialogTitle>
           <DialogDescription>
-            Vas a rechazar la evidencia de{" "}
-            <span className="font-medium text-foreground">{memberName}</span> para{" "}
-            <span className="font-medium text-foreground">{sectionName}</span>. El
-            motivo es obligatorio.
+            {t("rejectDialog.description", { memberName, sectionName })}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="reject-reason">Motivo de rechazo *</Label>
+            <Label htmlFor="reject-reason">{t("rejectDialog.reasonLabel")}</Label>
             <Textarea
               id="reject-reason"
-              placeholder="Describe el motivo del rechazo para que el miembro pueda corregirlo..."
+              placeholder={t("rejectDialog.reasonPlaceholder")}
               rows={4}
               {...form.register("reason")}
               disabled={isSubmitting}
@@ -129,11 +126,11 @@ export function EvidenceRejectDialog({
               onClick={() => handleClose(false)}
               disabled={isSubmitting}
             >
-              Cancelar
+              {t("rejectDialog.cancel")}
             </Button>
             <Button type="submit" variant="destructive" disabled={isSubmitting}>
-              {isSubmitting && <Loader2 className="mr-2 size-4 animate-spin" />}
-              Rechazar
+              {isSubmitting && <Loader2 className="size-4 animate-spin" />}
+              {t("rejectDialog.confirm")}
             </Button>
           </DialogFooter>
         </form>

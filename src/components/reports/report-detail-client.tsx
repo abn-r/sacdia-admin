@@ -29,37 +29,15 @@ import {
   type MonthlyReport,
   type MonthlyReportAutoData,
 } from "@/lib/api/monthly-reports";
+import { useFormatDateTime } from "@/lib/format-locale";
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-const MONTH_NAMES: Record<number, string> = {
-  1: "Enero", 2: "Febrero", 3: "Marzo", 4: "Abril",
-  5: "Mayo", 6: "Junio", 7: "Julio", 8: "Agosto",
-  9: "Septiembre", 10: "Octubre", 11: "Noviembre", 12: "Diciembre",
+const REPORT_DATE_OPTIONS: Intl.DateTimeFormatOptions = {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
 };
-
-const STATUS_CONFIG = {
-  draft: { label: "Borrador", variant: "warning" as const },
-  generated: { label: "Generado", variant: "default" as const },
-  submitted: { label: "Enviado", variant: "success" as const },
-};
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatDate(dateStr?: string | null): string {
-  if (!dateStr) return "—";
-  try {
-    return new Intl.DateTimeFormat("es-MX", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(new Date(dateStr));
-  } catch {
-    return dateStr;
-  }
-}
 
 // ─── Auto-data card ────────────────────────────────────────────────────────────
 
@@ -102,36 +80,28 @@ function AutoDataCard({
 function AutoDataSection({
   data,
   title,
+  noDataMessage,
+  autoDataDescription,
+  rows,
 }: {
   data?: MonthlyReportAutoData | null;
   title: string;
+  noDataMessage: string;
+  autoDataDescription: string;
+  rows: AutoDataRow[];
 }) {
   if (!data) {
     return (
       <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
-        No hay datos disponibles para este período.
+        {noDataMessage}
       </div>
     );
   }
 
-  const rows: AutoDataRow[] = [
-    { label: "Total miembros", value: data.members_total },
-    { label: "Miembros activos", value: data.members_active },
-    { label: "Actividades", value: data.activities_count },
-    { label: "Especialidades obtenidas", value: data.honors_earned },
-    { label: "Clases completadas", value: data.classes_completed },
-    {
-      label: "Asistencia promedio",
-      value: data.attendance_rate != null
-        ? `${Number(data.attendance_rate).toFixed(1)}%`
-        : null,
-    },
-  ];
-
   return (
     <AutoDataCard
       title={title}
-      description="Datos calculados automáticamente por el sistema."
+      description={autoDataDescription}
       rows={rows}
     />
   );
@@ -148,12 +118,20 @@ interface ReportDetailClientProps {
 export function ReportDetailClient({ report: initialReport }: ReportDetailClientProps) {
   const t = useTranslations("reports");
   const router = useRouter();
+  const formatDate = useFormatDateTime();
   const [report, setReport] = useState<MonthlyReport>(initialReport);
   const [generating, setGenerating] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const statusConfig = STATUS_CONFIG[report.status] ?? STATUS_CONFIG.draft;
-  const monthName = MONTH_NAMES[report.month] ?? String(report.month);
+  const statusVariant = (
+    {
+      draft: "warning",
+      generated: "default",
+      submitted: "success",
+    } as const
+  )[report.status] ?? ("warning" as const);
+
+  const monthName = t(`months.${report.month}`);
   const isSubmitted = report.status === "submitted";
   const isGenerated = report.status === "generated";
 
@@ -170,7 +148,7 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
     } finally {
       setGenerating(false);
     }
-  }, [report.report_id, router]);
+  }, [report.report_id, router, t]);
 
   const handleSubmit = useCallback(async () => {
     setSubmitting(true);
@@ -185,24 +163,52 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
     } finally {
       setSubmitting(false);
     }
-  }, [report.report_id, router]);
+  }, [report.report_id, router, t]);
 
   const handleDownloadPdf = useCallback(() => {
     const url = getReportPdfUrl(report.report_id);
     window.open(url, "_blank", "noopener,noreferrer");
   }, [report.report_id]);
 
+  const autoDataRows: AutoDataRow[] = [
+    { label: t("detail.fieldTotalMembers"), value: report.auto_data?.members_total },
+    { label: t("detail.fieldActiveMembers"), value: report.auto_data?.members_active },
+    { label: t("detail.fieldActivities"), value: report.auto_data?.activities_count },
+    { label: t("detail.fieldHonorsEarned"), value: report.auto_data?.honors_earned },
+    { label: t("detail.fieldClassesCompleted"), value: report.auto_data?.classes_completed },
+    {
+      label: t("detail.fieldAttendanceRate"),
+      value: report.auto_data?.attendance_rate != null
+        ? `${Number(report.auto_data.attendance_rate).toFixed(1)}%`
+        : null,
+    },
+  ];
+
+  const snapshotRows: AutoDataRow[] = [
+    { label: t("detail.fieldTotalMembers"), value: report.snapshot_data?.members_total },
+    { label: t("detail.fieldActiveMembers"), value: report.snapshot_data?.members_active },
+    { label: t("detail.fieldActivities"), value: report.snapshot_data?.activities_count },
+    { label: t("detail.fieldHonorsEarned"), value: report.snapshot_data?.honors_earned },
+    { label: t("detail.fieldClassesCompleted"), value: report.snapshot_data?.classes_completed },
+    {
+      label: t("detail.fieldAttendanceRate"),
+      value: report.snapshot_data?.attendance_rate != null
+        ? `${Number(report.snapshot_data.attendance_rate).toFixed(1)}%`
+        : null,
+    },
+  ];
+
   return (
     <div className="space-y-6">
       {/* Report meta info */}
       <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-muted/30 px-4 py-3">
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Estado:</span>
-          <Badge variant={statusConfig.variant}>{statusConfig.label}</Badge>
+          <span className="text-sm text-muted-foreground">{t("detail.labelStatus")}</span>
+          <Badge variant={statusVariant}>{t(`status.${report.status}`)}</Badge>
         </div>
         <div className="h-4 w-px bg-border" />
         <div className="text-sm text-muted-foreground">
-          Período:{" "}
+          {t("detail.labelPeriod")}{" "}
           <span className="font-medium text-foreground">
             {monthName} {report.year}
           </span>
@@ -211,9 +217,9 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
           <>
             <div className="h-4 w-px bg-border" />
             <div className="text-sm text-muted-foreground">
-              Generado:{" "}
+              {t("detail.labelGenerated")}{" "}
               <span className="font-medium text-foreground">
-                {formatDate(report.generated_at)}
+                {report.generated_at ? formatDate(report.generated_at, REPORT_DATE_OPTIONS) : "—"}
               </span>
             </div>
           </>
@@ -222,9 +228,9 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
           <>
             <div className="h-4 w-px bg-border" />
             <div className="text-sm text-muted-foreground">
-              Enviado:{" "}
+              {t("detail.labelSubmitted")}{" "}
               <span className="font-medium text-foreground">
-                {formatDate(report.submitted_at)}
+                {report.submitted_at ? formatDate(report.submitted_at, REPORT_DATE_OPTIONS) : "—"}
               </span>
             </div>
           </>
@@ -244,7 +250,7 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
               ) : (
                 <Zap className="size-4" />
               )}
-              {isGenerated ? "Re-generar" : "Generar reporte"}
+              {isGenerated ? t("detail.actionRegenerate") : t("detail.actionGenerate")}
             </Button>
           )}
           {isGenerated && !isSubmitted && (
@@ -258,7 +264,7 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
               ) : (
                 <Send className="size-4" />
               )}
-              Enviar al campo
+              {t("detail.actionSendToField")}
             </Button>
           )}
           {(isGenerated || isSubmitted) && (
@@ -268,7 +274,7 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
               onClick={handleDownloadPdf}
             >
               <Download className="size-4" />
-              Descargar PDF
+              {t("detail.actionDownloadPdf")}
             </Button>
           )}
           {isSubmitted && (
@@ -278,7 +284,7 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
               onClick={handleDownloadPdf}
             >
               <ExternalLink className="size-4" />
-              Ver PDF
+              {t("detail.actionViewPdf")}
             </Button>
           )}
         </div>
@@ -286,10 +292,10 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
 
       <Tabs defaultValue="auto">
         <TabsList>
-          <TabsTrigger value="auto">Datos automaticos</TabsTrigger>
-          <TabsTrigger value="manual">Datos manuales</TabsTrigger>
+          <TabsTrigger value="auto">{t("detail.tabAutoData")}</TabsTrigger>
+          <TabsTrigger value="manual">{t("detail.tabManualData")}</TabsTrigger>
           {report.snapshot_data && (
-            <TabsTrigger value="snapshot">Snapshot</TabsTrigger>
+            <TabsTrigger value="snapshot">{t("detail.tabSnapshot")}</TabsTrigger>
           )}
         </TabsList>
 
@@ -297,7 +303,10 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
         <TabsContent value="auto" className="mt-4 space-y-4">
           <AutoDataSection
             data={report.auto_data}
-            title="Datos del período (en vivo)"
+            title={t("detail.autoDataLiveTitle")}
+            noDataMessage={t("detail.noAutoData")}
+            autoDataDescription={t("detail.autoDataDescription")}
+            rows={autoDataRows}
           />
         </TabsContent>
 
@@ -318,7 +327,10 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
           <TabsContent value="snapshot" className="mt-4 space-y-4">
             <AutoDataSection
               data={report.snapshot_data}
-              title="Datos congelados (snapshot al generar)"
+              title={t("detail.autoDataSnapshotTitle")}
+              noDataMessage={t("detail.noAutoData")}
+              autoDataDescription={t("detail.autoDataDescription")}
+              rows={snapshotRows}
             />
           </TabsContent>
         )}

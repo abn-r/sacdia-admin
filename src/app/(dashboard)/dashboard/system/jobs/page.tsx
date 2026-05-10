@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { History } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { requireAdminUser } from "@/lib/auth/session";
 import { getJobsOverview, getCronRuns } from "@/lib/api/analytics";
 import { JobsOverviewClient } from "./_components/jobs-overview-client";
@@ -52,25 +53,21 @@ function JobsOverviewSkeleton() {
 
 // ─── Error Banners ────────────────────────────────────────────────────────────
 
-function BullMQError() {
+function BullMQError({ message }: { message: string }) {
   return (
     <Card>
       <CardContent className="py-10 text-center">
-        <p className="text-sm text-muted-foreground">
-          No se pudieron cargar las colas. Verifica que el backend este disponible e intentalo de nuevo.
-        </p>
+        <p className="text-sm text-muted-foreground">{message}</p>
       </CardContent>
     </Card>
   );
 }
 
-function CronError() {
+function CronError({ message }: { message: string }) {
   return (
     <Card>
       <CardContent className="py-6 text-center">
-        <p className="text-sm text-muted-foreground">
-          No se pudieron cargar los cron jobs. Verifica que el backend este disponible e intentalo de nuevo.
-        </p>
+        <p className="text-sm text-muted-foreground">{message}</p>
       </CardContent>
     </Card>
   );
@@ -78,7 +75,15 @@ function CronError() {
 
 // ─── Data Loader (parallel, graceful degradation) ─────────────────────────────
 
-async function JobsContent() {
+type JobsMessages = {
+  bullmqError: string;
+  cronError: string;
+  cronHeading: string;
+  cronDescription: string;
+  viewHistory: string;
+};
+
+async function JobsContent({ messages }: { messages: JobsMessages }) {
   const [bullmqResult, cronResult] = await Promise.allSettled([
     getJobsOverview(),
     getCronRuns(),
@@ -90,7 +95,7 @@ async function JobsContent() {
     ) : (
       (() => {
         console.error("[JobsPage] Failed to load BullMQ data:", bullmqResult.reason);
-        return <BullMQError />;
+        return <BullMQError message={messages.bullmqError} />;
       })()
     );
 
@@ -100,7 +105,7 @@ async function JobsContent() {
     ) : (
       (() => {
         console.error("[JobsPage] Failed to load cron-runs data:", cronResult.reason);
-        return <CronError />;
+        return <CronError message={messages.cronError} />;
       })()
     );
 
@@ -110,15 +115,15 @@ async function JobsContent() {
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-base font-semibold">Cron Jobs</h2>
+            <h2 className="text-base font-semibold">{messages.cronHeading}</h2>
             <p className="text-xs text-muted-foreground">
-              Historial reciente y estadísticas de los jobs programados.
+              {messages.cronDescription}
             </p>
           </div>
           <Button variant="outline" size="sm" asChild>
             <Link href="/dashboard/system/jobs/history">
               <History className="size-4 mr-2" />
-              Ver historial
+              {messages.viewHistory}
             </Link>
           </Button>
         </div>
@@ -132,17 +137,26 @@ async function JobsContent() {
 
 export default async function JobsPage() {
   await requireAdminUser();
+  const t = await getTranslations("system_jobs");
+
+  const messages: JobsMessages = {
+    bullmqError: t("page.errors.bullmqLoad"),
+    cronError: t("page.errors.cronLoad"),
+    cronHeading: t("page.cronSection.heading"),
+    cronDescription: t("page.cronSection.description"),
+    viewHistory: t("page.cronSection.viewHistory"),
+  };
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Jobs & Colas</h1>
-          <p className="text-muted-foreground">Estado de las colas BullMQ y trabajos recientes fallidos. Las colas low-priority (reportes, finanzas, rankings, exports) se agruparon en background-jobs.</p>
+          <h1 className="text-2xl font-bold tracking-tight">{t("page.title")}</h1>
+          <p className="text-muted-foreground">{t("page.description")}</p>
         </div>
       </div>
       <Suspense fallback={<JobsOverviewSkeleton />}>
-        <JobsContent />
+        <JobsContent messages={messages} />
       </Suspense>
     </div>
   );

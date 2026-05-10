@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Pencil, Settings2 } from "lucide-react";
 import {
   Table,
@@ -36,12 +37,14 @@ interface SystemConfigTableProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function SystemConfigTable({ configs, onEdit }: SystemConfigTableProps) {
+  const t = useTranslations("system_config.table");
+
   if (configs.length === 0) {
     return (
       <EmptyState
         icon={Settings2}
-        title="Sin configuraciones"
-        description="No hay entradas de configuración del sistema registradas."
+        title={t("empty_title")}
+        description={t("empty_description")}
       />
     );
   }
@@ -52,28 +55,28 @@ export function SystemConfigTable({ configs, onEdit }: SystemConfigTableProps) {
         <TableHeader>
           <TableRow>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Clave
+              {t("col_key")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Valor
+              {t("col_value")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Descripción
+              {t("col_description")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Tipo
+              {t("col_type")}
             </TableHead>
             <TableHead className="h-9 px-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Acciones
+              {t("col_actions")}
             </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {configs.map((config) => (
-            <TableRow key={config.key} className="hover:bg-muted/30">
+            <TableRow key={config.config_key} className="hover:bg-muted/30">
               <TableCell className="px-3 py-2.5 align-middle">
                 <code className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono">
-                  {config.key}
+                  {config.config_key}
                 </code>
               </TableCell>
               <TableCell className="px-3 py-2.5 align-middle max-w-52">
@@ -83,7 +86,7 @@ export function SystemConfigTable({ configs, onEdit }: SystemConfigTableProps) {
               </TableCell>
               <TableCell className="px-3 py-2.5 align-middle max-w-64">
                 <span className="line-clamp-2 text-sm text-muted-foreground">
-                  {config.description ?? "—"}
+                  {config.description ?? t("no_description")}
                 </span>
               </TableCell>
               <TableCell className="px-3 py-2.5 align-middle">
@@ -92,7 +95,7 @@ export function SystemConfigTable({ configs, onEdit }: SystemConfigTableProps) {
                     {config.value_type}
                   </Badge>
                 ) : (
-                  <span className="text-sm text-muted-foreground">—</span>
+                  <span className="text-sm text-muted-foreground">{t("no_type")}</span>
                 )}
               </TableCell>
               <TableCell className="px-3 py-2.5 align-middle">
@@ -103,12 +106,12 @@ export function SystemConfigTable({ configs, onEdit }: SystemConfigTableProps) {
                         variant="ghost"
                         size="icon-sm"
                         onClick={() => onEdit(config)}
-                        aria-label={`Editar ${config.key}`}
+                        aria-label={t("action_edit_key", { key: config.config_key })}
                       >
                         <Pencil className="size-4" />
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent>Editar valor</TooltipContent>
+                    <TooltipContent>{t("action_edit")}</TooltipContent>
                   </Tooltip>
                 </div>
               </TableCell>

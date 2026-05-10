@@ -30,23 +30,24 @@ import {
 } from "@/lib/api/finances";
 import type { SortDirection } from "@/components/shared/sortable-header";
 import type { ClubSection } from "@/components/finances/transaction-form-dialog";
+import { useTranslations } from "next-intl";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const MONTHS = [
-  { value: 1, label: "Enero" },
-  { value: 2, label: "Febrero" },
-  { value: 3, label: "Marzo" },
-  { value: 4, label: "Abril" },
-  { value: 5, label: "Mayo" },
-  { value: 6, label: "Junio" },
-  { value: 7, label: "Julio" },
-  { value: 8, label: "Agosto" },
-  { value: 9, label: "Septiembre" },
-  { value: 10, label: "Octubre" },
-  { value: 11, label: "Noviembre" },
-  { value: 12, label: "Diciembre" },
-];
+const MONTH_KEYS = [
+  { value: 1, key: "january" },
+  { value: 2, key: "february" },
+  { value: 3, key: "march" },
+  { value: 4, key: "april" },
+  { value: 5, key: "may" },
+  { value: 6, key: "june" },
+  { value: 7, key: "july" },
+  { value: 8, key: "august" },
+  { value: 9, key: "september" },
+  { value: 10, key: "october" },
+  { value: 11, key: "november" },
+  { value: 12, key: "december" },
+] as const;
 
 const currentYear = new Date().getFullYear();
 const YEARS = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
@@ -66,6 +67,8 @@ export function FinancesDashboard({
   clubName,
   sections,
 }: FinancesDashboardProps) {
+  const t = useTranslations("finances");
+
   // Filters
   const [year, setYear] = useState<number | undefined>(currentYear);
   const [month, setMonth] = useState<number | undefined>(undefined);
@@ -160,7 +163,7 @@ export function FinancesDashboard({
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
           <Filter className="size-4" />
-          <span>Filtros:</span>
+          <span>{t("dashboard.filtersLabel")}</span>
         </div>
 
         {/* Year filter */}
@@ -169,10 +172,10 @@ export function FinancesDashboard({
           onValueChange={(v) => setYear(v === "all" ? undefined : Number(v))}
         >
           <SelectTrigger className="h-8 w-[110px]">
-            <SelectValue placeholder="Año" />
+            <SelectValue placeholder={t("form.yearPlaceholder")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos los años</SelectItem>
+            <SelectItem value="all">{t("dashboard.allYears")}</SelectItem>
             {YEARS.map((y) => (
               <SelectItem key={y} value={y.toString()}>
                 {y}
@@ -187,13 +190,13 @@ export function FinancesDashboard({
           onValueChange={(v) => setMonth(v === "all" ? undefined : Number(v))}
         >
           <SelectTrigger className="h-8 w-[140px]">
-            <SelectValue placeholder="Mes" />
+            <SelectValue placeholder={t("form.monthPlaceholder")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos los meses</SelectItem>
-            {MONTHS.map((m) => (
+            <SelectItem value="all">{t("dashboard.allMonths")}</SelectItem>
+            {MONTH_KEYS.map((m) => (
               <SelectItem key={m.value} value={m.value.toString()}>
-                {m.label}
+                {t(`months.${m.key}`)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -209,12 +212,12 @@ export function FinancesDashboard({
             <RefreshCw
               className={`size-4 ${loadingSummary || loadingTable ? "animate-spin" : ""}`}
             />
-            Actualizar
+            {t("dashboard.refreshButton")}
           </Button>
 
           <Button size="sm" onClick={handleNewTransaction}>
             <Plus className="size-4" />
-            Nuevo movimiento
+            {t("dashboard.newTransactionButton")}
           </Button>
         </div>
       </div>
@@ -228,7 +231,7 @@ export function FinancesDashboard({
 
       {/* Transactions table */}
       <div className="space-y-3">
-        <h2 className="text-base font-semibold">Movimientos</h2>
+        <h2 className="text-base font-semibold">{t("dashboard.transactionsTitle")}</h2>
         {loadingTable ? (
           <TransactionsTableSkeleton />
         ) : (
@@ -245,7 +248,10 @@ export function FinancesDashboard({
         {/* Pagination info */}
         {result && result.total > result.data.length && (
           <p className="text-sm text-muted-foreground">
-            Mostrando {result.data.length} de {result.total} movimientos.
+            {t("dashboard.showing", {
+              shown: result.data.length,
+              total: result.total,
+            })}
           </p>
         )}
       </div>

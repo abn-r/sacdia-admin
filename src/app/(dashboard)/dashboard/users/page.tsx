@@ -1,9 +1,11 @@
 import { Suspense } from "react";
 import { Users } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { DataTableShell } from "@/components/shared/data-table-shell";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import { UsersFilters } from "@/components/users/users-filters";
 import { UsersTable } from "@/components/users/users-table";
@@ -42,6 +44,7 @@ async function UsersContent({
   query: AdminUsersQuery;
   currentUser: AuthUser;
 }) {
+  const t = await getTranslations("users.pages.list");
   const result = await listAdminUsers(query);
   const showAdministrativeCompletion = canViewAdministrativeCompletion(currentUser);
 
@@ -55,7 +58,7 @@ async function UsersContent({
         />
         <EmptyState
           icon={Users}
-          title="No se pueden mostrar usuarios"
+          title={t("cannotShow")}
           description={result.endpointDetail}
         />
       </div>
@@ -66,8 +69,8 @@ async function UsersContent({
     return (
       <EmptyState
         icon={Users}
-        title="No se encontraron usuarios"
-        description="Intenta ajustar los filtros de búsqueda."
+        title={t("emptyTitle")}
+        description={t("emptyDescription")}
       />
     );
   }
@@ -100,7 +103,7 @@ function UsersListSkeleton() {
         <Skeleton className="h-9 w-[160px]" />
         <Skeleton className="h-9 w-[140px]" />
       </div>
-      <div className="rounded-md border">
+      <DataTableShell>
         {Array.from({ length: 8 }).map((_, i) => (
           <div key={i} className="flex items-center gap-4 border-b p-4 last:border-b-0">
             <Skeleton className="size-8 rounded-full" />
@@ -112,7 +115,7 @@ function UsersListSkeleton() {
             <Skeleton className="h-5 w-14" />
           </div>
         ))}
-      </div>
+      </DataTableShell>
     </div>
   );
 }
@@ -123,14 +126,15 @@ export default async function UsersPage({
   searchParams: SearchParams;
 }) {
   const currentUser = await requireAdminUser();
+  const t = await getTranslations("users.pages.list");
   const rawParams = await searchParams;
   const query = parseSearchParams(rawParams);
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Usuarios"
-        description="Gestión de usuarios del sistema."
+        title={t("title")}
+        description={t("description")}
       />
 
       <Suspense fallback={<UsersListSkeleton />}>

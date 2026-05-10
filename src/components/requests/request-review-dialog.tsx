@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,15 +21,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/lib/api/client";
 import type { ReviewAction, ReviewRequestPayload } from "@/lib/api/requests";
 
-// ─── Schemas ──────────────────────────────────────────────────────────────────
+// ─── Schema factories ─────────────────────────────────────────────────────────
 
 const approveSchema = z.object({
   comment: z.string().optional(),
 });
 
-const rejectSchema = z.object({
-  comment: z.string().min(1, "El motivo de rechazo es obligatorio"),
-});
+function buildRejectSchema(t: ReturnType<typeof useTranslations<"requests.validation">>) {
+  return z.object({
+    comment: z.string().min(1, t("comment_required")),
+  });
+}
 
 type FormValues = { comment?: string };
 
@@ -57,8 +59,10 @@ export function RequestReviewDialog({
   onSuccess,
 }: RequestReviewDialogProps) {
   const t = useTranslations("requests");
+  const tVal = useTranslations("requests.validation");
   const [isPending, setIsPending] = useState(false);
   const isApprove = action === "approved";
+  const rejectSchema = useMemo(() => buildRejectSchema(tVal), [tVal]);
   const schema = isApprove ? approveSchema : rejectSchema;
 
   const form = useForm<FormValues>({
@@ -149,7 +153,7 @@ export function RequestReviewDialog({
               variant={isApprove ? "default" : "destructive"}
               disabled={isPending}
             >
-              {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
+              {isPending && <Loader2 className="size-4 animate-spin" />}
               {isApprove ? "Aprobar" : "Rechazar"}
             </Button>
           </DialogFooter>

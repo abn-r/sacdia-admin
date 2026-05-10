@@ -1,4 +1,5 @@
 import { FolderOpen } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -40,6 +41,7 @@ export default async function AnnualFoldersPage({
   searchParams: SearchParams;
 }) {
   await requireAdminUser();
+  const t = await getTranslations("annual_folders");
 
   const rawParams = await searchParams;
   const enrollmentId = getEnrollmentId(rawParams);
@@ -56,7 +58,7 @@ export default async function AnnualFoldersPage({
       loadError =
         err instanceof ApiError
           ? err.message
-          : "No se pudo cargar la carpeta.";
+          : t("page.errorFolderFallback");
     }
   } else if (enrollmentId) {
     try {
@@ -65,15 +67,15 @@ export default async function AnnualFoldersPage({
       loadError =
         err instanceof ApiError
           ? err.message
-          : "No se pudo cargar la carpeta para esa inscripción.";
+          : t("page.errorEnrollmentFallback");
     }
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Carpeta anual"
-        description="Gestiona evidencias por sección de la carpeta anual del miembro."
+        title={t("page.title")}
+        description={t("page.description")}
       />
 
       {/* Search / selector — always visible */}
@@ -91,8 +93,8 @@ export default async function AnnualFoldersPage({
       {!loadError && !folder && !enrollmentId && !folderId && (
         <EmptyState
           icon={FolderOpen}
-          title="Selecciona una inscripción"
-          description="Ingresa el ID de inscripción o de carpeta para cargar las evidencias del miembro."
+          title={t("page.emptySelectTitle")}
+          description={t("page.emptySelectDescription")}
         />
       )}
 
@@ -100,8 +102,8 @@ export default async function AnnualFoldersPage({
       {!loadError && !folder && (enrollmentId ?? folderId) && (
         <EmptyState
           icon={FolderOpen}
-          title="Carpeta no encontrada"
-          description="No existe una carpeta anual para el identificador ingresado. Verifica los datos e intentá de nuevo."
+          title={t("page.emptyNotFoundTitle")}
+          description={t("page.emptyNotFoundDescription")}
         />
       )}
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { ScoringCategoriesTable } from "@/components/scoring-categories/scoring-categories-table";
 import {
   getLocalFieldScoringCategories,
@@ -25,6 +26,7 @@ interface LocalFieldScoringCategoriesTabProps {
 export function LocalFieldScoringCategoriesTab({
   fieldId,
 }: LocalFieldScoringCategoriesTabProps) {
+  const t = useTranslations("scoring_categories.localTab");
   const fetchCategories = useCallback(
     () => getLocalFieldScoringCategories(fieldId),
     [fieldId],
@@ -56,9 +58,7 @@ export function LocalFieldScoringCategoriesTab({
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Categorías de puntuación de este campo local. Las categorías de División
-        y Unión se muestran en modo lectura. Podés agregar categorías propias de
-        este campo local.
+        {t("description")}
       </p>
       <ScoringCategoriesTable
         editableLevel="LOCAL_FIELD"

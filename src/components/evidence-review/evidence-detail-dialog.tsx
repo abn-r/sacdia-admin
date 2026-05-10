@@ -14,6 +14,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -24,23 +25,7 @@ import { getEvidenceDetail, type EvidenceDetail, type EvidenceType } from "@/lib
 import { EvidenceStatusBadge } from "@/components/evidence-review/evidence-status-badge";
 import { EvidenceTypeBadge } from "@/components/evidence-review/evidence-type-badge";
 import { ApiError } from "@/lib/api/client";
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatDate(iso?: string | null): string {
-  if (!iso) return "—";
-  try {
-    return new Intl.DateTimeFormat("es-MX", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(new Date(iso));
-  } catch {
-    return iso;
-  }
-}
+import { useFormatDateTime } from "@/lib/format-locale";
 
 function isImageFile(fileType: string, fileUrl: string): boolean {
   const imageTypes = ["image", "image/jpeg", "image/png", "image/webp", "image/gif"];
@@ -141,6 +126,7 @@ export function EvidenceDetailDialog({
   onOpenChange,
 }: EvidenceDetailDialogProps) {
   const t = useTranslations("evidence_review");
+  const formatDate = useFormatDateTime();
   const [detail, setDetail] = useState<EvidenceDetail | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -183,6 +169,9 @@ export function EvidenceDetailDialog({
               </>
             )}
           </DialogTitle>
+          <DialogDescription>
+            Revisá los archivos y metadatos de la evidencia enviada por el miembro.
+          </DialogDescription>
         </DialogHeader>
 
         {isLoading && (
@@ -222,7 +211,7 @@ export function EvidenceDetailDialog({
                 <Calendar className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
                 <div>
                   <p className="text-xs text-muted-foreground">Enviado el</p>
-                  <p>{formatDate(detail.submitted_at)}</p>
+                  <p>{detail.submitted_at ? formatDate(detail.submitted_at) : "—"}</p>
                 </div>
               </div>
 

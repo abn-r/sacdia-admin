@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { RefreshCw } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TransfersTable } from "@/components/requests/transfers-table";
@@ -24,38 +26,35 @@ interface TransfersClientPageProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function TransfersClientPage({ initialRequests }: TransfersClientPageProps) {
+  const t = useTranslations("requests");
   const [activeTab, setActiveTab] = useState<StatusTab>("PENDING");
-  const [requests, setRequests] = useState<TransferRequest[]>(initialRequests);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const isInitialMount = useRef(true);
+
+  const {
+    data: requests = [],
+    isFetching: isRefreshing,
+    refetch,
+  } = useQuery<TransferRequest[], Error>({
+    queryKey: ["requests", "transfers"],
+    queryFn: () => getTransferRequests(),
+    initialData: initialRequests,
+    staleTime: 60_000,
+  });
 
   const filteredRequests =
     activeTab === "ALL"
       ? requests
       : requests.filter((r) => r.status === activeTab);
 
-  const refresh = useCallback(async () => {
-    setIsRefreshing(true);
-    try {
-      const fresh = await getTransferRequests();
-      setRequests(fresh);
-    } catch (error) {
+  const handleRefresh = async () => {
+    const result = await refetch();
+    if (result.error) {
       const message =
-        error instanceof ApiError
-          ? error.message
-          : "No se pudo actualizar la lista";
+        result.error instanceof ApiError
+          ? result.error.message
+          : t("errors.refresh");
       toast.error(message);
-    } finally {
-      setIsRefreshing(false);
     }
-  }, []);
-
-  useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
-    }
-  }, []);
+  };
 
   const pendingCount = requests.filter((r) => r.status === "PENDING").length;
   const approvedCount = requests.filter((r) => r.status === "APPROVED").length;
@@ -75,19 +74,18 @@ export function TransfersClientPage({ initialRequests }: TransfersClientPageProp
       {/* Toolbar */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">{filteredRequests.length}</span>{" "}
-          {filteredRequests.length === 1 ? "solicitud" : "solicitudes"}
+          {t("client.count", { count: filteredRequests.length })}
         </p>
         <Button
           variant="outline"
           size="sm"
-          onClick={refresh}
+          onClick={handleRefresh}
           disabled={isRefreshing}
         >
           <RefreshCw
-            className={`mr-2 size-4 ${isRefreshing ? "animate-spin" : ""}`}
+            className={`size-4 ${isRefreshing ? "animate-spin" : ""}`}
           />
-          Actualizar
+          {t("client.refresh")}
         </Button>
       </div>
 
@@ -96,26 +94,26 @@ export function TransfersClientPage({ initialRequests }: TransfersClientPageProp
         <div className="overflow-x-auto border-b border-border">
           <TabsList variant="line" className="gap-4">
             <TabsTrigger value="ALL" className="whitespace-nowrap">
-              Todas
+              {t("client.tabs.all")}
               {tabBadge(requests.length)}
             </TabsTrigger>
             <TabsTrigger value="PENDING" className="whitespace-nowrap">
-              Pendientes
+              {t("client.tabs.pending")}
               {tabBadge(pendingCount)}
             </TabsTrigger>
             <TabsTrigger value="APPROVED" className="whitespace-nowrap">
-              Aprobadas
+              {t("client.tabs.approved")}
               {tabBadge(approvedCount)}
             </TabsTrigger>
             <TabsTrigger value="REJECTED" className="whitespace-nowrap">
-              Rechazadas
+              {t("client.tabs.rejected")}
               {tabBadge(rejectedCount)}
             </TabsTrigger>
           </TabsList>
         </div>
 
         <TabsContent value={activeTab} className="mt-4">
-          <TransfersTable requests={filteredRequests} onRefresh={refresh} />
+          <TransfersTable requests={filteredRequests} onRefresh={handleRefresh} />
         </TabsContent>
       </Tabs>
     </div>

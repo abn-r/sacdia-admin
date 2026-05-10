@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
-import { getLocale, getMessages } from "next-intl/server";
+import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppAlertListener } from "@/components/shared/app-alert-listener";
@@ -29,11 +29,14 @@ const instrumentSerif = Instrument_Serif({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "SACDIA Panel Administrativo",
-  description: "Panel de administración de SACDIA",
-  icons: { icon: "/logo.ico" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("shared.appMetadata");
+  return {
+    title: t("title"),
+    description: t("description"),
+    icons: { icon: "/logo.ico" },
+  };
+}
 
 export default async function RootLayout({
   children,

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -212,6 +213,7 @@ function formatLegalRepresentative(value: Record<string, unknown> | null | undef
 
 export default async function UserDetailPage({ params }: { params: Params }) {
   const currentUser = await requireAdminUser();
+  const t = await getTranslations("users.pages.detail");
   const { userId } = await params;
 
   let user: AdminUserDetail;
@@ -241,10 +243,10 @@ export default async function UserDetailPage({ params }: { params: Params }) {
       return (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Acceso restringido</CardTitle>
+            <CardTitle className="text-base">{t("restrictedTitle")}</CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground">
-            Necesitas autorizacion global resuelta para consultar datos de terceros.
+            {t("restrictedDescription")}
           </CardContent>
         </Card>
       );
@@ -295,11 +297,11 @@ export default async function UserDetailPage({ params }: { params: Params }) {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Detalle de usuario">
+      <PageHeader title={t("title")}>
         <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/users">
-            <ArrowLeft className="mr-2 size-4" />
-            Volver
+            <ArrowLeft className="size-4" />
+            {t("back")}
           </Link>
         </Button>
       </PageHeader>
@@ -317,8 +319,8 @@ export default async function UserDetailPage({ params }: { params: Params }) {
             <h2 className="text-xl font-bold">{fullName}</h2>
             <p className="text-sm text-muted-foreground">{user.email ?? "—"}</p>
             <div className="mt-1 flex flex-wrap gap-2">
-              <Badge variant={user.active !== false ? "default" : "outline"}>
-                {user.active !== false ? "Activo" : "Inactivo"}
+              <Badge variant={user.active !== false ? "soft-success" : "outline"}>
+                {user.active !== false ? t("statusActive") : t("statusInactive")}
               </Badge>
               {roleNames.map((role) => (
                 <Badge key={role} variant="secondary">
@@ -341,9 +343,9 @@ export default async function UserDetailPage({ params }: { params: Params }) {
       {/* Tabbed content */}
       <Tabs defaultValue="info">
         <TabsList>
-          <TabsTrigger value="info">Informacion</TabsTrigger>
+          <TabsTrigger value="info">{t("tabInfo")}</TabsTrigger>
           {canSeeAdministrativeCompletion ? (
-            <TabsTrigger value="post-registration">Post-registro</TabsTrigger>
+            <TabsTrigger value="post-registration">{t("tabPostRegistration")}</TabsTrigger>
           ) : null}
           {/* <TabsTrigger value="seguridad">Seguridad</TabsTrigger> */}
           {/* <TabsTrigger value="sesiones">Sesiones</TabsTrigger> */}
@@ -366,13 +368,13 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                     label="Fecha de nacimiento"
                     value={formatDate(user.birthday)}
                   />
-                  <InfoRow label="Genero" value={user.gender} />
+                  <InfoRow label="Género" value={user.gender} />
                   <InfoRow
                     label="Bautismo"
                     value={
                       user.baptism !== null && user.baptism !== undefined
                         ? user.baptism
-                          ? `Si${user.baptism_date ? ` (${formatDate(user.baptism_date)})` : ""}`
+                          ? `Sí${user.baptism_date ? ` (${formatDate(user.baptism_date)})` : ""}`
                           : "No"
                         : "—"
                     }
@@ -382,10 +384,10 @@ export default async function UserDetailPage({ params }: { params: Params }) {
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-base">Ubicacion</CardTitle>
+                  <CardTitle className="text-base">Ubicación</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <InfoRow label="Pais" value={user.country?.name} />
+                  <InfoRow label="País" value={user.country?.name} />
                   <InfoRow label="Union" value={user.union?.name} />
                   <InfoRow label="Campo local" value={user.local_field?.name} />
                   <InfoRow label="Distrito ID" value={user.district_id} />
@@ -425,7 +427,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                       </>
                     ) : (
                       <p className="text-sm text-muted-foreground">
-                        Este payload no incluyo el bloque sensible de salud.
+                        Este payload no incluyó el bloque sensible de salud.
                       </p>
                     )}
                   </CardContent>
@@ -440,7 +442,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                   <CardContent>
                     {!user.emergency_contacts ? (
                       <p className="text-sm text-muted-foreground">
-                        Este payload no incluyo el bloque de contactos de emergencia.
+                        Este payload no incluyó el bloque de contactos de emergencia.
                       </p>
                     ) : user.emergency_contacts.length === 0 ? (
                       <p className="text-sm text-muted-foreground">
@@ -452,7 +454,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                           <TableHeader>
                             <TableRow>
                               <TableHead>Nombre</TableHead>
-                              <TableHead>Telefono</TableHead>
+                              <TableHead>Teléfono</TableHead>
                               <TableHead>Parentesco ID</TableHead>
                               <TableHead>Principal</TableHead>
                             </TableRow>
@@ -497,15 +499,15 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                     {legalRepresentative ? (
                       <>
                         <InfoRow label="Nombre" value={legalRepresentative.fullName} />
-                        <InfoRow label="Telefono" value={legalRepresentative.phone} />
+                        <InfoRow label="Teléfono" value={legalRepresentative.phone} />
                         <InfoRow
-                          label="Tipo de relacion"
+                          label="Tipo de relación"
                           value={legalRepresentative.relationshipTypeId}
                         />
                       </>
                     ) : (
                       <p className="text-sm text-muted-foreground">
-                        Este payload no incluyo el bloque de representante legal.
+                        Este payload no incluyó el bloque de representante legal.
                       </p>
                     )}
                   </CardContent>
@@ -539,7 +541,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                     value={formatDate(user.created_at)}
                   />
                   <InfoRow
-                    label="Ultima actualizacion"
+                    label="Última actualización"
                     value={formatDate(user.updated_at ?? user.modified_at)}
                   />
                 </CardContent>
@@ -648,7 +650,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
               <Card>
                 <CardContent className="py-6">
                   <p className="text-center text-sm text-muted-foreground">
-                    No se pudo obtener el estado del post-registro. El usuario puede no haber iniciado el proceso o puede haber un error de conectividad.
+                    {t("postRegistrationUnavailable")}
                   </p>
                 </CardContent>
               </Card>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type {
@@ -21,17 +22,22 @@ function formatShortDate(iso: string | null): string {
 
 // ─── Status badge ─────────────────────────────────────────────────────────────
 
-type StatusConfig = {
-  label: string;
-  variant: "outline" | "secondary" | "warning" | "success" | "destructive";
+type StatusVariant = "outline" | "secondary" | "warning" | "success" | "destructive";
+
+const STATUS_VARIANTS: Record<SectionEvaluationStatus, StatusVariant> = {
+  PENDING: "outline",
+  SUBMITTED: "secondary",
+  PREAPPROVED_LF: "warning",
+  VALIDATED: "success",
+  REJECTED: "destructive",
 };
 
-const STATUS_CONFIG: Record<SectionEvaluationStatus, StatusConfig> = {
-  PENDING: { label: "Pendiente", variant: "outline" },
-  SUBMITTED: { label: "Enviado", variant: "secondary" },
-  PREAPPROVED_LF: { label: "Preaprobado", variant: "warning" },
-  VALIDATED: { label: "Validado", variant: "success" },
-  REJECTED: { label: "Rechazado", variant: "destructive" },
+const STATUS_LABEL_KEYS: Record<SectionEvaluationStatus, string> = {
+  PENDING: "sectionCard.statusPending",
+  SUBMITTED: "sectionCard.statusSubmitted",
+  PREAPPROVED_LF: "sectionCard.statusPreapproved",
+  VALIDATED: "sectionCard.statusValidated",
+  REJECTED: "sectionCard.statusRejected",
 };
 
 interface SectionStatusBadgeProps {
@@ -43,13 +49,15 @@ export function SectionStatusBadge({
   status,
   className,
 }: SectionStatusBadgeProps) {
-  const config = STATUS_CONFIG[status] ?? {
-    label: status,
-    variant: "outline" as const,
-  };
+  const t = useTranslations("annual_folders");
+  const variant = STATUS_VARIANTS[status] ?? "outline";
+  const labelKey = STATUS_LABEL_KEYS[status];
+  const label = labelKey
+    ? t(labelKey as Parameters<typeof t>[0])
+    : status;
   return (
-    <Badge variant={config.variant} className={cn("text-xs", className)}>
-      {config.label}
+    <Badge variant={variant} className={cn("text-xs", className)}>
+      {label}
     </Badge>
   );
 }
@@ -61,10 +69,11 @@ interface UnionDecisionBadgeProps {
 }
 
 function UnionDecisionBadge({ decision }: UnionDecisionBadgeProps) {
+  const t = useTranslations("annual_folders");
   if (!decision || decision === "APPROVED") return null;
   return (
     <Badge variant="destructive" className="text-xs">
-      Rechazo por unión
+      {t("sectionCard.unionRejection")}
     </Badge>
   );
 }
@@ -107,6 +116,7 @@ export function SectionEvaluationCard({
   maxPoints,
   className,
 }: SectionEvaluationCardProps) {
+  const t = useTranslations("annual_folders");
   const effectiveMax = maxPoints ?? evaluation.max_points;
   const pct =
     effectiveMax > 0
@@ -133,7 +143,7 @@ export function SectionEvaluationCard({
         <span className="text-sm font-semibold tabular-nums">
           {evaluation.earned_points}
           <span className="font-normal text-muted-foreground">
-            {" "}/ {effectiveMax} pts
+            {" "}/ {effectiveMax} {t("sectionCard.pts")}
           </span>
         </span>
         <span className="text-xs text-muted-foreground">({pct}%)</span>
@@ -142,12 +152,12 @@ export function SectionEvaluationCard({
       {/* Actor rows */}
       <div className="space-y-0.5">
         <ActorRow
-          label="LF"
+          label={t("sectionCard.actorLF")}
           name={evaluation.lf_approver?.name}
           approvedAt={evaluation.lf_approved_at}
         />
         <ActorRow
-          label="Unión"
+          label={t("sectionCard.actorUnion")}
           name={evaluation.union_approver?.name}
           approvedAt={evaluation.union_approved_at}
           decision={evaluation.union_decision}

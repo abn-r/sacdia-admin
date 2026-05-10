@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { UserPlus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import {
   Select,
   SelectContent,
@@ -35,6 +36,7 @@ interface PendingMembersPanelProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function PendingMembersPanel({ sections }: PendingMembersPanelProps) {
+  const t = useTranslations("membership");
   const activeSections = sections.filter((s) => s.active !== false && s.club_section_id);
 
   const [selectedSectionId, setSelectedSectionId] = useState<number | null>(
@@ -56,41 +58,43 @@ export function PendingMembersPanel({ sections }: PendingMembersPanelProps) {
     queryError instanceof Error
       ? queryError.message
       : queryError
-        ? "No se pudieron cargar las solicitudes de membresía."
+        ? t("pending.load_error")
         : null;
 
   if (activeSections.length === 0) {
     return (
       <EmptyState
         icon={UserPlus}
-        title="Sin secciones activas"
-        description="Este club no tiene secciones activas. Crea una sección para poder gestionar solicitudes de membresía."
+        title={t("pending.no_active_sections_title")}
+        description={t("pending.no_active_sections_description")}
       />
     );
   }
 
   const getSectionLabel = (section: Section): string => {
-    return section.name ?? section.club_type?.name ?? `Sección ${section.club_section_id}`;
+    return (
+      section.name ??
+      section.club_type?.name ??
+      t("pending.section_fallback", { id: section.club_section_id ?? "?" })
+    );
   };
 
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Solicitudes de membresía pendientes de aprobación. Los usuarios que se
-        registran en la app quedan en estado pendiente hasta que un director o
-        líder del club apruebe su ingreso.
+        {t("pending.description")}
       </p>
 
       {/* Section selector */}
       {activeSections.length > 1 && (
         <div className="max-w-xs space-y-1.5">
-          <Label htmlFor="section-select">Sección</Label>
+          <Label htmlFor="section-select">{t("pending.section_label")}</Label>
           <Select
             value={String(selectedSectionId)}
             onValueChange={(value) => setSelectedSectionId(Number(value))}
           >
             <SelectTrigger id="section-select">
-              <SelectValue placeholder="Seleccionar sección" />
+              <SelectValue placeholder={t("pending.section_placeholder")} />
             </SelectTrigger>
             <SelectContent>
               {activeSections.map((section) => (

@@ -32,7 +32,7 @@ import { ApiError } from "@/lib/api/client";
 
 // ─── Status badge ──────────────────────────────────────────────────────────────
 
-function ClubStatusBadge({ status }: { status?: string | null }) {
+function ClubStatusBadge({ status, t }: { status?: string | null; t: ReturnType<typeof useTranslations<"camporees">> }) {
   if (!status) {
     return (
       <StatusBadge intent="neutral" label="—" className="text-xs" />
@@ -42,23 +42,23 @@ function ClubStatusBadge({ status }: { status?: string | null }) {
   const normalized = status.toLowerCase();
 
   if (normalized === "active" || normalized === "activo" || normalized === "enrolled") {
-    return <StatusBadge intent="success" label="Activo" />;
+    return <StatusBadge intent="success" label={t("clubsPanel.statusActive")} />;
   }
 
   if (normalized === "approved") {
-    return <StatusBadge intent="success" label="Aprobado" />;
+    return <StatusBadge intent="success" label={t("clubsPanel.statusApproved")} />;
   }
 
   if (normalized === "pending_approval") {
-    return <StatusBadge intent="warning" label="Pendiente" />;
+    return <StatusBadge intent="warning" label={t("clubsPanel.statusPending")} />;
   }
 
   if (normalized === "rejected") {
-    return <StatusBadge intent="destructive" label="Rechazado" />;
+    return <StatusBadge intent="destructive" label={t("clubsPanel.statusRejected")} />;
   }
 
   if (normalized === "cancelled" || normalized === "cancelado") {
-    return <StatusBadge intent="destructive" label="Cancelado" />;
+    return <StatusBadge intent="destructive" label={t("clubsPanel.statusCancelled")} />;
   }
 
   return (
@@ -117,15 +117,15 @@ export function CamporeeClubsPanel({
       await cancelClubEnrollment(camporeeId, camporeeClubId);
       toast.success(
         sectionName
-          ? `Inscripcion de "${sectionName}" cancelada`
-          : "Inscripcion de club cancelada",
+          ? t("clubsPanel.cancelledWithName", { name: sectionName })
+          : t("clubsPanel.cancelledGeneric"),
       );
       onClubsChange();
     } catch (err: unknown) {
       const message =
         err instanceof Error
           ? err.message
-          : "No se pudo cancelar la inscripcion del club";
+          : t("clubsPanel.errorCancel");
       toast.error(message);
     } finally {
       setCancellingId(null);
@@ -144,8 +144,8 @@ export function CamporeeClubsPanel({
       const club = clubs.find((c) => c.camporee_club_id === camporeeClubId);
       toast.success(
         club?.section_name
-          ? `Inscripcion de "${club.section_name}" aprobada`
-          : "Inscripcion de club aprobada",
+          ? t("clubsPanel.approvedWithName", { name: club.section_name })
+          : t("clubsPanel.approvedGeneric"),
       );
       onClubsChange();
     } catch (err: unknown) {
@@ -171,13 +171,13 @@ export function CamporeeClubsPanel({
     return (
       <EmptyState
         icon={Building2}
-        title="Sin clubes inscritos"
-        description="No hay clubes inscritos en este camporee todavia."
+        title={t("clubsPanel.emptyTitle")}
+        description={t("clubsPanel.emptyDescription")}
       />
     );
   }
 
-  const dialogClubName = dialog?.club.section_name ?? `Club #${dialog?.club.camporee_club_id}`;
+  const dialogClubName = dialog?.club.section_name ?? t("clubsPanel.fallbackClub", { id: dialog?.club.camporee_club_id ?? "" });
 
   return (
     <>
@@ -186,16 +186,16 @@ export function CamporeeClubsPanel({
           <TableHeader>
             <TableRow>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Seccion
+                {t("clubsPanel.colSection")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Estado
+                {t("clubsPanel.colStatus")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Registrado por
+                {t("clubsPanel.colRegisteredBy")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Fecha
+                {t("clubsPanel.colDate")}
               </TableHead>
               <TableHead className="h-9 w-28 px-3" />
             </TableRow>
@@ -212,7 +212,7 @@ export function CamporeeClubsPanel({
                   <TableCell className="px-3 py-2.5 align-middle">
                     <div className="space-y-0.5">
                       <span className="text-sm font-medium">
-                        {club.section_name ?? `Seccion #${club.club_section_id}`}
+                        {club.section_name ?? t("clubsPanel.fallbackSection", { id: club.club_section_id ?? "" })}
                       </span>
                       {club.club_name && (
                         <p className="text-xs text-muted-foreground">{club.club_name}</p>
@@ -220,7 +220,7 @@ export function CamporeeClubsPanel({
                     </div>
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle">
-                    <ClubStatusBadge status={club.status} />
+                    <ClubStatusBadge status={club.status} t={t} />
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
                     {club.registered_by_name ?? club.registered_by ?? "—"}
@@ -240,7 +240,7 @@ export function CamporeeClubsPanel({
                                 className="text-success hover:bg-success/10 hover:text-success"
                                 onClick={() => handleApprove(club.camporee_club_id)}
                                 disabled={isApproving}
-                                aria-label="Aprobar inscripcion"
+                                aria-label={t("clubsPanel.approveLabel")}
                               >
                                 {isApproving ? (
                                   <Loader2 className="size-4 animate-spin" />
@@ -249,7 +249,7 @@ export function CamporeeClubsPanel({
                                 )}
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent>Aprobar inscripcion</TooltipContent>
+                            <TooltipContent>{t("clubsPanel.approveLabel")}</TooltipContent>
                           </Tooltip>
 
                           <Tooltip>
@@ -259,12 +259,12 @@ export function CamporeeClubsPanel({
                                 size="icon-sm"
                                 className="text-destructive hover:bg-destructive/10 hover:text-destructive"
                                 onClick={() => setDialog({ club, mode: "reject" })}
-                                aria-label="Rechazar inscripcion"
+                                aria-label={t("clubsPanel.rejectLabel")}
                               >
                                 <XCircle className="size-4" />
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent>Rechazar inscripcion</TooltipContent>
+                            <TooltipContent>{t("clubsPanel.rejectLabel")}</TooltipContent>
                           </Tooltip>
                         </>
                       )}
@@ -277,14 +277,14 @@ export function CamporeeClubsPanel({
                               size="icon-sm"
                               onClick={() => handleCancel(club.camporee_club_id, club.section_name)}
                               disabled={cancellingId === club.camporee_club_id}
-                              aria-label="Cancelar inscripcion"
+                              aria-label={t("clubsPanel.cancelLabel")}
                               className="text-destructive hover:text-destructive"
                             >
                               <Trash2 className="size-3.5" />
-                              <span className="sr-only">Cancelar</span>
+                              <span className="sr-only">{t("clubsPanel.cancelLabel")}</span>
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent>Cancelar inscripcion</TooltipContent>
+                          <TooltipContent>{t("clubsPanel.cancelLabel")}</TooltipContent>
                         </Tooltip>
                       )}
                     </div>
@@ -300,7 +300,7 @@ export function CamporeeClubsPanel({
         <CamporeeApprovalDialog
           open
           mode={dialog.mode}
-          entityLabel="Club"
+          entityLabel={t("clubsPanel.entityLabel")}
           entityName={dialogClubName}
           onOpenChange={(open) => { if (!open) setDialog(null); }}
           onConfirm={handleRejectConfirm}

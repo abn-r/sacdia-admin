@@ -10,6 +10,7 @@ import {
   Cell,
 } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useTranslations } from "next-intl";
 import type { InvestiturePipelineItem } from "@/lib/api/analytics";
 
 interface SlaPipelineChartProps {
@@ -37,30 +38,32 @@ interface TooltipProps {
 }
 
 function CustomTooltip({ active, payload }: TooltipProps) {
+  const t = useTranslations("sla.pipeline");
   if (!active || !payload?.length) return null;
   const entry = payload[0].payload;
   return (
     <div className="rounded-lg border bg-background px-3 py-2 text-sm shadow-md">
       <p className="font-medium">{entry.label}</p>
       <p className="text-muted-foreground">
-        {entry.count.toLocaleString("es-MX")} inscripcion{entry.count !== 1 ? "es" : ""}
+        {entry.count.toLocaleString("es-MX")} {t("tooltip_enrollments", { count: entry.count })}
       </p>
     </div>
   );
 }
 
 export function SlaPipelineChart({ pipeline }: SlaPipelineChartProps) {
+  const t = useTranslations("sla.pipeline");
   const visiblePipeline = pipeline.filter((p) => p.count > 0 || p.status !== "FIELD_APPROVED");
 
   if (visiblePipeline.every((p) => p.count === 0)) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Pipeline de Investidura</CardTitle>
-          <CardDescription>Distribución por estado</CardDescription>
+          <CardTitle className="text-base">{t("title")}</CardTitle>
+          <CardDescription>{t("description_distribution")}</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">No hay inscripciones activas en el pipeline.</p>
+          <p className="text-sm text-muted-foreground">{t("empty")}</p>
         </CardContent>
       </Card>
     );
@@ -69,8 +72,8 @@ export function SlaPipelineChart({ pipeline }: SlaPipelineChartProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Pipeline de Investidura</CardTitle>
-        <CardDescription>Inscripciones activas por estado de aprobacion</CardDescription>
+        <CardTitle className="text-base">{t("title")}</CardTitle>
+        <CardDescription>{t("description")}</CardDescription>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={220}>

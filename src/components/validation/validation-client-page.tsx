@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { RefreshCw } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -37,15 +39,48 @@ export function ValidationClientPage({
   initialHonors,
   sections,
 }: ValidationClientPageProps) {
+  const t = useTranslations("validation_admin");
   const [activeTab, setActiveTab] = useState<ValidationEntityType>("class");
   const [sectionId, setSectionId] = useState<string>("all");
-  const [classValidations, setClassValidations] =
-    useState<PendingValidation[]>(initialClasses);
-  const [honorValidations, setHonorValidations] =
-    useState<PendingValidation[]>(initialHonors);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const isInitialMount = useRef(true);
 
+  const sectionParam =
+    sectionId !== "all" ? parseInt(sectionId, 10) : undefined;
+
+  const {
+    data: classValidations = [],
+    isFetching: isRefreshingClasses,
+    refetch: refetchClasses,
+  } = useQuery<PendingValidation[], Error>({
+    queryKey: ["validation", "classes", sectionParam],
+    queryFn: () =>
+      getPendingValidations({
+        entity_type: "class",
+        ...(sectionParam !== undefined ? { section_id: sectionParam } : {}),
+      }),
+    // initialData only applies when sectionId === "all" (matches server-rendered data)
+    initialData: sectionId === "all" ? initialClasses : undefined,
+    staleTime: 60_000,
+  });
+
+  const {
+    data: honorValidations = [],
+    isFetching: isRefreshingHonors,
+    refetch: refetchHonors,
+  } = useQuery<PendingValidation[], Error>({
+    queryKey: ["validation", "honors", sectionParam],
+    queryFn: () =>
+      getPendingValidations({
+        entity_type: "honor",
+        ...(sectionParam !== undefined ? { section_id: sectionParam } : {}),
+      }),
+    // initialData only applies when sectionId === "all" (matches server-rendered data)
+    initialData: sectionId === "all" ? initialHonors : undefined,
+    staleTime: 60_000,
+  });
+
+  const isRefreshing = isRefreshingClasses || isRefreshingHonors;
+
+  // Filter client-side when section changes (TanStack re-fetches automatically via queryKey)
   const filteredClasses =
     sectionId === "all"
       ? classValidations
@@ -60,45 +95,23 @@ export function ValidationClientPage({
           (v) => v.section?.section_id === parseInt(sectionId, 10),
         );
 
-  const refresh = useCallback(async () => {
-    setIsRefreshing(true);
-    try {
-      const query =
-        sectionId !== "all"
-          ? { section_id: parseInt(sectionId, 10) }
-          : {};
+  const handleRefresh = async () => {
+    const [classResult, honorResult] = await Promise.allSettled([
+      refetchClasses(),
+      refetchHonors(),
+    ]);
 
-      const [classes, honors] = await Promise.allSettled([
-        getPendingValidations({ ...query, entity_type: "class" }),
-        getPendingValidations({ ...query, entity_type: "honor" }),
-      ]);
+    const errors = [classResult, honorResult].filter(
+      (r): r is PromiseRejectedResult => r.status === "rejected",
+    );
 
-      if (classes.status === "fulfilled") {
-        setClassValidations(classes.value);
-      }
-      if (honors.status === "fulfilled") {
-        setHonorValidations(honors.value);
-      }
-    } catch (error) {
+    if (errors.length > 0) {
+      const error = errors[0]?.reason as unknown;
       const message =
-        error instanceof ApiError
-          ? error.message
-          : "No se pudo actualizar la lista";
+        error instanceof ApiError ? error.message : t("errors.refresh");
       toast.error(message);
-    } finally {
-      setIsRefreshing(false);
     }
-  }, [sectionId]);
-
-  // Refresh when section filter changes, skip on initial mount (data comes from server)
-  useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
-    }
-    void refresh();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sectionId]);
+  };
 
   const currentCount =
     activeTab === "class" ? filteredClasses.length : filteredHonors.length;
@@ -111,10 +124,10 @@ export function ValidationClientPage({
           {sections.length > 0 && (
             <Select value={sectionId} onValueChange={setSectionId}>
               <SelectTrigger className="w-52">
-                <SelectValue placeholder="Todas las secciones" />
+                <SelectValue placeholder={t("client.filters.allSections")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todas las secciones</SelectItem>
+                <SelectItem value="all">{t("client.filters.allSections")}</SelectItem>
                 {sections.map((s) => (
                   <SelectItem key={s.section_id} value={String(s.section_id)}>
                     {s.name}
@@ -127,19 +140,18 @@ export function ValidationClientPage({
 
         <div className="flex items-center gap-2">
           <p className="text-sm text-muted-foreground">
-            <span className="font-medium text-foreground">{currentCount}</span>{" "}
-            {currentCount === 1 ? "pendiente" : "pendientes"}
+            {t("client.count", { count: currentCount })}
           </p>
           <Button
             variant="outline"
             size="sm"
-            onClick={refresh}
+            onClick={handleRefresh}
             disabled={isRefreshing}
           >
             <RefreshCw
-              className={`mr-2 size-4 ${isRefreshing ? "animate-spin" : ""}`}
+              className={`size-4 ${isRefreshing ? "animate-spin" : ""}`}
             />
-            Actualizar
+            {t("client.refresh")}
           </Button>
         </div>
       </div>
@@ -149,7 +161,7 @@ export function ValidationClientPage({
         <div className="overflow-x-auto border-b border-border">
           <TabsList variant="line" className="gap-4">
             <TabsTrigger value="class" className="whitespace-nowrap">
-              Clases
+              {t("client.tabs.class")}
               {filteredClasses.length > 0 && (
                 <span className="ml-1.5 inline-flex size-5 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
                   {filteredClasses.length}
@@ -157,7 +169,7 @@ export function ValidationClientPage({
               )}
             </TabsTrigger>
             <TabsTrigger value="honor" className="whitespace-nowrap">
-              Especialidades
+              {t("client.tabs.honor")}
               {filteredHonors.length > 0 && (
                 <span className="ml-1.5 inline-flex size-5 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
                   {filteredHonors.length}
@@ -171,7 +183,7 @@ export function ValidationClientPage({
           <ValidationTable
             validations={filteredClasses}
             entityType="class"
-            onRefresh={refresh}
+            onRefresh={handleRefresh}
           />
         </TabsContent>
 
@@ -179,7 +191,7 @@ export function ValidationClientPage({
           <ValidationTable
             validations={filteredHonors}
             entityType="honor"
-            onRefresh={refresh}
+            onRefresh={handleRefresh}
           />
         </TabsContent>
       </Tabs>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Trophy, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -25,7 +26,15 @@ const PAGE_LIMIT = 12;
 
 // ─── History item ─────────────────────────────────────────────────────────────
 
-function HistoryEntry({ item }: { item: MemberOfMonthHistoryItem }) {
+type TranslationFn = ReturnType<typeof useTranslations<"member_of_month">>;
+
+function HistoryEntry({
+  item,
+  t,
+}: {
+  item: MemberOfMonthHistoryItem;
+  t: TranslationFn;
+}) {
   return (
     <div className="rounded-lg border bg-card px-4 py-3">
       {/* Period header */}
@@ -36,7 +45,7 @@ function HistoryEntry({ item }: { item: MemberOfMonthHistoryItem }) {
         </span>
         {item.members.length > 1 && (
           <Badge variant="warning" className="text-[10px]">
-            Empate
+            {t("history.tie")}
           </Badge>
         )}
       </div>
@@ -68,7 +77,7 @@ function HistoryEntry({ item }: { item: MemberOfMonthHistoryItem }) {
                 <p className="truncate text-sm font-medium">{member.name}</p>
               </div>
               <span className="shrink-0 text-sm font-semibold tabular-nums text-muted-foreground">
-                {member.total_points} pts
+                {t("history.points", { count: member.total_points })}
               </span>
             </div>
           );
@@ -122,6 +131,7 @@ export function MemberOfMonthHistorySheet({
   sectionId,
   sectionName,
 }: MemberOfMonthHistorySheetProps) {
+  const t = useTranslations("member_of_month");
   const [page, setPage] = useState(1);
 
   const { data, isLoading: loading } = useQuery({
@@ -131,7 +141,7 @@ export function MemberOfMonthHistorySheet({
         return await getMemberOfMonthHistory(clubId, sectionId, page, PAGE_LIMIT);
       } catch (err: unknown) {
         const message =
-          err instanceof Error ? err.message : "No se pudo cargar el historial";
+          err instanceof Error ? err.message : t("errors.load_history_failed");
         toast.error(message);
         throw err;
       }
@@ -162,11 +172,10 @@ export function MemberOfMonthHistorySheet({
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
             <Trophy className="size-4 text-warning" />
-            Miembro del Mes — Historial
+            {t("history.title")}
           </SheetTitle>
           <SheetDescription>
-            Historial de ganadores en{" "}
-            <strong>{sectionName}</strong>
+            {t("history.description", { sectionName })}
           </SheetDescription>
         </SheetHeader>
 
@@ -176,14 +185,14 @@ export function MemberOfMonthHistorySheet({
           ) : items.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <Trophy className="size-10 text-muted-foreground/30" />
-              <p className="mt-3 text-sm font-medium">Sin historial</p>
+              <p className="mt-3 text-sm font-medium">{t("history.empty_title")}</p>
               <p className="mt-1 text-xs text-muted-foreground">
-                No hay datos de miembro del mes aún.
+                {t("history.empty_description")}
               </p>
             </div>
           ) : (
             items.map((item, idx) => (
-              <HistoryEntry key={`${item.year}-${item.month}-${idx}`} item={item} />
+              <HistoryEntry key={`${item.year}-${item.month}-${idx}`} item={item} t={t} />
             ))
           )}
         </div>
@@ -192,7 +201,7 @@ export function MemberOfMonthHistorySheet({
         {total > PAGE_LIMIT && (
           <div className="mt-4 flex items-center justify-between border-t pt-4">
             <span className="text-xs text-muted-foreground">
-              Página {page} de {totalPages}
+              {t("history.pagination_label", { page, total: totalPages })}
             </span>
             <div className="flex gap-1">
               <Button

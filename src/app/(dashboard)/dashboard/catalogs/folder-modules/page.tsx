@@ -1,6 +1,8 @@
 import { BookOpen } from "lucide-react";
+import { getTranslations } from "next-intl/server";
+import dynamic from "next/dynamic";
+import { Skeleton } from "@/components/ui/skeleton";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-import { PhaseECatalogCrudPage } from "@/components/catalogs/phase-e-catalog-crud-page";
 import { ApiError } from "@/lib/api/client";
 import { listAdminFolderModules } from "@/lib/api/phase-e-catalogs";
 import { extractItems, extractMeta, readParam, readPositiveNumberParam } from "@/lib/phase-e-catalogs/fetch-helpers";
@@ -13,9 +15,32 @@ import {
   deleteFolderModuleAction,
 } from "@/lib/phase-e-catalogs/actions";
 
+const PhaseECatalogCrudPage = dynamic(
+  () =>
+    import("@/components/catalogs/phase-e-catalog-crud-page").then((m) => ({
+      default: m.PhaseECatalogCrudPage,
+    })),
+  {
+    loading: () => (
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-8 w-48 rounded-md" />
+          <Skeleton className="h-9 w-28 rounded-md" />
+        </div>
+        <Skeleton className="h-10 w-full rounded-md" />
+        <Skeleton className="h-12 w-full rounded-md" />
+        <Skeleton className="h-12 w-full rounded-md" />
+        <Skeleton className="h-12 w-full rounded-md" />
+        <Skeleton className="h-12 w-full rounded-md" />
+      </div>
+    ),
+  }
+);
+
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 export default async function AdminFolderModulesPage({ searchParams }: { searchParams: SearchParams }) {
+  const t = await getTranslations("catalogs.pages.folderModules");
   const user = await requireAdminUser();
   const raw = await searchParams;
 
@@ -39,7 +64,7 @@ export default async function AdminFolderModulesPage({ searchParams }: { searchP
     meta = extractMeta(payload, page, limit, items.length);
   } catch (error) {
     if (!(error instanceof ApiError && error.status === 429)) {
-      loadError = error instanceof ApiError ? error.message : "No se pudieron cargar los módulos de carpeta.";
+      loadError = error instanceof ApiError ? error.message : t("loadError");
     }
   }
 
@@ -51,9 +76,9 @@ export default async function AdminFolderModulesPage({ searchParams }: { searchP
     <div className="space-y-6">
       {loadError && <EndpointErrorBanner state="missing" detail={loadError} />}
       <PhaseECatalogCrudPage
-        title="Módulos de carpeta"
-        description="Catálogo de módulos que componen las carpetas de progreso."
-        entityLabel="Módulo"
+        title={t("title")}
+        description={t("description")}
+        entityLabel={t("entityLabel")}
         emptyIcon={BookOpen}
         includeDescription={true}
         idField="module_id"

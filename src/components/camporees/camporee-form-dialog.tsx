@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -22,27 +23,29 @@ import { useTranslations } from "next-intl";
 import { createCamporee, updateCamporee } from "@/lib/api/camporees";
 import type { Camporee } from "@/lib/api/camporees";
 
-// ─── Schema ────────────────────────────────────────────────────────────────────
+// ─── Schema factory ────────────────────────────────────────────────────────────
 
-const formSchema = z
-  .object({
-    name: z.string().min(1, "El nombre es obligatorio"),
-    description: z.string().optional(),
-    start_date: z.string().min(1, "La fecha de inicio es obligatoria"),
-    end_date: z.string().min(1, "La fecha de fin es obligatoria"),
-    local_camporee_place: z.string().min(1, "El lugar es obligatorio"),
-    local_field_id: z.coerce.number().int().min(1, "El campo local es obligatorio"),
-    registration_cost: z.coerce.number().min(0).optional(),
-    includes_adventurers: z.boolean(),
-    includes_pathfinders: z.boolean(),
-    includes_master_guides: z.boolean(),
-  })
-  .refine((data) => data.start_date <= data.end_date, {
-    message: "La fecha de fin debe ser igual o posterior a la fecha de inicio",
-    path: ["end_date"],
-  });
+function buildSchema(t: ReturnType<typeof useTranslations<"camporees.validation">>) {
+  return z
+    .object({
+      name: z.string().min(1, t("name_required")),
+      description: z.string().optional(),
+      start_date: z.string().min(1, t("start_date_required")),
+      end_date: z.string().min(1, t("end_date_required")),
+      local_camporee_place: z.string().min(1, t("place_required")),
+      local_field_id: z.coerce.number().int().min(1, t("local_field_required")),
+      registration_cost: z.coerce.number().min(0).optional(),
+      includes_adventurers: z.boolean(),
+      includes_pathfinders: z.boolean(),
+      includes_master_guides: z.boolean(),
+    })
+    .refine((data) => data.start_date <= data.end_date, {
+      message: t("end_date_after_start_full"),
+      path: ["end_date"],
+    });
+}
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof buildSchema>>;
 
 // ─── Props ─────────────────────────────────────────────────────────────────────
 
@@ -70,8 +73,10 @@ export function CamporeeFormDialog({
   onSuccess,
 }: CamporeeFormDialogProps) {
   const t = useTranslations("camporees");
+  const tVal = useTranslations("camporees.validation");
   const isEdit = !!camporee;
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const schema = useMemo(() => buildSchema(tVal), [tVal]);
 
   const {
     register,
@@ -81,7 +86,7 @@ export function CamporeeFormDialog({
     watch,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(formSchema as z.ZodType<FormValues, FormValues>),
+    resolver: zodResolver(schema as z.ZodType<FormValues, FormValues>),
     defaultValues: {
       name: "",
       description: "",
@@ -181,18 +186,23 @@ export function CamporeeFormDialog({
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? "Editar camporee" : "Nuevo camporee"}
+            {isEdit ? t("form.titleEdit") : t("form.titleCreate")}
           </DialogTitle>
+          <DialogDescription>
+            {isEdit
+              ? "Modificá los datos del camporee local."
+              : "Completá el formulario para crear un nuevo camporee local."}
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
           {/* Nombre */}
           <div className="space-y-1.5">
-            <Label htmlFor="name">Nombre <span aria-hidden="true" className="text-destructive">*</span></Label>
+            <Label htmlFor="name">{t("form.labelName")} <span aria-hidden="true" className="text-destructive">*</span></Label>
             <Input
               id="name"
               {...register("name")}
-              placeholder="Ej. Camporee de Primavera 2025"
+              placeholder={t("form.placeholderName")}
               aria-required="true"
             />
             {errors.name && (
@@ -202,11 +212,11 @@ export function CamporeeFormDialog({
 
           {/* Descripción */}
           <div className="space-y-1.5">
-            <Label htmlFor="description">Descripción</Label>
+            <Label htmlFor="description">{t("form.labelDescription")}</Label>
             <Textarea
               id="description"
               {...register("description")}
-              placeholder="Descripción opcional del camporee"
+              placeholder={t("form.placeholderDescription")}
               rows={3}
             />
           </div>
@@ -214,7 +224,7 @@ export function CamporeeFormDialog({
           {/* Fechas */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="start_date">Fecha de inicio <span aria-hidden="true" className="text-destructive">*</span></Label>
+              <Label htmlFor="start_date">{t("form.labelStartDate")} <span aria-hidden="true" className="text-destructive">*</span></Label>
               <Input id="start_date" type="date" {...register("start_date")} aria-required="true" />
               {errors.start_date && (
                 <p className="text-xs text-destructive" role="alert" aria-live="polite">
@@ -223,7 +233,7 @@ export function CamporeeFormDialog({
               )}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="end_date">Fecha de fin <span aria-hidden="true" className="text-destructive">*</span></Label>
+              <Label htmlFor="end_date">{t("form.labelEndDate")} <span aria-hidden="true" className="text-destructive">*</span></Label>
               <Input id="end_date" type="date" {...register("end_date")} aria-required="true" />
               {errors.end_date && (
                 <p className="text-xs text-destructive" role="alert" aria-live="polite">
@@ -235,11 +245,11 @@ export function CamporeeFormDialog({
 
           {/* Lugar */}
           <div className="space-y-1.5">
-            <Label htmlFor="local_camporee_place">Lugar <span aria-hidden="true" className="text-destructive">*</span></Label>
+            <Label htmlFor="local_camporee_place">{t("form.labelPlace")} <span aria-hidden="true" className="text-destructive">*</span></Label>
             <Input
               id="local_camporee_place"
               {...register("local_camporee_place")}
-              placeholder="Ej. Centro Recreacional La Montaña"
+              placeholder={t("form.placeholderPlace")}
               aria-required="true"
             />
             {errors.local_camporee_place && (
@@ -251,7 +261,7 @@ export function CamporeeFormDialog({
 
           {/* Campo local */}
           <div className="space-y-1.5">
-            <Label htmlFor="local_field_id">ID del campo local <span aria-hidden="true" className="text-destructive">*</span></Label>
+            <Label htmlFor="local_field_id">{t("form.labelLocalFieldId")} <span aria-hidden="true" className="text-destructive">*</span></Label>
             <Input
               id="local_field_id"
               type="number"
@@ -269,7 +279,7 @@ export function CamporeeFormDialog({
 
           {/* Costo de inscripción */}
           <div className="space-y-1.5">
-            <Label htmlFor="registration_cost">Costo de inscripción</Label>
+            <Label htmlFor="registration_cost">{t("form.labelRegistrationCost")}</Label>
             <Input
               id="registration_cost"
               type="number"
@@ -287,7 +297,7 @@ export function CamporeeFormDialog({
 
           {/* Tipos de club */}
           <div className="space-y-2">
-            <Label>Incluye</Label>
+            <Label>{t("form.labelIncludes")}</Label>
             <div className="space-y-2 rounded-md border border-border p-3">
               <div className="flex items-center gap-2">
                 <Checkbox
@@ -298,7 +308,7 @@ export function CamporeeFormDialog({
                   }
                 />
                 <Label htmlFor="includes_adventurers" className="font-normal cursor-pointer">
-                  Aventureros
+                  {t("form.adventurers")}
                 </Label>
               </div>
               <div className="flex items-center gap-2">
@@ -310,7 +320,7 @@ export function CamporeeFormDialog({
                   }
                 />
                 <Label htmlFor="includes_pathfinders" className="font-normal cursor-pointer">
-                  Conquistadores
+                  {t("form.pathfinders")}
                 </Label>
               </div>
               <div className="flex items-center gap-2">
@@ -322,7 +332,7 @@ export function CamporeeFormDialog({
                   }
                 />
                 <Label htmlFor="includes_master_guides" className="font-normal cursor-pointer">
-                  Guías Mayores
+                  {t("form.masterGuides")}
                 </Label>
               </div>
             </div>
@@ -335,16 +345,16 @@ export function CamporeeFormDialog({
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
             >
-              Cancelar
+              {t("form.cancel")}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting
                 ? isEdit
-                  ? "Guardando..."
-                  : "Creando..."
+                  ? t("form.saving")
+                  : t("form.creating")
                 : isEdit
-                  ? "Guardar cambios"
-                  : "Crear camporee"}
+                  ? t("form.saveChanges")
+                  : t("form.createCamporee")}
             </Button>
           </DialogFooter>
         </form>

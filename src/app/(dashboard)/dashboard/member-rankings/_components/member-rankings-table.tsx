@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { Trophy } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   Table,
   TableBody,
@@ -43,18 +46,10 @@ function formatScorePct(value: number | null | undefined): string {
   return `${value.toFixed(1)}%`;
 }
 
-function formatInvestitureScore(value: number | null | undefined): string {
-  if (value === null) return "—";
-  if (value === 100) return "Investido";
-  if (value === 0) return "En progreso";
-  // Partial scores theoretically possible if backend evolves — fallback semantically
-  return "En progreso";
-}
-
 // ─── Component ────────────────────────────────────────────────────────────────
 
 /**
- * Pure server component — renders paginated member rankings in a shadcn Table.
+ * Client component — renders paginated member rankings in a shadcn Table.
  * Pagination is handled by the shared DataTablePagination (client component).
  */
 export function MemberRankingsTable({
@@ -65,12 +60,20 @@ export function MemberRankingsTable({
   totalPages,
   selectedYearId,
 }: MemberRankingsTableProps) {
+  const t = useTranslations("rankings.table");
+
+  function formatInvestitureScore(value: number | null | undefined): string {
+    if (value === null || value === undefined) return "—";
+    if (value === 100) return t("investedLabel");
+    return t("inProgressLabel");
+  }
+
   if (data.length === 0) {
     return (
       <EmptyState
         icon={Trophy}
-        title="Sin rankings disponibles"
-        description="Sin rankings para los filtros seleccionados."
+        title={t("emptyTitle")}
+        description={t("emptyDescription")}
       />
     );
   }
@@ -79,7 +82,7 @@ export function MemberRankingsTable({
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
         <span className="font-medium text-foreground">{total}</span>{" "}
-        {total === 1 ? "miembro rankeado" : "miembros rankeados"}
+        {total === 1 ? t("countSingular", { total }) : t("countPlural", { total })}
       </p>
 
       <div className="overflow-x-auto rounded-xl border border-border/60 bg-card shadow-xs">
@@ -87,31 +90,31 @@ export function MemberRankingsTable({
           <TableHeader>
             <TableRow>
               <TableHead className="h-9 w-14 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                #
+                {t("colRank")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Miembro
+                {t("colMember")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Sección
+                {t("colSection")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Composite
+                {t("colComposite")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Clase
+                {t("colClass")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Investidura
+                {t("colInvestiture")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Camporees
+                {t("colCamporee")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Categoría
+                {t("colCategory")}
               </TableHead>
               <TableHead className="h-9 px-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Acción
+                {t("colAction")}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -176,7 +179,7 @@ export function MemberRankingsTable({
                     <Link
                       href={`/dashboard/member-rankings/${item.enrollment_id}/breakdown?year_id=${selectedYearId}`}
                     >
-                      Ver detalle
+                      {t("viewDetail")}
                     </Link>
                   </Button>
                 </TableCell>

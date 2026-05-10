@@ -1,18 +1,30 @@
+import dynamic from "next/dynamic";
 import { Suspense } from "react";
 import { FileText } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-import { ReportsListClient } from "@/components/reports/reports-list-client";
+import { DataTableShell } from "@/components/shared/data-table-shell";
 import { requireAdminUser } from "@/lib/auth/session";
 import { apiRequest, ApiError } from "@/lib/api/client";
 
+const ReportsListClient = dynamic(
+  () =>
+    import("@/components/reports/reports-list-client").then((m) => ({
+      default: m.ReportsListClient,
+    })),
+  { loading: () => <ReportsPageSkeleton /> },
+);
+
 // ─── Types ────────────────────────────────────────────────────────────────────
+
+type EnrollmentErrorCode = "no_active_enrollment" | "no_role_access" | "unknown";
 
 type ActiveEnrollmentResult =
   | { enrollment_id: number; available: true }
-  | { enrollment_id: null; available: false; error: string };
+  | { enrollment_id: null; available: false; errorCode: EnrollmentErrorCode };
 
 // ─── Data fetching ────────────────────────────────────────────────────────────
 
@@ -57,7 +69,7 @@ async function fetchActiveEnrollment(): Promise<ActiveEnrollmentResult> {
     return {
       enrollment_id: null,
       available: false,
-      error: "No se encontro una inscripcion activa para tu usuario.",
+      errorCode: "no_active_enrollment" as const,
     };
   } catch (error) {
     if (error instanceof ApiError) {
@@ -65,21 +77,21 @@ async function fetchActiveEnrollment(): Promise<ActiveEnrollmentResult> {
         return {
           enrollment_id: null,
           available: false,
-          error: "No tenés una inscripcion activa en el sistema.",
+          errorCode: "no_active_enrollment" as const,
         };
       }
       if (error.status === 403) {
         return {
           enrollment_id: null,
           available: false,
-          error: "Tu rol no tiene acceso al modulo de reportes mensuales.",
+          errorCode: "no_role_access" as const,
         };
       }
     }
     return {
       enrollment_id: null,
       available: false,
-      error: "No se pudo determinar tu inscripcion activa. Intentá de nuevo.",
+      errorCode: "unknown" as const,
     };
   }
 }
@@ -99,7 +111,7 @@ function ReportsPageSkeleton() {
           <Skeleton className="h-8 w-[120px]" />
         </div>
       </div>
-      <div className="rounded-md border">
+      <DataTableShell>
         {Array.from({ length: 5 }).map((_, i) => (
           <div key={i} className="flex items-center gap-4 border-b p-4 last:border-b-0">
             <Skeleton className="h-4 w-24" />
@@ -110,24 +122,29 @@ function ReportsPageSkeleton() {
             <Skeleton className="h-8 w-40" />
           </div>
         ))}
-      </div>
+      </DataTableShell>
     </div>
   );
 }
 
 // ─── Content ──────────────────────────────────────────────────────────────────
 
-async function ReportsContent() {
+async function ReportsContent({
+  t,
+}: {
+  t: Awaited<ReturnType<typeof getTranslations<"reports">>>;
+}) {
   const result = await fetchActiveEnrollment();
 
   if (!result.available) {
+    const errorMessage = t(`errors.${result.errorCode}`);
     return (
       <div className="space-y-4">
-        <EndpointErrorBanner state="missing" detail={result.error} />
+        <EndpointErrorBanner state="missing" detail={errorMessage} />
         <EmptyState
           icon={FileText}
-          title="Sin inscripcion activa"
-          description={result.error}
+          title={t("page.empty_no_active_enrollment_title")}
+          description={errorMessage}
         />
       </div>
     );
@@ -140,16 +157,17 @@ async function ReportsContent() {
 
 export default async function ReportsPage() {
   await requireAdminUser();
+  const t = await getTranslations("reports");
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Reportes Mensuales"
-        description="Gestion de reportes mensuales de actividades del club."
+        title={t("page.title")}
+        description={t("page.description")}
       />
 
       <Suspense fallback={<ReportsPageSkeleton />}>
-        <ReportsContent />
+        <ReportsContent t={t} />
       </Suspense>
     </div>
   );
