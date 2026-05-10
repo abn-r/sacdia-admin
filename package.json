@@ -10,7 +10,10 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e:smoke": "node scripts/e2e-smoke.mjs"
+    "test:e2e:smoke": "node scripts/e2e-smoke.mjs",
+    "analyze": "ANALYZE=true pnpm build",
+    "analyze:server": "ANALYZE=true BUNDLE_ANALYZE=server pnpm build",
+    "analyze:browser": "ANALYZE=true BUNDLE_ANALYZE=browser pnpm build"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -42,6 +45,7 @@
     }
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^16.2.6",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
