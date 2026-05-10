@@ -18,7 +18,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -26,6 +25,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import {
   createInvestitureConfig,
   updateInvestitureConfig,
@@ -87,14 +94,7 @@ export function ConfigFormDialog({
 
   const formSchema = useMemo(() => buildFormSchema(t), [t]);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm<FormValues>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema as z.ZodType<FormValues, FormValues>),
     defaultValues: {
       local_field_id: undefined,
@@ -122,7 +122,7 @@ export function ConfigFormDialog({
   // Reset form when dialog opens or config changes
   useEffect(() => {
     if (open) {
-      reset({
+      form.reset({
         local_field_id: config?.local_field_id ?? undefined,
         ecclesiastical_year_id: config?.ecclesiastical_year_id ?? undefined,
         submission_deadline: config?.submission_deadline
@@ -135,9 +135,6 @@ export function ConfigFormDialog({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, config]);
-
-  const selectedLocalFieldId = watch("local_field_id");
-  const selectedYearId = watch("ecclesiastical_year_id");
 
   const onSubmit: SubmitHandler<FormValues> = async (values) => {
     setIsSubmitting(true);
@@ -188,137 +185,153 @@ export function ConfigFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-          {/* Campo Local — solo al crear */}
-          {!isEdit && (
-            <div className="space-y-1.5">
-              <Label htmlFor="cfg-local_field_id">
-                Campo Local <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
-              </Label>
-              <Select
-                value={selectedLocalFieldId?.toString() ?? ""}
-                onValueChange={(v) => setValue("local_field_id", Number(v))}
-                disabled={loadingCatalogs}
-              >
-                <SelectTrigger id="cfg-local_field_id" aria-required="true">
-                  <SelectValue
-                    placeholder={
-                      loadingCatalogs ? "Cargando campos..." : "Seleccioná un campo local"
-                    }
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  {localFields.map((lf) => (
-                    <SelectItem
-                      key={lf.local_field_id}
-                      value={lf.local_field_id.toString()}
-                    >
-                      {lf.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.local_field_id && (
-                <p className="text-xs text-destructive" role="alert" aria-live="polite">
-                  {errors.local_field_id.message}
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* Año Eclesiástico — solo al crear */}
-          {!isEdit && (
-            <div className="space-y-1.5">
-              <Label htmlFor="cfg-ecclesiastical_year_id">
-                Año Eclesiástico <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
-              </Label>
-              <Select
-                value={selectedYearId?.toString() ?? ""}
-                onValueChange={(v) => setValue("ecclesiastical_year_id", Number(v))}
-                disabled={loadingCatalogs}
-              >
-                <SelectTrigger id="cfg-ecclesiastical_year_id" aria-required="true">
-                  <SelectValue
-                    placeholder={
-                      loadingCatalogs ? "Cargando años..." : "Seleccioná un año"
-                    }
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  {years.map((year) => (
-                    <SelectItem
-                      key={year.ecclesiastical_year_id}
-                      value={year.ecclesiastical_year_id.toString()}
-                    >
-                      {year.name}
-                      {year.active && (
-                        <span className="ml-1.5 text-xs text-muted-foreground">
-                          (activo)
-                        </span>
-                      )}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.ecclesiastical_year_id && (
-                <p className="text-xs text-destructive" role="alert" aria-live="polite">
-                  {errors.ecclesiastical_year_id.message}
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* Fecha límite de envío */}
-          <div className="space-y-1.5">
-            <Label htmlFor="submission_deadline">
-              Límite de Envío <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
-            </Label>
-            <Input
-              id="submission_deadline"
-              type="date"
-              {...register("submission_deadline")}
-              aria-required="true"
-            />
-            {errors.submission_deadline && (
-              <p className="text-xs text-destructive" role="alert" aria-live="polite">
-                {errors.submission_deadline.message}
-              </p>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
+            {/* Campo Local — solo al crear */}
+            {!isEdit && (
+              <FormField
+                control={form.control}
+                name="local_field_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Campo Local <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Select
+                        value={field.value?.toString() ?? ""}
+                        onValueChange={(v) => field.onChange(Number(v))}
+                        disabled={loadingCatalogs}
+                      >
+                        <SelectTrigger aria-required="true">
+                          <SelectValue
+                            placeholder={
+                              loadingCatalogs ? "Cargando campos..." : "Seleccioná un campo local"
+                            }
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {localFields.map((lf) => (
+                            <SelectItem
+                              key={lf.local_field_id}
+                              value={lf.local_field_id.toString()}
+                            >
+                              {lf.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             )}
-          </div>
 
-          {/* Fecha de investidura */}
-          <div className="space-y-1.5">
-            <Label htmlFor="investiture_date">
-              Fecha de Investidura <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
-            </Label>
-            <Input
-              id="investiture_date"
-              type="date"
-              {...register("investiture_date")}
-              aria-required="true"
-            />
-            {errors.investiture_date && (
-              <p className="text-xs text-destructive" role="alert" aria-live="polite">
-                {errors.investiture_date.message}
-              </p>
+            {/* Año Eclesiástico — solo al crear */}
+            {!isEdit && (
+              <FormField
+                control={form.control}
+                name="ecclesiastical_year_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Año Eclesiástico <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Select
+                        value={field.value?.toString() ?? ""}
+                        onValueChange={(v) => field.onChange(Number(v))}
+                        disabled={loadingCatalogs}
+                      >
+                        <SelectTrigger aria-required="true">
+                          <SelectValue
+                            placeholder={
+                              loadingCatalogs ? "Cargando años..." : "Seleccioná un año"
+                            }
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {years.map((year) => (
+                            <SelectItem
+                              key={year.ecclesiastical_year_id}
+                              value={year.ecclesiastical_year_id.toString()}
+                            >
+                              {year.name}
+                              {year.active && (
+                                <span className="ml-1.5 text-xs text-muted-foreground">
+                                  (activo)
+                                </span>
+                              )}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             )}
-          </div>
 
-          <DialogFooter className="pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
-            >
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={isSubmitting || loadingCatalogs}>
-              {isSubmitting && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
-              {isEdit ? "Guardar cambios" : "Crear configuración"}
-            </Button>
-          </DialogFooter>
-        </form>
+            {/* Fecha límite de envío */}
+            <FormField
+              control={form.control}
+              name="submission_deadline"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Límite de Envío <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="date"
+                      aria-required="true"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Fecha de investidura */}
+            <FormField
+              control={form.control}
+              name="investiture_date"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Fecha de Investidura <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="date"
+                      aria-required="true"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <DialogFooter className="pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={isSubmitting}
+              >
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={isSubmitting || loadingCatalogs}>
+                {isSubmitting && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
+                {isEdit ? "Guardar cambios" : "Crear configuración"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

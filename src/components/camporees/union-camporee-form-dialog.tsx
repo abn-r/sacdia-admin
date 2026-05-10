@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -26,6 +25,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { useTranslations } from "next-intl";
 import { createUnionCamporee, updateUnionCamporee } from "@/lib/api/camporees";
 import type { UnionCamporee } from "@/lib/api/camporees";
@@ -87,14 +94,7 @@ export function UnionCamporeeFormDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const schema = useMemo(() => buildSchema(tVal), [tVal]);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm<FormValues>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(schema as z.ZodType<FormValues, FormValues>),
     defaultValues: {
       name: "",
@@ -110,15 +110,10 @@ export function UnionCamporeeFormDialog({
     },
   });
 
-  const includesAdventurers = watch("includes_adventurers");
-  const includesPathfinders = watch("includes_pathfinders");
-  const includesMasterGuides = watch("includes_master_guides");
-  const unionId = watch("union_id");
-
   useEffect(() => {
     if (open) {
       if (camporee) {
-        reset({
+        form.reset({
           name: camporee.name,
           description: camporee.description ?? "",
           start_date: toDateInput(camporee.start_date),
@@ -131,7 +126,7 @@ export function UnionCamporeeFormDialog({
           includes_master_guides: camporee.includes_master_guides ?? false,
         });
       } else {
-        reset({
+        form.reset({
           name: "",
           description: "",
           start_date: "",
@@ -145,7 +140,7 @@ export function UnionCamporeeFormDialog({
         });
       }
     }
-  }, [open, camporee, reset]);
+  }, [open, camporee, form]);
 
   const onSubmit: SubmitHandler<FormValues> = async (values) => {
     setIsSubmitting(true);
@@ -197,175 +192,246 @@ export function UnionCamporeeFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-          {/* Nombre */}
-          <div className="space-y-1.5">
-            <Label htmlFor="uc-name">{t("unionForm.labelName")} <span aria-hidden="true" className="text-destructive">*</span></Label>
-            <Input
-              id="uc-name"
-              {...register("name")}
-              placeholder={t("unionForm.placeholderName")}
-              aria-required="true"
-            />
-            {errors.name && (
-              <p className="text-xs text-destructive" role="alert" aria-live="polite">{errors.name.message}</p>
-            )}
-          </div>
-
-          {/* Descripción */}
-          <div className="space-y-1.5">
-            <Label htmlFor="uc-description">{t("unionForm.labelDescription")}</Label>
-            <Textarea
-              id="uc-description"
-              {...register("description")}
-              placeholder={t("unionForm.placeholderDescription")}
-              rows={3}
-            />
-          </div>
-
-          {/* Fechas */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="uc-start_date">{t("unionForm.labelStartDate")} <span aria-hidden="true" className="text-destructive">*</span></Label>
-              <Input id="uc-start_date" type="date" {...register("start_date")} aria-required="true" />
-              {errors.start_date && (
-                <p className="text-xs text-destructive" role="alert" aria-live="polite">{errors.start_date.message}</p>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
+            {/* Nombre */}
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {t("unionForm.labelName")} <span aria-hidden="true" className="text-destructive">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder={t("unionForm.placeholderName")}
+                      aria-required="true"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="uc-end_date">{t("unionForm.labelEndDate")} <span aria-hidden="true" className="text-destructive">*</span></Label>
-              <Input id="uc-end_date" type="date" {...register("end_date")} aria-required="true" />
-              {errors.end_date && (
-                <p className="text-xs text-destructive" role="alert" aria-live="polite">{errors.end_date.message}</p>
+            />
+
+            {/* Descripción */}
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("unionForm.labelDescription")}</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder={t("unionForm.placeholderDescription")}
+                      rows={3}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
-          </div>
-
-          {/* Unión */}
-          <div className="space-y-1.5">
-            <Label htmlFor="uc-union_id">{t("unionForm.labelUnion")} <span aria-hidden="true" className="text-destructive">*</span></Label>
-            <Select
-              value={unionId > 0 ? String(unionId) : ""}
-              onValueChange={(val) => setValue("union_id", Number(val))}
-            >
-              <SelectTrigger id="uc-union_id" className="w-full" aria-required="true">
-                <SelectValue placeholder={t("unionForm.placeholderUnion")} />
-              </SelectTrigger>
-              <SelectContent>
-                {unions.map((u) => (
-                  <SelectItem key={u.union_id} value={String(u.union_id)}>
-                    {u.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.union_id && (
-              <p className="text-xs text-destructive" role="alert" aria-live="polite">{errors.union_id.message}</p>
-            )}
-          </div>
-
-          {/* Lugar */}
-          <div className="space-y-1.5">
-            <Label htmlFor="uc-place">{t("unionForm.labelPlace")} <span aria-hidden="true" className="text-destructive">*</span></Label>
-            <Input
-              id="uc-place"
-              {...register("place")}
-              placeholder={t("unionForm.placeholderPlace")}
-              aria-required="true"
             />
-            {errors.place && (
-              <p className="text-xs text-destructive" role="alert" aria-live="polite">{errors.place.message}</p>
-            )}
-          </div>
 
-          {/* Costo de inscripción */}
-          <div className="space-y-1.5">
-            <Label htmlFor="uc-registration_cost">{t("unionForm.labelRegistrationCost")}</Label>
-            <Input
-              id="uc-registration_cost"
-              type="number"
-              min={0}
-              step="0.01"
-              {...register("registration_cost")}
-              placeholder="0.00"
+            {/* Fechas */}
+            <div className="grid grid-cols-2 gap-3">
+              <FormField
+                control={form.control}
+                name="start_date"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      {t("unionForm.labelStartDate")} <span aria-hidden="true" className="text-destructive">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input type="date" aria-required="true" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="end_date"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      {t("unionForm.labelEndDate")} <span aria-hidden="true" className="text-destructive">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input type="date" aria-required="true" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Unión */}
+            <FormField
+              control={form.control}
+              name="union_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {t("unionForm.labelUnion")} <span aria-hidden="true" className="text-destructive">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Select
+                      value={field.value > 0 ? String(field.value) : ""}
+                      onValueChange={(val) => field.onChange(Number(val))}
+                    >
+                      <SelectTrigger className="w-full" aria-required="true">
+                        <SelectValue placeholder={t("unionForm.placeholderUnion")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {unions.map((u) => (
+                          <SelectItem key={u.union_id} value={String(u.union_id)}>
+                            {u.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {errors.registration_cost && (
-              <p className="text-xs text-destructive" role="alert" aria-live="polite">{errors.registration_cost.message}</p>
-            )}
-          </div>
 
-          {/* Tipos de club */}
-          <div className="space-y-2">
-            <Label>{t("unionForm.labelIncludes")}</Label>
-            <div className="space-y-2 rounded-md border border-border p-3">
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id="uc-includes_adventurers"
-                  checked={includesAdventurers}
-                  onCheckedChange={(checked) =>
-                    setValue("includes_adventurers", checked === true)
-                  }
+            {/* Lugar */}
+            <FormField
+              control={form.control}
+              name="place"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {t("unionForm.labelPlace")} <span aria-hidden="true" className="text-destructive">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder={t("unionForm.placeholderPlace")}
+                      aria-required="true"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Costo de inscripción */}
+            <FormField
+              control={form.control}
+              name="registration_cost"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("unionForm.labelRegistrationCost")}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min={0}
+                      step="0.01"
+                      placeholder="0.00"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Tipos de club */}
+            <div className="space-y-2">
+              <p className="text-sm font-medium leading-none">{t("unionForm.labelIncludes")}</p>
+              <div className="space-y-2 rounded-md border border-border p-3">
+                <FormField
+                  control={form.control}
+                  name="includes_adventurers"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center gap-2 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          id="uc-includes_adventurers"
+                          checked={field.value}
+                          onCheckedChange={(checked) => field.onChange(checked === true)}
+                        />
+                      </FormControl>
+                      <FormLabel
+                        htmlFor="uc-includes_adventurers"
+                        className="cursor-pointer font-normal"
+                      >
+                        {t("unionForm.adventurers")}
+                      </FormLabel>
+                    </FormItem>
+                  )}
                 />
-                <Label
-                  htmlFor="uc-includes_adventurers"
-                  className="cursor-pointer font-normal"
-                >
-                  {t("unionForm.adventurers")}
-                </Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id="uc-includes_pathfinders"
-                  checked={includesPathfinders}
-                  onCheckedChange={(checked) =>
-                    setValue("includes_pathfinders", checked === true)
-                  }
+                <FormField
+                  control={form.control}
+                  name="includes_pathfinders"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center gap-2 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          id="uc-includes_pathfinders"
+                          checked={field.value}
+                          onCheckedChange={(checked) => field.onChange(checked === true)}
+                        />
+                      </FormControl>
+                      <FormLabel
+                        htmlFor="uc-includes_pathfinders"
+                        className="cursor-pointer font-normal"
+                      >
+                        {t("unionForm.pathfinders")}
+                      </FormLabel>
+                    </FormItem>
+                  )}
                 />
-                <Label
-                  htmlFor="uc-includes_pathfinders"
-                  className="cursor-pointer font-normal"
-                >
-                  {t("unionForm.pathfinders")}
-                </Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id="uc-includes_master_guides"
-                  checked={includesMasterGuides}
-                  onCheckedChange={(checked) =>
-                    setValue("includes_master_guides", checked === true)
-                  }
+                <FormField
+                  control={form.control}
+                  name="includes_master_guides"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center gap-2 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          id="uc-includes_master_guides"
+                          checked={field.value}
+                          onCheckedChange={(checked) => field.onChange(checked === true)}
+                        />
+                      </FormControl>
+                      <FormLabel
+                        htmlFor="uc-includes_master_guides"
+                        className="cursor-pointer font-normal"
+                      >
+                        {t("unionForm.masterGuides")}
+                      </FormLabel>
+                    </FormItem>
+                  )}
                 />
-                <Label
-                  htmlFor="uc-includes_master_guides"
-                  className="cursor-pointer font-normal"
-                >
-                  {t("unionForm.masterGuides")}
-                </Label>
               </div>
             </div>
-          </div>
 
-          <DialogFooter className="pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
-            >
-              {t("unionForm.cancel")}
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting
-                ? isEdit
-                  ? t("unionForm.saving")
-                  : t("unionForm.creating")
-                : isEdit
-                  ? t("unionForm.saveChanges")
-                  : t("unionForm.createCamporee")}
-            </Button>
-          </DialogFooter>
-        </form>
+            <DialogFooter className="pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={isSubmitting}
+              >
+                {t("unionForm.cancel")}
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting
+                  ? isEdit
+                    ? t("unionForm.saving")
+                    : t("unionForm.creating")
+                  : isEdit
+                    ? t("unionForm.saveChanges")
+                    : t("unionForm.createCamporee")}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

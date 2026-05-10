@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -25,6 +24,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { useTranslations } from "next-intl";
 import { createPayment, updatePayment } from "@/lib/api/camporees";
 import type { CamporeePayment, CamporeeMember, PaymentType } from "@/lib/api/camporees";
@@ -93,14 +100,7 @@ export function PaymentDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const schema = useMemo(() => buildSchema(tVal), [tVal]);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm<FormValues>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(schema as z.ZodType<FormValues, FormValues>),
     defaultValues: {
       member_id: "",
@@ -112,20 +112,17 @@ export function PaymentDialog({
     },
   });
 
-  const paymentType = watch("payment_type");
-  const memberId = watch("member_id");
-
   // Pre-fill form when editing
   useEffect(() => {
     if (open && payment) {
-      setValue("member_id", payment.member_id);
-      setValue("amount", payment.amount);
-      setValue("payment_type", payment.payment_type);
-      setValue("reference", payment.reference ?? "");
-      setValue("notes", payment.notes ?? "");
-      setValue("paid_at", toDateInputValue(payment.paid_at));
+      form.setValue("member_id", payment.member_id);
+      form.setValue("amount", payment.amount);
+      form.setValue("payment_type", payment.payment_type);
+      form.setValue("reference", payment.reference ?? "");
+      form.setValue("notes", payment.notes ?? "");
+      form.setValue("paid_at", toDateInputValue(payment.paid_at));
     } else if (open && !payment) {
-      reset({
+      form.reset({
         member_id: "",
         amount: undefined,
         payment_type: "inscription",
@@ -134,11 +131,11 @@ export function PaymentDialog({
         paid_at: "",
       });
     }
-  }, [open, payment, reset, setValue]);
+  }, [open, payment, form]);
 
   function handleOpenChange(nextOpen: boolean) {
     if (!nextOpen) {
-      reset();
+      form.reset();
     }
     onOpenChange(nextOpen);
   }
@@ -187,138 +184,180 @@ export function PaymentDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
-          {/* Member */}
-          <div className="space-y-1.5">
-            <Label htmlFor="member_id">
-              {t("paymentDialog.labelMember")} <span aria-hidden="true" className="text-destructive">*</span>
-            </Label>
-            {isEditing ? (
-              <p className="rounded-md border border-border bg-muted/40 px-3 py-2 text-sm">
-                {payment?.member_name ?? payment?.member_id}
-              </p>
-            ) : (
-              <Select
-                value={memberId}
-                onValueChange={(val) => setValue("member_id", val)}
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="space-y-4">
+            {/* Member */}
+            <FormField
+              control={form.control}
+              name="member_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {t("paymentDialog.labelMember")} <span aria-hidden="true" className="text-destructive">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    {isEditing ? (
+                      <p className="rounded-md border border-border bg-muted/40 px-3 py-2 text-sm">
+                        {payment?.member_name ?? payment?.member_id}
+                      </p>
+                    ) : (
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger aria-required="true">
+                          <SelectValue placeholder={t("paymentDialog.placeholderMember")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {members.map((m) => (
+                            <SelectItem key={m.user_id} value={m.user_id}>
+                              {m.name ?? m.user_id}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Amount */}
+            <FormField
+              control={form.control}
+              name="amount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {t("paymentDialog.labelAmount")} <span aria-hidden="true" className="text-destructive">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min={0.01}
+                      step={0.01}
+                      aria-required="true"
+                      placeholder="0.00"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Payment type */}
+            <FormField
+              control={form.control}
+              name="payment_type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {t("paymentDialog.labelPaymentType")} <span aria-hidden="true" className="text-destructive">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Select
+                      value={field.value}
+                      onValueChange={(val) => field.onChange(val as PaymentType)}
+                    >
+                      <SelectTrigger aria-required="true">
+                        <SelectValue placeholder={t("paymentDialog.placeholderPaymentType")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {(Object.keys(PAYMENT_TYPE_LABELS) as PaymentType[]).map((key) => {
+                          const typeLabels: Record<PaymentType, string> = {
+                            inscription: t("paymentDialog.paymentTypeInscription"),
+                            materials: t("paymentDialog.paymentTypeMaterials"),
+                            other: t("paymentDialog.paymentTypeOther"),
+                          };
+                          return (
+                            <SelectItem key={key} value={key}>
+                              {typeLabels[key]}
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Reference */}
+            <FormField
+              control={form.control}
+              name="reference"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("paymentDialog.labelReference")}</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder={t("paymentDialog.placeholderReference")}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Paid at */}
+            <FormField
+              control={form.control}
+              name="paid_at"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("paymentDialog.labelPaidAt")}</FormLabel>
+                  <FormControl>
+                    <Input type="date" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Notes */}
+            <FormField
+              control={form.control}
+              name="notes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("paymentDialog.labelNotes")}</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder={t("paymentDialog.placeholderNotes")}
+                      rows={2}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <DialogFooter className="pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleOpenChange(false)}
+                disabled={isSubmitting}
               >
-                <SelectTrigger id="member_id" aria-required="true">
-                  <SelectValue placeholder={t("paymentDialog.placeholderMember")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {members.map((m) => (
-                    <SelectItem key={m.user_id} value={m.user_id}>
-                      {m.name ?? m.user_id}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-            {errors.member_id && (
-              <p className="text-xs text-destructive">{errors.member_id.message}</p>
-            )}
-          </div>
-
-          {/* Amount */}
-          <div className="space-y-1.5">
-            <Label htmlFor="amount">
-              {t("paymentDialog.labelAmount")} <span aria-hidden="true" className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="amount"
-              type="number"
-              min={0.01}
-              step={0.01}
-              aria-required="true"
-              {...register("amount")}
-              placeholder="0.00"
-            />
-            {errors.amount && (
-              <p className="text-xs text-destructive">{errors.amount.message}</p>
-            )}
-          </div>
-
-          {/* Payment type */}
-          <div className="space-y-1.5">
-            <Label htmlFor="payment_type">
-              {t("paymentDialog.labelPaymentType")} <span aria-hidden="true" className="text-destructive">*</span>
-            </Label>
-            <Select
-              value={paymentType}
-              onValueChange={(val) =>
-                setValue("payment_type", val as PaymentType)
-              }
-            >
-              <SelectTrigger id="payment_type" aria-required="true">
-                <SelectValue placeholder={t("paymentDialog.placeholderPaymentType")} />
-              </SelectTrigger>
-              <SelectContent>
-                {(Object.keys(PAYMENT_TYPE_LABELS) as PaymentType[]).map((key) => {
-                  const typeLabels: Record<PaymentType, string> = {
-                    inscription: t("paymentDialog.paymentTypeInscription"),
-                    materials: t("paymentDialog.paymentTypeMaterials"),
-                    other: t("paymentDialog.paymentTypeOther"),
-                  };
-                  return (
-                    <SelectItem key={key} value={key}>
-                      {typeLabels[key]}
-                    </SelectItem>
-                  );
-                })}
-              </SelectContent>
-            </Select>
-            {errors.payment_type && (
-              <p className="text-xs text-destructive">{errors.payment_type.message}</p>
-            )}
-          </div>
-
-          {/* Reference */}
-          <div className="space-y-1.5">
-            <Label htmlFor="reference">{t("paymentDialog.labelReference")}</Label>
-            <Input
-              id="reference"
-              {...register("reference")}
-              placeholder={t("paymentDialog.placeholderReference")}
-            />
-          </div>
-
-          {/* Paid at */}
-          <div className="space-y-1.5">
-            <Label htmlFor="paid_at">{t("paymentDialog.labelPaidAt")}</Label>
-            <Input id="paid_at" type="date" {...register("paid_at")} />
-          </div>
-
-          {/* Notes */}
-          <div className="space-y-1.5">
-            <Label htmlFor="notes">{t("paymentDialog.labelNotes")}</Label>
-            <Textarea
-              id="notes"
-              {...register("notes")}
-              placeholder={t("paymentDialog.placeholderNotes")}
-              rows={2}
-            />
-          </div>
-
-          <DialogFooter className="pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleOpenChange(false)}
-              disabled={isSubmitting}
-            >
-              {t("paymentDialog.cancel")}
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting
-                ? isEditing
-                  ? t("paymentDialog.saving")
-                  : t("paymentDialog.registering")
-                : isEditing
-                  ? t("paymentDialog.saveChanges")
-                  : t("paymentDialog.registerPayment")}
-            </Button>
-          </DialogFooter>
-        </form>
+                {t("paymentDialog.cancel")}
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting
+                  ? isEditing
+                    ? t("paymentDialog.saving")
+                    : t("paymentDialog.registering")
+                  : isEditing
+                    ? t("paymentDialog.saveChanges")
+                    : t("paymentDialog.registerPayment")}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
