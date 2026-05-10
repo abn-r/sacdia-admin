@@ -33,7 +33,7 @@ export function LocaleSwitcherMenu() {
   return (
     <DropdownMenuSub>
       <DropdownMenuSubTrigger>
-        <Globe className="mr-2 size-4" />
+        <Globe className="size-4" />
         <span>{currentLocale.label}</span>
       </DropdownMenuSubTrigger>
       <DropdownMenuPortal>

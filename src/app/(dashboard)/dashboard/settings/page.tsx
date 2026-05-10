@@ -1,4 +1,5 @@
 import { Settings2 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -9,6 +10,7 @@ import { requireAdminUser } from "@/lib/auth/session";
 
 export default async function SystemSettingsPage() {
   await requireAdminUser();
+  const t = await getTranslations("settings.pages.root");
 
   let configs: SystemConfig[] = [];
   let loadError: string | null = null;
@@ -19,14 +21,14 @@ export default async function SystemSettingsPage() {
     loadError =
       error instanceof ApiError
         ? error.message
-        : "No se pudo cargar la configuración del sistema.";
+        : t("loadFailed");
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Configuración del Sistema"
-        description="Parámetros globales del sistema agrupados por módulo."
+        title={t("title")}
+        description={t("description")}
       />
 
       {loadError && <EndpointErrorBanner state="missing" detail={loadError} />}
@@ -34,8 +36,8 @@ export default async function SystemSettingsPage() {
       {!loadError && configs.length === 0 && (
         <EmptyState
           icon={Settings2}
-          title="Sin configuraciones"
-          description="No hay entradas de configuración del sistema registradas."
+          title={t("emptyTitle")}
+          description={t("emptyDescription")}
         />
       )}
 

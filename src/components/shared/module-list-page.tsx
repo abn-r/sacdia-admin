@@ -11,6 +11,7 @@ import {
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { DataTableShell } from "@/components/shared/data-table-shell";
 import { getTranslations } from "next-intl/server";
 import { apiRequest, ApiError } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
@@ -107,7 +108,7 @@ export async function ModuleListPage({
       )}
 
       {available && items.length > 0 && (
-        <div className="rounded-md border">
+        <DataTableShell>
           <Table>
             <TableHeader>
               <TableRow>
@@ -137,7 +138,7 @@ export async function ModuleListPage({
                     })}
                     <TableCell>
                       <Badge
-                        variant={item.active !== false ? "default" : "outline"}
+                        variant={item.active !== false ? "soft-success" : "outline"}
                         className="text-xs"
                       >
                         {item.active !== false ? "Activo" : "Inactivo"}
@@ -148,7 +149,7 @@ export async function ModuleListPage({
               })}
             </TableBody>
           </Table>
-        </div>
+        </DataTableShell>
       )}
     </div>
   );

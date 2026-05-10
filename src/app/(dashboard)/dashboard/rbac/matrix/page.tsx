@@ -1,4 +1,5 @@
 import { Grid3X3 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
@@ -9,6 +10,7 @@ import type { Role, Permission } from "@/lib/rbac/types";
 import { ApiError } from "@/lib/api/client";
 
 export default async function MatrixPage() {
+  const t = await getTranslations("rbac.pages.matrix");
   await requireAdminUser();
 
   let roles: Role[] = [];
@@ -18,14 +20,14 @@ export default async function MatrixPage() {
   try {
     [roles, permissions] = await Promise.all([listRoles(), listPermissions()]);
   } catch (error) {
-    loadError = error instanceof ApiError ? error.message : "Error inesperado";
+    loadError = error instanceof ApiError ? error.message : t("loadError");
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Matriz de permisos"
-        description="Asigna permisos a roles directamente desde la tabla. Cada columna es un rol, cada fila un permiso."
+        title={t("title")}
+        description={t("description")}
       />
 
       {loadError && (
@@ -35,8 +37,8 @@ export default async function MatrixPage() {
       {!loadError && (roles.length === 0 || permissions.length === 0) && (
         <EmptyState
           icon={Grid3X3}
-          title="Sin datos"
-          description="No hay roles o permisos registrados para mostrar la matriz."
+          title={t("emptyTitle")}
+          description={t("emptyDescription")}
         />
       )}
     </div>

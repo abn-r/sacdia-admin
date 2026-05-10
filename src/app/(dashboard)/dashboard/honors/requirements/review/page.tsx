@@ -9,6 +9,7 @@ import {
   Loader2,
   X,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -70,6 +71,8 @@ function normalizeArray<T>(value: unknown): T[] {
 // ─── Component ─────────────────────────────────────────────────────────────────
 
 export default function ReviewPage() {
+  const t = useTranslations("honors.pages.requirementsReview");
+
   // ── View state ──────────────────────────────────────────────────────────────
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [splitIndex, setSplitIndex] = useState<number>(0);
@@ -126,11 +129,11 @@ export default function ReviewPage() {
       setErrorMessage(
         err instanceof Error
           ? err.message
-          : "No se pudieron cargar los requisitos pendientes.",
+          : t("loadError"),
       );
       setStatus("error");
     }
-  }, [page, limit, filterHonorId, filterCategoryId]);
+  }, [page, limit, filterHonorId, filterCategoryId, t]);
 
   const loadFilters = useCallback(async () => {
     if (filtersLoaded) return;
@@ -233,7 +236,7 @@ export default function ReviewPage() {
       await load();
     } catch (err) {
       setErrorMessage(
-        err instanceof Error ? err.message : "Error en la operación masiva.",
+        err instanceof Error ? err.message : t("batchError"),
       );
     } finally {
       setBatchLoading(false);
@@ -305,12 +308,12 @@ export default function ReviewPage() {
         {/* Back + header row */}
         <div className="flex items-center gap-3">
           <Button variant="outline" size="sm" onClick={closeSplit}>
-            <ArrowLeft className="mr-2 size-4" />
-            Volver a la lista
+            <ArrowLeft className="size-4" />
+            {t("backToList")}
           </Button>
           <div className="flex-1">
             <PageHeader
-              title="Revisión de requisito"
+              title={t("reviewItemTitle")}
               description={currentRequirement.honors.name}
             />
           </div>
@@ -337,11 +340,11 @@ export default function ReviewPage() {
     <div className="space-y-6">
       {/* Page header */}
       <PageHeader
-        title="Revisión de Requisitos"
-        description="Revisá y aprobá los requisitos importados que necesitan validación."
+        title={t("title")}
+        description={t("description")}
       >
         <Badge variant="warning" className="tabular-nums">
-          {status === "ready" ? total : "–"} pendientes
+          {status === "ready" ? t("pendingBadge", { count: total }) : "–"}
         </Badge>
       </PageHeader>
 
@@ -352,10 +355,10 @@ export default function ReviewPage() {
           onValueChange={handleHonorFilter}
         >
           <SelectTrigger className="h-8 w-[200px]">
-            <SelectValue placeholder="Todas las especialidades" />
+            <SelectValue placeholder={t("filterAllHonors")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todas las especialidades</SelectItem>
+            <SelectItem value="all">{t("filterAllHonors")}</SelectItem>
             {honors.map((h) => (
               <SelectItem key={h.honor_id} value={String(h.honor_id)}>
                 {h.name}
@@ -371,10 +374,10 @@ export default function ReviewPage() {
           onValueChange={handleCategoryFilter}
         >
           <SelectTrigger className="h-8 w-[180px]">
-            <SelectValue placeholder="Todas las categorías" />
+            <SelectValue placeholder={t("filterAllCategories")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todas las categorías</SelectItem>
+            <SelectItem value="all">{t("filterAllCategories")}</SelectItem>
             {categories.map((c) => {
               const id = c.honor_category_id ?? c.category_id;
               if (id === undefined) return null;
@@ -394,8 +397,9 @@ export default function ReviewPage() {
         {someSelected && (
           <>
             <span className="text-sm text-muted-foreground">
-              {selectedIds.size} seleccionado
-              {selectedIds.size !== 1 ? "s" : ""}
+              {selectedIds.size !== 1
+                ? t("selectedCountPlural", { count: selectedIds.size })
+                : t("selectedCount", { count: selectedIds.size })}
             </span>
             <Button
               size="sm"
@@ -407,7 +411,7 @@ export default function ReviewPage() {
               ) : (
                 <CheckCheck className="size-4" />
               )}
-              Aprobar seleccionados
+              {t("approveSelected")}
             </Button>
             <Button
               size="sm"
@@ -420,7 +424,7 @@ export default function ReviewPage() {
               ) : (
                 <X className="size-4" />
               )}
-              Rechazar seleccionados
+              {t("rejectSelected")}
             </Button>
           </>
         )}
@@ -439,10 +443,10 @@ export default function ReviewPage() {
           <AlertCircle className="mt-0.5 size-5 shrink-0 text-destructive" />
           <div className="space-y-1">
             <p className="text-sm font-medium text-destructive">
-              No se pudo cargar la información
+              {t("errorTitle")}
             </p>
             <p className="text-sm text-destructive/80">
-              {errorMessage ?? "Error desconocido."}
+              {errorMessage ?? t("loadError")}
             </p>
             <Button
               variant="outline"
@@ -450,7 +454,7 @@ export default function ReviewPage() {
               className="mt-2"
               onClick={() => void load()}
             >
-              Reintentar
+              {t("retryButton")}
             </Button>
           </div>
         </div>
@@ -460,8 +464,8 @@ export default function ReviewPage() {
       {status === "ready" && items.length === 0 && (
         <EmptyState
           icon={ClipboardList}
-          title="Sin requisitos pendientes"
-          description="No hay requisitos esperando revisión en este momento."
+          title={t("emptyTitle")}
+          description={t("emptyDescription")}
         />
       )}
 
@@ -476,20 +480,20 @@ export default function ReviewPage() {
                     <Checkbox
                       checked={allOnPageSelected}
                       onCheckedChange={toggleAll}
-                      aria-label="Seleccionar todos"
+                      aria-label={t("selectAll")}
                     />
                   </TableHead>
                   <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Especialidad
+                    {t("colHonor")}
                   </TableHead>
                   <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Etiqueta
+                    {t("colLabel")}
                   </TableHead>
                   <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Texto del requisito
+                    {t("colText")}
                   </TableHead>
                   <TableHead className="w-24 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Acciones
+                    {t("colActions")}
                   </TableHead>
                 </TableRow>
               </TableHeader>
@@ -508,7 +512,7 @@ export default function ReviewPage() {
                       <Checkbox
                         checked={selectedIds.has(req.requirement_id)}
                         onCheckedChange={() => toggleItem(req.requirement_id)}
-                        aria-label={`Seleccionar requisito ${req.requirement_id}`}
+                        aria-label={t("selectRequirement", { id: req.requirement_id })}
                       />
                     </TableCell>
                     <TableCell>
@@ -539,7 +543,7 @@ export default function ReviewPage() {
                         size="sm"
                         onClick={() => openSplit(index)}
                       >
-                        Revisar
+                        {t("reviewButton")}
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -551,13 +555,15 @@ export default function ReviewPage() {
           {/* Pagination */}
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
             <p className="text-sm text-muted-foreground">
-              Mostrando{" "}
-              {Math.min((page - 1) * limit + 1, total)}–
-              {Math.min(page * limit, total)} de {total} requisitos
+              {t("showing", {
+                from: Math.min((page - 1) * limit + 1, total),
+                to: Math.min(page * limit, total),
+                total,
+              })}
             </p>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Por página</span>
+                <span className="text-sm text-muted-foreground">{t("perPage")}</span>
                 <Select
                   value={String(limit)}
                   onValueChange={handleLimitChange}
@@ -576,7 +582,7 @@ export default function ReviewPage() {
               </div>
               <div className="flex items-center gap-1">
                 <span className="text-sm text-muted-foreground">
-                  Página {page} de {totalPages}
+                  {t("pageOf", { page, total: totalPages })}
                 </span>
                 <Button
                   variant="outline"
@@ -584,7 +590,7 @@ export default function ReviewPage() {
                   className="size-8"
                   disabled={page <= 1}
                   onClick={() => setPage((p) => p - 1)}
-                  aria-label="Página anterior"
+                  aria-label={t("prevPage")}
                 >
                   <ArrowLeft className="size-4" />
                 </Button>
@@ -594,7 +600,7 @@ export default function ReviewPage() {
                   className="size-8"
                   disabled={page >= totalPages}
                   onClick={() => setPage((p) => p + 1)}
-                  aria-label="Página siguiente"
+                  aria-label={t("nextPage")}
                 >
                   <ArrowLeft className="size-4 rotate-180" />
                 </Button>

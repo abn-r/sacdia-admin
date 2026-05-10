@@ -239,11 +239,11 @@ function RequirementRow({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => onEdit(node)}>
-                  <Pencil className="mr-2 size-4" />
+                  <Pencil className="size-4" />
                   Editar
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => onAddSubItem(node)}>
-                  <Plus className="mr-2 size-4" />
+                  <Plus className="size-4" />
                   Agregar sub-requisito
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -251,7 +251,7 @@ function RequirementRow({
                   onClick={() => onDelete(node)}
                   className="text-destructive focus:text-destructive"
                 >
-                  <Trash2 className="mr-2 size-4" />
+                  <Trash2 className="size-4" />
                   Eliminar
                 </DropdownMenuItem>
               </DropdownMenuContent>

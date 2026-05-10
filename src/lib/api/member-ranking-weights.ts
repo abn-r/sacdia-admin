@@ -305,7 +305,7 @@ export async function getMemberRankingWeights(
   const row = asRecord(r.data) ?? r;
   const normalized = normalizeWeightRow(row);
   if (!normalized) {
-    throw new ApiError("No se pudo normalizar la configuracion de pesos", 500, payload);
+    throw new ApiError("No se pudo normalizar la configuración de pesos", 500, payload);
   }
 
   return normalized;

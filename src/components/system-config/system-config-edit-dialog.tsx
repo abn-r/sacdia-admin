@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -21,13 +21,15 @@ import { useTranslations } from "next-intl";
 import { updateSystemConfig, type SystemConfig } from "@/lib/api/system-config";
 import { ApiError } from "@/lib/api/client";
 
-// ─── Schema ───────────────────────────────────────────────────────────────────
+// ─── Schema factory ───────────────────────────────────────────────────────────
 
-const formSchema = z.object({
-  config_value: z.string().min(1, "El valor no puede estar vacío"),
-});
+function buildSchema(t: ReturnType<typeof useTranslations<"system_config.validation">>) {
+  return z.object({
+    config_value: z.string().min(1, t("config_value_required")),
+  });
+}
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof buildSchema>>;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -47,10 +49,12 @@ export function SystemConfigEditDialog({
   onSuccess,
 }: SystemConfigEditDialogProps) {
   const t = useTranslations("system_config");
+  const tVal = useTranslations("system_config.validation");
   const [isPending, setIsPending] = useState(false);
+  const schema = useMemo(() => buildSchema(tVal), [tVal]);
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(schema),
     defaultValues: { config_value: config?.config_value ?? "" },
   });
 
@@ -65,8 +69,8 @@ export function SystemConfigEditDialog({
     if (!config) return;
     setIsPending(true);
     try {
-      await updateSystemConfig(config.key, { config_value: values.config_value });
-      toast.success(`Configuración "${config.key}" actualizada`);
+      await updateSystemConfig(config.config_key, { config_value: values.config_value });
+      toast.success(`Configuración "${config.config_key}" actualizada`);
       onOpenChange(false);
       onSuccess();
     } catch (error) {
@@ -94,9 +98,9 @@ export function SystemConfigEditDialog({
             Editar configuración
           </DialogTitle>
           <DialogDescription>
-            {config?.key && (
+            {config?.config_key && (
               <>
-                Modificá el valor de <code className="rounded bg-muted px-1 py-0.5 text-xs">{config.key}</code>.
+                Modificá el valor de <code className="rounded bg-muted px-1 py-0.5 text-xs">{config.config_key}</code>.
                 {config.description && (
                   <span className="mt-1 block text-muted-foreground">{config.description}</span>
                 )}
@@ -138,7 +142,7 @@ export function SystemConfigEditDialog({
               Cancelar
             </Button>
             <Button type="submit" disabled={isPending}>
-              {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
+              {isPending && <Loader2 className="size-4 animate-spin" />}
               Guardar
             </Button>
           </DialogFooter>

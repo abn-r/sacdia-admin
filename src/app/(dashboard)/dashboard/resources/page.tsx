@@ -1,6 +1,53 @@
-import { ResourcesCrudPage } from "@/components/resources/resources-crud-page";
+import dynamic from "next/dynamic";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { getTranslations } from "next-intl/server";
 import { ApiError } from "@/lib/api/client";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const ResourcesCrudPage = dynamic(
+  () =>
+    import("@/components/resources/resources-crud-page").then((m) => ({
+      default: m.ResourcesCrudPage,
+    })),
+  {
+    loading: () => (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-9 w-48" />
+          <Skeleton className="h-9 w-32" />
+        </div>
+        <div className="rounded-xl border">
+          <div className="border-b p-4">
+            <div className="flex gap-3">
+              <Skeleton className="h-9 w-64" />
+              <Skeleton className="h-9 w-36" />
+              <Skeleton className="h-9 w-36" />
+            </div>
+          </div>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-4 border-b px-4 py-3 last:border-0">
+              <Skeleton className="size-10 rounded-lg" />
+              <div className="flex-1 space-y-1.5">
+                <Skeleton className="h-4 w-48" />
+                <Skeleton className="h-3 w-72" />
+              </div>
+              <Skeleton className="h-6 w-20 rounded-full" />
+              <Skeleton className="h-8 w-8 rounded-md" />
+            </div>
+          ))}
+        </div>
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-5 w-32" />
+          <div className="flex gap-2">
+            <Skeleton className="h-8 w-8 rounded-md" />
+            <Skeleton className="h-8 w-8 rounded-md" />
+            <Skeleton className="h-8 w-8 rounded-md" />
+          </div>
+        </div>
+      </div>
+    ),
+  },
+);
 import { listResources, listResourceCategories } from "@/lib/api/resources";
 import type { ResourceType, ClubTypeTarget, ScopeLevel } from "@/lib/api/resources";
 import { listUnions, listLocalFields } from "@/lib/api/geography";
@@ -143,12 +190,13 @@ export default async function ResourcesPage({
   searchParams: SearchParams;
 }) {
   const user = await requireAdminUser();
+  const t = await getTranslations("resources.pages.list");
 
   if (!hasAnyPermission(user, [RESOURCES_READ])) {
     return (
       <EndpointErrorBanner
         state="forbidden"
-        detail="No cuentas con permisos para ver recursos."
+        detail={t("forbiddenDetail")}
       />
     );
   }

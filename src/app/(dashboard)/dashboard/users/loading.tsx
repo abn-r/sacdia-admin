@@ -1,4 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
+import { DataTableShell } from "@/components/shared/data-table-shell";
 
 export default function UsersLoading() {
   return (
@@ -12,7 +13,7 @@ export default function UsersLoading() {
         <Skeleton className="h-9 w-[160px]" />
         <Skeleton className="h-9 w-[140px]" />
       </div>
-      <div className="rounded-md border">
+      <DataTableShell>
         {Array.from({ length: 8 }).map((_, i) => (
           <div key={i} className="flex items-center gap-4 border-b p-4 last:border-b-0">
             <Skeleton className="size-8 rounded-full" />
@@ -24,7 +25,7 @@ export default function UsersLoading() {
             <Skeleton className="h-5 w-14" />
           </div>
         ))}
-      </div>
+      </DataTableShell>
     </div>
   );
 }

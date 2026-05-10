@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { ImageIcon, Loader2, UploadCloud, X } from "lucide-react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { uploadAchievementImage } from "@/lib/api/achievements";
 import type { AchievementTier } from "@/lib/api/achievements";
@@ -26,12 +27,16 @@ interface Props {
   onUploaded?: (url: string) => void;
 }
 
-function validateFile(file: File): string | null {
+function validateFile(
+  file: File,
+  typeError: string,
+  sizeError: string,
+): string | null {
   if (!ACCEPTED_TYPES.includes(file.type)) {
-    return "Solo se permiten imágenes PNG, SVG o WebP.";
+    return typeError;
   }
   if (file.size > MAX_SIZE_BYTES) {
-    return "El archivo no puede superar los 2 MB.";
+    return sizeError;
   }
   return null;
 }
@@ -42,6 +47,7 @@ export function BadgeImageUpload({
   tier,
   onUploaded,
 }: Props) {
+  const t = useTranslations("achievements.imageUpload");
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(currentImageUrl ?? null);
   const [uploading, setUploading] = useState(false);
@@ -50,7 +56,7 @@ export function BadgeImageUpload({
   const ringColor = TIER_RING_COLORS[tier];
 
   async function processFile(file: File) {
-    const error = validateFile(file);
+    const error = validateFile(file, t("validateTypeError"), t("validateSizeError"));
     if (error) {
       toast.error(error);
       return;
@@ -62,7 +68,7 @@ export function BadgeImageUpload({
 
     if (!achievementId) {
       // Can't upload without an ID — just preview
-      toast.warning("Guarda el logro primero para poder subir la imagen.");
+      toast.warning(t("toastSaveFirst"));
       return;
     }
 
@@ -70,9 +76,9 @@ export function BadgeImageUpload({
       setUploading(true);
       const result = await uploadAchievementImage(achievementId, file);
       onUploaded?.(result.badge_image_url);
-      toast.success("Imagen del logro actualizada correctamente.");
+      toast.success(t("toastSuccess"));
     } catch {
-      toast.error("No se pudo subir la imagen. Intenta de nuevo.");
+      toast.error(t("toastError"));
       setPreview(currentImageUrl ?? null);
     } finally {
       setUploading(false);
@@ -111,7 +117,7 @@ export function BadgeImageUpload({
       <div
         role="button"
         tabIndex={0}
-        aria-label="Zona para subir imagen del logro"
+        aria-label={t("dropzoneAriaLabel")}
         className={[
           "relative flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 text-center transition-colors",
           dragOver
@@ -130,9 +136,9 @@ export function BadgeImageUpload({
           <UploadCloud className="mb-3 size-8 text-muted-foreground" />
         )}
         <p className="text-sm font-medium">
-          {uploading ? "Subiendo imagen..." : "Arrastra una imagen o haz clic para seleccionar"}
+          {uploading ? t("uploading") : t("dropzonePrompt")}
         </p>
-        <p className="mt-1 text-xs text-muted-foreground">PNG, SVG o WebP — máximo 2 MB</p>
+        <p className="mt-1 text-xs text-muted-foreground">{t("dropzoneHint")}</p>
 
         <input
           ref={inputRef}
@@ -155,7 +161,7 @@ export function BadgeImageUpload({
           >
             <Image
               src={preview}
-              alt="Vista previa del logro"
+              alt={t("previewAlt")}
               fill
               className="object-cover"
               unoptimized
@@ -163,9 +169,9 @@ export function BadgeImageUpload({
           </div>
 
           <div className="flex-1 space-y-1">
-            <p className="text-sm font-medium">Vista previa</p>
+            <p className="text-sm font-medium">{t("previewTitle")}</p>
             <p className="text-xs text-muted-foreground">
-              Nivel:{" "}
+              {t("tierLabel")}{" "}
               <span className="font-medium" style={{ color: ringColor }}>
                 {tier}
               </span>
@@ -178,7 +184,7 @@ export function BadgeImageUpload({
             size="icon"
             className="size-8 shrink-0 text-muted-foreground hover:text-destructive"
             onClick={handleClear}
-            aria-label="Eliminar imagen"
+            aria-label={t("removeAriaLabel")}
           >
             <X className="size-4" />
           </Button>
@@ -196,9 +202,9 @@ export function BadgeImageUpload({
             <ImageIcon className="size-8 text-muted-foreground" />
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">Sin imagen</p>
+            <p className="text-sm text-muted-foreground">{t("noImageLabel")}</p>
             <p className="text-xs text-muted-foreground">
-              Nivel:{" "}
+              {t("tierLabel")}{" "}
               <span style={{ color: ringColor }} className="font-medium">
                 {tier}
               </span>

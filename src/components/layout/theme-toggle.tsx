@@ -1,11 +1,13 @@
 "use client";
 
 import { Moon, Sun } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 export function ThemeToggle() {
+  const t = useTranslations("nav.themeToggle");
   const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -16,9 +18,9 @@ export function ThemeToggle() {
   const nextTheme = isDark ? "light" : "dark";
   const label = mounted
     ? isDark
-      ? "Cambiar a modo claro"
-      : "Cambiar a modo oscuro"
-    : "Cambiar tema";
+      ? t("switchToLight")
+      : t("switchToDark")
+    : t("switchTheme");
 
   return (
     <Button

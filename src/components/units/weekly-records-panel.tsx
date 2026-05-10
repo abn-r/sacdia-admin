@@ -25,6 +25,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -139,6 +140,9 @@ function AddRecordDialog({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Nuevo registro semanal</DialogTitle>
+          <DialogDescription>
+            Registrá la asistencia, puntualidad y puntajes de categorías para un miembro de la unidad.
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -149,7 +153,7 @@ function AddRecordDialog({
             </Label>
             <Select value={userId} onValueChange={setUserId}>
               <SelectTrigger id="record_user" className="w-full">
-                <SelectValue placeholder="Seleccionar miembro" />
+                <SelectValue placeholder={t("placeholders.selectMember")} />
               </SelectTrigger>
               <SelectContent>
                 {members.map((m) => (
@@ -259,7 +263,7 @@ function AddRecordDialog({
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
-                  <Loader2 className="mr-2 size-4 animate-spin" />
+                  <Loader2 className="size-4 animate-spin" />
                   Guardando...
                 </>
               ) : (
@@ -492,7 +496,7 @@ export function WeeklyRecordsPanel({
   if (recordsLoading) {
     return (
       <div className="flex items-center justify-center py-8 text-muted-foreground">
-        <Loader2 className="mr-2 size-4 animate-spin" />
+        <Loader2 className="size-4 animate-spin" />
         <span className="text-sm">Cargando registros...</span>
       </div>
     );

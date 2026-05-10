@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { Plus, RefreshCw } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -31,13 +32,13 @@ type Section = {
 
 type ActivityTypeOption = {
   value: number;
-  label: string;
+  labelKey: "regular" | "especial" | "camporee";
 };
 
 const ACTIVITY_TYPES: ActivityTypeOption[] = [
-  { value: 1, label: "Regular" },
-  { value: 2, label: "Especial" },
-  { value: 3, label: "Camporee" },
+  { value: 1, labelKey: "regular" },
+  { value: 2, labelKey: "especial" },
+  { value: 3, labelKey: "camporee" },
 ];
 
 // ─── Normalize helpers ─────────────────────────────────────────────────────────
@@ -109,6 +110,8 @@ export function ActivitiesView({
   initialActivities,
   initialClubId,
 }: ActivitiesViewProps) {
+  const t = useTranslations("activities");
+
   const [selectedClubId, setSelectedClubId] = useState<number | null>(initialClubId);
   const [activities, setActivities] = useState<Activity[]>(initialActivities);
   const [filterTypeId, setFilterTypeId] = useState<number | null>(null);
@@ -140,14 +143,14 @@ export function ActivitiesView({
         const message =
           err instanceof ApiError
             ? err.message
-            : "No se pudieron cargar las actividades";
+            : t("view.errors.loadFailed");
         setLoadError(message);
         setActivities([]);
       } finally {
         setIsLoading(false);
       }
     },
-    [],
+    [t],
   );
 
   function handleClubChange(value: string) {
@@ -205,7 +208,7 @@ export function ActivitiesView({
             onValueChange={handleClubChange}
           >
             <SelectTrigger className="w-52">
-              <SelectValue placeholder="Seleccionar club" />
+              <SelectValue placeholder={t("view.selectClubPlaceholder")} />
             </SelectTrigger>
             <SelectContent>
               {clubs.map((club) => (
@@ -223,13 +226,13 @@ export function ActivitiesView({
             disabled={!selectedClubId}
           >
             <SelectTrigger className="w-44">
-              <SelectValue placeholder="Todos los tipos" />
+              <SelectValue placeholder={t("view.allTypes")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todos los tipos</SelectItem>
-              {ACTIVITY_TYPES.map((t) => (
-                <SelectItem key={t.value} value={String(t.value)}>
-                  {t.label}
+              <SelectItem value="all">{t("view.allTypes")}</SelectItem>
+              {ACTIVITY_TYPES.map((type) => (
+                <SelectItem key={type.value} value={String(type.value)}>
+                  {t(`view.types.${type.labelKey}`)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -240,16 +243,16 @@ export function ActivitiesView({
             size="icon-sm"
             onClick={handleRefresh}
             disabled={!selectedClubId || isLoading}
-            title="Actualizar"
+            title={t("view.refresh")}
           >
             <RefreshCw className={`size-3.5 ${isLoading ? "animate-spin" : ""}`} />
-            <span className="sr-only">Actualizar</span>
+            <span className="sr-only">{t("view.refresh")}</span>
           </Button>
         </div>
 
         <Button onClick={handleCreate} disabled={!selectedClubId} size="sm">
           <Plus className="size-4" />
-          Nueva actividad
+          {t("view.newActivity")}
         </Button>
       </div>
 
@@ -264,14 +267,16 @@ export function ActivitiesView({
       {selectedClubId && !loadError && (
         <p className="text-sm text-muted-foreground">
           <span className="font-medium text-foreground">{filteredActivities.length}</span>{" "}
-          {filteredActivities.length === 1 ? "actividad encontrada" : "actividades encontradas"}
+          {filteredActivities.length === 1
+            ? t("view.activitiesFoundOne")
+            : t("view.activitiesFoundOther")}
         </p>
       )}
 
       {/* Table */}
       {isLoading ? (
         <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">
-          Cargando actividades...
+          {t("view.loading")}
         </div>
       ) : (
         <ActivitiesTable

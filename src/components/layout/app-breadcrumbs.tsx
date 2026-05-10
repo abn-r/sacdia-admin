@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
@@ -12,48 +13,19 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Fragment } from "react";
 
-const labelMap: Record<string, string> = {
-  dashboard: "Dashboard",
-  users: "Usuarios",
-  catalogs: "Catálogos",
-  geography: "Geografía",
-  countries: "Países",
-  unions: "Uniones",
-  "local-fields": "Campos locales",
-  districts: "Distritos",
-  churches: "Iglesias",
-  allergies: "Alergias",
-  diseases: "Enfermedades",
-  medicines: "Medicamentos",
-  "relationship-types": "Tipos de relación",
-  "ecclesiastical-years": "Años eclesiásticos",
-  "club-types": "Tipos de club",
-  "club-ideals": "Ideales de club",
-  "honor-categories": "Categorías de especialidades",
-  clubs: "Clubes",
-  new: "Nuevo",
-  instances: "Instancias",
-  camporees: "Camporees",
-  classes: "Clases",
-  honors: "Especialidades",
-  activities: "Actividades",
-  finances: "Finanzas",
-  inventory: "Inventario",
-  certifications: "Certificaciones",
-  insurance: "Seguros",
-  notifications: "Notificaciones",
-  folders: "Folders",
-  rbac: "Roles y permisos",
-  permissions: "Permisos",
-  roles: "Roles",
-  matrix: "Matriz",
-};
-
-function getLabel(segment: string): string {
-  return labelMap[segment] ?? segment;
-}
+// Segments that have a known translation key in nav.breadcrumbs
+const TRANSLATED_SEGMENTS = new Set([
+  "dashboard", "users", "catalogs", "geography", "countries", "unions",
+  "local-fields", "districts", "churches", "allergies", "diseases",
+  "medicines", "relationship-types", "ecclesiastical-years", "club-types",
+  "club-ideals", "honor-categories", "clubs", "new", "instances",
+  "camporees", "classes", "honors", "activities", "finances", "inventory",
+  "certifications", "insurance", "notifications", "folders", "rbac",
+  "permissions", "roles", "matrix",
+]);
 
 export function AppBreadcrumbs() {
+  const t = useTranslations("nav.breadcrumbs");
   const pathname = usePathname();
   const segments = pathname.split("/").filter(Boolean);
 
@@ -62,7 +34,11 @@ export function AppBreadcrumbs() {
   const crumbs = segments.map((segment, index) => {
     const href = "/" + segments.slice(0, index + 1).join("/");
     const isLast = index === segments.length - 1;
-    return { label: getLabel(segment), href, isLast };
+    // Translate known segments; fall back to raw segment for dynamic IDs / unknown routes
+    const label = TRANSLATED_SEGMENTS.has(segment)
+      ? t(segment as Parameters<typeof t>[0])
+      : segment;
+    return { label, href, isLast };
   });
 
   return (

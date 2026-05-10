@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ChevronRight, Pencil, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,12 +30,14 @@ function formatTime(time?: string | null): string {
 }
 
 export function ActivitiesTable({ items, onEdit, onDelete }: ActivitiesTableProps) {
+  const t = useTranslations("activities");
+
   if (items.length === 0) {
     return (
       <EmptyState
         icon={Calendar}
-        title="Sin actividades"
-        description="No se encontraron actividades para los filtros seleccionados."
+        title={t("table.emptyTitle")}
+        description={t("table.emptyDescription")}
       />
     );
   }
@@ -45,22 +48,22 @@ export function ActivitiesTable({ items, onEdit, onDelete }: ActivitiesTableProp
         <TableHeader>
           <TableRow>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Nombre
+              {t("table.colName")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Tipo
+              {t("table.colType")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Hora
+              {t("table.colTime")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Lugar
+              {t("table.colPlace")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Modalidad
+              {t("table.colMode")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Estado
+              {t("table.colStatus")}
             </TableHead>
             <TableHead className="h-9 w-32 px-3" />
           </TableRow>
@@ -74,7 +77,7 @@ export function ActivitiesTable({ items, onEdit, onDelete }: ActivitiesTableProp
             const platformLabel =
               activity.platform != null
                 ? (PLATFORM_LABELS[activity.platform] ?? "—")
-                : "Presencial";
+                : t("table.platformInPerson");
 
             return (
               <TableRow key={activity.activity_id} className="hover:bg-muted/30">
@@ -96,8 +99,8 @@ export function ActivitiesTable({ items, onEdit, onDelete }: ActivitiesTableProp
                   {platformLabel}
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle">
-                  <Badge variant={activity.active !== false ? "default" : "outline"}>
-                    {activity.active !== false ? "Activa" : "Inactiva"}
+                  <Badge variant={activity.active !== false ? "soft-success" : "outline"}>
+                    {activity.active !== false ? t("table.statusActive") : t("table.statusInactive")}
                   </Badge>
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle">
@@ -107,10 +110,10 @@ export function ActivitiesTable({ items, onEdit, onDelete }: ActivitiesTableProp
                         variant="ghost"
                         size="icon-sm"
                         onClick={() => onEdit(activity)}
-                        title="Editar actividad"
+                        title={t("table.editTitle")}
                       >
                         <Pencil className="size-3.5" />
-                        <span className="sr-only">Editar</span>
+                        <span className="sr-only">{t("table.editLabel")}</span>
                       </Button>
                     )}
                     {onDelete && (
@@ -118,17 +121,17 @@ export function ActivitiesTable({ items, onEdit, onDelete }: ActivitiesTableProp
                         variant="ghost"
                         size="icon-sm"
                         onClick={() => onDelete(activity)}
-                        title="Eliminar actividad"
+                        title={t("table.deleteTitle")}
                         className="text-destructive hover:text-destructive"
                       >
                         <Trash2 className="size-3.5" />
-                        <span className="sr-only">Eliminar</span>
+                        <span className="sr-only">{t("table.deleteLabel")}</span>
                       </Button>
                     )}
                     <Button variant="ghost" size="icon-sm" asChild>
                       <Link href={`/dashboard/activities/${activity.activity_id}`}>
                         <ChevronRight className="size-4" />
-                        <span className="sr-only">Ver detalle</span>
+                        <span className="sr-only">{t("table.viewDetail")}</span>
                       </Link>
                     </Button>
                   </div>

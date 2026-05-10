@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RankingScoreBadge } from "@/components/rankings/ranking-score-badge";
 import type {
@@ -12,25 +15,27 @@ function WeightsCard({
 }: {
   weights: RankingBreakdown["weights_applied"];
 }) {
+  const t = useTranslations("rankings.breakdown");
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Pesos aplicados</CardTitle>
+        <CardTitle>{t("weightsApplied")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-1 text-sm">
         <div className="text-muted-foreground">
-          Fuente:{" "}
+          {t("weightsSource")}:{" "}
           <span className="text-foreground font-medium">
             {weights.source === "default"
-              ? "Default global"
-              : "Override por tipo de club"}
+              ? t("weightsSourceDefault")
+              : t("weightsSourceOverride")}
           </span>
         </div>
         <div className="flex flex-wrap gap-x-4 gap-y-1">
-          <span>Carpetas: {weights.folder}%</span>
-          <span>Finanzas: {weights.finance}%</span>
-          <span>Camporees: {weights.camporee}%</span>
-          <span>Evidencias: {weights.evidence}%</span>
+          <span>{t("componentFolder")}: {weights.folder}%</span>
+          <span>{t("componentFinance")}: {weights.finance}%</span>
+          <span>{t("componentCamporee")}: {weights.camporee}%</span>
+          <span>{t("componentEvidence")}: {weights.evidence}%</span>
         </div>
       </CardContent>
     </Card>
@@ -68,6 +73,7 @@ interface Props {
 }
 
 export function BreakdownView({ data }: Props) {
+  const t = useTranslations("rankings.breakdown");
   const { components: c, weights_applied } = data;
 
   return (
@@ -76,7 +82,7 @@ export function BreakdownView({ data }: Props) {
       <div className="flex items-center gap-3">
         <RankingScoreBadge value={data.composite_score_pct} className="text-lg px-3 py-1" />
         <span className="text-sm text-muted-foreground">
-          Puntaje compuesto institucional
+          {t("compositeScore")}
         </span>
       </div>
 
@@ -86,16 +92,16 @@ export function BreakdownView({ data }: Props) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between text-base">
-              Carpetas
+              {t("componentFolder")}
               <RankingScoreBadge value={c.folder.score_pct} />
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-1 text-sm">
             <div>
-              {c.folder.earned_points} / {c.folder.max_points} puntos
+              {t("pointsOf", { earned: c.folder.earned_points, max: c.folder.max_points })}
             </div>
             <div className="text-muted-foreground">
-              {c.folder.sections_evaluated} secciones evaluadas
+              {t("sectionsEvaluated", { count: c.folder.sections_evaluated })}
             </div>
           </CardContent>
         </Card>
@@ -104,21 +110,20 @@ export function BreakdownView({ data }: Props) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between text-base">
-              Finanzas
+              {t("componentFinance")}
               <RankingScoreBadge value={c.finance.score_pct} />
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-1 text-sm">
             <div>
-              {c.finance.months_closed_on_time} / {c.finance.months_total}{" "}
-              meses cerrados a tiempo
+              {t("monthsClosedOnTime", { closed: c.finance.months_closed_on_time, total: c.finance.months_total })}
             </div>
             <div className="text-muted-foreground">
-              Deadline: día {c.finance.deadline_day} del mes siguiente
+              {t("deadlineDay", { day: c.finance.deadline_day })}
             </div>
             {c.finance.missed_months.length > 0 && (
               <div className="text-destructive text-xs">
-                Meses faltantes: {c.finance.missed_months.join(", ")}
+                {t("missedMonths", { months: c.finance.missed_months.join(", ") })}
               </div>
             )}
           </CardContent>
@@ -128,14 +133,13 @@ export function BreakdownView({ data }: Props) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between text-base">
-              Camporees
+              {t("componentCamporee")}
               <RankingScoreBadge value={c.camporee.score_pct} />
             </CardTitle>
           </CardHeader>
           <CardContent className="text-sm">
             <div>
-              {c.camporee.attended} / {c.camporee.available_in_scope} eventos
-              del scope
+              {t("camporeeEventsOf", { attended: c.camporee.attended, available: c.camporee.available_in_scope })}
             </div>
             <CamporeeEventList events={c.camporee.events} />
           </CardContent>
@@ -145,17 +149,16 @@ export function BreakdownView({ data }: Props) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between text-base">
-              Evidencias
+              {t("componentEvidence")}
               <RankingScoreBadge value={c.evidence.score_pct} />
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-1 text-sm">
             <div>
-              {c.evidence.validated} validadas / {c.evidence.rejected}{" "}
-              rechazadas
+              {t("evidenceValidatedRejected", { validated: c.evidence.validated, rejected: c.evidence.rejected })}
             </div>
             <div className="text-xs text-muted-foreground">
-              {c.evidence.pending_excluded} pendientes (excluidas del cálculo)
+              {t("evidencePendingExcluded", { pending: c.evidence.pending_excluded })}
             </div>
           </CardContent>
         </Card>

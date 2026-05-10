@@ -1,8 +1,40 @@
-import { FolderOpen } from "lucide-react";
+import dynamic from "next/dynamic";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-import { TemplatesClientPage } from "@/components/annual-folders/templates-client-page";
+import { Skeleton } from "@/components/ui/skeleton";
 import { requireAdminUser } from "@/lib/auth/session";
+
+const TemplatesClientPage = dynamic(
+  () =>
+    import("@/components/annual-folders/templates-client-page").then((m) => ({
+      default: m.TemplatesClientPage,
+    })),
+  {
+    loading: () => (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-9 w-36" />
+        </div>
+        <div className="rounded-xl border">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-4 border-b px-4 py-4 last:border-0">
+              <div className="flex-1 space-y-1.5">
+                <Skeleton className="h-4 w-56" />
+                <Skeleton className="h-3 w-40" />
+              </div>
+              <Skeleton className="h-6 w-24 rounded-full" />
+              <div className="flex gap-2">
+                <Skeleton className="h-8 w-8 rounded-md" />
+                <Skeleton className="h-8 w-8 rounded-md" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    ),
+  },
+);
 import { ApiError, apiRequest } from "@/lib/api/client";
 import { listClubTypes, listEcclesiasticalYears } from "@/lib/api/catalogs";
 import type { FolderTemplate } from "@/lib/api/annual-folders";
@@ -25,6 +57,7 @@ function extractArray(payload: unknown): AnyRecord[] {
 
 export default async function TemplatesPage() {
   await requireAdminUser();
+  const t = await getTranslations("annual_folders");
 
   let templates: FolderTemplate[] = [];
   let clubTypes: ClubType[] = [];
@@ -44,7 +77,7 @@ export default async function TemplatesPage() {
     loadError =
       err instanceof ApiError
         ? err.message
-        : "No se pudieron cargar las plantillas.";
+        : t("pageTemplates.errorFallback");
   }
 
   if (clubTypesResult.status === "fulfilled") {
@@ -62,8 +95,8 @@ export default async function TemplatesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Plantillas de carpeta anual"
-        description="Define la estructura de secciones para cada tipo de club y año eclesiástico."
+        title={t("pageTemplates.title")}
+        description={t("pageTemplates.description")}
       />
 
       {loadError && (

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { CheckCircle2, XCircle, ArrowRightLeft } from "lucide-react";
 import {
   Table,
@@ -21,6 +22,7 @@ import {
   type ReviewAction,
   type ReviewRequestPayload,
 } from "@/lib/api/requests";
+import { useFormatDate } from "@/lib/format-locale";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -28,19 +30,6 @@ function getUserName(user?: TransferRequest["requester"]): string {
   if (!user) return "—";
   const full = [user.first_name, user.last_name].filter(Boolean).join(" ");
   return full || user.email || "—";
-}
-
-function formatDate(iso?: string | null): string {
-  if (!iso) return "—";
-  try {
-    return new Intl.DateTimeFormat("es-MX", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    }).format(new Date(iso));
-  } catch {
-    return iso;
-  }
 }
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -58,14 +47,16 @@ interface TransfersTableProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function TransfersTable({ requests, onRefresh }: TransfersTableProps) {
+  const t = useTranslations("requests");
+  const formatDate = useFormatDate();
   const [dialog, setDialog] = useState<DialogState>(null);
 
   if (requests.length === 0) {
     return (
       <EmptyState
         icon={ArrowRightLeft}
-        title="Sin solicitudes"
-        description="No hay solicitudes de transferencia en este estado."
+        title={t("transfers.table.empty.title")}
+        description={t("transfers.table.empty.description")}
       />
     );
   }
@@ -85,25 +76,25 @@ export function TransfersTable({ requests, onRefresh }: TransfersTableProps) {
           <TableHeader>
             <TableRow>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Solicitante
+                {t("transfers.table.columns.requester")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Desde
+                {t("transfers.table.columns.from")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Hacia
+                {t("transfers.table.columns.to")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Motivo
+                {t("transfers.table.columns.reason")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Estado
+                {t("transfers.table.columns.status")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Fecha
+                {t("transfers.table.columns.date")}
               </TableHead>
               <TableHead className="h-9 px-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Acciones
+                {t("transfers.table.columns.actions")}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -130,7 +121,7 @@ export function TransfersTable({ requests, onRefresh }: TransfersTableProps) {
                     <RequestStatusBadge status={req.status} />
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums text-muted-foreground">
-                    {formatDate(req.created_at)}
+                    {req.created_at ? formatDate(req.created_at) : "—"}
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle">
                     <div className="flex items-center justify-end gap-1">
@@ -143,12 +134,12 @@ export function TransfersTable({ requests, onRefresh }: TransfersTableProps) {
                                 size="icon-sm"
                                 className="text-success hover:bg-success/10 hover:text-success"
                                 onClick={() => setDialog({ request: req, action: "approved" })}
-                                aria-label="Aprobar transferencia"
+                                aria-label={t("transfers.table.actions.approveAriaLabel")}
                               >
                                 <CheckCircle2 className="size-4" />
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent>Aprobar</TooltipContent>
+                            <TooltipContent>{t("transfers.table.actions.approve")}</TooltipContent>
                           </Tooltip>
 
                           <Tooltip>
@@ -158,12 +149,12 @@ export function TransfersTable({ requests, onRefresh }: TransfersTableProps) {
                                 size="icon-sm"
                                 className="text-destructive hover:bg-destructive/10 hover:text-destructive"
                                 onClick={() => setDialog({ request: req, action: "rejected" })}
-                                aria-label="Rechazar transferencia"
+                                aria-label={t("transfers.table.actions.rejectAriaLabel")}
                               >
                                 <XCircle className="size-4" />
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent>Rechazar</TooltipContent>
+                            <TooltipContent>{t("transfers.table.actions.reject")}</TooltipContent>
                           </Tooltip>
                         </>
                       )}
@@ -182,13 +173,13 @@ export function TransfersTable({ requests, onRefresh }: TransfersTableProps) {
           action={dialog.action}
           title={
             dialog.action === "approved"
-              ? "Aprobar transferencia"
-              : "Rechazar transferencia"
+              ? t("transfers.dialog.approveTitle")
+              : t("transfers.dialog.rejectTitle")
           }
           description={
             dialog.action === "approved"
-              ? `Se aprobará la solicitud de transferencia de ${requesterName}.`
-              : `Se rechazará la solicitud de ${requesterName}. El motivo es obligatorio.`
+              ? t("transfers.dialog.approveDescription", { name: requesterName })
+              : t("transfers.dialog.rejectDescription", { name: requesterName })
           }
           onOpenChange={(open) => { if (!open) setDialog(null); }}
           onSubmit={handleReview}

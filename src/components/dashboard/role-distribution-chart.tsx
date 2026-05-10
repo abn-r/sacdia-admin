@@ -9,6 +9,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
+import { useTranslations } from "next-intl";
 
 export type RoleDistributionEntry = {
   role: string;
@@ -16,21 +17,21 @@ export type RoleDistributionEntry = {
   percentage: number;
 };
 
-const ROLE_LABELS: Record<string, string> = {
-  "super-admin": "Super Admin",
-  admin: "Admin",
-  "assistant-admin": "Asist. Admin",
-  coordinator: "Coordinador",
-  pastor: "Pastor",
-  user: "Usuario",
-  director: "Director",
-  "deputy-director": "Subdirector",
-  secretary: "Secretario",
-  treasurer: "Tesorero",
-  counselor: "Consejero",
-  instructor: "Instructor",
-  member: "Miembro",
-  sin_rol: "Sin rol",
+const ROLE_LABEL_KEYS: Record<string, string> = {
+  "super-admin": "superAdmin",
+  admin: "admin",
+  "assistant-admin": "assistantAdmin",
+  coordinator: "coordinator",
+  pastor: "pastor",
+  user: "user",
+  director: "director",
+  "deputy-director": "deputyDirector",
+  secretary: "secretary",
+  treasurer: "treasurer",
+  counselor: "counselor",
+  instructor: "instructor",
+  member: "member",
+  sin_rol: "noRole",
 };
 
 const ROLE_COLORS: Record<string, string> = {
@@ -52,10 +53,6 @@ const ROLE_COLORS: Record<string, string> = {
 
 const DEFAULT_COLOR = "color-mix(in oklch, var(--muted-foreground) 40%, transparent)";
 
-function roleLabel(role: string): string {
-  return ROLE_LABELS[role] ?? role.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
 function roleColor(role: string): string {
   return ROLE_COLORS[role] ?? DEFAULT_COLOR;
 }
@@ -63,16 +60,18 @@ function roleColor(role: string): string {
 interface CustomTooltipProps {
   active?: boolean;
   payload?: Array<{ payload: RoleDistributionEntry }>;
+  roleLabel: (role: string) => string;
+  userCount: (count: number, percentage: string) => string;
 }
 
-function CustomTooltip({ active, payload }: CustomTooltipProps) {
+function CustomTooltip({ active, payload, roleLabel, userCount }: CustomTooltipProps) {
   if (!active || !payload?.length) return null;
   const entry = payload[0].payload;
   return (
     <div className="rounded-lg border bg-background px-3 py-2 text-sm shadow-md">
       <p className="font-medium">{roleLabel(entry.role)}</p>
       <p className="text-muted-foreground">
-        {entry.count} usuario{entry.count !== 1 ? "s" : ""} &mdash; {entry.percentage.toFixed(1)}%
+        {userCount(entry.count, entry.percentage.toFixed(1))}
       </p>
     </div>
   );
@@ -84,10 +83,24 @@ interface RoleDistributionChartProps {
 }
 
 export function RoleDistributionChart({ data, sampleSize }: RoleDistributionChartProps) {
+  const t = useTranslations("dashboardHub");
+
+  function roleLabel(role: string): string {
+    const key = ROLE_LABEL_KEYS[role];
+    if (key) {
+      return t(`roleLabels.${key}` as Parameters<typeof t>[0]);
+    }
+    return role.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  }
+
+  function userCount(count: number, percentage: string): string {
+    return t("roleChart.userCount", { count, percentage });
+  }
+
   if (data.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
-        No se encontraron roles asignados en la muestra.
+        {t("roleChart.noRolesFound")}
       </p>
     );
   }
@@ -106,7 +119,15 @@ export function RoleDistributionChart({ data, sampleSize }: RoleDistributionChar
             tickLine={false}
             axisLine={false}
           />
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: "color-mix(in oklch, var(--muted) 40%, transparent)" }} />
+          <Tooltip
+            content={
+              <CustomTooltip
+                roleLabel={roleLabel}
+                userCount={userCount}
+              />
+            }
+            cursor={{ fill: "color-mix(in oklch, var(--muted) 40%, transparent)" }}
+          />
           <Bar dataKey="count" radius={[0, 4, 4, 0]} maxBarSize={18}>
             {data.map((entry) => (
               <Cell key={entry.role} fill={roleColor(entry.role)} />
@@ -116,7 +137,7 @@ export function RoleDistributionChart({ data, sampleSize }: RoleDistributionChar
       </ResponsiveContainer>
 
       <p className="text-[11px] text-muted-foreground">
-        Basado en los últimos {sampleSize} usuarios registrados
+        {t("roleChart.basedOn", { count: sampleSize })}
       </p>
     </div>
   );

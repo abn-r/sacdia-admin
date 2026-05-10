@@ -310,7 +310,7 @@ export async function listEnrollments(
       ...metaRaw,
       endpointAvailable: true,
       endpointState: "available",
-      endpointDetail: `Disponible (${metaRaw.total} inscripciones pendientes de validacion).`,
+      endpointDetail: `Disponible (${metaRaw.total} inscripciones pendientes de validación).`,
     };
   } catch (error) {
     if (error instanceof ApiError) {

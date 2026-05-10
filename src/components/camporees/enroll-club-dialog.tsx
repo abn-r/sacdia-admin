@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -89,19 +90,22 @@ export function EnrollClubDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>Inscribir club</DialogTitle>
+          <DialogTitle>{t("enrollDialog.title")}</DialogTitle>
+          <DialogDescription>
+            Ingresá el ID de sección del club para inscribirlo en este camporee.
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
           {/* Club section ID */}
           <div className="space-y-1.5">
-            <Label htmlFor="club_section_id">ID de sección de club <span aria-hidden="true" className="text-destructive">*</span></Label>
+            <Label htmlFor="club_section_id">{t("enrollDialog.labelSectionId")} <span aria-hidden="true" className="text-destructive">*</span></Label>
             <Input
               id="club_section_id"
               type="number"
               min={1}
               {...register("club_section_id")}
-              placeholder="Ej. 42"
+              placeholder={t("enrollDialog.placeholderSectionId")}
               aria-required="true"
             />
             {errors.club_section_id && (
@@ -110,7 +114,7 @@ export function EnrollClubDialog({
               </p>
             )}
             <p className="text-xs text-muted-foreground">
-              Ingrese el ID de la sección de club que desea inscribir.
+              {t("enrollDialog.helpSectionId")}
             </p>
           </div>
 
@@ -121,10 +125,10 @@ export function EnrollClubDialog({
               onClick={() => handleOpenChange(false)}
               disabled={isSubmitting}
             >
-              Cancelar
+              {t("enrollDialog.cancel")}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Inscribiendo..." : "Inscribir club"}
+              {isSubmitting ? t("enrollDialog.enrolling") : t("enrollDialog.enroll")}
             </Button>
           </DialogFooter>
         </form>

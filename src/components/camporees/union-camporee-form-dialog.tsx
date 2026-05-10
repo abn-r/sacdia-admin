@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -30,27 +31,29 @@ import { createUnionCamporee, updateUnionCamporee } from "@/lib/api/camporees";
 import type { UnionCamporee } from "@/lib/api/camporees";
 import type { Union } from "@/lib/api/geography";
 
-// ─── Schema ────────────────────────────────────────────────────────────────────
+// ─── Schema factory ────────────────────────────────────────────────────────────
 
-const formSchema = z
-  .object({
-    name: z.string().min(1, "El nombre es obligatorio"),
-    description: z.string().optional(),
-    start_date: z.string().min(1, "La fecha de inicio es obligatoria"),
-    end_date: z.string().min(1, "La fecha de fin es obligatoria"),
-    union_id: z.coerce.number().int().min(1, "La unión es obligatoria"),
-    place: z.string().min(1, "El lugar es obligatorio"),
-    registration_cost: z.coerce.number().min(0).optional(),
-    includes_adventurers: z.boolean(),
-    includes_pathfinders: z.boolean(),
-    includes_master_guides: z.boolean(),
-  })
-  .refine((data) => data.start_date <= data.end_date, {
-    message: "La fecha de fin debe ser igual o posterior a la de inicio",
-    path: ["end_date"],
-  });
+function buildSchema(t: ReturnType<typeof useTranslations<"camporees.validation">>) {
+  return z
+    .object({
+      name: z.string().min(1, t("name_required")),
+      description: z.string().optional(),
+      start_date: z.string().min(1, t("start_date_required")),
+      end_date: z.string().min(1, t("end_date_required")),
+      union_id: z.coerce.number().int().min(1, t("union_required")),
+      place: z.string().min(1, t("place_required")),
+      registration_cost: z.coerce.number().min(0).optional(),
+      includes_adventurers: z.boolean(),
+      includes_pathfinders: z.boolean(),
+      includes_master_guides: z.boolean(),
+    })
+    .refine((data) => data.start_date <= data.end_date, {
+      message: t("end_date_after_start"),
+      path: ["end_date"],
+    });
+}
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof buildSchema>>;
 
 // ─── Props ─────────────────────────────────────────────────────────────────────
 
@@ -79,8 +82,10 @@ export function UnionCamporeeFormDialog({
   onSuccess,
 }: UnionCamporeeFormDialogProps) {
   const t = useTranslations("camporees");
+  const tVal = useTranslations("camporees.validation");
   const isEdit = !!camporee;
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const schema = useMemo(() => buildSchema(tVal), [tVal]);
 
   const {
     register,
@@ -90,7 +95,7 @@ export function UnionCamporeeFormDialog({
     watch,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(formSchema as z.ZodType<FormValues, FormValues>),
+    resolver: zodResolver(schema as z.ZodType<FormValues, FormValues>),
     defaultValues: {
       name: "",
       description: "",
@@ -183,18 +188,23 @@ export function UnionCamporeeFormDialog({
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? "Editar camporee de unión" : "Nuevo camporee de unión"}
+            {isEdit ? t("unionForm.titleEdit") : t("unionForm.titleCreate")}
           </DialogTitle>
+          <DialogDescription>
+            {isEdit
+              ? "Modificá los datos del camporee de unión."
+              : "Completá el formulario para crear un nuevo camporee de unión."}
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
           {/* Nombre */}
           <div className="space-y-1.5">
-            <Label htmlFor="uc-name">Nombre <span aria-hidden="true" className="text-destructive">*</span></Label>
+            <Label htmlFor="uc-name">{t("unionForm.labelName")} <span aria-hidden="true" className="text-destructive">*</span></Label>
             <Input
               id="uc-name"
               {...register("name")}
-              placeholder="Ej. Camporee de Unión 2025"
+              placeholder={t("unionForm.placeholderName")}
               aria-required="true"
             />
             {errors.name && (
@@ -204,11 +214,11 @@ export function UnionCamporeeFormDialog({
 
           {/* Descripción */}
           <div className="space-y-1.5">
-            <Label htmlFor="uc-description">Descripción</Label>
+            <Label htmlFor="uc-description">{t("unionForm.labelDescription")}</Label>
             <Textarea
               id="uc-description"
               {...register("description")}
-              placeholder="Descripción opcional del camporee"
+              placeholder={t("unionForm.placeholderDescription")}
               rows={3}
             />
           </div>
@@ -216,14 +226,14 @@ export function UnionCamporeeFormDialog({
           {/* Fechas */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="uc-start_date">Fecha de inicio <span aria-hidden="true" className="text-destructive">*</span></Label>
+              <Label htmlFor="uc-start_date">{t("unionForm.labelStartDate")} <span aria-hidden="true" className="text-destructive">*</span></Label>
               <Input id="uc-start_date" type="date" {...register("start_date")} aria-required="true" />
               {errors.start_date && (
                 <p className="text-xs text-destructive" role="alert" aria-live="polite">{errors.start_date.message}</p>
               )}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="uc-end_date">Fecha de fin <span aria-hidden="true" className="text-destructive">*</span></Label>
+              <Label htmlFor="uc-end_date">{t("unionForm.labelEndDate")} <span aria-hidden="true" className="text-destructive">*</span></Label>
               <Input id="uc-end_date" type="date" {...register("end_date")} aria-required="true" />
               {errors.end_date && (
                 <p className="text-xs text-destructive" role="alert" aria-live="polite">{errors.end_date.message}</p>
@@ -233,13 +243,13 @@ export function UnionCamporeeFormDialog({
 
           {/* Unión */}
           <div className="space-y-1.5">
-            <Label htmlFor="uc-union_id">Unión <span aria-hidden="true" className="text-destructive">*</span></Label>
+            <Label htmlFor="uc-union_id">{t("unionForm.labelUnion")} <span aria-hidden="true" className="text-destructive">*</span></Label>
             <Select
               value={unionId > 0 ? String(unionId) : ""}
               onValueChange={(val) => setValue("union_id", Number(val))}
             >
               <SelectTrigger id="uc-union_id" className="w-full" aria-required="true">
-                <SelectValue placeholder="Selecciona una unión..." />
+                <SelectValue placeholder={t("unionForm.placeholderUnion")} />
               </SelectTrigger>
               <SelectContent>
                 {unions.map((u) => (
@@ -256,11 +266,11 @@ export function UnionCamporeeFormDialog({
 
           {/* Lugar */}
           <div className="space-y-1.5">
-            <Label htmlFor="uc-place">Lugar <span aria-hidden="true" className="text-destructive">*</span></Label>
+            <Label htmlFor="uc-place">{t("unionForm.labelPlace")} <span aria-hidden="true" className="text-destructive">*</span></Label>
             <Input
               id="uc-place"
               {...register("place")}
-              placeholder="Ej. Centro Recreacional Nacional"
+              placeholder={t("unionForm.placeholderPlace")}
               aria-required="true"
             />
             {errors.place && (
@@ -270,7 +280,7 @@ export function UnionCamporeeFormDialog({
 
           {/* Costo de inscripción */}
           <div className="space-y-1.5">
-            <Label htmlFor="uc-registration_cost">Costo de inscripción</Label>
+            <Label htmlFor="uc-registration_cost">{t("unionForm.labelRegistrationCost")}</Label>
             <Input
               id="uc-registration_cost"
               type="number"
@@ -286,7 +296,7 @@ export function UnionCamporeeFormDialog({
 
           {/* Tipos de club */}
           <div className="space-y-2">
-            <Label>Incluye</Label>
+            <Label>{t("unionForm.labelIncludes")}</Label>
             <div className="space-y-2 rounded-md border border-border p-3">
               <div className="flex items-center gap-2">
                 <Checkbox
@@ -300,7 +310,7 @@ export function UnionCamporeeFormDialog({
                   htmlFor="uc-includes_adventurers"
                   className="cursor-pointer font-normal"
                 >
-                  Aventureros
+                  {t("unionForm.adventurers")}
                 </Label>
               </div>
               <div className="flex items-center gap-2">
@@ -315,7 +325,7 @@ export function UnionCamporeeFormDialog({
                   htmlFor="uc-includes_pathfinders"
                   className="cursor-pointer font-normal"
                 >
-                  Conquistadores
+                  {t("unionForm.pathfinders")}
                 </Label>
               </div>
               <div className="flex items-center gap-2">
@@ -330,7 +340,7 @@ export function UnionCamporeeFormDialog({
                   htmlFor="uc-includes_master_guides"
                   className="cursor-pointer font-normal"
                 >
-                  Guías Mayores
+                  {t("unionForm.masterGuides")}
                 </Label>
               </div>
             </div>
@@ -343,16 +353,16 @@ export function UnionCamporeeFormDialog({
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
             >
-              Cancelar
+              {t("unionForm.cancel")}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting
                 ? isEdit
-                  ? "Guardando..."
-                  : "Creando..."
+                  ? t("unionForm.saving")
+                  : t("unionForm.creating")
                 : isEdit
-                  ? "Guardar cambios"
-                  : "Crear camporee"}
+                  ? t("unionForm.saveChanges")
+                  : t("unionForm.createCamporee")}
             </Button>
           </DialogFooter>
         </form>

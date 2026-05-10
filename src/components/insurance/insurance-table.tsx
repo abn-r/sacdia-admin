@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import { Pencil, Trash2, ExternalLink, ShieldCheck, Shield, ShieldAlert } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,36 +13,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
+import {
+  SortableHeader,
+  type SortDirection,
+} from "@/components/shared/sortable-header";
 import { INSURANCE_TYPE_LABELS } from "@/lib/api/insurance";
 import type { MemberInsurance, InsuranceType } from "@/lib/api/insurance";
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatDate(value: string | null | undefined): string {
-  if (!value) return "—";
-  try {
-    return new Date(value).toLocaleDateString("es-MX", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  } catch {
-    return value;
-  }
-}
-
-function formatCurrency(value: number | null | undefined): string {
-  if (value == null) return "—";
-  return new Intl.NumberFormat("es-MX", {
-    style: "currency",
-    currency: "ARS",
-    maximumFractionDigits: 0,
-  }).format(value);
-}
+import { useFormatDate, useFormatCurrency } from "@/lib/format-locale";
+import { useTranslations } from "next-intl";
 
 function memberFullName(member: MemberInsurance): string {
   const parts = [member.name, member.paternal_last_name, member.maternal_last_name].filter(Boolean);
-  return parts.join(" ") || "Sin nombre";
+  return parts.join(" ");
 }
 
 function insuranceTypeBadge(type: InsuranceType | null | undefined) {
@@ -72,6 +55,16 @@ function isExpired(endDate: string | null | undefined): boolean {
   return new Date(endDate) < new Date();
 }
 
+// ─── Sort types ───────────────────────────────────────────────────────────────
+
+type SortField =
+  | "member_name"
+  | "insurance_type"
+  | "provider"
+  | "end_date"
+  | "coverage_amount"
+  | "active";
+
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface InsuranceTableProps {
@@ -83,12 +76,77 @@ interface InsuranceTableProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function InsuranceTable({ items, onEdit, onDelete }: InsuranceTableProps) {
+  const t = useTranslations("insurance");
+  const formatDateLocale = useFormatDate();
+  const formatCurrencyLocale = useFormatCurrency();
+  const [sortField, setSortField] = useState<SortField>("member_name");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+
+  function formatDate(value: string | null | undefined): string {
+    if (!value) return "—";
+    try {
+      return formatDateLocale(value, { day: "2-digit", month: "2-digit", year: "numeric" });
+    } catch {
+      return value;
+    }
+  }
+
+  function formatCurrency(value: number | null | undefined): string {
+    if (value == null) return "—";
+    return formatCurrencyLocale(value);
+  }
+
+  const handleSort = (field: SortField, direction: SortDirection) => {
+    setSortField(field);
+    setSortDirection(direction);
+  };
+
+  const sortedItems = useMemo(() => {
+    return [...items].sort((a, b) => {
+      const dir = sortDirection === "asc" ? 1 : -1;
+      switch (sortField) {
+        case "member_name": {
+          const aName = memberFullName(a);
+          const bName = memberFullName(b);
+          return aName.localeCompare(bName) * dir;
+        }
+        case "insurance_type": {
+          const aType = a.insurance?.insurance_type ?? "";
+          const bType = b.insurance?.insurance_type ?? "";
+          return aType.localeCompare(bType) * dir;
+        }
+        case "provider": {
+          const aProv = a.insurance?.provider ?? "";
+          const bProv = b.insurance?.provider ?? "";
+          return aProv.localeCompare(bProv) * dir;
+        }
+        case "end_date": {
+          const aDate = a.insurance?.end_date ? new Date(a.insurance.end_date).getTime() : 0;
+          const bDate = b.insurance?.end_date ? new Date(b.insurance.end_date).getTime() : 0;
+          return (aDate - bDate) * dir;
+        }
+        case "coverage_amount": {
+          const aCov = a.insurance?.coverage_amount ?? 0;
+          const bCov = b.insurance?.coverage_amount ?? 0;
+          return (aCov - bCov) * dir;
+        }
+        case "active": {
+          const aAct = a.insurance?.active ? 1 : 0;
+          const bAct = b.insurance?.active ? 1 : 0;
+          return (aAct - bAct) * dir;
+        }
+        default:
+          return 0;
+      }
+    });
+  }, [items, sortField, sortDirection]);
+
   if (items.length === 0) {
     return (
       <EmptyState
         icon={ShieldCheck}
-        title="Sin seguros registrados"
-        description="No se encontraron miembros con seguro en esta sección."
+        title={t("table.empty_title")}
+        description={t("table.empty_description")}
       />
     );
   }
@@ -98,32 +156,62 @@ export function InsuranceTable({ items, onEdit, onDelete }: InsuranceTableProps)
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Miembro
+            <TableHead
+              className="h-9 px-3"
+              aria-sort={sortField === "member_name" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+            >
+              <SortableHeader field="member_name" activeField={sortField} direction={sortDirection} onSort={handleSort}>
+                {t("table.col_member")}
+              </SortableHeader>
+            </TableHead>
+            <TableHead
+              className="h-9 px-3"
+              aria-sort={sortField === "insurance_type" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+            >
+              <SortableHeader field="insurance_type" activeField={sortField} direction={sortDirection} onSort={handleSort}>
+                {t("table.col_type")}
+              </SortableHeader>
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Tipo
+              {t("table.col_policy")}
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              N° Póliza
+            <TableHead
+              className="h-9 px-3"
+              aria-sort={sortField === "provider" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+            >
+              <SortableHeader field="provider" activeField={sortField} direction={sortDirection} onSort={handleSort}>
+                {t("table.col_provider")}
+              </SortableHeader>
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Aseguradora
+            <TableHead
+              className="h-9 px-3"
+              aria-sort={sortField === "end_date" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+            >
+              <SortableHeader field="end_date" activeField={sortField} direction={sortDirection} onSort={handleSort}>
+                {t("table.col_validity")}
+              </SortableHeader>
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Vigencia
+            <TableHead
+              className="h-9 px-3"
+              aria-sort={sortField === "coverage_amount" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+            >
+              <SortableHeader field="coverage_amount" activeField={sortField} direction={sortDirection} onSort={handleSort} align="right">
+                {t("table.col_coverage")}
+              </SortableHeader>
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Cobertura
-            </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Estado
+            <TableHead
+              className="h-9 px-3"
+              aria-sort={sortField === "active" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+            >
+              <SortableHeader field="active" activeField={sortField} direction={sortDirection} onSort={handleSort}>
+                {t("table.col_status")}
+              </SortableHeader>
             </TableHead>
             <TableHead className="h-9 w-32 px-3" />
           </TableRow>
         </TableHeader>
         <TableBody>
-          {items.map((member) => {
+          {sortedItems.map((member) => {
             const ins = member.insurance;
             const expired = isExpired(ins?.end_date);
 
@@ -132,7 +220,7 @@ export function InsuranceTable({ items, onEdit, onDelete }: InsuranceTableProps)
                 {/* Member */}
                 <TableCell className="px-3 py-2.5 align-middle">
                   <div>
-                    <span className="font-medium">{memberFullName(member)}</span>
+                    <span className="font-medium">{memberFullName(member) || t("table.no_name")}</span>
                     {member.current_class?.name && (
                       <p className="text-xs text-muted-foreground">{member.current_class.name}</p>
                     )}
@@ -175,13 +263,13 @@ export function InsuranceTable({ items, onEdit, onDelete }: InsuranceTableProps)
                 {/* Status */}
                 <TableCell className="px-3 py-2.5 align-middle">
                   {!ins ? (
-                    <Badge variant="outline">Sin seguro</Badge>
+                    <Badge variant="outline">{t("table.status_no_insurance")}</Badge>
                   ) : expired ? (
-                    <Badge variant="destructive">Vencido</Badge>
+                    <Badge variant="destructive">{t("table.status_expired")}</Badge>
                   ) : ins.active ? (
-                    <Badge variant="default">Vigente</Badge>
+                    <Badge variant="soft-success">{t("table.status_active")}</Badge>
                   ) : (
-                    <Badge variant="outline">Inactivo</Badge>
+                    <Badge variant="outline">{t("table.status_inactive")}</Badge>
                   )}
                 </TableCell>
 
@@ -194,11 +282,11 @@ export function InsuranceTable({ items, onEdit, onDelete }: InsuranceTableProps)
                         variant="ghost"
                         size="icon-sm"
                         asChild
-                        title="Ver evidencia"
+                        title={t("table.action_view_evidence")}
                       >
                         <a href={ins.evidence_file_url} target="_blank" rel="noopener noreferrer">
                           <ExternalLink className="size-3.5" />
-                          <span className="sr-only">Ver evidencia</span>
+                          <span className="sr-only">{t("table.action_view_evidence")}</span>
                         </a>
                       </Button>
                     )}
@@ -208,10 +296,10 @@ export function InsuranceTable({ items, onEdit, onDelete }: InsuranceTableProps)
                         variant="ghost"
                         size="icon-sm"
                         onClick={() => onEdit(member)}
-                        title={ins ? "Editar seguro" : "Registrar seguro"}
+                        title={ins ? t("table.action_edit") : t("table.action_register")}
                       >
                         <Pencil className="size-3.5" />
-                        <span className="sr-only">Editar</span>
+                        <span className="sr-only">{t("table.sr_edit")}</span>
                       </Button>
                     )}
 
@@ -220,11 +308,11 @@ export function InsuranceTable({ items, onEdit, onDelete }: InsuranceTableProps)
                         variant="ghost"
                         size="icon-sm"
                         onClick={() => onDelete(member)}
-                        title="Desactivar seguro"
+                        title={t("table.action_deactivate")}
                         className="text-destructive hover:text-destructive"
                       >
                         <Trash2 className="size-3.5" />
-                        <span className="sr-only">Desactivar</span>
+                        <span className="sr-only">{t("table.sr_deactivate")}</span>
                       </Button>
                     )}
                   </div>

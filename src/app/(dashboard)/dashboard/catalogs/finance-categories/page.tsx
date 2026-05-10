@@ -1,6 +1,30 @@
 import { DollarSign } from "lucide-react";
+import { getTranslations } from "next-intl/server";
+import dynamic from "next/dynamic";
+import { Skeleton } from "@/components/ui/skeleton";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-import { PhaseECatalogCrudPage } from "@/components/catalogs/phase-e-catalog-crud-page";
+
+const PhaseECatalogCrudPage = dynamic(
+  () =>
+    import("@/components/catalogs/phase-e-catalog-crud-page").then((m) => ({
+      default: m.PhaseECatalogCrudPage,
+    })),
+  {
+    loading: () => (
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-8 w-48 rounded-md" />
+          <Skeleton className="h-9 w-28 rounded-md" />
+        </div>
+        <Skeleton className="h-10 w-full rounded-md" />
+        <Skeleton className="h-12 w-full rounded-md" />
+        <Skeleton className="h-12 w-full rounded-md" />
+        <Skeleton className="h-12 w-full rounded-md" />
+        <Skeleton className="h-12 w-full rounded-md" />
+      </div>
+    ),
+  }
+);
 import { ApiError } from "@/lib/api/client";
 import { listAdminFinanceCategories } from "@/lib/api/phase-e-catalogs";
 import { extractItems, extractMeta, readParam, readPositiveNumberParam } from "@/lib/phase-e-catalogs/fetch-helpers";
@@ -17,6 +41,7 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 export default async function AdminFinanceCategoriesPage({ searchParams }: { searchParams: SearchParams }) {
   const user = await requireAdminUser();
+  const t = await getTranslations("catalogs.pages.financeCategories");
   const raw = await searchParams;
 
   const page = readPositiveNumberParam(raw, "page") ?? 1;
@@ -39,7 +64,7 @@ export default async function AdminFinanceCategoriesPage({ searchParams }: { sea
     meta = extractMeta(payload, page, limit, items.length);
   } catch (error) {
     if (!(error instanceof ApiError && error.status === 429)) {
-      loadError = error instanceof ApiError ? error.message : "No se pudieron cargar las categorías de finanzas.";
+      loadError = error instanceof ApiError ? error.message : t("loadError");
     }
   }
 
@@ -51,9 +76,9 @@ export default async function AdminFinanceCategoriesPage({ searchParams }: { sea
     <div className="space-y-6">
       {loadError && <EndpointErrorBanner state="missing" detail={loadError} />}
       <PhaseECatalogCrudPage
-        title="Categorías de finanzas"
-        description="Catálogo de categorías para clasificar transacciones financieras."
-        entityLabel="Categoría"
+        title={t("title")}
+        description={t("description")}
+        entityLabel={t("entityLabel")}
         emptyIcon={DollarSign}
         includeDescription={false}
         idField="finance_category_id"

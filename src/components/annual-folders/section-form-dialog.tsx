@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -25,30 +26,32 @@ import {
 } from "@/lib/api/annual-folders";
 import type { FolderTemplateSection } from "@/lib/api/annual-folders";
 
-// ─── Schema ───────────────────────────────────────────────────────────────────
+// ─── Schema factory ───────────────────────────────────────────────────────────
 
-const formSchema = z.object({
-  name: z
-    .string()
-    .min(3, "El nombre debe tener al menos 3 caracteres")
-    .max(100, "El nombre no puede superar 100 caracteres"),
-  description: z
-    .string()
-    .max(500, "La descripción no puede superar 500 caracteres")
-    .optional(),
-  order: z.coerce.number().int().min(1, "El orden debe ser al menos 1"),
-  required: z.boolean(),
-  max_points: z.coerce
-    .number()
-    .int()
-    .min(0, "Los puntos máximos no pueden ser negativos"),
-  minimum_points: z.coerce
-    .number()
-    .int()
-    .min(0, "Los puntos mínimos no pueden ser negativos"),
-});
+function buildSchema(t: ReturnType<typeof useTranslations<"annual_folders.validation">>) {
+  return z.object({
+    name: z
+      .string()
+      .min(3, t("name_min", { min: 3 }))
+      .max(100, t("name_max", { max: 100 })),
+    description: z
+      .string()
+      .max(500, t("description_max", { max: 500 }))
+      .optional(),
+    order: z.coerce.number().int().min(1, t("order_min", { min: 1 })),
+    required: z.boolean(),
+    max_points: z.coerce
+      .number()
+      .int()
+      .min(0, t("max_points_min")),
+    minimum_points: z.coerce
+      .number()
+      .int()
+      .min(0, t("minimum_points_min")),
+  });
+}
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof buildSchema>>;
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -72,8 +75,10 @@ export function SectionFormDialog({
   onSuccess,
 }: SectionFormDialogProps) {
   const t = useTranslations("annual_folders");
+  const tVal = useTranslations("annual_folders.validation");
   const isEdit = !!section;
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const schema = useMemo(() => buildSchema(tVal), [tVal]);
 
   const {
     register,
@@ -83,7 +88,7 @@ export function SectionFormDialog({
     watch,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(formSchema as z.ZodType<FormValues, FormValues>),
+    resolver: zodResolver(schema as z.ZodType<FormValues, FormValues>),
     defaultValues: {
       name: "",
       description: "",
@@ -160,18 +165,26 @@ export function SectionFormDialog({
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? "Editar sección" : "Nueva sección"}
+            {isEdit ? t("sectionDialog.titleEdit") : t("sectionDialog.titleCreate")}
           </DialogTitle>
+          <DialogDescription>
+            {isEdit
+              ? "Modificá los datos de la sección de la plantilla."
+              : "Completá el formulario para agregar una nueva sección a la plantilla."}
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
           {/* Nombre */}
           <div className="space-y-1.5">
-            <Label htmlFor="section-name">Nombre <span aria-hidden="true" className="text-destructive">*</span></Label>
+            <Label htmlFor="section-name">
+              {t("sectionDialog.fieldName")}{" "}
+              <span aria-hidden="true" className="text-destructive">*</span>
+            </Label>
             <Input
               id="section-name"
               {...register("name")}
-              placeholder="Ej. Evidencias de actividades"
+              placeholder={t("sectionDialog.fieldNamePlaceholder")}
               aria-required="true"
             />
             {errors.name && (
@@ -181,11 +194,11 @@ export function SectionFormDialog({
 
           {/* Descripción */}
           <div className="space-y-1.5">
-            <Label htmlFor="section-description">Descripción</Label>
+            <Label htmlFor="section-description">{t("sectionDialog.fieldDescription")}</Label>
             <Textarea
               id="section-description"
               {...register("description")}
-              placeholder="Descripción opcional de la sección"
+              placeholder={t("sectionDialog.fieldDescriptionPlaceholder")}
               rows={3}
             />
             {errors.description && (
@@ -197,7 +210,10 @@ export function SectionFormDialog({
 
           {/* Orden */}
           <div className="space-y-1.5">
-            <Label htmlFor="section-order">Orden <span aria-hidden="true" className="text-destructive">*</span></Label>
+            <Label htmlFor="section-order">
+              {t("sectionDialog.fieldOrder")}{" "}
+              <span aria-hidden="true" className="text-destructive">*</span>
+            </Label>
             <Input
               id="section-order"
               type="number"
@@ -215,10 +231,10 @@ export function SectionFormDialog({
           <div className="flex items-center justify-between rounded-lg border border-border px-3 py-2.5">
             <div className="space-y-0.5">
               <Label htmlFor="section-required" className="cursor-pointer text-sm font-medium">
-                Sección requerida
+                {t("sectionDialog.fieldRequired")}
               </Label>
               <p className="text-xs text-muted-foreground">
-                El miembro debe subir evidencia para esta sección
+                {t("sectionDialog.fieldRequiredDescription")}
               </p>
             </div>
             <Switch
@@ -232,7 +248,10 @@ export function SectionFormDialog({
           <div className="grid grid-cols-2 gap-3">
             {/* Puntos máximos */}
             <div className="space-y-1.5">
-              <Label htmlFor="section-max-points">Puntos máximos <span aria-hidden="true" className="text-destructive">*</span></Label>
+              <Label htmlFor="section-max-points">
+                {t("sectionDialog.fieldMaxPoints")}{" "}
+                <span aria-hidden="true" className="text-destructive">*</span>
+              </Label>
               <Input
                 id="section-max-points"
                 type="number"
@@ -250,7 +269,7 @@ export function SectionFormDialog({
 
             {/* Puntos mínimos */}
             <div className="space-y-1.5">
-              <Label htmlFor="section-minimum-points">Puntos mínimos</Label>
+              <Label htmlFor="section-minimum-points">{t("sectionDialog.fieldMinPoints")}</Label>
               <Input
                 id="section-minimum-points"
                 type="number"
@@ -273,16 +292,16 @@ export function SectionFormDialog({
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
             >
-              Cancelar
+              {t("sectionDialog.cancel")}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting
                 ? isEdit
-                  ? "Guardando..."
-                  : "Creando..."
+                  ? t("sectionDialog.submittingEdit")
+                  : t("sectionDialog.submittingCreate")
                 : isEdit
-                  ? "Guardar cambios"
-                  : "Crear sección"}
+                  ? t("sectionDialog.submitEdit")
+                  : t("sectionDialog.submitCreate")}
             </Button>
           </DialogFooter>
         </form>

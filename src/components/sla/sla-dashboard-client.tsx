@@ -3,6 +3,7 @@
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import { RefreshCw } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { SlaDashboard } from "@/lib/api/analytics";
 import { SlaStatCards } from "./sla-stat-cards";
 import { SlaPipelineChart } from "./sla-pipeline-chart";
@@ -15,6 +16,8 @@ interface SlaDashboardClientProps {
 }
 
 export function SlaDashboardClient({ data }: SlaDashboardClientProps) {
+  const t = useTranslations("sla.client");
+
   const computedAgo = formatDistanceToNow(new Date(data.computed_at), {
     addSuffix: true,
     locale: es,
@@ -25,14 +28,14 @@ export function SlaDashboardClient({ data }: SlaDashboardClientProps) {
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">SLA Dashboard</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
           <p className="text-muted-foreground">
-            Metricas operativas de investiduras, validaciones y camporees.
+            {t("description")}
           </p>
         </div>
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground pt-1">
           <RefreshCw className="size-3" />
-          <span>Actualizado {computedAgo}{data.cached ? " (cache)" : ""}</span>
+          <span>{t("updated", { ago: computedAgo })}{data.cached ? t("cached") : ""}</span>
         </div>
       </div>
 

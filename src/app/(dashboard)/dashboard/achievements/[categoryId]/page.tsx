@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { ApiError } from "@/lib/api/client";
 import {
@@ -80,14 +81,18 @@ function extractMeta(
   return { page, limit, total, totalPages };
 }
 
-function pickCategoryName(items: GenericRecord[], categoryId: number): string {
+function pickCategoryName(
+  items: GenericRecord[],
+  categoryId: number,
+  fallback: string,
+): string {
   const match = items.find(
     (item) =>
       toPositiveNumber(item.achievement_category_id ?? item.category_id ?? item.id) ===
       categoryId,
   );
-  if (!match) return `Categoría ${categoryId}`;
-  return toNonEmptyString(match.name) ?? `Categoría ${categoryId}`;
+  if (!match) return fallback;
+  return toNonEmptyString(match.name) ?? fallback;
 }
 
 export default async function CategoryAchievementsPage({
@@ -98,6 +103,7 @@ export default async function CategoryAchievementsPage({
   searchParams: SearchParams;
 }) {
   await requireAdminUser();
+  const t = await getTranslations("achievements.pages.detail");
 
   const { categoryId: categoryIdRaw } = await params;
   const categoryId = toPositiveNumber(categoryIdRaw);
@@ -105,7 +111,7 @@ export default async function CategoryAchievementsPage({
     return (
       <EndpointErrorBanner
         state="missing"
-        detail="No se encontró la categoría solicitada."
+        detail={t("missingCategory")}
       />
     );
   }
@@ -119,7 +125,7 @@ export default async function CategoryAchievementsPage({
 
   let achievements: GenericRecord[] = [];
   let meta: Meta = { page, limit, total: 0, totalPages: 1 };
-  let categoryName = `Categoría ${categoryId}`;
+  let categoryName = t("defaultCategoryName", { id: categoryId });
   let loadError: string | null = null;
 
   try {
@@ -138,7 +144,7 @@ export default async function CategoryAchievementsPage({
     meta = extractMeta(achievementsPayload, page, limit, achievements.length);
 
     const catItems = extractItems(categoriesPayload);
-    categoryName = pickCategoryName(catItems, categoryId);
+    categoryName = pickCategoryName(catItems, categoryId, t("defaultCategoryName", { id: categoryId }));
   } catch (error) {
     if (error instanceof ApiError && error.status === 429) {
       achievements = [];
@@ -146,7 +152,7 @@ export default async function CategoryAchievementsPage({
       loadError =
         error instanceof ApiError
           ? error.message
-          : "No se pudieron cargar los logros.";
+          : t("loadError");
     }
   }
 

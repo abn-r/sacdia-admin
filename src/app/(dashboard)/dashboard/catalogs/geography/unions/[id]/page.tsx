@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -53,6 +54,7 @@ export default async function UnionDetailPage({
   params: Params;
   searchParams: SearchParams;
 }) {
+  const t = await getTranslations("catalogs.pages.unionsDetail");
   await requireAdminUser();
 
   const { id } = await params;
@@ -87,37 +89,37 @@ export default async function UnionDetailPage({
       <PageHeader title={unionName}>
         <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/catalogs/geography/unions">
-            <ArrowLeft className="mr-2 size-4" />
-            Volver
+            <ArrowLeft className="size-4" />
+            {t("back")}
           </Link>
         </Button>
       </PageHeader>
 
       <Tabs defaultValue={defaultTab}>
         <TabsList>
-          <TabsTrigger value="view">Información</TabsTrigger>
+          <TabsTrigger value="view">{t("tabInfo")}</TabsTrigger>
           <TabsTrigger value="scoring-categories">
-            Categorías de Puntuación
+            {t("tabScoringCategories")}
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="view" className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Datos de la unión</CardTitle>
+              <CardTitle className="text-base">{t("cardTitle")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <InfoRow label="Nombre" value={union.name} />
-              <InfoRow label="Abreviatura" value={union.abbreviation} />
-              <InfoRow label="País" value={union.country?.name ?? union.country_id} />
+              <InfoRow label={t("labelName")} value={union.name} />
+              <InfoRow label={t("labelAbbreviation")} value={union.abbreviation} />
+              <InfoRow label={t("labelCountry")} value={union.country?.name ?? union.country_id} />
               <InfoRow
-                label="Estado"
+                label={t("labelStatus")}
                 value={
                   <Badge
                     variant={union.active !== false ? "success" : "secondary"}
                     className="text-xs"
                   >
-                    {union.active !== false ? "Activa" : "Inactiva"}
+                    {union.active !== false ? t("statusActive") : t("statusInactive")}
                   </Badge>
                 }
               />

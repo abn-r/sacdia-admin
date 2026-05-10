@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { requireAdminUser } from "@/lib/auth/session";
 import { getCronRunsHistory } from "@/lib/api/analytics";
 import { CronHistoryClient } from "./_components/cron-history-client";
@@ -10,14 +11,11 @@ export const revalidate = 0;
 
 // ─── Error Banner ─────────────────────────────────────────────────────────────
 
-function CronHistoryError() {
+function CronHistoryError({ message }: { message: string }) {
   return (
     <Card>
       <CardContent className="py-10 text-center">
-        <p className="text-sm text-muted-foreground">
-          No se pudo cargar el historial de cron runs. Verifica que el backend
-          esté disponible e intentalo de nuevo.
-        </p>
+        <p className="text-sm text-muted-foreground">{message}</p>
       </CardContent>
     </Card>
   );
@@ -37,6 +35,7 @@ interface PageProps {
 
 export default async function CronHistoryPage({ searchParams }: PageProps) {
   await requireAdminUser();
+  const t = await getTranslations("system_jobs");
 
   const params = await searchParams;
 
@@ -70,15 +69,15 @@ export default async function CronHistoryPage({ searchParams }: PageProps) {
           <Button variant="ghost" size="sm" asChild>
             <Link href="/dashboard/system/jobs">
               <ChevronLeft className="size-4 mr-1" />
-              Volver
+              {t("pageHistory.back")}
             </Link>
           </Button>
           <div>
             <h1 className="text-2xl font-bold tracking-tight">
-              Historial de Cron Runs
+              {t("pageHistory.title")}
             </h1>
             <p className="text-muted-foreground">
-              Registro paginado de todas las ejecuciones de los jobs programados.
+              {t("pageHistory.description")}
             </p>
           </div>
         </div>
@@ -86,7 +85,7 @@ export default async function CronHistoryPage({ searchParams }: PageProps) {
 
       {/* Content */}
       {fetchError || !historyData ? (
-        <CronHistoryError />
+        <CronHistoryError message={t("pageHistory.errorLoad")} />
       ) : (
         <CronHistoryClient
           initialData={historyData}

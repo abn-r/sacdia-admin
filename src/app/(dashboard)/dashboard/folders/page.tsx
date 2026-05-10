@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { FoldersManagementClient } from "@/components/folders/folders-management-client";
@@ -10,6 +11,7 @@ import type { FolderTemplate } from "@/lib/api/folders";
 
 export default async function FoldersPage() {
   await requireAdminUser();
+  const t = await getTranslations("folders");
 
   let folders: FolderTemplate[] = [];
   let loadError: string | null = null;
@@ -21,14 +23,14 @@ export default async function FoldersPage() {
     loadError =
       err instanceof ApiError
         ? err.message
-        : "No se pudieron cargar las carpetas de evidencias.";
+        : t("page.errorLoad");
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Carpetas de Evidencias"
-        description="Administra las plantillas de carpetas de evidencias disponibles para los clubes."
+        title={t("page.title")}
+        description={t("page.description")}
       />
 
       {loadError && (

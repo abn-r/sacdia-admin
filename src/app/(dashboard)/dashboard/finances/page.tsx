@@ -1,4 +1,5 @@
 import { DollarSign } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
@@ -32,7 +33,11 @@ type ClubOption = {
 
 // ─── Data fetching ────────────────────────────────────────────────────────────
 
-async function fetchClubs(): Promise<{ clubs: ClubOption[]; error?: string }> {
+type FetchClubsError =
+  | { kind: "api"; message: string }
+  | { kind: "unexpected" };
+
+async function fetchClubs(): Promise<{ clubs: ClubOption[]; fetchError?: FetchClubsError }> {
   try {
     const payload = await apiRequest<unknown>("/clubs");
     let raw: Club[] = [];
@@ -58,9 +63,9 @@ async function fetchClubs(): Promise<{ clubs: ClubOption[]; error?: string }> {
     return { clubs };
   } catch (error) {
     if (error instanceof ApiError) {
-      return { clubs: [], error: error.message };
+      return { clubs: [], fetchError: { kind: "api", message: error.message } };
     }
-    return { clubs: [], error: "Error inesperado al cargar los clubes" };
+    return { clubs: [], fetchError: { kind: "unexpected" } };
   }
 }
 
@@ -68,28 +73,35 @@ async function fetchClubs(): Promise<{ clubs: ClubOption[]; error?: string }> {
 
 export default async function FinancesPage() {
   await requireAdminUser();
+  const t = await getTranslations("finances");
 
-  const { clubs, error } = await fetchClubs();
+  const { clubs, fetchError } = await fetchClubs();
+
+  const errorMessage = fetchError
+    ? fetchError.kind === "api"
+      ? fetchError.message
+      : t("page.error_unexpected")
+    : undefined;
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Finanzas"
-        description="Gestión de ingresos y egresos por club."
+        title={t("page.title")}
+        description={t("page.description")}
       />
 
-      {error && (
+      {errorMessage && (
         <EndpointErrorBanner
           state="missing"
-          detail={error}
+          detail={errorMessage}
         />
       )}
 
-      {!error && clubs.length === 0 ? (
+      {!errorMessage && clubs.length === 0 ? (
         <EmptyState
           icon={DollarSign}
-          title="No hay clubes disponibles"
-          description="No se encontraron clubes activos. Creá un club primero para gestionar sus finanzas."
+          title={t("page.empty_no_clubs_title")}
+          description={t("page.empty_no_clubs_description")}
         />
       ) : (
         <FinancesClubSelector clubs={clubs} />

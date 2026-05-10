@@ -140,11 +140,10 @@ export function LoginForm({ nextParam }: Props) {
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              tabIndex={-1}
               aria-label={
                 showPassword ? t("hide_password") : t("show_password")
               }
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/60 transition-colors hover:text-foreground"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/60 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:rounded-sm"
             >
               {showPassword ? (
                 <EyeOff className="size-4" />

@@ -82,8 +82,10 @@ function BreadcrumbSeparator({
 
 function BreadcrumbEllipsis({
   className,
+  /** Localised label for the sr-only text. Defaults to "More" for backwards compat. */
+  srLabel = "More",
   ...props
-}: React.ComponentProps<"span">) {
+}: React.ComponentProps<"span"> & { srLabel?: string }) {
   return (
     <span
       data-slot="breadcrumb-ellipsis"
@@ -93,7 +95,7 @@ function BreadcrumbEllipsis({
       {...props}
     >
       <MoreHorizontal className="size-4" />
-      <span className="sr-only">More</span>
+      <span className="sr-only">{srLabel}</span>
     </span>
   )
 }

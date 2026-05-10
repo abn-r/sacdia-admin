@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { ReportDetailClient } from "@/components/reports/report-detail-client";
@@ -11,14 +12,6 @@ import type { MonthlyReport } from "@/lib/api/monthly-reports";
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type Params = Promise<{ reportId: string }>;
-
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-const MONTH_NAMES: Record<number, string> = {
-  1: "Enero", 2: "Febrero", 3: "Marzo", 4: "Abril",
-  5: "Mayo", 6: "Junio", 7: "Julio", 8: "Agosto",
-  9: "Septiembre", 10: "Octubre", 11: "Noviembre", 12: "Diciembre",
-};
 
 // ─── Data fetching ────────────────────────────────────────────────────────────
 
@@ -38,6 +31,7 @@ async function fetchReport(reportId: number): Promise<MonthlyReport> {
 
 export default async function ReportDetailPage({ params }: { params: Params }) {
   await requireAdminUser();
+  const t = await getTranslations("reports");
   const { reportId: reportIdStr } = await params;
 
   const reportId = Number(reportIdStr);
@@ -58,16 +52,16 @@ export default async function ReportDetailPage({ params }: { params: Params }) {
     throw error;
   }
 
-  const monthName = MONTH_NAMES[report.month] ?? String(report.month);
+  const monthName = t(`months.${report.month}` as Parameters<typeof t>[0]) ?? String(report.month);
   const pageTitle = `Reporte ${monthName} ${report.year}`;
 
   return (
     <div className="space-y-6">
-      <PageHeader title={pageTitle} description="Visualiza y edita los datos del reporte mensual.">
+      <PageHeader title={pageTitle} description={t("pageDetail.description")}>
         <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/reports">
             <ArrowLeft className="size-4" />
-            Volver a reportes
+            {t("pageDetail.back_link")}
           </Link>
         </Button>
       </PageHeader>

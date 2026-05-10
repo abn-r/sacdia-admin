@@ -1,11 +1,18 @@
 import { Suspense } from "react";
 import { ShieldAlert } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-import {
-  ExpiringDashboard,
-  ExpiringDashboardSkeleton,
-} from "@/components/insurance/expiring-dashboard";
+import dynamic from "next/dynamic";
+import { ExpiringDashboardSkeleton } from "@/components/insurance/expiring-dashboard";
+
+const ExpiringDashboard = dynamic(
+  () =>
+    import("@/components/insurance/expiring-dashboard").then((m) => ({
+      default: m.ExpiringDashboard,
+    })),
+  { loading: () => <ExpiringDashboardSkeleton /> },
+);
 import { getExpiringInsurance } from "@/lib/api/insurance";
 import { requireAdminUser } from "@/lib/auth/session";
 import type { ExpiringInsurance } from "@/lib/api/insurance";
@@ -23,18 +30,19 @@ function parseDaysAhead(raw: string | string[] | undefined): number {
 
 type LoadResult =
   | { ok: true; items: ExpiringInsurance[]; daysAhead: number }
-  | { ok: false; error: string; daysAhead: number };
+  | { ok: false; errorMessage: string; daysAhead: number };
 
-async function loadExpiringInsurances(daysAhead: number): Promise<LoadResult> {
+async function loadExpiringInsurances(
+  daysAhead: number,
+  fallbackErrorMessage: string,
+): Promise<LoadResult> {
   try {
     const items = await getExpiringInsurance(daysAhead);
     return { ok: true, items, daysAhead };
   } catch (err) {
-    const message =
-      err instanceof Error
-        ? err.message
-        : "No se pudo cargar la lista de seguros por vencer.";
-    return { ok: false, error: message, daysAhead };
+    const errorMessage =
+      err instanceof Error ? err.message : fallbackErrorMessage;
+    return { ok: false, errorMessage, daysAhead };
   }
 }
 
@@ -42,16 +50,18 @@ async function loadExpiringInsurances(daysAhead: number): Promise<LoadResult> {
 
 async function ExpiringContent({
   daysAhead,
+  fallbackErrorMessage,
 }: {
   daysAhead: number;
+  fallbackErrorMessage: string;
 }) {
-  const result = await loadExpiringInsurances(daysAhead);
+  const result = await loadExpiringInsurances(daysAhead, fallbackErrorMessage);
 
   if (!result.ok) {
     return (
       <EndpointErrorBanner
         state="missing"
-        detail={result.error}
+        detail={result.errorMessage}
       />
     );
   }
@@ -71,6 +81,7 @@ export default async function ExpiringInsurancePage({
   searchParams,
 }: PageProps) {
   await requireAdminUser();
+  const t = await getTranslations("insurance");
 
   const params = await searchParams;
   const daysAhead = parseDaysAhead(params.days_ahead);
@@ -78,19 +89,22 @@ export default async function ExpiringInsurancePage({
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Seguros por Vencer"
-        description="Seguros activos próximos a vencer ordenados por urgencia."
+        title={t("pageExpiring.title")}
+        description={t("pageExpiring.description")}
       >
         <div className="flex items-center gap-2 rounded-lg bg-warning/10 px-3 py-1.5">
           <ShieldAlert className="size-4 text-warning" />
           <span className="text-sm font-medium text-warning">
-            Ventana: {daysAhead} días
+            {t("pageExpiring.window_label", { days: daysAhead })}
           </span>
         </div>
       </PageHeader>
 
       <Suspense fallback={<ExpiringDashboardSkeleton />}>
-        <ExpiringContent daysAhead={daysAhead} />
+        <ExpiringContent
+          daysAhead={daysAhead}
+          fallbackErrorMessage={t("pageExpiring.error_load_failed")}
+        />
       </Suspense>
     </div>
   );

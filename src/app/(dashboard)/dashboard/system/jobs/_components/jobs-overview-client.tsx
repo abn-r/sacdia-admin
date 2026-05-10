@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useTransition, useState } from "react";
 import { RefreshCw, RotateCcw, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -34,6 +35,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import type { JobsOverview, JobCounts, FailedJob, KnownQueueName } from "@/lib/api/analytics";
 import { retryJob } from "@/lib/api/analytics";
+import { useFormatDateTime, useFormatNumber } from "@/lib/format-locale";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -43,32 +45,12 @@ interface JobsOverviewClientProps {
 
 // ─── Queue Metadata ───────────────────────────────────────────────────────────
 
-const QUEUE_META: Record<KnownQueueName, { label: string; description: string }> = {
-  'notifications': { label: 'Notificaciones', description: 'Push notifications y realtime cache' },
-  'email': { label: 'Emails', description: 'Transaccionales (rate-limited 90/día)' },
-  'achievements': { label: 'Logros', description: 'Evaluación y matching de logros' },
-  'background-jobs': { label: 'Background Jobs', description: 'Reportes, finanzas, rankings, exports' },
+const QUEUE_I18N_KEYS: Record<KnownQueueName, { labelKey: string; descKey: string }> = {
+  'notifications':   { labelKey: 'queueNotifications',    descKey: 'queueNotificationsDesc' },
+  'email':           { labelKey: 'queueEmail',            descKey: 'queueEmailDesc' },
+  'achievements':    { labelKey: 'queueAchievements',     descKey: 'queueAchievementsDesc' },
+  'background-jobs': { labelKey: 'queueBackgroundJobs',   descKey: 'queueBackgroundJobsDesc' },
 };
-
-function getQueueMeta(name: string): { label: string; description: string } {
-  return QUEUE_META[name as KnownQueueName] ?? { label: name, description: '' };
-}
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-const dateFormatter = new Intl.DateTimeFormat("es-MX", {
-  day: "2-digit",
-  month: "short",
-  year: "numeric",
-  hour: "2-digit",
-  minute: "2-digit",
-});
-
-function formatDate(timestamp: string | null): string {
-  if (!timestamp) return "—";
-  const date = new Date(timestamp);
-  return isNaN(date.getTime()) ? "—" : dateFormatter.format(date);
-}
 
 // ─── Queue Card ───────────────────────────────────────────────────────────────
 
@@ -79,6 +61,7 @@ type QueueStatRowProps = {
 };
 
 function QueueStatRow({ label, value, destructive }: QueueStatRowProps) {
+  const formatNumber = useFormatNumber();
   return (
     <div className="flex items-center justify-between py-0.5">
       <span className="text-xs text-muted-foreground">{label}</span>
@@ -86,39 +69,42 @@ function QueueStatRow({ label, value, destructive }: QueueStatRowProps) {
         variant={destructive && value > 0 ? "destructive" : "secondary"}
         className="text-xs tabular-nums"
       >
-        {value.toLocaleString("es-MX")}
+        {formatNumber(value)}
       </Badge>
     </div>
   );
 }
 
 function QueueCard({ queue }: { queue: JobCounts }) {
+  const t = useTranslations("system_jobs.overview");
   const hasActive = queue.active > 0;
-  const meta = getQueueMeta(queue.name);
+  const queueKeys = QUEUE_I18N_KEYS[queue.name as KnownQueueName];
+  const label = queueKeys ? t(queueKeys.labelKey) : queue.name;
+  const description = queueKeys ? t(queueKeys.descKey) : "";
 
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <div className="min-w-0 flex-1">
-          <CardTitle className="text-sm font-semibold truncate">{meta.label}</CardTitle>
-          {meta.description && (
-            <p className="text-xs text-muted-foreground">{meta.description}</p>
+          <CardTitle className="text-sm font-semibold truncate">{label}</CardTitle>
+          {description && (
+            <p className="text-xs text-muted-foreground">{description}</p>
           )}
         </div>
         {hasActive && (
           <Badge variant="default" className="text-[10px] px-1.5 py-0 shrink-0 ml-2">
-            activo
+            {t("activeLabel")}
           </Badge>
         )}
       </CardHeader>
       <CardContent className="space-y-0.5">
-        <QueueStatRow label="Pendientes" value={queue.waiting} />
-        <QueueStatRow label="Activos" value={queue.active} />
-        <QueueStatRow label="Completados" value={queue.completed} />
-        <QueueStatRow label="Fallidos" value={queue.failed} destructive />
-        <QueueStatRow label="Diferidos" value={queue.delayed} />
+        <QueueStatRow label={t("statWaiting")} value={queue.waiting} />
+        <QueueStatRow label={t("statActive")} value={queue.active} />
+        <QueueStatRow label={t("statCompleted")} value={queue.completed} />
+        <QueueStatRow label={t("statFailed")} value={queue.failed} destructive />
+        <QueueStatRow label={t("statDelayed")} value={queue.delayed} />
         {queue.paused !== undefined && (
-          <QueueStatRow label="Pausados" value={queue.paused} />
+          <QueueStatRow label={t("statPaused")} value={queue.paused} />
         )}
       </CardContent>
     </Card>
@@ -134,6 +120,7 @@ interface RetryButtonProps {
 }
 
 function RetryActionButton({ job, isPendingRow, onConfirm }: RetryButtonProps) {
+  const t = useTranslations("system_jobs.overview");
   const isDisabled = job.job_id === null || isPendingRow;
 
   return (
@@ -150,22 +137,19 @@ function RetryActionButton({ job, isPendingRow, onConfirm }: RetryButtonProps) {
           ) : (
             <RotateCcw className="size-3" />
           )}
-          {isPendingRow ? "Reintentando..." : "Retry"}
+          {isPendingRow ? t("retryLoading") : t("retryButton")}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent className="sm:max-w-sm">
         <AlertDialogHeader>
-          <AlertDialogTitle>¿Reintentar este job?</AlertDialogTitle>
+          <AlertDialogTitle>{t("retryDialogTitle")}</AlertDialogTitle>
           <AlertDialogDescription>
-            Se volverá a encolar el job{" "}
-            <span className="font-semibold text-foreground">{job.name}</span> de
-            la cola{" "}
-            <span className="font-mono text-foreground">{job.queue}</span>.
+            {t("retryDialogDescription", { jobName: job.name, queue: job.queue })}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancelar</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm}>Reintentar</AlertDialogAction>
+          <AlertDialogCancel>{t("retryDialogCancel")}</AlertDialogCancel>
+          <AlertDialogAction onClick={onConfirm}>{t("retryDialogConfirm")}</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
@@ -175,9 +159,17 @@ function RetryActionButton({ job, isPendingRow, onConfirm }: RetryButtonProps) {
 // ─── Failed Jobs Table ────────────────────────────────────────────────────────
 
 function FailedJobsTable({ jobs }: { jobs: FailedJob[] }) {
+  const t = useTranslations("system_jobs.overview");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [pendingRowId, setPendingRowId] = useState<string | number | null>(null);
+  const formatDateTime = useFormatDateTime();
+
+  function formatDate(timestamp: string | null): string {
+    if (!timestamp) return "—";
+    const date = new Date(timestamp);
+    return isNaN(date.getTime()) ? "—" : formatDateTime(date);
+  }
 
   function handleRetry(job: FailedJob) {
     if (job.job_id === null) return;
@@ -185,14 +177,14 @@ function FailedJobsTable({ jobs }: { jobs: FailedJob[] }) {
     startTransition(async () => {
       try {
         await retryJob(job.queue, job.job_id as string | number);
-        toast.success("Job reintentado", {
-          description: `El job "${job.name}" fue reencolado correctamente.`,
+        toast.success(t("retrySuccess"), {
+          description: t("retrySuccessDescription", { name: job.name }),
         });
         router.refresh();
       } catch (err) {
         const message =
-          err instanceof Error ? err.message : "Error desconocido al reintentar el job.";
-        toast.error("Error al reintentar", { description: message });
+          err instanceof Error ? err.message : t("retryErrorFallback");
+        toast.error(t("retryErrorTitle"), { description: message });
       } finally {
         setPendingRowId(null);
       }
@@ -203,10 +195,10 @@ function FailedJobsTable({ jobs }: { jobs: FailedJob[] }) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Últimos fallos</CardTitle>
+          <CardTitle className="text-base">{t("failedJobsTitle")}</CardTitle>
         </CardHeader>
         <CardContent className="py-8 text-center">
-          <p className="text-sm text-muted-foreground">Sin fallos recientes</p>
+          <p className="text-sm text-muted-foreground">{t("failedJobsEmpty")}</p>
         </CardContent>
       </Card>
     );
@@ -215,19 +207,19 @@ function FailedJobsTable({ jobs }: { jobs: FailedJob[] }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Últimos fallos</CardTitle>
+        <CardTitle className="text-base">{t("failedJobsTitle")}</CardTitle>
       </CardHeader>
       <CardContent className="p-0">
         <TooltipProvider>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="pl-6">Cola</TableHead>
-                <TableHead>Job</TableHead>
-                <TableHead>Razón</TableHead>
-                <TableHead className="text-center">Intentos</TableHead>
-                <TableHead>Fecha</TableHead>
-                <TableHead className="pr-6 text-right">Acción</TableHead>
+                <TableHead className="pl-6">{t("colQueue")}</TableHead>
+                <TableHead>{t("colJob")}</TableHead>
+                <TableHead>{t("colReason")}</TableHead>
+                <TableHead className="text-center">{t("colAttempts")}</TableHead>
+                <TableHead>{t("colDate")}</TableHead>
+                <TableHead className="pr-6 text-right">{t("colAction")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -297,6 +289,7 @@ function FailedJobsTable({ jobs }: { jobs: FailedJob[] }) {
 // ─── Refresh Button ───────────────────────────────────────────────────────────
 
 function RefreshButton() {
+  const t = useTranslations("system_jobs.overview");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -314,7 +307,7 @@ function RefreshButton() {
       disabled={isPending}
     >
       <RefreshCw className={`mr-2 h-4 w-4 ${isPending ? "animate-spin" : ""}`} />
-      {isPending ? "Actualizando..." : "Actualizar"}
+      {isPending ? t("refreshLoading") : t("refreshButton")}
     </Button>
   );
 }
@@ -322,6 +315,7 @@ function RefreshButton() {
 // ─── Main Client Component ────────────────────────────────────────────────────
 
 export function JobsOverviewClient({ data }: JobsOverviewClientProps) {
+  const t = useTranslations("system_jobs.overview");
   const { queues, recent_failed } = data;
 
   return (
@@ -329,9 +323,11 @@ export function JobsOverviewClient({ data }: JobsOverviewClientProps) {
       {/* Header row with refresh */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-base font-semibold">Colas</h2>
+          <h2 className="text-base font-semibold">{t("queuesTitle")}</h2>
           <p className="text-xs text-muted-foreground">
-            {queues.length} {queues.length === 1 ? "cola registrada" : "colas registradas"}
+            {queues.length === 1
+              ? t("queuesCountSingular", { count: queues.length })
+              : t("queuesCountPlural", { count: queues.length })}
           </p>
         </div>
         <RefreshButton />
@@ -341,7 +337,7 @@ export function JobsOverviewClient({ data }: JobsOverviewClientProps) {
       {queues.length === 0 ? (
         <Card>
           <CardContent className="py-8 text-center">
-            <p className="text-sm text-muted-foreground">No se encontraron colas activas.</p>
+            <p className="text-sm text-muted-foreground">{t("noQueues")}</p>
           </CardContent>
         </Card>
       ) : (

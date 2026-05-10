@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { AlertCircle, RotateCcw } from "lucide-react";
 import * as Sentry from "@sentry/nextjs";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 
@@ -12,6 +13,8 @@ interface DashboardErrorProps {
 }
 
 export default function DashboardError({ error, reset }: DashboardErrorProps) {
+  const t = useTranslations("shared.errors");
+
   useEffect(() => {
     Sentry.captureException(error);
   }, [error]);
@@ -19,8 +22,8 @@ export default function DashboardError({ error, reset }: DashboardErrorProps) {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Algo salió mal"
-        description="Ocurrió un error al cargar esta sección."
+        title={t("dashboardTitle")}
+        description={t("dashboardDescription")}
       />
 
       <div
@@ -31,10 +34,9 @@ export default function DashboardError({ error, reset }: DashboardErrorProps) {
         <div className="flex size-12 items-center justify-center rounded-full bg-destructive/10">
           <AlertCircle className="size-6 text-destructive" aria-hidden="true" />
         </div>
-        <h3 className="mt-4 text-lg font-semibold">No se pudo cargar la página</h3>
+        <h2 className="mt-4 text-lg font-semibold">{t("dashboardHeading")}</h2>
         <p className="mt-1 max-w-md text-sm text-muted-foreground">
-          El error fue reportado automáticamente. Podés reintentar o volver al
-          dashboard.
+          {t("dashboardBody")}
         </p>
         {error.digest && (
           <p className="mt-2 font-mono text-[11px] text-muted-foreground/70">
@@ -44,10 +46,10 @@ export default function DashboardError({ error, reset }: DashboardErrorProps) {
         <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
           <Button onClick={reset} variant="default" size="sm">
             <RotateCcw className="mr-1.5 size-4" aria-hidden="true" />
-            Reintentar
+            {t("dashboardRetry")}
           </Button>
           <Button asChild variant="outline" size="sm">
-            <a href="/dashboard">Ir al dashboard</a>
+            <a href="/dashboard">{t("dashboardGoHome")}</a>
           </Button>
         </div>
       </div>

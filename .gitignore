@@ -17,6 +17,9 @@
 /.next/
 /out/
 
+# bundle analyzer output
+/.next/analyze
+
 # production
 /build
 
@@ -42,3 +45,6 @@ next-env.d.ts
 
 # Sentry Config File
 .env.sentry-build-plugin
+
+# Claude Code local state (worktrees, plugins, transcripts)
+.claude/

@@ -107,7 +107,7 @@ export function EvidenceApproveDialog({
             disabled={isSubmitting}
             className="bg-success hover:bg-success/90 text-success-foreground"
           >
-            {isSubmitting && <Loader2 className="mr-2 size-4 animate-spin" />}
+            {isSubmitting && <Loader2 className="size-4 animate-spin" />}
             Aprobar
           </Button>
         </DialogFooter>

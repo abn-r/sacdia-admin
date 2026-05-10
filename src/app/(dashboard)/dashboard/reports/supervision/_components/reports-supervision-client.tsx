@@ -8,6 +8,7 @@ import {
   FileText,
   Download,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
 import {
@@ -29,55 +30,17 @@ import { getReportPdfUrl } from "@/lib/api/monthly-reports";
 import type { AdminReportsPage, AdminReportItem } from "@/lib/api/monthly-reports";
 import type { ClubType } from "@/lib/api/catalogs";
 import type { LocalField } from "@/lib/api/geography";
-
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-const MONTHS: { value: string; label: string }[] = [
-  { value: "1", label: "Enero" },
-  { value: "2", label: "Febrero" },
-  { value: "3", label: "Marzo" },
-  { value: "4", label: "Abril" },
-  { value: "5", label: "Mayo" },
-  { value: "6", label: "Junio" },
-  { value: "7", label: "Julio" },
-  { value: "8", label: "Agosto" },
-  { value: "9", label: "Septiembre" },
-  { value: "10", label: "Octubre" },
-  { value: "11", label: "Noviembre" },
-  { value: "12", label: "Diciembre" },
-];
-
-const STATUS_OPTIONS: { value: string; label: string }[] = [
-  { value: "draft", label: "Borrador" },
-  { value: "generated", label: "Generado" },
-  { value: "submitted", label: "Enviado" },
-];
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatPeriod(month: number, year: number): string {
-  const date = new Date(year, month - 1, 1);
-  return new Intl.DateTimeFormat("es-MX", { month: "long", year: "numeric" }).format(date);
-}
-
-function formatShortDate(iso: string | null): string {
-  if (!iso) return "—";
-  const date = new Date(iso);
-  return new Intl.DateTimeFormat("es-MX", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).format(date);
-}
+import { useFormatDate } from "@/lib/format-locale";
 
 function ReportStatusBadge({ status }: { status: AdminReportItem["status"] }) {
+  const t = useTranslations("reports.supervisionClient");
   if (status === "submitted") {
-    return <StatusBadge intent="success" label="Enviado" />;
+    return <StatusBadge intent="success" label={t("statusOptions.submitted")} />;
   }
   if (status === "generated") {
-    return <StatusBadge intent="neutral" label="Generado" />;
+    return <StatusBadge intent="neutral" label={t("statusOptions.generated")} />;
   }
-  return <StatusBadge intent="neutral" label="Borrador" />;
+  return <StatusBadge intent="neutral" label={t("statusOptions.draft")} />;
 }
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -104,11 +67,17 @@ export function ReportsSupervisionClient({
   localFields,
   searchParams,
 }: ReportsSupervisionClientProps) {
+  const t = useTranslations("reports.supervisionClient");
   const router = useRouter();
+  const formatDate = useFormatDate();
 
   const currentPage = Number(searchParams.page ?? "1");
   const { total, limit, items } = initialData;
   const totalPages = Math.ceil(total / limit);
+
+  // Month options built from translation keys (values stay stable, labels from t())
+  const MONTH_VALUES = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"] as const;
+  const STATUS_VALUES = ["draft", "generated", "submitted"] as const;
 
   // ─── URL builder ────────────────────────────────────────────────────────────
 
@@ -147,10 +116,10 @@ export function ReportsSupervisionClient({
           onValueChange={(v) => handleFilter("club_type_id", v)}
         >
           <SelectTrigger className="w-44">
-            <SelectValue placeholder="Tipo de club" />
+            <SelectValue placeholder={t("filterClubTypePlaceholder")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos los tipos</SelectItem>
+            <SelectItem value="all">{t("filterClubTypeAll")}</SelectItem>
             {clubTypes.map((ct) => (
               <SelectItem key={ct.club_type_id} value={String(ct.club_type_id)}>
                 {ct.name}
@@ -165,10 +134,10 @@ export function ReportsSupervisionClient({
           onValueChange={(v) => handleFilter("local_field_id", v)}
         >
           <SelectTrigger className="w-48">
-            <SelectValue placeholder="Campo local" />
+            <SelectValue placeholder={t("filterLocalFieldPlaceholder")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos los campos</SelectItem>
+            <SelectItem value="all">{t("filterLocalFieldAll")}</SelectItem>
             {localFields.map((lf) => (
               <SelectItem key={lf.local_field_id} value={String(lf.local_field_id)}>
                 {lf.name}
@@ -183,13 +152,13 @@ export function ReportsSupervisionClient({
           onValueChange={(v) => handleFilter("month", v)}
         >
           <SelectTrigger className="w-36">
-            <SelectValue placeholder="Mes" />
+            <SelectValue placeholder={t("filterMonthPlaceholder")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos los meses</SelectItem>
-            {MONTHS.map((m) => (
-              <SelectItem key={m.value} value={m.value}>
-                {m.label}
+            <SelectItem value="all">{t("filterMonthAll")}</SelectItem>
+            {MONTH_VALUES.map((v) => (
+              <SelectItem key={v} value={v}>
+                {t(`months.${v}`)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -201,7 +170,7 @@ export function ReportsSupervisionClient({
           onValueChange={(v) => handleFilter("year", v)}
         >
           <SelectTrigger className="w-28">
-            <SelectValue placeholder="Año" />
+            <SelectValue placeholder={t("filterYearPlaceholder")} />
           </SelectTrigger>
           <SelectContent>
             {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(
@@ -220,13 +189,13 @@ export function ReportsSupervisionClient({
           onValueChange={(v) => handleFilter("status", v)}
         >
           <SelectTrigger className="w-36">
-            <SelectValue placeholder="Estado" />
+            <SelectValue placeholder={t("filterStatusPlaceholder")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos los estados</SelectItem>
-            {STATUS_OPTIONS.map((s) => (
-              <SelectItem key={s.value} value={s.value}>
-                {s.label}
+            <SelectItem value="all">{t("filterStatusAll")}</SelectItem>
+            {STATUS_VALUES.map((v) => (
+              <SelectItem key={v} value={v}>
+                {t(`statusOptions.${v}`)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -238,10 +207,10 @@ export function ReportsSupervisionClient({
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center">
           <FileText className="mb-3 size-10 text-muted-foreground/50" />
           <p className="text-sm font-medium text-muted-foreground">
-            No se encontraron reportes
+            {t("emptyTitle")}
           </p>
           <p className="mt-1 text-xs text-muted-foreground/70">
-            Ajusta los filtros para ver resultados.
+            {t("emptyHint")}
           </p>
         </div>
       ) : (
@@ -249,14 +218,14 @@ export function ReportsSupervisionClient({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Club</TableHead>
-                <TableHead>Tipo</TableHead>
-                <TableHead>Campo Local</TableHead>
-                <TableHead>Periodo</TableHead>
-                <TableHead>Estado</TableHead>
-                <TableHead>Generado</TableHead>
-                <TableHead>Enviado</TableHead>
-                <TableHead className="text-right">Acciones</TableHead>
+                <TableHead>{t("tableColClub")}</TableHead>
+                <TableHead>{t("tableColType")}</TableHead>
+                <TableHead>{t("tableColLocalField")}</TableHead>
+                <TableHead>{t("tableColPeriod")}</TableHead>
+                <TableHead>{t("tableColStatus")}</TableHead>
+                <TableHead>{t("tableColGenerated")}</TableHead>
+                <TableHead>{t("tableColSubmitted")}</TableHead>
+                <TableHead className="text-right">{t("tableColActions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -266,25 +235,25 @@ export function ReportsSupervisionClient({
                     {item.club_name ?? "—"}
                     {item.member_count !== null && (
                       <span className="ml-1.5 text-xs text-muted-foreground">
-                        ({item.member_count} miembros)
+                        {t("memberCount", { count: item.member_count })}
                       </span>
                     )}
                   </TableCell>
                   <TableCell>{item.club_type ?? "—"}</TableCell>
                   <TableCell>{item.local_field ?? "—"}</TableCell>
                   <TableCell className="capitalize">
-                    {formatPeriod(item.month, item.year)}
+                    {formatDate(new Date(item.year, item.month - 1, 1), { month: "long", year: "numeric" })}
                   </TableCell>
                   <TableCell>
                     <ReportStatusBadge status={item.status} />
                   </TableCell>
-                  <TableCell>{formatShortDate(item.generated_at)}</TableCell>
-                  <TableCell>{formatShortDate(item.submitted_at)}</TableCell>
+                  <TableCell>{item.generated_at ? formatDate(item.generated_at) : "—"}</TableCell>
+                  <TableCell>{item.submitted_at ? formatDate(item.submitted_at) : "—"}</TableCell>
                   <TableCell>
                     <div className="flex items-center justify-end gap-2">
                       <Button asChild variant="outline" size="sm">
                         <Link href={`/dashboard/reports/${item.monthly_report_id}`}>
-                          Ver
+                          {t("actionView")}
                         </Link>
                       </Button>
                       {item.status !== "draft" && (
@@ -295,7 +264,7 @@ export function ReportsSupervisionClient({
                             rel="noopener noreferrer"
                           >
                             <Download className="mr-1 size-3.5" />
-                            PDF
+                            {t("actionPdf")}
                           </a>
                         </Button>
                       )}
@@ -312,9 +281,7 @@ export function ReportsSupervisionClient({
       {items.length > 0 && (
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <span>
-            {total === 0
-              ? "Sin resultados"
-              : `${total} ${total === 1 ? "reporte" : "reportes"} en total`}
+            {t("paginationTotal", { total })}
           </span>
           <div className="flex items-center gap-2">
             <Button
@@ -324,10 +291,10 @@ export function ReportsSupervisionClient({
               onClick={() => handlePage(currentPage - 1)}
             >
               <ChevronLeft className="size-4" />
-              Anterior
+              {t("paginationPrev")}
             </Button>
             <span className="tabular-nums">
-              Página {currentPage} de {totalPages}
+              {t("paginationPage", { page: currentPage, totalPages })}
             </span>
             <Button
               variant="outline"
@@ -335,7 +302,7 @@ export function ReportsSupervisionClient({
               disabled={currentPage * limit >= total}
               onClick={() => handlePage(currentPage + 1)}
             >
-              Siguiente
+              {t("paginationNext")}
               <ChevronRight className="size-4" />
             </Button>
           </div>

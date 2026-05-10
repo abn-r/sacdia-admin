@@ -56,6 +56,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
@@ -112,7 +113,7 @@ function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending}>
-      {pending && <Loader2 className="mr-2 size-4 animate-spin" />}
+      {pending && <Loader2 className="size-4 animate-spin" />}
       {label}
     </Button>
   );
@@ -120,14 +121,15 @@ function SubmitButton({ label }: { label: string }) {
 
 function DeleteButton() {
   const { pending } = useFormStatus();
+  const t = useTranslations("resources.categoriesCrud");
   return (
     <Button
       type="submit"
       disabled={pending}
       className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
     >
-      {pending && <Loader2 className="mr-2 size-4 animate-spin" />}
-      Eliminar
+      {pending && <Loader2 className="size-4 animate-spin" />}
+      {t("delete")}
     </Button>
   );
 }
@@ -141,29 +143,30 @@ function CategoryFormFields({
   activeChecked: boolean;
   onActiveChange: (checked: boolean) => void;
 }) {
+  const t = useTranslations("resources.categoriesCrud");
   return (
     <div className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="rc-name">
-          Nombre <span className="text-destructive">*</span>
+          {t("fieldName")} <span className="text-destructive">*</span>
         </Label>
         <Input
           id="rc-name"
           name="name"
           defaultValue={toText(item?.name) ?? ""}
           required
-          placeholder="Ej. Materiales de Clase"
+          placeholder={t("fieldNamePlaceholder")}
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="rc-description">Descripción</Label>
+        <Label htmlFor="rc-description">{t("fieldDescription")}</Label>
         <Textarea
           id="rc-description"
           name="description"
           rows={3}
           defaultValue={toText(item?.description) ?? ""}
-          placeholder="Describe esta categoría de recursos"
+          placeholder={t("fieldDescriptionPlaceholder")}
         />
       </div>
 
@@ -174,7 +177,7 @@ function CategoryFormFields({
           checked={activeChecked}
           onCheckedChange={(checked) => onActiveChange(!!checked)}
         />
-        <Label htmlFor="rc-active">Activa</Label>
+        <Label htmlFor="rc-active">{t("fieldActive")}</Label>
       </div>
     </div>
   );
@@ -268,6 +271,7 @@ export function ResourceCategoriesCrudPage({
     [updateParam],
   );
 
+  const t = useTranslations("resources.categoriesCrud");
   const hasActiveFilters = Boolean(currentSearch || currentStatusFilter !== "all");
   const canMutate = canCreate || canEdit || canDelete;
   const safePage = Math.max(1, meta.page || 1);
@@ -277,8 +281,8 @@ export function ResourceCategoriesCrudPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Categorías de recursos"
-        description="Agrupa los recursos por categoría temática."
+        title={t("pageTitle")}
+        description={t("pageDescription")}
       >
         {canCreate && (
           <Button
@@ -287,8 +291,8 @@ export function ResourceCategoriesCrudPage({
               setCreateActiveChecked(true);
             }}
           >
-            <Plus className="mr-2 size-4" />
-            Crear categoría
+            <Plus className="size-4" />
+            {t("createCategory")}
           </Button>
         )}
       </PageHeader>
@@ -297,19 +301,19 @@ export function ResourceCategoriesCrudPage({
         {/* Filters */}
         <div className="rounded-xl border bg-muted/20 p-4">
           <div className="mb-3 flex items-center justify-between gap-2">
-            <h3 className="text-sm font-semibold tracking-wide text-foreground">Filtros</h3>
-            <span className="text-xs text-muted-foreground">Refina el listado por campo</span>
+            <h3 className="text-sm font-semibold tracking-wide text-foreground">{t("filtersTitle")}</h3>
+            <span className="text-xs text-muted-foreground">{t("filtersSubtitle")}</span>
           </div>
 
           <div className="overflow-x-auto pb-1">
             <div className="flex min-w-max items-end gap-4">
               <div className="w-[300px] space-y-1">
-                <Label htmlFor="rc-filter-name">Nombre</Label>
+                <Label htmlFor="rc-filter-name">{t("filterName")}</Label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="rc-filter-name"
-                    placeholder="Buscar por nombre..."
+                    placeholder={t("filterNamePlaceholder")}
                     value={searchInput}
                     onChange={(e) => handleSearchInputChange(e.target.value)}
                     className="bg-background pl-9"
@@ -318,18 +322,18 @@ export function ResourceCategoriesCrudPage({
               </div>
 
               <div className="w-[200px] space-y-1">
-                <Label htmlFor="rc-filter-status">Estado</Label>
+                <Label htmlFor="rc-filter-status">{t("filterStatus")}</Label>
                 <Select
                   value={currentStatusFilter}
                   onValueChange={(value) => updateParam("active", value)}
                 >
                   <SelectTrigger id="rc-filter-status" className="bg-background">
-                    <SelectValue placeholder="Estado" />
+                    <SelectValue placeholder={t("filterStatus")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Todos los estados</SelectItem>
-                    <SelectItem value="true">Activas</SelectItem>
-                    <SelectItem value="false">Inactivas</SelectItem>
+                    <SelectItem value="all">{t("statusAll")}</SelectItem>
+                    <SelectItem value="true">{t("statusActive")}</SelectItem>
+                    <SelectItem value="false">{t("statusInactive")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -341,11 +345,11 @@ export function ResourceCategoriesCrudPage({
         {items.length === 0 ? (
           <EmptyState
             icon={FolderOpen}
-            title={hasActiveFilters ? "Sin resultados" : "No hay categorías de recursos"}
+            title={hasActiveFilters ? t("noResults") : t("emptyTitle")}
             description={
               hasActiveFilters
-                ? "No hay categorías que coincidan con los filtros."
-                : "Crea la primera categoría para organizar tus recursos."
+                ? t("noResultsDesc")
+                : t("emptyDesc")
             }
           >
             {canCreate && !hasActiveFilters && (
@@ -355,8 +359,8 @@ export function ResourceCategoriesCrudPage({
                   setCreateActiveChecked(true);
                 }}
               >
-                <Plus className="mr-2 size-4" />
-                Crear categoría
+                <Plus className="size-4" />
+                {t("createCategory")}
               </Button>
             )}
           </EmptyState>
@@ -366,12 +370,12 @@ export function ResourceCategoriesCrudPage({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Nombre</TableHead>
-                    <TableHead>Descripción</TableHead>
-                    <TableHead>Estado</TableHead>
+                    <TableHead>{t("colName")}</TableHead>
+                    <TableHead>{t("colDescription")}</TableHead>
+                    <TableHead>{t("colStatus")}</TableHead>
                     {(canEdit || canDelete) && (
                       <TableHead className="sticky right-0 z-20 w-[100px] border-l bg-background">
-                        Acciones
+                        {t("colActions")}
                       </TableHead>
                     )}
                   </TableRow>
@@ -393,10 +397,10 @@ export function ResourceCategoriesCrudPage({
                         </TableCell>
                         <TableCell>
                           <Badge
-                            variant={item.active !== false ? "default" : "outline"}
+                            variant={item.active !== false ? "soft-success" : "outline"}
                             className="text-xs"
                           >
-                            {item.active !== false ? "Activa" : "Inactiva"}
+                            {item.active !== false ? t("statusActive") : t("statusInactive")}
                           </Badge>
                         </TableCell>
                         {(canEdit || canDelete) && (
@@ -412,7 +416,7 @@ export function ResourceCategoriesCrudPage({
                                     setEditItem(item);
                                     setEditActiveChecked(getDefaultActive(item));
                                   }}
-                                  title="Editar"
+                                  title={t("edit")}
                                 >
                                   <Pencil className="size-3.5" />
                                 </Button>
@@ -424,7 +428,7 @@ export function ResourceCategoriesCrudPage({
                                   className="size-8 text-destructive hover:text-destructive"
                                   disabled={!itemId}
                                   onClick={() => setDeleteItem(item)}
-                                  title="Eliminar"
+                                  title={t("delete")}
                                 >
                                   <Trash2 className="size-3.5" />
                                 </Button>
@@ -434,7 +438,7 @@ export function ResourceCategoriesCrudPage({
                             <div className="md:hidden">
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="size-8" title="Acciones">
+                                  <Button variant="ghost" size="icon" className="size-8" title={t("colActions")}>
                                     <MoreHorizontal className="size-4" />
                                   </Button>
                                 </DropdownMenuTrigger>
@@ -448,7 +452,7 @@ export function ResourceCategoriesCrudPage({
                                       }}
                                     >
                                       <Pencil className="size-4" />
-                                      Editar
+                                      {t("edit")}
                                     </DropdownMenuItem>
                                   )}
                                   {canDelete && (
@@ -458,7 +462,7 @@ export function ResourceCategoriesCrudPage({
                                       onSelect={() => setDeleteItem(item)}
                                     >
                                       <Trash2 className="size-4" />
-                                      Eliminar
+                                      {t("delete")}
                                     </DropdownMenuItem>
                                   )}
                                 </DropdownMenuContent>
@@ -489,9 +493,9 @@ export function ResourceCategoriesCrudPage({
         <Dialog open={createOpen} onOpenChange={setCreateOpen}>
           <DialogContent className="max-w-xl">
             <DialogHeader>
-              <DialogTitle>Crear categoría de recursos</DialogTitle>
+              <DialogTitle>{t("createDialogTitle")}</DialogTitle>
               <DialogDescription>
-                Completa los campos para registrar la nueva categoría.
+                {t("createDialogDesc")}
               </DialogDescription>
             </DialogHeader>
             <form action={createFormAction} className="space-y-4">
@@ -506,9 +510,9 @@ export function ResourceCategoriesCrudPage({
               />
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setCreateOpen(false)}>
-                  Cancelar
+                  {t("cancel")}
                 </Button>
-                <SubmitButton label="Crear" />
+                <SubmitButton label={t("createSubmit")} />
               </DialogFooter>
             </form>
           </DialogContent>
@@ -520,7 +524,7 @@ export function ResourceCategoriesCrudPage({
         <Dialog open={!!editItem} onOpenChange={(open) => { if (!open) setEditItem(null); }}>
           <DialogContent className="max-w-xl">
             <DialogHeader>
-              <DialogTitle>Editar categoría</DialogTitle>
+              <DialogTitle>{t("editDialogTitle")}</DialogTitle>
             </DialogHeader>
             <form action={updateFormAction} className="space-y-4">
               <input type="hidden" name="id" value={String(pickId(editItem) ?? "")} />
@@ -536,9 +540,9 @@ export function ResourceCategoriesCrudPage({
               />
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setEditItem(null)}>
-                  Cancelar
+                  {t("cancel")}
                 </Button>
-                <SubmitButton label="Guardar cambios" />
+                <SubmitButton label={t("saveChanges")} />
               </DialogFooter>
             </form>
           </DialogContent>
@@ -553,15 +557,13 @@ export function ResourceCategoriesCrudPage({
         >
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>¿Eliminar categoría?</AlertDialogTitle>
+              <AlertDialogTitle>{t("deleteDialogTitle")}</AlertDialogTitle>
               <AlertDialogDescription>
-                Se eliminará la categoría{" "}
-                <span className="font-medium">&quot;{pickName(deleteItem)}&quot;</span>. Esta acción
-                no se puede deshacer.
+                {t("deleteDialogDesc", { name: pickName(deleteItem) })}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
               <form action={deleteFormAction}>
                 <input type="hidden" name="id" value={String(pickId(deleteItem) ?? "")} />
                 {deleteState.error && (
@@ -576,7 +578,7 @@ export function ResourceCategoriesCrudPage({
 
       {!canMutate && (
         <div className="rounded-md border border-dashed px-4 py-3 text-sm text-muted-foreground">
-          No cuentas con permisos para modificar categorías de recursos.
+          {t("noPermissions")}
         </div>
       )}
     </div>

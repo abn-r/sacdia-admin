@@ -1,44 +1,46 @@
 import Link from "next/link";
 import { Shield, Key, Users, Grid3X3, ShieldCheck } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/shared/page-header";
 import { requireAdminUser } from "@/lib/auth/session";
 
-const rbacSections = [
-  {
-    title: "Permisos",
-    description: "Catálogo de permisos del sistema",
-    href: "/dashboard/rbac/permissions",
-    icon: Key,
-  },
-  {
-    title: "Roles",
-    description: "Gestión de roles y asignación de permisos",
-    href: "/dashboard/rbac/roles",
-    icon: Users,
-  },
-  {
-    title: "Permisos por usuario",
-    description: "Asignar permisos directamente a usuarios sin pasar por roles",
-    href: "/dashboard/rbac/user-permissions",
-    icon: ShieldCheck,
-  },
-  {
-    title: "Matriz de seguridad",
-    description: "Vista matricial de roles vs permisos",
-    href: "/dashboard/rbac/matrix",
-    icon: Grid3X3,
-  },
-];
-
 export default async function RbacPage() {
+  const t = await getTranslations("rbac.pages.root");
   await requireAdminUser();
+
+  const rbacSections = [
+    {
+      title: t("sectionPermissions"),
+      description: t("sectionPermissionsDesc"),
+      href: "/dashboard/rbac/permissions",
+      icon: Key,
+    },
+    {
+      title: t("sectionRoles"),
+      description: t("sectionRolesDesc"),
+      href: "/dashboard/rbac/roles",
+      icon: Users,
+    },
+    {
+      title: t("sectionUserPermissions"),
+      description: t("sectionUserPermissionsDesc"),
+      href: "/dashboard/rbac/user-permissions",
+      icon: ShieldCheck,
+    },
+    {
+      title: t("sectionMatrix"),
+      description: t("sectionMatrixDesc"),
+      href: "/dashboard/rbac/matrix",
+      icon: Grid3X3,
+    },
+  ];
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Roles y permisos"
-        description="Sistema de control de acceso basado en roles (RBAC)."
+        title={t("title")}
+        description={t("description")}
       />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {rbacSections.map((section) => (

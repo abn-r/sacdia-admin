@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Package, Pencil, Trash2, History } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,7 @@ interface InventoryTableProps {
 // ─── Component ─────────────────────────────────────────────────────────────────
 
 export function InventoryTable({ items, onEdit, onDelete }: InventoryTableProps) {
+  const t = useTranslations("inventory");
   const [historyOpen, setHistoryOpen] = useState(false);
   const [historyItem, setHistoryItem] = useState<InventoryItem | null>(null);
 
@@ -39,8 +41,8 @@ export function InventoryTable({ items, onEdit, onDelete }: InventoryTableProps)
     return (
       <EmptyState
         icon={Package}
-        title="Sin ítems de inventario"
-        description="No se encontraron ítems para los filtros seleccionados."
+        title={t("table.empty_title")}
+        description={t("table.empty_description")}
       />
     );
   }
@@ -51,19 +53,19 @@ export function InventoryTable({ items, onEdit, onDelete }: InventoryTableProps)
         <TableHeader>
           <TableRow>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Nombre
+              {t("table.col_name")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Descripción
+              {t("table.col_description")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Categoría
+              {t("table.col_category")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground text-right">
-              Cantidad
+              {t("table.col_amount")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Estado
+              {t("table.col_status")}
             </TableHead>
             <TableHead className="h-9 w-32 px-3" />
           </TableRow>
@@ -71,7 +73,8 @@ export function InventoryTable({ items, onEdit, onDelete }: InventoryTableProps)
         <TableBody>
           {items.map((item) => {
             const categoryName =
-              item.inventory_category?.name ?? `Categoría ${item.inventory_category_id}`;
+              item.inventory_category?.name ??
+              t("table.category_fallback", { id: item.inventory_category_id });
 
             return (
               <TableRow key={item.inventory_id} className="hover:bg-muted/30">
@@ -90,8 +93,8 @@ export function InventoryTable({ items, onEdit, onDelete }: InventoryTableProps)
                   {item.amount}
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle">
-                  <Badge variant={item.active !== false ? "default" : "outline"}>
-                    {item.active !== false ? "Activo" : "Inactivo"}
+                  <Badge variant={item.active !== false ? "soft-success" : "outline"}>
+                    {item.active !== false ? t("status.active") : t("status.inactive")}
                   </Badge>
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle">
@@ -100,20 +103,20 @@ export function InventoryTable({ items, onEdit, onDelete }: InventoryTableProps)
                       variant="ghost"
                       size="icon-sm"
                       onClick={() => handleHistory(item)}
-                      title="Ver historial"
+                      title={t("actions.view_history")}
                     >
                       <History className="size-3.5" />
-                      <span className="sr-only">Historial</span>
+                      <span className="sr-only">{t("actions.history_sr")}</span>
                     </Button>
                     {onEdit && (
                       <Button
                         variant="ghost"
                         size="icon-sm"
                         onClick={() => onEdit(item)}
-                        title="Editar ítem"
+                        title={t("actions.edit_item")}
                       >
                         <Pencil className="size-3.5" />
-                        <span className="sr-only">Editar</span>
+                        <span className="sr-only">{t("actions.edit_sr")}</span>
                       </Button>
                     )}
                     {onDelete && (
@@ -121,11 +124,11 @@ export function InventoryTable({ items, onEdit, onDelete }: InventoryTableProps)
                         variant="ghost"
                         size="icon-sm"
                         onClick={() => onDelete(item)}
-                        title="Eliminar ítem"
+                        title={t("actions.delete_item")}
                         className="text-destructive hover:text-destructive"
                       >
                         <Trash2 className="size-3.5" />
-                        <span className="sr-only">Eliminar</span>
+                        <span className="sr-only">{t("actions.delete_sr")}</span>
                       </Button>
                     )}
                   </div>

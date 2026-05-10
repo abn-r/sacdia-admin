@@ -3,6 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { GraduationCap, Award } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { ValidationSummary } from "@/lib/api/analytics";
 
 interface SlaValidationCardProps {
@@ -10,16 +11,17 @@ interface SlaValidationCardProps {
 }
 
 export function SlaValidationCard({ validation }: SlaValidationCardProps) {
+  const t = useTranslations("sla.validation");
   const { class_sections_pending, honors_pending, total_pending } = validation;
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Cola de Validacion</CardTitle>
+        <CardTitle className="text-base">{t("title")}</CardTitle>
         <CardDescription>
           {total_pending > 0
-            ? `${total_pending.toLocaleString("es-MX")} item${total_pending !== 1 ? "s" : ""} esperando validacion`
-            : "Sin items pendientes de validacion"}
+            ? t("description_pending", { count: total_pending })
+            : t("description_empty")}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -29,8 +31,8 @@ export function SlaValidationCard({ validation }: SlaValidationCardProps) {
               <GraduationCap className="size-4 text-primary" />
             </div>
             <div>
-              <p className="text-sm font-medium">Secciones de Clase</p>
-              <p className="text-xs text-muted-foreground">Progreso pendiente de validar</p>
+              <p className="text-sm font-medium">{t("class_sections_label")}</p>
+              <p className="text-xs text-muted-foreground">{t("class_sections_subtitle")}</p>
             </div>
           </div>
           <Badge
@@ -46,8 +48,8 @@ export function SlaValidationCard({ validation }: SlaValidationCardProps) {
               <Award className="size-4 text-primary" />
             </div>
             <div>
-              <p className="text-sm font-medium">Especialidades</p>
-              <p className="text-xs text-muted-foreground">Honores pendientes de validar</p>
+              <p className="text-sm font-medium">{t("honors_label")}</p>
+              <p className="text-xs text-muted-foreground">{t("honors_subtitle")}</p>
             </div>
           </div>
           <Badge

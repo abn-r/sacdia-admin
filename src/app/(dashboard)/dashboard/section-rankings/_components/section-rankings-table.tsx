@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { BarChart3 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   Table,
   TableBody,
@@ -29,7 +32,7 @@ interface SectionRankingsTableProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 /**
- * Pure server component — renders paginated section rankings in a shadcn Table.
+ * Client component — renders paginated section rankings in a shadcn Table.
  *
  * Columns (6 data + 1 action = 7):
  *   # | Sección | Composite | Miembros activos | Categoría | Calculado | Acción
@@ -49,12 +52,14 @@ export function SectionRankingsTable({
   totalPages,
   yearId,
 }: SectionRankingsTableProps) {
+  const t = useTranslations("rankings.sectionTable");
+
   if (data.length === 0) {
     return (
       <EmptyState
         icon={BarChart3}
-        title="Sin rankings disponibles"
-        description="Sin rankings para los filtros seleccionados."
+        title={t("emptyTitle")}
+        description={t("emptyDescription")}
       />
     );
   }
@@ -63,7 +68,7 @@ export function SectionRankingsTable({
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
         <span className="font-medium text-foreground">{total}</span>{" "}
-        {total === 1 ? "sección rankeada" : "secciones rankeadas"}
+        {total === 1 ? t("countSingular", { total }) : t("countPlural", { total })}
       </p>
 
       <div className="overflow-x-auto rounded-xl border border-border/60 bg-card shadow-xs">
@@ -71,25 +76,25 @@ export function SectionRankingsTable({
           <TableHeader>
             <TableRow>
               <TableHead className="h-9 w-14 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                #
+                {t("colRank")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Sección
+                {t("colSection")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Composite
+                {t("colComposite")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Miembros activos
+                {t("colActiveMembers")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Categoría
+                {t("colCategory")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Calculado
+                {t("colCalculated")}
               </TableHead>
               <TableHead className="h-9 px-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Acción
+                {t("colAction")}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -148,7 +153,7 @@ export function SectionRankingsTable({
                       <Link
                         href={`/dashboard/section-rankings/${item.club_section_id}/members?year_id=${yearId}`}
                       >
-                        Ver miembros
+                        {t("viewMembers")}
                       </Link>
                     </Button>
                   </TableCell>

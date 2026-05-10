@@ -94,22 +94,22 @@ export function CampoReesView({ initialCamporees }: CampoReesViewProps) {
         <div className="flex items-center gap-2">
           <p className="text-sm text-muted-foreground">
             <span className="font-medium text-foreground">{camporees.length}</span>{" "}
-            {camporees.length === 1 ? "camporee" : "camporees"}
+            {camporees.length === 1 ? t("list.countSingular") : t("list.countPlural")}
           </p>
           <Button
             variant="outline"
             size="icon-sm"
             onClick={refreshList}
             disabled={isLoading}
-            title="Actualizar"
+            title={t("list.refresh")}
           >
             <RefreshCw className={`size-3.5 ${isLoading ? "animate-spin" : ""}`} />
-            <span className="sr-only">Actualizar</span>
+            <span className="sr-only">{t("list.refresh")}</span>
           </Button>
         </div>
         <Button size="sm" onClick={() => setCreateOpen(true)}>
-          <Plus className="mr-2 size-4" />
-          Nuevo camporee
+          <Plus className="size-4" />
+          {t("list.newCamporee")}
         </Button>
       </div>
 
@@ -123,13 +123,13 @@ export function CampoReesView({ initialCamporees }: CampoReesViewProps) {
       {/* Table or empty state */}
       {isLoading ? (
         <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">
-          Cargando camporees...
+          {t("list.loading")}
         </div>
       ) : camporees.length === 0 ? (
         <EmptyState
           icon={Tent}
-          title="No hay camporees"
-          description="Crea el primer camporee para empezar."
+          title={t("list.emptyTitle")}
+          description={t("list.emptyDescription")}
         />
       ) : (
         <div className="overflow-x-auto rounded-xl border border-border/60 bg-card shadow-xs">
@@ -137,19 +137,19 @@ export function CampoReesView({ initialCamporees }: CampoReesViewProps) {
             <TableHeader>
               <TableRow>
                 <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Nombre
+                  {t("list.colName")}
                 </TableHead>
                 <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Fecha inicio
+                  {t("list.colStartDate")}
                 </TableHead>
                 <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Fecha fin
+                  {t("list.colEndDate")}
                 </TableHead>
                 <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Lugar
+                  {t("list.colPlace")}
                 </TableHead>
                 <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Estado
+                  {t("list.colStatus")}
                 </TableHead>
                 <TableHead className="h-9 w-28 px-3" />
               </TableRow>
@@ -175,10 +175,10 @@ export function CampoReesView({ initialCamporees }: CampoReesViewProps) {
                     </TableCell>
                     <TableCell className="px-3 py-2.5 align-middle">
                       <Badge
-                        variant={camporee.active !== false ? "default" : "outline"}
+                        variant={camporee.active !== false ? "soft-success" : "outline"}
                         className="text-xs"
                       >
-                        {camporee.active !== false ? "Activo" : "Inactivo"}
+                        {camporee.active !== false ? t("list.statusActive") : t("list.statusInactive")}
                       </Badge>
                     </TableCell>
                     <TableCell className="px-3 py-2.5 align-middle">
@@ -187,16 +187,16 @@ export function CampoReesView({ initialCamporees }: CampoReesViewProps) {
                           variant="ghost"
                           size="icon-sm"
                           onClick={() => handleDelete(camporee)}
-                          title="Eliminar camporee"
+                          title={t("list.deleteTitle")}
                           className="text-destructive hover:text-destructive"
                         >
                           <Trash2 className="size-3.5" />
-                          <span className="sr-only">Eliminar</span>
+                          <span className="sr-only">{t("list.deleteLabel")}</span>
                         </Button>
                         <Button variant="ghost" size="icon-sm" asChild>
                           <Link href={`/dashboard/camporees/${id}`}>
                             <ChevronRight className="size-4" />
-                            <span className="sr-only">Ver detalle</span>
+                            <span className="sr-only">{t("list.viewDetail")}</span>
                           </Link>
                         </Button>
                       </div>

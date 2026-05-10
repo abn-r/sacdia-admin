@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { Plus, RefreshCw } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -97,6 +98,7 @@ export function InsuranceView({
   initialClubId,
   initialSectionId,
 }: InsuranceViewProps) {
+  const t = useTranslations("insurance");
   const [selectedClubId, setSelectedClubId] = useState<number | null>(initialClubId);
   const [selectedSectionId, setSelectedSectionId] = useState<number | null>(initialSectionId);
   const [members, setMembers] = useState<MemberInsurance[]>(initialMembers);
@@ -123,13 +125,13 @@ export function InsuranceView({
       const message =
         err instanceof ApiError
           ? err.message
-          : "No se pudieron cargar los seguros";
+          : t("view.load_error");
       setLoadError(message);
       setMembers([]);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [t]);
 
   function handleClubChange(value: string) {
     const clubId = Number(value);
@@ -189,7 +191,7 @@ export function InsuranceView({
             onValueChange={handleClubChange}
           >
             <SelectTrigger className="w-52">
-              <SelectValue placeholder="Seleccionar club" />
+              <SelectValue placeholder={t("view.select_club_placeholder")} />
             </SelectTrigger>
             <SelectContent>
               {clubs.map((club) => (
@@ -207,7 +209,7 @@ export function InsuranceView({
             disabled={!selectedClubId || sections.length === 0}
           >
             <SelectTrigger className="w-48">
-              <SelectValue placeholder="Seleccionar sección" />
+              <SelectValue placeholder={t("view.select_section_placeholder")} />
             </SelectTrigger>
             <SelectContent>
               {sections.map((s) => (
@@ -223,10 +225,10 @@ export function InsuranceView({
             size="icon-sm"
             onClick={handleRefresh}
             disabled={!selectedSectionId || isLoading}
-            title="Actualizar"
+            title={t("view.refresh_tooltip")}
           >
             <RefreshCw className={`size-3.5 ${isLoading ? "animate-spin" : ""}`} />
-            <span className="sr-only">Actualizar</span>
+            <span className="sr-only">{t("view.refresh_tooltip")}</span>
           </Button>
         </div>
       </div>
@@ -241,17 +243,14 @@ export function InsuranceView({
       {/* Prompt to select section */}
       {!selectedSectionId && !loadError && (
         <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">
-          Selecciona un club y una sección para ver los seguros.
+          {t("view.prompt_select")}
         </div>
       )}
 
       {/* Count */}
       {selectedSectionId && !loadError && !isLoading && (
         <p className="text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">{insuredCount}</span>{" "}
-          de{" "}
-          <span className="font-medium text-foreground">{members.length}</span>{" "}
-          {members.length === 1 ? "miembro" : "miembros"} con seguro registrado
+          {t("view.insured_count", { insured: insuredCount, total: members.length })}
         </p>
       )}
 
@@ -259,7 +258,7 @@ export function InsuranceView({
       {selectedSectionId && (
         isLoading ? (
           <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">
-            Cargando seguros...
+            {t("view.loading")}
           </div>
         ) : (
           <InsuranceTable

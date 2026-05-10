@@ -78,6 +78,7 @@ import type { PhaseEActionState } from "@/lib/phase-e-catalogs/actions";
 import { useFormStatus } from "react-dom";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -119,7 +120,7 @@ function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending}>
-      {pending && <Loader2 className="mr-2 size-4 animate-spin" />}
+      {pending && <Loader2 className="size-4 animate-spin" />}
       {label}
     </Button>
   );
@@ -127,14 +128,15 @@ function SubmitButton({ label }: { label: string }) {
 
 function DeleteButton() {
   const { pending } = useFormStatus();
+  const t = useTranslations("catalogs.phaseE");
   return (
     <Button
       type="submit"
       disabled={pending}
       className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
     >
-      {pending && <Loader2 className="mr-2 size-4 animate-spin" />}
-      Eliminar
+      {pending && <Loader2 className="size-4 animate-spin" />}
+      {t("delete")}
     </Button>
   );
 }
@@ -162,6 +164,7 @@ function CatalogFormFields({
   onTranslationsChange,
   entityLabel,
 }: FormFieldsProps) {
+  const t = useTranslations("catalogs.phaseE");
   const nameVal = typeof item?.name === "string" ? item.name : "";
   const descVal = typeof item?.description === "string" ? item.description : "";
 
@@ -169,26 +172,26 @@ function CatalogFormFields({
     <div className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor={`${idPrefix}-name`}>
-          Nombre <span className="text-destructive">*</span>
+          {t("fieldName")} <span className="text-destructive">*</span>
         </Label>
         <Input
           id={`${idPrefix}-name`}
           name="name"
           defaultValue={nameVal}
           required
-          placeholder={`Nombre de ${entityLabel.toLowerCase()}`}
+          placeholder={t("fieldNamePlaceholder", { entity: entityLabel.toLowerCase() })}
         />
       </div>
 
       {includeDescription && (
         <div className="space-y-2">
-          <Label htmlFor={`${idPrefix}-description`}>Descripción</Label>
+          <Label htmlFor={`${idPrefix}-description`}>{t("fieldDescription")}</Label>
           <Textarea
             id={`${idPrefix}-description`}
             name="description"
             rows={3}
             defaultValue={descVal}
-            placeholder="Descripción opcional"
+            placeholder={t("fieldDescriptionPlaceholder")}
           />
         </div>
       )}
@@ -200,7 +203,7 @@ function CatalogFormFields({
           checked={activeChecked}
           onCheckedChange={(checked) => onActiveChange(!!checked)}
         />
-        <Label htmlFor={`${idPrefix}-active`}>Activo</Label>
+        <Label htmlFor={`${idPrefix}-active`}>{t("fieldActive")}</Label>
       </div>
     </div>
   );
@@ -336,6 +339,7 @@ export function PhaseECatalogCrudPage({
     [updateParam],
   );
 
+  const t = useTranslations("catalogs.phaseE");
   const hasActiveFilters = Boolean(currentSearch || currentStatusFilter !== "all");
   const canMutate = canCreate || canEdit || canDelete;
   const safePage = Math.max(1, meta.page || 1);
@@ -356,8 +360,8 @@ export function PhaseECatalogCrudPage({
       <PageHeader title={title} description={description}>
         {canCreate && (
           <Button onClick={() => handleCreateOpen(true)}>
-            <Plus className="mr-2 size-4" />
-            Crear {entityLabel.toLowerCase()}
+            <Plus className="size-4" />
+            {t("create", { entity: entityLabel.toLowerCase() })}
           </Button>
         )}
       </PageHeader>
@@ -366,18 +370,18 @@ export function PhaseECatalogCrudPage({
         {/* Filter bar */}
         <div className="rounded-xl border bg-muted/20 p-4">
           <div className="mb-3 flex items-center justify-between gap-2">
-            <h3 className="text-sm font-semibold tracking-wide text-foreground">Filtros</h3>
-            <span className="text-xs text-muted-foreground">Refina el listado por campo</span>
+            <h3 className="text-sm font-semibold tracking-wide text-foreground">{t("filtersTitle")}</h3>
+            <span className="text-xs text-muted-foreground">{t("filtersSubtitle")}</span>
           </div>
           <div className="overflow-x-auto pb-1">
             <div className="flex min-w-max items-end gap-4">
               <div className="w-[300px] space-y-1">
-                <Label htmlFor={`${idPrefix}-filter-search`}>Nombre</Label>
+                <Label htmlFor={`${idPrefix}-filter-search`}>{t("filterName")}</Label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id={`${idPrefix}-filter-search`}
-                    placeholder="Buscar por nombre..."
+                    placeholder={t("filterNamePlaceholder2")}
                     value={searchInput}
                     onChange={(e) => handleSearchInputChange(e.target.value)}
                     className="bg-background pl-9"
@@ -385,18 +389,18 @@ export function PhaseECatalogCrudPage({
                 </div>
               </div>
               <div className="w-[200px] space-y-1">
-                <Label htmlFor={`${idPrefix}-filter-status`}>Estado</Label>
+                <Label htmlFor={`${idPrefix}-filter-status`}>{t("filterStatus")}</Label>
                 <Select
                   value={currentStatusFilter}
                   onValueChange={(v) => updateParam("active", v)}
                 >
                   <SelectTrigger id={`${idPrefix}-filter-status`} className="bg-background">
-                    <SelectValue placeholder="Estado" />
+                    <SelectValue placeholder={t("filterStatus")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Todos los estados</SelectItem>
-                    <SelectItem value="true">Activos</SelectItem>
-                    <SelectItem value="false">Inactivos</SelectItem>
+                    <SelectItem value="all">{t("statusAll")}</SelectItem>
+                    <SelectItem value="true">{t("statusActive")}</SelectItem>
+                    <SelectItem value="false">{t("statusInactive")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -408,17 +412,17 @@ export function PhaseECatalogCrudPage({
         {items.length === 0 ? (
           <EmptyState
             icon={EmptyIcon}
-            title={hasActiveFilters ? "Sin resultados" : `No hay ${entityLabel.toLowerCase()}s`}
+            title={hasActiveFilters ? t("noResults") : t("emptyTitle", { entity: entityLabel.toLowerCase() })}
             description={
               hasActiveFilters
-                ? `No hay ${entityLabel.toLowerCase()}s que coincidan con los filtros.`
-                : "No se encontraron registros."
+                ? t("noResultsDesc", { entity: entityLabel.toLowerCase() })
+                : t("emptyDesc")
             }
           >
             {canCreate && !hasActiveFilters && (
               <Button onClick={() => handleCreateOpen(true)}>
-                <Plus className="mr-2 size-4" />
-                Crear {entityLabel.toLowerCase()}
+                <Plus className="size-4" />
+                {t("create", { entity: entityLabel.toLowerCase() })}
               </Button>
             )}
           </EmptyState>
@@ -428,12 +432,12 @@ export function PhaseECatalogCrudPage({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Nombre</TableHead>
-                    {includeDescription && <TableHead>Descripción</TableHead>}
-                    <TableHead>Estado</TableHead>
+                    <TableHead>{t("colName")}</TableHead>
+                    {includeDescription && <TableHead>{t("colDescription")}</TableHead>}
+                    <TableHead>{t("colStatus")}</TableHead>
                     {(canEdit || canDelete) && (
                       <TableHead className="sticky right-0 z-20 w-[100px] border-l bg-background">
-                        Acciones
+                        {t("colActions")}
                       </TableHead>
                     )}
                   </TableRow>
@@ -454,10 +458,10 @@ export function PhaseECatalogCrudPage({
                         )}
                         <TableCell>
                           <Badge
-                            variant={item.active !== false ? "default" : "outline"}
+                            variant={item.active !== false ? "soft-success" : "outline"}
                             className="text-xs"
                           >
-                            {item.active !== false ? "Activo" : "Inactivo"}
+                            {item.active !== false ? t("statusActive") : t("statusInactive")}
                           </Badge>
                         </TableCell>
                         {(canEdit || canDelete) && (
@@ -478,7 +482,7 @@ export function PhaseECatalogCrudPage({
                                         : [],
                                     );
                                   }}
-                                  title="Editar"
+                                  title={t("edit")}
                                 >
                                   <Pencil className="size-3.5" />
                                 </Button>
@@ -490,7 +494,7 @@ export function PhaseECatalogCrudPage({
                                   className="size-8 text-destructive hover:text-destructive"
                                   disabled={!itemId}
                                   onClick={() => setDeleteItem(item)}
-                                  title="Eliminar"
+                                  title={t("delete")}
                                 >
                                   <Trash2 className="size-3.5" />
                                 </Button>
@@ -499,7 +503,7 @@ export function PhaseECatalogCrudPage({
                             <div className="md:hidden">
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="size-8" title="Acciones">
+                                  <Button variant="ghost" size="icon" className="size-8" title={t("colActions")}>
                                     <MoreHorizontal className="size-4" />
                                   </Button>
                                 </DropdownMenuTrigger>
@@ -518,7 +522,7 @@ export function PhaseECatalogCrudPage({
                                       }}
                                     >
                                       <Pencil className="size-4" />
-                                      Editar
+                                      {t("edit")}
                                     </DropdownMenuItem>
                                   )}
                                   {canDelete && (
@@ -528,7 +532,7 @@ export function PhaseECatalogCrudPage({
                                       onSelect={() => setDeleteItem(item)}
                                     >
                                       <Trash2 className="size-4" />
-                                      Eliminar
+                                      {t("delete")}
                                     </DropdownMenuItem>
                                   )}
                                 </DropdownMenuContent>
@@ -559,9 +563,9 @@ export function PhaseECatalogCrudPage({
         <Dialog open={createOpen} onOpenChange={handleCreateOpen}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>Crear {entityLabel.toLowerCase()}</DialogTitle>
+              <DialogTitle>{t("createDialogTitle", { entity: entityLabel.toLowerCase() })}</DialogTitle>
               <DialogDescription>
-                Completa los campos para registrar {entityLabel.toLowerCase()}.
+                {t("createDialogDesc", { entity: entityLabel.toLowerCase() })}
               </DialogDescription>
             </DialogHeader>
             <form action={createFormAction} className="space-y-4">
@@ -581,9 +585,9 @@ export function PhaseECatalogCrudPage({
               />
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setCreateOpen(false)}>
-                  Cancelar
+                  {t("cancel")}
                 </Button>
-                <SubmitButton label="Crear" />
+                <SubmitButton label={t("createSubmit")} />
               </DialogFooter>
             </form>
           </DialogContent>
@@ -595,7 +599,7 @@ export function PhaseECatalogCrudPage({
         <Dialog open={!!editItem} onOpenChange={(open) => { if (!open) setEditItem(null); }}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>Editar {entityLabel.toLowerCase()}</DialogTitle>
+              <DialogTitle>{t("editDialogTitle", { entity: entityLabel.toLowerCase() })}</DialogTitle>
             </DialogHeader>
             <form action={updateFormAction} className="space-y-4">
               <input type="hidden" name="id" value={String(getItemId(editItem) ?? "")} />
@@ -616,9 +620,9 @@ export function PhaseECatalogCrudPage({
               />
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setEditItem(null)}>
-                  Cancelar
+                  {t("cancel")}
                 </Button>
-                <SubmitButton label="Guardar cambios" />
+                <SubmitButton label={t("saveChanges")} />
               </DialogFooter>
             </form>
           </DialogContent>
@@ -634,16 +638,14 @@ export function PhaseECatalogCrudPage({
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>
-                ¿Eliminar {entityLabel.toLowerCase()}?
+                {t("deleteDialogTitle", { entity: entityLabel.toLowerCase() })}
               </AlertDialogTitle>
               <AlertDialogDescription>
-                Se eliminará{" "}
-                <span className="font-medium">&quot;{getItemName(deleteItem)}&quot;</span>.
-                Esta acción no se puede deshacer.
+                {t("deleteDialogDesc", { name: getItemName(deleteItem) })}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
               <form action={deleteFormAction} className="space-y-2">
                 <input type="hidden" name="id" value={String(getItemId(deleteItem) ?? "")} />
                 {deleteState.error && (
@@ -658,7 +660,7 @@ export function PhaseECatalogCrudPage({
 
       {!canMutate && (
         <div className="rounded-md border border-dashed px-4 py-3 text-sm text-muted-foreground">
-          No cuentas con permisos para modificar este catálogo.
+          {t("noPermissions")}
         </div>
       )}
     </div>

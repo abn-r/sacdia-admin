@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import {
@@ -80,13 +81,10 @@ function formatDate(iso: string | null): string {
   });
 }
 
-function getUrgencyStatus(days: number): {
-  label: string;
-  variant: "destructive" | "warning" | "success" | "outline";
-} {
-  if (days <= 7) return { label: "Crítico", variant: "destructive" };
-  if (days <= 30) return { label: "Advertencia", variant: "warning" };
-  return { label: "Vigente", variant: "success" };
+function getUrgencyVariant(days: number): "destructive" | "warning" | "success" | "outline" {
+  if (days <= 7) return "destructive";
+  if (days <= 30) return "warning";
+  return "success";
 }
 
 function getDaysColor(days: number): string {
@@ -217,6 +215,7 @@ type ExpiringDashboardProps = {
 };
 
 export function ExpiringDashboard({ items, daysAhead }: ExpiringDashboardProps) {
+  const t = useTranslations("insurance");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -293,7 +292,7 @@ export function ExpiringDashboard({ items, daysAhead }: ExpiringDashboardProps) 
       {/* Filter bar */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Vencen en</span>
+          <span className="text-sm text-muted-foreground">{t("expiring.filter_label")}</span>
           <Select
             value={String(daysAhead)}
             onValueChange={handleDaysChange}
@@ -313,43 +312,43 @@ export function ExpiringDashboard({ items, daysAhead }: ExpiringDashboardProps) 
 
         {isFiltered && (
           <Button variant="ghost" size="sm" onClick={handleReset}>
-            Restablecer
+            {t("expiring.reset")}
           </Button>
         )}
 
         <span className="ml-auto text-sm text-muted-foreground">
           {items.length === 0
-            ? "Sin resultados"
-            : `${items.length} ${items.length === 1 ? "seguro" : "seguros"} encontrado${items.length === 1 ? "" : "s"}`}
+            ? t("expiring.no_results")
+            : t("expiring.results_count", { count: items.length })}
         </span>
       </div>
 
       {/* KPI cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <KpiCard
-          title="Total en ventana"
+          title={t("expiring.kpi_total_title")}
           value={kpis.total}
-          description={`Vencen en los próximos ${daysAhead} días`}
+          description={t("expiring.kpi_total_desc", { days: daysAhead })}
           icon={ShieldAlert}
         />
         <KpiCard
-          title="Críticos"
+          title={t("expiring.kpi_critical_title")}
           value={kpis.criticalCount}
-          description="Vencen en 7 días o menos"
+          description={t("expiring.kpi_critical_desc")}
           icon={AlertTriangle}
           accent={kpis.criticalCount > 0 ? "destructive" : "default"}
         />
         <KpiCard
-          title="Esta semana"
+          title={t("expiring.kpi_week_title")}
           value={kpis.thisWeekCount}
-          description="Vencen en los próximos 7 días"
+          description={t("expiring.kpi_week_desc")}
           icon={Clock}
           accent={kpis.thisWeekCount > 0 ? "warning" : "default"}
         />
         <KpiCard
-          title="Este mes"
+          title={t("expiring.kpi_month_title")}
           value={kpis.thisMonthCount}
-          description="Vencen en los próximos 30 días"
+          description={t("expiring.kpi_month_desc")}
           icon={Calendar}
           accent={kpis.thisMonthCount > 0 ? "warning" : "default"}
         />
@@ -364,10 +363,10 @@ export function ExpiringDashboard({ items, daysAhead }: ExpiringDashboardProps) 
                 <ShieldOff className="size-6 text-muted-foreground" />
               </div>
               <h3 className="mt-4 text-base font-semibold">
-                Sin seguros por vencer
+                {t("expiring.empty_title")}
               </h3>
               <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-                No hay seguros activos que venzan en los próximos {daysAhead} días.
+                {t("expiring.empty_description", { days: daysAhead })}
               </p>
             </div>
           ) : (
@@ -380,7 +379,7 @@ export function ExpiringDashboard({ items, daysAhead }: ExpiringDashboardProps) 
                       <TableHead>
                         <SortButton
                           field="user_name"
-                          label="Miembro"
+                          label={t("expiring.col_member")}
                           current={sortField}
                           direction={sortDir}
                           onSort={handleSort}
@@ -388,23 +387,23 @@ export function ExpiringDashboard({ items, daysAhead }: ExpiringDashboardProps) 
                       </TableHead>
                       <TableHead>
                         <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                          Club
+                          {t("expiring.col_club")}
                         </span>
                       </TableHead>
                       <TableHead className="hidden lg:table-cell">
                         <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                          Tipo
+                          {t("expiring.col_type")}
                         </span>
                       </TableHead>
                       <TableHead className="hidden lg:table-cell">
                         <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                          N° Poliza
+                          {t("expiring.col_policy")}
                         </span>
                       </TableHead>
                       <TableHead>
                         <SortButton
                           field="end_date"
-                          label="Vencimiento"
+                          label={t("expiring.col_expiry")}
                           current={sortField}
                           direction={sortDir}
                           onSort={handleSort}
@@ -413,7 +412,7 @@ export function ExpiringDashboard({ items, daysAhead }: ExpiringDashboardProps) 
                       <TableHead>
                         <SortButton
                           field="days_remaining"
-                          label="Dias"
+                          label={t("expiring.col_days")}
                           current={sortField}
                           direction={sortDir}
                           onSort={handleSort}
@@ -421,14 +420,20 @@ export function ExpiringDashboard({ items, daysAhead }: ExpiringDashboardProps) 
                       </TableHead>
                       <TableHead>
                         <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                          Estado
+                          {t("expiring.col_status")}
                         </span>
                       </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {paginated.map((item) => {
-                      const status = getUrgencyStatus(item.days_remaining);
+                      const urgencyVariant = getUrgencyVariant(item.days_remaining);
+                      const urgencyLabel =
+                        urgencyVariant === "destructive"
+                          ? t("expiring.urgency_critical")
+                          : urgencyVariant === "warning"
+                            ? t("expiring.urgency_warning")
+                            : t("expiring.urgency_active");
                       return (
                         <TableRow key={item.insurance_id}>
                           <TableCell>
@@ -472,7 +477,7 @@ export function ExpiringDashboard({ items, daysAhead }: ExpiringDashboardProps) 
                             </span>
                           </TableCell>
                           <TableCell>
-                            <Badge variant={status.variant}>{status.label}</Badge>
+                            <Badge variant={urgencyVariant}>{urgencyLabel}</Badge>
                           </TableCell>
                         </TableRow>
                       );
@@ -482,9 +487,15 @@ export function ExpiringDashboard({ items, daysAhead }: ExpiringDashboardProps) 
               </div>
 
               {/* Mobile cards */}
-              <ul className="space-y-3 md:hidden" aria-label="Seguros por vencer">
+              <ul className="space-y-3 md:hidden" aria-label={t("expiring.mobile_list_label")}>
                 {paginated.map((item) => {
-                  const status = getUrgencyStatus(item.days_remaining);
+                  const urgencyVariant = getUrgencyVariant(item.days_remaining);
+                  const urgencyLabel =
+                    urgencyVariant === "destructive"
+                      ? t("expiring.urgency_critical")
+                      : urgencyVariant === "warning"
+                        ? t("expiring.urgency_warning")
+                        : t("expiring.urgency_active");
                   return (
                     <li key={item.insurance_id}>
                       <div className="rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40 focus-visible:outline-none">
@@ -502,18 +513,18 @@ export function ExpiringDashboard({ items, daysAhead }: ExpiringDashboardProps) 
                               </p>
                             )}
                           </div>
-                          <Badge variant={status.variant} className="shrink-0">
-                            {status.label}
+                          <Badge variant={urgencyVariant} className="shrink-0">
+                            {urgencyLabel}
                           </Badge>
                         </div>
 
                         <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
                           <div>
-                            <dt className="text-muted-foreground">Vencimiento</dt>
+                            <dt className="text-muted-foreground">{t("expiring.col_expiry")}</dt>
                             <dd className="tabular-nums">{formatDate(item.end_date)}</dd>
                           </div>
                           <div>
-                            <dt className="text-muted-foreground">Días restantes</dt>
+                            <dt className="text-muted-foreground">{t("expiring.mobile_days_remaining")}</dt>
                             <dd>
                               <span className={getDaysColor(item.days_remaining)}>
                                 {item.days_remaining}d
@@ -522,7 +533,7 @@ export function ExpiringDashboard({ items, daysAhead }: ExpiringDashboardProps) 
                           </div>
                           {item.insurance_type && (
                             <div>
-                              <dt className="text-muted-foreground">Tipo</dt>
+                              <dt className="text-muted-foreground">{t("expiring.col_type")}</dt>
                               <dd>
                                 {INSURANCE_TYPE_LABELS[item.insurance_type] ??
                                   item.insurance_type}
@@ -531,7 +542,7 @@ export function ExpiringDashboard({ items, daysAhead }: ExpiringDashboardProps) 
                           )}
                           {item.policy_number && (
                             <div>
-                              <dt className="text-muted-foreground">N° Póliza</dt>
+                              <dt className="text-muted-foreground">{t("expiring.col_policy")}</dt>
                               <dd className="font-mono">{item.policy_number}</dd>
                             </div>
                           )}
@@ -546,9 +557,11 @@ export function ExpiringDashboard({ items, daysAhead }: ExpiringDashboardProps) 
               {totalPages > 1 && (
                 <div className="flex items-center justify-between border-t pt-4">
                   <p className="text-sm text-muted-foreground">
-                    Mostrando{" "}
-                    {Math.min((page - 1) * PAGE_SIZE + 1, items.length)}–
-                    {Math.min(page * PAGE_SIZE, items.length)} de {items.length}
+                    {t("expiring.pagination_showing", {
+                      from: Math.min((page - 1) * PAGE_SIZE + 1, items.length),
+                      to: Math.min(page * PAGE_SIZE, items.length),
+                      total: items.length,
+                    })}
                   </p>
                   <div className="flex items-center gap-1">
                     <Button
@@ -557,7 +570,7 @@ export function ExpiringDashboard({ items, daysAhead }: ExpiringDashboardProps) 
                       disabled={page <= 1}
                       onClick={() => setPage((p) => p - 1)}
                     >
-                      Anterior
+                      {t("expiring.pagination_prev")}
                     </Button>
                     <span className="px-3 text-sm text-muted-foreground">
                       {page} / {totalPages}
@@ -568,7 +581,7 @@ export function ExpiringDashboard({ items, daysAhead }: ExpiringDashboardProps) 
                       disabled={page >= totalPages}
                       onClick={() => setPage((p) => p + 1)}
                     >
-                      Siguiente
+                      {t("expiring.pagination_next")}
                     </Button>
                   </div>
                 </div>
@@ -583,7 +596,7 @@ export function ExpiringDashboard({ items, daysAhead }: ExpiringDashboardProps) 
         <Button variant="ghost" size="sm" asChild>
           <Link href="/dashboard/insurance">
             <ArrowLeft className="mr-1.5 size-4" />
-            Volver a Seguros
+            {t("expiring.back_link")}
           </Link>
         </Button>
       </div>

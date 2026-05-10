@@ -1,19 +1,51 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { AlertCircle, ArrowLeft, Loader2, Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
-import { RequirementsTree } from "@/components/honors/requirements-tree";
-import { RequirementEditDialog } from "@/components/honors/requirement-edit-dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   getHonorById,
   listAdminRequirements,
   type Honor,
   type RequirementNode,
 } from "@/lib/api/honors";
+
+const RequirementsTree = dynamic(
+  () =>
+    import("@/components/honors/requirements-tree").then((m) => ({
+      default: m.RequirementsTree,
+    })),
+  {
+    loading: () => (
+      <div className="space-y-2">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-3 rounded-lg border px-4 py-3">
+            <Skeleton className="size-5 rounded" />
+            <Skeleton className="h-4 flex-1" style={{ maxWidth: `${60 + (i % 3) * 15}%` }} />
+            <div className="flex gap-1.5">
+              <Skeleton className="h-7 w-7 rounded-md" />
+              <Skeleton className="h-7 w-7 rounded-md" />
+            </div>
+          </div>
+        ))}
+      </div>
+    ),
+  },
+);
+
+const RequirementEditDialog = dynamic(
+  () =>
+    import("@/components/honors/requirement-edit-dialog").then((m) => ({
+      default: m.RequirementEditDialog,
+    })),
+  {},
+);
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -22,6 +54,7 @@ type PageStatus = "loading" | "error" | "ready";
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function HonorRequirementsPage() {
+  const t = useTranslations("honors.pages.requirements");
   const params = useParams<{ honorId: string }>();
   const honorId = Number(params.honorId);
 
@@ -37,7 +70,7 @@ export default function HonorRequirementsPage() {
 
   const load = useCallback(async () => {
     if (!Number.isFinite(honorId) || honorId <= 0) {
-      setErrorMessage("ID de especialidad inválido.");
+      setErrorMessage(t("invalidIdError"));
       setStatus("error");
       return;
     }
@@ -62,11 +95,11 @@ export default function HonorRequirementsPage() {
       const message =
         err instanceof Error
           ? err.message
-          : "No se pudieron cargar los requisitos.";
+          : t("invalidIdError");
       setErrorMessage(message);
       setStatus("error");
     }
-  }, [honorId]);
+  }, [honorId, t]);
 
   useEffect(() => {
     void load();
@@ -91,20 +124,20 @@ export default function HonorRequirementsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Requisitos"
+        title={t("title")}
         description={status === "ready" ? honorName : undefined}
       >
         <Button variant="outline" size="sm" asChild>
           <Link href={backHref}>
-            <ArrowLeft className="mr-2 size-4" />
-            Volver
+            <ArrowLeft className="size-4" />
+            {t("backButton")}
           </Link>
         </Button>
 
         {status === "ready" && (
           <Button size="sm" onClick={() => setAddRootOpen(true)}>
             <Plus className="size-4" />
-            Agregar requisito
+            {t("addButton")}
           </Button>
         )}
       </PageHeader>
@@ -122,10 +155,10 @@ export default function HonorRequirementsPage() {
           <AlertCircle className="mt-0.5 size-5 shrink-0 text-destructive" />
           <div className="space-y-1">
             <p className="text-sm font-medium text-destructive">
-              No se pudo cargar la información
+              {t("errorTitle")}
             </p>
             <p className="text-sm text-destructive/80">
-              {errorMessage ?? "Error desconocido."}
+              {errorMessage ?? t("invalidIdError")}
             </p>
             <Button
               variant="outline"
@@ -133,7 +166,7 @@ export default function HonorRequirementsPage() {
               className="mt-2"
               onClick={() => void load()}
             >
-              Reintentar
+              {t("retryButton")}
             </Button>
           </div>
         </div>
@@ -148,7 +181,7 @@ export default function HonorRequirementsPage() {
         />
       )}
 
-      {/* Dialog for top-level "Agregar requisito" button */}
+      {/* Dialog for top-level add button */}
       <RequirementEditDialog
         open={addRootOpen}
         onOpenChange={setAddRootOpen}

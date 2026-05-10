@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { Loader2, Send, Radio, Users } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -26,7 +27,7 @@ function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending} className="w-full sm:w-auto">
-      {pending && <Loader2 className="mr-2 size-4 animate-spin" />}
+      {pending && <Loader2 className="size-4 animate-spin" />}
       {label}
     </Button>
   );
@@ -53,6 +54,7 @@ function StatusBanner({ state }: { state: NotificationActionState }) {
 const initial: NotificationActionState = {};
 
 export function DirectNotificationForm() {
+  const t = useTranslations("notifications.forms");
   const [state, action] = useActionState(sendDirectNotificationAction, initial);
 
   return (
@@ -60,32 +62,32 @@ export function DirectNotificationForm() {
       <CardHeader>
         <div className="flex items-center gap-2">
           <Send className="size-5 text-primary" />
-          <CardTitle className="text-base">Envío directo</CardTitle>
+          <CardTitle className="text-base">{t("direct_title")}</CardTitle>
         </div>
-        <CardDescription>Enviar una notificación push a un usuario específico.</CardDescription>
+        <CardDescription>{t("direct_description")}</CardDescription>
       </CardHeader>
       <CardContent>
         <form action={action} className="space-y-4">
           <StatusBanner state={state} />
           <div className="space-y-2">
             <Label htmlFor="direct_user_id">
-              ID de usuario <span className="text-destructive">*</span>
+              {t("label_user_id")} <span className="text-destructive">*</span>
             </Label>
-            <Input id="direct_user_id" name="user_id" placeholder="UUID del usuario" required />
+            <Input id="direct_user_id" name="user_id" placeholder={t("placeholder_user_id")} required />
           </div>
           <div className="space-y-2">
             <Label htmlFor="direct_title">
-              Título <span className="text-destructive">*</span>
+              {t("label_title")} <span className="text-destructive">*</span>
             </Label>
-            <Input id="direct_title" name="title" placeholder="Título de la notificación" required />
+            <Input id="direct_title" name="title" placeholder={t("placeholder_title_notification")} required />
           </div>
           <div className="space-y-2">
             <Label htmlFor="direct_body">
-              Mensaje <span className="text-destructive">*</span>
+              {t("label_body")} <span className="text-destructive">*</span>
             </Label>
-            <Textarea id="direct_body" name="body" placeholder="Contenido del mensaje" rows={3} required />
+            <Textarea id="direct_body" name="body" placeholder={t("placeholder_body")} rows={3} required />
           </div>
-          <SubmitButton label="Enviar notificación" />
+          <SubmitButton label={t("submit_send")} />
         </form>
       </CardContent>
     </Card>
@@ -93,6 +95,7 @@ export function DirectNotificationForm() {
 }
 
 export function BroadcastNotificationForm() {
+  const t = useTranslations("notifications.forms");
   const [state, action] = useActionState(broadcastNotificationAction, initial);
 
   return (
@@ -100,29 +103,29 @@ export function BroadcastNotificationForm() {
       <CardHeader>
         <div className="flex items-center gap-2">
           <Radio className="size-5 text-primary" />
-          <CardTitle className="text-base">Broadcast</CardTitle>
+          <CardTitle className="text-base">{t("broadcast_title")}</CardTitle>
         </div>
-        <CardDescription>Enviar notificación push a todos los usuarios registrados.</CardDescription>
+        <CardDescription>{t("broadcast_description")}</CardDescription>
       </CardHeader>
       <CardContent>
         <form action={action} className="space-y-4">
           <StatusBanner state={state} />
           <div className="rounded-md border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-warning-foreground dark:text-warning">
-            Esta acción enviará la notificación a <strong>todos</strong> los usuarios con token FCM registrado.
+            {t("broadcast_warning")}
           </div>
           <div className="space-y-2">
             <Label htmlFor="broadcast_title">
-              Título <span className="text-destructive">*</span>
+              {t("label_title")} <span className="text-destructive">*</span>
             </Label>
-            <Input id="broadcast_title" name="title" placeholder="Título del broadcast" required />
+            <Input id="broadcast_title" name="title" placeholder={t("placeholder_title_broadcast")} required />
           </div>
           <div className="space-y-2">
             <Label htmlFor="broadcast_body">
-              Mensaje <span className="text-destructive">*</span>
+              {t("label_body")} <span className="text-destructive">*</span>
             </Label>
-            <Textarea id="broadcast_body" name="body" placeholder="Contenido del mensaje" rows={3} required />
+            <Textarea id="broadcast_body" name="body" placeholder={t("placeholder_body")} rows={3} required />
           </div>
-          <SubmitButton label="Enviar broadcast" />
+          <SubmitButton label={t("submit_broadcast")} />
         </form>
       </CardContent>
     </Card>
@@ -130,6 +133,7 @@ export function BroadcastNotificationForm() {
 }
 
 export function ClubNotificationForm() {
+  const t = useTranslations("notifications.forms");
   const [state, action] = useActionState(clubNotificationAction, initial);
 
   return (
@@ -137,47 +141,47 @@ export function ClubNotificationForm() {
       <CardHeader>
         <div className="flex items-center gap-2">
           <Users className="size-5 text-primary" />
-          <CardTitle className="text-base">Por club</CardTitle>
+          <CardTitle className="text-base">{t("club_title")}</CardTitle>
         </div>
-        <CardDescription>Enviar notificación a todos los miembros de un club.</CardDescription>
+        <CardDescription>{t("club_description")}</CardDescription>
       </CardHeader>
       <CardContent>
         <form action={action} className="space-y-4">
           <StatusBanner state={state} />
           <div className="space-y-2">
             <Label htmlFor="club_instance_type">
-              Tipo de club <span className="text-destructive">*</span>
+              {t("label_instance_type")} <span className="text-destructive">*</span>
             </Label>
             <Select name="instance_type" required>
               <SelectTrigger id="club_instance_type">
-                <SelectValue placeholder="Seleccionar tipo de club..." />
+                <SelectValue placeholder={t("placeholder_instance_type")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="adventurers">Aventureros</SelectItem>
-                <SelectItem value="pathfinders">Conquistadores</SelectItem>
-                <SelectItem value="master_guilds">Guías Mayores</SelectItem>
+                <SelectItem value="adventurers">{t("option_adventurers")}</SelectItem>
+                <SelectItem value="pathfinders">{t("option_pathfinders")}</SelectItem>
+                <SelectItem value="master_guilds">{t("option_master_guilds")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="club_instance_id">
-              ID de instancia <span className="text-destructive">*</span>
+              {t("label_instance_id")} <span className="text-destructive">*</span>
             </Label>
-            <Input id="club_instance_id" name="instance_id" type="number" placeholder="ID numérico del club" required />
+            <Input id="club_instance_id" name="instance_id" type="number" placeholder={t("placeholder_instance_id")} required />
           </div>
           <div className="space-y-2">
             <Label htmlFor="club_title">
-              Título <span className="text-destructive">*</span>
+              {t("label_title")} <span className="text-destructive">*</span>
             </Label>
-            <Input id="club_title" name="title" placeholder="Título de la notificación" required />
+            <Input id="club_title" name="title" placeholder={t("placeholder_title_notification")} required />
           </div>
           <div className="space-y-2">
             <Label htmlFor="club_body">
-              Mensaje <span className="text-destructive">*</span>
+              {t("label_body")} <span className="text-destructive">*</span>
             </Label>
-            <Textarea id="club_body" name="body" placeholder="Contenido del mensaje" rows={3} required />
+            <Textarea id="club_body" name="body" placeholder={t("placeholder_body")} rows={3} required />
           </div>
-          <SubmitButton label="Enviar a club" />
+          <SubmitButton label={t("submit_club")} />
         </form>
       </CardContent>
     </Card>
