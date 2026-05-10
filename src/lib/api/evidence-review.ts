@@ -2,7 +2,7 @@ import { apiRequest, apiRequestFromClient } from "@/lib/api/client";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type EvidenceType = "folder" | "class" | "honor";
+export type EvidenceType = "class" | "honor";
 
 export type EvidenceStatus =
   | "PENDING"

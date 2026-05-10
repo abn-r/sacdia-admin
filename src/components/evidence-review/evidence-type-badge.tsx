@@ -5,7 +5,6 @@ import { StatusBadge, type StatusIntent } from "@/components/ui/status-badge";
 import type { EvidenceType } from "@/lib/api/evidence-review";
 
 const typeIntentMap: Record<EvidenceType, StatusIntent> = {
-  folder: "primary",
   class: "neutral",
   honor: "success",
 };

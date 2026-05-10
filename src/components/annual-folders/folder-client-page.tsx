@@ -214,7 +214,7 @@ export function FolderClientPage({ initialFolder }: FolderClientPageProps) {
   const refreshFolder = useCallback(async () => {
     setIsRefreshing(true);
     try {
-      const updated = await getFolder(folder.folder_id);
+      const updated = await getFolder(folder.annual_folder_id);
       setFolder(updated);
     } catch (err) {
       const message =
@@ -225,7 +225,7 @@ export function FolderClientPage({ initialFolder }: FolderClientPageProps) {
     } finally {
       setIsRefreshing(false);
     }
-  }, [folder.folder_id]);
+  }, [folder.annual_folder_id]);
 
   // ─── Upload handlers ─────────────────────────────────────────────────────
 
@@ -266,7 +266,7 @@ export function FolderClientPage({ initialFolder }: FolderClientPageProps) {
   async function confirmSubmit() {
     setIsActioning(true);
     try {
-      const updated = await submitFolder(folder.folder_id);
+      const updated = await submitFolder(folder.annual_folder_id);
       setFolder(updated);
       toast.success(t("toasts.folder_submitted"));
       setSubmitOpen(false);
@@ -284,7 +284,7 @@ export function FolderClientPage({ initialFolder }: FolderClientPageProps) {
   async function confirmClose() {
     setIsActioning(true);
     try {
-      const updated = await closeFolder(folder.folder_id);
+      const updated = await closeFolder(folder.annual_folder_id);
       setFolder(updated);
       toast.success(t("toasts.folder_closed"));
       setCloseOpen(false);
@@ -433,7 +433,7 @@ export function FolderClientPage({ initialFolder }: FolderClientPageProps) {
         <EvidenceUploadDialog
           open={uploadOpen}
           onOpenChange={setUploadOpen}
-          folderId={folder.folder_id}
+          folderId={folder.annual_folder_id}
           sectionId={uploadSection.section_id}
           sectionName={uploadSection.name}
           onSuccess={refreshFolder}
