@@ -10,7 +10,6 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -18,6 +17,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Card, CardContent } from "@/components/ui/card";
 import { WeightSumIndicator } from "./weight-sum-indicator";
 import {
@@ -115,14 +122,7 @@ export function WeightsForm({
     ? rowToFormValues(defaultValues)
     : EMPTY_DEFAULTS;
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    watch,
-    formState: { errors, isDirty },
-  } = useForm<FormValues>({
+  const form = useForm<FormValues>({
     // z.coerce.number() splits Zod's input/output types (string-ish in, number out),
     // so zodResolver's inferred Resolver type doesn't match useForm<FormValues>'s
     // unified signature. Cast is safe because runtime behavior is identical.
@@ -130,16 +130,16 @@ export function WeightsForm({
     defaultValues: initialValues,
   });
 
+  const isDirty = form.formState.isDirty;
+
   // Re-seed if the server data changes (e.g. navigating between edit pages)
   useEffect(() => {
-    reset(isEdit && defaultValues ? rowToFormValues(defaultValues) : EMPTY_DEFAULTS);
-  }, [isEdit, defaultValues, reset]);
+    form.reset(isEdit && defaultValues ? rowToFormValues(defaultValues) : EMPTY_DEFAULTS);
+  }, [isEdit, defaultValues, form]);
 
-  const classPct = watch("class_pct");
-  const investiturePct = watch("investiture_pct");
-  const camporeePct = watch("camporee_pct");
-  const clubTypeValue = watch("club_type_id");
-  const yearValue = watch("ecclesiastical_year_id");
+  const classPct = form.watch("class_pct");
+  const investiturePct = form.watch("investiture_pct");
+  const camporeePct = form.watch("camporee_pct");
 
   const onSubmit: SubmitHandler<FormValues> = async (values) => {
     setIsSubmitting(true);
@@ -186,158 +186,179 @@ export function WeightsForm({
   return (
     <Card>
       <CardContent className="pt-6">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Porcentajes */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="w-class">{t("clasePercent")}</Label>
-              <Input
-                id="w-class"
-                type="number"
-                step="0.01"
-                min={0}
-                max={100}
-                {...register("class_pct")}
-                placeholder="0"
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {/* Porcentajes */}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <FormField
+                control={form.control}
+                name="class_pct"
+                render={({ field }) => (
+                  <FormItem className="space-y-1.5">
+                    <FormLabel>{t("clasePercent")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min={0}
+                        max={100}
+                        placeholder="0"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              {errors.class_pct && (
-                <p className="text-xs text-destructive">
-                  {errors.class_pct.message}
-                </p>
-              )}
+
+              <FormField
+                control={form.control}
+                name="investiture_pct"
+                render={({ field }) => (
+                  <FormItem className="space-y-1.5">
+                    <FormLabel>{t("investiduraPercent")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min={0}
+                        max={100}
+                        placeholder="0"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="camporee_pct"
+                render={({ field }) => (
+                  <FormItem className="space-y-1.5">
+                    <FormLabel>{t("campanaPercent")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min={0}
+                        max={100}
+                        placeholder="0"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="w-investiture">{t("investiduraPercent")}</Label>
-              <Input
-                id="w-investiture"
-                type="number"
-                step="0.01"
-                min={0}
-                max={100}
-                {...register("investiture_pct")}
-                placeholder="0"
-              />
-              {errors.investiture_pct && (
-                <p className="text-xs text-destructive">
-                  {errors.investiture_pct.message}
-                </p>
-              )}
+            {/* Live sum indicator */}
+            <div className="flex items-center gap-2">
+              <WeightSumIndicator values={sumValues} />
             </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="w-camporee">{t("campanaPercent")}</Label>
-              <Input
-                id="w-camporee"
-                type="number"
-                step="0.01"
-                min={0}
-                max={100}
-                {...register("camporee_pct")}
-                placeholder="0"
-              />
-              {errors.camporee_pct && (
-                <p className="text-xs text-destructive">
-                  {errors.camporee_pct.message}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Live sum indicator */}
-          <div className="flex items-center gap-2">
-            <WeightSumIndicator values={sumValues} />
-          </div>
-
-          {/* Tipo de club */}
-          <div className="space-y-1.5">
-            <Label>Tipo de club</Label>
-            <Select
-              value={clubTypeValue}
-              onValueChange={(val) => setValue("club_type_id", val, { shouldDirty: true })}
-              disabled={isEdit && defaultValues?.is_default}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Seleccionar tipo de club" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t("allTypes")}</SelectItem>
-                {clubTypes.map((ct) => (
-                  <SelectItem
-                    key={ct.club_type_id}
-                    value={String(ct.club_type_id)}
+            {/* Tipo de club */}
+            <FormField
+              control={form.control}
+              name="club_type_id"
+              render={({ field }) => (
+                <FormItem className="space-y-1.5">
+                  <FormLabel>Tipo de club</FormLabel>
+                  <Select
+                    value={field.value}
+                    onValueChange={(val) =>
+                      form.setValue("club_type_id", val, { shouldDirty: true })
+                    }
+                    disabled={isEdit && defaultValues?.is_default}
                   >
-                    {ct.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.club_type_id && (
-              <p className="text-xs text-destructive">
-                {errors.club_type_id.message}
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccionar tipo de club" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="all">{t("allTypes")}</SelectItem>
+                      {clubTypes.map((ct) => (
+                        <SelectItem
+                          key={ct.club_type_id}
+                          value={String(ct.club_type_id)}
+                        >
+                          {ct.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Ano eclesiastico */}
+            <FormField
+              control={form.control}
+              name="ecclesiastical_year_id"
+              render={({ field }) => (
+                <FormItem className="space-y-1.5">
+                  <FormLabel>{t("anoEclesiastico")}</FormLabel>
+                  <Select
+                    value={field.value}
+                    onValueChange={(val) =>
+                      form.setValue("ecclesiastical_year_id", val, { shouldDirty: true })
+                    }
+                    disabled={isEdit && defaultValues?.is_default}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccionar año" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="all">{t("allYears")}</SelectItem>
+                      {ecclesiasticalYears.map((y) => (
+                        <SelectItem
+                          key={y.ecclesiastical_year_id}
+                          value={String(y.ecclesiastical_year_id)}
+                        >
+                          {y.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {isEdit && defaultValues?.is_default && (
+              <p className="text-xs text-muted-foreground">
+                La fila por defecto no puede cambiar su tipo de club ni año eclesiástico.
               </p>
             )}
-          </div>
 
-          {/* Ano eclesiastico */}
-          <div className="space-y-1.5">
-            <Label>{t("anoEclesiastico")}</Label>
-            <Select
-              value={yearValue}
-              onValueChange={(val) =>
-                setValue("ecclesiastical_year_id", val, { shouldDirty: true })
-              }
-              disabled={isEdit && defaultValues?.is_default}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Seleccionar año" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t("allYears")}</SelectItem>
-                {ecclesiasticalYears.map((y) => (
-                  <SelectItem
-                    key={y.ecclesiastical_year_id}
-                    value={String(y.ecclesiastical_year_id)}
-                  >
-                    {y.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.ecclesiastical_year_id && (
-              <p className="text-xs text-destructive">
-                {errors.ecclesiastical_year_id.message}
-              </p>
-            )}
-          </div>
-
-          {isEdit && defaultValues?.is_default && (
-            <p className="text-xs text-muted-foreground">
-              La fila por defecto no puede cambiar su tipo de club ni año eclesiástico.
-            </p>
-          )}
-
-          {/* Actions */}
-          <div className="flex items-center justify-end gap-3 pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => router.push(backHref)}
-              disabled={isSubmitting}
-            >
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={submitDisabled}>
-              {isSubmitting
-                ? isEdit
-                  ? "Guardando..."
-                  : "Creando..."
-                : isEdit
-                  ? "Guardar cambios"
-                  : "Crear sobreescritura"}
-            </Button>
-          </div>
-        </form>
+            {/* Actions */}
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => router.push(backHref)}
+                disabled={isSubmitting}
+              >
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={submitDisabled}>
+                {isSubmitting
+                  ? isEdit
+                    ? "Guardando..."
+                    : "Creando..."
+                  : isEdit
+                    ? "Guardar cambios"
+                    : "Crear sobreescritura"}
+              </Button>
+            </div>
+          </form>
+        </Form>
       </CardContent>
     </Card>
   );

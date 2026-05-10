@@ -21,6 +21,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
   createTemplateSection,
   updateTemplateSection,
 } from "@/lib/api/annual-folders";
@@ -80,14 +88,7 @@ export function SectionFormDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const schema = useMemo(() => buildSchema(tVal), [tVal]);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm<FormValues>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(schema as z.ZodType<FormValues, FormValues>),
     defaultValues: {
       name: "",
@@ -99,12 +100,10 @@ export function SectionFormDialog({
     },
   });
 
-  const requiredValue = watch("required");
-
   useEffect(() => {
     if (open) {
       if (section) {
-        reset({
+        form.reset({
           name: section.name,
           description: section.description ?? "",
           order: section.order,
@@ -113,7 +112,7 @@ export function SectionFormDialog({
           minimum_points: section.minimum_points,
         });
       } else {
-        reset({
+        form.reset({
           name: "",
           description: "",
           order: nextOrder,
@@ -123,7 +122,7 @@ export function SectionFormDialog({
         });
       }
     }
-  }, [open, section, nextOrder, reset]);
+  }, [open, section, nextOrder, form]);
 
   const onSubmit: SubmitHandler<FormValues> = async (values) => {
     setIsSubmitting(true);
@@ -174,137 +173,166 @@ export function SectionFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-          {/* Nombre */}
-          <div className="space-y-1.5">
-            <Label htmlFor="section-name">
-              {t("sectionDialog.fieldName")}{" "}
-              <span aria-hidden="true" className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="section-name"
-              {...register("name")}
-              placeholder={t("sectionDialog.fieldNamePlaceholder")}
-              aria-required="true"
-            />
-            {errors.name && (
-              <p className="text-xs text-destructive" role="alert" aria-live="polite">{errors.name.message}</p>
-            )}
-          </div>
-
-          {/* Descripción */}
-          <div className="space-y-1.5">
-            <Label htmlFor="section-description">{t("sectionDialog.fieldDescription")}</Label>
-            <Textarea
-              id="section-description"
-              {...register("description")}
-              placeholder={t("sectionDialog.fieldDescriptionPlaceholder")}
-              rows={3}
-            />
-            {errors.description && (
-              <p className="text-xs text-destructive" role="alert" aria-live="polite">
-                {errors.description.message}
-              </p>
-            )}
-          </div>
-
-          {/* Orden */}
-          <div className="space-y-1.5">
-            <Label htmlFor="section-order">
-              {t("sectionDialog.fieldOrder")}{" "}
-              <span aria-hidden="true" className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="section-order"
-              type="number"
-              min={1}
-              {...register("order")}
-              placeholder="1"
-              aria-required="true"
-            />
-            {errors.order && (
-              <p className="text-xs text-destructive" role="alert" aria-live="polite">{errors.order.message}</p>
-            )}
-          </div>
-
-          {/* Requerida */}
-          <div className="flex items-center justify-between rounded-lg border border-border px-3 py-2.5">
-            <div className="space-y-0.5">
-              <Label htmlFor="section-required" className="cursor-pointer text-sm font-medium">
-                {t("sectionDialog.fieldRequired")}
-              </Label>
-              <p className="text-xs text-muted-foreground">
-                {t("sectionDialog.fieldRequiredDescription")}
-              </p>
-            </div>
-            <Switch
-              id="section-required"
-              checked={requiredValue}
-              onCheckedChange={(checked) => setValue("required", checked)}
-            />
-          </div>
-
-          {/* Puntos */}
-          <div className="grid grid-cols-2 gap-3">
-            {/* Puntos máximos */}
-            <div className="space-y-1.5">
-              <Label htmlFor="section-max-points">
-                {t("sectionDialog.fieldMaxPoints")}{" "}
-                <span aria-hidden="true" className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="section-max-points"
-                type="number"
-                min={0}
-                {...register("max_points")}
-                placeholder="0"
-                aria-required="true"
-              />
-              {errors.max_points && (
-                <p className="text-xs text-destructive" role="alert" aria-live="polite">
-                  {errors.max_points.message}
-                </p>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
+            {/* Nombre */}
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {t("sectionDialog.fieldName")}{" "}
+                    <span aria-hidden="true" className="text-destructive">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder={t("sectionDialog.fieldNamePlaceholder")}
+                      aria-required="true"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
+            />
 
-            {/* Puntos mínimos */}
-            <div className="space-y-1.5">
-              <Label htmlFor="section-minimum-points">{t("sectionDialog.fieldMinPoints")}</Label>
-              <Input
-                id="section-minimum-points"
-                type="number"
-                min={0}
-                {...register("minimum_points")}
-                placeholder="0"
-              />
-              {errors.minimum_points && (
-                <p className="text-xs text-destructive" role="alert" aria-live="polite">
-                  {errors.minimum_points.message}
-                </p>
+            {/* Descripción */}
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("sectionDialog.fieldDescription")}</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder={t("sectionDialog.fieldDescriptionPlaceholder")}
+                      rows={3}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
-          </div>
+            />
 
-          <DialogFooter className="pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
-            >
-              {t("sectionDialog.cancel")}
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting
-                ? isEdit
-                  ? t("sectionDialog.submittingEdit")
-                  : t("sectionDialog.submittingCreate")
-                : isEdit
-                  ? t("sectionDialog.submitEdit")
-                  : t("sectionDialog.submitCreate")}
-            </Button>
-          </DialogFooter>
-        </form>
+            {/* Orden */}
+            <FormField
+              control={form.control}
+              name="order"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {t("sectionDialog.fieldOrder")}{" "}
+                    <span aria-hidden="true" className="text-destructive">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min={1}
+                      placeholder="1"
+                      aria-required="true"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Requerida */}
+            <FormField
+              control={form.control}
+              name="required"
+              render={({ field }) => (
+                <FormItem className="flex items-center justify-between rounded-lg border border-border px-3 py-2.5 space-y-0">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="section-required" className="cursor-pointer text-sm font-medium">
+                      {t("sectionDialog.fieldRequired")}
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      {t("sectionDialog.fieldRequiredDescription")}
+                    </p>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      id="section-required"
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            {/* Puntos */}
+            <div className="grid grid-cols-2 gap-3">
+              {/* Puntos máximos */}
+              <FormField
+                control={form.control}
+                name="max_points"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      {t("sectionDialog.fieldMaxPoints")}{" "}
+                      <span aria-hidden="true" className="text-destructive">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={0}
+                        placeholder="0"
+                        aria-required="true"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Puntos mínimos */}
+              <FormField
+                control={form.control}
+                name="minimum_points"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("sectionDialog.fieldMinPoints")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={0}
+                        placeholder="0"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <DialogFooter className="pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={isSubmitting}
+              >
+                {t("sectionDialog.cancel")}
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting
+                  ? isEdit
+                    ? t("sectionDialog.submittingEdit")
+                    : t("sectionDialog.submittingCreate")
+                  : isEdit
+                    ? t("sectionDialog.submitEdit")
+                    : t("sectionDialog.submitCreate")}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
