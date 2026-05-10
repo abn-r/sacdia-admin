@@ -1,15 +1,39 @@
 import { TrendingUp } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import dynamic from "next/dynamic";
+import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EmptyState } from "@/components/shared/empty-state";
-import { RankingsClientPage } from "@/components/annual-folders/rankings-client-page";
 import { requireAdminUser } from "@/lib/auth/session";
 import { ApiError } from "@/lib/api/client";
 import { listClubTypes, listEcclesiasticalYears } from "@/lib/api/catalogs";
 import { getRankings, getAwardCategories } from "@/lib/api/annual-folders";
 import type { ClubRanking, AwardCategory } from "@/lib/api/annual-folders";
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
+
+const RankingsClientPage = dynamic(
+  () =>
+    import("@/components/annual-folders/rankings-client-page").then((m) => ({
+      default: m.RankingsClientPage,
+    })),
+  {
+    loading: () => (
+      <div className="space-y-4">
+        <div className="flex flex-wrap gap-2">
+          <Skeleton className="h-9 w-36 rounded-md" />
+          <Skeleton className="h-9 w-36 rounded-md" />
+        </div>
+        <Skeleton className="h-10 w-full rounded-md" />
+        <Skeleton className="h-12 w-full rounded-md" />
+        <Skeleton className="h-12 w-full rounded-md" />
+        <Skeleton className="h-12 w-full rounded-md" />
+        <Skeleton className="h-12 w-full rounded-md" />
+        <Skeleton className="h-12 w-full rounded-md" />
+      </div>
+    ),
+  }
+);
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

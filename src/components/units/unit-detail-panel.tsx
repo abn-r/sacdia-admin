@@ -34,8 +34,27 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import dynamic from "next/dynamic";
+import { Skeleton } from "@/components/ui/skeleton";
 import { AddMemberDialog } from "@/components/units/add-member-dialog";
-import { WeeklyRecordsPanel } from "@/components/units/weekly-records-panel";
+
+const WeeklyRecordsPanel = dynamic(
+  () =>
+    import("@/components/units/weekly-records-panel").then((m) => ({
+      default: m.WeeklyRecordsPanel,
+    })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="space-y-3 pt-1">
+        <Skeleton className="h-9 w-40 rounded-md" />
+        <Skeleton className="h-12 w-full rounded-md" />
+        <Skeleton className="h-12 w-full rounded-md" />
+        <Skeleton className="h-12 w-full rounded-md" />
+      </div>
+    ),
+  }
+);
 import { useTranslations } from "next-intl";
 import { removeUnitMember, getUnitUserDisplayName } from "@/lib/api/units";
 import type { Unit, UnitMember } from "@/lib/api/units";
