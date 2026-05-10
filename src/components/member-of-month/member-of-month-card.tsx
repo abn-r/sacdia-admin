@@ -4,15 +4,32 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Trophy, Clock, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import dynamic from "next/dynamic";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { EvaluateMemberOfMonthDialog } from "@/components/member-of-month/evaluate-dialog";
-import { MemberOfMonthHistorySheet } from "@/components/member-of-month/history-sheet";
 import { getMemberOfMonth } from "@/lib/api/member-of-month";
 import type { MemberOfMonthEntry } from "@/lib/api/member-of-month";
 import { MONTH_NAMES } from "@/lib/constants";
+import type { EvaluateMemberOfMonthDialogProps } from "@/components/member-of-month/evaluate-dialog";
+import type { MemberOfMonthHistorySheetProps } from "@/components/member-of-month/history-sheet";
+
+const EvaluateMemberOfMonthDialog = dynamic<EvaluateMemberOfMonthDialogProps>(
+  () =>
+    import("@/components/member-of-month/evaluate-dialog").then((m) => ({
+      default: m.EvaluateMemberOfMonthDialog,
+    })),
+  { ssr: false, loading: () => null }
+);
+
+const MemberOfMonthHistorySheet = dynamic<MemberOfMonthHistorySheetProps>(
+  () =>
+    import("@/components/member-of-month/history-sheet").then((m) => ({
+      default: m.MemberOfMonthHistorySheet,
+    })),
+  { ssr: false, loading: () => null }
+);
 
 // ─── Member avatar ────────────────────────────────────────────────────────────
 

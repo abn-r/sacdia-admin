@@ -40,7 +40,7 @@ function buildYearOptions(): number[] {
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
-interface EvaluateMemberOfMonthDialogProps {
+export interface EvaluateMemberOfMonthDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   clubId: number;

@@ -106,7 +106,7 @@ function HistorySkeleton() {
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
-interface MemberOfMonthHistorySheetProps {
+export interface MemberOfMonthHistorySheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   clubId: number;
