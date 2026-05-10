@@ -19,7 +19,6 @@ const PendingMembersPanel = dynamic(
       default: m.PendingMembersPanel,
     })),
   {
-    ssr: false,
     loading: () => (
       <div className="space-y-3">
         {Array.from({ length: 3 }).map((_, i) => (
@@ -40,7 +39,6 @@ const UnitsTab = dynamic(
       default: m.UnitsTab,
     })),
   {
-    ssr: false,
     loading: () => (
       <div className="space-y-3">
         {Array.from({ length: 3 }).map((_, i) => (
