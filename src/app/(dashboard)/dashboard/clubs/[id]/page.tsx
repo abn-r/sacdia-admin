@@ -2,16 +2,58 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/shared/page-header";
 import { EditClubForm } from "@/components/clubs/edit-club-form";
 import { ClubSectionsPanel } from "@/components/clubs/club-sections-panel";
-import { PendingMembersPanel } from "@/components/membership/pending-members-panel";
-import { UnitsTab } from "@/components/units/units-tab";
 import { apiRequest, ApiError } from "@/lib/api/client";
+
+const PendingMembersPanel = dynamic(
+  () =>
+    import("@/components/membership/pending-members-panel").then((m) => ({
+      default: m.PendingMembersPanel,
+    })),
+  {
+    loading: () => (
+      <div className="space-y-3">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-4 rounded-md border p-4">
+            <Skeleton className="h-4 w-40" />
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-4 w-20" />
+          </div>
+        ))}
+      </div>
+    ),
+  }
+);
+
+const UnitsTab = dynamic(
+  () =>
+    import("@/components/units/units-tab").then((m) => ({
+      default: m.UnitsTab,
+    })),
+  {
+    loading: () => (
+      <div className="space-y-3">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-3 rounded-xl border bg-card p-4">
+            <Skeleton className="size-9 rounded-lg" />
+            <div className="flex-1 space-y-1.5">
+              <Skeleton className="h-4 w-36" />
+              <Skeleton className="h-3 w-24" />
+            </div>
+          </div>
+        ))}
+      </div>
+    ),
+  }
+);
 import { requireAdminUser } from "@/lib/auth/session";
 import { getSelectOptions } from "@/lib/catalogs/service";
 import { updateClubAction, deleteClubAction } from "@/lib/clubs/actions";
