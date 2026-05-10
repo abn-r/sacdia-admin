@@ -12,36 +12,21 @@ deferred-loading wave (PRs #108, #111, #115, #116) and the analyzer setup
 
 ---
 
-## 1. Tooling Status — `pnpm analyze` blocker (mitigated)
+## 1. Tooling Status — `pnpm analyze` (fixed in perf/admin-r4-charts-analyze)
 
-`pnpm analyze` (added in #112) wraps `next build` with the `ANALYZE=true`
-env var consumed by `@next/bundle-analyzer`.
+`pnpm analyze` now runs `next experimental-analyze -o` — the Turbopack-native
+analyzer built into Next 16. Output lands under `.next/diagnostics/analyze/`
+(`analyze.data` per route, `modules.data`, `routes.json`). Launch the
+interactive treemap UI with:
 
-> **Blocker:** `@next/bundle-analyzer@16.2.6` is **not compatible with the
-> Turbopack production builder** (Next 16 default). The build succeeds, but
-> the wrapper prints:
->
-> ```
-> The Next Bundle Analyzer is not compatible with Turbopack builds, no report will be generated.
-> Consider trying the new Turbopack analyzer via `next experimental-analyze`.
-> To run this analysis pass the `--webpack` flag to `next build`
-> ```
->
-> No `.next/analyze/*.html` files are produced. Two workarounds exist:
->
-> 1. **`next experimental-analyze -o`** (Next 16 native, Turbopack-compatible).
->    Produces a binary treemap dataset under `.next/diagnostics/analyze/`
->    (`analyze.data` per route, `modules.data`, `routes.json`). Designed for
->    interactive use via `next experimental-analyze` (web UI on :4000). The
->    `analyze.data` files are TTComp/zstd-compressed and parsed in-browser, so
->    they aren't human-greppable from the CLI.
-> 2. **`next build --webpack`** to fall back to the legacy Webpack builder so
->    `@next/bundle-analyzer` works as documented. Slower builds; not used in
->    CI today.
->
-> **Recommendation:** rewrite the `analyze` script as
-> `"analyze": "next experimental-analyze"` and drop `@next/bundle-analyzer`,
-> OR keep both: add `analyze:webpack` for the legacy HTML reports.
+```bash
+pnpm analyze          # generates .next/diagnostics/analyze/
+next experimental-analyze   # serves the UI at http://localhost:4000
+```
+
+`@next/bundle-analyzer` has been removed from `package.json` (devDependencies)
+and from `next.config.ts` — it is not compatible with Turbopack and produced
+no output.
 
 The numbers below were collected by inspecting the **real Turbopack output**
 (`.next/static/chunks/*.js` with `gzip -c | wc -c` for transfer sizes) and
@@ -140,13 +125,21 @@ lives in its own per-route chunk (e.g., `0r13195.l2cvv.js` for
 `RankingsClientPage` on `/dashboard/annual-folders/rankings`). The dynamic-
 import infrastructure is working as designed.
 
+**Perf round 4 addition (perf/admin-r4-charts-analyze):** `RoleDistributionChart`,
+`SlaPipelineChart`, and `SlaThroughputChart` were converted to dynamic imports
+(`ssr: false`) with Skeleton placeholders. Each chart file was split into a
+thin wrapper (holds `next/dynamic`) and an `*-inner.tsx` (holds the recharts
+import). The recharts chunk (~98 KB gzip) is no longer pulled at parse time on
+`/dashboard` or `/dashboard/sla`. Expected first-paint saving: ~98 KB gzip on
+both routes.
+
 ---
 
 ## 5. Recommendations — top 5 candidates for the next perf round
 
 Ranked by estimated gzip savings on first paint of the affected routes.
 
-### 1. Lazy-load `recharts` charts on `/dashboard` and `/dashboard/sla` (~98 KB gzip per route)
+### 1. ~~Lazy-load `recharts` charts on `/dashboard` and `/dashboard/sla` (~98 KB gzip per route)~~ DONE (perf/admin-r4-charts-analyze)
 
 **Finding:** `0tvhttx4gjnu3.js` is **339 KB raw / 97.7 KB gzip** and contains
 the recharts library. It's pulled in by exactly two routes:
@@ -159,10 +152,9 @@ the recharts library. It's pulled in by exactly two routes:
 The home dashboard is the **first page every user lands on after login** —
 charts render below-the-fold and are pure visualization. Same for SLA.
 
-**Action:** wrap `RoleDistributionChart`, `SlaPipelineChart`, and
-`SlaThroughputChart` with `dynamic(() => import(...), { ssr: false })` and a
-skeleton fallback. Expected savings: **~98 KB gzip on `/dashboard` and
-`/dashboard/sla` first paint.**
+**Resolution:** All three charts converted to `next/dynamic` (`ssr: false`) with
+Skeleton fallbacks. Each split into wrapper + `*-inner.tsx`. Expected savings:
+**~98 KB gzip on `/dashboard` and `/dashboard/sla` first paint.**
 
 ### 2. Code-split the shared `zod` chunk (~73 KB gzip on 23 routes)
 
@@ -237,8 +229,8 @@ or brotli (smaller). These numbers are upper-bound for HTTP transfer.
 
 ## 7. Next actions (handoff)
 
-- Replace `pnpm analyze` script with `next experimental-analyze` (or add
-  parallel `analyze:webpack`) so the script does what its name promises.
-- File the 5 follow-up items from §5 as separate perf PRs.
+- ~~Replace `pnpm analyze` script with `next experimental-analyze`~~ DONE.
+- ~~Recharts dynamic imports (#1 in §5)~~ DONE.
+- File remaining follow-up items from §5 (#2–#5) as separate perf PRs.
 - After the next perf wave, regenerate this baseline and commit a diff so we
   can see savings by route.

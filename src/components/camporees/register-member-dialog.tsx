@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -24,6 +23,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { useTranslations } from "next-intl";
 import { registerCamporeeMember } from "@/lib/api/camporees";
 
@@ -59,14 +67,7 @@ export function RegisterMemberDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [insuranceError, setInsuranceError] = useState<string | null>(null);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm<FormValues>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema as z.ZodType<FormValues, FormValues>),
     defaultValues: {
       user_id: "",
@@ -76,11 +77,11 @@ export function RegisterMemberDialog({
     },
   });
 
-  const camporeeType = watch("camporee_type");
+  const camporeeType = form.watch("camporee_type");
 
   function handleOpenChange(nextOpen: boolean) {
     if (!nextOpen) {
-      reset();
+      form.reset();
       setInsuranceError(null);
     }
     onOpenChange(nextOpen);
@@ -131,113 +132,131 @@ export function RegisterMemberDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
-          {/* Insurance error callout */}
-          {insuranceError && (
-            <div
-              role="alert"
-              aria-live="polite"
-              className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive"
-            >
-              <p className="font-medium">{t("registerMemberDialog.insuranceErrorTitle")}</p>
-              <p className="mt-0.5">{insuranceError}</p>
-            </div>
-          )}
-
-          {/* User ID */}
-          <div className="space-y-1.5">
-            <Label htmlFor="user_id">
-              {t("registerMemberDialog.labelUserId")} <span aria-hidden="true" className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="user_id"
-              aria-required="true"
-              {...register("user_id")}
-              placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-              className="font-mono text-sm"
-            />
-            {errors.user_id && (
-              <p className="text-xs text-destructive">
-                {errors.user_id.message}
-              </p>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="space-y-4">
+            {/* Insurance error callout */}
+            {insuranceError && (
+              <div
+                role="alert"
+                aria-live="polite"
+                className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive"
+              >
+                <p className="font-medium">{t("registerMemberDialog.insuranceErrorTitle")}</p>
+                <p className="mt-0.5">{insuranceError}</p>
+              </div>
             )}
-          </div>
 
-          {/* Tipo de camporee */}
-          <div className="space-y-1.5">
-            <Label htmlFor="camporee_type">
-              {t("registerMemberDialog.labelCamporeeType")} <span aria-hidden="true" className="text-destructive">*</span>
-            </Label>
-            <Select
-              value={camporeeType}
-              onValueChange={(val) =>
-                setValue("camporee_type", val as "local" | "union")
-              }
-            >
-              <SelectTrigger id="camporee_type" aria-required="true">
-                <SelectValue placeholder={t("registerMemberDialog.placeholderCamporeeType")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="local">{t("registerMemberDialog.typeLocal")}</SelectItem>
-                <SelectItem value="union">{t("registerMemberDialog.typeUnion")}</SelectItem>
-              </SelectContent>
-            </Select>
-            {errors.camporee_type && (
-              <p className="text-xs text-destructive">
-                {errors.camporee_type.message}
-              </p>
-            )}
-          </div>
-
-          {/* Club name (required for union) */}
-          <div className="space-y-1.5">
-            <Label htmlFor="club_name">
-              {t("registerMemberDialog.labelClubName")}
-              {camporeeType === "union" && (
-                <span className="text-muted-foreground"> {t("registerMemberDialog.clubNameRequiredForUnion")}</span>
+            {/* User ID */}
+            <FormField
+              control={form.control}
+              name="user_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {t("registerMemberDialog.labelUserId")} <span aria-hidden="true" className="text-destructive">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      aria-required="true"
+                      placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                      className="font-mono text-sm"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </Label>
-            <Input
-              id="club_name"
-              {...register("club_name")}
-              placeholder={t("registerMemberDialog.placeholderClubName")}
             />
-          </div>
 
-          {/* Insurance ID */}
-          <div className="space-y-1.5">
-            <Label htmlFor="insurance_id">{t("registerMemberDialog.labelInsuranceId")}</Label>
-            <Input
-              id="insurance_id"
-              type="number"
-              min={1}
-              {...register("insurance_id")}
-              placeholder={t("registerMemberDialog.placeholderInsuranceId")}
+            {/* Tipo de camporee */}
+            <FormField
+              control={form.control}
+              name="camporee_type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {t("registerMemberDialog.labelCamporeeType")} <span aria-hidden="true" className="text-destructive">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Select
+                      value={field.value}
+                      onValueChange={(val) => field.onChange(val as "local" | "union")}
+                    >
+                      <SelectTrigger aria-required="true">
+                        <SelectValue placeholder={t("registerMemberDialog.placeholderCamporeeType")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="local">{t("registerMemberDialog.typeLocal")}</SelectItem>
+                        <SelectItem value="union">{t("registerMemberDialog.typeUnion")}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            <p className="text-xs text-muted-foreground">
-              {t("registerMemberDialog.helpInsurance")}
-            </p>
-            {errors.insurance_id && (
-              <p className="text-xs text-destructive">
-                {errors.insurance_id.message}
-              </p>
-            )}
-          </div>
 
-          <DialogFooter className="pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleOpenChange(false)}
-              disabled={isSubmitting}
-            >
-              {t("registerMemberDialog.cancel")}
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? t("registerMemberDialog.registering") : t("registerMemberDialog.register")}
-            </Button>
-          </DialogFooter>
-        </form>
+            {/* Club name (required for union) */}
+            <FormField
+              control={form.control}
+              name="club_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {t("registerMemberDialog.labelClubName")}
+                    {camporeeType === "union" && (
+                      <span className="text-muted-foreground"> {t("registerMemberDialog.clubNameRequiredForUnion")}</span>
+                    )}
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder={t("registerMemberDialog.placeholderClubName")}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Insurance ID */}
+            <FormField
+              control={form.control}
+              name="insurance_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("registerMemberDialog.labelInsuranceId")}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min={1}
+                      placeholder={t("registerMemberDialog.placeholderInsuranceId")}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    {t("registerMemberDialog.helpInsurance")}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <DialogFooter className="pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleOpenChange(false)}
+                disabled={isSubmitting}
+              >
+                {t("registerMemberDialog.cancel")}
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? t("registerMemberDialog.registering") : t("registerMemberDialog.register")}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

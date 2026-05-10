@@ -1,115 +1,39 @@
 "use client";
 
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  CartesianGrid,
-} from "recharts";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useTranslations } from "next-intl";
+import dynamic from "next/dynamic";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { ThroughputWeek } from "@/lib/api/analytics";
 
-interface SlaThroughputChartProps {
+export interface SlaThroughputChartProps {
   throughput: ThroughputWeek[];
 }
 
-interface TooltipProps {
-  active?: boolean;
-  payload?: Array<{ name: string; value: number; color: string }>;
-  label?: string;
-}
-
-function CustomTooltip({ active, payload, label }: TooltipProps) {
-  const t = useTranslations("sla.throughput");
-  if (!active || !payload?.length) return null;
-  return (
-    <div className="rounded-lg border bg-background px-3 py-2 text-sm shadow-md">
-      <p className="mb-1 font-medium text-xs text-muted-foreground">{label}</p>
-      {payload.map((entry) => (
-        <p key={entry.name} style={{ color: entry.color }} className="text-sm">
-          {entry.name === "approved" ? t("legend_approved") : t("legend_rejected")}: {entry.value}
-        </p>
-      ))}
-    </div>
-  );
-}
-
-export function SlaThroughputChart({ throughput }: SlaThroughputChartProps) {
-  const t = useTranslations("sla.throughput");
-
-  if (throughput.length === 0) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">{t("title")}</CardTitle>
-          <CardDescription>{t("description")}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">{t("empty")}</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
+function SlaThroughputChartSkeleton() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">{t("title")}</CardTitle>
-        <CardDescription>{t("description")}</CardDescription>
+        <Skeleton className="h-5 w-40" />
+        <Skeleton className="h-3 w-56 mt-1" />
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={220}>
-          <LineChart
-            data={throughput}
-            margin={{ top: 4, right: 12, left: 0, bottom: 0 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-            <XAxis
-              dataKey="week"
-              tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
-              tickLine={false}
-              axisLine={false}
-            />
-            <YAxis
-              allowDecimals={false}
-              tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
-              tickLine={false}
-              axisLine={false}
-              width={28}
-            />
-            <Tooltip content={<CustomTooltip />} />
-            <Legend
-              iconSize={10}
-              formatter={(value) => (
-                <span className="text-xs text-muted-foreground">
-                  {value === "approved" ? t("legend_approved") : t("legend_rejected")}
-                </span>
-              )}
-            />
-            <Line
-              type="monotone"
-              dataKey="approved"
-              stroke="hsl(var(--chart-2, 160 60% 45%))"
-              strokeWidth={2}
-              dot={{ r: 3, fill: "hsl(var(--chart-2, 160 60% 45%))" }}
-              activeDot={{ r: 5 }}
-            />
-            <Line
-              type="monotone"
-              dataKey="rejected"
-              stroke="hsl(var(--destructive))"
-              strokeWidth={2}
-              dot={{ r: 3, fill: "hsl(var(--destructive))" }}
-              activeDot={{ r: 5 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+        <Skeleton className="h-[220px] w-full rounded-md" />
       </CardContent>
     </Card>
   );
+}
+
+const SlaThroughputChartInner = dynamic(
+  () =>
+    import("./sla-throughput-chart-inner").then(
+      (m) => m.SlaThroughputChartInner
+    ),
+  {
+    ssr: false,
+    loading: () => <SlaThroughputChartSkeleton />,
+  }
+);
+
+export function SlaThroughputChart({ throughput }: SlaThroughputChartProps) {
+  return <SlaThroughputChartInner throughput={throughput} />;
 }
