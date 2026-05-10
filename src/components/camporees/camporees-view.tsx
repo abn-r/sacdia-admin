@@ -13,9 +13,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import dynamic from "next/dynamic";
 import { EmptyState } from "@/components/shared/empty-state";
-import { CamporeeFormDialog } from "@/components/camporees/camporee-form-dialog";
 import { DeleteCamporeeDialog } from "@/components/camporees/delete-camporee-dialog";
+import type { CamporeeFormDialogProps } from "@/components/camporees/camporee-form-dialog";
+
+// Deferred: CamporeeFormDialog imports zodResolver + zod (~103 KB compressed).
+// The dialog is only opened by an explicit user action, never at first paint.
+const CamporeeFormDialog = dynamic<CamporeeFormDialogProps>(
+  () =>
+    import("@/components/camporees/camporee-form-dialog").then(
+      (m) => m.CamporeeFormDialog
+    ),
+  { ssr: false, loading: () => null }
+);
 import { useTranslations } from "next-intl";
 import { listCamporees } from "@/lib/api/camporees";
 import type { Camporee } from "@/lib/api/camporees";
