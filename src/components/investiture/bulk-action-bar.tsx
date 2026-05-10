@@ -16,8 +16,15 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import {
   bulkApproveEnrollments,
   bulkRejectEnrollments,
@@ -280,45 +287,45 @@ export function BulkActionBar({
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleRejectSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="bulk-reason">Motivo de rechazo *</Label>
-              <Textarea
-                id="bulk-reason"
-                placeholder="Describe el motivo del rechazo..."
-                rows={3}
-                {...rejectForm.register("reason")}
-                disabled={isRejecting}
-                aria-describedby={
-                  rejectForm.formState.errors.reason
-                    ? "bulk-reason-error"
-                    : undefined
-                }
-              />
-              {rejectForm.formState.errors.reason && (
-                <p id="bulk-reason-error" className="text-xs text-destructive">
-                  {rejectForm.formState.errors.reason.message}
-                </p>
-              )}
-            </div>
-
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => handleRejectClose(false)}
-                disabled={isRejecting}
-              >
-                Cancelar
-              </Button>
-              <Button type="submit" variant="destructive" disabled={isRejecting}>
-                {isRejecting && (
-                  <Loader2 className="size-4 animate-spin" />
+          <Form {...rejectForm}>
+            <form onSubmit={handleRejectSubmit} className="space-y-4">
+              <FormField
+                control={rejectForm.control}
+                name="reason"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Motivo de rechazo *</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Describe el motivo del rechazo..."
+                        rows={3}
+                        {...field}
+                        disabled={isRejecting}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-                Rechazar
-              </Button>
-            </DialogFooter>
-          </form>
+              />
+
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => handleRejectClose(false)}
+                  disabled={isRejecting}
+                >
+                  Cancelar
+                </Button>
+                <Button type="submit" variant="destructive" disabled={isRejecting}>
+                  {isRejecting && (
+                    <Loader2 className="size-4 animate-spin" />
+                  )}
+                  Rechazar
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
     </>
