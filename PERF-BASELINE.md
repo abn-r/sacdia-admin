@@ -358,14 +358,79 @@ and investiture routes. On `/dashboard/clubs/[id]` it was still fully eager.
 
 ---
 
+## 10. Round 7 (2026-05-10) — finances and insurance dialog defers + CI build gate
+
+**Branch:** `perf/admin-r7-routes` (off `origin/development`)
+**Worktree:** `.claude/worktrees/agent-perf-r7-2026-05-10`
+
+### Routes targeted
+
+| Route | Baseline gz | Rank | Why targeted |
+|---|---|---|---|
+| `/dashboard/finances` | ~237 KB gz | #8 | `FinancesDashboard` eagerly imports `TransactionFormDialog` (zod + zodResolver) |
+| `/dashboard/insurance` | ~237 KB gz | #10 | `InsuranceView` eagerly imports `InsuranceFormDialog` (zod + zodResolver) |
+
+Both routes are Client Component trees — `ssr: false` is valid for all deferred dialogs.
+
+### Components deferred
+
+| Parent file | Component deferred | Zod? | Gate |
+|---|---|---|---|
+| `src/components/finances/finances-dashboard.tsx` | `TransactionFormDialog` | YES | "Nueva transacción" button click |
+| `src/components/finances/finances-dashboard.tsx` | `DeleteTransactionDialog` | no | Delete row action |
+| `src/components/insurance/insurance-view.tsx` | `InsuranceFormDialog` | YES | Edit/create member action |
+| `src/components/insurance/insurance-view.tsx` | `DeleteInsuranceDialog` | no | Delete row action |
+
+### Pattern applied
+
+`dynamic<Props>(import, { ssr: false, loading: () => null })` in each Client Component
+parent. Props interfaces exported from each dialog file (`InsuranceFormDialogProps`,
+`DeleteInsuranceDialogProps`, `TransactionFormDialogProps`, `DeleteTransactionDialogProps`)
+for correct `dynamic<Props>()` generic typing. Dialogs start closed — `loading: () => null`
+produces no visual flash.
+
+### Estimated gz savings
+
+| Route | Removed from initial chunk | Estimated gz saved |
+|---|---|---|
+| `/dashboard/finances` | `TransactionFormDialog` zod/zodResolver bundle | ~103 KB |
+| `/dashboard/insurance` | `InsuranceFormDialog` zod/zodResolver bundle | ~103 KB |
+| Both routes | `DeleteTransactionDialog` + `DeleteInsuranceDialog` (smaller) | ~5–10 KB each |
+
+Total estimated: **~103 KB gz per route** on first paint (same zod v4 + i18n locale
+chunk isolated in R5 on camporees/evidence-review/investiture routes).
+
+### CI build gate added
+
+**New file:** `.github/workflows/build.yml`
+
+Runs `pnpm build` on every PR targeting `main`, `preproduction`, or `development`.
+This catches the critical class of bug fixed in R6 (commit `cb94d33`): `ssr: false`
+inside a Server Component passes typecheck and Vitest but fails Vercel build. The new
+workflow catches it at PR time, before merge.
+
+Env vars used: `NEXT_PUBLIC_API_URL=http://localhost:3000` (dummy; only needed to resolve
+the CSP origin in `next.config.ts`). Sentry DSN is hardcoded as fallback in
+`sentry.server.config.ts` — no extra secret needed for build to complete.
+
+### Verification
+
+- `pnpm typecheck`: PASS
+- `pnpm test --run`: 432/432 PASS
+- `pnpm lint`: unchanged from baseline
+
+---
+
 ## 8. Next actions (handoff)
 
 - ~~Replace `pnpm analyze` script with `next experimental-analyze`~~ DONE.
 - ~~Recharts dynamic imports (#1 in §5)~~ DONE (R4).
 - ~~zod form-dialog deferred imports (#2 in §5)~~ DONE (R5).
-- **Remaining items from §5 (#3–#5)**:
-  - Investigate `/dashboard/clubs/[id]` (18-chunk heavyweight route).
-  - Audit `/dashboard/annual-folders/templates` remaining eagerly-imported helpers.
-  - Evaluate replacing/deferring `cmdk` on `/dashboard/clubs/[id]`.
+- ~~`/dashboard/clubs/[id]` tab-gated panels~~ DONE (R6).
+- ~~`/dashboard/finances` + `/dashboard/insurance` dialog defers~~ DONE (R7).
+- **Remaining items**:
+  - Audit `/dashboard/annual-folders/templates` remaining eagerly-imported helpers (inner components of the template editor).
+  - Evaluate replacing/deferring `cmdk` on any route still carrying it.
+  - Regenerate per-route baseline numbers post-R7 to confirm gz savings.
 - After the next perf wave, regenerate this baseline and commit a diff so we
   can see savings by route.

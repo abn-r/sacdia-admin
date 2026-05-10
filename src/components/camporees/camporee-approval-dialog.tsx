@@ -15,8 +15,15 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { useTranslations } from "next-intl";
 import { ApiError } from "@/lib/api/client";
 
@@ -113,49 +120,49 @@ export function CamporeeApprovalDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {isReject && (
-            <div className="space-y-2">
-              <Label htmlFor="rejection_reason">Motivo de rechazo</Label>
-              <Textarea
-                id="rejection_reason"
-                placeholder="Describe el motivo del rechazo (opcional)..."
-                rows={3}
-                {...form.register("rejection_reason")}
-                disabled={isPending}
-                aria-describedby={
-                  form.formState.errors.rejection_reason
-                    ? "rejection-reason-error"
-                    : undefined
-                }
+        <Form {...form}>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {isReject && (
+              <FormField
+                control={form.control}
+                name="rejection_reason"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Motivo de rechazo</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        {...field}
+                        placeholder="Describe el motivo del rechazo (opcional)..."
+                        rows={3}
+                        disabled={isPending}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              {form.formState.errors.rejection_reason && (
-                <p id="rejection-reason-error" className="text-xs text-destructive">
-                  {form.formState.errors.rejection_reason.message}
-                </p>
-              )}
-            </div>
-          )}
+            )}
 
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleClose(false)}
-              disabled={isPending}
-            >
-              Cancelar
-            </Button>
-            <Button
-              type="submit"
-              variant={isReject ? "destructive" : "default"}
-              disabled={isPending}
-            >
-              {isPending && <Loader2 className="size-4 animate-spin" />}
-              {isReject ? "Rechazar" : "Aprobar"}
-            </Button>
-          </DialogFooter>
-        </form>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleClose(false)}
+                disabled={isPending}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                variant={isReject ? "destructive" : "default"}
+                disabled={isPending}
+              >
+                {isPending && <Loader2 className="size-4 animate-spin" />}
+                {isReject ? "Rechazar" : "Aprobar"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

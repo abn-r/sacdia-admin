@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { Plus, RefreshCw, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,8 +19,6 @@ import {
   TransactionsTable,
   TransactionsTableSkeleton,
 } from "@/components/finances/transactions-table";
-import { TransactionFormDialog } from "@/components/finances/transaction-form-dialog";
-import { DeleteTransactionDialog } from "@/components/finances/delete-transaction-dialog";
 import {
   listFinances,
   getFinanceSummary,
@@ -29,8 +28,27 @@ import {
   type PaginatedFinances,
 } from "@/lib/api/finances";
 import type { SortDirection } from "@/components/shared/sortable-header";
-import type { ClubSection } from "@/components/finances/transaction-form-dialog";
+import type { TransactionFormDialogProps, ClubSection } from "@/components/finances/transaction-form-dialog";
+import type { DeleteTransactionDialogProps } from "@/components/finances/delete-transaction-dialog";
 import { useTranslations } from "next-intl";
+
+// ─── Deferred dialogs (dialog-gated — zod bundle only loaded on first open) ───
+
+const TransactionFormDialog = dynamic<TransactionFormDialogProps>(
+  () =>
+    import("@/components/finances/transaction-form-dialog").then((m) => ({
+      default: m.TransactionFormDialog,
+    })),
+  { ssr: false, loading: () => null },
+);
+
+const DeleteTransactionDialog = dynamic<DeleteTransactionDialogProps>(
+  () =>
+    import("@/components/finances/delete-transaction-dialog").then((m) => ({
+      default: m.DeleteTransactionDialog,
+    })),
+  { ssr: false, loading: () => null },
+);
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
