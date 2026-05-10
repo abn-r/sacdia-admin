@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, Info } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -31,50 +32,51 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import type { CronHistoryItem, CronHistoryPage } from "@/lib/api/analytics";
+import { useFormatDateTime, useFormatNumber } from "@/lib/format-locale";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-type JobDefinition = {
-  canonical_name: string;
-  display_name: string;
+type CronJobKey =
+  | "monthly-reports-auto-generate"
+  | "rankings-recalculate"
+  | "data-export-cleanup"
+  | "member-of-month-auto-evaluate"
+  | "finance-period-closing"
+  | "activities-reminder"
+  | "membership-requests-expiry"
+  | "cleanup-expired-records"
+  | "fcm-tokens-cleanup";
+
+const JOB_CANONICAL_NAMES: CronJobKey[] = [
+  "monthly-reports-auto-generate",
+  "rankings-recalculate",
+  "data-export-cleanup",
+  "member-of-month-auto-evaluate",
+  "finance-period-closing",
+  "activities-reminder",
+  "membership-requests-expiry",
+  "cleanup-expired-records",
+  "fcm-tokens-cleanup",
+];
+
+const JOB_I18N_KEYS: Record<CronJobKey, string> = {
+  "monthly-reports-auto-generate":  "jobMonthlyReports",
+  "rankings-recalculate":           "jobRankingsRecalculate",
+  "data-export-cleanup":            "jobDataExportCleanup",
+  "member-of-month-auto-evaluate":  "jobMemberOfMonth",
+  "finance-period-closing":         "jobFinancePeriod",
+  "activities-reminder":            "jobActivitiesReminder",
+  "membership-requests-expiry":     "jobMembershipExpiry",
+  "cleanup-expired-records":        "jobCleanupExpired",
+  "fcm-tokens-cleanup":             "jobFcmCleanup",
 };
 
-const JOB_DEFINITIONS: JobDefinition[] = [
-  { canonical_name: "monthly-reports-auto-generate",  display_name: "Reportes mensuales (auto-generar)" },
-  { canonical_name: "rankings-recalculate",           display_name: "Rankings anuales (recalcular)" },
-  { canonical_name: "data-export-cleanup",            display_name: "Cleanup exportes vencidos" },
-  { canonical_name: "member-of-month-auto-evaluate",  display_name: "Miembro del mes (auto-evaluar)" },
-  { canonical_name: "finance-period-closing",         display_name: "Cierre de periodo financiero" },
-  { canonical_name: "activities-reminder",            display_name: "Recordatorios de actividades" },
-  { canonical_name: "membership-requests-expiry",     display_name: "Expirar solicitudes de membresía" },
-  { canonical_name: "cleanup-expired-records",        display_name: "Cleanup sesiones/tokens vencidos" },
-  { canonical_name: "fcm-tokens-cleanup",             display_name: "Cleanup FCM tokens huérfanos" },
-];
-
-const STATUS_OPTIONS = [
-  { value: "all",       label: "Todos los estados" },
-  { value: "completed", label: "Completado" },
-  { value: "failed",    label: "Fallido" },
-  { value: "skipped",   label: "Omitido" },
-  { value: "running",   label: "Ejecutando" },
-];
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-const dateFormatter = new Intl.DateTimeFormat("es-MX", {
-  dateStyle: "short",
-  timeStyle: "short",
-});
-
-function formatDate(iso: string | null): string {
-  if (!iso) return "—";
-  const d = new Date(iso);
-  return isNaN(d.getTime()) ? "—" : dateFormatter.format(d);
-}
 
 function formatDuration(ms: number | null): string {
   if (ms === null) return "—";
@@ -97,28 +99,25 @@ function statusVariant(
   }
 }
 
-function statusLabel(status: string): string {
-  switch (status) {
-    case "completed": return "Completado";
-    case "failed":    return "Fallido";
-    case "running":   return "Ejecutando";
-    case "skipped":   return "Omitido";
-    default:          return status;
-  }
-}
+// ─── Status Badge ─────────────────────────────────────────────────────────────
 
 function StatusBadge({ status }: { status: string }) {
+  const t = useTranslations("system_jobs.history");
+
+  function getLabel(s: string): string {
+    switch (s) {
+      case "completed": return t("statusCompleted");
+      case "failed":    return t("statusFailed");
+      case "running":   return t("statusRunning");
+      case "skipped":   return t("statusSkipped");
+      default:          return s;
+    }
+  }
+
   return (
     <Badge variant={statusVariant(status)} className="text-xs">
-      {statusLabel(status)}
+      {getLabel(status)}
     </Badge>
-  );
-}
-
-function jobDisplayName(canonicalName: string): string {
-  return (
-    JOB_DEFINITIONS.find((d) => d.canonical_name === canonicalName)
-      ?.display_name ?? canonicalName
   );
 }
 
@@ -130,46 +129,64 @@ interface DetailDialogProps {
 }
 
 function DetailDialog({ item, onClose }: DetailDialogProps) {
+  const t = useTranslations("system_jobs.history");
+  const formatDateTime = useFormatDateTime();
+  const formatNumber = useFormatNumber();
+
+  function formatDate(iso: string | null): string {
+    if (!iso) return "—";
+    const d = new Date(iso);
+    return isNaN(d.getTime()) ? "—" : formatDateTime(d, { dateStyle: "short", timeStyle: "short" });
+  }
+
+  function jobDisplayName(canonicalName: string): string {
+    const key = JOB_I18N_KEYS[canonicalName as CronJobKey];
+    return key ? t(key) : canonicalName;
+  }
+
   return (
     <Dialog open={item !== null} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-sm font-semibold">
-            Detalles del run #{item?.run_id}
+            {item ? t("detailTitle", { runId: item.run_id }) : ""}
           </DialogTitle>
+          <DialogDescription>
+            {item ? `Detalles de la ejecución del job ${item.job_name}` : ""}
+          </DialogDescription>
         </DialogHeader>
         {item && (
           <div className="space-y-4 text-sm">
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <p className="text-xs text-muted-foreground mb-0.5">Job</p>
+                <p className="text-xs text-muted-foreground mb-0.5">{t("detailLabelJob")}</p>
                 <p className="font-medium">{jobDisplayName(item.job_name)}</p>
                 <p className="text-xs text-muted-foreground font-mono">{item.job_name}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground mb-0.5">Status</p>
+                <p className="text-xs text-muted-foreground mb-0.5">{t("detailLabelStatus")}</p>
                 <StatusBadge status={item.status} />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground mb-0.5">Inicio</p>
+                <p className="text-xs text-muted-foreground mb-0.5">{t("detailLabelStart")}</p>
                 <p>{formatDate(item.started_at)}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground mb-0.5">Fin</p>
+                <p className="text-xs text-muted-foreground mb-0.5">{t("detailLabelEnd")}</p>
                 <p>{formatDate(item.ended_at)}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground mb-0.5">Duración</p>
+                <p className="text-xs text-muted-foreground mb-0.5">{t("detailLabelDuration")}</p>
                 <p>{formatDuration(item.duration_ms)}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground mb-0.5">Items procesados</p>
-                <p>{item.items_processed !== null ? item.items_processed.toLocaleString("es-MX") : "—"}</p>
+                <p className="text-xs text-muted-foreground mb-0.5">{t("detailLabelItems")}</p>
+                <p>{item.items_processed !== null ? formatNumber(item.items_processed) : "—"}</p>
               </div>
             </div>
             {item.error_message && (
               <div>
-                <p className="text-xs text-muted-foreground mb-1">Mensaje de error</p>
+                <p className="text-xs text-muted-foreground mb-1">{t("detailLabelError")}</p>
                 <pre className="rounded-md bg-destructive/10 border border-destructive/20 p-3 text-xs text-destructive font-mono whitespace-pre-wrap break-all">
                   {item.error_message}
                 </pre>
@@ -177,7 +194,7 @@ function DetailDialog({ item, onClose }: DetailDialogProps) {
             )}
             {item.metadata && (
               <div>
-                <p className="text-xs text-muted-foreground mb-1">Metadata</p>
+                <p className="text-xs text-muted-foreground mb-1">{t("detailLabelMetadata")}</p>
                 <pre className="rounded-md bg-muted border p-3 text-xs font-mono whitespace-pre-wrap break-all overflow-x-auto">
                   {JSON.stringify(item.metadata, null, 2)}
                 </pre>
@@ -211,11 +228,34 @@ export function CronHistoryClient({
   initialData,
   searchParams,
 }: CronHistoryClientProps) {
+  const t = useTranslations("system_jobs.history");
   const router = useRouter();
   const [selectedItem, setSelectedItem] = useState<CronHistoryItem | null>(null);
+  const formatDateTime = useFormatDateTime();
+  const formatNumber = useFormatNumber();
+
+  function formatDate(iso: string | null): string {
+    if (!iso) return "—";
+    const d = new Date(iso);
+    return isNaN(d.getTime()) ? "—" : formatDateTime(d, { dateStyle: "short", timeStyle: "short" });
+  }
 
   const currentPage = initialData.page;
   const totalPages = Math.ceil(initialData.total / initialData.limit);
+
+  // Status options built from translations (moved inside component — contains UI strings)
+  const STATUS_OPTIONS = [
+    { value: "all",       label: t("filterAllStatuses") },
+    { value: "completed", label: t("statusCompleted") },
+    { value: "failed",    label: t("statusFailed") },
+    { value: "skipped",   label: t("statusSkipped") },
+    { value: "running",   label: t("statusRunning") },
+  ];
+
+  function jobDisplayName(canonicalName: string): string {
+    const key = JOB_I18N_KEYS[canonicalName as CronJobKey];
+    return key ? t(key) : canonicalName;
+  }
 
   // ── Filter helpers ─────────────────────────────────────────────────────────
 
@@ -252,19 +292,21 @@ export function CronHistoryClient({
             <div className="flex flex-wrap gap-3 items-end">
               {/* Job name filter */}
               <div className="flex flex-col gap-1.5 min-w-[220px]">
-                <span className="text-xs text-muted-foreground font-medium">Job</span>
+                <span className="text-xs text-muted-foreground font-medium">
+                  {t("filterLabelJob")}
+                </span>
                 <Select
                   value={searchParams.job_name ?? "all"}
                   onValueChange={(v) => handleFilterChange("job_name", v)}
                 >
                   <SelectTrigger className="h-8 text-sm">
-                    <SelectValue placeholder="Todos los jobs" />
+                    <SelectValue placeholder={t("filterAllJobs")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Todos los jobs</SelectItem>
-                    {JOB_DEFINITIONS.map((def) => (
-                      <SelectItem key={def.canonical_name} value={def.canonical_name}>
-                        {def.display_name}
+                    <SelectItem value="all">{t("filterAllJobs")}</SelectItem>
+                    {JOB_CANONICAL_NAMES.map((canonicalName) => (
+                      <SelectItem key={canonicalName} value={canonicalName}>
+                        {jobDisplayName(canonicalName)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -273,13 +315,15 @@ export function CronHistoryClient({
 
               {/* Status filter */}
               <div className="flex flex-col gap-1.5 min-w-[180px]">
-                <span className="text-xs text-muted-foreground font-medium">Estado</span>
+                <span className="text-xs text-muted-foreground font-medium">
+                  {t("filterLabelStatus")}
+                </span>
                 <Select
                   value={searchParams.status ?? "all"}
                   onValueChange={(v) => handleFilterChange("status", v)}
                 >
                   <SelectTrigger className="h-8 text-sm">
-                    <SelectValue placeholder="Todos los estados" />
+                    <SelectValue placeholder={t("filterAllStatuses")} />
                   </SelectTrigger>
                   <SelectContent>
                     {STATUS_OPTIONS.map((opt) => (
@@ -293,7 +337,9 @@ export function CronHistoryClient({
 
               {/* Since */}
               <div className="flex flex-col gap-1.5">
-                <span className="text-xs text-muted-foreground font-medium">Desde</span>
+                <span className="text-xs text-muted-foreground font-medium">
+                  {t("filterLabelSince")}
+                </span>
                 <Input
                   type="date"
                   className="h-8 text-sm w-[150px]"
@@ -304,7 +350,9 @@ export function CronHistoryClient({
 
               {/* Until */}
               <div className="flex flex-col gap-1.5">
-                <span className="text-xs text-muted-foreground font-medium">Hasta</span>
+                <span className="text-xs text-muted-foreground font-medium">
+                  {t("filterLabelUntil")}
+                </span>
                 <Input
                   type="date"
                   className="h-8 text-sm w-[150px]"
@@ -320,14 +368,14 @@ export function CronHistoryClient({
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0 pt-4">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              {initialData.total.toLocaleString("es-MX")} registros
+              {t("recordCount", { total: formatNumber(initialData.total) })}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             {initialData.items.length === 0 ? (
               <div className="py-16 text-center">
                 <p className="text-sm text-muted-foreground">
-                  No se encontraron ejecuciones con los filtros aplicados.
+                  {t("noResults")}
                 </p>
               </div>
             ) : (
@@ -335,13 +383,13 @@ export function CronHistoryClient({
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="pl-6">Job</TableHead>
-                      <TableHead>Inicio</TableHead>
-                      <TableHead>Estado</TableHead>
-                      <TableHead>Duración</TableHead>
-                      <TableHead className="text-right">Items</TableHead>
-                      <TableHead className="max-w-[200px]">Error</TableHead>
-                      <TableHead className="pr-6 text-right">Detalles</TableHead>
+                      <TableHead className="pl-6">{t("colJob")}</TableHead>
+                      <TableHead>{t("colStart")}</TableHead>
+                      <TableHead>{t("colStatus")}</TableHead>
+                      <TableHead>{t("colDuration")}</TableHead>
+                      <TableHead className="text-right">{t("colItems")}</TableHead>
+                      <TableHead className="max-w-[200px]">{t("colError")}</TableHead>
+                      <TableHead className="pr-6 text-right">{t("colDetails")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -357,17 +405,17 @@ export function CronHistoryClient({
                           </span>
                         </TableCell>
 
-                        {/* Inicio */}
+                        {/* Start */}
                         <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
                           {formatDate(item.started_at)}
                         </TableCell>
 
-                        {/* Estado */}
+                        {/* Status */}
                         <TableCell>
                           <StatusBadge status={item.status} />
                         </TableCell>
 
-                        {/* Duración */}
+                        {/* Duration */}
                         <TableCell className="tabular-nums text-sm">
                           {formatDuration(item.duration_ms)}
                         </TableCell>
@@ -375,11 +423,11 @@ export function CronHistoryClient({
                         {/* Items */}
                         <TableCell className="text-right tabular-nums text-sm">
                           {item.items_processed !== null
-                            ? item.items_processed.toLocaleString("es-MX")
+                            ? formatNumber(item.items_processed)
                             : "—"}
                         </TableCell>
 
-                        {/* Error truncado */}
+                        {/* Error truncated */}
                         <TableCell className="max-w-[200px]">
                           {item.error_message ? (
                             <Tooltip>
@@ -400,7 +448,7 @@ export function CronHistoryClient({
                           )}
                         </TableCell>
 
-                        {/* Detalles */}
+                        {/* Details */}
                         <TableCell className="pr-6 text-right">
                           <Button
                             variant="ghost"
@@ -409,7 +457,7 @@ export function CronHistoryClient({
                             className="gap-1.5"
                           >
                             <Info className="size-3" />
-                            Ver
+                            {t("viewButton")}
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -425,7 +473,7 @@ export function CronHistoryClient({
         {totalPages > 1 && (
           <div className="flex items-center justify-between px-1">
             <p className="text-xs text-muted-foreground">
-              Página {currentPage} de {totalPages}
+              {t("pagination", { page: currentPage, totalPages })}
             </p>
             <div className="flex items-center gap-2">
               <Button
@@ -435,7 +483,7 @@ export function CronHistoryClient({
                 onClick={() => handlePageChange(currentPage - 1)}
               >
                 <ChevronLeft className="size-4 mr-1" />
-                Anterior
+                {t("paginationPrev")}
               </Button>
               <Button
                 variant="outline"
@@ -443,7 +491,7 @@ export function CronHistoryClient({
                 disabled={currentPage >= totalPages}
                 onClick={() => handlePageChange(currentPage + 1)}
               >
-                Siguiente
+                {t("paginationNext")}
                 <ChevronRight className="size-4 ml-1" />
               </Button>
             </div>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ShieldCheck } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -161,6 +162,7 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
 
 export default async function CertificationDetailPage({ params }: { params: Params }) {
   await requireAdminUser();
+  const t = await getTranslations("certifications.pages.detail");
 
   const { id } = await params;
   const certificationId = toPositiveNumber(id);
@@ -208,11 +210,11 @@ export default async function CertificationDetailPage({ params }: { params: Para
 
   return (
     <div className="space-y-6">
-      <PageHeader title={name} description="Detalle de certificación">
+      <PageHeader title={name} description={t("description")}>
         <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/certifications">
-            <ArrowLeft className="mr-2 size-4" />
-            Volver
+            <ArrowLeft className="size-4" />
+            {t("back")}
           </Link>
         </Button>
       </PageHeader>
@@ -229,8 +231,8 @@ export default async function CertificationDetailPage({ params }: { params: Para
               <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
             )}
           </div>
-          <Badge variant={isActive ? "default" : "outline"}>
-            {isActive ? "Activo" : "Inactivo"}
+          <Badge variant={isActive ? "soft-success" : "outline"}>
+            {isActive ? t("statusActive") : t("statusInactive")}
           </Badge>
         </CardContent>
       </Card>
@@ -238,16 +240,16 @@ export default async function CertificationDetailPage({ params }: { params: Para
       {/* Info card */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Información general</CardTitle>
+          <CardTitle className="text-base">{t("infoCardTitle")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <InfoRow label="ID" value={certificationId} />
+          <InfoRow label={t("labelId")} value={certificationId} />
           <InfoRow
-            label="Duración"
-            value={durationWeeks != null ? `${durationWeeks} semanas` : "—"}
+            label={t("labelDuration")}
+            value={durationWeeks != null ? t("durationWeeks", { count: durationWeeks }) : "—"}
           />
-          <InfoRow label="Módulos" value={modulesCount ?? "—"} />
-          <InfoRow label="Secciones totales" value={totalSections > 0 ? totalSections : "—"} />
+          <InfoRow label={t("labelModules")} value={modulesCount ?? "—"} />
+          <InfoRow label={t("labelSections")} value={totalSections > 0 ? totalSections : "—"} />
         </CardContent>
       </Card>
 
@@ -255,10 +257,10 @@ export default async function CertificationDetailPage({ params }: { params: Para
       <Tabs defaultValue="modules">
         <TabsList>
           <TabsTrigger value="modules">
-            Módulos y secciones
+            {t("tabModules")}
           </TabsTrigger>
           <TabsTrigger value="users">
-            Usuarios inscritos
+            {t("tabUsers")}
             {enrollments.length > 0 && (
               <Badge variant="secondary" className="ml-2">
                 {enrollments.length}
@@ -270,7 +272,7 @@ export default async function CertificationDetailPage({ params }: { params: Para
         <TabsContent value="modules" className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Estructura del programa</CardTitle>
+              <CardTitle className="text-base">{t("programCardTitle")}</CardTitle>
             </CardHeader>
             <CardContent>
               <CertificationModulesTree modules={modules} />
@@ -281,11 +283,11 @@ export default async function CertificationDetailPage({ params }: { params: Para
         <TabsContent value="users" className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Usuarios inscritos</CardTitle>
+              <CardTitle className="text-base">{t("enrolledCardTitle")}</CardTitle>
             </CardHeader>
             <CardContent>
               {enrollmentsError ? (
-                <EndpointErrorBanner state="missing" detail={enrollmentsError} />
+                <EndpointErrorBanner state="missing" detail={t("enrollmentsEndpointMissing")} />
               ) : (
                 <EnrolledUsersPanel
                   enrollments={enrollments}

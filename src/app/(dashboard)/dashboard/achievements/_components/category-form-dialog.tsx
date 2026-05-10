@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useFormStatus } from "react-dom";
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -45,7 +46,7 @@ function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending}>
-      {pending && <Loader2 className="mr-2 size-4 animate-spin" />}
+      {pending && <Loader2 className="size-4 animate-spin" />}
       {label}
     </Button>
   );
@@ -59,6 +60,7 @@ export function CategoryFormDialog({
   formAction,
   actionState,
 }: Props) {
+  const t = useTranslations("achievements.forms.category");
   const isEdit = mode === "edit";
 
   const [active, setActive] = useState<boolean>(
@@ -84,12 +86,10 @@ export function CategoryFormDialog({
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? "Editar categoría" : "Nueva categoría"}
+            {isEdit ? t("titleEdit") : t("titleCreate")}
           </DialogTitle>
           <DialogDescription>
-            {isEdit
-              ? "Modifica los datos de la categoría de logros."
-              : "Completa los campos para crear una nueva categoría de logros."}
+            {isEdit ? t("descriptionEdit") : t("descriptionCreate")}
           </DialogDescription>
         </DialogHeader>
 
@@ -108,12 +108,12 @@ export function CategoryFormDialog({
           {/* Name */}
           <div className="space-y-2">
             <Label htmlFor="cat-name">
-              Nombre <span className="ml-0.5 text-destructive">*</span>
+              {t("labelName")} <span className="ml-0.5 text-destructive">*</span>
             </Label>
             <Input
               id="cat-name"
               name="name"
-              placeholder="Ej. Participación"
+              placeholder={t("placeholderName")}
               defaultValue={toText(item?.name)}
               required
             />
@@ -121,12 +121,12 @@ export function CategoryFormDialog({
 
           {/* Description */}
           <div className="space-y-2">
-            <Label htmlFor="cat-description">Descripción</Label>
+            <Label htmlFor="cat-description">{t("labelDescription")}</Label>
             <Textarea
               id="cat-description"
               name="description"
               rows={3}
-              placeholder="Describe esta categoría..."
+              placeholder={t("placeholderDescription")}
               defaultValue={toText(item?.description)}
               className="min-h-[80px] resize-none"
             />
@@ -135,28 +135,28 @@ export function CategoryFormDialog({
           {/* Icon */}
           <div className="space-y-2">
             <Label htmlFor="cat-icon">
-              Icono{" "}
+              {t("labelIcon")}{" "}
               <span className="text-xs font-normal text-muted-foreground">
-                (nombre de ícono lucide-react, ej: trophy)
+                {t("labelIconHint")}
               </span>
             </Label>
             <Input
               id="cat-icon"
               name="icon"
-              placeholder="trophy"
+              placeholder={t("placeholderIcon")}
               defaultValue={toText(item?.icon)}
             />
           </div>
 
           {/* Display order */}
           <div className="space-y-2">
-            <Label htmlFor="cat-order">Orden de visualización</Label>
+            <Label htmlFor="cat-order">{t("labelOrder")}</Label>
             <Input
               id="cat-order"
               name="display_order"
               type="number"
               min={0}
-              placeholder="0"
+              placeholder={t("placeholderOrder")}
               defaultValue={displayOrder !== null ? String(displayOrder) : ""}
             />
           </div>
@@ -169,7 +169,7 @@ export function CategoryFormDialog({
               onCheckedChange={setActive}
             />
             <Label htmlFor="cat-active" className="cursor-pointer">
-              Categoría activa
+              {t("labelActive")}
             </Label>
           </div>
 
@@ -179,9 +179,9 @@ export function CategoryFormDialog({
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
-              Cancelar
+              {t("cancelButton")}
             </Button>
-            <SubmitButton label={isEdit ? "Guardar cambios" : "Crear categoría"} />
+            <SubmitButton label={isEdit ? t("submitEdit") : t("submitCreate")} />
           </DialogFooter>
         </form>
       </DialogContent>

@@ -209,7 +209,7 @@ export function YearEndClientPage({ ecclesiasticalYears }: YearEndClientPageProp
               onClick={handlePreview}
               disabled={!selectedYearId || isPreviewing}
             >
-              <Search className="mr-2 size-4" />
+              <Search className="size-4" />
               {isPreviewing ? "Cargando..." : "Vista previa"}
             </Button>
           </div>
@@ -274,7 +274,7 @@ export function YearEndClientPage({ ecclesiasticalYears }: YearEndClientPageProp
                 onClick={() => setConfirmOpen(true)}
                 disabled={isClosing}
               >
-                <AlertTriangle className="mr-2 size-4" />
+                <AlertTriangle className="size-4" />
                 Cerrar año
               </Button>
             </div>

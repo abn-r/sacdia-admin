@@ -65,7 +65,7 @@ export function CamporeeDetailTabs({
   return (
     <Tabs defaultValue="info">
       <TabsList>
-        <TabsTrigger value="info">Informacion</TabsTrigger>
+        <TabsTrigger value="info">Información</TabsTrigger>
 
         <TabsTrigger value="members">
           Miembros

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, Trophy } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -26,13 +27,7 @@ import { MONTH_NAMES } from "@/lib/constants";
 import type { AdminMomPage, AdminMomItem } from "@/lib/api/member-of-month";
 import type { ClubType } from "@/lib/api/catalogs";
 import type { LocalField } from "@/lib/api/geography";
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatPeriod(month: number, year: number): string {
-  const date = new Date(year, month - 1, 1);
-  return new Intl.DateTimeFormat("es-MX", { month: "long", year: "numeric" }).format(date);
-}
+import { useFormatDate, useFormatNumber } from "@/lib/format-locale";
 
 function getInitials(name: string | null): string {
   if (!name) return "?";
@@ -45,10 +40,11 @@ function getInitials(name: string | null): string {
 }
 
 function NotifiedBadge({ notified }: { notified: boolean }) {
+  const t = useTranslations("member_of_month.supervision");
   if (notified) {
-    return <Badge variant="success">Notificado</Badge>;
+    return <Badge variant="success">{t("badgeNotified")}</Badge>;
   }
-  return <Badge variant="secondary">Pendiente</Badge>;
+  return <Badge variant="secondary">{t("badgePending")}</Badge>;
 }
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -85,7 +81,10 @@ export function MemberOfMonthSupervisionClient({
   localFields,
   searchParams,
 }: MemberOfMonthSupervisionClientProps) {
+  const t = useTranslations("member_of_month.supervision");
   const router = useRouter();
+  const formatDate = useFormatDate();
+  const formatNumber = useFormatNumber();
 
   const currentPage = Number(searchParams.page ?? "1");
   const { total, limit, items } = initialData;
@@ -132,10 +131,10 @@ export function MemberOfMonthSupervisionClient({
           onValueChange={(v) => handleFilter("club_type_id", v)}
         >
           <SelectTrigger className="w-44">
-            <SelectValue placeholder="Tipo de club" />
+            <SelectValue placeholder={t("filterClubTypePlaceholder")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos los tipos</SelectItem>
+            <SelectItem value="all">{t("filterClubTypeAll")}</SelectItem>
             {clubTypes.map((ct) => (
               <SelectItem key={ct.club_type_id} value={String(ct.club_type_id)}>
                 {ct.name}
@@ -150,10 +149,10 @@ export function MemberOfMonthSupervisionClient({
           onValueChange={(v) => handleFilter("local_field_id", v)}
         >
           <SelectTrigger className="w-48">
-            <SelectValue placeholder="Campo local" />
+            <SelectValue placeholder={t("filterLocalFieldPlaceholder")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos los campos</SelectItem>
+            <SelectItem value="all">{t("filterLocalFieldAll")}</SelectItem>
             {localFields.map((lf) => (
               <SelectItem key={lf.local_field_id} value={String(lf.local_field_id)}>
                 {lf.name}
@@ -168,7 +167,7 @@ export function MemberOfMonthSupervisionClient({
           onValueChange={(v) => handleFilter("year", v)}
         >
           <SelectTrigger className="w-28">
-            <SelectValue placeholder="Año" />
+            <SelectValue placeholder={t("filterYearPlaceholder")} />
           </SelectTrigger>
           <SelectContent>
             {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(
@@ -187,10 +186,10 @@ export function MemberOfMonthSupervisionClient({
           onValueChange={(v) => handleFilter("month", v)}
         >
           <SelectTrigger className="w-36">
-            <SelectValue placeholder="Mes" />
+            <SelectValue placeholder={t("filterMonthPlaceholder")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos los meses</SelectItem>
+            <SelectItem value="all">{t("filterMonthAll")}</SelectItem>
             {monthOptions.map((m) => (
               <SelectItem key={m.value} value={m.value}>
                 {m.label}
@@ -205,12 +204,12 @@ export function MemberOfMonthSupervisionClient({
           onValueChange={(v) => handleFilter("notified", v)}
         >
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="Notificado" />
+            <SelectValue placeholder={t("filterNotifiedPlaceholder")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Cualquiera</SelectItem>
-            <SelectItem value="true">Notificado</SelectItem>
-            <SelectItem value="false">Pendiente</SelectItem>
+            <SelectItem value="all">{t("filterNotifiedAll")}</SelectItem>
+            <SelectItem value="true">{t("filterNotifiedTrue")}</SelectItem>
+            <SelectItem value="false">{t("filterNotifiedFalse")}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -220,10 +219,10 @@ export function MemberOfMonthSupervisionClient({
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center">
           <Trophy className="mb-3 size-10 text-muted-foreground/50" />
           <p className="text-sm font-medium text-muted-foreground">
-            Sin ganadores para los filtros seleccionados.
+            {t("emptyTitle")}
           </p>
           <p className="mt-1 text-xs text-muted-foreground/70">
-            Ajusta los filtros para ver resultados.
+            {t("emptyHint")}
           </p>
         </div>
       ) : (
@@ -231,15 +230,15 @@ export function MemberOfMonthSupervisionClient({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Miembro</TableHead>
-                <TableHead>Sección</TableHead>
-                <TableHead>Tipo de club</TableHead>
-                <TableHead>Club</TableHead>
-                <TableHead>Campo Local</TableHead>
-                <TableHead>Período</TableHead>
-                <TableHead className="text-right">Puntos</TableHead>
-                <TableHead>Notificado</TableHead>
-                <TableHead className="text-right">Acciones</TableHead>
+                <TableHead>{t("tableColMember")}</TableHead>
+                <TableHead>{t("tableColSection")}</TableHead>
+                <TableHead>{t("tableColClubType")}</TableHead>
+                <TableHead>{t("tableColClub")}</TableHead>
+                <TableHead>{t("tableColLocalField")}</TableHead>
+                <TableHead>{t("tableColPeriod")}</TableHead>
+                <TableHead className="text-right">{t("tableColPoints")}</TableHead>
+                <TableHead>{t("tableColNotified")}</TableHead>
+                <TableHead className="text-right">{t("tableColActions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -268,10 +267,10 @@ export function MemberOfMonthSupervisionClient({
                   <TableCell>{item.club_name ?? "—"}</TableCell>
                   <TableCell>{item.local_field ?? "—"}</TableCell>
                   <TableCell className="capitalize">
-                    {formatPeriod(item.month, item.year)}
+                    {formatDate(new Date(item.year, item.month - 1, 1), { month: "long", year: "numeric" })}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
-                    {item.total_points.toLocaleString("es-MX")}
+                    {formatNumber(item.total_points)}
                   </TableCell>
                   <TableCell>
                     <NotifiedBadge notified={item.notified} />
@@ -291,7 +290,7 @@ export function MemberOfMonthSupervisionClient({
                           });
                         }}
                       >
-                        Re-evaluar
+                        {t("reevaluateButton")}
                       </Button>
                     </div>
                   </TableCell>
@@ -306,9 +305,7 @@ export function MemberOfMonthSupervisionClient({
       {items.length > 0 && (
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <span>
-            {total === 0
-              ? "Sin resultados"
-              : `${total} ${total === 1 ? "ganador" : "ganadores"} en total`}
+            {t("paginationTotal", { total })}
           </span>
           <div className="flex items-center gap-2">
             <Button
@@ -318,10 +315,10 @@ export function MemberOfMonthSupervisionClient({
               onClick={() => handlePage(currentPage - 1)}
             >
               <ChevronLeft className="size-4" />
-              Anterior
+              {t("paginationPrev")}
             </Button>
             <span className="tabular-nums">
-              Página {currentPage} de {totalPages}
+              {t("paginationPage", { page: currentPage, totalPages })}
             </span>
             <Button
               variant="outline"
@@ -329,7 +326,7 @@ export function MemberOfMonthSupervisionClient({
               disabled={currentPage * limit >= total}
               onClick={() => handlePage(currentPage + 1)}
             >
-              Siguiente
+              {t("paginationNext")}
               <ChevronRight className="size-4" />
             </Button>
           </div>

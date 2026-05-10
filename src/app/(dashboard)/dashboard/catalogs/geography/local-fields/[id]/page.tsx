@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -53,6 +54,7 @@ export default async function LocalFieldDetailPage({
   params: Params;
   searchParams: SearchParams;
 }) {
+  const t = await getTranslations("catalogs.pages.localFieldsDetail");
   await requireAdminUser();
 
   const { id } = await params;
@@ -87,17 +89,17 @@ export default async function LocalFieldDetailPage({
       <PageHeader title={fieldName}>
         <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/catalogs/geography/local-fields">
-            <ArrowLeft className="mr-2 size-4" />
-            Volver
+            <ArrowLeft className="size-4" />
+            {t("back")}
           </Link>
         </Button>
       </PageHeader>
 
       <Tabs defaultValue={defaultTab}>
         <TabsList>
-          <TabsTrigger value="view">Información</TabsTrigger>
+          <TabsTrigger value="view">{t("tabInfo")}</TabsTrigger>
           <TabsTrigger value="scoring-categories">
-            Categorías de Puntuación
+            {t("tabScoringCategories")}
           </TabsTrigger>
         </TabsList>
 
@@ -105,18 +107,18 @@ export default async function LocalFieldDetailPage({
           <Card>
             <CardHeader>
               <CardTitle className="text-base">
-                Datos del campo local
+                {t("cardTitle")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <InfoRow label="Nombre" value={localField.name} />
-              <InfoRow label="Abreviatura" value={localField.abbreviation} />
+              <InfoRow label={t("labelName")} value={localField.name} />
+              <InfoRow label={t("labelAbbreviation")} value={localField.abbreviation} />
               <InfoRow
-                label="Unión"
+                label={t("labelUnion")}
                 value={localField.union?.name ?? localField.union_id}
               />
               <InfoRow
-                label="Estado"
+                label={t("labelStatus")}
                 value={
                   <Badge
                     variant={
@@ -124,7 +126,7 @@ export default async function LocalFieldDetailPage({
                     }
                     className="text-xs"
                   >
-                    {localField.active !== false ? "Activo" : "Inactivo"}
+                    {localField.active !== false ? t("statusActive") : t("statusInactive")}
                   </Badge>
                 }
               />

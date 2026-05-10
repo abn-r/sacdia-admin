@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft, ShieldCheck } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { redirect, notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
@@ -17,6 +18,7 @@ interface EditRolePageProps {
 }
 
 export default async function EditRolePage({ params }: EditRolePageProps) {
+  const t = await getTranslations("rbac.pages.rolesDetail");
   const { roleId } = await params;
 
   const user = await requireAdminUser();
@@ -37,7 +39,7 @@ export default async function EditRolePage({ params }: EditRolePageProps) {
       listPermissions(),
     ]);
   } catch (error) {
-    loadError = error instanceof ApiError ? error.message : "Error al cargar el rol";
+    loadError = error instanceof ApiError ? error.message : t("loadError");
   }
 
   // 404 if role not found
@@ -54,13 +56,13 @@ export default async function EditRolePage({ params }: EditRolePageProps) {
     <div className="mx-auto max-w-3xl space-y-6">
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
-          <Link href="/dashboard/rbac/roles" aria-label="Volver a roles">
+          <Link href="/dashboard/rbac/roles" aria-label={t("backAriaLabel")}>
             <ArrowLeft className="size-4" />
           </Link>
         </Button>
         <PageHeader
-          title={role ? `Editar rol: ${role.role_name}` : "Editar rol"}
-          description="Modifica la descripción y los permisos asignados."
+          title={role ? t("editTitle", { name: role.role_name }) : t("editTitleFallback")}
+          description={t("description")}
           className="flex-1"
         />
       </div>
@@ -70,7 +72,7 @@ export default async function EditRolePage({ params }: EditRolePageProps) {
           <EndpointErrorBanner state="missing" detail={loadError} />
           <EmptyState
             icon={ShieldCheck}
-            title="No se pudo cargar el rol"
+            title={t("emptyLoadTitle")}
             description={loadError}
           />
         </>

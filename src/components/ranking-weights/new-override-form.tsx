@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   Select,
   SelectContent,
@@ -26,6 +27,7 @@ export function NewOverrideForm({
   existingClubTypeIds,
   onCreated,
 }: NewOverrideFormProps) {
+  const t = useTranslations("rankingWeights.override");
   const [types, setTypes] = useState<ClubType[]>([]);
   const [selected, setSelected] = useState<number | null>(null);
 
@@ -47,12 +49,12 @@ export function NewOverrideForm({
         onValueChange={(v) => setSelected(parseInt(v, 10))}
       >
         <SelectTrigger>
-          <SelectValue placeholder="Seleccionar tipo de club" />
+          <SelectValue placeholder={t("selectPlaceholder")} />
         </SelectTrigger>
         <SelectContent>
           {available.length === 0 ? (
             <SelectItem value="__none" disabled>
-              Sin tipos disponibles
+              {t("noTypesAvailable")}
             </SelectItem>
           ) : (
             available.map((t) => (
@@ -75,7 +77,7 @@ export function NewOverrideForm({
             camporee_weight: 15,
             evidence_weight: 10,
           }}
-          submitLabel="Crear override"
+          submitLabel={t("createLabel")}
           onSubmit={async (values) => {
             await createRankingWeights({
               club_type_id: selected,

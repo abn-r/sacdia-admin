@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -133,6 +134,11 @@ export function ScoringCategoryDialog({
           <DialogTitle>
             {isEdit ? "Editar categoría" : "Nueva categoría de puntuación"}
           </DialogTitle>
+          <DialogDescription>
+            {isEdit
+              ? "Modificá el nombre y los puntos máximos de la categoría."
+              : "Completá el formulario para crear una nueva categoría de puntuación."}
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -193,7 +199,7 @@ export function ScoringCategoryDialog({
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
-                  <Loader2 className="mr-2 size-4 animate-spin" />
+                  <Loader2 className="size-4 animate-spin" />
                   Guardando...
                 </>
               ) : isEdit ? (

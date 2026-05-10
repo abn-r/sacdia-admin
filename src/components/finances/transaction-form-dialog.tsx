@@ -16,8 +16,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -40,21 +47,21 @@ import {
 
 const formSchema = z.object({
   year: z.coerce
-    .number({ error: "Ingresá un año válido" })
-    .min(2000, "Año inválido")
-    .max(2100, "Año inválido"),
+    .number()
+    .min(2000)
+    .max(2100),
   month: z.coerce
-    .number({ error: "Ingresá un mes válido" })
-    .min(1, "Mes inválido")
-    .max(12, "Mes inválido"),
+    .number()
+    .min(1)
+    .max(12),
   amount: z.coerce
-    .number({ error: "Ingresá un monto válido" })
-    .positive("El monto debe ser positivo"),
+    .number()
+    .positive(),
   description: z.string().optional(),
   finance_category_id: z.coerce
-    .number({ error: "Seleccioná una categoría" })
-    .min(1, "Seleccioná una categoría"),
-  finance_date: z.string().min(1, "Ingresá la fecha"),
+    .number()
+    .min(1),
+  finance_date: z.string().min(1),
   club_type_id: z.coerce.number().optional(),
   club_section_id: z.coerce.number().optional(),
 });
@@ -63,20 +70,20 @@ type FormValues = z.infer<typeof formSchema>;
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const MONTHS = [
-  { value: 1, label: "Enero" },
-  { value: 2, label: "Febrero" },
-  { value: 3, label: "Marzo" },
-  { value: 4, label: "Abril" },
-  { value: 5, label: "Mayo" },
-  { value: 6, label: "Junio" },
-  { value: 7, label: "Julio" },
-  { value: 8, label: "Agosto" },
-  { value: 9, label: "Septiembre" },
-  { value: 10, label: "Octubre" },
-  { value: 11, label: "Noviembre" },
-  { value: 12, label: "Diciembre" },
-];
+const MONTH_KEYS = [
+  "january",
+  "february",
+  "march",
+  "april",
+  "may",
+  "june",
+  "july",
+  "august",
+  "september",
+  "october",
+  "november",
+  "december",
+] as const;
 
 const currentYear = new Date().getFullYear();
 const YEARS = Array.from({ length: 6 }, (_, i) => currentYear - 2 + i);
@@ -124,18 +131,11 @@ export function TransactionFormDialog({
       .then(setCategories)
       .catch(() => toast.error(t("toasts.categories_load_failed")))
       .finally(() => setLoadingCategories(false));
-  }, [open]);
+  }, [open, t]);
 
   const today = new Date().toISOString().split("T")[0];
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm<FormValues>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema as z.ZodType<FormValues, FormValues>),
     defaultValues: {
       year: currentYear,
@@ -152,7 +152,7 @@ export function TransactionFormDialog({
   // Reset when dialog opens/finance changes
   useEffect(() => {
     if (open) {
-      reset({
+      form.reset({
         year: finance?.year ?? currentYear,
         month: finance?.month ?? new Date().getMonth() + 1,
         amount: finance ? finance.amount / 100 : undefined,
@@ -167,11 +167,6 @@ export function TransactionFormDialog({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, finance]);
-
-  const selectedSectionId = watch("club_section_id");
-  const selectedCategoryId = watch("finance_category_id");
-  const selectedYear = watch("year");
-  const selectedMonth = watch("month");
 
   const onSubmit: SubmitHandler<FormValues> = async (values) => {
     setIsSubmitting(true);
@@ -209,225 +204,275 @@ export function TransactionFormDialog({
         err instanceof Error
           ? err.message
           : isEdit
-            ? "No se pudo actualizar el movimiento"
-            : "No se pudo crear el movimiento";
+            ? t("errors.update_transaction_failed")
+            : t("errors.create_transaction_failed");
       toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Editar movimiento" : "Nuevo movimiento"}</DialogTitle>
+          <DialogTitle>
+            {isEdit ? t("form.titleEdit") : t("form.titleNew")}
+          </DialogTitle>
           <DialogDescription>
-            {isEdit
-              ? "Modificá los datos del movimiento financiero."
-              : "Registrá un nuevo ingreso o egreso del club."}
+            {isEdit ? t("form.descriptionEdit") : t("form.descriptionNew")}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-          {/* Categoría */}
-          <div className="space-y-1.5">
-            <Label htmlFor="finance_category_id">
-              Categoría{" "}
-              <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
-            </Label>
-            <Select
-              value={selectedCategoryId?.toString() ?? ""}
-              onValueChange={(v) => setValue("finance_category_id", Number(v))}
-              disabled={loadingCategories}
-            >
-              <SelectTrigger id="finance_category_id" aria-required="true">
-                <SelectValue
-                  placeholder={
-                    loadingCategories ? "Cargando categorías..." : "Seleccioná una categoría"
-                  }
-                />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((cat) => (
-                  <SelectItem
-                    key={cat.finance_category_id}
-                    value={cat.finance_category_id.toString()}
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
+            {/* Categoría */}
+            <FormField
+              control={form.control}
+              name="finance_category_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {t("form.categoryLabel")}{" "}
+                    <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
+                  </FormLabel>
+                  <Select
+                    value={field.value?.toString() ?? ""}
+                    onValueChange={(v) => field.onChange(Number(v))}
+                    disabled={loadingCategories}
                   >
-                    {cat.name} — {cat.type === 0 ? "Ingreso" : "Egreso"}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.finance_category_id && (
-              <p className="text-xs text-destructive">
-                {errors.finance_category_id.message}
-              </p>
-            )}
-          </div>
-
-          {/* Fecha */}
-          <div className="space-y-1.5">
-            <Label htmlFor="finance_date">
-              Fecha{" "}
-              <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
-            </Label>
-            <Input
-              id="finance_date"
-              type="date"
-              aria-required="true"
-              {...register("finance_date")}
-            />
-            {errors.finance_date && (
-              <p className="text-xs text-destructive">{errors.finance_date.message}</p>
-            )}
-          </div>
-
-          {/* Monto */}
-          <div className="space-y-1.5">
-            <Label htmlFor="amount">
-              Monto (ARS){" "}
-              <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
-            </Label>
-            <Input
-              id="amount"
-              type="number"
-              min="0.01"
-              step="0.01"
-              placeholder="0.00"
-              aria-required="true"
-              {...register("amount")}
-            />
-            {errors.amount && (
-              <p className="text-xs text-destructive">{errors.amount.message}</p>
-            )}
-          </div>
-
-          {/* Año y Mes */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="year">
-                Año{" "}
-                <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
-              </Label>
-              <Select
-                value={selectedYear?.toString() ?? ""}
-                onValueChange={(v) => setValue("year", Number(v))}
-                disabled={isEdit}
-              >
-                <SelectTrigger id="year" aria-required="true">
-                  <SelectValue placeholder="Año" />
-                </SelectTrigger>
-                <SelectContent>
-                  {YEARS.map((y) => (
-                    <SelectItem key={y} value={y.toString()}>
-                      {y}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.year && (
-                <p className="text-xs text-destructive">{errors.year.message}</p>
+                    <FormControl>
+                      <SelectTrigger aria-required="true">
+                        <SelectValue
+                          placeholder={
+                            loadingCategories
+                              ? t("form.categoryLoading")
+                              : t("form.categoryPlaceholder")
+                          }
+                        />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {categories.map((cat) => (
+                        <SelectItem
+                          key={cat.finance_category_id}
+                          value={cat.finance_category_id.toString()}
+                        >
+                          {cat.name} —{" "}
+                          {cat.type === 0
+                            ? t("categoryType.income")
+                            : t("categoryType.expense")}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="month">
-                Mes{" "}
-                <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
-              </Label>
-              <Select
-                value={selectedMonth?.toString() ?? ""}
-                onValueChange={(v) => setValue("month", Number(v))}
-                disabled={isEdit}
-              >
-                <SelectTrigger id="month" aria-required="true">
-                  <SelectValue placeholder="Mes" />
-                </SelectTrigger>
-                <SelectContent>
-                  {MONTHS.map((m) => (
-                    <SelectItem key={m.value} value={m.value.toString()}>
-                      {m.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.month && (
-                <p className="text-xs text-destructive">{errors.month.message}</p>
-              )}
-            </div>
-          </div>
-
-          {/* Sección del club (solo al crear) */}
-          {!isEdit && (
-            <div className="space-y-1.5">
-              <Label htmlFor="club_section_id">
-                Sección del club{" "}
-                <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
-              </Label>
-              <Select
-                value={selectedSectionId?.toString() ?? ""}
-                onValueChange={(v) => {
-                  const sectionId = Number(v);
-                  setValue("club_section_id", sectionId);
-                  const section = sections.find(
-                    (s) => s.club_section_id === sectionId,
-                  );
-                  if (section) {
-                    setValue("club_type_id", section.club_type_id);
-                  }
-                }}
-              >
-                <SelectTrigger id="club_section_id" aria-required="true">
-                  <SelectValue placeholder="Seleccioná una sección" />
-                </SelectTrigger>
-                <SelectContent>
-                  {sections.length > 0 ? (
-                    sections.map((s) => (
-                      <SelectItem
-                        key={s.club_section_id}
-                        value={s.club_section_id.toString()}
-                      >
-                        {s.name}
-                        {s.club_type?.name ? ` (${s.club_type.name})` : ""}
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <SelectItem value="0" disabled>
-                      No hay secciones disponibles
-                    </SelectItem>
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-
-          {/* Descripción */}
-          <div className="space-y-1.5">
-            <Label htmlFor="description">Descripción</Label>
-            <Textarea
-              id="description"
-              placeholder="Descripción del movimiento (opcional)"
-              className="min-h-[80px] resize-none"
-              {...register("description")}
             />
-          </div>
 
-          <DialogFooter className="pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
-            >
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={isSubmitting || loadingCategories}>
-              {isSubmitting && <Loader2 aria-hidden="true" className="size-4 animate-spin" />}
-              {isEdit ? "Guardar cambios" : "Crear movimiento"}
-            </Button>
-          </DialogFooter>
-        </form>
+            {/* Fecha */}
+            <FormField
+              control={form.control}
+              name="finance_date"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {t("form.dateLabel")}{" "}
+                    <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="date"
+                      aria-required="true"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Monto */}
+            <FormField
+              control={form.control}
+              name="amount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {t("form.amountLabel")}{" "}
+                    <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min="0.01"
+                      step="0.01"
+                      placeholder="0.00"
+                      aria-required="true"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Año y Mes */}
+            <div className="grid grid-cols-2 gap-3">
+              <FormField
+                control={form.control}
+                name="year"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      {t("form.yearLabel")}{" "}
+                      <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
+                    </FormLabel>
+                    <Select
+                      value={field.value?.toString() ?? ""}
+                      onValueChange={(v) => field.onChange(Number(v))}
+                      disabled={isEdit}
+                    >
+                      <FormControl>
+                        <SelectTrigger aria-required="true">
+                          <SelectValue placeholder={t("form.yearPlaceholder")} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {YEARS.map((y) => (
+                          <SelectItem key={y} value={y.toString()}>
+                            {y}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="month"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      {t("form.monthLabel")}{" "}
+                      <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
+                    </FormLabel>
+                    <Select
+                      value={field.value?.toString() ?? ""}
+                      onValueChange={(v) => field.onChange(Number(v))}
+                      disabled={isEdit}
+                    >
+                      <FormControl>
+                        <SelectTrigger aria-required="true">
+                          <SelectValue placeholder={t("form.monthPlaceholder")} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {MONTH_KEYS.map((key, index) => (
+                          <SelectItem key={key} value={String(index + 1)}>
+                            {t(`months.${key}`)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Sección del club (solo al crear) */}
+            {!isEdit && (
+              <FormField
+                control={form.control}
+                name="club_section_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      {t("form.sectionLabel")}{" "}
+                      <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
+                    </FormLabel>
+                    <Select
+                      value={field.value?.toString() ?? ""}
+                      onValueChange={(v) => {
+                        const sectionId = Number(v);
+                        field.onChange(sectionId);
+                        const section = sections.find(
+                          (s) => s.club_section_id === sectionId,
+                        );
+                        if (section) {
+                          form.setValue("club_type_id", section.club_type_id);
+                        }
+                      }}
+                    >
+                      <FormControl>
+                        <SelectTrigger aria-required="true">
+                          <SelectValue placeholder={t("form.sectionPlaceholder")} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {sections.length > 0 ? (
+                          sections.map((s) => (
+                            <SelectItem
+                              key={s.club_section_id}
+                              value={s.club_section_id.toString()}
+                            >
+                              {s.name}
+                              {s.club_type?.name ? ` (${s.club_type.name})` : ""}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem value="0" disabled>
+                            {t("form.sectionEmpty")}
+                          </SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
+            {/* Descripción */}
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("form.descriptionLabel")}</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder={t("form.descriptionPlaceholder")}
+                      className="min-h-[80px] resize-none"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <DialogFooter className="pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={isSubmitting}
+              >
+                {t("form.cancelButton")}
+              </Button>
+              <Button type="submit" disabled={isSubmitting || loadingCategories}>
+                {isSubmitting && <Loader2 aria-hidden="true" className="size-4 animate-spin" />}
+                {isEdit ? t("form.saveButton") : t("form.createButton")}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

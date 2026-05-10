@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -21,13 +21,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { pipelineReject } from "@/lib/api/investiture";
 import { ApiError } from "@/lib/api/client";
 
-// ─── Schema ───────────────────────────────────────────────────────────────────
+// ─── Schema factory ───────────────────────────────────────────────────────────
 
-const schema = z.object({
-  reason: z.string().min(1, "El motivo de rechazo es obligatorio"),
-});
+function buildSchema(t: ReturnType<typeof useTranslations<"investiture.validation">>) {
+  return z.object({
+    reason: z.string().min(1, t("reason_required")),
+  });
+}
 
-type FormValues = z.infer<typeof schema>;
+type FormValues = z.infer<ReturnType<typeof buildSchema>>;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -49,7 +51,9 @@ export function PipelineRejectDialog({
   onSuccess,
 }: PipelineRejectDialogProps) {
   const t = useTranslations("investiture");
+  const tVal = useTranslations("investiture.validation");
   const [isPending, setIsPending] = useState(false);
+  const schema = useMemo(() => buildSchema(tVal), [tVal]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -86,20 +90,19 @@ export function PipelineRejectDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <XCircle className="size-5 text-destructive" />
-            Rechazar investidura
+            {t("pipelineRejectDialog.title")}
           </DialogTitle>
           <DialogDescription>
-            Se rechazará la solicitud de investidura de {memberName}. El motivo
-            es obligatorio.
+            {t("pipelineRejectDialog.description", { memberName })}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="reason">Motivo de rechazo *</Label>
+            <Label htmlFor="reason">{t("pipelineRejectDialog.reasonLabel")}</Label>
             <Textarea
               id="reason"
-              placeholder="Describe el motivo del rechazo..."
+              placeholder={t("pipelineRejectDialog.reasonPlaceholder")}
               rows={3}
               {...form.register("reason")}
               disabled={isPending}
@@ -121,11 +124,11 @@ export function PipelineRejectDialog({
               onClick={() => handleClose(false)}
               disabled={isPending}
             >
-              Cancelar
+              {t("pipelineRejectDialog.cancel")}
             </Button>
             <Button type="submit" variant="destructive" disabled={isPending}>
-              {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
-              Rechazar
+              {isPending && <Loader2 className="size-4 animate-spin" />}
+              {t("pipelineRejectDialog.confirm")}
             </Button>
           </DialogFooter>
         </form>

@@ -34,8 +34,27 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import dynamic from "next/dynamic";
+import { Skeleton } from "@/components/ui/skeleton";
 import { AddMemberDialog } from "@/components/units/add-member-dialog";
-import { WeeklyRecordsPanel } from "@/components/units/weekly-records-panel";
+
+const WeeklyRecordsPanel = dynamic(
+  () =>
+    import("@/components/units/weekly-records-panel").then((m) => ({
+      default: m.WeeklyRecordsPanel,
+    })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="space-y-3 pt-1">
+        <Skeleton className="h-9 w-40 rounded-md" />
+        <Skeleton className="h-12 w-full rounded-md" />
+        <Skeleton className="h-12 w-full rounded-md" />
+        <Skeleton className="h-12 w-full rounded-md" />
+      </div>
+    ),
+  }
+);
 import { useTranslations } from "next-intl";
 import { removeUnitMember, getUnitUserDisplayName } from "@/lib/api/units";
 import type { Unit, UnitMember } from "@/lib/api/units";
@@ -61,6 +80,7 @@ interface MemberRowProps {
 }
 
 function MemberRow({ member, onRemove }: MemberRowProps) {
+  const t = useTranslations("units_admin.a11y");
   const name = getUnitUserDisplayName(member.users ?? undefined);
 
   return (
@@ -80,6 +100,7 @@ function MemberRow({ member, onRemove }: MemberRowProps) {
             variant="ghost"
             className="size-7 text-muted-foreground hover:text-destructive"
             onClick={() => onRemove(member)}
+            aria-label={t("removeMember", { name })}
           >
             <UserMinus className="size-3.5" />
           </Button>
@@ -182,6 +203,7 @@ export function UnitDetailPanel({
                   size="icon-sm"
                   variant="ghost"
                   onClick={() => onEdit(unit)}
+                  aria-label={t("a11y.editUnit", { name: unit.name })}
                 >
                   <Pencil className="size-3.5" />
                 </Button>
@@ -196,6 +218,7 @@ export function UnitDetailPanel({
                   variant="ghost"
                   className="text-muted-foreground hover:text-destructive"
                   onClick={() => onDelete(unit)}
+                  aria-label={t("a11y.deleteUnit", { name: unit.name })}
                 >
                   <Trash2 className="size-3.5" />
                 </Button>

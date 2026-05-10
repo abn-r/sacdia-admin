@@ -5,7 +5,7 @@ import { apiRequest, apiRequestFromClient } from "@/lib/api/client";
 export type SystemConfigValueType = "string" | "number" | "boolean" | "json";
 
 export type SystemConfig = {
-  key: string;
+  config_key: string;
   config_value: string;
   description?: string | null;
   value_type?: SystemConfigValueType | string | null;

@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { Users } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   Table,
   TableBody,
@@ -39,12 +42,6 @@ function formatScorePct(value: number | null | undefined): string {
   return `${value.toFixed(1)}%`;
 }
 
-function formatInvestitureScore(value: number | null | undefined): string {
-  if (value === null || value === undefined) return "—";
-  if (value === 100) return "Investido";
-  return "En progreso";
-}
-
 // ─── Component ────────────────────────────────────────────────────────────────
 
 /**
@@ -62,12 +59,20 @@ export function SectionMembersTable({
   data,
   yearId,
 }: SectionMembersTableProps) {
+  const t = useTranslations("rankings.sectionMembersTable");
+
+  function formatInvestitureScore(value: number | null | undefined): string {
+    if (value === null || value === undefined) return "—";
+    if (value === 100) return t("investedLabel");
+    return t("inProgressLabel");
+  }
+
   if (data.length === 0) {
     return (
       <EmptyState
         icon={Users}
-        title="Sin miembros con ranking"
-        description="Esta sección no tiene miembros con ranking calculado."
+        title={t("emptyTitle")}
+        description={t("emptyDescription")}
       />
     );
   }
@@ -78,28 +83,28 @@ export function SectionMembersTable({
         <TableHeader>
           <TableRow>
             <TableHead className="h-9 w-14 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              #
+              {t("colRank")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Miembro
+              {t("colMember")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Composite
+              {t("colComposite")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Clase
+              {t("colClass")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Investidura
+              {t("colInvestiture")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Camporees
+              {t("colCamporee")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Categoría
+              {t("colCategory")}
             </TableHead>
             <TableHead className="h-9 px-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Acción
+              {t("colAction")}
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -162,7 +167,7 @@ export function SectionMembersTable({
                   <Link
                     href={`/dashboard/member-rankings/${item.enrollment_id}/breakdown?year_id=${yearId}`}
                   >
-                    Ver detalle
+                    {t("viewDetail")}
                   </Link>
                 </Button>
               </TableCell>

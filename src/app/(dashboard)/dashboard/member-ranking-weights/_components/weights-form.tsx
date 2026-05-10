@@ -290,7 +290,7 @@ export function WeightsForm({
               disabled={isEdit && defaultValues?.is_default}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Seleccionar ano" />
+                <SelectValue placeholder="Seleccionar año" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">{t("allYears")}</SelectItem>
@@ -313,7 +313,7 @@ export function WeightsForm({
 
           {isEdit && defaultValues?.is_default && (
             <p className="text-xs text-muted-foreground">
-              La fila por defecto no puede cambiar su tipo de club ni ano eclesiastico.
+              La fila por defecto no puede cambiar su tipo de club ni año eclesiástico.
             </p>
           )}
 

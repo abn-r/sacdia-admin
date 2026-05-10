@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/table";
 import type { AdminUser } from "@/lib/api/admin-users";
 import { DataTableShell } from "@/components/shared/data-table-shell";
+import { getTranslations } from "next-intl/server";
 
 function extractRoleNames(user: AdminUser): string[] {
   const roles: string[] = [];
@@ -66,12 +67,16 @@ interface UsersTableProps {
   showAdministrativeCompletion?: boolean;
 }
 
+type UsersTranslations = Awaited<ReturnType<typeof getTranslations<"users">>>;
+
 function UserMobileCard({
   user,
   showAdministrativeCompletion,
+  t,
 }: {
   user: AdminUser;
   showAdministrativeCompletion: boolean;
+  t: UsersTranslations;
 }) {
   const roleNames = extractRoleNames(user);
   const fullName = getFullName(user);
@@ -105,10 +110,12 @@ function UserMobileCard({
 
       <div className="mt-3 flex flex-wrap items-center gap-1.5">
         <Badge
-          variant={user.active !== false ? "default" : "outline"}
+          variant={user.active !== false ? "soft-success" : "outline"}
           className="text-xs"
         >
-          {user.active !== false ? "Activo" : "Inactivo"}
+          {user.active !== false
+            ? t("list.status.active")
+            : t("list.status.inactive")}
         </Badge>
         <Badge
           variant={user.access_app ? "default" : "outline"}
@@ -127,7 +134,9 @@ function UserMobileCard({
             variant={user.post_registration?.complete ? "default" : "outline"}
             className="text-xs"
           >
-            {user.post_registration?.complete ? "Post-registro" : "Pendiente"}
+            {user.post_registration?.complete
+              ? t("list.postReg.complete")
+              : t("list.postReg.pending")}
           </Badge>
         )}
       </div>
@@ -145,12 +154,12 @@ function UserMobileCard({
       <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
         {location && (
           <div className="col-span-2">
-            <dt className="text-muted-foreground">Ubicación</dt>
+            <dt className="text-muted-foreground">{t("list.fields.location")}</dt>
             <dd className="truncate">{location}</dd>
           </div>
         )}
         <div>
-          <dt className="text-muted-foreground">Fecha de alta</dt>
+          <dt className="text-muted-foreground">{t("list.fields.registrationDate")}</dt>
           <dd>{formatDate(user.created_at)}</dd>
         </div>
       </dl>
@@ -158,10 +167,12 @@ function UserMobileCard({
   );
 }
 
-export function UsersTable({
+export async function UsersTable({
   users,
   showAdministrativeCompletion = false,
 }: UsersTableProps) {
+  const t = await getTranslations("users");
+
   return (
     <>
       {/* Desktop: full table */}
@@ -170,15 +181,15 @@ export function UsersTable({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="pl-6">Usuario</TableHead>
-                <TableHead className="hidden md:table-cell">Roles</TableHead>
-                <TableHead className="hidden lg:table-cell">Ubicación</TableHead>
-                <TableHead>Estado</TableHead>
-                <TableHead className="hidden sm:table-cell">Accesos</TableHead>
+                <TableHead className="pl-6">{t("list.columns.user")}</TableHead>
+                <TableHead className="hidden md:table-cell">{t("list.columns.roles")}</TableHead>
+                <TableHead className="hidden lg:table-cell">{t("list.columns.location")}</TableHead>
+                <TableHead>{t("list.columns.status")}</TableHead>
+                <TableHead className="hidden sm:table-cell">{t("list.columns.access")}</TableHead>
                 {showAdministrativeCompletion ? (
-                  <TableHead className="hidden lg:table-cell">Post-registro</TableHead>
+                  <TableHead className="hidden lg:table-cell">{t("list.columns.postRegistration")}</TableHead>
                 ) : null}
-                <TableHead className="hidden pr-6 md:table-cell">Fecha de alta</TableHead>
+                <TableHead className="hidden pr-6 md:table-cell">{t("list.columns.registrationDate")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -218,7 +229,7 @@ export function UsersTable({
                             </Badge>
                           ))
                         ) : (
-                          <span className="text-xs text-muted-foreground">Sin rol</span>
+                          <span className="text-xs text-muted-foreground">{t("list.noRole")}</span>
                         )}
                       </div>
                     </TableCell>
@@ -226,8 +237,8 @@ export function UsersTable({
                       <LocationCell user={user} />
                     </TableCell>
                     <TableCell>
-                      <Badge variant={user.active !== false ? "default" : "outline"} className="text-xs">
-                        {user.active !== false ? "Activo" : "Inactivo"}
+                      <Badge variant={user.active !== false ? "soft-success" : "outline"} className="text-xs">
+                        {user.active !== false ? t("list.status.active") : t("list.status.inactive")}
                       </Badge>
                     </TableCell>
                     <TableCell className="hidden sm:table-cell">
@@ -252,7 +263,9 @@ export function UsersTable({
                           variant={user.post_registration?.complete ? "default" : "outline"}
                           className="text-xs"
                         >
-                          {user.post_registration?.complete ? "Completo" : "Pendiente"}
+                          {user.post_registration?.complete
+                            ? t("list.postReg.completeDesktop")
+                            : t("list.postReg.pending")}
                         </Badge>
                       </TableCell>
                     ) : null}
@@ -268,12 +281,13 @@ export function UsersTable({
       </div>
 
       {/* Mobile: descriptive cards */}
-      <ul className="space-y-3 md:hidden" aria-label="Lista de usuarios">
+      <ul className="space-y-3 md:hidden" aria-label={t("list.ariaLabel")}>
         {users.map((user) => (
           <li key={user.user_id}>
             <UserMobileCard
               user={user}
               showAdministrativeCompletion={showAdministrativeCompletion}
+              t={t}
             />
           </li>
         ))}

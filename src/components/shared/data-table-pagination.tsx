@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -27,6 +27,7 @@ export function DataTablePagination({
   limit,
   limitOptions = [20, 50, 100],
 }: DataTablePaginationProps) {
+  const t = useTranslations("shared.pagination");
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -48,11 +49,11 @@ export function DataTablePagination({
   return (
     <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
       <p className="text-sm text-muted-foreground">
-        Mostrando {from}–{to} de {total} registros
+        {t("showing", { from, to, total })}
       </p>
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Por página</span>
+          <span className="text-sm text-muted-foreground">{t("perPage")}</span>
           <Select defaultValue={String(limit)} onValueChange={handleLimitChange}>
             <SelectTrigger className="h-8 w-[70px]">
               <SelectValue />
@@ -66,17 +67,27 @@ export function DataTablePagination({
         </div>
         <div className="flex items-center gap-1">
           <span className="text-sm text-muted-foreground">
-            Página {page} de {totalPages}
+            {t("pageOf", { page, totalPages })}
           </span>
-          <Button variant="outline" size="icon" className="size-8" asChild disabled={page <= 1}>
-            <Link href={buildHref(page - 1)} aria-label="Página anterior">
-              <ChevronLeft className="size-4" />
-            </Link>
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-8"
+            disabled={page <= 1}
+            aria-label={t("prevPage")}
+            onClick={() => router.push(buildHref(page - 1))}
+          >
+            <ChevronLeft className="size-4" />
           </Button>
-          <Button variant="outline" size="icon" className="size-8" asChild disabled={page >= totalPages}>
-            <Link href={buildHref(page + 1)} aria-label="Página siguiente">
-              <ChevronRight className="size-4" />
-            </Link>
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-8"
+            disabled={page >= totalPages}
+            aria-label={t("nextPage")}
+            onClick={() => router.push(buildHref(page + 1))}
+          >
+            <ChevronRight className="size-4" />
           </Button>
         </div>
       </div>

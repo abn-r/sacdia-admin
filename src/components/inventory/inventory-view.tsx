@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { Plus, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -93,6 +94,7 @@ export function InventoryView({
   initialItems,
   initialClubId,
 }: InventoryViewProps) {
+  const t = useTranslations("inventory");
   const [selectedClubId, setSelectedClubId] = useState<number | null>(initialClubId);
   const [items, setItems] = useState<InventoryItem[]>(initialItems);
   const [filterCategoryId, setFilterCategoryId] = useState<number | null>(null);
@@ -132,14 +134,14 @@ export function InventoryView({
         const message =
           err instanceof ApiError
             ? err.message
-            : "No se pudieron cargar los ítems del inventario";
+            : t("errors.load_items_failed");
         setLoadError(message);
         setItems([]);
       } finally {
         setIsLoading(false);
       }
     },
-    [clubs],
+    [clubs, t],
   );
 
   function handleClubChange(value: string) {
@@ -195,7 +197,7 @@ export function InventoryView({
             onValueChange={handleClubChange}
           >
             <SelectTrigger className="w-52">
-              <SelectValue placeholder="Seleccionar club" />
+              <SelectValue placeholder={t("view.select_club_placeholder")} />
             </SelectTrigger>
             <SelectContent>
               {clubs.map((club) => (
@@ -213,10 +215,10 @@ export function InventoryView({
             disabled={!selectedClubId}
           >
             <SelectTrigger className="w-48">
-              <SelectValue placeholder="Todas las categorías" />
+              <SelectValue placeholder={t("view.all_categories")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todas las categorías</SelectItem>
+              <SelectItem value="all">{t("view.all_categories")}</SelectItem>
               {categories.map((cat) => (
                 <SelectItem
                   key={cat.inventory_category_id}
@@ -233,10 +235,10 @@ export function InventoryView({
             size="icon-sm"
             onClick={handleRefresh}
             disabled={!selectedClubId || isLoading}
-            title="Actualizar"
+            title={t("view.refresh_title")}
           >
             <RefreshCw className={`size-3.5 ${isLoading ? "animate-spin" : ""}`} />
-            <span className="sr-only">Actualizar</span>
+            <span className="sr-only">{t("view.refresh_sr")}</span>
           </Button>
         </div>
 
@@ -248,7 +250,7 @@ export function InventoryView({
           )}
           <Button onClick={handleCreate} disabled={!selectedClubId} size="sm">
             <Plus className="size-4" />
-            Nuevo ítem
+            {t("view.new_item")}
           </Button>
         </div>
       </div>
@@ -264,14 +266,14 @@ export function InventoryView({
       {selectedClubId && !loadError && (
         <p className="text-sm text-muted-foreground">
           <span className="font-medium text-foreground">{items.length}</span>{" "}
-          {items.length === 1 ? "ítem encontrado" : "ítems encontrados"}
+          {t("view.items_found_label", { count: items.length })}
         </p>
       )}
 
       {/* Table */}
       {isLoading ? (
         <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">
-          Cargando inventario...
+          {t("view.loading")}
         </div>
       ) : (
         <InventoryTable

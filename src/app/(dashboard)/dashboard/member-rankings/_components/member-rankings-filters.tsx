@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -28,12 +31,14 @@ export function MemberRankingsFilters({
   defaultClubId,
   defaultSectionId,
 }: MemberRankingsFiltersProps) {
+  const t = useTranslations("rankings.filters");
+
   return (
     <form className="flex flex-wrap items-end gap-3" method="GET">
       {/* Year filter */}
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="filter-year" className="text-xs text-muted-foreground">
-          Año eclesiástico
+          {t("labelYear")}
         </Label>
         <Input
           id="filter-year"
@@ -41,7 +46,7 @@ export function MemberRankingsFilters({
           type="number"
           min={2000}
           max={2100}
-          placeholder="2026"
+          placeholder={t("placeholderYear")}
           defaultValue={defaultYear}
           className="h-9 w-32"
         />
@@ -53,14 +58,14 @@ export function MemberRankingsFilters({
           htmlFor="filter-club"
           className="text-xs text-muted-foreground"
         >
-          ID de club
+          {t("labelClub")}
         </Label>
         <Input
           id="filter-club"
           name="club_id"
           type="number"
           min={1}
-          placeholder="Todos"
+          placeholder={t("placeholderClub")}
           defaultValue={defaultClubId}
           className="h-9 w-32"
         />
@@ -72,14 +77,14 @@ export function MemberRankingsFilters({
           htmlFor="filter-section"
           className="text-xs text-muted-foreground"
         >
-          ID de sección
+          {t("labelSection")}
         </Label>
         <Input
           id="filter-section"
           name="section_id"
           type="number"
           min={1}
-          placeholder="Todas"
+          placeholder={t("placeholderSection")}
           defaultValue={defaultSectionId}
           className="h-9 w-32"
         />
@@ -88,10 +93,10 @@ export function MemberRankingsFilters({
       {/* Actions */}
       <div className="flex items-center gap-2">
         <Button type="submit" size="sm">
-          Filtrar
+          {t("apply")}
         </Button>
         <Button variant="ghost" size="sm" asChild>
-          <Link href="/dashboard/member-rankings">Limpiar</Link>
+          <Link href="/dashboard/member-rankings">{t("clear")}</Link>
         </Button>
       </div>
     </form>

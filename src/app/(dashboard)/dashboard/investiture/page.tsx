@@ -1,4 +1,5 @@
 import { Award } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -40,6 +41,7 @@ function extractYears(payload: unknown): EcclesiasticalYear[] {
 
 export default async function InvestiturePage() {
   await requireAdminUser();
+  const t = await getTranslations("investiture");
 
   let enrollments: PendingEnrollment[] = [];
   let years: EcclesiasticalYear[] = [];
@@ -59,7 +61,7 @@ export default async function InvestiturePage() {
       loadError =
         err instanceof ApiError
           ? err.message
-          : "No se pudieron cargar las investiduras pendientes.";
+          : t("page.errorFallback");
     }
 
     if (yearsPayload.status === "fulfilled") {
@@ -69,14 +71,14 @@ export default async function InvestiturePage() {
     loadError =
       error instanceof ApiError
         ? error.message
-        : "No se pudieron cargar las investiduras pendientes.";
+        : t("page.errorFallback");
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Investiduras"
-        description="Validación y registro de investiduras de miembros de los clubes."
+        title={t("page.title")}
+        description={t("page.description")}
       />
 
       {loadError && (
@@ -86,8 +88,8 @@ export default async function InvestiturePage() {
       {!loadError && enrollments.length === 0 && (
         <EmptyState
           icon={Award}
-          title="Sin investiduras pendientes"
-          description="No hay solicitudes de investidura pendientes de validación en este momento."
+          title={t("page.emptyTitle")}
+          description={t("page.emptyDescription")}
         />
       )}
 

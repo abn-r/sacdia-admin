@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, GraduationCap } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -122,6 +123,7 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
 
 export default async function ClassDetailPage({ params }: { params: Params }) {
   await requireAdminUser();
+  const t = await getTranslations("classes.pages.detail");
 
   const { classId: classIdParam } = await params;
   const classId = toPositiveNumber(classIdParam);
@@ -191,11 +193,11 @@ export default async function ClassDetailPage({ params }: { params: Params }) {
 
   return (
     <div className="space-y-6">
-      <PageHeader title={name} description="Detalle de clase progresiva">
+      <PageHeader title={name} description={t("description")}>
         <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/classes">
-            <ArrowLeft className="mr-2 size-4" />
-            Volver
+            <ArrowLeft className="size-4" />
+            {t("back")}
           </Link>
         </Button>
       </PageHeader>
@@ -222,11 +224,11 @@ export default async function ClassDetailPage({ params }: { params: Params }) {
       {/* Stats strip */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
-          { label: "Orden", value: displayOrder ?? "—" },
-          { label: "Módulos", value: modulesCount > 0 ? modulesCount : "—" },
-          { label: "Secciones totales", value: totalSections > 0 ? totalSections : "—" },
+          { label: t("statOrder"), value: displayOrder ?? "—" },
+          { label: t("statModules"), value: modulesCount > 0 ? modulesCount : "—" },
+          { label: t("statSections"), value: totalSections > 0 ? totalSections : "—" },
           {
-            label: "Puntos requeridos",
+            label: t("statPoints"),
             value: minPoints != null ? `${minPoints} / ${maxPoints ?? "—"}` : "—",
           },
         ].map(({ label, value }) => (
@@ -242,18 +244,18 @@ export default async function ClassDetailPage({ params }: { params: Params }) {
       {/* Info card */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Información general</CardTitle>
+          <CardTitle className="text-base">{t("infoCardTitle")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <InfoRow label="ID" value={classId} />
-          <InfoRow label="Tipo de club" value={clubTypeName} />
-          <InfoRow label="Orden de visualización" value={displayOrder ?? "—"} />
-          <InfoRow label="Estado" value={<ClassStatusBadge active={isActive} />} />
+          <InfoRow label={t("labelId")} value={classId} />
+          <InfoRow label={t("labelClubType")} value={clubTypeName} />
+          <InfoRow label={t("labelOrder")} value={displayOrder ?? "—"} />
+          <InfoRow label={t("labelStatus")} value={<ClassStatusBadge active={isActive} />} />
           {maxPoints != null && (
-            <InfoRow label="Puntos máximos" value={maxPoints} />
+            <InfoRow label={t("labelMaxPoints")} value={maxPoints} />
           )}
           {minPoints != null && (
-            <InfoRow label="Puntos mínimos" value={minPoints} />
+            <InfoRow label={t("labelMinPoints")} value={minPoints} />
           )}
         </CardContent>
       </Card>
@@ -262,7 +264,7 @@ export default async function ClassDetailPage({ params }: { params: Params }) {
       <Tabs defaultValue="structure">
         <TabsList>
           <TabsTrigger value="structure">
-            Estructura del programa
+            {t("tabStructure")}
             {modulesCount > 0 && (
               <Badge variant="secondary" className="ml-2">
                 {modulesCount}
@@ -274,11 +276,11 @@ export default async function ClassDetailPage({ params }: { params: Params }) {
         <TabsContent value="structure" className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Módulos y secciones</CardTitle>
+              <CardTitle className="text-base">{t("structureCardTitle")}</CardTitle>
             </CardHeader>
             <CardContent>
               {modulesError ? (
-                <EndpointErrorBanner state="missing" detail={modulesError} />
+                <EndpointErrorBanner state="missing" detail={t("modulesEndpointMissing")} />
               ) : (
                 <ClassModuleTree modules={modules} />
               )}

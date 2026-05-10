@@ -1,4 +1,5 @@
 import { ShieldCheck } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
@@ -9,6 +10,7 @@ import type { Permission } from "@/lib/rbac/types";
 import { UserPermissionsSearch } from "@/components/rbac/user-permissions-search";
 
 export default async function UserPermissionsPage() {
+  const t = await getTranslations("rbac.pages.userPermissions");
   await requireAdminUser();
 
   let allPermissions: Permission[] = [];
@@ -17,14 +19,14 @@ export default async function UserPermissionsPage() {
   try {
     allPermissions = await listPermissions();
   } catch (error) {
-    loadError = error instanceof ApiError ? error.message : "Error inesperado";
+    loadError = error instanceof ApiError ? error.message : t("loadError");
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Permisos directos de usuario"
-        description="Asigná o remové permisos directamente a usuarios específicos, sin pasar por roles."
+        title={t("title")}
+        description={t("description")}
       />
 
       {loadError && (
@@ -32,7 +34,7 @@ export default async function UserPermissionsPage() {
           <EndpointErrorBanner state="missing" detail={loadError} />
           <EmptyState
             icon={ShieldCheck}
-            title="No se pudo cargar"
+            title={t("emptyLoadTitle")}
             description={loadError}
           />
         </>

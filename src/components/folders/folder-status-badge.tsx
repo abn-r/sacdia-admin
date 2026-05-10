@@ -1,11 +1,14 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 export type FolderActiveStatus = "active" | "inactive";
 
-const statusConfig: Record<FolderActiveStatus, { label: string; variant: "success" | "secondary" }> = {
-  active: { label: "Activa", variant: "success" },
-  inactive: { label: "Inactiva", variant: "secondary" },
+const statusVariant: Record<FolderActiveStatus, "success" | "secondary"> = {
+  active: "success",
+  inactive: "secondary",
 };
 
 interface FolderStatusBadgeProps {
@@ -14,12 +17,12 @@ interface FolderStatusBadgeProps {
 }
 
 export function FolderStatusBadge({ active, className }: FolderStatusBadgeProps) {
+  const t = useTranslations("folders.statusBadge");
   const key: FolderActiveStatus = active ? "active" : "inactive";
-  const config = statusConfig[key];
 
   return (
-    <Badge variant={config.variant} className={cn("text-xs", className)}>
-      {config.label}
+    <Badge variant={statusVariant[key]} className={cn("text-xs", className)}>
+      {t(key)}
     </Badge>
   );
 }

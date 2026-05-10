@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { CheckCircle2, XCircle, UserCog } from "lucide-react";
 import {
   Table,
@@ -21,6 +22,7 @@ import {
   type ReviewAction,
   type ReviewRequestPayload,
 } from "@/lib/api/requests";
+import { useFormatDate } from "@/lib/format-locale";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -28,19 +30,6 @@ function getUserName(user?: AssignmentRequest["target_user"] | AssignmentRequest
   if (!user) return "—";
   const full = [user.first_name, user.last_name].filter(Boolean).join(" ");
   return full || user.email || "—";
-}
-
-function formatDate(iso?: string | null): string {
-  if (!iso) return "—";
-  try {
-    return new Intl.DateTimeFormat("es-MX", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    }).format(new Date(iso));
-  } catch {
-    return iso;
-  }
 }
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -58,14 +47,16 @@ interface AssignmentsTableProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function AssignmentsTable({ requests, onRefresh }: AssignmentsTableProps) {
+  const t = useTranslations("requests");
+  const formatDate = useFormatDate();
   const [dialog, setDialog] = useState<DialogState>(null);
 
   if (requests.length === 0) {
     return (
       <EmptyState
         icon={UserCog}
-        title="Sin solicitudes"
-        description="No hay solicitudes de asignación de rol en este estado."
+        title={t("assignments.table.empty.title")}
+        description={t("assignments.table.empty.description")}
       />
     );
   }
@@ -85,25 +76,25 @@ export function AssignmentsTable({ requests, onRefresh }: AssignmentsTableProps)
           <TableHeader>
             <TableRow>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Usuario destino
+                {t("assignments.table.columns.targetUser")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Sección
+                {t("assignments.table.columns.section")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Rol a asignar
+                {t("assignments.table.columns.roleToAssign")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Solicitado por
+                {t("assignments.table.columns.requestedBy")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Estado
+                {t("assignments.table.columns.status")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Fecha
+                {t("assignments.table.columns.date")}
               </TableHead>
               <TableHead className="h-9 px-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Acciones
+                {t("assignments.table.columns.actions")}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -128,7 +119,7 @@ export function AssignmentsTable({ requests, onRefresh }: AssignmentsTableProps)
                     <RequestStatusBadge status={req.status} />
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums text-muted-foreground">
-                    {formatDate(req.created_at)}
+                    {req.created_at ? formatDate(req.created_at) : "—"}
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle">
                     <div className="flex items-center justify-end gap-1">
@@ -141,12 +132,12 @@ export function AssignmentsTable({ requests, onRefresh }: AssignmentsTableProps)
                                 size="icon-sm"
                                 className="text-success hover:bg-success/10 hover:text-success"
                                 onClick={() => setDialog({ request: req, action: "approved" })}
-                                aria-label="Aprobar asignación"
+                                aria-label={t("assignments.table.actions.approveAriaLabel")}
                               >
                                 <CheckCircle2 className="size-4" />
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent>Aprobar</TooltipContent>
+                            <TooltipContent>{t("assignments.table.actions.approve")}</TooltipContent>
                           </Tooltip>
 
                           <Tooltip>
@@ -156,12 +147,12 @@ export function AssignmentsTable({ requests, onRefresh }: AssignmentsTableProps)
                                 size="icon-sm"
                                 className="text-destructive hover:bg-destructive/10 hover:text-destructive"
                                 onClick={() => setDialog({ request: req, action: "rejected" })}
-                                aria-label="Rechazar asignación"
+                                aria-label={t("assignments.table.actions.rejectAriaLabel")}
                               >
                                 <XCircle className="size-4" />
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent>Rechazar</TooltipContent>
+                            <TooltipContent>{t("assignments.table.actions.reject")}</TooltipContent>
                           </Tooltip>
                         </>
                       )}
@@ -180,13 +171,13 @@ export function AssignmentsTable({ requests, onRefresh }: AssignmentsTableProps)
           action={dialog.action}
           title={
             dialog.action === "approved"
-              ? "Aprobar asignación de rol"
-              : "Rechazar asignación de rol"
+              ? t("assignments.dialog.approveTitle")
+              : t("assignments.dialog.rejectTitle")
           }
           description={
             dialog.action === "approved"
-              ? `Se aprobará la asignación de rol para ${targetName}.`
-              : `Se rechazará la solicitud de asignación para ${targetName}. El motivo es obligatorio.`
+              ? t("assignments.dialog.approveDescription", { name: targetName })
+              : t("assignments.dialog.rejectDescription", { name: targetName })
           }
           onOpenChange={(open) => { if (!open) setDialog(null); }}
           onSubmit={handleReview}

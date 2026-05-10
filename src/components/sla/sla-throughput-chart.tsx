@@ -11,6 +11,7 @@ import {
   CartesianGrid,
 } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useTranslations } from "next-intl";
 import type { ThroughputWeek } from "@/lib/api/analytics";
 
 interface SlaThroughputChartProps {
@@ -24,13 +25,14 @@ interface TooltipProps {
 }
 
 function CustomTooltip({ active, payload, label }: TooltipProps) {
+  const t = useTranslations("sla.throughput");
   if (!active || !payload?.length) return null;
   return (
     <div className="rounded-lg border bg-background px-3 py-2 text-sm shadow-md">
       <p className="mb-1 font-medium text-xs text-muted-foreground">{label}</p>
       {payload.map((entry) => (
         <p key={entry.name} style={{ color: entry.color }} className="text-sm">
-          {entry.name === "approved" ? "Aprobados" : "Rechazados"}: {entry.value}
+          {entry.name === "approved" ? t("legend_approved") : t("legend_rejected")}: {entry.value}
         </p>
       ))}
     </div>
@@ -38,15 +40,17 @@ function CustomTooltip({ active, payload, label }: TooltipProps) {
 }
 
 export function SlaThroughputChart({ throughput }: SlaThroughputChartProps) {
+  const t = useTranslations("sla.throughput");
+
   if (throughput.length === 0) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Throughput — Ultimas 12 semanas</CardTitle>
-          <CardDescription>Investiduras aprobadas y rechazadas por semana</CardDescription>
+          <CardTitle className="text-base">{t("title")}</CardTitle>
+          <CardDescription>{t("description")}</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">No hay datos de throughput disponibles.</p>
+          <p className="text-sm text-muted-foreground">{t("empty")}</p>
         </CardContent>
       </Card>
     );
@@ -55,8 +59,8 @@ export function SlaThroughputChart({ throughput }: SlaThroughputChartProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Throughput — Ultimas 12 semanas</CardTitle>
-        <CardDescription>Investiduras aprobadas y rechazadas por semana</CardDescription>
+        <CardTitle className="text-base">{t("title")}</CardTitle>
+        <CardDescription>{t("description")}</CardDescription>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={220}>
@@ -83,7 +87,7 @@ export function SlaThroughputChart({ throughput }: SlaThroughputChartProps) {
               iconSize={10}
               formatter={(value) => (
                 <span className="text-xs text-muted-foreground">
-                  {value === "approved" ? "Aprobados" : "Rechazados"}
+                  {value === "approved" ? t("legend_approved") : t("legend_rejected")}
                 </span>
               )}
             />

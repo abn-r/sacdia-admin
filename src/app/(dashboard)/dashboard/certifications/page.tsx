@@ -1,4 +1,5 @@
 import { ShieldCheck } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -48,6 +49,8 @@ function normalizeCertification(item: GenericRecord) {
 
 export default async function CertificationsPage() {
   await requireAdminUser();
+  const t = await getTranslations("certifications.pages.list");
+  const tList = await getTranslations("certifications.list");
 
   let items: ReturnType<typeof normalizeCertification>[] = [];
   let loadError: string | null = null;
@@ -60,14 +63,14 @@ export default async function CertificationsPage() {
     loadError =
       error instanceof ApiError
         ? error.message
-        : "No se pudieron cargar las certificaciones.";
+        : t("loadFailed");
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Certificaciones"
-        description="Consulta de certificaciones y progreso de usuarios inscritos."
+        title={t("title")}
+        description={t("description")}
       />
 
       {loadError && (
@@ -77,8 +80,8 @@ export default async function CertificationsPage() {
       {!loadError && items.length === 0 && (
         <EmptyState
           icon={ShieldCheck}
-          title="No hay certificaciones"
-          description="No se encontraron certificaciones registradas."
+          title={tList("empty_title")}
+          description={tList("empty_description")}
         />
       )}
 
@@ -86,7 +89,7 @@ export default async function CertificationsPage() {
         <>
           <p className="text-sm text-muted-foreground">
             <span className="font-medium text-foreground">{items.length}</span>{" "}
-            {items.length === 1 ? "certificación encontrada" : "certificaciones encontradas"}
+            {items.length === 1 ? t("countSingular") : t("countPlural")}
           </p>
           <CertificationsList items={items} />
         </>

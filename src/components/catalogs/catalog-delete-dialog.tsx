@@ -13,11 +13,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
 import { deleteCatalogItemAction, type CatalogActionState } from "@/lib/catalogs/actions";
 import type { EntityKey } from "@/lib/catalogs/entities";
 
 function DeleteButton() {
   const { pending } = useFormStatus();
+  const t = useTranslations("catalogs.deleteDialog");
   return (
     <Button type="submit" variant="destructive" disabled={pending}>
       {pending ? (
@@ -25,7 +27,7 @@ function DeleteButton() {
       ) : (
         <Trash2 className="size-4 mr-1.5" />
       )}
-      {pending ? "Eliminando..." : "Eliminar"}
+      {pending ? t("deleting") : t("delete")}
     </Button>
   );
 }
@@ -47,6 +49,7 @@ export function CatalogDeleteDialog({
   itemName,
   returnPath,
 }: CatalogDeleteDialogProps) {
+  const t = useTranslations("catalogs.deleteDialog");
   const [state, action] = useActionState<CatalogActionState, FormData>(deleteCatalogItemAction, {});
 
   return (
@@ -54,15 +57,13 @@ export function CatalogDeleteDialog({
       <AlertDialogContent className="sm:max-w-sm">
         <AlertDialogHeader>
           <div className="rounded-full bg-destructive/10 p-2.5 mx-auto mb-3 w-fit">
-            <AlertTriangle className="size-10 text-destructive" />
+            <AlertTriangle className="size-5 text-destructive" />
           </div>
           <AlertDialogTitle className="text-center">
-            Eliminar {itemName}
+            {t("title", { name: itemName })}
           </AlertDialogTitle>
           <AlertDialogDescription className="text-center">
-            ¿Estás seguro que querés eliminar{" "}
-            <span className="font-semibold text-foreground">&quot;{itemName}&quot;</span>?{" "}
-            Este registro será desactivado y podrá ser restaurado posteriormente.
+            {t("description", { name: itemName })}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <form action={action}>
@@ -76,7 +77,7 @@ export function CatalogDeleteDialog({
             </div>
           )}
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
             <DeleteButton />
           </AlertDialogFooter>
         </form>

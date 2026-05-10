@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import {
   RefreshCw,
   ChevronRight,
@@ -45,6 +46,9 @@ function countTotalSections(folder: FolderTemplate): number {
 export function FoldersManagementClient({
   initialFolders,
 }: FoldersManagementClientProps) {
+  const t = useTranslations("folders.management");
+  const tErrors = useTranslations("folders.errors");
+
   const [folders, setFolders] = useState<FolderTemplate[]>(initialFolders);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [search, setSearch] = useState("");
@@ -60,12 +64,12 @@ export function FoldersManagementClient({
       const message =
         err instanceof ApiError
           ? err.message
-          : "No se pudieron actualizar las carpetas";
+          : tErrors("refresh_failed");
       toast.error(message);
     } finally {
       setIsRefreshing(false);
     }
-  }, []);
+  }, [tErrors]);
 
   // ─── Filtered list ────────────────────────────────────────────────────────
 
@@ -94,7 +98,7 @@ export function FoldersManagementClient({
           <div className="relative">
             <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Buscar carpeta..."
+              placeholder={t("searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="h-8 w-56 pl-8 text-sm"
@@ -105,18 +109,18 @@ export function FoldersManagementClient({
             size="icon-sm"
             onClick={refreshFolders}
             disabled={isRefreshing}
-            title="Actualizar"
+            title={t("refreshButton")}
           >
             <RefreshCw
               className={`size-3.5 ${isRefreshing ? "animate-spin" : ""}`}
             />
-            <span className="sr-only">Actualizar</span>
+            <span className="sr-only">{t("refreshButton")}</span>
           </Button>
           <p className="text-sm text-muted-foreground">
             <span className="font-medium text-foreground">
               {filteredFolders.length}
             </span>{" "}
-            {filteredFolders.length === 1 ? "carpeta" : "carpetas"}
+            {t("folderCount", { count: filteredFolders.length })}
           </p>
         </div>
       </div>
@@ -132,12 +136,12 @@ export function FoldersManagementClient({
             )}
           </div>
           <h3 className="mt-4 text-base font-semibold">
-            {search ? "Sin resultados" : "Sin carpetas"}
+            {search ? t("noResultsTitle") : t("emptyTitle")}
           </h3>
           <p className="mt-1 max-w-sm text-sm text-muted-foreground">
             {search
-              ? `No se encontraron carpetas que coincidan con "${search}".`
-              : "No hay carpetas de evidencias configuradas todavía."}
+              ? t("noResultsDescription", { search })
+              : t("emptyDescription")}
           </p>
         </div>
       )}
@@ -151,17 +155,17 @@ export function FoldersManagementClient({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Nombre</TableHead>
+                    <TableHead>{t("tableHeaderName")}</TableHead>
                     <TableHead className="hidden sm:table-cell">
-                      Descripción
+                      {t("tableHeaderDescription")}
                     </TableHead>
                     <TableHead className="hidden w-28 text-center md:table-cell">
-                      Módulos
+                      {t("tableHeaderModules")}
                     </TableHead>
                     <TableHead className="hidden w-28 text-center lg:table-cell">
-                      Secciones
+                      {t("tableHeaderSections")}
                     </TableHead>
-                    <TableHead className="w-20 text-center">Estado</TableHead>
+                    <TableHead className="w-20 text-center">{t("tableHeaderStatus")}</TableHead>
                     <TableHead className="w-8" />
                   </TableRow>
                 </TableHeader>
@@ -187,7 +191,7 @@ export function FoldersManagementClient({
                           <span className="line-clamp-1">
                             {folder.description ?? (
                               <span className="italic text-muted-foreground/60">
-                                Sin descripción
+                                {t("noDescription")}
                               </span>
                             )}
                           </span>
@@ -220,7 +224,7 @@ export function FoldersManagementClient({
           </div>
 
           {/* Mobile cards */}
-          <ul className="space-y-3 md:hidden" aria-label="Lista de carpetas">
+          <ul className="space-y-3 md:hidden" aria-label={t("ariaList")}>
             {filteredFolders.map((folder) => {
               const moduleCount = folder.modules?.length ?? 0;
               const sectionCount = countTotalSections(folder);
@@ -230,7 +234,7 @@ export function FoldersManagementClient({
                   <Link
                     href={`/dashboard/folders/${folder.folder_id}`}
                     className="block rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    aria-label={`Ver carpeta ${folder.name}`}
+                    aria-label={t("ariaFolderLink", { name: folder.name })}
                   >
                     <div className="flex items-center gap-3">
                       <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
@@ -253,14 +257,14 @@ export function FoldersManagementClient({
 
                     <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
                       <div>
-                        <dt className="text-muted-foreground">Módulos</dt>
+                        <dt className="text-muted-foreground">{t("modulesLabel")}</dt>
                         <dd className="flex items-center gap-1">
                           <Layers className="size-3 text-muted-foreground" aria-hidden="true" />
                           {moduleCount}
                         </dd>
                       </div>
                       <div>
-                        <dt className="text-muted-foreground">Secciones</dt>
+                        <dt className="text-muted-foreground">{t("sectionsLabel")}</dt>
                         <dd>{sectionCount}</dd>
                       </div>
                     </dl>

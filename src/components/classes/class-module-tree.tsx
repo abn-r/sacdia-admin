@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ChevronDown, ChevronRight, BookOpen, FileText, ListChecks } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -14,7 +15,8 @@ interface SectionNodeProps {
 }
 
 function SectionNode({ section }: SectionNodeProps) {
-  const title = section.title ?? section.name ?? `Sección ${section.section_id}`;
+  const t = useTranslations("classes.tree");
+  const title = section.title ?? section.name ?? t("section_fallback", { id: section.section_id });
   const requirementsCount = section.requirements?.length ?? 0;
 
   return (
@@ -41,7 +43,7 @@ function SectionNode({ section }: SectionNodeProps) {
       </div>
       {section.active === false && (
         <Badge variant="outline" className="shrink-0 text-xs">
-          Inactivo
+          {t("status_inactive")}
         </Badge>
       )}
     </li>
@@ -56,10 +58,11 @@ interface ModuleNodeProps {
 }
 
 function ModuleNode({ mod, defaultOpen = false }: ModuleNodeProps) {
+  const t = useTranslations("classes.tree");
   const [open, setOpen] = useState(defaultOpen);
   const sections = mod.sections ?? [];
   const sectionCount = sections.length > 0 ? sections.length : (mod.sections_count ?? 0);
-  const title = mod.title ?? mod.name ?? `Módulo ${mod.module_id}`;
+  const title = mod.title ?? mod.name ?? t("module_fallback", { id: mod.module_id });
 
   return (
     <div className="rounded-lg border border-border bg-card">
@@ -78,7 +81,7 @@ function ModuleNode({ mod, defaultOpen = false }: ModuleNodeProps) {
           )}
         </div>
         <Badge variant="secondary" className="shrink-0">
-          {sectionCount} {sectionCount === 1 ? "sección" : "secciones"}
+          {t("sections_count", { count: sectionCount })}
         </Badge>
         {open ? (
           <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
@@ -90,7 +93,7 @@ function ModuleNode({ mod, defaultOpen = false }: ModuleNodeProps) {
       {open && (
         <div className="border-t border-border px-4 py-3">
           {sections.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Sin secciones registradas.</p>
+            <p className="text-sm text-muted-foreground">{t("no_sections")}</p>
           ) : (
             <ul className="space-y-2">
               {sections.map((section) => (
@@ -111,6 +114,7 @@ interface ClassModuleTreeProps {
 }
 
 export function ClassModuleTree({ modules }: ClassModuleTreeProps) {
+  const t = useTranslations("classes.tree");
   const [allOpen, setAllOpen] = useState(false);
   const [key, setKey] = useState(0);
 
@@ -122,7 +126,7 @@ export function ClassModuleTree({ modules }: ClassModuleTreeProps) {
   if (modules.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
-        Esta clase no tiene módulos registrados.
+        {t("no_modules")}
       </p>
     );
   }
@@ -131,10 +135,10 @@ export function ClassModuleTree({ modules }: ClassModuleTreeProps) {
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          {modules.length} {modules.length === 1 ? "módulo" : "módulos"}
+          {t("modules_count", { count: modules.length })}
         </p>
         <Button variant="ghost" size="sm" onClick={toggleAll}>
-          {allOpen ? "Colapsar todos" : "Expandir todos"}
+          {allOpen ? t("collapse_all") : t("expand_all")}
         </Button>
       </div>
       <div key={key} className={cn("space-y-2")}>

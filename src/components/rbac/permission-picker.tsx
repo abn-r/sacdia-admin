@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useCallback } from "react";
 import { Search, AlertTriangle, ChevronDown } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
@@ -57,6 +58,7 @@ function AccordionGroup({
   defaultOpen,
   searchQuery,
 }: AccordionGroupProps) {
+  const t = useTranslations("rbac");
   const [open, setOpen] = useState(defaultOpen ?? false);
 
   // Filter by search query
@@ -98,7 +100,7 @@ function AccordionGroup({
           id={`group-${group.resource}`}
           checked={allSelected ? true : someSelected ? "indeterminate" : false}
           onCheckedChange={handleGroupCheck}
-          aria-label={`Seleccionar todos los permisos de ${group.resource}`}
+          aria-label={t("permissionPicker.selectAllInGroup", { resource: group.resource })}
           className="shrink-0"
         />
 
@@ -152,10 +154,10 @@ function AccordionGroup({
                       <TooltipTrigger asChild>
                         <AlertTriangle
                           className="size-3.5 shrink-0 text-destructive"
-                          aria-label="Acción destructiva"
+                          aria-label={t("permissionPicker.destructiveAction")}
                         />
                       </TooltipTrigger>
-                      <TooltipContent>Acción destructiva</TooltipContent>
+                      <TooltipContent>{t("permissionPicker.destructiveAction")}</TooltipContent>
                     </Tooltip>
                   )}
                   <code className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono text-foreground">
@@ -189,6 +191,7 @@ export function PermissionPicker({
   onChange,
   defaultOpenGroups,
 }: PermissionPickerProps) {
+  const t = useTranslations("rbac");
   const [search, setSearch] = useState("");
 
   const activePermissions = useMemo(
@@ -245,15 +248,17 @@ export function PermissionPicker({
         <div className="relative flex-1 max-w-sm">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Buscar permisos..."
+            placeholder={t("permissionPicker.searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-8"
           />
         </div>
         <p className="text-sm text-muted-foreground shrink-0">
-          <span className="font-medium tabular-nums text-foreground">{selected.size}</span> de{" "}
-          <span className="font-medium tabular-nums text-foreground">{activePermissions.length}</span> permisos seleccionados
+          <span className="font-medium tabular-nums text-foreground">{selected.size}</span>{" "}
+          {t("permissionPicker.ofLabel")}{" "}
+          <span className="font-medium tabular-nums text-foreground">{activePermissions.length}</span>{" "}
+          {t("permissionPicker.selectedLabel")}
         </p>
       </div>
 
@@ -261,7 +266,7 @@ export function PermissionPicker({
       {!hasSearchMatches ? (
         <div className="rounded-lg border border-dashed p-6 text-center">
           <p className="text-sm text-muted-foreground">
-            Sin permisos que coincidan con «{search}»
+            {t("permissionPicker.noMatches", { query: search })}
           </p>
         </div>
       ) : (

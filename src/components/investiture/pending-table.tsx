@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { CheckCircle2, XCircle, Award, History, ClipboardList } from "lucide-react";
 import {
   Table,
@@ -16,6 +17,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -32,27 +34,15 @@ import {
   type ValidateAction,
 } from "@/lib/api/investiture";
 import { ApiError } from "@/lib/api/client";
+import { useFormatDate } from "@/lib/format-locale";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function getMemberName(enrollment: PendingEnrollment): string {
+function getMemberName(enrollment: PendingEnrollment, fallback: string): string {
   const u = enrollment.user;
-  if (!u) return `Inscripción #${enrollment.enrollment_id}`;
+  if (!u) return fallback;
   const full = [u.first_name, u.last_name].filter(Boolean).join(" ");
-  return full || u.email || `Inscripción #${enrollment.enrollment_id}`;
-}
-
-function formatDate(iso?: string | null): string {
-  if (!iso) return "—";
-  try {
-    return new Intl.DateTimeFormat("es-MX", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    }).format(new Date(iso));
-  } catch {
-    return iso;
-  }
+  return full || u.email || fallback;
 }
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -73,6 +63,8 @@ type DialogState =
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function PendingTable({ enrollments, onRefresh }: PendingTableProps) {
+  const t = useTranslations("investiture");
+  const formatDate = useFormatDate();
   const [dialog, setDialog] = useState<DialogState>(null);
   const [historyEntries, setHistoryEntries] = useState<InvestitureHistoryEntry[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
@@ -88,7 +80,7 @@ export function PendingTable({ enrollments, onRefresh }: PendingTableProps) {
       const message =
         error instanceof ApiError
           ? error.message
-          : "No se pudo cargar el historial";
+          : t("pendingTable.errorLoadHistory");
       toast.error(message);
     } finally {
       setLoadingHistory(false);
@@ -104,14 +96,19 @@ export function PendingTable({ enrollments, onRefresh }: PendingTableProps) {
     return (
       <EmptyState
         icon={ClipboardList}
-        title="Sin pendientes"
-        description="No hay investiduras pendientes de validación en este momento."
+        title={t("pendingTable.emptyTitle")}
+        description={t("pendingTable.emptyDescription")}
       />
     );
   }
 
   const activeEnrollment = dialog?.enrollment ?? null;
-  const memberName = activeEnrollment ? getMemberName(activeEnrollment) : "";
+  const memberName = activeEnrollment
+    ? getMemberName(
+        activeEnrollment,
+        t("pendingTable.enrollmentFallback", { id: activeEnrollment.enrollment_id }),
+      )
+    : "";
 
   return (
     <>
@@ -120,28 +117,31 @@ export function PendingTable({ enrollments, onRefresh }: PendingTableProps) {
           <TableHeader>
             <TableRow>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Miembro
+                {t("pendingTable.colMember")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Clase
+                {t("pendingTable.colClass")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Club
+                {t("pendingTable.colClub")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Enviado
+                {t("pendingTable.colSubmitted")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Estado
+                {t("pendingTable.colStatus")}
               </TableHead>
               <TableHead className="h-9 px-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Acciones
+                {t("pendingTable.colActions")}
               </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {enrollments.map((enrollment) => {
-              const name = getMemberName(enrollment);
+              const name = getMemberName(
+                enrollment,
+                t("pendingTable.enrollmentFallback", { id: enrollment.enrollment_id }),
+              );
               const isSubmitted =
                 enrollment.investiture_status === "SUBMITTED_FOR_VALIDATION";
               const isApproved = enrollment.investiture_status === "APPROVED";
@@ -161,7 +161,7 @@ export function PendingTable({ enrollments, onRefresh }: PendingTableProps) {
                     {enrollment.club?.name ?? "—"}
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums text-muted-foreground">
-                    {formatDate(enrollment.submitted_at)}
+                    {enrollment.submitted_at ? formatDate(enrollment.submitted_at) : "—"}
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle">
                     <InvestitureStatusBadge
@@ -177,12 +177,12 @@ export function PendingTable({ enrollments, onRefresh }: PendingTableProps) {
                             variant="ghost"
                             size="icon-sm"
                             onClick={() => openHistory(enrollment)}
-                            aria-label="Ver historial"
+                            aria-label={t("pendingTable.ariaHistory")}
                           >
                             <History className="size-4" />
                           </Button>
                         </TooltipTrigger>
-                        <TooltipContent>Ver historial</TooltipContent>
+                        <TooltipContent>{t("pendingTable.tooltipHistory")}</TooltipContent>
                       </Tooltip>
 
                       {/* Approve — only for SUBMITTED */}
@@ -200,12 +200,12 @@ export function PendingTable({ enrollments, onRefresh }: PendingTableProps) {
                                   action: "APPROVED",
                                 })
                               }
-                              aria-label="Aprobar"
+                              aria-label={t("pendingTable.ariaApprove")}
                             >
                               <CheckCircle2 className="size-4" />
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent>Aprobar</TooltipContent>
+                          <TooltipContent>{t("pendingTable.tooltipApprove")}</TooltipContent>
                         </Tooltip>
                       )}
 
@@ -224,12 +224,12 @@ export function PendingTable({ enrollments, onRefresh }: PendingTableProps) {
                                   action: "REJECTED",
                                 })
                               }
-                              aria-label="Rechazar"
+                              aria-label={t("pendingTable.ariaReject")}
                             >
                               <XCircle className="size-4" />
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent>Rechazar</TooltipContent>
+                          <TooltipContent>{t("pendingTable.tooltipReject")}</TooltipContent>
                         </Tooltip>
                       )}
 
@@ -244,12 +244,12 @@ export function PendingTable({ enrollments, onRefresh }: PendingTableProps) {
                               onClick={() =>
                                 setDialog({ type: "investido", enrollment })
                               }
-                              aria-label="Marcar como investido"
+                              aria-label={t("pendingTable.ariaMarkInvested")}
                             >
                               <Award className="size-4" />
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent>Marcar como investido</TooltipContent>
+                          <TooltipContent>{t("pendingTable.tooltipMarkInvested")}</TooltipContent>
                         </Tooltip>
                       )}
                     </div>
@@ -303,15 +303,15 @@ export function PendingTable({ enrollments, onRefresh }: PendingTableProps) {
       >
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Historial de investidura</DialogTitle>
+            <DialogTitle>{t("pendingTable.historyTitle")}</DialogTitle>
             {activeEnrollment && (
-              <p className="text-sm text-muted-foreground">
+              <DialogDescription>
                 {memberName} &middot;{" "}
                 <InvestitureStatusBadge
                   status={activeEnrollment.investiture_status}
                   className="align-middle"
                 />
-              </p>
+              </DialogDescription>
             )}
           </DialogHeader>
           <ScrollArea className="max-h-96 pr-2">

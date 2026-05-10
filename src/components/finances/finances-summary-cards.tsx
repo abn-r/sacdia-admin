@@ -4,17 +4,8 @@ import { TrendingUp, TrendingDown, Wallet } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { FinanceSummary } from "@/lib/api/finances";
-
-// ─── Amount formatter ─────────────────────────────────────────────────────────
-
-function formatAmount(cents: number): string {
-  const pesos = cents / 100;
-  return new Intl.NumberFormat("es-MX", {
-    style: "currency",
-    currency: "ARS",
-    minimumFractionDigits: 2,
-  }).format(pesos);
-}
+import { useFormatCurrency } from "@/lib/format-locale";
+import { useTranslations } from "next-intl";
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 
@@ -46,35 +37,48 @@ interface FinancesSummaryCardsProps {
 }
 
 export function FinancesSummaryCards({ summary }: FinancesSummaryCardsProps) {
+  const t = useTranslations("finances");
+  const formatCurrency = useFormatCurrency();
   const isPositiveBalance = summary.balance >= 0;
+
+  function formatAmount(cents: number): string {
+    return formatCurrency(cents / 100);
+  }
+
+  const movementsSub =
+    summary.movement_count === 1
+      ? t("summary.movementsCount", { count: summary.movement_count })
+      : t("summary.movementsCountPlural", { count: summary.movement_count });
 
   const cards = [
     {
-      label: "Total Ingresos",
+      label: t("summary.totalIncome"),
       value: formatAmount(summary.total_income),
       icon: TrendingUp,
       iconClass: "text-success",
       iconBg: "bg-success/10",
       valueClass: "text-success",
-      sub: `${summary.movement_count} movimiento${summary.movement_count !== 1 ? "s" : ""}`,
+      sub: movementsSub,
     },
     {
-      label: "Total Egresos",
+      label: t("summary.totalExpense"),
       value: formatAmount(summary.total_expense),
       icon: TrendingDown,
       iconClass: "text-destructive",
       iconBg: "bg-destructive/10",
       valueClass: "text-destructive",
-      sub: "en el período",
+      sub: t("summary.inPeriod"),
     },
     {
-      label: "Balance",
+      label: t("summary.balance"),
       value: formatAmount(summary.balance),
       icon: Wallet,
       iconClass: isPositiveBalance ? "text-primary" : "text-destructive",
       iconBg: isPositiveBalance ? "bg-primary/10" : "bg-destructive/10",
       valueClass: isPositiveBalance ? "text-foreground" : "text-destructive",
-      sub: isPositiveBalance ? "Saldo positivo" : "Saldo negativo",
+      sub: isPositiveBalance
+        ? t("summary.positiveBalance")
+        : t("summary.negativeBalance"),
     },
   ];
 

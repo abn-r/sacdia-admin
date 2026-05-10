@@ -74,7 +74,7 @@ export function CamporeeClubsTab({
             <span className="sr-only">Actualizar</span>
           </Button>
           <Button size="sm" onClick={() => setEnrollOpen(true)}>
-            <PlusCircle className="mr-2 size-4" />
+            <PlusCircle className="size-4" />
             Inscribir club
           </Button>
         </div>

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { ApiError } from "@/lib/api/client";
 import {
   listAchievementsAdmin,
@@ -39,14 +40,18 @@ function extractItems(payload: unknown): GenericRecord[] {
 
 export default async function NewAchievementPage({ params }: { params: Params }) {
   await requireAdminUser();
+  const t = await getTranslations("achievements.pages.detailNew");
 
   const { categoryId: categoryIdRaw } = await params;
   const categoryId = toPositiveNumber(categoryIdRaw);
   if (!categoryId) notFound();
 
+  const defaultName = t("defaultName");
+  const defaultCategoryName = t("defaultCategoryName", { id: categoryId });
+
   let categories: { id: number; name: string }[] = [];
   let allAchievements: { id: number; name: string }[] = [];
-  let categoryName = `Categoría ${categoryId}`;
+  let categoryName = defaultCategoryName;
   let loadError: string | null = null;
 
   try {
@@ -62,7 +67,7 @@ export default async function NewAchievementPage({ params }: { params: Params })
           toPositiveNumber(
             item.achievement_category_id ?? item.category_id ?? item.id,
           ) ?? 0,
-        name: toNonEmptyString(item.name) ?? "Sin nombre",
+        name: toNonEmptyString(item.name) ?? defaultName,
       }))
       .filter((c) => c.id > 0);
 
@@ -78,7 +83,7 @@ export default async function NewAchievementPage({ params }: { params: Params })
     allAchievements = achItems
       .map((item) => ({
         id: toPositiveNumber(item.achievement_id ?? item.id) ?? 0,
-        name: toNonEmptyString(item.name) ?? "Sin nombre",
+        name: toNonEmptyString(item.name) ?? defaultName,
       }))
       .filter((a) => a.id > 0);
   } catch (error) {
@@ -86,7 +91,7 @@ export default async function NewAchievementPage({ params }: { params: Params })
       loadError =
         error instanceof ApiError
           ? error.message
-          : "No se pudieron cargar los datos necesarios.";
+          : t("loadError");
     }
   }
 
@@ -97,12 +102,12 @@ export default async function NewAchievementPage({ params }: { params: Params })
       {loadError && <EndpointErrorBanner state="missing" detail={loadError} />}
 
       <PageHeader
-        title="Crear logro"
-        description={`Nuevo logro en la categoría "${categoryName}".`}
+        title={t("title")}
+        description={t("descriptionTemplate", { categoryName })}
         breadcrumbs={[
-          { label: "Logros", href: "/dashboard/achievements" },
+          { label: t("breadcrumbRoot"), href: "/dashboard/achievements" },
           { label: categoryName, href: cancelHref },
-          { label: "Nuevo logro" },
+          { label: t("breadcrumbNew") },
         ]}
       />
 

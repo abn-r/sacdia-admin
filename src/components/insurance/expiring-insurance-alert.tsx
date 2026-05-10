@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AlertTriangle, Clock, ArrowRight } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { getExpiringInsurance, INSURANCE_TYPE_LABELS } from "@/lib/api/insurance";
 import type { ExpiringInsurance } from "@/lib/api/insurance";
 
@@ -30,6 +31,7 @@ function urgencyClass(days: number): string {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export async function ExpiringInsuranceAlert() {
+  const t = await getTranslations("insurance");
   let items: ExpiringInsurance[] = [];
 
   try {
@@ -50,14 +52,13 @@ export async function ExpiringInsuranceAlert() {
         <AlertTriangle className="size-4 shrink-0 text-warning-foreground dark:text-warning" />
         <div className="flex flex-1 flex-wrap items-baseline gap-x-2 gap-y-0.5">
           <span className="text-sm font-semibold text-warning-foreground dark:text-warning">
-            Seguros próximos a vencer
+            {t("alert.title")}
           </span>
           <span className="text-xs text-warning-foreground/70 dark:text-warning/80">
-            {items.length} {items.length === 1 ? "seguro vence" : "seguros vencen"} en los
-            próximos 30 días
+            {t("alert.subtitle", { count: items.length })}
             {critical > 0 && (
               <span className="ml-1.5 font-semibold text-destructive">
-                ({critical} crítico{critical > 1 ? "s" : ""} ≤ 7 días)
+                ({t("alert.critical_note", { count: critical })})
               </span>
             )}
           </span>
@@ -66,7 +67,7 @@ export async function ExpiringInsuranceAlert() {
           href="/dashboard/insurance/expiring"
           className="flex items-center gap-1 text-xs font-medium text-warning-foreground hover:text-foreground dark:text-warning dark:hover:text-foreground shrink-0"
         >
-          Ver todos
+          {t("alert.view_all")}
           <ArrowRight className="size-3" />
         </Link>
       </div>
@@ -99,12 +100,9 @@ export async function ExpiringInsuranceAlert() {
             )}
 
             {/* Days remaining — pushed to the right */}
-            <span className={`ml-auto flex items-center gap-1 text-xs ${urgencyClass(item.days_remaining)}`}>
+            <span className={`ml-auto flex items-center gap-1 text-xs tabular-nums ${urgencyClass(item.days_remaining)}`}>
               <Clock className="size-3 shrink-0" />
-              Vence {formatDate(item.end_date)}{" "}
-              <span className="tabular-nums">
-                ({item.days_remaining}d)
-              </span>
+              {t("alert.expires_on", { date: formatDate(item.end_date), days: item.days_remaining })}
             </span>
           </li>
         ))}

@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { BarChart3 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -91,6 +92,7 @@ async function SectionRankingsContent({
 }: {
   query: SectionRankingsQuery & { year_id: number; page: number; limit: number };
 }) {
+  const t = await getTranslations("rankings");
   const result = await listSectionRankings(query);
 
   if (!result.endpointAvailable) {
@@ -100,13 +102,13 @@ async function SectionRankingsContent({
           state={
             result.endpointState as "forbidden" | "missing" | "rate-limited"
           }
-          detail={result.endpointDetail ?? "Endpoint no disponible."}
+          detail={result.endpointDetail ?? t("pageSection.emptyDescription")}
           showLoginLink={result.endpointState === "forbidden"}
         />
         <EmptyState
           icon={BarChart3}
-          title="No se pueden mostrar rankings de secciones"
-          description={result.endpointDetail ?? "Endpoint no disponible."}
+          title={t("pageSection.emptyTitle")}
+          description={result.endpointDetail ?? t("pageSection.emptyDescription")}
         />
       </div>
     );
@@ -132,6 +134,7 @@ export default async function SectionRankingsPage({
   searchParams: SearchParams;
 }) {
   await requireAdminUser();
+  const t = await getTranslations("rankings");
   const rawParams = await searchParams;
   const fallbackYearId = await getActiveEcclesiasticalYearId();
 
@@ -139,13 +142,13 @@ export default async function SectionRankingsPage({
     return (
       <div className="space-y-6">
         <PageHeader
-          title="Ranking de secciones"
-          description="Clasificación general de secciones por composite score."
+          title={t("pageSection.title")}
+          description={t("pageSection.description")}
         />
         <EmptyState
           icon={BarChart3}
-          title="No hay año eclesiástico activo"
-          description="Configurá un año eclesiástico activo en el catálogo para ver los rankings."
+          title={t("pageSection.emptyNoYearTitle")}
+          description={t("pageSection.emptyNoYearDescription")}
         />
       </div>
     );
@@ -156,8 +159,8 @@ export default async function SectionRankingsPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Ranking de secciones"
-        description="Clasificación general de secciones por composite score."
+        title={t("pageSection.title")}
+        description={t("pageSection.description")}
       />
 
       <SectionRankingsFilters

@@ -224,7 +224,7 @@ export function EvidenceBulkActionBar({
               disabled={isApproving}
               className="bg-success hover:bg-success/90 text-success-foreground"
             >
-              {isApproving && <Loader2 className="mr-2 size-4 animate-spin" />}
+              {isApproving && <Loader2 className="size-4 animate-spin" />}
               Confirmar aprobación
             </Button>
           </DialogFooter>
@@ -278,7 +278,7 @@ export function EvidenceBulkActionBar({
               </Button>
               <Button type="submit" variant="destructive" disabled={isRejecting}>
                 {isRejecting && (
-                  <Loader2 className="mr-2 size-4 animate-spin" />
+                  <Loader2 className="size-4 animate-spin" />
                 )}
                 Rechazar
               </Button>

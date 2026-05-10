@@ -3,6 +3,7 @@
 import { useState, useCallback, useMemo } from "react";
 import { toast } from "sonner";
 import { RefreshCw } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -29,6 +30,7 @@ export function InvestitureClientPage({
   initialEnrollments,
   years,
 }: InvestitureClientPageProps) {
+  const t = useTranslations("investiture");
   const [enrollments, setEnrollments] =
     useState<PendingEnrollment[]>(initialEnrollments);
   const [selectedYearId, setSelectedYearId] = useState<string>("all");
@@ -67,12 +69,12 @@ export function InvestitureClientPage({
       const message =
         error instanceof ApiError
           ? error.message
-          : "No se pudo actualizar la lista";
+          : t("client.errorRefresh");
       toast.error(message);
     } finally {
       setIsRefreshing(false);
     }
-  }, [selectedYearId]);
+  }, [selectedYearId, t]);
 
   return (
     <div className="space-y-4">
@@ -82,10 +84,10 @@ export function InvestitureClientPage({
           {years.length > 0 && (
             <Select value={selectedYearId} onValueChange={setSelectedYearId}>
               <SelectTrigger className="w-52">
-                <SelectValue placeholder="Todos los años" />
+                <SelectValue placeholder={t("client.allYears")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos los años</SelectItem>
+                <SelectItem value="all">{t("client.allYears")}</SelectItem>
                 {years.map((year) => (
                   <SelectItem
                     key={year.ecclesiastical_year_id}
@@ -94,7 +96,7 @@ export function InvestitureClientPage({
                     {year.name}
                     {year.active && (
                       <span className="ml-1.5 text-xs text-muted-foreground">
-                        (activo)
+                        {t("client.yearActive")}
                       </span>
                     )}
                   </SelectItem>
@@ -110,8 +112,8 @@ export function InvestitureClientPage({
               {filteredEnrollments.length}
             </span>{" "}
             {filteredEnrollments.length === 1
-              ? "pendiente"
-              : "pendientes"}
+              ? t("client.countSingular")
+              : t("client.countPlural")}
           </p>
           <Button
             variant="outline"
@@ -120,9 +122,9 @@ export function InvestitureClientPage({
             disabled={isRefreshing}
           >
             <RefreshCw
-              className={`mr-2 size-4 ${isRefreshing ? "animate-spin" : ""}`}
+              className={`size-4 ${isRefreshing ? "animate-spin" : ""}`}
             />
-            Actualizar
+            {t("client.refresh")}
           </Button>
         </div>
       </div>

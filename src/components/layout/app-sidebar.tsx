@@ -61,9 +61,9 @@ function NavItemWithChildren({ item, pathname }: { item: NavItem; pathname: stri
       <SidebarMenuItem>
         <CollapsibleTrigger asChild>
           <SidebarMenuButton tooltip={title} isActive={isActive}>
-            <item.icon className="size-4 shrink-0" />
+            <item.icon className="h-[18px] w-[18px] shrink-0" />
             <span className="truncate">{title}</span>
-            <ChevronRight className="ml-auto size-4 shrink-0 transition-transform group-data-[state=open]/collapsible:rotate-90" />
+            <ChevronRight className="ml-auto h-[18px] w-[18px] shrink-0 transition-transform group-data-[state=open]/collapsible:rotate-90" />
           </SidebarMenuButton>
         </CollapsibleTrigger>
         <CollapsibleContent>
@@ -96,7 +96,7 @@ function NavItemSimple({ item, pathname }: { item: NavItem; pathname: string }) 
     <SidebarMenuItem>
       <SidebarMenuButton asChild tooltip={title} isActive={isActive}>
         <Link href={item.url}>
-          <item.icon className="size-4 shrink-0" />
+          <item.icon className="h-[18px] w-[18px] shrink-0" />
           <span className="truncate">{title}</span>
         </Link>
       </SidebarMenuButton>
@@ -179,7 +179,7 @@ function SidebarUserFooter() {
             >
               <DropdownMenuItem asChild>
                 <Link href={`/dashboard/users/${user?.id ?? ""}`}>
-                  <User className="mr-2 size-4" />
+                  <User className="size-4" />
                   Mi perfil
                 </Link>
               </DropdownMenuItem>
@@ -194,7 +194,7 @@ function SidebarUserFooter() {
                   }}
                   aria-label="Cerrar sesión"
                 >
-                  <LogOut className="mr-2 size-4" />
+                  <LogOut className="size-4" />
                   Cerrar sesión
                 </button>
               </DropdownMenuItem>

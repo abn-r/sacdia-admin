@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/shared/page-header";
 import { ScoringCategoriesTable } from "@/components/scoring-categories/scoring-categories-table";
 import {
@@ -18,6 +19,7 @@ import type {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function DivisionScoringCategoriesPage() {
+  const t = useTranslations("scoring_categories.divisionPage");
   const fetchCategories = useCallback(
     () => getDivisionScoringCategories(),
     [],
@@ -50,8 +52,8 @@ export function DivisionScoringCategoriesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Categorías de Puntuación"
-        description="Categorías configuradas a nivel División. Todas las uniones y campos locales las heredan de forma automática."
+        title={t("pageTitle")}
+        description={t("pageDescription")}
       />
 
       <ScoringCategoriesTable

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useActionState, useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   Loader2,
   MoreHorizontal,
@@ -89,7 +90,7 @@ function pickName(item: CategoryRecord): string {
   return toText(item.name) ?? toText(item.title) ?? "—";
 }
 
-function DeleteButton() {
+function DeleteButton({ label }: { label: string }) {
   const [pending, setPending] = useState(false);
   return (
     <Button
@@ -98,8 +99,8 @@ function DeleteButton() {
       onClick={() => setPending(true)}
       disabled={pending}
     >
-      {pending && <Loader2 className="mr-2 size-4 animate-spin" />}
-      Eliminar
+      {pending && <Loader2 className="size-4 animate-spin" />}
+      {label}
     </Button>
   );
 }
@@ -111,6 +112,7 @@ export function AchievementCategoriesCrudPage({
   updateAction,
   deleteAction,
 }: Props) {
+  const t = useTranslations("achievements.crud.categories");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -198,12 +200,12 @@ export function AchievementCategoriesCrudPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Logros"
-        description="Categorías y logros del sistema de recompensas."
+        title={t("pageTitle")}
+        description={t("pageDescription")}
       >
         <Button onClick={() => setCreateOpen(true)}>
-          <Plus className="mr-2 size-4" />
-          Nueva categoría
+          <Plus className="size-4" />
+          {t("newButton")}
         </Button>
       </PageHeader>
 
@@ -211,18 +213,18 @@ export function AchievementCategoriesCrudPage({
         {/* Filters */}
         <div className="rounded-xl border bg-muted/20 p-4">
           <div className="mb-3 flex items-center justify-between gap-2">
-            <h3 className="text-sm font-semibold tracking-wide text-foreground">Filtros</h3>
-            <span className="text-xs text-muted-foreground">Refina el listado</span>
+            <h3 className="text-sm font-semibold tracking-wide text-foreground">{t("filtersTitle")}</h3>
+            <span className="text-xs text-muted-foreground">{t("filtersSubtitle")}</span>
           </div>
           <div className="overflow-x-auto pb-1">
             <div className="flex min-w-max items-end gap-4">
               <div className="w-[300px] space-y-1">
-                <Label htmlFor="cat-filter-name">Nombre</Label>
+                <Label htmlFor="cat-filter-name">{t("filterName")}</Label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="cat-filter-name"
-                    placeholder="Buscar por nombre..."
+                    placeholder={t("filterNamePlaceholder")}
                     value={searchInput}
                     onChange={(e) => handleSearchInputChange(e.target.value)}
                     className="bg-background pl-9"
@@ -230,18 +232,18 @@ export function AchievementCategoriesCrudPage({
                 </div>
               </div>
               <div className="w-[200px] space-y-1">
-                <Label htmlFor="cat-filter-status">Estado</Label>
+                <Label htmlFor="cat-filter-status">{t("filterStatus")}</Label>
                 <Select
                   value={currentStatusFilter}
                   onValueChange={(value) => updateParam("active", value)}
                 >
                   <SelectTrigger id="cat-filter-status" className="bg-background">
-                    <SelectValue placeholder="Estado" />
+                    <SelectValue placeholder={t("filterStatusPlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Todos los estados</SelectItem>
-                    <SelectItem value="true">Activas</SelectItem>
-                    <SelectItem value="false">Inactivas</SelectItem>
+                    <SelectItem value="all">{t("filterStatusAll")}</SelectItem>
+                    <SelectItem value="true">{t("filterStatusActive")}</SelectItem>
+                    <SelectItem value="false">{t("filterStatusInactive")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -253,17 +255,17 @@ export function AchievementCategoriesCrudPage({
         {items.length === 0 ? (
           <EmptyState
             icon={Trophy}
-            title={hasActiveFilters ? "Sin resultados" : "No hay categorías de logros"}
+            title={hasActiveFilters ? t("emptyFiltersTitle") : t("emptyNoFiltersTitle")}
             description={
               hasActiveFilters
-                ? "No hay categorías que coincidan con los filtros."
-                : "Crea la primera categoría para organizar los logros."
+                ? t("emptyFiltersDescription")
+                : t("emptyNoFiltersDescription")
             }
           >
             {!hasActiveFilters && (
               <Button onClick={() => setCreateOpen(true)}>
-                <Plus className="mr-2 size-4" />
-                Nueva categoría
+                <Plus className="size-4" />
+                {t("newButton")}
               </Button>
             )}
           </EmptyState>
@@ -273,13 +275,13 @@ export function AchievementCategoriesCrudPage({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Nombre</TableHead>
-                    <TableHead>Descripción</TableHead>
-                    <TableHead>Icono</TableHead>
-                    <TableHead>Orden</TableHead>
-                    <TableHead>Estado</TableHead>
+                    <TableHead>{t("tableColName")}</TableHead>
+                    <TableHead>{t("tableColDescription")}</TableHead>
+                    <TableHead>{t("tableColIcon")}</TableHead>
+                    <TableHead>{t("tableColOrder")}</TableHead>
+                    <TableHead>{t("tableColStatus")}</TableHead>
                     <TableHead className="sticky right-0 z-20 w-[120px] border-l bg-background text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Acciones
+                      {t("tableColActions")}
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -317,7 +319,7 @@ export function AchievementCategoriesCrudPage({
                         </TableCell>
                         <TableCell>
                           <Badge variant={item.active !== false ? "success" : "secondary"} className="text-xs">
-                            {item.active !== false ? "Activa" : "Inactiva"}
+                            {item.active !== false ? t("statusActive") : t("statusInactive")}
                           </Badge>
                         </TableCell>
                         <TableCell className="sticky right-0 z-10 border-l bg-background">
@@ -328,7 +330,7 @@ export function AchievementCategoriesCrudPage({
                               className="size-8"
                               disabled={!categoryId}
                               onClick={() => setEditItem(item)}
-                              title="Editar"
+                              title={t("actionEdit")}
                             >
                               <Pencil className="size-3.5" />
                             </Button>
@@ -338,7 +340,7 @@ export function AchievementCategoriesCrudPage({
                               className="size-8 text-destructive hover:text-destructive"
                               disabled={!categoryId}
                               onClick={() => setDeleteItem(item)}
-                              title="Eliminar"
+                              title={t("actionDelete")}
                             >
                               <Trash2 className="size-3.5" />
                             </Button>
@@ -356,7 +358,7 @@ export function AchievementCategoriesCrudPage({
                                   onSelect={() => setEditItem(item)}
                                 >
                                   <Pencil className="size-4" />
-                                  Editar
+                                  {t("actionEdit")}
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                   disabled={!categoryId}
@@ -364,7 +366,7 @@ export function AchievementCategoriesCrudPage({
                                   onSelect={() => setDeleteItem(item)}
                                 >
                                   <Trash2 className="size-4" />
-                                  Eliminar
+                                  {t("actionDelete")}
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
@@ -417,21 +419,19 @@ export function AchievementCategoriesCrudPage({
         >
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>¿Eliminar categoría?</AlertDialogTitle>
+              <AlertDialogTitle>{t("deleteTitle")}</AlertDialogTitle>
               <AlertDialogDescription>
-                Se eliminará la categoría{" "}
-                <strong className="text-foreground">&quot;{pickName(deleteItem)}&quot;</strong>.
-                Esta acción no puede deshacerse.
+                {t("deleteDescription", { name: pickName(deleteItem) })}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogCancel>{t("deleteCancelButton")}</AlertDialogCancel>
               <form action={deleteFormAction}>
                 <input type="hidden" name="id" value={String(pickId(deleteItem) ?? "")} />
                 {deleteState.error && (
                   <p className="mb-2 text-xs text-destructive">{deleteState.error}</p>
                 )}
-                <DeleteButton />
+                <DeleteButton label={t("deleteConfirmButton")} />
               </form>
             </AlertDialogFooter>
           </AlertDialogContent>

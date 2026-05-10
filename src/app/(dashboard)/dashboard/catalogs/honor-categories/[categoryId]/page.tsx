@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -92,6 +93,7 @@ function InfoRow({ label, value }: { label: string; value: ReactNode }) {
 
 export default async function HonorCategoryDetailPage({ params }: { params: Params }) {
   const user = await requireAdminUser();
+  const t = await getTranslations("catalogs.pages.honorCategoriesDetail");
   const roleSet = new Set(extractRoles(user));
   const canRead = roleSet.has(SUPER_ADMIN_ROLE) || hasAnyPermission(user, [HONOR_CATEGORIES_READ]);
 
@@ -99,7 +101,7 @@ export default async function HonorCategoryDetailPage({ params }: { params: Para
     return (
       <EndpointErrorBanner
         state="forbidden"
-        detail="No cuentas con permisos para ver categorías de especialidades."
+        detail={t("forbidden")}
       />
     );
   }
@@ -144,11 +146,11 @@ export default async function HonorCategoryDetailPage({ params }: { params: Para
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Detalle de categoría de especialidad">
+      <PageHeader title={t("pageTitle")}>
         <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/catalogs/honor-categories">
-            <ArrowLeft className="mr-2 size-4" />
-            Volver
+            <ArrowLeft className="size-4" />
+            {t("backButton")}
           </Link>
         </Button>
       </PageHeader>
@@ -157,34 +159,34 @@ export default async function HonorCategoryDetailPage({ params }: { params: Para
         <CardContent className="flex items-center gap-4 pt-6">
           <div className="space-y-1">
             <h2 className="text-xl font-bold">{categoryName}</h2>
-            <p className="text-sm text-muted-foreground">Categoría de especialidades</p>
+            <p className="text-sm text-muted-foreground">{t("categorySubtitle")}</p>
           </div>
 
-          <Badge variant={category.active !== false ? "default" : "outline"} className="w-fit">
-            {category.active !== false ? "Activa" : "Inactiva"}
+          <Badge variant={category.active !== false ? "soft-success" : "outline"} className="w-fit">
+            {category.active !== false ? t("active") : t("inactive")}
           </Badge>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Información general</CardTitle>
+          <CardTitle className="text-base">{t("cardGeneralTitle")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <InfoRow label="ID" value={categoryPrimaryId} />
-          <InfoRow label="Nombre" value={categoryName} />
-          <InfoRow label="Especialidades asociadas" value={honorCount} />
-          <InfoRow label="Estado" value={category.active !== false ? "Activa" : "Inactiva"} />
+          <InfoRow label={t("infoId")} value={categoryPrimaryId} />
+          <InfoRow label={t("infoName")} value={categoryName} />
+          <InfoRow label={t("infoHonorsCount")} value={honorCount} />
+          <InfoRow label={t("infoStatus")} value={category.active !== false ? t("active") : t("inactive")} />
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Descripción</CardTitle>
+          <CardTitle className="text-base">{t("cardDescriptionTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            {description ?? "Sin descripción registrada."}
+            {description ?? t("noDescription")}
           </p>
         </CardContent>
       </Card>
@@ -193,7 +195,7 @@ export default async function HonorCategoryDetailPage({ params }: { params: Para
       <Card>
         <CardHeader>
           <CardTitle className="text-base">
-            Especialidades en esta categoría
+            {t("cardHonorsTitle")}
             {categoryHonors.length > 0 && (
               <Badge variant="secondary" className="ml-2 text-xs">
                 {categoryHonors.length}
@@ -204,17 +206,17 @@ export default async function HonorCategoryDetailPage({ params }: { params: Para
         <CardContent>
           {categoryHonors.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No se encontraron especialidades asignadas a esta categoría, o el endpoint no respondió.
+              {t("noHonors")}
             </p>
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">ID</TableHead>
-                    <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Nombre</TableHead>
-                    <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Nivel</TableHead>
-                    <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Estado</TableHead>
+                    <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{t("tableId")}</TableHead>
+                    <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{t("tableName")}</TableHead>
+                    <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{t("tableLevel")}</TableHead>
+                    <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{t("tableStatus")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -225,7 +227,7 @@ export default async function HonorCategoryDetailPage({ params }: { params: Para
                       <TableCell className="text-xs text-muted-foreground">{honor.skill_level ?? "—"}</TableCell>
                       <TableCell>
                         <Badge variant={honor.active !== false ? "success" : "secondary"} className="text-xs">
-                          {honor.active !== false ? "Activa" : "Inactiva"}
+                          {honor.active !== false ? t("active") : t("inactive")}
                         </Badge>
                       </TableCell>
                     </TableRow>

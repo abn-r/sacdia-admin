@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { ConfigClientPage } from "@/components/investiture/config-client-page";
@@ -7,6 +8,7 @@ import { requireAdminUser } from "@/lib/auth/session";
 
 export default async function InvestitureConfigPage() {
   await requireAdminUser();
+  const t = await getTranslations("investiture");
 
   let configs: InvestitureConfig[] = [];
   let loadError: string | null = null;
@@ -18,14 +20,14 @@ export default async function InvestitureConfigPage() {
     loadError =
       error instanceof ApiError
         ? error.message
-        : "No se pudieron cargar las configuraciones de investidura.";
+        : t("pageConfig.errorFallback");
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Configuración de Investiduras"
-        description="Gestioná las fechas límite de envío y de ceremonia de investidura por campo local y año eclesiástico."
+        title={t("pageConfig.title")}
+        description={t("pageConfig.description")}
       />
 
       {loadError && (

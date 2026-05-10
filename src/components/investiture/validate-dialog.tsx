@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -21,18 +21,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { validateEnrollment, type ValidateAction } from "@/lib/api/investiture";
 import { ApiError } from "@/lib/api/client";
 
-// ─── Schemas ──────────────────────────────────────────────────────────────────
+// ─── Schema factories ─────────────────────────────────────────────────────────
 
 const approveSchema = z.object({
   comments: z.string().optional(),
 });
 
-const rejectSchema = z.object({
-  comments: z.string().min(1, "El motivo de rechazo es obligatorio"),
-});
+function buildRejectSchema(t: ReturnType<typeof useTranslations<"investiture.validation">>) {
+  return z.object({
+    comments: z.string().min(1, t("comments_required")),
+  });
+}
 
 type ApproveFormValues = z.infer<typeof approveSchema>;
-type RejectFormValues = z.infer<typeof rejectSchema>;
+type RejectFormValues = z.infer<ReturnType<typeof buildRejectSchema>>;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -56,9 +58,11 @@ export function ValidateDialog({
   onSuccess,
 }: ValidateDialogProps) {
   const t = useTranslations("investiture");
+  const tVal = useTranslations("investiture.validation");
   const [isPending, setIsPending] = useState(false);
 
   const isApprove = action === "APPROVED";
+  const rejectSchema = useMemo(() => buildRejectSchema(tVal), [tVal]);
   const schema = isApprove ? approveSchema : rejectSchema;
 
   const form = useForm<ApproveFormValues | RejectFormValues>({
@@ -155,7 +159,7 @@ export function ValidateDialog({
               variant={isApprove ? "default" : "destructive"}
               disabled={isPending}
             >
-              {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
+              {isPending && <Loader2 className="size-4 animate-spin" />}
               {isApprove ? "Aprobar" : "Rechazar"}
             </Button>
           </DialogFooter>

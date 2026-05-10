@@ -2,23 +2,16 @@
 
 import Image from "next/image";
 import { EyeOff, Lock, RefreshCw } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import type { AchievementTier, AchievementType } from "@/lib/api/achievements";
 
-const TIER_COLORS: Record<AchievementTier, { ring: string; label: string; bg: string }> = {
-  BRONZE: { ring: "#CD7F32", label: "Bronce", bg: "#CD7F3220" },
-  SILVER: { ring: "#C0C0C0", label: "Plata", bg: "#C0C0C020" },
-  GOLD: { ring: "#FFD700", label: "Oro", bg: "#FFD70020" },
-  PLATINUM: { ring: "#E5E4E2", label: "Platino", bg: "#E5E4E220" },
-  DIAMOND: { ring: "#B9F2FF", label: "Diamante", bg: "#B9F2FF20" },
-};
-
-const TYPE_LABELS: Record<AchievementType, string> = {
-  THRESHOLD: "Umbral",
-  STREAK: "Racha",
-  COMPOUND: "Compuesto",
-  MILESTONE: "Hito",
-  COLLECTION: "Colección",
+const TIER_COLORS: Record<AchievementTier, { ring: string; bg: string }> = {
+  BRONZE: { ring: "#CD7F32", bg: "#CD7F3220" },
+  SILVER: { ring: "#C0C0C0", bg: "#C0C0C020" },
+  GOLD: { ring: "#FFD700", bg: "#FFD70020" },
+  PLATINUM: { ring: "#E5E4E2", bg: "#E5E4E220" },
+  DIAMOND: { ring: "#B9F2FF", bg: "#B9F2FF20" },
 };
 
 interface Props {
@@ -42,6 +35,7 @@ export function AchievementPreviewCard({
   repeatable = false,
   badgeImageUrl,
 }: Props) {
+  const t = useTranslations("achievements.cards.preview");
   const tierConfig = TIER_COLORS[tier];
 
   return (
@@ -78,7 +72,7 @@ export function AchievementPreviewCard({
 
       {/* Name */}
       <div className="space-y-1">
-        <h3 className="text-base font-semibold leading-tight">{name || "Nombre del logro"}</h3>
+        <h3 className="text-base font-semibold leading-tight">{name || t("defaultName")}</h3>
         {description && (
           <p className="text-xs text-muted-foreground line-clamp-2">{description}</p>
         )}
@@ -95,27 +89,27 @@ export function AchievementPreviewCard({
             border: `1px solid ${tierConfig.ring}40`,
           }}
         >
-          {tierConfig.label}
+          {t(`tierLabels.${tier}`)}
         </span>
 
         <Badge variant="secondary" className="text-xs">
-          {TYPE_LABELS[type]}
+          {t(`typeLabels.${type}`)}
         </Badge>
 
         <Badge variant="default" className="text-xs">
-          {points} pts
+          {points} {t("pointsSuffix")}
         </Badge>
 
         {repeatable && (
           <Badge variant="outline" className="gap-1 text-xs">
             <RefreshCw className="size-3" />
-            Repetible
+            {t("repeatableBadge")}
           </Badge>
         )}
         {secret && (
           <Badge variant="outline" className="gap-1 text-xs">
             <Lock className="size-3" />
-            Secreto
+            {t("secretBadge")}
           </Badge>
         )}
       </div>

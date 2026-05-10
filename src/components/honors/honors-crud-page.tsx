@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useFormStatus } from "react-dom";
+import { useTranslations } from "next-intl";
 import {
   Award,
   Loader2,
@@ -16,8 +18,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -25,14 +25,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -66,11 +58,6 @@ type HonorRecord = Record<string, unknown>;
 type SelectOption = { label: string; value: number };
 type NavigationMode = "push" | "replace";
 type HonorFormAction = (prevState: HonorActionState, formData: FormData) => Promise<HonorActionState>;
-type HonorUpdateAction = (
-  honorId: number,
-  prevState: HonorActionState,
-  formData: FormData,
-) => Promise<HonorActionState>;
 
 const HONOR_IMAGE_KEYS = [
   "patch_image",
@@ -106,8 +93,6 @@ interface HonorsCrudPageProps {
   canCreate: boolean;
   canEdit: boolean;
   canDelete: boolean;
-  createAction: HonorFormAction;
-  updateActionBase: HonorUpdateAction;
   deactivateAction: HonorFormAction;
 }
 
@@ -186,163 +171,13 @@ function resolveClubTypeName(item: HonorRecord, clubTypeById: Map<number, string
   return clubTypeById.get(id) ?? `#${id}`;
 }
 
-function getDefaultCheckboxValue(item?: HonorRecord | null): boolean {
-  if (!item) return true;
-  return item.active !== false;
-}
-
-function SubmitButton({ label }: { label: string }) {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" disabled={pending}>
-      {pending && <Loader2 className="mr-2 size-4 animate-spin" />}
-      {label}
-    </Button>
-  );
-}
-
-function DeleteButton() {
+function DeleteButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-      {pending && <Loader2 className="mr-2 size-4 animate-spin" />}
-      Eliminar
+      {pending && <Loader2 className="size-4 animate-spin" />}
+      {label}
     </Button>
-  );
-}
-
-type HonorFormFieldsProps = {
-  item?: HonorRecord | null;
-  categoryOptions: SelectOption[];
-  clubTypeOptions: SelectOption[];
-  activeChecked: boolean;
-  onActiveChange: (checked: boolean) => void;
-};
-
-function HonorFormFields({
-  item,
-  categoryOptions,
-  clubTypeOptions,
-  activeChecked,
-  onActiveChange,
-}: HonorFormFieldsProps) {
-  const currentCategoryId = toPositiveNumber(item?.honors_category_id ?? item?.category_id);
-  const currentClubTypeId = toPositiveNumber(item?.club_type_id);
-  const currentSkillLevel = toPositiveNumber(item?.skill_level) ?? 1;
-  const currentMasterHonor = toPositiveNumber(item?.master_honors);
-
-  return (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="honor_name">
-          Nombre <span className="text-destructive">*</span>
-        </Label>
-        <Input id="honor_name" name="name" defaultValue={toText(item?.name) ?? ""} required />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="honor_description">Descripción</Label>
-        <Textarea
-          id="honor_description"
-          name="description"
-          rows={3}
-          defaultValue={toText(item?.description) ?? ""}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="honor_image">Imagen (URL o archivo)</Label>
-        <Input
-          id="honor_image"
-          name="honor_image"
-          defaultValue={toText(item?.honor_image ?? item?.patch_image) ?? ""}
-          placeholder="Especialidades/acolchado.png"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="material_url">Material (PDF)</Label>
-        <Input
-          id="material_url"
-          name="material_url"
-          defaultValue={toText(item?.material_url ?? item?.material_honor) ?? ""}
-          placeholder="Especialidades/Material/acolchado.pdf"
-        />
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label>Categoría</Label>
-          <Select name="honors_category_id" defaultValue={currentCategoryId ? String(currentCategoryId) : undefined}>
-            <SelectTrigger>
-              <SelectValue placeholder="Seleccionar categoría" />
-            </SelectTrigger>
-            <SelectContent>
-              {categoryOptions.map((option) => (
-                <SelectItem key={option.value} value={String(option.value)}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <Label>Tipo de club</Label>
-          <Select name="club_type_id" defaultValue={currentClubTypeId ? String(currentClubTypeId) : undefined}>
-            <SelectTrigger>
-              <SelectValue placeholder="Seleccionar club" />
-            </SelectTrigger>
-            <SelectContent>
-              {clubTypeOptions.map((option) => (
-                <SelectItem key={option.value} value={String(option.value)}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-3">
-        <div className="space-y-2">
-          <Label htmlFor="skill_level">Nivel</Label>
-          <Input
-            id="skill_level"
-            name="skill_level"
-            type="number"
-            min={1}
-            defaultValue={String(currentSkillLevel)}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="master_honors">Master honor</Label>
-          <Input
-            id="master_honors"
-            name="master_honors"
-            type="number"
-            min={1}
-            defaultValue={currentMasterHonor ? String(currentMasterHonor) : ""}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="year">Año</Label>
-          <Input id="year" name="year" defaultValue={toText(item?.year) ?? ""} />
-        </div>
-      </div>
-
-      <div className="flex items-center gap-2">
-        <input type="hidden" name="active" value={activeChecked ? "on" : ""} />
-        <Checkbox
-          id="active"
-          checked={activeChecked}
-          onCheckedChange={(checked) => onActiveChange(!!checked)}
-        />
-        <Label htmlFor="active">Activo</Label>
-      </div>
-    </div>
   );
 }
 
@@ -354,10 +189,10 @@ export function HonorsCrudPage({
   canCreate,
   canEdit,
   canDelete,
-  createAction,
-  updateActionBase,
   deactivateAction,
 }: HonorsCrudPageProps) {
+  const t = useTranslations("honors.crud");
+
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -365,11 +200,7 @@ export function HonorsCrudPage({
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latestParamsRef = useRef(searchParamsString);
 
-  const [createOpen, setCreateOpen] = useState(false);
-  const [editItem, setEditItem] = useState<HonorRecord | null>(null);
   const [deleteItem, setDeleteItem] = useState<HonorRecord | null>(null);
-  const [createActiveChecked, setCreateActiveChecked] = useState(true);
-  const [editActiveChecked, setEditActiveChecked] = useState(true);
 
   const categoryNameById = useMemo(() => {
     const map = new Map<number, string>();
@@ -387,23 +218,7 @@ export function HonorsCrudPage({
     return map;
   }, [clubTypeOptions]);
 
-  const [createState, createFormAction] = useActionState<HonorActionState, FormData>(createAction, {});
   const [deleteState, deleteFormAction] = useActionState<HonorActionState, FormData>(deactivateAction, {});
-
-  const editId = editItem ? pickHonorId(editItem) : null;
-  const boundUpdateAction = editItem && editId
-    ? updateActionBase.bind(null, editId)
-    : async (): Promise<HonorActionState> => ({ error: "No se pudo identificar la especialidad." });
-  const [updateState, updateFormAction] = useActionState<HonorActionState, FormData>(boundUpdateAction, {});
-
-  const handleCreateDialogChange = (open: boolean) => {
-    setCreateOpen(open);
-    if (open) setCreateActiveChecked(true);
-  };
-
-  const handleEditDialogChange = (open: boolean) => {
-    if (!open) setEditItem(null);
-  };
 
   useEffect(() => {
     latestParamsRef.current = searchParamsString;
@@ -527,11 +342,13 @@ export function HonorsCrudPage({
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Especialidades" description="Catálogo de especialidades.">
+      <PageHeader title={t("pageTitle")} description={t("pageDescription")}>
         {canCreate && (
-          <Button onClick={() => handleCreateDialogChange(true)}>
-            <Plus className="mr-2 size-4" />
-            Crear especialidad
+          <Button asChild>
+            <Link href="/dashboard/honors/new">
+              <Plus className="size-4" />
+              {t("createButton")}
+            </Link>
           </Button>
         )}
       </PageHeader>
@@ -539,18 +356,17 @@ export function HonorsCrudPage({
       <div className="space-y-4">
         <div className="rounded-xl border bg-muted/20 p-4">
           <div className="mb-3 flex items-center justify-between gap-2">
-            <h3 className="text-sm font-semibold tracking-wide text-foreground">Filtros</h3>
-            <span className="text-xs text-muted-foreground">Refina el listado por campo</span>
+            <h3 className="text-sm font-semibold tracking-wide text-foreground">{t("filtersTitle")}</h3>
+            <span className="text-xs text-muted-foreground">{t("filtersSubtitle")}</span>
           </div>
-          <div className="overflow-x-auto pb-1">
-            <div className="flex min-w-max items-end gap-4">
-              <div className="w-[280px] space-y-1">
-                <Label htmlFor="honors-filter-name">Nombre</Label>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+              <div className="space-y-1">
+                <Label htmlFor="honors-filter-name">{t("filterNameLabel")}</Label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="honors-filter-name"
-                    placeholder="Buscar por nombre..."
+                    placeholder={t("filterNamePlaceholder")}
                     value={searchInput}
                     onChange={(event) => handleSearchInputChange(event.target.value)}
                     className="bg-background pl-9"
@@ -558,14 +374,14 @@ export function HonorsCrudPage({
                 </div>
               </div>
 
-              <div className="w-[210px] space-y-1">
-                <Label htmlFor="honors-filter-category">Categoría</Label>
+              <div className="space-y-1">
+                <Label htmlFor="honors-filter-category">{t("filterCategoryLabel")}</Label>
                 <Select value={currentCategoryFilter} onValueChange={(value) => updateParam("categoryId", value)}>
                   <SelectTrigger id="honors-filter-category" className="bg-background">
-                    <SelectValue placeholder="Categoría" />
+                    <SelectValue placeholder={t("filterCategoryPlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Todas las categorías</SelectItem>
+                    <SelectItem value="all">{t("filterCategoryAll")}</SelectItem>
                     {categoryOptions.map((option) => (
                       <SelectItem key={option.value} value={String(option.value)}>
                         {option.label}
@@ -575,14 +391,14 @@ export function HonorsCrudPage({
                 </Select>
               </div>
 
-              <div className="w-[210px] space-y-1">
-                <Label htmlFor="honors-filter-club-type">Tipo de club</Label>
+              <div className="space-y-1">
+                <Label htmlFor="honors-filter-club-type">{t("filterClubTypeLabel")}</Label>
                 <Select value={currentClubTypeFilter} onValueChange={(value) => updateParam("clubTypeId", value)}>
                   <SelectTrigger id="honors-filter-club-type" className="bg-background">
-                    <SelectValue placeholder="Tipo de club" />
+                    <SelectValue placeholder={t("filterClubTypePlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Todos los tipos</SelectItem>
+                    <SelectItem value="all">{t("filterClubTypeAll")}</SelectItem>
                     {clubTypeOptions.map((option) => (
                       <SelectItem key={option.value} value={String(option.value)}>
                         {option.label}
@@ -592,50 +408,51 @@ export function HonorsCrudPage({
                 </Select>
               </div>
 
-              <div className="w-[170px] space-y-1">
-                <Label htmlFor="honors-filter-level">Nivel</Label>
+              <div className="space-y-1">
+                <Label htmlFor="honors-filter-level">{t("filterLevelLabel")}</Label>
                 <Select value={currentLevelFilter} onValueChange={(value) => updateParam("skillLevel", value)}>
                   <SelectTrigger id="honors-filter-level" className="bg-background">
-                    <SelectValue placeholder="Nivel" />
+                    <SelectValue placeholder={t("filterLevelPlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Todos los niveles</SelectItem>
+                    <SelectItem value="all">{t("filterLevelAll")}</SelectItem>
                     {levelFilterOptions.map((option) => (
                       <SelectItem key={option} value={String(option)}>
-                        Nivel {option}
+                        {t("filterLevelItem", { level: option })}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
-              <div className="w-[170px] space-y-1">
-                <Label htmlFor="honors-filter-status">Estado</Label>
+              <div className="space-y-1">
+                <Label htmlFor="honors-filter-status">{t("filterStatusLabel")}</Label>
                 <Select value={currentStatusFilter} onValueChange={(value) => updateParam("active", value)}>
                   <SelectTrigger id="honors-filter-status" className="bg-background">
-                    <SelectValue placeholder="Estado" />
+                    <SelectValue placeholder={t("filterStatusPlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Todos los estados</SelectItem>
-                    <SelectItem value="true">Activos</SelectItem>
-                    <SelectItem value="false">Inactivos</SelectItem>
+                    <SelectItem value="all">{t("filterStatusAll")}</SelectItem>
+                    <SelectItem value="true">{t("filterStatusActive")}</SelectItem>
+                    <SelectItem value="false">{t("filterStatusInactive")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-            </div>
           </div>
         </div>
 
         {items.length === 0 ? (
           <EmptyState
             icon={Award}
-            title={hasActiveFilters ? "Sin resultados" : "No hay especialidades"}
-            description={hasActiveFilters ? "No hay especialidades que coincidan con los filtros." : "No se encontraron registros."}
+            title={hasActiveFilters ? t("emptyFilterTitle") : t("emptyTitle")}
+            description={hasActiveFilters ? t("emptyFilterDescription") : t("emptyDescription")}
           >
             {canCreate && !hasActiveFilters && (
-              <Button onClick={() => handleCreateDialogChange(true)}>
-                <Plus className="mr-2 size-4" />
-                Crear especialidad
+              <Button asChild>
+                <Link href="/dashboard/honors/new">
+                  <Plus className="size-4" />
+                  {t("createButton")}
+                </Link>
               </Button>
             )}
           </EmptyState>
@@ -645,14 +462,14 @@ export function HonorsCrudPage({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Especialidad</TableHead>
-                    <TableHead>Categoría</TableHead>
-                    <TableHead>Tipo de club</TableHead>
-                    <TableHead>Nivel</TableHead>
-                    <TableHead>Estado</TableHead>
+                    <TableHead>{t("tableHeaderHonor")}</TableHead>
+                    <TableHead>{t("tableHeaderCategory")}</TableHead>
+                    <TableHead>{t("tableHeaderClubType")}</TableHead>
+                    <TableHead>{t("tableHeaderLevel")}</TableHead>
+                    <TableHead>{t("tableHeaderStatus")}</TableHead>
                     {(canEdit || canDelete) && (
                       <TableHead className="sticky right-0 z-20 w-[100px] border-l bg-background">
-                        Acciones
+                        {t("tableHeaderActions")}
                       </TableHead>
                     )}
                   </TableRow>
@@ -666,6 +483,7 @@ export function HonorsCrudPage({
                     const clubTypeName = resolveClubTypeName(item, clubTypeById);
                     const skillLevel = toPositiveNumber(item.skill_level);
                     const rowKey = honorId ? `honor-${honorId}` : `honor-row-${(safePage - 1) * safeLimit + idx}`;
+                    const editHref = honorId ? `/dashboard/honors/${honorId}/edit` : null;
 
                     return (
                       <TableRow key={rowKey}>
@@ -680,26 +498,24 @@ export function HonorsCrudPage({
                         <TableCell className="text-sm">{clubTypeName}</TableCell>
                         <TableCell className="text-sm">{skillLevel ?? "—"}</TableCell>
                         <TableCell>
-                          <Badge variant={item.active !== false ? "default" : "outline"} className="text-xs">
-                            {item.active !== false ? "Activo" : "Inactivo"}
+                          <Badge variant={item.active !== false ? "soft-success" : "outline"} className="text-xs">
+                            {item.active !== false ? t("badgeActive") : t("badgeInactive")}
                           </Badge>
                         </TableCell>
                         {(canEdit || canDelete) && (
                           <TableCell className="sticky right-0 z-10 border-l bg-background">
                             <div className="hidden gap-1 md:flex">
-                              {canEdit && (
+                              {canEdit && editHref && (
                                 <Button
                                   variant="ghost"
                                   size="icon"
                                   className="size-8"
-                                  disabled={!honorId}
-                                  onClick={() => {
-                                    setEditItem(item);
-                                    setEditActiveChecked(getDefaultCheckboxValue(item));
-                                  }}
-                                  title="Editar"
+                                  asChild
+                                  title={t("editButton")}
                                 >
-                                  <Pencil className="size-3.5" />
+                                  <Link href={editHref} aria-label={t("editAriaLabel", { name: honorName })}>
+                                    <Pencil className="size-3.5" />
+                                  </Link>
                                 </Button>
                               )}
                               {canDelete && (
@@ -709,7 +525,8 @@ export function HonorsCrudPage({
                                   className="size-8 text-destructive hover:text-destructive"
                                   disabled={!honorId}
                                   onClick={() => setDeleteItem(item)}
-                                  title="Eliminar"
+                                  title={t("deleteButton")}
+                                  aria-label={t("deleteAriaLabel", { name: honorName })}
                                 >
                                   <Trash2 className="size-3.5" />
                                 </Button>
@@ -718,21 +535,17 @@ export function HonorsCrudPage({
                             <div className="md:hidden">
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="size-8" title="Acciones">
+                                  <Button variant="ghost" size="icon" className="size-8" title={t("actionsButton")} aria-label={t("actionsAriaLabel", { name: honorName })}>
                                     <MoreHorizontal className="size-4" />
                                   </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                  {canEdit && (
-                                    <DropdownMenuItem
-                                      disabled={!honorId}
-                                      onSelect={() => {
-                                        setEditItem(item);
-                                        setEditActiveChecked(getDefaultCheckboxValue(item));
-                                      }}
-                                    >
-                                      <Pencil className="size-4" />
-                                      Editar
+                                  {canEdit && editHref && (
+                                    <DropdownMenuItem asChild>
+                                      <Link href={editHref}>
+                                        <Pencil className="size-4" />
+                                        {t("editButton")}
+                                      </Link>
                                     </DropdownMenuItem>
                                   )}
                                   {canDelete && (
@@ -742,7 +555,7 @@ export function HonorsCrudPage({
                                       onSelect={() => setDeleteItem(item)}
                                     >
                                       <Trash2 className="size-4" />
-                                      Eliminar
+                                      {t("deleteButton")}
                                     </DropdownMenuItem>
                                   )}
                                 </DropdownMenuContent>
@@ -768,84 +581,23 @@ export function HonorsCrudPage({
         )}
       </div>
 
-      {canCreate && (
-        <Dialog open={createOpen} onOpenChange={handleCreateDialogChange}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Crear especialidad</DialogTitle>
-              <DialogDescription>Completa los campos necesarios para registrar la especialidad.</DialogDescription>
-            </DialogHeader>
-            <form action={createFormAction} className="space-y-4">
-              {createState.error && (
-                <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                  {createState.error}
-                </div>
-              )}
-              <HonorFormFields
-                categoryOptions={categoryOptions}
-                clubTypeOptions={clubTypeOptions}
-                activeChecked={createActiveChecked}
-                onActiveChange={setCreateActiveChecked}
-              />
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setCreateOpen(false)}>
-                  Cancelar
-                </Button>
-                <SubmitButton label="Crear" />
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-      )}
-
-      {canEdit && editItem && editId && (
-        <Dialog open={!!editItem} onOpenChange={handleEditDialogChange}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Editar especialidad</DialogTitle>
-            </DialogHeader>
-            <form action={updateFormAction} className="space-y-4">
-              {updateState.error && (
-                <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                  {updateState.error}
-                </div>
-              )}
-              <HonorFormFields
-                item={editItem}
-                categoryOptions={categoryOptions}
-                clubTypeOptions={clubTypeOptions}
-                activeChecked={editActiveChecked}
-                onActiveChange={setEditActiveChecked}
-              />
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setEditItem(null)}>
-                  Cancelar
-                </Button>
-                <SubmitButton label="Guardar cambios" />
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-      )}
-
       {canDelete && deleteItem && (
         <AlertDialog open={!!deleteItem} onOpenChange={(open) => { if (!open) setDeleteItem(null); }}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>¿Eliminar especialidad?</AlertDialogTitle>
+              <AlertDialogTitle>{t("deleteDialogTitle")}</AlertDialogTitle>
               <AlertDialogDescription>
-                Se desactivará de forma lógica la especialidad{" "}
-                <span className="font-medium">&quot;{pickHonorName(deleteItem)}&quot;</span>.
+                {t("deleteDialogDescription", { name: pickHonorName(deleteItem) })}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogCancel>{t("deleteDialogCancel")}</AlertDialogCancel>
               <form action={deleteFormAction} className="space-y-2">
                 <input type="hidden" name="id" value={String(pickHonorId(deleteItem) ?? "")} />
                 {deleteState.error && (
                   <p className="text-xs text-destructive">{deleteState.error}</p>
                 )}
-                <DeleteButton />
+                <DeleteButton label={t("deleteDialogConfirm")} />
               </form>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -854,7 +606,7 @@ export function HonorsCrudPage({
 
       {!canMutate && (
         <div className="rounded-md border border-dashed px-4 py-3 text-sm text-muted-foreground">
-          No cuentas con permisos para modificar especialidades.
+          {t("noPermissionBanner")}
         </div>
       )}
     </div>

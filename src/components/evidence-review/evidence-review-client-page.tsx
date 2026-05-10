@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,16 +14,9 @@ import {
 } from "@/lib/api/evidence-review";
 import { ApiError } from "@/lib/api/client";
 
-// ─── Tab config ───────────────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 type TabKey = EvidenceType | "all";
-
-const TABS: { key: TabKey; label: string }[] = [
-  { key: "all", label: "Todos" },
-  { key: "folder", label: "Carpetas" },
-  { key: "class", label: "Clases" },
-  { key: "honor", label: "Honores" },
-];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -42,6 +36,16 @@ interface EvidenceReviewClientPageProps {
 export function EvidenceReviewClientPage({
   initialItems,
 }: EvidenceReviewClientPageProps) {
+  const t = useTranslations("evidence_review.client");
+
+  // TABS defined inside component so labels go through t()
+  const TABS: { key: TabKey; label: string }[] = [
+    { key: "all",    label: t("tab_all") },
+    { key: "folder", label: t("tab_folders") },
+    { key: "class",  label: t("tab_classes") },
+    { key: "honor",  label: t("tab_honors") },
+  ];
+
   const [activeTab, setActiveTab] = useState<TabKey>("all");
   const [items, setItems] = useState<EvidenceItem[]>(initialItems);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -66,14 +70,14 @@ export function EvidenceReviewClientPage({
       const message =
         error instanceof ApiError
           ? error.message
-          : "No se pudo actualizar la lista";
+          : t("error_refresh");
       toast.error(message);
     } finally {
       if (isMounted.current) {
         setIsRefreshing(false);
       }
     }
-  }, [activeTab]);
+  }, [activeTab, t]);
 
   // Reload data when tab changes
   useEffect(() => {
@@ -104,9 +108,9 @@ export function EvidenceReviewClientPage({
           disabled={isRefreshing}
         >
           <RefreshCw
-            className={`mr-2 size-4 ${isRefreshing ? "animate-spin" : ""}`}
+            className={`size-4 ${isRefreshing ? "animate-spin" : ""}`}
           />
-          Actualizar
+          {t("btn_refresh")}
         </Button>
       </div>
 
