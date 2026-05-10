@@ -49,7 +49,7 @@ type FormValues = z.infer<ReturnType<typeof buildSchema>>;
 
 // ─── Props ─────────────────────────────────────────────────────────────────────
 
-interface CamporeeFormDialogProps {
+export interface CamporeeFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   camporee?: Camporee | null;

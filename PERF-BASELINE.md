@@ -227,10 +227,71 @@ or brotli (smaller). These numbers are upper-bound for HTTP transfer.
 
 ---
 
-## 7. Next actions (handoff)
+## 7. Round 5 (2026-05-10) — zod form-dialog deferred imports
+
+**Branch:** `perf/admin-r5-dynamic` (off `origin/development`)
+**Tool:** `pnpm analyze` → `next experimental-analyze -o` → `.next/diagnostics/analyze/data/`
+**Method:** parsed `analyze.data` (binary Turbopack format) via Python to extract
+`compressed_size` per `(output_file, source)` pair across all routes.
+
+### New finding: 103 KB zod/i18n chunk on form-heavy routes
+
+`0atc2p9c7en0i.js` (**103 KB compressed**) appears on `/dashboard/camporees`,
+`/dashboard/evidence-review`, `/dashboard/investiture/pipeline`, and other form-heavy
+routes. Sources: `zod.mjs` + all 50+ `zod@4` i18n locale files
+(`es.js`, `fr.js`, `zh-TW.js`, etc.) + `@hookform/resolvers/zod` internals.
+Root cause: form dialog components import `zodResolver` at the module level,
+pulling the entire zod v4 locale bundle into the initial page chunk.
+
+| Route | Chunk saved (compressed) |
+|---|---|
+| `/dashboard/camporees` | ~103 KB |
+| `/dashboard/evidence-review` | ~103 KB |
+| `/dashboard/investiture/pipeline` | ~103 KB |
+
+### Components deferred
+
+| File | Dynamic-imported component(s) | Why safe to defer |
+|---|---|---|
+| `src/components/camporees/camporees-view.tsx` | `CamporeeFormDialog` | Only opened via "Nueva campaña" button click |
+| `src/components/evidence-review/evidence-review-table.tsx` | `EvidenceRejectDialog`, `EvidenceBulkActionBar` | Reject dialog requires row action; bulk bar appears after row selection |
+| `src/components/investiture/pipeline-table.tsx` | `PipelineRejectDialog`, `BulkActionBar` | Both require user interaction to mount |
+
+### Pattern applied
+
+Direct `next/dynamic({ ssr: false, loading: () => null })` on each dialog
+component in its parent client component — no wrapper+inner split needed since
+these are already conditionally rendered. Props interfaces exported from each
+dialog file for correct generic typing of `dynamic<Props>()`.
+
+### Other findings from R5 analyze run
+
+- **`react-day-picker`** (4.6 MB disk): completely tree-shaken. `calendar.tsx` is
+  defined but imported nowhere in the app — zero bundle impact.
+- **`recharts`** (`02jltdgb8b9kl.js`, 150 KB compressed): correctly isolated in its
+  own lazy chunk, confirming R4 work holds.
+- **Largest initial client chunks** (non-framework): `lucide-react` 16.9 KB, 
+  `next-intl` client runtime 13.2 KB, `floating-ui` 11.3 KB — all structural,
+  cannot be deferred without major refactor.
+- **`axios`** (`0kkorn5o_nsv3.js`, 21.9 KB): present on ~50 routes via `src/lib/api/client.ts`.
+  Used for all browser-side API calls. Cannot be deferred.
+
+### Verification
+
+- `pnpm typecheck`: PASS
+- `pnpm test --run`: 372/372 PASS
+- `pnpm lint`: 10 err / 42 warn (unchanged from baseline)
+
+---
+
+## 8. Next actions (handoff)
 
 - ~~Replace `pnpm analyze` script with `next experimental-analyze`~~ DONE.
-- ~~Recharts dynamic imports (#1 in §5)~~ DONE.
-- File remaining follow-up items from §5 (#2–#5) as separate perf PRs.
+- ~~Recharts dynamic imports (#1 in §5)~~ DONE (R4).
+- ~~zod form-dialog deferred imports (#2 in §5)~~ DONE (R5).
+- **Remaining items from §5 (#3–#5)**:
+  - Investigate `/dashboard/clubs/[id]` (18-chunk heavyweight route).
+  - Audit `/dashboard/annual-folders/templates` remaining eagerly-imported helpers.
+  - Evaluate replacing/deferring `cmdk` on `/dashboard/clubs/[id]`.
 - After the next perf wave, regenerate this baseline and commit a diff so we
   can see savings by route.

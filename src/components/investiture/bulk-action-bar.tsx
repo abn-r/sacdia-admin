@@ -80,7 +80,7 @@ type RejectFormValues = { reason: string };
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface BulkActionBarProps {
+export interface BulkActionBarProps {
   /** IDs of currently selected enrollments */
   selectedIds: number[];
   /** Status of the currently selected enrollments (used to derive the bulk action) */

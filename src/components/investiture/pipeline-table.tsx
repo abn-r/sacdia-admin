@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import {
@@ -24,9 +25,28 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PipelineStatusBadge } from "@/components/investiture/pipeline-status-badge";
-import { PipelineRejectDialog } from "@/components/investiture/pipeline-reject-dialog";
 import { PipelineHistoryDialog } from "@/components/investiture/pipeline-history-dialog";
-import { BulkActionBar } from "@/components/investiture/bulk-action-bar";
+import type { PipelineRejectDialogProps } from "@/components/investiture/pipeline-reject-dialog";
+import type { BulkActionBarProps } from "@/components/investiture/bulk-action-bar";
+
+// Deferred: PipelineRejectDialog and BulkActionBar both import zodResolver + zod
+// (~103 KB compressed). Reject dialog requires a row action click;
+// BulkActionBar only appears after selecting pipeline rows.
+const PipelineRejectDialog = dynamic<PipelineRejectDialogProps>(
+  () =>
+    import("@/components/investiture/pipeline-reject-dialog").then(
+      (m) => m.PipelineRejectDialog
+    ),
+  { ssr: false, loading: () => null }
+);
+
+const BulkActionBar = dynamic<BulkActionBarProps>(
+  () =>
+    import("@/components/investiture/bulk-action-bar").then(
+      (m) => m.BulkActionBar
+    ),
+  { ssr: false, loading: () => null }
+);
 import {
   pipelineClubApprove,
   pipelineCoordinatorApprove,
