@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -25,6 +24,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { useTranslations } from "next-intl";
 import {
   createInventoryItem,
@@ -81,14 +88,7 @@ export function InventoryFormDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const schema = useMemo(() => buildSchema(tVal), [tVal]);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm<FormValues>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(schema as z.ZodType<FormValues, FormValues>),
     defaultValues: {
       name: "",
@@ -102,14 +102,14 @@ export function InventoryFormDialog({
   useEffect(() => {
     if (open) {
       if (item) {
-        reset({
+        form.reset({
           name: item.name,
           description: item.description ?? "",
           inventory_category_id: item.inventory_category_id,
           amount: item.amount,
         });
       } else {
-        reset({
+        form.reset({
           name: "",
           description: "",
           inventory_category_id: categories[0]?.inventory_category_id ?? 0,
@@ -117,7 +117,7 @@ export function InventoryFormDialog({
         });
       }
     }
-  }, [open, item, categories, reset]);
+  }, [open, item, categories, form]);
 
   const onSubmit: SubmitHandler<FormValues> = async (values) => {
     setIsSubmitting(true);
@@ -151,8 +151,6 @@ export function InventoryFormDialog({
     }
   };
 
-  const selectedCategoryId = watch("inventory_category_id");
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md">
@@ -167,126 +165,145 @@ export function InventoryFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-          {/* Nombre */}
-          <div className="space-y-1.5">
-            <Label htmlFor="name">
-              Nombre{" "}
-              <span aria-hidden="true" className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="name"
-              aria-required="true"
-              {...register("name")}
-              placeholder={t("placeholders.name")}
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
+            {/* Nombre */}
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Nombre{" "}
+                    <span aria-hidden="true" className="text-destructive">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      aria-required="true"
+                      placeholder={t("placeholders.name")}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {errors.name && (
-              <p className="text-xs text-destructive">{errors.name.message}</p>
-            )}
-          </div>
 
-          {/* Descripción */}
-          <div className="space-y-1.5">
-            <Label htmlFor="description">Descripción</Label>
-            <Textarea
-              id="description"
-              {...register("description")}
-              placeholder={t("placeholders.description")}
-              rows={3}
+            {/* Descripción */}
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Descripción</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder={t("placeholders.description")}
+                      rows={3}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {errors.description && (
-              <p className="text-xs text-destructive">{errors.description.message}</p>
-            )}
-          </div>
 
-          {/* Categoría */}
-          <div className="space-y-1.5">
-            <Label htmlFor="inventory_category_id">
-              Categoría{" "}
-              <span aria-hidden="true" className="text-destructive">*</span>
-            </Label>
-            <Select
-              value={String(selectedCategoryId)}
-              onValueChange={(val) =>
-                setValue("inventory_category_id", Number(val))
-              }
-            >
-              <SelectTrigger id="inventory_category_id" aria-required="true">
-                <SelectValue placeholder={t("placeholders.selectCategory")} />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.length > 0 ? (
-                  categories.map((cat) => (
-                    <SelectItem
-                      key={cat.inventory_category_id}
-                      value={String(cat.inventory_category_id)}
-                    >
-                      {cat.name}
-                    </SelectItem>
-                  ))
-                ) : (
-                  <SelectItem value="0" disabled>
-                    No hay categorías disponibles
-                  </SelectItem>
-                )}
-              </SelectContent>
-            </Select>
-            {errors.inventory_category_id && (
-              <p className="text-xs text-destructive">
-                {errors.inventory_category_id.message}
-              </p>
-            )}
-          </div>
-
-          {/* Cantidad */}
-          <div className="space-y-1.5">
-            <Label htmlFor="amount">
-              Cantidad{" "}
-              <span aria-hidden="true" className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="amount"
-              type="number"
-              min={0}
-              aria-required="true"
-              {...register("amount")}
-              placeholder={t("placeholders.quantity")}
+            {/* Categoría */}
+            <FormField
+              control={form.control}
+              name="inventory_category_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Categoría{" "}
+                    <span aria-hidden="true" className="text-destructive">*</span>
+                  </FormLabel>
+                  <Select
+                    value={String(field.value)}
+                    onValueChange={(val) => field.onChange(Number(val))}
+                  >
+                    <FormControl>
+                      <SelectTrigger aria-required="true">
+                        <SelectValue placeholder={t("placeholders.selectCategory")} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {categories.length > 0 ? (
+                        categories.map((cat) => (
+                          <SelectItem
+                            key={cat.inventory_category_id}
+                            value={String(cat.inventory_category_id)}
+                          >
+                            {cat.name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="0" disabled>
+                          No hay categorías disponibles
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {errors.amount && (
-              <p className="text-xs text-destructive">{errors.amount.message}</p>
+
+            {/* Cantidad */}
+            <FormField
+              control={form.control}
+              name="amount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Cantidad{" "}
+                    <span aria-hidden="true" className="text-destructive">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min={0}
+                      aria-required="true"
+                      placeholder={t("placeholders.quantity")}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Tipo de instancia (solo al crear, informativo) */}
+            {!isEdit && (
+              <div className="rounded-lg border border-border bg-muted/40 px-3 py-2.5 text-sm text-muted-foreground">
+                Se agregará al inventario de{" "}
+                <span className="font-medium text-foreground">
+                  {INSTANCE_TYPE_LABELS[instanceType]}
+                </span>
+              </div>
             )}
-          </div>
 
-          {/* Tipo de instancia (solo al crear, informativo) */}
-          {!isEdit && (
-            <div className="rounded-lg border border-border bg-muted/40 px-3 py-2.5 text-sm text-muted-foreground">
-              Se agregará al inventario de{" "}
-              <span className="font-medium text-foreground">
-                {INSTANCE_TYPE_LABELS[instanceType]}
-              </span>
-            </div>
-          )}
-
-          <DialogFooter className="pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
-            >
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting
-                ? isEdit
-                  ? "Guardando..."
-                  : "Creando..."
-                : isEdit
-                  ? "Guardar cambios"
-                  : "Crear ítem"}
-            </Button>
-          </DialogFooter>
-        </form>
+            <DialogFooter className="pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={isSubmitting}
+              >
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting
+                  ? isEdit
+                    ? "Guardando..."
+                    : "Creando..."
+                  : isEdit
+                    ? "Guardar cambios"
+                    : "Crear ítem"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
