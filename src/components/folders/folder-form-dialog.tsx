@@ -17,9 +17,16 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { createFolder, updateFolder } from "@/lib/api/folders";
 import type { FolderTemplate } from "@/lib/api/folders";
 
@@ -64,14 +71,7 @@ export function FolderFormDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const schema = useMemo(() => buildSchema(tVal), [tVal]);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm<FormValues>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(schema as z.ZodType<FormValues, FormValues>),
     defaultValues: {
       name: "",
@@ -80,25 +80,23 @@ export function FolderFormDialog({
     },
   });
 
-  const activeValue = watch("active");
-
   useEffect(() => {
     if (open) {
       if (folder) {
-        reset({
+        form.reset({
           name: folder.name,
           description: folder.description ?? "",
           active: folder.active,
         });
       } else {
-        reset({
+        form.reset({
           name: "",
           description: "",
           active: true,
         });
       }
     }
-  }, [open, folder, reset]);
+  }, [open, folder, form]);
 
   const onSubmit: SubmitHandler<FormValues> = async (values) => {
     setIsSubmitting(true);
@@ -146,79 +144,93 @@ export function FolderFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
-          {/* Nombre */}
-          <div className="space-y-1.5">
-            <Label htmlFor="folder-name">
-              Nombre <span aria-hidden="true" className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="folder-name"
-              aria-required="true"
-              {...register("name")}
-              placeholder="Ej. Carpeta Conquistadores 2025"
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="space-y-4">
+            {/* Nombre */}
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Nombre <span aria-hidden="true" className="text-destructive">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      aria-required="true"
+                      placeholder="Ej. Carpeta Conquistadores 2025"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {errors.name && (
-              <p className="text-xs text-destructive">{errors.name.message}</p>
-            )}
-          </div>
 
-          {/* Descripción */}
-          <div className="space-y-1.5">
-            <Label htmlFor="folder-description">Descripción</Label>
-            <Textarea
-              id="folder-description"
-              {...register("description")}
-              placeholder="Descripción opcional de la carpeta"
-              rows={3}
+            {/* Descripción */}
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Descripción</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Descripción opcional de la carpeta"
+                      rows={3}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {errors.description && (
-              <p className="text-xs text-destructive">
-                {errors.description.message}
-              </p>
-            )}
-          </div>
 
-          {/* Activa */}
-          <div className="flex items-center justify-between rounded-lg border border-border px-3 py-2.5">
-            <div className="space-y-0.5">
-              <Label
-                htmlFor="folder-active"
-                className="cursor-pointer text-sm font-medium"
+            {/* Activa */}
+            <FormField
+              control={form.control}
+              name="active"
+              render={({ field }) => (
+                <FormItem className="flex items-center justify-between rounded-lg border border-border px-3 py-2.5 space-y-0">
+                  <div className="space-y-0.5">
+                    <FormLabel className="cursor-pointer text-sm font-medium">
+                      Carpeta activa
+                    </FormLabel>
+                    <p className="text-xs text-muted-foreground">
+                      Solo las carpetas activas están disponibles para los clubes
+                    </p>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <DialogFooter className="pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={isSubmitting}
               >
-                Carpeta activa
-              </Label>
-              <p className="text-xs text-muted-foreground">
-                Solo las carpetas activas están disponibles para los clubes
-              </p>
-            </div>
-            <Switch
-              id="folder-active"
-              checked={activeValue}
-              onCheckedChange={(checked) => setValue("active", checked)}
-            />
-          </div>
-
-          <DialogFooter className="pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
-            >
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting
-                ? isEdit
-                  ? "Guardando..."
-                  : "Creando..."
-                : isEdit
-                  ? "Guardar cambios"
-                  : "Crear carpeta"}
-            </Button>
-          </DialogFooter>
-        </form>
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting
+                  ? isEdit
+                    ? "Guardando..."
+                    : "Creando..."
+                  : isEdit
+                    ? "Guardar cambios"
+                    : "Crear carpeta"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
