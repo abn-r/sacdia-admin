@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -26,6 +25,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import {
   createAwardCategory,
   updateAwardCategory,
@@ -120,14 +127,7 @@ export function AwardCategoryFormDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const schema = useMemo(() => buildSchema(tVal), [tVal]);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm<FormValues>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(schema as z.ZodType<FormValues, FormValues>),
     defaultValues: {
       name: "",
@@ -144,14 +144,11 @@ export function AwardCategoryFormDialog({
     },
   });
 
-  const clubTypeValue = watch("club_type_id");
-  const scopeValue = watch("scope");
-  const tierValue = watch("tier");
 
   useEffect(() => {
     if (open) {
       if (category) {
-        reset({
+        form.reset({
           name: category.name,
           description: category.description ?? "",
           scope: category.scope ?? defaultScope,
@@ -168,7 +165,7 @@ export function AwardCategoryFormDialog({
           tier: category.tier ?? null,
         });
       } else {
-        reset({
+        form.reset({
           name: "",
           description: "",
           scope: defaultScope,
@@ -183,7 +180,7 @@ export function AwardCategoryFormDialog({
         });
       }
     }
-  }, [open, category, defaultScope, reset]);
+  }, [open, category, defaultScope, form]);
 
   const onSubmit: SubmitHandler<FormValues> = async (values) => {
     setIsSubmitting(true);
@@ -249,220 +246,263 @@ export function AwardCategoryFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+        <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
           {/* Nombre */}
-          <div className="space-y-1.5">
-            <Label htmlFor="cat-name">Nombre <span aria-hidden="true" className="text-destructive">*</span></Label>
-            <Input
-              id="cat-name"
-              {...register("name")}
-              placeholder="Ej. Oro, Plata, Bronce"
-              aria-required="true"
-            />
-            {errors.name && (
-              <p className="text-xs text-destructive" role="alert" aria-live="polite">{errors.name.message}</p>
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nombre <span aria-hidden="true" className="text-destructive">*</span></FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder="Ej. Oro, Plata, Bronce"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
-          </div>
+          />
 
           {/* Descripcion */}
-          <div className="space-y-1.5">
-            <Label htmlFor="cat-description">Descripción</Label>
-            <Textarea
-              id="cat-description"
-              {...register("description")}
-              placeholder="Descripción opcional de la categoría"
-              rows={3}
-            />
-            {errors.description && (
-              <p className="text-xs text-destructive" role="alert" aria-live="polite">
-                {errors.description.message}
-              </p>
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Descripción</FormLabel>
+                <FormControl>
+                  <Textarea
+                    {...field}
+                    placeholder="Descripción opcional de la categoría"
+                    rows={3}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
-          </div>
+          />
 
           {/* Alcance */}
-          <div className="space-y-1.5">
-            <Label htmlFor="cat-scope">Alcance <span aria-hidden="true" className="text-destructive">*</span></Label>
-            <Select
-              value={scopeValue}
-              onValueChange={(val) => setValue("scope", val as AwardCategoryScope)}
-            >
-              <SelectTrigger id="cat-scope" aria-required="true">
-                <SelectValue placeholder="Seleccionar alcance" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="club">Club</SelectItem>
-                <SelectItem value="section">Sección</SelectItem>
-                <SelectItem value="member">Miembro</SelectItem>
-              </SelectContent>
-            </Select>
-            {errors.scope && (
-              <p className="text-xs text-destructive" role="alert" aria-live="polite">{errors.scope.message}</p>
+          <FormField
+            control={form.control}
+            name="scope"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Alcance <span aria-hidden="true" className="text-destructive">*</span></FormLabel>
+                <FormControl>
+                  <Select
+                    value={field.value}
+                    onValueChange={(val) => field.onChange(val as AwardCategoryScope)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar alcance" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="club">Club</SelectItem>
+                      <SelectItem value="section">Sección</SelectItem>
+                      <SelectItem value="member">Miembro</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
-          </div>
+          />
 
           {/* Tier visual */}
-          <div className="space-y-1.5">
-            <Label htmlFor="cat-tier">Nivel visual</Label>
-            <Select
-              value={tierValue ?? "none"}
-              onValueChange={(val) =>
-                setValue("tier", val === "none" ? null : (val as AwardTier))
-              }
-            >
-              <SelectTrigger id="cat-tier">
-                <SelectValue placeholder="Sin clasificación" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Sin clasificación</SelectItem>
-                <SelectItem value="BRONZE">Bronce</SelectItem>
-                <SelectItem value="SILVER">Plata</SelectItem>
-                <SelectItem value="GOLD">Oro</SelectItem>
-                <SelectItem value="DIAMOND">Diamante</SelectItem>
-              </SelectContent>
-            </Select>
-            {errors.tier && (
-              <p className="text-xs text-destructive" role="alert" aria-live="polite">{errors.tier.message}</p>
+          <FormField
+            control={form.control}
+            name="tier"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nivel visual</FormLabel>
+                <FormControl>
+                  <Select
+                    value={field.value ?? "none"}
+                    onValueChange={(val) =>
+                      field.onChange(val === "none" ? null : (val as AwardTier))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sin clasificación" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Sin clasificación</SelectItem>
+                      <SelectItem value="BRONZE">Bronce</SelectItem>
+                      <SelectItem value="SILVER">Plata</SelectItem>
+                      <SelectItem value="GOLD">Oro</SelectItem>
+                      <SelectItem value="DIAMOND">Diamante</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
-          </div>
+          />
 
           {/* Tipo de club */}
-          <div className="space-y-1.5">
-            <Label htmlFor="cat-club-type">Tipo de club</Label>
-            <Select
-              value={clubTypeValue}
-              onValueChange={(val) => setValue("club_type_id", val)}
-            >
-              <SelectTrigger id="cat-club-type">
-                <SelectValue placeholder="Seleccionar tipo de club" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos los tipos</SelectItem>
-                {clubTypes.map((ct) => (
-                  <SelectItem
-                    key={ct.club_type_id}
-                    value={String(ct.club_type_id)}
+          <FormField
+            control={form.control}
+            name="club_type_id"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Tipo de club</FormLabel>
+                <FormControl>
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
                   >
-                    {ct.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.club_type_id && (
-              <p className="text-xs text-destructive" role="alert" aria-live="polite">
-                {errors.club_type_id.message}
-              </p>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar tipo de club" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todos los tipos</SelectItem>
+                      {clubTypes.map((ct) => (
+                        <SelectItem
+                          key={ct.club_type_id}
+                          value={String(ct.club_type_id)}
+                        >
+                          {ct.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
-          </div>
+          />
 
           {/* Puntos min / max */}
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="cat-min-points">Puntos mínimos <span aria-hidden="true" className="text-destructive">*</span></Label>
-              <Input
-                id="cat-min-points"
-                type="number"
-                min={0}
-                {...register("min_points")}
-                placeholder="0"
-                aria-required="true"
-              />
-              {errors.min_points && (
-                <p className="text-xs text-destructive" role="alert" aria-live="polite">
-                  {errors.min_points.message}
-                </p>
+            <FormField
+              control={form.control}
+              name="min_points"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Puntos mínimos <span aria-hidden="true" className="text-destructive">*</span></FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type="number"
+                      min={0}
+                      placeholder="0"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
+            />
 
-            <div className="space-y-1.5">
-              <Label htmlFor="cat-max-points">Puntos máximos</Label>
-              <Input
-                id="cat-max-points"
-                type="number"
-                min={0}
-                {...register("max_points")}
-                placeholder="Sin límite"
-              />
-              {errors.max_points && (
-                <p className="text-xs text-destructive" role="alert" aria-live="polite">
-                  {errors.max_points.message}
-                </p>
+            <FormField
+              control={form.control}
+              name="max_points"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Puntos máximos</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      value={field.value ?? ""}
+                      type="number"
+                      min={0}
+                      placeholder="Sin límite"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
+            />
           </div>
 
           {/* Composite % min / max */}
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="cat-min-composite-pct">Min composite %</Label>
-              <Input
-                id="cat-min-composite-pct"
-                type="number"
-                min={0}
-                max={100}
-                step="0.01"
-                {...register("min_composite_pct")}
-                placeholder="Ej. 60"
-              />
-              {errors.min_composite_pct && (
-                <p className="text-xs text-destructive" role="alert" aria-live="polite">
-                  {errors.min_composite_pct.message}
-                </p>
+            <FormField
+              control={form.control}
+              name="min_composite_pct"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Min composite %</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      value={field.value ?? ""}
+                      type="number"
+                      min={0}
+                      max={100}
+                      step="0.01"
+                      placeholder="Ej. 60"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
+            />
 
-            <div className="space-y-1.5">
-              <Label htmlFor="cat-max-composite-pct">Max composite %</Label>
-              <Input
-                id="cat-max-composite-pct"
-                type="number"
-                min={0}
-                max={100}
-                step="0.01"
-                {...register("max_composite_pct")}
-                placeholder="Ej. 80"
-              />
-              {errors.max_composite_pct && (
-                <p className="text-xs text-destructive" role="alert" aria-live="polite">
-                  {errors.max_composite_pct.message}
-                </p>
+            <FormField
+              control={form.control}
+              name="max_composite_pct"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Max composite %</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      value={field.value ?? ""}
+                      type="number"
+                      min={0}
+                      max={100}
+                      step="0.01"
+                      placeholder="Ej. 80"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
+            />
           </div>
 
           {/* Icono / Orden */}
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="cat-icon">Ícono</Label>
-              <Input
-                id="cat-icon"
-                {...register("icon")}
-                placeholder="Ej. trophy, medal"
-                maxLength={100}
-              />
-              {errors.icon && (
-                <p className="text-xs text-destructive" role="alert" aria-live="polite">
-                  {errors.icon.message}
-                </p>
+            <FormField
+              control={form.control}
+              name="icon"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Ícono</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="Ej. trophy, medal"
+                      maxLength={100}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
+            />
 
-            <div className="space-y-1.5">
-              <Label htmlFor="cat-order">Orden <span aria-hidden="true" className="text-destructive">*</span></Label>
-              <Input
-                id="cat-order"
-                type="number"
-                min={0}
-                {...register("order")}
-                placeholder="0"
-                aria-required="true"
-              />
-              {errors.order && (
-                <p className="text-xs text-destructive" role="alert" aria-live="polite">
-                  {errors.order.message}
-                </p>
+            <FormField
+              control={form.control}
+              name="order"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Orden <span aria-hidden="true" className="text-destructive">*</span></FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type="number"
+                      min={0}
+                      placeholder="0"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
+            />
           </div>
 
           <DialogFooter className="pt-2">
@@ -485,6 +525,7 @@ export function AwardCategoryFormDialog({
             </Button>
           </DialogFooter>
         </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

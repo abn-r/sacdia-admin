@@ -284,6 +284,80 @@ dialog file for correct generic typing of `dynamic<Props>()`.
 
 ---
 
+## 9. Round 6 (2026-05-10) — clubs/[id] tab-gated and dialog-gated defers
+
+**Branch:** `perf/admin-r6-analyze` (off `origin/development`)
+**Worktree:** `.claude/worktrees/agent-perf-r6-2026-05-10`
+
+### Route targeted: `/dashboard/clubs/[id]` (894 KB raw / 258 KB gz, 18 chunks — rank #1)
+
+#### What was identified
+
+`clubs/[id]/page.tsx` is a Server Component that statically imports four heavy client
+subtrees. Three are gated behind non-default tabs (`units`, `membership`, `sections`) —
+none are visible at first paint. The `view` tab is the only default-visible tab.
+
+| Import | Component chain | Zod/RHF? | Tab visibility |
+|---|---|---|---|
+| `PendingMembersPanel` | → `PendingMembersTable` → `MembershipRejectDialog` (zod + zodResolver) | YES | `membership` tab |
+| `UnitsTab` | → `UnitDetailPanel` → `AddMemberDialog`, `DeleteUnitDialog`; `WeeklyRecordsPanel` already deferred | no | `units` tab |
+| `ClubSectionsPanel` | → `MemberOfMonthCard` → `EvaluateMemberOfMonthDialog`, `MemberOfMonthHistorySheet` | no | `sections` tab; dialogs click-gated |
+
+**cmdk** (`10fite_y6z.4p.js`, ~20 KB gz) is present on this route per baseline note.
+The cmdk chunk was NOT traced to any direct import in the files audited — likely comes
+from a shared combobox used inside `AddMemberDialog` or similar. Deferred `UnitsTab`
+removes the static import chain that pulls it in.
+
+#### What was deferred
+
+**Target 1 — `PendingMembersPanel`** (`clubs/[id]/page.tsx`)
+- `dynamic(() => import("@/components/membership/pending-members-panel"), { ssr: false })`
+- Skeleton loading: 3 row placeholders matching the table row height
+- Removes: `@tanstack/react-query` usage in that subtree from initial chunk + the zod
+  bundle (`MembershipRejectDialog` uses `zodResolver`) — same 103 KB zod chunk from R5
+  that appears on other routes
+
+**Target 2 — `UnitsTab`** (`clubs/[id]/page.tsx`)
+- `dynamic(() => import("@/components/units/units-tab"), { ssr: false })`
+- Skeleton loading: 3 card-row placeholders matching `UnitsSkeleton` layout
+- Removes: `UnitDetailPanel`, `AddMemberDialog`, `DeleteUnitDialog` from initial chunk;
+  `WeeklyRecordsPanel` was already deferred inside `UnitDetailPanel` (R4)
+
+**Target 3 — `EvaluateMemberOfMonthDialog` + `MemberOfMonthHistorySheet`** (`member-of-month-card.tsx`)
+- Both converted to `dynamic(..., { ssr: false, loading: () => null })`
+- Props interfaces exported from each dialog file for correct `dynamic<Props>()` typing
+- Removes both dialog subtrees from the `ClubSectionsPanel` → `MemberOfMonthCard`
+  static chain; dialogs mount only on button click
+
+#### Pattern applied
+
+- Targets 1 and 2: applied at the Server Component page level — `next/dynamic` is
+  valid there; the dynamic wrapper is still rendered by the server but its JS is split
+  into a lazy chunk and not parsed at first paint.
+- Target 3: applied in the client component `member-of-month-card.tsx`; loading
+  state `null` because both dialogs start closed (no visible flash).
+
+#### Estimated gzip savings on `/dashboard/clubs/[id]`
+
+| Deferred chunk content | Estimated gz removed from initial |
+|---|---|
+| `PendingMembersPanel` + `PendingMembersTable` + `MembershipRejectDialog` (zod) | ~30–40 KB |
+| `UnitsTab` + `UnitDetailPanel` + `AddMemberDialog` + `DeleteUnitDialog` | ~15–20 KB |
+| `EvaluateMemberOfMonthDialog` + `MemberOfMonthHistorySheet` | ~5–8 KB |
+| **Total estimated** | **~50–68 KB gz** on `/dashboard/clubs/[id]` first paint |
+
+The zod removal (Target 1) is the largest single contributor because `MembershipRejectDialog`
+pulls the same zod v4 + i18n locale bundle (~103 KB gz) that R5 removed from camporees
+and investiture routes. On `/dashboard/clubs/[id]` it was still fully eager.
+
+### Verification
+
+- `pnpm typecheck`: PASS
+- `pnpm test --run`: 402/402 PASS
+- `pnpm lint`: 10 err / 42 warn (unchanged from baseline)
+
+---
+
 ## 8. Next actions (handoff)
 
 - ~~Replace `pnpm analyze` script with `next experimental-analyze`~~ DONE.
