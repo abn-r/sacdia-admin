@@ -1,3 +1,4 @@
+import dynamic from "next/dynamic";
 import { Suspense } from "react";
 import { FileText } from "lucide-react";
 import { getTranslations } from "next-intl/server";
@@ -6,9 +7,16 @@ import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { DataTableShell } from "@/components/shared/data-table-shell";
-import { ReportsListClient } from "@/components/reports/reports-list-client";
 import { requireAdminUser } from "@/lib/auth/session";
 import { apiRequest, ApiError } from "@/lib/api/client";
+
+const ReportsListClient = dynamic(
+  () =>
+    import("@/components/reports/reports-list-client").then((m) => ({
+      default: m.ReportsListClient,
+    })),
+  { loading: () => <ReportsPageSkeleton /> },
+);
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
