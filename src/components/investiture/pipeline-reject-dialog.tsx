@@ -16,8 +16,15 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { pipelineReject } from "@/lib/api/investiture";
 import { ApiError } from "@/lib/api/client";
 
@@ -33,7 +40,7 @@ type FormValues = z.infer<ReturnType<typeof buildSchema>>;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface PipelineRejectDialogProps {
+export interface PipelineRejectDialogProps {
   open: boolean;
   enrollmentId: number;
   memberName: string;
@@ -97,41 +104,43 @@ export function PipelineRejectDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="reason">{t("pipelineRejectDialog.reasonLabel")}</Label>
-            <Textarea
-              id="reason"
-              placeholder={t("pipelineRejectDialog.reasonPlaceholder")}
-              rows={3}
-              {...form.register("reason")}
-              disabled={isPending}
-              aria-describedby={
-                form.formState.errors.reason ? "reason-error" : undefined
-              }
+        <Form {...form}>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="reason"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("pipelineRejectDialog.reasonLabel")}</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder={t("pipelineRejectDialog.reasonPlaceholder")}
+                      rows={3}
+                      {...field}
+                      disabled={isPending}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {form.formState.errors.reason && (
-              <p id="reason-error" className="text-xs text-destructive">
-                {form.formState.errors.reason.message}
-              </p>
-            )}
-          </div>
 
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleClose(false)}
-              disabled={isPending}
-            >
-              {t("pipelineRejectDialog.cancel")}
-            </Button>
-            <Button type="submit" variant="destructive" disabled={isPending}>
-              {isPending && <Loader2 className="size-4 animate-spin" />}
-              {t("pipelineRejectDialog.confirm")}
-            </Button>
-          </DialogFooter>
-        </form>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleClose(false)}
+                disabled={isPending}
+              >
+                {t("pipelineRejectDialog.cancel")}
+              </Button>
+              <Button type="submit" variant="destructive" disabled={isPending}>
+                {isPending && <Loader2 className="size-4 animate-spin" />}
+                {t("pipelineRejectDialog.confirm")}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

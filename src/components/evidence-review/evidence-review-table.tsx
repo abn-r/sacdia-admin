@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import {
   CheckCircle2,
@@ -25,11 +26,30 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { EvidenceStatusBadge } from "@/components/evidence-review/evidence-status-badge";
 import { EvidenceTypeBadge } from "@/components/evidence-review/evidence-type-badge";
 import { EvidenceApproveDialog } from "@/components/evidence-review/evidence-approve-dialog";
-import { EvidenceRejectDialog } from "@/components/evidence-review/evidence-reject-dialog";
 import { EvidenceDetailDialog } from "@/components/evidence-review/evidence-detail-dialog";
 import { EvidenceHistoryDialog } from "@/components/evidence-review/evidence-history-dialog";
-import { EvidenceBulkActionBar } from "@/components/evidence-review/evidence-bulk-action-bar";
+import type { EvidenceRejectDialogProps } from "@/components/evidence-review/evidence-reject-dialog";
+import type { EvidenceBulkActionBarProps } from "@/components/evidence-review/evidence-bulk-action-bar";
 import type { EvidenceItem, EvidenceType } from "@/lib/api/evidence-review";
+
+// Deferred: EvidenceRejectDialog and EvidenceBulkActionBar both import zodResolver + zod
+// (~103 KB compressed). Neither is needed at first paint — reject dialog requires a
+// row action click, bulk action bar requires selecting evidence rows.
+const EvidenceRejectDialog = dynamic<EvidenceRejectDialogProps>(
+  () =>
+    import("@/components/evidence-review/evidence-reject-dialog").then(
+      (m) => m.EvidenceRejectDialog
+    ),
+  { ssr: false, loading: () => null }
+);
+
+const EvidenceBulkActionBar = dynamic<EvidenceBulkActionBarProps>(
+  () =>
+    import("@/components/evidence-review/evidence-bulk-action-bar").then(
+      (m) => m.EvidenceBulkActionBar
+    ),
+  { ssr: false, loading: () => null }
+);
 import { useFormatDate } from "@/lib/format-locale";
 
 function isPending(status: string, type: EvidenceType): boolean {

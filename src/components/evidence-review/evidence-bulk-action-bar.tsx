@@ -60,7 +60,7 @@ type RejectFormValues = { reason: string };
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
-interface EvidenceBulkActionBarProps {
+export interface EvidenceBulkActionBarProps {
   selectedIds: number[];
   selectedType: EvidenceType | null;
   onClearSelection: () => void;
