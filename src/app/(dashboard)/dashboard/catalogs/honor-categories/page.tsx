@@ -1,6 +1,38 @@
+import dynamic from "next/dynamic";
 import { getTranslations } from "next-intl/server";
-import { HonorCategoriesCrudPage } from "@/components/catalogs/honor-categories-crud-page";
+import { Skeleton } from "@/components/ui/skeleton";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+
+const HonorCategoriesCrudPage = dynamic(
+  () =>
+    import("@/components/catalogs/honor-categories-crud-page").then((m) => ({
+      default: m.HonorCategoriesCrudPage,
+    })),
+  {
+    loading: () => (
+      <div className="space-y-4">
+        <div className="flex items-center gap-3">
+          <Skeleton className="h-9 w-[200px]" />
+          <div className="ml-auto flex gap-2">
+            <Skeleton className="h-9 w-[100px]" />
+          </div>
+        </div>
+        <div className="rounded-md border">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div
+              key={i}
+              className="flex items-center gap-4 border-b p-4 last:border-b-0"
+            >
+              <Skeleton className="h-4 w-48" />
+              <Skeleton className="h-5 w-16 rounded-full" />
+              <Skeleton className="ml-auto h-8 w-8 rounded" />
+            </div>
+          ))}
+        </div>
+      </div>
+    ),
+  },
+);
 import { ApiError } from "@/lib/api/client";
 import {
   listHonorCategoriesAdmin,

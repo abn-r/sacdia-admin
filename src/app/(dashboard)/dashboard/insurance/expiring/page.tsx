@@ -3,10 +3,16 @@ import { ShieldAlert } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-import {
-  ExpiringDashboard,
-  ExpiringDashboardSkeleton,
-} from "@/components/insurance/expiring-dashboard";
+import dynamic from "next/dynamic";
+import { ExpiringDashboardSkeleton } from "@/components/insurance/expiring-dashboard";
+
+const ExpiringDashboard = dynamic(
+  () =>
+    import("@/components/insurance/expiring-dashboard").then((m) => ({
+      default: m.ExpiringDashboard,
+    })),
+  { loading: () => <ExpiringDashboardSkeleton /> },
+);
 import { getExpiringInsurance } from "@/lib/api/insurance";
 import { requireAdminUser } from "@/lib/auth/session";
 import type { ExpiringInsurance } from "@/lib/api/insurance";
