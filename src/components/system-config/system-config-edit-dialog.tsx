@@ -15,8 +15,15 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { useTranslations } from "next-intl";
 import { updateSystemConfig, type SystemConfig } from "@/lib/api/system-config";
 import { ApiError } from "@/lib/api/client";
@@ -109,44 +116,50 @@ export function SystemConfigEditDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="config_value">Valor *</Label>
-            <Input
-              id="config_value"
-              {...form.register("config_value")}
-              disabled={isPending}
-              aria-describedby={
-                form.formState.errors.config_value ? "value-error" : undefined
-              }
+        <Form {...form}>
+          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+            <FormField
+              control={form.control}
+              name="config_value"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Valor{" "}
+                    <span aria-hidden="true" className="text-destructive">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      disabled={isPending}
+                      aria-required="true"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                  {config?.value_type && (
+                    <p className="text-xs text-muted-foreground">
+                      Tipo esperado: <span className="font-medium">{config.value_type}</span>
+                    </p>
+                  )}
+                </FormItem>
+              )}
             />
-            {form.formState.errors.config_value && (
-              <p id="value-error" className="text-xs text-destructive">
-                {form.formState.errors.config_value.message}
-              </p>
-            )}
-            {config?.value_type && (
-              <p className="text-xs text-muted-foreground">
-                Tipo esperado: <span className="font-medium">{config.value_type}</span>
-              </p>
-            )}
-          </div>
 
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleClose(false)}
-              disabled={isPending}
-            >
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={isPending}>
-              {isPending && <Loader2 className="size-4 animate-spin" />}
-              Guardar
-            </Button>
-          </DialogFooter>
-        </form>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleClose(false)}
+                disabled={isPending}
+              >
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={isPending}>
+                {isPending && <Loader2 className="size-4 animate-spin" />}
+                Guardar
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
