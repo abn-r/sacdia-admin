@@ -17,7 +17,7 @@ import { useTranslations } from "next-intl";
 import { deleteFinance, type Finance } from "@/lib/api/finances";
 import { useFormatCurrency } from "@/lib/format-locale";
 
-interface DeleteTransactionDialogProps {
+export interface DeleteTransactionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   finance: Finance | null;

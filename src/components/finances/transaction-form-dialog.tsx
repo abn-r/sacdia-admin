@@ -97,7 +97,7 @@ export type ClubSection = {
   club_type?: { name?: string } | null;
 };
 
-interface TransactionFormDialogProps {
+export interface TransactionFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   clubId: number;

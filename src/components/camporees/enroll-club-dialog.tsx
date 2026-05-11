@@ -16,7 +16,15 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { useTranslations } from "next-intl";
 import { enrollClub } from "@/lib/api/camporees";
 
@@ -51,12 +59,7 @@ export function EnrollClubDialog({
   const t = useTranslations("camporees");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<FormValues>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema as z.ZodType<FormValues, FormValues>),
     defaultValues: {
       club_section_id: undefined,
@@ -65,7 +68,7 @@ export function EnrollClubDialog({
 
   function handleOpenChange(nextOpen: boolean) {
     if (!nextOpen) {
-      reset();
+      form.reset();
     }
     onOpenChange(nextOpen);
   }
@@ -96,42 +99,50 @@ export function EnrollClubDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-          {/* Club section ID */}
-          <div className="space-y-1.5">
-            <Label htmlFor="club_section_id">{t("enrollDialog.labelSectionId")} <span aria-hidden="true" className="text-destructive">*</span></Label>
-            <Input
-              id="club_section_id"
-              type="number"
-              min={1}
-              {...register("club_section_id")}
-              placeholder={t("enrollDialog.placeholderSectionId")}
-              aria-required="true"
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
+            {/* Club section ID */}
+            <FormField
+              control={form.control}
+              name="club_section_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {t("enrollDialog.labelSectionId")}{" "}
+                    <span aria-hidden="true" className="text-destructive">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type="number"
+                      min={1}
+                      placeholder={t("enrollDialog.placeholderSectionId")}
+                      aria-required="true"
+                    />
+                  </FormControl>
+                  <FormMessage role="alert" aria-live="polite" />
+                  <FormDescription>
+                    {t("enrollDialog.helpSectionId")}
+                  </FormDescription>
+                </FormItem>
+              )}
             />
-            {errors.club_section_id && (
-              <p className="text-xs text-destructive" role="alert" aria-live="polite">
-                {errors.club_section_id.message}
-              </p>
-            )}
-            <p className="text-xs text-muted-foreground">
-              {t("enrollDialog.helpSectionId")}
-            </p>
-          </div>
 
-          <DialogFooter className="pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleOpenChange(false)}
-              disabled={isSubmitting}
-            >
-              {t("enrollDialog.cancel")}
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? t("enrollDialog.enrolling") : t("enrollDialog.enroll")}
-            </Button>
-          </DialogFooter>
-        </form>
+            <DialogFooter className="pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleOpenChange(false)}
+                disabled={isSubmitting}
+              >
+                {t("enrollDialog.cancel")}
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? t("enrollDialog.enrolling") : t("enrollDialog.enroll")}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
