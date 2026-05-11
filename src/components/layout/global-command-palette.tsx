@@ -13,7 +13,13 @@ import {
   CommandSeparator,
   CommandShortcut,
 } from "@/components/ui/command";
-import { navConfig, type NavItem, type NavChild } from "@/components/layout/nav-config";
+import {
+  navConfig,
+  isSubGroup,
+  type NavItem,
+  type NavChild,
+  type NavSubGroup,
+} from "@/components/layout/nav-config";
 import { usePermissions } from "@/lib/auth/use-permissions";
 
 type SearchableEntry = {
@@ -69,7 +75,16 @@ export function GlobalCommandPalette({ open, onOpenChange }: GlobalCommandPalett
             keywords: [parentTitle, groupLabel, item.url],
           });
 
-          for (const child of item.children as NavChild[]) {
+          const flatChildren: NavChild[] = [];
+          for (const child of item.children!) {
+            if (isSubGroup(child)) {
+              flatChildren.push(...(child as NavSubGroup).items);
+            } else {
+              flatChildren.push(child as NavChild);
+            }
+          }
+
+          for (const child of flatChildren) {
             if (!check(child.permission)) continue;
             const childTitle = t(child.title as Parameters<typeof t>[0]);
             flat.push({
