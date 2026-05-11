@@ -4758,5 +4758,29 @@
         "metadataTitle": "Catégories de notation"
       }
     }
+  },
+  "roles": {
+    "super_admin": "Super Admin",
+    "admin": "Admin",
+    "coordinator": "Coordinateur",
+    "zone_coordinator": "Coordinateur de zone",
+    "general_coordinator": "Coordinateur général",
+    "pastor": "Pasteur",
+    "director": "Directeur",
+    "deputy_director": "Sous-directeur",
+    "director_club": "Directeur de club",
+    "assistant_club": "Assistant de club",
+    "director_dia": "Directeur DIA",
+    "assistant_dia": "Assistant DIA",
+    "director_lf": "Directeur de champ local",
+    "assistant_lf": "Assistant de champ local",
+    "director_union": "Directeur d'union",
+    "assistant_union": "Assistant d'union",
+    "instructor": "Instructeur",
+    "member": "Membre",
+    "user": "Utilisateur",
+    "secretary": "Secrétaire",
+    "treasurer": "Trésorier",
+    "counselor": "Conseiller"
   }
 }

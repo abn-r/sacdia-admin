@@ -35,6 +35,7 @@ import {
 } from "@/lib/api/membership-requests";
 import { ApiError } from "@/lib/api/client";
 import { useFormatDate, useFormatDateTime } from "@/lib/format-locale";
+import { useRoleLabel } from "@/lib/auth/role-labels";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -47,10 +48,6 @@ function getUserName(user?: MembershipRequest["users"]): string {
 
 function getUserEmail(user?: MembershipRequest["users"]): string {
   return user?.email ?? "\u2014";
-}
-
-function getRoleName(role?: MembershipRequest["roles"]): string {
-  return role?.role_name ?? "miembro";
 }
 
 function isExpiringSoon(expiresAt?: string | null): boolean {
@@ -76,6 +73,12 @@ export function PendingMembersTable({
   const t = useTranslations("membership");
   const formatDate = useFormatDate();
   const formatDatetime = useFormatDateTime();
+  const translateRole = useRoleLabel();
+
+  const getRoleName = (role?: MembershipRequest["roles"]): string => {
+    const raw = role?.role_name ?? "member";
+    return translateRole(raw);
+  };
   const [requests, setRequests] = useState<MembershipRequest[]>(initialRequests);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [processingId, setProcessingId] = useState<string | null>(null);

@@ -13,6 +13,7 @@ import {
 import type { AdminUser } from "@/lib/api/admin-users";
 import { DataTableShell } from "@/components/shared/data-table-shell";
 import { getTranslations } from "next-intl/server";
+import { buildRoleTranslator, type RoleTranslator } from "@/lib/auth/role-labels";
 
 function extractRoleNames(user: AdminUser): string[] {
   const roles: string[] = [];
@@ -73,10 +74,12 @@ function UserMobileCard({
   user,
   showAdministrativeCompletion,
   t,
+  translateRole,
 }: {
   user: AdminUser;
   showAdministrativeCompletion: boolean;
   t: UsersTranslations;
+  translateRole: RoleTranslator;
 }) {
   const roleNames = extractRoleNames(user);
   const fullName = getFullName(user);
@@ -145,7 +148,7 @@ function UserMobileCard({
         <div className="mt-3 flex flex-wrap gap-1">
           {roleNames.map((role) => (
             <Badge key={role} variant="secondary" className="text-xs">
-              {role}
+              {translateRole(role)}
             </Badge>
           ))}
         </div>
@@ -172,6 +175,8 @@ export async function UsersTable({
   showAdministrativeCompletion = false,
 }: UsersTableProps) {
   const t = await getTranslations("users");
+  const tRoles = await getTranslations("roles");
+  const translateRole = buildRoleTranslator(tRoles);
 
   return (
     <>
@@ -225,7 +230,7 @@ export async function UsersTable({
                         {roleNames.length > 0 ? (
                           roleNames.map((role) => (
                             <Badge key={role} variant="secondary" className="text-xs">
-                              {role}
+                              {translateRole(role)}
                             </Badge>
                           ))
                         ) : (
@@ -288,6 +293,7 @@ export async function UsersTable({
               user={user}
               showAdministrativeCompletion={showAdministrativeCompletion}
               t={t}
+              translateRole={translateRole}
             />
           </li>
         ))}
