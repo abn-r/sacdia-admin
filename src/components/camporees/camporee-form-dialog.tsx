@@ -16,9 +16,16 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { useTranslations } from "next-intl";
 import { createCamporee, updateCamporee } from "@/lib/api/camporees";
 import type { Camporee } from "@/lib/api/camporees";
@@ -78,14 +85,7 @@ export function CamporeeFormDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const schema = useMemo(() => buildSchema(tVal), [tVal]);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm<FormValues>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(schema as z.ZodType<FormValues, FormValues>),
     defaultValues: {
       name: "",
@@ -101,14 +101,10 @@ export function CamporeeFormDialog({
     },
   });
 
-  const includesAdventurers = watch("includes_adventurers");
-  const includesPathfinders = watch("includes_pathfinders");
-  const includesMasterGuides = watch("includes_master_guides");
-
   useEffect(() => {
     if (open) {
       if (camporee) {
-        reset({
+        form.reset({
           name: camporee.name,
           description: camporee.description ?? "",
           start_date: toDateInput(camporee.start_date),
@@ -121,7 +117,7 @@ export function CamporeeFormDialog({
           includes_master_guides: camporee.includes_master_guides ?? false,
         });
       } else {
-        reset({
+        form.reset({
           name: "",
           description: "",
           start_date: "",
@@ -135,7 +131,7 @@ export function CamporeeFormDialog({
         });
       }
     }
-  }, [open, camporee, reset]);
+  }, [open, camporee, form]);
 
   const onSubmit: SubmitHandler<FormValues> = async (values) => {
     setIsSubmitting(true);
@@ -195,169 +191,236 @@ export function CamporeeFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-          {/* Nombre */}
-          <div className="space-y-1.5">
-            <Label htmlFor="name">{t("form.labelName")} <span aria-hidden="true" className="text-destructive">*</span></Label>
-            <Input
-              id="name"
-              {...register("name")}
-              placeholder={t("form.placeholderName")}
-              aria-required="true"
-            />
-            {errors.name && (
-              <p className="text-xs text-destructive" role="alert" aria-live="polite">{errors.name.message}</p>
-            )}
-          </div>
-
-          {/* Descripción */}
-          <div className="space-y-1.5">
-            <Label htmlFor="description">{t("form.labelDescription")}</Label>
-            <Textarea
-              id="description"
-              {...register("description")}
-              placeholder={t("form.placeholderDescription")}
-              rows={3}
-            />
-          </div>
-
-          {/* Fechas */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="start_date">{t("form.labelStartDate")} <span aria-hidden="true" className="text-destructive">*</span></Label>
-              <Input id="start_date" type="date" {...register("start_date")} aria-required="true" />
-              {errors.start_date && (
-                <p className="text-xs text-destructive" role="alert" aria-live="polite">
-                  {errors.start_date.message}
-                </p>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
+            {/* Nombre */}
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {t("form.labelName")}{" "}
+                    <span aria-hidden="true" className="text-destructive">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder={t("form.placeholderName")}
+                      aria-required="true"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="end_date">{t("form.labelEndDate")} <span aria-hidden="true" className="text-destructive">*</span></Label>
-              <Input id="end_date" type="date" {...register("end_date")} aria-required="true" />
-              {errors.end_date && (
-                <p className="text-xs text-destructive" role="alert" aria-live="polite">
-                  {errors.end_date.message}
-                </p>
+            />
+
+            {/* Descripción */}
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("form.labelDescription")}</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      {...field}
+                      placeholder={t("form.placeholderDescription")}
+                      rows={3}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
+            />
+
+            {/* Fechas */}
+            <div className="grid grid-cols-2 gap-3">
+              <FormField
+                control={form.control}
+                name="start_date"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      {t("form.labelStartDate")}{" "}
+                      <span aria-hidden="true" className="text-destructive">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input {...field} type="date" aria-required="true" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="end_date"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      {t("form.labelEndDate")}{" "}
+                      <span aria-hidden="true" className="text-destructive">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input {...field} type="date" aria-required="true" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
-          </div>
 
-          {/* Lugar */}
-          <div className="space-y-1.5">
-            <Label htmlFor="local_camporee_place">{t("form.labelPlace")} <span aria-hidden="true" className="text-destructive">*</span></Label>
-            <Input
-              id="local_camporee_place"
-              {...register("local_camporee_place")}
-              placeholder={t("form.placeholderPlace")}
-              aria-required="true"
+            {/* Lugar */}
+            <FormField
+              control={form.control}
+              name="local_camporee_place"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {t("form.labelPlace")}{" "}
+                    <span aria-hidden="true" className="text-destructive">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder={t("form.placeholderPlace")}
+                      aria-required="true"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {errors.local_camporee_place && (
-              <p className="text-xs text-destructive" role="alert" aria-live="polite">
-                {errors.local_camporee_place.message}
-              </p>
-            )}
-          </div>
 
-          {/* Campo local */}
-          <div className="space-y-1.5">
-            <Label htmlFor="local_field_id">{t("form.labelLocalFieldId")} <span aria-hidden="true" className="text-destructive">*</span></Label>
-            <Input
-              id="local_field_id"
-              type="number"
-              min={1}
-              {...register("local_field_id")}
-              placeholder="1"
-              aria-required="true"
+            {/* Campo local */}
+            <FormField
+              control={form.control}
+              name="local_field_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {t("form.labelLocalFieldId")}{" "}
+                    <span aria-hidden="true" className="text-destructive">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type="number"
+                      min={1}
+                      placeholder="1"
+                      aria-required="true"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {errors.local_field_id && (
-              <p className="text-xs text-destructive" role="alert" aria-live="polite">
-                {errors.local_field_id.message}
-              </p>
-            )}
-          </div>
 
-          {/* Costo de inscripción */}
-          <div className="space-y-1.5">
-            <Label htmlFor="registration_cost">{t("form.labelRegistrationCost")}</Label>
-            <Input
-              id="registration_cost"
-              type="number"
-              min={0}
-              step="0.01"
-              {...register("registration_cost")}
-              placeholder="0.00"
+            {/* Costo de inscripción */}
+            <FormField
+              control={form.control}
+              name="registration_cost"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("form.labelRegistrationCost")}</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type="number"
+                      min={0}
+                      step="0.01"
+                      placeholder="0.00"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {errors.registration_cost && (
-              <p className="text-xs text-destructive" role="alert" aria-live="polite">
-                {errors.registration_cost.message}
-              </p>
-            )}
-          </div>
 
-          {/* Tipos de club */}
-          <div className="space-y-2">
-            <Label>{t("form.labelIncludes")}</Label>
-            <div className="space-y-2 rounded-md border border-border p-3">
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id="includes_adventurers"
-                  checked={includesAdventurers}
-                  onCheckedChange={(checked) =>
-                    setValue("includes_adventurers", checked === true)
-                  }
+            {/* Tipos de club */}
+            <div className="space-y-2">
+              <FormLabel className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                {t("form.labelIncludes")}
+              </FormLabel>
+              <div className="space-y-2 rounded-md border border-border p-3">
+                <FormField
+                  control={form.control}
+                  name="includes_adventurers"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center gap-2 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          id="includes_adventurers"
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormLabel htmlFor="includes_adventurers" className="font-normal cursor-pointer">
+                        {t("form.adventurers")}
+                      </FormLabel>
+                    </FormItem>
+                  )}
                 />
-                <Label htmlFor="includes_adventurers" className="font-normal cursor-pointer">
-                  {t("form.adventurers")}
-                </Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id="includes_pathfinders"
-                  checked={includesPathfinders}
-                  onCheckedChange={(checked) =>
-                    setValue("includes_pathfinders", checked === true)
-                  }
+                <FormField
+                  control={form.control}
+                  name="includes_pathfinders"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center gap-2 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          id="includes_pathfinders"
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormLabel htmlFor="includes_pathfinders" className="font-normal cursor-pointer">
+                        {t("form.pathfinders")}
+                      </FormLabel>
+                    </FormItem>
+                  )}
                 />
-                <Label htmlFor="includes_pathfinders" className="font-normal cursor-pointer">
-                  {t("form.pathfinders")}
-                </Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id="includes_master_guides"
-                  checked={includesMasterGuides}
-                  onCheckedChange={(checked) =>
-                    setValue("includes_master_guides", checked === true)
-                  }
+                <FormField
+                  control={form.control}
+                  name="includes_master_guides"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center gap-2 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          id="includes_master_guides"
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormLabel htmlFor="includes_master_guides" className="font-normal cursor-pointer">
+                        {t("form.masterGuides")}
+                      </FormLabel>
+                    </FormItem>
+                  )}
                 />
-                <Label htmlFor="includes_master_guides" className="font-normal cursor-pointer">
-                  {t("form.masterGuides")}
-                </Label>
               </div>
             </div>
-          </div>
 
-          <DialogFooter className="pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
-            >
-              {t("form.cancel")}
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting
-                ? isEdit
-                  ? t("form.saving")
-                  : t("form.creating")
-                : isEdit
-                  ? t("form.saveChanges")
-                  : t("form.createCamporee")}
-            </Button>
-          </DialogFooter>
-        </form>
+            <DialogFooter className="pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={isSubmitting}
+              >
+                {t("form.cancel")}
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting
+                  ? isEdit
+                    ? t("form.saving")
+                    : t("form.creating")
+                  : isEdit
+                    ? t("form.saveChanges")
+                    : t("form.createCamporee")}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

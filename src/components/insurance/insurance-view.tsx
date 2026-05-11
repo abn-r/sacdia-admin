@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { Plus, RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
@@ -12,10 +13,28 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { InsuranceTable } from "@/components/insurance/insurance-table";
-import { InsuranceFormDialog } from "@/components/insurance/insurance-form-dialog";
-import { DeleteInsuranceDialog } from "@/components/insurance/delete-insurance-dialog";
 import { apiRequestFromClient, ApiError } from "@/lib/api/client";
 import type { MemberInsurance } from "@/lib/api/insurance";
+import type { InsuranceFormDialogProps } from "@/components/insurance/insurance-form-dialog";
+import type { DeleteInsuranceDialogProps } from "@/components/insurance/delete-insurance-dialog";
+
+// ─── Deferred dialogs (dialog-gated — zod bundle only loaded on first open) ───
+
+const InsuranceFormDialog = dynamic<InsuranceFormDialogProps>(
+  () =>
+    import("@/components/insurance/insurance-form-dialog").then((m) => ({
+      default: m.InsuranceFormDialog,
+    })),
+  { ssr: false, loading: () => null },
+);
+
+const DeleteInsuranceDialog = dynamic<DeleteInsuranceDialogProps>(
+  () =>
+    import("@/components/insurance/delete-insurance-dialog").then((m) => ({
+      default: m.DeleteInsuranceDialog,
+    })),
+  { ssr: false, loading: () => null },
+);
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

@@ -72,7 +72,7 @@ function memberFullName(member: MemberInsurance): string {
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
-interface InsuranceFormDialogProps {
+export interface InsuranceFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   member: MemberInsurance | null;

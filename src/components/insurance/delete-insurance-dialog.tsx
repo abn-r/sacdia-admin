@@ -26,7 +26,7 @@ function memberFullName(member: MemberInsurance | null): string {
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
-interface DeleteInsuranceDialogProps {
+export interface DeleteInsuranceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   member: MemberInsurance | null;
