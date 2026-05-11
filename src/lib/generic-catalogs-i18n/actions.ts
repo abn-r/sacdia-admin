@@ -125,13 +125,16 @@ type CrudPermissions = {
  * Factory that generates (createAction, updateAction, deleteAction) for a
  * given catalog route.
  *
- * @param routePath    Dashboard path — used for revalidatePath + redirect
- * @param permissions  RBAC permission arrays (any-of semantics)
- * @param api          Object with create / update / delete async fns
- * @param hasDescription  When false, uses name-only builders (ignores translatableFields)
+ * @param routePath         Dashboard path — used for revalidatePath + redirect
+ * @param permissions       RBAC permission arrays (any-of semantics)
+ * @param api               Object with create / update / delete async fns
+ * @param hasDescription    When false, uses name-only builders (ignores translatableFields)
  * @param translatableFields  When hasDescription is true, overrides which fields
  *   are extracted from translations entries. Defaults to ['name', 'description'].
  *   Pass ['name', 'ideal'] for club-ideals.
+ * @param customFormFields  Optional function that extracts additional fields from
+ *   FormData and merges them into the payload. Used by club-ideals to pick up
+ *   club_type_id and ideal_order which the standard builders don't extract.
  */
 function makeActions(
   routePath: string,
@@ -143,6 +146,7 @@ function makeActions(
   },
   hasDescription = true,
   translatableFields: TranslatableField[] = ["name", "description"],
+  customFormFields?: (formData: FormData) => Record<string, unknown>,
 ) {
   async function createAction(
     _: GenericCatalogActionState,
@@ -153,9 +157,12 @@ function makeActions(
       return { error: "Sin permisos para crear." };
     }
     try {
-      const payload = hasDescription
+      const base = hasDescription
         ? buildTranslatableCreate(formData, translatableFields)
         : buildNameOnlyCreate(formData);
+      const payload = customFormFields
+        ? { ...base, ...customFormFields(formData) }
+        : base;
       await api.create(payload);
     } catch (error) {
       return {
@@ -179,9 +186,12 @@ function makeActions(
     const id = parsePositiveInt(formData, "id");
     if (!id) return { error: "No se pudo identificar el registro a editar." };
     try {
-      const payload = hasDescription
+      const base = hasDescription
         ? buildTranslatableUpdate(formData, translatableFields)
         : buildNameOnlyUpdate(formData);
+      const payload = customFormFields
+        ? { ...base, ...customFormFields(formData) }
+        : base;
       await api.update(id, payload);
     } catch (error) {
       return {
@@ -432,7 +442,29 @@ export const deleteClubTypeAction = clubTypesActions.deleteAction;
 
 // ─── Club Ideals ──────────────────────────────────────────────────────────────
 // Special: translatable fields are ['name', 'ideal'] — NOT description.
-// Additional payload fields: club_type_id, ideal_order.
+// Additional payload fields: club_type_id, ideal_order (extracted via customFormFields).
+
+function extractClubIdealExtraFields(formData: FormData): Record<string, unknown> {
+  const extra: Record<string, unknown> = {};
+
+  const clubTypeIdRaw = String(formData.get("club_type_id") ?? "").trim();
+  if (clubTypeIdRaw) {
+    const clubTypeId = Number(clubTypeIdRaw);
+    if (Number.isFinite(clubTypeId) && clubTypeId > 0) {
+      extra.club_type_id = Math.floor(clubTypeId);
+    }
+  }
+
+  const idealOrderRaw = String(formData.get("ideal_order") ?? "").trim();
+  if (idealOrderRaw) {
+    const idealOrder = Number(idealOrderRaw);
+    if (Number.isFinite(idealOrder) && idealOrder > 0) {
+      extra.ideal_order = Math.floor(idealOrder);
+    }
+  }
+
+  return extra;
+}
 
 const clubIdealsActions = makeActions(
   "/dashboard/catalogs/club-ideals",
@@ -443,7 +475,6 @@ const clubIdealsActions = makeActions(
   },
   {
     create: (p) => {
-      // Pull extra fields from the generic payload and forward to typed fn
       const { name, ideal, club_type_id, ideal_order, active, translations } = p as {
         name: string;
         ideal?: string | null;
@@ -467,8 +498,9 @@ const clubIdealsActions = makeActions(
     },
     delete: (id) => deleteAdminClubIdeal(id),
   },
-  true,                       // hasDescription=true so factory uses buildTranslatableCreate/Update
-  ["name", "ideal"],          // translatableFields override: ideal instead of description
+  true,                            // hasDescription=true so factory uses buildTranslatableCreate/Update
+  ["name", "ideal"],               // translatableFields override: ideal instead of description
+  extractClubIdealExtraFields,     // pulls club_type_id + ideal_order from FormData
 );
 
 export const createClubIdealAction = clubIdealsActions.createAction;
