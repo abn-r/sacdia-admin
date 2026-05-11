@@ -64,7 +64,7 @@ const PAYMENT_TYPE_LABELS: Record<PaymentType, string> = {
 
 // ─── Props ─────────────────────────────────────────────────────────────────────
 
-interface PaymentDialogProps {
+export interface PaymentDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   camporeeId: number;

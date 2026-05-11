@@ -16,7 +16,7 @@ import { useTranslations } from "next-intl";
 import { deleteUnionCamporee } from "@/lib/api/camporees";
 import type { UnionCamporee } from "@/lib/api/camporees";
 
-interface DeleteUnionCamporeeDialogProps {
+export interface DeleteUnionCamporeeDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   camporee: UnionCamporee | null;

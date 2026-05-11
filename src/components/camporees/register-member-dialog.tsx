@@ -48,7 +48,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 // ─── Props ─────────────────────────────────────────────────────────────────────
 
-interface RegisterMemberDialogProps {
+export interface RegisterMemberDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   camporeeId: number;
