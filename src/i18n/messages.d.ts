@@ -4807,4 +4807,28 @@ export interface IntlMessages {
       };
     };
   };
+  roles: {
+    super_admin: string;
+    admin: string;
+    coordinator: string;
+    zone_coordinator: string;
+    general_coordinator: string;
+    pastor: string;
+    director: string;
+    deputy_director: string;
+    director_club: string;
+    assistant_club: string;
+    director_dia: string;
+    assistant_dia: string;
+    director_lf: string;
+    assistant_lf: string;
+    director_union: string;
+    assistant_union: string;
+    instructor: string;
+    member: string;
+    user: string;
+    secretary: string;
+    treasurer: string;
+    counselor: string;
+  };
 }

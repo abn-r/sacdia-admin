@@ -28,6 +28,7 @@ import {
 import { cn } from "@/lib/utils";
 import { PageHeader } from "@/components/shared/page-header";
 import { getTranslations } from "next-intl/server";
+import { buildRoleTranslator } from "@/lib/auth/role-labels";
 
 type StatsData = {
   totalUsers: number | null;
@@ -363,6 +364,8 @@ async function StatsSection() {
 
 async function RecentUsersSection() {
   const t = await getTranslations("dashboardHub");
+  const tRoles = await getTranslations("roles");
+  const translateRole = buildRoleTranslator(tRoles);
   const users = await fetchRecentUsers();
 
   const relativeDateTx: RelativeDateTranslations = {
@@ -450,7 +453,7 @@ async function RecentUsersSection() {
                         variant="secondary"
                         className="text-xs font-normal"
                       >
-                        {role}
+                        {translateRole(role)}
                       </Badge>
                     ))
                   ) : (

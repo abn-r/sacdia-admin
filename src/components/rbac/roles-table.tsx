@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { useRoleLabel } from "@/lib/auth/role-labels";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -149,6 +150,7 @@ function parseUsersCount(errorMessage: string): number | null {
 
 function DeactivateDialog({ role, open, onClose, onSuccess }: DeactivateDialogProps) {
   const t = useTranslations("rbac");
+  const translateRole = useRoleLabel();
   const [loading, setLoading] = useState(false);
   const [blockError, setBlockError] = useState<{ usersCount: number } | null>(null);
 
@@ -259,6 +261,7 @@ interface RolesTableProps {
 }
 
 export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
+  const translateRole = useRoleLabel();
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<ActiveFilter>("true");
   const [sortField, setSortField] = useState<SortField>("role_name");
@@ -469,7 +472,10 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
                                 <TooltipContent>Rol protegido del sistema</TooltipContent>
                               </Tooltip>
                             )}
-                            <span className="font-mono text-sm font-medium">{role.role_name}</span>
+                            <div className="flex flex-col">
+                              <span className="text-sm font-medium">{translateRole(role.role_name)}</span>
+                              <span className="font-mono text-xs text-muted-foreground">{role.role_name}</span>
+                            </div>
                           </div>
                         </TableCell>
 
@@ -610,7 +616,8 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate font-mono text-sm font-medium">{role.role_name}</p>
+                        <p className="truncate text-sm font-medium">{translateRole(role.role_name)}</p>
+                        <p className="truncate font-mono text-xs text-muted-foreground">{role.role_name}</p>
                         {role.description && (
                           <p className="line-clamp-1 text-xs text-muted-foreground">
                             {role.description}
