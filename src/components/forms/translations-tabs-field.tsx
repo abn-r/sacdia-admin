@@ -20,6 +20,18 @@ const LOCALE_LABELS: Record<CatalogLocale, string> = {
   fr: "Français",
 };
 
+// ─── Second-field configuration ───────────────────────────────────────────────
+
+/** Describes the optional second translatable field shown in non-es tabs. */
+export interface SecondFieldConfig {
+  /** The FormData/JSON key for this field. */
+  key: "description" | "ideal";
+  /** Label shown above the input. */
+  label: string;
+  /** When true renders a Textarea; otherwise an Input. Default: true. */
+  multiline?: boolean;
+}
+
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface TranslationsTabsFieldProps {
@@ -28,8 +40,18 @@ interface TranslationsTabsFieldProps {
   /** Controlled translations array (non-es locales only). */
   translations: CatalogTranslation[];
   onTranslationsChange: (translations: CatalogTranslation[]) => void;
-  /** Whether to show the description textarea in non-es tabs. Default true. */
-  includeDescription?: boolean;
+  /**
+   * Whether to show a second field (description or ideal) in non-es tabs.
+   * Default true — renders description with a Textarea.
+   *
+   * Pass false to suppress the second field.
+   * Pass a `SecondFieldConfig` object to customise the key and label —
+   * e.g. `{ key: 'ideal', label: 'Ideal', multiline: true }` for club-ideals.
+   *
+   * Backwards-compatible: existing consumers that pass `includeDescription={false}`
+   * keep working unchanged (no second field rendered).
+   */
+  includeDescription?: boolean | SecondFieldConfig;
   /**
    * When set, emit hidden <input> elements for FormData mode.
    * The name format will be `{prefix}[N][locale]`, `{prefix}[N][name]`, etc.
@@ -59,7 +81,7 @@ function getEntry(
 function updateTranslations(
   translations: CatalogTranslation[],
   locale: CatalogLocale,
-  field: "name" | "description",
+  field: "name" | "description" | "ideal",
   value: string,
 ): CatalogTranslation[] {
   const trimmed = value.trim();
@@ -67,10 +89,11 @@ function updateTranslations(
 
   if (existing) {
     const updated = { ...existing, [field]: trimmed || null };
-    // Remove entry entirely when both fields are empty/null
+    // Remove entry entirely when all known fields are empty/null
     const hasName = Boolean(updated.name);
     const hasDescription = Boolean(updated.description);
-    if (!hasName && !hasDescription) {
+    const hasIdeal = Boolean(updated.ideal);
+    if (!hasName && !hasDescription && !hasIdeal) {
       return translations.filter((t) => t.locale !== locale);
     }
     return translations.map((t) => (t.locale === locale ? updated : t));
@@ -81,20 +104,37 @@ function updateTranslations(
   return [...translations, { locale, [field]: trimmed }];
 }
 
+/**
+ * Resolves the `includeDescription` prop to a normalised descriptor.
+ * Returns null when no second field should be shown.
+ */
+function resolveSecondField(
+  includeDescription: boolean | SecondFieldConfig | undefined,
+  descriptionLabel: string,
+): SecondFieldConfig | null {
+  if (includeDescription === false) return null;
+  if (typeof includeDescription === "object") return includeDescription;
+  // true or undefined — default to description Textarea
+  return { key: "description", label: descriptionLabel, multiline: true };
+}
+
 // ─── Hidden inputs for FormData mode ─────────────────────────────────────────
 
 function FormDataHiddenInputs({
   prefix,
   translations,
-  includeDescription,
+  secondField,
 }: {
   prefix: string;
   translations: CatalogTranslation[];
-  includeDescription: boolean;
+  secondField: SecondFieldConfig | null;
 }) {
   // Only emit entries that have at least one non-empty field
   const nonEmpty = translations.filter(
-    (t) => Boolean(t.name) || Boolean(t.description),
+    (t) =>
+      Boolean(t.name) ||
+      Boolean(t.description) ||
+      Boolean(t.ideal),
   );
 
   return (
@@ -113,13 +153,22 @@ function FormDataHiddenInputs({
               value={entry.name}
             />
           )}
-          {includeDescription &&
+          {secondField?.key === "description" &&
             entry.description != null &&
             entry.description !== "" && (
               <input
                 type="hidden"
                 name={`${prefix}[${idx}][description]`}
                 value={entry.description}
+              />
+            )}
+          {secondField?.key === "ideal" &&
+            entry.ideal != null &&
+            entry.ideal !== "" && (
+              <input
+                type="hidden"
+                name={`${prefix}[${idx}][ideal]`}
+                value={entry.ideal}
               />
             )}
         </span>
@@ -142,6 +191,8 @@ export function TranslationsTabsField({
   const t = useTranslations("translations");
   const [dirty, setDirty] = useState(false);
 
+  const secondField = resolveSecondField(includeDescription, t("label_description"));
+
   function markDirty() {
     if (!dirty) {
       setDirty(true);
@@ -151,7 +202,7 @@ export function TranslationsTabsField({
 
   function handleChange(
     locale: CatalogLocale,
-    field: "name" | "description",
+    field: "name" | "description" | "ideal",
     value: string,
   ) {
     markDirty();
@@ -195,21 +246,41 @@ export function TranslationsTabsField({
                 />
               </div>
 
-              {includeDescription && (
+              {secondField && (
                 <div className="space-y-2">
-                  <Label htmlFor={`trans-${locale}-description`}>
-                    {t("label_description")}
+                  <Label htmlFor={`trans-${locale}-${secondField.key}`}>
+                    {secondField.label}
                   </Label>
-                  <Textarea
-                    id={`trans-${locale}-description`}
-                    rows={3}
-                    value={entry?.description ?? ""}
-                    onChange={(e) =>
-                      handleChange(locale, "description", e.target.value)
-                    }
-                    disabled={disabled}
-                    placeholder={`${t("label_description")} (${LOCALE_LABELS[locale]})`}
-                  />
+                  {secondField.multiline !== false ? (
+                    <Textarea
+                      id={`trans-${locale}-${secondField.key}`}
+                      rows={3}
+                      value={
+                        secondField.key === "ideal"
+                          ? (entry?.ideal ?? "")
+                          : (entry?.description ?? "")
+                      }
+                      onChange={(e) =>
+                        handleChange(locale, secondField.key, e.target.value)
+                      }
+                      disabled={disabled}
+                      placeholder={`${secondField.label} (${LOCALE_LABELS[locale]})`}
+                    />
+                  ) : (
+                    <Input
+                      id={`trans-${locale}-${secondField.key}`}
+                      value={
+                        secondField.key === "ideal"
+                          ? (entry?.ideal ?? "")
+                          : (entry?.description ?? "")
+                      }
+                      onChange={(e) =>
+                        handleChange(locale, secondField.key, e.target.value)
+                      }
+                      disabled={disabled}
+                      placeholder={`${secondField.label} (${LOCALE_LABELS[locale]})`}
+                    />
+                  )}
                 </div>
               )}
             </div>
@@ -228,7 +299,7 @@ export function TranslationsTabsField({
           <FormDataHiddenInputs
             prefix={fieldNamePrefix}
             translations={translations}
-            includeDescription={includeDescription}
+            secondField={secondField}
           />
         </>
       )}

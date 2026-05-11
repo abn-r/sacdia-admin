@@ -234,6 +234,11 @@ export async function listAdminClubIdeals(params?: Record<string, string | numbe
   return apiRequest<unknown>("/admin/club-ideals", { params });
 }
 
+/** Fetches a single club-ideal by ID for the edit page. */
+export async function getAdminClubIdeal(id: number) {
+  return apiRequest<unknown>(`/admin/club-ideals/${id}`);
+}
+
 export async function createAdminClubIdeal(payload: ClubIdealPayload) {
   return apiRequest("/admin/club-ideals", { method: "POST", body: payload });
 }
