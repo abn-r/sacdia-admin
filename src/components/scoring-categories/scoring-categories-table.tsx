@@ -399,7 +399,7 @@ export function ScoringCategoriesTable({
                           className="text-xs"
                         >
                           {cat.origin_badge ||
-                            tTable(`origin.${cat.origin_level.toLowerCase()}`)}
+                            tTable(`origin.${cat.origin_level.toLowerCase()}` as Parameters<typeof tTable>[0])}
                         </Badge>
                       </TableCell>
                     )}

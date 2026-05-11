@@ -45,7 +45,8 @@ const JOB_CANONICAL_NAMES: CronJobKey[] = [
   "fcm-tokens-cleanup",
 ];
 
-const JOB_I18N_KEYS: Record<CronJobKey, string> = {
+type CronRunsT = ReturnType<typeof useTranslations<"system_jobs.cronRuns">>;
+const JOB_I18N_KEYS: Record<CronJobKey, Parameters<CronRunsT>[0]> = {
   "monthly-reports-auto-generate":  "jobMonthlyReports",
   "rankings-recalculate":           "jobRankingsRecalculate",
   "data-export-cleanup":            "jobDataExportCleanup",

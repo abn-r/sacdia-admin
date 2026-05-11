@@ -218,7 +218,7 @@ export function CatalogCrudPage({
                           key={f.name}
                           className={`${TH_BASE} ${COL_MID}`}
                         >
-                          {tCatalogs(f.label)}
+                          {tCatalogs(f.label as Parameters<typeof tCatalogs>[0])}
                         </TableHead>
                       ))}
 
@@ -430,7 +430,7 @@ export function CatalogCrudPage({
                           return (
                             <div key={f.name}>
                               <dt className="text-muted-foreground">
-                                {tCatalogs(f.label)}
+                                {tCatalogs(f.label as Parameters<typeof tCatalogs>[0])}
                               </dt>
                               <dd className="truncate">{display}</dd>
                             </div>
