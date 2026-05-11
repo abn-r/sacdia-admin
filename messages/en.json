@@ -147,6 +147,15 @@
       "placeholder": "Search pages, catalogs, sections...",
       "empty": "No results found",
       "general": "General"
+    },
+    "activeContext": {
+      "noClub": "No club",
+      "noYear": "No year",
+      "clubLabel": "Club",
+      "yearLabel": "Ecclesiastical year",
+      "clear": "Clear selection",
+      "loading": "Loading context...",
+      "unavailable": "Context unavailable"
     }
   },
   "permissions": {

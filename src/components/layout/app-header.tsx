@@ -7,10 +7,7 @@ import { AppBreadcrumbs } from "@/components/layout/app-breadcrumbs";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { GlobalCommandPalette } from "@/components/layout/global-command-palette";
-
-// TODO(audit-2026-05): ActiveContextChip — cuando se implemente el store de club activo
-// y año eclesiástico, conectar acá entre <AppBreadcrumbs /> y los botones de la derecha.
-// El chip debe mostrar "Sin club seleccionado" como fallback y el nombre del club activo cuando exista.
+import { ActiveContextChip } from "@/components/layout/active-context-chip";
 
 export function AppHeader() {
   const [cmdkOpen, setCmdkOpen] = useState(false);
@@ -38,8 +35,9 @@ export function AppHeader() {
           <AppBreadcrumbs />
         </div>
 
-        {/* Right side */}
+        {/* Right side: chip de contexto + acciones */}
         <div className="ml-auto flex shrink-0 items-center gap-1.5">
+          <ActiveContextChip />
           <Button
             variant="ghost"
             size="icon-sm"
