@@ -37,7 +37,7 @@ type FormValues = z.infer<typeof schema>;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface InvestidoDialogProps {
+export interface InvestidoDialogProps {
   open: boolean;
   enrollmentId: number;
   memberName: string;

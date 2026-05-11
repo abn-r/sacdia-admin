@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
+import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import {
@@ -50,7 +51,12 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { TemplateFormDialog } from "@/components/annual-folders/template-form-dialog";
-import { SectionFormDialog } from "@/components/annual-folders/section-form-dialog";
+import type { SectionFormDialogProps } from "@/components/annual-folders/section-form-dialog";
+
+const SectionFormDialog = dynamic<SectionFormDialogProps>(
+  () => import("@/components/annual-folders/section-form-dialog").then((m) => ({ default: m.SectionFormDialog })),
+  { ssr: false, loading: () => null },
+);
 import {
   getTemplate,
   deleteTemplateSection,
