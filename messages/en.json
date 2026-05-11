@@ -8,7 +8,9 @@
       "validation": "Validation and investitures",
       "communications": "Communications",
       "requests_reports": "Requests and reports",
-      "members": "Members"
+      "members": "Members",
+      "operations": "Operations",
+      "rankings_analytics": "Rankings & Analytics"
     },
     "items": {
       "dashboard": "Dashboard",
@@ -92,7 +94,15 @@
       "catalog_finance_categories": "Finance categories",
       "catalog_inventory_categories": "Inventory categories",
       "catalog_honors": "Honors (catalog)",
-      "catalog_master_honors": "Master honors"
+      "catalog_master_honors": "Master honors",
+      "subgroup_overview": "Overview",
+      "subgroup_geography": "Geography",
+      "subgroup_health": "Health",
+      "subgroup_clubs_cat": "Clubs",
+      "subgroup_academics": "Academics",
+      "subgroup_business": "Business",
+      "subgroup_honors_cat": "Honors",
+      "ranking_weights_root": "Weights configuration"
     },
     "breadcrumbs": {
       "dashboard": "Dashboard",
@@ -137,6 +147,25 @@
     },
     "a11y": {
       "skipToContent": "Skip to main content"
+    },
+    "profile": "My profile",
+    "logout": "Sign out",
+    "adminPanel": "Admin Panel",
+    "commandPalette": {
+      "title": "Global search",
+      "description": "Search pages, catalogs and sections in the admin",
+      "placeholder": "Search pages, catalogs, sections...",
+      "empty": "No results found",
+      "general": "General"
+    },
+    "activeContext": {
+      "noClub": "No club",
+      "noYear": "No year",
+      "clubLabel": "Club",
+      "yearLabel": "Ecclesiastical year",
+      "clear": "Clear selection",
+      "loading": "Loading context...",
+      "unavailable": "Context unavailable"
     }
   },
   "permissions": {
@@ -286,7 +315,8 @@
       "edit": "Edit",
       "delete": "Delete",
       "editItem": "Edit {item}",
-      "deleteItem": "Delete {item}"
+      "deleteItem": "Delete {item}",
+      "saving": "Saving..."
     },
     "deleteDialog": {
       "title": "Delete {name}",

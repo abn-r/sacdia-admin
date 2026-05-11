@@ -1253,7 +1253,7 @@ export function ResourcesCrudPage({
                 Completa los campos para registrar el nuevo recurso en el sistema.
               </DialogDescription>
             </DialogHeader>
-            <form action={createFormAction} encType="multipart/form-data" className="space-y-4">
+            <form action={createFormAction} className="space-y-4">
               {createOpen && createState.error && (
                 <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
                   {createState.error}

@@ -8,7 +8,9 @@
       "validation": "Validation et investitures",
       "communications": "Communications",
       "requests_reports": "Demandes et rapports",
-      "members": "Membres"
+      "members": "Membres",
+      "operations": "Opérations",
+      "rankings_analytics": "Classements & Analytique"
     },
     "items": {
       "dashboard": "Tableau de bord",
@@ -92,7 +94,15 @@
       "catalog_finance_categories": "Categories de finances",
       "catalog_inventory_categories": "Categories d'inventaire",
       "catalog_honors": "Specialites (catalogue)",
-      "catalog_master_honors": "Honneurs maitres"
+      "catalog_master_honors": "Honneurs maitres",
+      "subgroup_overview": "Aperçu",
+      "subgroup_geography": "Géographie",
+      "subgroup_health": "Santé",
+      "subgroup_clubs_cat": "Clubs",
+      "subgroup_academics": "Académiques",
+      "subgroup_business": "Affaires",
+      "subgroup_honors_cat": "Honneurs",
+      "ranking_weights_root": "Configuration des poids"
     },
     "breadcrumbs": {
       "dashboard": "Tableau de bord",
@@ -137,6 +147,25 @@
     },
     "a11y": {
       "skipToContent": "Aller au contenu principal"
+    },
+    "profile": "Mon profil",
+    "logout": "Déconnexion",
+    "adminPanel": "Panneau admin",
+    "commandPalette": {
+      "title": "Recherche globale",
+      "description": "Rechercher des pages, catalogues et sections",
+      "placeholder": "Rechercher pages, catalogues, sections...",
+      "empty": "Aucun résultat",
+      "general": "Général"
+    },
+    "activeContext": {
+      "noClub": "Aucun club",
+      "noYear": "Aucune année",
+      "clubLabel": "Club",
+      "yearLabel": "Année ecclésiastique",
+      "clear": "Effacer la sélection",
+      "loading": "Chargement du contexte...",
+      "unavailable": "Contexte indisponible"
     }
   },
   "permissions": {
@@ -286,7 +315,8 @@
       "edit": "Modifier",
       "delete": "Supprimer",
       "editItem": "Modifier {item}",
-      "deleteItem": "Supprimer {item}"
+      "deleteItem": "Supprimer {item}",
+      "saving": "Enregistrement..."
     },
     "deleteDialog": {
       "title": "Supprimer {name}",

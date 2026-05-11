@@ -44,8 +44,10 @@ import {
  * Renderers (see `app-sidebar.tsx`) resolve them via next-intl
  * `useTranslations()` at render time so the sidebar re-renders on locale change.
  *
- * Key convention: `nav.sections.<id>` for group labels,
- * `nav.items.<id>` for entries. Translators edit `messages/<locale>.json`.
+ * Key convention:
+ *   - `nav.sections.<id>` for group labels
+ *   - `nav.items.<id>` for entries
+ *   - `nav.items.subgroup_<id>` for visual subgroup separators inside a dropdown
  */
 
 export type NavItem = {
@@ -53,7 +55,7 @@ export type NavItem = {
   url: string;
   icon: LucideIcon;
   permission?: string;
-  children?: NavChild[];
+  children?: NavChildren;
 };
 
 export type NavChild = {
@@ -61,6 +63,17 @@ export type NavChild = {
   url: string;
   permission?: string;
 };
+
+export type NavSubGroup = {
+  subgroup: string;
+  items: NavChild[];
+};
+
+export type NavChildren = NavChild[] | NavSubGroup[];
+
+export function isSubGroup(entry: NavChild | NavSubGroup): entry is NavSubGroup {
+  return "subgroup" in entry;
+}
 
 export type NavGroup = {
   label?: string;
@@ -86,7 +99,7 @@ export const navConfig: NavGroup[] = [
     ],
   },
 
-  // ─── Catálogos ───────────────────────────────────────────────────────────────
+  // ─── Catálogos (children agrupados por dominio) ──────────────────────────────
   {
     label: "sections.catalogs",
     items: [
@@ -95,31 +108,66 @@ export const navConfig: NavGroup[] = [
         url: "/dashboard/catalogs",
         icon: BookOpen,
         children: [
-          { title: "sections.overview", url: "/dashboard/catalogs" },
-          { title: "items.geography_countries", url: "/dashboard/catalogs/geography/countries", permission: "countries:read" },
-          { title: "items.geography_unions", url: "/dashboard/catalogs/geography/unions", permission: "unions:read" },
-          { title: "items.geography_local_fields", url: "/dashboard/catalogs/geography/local-fields", permission: "local_fields:read" },
-          { title: "items.geography_districts", url: "/dashboard/catalogs/geography/districts", permission: "districts:read" },
-          { title: "items.geography_churches", url: "/dashboard/catalogs/geography/churches", permission: "churches:read" },
-          { title: "items.allergies", url: "/dashboard/catalogs/allergies", permission: "catalogs:read" },
-          { title: "items.diseases", url: "/dashboard/catalogs/diseases", permission: "catalogs:read" },
-          { title: "items.medicines", url: "/dashboard/catalogs/medicines", permission: "catalogs:read" },
-          { title: "items.relationship_types", url: "/dashboard/catalogs/relationship-types", permission: "catalogs:read" },
-          { title: "items.ecclesiastical_years", url: "/dashboard/catalogs/ecclesiastical-years", permission: "ecclesiastical_years:read" },
-          { title: "items.club_types", url: "/dashboard/catalogs/club-types", permission: "catalogs:read" },
-          { title: "items.club_ideals", url: "/dashboard/catalogs/club-ideals", permission: "catalogs:read" },
-          { title: "items.honor_categories", url: "/dashboard/catalogs/honor-categories", permission: "honor_categories:read" },
-          { title: "items.activity_types", url: "/dashboard/catalogs/activity-types", permission: "catalogs:read" },
-          { title: "items.catalog_classes", url: "/dashboard/catalogs/classes", permission: "catalogs:read" },
-          { title: "items.catalog_class_modules", url: "/dashboard/catalogs/class-modules", permission: "catalogs:read" },
-          { title: "items.catalog_class_sections", url: "/dashboard/catalogs/class-sections", permission: "catalogs:read" },
-          { title: "items.catalog_folders", url: "/dashboard/catalogs/catalog-folders", permission: "catalogs:read" },
-          { title: "items.catalog_folder_modules", url: "/dashboard/catalogs/folder-modules", permission: "catalogs:read" },
-          { title: "items.catalog_folder_sections", url: "/dashboard/catalogs/folder-sections", permission: "catalogs:read" },
-          { title: "items.catalog_finance_categories", url: "/dashboard/catalogs/finance-categories", permission: "catalogs:read" },
-          { title: "items.catalog_inventory_categories", url: "/dashboard/catalogs/inventory-categories", permission: "catalogs:read" },
-          { title: "items.catalog_honors", url: "/dashboard/catalogs/honors-catalog", permission: "honors:read" },
-          { title: "items.catalog_master_honors", url: "/dashboard/catalogs/master-honors", permission: "catalogs:read" },
+          {
+            subgroup: "items.subgroup_overview",
+            items: [
+              { title: "sections.overview", url: "/dashboard/catalogs" },
+            ],
+          },
+          {
+            subgroup: "items.subgroup_geography",
+            items: [
+              { title: "items.geography_countries", url: "/dashboard/catalogs/geography/countries", permission: "countries:read" },
+              { title: "items.geography_unions", url: "/dashboard/catalogs/geography/unions", permission: "unions:read" },
+              { title: "items.geography_local_fields", url: "/dashboard/catalogs/geography/local-fields", permission: "local_fields:read" },
+              { title: "items.geography_districts", url: "/dashboard/catalogs/geography/districts", permission: "districts:read" },
+              { title: "items.geography_churches", url: "/dashboard/catalogs/geography/churches", permission: "churches:read" },
+            ],
+          },
+          {
+            subgroup: "items.subgroup_health",
+            items: [
+              { title: "items.allergies", url: "/dashboard/catalogs/allergies", permission: "catalogs:read" },
+              { title: "items.diseases", url: "/dashboard/catalogs/diseases", permission: "catalogs:read" },
+              { title: "items.medicines", url: "/dashboard/catalogs/medicines", permission: "catalogs:read" },
+            ],
+          },
+          {
+            subgroup: "items.subgroup_clubs_cat",
+            items: [
+              { title: "items.club_types", url: "/dashboard/catalogs/club-types", permission: "catalogs:read" },
+              { title: "items.club_ideals", url: "/dashboard/catalogs/club-ideals", permission: "catalogs:read" },
+              { title: "items.ecclesiastical_years", url: "/dashboard/catalogs/ecclesiastical-years", permission: "ecclesiastical_years:read" },
+              { title: "items.relationship_types", url: "/dashboard/catalogs/relationship-types", permission: "catalogs:read" },
+            ],
+          },
+          {
+            subgroup: "items.subgroup_academics",
+            items: [
+              { title: "items.catalog_classes", url: "/dashboard/catalogs/classes", permission: "catalogs:read" },
+              { title: "items.catalog_class_modules", url: "/dashboard/catalogs/class-modules", permission: "catalogs:read" },
+              { title: "items.catalog_class_sections", url: "/dashboard/catalogs/class-sections", permission: "catalogs:read" },
+              { title: "items.catalog_folders", url: "/dashboard/catalogs/catalog-folders", permission: "catalogs:read" },
+              { title: "items.catalog_folder_modules", url: "/dashboard/catalogs/folder-modules", permission: "catalogs:read" },
+              { title: "items.catalog_folder_sections", url: "/dashboard/catalogs/folder-sections", permission: "catalogs:read" },
+              { title: "items.activity_types", url: "/dashboard/catalogs/activity-types", permission: "catalogs:read" },
+            ],
+          },
+          {
+            subgroup: "items.subgroup_business",
+            items: [
+              { title: "items.catalog_finance_categories", url: "/dashboard/catalogs/finance-categories", permission: "catalogs:read" },
+              { title: "items.catalog_inventory_categories", url: "/dashboard/catalogs/inventory-categories", permission: "catalogs:read" },
+            ],
+          },
+          {
+            subgroup: "items.subgroup_honors_cat",
+            items: [
+              { title: "items.catalog_honors", url: "/dashboard/catalogs/honors-catalog", permission: "honors:read" },
+              { title: "items.catalog_master_honors", url: "/dashboard/catalogs/master-honors", permission: "catalogs:read" },
+              { title: "items.honor_categories", url: "/dashboard/catalogs/honor-categories", permission: "honor_categories:read" },
+            ],
+          },
         ],
       },
       {
@@ -131,39 +179,6 @@ export const navConfig: NavGroup[] = [
           { title: "items.resources_all", url: "/dashboard/resources", permission: "resources:read" },
           { title: "items.resources_categories", url: "/dashboard/resources/categories", permission: "resource_categories:read" },
         ],
-      },
-    ],
-  },
-
-  // ─── Sistema ─────────────────────────────────────────────────────────────────
-  {
-    label: "sections.administration",
-    items: [
-      {
-        title: "items.rbac",
-        url: "/dashboard/rbac",
-        icon: Shield,
-        permission: "permissions:read",
-        children: [
-          { title: "items.rbac_permissions", url: "/dashboard/rbac/permissions", permission: "permissions:read" },
-          { title: "items.rbac_roles", url: "/dashboard/rbac/roles", permission: "roles:read" },
-        ],
-      },
-      {
-        title: "items.configuration",
-        url: "/dashboard/settings",
-        icon: Settings2,
-        permission: "permissions:read",
-        children: [
-          { title: "items.settings_system", url: "/dashboard/settings", permission: "permissions:read" },
-          { title: "items.settings_scoring", url: "/dashboard/settings/scoring-categories", permission: "scoring_categories:read" },
-        ],
-      },
-      {
-        title: "items.jobs_queues",
-        url: "/dashboard/system/jobs",
-        icon: Activity,
-        permission: "permissions:read",
       },
     ],
   },
@@ -204,9 +219,9 @@ export const navConfig: NavGroup[] = [
     ],
   },
 
-  // ─── Validación e Investiduras ───────────────────────────────────────────────
+  // ─── Operaciones (validación + folders + year-end) ───────────────────────────
   {
-    label: "sections.validation",
+    label: "sections.operations",
     items: [
       {
         title: "items.validation",
@@ -231,35 +246,6 @@ export const navConfig: NavGroup[] = [
           { title: "items.investiture_config", url: "/dashboard/investiture/config", permission: "investiture:read" },
         ],
       },
-      {
-        title: "items.sla",
-        url: "/dashboard/sla",
-        icon: Activity,
-        permission: "investiture:read",
-      },
-      {
-        title: "items.year_end",
-        url: "/dashboard/year-end",
-        icon: CalendarOff,
-        permission: "permissions:read",
-      },
-    ],
-  },
-
-  // ─── Comunicaciones ──────────────────────────────────────────────────────────
-  {
-    label: "sections.communications",
-    items: [
-      {
-        title: "items.notifications",
-        url: "/dashboard/notifications",
-        icon: Bell,
-        permission: "notifications:send",
-        children: [
-          { title: "items.notifications_send", url: "/dashboard/notifications", permission: "notifications:send" },
-          { title: "items.notifications_history", url: "/dashboard/notifications/history", permission: "notifications:send" },
-        ],
-      },
       { title: "items.evidence_folders", url: "/dashboard/folders", icon: FolderOpen, permission: "user_folders:read" },
       {
         title: "items.annual_folders",
@@ -275,10 +261,23 @@ export const navConfig: NavGroup[] = [
         ],
       },
       {
-        title: "items.ranking_weights",
-        url: "/dashboard/ranking-weights",
-        icon: SlidersHorizontal,
-        permission: RANKING_WEIGHTS_READ,
+        title: "items.year_end",
+        url: "/dashboard/year-end",
+        icon: CalendarOff,
+        permission: "permissions:read",
+      },
+    ],
+  },
+
+  // ─── Rankings y análisis ─────────────────────────────────────────────────────
+  {
+    label: "sections.rankings_analytics",
+    items: [
+      {
+        title: "items.sla",
+        url: "/dashboard/sla",
+        icon: Activity,
+        permission: "investiture:read",
       },
       {
         title: "items.member_rankings",
@@ -287,16 +286,37 @@ export const navConfig: NavGroup[] = [
         permission: MEMBER_RANKINGS_READ_GLOBAL,
       },
       {
-        title: "items.member_ranking_weights",
-        url: "/dashboard/member-ranking-weights",
-        icon: SlidersHorizontal,
-        permission: MEMBER_RANKING_WEIGHTS_READ,
-      },
-      {
         title: "items.section_rankings",
         url: "/dashboard/section-rankings",
         icon: Layers,
         permission: SECTION_RANKINGS_READ_GLOBAL,
+      },
+      {
+        title: "items.ranking_weights_root",
+        url: "/dashboard/ranking-weights",
+        icon: SlidersHorizontal,
+        permission: RANKING_WEIGHTS_READ,
+        children: [
+          { title: "items.ranking_weights", url: "/dashboard/ranking-weights", permission: RANKING_WEIGHTS_READ },
+          { title: "items.member_ranking_weights", url: "/dashboard/member-ranking-weights", permission: MEMBER_RANKING_WEIGHTS_READ },
+        ],
+      },
+    ],
+  },
+
+  // ─── Comunicaciones (solo notificaciones) ────────────────────────────────────
+  {
+    label: "sections.communications",
+    items: [
+      {
+        title: "items.notifications",
+        url: "/dashboard/notifications",
+        icon: Bell,
+        permission: "notifications:send",
+        children: [
+          { title: "items.notifications_send", url: "/dashboard/notifications", permission: "notifications:send" },
+          { title: "items.notifications_history", url: "/dashboard/notifications/history", permission: "notifications:send" },
+        ],
       },
     ],
   },
@@ -331,6 +351,39 @@ export const navConfig: NavGroup[] = [
         url: "/dashboard/member-of-month",
         icon: Trophy,
         permission: "mom:supervise",
+      },
+    ],
+  },
+
+  // ─── Administración ──────────────────────────────────────────────────────────
+  {
+    label: "sections.administration",
+    items: [
+      {
+        title: "items.rbac",
+        url: "/dashboard/rbac",
+        icon: Shield,
+        permission: "permissions:read",
+        children: [
+          { title: "items.rbac_permissions", url: "/dashboard/rbac/permissions", permission: "permissions:read" },
+          { title: "items.rbac_roles", url: "/dashboard/rbac/roles", permission: "roles:read" },
+        ],
+      },
+      {
+        title: "items.configuration",
+        url: "/dashboard/settings",
+        icon: Settings2,
+        permission: "permissions:read",
+        children: [
+          { title: "items.settings_system", url: "/dashboard/settings", permission: "permissions:read" },
+          { title: "items.settings_scoring", url: "/dashboard/settings/scoring-categories", permission: "scoring_categories:read" },
+        ],
+      },
+      {
+        title: "items.jobs_queues",
+        url: "/dashboard/system/jobs",
+        icon: Activity,
+        permission: "permissions:read",
       },
     ],
   },

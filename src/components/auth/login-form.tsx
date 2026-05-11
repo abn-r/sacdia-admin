@@ -22,7 +22,7 @@ function SubmitButton() {
       type="submit"
       disabled={pending}
       size="lg"
-      className="group h-11 w-full gap-2 text-sm font-semibold"
+      className="group w-full gap-2 text-sm font-semibold"
     >
       {pending ? (
         <>
@@ -70,7 +70,7 @@ export function LoginForm({ nextParam }: Props) {
           <div className="text-base font-bold tracking-tight text-foreground">
             SACDIA
           </div>
-          <div className="font-mono text-[10.5px] uppercase tracking-[0.08em] text-muted-foreground">
+          <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
             {t("brand_subtitle")}
           </div>
         </div>
@@ -80,10 +80,10 @@ export function LoginForm({ nextParam }: Props) {
         {t("eyebrow")}
       </div>
 
-      <h1 className="mb-2 text-3xl font-bold leading-[1.1] tracking-tight text-foreground sm:text-[32px]">
+      <h1 className="mb-2 text-3xl font-bold leading-[1.1] tracking-tight text-foreground sm:text-3xl">
         {t("welcome_title")}
       </h1>
-      <p className="mb-8 text-[14.5px] leading-relaxed text-muted-foreground">
+      <p className="mb-8 text-sm leading-relaxed text-muted-foreground">
         {t("welcome_description")}
       </p>
 
@@ -103,7 +103,7 @@ export function LoginForm({ nextParam }: Props) {
         <div className="space-y-1.5">
           <Label
             htmlFor="email"
-            className="text-[12.5px] font-semibold tracking-tight"
+            className="text-xs font-semibold tracking-tight"
           >
             {t("email_label")}
           </Label>
@@ -122,7 +122,7 @@ export function LoginForm({ nextParam }: Props) {
         <div className="space-y-1.5">
           <Label
             htmlFor="password"
-            className="text-[12.5px] font-semibold tracking-tight"
+            className="text-xs font-semibold tracking-tight"
           >
             {t("password_label")}
           </Label>

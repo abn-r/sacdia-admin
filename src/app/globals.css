@@ -77,6 +77,9 @@
 
 :root {
   --radius: 0.75rem;
+  /* NOTE: --sidebar-width aqui no tiene efecto porque SidebarProvider (shadcn) lo sobrescribe via style inline.
+     El valor real (15rem) se pasa como prop en src/app/(dashboard)/layout.tsx. Documentado como referencia. */
+  /* --sidebar-width: 15rem; */
 
   --background: oklch(0.975 0.004 75);
   --foreground: oklch(0.18 0.015 60);
