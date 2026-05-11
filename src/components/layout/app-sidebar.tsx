@@ -138,6 +138,7 @@ const LOGOUT_URL = "/api/auth/logout?next=/login";
 function SidebarUserFooter() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const t = useTranslations("nav");
   const displayName = user?.name ?? user?.email ?? "Admin";
   const email = user?.email ?? "";
   const photoUrl =
@@ -180,7 +181,7 @@ function SidebarUserFooter() {
               <DropdownMenuItem asChild>
                 <Link href={`/dashboard/users/${user?.id ?? ""}`}>
                   <User className="size-4" />
-                  Mi perfil
+                  {t("profile")}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
@@ -192,10 +193,10 @@ function SidebarUserFooter() {
                     queryClient.clear();
                     window.location.href = LOGOUT_URL;
                   }}
-                  aria-label="Cerrar sesión"
+                  aria-label={t("logout")}
                 >
                   <LogOut className="size-4" />
-                  Cerrar sesión
+                  {t("logout")}
                 </button>
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -207,6 +208,8 @@ function SidebarUserFooter() {
 }
 
 export function AppSidebar() {
+  const t = useTranslations("nav");
+
   return (
     <Sidebar collapsible="icon" variant="sidebar">
       <SidebarHeader>
@@ -219,7 +222,7 @@ export function AppSidebar() {
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">SACDIA</span>
-                  <span className="truncate text-xs text-muted-foreground">Panel Administrativo</span>
+                  <span className="truncate text-xs text-muted-foreground">{t("adminPanel")}</span>
                 </div>
               </Link>
             </SidebarMenuButton>

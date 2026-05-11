@@ -21,6 +21,7 @@ import type { EntityConfig, EntityKey } from "@/lib/catalogs/entities";
 import type { CatalogItem } from "@/lib/catalogs/service";
 import type { CatalogActionState } from "@/lib/catalogs/actions";
 import { DataTableShell } from "@/components/shared/data-table-shell";
+import { PageHeader } from "@/components/shared/page-header";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -139,23 +140,20 @@ export function CatalogCrudPage({
   return (
     <div className="space-y-6">
       {/* ── Page title row ── */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-semibold tracking-tight">{entityTitle}</h1>
-            {!canMutate && <Badge variant="outline">{tCrud("readOnly")}</Badge>}
-          </div>
-          {entityDescription && (
-            <p className="text-sm text-muted-foreground">{entityDescription}</p>
-          )}
-        </div>
-        {canMutate && (
-          <Button size="default" onClick={() => setCreateOpen(true)}>
-            <Plus className="mr-1.5 size-4" aria-hidden="true" />
-            {tActions("create", { entity: entitySingular })}
-          </Button>
-        )}
-      </div>
+      <PageHeader
+        title={entityTitle}
+        description={entityDescription}
+        actions={
+          canMutate ? (
+            <Button size="default" onClick={() => setCreateOpen(true)}>
+              <Plus className="mr-1.5 size-4" aria-hidden="true" />
+              {tActions("create", { entity: entitySingular })}
+            </Button>
+          ) : (
+            <Badge variant="outline">{tCrud("readOnly")}</Badge>
+          )
+        }
+      />
 
       {/* ── Filter bar (only when there is data to filter) ── */}
       {items.length > 0 && (
@@ -314,23 +312,23 @@ export function CatalogCrudPage({
                               <div className="flex gap-1">
                                 <Button
                                   variant="ghost"
-                                  size="icon-sm"
-                                  className="hover:bg-muted"
+                                  size="icon"
+                                  className="hover:bg-muted max-md:min-h-[44px] max-md:min-w-[44px]"
                                   disabled={!itemId}
                                   onClick={() => setEditItem(item)}
                                   aria-label={tCrud("editRecord")}
                                 >
-                                  <Pencil className="size-3.5" aria-hidden="true" />
+                                  <Pencil className="size-4" aria-hidden="true" />
                                 </Button>
                                 <Button
                                   variant="ghost"
-                                  size="icon-sm"
-                                  className="text-destructive hover:bg-muted hover:text-destructive"
+                                  size="icon"
+                                  className="text-destructive hover:bg-muted hover:text-destructive max-md:min-h-[44px] max-md:min-w-[44px]"
                                   disabled={!itemId}
                                   onClick={() => setDeleteItem(item)}
                                   aria-label={tCrud("deleteRecord")}
                                 >
-                                  <Trash2 className="size-3.5" aria-hidden="true" />
+                                  <Trash2 className="size-4" aria-hidden="true" />
                                 </Button>
                               </div>
                             </TableCell>
@@ -389,16 +387,7 @@ export function CatalogCrudPage({
                           #{itemId ?? "—"}
                         </p>
                       </div>
-                      {canMutate && itemId && (
-                        <button
-                          type="button"
-                          className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                          onClick={() => setEditItem(item)}
-                          aria-label={tCrud("editItem", { item: primaryVal })}
-                        >
-                          <Pencil className="size-4" aria-hidden="true" />
-                        </button>
-                      )}
+                      {/* Edit action is in the bottom action bar — no duplicate chevron here */}
                     </div>
 
                     {/* Status badge */}

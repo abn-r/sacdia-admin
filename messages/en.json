@@ -137,6 +137,16 @@
     },
     "a11y": {
       "skipToContent": "Skip to main content"
+    },
+    "profile": "My profile",
+    "logout": "Sign out",
+    "adminPanel": "Admin Panel",
+    "commandPalette": {
+      "title": "Global search",
+      "description": "Search pages, catalogs and sections in the admin",
+      "placeholder": "Search pages, catalogs, sections...",
+      "empty": "No results found",
+      "general": "General"
     }
   },
   "permissions": {
@@ -286,7 +296,8 @@
       "edit": "Edit",
       "delete": "Delete",
       "editItem": "Edit {item}",
-      "deleteItem": "Delete {item}"
+      "deleteItem": "Delete {item}",
+      "saving": "Saving..."
     },
     "deleteDialog": {
       "title": "Delete {name}",

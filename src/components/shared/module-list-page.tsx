@@ -91,14 +91,6 @@ export async function ModuleListPage({
         <EndpointErrorBanner state="missing" detail={errorMsg} />
       )}
 
-      {!available && (
-        <EmptyState
-          icon={Icon}
-          title={`No se pudo cargar ${title.toLowerCase()}`}
-          description={errorMsg}
-        />
-      )}
-
       {available && items.length === 0 && (
         <EmptyState
           icon={Icon}

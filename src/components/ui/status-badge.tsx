@@ -1,5 +1,6 @@
 import type { VariantProps } from "class-variance-authority";
 import type { LucideIcon } from "lucide-react";
+import { CheckCircle2, MinusCircle, XCircle, AlertTriangle, Info, Circle } from "lucide-react";
 import { Badge, badgeVariants } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -37,10 +38,21 @@ const progressClasses: Partial<Record<StatusIntent, string>> = {
     "bg-[color-mix(in_oklch,var(--chart-3)_12%,transparent)] text-[var(--chart-3)] border-[color-mix(in_oklch,var(--chart-3)_25%,transparent)]",
 };
 
+// Default icons per intent — ensures WCAG 1.4.1 (not color-only distinction)
+const intentDefaultIcon: Partial<Record<StatusIntent, LucideIcon>> = {
+  success: CheckCircle2,
+  neutral: MinusCircle,
+  destructive: XCircle,
+  warning: AlertTriangle,
+  info: Info,
+  primary: Circle,
+};
+
 export interface StatusBadgeProps {
   intent: StatusIntent;
   label: string;
-  icon?: LucideIcon;
+  /** Override the default icon. Pass `null` to suppress the default icon entirely. */
+  icon?: LucideIcon | null;
   size?: "xs" | "sm" | "default";
   className?: string;
 }
@@ -48,12 +60,20 @@ export interface StatusBadgeProps {
 export function StatusBadge({
   intent,
   label,
-  icon: Icon,
+  icon,
   size = "default",
   className,
 }: StatusBadgeProps) {
   const variant = intentToBadgeVariant[intent];
   const progressClass = progressClasses[intent];
+
+  // Resolve icon: explicit prop wins; null suppresses; undefined falls back to default
+  const ResolvedIcon =
+    icon === null
+      ? null
+      : icon !== undefined
+        ? icon
+        : (intentDefaultIcon[intent] ?? null);
 
   return (
     <Badge
@@ -66,7 +86,7 @@ export function StatusBadge({
         className,
       )}
     >
-      {Icon && <Icon className="size-3 shrink-0" />}
+      {ResolvedIcon && <ResolvedIcon className="mr-1 size-3.5 shrink-0" />}
       {label}
     </Badge>
   );

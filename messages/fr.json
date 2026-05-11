@@ -137,6 +137,16 @@
     },
     "a11y": {
       "skipToContent": "Aller au contenu principal"
+    },
+    "profile": "Mon profil",
+    "logout": "Déconnexion",
+    "adminPanel": "Panneau admin",
+    "commandPalette": {
+      "title": "Recherche globale",
+      "description": "Rechercher des pages, catalogues et sections",
+      "placeholder": "Rechercher pages, catalogues, sections...",
+      "empty": "Aucun résultat",
+      "general": "Général"
     }
   },
   "permissions": {
@@ -286,7 +296,8 @@
       "edit": "Modifier",
       "delete": "Supprimer",
       "editItem": "Modifier {item}",
-      "deleteItem": "Supprimer {item}"
+      "deleteItem": "Supprimer {item}",
+      "saving": "Enregistrement..."
     },
     "deleteDialog": {
       "title": "Supprimer {name}",

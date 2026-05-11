@@ -50,25 +50,25 @@ export function LoginBrandPanel() {
         </div>
         <div className="leading-tight">
           <div className="text-base font-bold tracking-tight">SACDIA</div>
-          <div className="font-mono text-[10.5px] uppercase tracking-[0.08em] opacity-75">
+          <div className="font-mono text-[11px] uppercase tracking-[0.08em] opacity-75">
             {t("brand_subtitle")}
           </div>
         </div>
       </div>
 
       <div className="relative max-w-[480px]">
-        <div className="mb-5 font-mono text-[11px] uppercase tracking-[0.14em] opacity-75">
+        <div className="mb-5 font-mono text-[11px] uppercase tracking-[0.14em] text-primary-foreground/75">
           {t("verse_reference")}
         </div>
-        <p className="text-[38px] font-semibold leading-[1.18] tracking-tight">
+        <p className="text-4xl font-semibold leading-[1.18] tracking-tight">
           {t("verse_text")}
         </p>
-        <p className="mt-7 max-w-[420px] border-t border-white/20 pt-5 text-sm leading-relaxed opacity-85">
+        <p className="mt-7 max-w-[420px] border-t border-white/20 pt-5 text-sm leading-relaxed text-primary-foreground/95">
           {t("brand_description")}
         </p>
       </div>
 
-      <div className="relative flex items-center justify-between font-mono text-[11.5px] uppercase tracking-[0.06em] opacity-70">
+      <div className="relative flex items-center justify-between font-mono text-[11px] uppercase tracking-[0.06em] opacity-70">
         <span>{t("version_label")}</span>
         <span>{t("region_label")}</span>
       </div>
