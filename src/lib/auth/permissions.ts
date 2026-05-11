@@ -62,6 +62,10 @@ export const LOCAL_FIELDS_READ = "local_fields:read";
 export const LOCAL_FIELDS_CREATE = "local_fields:create";
 export const LOCAL_FIELDS_UPDATE = "local_fields:update";
 export const LOCAL_FIELDS_DELETE = "local_fields:delete";
+export const DISTRICTS_READ = "districts:read";
+export const DISTRICTS_CREATE = "districts:create";
+export const DISTRICTS_UPDATE = "districts:update";
+export const DISTRICTS_DELETE = "districts:delete";
 export const CHURCHES_READ = "churches:read";
 export const CHURCHES_CREATE = "churches:create";
 export const CHURCHES_UPDATE = "churches:update";
@@ -72,6 +76,34 @@ export const CATALOGS_READ = "catalogs:read";
 export const CATALOGS_CREATE = "catalogs:create";
 export const CATALOGS_UPDATE = "catalogs:update";
 export const CATALOGS_DELETE = "catalogs:delete";
+export const RELATIONSHIP_TYPES_READ = "relationship_types:read";
+export const RELATIONSHIP_TYPES_CREATE = "relationship_types:create";
+export const RELATIONSHIP_TYPES_UPDATE = "relationship_types:update";
+export const RELATIONSHIP_TYPES_DELETE = "relationship_types:delete";
+export const ALLERGIES_READ = "allergies:read";
+export const ALLERGIES_CREATE = "allergies:create";
+export const ALLERGIES_UPDATE = "allergies:update";
+export const ALLERGIES_DELETE = "allergies:delete";
+export const DISEASES_READ = "diseases:read";
+export const DISEASES_CREATE = "diseases:create";
+export const DISEASES_UPDATE = "diseases:update";
+export const DISEASES_DELETE = "diseases:delete";
+export const MEDICINES_READ = "medicines:read";
+export const MEDICINES_CREATE = "medicines:create";
+export const MEDICINES_UPDATE = "medicines:update";
+export const MEDICINES_DELETE = "medicines:delete";
+export const CLUB_TYPES_READ = "club_types:read";
+export const CLUB_TYPES_CREATE = "club_types:create";
+export const CLUB_TYPES_UPDATE = "club_types:update";
+export const CLUB_TYPES_DELETE = "club_types:delete";
+export const CLUB_IDEALS_READ = "club_ideals:read";
+export const CLUB_IDEALS_CREATE = "club_ideals:create";
+export const CLUB_IDEALS_UPDATE = "club_ideals:update";
+export const CLUB_IDEALS_DELETE = "club_ideals:delete";
+export const ACTIVITY_TYPES_READ = "activity_types:read";
+export const ACTIVITY_TYPES_CREATE = "activity_types:create";
+export const ACTIVITY_TYPES_UPDATE = "activity_types:update";
+export const ACTIVITY_TYPES_DELETE = "activity_types:delete";
 
 // --- Clases y Honores ---
 export const CLASSES_READ = "classes:read";
@@ -300,6 +332,10 @@ export const PERMISSION_GROUPS = {
       { key: LOCAL_FIELDS_CREATE },
       { key: LOCAL_FIELDS_UPDATE },
       { key: LOCAL_FIELDS_DELETE },
+      { key: DISTRICTS_READ },
+      { key: DISTRICTS_CREATE },
+      { key: DISTRICTS_UPDATE },
+      { key: DISTRICTS_DELETE },
       { key: CHURCHES_READ },
       { key: CHURCHES_CREATE },
       { key: CHURCHES_UPDATE },
@@ -312,6 +348,34 @@ export const PERMISSION_GROUPS = {
       { key: CATALOGS_CREATE },
       { key: CATALOGS_UPDATE },
       { key: CATALOGS_DELETE },
+      { key: RELATIONSHIP_TYPES_READ },
+      { key: RELATIONSHIP_TYPES_CREATE },
+      { key: RELATIONSHIP_TYPES_UPDATE },
+      { key: RELATIONSHIP_TYPES_DELETE },
+      { key: ALLERGIES_READ },
+      { key: ALLERGIES_CREATE },
+      { key: ALLERGIES_UPDATE },
+      { key: ALLERGIES_DELETE },
+      { key: DISEASES_READ },
+      { key: DISEASES_CREATE },
+      { key: DISEASES_UPDATE },
+      { key: DISEASES_DELETE },
+      { key: MEDICINES_READ },
+      { key: MEDICINES_CREATE },
+      { key: MEDICINES_UPDATE },
+      { key: MEDICINES_DELETE },
+      { key: CLUB_TYPES_READ },
+      { key: CLUB_TYPES_CREATE },
+      { key: CLUB_TYPES_UPDATE },
+      { key: CLUB_TYPES_DELETE },
+      { key: CLUB_IDEALS_READ },
+      { key: CLUB_IDEALS_CREATE },
+      { key: CLUB_IDEALS_UPDATE },
+      { key: CLUB_IDEALS_DELETE },
+      { key: ACTIVITY_TYPES_READ },
+      { key: ACTIVITY_TYPES_CREATE },
+      { key: ACTIVITY_TYPES_UPDATE },
+      { key: ACTIVITY_TYPES_DELETE },
     ],
   },
   classes_honors: {
