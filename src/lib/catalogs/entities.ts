@@ -48,6 +48,7 @@ export const ENTITY_KEYS = [
 export type EntityKey = (typeof ENTITY_KEYS)[number];
 
 export const entityConfigs: Record<EntityKey, EntityConfig> = {
+  // MIGRATED to PhaseECatalogCrudPage in PR-4b — remove after PR-6 cleanup
   countries: {
     key: "countries",
     title: "Países",
@@ -64,6 +65,7 @@ export const entityConfigs: Record<EntityKey, EntityConfig> = {
       { name: "active", label: "fields.active", type: "checkbox", required: false },
     ],
   },
+  // MIGRATED to PhaseECatalogCrudPage in PR-4b — remove after PR-6 cleanup
   unions: {
     key: "unions",
     title: "Uniones",
@@ -87,6 +89,7 @@ export const entityConfigs: Record<EntityKey, EntityConfig> = {
       { name: "active", label: "fields.active", type: "checkbox", required: false },
     ],
   },
+  // MIGRATED to PhaseECatalogCrudPage in PR-4b — remove after PR-6 cleanup
   "local-fields": {
     key: "local-fields",
     title: "Campos Locales",
@@ -110,6 +113,7 @@ export const entityConfigs: Record<EntityKey, EntityConfig> = {
       { name: "active", label: "fields.active", type: "checkbox", required: false },
     ],
   },
+  // MIGRATED to PhaseECatalogCrudPage in PR-4b — remove after PR-6 cleanup
   districts: {
     key: "districts",
     title: "Distritos",
@@ -138,6 +142,7 @@ export const entityConfigs: Record<EntityKey, EntityConfig> = {
       { name: "active", label: "fields.active", type: "checkbox", required: false },
     ],
   },
+  // MIGRATED to PhaseECatalogCrudPage in PR-4b — remove after PR-6 cleanup
   churches: {
     key: "churches",
     title: "Iglesias",
@@ -160,6 +165,7 @@ export const entityConfigs: Record<EntityKey, EntityConfig> = {
       { name: "active", label: "fields.active", type: "checkbox", required: false },
     ],
   },
+  // MIGRATED to PhaseECatalogCrudPage in PR-4b — remove after PR-6 cleanup
   "relationship-types": {
     key: "relationship-types",
     title: "Tipos de Relación",
@@ -176,6 +182,7 @@ export const entityConfigs: Record<EntityKey, EntityConfig> = {
       { name: "active", label: "fields.active", type: "checkbox", required: false },
     ],
   },
+  // MIGRATED to PhaseECatalogCrudPage in PR-4b — remove after PR-6 cleanup
   allergies: {
     key: "allergies",
     title: "Alergias",
@@ -192,6 +199,7 @@ export const entityConfigs: Record<EntityKey, EntityConfig> = {
       { name: "active", label: "fields.active", type: "checkbox", required: false },
     ],
   },
+  // MIGRATED to PhaseECatalogCrudPage in PR-4b — remove after PR-6 cleanup
   diseases: {
     key: "diseases",
     title: "Enfermedades",
@@ -208,6 +216,7 @@ export const entityConfigs: Record<EntityKey, EntityConfig> = {
       { name: "active", label: "fields.active", type: "checkbox", required: false },
     ],
   },
+  // MIGRATED to PhaseECatalogCrudPage in PR-4b — remove after PR-6 cleanup
   medicines: {
     key: "medicines",
     title: "Medicamentos",
@@ -240,6 +249,7 @@ export const entityConfigs: Record<EntityKey, EntityConfig> = {
       { name: "active", label: "fields.active", type: "checkbox", required: false },
     ],
   },
+  // MIGRATED to PhaseECatalogCrudPage in PR-4b — remove after PR-6 cleanup
   "club-types": {
     key: "club-types",
     title: "Tipos de Club",
@@ -278,6 +288,7 @@ export const entityConfigs: Record<EntityKey, EntityConfig> = {
       { name: "active", label: "fields.active", type: "checkbox", required: false },
     ],
   },
+  // MIGRATED to PhaseECatalogCrudPage in PR-4b — remove after PR-6 cleanup
   "activity-types": {
     key: "activity-types",
     title: "Tipos de Actividad",
