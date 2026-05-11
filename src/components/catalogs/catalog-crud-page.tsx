@@ -248,7 +248,11 @@ export function CatalogCrudPage({
                       return (
                         <TableRow
                           key={rowKey}
-                          className={`${ROW_H} border-b border-border transition-colors hover:bg-muted/30`}
+                          className={`${ROW_H} border-b border-border transition-colors hover:bg-muted/30 animate-in fade-in slide-in-from-bottom-2 duration-300`}
+                          style={{
+                            animationDelay: `${Math.min(idx * 40, 400)}ms`,
+                            animationFillMode: "backwards",
+                          }}
                         >
                           {/* ID — first column */}
                           <TableCell
@@ -374,7 +378,14 @@ export function CatalogCrudPage({
               const secondaryFields = displayFields.slice(1, 3);
 
               return (
-                <li key={rowKey}>
+                <li
+                  key={rowKey}
+                  className="animate-in fade-in slide-in-from-bottom-2 duration-300"
+                  style={{
+                    animationDelay: `${Math.min(idx * 40, 400)}ms`,
+                    animationFillMode: "backwards",
+                  }}
+                >
                   <div className="rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40 focus-visible:outline-none">
                     {/* Card header: icon + name + edit chevron */}
                     <div className="flex items-center gap-3">

@@ -27,7 +27,7 @@ export function PageHeader({
   const rightSlot = actions ?? children;
 
   return (
-    <header className={cn("space-y-3", className)}>
+    <header className={cn("space-y-3 animate-in fade-in slide-in-from-top-1 duration-300", className)}>
       {breadcrumbs && breadcrumbs.length > 0 && (
         <nav
           aria-label="Breadcrumb"

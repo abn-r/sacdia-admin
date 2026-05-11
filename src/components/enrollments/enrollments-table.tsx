@@ -29,6 +29,7 @@ import {
 import { validateEnrollment, type Enrollment, type InvestitureStatus } from "@/lib/api/enrollments";
 import { ApiError } from "@/lib/api/client";
 import { useFormatDate } from "@/lib/format-locale";
+import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 
 // ─── Status badge ─────────────────────────────────────────────────────────────
 
@@ -194,13 +195,13 @@ export function EnrollmentsTable({ enrollments, onRefresh }: EnrollmentsTablePro
           </TableRow>
         </TableHeader>
         <TableBody>
-          {enrollments.map((enrollment) => {
+          {enrollments.map((enrollment, index) => {
             const isProcessing = processingId === enrollment.enrollment_id;
             const isPendingValidation =
               enrollment.investiture_status === "SUBMITTED_FOR_VALIDATION";
 
             return (
-              <TableRow key={enrollment.enrollment_id}>
+              <TableRow key={enrollment.enrollment_id} className={STAGGER_CLASSES} style={getStaggerStyle(index)}>
                 {/* Member */}
                 <TableCell>
                   <div className="space-y-0.5">

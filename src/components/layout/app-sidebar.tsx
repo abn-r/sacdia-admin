@@ -92,7 +92,7 @@ function NavItemWithChildren({ item, pathname }: { item: NavItem; pathname: stri
     <Collapsible asChild defaultOpen={isActive}>
       <SidebarMenuItem>
         <CollapsibleTrigger asChild>
-          <SidebarMenuButton tooltip={title} isActive={isActive}>
+          <SidebarMenuButton tooltip={title} isActive={isActive} className="transition-colors duration-200">
             <item.icon className="h-[18px] w-[18px] shrink-0" />
             <span className="truncate">{title}</span>
             <ChevronRight className="ml-auto h-[18px] w-[18px] shrink-0 transition-transform group-data-[state=open]/collapsible:rotate-90" />
@@ -131,7 +131,7 @@ function NavItemSimple({ item, pathname }: { item: NavItem; pathname: string }) 
 
   return (
     <SidebarMenuItem>
-      <SidebarMenuButton asChild tooltip={title} isActive={isActive}>
+      <SidebarMenuButton asChild tooltip={title} isActive={isActive} className="transition-colors duration-200">
         <Link href={item.url}>
           <item.icon className="h-[18px] w-[18px] shrink-0" />
           <span className="truncate">{title}</span>

@@ -17,6 +17,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { Settings2 } from "lucide-react";
 import type { InvestitureConfig } from "@/lib/api/investiture";
 import { useFormatDate } from "@/lib/format-locale";
+import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -68,8 +69,8 @@ export function ConfigTable({ configs, onEdit, onDelete }: ConfigTableProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {configs.map((config) => (
-            <TableRow key={config.investiture_config_id} className="hover:bg-muted/30">
+          {configs.map((config, index) => (
+            <TableRow key={config.investiture_config_id} className={`hover:bg-muted/30 ${STAGGER_CLASSES}`} style={getStaggerStyle(index)}>
               <TableCell className="px-3 py-2.5 align-middle font-medium">
                 {config.local_fields?.name ?? t("configTable.fieldFallback", { id: config.local_field_id })}
               </TableCell>
