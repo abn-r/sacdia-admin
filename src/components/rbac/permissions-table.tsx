@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { EmptyState } from "@/components/shared/empty-state";
 import type { Permission, RbacActionState } from "@/lib/rbac/types";
+import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 
 function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
@@ -115,8 +116,8 @@ export function PermissionsTable({ items, createAction, updateAction, deleteActi
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {items.map((perm) => (
-                    <TableRow key={perm.permission_id}>
+                  {items.map((perm, index) => (
+                    <TableRow key={perm.permission_id} className={STAGGER_CLASSES} style={getStaggerStyle(index)}>
                       <TableCell className="text-xs text-muted-foreground">{perm.permission_id}</TableCell>
                       <TableCell>
                         <code className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono">
@@ -150,8 +151,8 @@ export function PermissionsTable({ items, createAction, updateAction, deleteActi
 
           {/* Mobile cards */}
           <ul className="space-y-3 md:hidden" aria-label={t("permissionsTable.mobileListLabel")}>
-            {items.map((perm) => (
-              <li key={perm.permission_id}>
+            {items.map((perm, index) => (
+              <li key={perm.permission_id} className={STAGGER_CLASSES} style={getStaggerStyle(index)}>
                 <div className="rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40 focus-visible:outline-none">
                   <div className="flex items-center gap-3">
                     <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">

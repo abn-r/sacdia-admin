@@ -51,6 +51,7 @@ const EvidenceBulkActionBar = dynamic<EvidenceBulkActionBarProps>(
   { ssr: false, loading: () => null }
 );
 import { useFormatDate } from "@/lib/format-locale";
+import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 
 function isPending(status: string, type: EvidenceType): boolean {
   void type;
@@ -281,14 +282,15 @@ export function EvidenceReviewTable({ items, onRefresh }: EvidenceReviewTablePro
           </TableHeader>
 
           <TableBody>
-            {items.map((item) => {
+            {items.map((item, index) => {
               const isSelected = selectedIds.has(item.id);
               const selectable = isPending(item.status, item.type);
 
               return (
                 <TableRow
                   key={`${item.type}-${item.id}`}
-                  className={`hover:bg-muted/30 ${isSelected ? "bg-muted/50" : ""}`}
+                  className={`hover:bg-muted/30 ${isSelected ? "bg-muted/50" : ""} ${STAGGER_CLASSES}`}
+                  style={getStaggerStyle(index)}
                 >
                   {/* Checkbox */}
                   <TableCell className="px-3 py-2.5 align-middle">

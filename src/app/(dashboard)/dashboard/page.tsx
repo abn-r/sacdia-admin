@@ -29,6 +29,7 @@ import { cn } from "@/lib/utils";
 import { PageHeader } from "@/components/shared/page-header";
 import { getTranslations } from "next-intl/server";
 import { buildRoleTranslator } from "@/lib/auth/role-labels";
+import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 
 type StatsData = {
   totalUsers: number | null;
@@ -356,7 +357,9 @@ async function StatsSection() {
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {statCards.map((card, index) => (
-        <StatCard key={card.title} {...card} colorIndex={index} />
+        <div key={card.title} className={STAGGER_CLASSES} style={getStaggerStyle(index, 50)}>
+          <StatCard {...card} colorIndex={index} />
+        </div>
       ))}
     </div>
   );
@@ -417,7 +420,7 @@ async function RecentUsersSection() {
       </CardHeader>
       <CardContent>
         <div className="divide-y divide-border/60">
-          {users.map((user) => {
+          {users.map((user, index) => {
             const roleNames = extractRoleNames(user);
             const fullName =
               [user.name, user.paternal_last_name].filter(Boolean).join(" ") ||
@@ -427,7 +430,8 @@ async function RecentUsersSection() {
             return (
               <div
                 key={user.user_id}
-                className="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
+                className={`flex items-center gap-3 py-3 first:pt-0 last:pb-0 ${STAGGER_CLASSES}`}
+                style={getStaggerStyle(index)}
               >
                 <Avatar className="size-8 shrink-0">
                   <AvatarFallback className="text-xs font-medium">
@@ -649,11 +653,11 @@ export default async function DashboardPage() {
           <h2 className="text-base font-semibold">{t("quickLinks.title")}</h2>
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {quickLinks.map((link) => {
+          {quickLinks.map((link, index) => {
             const config =
               statCardConfig[link.colorIndex % statCardConfig.length];
             return (
-              <Link key={link.href} href={link.href}>
+              <Link key={link.href} href={link.href} className={STAGGER_CLASSES} style={getStaggerStyle(index, 50)}>
                 <Card className="group h-full transition-all hover:border-primary/20 hover:shadow-md">
                   <CardContent className="flex items-center gap-3.5 p-4">
                     <div

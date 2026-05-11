@@ -14,6 +14,7 @@ import type { AdminUser } from "@/lib/api/admin-users";
 import { DataTableShell } from "@/components/shared/data-table-shell";
 import { getTranslations } from "next-intl/server";
 import { buildRoleTranslator, type RoleTranslator } from "@/lib/auth/role-labels";
+import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 
 function extractRoleNames(user: AdminUser): string[] {
   const roles: string[] = [];
@@ -198,12 +199,12 @@ export async function UsersTable({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.map((user) => {
+              {users.map((user, index) => {
                 const roleNames = extractRoleNames(user);
                 const fullName = getFullName(user);
 
                 return (
-                  <TableRow key={user.user_id}>
+                  <TableRow key={user.user_id} className={STAGGER_CLASSES} style={getStaggerStyle(index)}>
                     <TableCell className="pl-6">
                       <div className="flex items-center gap-3">
                         <UserAvatar
@@ -287,8 +288,8 @@ export async function UsersTable({
 
       {/* Mobile: descriptive cards */}
       <ul className="space-y-3 md:hidden" aria-label={t("list.ariaLabel")}>
-        {users.map((user) => (
-          <li key={user.user_id}>
+        {users.map((user, index) => (
+          <li key={user.user_id} className={STAGGER_CLASSES} style={getStaggerStyle(index)}>
             <UserMobileCard
               user={user}
               showAdministrativeCompletion={showAdministrativeCompletion}

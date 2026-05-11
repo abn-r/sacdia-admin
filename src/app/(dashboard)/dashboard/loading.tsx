@@ -1,4 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
+import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 
 export default function DashboardLoading() {
   return (
@@ -9,7 +10,7 @@ export default function DashboardLoading() {
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="rounded-xl border border-border/60 bg-card p-5">
+          <div key={i} className={`rounded-xl border border-border/60 bg-card p-5 ${STAGGER_CLASSES}`} style={getStaggerStyle(i, 50)}>
             <Skeleton className="h-4 w-24" />
             <Skeleton className="mt-3 h-7 w-16" />
             <Skeleton className="mt-2 h-3 w-32" />
@@ -21,7 +22,7 @@ export default function DashboardLoading() {
           <Skeleton className="mb-4 h-5 w-40" />
           <div className="space-y-3">
             {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-3">
+              <div key={i} className={`flex items-center gap-3 ${STAGGER_CLASSES}`} style={getStaggerStyle(i, 50)}>
                 <Skeleton className="size-9 rounded-full" />
                 <div className="flex-1 space-y-1">
                   <Skeleton className="h-4 w-32" />
