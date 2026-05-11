@@ -10,24 +10,8 @@ import {
   Cell,
 } from "recharts";
 import { useTranslations } from "next-intl";
+import { useRoleLabel } from "@/lib/auth/role-labels";
 import type { RoleDistributionEntry } from "./role-distribution-chart";
-
-const ROLE_LABEL_KEYS: Record<string, string> = {
-  "super-admin": "superAdmin",
-  admin: "admin",
-  "assistant-admin": "assistantAdmin",
-  coordinator: "coordinator",
-  pastor: "pastor",
-  user: "user",
-  director: "director",
-  "deputy-director": "deputyDirector",
-  secretary: "secretary",
-  treasurer: "treasurer",
-  counselor: "counselor",
-  instructor: "instructor",
-  member: "member",
-  sin_rol: "noRole",
-};
 
 const ROLE_COLORS: Record<string, string> = {
   "super-admin": "var(--destructive)",
@@ -79,13 +63,11 @@ interface RoleDistributionChartInnerProps {
 
 export function RoleDistributionChartInner({ data, sampleSize }: RoleDistributionChartInnerProps) {
   const t = useTranslations("dashboardHub");
+  const translateRole = useRoleLabel();
 
   function roleLabel(role: string): string {
-    const key = ROLE_LABEL_KEYS[role];
-    if (key) {
-      return t(`roleLabels.${key}` as Parameters<typeof t>[0]);
-    }
-    return role.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+    if (role === "sin_rol") return t("roleChart.noRolesFound");
+    return translateRole(role);
   }
 
   function userCount(count: number, percentage: string): string {

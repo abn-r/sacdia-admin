@@ -4758,5 +4758,29 @@
         "metadataTitle": "Categorias de pontuação"
       }
     }
+  },
+  "roles": {
+    "super_admin": "Super Administrador",
+    "admin": "Administrador",
+    "coordinator": "Coordenador",
+    "zone_coordinator": "Coordenador de zona",
+    "general_coordinator": "Coordenador geral",
+    "pastor": "Pastor",
+    "director": "Diretor",
+    "deputy_director": "Subdiretor",
+    "director_club": "Diretor de clube",
+    "assistant_club": "Assistente de clube",
+    "director_dia": "Diretor DIA",
+    "assistant_dia": "Assistente DIA",
+    "director_lf": "Diretor de campo local",
+    "assistant_lf": "Assistente de campo local",
+    "director_union": "Diretor de união",
+    "assistant_union": "Assistente de união",
+    "instructor": "Instrutor",
+    "member": "Membro",
+    "user": "Usuário",
+    "secretary": "Secretário",
+    "treasurer": "Tesoureiro",
+    "counselor": "Conselheiro"
   }
 }
