@@ -8,7 +8,9 @@
       "validation": "Validation and investitures",
       "communications": "Communications",
       "requests_reports": "Requests and reports",
-      "members": "Members"
+      "members": "Members",
+      "operations": "Operations",
+      "rankings_analytics": "Rankings & Analytics"
     },
     "items": {
       "dashboard": "Dashboard",
@@ -92,7 +94,15 @@
       "catalog_finance_categories": "Finance categories",
       "catalog_inventory_categories": "Inventory categories",
       "catalog_honors": "Honors (catalog)",
-      "catalog_master_honors": "Master honors"
+      "catalog_master_honors": "Master honors",
+      "subgroup_overview": "Overview",
+      "subgroup_geography": "Geography",
+      "subgroup_health": "Health",
+      "subgroup_clubs_cat": "Clubs",
+      "subgroup_academics": "Academics",
+      "subgroup_business": "Business",
+      "subgroup_honors_cat": "Honors",
+      "ranking_weights_root": "Weights configuration"
     },
     "breadcrumbs": {
       "dashboard": "Dashboard",

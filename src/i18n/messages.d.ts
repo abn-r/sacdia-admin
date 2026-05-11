@@ -38,6 +38,8 @@ export interface IntlMessages {
       communications: string;
       requests_reports: string;
       members: string;
+      operations: string;
+      rankings_analytics: string;
     };
     items: {
       dashboard: string;
@@ -122,6 +124,14 @@ export interface IntlMessages {
       catalog_inventory_categories: string;
       catalog_honors: string;
       catalog_master_honors: string;
+      subgroup_overview: string;
+      subgroup_geography: string;
+      subgroup_health: string;
+      subgroup_clubs_cat: string;
+      subgroup_academics: string;
+      subgroup_business: string;
+      subgroup_honors_cat: string;
+      ranking_weights_root: string;
     };
     breadcrumbs: {
       dashboard: string;
@@ -166,6 +176,25 @@ export interface IntlMessages {
     };
     a11y: {
       skipToContent: string;
+    };
+    profile: string;
+    logout: string;
+    adminPanel: string;
+    commandPalette: {
+      title: string;
+      description: string;
+      placeholder: string;
+      empty: string;
+      general: string;
+    };
+    activeContext: {
+      noClub: string;
+      noYear: string;
+      clubLabel: string;
+      yearLabel: string;
+      clear: string;
+      loading: string;
+      unavailable: string;
     };
   };
   permissions: {
@@ -316,6 +345,7 @@ export interface IntlMessages {
       delete: string;
       editItem: string;
       deleteItem: string;
+      saving: string;
     };
     deleteDialog: {
       title: string;
