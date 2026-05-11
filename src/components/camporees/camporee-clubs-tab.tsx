@@ -8,7 +8,7 @@ import { EnrollClubDialog } from "@/components/camporees/enroll-club-dialog";
 import { getEnrolledClubs } from "@/lib/api/camporees";
 import type { CamporeeClub } from "@/lib/api/camporees";
 
-interface CamporeeClubsTabProps {
+export interface CamporeeClubsTabProps {
   camporeeId: number;
   initialClubs: CamporeeClub[];
   isUnionCamporee?: boolean;

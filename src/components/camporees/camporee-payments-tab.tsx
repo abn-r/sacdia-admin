@@ -8,7 +8,7 @@ import { PaymentDialog } from "@/components/camporees/payment-dialog";
 import { getCamporeePayments } from "@/lib/api/camporees";
 import type { CamporeePayment, CamporeeMember } from "@/lib/api/camporees";
 
-interface CamporeePaymentsTabProps {
+export interface CamporeePaymentsTabProps {
   camporeeId: number;
   initialPayments: CamporeePayment[];
   members: CamporeeMember[];

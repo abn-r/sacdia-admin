@@ -34,3 +34,7 @@ jobs:
         run: pnpm build
         env:
           NEXT_PUBLIC_API_URL: http://localhost:3000
+          # Required for @sentry/nextjs to upload source maps to Sentry.
+          # Set SENTRY_AUTH_TOKEN as an Actions secret in the repository settings.
+          # Without this token, withSentryConfig will skip source map upload silently.
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}

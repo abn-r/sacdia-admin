@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useMemo } from "react";
+import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { Plus, Pencil, Trash2, Tags, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -22,14 +23,30 @@ import {
   SortableHeader,
   type SortDirection,
 } from "@/components/shared/sortable-header";
-import { ScoringCategoryDialog } from "@/components/scoring-categories/scoring-category-dialog";
-import { ScoringCategoryDeleteDialog } from "@/components/scoring-categories/scoring-category-delete-dialog";
+import type { ScoringCategoryDialogProps } from "@/components/scoring-categories/scoring-category-dialog";
+import type { ScoringCategoryDeleteDialogProps } from "@/components/scoring-categories/scoring-category-delete-dialog";
 import type {
   ScoringCategory,
   CreateScoringCategoryPayload,
   UpdateScoringCategoryPayload,
   OriginLevel,
 } from "@/lib/api/scoring-categories";
+
+const ScoringCategoryDialog = dynamic<ScoringCategoryDialogProps>(
+  () =>
+    import("@/components/scoring-categories/scoring-category-dialog").then(
+      (m) => m.ScoringCategoryDialog,
+    ),
+  { ssr: false, loading: () => null },
+);
+
+const ScoringCategoryDeleteDialog = dynamic<ScoringCategoryDeleteDialogProps>(
+  () =>
+    import("@/components/scoring-categories/scoring-category-delete-dialog").then(
+      (m) => m.ScoringCategoryDeleteDialog,
+    ),
+  { ssr: false, loading: () => null },
+);
 
 // ─── Origin badge config ──────────────────────────────────────────────────────
 

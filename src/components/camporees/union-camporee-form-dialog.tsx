@@ -64,7 +64,7 @@ type FormValues = z.infer<ReturnType<typeof buildSchema>>;
 
 // ─── Props ─────────────────────────────────────────────────────────────────────
 
-interface UnionCamporeeFormDialogProps {
+export interface UnionCamporeeFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   camporee?: UnionCamporee | null;
