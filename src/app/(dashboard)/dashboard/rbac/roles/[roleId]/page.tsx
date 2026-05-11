@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft, ShieldCheck } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { buildRoleTranslator } from "@/lib/auth/role-labels";
 import { redirect, notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
@@ -19,6 +20,8 @@ interface EditRolePageProps {
 
 export default async function EditRolePage({ params }: EditRolePageProps) {
   const t = await getTranslations("rbac.pages.rolesDetail");
+  const tRoles = await getTranslations("roles");
+  const translateRole = buildRoleTranslator(tRoles);
   const { roleId } = await params;
 
   const user = await requireAdminUser();
@@ -61,7 +64,7 @@ export default async function EditRolePage({ params }: EditRolePageProps) {
           </Link>
         </Button>
         <PageHeader
-          title={role ? t("editTitle", { name: role.role_name }) : t("editTitleFallback")}
+          title={role ? t("editTitle", { name: translateRole(role.role_name) }) : t("editTitleFallback")}
           description={t("description")}
           className="flex-1"
         />

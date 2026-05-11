@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { Plus, X, ShieldAlert, Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { useRoleLabel } from "@/lib/auth/role-labels";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -51,6 +52,7 @@ export function UserRolesPanel({
   allRoles,
 }: UserRolesPanelProps) {
   const t = useTranslations("rbac");
+  const translateRole = useRoleLabel();
   const [userRoles, setUserRoles] = useState<UserRole[]>(initialUserRoles);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [roleToRemove, setRoleToRemove] = useState<UserRole | null>(null);
@@ -196,13 +198,13 @@ export function UserRolesPanel({
                   variant={getRoleBadgeVariant(ur.roles.role_name)}
                   className="gap-1.5 pr-1 text-xs"
                 >
-                  {ur.roles.role_name}
+                  {translateRole(ur.roles.role_name)}
                   <button
                     type="button"
                     onClick={() => setRoleToRemove(ur)}
                     disabled={isPending}
                     className="ml-0.5 rounded-sm opacity-60 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
-                    title={t("userRolesPanel.removeRoleTitle", { name: ur.roles.role_name })}
+                    title={t("userRolesPanel.removeRoleTitle", { name: translateRole(ur.roles.role_name) })}
                   >
                     <X className="size-3" />
                     <span className="sr-only">{t("userRolesPanel.removeSrOnly")}</span>
@@ -261,9 +263,9 @@ export function UserRolesPanel({
                       .filter(Boolean)
                       .join(" ")}
                   >
-                    <span className="text-sm font-medium">{role.role_name}</span>
+                    <span className="text-sm font-medium">{translateRole(role.role_name)}</span>
                     <span className="text-xs text-muted-foreground">
-                      {t("userRolesPanel.categoryLabel")}: {role.role_category}
+                      <span className="font-mono">{role.role_name}</span> · {t("userRolesPanel.categoryLabel")}: {role.role_category}
                     </span>
                   </button>
                 ))}
@@ -306,7 +308,7 @@ export function UserRolesPanel({
               <AlertDialogDescription>
                 {t("userRolesPanel.removeDialogDescPre")}{" "}
                 <code className="rounded bg-muted px-1 py-0.5 text-xs font-semibold">
-                  {roleToRemove.roles.role_name}
+                  {translateRole(roleToRemove.roles.role_name)}
                 </code>{" "}
                 {t("userRolesPanel.removeDialogDescPost")}
               </AlertDialogDescription>

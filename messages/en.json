@@ -4758,5 +4758,29 @@
         "metadataTitle": "Scoring categories"
       }
     }
+  },
+  "roles": {
+    "super_admin": "Super Admin",
+    "admin": "Admin",
+    "coordinator": "Coordinator",
+    "zone_coordinator": "Zone Coordinator",
+    "general_coordinator": "General Coordinator",
+    "pastor": "Pastor",
+    "director": "Director",
+    "deputy_director": "Deputy Director",
+    "director_club": "Club Director",
+    "assistant_club": "Club Assistant",
+    "director_dia": "DIA Director",
+    "assistant_dia": "DIA Assistant",
+    "director_lf": "Local Field Director",
+    "assistant_lf": "Local Field Assistant",
+    "director_union": "Union Director",
+    "assistant_union": "Union Assistant",
+    "instructor": "Instructor",
+    "member": "Member",
+    "user": "User",
+    "secretary": "Secretary",
+    "treasurer": "Treasurer",
+    "counselor": "Counselor"
   }
 }

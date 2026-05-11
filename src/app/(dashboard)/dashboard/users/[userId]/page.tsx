@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { buildRoleTranslator } from "@/lib/auth/role-labels";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -214,6 +215,8 @@ function formatLegalRepresentative(value: Record<string, unknown> | null | undef
 export default async function UserDetailPage({ params }: { params: Params }) {
   const currentUser = await requireAdminUser();
   const t = await getTranslations("users.pages.detail");
+  const tRoles = await getTranslations("roles");
+  const translateRole = buildRoleTranslator(tRoles);
   const { userId } = await params;
 
   let user: AdminUserDetail;
@@ -324,7 +327,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
               </Badge>
               {roleNames.map((role) => (
                 <Badge key={role} variant="secondary">
-                  {role}
+                  {translateRole(role)}
                 </Badge>
               ))}
             </div>
@@ -621,7 +624,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                                 </td>
                                 <td className="px-4 py-2">
                                   <Badge variant="secondary" className="text-xs">
-                                    {ca.role?.role_name ?? ca.role_name ?? "—"}
+                                    {translateRole(ca.role?.role_name ?? ca.role_name) || "—"}
                                   </Badge>
                                 </td>
                               </tr>
