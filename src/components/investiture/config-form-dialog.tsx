@@ -45,7 +45,7 @@ import { listEcclesiasticalYears, type EcclesiasticalYear } from "@/lib/api/cata
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
 
-type ConfigTranslator = (key: string, values?: Record<string, string | number>) => string;
+type ConfigTranslator = ReturnType<typeof useTranslations<"investiture">>;
 
 function buildFormSchema(t: ConfigTranslator) {
   return z.object({
