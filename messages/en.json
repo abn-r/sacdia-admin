@@ -419,22 +419,30 @@
       "countries": {
         "title": "Countries",
         "description": "System country catalog.",
-        "metadataTitle": "Countries"
+        "metadataTitle": "Countries",
+        "entityLabel": "Country",
+        "loadError": "Could not load countries."
       },
       "churches": {
         "title": "Churches",
         "description": "System church catalog.",
-        "metadataTitle": "Churches"
+        "metadataTitle": "Churches",
+        "entityLabel": "Church",
+        "loadError": "Could not load churches."
       },
       "districts": {
         "title": "Districts",
         "description": "System district catalog.",
-        "metadataTitle": "Districts"
+        "metadataTitle": "Districts",
+        "entityLabel": "District",
+        "loadError": "Could not load districts."
       },
       "unions": {
         "title": "Unions",
         "description": "System union catalog.",
-        "metadataTitle": "Unions"
+        "metadataTitle": "Unions",
+        "entityLabel": "Union",
+        "loadError": "Could not load unions."
       },
       "unionsDetail": {
         "back": "Back",
@@ -451,7 +459,9 @@
       "localFields": {
         "title": "Local Fields",
         "description": "System local field catalog.",
-        "metadataTitle": "Local fields"
+        "metadataTitle": "Local fields",
+        "entityLabel": "Local Field",
+        "loadError": "Could not load local fields."
       },
       "localFieldsDetail": {
         "back": "Back",
@@ -468,7 +478,9 @@
       "activityTypes": {
         "title": "Activity types",
         "description": "System activity type catalog.",
-        "metadataTitle": "Activity types"
+        "metadataTitle": "Activity types",
+        "entityLabel": "Activity Type",
+        "loadError": "Could not load activity types."
       },
       "folderSections": {
         "title": "Folder sections",
@@ -591,17 +603,23 @@
       "diseases": {
         "title": "Diseases",
         "description": "Chronic diseases or relevant medical conditions.",
-        "metadataTitle": "Diseases"
+        "metadataTitle": "Diseases",
+        "entityLabel": "Disease",
+        "loadError": "Could not load diseases."
       },
       "clubTypes": {
         "title": "Club types",
         "description": "Club types available in the system.",
-        "metadataTitle": "Club types"
+        "metadataTitle": "Club types",
+        "entityLabel": "Club Type",
+        "loadError": "Could not load club types."
       },
       "medicines": {
         "title": "Medicines",
         "description": "Commonly used medications for members.",
-        "metadataTitle": "Medicines"
+        "metadataTitle": "Medicines",
+        "entityLabel": "Medicine",
+        "loadError": "Could not load medicines."
       },
       "clubIdeals": {
         "title": "Club ideals",
@@ -611,12 +629,16 @@
       "allergies": {
         "title": "Allergies",
         "description": "List of allergies for the members' health profile.",
-        "metadataTitle": "Allergies"
+        "metadataTitle": "Allergies",
+        "entityLabel": "Allergy",
+        "loadError": "Could not load allergies."
       },
       "relationshipTypes": {
         "title": "Relationship types",
         "description": "Family or emergency contact relationships.",
-        "metadataTitle": "Relationship types"
+        "metadataTitle": "Relationship types",
+        "entityLabel": "Relationship Type",
+        "loadError": "Could not load relationship types."
       },
       "ecclesiasticalYears": {
         "title": "Ecclesiastical years",

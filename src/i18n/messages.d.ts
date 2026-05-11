@@ -449,21 +449,29 @@ export interface IntlMessages {
         title: string;
         description: string;
         metadataTitle: string;
+        entityLabel: string;
+        loadError: string;
       };
       churches: {
         title: string;
         description: string;
         metadataTitle: string;
+        entityLabel: string;
+        loadError: string;
       };
       districts: {
         title: string;
         description: string;
         metadataTitle: string;
+        entityLabel: string;
+        loadError: string;
       };
       unions: {
         title: string;
         description: string;
         metadataTitle: string;
+        entityLabel: string;
+        loadError: string;
       };
       unionsDetail: {
         back: string;
@@ -481,6 +489,8 @@ export interface IntlMessages {
         title: string;
         description: string;
         metadataTitle: string;
+        entityLabel: string;
+        loadError: string;
       };
       localFieldsDetail: {
         back: string;
@@ -498,6 +508,8 @@ export interface IntlMessages {
         title: string;
         description: string;
         metadataTitle: string;
+        entityLabel: string;
+        loadError: string;
       };
       folderSections: {
         title: string;
@@ -621,16 +633,22 @@ export interface IntlMessages {
         title: string;
         description: string;
         metadataTitle: string;
+        entityLabel: string;
+        loadError: string;
       };
       clubTypes: {
         title: string;
         description: string;
         metadataTitle: string;
+        entityLabel: string;
+        loadError: string;
       };
       medicines: {
         title: string;
         description: string;
         metadataTitle: string;
+        entityLabel: string;
+        loadError: string;
       };
       clubIdeals: {
         title: string;
@@ -641,11 +659,15 @@ export interface IntlMessages {
         title: string;
         description: string;
         metadataTitle: string;
+        entityLabel: string;
+        loadError: string;
       };
       relationshipTypes: {
         title: string;
         description: string;
         metadataTitle: string;
+        entityLabel: string;
+        loadError: string;
       };
       ecclesiasticalYears: {
         title: string;

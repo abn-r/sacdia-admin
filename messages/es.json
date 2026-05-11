@@ -419,22 +419,30 @@
       "countries": {
         "title": "Países",
         "description": "Catálogo de países del sistema.",
-        "metadataTitle": "Países"
+        "metadataTitle": "Países",
+        "entityLabel": "País",
+        "loadError": "No se pudieron cargar los países."
       },
       "churches": {
         "title": "Iglesias",
         "description": "Catálogo de iglesias del sistema.",
-        "metadataTitle": "Iglesias"
+        "metadataTitle": "Iglesias",
+        "entityLabel": "Iglesia",
+        "loadError": "No se pudieron cargar las iglesias."
       },
       "districts": {
         "title": "Distritos",
         "description": "Catálogo de distritos del sistema.",
-        "metadataTitle": "Distritos"
+        "metadataTitle": "Distritos",
+        "entityLabel": "Distrito",
+        "loadError": "No se pudieron cargar los distritos."
       },
       "unions": {
         "title": "Uniones",
         "description": "Catálogo de uniones del sistema.",
-        "metadataTitle": "Uniones"
+        "metadataTitle": "Uniones",
+        "entityLabel": "Unión",
+        "loadError": "No se pudieron cargar las uniones."
       },
       "unionsDetail": {
         "back": "Volver",
@@ -451,7 +459,9 @@
       "localFields": {
         "title": "Campos Locales",
         "description": "Catálogo de campos locales del sistema.",
-        "metadataTitle": "Campos locales"
+        "metadataTitle": "Campos locales",
+        "entityLabel": "Campo Local",
+        "loadError": "No se pudieron cargar los campos locales."
       },
       "localFieldsDetail": {
         "back": "Volver",
@@ -468,7 +478,9 @@
       "activityTypes": {
         "title": "Tipos de actividad",
         "description": "Catálogo de tipos de actividad del sistema.",
-        "metadataTitle": "Tipos de actividad"
+        "metadataTitle": "Tipos de actividad",
+        "entityLabel": "Tipo de actividad",
+        "loadError": "No se pudieron cargar los tipos de actividad."
       },
       "folderSections": {
         "title": "Secciones de carpeta",
@@ -591,17 +603,23 @@
       "diseases": {
         "title": "Enfermedades",
         "description": "Enfermedades crónicas o condiciones médicas relevantes.",
-        "metadataTitle": "Enfermedades"
+        "metadataTitle": "Enfermedades",
+        "entityLabel": "Enfermedad",
+        "loadError": "No se pudieron cargar las enfermedades."
       },
       "clubTypes": {
         "title": "Tipos de club",
         "description": "Tipos de club disponibles en el sistema.",
-        "metadataTitle": "Tipos de club"
+        "metadataTitle": "Tipos de club",
+        "entityLabel": "Tipo de club",
+        "loadError": "No se pudieron cargar los tipos de club."
       },
       "medicines": {
         "title": "Medicamentos",
         "description": "Medicamentos de uso habitual para los miembros.",
-        "metadataTitle": "Medicamentos"
+        "metadataTitle": "Medicamentos",
+        "entityLabel": "Medicamento",
+        "loadError": "No se pudieron cargar los medicamentos."
       },
       "clubIdeals": {
         "title": "Ideales de club",
@@ -611,12 +629,16 @@
       "allergies": {
         "title": "Alergias",
         "description": "Listado de alergias para el perfil de salud de los miembros.",
-        "metadataTitle": "Alergias"
+        "metadataTitle": "Alergias",
+        "entityLabel": "Alergia",
+        "loadError": "No se pudieron cargar las alergias."
       },
       "relationshipTypes": {
         "title": "Tipos de relación",
         "description": "Vínculos familiares o de contacto de emergencia.",
-        "metadataTitle": "Tipos de relación"
+        "metadataTitle": "Tipos de relación",
+        "entityLabel": "Tipo de relación",
+        "loadError": "No se pudieron cargar los tipos de relación."
       },
       "ecclesiasticalYears": {
         "title": "Años eclesiásticos",
