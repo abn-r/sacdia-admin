@@ -25,7 +25,7 @@ import type {
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
-interface ScoringCategoryDialogProps {
+export interface ScoringCategoryDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   /** Pass an existing category to edit; omit to create. */

@@ -489,6 +489,79 @@ in R6+R7 on other routes.
 
 ---
 
+## 12. Round 9 (2026-05-11) — camporees, union-camporees, system-config, scoring-categories dialog defers
+
+**Branch:** `perf/admin-r9` (off `origin/development`, includes #128 + #131 + #135/136/137)
+**Worktree:** `.claude/worktrees/agent-perf-r9-2026-05-11`
+
+### Strategy
+
+Five caller Client Components targeted. All confirmed `"use client"` before applying `ssr: false`.
+Props interfaces exported from each dialog/tab file for correct `dynamic<Props>()` generic typing.
+Pattern: `dynamic<Props>(import, { ssr: false, loading: () => null })` for dialogs (closed by default),
+`loading: () => <Skeleton className="h-48 w-full" />` for tab subtrees that are visible after tab switch.
+
+### Routes addressed
+
+| Route | Components deferred | Zod? | Gate |
+|---|---|---|---|
+| `/dashboard/camporees/[id]` | `CamporeeMembersTab`, `CamporeeClubsTab`, `CamporeePaymentsTab` | YES (via RegisterMemberDialog, EnrollClubDialog, PaymentDialog) | Non-default tabs |
+| `/dashboard/camporees/[id]` | `CamporeeFormDialog`, `DeleteCamporeeDialog` | YES (form) | Edit/delete button click |
+| `/dashboard/camporees` (union) | `UnionCamporeeFormDialog`, `DeleteUnionCamporeeDialog` | YES (form) | Create/edit/delete button click |
+| `/dashboard/settings/system-config` | `SystemConfigEditDialog` | YES | Edit row action |
+| `/dashboard/settings/scoring-categories` (all levels) | `ScoringCategoryDialog`, `ScoringCategoryDeleteDialog` | no | Create/edit/delete button click |
+
+### Files modified
+
+**Props exports added (dialog/tab files):**
+
+| File | Export added |
+|---|---|
+| `src/components/camporees/enroll-club-dialog.tsx` | `EnrollClubDialogProps` |
+| `src/components/camporees/register-member-dialog.tsx` | `RegisterMemberDialogProps` |
+| `src/components/camporees/payment-dialog.tsx` | `PaymentDialogProps` |
+| `src/components/camporees/delete-camporee-dialog.tsx` | `DeleteCamporeeDialogProps` |
+| `src/components/camporees/union-camporee-form-dialog.tsx` | `UnionCamporeeFormDialogProps` |
+| `src/components/camporees/delete-union-camporee-dialog.tsx` | `DeleteUnionCamporeeDialogProps` |
+| `src/components/system-config/system-config-edit-dialog.tsx` | `SystemConfigEditDialogProps` |
+| `src/components/scoring-categories/scoring-category-dialog.tsx` | `ScoringCategoryDialogProps` |
+| `src/components/scoring-categories/scoring-category-delete-dialog.tsx` | `ScoringCategoryDeleteDialogProps` |
+| `src/components/camporees/camporee-members-tab.tsx` | `CamporeeMembersTabProps` |
+| `src/components/camporees/camporee-clubs-tab.tsx` | `CamporeeClubsTabProps` |
+| `src/components/camporees/camporee-payments-tab.tsx` | `CamporeePaymentsTabProps` |
+
+**Dynamic imports added (caller files):**
+
+| File | Components deferred |
+|---|---|
+| `src/components/camporees/camporee-detail-tabs.tsx` | `CamporeeMembersTab`, `CamporeeClubsTab`, `CamporeePaymentsTab` |
+| `src/components/camporees/camporee-detail-actions.tsx` | `CamporeeFormDialog`, `DeleteCamporeeDialog` |
+| `src/components/camporees/union-camporees-view.tsx` | `UnionCamporeeFormDialog`, `DeleteUnionCamporeeDialog` |
+| `src/components/system-config/system-config-client-page.tsx` | `SystemConfigEditDialog` |
+| `src/components/scoring-categories/scoring-categories-table.tsx` | `ScoringCategoryDialog`, `ScoringCategoryDeleteDialog` |
+
+### Estimated gz savings
+
+| Route | Removed from initial chunk | Estimated gz saved |
+|---|---|---|
+| `/dashboard/camporees/[id]` | `CamporeeMembersTab` + `RegisterMemberDialog` (zod) + `CamporeeClubsTab` + `EnrollClubDialog` (zod) + `CamporeePaymentsTab` + `PaymentDialog` (zod) + `CamporeeFormDialog` (zod) + `DeleteCamporeeDialog` | ~80–120 KB |
+| `/dashboard/camporees` (union page) | `UnionCamporeeFormDialog` (zod) + `DeleteUnionCamporeeDialog` | ~30–50 KB |
+| `/dashboard/settings/system-config` | `SystemConfigEditDialog` (zod) | ~20–30 KB |
+| `/dashboard/settings/scoring-categories` | `ScoringCategoryDialog` + `ScoringCategoryDeleteDialog` | ~5–10 KB |
+| **Total estimated** | | **~135–210 KB gz** across affected routes |
+
+The dominant savings on `/dashboard/camporees/[id]` (rank #2 at 245 KB gz) come from removing the zod v4 + i18n
+locale chunk (~103 KB gz pattern from R5) that was eagerly pulled in via three separate form dialogs on
+non-default tabs.
+
+### Verification
+
+- `pnpm typecheck`: PASS
+- `pnpm test --run`: 564/564 PASS (45 suites)
+- `pnpm lint`: 10 err / 41 warn (pre-existing, unchanged from baseline)
+
+---
+
 ## 8. Next actions (handoff)
 
 - ~~Replace `pnpm analyze` script with `next experimental-analyze`~~ DONE.

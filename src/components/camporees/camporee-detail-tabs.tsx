@@ -1,14 +1,40 @@
 "use client";
 
 import { useState, useCallback, type ReactNode } from "react";
+import dynamic from "next/dynamic";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-import { CamporeeMembersTab } from "@/components/camporees/camporee-members-tab";
-import { CamporeeClubsTab } from "@/components/camporees/camporee-clubs-tab";
-import { CamporeePaymentsTab } from "@/components/camporees/camporee-payments-tab";
 import { getCamporeePendingApprovals } from "@/lib/api/camporees";
+import type { CamporeeMembersTabProps } from "@/components/camporees/camporee-members-tab";
+import type { CamporeeClubsTabProps } from "@/components/camporees/camporee-clubs-tab";
+import type { CamporeePaymentsTabProps } from "@/components/camporees/camporee-payments-tab";
+
+const CamporeeMembersTab = dynamic<CamporeeMembersTabProps>(
+  () =>
+    import("@/components/camporees/camporee-members-tab").then(
+      (m) => m.CamporeeMembersTab,
+    ),
+  { ssr: false, loading: () => <Skeleton className="h-48 w-full" /> },
+);
+
+const CamporeeClubsTab = dynamic<CamporeeClubsTabProps>(
+  () =>
+    import("@/components/camporees/camporee-clubs-tab").then(
+      (m) => m.CamporeeClubsTab,
+    ),
+  { ssr: false, loading: () => <Skeleton className="h-48 w-full" /> },
+);
+
+const CamporeePaymentsTab = dynamic<CamporeePaymentsTabProps>(
+  () =>
+    import("@/components/camporees/camporee-payments-tab").then(
+      (m) => m.CamporeePaymentsTab,
+    ),
+  { ssr: false, loading: () => <Skeleton className="h-48 w-full" /> },
+);
 import type {
   CamporeeMember,
   CamporeeClub,
