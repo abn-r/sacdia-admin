@@ -8,9 +8,11 @@ import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { GlobalCommandPalette } from "@/components/layout/global-command-palette";
 import { ActiveContextChip } from "@/components/layout/active-context-chip";
+import { cn } from "@/lib/utils";
 
 export function AppHeader() {
   const [cmdkOpen, setCmdkOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -23,9 +25,26 @@ export function AppHeader() {
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
+  useEffect(() => {
+    const main = document.getElementById("main");
+    const target: HTMLElement | Window = main ?? window;
+    const onScroll = () => {
+      const y = main ? main.scrollTop : window.scrollY;
+      setScrolled(y > 4);
+    };
+    onScroll();
+    target.addEventListener("scroll", onScroll, { passive: true });
+    return () => target.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
     <>
-      <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b bg-background/95 px-4 backdrop-blur-sm supports-[backdrop-filter]:bg-background/60">
+      <header
+        className={cn(
+          "sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b bg-background/95 px-4 backdrop-blur-sm supports-[backdrop-filter]:bg-background/60 transition-shadow",
+          scrolled && "shadow-sm",
+        )}
+      >
         <SidebarTrigger className="-ml-1 shrink-0" />
 
         {/* Vertical divider */}

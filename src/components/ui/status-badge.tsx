@@ -75,6 +75,8 @@ export function StatusBadge({
         ? icon
         : (intentDefaultIcon[intent] ?? null);
 
+  const iconSizeClass = size === "xs" || size === "sm" ? "size-3" : "size-3.5";
+
   return (
     <Badge
       variant={variant}
@@ -86,7 +88,9 @@ export function StatusBadge({
         className,
       )}
     >
-      {ResolvedIcon && <ResolvedIcon className="mr-1 size-3.5 shrink-0" />}
+      {ResolvedIcon && (
+        <ResolvedIcon className={cn(iconSizeClass, "shrink-0")} aria-hidden="true" />
+      )}
       {label}
     </Badge>
   );
