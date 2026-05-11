@@ -16,8 +16,15 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { ApiError } from "@/lib/api/client";
 import {
   rejectMembershipRequest,
@@ -112,33 +119,43 @@ export function MembershipRejectDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="reject-reason">{t("dialogs.reject.reason_label")}</Label>
-            <Textarea
-              id="reject-reason"
-              placeholder={t("dialogs.reject.reason_placeholder")}
-              rows={3}
-              {...form.register("reason")}
-              disabled={isPending}
+        <Form {...form}>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="reason"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("dialogs.reject.reason_label")}</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder={t("dialogs.reject.reason_placeholder")}
+                      rows={3}
+                      {...field}
+                      disabled={isPending}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleClose(false)}
-              disabled={isPending}
-            >
-              {t("dialogs.reject.cancel")}
-            </Button>
-            <Button type="submit" variant="destructive" disabled={isPending}>
-              {isPending && <Loader2 className="size-4 animate-spin" />}
-              {isPending ? t("dialogs.reject.confirming") : t("dialogs.reject.confirm")}
-            </Button>
-          </DialogFooter>
-        </form>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleClose(false)}
+                disabled={isPending}
+              >
+                {t("dialogs.reject.cancel")}
+              </Button>
+              <Button type="submit" variant="destructive" disabled={isPending}>
+                {isPending && <Loader2 className="size-4 animate-spin" />}
+                {isPending ? t("dialogs.reject.confirming") : t("dialogs.reject.confirm")}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

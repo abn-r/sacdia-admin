@@ -421,6 +421,74 @@ the CSP origin in `next.config.ts`). Sentry DSN is hardcoded as fallback in
 
 ---
 
+## 11. Round 8 mega (2026-05-11) — investiture, config, templates, validation dialog defers
+
+**Branch:** `perf/admin-r8-mega` (off `origin/development`, includes #131 + #133)
+**Worktree:** `.claude/worktrees/agent-perf-mega-2026-05-11`
+
+### Strategy
+
+Three zod-heavy dialog pairs and one react-query dialog deferred across four routes.
+All parent files confirmed as Client Components (`"use client"` present) before applying
+`ssr: false`. Props interfaces exported from each dialog file for correct `dynamic<Props>()`
+generic typing. Pattern: `dynamic<Props>(import, { ssr: false, loading: () => null })`.
+
+### Routes addressed
+
+| Route | Components deferred | Zod? | Gate |
+|---|---|---|---|
+| `/dashboard/investiture` | `ValidateDialog`, `InvestidoDialog` | YES (both) | Row action buttons |
+| `/dashboard/investiture/config` | `ConfigFormDialog`, `DeleteConfigDialog` | YES (form), no (delete) | Toolbar buttons |
+| `/dashboard/annual-folders/templates` | `SectionFormDialog` | YES | "Add section" button inside detail view |
+| `/dashboard/validation` | `ValidationHistoryDialog` | no (react-query only) | History row button |
+
+### Files modified
+
+| File | Change |
+|---|---|
+| `src/components/investiture/validate-dialog.tsx` | Export `ValidateDialogProps` |
+| `src/components/investiture/investido-dialog.tsx` | Export `InvestidoDialogProps` |
+| `src/components/investiture/config-form-dialog.tsx` | Export `ConfigFormDialogProps` |
+| `src/components/investiture/delete-config-dialog.tsx` | Export `DeleteConfigDialogProps` |
+| `src/components/annual-folders/section-form-dialog.tsx` | Export `SectionFormDialogProps` |
+| `src/components/validation/validation-history-dialog.tsx` | Export `ValidationHistoryDialogProps` |
+| `src/components/investiture/pending-table.tsx` | Dynamic import `ValidateDialog` + `InvestidoDialog` |
+| `src/components/investiture/config-client-page.tsx` | Dynamic import `ConfigFormDialog` + `DeleteConfigDialog` |
+| `src/components/annual-folders/templates-client-page.tsx` | Dynamic import `SectionFormDialog` |
+| `src/components/validation/validation-table.tsx` | Dynamic import `ValidationHistoryDialog` |
+
+### Deliberately out of scope (Agent B conflict avoidance)
+
+- `src/components/membership/membership-reject-dialog.tsx` — Agent B's scope
+- `src/components/validation/validation-review-dialog.tsx` — Agent B's scope
+- `src/components/requests/request-review-dialog.tsx` — Agent B's scope
+- `src/components/annual-folders/template-form-dialog.tsx` — Agent B's scope
+
+`ValidationReviewDialog` in `validation-table.tsx` remains eagerly imported to avoid
+conflict. `ValidationHistoryDialog` was safely deferred (no overlap with Agent B).
+
+### Estimated gz savings
+
+| Route | Removed from initial chunk | Estimated gz saved |
+|---|---|---|
+| `/dashboard/investiture` | `ValidateDialog` + `InvestidoDialog` zod/zodResolver bundles | ~50–70 KB |
+| `/dashboard/investiture/config` | `ConfigFormDialog` zod/zodResolver bundle | ~50 KB |
+| `/dashboard/annual-folders/templates` | `SectionFormDialog` zod/zodResolver bundle | ~20–30 KB |
+| `/dashboard/validation` | `ValidationHistoryDialog` (react-query only, smaller) | ~8–15 KB |
+| **Total estimated** | | **~128–165 KB gz** across 4 routes |
+
+The dominant savings come from the zod v4 + i18n locale chunk (~103 KB gz) being removed
+from the initial load on 3 of the 4 routes — same chunk pattern isolated in R5 and applied
+in R6+R7 on other routes.
+
+### Verification
+
+- `pnpm typecheck`: PASS
+- `pnpm test --run`: 468/468 PASS
+- `pnpm lint`: 10 err / 42 warn (unchanged from baseline — all pre-existing)
+
+---
+
 ## 8. Next actions (handoff)
 
 - ~~Replace `pnpm analyze` script with `next experimental-analyze`~~ DONE.

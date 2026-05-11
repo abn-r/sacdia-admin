@@ -31,7 +31,7 @@ export default async function EvidenceReviewPage() {
   }
 
   const pendingCount = items.filter((item) =>
-    item.type === "honor" ? item.status === "in_progress" : item.status === "pendiente",
+    ["SUBMITTED", "PENDING_REVIEW"].includes(item.status),
   ).length;
 
   return (

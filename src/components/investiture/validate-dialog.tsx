@@ -45,7 +45,7 @@ type RejectFormValues = z.infer<ReturnType<typeof buildRejectSchema>>;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface ValidateDialogProps {
+export interface ValidateDialogProps {
   open: boolean;
   enrollmentId: number;
   memberName: string;

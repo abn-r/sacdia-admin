@@ -53,9 +53,8 @@ const EvidenceBulkActionBar = dynamic<EvidenceBulkActionBarProps>(
 import { useFormatDate } from "@/lib/format-locale";
 
 function isPending(status: string, type: EvidenceType): boolean {
-  if (status === "SUBMITTED") return true;
-  if (type === "honor") return status === "in_progress";
-  return status === "pendiente";
+  void type;
+  return ["SUBMITTED", "PENDING_REVIEW"].includes(status);
 }
 
 // ─── Dialog state ─────────────────────────────────────────────────────────────

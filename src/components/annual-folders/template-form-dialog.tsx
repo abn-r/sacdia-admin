@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -26,6 +25,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { createTemplate, updateTemplate } from "@/lib/api/annual-folders";
 import type { FolderTemplate } from "@/lib/api/annual-folders";
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
@@ -138,24 +145,13 @@ export function TemplateFormDialog({
     owner_local_field_id: template?.owner_local_field_id ?? null,
   };
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    watch,
-    control,
-    formState: { errors },
-  } = useForm<FormValues>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(schema as z.ZodType<FormValues, FormValues>),
     defaultValues,
   });
 
-  const clubTypeValue = watch("club_type_id");
-  const yearValue = watch("ecclesiastical_year_id");
-  const ownerTier = watch("owner_tier");
-  const ownerUnionId = watch("owner_union_id");
-  const ownerLocalFieldId = watch("owner_local_field_id");
+  // ownerTier drives conditional rendering — single watch is justified
+  const ownerTier = form.watch("owner_tier");
 
   // Load owner catalogs when dialog opens
   useEffect(() => {
@@ -173,7 +169,7 @@ export function TemplateFormDialog({
   // Reset form when dialog opens or template changes
   useEffect(() => {
     if (open) {
-      reset({
+      form.reset({
         name: template?.name ?? "",
         club_type_id: template?.club_type_id ?? (clubTypes[0]?.club_type_id ?? 0),
         ecclesiastical_year_id:
@@ -190,7 +186,7 @@ export function TemplateFormDialog({
         owner_local_field_id: template?.owner_local_field_id ?? null,
       });
     }
-  }, [open, template, clubTypes, ecclesiasticalYears, reset]);
+  }, [open, template, clubTypes, ecclesiasticalYears, form]);
 
   const onSubmit: SubmitHandler<FormValues> = async (values) => {
     setIsSubmitting(true);
@@ -242,292 +238,322 @@ export function TemplateFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-          {/* Nombre */}
-          <div className="space-y-1.5">
-            <Label htmlFor="template-name">
-              {t("templateDialog.fieldName")}{" "}
-              <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
-            </Label>
-            <Input
-              id="template-name"
-              {...register("name")}
-              placeholder={t("templateDialog.fieldNamePlaceholder")}
-              aria-required="true"
-            />
-            {errors.name && (
-              <p className="text-xs text-destructive" role="alert" aria-live="polite">{errors.name.message}</p>
-            )}
-          </div>
-
-          {/* Tipo de club */}
-          <div className="space-y-1.5">
-            <Label htmlFor="template-club-type">
-              {t("templateDialog.fieldClubType")}{" "}
-              <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
-            </Label>
-            <Select
-              value={String(clubTypeValue)}
-              onValueChange={(val) => setValue("club_type_id", Number(val))}
-            >
-              <SelectTrigger id="template-club-type" aria-required="true">
-                <SelectValue placeholder={t("templateDialog.fieldClubTypePlaceholder")} />
-              </SelectTrigger>
-              <SelectContent>
-                {clubTypes.length > 0 ? (
-                  clubTypes.map((ct) => (
-                    <SelectItem
-                      key={ct.club_type_id}
-                      value={String(ct.club_type_id)}
-                    >
-                      {ct.name}
-                    </SelectItem>
-                  ))
-                ) : (
-                  <SelectItem value="0" disabled>
-                    {t("templateDialog.fieldClubTypeNone")}
-                  </SelectItem>
-                )}
-              </SelectContent>
-            </Select>
-            {errors.club_type_id && (
-              <p className="text-xs text-destructive" role="alert" aria-live="polite">
-                {errors.club_type_id.message}
-              </p>
-            )}
-          </div>
-
-          {/* Año eclesiástico */}
-          <div className="space-y-1.5">
-            <Label htmlFor="template-ecclesiastical-year">
-              {t("templateDialog.fieldYear")}{" "}
-              <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
-            </Label>
-            <Select
-              value={String(yearValue)}
-              onValueChange={(val) =>
-                setValue("ecclesiastical_year_id", Number(val))
-              }
-            >
-              <SelectTrigger id="template-ecclesiastical-year" aria-required="true">
-                <SelectValue placeholder={t("templateDialog.fieldYearPlaceholder")} />
-              </SelectTrigger>
-              <SelectContent>
-                {ecclesiasticalYears.length > 0 ? (
-                  ecclesiasticalYears.map((year) => (
-                    <SelectItem
-                      key={year.ecclesiastical_year_id}
-                      value={String(year.ecclesiastical_year_id)}
-                    >
-                      {year.name}
-                      {year.active && (
-                        <span className="ml-1.5 text-xs text-muted-foreground">
-                          {t("templateDialog.fieldYearActive")}
-                        </span>
-                      )}
-                    </SelectItem>
-                  ))
-                ) : (
-                  <SelectItem value="0" disabled>
-                    {t("templateDialog.fieldYearNone")}
-                  </SelectItem>
-                )}
-              </SelectContent>
-            </Select>
-            {errors.ecclesiastical_year_id && (
-              <p className="text-xs text-destructive" role="alert" aria-live="polite">
-                {errors.ecclesiastical_year_id.message}
-              </p>
-            )}
-          </div>
-
-          {/* Owner tier — radio group */}
-          <div className="space-y-2">
-            <Label>
-              {t("templateDialog.fieldOwner")}{" "}
-              <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
-            </Label>
-            <Controller
-              name="owner_tier"
-              control={control}
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
+            {/* Nombre */}
+            <FormField
+              control={form.control}
+              name="name"
               render={({ field }) => (
-                <RadioGroup
-                  value={field.value}
-                  onValueChange={(val) => {
-                    field.onChange(val);
-                    // Clear the other tier selection to avoid stale values
-                    if (val === "union") {
-                      setValue("owner_local_field_id", null);
-                    } else {
-                      setValue("owner_union_id", null);
-                    }
-                  }}
-                  className="flex gap-6"
-                >
-                  <div className="flex items-center gap-2">
-                    <RadioGroupItem value="union" id="owner-tier-union" />
-                    <Label htmlFor="owner-tier-union" className="cursor-pointer font-normal">
-                      {t("templateDialog.fieldOwnerTierUnion")}
-                    </Label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <RadioGroupItem value="local_field" id="owner-tier-local-field" />
-                    <Label htmlFor="owner-tier-local-field" className="cursor-pointer font-normal">
-                      {t("templateDialog.fieldOwnerTierLocalField")}
-                    </Label>
-                  </div>
-                </RadioGroup>
+                <FormItem>
+                  <FormLabel>
+                    {t("templateDialog.fieldName")}{" "}
+                    <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder={t("templateDialog.fieldNamePlaceholder")}
+                      aria-required="true"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
             />
-          </div>
 
-          {/* Conditional owner select */}
-          {ownerTier === "union" ? (
-            <div className="space-y-1.5">
-              <Label htmlFor="template-owner-union">
-                {t("templateDialog.fieldUnion")}{" "}
-                <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
-              </Label>
-              <Select
-                disabled={loadingOwnerCatalogs}
-                value={ownerUnionId ? String(ownerUnionId) : ""}
-                onValueChange={(val) =>
-                  setValue("owner_union_id", Number(val), { shouldValidate: true })
-                }
-              >
-                <SelectTrigger id="template-owner-union" aria-required="true">
-                  <SelectValue
-                    placeholder={
-                      loadingOwnerCatalogs
-                        ? t("templateDialog.fieldLoading")
-                        : t("templateDialog.fieldUnionPlaceholder")
-                    }
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  {unions.length > 0 ? (
-                    unions.map((u) => (
-                      <SelectItem key={u.union_id} value={String(u.union_id)}>
-                        {u.name}
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <SelectItem value="0" disabled>
-                      {loadingOwnerCatalogs
-                        ? t("templateDialog.fieldLoading")
-                        : t("templateDialog.fieldUnionNone")}
-                    </SelectItem>
-                  )}
-                </SelectContent>
-              </Select>
-              {errors.owner_union_id && (
-                <p className="text-xs text-destructive" role="alert" aria-live="polite">
-                  {errors.owner_union_id.message}
-                </p>
+            {/* Tipo de club */}
+            <FormField
+              control={form.control}
+              name="club_type_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {t("templateDialog.fieldClubType")}{" "}
+                    <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Select
+                      value={String(field.value)}
+                      onValueChange={(val) => field.onChange(Number(val))}
+                    >
+                      <SelectTrigger id="template-club-type" aria-required="true">
+                        <SelectValue placeholder={t("templateDialog.fieldClubTypePlaceholder")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {clubTypes.length > 0 ? (
+                          clubTypes.map((ct) => (
+                            <SelectItem
+                              key={ct.club_type_id}
+                              value={String(ct.club_type_id)}
+                            >
+                              {ct.name}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem value="0" disabled>
+                            {t("templateDialog.fieldClubTypeNone")}
+                          </SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
-          ) : (
-            <div className="space-y-1.5">
-              <Label htmlFor="template-owner-local-field">
-                {t("templateDialog.fieldLocalField")}{" "}
-                <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
-              </Label>
-              <Select
-                disabled={loadingOwnerCatalogs}
-                value={ownerLocalFieldId ? String(ownerLocalFieldId) : ""}
-                onValueChange={(val) =>
-                  setValue("owner_local_field_id", Number(val), { shouldValidate: true })
-                }
-              >
-                <SelectTrigger id="template-owner-local-field" aria-required="true">
-                  <SelectValue
-                    placeholder={
-                      loadingOwnerCatalogs
-                        ? t("templateDialog.fieldLoading")
-                        : t("templateDialog.fieldLocalFieldPlaceholder")
-                    }
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  {localFields.length > 0 ? (
-                    localFields.map((lf) => (
-                      <SelectItem
-                        key={lf.local_field_id}
-                        value={String(lf.local_field_id)}
+            />
+
+            {/* Año eclesiástico */}
+            <FormField
+              control={form.control}
+              name="ecclesiastical_year_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {t("templateDialog.fieldYear")}{" "}
+                    <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Select
+                      value={String(field.value)}
+                      onValueChange={(val) => field.onChange(Number(val))}
+                    >
+                      <SelectTrigger id="template-ecclesiastical-year" aria-required="true">
+                        <SelectValue placeholder={t("templateDialog.fieldYearPlaceholder")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {ecclesiasticalYears.length > 0 ? (
+                          ecclesiasticalYears.map((year) => (
+                            <SelectItem
+                              key={year.ecclesiastical_year_id}
+                              value={String(year.ecclesiastical_year_id)}
+                            >
+                              {year.name}
+                              {year.active && (
+                                <span className="ml-1.5 text-xs text-muted-foreground">
+                                  {t("templateDialog.fieldYearActive")}
+                                </span>
+                              )}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem value="0" disabled>
+                            {t("templateDialog.fieldYearNone")}
+                          </SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Owner tier — radio group */}
+            <FormField
+              control={form.control}
+              name="owner_tier"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {t("templateDialog.fieldOwner")}{" "}
+                    <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      value={field.value}
+                      onValueChange={(val) => {
+                        field.onChange(val);
+                        // Clear the other tier selection to avoid stale values
+                        if (val === "union") {
+                          form.setValue("owner_local_field_id", null);
+                        } else {
+                          form.setValue("owner_union_id", null);
+                        }
+                      }}
+                      className="flex gap-6"
+                    >
+                      <div className="flex items-center gap-2">
+                        <RadioGroupItem value="union" id="owner-tier-union" />
+                        <FormLabel htmlFor="owner-tier-union" className="cursor-pointer font-normal">
+                          {t("templateDialog.fieldOwnerTierUnion")}
+                        </FormLabel>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <RadioGroupItem value="local_field" id="owner-tier-local-field" />
+                        <FormLabel htmlFor="owner-tier-local-field" className="cursor-pointer font-normal">
+                          {t("templateDialog.fieldOwnerTierLocalField")}
+                        </FormLabel>
+                      </div>
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Conditional owner select */}
+            {ownerTier === "union" ? (
+              <FormField
+                control={form.control}
+                name="owner_union_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      {t("templateDialog.fieldUnion")}{" "}
+                      <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Select
+                        disabled={loadingOwnerCatalogs}
+                        value={field.value ? String(field.value) : ""}
+                        onValueChange={(val) =>
+                          field.onChange(Number(val))
+                        }
                       >
-                        {lf.name}
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <SelectItem value="0" disabled>
-                      {loadingOwnerCatalogs
-                        ? t("templateDialog.fieldLoading")
-                        : t("templateDialog.fieldLocalFieldNone")}
-                    </SelectItem>
-                  )}
-                </SelectContent>
-              </Select>
-              {errors.owner_local_field_id && (
-                <p className="text-xs text-destructive" role="alert" aria-live="polite">
-                  {errors.owner_local_field_id.message}
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* Puntos mínimos / Fecha de cierre */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="template-minimum-points">{t("templateDialog.fieldMinPoints")}</Label>
-              <Input
-                id="template-minimum-points"
-                type="number"
-                min={0}
-                {...register("minimum_points")}
-                placeholder="0"
+                        <SelectTrigger id="template-owner-union" aria-required="true">
+                          <SelectValue
+                            placeholder={
+                              loadingOwnerCatalogs
+                                ? t("templateDialog.fieldLoading")
+                                : t("templateDialog.fieldUnionPlaceholder")
+                            }
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {unions.length > 0 ? (
+                            unions.map((u) => (
+                              <SelectItem key={u.union_id} value={String(u.union_id)}>
+                                {u.name}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <SelectItem value="0" disabled>
+                              {loadingOwnerCatalogs
+                                ? t("templateDialog.fieldLoading")
+                                : t("templateDialog.fieldUnionNone")}
+                            </SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              {errors.minimum_points && (
-                <p className="text-xs text-destructive" role="alert" aria-live="polite">
-                  {errors.minimum_points.message}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="template-closing-date">{t("templateDialog.fieldClosingDate")}</Label>
-              <Input
-                id="template-closing-date"
-                type="datetime-local"
-                {...register("closing_date")}
+            ) : (
+              <FormField
+                control={form.control}
+                name="owner_local_field_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      {t("templateDialog.fieldLocalField")}{" "}
+                      <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Select
+                        disabled={loadingOwnerCatalogs}
+                        value={field.value ? String(field.value) : ""}
+                        onValueChange={(val) =>
+                          field.onChange(Number(val))
+                        }
+                      >
+                        <SelectTrigger id="template-owner-local-field" aria-required="true">
+                          <SelectValue
+                            placeholder={
+                              loadingOwnerCatalogs
+                                ? t("templateDialog.fieldLoading")
+                                : t("templateDialog.fieldLocalFieldPlaceholder")
+                            }
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {localFields.length > 0 ? (
+                            localFields.map((lf) => (
+                              <SelectItem
+                                key={lf.local_field_id}
+                                value={String(lf.local_field_id)}
+                              >
+                                {lf.name}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <SelectItem value="0" disabled>
+                              {loadingOwnerCatalogs
+                                ? t("templateDialog.fieldLoading")
+                                : t("templateDialog.fieldLocalFieldNone")}
+                            </SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              {errors.closing_date && (
-                <p className="text-xs text-destructive" role="alert" aria-live="polite">
-                  {errors.closing_date.message}
-                </p>
-              )}
-            </div>
-          </div>
+            )}
 
-          <DialogFooter className="pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
-            >
-              {t("templateDialog.cancel")}
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting
-                ? isEdit
-                  ? t("templateDialog.submittingEdit")
-                  : t("templateDialog.submittingCreate")
-                : isEdit
-                ? t("templateDialog.submitEdit")
-                : t("templateDialog.submitCreate")}
-            </Button>
-          </DialogFooter>
-        </form>
+            {/* Puntos mínimos / Fecha de cierre */}
+            <div className="grid grid-cols-2 gap-3">
+              <FormField
+                control={form.control}
+                name="minimum_points"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("templateDialog.fieldMinPoints")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="number"
+                        min={0}
+                        placeholder="0"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="closing_date"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("templateDialog.fieldClosingDate")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="datetime-local"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <DialogFooter className="pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={isSubmitting}
+              >
+                {t("templateDialog.cancel")}
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting
+                  ? isEdit
+                    ? t("templateDialog.submittingEdit")
+                    : t("templateDialog.submittingCreate")
+                  : isEdit
+                  ? t("templateDialog.submitEdit")
+                  : t("templateDialog.submitCreate")}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

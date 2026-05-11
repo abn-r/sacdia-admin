@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { CheckCircle2, XCircle, History, ClipboardList } from "lucide-react";
@@ -17,7 +18,12 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { EmptyState } from "@/components/shared/empty-state";
 import { ValidationStatusBadge } from "@/components/validation/validation-status-badge";
 import { ValidationReviewDialog } from "@/components/validation/validation-review-dialog";
-import { ValidationHistoryDialog } from "@/components/validation/validation-history-dialog";
+import type { ValidationHistoryDialogProps } from "@/components/validation/validation-history-dialog";
+
+const ValidationHistoryDialog = dynamic<ValidationHistoryDialogProps>(
+  () => import("@/components/validation/validation-history-dialog").then((m) => ({ default: m.ValidationHistoryDialog })),
+  { ssr: false, loading: () => null },
+);
 import type {
   PendingValidation,
   ValidationAction,
