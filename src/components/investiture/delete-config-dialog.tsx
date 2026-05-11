@@ -18,7 +18,7 @@ import { deleteInvestitureConfig, type InvestitureConfig } from "@/lib/api/inves
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface DeleteConfigDialogProps {
+export interface DeleteConfigDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   config: InvestitureConfig | null;

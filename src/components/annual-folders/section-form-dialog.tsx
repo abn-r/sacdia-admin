@@ -63,7 +63,7 @@ type FormValues = z.infer<ReturnType<typeof buildSchema>>;
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
-interface SectionFormDialogProps {
+export interface SectionFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   templateId: string;

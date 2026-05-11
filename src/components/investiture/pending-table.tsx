@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { CheckCircle2, XCircle, Award, History, ClipboardList } from "lucide-react";
@@ -24,9 +25,19 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { EmptyState } from "@/components/shared/empty-state";
 import { InvestitureStatusBadge } from "@/components/investiture/investiture-status-badge";
-import { ValidateDialog } from "@/components/investiture/validate-dialog";
-import { InvestidoDialog } from "@/components/investiture/investido-dialog";
 import { HistoryTimeline } from "@/components/investiture/history-timeline";
+import type { ValidateDialogProps } from "@/components/investiture/validate-dialog";
+import type { InvestidoDialogProps } from "@/components/investiture/investido-dialog";
+
+const ValidateDialog = dynamic<ValidateDialogProps>(
+  () => import("@/components/investiture/validate-dialog").then((m) => ({ default: m.ValidateDialog })),
+  { ssr: false, loading: () => null },
+);
+
+const InvestidoDialog = dynamic<InvestidoDialogProps>(
+  () => import("@/components/investiture/investido-dialog").then((m) => ({ default: m.InvestidoDialog })),
+  { ssr: false, loading: () => null },
+);
 import {
   getInvestitureHistory,
   type PendingEnrollment,

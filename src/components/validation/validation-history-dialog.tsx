@@ -41,7 +41,7 @@ const actionVisual: Record<
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface ValidationHistoryDialogProps {
+export interface ValidationHistoryDialogProps {
   open: boolean;
   entityType: ValidationEntityType;
   entityId: number | string;
