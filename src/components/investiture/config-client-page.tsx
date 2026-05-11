@@ -1,15 +1,26 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { toast } from "sonner";
 import { Plus, RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { ConfigTable } from "@/components/investiture/config-table";
-import { ConfigFormDialog } from "@/components/investiture/config-form-dialog";
-import { DeleteConfigDialog } from "@/components/investiture/delete-config-dialog";
 import { getInvestitureConfigs, type InvestitureConfig } from "@/lib/api/investiture";
 import { ApiError } from "@/lib/api/client";
+import type { ConfigFormDialogProps } from "@/components/investiture/config-form-dialog";
+import type { DeleteConfigDialogProps } from "@/components/investiture/delete-config-dialog";
+
+const ConfigFormDialog = dynamic<ConfigFormDialogProps>(
+  () => import("@/components/investiture/config-form-dialog").then((m) => ({ default: m.ConfigFormDialog })),
+  { ssr: false, loading: () => null },
+);
+
+const DeleteConfigDialog = dynamic<DeleteConfigDialogProps>(
+  () => import("@/components/investiture/delete-config-dialog").then((m) => ({ default: m.DeleteConfigDialog })),
+  { ssr: false, loading: () => null },
+);
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

@@ -81,7 +81,7 @@ export default async function AnnualFoldersPage({
       {/* Search / selector — always visible */}
       <FolderByEnrollmentView
         currentEnrollmentId={enrollmentId}
-        currentFolderId={folder?.folder_id ?? null}
+        currentFolderId={folder?.annual_folder_id ?? null}
       />
 
       {/* Error state */}

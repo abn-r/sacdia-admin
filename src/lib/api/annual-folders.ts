@@ -85,7 +85,7 @@ export type FolderTemplate = {
 
 export type FolderEvidence = {
   evidence_id: string;
-  folder_id: string;
+  annual_folder_id: string;
   section_id: string;
   file_url: string;
   file_name: string | null;
@@ -116,9 +116,9 @@ export type SectionEvaluationEntry = {
 };
 
 export type AnnualFolder = {
-  folder_id: string;
-  enrollment_id: string;
-  template_id: string;
+  annual_folder_id: string;
+  club_enrollment_id: string;
+  folder_template_id: string;
   status: FolderStatus;
   submitted_at: string | null;
   closed_at: string | null;
@@ -136,6 +136,33 @@ export type AnnualFolder = {
   // Enrollment info (available when fetched via evaluation endpoint)
   enrollment?: { enrollment_id: string; club_name?: string | null } | null;
 };
+
+type AnnualFolderWire = AnnualFolder & {
+  folder_id?: string;
+  enrollment_id?: string;
+  template_id?: string;
+};
+
+function normalizeAnnualFolder(folder: AnnualFolderWire): AnnualFolder {
+  return {
+    ...folder,
+    annual_folder_id: folder.annual_folder_id ?? folder.folder_id ?? "",
+    club_enrollment_id:
+      folder.club_enrollment_id ?? folder.enrollment_id ?? "",
+    folder_template_id:
+      folder.folder_template_id ?? folder.template_id ?? "",
+    sections: folder.sections?.map((section) => ({
+      ...section,
+      evidences: section.evidences.map((evidence) => ({
+        ...evidence,
+        annual_folder_id:
+          evidence.annual_folder_id ??
+          (evidence as FolderEvidence & { folder_id?: string }).folder_id ??
+          "",
+      })),
+    })),
+  };
+}
 
 // ─── Payloads ─────────────────────────────────────────────────────────────────
 
@@ -178,15 +205,16 @@ export async function getTemplate(templateId: string): Promise<FolderTemplate> {
 }
 
 /**
- * GET /api/v1/annual-folders/enrollment/:enrollmentId
+ * GET /api/v1/annual-folders/by-enrollment/:enrollmentId
  * Returns the annual folder for the given enrollment.
  */
 export async function getFolderByEnrollment(
   enrollmentId: string,
 ): Promise<AnnualFolder> {
-  return apiRequest<AnnualFolder>(
-    `/annual-folders/enrollment/${enrollmentId}`,
+  const folder = await apiRequest<AnnualFolderWire>(
+    `/annual-folders/by-enrollment/${enrollmentId}`,
   );
+  return normalizeAnnualFolder(folder);
 }
 
 /**
@@ -194,7 +222,10 @@ export async function getFolderByEnrollment(
  * Returns the folder with all section evidences.
  */
 export async function getFolder(folderId: string): Promise<AnnualFolder> {
-  return apiRequest<AnnualFolder>(`/annual-folders/${folderId}`);
+  const folder = await apiRequest<AnnualFolderWire>(
+    `/annual-folders/${folderId}`,
+  );
+  return normalizeAnnualFolder(folder);
 }
 
 // ─── Client-side (mutations) ──────────────────────────────────────────────────
@@ -268,7 +299,7 @@ export async function deleteTemplateSection(
 }
 
 /**
- * POST /api/v1/annual-folders/:folderId/evidences
+ * POST /api/v1/annual-folders/:folderId/sections/:sectionId/evidences
  * Uploads a file evidence for a section. Sends multipart/form-data.
  */
 export async function uploadEvidence(
@@ -279,11 +310,10 @@ export async function uploadEvidence(
 ): Promise<FolderEvidence> {
   const formData = new FormData();
   formData.append("file", file);
-  formData.append("section_id", sectionId);
   if (description) formData.append("description", description);
 
   return apiRequestFromClient<FolderEvidence>(
-    `/annual-folders/${folderId}/evidences`,
+    `/annual-folders/${folderId}/sections/${sectionId}/evidences`,
     { method: "POST", body: formData },
   );
 }

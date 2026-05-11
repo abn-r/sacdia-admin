@@ -69,7 +69,6 @@ function formatDateTime(dateString: string | null | undefined): string {
 interface EvalSectionRowProps {
   section: FolderSectionWithEvidences;
   evaluation: SectionEvaluation | undefined;
-  folderId: string;
   onEvaluate: (section: FolderSectionWithEvidences) => void;
   onReopen: (section: FolderSectionWithEvidences) => void;
 }
@@ -77,7 +76,6 @@ interface EvalSectionRowProps {
 function EvalSectionRow({
   section,
   evaluation,
-  folderId: _folderId,
   onEvaluate,
   onReopen,
 }: EvalSectionRowProps) {
@@ -239,21 +237,21 @@ function FolderSummaryCard({
           <div className="flex flex-wrap items-center gap-2">
             <FolderStatusBadge status={folder.status} />
             <span className="text-sm font-semibold">
-              Carpeta #{folder.folder_id}
+              Carpeta #{folder.annual_folder_id}
             </span>
           </div>
 
           <div className="grid gap-0.5 text-xs text-muted-foreground">
             <span>
               <span className="font-medium text-foreground">Inscripción:</span>{" "}
-              #{folder.enrollment_id}
+              #{folder.club_enrollment_id}
               {folder.enrollment?.club_name
                 ? ` — ${folder.enrollment.club_name}`
                 : ""}
             </span>
             <span>
               <span className="font-medium text-foreground">Plantilla:</span>{" "}
-              {folder.template?.name ?? `#${folder.template_id}`}
+              {folder.template?.name ?? `#${folder.folder_template_id}`}
             </span>
             {folder.submitted_at && (
               <span>
@@ -398,7 +396,7 @@ export function EvaluationClientPage() {
     if (!folder) return;
     setIsRefreshing(true);
     try {
-      await loadFolder(folder.folder_id);
+      await loadFolder(folder.annual_folder_id);
     } catch (err) {
       const message =
         err instanceof ApiError
@@ -428,7 +426,7 @@ export function EvaluationClientPage() {
     if (!folder || !reopeningSection) return;
     setIsReopening(true);
     try {
-      await reopenSection(folder.folder_id, reopeningSection.section_id);
+      await reopenSection(folder.annual_folder_id, reopeningSection.section_id);
       toast.success(t("toasts.section_reopened"));
       setReopenOpen(false);
       setReopeningSection(null);
@@ -525,7 +523,7 @@ export function EvaluationClientPage() {
               title="Ver carpeta completa con evidencias"
             >
               <a
-                href={`/dashboard/annual-folders?folder=${folder.folder_id}`}
+                href={`/dashboard/annual-folders?folder=${folder.annual_folder_id}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -549,7 +547,6 @@ export function EvaluationClientPage() {
                   key={section.section_id}
                   section={section}
                   evaluation={getEvaluationForSection(section)}
-                  folderId={folder.folder_id}
                   onEvaluate={handleEvaluate}
                   onReopen={handleReopen}
                 />
@@ -564,7 +561,7 @@ export function EvaluationClientPage() {
         <EvaluateSectionDialog
           open={evaluateOpen}
           onOpenChange={setEvaluateOpen}
-          folderId={folder.folder_id}
+          folderId={folder.annual_folder_id}
           sectionId={evaluatingSection.section_id}
           sectionName={evaluatingSection.name}
           maxPoints={evaluatingSection.max_points ?? 0}

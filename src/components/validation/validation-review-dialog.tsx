@@ -16,8 +16,15 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import {
   reviewValidation,
   type ValidationAction,
@@ -127,51 +134,53 @@ export function ValidationReviewDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="comment">
-              {isApprove ? "Comentarios (opcional)" : "Motivo de rechazo *"}
-            </Label>
-            <Textarea
-              id="comment"
-              placeholder={
-                isApprove
-                  ? "Añade un comentario opcional..."
-                  : "Describe el motivo del rechazo..."
-              }
-              rows={3}
-              {...form.register("comment")}
-              disabled={isPending}
-              aria-describedby={
-                form.formState.errors.comment ? "comment-error" : undefined
-              }
+        <Form {...form}>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="comment"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {isApprove ? "Comentarios (opcional)" : "Motivo de rechazo *"}
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder={
+                        isApprove
+                          ? "Añade un comentario opcional..."
+                          : "Describe el motivo del rechazo..."
+                      }
+                      rows={3}
+                      {...field}
+                      disabled={isPending}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {form.formState.errors.comment && (
-              <p id="comment-error" className="text-xs text-destructive">
-                {form.formState.errors.comment.message}
-              </p>
-            )}
-          </div>
 
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleClose(false)}
-              disabled={isPending}
-            >
-              Cancelar
-            </Button>
-            <Button
-              type="submit"
-              variant={isApprove ? "default" : "destructive"}
-              disabled={isPending}
-            >
-              {isPending && <Loader2 className="size-4 animate-spin" />}
-              {isApprove ? "Aprobar" : "Rechazar"}
-            </Button>
-          </DialogFooter>
-        </form>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleClose(false)}
+                disabled={isPending}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                variant={isApprove ? "default" : "destructive"}
+                disabled={isPending}
+              >
+                {isPending && <Loader2 className="size-4 animate-spin" />}
+                {isApprove ? "Aprobar" : "Rechazar"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

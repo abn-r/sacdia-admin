@@ -69,7 +69,7 @@ type FormValues = {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface ConfigFormDialogProps {
+export interface ConfigFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   /** If provided, dialog is in edit mode */
