@@ -152,9 +152,9 @@ Cargadas via `next/font/google` en `src/app/layout.tsx` y expuestas como CSS var
 |----------|--------|-----|
 | `--font-geist-sans` | `Geist` (Vercel) | Todo el texto de UI — geometrica, distintiva, con stylistic alternates activadas (`cv02`, `cv03`, `cv04`, `cv11`, `ss01`) |
 | `--font-geist-mono` | `Geist Mono` (Vercel) | Codigo, valores tabulares |
-| `--font-display` | `Instrument Serif` (Google Fonts) | **SOLO h1 de `<PageHeader>`** — serif elegante para titulos de pagina |
+| `--font-display` | `Instrument Serif` (Google Fonts) | **NO SE USA en el admin** — token reservado para futuro uso en marketing/landing. El `@theme` lo mapea a `--font-instrument-serif` pero ninguna clase `font-display` debe aparecer en el admin. |
 
-**Regla critica**: Instrument Serif SOLO en h1 via `<PageHeader>`. NO usarla en body, numeros KPI, o cualquier otro contexto. Los numeros KPI van en Geist bold con `tabular-nums` (ver seccion 3.2). El serif en body es ilegible a `text-sm`.
+**Regla critica (actualizada 2026-05-11)**: Los titulos del admin (incluyendo `<PageHeader>` h1) usan `--font-sans` (Geist) con `font-semibold tracking-tight`. La jerarquia se expresa con `font-weight` y `font-size`, NO con cambio de familia. Instrument Serif fue removido de todos los titulos en auditoria UX/UI de mayo 2026. Los numeros KPI van en Geist bold con `tabular-nums` (ver seccion 3.2).
 
 ### 3.2 Escala Tipografica
 
@@ -666,6 +666,10 @@ No usar `Dialog` como patron principal de CRUD.
 - Mantener `PageHeader`, boton "Volver" y estado loading del submit.
 
 ### 6.1.1 Dialog — Excepciones Permitidas
+
+**Regla rapida (auditoria 2026-05-11):**
+- `Dialog` OK: ≤4 campos planos, sin relaciones complejas, sin uploads, sin tabs.
+- Pagina dedicada obligatoria: >4 campos, O cualquier relacion entre entidades, O imagen/upload, O tabs dentro del formulario.
 
 La regla "Crear/Editar = paginas dedicadas" aplica a entidades de primera clase (clubs, usuarios, actividades, etc.). Existen cuatro patrones de excepcion donde un `Dialog` es correcto:
 

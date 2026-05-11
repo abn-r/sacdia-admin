@@ -5,6 +5,7 @@ import { AppSidebar } from "@/components/layout/app-sidebar";
 import { AppHeader } from "@/components/layout/app-header";
 import { AuthProvider } from "@/lib/auth/auth-context";
 import { QueryProvider } from "@/lib/providers/query-provider";
+import { ActiveContextProvider } from "@/lib/context/active-context";
 import { requireAdminUser } from "@/lib/auth/session";
 
 export default async function DashboardLayout({
@@ -38,12 +39,14 @@ export default async function DashboardLayout({
           </a>
           <AppSidebar />
           <SidebarInset>
-            <AppHeader />
-            <main id="main" className="flex-1 overflow-auto">
-              <div className="mx-auto max-w-[1536px] px-4 py-4 md:px-6 md:py-6">
-                {children}
-              </div>
-            </main>
+            <ActiveContextProvider>
+              <AppHeader />
+              <main id="main" className="flex-1 overflow-auto">
+                <div className="mx-auto max-w-[1536px] px-4 py-4 md:px-6 md:py-6">
+                  {children}
+                </div>
+              </main>
+            </ActiveContextProvider>
           </SidebarInset>
         </SidebarProvider>
       </QueryProvider>

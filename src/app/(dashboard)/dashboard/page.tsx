@@ -618,7 +618,7 @@ export default async function DashboardPage() {
   const quickLinks = await buildQuickLinks(t);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <PageHeader
         title={t("title")}
         description={t("description")}

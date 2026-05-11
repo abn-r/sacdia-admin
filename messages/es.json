@@ -8,7 +8,9 @@
       "validation": "Validación e investiduras",
       "communications": "Comunicaciones",
       "requests_reports": "Solicitudes y reportes",
-      "members": "Miembros"
+      "members": "Miembros",
+      "operations": "Operaciones",
+      "rankings_analytics": "Rankings y análisis"
     },
     "items": {
       "dashboard": "Dashboard",
@@ -92,7 +94,15 @@
       "catalog_finance_categories": "Categorías de finanzas",
       "catalog_inventory_categories": "Categorías de inventario",
       "catalog_honors": "Especialidades (catálogo)",
-      "catalog_master_honors": "Honores maestros"
+      "catalog_master_honors": "Honores maestros",
+      "subgroup_overview": "General",
+      "subgroup_geography": "Geografía",
+      "subgroup_health": "Salud",
+      "subgroup_clubs_cat": "Clubes",
+      "subgroup_academics": "Académicos",
+      "subgroup_business": "Negocio",
+      "subgroup_honors_cat": "Honores",
+      "ranking_weights_root": "Configuración de pesos"
     },
     "breadcrumbs": {
       "dashboard": "Dashboard",
@@ -137,6 +147,25 @@
     },
     "a11y": {
       "skipToContent": "Ir al contenido principal"
+    },
+    "profile": "Mi perfil",
+    "logout": "Cerrar sesión",
+    "adminPanel": "Panel Administrativo",
+    "commandPalette": {
+      "title": "Búsqueda global",
+      "description": "Buscá páginas, catálogos y secciones del panel",
+      "placeholder": "Buscar páginas, catálogos, secciones...",
+      "empty": "Sin resultados",
+      "general": "General"
+    },
+    "activeContext": {
+      "noClub": "Sin club",
+      "noYear": "Sin año",
+      "clubLabel": "Club",
+      "yearLabel": "Año eclesiástico",
+      "clear": "Limpiar selección",
+      "loading": "Cargando contexto...",
+      "unavailable": "Sin contexto disponible"
     }
   },
   "permissions": {
@@ -286,7 +315,8 @@
       "edit": "Editar",
       "delete": "Eliminar",
       "editItem": "Editar {item}",
-      "deleteItem": "Eliminar {item}"
+      "deleteItem": "Eliminar {item}",
+      "saving": "Guardando..."
     },
     "deleteDialog": {
       "title": "Eliminar {name}",

@@ -30,12 +30,13 @@ import { showAppAlert } from "@/lib/ui/app-alerts";
 
 function SubmitButton({ isEdit }: { isEdit: boolean }) {
   const { pending } = useFormStatus();
+  const t = useTranslations("catalogs.crudPage");
   return (
     <Button type="submit" variant="default" disabled={pending}>
       {pending ? (
         <>
           <Loader2 className="size-4 animate-spin" />
-          Guardando...
+          {t("saving")}
         </>
       ) : (
         <>
