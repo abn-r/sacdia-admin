@@ -45,7 +45,8 @@ interface JobsOverviewClientProps {
 
 // ─── Queue Metadata ───────────────────────────────────────────────────────────
 
-const QUEUE_I18N_KEYS: Record<KnownQueueName, { labelKey: string; descKey: string }> = {
+type OverviewT = ReturnType<typeof useTranslations<"system_jobs.overview">>;
+const QUEUE_I18N_KEYS: Record<KnownQueueName, { labelKey: Parameters<OverviewT>[0]; descKey: Parameters<OverviewT>[0] }> = {
   'notifications':   { labelKey: 'queueNotifications',    descKey: 'queueNotificationsDesc' },
   'email':           { labelKey: 'queueEmail',            descKey: 'queueEmailDesc' },
   'achievements':    { labelKey: 'queueAchievements',     descKey: 'queueAchievementsDesc' },

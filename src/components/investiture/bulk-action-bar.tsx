@@ -55,7 +55,7 @@ function resolveAction(status: PipelineStatus): BulkApproveAction | null {
   }
 }
 
-type BulkTranslator = (key: string, values?: Record<string, string | number>) => string;
+type BulkTranslator = ReturnType<typeof useTranslations<"investiture">>;
 
 function buildToastMessage(
   t: BulkTranslator,

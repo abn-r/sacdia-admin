@@ -35,7 +35,7 @@ import { ApiError } from "@/lib/api/client";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-type BulkTranslator = (key: string, values?: Record<string, string | number>) => string;
+type BulkTranslator = ReturnType<typeof useTranslations<"evidence_review">>;
 
 function buildToastMessage(
   t: BulkTranslator,

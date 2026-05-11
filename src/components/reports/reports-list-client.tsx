@@ -145,7 +145,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
     onSuccess: (report) => {
       toast.success(
         t("list.toastCreated", {
-          month: t(`months.${createMonth}`),
+          month: t(`months.${createMonth}` as Parameters<typeof t>[0]),
           year: createYear,
         }),
       );
@@ -166,7 +166,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
     onSuccess: (_, report) => {
       toast.success(
         t("list.toastGenerated", {
-          month: t(`months.${report.month}`),
+          month: t(`months.${report.month}` as Parameters<typeof t>[0]),
           year: report.year,
         }),
       );
@@ -201,7 +201,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
     onSuccess: (_, report) => {
       toast.success(
         t("list.toastSent", {
-          month: t(`months.${report.month}`),
+          month: t(`months.${report.month}` as Parameters<typeof t>[0]),
           year: report.year,
         }),
       );
@@ -310,7 +310,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
             <SelectContent>
               {MONTH_NUMBERS.map((m) => (
                 <SelectItem key={m} value={m.toString()}>
-                  {t(`months.${m}`)}
+                  {t(`months.${m}` as Parameters<typeof t>[0])}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -389,7 +389,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                     return (
                       <TableRow key={report.report_id}>
                         <TableCell className="font-medium">
-                          {t(`months.${report.month}`)}
+                          {t(`months.${report.month}` as Parameters<typeof t>[0])}
                         </TableCell>
                         <TableCell className="tabular-nums">{report.year}</TableCell>
                         <TableCell>
@@ -492,7 +492,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium">
-                          {t(`months.${report.month}`)} {report.year}
+                          {t(`months.${report.month}` as Parameters<typeof t>[0])} {report.year}
                         </p>
                         <p className="truncate text-xs text-muted-foreground tabular-nums">
                           #{report.report_id}

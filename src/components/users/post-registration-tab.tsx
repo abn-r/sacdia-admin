@@ -97,7 +97,7 @@ function StepStatusIcon({
   if (completed) {
     return (
       <span
-        aria-label={t("postRegistration.step_aria_completed")}
+        aria-label={t("postRegistration.step_aria_complete")}
         className="flex size-8 items-center justify-center rounded-full bg-success/10"
       >
         <CheckCircle2 className="size-5 text-success" />
@@ -116,7 +116,7 @@ function StepStatusIcon({
   }
   return (
     <span
-      aria-label={t("postRegistration.step_aria_not_started")}
+      aria-label={t("postRegistration.step_aria_optional")}
       className="flex size-8 items-center justify-center rounded-full bg-muted"
     >
       <Circle className="size-5 text-muted-foreground" />
@@ -416,10 +416,10 @@ export function PostRegistrationTab({
                           }
                         >
                           {completed
-                            ? t("postRegistration.step_status_completed")
+                            ? t("postRegistration.step_status_complete")
                             : isNext
                               ? t("postRegistration.step_status_pending")
-                              : t("postRegistration.step_status_not_started")}
+                              : t("postRegistration.step_status_optional")}
                         </Badge>
                       </div>
 

@@ -147,7 +147,7 @@ export function CatalogFormDialog({
                       setCheckboxValues((prev) => ({ ...prev, [field.name]: !!checked }))
                     }
                   />
-                  <Label htmlFor={field.name}>{t(field.label)}</Label>
+                  <Label htmlFor={field.name}>{t(field.label as Parameters<typeof t>[0])}</Label>
                 </div>
               );
             }
@@ -161,7 +161,7 @@ export function CatalogFormDialog({
               return (
                 <div key={field.name} className="space-y-1.5">
                   <Label htmlFor={field.name} className="text-sm font-medium">
-                    {t(field.label)}
+                    {t(field.label as Parameters<typeof t>[0])}
                     {field.required && <span className="text-destructive/70 ml-0.5">*</span>}
                   </Label>
                   <Select
@@ -170,7 +170,7 @@ export function CatalogFormDialog({
                     required={field.required}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder={`Seleccionar ${t(field.label).toLowerCase()}`} />
+                      <SelectValue placeholder={`Seleccionar ${t(field.label as Parameters<typeof t>[0]).toLowerCase()}`} />
                     </SelectTrigger>
                     <SelectContent>
                       {validOptions.map((opt, idx) => (
@@ -188,7 +188,7 @@ export function CatalogFormDialog({
               return (
                 <div key={field.name} className="space-y-1.5">
                   <Label htmlFor={field.name} className="text-sm font-medium">
-                    {t(field.label)}
+                    {t(field.label as Parameters<typeof t>[0])}
                     {field.required && <span className="text-destructive/70 ml-0.5">*</span>}
                   </Label>
                   <Textarea
@@ -207,7 +207,7 @@ export function CatalogFormDialog({
             return (
               <div key={field.name} className="space-y-1.5">
                 <Label htmlFor={field.name} className="text-sm font-medium">
-                  {t(field.label)}
+                  {t(field.label as Parameters<typeof t>[0])}
                   {field.required && <span className="text-destructive/70 ml-0.5">*</span>}
                 </Label>
                 <Input
