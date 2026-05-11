@@ -18,7 +18,7 @@ import type { ScoringCategory } from "@/lib/api/scoring-categories";
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
-interface ScoringCategoryDeleteDialogProps {
+export interface ScoringCategoryDeleteDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   category: ScoringCategory | null;

@@ -11,7 +11,7 @@ import type { CamporeeMember, PaginationMeta } from "@/lib/api/camporees";
 const LOCAL_DEFAULT_LIMIT = 50;
 const UNION_DEFAULT_LIMIT = 100;
 
-interface CamporeeMembersTabProps {
+export interface CamporeeMembersTabProps {
   camporeeId: number;
   initialMembers: CamporeeMember[];
   initialMeta?: PaginationMeta;

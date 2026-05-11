@@ -1,14 +1,23 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SystemConfigTable } from "@/components/system-config/system-config-table";
-import { SystemConfigEditDialog } from "@/components/system-config/system-config-edit-dialog";
 import { getSystemConfigs, type SystemConfig } from "@/lib/api/system-config";
 import { ApiError } from "@/lib/api/client";
+import type { SystemConfigEditDialogProps } from "@/components/system-config/system-config-edit-dialog";
+
+const SystemConfigEditDialog = dynamic<SystemConfigEditDialogProps>(
+  () =>
+    import("@/components/system-config/system-config-edit-dialog").then(
+      (m) => m.SystemConfigEditDialog,
+    ),
+  { ssr: false, loading: () => null },
+);
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

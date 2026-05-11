@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { Plus, Pencil, Trash2, RefreshCw, Tent } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,12 +14,28 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
-import { UnionCamporeeFormDialog } from "@/components/camporees/union-camporee-form-dialog";
-import { DeleteUnionCamporeeDialog } from "@/components/camporees/delete-union-camporee-dialog";
 import { useTranslations } from "next-intl";
 import { listUnionCamporees } from "@/lib/api/camporees";
 import type { UnionCamporee } from "@/lib/api/camporees";
 import type { Union } from "@/lib/api/geography";
+import type { UnionCamporeeFormDialogProps } from "@/components/camporees/union-camporee-form-dialog";
+import type { DeleteUnionCamporeeDialogProps } from "@/components/camporees/delete-union-camporee-dialog";
+
+const UnionCamporeeFormDialog = dynamic<UnionCamporeeFormDialogProps>(
+  () =>
+    import("@/components/camporees/union-camporee-form-dialog").then(
+      (m) => m.UnionCamporeeFormDialog,
+    ),
+  { ssr: false, loading: () => null },
+);
+
+const DeleteUnionCamporeeDialog = dynamic<DeleteUnionCamporeeDialogProps>(
+  () =>
+    import("@/components/camporees/delete-union-camporee-dialog").then(
+      (m) => m.DeleteUnionCamporeeDialog,
+    ),
+  { ssr: false, loading: () => null },
+);
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

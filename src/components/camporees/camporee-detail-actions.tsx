@@ -1,12 +1,29 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CamporeeFormDialog } from "@/components/camporees/camporee-form-dialog";
-import { DeleteCamporeeDialog } from "@/components/camporees/delete-camporee-dialog";
+import type { CamporeeFormDialogProps } from "@/components/camporees/camporee-form-dialog";
+import type { DeleteCamporeeDialogProps } from "@/components/camporees/delete-camporee-dialog";
 import type { Camporee } from "@/lib/api/camporees";
+
+const CamporeeFormDialog = dynamic<CamporeeFormDialogProps>(
+  () =>
+    import("@/components/camporees/camporee-form-dialog").then(
+      (m) => m.CamporeeFormDialog,
+    ),
+  { ssr: false, loading: () => null },
+);
+
+const DeleteCamporeeDialog = dynamic<DeleteCamporeeDialogProps>(
+  () =>
+    import("@/components/camporees/delete-camporee-dialog").then(
+      (m) => m.DeleteCamporeeDialog,
+    ),
+  { ssr: false, loading: () => null },
+);
 
 interface CamporeeDetailActionsProps {
   camporee: Camporee;

@@ -40,7 +40,7 @@ type FormValues = z.infer<ReturnType<typeof buildSchema>>;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface SystemConfigEditDialogProps {
+export interface SystemConfigEditDialogProps {
   open: boolean;
   config: SystemConfig | null;
   onOpenChange: (open: boolean) => void;
