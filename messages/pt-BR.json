@@ -8,7 +8,9 @@
       "validation": "Validação e investiduras",
       "communications": "Comunicações",
       "requests_reports": "Solicitações e relatórios",
-      "members": "Membros"
+      "members": "Membros",
+      "operations": "Operações",
+      "rankings_analytics": "Rankings e análises"
     },
     "items": {
       "dashboard": "Dashboard",
@@ -92,7 +94,15 @@
       "catalog_finance_categories": "Categorias de finanças",
       "catalog_inventory_categories": "Categorias de inventário",
       "catalog_honors": "Especialidades (catálogo)",
-      "catalog_master_honors": "Honras mestres"
+      "catalog_master_honors": "Honras mestres",
+      "subgroup_overview": "Geral",
+      "subgroup_geography": "Geografia",
+      "subgroup_health": "Saúde",
+      "subgroup_clubs_cat": "Clubes",
+      "subgroup_academics": "Acadêmicos",
+      "subgroup_business": "Negócio",
+      "subgroup_honors_cat": "Honras",
+      "ranking_weights_root": "Configuração de pesos"
     },
     "breadcrumbs": {
       "dashboard": "Painel",

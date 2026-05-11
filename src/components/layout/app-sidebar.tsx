@@ -35,7 +35,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/lib/auth/auth-context";
 import { usePermissions } from "@/lib/auth/use-permissions";
-import { navConfig, type NavGroup, type NavItem } from "@/components/layout/nav-config";
+import { navConfig, isSubGroup, type NavGroup, type NavItem, type NavChild, type NavSubGroup } from "@/components/layout/nav-config";
 import { LocaleSwitcherMenu } from "@/components/layout/locale-switcher";
 
 function getInitials(name?: string | null, email?: string | null): string {
@@ -50,11 +50,43 @@ function getInitials(name?: string | null, email?: string | null): string {
   return (email?.[0] ?? "A").toUpperCase();
 }
 
+function flattenChildren(children: NavItem["children"]): NavChild[] {
+  if (!children) return [];
+  if (children.length === 0) return [];
+  if (isSubGroup(children[0])) {
+    return (children as NavSubGroup[]).flatMap((sg) => sg.items);
+  }
+  return children as NavChild[];
+}
+
+function NavSubChildLink({
+  child,
+  pathname,
+  t,
+}: {
+  child: NavChild;
+  pathname: string;
+  t: ReturnType<typeof useTranslations<"nav">>;
+}) {
+  const childTitle = t(child.title as Parameters<typeof t>[0]);
+  return (
+    <SidebarMenuSubItem>
+      <SidebarMenuSubButton asChild isActive={pathname === child.url}>
+        <Link href={child.url}>
+          <span className="truncate" title={childTitle}>{childTitle}</span>
+        </Link>
+      </SidebarMenuSubButton>
+    </SidebarMenuSubItem>
+  );
+}
+
 function NavItemWithChildren({ item, pathname }: { item: NavItem; pathname: string }) {
   const t = useTranslations("nav");
-  const isChildActive = item.children?.some((child) => pathname === child.url) ?? false;
+  const flatChildren = flattenChildren(item.children);
+  const isChildActive = flatChildren.some((child) => pathname === child.url);
   const isActive = pathname === item.url || isChildActive;
   const title = t(item.title as Parameters<typeof t>[0]);
+  const grouped = item.children && item.children.length > 0 && isSubGroup(item.children[0]);
 
   return (
     <Collapsible asChild defaultOpen={isActive}>
@@ -68,18 +100,23 @@ function NavItemWithChildren({ item, pathname }: { item: NavItem; pathname: stri
         </CollapsibleTrigger>
         <CollapsibleContent>
           <SidebarMenuSub>
-            {item.children!.map((child) => {
-              const childTitle = t(child.title as Parameters<typeof t>[0]);
-              return (
-                <SidebarMenuSubItem key={child.url}>
-                  <SidebarMenuSubButton asChild isActive={pathname === child.url}>
-                    <Link href={child.url}>
-                      <span className="truncate" title={childTitle}>{childTitle}</span>
-                    </Link>
-                  </SidebarMenuSubButton>
-                </SidebarMenuSubItem>
-              );
-            })}
+            {grouped
+              ? (item.children as NavSubGroup[]).map((sg) => {
+                  const sgLabel = t(sg.subgroup as Parameters<typeof t>[0]);
+                  return (
+                    <div key={sg.subgroup} className="mt-1 first:mt-0">
+                      <div className="px-2 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+                        {sgLabel}
+                      </div>
+                      {sg.items.map((child) => (
+                        <NavSubChildLink key={child.url} child={child} pathname={pathname} t={t} />
+                      ))}
+                    </div>
+                  );
+                })
+              : (item.children as NavChild[]).map((child) => (
+                  <NavSubChildLink key={child.url} child={child} pathname={pathname} t={t} />
+                ))}
           </SidebarMenuSub>
         </CollapsibleContent>
       </SidebarMenuItem>
