@@ -11,34 +11,6 @@
  *   useTranslations(namespace) and t(key) call is type-checked against this
  *   interface, so unknown namespaces and keys produce compile-time errors.
  *
- * ROLLOUT STATUS: STAGED (not yet enforced in typecheck CI)
- *   The IntlMessages interface is fully generated and ready. Strict enforcement
- *   is intentionally deferred because 35 pre-existing call-sites use patterns
- *   that strict mode flags correctly (dynamic keys, custom translator aliases,
- *   cross-namespace key access). Fix those call-sites first, then uncomment
- *   the AppConfig block below to activate full strict checking.
- *
- *   Files with flagged issues (run `pnpm typecheck` after uncommenting):
- *     - src/components/catalogs/catalog-crud-page.tsx (dynamic string keys)
- *     - src/components/catalogs/catalog-form-dialog.tsx (dynamic string keys)
- *     - src/components/layout/app-sidebar.tsx (dynamic string keys)
- *     - src/components/reports/reports-list-client.tsx (months.${number} pattern)
- *     - src/components/reports/report-detail-client.tsx (months.${number} pattern)
- *     - src/components/scoring-categories/scoring-categories-table.tsx (origin.${string})
- *     - src/components/users/post-registration-tab.tsx (cross-namespace key access)
- *     - src/components/evidence-review/evidence-bulk-action-bar.tsx (BulkTranslator alias)
- *     - src/components/evidence-review/evidence-reject-dialog.tsx (RejectTranslator alias)
- *     - src/components/investiture/bulk-action-bar.tsx (BulkTranslator alias)
- *     - src/components/investiture/config-form-dialog.tsx (ConfigTranslator alias)
- *     - src/app/(dashboard)/dashboard/system/jobs/*  (dynamic string keys)
- *
- * TO ACTIVATE STRICT MODE:
- *   1. Fix the 35 call-sites listed above (mainly cast dynamic keys with
- *      `as MessageKeys<IntlMessages, Namespace>` or add explicit message keys)
- *   2. Uncomment the `declare module "next-intl"` block below
- *   3. Run `pnpm typecheck` — must pass with 0 errors
- *   4. Delete this comment block
- *
  * CONCURRENT AGENT NOTE (A3 / i18n native routing):
  *   Agent A3 may add new keys to messages/es.json for routing labels.
  *   After A3 merges, run the generator again so this file stays in sync.
@@ -46,14 +18,14 @@
  *   and src/proxy.ts; this file is standalone.
  */
 
-// TO ACTIVATE STRICT MODE: uncomment this block after fixing the 35 call-sites
-// listed above. See: https://next-intl.dev/docs/workflows/typescript
-//
-// declare module "next-intl" {
-//   interface AppConfig {
-//     Messages: IntlMessages;
-//   }
-// }
+// Strict mode active — every useTranslations(namespace) and t(key) call is
+// type-checked against IntlMessages. Unknown namespaces/keys are compile errors.
+// See: https://next-intl.dev/docs/workflows/typescript
+declare module "next-intl" {
+  interface AppConfig {
+    Messages: IntlMessages;
+  }
+}
 
 export interface IntlMessages {
   nav: {
@@ -1917,6 +1889,10 @@ export interface IntlMessages {
       approve_member: string;
       approve_payment: string;
       enroll_club: string;
+      create_failed: string;
+      update_failed: string;
+      register_member_failed: string;
+      remove_member_failed: string;
     };
     list: {
       countSingular: string;
@@ -2176,6 +2152,21 @@ export interface IntlMessages {
       local_field_required: string;
       end_date_after_start: string;
       end_date_after_start_full: string;
+      field_required: string;
+      field_invalid: string;
+      dates_required: string;
+      no_changes: string;
+      user_id_required: string;
+      camporee_type_invalid: string;
+      insurance_invalid: string;
+      member_remove_not_identified: string;
+    };
+    fields: {
+      local_field: string;
+    };
+    success: {
+      member_registered: string;
+      member_removed: string;
     };
   };
   resources: {

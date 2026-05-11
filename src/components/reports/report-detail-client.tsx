@@ -131,7 +131,7 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
     } as const
   )[report.status] ?? ("warning" as const);
 
-  const monthName = t(`months.${report.month}`);
+  const monthName = t(`months.${report.month}` as Parameters<typeof t>[0]);
   const isSubmitted = report.status === "submitted";
   const isGenerated = report.status === "generated";
 

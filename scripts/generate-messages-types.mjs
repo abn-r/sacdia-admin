@@ -55,32 +55,21 @@ const header = `/**
  *   useTranslations(namespace) and t(key) call is type-checked against this
  *   interface, so unknown namespaces and keys produce compile-time errors.
  *
- * ROLLOUT STATUS: STAGED (not yet enforced in typecheck CI)
- *   The IntlMessages interface is fully generated and ready. Strict enforcement
- *   is intentionally deferred because 35 pre-existing call-sites use patterns
- *   that strict mode flags correctly (dynamic keys, custom translator aliases,
- *   cross-namespace key access). Fix those call-sites first, then uncomment
- *   the AppConfig block below to activate full strict checking.
- *
- * TO ACTIVATE STRICT MODE:
- *   1. Fix the 35 call-sites (see PR description for the full list)
- *   2. Uncomment the \`declare module "next-intl"\` block below
- *   3. Run \`pnpm typecheck\` — must pass with 0 errors
- *   4. Delete this comment block
- *
  * CONCURRENT AGENT NOTE (A3 / i18n native routing):
  *   Agent A3 may add new keys to messages/es.json for routing labels.
  *   After A3 merges, run the generator again so this file stays in sync.
+ *   No conflict expected — A3 touches next.config.ts i18n routing block
+ *   and src/proxy.ts; this file is standalone.
  */
 
-// TO ACTIVATE STRICT MODE: uncomment this block after fixing the 35 call-sites.
+// Strict mode active — every useTranslations(namespace) and t(key) call is
+// type-checked against IntlMessages. Unknown namespaces/keys are compile errors.
 // See: https://next-intl.dev/docs/workflows/typescript
-//
-// declare module "next-intl" {
-//   interface AppConfig {
-//     Messages: IntlMessages;
-//   }
-// }
+declare module "next-intl" {
+  interface AppConfig {
+    Messages: IntlMessages;
+  }
+}
 
 export interface IntlMessages {`;
 

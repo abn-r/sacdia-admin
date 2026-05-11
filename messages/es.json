@@ -1859,7 +1859,11 @@
       "unexpected": "Ocurrió un error inesperado",
       "approve_member": "No se pudo aprobar la inscripción del miembro",
       "approve_payment": "No se pudo aprobar el pago",
-      "enroll_club": "No se pudo inscribir el club"
+      "enroll_club": "No se pudo inscribir el club",
+      "create_failed": "No se pudo crear el camporee",
+      "update_failed": "No se pudo actualizar el camporee",
+      "register_member_failed": "No se pudo registrar al miembro",
+      "remove_member_failed": "No se pudo eliminar al miembro"
     },
     "list": {
       "countSingular": "camporee",
@@ -2118,7 +2122,22 @@
       "place_required": "El lugar es obligatorio",
       "local_field_required": "El campo local es obligatorio",
       "end_date_after_start": "La fecha de fin debe ser igual o posterior a la de inicio",
-      "end_date_after_start_full": "La fecha de fin debe ser igual o posterior a la fecha de inicio"
+      "end_date_after_start_full": "La fecha de fin debe ser igual o posterior a la fecha de inicio",
+      "field_required": "El campo {field} es obligatorio",
+      "field_invalid": "El valor de {field} no es válido",
+      "dates_required": "Las fechas de inicio y fin son obligatorias",
+      "no_changes": "No se realizaron cambios",
+      "user_id_required": "El usuario es obligatorio",
+      "camporee_type_invalid": "El tipo de camporee no es válido",
+      "insurance_invalid": "El seguro seleccionado no es válido",
+      "member_remove_not_identified": "No se pudo identificar al miembro a eliminar"
+    },
+    "fields": {
+      "local_field": "Campo local"
+    },
+    "success": {
+      "member_registered": "Miembro registrado correctamente",
+      "member_removed": "Miembro eliminado correctamente"
     }
   },
   "resources": {

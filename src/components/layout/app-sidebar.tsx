@@ -54,7 +54,7 @@ function NavItemWithChildren({ item, pathname }: { item: NavItem; pathname: stri
   const t = useTranslations("nav");
   const isChildActive = item.children?.some((child) => pathname === child.url) ?? false;
   const isActive = pathname === item.url || isChildActive;
-  const title = t(item.title);
+  const title = t(item.title as Parameters<typeof t>[0]);
 
   return (
     <Collapsible asChild defaultOpen={isActive}>
@@ -69,7 +69,7 @@ function NavItemWithChildren({ item, pathname }: { item: NavItem; pathname: stri
         <CollapsibleContent>
           <SidebarMenuSub>
             {item.children!.map((child) => {
-              const childTitle = t(child.title);
+              const childTitle = t(child.title as Parameters<typeof t>[0]);
               return (
                 <SidebarMenuSubItem key={child.url}>
                   <SidebarMenuSubButton asChild isActive={pathname === child.url}>
@@ -90,7 +90,7 @@ function NavItemWithChildren({ item, pathname }: { item: NavItem; pathname: stri
 function NavItemSimple({ item, pathname }: { item: NavItem; pathname: string }) {
   const t = useTranslations("nav");
   const isActive = pathname === item.url || (item.url !== "/dashboard" && pathname.startsWith(item.url + "/"));
-  const title = t(item.title);
+  const title = t(item.title as Parameters<typeof t>[0]);
 
   return (
     <SidebarMenuItem>
@@ -119,7 +119,7 @@ function SidebarNavGroup({ group }: { group: NavGroup }) {
 
   return (
     <SidebarGroup>
-      {group.label && <SidebarGroupLabel>{t(group.label)}</SidebarGroupLabel>}
+      {group.label && <SidebarGroupLabel>{t(group.label as Parameters<typeof t>[0])}</SidebarGroupLabel>}
       <SidebarMenu>
         {visibleItems.map((item) =>
           item.children ? (

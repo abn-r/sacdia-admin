@@ -28,7 +28,7 @@ import {
 import { rejectEvidence, type EvidenceType } from "@/lib/api/evidence-review";
 import { ApiError } from "@/lib/api/client";
 
-type RejectTranslator = (key: string, values?: Record<string, string | number>) => string;
+type RejectTranslator = ReturnType<typeof useTranslations<"evidence_review">>;
 
 function buildRejectSchema(t: RejectTranslator) {
   return z.object({
