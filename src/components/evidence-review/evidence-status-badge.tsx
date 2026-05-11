@@ -7,8 +7,8 @@ import type { EvidenceType } from "@/lib/api/evidence-review";
 type IntentConfig = { labelKey: string; intent: StatusIntent };
 
 // Backend enum evidence_validation_enum: PENDING | SUBMITTED | VALIDATED | REJECTED
-// Applies to folders_section_records.status AND class_section_progress.status
-const folderClassIntentMap: Record<string, IntentConfig> = {
+// Applies to class_section_progress.status
+const classIntentMap: Record<string, IntentConfig> = {
   PENDING:   { labelKey: "no_submit",  intent: "neutral" },
   SUBMITTED: { labelKey: "submitted",  intent: "info" },
   VALIDATED: { labelKey: "validated",  intent: "success" },
@@ -23,9 +23,8 @@ const honorIntentMap: Record<string, IntentConfig> = {
   SUBMITTED:   { labelKey: "submitted",  intent: "info" },
   VALIDATED:   { labelKey: "validated",  intent: "success" },
   REJECTED:    { labelKey: "rejected",   intent: "destructive" },
-  in_progress: { labelKey: "submitted",  intent: "info" },
-  validated:   { labelKey: "validated",  intent: "success" },
-  rejected:    { labelKey: "rejected",   intent: "destructive" },
+  PENDING_REVIEW: { labelKey: "submitted",  intent: "info" },
+
 };
 
 interface EvidenceStatusBadgeProps {
@@ -36,7 +35,7 @@ interface EvidenceStatusBadgeProps {
 
 export function EvidenceStatusBadge({ status, type, className }: EvidenceStatusBadgeProps) {
   const t = useTranslations("evidence_review.statusBadge");
-  const configMap = type === "honor" ? honorIntentMap : folderClassIntentMap;
+  const configMap = type === "honor" ? honorIntentMap : classIntentMap;
   const config = configMap[status];
   const label = config ? t(config.labelKey as "no_submit" | "submitted" | "validated" | "rejected") : status;
   const intent: StatusIntent = config?.intent ?? "neutral";

@@ -116,7 +116,7 @@ interface RenderOpts {
 function renderDialog(opts: RenderOpts = {}) {
   const {
     open = true,
-    type = "folder",
+    type = "class",
     id = 42,
     memberName = "Juan Pérez",
   } = opts;

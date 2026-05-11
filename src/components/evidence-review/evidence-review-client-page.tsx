@@ -21,8 +21,7 @@ type TabKey = EvidenceType | "all";
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function isPending(item: EvidenceItem): boolean {
-  if (item.type === "honor") return item.status === "in_progress";
-  return item.status === "pendiente";
+  return ["SUBMITTED", "PENDING_REVIEW"].includes(item.status);
 }
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -41,7 +40,6 @@ export function EvidenceReviewClientPage({
   // TABS defined inside component so labels go through t()
   const TABS: { key: TabKey; label: string }[] = [
     { key: "all",    label: t("tab_all") },
-    { key: "folder", label: t("tab_folders") },
     { key: "class",  label: t("tab_classes") },
     { key: "honor",  label: t("tab_honors") },
   ];
