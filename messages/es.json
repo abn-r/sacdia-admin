@@ -624,7 +624,41 @@
       "clubIdeals": {
         "title": "Ideales de club",
         "description": "Ideales asociados a cada tipo de club.",
-        "metadataTitle": "Ideales de club"
+        "metadataTitle": "Ideales de club",
+        "listTitle": "Ideales de club",
+        "createTitle": "Crear ideal de club",
+        "editTitle": "Editar ideal de club",
+        "entityLabel": "Ideal",
+        "entityLabelPlural": "Ideales",
+        "fieldName": "Nombre",
+        "fieldIdeal": "Ideal",
+        "fieldClubType": "Tipo de club",
+        "fieldIdealOrder": "Orden",
+        "fieldActive": "Activo",
+        "fieldNamePlaceholder": "Ej. Servicio",
+        "fieldIdealPlaceholder": "Describe el ideal...",
+        "fieldClubTypePlaceholder": "Seleccionar tipo de club",
+        "buttonCreate": "Crear ideal",
+        "buttonSave": "Guardar cambios",
+        "buttonCancel": "Cancelar",
+        "buttonDelete": "Eliminar",
+        "emptyTitle": "No hay ideales",
+        "emptyDescription": "Crea el primer ideal de club.",
+        "deleteConfirmTitle": "¿Eliminar ideal?",
+        "deleteConfirmDesc": "Se eliminará el ideal \"{name}\". Esta acción no se puede deshacer.",
+        "backToList": "Volver a ideales",
+        "loadError": "No se pudieron cargar los ideales de club.",
+        "validationName": "El nombre es obligatorio.",
+        "validationIdeal": "El ideal es obligatorio.",
+        "validationClubType": "El tipo de club es obligatorio.",
+        "validationIdealOrder": "El orden debe ser un número positivo.",
+        "colName": "Nombre (es)",
+        "colClubType": "Tipo de club",
+        "colIdealOrder": "Orden",
+        "colStatus": "Estado",
+        "colActions": "Acciones",
+        "statusActive": "Activo",
+        "statusInactive": "Inactivo"
       },
       "allergies": {
         "title": "Alergias",
@@ -4164,7 +4198,8 @@
   "translations": {
     "label_name": "Nombre",
     "label_description": "Descripción",
-    "helper_optional": "Opcional. Si se deja vacío, se mostrará el español."
+    "helper_optional": "Opcional. Si se deja vacío, se mostrará el español.",
+    "label_ideal": "Ideal"
   },
   "memberRankingWeights": {
     "formDialog": {
