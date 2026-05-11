@@ -449,21 +449,29 @@ export interface IntlMessages {
         title: string;
         description: string;
         metadataTitle: string;
+        entityLabel: string;
+        loadError: string;
       };
       churches: {
         title: string;
         description: string;
         metadataTitle: string;
+        entityLabel: string;
+        loadError: string;
       };
       districts: {
         title: string;
         description: string;
         metadataTitle: string;
+        entityLabel: string;
+        loadError: string;
       };
       unions: {
         title: string;
         description: string;
         metadataTitle: string;
+        entityLabel: string;
+        loadError: string;
       };
       unionsDetail: {
         back: string;
@@ -481,6 +489,8 @@ export interface IntlMessages {
         title: string;
         description: string;
         metadataTitle: string;
+        entityLabel: string;
+        loadError: string;
       };
       localFieldsDetail: {
         back: string;
@@ -498,6 +508,8 @@ export interface IntlMessages {
         title: string;
         description: string;
         metadataTitle: string;
+        entityLabel: string;
+        loadError: string;
       };
       folderSections: {
         title: string;
@@ -621,31 +633,75 @@ export interface IntlMessages {
         title: string;
         description: string;
         metadataTitle: string;
+        entityLabel: string;
+        loadError: string;
       };
       clubTypes: {
         title: string;
         description: string;
         metadataTitle: string;
+        entityLabel: string;
+        loadError: string;
       };
       medicines: {
         title: string;
         description: string;
         metadataTitle: string;
+        entityLabel: string;
+        loadError: string;
       };
       clubIdeals: {
         title: string;
         description: string;
         metadataTitle: string;
+        listTitle: string;
+        createTitle: string;
+        editTitle: string;
+        entityLabel: string;
+        entityLabelPlural: string;
+        fieldName: string;
+        fieldIdeal: string;
+        fieldClubType: string;
+        fieldIdealOrder: string;
+        fieldActive: string;
+        fieldNamePlaceholder: string;
+        fieldIdealPlaceholder: string;
+        fieldClubTypePlaceholder: string;
+        buttonCreate: string;
+        buttonSave: string;
+        buttonCancel: string;
+        buttonDelete: string;
+        emptyTitle: string;
+        emptyDescription: string;
+        deleteConfirmTitle: string;
+        deleteConfirmDesc: string;
+        backToList: string;
+        loadError: string;
+        validationName: string;
+        validationIdeal: string;
+        validationClubType: string;
+        validationIdealOrder: string;
+        colName: string;
+        colClubType: string;
+        colIdealOrder: string;
+        colStatus: string;
+        colActions: string;
+        statusActive: string;
+        statusInactive: string;
       };
       allergies: {
         title: string;
         description: string;
         metadataTitle: string;
+        entityLabel: string;
+        loadError: string;
       };
       relationshipTypes: {
         title: string;
         description: string;
         metadataTitle: string;
+        entityLabel: string;
+        loadError: string;
       };
       ecclesiasticalYears: {
         title: string;
@@ -4172,6 +4228,7 @@ export interface IntlMessages {
     label_name: string;
     label_description: string;
     helper_optional: string;
+    label_ideal: string;
   };
   memberRankingWeights: {
     formDialog: {

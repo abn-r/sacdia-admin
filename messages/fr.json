@@ -419,22 +419,30 @@
       "countries": {
         "title": "Pays",
         "description": "Catalogue des pays du système.",
-        "metadataTitle": "Pays"
+        "metadataTitle": "Pays",
+        "entityLabel": "Pays",
+        "loadError": "Impossible de charger les pays."
       },
       "churches": {
         "title": "Églises",
         "description": "Catalogue des églises du système.",
-        "metadataTitle": "Églises"
+        "metadataTitle": "Églises",
+        "entityLabel": "Église",
+        "loadError": "Impossible de charger les églises."
       },
       "districts": {
         "title": "Districts",
         "description": "Catalogue des districts du système.",
-        "metadataTitle": "Districts"
+        "metadataTitle": "Districts",
+        "entityLabel": "District",
+        "loadError": "Impossible de charger les districts."
       },
       "unions": {
         "title": "Unions",
         "description": "Catalogue des unions du système.",
-        "metadataTitle": "Unions"
+        "metadataTitle": "Unions",
+        "entityLabel": "Union",
+        "loadError": "Impossible de charger les unions."
       },
       "unionsDetail": {
         "back": "Retour",
@@ -451,7 +459,9 @@
       "localFields": {
         "title": "Champs locaux",
         "description": "Catalogue des champs locaux du système.",
-        "metadataTitle": "Champs locaux"
+        "metadataTitle": "Champs locaux",
+        "entityLabel": "Champ local",
+        "loadError": "Impossible de charger les champs locaux."
       },
       "localFieldsDetail": {
         "back": "Retour",
@@ -468,7 +478,9 @@
       "activityTypes": {
         "title": "Types d'activité",
         "description": "Catalogue des types d'activité du système.",
-        "metadataTitle": "Types d'activité"
+        "metadataTitle": "Types d'activité",
+        "entityLabel": "Type d'activité",
+        "loadError": "Impossible de charger les types d'activité."
       },
       "folderSections": {
         "title": "Sections de dossier",
@@ -591,32 +603,76 @@
       "diseases": {
         "title": "Maladies",
         "description": "Maladies chroniques ou conditions médicales pertinentes.",
-        "metadataTitle": "Maladies"
+        "metadataTitle": "Maladies",
+        "entityLabel": "Maladie",
+        "loadError": "Impossible de charger les maladies."
       },
       "clubTypes": {
         "title": "Types de club",
         "description": "Types de club disponibles dans le système.",
-        "metadataTitle": "Types de club"
+        "metadataTitle": "Types de club",
+        "entityLabel": "Type de club",
+        "loadError": "Impossible de charger les types de club."
       },
       "medicines": {
         "title": "Médicaments",
         "description": "Médicaments couramment utilisés par les membres.",
-        "metadataTitle": "Médicaments"
+        "metadataTitle": "Médicaments",
+        "entityLabel": "Médicament",
+        "loadError": "Impossible de charger les médicaments."
       },
       "clubIdeals": {
         "title": "Idéaux de club",
         "description": "Idéaux associés à chaque type de club.",
-        "metadataTitle": "Idéaux de club"
+        "metadataTitle": "Idéaux de club",
+        "listTitle": "Idéaux de club",
+        "createTitle": "Créer un idéal de club",
+        "editTitle": "Modifier l'idéal de club",
+        "entityLabel": "Idéal",
+        "entityLabelPlural": "Idéaux",
+        "fieldName": "Nom",
+        "fieldIdeal": "Idéal",
+        "fieldClubType": "Type de club",
+        "fieldIdealOrder": "Ordre",
+        "fieldActive": "Actif",
+        "fieldNamePlaceholder": "Ex. Service",
+        "fieldIdealPlaceholder": "Décrivez l'idéal...",
+        "fieldClubTypePlaceholder": "Sélectionner un type de club",
+        "buttonCreate": "Créer un idéal",
+        "buttonSave": "Enregistrer",
+        "buttonCancel": "Annuler",
+        "buttonDelete": "Supprimer",
+        "emptyTitle": "Aucun idéal",
+        "emptyDescription": "Créez le premier idéal de club.",
+        "deleteConfirmTitle": "Supprimer l'idéal ?",
+        "deleteConfirmDesc": "L'idéal \"{name}\" sera définitivement supprimé.",
+        "backToList": "Retour aux idéaux",
+        "loadError": "Impossible de charger les idéaux de club.",
+        "validationName": "Le nom est obligatoire.",
+        "validationIdeal": "L'idéal est obligatoire.",
+        "validationClubType": "Le type de club est obligatoire.",
+        "validationIdealOrder": "L'ordre doit être un nombre positif.",
+        "colName": "Nom (es)",
+        "colClubType": "Type de club",
+        "colIdealOrder": "Ordre",
+        "colStatus": "Statut",
+        "colActions": "Actions",
+        "statusActive": "Actif",
+        "statusInactive": "Inactif"
       },
       "allergies": {
         "title": "Allergies",
         "description": "Liste des allergies pour le profil de santé des membres.",
-        "metadataTitle": "Allergies"
+        "metadataTitle": "Allergies",
+        "entityLabel": "Allergie",
+        "loadError": "Impossible de charger les allergies."
       },
       "relationshipTypes": {
         "title": "Types de relation",
         "description": "Liens familiaux ou de contact d'urgence.",
-        "metadataTitle": "Types de relation"
+        "metadataTitle": "Types de relation",
+        "entityLabel": "Type de relation",
+        "loadError": "Impossible de charger les types de relation."
       },
       "ecclesiasticalYears": {
         "title": "Années ecclésiastiques",
@@ -4123,7 +4179,8 @@
   "translations": {
     "label_name": "Nom",
     "label_description": "Description",
-    "helper_optional": "Optionnel. Si laissé vide, l'espagnol sera affiché."
+    "helper_optional": "Optionnel. Si laissé vide, l'espagnol sera affiché.",
+    "label_ideal": "Idéal"
   },
   "memberRankingWeights": {
     "formDialog": {

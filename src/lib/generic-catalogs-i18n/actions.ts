@@ -18,12 +18,17 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getActionErrorMessage } from "@/lib/api/action-error";
-import {
-  CATALOG_LOCALES,
-  type CatalogTranslation,
-} from "@/lib/types/catalog-translation";
 import { requireAdminUser } from "@/lib/auth/session";
 import { hasAnyPermission } from "@/lib/auth/permission-utils";
+import type { CatalogTranslation } from "@/lib/types/catalog-translation";
+import {
+  type TranslatableField,
+  parsePositiveInt,
+  buildTranslatableCreate,
+  buildTranslatableUpdate,
+  buildNameOnlyCreate,
+  buildNameOnlyUpdate,
+} from "@/lib/generic-catalogs-i18n/helpers";
 import {
   CATALOGS_CREATE,
   CATALOGS_UPDATE,
@@ -108,181 +113,6 @@ import {
 
 export type GenericCatalogActionState = { error?: string };
 
-/** The set of field names that can appear in a per-locale translation entry. */
-type TranslatableField = "name" | "description" | "ideal";
-
-// ─── Shared helpers ────────────────────────────────────────────────────────────
-
-function readString(formData: FormData, field: string): string {
-  return String(formData.get(field) ?? "").trim();
-}
-
-function parseBool(formData: FormData, field: string): boolean {
-  return formData.get(field) === "on" || formData.get(field) === "true";
-}
-
-function parsePositiveInt(formData: FormData, field: string): number | null {
-  const raw = readString(formData, field);
-  if (!raw) return null;
-  const n = Number(raw);
-  if (!Number.isFinite(n) || n <= 0) return null;
-  return Math.floor(n);
-}
-
-/**
- * Parses `translations[N][locale]` / `translations[N][name]` /
- * `translations[N][description]` / `translations[N][ideal]` entries from
- * FormData into a CatalogTranslation array.
- *
- * Only the fields listed in `fields` are extracted per entry.
- * Entries where all translatable fields are empty are skipped.
- * Entries with locale not in CATALOG_LOCALES are skipped.
- */
-export function parseTranslations(
-  formData: FormData,
-  fields: TranslatableField[] = ["name", "description"],
-): CatalogTranslation[] {
-  const result: CatalogTranslation[] = [];
-  const indices = new Set<number>();
-
-  for (const key of formData.keys()) {
-    const match = key.match(/^translations\[(\d+)\]\[locale\]$/);
-    if (match) indices.add(Number(match[1]));
-  }
-
-  for (const idx of Array.from(indices).sort((a, b) => a - b)) {
-    const locale = readString(formData, `translations[${idx}][locale]`);
-    if (!CATALOG_LOCALES.includes(locale as CatalogTranslation["locale"])) continue;
-
-    const entry: Record<string, string> = {};
-    let hasValue = false;
-
-    for (const field of fields) {
-      const val = readString(formData, `translations[${idx}][${field}]`);
-      if (val) {
-        entry[field] = val;
-        hasValue = true;
-      }
-    }
-
-    if (!hasValue) continue;
-
-    result.push({
-      locale: locale as CatalogTranslation["locale"],
-      ...entry,
-    } as CatalogTranslation & Record<string, string>);
-  }
-
-  return result;
-}
-
-/**
- * Builds a create payload for catalogs that have `name` + `description`
- * (TranslatablePayload shape). Caller may override translatable fields.
- */
-export function buildTranslatableCreate(
-  formData: FormData,
-  fields: TranslatableField[] = ["name", "description"],
-  customFields?: Record<string, unknown>,
-): Record<string, unknown> {
-  const name = readString(formData, "name");
-  if (!name) throw new Error("El nombre es obligatorio.");
-  const active = formData.has("active") ? parseBool(formData, "active") : true;
-  const translations = parseTranslations(formData, fields);
-
-  const payload: Record<string, unknown> = { name, active };
-
-  // Include description when it's a configured translatable field
-  if (fields.includes("description")) {
-    const description = readString(formData, "description") || undefined;
-    if (description !== undefined) payload.description = description;
-  }
-
-  // Include ideal when it's a configured translatable field
-  if (fields.includes("ideal")) {
-    const ideal = readString(formData, "ideal") || undefined;
-    if (ideal !== undefined) payload.ideal = ideal;
-  }
-
-  if (translations.length > 0) payload.translations = translations;
-
-  // Merge any caller-supplied extra fields (e.g. club_type_id, ideal_order)
-  if (customFields) {
-    for (const [k, v] of Object.entries(customFields)) {
-      if (v !== null && v !== undefined) payload[k] = v;
-    }
-  }
-
-  return payload;
-}
-
-/**
- * Builds an update payload for catalogs that have `name` (and optionally
- * `description` or `ideal`). Caller may override translatable fields.
- *
- * Only sends `translations` when the dirty flag is set.
- */
-export function buildTranslatableUpdate(
-  formData: FormData,
-  fields: TranslatableField[] = ["name", "description"],
-  customFields?: Record<string, unknown>,
-): Record<string, unknown> {
-  const payload: Record<string, unknown> = {};
-
-  const name = readString(formData, "name");
-  if (name) payload.name = name;
-
-  if (fields.includes("description")) {
-    payload.description = readString(formData, "description") || "";
-  }
-
-  if (fields.includes("ideal")) {
-    const ideal = readString(formData, "ideal");
-    if (ideal) payload.ideal = ideal;
-  }
-
-  if (formData.has("active")) payload.active = parseBool(formData, "active");
-
-  const dirty = formData.get("translations_dirty");
-  if (dirty === "1") payload.translations = parseTranslations(formData, fields);
-
-  if (customFields) {
-    for (const [k, v] of Object.entries(customFields)) {
-      if (v !== null && v !== undefined) payload[k] = v;
-    }
-  }
-
-  return payload;
-}
-
-/**
- * Builds a create payload for name-only catalogs (no description, no ideal).
- */
-function buildNameOnlyCreate(formData: FormData): Record<string, unknown> {
-  const name = readString(formData, "name");
-  if (!name) throw new Error("El nombre es obligatorio.");
-  const active = formData.has("active") ? parseBool(formData, "active") : true;
-  const translations = parseTranslations(formData, ["name"]);
-  return {
-    name,
-    active,
-    ...(translations.length > 0 ? { translations } : {}),
-  };
-}
-
-/**
- * Builds an update payload for name-only catalogs.
- */
-function buildNameOnlyUpdate(formData: FormData): Record<string, unknown> {
-  const payload: Record<string, unknown> = {};
-  const name = readString(formData, "name");
-  if (name) payload.name = name;
-  if (formData.has("active")) payload.active = parseBool(formData, "active");
-  const dirty = formData.get("translations_dirty");
-  if (dirty === "1") payload.translations = parseTranslations(formData, ["name"]);
-  return payload;
-}
-
 // ─── Generic factory ───────────────────────────────────────────────────────────
 
 type CrudPermissions = {
@@ -295,13 +125,16 @@ type CrudPermissions = {
  * Factory that generates (createAction, updateAction, deleteAction) for a
  * given catalog route.
  *
- * @param routePath    Dashboard path — used for revalidatePath + redirect
- * @param permissions  RBAC permission arrays (any-of semantics)
- * @param api          Object with create / update / delete async fns
- * @param hasDescription  When false, uses name-only builders (ignores translatableFields)
+ * @param routePath         Dashboard path — used for revalidatePath + redirect
+ * @param permissions       RBAC permission arrays (any-of semantics)
+ * @param api               Object with create / update / delete async fns
+ * @param hasDescription    When false, uses name-only builders (ignores translatableFields)
  * @param translatableFields  When hasDescription is true, overrides which fields
  *   are extracted from translations entries. Defaults to ['name', 'description'].
  *   Pass ['name', 'ideal'] for club-ideals.
+ * @param customFormFields  Optional function that extracts additional fields from
+ *   FormData and merges them into the payload. Used by club-ideals to pick up
+ *   club_type_id and ideal_order which the standard builders don't extract.
  */
 function makeActions(
   routePath: string,
@@ -313,6 +146,7 @@ function makeActions(
   },
   hasDescription = true,
   translatableFields: TranslatableField[] = ["name", "description"],
+  customFormFields?: (formData: FormData) => Record<string, unknown>,
 ) {
   async function createAction(
     _: GenericCatalogActionState,
@@ -323,9 +157,12 @@ function makeActions(
       return { error: "Sin permisos para crear." };
     }
     try {
-      const payload = hasDescription
+      const base = hasDescription
         ? buildTranslatableCreate(formData, translatableFields)
         : buildNameOnlyCreate(formData);
+      const payload = customFormFields
+        ? { ...base, ...customFormFields(formData) }
+        : base;
       await api.create(payload);
     } catch (error) {
       return {
@@ -349,9 +186,12 @@ function makeActions(
     const id = parsePositiveInt(formData, "id");
     if (!id) return { error: "No se pudo identificar el registro a editar." };
     try {
-      const payload = hasDescription
+      const base = hasDescription
         ? buildTranslatableUpdate(formData, translatableFields)
         : buildNameOnlyUpdate(formData);
+      const payload = customFormFields
+        ? { ...base, ...customFormFields(formData) }
+        : base;
       await api.update(id, payload);
     } catch (error) {
       return {
@@ -602,7 +442,29 @@ export const deleteClubTypeAction = clubTypesActions.deleteAction;
 
 // ─── Club Ideals ──────────────────────────────────────────────────────────────
 // Special: translatable fields are ['name', 'ideal'] — NOT description.
-// Additional payload fields: club_type_id, ideal_order.
+// Additional payload fields: club_type_id, ideal_order (extracted via customFormFields).
+
+function extractClubIdealExtraFields(formData: FormData): Record<string, unknown> {
+  const extra: Record<string, unknown> = {};
+
+  const clubTypeIdRaw = String(formData.get("club_type_id") ?? "").trim();
+  if (clubTypeIdRaw) {
+    const clubTypeId = Number(clubTypeIdRaw);
+    if (Number.isFinite(clubTypeId) && clubTypeId > 0) {
+      extra.club_type_id = Math.floor(clubTypeId);
+    }
+  }
+
+  const idealOrderRaw = String(formData.get("ideal_order") ?? "").trim();
+  if (idealOrderRaw) {
+    const idealOrder = Number(idealOrderRaw);
+    if (Number.isFinite(idealOrder) && idealOrder > 0) {
+      extra.ideal_order = Math.floor(idealOrder);
+    }
+  }
+
+  return extra;
+}
 
 const clubIdealsActions = makeActions(
   "/dashboard/catalogs/club-ideals",
@@ -613,7 +475,6 @@ const clubIdealsActions = makeActions(
   },
   {
     create: (p) => {
-      // Pull extra fields from the generic payload and forward to typed fn
       const { name, ideal, club_type_id, ideal_order, active, translations } = p as {
         name: string;
         ideal?: string | null;
@@ -637,8 +498,9 @@ const clubIdealsActions = makeActions(
     },
     delete: (id) => deleteAdminClubIdeal(id),
   },
-  true,                       // hasDescription=true so factory uses buildTranslatableCreate/Update
-  ["name", "ideal"],          // translatableFields override: ideal instead of description
+  true,                            // hasDescription=true so factory uses buildTranslatableCreate/Update
+  ["name", "ideal"],               // translatableFields override: ideal instead of description
+  extractClubIdealExtraFields,     // pulls club_type_id + ideal_order from FormData
 );
 
 export const createClubIdealAction = clubIdealsActions.createAction;
