@@ -216,7 +216,14 @@ async function ClubsContent({
                 const clubId = club.club_id ?? club.id;
                 return (
                   <TableRow key={clubId}>
-                    <TableCell className="font-medium">{club.name ?? "—"}</TableCell>
+                    <TableCell className="font-medium">
+                      <Link
+                        href={`/dashboard/clubs/${clubId}`}
+                        className="hover:text-primary hover:underline underline-offset-4"
+                      >
+                        {club.name ?? "—"}
+                      </Link>
+                    </TableCell>
                     <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
                       {club.local_field?.name ?? club.local_field_id ?? "—"}
                     </TableCell>

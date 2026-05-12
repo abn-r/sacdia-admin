@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useFormStatus } from "react-dom";
 import { useTranslations } from "next-intl";
-import { Loader2, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Eye, Loader2, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -63,11 +63,23 @@ export function ClubsTableActionsCell({
   const [deleteItem, setDeleteItem] = useState<ClubActionItem | null>(null);
 
   const editHref = `/dashboard/clubs/${club.id}?tab=edit`;
+  const viewHref = `/dashboard/clubs/${club.id}`;
 
   return (
     <>
       {/* Desktop: icon buttons */}
       <div className="hidden gap-1 md:flex">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-8"
+          asChild
+          title="Ver detalle"
+        >
+          <Link href={viewHref} aria-label={`Ver ${club.name}`}>
+            <Eye className="size-3.5" />
+          </Link>
+        </Button>
         {canEdit && (
           <Button
             variant="ghost"
@@ -104,6 +116,12 @@ export function ClubsTableActionsCell({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <DropdownMenuItem asChild>
+              <Link href={viewHref}>
+                <Eye className="size-4" />
+                Ver detalle
+              </Link>
+            </DropdownMenuItem>
             {canEdit && (
               <DropdownMenuItem asChild>
                 <Link href={editHref}>
