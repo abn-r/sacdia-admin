@@ -88,16 +88,18 @@ function formatDate(iso: string | null): string {
 function StepStatusIcon({
   completed,
   isNext,
+  number,
   t,
 }: {
   completed: boolean;
   isNext: boolean;
+  number: number;
   t: ReturnType<typeof useTranslations<"users">>;
 }) {
   if (completed) {
     return (
       <span
-        aria-label={t("postRegistration.step_aria_complete")}
+        aria-label={t("postRegistration.step_aria_complete", { number })}
         className="flex size-8 items-center justify-center rounded-full bg-success/10"
       >
         <CheckCircle2 className="size-5 text-success" />
@@ -107,7 +109,7 @@ function StepStatusIcon({
   if (isNext) {
     return (
       <span
-        aria-label={t("postRegistration.step_aria_pending")}
+        aria-label={t("postRegistration.step_aria_pending", { number })}
         className="flex size-8 items-center justify-center rounded-full bg-warning/10"
       >
         <Clock className="size-5 text-warning-foreground" />
@@ -116,7 +118,7 @@ function StepStatusIcon({
   }
   return (
     <span
-      aria-label={t("postRegistration.step_aria_optional")}
+      aria-label={t("postRegistration.step_aria_optional", { number })}
       className="flex size-8 items-center justify-center rounded-full bg-muted"
     >
       <Circle className="size-5 text-muted-foreground" />
@@ -329,6 +331,7 @@ export function PostRegistrationTab({
                   <StepStatusIcon
                     completed={status.steps[step.key]}
                     isNext={nextStep === step.key}
+                    number={step.number}
                     t={t}
                   />
                   <span className="text-xs font-medium leading-tight">
@@ -356,6 +359,7 @@ export function PostRegistrationTab({
                   <StepStatusIcon
                     completed={status.steps[step.key]}
                     isNext={nextStep === step.key}
+                    number={step.number}
                     t={t}
                   />
                   <span className="text-xs font-medium text-center leading-tight max-w-[80px]">
