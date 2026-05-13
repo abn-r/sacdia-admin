@@ -18,6 +18,7 @@ import {
 } from "@/lib/api/clubs";
 import { unwrapList, unwrapObject } from "@/lib/api/response";
 import { requireAdminUser } from "@/lib/auth/session";
+import { canManageClubsByRole } from "@/lib/auth/permission-utils";
 
 type ClubsTranslator = Awaited<ReturnType<typeof getTranslations<"clubs">>>;
 
@@ -657,4 +658,111 @@ export async function removeClubSectionMemberAction(
   revalidatePath(`/dashboard/clubs/${clubId}`);
   revalidatePath(buildClubSectionPath(clubId, sectionId));
   return { success: t("success.assignment_removed") };
+}
+
+// ─── Bulk import ──────────────────────────────────────────────────────────────
+
+export type BulkClubRow = {
+  rowNumber: number;
+  name: string;
+  local_field_id: number;
+  district_id: number;
+  church_id: number;
+  description?: string;
+  address?: string;
+  coordinates?: { lat: number; lng: number };
+};
+
+export type BulkClubRowResult = {
+  rowNumber: number;
+  name: string;
+  ok: boolean;
+  message?: string;
+  clubId?: number;
+};
+
+export type BulkClubsImportResult = {
+  results: BulkClubRowResult[];
+  created: number;
+  failed: number;
+  forbidden?: boolean;
+};
+
+export async function bulkCreateClubsAction(
+  rows: BulkClubRow[],
+): Promise<BulkClubsImportResult> {
+  const user = await requireAdminUser();
+  const t = await getTranslations("clubs");
+
+  if (!canManageClubsByRole(user)) {
+    return {
+      results: [],
+      created: 0,
+      failed: 0,
+      forbidden: true,
+    };
+  }
+
+  if (!Array.isArray(rows) || rows.length === 0) {
+    return { results: [], created: 0, failed: 0 };
+  }
+
+  const results: BulkClubRowResult[] = [];
+  let created = 0;
+  let failed = 0;
+
+  for (const row of rows) {
+    if (
+      !row.name ||
+      !Number.isFinite(row.local_field_id) ||
+      !Number.isFinite(row.district_id) ||
+      !Number.isFinite(row.church_id)
+    ) {
+      failed++;
+      results.push({
+        rowNumber: row.rowNumber,
+        name: row.name ?? "",
+        ok: false,
+        message: t("validation.bulk_row_invalid"),
+      });
+      continue;
+    }
+
+    try {
+      const payload = {
+        name: row.name,
+        description: row.description,
+        local_field_id: row.local_field_id,
+        district_id: row.district_id,
+        church_id: row.church_id,
+        address: row.address,
+        coordinates: row.coordinates,
+      };
+      const createdPayload = await createClub(payload);
+      const clubId = normalizeCreatedClubId(createdPayload) ?? undefined;
+      created++;
+      results.push({
+        rowNumber: row.rowNumber,
+        name: row.name,
+        ok: true,
+        clubId,
+      });
+    } catch (error) {
+      failed++;
+      results.push({
+        rowNumber: row.rowNumber,
+        name: row.name,
+        ok: false,
+        message: getActionErrorMessage(error, t("errors.create_club_failed"), {
+          endpointLabel: "/clubs",
+        }),
+      });
+    }
+  }
+
+  if (created > 0) {
+    revalidatePath("/dashboard/clubs");
+  }
+
+  return { results, created, failed };
 }

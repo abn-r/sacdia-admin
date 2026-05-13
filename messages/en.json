@@ -753,7 +753,8 @@
       "ecclesiastical_year_invalid": "Invalid ecclesiastical year",
       "member_not_identified": "The member could not be identified",
       "assignment_not_identified": "The assignment to update could not be identified",
-      "assignment_remove_not_identified": "The assignment to remove could not be identified"
+      "assignment_remove_not_identified": "The assignment to remove could not be identified",
+      "bulk_row_invalid": "Invalid row: missing required fields"
     },
     "success": {
       "section_created": "Section created successfully",
@@ -769,6 +770,14 @@
       "district": "District",
       "church": "Church",
       "ecclesiastical_year": "Ecclesiastical year"
+    },
+    "locationPicker": {
+      "searchLabel": "Search address",
+      "searchPlaceholder": "Type the address or place...",
+      "hint": "Search, click on the map, or drag the pin to set the location.",
+      "noPin": "No location selected",
+      "clear": "Remove pin",
+      "missingApiKey": "NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is not configured."
     },
     "form": {
       "labelName": "Name",
@@ -830,11 +839,57 @@
         "cannotShow": "Cannot display clubs",
         "emptyTitle": "No clubs registered",
         "emptyDescription": "Create the first club to get started.",
-        "emptyCreateButton": "Create club"
+        "emptyCreateButton": "Create club",
+        "createMenuManual": "Create manually",
+        "createMenuBulk": "Import from Excel"
       },
       "new": {
         "title": "Create club",
         "back": "Back"
+      },
+      "import": {
+        "title": "Import clubs from Excel",
+        "description": "Bulk-create clubs from an .xlsx file. Local field, district and church names must match existing catalogs.",
+        "back": "Back",
+        "uploadCardTitle": "Excel file",
+        "uploadCardDescription": "Upload an .xlsx or .csv file with clubs to create.",
+        "downloadTemplate": "Download template",
+        "chooseFile": "Choose file",
+        "reset": "Reset",
+        "expectedHeadersTitle": "Expected columns (free order, required headers):",
+        "matchHint": "Columns local_field, district and church are resolved by exact name against the catalogs.",
+        "previewTitle": "Preview ({total} rows)",
+        "previewSummary": "{valid} valid · {invalid} with errors",
+        "colName": "Name",
+        "colLocalField": "Local field",
+        "colDistrict": "District",
+        "colChurch": "Church",
+        "colStatus": "Status",
+        "colMessage": "Message",
+        "rowValid": "Valid",
+        "rowInvalid": "Error",
+        "rowCreated": "Created",
+        "rowFailed": "Failed",
+        "submitButton": "Import {count} clubs",
+        "resultTitle": "Import result",
+        "resultSummary": "{created} created · {failed} failed",
+        "resultForbidden": "You don't have permission to import clubs",
+        "validation": {
+          "missingName": "Name required",
+          "missingLocalField": "Local field required",
+          "missingDistrict": "District required",
+          "missingChurch": "Church required",
+          "unknownLocalField": "Unknown local field: {value}",
+          "unknownDistrict": "Unknown district: {value}",
+          "unknownChurch": "Unknown church: {value}",
+          "coordinatesInvalid": "Invalid coordinates"
+        },
+        "errors": {
+          "emptyWorkbook": "The file has no sheets",
+          "noRows": "The file has no rows",
+          "missingHeaders": "Missing required columns: {headers}",
+          "parseFailed": "Could not read the file"
+        }
       },
       "detail": {
         "back": "Back",
