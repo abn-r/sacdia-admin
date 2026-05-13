@@ -79,7 +79,7 @@ export default async function AdminMasterHonorsPage({ searchParams }: { searchPa
         title={t("title")}
         description={t("description")}
         entityLabel={t("entityLabel")}
-        emptyIcon={Star}
+        emptyIcon={<Star />}
         includeDescription={true}
         idField="master_honor_id"
         nameField="name"

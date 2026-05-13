@@ -90,7 +90,7 @@ export default async function ChurchesPage({ searchParams }: { searchParams: Sea
         title={t("title")}
         description={t("description")}
         entityLabel={t("entityLabel")}
-        emptyIcon={Building2}
+        emptyIcon={<Building2 />}
         includeDescription={false}
         idField="church_id"
         nameField="name"

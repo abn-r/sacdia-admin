@@ -90,7 +90,7 @@ export default async function LocalFieldsPage({ searchParams }: { searchParams: 
         title={t("title")}
         description={t("description")}
         entityLabel={t("entityLabel")}
-        emptyIcon={Map}
+        emptyIcon={<Map />}
         includeDescription={false}
         idField="local_field_id"
         nameField="name"

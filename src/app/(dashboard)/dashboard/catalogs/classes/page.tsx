@@ -79,7 +79,7 @@ export default async function AdminClassesPage({ searchParams }: { searchParams:
         title={t("title")}
         description={t("description")}
         entityLabel={t("entityLabel")}
-        emptyIcon={GraduationCap}
+        emptyIcon={<GraduationCap />}
         includeDescription={true}
         idField="class_id"
         nameField="name"

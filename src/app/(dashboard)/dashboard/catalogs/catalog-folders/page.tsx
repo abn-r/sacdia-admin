@@ -79,7 +79,7 @@ export default async function AdminFoldersPage({ searchParams }: { searchParams:
         title={t("title")}
         description={t("description")}
         entityLabel={t("entityLabel")}
-        emptyIcon={FolderOpen}
+        emptyIcon={<FolderOpen />}
         includeDescription={true}
         idField="folder_id"
         nameField="name"

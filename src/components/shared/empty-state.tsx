@@ -1,8 +1,9 @@
+import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { type LucideIcon } from "lucide-react";
 
 interface EmptyStateProps {
-  icon: LucideIcon;
+  icon: LucideIcon | ReactNode;
   title: string;
   description?: string;
   children?: React.ReactNode;
@@ -15,8 +16,16 @@ interface EmptyStateProps {
   variant?: "default" | "no-results";
 }
 
+function renderIcon(icon: LucideIcon | ReactNode): ReactNode {
+  if (typeof icon === "function") {
+    const Icon = icon as LucideIcon;
+    return <Icon className="size-6 text-muted-foreground" aria-hidden="true" />;
+  }
+  return icon;
+}
+
 export function EmptyState({
-  icon: Icon,
+  icon,
   title,
   description,
   children,
@@ -30,7 +39,7 @@ export function EmptyState({
           variant === "no-results" ? "bg-muted/40" : "bg-muted",
         )}
       >
-        <Icon className="size-6 text-muted-foreground" aria-hidden="true" />
+        {renderIcon(icon)}
       </div>
       <h3 className="mt-4 text-lg font-semibold">{title}</h3>
       {description && (

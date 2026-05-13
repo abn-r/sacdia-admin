@@ -86,7 +86,7 @@ export default async function DiseasesPage({ searchParams }: { searchParams: Sea
         title={t("title")}
         description={t("description")}
         entityLabel={t("entityLabel")}
-        emptyIcon={Activity}
+        emptyIcon={<Activity />}
         includeDescription={true}
         idField="disease_id"
         nameField="name"

@@ -86,7 +86,7 @@ export default async function MedicinesPage({ searchParams }: { searchParams: Se
         title={t("title")}
         description={t("description")}
         entityLabel={t("entityLabel")}
-        emptyIcon={Pill}
+        emptyIcon={<Pill />}
         includeDescription={true}
         idField="medicine_id"
         nameField="name"

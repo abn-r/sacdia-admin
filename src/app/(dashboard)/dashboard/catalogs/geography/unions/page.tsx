@@ -90,7 +90,7 @@ export default async function UnionsPage({ searchParams }: { searchParams: Searc
         title={t("title")}
         description={t("description")}
         entityLabel={t("entityLabel")}
-        emptyIcon={Network}
+        emptyIcon={<Network />}
         includeDescription={false}
         idField="union_id"
         nameField="name"

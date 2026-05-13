@@ -86,7 +86,7 @@ export default async function ActivityTypesPage({ searchParams }: { searchParams
         title={t("title")}
         description={t("description")}
         entityLabel={t("entityLabel")}
-        emptyIcon={Calendar}
+        emptyIcon={<Calendar />}
         includeDescription={true}
         idField="activity_type_id"
         nameField="name"

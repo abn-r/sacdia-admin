@@ -86,7 +86,7 @@ export default async function CountriesPage({ searchParams }: { searchParams: Se
         title={t("title")}
         description={t("description")}
         entityLabel={t("entityLabel")}
-        emptyIcon={Globe}
+        emptyIcon={<Globe />}
         includeDescription={false}
         idField="country_id"
         nameField="name"

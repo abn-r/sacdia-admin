@@ -86,7 +86,7 @@ export default async function ClubTypesPage({ searchParams }: { searchParams: Se
         title={t("title")}
         description={t("description")}
         entityLabel={t("entityLabel")}
-        emptyIcon={Tent}
+        emptyIcon={<Tent />}
         includeDescription={false}
         idField="club_type_id"
         nameField="name"

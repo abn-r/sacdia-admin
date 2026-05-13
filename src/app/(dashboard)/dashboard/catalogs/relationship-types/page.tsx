@@ -86,7 +86,7 @@ export default async function RelationshipTypesPage({ searchParams }: { searchPa
         title={t("title")}
         description={t("description")}
         entityLabel={t("entityLabel")}
-        emptyIcon={Users}
+        emptyIcon={<Users />}
         includeDescription={true}
         idField="relationship_type_id"
         nameField="name"

@@ -77,7 +77,7 @@ import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import type { PhaseEActionState } from "@/lib/phase-e-catalogs/actions";
 import { useFormStatus } from "react-dom";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import type { LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -92,8 +92,8 @@ export interface PhaseECatalogCrudPageProps {
   description?: string;
   /** Noun used in dialog headers and button labels (singular) */
   entityLabel: string;
-  /** Icon shown in EmptyState */
-  emptyIcon: LucideIcon;
+  /** Icon shown in EmptyState. Must be a pre-rendered ReactNode (e.g. `<Network />`) so it crosses the server→client boundary. */
+  emptyIcon: ReactNode;
   /** Whether this catalog includes a description field */
   includeDescription?: boolean;
   /** Primary key field name on each record */
@@ -239,7 +239,7 @@ export function PhaseECatalogCrudPage({
   title,
   description,
   entityLabel,
-  emptyIcon: EmptyIcon,
+  emptyIcon,
   includeDescription = true,
   idField,
   nameField,
@@ -411,7 +411,7 @@ export function PhaseECatalogCrudPage({
         {/* Table / empty state */}
         {items.length === 0 ? (
           <EmptyState
-            icon={EmptyIcon}
+            icon={emptyIcon}
             title={hasActiveFilters ? t("noResults") : t("emptyTitle", { entity: entityLabel.toLowerCase() })}
             description={
               hasActiveFilters

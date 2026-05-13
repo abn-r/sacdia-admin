@@ -79,7 +79,7 @@ export default async function AdminInventoryCategoriesPage({ searchParams }: { s
         title={t("title")}
         description={t("description")}
         entityLabel={t("entityLabel")}
-        emptyIcon={Package}
+        emptyIcon={<Package />}
         includeDescription={false}
         idField="inventory_category_id"
         nameField="name"

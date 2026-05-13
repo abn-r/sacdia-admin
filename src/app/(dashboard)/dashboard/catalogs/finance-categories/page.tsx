@@ -79,7 +79,7 @@ export default async function AdminFinanceCategoriesPage({ searchParams }: { sea
         title={t("title")}
         description={t("description")}
         entityLabel={t("entityLabel")}
-        emptyIcon={DollarSign}
+        emptyIcon={<DollarSign />}
         includeDescription={false}
         idField="finance_category_id"
         nameField="name"

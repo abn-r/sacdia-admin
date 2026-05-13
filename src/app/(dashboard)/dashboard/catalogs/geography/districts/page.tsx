@@ -92,7 +92,7 @@ export default async function DistrictsPage({ searchParams }: { searchParams: Se
         title={t("title")}
         description={t("description")}
         entityLabel={t("entityLabel")}
-        emptyIcon={MapPin}
+        emptyIcon={<MapPin />}
         includeDescription={false}
         idField="districlub_type_id"
         nameField="name"

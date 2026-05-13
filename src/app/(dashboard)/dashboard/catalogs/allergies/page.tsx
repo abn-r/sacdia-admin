@@ -86,7 +86,7 @@ export default async function AllergiesPage({ searchParams }: { searchParams: Se
         title={t("title")}
         description={t("description")}
         entityLabel={t("entityLabel")}
-        emptyIcon={AlertCircle}
+        emptyIcon={<AlertCircle />}
         includeDescription={true}
         idField="allergy_id"
         nameField="name"
