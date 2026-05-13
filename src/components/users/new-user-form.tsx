@@ -66,33 +66,25 @@ type NewUserTranslator = ReturnType<typeof useTranslations<"users.pages.new">>;
 
 function buildSchema(t: NewUserTranslator) {
   return z.object({
-    name: z
-      .string()
-      .min(1, t("validation.nameRequired"))
-      .max(50),
+    name: z.string().min(1, t("validation.nameRequired")).max(50),
     paternal_last_name: z
       .string()
       .min(1, t("validation.paternalRequired"))
       .max(50),
-    maternal_last_name: z
-      .string()
-      .max(50)
-      .optional(),
+    maternal_last_name: z.string().max(50).optional(),
     email: z
       .string()
       .min(1, t("validation.emailRequired"))
       .max(120)
       .email(t("validation.emailInvalid")),
-    role: z
-      .string()
-      .min(1, t("validation.roleRequired")) as z.ZodType<AdminCreatableRole>,
-    country_id: z.coerce
+    role: z.string().min(1, t("validation.roleRequired")),
+    country_id: z
       .number({ error: t("validation.countryRequired") })
       .min(1, t("validation.countryRequired")),
-    union_id: z.coerce
+    union_id: z
       .number({ error: t("validation.unionRequired") })
       .min(1, t("validation.unionRequired")),
-    local_field_id: z.coerce.number().min(1).optional(),
+    local_field_id: z.number().min(1).optional(),
   });
 }
 
@@ -101,7 +93,7 @@ type FormValues = {
   paternal_last_name: string;
   maternal_last_name?: string;
   email: string;
-  role: AdminCreatableRole;
+  role: string;
   country_id: number;
   union_id: number;
   local_field_id?: number;
@@ -207,7 +199,9 @@ export function NewUserForm({ allowedRoles }: NewUserFormProps) {
         paternal_last_name: values.paternal_last_name,
         maternal_last_name: values.maternal_last_name || undefined,
         email: values.email,
-        role: values.role,
+        // role is validated against `allowedRoles` in the UI and re-checked
+        // server-side; narrow here to satisfy the API client type.
+        role: values.role as AdminCreatableRole,
         country_id: values.country_id,
         union_id: values.union_id,
         local_field_id: values.local_field_id,
