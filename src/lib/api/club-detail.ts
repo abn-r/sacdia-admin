@@ -100,3 +100,39 @@ export async function getClubLeadershipFromClient(
   );
   return unwrap<ClubLeadership>(payload);
 }
+
+export type AuditAction = "CREATED" | "UPDATED" | "DELETED";
+
+export type ClubHistoryActor = {
+  user_id: string;
+  name: string | null;
+  paternal_last_name: string | null;
+};
+
+export type ClubHistoryItem = {
+  audit_log_id: string;
+  entity_type: string;
+  entity_id: string;
+  action: AuditAction;
+  summary: string | null;
+  actor: ClubHistoryActor | null;
+  created_at: string;
+};
+
+export type ClubHistoryPage = {
+  items: ClubHistoryItem[];
+  next_cursor: string | null;
+};
+
+export async function getClubHistoryFromClient(
+  clubId: number,
+  opts: { limit?: number; cursor?: string | null } = {},
+): Promise<ClubHistoryPage> {
+  const params = new URLSearchParams();
+  if (opts.limit) params.set("limit", String(opts.limit));
+  if (opts.cursor) params.set("cursor", opts.cursor);
+  const qs = params.toString();
+  const path = `/clubs/${clubId}/history${qs ? `?${qs}` : ""}`;
+  const payload = await apiRequestFromClient<unknown>(path);
+  return unwrap<ClubHistoryPage>(payload);
+}

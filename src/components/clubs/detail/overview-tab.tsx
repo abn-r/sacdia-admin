@@ -1,6 +1,6 @@
 "use client";
 
-import { History, Loader2, TrendingUp } from "lucide-react";
+import { Loader2, TrendingUp } from "lucide-react";
 import type { Unit } from "@/lib/api/units";
 import type { ClubOverview } from "@/lib/api/club-detail";
 import { CompositionDonut } from "./composition-donut";
@@ -201,27 +201,3 @@ function CardLoader() {
   );
 }
 
-export function ClubHistoryPlaceholder() {
-  return (
-    <section className="rounded-2xl border bg-card p-5 shadow-sm">
-      <header className="mb-4">
-        <h3 className="text-sm font-bold text-foreground">Historial del club</h3>
-        <p className="mt-0.5 text-[11px] text-muted-foreground">
-          Eventos importantes desde la creación
-        </p>
-      </header>
-      <div className="grid place-items-center gap-2 rounded-xl border border-dashed bg-muted/30 px-4 py-8 text-center">
-        <span className="grid size-9 place-items-center rounded-full bg-muted text-muted-foreground">
-          <History className="size-5" />
-        </span>
-        <p className="text-sm font-semibold text-foreground">
-          Aún sin línea de tiempo
-        </p>
-        <p className="max-w-xs text-xs text-muted-foreground">
-          El backend todavía no expone eventos de auditoría (creación, cambios
-          de director, investiduras). Cuando se publique, se renderizará aquí.
-        </p>
-      </div>
-    </section>
-  );
-}
