@@ -19,9 +19,13 @@ import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { DataTableShell } from "@/components/shared/data-table-shell";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import { ClubsTableActionsCell } from "@/components/clubs/clubs-table-actions-cell";
+import { ClubsCreateMenu } from "@/components/clubs/clubs-create-menu";
 import { apiRequest, ApiError } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
-import { hasPermission } from "@/lib/auth/permission-utils";
+import {
+  canManageClubsByRole,
+  hasPermission,
+} from "@/lib/auth/permission-utils";
 import { CLUBS_UPDATE, CLUBS_DELETE } from "@/lib/auth/permissions";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -162,7 +166,8 @@ async function ClubsContent({
 }) {
   const user = await requireAdminUser();
   const t = await getTranslations("clubs.pages.list");
-  const canCreate = hasPermission(user, "clubs:create");
+  const canCreate =
+    hasPermission(user, "clubs:create") && canManageClubsByRole(user);
   const canEdit = hasPermission(user, CLUBS_UPDATE);
   const canDelete = hasPermission(user, CLUBS_DELETE);
   const result = await fetchClubs(query);
@@ -365,21 +370,15 @@ export default async function ClubsPage({
 }) {
   const user = await requireAdminUser();
   const t = await getTranslations("clubs.pages.list");
-  const canCreate = hasPermission(user, "clubs:create");
+  const canCreate =
+    hasPermission(user, "clubs:create") && canManageClubsByRole(user);
   const rawParams = await searchParams;
   const query = parseSearchParams(rawParams);
 
   return (
     <div className="space-y-6">
       <PageHeader title={t("title")} description={t("description")}>
-        {canCreate && (
-          <Button asChild>
-            <Link href="/dashboard/clubs/new">
-              <Plus className="size-4" />
-              {t("createButton")}
-            </Link>
-          </Button>
-        )}
+        {canCreate && <ClubsCreateMenu />}
       </PageHeader>
 
       <Suspense fallback={<ClubsSkeleton />}>

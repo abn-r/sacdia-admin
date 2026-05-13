@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { ClubActionState } from "@/lib/clubs/actions";
+import { LocationPicker } from "@/components/shared/location-picker";
 
 type SelectOption = { label: string; value: number };
 
@@ -36,11 +37,18 @@ interface CreateClubFormProps {
   districts: SelectOption[];
   churches: SelectOption[];
   formAction: (prev: ClubActionState, formData: FormData) => Promise<ClubActionState>;
+  googleMapsApiKey: string;
 }
 
 const initialState: ClubActionState = {};
 
-export function CreateClubForm({ localFields, districts, churches, formAction }: CreateClubFormProps) {
+export function CreateClubForm({
+  localFields,
+  districts,
+  churches,
+  formAction,
+  googleMapsApiKey,
+}: CreateClubFormProps) {
   const [state, action] = useActionState(formAction, initialState);
   const t = useTranslations("clubs");
 
@@ -165,27 +173,8 @@ export function CreateClubForm({ localFields, districts, churches, formAction }:
         <CardHeader>
           <CardTitle className="text-base">{t("form.coordinatesTitle")}</CardTitle>
         </CardHeader>
-        <CardContent className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="coordinates_lat">{t("form.labelLatitude")}</Label>
-            <Input
-              id="coordinates_lat"
-              name="coordinates_lat"
-              type="number"
-              step="any"
-              placeholder="19.4326"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="coordinates_lng">{t("form.labelLongitude")}</Label>
-            <Input
-              id="coordinates_lng"
-              name="coordinates_lng"
-              type="number"
-              step="any"
-              placeholder="-99.1332"
-            />
-          </div>
+        <CardContent>
+          <LocationPicker apiKey={googleMapsApiKey} />
         </CardContent>
       </Card>
 

@@ -266,6 +266,9 @@ export function ClubDetailView({
                 districts={districtOptions}
                 churches={churchOptions}
                 formAction={updateAction}
+                googleMapsApiKey={
+                  process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? ""
+                }
               />
             </section>
           )}

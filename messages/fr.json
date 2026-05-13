@@ -753,7 +753,8 @@
       "ecclesiastical_year_invalid": "Année ecclésiastique non valide",
       "member_not_identified": "Impossible d'identifier le membre",
       "assignment_not_identified": "Impossible d'identifier l'affectation à mettre à jour",
-      "assignment_remove_not_identified": "Impossible d'identifier l'affectation à supprimer"
+      "assignment_remove_not_identified": "Impossible d'identifier l'affectation à supprimer",
+      "bulk_row_invalid": "Ligne invalide : champs obligatoires manquants"
     },
     "success": {
       "section_created": "Section créée avec succès",
@@ -769,6 +770,14 @@
       "district": "District",
       "church": "Église",
       "ecclesiastical_year": "Année ecclésiastique"
+    },
+    "locationPicker": {
+      "searchLabel": "Rechercher une adresse",
+      "searchPlaceholder": "Saisissez l'adresse ou le lieu...",
+      "hint": "Recherchez, cliquez sur la carte ou faites glisser l'épingle pour définir l'emplacement.",
+      "noPin": "Aucun emplacement sélectionné",
+      "clear": "Retirer l'épingle",
+      "missingApiKey": "NEXT_PUBLIC_GOOGLE_MAPS_API_KEY n'est pas configurée."
     },
     "form": {
       "labelName": "Nom",
@@ -830,11 +839,57 @@
         "cannotShow": "Impossible d’afficher les clubs",
         "emptyTitle": "Aucun club enregistré",
         "emptyDescription": "Créez le premier club pour commencer.",
-        "emptyCreateButton": "Créer un club"
+        "emptyCreateButton": "Créer un club",
+        "createMenuManual": "Créer manuellement",
+        "createMenuBulk": "Importer depuis Excel"
       },
       "new": {
         "title": "Créer un club",
         "back": "Retour"
+      },
+      "import": {
+        "title": "Importer des clubs depuis Excel",
+        "description": "Création en masse de clubs à partir d'un fichier .xlsx. Les noms du champ local, du district et de l'église doivent correspondre aux catalogues existants.",
+        "back": "Retour",
+        "uploadCardTitle": "Fichier Excel",
+        "uploadCardDescription": "Téléversez un fichier .xlsx ou .csv avec les clubs à créer.",
+        "downloadTemplate": "Télécharger le modèle",
+        "chooseFile": "Choisir un fichier",
+        "reset": "Réinitialiser",
+        "expectedHeadersTitle": "Colonnes attendues (ordre libre, en-têtes obligatoires) :",
+        "matchHint": "Les colonnes local_field, district et church sont résolues par nom exact contre les catalogues.",
+        "previewTitle": "Aperçu ({total} lignes)",
+        "previewSummary": "{valid} valides · {invalid} avec erreurs",
+        "colName": "Nom",
+        "colLocalField": "Champ local",
+        "colDistrict": "District",
+        "colChurch": "Église",
+        "colStatus": "Statut",
+        "colMessage": "Message",
+        "rowValid": "Valide",
+        "rowInvalid": "Erreur",
+        "rowCreated": "Créé",
+        "rowFailed": "Échec",
+        "submitButton": "Importer {count} clubs",
+        "resultTitle": "Résultat de l'importation",
+        "resultSummary": "{created} créés · {failed} en échec",
+        "resultForbidden": "Vous n'avez pas la permission d'importer des clubs",
+        "validation": {
+          "missingName": "Nom requis",
+          "missingLocalField": "Champ local requis",
+          "missingDistrict": "District requis",
+          "missingChurch": "Église requise",
+          "unknownLocalField": "Champ local inconnu : {value}",
+          "unknownDistrict": "District inconnu : {value}",
+          "unknownChurch": "Église inconnue : {value}",
+          "coordinatesInvalid": "Coordonnées invalides"
+        },
+        "errors": {
+          "emptyWorkbook": "Le fichier ne contient pas de feuilles",
+          "noRows": "Le fichier ne contient pas de lignes",
+          "missingHeaders": "Colonnes obligatoires manquantes : {headers}",
+          "parseFailed": "Impossible de lire le fichier"
+        }
       },
       "detail": {
         "back": "Retour",
