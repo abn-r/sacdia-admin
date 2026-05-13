@@ -75,6 +75,10 @@ import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import type { ResourceActionState } from "@/lib/resources/resource-actions";
+import {
+  createResourceFromUploadedAction,
+  requestUploadUrlAction,
+} from "@/lib/resources/resource-actions";
 import type { ResourceType, ClubTypeTarget, ScopeLevel } from "@/lib/api/resources";
 import { apiRequestFromClient } from "@/lib/api/client";
 import type { Union, LocalField } from "@/lib/api/geography";
@@ -119,6 +123,8 @@ interface ResourcesCrudPageProps {
   categories: CategoryRecord[];
   unions: Union[];
   localFields: LocalField[];
+  allowedScopeLevels: ScopeLevel[];
+  lockedScopeId: number | null;
   canCreate: boolean;
   canEdit: boolean;
   canDelete: boolean;
@@ -384,6 +390,8 @@ function ResourceFormFields({
   categories,
   unions,
   localFields,
+  allowedScopeLevels,
+  lockedScopeId,
   isEdit,
   onFileSizeError,
 }: {
@@ -391,6 +399,8 @@ function ResourceFormFields({
   categories: CategoryRecord[];
   unions: Union[];
   localFields: LocalField[];
+  allowedScopeLevels: ScopeLevel[];
+  lockedScopeId: number | null;
   isEdit?: boolean;
   onFileSizeError?: (error: string | null) => void;
 }) {
@@ -398,9 +408,15 @@ function ResourceFormFields({
   const [resourceType, setResourceType] = useState<ResourceType>(
     (item?.resource_type as ResourceType) ?? "document",
   );
-  const [scopeLevel, setScopeLevel] = useState<ScopeLevel>(
-    (item?.scope_level as ScopeLevel) ?? "system",
-  );
+  const initialScopeLevel: ScopeLevel = (() => {
+    if (item?.scope_level && allowedScopeLevels.includes(item.scope_level as ScopeLevel)) {
+      return item.scope_level as ScopeLevel;
+    }
+    return allowedScopeLevels[0] ?? "system";
+  })();
+  const [scopeLevel, setScopeLevel] = useState<ScopeLevel>(initialScopeLevel);
+  const scopeLevelLocked = allowedScopeLevels.length <= 1;
+  const scopeIdLocked = lockedScopeId !== null;
   const [fileSizeError, setFileSizeError] = useState<string | null>(null);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -433,7 +449,10 @@ function ResourceFormFields({
     image: "JPG, PNG, WebP, GIF — máx. 50 MB",
   };
 
-  const currentScopeIdValue = toPositiveNumber(item?.scope_id)?.toString() ?? "";
+  const currentScopeIdValue =
+    (scopeIdLocked ? String(lockedScopeId) : null) ??
+    toPositiveNumber(item?.scope_id)?.toString() ??
+    "";
 
   return (
     <div className="space-y-4">
@@ -552,21 +571,26 @@ function ResourceFormFields({
             name="scope_level"
             value={scopeLevel}
             onValueChange={(v) => setScopeLevel(v as ScopeLevel)}
-            disabled={isEdit}
+            disabled={isEdit || scopeLevelLocked}
           >
             <SelectTrigger id="res-scope-level">
               <SelectValue placeholder={t("placeholders.selectScope")} />
             </SelectTrigger>
             <SelectContent>
-              {(Object.entries(SCOPE_LEVEL_LABELS) as [ScopeLevel, string][]).map(
-                ([value, label]) => (
+              {(Object.entries(SCOPE_LEVEL_LABELS) as [ScopeLevel, string][])
+                .filter(([value]) => allowedScopeLevels.includes(value))
+                .map(([value, label]) => (
                   <SelectItem key={value} value={value}>
                     {label}
                   </SelectItem>
-                ),
-              )}
+                ))}
             </SelectContent>
           </Select>
+          {scopeLevelLocked && allowedScopeLevels.length > 0 && (
+            <p className="text-xs text-muted-foreground">
+              Tu rol solo permite recursos de alcance {SCOPE_LEVEL_LABELS[allowedScopeLevels[0]]}.
+            </p>
+          )}
         </div>
       </div>
 
@@ -577,7 +601,25 @@ function ResourceFormFields({
             {scopeLevel === "union" ? "Unión" : "Campo local"}{" "}
             <span className="ml-0.5 text-destructive">*</span>
           </Label>
-          {scopeLevel === "union" ? (
+          {scopeIdLocked ? (
+            <>
+              <Input
+                id="res-scope-id-display"
+                value={
+                  scopeLevel === "union"
+                    ? unions.find((u) => u.union_id === lockedScopeId)?.name ?? `#${lockedScopeId}`
+                    : localFields.find((lf) => lf.local_field_id === lockedScopeId)?.name ??
+                      `#${lockedScopeId}`
+                }
+                readOnly
+                disabled
+              />
+              <input type="hidden" name="scope_id" value={String(lockedScopeId)} />
+              <p className="text-xs text-muted-foreground">
+                Tu rol está fijado a este alcance — no puede cambiarse.
+              </p>
+            </>
+          ) : scopeLevel === "union" ? (
             unions.length > 0 ? (
               <Select
                 name="scope_id"
@@ -712,6 +754,8 @@ export function ResourcesCrudPage({
   categories,
   unions,
   localFields,
+  allowedScopeLevels,
+  lockedScopeId,
   canCreate,
   canEdit,
   canDelete,
@@ -731,6 +775,11 @@ export function ResourcesCrudPage({
   const [editItem, setEditItem] = useState<ResourceRecord | null>(null);
   const [deleteItem, setDeleteItem] = useState<ResourceRecord | null>(null);
   const [createFileSizeError, setCreateFileSizeError] = useState<string | null>(null);
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [createSubmitting, setCreateSubmitting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const createFormRef = useRef<HTMLFormElement | null>(null);
+  const uploadXhrRef = useRef<XMLHttpRequest | null>(null);
 
   const [createState, createFormAction] = useActionState<ResourceActionState, FormData>(
     createAction,
@@ -744,6 +793,171 @@ export function ResourcesCrudPage({
     deleteAction,
     {},
   );
+
+  useEffect(() => {
+    return () => {
+      if (uploadXhrRef.current) {
+        uploadXhrRef.current.abort();
+        uploadXhrRef.current = null;
+      }
+    };
+  }, []);
+
+  function uploadToR2(
+    url: string,
+    file: File,
+    contentType: string,
+    onProgress: (pct: number) => void,
+  ): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      uploadXhrRef.current = xhr;
+      xhr.open("PUT", url, true);
+      xhr.setRequestHeader("Content-Type", contentType);
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable && event.total > 0) {
+          onProgress(Math.round((event.loaded / event.total) * 100));
+        }
+      };
+      xhr.onload = () => {
+        uploadXhrRef.current = null;
+        if (xhr.status >= 200 && xhr.status < 300) {
+          resolve();
+        } else {
+          reject(
+            new Error(
+              `R2 PUT respondió ${xhr.status}: ${xhr.statusText || "error"}`,
+            ),
+          );
+        }
+      };
+      xhr.onerror = () => {
+        uploadXhrRef.current = null;
+        reject(new Error("Error de red durante la subida a R2."));
+      };
+      xhr.onabort = () => {
+        uploadXhrRef.current = null;
+        reject(new Error("Subida cancelada."));
+      };
+      xhr.send(file);
+    });
+  }
+
+  async function handleCreateSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (createSubmitting) return;
+    setCreateError(null);
+    setUploadProgress(null);
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const resourceType = String(formData.get("resource_type") ?? "");
+
+    // text + video_link have no file → fallback to the legacy Server Action
+    if (resourceType === "text" || resourceType === "video_link") {
+      createFormAction(formData);
+      return;
+    }
+
+    if (!["document", "audio", "image"].includes(resourceType)) {
+      setCreateError("Tipo de recurso inválido.");
+      return;
+    }
+
+    const file = formData.get("file");
+    if (!(file instanceof File) || file.size === 0) {
+      setCreateError("Selecciona un archivo antes de subir.");
+      return;
+    }
+
+    const title = String(formData.get("title") ?? "").trim();
+    if (!title) {
+      setCreateError("El título es obligatorio.");
+      return;
+    }
+
+    const scopeLevel = String(formData.get("scope_level") ?? "") as ScopeLevel;
+    const scopeIdRaw = String(formData.get("scope_id") ?? "").trim();
+    const scopeId = scopeIdRaw ? Number(scopeIdRaw) : undefined;
+    if (scopeLevel !== "system" && (!scopeId || !Number.isFinite(scopeId))) {
+      setCreateError("Selecciona el alcance específico (unión o campo local).");
+      return;
+    }
+
+    const categoryIdRaw = String(formData.get("category_id") ?? "").trim();
+    const categoryId =
+      categoryIdRaw && categoryIdRaw !== "none" ? Number(categoryIdRaw) : undefined;
+    const description = String(formData.get("description") ?? "").trim() || undefined;
+
+    setCreateSubmitting(true);
+    try {
+      const uploadResp = await requestUploadUrlAction({
+        resource_type: resourceType as "document" | "audio" | "image",
+        scope_level: scopeLevel,
+        scope_id: scopeId,
+        file_name: file.name,
+        mime_type: file.type || "application/octet-stream",
+        file_size: file.size,
+      });
+
+      if (uploadResp.error || !uploadResp.data) {
+        setCreateError(uploadResp.error ?? "No se pudo iniciar la subida.");
+        return;
+      }
+
+      const { upload_url, file_key, required_headers } = uploadResp.data;
+      const contentType = required_headers["Content-Type"] ?? file.type;
+
+      setUploadProgress(0);
+      try {
+        await uploadToR2(upload_url, file, contentType, setUploadProgress);
+      } catch (uploadErr) {
+        setCreateError(
+          uploadErr instanceof Error ? uploadErr.message : "Subida fallida.",
+        );
+        return;
+      }
+
+      // Register the resource — server action will redirect on success.
+      const result = await createResourceFromUploadedAction(
+        {},
+        {
+          title,
+          description,
+          resource_type: resourceType as "document" | "audio" | "image",
+          resource_category_id: categoryId,
+          scope_level: scopeLevel,
+          scope_id: scopeId,
+          file_key,
+          file_name: file.name,
+          file_mime_type: contentType,
+          file_size: file.size,
+        },
+      );
+
+      if (result?.error) {
+        setCreateError(result.error);
+      }
+    } catch (err) {
+      setCreateError(err instanceof Error ? err.message : "Error inesperado.");
+    } finally {
+      setCreateSubmitting(false);
+      setUploadProgress(null);
+    }
+  }
+
+  function handleCreateCancel() {
+    if (uploadXhrRef.current) {
+      uploadXhrRef.current.abort();
+      uploadXhrRef.current = null;
+    }
+    setCreateOpen(false);
+    setCreateFileSizeError(null);
+    setCreateError(null);
+    setUploadProgress(null);
+    setCreateSubmitting(false);
+  }
 
   useEffect(() => {
     latestParamsRef.current = searchParamsString;
@@ -1242,8 +1456,11 @@ export function ResourcesCrudPage({
         <Dialog
           open={createOpen}
           onOpenChange={(open) => {
-            setCreateOpen(open);
-            if (!open) setCreateFileSizeError(null);
+            if (!open) {
+              handleCreateCancel();
+            } else {
+              setCreateOpen(true);
+            }
           }}
         >
           <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
@@ -1253,23 +1470,54 @@ export function ResourcesCrudPage({
                 Completa los campos para registrar el nuevo recurso en el sistema.
               </DialogDescription>
             </DialogHeader>
-            <form action={createFormAction} className="space-y-4">
-              {createOpen && createState.error && (
+            <form
+              ref={createFormRef}
+              onSubmit={handleCreateSubmit}
+              className="space-y-4"
+            >
+              {createOpen && (createError || createState.error) && (
                 <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                  {createState.error}
+                  {createError ?? createState.error}
                 </div>
               )}
               <ResourceFormFields
                 categories={categories}
                 unions={unions}
                 localFields={localFields}
+                allowedScopeLevels={allowedScopeLevels}
+                lockedScopeId={lockedScopeId}
                 onFileSizeError={setCreateFileSizeError}
               />
+              {uploadProgress !== null && (
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span>Subiendo archivo a R2…</span>
+                    <span>{uploadProgress}%</span>
+                  </div>
+                  <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full bg-primary transition-all"
+                      style={{ width: `${uploadProgress}%` }}
+                    />
+                  </div>
+                </div>
+              )}
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setCreateOpen(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleCreateCancel}
+                  disabled={createSubmitting && uploadProgress === null}
+                >
                   Cancelar
                 </Button>
-                <SubmitButton label="Subir recurso" extraDisabled={!!createFileSizeError} />
+                <Button
+                  type="submit"
+                  disabled={createSubmitting || !!createFileSizeError}
+                >
+                  {createSubmitting && <Loader2 className="size-4 animate-spin" />}
+                  Subir recurso
+                </Button>
               </DialogFooter>
             </form>
           </DialogContent>
@@ -1307,6 +1555,8 @@ export function ResourcesCrudPage({
                 categories={categories}
                 unions={unions}
                 localFields={localFields}
+                allowedScopeLevels={allowedScopeLevels}
+                lockedScopeId={lockedScopeId}
                 isEdit
               />
               <DialogFooter>

@@ -127,6 +127,54 @@ export async function createResource(formData: FormData) {
   return apiRequest("/resources", { method: "POST", body: formData });
 }
 
+// Presigned upload flow ----------------------------------------------------
+
+export type UploadUrlRequest = {
+  resource_type: "document" | "audio" | "image";
+  scope_level: ScopeLevel;
+  scope_id?: number;
+  file_name: string;
+  mime_type: string;
+  file_size: number;
+};
+
+export type UploadUrlResponse = {
+  upload_url: string;
+  file_key: string;
+  expires_in: number;
+  required_headers: Record<string, string>;
+};
+
+export type CreateFromUploadedPayload = {
+  title: string;
+  description?: string;
+  resource_type: "document" | "audio" | "image";
+  resource_category_id?: number;
+  club_type_id?: number;
+  scope_level: ScopeLevel;
+  scope_id?: number;
+  file_key: string;
+  file_name: string;
+  file_mime_type: string;
+  file_size: number;
+};
+
+export async function requestResourceUploadUrl(payload: UploadUrlRequest) {
+  return apiRequest<{ status: string; data: UploadUrlResponse }>(
+    "/resources/upload-url",
+    { method: "POST", body: payload },
+  );
+}
+
+export async function createResourceFromUploaded(
+  payload: CreateFromUploadedPayload,
+) {
+  return apiRequest("/resources/from-uploaded", {
+    method: "POST",
+    body: payload,
+  });
+}
+
 export async function updateResource(id: number, payload: Partial<ResourcePayload>) {
   return apiRequest(`/resources/${id}`, { method: "PATCH", body: payload });
 }
