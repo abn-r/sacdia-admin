@@ -1,4 +1,4 @@
-import { ApiError, apiRequest, apiRequestFromClient } from "@/lib/api/client";
+import { ApiError, apiRequest, apiRequestFromClient, API_BASE_URL } from "@/lib/api/client";
 
 export type ScopeType = "ALL" | "UNION" | "LOCAL_FIELD";
 
@@ -925,3 +925,163 @@ export async function updateAdminUserApprovalFromClient(payload: UpdateAdminUser
 
   throw new Error("No se pudo actualizar la aprobación del usuario");
 }
+
+export type AdminCreatableRole =
+  | "user"
+  | "coordinator"
+  | "zone-coordinator"
+  | "general-coordinator"
+  | "pastor"
+  | "assistant-lf"
+  | "director-lf"
+  | "assistant-union"
+  | "director-union"
+  | "assistant-dia"
+  | "director-dia"
+  | "admin";
+
+export type CreateAdminUserPayload = {
+  name: string;
+  paternal_last_name: string;
+  maternal_last_name?: string | null;
+  email: string;
+  role: AdminCreatableRole;
+  country_id?: number | null;
+  union_id?: number | null;
+  local_field_id?: number | null;
+};
+
+export type CreateAdminUserResponse = {
+  user_id: string;
+  email: string;
+  invite_email_sent: boolean;
+};
+
+function buildCreateUserBody(payload: CreateAdminUserPayload): Record<string, unknown> {
+  const body: Record<string, unknown> = {
+    name: payload.name.trim(),
+    paternal_last_name: payload.paternal_last_name.trim(),
+    email: payload.email.trim().toLowerCase(),
+    role: payload.role,
+  };
+
+  const maternal = payload.maternal_last_name?.trim();
+  if (maternal) body.maternal_last_name = maternal;
+  if (typeof payload.country_id === "number") body.country_id = payload.country_id;
+  if (typeof payload.union_id === "number") body.union_id = payload.union_id;
+  if (typeof payload.local_field_id === "number") body.local_field_id = payload.local_field_id;
+
+  return body;
+}
+
+function unwrapCreateResponse(payload: unknown): CreateAdminUserResponse {
+  const obj = payload as { status?: string; data?: CreateAdminUserResponse } | null;
+  if (obj && obj.data && typeof obj.data === "object") {
+    return obj.data;
+  }
+  return payload as CreateAdminUserResponse;
+}
+
+export async function createAdminUser(
+  payload: CreateAdminUserPayload,
+): Promise<CreateAdminUserResponse> {
+  const raw = await apiRequest<unknown>("/admin/users", {
+    method: "POST",
+    body: buildCreateUserBody(payload),
+  });
+  return unwrapCreateResponse(raw);
+}
+
+export async function createAdminUserFromClient(
+  payload: CreateAdminUserPayload,
+): Promise<CreateAdminUserResponse> {
+  const raw = await apiRequestFromClient<unknown>("/admin/users", {
+    method: "POST",
+    body: buildCreateUserBody(payload),
+  });
+  return unwrapCreateResponse(raw);
+}
+
+// ─── Bulk upload ───────────────────────────────────────────────────────────────
+
+export type BulkUserRowResult = {
+  row: number;
+  email: string | null;
+  status: "success" | "error";
+  user_id?: string;
+  invite_email_sent?: boolean;
+  error_code?: string;
+  error_message?: string;
+};
+
+export type BulkUsersResult = {
+  total: number;
+  succeeded: number;
+  failed: number;
+  results: BulkUserRowResult[];
+};
+
+function unwrapBulkResponse(payload: unknown): BulkUsersResult {
+  const obj = payload as
+    | { status?: string; data?: BulkUsersResult }
+    | BulkUsersResult
+    | null;
+
+  if (obj && typeof obj === "object" && "data" in obj && obj.data && typeof obj.data === "object") {
+    return obj.data as BulkUsersResult;
+  }
+
+  return payload as BulkUsersResult;
+}
+
+/**
+ * Uploads an xlsx/csv file for bulk user creation.
+ * Uses FormData — axios sets the correct multipart Content-Type automatically.
+ */
+export async function bulkUploadAdminUsersFromClient(
+  file: File,
+): Promise<BulkUsersResult> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const raw = await apiRequestFromClient<unknown>("/admin/users/bulk", {
+    method: "POST",
+    body: formData,
+  });
+
+  return unwrapBulkResponse(raw);
+}
+
+/**
+ * Fetches the xlsx template file for bulk uploads.
+ * Returns a Blob — the caller triggers the browser download.
+ * Must be called from the browser only.
+ */
+export async function downloadAdminUsersBulkTemplate(): Promise<Blob> {
+  // Fetch the token from the httpOnly relay first
+  let token: string | null = null;
+  try {
+    const res = await fetch("/api/auth/token");
+    if (res.ok) {
+      const json = (await res.json()) as { token: string | null };
+      token = json.token;
+    }
+  } catch {
+    // Proceed without token — backend will 401
+  }
+
+  const url = `${API_BASE_URL}/admin/users/bulk-template`;
+  const headers: HeadersInit = { Accept: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, */*" };
+  if (token) {
+    (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
+  }
+
+  const response = await fetch(url, { headers });
+
+  if (!response.ok) {
+    throw new Error(`Template download failed: ${response.status}`);
+  }
+
+  return response.blob();
+}
+

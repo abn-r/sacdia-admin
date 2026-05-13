@@ -5,12 +5,17 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import {
   createResource,
+  createResourceFromUploaded,
   deleteResource,
+  requestResourceUploadUrl,
   updateResource,
+  type CreateFromUploadedPayload,
   type ResourcePayload,
   type ResourceType,
   type ClubTypeTarget,
   type ScopeLevel,
+  type UploadUrlRequest,
+  type UploadUrlResponse,
 } from "@/lib/api/resources";
 import { hasAnyPermission } from "@/lib/auth/permission-utils";
 import {
@@ -149,6 +154,56 @@ export async function createResourceAction(
     await createResource(outFormData);
   } catch (error) {
     return { error: error instanceof Error ? error.message : t("errors.create_failed") };
+  }
+  revalidatePath(RESOURCES_PATH);
+  redirect(RESOURCES_PATH);
+}
+
+/**
+ * Server Action wrapper that requests a presigned PUT URL from the backend.
+ * Called from the client BEFORE the browser uploads to R2. Returns null on
+ * permission/validation errors so the client can surface them.
+ */
+export async function requestUploadUrlAction(
+  payload: UploadUrlRequest,
+): Promise<{ data?: UploadUrlResponse; error?: string }> {
+  const user = await requireAdminUser();
+  const t = await getTranslations("resources");
+  if (!hasAnyPermission(user, [RESOURCES_CREATE])) {
+    return { error: t("errors.create_permission_denied") };
+  }
+  try {
+    const response = await requestResourceUploadUrl(payload);
+    return { data: response.data };
+  } catch (error) {
+    return {
+      error:
+        error instanceof Error
+          ? error.message
+          : t("errors.create_failed"),
+    };
+  }
+}
+
+/**
+ * Server Action that registers a resource AFTER the client uploaded the file
+ * directly to R2. Backend HEAD-checks the key before persisting.
+ */
+export async function createResourceFromUploadedAction(
+  _: ResourceActionState,
+  payload: CreateFromUploadedPayload,
+): Promise<ResourceActionState> {
+  const user = await requireAdminUser();
+  const t = await getTranslations("resources");
+  if (!hasAnyPermission(user, [RESOURCES_CREATE])) {
+    return { error: t("errors.create_permission_denied") };
+  }
+  try {
+    await createResourceFromUploaded(payload);
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : t("errors.create_failed"),
+    };
   }
   revalidatePath(RESOURCES_PATH);
   redirect(RESOURCES_PATH);

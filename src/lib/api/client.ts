@@ -57,19 +57,52 @@ function toRecord(headers?: HeadersInit) {
   return headers;
 }
 
+function flattenValidationMessages(value: unknown): string[] {
+  if (value == null) return [];
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    return trimmed ? [trimmed] : [];
+  }
+  if (Array.isArray(value)) {
+    return value.flatMap(flattenValidationMessages);
+  }
+  if (typeof value === "object") {
+    const node = value as {
+      constraints?: Record<string, unknown>;
+      children?: unknown;
+      message?: unknown;
+      property?: unknown;
+    };
+    const out: string[] = [];
+    if (node.constraints && typeof node.constraints === "object") {
+      for (const v of Object.values(node.constraints)) {
+        if (typeof v === "string" && v.trim()) out.push(v.trim());
+      }
+    }
+    if (node.children) out.push(...flattenValidationMessages(node.children));
+    if (typeof node.message === "string" && node.message.trim()) {
+      out.push(node.message.trim());
+    }
+    return out;
+  }
+  return [];
+}
+
 function extractMessage(payload: unknown, status: number): string {
   if (typeof payload === "string" && payload.trim().length > 0) {
     return payload.trim();
   }
 
-  if (payload && typeof payload === "object" && "message" in payload) {
-    const message = (payload as { message?: unknown }).message;
-    if (typeof message === "string") {
-      return message;
-    }
+  if (payload && typeof payload === "object") {
+    const obj = payload as { message?: unknown; errors?: unknown };
+    const fromMessage = flattenValidationMessages(obj.message);
+    if (fromMessage.length > 0) return fromMessage.join(", ");
 
-    if (Array.isArray(message)) {
-      return message.map(String).join(", ");
+    const fromErrors = flattenValidationMessages(obj.errors);
+    if (fromErrors.length > 0) return fromErrors.join(", ");
+
+    if (typeof obj.message === "string" && obj.message.trim()) {
+      return obj.message.trim();
     }
   }
 

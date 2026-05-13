@@ -906,7 +906,8 @@
       "description": "Assignments in the last 100 users",
       "noRolesFound": "No assigned roles found in the sample.",
       "basedOn": "Based on the last {count} registered users",
-      "userCount": "{count, plural, one {{count} user} other {{count} users}} — {percentage}%"
+      "userCount": "{count, plural, one {{count} user} other {{count} users}} — {percentage}%",
+      "noRoleChip": "No role assigned: {count, plural, one {{count} user} other {{count} users}} ({percentage}%)"
     },
     "quickLinks": {
       "title": "Quick links",
@@ -2770,7 +2771,64 @@
         "description": "System user management.",
         "cannotShow": "Cannot display users",
         "emptyTitle": "No users found",
-        "emptyDescription": "Try adjusting the search filters."
+        "emptyDescription": "Try adjusting the search filters.",
+        "actions": {
+          "addUser": "Add user",
+          "bulkUpload": "Bulk upload"
+        }
+      },
+      "new": {
+        "title": "Add user",
+        "description": "Create a new user and send them an invitation by email.",
+        "breadcrumb": "Add user",
+        "fields": {
+          "name": "First name",
+          "paternal_last_name": "Paternal last name",
+          "maternal_last_name": "Maternal last name",
+          "email": "Email address",
+          "role": "Role",
+          "country": "Country",
+          "union": "Union",
+          "local_field": "Local field"
+        },
+        "placeholders": {
+          "name": "E.g. María",
+          "paternal_last_name": "E.g. González",
+          "maternal_last_name": "E.g. Pérez",
+          "email": "user@example.com",
+          "role": "Select a role",
+          "country": "Select a country",
+          "union": "Select a union",
+          "local_field": "Select a local field"
+        },
+        "help": {
+          "maternal_last_name": "Optional. Leave blank if not applicable.",
+          "role": "You can only assign roles equal to or lower than yours.",
+          "union": "First select a country.",
+          "local_field": "First select a union."
+        },
+        "actions": {
+          "submit": "Create user",
+          "cancel": "Cancel",
+          "submitting": "Creating…"
+        },
+        "toast": {
+          "success": "User created. Invitation sent to {email}.",
+          "inviteNotSent": "User created, but the invitation email could not be sent.",
+          "emailExists": "A user with that email already exists.",
+          "forbidden": "You do not have permission to assign that role.",
+          "validationFailed": "Please review the form fields.",
+          "generic": "Could not create the user. Please try again."
+        },
+        "validation": {
+          "nameRequired": "First name is required.",
+          "paternalRequired": "Paternal last name is required.",
+          "emailRequired": "Email is required.",
+          "emailInvalid": "Invalid email format.",
+          "roleRequired": "Please select a role.",
+          "countryRequired": "Please select a country.",
+          "unionRequired": "Please select a union."
+        }
       },
       "detail": {
         "title": "User detail",
@@ -2784,6 +2842,70 @@
         "tabSecurity": "Security",
         "tabSessions": "Sessions",
         "postRegistrationUnavailable": "Could not retrieve post-registration status. The user may not have started the process or there may be a connectivity error."
+      },
+      "bulk": {
+        "title": "Bulk user upload",
+        "description": "Create multiple users at once by uploading an Excel or CSV file with the required data.",
+        "breadcrumb": "Bulk upload",
+        "downloadTemplate": "Download template",
+        "dropZone": {
+          "title": "Drag and drop your file here",
+          "subtitle": "or click to browse from your computer",
+          "browse": "Browse file",
+          "accept": "Accepted formats: .xlsx, .csv — Max. 5 MB and 500 rows"
+        },
+        "preview": {
+          "title": "File preview",
+          "subtitle": "Remaining rows will be processed on the server.",
+          "showingRowsOf": "Showing {shown} of {total} rows",
+          "moreColumns": "more columns",
+          "headersOk": "Valid headers",
+          "headersInvalid": "The file is missing the required 'email' column.",
+          "emptyFile": "The file contains no data rows.",
+          "tooManyRows": "The file exceeds the maximum of 500 rows."
+        },
+        "actions": {
+          "submit": "Process upload",
+          "cancel": "Cancel",
+          "uploadAnother": "Upload another file",
+          "filterAll": "All",
+          "filterSuccess": "Successful",
+          "filterError": "With errors"
+        },
+        "results": {
+          "totalLabel": "Total",
+          "succeededLabel": "Successful",
+          "failedLabel": "Failed",
+          "inviteSent": "Invitation sent",
+          "inviteNotSent": "User created without invitation",
+          "createdHeader": "Created",
+          "emailHeader": "Email",
+          "rowHeader": "Row",
+          "detailHeader": "Detail",
+          "statusHeader": "Status"
+        },
+        "statusBadges": {
+          "success": "Created",
+          "error": "Error"
+        },
+        "errorCodes": {
+          "validationFailed": "Invalid data",
+          "duplicateInFile": "Duplicate email in file",
+          "emailAlreadyInUse": "Email already registered",
+          "invalidRole": "Invalid role",
+          "forbiddenRoleForActor": "You cannot create that role",
+          "internalError": "Internal error"
+        },
+        "toast": {
+          "success": "All users were created successfully.",
+          "partialSuccess": "Upload completed with some errors. Review the results.",
+          "allFailed": "No users could be created. Check the file data.",
+          "fileTooLarge": "File too large (max. 5 MB).",
+          "fileTypeInvalid": "Unsupported file format. Use .xlsx or .csv.",
+          "fileEmpty": "The file contains no data.",
+          "tooManyRows": "The file exceeds the 500-row limit.",
+          "generic": "An error occurred while processing the upload. Please try again."
+        }
       }
     }
   },
