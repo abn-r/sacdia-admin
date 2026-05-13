@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 export type ClubTabId =
@@ -25,10 +26,12 @@ interface TabsNavProps {
 }
 
 export function ClubTabsNav({ tabs, value, onChange, className }: TabsNavProps) {
+  const t = useTranslations("clubs.pages.detail.tabs");
+
   return (
     <div
       role="tablist"
-      aria-label="Secciones del detalle del club"
+      aria-label={t("ariaLabel")}
       className={cn(
         "inline-flex flex-wrap gap-1 rounded-xl border border-border bg-muted p-1",
         className,

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EditClubForm } from "@/components/clubs/edit-club-form";
 import { ClubSectionsPanel } from "@/components/clubs/club-sections-panel";
@@ -55,6 +56,7 @@ export function ClubDetailView({
   updateAction,
   deleteAction,
 }: ClubDetailViewProps) {
+  const t = useTranslations("clubs.pages.detail");
   const router = useRouter();
   const searchParams = useSearchParams();
   const [tab, setTab] = useState<ClubTabId>(defaultTab);
@@ -102,15 +104,15 @@ export function ClubDetailView({
 
   const tabs = useMemo(
     () => [
-      { id: "overview" as const, label: "Resumen" },
-      { id: "sections" as const, label: "Secciones", count: sections.length },
-      { id: "units" as const, label: "Unidades", count: activeUnits.length },
-      { id: "membership" as const, label: "Solicitudes" },
-      { id: "info" as const, label: "Información" },
-      { id: "history" as const, label: "Historial" },
-      { id: "edit" as const, label: "Editar" },
+      { id: "overview" as const, label: t("tabs.overview") },
+      { id: "sections" as const, label: t("tabs.sections"), count: sections.length },
+      { id: "units" as const, label: t("tabs.units"), count: activeUnits.length },
+      { id: "membership" as const, label: t("tabs.membership") },
+      { id: "info" as const, label: t("tabs.info") },
+      { id: "history" as const, label: t("tabs.history") },
+      { id: "edit" as const, label: t("tabs.edit") },
     ],
-    [sections.length, activeUnits.length],
+    [t, sections.length, activeUnits.length],
   );
 
   function setActiveTab(next: ClubTabId) {
@@ -124,9 +126,7 @@ export function ClubDetailView({
   function handleDelete() {
     if (typeof window === "undefined") return;
     if (
-      !window.confirm(
-        "¿Eliminar este club? Esta acción lo desactivará en el sistema.",
-      )
+      !window.confirm(t("view.confirmDelete"))
     ) {
       return;
     }
@@ -139,10 +139,10 @@ export function ClubDetailView({
     <div className="space-y-5">
       <div className="space-y-1">
         <p className="text-[11px] font-semibold uppercase tracking-widest text-primary">
-          Detalle de club
+          {t("view.pageLabel")}
         </p>
         <h2 className="text-2xl font-semibold leading-tight tracking-tight text-foreground">
-          Operación completa del club
+          {t("view.pageTitle")}
         </h2>
       </div>
 
@@ -177,10 +177,10 @@ export function ClubDetailView({
             <section className="rounded-2xl border bg-card p-5 shadow-sm">
               <header className="mb-4">
                 <h3 className="text-sm font-bold text-foreground">
-                  Secciones del club
+                  {t("viewTabSections.title")}
                 </h3>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  Tres rangos por edad — cada uno con sus propias unidades.
+                  {t("viewTabSections.subtitle")}
                 </p>
               </header>
               <ClubSectionsPanel clubId={clubId} sections={rawSections} />
@@ -200,10 +200,10 @@ export function ClubDetailView({
             <section className="rounded-2xl border bg-card p-5 shadow-sm">
               <header className="mb-4">
                 <h3 className="text-sm font-bold text-foreground">
-                  Solicitudes de membresía
+                  {t("viewTabMembership.title")}
                 </h3>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  Aprueba o rechaza nuevos miembros por sección.
+                  {t("viewTabMembership.subtitle")}
                 </p>
               </header>
               <PendingMembersPanel sections={rawSections} />
@@ -224,10 +224,10 @@ export function ClubDetailView({
             <section className="rounded-2xl border bg-card p-5 shadow-sm">
               <header className="mb-4">
                 <h3 className="text-sm font-bold text-foreground">
-                  Editar información del club
+                  {t("viewTabEdit.title")}
                 </h3>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  Actualiza la identidad, ubicación y datos generales.
+                  {t("viewTabEdit.subtitle")}
                 </p>
               </header>
               <EditClubForm
@@ -267,4 +267,3 @@ export function ClubDetailLoadingSkeleton() {
     </div>
   );
 }
-

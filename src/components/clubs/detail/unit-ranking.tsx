@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import type { Unit } from "@/lib/api/units";
 import {
@@ -24,11 +25,12 @@ export function UnitRanking({
   sectionLookup,
   limit,
 }: UnitRankingProps) {
+  const t = useTranslations("clubs.pages.detail.unitRanking");
+
   if (units.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
-        Aún no hay unidades para rankear. Crea la primera para ver este panel
-        poblarse.
+        {t("empty")}
       </p>
     );
   }
@@ -85,7 +87,7 @@ export function UnitRanking({
                   </span>
                 </div>
                 <div className="truncate text-xs text-muted-foreground">
-                  Líder · {getUnitLeaderName(row.unit)}
+                  {t("leaderPrefix")} · {getUnitLeaderName(row.unit)}
                 </div>
               </div>
             </div>

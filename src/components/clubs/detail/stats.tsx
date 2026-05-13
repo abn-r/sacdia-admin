@@ -1,6 +1,7 @@
 "use client";
 
 import { Award, ClipboardList, Layers, Users } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import {
   getTotalCapacity,
@@ -20,6 +21,8 @@ export function ClubDetailStats({
   unitsCount,
   pendingRequests,
 }: StatsProps) {
+  const t = useTranslations("clubs.pages.detail.stats");
+
   const members = getTotalMembers(sections);
   const capacity = getTotalCapacity(sections);
   const occupancyPct = pctOf(members, capacity);
@@ -29,7 +32,7 @@ export function ClubDetailStats({
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       <StatCard
         icon={<Users className="size-3 " />}
-        label="Miembros"
+        label={t("membersLabel")}
       >
         <div className="text-2xl font-bold tracking-tight text-foreground">
           {members}
@@ -41,8 +44,8 @@ export function ClubDetailStats({
         </div>
         <p className="mt-0.5 text-xs text-muted-foreground">
           {capacity != null
-            ? `${occupancyPct}% del cupo objetivo`
-            : "Sin meta de cupo definida"}
+            ? t("membersOccupancy", { pct: occupancyPct })
+            : t("membersNoTarget")}
         </p>
         {capacity != null && (
           <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted">
@@ -56,7 +59,7 @@ export function ClubDetailStats({
 
       <StatCard
         icon={<Layers className="size-3" />}
-        label="Secciones activas"
+        label={t("sectionsLabel")}
       >
         <div className="text-2xl font-bold tracking-tight text-foreground">
           {activeSections}
@@ -66,8 +69,8 @@ export function ClubDetailStats({
         </div>
         <p className="mt-0.5 text-xs text-muted-foreground">
           {activeSections === 3
-            ? "Las tres secciones operando"
-            : `${3 - activeSections} sin activar`}
+            ? t("sectionsAll")
+            : t("sectionsInactive", { count: 3 - activeSections })}
         </p>
         <div className="mt-3 flex gap-1">
           {sections.map((s) => (
@@ -77,7 +80,7 @@ export function ClubDetailStats({
                 "h-1.5 flex-1 rounded-sm",
                 s.active ? s.meta.barBg : "bg-muted",
               )}
-              title={`${s.label} · ${s.active ? "activa" : "inactiva"}`}
+              title={`${s.label} · ${s.active ? t("sectionBarActive") : t("sectionBarInactive")}`}
             />
           ))}
         </div>
@@ -85,31 +88,31 @@ export function ClubDetailStats({
 
       <StatCard
         icon={<Award className="size-3" />}
-        label="Unidades"
+        label={t("unitsLabel")}
       >
         <div className="text-2xl font-bold tracking-tight text-foreground">
           {unitsCount}
         </div>
         <p className="mt-0.5 text-xs text-muted-foreground">
           {unitsCount === 0
-            ? "Aún sin unidades creadas"
-            : `Promedio ${Math.round(members / Math.max(1, unitsCount))} miembros/unidad`}
+            ? t("unitsEmpty")
+            : t("unitsAvg", { avg: Math.round(members / Math.max(1, unitsCount)) })}
         </p>
       </StatCard>
 
       <StatCard
         icon={<ClipboardList className="size-3" />}
-        label="Solicitudes pendientes"
+        label={t("requestsLabel")}
       >
         <div className="text-2xl font-bold tracking-tight text-foreground">
           {pendingRequests ?? "—"}
         </div>
         <p className="mt-0.5 text-xs text-muted-foreground">
           {pendingRequests == null
-            ? "Sin datos cargados"
+            ? t("requestsNoData")
             : pendingRequests === 0
-              ? "Bandeja al día"
-              : "Esperan revisión del coordinador"}
+              ? t("requestsEmpty")
+              : t("requestsPending")}
         </p>
       </StatCard>
     </div>

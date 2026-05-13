@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ArrowLeft, Building2, Edit3, MapPin, MoreHorizontal, Users } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -29,6 +30,8 @@ export function ClubDetailHero({
   onEdit,
   onDelete,
 }: HeroProps) {
+  const t = useTranslations("clubs.pages.detail.hero");
+
   const name = club.name ?? "Club";
   const initials = getClubInitials(name);
   const code = getClubCode(club);
@@ -72,11 +75,11 @@ export function ClubDetailHero({
           </div>
           {(club.description || foundedYear) && (
             <p className="text-sm text-muted-foreground">
-              {club.description ?? "Sin descripción"}
+              {club.description ?? t("noDescription")}
               {foundedYear && (
                 <>
                   {" "}
-                  · fundado en <span className="font-medium">{foundedYear}</span>
+                  · {t("foundedIn")} <span className="font-medium">{foundedYear}</span>
                 </>
               )}
             </p>
@@ -99,7 +102,7 @@ export function ClubDetailHero({
             )}
             <span aria-hidden className="size-1 rounded-full bg-border" />
             <span className="inline-flex items-center gap-1.5">
-              <Users className="size-3.5" /> {total} miembros
+              <Users className="size-3.5" /> {t("members", { count: total })}
             </span>
           </div>
 
@@ -112,7 +115,7 @@ export function ClubDetailHero({
                   isActive ? "bg-success" : "bg-muted-foreground",
                 )}
               />
-              {isActive ? "Activo" : "Inactivo"}
+              {isActive ? t("statusActive") : t("statusInactive")}
             </Badge>
             {sections.map((s) => (
               <span
@@ -125,7 +128,7 @@ export function ClubDetailHero({
                 {s.label} · {s.members}
               </span>
             ))}
-            <Badge variant="outline">{unitsCount} unidades</Badge>
+            <Badge variant="outline">{t("units", { count: unitsCount })}</Badge>
           </div>
         </div>
 
@@ -133,22 +136,22 @@ export function ClubDetailHero({
           <div className="flex gap-2">
             <Button variant="outline" size="sm" asChild>
               <Link href="/dashboard/clubs">
-                <ArrowLeft className="size-3.5" /> Volver
+                <ArrowLeft className="size-3.5" /> {t("backButton")}
               </Link>
             </Button>
-            <Button variant="outline" size="icon-sm" aria-label="Más acciones">
+            <Button variant="outline" size="icon-sm" aria-label={t("moreActions")}>
               <MoreHorizontal className="size-4" />
             </Button>
           </div>
           <div className="flex gap-2">
             {onDelete && (
               <Button variant="destructive" size="sm" onClick={onDelete}>
-                Eliminar
+                {t("deleteButton")}
               </Button>
             )}
             {onEdit && (
               <Button size="sm" onClick={onEdit}>
-                <Edit3 className="size-3.5" /> Editar club
+                <Edit3 className="size-3.5" /> {t("editButton")}
               </Button>
             )}
           </div>

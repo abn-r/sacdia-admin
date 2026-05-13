@@ -1,6 +1,7 @@
 "use client";
 
 import { Edit3, MapPin } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
   getClubCode,
@@ -19,6 +20,8 @@ interface ClubInfoPanelProps {
 }
 
 export function ClubInfoPanel({ club, sections, onEdit }: ClubInfoPanelProps) {
+  const t = useTranslations("clubs.pages.detail.infoPanel");
+
   const code = getClubCode(club);
   const coords = getClubCoordinates(club);
   const { localField, district, church } = getClubLocations(club);
@@ -32,45 +35,45 @@ export function ClubInfoPanel({ club, sections, onEdit }: ClubInfoPanelProps) {
       <header className="mb-4 flex flex-wrap items-start justify-between gap-2">
         <div>
           <h3 className="text-sm font-bold text-foreground">
-            Información general &amp; ubicación
+            {t("title")}
           </h3>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Datos editables · alcance geográfico
+            {t("subtitle")}
           </p>
         </div>
         {onEdit && (
           <Button variant="outline" size="sm" onClick={onEdit}>
-            <Edit3 className="size-3.5" /> Editar
+            <Edit3 className="size-3.5" /> {t("editButton")}
           </Button>
         )}
       </header>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <Block label="Identidad">
+        <Block label={t("blockIdentity")}>
           <div className="text-sm font-semibold text-foreground">
             {club.name ?? "—"}
           </div>
           <div className="mt-0.5 truncate text-xs text-muted-foreground">
-            {club.description ?? "Sin descripción"}
+            {club.description ?? t("noDescription")}
           </div>
           <div className="mt-1 font-mono text-[11px] text-muted-foreground">
             {code}
           </div>
         </Block>
 
-        <Block label="Ubicación pastoral">
+        <Block label={t("blockLocation")}>
           <div className="text-sm text-foreground">{localField ?? "—"}</div>
           <div className="mt-0.5 text-xs text-muted-foreground">
-            {district ?? "Distrito sin definir"}
+            {district ?? t("districtUndefined")}
           </div>
           <div className="text-xs text-muted-foreground">
-            {church ?? "Iglesia sin definir"}
+            {church ?? t("churchUndefined")}
           </div>
         </Block>
 
-        <Block label="Dirección">
+        <Block label={t("blockAddress")}>
           <div className="text-sm text-foreground">
-            {address ?? "Dirección sin registrar"}
+            {address ?? t("addressEmpty")}
           </div>
           {coords && (
             <div className="mt-1 font-mono text-[11px] text-muted-foreground">
@@ -79,7 +82,7 @@ export function ClubInfoPanel({ club, sections, onEdit }: ClubInfoPanelProps) {
           )}
         </Block>
 
-        <Block label="Capacidad">
+        <Block label={t("blockCapacity")}>
           <div className="text-lg font-extrabold tracking-tight text-foreground">
             {members}
             {capacity != null ? (
@@ -90,8 +93,8 @@ export function ClubInfoPanel({ club, sections, onEdit }: ClubInfoPanelProps) {
           </div>
           <div className="mt-0.5 text-xs text-muted-foreground">
             {capacity != null
-              ? `${occupancy}% del cupo objetivo`
-              : "Sin meta de almas definida"}
+              ? t("capacityOccupancy", { pct: occupancy })
+              : t("capacityNoTarget")}
           </div>
           {capacity != null && (
             <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
@@ -117,7 +120,7 @@ export function ClubInfoPanel({ club, sections, onEdit }: ClubInfoPanelProps) {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <MapPin className="size-3.5" /> Ver en Google Maps
+              <MapPin className="size-3.5" /> {t("mapsLink")}
             </a>
           )}
         </div>

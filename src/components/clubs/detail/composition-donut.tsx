@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import type { SectionView } from "./types";
 
@@ -12,6 +13,8 @@ const RADIUS = 62;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 export function CompositionDonut({ sections, total }: CompositionDonutProps) {
+  const t = useTranslations("clubs.pages.detail.donut");
+
   const safeTotal = Math.max(total, 1);
   let offset = 0;
 
@@ -73,7 +76,7 @@ export function CompositionDonut({ sections, total }: CompositionDonutProps) {
               {total}
             </div>
             <div className="mt-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-              Miembros
+              {t("centerLabel")}
             </div>
           </div>
         </div>
@@ -82,7 +85,7 @@ export function CompositionDonut({ sections, total }: CompositionDonutProps) {
       <ul className="grid gap-2">
         {sections.length === 0 && (
           <li className="text-sm text-muted-foreground">
-            Aún no hay secciones registradas.
+            {t("noSections")}
           </li>
         )}
         {sections.map((s) => {

@@ -1,6 +1,7 @@
 "use client";
 
 import { Activity, BarChart3, History, TrendingUp, Trophy } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { Unit } from "@/lib/api/units";
 import { CompositionDonut } from "./composition-donut";
 import { UnitRanking } from "./unit-ranking";
@@ -20,17 +21,18 @@ export function ClubOverviewTab({
   sectionLookup,
   pendingRequests,
 }: OverviewTabProps) {
+  const t = useTranslations("clubs.pages.detail.overview");
   const total = getTotalMembers(sections);
 
   return (
     <div className="grid grid-cols-1 gap-3 lg:grid-cols-12">
       <PanelCard
         className="lg:col-span-7"
-        title="Composición del club"
-        subtitle="Distribución de miembros entre las tres secciones"
+        title={t("compositionTitle")}
+        subtitle={t("compositionSubtitle")}
         right={
           <span className="text-[11px] text-muted-foreground">
-            Total · {total}
+            {t("compositionTotal", { total })}
           </span>
         }
       >
@@ -39,19 +41,19 @@ export function ClubOverviewTab({
 
       <PanelCard
         className="lg:col-span-5"
-        title="Salud del club"
-        subtitle="Score compuesto (próximamente)"
+        title={t("healthTitle")}
+        subtitle={t("healthSubtitle")}
       >
         <HealthPlaceholder sections={sections} pending={pendingRequests} />
       </PanelCard>
 
       <PanelCard
         className="lg:col-span-7"
-        title="Ranking de unidades"
-        subtitle="Por tamaño · todas las secciones"
+        title={t("rankingTitle")}
+        subtitle={t("rankingSubtitle")}
         right={
           <span className="text-[11px] text-muted-foreground">
-            {units.length} unidades
+            {t("rankingUnitsCount", { count: units.length })}
           </span>
         }
       >
@@ -60,13 +62,13 @@ export function ClubOverviewTab({
 
       <PanelCard
         className="lg:col-span-5"
-        title="Asistencia mensual"
-        subtitle="Últimos 12 sábados"
+        title={t("attendanceTitle")}
+        subtitle={t("attendanceSubtitle")}
       >
         <Placeholder
           icon={<TrendingUp className="size-5" />}
-          title="Sin agregación disponible"
-          description="Conectar `weekly-records` para mostrar tendencias de asistencia."
+          title={t("attendanceEmpty")}
+          description={t("attendanceDescription")}
         />
       </PanelCard>
     </div>
@@ -109,7 +111,9 @@ function HealthPlaceholder({
   sections: SectionView[];
   pending?: number | null;
 }) {
+  const t = useTranslations("clubs.pages.detail.overview");
   const activeSections = sections.filter((s) => s.active).length;
+
   return (
     <div className="grid grid-cols-[100px_1fr] items-center gap-4">
       <div className="relative grid h-24 w-24 place-items-center rounded-full border-[10px] border-muted text-center">
@@ -118,31 +122,30 @@ function HealthPlaceholder({
             —
           </div>
           <div className="mt-1 text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
-            Salud
+            {t("healthScoreLabel")}
           </div>
         </div>
       </div>
       <div className="space-y-2 text-xs text-muted-foreground">
         <p className="text-foreground">
-          Aún no hay un score consolidado. Mientras tanto, estos son los
-          indicadores duros del club:
+          {t("healthDescription")}
         </p>
         <ul className="grid gap-1.5">
           <Row
             icon={<Activity className="size-3.5" />}
-            label={`${activeSections} de ${sections.length || 3} secciones activas`}
+            label={t("healthActiveSections", { active: activeSections, total: sections.length || 3 })}
           />
           <Row
             icon={<Trophy className="size-3.5" />}
             label={
               pending == null
-                ? "Sin lectura de solicitudes pendientes"
-                : `${pending} solicitudes pendientes`
+                ? t("healthNoPending")
+                : t("healthPending", { count: pending })
             }
           />
           <Row
             icon={<BarChart3 className="size-3.5" />}
-            label="Pendiente: definir cálculo de score 360°"
+            label={t("healthScorePending")}
           />
         </ul>
       </div>
@@ -182,18 +185,20 @@ function Placeholder({
 }
 
 export function ClubHistoryPlaceholder() {
+  const t = useTranslations("clubs.pages.detail.overview");
+
   return (
     <section className="rounded-2xl border bg-card p-5 shadow-sm">
       <header className="mb-4">
-        <h3 className="text-sm font-bold text-foreground">Historial del club</h3>
+        <h3 className="text-sm font-bold text-foreground">{t("historyTitle")}</h3>
         <p className="mt-0.5 text-[11px] text-muted-foreground">
-          Eventos importantes desde la creación
+          {t("historySubtitle")}
         </p>
       </header>
       <Placeholder
         icon={<History className="size-5" />}
-        title="Aún sin línea de tiempo"
-        description="El backend todavía no expone eventos de auditoría (creación, cambios de director, investiduras). Cuando se publique, se renderizará aquí."
+        title={t("historyEmpty")}
+        description={t("historyDescription")}
       />
     </section>
   );

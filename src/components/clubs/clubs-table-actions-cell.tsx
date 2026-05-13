@@ -40,6 +40,7 @@ interface ClubsTableActionsCellProps {
 
 function DeleteButton() {
   const { pending } = useFormStatus();
+  const t = useTranslations("clubs.a11y");
   return (
     <Button
       type="submit"
@@ -47,7 +48,7 @@ function DeleteButton() {
       className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
     >
       {pending && <Loader2 className="size-4 animate-spin" />}
-      Eliminar
+      {t("deleteDialogConfirm")}
     </Button>
   );
 }
@@ -74,9 +75,9 @@ export function ClubsTableActionsCell({
           size="icon"
           className="size-8"
           asChild
-          title="Ver detalle"
+          title={t("viewDetail")}
         >
-          <Link href={viewHref} aria-label={`Ver ${club.name}`}>
+          <Link href={viewHref} aria-label={t("viewDetailAria", { name: club.name })}>
             <Eye className="size-3.5" />
           </Link>
         </Button>
@@ -86,9 +87,9 @@ export function ClubsTableActionsCell({
             size="icon"
             className="size-8"
             asChild
-            title="Editar"
+            title={t("editLabel")}
           >
-            <Link href={editHref} aria-label={`Editar ${club.name}`}>
+            <Link href={editHref} aria-label={`${t("editLabel")} ${club.name}`}>
               <Pencil className="size-3.5" />
             </Link>
           </Button>
@@ -99,7 +100,7 @@ export function ClubsTableActionsCell({
             size="icon"
             className="size-8 text-destructive hover:text-destructive"
             onClick={() => setDeleteItem(club)}
-            title="Eliminar"
+            title={t("deleteLabel")}
             aria-label={t("deleteClub", { name: club.name })}
           >
             <Trash2 className="size-3.5" />
@@ -111,7 +112,7 @@ export function ClubsTableActionsCell({
       <div className="md:hidden">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="size-8" title="Acciones" aria-label={t("actionsMenu", { name: club.name })}>
+            <Button variant="ghost" size="icon" className="size-8" title={t("actionsMenu", { name: club.name })} aria-label={t("actionsMenu", { name: club.name })}>
               <MoreHorizontal className="size-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -119,14 +120,14 @@ export function ClubsTableActionsCell({
             <DropdownMenuItem asChild>
               <Link href={viewHref}>
                 <Eye className="size-4" />
-                Ver detalle
+                {t("viewDetail")}
               </Link>
             </DropdownMenuItem>
             {canEdit && (
               <DropdownMenuItem asChild>
                 <Link href={editHref}>
                   <Pencil className="size-4" />
-                  Editar
+                  {t("editLabel")}
                 </Link>
               </DropdownMenuItem>
             )}
@@ -136,7 +137,7 @@ export function ClubsTableActionsCell({
                 onSelect={() => setDeleteItem(club)}
               >
                 <Trash2 className="size-4" />
-                Eliminar
+                {t("deleteLabel")}
               </DropdownMenuItem>
             )}
           </DropdownMenuContent>
@@ -153,15 +154,13 @@ export function ClubsTableActionsCell({
         >
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>¿Eliminar club?</AlertDialogTitle>
+              <AlertDialogTitle>{t("deleteDialogTitle")}</AlertDialogTitle>
               <AlertDialogDescription>
-                Esta acción eliminará de forma permanente el club{" "}
-                <span className="font-medium">&quot;{deleteItem?.name}&quot;</span>.
-                Esta operación no se puede deshacer.
+                {t("deleteDialogDescription", { name: deleteItem?.name ?? "" })}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogCancel>{t("deleteDialogCancel")}</AlertDialogCancel>
               <form action={deleteClubAction}>
                 <input
                   type="hidden"

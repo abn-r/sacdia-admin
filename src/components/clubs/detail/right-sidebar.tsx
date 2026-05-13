@@ -11,6 +11,7 @@ import {
   Trash2,
   Users,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -75,36 +76,38 @@ function ActionsCard({
   onEdit?: () => void;
   onDelete?: () => void;
 }) {
+  const t = useTranslations("clubs.pages.detail.sidebar");
+
   return (
-    <CardShell title="Acciones rápidas">
+    <CardShell title={t("actionsTitle")}>
       <div className="grid gap-1">
-        <ActionRow icon={<Edit3 className="size-3.5" />} label="Editar club" onClick={onEdit} />
+        <ActionRow icon={<Edit3 className="size-3.5" />} label={t("actionEdit")} onClick={onEdit} />
         <ActionRow
           icon={<Plus className="size-3.5" />}
-          label="Crear unidad"
+          label={t("actionCreateUnit")}
           href={`/dashboard/clubs/${clubId}/units/new`}
         />
         <ActionRow
           icon={<Users className="size-3.5" />}
           label={
             pending != null
-              ? `Aprobar solicitudes (${pending})`
-              : "Revisar solicitudes"
+              ? t("actionApproveRequests", { count: pending })
+              : t("actionReviewRequests")
           }
         />
         <ActionRow
           icon={<Layers className="size-3.5" />}
-          label="Configurar secciones"
+          label={t("actionConfigureSections")}
         />
         <ActionRow
           icon={<Award className="size-3.5" />}
-          label="Ceremonia de investidura"
+          label={t("actionInvestiture")}
           disabled
         />
         <div className="my-1.5 h-px bg-border" />
         <ActionRow
           icon={<Trash2 className="size-3.5" />}
-          label="Eliminar club"
+          label={t("actionDelete")}
           danger
           onClick={onDelete}
         />
@@ -173,18 +176,20 @@ function ActionRow({
 }
 
 function UpcomingEventsCard() {
+  const t = useTranslations("clubs.pages.detail.sidebar");
+
   return (
-    <CardShell title="Próximos eventos" hint="—">
+    <CardShell title={t("eventsTitle")} hint="—">
       <div className="grid place-items-center gap-2 rounded-xl border border-dashed bg-muted/30 px-3 py-6 text-center">
         <span className="grid size-9 place-items-center rounded-full bg-muted text-muted-foreground">
           <CalendarPlus className="size-5" />
         </span>
-        <p className="text-sm font-semibold text-foreground">Sin agenda visible</p>
+        <p className="text-sm font-semibold text-foreground">{t("eventsEmpty")}</p>
         <p className="max-w-[200px] text-xs text-muted-foreground">
-          Conectar `activities` para listar próximos compromisos del club.
+          {t("eventsDescription")}
         </p>
         <Button size="xs" variant="outline" disabled>
-          Programar evento
+          {t("eventsSchedule")}
         </Button>
       </div>
     </CardShell>
@@ -198,12 +203,14 @@ interface LeadershipPlaceholderProps {
 export function LeadershipPlaceholder({
   totalSections,
 }: LeadershipPlaceholderProps) {
+  const t = useTranslations("clubs.pages.detail.sidebar");
+
   return (
     <CardShell
-      title="Liderazgo"
+      title={t("leadershipTitle")}
       hint={
         <span className="text-[11px] text-muted-foreground">
-          {totalSections > 0 ? `${totalSections} secciones` : "—"}
+          {totalSections > 0 ? t("leadershipSections", { count: totalSections }) : "—"}
         </span>
       }
     >
@@ -212,11 +219,10 @@ export function LeadershipPlaceholder({
           <ClipboardList className="size-5" />
         </span>
         <p className="text-sm font-semibold text-foreground">
-          Director y staff por enlazar
+          {t("leadershipEmpty")}
         </p>
         <p className="max-w-[220px] text-xs text-muted-foreground">
-          Vinculación con `club_role_assignments` pendiente. Aquí mostraremos
-          director, deputy y secretarios cuando esté disponible.
+          {t("leadershipDescription")}
         </p>
       </div>
     </CardShell>
