@@ -1,9 +1,11 @@
 "use client";
 
-import { Activity, BarChart3, History, TrendingUp, Trophy } from "lucide-react";
+import { History, Loader2, TrendingUp } from "lucide-react";
 import type { Unit } from "@/lib/api/units";
+import type { ClubOverview } from "@/lib/api/club-detail";
 import { CompositionDonut } from "./composition-donut";
 import { UnitRanking } from "./unit-ranking";
+import { AttendanceChart, ScoreBreakdown, ScoreCircle } from "./charts";
 import { getTotalMembers } from "./helpers";
 import type { ClubSectionRaw, SectionView } from "./types";
 
@@ -11,14 +13,18 @@ interface OverviewTabProps {
   sections: SectionView[];
   units: Unit[];
   sectionLookup: Map<number, ClubSectionRaw>;
-  pendingRequests?: number | null;
+  overview: ClubOverview | undefined;
+  isLoadingOverview: boolean;
+  overviewError: Error | null;
 }
 
 export function ClubOverviewTab({
   sections,
   units,
   sectionLookup,
-  pendingRequests,
+  overview,
+  isLoadingOverview,
+  overviewError,
 }: OverviewTabProps) {
   const total = getTotalMembers(sections);
 
@@ -40,9 +46,13 @@ export function ClubOverviewTab({
       <PanelCard
         className="lg:col-span-5"
         title="Salud del club"
-        subtitle="Score compuesto (próximamente)"
+        subtitle="Score compuesto"
       >
-        <HealthPlaceholder sections={sections} pending={pendingRequests} />
+        <HealthBlock
+          overview={overview}
+          isLoading={isLoadingOverview}
+          error={overviewError}
+        />
       </PanelCard>
 
       <PanelCard
@@ -60,13 +70,23 @@ export function ClubOverviewTab({
 
       <PanelCard
         className="lg:col-span-5"
-        title="Asistencia mensual"
-        subtitle="Últimos 12 sábados"
+        title="Asistencia semanal"
+        subtitle="Promedio % por semana"
+        right={
+          overview?.attendance_average != null && (
+            <span className="text-[11px] text-muted-foreground">
+              Promedio ·{" "}
+              <b className="text-foreground">
+                {Math.round(overview.attendance_average)}%
+              </b>
+            </span>
+          )
+        }
       >
-        <Placeholder
-          icon={<TrendingUp className="size-5" />}
-          title="Sin agregación disponible"
-          description="Conectar `weekly-records` para mostrar tendencias de asistencia."
+        <AttendanceBlock
+          overview={overview}
+          isLoading={isLoadingOverview}
+          error={overviewError}
         />
       </PanelCard>
     </div>
@@ -102,81 +122,81 @@ function PanelCard({
   );
 }
 
-function HealthPlaceholder({
-  sections,
-  pending,
+function HealthBlock({
+  overview,
+  isLoading,
+  error,
 }: {
-  sections: SectionView[];
-  pending?: number | null;
+  overview: ClubOverview | undefined;
+  isLoading: boolean;
+  error: Error | null;
 }) {
-  const activeSections = sections.filter((s) => s.active).length;
+  if (isLoading) return <CardLoader />;
+  if (error || !overview) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        No se pudo cargar el score del club.
+      </p>
+    );
+  }
   return (
-    <div className="grid grid-cols-[100px_1fr] items-center gap-4">
-      <div className="relative grid h-24 w-24 place-items-center rounded-full border-[10px] border-muted text-center">
-        <div>
-          <div className="text-2xl font-extrabold leading-none tracking-tight text-foreground">
-            —
-          </div>
-          <div className="mt-1 text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
-            Salud
-          </div>
-        </div>
-      </div>
-      <div className="space-y-2 text-xs text-muted-foreground">
-        <p className="text-foreground">
-          Aún no hay un score consolidado. Mientras tanto, estos son los
-          indicadores duros del club:
+    <div className="space-y-4">
+      <div className="grid grid-cols-[96px_1fr] items-center gap-4">
+        <ScoreCircle score={overview.score} />
+        <p className="text-xs text-muted-foreground">
+          Score compuesto basado en asistencia, secciones activas y ocupación de
+          cupo. Grado actual:{" "}
+          <span className="font-semibold text-foreground">
+            {overview.score.grade}
+          </span>
+          .
         </p>
-        <ul className="grid gap-1.5">
-          <Row
-            icon={<Activity className="size-3.5" />}
-            label={`${activeSections} de ${sections.length || 3} secciones activas`}
-          />
-          <Row
-            icon={<Trophy className="size-3.5" />}
-            label={
-              pending == null
-                ? "Sin lectura de solicitudes pendientes"
-                : `${pending} solicitudes pendientes`
-            }
-          />
-          <Row
-            icon={<BarChart3 className="size-3.5" />}
-            label="Pendiente: definir cálculo de score 360°"
-          />
-        </ul>
       </div>
+      <ScoreBreakdown items={overview.score.breakdown} />
     </div>
   );
 }
 
-function Row({ icon, label }: { icon: React.ReactNode; label: string }) {
-  return (
-    <li className="flex items-center gap-2 text-xs text-foreground">
-      <span className="grid size-5 place-items-center rounded-md bg-muted text-muted-foreground">
-        {icon}
-      </span>
-      {label}
-    </li>
-  );
+function AttendanceBlock({
+  overview,
+  isLoading,
+  error,
+}: {
+  overview: ClubOverview | undefined;
+  isLoading: boolean;
+  error: Error | null;
+}) {
+  if (isLoading) return <CardLoader />;
+  if (error) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        No se pudo cargar la serie de asistencia.
+      </p>
+    );
+  }
+  if (!overview?.attendance || overview.attendance.length === 0) {
+    return (
+      <div className="grid place-items-center gap-2 rounded-xl border border-dashed bg-muted/30 px-4 py-8 text-center">
+        <span className="grid size-9 place-items-center rounded-full bg-muted text-muted-foreground">
+          <TrendingUp className="size-5" />
+        </span>
+        <p className="text-sm font-semibold text-foreground">
+          Sin registros semanales todavía
+        </p>
+        <p className="max-w-xs text-xs text-muted-foreground">
+          Cuando se capturen `weekly-records`, aquí aparecerá la tendencia de
+          asistencia.
+        </p>
+      </div>
+    );
+  }
+  return <AttendanceChart series={overview.attendance} />;
 }
 
-function Placeholder({
-  icon,
-  title,
-  description,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}) {
+function CardLoader() {
   return (
-    <div className="grid place-items-center gap-2 rounded-xl border border-dashed bg-muted/30 px-4 py-8 text-center">
-      <span className="grid size-9 place-items-center rounded-full bg-muted text-muted-foreground">
-        {icon}
-      </span>
-      <p className="text-sm font-semibold text-foreground">{title}</p>
-      <p className="max-w-xs text-xs text-muted-foreground">{description}</p>
+    <div className="flex items-center justify-center gap-2 py-8 text-sm text-muted-foreground">
+      <Loader2 className="size-4 animate-spin" /> Cargando…
     </div>
   );
 }
@@ -190,11 +210,18 @@ export function ClubHistoryPlaceholder() {
           Eventos importantes desde la creación
         </p>
       </header>
-      <Placeholder
-        icon={<History className="size-5" />}
-        title="Aún sin línea de tiempo"
-        description="El backend todavía no expone eventos de auditoría (creación, cambios de director, investiduras). Cuando se publique, se renderizará aquí."
-      />
+      <div className="grid place-items-center gap-2 rounded-xl border border-dashed bg-muted/30 px-4 py-8 text-center">
+        <span className="grid size-9 place-items-center rounded-full bg-muted text-muted-foreground">
+          <History className="size-5" />
+        </span>
+        <p className="text-sm font-semibold text-foreground">
+          Aún sin línea de tiempo
+        </p>
+        <p className="max-w-xs text-xs text-muted-foreground">
+          El backend todavía no expone eventos de auditoría (creación, cambios
+          de director, investiduras). Cuando se publique, se renderizará aquí.
+        </p>
+      </div>
     </section>
   );
 }

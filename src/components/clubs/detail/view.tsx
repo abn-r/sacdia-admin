@@ -9,6 +9,10 @@ import { ClubSectionsPanel } from "@/components/clubs/club-sections-panel";
 import { PendingMembersPanel } from "@/components/membership/pending-members-panel";
 import { UnitsTab } from "@/components/units/units-tab";
 import { listUnits } from "@/lib/api/units";
+import {
+  getClubLeadershipFromClient,
+  getClubOverviewFromClient,
+} from "@/lib/api/club-detail";
 import type { ClubActionState } from "@/lib/clubs/actions";
 import { ClubDetailHero } from "./hero";
 import { ClubDetailStats } from "./stats";
@@ -21,7 +25,7 @@ import {
 import { ClubInfoPanel } from "./info-panel";
 import {
   ClubRightSidebar,
-  LeadershipPlaceholder,
+  LeadershipPanel,
 } from "./right-sidebar";
 import { buildSectionViews, getActiveUnits } from "./helpers";
 import type { ClubFull, ClubSectionRaw } from "./types";
@@ -64,6 +68,32 @@ export function ClubDetailView({
     queryFn: () => listUnits(clubId),
     staleTime: 30_000,
   });
+
+  const {
+    data: overview,
+    isLoading: isLoadingOverview,
+    error: overviewErrorRaw,
+  } = useQuery({
+    queryKey: ["club-detail-overview", clubId],
+    queryFn: () => getClubOverviewFromClient(clubId),
+    staleTime: 60_000,
+  });
+  const overviewError = overviewErrorRaw instanceof Error ? overviewErrorRaw : null;
+
+  const {
+    data: leadership,
+    isLoading: isLoadingLeadership,
+    error: leadershipErrorRaw,
+  } = useQuery({
+    queryKey: ["club-detail-leadership", clubId],
+    queryFn: () => getClubLeadershipFromClient(clubId),
+    staleTime: 60_000,
+  });
+  const leadershipError =
+    leadershipErrorRaw instanceof Error ? leadershipErrorRaw : null;
+
+  const pendingRequests = overview?.funnel.pending_requests ?? null;
+  const upcomingEvents = overview?.upcoming_events ?? null;
 
   const activeUnits = useMemo(() => getActiveUnits(units), [units]);
   const sections = useMemo(() => buildSectionViews(club, activeUnits), [club, activeUnits]);
@@ -157,7 +187,7 @@ export function ClubDetailView({
       <ClubDetailStats
         sections={sections}
         unitsCount={activeUnits.length}
-        pendingRequests={null}
+        pendingRequests={pendingRequests}
       />
 
       <ClubTabsNav tabs={tabs} value={tab} onChange={setActiveTab} />
@@ -169,7 +199,9 @@ export function ClubDetailView({
               sections={sections}
               units={activeUnits}
               sectionLookup={sectionLookup}
-              pendingRequests={null}
+              overview={overview}
+              isLoadingOverview={isLoadingOverview}
+              overviewError={overviewError}
             />
           )}
 
@@ -243,13 +275,19 @@ export function ClubDetailView({
 
         <ClubRightSidebar
           clubId={clubId}
-          pendingRequests={null}
+          pendingRequests={pendingRequests}
+          upcomingEvents={upcomingEvents}
+          isLoadingEvents={isLoadingOverview}
           onEdit={() => setActiveTab("edit")}
           onDelete={handleDelete}
         />
       </div>
 
-      <LeadershipPlaceholder totalSections={sections.length} />
+      <LeadershipPanel
+        leadership={leadership}
+        isLoading={isLoadingLeadership}
+        error={leadershipError}
+      />
     </div>
   );
 }
