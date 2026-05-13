@@ -4,7 +4,7 @@ import {
   createContext,
   useContext,
   useEffect,
-  useState,
+  useReducer,
   type ReactNode,
 } from "react";
 
@@ -20,25 +20,43 @@ type ActiveContextValue = {
 
 const ActiveContext = createContext<ActiveContextValue | null>(null);
 
-export function ActiveContextProvider({ children }: { children: ReactNode }) {
-  // Inicializar con null para evitar hydration mismatch (SSR-safe).
-  // La hidratación desde localStorage ocurre en el useEffect de abajo.
-  const [activeClubId, setActiveClubIdState] = useState<number | null>(null);
-  const [activeYearId, setActiveYearIdState] = useState<number | null>(null);
+type ActiveState = { activeClubId: number | null; activeYearId: number | null };
+type ActiveAction =
+  | { type: "HYDRATE"; clubId: number | null; yearId: number | null }
+  | { type: "SET_CLUB"; id: number | null }
+  | { type: "SET_YEAR"; id: number | null };
 
-  // Hidratar desde localStorage solo en el cliente
+function activeReducer(state: ActiveState, action: ActiveAction): ActiveState {
+  switch (action.type) {
+    case "HYDRATE":
+      return { activeClubId: action.clubId, activeYearId: action.yearId };
+    case "SET_CLUB":
+      return { ...state, activeClubId: action.id };
+    case "SET_YEAR":
+      return { ...state, activeYearId: action.id };
+  }
+}
+
+export function ActiveContextProvider({ children }: { children: ReactNode }) {
+  // useReducer + single HYDRATE dispatch avoids cascading setState calls
+  // that trigger the react-hooks/set-state-in-effect lint rule.
+  // SSR-safe: initial state is null; hydration happens after mount.
+  const [{ activeClubId, activeYearId }, dispatch] = useReducer(activeReducer, {
+    activeClubId: null,
+    activeYearId: null,
+  });
+
+  // Hidratar desde localStorage solo en el cliente (single dispatch)
   useEffect(() => {
     const storedClub = localStorage.getItem(LS_KEY_CLUB);
     const storedYear = localStorage.getItem(LS_KEY_YEAR);
 
-    if (storedClub !== null) {
-      const parsed = parseInt(storedClub, 10);
-      if (!isNaN(parsed)) setActiveClubIdState(parsed);
-    }
-    if (storedYear !== null) {
-      const parsed = parseInt(storedYear, 10);
-      if (!isNaN(parsed)) setActiveYearIdState(parsed);
-    }
+    const parsedClub = storedClub !== null ? parseInt(storedClub, 10) : NaN;
+    const parsedYear = storedYear !== null ? parseInt(storedYear, 10) : NaN;
+    const clubId = !isNaN(parsedClub) ? parsedClub : null;
+    const yearId = !isNaN(parsedYear) ? parsedYear : null;
+
+    dispatch({ type: "HYDRATE", clubId, yearId });
   }, []);
 
   // Persistir club activo
@@ -60,11 +78,11 @@ export function ActiveContextProvider({ children }: { children: ReactNode }) {
   }, [activeYearId]);
 
   function setActiveClubId(id: number | null) {
-    setActiveClubIdState(id);
+    dispatch({ type: "SET_CLUB", id });
   }
 
   function setActiveYearId(id: number | null) {
-    setActiveYearIdState(id);
+    dispatch({ type: "SET_YEAR", id });
   }
 
   return (
