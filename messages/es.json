@@ -906,7 +906,8 @@
       "description": "Asignaciones en los últimos 100 usuarios",
       "noRolesFound": "No se encontraron roles asignados en la muestra.",
       "basedOn": "Basado en los últimos {count} usuarios registrados",
-      "userCount": "{count, plural, one {{count} usuario} other {{count} usuarios}} — {percentage}%"
+      "userCount": "{count, plural, one {{count} usuario} other {{count} usuarios}} — {percentage}%",
+      "noRoleChip": "Sin rol asignado: {count, plural, one {{count} usuario} other {{count} usuarios}} ({percentage}%)"
     },
     "quickLinks": {
       "title": "Accesos rápidos",
@@ -2789,7 +2790,64 @@
         "description": "Gestión de usuarios del sistema.",
         "cannotShow": "No se pueden mostrar usuarios",
         "emptyTitle": "No se encontraron usuarios",
-        "emptyDescription": "Intenta ajustar los filtros de búsqueda."
+        "emptyDescription": "Intenta ajustar los filtros de búsqueda.",
+        "actions": {
+          "addUser": "Agregar usuario",
+          "bulkUpload": "Carga masiva"
+        }
+      },
+      "new": {
+        "title": "Agregar usuario",
+        "description": "Crear un nuevo usuario y enviarle invitación por email.",
+        "breadcrumb": "Agregar usuario",
+        "fields": {
+          "name": "Nombre",
+          "paternal_last_name": "Apellido paterno",
+          "maternal_last_name": "Apellido materno",
+          "email": "Correo electrónico",
+          "role": "Rol",
+          "country": "País",
+          "union": "Unión",
+          "local_field": "Campo local"
+        },
+        "placeholders": {
+          "name": "Ej. María",
+          "paternal_last_name": "Ej. González",
+          "maternal_last_name": "Ej. Pérez",
+          "email": "usuario@ejemplo.com",
+          "role": "Seleccioná un rol",
+          "country": "Seleccioná un país",
+          "union": "Seleccioná una unión",
+          "local_field": "Seleccioná un campo local"
+        },
+        "help": {
+          "maternal_last_name": "Opcional. Dejá vacío si no aplica.",
+          "role": "Solo podés asignar roles iguales o inferiores al tuyo.",
+          "union": "Primero seleccioná un país.",
+          "local_field": "Primero seleccioná una unión."
+        },
+        "actions": {
+          "submit": "Crear usuario",
+          "cancel": "Cancelar",
+          "submitting": "Creando…"
+        },
+        "toast": {
+          "success": "Usuario creado. Se envió invitación a {email}.",
+          "inviteNotSent": "Usuario creado, pero no se pudo enviar el email de invitación.",
+          "emailExists": "Ya existe un usuario con ese correo.",
+          "forbidden": "No tenés permisos para crear ese rol.",
+          "validationFailed": "Revisá los campos del formulario.",
+          "generic": "No se pudo crear el usuario. Intentá de nuevo."
+        },
+        "validation": {
+          "nameRequired": "El nombre es obligatorio.",
+          "paternalRequired": "El apellido paterno es obligatorio.",
+          "emailRequired": "El correo es obligatorio.",
+          "emailInvalid": "Formato de correo inválido.",
+          "roleRequired": "Seleccioná un rol.",
+          "countryRequired": "Seleccioná un país.",
+          "unionRequired": "Seleccioná una unión."
+        }
       },
       "detail": {
         "title": "Detalle de usuario",
@@ -2803,6 +2861,70 @@
         "tabSecurity": "Seguridad",
         "tabSessions": "Sesiones",
         "postRegistrationUnavailable": "No se pudo obtener el estado del post-registro. El usuario puede no haber iniciado el proceso o puede haber un error de conectividad."
+      },
+      "bulk": {
+        "title": "Carga masiva de usuarios",
+        "description": "Creá múltiples usuarios a la vez subiendo un archivo Excel o CSV con los datos requeridos.",
+        "breadcrumb": "Carga masiva",
+        "downloadTemplate": "Descargar plantilla",
+        "dropZone": {
+          "title": "Arrastrá y soltá tu archivo aquí",
+          "subtitle": "o hacé clic para seleccionar desde tu equipo",
+          "browse": "Seleccionar archivo",
+          "accept": "Formatos aceptados: .xlsx, .csv — Máx. 5 MB y 500 filas"
+        },
+        "preview": {
+          "title": "Vista previa del archivo",
+          "subtitle": "Las filas restantes se procesarán en el servidor.",
+          "showingRowsOf": "Mostrando {shown} de {total} filas",
+          "moreColumns": "columnas más",
+          "headersOk": "Cabeceras correctas",
+          "headersInvalid": "El archivo no contiene la columna 'email' requerida.",
+          "emptyFile": "El archivo no contiene filas de datos.",
+          "tooManyRows": "El archivo supera el máximo de 500 filas."
+        },
+        "actions": {
+          "submit": "Procesar carga",
+          "cancel": "Cancelar",
+          "uploadAnother": "Cargar otro archivo",
+          "filterAll": "Todos",
+          "filterSuccess": "Exitosos",
+          "filterError": "Con errores"
+        },
+        "results": {
+          "totalLabel": "Total",
+          "succeededLabel": "Exitosos",
+          "failedLabel": "Fallidos",
+          "inviteSent": "Invitación enviada",
+          "inviteNotSent": "Usuario creado sin invitación",
+          "createdHeader": "Creado",
+          "emailHeader": "Email",
+          "rowHeader": "Fila",
+          "detailHeader": "Detalle",
+          "statusHeader": "Estado"
+        },
+        "statusBadges": {
+          "success": "Creado",
+          "error": "Error"
+        },
+        "errorCodes": {
+          "validationFailed": "Datos inválidos",
+          "duplicateInFile": "Email duplicado en el archivo",
+          "emailAlreadyInUse": "Email ya registrado",
+          "invalidRole": "Rol inválido",
+          "forbiddenRoleForActor": "No podés crear ese rol",
+          "internalError": "Error interno"
+        },
+        "toast": {
+          "success": "Todos los usuarios fueron creados correctamente.",
+          "partialSuccess": "Carga completada con algunos errores. Revisá los resultados.",
+          "allFailed": "No se pudo crear ningún usuario. Revisá los datos del archivo.",
+          "fileTooLarge": "Archivo demasiado grande (máx. 5 MB).",
+          "fileTypeInvalid": "Formato de archivo no soportado. Usá .xlsx o .csv.",
+          "fileEmpty": "El archivo no contiene datos.",
+          "tooManyRows": "El archivo supera el límite de 500 filas.",
+          "generic": "Ocurrió un error al procesar la carga. Intentá de nuevo."
+        }
       }
     }
   },

@@ -9,6 +9,7 @@ import { DataTableShell } from "@/components/shared/data-table-shell";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import { UsersFilters } from "@/components/users/users-filters";
 import { UsersTable } from "@/components/users/users-table";
+import { UsersToolbarActions } from "@/components/users/users-toolbar-actions";
 import { listAdminUsers, type AdminUsersQuery } from "@/lib/api/admin-users";
 import { requireAdminUser } from "@/lib/auth/session";
 import { canViewAdministrativeCompletion } from "@/lib/auth/permission-utils";
@@ -135,6 +136,7 @@ export default async function UsersPage({
       <PageHeader
         title={t("title")}
         description={t("description")}
+        actions={<UsersToolbarActions />}
       />
 
       <Suspense fallback={<UsersListSkeleton />}>

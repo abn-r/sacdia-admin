@@ -936,6 +936,7 @@ export interface IntlMessages {
       noRolesFound: string;
       basedOn: string;
       userCount: string;
+      noRoleChip: string;
     };
     quickLinks: {
       title: string;
@@ -2819,6 +2820,63 @@ export interface IntlMessages {
         cannotShow: string;
         emptyTitle: string;
         emptyDescription: string;
+        actions: {
+          addUser: string;
+          bulkUpload: string;
+        };
+      };
+      new: {
+        title: string;
+        description: string;
+        breadcrumb: string;
+        fields: {
+          name: string;
+          paternal_last_name: string;
+          maternal_last_name: string;
+          email: string;
+          role: string;
+          country: string;
+          union: string;
+          local_field: string;
+        };
+        placeholders: {
+          name: string;
+          paternal_last_name: string;
+          maternal_last_name: string;
+          email: string;
+          role: string;
+          country: string;
+          union: string;
+          local_field: string;
+        };
+        help: {
+          maternal_last_name: string;
+          role: string;
+          union: string;
+          local_field: string;
+        };
+        actions: {
+          submit: string;
+          cancel: string;
+          submitting: string;
+        };
+        toast: {
+          success: string;
+          inviteNotSent: string;
+          emailExists: string;
+          forbidden: string;
+          validationFailed: string;
+          generic: string;
+        };
+        validation: {
+          nameRequired: string;
+          paternalRequired: string;
+          emailRequired: string;
+          emailInvalid: string;
+          roleRequired: string;
+          countryRequired: string;
+          unionRequired: string;
+        };
       };
       detail: {
         title: string;
@@ -2832,6 +2890,70 @@ export interface IntlMessages {
         tabSecurity: string;
         tabSessions: string;
         postRegistrationUnavailable: string;
+      };
+      bulk: {
+        title: string;
+        description: string;
+        breadcrumb: string;
+        downloadTemplate: string;
+        dropZone: {
+          title: string;
+          subtitle: string;
+          browse: string;
+          accept: string;
+        };
+        preview: {
+          title: string;
+          subtitle: string;
+          showingRowsOf: string;
+          moreColumns: string;
+          headersOk: string;
+          headersInvalid: string;
+          emptyFile: string;
+          tooManyRows: string;
+        };
+        actions: {
+          submit: string;
+          cancel: string;
+          uploadAnother: string;
+          filterAll: string;
+          filterSuccess: string;
+          filterError: string;
+        };
+        results: {
+          totalLabel: string;
+          succeededLabel: string;
+          failedLabel: string;
+          inviteSent: string;
+          inviteNotSent: string;
+          createdHeader: string;
+          emailHeader: string;
+          rowHeader: string;
+          detailHeader: string;
+          statusHeader: string;
+        };
+        statusBadges: {
+          success: string;
+          error: string;
+        };
+        errorCodes: {
+          validationFailed: string;
+          duplicateInFile: string;
+          emailAlreadyInUse: string;
+          invalidRole: string;
+          forbiddenRoleForActor: string;
+          internalError: string;
+        };
+        toast: {
+          success: string;
+          partialSuccess: string;
+          allFailed: string;
+          fileTooLarge: string;
+          fileTypeInvalid: string;
+          fileEmpty: string;
+          tooManyRows: string;
+          generic: string;
+        };
       };
     };
   };
