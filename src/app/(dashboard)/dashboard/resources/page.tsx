@@ -268,6 +268,42 @@ export default async function ResourcesPage({
   const canEdit = hasAnyPermission(user, [RESOURCES_UPDATE]);
   const canDelete = hasAnyPermission(user, [RESOURCES_DELETE]);
 
+  // Resolve user's effective global scope to limit available scope levels and
+  // pre-select / lock the scope_id in the create form per RBAC hierarchy.
+  const globalScope = (user.authorization?.effective as { scope?: { global?: unknown } } | undefined)
+    ?.scope?.global as
+    | {
+        country?: { id?: unknown } | null;
+        union?: { id?: unknown } | null;
+        local_field?: { id?: unknown } | null;
+      }
+    | undefined;
+
+  const userCountryId = toPositiveNumber(globalScope?.country?.id);
+  const userUnionId = toPositiveNumber(globalScope?.union?.id);
+  const userLocalFieldId = toPositiveNumber(globalScope?.local_field?.id);
+
+  let allowedScopeLevels: ScopeLevel[];
+  let lockedScopeId: number | null = null;
+  let scopedUnions = unions;
+  let scopedLocalFields = localFields;
+
+  if (userCountryId) {
+    allowedScopeLevels = ["system", "union", "local_field"];
+  } else if (userUnionId) {
+    allowedScopeLevels = ["union"];
+    lockedScopeId = userUnionId;
+    scopedUnions = unions.filter((u) => u.union_id === userUnionId);
+    scopedLocalFields = [];
+  } else if (userLocalFieldId) {
+    allowedScopeLevels = ["local_field"];
+    lockedScopeId = userLocalFieldId;
+    scopedUnions = [];
+    scopedLocalFields = localFields.filter((lf) => lf.local_field_id === userLocalFieldId);
+  } else {
+    allowedScopeLevels = [];
+  }
+
   return (
     <div className="space-y-6">
       {loadError && <EndpointErrorBanner state="missing" detail={loadError} />}
@@ -276,8 +312,10 @@ export default async function ResourcesPage({
         items={items}
         meta={meta}
         categories={categories}
-        unions={unions}
-        localFields={localFields}
+        unions={scopedUnions}
+        localFields={scopedLocalFields}
+        allowedScopeLevels={allowedScopeLevels}
+        lockedScopeId={lockedScopeId}
         canCreate={canCreate}
         canEdit={canEdit}
         canDelete={canDelete}
