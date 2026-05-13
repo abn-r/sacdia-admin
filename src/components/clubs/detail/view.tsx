@@ -18,10 +18,8 @@ import { ClubDetailHero } from "./hero";
 import { ClubDetailStats } from "./stats";
 import { ClubTabsNav } from "./tabs-nav";
 import type { ClubTabId } from "./tab-utils";
-import {
-  ClubHistoryPlaceholder,
-  ClubOverviewTab,
-} from "./overview-tab";
+import { ClubOverviewTab } from "./overview-tab";
+import { ClubHistoryTab } from "./history-tab";
 import { ClubInfoPanel } from "./info-panel";
 import {
   ClubRightSidebar,
@@ -250,7 +248,7 @@ export function ClubDetailView({
             />
           )}
 
-          {tab === "history" && <ClubHistoryPlaceholder />}
+          {tab === "history" && <ClubHistoryTab clubId={clubId} />}
 
           {tab === "edit" && (
             <section className="rounded-2xl border bg-card p-5 shadow-sm">
