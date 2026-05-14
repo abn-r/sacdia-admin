@@ -7,6 +7,7 @@ import {
   AdvancedMarker,
   useMap,
   useMapsLibrary,
+  type MapMouseEvent,
 } from "@vis.gl/react-google-maps";
 import { MapPin, Search, X } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -144,7 +145,7 @@ export function LocationPicker({
     [],
   );
 
-  const handleMapClick = useCallback((event: google.maps.MapMouseEvent) => {
+  const handleMapClick = useCallback((event: MapMouseEvent) => {
     if (!event.detail.latLng) return;
     setPosition({
       lat: event.detail.latLng.lat,

@@ -40,6 +40,7 @@ export interface IntlMessages {
       members: string;
       operations: string;
       rankings_analytics: string;
+      materials: string;
     };
     items: {
       dashboard: string;
@@ -132,6 +133,11 @@ export interface IntlMessages {
       subgroup_business: string;
       subgroup_honors_cat: string;
       ranking_weights_root: string;
+      materials_inbox: string;
+      materials_receipts: string;
+      materials_inventory: string;
+      materials_categories: string;
+      materials_config: string;
     };
     breadcrumbs: {
       dashboard: string;
@@ -783,6 +789,7 @@ export interface IntlMessages {
       member_not_identified: string;
       assignment_not_identified: string;
       assignment_remove_not_identified: string;
+      bulk_row_invalid: string;
     };
     success: {
       section_created: string;
@@ -798,6 +805,14 @@ export interface IntlMessages {
       district: string;
       church: string;
       ecclesiastical_year: string;
+    };
+    locationPicker: {
+      searchLabel: string;
+      searchPlaceholder: string;
+      hint: string;
+      noPin: string;
+      clear: string;
+      missingApiKey: string;
     };
     form: {
       labelName: string;
@@ -860,10 +875,56 @@ export interface IntlMessages {
         emptyTitle: string;
         emptyDescription: string;
         emptyCreateButton: string;
+        createMenuManual: string;
+        createMenuBulk: string;
       };
       new: {
         title: string;
         back: string;
+      };
+      import: {
+        title: string;
+        description: string;
+        back: string;
+        uploadCardTitle: string;
+        uploadCardDescription: string;
+        downloadTemplate: string;
+        chooseFile: string;
+        reset: string;
+        expectedHeadersTitle: string;
+        matchHint: string;
+        previewTitle: string;
+        previewSummary: string;
+        colName: string;
+        colLocalField: string;
+        colDistrict: string;
+        colChurch: string;
+        colStatus: string;
+        colMessage: string;
+        rowValid: string;
+        rowInvalid: string;
+        rowCreated: string;
+        rowFailed: string;
+        submitButton: string;
+        resultTitle: string;
+        resultSummary: string;
+        resultForbidden: string;
+        validation: {
+          missingName: string;
+          missingLocalField: string;
+          missingDistrict: string;
+          missingChurch: string;
+          unknownLocalField: string;
+          unknownDistrict: string;
+          unknownChurch: string;
+          coordinatesInvalid: string;
+        };
+        errors: {
+          emptyWorkbook: string;
+          noRows: string;
+          missingHeaders: string;
+          parseFailed: string;
+        };
       };
       detail: {
         back: string;
