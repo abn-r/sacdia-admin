@@ -10,7 +10,8 @@
       "requests_reports": "Solicitações e relatórios",
       "members": "Membros",
       "operations": "Operações",
-      "rankings_analytics": "Rankings e análises"
+      "rankings_analytics": "Rankings e análises",
+      "materiales": "Materiais"
     },
     "items": {
       "dashboard": "Dashboard",
@@ -102,7 +103,11 @@
       "subgroup_academics": "Acadêmicos",
       "subgroup_business": "Negócio",
       "subgroup_honors_cat": "Honras",
-      "ranking_weights_root": "Configuração de pesos"
+      "ranking_weights_root": "Configuração de pesos",
+      "materiales_bandeja": "Caixa de entrada",
+      "materiales_comprobantes": "Comprovantes",
+      "materiales_inventario": "Inventário",
+      "materiales_configuracion": "Configurações"
     },
     "breadcrumbs": {
       "dashboard": "Painel",
