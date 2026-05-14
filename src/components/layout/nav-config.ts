@@ -30,6 +30,7 @@ import {
   Layers,
   SlidersHorizontal,
   ShoppingBag,
+  Tag,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -220,31 +221,37 @@ export const navConfig: NavGroup[] = [
     ],
   },
 
-  // ─── Materiales (pedidos, comprobantes, inventario, config) ─────────────────
+  // ─── Materials (orders, receipts, inventory, config) ────────────────────────
   {
-    label: "sections.materiales",
+    label: "sections.materials",
     items: [
       {
-        title: "items.materiales_bandeja",
-        url: "/dashboard/materiales/bandeja",
+        title: "items.materials_inbox",
+        url: "/dashboard/materials/inbox",
         icon: ShoppingBag,
         permission: "materiales:read",
       },
       {
-        title: "items.materiales_comprobantes",
-        url: "/dashboard/materiales/comprobantes",
+        title: "items.materials_receipts",
+        url: "/dashboard/materials/receipts",
         icon: FileText,
         permission: "materiales:validate-receipt",
       },
       {
-        title: "items.materiales_inventario",
-        url: "/dashboard/materiales/inventario",
+        title: "items.materials_inventory",
+        url: "/dashboard/materials/inventory",
         icon: Package,
         permission: "materiales:manage-inventory",
       },
       {
-        title: "items.materiales_configuracion",
-        url: "/dashboard/materiales/configuracion",
+        title: "items.materials_categories",
+        url: "/dashboard/materials/categories",
+        icon: Tag,
+        permission: "materiales:manage-inventory",
+      },
+      {
+        title: "items.materials_config",
+        url: "/dashboard/materials/config",
         icon: Settings2,
         permission: "materiales:configure",
       },
