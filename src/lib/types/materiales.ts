@@ -116,6 +116,10 @@ export type Orden = {
   paid_at: string | null;
   delivered_at: string | null;
   cancelled_at: string | null;
+  director?: {
+    nombre: string;
+    club: string;
+  };
   lines: OrdenLine[];
   comprobantes: Comprobante[];
 };
