@@ -484,7 +484,7 @@ export function ProductFormSheet({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="overflow-y-auto sm:max-w-lg">
-        <SheetHeader>
+        <SheetHeader className="px-6 pt-6">
           <SheetTitle>
             {mode === "create" ? "Nuevo producto" : "Editar producto"}
           </SheetTitle>
@@ -495,7 +495,7 @@ export function ProductFormSheet({
           </SheetDescription>
         </SheetHeader>
 
-        <div className="mt-6">
+        <div className="mt-2 px-6 pb-6">
           {mode === "create" ? (
             <CreateForm categories={categories} onSuccess={handleSuccess} />
           ) : product ? (
