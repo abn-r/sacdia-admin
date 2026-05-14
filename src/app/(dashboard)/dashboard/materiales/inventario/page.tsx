@@ -116,7 +116,7 @@ export default async function InventarioPage({
       {/* Empty state */}
       {!loadError && products.length === 0 && (
         <EmptyState
-          icon={Package}
+          icon={<Package className="size-6 text-muted-foreground" aria-hidden="true" />}
           title="Sin productos"
           description={
             q || cat

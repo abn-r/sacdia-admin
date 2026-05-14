@@ -133,7 +133,7 @@ export default async function BandejaPage({
       {/* Empty state */}
       {!loadError && ordenes.length === 0 && (
         <EmptyState
-          icon={Inbox}
+          icon={<Inbox className="size-6 text-muted-foreground" aria-hidden="true" />}
           title="Sin solicitudes"
           description={
             estado === "all" || estado === "en_revision"

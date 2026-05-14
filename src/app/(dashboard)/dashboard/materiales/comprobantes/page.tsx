@@ -129,7 +129,7 @@ export default async function ComprobantesPage({
       {/* Empty state */}
       {!loadError && ordenes.length === 0 && (
         <EmptyState
-          icon={Receipt}
+          icon={<Receipt className="size-6 text-muted-foreground" aria-hidden="true" />}
           title="Sin órdenes pendientes"
           description={
             q
