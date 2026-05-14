@@ -29,6 +29,7 @@ import {
   Users2,
   Layers,
   SlidersHorizontal,
+  ShoppingBag,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -215,6 +216,37 @@ export const navConfig: NavGroup[] = [
           { title: "items.insurance_by_section", url: "/dashboard/insurance", permission: "insurance:read" },
           { title: "items.insurance_expiring", url: "/dashboard/insurance/expiring", permission: "insurance:read" },
         ],
+      },
+    ],
+  },
+
+  // ─── Materiales (pedidos, comprobantes, inventario, config) ─────────────────
+  {
+    label: "sections.materiales",
+    items: [
+      {
+        title: "items.materiales_bandeja",
+        url: "/dashboard/materiales/bandeja",
+        icon: ShoppingBag,
+        permission: "materiales:read",
+      },
+      {
+        title: "items.materiales_comprobantes",
+        url: "/dashboard/materiales/comprobantes",
+        icon: FileText,
+        permission: "materiales:validate-receipt",
+      },
+      {
+        title: "items.materiales_inventario",
+        url: "/dashboard/materiales/inventario",
+        icon: Package,
+        permission: "materiales:manage-inventory",
+      },
+      {
+        title: "items.materiales_configuracion",
+        url: "/dashboard/materiales/configuracion",
+        icon: Settings2,
+        permission: "materiales:configure",
       },
     ],
   },

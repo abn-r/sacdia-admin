@@ -10,7 +10,8 @@
       "requests_reports": "Demandes et rapports",
       "members": "Membres",
       "operations": "Opérations",
-      "rankings_analytics": "Classements & Analytique"
+      "rankings_analytics": "Classements & Analytique",
+      "materiales": "Matériaux"
     },
     "items": {
       "dashboard": "Tableau de bord",
@@ -102,7 +103,11 @@
       "subgroup_academics": "Académiques",
       "subgroup_business": "Affaires",
       "subgroup_honors_cat": "Honneurs",
-      "ranking_weights_root": "Configuration des poids"
+      "ranking_weights_root": "Configuration des poids",
+      "materiales_bandeja": "Boîte de réception",
+      "materiales_comprobantes": "Reçus",
+      "materiales_inventario": "Inventaire",
+      "materiales_configuracion": "Paramètres"
     },
     "breadcrumbs": {
       "dashboard": "Tableau de bord",
