@@ -29,9 +29,43 @@ export type TranslatablePayload = {
   translations?: CatalogTranslation[];
 };
 
-/** name only — used for countries, unions, local-fields, districts, churches, club-types */
+/** name only — used for countries, club-types */
 export type NameOnlyPayload = {
   name: string;
+  active?: boolean;
+  translations?: CatalogTranslation[];
+};
+
+/** unions — name + abbreviation + country_id (parent) */
+export type UnionPayload = {
+  name: string;
+  abbreviation: string;
+  country_id: number;
+  active?: boolean;
+  translations?: CatalogTranslation[];
+};
+
+/** local-fields — name + abbreviation + union_id (parent) */
+export type LocalFieldPayload = {
+  name: string;
+  abbreviation: string;
+  union_id: number;
+  active?: boolean;
+  translations?: CatalogTranslation[];
+};
+
+/** districts — name + local_field_id (parent) */
+export type DistrictPayload = {
+  name: string;
+  local_field_id: number;
+  active?: boolean;
+  translations?: CatalogTranslation[];
+};
+
+/** churches — name + district_id (parent) */
+export type ChurchPayload = {
+  name: string;
+  district_id: number;
   active?: boolean;
   translations?: CatalogTranslation[];
 };
@@ -70,11 +104,11 @@ export async function listAdminUnions(params?: Record<string, string | number | 
   return apiRequest<unknown>("/admin/unions", { params });
 }
 
-export async function createAdminUnion(payload: NameOnlyPayload) {
+export async function createAdminUnion(payload: UnionPayload) {
   return apiRequest("/admin/unions", { method: "POST", body: payload });
 }
 
-export async function updateAdminUnion(id: number, payload: Partial<NameOnlyPayload>) {
+export async function updateAdminUnion(id: number, payload: Partial<UnionPayload>) {
   return apiRequest(`/admin/unions/${id}`, { method: "PATCH", body: payload });
 }
 
@@ -88,11 +122,11 @@ export async function listAdminLocalFields(params?: Record<string, string | numb
   return apiRequest<unknown>("/admin/local-fields", { params });
 }
 
-export async function createAdminLocalField(payload: NameOnlyPayload) {
+export async function createAdminLocalField(payload: LocalFieldPayload) {
   return apiRequest("/admin/local-fields", { method: "POST", body: payload });
 }
 
-export async function updateAdminLocalField(id: number, payload: Partial<NameOnlyPayload>) {
+export async function updateAdminLocalField(id: number, payload: Partial<LocalFieldPayload>) {
   return apiRequest(`/admin/local-fields/${id}`, { method: "PATCH", body: payload });
 }
 
@@ -101,17 +135,18 @@ export async function deleteAdminLocalField(id: number) {
 }
 
 // ─── Districts ────────────────────────────────────────────────────────────────
-// Note: backend PK field is district_id aliasing districlub_type_id in the schema.
+// Note: backend PK field is `districlub_type_id` (legacy name). API responses
+// use this field name.
 
 export async function listAdminDistricts(params?: Record<string, string | number | boolean>) {
   return apiRequest<unknown>("/admin/districts", { params });
 }
 
-export async function createAdminDistrict(payload: NameOnlyPayload) {
+export async function createAdminDistrict(payload: DistrictPayload) {
   return apiRequest("/admin/districts", { method: "POST", body: payload });
 }
 
-export async function updateAdminDistrict(id: number, payload: Partial<NameOnlyPayload>) {
+export async function updateAdminDistrict(id: number, payload: Partial<DistrictPayload>) {
   return apiRequest(`/admin/districts/${id}`, { method: "PATCH", body: payload });
 }
 
@@ -125,16 +160,69 @@ export async function listAdminChurches(params?: Record<string, string | number 
   return apiRequest<unknown>("/admin/churches", { params });
 }
 
-export async function createAdminChurch(payload: NameOnlyPayload) {
+export async function createAdminChurch(payload: ChurchPayload) {
   return apiRequest("/admin/churches", { method: "POST", body: payload });
 }
 
-export async function updateAdminChurch(id: number, payload: Partial<NameOnlyPayload>) {
+export async function updateAdminChurch(id: number, payload: Partial<ChurchPayload>) {
   return apiRequest(`/admin/churches/${id}`, { method: "PATCH", body: payload });
 }
 
 export async function deleteAdminChurch(id: number) {
   return apiRequest(`/admin/churches/${id}`, { method: "DELETE" });
+}
+
+// ─── Single-item fetch helpers for geography catalogs ─────────────────────────
+// Backend currently exposes only list endpoints for unions/local-fields/
+// districts/churches (no GET /:id). Until a detail endpoint exists, the edit
+// pages fetch the full list and find the record by primary key client-side.
+// Lists are capped at 500-2000 rows in the service, which is acceptable for
+// geography catalogs (the tree is small).
+
+function unwrapList(payload: unknown): Record<string, unknown>[] {
+  if (!payload || typeof payload !== "object") return [];
+  const wrapped = payload as { data?: unknown };
+  const inner = wrapped.data !== undefined ? wrapped.data : payload;
+  if (Array.isArray(inner)) return inner as Record<string, unknown>[];
+  if (inner && typeof inner === "object") {
+    const items = (inner as { items?: unknown }).items;
+    if (Array.isArray(items)) return items as Record<string, unknown>[];
+  }
+  return [];
+}
+
+function findById(
+  items: Record<string, unknown>[],
+  pkField: string,
+  id: number,
+): Record<string, unknown> | null {
+  return (
+    items.find((item) => {
+      const raw = item[pkField];
+      const num = typeof raw === "number" ? raw : Number(raw);
+      return Number.isFinite(num) && num === id;
+    }) ?? null
+  );
+}
+
+export async function getAdminUnion(id: number) {
+  const payload = await listAdminUnions();
+  return findById(unwrapList(payload), "union_id", id);
+}
+
+export async function getAdminLocalField(id: number) {
+  const payload = await listAdminLocalFields();
+  return findById(unwrapList(payload), "local_field_id", id);
+}
+
+export async function getAdminDistrict(id: number) {
+  const payload = await listAdminDistricts();
+  return findById(unwrapList(payload), "districlub_type_id", id);
+}
+
+export async function getAdminChurch(id: number) {
+  const payload = await listAdminChurches();
+  return findById(unwrapList(payload), "church_id", id);
 }
 
 // ─── Relationship Types ───────────────────────────────────────────────────────
@@ -268,4 +356,36 @@ export async function updateAdminActivityType(id: number, payload: Partial<Trans
 
 export async function deleteAdminActivityType(id: number) {
   return apiRequest(`/admin/activity-types/${id}`, { method: "DELETE" });
+}
+
+// ─── Camporee Event Types ─────────────────────────────────────────────────────
+// Translatable fields: name + description. Extra non-translatable: code, display_order.
+
+export type CamporeeEventTypePayload = {
+  name: string;
+  description?: string | null;
+  code?: string | null;
+  display_order?: number | null;
+  active?: boolean;
+  translations?: CatalogTranslation[];
+};
+
+export async function listAdminCamporeeEventTypes(params?: Record<string, string | number | boolean>) {
+  return apiRequest<unknown>("/admin/camporee-event-types", { params });
+}
+
+export async function getAdminCamporeeEventType(id: number) {
+  return apiRequest<unknown>(`/admin/camporee-event-types/${id}`);
+}
+
+export async function createAdminCamporeeEventType(payload: CamporeeEventTypePayload) {
+  return apiRequest("/admin/camporee-event-types", { method: "POST", body: payload });
+}
+
+export async function updateAdminCamporeeEventType(id: number, payload: Partial<CamporeeEventTypePayload>) {
+  return apiRequest(`/admin/camporee-event-types/${id}`, { method: "PATCH", body: payload });
+}
+
+export async function deleteAdminCamporeeEventType(id: number) {
+  return apiRequest(`/admin/camporee-event-types/${id}`, { method: "DELETE" });
 }

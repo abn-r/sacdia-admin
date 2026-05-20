@@ -146,6 +146,18 @@ export const CAMPOREES_CREATE = "camporees:create";
 export const CAMPOREES_UPDATE = "camporees:update";
 export const CAMPOREES_DELETE = "camporees:delete";
 
+// --- Camporee Event Types (catalog) ---
+export const CAMPOREE_EVENT_TYPES_READ   = "camporee_event_types:read";
+export const CAMPOREE_EVENT_TYPES_CREATE = "camporee_event_types:create";
+export const CAMPOREE_EVENT_TYPES_UPDATE = "camporee_event_types:update";
+export const CAMPOREE_EVENT_TYPES_DELETE = "camporee_event_types:delete";
+
+// --- Camporee Events (templates + instances) ---
+export const CAMPOREE_EVENTS_READ   = "camporee_events:read";
+export const CAMPOREE_EVENTS_CREATE = "camporee_events:create";
+export const CAMPOREE_EVENTS_UPDATE = "camporee_events:update";
+export const CAMPOREE_EVENTS_DELETE = "camporee_events:delete";
+
 // --- Validación (Validation) ---
 export const VALIDATION_SUBMIT = "validation:submit";
 export const VALIDATION_REVIEW = "validation:review";
@@ -410,6 +422,14 @@ export const PERMISSION_GROUPS = {
       { key: CAMPOREES_CREATE },
       { key: CAMPOREES_UPDATE },
       { key: CAMPOREES_DELETE },
+      { key: CAMPOREE_EVENT_TYPES_READ },
+      { key: CAMPOREE_EVENT_TYPES_CREATE },
+      { key: CAMPOREE_EVENT_TYPES_UPDATE },
+      { key: CAMPOREE_EVENT_TYPES_DELETE },
+      { key: CAMPOREE_EVENTS_READ },
+      { key: CAMPOREE_EVENTS_CREATE },
+      { key: CAMPOREE_EVENTS_UPDATE },
+      { key: CAMPOREE_EVENTS_DELETE },
     ],
   },
   validation: {

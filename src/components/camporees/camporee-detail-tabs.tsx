@@ -11,6 +11,8 @@ import { getCamporeePendingApprovals } from "@/lib/api/camporees";
 import type { CamporeeMembersTabProps } from "@/components/camporees/camporee-members-tab";
 import type { CamporeeClubsTabProps } from "@/components/camporees/camporee-clubs-tab";
 import type { CamporeePaymentsTabProps } from "@/components/camporees/camporee-payments-tab";
+import { CamporeeEventsTab } from "@/components/camporee-events/camporee-events-tab";
+import type { CamporeeEvent, CamporeeEventTemplate } from "@/lib/api/camporee-events";
 
 const CamporeeMembersTab = dynamic<CamporeeMembersTabProps>(
   () =>
@@ -58,6 +60,12 @@ interface CamporeeDetailTabsProps {
   isUnionCamporee?: boolean;
   /** Server-rendered info tab content passed as a slot */
   infoContent: ReactNode;
+  // ── Events tab ───────────────────────────────────────────────────────────────
+  initialEvents?: CamporeeEvent[];
+  availableTemplates?: CamporeeEventTemplate[];
+  canCreateEvents?: boolean;
+  canEditEvents?: boolean;
+  canDeleteEvents?: boolean;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -74,6 +82,11 @@ export function CamporeeDetailTabs({
   paymentsError,
   isUnionCamporee = false,
   infoContent,
+  initialEvents = [],
+  availableTemplates = [],
+  canCreateEvents = false,
+  canEditEvents = false,
+  canDeleteEvents = false,
 }: CamporeeDetailTabsProps) {
   const [pending, setPending] = useState<PendingApprovals>(initialPending);
 
@@ -131,6 +144,15 @@ export function CamporeeDetailTabs({
           {pending.payments.length > 0 && (
             <Badge variant="warning" className="ml-1">
               {pending.payments.length}
+            </Badge>
+          )}
+        </TabsTrigger>
+
+        <TabsTrigger value="events">
+          Eventos
+          {initialEvents.length > 0 && (
+            <Badge variant="secondary" className="ml-2">
+              {initialEvents.length}
             </Badge>
           )}
         </TabsTrigger>
@@ -202,6 +224,26 @@ export function CamporeeDetailTabs({
                 onAfterChange={refreshPending}
               />
             )}
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      {/* ── Eventos ── */}
+      <TabsContent value="events" className="mt-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Eventos del camporee</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CamporeeEventsTab
+              camporeeId={camporeeId}
+              initialEvents={initialEvents}
+              availableTemplates={availableTemplates}
+              isUnionCamporee={isUnionCamporee}
+              canCreate={canCreateEvents}
+              canEdit={canEditEvents}
+              canDelete={canDeleteEvents}
+            />
           </CardContent>
         </Card>
       </TabsContent>

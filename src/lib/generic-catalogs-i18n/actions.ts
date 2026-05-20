@@ -33,6 +33,9 @@ import {
   CATALOGS_CREATE,
   CATALOGS_UPDATE,
   CATALOGS_DELETE,
+  CAMPOREE_EVENT_TYPES_CREATE,
+  CAMPOREE_EVENT_TYPES_UPDATE,
+  CAMPOREE_EVENT_TYPES_DELETE,
   COUNTRIES_CREATE,
   COUNTRIES_UPDATE,
   COUNTRIES_DELETE,
@@ -71,6 +74,9 @@ import {
   ACTIVITY_TYPES_DELETE,
 } from "@/lib/auth/permissions";
 import {
+  createAdminCamporeeEventType,
+  updateAdminCamporeeEventType,
+  deleteAdminCamporeeEventType,
   createAdminCountry,
   updateAdminCountry,
   deleteAdminCountry,
@@ -252,6 +258,22 @@ export const updateCountryAction = countriesActions.updateAction;
 export const deleteCountryAction = countriesActions.deleteAction;
 
 // ─── Unions ───────────────────────────────────────────────────────────────────
+// Custom extra fields: abbreviation + country_id (parent FK).
+
+function extractUnionExtraFields(formData: FormData): Record<string, unknown> {
+  const extra: Record<string, unknown> = {};
+
+  const abbreviation = String(formData.get("abbreviation") ?? "").trim();
+  if (abbreviation) extra.abbreviation = abbreviation;
+
+  const countryIdRaw = String(formData.get("country_id") ?? "").trim();
+  if (countryIdRaw) {
+    const n = Number(countryIdRaw);
+    if (Number.isFinite(n) && n > 0) extra.country_id = Math.floor(n);
+  }
+
+  return extra;
+}
 
 const unionsActions = makeActions(
   "/dashboard/catalogs/geography/unions",
@@ -265,7 +287,9 @@ const unionsActions = makeActions(
     update: (id, p) => updateAdminUnion(id, p),
     delete: (id) => deleteAdminUnion(id),
   },
-  false, // name only
+  false, // name only base; extras merged in
+  ["name"],
+  extractUnionExtraFields,
 );
 
 export const createUnionAction = unionsActions.createAction;
@@ -273,6 +297,22 @@ export const updateUnionAction = unionsActions.updateAction;
 export const deleteUnionAction = unionsActions.deleteAction;
 
 // ─── Local Fields ─────────────────────────────────────────────────────────────
+// Custom extra fields: abbreviation + union_id (parent FK).
+
+function extractLocalFieldExtraFields(formData: FormData): Record<string, unknown> {
+  const extra: Record<string, unknown> = {};
+
+  const abbreviation = String(formData.get("abbreviation") ?? "").trim();
+  if (abbreviation) extra.abbreviation = abbreviation;
+
+  const unionIdRaw = String(formData.get("union_id") ?? "").trim();
+  if (unionIdRaw) {
+    const n = Number(unionIdRaw);
+    if (Number.isFinite(n) && n > 0) extra.union_id = Math.floor(n);
+  }
+
+  return extra;
+}
 
 const localFieldsActions = makeActions(
   "/dashboard/catalogs/geography/local-fields",
@@ -286,7 +326,9 @@ const localFieldsActions = makeActions(
     update: (id, p) => updateAdminLocalField(id, p),
     delete: (id) => deleteAdminLocalField(id),
   },
-  false, // name only
+  false,
+  ["name"],
+  extractLocalFieldExtraFields,
 );
 
 export const createLocalFieldAction = localFieldsActions.createAction;
@@ -294,6 +336,19 @@ export const updateLocalFieldAction = localFieldsActions.updateAction;
 export const deleteLocalFieldAction = localFieldsActions.deleteAction;
 
 // ─── Districts ────────────────────────────────────────────────────────────────
+// Custom extra field: local_field_id (parent FK).
+
+function extractDistrictExtraFields(formData: FormData): Record<string, unknown> {
+  const extra: Record<string, unknown> = {};
+
+  const localFieldIdRaw = String(formData.get("local_field_id") ?? "").trim();
+  if (localFieldIdRaw) {
+    const n = Number(localFieldIdRaw);
+    if (Number.isFinite(n) && n > 0) extra.local_field_id = Math.floor(n);
+  }
+
+  return extra;
+}
 
 const districtsActions = makeActions(
   "/dashboard/catalogs/geography/districts",
@@ -307,7 +362,9 @@ const districtsActions = makeActions(
     update: (id, p) => updateAdminDistrict(id, p),
     delete: (id) => deleteAdminDistrict(id),
   },
-  false, // name only
+  false,
+  ["name"],
+  extractDistrictExtraFields,
 );
 
 export const createDistrictAction = districtsActions.createAction;
@@ -315,6 +372,19 @@ export const updateDistrictAction = districtsActions.updateAction;
 export const deleteDistrictAction = districtsActions.deleteAction;
 
 // ─── Churches ─────────────────────────────────────────────────────────────────
+// Custom extra field: district_id (parent FK).
+
+function extractChurchExtraFields(formData: FormData): Record<string, unknown> {
+  const extra: Record<string, unknown> = {};
+
+  const districtIdRaw = String(formData.get("district_id") ?? "").trim();
+  if (districtIdRaw) {
+    const n = Number(districtIdRaw);
+    if (Number.isFinite(n) && n > 0) extra.district_id = Math.floor(n);
+  }
+
+  return extra;
+}
 
 const churchesActions = makeActions(
   "/dashboard/catalogs/geography/churches",
@@ -328,7 +398,9 @@ const churchesActions = makeActions(
     update: (id, p) => updateAdminChurch(id, p),
     delete: (id) => deleteAdminChurch(id),
   },
-  false, // name only
+  false,
+  ["name"],
+  extractChurchExtraFields,
 );
 
 export const createChurchAction = churchesActions.createAction;
@@ -528,3 +600,42 @@ const activityTypesActions = makeActions(
 export const createActivityTypeAction = activityTypesActions.createAction;
 export const updateActivityTypeAction = activityTypesActions.updateAction;
 export const deleteActivityTypeAction = activityTypesActions.deleteAction;
+
+// ─── Camporee Event Types ─────────────────────────────────────────────────────
+// Extra non-translatable fields: code + display_order.
+
+function extractCamporeeEventTypeExtraFields(formData: FormData): Record<string, unknown> {
+  const extra: Record<string, unknown> = {};
+
+  const code = String(formData.get("code") ?? "").trim();
+  if (code) extra.code = code;
+
+  const displayOrderRaw = String(formData.get("display_order") ?? "").trim();
+  if (displayOrderRaw) {
+    const n = Number(displayOrderRaw);
+    if (Number.isFinite(n)) extra.display_order = Math.floor(n);
+  }
+
+  return extra;
+}
+
+const camporeeEventTypesActions = makeActions(
+  "/dashboard/catalogs/camporee-event-types",
+  {
+    create: [CAMPOREE_EVENT_TYPES_CREATE, CATALOGS_CREATE],
+    update: [CAMPOREE_EVENT_TYPES_UPDATE, CATALOGS_UPDATE],
+    delete: [CAMPOREE_EVENT_TYPES_DELETE, CATALOGS_DELETE],
+  },
+  {
+    create: (p) => createAdminCamporeeEventType(p as Parameters<typeof createAdminCamporeeEventType>[0]),
+    update: (id, p) => updateAdminCamporeeEventType(id, p),
+    delete: (id) => deleteAdminCamporeeEventType(id),
+  },
+  true, // name + description translatable
+  ["name", "description"],
+  extractCamporeeEventTypeExtraFields,
+);
+
+export const createCamporeeEventTypeAction = camporeeEventTypesActions.createAction;
+export const updateCamporeeEventTypeAction = camporeeEventTypesActions.updateAction;
+export const deleteCamporeeEventTypeAction = camporeeEventTypesActions.deleteAction;

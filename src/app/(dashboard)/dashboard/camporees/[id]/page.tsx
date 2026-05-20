@@ -17,6 +17,21 @@ import {
   getCamporeePayments,
   getCamporeePendingApprovals,
 } from "@/lib/api/camporees";
+import {
+  listLocalCamporeeEvents,
+  listCamporeeEventTemplates,
+  type CamporeeEvent,
+  type CamporeeEventTemplate,
+} from "@/lib/api/camporee-events";
+import { hasAnyPermission } from "@/lib/auth/permission-utils";
+import {
+  CAMPOREE_EVENTS_CREATE,
+  CAMPOREE_EVENTS_UPDATE,
+  CAMPOREE_EVENTS_DELETE,
+  CAMPOREES_CREATE,
+  CAMPOREES_UPDATE,
+  CAMPOREES_DELETE,
+} from "@/lib/auth/permissions";
 import { requireAdminUser } from "@/lib/auth/session";
 import type {
   Camporee,
@@ -126,7 +141,7 @@ function formatDate(dateStr?: string | null): string {
 // ─── Page ──────────────────────────────────────────────────────────────────────
 
 export default async function CamporeeDetailPage({ params }: { params: Params }) {
-  await requireAdminUser();
+  const user = await requireAdminUser();
 
   const { id } = await params;
   const camporeeId = toPositiveNumber(id);
@@ -141,6 +156,8 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
   let payments: CamporeePayment[] = [];
   let paymentsError: string | null = null;
   let pending: PendingApprovals = { clubs: [], members: [], payments: [] };
+  let events: CamporeeEvent[] = [];
+  let availableTemplates: CamporeeEventTemplate[] = [];
 
   // Fetch camporee detail
   try {
@@ -201,6 +218,28 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
     // Silently ignore — pending count is informational only
   }
 
+  // Fetch camporee events (instances) — best effort
+  try {
+    const eventsPayload = await listLocalCamporeeEvents(camporeeId, { limit: 100 });
+    const eventsData = extractList<CamporeeEvent>(eventsPayload);
+    events = eventsData.sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0));
+  } catch {
+    // Events are not blocking — tab shows empty state
+  }
+
+  // Fetch templates available for this local camporee — best effort
+  // Local camporees can use local_field templates + their union's templates
+  try {
+    const templatesPayload = await listCamporeeEventTemplates({ limit: 200, active: true });
+    availableTemplates = extractList<CamporeeEventTemplate>(templatesPayload);
+  } catch {
+    // silently degrade
+  }
+
+  const canCreateEvents = hasAnyPermission(user, [CAMPOREE_EVENTS_CREATE, CAMPOREES_CREATE]);
+  const canEditEvents = hasAnyPermission(user, [CAMPOREE_EVENTS_UPDATE, CAMPOREES_UPDATE]);
+  const canDeleteEvents = hasAnyPermission(user, [CAMPOREE_EVENTS_DELETE, CAMPOREES_DELETE]);
+
   return (
     <div className="space-y-6">
       <PageHeader title={camporee.name} description={t("description")}>
@@ -227,6 +266,11 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
         membersError={membersError}
         clubsError={clubsError}
         paymentsError={paymentsError}
+        initialEvents={events}
+        availableTemplates={availableTemplates}
+        canCreateEvents={canCreateEvents}
+        canEditEvents={canEditEvents}
+        canDeleteEvents={canDeleteEvents}
         infoContent={
           <Card>
             <CardHeader>
