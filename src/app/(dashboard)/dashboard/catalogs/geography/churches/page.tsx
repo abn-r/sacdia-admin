@@ -1,33 +1,16 @@
-import { Building2 } from "lucide-react";
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import dynamic from "next/dynamic";
-import { Skeleton } from "@/components/ui/skeleton";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-
-const PhaseECatalogCrudPage = dynamic(
-  () =>
-    import("@/components/catalogs/phase-e-catalog-crud-page").then((m) => ({
-      default: m.PhaseECatalogCrudPage,
-    })),
-  {
-    loading: () => (
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <Skeleton className="h-8 w-48 rounded-md" />
-          <Skeleton className="h-9 w-28 rounded-md" />
-        </div>
-        <Skeleton className="h-10 w-full rounded-md" />
-        <Skeleton className="h-12 w-full rounded-md" />
-        <Skeleton className="h-12 w-full rounded-md" />
-        <Skeleton className="h-12 w-full rounded-md" />
-        <Skeleton className="h-12 w-full rounded-md" />
-      </div>
-    ),
-  }
-);
 import { ApiError } from "@/lib/api/client";
-import { listAdminChurches } from "@/lib/api/generic-catalogs-i18n";
-import { extractItems, extractMeta, readParam, readPositiveNumberParam } from "@/lib/phase-e-catalogs/fetch-helpers";
+import {
+  listAdminChurches,
+  listAdminDistricts,
+} from "@/lib/api/generic-catalogs-i18n";
+import {
+  extractItems,
+  extractMeta,
+  readParam,
+  readPositiveNumberParam,
+} from "@/lib/phase-e-catalogs/fetch-helpers";
 import { requireAdminUser } from "@/lib/auth/session";
 import { hasAnyPermission } from "@/lib/auth/permission-utils";
 import {
@@ -38,31 +21,52 @@ import {
   CATALOGS_UPDATE,
   CATALOGS_DELETE,
 } from "@/lib/auth/permissions";
-import {
-  createChurchAction,
-  updateChurchAction,
-  deleteChurchAction,
-} from "@/lib/generic-catalogs-i18n/actions";
-
-// NOTE: parent-filter (district_id) is defined in entities.ts for legacy CatalogCrudPage.
-// PhaseECatalogCrudPage does NOT support parent filters — filtering by district is not
-// rendered in this view. Tracked as tech debt for PR-6 follow-up if needed.
+import { deleteChurchAction } from "@/lib/generic-catalogs-i18n/actions";
+import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { GeographyListClient } from "@/components/catalogs/geography-list-client";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
-export default async function ChurchesPage({ searchParams }: { searchParams: SearchParams }) {
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("catalogs.pages.churches");
+  return { title: t("metadataTitle") };
+}
+
+function buildDistrictMap(payload: unknown): Map<number, string> {
+  const items = extractItems(payload);
+  const map = new Map<number, string>();
+  for (const item of items) {
+    const id =
+      typeof item.districlub_type_id === "number"
+        ? item.districlub_type_id
+        : Number(item.districlub_type_id);
+    const name = typeof item.name === "string" ? item.name.trim() : "";
+    if (Number.isFinite(id) && id > 0 && name) {
+      map.set(id, name);
+    }
+  }
+  return map;
+}
+
+export default async function ChurchesPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
   const user = await requireAdminUser();
   const t = await getTranslations("catalogs.pages.churches");
   const raw = await searchParams;
 
   const page = readPositiveNumberParam(raw, "page") ?? 1;
   const limit = readPositiveNumberParam(raw, "limit") ?? 20;
-  const search = readParam(raw, "search") ?? readParam(raw, "name") ?? readParam(raw, "q");
+  const search =
+    readParam(raw, "search") ?? readParam(raw, "name") ?? readParam(raw, "q");
   const activeRaw = readParam(raw, "active");
 
   let items: Record<string, unknown>[] = [];
   let meta = { page, limit, total: 0, totalPages: 1 };
   let loadError: string | null = null;
+  let districtMap = new Map<number, string>();
 
   try {
     const params: Record<string, string | number | boolean> = { page, limit };
@@ -70,9 +74,29 @@ export default async function ChurchesPage({ searchParams }: { searchParams: Sea
     if (activeRaw === "true") params.active = true;
     if (activeRaw === "false") params.active = false;
 
-    const payload = await listAdminChurches(params);
-    items = extractItems(payload);
-    meta = extractMeta(payload, page, limit, items.length);
+    const [churchesPayload, districtsPayload] = await Promise.allSettled([
+      listAdminChurches(params),
+      listAdminDistricts(),
+    ]);
+
+    if (churchesPayload.status === "fulfilled") {
+      items = extractItems(churchesPayload.value);
+      meta = extractMeta(churchesPayload.value, page, limit, items.length);
+    } else if (
+      !(
+        churchesPayload.reason instanceof ApiError &&
+        churchesPayload.reason.status === 429
+      )
+    ) {
+      loadError =
+        churchesPayload.reason instanceof ApiError
+          ? churchesPayload.reason.message
+          : t("loadError");
+    }
+
+    if (districtsPayload.status === "fulfilled") {
+      districtMap = buildDistrictMap(districtsPayload.value);
+    }
   } catch (error) {
     if (!(error instanceof ApiError && error.status === 429)) {
       loadError = error instanceof ApiError ? error.message : t("loadError");
@@ -83,24 +107,31 @@ export default async function ChurchesPage({ searchParams }: { searchParams: Sea
   const canEdit = hasAnyPermission(user, [CHURCHES_UPDATE, CATALOGS_UPDATE]);
   const canDelete = hasAnyPermission(user, [CHURCHES_DELETE, CATALOGS_DELETE]);
 
+  const enrichedItems = items.map((item) => {
+    const raw = item.district_id;
+    const id = typeof raw === "number" ? raw : Number(raw);
+    const parentName = Number.isFinite(id)
+      ? districtMap.get(id) ?? String(id)
+      : "—";
+    return { ...item, _parent_name: parentName };
+  });
+
   return (
     <div className="space-y-6">
       {loadError && <EndpointErrorBanner state="missing" detail={loadError} />}
-      <PhaseECatalogCrudPage
-        title={t("title")}
-        description={t("description")}
-        entityLabel={t("entityLabel")}
-        emptyIcon={<Building2 />}
-        includeDescription={false}
-        idField="church_id"
-        nameField="name"
-        items={items}
+      <GeographyListClient
+        i18nNamespace="churches"
+        basePath="/dashboard/catalogs/geography/churches"
+        pkField="church_id"
+        includeAbbreviation={false}
+        parentLabel={t("colDistrict")}
+        parentField="_parent_name"
+        fallbackName="esta iglesia"
+        items={enrichedItems}
         meta={meta}
         canCreate={canCreate}
         canEdit={canEdit}
         canDelete={canDelete}
-        createAction={createChurchAction}
-        updateAction={updateChurchAction}
         deleteAction={deleteChurchAction}
       />
     </div>
