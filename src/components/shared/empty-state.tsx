@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { createElement, isValidElement, type ElementType, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { type LucideIcon } from "lucide-react";
 
@@ -17,10 +17,17 @@ interface EmptyStateProps {
 }
 
 function renderIcon(icon: LucideIcon | ReactNode): ReactNode {
-  if (typeof icon === "function") {
-    const Icon = icon as LucideIcon;
-    return <Icon className="size-6 text-muted-foreground" aria-hidden="true" />;
+  if (isValidElement(icon)) {
+    return icon;
   }
+
+  if (typeof icon === "function" || (typeof icon === "object" && icon !== null && "$$typeof" in icon)) {
+    return createElement(icon as ElementType, {
+      className: "size-6 text-muted-foreground",
+      "aria-hidden": true,
+    });
+  }
+
   return icon;
 }
 
