@@ -138,6 +138,7 @@ export interface IntlMessages {
       materials_inventory: string;
       materials_categories: string;
       materials_config: string;
+      certificate_bulk_imports: string;
     };
     breadcrumbs: {
       dashboard: string;
@@ -5180,5 +5181,39 @@ export interface IntlMessages {
     secretary: string;
     treasurer: string;
     counselor: string;
+  };
+  certificate_bulk_imports: {
+    page: {
+      title: string;
+      description: string;
+      loadError: string;
+      emptyTitle: string;
+      emptyDescription: string;
+    };
+    detailPage: {
+      title: string;
+      description: string;
+      breadcrumbList: string;
+      loadError: string;
+      emptyTitle: string;
+      emptyDescription: string;
+    };
+    actionDialog: {
+      reasonRequired: string;
+      reasonMax: string;
+      commentMax: string;
+      reasonLabel: string;
+      reasonPlaceholder: string;
+      commentLabel: string;
+      commentPlaceholder: string;
+      cancel: string;
+      approve: string;
+      reject: string;
+      batchApproved: string;
+      batchRejected: string;
+      itemApproved: string;
+      itemRejected: string;
+      genericError: string;
+    };
   };
 }

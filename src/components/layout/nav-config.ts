@@ -275,6 +275,12 @@ export const navConfig: NavGroup[] = [
         permission: "investiture:read",
       },
       {
+        title: "items.certificate_bulk_imports",
+        url: "/dashboard/certificate-bulk-imports",
+        icon: FileText,
+        permission: "investiture:read",
+      },
+      {
         title: "items.investiture",
         url: "/dashboard/investiture",
         icon: Star,
