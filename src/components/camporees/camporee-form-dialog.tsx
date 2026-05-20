@@ -19,6 +19,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Form,
   FormControl,
   FormField,
@@ -29,6 +36,27 @@ import {
 import { useTranslations } from "next-intl";
 import { createCamporee, updateCamporee } from "@/lib/api/camporees";
 import type { Camporee } from "@/lib/api/camporees";
+import { listAdminLocalFields } from "@/lib/api/generic-catalogs-i18n";
+import { extractItems } from "@/lib/phase-e-catalogs/fetch-helpers";
+
+// ─── Local field option (parent FK select) ────────────────────────────────────
+
+type LocalFieldOption = { value: number; label: string };
+
+function buildLocalFieldOptions(payload: unknown): LocalFieldOption[] {
+  const items = extractItems(payload);
+  return items
+    .map((item) => {
+      const id =
+        typeof item.local_field_id === "number"
+          ? item.local_field_id
+          : Number(item.local_field_id);
+      const name = typeof item.name === "string" ? item.name.trim() : "";
+      if (!Number.isFinite(id) || id <= 0 || !name) return null;
+      return { value: id, label: name };
+    })
+    .filter((x): x is LocalFieldOption => x !== null);
+}
 
 // ─── Schema factory ────────────────────────────────────────────────────────────
 
@@ -83,6 +111,8 @@ export function CamporeeFormDialog({
   const tVal = useTranslations("camporees.validation");
   const isEdit = !!camporee;
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [localFields, setLocalFields] = useState<LocalFieldOption[]>([]);
+  const [loadingLocalFields, setLoadingLocalFields] = useState(false);
   const schema = useMemo(() => buildSchema(tVal), [tVal]);
 
   const form = useForm<FormValues>({
@@ -100,6 +130,27 @@ export function CamporeeFormDialog({
       includes_master_guides: false,
     },
   });
+
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    setLoadingLocalFields(true);
+    listAdminLocalFields()
+      .then((payload) => {
+        if (cancelled) return;
+        setLocalFields(buildLocalFieldOptions(payload));
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setLocalFields([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingLocalFields(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open]);
 
   useEffect(() => {
     if (open) {
@@ -296,24 +347,49 @@ export function CamporeeFormDialog({
             <FormField
               control={form.control}
               name="local_field_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    {t("form.labelLocalFieldId")}{" "}
-                    <span aria-hidden="true" className="text-destructive">*</span>
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      type="number"
-                      min={1}
-                      placeholder="1"
-                      aria-required="true"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                const stringValue =
+                  field.value && field.value > 0 ? String(field.value) : "";
+                return (
+                  <FormItem>
+                    <FormLabel>
+                      {t("form.labelLocalFieldId")}{" "}
+                      <span aria-hidden="true" className="text-destructive">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Select
+                        value={stringValue}
+                        onValueChange={(v) => field.onChange(Number(v))}
+                        disabled={loadingLocalFields || localFields.length === 0}
+                      >
+                        <SelectTrigger
+                          ref={field.ref}
+                          onBlur={field.onBlur}
+                          aria-required="true"
+                        >
+                          <SelectValue
+                            placeholder={
+                              loadingLocalFields
+                                ? "Cargando..."
+                                : localFields.length === 0
+                                  ? "Sin campos locales"
+                                  : "Seleccionar campo local"
+                            }
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {localFields.map((lf) => (
+                            <SelectItem key={lf.value} value={String(lf.value)}>
+                              {lf.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
 
             {/* Costo de inscripción */}
@@ -325,7 +401,23 @@ export function CamporeeFormDialog({
                   <FormLabel>{t("form.labelRegistrationCost")}</FormLabel>
                   <FormControl>
                     <Input
-                      {...field}
+                      name={field.name}
+                      ref={field.ref}
+                      onBlur={field.onBlur}
+                      value={
+                        field.value === undefined || field.value === null
+                          ? ""
+                          : field.value
+                      }
+                      onChange={(e) => {
+                        const raw = e.target.value;
+                        if (raw === "") {
+                          field.onChange(undefined);
+                        } else {
+                          const n = Number(raw);
+                          field.onChange(Number.isFinite(n) ? n : undefined);
+                        }
+                      }}
                       type="number"
                       min={0}
                       step="0.01"
