@@ -108,7 +108,8 @@
       "materials_receipts": "Comprovantes",
       "materials_inventory": "Inventário",
       "materials_categories": "Categorias",
-      "materials_config": "Configurações"
+      "materials_config": "Configurações",
+      "certificate_bulk_imports": "Cargas por certificado"
     },
     "breadcrumbs": {
       "dashboard": "Painel",
@@ -5010,5 +5011,39 @@
     "secretary": "Secretário",
     "treasurer": "Tesoureiro",
     "counselor": "Conselheiro"
+  },
+  "certificate_bulk_imports": {
+    "page": {
+      "title": "Cargas por certificado",
+      "description": "Consola admin para revisar lotes OCR enviados por certificado.",
+      "loadError": "No se pudieron cargar las cargas por certificado.",
+      "emptyTitle": "Sin cargas pendientes",
+      "emptyDescription": "No hay cargas por certificado esperando revisión."
+    },
+    "detailPage": {
+      "title": "Revisión de carga por certificado",
+      "description": "Lote {batchId}: comprobantes, filas OCR y auditoría.",
+      "breadcrumbList": "Cargas por certificado",
+      "loadError": "No se pudo cargar el detalle de la carga.",
+      "emptyTitle": "Carga no disponible",
+      "emptyDescription": "No encontramos datos visibles para este lote."
+    },
+    "actionDialog": {
+      "reasonRequired": "El motivo de rechazo es obligatorio",
+      "reasonMax": "Máximo 1000 caracteres",
+      "commentMax": "Máximo 1000 caracteres",
+      "reasonLabel": "Motivo de rechazo *",
+      "reasonPlaceholder": "Explicá qué debe corregir el miembro...",
+      "commentLabel": "Comentario opcional",
+      "commentPlaceholder": "Agregá una nota interna o visible para auditoría...",
+      "cancel": "Cancelar",
+      "approve": "Aprobar",
+      "reject": "Rechazar",
+      "batchApproved": "Lote aprobado correctamente",
+      "batchRejected": "Lote rechazado para corrección",
+      "itemApproved": "Fila aprobada correctamente",
+      "itemRejected": "Fila rechazada para corrección",
+      "genericError": "No se pudo completar la acción"
+    }
   }
 }
