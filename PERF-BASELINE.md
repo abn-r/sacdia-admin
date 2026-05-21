@@ -575,3 +575,53 @@ non-default tabs.
   - Regenerate per-route baseline numbers post-R7 to confirm gz savings.
 - After the next perf wave, regenerate this baseline and commit a diff so we
   can see savings by route.
+
+---
+
+## 9. Audit Wave — 2026-05-21 (CRITICAL + HIGH + MEDIUM)
+
+Reference engram memos:
+- `sacdia-admin/audit-2026-05` — initial audit findings
+- `sacdia-admin/critical-fixes-2026-05` — 5 CRITICAL applied
+- `sacdia-admin/high-fixes-2026-05` — 7 HIGH applied
+- this section covers 10 MEDIUM
+
+### 9.1 Expected bundle/perf impact (NOT yet remeasured)
+
+| Fix | Expected delta |
+| --- | -------------- |
+| framer-motion removed from dashboard template | -140KB minified (-~40KB gzip) on all dashboard routes (rootMain) |
+| `xlsx` lazy in clubs-bulk-import | -800KB raw moved off `/dashboard/clubs/import` initial chunk |
+| `honors/requirements/review/page.tsx` Server Component wrapper | -200-400ms TTFB on cold load, no client spinner flash |
+| AuthProvider no client `/api/auth/me` fetch | -1 network round-trip on every dashboard hydration |
+| `unstable_cache` for honors catalogs | predictable cache behavior in multi-worker (Vercel) — replaces unreliable module-memory cache |
+| Stagger animations `idx*40, cap 400ms` → `idx*20, cap 200ms` | perceived load -200ms on lists of 20+ items |
+| `achievement-preview-card` `unoptimized` removed | -50-70% bytes mobile (AVIF/WebP via next/image optimization) |
+| DataTableShell → Client Component | small hydration cost added; gradient mask gives discoverability of horizontal scroll |
+| Command palette cmd+k | no bundle delta (cmdk already loaded by other features); UX time-to-page -40-60% (Linear/Raycast pattern) |
+
+### 9.2 Manual TODO
+
+To regenerate accurate numbers post these fixes:
+
+```bash
+pnpm analyze                          # writes .next/diagnostics/analyze/
+next experimental-analyze             # opens treemap UI at http://localhost:4000
+gzip -c .next/static/chunks/*.js | wc -c   # per-chunk gzip transfer
+```
+
+Then update §2 (Top 20 client chunks) and §3 (per-route sizes) with new values.
+
+### 9.3 Verification status
+
+- `pnpm typecheck`: PASS (1 pre-existing error in `camporee-events/timeline/event-day-card.tsx:137` unrelated to this wave)
+- `pnpm test --run`: NOT RUN (no new tests added — gap to address)
+- `pnpm lint`: PASS for files touched in this wave (warnings unchanged in pre-existing files)
+
+### 9.4 Blocked / deferred
+
+- **M1 (next/image migration of `evidence-detail-dialog`)** — `file_url` may come from R2 host not in `next.config.ts` remotePatterns. Needs backend verification before migrating.
+- **M3 (RoleDistributionChart full-list fetch)** — requires backend endpoint `GET /admin/users/role-distribution` with SQL `GROUP BY role_name`. Cannot fix in admin alone.
+- **Per-field validation errors** — pattern installed in `CreateClubForm` only. `edit-club-form`, `honor-form`, `register-member-dialog`, others still return global `state.error`. Replicate pattern.
+- **Tests for new components** — `permissions-matrix.tsx`, `command-palette.tsx`, `data-table-shell.tsx` (now client), `review-client.tsx` have zero coverage. Add vitest + Testing Library tests.
+
