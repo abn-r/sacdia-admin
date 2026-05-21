@@ -234,7 +234,6 @@ export function CamporeeDetailTabs({
               <CamporeePaymentsTab
                 camporeeId={camporeeId}
                 initialPayments={initialPayments}
-                members={initialMembers}
                 isUnionCamporee={isUnionCamporee}
                 onAfterChange={refreshPending}
               />

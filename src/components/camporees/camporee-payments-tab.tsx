@@ -1,17 +1,16 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import Link from "next/link";
 import { PlusCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CamporeePaymentsPanel } from "@/components/camporees/camporee-payments-panel";
-import { PaymentDialog } from "@/components/camporees/payment-dialog";
 import { getCamporeePayments } from "@/lib/api/camporees";
-import type { CamporeePayment, CamporeeMember } from "@/lib/api/camporees";
+import type { CamporeePayment } from "@/lib/api/camporees";
 
 export interface CamporeePaymentsTabProps {
   camporeeId: number;
   initialPayments: CamporeePayment[];
-  members: CamporeeMember[];
   isUnionCamporee?: boolean;
   onAfterChange?: () => void;
 }
@@ -19,15 +18,12 @@ export interface CamporeePaymentsTabProps {
 export function CamporeePaymentsTab({
   camporeeId,
   initialPayments,
-  members,
   isUnionCamporee = false,
   onAfterChange,
 }: CamporeePaymentsTabProps) {
   const [payments, setPayments] = useState<CamporeePayment[]>(initialPayments);
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingPayment, setEditingPayment] = useState<CamporeePayment | null>(null);
 
   const refreshPayments = useCallback(async () => {
     setIsLoading(true);
@@ -57,23 +53,6 @@ export function CamporeePaymentsTab({
     }
   }, [camporeeId, onAfterChange]);
 
-  function handleNewPayment() {
-    setEditingPayment(null);
-    setDialogOpen(true);
-  }
-
-  function handleEditPayment(payment: CamporeePayment) {
-    setEditingPayment(payment);
-    setDialogOpen(true);
-  }
-
-  function handleDialogOpenChange(open: boolean) {
-    if (!open) {
-      setEditingPayment(null);
-    }
-    setDialogOpen(open);
-  }
-
   return (
     <div className="space-y-4">
       {/* Toolbar */}
@@ -93,9 +72,11 @@ export function CamporeePaymentsTab({
             <RefreshCw className={`size-3.5 ${isLoading ? "animate-spin" : ""}`} />
             <span className="sr-only">Actualizar</span>
           </Button>
-          <Button size="sm" onClick={handleNewPayment}>
-            <PlusCircle className="size-4" />
-            Registrar pago
+          <Button size="sm" asChild>
+            <Link href={`/dashboard/camporees/${camporeeId}/payments/new`}>
+              <PlusCircle className="size-4" />
+              Registrar pago
+            </Link>
           </Button>
         </div>
       </div>
@@ -108,19 +89,10 @@ export function CamporeePaymentsTab({
       )}
 
       <CamporeePaymentsPanel
+        camporeeId={camporeeId}
         payments={payments}
-        onEdit={handleEditPayment}
         onPaymentsChange={refreshPayments}
         isUnionCamporee={isUnionCamporee}
-      />
-
-      <PaymentDialog
-        open={dialogOpen}
-        onOpenChange={handleDialogOpenChange}
-        camporeeId={camporeeId}
-        members={members}
-        payment={editingPayment}
-        onSuccess={refreshPayments}
       />
     </div>
   );
