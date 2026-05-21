@@ -430,7 +430,17 @@
       "delete": "Delete",
       "cancel": "Cancel",
       "saveChanges": "Save changes",
-      "noPermissions": "You do not have permission to modify this catalog."
+      "noPermissions": "You do not have permission to modify this catalog.",
+      "colDuration": "Duration",
+      "colAvailability": "Availability",
+      "classConfigTitle": "Availability and duration",
+      "classConfigDescription": "Configure when the class can be started and how many ecclesiastical years it may last.",
+      "fieldAvailableFromYear": "Available from",
+      "fieldAvailableFromAny": "No start restriction",
+      "fieldAvailableUntilYear": "Available until",
+      "fieldAvailableUntilNone": "No programmed expiration",
+      "fieldMinDurationYears": "Minimum duration (years)",
+      "fieldMaxDurationYears": "Maximum duration (years)"
     },
     "pages": {
       "countries": {
@@ -4821,7 +4831,9 @@
       "col_club_type": "Club type",
       "col_modules": "Modules",
       "col_status": "Status",
-      "view_detail": "View detail for {name}"
+      "view_detail": "View detail for {name}",
+      "col_duration": "Duration",
+      "col_availability": "Availability"
     },
     "tree": {
       "no_modules": "This class has no registered modules.",
@@ -4862,8 +4874,23 @@
         "statPoints": "Required points",
         "tabStructure": "Program structure",
         "structureCardTitle": "Modules & sections",
-        "modulesEndpointMissing": "The classes endpoint did not return modules in the detail response. Modules load from GET /classes/:id — verify the backend includes them."
+        "modulesEndpointMissing": "The classes endpoint did not return modules in the detail response. Modules load from GET /classes/:id — verify the backend includes them.",
+        "labelDuration": "Configured duration",
+        "labelAvailableFrom": "Availability start",
+        "labelAvailableUntil": "Availability end",
+        "statDuration": "Duration"
       }
+    },
+    "expiration": {
+      "title": "Manual class expiration",
+      "description": "Run a simulation or apply expiration for enrollments that exceeded the maximum duration.",
+      "yearLabel": "Cutoff ecclesiastical year",
+      "currentYearOption": "Use backend active year",
+      "dryRun": "Dry run",
+      "apply": "Apply expiration",
+      "modeDryRun": "dry run",
+      "modeApply": "apply",
+      "result": "{mode}: {scanned} enrollments scanned, {expired} expired."
     }
   },
   "membership": {

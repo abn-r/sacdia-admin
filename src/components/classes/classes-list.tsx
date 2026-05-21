@@ -15,6 +15,10 @@ import {
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ClassStatusBadge } from "@/components/classes/class-status-badge";
+import {
+  formatClassAvailabilityUntil,
+  formatClassDurationRange,
+} from "@/lib/classes/display";
 
 export type ClassRow = {
   class_id: number;
@@ -23,6 +27,10 @@ export type ClassRow = {
   club_type_id: number;
   club_type_name: string;
   display_order: number;
+  available_from_year_id?: number | null;
+  available_until_year_id?: number | null;
+  min_duration_years: number;
+  max_duration_years: number;
   modules_count: number;
   active: boolean;
 };
@@ -62,6 +70,12 @@ export function ClassesList({ items }: ClassesListProps) {
               {t("col_modules")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              {t("col_duration")}
+            </TableHead>
+            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              {t("col_availability")}
+            </TableHead>
+            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
               {t("col_status")}
             </TableHead>
             <TableHead className="h-9 w-12 px-3" />
@@ -88,6 +102,12 @@ export function ClassesList({ items }: ClassesListProps) {
               </TableCell>
               <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums">
                 {cls.modules_count > 0 ? cls.modules_count : "—"}
+              </TableCell>
+              <TableCell className="px-3 py-2.5 align-middle text-sm">
+                {formatClassDurationRange(cls.min_duration_years, cls.max_duration_years)}
+              </TableCell>
+              <TableCell className="max-w-[260px] px-3 py-2.5 align-middle text-sm text-muted-foreground">
+                {formatClassAvailabilityUntil(cls.available_until_year_id)}
               </TableCell>
               <TableCell className="px-3 py-2.5 align-middle">
                 <ClassStatusBadge active={cls.active} />

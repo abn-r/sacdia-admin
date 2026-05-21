@@ -430,7 +430,17 @@
       "delete": "Supprimer",
       "cancel": "Annuler",
       "saveChanges": "Enregistrer les modifications",
-      "noPermissions": "Vous n'avez pas la permission de modifier ce catalogue."
+      "noPermissions": "Vous n'avez pas la permission de modifier ce catalogue.",
+      "colDuration": "Durée",
+      "colAvailability": "Disponibilité",
+      "classConfigTitle": "Disponibilité et durée",
+      "classConfigDescription": "Configure quand la classe peut commencer et combien d’années ecclésiastiques elle peut durer.",
+      "fieldAvailableFromYear": "Disponible depuis",
+      "fieldAvailableFromAny": "Aucune restriction de début",
+      "fieldAvailableUntilYear": "Disponible jusqu’à",
+      "fieldAvailableUntilNone": "Aucune expiration programmée",
+      "fieldMinDurationYears": "Durée minimale (années)",
+      "fieldMaxDurationYears": "Durée maximale (années)"
     },
     "pages": {
       "countries": {
@@ -4687,7 +4697,9 @@
       "col_club_type": "Type de club",
       "col_modules": "Modules",
       "col_status": "Statut",
-      "view_detail": "Voir le détail de {name}"
+      "view_detail": "Voir le détail de {name}",
+      "col_duration": "Durée",
+      "col_availability": "Disponibilité"
     },
     "tree": {
       "no_modules": "Cette classe n'a aucun module enregistré.",
@@ -4728,8 +4740,23 @@
         "statPoints": "Points requis",
         "tabStructure": "Structure du programme",
         "structureCardTitle": "Modules et sections",
-        "modulesEndpointMissing": "Le point de terminaison des classes n’a pas retourné de modules dans la réponse de détail. Les modules se chargent depuis GET /classes/:id — vérifiez que le backend les inclut."
+        "modulesEndpointMissing": "Le point de terminaison des classes n’a pas retourné de modules dans la réponse de détail. Les modules se chargent depuis GET /classes/:id — vérifiez que le backend les inclut.",
+        "labelDuration": "Durée configurée",
+        "labelAvailableFrom": "Début de disponibilité",
+        "labelAvailableUntil": "Fin de disponibilité",
+        "statDuration": "Durée"
       }
+    },
+    "expiration": {
+      "title": "Expiration manuelle des classes",
+      "description": "Exécute une simulation ou applique l’expiration des inscriptions qui ont dépassé la durée maximale.",
+      "yearLabel": "Année ecclésiastique de référence",
+      "currentYearOption": "Utiliser l’année active du backend",
+      "dryRun": "Simuler",
+      "apply": "Appliquer l’expiration",
+      "modeDryRun": "simulation",
+      "modeApply": "application",
+      "result": "{mode}: {scanned} inscriptions vérifiées, {expired} expirées."
     }
   },
   "membership": {

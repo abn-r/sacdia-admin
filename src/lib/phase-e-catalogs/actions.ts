@@ -66,6 +66,7 @@ import {
   updateAdminMasterHonor,
   deleteAdminMasterHonor,
 } from "@/lib/api/phase-e-catalogs";
+import { parseClassConfigFormData } from "@/lib/classes/class-config";
 
 // ─── Shared types ──────────────────────────────────────────────────────────────
 
@@ -234,7 +235,47 @@ function makeActions(
 
 // ─── Classes ──────────────────────────────────────────────────────────────────
 
-const classesActions = makeActions(
+export async function createClassAction(_: PhaseEActionState, formData: FormData): Promise<PhaseEActionState> {
+  const user = await requireAdminUser();
+  if (!hasAnyPermission(user, [CLASSES_MANAGE, CATALOGS_CREATE])) {
+    return { error: "Sin permisos para crear." };
+  }
+  const config = parseClassConfigFormData(formData);
+  if (!config.success) return { error: config.error };
+  try {
+    await createAdminClass({
+      ...buildTranslatableCreate(formData),
+      ...config.data,
+    });
+  } catch (error) {
+    return { error: getActionErrorMessage(error, "No se pudo crear el registro.", { endpointLabel: "/dashboard/catalogs/classes" }) };
+  }
+  revalidatePath("/dashboard/catalogs/classes");
+  redirect("/dashboard/catalogs/classes");
+}
+
+export async function updateClassAction(_: PhaseEActionState, formData: FormData): Promise<PhaseEActionState> {
+  const user = await requireAdminUser();
+  if (!hasAnyPermission(user, [CLASSES_MANAGE, CATALOGS_UPDATE])) {
+    return { error: "Sin permisos para editar." };
+  }
+  const id = parsePositiveInt(formData, "id");
+  if (!id) return { error: "No se pudo identificar el registro a editar." };
+  const config = parseClassConfigFormData(formData);
+  if (!config.success) return { error: config.error };
+  try {
+    await updateAdminClass(id, {
+      ...buildTranslatableUpdate(formData),
+      ...config.data,
+    });
+  } catch (error) {
+    return { error: getActionErrorMessage(error, "No se pudo actualizar el registro.", { endpointLabel: `/dashboard/catalogs/classes/${id}` }) };
+  }
+  revalidatePath("/dashboard/catalogs/classes");
+  redirect("/dashboard/catalogs/classes");
+}
+
+const classDeleteActions = makeActions(
   "/dashboard/catalogs/classes",
   { create: [CLASSES_MANAGE, CATALOGS_CREATE], update: [CLASSES_MANAGE, CATALOGS_UPDATE], delete: [CLASSES_MANAGE, CATALOGS_DELETE] },
   {
@@ -245,9 +286,7 @@ const classesActions = makeActions(
   true,
 );
 
-export const createClassAction = classesActions.createAction;
-export const updateClassAction = classesActions.updateAction;
-export const deleteClassAction = classesActions.deleteAction;
+export const deleteClassAction = classDeleteActions.deleteAction;
 
 // ─── Class Modules ────────────────────────────────────────────────────────────
 
