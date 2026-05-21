@@ -12,6 +12,12 @@ export interface CamporeeClubsTabProps {
   camporeeId: number;
   initialClubs: CamporeeClub[];
   isUnionCamporee?: boolean;
+  /** Local field of the camporee — used to scope club selection in the enroll dialog. */
+  localFieldId?: number | null;
+  /** Section eligibility flags inherited from the camporee. */
+  includesAdventurers?: boolean;
+  includesPathfinders?: boolean;
+  includesMasterGuides?: boolean;
   onAfterChange?: () => void;
 }
 
@@ -19,6 +25,10 @@ export function CamporeeClubsTab({
   camporeeId,
   initialClubs,
   isUnionCamporee = false,
+  localFieldId,
+  includesAdventurers = false,
+  includesPathfinders = false,
+  includesMasterGuides = false,
   onAfterChange,
 }: CamporeeClubsTabProps) {
   const [clubs, setClubs] = useState<CamporeeClub[]>(initialClubs);
@@ -98,6 +108,10 @@ export function CamporeeClubsTab({
         open={enrollOpen}
         onOpenChange={setEnrollOpen}
         camporeeId={camporeeId}
+        localFieldId={localFieldId}
+        includesAdventurers={includesAdventurers}
+        includesPathfinders={includesPathfinders}
+        includesMasterGuides={includesMasterGuides}
         onSuccess={refreshClubs}
       />
     </div>

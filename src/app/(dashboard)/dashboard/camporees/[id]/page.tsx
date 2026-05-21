@@ -267,6 +267,7 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
       {/* Tabs */}
       <CamporeeDetailTabs
         camporeeId={camporeeId}
+        camporee={camporee}
         initialMembers={members}
         initialMembersMeta={membersMeta}
         initialClubs={clubs}

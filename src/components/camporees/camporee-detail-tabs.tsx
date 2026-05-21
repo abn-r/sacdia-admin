@@ -38,6 +38,7 @@ const CamporeePaymentsTab = dynamic<CamporeePaymentsTabProps>(
   { ssr: false, loading: () => <Skeleton className="h-48 w-full" /> },
 );
 import type {
+  Camporee,
   CamporeeMember,
   CamporeeClub,
   CamporeePayment,
@@ -49,6 +50,11 @@ import type {
 
 interface CamporeeDetailTabsProps {
   camporeeId: number;
+  /**
+   * Full camporee record — needed to forward local field + section flags to
+   * the enroll-club dialog (club + section selects must scope by these).
+   */
+  camporee?: Camporee;
   initialMembers: CamporeeMember[];
   initialMembersMeta?: PaginationMeta;
   initialClubs: CamporeeClub[];
@@ -72,6 +78,7 @@ interface CamporeeDetailTabsProps {
 
 export function CamporeeDetailTabs({
   camporeeId,
+  camporee,
   initialMembers,
   initialMembersMeta,
   initialClubs,
@@ -199,6 +206,14 @@ export function CamporeeDetailTabs({
                 camporeeId={camporeeId}
                 initialClubs={initialClubs}
                 isUnionCamporee={isUnionCamporee}
+                localFieldId={
+                  camporee?.local_field?.local_field_id ??
+                  camporee?.local_field_id ??
+                  null
+                }
+                includesAdventurers={camporee?.includes_adventurers ?? false}
+                includesPathfinders={camporee?.includes_pathfinders ?? false}
+                includesMasterGuides={camporee?.includes_master_guides ?? false}
                 onAfterChange={refreshPending}
               />
             )}

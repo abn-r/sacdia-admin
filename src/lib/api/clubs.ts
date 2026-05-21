@@ -128,6 +128,15 @@ export async function listClubSections(clubId: number) {
   return apiRequest(`/clubs/${clubId}/sections`);
 }
 
+/**
+ * Alias of {@link listClubSections}. Returns the same payload — kept as a
+ * distinct named export so callers can express intent (single-club lookup
+ * for dropdowns) without re-reading the schema.
+ */
+export async function getClubSections(clubId: number) {
+  return listClubSections(clubId);
+}
+
 export async function createClubSection(clubId: number, payload: ClubSectionPayload) {
   return apiRequest(`/clubs/${clubId}/sections`, {
     method: "POST",
