@@ -29,6 +29,13 @@ export type TranslatablePayload = {
   translations?: CatalogTranslation[];
 };
 
+export type ClassAvailabilityDurationPayload = {
+  available_from_year_id?: number | null;
+  available_until_year_id?: number | null;
+  min_duration_years?: number;
+  max_duration_years?: number;
+};
+
 export type NameOnlyPayload = {
   name: string;
   active?: boolean;
@@ -43,6 +50,10 @@ export type AdminClass = {
   description?: string | null;
   club_type_id?: number | null;
   display_order?: number | null;
+  available_from_year_id?: number | null;
+  available_until_year_id?: number | null;
+  min_duration_years?: number;
+  max_duration_years?: number;
   active?: boolean;
   translations?: CatalogTranslation[];
 };
@@ -51,11 +62,11 @@ export async function listAdminClasses(params?: Record<string, string | number |
   return apiRequest<unknown>("/admin/classes", { params });
 }
 
-export async function createAdminClass(payload: TranslatablePayload) {
+export async function createAdminClass(payload: TranslatablePayload & ClassAvailabilityDurationPayload) {
   return apiRequest("/admin/classes", { method: "POST", body: payload });
 }
 
-export async function updateAdminClass(id: number, payload: Partial<TranslatablePayload>) {
+export async function updateAdminClass(id: number, payload: Partial<TranslatablePayload & ClassAvailabilityDurationPayload>) {
   return apiRequest(`/admin/classes/${id}`, { method: "PATCH", body: payload });
 }
 

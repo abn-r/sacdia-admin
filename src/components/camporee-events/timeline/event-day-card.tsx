@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { SECTION_COLOR } from "@/lib/camporee-timeline/event-categories";
 import { cn } from "@/lib/utils";
 
-import type { CamporeeDay, CamporeeEvent, Venue } from "@/lib/camporee-timeline/types";
+import type { CamporeeDay, CamporeeEvent, Section, Venue } from "@/lib/camporee-timeline/types";
 import { EventRow } from "./event-row";
 import { durMin, sortByStart, toMin, formatHours } from "@/lib/camporee-timeline/helpers";
 
@@ -59,6 +59,12 @@ function HeatBar({ events }: { events: CamporeeEvent[] }) {
   );
 }
 
+const SECTION_NAMES: Section[] = [
+  "Aventureros",
+  "Conquistadores",
+  "Guías Mayores",
+];
+
 function DayBadge({ day }: { day: CamporeeDay }) {
   return (
     <div className="size-[52px] rounded-xl bg-primary text-primary-foreground grid place-items-center">
@@ -77,7 +83,7 @@ export function EventDayCard({ day, events, venues, onAdd, onEdit, readonly = fa
   const totalMin = sorted.reduce((s, e) => s + durMin(e.startsAt, e.endsAt), 0);
   const venuesUsed = new Set(sorted.map((e) => e.venueId)).size;
 
-  const secCount: Record<string, number> = {
+  const secCount: Record<Section, number> = {
     Aventureros: 0,
     Conquistadores: 0,
     "Guías Mayores": 0,
@@ -130,12 +136,12 @@ export function EventDayCard({ day, events, venues, onAdd, onEdit, readonly = fa
             <span className="inline-flex items-center gap-1">
               Secciones
               <span className="inline-flex gap-0.5">
-                {Object.entries(secCount).map(([s, n]) =>
-                  n > 0 ? (
+                {SECTION_NAMES.map((s) =>
+                  secCount[s] > 0 ? (
                     <span
                       key={s}
-                      className={cn("size-1.5 rounded-full", SECTION_COLOR[s]?.dot)}
-                      title={`${s}: ${n}`}
+                      className={cn("size-1.5 rounded-full", SECTION_COLOR[s].dot)}
+                      title={`${s}: ${secCount[s]}`}
                     />
                   ) : null,
                 )}

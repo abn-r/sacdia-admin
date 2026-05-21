@@ -8,6 +8,10 @@ export type ProgressiveClass = {
   description?: string | null;
   club_type_id: number;
   display_order: number;
+  available_from_year_id?: number | null;
+  available_until_year_id?: number | null;
+  min_duration_years?: number;
+  max_duration_years?: number;
   max_points?: number | null;
   minimum_points?: number | null;
   active: boolean;
@@ -58,6 +62,19 @@ export type ClassListQuery = {
   limit?: number;
 };
 
+export type ExpireOverdueClassEnrollmentsPayload = {
+  ecclesiastical_year_id?: number;
+  dry_run?: boolean;
+};
+
+export type ExpireOverdueClassEnrollmentsResult = {
+  ecclesiastical_year_id: number;
+  dry_run: boolean;
+  scanned_count: number;
+  expired_count: number;
+  enrollment_ids: number[];
+};
+
 // ─── API Functions ────────────────────────────────────────────────────────────
 
 /**
@@ -83,4 +100,16 @@ export async function getClassById(classId: number) {
  */
 export async function listClassModules(classId: number) {
   return apiRequest<ClassModule[]>(`/classes/${classId}/modules`);
+}
+
+export async function expireOverdueClassEnrollments(
+  payload: ExpireOverdueClassEnrollmentsPayload = {},
+) {
+  return apiRequest<{
+    status: "success";
+    data: ExpireOverdueClassEnrollmentsResult;
+  }>("/admin/classes/enrollments/expire-overdue", {
+    method: "POST",
+    body: payload,
+  });
 }

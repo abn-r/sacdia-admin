@@ -430,7 +430,17 @@
       "delete": "Excluir",
       "cancel": "Cancelar",
       "saveChanges": "Salvar alterações",
-      "noPermissions": "Você não tem permissão para modificar este catálogo."
+      "noPermissions": "Você não tem permissão para modificar este catálogo.",
+      "colDuration": "Duração",
+      "colAvailability": "Disponibilidade",
+      "classConfigTitle": "Disponibilidade e duração",
+      "classConfigDescription": "Configure quando a classe pode ser iniciada e quantos anos eclesiásticos pode durar.",
+      "fieldAvailableFromYear": "Disponível desde",
+      "fieldAvailableFromAny": "Sem restrição de início",
+      "fieldAvailableUntilYear": "Disponível até",
+      "fieldAvailableUntilNone": "Sem expiração programada",
+      "fieldMinDurationYears": "Duração mínima (anos)",
+      "fieldMaxDurationYears": "Duração máxima (anos)"
     },
     "pages": {
       "countries": {
@@ -4687,7 +4697,9 @@
       "col_club_type": "Tipo de clube",
       "col_modules": "Módulos",
       "col_status": "Status",
-      "view_detail": "Ver detalhe de {name}"
+      "view_detail": "Ver detalhe de {name}",
+      "col_duration": "Duração",
+      "col_availability": "Disponibilidade"
     },
     "tree": {
       "no_modules": "Esta classe não possui módulos registrados.",
@@ -4728,8 +4740,33 @@
         "statPoints": "Pontos necessários",
         "tabStructure": "Estrutura do programa",
         "structureCardTitle": "Módulos e seções",
-        "modulesEndpointMissing": "O endpoint de classes não retornou módulos na resposta de detalhes. Os módulos são carregados de GET /classes/:id — verifique se o backend os inclui."
+        "modulesEndpointMissing": "O endpoint de classes não retornou módulos na resposta de detalhes. Os módulos são carregados de GET /classes/:id — verifique se o backend os inclui.",
+        "labelDuration": "Duração configurada",
+        "labelAvailableFrom": "Início da disponibilidade",
+        "labelAvailableUntil": "Fim da disponibilidade",
+        "statDuration": "Duração"
       }
+    },
+    "expiration": {
+      "title": "Expiração manual de classes",
+      "description": "Execute uma simulação ou aplique a expiração das inscrições que excederam a duração máxima.",
+      "yearLabel": "Ano eclesiástico de corte",
+      "currentYearOption": "Usar ano ativo do backend",
+      "dryRun": "Simular",
+      "apply": "Aplicar expiração",
+      "modeDryRun": "simulação",
+      "modeApply": "aplicação",
+      "result": "{mode}: {scanned} inscrições revisadas, {expired} expiradas.",
+      "confirmApply": "Você vai expirar {expired} inscrições. Esta ação altera dados reais. Continuar?"
+    },
+    "display": {
+      "yearSingular": "ano",
+      "yearPlural": "anos",
+      "yearFallback": "Ano #{id}",
+      "availableFromAnyYear": "Disponível a partir de qualquer ano",
+      "noProgrammedExpiration": "Sem expiração programada",
+      "availableFromYear": "Disponível a partir do ano eclesiástico {label}",
+      "availableUntilYear": "Disponível até o ano eclesiástico {label}"
     }
   },
   "membership": {

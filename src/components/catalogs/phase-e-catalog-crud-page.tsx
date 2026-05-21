@@ -75,6 +75,11 @@ import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import type { PhaseEActionState } from "@/lib/phase-e-catalogs/actions";
+import {
+  formatClassAvailabilityUntil,
+  formatClassDurationRange,
+  type ClassDisplayLabels,
+} from "@/lib/classes/display";
 import { useFormStatus } from "react-dom";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { ReactNode } from "react";
@@ -84,6 +89,11 @@ import { useTranslations } from "next-intl";
 
 type AnyRecord = Record<string, unknown>;
 type FormAction = (prev: PhaseEActionState, data: FormData) => Promise<PhaseEActionState>;
+
+export type ClassConfigYearOption = {
+  ecclesiastical_year_id: number;
+  name: string;
+};
 
 export interface PhaseECatalogCrudPageProps {
   /** Page title shown in PageHeader */
@@ -112,6 +122,8 @@ export interface PhaseECatalogCrudPageProps {
   createAction: FormAction;
   updateAction: FormAction;
   deleteAction: FormAction;
+  /** Enables class-specific availability/duration fields and columns. */
+  classConfigYearOptions?: ClassConfigYearOption[];
 }
 
 // ─── SubmitButton ─────────────────────────────────────────────────────────────
@@ -152,6 +164,7 @@ interface FormFieldsProps {
   translations: CatalogTranslation[];
   onTranslationsChange: (t: CatalogTranslation[]) => void;
   entityLabel: string;
+  classConfigYearOptions?: ClassConfigYearOption[];
 }
 
 function CatalogFormFields({
@@ -163,10 +176,22 @@ function CatalogFormFields({
   translations,
   onTranslationsChange,
   entityLabel,
+  classConfigYearOptions,
 }: FormFieldsProps) {
   const t = useTranslations("catalogs.phaseE");
   const nameVal = typeof item?.name === "string" ? item.name : "";
   const descVal = typeof item?.description === "string" ? item.description : "";
+  const showClassConfig = Array.isArray(classConfigYearOptions);
+  const availableFromVal = toPositiveInt(item?.available_from_year_id);
+  const availableUntilVal = toPositiveInt(item?.available_until_year_id);
+  const minDurationVal = toPositiveInt(item?.min_duration_years) ?? 1;
+  const maxDurationVal = toPositiveInt(item?.max_duration_years) ?? 1;
+  const yearOptions = [...(classConfigYearOptions ?? [])];
+  for (const yearId of [availableFromVal, availableUntilVal]) {
+    if (yearId && !yearOptions.some((year) => year.ecclesiastical_year_id === yearId)) {
+      yearOptions.push({ ecclesiastical_year_id: yearId, name: `Año #${yearId}` });
+    }
+  }
 
   const esContent = (
     <div className="space-y-4">
@@ -193,6 +218,90 @@ function CatalogFormFields({
             defaultValue={descVal}
             placeholder={t("fieldDescriptionPlaceholder")}
           />
+        </div>
+      )}
+
+      {showClassConfig && (
+        <div className="rounded-lg border bg-muted/20 p-4">
+          <div className="mb-4">
+            <h4 className="text-sm font-semibold">{t("classConfigTitle")}</h4>
+            <p className="text-xs text-muted-foreground">{t("classConfigDescription")}</p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor={`${idPrefix}-available-from`}>
+                {t("fieldAvailableFromYear")}
+              </Label>
+              <select
+                id={`${idPrefix}-available-from`}
+                name="available_from_year_id"
+                defaultValue={availableFromVal ? String(availableFromVal) : ""}
+                className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <option value="">{t("fieldAvailableFromAny")}</option>
+                {yearOptions.map((year) => (
+                  <option
+                    key={year.ecclesiastical_year_id}
+                    value={String(year.ecclesiastical_year_id)}
+                  >
+                    {year.name || `Año #${year.ecclesiastical_year_id}`}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor={`${idPrefix}-available-until`}>
+                {t("fieldAvailableUntilYear")}
+              </Label>
+              <select
+                id={`${idPrefix}-available-until`}
+                name="available_until_year_id"
+                defaultValue={availableUntilVal ? String(availableUntilVal) : ""}
+                className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <option value="">{t("fieldAvailableUntilNone")}</option>
+                {yearOptions.map((year) => (
+                  <option
+                    key={year.ecclesiastical_year_id}
+                    value={String(year.ecclesiastical_year_id)}
+                  >
+                    {year.name || `Año #${year.ecclesiastical_year_id}`}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor={`${idPrefix}-min-duration`}>
+                {t("fieldMinDurationYears")}
+              </Label>
+              <Input
+                id={`${idPrefix}-min-duration`}
+                name="min_duration_years"
+                type="number"
+                min={1}
+                step={1}
+                defaultValue={minDurationVal}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor={`${idPrefix}-max-duration`}>
+                {t("fieldMaxDurationYears")}
+              </Label>
+              <Input
+                id={`${idPrefix}-max-duration`}
+                name="max_duration_years"
+                type="number"
+                min={1}
+                step={1}
+                defaultValue={maxDurationVal}
+                required
+              />
+            </div>
+          </div>
         </div>
       )}
 
@@ -251,6 +360,7 @@ export function PhaseECatalogCrudPage({
   createAction,
   updateAction,
   deleteAction,
+  classConfigYearOptions,
 }: PhaseECatalogCrudPageProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -340,8 +450,25 @@ export function PhaseECatalogCrudPage({
   );
 
   const t = useTranslations("catalogs.phaseE");
+  const displayT = useTranslations("classes.display");
+  const displayLabels: ClassDisplayLabels = {
+    yearSingular: displayT("yearSingular"),
+    yearPlural: displayT("yearPlural"),
+    yearFallback: (id) => displayT("yearFallback", { id }),
+    availableFromAnyYear: displayT("availableFromAnyYear"),
+    noProgrammedExpiration: displayT("noProgrammedExpiration"),
+    availableFromYear: (label) => displayT("availableFromYear", { label }),
+    availableUntilYear: (label) => displayT("availableUntilYear", { label }),
+  };
   const hasActiveFilters = Boolean(currentSearch || currentStatusFilter !== "all");
   const canMutate = canCreate || canEdit || canDelete;
+  const showClassConfig = Array.isArray(classConfigYearOptions);
+  const yearNameById = new Map(
+    (classConfigYearOptions ?? []).map((year) => [
+      year.ecclesiastical_year_id,
+      year.name || displayLabels.yearFallback(year.ecclesiastical_year_id),
+    ]),
+  );
   const safePage = Math.max(1, meta.page || 1);
   const safeLimit = Math.max(1, meta.limit || 20);
   const safeTotalPages = Math.max(1, meta.totalPages || 1);
@@ -434,6 +561,8 @@ export function PhaseECatalogCrudPage({
                   <TableRow>
                     <TableHead>{t("colName")}</TableHead>
                     {includeDescription && <TableHead>{t("colDescription")}</TableHead>}
+                    {showClassConfig && <TableHead>{t("colDuration")}</TableHead>}
+                    {showClassConfig && <TableHead>{t("colAvailability")}</TableHead>}
                     <TableHead>{t("colStatus")}</TableHead>
                     {(canEdit || canDelete) && (
                       <TableHead className="sticky right-0 z-20 w-[100px] border-l bg-background">
@@ -454,6 +583,24 @@ export function PhaseECatalogCrudPage({
                         {includeDescription && (
                           <TableCell className="max-w-[380px] text-sm text-muted-foreground">
                             {toText(item.description) ?? "—"}
+                          </TableCell>
+                        )}
+                        {showClassConfig && (
+                          <TableCell className="text-sm text-muted-foreground">
+                            {formatClassDurationRange(
+                              toPositiveInt(item.min_duration_years) ?? 1,
+                              toPositiveInt(item.max_duration_years) ?? 1,
+                              displayLabels,
+                            )}
+                          </TableCell>
+                        )}
+                        {showClassConfig && (
+                          <TableCell className="max-w-[260px] text-sm text-muted-foreground">
+                            {formatClassAvailabilityUntil(
+                              toPositiveInt(item.available_until_year_id),
+                              displayLabels,
+                              yearNameById.get(toPositiveInt(item.available_until_year_id) ?? 0),
+                            )}
                           </TableCell>
                         )}
                         <TableCell>
@@ -582,6 +729,7 @@ export function PhaseECatalogCrudPage({
                 translations={createTranslations}
                 onTranslationsChange={setCreateTranslations}
                 entityLabel={entityLabel}
+                classConfigYearOptions={classConfigYearOptions}
               />
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setCreateOpen(false)}>
@@ -617,6 +765,7 @@ export function PhaseECatalogCrudPage({
                 translations={editTranslations}
                 onTranslationsChange={setEditTranslations}
                 entityLabel={entityLabel}
+                classConfigYearOptions={classConfigYearOptions}
               />
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setEditItem(null)}>

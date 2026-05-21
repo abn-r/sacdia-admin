@@ -430,7 +430,17 @@
       "delete": "Eliminar",
       "cancel": "Cancelar",
       "saveChanges": "Guardar cambios",
-      "noPermissions": "No cuentas con permisos para modificar este catálogo."
+      "noPermissions": "No cuentas con permisos para modificar este catálogo.",
+      "colDuration": "Duración",
+      "colAvailability": "Disponibilidad",
+      "classConfigTitle": "Disponibilidad y duración",
+      "classConfigDescription": "Configura desde cuándo se puede iniciar la clase y cuántos años eclesiásticos puede durar.",
+      "fieldAvailableFromYear": "Disponible desde",
+      "fieldAvailableFromAny": "Sin restricción de inicio",
+      "fieldAvailableUntilYear": "Disponible hasta",
+      "fieldAvailableUntilNone": "Sin expiración programada",
+      "fieldMinDurationYears": "Duración mínima (años)",
+      "fieldMaxDurationYears": "Duración máxima (años)"
     },
     "pages": {
       "countries": {
@@ -4840,7 +4850,9 @@
       "col_club_type": "Tipo de club",
       "col_modules": "Módulos",
       "col_status": "Estado",
-      "view_detail": "Ver detalle de {name}"
+      "view_detail": "Ver detalle de {name}",
+      "col_duration": "Duración",
+      "col_availability": "Disponibilidad"
     },
     "tree": {
       "no_modules": "Esta clase no tiene módulos registrados.",
@@ -4881,8 +4893,33 @@
         "statPoints": "Puntos requeridos",
         "tabStructure": "Estructura del programa",
         "structureCardTitle": "Módulos y secciones",
-        "modulesEndpointMissing": "El endpoint de clases no retornó módulos en la respuesta de detalle. Los módulos se cargan desde GET /classes/:id — verifica que el backend los incluya."
+        "modulesEndpointMissing": "El endpoint de clases no retornó módulos en la respuesta de detalle. Los módulos se cargan desde GET /classes/:id — verifica que el backend los incluya.",
+        "labelDuration": "Duración configurable",
+        "labelAvailableFrom": "Inicio de disponibilidad",
+        "labelAvailableUntil": "Fin de disponibilidad",
+        "statDuration": "Duración"
       }
+    },
+    "expiration": {
+      "title": "Vencimiento manual de clases",
+      "description": "Ejecuta una simulación o aplica el vencimiento de inscripciones que superaron la duración máxima.",
+      "yearLabel": "Año eclesiástico de corte",
+      "currentYearOption": "Usar año activo del backend",
+      "dryRun": "Simular",
+      "apply": "Aplicar vencimiento",
+      "modeDryRun": "simulación",
+      "modeApply": "aplicación",
+      "result": "{mode}: {scanned} inscripciones revisadas, {expired} vencidas.",
+      "confirmApply": "Vas a vencer {expired} inscripciones. Esta acción modifica datos reales. ¿Querés continuar?"
+    },
+    "display": {
+      "yearSingular": "año",
+      "yearPlural": "años",
+      "yearFallback": "Año #{id}",
+      "availableFromAnyYear": "Disponible desde cualquier año",
+      "noProgrammedExpiration": "Sin expiración programada",
+      "availableFromYear": "Disponible desde año eclesiástico {label}",
+      "availableUntilYear": "Disponible hasta año eclesiástico {label}"
     }
   },
   "membership": {

@@ -460,6 +460,16 @@ export interface IntlMessages {
       cancel: string;
       saveChanges: string;
       noPermissions: string;
+      colDuration: string;
+      colAvailability: string;
+      classConfigTitle: string;
+      classConfigDescription: string;
+      fieldAvailableFromYear: string;
+      fieldAvailableFromAny: string;
+      fieldAvailableUntilYear: string;
+      fieldAvailableUntilNone: string;
+      fieldMinDurationYears: string;
+      fieldMaxDurationYears: string;
     };
     pages: {
       countries: {
@@ -4870,6 +4880,8 @@ export interface IntlMessages {
       col_modules: string;
       col_status: string;
       view_detail: string;
+      col_duration: string;
+      col_availability: string;
     };
     tree: {
       no_modules: string;
@@ -4911,7 +4923,32 @@ export interface IntlMessages {
         tabStructure: string;
         structureCardTitle: string;
         modulesEndpointMissing: string;
+        labelDuration: string;
+        labelAvailableFrom: string;
+        labelAvailableUntil: string;
+        statDuration: string;
       };
+    };
+    display: {
+      yearSingular: string;
+      yearPlural: string;
+      yearFallback: string;
+      availableFromAnyYear: string;
+      noProgrammedExpiration: string;
+      availableFromYear: string;
+      availableUntilYear: string;
+    };
+    expiration: {
+      title: string;
+      description: string;
+      yearLabel: string;
+      currentYearOption: string;
+      dryRun: string;
+      apply: string;
+      modeDryRun: string;
+      modeApply: string;
+      result: string;
+      confirmApply: string;
     };
   };
   membership: {

@@ -184,7 +184,7 @@ describe("PermissionsMatrix", () => {
   });
 
   it("save dispatches syncAction with the role id and selected ids", async () => {
-    const action = vi.fn(async () => ({}));
+    const action = vi.fn<SyncAction>(async () => ({}));
     renderMatrix(action as unknown as SyncAction);
 
     await userEvent.click(getCellCheckbox("r1", "p2"));
@@ -194,7 +194,7 @@ describe("PermissionsMatrix", () => {
       expect(action).toHaveBeenCalledTimes(1);
     });
 
-    const [roleId, , formData] = action.mock.calls[0];
+    const [roleId, , formData] = action.mock.calls[0]!;
     expect(roleId).toBe("r1");
     expect(formData).toBeInstanceOf(FormData);
     const ids = (formData as FormData).get("permission_ids") as string;
@@ -205,7 +205,7 @@ describe("PermissionsMatrix", () => {
   });
 
   it("surfaces toast.error when syncAction returns an error", async () => {
-    const action = vi.fn(async () => ({ error: "boom" }));
+    const action = vi.fn<SyncAction>(async () => ({ error: "boom" }));
     renderMatrix(action as unknown as SyncAction);
 
     await userEvent.click(getCellCheckbox("r2", "p3"));

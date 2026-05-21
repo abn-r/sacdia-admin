@@ -5,10 +5,13 @@ import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ClassesList } from "@/components/classes/classes-list";
 import type { ClassRow } from "@/components/classes/classes-list";
+import { ClassExpirationCard } from "@/components/classes/class-expiration-card";
 import { ApiError } from "@/lib/api/client";
 import { listClasses } from "@/lib/api/classes";
-import { listClubTypes } from "@/lib/api/catalogs";
+import { listClubTypes, listEcclesiasticalYears } from "@/lib/api/catalogs";
 import { requireAdminUser } from "@/lib/auth/session";
+import { hasAnyPermission } from "@/lib/auth/permission-utils";
+import { CLASSES_MANAGE } from "@/lib/auth/permissions";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -32,14 +35,20 @@ function toPositiveNumber(value: unknown): number | null {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function ClassesPage() {
-  await requireAdminUser();
+  const user = await requireAdminUser();
   const t = await getTranslations("classes.pages.list");
   const tList = await getTranslations("classes.list");
+  const canManageClasses = hasAnyPermission(user, [CLASSES_MANAGE]);
 
   // Build club type lookup map
   const clubTypeNameById = new Map<number, string>();
+  let ecclesiasticalYears: Awaited<ReturnType<typeof listEcclesiasticalYears>> = [];
   try {
-    const clubTypes = await listClubTypes();
+    const [clubTypes, years] = await Promise.all([
+      listClubTypes(),
+      listEcclesiasticalYears().catch(() => []),
+    ]);
+    ecclesiasticalYears = years;
     for (const ct of clubTypes) {
       if (typeof ct.club_type_id === "number" && typeof ct.name === "string" && ct.name.trim()) {
         clubTypeNameById.set(ct.club_type_id, ct.name.trim());
@@ -84,6 +93,10 @@ export default async function ClassesPage() {
           club_type_id: clubTypeId ?? 0,
           club_type_name: clubTypeName,
           display_order: toPositiveNumber(item.display_order) ?? 0,
+          available_from_year_id: toPositiveNumber(item.available_from_year_id),
+          available_until_year_id: toPositiveNumber(item.available_until_year_id),
+          min_duration_years: toPositiveNumber(item.min_duration_years) ?? 1,
+          max_duration_years: toPositiveNumber(item.max_duration_years) ?? 1,
           modules_count: modulesCount,
           active: item.active !== false,
         };
@@ -106,6 +119,10 @@ export default async function ClassesPage() {
 
       {loadError && (
         <EndpointErrorBanner state="missing" detail={loadError} />
+      )}
+
+      {canManageClasses && (
+        <ClassExpirationCard ecclesiasticalYears={ecclesiasticalYears} />
       )}
 
       {!loadError && rows.length === 0 && (

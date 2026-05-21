@@ -15,6 +15,12 @@ import { getClassById, listClasses } from "@/lib/api/classes";
 import type { ClassModule, ClassSection } from "@/lib/api/classes";
 import { listClubTypes } from "@/lib/api/catalogs";
 import { requireAdminUser } from "@/lib/auth/session";
+import {
+  formatClassAvailabilityFrom,
+  formatClassAvailabilityUntil,
+  formatClassDurationRange,
+  type ClassDisplayLabels,
+} from "@/lib/classes/display";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -129,6 +135,16 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
 export default async function ClassDetailPage({ params }: { params: Params }) {
   await requireAdminUser();
   const t = await getTranslations("classes.pages.detail");
+  const displayT = await getTranslations("classes.display");
+  const displayLabels: ClassDisplayLabels = {
+    yearSingular: displayT("yearSingular"),
+    yearPlural: displayT("yearPlural"),
+    yearFallback: (id) => displayT("yearFallback", { id }),
+    availableFromAnyYear: displayT("availableFromAnyYear"),
+    noProgrammedExpiration: displayT("noProgrammedExpiration"),
+    availableFromYear: (label) => displayT("availableFromYear", { label }),
+    availableUntilYear: (label) => displayT("availableUntilYear", { label }),
+  };
 
   const { classId: classIdParam } = await params;
   const classId = toPositiveNumber(classIdParam);
@@ -198,6 +214,10 @@ export default async function ClassDetailPage({ params }: { params: Params }) {
   const isActive = classData.active !== false;
   const maxPoints = toPositiveNumber(classData.max_points ?? classData.maxPoints);
   const minPoints = toPositiveNumber(classData.minimum_points ?? classData.minimumPoints);
+  const availableFromYearId = toPositiveNumber(classData.available_from_year_id);
+  const availableUntilYearId = toPositiveNumber(classData.available_until_year_id);
+  const minDurationYears = toPositiveNumber(classData.min_duration_years) ?? 1;
+  const maxDurationYears = toPositiveNumber(classData.max_duration_years) ?? 1;
   const modulesCount = modules.length;
   const totalSections = modules.reduce((acc, m) => acc + m.sections.length, 0);
 
@@ -240,11 +260,15 @@ export default async function ClassDetailPage({ params }: { params: Params }) {
       </Card>
 
       {/* Stats strip */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
         {[
           { label: t("statOrder"), value: displayOrder ?? "—" },
           { label: t("statModules"), value: modulesCount > 0 ? modulesCount : "—" },
           { label: t("statSections"), value: totalSections > 0 ? totalSections : "—" },
+          {
+            label: t("statDuration"),
+            value: formatClassDurationRange(minDurationYears, maxDurationYears, displayLabels),
+          },
           {
             label: t("statPoints"),
             value: minPoints != null ? `${minPoints} / ${maxPoints ?? "—"}` : "—",
@@ -269,6 +293,18 @@ export default async function ClassDetailPage({ params }: { params: Params }) {
           <InfoRow label={t("labelClubType")} value={clubTypeName} />
           <InfoRow label={t("labelOrder")} value={displayOrder ?? "—"} />
           <InfoRow label={t("labelStatus")} value={<ClassStatusBadge active={isActive} />} />
+          <InfoRow
+            label={t("labelDuration")}
+            value={formatClassDurationRange(minDurationYears, maxDurationYears, displayLabels)}
+          />
+          <InfoRow
+            label={t("labelAvailableFrom")}
+            value={formatClassAvailabilityFrom(availableFromYearId, displayLabels)}
+          />
+          <InfoRow
+            label={t("labelAvailableUntil")}
+            value={formatClassAvailabilityUntil(availableUntilYearId, displayLabels)}
+          />
           {maxPoints != null && (
             <InfoRow label={t("labelMaxPoints")} value={maxPoints} />
           )}
