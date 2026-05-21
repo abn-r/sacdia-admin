@@ -1079,6 +1079,11 @@ export interface IntlMessages {
       detail: {
         back: string;
         deleteButton: string;
+        deleteDialogTitle: string;
+        deleteDialogDesc: string;
+        deleteDialogConfirm: string;
+        deleteDialogCancel: string;
+        deleteDialogDeleting: string;
         tabView: string;
         tabEdit: string;
         tabSections: string;
@@ -1617,6 +1622,18 @@ export interface IntlMessages {
         emptyTitle: string;
         emptyDescription: string;
         loadError: string;
+        permissionColumn: string;
+        searchPlaceholder: string;
+        saveChanges: string;
+        saving: string;
+        saveSuccess: string;
+        saveError: string;
+        dirtyBadge: string;
+        categoryGlobal: string;
+        categoryClub: string;
+        discard: string;
+        noMatches: string;
+        noMatchesDesc: string;
       };
       permissions: {
         title: string;
@@ -2352,6 +2369,7 @@ export interface IntlMessages {
       approveLabel: string;
       rejectLabel: string;
       editLabel: string;
+      voucherAttachedLabel: string;
       approvedWithName: string;
       approvedGeneric: string;
       errorNoPaymentUuid: string;
@@ -2360,6 +2378,18 @@ export interface IntlMessages {
     };
     enrollDialog: {
       title: string;
+      description: string;
+      labelClub: string;
+      placeholderClub: string;
+      loadingClubs: string;
+      errorClubs: string;
+      emptyClubs: string;
+      labelSection: string;
+      placeholderSection: string;
+      placeholderSectionPickClub: string;
+      loadingSections: string;
+      errorSections: string;
+      emptySections: string;
       labelSectionId: string;
       placeholderSectionId: string;
       helpSectionId: string;
@@ -2388,6 +2418,30 @@ export interface IntlMessages {
       registering: string;
       saveChanges: string;
       registerPayment: string;
+    };
+    paymentVoucher: {
+      sectionTitle: string;
+      empty: string;
+      help: string;
+      upload: string;
+      replace: string;
+      remove: string;
+      removeConfirmTitle: string;
+      removeConfirmDescription: string;
+      removeConfirmAction: string;
+      removeConfirmCancel: string;
+      clearSelection: string;
+      selected: string;
+      uploadedAt: string;
+      openPdf: string;
+      openInNewTab: string;
+      uploadedBadge: string;
+      errorTooLarge: string;
+      errorBadMime: string;
+      errorUploadFailed: string;
+      errorRemoveFailed: string;
+      toastUploaded: string;
+      toastRemoved: string;
     };
     registerMemberDialog: {
       title: string;
