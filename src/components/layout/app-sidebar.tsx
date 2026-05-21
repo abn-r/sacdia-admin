@@ -94,7 +94,7 @@ function NavItemWithChildren({ item, pathname }: { item: NavItem; pathname: stri
         <CollapsibleTrigger asChild>
           <SidebarMenuButton tooltip={title} isActive={isActive} className="transition-colors duration-200">
             <item.icon className="h-[18px] w-[18px] shrink-0" />
-            <span className="truncate">{title}</span>
+            <span className="truncate" title={title}>{title}</span>
             <ChevronRight className="ml-auto h-[18px] w-[18px] shrink-0 transition-transform group-data-[state=open]/collapsible:rotate-90" />
           </SidebarMenuButton>
         </CollapsibleTrigger>
@@ -103,15 +103,24 @@ function NavItemWithChildren({ item, pathname }: { item: NavItem; pathname: stri
             {grouped
               ? (item.children as NavSubGroup[]).map((sg) => {
                   const sgLabel = t(sg.subgroup as Parameters<typeof t>[0]);
+                  const labelId = `sidebar-subgroup-${item.url.replace(/[^a-z0-9]/gi, "-")}-${sg.subgroup}`;
                   return (
-                    <div key={sg.subgroup} className="mt-1 first:mt-0">
-                      <div className="px-2 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+                    <li
+                      key={sg.subgroup}
+                      role="group"
+                      aria-labelledby={labelId}
+                      className="mt-1 list-none first:mt-0"
+                    >
+                      <h3
+                        id={labelId}
+                        className="px-2 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70"
+                      >
                         {sgLabel}
-                      </div>
+                      </h3>
                       {sg.items.map((child) => (
                         <NavSubChildLink key={child.url} child={child} pathname={pathname} t={t} />
                       ))}
-                    </div>
+                    </li>
                   );
                 })
               : (item.children as NavChild[]).map((child) => (
@@ -134,7 +143,7 @@ function NavItemSimple({ item, pathname }: { item: NavItem; pathname: string }) 
       <SidebarMenuButton asChild tooltip={title} isActive={isActive} className="transition-colors duration-200">
         <Link href={item.url}>
           <item.icon className="h-[18px] w-[18px] shrink-0" />
-          <span className="truncate">{title}</span>
+          <span className="truncate" title={title}>{title}</span>
         </Link>
       </SidebarMenuButton>
     </SidebarMenuItem>

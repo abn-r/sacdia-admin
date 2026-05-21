@@ -442,10 +442,14 @@ async function RecentUsersSection() {
                   <Link
                     href={`/dashboard/users/${user.user_id}`}
                     className="block truncate text-sm font-medium leading-none hover:underline"
+                    title={fullName}
                   >
                     {fullName}
                   </Link>
-                  <p className="truncate text-xs text-muted-foreground">
+                  <p
+                    className="truncate text-xs text-muted-foreground"
+                    title={user.email ?? undefined}
+                  >
                     {user.email ?? "—"}
                   </p>
                 </div>
