@@ -6,7 +6,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { ClassesList } from "@/components/classes/classes-list";
 import type { ClassRow } from "@/components/classes/classes-list";
 import { ApiError } from "@/lib/api/client";
-import { listClasses, listClassModules } from "@/lib/api/classes";
+import { listClasses } from "@/lib/api/classes";
 import { listClubTypes } from "@/lib/api/catalogs";
 import { requireAdminUser } from "@/lib/auth/session";
 
@@ -56,22 +56,6 @@ export default async function ClassesPage() {
     const payload = await listClasses({ page: 1, limit: 100 });
     const rawItems = extractItems(payload);
 
-    // Fetch module counts for each class concurrently (best-effort).
-    const moduleCountMap = new Map<number, number>();
-    await Promise.allSettled(
-      rawItems.map(async (item) => {
-        const classId = toPositiveNumber(item.class_id);
-        if (!classId) return;
-        try {
-          const modules = await listClassModules(classId);
-          const list = Array.isArray(modules) ? modules : extractItems(modules);
-          moduleCountMap.set(classId, list.length);
-        } catch {
-          // Keep 0 for this class if modules fetch fails.
-        }
-      }),
-    );
-
     rows = rawItems
       .map((item): ClassRow | null => {
         const classId = toPositiveNumber(item.class_id);
@@ -81,6 +65,14 @@ export default async function ClassesPage() {
         const clubTypeName = clubTypeId
           ? (clubTypeNameById.get(clubTypeId) ?? `Tipo #${clubTypeId}`)
           : "—";
+
+        // Backend returns `_count: { class_modules: N }` in the list payload.
+        const count = (item._count as { class_modules?: unknown } | undefined)
+          ?.class_modules;
+        const modulesCount =
+          typeof count === "number" && Number.isFinite(count) && count >= 0
+            ? count
+            : 0;
 
         return {
           class_id: classId,
@@ -92,7 +84,7 @@ export default async function ClassesPage() {
           club_type_id: clubTypeId ?? 0,
           club_type_name: clubTypeName,
           display_order: toPositiveNumber(item.display_order) ?? 0,
-          modules_count: moduleCountMap.get(classId) ?? 0,
+          modules_count: modulesCount,
           active: item.active !== false,
         };
       })

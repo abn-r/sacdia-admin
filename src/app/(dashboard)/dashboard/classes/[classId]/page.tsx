@@ -91,9 +91,14 @@ function normalizeModules(raw: unknown): NormalizedModule[] {
   if (!Array.isArray(raw)) return [];
   return raw.map((mod: unknown, idx: number) => {
     const m = (mod && typeof mod === "object" ? mod : {}) as AnyRecord;
-    const sections = Array.isArray(m.sections)
-      ? m.sections.map((sec: unknown, sIdx: number) => normalizeSection(sec, sIdx))
-      : [];
+    const rawSections = Array.isArray(m.sections)
+      ? m.sections
+      : Array.isArray(m.class_sections)
+        ? m.class_sections
+        : [];
+    const sections = rawSections.map((sec: unknown, sIdx: number) =>
+      normalizeSection(sec, sIdx),
+    );
 
     return {
       module_id: toPositiveNumber(m.module_id) ?? idx + 1,
@@ -162,7 +167,12 @@ export default async function ClassDetailPage({ params }: { params: Params }) {
     const normalized = normalizeClassPayload(payload);
     if (!normalized) notFound();
     classData = normalized;
-    modules = normalizeModules(classData.modules ?? []);
+    const rawModules = Array.isArray(classData.class_modules)
+      ? classData.class_modules
+      : Array.isArray(classData.modules)
+        ? classData.modules
+        : [];
+    modules = normalizeModules(rawModules);
   } catch (error) {
     if (error instanceof ApiError && (error.status === 404 || error.status === 403)) {
       notFound();
@@ -171,7 +181,7 @@ export default async function ClassDetailPage({ params }: { params: Params }) {
   }
 
   // If modules were not embedded in the detail response, show an informational note.
-  if (modules.length === 0 && !classData.modules) {
+  if (modules.length === 0 && !classData.class_modules && !classData.modules) {
     modulesError =
       "El endpoint de clases no retornó módulos en la respuesta de detalle. " +
       "Los módulos se cargan desde GET /classes/:id — verifica que el backend los incluya.";
