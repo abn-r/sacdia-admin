@@ -88,7 +88,7 @@ export function EventDayCard({ day, events, venues, onAdd, onEdit, readonly = fa
 
   if (sorted.length === 0) {
     return (
-      <Card className="rounded-xl border-border/60 bg-card shadow-xs overflow-hidden">
+      <Card className="block gap-0 py-0 rounded-xl border-border/60 bg-card shadow-xs overflow-hidden">
         <div className="px-5 py-4 border-b border-border/60 bg-muted/30 flex items-center gap-4">
           <DayBadge day={day} />
           <div className="flex-1">
@@ -112,7 +112,7 @@ export function EventDayCard({ day, events, venues, onAdd, onEdit, readonly = fa
   }
 
   return (
-    <Card className="rounded-xl border-border/60 bg-card shadow-xs overflow-hidden">
+    <Card className="block gap-0 py-0 rounded-xl border-border/60 bg-card shadow-xs overflow-hidden">
       <div className="px-5 py-4 border-b border-border/60 bg-muted/30 grid grid-cols-[auto_1fr_auto] gap-5 items-center">
         <DayBadge day={day} />
 

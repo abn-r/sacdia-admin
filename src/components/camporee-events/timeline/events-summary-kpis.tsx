@@ -18,7 +18,7 @@ interface KpiProps {
 
 function Kpi({ icon, label, value, hint }: KpiProps) {
   return (
-    <Card className="rounded-xl border-border/60 bg-card shadow-xs px-4 py-3">
+    <Card className="block gap-0 rounded-xl border-border/60 bg-card shadow-xs px-4 py-3">
       <div className="flex items-center gap-1.5 text-[10.5px] uppercase tracking-wider font-semibold text-muted-foreground">
         <span className="[&_svg]:size-3.5">{icon}</span>
         {label}
