@@ -12,7 +12,7 @@ import type { CamporeeMembersTabProps } from "@/components/camporees/camporee-me
 import type { CamporeeClubsTabProps } from "@/components/camporees/camporee-clubs-tab";
 import type { CamporeePaymentsTabProps } from "@/components/camporees/camporee-payments-tab";
 import { CamporeeEventsTab } from "@/components/camporee-events/camporee-events-tab";
-import type { CamporeeEvent, CamporeeEventTemplate } from "@/lib/api/camporee-events";
+import type { BackendCamporeeEvent, CamporeeEventTemplate } from "@/lib/api/camporee-events";
 
 const CamporeeMembersTab = dynamic<CamporeeMembersTabProps>(
   () =>
@@ -67,7 +67,7 @@ interface CamporeeDetailTabsProps {
   /** Server-rendered info tab content passed as a slot */
   infoContent: ReactNode;
   // ── Events tab ───────────────────────────────────────────────────────────────
-  initialEvents?: CamporeeEvent[];
+  initialEvents?: BackendCamporeeEvent[];
   availableTemplates?: CamporeeEventTemplate[];
   canCreateEvents?: boolean;
   canEditEvents?: boolean;

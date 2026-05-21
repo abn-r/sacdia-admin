@@ -20,7 +20,7 @@ import {
 import {
   listLocalCamporeeEvents,
   listCamporeeEventTemplates,
-  type CamporeeEvent,
+  type BackendCamporeeEvent,
   type CamporeeEventTemplate,
 } from "@/lib/api/camporee-events";
 import { hasAnyPermission } from "@/lib/auth/permission-utils";
@@ -165,7 +165,7 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
   let payments: CamporeePayment[] = [];
   let paymentsError: string | null = null;
   let pending: PendingApprovals = { clubs: [], members: [], payments: [] };
-  let events: CamporeeEvent[] = [];
+  let events: BackendCamporeeEvent[] = [];
   let availableTemplates: CamporeeEventTemplate[] = [];
 
   // Fetch camporee detail
@@ -230,7 +230,7 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
   // Fetch camporee events (instances) — best effort
   try {
     const eventsPayload = await listLocalCamporeeEvents(camporeeId, { limit: 100 });
-    const eventsData = extractList<CamporeeEvent>(eventsPayload);
+    const eventsData = extractList<BackendCamporeeEvent>(eventsPayload);
     events = eventsData.sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0));
   } catch {
     // Events are not blocking — tab shows empty state

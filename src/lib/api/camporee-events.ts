@@ -81,7 +81,45 @@ export type UpdateCamporeeEventTemplatePayload = Partial<CreateCamporeeEventTemp
 
 // ─── Camporee Event Instance types ─────────────────────────────────────────────
 
-export type CamporeeEvent = {
+export type CamporeeEventStatus =
+  | "programado"
+  | "publicado"
+  | "curso"
+  | "realizado"
+  | "cancelado";
+
+export type CamporeeEventSection =
+  | "adventurers"
+  | "pathfinders"
+  | "master_guides";
+
+export type CamporeeEventDisplayCategory =
+  | "espiritual"
+  | "competencia"
+  | "taller"
+  | "ceremonial"
+  | "social"
+  | "logistico";
+
+/** Leader info joined from the users table (present when leader_user_id is set) */
+export type CamporeeEventLeader = {
+  user_id: string;
+  name: string;
+  surname?: string | null;
+};
+
+/** Venue info joined from the camporee_venues table (present when venue_id is set) */
+export type CamporeeEventVenueRef = {
+  camporee_venue_id: number;
+  name: string;
+};
+
+/**
+ * Backend response shape for a camporee event instance.
+ * Previously exported as `CamporeeEvent` — renamed to avoid collision with
+ * the timeline domain type in `lib/camporee-timeline/types.ts`.
+ */
+export type BackendCamporeeEvent = {
   camporee_event_id: number;
   local_camporee_id?: number | null;
   union_camporee_id?: number | null;
@@ -106,7 +144,29 @@ export type CamporeeEvent = {
   created_at?: string;
   modified_at?: string;
   event_type?: Record<string, unknown>;
+  // ── Agenda scheduling fields (added in camporee-agenda-events change) ──────
+  day_number: number;
+  starts_at?: string | null;
+  ends_at?: string | null;
+  venue_id?: number | null;
+  leader_user_id?: string | null;
+  leader_name_override?: string | null;
+  leader_role?: string | null;
+  sections: CamporeeEventSection[];
+  display_category: CamporeeEventDisplayCategory;
+  status: CamporeeEventStatus;
+  capacity?: number | null;
+  registered_count: number;
+  // ── Joined relations (present when backend includes them) ──────────────────
+  leader?: CamporeeEventLeader | null;
+  venue?: CamporeeEventVenueRef | null;
 };
+
+/**
+ * @deprecated Use `BackendCamporeeEvent` instead.
+ * Kept as a type alias for a smooth migration period.
+ */
+export type CamporeeEvent = BackendCamporeeEvent;
 
 export type CreateCamporeeEventPayload = {
   event_type_id: number;
@@ -126,6 +186,19 @@ export type CreateCamporeeEventPayload = {
   duration_seconds?: number | null;
   display_order?: number;
   active?: boolean;
+  // ── Agenda scheduling fields ──────────────────────────────────────────────
+  day_number?: number;
+  starts_at?: string | null;
+  ends_at?: string | null;
+  venue_id?: number | null;
+  leader_user_id?: string | null;
+  leader_name_override?: string | null;
+  leader_role?: string | null;
+  sections?: CamporeeEventSection[];
+  display_category?: CamporeeEventDisplayCategory;
+  status?: CamporeeEventStatus;
+  capacity?: number | null;
+  registered_count?: number;
 };
 
 export type UpdateCamporeeEventPayload = Partial<CreateCamporeeEventPayload>;
@@ -166,13 +239,27 @@ export async function deleteCamporeeEventTemplate(id: number) {
   return apiRequest(`/camporee-event-templates/${id}`, { method: "DELETE" });
 }
 
+// ─── List filter params ────────────────────────────────────────────────────────
+
+export type ListCamporeeEventsParams = {
+  day_number?: number;
+  display_category?: CamporeeEventDisplayCategory;
+  section?: CamporeeEventSection;
+  status?: CamporeeEventStatus;
+  venue_id?: number;
+  leader_user_id?: string;
+  q?: string;
+  limit?: number;
+  offset?: number;
+};
+
 // ─── Instance endpoints — local camporees ─────────────────────────────────────
 
 export async function listLocalCamporeeEvents(
   camporeeId: number,
-  params?: Record<string, string | number | boolean>,
+  params?: ListCamporeeEventsParams & Record<string, string | number | boolean | undefined>,
 ) {
-  return apiRequest<unknown>(`/local-camporees/${camporeeId}/events`, { params });
+  return apiRequest<unknown>(`/local-camporees/${camporeeId}/events`, { params: params as Record<string, string | number | boolean | undefined> });
 }
 
 export async function createLocalCamporeeEvent(
@@ -200,9 +287,9 @@ export async function cloneTemplateToLocalCamporee(
 
 export async function listUnionCamporeeEvents(
   camporeeId: number,
-  params?: Record<string, string | number | boolean>,
+  params?: ListCamporeeEventsParams & Record<string, string | number | boolean | undefined>,
 ) {
-  return apiRequest<unknown>(`/union-camporees/${camporeeId}/events`, { params });
+  return apiRequest<unknown>(`/union-camporees/${camporeeId}/events`, { params: params as Record<string, string | number | boolean | undefined> });
 }
 
 export async function createUnionCamporeeEvent(

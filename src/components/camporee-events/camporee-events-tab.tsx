@@ -3,7 +3,7 @@
 import { EventsTimelineView } from "./timeline/events-timeline-view";
 import { buildMockEvents } from "@/lib/camporee-timeline/mock-data";
 import type {
-  CamporeeEvent,
+  BackendCamporeeEvent,
   CamporeeEventTemplate,
 } from "@/lib/api/camporee-events";
 
@@ -17,7 +17,7 @@ import type {
 
 interface CamporeeEventsTabProps {
   camporeeId: number;
-  initialEvents: CamporeeEvent[];
+  initialEvents: BackendCamporeeEvent[];
   availableTemplates: CamporeeEventTemplate[];
   isUnionCamporee?: boolean;
   canCreate?: boolean;
