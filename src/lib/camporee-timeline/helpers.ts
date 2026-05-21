@@ -5,8 +5,10 @@ export const toMin = (hhmm: string): number => {
   return h * 60 + m;
 };
 
-export const durMin = (start: string, end: string): number =>
-  toMin(end) - toMin(start);
+export const durMin = (start: string, end: string): number => {
+  const diff = toMin(end) - toMin(start);
+  return diff < 0 ? diff + 1440 : diff;
+};
 
 export const initials = (name: string): string =>
   name

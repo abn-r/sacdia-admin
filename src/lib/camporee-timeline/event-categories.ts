@@ -1,4 +1,4 @@
-import type { EventCategoryId, EventStatus } from "./types";
+import type { EventCategoryId, EventStatus, Section } from "./types";
 
 export interface EventCategoryDef {
   id: EventCategoryId;
@@ -40,7 +40,7 @@ export const EVENT_STATUS_VARIANT: Record<
   cancelado: "soft-destructive",
 };
 
-export const SECTION_COLOR: Record<string, { tint: string; dot: string }> = {
+export const SECTION_COLOR: Record<Section, { tint: string; dot: string }> = {
   Aventureros:    { tint: "bg-section-aventureros/15 text-section-aventureros",       dot: "bg-section-aventureros" },
   Conquistadores: { tint: "bg-section-conquistadores/15 text-section-conquistadores", dot: "bg-section-conquistadores" },
   "Guías Mayores": { tint: "bg-section-guias/15 text-section-guias",                  dot: "bg-section-guias" },

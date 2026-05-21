@@ -204,15 +204,17 @@ const TEMPLATES: EventTemplate[] = [
 ];
 
 export function buildMockEvents(args: BuildMockArgs): CamporeeEventsData {
-  const start = new Date(args.startDate ?? "2026-07-15T00:00:00");
+  const start = new Date(args.startDate ?? "2026-07-15T12:00:00");
   const days = Array.from({ length: 5 }, (_, i) => {
     const d = new Date(start);
     d.setDate(start.getDate() + i);
-    const iso = d.toISOString().slice(0, 10);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
     return {
       id: `d${i + 1}`,
       numero: i + 1,
-      fecha: iso,
+      fecha: `${y}-${m}-${day}`,
       diaSemana: DAY_NAMES_ES[d.getDay()],
       fechaFmt: formatDayShort(d),
     };
