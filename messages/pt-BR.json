@@ -1207,13 +1207,13 @@
       "club_send_failed": "Não foi possível enviar a notificação ao clube"
     },
     "validation": {
-      "user_id_required": "Informe o ID do usuário",
+      "user_id_required": "Selecione um membro",
       "title_required": "Informe o título",
       "body_required": "Informe a mensagem",
       "instance_type_required": "Selecione o tipo de clube",
       "instance_type_invalid": "O tipo de clube não é válido",
-      "instance_id_required": "Informe o ID da instância",
-      "instance_id_invalid": "O ID da instância não é válido"
+      "instance_id_required": "Selecione uma seção",
+      "instance_id_invalid": "A seção selecionada é inválida"
     },
     "success": {
       "sent": "Notificação enviada com sucesso",
@@ -1228,8 +1228,8 @@
       "broadcast_warning": "Esta ação enviará a notificação para todos os usuários com token FCM registrado.",
       "club_title": "Por clube",
       "club_description": "Enviar notificação para todos os membros de um clube.",
-      "label_user_id": "ID do usuário",
-      "placeholder_user_id": "UUID do usuário",
+      "label_user_id": "Membro",
+      "placeholder_user_id": "Buscar membro...",
       "label_title": "Título",
       "placeholder_title_notification": "Título da notificação",
       "placeholder_title_broadcast": "Título do broadcast",
@@ -1240,8 +1240,8 @@
       "option_adventurers": "Aventureiros",
       "option_pathfinders": "Desbravadores",
       "option_master_guilds": "Guias Máster",
-      "label_instance_id": "ID da instância",
-      "placeholder_instance_id": "ID numérico do clube",
+      "label_instance_id": "Seção",
+      "placeholder_instance_id": "Selecione uma seção",
       "submit_send": "Enviar notificação",
       "submit_broadcast": "Enviar broadcast",
       "submit_club": "Enviar ao clube"
@@ -2433,7 +2433,17 @@
       "helpInsurance": "O registro falhará se o seguro não estiver validado.",
       "cancel": "Cancelar",
       "registering": "Registrando...",
-      "register": "Registrar membro"
+      "register": "Registrar membro",
+      "description": "Selecione o clube e o membro para registrá-lo no camporee.",
+      "labelClub": "Clube",
+      "labelMember": "Membro",
+      "placeholderMember": "Buscar membro...",
+      "placeholderSelectClubFirst": "Selecione um clube primeiro",
+      "insuranceLoading": "Buscando seguro ativo...",
+      "insuranceActive": "Seguro ativo",
+      "insuranceExpires": "Vence",
+      "noInsuranceTitle": "Sem seguro ativo",
+      "noInsuranceDescription": "Este membro não tem seguro ativo e não pode ser inscrito."
     },
     "pages": {
       "list": {
@@ -5397,6 +5407,34 @@
       "statusInactive": "Inativo",
       "reorderUp": "Mover para cima",
       "reorderDown": "Mover para baixo"
+    }
+  },
+  "selectors": {
+    "ecclesiasticalYear": {
+      "placeholder": "Selecione um ano eclesiástico",
+      "searchPlaceholder": "Buscar ano...",
+      "loading": "Carregando anos...",
+      "empty": "Sem resultados",
+      "loadError": "Falha ao carregar anos",
+      "clearSelection": "Limpar seleção",
+      "activeBadge": "Ativo"
+    },
+    "club": {
+      "placeholder": "Selecione um clube",
+      "searchPlaceholder": "Buscar clube...",
+      "loading": "Carregando clubes...",
+      "empty": "Sem resultados",
+      "loadError": "Falha ao carregar clubes",
+      "clearSelection": "Limpar seleção"
+    },
+    "clubSection": {
+      "placeholder": "Selecione uma seção",
+      "placeholderNoClub": "Selecione um clube primeiro",
+      "searchPlaceholder": "Buscar seção...",
+      "loading": "Carregando seções...",
+      "empty": "Sem resultados",
+      "loadError": "Falha ao carregar seções",
+      "clearSelection": "Limpar seleção"
     }
   }
 }

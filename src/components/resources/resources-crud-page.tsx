@@ -638,15 +638,9 @@ function ResourceFormFields({
                 </SelectContent>
               </Select>
             ) : (
-              <Input
-                id="res-scope-id"
-                name="scope_id"
-                type="number"
-                min={1}
-                defaultValue={currentScopeIdValue}
-                required
-                placeholder={t("placeholders.unionId")}
-              />
+              <div className="rounded-md border border-dashed border-muted-foreground/30 bg-muted/30 p-3 text-sm text-muted-foreground">
+                No hay uniones disponibles. Contactá al administrador.
+              </div>
             )
           ) : localFields.length > 0 ? (
             <Select
@@ -666,15 +660,9 @@ function ResourceFormFields({
               </SelectContent>
             </Select>
           ) : (
-            <Input
-              id="res-scope-id"
-              name="scope_id"
-              type="number"
-              min={1}
-              defaultValue={currentScopeIdValue}
-              required
-              placeholder={t("placeholders.localFieldId")}
-            />
+            <div className="rounded-md border border-dashed border-muted-foreground/30 bg-muted/30 p-3 text-sm text-muted-foreground">
+              No hay campos locales disponibles. Contactá al administrador.
+            </div>
           )}
         </div>
       )}

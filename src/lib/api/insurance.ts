@@ -1,4 +1,4 @@
-import { apiRequest, apiRequestFromClient, API_BASE_URL } from "@/lib/api/client";
+import { apiRequest, apiRequestFromClient } from "@/lib/api/client";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -118,6 +118,16 @@ export async function listMembersInsurance(
 
 export async function getMemberInsurance(memberId: string): Promise<unknown> {
   return apiRequest(`/users/${memberId}/insurance`);
+}
+
+export async function getMemberInsuranceFromClient(
+  memberId: string,
+): Promise<InsuranceRecord | null> {
+  const payload = await apiRequestFromClient<{
+    status: string;
+    data: InsuranceRecord | null;
+  }>(`/users/${memberId}/insurance`);
+  return payload?.data ?? null;
 }
 
 // ─── Client-side API functions ────────────────────────────────────────────────

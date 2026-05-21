@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useState, useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { Loader2, Send, Radio, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -22,6 +22,9 @@ import {
   clubNotificationAction,
   type NotificationActionState,
 } from "@/lib/notifications/actions";
+import { ClubSelect } from "@/components/shared/selectors/club-select";
+import { ClubSectionSelect } from "@/components/shared/selectors/club-section-select";
+import { MemberCombobox } from "@/components/units/member-combobox";
 
 function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
@@ -87,6 +90,14 @@ export function DirectNotificationForm() {
     "notif-direct",
   );
 
+  const [selectedClubId, setSelectedClubId] = useState<number | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string>("");
+
+  function handleClubChange(id: number | null) {
+    setSelectedClubId(id);
+    setSelectedUserId("");
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -99,18 +110,25 @@ export function DirectNotificationForm() {
       <CardContent>
         <form action={action} className="space-y-4" noValidate>
           <StatusBanner state={state} />
-          <div className="space-y-2">
-            <Label htmlFor="direct_user_id">
+          {/* Hidden input carrying user_id for the server action */}
+          <input type="hidden" name="user_id" value={selectedUserId} />
+          <div
+            className="space-y-2"
+            aria-invalid={ariaInvalid("user_id")}
+            aria-describedby={describedBy("user_id")}
+          >
+            <Label>
               {t("label_user_id")} <span className="text-destructive">*</span>
             </Label>
-            <Input
-              id="direct_user_id"
-              name="user_id"
-              placeholder={t("placeholder_user_id")}
-              required
-              aria-required="true"
-              aria-invalid={ariaInvalid("user_id")}
-              aria-describedby={describedBy("user_id")}
+            <ClubSelect
+              value={selectedClubId}
+              onChange={handleClubChange}
+            />
+            <MemberCombobox
+              clubId={selectedClubId ?? 0}
+              value={selectedUserId}
+              onChange={setSelectedUserId}
+              disabled={!selectedClubId}
             />
             {renderError("user_id")}
           </div>
@@ -221,6 +239,20 @@ export function ClubNotificationForm() {
     "notif-club",
   );
 
+  const [instanceType, setInstanceType] = useState<string>("");
+  const [selectedClubIdForNotif, setSelectedClubIdForNotif] = useState<number | null>(null);
+  const [selectedSectionId, setSelectedSectionId] = useState<number | null>(null);
+
+  function handleInstanceTypeChange(value: string) {
+    setInstanceType(value);
+    setSelectedSectionId(null);
+  }
+
+  function handleClubForNotifChange(id: number | null) {
+    setSelectedClubIdForNotif(id);
+    setSelectedSectionId(null);
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -233,11 +265,22 @@ export function ClubNotificationForm() {
       <CardContent>
         <form action={action} className="space-y-4" noValidate>
           <StatusBanner state={state} />
+          {/* Hidden input carrying instance_id for the server action */}
+          <input
+            type="hidden"
+            name="instance_id"
+            value={selectedSectionId ?? ""}
+          />
           <div className="space-y-2">
             <Label htmlFor="club_instance_type">
               {t("label_instance_type")} <span className="text-destructive">*</span>
             </Label>
-            <Select name="instance_type" required>
+            <Select
+              name="instance_type"
+              required
+              value={instanceType}
+              onValueChange={handleInstanceTypeChange}
+            >
               <SelectTrigger
                 id="club_instance_type"
                 aria-invalid={ariaInvalid("instance_type")}
@@ -253,19 +296,24 @@ export function ClubNotificationForm() {
             </Select>
             {renderError("instance_type")}
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="club_instance_id">
+          <div
+            className="space-y-2"
+            aria-invalid={ariaInvalid("instance_id")}
+            aria-describedby={describedBy("instance_id")}
+          >
+            <Label>
               {t("label_instance_id")} <span className="text-destructive">*</span>
             </Label>
-            <Input
-              id="club_instance_id"
-              name="instance_id"
-              type="number"
-              placeholder={t("placeholder_instance_id")}
-              required
-              aria-required="true"
-              aria-invalid={ariaInvalid("instance_id")}
-              aria-describedby={describedBy("instance_id")}
+            <ClubSelect
+              value={selectedClubIdForNotif}
+              onChange={handleClubForNotifChange}
+            />
+            <ClubSectionSelect
+              clubId={selectedClubIdForNotif}
+              sectionTypeKey={instanceType || undefined}
+              value={selectedSectionId}
+              onChange={setSelectedSectionId}
+              disabled={!selectedClubIdForNotif || !instanceType}
             />
             {renderError("instance_id")}
           </div>
