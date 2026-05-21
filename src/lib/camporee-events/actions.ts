@@ -552,7 +552,10 @@ function buildAgendaPayload(
   const max_points = getNonNegativeInt(formData, "max_points") ?? 0;
 
   return {
-    event_type_id: 1, // default — instances use type 1 (generic) unless overridden
+    // event_type_id intentionally omitted — backend resolves the seeded
+    // `general` camporee_event_type for agenda events (see migration
+    // 20260521120000_camporee_event_type_general). Competition events go
+    // through createCamporeeEventAction with an explicit id.
     title,
     description: getOptionalString(formData, "description"),
     day_number,

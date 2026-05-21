@@ -245,12 +245,21 @@ export default async function CamporeeDetailPage({
     const v = sp[key];
     return typeof v === "string" ? v : undefined;
   };
+  // Guard venue param against malformed/NaN values — backend @IsInt() would
+  // otherwise reject the request with 400 on garbage input.
+  const rawVenue = spStr("venue");
+  const parsedVenue = rawVenue !== undefined ? Number(rawVenue) : undefined;
+  const venueIdFilter =
+    parsedVenue !== undefined && Number.isFinite(parsedVenue)
+      ? parsedVenue
+      : undefined;
+
   const eventsFilter: import("@/lib/api/camporee-events").ListCamporeeEventsParams = {
     limit: 100,
     ...(spStr("q") && { q: spStr("q") }),
     ...(spStr("category") && { display_category: spStr("category") as import("@/lib/api/camporee-events").CamporeeEventDisplayCategory }),
     ...(spStr("section") && { section: spStr("section") as import("@/lib/api/camporee-events").CamporeeEventSection }),
-    ...(spStr("venue") && { venue_id: Number(spStr("venue")) }),
+    ...(venueIdFilter !== undefined && { venue_id: venueIdFilter }),
     ...(spStr("status") && { status: spStr("status") as import("@/lib/api/camporee-events").CamporeeEventStatus }),
   };
 
