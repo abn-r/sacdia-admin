@@ -460,7 +460,7 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
                       <TableRow
                         key={role.role_id}
                         className="transition-colors hover:bg-muted/30 animate-in fade-in slide-in-from-bottom-2 duration-300"
-                        style={{ animationDelay: `${index * 40}ms`, animationFillMode: "backwards" }}
+                        style={{ animationDelay: `${Math.min(index * 20, 200)}ms`, animationFillMode: "backwards" }}
                       >
                         {/* role_name — mono, lock icon for super-admin */}
                         <TableCell className="px-3 py-2.5 align-middle">

@@ -55,8 +55,8 @@ export function AchievementPreviewCard({
             src={badgeImageUrl}
             alt={name}
             fill
+            sizes="96px"
             className="rounded-full object-cover"
-            unoptimized
           />
         ) : (
           <span className="text-3xl" aria-hidden>

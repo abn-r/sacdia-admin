@@ -12,7 +12,6 @@ import {
   Upload,
   XCircle,
 } from "lucide-react";
-import * as XLSX from "xlsx";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -180,6 +179,7 @@ export function ClubsBulkImport({
     setFileName(file.name);
 
     try {
+      const XLSX = await import("xlsx");
       const buffer = await file.arrayBuffer();
       const workbook = XLSX.read(buffer, { type: "array" });
       const firstSheetName = workbook.SheetNames[0];
@@ -261,7 +261,8 @@ export function ClubsBulkImport({
     });
   }
 
-  function downloadTemplate() {
+  async function downloadTemplate() {
+    const XLSX = await import("xlsx");
     const sample: Record<string, string> = {
       name: "Club Ejemplo",
       local_field: localFields[0]?.label ?? "",
@@ -291,7 +292,9 @@ export function ClubsBulkImport({
               variant="outline"
               size="sm"
               type="button"
-              onClick={downloadTemplate}
+              onClick={() => {
+                void downloadTemplate();
+              }}
             >
               <Download className="size-4" />
               {t("downloadTemplate")}

@@ -250,7 +250,7 @@ export function CatalogCrudPage({
                           key={rowKey}
                           className={`${ROW_H} border-b border-border transition-colors hover:bg-muted/30 animate-in fade-in slide-in-from-bottom-2 duration-300`}
                           style={{
-                            animationDelay: `${Math.min(idx * 40, 400)}ms`,
+                            animationDelay: `${Math.min(idx * 20, 200)}ms`,
                             animationFillMode: "backwards",
                           }}
                         >
@@ -382,7 +382,7 @@ export function CatalogCrudPage({
                   key={rowKey}
                   className="animate-in fade-in slide-in-from-bottom-2 duration-300"
                   style={{
-                    animationDelay: `${Math.min(idx * 40, 400)}ms`,
+                    animationDelay: `${Math.min(idx * 20, 200)}ms`,
                     animationFillMode: "backwards",
                   }}
                 >

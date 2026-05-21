@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { ApiError } from "@/lib/api/client";
 import { listClubTypes } from "@/lib/api/catalogs";
@@ -58,11 +59,8 @@ type HonorsListMeta = {
 };
 
 const HONORS_FILTER_FETCH_LIMIT = 5000;
-const CATALOGS_CACHE_TTL_MS = 5 * 60 * 1000;
+const CATALOGS_CACHE_TTL_SECONDS = 5 * 60;
 const EMPTY_ARRAY: unknown[] = [];
-
-let cachedHonorCategories: { value: unknown; fetchedAt: number } | null = null;
-let cachedClubTypes: { value: unknown; fetchedAt: number } | null = null;
 
 function toPositiveNumber(value: unknown): number | null {
   const parsed = typeof value === "number" ? value : Number(value);
@@ -312,41 +310,29 @@ async function listAllHonorsForFiltering(): Promise<GenericRecord[]> {
   return items;
 }
 
-async function getCachedHonorCategoriesPayload() {
-  const now = Date.now();
-  if (cachedHonorCategories && now - cachedHonorCategories.fetchedAt < CATALOGS_CACHE_TTL_MS) {
-    return cachedHonorCategories.value;
-  }
-
-  try {
-    const payload = await listHonorCategories();
-    cachedHonorCategories = { value: payload, fetchedAt: now };
-    return payload;
-  } catch {
-    if (cachedHonorCategories) {
-      return cachedHonorCategories.value;
+const getCachedHonorCategoriesPayload = unstable_cache(
+  async (): Promise<unknown> => {
+    try {
+      return await listHonorCategories();
+    } catch {
+      return EMPTY_ARRAY;
     }
-    return EMPTY_ARRAY;
-  }
-}
+  },
+  ["honors-page", "honor-categories"],
+  { revalidate: CATALOGS_CACHE_TTL_SECONDS, tags: ["honor-categories"] },
+);
 
-async function getCachedClubTypesPayload() {
-  const now = Date.now();
-  if (cachedClubTypes && now - cachedClubTypes.fetchedAt < CATALOGS_CACHE_TTL_MS) {
-    return cachedClubTypes.value;
-  }
-
-  try {
-    const payload = await listClubTypes();
-    cachedClubTypes = { value: payload, fetchedAt: now };
-    return payload;
-  } catch {
-    if (cachedClubTypes) {
-      return cachedClubTypes.value;
+const getCachedClubTypesPayload = unstable_cache(
+  async (): Promise<unknown> => {
+    try {
+      return await listClubTypes();
+    } catch {
+      return EMPTY_ARRAY;
     }
-    return EMPTY_ARRAY;
-  }
-}
+  },
+  ["honors-page", "club-types"],
+  { revalidate: CATALOGS_CACHE_TTL_SECONDS, tags: ["club-types"] },
+);
 
 function normalizeCategories(payload: unknown): Array<GenericRecord> {
   if (Array.isArray(payload)) return payload as Array<GenericRecord>;
