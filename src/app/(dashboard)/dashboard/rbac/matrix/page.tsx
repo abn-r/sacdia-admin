@@ -16,7 +16,7 @@ import type { Role, Permission } from "@/lib/rbac/types";
 import { ApiError } from "@/lib/api/client";
 
 export default async function MatrixPage() {
-  const t = await getTranslations("rbac.matrix");
+  const t = await getTranslations("rbac.pages.matrix");
   await requireAdminUser();
 
   let roles: Role[] = [];

@@ -59,7 +59,7 @@ export function PermissionsMatrix({
   permissions,
   syncAction,
 }: PermissionsMatrixProps) {
-  const t = useTranslations("rbac.matrix");
+  const t = useTranslations("rbac.pages.matrix");
 
   const initialSelections = useMemo(
     () => buildInitialSelections(roles),
