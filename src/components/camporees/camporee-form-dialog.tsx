@@ -188,7 +188,7 @@ export function CamporeeFormDialog({
     setIsSubmitting(true);
     try {
       if (isEdit && camporee) {
-        const id = camporee.camporee_id ?? camporee.id ?? 0;
+        const id = camporee.local_camporee_id ?? camporee.camporee_id ?? camporee.id ?? 0;
         await updateCamporee(id, {
           name: values.name,
           description: values.description,

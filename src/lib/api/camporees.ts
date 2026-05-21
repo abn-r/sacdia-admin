@@ -85,6 +85,11 @@ export type Camporee = {
   local_camporee_place?: string;
   registration_cost?: number;
   active?: boolean;
+  local_field?: {
+    local_field_id?: number;
+    name?: string;
+    abbreviation?: string;
+  };
 };
 
 export type CamporeePayload = {

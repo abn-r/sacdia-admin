@@ -168,7 +168,7 @@ export function CampoReesView({ initialCamporees }: CampoReesViewProps) {
             </TableHeader>
             <TableBody>
               {camporees.map((camporee, index) => {
-                const id = camporee.camporee_id ?? camporee.id ?? 0;
+                const id = camporee.local_camporee_id ?? camporee.camporee_id ?? camporee.id ?? 0;
                 return (
                   <TableRow key={id} className={`hover:bg-muted/30 ${STAGGER_CLASSES}`} style={getStaggerStyle(index, 50)}>
                     <TableCell className="px-3 py-2.5 align-middle">

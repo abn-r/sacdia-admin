@@ -64,16 +64,16 @@ function extractCamporee(payload: unknown): AnyRecord | null {
   const root = payload as AnyRecord;
   if (root.data && typeof root.data === "object") {
     const nested = root.data as AnyRecord;
-    if (nested.camporee_id != null || nested.name != null) return nested;
+    if (nested.local_camporee_id != null || nested.camporee_id != null || nested.name != null) return nested;
     if (nested.data && typeof nested.data === "object") return nested.data as AnyRecord;
   }
-  if (root.camporee_id != null || root.name != null) return root;
+  if (root.local_camporee_id != null || root.camporee_id != null || root.name != null) return root;
   return null;
 }
 
 function normalizeCamporee(raw: AnyRecord): Camporee {
   return {
-    camporee_id: toPositiveNumber(raw.camporee_id ?? raw.id) ?? undefined,
+    camporee_id: toPositiveNumber(raw.local_camporee_id ?? raw.camporee_id ?? raw.id) ?? undefined,
     id: toPositiveNumber(raw.id) ?? undefined,
     name: String(raw.name ?? ""),
     description: toText(raw.description),
@@ -84,9 +84,22 @@ function normalizeCamporee(raw: AnyRecord): Camporee {
     includes_pathfinders: raw.includes_pathfinders !== false,
     includes_master_guides: raw.includes_master_guides === true,
     local_camporee_place: toText(raw.local_camporee_place) ?? undefined,
-    registration_cost:
-      typeof raw.registration_cost === "number" ? raw.registration_cost : undefined,
+    registration_cost: (() => {
+      const v = raw.registration_cost;
+      if (v == null || v === "") return undefined;
+      const n = Number(v);
+      return Number.isFinite(n) ? n : undefined;
+    })(),
     active: raw.active !== false,
+    local_field: (() => {
+      const lf = raw.local_fields as AnyRecord | undefined;
+      if (!lf || typeof lf !== "object") return undefined;
+      return {
+        local_field_id: toPositiveNumber(lf.local_field_id) ?? undefined,
+        name: toText(lf.name) ?? undefined,
+        abbreviation: toText(lf.abbreviation) ?? undefined,
+      };
+    })(),
   };
 }
 
@@ -312,7 +325,12 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
               />
               <InfoRow
                 label={t("labelLocalFieldId")}
-                value={camporee.local_field_id ?? "—"}
+                value={
+                  camporee.local_field?.name ??
+                  camporee.local_field?.abbreviation ??
+                  camporee.local_field_id ??
+                  "—"
+                }
                 icon={Hash}
               />
               <InfoRow
