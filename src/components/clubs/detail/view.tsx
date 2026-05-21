@@ -1,9 +1,23 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useFormStatus } from "react-dom";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
+import { AlertTriangle, Loader2, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader } from "@/components/shared/page-header";
 import { EditClubForm } from "@/components/clubs/edit-club-form";
 import { ClubSectionsPanel } from "@/components/clubs/club-sections-panel";
 import { PendingMembersPanel } from "@/components/membership/pending-members-panel";
@@ -44,7 +58,7 @@ interface ClubDetailViewProps {
     prevState: ClubActionState,
     formData: FormData,
   ) => Promise<ClubActionState>;
-  deleteAction: (formData: FormData) => Promise<unknown> | void;
+  deleteAction: (formData: FormData) => Promise<void>;
 }
 
 export function ClubDetailView({
@@ -59,7 +73,9 @@ export function ClubDetailView({
 }: ClubDetailViewProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useTranslations("clubs.pages.detail");
   const [tab, setTab] = useState<ClubTabId>(defaultTab);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const { data: units = [] } = useQuery({
     queryKey: ["club-detail-units", clubId],
@@ -150,29 +166,19 @@ export function ClubDetailView({
   }
 
   function handleDelete() {
-    if (typeof window === "undefined") return;
-    if (
-      !window.confirm(
-        "¿Eliminar este club? Esta acción lo desactivará en el sistema.",
-      )
-    ) {
-      return;
-    }
-    const data = new FormData();
-    data.set("id", String(clubId));
-    void deleteAction(data);
+    setDeleteOpen(true);
   }
 
   return (
     <div className="space-y-5">
-      <div className="space-y-1">
-        <p className="text-[11px] font-semibold uppercase tracking-widest text-primary">
-          Detalle de club
-        </p>
-        <h2 className="text-2xl font-semibold leading-tight tracking-tight text-foreground">
-          Operación completa del club
-        </h2>
-      </div>
+      <PageHeader
+        title="Operación completa del club"
+        description={club.name ?? "Detalle de club"}
+        breadcrumbs={[
+          { label: "Clubes", href: "/dashboard/clubs" },
+          { label: club.name ?? "Detalle" },
+        ]}
+      />
 
       <ClubDetailHero
         club={club}
@@ -289,7 +295,53 @@ export function ClubDetailView({
         isLoading={isLoadingLeadership}
         error={leadershipError}
       />
+
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent className="sm:max-w-sm">
+          <AlertDialogHeader>
+            <div className="mx-auto mb-3 w-fit rounded-full bg-destructive/10 p-2.5">
+              <AlertTriangle className="size-5 text-destructive" />
+            </div>
+            <AlertDialogTitle className="text-center">
+              {t("deleteDialogTitle")}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center">
+              {t("deleteDialogDesc", { name: club.name ?? "" })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <form action={deleteAction}>
+            <input type="hidden" name="id" value={clubId} />
+            <AlertDialogFooter>
+              <AlertDialogCancel>{t("deleteDialogCancel")}</AlertDialogCancel>
+              <DeleteClubButton
+                confirmLabel={t("deleteDialogConfirm")}
+                pendingLabel={t("deleteDialogDeleting")}
+              />
+            </AlertDialogFooter>
+          </form>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
+  );
+}
+
+function DeleteClubButton({
+  confirmLabel,
+  pendingLabel,
+}: {
+  confirmLabel: string;
+  pendingLabel: string;
+}) {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" variant="destructive" disabled={pending}>
+      {pending ? (
+        <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+      ) : (
+        <Trash2 className="size-4" aria-hidden="true" />
+      )}
+      {pending ? pendingLabel : confirmLabel}
+    </Button>
   );
 }
 
