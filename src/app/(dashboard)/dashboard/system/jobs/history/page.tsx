@@ -6,6 +6,7 @@ import { getCronRunsHistory } from "@/lib/api/analytics";
 import { CronHistoryClient } from "./_components/cron-history-client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { PageHeader } from "@/components/shared/page-header";
 
 export const revalidate = 0;
 
@@ -63,25 +64,18 @@ export default async function CronHistoryPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <PageHeader
+        title={t("pageHistory.title")}
+        description={t("pageHistory.description")}
+        actions={
           <Button variant="ghost" size="sm" asChild>
             <Link href="/dashboard/system/jobs">
               <ChevronLeft className="size-4 mr-1" />
               {t("pageHistory.back")}
             </Link>
           </Button>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">
-              {t("pageHistory.title")}
-            </h1>
-            <p className="text-muted-foreground">
-              {t("pageHistory.description")}
-            </p>
-          </div>
-        </div>
-      </div>
+        }
+      />
 
       {/* Content */}
       {fetchError || !historyData ? (

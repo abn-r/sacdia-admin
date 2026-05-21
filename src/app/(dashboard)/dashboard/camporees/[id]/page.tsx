@@ -251,15 +251,25 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
 
   return (
     <div className="space-y-6">
-      <PageHeader title={camporee.name} description={t("description")}>
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/camporees">
-            <ArrowLeft className="size-4" />
-            {t("back")}
-          </Link>
-        </Button>
-        <CamporeeDetailActions camporee={camporee} />
-      </PageHeader>
+      <PageHeader
+        title={camporee.name}
+        description={t("description")}
+        breadcrumbs={[
+          { label: t("back"), href: "/dashboard/camporees" },
+          { label: camporee.name },
+        ]}
+        actions={
+          <>
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/dashboard/camporees">
+                <ArrowLeft className="size-4" />
+                {t("back")}
+              </Link>
+            </Button>
+            <CamporeeDetailActions camporee={camporee} />
+          </>
+        }
+      />
 
       {/* Summary card */}
       <CamporeeInfoCard camporee={camporee} />

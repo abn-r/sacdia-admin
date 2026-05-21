@@ -6,6 +6,7 @@ import { SlaDashboardClient } from "@/components/sla/sla-dashboard-client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { SlaRefreshButton } from "@/components/sla/sla-refresh-button";
+import { PageHeader } from "@/components/shared/page-header";
 
 export const revalidate = 60;
 
@@ -111,13 +112,11 @@ export default async function SlaPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{t("page.title")}</h1>
-          <p className="text-muted-foreground">{t("page.description")}</p>
-        </div>
-        <SlaRefreshButton />
-      </div>
+      <PageHeader
+        title={t("page.title")}
+        description={t("page.description")}
+        actions={<SlaRefreshButton />}
+      />
       <Suspense fallback={<SlaDashboardSkeleton />}>
         <SlaContentWithErrorBoundary errorMessage={t("errors.load_failed")} />
       </Suspense>

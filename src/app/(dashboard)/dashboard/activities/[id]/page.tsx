@@ -162,15 +162,25 @@ export default async function ActivityDetailPage({ params }: { params: Params })
 
   return (
     <div className="space-y-6">
-      <PageHeader title={activity.name} description={t("pageDetail.description")}>
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/activities">
-            <ArrowLeft className="size-4" />
-            {t("pageDetail.back_link")}
-          </Link>
-        </Button>
-        <ActivityDetailActions activity={activity} />
-      </PageHeader>
+      <PageHeader
+        title={activity.name}
+        description={t("pageDetail.description")}
+        breadcrumbs={[
+          { label: t("pageDetail.back_link"), href: "/dashboard/activities" },
+          { label: activity.name },
+        ]}
+        actions={
+          <>
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/dashboard/activities">
+                <ArrowLeft className="size-4" />
+                {t("pageDetail.back_link")}
+              </Link>
+            </Button>
+            <ActivityDetailActions activity={activity} />
+          </>
+        }
+      />
 
       {/* Summary card */}
       <Card>

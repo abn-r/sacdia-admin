@@ -8,6 +8,7 @@ import { requireAdminUser } from "@/lib/auth/session";
 import { hasPermission } from "@/lib/auth/permission-utils";
 import { ApiError } from "@/lib/api/client";
 import { BankSnapshotCard } from "./_components/bank-snapshot-card";
+import { PageHeader } from "@/components/shared/page-header";
 import { ReceiptsSection } from "./_components/receipts-section";
 import { LinesTable } from "./_components/lines-table";
 import { OrderMetadataStrip } from "./_components/order-metadata-strip";
@@ -89,31 +90,19 @@ export default async function SolicitudDetailPage({
       <div className="flex flex-col gap-6 xl:flex-row xl:items-start">
         {/* ─── Main column ──────────────────────────────────────────────── */}
         <div className="min-w-0 flex-1">
-          {/* Header */}
-          <header className="mb-6 space-y-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              asChild
-              className="-ml-2 h-auto px-2 py-1 text-muted-foreground hover:text-foreground"
-            >
-              <Link href="/dashboard/materials/inbox">
-                <ArrowLeft className="size-4" />
-                Materiales / Solicitudes
-              </Link>
-            </Button>
-
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <h1 className="font-mono text-2xl font-semibold tracking-tight">
-                {titulo}
-              </h1>
-              <StatusBadge estado={orden.estado} />
-            </div>
-
-            <p className="text-sm text-muted-foreground">
-              Creada el {formatCreatedLong(orden.created_at)}
-            </p>
-          </header>
+          <PageHeader
+            className="mb-6 font-mono"
+            title={titulo}
+            description={`Creada el ${formatCreatedLong(orden.created_at)}`}
+            breadcrumbs={[
+              {
+                label: "Materiales / Solicitudes",
+                href: "/dashboard/materials/inbox",
+              },
+              { label: titulo },
+            ]}
+            actions={<StatusBadge estado={orden.estado} />}
+          />
 
           {/* Metadata strip */}
           <OrderMetadataStrip orden={orden} />

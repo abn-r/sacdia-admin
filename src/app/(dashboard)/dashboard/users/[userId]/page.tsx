@@ -77,6 +77,7 @@ import {
   type AdminSessionListData,
 } from "@/lib/api/sessions";
 import type { UserRole, Role } from "@/lib/rbac/types";
+import { PageHeader } from "@/components/shared/page-header";
 
 type Params = Promise<{ userId: string }>;
 
@@ -238,14 +239,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
 
   return (
     <div className="space-y-5">
-      <div>
-        <p className="mb-1 text-[12px] font-semibold uppercase tracking-[0.16em] text-primary">
-          {t("title")}
-        </p>
-        <h2 className="text-2xl font-semibold tracking-tight text-foreground">
-          {t("subtitle")}
-        </h2>
-      </div>
+      <PageHeader title={t("title")} description={t("subtitle")} />
 
       <UserDetailHero
         user={user}

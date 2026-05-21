@@ -210,14 +210,22 @@ export default async function CertificationDetailPage({ params }: { params: Para
 
   return (
     <div className="space-y-6">
-      <PageHeader title={name} description={t("description")}>
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/certifications">
-            <ArrowLeft className="size-4" />
-            {t("back")}
-          </Link>
-        </Button>
-      </PageHeader>
+      <PageHeader
+        title={name}
+        description={t("description")}
+        breadcrumbs={[
+          { label: t("back"), href: "/dashboard/certifications" },
+          { label: name },
+        ]}
+        actions={
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/dashboard/certifications">
+              <ArrowLeft className="size-4" />
+              {t("back")}
+            </Link>
+          </Button>
+        }
+      />
 
       {/* Summary card */}
       <Card>

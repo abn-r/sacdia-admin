@@ -9,6 +9,7 @@ import { CronRunsSection } from "./_components/cron-runs-section";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { PageHeader } from "@/components/shared/page-header";
 
 export const revalidate = 30;
 
@@ -149,12 +150,7 @@ export default async function JobsPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{t("page.title")}</h1>
-          <p className="text-muted-foreground">{t("page.description")}</p>
-        </div>
-      </div>
+      <PageHeader title={t("page.title")} description={t("page.description")} />
       <Suspense fallback={<JobsOverviewSkeleton />}>
         <JobsContent messages={messages} />
       </Suspense>

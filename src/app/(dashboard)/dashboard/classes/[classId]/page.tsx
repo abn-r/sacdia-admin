@@ -203,14 +203,22 @@ export default async function ClassDetailPage({ params }: { params: Params }) {
 
   return (
     <div className="space-y-6">
-      <PageHeader title={name} description={t("description")}>
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/classes">
-            <ArrowLeft className="size-4" />
-            {t("back")}
-          </Link>
-        </Button>
-      </PageHeader>
+      <PageHeader
+        title={name}
+        description={t("description")}
+        breadcrumbs={[
+          { label: t("back"), href: "/dashboard/classes" },
+          { label: name },
+        ]}
+        actions={
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/dashboard/classes">
+              <ArrowLeft className="size-4" />
+              {t("back")}
+            </Link>
+          </Button>
+        }
+      />
 
       {/* Hero card */}
       <Card>
