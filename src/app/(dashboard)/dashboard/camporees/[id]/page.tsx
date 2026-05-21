@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, CalendarRange, MapPin, DollarSign, Hash } from "lucide-react";
+import { ArrowLeft, CalendarRange, MapPin, DollarSign, Building2 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/shared/page-header";
 import { CamporeeInfoCard } from "@/components/camporees/camporee-info-card";
 import { CamporeeDetailActions } from "@/components/camporees/camporee-detail-actions";
@@ -112,42 +112,38 @@ function extractList<T>(payload: unknown): T[] {
   return [];
 }
 
-// ─── InfoRow ──────────────────────────────────────────────────────────────────
+// ─── Format helpers ───────────────────────────────────────────────────────────
 
-function InfoRow({
-  label,
-  value,
-  icon: Icon,
-}: {
-  label: string;
-  value: React.ReactNode;
-  icon?: React.ElementType;
-}) {
-  return (
-    <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-4">
-      <span className="flex min-w-[180px] items-center gap-1.5 text-sm font-medium text-muted-foreground">
-        {Icon && <Icon className="size-3.5 shrink-0" />}
-        {label}
-      </span>
-      <span className="text-sm">
-        {value ?? <span className="text-muted-foreground">—</span>}
-      </span>
-    </div>
-  );
+function formatRangeShort(
+  start?: string | null,
+  end?: string | null,
+): { range: string; year: string } {
+  if (!start || !end) return { range: "—", year: "" };
+  try {
+    const s = new Date(start);
+    const e = new Date(end);
+    const fmt = (d: Date) =>
+      d.toLocaleDateString("es-MX", { day: "numeric", month: "short" });
+    const range = `${fmt(s)} – ${fmt(e)}`;
+    const sy = s.getFullYear();
+    const ey = e.getFullYear();
+    const year = sy === ey ? String(sy) : `${sy}–${ey}`;
+    return { range, year };
+  } catch {
+    return { range: "—", year: "" };
+  }
 }
 
-// ─── Date helpers ─────────────────────────────────────────────────────────────
-
-function formatDate(dateStr?: string | null): string {
-  if (!dateStr) return "—";
+function formatCurrencyMXN(value?: number | null): string {
+  if (value == null) return "—";
   try {
-    return new Date(dateStr).toLocaleDateString("es-MX", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
+    return value.toLocaleString("es-MX", {
+      style: "currency",
+      currency: "MXN",
+      minimumFractionDigits: 2,
     });
   } catch {
-    return "—";
+    return String(value);
   }
 }
 
@@ -285,57 +281,88 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
         canEditEvents={canEditEvents}
         canDeleteEvents={canDeleteEvents}
         infoContent={
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">{t("cardTitle")}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <InfoRow
-                label={t("labelId")}
-                value={camporee.camporee_id ?? camporee.id}
-                icon={Hash}
-              />
-              <InfoRow
-                label={t("labelStartDate")}
-                value={formatDate(camporee.start_date)}
-                icon={CalendarRange}
-              />
-              <InfoRow
-                label={t("labelEndDate")}
-                value={formatDate(camporee.end_date)}
-                icon={CalendarRange}
-              />
-              <InfoRow
-                label={t("labelPlace")}
-                value={camporee.local_camporee_place ?? "—"}
-                icon={MapPin}
-              />
-              <InfoRow
-                label={t("labelCost")}
-                value={
-                  camporee.registration_cost != null
-                    ? camporee.registration_cost.toLocaleString("es-MX", {
-                        style: "currency",
-                        currency: "MXN",
-                        minimumFractionDigits: 2,
-                      })
-                    : "—"
-                }
-                icon={DollarSign}
-              />
-              <InfoRow
-                label={t("labelLocalFieldId")}
-                value={
-                  camporee.local_field?.name ??
-                  camporee.local_field?.abbreviation ??
-                  camporee.local_field_id ??
-                  "—"
-                }
-                icon={Hash}
-              />
-              <InfoRow
-                label={t("labelIncludes")}
-                value={
+          <div className="space-y-4">
+            {/* KPI strip */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+              {(() => {
+                const { range, year } = formatRangeShort(
+                  camporee.start_date,
+                  camporee.end_date,
+                );
+                return (
+                  <Card className="rounded-xl border-border/60 bg-card shadow-xs px-4 py-3">
+                    <div className="flex items-center gap-1.5 text-[10.5px] uppercase tracking-wider font-semibold text-muted-foreground">
+                      <CalendarRange className="size-3.5" />
+                      Fechas
+                    </div>
+                    <div className="mt-1 text-[18px] font-bold tracking-tight tabular-nums">
+                      {range}
+                    </div>
+                    {year && (
+                      <div className="text-[11.5px] text-muted-foreground mt-0.5">
+                        {year}
+                      </div>
+                    )}
+                  </Card>
+                );
+              })()}
+
+              <Card className="rounded-xl border-border/60 bg-card shadow-xs px-4 py-3">
+                <div className="flex items-center gap-1.5 text-[10.5px] uppercase tracking-wider font-semibold text-muted-foreground">
+                  <MapPin className="size-3.5" />
+                  Lugar
+                </div>
+                <div className="mt-1 text-[15px] font-semibold tracking-tight truncate">
+                  {camporee.local_camporee_place ?? "—"}
+                </div>
+              </Card>
+
+              <Card className="rounded-xl border-border/60 bg-card shadow-xs px-4 py-3">
+                <div className="flex items-center gap-1.5 text-[10.5px] uppercase tracking-wider font-semibold text-muted-foreground">
+                  <DollarSign className="size-3.5" />
+                  Costo de inscripción
+                </div>
+                <div className="mt-1 text-[18px] font-bold tracking-tight tabular-nums">
+                  {formatCurrencyMXN(camporee.registration_cost)}
+                </div>
+                {camporee.registration_cost != null && (
+                  <div className="text-[11.5px] text-muted-foreground mt-0.5">
+                    por miembro
+                  </div>
+                )}
+              </Card>
+
+              <Card className="rounded-xl border-border/60 bg-card shadow-xs px-4 py-3">
+                <div className="flex items-center gap-1.5 text-[10.5px] uppercase tracking-wider font-semibold text-muted-foreground">
+                  <Building2 className="size-3.5" />
+                  Campo local
+                </div>
+                <div className="mt-1 text-[15px] font-semibold tracking-tight truncate">
+                  {camporee.local_field?.name ??
+                    camporee.local_field?.abbreviation ??
+                    "—"}
+                </div>
+                {camporee.local_field?.name &&
+                  camporee.local_field?.abbreviation && (
+                    <div className="text-[11.5px] text-muted-foreground mt-0.5">
+                      {camporee.local_field.abbreviation}
+                    </div>
+                  )}
+              </Card>
+            </div>
+
+            {/* Metadata card */}
+            <Card className="rounded-xl border-border/60 bg-card shadow-xs overflow-hidden">
+              <div className="px-5 py-3 border-b border-border/60 bg-muted/30">
+                <div className="text-[10.5px] uppercase tracking-wider font-semibold text-muted-foreground">
+                  {t("cardTitle")}
+                </div>
+              </div>
+              <div className="px-5 py-4 space-y-4">
+                <div>
+                  <div className="text-[10.5px] uppercase tracking-wider font-semibold text-muted-foreground mb-1.5">
+                    {t("labelIncludes")}
+                  </div>
                   <div className="flex flex-wrap gap-1.5">
                     {camporee.includes_adventurers && (
                       <Badge variant="secondary">Aventureros</Badge>
@@ -349,16 +376,33 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
                     {!camporee.includes_adventurers &&
                       !camporee.includes_pathfinders &&
                       !camporee.includes_master_guides && (
-                        <span className="text-muted-foreground">—</span>
+                        <span className="text-[12px] text-muted-foreground">
+                          —
+                        </span>
                       )}
                   </div>
-                }
-              />
-              {camporee.description && (
-                <InfoRow label={t("labelDescription")} value={camporee.description} />
-              )}
-            </CardContent>
-          </Card>
+                </div>
+
+                {camporee.description && (
+                  <div>
+                    <div className="text-[10.5px] uppercase tracking-wider font-semibold text-muted-foreground mb-1.5">
+                      {t("labelDescription")}
+                    </div>
+                    <p className="text-[13px] text-foreground leading-relaxed whitespace-pre-line">
+                      {camporee.description}
+                    </p>
+                  </div>
+                )}
+
+                <div className="pt-2 border-t border-border/60">
+                  <span className="text-[11px] text-muted-foreground tabular-nums">
+                    ID interno · #
+                    {camporee.camporee_id ?? camporee.id ?? "—"}
+                  </span>
+                </div>
+              </div>
+            </Card>
+          </div>
         }
       />
     </div>
