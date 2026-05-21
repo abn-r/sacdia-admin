@@ -248,7 +248,7 @@ export async function createClassAction(_: PhaseEActionState, formData: FormData
       ...config.data,
     });
   } catch (error) {
-    return { error: getActionErrorMessage(error, "No se pudo crear el registro.", { endpointLabel: "/dashboard/catalogs/classes" }) };
+    return { error: getActionErrorMessage(error, "No se pudo crear el registro.", { endpointLabel: "/admin/classes" }) };
   }
   revalidatePath("/dashboard/catalogs/classes");
   redirect("/dashboard/catalogs/classes");
@@ -269,7 +269,7 @@ export async function updateClassAction(_: PhaseEActionState, formData: FormData
       ...config.data,
     });
   } catch (error) {
-    return { error: getActionErrorMessage(error, "No se pudo actualizar el registro.", { endpointLabel: `/dashboard/catalogs/classes/${id}` }) };
+    return { error: getActionErrorMessage(error, "No se pudo actualizar el registro.", { endpointLabel: `/admin/classes/${id}` }) };
   }
   revalidatePath("/dashboard/catalogs/classes");
   redirect("/dashboard/catalogs/classes");

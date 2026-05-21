@@ -4909,7 +4909,17 @@
       "apply": "Aplicar vencimiento",
       "modeDryRun": "simulación",
       "modeApply": "aplicación",
-      "result": "{mode}: {scanned} inscripciones revisadas, {expired} vencidas."
+      "result": "{mode}: {scanned} inscripciones revisadas, {expired} vencidas.",
+      "confirmApply": "Vas a vencer {expired} inscripciones. Esta acción modifica datos reales. ¿Querés continuar?"
+    },
+    "display": {
+      "yearSingular": "año",
+      "yearPlural": "años",
+      "yearFallback": "Año #{id}",
+      "availableFromAnyYear": "Disponible desde cualquier año",
+      "noProgrammedExpiration": "Sin expiración programada",
+      "availableFromYear": "Disponible desde año eclesiástico {label}",
+      "availableUntilYear": "Disponible hasta año eclesiástico {label}"
     }
   },
   "membership": {

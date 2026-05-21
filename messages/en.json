@@ -4890,7 +4890,17 @@
       "apply": "Apply expiration",
       "modeDryRun": "dry run",
       "modeApply": "apply",
-      "result": "{mode}: {scanned} enrollments scanned, {expired} expired."
+      "result": "{mode}: {scanned} enrollments scanned, {expired} expired.",
+      "confirmApply": "You are about to expire {expired} enrollments. This changes real data. Continue?"
+    },
+    "display": {
+      "yearSingular": "year",
+      "yearPlural": "years",
+      "yearFallback": "Year #{id}",
+      "availableFromAnyYear": "Available from any year",
+      "noProgrammedExpiration": "No programmed expiration",
+      "availableFromYear": "Available from ecclesiastical year {label}",
+      "availableUntilYear": "Available until ecclesiastical year {label}"
     }
   },
   "membership": {

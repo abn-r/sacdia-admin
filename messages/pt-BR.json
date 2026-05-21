@@ -4756,7 +4756,17 @@
       "apply": "Aplicar expiração",
       "modeDryRun": "simulação",
       "modeApply": "aplicação",
-      "result": "{mode}: {scanned} inscrições revisadas, {expired} expiradas."
+      "result": "{mode}: {scanned} inscrições revisadas, {expired} expiradas.",
+      "confirmApply": "Você vai expirar {expired} inscrições. Esta ação altera dados reais. Continuar?"
+    },
+    "display": {
+      "yearSingular": "ano",
+      "yearPlural": "anos",
+      "yearFallback": "Ano #{id}",
+      "availableFromAnyYear": "Disponível a partir de qualquer ano",
+      "noProgrammedExpiration": "Sem expiração programada",
+      "availableFromYear": "Disponível a partir do ano eclesiástico {label}",
+      "availableUntilYear": "Disponível até o ano eclesiástico {label}"
     }
   },
   "membership": {

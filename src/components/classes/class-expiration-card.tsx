@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import type { MouseEventHandler } from "react";
 import { useFormStatus } from "react-dom";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -25,9 +26,13 @@ interface ClassExpirationCardProps {
 function SubmitButton({
   dryRun,
   label,
+  disabled = false,
+  onClick,
 }: {
   dryRun: boolean;
   label: string;
+  disabled?: boolean;
+  onClick?: MouseEventHandler<HTMLButtonElement>;
 }) {
   const { pending } = useFormStatus();
   return (
@@ -36,7 +41,8 @@ function SubmitButton({
       name="dry_run"
       value={dryRun ? "true" : "false"}
       variant={dryRun ? "outline" : "default"}
-      disabled={pending}
+      disabled={pending || disabled}
+      onClick={onClick}
     >
       {pending && <Loader2 className="size-4 animate-spin" />}
       {label}
@@ -53,6 +59,10 @@ export function ClassExpirationCard({ ecclesiasticalYears }: ClassExpirationCard
   const defaultYearId =
     ecclesiasticalYears.find((year) => year.active)?.ecclesiastical_year_id ??
     ecclesiasticalYears[0]?.ecclesiastical_year_id;
+  const canApply = state.result?.dry_run === true;
+  const confirmApplyMessage = t("confirmApply", {
+    expired: state.result?.expired_count ?? 0,
+  });
 
   return (
     <Card>
@@ -85,7 +95,16 @@ export function ClassExpirationCard({ ecclesiasticalYears }: ClassExpirationCard
 
             <div className="flex flex-wrap gap-2">
               <SubmitButton dryRun={true} label={t("dryRun")} />
-              <SubmitButton dryRun={false} label={t("apply")} />
+              <SubmitButton
+                dryRun={false}
+                label={t("apply")}
+                disabled={!canApply}
+                onClick={(event) => {
+                  if (!window.confirm(confirmApplyMessage)) {
+                    event.preventDefault();
+                  }
+                }}
+              />
             </div>
           </div>
 

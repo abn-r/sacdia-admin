@@ -18,6 +18,7 @@ import { ClassStatusBadge } from "@/components/classes/class-status-badge";
 import {
   formatClassAvailabilityUntil,
   formatClassDurationRange,
+  type ClassDisplayLabels,
 } from "@/lib/classes/display";
 
 export type ClassRow = {
@@ -41,6 +42,16 @@ interface ClassesListProps {
 
 export function ClassesList({ items }: ClassesListProps) {
   const t = useTranslations("classes.list");
+  const displayT = useTranslations("classes.display");
+  const displayLabels: ClassDisplayLabels = {
+    yearSingular: displayT("yearSingular"),
+    yearPlural: displayT("yearPlural"),
+    yearFallback: (id) => displayT("yearFallback", { id }),
+    availableFromAnyYear: displayT("availableFromAnyYear"),
+    noProgrammedExpiration: displayT("noProgrammedExpiration"),
+    availableFromYear: (label) => displayT("availableFromYear", { label }),
+    availableUntilYear: (label) => displayT("availableUntilYear", { label }),
+  };
 
   if (items.length === 0) {
     return (
@@ -104,10 +115,14 @@ export function ClassesList({ items }: ClassesListProps) {
                 {cls.modules_count > 0 ? cls.modules_count : "—"}
               </TableCell>
               <TableCell className="px-3 py-2.5 align-middle text-sm">
-                {formatClassDurationRange(cls.min_duration_years, cls.max_duration_years)}
+                {formatClassDurationRange(
+                  cls.min_duration_years,
+                  cls.max_duration_years,
+                  displayLabels,
+                )}
               </TableCell>
               <TableCell className="max-w-[260px] px-3 py-2.5 align-middle text-sm text-muted-foreground">
-                {formatClassAvailabilityUntil(cls.available_until_year_id)}
+                {formatClassAvailabilityUntil(cls.available_until_year_id, displayLabels)}
               </TableCell>
               <TableCell className="px-3 py-2.5 align-middle">
                 <ClassStatusBadge active={cls.active} />

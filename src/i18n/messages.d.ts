@@ -4929,6 +4929,15 @@ export interface IntlMessages {
         statDuration: string;
       };
     };
+    display: {
+      yearSingular: string;
+      yearPlural: string;
+      yearFallback: string;
+      availableFromAnyYear: string;
+      noProgrammedExpiration: string;
+      availableFromYear: string;
+      availableUntilYear: string;
+    };
     expiration: {
       title: string;
       description: string;
@@ -4939,6 +4948,7 @@ export interface IntlMessages {
       modeDryRun: string;
       modeApply: string;
       result: string;
+      confirmApply: string;
     };
   };
   membership: {

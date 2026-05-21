@@ -78,6 +78,7 @@ import type { PhaseEActionState } from "@/lib/phase-e-catalogs/actions";
 import {
   formatClassAvailabilityUntil,
   formatClassDurationRange,
+  type ClassDisplayLabels,
 } from "@/lib/classes/display";
 import { useFormStatus } from "react-dom";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -449,13 +450,23 @@ export function PhaseECatalogCrudPage({
   );
 
   const t = useTranslations("catalogs.phaseE");
+  const displayT = useTranslations("classes.display");
+  const displayLabels: ClassDisplayLabels = {
+    yearSingular: displayT("yearSingular"),
+    yearPlural: displayT("yearPlural"),
+    yearFallback: (id) => displayT("yearFallback", { id }),
+    availableFromAnyYear: displayT("availableFromAnyYear"),
+    noProgrammedExpiration: displayT("noProgrammedExpiration"),
+    availableFromYear: (label) => displayT("availableFromYear", { label }),
+    availableUntilYear: (label) => displayT("availableUntilYear", { label }),
+  };
   const hasActiveFilters = Boolean(currentSearch || currentStatusFilter !== "all");
   const canMutate = canCreate || canEdit || canDelete;
   const showClassConfig = Array.isArray(classConfigYearOptions);
   const yearNameById = new Map(
     (classConfigYearOptions ?? []).map((year) => [
       year.ecclesiastical_year_id,
-      year.name || `Año #${year.ecclesiastical_year_id}`,
+      year.name || displayLabels.yearFallback(year.ecclesiastical_year_id),
     ]),
   );
   const safePage = Math.max(1, meta.page || 1);
@@ -579,6 +590,7 @@ export function PhaseECatalogCrudPage({
                             {formatClassDurationRange(
                               toPositiveInt(item.min_duration_years) ?? 1,
                               toPositiveInt(item.max_duration_years) ?? 1,
+                              displayLabels,
                             )}
                           </TableCell>
                         )}
@@ -586,6 +598,7 @@ export function PhaseECatalogCrudPage({
                           <TableCell className="max-w-[260px] text-sm text-muted-foreground">
                             {formatClassAvailabilityUntil(
                               toPositiveInt(item.available_until_year_id),
+                              displayLabels,
                               yearNameById.get(toPositiveInt(item.available_until_year_id) ?? 0),
                             )}
                           </TableCell>

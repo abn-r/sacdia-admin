@@ -15,12 +15,21 @@ export type ClassExpirationActionState = {
   result?: ExpireOverdueClassEnrollmentsResult;
 };
 
-function readOptionalPositiveInt(formData: FormData, field: string): number | undefined {
+type OptionalPositiveIntResult =
+  | { ok: true; value?: number }
+  | { ok: false; error: string };
+
+function readOptionalPositiveInt(formData: FormData, field: string): OptionalPositiveIntResult {
   const raw = String(formData.get(field) ?? "").trim();
-  if (!raw) return undefined;
+  if (!raw) return { ok: true };
   const parsed = Number(raw);
-  if (!Number.isFinite(parsed) || parsed <= 0) return undefined;
-  return Math.floor(parsed);
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    return {
+      ok: false,
+      error: "El año eclesiástico debe ser un ID entero positivo o quedar vacío para usar el año activo del backend.",
+    };
+  }
+  return { ok: true, value: parsed };
 }
 
 export async function expireOverdueClassEnrollmentsAction(
@@ -32,10 +41,16 @@ export async function expireOverdueClassEnrollmentsAction(
     return { error: "Sin permisos para vencer inscripciones." };
   }
 
+  const ecclesiasticalYear = readOptionalPositiveInt(formData, "ecclesiastical_year_id");
+  if (!ecclesiasticalYear.ok) {
+    return { error: ecclesiasticalYear.error };
+  }
+
   try {
-    const ecclesiasticalYearId = readOptionalPositiveInt(formData, "ecclesiastical_year_id");
     const response = await expireOverdueClassEnrollments({
-      ...(ecclesiasticalYearId ? { ecclesiastical_year_id: ecclesiasticalYearId } : {}),
+      ...(ecclesiasticalYear.value
+        ? { ecclesiastical_year_id: ecclesiasticalYear.value }
+        : {}),
       dry_run: formData.get("dry_run") !== "false",
     });
 
