@@ -23,6 +23,10 @@ import {
   type BackendCamporeeEvent,
   type CamporeeEventTemplate,
 } from "@/lib/api/camporee-events";
+import {
+  listLocalCamporeeVenues,
+  type CamporeeVenue,
+} from "@/lib/api/camporee-venues";
 import { hasAnyPermission } from "@/lib/auth/permission-utils";
 import {
   CAMPOREE_EVENTS_CREATE,
@@ -167,6 +171,7 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
   let pending: PendingApprovals = { clubs: [], members: [], payments: [] };
   let events: BackendCamporeeEvent[] = [];
   let availableTemplates: CamporeeEventTemplate[] = [];
+  let venues: CamporeeVenue[] = [];
 
   // Fetch camporee detail
   try {
@@ -245,6 +250,15 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
     // silently degrade
   }
 
+  // Fetch venues accessible to this camporee — best effort
+  // listLocalCamporeeVenues returns both local_field-scoped and union-scoped venues
+  try {
+    const venuesPayload = await listLocalCamporeeVenues(camporeeId);
+    venues = extractList<CamporeeVenue>(venuesPayload);
+  } catch {
+    // silently degrade — timeline renders without venue names
+  }
+
   const canCreateEvents = hasAnyPermission(user, [CAMPOREE_EVENTS_CREATE, CAMPOREES_CREATE]);
   const canEditEvents = hasAnyPermission(user, [CAMPOREE_EVENTS_UPDATE, CAMPOREES_UPDATE]);
   const canDeleteEvents = hasAnyPermission(user, [CAMPOREE_EVENTS_DELETE, CAMPOREES_DELETE]);
@@ -288,6 +302,7 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
         paymentsError={paymentsError}
         initialEvents={events}
         availableTemplates={availableTemplates}
+        initialVenues={venues}
         canCreateEvents={canCreateEvents}
         canEditEvents={canEditEvents}
         canDeleteEvents={canDeleteEvents}

@@ -13,6 +13,7 @@ import type { CamporeeClubsTabProps } from "@/components/camporees/camporee-club
 import type { CamporeePaymentsTabProps } from "@/components/camporees/camporee-payments-tab";
 import { CamporeeEventsTab } from "@/components/camporee-events/camporee-events-tab";
 import type { BackendCamporeeEvent, CamporeeEventTemplate } from "@/lib/api/camporee-events";
+import type { CamporeeVenue } from "@/lib/api/camporee-venues";
 
 const CamporeeMembersTab = dynamic<CamporeeMembersTabProps>(
   () =>
@@ -69,6 +70,8 @@ interface CamporeeDetailTabsProps {
   // ── Events tab ───────────────────────────────────────────────────────────────
   initialEvents?: BackendCamporeeEvent[];
   availableTemplates?: CamporeeEventTemplate[];
+  /** Venues accessible to this camporee for timeline display */
+  initialVenues?: CamporeeVenue[];
   canCreateEvents?: boolean;
   canEditEvents?: boolean;
   canDeleteEvents?: boolean;
@@ -91,6 +94,7 @@ export function CamporeeDetailTabs({
   infoContent,
   initialEvents = [],
   availableTemplates = [],
+  initialVenues = [],
   canCreateEvents = false,
   canEditEvents = false,
   canDeleteEvents = false,
@@ -256,6 +260,8 @@ export function CamporeeDetailTabs({
           camporeeId={camporeeId}
           initialEvents={initialEvents}
           availableTemplates={availableTemplates}
+          venues={initialVenues}
+          camporee={camporee}
           isUnionCamporee={isUnionCamporee}
           canCreate={canCreateEvents}
           canEdit={canEditEvents}
