@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type PropsWithChildren,
 } from "react";
@@ -17,11 +18,16 @@ type AuthContextValue = {
   refresh: () => Promise<void>;
 };
 
+type AuthProviderProps = PropsWithChildren<{
+  initialUser?: AuthUser | null;
+}>;
+
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-export function AuthProvider({ children }: PropsWithChildren) {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+export function AuthProvider({ initialUser = null, children }: AuthProviderProps) {
+  const [user, setUser] = useState<AuthUser | null>(initialUser);
+  const [isLoading, setIsLoading] = useState(false);
+  const hasInitialUser = useRef(initialUser !== null);
 
   const refresh = useCallback(async () => {
     setIsLoading(true);
@@ -43,6 +49,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
   }, []);
 
   useEffect(() => {
+    if (hasInitialUser.current) return;
     void refresh();
   }, [refresh]);
 

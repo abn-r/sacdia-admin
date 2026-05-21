@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { AppHeader } from "@/components/layout/app-header";
+import { CommandPalette } from "@/components/layout/command-palette";
 import { AuthProvider } from "@/lib/auth/auth-context";
 import { QueryProvider } from "@/lib/providers/query-provider";
 import { ActiveContextProvider } from "@/lib/context/active-context";
@@ -13,7 +14,7 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  await requireAdminUser();
+  const initialUser = await requireAdminUser();
 
   const t = await getTranslations("nav.a11y");
   const cookieStore = await cookies();
@@ -21,7 +22,7 @@ export default async function DashboardLayout({
   const defaultOpen = sidebarState !== "false";
 
   return (
-    <AuthProvider>
+    <AuthProvider initialUser={initialUser}>
       <QueryProvider>
         <SidebarProvider
           defaultOpen={defaultOpen}
@@ -40,6 +41,7 @@ export default async function DashboardLayout({
           <AppSidebar />
           <SidebarInset>
             <ActiveContextProvider>
+              <CommandPalette />
               <AppHeader />
               <main id="main" className="flex-1 overflow-auto">
                 <div className="mx-auto max-w-[1536px] px-4 py-4 md:px-6 md:py-6">
