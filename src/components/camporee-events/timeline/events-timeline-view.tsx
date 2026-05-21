@@ -1,11 +1,11 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import type { CamporeeEventsData } from "@/lib/camporee-timeline/types";
 import { EventsSummaryKpis } from "./events-summary-kpis";
 import { EventsToolbar } from "./events-toolbar";
 import { EventDayCard } from "./event-day-card";
-import { CreateEventDrawer } from "./create-event-drawer";
 
 interface Props {
   camporeeId: string;
@@ -13,15 +13,23 @@ interface Props {
   readonly?: boolean;
 }
 
-export function EventsTimelineView({ data, readonly = false }: Props) {
-  const [drawerOpen, setDrawerOpen] = React.useState(false);
-  const [drawerDay, setDrawerDay] = React.useState<number>(1);
+export function EventsTimelineView({ camporeeId, data, readonly = false }: Props) {
+  const router = useRouter();
 
-  const openCreate = (dayNumber?: number) => {
+  // Navigate to the dedicated create-event page instead of opening a drawer.
+  // The spec (PR6a+PR7) mandates a dedicated page for create/edit (DS §6.1.1:
+  // >4 fields + relations). The drawer is removed from the create flow.
+  const openCreate = React.useCallback(() => {
     if (readonly) return;
-    if (dayNumber) setDrawerDay(dayNumber);
-    setDrawerOpen(true);
-  };
+    router.push(`/dashboard/camporees/${camporeeId}/events/new`);
+  }, [readonly, router, camporeeId]);
+
+  const handleEdit = React.useCallback(
+    (eventId: string) => {
+      router.push(`/dashboard/camporees/${camporeeId}/events/${eventId}/edit`);
+    },
+    [router, camporeeId],
+  );
 
   const eventsByDay = React.useMemo(() => {
     const map = new Map<number, typeof data.events>();
@@ -40,8 +48,9 @@ export function EventsTimelineView({ data, readonly = false }: Props) {
       {!readonly && (
         <EventsToolbar
           data={data}
-          onCreate={() => openCreate()}
-          onImportFromCatalog={() => openCreate()}
+          camporeeId={camporeeId}
+          onCreate={openCreate}
+          onImportFromCatalog={openCreate}
         />
       )}
 
@@ -52,24 +61,13 @@ export function EventsTimelineView({ data, readonly = false }: Props) {
             day={d}
             events={eventsByDay.get(d.numero) ?? []}
             venues={data.venues}
+            camporeeId={camporeeId}
             onAdd={openCreate}
-            onEdit={(eventId) => {
-              // TODO: wire backend (navigate to edit page)
-              console.log("edit event", eventId);
-            }}
+            onEdit={handleEdit}
             readonly={readonly}
           />
         ))}
       </div>
-
-      {!readonly && (
-        <CreateEventDrawer
-          open={drawerOpen}
-          onOpenChange={setDrawerOpen}
-          data={data}
-          defaultDayNumber={drawerDay}
-        />
-      )}
     </div>
   );
 }

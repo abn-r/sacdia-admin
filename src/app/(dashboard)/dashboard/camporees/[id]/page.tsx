@@ -47,6 +47,7 @@ import type {
 } from "@/lib/api/camporees";
 
 type Params = Promise<{ id: string }>;
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 type AnyRecord = Record<string, unknown>;
 
 // ─── Normalizers ───────────────────────────────────────────────────────────────
@@ -153,7 +154,13 @@ function formatCurrencyMXN(value?: number | null): string {
 
 // ─── Page ──────────────────────────────────────────────────────────────────────
 
-export default async function CamporeeDetailPage({ params }: { params: Params }) {
+export default async function CamporeeDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Params;
+  searchParams?: SearchParams;
+}) {
   const user = await requireAdminUser();
 
   const { id } = await params;
@@ -232,9 +239,24 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
     // Silently ignore — pending count is informational only
   }
 
+  // Resolve URL filter params for the events tab
+  const sp = searchParams ? await searchParams : {};
+  const spStr = (key: string): string | undefined => {
+    const v = sp[key];
+    return typeof v === "string" ? v : undefined;
+  };
+  const eventsFilter: import("@/lib/api/camporee-events").ListCamporeeEventsParams = {
+    limit: 100,
+    ...(spStr("q") && { q: spStr("q") }),
+    ...(spStr("category") && { display_category: spStr("category") as import("@/lib/api/camporee-events").CamporeeEventDisplayCategory }),
+    ...(spStr("section") && { section: spStr("section") as import("@/lib/api/camporee-events").CamporeeEventSection }),
+    ...(spStr("venue") && { venue_id: Number(spStr("venue")) }),
+    ...(spStr("status") && { status: spStr("status") as import("@/lib/api/camporee-events").CamporeeEventStatus }),
+  };
+
   // Fetch camporee events (instances) — best effort
   try {
-    const eventsPayload = await listLocalCamporeeEvents(camporeeId, { limit: 100 });
+    const eventsPayload = await listLocalCamporeeEvents(camporeeId, eventsFilter);
     const eventsData = extractList<BackendCamporeeEvent>(eventsPayload);
     events = eventsData.sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0));
   } catch {

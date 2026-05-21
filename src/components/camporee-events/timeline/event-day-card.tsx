@@ -15,6 +15,7 @@ interface Props {
   day: CamporeeDay;
   events: CamporeeEvent[];
   venues: Venue[];
+  camporeeId: string;
   onAdd: (dayNumber: number) => void;
   onEdit: (eventId: string) => void;
   readonly?: boolean;
@@ -78,7 +79,7 @@ function DayBadge({ day }: { day: CamporeeDay }) {
   );
 }
 
-export function EventDayCard({ day, events, venues, onAdd, onEdit, readonly = false }: Props) {
+export function EventDayCard({ day, events, venues, camporeeId, onAdd, onEdit, readonly = false }: Props) {
   const sorted = React.useMemo(() => [...events].sort(sortByStart), [events]);
   const totalMin = sorted.reduce((s, e) => s + durMin(e.startsAt, e.endsAt), 0);
   const venuesUsed = new Set(sorted.map((e) => e.venueId)).size;
@@ -161,7 +162,9 @@ export function EventDayCard({ day, events, venues, onAdd, onEdit, readonly = fa
             key={ev.id}
             event={ev}
             venue={venueOf(ev.venueId)}
+            camporeeId={camporeeId}
             onEdit={() => onEdit(ev.id)}
+            readonly={readonly}
           />
         ))}
       </div>
