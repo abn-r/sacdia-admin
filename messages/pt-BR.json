@@ -1,5 +1,13 @@
 {
   "nav": {
+    "palette": {
+      "title": "Paleta de comandos",
+      "description": "Busque e navegue para qualquer seção do admin",
+      "placeholder": "Buscar página ou seção…",
+      "empty": "Nenhuma correspondência",
+      "generalGroup": "Geral",
+      "shortcutHint": "Cmd+K"
+    },
     "sections": {
       "overview": "Visão geral",
       "catalogs": "Catálogos",
@@ -296,7 +304,9 @@
       "load_data_failed": "Erro ao carregar dados"
     },
     "validation": {
-      "delete_target_not_identified": "Não foi possível identificar o registro a excluir"
+      "delete_target_not_identified": "Não foi possível identificar o registro a excluir",
+      "field_required": "O campo {field} é obrigatório",
+      "field_invalid": "O valor de {field} não é válido"
     },
     "success": {
       "op_create_title": "Registro criado",

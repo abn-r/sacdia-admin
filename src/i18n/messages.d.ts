@@ -29,6 +29,14 @@ declare module "next-intl" {
 
 export interface IntlMessages {
   nav: {
+    palette: {
+      title: string;
+      description: string;
+      placeholder: string;
+      empty: string;
+      generalGroup: string;
+      shortcutHint: string;
+    };
     sections: {
       overview: string;
       catalogs: string;
@@ -326,6 +334,8 @@ export interface IntlMessages {
     };
     validation: {
       delete_target_not_identified: string;
+      field_required: string;
+      field_invalid: string;
     };
     success: {
       op_create_title: string;

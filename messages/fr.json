@@ -1,5 +1,13 @@
 {
   "nav": {
+    "palette": {
+      "title": "Palette de commandes",
+      "description": "Recherchez et naviguez vers n’importe quelle section",
+      "placeholder": "Rechercher une page ou une section…",
+      "empty": "Aucun résultat",
+      "generalGroup": "Général",
+      "shortcutHint": "Cmd+K"
+    },
     "sections": {
       "overview": "Aperçu",
       "catalogs": "Catalogues",
@@ -296,7 +304,9 @@
       "load_data_failed": "Erreur lors du chargement des données"
     },
     "validation": {
-      "delete_target_not_identified": "Impossible d'identifier l'enregistrement à supprimer"
+      "delete_target_not_identified": "Impossible d'identifier l'enregistrement à supprimer",
+      "field_required": "Le champ {field} est obligatoire",
+      "field_invalid": "La valeur de {field} n’est pas valide"
     },
     "success": {
       "op_create_title": "Enregistrement créé",
