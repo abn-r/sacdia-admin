@@ -58,6 +58,8 @@ export type CamporeePayment = {
   paid_at?: string | null;
   created_at?: string | null;
   status?: string | null;
+  voucher_url?: string | null;
+  voucher_uploaded_at?: string | null;
 };
 
 export type CreatePaymentPayload = {
@@ -244,6 +246,32 @@ export async function updatePayment(paymentId: number, payload: UpdatePaymentPay
     method: "PATCH",
     body: payload,
   });
+}
+
+// ─── Payment voucher (multipart) ──────────────────────────────────────────────
+
+export async function uploadCamporeePaymentVoucher(
+  camporeeId: number,
+  paymentId: string,
+  file: File,
+): Promise<CamporeePayment> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  return apiRequest<CamporeePayment>(
+    `/camporees/${camporeeId}/payments/${paymentId}/voucher`,
+    { method: "POST", body: formData },
+  );
+}
+
+export async function removeCamporeePaymentVoucher(
+  camporeeId: number,
+  paymentId: string,
+): Promise<CamporeePayment> {
+  return apiRequest<CamporeePayment>(
+    `/camporees/${camporeeId}/payments/${paymentId}/voucher`,
+    { method: "DELETE" },
+  );
 }
 
 // ─── Union camporees ───────────────────────────────────────────────────────────
