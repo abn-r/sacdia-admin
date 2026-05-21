@@ -243,23 +243,24 @@ export function CamporeeDetailTabs({
       </TabsContent>
 
       {/* ── Eventos ── */}
+      {/*
+        Timeline (Variant K) is intentionally rendered without a wrapping
+        <Card>. The timeline owns its own per-day Card surfaces — wrapping it
+        in another Card+CardContent (px-6) shrinks the inner width and
+        squishes the 8-column event-row grid
+        (md:grid-cols-[88px_1fr_220px_180px_180px_140px_110px_auto]).
+        See docs/superpowers/specs/2026-05-20-camporee-timeline-admin-design.md.
+      */}
       <TabsContent value="events" className="mt-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Eventos del camporee</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <CamporeeEventsTab
-              camporeeId={camporeeId}
-              initialEvents={initialEvents}
-              availableTemplates={availableTemplates}
-              isUnionCamporee={isUnionCamporee}
-              canCreate={canCreateEvents}
-              canEdit={canEditEvents}
-              canDelete={canDeleteEvents}
-            />
-          </CardContent>
-        </Card>
+        <CamporeeEventsTab
+          camporeeId={camporeeId}
+          initialEvents={initialEvents}
+          availableTemplates={availableTemplates}
+          isUnionCamporee={isUnionCamporee}
+          canCreate={canCreateEvents}
+          canEdit={canEditEvents}
+          canDelete={canDeleteEvents}
+        />
       </TabsContent>
     </Tabs>
   );
