@@ -81,10 +81,12 @@ export type UpdateCamporeeEventTemplatePayload = Partial<CreateCamporeeEventTemp
 
 // ─── Camporee Event Instance types ─────────────────────────────────────────────
 
+// Mirrors the backend `camporee_event_status` enum. Prisma maps the value
+// `en_curso` to the canonical DB enum; the client MUST POST `en_curso`.
 export type CamporeeEventStatus =
   | "programado"
   | "publicado"
-  | "curso"
+  | "en_curso"
   | "realizado"
   | "cancelado";
 
@@ -169,7 +171,12 @@ export type BackendCamporeeEvent = {
 export type CamporeeEvent = BackendCamporeeEvent;
 
 export type CreateCamporeeEventPayload = {
-  event_type_id: number;
+  /**
+   * Optional — agenda events created from the admin timeline omit this and
+   * the backend resolves the seeded `general` event type. Competition
+   * events still pass an explicit id from the templates catalog.
+   */
+  event_type_id?: number;
   title: string;
   description?: string | null;
   requirements?: string | null;

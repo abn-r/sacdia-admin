@@ -24,7 +24,7 @@ export const EVENT_CATEGORY_MAP = Object.fromEntries(
 export const EVENT_STATUS_LABEL: Record<EventStatus, string> = {
   programado: "Programado",
   publicado: "Publicado",
-  curso: "En curso",
+  en_curso: "En curso",
   realizado: "Realizado",
   cancelado: "Cancelado",
 };
@@ -35,7 +35,7 @@ export const EVENT_STATUS_VARIANT: Record<
 > = {
   programado: "outline",
   publicado: "soft-info",
-  curso: "soft-warning",
+  en_curso: "soft-warning",
   realizado: "soft-success",
   cancelado: "soft-destructive",
 };

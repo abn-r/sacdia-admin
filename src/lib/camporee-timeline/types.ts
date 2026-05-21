@@ -8,10 +8,12 @@ export type EventCategoryId =
   | "social"
   | "logistico";
 
+// Backend enum value is `en_curso` (Prisma @map). Keep this union aligned to
+// the wire contract to avoid round-trip mismatches between UI and API.
 export type EventStatus =
   | "programado"
   | "publicado"
-  | "curso"
+  | "en_curso"
   | "realizado"
   | "cancelado";
 

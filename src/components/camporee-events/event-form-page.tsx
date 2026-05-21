@@ -72,7 +72,7 @@ export interface EventFormPageProps {
 const STATUS_OPTIONS: { value: CamporeeEventStatus; label: string }[] = [
   { value: "programado", label: "Programado" },
   { value: "publicado", label: "Publicado" },
-  { value: "curso", label: "En curso" },
+  { value: "en_curso", label: "En curso" },
   { value: "realizado", label: "Realizado" },
   { value: "cancelado", label: "Cancelado" },
 ];
