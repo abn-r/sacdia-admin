@@ -15,7 +15,47 @@ type UnitsTranslator = Awaited<ReturnType<typeof getTranslations<"units">>>;
 export type UnitActionState = {
   error?: string;
   success?: string;
+  fieldErrors?: Record<string, string>;
 };
+
+function collectUnitFieldErrors(
+  t: UnitsTranslator,
+  formData: FormData,
+): Record<string, string> {
+  const errors: Record<string, string> = {};
+
+  if (!readString(formData, "name")) {
+    errors.name = t("validation.name_required");
+  }
+
+  const clubTypeRaw = readString(formData, "club_type_id");
+  const clubTypeId = Number(clubTypeRaw);
+  if (!clubTypeRaw || !Number.isFinite(clubTypeId) || clubTypeId <= 0) {
+    errors.club_type_id = t("validation.club_type_required");
+  }
+
+  const requireUuidField = (field: string, label: string) => {
+    const value = readString(formData, field);
+    if (!value) {
+      errors[field] = t("validation.member_required", { field: label });
+    } else if (!uuidPattern.test(value)) {
+      errors[field] = t("validation.member_invalid", { field: label });
+    }
+  };
+
+  requireUuidField("captain_id", t("fields.captain"));
+  requireUuidField("secretary_id", t("fields.secretary"));
+  requireUuidField("advisor_id", t("fields.advisor"));
+
+  const substituteRaw = readString(formData, "substitute_advisor_id");
+  if (substituteRaw && !uuidPattern.test(substituteRaw)) {
+    errors.substitute_advisor_id = t("validation.member_invalid", {
+      field: t("fields.substitute_advisor"),
+    });
+  }
+
+  return errors;
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -113,6 +153,11 @@ export async function createUnitAction(
   await requireAdminUser();
   const t = await getTranslations("units");
 
+  const fieldErrors = collectUnitFieldErrors(t, formData);
+  if (Object.keys(fieldErrors).length > 0) {
+    return { fieldErrors };
+  }
+
   try {
     const payload = buildPayload(t, formData);
     await apiRequest<unknown>(`/clubs/${clubId}/units`, {
@@ -141,6 +186,11 @@ export async function updateUnitAction(
 ): Promise<UnitActionState> {
   await requireAdminUser();
   const t = await getTranslations("units");
+
+  const fieldErrors = collectUnitFieldErrors(t, formData);
+  if (Object.keys(fieldErrors).length > 0) {
+    return { fieldErrors };
+  }
 
   try {
     const payload: UpdateUnitPayload = buildPayload(t, formData);

@@ -34,6 +34,7 @@ export type ClubActionState = {
   success?: string;
   createdClubId?: number;
   sectionResults?: ClubSectionSyncResult[];
+  fieldErrors?: Record<string, string>;
 };
 
 function readString(formData: FormData, fieldName: string) {
@@ -153,6 +154,44 @@ function buildCreatePayload(t: ClubsTranslator, formData: FormData) {
   };
 }
 
+function collectFieldErrors(
+  t: ClubsTranslator,
+  formData: FormData,
+): Record<string, string> {
+  const errors: Record<string, string> = {};
+
+  if (!readString(formData, "name")) {
+    errors.name = t("validation.club_name_required");
+  }
+
+  for (const [field, label] of [
+    ["local_field_id", t("fields.local_field")],
+    ["district_id", t("fields.district")],
+    ["church_id", t("fields.church")],
+  ] as const) {
+    const value = readString(formData, field);
+    if (!value) {
+      errors[field] = t("validation.field_required", { field: label });
+    } else if (!Number.isFinite(Number(value))) {
+      errors[field] = t("validation.field_invalid", { field: label });
+    }
+  }
+
+  const latRaw = readString(formData, "coordinates_lat");
+  const lngRaw = readString(formData, "coordinates_lng");
+  if ((latRaw || lngRaw) && (!latRaw || !lngRaw)) {
+    errors.coordinates = t("validation.coordinates_incomplete");
+  } else if (
+    latRaw &&
+    lngRaw &&
+    (!Number.isFinite(Number(latRaw)) || !Number.isFinite(Number(lngRaw)))
+  ) {
+    errors.coordinates = t("validation.coordinates_invalid");
+  }
+
+  return errors;
+}
+
 function buildUpdatePayload(t: ClubsTranslator, formData: FormData) {
   const payload: Record<string, unknown> = {};
 
@@ -237,6 +276,11 @@ export async function createClubAction(
   await requireAdminUser();
   const t = await getTranslations("clubs");
 
+  const fieldErrors = collectFieldErrors(t, formData);
+  if (Object.keys(fieldErrors).length > 0) {
+    return { fieldErrors };
+  }
+
   try {
     const payload = buildCreatePayload(t, formData);
     await createClub(payload);
@@ -258,6 +302,11 @@ export async function createClubWithSectionsAction(
 ): Promise<ClubActionState> {
   await requireAdminUser();
   const t = await getTranslations("clubs");
+
+  const fieldErrors = collectFieldErrors(t, formData);
+  if (Object.keys(fieldErrors).length > 0) {
+    return { fieldErrors };
+  }
 
   let clubId: number | null = null;
 
@@ -330,6 +379,45 @@ export async function createClubWithSectionsAction(
   redirect(`/dashboard/clubs/${clubId}`);
 }
 
+function collectUpdateFieldErrors(
+  t: ClubsTranslator,
+  formData: FormData,
+): Record<string, string> {
+  const errors: Record<string, string> = {};
+
+  const name = readString(formData, "name");
+  if (formData.has("name") && !name) {
+    errors.name = t("validation.club_name_required");
+  }
+
+  for (const field of ["local_field_id", "district_id", "church_id"] as const) {
+    const value = readString(formData, field);
+    if (value && !Number.isFinite(Number(value))) {
+      const label =
+        field === "local_field_id"
+          ? t("fields.local_field")
+          : field === "district_id"
+            ? t("fields.district")
+            : t("fields.church");
+      errors[field] = t("validation.field_invalid", { field: label });
+    }
+  }
+
+  const latRaw = readString(formData, "coordinates_lat");
+  const lngRaw = readString(formData, "coordinates_lng");
+  if ((latRaw || lngRaw) && (!latRaw || !lngRaw)) {
+    errors.coordinates = t("validation.coordinates_incomplete");
+  } else if (
+    latRaw &&
+    lngRaw &&
+    (!Number.isFinite(Number(latRaw)) || !Number.isFinite(Number(lngRaw)))
+  ) {
+    errors.coordinates = t("validation.coordinates_invalid");
+  }
+
+  return errors;
+}
+
 export async function updateClubAction(
   clubId: number,
   _: ClubActionState,
@@ -337,6 +425,11 @@ export async function updateClubAction(
 ): Promise<ClubActionState> {
   await requireAdminUser();
   const t = await getTranslations("clubs");
+
+  const fieldErrors = collectUpdateFieldErrors(t, formData);
+  if (Object.keys(fieldErrors).length > 0) {
+    return { fieldErrors };
+  }
 
   try {
     const payload = buildUpdatePayload(t, formData);
@@ -426,18 +519,21 @@ export async function createClubSectionAction(
 
   const clubTypeIdRaw = readString(formData, "club_type_id");
   const clubTypeId = Number(clubTypeIdRaw);
-  if (!Number.isFinite(clubTypeId) || clubTypeId <= 0) {
-    return { error: t("validation.club_type_invalid") };
-  }
-
   const soulsTarget = Number(readString(formData, "souls_target") || "0");
-  if (!Number.isFinite(soulsTarget) || soulsTarget < 0) {
-    return { error: t("validation.souls_target_positive") };
-  }
-
   const fee = Number(readString(formData, "fee") || "0");
+
+  const sectionFieldErrors: Record<string, string> = {};
+  if (!Number.isFinite(clubTypeId) || clubTypeId <= 0) {
+    sectionFieldErrors.club_type_id = t("validation.club_type_invalid");
+  }
+  if (!Number.isFinite(soulsTarget) || soulsTarget < 0) {
+    sectionFieldErrors.souls_target = t("validation.souls_target_positive");
+  }
   if (!Number.isFinite(fee) || fee < 0) {
-    return { error: t("validation.fee_positive") };
+    sectionFieldErrors.fee = t("validation.fee_positive");
+  }
+  if (Object.keys(sectionFieldErrors).length > 0) {
+    return { fieldErrors: sectionFieldErrors };
   }
 
   const meetingDayRaw = readString(formData, "meeting_day");

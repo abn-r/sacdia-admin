@@ -35,9 +35,15 @@ interface HonorFormFieldsProps {
   item?: HonorRecord | null;
   categoryOptions: SelectOption[];
   clubTypeOptions: SelectOption[];
+  fieldErrors?: Record<string, string>;
 }
 
-export function HonorFormFields({ item, categoryOptions, clubTypeOptions }: HonorFormFieldsProps) {
+export function HonorFormFields({
+  item,
+  categoryOptions,
+  clubTypeOptions,
+  fieldErrors = {},
+}: HonorFormFieldsProps) {
   const t = useTranslations("honors.form");
 
   const currentCategoryId = toPositiveNumber(item?.honors_category_id ?? item?.category_id);
@@ -45,6 +51,21 @@ export function HonorFormFields({ item, categoryOptions, clubTypeOptions }: Hono
   const currentSkillLevel = toPositiveNumber(item?.skill_level) ?? 1;
   const currentMasterHonor = toPositiveNumber(item?.master_honors);
   const isActive = item ? item.active !== false : true;
+
+  const ariaInvalid = (field: string) =>
+    fieldErrors[field] ? true : undefined;
+  const describedBy = (field: string) =>
+    fieldErrors[field] ? `honor-${field}-error` : undefined;
+  const renderError = (field: string) =>
+    fieldErrors[field] ? (
+      <p
+        id={`honor-${field}-error`}
+        role="alert"
+        className="text-xs text-destructive"
+      >
+        {fieldErrors[field]}
+      </p>
+    ) : null;
 
   return (
     <>
@@ -64,7 +85,10 @@ export function HonorFormFields({ item, categoryOptions, clubTypeOptions }: Hono
               placeholder={t("namePlaceholder")}
               required
               aria-required="true"
+              aria-invalid={ariaInvalid("name")}
+              aria-describedby={describedBy("name")}
             />
+            {renderError("name")}
           </div>
 
           <div className="space-y-2 sm:col-span-2">
@@ -84,7 +108,11 @@ export function HonorFormFields({ item, categoryOptions, clubTypeOptions }: Hono
               name="honors_category_id"
               defaultValue={currentCategoryId ? String(currentCategoryId) : undefined}
             >
-              <SelectTrigger id="honors_category_id">
+              <SelectTrigger
+                id="honors_category_id"
+                aria-invalid={ariaInvalid("honors_category_id")}
+                aria-describedby={describedBy("honors_category_id")}
+              >
                 <SelectValue placeholder={t("categoryPlaceholder")} />
               </SelectTrigger>
               <SelectContent>
@@ -95,6 +123,7 @@ export function HonorFormFields({ item, categoryOptions, clubTypeOptions }: Hono
                 ))}
               </SelectContent>
             </Select>
+            {renderError("honors_category_id")}
           </div>
 
           <div className="space-y-2">
@@ -103,7 +132,11 @@ export function HonorFormFields({ item, categoryOptions, clubTypeOptions }: Hono
               name="club_type_id"
               defaultValue={currentClubTypeId ? String(currentClubTypeId) : undefined}
             >
-              <SelectTrigger id="club_type_id">
+              <SelectTrigger
+                id="club_type_id"
+                aria-invalid={ariaInvalid("club_type_id")}
+                aria-describedby={describedBy("club_type_id")}
+              >
                 <SelectValue placeholder={t("clubTypePlaceholder")} />
               </SelectTrigger>
               <SelectContent>
@@ -114,6 +147,7 @@ export function HonorFormFields({ item, categoryOptions, clubTypeOptions }: Hono
                 ))}
               </SelectContent>
             </Select>
+            {renderError("club_type_id")}
           </div>
 
           <div className="space-y-2">
@@ -124,7 +158,10 @@ export function HonorFormFields({ item, categoryOptions, clubTypeOptions }: Hono
               type="number"
               min={1}
               defaultValue={String(currentSkillLevel)}
+              aria-invalid={ariaInvalid("skill_level")}
+              aria-describedby={describedBy("skill_level")}
             />
+            {renderError("skill_level")}
           </div>
 
           <div className="space-y-2">
@@ -135,7 +172,10 @@ export function HonorFormFields({ item, categoryOptions, clubTypeOptions }: Hono
               type="number"
               min={1}
               defaultValue={currentMasterHonor ? String(currentMasterHonor) : ""}
+              aria-invalid={ariaInvalid("master_honors")}
+              aria-describedby={describedBy("master_honors")}
             />
+            {renderError("master_honors")}
           </div>
 
           <div className="flex items-center gap-2 sm:col-span-2">

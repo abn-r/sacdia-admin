@@ -36,7 +36,11 @@ function SubmitButton({ label }: { label: string }) {
 function StatusBanner({ state }: { state: NotificationActionState }) {
   if (state.error) {
     return (
-      <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+      <div
+        role="alert"
+        aria-live="polite"
+        className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive"
+      >
         {state.error}
       </div>
     );
@@ -51,11 +55,37 @@ function StatusBanner({ state }: { state: NotificationActionState }) {
   return null;
 }
 
+function useFieldErrorHelpers(
+  state: NotificationActionState,
+  formId: string,
+) {
+  const fieldErrors = state.fieldErrors ?? {};
+  return {
+    ariaInvalid: (name: string) => (fieldErrors[name] ? true : undefined),
+    describedBy: (name: string) =>
+      fieldErrors[name] ? `${formId}-${name}-error` : undefined,
+    renderError: (name: string) =>
+      fieldErrors[name] ? (
+        <p
+          id={`${formId}-${name}-error`}
+          role="alert"
+          className="text-xs text-destructive"
+        >
+          {fieldErrors[name]}
+        </p>
+      ) : null,
+  };
+}
+
 const initial: NotificationActionState = {};
 
 export function DirectNotificationForm() {
   const t = useTranslations("notifications.forms");
   const [state, action] = useActionState(sendDirectNotificationAction, initial);
+  const { ariaInvalid, describedBy, renderError } = useFieldErrorHelpers(
+    state,
+    "notif-direct",
+  );
 
   return (
     <Card>
@@ -67,25 +97,53 @@ export function DirectNotificationForm() {
         <CardDescription>{t("direct_description")}</CardDescription>
       </CardHeader>
       <CardContent>
-        <form action={action} className="space-y-4">
+        <form action={action} className="space-y-4" noValidate>
           <StatusBanner state={state} />
           <div className="space-y-2">
             <Label htmlFor="direct_user_id">
               {t("label_user_id")} <span className="text-destructive">*</span>
             </Label>
-            <Input id="direct_user_id" name="user_id" placeholder={t("placeholder_user_id")} required />
+            <Input
+              id="direct_user_id"
+              name="user_id"
+              placeholder={t("placeholder_user_id")}
+              required
+              aria-required="true"
+              aria-invalid={ariaInvalid("user_id")}
+              aria-describedby={describedBy("user_id")}
+            />
+            {renderError("user_id")}
           </div>
           <div className="space-y-2">
             <Label htmlFor="direct_title">
               {t("label_title")} <span className="text-destructive">*</span>
             </Label>
-            <Input id="direct_title" name="title" placeholder={t("placeholder_title_notification")} required />
+            <Input
+              id="direct_title"
+              name="title"
+              placeholder={t("placeholder_title_notification")}
+              required
+              aria-required="true"
+              aria-invalid={ariaInvalid("title")}
+              aria-describedby={describedBy("title")}
+            />
+            {renderError("title")}
           </div>
           <div className="space-y-2">
             <Label htmlFor="direct_body">
               {t("label_body")} <span className="text-destructive">*</span>
             </Label>
-            <Textarea id="direct_body" name="body" placeholder={t("placeholder_body")} rows={3} required />
+            <Textarea
+              id="direct_body"
+              name="body"
+              placeholder={t("placeholder_body")}
+              rows={3}
+              required
+              aria-required="true"
+              aria-invalid={ariaInvalid("body")}
+              aria-describedby={describedBy("body")}
+            />
+            {renderError("body")}
           </div>
           <SubmitButton label={t("submit_send")} />
         </form>
@@ -97,6 +155,10 @@ export function DirectNotificationForm() {
 export function BroadcastNotificationForm() {
   const t = useTranslations("notifications.forms");
   const [state, action] = useActionState(broadcastNotificationAction, initial);
+  const { ariaInvalid, describedBy, renderError } = useFieldErrorHelpers(
+    state,
+    "notif-broadcast",
+  );
 
   return (
     <Card>
@@ -108,7 +170,7 @@ export function BroadcastNotificationForm() {
         <CardDescription>{t("broadcast_description")}</CardDescription>
       </CardHeader>
       <CardContent>
-        <form action={action} className="space-y-4">
+        <form action={action} className="space-y-4" noValidate>
           <StatusBanner state={state} />
           <div className="rounded-md border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-warning-foreground dark:text-warning">
             {t("broadcast_warning")}
@@ -117,13 +179,32 @@ export function BroadcastNotificationForm() {
             <Label htmlFor="broadcast_title">
               {t("label_title")} <span className="text-destructive">*</span>
             </Label>
-            <Input id="broadcast_title" name="title" placeholder={t("placeholder_title_broadcast")} required />
+            <Input
+              id="broadcast_title"
+              name="title"
+              placeholder={t("placeholder_title_broadcast")}
+              required
+              aria-required="true"
+              aria-invalid={ariaInvalid("title")}
+              aria-describedby={describedBy("title")}
+            />
+            {renderError("title")}
           </div>
           <div className="space-y-2">
             <Label htmlFor="broadcast_body">
               {t("label_body")} <span className="text-destructive">*</span>
             </Label>
-            <Textarea id="broadcast_body" name="body" placeholder={t("placeholder_body")} rows={3} required />
+            <Textarea
+              id="broadcast_body"
+              name="body"
+              placeholder={t("placeholder_body")}
+              rows={3}
+              required
+              aria-required="true"
+              aria-invalid={ariaInvalid("body")}
+              aria-describedby={describedBy("body")}
+            />
+            {renderError("body")}
           </div>
           <SubmitButton label={t("submit_broadcast")} />
         </form>
@@ -135,6 +216,10 @@ export function BroadcastNotificationForm() {
 export function ClubNotificationForm() {
   const t = useTranslations("notifications.forms");
   const [state, action] = useActionState(clubNotificationAction, initial);
+  const { ariaInvalid, describedBy, renderError } = useFieldErrorHelpers(
+    state,
+    "notif-club",
+  );
 
   return (
     <Card>
@@ -146,14 +231,18 @@ export function ClubNotificationForm() {
         <CardDescription>{t("club_description")}</CardDescription>
       </CardHeader>
       <CardContent>
-        <form action={action} className="space-y-4">
+        <form action={action} className="space-y-4" noValidate>
           <StatusBanner state={state} />
           <div className="space-y-2">
             <Label htmlFor="club_instance_type">
               {t("label_instance_type")} <span className="text-destructive">*</span>
             </Label>
             <Select name="instance_type" required>
-              <SelectTrigger id="club_instance_type">
+              <SelectTrigger
+                id="club_instance_type"
+                aria-invalid={ariaInvalid("instance_type")}
+                aria-describedby={describedBy("instance_type")}
+              >
                 <SelectValue placeholder={t("placeholder_instance_type")} />
               </SelectTrigger>
               <SelectContent>
@@ -162,24 +251,54 @@ export function ClubNotificationForm() {
                 <SelectItem value="master_guilds">{t("option_master_guilds")}</SelectItem>
               </SelectContent>
             </Select>
+            {renderError("instance_type")}
           </div>
           <div className="space-y-2">
             <Label htmlFor="club_instance_id">
               {t("label_instance_id")} <span className="text-destructive">*</span>
             </Label>
-            <Input id="club_instance_id" name="instance_id" type="number" placeholder={t("placeholder_instance_id")} required />
+            <Input
+              id="club_instance_id"
+              name="instance_id"
+              type="number"
+              placeholder={t("placeholder_instance_id")}
+              required
+              aria-required="true"
+              aria-invalid={ariaInvalid("instance_id")}
+              aria-describedby={describedBy("instance_id")}
+            />
+            {renderError("instance_id")}
           </div>
           <div className="space-y-2">
             <Label htmlFor="club_title">
               {t("label_title")} <span className="text-destructive">*</span>
             </Label>
-            <Input id="club_title" name="title" placeholder={t("placeholder_title_notification")} required />
+            <Input
+              id="club_title"
+              name="title"
+              placeholder={t("placeholder_title_notification")}
+              required
+              aria-required="true"
+              aria-invalid={ariaInvalid("title")}
+              aria-describedby={describedBy("title")}
+            />
+            {renderError("title")}
           </div>
           <div className="space-y-2">
             <Label htmlFor="club_body">
               {t("label_body")} <span className="text-destructive">*</span>
             </Label>
-            <Textarea id="club_body" name="body" placeholder={t("placeholder_body")} rows={3} required />
+            <Textarea
+              id="club_body"
+              name="body"
+              placeholder={t("placeholder_body")}
+              rows={3}
+              required
+              aria-required="true"
+              aria-invalid={ariaInvalid("body")}
+              aria-describedby={describedBy("body")}
+            />
+            {renderError("body")}
           </div>
           <SubmitButton label={t("submit_club")} />
         </form>

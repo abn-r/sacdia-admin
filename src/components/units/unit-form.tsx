@@ -76,10 +76,30 @@ export function UnitForm({ mode, clubId, initialData, formAction }: UnitFormProp
     setSharedMembers(members);
   }, []);
 
+  const fieldErrors = state.fieldErrors ?? {};
+  const ariaInvalid = (field: string) =>
+    fieldErrors[field] ? true : undefined;
+  const describedBy = (field: string) =>
+    fieldErrors[field] ? `unit-${field}-error` : undefined;
+  const renderError = (field: string) =>
+    fieldErrors[field] ? (
+      <p
+        id={`unit-${field}-error`}
+        role="alert"
+        className="text-xs text-destructive"
+      >
+        {fieldErrors[field]}
+      </p>
+    ) : null;
+
   return (
-    <form action={action} className="space-y-6">
+    <form action={action} className="space-y-6" noValidate>
       {state.error && (
-        <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+        <div
+          role="alert"
+          aria-live="polite"
+          className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive"
+        >
           {state.error}
         </div>
       )}
@@ -101,7 +121,11 @@ export function UnitForm({ mode, clubId, initialData, formAction }: UnitFormProp
               defaultValue={initialData?.name ?? ""}
               placeholder={t("namePlaceholder")}
               required
+              aria-required="true"
+              aria-invalid={ariaInvalid("name")}
+              aria-describedby={describedBy("name")}
             />
+            {renderError("name")}
           </div>
 
           {/* Tipo de club */}
@@ -113,6 +137,8 @@ export function UnitForm({ mode, clubId, initialData, formAction }: UnitFormProp
               id="club_type_id"
               name="club_type_id"
               defaultValue={defaultClubType}
+              aria-invalid={ariaInvalid("club_type_id")}
+              aria-describedby={describedBy("club_type_id")}
               className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             >
               {CLUB_TYPES.map((ct) => (
@@ -121,6 +147,7 @@ export function UnitForm({ mode, clubId, initialData, formAction }: UnitFormProp
                 </option>
               ))}
             </select>
+            {renderError("club_type_id")}
           </div>
         </CardContent>
       </Card>
@@ -153,6 +180,7 @@ export function UnitForm({ mode, clubId, initialData, formAction }: UnitFormProp
             />
             {/* Hidden input carries the value into FormData */}
             <input type="hidden" name="captain_id" value={captainId} />
+            {renderError("captain_id")}
           </div>
 
           {/* Secretario */}
@@ -170,6 +198,7 @@ export function UnitForm({ mode, clubId, initialData, formAction }: UnitFormProp
               onMembersLoaded={handleMembersLoaded}
             />
             <input type="hidden" name="secretary_id" value={secretaryId} />
+            {renderError("secretary_id")}
           </div>
 
           {/* Consejero */}
@@ -187,6 +216,7 @@ export function UnitForm({ mode, clubId, initialData, formAction }: UnitFormProp
               onMembersLoaded={handleMembersLoaded}
             />
             <input type="hidden" name="advisor_id" value={advisorId} />
+            {renderError("advisor_id")}
           </div>
 
           {/* Consejero suplente */}
@@ -205,6 +235,7 @@ export function UnitForm({ mode, clubId, initialData, formAction }: UnitFormProp
               onMembersLoaded={handleMembersLoaded}
             />
             <input type="hidden" name="substitute_advisor_id" value={substituteAdvisorId} />
+            {renderError("substitute_advisor_id")}
           </div>
         </CardContent>
       </Card>

@@ -69,10 +69,20 @@ export function EditClubForm({
   const lat = club.coordinates?.lat ?? club.latitude;
   const lng = club.coordinates?.lng ?? club.longitude;
 
+  const fieldErrors = state.fieldErrors ?? {};
+  const ariaInvalid = (field: string) =>
+    fieldErrors[field] ? true : undefined;
+  const describedBy = (field: string) =>
+    fieldErrors[field] ? `${field}-error` : undefined;
+
   return (
-    <form action={action} className="space-y-6">
+    <form action={action} className="space-y-6" noValidate>
       {state.error && (
-        <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+        <div
+          role="alert"
+          aria-live="polite"
+          className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive"
+        >
           {state.error}
         </div>
       )}
@@ -88,8 +98,26 @@ export function EditClubForm({
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2 sm:col-span-2">
-            <Label htmlFor="name">{t("form.labelName")} <span className="text-destructive">*</span></Label>
-            <Input id="name" name="name" defaultValue={club.name ?? ""} required />
+            <Label htmlFor="name">
+              {t("form.labelName")}{" "}
+              <span className="text-destructive" aria-hidden="true">
+                *
+              </span>
+            </Label>
+            <Input
+              id="name"
+              name="name"
+              defaultValue={club.name ?? ""}
+              required
+              aria-required="true"
+              aria-invalid={ariaInvalid("name")}
+              aria-describedby={describedBy("name")}
+            />
+            {fieldErrors.name && (
+              <p id="name-error" role="alert" className="text-xs text-destructive">
+                {fieldErrors.name}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2 sm:col-span-2">
@@ -99,8 +127,14 @@ export function EditClubForm({
 
           <div className="space-y-2">
             <Label htmlFor="local_field_id">{t("fields.local_field")}</Label>
-            <Select name="local_field_id" defaultValue={club.local_field_id ? String(club.local_field_id) : undefined}>
-              <SelectTrigger>
+            <Select
+              name="local_field_id"
+              defaultValue={club.local_field_id ? String(club.local_field_id) : undefined}
+            >
+              <SelectTrigger
+                aria-invalid={ariaInvalid("local_field_id")}
+                aria-describedby={describedBy("local_field_id")}
+              >
                 <SelectValue placeholder={t("edit.placeholderSelect")} />
               </SelectTrigger>
               <SelectContent>
@@ -109,12 +143,23 @@ export function EditClubForm({
                 ))}
               </SelectContent>
             </Select>
+            {fieldErrors.local_field_id && (
+              <p id="local_field_id-error" role="alert" className="text-xs text-destructive">
+                {fieldErrors.local_field_id}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="district_id">{t("fields.district")}</Label>
-            <Select name="district_id" defaultValue={club.district_id ? String(club.district_id) : undefined}>
-              <SelectTrigger>
+            <Select
+              name="district_id"
+              defaultValue={club.district_id ? String(club.district_id) : undefined}
+            >
+              <SelectTrigger
+                aria-invalid={ariaInvalid("district_id")}
+                aria-describedby={describedBy("district_id")}
+              >
                 <SelectValue placeholder={t("edit.placeholderSelect")} />
               </SelectTrigger>
               <SelectContent>
@@ -123,12 +168,23 @@ export function EditClubForm({
                 ))}
               </SelectContent>
             </Select>
+            {fieldErrors.district_id && (
+              <p id="district_id-error" role="alert" className="text-xs text-destructive">
+                {fieldErrors.district_id}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="church_id">{t("fields.church")}</Label>
-            <Select name="church_id" defaultValue={club.church_id ? String(club.church_id) : undefined}>
-              <SelectTrigger>
+            <Select
+              name="church_id"
+              defaultValue={club.church_id ? String(club.church_id) : undefined}
+            >
+              <SelectTrigger
+                aria-invalid={ariaInvalid("church_id")}
+                aria-describedby={describedBy("church_id")}
+              >
                 <SelectValue placeholder={t("edit.placeholderSelect")} />
               </SelectTrigger>
               <SelectContent>
@@ -137,6 +193,11 @@ export function EditClubForm({
                 ))}
               </SelectContent>
             </Select>
+            {fieldErrors.church_id && (
+              <p id="church_id-error" role="alert" className="text-xs text-destructive">
+                {fieldErrors.church_id}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -170,6 +231,15 @@ export function EditClubForm({
             initialLng={lng ?? null}
             initialAddress={club.address ?? null}
           />
+          {fieldErrors.coordinates && (
+            <p
+              id="coordinates-error"
+              role="alert"
+              className="mt-2 text-xs text-destructive"
+            >
+              {fieldErrors.coordinates}
+            </p>
+          )}
         </CardContent>
       </Card>
 

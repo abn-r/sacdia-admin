@@ -89,23 +89,64 @@ function CreateSectionForm({
     }
   }, [state.success]);
 
+  const fieldErrors = state.fieldErrors ?? {};
+  const ariaInvalid = (name: string) =>
+    fieldErrors[name] ? true : undefined;
+  const describedBy = (name: string) =>
+    fieldErrors[name] ? `section-${clubTypeId}-${name}-error` : undefined;
+  const renderError = (name: string) =>
+    fieldErrors[name] ? (
+      <p
+        id={`section-${clubTypeId}-${name}-error`}
+        role="alert"
+        className="text-xs text-destructive"
+      >
+        {fieldErrors[name]}
+      </p>
+    ) : null;
+
   return (
-    <form action={action} className="mt-4 space-y-4 border-t pt-4">
+    <form action={action} className="mt-4 space-y-4 border-t pt-4" noValidate>
       <input type="hidden" name="club_type_id" value={clubTypeId} />
 
       {state.error && (
-        <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">{state.error}</p>
+        <p
+          role="alert"
+          aria-live="polite"
+          className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive"
+        >
+          {state.error}
+        </p>
       )}
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-1">
           <Label htmlFor={`souls_${clubTypeId}`}>{t("sections.labelSoulsTarget")}</Label>
-          <Input id={`souls_${clubTypeId}`} name="souls_target" type="number" min="0" defaultValue="0" />
+          <Input
+            id={`souls_${clubTypeId}`}
+            name="souls_target"
+            type="number"
+            min="0"
+            defaultValue="0"
+            aria-invalid={ariaInvalid("souls_target")}
+            aria-describedby={describedBy("souls_target")}
+          />
+          {renderError("souls_target")}
         </div>
 
         <div className="space-y-1">
           <Label htmlFor={`fee_${clubTypeId}`}>{t("sections.labelFee")}</Label>
-          <Input id={`fee_${clubTypeId}`} name="fee" type="number" min="0" step="0.01" defaultValue="0" />
+          <Input
+            id={`fee_${clubTypeId}`}
+            name="fee"
+            type="number"
+            min="0"
+            step="0.01"
+            defaultValue="0"
+            aria-invalid={ariaInvalid("fee")}
+            aria-describedby={describedBy("fee")}
+          />
+          {renderError("fee")}
         </div>
 
         <div className="space-y-1">

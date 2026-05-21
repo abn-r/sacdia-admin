@@ -147,6 +147,39 @@ export function buildPayloadFromForm(config: EntityConfig, formData: FormData) {
   return payload;
 }
 
+export function collectCatalogFieldErrors(
+  config: EntityConfig,
+  formData: FormData,
+  fieldRequiredMessage: (label: string) => string,
+  fieldInvalidMessage: (label: string) => string,
+): Record<string, string> {
+  const errors: Record<string, string> = {};
+
+  for (const field of config.fields) {
+    const rawValue = formData.get(field.name);
+    const parsedValue = parseFieldValue(field, rawValue);
+
+    if (
+      field.required &&
+      (parsedValue === null || parsedValue === undefined || parsedValue === "")
+    ) {
+      errors[field.name] = fieldRequiredMessage(field.label);
+      continue;
+    }
+
+    if (
+      (field.type === "number" || field.type === "select") &&
+      rawValue !== null &&
+      rawValue !== "" &&
+      parsedValue === null
+    ) {
+      errors[field.name] = fieldInvalidMessage(field.label);
+    }
+  }
+
+  return errors;
+}
+
 export async function createEntityItem(entityKey: EntityKey, payload: Record<string, unknown>) {
   const config = entityConfigs[entityKey];
   return apiRequest(config.adminEndpoint, {

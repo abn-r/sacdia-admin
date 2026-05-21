@@ -63,6 +63,7 @@ export function HonorForm({
         item={initialItem}
         categoryOptions={categoryOptions}
         clubTypeOptions={clubTypeOptions}
+        fieldErrors={state.fieldErrors}
       />
 
       <div className="flex justify-end gap-2">

@@ -52,6 +52,12 @@ export function CreateClubForm({
   const [state, action] = useActionState(formAction, initialState);
   const t = useTranslations("clubs");
 
+  const fieldErrors = state.fieldErrors ?? {};
+  const ariaInvalid = (field: string) =>
+    fieldErrors[field] ? true : undefined;
+  const describedBy = (field: string) =>
+    fieldErrors[field] ? `${field}-error` : undefined;
+
   return (
     <form action={action} className="space-y-6" noValidate>
       {state.error && (
@@ -82,7 +88,18 @@ export function CreateClubForm({
               placeholder={t("create.placeholderName")}
               required
               aria-required="true"
+              aria-invalid={ariaInvalid("name")}
+              aria-describedby={describedBy("name")}
             />
+            {fieldErrors.name && (
+              <p
+                id="name-error"
+                role="alert"
+                className="text-xs text-destructive"
+              >
+                {fieldErrors.name}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2 sm:col-span-2">
@@ -103,7 +120,12 @@ export function CreateClubForm({
               </span>
             </Label>
             <Select name="local_field_id" required>
-              <SelectTrigger id="local_field_id" aria-required="true">
+              <SelectTrigger
+                id="local_field_id"
+                aria-required="true"
+                aria-invalid={ariaInvalid("local_field_id")}
+                aria-describedby={describedBy("local_field_id")}
+              >
                 <SelectValue placeholder={t("create.placeholderLocalField")} />
               </SelectTrigger>
               <SelectContent>
@@ -114,6 +136,15 @@ export function CreateClubForm({
                 ))}
               </SelectContent>
             </Select>
+            {fieldErrors.local_field_id && (
+              <p
+                id="local_field_id-error"
+                role="alert"
+                className="text-xs text-destructive"
+              >
+                {fieldErrors.local_field_id}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -124,7 +155,12 @@ export function CreateClubForm({
               </span>
             </Label>
             <Select name="district_id" required>
-              <SelectTrigger id="district_id" aria-required="true">
+              <SelectTrigger
+                id="district_id"
+                aria-required="true"
+                aria-invalid={ariaInvalid("district_id")}
+                aria-describedby={describedBy("district_id")}
+              >
                 <SelectValue placeholder={t("create.placeholderDistrict")} />
               </SelectTrigger>
               <SelectContent>
@@ -135,6 +171,15 @@ export function CreateClubForm({
                 ))}
               </SelectContent>
             </Select>
+            {fieldErrors.district_id && (
+              <p
+                id="district_id-error"
+                role="alert"
+                className="text-xs text-destructive"
+              >
+                {fieldErrors.district_id}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -145,7 +190,12 @@ export function CreateClubForm({
               </span>
             </Label>
             <Select name="church_id" required>
-              <SelectTrigger id="church_id" aria-required="true">
+              <SelectTrigger
+                id="church_id"
+                aria-required="true"
+                aria-invalid={ariaInvalid("church_id")}
+                aria-describedby={describedBy("church_id")}
+              >
                 <SelectValue placeholder={t("create.placeholderChurch")} />
               </SelectTrigger>
               <SelectContent>
@@ -156,6 +206,15 @@ export function CreateClubForm({
                 ))}
               </SelectContent>
             </Select>
+            {fieldErrors.church_id && (
+              <p
+                id="church_id-error"
+                role="alert"
+                className="text-xs text-destructive"
+              >
+                {fieldErrors.church_id}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -175,6 +234,15 @@ export function CreateClubForm({
         </CardHeader>
         <CardContent>
           <LocationPicker apiKey={googleMapsApiKey} />
+          {fieldErrors.coordinates && (
+            <p
+              id="coordinates-error"
+              role="alert"
+              className="mt-2 text-xs text-destructive"
+            >
+              {fieldErrors.coordinates}
+            </p>
+          )}
         </CardContent>
       </Card>
 

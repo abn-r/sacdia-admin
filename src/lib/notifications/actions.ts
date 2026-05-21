@@ -27,7 +27,19 @@ function isValidInstanceType(value: string): value is NotificationInstanceType {
 export type NotificationActionState = {
   error?: string;
   success?: string;
+  fieldErrors?: Record<string, string>;
 };
+
+function collectCommonFieldErrors(
+  t: NotificationsTranslator,
+  title: string,
+  body: string,
+): Record<string, string> {
+  const errors: Record<string, string> = {};
+  if (!title) errors.title = t("validation.title_required");
+  if (!body) errors.body = t("validation.body_required");
+  return errors;
+}
 
 function readString(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
@@ -54,9 +66,11 @@ export async function sendDirectNotificationAction(
   const title = readString(formData, "title");
   const body = readString(formData, "body");
 
-  if (!userId) return { error: t("validation.user_id_required") };
-  const commonError = validateCommonFields(t, title, body);
-  if (commonError) return { error: commonError };
+  const fieldErrors = collectCommonFieldErrors(t, title, body);
+  if (!userId) fieldErrors.user_id = t("validation.user_id_required");
+  if (Object.keys(fieldErrors).length > 0) {
+    return { fieldErrors };
+  }
 
   try {
     await sendNotification({ user_id: userId, title, body });
@@ -81,8 +95,10 @@ export async function broadcastNotificationAction(
   const title = readString(formData, "title");
   const body = readString(formData, "body");
 
-  const commonError = validateCommonFields(t, title, body);
-  if (commonError) return { error: commonError };
+  const fieldErrors = collectCommonFieldErrors(t, title, body);
+  if (Object.keys(fieldErrors).length > 0) {
+    return { fieldErrors };
+  }
 
   try {
     await broadcastNotification({ title, body });
@@ -109,21 +125,34 @@ export async function clubNotificationAction(
   const title = readString(formData, "title");
   const body = readString(formData, "body");
 
-  if (!instanceType) return { error: t("validation.instance_type_required") };
-  if (!isValidInstanceType(instanceType)) {
-    return { error: t("validation.instance_type_invalid") };
+  const fieldErrors = collectCommonFieldErrors(t, title, body);
+  if (!instanceType) {
+    fieldErrors.instance_type = t("validation.instance_type_required");
+  } else if (!isValidInstanceType(instanceType)) {
+    fieldErrors.instance_type = t("validation.instance_type_invalid");
   }
-  if (!instanceIdRaw) return { error: t("validation.instance_id_required") };
-  const commonError = validateCommonFields(t, title, body);
-  if (commonError) return { error: commonError };
+
+  if (!instanceIdRaw) {
+    fieldErrors.instance_id = t("validation.instance_id_required");
+  } else {
+    const parsedId = Number(instanceIdRaw);
+    if (!Number.isFinite(parsedId) || parsedId <= 0) {
+      fieldErrors.instance_id = t("validation.instance_id_invalid");
+    }
+  }
+
+  if (Object.keys(fieldErrors).length > 0) {
+    return { fieldErrors };
+  }
 
   const instanceId = Number(instanceIdRaw);
-  if (!Number.isFinite(instanceId) || instanceId <= 0) {
-    return { error: t("validation.instance_id_invalid") };
-  }
 
   try {
-    await sendClubNotification(instanceType, instanceId, { title, body });
+    await sendClubNotification(
+      instanceType as NotificationInstanceType,
+      instanceId,
+      { title, body },
+    );
   } catch (error) {
     return {
       error: getActionErrorMessage(error, t("errors.club_send_failed"), {
