@@ -501,6 +501,222 @@ export async function deleteCamporeeEventAction(
   redirect("/dashboard/camporees");
 }
 
+// ─── Agenda-aware instance actions (PR6a/6b/6c) ────────────────────────────────
+
+/**
+ * Builds the agenda scheduling payload from FormData.
+ * Used by createCamporeeAgendaEventAction / updateCamporeeAgendaEventAction.
+ */
+function buildAgendaPayload(
+  formData: FormData,
+): CreateCamporeeEventPayload | { validationError: string } {
+  const title = getString(formData, "title");
+  if (!title) return { validationError: "El título es obligatorio." };
+
+  const day_number = getPositiveInt(formData, "day_number") ?? 1;
+  const starts_at = getOptionalString(formData, "starts_at");
+  const ends_at = getOptionalString(formData, "ends_at");
+
+  // Validate time format HH:MM if provided
+  const timeRegex = /^([01]\d|2[0-3]):[0-5]\d$/;
+  if (starts_at && !timeRegex.test(starts_at)) {
+    return { validationError: "Formato de hora de inicio inválido (HH:MM)." };
+  }
+  if (ends_at && !timeRegex.test(ends_at)) {
+    return { validationError: "Formato de hora de fin inválido (HH:MM)." };
+  }
+  if (starts_at && ends_at && starts_at >= ends_at) {
+    return { validationError: "La hora de fin debe ser posterior a la hora de inicio." };
+  }
+
+  const display_category = getString(formData, "display_category") as CreateCamporeeEventPayload["display_category"];
+  const status = getString(formData, "status") as CreateCamporeeEventPayload["status"];
+
+  const venue_id = getPositiveInt(formData, "venue_id");
+  const leader_user_id = getOptionalString(formData, "leader_user_id");
+  const leader_name_override = getOptionalString(formData, "leader_name_override");
+  const leader_role = getOptionalString(formData, "leader_role");
+
+  // Sections: JSON array of CamporeeEventSection values
+  const sectionsRaw = getString(formData, "sections");
+  let sections: string[] = [];
+  try {
+    const parsed = JSON.parse(sectionsRaw);
+    if (Array.isArray(parsed)) sections = parsed as string[];
+  } catch {
+    sections = [];
+  }
+
+  const capacity = getNonNegativeInt(formData, "capacity");
+  const registered_count = getNonNegativeInt(formData, "registered_count") ?? 0;
+  const max_points = getNonNegativeInt(formData, "max_points") ?? 0;
+
+  return {
+    event_type_id: 1, // default — instances use type 1 (generic) unless overridden
+    title,
+    description: getOptionalString(formData, "description"),
+    day_number,
+    starts_at,
+    ends_at,
+    display_category: display_category || "logistico",
+    status: status || "programado",
+    venue_id: venue_id ?? null,
+    leader_user_id: leader_user_id || null,
+    leader_name_override: leader_name_override || null,
+    leader_role: leader_role || null,
+    sections: (sections as import("@/lib/api/camporee-events").CamporeeEventSection[]) ?? [],
+    capacity: capacity ?? null,
+    registered_count,
+    max_points,
+    min_points: 0,
+    penalties: [],
+    participants_mode: "count",
+    active: true,
+    display_order: getNonNegativeInt(formData, "display_order") ?? 0,
+  };
+}
+
+/** Create a camporee event with full agenda fields. */
+export async function createCamporeeAgendaEventAction(
+  _: CamporeeEventActionState,
+  formData: FormData,
+): Promise<CamporeeEventActionState> {
+  const user = await requireAdminUser();
+  if (!hasAnyPermission(user, [CAMPOREE_EVENTS_CREATE, CAMPOREES_CREATE])) {
+    return { error: "Sin permisos para crear eventos." };
+  }
+
+  const camporeeId = getPositiveInt(formData, "camporee_id");
+  if (!camporeeId) return { error: "No se pudo identificar el camporee." };
+
+  const payload = buildAgendaPayload(formData);
+  if ("validationError" in payload) return { error: payload.validationError };
+
+  try {
+    await createLocalCamporeeEvent(camporeeId, payload);
+  } catch (error) {
+    return {
+      error: getActionErrorMessage(error, "No se pudo crear el evento.", {
+        endpointLabel: `/local-camporees/${camporeeId}/events`,
+      }),
+    };
+  }
+
+  revalidatePath(`/dashboard/camporees/${camporeeId}`);
+  redirect(`/dashboard/camporees/${camporeeId}?tab=events`);
+}
+
+/** Update a camporee event with full agenda fields. */
+export async function updateCamporeeAgendaEventAction(
+  _: CamporeeEventActionState,
+  formData: FormData,
+): Promise<CamporeeEventActionState> {
+  const user = await requireAdminUser();
+  if (!hasAnyPermission(user, [CAMPOREE_EVENTS_UPDATE, CAMPOREES_UPDATE])) {
+    return { error: "Sin permisos para editar eventos." };
+  }
+
+  const id = getPositiveInt(formData, "id");
+  if (!id) return { error: "No se pudo identificar el evento a editar." };
+
+  const camporeeId = getPositiveInt(formData, "camporee_id");
+
+  const payload = buildAgendaPayload(formData);
+  if ("validationError" in payload) return { error: payload.validationError };
+
+  try {
+    await updateCamporeeEvent(id, payload);
+  } catch (error) {
+    return {
+      error: getActionErrorMessage(error, "No se pudo actualizar el evento.", {
+        endpointLabel: `/camporee-events/${id}`,
+      }),
+    };
+  }
+
+  if (camporeeId) {
+    revalidatePath(`/dashboard/camporees/${camporeeId}`);
+    redirect(`/dashboard/camporees/${camporeeId}?tab=events`);
+  }
+
+  redirect("/dashboard/camporees");
+}
+
+/** Cancel an event (sets status = 'cancelado'). Requires AlertDialog confirm on the caller side. */
+export async function cancelCamporeeEventAction(
+  _: CamporeeEventActionState,
+  formData: FormData,
+): Promise<CamporeeEventActionState> {
+  const user = await requireAdminUser();
+  if (!hasAnyPermission(user, [CAMPOREE_EVENTS_UPDATE, CAMPOREES_UPDATE])) {
+    return { error: "Sin permisos para cancelar eventos." };
+  }
+
+  const id = getPositiveInt(formData, "id");
+  if (!id) return { error: "No se pudo identificar el evento a cancelar." };
+
+  const camporeeId = getPositiveInt(formData, "camporee_id");
+  const isUnion = formData.get("is_union") === "true";
+
+  try {
+    await updateCamporeeEvent(id, { status: "cancelado" });
+  } catch (error) {
+    return {
+      error: getActionErrorMessage(error, "No se pudo cancelar el evento.", {
+        endpointLabel: `/camporee-events/${id}`,
+      }),
+    };
+  }
+
+  if (camporeeId) {
+    const basePath = isUnion
+      ? `/dashboard/camporees/union/${camporeeId}`
+      : `/dashboard/camporees/${camporeeId}`;
+    revalidatePath(basePath);
+    redirect(`${basePath}?tab=events`);
+  }
+
+  redirect("/dashboard/camporees");
+}
+
+/** Soft-delete an event (sets active = false). Requires AlertDialog confirm on the caller side. */
+export async function softDeleteCamporeeEventAction(
+  _: CamporeeEventActionState,
+  formData: FormData,
+): Promise<CamporeeEventActionState> {
+  const user = await requireAdminUser();
+  if (!hasAnyPermission(user, [CAMPOREE_EVENTS_DELETE, CAMPOREES_DELETE])) {
+    return { error: "Sin permisos para eliminar eventos." };
+  }
+
+  const id = getPositiveInt(formData, "id");
+  if (!id) return { error: "No se pudo identificar el evento a eliminar." };
+
+  const camporeeId = getPositiveInt(formData, "camporee_id");
+  const isUnion = formData.get("is_union") === "true";
+
+  try {
+    // Soft delete: PATCH active = false (keeps the row for historical record)
+    await updateCamporeeEvent(id, { active: false });
+  } catch (error) {
+    return {
+      error: getActionErrorMessage(error, "No se pudo eliminar el evento.", {
+        endpointLabel: `/camporee-events/${id}`,
+      }),
+    };
+  }
+
+  if (camporeeId) {
+    const basePath = isUnion
+      ? `/dashboard/camporees/union/${camporeeId}`
+      : `/dashboard/camporees/${camporeeId}`;
+    revalidatePath(basePath);
+    redirect(`${basePath}?tab=events`);
+  }
+
+  redirect("/dashboard/camporees");
+}
+
 /** Reorder an event instance. */
 export async function reorderCamporeeEventAction(
   _: CamporeeEventActionState,

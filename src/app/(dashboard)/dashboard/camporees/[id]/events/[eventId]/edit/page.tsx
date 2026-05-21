@@ -1,146 +1,142 @@
 import type { Metadata } from "next";
 import { redirect, notFound } from "next/navigation";
-import { getTranslations } from "next-intl/server";
 import { requireAdminUser } from "@/lib/auth/session";
 import { hasAnyPermission } from "@/lib/auth/permission-utils";
 import {
   CAMPOREE_EVENTS_UPDATE,
   CAMPOREES_UPDATE,
 } from "@/lib/auth/permissions";
-import { listAdminCamporeeEventTypes } from "@/lib/api/generic-catalogs-i18n";
-import { listClasses } from "@/lib/api/classes";
-import { updateCamporeeEventAction } from "@/lib/camporee-events/actions";
-import type { CamporeeEventActionState } from "@/lib/camporee-events/actions";
-import {
-  EventTemplateFormPage,
-  type EventTypeOption,
-} from "@/components/camporee-events/event-template-form-page";
-import { extractItems } from "@/lib/phase-e-catalogs/fetch-helpers";
-import type { ProgressiveClass } from "@/lib/api/classes";
-import type {
-  CamporeeEventTemplate,
-  PenaltyRule,
-  ParticipantsByClass,
-} from "@/lib/api/camporee-events";
 import { apiRequest } from "@/lib/api/client";
+import { getCamporeeById } from "@/lib/api/camporees";
+import {
+  listLocalCamporeeVenues,
+  type CamporeeVenue,
+} from "@/lib/api/camporee-venues";
+import { updateCamporeeAgendaEventAction } from "@/lib/camporee-events/actions";
+import {
+  EventFormPage,
+  type UserOption,
+} from "@/components/camporee-events/event-form-page";
+import type { BackendCamporeeEvent } from "@/lib/api/camporee-events";
+import type { Camporee } from "@/lib/api/camporees";
 
 type Params = Promise<{ id: string; eventId: string }>;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("camporeeEvents.instances");
-  return { title: t("editTitle") };
+  return { title: "Editar evento" };
 }
 
-function buildEventTypeOptions(payload: unknown): EventTypeOption[] {
-  const items = extractItems(payload);
-  return items
-    .map((item) => {
-      const id =
-        typeof item.event_type_id === "number"
-          ? item.event_type_id
-          : Number(item.event_type_id);
-      const name = typeof item.name === "string" ? item.name.trim() : "";
-      if (!Number.isFinite(id) || id <= 0 || !name) return null;
-      return { value: id, label: name };
-    })
-    .filter((x): x is EventTypeOption => x !== null);
+// ─── Normalizers ───────────────────────────────────────────────────────────────
+
+type AnyRecord = Record<string, unknown>;
+
+function toPositiveNumber(v: unknown): number | null {
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) && n > 0 ? n : null;
 }
 
-function toEventAsTemplate(raw: unknown): CamporeeEventTemplate | null {
-  if (!raw || typeof raw !== "object") return null;
-  const r = raw as Record<string, unknown>;
-  const record =
-    r.camporee_event_id != null ? r : ((r.data as Record<string, unknown>) ?? r);
+function extractCamporee(payload: unknown): AnyRecord | null {
+  if (!payload || typeof payload !== "object") return null;
+  const root = payload as AnyRecord;
+  if (root.data && typeof root.data === "object") {
+    const nested = root.data as AnyRecord;
+    if (nested.local_camporee_id != null || nested.name != null) return nested;
+  }
+  if (root.local_camporee_id != null || root.name != null) return root;
+  return null;
+}
 
-  const id =
-    typeof record.camporee_event_id === "number"
-      ? record.camporee_event_id
-      : Number(record.camporee_event_id);
-
-  if (!Number.isFinite(id) || id <= 0) return null;
-
+function normalizeCamporee(raw: AnyRecord): Camporee {
   return {
-    // Reuse event_template_id slot with camporee_event_id so EventTemplateFormPage
-    // sends the right hidden "id" field.
-    event_template_id: id,
-    scope: "union", // unused for instances — just satisfies the type
-    event_type_id:
-      typeof record.event_type_id === "number" ? record.event_type_id : 0,
-    title: typeof record.title === "string" ? record.title : "",
-    description: typeof record.description === "string" ? record.description : null,
-    requirements: typeof record.requirements === "string" ? record.requirements : null,
-    development: typeof record.development === "string" ? record.development : null,
-    prerequisites: typeof record.prerequisites === "string" ? record.prerequisites : null,
-    materials: typeof record.materials === "string" ? record.materials : null,
-    auxiliaries: typeof record.auxiliaries === "string" ? record.auxiliaries : null,
-    max_points: typeof record.max_points === "number" ? record.max_points : 0,
-    min_points: typeof record.min_points === "number" ? record.min_points : 0,
-    penalties: Array.isArray(record.penalties) ? (record.penalties as PenaltyRule[]) : [],
-    participants_mode: record.participants_mode === "by_class" ? "by_class" : "count",
-    participants_count:
-      typeof record.participants_count === "number" ? record.participants_count : null,
-    participants_by_class: Array.isArray(record.participants_by_class)
-      ? (record.participants_by_class as ParticipantsByClass[])
-      : null,
-    duration_seconds:
-      typeof record.duration_seconds === "number" ? record.duration_seconds : null,
-    active: record.active !== false,
+    camporee_id: toPositiveNumber(raw.local_camporee_id ?? raw.camporee_id ?? raw.id) ?? undefined,
+    name: String(raw.name ?? ""),
+    start_date: String(raw.start_date ?? ""),
+    end_date: String(raw.end_date ?? ""),
+    local_field_id: toPositiveNumber(raw.local_field_id) ?? undefined,
+    includes_adventurers: raw.includes_adventurers === true,
+    includes_pathfinders: raw.includes_pathfinders !== false,
+    includes_master_guides: raw.includes_master_guides === true,
+    active: raw.active !== false,
   };
 }
+
+function extractList<T>(payload: unknown): T[] {
+  if (Array.isArray(payload)) return payload as T[];
+  if (payload && typeof payload === "object") {
+    const root = payload as AnyRecord;
+    if (Array.isArray(root.data)) return root.data as T[];
+  }
+  return [];
+}
+
+function extractEvent(payload: unknown): BackendCamporeeEvent | null {
+  if (!payload || typeof payload !== "object") return null;
+  const root = payload as AnyRecord;
+  const candidate =
+    root.data && typeof root.data === "object" ? (root.data as AnyRecord) : root;
+  if (typeof candidate.camporee_event_id === "number") {
+    return candidate as unknown as BackendCamporeeEvent;
+  }
+  return null;
+}
+
+// ─── Page ──────────────────────────────────────────────────────────────────────
 
 export default async function LocalCamporeeEventEditPage({ params }: { params: Params }) {
   const user = await requireAdminUser();
 
   const canEdit = hasAnyPermission(user, [CAMPOREE_EVENTS_UPDATE, CAMPOREES_UPDATE]);
-  if (!canEdit) {
-    redirect("/dashboard/camporees");
-  }
+  if (!canEdit) redirect("/dashboard/camporees");
 
   const { id: idParam, eventId: eventIdParam } = await params;
-  const camporeeId = Number(idParam);
-  const eventId = Number(eventIdParam);
-  if (!Number.isFinite(camporeeId) || camporeeId <= 0) notFound();
-  if (!Number.isFinite(eventId) || eventId <= 0) notFound();
+  const camporeeId = toPositiveNumber(idParam);
+  const eventId = toPositiveNumber(eventIdParam);
+  if (!camporeeId) notFound();
+  if (!eventId) notFound();
 
-  const [rawEvent, etRes, classesRes] = await Promise.allSettled([
+  let venues: CamporeeVenue[] = [];
+
+  // Fetch all in parallel — best effort for venues
+  const [camporeeRes, eventRes, venuesRes] = await Promise.allSettled([
+    getCamporeeById(camporeeId),
     apiRequest<unknown>(`/camporee-events/${eventId}`),
-    listAdminCamporeeEventTypes({ active: true, limit: 200 }),
-    listClasses({ limit: 200 }),
+    listLocalCamporeeVenues(camporeeId),
   ]);
 
-  const item =
-    rawEvent.status === "fulfilled" ? toEventAsTemplate(rawEvent.value) : null;
-  if (!item) notFound();
+  if (camporeeRes.status !== "fulfilled") notFound();
+  const raw = extractCamporee(camporeeRes.value);
+  if (!raw) notFound();
+  const camporee = normalizeCamporee(raw);
 
-  const eventTypes =
-    etRes.status === "fulfilled" ? buildEventTypeOptions(etRes.value) : [];
+  if (eventRes.status !== "fulfilled") notFound();
+  const extractedEvent = extractEvent(eventRes.value);
+  if (!extractedEvent) notFound();
+  const event = extractedEvent;
 
-  let classes: ProgressiveClass[] = [];
-  if (classesRes.status === "fulfilled") {
-    const payload = classesRes.value;
-    classes = Array.isArray(payload?.data) ? (payload.data as ProgressiveClass[]) : [];
+  if (venuesRes.status === "fulfilled") {
+    venues = extractList<CamporeeVenue>(venuesRes.value);
   }
 
-  // Bind camporee_id and id (event id) to the update action.
+  const users: UserOption[] = [];
+
   async function boundAction(
-    prev: CamporeeEventActionState,
+    prev: import("@/lib/camporee-events/actions").CamporeeEventActionState,
     formData: FormData,
   ) {
     "use server";
     formData.set("id", String(eventId));
     formData.set("camporee_id", String(camporeeId));
-    formData.set("is_union", "false");
-    return updateCamporeeEventAction(prev, formData);
+    return updateCamporeeAgendaEventAction(prev, formData);
   }
 
   return (
-    <EventTemplateFormPage
+    <EventFormPage
       mode="edit"
-      item={item}
-      eventTypes={eventTypes}
-      unions={[]}
-      localFields={[]}
-      classes={classes}
+      camporeeId={camporeeId}
+      camporee={camporee}
+      venues={venues}
+      users={users}
+      event={event}
       action={boundAction}
     />
   );

@@ -1,92 +1,124 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
-import { notFound } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+import { redirect, notFound } from "next/navigation";
 import { requireAdminUser } from "@/lib/auth/session";
 import { hasAnyPermission } from "@/lib/auth/permission-utils";
 import {
   CAMPOREE_EVENTS_CREATE,
   CAMPOREES_CREATE,
 } from "@/lib/auth/permissions";
-import { listAdminCamporeeEventTypes } from "@/lib/api/generic-catalogs-i18n";
-import { listClasses } from "@/lib/api/classes";
-import { createLocalCamporeeEventAction } from "@/lib/camporee-events/actions";
+import { getCamporeeById } from "@/lib/api/camporees";
 import {
-  EventTemplateFormPage,
-  type EventTypeOption,
-} from "@/components/camporee-events/event-template-form-page";
-import { extractItems } from "@/lib/phase-e-catalogs/fetch-helpers";
-import type { ProgressiveClass } from "@/lib/api/classes";
+  listLocalCamporeeVenues,
+  type CamporeeVenue,
+} from "@/lib/api/camporee-venues";
+import { createCamporeeAgendaEventAction } from "@/lib/camporee-events/actions";
+import {
+  EventFormPage,
+  type UserOption,
+} from "@/components/camporee-events/event-form-page";
+import type { Camporee } from "@/lib/api/camporees";
 
 type Params = Promise<{ id: string }>;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("camporeeEvents.instances");
-  return { title: t("createTitle") };
+  return { title: "Nuevo evento" };
 }
 
-function buildEventTypeOptions(payload: unknown): EventTypeOption[] {
-  const items = extractItems(payload);
-  return items
-    .map((item) => {
-      const id =
-        typeof item.event_type_id === "number"
-          ? item.event_type_id
-          : Number(item.event_type_id);
-      const name = typeof item.name === "string" ? item.name.trim() : "";
-      if (!Number.isFinite(id) || id <= 0 || !name) return null;
-      return { value: id, label: name };
-    })
-    .filter((x): x is EventTypeOption => x !== null);
+// ─── Normalizers ───────────────────────────────────────────────────────────────
+
+type AnyRecord = Record<string, unknown>;
+
+function toPositiveNumber(v: unknown): number | null {
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) && n > 0 ? n : null;
 }
+
+function extractCamporee(payload: unknown): AnyRecord | null {
+  if (!payload || typeof payload !== "object") return null;
+  const root = payload as AnyRecord;
+  if (root.data && typeof root.data === "object") {
+    const nested = root.data as AnyRecord;
+    if (nested.local_camporee_id != null || nested.name != null) return nested;
+  }
+  if (root.local_camporee_id != null || root.name != null) return root;
+  return null;
+}
+
+function normalizeCamporee(raw: AnyRecord): Camporee {
+  return {
+    camporee_id: toPositiveNumber(raw.local_camporee_id ?? raw.camporee_id ?? raw.id) ?? undefined,
+    name: String(raw.name ?? ""),
+    start_date: String(raw.start_date ?? ""),
+    end_date: String(raw.end_date ?? ""),
+    local_field_id: toPositiveNumber(raw.local_field_id) ?? undefined,
+    includes_adventurers: raw.includes_adventurers === true,
+    includes_pathfinders: raw.includes_pathfinders !== false,
+    includes_master_guides: raw.includes_master_guides === true,
+    active: raw.active !== false,
+  };
+}
+
+function extractList<T>(payload: unknown): T[] {
+  if (Array.isArray(payload)) return payload as T[];
+  if (payload && typeof payload === "object") {
+    const root = payload as AnyRecord;
+    if (Array.isArray(root.data)) return root.data as T[];
+  }
+  return [];
+}
+
+// ─── Page ──────────────────────────────────────────────────────────────────────
 
 export default async function LocalCamporeeEventNewPage({ params }: { params: Params }) {
   const user = await requireAdminUser();
 
   const canCreate = hasAnyPermission(user, [CAMPOREE_EVENTS_CREATE, CAMPOREES_CREATE]);
-  if (!canCreate) {
-    redirect("/dashboard/camporees");
-  }
+  if (!canCreate) redirect("/dashboard/camporees");
 
   const { id: idParam } = await params;
-  const camporeeId = Number(idParam);
-  if (!Number.isFinite(camporeeId) || camporeeId <= 0) notFound();
+  const camporeeId = toPositiveNumber(idParam);
+  if (!camporeeId) notFound();
 
-  let eventTypes: EventTypeOption[] = [];
-  let classes: ProgressiveClass[] = [];
+  let camporee: Camporee;
+  let venues: CamporeeVenue[] = [];
 
-  const [etRes, classesRes] = await Promise.allSettled([
-    listAdminCamporeeEventTypes({ active: true, limit: 200 }),
-    listClasses({ limit: 200 }),
-  ]);
-
-  if (etRes.status === "fulfilled") {
-    eventTypes = buildEventTypeOptions(etRes.value);
-  }
-  if (classesRes.status === "fulfilled") {
-    const payload = classesRes.value;
-    classes = Array.isArray(payload?.data) ? (payload.data as ProgressiveClass[]) : [];
+  try {
+    const payload = await getCamporeeById(camporeeId);
+    const raw = extractCamporee(payload);
+    if (!raw) notFound();
+    camporee = normalizeCamporee(raw);
+  } catch {
+    notFound();
   }
 
-  // Bind camporee_id so the action knows which camporee to create for.
-  // We wrap the action to inject camporee_id into formData before delegating.
+  try {
+    const venuesPayload = await listLocalCamporeeVenues(camporeeId);
+    venues = extractList<CamporeeVenue>(venuesPayload);
+  } catch {
+    // Degrade gracefully — venues not required to create an event
+  }
+
+  // Users list: not fetching from backend in this version — empty list allowed
+  // (the form shows "Sin responsable" as default). A future PR can wire
+  // a member-list endpoint here.
+  const users: UserOption[] = [];
+
   async function boundAction(
     prev: import("@/lib/camporee-events/actions").CamporeeEventActionState,
     formData: FormData,
   ) {
     "use server";
     formData.set("camporee_id", String(camporeeId));
-    return createLocalCamporeeEventAction(prev, formData);
+    return createCamporeeAgendaEventAction(prev, formData);
   }
 
   return (
-    <EventTemplateFormPage
+    <EventFormPage
       mode="create"
-      eventTypes={eventTypes}
-      // scope/union/localField not needed for instances — pass empty arrays
-      unions={[]}
-      localFields={[]}
-      classes={classes}
+      camporeeId={camporeeId}
+      camporee={camporee}
+      venues={venues}
+      users={users}
       action={boundAction}
     />
   );
