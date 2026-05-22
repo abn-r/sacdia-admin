@@ -1,10 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { EcclesiasticalYearSelect } from "@/components/shared/selectors/ecclesiastical-year-select";
+import { ClubSelect } from "@/components/shared/selectors/club-select";
+import { ClubSectionSelect } from "@/components/shared/selectors/club-section-select";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -19,12 +22,12 @@ interface MemberRankingsFiltersProps {
 /**
  * GET-form filter bar for the member-rankings list page.
  *
- * Uses plain number inputs for year, club, and section.
- * TODO: Replace with catalog-backed <Select> components once
- *       catalog hooks / fetch helpers are available for each entity.
+ * Uses catalog-backed selectors for year, club, and section.
+ * Controlled state drives hidden inputs so the plain GET form
+ * submission still encodes values as bookmarkable URL params.
  *
- * Submitting the form encodes values as query params (bookmarkable URLs).
- * The reset link navigates to the bare route, clearing all params.
+ * When club_id changes, section_id resets to null — both internally
+ * in ClubSectionSelect and in the parent state via its onChange callback.
  */
 export function MemberRankingsFilters({
   defaultYear,
@@ -33,61 +36,75 @@ export function MemberRankingsFilters({
 }: MemberRankingsFiltersProps) {
   const t = useTranslations("rankings.filters");
 
+  const [yearId, setYearId] = useState<number | null>(defaultYear ?? null);
+  const [clubId, setClubId] = useState<number | null>(defaultClubId ?? null);
+  const [sectionId, setSectionId] = useState<number | null>(
+    defaultSectionId ?? null,
+  );
+
+  function handleClubChange(id: number | null) {
+    setClubId(id);
+    // Reset section whenever the club changes.
+    // ClubSectionSelect also fires its own onChange(null) via its internal
+    // useEffect — that call is idempotent here.
+    setSectionId(null);
+  }
+
   return (
     <form className="flex flex-wrap items-end gap-3" method="GET">
+      {/* Hidden inputs carry selected values as GET params on submit */}
+      {yearId != null && (
+        <input type="hidden" name="year_id" value={yearId} />
+      )}
+      {clubId != null && (
+        <input type="hidden" name="club_id" value={clubId} />
+      )}
+      {sectionId != null && (
+        <input type="hidden" name="section_id" value={sectionId} />
+      )}
+
       {/* Year filter */}
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="filter-year" className="text-xs text-muted-foreground">
+        <Label className="text-xs text-muted-foreground">
           {t("labelYear")}
         </Label>
-        <Input
-          id="filter-year"
-          name="year_id"
-          type="number"
-          min={2000}
-          max={2100}
-          placeholder={t("placeholderYear")}
-          defaultValue={defaultYear}
-          className="h-9 w-32"
-        />
+        <div className="w-52">
+          <EcclesiasticalYearSelect
+            value={yearId}
+            onChange={setYearId}
+            placeholder={t("placeholderYear")}
+            activeOnly={false}
+          />
+        </div>
       </div>
 
       {/* Club filter */}
       <div className="flex flex-col gap-1.5">
-        <Label
-          htmlFor="filter-club"
-          className="text-xs text-muted-foreground"
-        >
+        <Label className="text-xs text-muted-foreground">
           {t("labelClub")}
         </Label>
-        <Input
-          id="filter-club"
-          name="club_id"
-          type="number"
-          min={1}
-          placeholder={t("placeholderClub")}
-          defaultValue={defaultClubId}
-          className="h-9 w-32"
-        />
+        <div className="w-56">
+          <ClubSelect
+            value={clubId}
+            onChange={handleClubChange}
+            placeholder={t("placeholderClub")}
+          />
+        </div>
       </div>
 
       {/* Section filter */}
       <div className="flex flex-col gap-1.5">
-        <Label
-          htmlFor="filter-section"
-          className="text-xs text-muted-foreground"
-        >
+        <Label className="text-xs text-muted-foreground">
           {t("labelSection")}
         </Label>
-        <Input
-          id="filter-section"
-          name="section_id"
-          type="number"
-          min={1}
-          placeholder={t("placeholderSection")}
-          defaultValue={defaultSectionId}
-          className="h-9 w-32"
-        />
+        <div className="w-56">
+          <ClubSectionSelect
+            clubId={clubId}
+            value={sectionId}
+            onChange={setSectionId}
+            placeholder={t("placeholderSection")}
+          />
+        </div>
       </div>
 
       {/* Actions */}

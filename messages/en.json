@@ -1208,13 +1208,13 @@
       "club_send_failed": "The club notification could not be sent"
     },
     "validation": {
-      "user_id_required": "Enter the user ID",
+      "user_id_required": "Select a member",
       "title_required": "Enter the title",
       "body_required": "Enter the message",
       "instance_type_required": "Select the club type",
       "instance_type_invalid": "The club type is invalid",
-      "instance_id_required": "Enter the instance ID",
-      "instance_id_invalid": "The instance ID is invalid"
+      "instance_id_required": "Select a section",
+      "instance_id_invalid": "The selected section is invalid"
     },
     "success": {
       "sent": "Notification sent successfully",
@@ -1229,8 +1229,8 @@
       "broadcast_warning": "This action will send the notification to all users with a registered FCM token.",
       "club_title": "By club",
       "club_description": "Send a notification to all members of a club.",
-      "label_user_id": "User ID",
-      "placeholder_user_id": "User UUID",
+      "label_user_id": "Member",
+      "placeholder_user_id": "Search member...",
       "label_title": "Title",
       "placeholder_title_notification": "Notification title",
       "placeholder_title_broadcast": "Broadcast title",
@@ -1241,8 +1241,8 @@
       "option_adventurers": "Adventurers",
       "option_pathfinders": "Pathfinders",
       "option_master_guilds": "Master Guides",
-      "label_instance_id": "Instance ID",
-      "placeholder_instance_id": "Numeric club ID",
+      "label_instance_id": "Section",
+      "placeholder_instance_id": "Select a section",
       "submit_send": "Send notification",
       "submit_broadcast": "Send broadcast",
       "submit_club": "Send to club"
@@ -2446,7 +2446,17 @@
       "helpInsurance": "Registration will fail if the insurance is not validated.",
       "cancel": "Cancel",
       "registering": "Registering...",
-      "register": "Register member"
+      "register": "Register member",
+      "description": "Select the club and member to register them for the camporee.",
+      "labelClub": "Club",
+      "labelMember": "Member",
+      "placeholderMember": "Search member...",
+      "placeholderSelectClubFirst": "Select a club first",
+      "insuranceLoading": "Looking for active insurance...",
+      "insuranceActive": "Active insurance",
+      "insuranceExpires": "Expires",
+      "noInsuranceTitle": "No active insurance",
+      "noInsuranceDescription": "This member has no active insurance and cannot be registered."
     },
     "pages": {
       "list": {
@@ -5531,6 +5541,34 @@
       "statusInactive": "Inactive",
       "reorderUp": "Move up",
       "reorderDown": "Move down"
+    }
+  },
+  "selectors": {
+    "ecclesiasticalYear": {
+      "placeholder": "Select an ecclesiastical year",
+      "searchPlaceholder": "Search year...",
+      "loading": "Loading years...",
+      "empty": "No results",
+      "loadError": "Failed to load years",
+      "clearSelection": "Clear selection",
+      "activeBadge": "Active"
+    },
+    "club": {
+      "placeholder": "Select a club",
+      "searchPlaceholder": "Search club...",
+      "loading": "Loading clubs...",
+      "empty": "No results",
+      "loadError": "Failed to load clubs",
+      "clearSelection": "Clear selection"
+    },
+    "clubSection": {
+      "placeholder": "Select a section",
+      "placeholderNoClub": "Select a club first",
+      "searchPlaceholder": "Search section...",
+      "loading": "Loading sections...",
+      "empty": "No results",
+      "loadError": "Failed to load sections",
+      "clearSelection": "Clear selection"
     }
   }
 }

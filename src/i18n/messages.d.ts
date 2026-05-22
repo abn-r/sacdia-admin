@@ -2480,6 +2480,16 @@ export interface IntlMessages {
       cancel: string;
       registering: string;
       register: string;
+      description: string;
+      labelClub: string;
+      labelMember: string;
+      placeholderMember: string;
+      placeholderSelectClubFirst: string;
+      insuranceLoading: string;
+      insuranceActive: string;
+      insuranceExpires: string;
+      noInsuranceTitle: string;
+      noInsuranceDescription: string;
     };
     pages: {
       list: {
@@ -4929,15 +4939,6 @@ export interface IntlMessages {
         statDuration: string;
       };
     };
-    display: {
-      yearSingular: string;
-      yearPlural: string;
-      yearFallback: string;
-      availableFromAnyYear: string;
-      noProgrammedExpiration: string;
-      availableFromYear: string;
-      availableUntilYear: string;
-    };
     expiration: {
       title: string;
       description: string;
@@ -4949,6 +4950,15 @@ export interface IntlMessages {
       modeApply: string;
       result: string;
       confirmApply: string;
+    };
+    display: {
+      yearSingular: string;
+      yearPlural: string;
+      yearFallback: string;
+      availableFromAnyYear: string;
+      noProgrammedExpiration: string;
+      availableFromYear: string;
+      availableUntilYear: string;
     };
   };
   membership: {
@@ -5579,6 +5589,34 @@ export interface IntlMessages {
       statusInactive: string;
       reorderUp: string;
       reorderDown: string;
+    };
+  };
+  selectors: {
+    ecclesiasticalYear: {
+      placeholder: string;
+      searchPlaceholder: string;
+      loading: string;
+      empty: string;
+      loadError: string;
+      clearSelection: string;
+      activeBadge: string;
+    };
+    club: {
+      placeholder: string;
+      searchPlaceholder: string;
+      loading: string;
+      empty: string;
+      loadError: string;
+      clearSelection: string;
+    };
+    clubSection: {
+      placeholder: string;
+      placeholderNoClub: string;
+      searchPlaceholder: string;
+      loading: string;
+      empty: string;
+      loadError: string;
+      clearSelection: string;
     };
   };
 }

@@ -15,7 +15,6 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -26,14 +25,21 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { registerCamporeeMember } from "@/lib/api/camporees";
+import {
+  getMemberInsuranceFromClient,
+  type InsuranceRecord,
+} from "@/lib/api/insurance";
+import { ClubSelect } from "@/components/shared/selectors/club-select";
+import { MemberCombobox } from "@/components/units/member-combobox";
 
 // ─── Schema ────────────────────────────────────────────────────────────────────
 
@@ -45,6 +51,17 @@ const formSchema = z.object({
 });
 
 type FormValues = z.infer<typeof formSchema>;
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function formatDate(dateStr: string | null): string {
+  if (!dateStr) return "—";
+  return new Date(dateStr).toLocaleDateString("es-AR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+}
 
 // ─── Props ─────────────────────────────────────────────────────────────────────
 
@@ -67,6 +84,15 @@ export function RegisterMemberDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [insuranceError, setInsuranceError] = useState<string | null>(null);
 
+  // Club → Member cascade state (not a form field — only used to scope the member list)
+  const [selectedClubId, setSelectedClubId] = useState<number | null>(null);
+
+  // Insurance auto-fill state
+  const [selectedInsurance, setSelectedInsurance] =
+    useState<InsuranceRecord | null>(null);
+  const [insuranceFetching, setInsuranceFetching] = useState(false);
+  const [noInsuranceWarning, setNoInsuranceWarning] = useState(false);
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema as z.ZodType<FormValues, FormValues>),
     defaultValues: {
@@ -83,8 +109,42 @@ export function RegisterMemberDialog({
     if (!nextOpen) {
       form.reset();
       setInsuranceError(null);
+      setSelectedClubId(null);
+      setSelectedInsurance(null);
+      setInsuranceFetching(false);
+      setNoInsuranceWarning(false);
     }
     onOpenChange(nextOpen);
+  }
+
+  async function handleMemberChange(userId: string) {
+    form.setValue("user_id", userId, { shouldValidate: true });
+    // Clear previous insurance state
+    setSelectedInsurance(null);
+    setNoInsuranceWarning(false);
+    form.setValue("insurance_id", "");
+
+    if (!userId) return;
+
+    // Auto-fetch insurance for the selected member
+    setInsuranceFetching(true);
+    try {
+      const insurance = await getMemberInsuranceFromClient(userId);
+      if (insurance && insurance.active) {
+        setSelectedInsurance(insurance);
+        form.setValue("insurance_id", insurance.insurance_id);
+        setNoInsuranceWarning(false);
+      } else {
+        setSelectedInsurance(null);
+        setNoInsuranceWarning(true);
+      }
+    } catch {
+      // Non-fatal: show no-insurance warning rather than crashing the form
+      setSelectedInsurance(null);
+      setNoInsuranceWarning(true);
+    } finally {
+      setInsuranceFetching(false);
+    }
   }
 
   const onSubmit: SubmitHandler<FormValues> = async (values) => {
@@ -107,7 +167,6 @@ export function RegisterMemberDialog({
       const message =
         err instanceof Error ? err.message : t("errors.register_member");
 
-      // Insurance-related errors get a dedicated callout
       if (
         message.toLowerCase().includes("seguro") ||
         message.toLowerCase().includes("insurance") ||
@@ -122,51 +181,128 @@ export function RegisterMemberDialog({
     }
   };
 
+  const submitDisabled = isSubmitting || noInsuranceWarning;
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{t("registerMemberDialog.title")}</DialogTitle>
           <DialogDescription>
-            Ingresá el UUID del usuario y los datos necesarios para inscribirlo en el camporee.
+            {t("registerMemberDialog.description")}
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="space-y-4">
-            {/* Insurance error callout */}
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            noValidate
+            className="space-y-4"
+          >
+            {/* Insurance error callout (submit-time) */}
             {insuranceError && (
               <div
                 role="alert"
                 aria-live="polite"
                 className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive"
               >
-                <p className="font-medium">{t("registerMemberDialog.insuranceErrorTitle")}</p>
+                <p className="font-medium">
+                  {t("registerMemberDialog.insuranceErrorTitle")}
+                </p>
                 <p className="mt-0.5">{insuranceError}</p>
               </div>
             )}
 
-            {/* User ID */}
+            {/* Club selector (cascade filter — not a form field) */}
+            <div className="space-y-2">
+              <p className="text-sm font-medium leading-none">
+                {t("registerMemberDialog.labelClub")}{" "}
+                <span aria-hidden="true" className="text-destructive">*</span>
+              </p>
+              <ClubSelect
+                value={selectedClubId}
+                onChange={(clubId) => {
+                  setSelectedClubId(clubId);
+                  // Reset member when club changes
+                  form.setValue("user_id", "");
+                  setSelectedInsurance(null);
+                  setNoInsuranceWarning(false);
+                  form.setValue("insurance_id", "");
+                }}
+              />
+            </div>
+
+            {/* Member selector (scoped to club) */}
             <FormField
               control={form.control}
               name="user_id"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    {t("registerMemberDialog.labelUserId")} <span aria-hidden="true" className="text-destructive">*</span>
+                    {t("registerMemberDialog.labelMember")}{" "}
+                    <span aria-hidden="true" className="text-destructive">
+                      *
+                    </span>
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      aria-required="true"
-                      placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                      className="font-mono text-sm"
-                      {...field}
-                    />
+                    {selectedClubId ? (
+                      <MemberCombobox
+                        clubId={selectedClubId}
+                        value={field.value}
+                        onChange={handleMemberChange}
+                        placeholder={t("registerMemberDialog.placeholderMember")}
+                      />
+                    ) : (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled
+                        className="h-9 w-full justify-start px-3 font-normal text-muted-foreground"
+                      >
+                        {t("registerMemberDialog.placeholderSelectClubFirst")}
+                      </Button>
+                    )}
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            {/* Insurance auto-fill status */}
+            {insuranceFetching && (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Loader2 className="size-3.5 animate-spin" />
+                {t("registerMemberDialog.insuranceLoading")}
+              </div>
+            )}
+
+            {!insuranceFetching && selectedInsurance && (
+              <div className="rounded-md bg-muted/40 p-3 text-xs">
+                <p className="font-medium">
+                  {t("registerMemberDialog.insuranceActive")}:{" "}
+                  {selectedInsurance.policy_number ?? String(selectedInsurance.insurance_id)}
+                </p>
+                <p className="text-muted-foreground">
+                  {t("registerMemberDialog.insuranceExpires")}:{" "}
+                  {formatDate(selectedInsurance.end_date)}
+                </p>
+              </div>
+            )}
+
+            {!insuranceFetching && noInsuranceWarning && (
+              <div
+                role="alert"
+                aria-live="polite"
+                className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive"
+              >
+                <p className="font-medium">
+                  {t("registerMemberDialog.noInsuranceTitle")}
+                </p>
+                <p className="mt-0.5">
+                  {t("registerMemberDialog.noInsuranceDescription")}
+                </p>
+              </div>
+            )}
 
             {/* Tipo de camporee */}
             <FormField
@@ -175,19 +311,32 @@ export function RegisterMemberDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    {t("registerMemberDialog.labelCamporeeType")} <span aria-hidden="true" className="text-destructive">*</span>
+                    {t("registerMemberDialog.labelCamporeeType")}{" "}
+                    <span aria-hidden="true" className="text-destructive">
+                      *
+                    </span>
                   </FormLabel>
                   <FormControl>
                     <Select
                       value={field.value}
-                      onValueChange={(val) => field.onChange(val as "local" | "union")}
+                      onValueChange={(val) =>
+                        field.onChange(val as "local" | "union")
+                      }
                     >
                       <SelectTrigger aria-required="true">
-                        <SelectValue placeholder={t("registerMemberDialog.placeholderCamporeeType")} />
+                        <SelectValue
+                          placeholder={t(
+                            "registerMemberDialog.placeholderCamporeeType",
+                          )}
+                        />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="local">{t("registerMemberDialog.typeLocal")}</SelectItem>
-                        <SelectItem value="union">{t("registerMemberDialog.typeUnion")}</SelectItem>
+                        <SelectItem value="local">
+                          {t("registerMemberDialog.typeLocal")}
+                        </SelectItem>
+                        <SelectItem value="union">
+                          {t("registerMemberDialog.typeUnion")}
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </FormControl>
@@ -205,38 +354,22 @@ export function RegisterMemberDialog({
                   <FormLabel>
                     {t("registerMemberDialog.labelClubName")}
                     {camporeeType === "union" && (
-                      <span className="text-muted-foreground"> {t("registerMemberDialog.clubNameRequiredForUnion")}</span>
+                      <span className="text-muted-foreground">
+                        {" "}
+                        {t(
+                          "registerMemberDialog.clubNameRequiredForUnion",
+                        )}
+                      </span>
                     )}
                   </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder={t("registerMemberDialog.placeholderClubName")}
+                      placeholder={t(
+                        "registerMemberDialog.placeholderClubName",
+                      )}
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Insurance ID */}
-            <FormField
-              control={form.control}
-              name="insurance_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("registerMemberDialog.labelInsuranceId")}</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min={1}
-                      placeholder={t("registerMemberDialog.placeholderInsuranceId")}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    {t("registerMemberDialog.helpInsurance")}
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -251,8 +384,10 @@ export function RegisterMemberDialog({
               >
                 {t("registerMemberDialog.cancel")}
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? t("registerMemberDialog.registering") : t("registerMemberDialog.register")}
+              <Button type="submit" disabled={submitDisabled}>
+                {isSubmitting
+                  ? t("registerMemberDialog.registering")
+                  : t("registerMemberDialog.register")}
               </Button>
             </DialogFooter>
           </form>
