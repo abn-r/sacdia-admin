@@ -1258,6 +1258,10 @@ export interface IntlMessages {
       broadcast_warning: string;
       club_title: string;
       club_description: string;
+      label_instance_target: string;
+      placeholder_instance_target: string;
+      no_club_targets: string;
+      club_targets_load_error: string;
       label_user_id: string;
       placeholder_user_id: string;
       label_title: string;

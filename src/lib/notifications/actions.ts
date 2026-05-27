@@ -9,6 +9,12 @@ import {
   type NotificationInstanceType,
 } from "@/lib/api/notifications";
 import { requireAdminUser } from "@/lib/auth/session";
+import { hasPermission } from "@/lib/auth/permission-utils";
+import {
+  NOTIFICATIONS_BROADCAST,
+  NOTIFICATIONS_CLUB,
+  NOTIFICATIONS_SEND,
+} from "@/lib/auth/permissions";
 
 type NotificationsTranslator = Awaited<
   ReturnType<typeof getTranslations<"notifications">>
@@ -45,22 +51,33 @@ function readString(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
 }
 
-function validateCommonFields(
-  t: NotificationsTranslator,
-  title: string,
-  body: string,
-): string | null {
-  if (!title) return t("validation.title_required");
-  if (!body) return t("validation.body_required");
-  return null;
+function parseSelectedTarget(value: string): {
+  instanceType: NotificationInstanceType;
+  instanceId: number;
+} | null {
+  if (!value) return null;
+  const [typeRaw, idRaw] = value.split(":");
+  if (!typeRaw || !idRaw || !isValidInstanceType(typeRaw)) {
+    return null;
+  }
+  const instanceId = Number(idRaw);
+  if (!Number.isFinite(instanceId) || instanceId <= 0) {
+    return null;
+  }
+
+  return { instanceType: typeRaw, instanceId };
 }
 
 export async function sendDirectNotificationAction(
   _: NotificationActionState,
   formData: FormData,
 ): Promise<NotificationActionState> {
-  await requireAdminUser();
+  const user = await requireAdminUser();
   const t = await getTranslations("notifications");
+
+  if (!hasPermission(user, NOTIFICATIONS_SEND)) {
+    return { error: t("errors.send_failed") };
+  }
 
   const userId = readString(formData, "user_id");
   const title = readString(formData, "title");
@@ -73,7 +90,7 @@ export async function sendDirectNotificationAction(
   }
 
   try {
-    await sendNotification({ user_id: userId, title, body });
+    await sendNotification({ userId, title, body });
   } catch (error) {
     return {
       error: getActionErrorMessage(error, t("errors.send_failed"), {
@@ -89,8 +106,12 @@ export async function broadcastNotificationAction(
   _: NotificationActionState,
   formData: FormData,
 ): Promise<NotificationActionState> {
-  await requireAdminUser();
+  const user = await requireAdminUser();
   const t = await getTranslations("notifications");
+
+  if (!hasPermission(user, NOTIFICATIONS_BROADCAST)) {
+    return { error: t("errors.broadcast_failed") };
+  }
 
   const title = readString(formData, "title");
   const body = readString(formData, "body");
@@ -117,42 +138,33 @@ export async function clubNotificationAction(
   _: NotificationActionState,
   formData: FormData,
 ): Promise<NotificationActionState> {
-  await requireAdminUser();
+  const user = await requireAdminUser();
   const t = await getTranslations("notifications");
 
-  const instanceType = readString(formData, "instance_type");
-  const instanceIdRaw = readString(formData, "instance_id");
+  if (!hasPermission(user, NOTIFICATIONS_CLUB)) {
+    return { error: t("errors.club_send_failed") };
+  }
+
+  const targetRaw = readString(formData, "instance_target");
+  const selectedTarget = parseSelectedTarget(targetRaw);
   const title = readString(formData, "title");
   const body = readString(formData, "body");
 
   const fieldErrors = collectCommonFieldErrors(t, title, body);
-  if (!instanceType) {
-    fieldErrors.instance_type = t("validation.instance_type_required");
-  } else if (!isValidInstanceType(instanceType)) {
-    fieldErrors.instance_type = t("validation.instance_type_invalid");
-  }
-
-  if (!instanceIdRaw) {
+  if (!targetRaw) {
     fieldErrors.instance_id = t("validation.instance_id_required");
-  } else {
-    const parsedId = Number(instanceIdRaw);
-    if (!Number.isFinite(parsedId) || parsedId <= 0) {
-      fieldErrors.instance_id = t("validation.instance_id_invalid");
-    }
+  } else if (!selectedTarget) {
+    fieldErrors.instance_id = t("validation.instance_id_invalid");
   }
 
-  if (Object.keys(fieldErrors).length > 0) {
+  if (Object.keys(fieldErrors).length > 0 || !selectedTarget) {
     return { fieldErrors };
   }
 
-  const instanceId = Number(instanceIdRaw);
+  const { instanceType, instanceId } = selectedTarget;
 
   try {
-    await sendClubNotification(
-      instanceType as NotificationInstanceType,
-      instanceId,
-      { title, body },
-    );
+    await sendClubNotification(instanceType, instanceId, { title, body });
   } catch (error) {
     return {
       error: getActionErrorMessage(error, t("errors.club_send_failed"), {

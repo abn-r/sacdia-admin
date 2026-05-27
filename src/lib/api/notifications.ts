@@ -1,7 +1,7 @@
 import { apiRequest } from "@/lib/api/client";
 
 export type SendNotificationPayload = {
-  user_id: string;
+  userId: string;
   title: string;
   body: string;
   data?: Record<string, string>;
@@ -35,11 +35,11 @@ export type NotificationLog = {
   type: string;
   target_type: string;
   target_id: string | null;
-  sent_by: string;
+  sent_by: string | null;
   tokens_sent: number;
   tokens_failed: number;
   created_at: string;
-  users: NotificationLogSender;
+  users: NotificationLogSender | null;
 };
 
 export type NotificationHistoryResponse = {

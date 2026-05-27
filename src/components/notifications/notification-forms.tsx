@@ -23,13 +23,23 @@ import {
   type NotificationActionState,
 } from "@/lib/notifications/actions";
 import { ClubSelect } from "@/components/shared/selectors/club-select";
-import { ClubSectionSelect } from "@/components/shared/selectors/club-section-select";
 import { MemberCombobox } from "@/components/units/member-combobox";
+import type { NotificationClubTarget } from "@/lib/notifications/club-targets";
 
-function SubmitButton({ label }: { label: string }) {
+function SubmitButton({
+  label,
+  disabled = false,
+}: {
+  label: string;
+  disabled?: boolean;
+}) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending} className="w-full sm:w-auto">
+    <Button
+      type="submit"
+      disabled={pending || disabled}
+      className="w-full sm:w-auto"
+    >
       {pending && <Loader2 className="size-4 animate-spin" />}
       {label}
     </Button>
@@ -81,6 +91,11 @@ function useFieldErrorHelpers(
 }
 
 const initial: NotificationActionState = {};
+
+type ClubNotificationFormProps = {
+  clubTargets?: NotificationClubTarget[];
+  clubTargetsLoadError?: boolean;
+};
 
 export function DirectNotificationForm() {
   const t = useTranslations("notifications.forms");
@@ -231,27 +246,17 @@ export function BroadcastNotificationForm() {
   );
 }
 
-export function ClubNotificationForm() {
+export function ClubNotificationForm({
+  clubTargets = [],
+  clubTargetsLoadError = false,
+}: ClubNotificationFormProps) {
   const t = useTranslations("notifications.forms");
   const [state, action] = useActionState(clubNotificationAction, initial);
   const { ariaInvalid, describedBy, renderError } = useFieldErrorHelpers(
     state,
     "notif-club",
   );
-
-  const [instanceType, setInstanceType] = useState<string>("");
-  const [selectedClubIdForNotif, setSelectedClubIdForNotif] = useState<number | null>(null);
-  const [selectedSectionId, setSelectedSectionId] = useState<number | null>(null);
-
-  function handleInstanceTypeChange(value: string) {
-    setInstanceType(value);
-    setSelectedSectionId(null);
-  }
-
-  function handleClubForNotifChange(id: number | null) {
-    setSelectedClubIdForNotif(id);
-    setSelectedSectionId(null);
-  }
+  const hasTargets = clubTargets.length > 0;
 
   return (
     <Card>
@@ -265,58 +270,47 @@ export function ClubNotificationForm() {
       <CardContent>
         <form action={action} className="space-y-4" noValidate>
           <StatusBanner state={state} />
-          {/* Hidden input carrying instance_id for the server action */}
-          <input
-            type="hidden"
-            name="instance_id"
-            value={selectedSectionId ?? ""}
-          />
-          <div className="space-y-2">
-            <Label htmlFor="club_instance_type">
-              {t("label_instance_type")} <span className="text-destructive">*</span>
-            </Label>
-            <Select
-              name="instance_type"
-              required
-              value={instanceType}
-              onValueChange={handleInstanceTypeChange}
+{clubTargetsLoadError ? (
+            <div
+              role="alert"
+              className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
             >
-              <SelectTrigger
-                id="club_instance_type"
-                aria-invalid={ariaInvalid("instance_type")}
-                aria-describedby={describedBy("instance_type")}
-              >
-                <SelectValue placeholder={t("placeholder_instance_type")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="adventurers">{t("option_adventurers")}</SelectItem>
-                <SelectItem value="pathfinders">{t("option_pathfinders")}</SelectItem>
-                <SelectItem value="master_guilds">{t("option_master_guilds")}</SelectItem>
-              </SelectContent>
-            </Select>
-            {renderError("instance_type")}
-          </div>
-          <div
-            className="space-y-2"
-            aria-invalid={ariaInvalid("instance_id")}
-            aria-describedby={describedBy("instance_id")}
-          >
-            <Label>
-              {t("label_instance_id")} <span className="text-destructive">*</span>
-            </Label>
-            <ClubSelect
-              value={selectedClubIdForNotif}
-              onChange={handleClubForNotifChange}
-            />
-            <ClubSectionSelect
-              clubId={selectedClubIdForNotif}
-              sectionTypeKey={instanceType || undefined}
-              value={selectedSectionId}
-              onChange={setSelectedSectionId}
-              disabled={!selectedClubIdForNotif || !instanceType}
-            />
-            {renderError("instance_id")}
-          </div>
+              {t("club_targets_load_error")}
+            </div>
+          ) : hasTargets ? (
+            <div className="space-y-2">
+              <Label htmlFor="club_instance_target">
+                {t("label_instance_target")} <span className="text-destructive">*</span>
+              </Label>
+              <Select name="instance_target" required>
+                <SelectTrigger
+                  id="club_instance_target"
+                  aria-invalid={ariaInvalid("instance_id")}
+                  aria-describedby={describedBy("instance_id")}
+                >
+                  <SelectValue placeholder={t("placeholder_instance_target")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {clubTargets.map((target) => (
+                    <SelectItem
+                      key={`${target.instanceType}-${target.instanceId}`}
+                      value={`${target.instanceType}:${target.instanceId}`}
+                    >
+                      {target.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {renderError("instance_id")}
+            </div>
+          ) : (
+            <div
+              role="status"
+              className="rounded-md border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-warning-foreground dark:text-warning"
+            >
+              {t("no_club_targets")}
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="club_title">
               {t("label_title")} <span className="text-destructive">*</span>
@@ -348,7 +342,10 @@ export function ClubNotificationForm() {
             />
             {renderError("body")}
           </div>
-          <SubmitButton label={t("submit_club")} />
+          <SubmitButton
+            label={t("submit_club")}
+            disabled={!hasTargets || clubTargetsLoadError}
+          />
         </form>
       </CardContent>
     </Card>
