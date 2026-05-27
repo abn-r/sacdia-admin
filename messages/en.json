@@ -3957,6 +3957,10 @@
       "error_load_reports": "Could not load reports. Please check the server connection."
     },
     "supervisionClient": {
+      "filterDivisionPlaceholder": "Division",
+      "filterDivisionAll": "All divisions",
+      "filterUnionPlaceholder": "Union",
+      "filterUnionAll": "All unions",
       "filterClubTypePlaceholder": "Club type",
       "filterClubTypeAll": "All types",
       "filterLocalFieldPlaceholder": "Local field",

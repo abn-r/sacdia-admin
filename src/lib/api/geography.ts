@@ -7,10 +7,19 @@ export type Country = {
   active?: boolean;
 };
 
+export type Division = {
+  division_id: number;
+  code?: string;
+  name: string;
+  abbreviation?: string;
+  active?: boolean;
+};
+
 export type Union = {
   union_id: number;
   name: string;
   country_id: number;
+  division_id?: number;
   active?: boolean;
 };
 
@@ -39,10 +48,27 @@ export async function listCountries() {
   return apiRequest<Country[]>("/catalogs/countries");
 }
 
-export async function listUnions(countryId?: number) {
+export async function listDivisions() {
+  return apiRequest<Division[]>("/catalogs/divisions");
+}
+
+export async function listUnions(
+  countryIdOrFilters?: number | { countryId?: number; divisionId?: number },
+) {
   const params = new URLSearchParams();
+  const filters =
+    typeof countryIdOrFilters === "object"
+      ? countryIdOrFilters
+      : { countryId: countryIdOrFilters };
+
+  const countryId = filters.countryId;
+  const divisionId = filters.divisionId;
+
   if (countryId) {
     params.set("countryId", String(countryId));
+  }
+  if (divisionId) {
+    params.set("divisionId", String(divisionId));
   }
 
   return apiRequest<Union[]>(`/catalogs/unions${params.toString() ? `?${params.toString()}` : ""}`);

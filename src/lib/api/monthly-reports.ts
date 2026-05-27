@@ -192,6 +192,8 @@ export type AdminReportItem = {
 };
 
 export type AdminReportFilters = {
+  divisionId?: number;
+  unionId?: number;
   clubTypeId?: number;
   localFieldId?: number;
   year?: number;
@@ -213,15 +215,13 @@ type AdminReportsEnvelope = {
   data: AdminReportsPage;
 };
 
-/**
- * GET /api/v1/monthly-reports/admin/list
- * Paginated multi-club report list for admins. Server-side safe.
- */
-export async function listAdminReports(
+export function buildAdminReportsParams(
   filters: AdminReportFilters,
-): Promise<AdminReportsPage> {
+): Record<string, string | number | boolean | undefined> {
   const params: Record<string, string | number | boolean | undefined> = {};
 
+  if (filters.divisionId !== undefined) params.division_id = filters.divisionId;
+  if (filters.unionId !== undefined) params.union_id = filters.unionId;
   if (filters.clubTypeId !== undefined) params.club_type_id = filters.clubTypeId;
   if (filters.localFieldId !== undefined) params.local_field_id = filters.localFieldId;
   if (filters.year !== undefined) params.year = filters.year;
@@ -229,6 +229,18 @@ export async function listAdminReports(
   if (filters.status !== undefined) params.status = filters.status;
   if (filters.page !== undefined) params.page = filters.page;
   if (filters.limit !== undefined) params.limit = filters.limit;
+
+  return params;
+}
+
+/**
+ * GET /api/v1/monthly-reports/admin/list
+ * Paginated multi-club report list for admins. Server-side safe.
+ */
+export async function listAdminReports(
+  filters: AdminReportFilters,
+): Promise<AdminReportsPage> {
+  const params = buildAdminReportsParams(filters);
 
   const envelope = await apiRequest<AdminReportsEnvelope>(
     "/monthly-reports/admin/list",

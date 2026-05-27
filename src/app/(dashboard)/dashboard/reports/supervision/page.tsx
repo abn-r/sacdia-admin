@@ -5,11 +5,11 @@ import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EmptyState } from "@/components/shared/empty-state";
 import { listClubTypes } from "@/lib/api/catalogs";
-import { listLocalFields } from "@/lib/api/geography";
+import { listDivisions, listLocalFields, listUnions } from "@/lib/api/geography";
 import { listAdminReports } from "@/lib/api/monthly-reports";
 import type { AdminReportFilters, AdminReportsPage } from "@/lib/api/monthly-reports";
 import type { ClubType } from "@/lib/api/catalogs";
-import type { LocalField } from "@/lib/api/geography";
+import type { Division, LocalField, Union } from "@/lib/api/geography";
 import { ReportsSupervisionClient } from "./_components/reports-supervision-client";
 
 export const revalidate = 60;
@@ -18,6 +18,8 @@ export const revalidate = 60;
 
 interface SupervisionPageProps {
   searchParams: Promise<{
+    division_id?: string;
+    union_id?: string;
     club_type_id?: string;
     local_field_id?: string;
     year?: string;
@@ -36,8 +38,12 @@ export default async function ReportsSupervisionPage({
   const params = await searchParams;
 
   const currentYear = new Date().getFullYear();
+  const selectedDivisionId = params.division_id ? Number(params.division_id) : undefined;
+  const selectedUnionId = params.union_id ? Number(params.union_id) : undefined;
 
   const filters: AdminReportFilters = {
+    ...(selectedDivisionId ? { divisionId: selectedDivisionId } : {}),
+    ...(selectedUnionId ? { unionId: selectedUnionId } : {}),
     ...(params.club_type_id ? { clubTypeId: Number(params.club_type_id) } : {}),
     ...(params.local_field_id ? { localFieldId: Number(params.local_field_id) } : {}),
     year: params.year ? Number(params.year) : currentYear,
@@ -48,19 +54,31 @@ export default async function ReportsSupervisionPage({
   };
 
   let clubTypes: ClubType[] = [];
+  let divisions: Division[] = [];
+  let unions: Union[] = [];
   let localFields: LocalField[] = [];
   let reportsData: AdminReportsPage = { total: 0, page: 1, limit: 20, items: [] };
   let loadError: string | null = null;
 
-  const [clubTypesResult, localFieldsResult, reportsResult] =
+  const [clubTypesResult, divisionsResult, unionsResult, localFieldsResult, reportsResult] =
     await Promise.allSettled([
       listClubTypes(),
-      listLocalFields(),
+      listDivisions(),
+      listUnions(selectedDivisionId ? { divisionId: selectedDivisionId } : undefined),
+      listLocalFields(selectedUnionId),
       listAdminReports(filters),
     ]);
 
   if (clubTypesResult.status === "fulfilled") {
     clubTypes = clubTypesResult.value;
+  }
+
+  if (divisionsResult.status === "fulfilled") {
+    divisions = divisionsResult.value;
+  }
+
+  if (unionsResult.status === "fulfilled") {
+    unions = unionsResult.value;
   }
 
   if (localFieldsResult.status === "fulfilled") {
@@ -104,6 +122,8 @@ export default async function ReportsSupervisionPage({
         <ReportsSupervisionClient
           initialData={reportsData}
           clubTypes={clubTypes}
+          divisions={divisions}
+          unions={unions}
           localFields={localFields}
           searchParams={params}
         />

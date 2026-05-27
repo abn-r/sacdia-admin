@@ -29,7 +29,7 @@ import {
 import { getReportPdfUrl } from "@/lib/api/monthly-reports";
 import type { AdminReportsPage, AdminReportItem } from "@/lib/api/monthly-reports";
 import type { ClubType } from "@/lib/api/catalogs";
-import type { LocalField } from "@/lib/api/geography";
+import type { Division, LocalField, Union } from "@/lib/api/geography";
 import { useFormatDate } from "@/lib/format-locale";
 
 function ReportStatusBadge({ status }: { status: AdminReportItem["status"] }) {
@@ -48,8 +48,12 @@ function ReportStatusBadge({ status }: { status: AdminReportItem["status"] }) {
 interface ReportsSupervisionClientProps {
   initialData: AdminReportsPage;
   clubTypes: ClubType[];
+  divisions: Division[];
+  unions: Union[];
   localFields: LocalField[];
   searchParams: {
+    division_id?: string;
+    union_id?: string;
     club_type_id?: string;
     local_field_id?: string;
     year?: string;
@@ -64,6 +68,8 @@ interface ReportsSupervisionClientProps {
 export function ReportsSupervisionClient({
   initialData,
   clubTypes,
+  divisions,
+  unions,
   localFields,
   searchParams,
 }: ReportsSupervisionClientProps) {
@@ -100,6 +106,38 @@ export function ReportsSupervisionClient({
     router.push(buildUrl({ [key]: value === "all" ? undefined : value, page: "1" }));
   }
 
+  function handleHierarchyFilter(
+    key: "division_id" | "union_id" | "local_field_id",
+    value: string,
+  ) {
+    const normalized = value === "all" ? undefined : value;
+
+    if (key === "division_id") {
+      router.push(
+        buildUrl({
+          division_id: normalized,
+          union_id: undefined,
+          local_field_id: undefined,
+          page: "1",
+        }),
+      );
+      return;
+    }
+
+    if (key === "union_id") {
+      router.push(
+        buildUrl({
+          union_id: normalized,
+          local_field_id: undefined,
+          page: "1",
+        }),
+      );
+      return;
+    }
+
+    handleFilter(key, value);
+  }
+
   function handlePage(newPage: number) {
     router.push(buildUrl({ page: String(newPage) }));
   }
@@ -110,6 +148,42 @@ export function ReportsSupervisionClient({
     <div className="space-y-4">
       {/* Filters */}
       <div className="flex flex-wrap gap-3">
+        {/* División */}
+        <Select
+          value={searchParams.division_id ?? "all"}
+          onValueChange={(v) => handleHierarchyFilter("division_id", v)}
+        >
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder={t("filterDivisionPlaceholder")} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{t("filterDivisionAll")}</SelectItem>
+            {divisions.map((division) => (
+              <SelectItem key={division.division_id} value={String(division.division_id)}>
+                {division.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {/* Unión */}
+        <Select
+          value={searchParams.union_id ?? "all"}
+          onValueChange={(v) => handleHierarchyFilter("union_id", v)}
+        >
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder={t("filterUnionPlaceholder")} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{t("filterUnionAll")}</SelectItem>
+            {unions.map((union) => (
+              <SelectItem key={union.union_id} value={String(union.union_id)}>
+                {union.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
         {/* Tipo de club */}
         <Select
           value={searchParams.club_type_id ?? "all"}
@@ -131,7 +205,7 @@ export function ReportsSupervisionClient({
         {/* Campo local */}
         <Select
           value={searchParams.local_field_id ?? "all"}
-          onValueChange={(v) => handleFilter("local_field_id", v)}
+          onValueChange={(v) => handleHierarchyFilter("local_field_id", v)}
         >
           <SelectTrigger className="w-48">
             <SelectValue placeholder={t("filterLocalFieldPlaceholder")} />

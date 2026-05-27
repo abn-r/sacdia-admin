@@ -3823,6 +3823,10 @@
       "error_load_reports": "Não foi possível carregar os relatórios. Verifique a conexão com o servidor."
     },
     "supervisionClient": {
+      "filterDivisionPlaceholder": "Divisão",
+      "filterDivisionAll": "Todas as divisões",
+      "filterUnionPlaceholder": "União",
+      "filterUnionAll": "Todas as uniões",
       "filterClubTypePlaceholder": "Tipo de clube",
       "filterClubTypeAll": "Todos os tipos",
       "filterLocalFieldPlaceholder": "Campo local",

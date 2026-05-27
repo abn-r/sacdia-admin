@@ -4005,6 +4005,10 @@ export interface IntlMessages {
       error_load_reports: string;
     };
     supervisionClient: {
+      filterDivisionPlaceholder: string;
+      filterDivisionAll: string;
+      filterUnionPlaceholder: string;
+      filterUnionAll: string;
       filterClubTypePlaceholder: string;
       filterClubTypeAll: string;
       filterLocalFieldPlaceholder: string;
