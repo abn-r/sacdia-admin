@@ -245,17 +245,13 @@ export default async function UserDetailPage({ params }: { params: Params }) {
         user={user}
         fullName={fullName}
         age={age}
-        ageLabel={age !== null ? t("ageYears", { age }) : null}
+        ageLabel={age !== null ? t("ageYears", { count: age }) : null}
         primaryAssignment={primaryAssignment}
         roleLabels={roleLabels}
         backHref="/dashboard/users"
         backLabel={t("back")}
         statusActiveLabel={t("statusActive")}
         statusInactiveLabel={t("statusInactive")}
-        approvalPendingLabel={t("approvalPending")}
-        approvalApprovedLabel={t("approvalApproved")}
-        approvalRejectedLabel={t("approvalRejected")}
-        canUpdateApproval={canUpdateAdministrativeCompletion}
       />
 
       <UserDetailStats items={statItems} />
@@ -290,7 +286,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                   k: t("fields.birthday"),
                   v: user.birthday
                     ? `${formatDateLong(user.birthday, dateLocale)}${
-                        age !== null ? ` · ${t("ageYears", { age })}` : ""
+                        age !== null ? ` · ${t("ageYears", { count: age })}` : ""
                       }`
                     : "—",
                 },

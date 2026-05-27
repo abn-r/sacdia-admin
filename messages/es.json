@@ -970,8 +970,15 @@
       "placeholderDescription": "Descripción opcional",
       "placeholderLocalField": "Seleccionar campo local",
       "placeholderDistrict": "Seleccionar distrito",
+      "placeholderDistrictParent": "Seleccioná un campo local primero",
       "placeholderChurch": "Seleccionar iglesia",
-      "placeholderAddress": "Dirección del club"
+      "placeholderChurchParent": "Seleccioná un distrito primero",
+      "placeholderAddress": "Dirección del club",
+      "sectionsTitle": "Secciones del club",
+      "sectionsDescription": "Marcá las secciones que este club va a operar al crearlo.",
+      "sectionToggleHint": "Se creará junto con el club.",
+      "sectionNameLabel": "Nombre de la sección (opcional)",
+      "sectionNamePlaceholder": "Ej. {section}"
     },
     "edit": {
       "cardTitle": "Información general",
@@ -1287,6 +1294,7 @@
     "validation": {
       "name_required": "Ingrese el nombre",
       "club_type_required": "Seleccione el tipo de club",
+      "club_section_required": "Seleccione la sección del club",
       "member_required": "Seleccione un miembro para {field}",
       "member_invalid": "Seleccione un miembro válido para {field}"
     },
@@ -3157,9 +3165,9 @@
         "statusActive": "Activo",
         "statusInactive": "Inactivo",
         "ageYears": "{count, plural, one {# año} other {# años}}",
-        "approvalApproved": "Aprobado",
-        "approvalPending": "Pendiente",
-        "approvalRejected": "Rechazado",
+        "approvalApproved": "Revisión aprobada",
+        "approvalPending": "Sin revisión",
+        "approvalRejected": "Revisión rechazada",
         "tabResumen": "Resumen",
         "tabPersonalData": "Datos personales",
         "tabHealth": "Salud",
@@ -3190,7 +3198,7 @@
         "sidebar": {
           "title": "Acceso y estado",
           "status": "Estado",
-          "approval": "Aprobación",
+          "approval": "Revisión administrativa",
           "roles": "Roles",
           "appAccess": "Acceso a la app",
           "panelAccess": "Acceso al panel",
@@ -4633,6 +4641,8 @@
       "requiredHintSuffix": "son obligatorios.",
       "name": "Nombre",
       "namePlaceholder": "Ej. Unidad Aguilas",
+      "clubSection": "Sección del club",
+      "clubSectionEmpty": "Sin secciones disponibles",
       "clubType": "Tipo de club",
       "captain": "Capitán",
       "captainPlaceholder": "Seleccionar capitán...",

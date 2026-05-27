@@ -970,8 +970,15 @@
       "placeholderDescription": "Descrição opcional",
       "placeholderLocalField": "Selecionar campo local",
       "placeholderDistrict": "Selecionar distrito",
+      "placeholderDistrictParent": "Selecione primeiro um campo local",
       "placeholderChurch": "Selecionar igreja",
-      "placeholderAddress": "Endereço do clube"
+      "placeholderChurchParent": "Selecione primeiro um distrito",
+      "placeholderAddress": "Endereço do clube",
+      "sectionsTitle": "Seções do clube",
+      "sectionsDescription": "Escolha as seções que este clube vai operar ao ser criado.",
+      "sectionToggleHint": "Será criada junto com o clube.",
+      "sectionNameLabel": "Nome da seção (opcional)",
+      "sectionNamePlaceholder": "Ex. {section}"
     },
     "edit": {
       "cardTitle": "Informações gerais",
@@ -1286,6 +1293,7 @@
     "validation": {
       "name_required": "Informe o nome",
       "club_type_required": "Selecione o tipo de clube",
+      "club_section_required": "Selecione a seção do clube",
       "member_required": "Selecione um membro para {field}",
       "member_invalid": "Selecione um membro válido para {field}"
     },
@@ -3068,9 +3076,9 @@
         "statusActive": "Ativo",
         "statusInactive": "Inativo",
         "ageYears": "{count, plural, one {# ano} other {# anos}}",
-        "approvalApproved": "Aprovado",
-        "approvalPending": "Pendente",
-        "approvalRejected": "Rejeitado",
+        "approvalApproved": "Revisão aprovada",
+        "approvalPending": "Sem revisão",
+        "approvalRejected": "Revisão rejeitada",
         "tabResumen": "Resumo",
         "tabPersonalData": "Dados pessoais",
         "tabHealth": "Saúde",
@@ -3101,7 +3109,7 @@
         "sidebar": {
           "title": "Acesso e status",
           "status": "Status",
-          "approval": "Aprovação",
+          "approval": "Revisão administrativa",
           "roles": "Perfis",
           "appAccess": "Acesso ao app",
           "panelAccess": "Acesso ao painel",
@@ -4480,6 +4488,8 @@
       "requiredHintSuffix": "são obrigatórios.",
       "name": "Nome",
       "namePlaceholder": "Ex. Unidade Águias",
+      "clubSection": "Seção do clube",
+      "clubSectionEmpty": "Nenhuma seção disponível",
       "clubType": "Tipo de clube",
       "captain": "Capitão",
       "captainPlaceholder": "Selecionar capitão...",

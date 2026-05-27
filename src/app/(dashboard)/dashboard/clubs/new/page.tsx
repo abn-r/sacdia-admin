@@ -4,18 +4,25 @@ import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { requireAdminUser } from "@/lib/auth/session";
-import { getSelectOptions } from "@/lib/catalogs/service";
+import { listEntityItems } from "@/lib/catalogs/service";
 import { CreateClubForm } from "@/components/clubs/create-club-form";
-import { createClubAction } from "@/lib/clubs/actions";
+import { createClubWithSectionsAction } from "@/lib/clubs/actions";
+import {
+  toChurchOptions,
+  toClubTypeOptions,
+  toDistrictOptions,
+  toLocalFieldOptions,
+} from "@/lib/clubs/create-form-options";
 
 export default async function NewClubPage() {
   await requireAdminUser();
   const t = await getTranslations("clubs.pages.new");
 
-  const [localFields, districts, churches] = await Promise.all([
-    getSelectOptions("local-fields").catch(() => []),
-    getSelectOptions("districts").catch(() => []),
-    getSelectOptions("churches").catch(() => []),
+  const [localFieldItems, districtItems, churchItems, clubTypeItems] = await Promise.all([
+    listEntityItems("local-fields").catch(() => []),
+    listEntityItems("districts").catch(() => []),
+    listEntityItems("churches").catch(() => []),
+    listEntityItems("club-types").catch(() => []),
   ]);
 
   return (
@@ -30,10 +37,11 @@ export default async function NewClubPage() {
       </PageHeader>
 
       <CreateClubForm
-        localFields={localFields}
-        districts={districts}
-        churches={churches}
-        formAction={createClubAction}
+        localFields={toLocalFieldOptions(localFieldItems)}
+        districts={toDistrictOptions(districtItems)}
+        churches={toChurchOptions(churchItems)}
+        clubTypes={toClubTypeOptions(clubTypeItems)}
+        formAction={createClubWithSectionsAction}
         googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? ""}
       />
     </div>

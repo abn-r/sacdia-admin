@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { UserAvatar } from "@/components/users/user-avatar";
-import { UserApprovalActions } from "@/components/users/user-approval-actions";
 import { cn } from "@/lib/utils";
 import type { AdminUserDetail } from "@/lib/api/admin-users";
 
@@ -19,31 +18,12 @@ interface HeroProps {
   backLabel: string;
   statusActiveLabel: string;
   statusInactiveLabel: string;
-  approvalPendingLabel: string;
-  approvalApprovedLabel: string;
-  approvalRejectedLabel: string;
-  canUpdateApproval: boolean;
 }
 
 export interface ClubAssignmentSummary {
   clubName: string | null;
   sectionName: string | null;
   roleName: string | null;
-}
-
-type ApprovalState = "pending" | "approved" | "rejected" | "unknown";
-
-function resolveApprovalState(value: AdminUserDetail["approval"]): ApprovalState {
-  if (value === null || value === undefined || value === 0 || value === "pending") {
-    return "pending";
-  }
-  if (value === 1 || value === true || value === "approved") {
-    return "approved";
-  }
-  if (value === -1 || value === "rejected") {
-    return "rejected";
-  }
-  return "unknown";
 }
 
 export function UserDetailHero({
@@ -57,13 +37,8 @@ export function UserDetailHero({
   backLabel,
   statusActiveLabel,
   statusInactiveLabel,
-  approvalPendingLabel,
-  approvalApprovedLabel,
-  approvalRejectedLabel,
-  canUpdateApproval,
 }: HeroProps) {
   const isActive = user.active !== false;
-  const approvalState = resolveApprovalState(user.approval);
 
   return (
     <Card className="relative gap-4 overflow-hidden p-6 sm:p-7">
@@ -79,16 +54,6 @@ export function UserDetailHero({
             className="rounded-2xl"
             priority
           />
-          {approvalState === "approved" ? (
-            <span
-              aria-hidden
-              className="absolute -bottom-1 -right-1 grid size-7 place-items-center rounded-full border-2 border-background bg-success text-success-foreground shadow"
-            >
-              <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 12l5 5 9-11" />
-              </svg>
-            </span>
-          ) : null}
         </div>
 
         <div className="min-w-0">
@@ -124,14 +89,6 @@ export function UserDetailHero({
               {isActive ? statusActiveLabel : statusInactiveLabel}
             </Badge>
 
-            {approvalState === "pending" ? (
-              <Badge variant="soft-warning">{approvalPendingLabel}</Badge>
-            ) : approvalState === "approved" ? (
-              <Badge variant="soft-success">{approvalApprovedLabel}</Badge>
-            ) : approvalState === "rejected" ? (
-              <Badge variant="destructive">{approvalRejectedLabel}</Badge>
-            ) : null}
-
             {primaryAssignment?.clubName ? (
               <Badge variant="soft-info">
                 {primaryAssignment.clubName}
@@ -158,12 +115,6 @@ export function UserDetailHero({
               {backLabel}
             </Link>
           </Button>
-          {canUpdateApproval ? (
-            <UserApprovalActions
-              userId={user.user_id}
-              currentApproval={user.approval}
-            />
-          ) : null}
         </div>
       </div>
     </Card>

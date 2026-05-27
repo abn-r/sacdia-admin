@@ -106,7 +106,7 @@ const ROLES: Role[] = [
 type SyncAction = Parameters<typeof PermissionsMatrix>[0]["syncAction"];
 
 function renderMatrix(syncAction?: SyncAction) {
-  const action = syncAction ?? (vi.fn(async () => ({})) as unknown as SyncAction);
+  const action = syncAction ?? vi.fn<SyncAction>(async () => ({}));
   const utils = render(
     <NextIntlClientProvider locale="es" messages={messages}>
       <PermissionsMatrix
@@ -194,7 +194,10 @@ describe("PermissionsMatrix", () => {
       expect(action).toHaveBeenCalledTimes(1);
     });
 
-    const [roleId, , formData] = action.mock.calls[0]!;
+    const firstCall = action.mock.calls[0];
+    expect(firstCall).toBeDefined();
+    if (!firstCall) throw new Error("syncAction should be called once");
+    const [roleId, , formData] = firstCall;
     expect(roleId).toBe("r1");
     expect(formData).toBeInstanceOf(FormData);
     const ids = (formData as FormData).get("permission_ids") as string;

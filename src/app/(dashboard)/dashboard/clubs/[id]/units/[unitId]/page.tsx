@@ -8,8 +8,11 @@ import { UnitForm } from "@/components/units/unit-form";
 import { requireAdminUser } from "@/lib/auth/session";
 import { updateUnitAction } from "@/lib/units/actions";
 import { getUnit } from "@/lib/api/units";
+import { listClubSections } from "@/lib/api/clubs";
 import { apiRequest, ApiError } from "@/lib/api/client";
+import { toUnitSectionOptions } from "@/lib/units/section-options";
 import type { Unit } from "@/lib/api/units";
+import type { UnitSectionOption } from "@/components/units/unit-form";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -41,11 +44,13 @@ export default async function EditUnitPage({ params }: { params: Params }) {
 
   let unit: Unit;
   let clubName = "Club";
+  let sectionOptions: UnitSectionOption[] = [];
 
   try {
-    const [unitData, clubData] = await Promise.allSettled([
+    const [unitData, clubData, sectionsData] = await Promise.allSettled([
       getUnit(clubId, unitIdNum),
       apiRequest<unknown>(`/clubs/${clubId}`),
+      listClubSections(clubId),
     ]);
 
     if (unitData.status === "rejected") {
@@ -63,6 +68,10 @@ export default async function EditUnitPage({ params }: { params: Params }) {
       const res = payload as { data?: ClubMinimal } | ClubMinimal;
       const club = ("data" in res && res.data ? res.data : res) as ClubMinimal;
       clubName = club.name ?? "Club";
+    }
+
+    if (sectionsData.status === "fulfilled") {
+      sectionOptions = toUnitSectionOptions(sectionsData.value);
     }
   } catch (error) {
     if (error instanceof ApiError && (error.status === 404 || error.status === 403)) {
@@ -87,7 +96,13 @@ export default async function EditUnitPage({ params }: { params: Params }) {
         </Button>
       </PageHeader>
 
-      <UnitForm mode="edit" clubId={clubId} initialData={unit} formAction={boundAction} />
+      <UnitForm
+        mode="edit"
+        clubId={clubId}
+        sectionOptions={sectionOptions}
+        initialData={unit}
+        formAction={boundAction}
+      />
     </div>
   );
 }

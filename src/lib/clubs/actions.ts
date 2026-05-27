@@ -19,6 +19,7 @@ import {
 import { unwrapList, unwrapObject } from "@/lib/api/response";
 import { requireAdminUser } from "@/lib/auth/session";
 import { canManageClubsByRole } from "@/lib/auth/permission-utils";
+import { collectSelectedClubSections } from "@/lib/clubs/create-form-options";
 
 type ClubsTranslator = Awaited<ReturnType<typeof getTranslations<"clubs">>>;
 
@@ -328,22 +329,12 @@ export async function createClubWithSectionsAction(
     };
   }
 
-  // Parse sections from form — form fields: section_club_type_id_0, section_name_0, etc.
   const sectionResults: ClubSectionSyncResult[] = [];
-  let idx = 0;
-  while (formData.has(`section_club_type_id_${idx}`)) {
-    const clubTypeId = Number(readString(formData, `section_club_type_id_${idx}`));
-    const sectionName = readString(formData, `section_name_${idx}`);
-
-    if (!Number.isFinite(clubTypeId) || clubTypeId <= 0) {
-      idx++;
-      continue;
-    }
-
+  for (const section of collectSelectedClubSections(formData)) {
     try {
       const result = await createClubSection(clubId, {
-        club_type_id: clubTypeId,
-        name: sectionName || undefined,
+        club_type_id: section.clubTypeId,
+        name: section.name,
       });
       sectionResults.push({
         action: "created",
@@ -360,7 +351,6 @@ export async function createClubWithSectionsAction(
         }),
       });
     }
-    idx++;
   }
 
   revalidatePath("/dashboard/clubs");

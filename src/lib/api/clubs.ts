@@ -71,6 +71,7 @@ export type ClubSectionMembersQuery = {
 export type ClubSectionMember = {
   assignment_id?: string;
   user_id: string;
+  club_section_id?: number;
   name: string;
   picture_url?: string | null;
   role?: string | null;
@@ -196,7 +197,10 @@ export async function revokeClubRoleAssignment(assignmentId: string) {
 
 type RawMember = Record<string, unknown>;
 
-function normalizeMember(raw: RawMember): ClubSectionMember | null {
+function normalizeMember(
+  raw: RawMember,
+  sectionId?: number,
+): ClubSectionMember | null {
   const user_id =
     typeof raw.user_id === "string" && raw.user_id.trim().length > 0
       ? raw.user_id.trim()
@@ -211,6 +215,8 @@ function normalizeMember(raw: RawMember): ClubSectionMember | null {
   return {
     assignment_id: typeof raw.assignment_id === "string" ? raw.assignment_id : undefined,
     user_id,
+    club_section_id:
+      typeof raw.club_section_id === "number" ? raw.club_section_id : sectionId,
     name,
     picture_url: typeof raw.picture_url === "string" ? raw.picture_url : null,
     role: typeof raw.role === "string" ? raw.role : null,
@@ -218,6 +224,26 @@ function normalizeMember(raw: RawMember): ClubSectionMember | null {
     role_id: typeof raw.role_id === "string" ? raw.role_id : undefined,
     active: raw.active !== false,
   };
+}
+
+function unwrapMembers(payload: unknown): unknown[] {
+  return Array.isArray(payload)
+    ? payload
+    : Array.isArray((payload as { data?: unknown })?.data)
+      ? ((payload as { data: unknown[] }).data)
+      : [];
+}
+
+export async function listNormalizedClubSectionMembers(
+  clubId: number,
+  sectionId: number,
+  query: ClubSectionMembersQuery = {},
+): Promise<ClubSectionMember[]> {
+  const payload = await listClubSectionMembers(clubId, sectionId, query);
+  return unwrapMembers(payload)
+    .map((raw) => normalizeMember(raw as RawMember, sectionId))
+    .filter((member): member is ClubSectionMember => member !== null)
+    .sort((a, b) => a.name.localeCompare(b.name, "es"));
 }
 
 /**
@@ -257,17 +283,14 @@ export async function listClubMembers(clubId: number): Promise<ClubSectionMember
   const seen = new Set<string>();
   const members: ClubSectionMember[] = [];
 
-  for (const result of results) {
+  for (const [index, result] of results.entries()) {
     if (result.status !== "fulfilled") continue;
     const payload = result.value;
-    const arr = Array.isArray(payload)
-      ? payload
-      : Array.isArray((payload as { data?: unknown })?.data)
-        ? ((payload as { data: unknown[] }).data)
-        : [];
+    const arr = unwrapMembers(payload);
+    const sectionId = sections[index]?.club_section_id;
 
     for (const raw of arr) {
-      const member = normalizeMember(raw as RawMember);
+      const member = normalizeMember(raw as RawMember, sectionId);
       if (!member || seen.has(member.user_id)) continue;
       seen.add(member.user_id);
       members.push(member);

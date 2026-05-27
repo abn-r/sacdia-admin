@@ -90,7 +90,6 @@ export function EventDayCard({ day, events, venues, camporeeId, onAdd, onEdit, r
     "Guías Mayores": 0,
   };
   sorted.forEach((e) => e.sections.forEach((s) => { secCount[s] = (secCount[s] || 0) + 1; }));
-
   const venueOf = (id: string) => venues.find((v) => v.id === id) ?? { id, name: "—", capacity: 0 };
 
   if (sorted.length === 0) {

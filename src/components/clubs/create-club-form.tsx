@@ -1,11 +1,17 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useMemo, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,8 +24,13 @@ import {
 } from "@/components/ui/select";
 import type { ClubActionState } from "@/lib/clubs/actions";
 import { LocationPicker } from "@/components/shared/location-picker";
-
-type SelectOption = { label: string; value: number };
+import {
+  filterChurchesByDistrict,
+  filterDistrictsByLocalField,
+  type ChurchOption,
+  type DistrictOption,
+  type SelectOption,
+} from "@/lib/clubs/create-form-options";
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -34,8 +45,9 @@ function SubmitButton() {
 
 interface CreateClubFormProps {
   localFields: SelectOption[];
-  districts: SelectOption[];
-  churches: SelectOption[];
+  districts: DistrictOption[];
+  churches: ChurchOption[];
+  clubTypes: SelectOption[];
   formAction: (prev: ClubActionState, formData: FormData) => Promise<ClubActionState>;
   googleMapsApiKey: string;
 }
@@ -46,11 +58,27 @@ export function CreateClubForm({
   localFields,
   districts,
   churches,
+  clubTypes,
   formAction,
   googleMapsApiKey,
 }: CreateClubFormProps) {
   const [state, action] = useActionState(formAction, initialState);
   const t = useTranslations("clubs");
+  const [localFieldValue, setLocalFieldValue] = useState("");
+  const [districtValue, setDistrictValue] = useState("");
+  const [churchValue, setChurchValue] = useState("");
+
+  const selectedLocalFieldId = localFieldValue ? Number(localFieldValue) : null;
+  const selectedDistrictId = districtValue ? Number(districtValue) : null;
+
+  const filteredDistricts = useMemo(
+    () => filterDistrictsByLocalField(districts, selectedLocalFieldId),
+    [districts, selectedLocalFieldId],
+  );
+  const filteredChurches = useMemo(
+    () => filterChurchesByDistrict(churches, selectedDistrictId),
+    [churches, selectedDistrictId],
+  );
 
   const fieldErrors = state.fieldErrors ?? {};
   const ariaInvalid = (field: string) =>
@@ -119,7 +147,16 @@ export function CreateClubForm({
                 *
               </span>
             </Label>
-            <Select name="local_field_id" required>
+            <Select
+              name="local_field_id"
+              required
+              value={localFieldValue}
+              onValueChange={(value) => {
+                setLocalFieldValue(value);
+                setDistrictValue("");
+                setChurchValue("");
+              }}
+            >
               <SelectTrigger
                 id="local_field_id"
                 aria-required="true"
@@ -154,17 +191,32 @@ export function CreateClubForm({
                 *
               </span>
             </Label>
-            <Select name="district_id" required>
+            <Select
+              name="district_id"
+              required
+              value={districtValue}
+              onValueChange={(value) => {
+                setDistrictValue(value);
+                setChurchValue("");
+              }}
+              disabled={!selectedLocalFieldId}
+            >
               <SelectTrigger
                 id="district_id"
                 aria-required="true"
                 aria-invalid={ariaInvalid("district_id")}
                 aria-describedby={describedBy("district_id")}
               >
-                <SelectValue placeholder={t("create.placeholderDistrict")} />
+                <SelectValue
+                  placeholder={
+                    selectedLocalFieldId
+                      ? t("create.placeholderDistrict")
+                      : t("create.placeholderDistrictParent")
+                  }
+                />
               </SelectTrigger>
               <SelectContent>
-                {districts.map((opt) => (
+                {filteredDistricts.map((opt) => (
                   <SelectItem key={opt.value} value={String(opt.value)}>
                     {opt.label}
                   </SelectItem>
@@ -189,17 +241,29 @@ export function CreateClubForm({
                 *
               </span>
             </Label>
-            <Select name="church_id" required>
+            <Select
+              name="church_id"
+              required
+              value={churchValue}
+              onValueChange={setChurchValue}
+              disabled={!selectedDistrictId}
+            >
               <SelectTrigger
                 id="church_id"
                 aria-required="true"
                 aria-invalid={ariaInvalid("church_id")}
                 aria-describedby={describedBy("church_id")}
               >
-                <SelectValue placeholder={t("create.placeholderChurch")} />
+                <SelectValue
+                  placeholder={
+                    selectedDistrictId
+                      ? t("create.placeholderChurch")
+                      : t("create.placeholderChurchParent")
+                  }
+                />
               </SelectTrigger>
               <SelectContent>
-                {churches.map((opt) => (
+                {filteredChurches.map((opt) => (
                   <SelectItem key={opt.value} value={String(opt.value)}>
                     {opt.label}
                   </SelectItem>
@@ -227,6 +291,54 @@ export function CreateClubForm({
           </div>
         </CardContent>
       </Card>
+
+      {clubTypes.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">{t("create.sectionsTitle")}</CardTitle>
+            <CardDescription>{t("create.sectionsDescription")}</CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-3 sm:grid-cols-2">
+            {clubTypes.map((clubType, index) => {
+              const checkboxId = `section_club_type_id_${index}`;
+              return (
+                <div
+                  key={clubType.value}
+                  className="space-y-3 rounded-md border border-border/60 p-4"
+                >
+                  <div className="flex items-start gap-3">
+                    <input
+                      id={checkboxId}
+                      name={checkboxId}
+                      type="checkbox"
+                      value={clubType.value}
+                      className="mt-1 size-4 rounded border-input text-primary"
+                    />
+                    <div className="space-y-1">
+                      <Label htmlFor={checkboxId}>{clubType.label}</Label>
+                      <p className="text-xs text-muted-foreground">
+                        {t("create.sectionToggleHint")}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor={`section_name_${index}`}>
+                      {t("create.sectionNameLabel")}
+                    </Label>
+                    <Input
+                      id={`section_name_${index}`}
+                      name={`section_name_${index}`}
+                      placeholder={t("create.sectionNamePlaceholder", {
+                        section: clubType.label,
+                      })}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>

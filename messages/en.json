@@ -970,8 +970,15 @@
       "placeholderDescription": "Optional description",
       "placeholderLocalField": "Select local field",
       "placeholderDistrict": "Select district",
+      "placeholderDistrictParent": "Select a local field first",
       "placeholderChurch": "Select church",
-      "placeholderAddress": "Club address"
+      "placeholderChurchParent": "Select a district first",
+      "placeholderAddress": "Club address",
+      "sectionsTitle": "Club sections",
+      "sectionsDescription": "Choose the sections this club will operate when it is created.",
+      "sectionToggleHint": "It will be created together with the club.",
+      "sectionNameLabel": "Section name (optional)",
+      "sectionNamePlaceholder": "E.g. {section}"
     },
     "edit": {
       "cardTitle": "General information",
@@ -1287,6 +1294,7 @@
     "validation": {
       "name_required": "Enter the name",
       "club_type_required": "Select the club type",
+      "club_section_required": "Select the club section",
       "member_required": "Select a member for {field}",
       "member_invalid": "Select a valid member for {field}"
     },
@@ -3138,9 +3146,9 @@
         "statusActive": "Active",
         "statusInactive": "Inactive",
         "ageYears": "{count, plural, one {# year} other {# years}}",
-        "approvalApproved": "Approved",
-        "approvalPending": "Pending",
-        "approvalRejected": "Rejected",
+        "approvalApproved": "Review approved",
+        "approvalPending": "No review",
+        "approvalRejected": "Review rejected",
         "tabResumen": "Summary",
         "tabPersonalData": "Personal data",
         "tabHealth": "Health",
@@ -3171,7 +3179,7 @@
         "sidebar": {
           "title": "Access & status",
           "status": "Status",
-          "approval": "Approval",
+          "approval": "Administrative review",
           "roles": "Roles",
           "appAccess": "App access",
           "panelAccess": "Panel access",
@@ -4614,6 +4622,8 @@
       "requiredHintSuffix": "are required.",
       "name": "Name",
       "namePlaceholder": "E.g. Eagles Unit",
+      "clubSection": "Club section",
+      "clubSectionEmpty": "No sections available",
       "clubType": "Club type",
       "captain": "Captain",
       "captainPlaceholder": "Select captain...",

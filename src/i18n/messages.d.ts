@@ -999,8 +999,15 @@ export interface IntlMessages {
       placeholderDescription: string;
       placeholderLocalField: string;
       placeholderDistrict: string;
+      placeholderDistrictParent: string;
       placeholderChurch: string;
+      placeholderChurchParent: string;
       placeholderAddress: string;
+      sectionsTitle: string;
+      sectionsDescription: string;
+      sectionToggleHint: string;
+      sectionNameLabel: string;
+      sectionNamePlaceholder: string;
     };
     edit: {
       cardTitle: string;
@@ -1316,6 +1323,7 @@ export interface IntlMessages {
     validation: {
       name_required: string;
       club_type_required: string;
+      club_section_required: string;
       member_required: string;
       member_invalid: string;
     };
@@ -4662,6 +4670,8 @@ export interface IntlMessages {
       requiredHintSuffix: string;
       name: string;
       namePlaceholder: string;
+      clubSection: string;
+      clubSectionEmpty: string;
       clubType: string;
       captain: string;
       captainPlaceholder: string;
