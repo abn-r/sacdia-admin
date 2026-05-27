@@ -80,9 +80,9 @@ const cspValue = [
   .concat(";");
 
 const nextConfig: NextConfig = {
-  // Bumping default 1MB so Server Actions still work as a fallback path. Large
-  // files (>25MB) MUST go through the presigned R2 PUT flow — see
-  // /resources/upload-url and createResourceFromUploadedAction.
+  // Bumping default 1MB so Server Actions still work for non-file resource
+  // forms. File resources are uploaded through the backend API as multipart
+  // POST /resources so the browser does not PUT directly to R2.
   experimental: {
     serverActions: {
       bodySizeLimit: "25mb",

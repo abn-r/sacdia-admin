@@ -49,7 +49,8 @@ const ResourcesCrudPage = dynamic(
   },
 );
 import { listResources, listResourceCategories } from "@/lib/api/resources";
-import type { ResourceType, ClubTypeTarget, ScopeLevel } from "@/lib/api/resources";
+import type { ResourceType, ScopeLevel } from "@/lib/api/resources";
+import { listClubTypes, type ClubType } from "@/lib/api/catalogs";
 import { listUnions, listLocalFields } from "@/lib/api/geography";
 import type { Union, LocalField } from "@/lib/api/geography";
 import { hasAnyPermission } from "@/lib/auth/permission-utils";
@@ -60,6 +61,7 @@ import {
   RESOURCES_UPDATE,
 } from "@/lib/auth/permissions";
 import { requireAdminUser } from "@/lib/auth/session";
+import { resolveResourceScopeOptions } from "@/lib/resources/scope-options";
 import {
   createResourceAction,
   deleteResourceAction,
@@ -70,6 +72,12 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 type GenericRecord = Record<string, unknown>;
 type CategoryRecord = { resource_category_id: number; name: string };
 
+const DEFAULT_CLUB_TYPES: ClubType[] = [
+  { club_type_id: 1, name: "Aventureros" },
+  { club_type_id: 2, name: "Conquistadores" },
+  { club_type_id: 3, name: "Guías Mayores" },
+];
+
 type PageMeta = {
   page: number;
   limit: number;
@@ -78,7 +86,6 @@ type PageMeta = {
 };
 
 const VALID_RESOURCE_TYPES: ResourceType[] = ["document", "audio", "image", "video_link", "text"];
-const VALID_CLUB_TYPES: ClubTypeTarget[] = ["all", "Aventureros", "Conquistadores", "Guías Mayores"];
 const VALID_SCOPE_LEVELS: ScopeLevel[] = ["system", "union", "local_field"];
 
 function readParam(
@@ -160,6 +167,18 @@ function extractCategories(payload: unknown): CategoryRecord[] {
     .filter((c): c is CategoryRecord => c !== null);
 }
 
+function extractClubTypes(payload: unknown): ClubType[] {
+  const items = extractItems(payload);
+  return items
+    .map((item) => {
+      const id = toPositiveNumber(item.club_type_id ?? item.id);
+      const name = typeof item.name === "string" ? item.name.trim() : null;
+      if (!id || !name) return null;
+      return { club_type_id: id, name } satisfies ClubType;
+    })
+    .filter((c): c is ClubType => c !== null);
+}
+
 function extractUnions(payload: unknown): Union[] {
   const items = extractItems(payload);
   return items.reduce<Union[]>((acc, item) => {
@@ -210,10 +229,7 @@ export default async function ResourcesPage({
     ? (rawType as ResourceType)
     : undefined;
 
-  const rawClubType = readParam(raw, "club_type");
-  const clubType = rawClubType && VALID_CLUB_TYPES.includes(rawClubType as ClubTypeTarget)
-    ? (rawClubType as ClubTypeTarget)
-    : undefined;
+  const clubTypeId = readPositiveNumber(raw, "club_type_id");
 
   const rawScopeLevel = readParam(raw, "scope_level");
   const scopeLevel = rawScopeLevel && VALID_SCOPE_LEVELS.includes(rawScopeLevel as ScopeLevel)
@@ -227,14 +243,16 @@ export default async function ResourcesPage({
   let meta: PageMeta = { page, limit, total: 0, totalPages: 1 };
   let loadError: string | null = null;
   let categories: CategoryRecord[] = [];
+  let clubTypes: ClubType[] = [];
   let unions: Union[] = [];
   let localFields: LocalField[] = [];
 
   // Fetch all data in parallel
-  const [resourcesResult, categoriesResult, unionsResult, localFieldsResult] =
+  const [resourcesResult, categoriesResult, clubTypesResult, unionsResult, localFieldsResult] =
     await Promise.allSettled([
-      listResources({ page, limit, resource_type: resourceType, category_id: categoryId, club_type: clubType, scope_level: scopeLevel, search }),
+      listResources({ page, limit, resource_type: resourceType, resource_category_id: categoryId, club_type_id: clubTypeId, scope_level: scopeLevel, search }),
       listResourceCategories({ limit: 500 }),
+      listClubTypes(),
       listUnions(),
       listLocalFields(),
     ]);
@@ -256,6 +274,13 @@ export default async function ResourcesPage({
     categories = extractCategories(categoriesResult.value);
   }
 
+  if (clubTypesResult.status === "fulfilled") {
+    clubTypes = extractClubTypes(clubTypesResult.value);
+  }
+  if (clubTypes.length === 0) {
+    clubTypes = DEFAULT_CLUB_TYPES;
+  }
+
   if (unionsResult.status === "fulfilled") {
     unions = extractUnions(unionsResult.value);
   }
@@ -270,38 +295,21 @@ export default async function ResourcesPage({
 
   // Resolve user's effective global scope to limit available scope levels and
   // pre-select / lock the scope_id in the create form per RBAC hierarchy.
-  const globalScope = (user.authorization?.effective as { scope?: { global?: unknown } } | undefined)
-    ?.scope?.global as
-    | {
-        country?: { id?: unknown } | null;
-        union?: { id?: unknown } | null;
-        local_field?: { id?: unknown } | null;
-      }
-    | undefined;
-
-  const userCountryId = toPositiveNumber(globalScope?.country?.id);
-  const userUnionId = toPositiveNumber(globalScope?.union?.id);
-  const userLocalFieldId = toPositiveNumber(globalScope?.local_field?.id);
-
-  let allowedScopeLevels: ScopeLevel[];
-  let lockedScopeId: number | null = null;
+  const { allowedScopeLevels, lockedScopeId } = resolveResourceScopeOptions(user);
   let scopedUnions = unions;
   let scopedLocalFields = localFields;
 
-  if (userCountryId) {
-    allowedScopeLevels = ["system", "union", "local_field"];
-  } else if (userUnionId) {
-    allowedScopeLevels = ["union"];
-    lockedScopeId = userUnionId;
-    scopedUnions = unions.filter((u) => u.union_id === userUnionId);
-    scopedLocalFields = [];
-  } else if (userLocalFieldId) {
-    allowedScopeLevels = ["local_field"];
-    lockedScopeId = userLocalFieldId;
+  if (allowedScopeLevels.length === 1 && lockedScopeId !== null) {
+    if (allowedScopeLevels[0] === "union") {
+      scopedUnions = unions.filter((u) => u.union_id === lockedScopeId);
+      scopedLocalFields = [];
+    } else if (allowedScopeLevels[0] === "local_field") {
+      scopedUnions = [];
+      scopedLocalFields = localFields.filter((lf) => lf.local_field_id === lockedScopeId);
+    }
+  } else if (allowedScopeLevels.length === 0) {
     scopedUnions = [];
-    scopedLocalFields = localFields.filter((lf) => lf.local_field_id === userLocalFieldId);
-  } else {
-    allowedScopeLevels = [];
+    scopedLocalFields = [];
   }
 
   return (
@@ -312,6 +320,7 @@ export default async function ResourcesPage({
         items={items}
         meta={meta}
         categories={categories}
+        clubTypes={clubTypes}
         unions={scopedUnions}
         localFields={scopedLocalFields}
         allowedScopeLevels={allowedScopeLevels}

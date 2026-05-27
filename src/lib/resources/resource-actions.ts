@@ -5,17 +5,11 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import {
   createResource,
-  createResourceFromUploaded,
   deleteResource,
-  requestResourceUploadUrl,
   updateResource,
-  type CreateFromUploadedPayload,
   type ResourcePayload,
   type ResourceType,
-  type ClubTypeTarget,
   type ScopeLevel,
-  type UploadUrlRequest,
-  type UploadUrlResponse,
 } from "@/lib/api/resources";
 import { hasAnyPermission } from "@/lib/auth/permission-utils";
 import {
@@ -46,19 +40,18 @@ function parsePositiveNumber(formData: FormData, field: string) {
 }
 
 const VALID_RESOURCE_TYPES: ResourceType[] = ["document", "audio", "image", "video_link", "text"];
-const VALID_CLUB_TYPES: ClubTypeTarget[] = ["all", "Aventureros", "Conquistadores", "Guías Mayores"];
 const VALID_SCOPE_LEVELS: ScopeLevel[] = ["system", "union", "local_field"];
 
 function toResourceType(value: string): ResourceType | null {
   return VALID_RESOURCE_TYPES.includes(value as ResourceType) ? (value as ResourceType) : null;
 }
 
-function toClubType(value: string): ClubTypeTarget | null {
-  return VALID_CLUB_TYPES.includes(value as ClubTypeTarget) ? (value as ClubTypeTarget) : null;
-}
-
 function toScopeLevel(value: string): ScopeLevel | null {
   return VALID_SCOPE_LEVELS.includes(value as ScopeLevel) ? (value as ScopeLevel) : null;
+}
+
+function parseResourceId(formData: FormData) {
+  return readString(formData, "id");
 }
 
 function buildCreateFormData(t: ResourcesTranslator, formData: FormData): FormData {
@@ -76,10 +69,10 @@ function buildCreateFormData(t: ResourcesTranslator, formData: FormData): FormDa
   if (description) out.set("description", description);
 
   const categoryId = parsePositiveNumber(formData, "category_id");
-  if (categoryId) out.set("category_id", String(categoryId));
+  if (categoryId) out.set("resource_category_id", String(categoryId));
 
-  const clubType = toClubType(readString(formData, "club_type"));
-  if (clubType) out.set("club_type", clubType);
+  const clubTypeId = parsePositiveNumber(formData, "club_type_id");
+  if (clubTypeId) out.set("club_type_id", String(clubTypeId));
 
   const scopeLevel = toScopeLevel(readString(formData, "scope_level"));
   if (scopeLevel) out.set("scope_level", scopeLevel);
@@ -116,8 +109,8 @@ function buildUpdatePayload(formData: FormData): Partial<ResourcePayload> {
   const description = readString(formData, "description");
   payload.description = description || "";
 
-  const clubType = toClubType(readString(formData, "club_type"));
-  if (clubType) payload.club_type = clubType;
+  const clubTypeId = parsePositiveNumber(formData, "club_type_id");
+  payload.club_type_id = clubTypeId;
 
   const scopeLevel = toScopeLevel(readString(formData, "scope_level"));
   if (scopeLevel) {
@@ -129,7 +122,7 @@ function buildUpdatePayload(formData: FormData): Partial<ResourcePayload> {
   }
 
   const categoryId = parsePositiveNumber(formData, "category_id");
-  if (categoryId) payload.category_id = categoryId;
+  if (categoryId) payload.resource_category_id = categoryId;
 
   const externalUrl = readString(formData, "external_url");
   if (externalUrl) payload.external_url = externalUrl;
@@ -159,56 +152,6 @@ export async function createResourceAction(
   redirect(RESOURCES_PATH);
 }
 
-/**
- * Server Action wrapper that requests a presigned PUT URL from the backend.
- * Called from the client BEFORE the browser uploads to R2. Returns null on
- * permission/validation errors so the client can surface them.
- */
-export async function requestUploadUrlAction(
-  payload: UploadUrlRequest,
-): Promise<{ data?: UploadUrlResponse; error?: string }> {
-  const user = await requireAdminUser();
-  const t = await getTranslations("resources");
-  if (!hasAnyPermission(user, [RESOURCES_CREATE])) {
-    return { error: t("errors.create_permission_denied") };
-  }
-  try {
-    const response = await requestResourceUploadUrl(payload);
-    return { data: response.data };
-  } catch (error) {
-    return {
-      error:
-        error instanceof Error
-          ? error.message
-          : t("errors.create_failed"),
-    };
-  }
-}
-
-/**
- * Server Action that registers a resource AFTER the client uploaded the file
- * directly to R2. Backend HEAD-checks the key before persisting.
- */
-export async function createResourceFromUploadedAction(
-  _: ResourceActionState,
-  payload: CreateFromUploadedPayload,
-): Promise<ResourceActionState> {
-  const user = await requireAdminUser();
-  const t = await getTranslations("resources");
-  if (!hasAnyPermission(user, [RESOURCES_CREATE])) {
-    return { error: t("errors.create_permission_denied") };
-  }
-  try {
-    await createResourceFromUploaded(payload);
-  } catch (error) {
-    return {
-      error: error instanceof Error ? error.message : t("errors.create_failed"),
-    };
-  }
-  revalidatePath(RESOURCES_PATH);
-  redirect(RESOURCES_PATH);
-}
-
 export async function updateResourceAction(
   _: ResourceActionState,
   formData: FormData,
@@ -218,7 +161,7 @@ export async function updateResourceAction(
   if (!hasAnyPermission(user, [RESOURCES_UPDATE])) {
     return { error: t("errors.update_permission_denied") };
   }
-  const id = parsePositiveNumber(formData, "id");
+  const id = parseResourceId(formData);
   if (!id) return { error: t("errors.update_not_found") };
   try {
     const payload = buildUpdatePayload(formData);
@@ -239,7 +182,7 @@ export async function deleteResourceAction(
   if (!hasAnyPermission(user, [RESOURCES_DELETE])) {
     return { error: t("errors.delete_permission_denied") };
   }
-  const id = parsePositiveNumber(formData, "id");
+  const id = parseResourceId(formData);
   if (!id) return { error: t("errors.delete_not_found") };
   try {
     await deleteResource(id);

@@ -76,12 +76,24 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import type { ResourceActionState } from "@/lib/resources/resource-actions";
 import {
-  createResourceFromUploadedAction,
-  requestUploadUrlAction,
-} from "@/lib/resources/resource-actions";
-import type { ResourceType, ClubTypeTarget, ScopeLevel } from "@/lib/api/resources";
+  createResource,
+  updateResource,
+  type ResourceType,
+  type ScopeLevel,
+} from "@/lib/api/resources";
 import { apiRequestFromClient } from "@/lib/api/client";
+import type { ClubType } from "@/lib/api/catalogs";
 import type { Union, LocalField } from "@/lib/api/geography";
+import {
+  extractResourceSignedUrl,
+  pickCategoryName,
+  pickClubTypeIdValue,
+  pickClubTypeLabel,
+  pickResourceId,
+  pickUploader,
+  toPositiveNumber,
+  toText,
+} from "@/lib/resources/resource-display";
 import { useTranslations } from "next-intl";
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
@@ -92,13 +104,6 @@ const RESOURCE_TYPE_LABELS: Record<ResourceType, string> = {
   image: "Imagen",
   video_link: "Video",
   text: "Texto",
-};
-
-const CLUB_TYPE_LABELS: Record<ClubTypeTarget, string> = {
-  all: "Todos los clubes",
-  Aventureros: "Aventureros",
-  Conquistadores: "Conquistadores",
-  "Guías Mayores": "Guías Mayores",
 };
 
 const SCOPE_LEVEL_LABELS: Record<ScopeLevel, string> = {
@@ -117,10 +122,17 @@ type ResourceFormAction = (
   formData: FormData,
 ) => Promise<ResourceActionState>;
 
+const DEFAULT_CLUB_TYPES: ClubType[] = [
+  { club_type_id: 1, name: "Aventureros" },
+  { club_type_id: 2, name: "Conquistadores" },
+  { club_type_id: 3, name: "Guías Mayores" },
+];
+
 interface ResourcesCrudPageProps {
   items: ResourceRecord[];
   meta: { page: number; limit: number; total: number; totalPages: number };
   categories: CategoryRecord[];
+  clubTypes: ClubType[];
   unions: Union[];
   localFields: LocalField[];
   allowedScopeLevels: ScopeLevel[];
@@ -135,22 +147,6 @@ interface ResourcesCrudPageProps {
 
 // ─── Helpers ────────────────────────────────────────────────────────────────────
 
-function toText(value: unknown): string | null {
-  if (typeof value !== "string") return null;
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : null;
-}
-
-function toPositiveNumber(value: unknown): number | null {
-  const parsed = typeof value === "number" ? value : Number(value);
-  if (!Number.isFinite(parsed) || parsed <= 0) return null;
-  return parsed;
-}
-
-function pickId(item: ResourceRecord): number | null {
-  return toPositiveNumber(item.resource_id ?? item.id);
-}
-
 function pickTitle(item: ResourceRecord): string {
   return toText(item.title) ?? toText(item.name) ?? "—";
 }
@@ -163,27 +159,6 @@ function pickResourceType(item: ResourceRecord): ResourceType | null {
   return null;
 }
 
-function pickCategoryName(item: ResourceRecord): string {
-  const cat = item.category;
-  if (cat && typeof cat === "object") {
-    const catRecord = cat as Record<string, unknown>;
-    return toText(catRecord.name) ?? "—";
-  }
-  return "—";
-}
-
-function pickUploader(item: ResourceRecord): string {
-  const uploader = item.uploader;
-  if (uploader && typeof uploader === "object") {
-    const u = uploader as Record<string, unknown>;
-    const name = toText(u.name);
-    const lastName = toText(u.last_name);
-    if (name && lastName) return `${name} ${lastName}`;
-    return name ?? toText(u.email) ?? "—";
-  }
-  return "—";
-}
-
 function pickScopeLevel(item: ResourceRecord): ScopeLevel | null {
   const level = item.scope_level;
   if (typeof level === "string" && level in SCOPE_LEVEL_LABELS) {
@@ -194,14 +169,6 @@ function pickScopeLevel(item: ResourceRecord): ScopeLevel | null {
 
 function pickScopeId(item: ResourceRecord): number | null {
   return toPositiveNumber(item.scope_id);
-}
-
-function pickClubType(item: ResourceRecord): ClubTypeTarget | null {
-  const ct = item.club_type;
-  if (typeof ct === "string" && ct in CLUB_TYPE_LABELS) {
-    return ct as ClubTypeTarget;
-  }
-  return null;
 }
 
 function formatDate(value: unknown): string {
@@ -305,16 +272,6 @@ function scopeLevelBadgeConfig(level: ScopeLevel | null): {
 
 // ─── Sub-components ─────────────────────────────────────────────────────────────
 
-function SubmitButton({ label, extraDisabled }: { label: string; extraDisabled?: boolean }) {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" disabled={pending || extraDisabled}>
-      {pending && <Loader2 className="size-4 animate-spin" />}
-      {label}
-    </Button>
-  );
-}
-
 function DeleteButton() {
   const { pending } = useFormStatus();
   return (
@@ -388,6 +345,7 @@ const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
 function ResourceFormFields({
   item,
   categories,
+  clubTypes,
   unions,
   localFields,
   allowedScopeLevels,
@@ -397,6 +355,7 @@ function ResourceFormFields({
 }: {
   item?: ResourceRecord | null;
   categories: CategoryRecord[];
+  clubTypes: ClubType[];
   unions: Union[];
   localFields: LocalField[];
   allowedScopeLevels: ScopeLevel[];
@@ -405,6 +364,7 @@ function ResourceFormFields({
   onFileSizeError?: (error: string | null) => void;
 }) {
   const t = useTranslations("resources");
+  const effectiveClubTypes = clubTypes.length > 0 ? clubTypes : DEFAULT_CLUB_TYPES;
   const [resourceType, setResourceType] = useState<ResourceType>(
     (item?.resource_type as ResourceType) ?? "document",
   );
@@ -432,7 +392,7 @@ function ResourceFormFields({
     }
   }
 
-  const showFileUpload = !isEdit && ["document", "audio", "image"].includes(resourceType);
+  const showFileUpload = ["document", "audio", "image"].includes(resourceType);
   const showExternalUrl = resourceType === "video_link";
   const showContent = resourceType === "text";
   const showScopeId = scopeLevel !== "system";
@@ -521,7 +481,10 @@ function ResourceFormFields({
           <Label htmlFor="res-category">Categoría</Label>
           <Select
             name="category_id"
-            defaultValue={toPositiveNumber(item?.category_id)?.toString() ?? "none"}
+            defaultValue={
+              toPositiveNumber(item?.resource_category_id ?? item?.category_id)?.toString() ??
+              "none"
+            }
           >
             <SelectTrigger id="res-category">
               <SelectValue placeholder={t("placeholders.selectCategory")} />
@@ -544,20 +507,22 @@ function ResourceFormFields({
         <div className="space-y-2">
           <Label htmlFor="res-club-type">Tipo de club</Label>
           <Select
-            name="club_type"
-            defaultValue={(item?.club_type as string) ?? "all"}
+            name="club_type_id"
+            defaultValue={pickClubTypeIdValue(item)}
           >
             <SelectTrigger id="res-club-type">
               <SelectValue placeholder={t("placeholders.selectClubType")} />
             </SelectTrigger>
             <SelectContent>
-              {(Object.entries(CLUB_TYPE_LABELS) as [ClubTypeTarget, string][]).map(
-                ([value, label]) => (
-                  <SelectItem key={value} value={value}>
-                    {label}
-                  </SelectItem>
-                ),
-              )}
+              <SelectItem value="all">Todos los clubes</SelectItem>
+              {effectiveClubTypes.map((clubType) => (
+                <SelectItem
+                  key={clubType.club_type_id}
+                  value={String(clubType.club_type_id)}
+                >
+                  {clubType.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -638,9 +603,15 @@ function ResourceFormFields({
                 </SelectContent>
               </Select>
             ) : (
-              <div className="rounded-md border border-dashed border-muted-foreground/30 bg-muted/30 p-3 text-sm text-muted-foreground">
-                No hay uniones disponibles. Contactá al administrador.
-              </div>
+              <Input
+                id="res-scope-id"
+                name="scope_id"
+                type="number"
+                min={1}
+                defaultValue={currentScopeIdValue}
+                required
+                placeholder={t("placeholders.unionId")}
+              />
             )
           ) : localFields.length > 0 ? (
             <Select
@@ -660,17 +631,23 @@ function ResourceFormFields({
               </SelectContent>
             </Select>
           ) : (
-            <div className="rounded-md border border-dashed border-muted-foreground/30 bg-muted/30 p-3 text-sm text-muted-foreground">
-              No hay campos locales disponibles. Contactá al administrador.
-            </div>
+            <Input
+              id="res-scope-id"
+              name="scope_id"
+              type="number"
+              min={1}
+              defaultValue={currentScopeIdValue}
+              required
+              placeholder={t("placeholders.localFieldId")}
+            />
           )}
         </div>
       )}
 
-      {/* File upload — only for create */}
+      {/* File upload / replacement */}
       {showFileUpload && (
         <div className="space-y-2">
-          <Label htmlFor="res-file">Archivo</Label>
+          <Label htmlFor="res-file">{isEdit ? "Reemplazar archivo" : "Archivo"}</Label>
           <div className="rounded-lg border-2 border-dashed border-border bg-muted/30 p-4 transition-colors hover:border-primary/40 hover:bg-muted/50">
             <input
               id="res-file"
@@ -684,7 +661,9 @@ function ResourceFormFields({
                 file:text-primary-foreground hover:file:bg-primary/90"
             />
             <p className="mt-2 text-xs text-muted-foreground">
-              {fileTypeDescriptions[resourceType] ?? "Selecciona un archivo"}
+              {isEdit
+                ? `${fileTypeDescriptions[resourceType] ?? "Selecciona un archivo"} — opcional`
+                : fileTypeDescriptions[resourceType] ?? "Selecciona un archivo"}
             </p>
           </div>
           {fileSizeError && (
@@ -740,6 +719,7 @@ export function ResourcesCrudPage({
   items,
   meta,
   categories,
+  clubTypes,
   unions,
   localFields,
   allowedScopeLevels,
@@ -752,6 +732,7 @@ export function ResourcesCrudPage({
   deleteAction,
 }: ResourcesCrudPageProps) {
   const t = useTranslations("resources");
+  const effectiveClubTypes = clubTypes.length > 0 ? clubTypes : DEFAULT_CLUB_TYPES;
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -765,9 +746,10 @@ export function ResourcesCrudPage({
   const [createFileSizeError, setCreateFileSizeError] = useState<string | null>(null);
   const [createError, setCreateError] = useState<string | null>(null);
   const [createSubmitting, setCreateSubmitting] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const createFormRef = useRef<HTMLFormElement | null>(null);
-  const uploadXhrRef = useRef<XMLHttpRequest | null>(null);
+  const [editFileSizeError, setEditFileSizeError] = useState<string | null>(null);
+  const [editError, setEditError] = useState<string | null>(null);
+  const [editSubmitting, setEditSubmitting] = useState(false);
 
   const [createState, createFormAction] = useActionState<ResourceActionState, FormData>(
     createAction,
@@ -782,61 +764,11 @@ export function ResourcesCrudPage({
     {},
   );
 
-  useEffect(() => {
-    return () => {
-      if (uploadXhrRef.current) {
-        uploadXhrRef.current.abort();
-        uploadXhrRef.current = null;
-      }
-    };
-  }, []);
-
-  function uploadToR2(
-    url: string,
-    file: File,
-    contentType: string,
-    onProgress: (pct: number) => void,
-  ): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      uploadXhrRef.current = xhr;
-      xhr.open("PUT", url, true);
-      xhr.setRequestHeader("Content-Type", contentType);
-      xhr.upload.onprogress = (event) => {
-        if (event.lengthComputable && event.total > 0) {
-          onProgress(Math.round((event.loaded / event.total) * 100));
-        }
-      };
-      xhr.onload = () => {
-        uploadXhrRef.current = null;
-        if (xhr.status >= 200 && xhr.status < 300) {
-          resolve();
-        } else {
-          reject(
-            new Error(
-              `R2 PUT respondió ${xhr.status}: ${xhr.statusText || "error"}`,
-            ),
-          );
-        }
-      };
-      xhr.onerror = () => {
-        uploadXhrRef.current = null;
-        reject(new Error("Error de red durante la subida a R2."));
-      };
-      xhr.onabort = () => {
-        uploadXhrRef.current = null;
-        reject(new Error("Subida cancelada."));
-      };
-      xhr.send(file);
-    });
-  }
-
   async function handleCreateSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     e.stopPropagation();
     if (createSubmitting) return;
     setCreateError(null);
-    setUploadProgress(null);
 
     const form = e.currentTarget;
     const formData = new FormData(form);
@@ -866,6 +798,11 @@ export function ResourcesCrudPage({
     }
 
     const scopeLevel = String(formData.get("scope_level") ?? "") as ScopeLevel;
+    if (!["system", "union", "local_field"].includes(scopeLevel)) {
+      setCreateError("Selecciona un alcance válido.");
+      return;
+    }
+
     const scopeIdRaw = String(formData.get("scope_id") ?? "").trim();
     const scopeId = scopeIdRaw ? Number(scopeIdRaw) : undefined;
     if (scopeLevel !== "system" && (!scopeId || !Number.isFinite(scopeId))) {
@@ -876,75 +813,125 @@ export function ResourcesCrudPage({
     const categoryIdRaw = String(formData.get("category_id") ?? "").trim();
     const categoryId =
       categoryIdRaw && categoryIdRaw !== "none" ? Number(categoryIdRaw) : undefined;
-    const description = String(formData.get("description") ?? "").trim() || undefined;
+    const clubTypeIdRaw = String(formData.get("club_type_id") ?? "").trim();
+    const clubTypeId =
+      clubTypeIdRaw && clubTypeIdRaw !== "all" ? Number(clubTypeIdRaw) : undefined;
+    const description = String(formData.get("description") ?? "").trim();
+
+    const apiFormData = new FormData();
+    apiFormData.set("title", title);
+    apiFormData.set("resource_type", resourceType);
+    apiFormData.set("scope_level", scopeLevel);
+    apiFormData.set("file", file);
+
+    if (description) {
+      apiFormData.set("description", description);
+    }
+    if (categoryId && Number.isFinite(categoryId)) {
+      apiFormData.set("resource_category_id", String(Math.floor(categoryId)));
+    }
+    if (clubTypeId && Number.isFinite(clubTypeId)) {
+      apiFormData.set("club_type_id", String(Math.floor(clubTypeId)));
+    }
+    if (scopeLevel !== "system" && scopeId) {
+      apiFormData.set("scope_id", String(Math.floor(scopeId)));
+    }
 
     setCreateSubmitting(true);
     try {
-      const uploadResp = await requestUploadUrlAction({
-        resource_type: resourceType as "document" | "audio" | "image",
-        scope_level: scopeLevel,
-        scope_id: scopeId,
-        file_name: file.name,
-        mime_type: file.type || "application/octet-stream",
-        file_size: file.size,
-      });
-
-      if (uploadResp.error || !uploadResp.data) {
-        setCreateError(uploadResp.error ?? "No se pudo iniciar la subida.");
-        return;
-      }
-
-      const { upload_url, file_key, required_headers } = uploadResp.data;
-      const contentType = required_headers["Content-Type"] ?? file.type;
-
-      setUploadProgress(0);
-      try {
-        await uploadToR2(upload_url, file, contentType, setUploadProgress);
-      } catch (uploadErr) {
-        setCreateError(
-          uploadErr instanceof Error ? uploadErr.message : "Subida fallida.",
-        );
-        return;
-      }
-
-      // Register the resource — server action will redirect on success.
-      const result = await createResourceFromUploadedAction(
-        {},
-        {
-          title,
-          description,
-          resource_type: resourceType as "document" | "audio" | "image",
-          resource_category_id: categoryId,
-          scope_level: scopeLevel,
-          scope_id: scopeId,
-          file_key,
-          file_name: file.name,
-          file_mime_type: contentType,
-          file_size: file.size,
-        },
-      );
-
-      if (result?.error) {
-        setCreateError(result.error);
-      }
+      await createResource(apiFormData);
+      toast.success("Recurso creado correctamente.");
+      createFormRef.current?.reset();
+      setCreateOpen(false);
+      router.refresh();
     } catch (err) {
       setCreateError(err instanceof Error ? err.message : "Error inesperado.");
     } finally {
       setCreateSubmitting(false);
-      setUploadProgress(null);
     }
   }
 
   function handleCreateCancel() {
-    if (uploadXhrRef.current) {
-      uploadXhrRef.current.abort();
-      uploadXhrRef.current = null;
-    }
     setCreateOpen(false);
     setCreateFileSizeError(null);
     setCreateError(null);
-    setUploadProgress(null);
     setCreateSubmitting(false);
+  }
+
+  async function handleEditSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (editSubmitting || !editItem) return;
+    setEditError(null);
+
+    const id = pickResourceId(editItem);
+    if (!id) {
+      setEditError("No se pudo identificar el recurso.");
+      return;
+    }
+
+    const formData = new FormData(e.currentTarget);
+    const resourceType = String(
+      formData.get("resource_type") ?? pickResourceType(editItem) ?? "",
+    );
+    const file = formData.get("file");
+    const hasReplacementFile = file instanceof File && file.size > 0;
+
+    if (!hasReplacementFile) {
+      updateFormAction(formData);
+      return;
+    }
+
+    if (!["document", "audio", "image"].includes(resourceType)) {
+      setEditError("Este tipo de recurso no admite archivo reemplazable.");
+      return;
+    }
+
+    const title = String(formData.get("title") ?? "").trim();
+    if (!title) {
+      setEditError("El título es obligatorio.");
+      return;
+    }
+
+    const description = String(formData.get("description") ?? "").trim();
+    const categoryIdRaw = String(formData.get("category_id") ?? "").trim();
+    const categoryId =
+      categoryIdRaw && categoryIdRaw !== "none" ? Number(categoryIdRaw) : undefined;
+    const clubTypeIdRaw = String(formData.get("club_type_id") ?? "").trim();
+    const clubTypeId =
+      clubTypeIdRaw && clubTypeIdRaw !== "all" ? Number(clubTypeIdRaw) : undefined;
+
+    const apiFormData = new FormData();
+    apiFormData.set("title", title);
+    apiFormData.set("description", description);
+    apiFormData.set("file", file);
+
+    if (categoryId && Number.isFinite(categoryId)) {
+      apiFormData.set("resource_category_id", String(Math.floor(categoryId)));
+    }
+    if (clubTypeId && Number.isFinite(clubTypeId)) {
+      apiFormData.set("club_type_id", String(Math.floor(clubTypeId)));
+    }
+
+    setEditSubmitting(true);
+    try {
+      await updateResource(id, apiFormData);
+      toast.success("Recurso actualizado correctamente.");
+      setEditItem(null);
+      setEditFileSizeError(null);
+      router.refresh();
+    } catch (err) {
+      setEditError(err instanceof Error ? err.message : "Error inesperado.");
+    } finally {
+      setEditSubmitting(false);
+    }
+  }
+
+  function handleEditCancel() {
+    setEditItem(null);
+    setEditFileSizeError(null);
+    setEditError(null);
+    setEditSubmitting(false);
   }
 
   useEffect(() => {
@@ -963,6 +950,14 @@ export function ResourcesCrudPage({
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (editItem) {
+      setEditError(null);
+      setEditFileSizeError(null);
+      setEditSubmitting(false);
+    }
+  }, [editItem]);
 
   const updateParam = useCallback(
     (key: string, value: string, mode: NavigationMode = "push") => {
@@ -992,7 +987,7 @@ export function ResourcesCrudPage({
   const currentSearch = searchParams.get("search") ?? "";
   const currentTypeFilter = searchParams.get("resource_type") ?? "all";
   const currentCategoryFilter = searchParams.get("category_id") ?? "all";
-  const currentClubTypeFilter = searchParams.get("club_type") ?? "all";
+  const currentClubTypeFilter = searchParams.get("club_type_id") ?? "all";
   const currentScopeFilter = searchParams.get("scope_level") ?? "all";
 
   const [searchInput, setSearchInput] = useState(currentSearch);
@@ -1026,7 +1021,7 @@ export function ResourcesCrudPage({
   const safeTotalPages = Math.max(1, meta.totalPages || 1);
 
   async function handleOpenSignedUrl(item: ResourceRecord) {
-    const id = pickId(item);
+    const id = pickResourceId(item);
     if (!id) return;
     const type = pickResourceType(item);
     const externalUrl = toText(item.external_url as string);
@@ -1038,12 +1033,14 @@ export function ResourcesCrudPage({
 
     // For file-based resources, fetch a signed URL through the authenticated client
     try {
-      const result = await apiRequestFromClient<{ signed_url?: string; url?: string }>(
+      const result = await apiRequestFromClient<unknown>(
         `/resources/${id}/signed-url`,
       );
-      const url = result.signed_url ?? result.url;
+      const url = extractResourceSignedUrl(result);
       if (url) {
         window.open(url, "_blank", "noopener,noreferrer");
+      } else {
+        toast.error(t("toasts.download_link_failed"));
       }
     } catch {
       toast.error(t("toasts.download_link_failed"));
@@ -1187,20 +1184,21 @@ export function ResourcesCrudPage({
                 </Label>
                 <Select
                   value={currentClubTypeFilter}
-                  onValueChange={(v) => updateParam("club_type", v)}
+                  onValueChange={(v) => updateParam("club_type_id", v)}
                 >
                   <SelectTrigger id="res-filter-club-type" className="bg-background h-8 text-sm">
                     <SelectValue placeholder={t("placeholders.filterClubType")} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Todos los clubes</SelectItem>
-                    {(Object.entries(CLUB_TYPE_LABELS) as [ClubTypeTarget, string][]).map(
-                      ([value, label]) => (
-                        <SelectItem key={value} value={value}>
-                          {label}
-                        </SelectItem>
-                      ),
-                    )}
+                    {effectiveClubTypes.map((clubType) => (
+                      <SelectItem
+                        key={clubType.club_type_id}
+                        value={String(clubType.club_type_id)}
+                      >
+                        {clubType.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -1260,14 +1258,14 @@ export function ResourcesCrudPage({
                 </TableHeader>
                 <TableBody>
                   {items.map((item, idx) => {
-                    const itemId = pickId(item);
+                    const itemId = pickResourceId(item);
                     const title = pickTitle(item);
                     const type = pickResourceType(item);
                     const categoryName = pickCategoryName(item);
                     const uploader = pickUploader(item);
                     const scopeLevel = pickScopeLevel(item);
                     const scopeId = pickScopeId(item);
-                    const clubType = pickClubType(item);
+                    const clubTypeLabel = pickClubTypeLabel(item, effectiveClubTypes);
                     const fileSize = formatFileSize(item.file_size);
                     const rowKey = itemId
                       ? `res-${itemId}`
@@ -1298,7 +1296,7 @@ export function ResourcesCrudPage({
                           />
                         </TableCell>
                         <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
-                          {clubType ? CLUB_TYPE_LABELS[clubType] ?? "—" : "Todos"}
+                          {clubTypeLabel}
                         </TableCell>
                         <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
                           {uploader}
@@ -1470,32 +1468,19 @@ export function ResourcesCrudPage({
               )}
               <ResourceFormFields
                 categories={categories}
+                clubTypes={effectiveClubTypes}
                 unions={unions}
                 localFields={localFields}
                 allowedScopeLevels={allowedScopeLevels}
                 lockedScopeId={lockedScopeId}
                 onFileSizeError={setCreateFileSizeError}
               />
-              {uploadProgress !== null && (
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>Subiendo archivo a R2…</span>
-                    <span>{uploadProgress}%</span>
-                  </div>
-                  <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-                    <div
-                      className="h-full bg-primary transition-all"
-                      style={{ width: `${uploadProgress}%` }}
-                    />
-                  </div>
-                </div>
-              )}
               <DialogFooter>
                 <Button
                   type="button"
                   variant="outline"
                   onClick={handleCreateCancel}
-                  disabled={createSubmitting && uploadProgress === null}
+                  disabled={createSubmitting}
                 >
                   Cancelar
                 </Button>
@@ -1520,38 +1505,51 @@ export function ResourcesCrudPage({
         <Dialog
           open={!!editItem}
           onOpenChange={(open) => {
-            if (!open) setEditItem(null);
+            if (!open) handleEditCancel();
           }}
         >
           <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Editar recurso</DialogTitle>
               <DialogDescription>
-                Modifica los metadatos del recurso. Para cambiar el archivo, elimínalo y vuelve a
-                subirlo.
+                Modifica los metadatos del recurso. Si seleccionas un archivo nuevo, reemplazará al
+                anterior.
               </DialogDescription>
             </DialogHeader>
-            <form action={updateFormAction} className="space-y-4">
-              <input type="hidden" name="id" value={String(pickId(editItem) ?? "")} />
-              {!!editItem && updateState.error && (
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <input type="hidden" name="id" value={pickResourceId(editItem) ?? ""} />
+              {!!editItem && (editError || updateState.error) && (
                 <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                  {updateState.error}
+                  {editError ?? updateState.error}
                 </div>
               )}
               <ResourceFormFields
                 item={editItem}
                 categories={categories}
+                clubTypes={effectiveClubTypes}
                 unions={unions}
                 localFields={localFields}
                 allowedScopeLevels={allowedScopeLevels}
                 lockedScopeId={lockedScopeId}
                 isEdit
+                onFileSizeError={setEditFileSizeError}
               />
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setEditItem(null)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleEditCancel}
+                  disabled={editSubmitting}
+                >
                   Cancelar
                 </Button>
-                <SubmitButton label="Guardar cambios" />
+                <Button
+                  type="submit"
+                  disabled={editSubmitting || !!editFileSizeError}
+                >
+                  {editSubmitting && <Loader2 className="size-4 animate-spin" />}
+                  Guardar cambios
+                </Button>
               </DialogFooter>
             </form>
           </DialogContent>
@@ -1574,13 +1572,13 @@ export function ResourcesCrudPage({
                 <span className="font-medium text-foreground">
                   &quot;{pickTitle(deleteItem)}&quot;
                 </span>
-                . El archivo asociado también será removido. Esta acción no se puede deshacer.
+                . Se desactivará el registro; el archivo asociado no se elimina de R2.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancelar</AlertDialogCancel>
               <form action={deleteFormAction}>
-                <input type="hidden" name="id" value={String(pickId(deleteItem) ?? "")} />
+                <input type="hidden" name="id" value={pickResourceId(deleteItem) ?? ""} />
                 {deleteState.error && (
                   <p className="mb-2 text-xs text-destructive">{deleteState.error}</p>
                 )}
