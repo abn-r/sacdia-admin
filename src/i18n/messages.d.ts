@@ -110,6 +110,7 @@ export interface IntlMessages {
       annual_folders_mine: string;
       annual_folders_evaluate: string;
       annual_folders_rankings: string;
+      annual_folders_ranking_config: string;
       annual_folders_categories: string;
       member_rankings: string;
       member_ranking_weights: string;
