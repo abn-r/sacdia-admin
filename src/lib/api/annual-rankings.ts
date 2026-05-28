@@ -41,6 +41,38 @@ export type RankingTier = {
   updated_at?: string;
 };
 
+export type AnnualRankingTier = {
+  name: string;
+  slug: string;
+  from_points: number;
+  to_points: number;
+  points_to_reach: number | null;
+};
+
+export type AnnualRankingComponentProgress = {
+  key: string;
+  label: string;
+  earned_points: number;
+  max_points: number;
+  progress_percentage: number;
+};
+
+export type AnnualRankingLeaderboardRow = {
+  rank_position: number;
+  club_enrollment_id: string;
+  club_id: number;
+  club_name: string;
+  club_type_id: number;
+  ecclesiastical_year_id: number;
+  local_field_id: number | null;
+  current_points: number;
+  max_points: number;
+  progress_percentage: number;
+  current_tier: AnnualRankingTier | null;
+  next_tier: AnnualRankingTier | null;
+  components: AnnualRankingComponentProgress[];
+};
+
 type Envelope<T> = { status?: string; data?: T; total?: number };
 
 function unwrapData<T>(payload: T | Envelope<T>): T {
@@ -56,7 +88,21 @@ export type AnnualRankingConfigFilters = {
   clubTypeId?: number;
 };
 
+export type AnnualRankingLeaderboardFilters = {
+  localFieldId: number;
+  ecclesiasticalYearId: number;
+  clubTypeId: number;
+};
+
 function filtersToParams(filters: AnnualRankingConfigFilters = {}) {
+  return {
+    local_field_id: filters.localFieldId,
+    year_id: filters.ecclesiasticalYearId,
+    club_type_id: filters.clubTypeId,
+  };
+}
+
+function leaderboardFiltersToParams(filters: AnnualRankingLeaderboardFilters) {
   return {
     local_field_id: filters.localFieldId,
     year_id: filters.ecclesiasticalYearId,
@@ -107,6 +153,27 @@ export async function updateAnnualRankingConfig(
   );
 
   return unwrapData(response);
+}
+
+export async function listAnnualRankings(
+  filters: AnnualRankingLeaderboardFilters,
+): Promise<AnnualRankingLeaderboardRow[]> {
+  const payload = await apiRequest<Envelope<AnnualRankingLeaderboardRow[]>>(
+    "/annual-rankings",
+    { params: leaderboardFiltersToParams(filters) },
+  );
+
+  return unwrapData(payload) ?? [];
+}
+
+export async function listAnnualRankingsFromClient(
+  filters: AnnualRankingLeaderboardFilters,
+): Promise<AnnualRankingLeaderboardRow[]> {
+  const payload = await apiRequestFromClient<
+    Envelope<AnnualRankingLeaderboardRow[]>
+  >("/annual-rankings", { params: leaderboardFiltersToParams(filters) });
+
+  return unwrapData(payload) ?? [];
 }
 
 export async function listRankingTiers(): Promise<RankingTier[]> {

@@ -8,9 +8,12 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { requireAdminUser } from "@/lib/auth/session";
 import { ApiError } from "@/lib/api/client";
 import { listClubTypes, listEcclesiasticalYears } from "@/lib/api/catalogs";
-import { getRankings, getAwardCategories } from "@/lib/api/annual-folders";
-import type { ClubRanking, AwardCategory } from "@/lib/api/annual-folders";
+import { listLocalFields } from "@/lib/api/geography";
+import { listAnnualRankings } from "@/lib/api/annual-rankings";
+import { resolveInitialLocalFieldId } from "@/lib/annual-folders/ranking-defaults";
+import type { AnnualRankingLeaderboardRow } from "@/lib/api/annual-rankings";
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
+import type { LocalField } from "@/lib/api/geography";
 
 const RankingsClientPage = dynamic(
   () =>
@@ -51,20 +54,22 @@ function extractArray(payload: unknown): AnyRecord[] {
 // ─── Page ──────────────────────────────────────────────────────────────────────
 
 export default async function RankingsPage() {
-  await requireAdminUser();
+  const user = await requireAdminUser();
   const t = await getTranslations("annual_folders");
 
   let clubTypes: ClubType[] = [];
   let ecclesiasticalYears: EcclesiasticalYear[] = [];
-  let initialRankings: ClubRanking[] = [];
-  let initialCategories: AwardCategory[] = [];
+  let localFields: LocalField[] = [];
+  let initialRankings: AnnualRankingLeaderboardRow[] = [];
   let loadError: string | null = null;
 
   // Load catalogs
-  const [clubTypesResult, yearsResult] = await Promise.allSettled([
-    listClubTypes(),
-    listEcclesiasticalYears(),
-  ]);
+  const [clubTypesResult, yearsResult, localFieldsResult] =
+    await Promise.allSettled([
+      listClubTypes(),
+      listEcclesiasticalYears(),
+      listLocalFields(),
+    ]);
 
   if (clubTypesResult.status === "fulfilled") {
     clubTypes = Array.isArray(clubTypesResult.value)
@@ -78,7 +83,17 @@ export default async function RankingsPage() {
       : (extractArray(yearsResult.value) as EcclesiasticalYear[]);
   }
 
-  if (clubTypes.length === 0 || ecclesiasticalYears.length === 0) {
+  if (localFieldsResult.status === "fulfilled") {
+    localFields = Array.isArray(localFieldsResult.value)
+      ? localFieldsResult.value
+      : (extractArray(localFieldsResult.value) as LocalField[]);
+  }
+
+  if (
+    clubTypes.length === 0 ||
+    ecclesiasticalYears.length === 0 ||
+    localFields.length === 0
+  ) {
     loadError = t("pageRankings.errorFallback");
   }
 
@@ -88,23 +103,24 @@ export default async function RankingsPage() {
     ecclesiasticalYears.find((y) => y.active)?.ecclesiastical_year_id ??
     ecclesiasticalYears[0]?.ecclesiastical_year_id ??
     1;
+  const defaultLocalFieldId = resolveInitialLocalFieldId(user, localFields);
 
-  if (!loadError) {
-    const [rankingsResult, categoriesResult] = await Promise.allSettled([
-      getRankings(defaultClubTypeId, defaultYearId),
-      getAwardCategories(defaultClubTypeId, true, "club", false),
-    ]);
+  if (!loadError && defaultLocalFieldId !== undefined) {
+    try {
+      const rankingsResult = await listAnnualRankings({
+        clubTypeId: defaultClubTypeId,
+        ecclesiasticalYearId: defaultYearId,
+        localFieldId: defaultLocalFieldId,
+      });
 
-    if (rankingsResult.status === "fulfilled") {
-      initialRankings = Array.isArray(rankingsResult.value)
-        ? rankingsResult.value
-        : (extractArray(rankingsResult.value) as ClubRanking[]);
-    }
-
-    if (categoriesResult.status === "fulfilled") {
-      initialCategories = Array.isArray(categoriesResult.value)
-        ? categoriesResult.value
-        : (extractArray(categoriesResult.value) as AwardCategory[]);
+      initialRankings = Array.isArray(rankingsResult)
+        ? rankingsResult
+        : (extractArray(rankingsResult) as AnnualRankingLeaderboardRow[]);
+    } catch (error) {
+      loadError =
+        error instanceof ApiError
+          ? error.message
+          : t("pageRankings.errorFallback");
     }
   }
 
@@ -127,14 +143,15 @@ export default async function RankingsPage() {
         />
       )}
 
-      {!loadError && clubTypes.length > 0 && (
+      {!loadError && clubTypes.length > 0 && localFields.length > 0 && (
         <RankingsClientPage
           initialRankings={initialRankings}
-          initialCategories={initialCategories}
           clubTypes={clubTypes}
           ecclesiasticalYears={ecclesiasticalYears}
+          localFields={localFields}
           initialClubTypeId={defaultClubTypeId}
           initialYearId={defaultYearId}
+          initialLocalFieldId={defaultLocalFieldId}
         />
       )}
     </div>
