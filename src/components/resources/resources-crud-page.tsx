@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useCallback, useEffect, useRef, useState } from "react";
+import { startTransition, useActionState, useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useFormStatus } from "react-dom";
@@ -751,11 +751,17 @@ export function ResourcesCrudPage({
   const [editError, setEditError] = useState<string | null>(null);
   const [editSubmitting, setEditSubmitting] = useState(false);
 
-  const [createState, createFormAction] = useActionState<ResourceActionState, FormData>(
+  const [createState, createFormAction, createActionPending] = useActionState<
+    ResourceActionState,
+    FormData
+  >(
     createAction,
     {},
   );
-  const [updateState, updateFormAction] = useActionState<ResourceActionState, FormData>(
+  const [updateState, updateFormAction, updateActionPending] = useActionState<
+    ResourceActionState,
+    FormData
+  >(
     updateAction,
     {},
   );
@@ -767,7 +773,7 @@ export function ResourcesCrudPage({
   async function handleCreateSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     e.stopPropagation();
-    if (createSubmitting) return;
+    if (createSubmitting || createActionPending) return;
     setCreateError(null);
 
     const form = e.currentTarget;
@@ -776,7 +782,9 @@ export function ResourcesCrudPage({
 
     // text + video_link have no file → fallback to the legacy Server Action
     if (resourceType === "text" || resourceType === "video_link") {
-      createFormAction(formData);
+      startTransition(() => {
+        createFormAction(formData);
+      });
       return;
     }
 
@@ -861,7 +869,7 @@ export function ResourcesCrudPage({
   async function handleEditSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     e.stopPropagation();
-    if (editSubmitting || !editItem) return;
+    if (editSubmitting || updateActionPending || !editItem) return;
     setEditError(null);
 
     const id = pickResourceId(editItem);
@@ -878,7 +886,9 @@ export function ResourcesCrudPage({
     const hasReplacementFile = file instanceof File && file.size > 0;
 
     if (!hasReplacementFile) {
-      updateFormAction(formData);
+      startTransition(() => {
+        updateFormAction(formData);
+      });
       return;
     }
 
@@ -1480,15 +1490,17 @@ export function ResourcesCrudPage({
                   type="button"
                   variant="outline"
                   onClick={handleCreateCancel}
-                  disabled={createSubmitting}
+                  disabled={createSubmitting || createActionPending}
                 >
                   Cancelar
                 </Button>
                 <Button
                   type="submit"
-                  disabled={createSubmitting || !!createFileSizeError}
+                  disabled={createSubmitting || createActionPending || !!createFileSizeError}
                 >
-                  {createSubmitting && <Loader2 className="size-4 animate-spin" />}
+                  {(createSubmitting || createActionPending) && (
+                    <Loader2 className="size-4 animate-spin" />
+                  )}
                   Subir recurso
                 </Button>
               </DialogFooter>
@@ -1539,15 +1551,17 @@ export function ResourcesCrudPage({
                   type="button"
                   variant="outline"
                   onClick={handleEditCancel}
-                  disabled={editSubmitting}
+                  disabled={editSubmitting || updateActionPending}
                 >
                   Cancelar
                 </Button>
                 <Button
                   type="submit"
-                  disabled={editSubmitting || !!editFileSizeError}
+                  disabled={editSubmitting || updateActionPending || !!editFileSizeError}
                 >
-                  {editSubmitting && <Loader2 className="size-4 animate-spin" />}
+                  {(editSubmitting || updateActionPending) && (
+                    <Loader2 className="size-4 animate-spin" />
+                  )}
                   Guardar cambios
                 </Button>
               </DialogFooter>

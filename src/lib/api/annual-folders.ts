@@ -440,6 +440,7 @@ export type ClubRanking = {
   club_name: string;
   club_enrollment_id: string;
   ecclesiastical_year_id: number;
+  local_field_id: number | null;
   total_earned_points: number;
   total_max_points: number;
   progress_percentage: number;
@@ -476,12 +477,14 @@ export async function getRankings(
   clubTypeId: number,
   yearId: number,
   categoryId?: string,
+  localFieldId?: number,
 ): Promise<ClubRanking[]> {
   return apiRequest<ClubRanking[]>("/annual-folders/rankings", {
     params: {
       club_type_id: clubTypeId,
       year_id: yearId,
       ...(categoryId ? { category_id: categoryId } : {}),
+      ...(localFieldId !== undefined ? { local_field_id: localFieldId } : {}),
     },
   });
 }
@@ -496,12 +499,14 @@ export async function getRankingsFromClient(
   clubTypeId: number,
   yearId: number,
   categoryId?: string,
+  localFieldId?: number,
 ): Promise<ClubRanking[]> {
   return apiRequestFromClient<ClubRanking[]>("/annual-folders/rankings", {
     params: {
       club_type_id: clubTypeId,
       year_id: yearId,
       ...(categoryId ? { category_id: categoryId } : {}),
+      ...(localFieldId !== undefined ? { local_field_id: localFieldId } : {}),
     },
   });
 }

@@ -26,8 +26,6 @@ import {
   Activity,
   FileSearch,
   Trophy,
-  Users2,
-  Layers,
   SlidersHorizontal,
   ShoppingBag,
   Tag,
@@ -36,9 +34,6 @@ import {
 import {
   RANKINGS_READ,
   RANKING_WEIGHTS_READ,
-  MEMBER_RANKINGS_READ_GLOBAL,
-  MEMBER_RANKING_WEIGHTS_READ,
-  SECTION_RANKINGS_READ_GLOBAL,
 } from "@/lib/auth/permissions";
 
 /**
@@ -326,25 +321,12 @@ export const navConfig: NavGroup[] = [
         permission: "investiture:read",
       },
       {
-        title: "items.member_rankings",
-        url: "/dashboard/member-rankings",
-        icon: Users2,
-        permission: MEMBER_RANKINGS_READ_GLOBAL,
-      },
-      {
-        title: "items.section_rankings",
-        url: "/dashboard/section-rankings",
-        icon: Layers,
-        permission: SECTION_RANKINGS_READ_GLOBAL,
-      },
-      {
         title: "items.ranking_weights_root",
         url: "/dashboard/ranking-weights",
         icon: SlidersHorizontal,
         permission: RANKING_WEIGHTS_READ,
         children: [
           { title: "items.ranking_weights", url: "/dashboard/ranking-weights", permission: RANKING_WEIGHTS_READ },
-          { title: "items.member_ranking_weights", url: "/dashboard/member-ranking-weights", permission: MEMBER_RANKING_WEIGHTS_READ },
         ],
       },
     ],
