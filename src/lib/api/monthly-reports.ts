@@ -1,8 +1,11 @@
-import { apiRequest, apiRequestFromClient } from "@/lib/api/client";
+import { API_BASE_URL, apiRequest, apiRequestFromClient } from "@/lib/api/client";
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
 
 export type ReportStatus = "draft" | "generated" | "submitted";
+
+export type MonthlyReportId = string;
+export type MonthlyReportEnrollmentId = string | number;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -41,8 +44,8 @@ export type MonthlyReportManualData = {
 };
 
 export type MonthlyReport = {
-  report_id: number;
-  enrollment_id: number;
+  report_id: MonthlyReportId;
+  enrollment_id: MonthlyReportEnrollmentId;
   month: number;
   year: number;
   status: ReportStatus;
@@ -56,7 +59,7 @@ export type MonthlyReport = {
 };
 
 export type MonthlyReportPreview = {
-  enrollment_id: number;
+  enrollment_id: MonthlyReportEnrollmentId;
   month: number;
   year: number;
   auto_data: MonthlyReportAutoData;
@@ -71,12 +74,12 @@ export type UpdateManualDataPayload = MonthlyReportManualData;
  * Live preview of auto-calculated data. Server-side safe.
  */
 export async function previewMonthlyReport(
-  enrollmentId: number,
+  enrollmentId: MonthlyReportEnrollmentId,
   month: number,
   year: number,
 ): Promise<MonthlyReportPreview> {
   return apiRequest<MonthlyReportPreview>(
-    `/monthly-reports/preview/${enrollmentId}`,
+    `/monthly-reports/preview/${encodeURIComponent(String(enrollmentId))}`,
     { params: { month, year } },
   );
 }
@@ -86,14 +89,14 @@ export async function previewMonthlyReport(
  * List all reports for an enrollment. Server-side safe.
  */
 export async function listMonthlyReports(
-  enrollmentId: number,
+  enrollmentId: MonthlyReportEnrollmentId,
   status?: ReportStatus,
 ): Promise<MonthlyReport[]> {
   const params: Record<string, string | number | undefined> = {};
   if (status) params.status = status;
 
   return apiRequest<MonthlyReport[]>(
-    `/monthly-reports/enrollment/${enrollmentId}`,
+    `/monthly-reports/enrollment/${encodeURIComponent(String(enrollmentId))}`,
     { params },
   );
 }
@@ -102,8 +105,10 @@ export async function listMonthlyReports(
  * GET /api/v1/monthly-reports/:reportId
  * Get a single report. Server-side safe.
  */
-export async function getMonthlyReport(reportId: number): Promise<MonthlyReport> {
-  return apiRequest<MonthlyReport>(`/monthly-reports/${reportId}`);
+export async function getMonthlyReport(reportId: MonthlyReportId): Promise<MonthlyReport> {
+  return apiRequest<MonthlyReport>(
+    `/monthly-reports/${encodeURIComponent(reportId)}`,
+  );
 }
 
 /**
@@ -111,12 +116,12 @@ export async function getMonthlyReport(reportId: number): Promise<MonthlyReport>
  * Create or get existing draft. Client-side only (mutation).
  */
 export async function createOrGetDraftReport(
-  enrollmentId: number,
+  enrollmentId: MonthlyReportEnrollmentId,
   month: number,
   year: number,
 ): Promise<MonthlyReport> {
   return apiRequestFromClient<MonthlyReport>(
-    `/monthly-reports/${enrollmentId}`,
+    `/monthly-reports/${encodeURIComponent(String(enrollmentId))}`,
     {
       method: "POST",
       params: { month, year },
@@ -129,11 +134,11 @@ export async function createOrGetDraftReport(
  * Update manual fields. Client-side only (mutation).
  */
 export async function updateManualData(
-  reportId: number,
+  reportId: MonthlyReportId,
   payload: UpdateManualDataPayload,
 ): Promise<MonthlyReport> {
   return apiRequestFromClient<MonthlyReport>(
-    `/monthly-reports/${reportId}/manual-data`,
+    `/monthly-reports/${encodeURIComponent(reportId)}/manual-data`,
     {
       method: "PATCH",
       body: payload,
@@ -145,9 +150,9 @@ export async function updateManualData(
  * POST /api/v1/monthly-reports/:reportId/generate
  * Freeze snapshot. Client-side only (mutation).
  */
-export async function generateReport(reportId: number): Promise<MonthlyReport> {
+export async function generateReport(reportId: MonthlyReportId): Promise<MonthlyReport> {
   return apiRequestFromClient<MonthlyReport>(
-    `/monthly-reports/${reportId}/generate`,
+    `/monthly-reports/${encodeURIComponent(reportId)}/generate`,
     { method: "POST" },
   );
 }
@@ -156,20 +161,67 @@ export async function generateReport(reportId: number): Promise<MonthlyReport> {
  * POST /api/v1/monthly-reports/:reportId/submit
  * Submit to field. Client-side only (mutation).
  */
-export async function submitReport(reportId: number): Promise<MonthlyReport> {
+export async function submitReport(reportId: MonthlyReportId): Promise<MonthlyReport> {
   return apiRequestFromClient<MonthlyReport>(
-    `/monthly-reports/${reportId}/submit`,
+    `/monthly-reports/${encodeURIComponent(reportId)}/submit`,
     { method: "POST" },
   );
 }
 
 /**
  * GET /api/v1/monthly-reports/:reportId/pdf
- * Download PDF blob URL. Client-side only.
+ * Build the backend PDF URL. Do not navigate to this URL directly from the
+ * browser; use downloadMonthlyReportPdf so the Bearer token is attached.
  */
-export function getReportPdfUrl(reportId: number): string {
-  const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "http://localhost:3000/api/v1";
-  return `${base}/monthly-reports/${reportId}/pdf`;
+export function getReportPdfUrl(reportId: MonthlyReportId): string {
+  return `${API_BASE_URL}/monthly-reports/${encodeURIComponent(reportId)}/pdf`;
+}
+
+/**
+ * Fetches a monthly report PDF with the admin JWT attached as Bearer.
+ * Direct browser navigation cannot attach Authorization headers because the
+ * admin token lives in an httpOnly cookie on the Next.js app origin.
+ */
+export async function downloadMonthlyReportPdf(reportId: MonthlyReportId): Promise<Blob> {
+  let token: string | null = null;
+
+  try {
+    const tokenResponse = await fetch("/api/auth/token");
+    if (tokenResponse.ok) {
+      const body = (await tokenResponse.json()) as { token: string | null };
+      token = body.token;
+    }
+  } catch {
+    // Continue without token — backend will return 401 and we surface it below.
+  }
+
+  const headers: Record<string, string> = { Accept: "application/pdf" };
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  const response = await fetch(getReportPdfUrl(reportId), { headers });
+  if (!response.ok) {
+    throw new Error(`No se pudo descargar el PDF (${response.status})`);
+  }
+
+  return response.blob();
+}
+
+export async function triggerMonthlyReportPdfDownload(
+  reportId: MonthlyReportId,
+  filename = `informe-mensual-${reportId}.pdf`,
+): Promise<void> {
+  const blob = await downloadMonthlyReportPdf(reportId);
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+  URL.revokeObjectURL(url);
 }
 
 // ─── Admin list ───────────────────────────────────────────────────────────────

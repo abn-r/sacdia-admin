@@ -59,7 +59,7 @@ type FormValues = z.infer<typeof manualDataSchema>;
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface ManualDataFormProps {
-  reportId: number;
+  reportId: string;
   initialData?: MonthlyReportManualData | null;
   disabled?: boolean;
   onSuccess?: (data: MonthlyReportManualData) => void;

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -7,8 +8,10 @@ import {
   ChevronRight,
   FileText,
   Download,
+  Loader2,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
 import {
@@ -26,7 +29,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getReportPdfUrl } from "@/lib/api/monthly-reports";
+import { triggerMonthlyReportPdfDownload } from "@/lib/api/monthly-reports";
 import type { AdminReportsPage, AdminReportItem } from "@/lib/api/monthly-reports";
 import type { ClubType } from "@/lib/api/catalogs";
 import type { Division, LocalField, Union } from "@/lib/api/geography";
@@ -76,6 +79,7 @@ export function ReportsSupervisionClient({
   const t = useTranslations("reports.supervisionClient");
   const router = useRouter();
   const formatDate = useFormatDate();
+  const [downloadingReportId, setDownloadingReportId] = useState<string | null>(null);
 
   const currentPage = Number(searchParams.page ?? "1");
   const { total, limit, items } = initialData;
@@ -136,6 +140,17 @@ export function ReportsSupervisionClient({
     }
 
     handleFilter(key, value);
+  }
+
+  async function handleDownloadPdf(item: AdminReportItem) {
+    setDownloadingReportId(item.monthly_report_id);
+    try {
+      await triggerMonthlyReportPdfDownload(item.monthly_report_id);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : t("emptyHint"));
+    } finally {
+      setDownloadingReportId(null);
+    }
   }
 
   function handlePage(newPage: number) {
@@ -331,15 +346,18 @@ export function ReportsSupervisionClient({
                         </Link>
                       </Button>
                       {item.status !== "draft" && (
-                        <Button asChild variant="outline" size="sm">
-                          <a
-                            href={getReportPdfUrl(Number(item.monthly_report_id))}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDownloadPdf(item)}
+                          disabled={downloadingReportId === item.monthly_report_id}
+                        >
+                          {downloadingReportId === item.monthly_report_id ? (
+                            <Loader2 className="mr-1 size-3.5 animate-spin" />
+                          ) : (
                             <Download className="mr-1 size-3.5" />
-                            {t("actionPdf")}
-                          </a>
+                          )}
+                          {t("actionPdf")}
                         </Button>
                       )}
                     </div>

@@ -23,8 +23,15 @@ const ReportsListClient = dynamic(
 type EnrollmentErrorCode = "no_active_enrollment" | "no_role_access" | "unknown";
 
 type ActiveEnrollmentResult =
-  | { enrollment_id: number; available: true }
+  | { enrollment_id: string | number; available: true }
   | { enrollment_id: null; available: false; errorCode: EnrollmentErrorCode };
+
+function isValidEnrollmentId(id: unknown): id is string | number {
+  return (
+    (typeof id === "string" && id.trim().length > 0) ||
+    (typeof id === "number" && id > 0)
+  );
+}
 
 // ─── Data fetching ────────────────────────────────────────────────────────────
 
@@ -45,7 +52,7 @@ async function fetchActiveEnrollment(): Promise<ActiveEnrollmentResult> {
         ? (data as Record<string, unknown>).enrollment_id
         : null;
 
-    if (typeof id === "number" && id > 0) {
+    if (isValidEnrollmentId(id)) {
       return { enrollment_id: id, available: true };
     }
 
@@ -62,7 +69,7 @@ async function fetchActiveEnrollment(): Promise<ActiveEnrollmentResult> {
         ? (fallbackData as Record<string, unknown>).enrollment_id
         : null;
 
-    if (typeof fallbackId === "number" && fallbackId > 0) {
+    if (isValidEnrollmentId(fallbackId)) {
       return { enrollment_id: fallbackId, available: true };
     }
 

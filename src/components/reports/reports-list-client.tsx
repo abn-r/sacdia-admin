@@ -44,7 +44,7 @@ import {
   createOrGetDraftReport,
   generateReport,
   submitReport,
-  getReportPdfUrl,
+  triggerMonthlyReportPdfDownload,
   type MonthlyReport,
   type ReportStatus,
 } from "@/lib/api/monthly-reports";
@@ -97,7 +97,7 @@ function ReportsTableSkeleton({ headers }: { headers: string[] }) {
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface ReportsListClientProps {
-  enrollmentId: number;
+  enrollmentId: string | number;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -112,7 +112,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
   const [filterStatus, setFilterStatus] = useState<ReportStatus | "all">("all");
 
   // Action loading per report
-  const [actionLoading, setActionLoading] = useState<Record<number, string>>({});
+  const [actionLoading, setActionLoading] = useState<Record<string, string>>({});
 
   // New report creation state
   const [createMonth, setCreateMonth] = useState<number>(new Date().getMonth() + 1);
@@ -229,9 +229,21 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
     },
   });
 
-  function handleDownloadPdf(report: MonthlyReport) {
-    const url = getReportPdfUrl(report.report_id);
-    window.open(url, "_blank", "noopener,noreferrer");
+  async function handleDownloadPdf(report: MonthlyReport) {
+    setActionLoading((prev) => ({ ...prev, [report.report_id]: "pdf" }));
+    try {
+      await triggerMonthlyReportPdfDownload(report.report_id);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : t("errors.load_reports");
+      toast.error(message);
+    } finally {
+      setActionLoading((prev) => {
+        const next = { ...prev };
+        delete next[report.report_id];
+        return next;
+      });
+    }
   }
 
   // ─── Render ───────────────────────────────────────────────────────────────
@@ -454,8 +466,13 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                                 variant="ghost"
                                 size="xs"
                                 onClick={() => handleDownloadPdf(report)}
+                                disabled={isDisabled}
                               >
-                                <Download className="size-3" />
+                                {loadingAction === "pdf" ? (
+                                  <Loader2 className="size-3 animate-spin" />
+                                ) : (
+                                  <Download className="size-3" />
+                                )}
                                 {t("list.actionPdf")}
                               </Button>
                             )}
@@ -578,8 +595,13 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                           variant="outline"
                           size="xs"
                           onClick={() => handleDownloadPdf(report)}
+                          disabled={isDisabled}
                         >
-                          <Download className="size-3" />
+                          {loadingAction === "pdf" ? (
+                            <Loader2 className="size-3 animate-spin" />
+                          ) : (
+                            <Download className="size-3" />
+                          )}
                           {t("list.actionPdf")}
                         </Button>
                       )}
