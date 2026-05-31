@@ -97,6 +97,13 @@ export type ClubRoleAssignmentUpdatePayload = {
   status?: string;
 };
 
+export type ClubDirectorSuccessionPayload = {
+  current_assignment_id: string;
+  successor_user_id: string;
+  ecclesiastical_year_id: number;
+  start_date?: string;
+};
+
 export async function listClubs(query: ClubListQuery = {}) {
   return apiRequest("/clubs", { params: query });
 }
@@ -193,23 +200,61 @@ export async function revokeClubRoleAssignment(assignmentId: string) {
   });
 }
 
+export async function succeedClubSectionDirector(
+  clubId: number,
+  sectionId: number,
+  payload: ClubDirectorSuccessionPayload,
+) {
+  return apiRequest(`/clubs/${clubId}/sections/${sectionId}/director-succession`, {
+    method: "POST",
+    body: payload,
+  });
+}
+
 // ─── Club-level member aggregation ───────────────────────────────────────────
 
 type RawMember = Record<string, unknown>;
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
+}
+
+function pickString(record: Record<string, unknown> | null, key: string) {
+  const value = record?.[key];
+  return typeof value === "string" && value.trim().length > 0
+    ? value.trim()
+    : null;
+}
 
 function normalizeMember(
   raw: RawMember,
   sectionId?: number,
 ): ClubSectionMember | null {
+  const user = asRecord(raw.users);
+  const role = asRecord(raw.roles);
+
   const user_id =
     typeof raw.user_id === "string" && raw.user_id.trim().length > 0
       ? raw.user_id.trim()
       : null;
   if (!user_id) return null;
 
+  const nestedName = [
+    pickString(user, "name"),
+    pickString(user, "paternal_last_name"),
+    pickString(user, "maternal_last_name"),
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+
   const name =
     typeof raw.name === "string" && raw.name.trim().length > 0
       ? raw.name.trim()
+      : nestedName.length > 0
+        ? nestedName
       : user_id;
 
   return {
@@ -218,10 +263,19 @@ function normalizeMember(
     club_section_id:
       typeof raw.club_section_id === "number" ? raw.club_section_id : sectionId,
     name,
-    picture_url: typeof raw.picture_url === "string" ? raw.picture_url : null,
-    role: typeof raw.role === "string" ? raw.role : null,
+    picture_url:
+      typeof raw.picture_url === "string"
+        ? raw.picture_url
+        : pickString(user, "user_image"),
+    role:
+      typeof raw.role === "string"
+        ? raw.role
+        : pickString(role, "role_name"),
     role_display_name: typeof raw.role_display_name === "string" ? raw.role_display_name : null,
-    role_id: typeof raw.role_id === "string" ? raw.role_id : undefined,
+    role_id:
+      typeof raw.role_id === "string"
+        ? raw.role_id
+        : (pickString(role, "role_id") ?? undefined),
     active: raw.active !== false,
   };
 }

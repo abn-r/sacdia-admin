@@ -11,6 +11,7 @@ import {
   deleteClub,
   listClubSections,
   revokeClubRoleAssignment,
+  succeedClubSectionDirector,
   updateClub,
   updateClubSection,
   updateClubRoleAssignment,
@@ -18,6 +19,7 @@ import {
 } from "@/lib/api/clubs";
 import { unwrapList, unwrapObject } from "@/lib/api/response";
 import { requireAdminUser } from "@/lib/auth/session";
+import { extractRoles } from "@/lib/auth/roles";
 import { canManageClubsByRole } from "@/lib/auth/permission-utils";
 import { collectSelectedClubSections } from "@/lib/clubs/create-form-options";
 
@@ -744,6 +746,69 @@ export async function removeClubSectionMemberAction(
   revalidatePath(`/dashboard/clubs/${clubId}`);
   revalidatePath(buildClubSectionPath(clubId, sectionId));
   return { success: t("success.assignment_removed") };
+}
+
+export async function succeedClubSectionDirectorAction(
+  clubId: number,
+  sectionId: number,
+  _: ClubActionState,
+  formData: FormData,
+): Promise<ClubActionState> {
+  const currentUser = await requireAdminUser();
+  const roles = new Set(extractRoles(currentUser));
+
+  if (!roles.has("director-lf") && !roles.has("assistant-lf")) {
+    return {
+      error:
+        "Solo director-lf y assistant-lf pueden ejecutar la sucesión anual de director.",
+    };
+  }
+
+  const t = await getTranslations("clubs");
+  const currentAssignmentId = readString(formData, "current_assignment_id");
+  if (!currentAssignmentId) {
+    return { error: "No se pudo identificar al director actual." };
+  }
+
+  const successorUserId = readString(formData, "successor_user_id");
+  if (!successorUserId) {
+    return { error: t("validation.user_id_required") };
+  }
+
+  let ecclesiasticalYearId = 0;
+  try {
+    ecclesiasticalYearId = parseRequiredNumber(
+      t,
+      formData,
+      "ecclesiastical_year_id",
+      t("fields.ecclesiastical_year"),
+    );
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : t("validation.ecclesiastical_year_invalid"),
+    };
+  }
+
+  const startDate = readString(formData, "start_date") || undefined;
+
+  try {
+    await succeedClubSectionDirector(clubId, sectionId, {
+      current_assignment_id: currentAssignmentId,
+      successor_user_id: successorUserId,
+      ecclesiastical_year_id: ecclesiasticalYearId,
+      ...(startDate ? { start_date: startDate } : {}),
+    });
+  } catch (error) {
+    return {
+      error: getActionErrorMessage(error, "No se pudo cambiar el director de la sección", {
+        endpointLabel: `/clubs/${clubId}/sections/${sectionId}/director-succession`,
+      }),
+    };
+  }
+
+  revalidatePath(`/dashboard/clubs/${clubId}`);
+  revalidatePath(buildClubSectionPath(clubId, sectionId));
+  return { success: "Director actualizado correctamente" };
 }
 
 // ─── Bulk import ──────────────────────────────────────────────────────────────

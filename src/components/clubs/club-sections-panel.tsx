@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { createClubSectionAction, type ClubActionState } from "@/lib/clubs/actions";
 import { MemberOfMonthCard } from "@/components/member-of-month/member-of-month-card";
+import { SectionDirectorSuccessionCard } from "@/components/clubs/section-director-succession-card";
 import { useFormatCurrency } from "@/lib/format-locale";
 
 type Section = {
@@ -312,6 +313,14 @@ export function ClubSectionsPanel({ clubId, sections, clubTypes }: ClubSectionsP
                   sectionId={section.club_section_id}
                   sectionName={section.name ?? section.club_type?.name ?? label}
                   isDirector={false}
+                />
+              )}
+
+              {section.club_section_id != null && (
+                <SectionDirectorSuccessionCard
+                  clubId={clubId}
+                  sectionId={section.club_section_id}
+                  sectionName={section.name ?? section.club_type?.name ?? label}
                 />
               )}
             </CardContent>
