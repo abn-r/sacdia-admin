@@ -75,8 +75,8 @@
       "notifications_send": "Send",
       "notifications_history": "History",
       "evidence_review": "Evidence Review",
-      "evidence_folders": "Evidence Folders",
-      "annual_folders": "Annual folder",
+      "evidence_folders": "Annual Evidence Folders",
+      "annual_folders": "Annual Evidence Folder",
       "annual_folders_templates": "Templates",
       "annual_folders_mine": "My folder",
       "annual_folders_evaluate": "Evaluation",
@@ -3425,7 +3425,7 @@
       "noResultsTitle": "No results",
       "noTemplatesTitle": "No templates",
       "noResultsDescription": "No templates match the applied filters.",
-      "noTemplatesDescription": "Create the first template to define the annual folder structure by club type and ecclesiastical year.",
+      "noTemplatesDescription": "Create the first template to define the annual evidence folder structure by club type and ecclesiastical year.",
       "tableColClubType": "Club type",
       "tableColEcclesiasticalYear": "Ecclesiastical year",
       "tableColOwner": "Owner",
@@ -3489,14 +3489,14 @@
       "submittingEdit": "Saving..."
     },
     "page": {
-      "title": "Annual Folder",
-      "description": "Manage evidence by section of the member's annual folder.",
+      "title": "Annual Evidence Folder",
+      "description": "Manage evidence by section of the member's annual evidence folder.",
       "errorFolderFallback": "Could not load the folder.",
       "errorEnrollmentFallback": "Could not load the folder for that enrollment.",
       "emptySelectTitle": "Select an enrollment",
       "emptySelectDescription": "Enter the enrollment ID or folder ID to load the member's evidence.",
       "emptyNotFoundTitle": "Folder not found",
-      "emptyNotFoundDescription": "No annual folder exists for the provided identifier. Check your data and try again."
+      "emptyNotFoundDescription": "No annual evidence folder exists for the provided identifier. Check your data and try again."
     },
     "pageCategories": {
       "title": "Award Categories",
@@ -3504,7 +3504,7 @@
       "errorFallback": "Could not load award categories."
     },
     "pageTemplates": {
-      "title": "Annual Folder Templates",
+      "title": "Annual Evidence Folder Templates",
       "description": "Define the section structure for each club type and ecclesiastical year.",
       "errorFallback": "Could not load templates."
     },
@@ -3513,8 +3513,8 @@
       "description": "Find a folder by its ID and score each section with the corresponding points."
     },
     "pageRankings": {
-      "title": "Annual Folder Rankings",
-      "description": "View club rankings by points earned in the annual folder.",
+      "title": "Annual Evidence Folder Rankings",
+      "description": "View club rankings by points earned in the annual evidence folder.",
       "errorFallback": "Could not load club types or ecclesiastical years. Check your server connection.",
       "emptyTitle": "No catalog data",
       "emptyDescription": "No club types are available to display rankings."
@@ -3598,7 +3598,7 @@
       "noResultsTitle": "No results",
       "noResultsDescription": "No folders matching \"{search}\" were found.",
       "emptyTitle": "No folders",
-      "emptyDescription": "No evidence folders have been configured yet.",
+      "emptyDescription": "No annual evidence folders have been configured yet.",
       "tableHeaderName": "Name",
       "tableHeaderDescription": "Description",
       "tableHeaderModules": "Modules",
@@ -3640,12 +3640,12 @@
       "folder_refresh_failed": "The folder could not be refreshed"
     },
     "page": {
-      "title": "Evidence Folders",
-      "description": "Manage the evidence folder templates available for clubs.",
-      "errorLoad": "Could not load evidence folders."
+      "title": "Annual Evidence Folders",
+      "description": "Manage the annual evidence folder templates available for clubs.",
+      "errorLoad": "Could not load annual evidence folders."
     },
     "pageDetail": {
-      "errorLoad": "Could not load the evidence folder."
+      "errorLoad": "Could not load the annual evidence folder."
     },
     "validation": {
       "name_min": "Name must be at least {min} characters",

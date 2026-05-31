@@ -1,0 +1,60 @@
+import React from "react";
+import { cleanup, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { AnnualRankingConfigClientPage } from "./annual-ranking-config-client-page";
+import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
+import type { LocalField } from "@/lib/api/geography";
+
+vi.mock("sonner", () => ({
+  toast: {
+    error: vi.fn(),
+    success: vi.fn(),
+  },
+}));
+
+vi.mock("@/lib/api/annual-rankings", async (importOriginal) => {
+  const original =
+    await importOriginal<typeof import("@/lib/api/annual-rankings")>();
+  return {
+    ...original,
+    createAnnualRankingConfig: vi.fn(),
+    updateAnnualRankingConfig: vi.fn(),
+    updateRankingTier: vi.fn(),
+  };
+});
+
+const localFields: LocalField[] = [
+  { local_field_id: 4, name: "Centro Veracruz", union_id: 1, active: true },
+];
+
+const clubTypes: ClubType[] = [{ club_type_id: 2, name: "Conquistadores" }];
+
+const ecclesiasticalYears: EcclesiasticalYear[] = [
+  {
+    ecclesiastical_year_id: 1,
+    name: "2026",
+    start_date: "2026-01-01",
+    end_date: "2026-12-31",
+    active: true,
+  },
+];
+
+describe("AnnualRankingConfigClientPage", () => {
+  afterEach(() => cleanup());
+
+  it("renders default administrative and operational axes", () => {
+    render(
+      <AnnualRankingConfigClientPage
+        initialConfigs={[]}
+        initialTiers={[]}
+        localFields={localFields}
+        clubTypes={clubTypes}
+        ecclesiasticalYears={ecclesiasticalYears}
+      />,
+    );
+
+    expect(screen.getByText("Eje Administrativo")).toBeInTheDocument();
+    expect(screen.getByText("Eje Operativo")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("Carpeta Anual de Evidencias")).toBeInTheDocument();
+  });
+});

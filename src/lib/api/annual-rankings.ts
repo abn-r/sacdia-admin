@@ -7,11 +7,23 @@ import type {
 export type AnnualRankingComponentConfig = {
   annual_ranking_component_config_id?: string;
   annual_ranking_config_id?: string;
+  annual_ranking_axis_config_id?: string | null;
   component_key: string;
   label: string;
   max_points: number;
   sort_order: number;
   active?: boolean;
+};
+
+export type AnnualRankingAxisConfig = {
+  annual_ranking_axis_config_id?: string;
+  annual_ranking_config_id?: string;
+  axis_key: string;
+  label: string;
+  max_points: number;
+  sort_order: number;
+  active?: boolean;
+  components: AnnualRankingComponentConfig[];
 };
 
 export type AnnualRankingConfig = {
@@ -25,6 +37,7 @@ export type AnnualRankingConfig = {
   updated_by: string | null;
   created_at: string;
   updated_at: string;
+  axes?: AnnualRankingAxisConfig[];
   components: AnnualRankingComponentConfig[];
 };
 
@@ -57,6 +70,15 @@ export type AnnualRankingComponentProgress = {
   progress_percentage: number;
 };
 
+export type AnnualRankingAxisProgress = {
+  key: string;
+  label: string;
+  earned_points: number;
+  max_points: number;
+  progress_percentage: number;
+  components: AnnualRankingComponentProgress[];
+};
+
 export type AnnualRankingLeaderboardRow = {
   rank_position: number;
   club_enrollment_id: string;
@@ -70,6 +92,7 @@ export type AnnualRankingLeaderboardRow = {
   progress_percentage: number;
   current_tier: AnnualRankingTier | null;
   next_tier: AnnualRankingTier | null;
+  axes: AnnualRankingAxisProgress[];
   components: AnnualRankingComponentProgress[];
 };
 
@@ -145,7 +168,7 @@ export async function createAnnualRankingConfig(
 
 export async function updateAnnualRankingConfig(
   id: string,
-  payload: Pick<AnnualRankingConfigFormValues, "max_points" | "components">,
+  payload: Pick<AnnualRankingConfigFormValues, "max_points" | "axes">,
 ): Promise<AnnualRankingConfig> {
   const response = await apiRequestFromClient<Envelope<AnnualRankingConfig>>(
     `/annual-ranking-configs/${id}`,

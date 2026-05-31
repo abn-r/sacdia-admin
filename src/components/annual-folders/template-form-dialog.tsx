@@ -233,8 +233,8 @@ export function TemplateFormDialog({
           </DialogTitle>
           <DialogDescription>
             {isEdit
-              ? "Modificá los datos de la plantilla de carpeta anual."
-              : "Completá el formulario para crear una nueva plantilla de carpeta anual."}
+              ? "Modificá los datos de la plantilla de Carpeta Anual de Evidencias."
+              : "Completá el formulario para crear una nueva plantilla de Carpeta Anual de Evidencias."}
           </DialogDescription>
         </DialogHeader>
 

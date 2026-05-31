@@ -54,26 +54,60 @@ import {
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
 import type { LocalField } from "@/lib/api/geography";
 
-const DEFAULT_COMPONENTS = [
+const DEFAULT_AXES = [
   {
-    component_key: "annual_folder",
-    label: "Carpeta anual",
-    max_points: 6000,
+    axis_key: "administrative",
+    label: "Cumplimiento Administrativo",
+    max_points: 5000,
     sort_order: 1,
+    components: [
+      {
+        component_key: "annual_evidence_folder",
+        label: "Carpeta Anual de Evidencias",
+        max_points: 3000,
+        sort_order: 1,
+      },
+      {
+        component_key: "finance_compliance",
+        label: "Finanzas",
+        max_points: 2000,
+        sort_order: 2,
+      },
+    ],
   },
   {
-    component_key: "finance",
-    label: "Finanzas",
-    max_points: 2000,
+    axis_key: "operational",
+    label: "Vida Operativa del Club",
+    max_points: 5000,
     sort_order: 2,
+    components: [
+      {
+        component_key: "camporee_events",
+        label: "Camporee",
+        max_points: 2000,
+        sort_order: 1,
+      },
+      {
+        component_key: "activities_registered",
+        label: "Actividades registradas",
+        max_points: 1000,
+        sort_order: 2,
+      },
+      {
+        component_key: "attendance_participation",
+        label: "Asistencia y participación",
+        max_points: 1000,
+        sort_order: 3,
+      },
+      {
+        component_key: "sacdia_operational_usage",
+        label: "Uso operativo de SACDIA",
+        max_points: 1000,
+        sort_order: 4,
+      },
+    ],
   },
-  {
-    component_key: "camporee",
-    label: "Camporee",
-    max_points: 2000,
-    sort_order: 3,
-  },
-] satisfies AnnualRankingConfigFormValues["components"];
+] satisfies AnnualRankingConfigFormValues["axes"];
 
 interface AnnualRankingConfigClientPageProps {
   initialConfigs: AnnualRankingConfig[];
@@ -98,6 +132,23 @@ function findConfig(
   );
 }
 
+function axisKeyForComponent(componentKey: string) {
+  if (
+    [
+      "annual_folder",
+      "annual_evidence_folder",
+      "finance",
+      "finance_compliance",
+      "monthly_reports_timeliness",
+      "institutional_data_completeness",
+    ].includes(componentKey)
+  ) {
+    return "administrative";
+  }
+
+  return "operational";
+}
+
 function toFormValues(
   config: AnnualRankingConfig | undefined,
   fallback: Pick<
@@ -112,19 +163,49 @@ function toFormValues(
       ecclesiastical_year_id: config.ecclesiastical_year_id,
       club_type_id: config.club_type_id,
       max_points: config.max_points,
-      components: config.components.map((component, index) => ({
-        component_key: component.component_key,
-        label: component.label,
-        max_points: component.max_points,
-        sort_order: component.sort_order ?? index,
-      })),
+      axes:
+        config.axes && config.axes.length > 0
+          ? config.axes.map((axis, axisIndex) => ({
+              axis_key: axis.axis_key,
+              label: axis.label,
+              max_points: axis.max_points,
+              sort_order: axis.sort_order ?? axisIndex,
+              components: axis.components.map((component, componentIndex) => ({
+                component_key: component.component_key,
+                label: component.label,
+                max_points: component.max_points,
+                sort_order: component.sort_order ?? componentIndex,
+              })),
+            }))
+          : DEFAULT_AXES.map((axis) => ({
+              ...axis,
+              max_points: config.components
+                .filter(
+                  (component) =>
+                    axisKeyForComponent(component.component_key) ===
+                    axis.axis_key,
+                )
+                .reduce((sum, component) => sum + component.max_points, 0),
+              components: config.components
+                .filter(
+                  (component) =>
+                    axisKeyForComponent(component.component_key) ===
+                    axis.axis_key,
+                )
+                .map((component, componentIndex) => ({
+                  component_key: component.component_key,
+                  label: component.label,
+                  max_points: component.max_points,
+                  sort_order: component.sort_order ?? componentIndex,
+                })),
+            })),
     };
   }
 
   return {
     ...fallback,
     max_points: 10000,
-    components: DEFAULT_COMPONENTS,
+    axes: DEFAULT_AXES,
   };
 }
 
@@ -165,9 +246,9 @@ export function AnnualRankingConfigClientPage({
     ),
   });
 
-  const { fields } = useFieldArray({
+  const { fields: axisFields } = useFieldArray({
     control: form.control,
-    name: "components",
+    name: "axes",
   });
 
   const selectedLocalFieldId = form.watch("local_field_id");
@@ -187,9 +268,11 @@ export function AnnualRankingConfigClientPage({
     form.reset(toFormValues(current, scope));
   }, [configs, form, scope]);
 
-  const componentTotal = form
-    .watch("components")
-    .reduce((sum, component) => sum + Number(component.max_points || 0), 0);
+  const axes = form.watch("axes");
+  const axisTotal = axes.reduce(
+    (sum, axis) => sum + Number(axis.max_points || 0),
+    0,
+  );
   const maxPoints = Number(form.watch("max_points") || 0);
   const selectedConfigId = form.watch("annual_ranking_config_id");
 
@@ -199,7 +282,7 @@ export function AnnualRankingConfigClientPage({
       const saved = values.annual_ranking_config_id
         ? await updateAnnualRankingConfig(values.annual_ranking_config_id, {
             max_points: values.max_points,
-            components: values.components,
+            axes: values.axes,
           })
         : await createAnnualRankingConfig(values);
 
@@ -334,8 +417,8 @@ export function AnnualRankingConfigClientPage({
         <CardHeader>
           <CardTitle>Presupuesto anual por campo local</CardTitle>
           <CardDescription>
-            Definí el total anual y cómo se reparte entre carpeta, finanzas,
-            camporee y otros componentes para un año y tipo de club.
+            Definí el total anual y cómo se reparte entre cumplimiento
+            administrativo y vida operativa del club.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -465,71 +548,169 @@ export function AnnualRankingConfigClientPage({
               <div className="rounded-lg border">
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b p-4">
                   <div>
-                    <h3 className="font-medium">Componentes del puntaje</h3>
+                    <h3 className="font-medium">Ejes del ranking anual</h3>
                     <p className="text-sm text-muted-foreground">
-                      La suma debe coincidir con el total anual.
+                      La suma de ejes debe coincidir con el total anual; dentro
+                      de cada eje, los componentes deben sumar el máximo del eje.
                     </p>
                   </div>
                   <Badge
-                    variant={componentTotal === maxPoints ? "secondary" : "destructive"}
+                    variant={axisTotal === maxPoints ? "secondary" : "destructive"}
                   >
-                    {componentTotal.toLocaleString()} / {maxPoints.toLocaleString()}
+                    {axisTotal.toLocaleString()} / {maxPoints.toLocaleString()}
                   </Badge>
                 </div>
                 <div className="divide-y">
-                  {fields.map((fieldItem, index) => (
-                    <div
-                      key={fieldItem.id}
-                      className="grid gap-3 p-4 md:grid-cols-[1fr_1fr_160px]"
-                    >
-                      <FormField
-                        control={form.control}
-                        name={`components.${index}.label`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Etiqueta</FormLabel>
-                            <FormControl>
-                              <Input {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name={`components.${index}.component_key`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Clave</FormLabel>
-                            <FormControl>
-                              <Input {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name={`components.${index}.max_points`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Puntos</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                min={1}
-                                {...field}
-                                onChange={(event) =>
-                                  field.onChange(Number(event.target.value))
-                                }
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  ))}
+                  {axisFields.map((axisField, axisIndex) => {
+                    const axis = axes[axisIndex];
+                    const componentTotal = (axis?.components ?? []).reduce(
+                      (sum, component) => sum + Number(component.max_points || 0),
+                      0,
+                    );
+                    const axisTitle =
+                      axis?.axis_key === "administrative"
+                        ? "Eje Administrativo"
+                        : axis?.axis_key === "operational"
+                          ? "Eje Operativo"
+                          : axis?.label ?? "Eje";
+
+                    return (
+                      <div key={axisField.id} className="space-y-4 p-4">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                          <div>
+                            <h4 className="font-medium">{axisTitle}</h4>
+                            <p className="text-sm text-muted-foreground">
+                              {axis?.label}
+                            </p>
+                          </div>
+                          <Badge
+                            variant={
+                              componentTotal === Number(axis?.max_points || 0)
+                                ? "secondary"
+                                : "destructive"
+                            }
+                          >
+                            {componentTotal.toLocaleString()} /{" "}
+                            {Number(axis?.max_points || 0).toLocaleString()}
+                          </Badge>
+                        </div>
+
+                        <div className="grid gap-3 md:grid-cols-[1fr_1fr_160px]">
+                          <FormField
+                            control={form.control}
+                            name={`axes.${axisIndex}.label`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Etiqueta del eje</FormLabel>
+                                <FormControl>
+                                  <Input {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`axes.${axisIndex}.axis_key`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Clave del eje</FormLabel>
+                                <FormControl>
+                                  <Input {...field} readOnly />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`axes.${axisIndex}.max_points`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Puntos del eje</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    min={1}
+                                    {...field}
+                                    onChange={(event) =>
+                                      field.onChange(Number(event.target.value))
+                                    }
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        <div className="rounded-md border">
+                          <div className="border-b bg-muted/30 px-3 py-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                            Componentes
+                          </div>
+                          <div className="divide-y">
+                            {(axis?.components ?? []).map(
+                              (component, componentIndex) => (
+                                <div
+                                  key={`${axis.axis_key}-${component.component_key}`}
+                                  className="grid gap-3 p-3 md:grid-cols-[1fr_1fr_160px]"
+                                >
+                                  <FormField
+                                    control={form.control}
+                                    name={`axes.${axisIndex}.components.${componentIndex}.label`}
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Etiqueta</FormLabel>
+                                        <FormControl>
+                                          <Input {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <FormField
+                                    control={form.control}
+                                    name={`axes.${axisIndex}.components.${componentIndex}.component_key`}
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Clave</FormLabel>
+                                        <FormControl>
+                                          <Input {...field} readOnly />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <FormField
+                                    control={form.control}
+                                    name={`axes.${axisIndex}.components.${componentIndex}.max_points`}
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Puntos</FormLabel>
+                                        <FormControl>
+                                          <Input
+                                            type="number"
+                                            min={1}
+                                            {...field}
+                                            onChange={(event) =>
+                                              field.onChange(
+                                                Number(event.target.value),
+                                              )
+                                            }
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                </div>
+                              ),
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 

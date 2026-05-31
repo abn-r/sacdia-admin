@@ -242,7 +242,7 @@ export function AwardCategoryFormDialog({
           <DialogDescription>
             {isEdit
               ? "Modificá los parámetros de la categoría de premio."
-              : "Definí una nueva categoría de premio para las carpetas anuales."}
+              : "Definí una nueva categoría de premio para las Carpetas Anuales de Evidencias."}
           </DialogDescription>
         </DialogHeader>
 

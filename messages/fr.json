@@ -75,8 +75,8 @@
       "notifications_send": "Envoyer",
       "notifications_history": "Historique",
       "evidence_review": "Révision des preuves",
-      "evidence_folders": "Dossiers de preuves",
-      "annual_folders": "Dossier annuel",
+      "evidence_folders": "Dossiers annuels de preuves",
+      "annual_folders": "Dossier annuel de preuves",
       "annual_folders_templates": "Modèles",
       "annual_folders_mine": "Mon dossier",
       "annual_folders_evaluate": "Évaluation",
@@ -3291,7 +3291,7 @@
       "noResultsTitle": "Aucun résultat",
       "noTemplatesTitle": "Aucun modèle",
       "noResultsDescription": "Aucun modèle ne correspond aux filtres appliqués.",
-      "noTemplatesDescription": "Créez le premier modèle pour définir la structure des dossiers annuels par type de club et année ecclésiastique.",
+      "noTemplatesDescription": "Créez le premier modèle pour définir la structure des dossiers annuels de preuves par type de club et année ecclésiastique.",
       "tableColClubType": "Type de club",
       "tableColEcclesiasticalYear": "Année ecclésiastique",
       "tableColOwner": "Propriétaire",
@@ -3355,14 +3355,14 @@
       "submittingEdit": "Sauvegarde..."
     },
     "page": {
-      "title": "Dossier annuel",
-      "description": "Gérez les preuves par section du dossier annuel du membre.",
+      "title": "Dossier annuel de preuves",
+      "description": "Gérez les preuves par section du dossier annuel de preuves du membre.",
       "errorFolderFallback": "Impossible de charger le dossier.",
       "errorEnrollmentFallback": "Impossible de charger le dossier pour cette inscription.",
       "emptySelectTitle": "Sélectionnez une inscription",
       "emptySelectDescription": "Entrez l'identifiant d'inscription ou de dossier pour charger les preuves du membre.",
       "emptyNotFoundTitle": "Dossier introuvable",
-      "emptyNotFoundDescription": "Aucun dossier annuel n'existe pour l'identifiant saisi. Vérifiez les données et réessayez."
+      "emptyNotFoundDescription": "Aucun dossier annuel de preuves n'existe pour l'identifiant saisi. Vérifiez les données et réessayez."
     },
     "pageCategories": {
       "title": "Catégories de récompenses",
@@ -3370,7 +3370,7 @@
       "errorFallback": "Impossible de charger les catégories de récompenses."
     },
     "pageTemplates": {
-      "title": "Modèles de dossier annuel",
+      "title": "Modèles de dossier annuel de preuves",
       "description": "Définissez la structure des sections pour chaque type de club et année ecclésiastique.",
       "errorFallback": "Impossible de charger les modèles."
     },
@@ -3379,8 +3379,8 @@
       "description": "Recherchez un dossier par son identifiant et notez chaque section avec les points correspondants."
     },
     "pageRankings": {
-      "title": "Classements du dossier annuel",
-      "description": "Consultez le classement des clubs par points obtenus dans le dossier annuel.",
+      "title": "Classements du dossier annuel de preuves",
+      "description": "Consultez le classement des clubs par points obtenus dans le dossier annuel de preuves.",
       "errorFallback": "Impossible de charger les types de club ou les années ecclésiastiques. Vérifiez la connexion au serveur.",
       "emptyTitle": "Aucune donnée de catalogue",
       "emptyDescription": "Aucun type de club disponible pour afficher les classements."
@@ -3464,7 +3464,7 @@
       "noResultsTitle": "Aucun résultat",
       "noResultsDescription": "Aucun dossier correspondant à « {search} » n’a été trouvé.",
       "emptyTitle": "Aucun dossier",
-      "emptyDescription": "Aucun dossier de preuves n’a encore été configuré.",
+      "emptyDescription": "Aucun dossier annuel de preuves n’a encore été configuré.",
       "tableHeaderName": "Nom",
       "tableHeaderDescription": "Description",
       "tableHeaderModules": "Modules",
@@ -3506,12 +3506,12 @@
       "folder_refresh_failed": "Impossible de rafraîchir le dossier"
     },
     "page": {
-      "title": "Dossiers de preuves",
-      "description": "Gérez les modèles de dossiers de preuves disponibles pour les clubs.",
-      "errorLoad": "Impossible de charger les dossiers de preuves."
+      "title": "Dossiers annuels de preuves",
+      "description": "Gérez les modèles de dossiers annuels de preuves disponibles pour les clubs.",
+      "errorLoad": "Impossible de charger les dossiers annuels de preuves."
     },
     "pageDetail": {
-      "errorLoad": "Impossible de charger le dossier de preuves."
+      "errorLoad": "Impossible de charger le dossier annuel de preuves."
     },
     "validation": {
       "name_min": "Le nom doit contenir au moins {min} caractères",

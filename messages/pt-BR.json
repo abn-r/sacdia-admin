@@ -76,7 +76,7 @@
       "notifications_history": "Histórico",
       "evidence_review": "Revisão de evidências",
       "evidence_folders": "Pastas de evidências",
-      "annual_folders": "Pasta anual",
+      "annual_folders": "Pasta Anual de Evidências",
       "annual_folders_templates": "Modelos",
       "annual_folders_mine": "Minha pasta",
       "annual_folders_evaluate": "Avaliação",
@@ -3291,7 +3291,7 @@
       "noResultsTitle": "Sem resultados",
       "noTemplatesTitle": "Sem modelos",
       "noResultsDescription": "Nenhum modelo corresponde aos filtros aplicados.",
-      "noTemplatesDescription": "Crie o primeiro modelo para definir a estrutura de pastas anuais por tipo de clube e ano eclesiástico.",
+      "noTemplatesDescription": "Crie o primeiro modelo para definir a estrutura de pastas anuais de evidências por tipo de clube e ano eclesiástico.",
       "tableColClubType": "Tipo de clube",
       "tableColEcclesiasticalYear": "Ano eclesiástico",
       "tableColOwner": "Proprietário",
@@ -3355,14 +3355,14 @@
       "submittingEdit": "Salvando..."
     },
     "page": {
-      "title": "Pasta anual",
-      "description": "Gerencie evidências por seção da pasta anual do membro.",
+      "title": "Pasta Anual de Evidências",
+      "description": "Gerencie evidências por seção da pasta anual de evidências do membro.",
       "errorFolderFallback": "Não foi possível carregar a pasta.",
       "errorEnrollmentFallback": "Não foi possível carregar a pasta para essa inscrição.",
       "emptySelectTitle": "Selecione uma inscrição",
       "emptySelectDescription": "Insira o ID de inscrição ou de pasta para carregar as evidências do membro.",
       "emptyNotFoundTitle": "Pasta não encontrada",
-      "emptyNotFoundDescription": "Não existe uma pasta anual para o identificador informado. Verifique os dados e tente novamente."
+      "emptyNotFoundDescription": "Não existe uma pasta anual de evidências para o identificador informado. Verifique os dados e tente novamente."
     },
     "pageCategories": {
       "title": "Categorias de prêmios",
@@ -3370,7 +3370,7 @@
       "errorFallback": "Não foi possível carregar as categorias de prêmio."
     },
     "pageTemplates": {
-      "title": "Modelos de pasta anual",
+      "title": "Modelos de pasta anual de evidências",
       "description": "Defina a estrutura de seções para cada tipo de clube e ano eclesiástico.",
       "errorFallback": "Não foi possível carregar os modelos."
     },
@@ -3379,8 +3379,8 @@
       "description": "Encontre uma pasta pelo ID e pontue cada seção com os pontos correspondentes."
     },
     "pageRankings": {
-      "title": "Rankings da pasta anual",
-      "description": "Consulte o ranking de clubes por pontos obtidos na pasta anual.",
+      "title": "Rankings da pasta anual de evidências",
+      "description": "Consulte o ranking de clubes por pontos obtidos na pasta anual de evidências.",
       "errorFallback": "Não foi possível carregar os tipos de clube ou anos eclesiásticos. Verifique a conexão com o servidor.",
       "emptyTitle": "Sem dados de catálogo",
       "emptyDescription": "Não há tipos de clube disponíveis para exibir rankings."
@@ -3464,7 +3464,7 @@
       "noResultsTitle": "Sem resultados",
       "noResultsDescription": "Nenhuma pasta correspondendo a “{search}” foi encontrada.",
       "emptyTitle": "Sem pastas",
-      "emptyDescription": "Nenhuma pasta de evidências foi configurada ainda.",
+      "emptyDescription": "Nenhuma pasta anual de evidências foi configurada ainda.",
       "tableHeaderName": "Nome",
       "tableHeaderDescription": "Descrição",
       "tableHeaderModules": "Módulos",
@@ -3506,12 +3506,12 @@
       "folder_refresh_failed": "Não foi possível atualizar a pasta"
     },
     "page": {
-      "title": "Pastas de Evidências",
-      "description": "Gerencie os modelos de pastas de evidências disponíveis para os clubes.",
-      "errorLoad": "Não foi possível carregar as pastas de evidências."
+      "title": "Pastas Anuais de Evidências",
+      "description": "Gerencie os modelos de pastas anuais de evidências disponíveis para os clubes.",
+      "errorLoad": "Não foi possível carregar as pastas anuais de evidências."
     },
     "pageDetail": {
-      "errorLoad": "Não foi possível carregar a pasta de evidências."
+      "errorLoad": "Não foi possível carregar a pasta anual de evidências."
     },
     "validation": {
       "name_min": "O nome deve ter pelo menos {min} caracteres",

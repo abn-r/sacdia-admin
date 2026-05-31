@@ -63,10 +63,10 @@ export default async function AnnualRankingConfigPage() {
     <div className="flex flex-col gap-6">
       <PageHeader
         title="Configuración anual de rankings"
-        description="Administrá rangos globales y presupuestos de puntos por campo local, año y tipo de club."
+        description="Administrá rangos globales y presupuestos por ejes administrativos y operativos para la Carpeta Anual de Evidencias."
         breadcrumbs={[
           { label: "Dashboard", href: "/dashboard" },
-          { label: "Carpeta anual", href: "/dashboard/annual-folders" },
+          { label: "Carpeta Anual de Evidencias", href: "/dashboard/annual-folders" },
           { label: "Configuración de rankings" },
         ]}
       />

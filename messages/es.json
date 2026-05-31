@@ -75,8 +75,8 @@
       "notifications_send": "Enviar",
       "notifications_history": "Historial",
       "evidence_review": "Revisión de evidencias",
-      "evidence_folders": "Carpetas de evidencias",
-      "annual_folders": "Carpeta anual",
+      "evidence_folders": "Carpetas Anuales de Evidencias",
+      "annual_folders": "Carpeta Anual de Evidencias",
       "annual_folders_templates": "Plantillas",
       "annual_folders_mine": "Mi carpeta",
       "annual_folders_evaluate": "Evaluación",
@@ -3444,7 +3444,7 @@
       "noResultsTitle": "Sin resultados",
       "noTemplatesTitle": "Sin plantillas",
       "noResultsDescription": "No hay plantillas que coincidan con los filtros aplicados.",
-      "noTemplatesDescription": "Crea la primera plantilla para definir la estructura de carpetas anuales por tipo de club y año eclesiástico.",
+      "noTemplatesDescription": "Crea la primera plantilla para definir la estructura de Carpetas Anuales de Evidencias por tipo de club y año eclesiástico.",
       "tableColClubType": "Tipo de club",
       "tableColEcclesiasticalYear": "Año eclesiástico",
       "tableColOwner": "Propietario",
@@ -3508,14 +3508,14 @@
       "submittingEdit": "Guardando..."
     },
     "page": {
-      "title": "Carpeta anual",
-      "description": "Gestiona evidencias por sección de la carpeta anual del miembro.",
+      "title": "Carpeta Anual de Evidencias",
+      "description": "Gestiona evidencias por sección de la Carpeta Anual de Evidencias del miembro.",
       "errorFolderFallback": "No se pudo cargar la carpeta.",
       "errorEnrollmentFallback": "No se pudo cargar la carpeta para esa inscripción.",
       "emptySelectTitle": "Selecciona una inscripción",
       "emptySelectDescription": "Ingresa el ID de inscripción o de carpeta para cargar las evidencias del miembro.",
       "emptyNotFoundTitle": "Carpeta no encontrada",
-      "emptyNotFoundDescription": "No existe una carpeta anual para el identificador ingresado. Verifica los datos e intentá de nuevo."
+      "emptyNotFoundDescription": "No existe una Carpeta Anual de Evidencias para el identificador ingresado. Verifica los datos e intentá de nuevo."
     },
     "pageCategories": {
       "title": "Categorías de premios",
@@ -3523,7 +3523,7 @@
       "errorFallback": "No se pudieron cargar las categorías de premio."
     },
     "pageTemplates": {
-      "title": "Plantillas de carpeta anual",
+      "title": "Plantillas de Carpeta Anual de Evidencias",
       "description": "Define la estructura de secciones para cada tipo de club y año eclesiástico.",
       "errorFallback": "No se pudieron cargar las plantillas."
     },
@@ -3532,8 +3532,8 @@
       "description": "Busca una carpeta por su ID y califica cada sección con los puntos correspondientes."
     },
     "pageRankings": {
-      "title": "Rankings de carpeta anual",
-      "description": "Consulta el ranking de clubes por puntos obtenidos en la carpeta anual.",
+      "title": "Rankings de Carpeta Anual de Evidencias",
+      "description": "Consulta el ranking de clubes por puntos obtenidos en la Carpeta Anual de Evidencias.",
       "errorFallback": "No se pudieron cargar los tipos de club o años eclesiásticos. Verifica la conexión con el servidor.",
       "emptyTitle": "Sin datos de catálogo",
       "emptyDescription": "No hay tipos de club disponibles para mostrar rankings."
@@ -3617,7 +3617,7 @@
       "noResultsTitle": "Sin resultados",
       "noResultsDescription": "No se encontraron carpetas que coincidan con \"{search}\".",
       "emptyTitle": "Sin carpetas",
-      "emptyDescription": "No hay carpetas de evidencias configuradas todavía.",
+      "emptyDescription": "No hay Carpetas Anuales de Evidencias configuradas todavía.",
       "tableHeaderName": "Nombre",
       "tableHeaderDescription": "Descripción",
       "tableHeaderModules": "Módulos",
@@ -3659,12 +3659,12 @@
       "folder_refresh_failed": "No se pudo actualizar la carpeta"
     },
     "page": {
-      "title": "Carpetas de Evidencias",
-      "description": "Administra las plantillas de carpetas de evidencias disponibles para los clubes.",
-      "errorLoad": "No se pudieron cargar las carpetas de evidencias."
+      "title": "Carpetas Anuales de Evidencias",
+      "description": "Administra las plantillas de Carpetas Anuales de Evidencias disponibles para los clubes.",
+      "errorLoad": "No se pudieron cargar las Carpetas Anuales de Evidencias."
     },
     "pageDetail": {
-      "errorLoad": "No se pudo cargar la carpeta de evidencias."
+      "errorLoad": "No se pudo cargar la Carpeta Anual de Evidencias."
     },
     "validation": {
       "name_min": "El nombre debe tener al menos {min} caracteres",

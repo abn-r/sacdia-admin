@@ -92,10 +92,28 @@ const RANKINGS = [
       points_to_reach: null,
     },
     next_tier: null,
+    axes: [
+      {
+        key: "administrative",
+        label: "Cumplimiento Administrativo",
+        earned_points: 5700,
+        max_points: 6000,
+        progress_percentage: 95,
+        components: [
+          {
+            key: "annual_evidence_folder",
+            label: "Carpeta Anual de Evidencias",
+            earned_points: 5700,
+            max_points: 6000,
+            progress_percentage: 95,
+          },
+        ],
+      },
+    ],
     components: [
       {
-        key: "annual_folder",
-        label: "Carpeta anual",
+        key: "annual_evidence_folder",
+        label: "Carpeta Anual de Evidencias",
         earned_points: 5700,
         max_points: 6000,
         progress_percentage: 95,

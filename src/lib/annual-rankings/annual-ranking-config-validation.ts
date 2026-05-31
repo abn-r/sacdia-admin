@@ -10,6 +10,17 @@ export const annualRankingComponentSchema = z.object({
   sort_order: z.number().int().min(0).optional(),
 });
 
+export const annualRankingAxisSchema = z.object({
+  axis_key: z.string().trim().min(1, "La clave del eje es requerida"),
+  label: z.string().trim().min(1, "La etiqueta del eje es requerida"),
+  max_points: z
+    .number({ message: "Los puntos del eje son requeridos" })
+    .int("Los puntos del eje deben ser enteros")
+    .positive("Los puntos del eje deben ser mayores a cero"),
+  sort_order: z.number().int().min(0).optional(),
+  components: z.array(annualRankingComponentSchema).min(1),
+});
+
 export const annualRankingConfigSchema = z
   .object({
     annual_ranking_config_id: z.string().uuid().optional(),
@@ -20,21 +31,36 @@ export const annualRankingConfigSchema = z
       .number({ message: "El total anual de puntos es requerido" })
       .int("El total anual debe ser un número entero")
       .positive("El total anual debe ser mayor a cero"),
-    components: z.array(annualRankingComponentSchema).min(1),
+    axes: z.array(annualRankingAxisSchema).min(1),
   })
   .superRefine((value, ctx) => {
-    const componentTotal = value.components.reduce(
-      (sum, component) => sum + component.max_points,
+    const axisTotal = value.axes.reduce(
+      (sum, axis) => sum + axis.max_points,
       0,
     );
 
-    if (componentTotal !== value.max_points) {
+    if (axisTotal !== value.max_points) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        path: ["components"],
-        message: `La suma de componentes (${componentTotal}) debe ser igual al total anual (${value.max_points}).`,
+        path: ["axes"],
+        message: `La suma de ejes (${axisTotal}) debe ser igual al total anual (${value.max_points}).`,
       });
     }
+
+    value.axes.forEach((axis, index) => {
+      const componentTotal = axis.components.reduce(
+        (sum, component) => sum + component.max_points,
+        0,
+      );
+
+      if (componentTotal !== axis.max_points) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["axes", index, "components"],
+          message: `La suma de componentes (${componentTotal}) debe ser igual al máximo del eje ${axis.label} (${axis.max_points}).`,
+        });
+      }
+    });
   });
 
 export const rankingTierSchema = z.object({
