@@ -74,7 +74,7 @@
       "notifications": "Notificaciones",
       "notifications_send": "Enviar",
       "notifications_history": "Historial",
-      "evidence_review": "Revisión de evidencias",
+      "evidence_review": "Revisión de evidencias de usuarios",
       "evidence_folders": "Carpetas Anuales de Evidencias",
       "annual_folders": "Carpeta Anual de Evidencias",
       "annual_folders_templates": "Plantillas",
@@ -1437,8 +1437,8 @@
         "invalidIdError": "ID de especialidad inválido."
       },
       "requirementsReview": {
-        "title": "Revisión de Requisitos",
-        "description": "Revisa y aprueba los requisitos importados que necesitan validación.",
+        "title": "Revisión de requisitos de catálogo",
+        "description": "Revisá y aprobá requisitos importados del catálogo. No corresponde a revisión institucional de evidencias de usuarios.",
         "backToList": "Volver a la lista",
         "reviewItemTitle": "Revisión de requisito",
         "pendingBadge": "{count} pendientes",

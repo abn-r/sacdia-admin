@@ -74,7 +74,7 @@
       "notifications": "Notifications",
       "notifications_send": "Envoyer",
       "notifications_history": "Historique",
-      "evidence_review": "Révision des preuves",
+      "evidence_review": "Révision des preuves des utilisateurs",
       "evidence_folders": "Dossiers annuels de preuves",
       "annual_folders": "Dossier annuel de preuves",
       "annual_folders_templates": "Modèles",
@@ -1436,8 +1436,8 @@
         "invalidIdError": "ID de spécialité invalide."
       },
       "requirementsReview": {
-        "title": "Révision des exigences",
-        "description": "Révisez et approuvez les exigences importées qui nécessitent une validation.",
+        "title": "Révision des exigences du catalogue",
+        "description": "Révisez et approuvez les exigences importées du catalogue. Ce n'est pas une révision institutionnelle des preuves des utilisateurs.",
         "backToList": "Retour à la liste",
         "reviewItemTitle": "Révision d'exigence",
         "pendingBadge": "{count} en attente",

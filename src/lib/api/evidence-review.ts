@@ -4,16 +4,39 @@ import { apiRequest, apiRequestFromClient } from "@/lib/api/client";
 
 export type EvidenceType = "class" | "honor";
 
-export type EvidenceStatus =
+export type ClassEvidenceStatus =
   | "PENDING"
   | "SUBMITTED"
   | "VALIDATED"
   | "REJECTED";
 
+export type LegacyEvidenceStatus =
+  | "pending"
+  | "pendiente"
+  | "validado"
+  | "rechazado"
+  | "rejected";
+
+export type HonorValidationStatus =
+  | "PENDING"
+  | "PENDING_REVIEW"
+  | "IN_PROGRESS"
+  | "APPROVED"
+  | "REJECTED";
+
+export type EvidenceStatus =
+  | ClassEvidenceStatus
+  | HonorValidationStatus
+  | LegacyEvidenceStatus;
+
+export type EvidenceMutationStatus =
+  | ClassEvidenceStatus
+  | "APPROVED";
+
 export type EvidenceItem = {
   id: number;
   type: EvidenceType;
-  status: string;
+  status: EvidenceStatus;
   member_name: string;
   member_id: string;
   section_name: string;
@@ -47,7 +70,7 @@ export type HonorReviewPacket = {
   user_honor_id: number;
   honor_id: number;
   honor_name: string;
-  validation_status: string;
+  validation_status: HonorValidationStatus;
   progress: {
     total_requirements: number;
     completed_count: number;
@@ -133,15 +156,15 @@ export async function approveEvidence(
   type: EvidenceType,
   id: number,
   comments?: string,
-): Promise<{ id: number; type: EvidenceType; status: string }> {
+): Promise<{ id: number; type: EvidenceType; status: EvidenceMutationStatus }> {
   const res = await apiRequestFromClient<{
     status: string;
-    data: { id: number; type: EvidenceType; status: string };
+    data: { id: number; type: EvidenceType; status: EvidenceMutationStatus };
   }>(`/evidence-review/${type}/${id}/approve`, {
     method: "POST",
     body: { comments },
   });
-  return (res as { data: { id: number; type: EvidenceType; status: string } }).data;
+  return (res as { data: { id: number; type: EvidenceType; status: EvidenceMutationStatus } }).data;
 }
 
 /**
@@ -152,15 +175,15 @@ export async function rejectEvidence(
   type: EvidenceType,
   id: number,
   reason: string,
-): Promise<{ id: number; type: EvidenceType; status: string }> {
+): Promise<{ id: number; type: EvidenceType; status: EvidenceMutationStatus }> {
   const res = await apiRequestFromClient<{
     status: string;
-    data: { id: number; type: EvidenceType; status: string };
+    data: { id: number; type: EvidenceType; status: EvidenceMutationStatus };
   }>(`/evidence-review/${type}/${id}/reject`, {
     method: "POST",
     body: { reason },
   });
-  return (res as { data: { id: number; type: EvidenceType; status: string } }).data;
+  return (res as { data: { id: number; type: EvidenceType; status: EvidenceMutationStatus } }).data;
 }
 
 // ─── Bulk operations ──────────────────────────────────────────────────────────
