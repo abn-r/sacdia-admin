@@ -74,7 +74,7 @@
       "notifications": "Notifications",
       "notifications_send": "Send",
       "notifications_history": "History",
-      "evidence_review": "Evidence Review",
+      "evidence_review": "User Evidence Review",
       "evidence_folders": "Annual Evidence Folders",
       "annual_folders": "Annual Evidence Folder",
       "annual_folders_templates": "Templates",
@@ -1437,8 +1437,8 @@
         "invalidIdError": "Invalid honor ID."
       },
       "requirementsReview": {
-        "title": "Requirements Review",
-        "description": "Review and approve imported requirements that need validation.",
+        "title": "Catalog Requirements Review",
+        "description": "Review and approve imported catalog requirements. This is not institutional review of user evidence.",
         "backToList": "Back to list",
         "reviewItemTitle": "Requirement review",
         "pendingBadge": "{count} pending",

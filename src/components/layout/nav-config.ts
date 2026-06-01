@@ -32,6 +32,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import {
+  USER_HONORS_VALIDATE,
   RANKINGS_READ,
   RANKING_WEIGHTS_READ,
 } from "@/lib/auth/permissions";
@@ -267,7 +268,7 @@ export const navConfig: NavGroup[] = [
         title: "items.evidence_review",
         url: "/dashboard/evidence-review",
         icon: FileSearch,
-        permission: "investiture:read",
+        permission: USER_HONORS_VALIDATE,
       },
       {
         title: "items.certificate_bulk_imports",
