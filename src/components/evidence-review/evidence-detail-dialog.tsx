@@ -10,6 +10,9 @@ import {
   User,
   Calendar,
   AlertCircle,
+  CheckCircle2,
+  Circle,
+  ListChecks,
 } from "lucide-react";
 import {
   Dialog,
@@ -21,14 +24,26 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useTranslations } from "next-intl";
-import { getEvidenceDetail, type EvidenceDetail, type EvidenceType } from "@/lib/api/evidence-review";
+import {
+  getEvidenceDetail,
+  type EvidenceDetail,
+  type EvidenceType,
+} from "@/lib/api/evidence-review";
 import { EvidenceStatusBadge } from "@/components/evidence-review/evidence-status-badge";
 import { EvidenceTypeBadge } from "@/components/evidence-review/evidence-type-badge";
 import { ApiError } from "@/lib/api/client";
 import { useFormatDateTime } from "@/lib/format-locale";
 
+type HonorReviewPacket = NonNullable<EvidenceDetail["honor_review_packet"]>;
+
 function isImageFile(fileType: string, fileUrl: string): boolean {
-  const imageTypes = ["image", "image/jpeg", "image/png", "image/webp", "image/gif"];
+  const imageTypes = [
+    "image",
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    "image/gif",
+  ];
   if (imageTypes.some((t) => fileType.toLowerCase().startsWith(t))) return true;
   const urlLower = fileUrl.toLowerCase();
   return (
@@ -110,6 +125,108 @@ function FileCard({ file, index }: FileCardProps) {
   );
 }
 
+// ─── Honor review packet ─────────────────────────────────────────────────────
+
+interface HonorReviewPacketSectionProps {
+  packet: HonorReviewPacket;
+}
+
+function HonorReviewPacketSection({ packet }: HonorReviewPacketSectionProps) {
+  const requirements = packet.requirements ?? [];
+  const completedCount = packet.progress.completed_count;
+  const totalRequirements = packet.progress.total_requirements;
+  const progressPercentage = Math.round(packet.progress.progress_percentage);
+
+  return (
+    <section className="rounded-lg border border-border bg-muted/20 p-4">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <ListChecks className="size-4 text-muted-foreground" />
+          <h4 className="text-sm font-medium">Progreso del honor</h4>
+        </div>
+        <Badge variant="secondary" className="text-xs">
+          {completedCount} de {totalRequirements} requisitos
+        </Badge>
+      </div>
+
+      <div className="mb-4">
+        <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
+          <span>{packet.honor_name}</span>
+          <span>{progressPercentage}% completado</span>
+        </div>
+        <div className="h-2 overflow-hidden rounded-full bg-muted">
+          <div
+            className="h-full rounded-full bg-primary"
+            style={{
+              width: `${Math.min(Math.max(progressPercentage, 0), 100)}%`,
+            }}
+          />
+        </div>
+      </div>
+
+      {requirements.length === 0 ? (
+        <p className="text-sm text-muted-foreground">
+          Este honor no tiene requisitos registrados.
+        </p>
+      ) : (
+        <div className="space-y-3">
+          {requirements.map((requirement) => (
+            <div
+              key={requirement.requirement_id}
+              className="rounded-md border border-border bg-background p-3"
+            >
+              <div className="flex items-start gap-2">
+                {requirement.completed ? (
+                  <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-600" />
+                ) : (
+                  <Circle className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                )}
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-sm font-medium">
+                      {requirement.display_label ?? requirement.requirement_number}
+                    </p>
+                    <Badge
+                      variant={requirement.completed ? "default" : "outline"}
+                      className="text-xs"
+                    >
+                      {requirement.completed ? "Completado" : "Pendiente"}
+                    </Badge>
+                    {requirement.requires_evidence && (
+                      <Badge variant="secondary" className="text-xs">
+                        Requiere evidencia
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {requirement.requirement_text}
+                  </p>
+                  {requirement.evidences.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {requirement.evidences.map((file) => (
+                        <a
+                          key={file.evidence_file_id}
+                          href={file.file_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs text-muted-foreground hover:text-foreground"
+                        >
+                          <FileText className="size-3" />
+                          Evidencia: {file.file_name || "Archivo adjunto"}
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 interface EvidenceDetailDialogProps {
@@ -154,7 +271,7 @@ export function EvidenceDetailDialog({
     }
 
     void load();
-  }, [open, type, id]);
+  }, [open, type, id, t]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -244,6 +361,10 @@ export function EvidenceDetailDialog({
                   <p className="mt-0.5 text-destructive/80">{detail.rejection_reason}</p>
                 </div>
               </div>
+            )}
+
+            {detail.type === "honor" && detail.honor_review_packet && (
+              <HonorReviewPacketSection packet={detail.honor_review_packet} />
             )}
 
             <Separator />
