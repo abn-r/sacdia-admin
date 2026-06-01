@@ -20,13 +20,7 @@
 
 import React from "react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import {
-  render,
-  screen,
-  waitFor,
-  act,
-  cleanup,
-} from "@testing-library/react";
+import { render, screen, waitFor, cleanup } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import messages from "../../../messages/es.json";
 import type { EvidenceDetail, EvidenceType } from "@/lib/api/evidence-review";
@@ -66,11 +60,15 @@ vi.mock("@/lib/format-locale", () => ({
 
 // EvidenceStatusBadge and EvidenceTypeBadge — render as simple text nodes
 vi.mock("@/components/evidence-review/evidence-status-badge", () => ({
-  EvidenceStatusBadge: ({ status }: { status: string }) => <span data-testid="status-badge">{status}</span>,
+  EvidenceStatusBadge: ({ status }: { status: string }) => (
+    <span data-testid="status-badge">{status}</span>
+  ),
 }));
 
 vi.mock("@/components/evidence-review/evidence-type-badge", () => ({
-  EvidenceTypeBadge: ({ type }: { type: string }) => <span data-testid="type-badge">{type}</span>,
+  EvidenceTypeBadge: ({ type }: { type: string }) => (
+    <span data-testid="type-badge">{type}</span>
+  ),
 }));
 
 import { EvidenceDetailDialog } from "@/components/evidence-review/evidence-detail-dialog";
@@ -120,6 +118,93 @@ const STUB_DETAIL_REJECTED: EvidenceDetail = {
   validated_at: "2026-04-01T12:00:00.000Z",
   validated_by_name: "Admin Pérez",
 };
+
+const STUB_HONOR_DETAIL_WITH_PACKET = {
+  ...STUB_DETAIL,
+  id: 77,
+  type: "honor",
+  status: "PENDING_REVIEW",
+  section_name: "Arte cristiano",
+  file_count: 4,
+  files: [
+    ...STUB_DETAIL.files,
+    {
+      evidence_file_id: -100100,
+      file_url: "https://example.com/requisito.jpg",
+      file_name: "requisito.jpg",
+      file_type: "image/jpeg",
+      uploaded_at: "2026-03-15T10:10:00.000Z",
+    },
+    {
+      evidence_file_id: -1,
+      file_url: "https://example.com/certificado.pdf",
+      file_name: "certificado.pdf",
+      file_type: "application/pdf",
+      uploaded_at: "2026-03-15T10:15:00.000Z",
+    },
+  ],
+  honor_review_packet: {
+    user_honor_id: 77,
+    honor_id: 20,
+    honor_name: "Arte cristiano",
+    validation_status: "PENDING_REVIEW",
+    progress: {
+      total_requirements: 2,
+      completed_count: 1,
+      progress_percentage: 50,
+    },
+    general_files: [
+      {
+        evidence_file_id: -1,
+        file_url: "https://example.com/certificado.pdf",
+        file_name: "certificado.pdf",
+        file_type: "application/pdf",
+        uploaded_at: "2026-03-15T10:15:00.000Z",
+      },
+    ],
+    requirement_files: [
+    {
+      evidence_file_id: -100100,
+        file_url: "https://example.com/requisito.jpg",
+        file_name: "requisito.jpg",
+        file_type: "image/jpeg",
+        uploaded_at: "2026-03-15T10:10:00.000Z",
+      },
+    ],
+    requirements: [
+      {
+        requirement_id: 1,
+        requirement_number: "1",
+        display_label: "1",
+        requirement_text: "Explicar el objetivo del honor",
+        requires_evidence: true,
+        completed: true,
+        completed_at: "2026-03-15T10:10:00.000Z",
+        evidence_count: 1,
+        evidences: [
+          {
+            evidence_file_id: -100100,
+            file_url: "https://example.com/requisito.jpg",
+            file_name: "requisito.jpg",
+            file_type: "image/jpeg",
+            uploaded_at: "2026-03-15T10:10:00.000Z",
+          },
+        ],
+      },
+      {
+        requirement_id: 2,
+        requirement_number: "2",
+        display_label: "2",
+        requirement_text: "Completar una actividad práctica",
+        requires_evidence: false,
+        completed: false,
+        completed_at: null,
+        evidence_count: 0,
+        evidences: [],
+      },
+    ],
+  },
+} as EvidenceDetail;
 
 // ---------------------------------------------------------------------------
 // Render helper
@@ -304,6 +389,24 @@ describe("EvidenceDetailDialog", () => {
     await waitFor(() => {
       expect(screen.getByTestId("type-badge")).toBeInTheDocument();
       expect(screen.getByTestId("status-badge")).toBeInTheDocument();
+    });
+  });
+
+  // ── 13. Honor review packet rendering ────────────────────────────────────
+
+  it("renders honor review packet progress and requirement evidence", async () => {
+    mockGetEvidenceDetail.mockResolvedValue(STUB_HONOR_DETAIL_WITH_PACKET);
+
+    renderDialog({ type: "honor", id: 77 });
+
+    await waitFor(() => {
+      expect(screen.getByText("Progreso del honor")).toBeInTheDocument();
+      expect(screen.getByText("1 de 2 requisitos")).toBeInTheDocument();
+      expect(screen.getByText("50% completado")).toBeInTheDocument();
+      expect(
+        screen.getByText("Explicar el objetivo del honor"),
+      ).toBeInTheDocument();
+      expect(screen.getByText("requisito.jpg")).toBeInTheDocument();
     });
   });
 });

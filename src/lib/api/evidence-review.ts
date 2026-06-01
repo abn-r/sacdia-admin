@@ -31,9 +31,37 @@ export type EvidenceFile = {
   uploaded_at: string;
 };
 
+export type HonorRequirementReviewItem = {
+  requirement_id: number;
+  requirement_number: string;
+  display_label: string | null;
+  requirement_text: string;
+  requires_evidence: boolean;
+  completed: boolean;
+  completed_at: string | null;
+  evidence_count: number;
+  evidences: EvidenceFile[];
+};
+
+export type HonorReviewPacket = {
+  user_honor_id: number;
+  honor_id: number;
+  honor_name: string;
+  validation_status: string;
+  progress: {
+    total_requirements: number;
+    completed_count: number;
+    progress_percentage: number;
+  };
+  general_files: EvidenceFile[];
+  requirement_files: EvidenceFile[];
+  requirements: HonorRequirementReviewItem[];
+};
+
 export type EvidenceDetail = EvidenceItem & {
   files: EvidenceFile[];
   validated_by_name: string | null;
+  honor_review_packet?: HonorReviewPacket;
 };
 
 export type EvidenceHistoryEntry = {
@@ -66,7 +94,10 @@ export async function getEvidencePending(
   page = 1,
   limit = 50,
 ): Promise<PaginatedEvidenceItems> {
-  const params: Record<string, string | number | boolean | undefined> = { page, limit };
+  const params: Record<string, string | number | boolean | undefined> = {
+    page,
+    limit,
+  };
   if (type) params.type = type;
 
   const res = await apiRequest<{ status: string; data: PaginatedEvidenceItems }>(
