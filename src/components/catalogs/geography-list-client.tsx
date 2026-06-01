@@ -20,6 +20,7 @@ import {
   Pencil,
   Plus,
   Search,
+  Settings2,
   Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -104,6 +105,7 @@ export interface GeographyListClientProps {
   canEdit: boolean;
   canDelete: boolean;
   deleteAction: FormAction;
+  enableScoringConfiguration?: boolean;
 }
 
 function toText(value: unknown): string | null {
@@ -147,6 +149,7 @@ export function GeographyListClient({
   canEdit,
   canDelete,
   deleteAction,
+  enableScoringConfiguration = false,
 }: GeographyListClientProps) {
   const t = useTranslations(`catalogs.pages.${i18nNamespace}`);
   const router = useRouter();
@@ -365,6 +368,22 @@ export function GeographyListClient({
                         {(canEdit || canDelete) && (
                           <TableCell className="sticky right-0 z-10 border-l bg-background">
                             <div className="hidden gap-1 md:flex">
+                              {enableScoringConfiguration && itemId && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 px-2.5 text-xs"
+                                  asChild
+                                  title="Configurar puntuación"
+                                >
+                                  <Link
+                                    href={`${basePath}/${itemId}?tab=scoring-categories`}
+                                  >
+                                    <Settings2 className="size-3.5" />
+                                    Configurar puntuación
+                                  </Link>
+                                </Button>
+                              )}
                               {canEdit && itemId && (
                                 <Button
                                   variant="ghost"
@@ -408,6 +427,16 @@ export function GeographyListClient({
                                       <Link href={`${basePath}/${itemId}/edit`}>
                                         <Pencil className="size-4" />
                                         Editar
+                                      </Link>
+                                    </DropdownMenuItem>
+                                  )}
+                                  {enableScoringConfiguration && itemId && (
+                                    <DropdownMenuItem asChild>
+                                      <Link
+                                        href={`${basePath}/${itemId}?tab=scoring-categories`}
+                                      >
+                                        <Settings2 className="size-4" />
+                                        Configurar puntuación
                                       </Link>
                                     </DropdownMenuItem>
                                   )}

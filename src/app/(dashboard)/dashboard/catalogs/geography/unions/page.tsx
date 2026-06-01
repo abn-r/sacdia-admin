@@ -133,6 +133,7 @@ export default async function UnionsPage({
         canEdit={canEdit}
         canDelete={canDelete}
         deleteAction={deleteUnionAction}
+        enableScoringConfiguration
       />
     </div>
   );

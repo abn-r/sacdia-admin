@@ -137,6 +137,7 @@ export default async function LocalFieldsPage({
         canEdit={canEdit}
         canDelete={canDelete}
         deleteAction={deleteLocalFieldAction}
+        enableScoringConfiguration
       />
     </div>
   );
