@@ -37,7 +37,7 @@ describe("getReportPdfUrl", () => {
         }),
       )
       .mockResolvedValueOnce(
-        new Response(new Blob(["pdf"]), {
+        new Response("pdf", {
           status: 200,
           headers: { "content-type": "application/pdf" },
         }),
@@ -45,9 +45,12 @@ describe("getReportPdfUrl", () => {
 
     globalThis.fetch = fetchMock;
 
-    await expect(
-      downloadMonthlyReportPdf("46bebcb7-3f0a-49c7-930a-a25efc9bde89"),
-    ).resolves.toBeInstanceOf(Blob);
+    const blob = await downloadMonthlyReportPdf(
+      "46bebcb7-3f0a-49c7-930a-a25efc9bde89",
+    );
+
+    expect(blob.size).toBe(3);
+    expect(blob.type).toBe("application/pdf");
 
     expect(fetchMock).toHaveBeenNthCalledWith(1, "/api/auth/token");
     expect(fetchMock).toHaveBeenNthCalledWith(
