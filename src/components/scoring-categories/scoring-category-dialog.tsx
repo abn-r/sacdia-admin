@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { TranslationsTabsField } from "@/components/forms/translations-tabs-field";
 import type { CatalogTranslation } from "@/lib/types/catalog-translation";
+import { DEFAULT_SCORING_CATEGORY_MAX_POINTS_CAP } from "@/lib/api/system-config";
 import type {
   ScoringCategory,
   CreateScoringCategoryPayload,
@@ -37,6 +38,8 @@ export interface ScoringCategoryDialogProps {
     payload: CreateScoringCategoryPayload | UpdateScoringCategoryPayload,
     id?: number,
   ) => Promise<ScoringCategory>;
+  /** Global max points cap enforced by system config. */
+  maxPointsCap?: number;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -47,9 +50,13 @@ export function ScoringCategoryDialog({
   category,
   onSuccess,
   onSave,
+  maxPointsCap = DEFAULT_SCORING_CATEGORY_MAX_POINTS_CAP,
 }: ScoringCategoryDialogProps) {
   const t = useTranslations("scoring_categories");
   const isEdit = Boolean(category);
+  const resolvedMaxPointsCap = Number.isInteger(maxPointsCap) && maxPointsCap > 0
+    ? maxPointsCap
+    : DEFAULT_SCORING_CATEGORY_MAX_POINTS_CAP;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [name, setName] = useState("");
   const [maxPoints, setMaxPoints] = useState(1);
@@ -86,6 +93,12 @@ export function ScoringCategoryDialog({
     }
     if (!Number.isInteger(maxPoints) || maxPoints < 1) {
       toast.error(t("validation.points_invalid"));
+      return;
+    }
+    if (maxPoints > resolvedMaxPointsCap) {
+      toast.error(
+        `Los puntos máximos no pueden superar ${resolvedMaxPointsCap}`,
+      );
       return;
     }
 
@@ -151,13 +164,15 @@ export function ScoringCategoryDialog({
               id="sc_max_points"
               type="number"
               min={1}
+              max={resolvedMaxPointsCap}
               value={maxPoints}
               onChange={(e) => setMaxPoints(Number(e.target.value))}
               required
               disabled={isSubmitting}
             />
             <p className="text-[11px] text-muted-foreground">
-              Techo de puntos por sesión para esta categoría.
+              Puntaje máximo permitido por el sistema: {resolvedMaxPointsCap}{" "}
+              puntos por aspecto.
             </p>
           </div>
 

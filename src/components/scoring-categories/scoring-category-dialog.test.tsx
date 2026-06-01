@@ -110,6 +110,7 @@ interface RenderOpts {
   category?: ScoringCategory | null;
   onSave?: ReturnType<typeof vi.fn>;
   onSuccess?: ReturnType<typeof vi.fn>;
+  maxPointsCap?: number;
 }
 
 function renderDialog(opts: RenderOpts = {}) {
@@ -118,6 +119,7 @@ function renderDialog(opts: RenderOpts = {}) {
     category,
     onSave,
     onSuccess,
+    maxPointsCap,
   } = opts;
   const onOpenChange = vi.fn();
   const saveCb = onSave ?? vi.fn<(payload: unknown, id?: number) => Promise<ScoringCategory>>().mockResolvedValue(SAVED_CATEGORY);
@@ -131,6 +133,7 @@ function renderDialog(opts: RenderOpts = {}) {
         category={category}
         onSuccess={successCb}
         onSave={saveCb}
+        maxPointsCap={maxPointsCap}
       />
     </NextIntlClientProvider>,
   );
@@ -246,7 +249,50 @@ describe("ScoringCategoryDialog", () => {
     expect(mockToastError).toHaveBeenCalledWith(t.validation.points_invalid);
   });
 
-  // ── 8. Happy path create — calls onSave without id ───────────────────────
+  // ── 8. Cap legend + max attribute ────────────────────────────────────────
+
+  it("shows system cap legend and applies max attribute to points input", () => {
+    renderDialog({ maxPointsCap: 17 });
+
+    expect(
+      screen.getByText(
+        "Puntaje máximo permitido por el sistema: 17 puntos por aspecto.",
+      ),
+    ).toBeInTheDocument();
+
+    const pointsInput = document.querySelector(
+      'input[id="sc_max_points"]',
+    ) as HTMLInputElement;
+    expect(pointsInput).toHaveAttribute("max", "17");
+  });
+
+  // ── 9. Validation — maxPoints > cap ──────────────────────────────────────
+
+  it("shows cap validation error when max_points exceeds the configured cap", async () => {
+    const { onSave } = renderDialog({ maxPointsCap: 20 });
+
+    const pointsInput = document.querySelector(
+      'input[id="sc_max_points"]',
+    ) as HTMLInputElement;
+    fireEvent.change(pointsInput, { target: { value: "21" } });
+
+    const nameInput = document.querySelector(
+      'input[id="sc_name"]',
+    ) as HTMLInputElement;
+    fireEvent.change(nameInput, { target: { value: "Nombre válido" } });
+
+    const form = document.querySelector("form") as HTMLFormElement;
+    await act(async () => {
+      fireEvent.submit(form);
+    });
+
+    expect(mockToastError).toHaveBeenCalledWith(
+      "Los puntos máximos no pueden superar 20",
+    );
+    expect(onSave).not.toHaveBeenCalled();
+  });
+
+  // ── 10. Happy path create — calls onSave without id ──────────────────────
 
   it("calls onSave with name, max_points but no id in create mode", async () => {
     const { onOpenChange, onSave, onSuccess } = renderDialog();
@@ -271,7 +317,7 @@ describe("ScoringCategoryDialog", () => {
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 
-  // ── 9. Happy path edit — calls onSave with existing id ───────────────────
+  // ── 11. Happy path edit — calls onSave with existing id ──────────────────
 
   it("calls onSave with category id in edit mode", async () => {
     const { onSave } = renderDialog({ category: STUB_CATEGORY });
@@ -289,7 +335,7 @@ describe("ScoringCategoryDialog", () => {
     });
   });
 
-  // ── 10. Error path — shows Error.message in toast ────────────────────────
+  // ── 12. Error path — shows Error.message in toast ────────────────────────
 
   it("shows Error.message in toast when onSave throws", async () => {
     const failingSave = vi.fn<(payload: unknown, id?: number) => Promise<ScoringCategory>>().mockRejectedValue(
@@ -310,7 +356,7 @@ describe("ScoringCategoryDialog", () => {
     });
   });
 
-  // ── 11. Cancel closes dialog without API call ─────────────────────────────
+  // ── 13. Cancel closes dialog without API call ─────────────────────────────
 
   it("calls onOpenChange(false) and does NOT call onSave on cancel", async () => {
     const user = userEvent.setup();
@@ -322,7 +368,7 @@ describe("ScoringCategoryDialog", () => {
     expect(onSave).not.toHaveBeenCalled();
   });
 
-  // ── 12. In-flight state — buttons disabled while saving ───────────────────
+  // ── 14. In-flight state — buttons disabled while saving ───────────────────
 
   it("disables buttons while save is in flight", async () => {
     let resolve!: (v: ScoringCategory) => void;
