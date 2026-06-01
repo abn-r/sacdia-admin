@@ -23,6 +23,10 @@ import {
   SortableHeader,
   type SortDirection,
 } from "@/components/shared/sortable-header";
+import {
+  DEFAULT_SCORING_CATEGORY_MAX_POINTS_CAP,
+  getScoringCategoryMaxPointsCap,
+} from "@/lib/api/system-config";
 import type { ScoringCategoryDialogProps } from "@/components/scoring-categories/scoring-category-dialog";
 import type { ScoringCategoryDeleteDialogProps } from "@/components/scoring-categories/scoring-category-delete-dialog";
 import type {
@@ -169,6 +173,9 @@ export function ScoringCategoriesTable({
     useState<ScoringCategory | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [togglingIds, setTogglingIds] = useState<Set<number>>(new Set());
+  const [maxPointsCap, setMaxPointsCap] = useState(
+    DEFAULT_SCORING_CATEGORY_MAX_POINTS_CAP,
+  );
 
   const loadCategories = useCallback(async () => {
     setLoading(true);
@@ -191,6 +198,22 @@ export function ScoringCategoriesTable({
   useEffect(() => {
     loadCategories();
   }, [loadCategories]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadMaxPointsCap() {
+      const resolved = await getScoringCategoryMaxPointsCap();
+      if (!mounted) return;
+      setMaxPointsCap(resolved);
+    }
+
+    void loadMaxPointsCap();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   // ─── Save handler (create or update) ───────────────────────────────────────
 
@@ -322,6 +345,10 @@ export function ScoringCategoriesTable({
           {tTable("newCategory")}
         </Button>
       </div>
+      <p className="text-sm text-muted-foreground">
+        Puntaje máximo permitido por el sistema: {maxPointsCap} puntos por
+        aspecto.
+      </p>
 
       {/* Table or empty */}
       {sortedCategories.length === 0 ? (
@@ -478,6 +505,7 @@ export function ScoringCategoriesTable({
           }
         }}
         category={editCategory}
+        maxPointsCap={maxPointsCap}
         onSave={handleSave}
         onSuccess={() => {
           setEditCategory(null);
