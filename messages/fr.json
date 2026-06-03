@@ -1178,6 +1178,13 @@
       "instructor": "Instructeur",
       "member": "Membre",
       "noRole": "Sans rôle"
+    },
+    "birthday": {
+      "title": "Joyeux anniversaire !",
+      "message": "Aujourd’hui, nous célébrons ta vie avec gratitude. Que cette nouvelle année soit remplie de sens, de paix et de joie.",
+      "bibleMessage": "« Que le Seigneur te bénisse et te garde. » — Nombres 6:24",
+      "thanks": "Merci",
+      "dismissToday": "Ne plus afficher aujourd’hui"
     }
   },
   "post_registration": {

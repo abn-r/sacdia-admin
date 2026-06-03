@@ -4,6 +4,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { AppHeader } from "@/components/layout/app-header";
 import { CommandPalette } from "@/components/layout/command-palette";
+import { BirthdayCelebrationModal } from "@/components/dashboard/birthday-celebration-modal";
 import { AuthProvider } from "@/lib/auth/auth-context";
 import { QueryProvider } from "@/lib/providers/query-provider";
 import { ActiveContextProvider } from "@/lib/context/active-context";
@@ -42,6 +43,7 @@ export default async function DashboardLayout({
           <SidebarInset>
             <ActiveContextProvider>
               <CommandPalette />
+              <BirthdayCelebrationModal />
               <AppHeader />
               <main id="main" className="flex-1 overflow-auto">
                 <div className="mx-auto max-w-[1536px] px-4 py-4 md:px-6 md:py-6">

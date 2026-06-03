@@ -1209,6 +1209,13 @@ export interface IntlMessages {
       member: string;
       noRole: string;
     };
+    birthday: {
+      title: string;
+      message: string;
+      bibleMessage: string;
+      thanks: string;
+      dismissToday: string;
+    };
   };
   post_registration: {
     errors: {

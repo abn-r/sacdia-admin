@@ -25,10 +25,12 @@ export type AuthorizationSnapshot = {
 
 export type AuthUser = {
   id: string;
+  user_id?: string | null;
   email: string;
   name?: string | null;
   paternal_last_name?: string | null;
   maternal_last_name?: string | null;
+  birthday?: string | Date | null;
   picture_url?: string | null;
   user_image?: string | null;
   avatar_url?: string | null;

@@ -254,3 +254,93 @@
     }
   }
 }
+
+@keyframes birthday-confetti-fall {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -24px, 0) rotate(0deg);
+  }
+  12% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--birthday-confetti-drift, 18px), 420px, 0) rotate(360deg);
+  }
+}
+
+@keyframes birthday-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes birthday-sparkle {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.9) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08) rotate(12deg);
+  }
+}
+
+@keyframes birthday-gold-shimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+.birthday-confetti-piece {
+  position: absolute;
+  top: -16px;
+  width: 10px;
+  height: 14px;
+  border-radius: 999px;
+  opacity: 0;
+  animation: birthday-confetti-fall 2600ms ease-out forwards;
+}
+
+.birthday-confetti-piece:nth-child(odd) {
+  --birthday-confetti-drift: -22px;
+}
+
+.birthday-float {
+  animation: birthday-float 2400ms ease-in-out infinite;
+}
+
+.birthday-sparkle {
+  animation: birthday-sparkle 1800ms ease-in-out infinite;
+}
+
+.birthday-gold-text {
+  color: transparent;
+  background-image: linear-gradient(90deg, #92400e, #f59e0b, #fff7cc, #d97706, #92400e);
+  background-size: 200% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  text-shadow: 0 12px 28px color-mix(in oklch, var(--warning) 28%, transparent);
+  animation: birthday-gold-shimmer 2400ms ease-in-out infinite alternate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .birthday-confetti-piece,
+  .birthday-float,
+  .birthday-sparkle,
+  .birthday-gold-text {
+    animation: none !important;
+  }
+
+  .birthday-confetti-piece {
+    display: none;
+  }
+}

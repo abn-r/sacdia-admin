@@ -1179,6 +1179,13 @@
       "instructor": "Instructor",
       "member": "Member",
       "noRole": "No role"
+    },
+    "birthday": {
+      "title": "Happy birthday!",
+      "message": "Today we celebrate your life with gratitude. May this new year be filled with purpose, peace, and joy.",
+      "bibleMessage": "“The Lord bless you and keep you.” — Numbers 6:24",
+      "thanks": "Thank you",
+      "dismissToday": "Do not show again today"
     }
   },
   "post_registration": {
