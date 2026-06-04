@@ -29,6 +29,32 @@ export type TranslatablePayload = {
   translations?: CatalogTranslation[];
 };
 
+export type MasterHonorRuleGroupType =
+  | "EXPLICIT_OPTIONS"
+  | "CATEGORY_COUNT";
+
+export type MasterHonorApplicabilityScope = "ALL" | "SELECTED_DIVISIONS";
+
+export type MasterHonorRuleOptionPayload = {
+  option_id?: number;
+  label: string;
+  display_order: number;
+  honor_ids: number[];
+  active?: boolean;
+};
+
+export type MasterHonorRuleGroupPayload = {
+  group_id?: number;
+  group_type: MasterHonorRuleGroupType;
+  title?: string | null;
+  description?: string | null;
+  minimum_required: number;
+  honors_category_id?: number | null;
+  display_order: number;
+  options: MasterHonorRuleOptionPayload[];
+  active?: boolean;
+};
+
 export type ClassAvailabilityDurationPayload = {
   available_from_year_id?: number | null;
   available_until_year_id?: number | null;
@@ -300,21 +326,43 @@ export type AdminMasterHonor = {
   name: string;
   description?: string | null;
   active?: boolean;
+  philosophy?: string | null;
+  notes?: string | null;
+  applicability_scope?: MasterHonorApplicabilityScope;
+  division_ids?: number[];
+  requirement_groups?: MasterHonorRuleGroupPayload[];
   translations?: CatalogTranslation[];
+};
+
+export type MasterHonorPayload = {
+  philosophy?: string;
+  notes?: string;
+  applicability_scope: MasterHonorApplicabilityScope;
+  division_ids?: number[];
+  requirement_groups: MasterHonorRuleGroupPayload[];
 };
 
 export async function listAdminMasterHonors(params?: Record<string, string | number | boolean>) {
   return apiRequest<unknown>("/admin/master-honors", { params });
 }
 
-export async function createAdminMasterHonor(payload: TranslatablePayload) {
+export async function createAdminMasterHonor(payload: TranslatablePayload & MasterHonorPayload) {
   return apiRequest("/admin/master-honors", { method: "POST", body: payload });
 }
 
-export async function updateAdminMasterHonor(id: number, payload: Partial<TranslatablePayload>) {
+export async function updateAdminMasterHonor(
+  id: number,
+  payload: Partial<TranslatablePayload & MasterHonorPayload>,
+) {
   return apiRequest(`/admin/master-honors/${id}`, { method: "PATCH", body: payload });
 }
 
 export async function deleteAdminMasterHonor(id: number) {
   return apiRequest(`/admin/master-honors/${id}`, { method: "DELETE" });
+}
+
+export async function recalculateMasterHonor(id: number) {
+  return apiRequest(`/admin/master-honors/${id}/recalculate`, {
+    method: "POST",
+  });
 }
