@@ -20,6 +20,7 @@ import {
 import {
   Loader2,
   MoreHorizontal,
+  RefreshCcw,
   Pencil,
   Plus,
   Search,
@@ -84,11 +85,43 @@ import { useFormStatus } from "react-dom";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import {
+  MasterHonorRulesEditor,
+  type MasterHonorAuxCategory,
+  type MasterHonorAuxDivision,
+  type MasterHonorAuxHonor,
+} from "@/components/catalogs/master-honor-rules-editor";
+import type {
+  MasterHonorPayload,
+  MasterHonorRuleGroupPayload,
+  MasterHonorRuleGroupType,
+} from "@/lib/api/phase-e-catalogs";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type AnyRecord = Record<string, unknown>;
 type FormAction = (prev: PhaseEActionState, data: FormData) => Promise<PhaseEActionState>;
+
+type MasterHonorsCrudExtras = {
+  honors: MasterHonorAuxHonor[];
+  honorCategories: MasterHonorAuxCategory[];
+  divisions: MasterHonorAuxDivision[];
+  recalculateAction?: FormAction;
+};
+
+type MasterHonorRawRecord = {
+  philosophy?: unknown;
+  notes?: unknown;
+  applicability_scope?: unknown;
+  division_ids?: unknown;
+  requirement_groups?: unknown;
+};
+
+const EMPTY_MASTER_HONOR_PAYLOAD: MasterHonorPayload = {
+  applicability_scope: "ALL",
+  division_ids: [],
+  requirement_groups: [],
+};
 
 export type ClassConfigYearOption = {
   ecclesiastical_year_id: number;
@@ -124,6 +157,8 @@ export interface PhaseECatalogCrudPageProps {
   deleteAction: FormAction;
   /** Enables class-specific availability/duration fields and columns. */
   classConfigYearOptions?: ClassConfigYearOption[];
+  /** Optional master-honors extras to render rule controls and recalc action. */
+  masterHonorsConfig?: MasterHonorsCrudExtras;
 }
 
 // ─── SubmitButton ─────────────────────────────────────────────────────────────
@@ -165,6 +200,9 @@ interface FormFieldsProps {
   onTranslationsChange: (t: CatalogTranslation[]) => void;
   entityLabel: string;
   classConfigYearOptions?: ClassConfigYearOption[];
+  masterHonorsConfig?: MasterHonorsCrudExtras;
+  masterHonorsPayload?: MasterHonorPayload;
+  onMasterHonorsPayloadChange?: (value: MasterHonorPayload) => void;
 }
 
 function CatalogFormFields({
@@ -177,8 +215,12 @@ function CatalogFormFields({
   onTranslationsChange,
   entityLabel,
   classConfigYearOptions,
+  masterHonorsConfig,
+  masterHonorsPayload,
+  onMasterHonorsPayloadChange,
 }: FormFieldsProps) {
   const t = useTranslations("catalogs.phaseE");
+  const masterHonorsT = useTranslations("catalogs.masterHonors");
   const nameVal = typeof item?.name === "string" ? item.name : "";
   const descVal = typeof item?.description === "string" ? item.description : "";
   const showClassConfig = Array.isArray(classConfigYearOptions);
@@ -314,6 +356,16 @@ function CatalogFormFields({
         />
         <Label htmlFor={`${idPrefix}-active`}>{t("fieldActive")}</Label>
       </div>
+
+      {masterHonorsConfig && masterHonorsPayload && onMasterHonorsPayloadChange ? (
+        <MasterHonorRulesEditor
+          value={masterHonorsPayload}
+          onChange={onMasterHonorsPayloadChange}
+          honors={masterHonorsConfig.honors}
+          honorCategories={masterHonorsConfig.honorCategories}
+          divisions={masterHonorsConfig.divisions}
+        />
+      ) : null}
     </div>
   );
 
@@ -344,6 +396,111 @@ function toPositiveInt(value: unknown): number | null {
   return Math.floor(n);
 }
 
+function toNonNegativeInt(value: unknown): number | null {
+  const n = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(n) || n < 0) return null;
+  return Math.floor(n);
+}
+
+function isMasterHonorGroupType(value: unknown): value is MasterHonorRuleGroupType {
+  return value === "EXPLICIT_OPTIONS" || value === "CATEGORY_COUNT";
+}
+
+function normalizeText(value: unknown): string | undefined {
+  return typeof value === "string" && value.trim().length > 0
+    ? value.trim()
+    : undefined;
+}
+
+function normalizeMasterHonorsGroup(
+  raw: unknown,
+  fallbackDisplayOrder: number,
+): MasterHonorRuleGroupPayload {
+  if (!raw || typeof raw !== "object") {
+    return {
+      group_type: "EXPLICIT_OPTIONS",
+      minimum_required: 0,
+      display_order: fallbackDisplayOrder,
+      options: [],
+    };
+  }
+
+  const group = raw as Record<string, unknown>;
+  const groupType = isMasterHonorGroupType(group.group_type)
+    ? group.group_type
+    : "EXPLICIT_OPTIONS";
+  const minimumRequired = Math.max(0, toNonNegativeInt(group.minimum_required) ?? 0);
+  const displayOrder = Math.max(0, toNonNegativeInt(group.display_order) ?? fallbackDisplayOrder);
+  const title = normalizeText(group.title);
+  const description = normalizeText(group.description);
+  const groupId = toPositiveInt(group.group_id);
+  const honorsCategoryId = toPositiveInt(group.honors_category_id);
+  const rawOptions = Array.isArray(group.options) ? group.options : [];
+
+  const options = groupType === "EXPLICIT_OPTIONS"
+    ? rawOptions
+      .filter(
+        (option): option is Record<string, unknown> =>
+          option !== null && typeof option === "object",
+      )
+      .map((option, index) => {
+        const optionRecord = option as Record<string, unknown>;
+        const optionId = toPositiveInt(optionRecord.option_id);
+        const label = normalizeText(optionRecord.label) ?? "";
+        const honorIds = Array.isArray(optionRecord.honor_ids)
+          ? optionRecord.honor_ids.map((id) => toPositiveInt(id)).filter((value): value is number => value !== null)
+          : [];
+
+        return {
+          ...(optionId ? { option_id: optionId } : {}),
+          label,
+          display_order: Math.max(0, toNonNegativeInt(optionRecord.display_order) ?? index + 1),
+          honor_ids: honorIds,
+          ...(typeof optionRecord.active === "boolean" ? { active: optionRecord.active } : {}),
+        };
+      })
+    : [];
+
+  const normalized: MasterHonorRuleGroupPayload = {
+    group_type: groupType,
+    minimum_required: minimumRequired,
+    display_order: displayOrder,
+    options,
+    ...(groupId ? { group_id: groupId } : {}),
+    ...(title ? { title } : {}),
+    ...(description ? { description } : {}),
+    ...(typeof group.active === "boolean" ? { active: group.active } : {}),
+  };
+
+  if (groupType === "CATEGORY_COUNT" && honorsCategoryId) {
+    normalized.honors_category_id = honorsCategoryId;
+  }
+
+  return normalized;
+}
+
+function normalizeMasterHonorsPayload(item?: MasterHonorRawRecord | null): MasterHonorPayload {
+  const requirementGroups = Array.isArray(item?.requirement_groups)
+    ? item?.requirement_groups
+    : [];
+
+  return {
+    ...(normalizeText(item?.philosophy) ? { philosophy: normalizeText(item?.philosophy) as string } : {}),
+    ...(normalizeText(item?.notes) ? { notes: normalizeText(item?.notes) as string } : {}),
+    applicability_scope:
+      item?.applicability_scope === "SELECTED_DIVISIONS"
+        ? "SELECTED_DIVISIONS"
+        : "ALL",
+    division_ids:
+      item?.applicability_scope === "SELECTED_DIVISIONS" && Array.isArray(item?.division_ids)
+        ? item.division_ids.map((id) => toPositiveInt(id)).filter((value): value is number => value !== null)
+        : [],
+    requirement_groups: requirementGroups.map((group, index) =>
+      normalizeMasterHonorsGroup(group, index + 1),
+    ),
+  };
+}
+
 export function PhaseECatalogCrudPage({
   title,
   description,
@@ -361,6 +518,7 @@ export function PhaseECatalogCrudPage({
   updateAction,
   deleteAction,
   classConfigYearOptions,
+  masterHonorsConfig,
 }: PhaseECatalogCrudPageProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -377,10 +535,16 @@ export function PhaseECatalogCrudPage({
   const [editActiveChecked, setEditActiveChecked] = useState(true);
   const [createTranslations, setCreateTranslations] = useState<CatalogTranslation[]>([]);
   const [editTranslations, setEditTranslations] = useState<CatalogTranslation[]>([]);
+  const [createMasterHonorsPayload, setCreateMasterHonorsPayload] = useState<MasterHonorPayload>(EMPTY_MASTER_HONOR_PAYLOAD);
+  const [editMasterHonorsPayload, setEditMasterHonorsPayload] = useState<MasterHonorPayload>(EMPTY_MASTER_HONOR_PAYLOAD);
 
   const [createState, createFormAction] = useActionState<PhaseEActionState, FormData>(createAction, {});
   const [updateState, updateFormAction] = useActionState<PhaseEActionState, FormData>(updateAction, {});
   const [deleteState, deleteFormAction] = useActionState<PhaseEActionState, FormData>(deleteAction, {});
+  const [recalculateState, recalculateFormAction] = useActionState<PhaseEActionState, FormData>(
+    masterHonorsConfig?.recalculateAction ?? (async () => ({})),
+    {},
+  );
 
   const getItemId = (item: AnyRecord): number | null => toPositiveInt(item[idField]);
   const getItemName = (item: AnyRecord): string =>
@@ -451,6 +615,7 @@ export function PhaseECatalogCrudPage({
 
   const t = useTranslations("catalogs.phaseE");
   const displayT = useTranslations("classes.display");
+  const masterHonorsT = useTranslations("catalogs.masterHonors");
   const displayLabels: ClassDisplayLabels = {
     yearSingular: displayT("yearSingular"),
     yearPlural: displayT("yearPlural"),
@@ -462,6 +627,8 @@ export function PhaseECatalogCrudPage({
   };
   const hasActiveFilters = Boolean(currentSearch || currentStatusFilter !== "all");
   const canMutate = canCreate || canEdit || canDelete;
+  const isMasterHonorsCrud = Boolean(masterHonorsConfig);
+  const hasRecalculateAction = isMasterHonorsCrud && Boolean(masterHonorsConfig?.recalculateAction);
   const showClassConfig = Array.isArray(classConfigYearOptions);
   const yearNameById = new Map(
     (classConfigYearOptions ?? []).map((year) => [
@@ -479,7 +646,24 @@ export function PhaseECatalogCrudPage({
     if (open) {
       setCreateActiveChecked(true);
       setCreateTranslations([]);
+      setCreateMasterHonorsPayload(EMPTY_MASTER_HONOR_PAYLOAD);
+      return;
     }
+    setCreateMasterHonorsPayload(EMPTY_MASTER_HONOR_PAYLOAD);
+  }
+
+  function handleEditOpen(item: AnyRecord | null) {
+    setEditItem(item);
+    if (!item) {
+      setEditMasterHonorsPayload(EMPTY_MASTER_HONOR_PAYLOAD);
+      return;
+    }
+
+    setEditActiveChecked(item.active !== false);
+    setEditTranslations(
+      Array.isArray(item.translations) ? (item.translations as CatalogTranslation[]) : [],
+    );
+    setEditMasterHonorsPayload(normalizeMasterHonorsPayload(item as MasterHonorRawRecord));
   }
 
   return (
@@ -620,20 +804,31 @@ export function PhaseECatalogCrudPage({
                                   size="icon"
                                   className="size-8"
                                   disabled={!itemId}
-                                  onClick={() => {
-                                    setEditItem(item);
-                                    setEditActiveChecked(item.active !== false);
-                                    setEditTranslations(
-                                      Array.isArray(item.translations)
-                                        ? (item.translations as CatalogTranslation[])
-                                        : [],
-                                    );
-                                  }}
+                                  onClick={() => handleEditOpen(item)}
                                   title={t("edit")}
                                 >
                                   <Pencil className="size-3.5" />
                                 </Button>
                               )}
+                              {hasRecalculateAction && canEdit && itemId ? (
+                                <form action={recalculateFormAction} className="inline">
+                                  <input
+                                    type="hidden"
+                                    name="id"
+                                    value={String(itemId)}
+                                  />
+                                  <Button
+                                    type="submit"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="size-8"
+                                    aria-label={masterHonorsT("recalculateNow")}
+                                    title={masterHonorsT("recalculateNow")}
+                                  >
+                                    <RefreshCcw className="size-3.5" />
+                                  </Button>
+                                </form>
+                              ) : null}
                               {canDelete && (
                                 <Button
                                   variant="ghost"
@@ -654,24 +849,30 @@ export function PhaseECatalogCrudPage({
                                     <MoreHorizontal className="size-4" />
                                   </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
+                                  <DropdownMenuContent align="end">
                                   {canEdit && (
                                     <DropdownMenuItem
                                       disabled={!itemId}
-                                      onSelect={() => {
-                                        setEditItem(item);
-                                        setEditActiveChecked(item.active !== false);
-                                        setEditTranslations(
-                                          Array.isArray(item.translations)
-                                            ? (item.translations as CatalogTranslation[])
-                                            : [],
-                                        );
-                                      }}
+                                      onSelect={() => handleEditOpen(item)}
                                     >
                                       <Pencil className="size-4" />
                                       {t("edit")}
                                     </DropdownMenuItem>
                                   )}
+                                  {hasRecalculateAction && canEdit && itemId ? (
+                                    <DropdownMenuItem
+                                      onSelect={(event) => {
+                                        event.preventDefault();
+                                        const recalculateForm = document.getElementById(
+                                          `recalculate-master-honor-${itemId}`,
+                                        ) as HTMLFormElement | null;
+                                        recalculateForm?.requestSubmit();
+                                      }}
+                                    >
+                                      <RefreshCcw className="size-4" />
+                                      {masterHonorsT("recalculateNow")}
+                                    </DropdownMenuItem>
+                                  ) : null}
                                   {canDelete && (
                                     <DropdownMenuItem
                                       disabled={!itemId}
@@ -685,6 +886,15 @@ export function PhaseECatalogCrudPage({
                                 </DropdownMenuContent>
                               </DropdownMenu>
                             </div>
+                            {itemId && hasRecalculateAction ? (
+                              <form
+                                id={`recalculate-master-honor-${itemId}`}
+                                action={recalculateFormAction}
+                                className="sr-only"
+                              >
+                                <input type="hidden" name="id" value={String(itemId)} />
+                              </form>
+                            ) : null}
                           </TableCell>
                         )}
                       </TableRow>
@@ -730,6 +940,9 @@ export function PhaseECatalogCrudPage({
                 onTranslationsChange={setCreateTranslations}
                 entityLabel={entityLabel}
                 classConfigYearOptions={classConfigYearOptions}
+                masterHonorsConfig={masterHonorsConfig}
+                masterHonorsPayload={createMasterHonorsPayload}
+                onMasterHonorsPayloadChange={setCreateMasterHonorsPayload}
               />
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setCreateOpen(false)}>
@@ -766,6 +979,9 @@ export function PhaseECatalogCrudPage({
                 onTranslationsChange={setEditTranslations}
                 entityLabel={entityLabel}
                 classConfigYearOptions={classConfigYearOptions}
+                masterHonorsConfig={masterHonorsConfig}
+                masterHonorsPayload={editMasterHonorsPayload}
+                onMasterHonorsPayloadChange={setEditMasterHonorsPayload}
               />
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setEditItem(null)}>
@@ -812,6 +1028,12 @@ export function PhaseECatalogCrudPage({
           {t("noPermissions")}
         </div>
       )}
+
+      {recalculateState.error ? (
+        <p className="rounded-md border border-destructive/40 bg-destructive/10 px-4 py-2 text-sm text-destructive">
+          {recalculateState.error}
+        </p>
+      ) : null}
     </div>
   );
 }

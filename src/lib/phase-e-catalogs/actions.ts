@@ -65,6 +65,12 @@ import {
   createAdminMasterHonor,
   updateAdminMasterHonor,
   deleteAdminMasterHonor,
+  recalculateMasterHonor,
+  type MasterHonorPayload,
+  type MasterHonorRuleGroupPayload,
+  type MasterHonorRuleOptionPayload,
+  type MasterHonorRuleGroupType,
+  type MasterHonorApplicabilityScope,
 } from "@/lib/api/phase-e-catalogs";
 import { parseClassConfigFormData } from "@/lib/classes/class-config";
 
@@ -88,6 +94,215 @@ function parsePositiveInt(formData: FormData, field: string): number | null {
   const n = Number(raw);
   if (!Number.isFinite(n) || n <= 0) return null;
   return Math.floor(n);
+}
+
+function parseIntField(raw: string, min = 0): number | null {
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+  const n = Number(trimmed);
+  if (!Number.isInteger(n) || n < min) return null;
+  return n;
+}
+
+function parseUnknownInt(value: unknown, min = 0): number | null {
+  if (typeof value === "number" && Number.isInteger(value) && value >= min) {
+    return value;
+  }
+  if (typeof value === "string") {
+    return parseIntField(value, min);
+  }
+  return null;
+}
+
+function parseUnknownString(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function parseUnknownBool(value: unknown): boolean | undefined {
+  if (typeof value === "boolean") return value;
+  return undefined;
+}
+
+function parseIntList(values: unknown): number[] {
+  if (!Array.isArray(values)) return [];
+  return values
+    .map((value) => parseUnknownInt(value, 1))
+    .filter((v): v is number => v !== null && Number.isFinite(v));
+}
+
+const MASTER_HONOR_SCOPE_VALUES = ["ALL", "SELECTED_DIVISIONS"] as const;
+
+function isMasterHonorApplicabilityScope(
+  value: unknown,
+): value is MasterHonorApplicabilityScope {
+  return typeof value === "string" && (MASTER_HONOR_SCOPE_VALUES as readonly string[]).includes(value);
+}
+
+function normalizeMasterHonorApplicabilityScope(
+  value: unknown,
+): MasterHonorApplicabilityScope {
+  return isMasterHonorApplicabilityScope(value) ? value : "ALL";
+}
+
+function normalizeScopeDivisionIds(
+  rawScope: unknown,
+  rawDivisionIds: unknown,
+): { scope: MasterHonorApplicabilityScope; division_ids: number[] } {
+  const scope = normalizeMasterHonorApplicabilityScope(rawScope);
+  const division_ids = scope === "SELECTED_DIVISIONS"
+    ? parseIntList(rawDivisionIds)
+    : [];
+  return { scope, division_ids };
+}
+
+function normalizeMasterHonorRuleOption(
+  raw: unknown,
+  index: number,
+): MasterHonorRuleOptionPayload {
+  if (!raw || typeof raw !== "object") {
+    throw new Error(`La opción ${index + 1} del grupo tiene estructura inválida.`);
+  }
+  const option = raw as Record<string, unknown>;
+  const label = parseUnknownString(option.label);
+  if (!label) throw new Error(`La opción ${index + 1} requiere etiqueta.`);
+
+  const display_order = parseUnknownInt(option.display_order, 0);
+  if (display_order === null) {
+    throw new Error(`La opción "${label}" requiere un orden de visualización válido.`);
+  }
+
+  const honor_ids = parseIntList(option.honor_ids);
+  if (honor_ids.length === 0) {
+    throw new Error(`La opción "${label}" requiere al menos un honor.`);
+  }
+
+  const option_id = parseUnknownInt(option.option_id, 1);
+  return {
+    ...(option_id ? { option_id } : {}),
+    label,
+    display_order,
+    honor_ids,
+    ...(parseUnknownBool(option.active) !== undefined
+      ? { active: parseUnknownBool(option.active) }
+      : {}),
+  };
+}
+
+function normalizeMasterHonorRuleGroup(
+  raw: unknown,
+  index: number,
+): MasterHonorRuleGroupPayload {
+  if (!raw || typeof raw !== "object") {
+    throw new Error(`El grupo ${index + 1} tiene estructura inválida.`);
+  }
+
+  const group = raw as Record<string, unknown>;
+  const group_type = parseUnknownString(group.group_type) as MasterHonorRuleGroupType;
+  if (group_type !== "EXPLICIT_OPTIONS" && group_type !== "CATEGORY_COUNT") {
+    throw new Error(`El grupo ${index + 1} tiene un tipo inválido.`);
+  }
+
+  const minimum_required = parseUnknownInt(group.minimum_required, 1);
+  if (minimum_required === null) {
+    throw new Error(`El grupo ${index + 1} requiere un mínimo válido mayor o igual a 1.`);
+  }
+
+  const display_order = parseUnknownInt(group.display_order, 0);
+  if (display_order === null) {
+    throw new Error(`El grupo ${index + 1} requiere un orden de visualización válido.`);
+  }
+
+  const title = parseUnknownString(group.title);
+  const description = parseUnknownString(group.description);
+  const group_id = parseUnknownInt(group.group_id, 1);
+
+  let options: MasterHonorRuleOptionPayload[] = [];
+  let honors_category_id: number | null | undefined;
+
+  if (group_type === "CATEGORY_COUNT") {
+    honors_category_id = parseUnknownInt(group.honors_category_id, 1) ?? null;
+    if (honors_category_id === null) {
+      throw new Error(`El grupo ${index + 1} requiere una categoría de honor.`);
+    }
+  } else {
+    const rawOptions = Array.isArray(group.options)
+      ? group.options
+      : [];
+    options = rawOptions.map((option, optionIdx) =>
+      normalizeMasterHonorRuleOption(option, optionIdx),
+    );
+
+    const activeOptions = options.filter((option) => option.active !== false).length;
+    if (minimum_required > activeOptions) {
+      throw new Error(`El mínimo del grupo ${index + 1} no puede superar las opciones activas.`);
+    }
+  }
+
+  return {
+    ...(group_id ? { group_id } : {}),
+    group_type,
+    ...(title ? { title } : {}),
+    ...(description ? { description } : {}),
+    minimum_required,
+    ...(honors_category_id !== null && honors_category_id !== undefined
+      ? { honors_category_id }
+      : {}),
+    display_order,
+    options,
+    ...(parseUnknownBool(group.active) !== undefined
+      ? { active: parseUnknownBool(group.active) }
+      : {}),
+  };
+}
+
+function parseMasterHonorPayload(formData: FormData): MasterHonorPayload {
+  const rawValue = formData.get("master_honor_payload");
+  if (!rawValue || typeof rawValue !== "string") {
+    return {
+      applicability_scope: "ALL",
+      division_ids: [],
+      requirement_groups: [],
+    };
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(rawValue);
+  } catch {
+    throw new Error("El payload de configuración de maestría es inválido.");
+  }
+
+  if (!parsed || typeof parsed !== "object") {
+    throw new Error("La configuración de maestría tiene formato inválido.");
+  }
+
+  const payload = parsed as Record<string, unknown>;
+  const philosophy = parseUnknownString(payload.philosophy);
+  const notes = parseUnknownString(payload.notes);
+  const { scope, division_ids } = normalizeScopeDivisionIds(
+    payload.applicability_scope,
+    payload.division_ids,
+  );
+
+  if (scope === "SELECTED_DIVISIONS" && division_ids.length === 0) {
+    throw new Error("La aplicación por divisiones exige al menos una división.");
+  }
+
+  const requirementGroupsRaw = Array.isArray(payload.requirement_groups)
+    ? payload.requirement_groups
+    : [];
+
+  const requirement_groups = requirementGroupsRaw.map((group, index) =>
+    normalizeMasterHonorRuleGroup(group, index),
+  );
+
+  return {
+    ...(philosophy ? { philosophy } : {}),
+    ...(notes ? { notes } : {}),
+    applicability_scope: scope,
+    division_ids,
+    requirement_groups,
+  };
 }
 
 function parseTranslations(formData: FormData): CatalogTranslation[] {
@@ -426,17 +641,123 @@ export const deleteHonorCatalogAction = honorsAdminActions.deleteAction;
 
 // ─── Master Honors ────────────────────────────────────────────────────────────
 
-const masterHonorsActions = makeActions(
-  "/dashboard/catalogs/master-honors",
-  { create: [MASTER_HONORS_MANAGE, CATALOGS_CREATE], update: [MASTER_HONORS_MANAGE, CATALOGS_UPDATE], delete: [MASTER_HONORS_MANAGE, CATALOGS_DELETE] },
-  {
-    create: (p) => createAdminMasterHonor(p as Parameters<typeof createAdminMasterHonor>[0]),
-    update: (id, p) => updateAdminMasterHonor(id, p),
-    delete: (id) => deleteAdminMasterHonor(id),
-  },
-  true,
-);
+async function buildMasterHonorCreatePayload(formData: FormData) {
+  const payload = {
+    ...buildTranslatableCreate(formData),
+    ...parseMasterHonorPayload(formData),
+  };
+  return payload;
+}
 
-export const createMasterHonorAction = masterHonorsActions.createAction;
-export const updateMasterHonorAction = masterHonorsActions.updateAction;
-export const deleteMasterHonorAction = masterHonorsActions.deleteAction;
+async function buildMasterHonorUpdatePayload(formData: FormData) {
+  const payload = {
+    ...buildTranslatableUpdate(formData),
+    ...parseMasterHonorPayload(formData),
+  };
+  return payload;
+}
+
+export async function createMasterHonorAction(
+  _: PhaseEActionState,
+  formData: FormData,
+): Promise<PhaseEActionState> {
+  const user = await requireAdminUser();
+  if (!hasAnyPermission(user, [MASTER_HONORS_MANAGE, CATALOGS_CREATE])) {
+    return { error: "Sin permisos para crear." };
+  }
+
+  try {
+    const payload = await buildMasterHonorCreatePayload(formData);
+    await createAdminMasterHonor(payload as Parameters<typeof createAdminMasterHonor>[0]);
+  } catch (error) {
+    return {
+      error: getActionErrorMessage(error, "No se pudo crear el registro.", {
+        endpointLabel: "/admin/master-honors",
+      }),
+    };
+  }
+
+  revalidatePath("/dashboard/catalogs/master-honors");
+  redirect("/dashboard/catalogs/master-honors");
+}
+
+export async function updateMasterHonorAction(
+  _: PhaseEActionState,
+  formData: FormData,
+): Promise<PhaseEActionState> {
+  const user = await requireAdminUser();
+  if (!hasAnyPermission(user, [MASTER_HONORS_MANAGE, CATALOGS_UPDATE])) {
+    return { error: "Sin permisos para editar." };
+  }
+
+  const id = parsePositiveInt(formData, "id");
+  if (!id) return { error: "No se pudo identificar el registro a editar." };
+
+  try {
+    const payload = await buildMasterHonorUpdatePayload(formData);
+    await updateAdminMasterHonor(id, payload as Parameters<typeof updateAdminMasterHonor>[1]);
+  } catch (error) {
+    return {
+      error: getActionErrorMessage(error, "No se pudo actualizar el registro.", {
+        endpointLabel: `/admin/master-honors/${id}`,
+      }),
+    };
+  }
+
+  revalidatePath("/dashboard/catalogs/master-honors");
+  redirect("/dashboard/catalogs/master-honors");
+}
+
+export async function deleteMasterHonorAction(
+  _: PhaseEActionState,
+  formData: FormData,
+): Promise<PhaseEActionState> {
+  const user = await requireAdminUser();
+  if (!hasAnyPermission(user, [MASTER_HONORS_MANAGE, CATALOGS_DELETE])) {
+    return { error: "Sin permisos para eliminar." };
+  }
+
+  const id = parsePositiveInt(formData, "id");
+  if (!id) return { error: "No se pudo identificar el registro a editar." };
+
+  try {
+    await deleteAdminMasterHonor(id);
+  } catch (error) {
+    return {
+      error: getActionErrorMessage(error, "No se pudo eliminar el registro.", {
+        endpointLabel: `/admin/master-honors/${id}`,
+      }),
+    };
+  }
+
+  revalidatePath("/dashboard/catalogs/master-honors");
+  redirect("/dashboard/catalogs/master-honors");
+}
+
+export async function recalculateMasterHonorAction(
+  _: PhaseEActionState,
+  formData: FormData,
+): Promise<PhaseEActionState> {
+  const user = await requireAdminUser();
+  if (!hasAnyPermission(user, [MASTER_HONORS_MANAGE, CATALOGS_UPDATE])) {
+    return { error: "Sin permisos para editar." };
+  }
+
+  const id = parsePositiveInt(formData, "id");
+  if (!id) {
+    return { error: "No se pudo identificar el registro a recalcular." };
+  }
+
+  try {
+    await recalculateMasterHonor(id);
+  } catch (error) {
+    return {
+      error: getActionErrorMessage(error, "No se pudo recalcular el honor maestro.", {
+        endpointLabel: `/admin/master-honors/${id}/recalculate`,
+      }),
+    };
+  }
+
+  revalidatePath("/dashboard/catalogs/master-honors");
+  return {};
+}
