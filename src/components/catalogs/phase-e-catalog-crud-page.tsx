@@ -114,6 +114,7 @@ type MasterHonorRawRecord = {
   notes?: unknown;
   applicability_scope?: unknown;
   division_ids?: unknown;
+  master_honor_divisions?: unknown;
   requirement_groups?: unknown;
 };
 
@@ -220,7 +221,6 @@ function CatalogFormFields({
   onMasterHonorsPayloadChange,
 }: FormFieldsProps) {
   const t = useTranslations("catalogs.phaseE");
-  const masterHonorsT = useTranslations("catalogs.masterHonors");
   const nameVal = typeof item?.name === "string" ? item.name : "";
   const descVal = typeof item?.description === "string" ? item.description : "";
   const showClassConfig = Array.isArray(classConfigYearOptions);
@@ -447,15 +447,45 @@ function normalizeMasterHonorsGroup(
         const optionRecord = option as Record<string, unknown>;
         const optionId = toPositiveInt(optionRecord.option_id);
         const label = normalizeText(optionRecord.label) ?? "";
-        const honorIds = Array.isArray(optionRecord.honor_ids)
+        const honorIdsFromFlat = Array.isArray(optionRecord.honor_ids)
           ? optionRecord.honor_ids.map((id) => toPositiveInt(id)).filter((value): value is number => value !== null)
           : [];
+
+        const honorIdsFromNested = Array.isArray(optionRecord.honors)
+          ? optionRecord.honors
+            .map((honorRecord) => {
+              if (typeof honorRecord === "number") {
+                return toPositiveInt(honorRecord);
+              }
+              if (!honorRecord || typeof honorRecord !== "object") {
+                return null;
+              }
+              const honorObject = honorRecord as Record<string, unknown>;
+              if ("honor_id" in honorObject) {
+                return toPositiveInt(honorObject.honor_id);
+              }
+              if (
+                "honor" in honorObject &&
+                honorObject.honor !== null &&
+                typeof honorObject.honor === "object"
+              ) {
+                return toPositiveInt((honorObject.honor as Record<string, unknown>).honor_id);
+              }
+              return null;
+            })
+            .filter((value): value is number => value !== null)
+          : [];
+
+        const honor_ids = Array.from(new Set([
+          ...honorIdsFromFlat,
+          ...honorIdsFromNested,
+        ]));
 
         return {
           ...(optionId ? { option_id: optionId } : {}),
           label,
           display_order: Math.max(0, toNonNegativeInt(optionRecord.display_order) ?? index + 1),
-          honor_ids: honorIds,
+          honor_ids,
           ...(typeof optionRecord.active === "boolean" ? { active: optionRecord.active } : {}),
         };
       })
@@ -479,6 +509,29 @@ function normalizeMasterHonorsGroup(
   return normalized;
 }
 
+function normalizeMasterHonorsDivisionIds(
+  rawScope: unknown,
+  rawDivisionIds: unknown,
+  rawDivisionRecords: unknown,
+): number[] {
+  if (rawScope !== "SELECTED_DIVISIONS") return [];
+  const flatIds = Array.isArray(rawDivisionIds)
+    ? rawDivisionIds.map((id) => toPositiveInt(id)).filter((value): value is number => value !== null)
+    : [];
+
+  const nestedDivisionIds = Array.isArray(rawDivisionRecords)
+    ? rawDivisionRecords
+      .map((entry) =>
+        entry && typeof entry === "object" && "division_id" in entry
+          ? toPositiveInt((entry as Record<string, unknown>).division_id)
+          : null,
+      )
+      .filter((value): value is number => value !== null)
+    : [];
+
+  return Array.from(new Set([...flatIds, ...nestedDivisionIds]));
+}
+
 function normalizeMasterHonorsPayload(item?: MasterHonorRawRecord | null): MasterHonorPayload {
   const requirementGroups = Array.isArray(item?.requirement_groups)
     ? item?.requirement_groups
@@ -491,13 +544,53 @@ function normalizeMasterHonorsPayload(item?: MasterHonorRawRecord | null): Maste
       item?.applicability_scope === "SELECTED_DIVISIONS"
         ? "SELECTED_DIVISIONS"
         : "ALL",
-    division_ids:
-      item?.applicability_scope === "SELECTED_DIVISIONS" && Array.isArray(item?.division_ids)
-        ? item.division_ids.map((id) => toPositiveInt(id)).filter((value): value is number => value !== null)
-        : [],
+    division_ids: normalizeMasterHonorsDivisionIds(
+      item?.applicability_scope,
+      item?.division_ids,
+      item?.master_honor_divisions,
+    ),
     requirement_groups: requirementGroups.map((group, index) =>
       normalizeMasterHonorsGroup(group, index + 1),
     ),
+  };
+}
+
+function getMasterHonorsSummary(item: AnyRecord):
+  | { kind: "empty" }
+  | {
+      kind: "configured";
+      scope: "ALL" | "SELECTED_DIVISIONS";
+      divisionCount: number;
+      groupCount: number;
+      minimumTotal: number;
+    } {
+  const scope = item.applicability_scope === "SELECTED_DIVISIONS"
+    ? "SELECTED_DIVISIONS"
+    : "ALL";
+  const divisionIds = normalizeMasterHonorsDivisionIds(
+    scope,
+    item.division_ids,
+    item.master_honor_divisions,
+  );
+  const groups = Array.isArray(item.requirement_groups) ? item.requirement_groups : [];
+  const groupCount = groups.length;
+  if (groupCount === 0) {
+    return { kind: "empty" };
+  }
+
+  const minTotal = groups.reduce((total, rawGroup) => {
+    if (!rawGroup || typeof rawGroup !== "object") return total;
+    const group = rawGroup as Record<string, unknown>;
+    const minimum = toNonNegativeInt(group.minimum_required);
+    return total + (minimum ?? 0);
+  }, 0);
+
+  return {
+    kind: "configured",
+    scope,
+    divisionCount: divisionIds.length,
+    groupCount,
+    minimumTotal: minTotal,
   };
 }
 
@@ -747,6 +840,9 @@ export function PhaseECatalogCrudPage({
                     {includeDescription && <TableHead>{t("colDescription")}</TableHead>}
                     {showClassConfig && <TableHead>{t("colDuration")}</TableHead>}
                     {showClassConfig && <TableHead>{t("colAvailability")}</TableHead>}
+                    {isMasterHonorsCrud && (
+                      <TableHead>{masterHonorsT("colRulesSummary")}</TableHead>
+                    )}
                     <TableHead>{t("colStatus")}</TableHead>
                     {(canEdit || canDelete) && (
                       <TableHead className="sticky right-0 z-20 w-[100px] border-l bg-background">
@@ -787,6 +883,20 @@ export function PhaseECatalogCrudPage({
                             )}
                           </TableCell>
                         )}
+                        {isMasterHonorsCrud ? (
+                          <TableCell className="max-w-[260px] whitespace-pre-line text-sm text-muted-foreground">
+                            {(() => {
+                              const summary = getMasterHonorsSummary(item);
+                              if (summary.kind === "empty") {
+                                return masterHonorsT("rulesSummaryNoRules");
+                              }
+                              const scopeText = summary.scope === "ALL"
+                                ? masterHonorsT("scopeAll")
+                                : `${masterHonorsT("scopeSelected")} (${summary.divisionCount})`;
+                              return `${scopeText} · ${masterHonorsT("summaryGroupCount", { count: summary.groupCount })} · ${masterHonorsT("summaryMinimumTotal", { count: summary.minimumTotal })}`;
+                            })()}
+                          </TableCell>
+                        ) : null}
                         <TableCell>
                           <Badge
                             variant={item.active !== false ? "soft-success" : "outline"}
@@ -817,18 +927,19 @@ export function PhaseECatalogCrudPage({
                                     name="id"
                                     value={String(itemId)}
                                   />
-                                  <Button
-                                    type="submit"
-                                    variant="ghost"
-                                    size="icon"
-                                    className="size-8"
-                                    aria-label={masterHonorsT("recalculateNow")}
-                                    title={masterHonorsT("recalculateNow")}
-                                  >
-                                    <RefreshCcw className="size-3.5" />
-                                  </Button>
-                                </form>
-                              ) : null}
+                                <Button
+                                  type="submit"
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 gap-1.5"
+                                  aria-label={masterHonorsT("recalculateNow")}
+                                  title={masterHonorsT("recalculateNow")}
+                                >
+                                  <RefreshCcw className="size-3.5" />
+                                  <span className="hidden md:inline">{masterHonorsT("recalculateNow")}</span>
+                                </Button>
+                              </form>
+                            ) : null}
                               {canDelete && (
                                 <Button
                                   variant="ghost"
