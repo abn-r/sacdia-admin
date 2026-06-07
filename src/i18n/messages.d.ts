@@ -887,6 +887,8 @@ export interface IntlMessages {
       };
     };
     masterHonors: {
+      colRulesSummary: string;
+      rulesSummaryNoRules: string;
       rulesTitle: string;
       fieldPhilosophy: string;
       fieldPhilosophyPlaceholder: string;
@@ -931,6 +933,8 @@ export interface IntlMessages {
       noHonors: string;
       noGroups: string;
       recalculateNow: string;
+      summaryGroupCount: string;
+      summaryMinimumTotal: string;
     };
   };
   auth: {

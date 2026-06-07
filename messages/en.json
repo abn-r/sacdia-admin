@@ -858,6 +858,8 @@
       }
     },
     "masterHonors": {
+      "colRulesSummary": "Rules summary",
+      "rulesSummaryNoRules": "No rules configured",
       "rulesTitle": "Master honor rules",
       "fieldPhilosophy": "Philosophy",
       "fieldPhilosophyPlaceholder": "Describe the official philosophy for this master honor.",
@@ -901,7 +903,9 @@
       "fieldOptionHonorIds": "Equivalent honors",
       "noHonors": "No honors available.",
       "noGroups": "No groups configured.",
-      "recalculateNow": "Recalculate now"
+      "recalculateNow": "Recalculate now",
+      "summaryGroupCount": "{count} groups",
+      "summaryMinimumTotal": "Minimum total: {count}"
     }
   },
   "auth": {

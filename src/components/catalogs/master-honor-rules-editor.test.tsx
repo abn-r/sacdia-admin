@@ -178,6 +178,36 @@ describe("MasterHonorRulesEditor", () => {
     expect(initial.requirement_groups[0].options[0].honor_ids).toEqual([101]);
   });
 
+  it("normaliza y une la forma plana y anidada del backend", () => {
+    const { payload } = renderEditor({
+      applicability_scope: "SELECTED_DIVISIONS",
+      division_ids: [1],
+      master_honor_divisions: [{ division_id: 1 }, { division_id: 2 }, { division_id: 2 }],
+      requirement_groups: [
+        {
+          group_type: "EXPLICIT_OPTIONS",
+          minimum_required: 1,
+          display_order: 1,
+          options: [
+            {
+              option_id: 10,
+              label: "Acuáticas",
+              display_order: 1,
+              honor_ids: [101],
+              honors: [{ honor_id: 102 }, { honor: { honor_id: 101 } }, { honor: { honor_id: 101 } }],
+              active: true,
+            },
+          ],
+          active: true,
+        },
+      ],
+    } as unknown as MasterHonorPayload);
+
+    expect(payload().division_ids).toEqual([1, 2]);
+    expect(payload().requirement_groups).toHaveLength(1);
+    expect(payload().requirement_groups[0]?.options[0]?.honor_ids).toEqual([101, 102]);
+  });
+
   it("warns when explicit minimum exceeds active option count", () => {
     renderEditor({
       applicability_scope: "ALL",

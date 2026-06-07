@@ -858,6 +858,8 @@
       }
     },
     "masterHonors": {
+      "colRulesSummary": "Resumo das regras",
+      "rulesSummaryNoRules": "Nenhuma regra configurada",
       "rulesTitle": "Regras da honra mestre",
       "fieldPhilosophy": "Filosofia",
       "fieldPhilosophyPlaceholder": "Descreva a filosofia oficial desta honra mestre.",
@@ -901,7 +903,9 @@
       "fieldOptionHonorIds": "Honras equivalentes",
       "noHonors": "Não há honras disponíveis.",
       "noGroups": "Não há grupos configurados.",
-      "recalculateNow": "Recalcular agora"
+      "recalculateNow": "Recalcular agora",
+      "summaryGroupCount": "{count} grupos",
+      "summaryMinimumTotal": "Total mínimo: {count}"
     }
   },
   "auth": {

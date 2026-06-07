@@ -752,7 +752,7 @@ export async function recalculateMasterHonorAction(
     await recalculateMasterHonor(id);
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo recalcular el honor maestro.", {
+      error: getActionErrorMessage(error, "No se pudo recalcular la maestría.", {
         endpointLabel: `/admin/master-honors/${id}/recalculate`,
       }),
     };

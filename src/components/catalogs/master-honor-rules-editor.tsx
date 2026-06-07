@@ -9,7 +9,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { type MasterHonorPayload } from "@/lib/api/phase-e-catalogs";
+import {
+  type MasterHonorPayload,
+  type MasterHonorRuleGroupPayload,
+  type MasterHonorRuleGroupType,
+  type MasterHonorRuleOptionPayload,
+} from "@/lib/api/phase-e-catalogs";
 
 export type MasterHonorAuxHonor = {
   honor_id: number;
@@ -36,21 +41,153 @@ export interface MasterHonorRulesEditorProps {
 
 const DEFAULT_SCOPE = "ALL" as const;
 
+function toPositiveId(value: unknown): number | undefined {
+  const parsed = typeof value === "string" || typeof value === "number" ? Number(value) : NaN;
+  if (!Number.isFinite(parsed) || parsed <= 0) return undefined;
+  return Math.floor(parsed);
+}
+
+function toNonNegativeInt(value: unknown): number | undefined {
+  const parsed = typeof value === "string" || typeof value === "number" ? Number(value) : NaN;
+  if (!Number.isFinite(parsed) || parsed < 0) return undefined;
+  return Math.floor(parsed);
+}
+
+function toText(value: unknown): string | undefined {
+  return typeof value === "string" ? value : undefined;
+}
+
+function toGroupType(value: unknown): MasterHonorRuleGroupType {
+  return value === "CATEGORY_COUNT" ? "CATEGORY_COUNT" : "EXPLICIT_OPTIONS";
+}
+
+function parseIdList(values: unknown): number[] {
+  if (!Array.isArray(values)) return [];
+  const ids = values
+    .map((value) => toPositiveId(value))
+    .filter((id): id is number => Number.isFinite(id));
+  return Array.from(new Set(ids));
+}
+
+function parseMasterHonorDivisionIds(raw: unknown): number[] {
+  if (!raw || typeof raw !== "object") return [];
+  const value = raw as Record<string, unknown>;
+  const explicit = parseIdList(value.division_ids);
+
+  const nested = Array.isArray(value.master_honor_divisions)
+    ? value.master_honor_divisions
+    : [];
+  const nestedIds = nested
+    .map((entry) => toPositiveId(
+      typeof entry === "object" && entry !== null && "division_id" in entry
+        ? (entry as Record<string, unknown>).division_id
+        : undefined,
+    ))
+    .filter((id): id is number => typeof id === "number");
+
+  return Array.from(new Set([...explicit, ...nestedIds]));
+}
+
+function parseHonorIdsFromOption(rawOption: unknown): number[] {
+  if (!rawOption || typeof rawOption !== "object") return [];
+  const option = rawOption as Record<string, unknown>;
+  const honorIds = parseIdList(option.honor_ids);
+
+  const nestedHonors = Array.isArray(option.honors) ? option.honors : [];
+  const derived = nestedHonors
+    .map((honor) => {
+      if (typeof honor === "number") return toPositiveId(honor);
+      if (!honor || typeof honor !== "object") return undefined;
+      const record = honor as Record<string, unknown>;
+      if ("honor_id" in record) {
+        return toPositiveId(record.honor_id);
+      }
+      if (
+        "honor" in record &&
+        record.honor !== null &&
+        typeof record.honor === "object"
+      ) {
+        return toPositiveId((record.honor as Record<string, unknown>).honor_id);
+      }
+      return undefined;
+    })
+    .filter((id): id is number => typeof id === "number");
+
+  return Array.from(new Set([...honorIds, ...derived]));
+}
+
+function normalizeRequirementGroups(
+  groups: unknown[] | undefined,
+): MasterHonorRuleGroupPayload[] {
+  if (!Array.isArray(groups)) return [];
+
+  return groups.map((group, groupIndex) => {
+    if (!group || typeof group !== "object") {
+      return {
+        group_type: "EXPLICIT_OPTIONS",
+        minimum_required: 1,
+        display_order: groupIndex + 1,
+        options: [],
+      };
+    }
+
+    const record = group as Record<string, unknown>;
+    const groupType = toGroupType(record.group_type);
+    const rawOptions = Array.isArray(record.options) ? record.options : [];
+    const normalizedOptions: MasterHonorRuleOptionPayload[] = rawOptions.map((option, optionIndex) => {
+      if (!option || typeof option !== "object") {
+        return {
+          label: "",
+          display_order: optionIndex + 1,
+          honor_ids: [],
+          active: true,
+        };
+      }
+
+      const optionRecord = option as Record<string, unknown>;
+      return {
+        ...(toPositiveId(optionRecord.option_id)
+          ? { option_id: toPositiveId(optionRecord.option_id) }
+          : {}),
+        label: toText(optionRecord.label) ?? "",
+        display_order: toNonNegativeInt(optionRecord.display_order) ?? optionIndex + 1,
+        honor_ids: parseHonorIdsFromOption(option),
+        ...(typeof optionRecord.active === "boolean"
+          ? { active: optionRecord.active }
+          : {}),
+      };
+    });
+
+    return {
+      ...(toPositiveId(record.group_id)
+        ? { group_id: toPositiveId(record.group_id) }
+        : {}),
+      group_type: groupType,
+      ...(toText(record.title) ? { title: toText(record.title) } : {}),
+      ...(toText(record.description) ? { description: toText(record.description) } : {}),
+      minimum_required: toPositiveId(record.minimum_required) ?? 1,
+      ...(groupType === "CATEGORY_COUNT" && toPositiveId(record.honors_category_id)
+        ? { honors_category_id: toPositiveId(record.honors_category_id) }
+        : {}),
+      display_order: toNonNegativeInt(record.display_order) ?? groupIndex + 1,
+      options: groupType === "EXPLICIT_OPTIONS" ? normalizedOptions : [],
+      ...(typeof record.active === "boolean" ? { active: record.active } : {}),
+    };
+  });
+}
+
 function normalizePayload(value: MasterHonorPayload): MasterHonorPayload {
   const scope = value.applicability_scope || DEFAULT_SCOPE;
   const division_ids = scope === "SELECTED_DIVISIONS"
-    ? Array.isArray(value.division_ids)
-      ? value.division_ids.filter((id) => Number.isFinite(id) && id > 0)
-      : []
+    ? parseMasterHonorDivisionIds(value)
     : [];
 
   return {
-    ...value,
+    philosophy: value.philosophy,
+    notes: value.notes,
     applicability_scope: scope,
     division_ids,
-    requirement_groups: Array.isArray(value.requirement_groups)
-      ? value.requirement_groups
-      : [],
+    requirement_groups: normalizeRequirementGroups(value.requirement_groups),
   };
 }
 

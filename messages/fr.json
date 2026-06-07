@@ -858,6 +858,8 @@
       }
     },
     "masterHonors": {
+      "colRulesSummary": "Résumé des règles",
+      "rulesSummaryNoRules": "Aucune règle configurée",
       "rulesTitle": "Règles de l’honneur maître",
       "fieldPhilosophy": "Philosophie",
       "fieldPhilosophyPlaceholder": "Décris la philosophie officielle de cet honneur maître.",
@@ -901,7 +903,9 @@
       "fieldOptionHonorIds": "Honneurs équivalents",
       "noHonors": "Aucun honneur disponible.",
       "noGroups": "Aucun groupe configuré.",
-      "recalculateNow": "Recalculer maintenant"
+      "recalculateNow": "Recalculer maintenant",
+      "summaryGroupCount": "{count} groupes",
+      "summaryMinimumTotal": "Minimum total: {count}"
     }
   },
   "auth": {

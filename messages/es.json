@@ -104,7 +104,7 @@
       "catalog_finance_categories": "Categorías de finanzas",
       "catalog_inventory_categories": "Categorías de inventario",
       "catalog_honors": "Especialidades (catálogo)",
-      "catalog_master_honors": "Honores maestros",
+      "catalog_master_honors": "Maestrías",
       "subgroup_overview": "General",
       "subgroup_geography": "Geografía",
       "subgroup_health": "Salud",
@@ -710,10 +710,10 @@
         "loadError": "No se pudieron cargar las especialidades."
       },
       "masterHonors": {
-        "title": "Honores maestros",
-        "description": "Catálogo de honores maestros con soporte multilingüe.",
-        "entityLabel": "Honor maestro",
-        "loadError": "No se pudieron cargar los honores maestros."
+        "title": "Maestrías",
+        "description": "Catálogo de maestrías con soporte multilingüe.",
+        "entityLabel": "Maestría",
+        "loadError": "No se pudieron cargar las maestrías."
       },
       "honorCategoriesList": {
         "forbidden": "No cuentas con permisos para ver categorías de especialidades.",
@@ -858,6 +858,8 @@
       }
     },
     "masterHonors": {
+      "colRulesSummary": "Resumen de reglas",
+      "rulesSummaryNoRules": "Sin reglas",
       "rulesTitle": "Reglas de maestría",
       "fieldPhilosophy": "Filosofía",
       "fieldPhilosophyPlaceholder": "Describe la filosofía oficial de esta maestría.",
@@ -901,7 +903,9 @@
       "fieldOptionHonorIds": "Especialidades equivalentes",
       "noHonors": "No hay especialidades disponibles.",
       "noGroups": "No hay grupos configurados.",
-      "recalculateNow": "Recalcular ahora"
+      "recalculateNow": "Recalcular ahora",
+      "summaryGroupCount": "{count} grupos",
+      "summaryMinimumTotal": "Mínimo total: {count}"
     }
   },
   "auth": {
@@ -1841,7 +1845,7 @@
       "honors:create": "Crear especialidad",
       "honors:update": "Editar especialidad",
       "honors:delete": "Eliminar especialidad",
-      "master_honors:manage": "Gestionar especialidades maestras",
+      "master_honors:manage": "Gestionar maestrías",
       "user_honors:submit": "Enviar progreso de honor",
       "user_honors:validate": "Validar honores",
       "honor_categories:read": "Ver categorías",
