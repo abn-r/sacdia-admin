@@ -26,10 +26,9 @@ const PhaseECatalogCrudPage = dynamic(
   }
 );
 import { ApiError } from "@/lib/api/client";
-import { listAdminMasterHonors } from "@/lib/api/phase-e-catalogs";
+import { listAdminHonorsCatalog, listAdminMasterHonors } from "@/lib/api/phase-e-catalogs";
 import { listDivisions } from "@/lib/api/geography";
 import { listHonorCategoriesAdmin } from "@/lib/api/honor-categories";
-import { listHonors } from "@/lib/api/honors";
 import { extractItems, extractMeta, readParam, readPositiveNumberParam } from "@/lib/phase-e-catalogs/fetch-helpers";
 import { requireAdminUser } from "@/lib/auth/session";
 import { hasAnyPermission } from "@/lib/auth/permission-utils";
@@ -76,10 +75,20 @@ export default async function AdminMasterHonorsPage({ searchParams }: { searchPa
     if (activeRaw === "true") params.active = true;
     if (activeRaw === "false") params.active = false;
 
-    const [payload, honorsPayload, honorCategoriesPayload, divisionsPayload] = await Promise.all([
-      listAdminMasterHonors(params),
-      listHonors({ active: true, limit: 500 }),
-      listHonorCategoriesAdmin({ limit: 500, active: true }),
+    const payload = await listAdminMasterHonors(params);
+
+    items = extractItems(payload);
+    meta = extractMeta(payload, page, limit, items.length);
+  } catch (error) {
+    if (!(error instanceof ApiError && error.status === 429)) {
+      loadError = error instanceof ApiError ? error.message : t("loadError");
+    }
+  }
+
+  try {
+    const [honorsPayload, honorCategoriesPayload, divisionsPayload] = await Promise.all([
+      listAdminHonorsCatalog(),
+      listHonorCategoriesAdmin({ page: 1, limit: 100 }),
       listDivisions(),
     ]);
 
@@ -110,11 +119,15 @@ export default async function AdminMasterHonorsPage({ searchParams }: { searchPa
         .filter((division) => Number.isFinite(division.division_id) && division.division_id > 0),
       recalculateAction: recalculateMasterHonorAction,
     };
-
-    items = extractItems(payload);
-    meta = extractMeta(payload, page, limit, items.length);
   } catch (error) {
-    if (!(error instanceof ApiError && error.status === 429)) {
+    masterHonorsConfig = {
+      honors: [],
+      honorCategories: [],
+      divisions: [],
+      recalculateAction: recalculateMasterHonorAction,
+    };
+
+    if (!loadError && !(error instanceof ApiError && error.status === 429)) {
       loadError = error instanceof ApiError ? error.message : t("loadError");
     }
   }
