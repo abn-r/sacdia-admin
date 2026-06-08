@@ -438,6 +438,7 @@ export function AnnualRankingConfigClientPage({
                       <Select
                         value={String(field.value)}
                         onValueChange={(value) => field.onChange(Number(value))}
+                        disabled={localFields.length <= 1}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -469,6 +470,7 @@ export function AnnualRankingConfigClientPage({
                       <Select
                         value={String(field.value)}
                         onValueChange={(value) => field.onChange(Number(value))}
+                        disabled={localFields.length <= 1}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -500,6 +502,7 @@ export function AnnualRankingConfigClientPage({
                       <Select
                         value={String(field.value)}
                         onValueChange={(value) => field.onChange(Number(value))}
+                        disabled={localFields.length <= 1}
                       >
                         <FormControl>
                           <SelectTrigger>

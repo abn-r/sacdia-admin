@@ -42,6 +42,7 @@ import {
 } from "@/lib/api/investiture";
 import { listLocalFields, type LocalField } from "@/lib/api/geography";
 import { listEcclesiasticalYears, type EcclesiasticalYear } from "@/lib/api/catalogs";
+import type { AdminTerritoryScope } from "@/lib/auth/territory-scope";
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
 
@@ -75,6 +76,8 @@ export interface ConfigFormDialogProps {
   /** If provided, dialog is in edit mode */
   config?: InvestitureConfig | null;
   onSuccess: () => void;
+  localFields?: LocalField[];
+  territoryScope?: AdminTerritoryScope;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -84,6 +87,8 @@ export function ConfigFormDialog({
   onOpenChange,
   config,
   onSuccess,
+  localFields: scopedLocalFields,
+  territoryScope,
 }: ConfigFormDialogProps) {
   const t = useTranslations("investiture");
   const isEdit = !!config;
@@ -108,7 +113,10 @@ export function ConfigFormDialog({
   useEffect(() => {
     if (!open) return;
     setLoadingCatalogs(true);
-    Promise.all([listLocalFields(), listEcclesiasticalYears()])
+    Promise.all([
+      scopedLocalFields ? Promise.resolve(scopedLocalFields) : listLocalFields(),
+      listEcclesiasticalYears(),
+    ])
       .then(([fields, ecclesiasticalYears]) => {
         const fieldsArr = Array.isArray(fields) ? fields : [];
         const yearsArr = Array.isArray(ecclesiasticalYears) ? ecclesiasticalYears : [];
@@ -117,13 +125,17 @@ export function ConfigFormDialog({
       })
       .catch(() => toast.error(t("toasts.catalogs_load_failed")))
       .finally(() => setLoadingCatalogs(false));
-  }, [open]);
+  }, [open, scopedLocalFields, t]);
 
   // Reset form when dialog opens or config changes
   useEffect(() => {
     if (open) {
       form.reset({
-        local_field_id: config?.local_field_id ?? undefined,
+        local_field_id:
+          config?.local_field_id ??
+          (territoryScope?.level === "local_field"
+            ? territoryScope.localFieldId
+            : undefined),
         ecclesiastical_year_id: config?.ecclesiastical_year_id ?? undefined,
         submission_deadline: config?.submission_deadline
           ? config.submission_deadline.split("T")[0]
@@ -134,7 +146,12 @@ export function ConfigFormDialog({
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, config]);
+  }, [open, config, territoryScope]);
+
+  const isLocalFieldLocked = territoryScope?.level === "local_field";
+  const selectedLocalFieldId =
+    form.watch("local_field_id") ??
+    (isLocalFieldLocked ? territoryScope.localFieldId : undefined);
 
   const onSubmit: SubmitHandler<FormValues> = async (values) => {
     setIsSubmitting(true);
@@ -147,8 +164,12 @@ export function ConfigFormDialog({
         await updateInvestitureConfig(config.investiture_config_id, payload);
         toast.success(t("toasts.config_updated"));
       } else {
+        const resolvedLocalFieldId =
+          territoryScope?.level === "local_field"
+            ? territoryScope.localFieldId
+            : values.local_field_id;
         const payload: CreateInvestitureConfigPayload = {
-          local_field_id: values.local_field_id,
+          local_field_id: resolvedLocalFieldId,
           ecclesiastical_year_id: values.ecclesiastical_year_id,
           submission_deadline: values.submission_deadline,
           investiture_date: values.investiture_date,
@@ -199,9 +220,9 @@ export function ConfigFormDialog({
                     </FormLabel>
                     <FormControl>
                       <Select
-                        value={field.value?.toString() ?? ""}
+                        value={selectedLocalFieldId?.toString() ?? ""}
                         onValueChange={(v) => field.onChange(Number(v))}
-                        disabled={loadingCatalogs}
+                        disabled={loadingCatalogs || isLocalFieldLocked}
                       >
                         <SelectTrigger aria-required="true">
                           <SelectValue

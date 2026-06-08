@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/table";
 import { EvaluateMemberOfMonthDialog } from "@/components/member-of-month/evaluate-dialog";
 import { MONTH_NAMES } from "@/lib/constants";
+import type { AdminTerritoryScope } from "@/lib/auth/territory-scope";
 import type { AdminMomPage, AdminMomItem } from "@/lib/api/member-of-month";
 import type { ClubType } from "@/lib/api/catalogs";
 import type { LocalField } from "@/lib/api/geography";
@@ -53,6 +54,7 @@ interface MemberOfMonthSupervisionClientProps {
   initialData: AdminMomPage;
   clubTypes: ClubType[];
   localFields: LocalField[];
+  territoryScope: AdminTerritoryScope;
   searchParams: {
     club_type_id?: string;
     local_field_id?: string;
@@ -79,6 +81,7 @@ export function MemberOfMonthSupervisionClient({
   initialData,
   clubTypes,
   localFields,
+  territoryScope,
   searchParams,
 }: MemberOfMonthSupervisionClientProps) {
   const t = useTranslations("member_of_month.supervision");
@@ -91,11 +94,18 @@ export function MemberOfMonthSupervisionClient({
   const totalPages = Math.ceil(total / limit);
 
   const [dialogTarget, setDialogTarget] = useState<DialogTarget | null>(null);
+  const isLocalFieldLocked = territoryScope.level === "local_field";
+  const effectiveSearchParams = isLocalFieldLocked
+    ? {
+        ...searchParams,
+        local_field_id: String(territoryScope.localFieldId),
+      }
+    : searchParams;
 
   // ─── URL builder ──────────────────────────────────────────────────────────
 
   function buildUrl(overrides: Record<string, string | undefined>) {
-    const next = { ...searchParams, ...overrides };
+    const next = { ...effectiveSearchParams, ...overrides };
     const qs = new URLSearchParams();
     for (const [key, val] of Object.entries(next)) {
       if (val !== undefined && val !== "" && val !== "all") {
@@ -118,6 +128,9 @@ export function MemberOfMonthSupervisionClient({
     value,
     label,
   }));
+  const selectedLocalFieldId =
+    searchParams.local_field_id ??
+    (isLocalFieldLocked ? String(territoryScope.localFieldId) : "all");
 
   // ─── Render ───────────────────────────────────────────────────────────────
 
@@ -127,7 +140,7 @@ export function MemberOfMonthSupervisionClient({
       <div className="flex flex-wrap gap-3">
         {/* Tipo de club */}
         <Select
-          value={searchParams.club_type_id ?? "all"}
+          value={effectiveSearchParams.club_type_id ?? "all"}
           onValueChange={(v) => handleFilter("club_type_id", v)}
         >
           <SelectTrigger className="w-44">
@@ -145,14 +158,17 @@ export function MemberOfMonthSupervisionClient({
 
         {/* Campo local */}
         <Select
-          value={searchParams.local_field_id ?? "all"}
+          value={selectedLocalFieldId}
           onValueChange={(v) => handleFilter("local_field_id", v)}
+          disabled={isLocalFieldLocked}
         >
           <SelectTrigger className="w-48">
             <SelectValue placeholder={t("filterLocalFieldPlaceholder")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">{t("filterLocalFieldAll")}</SelectItem>
+            {!isLocalFieldLocked && (
+              <SelectItem value="all">{t("filterLocalFieldAll")}</SelectItem>
+            )}
             {localFields.map((lf) => (
               <SelectItem key={lf.local_field_id} value={String(lf.local_field_id)}>
                 {lf.name}
@@ -163,7 +179,7 @@ export function MemberOfMonthSupervisionClient({
 
         {/* Año */}
         <Select
-          value={searchParams.year ?? String(new Date().getFullYear())}
+          value={effectiveSearchParams.year ?? String(new Date().getFullYear())}
           onValueChange={(v) => handleFilter("year", v)}
         >
           <SelectTrigger className="w-28">
@@ -182,7 +198,7 @@ export function MemberOfMonthSupervisionClient({
 
         {/* Mes */}
         <Select
-          value={searchParams.month ?? "all"}
+          value={effectiveSearchParams.month ?? "all"}
           onValueChange={(v) => handleFilter("month", v)}
         >
           <SelectTrigger className="w-36">
@@ -200,7 +216,7 @@ export function MemberOfMonthSupervisionClient({
 
         {/* Notificado */}
         <Select
-          value={searchParams.notified ?? "all"}
+          value={effectiveSearchParams.notified ?? "all"}
           onValueChange={(v) => handleFilter("notified", v)}
         >
           <SelectTrigger className="w-40">

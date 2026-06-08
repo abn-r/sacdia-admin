@@ -56,7 +56,8 @@ export function UsersFilters({ scope }: UsersFiltersProps) {
   const currentRole = searchParams.get("role") ?? "all";
   const currentActive = searchParams.get("active") ?? "all";
 
-  const isScopeLocked = scope?.type === "UNION" || scope?.type === "LOCAL_FIELD";
+  const isScopeLocked =
+    scope?.type === "UNION" || scope?.type === "LOCAL_FIELD" || scope?.type === "DIVISION";
 
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center">

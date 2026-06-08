@@ -12,12 +12,44 @@ import {
 } from "@/lib/api/annual-rankings";
 import { listClubTypes, listEcclesiasticalYears } from "@/lib/api/catalogs";
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
-import { listLocalFields } from "@/lib/api/geography";
+import { listLocalFields, listUnions } from "@/lib/api/geography";
 import type { LocalField } from "@/lib/api/geography";
 import { requireAdminUser } from "@/lib/auth/session";
+import {
+  filterLocalFieldsByTerritory,
+  localFieldOptionFromTerritory,
+  resolveAdminTerritoryScope,
+} from "@/lib/auth/territory-scope";
+
+async function listRankingConfigLocalFieldsForScope(
+  user: Awaited<ReturnType<typeof requireAdminUser>>,
+) {
+  const territoryScope = resolveAdminTerritoryScope(user);
+
+  if (territoryScope.level === "local_field") {
+    const option = localFieldOptionFromTerritory(territoryScope);
+    return option ? [option] : [];
+  }
+
+  if (territoryScope.level === "union") {
+    return filterLocalFieldsByTerritory(
+      await listLocalFields(territoryScope.unionId),
+      territoryScope,
+    );
+  }
+
+  if (territoryScope.level === "division") {
+    const unions = await listUnions({ divisionId: territoryScope.divisionId });
+    return (
+      await Promise.all(unions.map((union) => listLocalFields(union.union_id)))
+    ).flat();
+  }
+
+  return listLocalFields();
+}
 
 export default async function AnnualRankingConfigPage() {
-  await requireAdminUser();
+  const user = await requireAdminUser();
 
   let loadError: string | null = null;
   let configs: AnnualRankingConfig[] = [];
@@ -30,7 +62,7 @@ export default async function AnnualRankingConfigPage() {
     await Promise.allSettled([
       listAnnualRankingConfigs(),
       listRankingTiers(),
-      listLocalFields(),
+      listRankingConfigLocalFieldsForScope(user),
       listClubTypes(),
       listEcclesiasticalYears(),
     ]);

@@ -6,6 +6,14 @@ import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EmptyState } from "@/components/shared/empty-state";
 import { listClubTypes } from "@/lib/api/catalogs";
 import { listDivisions, listLocalFields, listUnions } from "@/lib/api/geography";
+import {
+  applyTerritoryToReportSearchParams,
+  filterDivisionsByTerritory,
+  filterLocalFieldsByTerritory,
+  filterUnionsByTerritory,
+  localFieldOptionFromTerritory,
+  resolveAdminTerritoryScope,
+} from "@/lib/auth/territory-scope";
 import { listAdminReports } from "@/lib/api/monthly-reports";
 import type { AdminReportFilters, AdminReportsPage } from "@/lib/api/monthly-reports";
 import type { ClubType } from "@/lib/api/catalogs";
@@ -32,10 +40,12 @@ interface SupervisionPageProps {
 export default async function ReportsSupervisionPage({
   searchParams,
 }: SupervisionPageProps) {
-  await requireAdminUser();
+  const user = await requireAdminUser();
   const t = await getTranslations("reports");
 
-  const params = await searchParams;
+  const rawParams = await searchParams;
+  const territoryScope = resolveAdminTerritoryScope(user);
+  const params = applyTerritoryToReportSearchParams(rawParams, territoryScope);
 
   const currentYear = new Date().getFullYear();
   const selectedDivisionId = params.division_id ? Number(params.division_id) : undefined;
@@ -60,12 +70,45 @@ export default async function ReportsSupervisionPage({
   let reportsData: AdminReportsPage = { total: 0, page: 1, limit: 20, items: [] };
   let loadError: string | null = null;
 
+  const scopedUnionsFilter =
+    territoryScope.level === "division"
+      ? { divisionId: territoryScope.divisionId }
+      : selectedDivisionId
+        ? { divisionId: selectedDivisionId }
+        : undefined;
+  const scopedLocalFieldsUnionId =
+    territoryScope.level === "union"
+      ? territoryScope.unionId
+      : selectedUnionId;
+  const unionsPromise = listUnions(scopedUnionsFilter);
+  const localFieldOption = localFieldOptionFromTerritory(territoryScope);
+  const localFieldsPromise = (async () => {
+    if (territoryScope.level === "local_field") {
+      return localFieldOption ? [localFieldOption] : [];
+    }
+
+    if (scopedLocalFieldsUnionId) {
+      return listLocalFields(scopedLocalFieldsUnionId);
+    }
+
+    if (territoryScope.level === "division") {
+      const scopedUnions = await unionsPromise;
+      return (
+        await Promise.all(
+          scopedUnions.map((union) => listLocalFields(union.union_id)),
+        )
+      ).flat();
+    }
+
+    return listLocalFields();
+  })();
+
   const [clubTypesResult, divisionsResult, unionsResult, localFieldsResult, reportsResult] =
     await Promise.allSettled([
       listClubTypes(),
       listDivisions(),
-      listUnions(selectedDivisionId ? { divisionId: selectedDivisionId } : undefined),
-      listLocalFields(selectedUnionId),
+      unionsPromise,
+      localFieldsPromise,
       listAdminReports(filters),
     ]);
 
@@ -74,15 +117,15 @@ export default async function ReportsSupervisionPage({
   }
 
   if (divisionsResult.status === "fulfilled") {
-    divisions = divisionsResult.value;
+    divisions = filterDivisionsByTerritory(divisionsResult.value, territoryScope);
   }
 
   if (unionsResult.status === "fulfilled") {
-    unions = unionsResult.value;
+    unions = filterUnionsByTerritory(unionsResult.value, territoryScope);
   }
 
   if (localFieldsResult.status === "fulfilled") {
-    localFields = localFieldsResult.value;
+    localFields = filterLocalFieldsByTerritory(localFieldsResult.value, territoryScope);
   }
 
   if (reportsResult.status === "fulfilled") {
@@ -126,6 +169,7 @@ export default async function ReportsSupervisionPage({
           unions={unions}
           localFields={localFields}
           searchParams={params}
+          territoryScope={territoryScope}
         />
       )}
     </div>

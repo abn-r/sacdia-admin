@@ -108,6 +108,7 @@ const RESOURCE_TYPE_LABELS: Record<ResourceType, string> = {
 
 const SCOPE_LEVEL_LABELS: Record<ScopeLevel, string> = {
   system: "Sistema",
+  division: "División",
   union: "Unión",
   local_field: "Campo local",
 };
@@ -259,6 +260,12 @@ function scopeLevelBadgeConfig(level: ScopeLevel | null): {
         className: "border-border bg-secondary text-secondary-foreground",
         Icon: Building,
       };
+    case "division":
+      return {
+        label: "División",
+        className: "border-border bg-muted/80 text-foreground",
+        Icon: Globe,
+      };
     case "local_field":
       return {
         label: "Campo",
@@ -318,6 +325,8 @@ function ScopeBadge({
   if (level === "union" && scopeId) {
     const union = unions.find((u) => u.union_id === scopeId);
     if (union) label = `Unión: ${union.name}`;
+  } else if (level === "division" && scopeId) {
+    label = `División: #${scopeId}`;
   } else if (level === "local_field" && scopeId) {
     const lf = localFields.find((lf) => lf.local_field_id === scopeId);
     if (lf) label = `Campo: ${lf.name}`;
@@ -559,11 +568,15 @@ function ResourceFormFields({
         </div>
       </div>
 
-      {/* Scope ID — union or local_field dropdown */}
+      {/* Scope ID — union / division / local field */}
       {showScopeId && (
         <div className="space-y-2">
           <Label htmlFor="res-scope-id">
-            {scopeLevel === "union" ? "Unión" : "Campo local"}{" "}
+            {scopeLevel === "union"
+              ? "Unión"
+              : scopeLevel === "division"
+                ? "División"
+                : "Campo local"}{" "}
             <span className="ml-0.5 text-destructive">*</span>
           </Label>
           {scopeIdLocked ? (
@@ -573,6 +586,8 @@ function ResourceFormFields({
                 value={
                   scopeLevel === "union"
                     ? unions.find((u) => u.union_id === lockedScopeId)?.name ?? `#${lockedScopeId}`
+                    : scopeLevel === "division"
+                      ? `División #${lockedScopeId}`
                     : localFields.find((lf) => lf.local_field_id === lockedScopeId)?.name ??
                       `#${lockedScopeId}`
                 }
@@ -584,6 +599,16 @@ function ResourceFormFields({
                 Tu rol está fijado a este alcance — no puede cambiarse.
               </p>
             </>
+          ) : scopeLevel === "division" ? (
+            <Input
+              id="res-scope-id"
+              name="scope_id"
+              type="number"
+              min={1}
+              defaultValue={currentScopeIdValue}
+              required
+              placeholder="ID de división"
+            />
           ) : scopeLevel === "union" ? (
             unions.length > 0 ? (
               <Select
@@ -806,7 +831,7 @@ export function ResourcesCrudPage({
     }
 
     const scopeLevel = String(formData.get("scope_level") ?? "") as ScopeLevel;
-    if (!["system", "union", "local_field"].includes(scopeLevel)) {
+    if (!["system", "division", "union", "local_field"].includes(scopeLevel)) {
       setCreateError("Selecciona un alcance válido.");
       return;
     }
@@ -814,7 +839,7 @@ export function ResourcesCrudPage({
     const scopeIdRaw = String(formData.get("scope_id") ?? "").trim();
     const scopeId = scopeIdRaw ? Number(scopeIdRaw) : undefined;
     if (scopeLevel !== "system" && (!scopeId || !Number.isFinite(scopeId))) {
-      setCreateError("Selecciona el alcance específico (unión o campo local).");
+      setCreateError("Selecciona el alcance específico (división, unión o campo local).");
       return;
     }
 

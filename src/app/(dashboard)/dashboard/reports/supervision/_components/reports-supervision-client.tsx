@@ -33,6 +33,7 @@ import { triggerMonthlyReportPdfDownload } from "@/lib/api/monthly-reports";
 import type { AdminReportsPage, AdminReportItem } from "@/lib/api/monthly-reports";
 import type { ClubType } from "@/lib/api/catalogs";
 import type { Division, LocalField, Union } from "@/lib/api/geography";
+import type { AdminTerritoryScope } from "@/lib/auth/territory-scope";
 import { useFormatDate } from "@/lib/format-locale";
 
 function ReportStatusBadge({ status }: { status: AdminReportItem["status"] }) {
@@ -54,6 +55,7 @@ interface ReportsSupervisionClientProps {
   divisions: Division[];
   unions: Union[];
   localFields: LocalField[];
+  territoryScope: AdminTerritoryScope;
   searchParams: {
     division_id?: string;
     union_id?: string;
@@ -75,6 +77,7 @@ export function ReportsSupervisionClient({
   unions,
   localFields,
   searchParams,
+  territoryScope,
 }: ReportsSupervisionClientProps) {
   const t = useTranslations("reports.supervisionClient");
   const router = useRouter();
@@ -88,6 +91,9 @@ export function ReportsSupervisionClient({
   // Month options built from translation keys (values stay stable, labels from t())
   const MONTH_VALUES = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"] as const;
   const STATUS_VALUES = ["draft", "generated", "submitted"] as const;
+  const divisionLocked = territoryScope.level !== "all";
+  const unionLocked = territoryScope.level === "union" || territoryScope.level === "local_field";
+  const localFieldLocked = territoryScope.level === "local_field";
 
   // ─── URL builder ────────────────────────────────────────────────────────────
 
@@ -167,6 +173,7 @@ export function ReportsSupervisionClient({
         <Select
           value={searchParams.division_id ?? "all"}
           onValueChange={(v) => handleHierarchyFilter("division_id", v)}
+          disabled={divisionLocked}
         >
           <SelectTrigger className="w-48">
             <SelectValue placeholder={t("filterDivisionPlaceholder")} />
@@ -185,6 +192,7 @@ export function ReportsSupervisionClient({
         <Select
           value={searchParams.union_id ?? "all"}
           onValueChange={(v) => handleHierarchyFilter("union_id", v)}
+          disabled={unionLocked}
         >
           <SelectTrigger className="w-48">
             <SelectValue placeholder={t("filterUnionPlaceholder")} />
@@ -221,6 +229,7 @@ export function ReportsSupervisionClient({
         <Select
           value={searchParams.local_field_id ?? "all"}
           onValueChange={(v) => handleHierarchyFilter("local_field_id", v)}
+          disabled={localFieldLocked}
         >
           <SelectTrigger className="w-48">
             <SelectValue placeholder={t("filterLocalFieldPlaceholder")} />

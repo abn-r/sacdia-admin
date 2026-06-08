@@ -52,6 +52,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { TemplateFormDialog } from "@/components/annual-folders/template-form-dialog";
 import type { SectionFormDialogProps } from "@/components/annual-folders/section-form-dialog";
+import type { AdminTerritoryScope } from "@/lib/auth/territory-scope";
 
 const SectionFormDialog = dynamic<SectionFormDialogProps>(
   () => import("@/components/annual-folders/section-form-dialog").then((m) => ({ default: m.SectionFormDialog })),
@@ -64,6 +65,7 @@ import {
 import { ApiError, apiRequestFromClient } from "@/lib/api/client";
 import type { FolderTemplate, FolderTemplateSection } from "@/lib/api/annual-folders";
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
+import type { LocalField, Union } from "@/lib/api/geography";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -71,6 +73,9 @@ interface TemplatesClientPageProps {
   initialTemplates: FolderTemplate[];
   clubTypes: ClubType[];
   ecclesiasticalYears: EcclesiasticalYear[];
+  unions: Union[];
+  localFields: LocalField[];
+  territoryScope: AdminTerritoryScope;
 }
 
 type OwnerTierFilter = "all" | "union" | "local_field";
@@ -105,6 +110,9 @@ export function TemplatesClientPage({
   initialTemplates,
   clubTypes,
   ecclesiasticalYears,
+  unions,
+  localFields,
+  territoryScope,
 }: TemplatesClientPageProps) {
   const t = useTranslations("annual_folders");
   const router = useRouter();
@@ -843,6 +851,9 @@ export function TemplatesClientPage({
         onOpenChange={handleTemplateFormClose}
         clubTypes={clubTypes}
         ecclesiasticalYears={ecclesiasticalYears}
+        unions={unions}
+        localFields={localFields}
+        territoryScope={territoryScope}
         template={editingTemplate}
         onSuccess={refreshTemplates}
       />

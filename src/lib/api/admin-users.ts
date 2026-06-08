@@ -1,10 +1,11 @@
 import { ApiError, apiRequest, apiRequestFromClient, API_BASE_URL } from "@/lib/api/client";
 
-export type ScopeType = "ALL" | "UNION" | "LOCAL_FIELD";
+export type ScopeType = "ALL" | "UNION" | "LOCAL_FIELD" | "DIVISION";
 
 export type ScopeMeta = {
   type: ScopeType;
   roles: string[];
+  division_id: number | null;
   union_id: number | null;
   local_field_id: number | null;
 };
@@ -275,13 +276,19 @@ function normalizeScope(value: unknown): ScopeMeta | null {
   }
 
   const typeRaw = pickString(record.type)?.toUpperCase();
-  if (typeRaw !== "ALL" && typeRaw !== "UNION" && typeRaw !== "LOCAL_FIELD") {
+  if (
+    typeRaw !== "ALL" &&
+    typeRaw !== "UNION" &&
+    typeRaw !== "LOCAL_FIELD" &&
+    typeRaw !== "DIVISION"
+  ) {
     return null;
   }
 
   return {
     type: typeRaw,
     roles: normalizeRoles(record.roles),
+    division_id: pickNumber(record.division_id),
     union_id: pickNumber(record.union_id),
     local_field_id: pickNumber(record.local_field_id),
   };
@@ -1084,4 +1091,3 @@ export async function downloadAdminUsersBulkTemplate(): Promise<Blob> {
 
   return response.blob();
 }
-

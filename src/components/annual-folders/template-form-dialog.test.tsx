@@ -38,6 +38,7 @@ import {
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import messages from "../../../messages/es.json";
+import type { AdminTerritoryScope } from "@/lib/auth/territory-scope";
 import type { FolderTemplate } from "@/lib/api/annual-folders";
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
 
@@ -158,6 +159,9 @@ interface RenderOpts {
   template?: FolderTemplate | null;
   clubTypes?: ClubType[];
   ecclesiasticalYears?: EcclesiasticalYear[];
+  unions?: { union_id: number; name: string; country_id: number }[];
+  localFields?: { local_field_id: number; name: string; union_id: number }[];
+  territoryScope?: AdminTerritoryScope;
 }
 
 function renderDialog(opts: RenderOpts = {}) {
@@ -166,6 +170,9 @@ function renderDialog(opts: RenderOpts = {}) {
     template = null,
     clubTypes = STUB_CLUB_TYPES,
     ecclesiasticalYears = STUB_YEARS,
+    unions,
+    localFields,
+    territoryScope,
   } = opts;
   const onOpenChange = vi.fn();
   const onSuccess = vi.fn();
@@ -177,6 +184,9 @@ function renderDialog(opts: RenderOpts = {}) {
         onOpenChange={onOpenChange}
         clubTypes={clubTypes}
         ecclesiasticalYears={ecclesiasticalYears}
+        unions={unions}
+        localFields={localFields}
+        territoryScope={territoryScope}
         template={template}
         onSuccess={onSuccess}
       />
@@ -259,6 +269,28 @@ describe("TemplateFormDialog", () => {
       expect(mockListUnions).toHaveBeenCalledOnce();
       expect(mockListLocalFields).toHaveBeenCalledOnce();
     });
+  });
+
+  it("uses scoped unions/local fields from props and hides union ownership for union actors", async () => {
+    renderDialog({
+      unions: [],
+      localFields: [STUB_LOCAL_FIELDS[0]],
+      territoryScope: {
+        level: "union",
+        unionId: 1,
+        unionName: "Unión Norte",
+        divisionId: 10,
+      },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText(/solo permite campos locales descendientes/i)).toBeInTheDocument();
+    });
+
+    expect(mockListUnions).not.toHaveBeenCalled();
+    expect(mockListLocalFields).not.toHaveBeenCalled();
+    expect(document.querySelectorAll('input[type="radio"]').length).toBe(0);
+    expect(document.querySelector('select')).toBeInTheDocument();
   });
 
   // ── 4. Validation — name too short ───────────────────────────────────────

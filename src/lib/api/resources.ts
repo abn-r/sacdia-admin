@@ -4,7 +4,7 @@ import { apiRequest } from "@/lib/api/client";
 
 export type ResourceType = "document" | "audio" | "image" | "video_link" | "text";
 export type ClubTypeTarget = "all" | "Aventureros" | "Conquistadores" | "Guías Mayores";
-export type ScopeLevel = "system" | "union" | "local_field";
+export type ScopeLevel = "system" | "division" | "union" | "local_field";
 
 export type ResourceCategory = {
   resource_category_id: number;

@@ -37,6 +37,7 @@ import messages from "../../../messages/es.json";
 import type { InvestitureConfig } from "@/lib/api/investiture";
 import type { LocalField } from "@/lib/api/geography";
 import type { EcclesiasticalYear } from "@/lib/api/catalogs";
+import type { AdminTerritoryScope } from "@/lib/auth/territory-scope";
 
 // ---------------------------------------------------------------------------
 // jsdom polyfills
@@ -148,10 +149,17 @@ const inv = messages.investiture;
 interface RenderOpts {
   open?: boolean;
   config?: InvestitureConfig | null;
+  localFields?: LocalField[];
+  territoryScope?: AdminTerritoryScope;
 }
 
 function renderDialog(opts: RenderOpts = {}) {
-  const { open = true, config = null } = opts;
+  const {
+    open = true,
+    config = null,
+    localFields,
+    territoryScope,
+  } = opts;
   const onOpenChange = vi.fn();
   const onSuccess = vi.fn();
 
@@ -161,6 +169,8 @@ function renderDialog(opts: RenderOpts = {}) {
         open={open}
         onOpenChange={onOpenChange}
         config={config}
+        localFields={localFields}
+        territoryScope={territoryScope}
         onSuccess={onSuccess}
       />
     </NextIntlClientProvider>,
@@ -215,6 +225,29 @@ describe("ConfigFormDialog", () => {
     expect(
       screen.getByRole("button", { name: /Crear configuración/i }),
     ).toBeInTheDocument();
+  });
+
+  it("uses scoped local fields from props and locks the field for local_field actors", async () => {
+    renderDialog({
+      localFields: [STUB_LOCAL_FIELDS[0]],
+      territoryScope: {
+        level: "local_field",
+        localFieldId: 1,
+        localFieldName: "Campo Norte",
+        unionId: 1,
+      },
+    });
+
+    await waitFor(() => {
+      expect(mockListEcclesiasticalYears).toHaveBeenCalledOnce();
+    });
+
+    expect(mockListLocalFields).not.toHaveBeenCalled();
+
+    const select = document.querySelector("select") as HTMLSelectElement | null;
+    expect(select).not.toBeNull();
+    expect(select?.disabled).toBe(true);
+    expect(select?.value).toBe("1");
   });
 
   // ── 2. Edit mode — rendering ──────────────────────────────────────────────

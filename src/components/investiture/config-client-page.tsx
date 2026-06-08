@@ -11,6 +11,8 @@ import { getInvestitureConfigs, type InvestitureConfig } from "@/lib/api/investi
 import { ApiError } from "@/lib/api/client";
 import type { ConfigFormDialogProps } from "@/components/investiture/config-form-dialog";
 import type { DeleteConfigDialogProps } from "@/components/investiture/delete-config-dialog";
+import type { AdminTerritoryScope } from "@/lib/auth/territory-scope";
+import type { LocalField } from "@/lib/api/geography";
 
 const ConfigFormDialog = dynamic<ConfigFormDialogProps>(
   () => import("@/components/investiture/config-form-dialog").then((m) => ({ default: m.ConfigFormDialog })),
@@ -26,11 +28,17 @@ const DeleteConfigDialog = dynamic<DeleteConfigDialogProps>(
 
 interface ConfigClientPageProps {
   initialConfigs: InvestitureConfig[];
+  localFields: LocalField[];
+  territoryScope: AdminTerritoryScope;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function ConfigClientPage({ initialConfigs }: ConfigClientPageProps) {
+export function ConfigClientPage({
+  initialConfigs,
+  localFields,
+  territoryScope,
+}: ConfigClientPageProps) {
   const t = useTranslations("investiture");
   const [configs, setConfigs] = useState<InvestitureConfig[]>(initialConfigs);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -110,6 +118,8 @@ export function ConfigClientPage({ initialConfigs }: ConfigClientPageProps) {
         open={formOpen}
         onOpenChange={setFormOpen}
         config={editingConfig}
+        localFields={localFields}
+        territoryScope={territoryScope}
         onSuccess={refresh}
       />
 

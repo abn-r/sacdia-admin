@@ -21,7 +21,7 @@ function userWithGlobalScope(global: Record<string, unknown>): AuthUser {
 describe("resolveResourceScopeOptions", () => {
   it("allows all resource scopes for unscoped global admins", () => {
     expect(resolveResourceScopeOptions(userWithGlobalScope({}))).toEqual({
-      allowedScopeLevels: ["system", "union", "local_field"],
+      allowedScopeLevels: ["system", "division", "union", "local_field"],
       lockedScopeId: null,
     });
   });
@@ -32,8 +32,19 @@ describe("resolveResourceScopeOptions", () => {
         userWithGlobalScope({ country: { id: 1, name: "México" } }),
       ),
     ).toEqual({
-      allowedScopeLevels: ["system", "union", "local_field"],
+      allowedScopeLevels: ["system", "division", "union", "local_field"],
       lockedScopeId: null,
+    });
+  });
+
+  it("locks division-scoped admins to their division", () => {
+    expect(
+      resolveResourceScopeOptions(
+        userWithGlobalScope({ division: { id: 5, name: "Division 5" } }),
+      ),
+    ).toEqual({
+      allowedScopeLevels: ["division"],
+      lockedScopeId: 5,
     });
   });
 

@@ -8,9 +8,14 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { requireAdminUser } from "@/lib/auth/session";
 import { ApiError } from "@/lib/api/client";
 import { listClubTypes, listEcclesiasticalYears } from "@/lib/api/catalogs";
-import { listLocalFields } from "@/lib/api/geography";
+import { listLocalFields, listUnions } from "@/lib/api/geography";
 import { listAnnualRankings } from "@/lib/api/annual-rankings";
 import { resolveInitialLocalFieldId } from "@/lib/annual-folders/ranking-defaults";
+import {
+  filterLocalFieldsByTerritory,
+  localFieldOptionFromTerritory,
+  resolveAdminTerritoryScope,
+} from "@/lib/auth/territory-scope";
 import type { AnnualRankingLeaderboardRow } from "@/lib/api/annual-rankings";
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
 import type { LocalField } from "@/lib/api/geography";
@@ -53,6 +58,30 @@ function extractArray(payload: unknown): AnyRecord[] {
 
 // ─── Page ──────────────────────────────────────────────────────────────────────
 
+async function listRankingLocalFieldsForScope(user: Awaited<ReturnType<typeof requireAdminUser>>) {
+  const territoryScope = resolveAdminTerritoryScope(user);
+
+  if (territoryScope.level === "local_field") {
+    const option = localFieldOptionFromTerritory(territoryScope);
+    return option ? [option] : [];
+  }
+
+  if (territoryScope.level === "union") {
+    return filterLocalFieldsByTerritory(
+      await listLocalFields(territoryScope.unionId),
+      territoryScope,
+    );
+  }
+
+  if (territoryScope.level === "division") {
+    const unions = await listUnions({ divisionId: territoryScope.divisionId });
+    const fields = (await Promise.all(unions.map((union) => listLocalFields(union.union_id)))).flat();
+    return fields;
+  }
+
+  return listLocalFields();
+}
+
 export default async function RankingsPage() {
   const user = await requireAdminUser();
   const t = await getTranslations("annual_folders");
@@ -68,7 +97,7 @@ export default async function RankingsPage() {
     await Promise.allSettled([
       listClubTypes(),
       listEcclesiasticalYears(),
-      listLocalFields(),
+      listRankingLocalFieldsForScope(user),
     ]);
 
   if (clubTypesResult.status === "fulfilled") {

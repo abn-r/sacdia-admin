@@ -86,7 +86,7 @@ type PageMeta = {
 };
 
 const VALID_RESOURCE_TYPES: ResourceType[] = ["document", "audio", "image", "video_link", "text"];
-const VALID_SCOPE_LEVELS: ScopeLevel[] = ["system", "union", "local_field"];
+const VALID_SCOPE_LEVELS: ScopeLevel[] = ["system", "division", "union", "local_field"];
 
 function readParam(
   raw: Record<string, string | string[] | undefined>,
