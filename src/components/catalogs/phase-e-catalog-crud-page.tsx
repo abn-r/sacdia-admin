@@ -1029,7 +1029,13 @@ export function PhaseECatalogCrudPage({
       {/* Create dialog */}
       {canCreate && (
         <Dialog open={createOpen} onOpenChange={handleCreateOpen}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent
+            className={
+              masterHonorsConfig
+                ? "max-h-[calc(100vh-2rem)] w-[calc(100vw-2rem)] overflow-y-auto sm:max-w-5xl xl:max-w-6xl"
+                : "sm:max-w-2xl"
+            }
+          >
             <DialogHeader>
               <DialogTitle>{t("createDialogTitle", { entity: entityLabel.toLowerCase() })}</DialogTitle>
               <DialogDescription>
@@ -1069,7 +1075,13 @@ export function PhaseECatalogCrudPage({
       {/* Edit dialog */}
       {canEdit && editItem && (
         <Dialog open={!!editItem} onOpenChange={(open) => { if (!open) setEditItem(null); }}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent
+            className={
+              masterHonorsConfig
+                ? "max-h-[calc(100vh-2rem)] w-[calc(100vw-2rem)] overflow-y-auto sm:max-w-5xl xl:max-w-6xl"
+                : "sm:max-w-2xl"
+            }
+          >
             <DialogHeader>
               <DialogTitle>{t("editDialogTitle", { entity: entityLabel.toLowerCase() })}</DialogTitle>
               <DialogDescription>

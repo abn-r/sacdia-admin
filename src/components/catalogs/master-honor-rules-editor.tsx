@@ -733,7 +733,7 @@ export function MasterHonorRulesEditor({
 
                             <div className="mt-3 space-y-2">
                               <p className="text-sm">{t("fieldOptionHonorIds")}</p>
-                              <div className="grid max-h-44 gap-2 overflow-auto rounded border bg-background p-2 sm:grid-cols-2">
+                              <div className="grid max-h-44 gap-2 overflow-auto rounded border bg-background p-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                                 {honors.map((honor) => {
                                   const honorId = honor.honor_id;
                                   const checked = optionHonorIds.has(honorId);
