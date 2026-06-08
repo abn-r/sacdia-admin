@@ -690,6 +690,22 @@ export function PhaseECatalogCrudPage({
     searchParams.get("search") ?? searchParams.get("name") ?? searchParams.get("q") ?? "";
   const currentStatusFilter = searchParams.get("active") ?? "all";
   const [searchInput, setSearchInput] = useState(currentSearch);
+  const isMasterHonorsDialog = Boolean(masterHonorsConfig);
+  const dialogContentClass = isMasterHonorsDialog
+    ? "grid max-h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] grid-rows-[auto_minmax(0,1fr)] gap-0 overflow-hidden p-0 sm:max-w-5xl xl:max-w-6xl"
+    : "sm:max-w-2xl";
+  const dialogHeaderClass = isMasterHonorsDialog
+    ? "border-b px-6 py-4 pr-12"
+    : undefined;
+  const dialogFormClass = isMasterHonorsDialog
+    ? "grid min-h-0 grid-rows-[minmax(0,1fr)_auto]"
+    : "space-y-4";
+  const dialogFormBodyClass = isMasterHonorsDialog
+    ? "min-h-0 space-y-4 overflow-y-auto px-6 py-4"
+    : "space-y-4";
+  const dialogFooterClass = isMasterHonorsDialog
+    ? "border-t bg-background px-6 py-4"
+    : undefined;
 
   useEffect(() => {
     setSearchInput(currentSearch);
@@ -1029,39 +1045,35 @@ export function PhaseECatalogCrudPage({
       {/* Create dialog */}
       {canCreate && (
         <Dialog open={createOpen} onOpenChange={handleCreateOpen}>
-          <DialogContent
-            className={
-              masterHonorsConfig
-                ? "max-h-[calc(100vh-2rem)] w-[calc(100vw-2rem)] overflow-y-auto sm:max-w-5xl xl:max-w-6xl"
-                : "sm:max-w-2xl"
-            }
-          >
-            <DialogHeader>
+          <DialogContent className={dialogContentClass}>
+            <DialogHeader className={dialogHeaderClass}>
               <DialogTitle>{t("createDialogTitle", { entity: entityLabel.toLowerCase() })}</DialogTitle>
               <DialogDescription>
                 {t("createDialogDesc", { entity: entityLabel.toLowerCase() })}
               </DialogDescription>
             </DialogHeader>
-            <form action={createFormAction} className="space-y-4">
-              {createState.error && (
-                <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                  {createState.error}
-                </div>
-              )}
-              <CatalogFormFields
-                idPrefix={`${idPrefix}-create`}
-                includeDescription={includeDescription}
-                activeChecked={createActiveChecked}
-                onActiveChange={setCreateActiveChecked}
-                translations={createTranslations}
-                onTranslationsChange={setCreateTranslations}
-                entityLabel={entityLabel}
-                classConfigYearOptions={classConfigYearOptions}
-                masterHonorsConfig={masterHonorsConfig}
-                masterHonorsPayload={createMasterHonorsPayload}
-                onMasterHonorsPayloadChange={setCreateMasterHonorsPayload}
-              />
-              <DialogFooter>
+            <form action={createFormAction} className={dialogFormClass}>
+              <div className={dialogFormBodyClass}>
+                {createState.error && (
+                  <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                    {createState.error}
+                  </div>
+                )}
+                <CatalogFormFields
+                  idPrefix={`${idPrefix}-create`}
+                  includeDescription={includeDescription}
+                  activeChecked={createActiveChecked}
+                  onActiveChange={setCreateActiveChecked}
+                  translations={createTranslations}
+                  onTranslationsChange={setCreateTranslations}
+                  entityLabel={entityLabel}
+                  classConfigYearOptions={classConfigYearOptions}
+                  masterHonorsConfig={masterHonorsConfig}
+                  masterHonorsPayload={createMasterHonorsPayload}
+                  onMasterHonorsPayloadChange={setCreateMasterHonorsPayload}
+                />
+              </div>
+              <DialogFooter className={dialogFooterClass}>
                 <Button type="button" variant="outline" onClick={() => setCreateOpen(false)}>
                   {t("cancel")}
                 </Button>
@@ -1075,41 +1087,37 @@ export function PhaseECatalogCrudPage({
       {/* Edit dialog */}
       {canEdit && editItem && (
         <Dialog open={!!editItem} onOpenChange={(open) => { if (!open) setEditItem(null); }}>
-          <DialogContent
-            className={
-              masterHonorsConfig
-                ? "max-h-[calc(100vh-2rem)] w-[calc(100vw-2rem)] overflow-y-auto sm:max-w-5xl xl:max-w-6xl"
-                : "sm:max-w-2xl"
-            }
-          >
-            <DialogHeader>
+          <DialogContent className={dialogContentClass}>
+            <DialogHeader className={dialogHeaderClass}>
               <DialogTitle>{t("editDialogTitle", { entity: entityLabel.toLowerCase() })}</DialogTitle>
               <DialogDescription>
                 {t("createDialogDesc", { entity: entityLabel.toLowerCase() })}
               </DialogDescription>
             </DialogHeader>
-            <form action={updateFormAction} className="space-y-4">
-              <input type="hidden" name="id" value={String(getItemId(editItem) ?? "")} />
-              {updateState.error && (
-                <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                  {updateState.error}
-                </div>
-              )}
-              <CatalogFormFields
-                idPrefix={`${idPrefix}-edit`}
-                item={editItem}
-                includeDescription={includeDescription}
-                activeChecked={editActiveChecked}
-                onActiveChange={setEditActiveChecked}
-                translations={editTranslations}
-                onTranslationsChange={setEditTranslations}
-                entityLabel={entityLabel}
-                classConfigYearOptions={classConfigYearOptions}
-                masterHonorsConfig={masterHonorsConfig}
-                masterHonorsPayload={editMasterHonorsPayload}
-                onMasterHonorsPayloadChange={setEditMasterHonorsPayload}
-              />
-              <DialogFooter>
+            <form action={updateFormAction} className={dialogFormClass}>
+              <div className={dialogFormBodyClass}>
+                <input type="hidden" name="id" value={String(getItemId(editItem) ?? "")} />
+                {updateState.error && (
+                  <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                    {updateState.error}
+                  </div>
+                )}
+                <CatalogFormFields
+                  idPrefix={`${idPrefix}-edit`}
+                  item={editItem}
+                  includeDescription={includeDescription}
+                  activeChecked={editActiveChecked}
+                  onActiveChange={setEditActiveChecked}
+                  translations={editTranslations}
+                  onTranslationsChange={setEditTranslations}
+                  entityLabel={entityLabel}
+                  classConfigYearOptions={classConfigYearOptions}
+                  masterHonorsConfig={masterHonorsConfig}
+                  masterHonorsPayload={editMasterHonorsPayload}
+                  onMasterHonorsPayloadChange={setEditMasterHonorsPayload}
+                />
+              </div>
+              <DialogFooter className={dialogFooterClass}>
                 <Button type="button" variant="outline" onClick={() => setEditItem(null)}>
                   {t("cancel")}
                 </Button>
