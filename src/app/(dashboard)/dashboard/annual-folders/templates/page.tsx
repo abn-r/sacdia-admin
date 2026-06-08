@@ -4,6 +4,12 @@ import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { requireAdminUser } from "@/lib/auth/session";
+import {
+  listLocalFieldsForTerritory,
+  listUnionsForTerritory,
+  resolveAdminTerritoryScope,
+} from "@/lib/auth/territory-scope";
+import type { LocalField, Union } from "@/lib/api/geography";
 
 const TemplatesClientPage = dynamic(
   () =>
@@ -56,19 +62,25 @@ function extractArray(payload: unknown): AnyRecord[] {
 // ─── Page ──────────────────────────────────────────────────────────────────────
 
 export default async function TemplatesPage() {
-  await requireAdminUser();
+  const user = await requireAdminUser();
   const t = await getTranslations("annual_folders");
+  const territoryScope = resolveAdminTerritoryScope(user);
 
   let templates: FolderTemplate[] = [];
   let clubTypes: ClubType[] = [];
   let ecclesiasticalYears: EcclesiasticalYear[] = [];
+  let unions: Union[] = [];
+  let localFields: LocalField[] = [];
   let loadError: string | null = null;
 
-  const [templatesResult, clubTypesResult, yearsResult] = await Promise.allSettled([
-    apiRequest<unknown>("/annual-folders/templates"),
-    listClubTypes(),
-    listEcclesiasticalYears(),
-  ]);
+  const [templatesResult, clubTypesResult, yearsResult, unionsResult, localFieldsResult] =
+    await Promise.allSettled([
+      apiRequest<unknown>("/annual-folders/templates"),
+      listClubTypes(),
+      listEcclesiasticalYears(),
+      listUnionsForTerritory(user),
+      listLocalFieldsForTerritory(user),
+    ]);
 
   if (templatesResult.status === "fulfilled") {
     templates = extractArray(templatesResult.value) as FolderTemplate[];
@@ -92,6 +104,26 @@ export default async function TemplatesPage() {
       : extractArray(yearsResult.value) as EcclesiasticalYear[];
   }
 
+  if (unionsResult.status === "fulfilled") {
+    unions = unionsResult.value;
+  } else {
+    console.error(
+      "[TemplatesPage] Failed to load scoped unions:",
+      unionsResult.reason,
+    );
+    loadError = loadError ?? t("pageTemplates.errorFallback");
+  }
+
+  if (localFieldsResult.status === "fulfilled") {
+    localFields = localFieldsResult.value;
+  } else {
+    console.error(
+      "[TemplatesPage] Failed to load scoped local fields:",
+      localFieldsResult.reason,
+    );
+    loadError = loadError ?? t("pageTemplates.errorFallback");
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -108,6 +140,9 @@ export default async function TemplatesPage() {
           initialTemplates={templates}
           clubTypes={clubTypes}
           ecclesiasticalYears={ecclesiasticalYears}
+          unions={unions}
+          localFields={localFields}
+          territoryScope={territoryScope}
         />
       )}
     </div>

@@ -5,8 +5,9 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { UnionCampoReesView } from "@/components/camporees/union-camporees-view";
 import { ApiError, apiRequest } from "@/lib/api/client";
-import { listUnions, type Union } from "@/lib/api/geography";
+import type { Union } from "@/lib/api/geography";
 import { requireAdminUser } from "@/lib/auth/session";
+import { listUnionsForTerritory } from "@/lib/auth/territory-scope";
 import type { UnionCamporee } from "@/lib/api/camporees";
 
 type AnyRecord = Record<string, unknown>;
@@ -25,7 +26,7 @@ function extractCamporees(payload: unknown): UnionCamporee[] {
 }
 
 export default async function UnionCamporeesPage() {
-  await requireAdminUser();
+  const user = await requireAdminUser();
   const t = await getTranslations("camporees.pages.union");
 
   let camporees: UnionCamporee[] = [];
@@ -35,7 +36,7 @@ export default async function UnionCamporeesPage() {
   try {
     const [camporeesPayload, unionsPayload] = await Promise.allSettled([
       apiRequest<unknown>("/camporees/union"),
-      listUnions(),
+      listUnionsForTerritory(user),
     ]);
 
     if (camporeesPayload.status === "fulfilled") {

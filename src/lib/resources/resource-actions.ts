@@ -40,7 +40,7 @@ function parsePositiveNumber(formData: FormData, field: string) {
 }
 
 const VALID_RESOURCE_TYPES: ResourceType[] = ["document", "audio", "image", "video_link", "text"];
-const VALID_SCOPE_LEVELS: ScopeLevel[] = ["system", "union", "local_field"];
+const VALID_SCOPE_LEVELS: ScopeLevel[] = ["system", "division", "union", "local_field"];
 
 function toResourceType(value: string): ResourceType | null {
   return VALID_RESOURCE_TYPES.includes(value as ResourceType) ? (value as ResourceType) : null;

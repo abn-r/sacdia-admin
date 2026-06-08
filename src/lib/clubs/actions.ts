@@ -9,18 +9,18 @@ import {
   createClubSection,
   createClubRoleAssignment,
   deleteClub,
-  listClubSections,
   revokeClubRoleAssignment,
   succeedClubSectionDirector,
   updateClub,
   updateClubSection,
   updateClubRoleAssignment,
-  type ClubSection,
 } from "@/lib/api/clubs";
-import { unwrapList, unwrapObject } from "@/lib/api/response";
+import { unwrapObject } from "@/lib/api/response";
 import { requireAdminUser } from "@/lib/auth/session";
 import { extractRoles } from "@/lib/auth/roles";
 import { canManageClubsByRole } from "@/lib/auth/permission-utils";
+import { listLocalFieldsForTerritory } from "@/lib/auth/territory-scope";
+import type { AuthUser } from "@/lib/auth/types";
 import { collectSelectedClubSections } from "@/lib/clubs/create-form-options";
 
 type ClubsTranslator = Awaited<ReturnType<typeof getTranslations<"clubs">>>;
@@ -246,6 +246,34 @@ function buildUpdatePayload(t: ClubsTranslator, formData: FormData) {
   return payload;
 }
 
+
+async function ensureLocalFieldInActorScope(
+  user: AuthUser,
+  localFieldId: number | undefined,
+) {
+  if (!localFieldId) return;
+
+  const allowedLocalFields = await listLocalFieldsForTerritory(user);
+  if (allowedLocalFields.length === 0) {
+    return;
+  }
+
+  if (!allowedLocalFields.some((field) => field.local_field_id === localFieldId)) {
+    throw new Error("El campo local seleccionado está fuera de tu alcance.");
+  }
+}
+
+async function ensureClubPayloadInActorScope(
+  user: AuthUser,
+  payload: { local_field_id?: unknown },
+) {
+  const localFieldId =
+    typeof payload.local_field_id === "number" && Number.isFinite(payload.local_field_id)
+      ? payload.local_field_id
+      : undefined;
+  await ensureLocalFieldInActorScope(user, localFieldId);
+}
+
 function normalizeCreatedClubId(payload: unknown) {
   const createdClub = unwrapObject<Record<string, unknown>>(payload);
   const candidateIds = [createdClub?.club_id, createdClub?.id];
@@ -276,7 +304,7 @@ export async function createClubAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
-  await requireAdminUser();
+  const user = await requireAdminUser();
   const t = await getTranslations("clubs");
 
   const fieldErrors = collectFieldErrors(t, formData);
@@ -286,6 +314,7 @@ export async function createClubAction(
 
   try {
     const payload = buildCreatePayload(t, formData);
+    await ensureClubPayloadInActorScope(user, payload);
     await createClub(payload);
   } catch (error) {
     return {
@@ -303,7 +332,7 @@ export async function createClubWithSectionsAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
-  await requireAdminUser();
+  const user = await requireAdminUser();
   const t = await getTranslations("clubs");
 
   const fieldErrors = collectFieldErrors(t, formData);
@@ -315,6 +344,7 @@ export async function createClubWithSectionsAction(
 
   try {
     const payload = buildCreatePayload(t, formData);
+    await ensureClubPayloadInActorScope(user, payload);
     const createdPayload = await createClub(payload);
     clubId = normalizeCreatedClubId(createdPayload);
   } catch (error) {
@@ -415,7 +445,7 @@ export async function updateClubAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
-  await requireAdminUser();
+  const user = await requireAdminUser();
   const t = await getTranslations("clubs");
 
   const fieldErrors = collectUpdateFieldErrors(t, formData);
@@ -425,6 +455,7 @@ export async function updateClubAction(
 
   try {
     const payload = buildUpdatePayload(t, formData);
+    await ensureClubPayloadInActorScope(user, payload);
     await updateClub(clubId, payload);
   } catch (error) {
     return {
@@ -858,6 +889,9 @@ export async function bulkCreateClubsAction(
     return { results: [], created: 0, failed: 0 };
   }
 
+  const allowedLocalFields = await listLocalFieldsForTerritory(user);
+  const allowedLocalFieldIds = new Set(allowedLocalFields.map((field) => field.local_field_id));
+
   const results: BulkClubRowResult[] = [];
   let created = 0;
   let failed = 0;
@@ -880,6 +914,10 @@ export async function bulkCreateClubsAction(
     }
 
     try {
+      if (allowedLocalFieldIds.size > 0 && !allowedLocalFieldIds.has(row.local_field_id)) {
+        throw new Error("El campo local seleccionado está fuera de tu alcance.");
+      }
+
       const payload = {
         name: row.name,
         description: row.description,

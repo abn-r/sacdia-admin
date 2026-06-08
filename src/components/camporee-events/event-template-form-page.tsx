@@ -42,6 +42,7 @@ import type { ProgressiveClass } from "@/lib/api/classes";
 export type EventTypeOption = { value: number; label: string };
 export type UnionOption = { value: number; label: string };
 export type LocalFieldOption = { value: number; label: string };
+export type AllowedTemplateScope = "union" | "local_field";
 
 type FormAction = (
   prev: CamporeeEventActionState,
@@ -51,6 +52,7 @@ type FormAction = (
 interface EventTemplateFormPageProps {
   mode: "create" | "edit";
   item?: CamporeeEventTemplate;
+  allowedScopes: AllowedTemplateScope[];
   eventTypes: EventTypeOption[];
   unions: UnionOption[];
   localFields: LocalFieldOption[];
@@ -77,6 +79,7 @@ const LIST_HREF = "/dashboard/camporees/event-templates";
 export function EventTemplateFormPage({
   mode,
   item,
+  allowedScopes,
   eventTypes,
   unions,
   localFields,
@@ -90,14 +93,52 @@ export function EventTemplateFormPage({
     {},
   );
 
+  const normalizedAllowedScopes = (() => {
+    const normalized = (allowedScopes ?? []).filter(
+      (scope): scope is AllowedTemplateScope =>
+        scope === "union" || scope === "local_field",
+    );
+
+    if (normalized.length > 0) {
+      return Array.from(new Set(normalized)) as AllowedTemplateScope[];
+    }
+
+    return ["union", "local_field"] as AllowedTemplateScope[];
+  })();
+
+  const scopeLocked = normalizedAllowedScopes.length === 1;
+
   // ── Controlled state ──────────────────────────────────────────────────────
-  const [scope, setScope] = useState<TemplateScope>(item?.scope ?? "union");
-  const [selectedUnionId, setSelectedUnionId] = useState<string>(
-    item?.union_id ? String(item.union_id) : "",
-  );
-  const [selectedLocalFieldId, setSelectedLocalFieldId] = useState<string>(
-    item?.local_field_id ? String(item.local_field_id) : "",
-  );
+  const [scope, setScope] = useState<TemplateScope>(() => {
+    if (item?.scope && normalizedAllowedScopes.includes(item.scope)) {
+      return item.scope;
+    }
+
+    return normalizedAllowedScopes[0] ?? "union";
+  });
+
+  const [selectedUnionId, setSelectedUnionId] = useState<string>(() => {
+    const supportsUnion = normalizedAllowedScopes.includes("union");
+    if (!supportsUnion || item?.scope !== "union" || !item?.union_id) {
+      return "";
+    }
+
+    return unions.some((union) => String(union.value) === String(item.union_id))
+      ? String(item.union_id)
+      : "";
+  });
+  const [selectedLocalFieldId, setSelectedLocalFieldId] = useState<string>(() => {
+    const supportsLocalField = normalizedAllowedScopes.includes("local_field");
+    if (!supportsLocalField || item?.scope !== "local_field" || !item?.local_field_id) {
+      return "";
+    }
+
+    return localFields.some(
+      (localField) => String(localField.value) === String(item.local_field_id),
+    )
+      ? String(item.local_field_id)
+      : "";
+  });
   const [selectedEventTypeId, setSelectedEventTypeId] = useState<string>(
     item?.event_type_id ? String(item.event_type_id) : "",
   );
@@ -170,6 +211,7 @@ export function EventTemplateFormPage({
             </Label>
             <Select
               value={scope}
+              disabled={scopeLocked}
               onValueChange={(v) => {
                 setScope(v as TemplateScope);
                 setSelectedUnionId("");
@@ -180,8 +222,14 @@ export function EventTemplateFormPage({
                 <SelectValue placeholder={t("fieldScopePlaceholder")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="union">{t("fieldScopeUnion")}</SelectItem>
-                <SelectItem value="local_field">{t("fieldScopeLocalField")}</SelectItem>
+                {normalizedAllowedScopes.includes("union") && (
+                  <SelectItem value="union">{t("fieldScopeUnion")}</SelectItem>
+                )}
+                {normalizedAllowedScopes.includes("local_field") && (
+                  <SelectItem value="local_field">
+                    {t("fieldScopeLocalField")}
+                  </SelectItem>
+                )}
               </SelectContent>
             </Select>
           </div>

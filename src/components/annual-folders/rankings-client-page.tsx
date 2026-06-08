@@ -322,6 +322,7 @@ export function RankingsClientPage({
             <Select
               value={String(selectedLocalFieldId)}
               onValueChange={(value) => setSelectedLocalFieldId(Number(value))}
+              disabled={localFields.length <= 1}
             >
               <SelectTrigger className="h-9">
                 <SelectValue placeholder="Seleccionar campo local" />

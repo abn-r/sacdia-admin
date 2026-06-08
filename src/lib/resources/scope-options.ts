@@ -4,6 +4,7 @@ import type { ScopeLevel } from "@/lib/api/resources";
 type ScopeNode = { id?: number | string | null } | null | undefined;
 type GlobalScope = {
   country?: ScopeNode;
+  division?: ScopeNode;
   union?: ScopeNode;
   local_field?: ScopeNode;
 };
@@ -13,7 +14,7 @@ export type ResourceScopeOptions = {
   lockedScopeId: number | null;
 };
 
-const ALL_RESOURCE_SCOPE_LEVELS: ScopeLevel[] = ["system", "union", "local_field"];
+const ALL_RESOURCE_SCOPE_LEVELS: ScopeLevel[] = ["system", "division", "union", "local_field"];
 
 function toPositiveNumber(value: unknown): number | null {
   const parsed = typeof value === "number" ? value : Number(value);
@@ -39,11 +40,16 @@ export function resolveResourceScopeOptions(
   }
 
   const userCountryId = toPositiveNumber(globalScope.country?.id);
+  const userDivisionId = toPositiveNumber(globalScope.division?.id);
   const userUnionId = toPositiveNumber(globalScope.union?.id);
   const userLocalFieldId = toPositiveNumber(globalScope.local_field?.id);
 
-  if (userCountryId || (!userUnionId && !userLocalFieldId)) {
+  if (userCountryId || (!userDivisionId && !userUnionId && !userLocalFieldId)) {
     return { allowedScopeLevels: ALL_RESOURCE_SCOPE_LEVELS, lockedScopeId: null };
+  }
+
+  if (userDivisionId) {
+    return { allowedScopeLevels: ["division"], lockedScopeId: userDivisionId };
   }
 
   if (userUnionId) {

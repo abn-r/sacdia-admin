@@ -48,10 +48,12 @@ async function UsersContent({
   const t = await getTranslations("users.pages.list");
   const result = await listAdminUsers(query);
   const showAdministrativeCompletion = canViewAdministrativeCompletion(currentUser);
+  const scope = result.meta?.scope;
 
   if (!result.endpointAvailable) {
     return (
       <div className="space-y-4">
+        <UsersFilters scope={scope} />
         <EndpointErrorBanner
           state={result.endpointState as "forbidden" | "missing" | "rate-limited"}
           detail={result.endpointDetail}
@@ -80,6 +82,7 @@ async function UsersContent({
 
   return (
     <div className="space-y-4">
+      <UsersFilters scope={scope} />
       <UsersTable
         users={result.items}
         showAdministrativeCompletion={showAdministrativeCompletion}
@@ -140,7 +143,6 @@ export default async function UsersPage({
       />
 
       <Suspense fallback={<UsersListSkeleton />}>
-        <UsersFilters />
         <UsersContent query={query} currentUser={currentUser} />
       </Suspense>
     </div>

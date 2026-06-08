@@ -19,6 +19,12 @@ import { getActionErrorMessage } from "@/lib/api/action-error";
 import { requireAdminUser } from "@/lib/auth/session";
 import { hasAnyPermission } from "@/lib/auth/permission-utils";
 import {
+  listLocalFieldsForTerritory,
+  listUnionsForTerritory,
+  resolveAdminTerritoryScope,
+} from "@/lib/auth/territory-scope";
+import type { AuthUser } from "@/lib/auth/types";
+import {
   CAMPOREE_EVENTS_CREATE,
   CAMPOREE_EVENTS_UPDATE,
   CAMPOREE_EVENTS_DELETE,
@@ -157,6 +163,43 @@ function buildTemplatePayload(
   };
 }
 
+
+async function assertTemplatePayloadInActorScope(
+  user: AuthUser,
+  payload: CreateCamporeeEventTemplatePayload | UpdateCamporeeEventTemplatePayload,
+): Promise<string | null> {
+  const territoryScope = resolveAdminTerritoryScope(user);
+
+  if (territoryScope.level === "all") {
+    return null;
+  }
+
+  if (territoryScope.level === "local_field") {
+    return payload.scope === "local_field" &&
+      payload.local_field_id === territoryScope.localFieldId
+      ? null
+      : "El alcance del template está fuera de tu campo local.";
+  }
+
+  if (payload.scope === "union") {
+    const allowedUnions = await listUnionsForTerritory(user);
+    return allowedUnions.some((union) => union.union_id === payload.union_id)
+      ? null
+      : "La unión seleccionada está fuera de tu alcance.";
+  }
+
+  if (payload.scope === "local_field") {
+    const allowedLocalFields = await listLocalFieldsForTerritory(user);
+    return allowedLocalFields.some(
+      (field) => field.local_field_id === payload.local_field_id,
+    )
+      ? null
+      : "El campo local seleccionado está fuera de tu alcance.";
+  }
+
+  return "El alcance del template es inválido.";
+}
+
 // ─── Template actions ──────────────────────────────────────────────────────────
 
 const TEMPLATES_PATH = "/dashboard/camporees/event-templates";
@@ -174,6 +217,9 @@ export async function createCamporeeEventTemplateAction(
   if ("validationError" in payload) {
     return { error: payload.validationError };
   }
+
+  const scopeError = await assertTemplatePayloadInActorScope(user, payload);
+  if (scopeError) return { error: scopeError };
 
   try {
     await createCamporeeEventTemplate(payload);
@@ -207,6 +253,8 @@ export async function updateCamporeeEventTemplateAction(
   }
 
   const payload: UpdateCamporeeEventTemplatePayload = built;
+  const scopeError = await assertTemplatePayloadInActorScope(user, payload);
+  if (scopeError) return { error: scopeError };
 
   try {
     await updateCamporeeEventTemplate(id, payload);

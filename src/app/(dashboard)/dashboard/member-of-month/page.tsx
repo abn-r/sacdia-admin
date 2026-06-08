@@ -5,11 +5,14 @@ import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EmptyState } from "@/components/shared/empty-state";
 import { listClubTypes } from "@/lib/api/catalogs";
-import { listLocalFields } from "@/lib/api/geography";
 import { listAdminMemberOfMonth } from "@/lib/api/member-of-month";
 import type { AdminMomFilters, AdminMomPage } from "@/lib/api/member-of-month";
 import type { ClubType } from "@/lib/api/catalogs";
 import type { LocalField } from "@/lib/api/geography";
+import {
+  listLocalFieldsForTerritory,
+  resolveAdminTerritoryScope,
+} from "@/lib/auth/territory-scope";
 import { MemberOfMonthSupervisionClient } from "./_components/member-of-month-supervision-client";
 
 export const revalidate = 60;
@@ -32,16 +35,27 @@ interface MemberOfMonthPageProps {
 export default async function MemberOfMonthSupervisionPage({
   searchParams,
 }: MemberOfMonthPageProps) {
-  await requireAdminUser();
+  const user = await requireAdminUser();
   const t = await getTranslations("member_of_month");
+  const territoryScope = resolveAdminTerritoryScope(user);
 
-  const params = await searchParams;
+  const rawParams = await searchParams;
+  const params =
+    territoryScope.level === "local_field"
+      ? { ...rawParams, local_field_id: String(territoryScope.localFieldId) }
+      : rawParams;
 
   const currentYear = new Date().getFullYear();
+  const effectiveLocalFieldId =
+    territoryScope.level === "local_field"
+      ? territoryScope.localFieldId
+      : params.local_field_id
+        ? Number(params.local_field_id)
+        : undefined;
 
   const filters: AdminMomFilters = {
     ...(params.club_type_id ? { club_type_id: Number(params.club_type_id) } : {}),
-    ...(params.local_field_id ? { local_field_id: Number(params.local_field_id) } : {}),
+    ...(effectiveLocalFieldId ? { local_field_id: effectiveLocalFieldId } : {}),
     ...(params.club_id ? { club_id: Number(params.club_id) } : {}),
     ...(params.section_id ? { section_id: Number(params.section_id) } : {}),
     year: params.year ? Number(params.year) : currentYear,
@@ -63,7 +77,7 @@ export default async function MemberOfMonthSupervisionPage({
   const [clubTypesResult, localFieldsResult, momResult] =
     await Promise.allSettled([
       listClubTypes(),
-      listLocalFields(),
+      listLocalFieldsForTerritory(user),
       listAdminMemberOfMonth(filters),
     ]);
 
@@ -73,6 +87,12 @@ export default async function MemberOfMonthSupervisionPage({
 
   if (localFieldsResult.status === "fulfilled") {
     localFields = localFieldsResult.value;
+  } else {
+    console.error(
+      "[MemberOfMonthSupervisionPage] Failed to load scoped local fields:",
+      localFieldsResult.reason,
+    );
+    loadError = loadError ?? t("page.errorFallback");
   }
 
   if (momResult.status === "fulfilled") {
@@ -113,6 +133,7 @@ export default async function MemberOfMonthSupervisionPage({
           initialData={momData}
           clubTypes={clubTypes}
           localFields={localFields}
+          territoryScope={territoryScope}
           searchParams={params}
         />
       )}
