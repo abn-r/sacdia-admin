@@ -1072,6 +1072,9 @@ export function PhaseECatalogCrudPage({
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>{t("editDialogTitle", { entity: entityLabel.toLowerCase() })}</DialogTitle>
+              <DialogDescription>
+                {t("createDialogDesc", { entity: entityLabel.toLowerCase() })}
+              </DialogDescription>
             </DialogHeader>
             <form action={updateFormAction} className="space-y-4">
               <input type="hidden" name="id" value={String(getItemId(editItem) ?? "")} />

@@ -572,6 +572,9 @@ export function HonorCategoriesCrudPage({
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>{t("editDialogTitle")}</DialogTitle>
+              <DialogDescription>
+                {t("createDialogDesc")}
+              </DialogDescription>
             </DialogHeader>
             <form action={updateFormAction} className="space-y-4">
               <input type="hidden" name="id" value={String(pickCategoryId(editItem) ?? "")} />

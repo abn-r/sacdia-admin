@@ -117,9 +117,11 @@ function NavItemWithChildren({ item, pathname }: { item: NavItem; pathname: stri
                       >
                         {sgLabel}
                       </h3>
-                      {sg.items.map((child) => (
-                        <NavSubChildLink key={child.url} child={child} pathname={pathname} t={t} />
-                      ))}
+                      <ul className="flex min-w-0 flex-col gap-1">
+                        {sg.items.map((child) => (
+                          <NavSubChildLink key={child.url} child={child} pathname={pathname} t={t} />
+                        ))}
+                      </ul>
                     </li>
                   );
                 })
