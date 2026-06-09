@@ -306,11 +306,11 @@ export async function uploadEvidence(
   folderId: string,
   sectionId: string,
   file: File,
-  description?: string,
+  notes?: string,
 ): Promise<FolderEvidence> {
   const formData = new FormData();
   formData.append("file", file);
-  if (description) formData.append("description", description);
+  if (notes) formData.append("notes", notes);
 
   return apiRequestFromClient<FolderEvidence>(
     `/annual-folders/${folderId}/sections/${sectionId}/evidences`,
