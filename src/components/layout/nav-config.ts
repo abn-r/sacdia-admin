@@ -29,6 +29,7 @@ import {
   SlidersHorizontal,
   ShoppingBag,
   Tag,
+  Headset,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -374,6 +375,11 @@ export const navConfig: NavGroup[] = [
           { title: "items.reports_mine", url: "/dashboard/reports", permission: "reports:read" },
           { title: "items.reports_supervision", url: "/dashboard/reports/supervision", permission: "reports:read" },
         ],
+      },
+      {
+        title: "items.support_reports",
+        url: "/dashboard/support",
+        icon: Headset,
       },
       {
         title: "items.member_of_month",

@@ -94,6 +94,7 @@
       "reports": "Reports",
       "reports_mine": "My reports",
       "reports_supervision": "Supervision",
+      "support_reports": "Support reports",
       "member_of_month": "Member of the month",
       "catalog_classes": "Classes",
       "catalog_class_modules": "Class modules",
@@ -154,7 +155,8 @@
       "rbac": "Roles and permissions",
       "permissions": "Permissions",
       "roles": "Roles",
-      "matrix": "Matrix"
+      "matrix": "Matrix",
+      "support": "Support"
     },
     "themeToggle": {
       "switchToLight": "Switch to light mode",

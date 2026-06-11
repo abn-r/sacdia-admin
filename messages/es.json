@@ -94,6 +94,7 @@
       "reports": "Reportes",
       "reports_mine": "Mis reportes",
       "reports_supervision": "Supervisión",
+      "support_reports": "Reportes de soporte",
       "member_of_month": "Miembro del mes",
       "catalog_classes": "Clases",
       "catalog_class_modules": "Módulos de clase",
@@ -154,7 +155,8 @@
       "rbac": "Roles y permisos",
       "permissions": "Permisos",
       "roles": "Roles",
-      "matrix": "Matriz"
+      "matrix": "Matriz",
+      "support": "Soporte"
     },
     "themeToggle": {
       "switchToLight": "Cambiar a modo claro",

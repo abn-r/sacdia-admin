@@ -123,6 +123,7 @@ export interface IntlMessages {
       reports: string;
       reports_mine: string;
       reports_supervision: string;
+      support_reports: string;
       member_of_month: string;
       catalog_classes: string;
       catalog_class_modules: string;
@@ -184,6 +185,7 @@ export interface IntlMessages {
       permissions: string;
       roles: string;
       matrix: string;
+      support: string;
     };
     themeToggle: {
       switchToLight: string;
