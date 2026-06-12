@@ -41,6 +41,11 @@ function normalizeBaseUrl() {
 
 export const API_BASE_URL = normalizeBaseUrl();
 
+const CLIENT_AUTH_TOKEN_TTL_MS = 60_000;
+
+let cachedClientAuthToken: { token: string; expiresAt: number } | null = null;
+let pendingClientAuthToken: Promise<string | null> | null = null;
+
 function toRecord(headers?: HeadersInit) {
   if (!headers) {
     return {};
@@ -200,6 +205,113 @@ async function resolveToken(token?: string) {
   return cookieStore.get(ACCESS_TOKEN_COOKIE)?.value;
 }
 
+export function clearClientAuthTokenCache() {
+  cachedClientAuthToken = null;
+  pendingClientAuthToken = null;
+}
+
+async function fetchClientAuthToken(): Promise<string | null> {
+  try {
+    const res = await fetch("/api/auth/token");
+
+    if (res.status === 401 || res.status === 403) {
+      clearClientAuthTokenCache();
+      return null;
+    }
+
+    if (!res.ok) {
+      return null;
+    }
+
+    const body = (await res.json()) as { token?: unknown };
+    return typeof body.token === "string" && body.token.length > 0
+      ? body.token
+      : null;
+  } catch {
+    clearClientAuthTokenCache();
+    return null;
+  }
+}
+
+export async function getClientAuthToken(): Promise<string | null> {
+  const now = Date.now();
+
+  if (cachedClientAuthToken && cachedClientAuthToken.expiresAt > now) {
+    return cachedClientAuthToken.token;
+  }
+
+  if (!pendingClientAuthToken) {
+    pendingClientAuthToken = fetchClientAuthToken().then((token) => {
+      pendingClientAuthToken = null;
+
+      if (token) {
+        cachedClientAuthToken = {
+          token,
+          expiresAt: Date.now() + CLIENT_AUTH_TOKEN_TTL_MS,
+        };
+      } else {
+        cachedClientAuthToken = null;
+      }
+
+      return token;
+    });
+  }
+
+  return pendingClientAuthToken;
+}
+
+function hasAuthorizationHeader(headers: unknown): boolean {
+  if (!headers || typeof headers !== "object") {
+    return false;
+  }
+
+  const maybeHeaderBag = headers as {
+    get?: (name: string) => unknown;
+    has?: (name: string) => boolean;
+  };
+
+  if (typeof maybeHeaderBag.has === "function" && maybeHeaderBag.has("Authorization")) {
+    return true;
+  }
+
+  if (typeof maybeHeaderBag.get === "function") {
+    const value = maybeHeaderBag.get("Authorization");
+    if (typeof value === "string") {
+      return value.trim().length > 0;
+    }
+
+    if (value != null) {
+      return true;
+    }
+  }
+
+  return Object.entries(headers as Record<string, unknown>).some(
+    ([key, value]) =>
+      key.toLowerCase() === "authorization" &&
+      typeof value === "string" &&
+      value.trim().length > 0,
+  );
+}
+
+function setAuthorizationHeader(headers: unknown, token: string) {
+  if (!headers || typeof headers !== "object") {
+    return;
+  }
+
+  const value = `Bearer ${token}`;
+  const maybeHeaderBag = headers as {
+    set?: (name: string, value: string) => void;
+    Authorization?: string;
+  };
+
+  if (typeof maybeHeaderBag.set === "function") {
+    maybeHeaderBag.set("Authorization", value);
+    return;
+  }
+
+  maybeHeaderBag.Authorization = value;
+}
+
 const clientApi = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
@@ -215,15 +327,23 @@ function ensureClientInterceptors() {
     return;
   }
 
-  // Attach the Bearer token from the httpOnly cookie via a Next.js API route.
-  // Using native fetch (NOT clientApi) to avoid an infinite loop.
+  // Attach the Bearer token from the httpOnly cookie via a lightweight Next.js
+  // relay. The relay result is cached in-memory per browser tab to avoid
+  // paying an extra Vercel route-handler hop before every backend request.
   clientApi.interceptors.request.use(async (config) => {
+    if (hasAuthorizationHeader(config.headers)) {
+      return config;
+    }
+
     try {
-      const res = await fetch("/api/auth/token");
-      if (res.ok) {
-        const { token } = (await res.json()) as { token: string | null };
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
+      const token = await getClientAuthToken();
+      if (token) {
+        if (!config.headers) {
+          config.headers = {
+            Authorization: `Bearer ${token}`,
+          } as typeof config.headers;
+        } else {
+          setAuthorizationHeader(config.headers, token);
         }
       }
     } catch {
@@ -236,6 +356,10 @@ function ensureClientInterceptors() {
     (response) => response,
     (error: unknown) => {
       const normalized = normalizeError(error);
+
+      if (normalized.status === 401 || normalized.status === 403) {
+        clearClientAuthTokenCache();
+      }
 
       if (
         typeof window !== "undefined" &&
@@ -255,9 +379,9 @@ function ensureClientInterceptors() {
 
 export async function apiRequest<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
   // Auto-detect execution context. In the browser, delegate to
-  // apiRequestFromClient so the Bearer token is attached via the
-  // httpOnly cookie relay at /api/auth/token. Server-side keeps the
-  // original path that reads the cookie directly via next/headers.
+  // apiRequestFromClient so the Bearer token is attached via the cached
+  // httpOnly cookie relay. Server-side keeps the original path that reads the
+  // cookie directly via next/headers.
   if (typeof window !== "undefined") {
     return apiRequestFromClient<T>(path, options);
   }

@@ -1,4 +1,9 @@
-import { API_BASE_URL, apiRequest, apiRequestFromClient } from "@/lib/api/client";
+import {
+  API_BASE_URL,
+  apiRequest,
+  apiRequestFromClient,
+  getClientAuthToken,
+} from "@/lib/api/client";
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
 
@@ -183,19 +188,9 @@ export function getReportPdfUrl(reportId: MonthlyReportId): string {
  * admin token lives in an httpOnly cookie on the Next.js app origin.
  */
 export async function downloadMonthlyReportPdf(reportId: MonthlyReportId): Promise<Blob> {
-  let token: string | null = null;
-
-  try {
-    const tokenResponse = await fetch("/api/auth/token");
-    if (tokenResponse.ok) {
-      const body = (await tokenResponse.json()) as { token: string | null };
-      token = body.token;
-    }
-  } catch {
-    // Continue without token — backend will return 401 and we surface it below.
-  }
-
+  const token = await getClientAuthToken();
   const headers: Record<string, string> = { Accept: "application/pdf" };
+
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }

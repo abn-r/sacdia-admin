@@ -4,10 +4,12 @@ import {
   downloadMonthlyReportPdf,
   getReportPdfUrl,
 } from "./monthly-reports";
+import { clearClientAuthTokenCache } from "./client";
 
 const originalFetch = globalThis.fetch;
 
 afterEach(() => {
+  clearClientAuthTokenCache();
   globalThis.fetch = originalFetch;
   vi.restoreAllMocks();
 });

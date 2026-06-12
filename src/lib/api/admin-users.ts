@@ -1,4 +1,10 @@
-import { ApiError, apiRequest, apiRequestFromClient, API_BASE_URL } from "@/lib/api/client";
+import {
+  ApiError,
+  apiRequest,
+  apiRequestFromClient,
+  API_BASE_URL,
+  getClientAuthToken,
+} from "@/lib/api/client";
 
 export type ScopeType = "ALL" | "UNION" | "LOCAL_FIELD" | "DIVISION";
 
@@ -1065,18 +1071,7 @@ export async function bulkUploadAdminUsersFromClient(
  * Must be called from the browser only.
  */
 export async function downloadAdminUsersBulkTemplate(): Promise<Blob> {
-  // Fetch the token from the httpOnly relay first
-  let token: string | null = null;
-  try {
-    const res = await fetch("/api/auth/token");
-    if (res.ok) {
-      const json = (await res.json()) as { token: string | null };
-      token = json.token;
-    }
-  } catch {
-    // Proceed without token — backend will 401
-  }
-
+  const token = await getClientAuthToken();
   const url = `${API_BASE_URL}/admin/users/bulk-template`;
   const headers: HeadersInit = { Accept: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, */*" };
   if (token) {
