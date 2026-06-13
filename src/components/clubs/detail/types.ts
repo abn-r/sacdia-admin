@@ -4,10 +4,13 @@ export type ClubSectionRaw = {
   club_section_id?: number;
   club_type_id?: number;
   club_type?: { name?: string } | null;
+  club_types?: { club_type_id?: number; name?: string } | null;
   name?: string | null;
   active?: boolean;
   souls_target?: number | null;
   fee?: number | null;
+  meeting_day?: Array<{ day?: string }>;
+  meeting_time?: Array<{ time?: string }>;
   members_count?: number;
 };
 
@@ -113,10 +116,11 @@ function normalizeName(raw: string): string {
 }
 
 export function detectSectionKind(
-  section: Pick<ClubSectionRaw, "club_type" | "name" | "club_type_id">,
+  section: Pick<ClubSectionRaw, "club_type" | "club_types" | "name" | "club_type_id">,
 ): SectionKind {
   const candidates: string[] = [];
   if (section.club_type?.name) candidates.push(section.club_type.name);
+  if (section.club_types?.name) candidates.push(section.club_types.name);
   if (section.name) candidates.push(section.name);
 
   for (const raw of candidates) {

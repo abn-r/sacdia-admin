@@ -125,6 +125,28 @@ function parseOptionalPositiveNumber(
   return parsed;
 }
 
+function parseOptionalNonNegativeInteger(
+  t: ClubsTranslator,
+  formData: FormData,
+  fieldName: string,
+) {
+  if (!formData.has(fieldName)) {
+    return undefined;
+  }
+
+  const value = readString(formData, fieldName);
+  if (!value) {
+    return undefined;
+  }
+
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed < 0) {
+    throw new Error(t("validation.field_invalid", { field: fieldName }));
+  }
+
+  return parsed;
+}
+
 function buildCreatePayload(t: ClubsTranslator, formData: FormData) {
   const name = readString(formData, "name");
   if (!name) {
@@ -549,10 +571,10 @@ export async function createClubSectionAction(
   if (!Number.isFinite(clubTypeId) || clubTypeId <= 0) {
     sectionFieldErrors.club_type_id = t("validation.club_type_invalid");
   }
-  if (!Number.isFinite(soulsTarget) || soulsTarget < 0) {
+  if (!Number.isInteger(soulsTarget) || soulsTarget < 0) {
     sectionFieldErrors.souls_target = t("validation.souls_target_positive");
   }
-  if (!Number.isFinite(fee) || fee < 0) {
+  if (!Number.isInteger(fee) || fee < 0) {
     sectionFieldErrors.fee = t("validation.fee_positive");
   }
   if (Object.keys(sectionFieldErrors).length > 0) {
@@ -596,7 +618,7 @@ export async function updateClubSectionAction(
   await requireAdminUser();
   const t = await getTranslations("clubs");
 
-  const payload: { name?: string; active?: boolean; club_type_id?: number } = {};
+  const payload: Parameters<typeof updateClubSection>[2] = {};
   const name = readString(formData, "name");
   if (name) {
     payload.name = name;
@@ -613,6 +635,32 @@ export async function updateClubSectionAction(
   const clubTypeId = parseOptionalPositiveNumber(t, formData, "club_type_id");
   if (clubTypeId !== undefined) {
     payload.club_type_id = clubTypeId;
+  }
+
+  try {
+    const soulsTarget = parseOptionalNonNegativeInteger(t, formData, "souls_target");
+    if (soulsTarget !== undefined) {
+      payload.souls_target = soulsTarget;
+    }
+
+    const fee = parseOptionalNonNegativeInteger(t, formData, "fee");
+    if (fee !== undefined) {
+      payload.fee = fee;
+    }
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : t("validation.field_invalid", { field: "section" }),
+    };
+  }
+
+  if (formData.has("meeting_day")) {
+    const meetingDay = readString(formData, "meeting_day");
+    payload.meeting_day = meetingDay ? [{ day: meetingDay }] : [];
+  }
+
+  if (formData.has("meeting_time")) {
+    const meetingTime = readString(formData, "meeting_time").slice(0, 5);
+    payload.meeting_time = meetingTime ? [{ time: meetingTime }] : [];
   }
 
   if (Object.keys(payload).length === 0) {

@@ -1070,15 +1070,21 @@ export interface IntlMessages {
     };
     sections: {
       description: string;
+      labelName: string;
+      placeholderName: string;
       labelSoulsTarget: string;
       labelFee: string;
       labelMeetingDay: string;
       placeholderMeetingDay: string;
       labelMeetingTime: string;
       createButton: string;
+      saveButton: string;
       notCreated: string;
       cancelButton: string;
       addButton: string;
+      editButton: string;
+      activateButton: string;
+      deactivateButton: string;
       statusActive: string;
       statusInactive: string;
       infoType: string;

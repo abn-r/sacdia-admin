@@ -40,10 +40,11 @@ export default async function ClubDetailPage({
 
   const clubId = Number(club.club_id ?? club.id ?? id);
 
-  const [localFields, districts, churches] = await Promise.all([
+  const [localFields, districts, churches, clubTypes] = await Promise.all([
     getSelectOptions("local-fields").catch(() => []),
     getSelectOptions("districts").catch(() => []),
     getSelectOptions("churches").catch(() => []),
+    getSelectOptions("club-types").catch(() => []),
   ]);
 
   const boundUpdateAction = updateClubAction.bind(null, clubId);
@@ -56,6 +57,7 @@ export default async function ClubDetailPage({
       localFieldOptions={localFields}
       districtOptions={districts}
       churchOptions={churches}
+      clubTypeOptions={clubTypes}
       updateAction={boundUpdateAction}
       deleteAction={deleteClubAction}
     />

@@ -3,7 +3,17 @@
 import { useState, useActionState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useFormStatus } from "react-dom";
-import { Plus, Users, CheckCircle, XCircle, Loader2, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  CheckCircle,
+  ChevronUp,
+  Loader2,
+  Pencil,
+  Plus,
+  Power,
+  Save,
+  Users,
+  XCircle,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,7 +27,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createClubSectionAction, type ClubActionState } from "@/lib/clubs/actions";
+import {
+  createClubSectionAction,
+  updateClubSectionAction,
+  type ClubActionState,
+} from "@/lib/clubs/actions";
 import { MemberOfMonthCard } from "@/components/member-of-month/member-of-month-card";
 import { SectionDirectorSuccessionCard } from "@/components/clubs/section-director-succession-card";
 import { useFormatCurrency } from "@/lib/format-locale";
@@ -26,17 +40,14 @@ type Section = {
   club_section_id?: number;
   club_type_id?: number;
   club_type?: { name?: string } | null;
+  club_types?: { club_type_id?: number; name?: string } | null;
   name?: string;
   active?: boolean;
   souls_target?: number | null;
   fee?: number | null;
+  meeting_day?: Array<{ day?: string }>;
+  meeting_time?: Array<{ time?: string }>;
   members_count?: number;
-};
-
-const SECTION_TYPE_LABELS: Record<string, string> = {
-  adventurers: "Aventureros",
-  pathfinders: "Conquistadores",
-  master_guilds: "Guías Mayores",
 };
 
 const DAYS_OF_WEEK = [
@@ -69,6 +80,45 @@ function SubmitButton({ label }: { label: string }) {
   );
 }
 
+function StatusSubmitButton({ active }: { active: boolean }) {
+  const { pending } = useFormStatus();
+  const t = useTranslations("clubs");
+  return (
+    <Button
+      type="submit"
+      size="sm"
+      variant={active ? "outline" : "default"}
+      disabled={pending}
+    >
+      {pending ? <Loader2 className="size-4 animate-spin" /> : <Power className="size-4" />}
+      {active ? t("sections.deactivateButton") : t("sections.activateButton")}
+    </Button>
+  );
+}
+
+function SaveSectionButton() {
+  const { pending } = useFormStatus();
+  const t = useTranslations("clubs");
+  return (
+    <Button type="submit" size="sm" disabled={pending}>
+      {pending ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
+      {t("sections.saveButton")}
+    </Button>
+  );
+}
+
+function getFirstString(
+  value: Array<Record<string, unknown>> | undefined,
+  key: "day" | "time",
+) {
+  const first = value?.[0]?.[key];
+  return typeof first === "string" ? first : "";
+}
+
+function getSectionTypeName(section: Section) {
+  return section.club_type?.name ?? section.club_types?.name;
+}
+
 function CreateSectionForm({
   clubId,
   clubTypeId,
@@ -88,7 +138,7 @@ function CreateSectionForm({
       router.refresh();
       onSuccess();
     }
-  }, [state.success]);
+  }, [state.success, router, onSuccess]);
 
   const fieldErrors = state.fieldErrors ?? {};
   const ariaInvalid = (name: string) =>
@@ -121,6 +171,15 @@ function CreateSectionForm({
       )}
 
       <div className="grid gap-3 sm:grid-cols-2">
+        <div className="space-y-1 sm:col-span-2">
+          <Label htmlFor={`name_${clubTypeId}`}>{t("sections.labelName")}</Label>
+          <Input
+            id={`name_${clubTypeId}`}
+            name="name"
+            placeholder={t("sections.placeholderName")}
+          />
+        </div>
+
         <div className="space-y-1">
           <Label htmlFor={`souls_${clubTypeId}`}>{t("sections.labelSoulsTarget")}</Label>
           <Input
@@ -142,7 +201,7 @@ function CreateSectionForm({
             name="fee"
             type="number"
             min="0"
-            step="0.01"
+            step="1"
             defaultValue="0"
             aria-invalid={ariaInvalid("fee")}
             aria-describedby={describedBy("fee")}
@@ -183,6 +242,178 @@ function CreateSectionForm({
   );
 }
 
+function EditSectionForm({
+  clubId,
+  sectionId,
+  section,
+  label,
+  onCancel,
+}: {
+  clubId: number;
+  sectionId: number;
+  section: Section;
+  label: string;
+  onCancel: () => void;
+}) {
+  const router = useRouter();
+  const t = useTranslations("clubs");
+  const boundAction = updateClubSectionAction.bind(null, clubId, sectionId);
+  const [state, action] = useActionState(boundAction, {} as ClubActionState);
+
+  useEffect(() => {
+    if (state.success) {
+      router.refresh();
+      onCancel();
+    }
+  }, [state.success, router, onCancel]);
+
+  const fieldErrors = state.fieldErrors ?? {};
+  const ariaInvalid = (name: string) =>
+    fieldErrors[name] ? true : undefined;
+  const describedBy = (name: string) =>
+    fieldErrors[name] && sectionId != null
+      ? `section-${sectionId}-${name}-error`
+      : undefined;
+  const renderError = (name: string) =>
+    fieldErrors[name] && sectionId != null ? (
+      <p
+        id={`section-${sectionId}-${name}-error`}
+        role="alert"
+        className="text-xs text-destructive"
+      >
+        {fieldErrors[name]}
+      </p>
+    ) : null;
+
+  return (
+    <form action={action} className="mt-4 space-y-4 border-t pt-4" noValidate>
+      {state.error && (
+        <p
+          role="alert"
+          aria-live="polite"
+          className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive"
+        >
+          {state.error}
+        </p>
+      )}
+
+      <input type="hidden" name="active" value={String(section.active !== false)} />
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="space-y-1 sm:col-span-2">
+          <Label htmlFor={`edit_name_${sectionId}`}>{t("sections.labelName")}</Label>
+          <Input
+            id={`edit_name_${sectionId}`}
+            name="name"
+            defaultValue={section.name ?? ""}
+            placeholder={label}
+            aria-invalid={ariaInvalid("name")}
+            aria-describedby={describedBy("name")}
+          />
+          {renderError("name")}
+        </div>
+
+        <div className="space-y-1">
+          <Label htmlFor={`edit_souls_${sectionId}`}>{t("sections.labelSoulsTarget")}</Label>
+          <Input
+            id={`edit_souls_${sectionId}`}
+            name="souls_target"
+            type="number"
+            min="0"
+            step="1"
+            defaultValue={section.souls_target ?? 0}
+            aria-invalid={ariaInvalid("souls_target")}
+            aria-describedby={describedBy("souls_target")}
+          />
+          {renderError("souls_target")}
+        </div>
+
+        <div className="space-y-1">
+          <Label htmlFor={`edit_fee_${sectionId}`}>{t("sections.labelFee")}</Label>
+          <Input
+            id={`edit_fee_${sectionId}`}
+            name="fee"
+            type="number"
+            min="0"
+            step="1"
+            defaultValue={section.fee ?? 0}
+            aria-invalid={ariaInvalid("fee")}
+            aria-describedby={describedBy("fee")}
+          />
+          {renderError("fee")}
+        </div>
+
+        <div className="space-y-1">
+          <Label htmlFor={`edit_day_${sectionId}`}>{t("sections.labelMeetingDay")}</Label>
+          <Select
+            name="meeting_day"
+            defaultValue={getFirstString(section.meeting_day, "day")}
+          >
+            <SelectTrigger id={`edit_day_${sectionId}`}>
+              <SelectValue placeholder={t("sections.placeholderMeetingDay")} />
+            </SelectTrigger>
+            <SelectContent>
+              {DAYS_OF_WEEK.map((d) => (
+                <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-1">
+          <Label htmlFor={`edit_time_${sectionId}`}>{t("sections.labelMeetingTime")}</Label>
+          <Input
+            id={`edit_time_${sectionId}`}
+            name="meeting_time"
+            type="time"
+            defaultValue={getFirstString(section.meeting_time, "time") || "09:00"}
+            step="60"
+          />
+        </div>
+      </div>
+
+      <div className="flex justify-end gap-2">
+        <Button type="button" size="sm" variant="outline" onClick={onCancel}>
+          {t("sections.cancelButton")}
+        </Button>
+        <SaveSectionButton />
+      </div>
+    </form>
+  );
+}
+
+function SectionStatusForm({
+  clubId,
+  sectionId,
+  active,
+}: {
+  clubId: number;
+  sectionId: number;
+  active: boolean;
+}) {
+  const router = useRouter();
+  const boundAction = updateClubSectionAction.bind(null, clubId, sectionId);
+  const [state, action] = useActionState(boundAction, {} as ClubActionState);
+
+  useEffect(() => {
+    if (state.success) {
+      router.refresh();
+    }
+  }, [state.success, router]);
+
+  return (
+    <form action={action} className="flex items-center gap-2">
+      <input type="hidden" name="active" value={String(!active)} />
+      <StatusSubmitButton active={active} />
+      {state.error && (
+        <p role="alert" className="text-xs text-destructive">
+          {state.error}
+        </p>
+      )}
+    </form>
+  );
+}
+
 interface ClubSectionsPanelProps {
   clubId: number;
   sections: Section[];
@@ -193,6 +424,7 @@ export function ClubSectionsPanel({ clubId, sections, clubTypes }: ClubSectionsP
   const t = useTranslations("clubs");
   const formatCurrency = useFormatCurrency();
   const [openForms, setOpenForms] = useState<Set<number>>(new Set());
+  const [editingSectionId, setEditingSectionId] = useState<number | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const existingByTypeId = new Map(
@@ -211,7 +443,7 @@ export function ClubSectionsPanel({ clubId, sections, clubTypes }: ClubSectionsP
   // If clubTypes are provided, iterate over them; otherwise show existing sections only
   const typesToRender = clubTypes ?? sections.map((s) => ({
     club_type_id: s.club_type_id ?? 0,
-    name: s.club_type?.name ?? s.name ?? `Seccion ${s.club_section_id}`,
+    name: getSectionTypeName(s) ?? s.name ?? `Seccion ${s.club_section_id}`,
   }));
 
   return (
@@ -276,7 +508,7 @@ export function ClubSectionsPanel({ clubId, sections, clubTypes }: ClubSectionsP
                   <XCircle className="size-5 text-muted-foreground" />
                 )}
                 <CardTitle className="text-base">
-                  {section.name ?? section.club_type?.name ?? label}
+                  {section.name ?? getSectionTypeName(section) ?? label}
                 </CardTitle>
               </div>
               <Badge variant={section.active !== false ? "soft-success" : "outline"}>
@@ -306,12 +538,47 @@ export function ClubSectionsPanel({ clubId, sections, clubTypes }: ClubSectionsP
                 )}
               </div>
 
-              {/* Member of the Month card — only shown when section has an ID */}
+              {section.club_section_id != null && (
+                <div className="flex flex-wrap items-center justify-end gap-2 border-t pt-3">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      setEditingSectionId((current) =>
+                        current === section.club_section_id
+                          ? null
+                          : section.club_section_id ?? null,
+                      )
+                    }
+                  >
+                    <Pencil className="size-4" />
+                    {t("sections.editButton")}
+                  </Button>
+                  <SectionStatusForm
+                    clubId={clubId}
+                    sectionId={section.club_section_id}
+                    active={section.active !== false}
+                  />
+                </div>
+              )}
+
+              {section.club_section_id != null &&
+                editingSectionId === section.club_section_id && (
+                  <EditSectionForm
+                    clubId={clubId}
+                    sectionId={section.club_section_id}
+                    section={section}
+                    label={label}
+                    onCancel={() => setEditingSectionId(null)}
+                  />
+                )}
+
               {section.club_section_id != null && (
                 <MemberOfMonthCard
                   clubId={clubId}
                   sectionId={section.club_section_id}
-                  sectionName={section.name ?? section.club_type?.name ?? label}
+                  sectionName={section.name ?? getSectionTypeName(section) ?? label}
                   isDirector={false}
                 />
               )}
@@ -320,7 +587,7 @@ export function ClubSectionsPanel({ clubId, sections, clubTypes }: ClubSectionsP
                 <SectionDirectorSuccessionCard
                   clubId={clubId}
                   sectionId={section.club_section_id}
-                  sectionName={section.name ?? section.club_type?.name ?? label}
+                  sectionName={section.name ?? getSectionTypeName(section) ?? label}
                 />
               )}
             </CardContent>

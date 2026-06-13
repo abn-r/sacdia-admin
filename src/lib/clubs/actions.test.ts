@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockRequireAdminUser = vi.fn();
 const mockSucceedClubSectionDirector = vi.fn();
+const mockUpdateClubSection = vi.fn();
 
 vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
@@ -31,10 +32,14 @@ vi.mock("@/lib/api/clubs", async (importOriginal) => {
     ...actual,
     succeedClubSectionDirector: (...args: unknown[]) =>
       mockSucceedClubSectionDirector(...args),
+    updateClubSection: (...args: unknown[]) => mockUpdateClubSection(...args),
   };
 });
 
-import { succeedClubSectionDirectorAction } from "@/lib/clubs/actions";
+import {
+  succeedClubSectionDirectorAction,
+  updateClubSectionAction,
+} from "@/lib/clubs/actions";
 
 function makeFormData(entries: Record<string, string>) {
   const formData = new FormData();
@@ -55,6 +60,10 @@ describe("succeedClubSectionDirectorAction", () => {
     mockSucceedClubSectionDirector.mockResolvedValue({
       ended_assignment_id: "old-assignment",
       new_assignment_id: "new-assignment",
+    });
+    mockUpdateClubSection.mockResolvedValue({
+      club_section_id: 7,
+      active: false,
     });
   });
 
@@ -99,6 +108,47 @@ describe("succeedClubSectionDirectorAction", () => {
       successor_user_id: "successor-user",
       ecclesiastical_year_id: 2026,
       start_date: "2026-10-01",
+    });
+  });
+});
+
+describe("updateClubSectionAction", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockRequireAdminUser.mockResolvedValue({
+      id: "actor-1",
+      email: "actor@example.com",
+      roles: ["admin"],
+    });
+    mockUpdateClubSection.mockResolvedValue({
+      club_section_id: 7,
+      active: false,
+    });
+  });
+
+  it("sends section operational fields and active status to the API", async () => {
+    const result = await updateClubSectionAction(
+      10,
+      7,
+      {},
+      makeFormData({
+        name: "Conquistadores Central",
+        souls_target: "12",
+        fee: "150",
+        meeting_day: "Saturday",
+        meeting_time: "10:30",
+        active: "false",
+      }),
+    );
+
+    expect(result.success).toBeTruthy();
+    expect(mockUpdateClubSection).toHaveBeenCalledWith(10, 7, {
+      name: "Conquistadores Central",
+      active: false,
+      souls_target: 12,
+      fee: 150,
+      meeting_day: [{ day: "Saturday" }],
+      meeting_time: [{ time: "10:30" }],
     });
   });
 });

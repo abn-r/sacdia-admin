@@ -54,6 +54,7 @@ interface ClubDetailViewProps {
   localFieldOptions: SelectOption[];
   districtOptions: SelectOption[];
   churchOptions: SelectOption[];
+  clubTypeOptions: SelectOption[];
   updateAction: (
     prevState: ClubActionState,
     formData: FormData,
@@ -68,6 +69,7 @@ export function ClubDetailView({
   localFieldOptions,
   districtOptions,
   churchOptions,
+  clubTypeOptions,
   updateAction,
   deleteAction,
 }: ClubDetailViewProps) {
@@ -219,7 +221,14 @@ export function ClubDetailView({
                   Tres rangos por edad — cada uno con sus propias unidades.
                 </p>
               </header>
-              <ClubSectionsPanel clubId={clubId} sections={rawSections} />
+              <ClubSectionsPanel
+                clubId={clubId}
+                sections={rawSections}
+                clubTypes={clubTypeOptions.map((option) => ({
+                  club_type_id: option.value,
+                  name: option.label,
+                }))}
+              />
             </section>
           )}
 
@@ -358,4 +367,3 @@ export function ClubDetailLoadingSkeleton() {
     </div>
   );
 }
-
