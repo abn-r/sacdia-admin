@@ -6,6 +6,11 @@ import {
   FileText,
   Download,
   ExternalLink,
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
+  ChevronLeft,
+  ChevronRight,
   Loader2,
   User,
   Calendar,
@@ -23,6 +28,7 @@ import {
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useTranslations } from "next-intl";
 import {
   getEvidenceDetail,
@@ -35,6 +41,7 @@ import { ApiError } from "@/lib/api/client";
 import { useFormatDateTime } from "@/lib/format-locale";
 
 type HonorReviewPacket = NonNullable<EvidenceDetail["honor_review_packet"]>;
+type EvidenceFile = EvidenceDetail["files"][number];
 
 function isImageFile(fileType: string, fileUrl: string): boolean {
   const imageTypes = [
@@ -58,45 +65,47 @@ function isImageFile(fileType: string, fileUrl: string): boolean {
 // ─── File card ────────────────────────────────────────────────────────────────
 
 interface FileCardProps {
-  file: EvidenceDetail["files"][number];
+  file: EvidenceFile;
   index: number;
+  onOpenViewer: (file: EvidenceFile) => void;
 }
 
-function FileCard({ file, index }: FileCardProps) {
+function FileCard({ file, index, onOpenViewer }: FileCardProps) {
   const isImage = isImageFile(file.file_type, file.file_url);
+  const fileLabel = file.file_name || `Archivo ${index + 1}`;
 
   return (
     <div className="group relative overflow-hidden rounded-lg border border-border bg-muted/30">
       {isImage ? (
-        <a
-          href={file.file_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block"
+        <button
+          type="button"
+          aria-label={`Abrir visor de ${fileLabel}`}
+          onClick={() => onOpenViewer(file)}
+          className="block w-full text-left"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={file.file_url}
-            alt={file.file_name || `Evidencia ${index + 1}`}
+            alt={fileLabel}
             className="h-40 w-full object-cover transition-transform group-hover:scale-105"
             loading="lazy"
           />
           <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all group-hover:bg-black/20 group-hover:opacity-100">
             <ExternalLink className="size-6 text-white drop-shadow" />
           </div>
-        </a>
+        </button>
       ) : (
-        <a
-          href={file.file_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex h-40 flex-col items-center justify-center gap-2 p-4 text-center hover:bg-muted/50"
+        <button
+          type="button"
+          aria-label={`Abrir visor de ${fileLabel}`}
+          onClick={() => onOpenViewer(file)}
+          className="flex h-40 w-full flex-col items-center justify-center gap-2 p-4 text-center hover:bg-muted/50"
         >
           <FileText className="size-10 text-muted-foreground" />
           <span className="text-xs text-muted-foreground line-clamp-2">
-            {file.file_name || `Archivo ${index + 1}`}
+            {fileLabel}
           </span>
-        </a>
+        </button>
       )}
 
       {/* Footer */}
@@ -108,7 +117,7 @@ function FileCard({ file, index }: FileCardProps) {
             <FileText className="size-3 shrink-0 text-muted-foreground" />
           )}
           <span className="truncate text-xs text-muted-foreground">
-            {file.file_name || `Archivo ${index + 1}`}
+            {fileLabel}
           </span>
         </div>
         <a
@@ -122,6 +131,198 @@ function FileCard({ file, index }: FileCardProps) {
         </a>
       </div>
     </div>
+  );
+}
+
+// ─── In-panel file viewer ────────────────────────────────────────────────────
+
+interface EvidenceFileViewerDialogProps {
+  file: EvidenceFile | null;
+  imageFiles: EvidenceFile[];
+  zoom: number;
+  onZoomChange: (zoom: number) => void;
+  onSelectFile: (file: EvidenceFile) => void;
+  onOpenChange: (open: boolean) => void;
+}
+
+function EvidenceFileViewerDialog({
+  file,
+  imageFiles,
+  zoom,
+  onZoomChange,
+  onSelectFile,
+  onOpenChange,
+}: EvidenceFileViewerDialogProps) {
+  const open = file != null;
+  const isImage = file ? isImageFile(file.file_type, file.file_url) : false;
+  const selectedImageIndex =
+    file && isImage
+      ? imageFiles.findIndex((item) => item.evidence_file_id === file.evidence_file_id)
+      : -1;
+  const canNavigateImages = isImage && imageFiles.length > 1;
+  const title = isImage ? "Visor de imágenes" : "Visor PDF";
+  const fileName = file?.file_name || "Archivo adjunto";
+
+  function setZoom(nextZoom: number) {
+    onZoomChange(Math.min(Math.max(nextZoom, 0.5), 3));
+  }
+
+  function selectImageByOffset(offset: number) {
+    if (!canNavigateImages || selectedImageIndex < 0) return;
+    const nextIndex =
+      (selectedImageIndex + offset + imageFiles.length) % imageFiles.length;
+    onSelectFile(imageFiles[nextIndex]);
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-6xl max-h-[92vh] overflow-hidden p-0">
+        <DialogHeader className="border-b border-border px-5 py-4">
+          <DialogTitle className="flex items-center gap-2">
+            {title}
+            {file && (
+              <Badge variant="secondary" className="max-w-64 truncate text-xs">
+                {fileName}
+              </Badge>
+            )}
+          </DialogTitle>
+          <DialogDescription>
+            {isImage
+              ? "Revisa todas las imágenes enviadas y usa zoom sin salir del panel."
+              : "Revisa el PDF enviado sin abrir una pestaña externa."}
+          </DialogDescription>
+        </DialogHeader>
+
+        {file && isImage && (
+          <div className="grid max-h-[calc(92vh-7rem)] grid-cols-1 overflow-hidden md:grid-cols-[10rem_1fr]">
+            <aside className="flex gap-2 overflow-x-auto border-b border-border bg-muted/20 p-3 md:flex-col md:overflow-y-auto md:border-b-0 md:border-r">
+              {imageFiles.map((imageFile) => {
+                const label = imageFile.file_name || "Imagen adjunta";
+                const selected =
+                  imageFile.evidence_file_id === file.evidence_file_id;
+                return (
+                  <button
+                    key={imageFile.evidence_file_id}
+                    type="button"
+                    aria-label={`Ver ${label}`}
+                    aria-current={selected ? "true" : undefined}
+                    onClick={() => onSelectFile(imageFile)}
+                    className={`shrink-0 overflow-hidden rounded-md border bg-background ${
+                      selected ? "border-primary ring-2 ring-primary/20" : "border-border"
+                    }`}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={imageFile.file_url}
+                      alt=""
+                      className="h-20 w-24 object-cover md:w-full"
+                      loading="lazy"
+                    />
+                  </button>
+                );
+              })}
+            </aside>
+
+            <section className="flex min-h-0 flex-col">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-4 py-2">
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => selectImageByOffset(-1)}
+                    disabled={!canNavigateImages}
+                  >
+                    <ChevronLeft className="size-4" />
+                    Anterior
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => selectImageByOffset(1)}
+                    disabled={!canNavigateImages}
+                  >
+                    Siguiente
+                    <ChevronRight className="size-4" />
+                  </Button>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    aria-label="Alejar"
+                    onClick={() => setZoom(zoom - 0.25)}
+                  >
+                    <ZoomOut className="size-4" />
+                  </Button>
+                  <span className="min-w-12 text-center text-xs font-medium tabular-nums text-muted-foreground">
+                    {Math.round(zoom * 100)}%
+                  </span>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    aria-label="Acercar"
+                    onClick={() => setZoom(zoom + 0.25)}
+                  >
+                    <ZoomIn className="size-4" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    aria-label="Restablecer zoom"
+                    onClick={() => setZoom(1)}
+                  >
+                    <RotateCcw className="size-4" />
+                  </Button>
+                </div>
+              </div>
+
+              <div className="min-h-[24rem] flex-1 overflow-auto bg-muted/30 p-4">
+                <div className="flex min-h-full items-center justify-center">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    data-testid="evidence-viewer-image"
+                    src={file.file_url}
+                    alt={fileName}
+                    className="max-h-[65vh] max-w-full object-contain transition-transform"
+                    style={{
+                      transform: `scale(${zoom})`,
+                      transformOrigin: "center center",
+                    }}
+                  />
+                </div>
+              </div>
+            </section>
+          </div>
+        )}
+
+        {file && !isImage && (
+          <div className="flex max-h-[calc(92vh-7rem)] flex-col">
+            <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-2">
+              <p className="truncate text-sm font-medium">{fileName}</p>
+              <a
+                href={file.file_url}
+                download
+                className="inline-flex items-center gap-1 rounded-md border border-border px-3 py-1.5 text-sm hover:bg-muted"
+              >
+                <Download className="size-4" />
+                Descargar
+              </a>
+            </div>
+            <iframe
+              title={`Visor PDF: ${fileName}`}
+              src={file.file_url}
+              className="h-[70vh] w-full bg-muted"
+            />
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -247,11 +448,15 @@ export function EvidenceDetailDialog({
   const [detail, setDetail] = useState<EvidenceDetail | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [viewerFile, setViewerFile] = useState<EvidenceFile | null>(null);
+  const [viewerZoom, setViewerZoom] = useState(1);
 
   useEffect(() => {
     if (!open) {
       setDetail(null);
       setError(null);
+      setViewerFile(null);
+      setViewerZoom(1);
       return;
     }
 
@@ -273,128 +478,161 @@ export function EvidenceDetailDialog({
     void load();
   }, [open, type, id, t]);
 
+  const imageFiles =
+    detail?.files.filter((file) => isImageFile(file.file_type, file.file_url)) ?? [];
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 flex-wrap">
-            Detalle de evidencia
-            {detail && (
-              <>
-                <EvidenceTypeBadge type={detail.type} />
-                <EvidenceStatusBadge status={detail.status} type={detail.type} />
-              </>
-            )}
-          </DialogTitle>
-          <DialogDescription>
-            Revisá los archivos y metadatos de la evidencia enviada por el miembro.
-          </DialogDescription>
-        </DialogHeader>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 flex-wrap">
+              Detalle de evidencia
+              {detail && (
+                <>
+                  <EvidenceTypeBadge type={detail.type} />
+                  <EvidenceStatusBadge status={detail.status} type={detail.type} />
+                </>
+              )}
+            </DialogTitle>
+            <DialogDescription>
+              Revisá los archivos y metadatos de la evidencia enviada por el miembro.
+            </DialogDescription>
+          </DialogHeader>
 
-        {isLoading && (
-          <div className="flex h-40 items-center justify-center">
-            <Loader2 className="size-6 animate-spin text-muted-foreground" />
-          </div>
-        )}
+          {isLoading && (
+            <div className="flex h-40 items-center justify-center">
+              <Loader2 className="size-6 animate-spin text-muted-foreground" />
+            </div>
+          )}
 
-        {error && (
-          <div className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-sm text-destructive">
-            <AlertCircle className="size-4 shrink-0" />
-            {error}
-          </div>
-        )}
+          {error && (
+            <div className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-sm text-destructive">
+              <AlertCircle className="size-4 shrink-0" />
+              {error}
+            </div>
+          )}
 
-        {detail && !isLoading && (
-          <div className="space-y-4">
-            {/* Meta info */}
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="flex items-start gap-2 text-sm">
-                <User className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Miembro</p>
-                  <p className="font-medium">{detail.member_name}</p>
+          {detail && !isLoading && (
+            <div className="space-y-4">
+              {/* Meta info */}
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="flex items-start gap-2 text-sm">
+                  <User className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">Miembro</p>
+                    <p className="font-medium">{detail.member_name}</p>
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex items-start gap-2 text-sm">
-                <div className="mt-0.5 size-4 shrink-0" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Sección / Honor</p>
-                  <p className="font-medium">{detail.section_name}</p>
+                <div className="flex items-start gap-2 text-sm">
+                  <div className="mt-0.5 size-4 shrink-0" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">Sección / Honor</p>
+                    <p className="font-medium">{detail.section_name}</p>
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex items-start gap-2 text-sm">
-                <Calendar className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Enviado el</p>
-                  <p>{detail.submitted_at ? formatDate(detail.submitted_at) : "—"}</p>
-                </div>
-              </div>
-
-              {detail.validated_at && (
                 <div className="flex items-start gap-2 text-sm">
                   <Calendar className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
                   <div>
-                    <p className="text-xs text-muted-foreground">
-                      {detail.status === "rechazado" || detail.status === "rejected"
-                        ? "Rechazado el"
-                        : "Validado el"}
+                    <p className="text-xs text-muted-foreground">Enviado el</p>
+                    <p>
+                      {detail.submitted_at ? formatDate(detail.submitted_at) : "—"}
                     </p>
-                    <p>{formatDate(detail.validated_at)}</p>
-                    {detail.validated_by_name && (
+                  </div>
+                </div>
+
+                {detail.validated_at && (
+                  <div className="flex items-start gap-2 text-sm">
+                    <Calendar className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                    <div>
                       <p className="text-xs text-muted-foreground">
-                        por {detail.validated_by_name}
+                        {detail.status === "rechazado" || detail.status === "rejected"
+                          ? "Rechazado el"
+                          : "Validado el"}
                       </p>
-                    )}
+                      <p>{formatDate(detail.validated_at)}</p>
+                      {detail.validated_by_name && (
+                        <p className="text-xs text-muted-foreground">
+                          por {detail.validated_by_name}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Rejection reason */}
+              {detail.rejection_reason && (
+                <div className="flex items-start gap-2 rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive">
+                  <AlertCircle className="mt-0.5 size-4 shrink-0" />
+                  <div>
+                    <p className="font-medium">Motivo de rechazo</p>
+                    <p className="mt-0.5 text-destructive/80">
+                      {detail.rejection_reason}
+                    </p>
                   </div>
                 </div>
               )}
-            </div>
 
-            {/* Rejection reason */}
-            {detail.rejection_reason && (
-              <div className="flex items-start gap-2 rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive">
-                <AlertCircle className="mt-0.5 size-4 shrink-0" />
-                <div>
-                  <p className="font-medium">Motivo de rechazo</p>
-                  <p className="mt-0.5 text-destructive/80">{detail.rejection_reason}</p>
-                </div>
-              </div>
-            )}
-
-            {detail.type === "honor" && detail.honor_review_packet && (
-              <HonorReviewPacketSection packet={detail.honor_review_packet} />
-            )}
-
-            <Separator />
-
-            {/* Files */}
-            <div>
-              <div className="mb-3 flex items-center justify-between">
-                <h4 className="text-sm font-medium">
-                  Archivos adjuntos
-                </h4>
-                <Badge variant="secondary" className="text-xs">
-                  {detail.file_count} {detail.file_count === 1 ? "archivo" : "archivos"}
-                </Badge>
-              </div>
-
-              {detail.files.length === 0 ? (
-                <p className="py-4 text-center text-sm text-muted-foreground">
-                  Sin archivos adjuntos
-                </p>
-              ) : (
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                  {detail.files.map((file, idx) => (
-                    <FileCard key={file.evidence_file_id} file={file} index={idx} />
-                  ))}
-                </div>
+              {detail.type === "honor" && detail.honor_review_packet && (
+                <HonorReviewPacketSection packet={detail.honor_review_packet} />
               )}
+
+              <Separator />
+
+              {/* Files */}
+              <div>
+                <div className="mb-3 flex items-center justify-between">
+                  <h4 className="text-sm font-medium">Archivos adjuntos</h4>
+                  <Badge variant="secondary" className="text-xs">
+                    {detail.file_count}{" "}
+                    {detail.file_count === 1 ? "archivo" : "archivos"}
+                  </Badge>
+                </div>
+
+                {detail.files.length === 0 ? (
+                  <p className="py-4 text-center text-sm text-muted-foreground">
+                    Sin archivos adjuntos
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                    {detail.files.map((file, idx) => (
+                      <FileCard
+                        key={file.evidence_file_id}
+                        file={file}
+                        index={idx}
+                        onOpenViewer={(selectedFile) => {
+                          setViewerFile(selectedFile);
+                          setViewerZoom(1);
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        )}
-      </DialogContent>
-    </Dialog>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <EvidenceFileViewerDialog
+        file={viewerFile}
+        imageFiles={imageFiles}
+        zoom={viewerZoom}
+        onZoomChange={setViewerZoom}
+        onSelectFile={(selectedFile) => {
+          setViewerFile(selectedFile);
+          setViewerZoom(1);
+        }}
+        onOpenChange={(nextOpen) => {
+          if (!nextOpen) {
+            setViewerFile(null);
+            setViewerZoom(1);
+          }
+        }}
+      />
+    </>
   );
 }

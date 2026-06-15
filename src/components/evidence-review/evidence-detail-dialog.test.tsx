@@ -21,6 +21,7 @@
 import React from "react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, waitFor, cleanup } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import messages from "../../../messages/es.json";
 import type { EvidenceDetail, EvidenceType } from "@/lib/api/evidence-review";
@@ -117,6 +118,22 @@ const STUB_DETAIL_REJECTED: EvidenceDetail = {
   rejection_reason: "Imagen borrosa, no se puede verificar",
   validated_at: "2026-04-01T12:00:00.000Z",
   validated_by_name: "Admin Pérez",
+};
+
+const STUB_DETAIL_WITH_MULTIPLE_IMAGES: EvidenceDetail = {
+  ...STUB_DETAIL,
+  file_count: 3,
+  files: [
+    STUB_DETAIL.files[0],
+    {
+      evidence_file_id: 3,
+      file_url: "https://example.com/foto2.png",
+      file_name: "foto2.png",
+      file_type: "image/png",
+      uploaded_at: "2026-03-15T10:03:00.000Z",
+    },
+    STUB_DETAIL.files[1],
+  ],
 };
 
 const STUB_HONOR_DETAIL_WITH_PACKET = {
@@ -408,5 +425,56 @@ describe("EvidenceDetailDialog", () => {
       ).toBeInTheDocument();
       expect(screen.getByText("requisito.jpg")).toBeInTheDocument();
     });
+  });
+
+  it("opens an in-panel image viewer with all image thumbnails and zoom controls", async () => {
+    const user = userEvent.setup();
+    mockGetEvidenceDetail.mockResolvedValue(STUB_DETAIL_WITH_MULTIPLE_IMAGES);
+
+    renderDialog();
+
+    const firstImage = await screen.findByRole("img", { name: "foto1.jpg" });
+    await user.click(firstImage);
+
+    expect(
+      screen.getByRole("heading", { name: /visor de imágenes/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Ver foto1.jpg" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Ver foto2.png" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Ver doc.pdf" }),
+    ).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /acercar/i }));
+
+    expect(screen.getByTestId("evidence-viewer-image")).toHaveStyle({
+      transform: "scale(1.25)",
+    });
+  });
+
+  it("opens PDFs inside an in-panel PDF viewer", async () => {
+    const user = userEvent.setup();
+
+    renderDialog();
+
+    await waitFor(() => {
+      expect(screen.getByText("Carlos Ruiz")).toBeInTheDocument();
+    });
+
+    await user.click(
+      screen.getByRole("button", { name: "Abrir visor de doc.pdf" }),
+    );
+
+    expect(
+      screen.getByRole("heading", { name: /visor pdf/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByTitle("Visor PDF: doc.pdf")).toHaveAttribute(
+      "src",
+      "https://example.com/doc.pdf",
+    );
   });
 });
