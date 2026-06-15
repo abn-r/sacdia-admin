@@ -1225,6 +1225,8 @@ export interface IntlMessages {
       viewAll: string;
       noRole: string;
       loadError: string;
+      deletedAccount: string;
+      anonymizedAccount: string;
     };
     relativeDate: {
       today: string;
@@ -3036,6 +3038,8 @@ export interface IntlMessages {
         completeDesktop: string;
       };
       noRole: string;
+      deletedAccount: string;
+      anonymizedAccount: string;
     };
     filters: {
       searchPlaceholder: string;
@@ -3373,6 +3377,8 @@ export interface IntlMessages {
           panelLabel: string;
           panelSub: string;
         };
+        deletedAccount: string;
+        anonymizedAccount: string;
       };
       bulk: {
         title: string;

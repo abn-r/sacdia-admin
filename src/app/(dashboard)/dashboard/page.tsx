@@ -30,6 +30,10 @@ import { PageHeader } from "@/components/shared/page-header";
 import { getTranslations } from "next-intl/server";
 import { buildRoleTranslator } from "@/lib/auth/role-labels";
 import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
+import {
+  getAdminUserDisplayName,
+  getAdminUserSecondaryLabel,
+} from "@/lib/admin-users/display";
 
 type StatsData = {
   totalUsers: number | null;
@@ -46,6 +50,9 @@ type RecentUser = {
   email?: string | null;
   name?: string | null;
   paternal_last_name?: string | null;
+  maternal_last_name?: string | null;
+  full_name?: string | null;
+  is_deleted?: boolean;
   roles?: string[];
   users_roles?: Array<{ roles?: { role_name?: string | null } | null }>;
   active?: boolean;
@@ -422,10 +429,12 @@ async function RecentUsersSection() {
         <div className="divide-y divide-border/60">
           {users.map((user, index) => {
             const roleNames = extractRoleNames(user);
-            const fullName =
-              [user.name, user.paternal_last_name].filter(Boolean).join(" ") ||
-              user.email ||
-              "—";
+            const fullName = getAdminUserDisplayName(user, {
+              deletedAccount: t("recentUsers.deletedAccount"),
+            });
+            const secondaryLabel = getAdminUserSecondaryLabel(user, {
+              anonymized: t("recentUsers.anonymizedAccount"),
+            });
 
             return (
               <div
@@ -435,7 +444,7 @@ async function RecentUsersSection() {
               >
                 <Avatar className="size-8 shrink-0">
                   <AvatarFallback className="text-xs font-medium">
-                    {getInitials(user.name, user.email)}
+                    {getInitials(fullName, secondaryLabel)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 space-y-0.5 overflow-hidden">
@@ -448,9 +457,9 @@ async function RecentUsersSection() {
                   </Link>
                   <p
                     className="truncate text-xs text-muted-foreground"
-                    title={user.email ?? undefined}
+                    title={secondaryLabel}
                   >
-                    {user.email ?? "—"}
+                    {secondaryLabel}
                   </p>
                 </div>
                 <div className="hidden shrink-0 items-center gap-1.5 sm:flex">

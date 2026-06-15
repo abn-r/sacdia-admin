@@ -10,6 +10,7 @@ import type { AdminUserDetail } from "@/lib/api/admin-users";
 interface HeroProps {
   user: AdminUserDetail;
   fullName: string;
+  secondaryIdentityLabel: string;
   age: number | null;
   ageLabel?: string | null;
   primaryAssignment: ClubAssignmentSummary | null;
@@ -29,6 +30,7 @@ export interface ClubAssignmentSummary {
 export function UserDetailHero({
   user,
   fullName,
+  secondaryIdentityLabel,
   age,
   ageLabel,
   primaryAssignment,
@@ -49,7 +51,7 @@ export function UserDetailHero({
           <UserAvatar
             src={user.user_image}
             name={fullName}
-            email={user.email}
+            email={secondaryIdentityLabel}
             size={104}
             className="rounded-2xl"
             priority
@@ -62,9 +64,9 @@ export function UserDetailHero({
           </h2>
 
           <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
-            {user.email ? (
+            {secondaryIdentityLabel ? (
               <span className="inline-flex items-center gap-1.5">
-                <Mail className="size-3.5" /> {user.email}
+                <Mail className="size-3.5" /> {secondaryIdentityLabel}
               </span>
             ) : null}
             {user.local_field?.name ? (

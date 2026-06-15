@@ -1195,7 +1195,9 @@
       "description": "Latest registrations in the system",
       "viewAll": "View all",
       "noRole": "No role",
-      "loadError": "Could not load recent users."
+      "loadError": "Could not load recent users.",
+      "deletedAccount": "Deleted account",
+      "anonymizedAccount": "Personal data anonymized"
     },
     "relativeDate": {
       "today": "Today",
@@ -2987,7 +2989,9 @@
         "pending": "Pending",
         "completeDesktop": "Complete"
       },
-      "noRole": "No role"
+      "noRole": "No role",
+      "deletedAccount": "Deleted account",
+      "anonymizedAccount": "Personal data anonymized"
     },
     "filters": {
       "searchPlaceholder": "Search by name or email...",
@@ -3324,7 +3328,9 @@
           "appSub": "Access to mobile client",
           "panelLabel": "Admin panel",
           "panelSub": "Access to the admin panel"
-        }
+        },
+        "deletedAccount": "Deleted account",
+        "anonymizedAccount": "Personal data anonymized"
       },
       "bulk": {
         "title": "Bulk user upload",

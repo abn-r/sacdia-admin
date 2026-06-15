@@ -20,6 +20,10 @@ import {
 } from "@/components/ui/tabs";
 import { buildRoleTranslator } from "@/lib/auth/role-labels";
 import { normalizeApprovalStatus } from "@/lib/admin-users/approval-status";
+import {
+  getAdminUserDisplayName,
+  getAdminUserSecondaryLabel,
+} from "@/lib/admin-users/display";
 import { UserAccessToggles } from "@/components/users/user-access-toggles";
 import { PostRegistrationTab } from "@/components/users/post-registration-tab";
 import { MfaTab } from "@/components/users/mfa-tab";
@@ -148,12 +152,13 @@ export default async function UserDetailPage({ params }: { params: Params }) {
   const canUpdateAdministrativeCompletion =
     canManageAdministrativeCompletion(currentUser);
 
-  const fullName =
-    [user.name, user.paternal_last_name, user.maternal_last_name]
-      .filter(Boolean)
-      .join(" ") ||
-    user.email ||
-    t("title");
+  const fullName = getAdminUserDisplayName(user, {
+    deletedAccount: t("deletedAccount"),
+    fallback: t("title"),
+  });
+  const secondaryIdentityLabel = getAdminUserSecondaryLabel(user, {
+    anonymized: t("anonymizedAccount"),
+  });
 
   const age = calculateAge(user.birthday);
   const roleNamesRaw = extractRoleNames(user);
@@ -244,6 +249,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
       <UserDetailHero
         user={user}
         fullName={fullName}
+        secondaryIdentityLabel={secondaryIdentityLabel}
         age={age}
         ageLabel={age !== null ? t("ageYears", { count: age }) : null}
         primaryAssignment={primaryAssignment}
@@ -304,7 +310,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                       ? t("fields.baptismNo")
                       : "—",
                 },
-                { k: t("fields.email"), v: user.email ?? "—" },
+                { k: t("fields.email"), v: secondaryIdentityLabel },
               ]}
               identityFieldsRight={[
                 { k: t("fields.country"), v: user.country?.name ?? "—" },
@@ -400,7 +406,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                       k={t("fields.maternalLastName")}
                       v={user.maternal_last_name}
                     />
-                    <DetailField k={t("fields.email")} v={user.email} />
+                    <DetailField k={t("fields.email")} v={secondaryIdentityLabel} />
                   </div>
                   <div>
                     <DetailField

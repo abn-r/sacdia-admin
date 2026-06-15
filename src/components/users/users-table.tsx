@@ -13,8 +13,15 @@ import {
 import type { AdminUser } from "@/lib/api/admin-users";
 import { DataTableShell } from "@/components/shared/data-table-shell";
 import { getTranslations } from "next-intl/server";
-import { buildRoleTranslator, type RoleTranslator } from "@/lib/auth/role-labels";
+import {
+  buildRoleTranslator,
+  type RoleTranslator,
+} from "@/lib/auth/role-labels";
 import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
+import {
+  getAdminUserDisplayName,
+  getAdminUserSecondaryLabel,
+} from "@/lib/admin-users/display";
 
 function extractRoleNames(user: AdminUser): string[] {
   const roles: string[] = [];
@@ -27,12 +34,16 @@ function extractRoleNames(user: AdminUser): string[] {
   return [...new Set(roles)];
 }
 
-function getFullName(user: AdminUser): string {
-  return (
-    [user.name, user.paternal_last_name, user.maternal_last_name]
-      .filter(Boolean)
-      .join(" ") || "—"
-  );
+function getDisplayName(user: AdminUser, t: UsersTranslations): string {
+  return getAdminUserDisplayName(user, {
+    deletedAccount: t("list.deletedAccount"),
+  });
+}
+
+function getSecondaryLabel(user: AdminUser, t: UsersTranslations): string {
+  return getAdminUserSecondaryLabel(user, {
+    anonymized: t("list.anonymizedAccount"),
+  });
 }
 
 function LocationCell({ user }: { user: AdminUser }) {
@@ -83,7 +94,8 @@ function UserMobileCard({
   translateRole: RoleTranslator;
 }) {
   const roleNames = extractRoleNames(user);
-  const fullName = getFullName(user);
+  const fullName = getDisplayName(user, t);
+  const secondaryLabel = getSecondaryLabel(user, t);
   const union = user.union?.name;
   const localField = user.local_field?.name;
   const location = [union, localField].filter(Boolean).join(" · ");
@@ -96,14 +108,14 @@ function UserMobileCard({
       <div className="flex items-center gap-3">
         <UserAvatar
           src={user.user_image}
-          name={user.name}
-          email={user.email}
+          name={fullName}
+          email={secondaryLabel}
           size={40}
         />
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium">{fullName}</p>
           <p className="truncate text-xs text-muted-foreground">
-            {user.email ?? "—"}
+            {secondaryLabel}
           </p>
         </div>
         <ChevronRight
@@ -201,7 +213,8 @@ export async function UsersTable({
             <TableBody>
               {users.map((user, index) => {
                 const roleNames = extractRoleNames(user);
-                const fullName = getFullName(user);
+                const fullName = getDisplayName(user, t);
+                const secondaryLabel = getSecondaryLabel(user, t);
 
                 return (
                   <TableRow key={user.user_id} className={STAGGER_CLASSES} style={getStaggerStyle(index)}>
@@ -209,8 +222,8 @@ export async function UsersTable({
                       <div className="flex items-center gap-3">
                         <UserAvatar
                           src={user.user_image}
-                          name={user.name}
-                          email={user.email}
+                          name={fullName}
+                          email={secondaryLabel}
                           size={32}
                         />
                         <div className="min-w-0">
@@ -221,7 +234,7 @@ export async function UsersTable({
                             {fullName}
                           </Link>
                           <p className="truncate text-xs text-muted-foreground">
-                            {user.email ?? "—"}
+                            {secondaryLabel}
                           </p>
                         </div>
                       </div>

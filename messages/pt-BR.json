@@ -1195,7 +1195,9 @@
       "description": "Últimos registros no sistema",
       "viewAll": "Ver todos",
       "noRole": "Sem função",
-      "loadError": "Não foi possível carregar os usuários recentes."
+      "loadError": "Não foi possível carregar os usuários recentes.",
+      "deletedAccount": "Conta excluída",
+      "anonymizedAccount": "Dados pessoais anonimizados"
     },
     "relativeDate": {
       "today": "Hoje",
@@ -2974,7 +2976,9 @@
         "pending": "Pendente",
         "completeDesktop": "Completo"
       },
-      "noRole": "Sem função"
+      "noRole": "Sem função",
+      "deletedAccount": "Conta excluída",
+      "anonymizedAccount": "Dados pessoais anonimizados"
     },
     "filters": {
       "searchPlaceholder": "Buscar por nome ou e-mail...",
@@ -3254,7 +3258,9 @@
           "appSub": "Acesso ao cliente móvel",
           "panelLabel": "Painel admin",
           "panelSub": "Acesso ao painel administrativo"
-        }
+        },
+        "deletedAccount": "Conta excluída",
+        "anonymizedAccount": "Dados pessoais anonimizados"
       }
     }
   },

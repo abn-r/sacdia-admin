@@ -1195,7 +1195,9 @@
       "description": "Últimos registros en el sistema",
       "viewAll": "Ver todos",
       "noRole": "Sin rol",
-      "loadError": "No se pudieron cargar los usuarios recientes."
+      "loadError": "No se pudieron cargar los usuarios recientes.",
+      "deletedAccount": "Cuenta eliminada",
+      "anonymizedAccount": "Datos personales anonimizados"
     },
     "relativeDate": {
       "today": "Hoy",
@@ -3006,7 +3008,9 @@
         "pending": "Pendiente",
         "completeDesktop": "Completo"
       },
-      "noRole": "Sin rol"
+      "noRole": "Sin rol",
+      "deletedAccount": "Cuenta eliminada",
+      "anonymizedAccount": "Datos personales anonimizados"
     },
     "filters": {
       "searchPlaceholder": "Buscar por nombre o email...",
@@ -3343,7 +3347,9 @@
           "appSub": "Acceso al cliente móvil",
           "panelLabel": "Panel admin",
           "panelSub": "Acceso al panel administrativo"
-        }
+        },
+        "deletedAccount": "Cuenta eliminada",
+        "anonymizedAccount": "Datos personales anonimizados"
       },
       "bulk": {
         "title": "Carga masiva de usuarios",
