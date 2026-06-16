@@ -165,10 +165,18 @@ const STUB_HONOR_DETAIL_WITH_PACKET = {
     honor_id: 20,
     honor_name: "Arte cristiano",
     validation_status: "PENDING_REVIEW",
+    completion_mode: "EXTERNAL",
     progress: {
       total_requirements: 2,
       completed_count: 1,
       progress_percentage: 50,
+    },
+    completed_format_file: {
+      evidence_file_id: -2,
+      file_url: "https://example.com/formato.pdf",
+      file_name: "formato.pdf",
+      file_type: "application/pdf",
+      uploaded_at: "2026-03-15T10:15:00.000Z",
     },
     general_files: [
       {
@@ -196,6 +204,7 @@ const STUB_HONOR_DETAIL_WITH_PACKET = {
         requirement_text: "Explicar el objetivo del honor",
         requires_evidence: true,
         completed: true,
+        text_response: "Respuesta redactada dentro de la app",
         completed_at: "2026-03-15T10:10:00.000Z",
         evidence_count: 1,
         evidences: [
@@ -215,6 +224,7 @@ const STUB_HONOR_DETAIL_WITH_PACKET = {
         requirement_text: "Completar una actividad práctica",
         requires_evidence: false,
         completed: false,
+        text_response: null,
         completed_at: null,
         evidence_count: 0,
         evidences: [],
@@ -418,10 +428,16 @@ describe("EvidenceDetailDialog", () => {
 
     await waitFor(() => {
       expect(screen.getByText("Progreso del honor")).toBeInTheDocument();
+      expect(screen.getByText("Modo de trabajo")).toBeInTheDocument();
+      expect(screen.getByText("Fuera de la app")).toBeInTheDocument();
+      expect(screen.getByText(/completó la especialidad fuera de SACDIA/i)).toBeInTheDocument();
       expect(screen.getByText("1 de 2 requisitos")).toBeInTheDocument();
       expect(screen.getByText("50% completado")).toBeInTheDocument();
       expect(
         screen.getByText("Explicar el objetivo del honor"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText("Respuesta redactada dentro de la app"),
       ).toBeInTheDocument();
       expect(screen.getByText("requisito.jpg")).toBeInTheDocument();
     });
@@ -451,9 +467,14 @@ describe("EvidenceDetailDialog", () => {
 
     await user.click(screen.getByRole("button", { name: /acercar/i }));
 
-    expect(screen.getByTestId("evidence-viewer-image")).toHaveStyle({
-      transform: "scale(1.25)",
-    });
+    const zoomedImage = screen.getByTestId("evidence-viewer-image");
+    expect(screen.getByTestId("evidence-image-scroll-area")).toHaveClass(
+      "overflow-auto",
+    );
+    expect(zoomedImage).toHaveStyle({ width: "125%" });
+    expect(zoomedImage.getAttribute("style") ?? "").not.toContain(
+      "transform: scale",
+    );
   });
 
   it("opens PDFs inside an in-panel PDF viewer", async () => {
@@ -474,7 +495,7 @@ describe("EvidenceDetailDialog", () => {
     ).toBeInTheDocument();
     expect(screen.getByTitle("Visor PDF: doc.pdf")).toHaveAttribute(
       "src",
-      "https://example.com/doc.pdf",
+      "/api/evidence-review/pdf?type=class&id=42&fileId=2",
     );
   });
 });

@@ -24,6 +24,8 @@ export type HonorValidationStatus =
   | "APPROVED"
   | "REJECTED";
 
+export type HonorCompletionMode = "UNDECIDED" | "IN_APP" | "EXTERNAL";
+
 export type EvidenceStatus =
   | ClassEvidenceStatus
   | HonorValidationStatus
@@ -61,6 +63,7 @@ export type HonorRequirementReviewItem = {
   requirement_text: string;
   requires_evidence: boolean;
   completed: boolean;
+  text_response: string | null;
   completed_at: string | null;
   evidence_count: number;
   evidences: EvidenceFile[];
@@ -71,11 +74,13 @@ export type HonorReviewPacket = {
   honor_id: number;
   honor_name: string;
   validation_status: HonorValidationStatus;
+  completion_mode: HonorCompletionMode;
   progress: {
     total_requirements: number;
     completed_count: number;
     progress_percentage: number;
   };
+  completed_format_file: EvidenceFile | null;
   general_files: EvidenceFile[];
   requirement_files: EvidenceFile[];
   requirements: HonorRequirementReviewItem[];

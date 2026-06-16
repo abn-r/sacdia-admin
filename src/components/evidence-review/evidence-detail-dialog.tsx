@@ -43,6 +43,36 @@ import { useFormatDateTime } from "@/lib/format-locale";
 type HonorReviewPacket = NonNullable<EvidenceDetail["honor_review_packet"]>;
 type EvidenceFile = EvidenceDetail["files"][number];
 
+function getHonorCompletionModeCopy(mode: HonorReviewPacket["completion_mode"]) {
+  switch (mode) {
+    case "EXTERNAL":
+      return {
+        label: "Fuera de la app",
+        description:
+          "El miembro completó la especialidad fuera de SACDIA. Validá el formato completado y las evidencias adjuntas.",
+        badgeClassName: "bg-amber-100 text-amber-900 border-amber-200",
+        panelClassName: "border-amber-200 bg-amber-50/70",
+      };
+    case "IN_APP":
+      return {
+        label: "Dentro de la app",
+        description:
+          "El miembro trabajó los requisitos dentro de SACDIA. Revisá respuestas y evidencias por requisito.",
+        badgeClassName: "bg-emerald-100 text-emerald-900 border-emerald-200",
+        panelClassName: "border-emerald-200 bg-emerald-50/70",
+      };
+    case "UNDECIDED":
+    default:
+      return {
+        label: "Sin modo definido",
+        description:
+          "Este registro no tiene modo de trabajo confirmado. Revisá los archivos disponibles antes de decidir.",
+        badgeClassName: "",
+        panelClassName: "border-border bg-muted/30",
+      };
+  }
+}
+
 function isImageFile(fileType: string, fileUrl: string): boolean {
   const imageTypes = [
     "image",
@@ -60,6 +90,27 @@ function isImageFile(fileType: string, fileUrl: string): boolean {
     urlLower.includes(".webp") ||
     urlLower.includes(".gif")
   );
+}
+
+function isPdfFile(fileType: string, fileUrl: string, fileName?: string): boolean {
+  if (fileType.toLowerCase().includes("pdf")) return true;
+
+  const filePath = `${fileName ?? ""} ${fileUrl}`.toLowerCase();
+  return /\.pdf(?:$|[?#\s])/i.test(filePath);
+}
+
+function buildPdfViewerUrl(
+  type: EvidenceType,
+  evidenceId: number,
+  fileId: number,
+): string {
+  const params = new URLSearchParams({
+    type,
+    id: String(evidenceId),
+    fileId: String(fileId),
+  });
+
+  return `/api/evidence-review/pdf?${params.toString()}`;
 }
 
 // ─── File card ────────────────────────────────────────────────────────────────
@@ -138,6 +189,8 @@ function FileCard({ file, index, onOpenViewer }: FileCardProps) {
 
 interface EvidenceFileViewerDialogProps {
   file: EvidenceFile | null;
+  evidenceType: EvidenceType;
+  evidenceId: number;
   imageFiles: EvidenceFile[];
   zoom: number;
   onZoomChange: (zoom: number) => void;
@@ -147,6 +200,8 @@ interface EvidenceFileViewerDialogProps {
 
 function EvidenceFileViewerDialog({
   file,
+  evidenceType,
+  evidenceId,
   imageFiles,
   zoom,
   onZoomChange,
@@ -155,13 +210,24 @@ function EvidenceFileViewerDialog({
 }: EvidenceFileViewerDialogProps) {
   const open = file != null;
   const isImage = file ? isImageFile(file.file_type, file.file_url) : false;
+  const isPdf = file
+    ? isPdfFile(file.file_type, file.file_url, file.file_name)
+    : false;
   const selectedImageIndex =
     file && isImage
       ? imageFiles.findIndex((item) => item.evidence_file_id === file.evidence_file_id)
       : -1;
   const canNavigateImages = isImage && imageFiles.length > 1;
-  const title = isImage ? "Visor de imágenes" : "Visor PDF";
+  const title = isImage
+    ? "Visor de imágenes"
+    : isPdf
+      ? "Visor PDF"
+      : "Archivo adjunto";
   const fileName = file?.file_name || "Archivo adjunto";
+  const pdfViewerUrl =
+    file && isPdf
+      ? buildPdfViewerUrl(evidenceType, evidenceId, file.evidence_file_id)
+      : null;
 
   function setZoom(nextZoom: number) {
     onZoomChange(Math.min(Math.max(nextZoom, 0.5), 3));
@@ -189,7 +255,9 @@ function EvidenceFileViewerDialog({
           <DialogDescription>
             {isImage
               ? "Revisa todas las imágenes enviadas y usa zoom sin salir del panel."
-              : "Revisa el PDF enviado sin abrir una pestaña externa."}
+              : isPdf
+                ? "Revisa el PDF enviado sin abrir una pestaña externa."
+                : "Descarga el archivo para revisarlo con una aplicación compatible."}
           </DialogDescription>
         </DialogHeader>
 
@@ -282,17 +350,19 @@ function EvidenceFileViewerDialog({
                 </div>
               </div>
 
-              <div className="min-h-[24rem] flex-1 overflow-auto bg-muted/30 p-4">
-                <div className="flex min-h-full items-center justify-center">
+              <div
+                data-testid="evidence-image-scroll-area"
+                className="min-h-[24rem] flex-1 overflow-auto bg-muted/30"
+              >
+                <div className="flex min-h-full min-w-full items-start justify-center p-4">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     data-testid="evidence-viewer-image"
                     src={file.file_url}
                     alt={fileName}
-                    className="max-h-[65vh] max-w-full object-contain transition-transform"
+                    className="h-auto max-w-none object-contain transition-[width]"
                     style={{
-                      transform: `scale(${zoom})`,
-                      transformOrigin: "center center",
+                      width: `${Math.round(zoom * 100)}%`,
                     }}
                   />
                 </div>
@@ -301,7 +371,7 @@ function EvidenceFileViewerDialog({
           </div>
         )}
 
-        {file && !isImage && (
+        {file && !isImage && isPdf && pdfViewerUrl && (
           <div className="flex max-h-[calc(92vh-7rem)] flex-col">
             <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-2">
               <p className="truncate text-sm font-medium">{fileName}</p>
@@ -316,9 +386,34 @@ function EvidenceFileViewerDialog({
             </div>
             <iframe
               title={`Visor PDF: ${fileName}`}
-              src={file.file_url}
+              src={pdfViewerUrl}
               className="h-[70vh] w-full bg-muted"
             />
+          </div>
+        )}
+
+        {file && !isImage && !isPdf && (
+          <div className="flex max-h-[calc(92vh-7rem)] flex-col">
+            <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-2">
+              <p className="truncate text-sm font-medium">{fileName}</p>
+              <a
+                href={file.file_url}
+                download
+                className="inline-flex items-center gap-1 rounded-md border border-border px-3 py-1.5 text-sm hover:bg-muted"
+              >
+                <Download className="size-4" />
+                Descargar
+              </a>
+            </div>
+            <div className="flex h-[50vh] flex-col items-center justify-center gap-3 bg-muted/30 p-6 text-center">
+              <FileText className="size-10 text-muted-foreground" />
+              <p className="text-sm font-medium">
+                No hay visor local para este tipo de archivo.
+              </p>
+              <p className="max-w-md text-sm text-muted-foreground">
+                Descargalo para revisarlo con una aplicación compatible.
+              </p>
+            </div>
           </div>
         )}
       </DialogContent>
@@ -337,9 +432,35 @@ function HonorReviewPacketSection({ packet }: HonorReviewPacketSectionProps) {
   const completedCount = packet.progress.completed_count;
   const totalRequirements = packet.progress.total_requirements;
   const progressPercentage = Math.round(packet.progress.progress_percentage);
+  const modeCopy = getHonorCompletionModeCopy(packet.completion_mode);
 
   return (
     <section className="rounded-lg border border-border bg-muted/20 p-4">
+      <div
+        className={`mb-4 rounded-md border p-3 ${modeCopy.panelClassName}`}
+      >
+        <div className="mb-1 flex flex-wrap items-center gap-2">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Modo de trabajo
+          </p>
+          <Badge
+            variant="outline"
+            className={`text-xs ${modeCopy.badgeClassName}`}
+          >
+            {modeCopy.label}
+          </Badge>
+        </div>
+        <p className="text-sm text-muted-foreground">{modeCopy.description}</p>
+        {packet.completed_format_file && (
+          <p className="mt-2 text-xs text-muted-foreground">
+            Formato completado:{" "}
+            <span className="font-medium text-foreground">
+              {packet.completed_format_file.file_name || "Archivo adjunto"}
+            </span>
+          </p>
+        )}
+      </div>
+
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <ListChecks className="size-4 text-muted-foreground" />
@@ -402,6 +523,16 @@ function HonorReviewPacketSection({ packet }: HonorReviewPacketSectionProps) {
                   <p className="mt-1 text-sm text-muted-foreground">
                     {requirement.requirement_text}
                   </p>
+                  {requirement.text_response && (
+                    <div className="mt-2 rounded-md bg-muted/50 p-2">
+                      <p className="text-xs font-medium text-muted-foreground">
+                        Respuesta del miembro
+                      </p>
+                      <p className="mt-1 text-sm text-foreground">
+                        {requirement.text_response}
+                      </p>
+                    </div>
+                  )}
                   {requirement.evidences.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-2">
                       {requirement.evidences.map((file) => (
@@ -619,6 +750,8 @@ export function EvidenceDetailDialog({
 
       <EvidenceFileViewerDialog
         file={viewerFile}
+        evidenceType={type}
+        evidenceId={id}
         imageFiles={imageFiles}
         zoom={viewerZoom}
         onZoomChange={setViewerZoom}
