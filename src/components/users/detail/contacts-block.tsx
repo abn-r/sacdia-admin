@@ -55,33 +55,35 @@ export function ContactsBlock({
             <div
               key={c.id}
               className={cn(
-                "relative grid grid-cols-[48px_1fr_auto] items-center gap-3.5 rounded-xl border p-4",
+                "flex flex-col gap-3 rounded-xl border p-4 sm:flex-row sm:items-center",
                 c.primary
                   ? "border-primary/40 bg-primary/5"
                   : "border-border bg-card",
               )}
             >
-              {c.primary ? (
-                <Badge variant="default" className="absolute right-3 top-2.5 text-[10px] uppercase">
-                  {principalLabel}
-                </Badge>
-              ) : null}
-              <div
-                className={cn(
-                  "grid size-12 place-items-center rounded-xl font-semibold text-white",
-                  c.primary ? "bg-primary" : "bg-info",
-                )}
-                aria-hidden
-              >
-                {getInitials(c.name)}
-              </div>
-              <div className="min-w-0">
-                <div className="truncate text-sm font-semibold text-foreground">{c.name}</div>
-                <div className="mt-0.5 text-xs text-muted-foreground">
-                  {[c.relationship, c.phone].filter(Boolean).join(" · ") || "—"}
+              <div className="flex min-w-0 flex-1 items-center gap-3.5">
+                <div
+                  className={cn(
+                    "grid size-12 shrink-0 place-items-center rounded-xl font-semibold text-white",
+                    c.primary ? "bg-primary" : "bg-info",
+                  )}
+                  aria-hidden
+                >
+                  {getInitials(c.name)}
+                </div>
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-semibold text-foreground">{c.name}</div>
+                  <div className="mt-0.5 text-xs text-muted-foreground">
+                    {[c.relationship, c.phone].filter(Boolean).join(" · ") || "—"}
+                  </div>
                 </div>
               </div>
-              <div className="flex gap-1.5">
+              <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+                {c.primary ? (
+                  <Badge variant="default" className="text-[10px] uppercase">
+                    {principalLabel}
+                  </Badge>
+                ) : null}
                 {c.phone ? (
                   <Button asChild size="sm" variant={c.primary ? "default" : "outline"}>
                     <a href={`tel:${c.phone.replace(/\s+/g, "")}`}>

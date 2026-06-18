@@ -44,6 +44,32 @@ export function formatDateLong(dateStr: string | null | undefined, locale = "es-
   }
 }
 
+export interface BaptismDisplayLabels {
+  yes: string;
+  no: string;
+  unknown?: string;
+  yesWithDate: (date: string) => string;
+}
+
+export function formatBaptismDisplay(
+  baptism: boolean | null | undefined,
+  baptismDate: string | null | undefined,
+  labels: BaptismDisplayLabels,
+  locale = "es-MX",
+): string {
+  if (baptism === true) {
+    return baptismDate
+      ? labels.yesWithDate(formatDateLong(baptismDate, locale))
+      : labels.yes;
+  }
+
+  if (baptism === false) {
+    return labels.no;
+  }
+
+  return labels.unknown ?? "—";
+}
+
 export type TenureUnit = "days" | "months" | "years";
 
 export function computeTenure(
@@ -67,15 +93,47 @@ export function computeTenure(
 }
 
 interface RawClubAssignment {
-  club?: { name?: string | null } | null;
+  assignment_id?: string | number | null;
+  club_role_assignment_id?: number | string | null;
+  club?: {
+    name?: string | null;
+    type?: string | null;
+    district?: { name?: string | null } | null;
+    districts?: { name?: string | null } | null;
+    church?: { name?: string | null } | null;
+    churches?: { name?: string | null } | null;
+    club?: {
+      name?: string | null;
+      district_name?: string | null;
+      church_name?: string | null;
+      district?: { name?: string | null } | null;
+      districts?: { name?: string | null } | null;
+      church?: { name?: string | null } | null;
+      churches?: { name?: string | null } | null;
+    } | null;
+  } | null;
   section?: {
     name?: string | null;
     club_type?: { name?: string | null } | null;
+    club_types?: { name?: string | null } | null;
   } | null;
   role?: { role_name?: string | null } | null;
   role_name?: string | null;
   club_name?: string | null;
   section_name?: string | null;
+  district_name?: string | null;
+  church_name?: string | null;
+  district?: { name?: string | null } | null;
+  church?: { name?: string | null } | null;
+}
+
+function pickPresentString(...values: Array<string | null | undefined>): string | null {
+  for (const value of values) {
+    if (typeof value === "string" && value.trim().length > 0) {
+      return value.trim();
+    }
+  }
+  return null;
 }
 
 export function extractPrimaryAssignment(
@@ -84,9 +142,13 @@ export function extractPrimaryAssignment(
 ): ClubAssignmentSummary | null {
   if (!Array.isArray(assignments) || assignments.length === 0) return null;
   const first = assignments[0] as RawClubAssignment;
-  const clubName = first.club?.name ?? first.club_name ?? null;
+  const clubName = first.club?.name ?? first.club?.club?.name ?? first.club_name ?? null;
   const sectionName =
-    first.section?.name ?? first.section?.club_type?.name ?? first.section_name ?? null;
+    first.section?.name ??
+    first.section?.club_type?.name ??
+    first.section?.club_types?.name ??
+    first.section_name ??
+    null;
   const rawRole = first.role?.role_name ?? first.role_name ?? null;
   const roleName = translateRole ? translateRole(rawRole) || rawRole : rawRole;
 
@@ -100,15 +162,65 @@ export function extractAllAssignments(
 ): Array<{ id: string; clubName: string | null; sectionName: string | null; roleName: string | null }> {
   if (!Array.isArray(assignments)) return [];
   return assignments.map((raw, idx) => {
-    const a = raw as RawClubAssignment & { club_role_assignment_id?: number | string };
+    const a = raw as RawClubAssignment;
     const rawRole = a.role?.role_name ?? a.role_name ?? null;
     return {
-      id: String(a.club_role_assignment_id ?? idx),
-      clubName: a.club?.name ?? a.club_name ?? null,
-      sectionName: a.section?.name ?? a.section?.club_type?.name ?? a.section_name ?? null,
+      id: String(a.assignment_id ?? a.club_role_assignment_id ?? idx),
+      clubName: a.club?.name ?? a.club?.club?.name ?? a.club_name ?? null,
+      sectionName:
+        a.section?.name ??
+        a.section?.club_type?.name ??
+        a.section?.club_types?.name ??
+        a.section_name ??
+        null,
       roleName: translateRole ? translateRole(rawRole) || rawRole : rawRole,
     };
   });
+}
+
+export function extractAssignmentLocation(
+  assignments: unknown[] | undefined,
+): { districtName: string | null; churchName: string | null } {
+  if (!Array.isArray(assignments)) {
+    return { districtName: null, churchName: null };
+  }
+
+  let resolvedDistrictName: string | null = null;
+  let resolvedChurchName: string | null = null;
+
+  for (const raw of assignments) {
+    const a = raw as RawClubAssignment;
+    const districtName = pickPresentString(
+      a.district_name,
+      a.district?.name,
+      a.club?.district?.name,
+      a.club?.districts?.name,
+      a.club?.club?.district_name,
+      a.club?.club?.district?.name,
+      a.club?.club?.districts?.name,
+    );
+    const churchName = pickPresentString(
+      a.church_name,
+      a.church?.name,
+      a.club?.church?.name,
+      a.club?.churches?.name,
+      a.club?.club?.church_name,
+      a.club?.club?.church?.name,
+      a.club?.club?.churches?.name,
+    );
+
+    resolvedDistrictName = resolvedDistrictName ?? districtName;
+    resolvedChurchName = resolvedChurchName ?? churchName;
+
+    if (resolvedDistrictName && resolvedChurchName) {
+      return {
+        districtName: resolvedDistrictName,
+        churchName: resolvedChurchName,
+      };
+    }
+  }
+
+  return { districtName: resolvedDistrictName, churchName: resolvedChurchName };
 }
 
 interface HealthEntry {
@@ -129,6 +241,7 @@ interface RawEmergency {
   primary?: boolean | null;
   relationship_type_id?: number | string | null;
   relationship_type?: { name?: string | null } | null;
+  relationship_types?: { name?: string | null } | null;
 }
 
 export function extractEmergencyContacts(
@@ -143,7 +256,8 @@ export function extractEmergencyContacts(
       if (!name) return null;
       const relationship =
         e.relationship_type?.name ??
-        (e.relationship_type_id != null ? `#${e.relationship_type_id}` : null);
+        e.relationship_types?.name ??
+        null;
       return {
         id: String(e.emergency_id ?? idx),
         name,
@@ -163,6 +277,7 @@ interface RawLegal {
   phone?: string | null;
   relationship_type_id?: number | string | null;
   relationship_type?: { name?: string | null } | null;
+  relationship_types?: { name?: string | null } | null;
 }
 
 export function extractLegalRepresentative(
@@ -176,7 +291,8 @@ export function extractLegalRepresentative(
   if (!fullName && !v.phone) return null;
   const relationship =
     v.relationship_type?.name ??
-    (v.relationship_type_id != null ? `#${v.relationship_type_id}` : "—");
+    v.relationship_types?.name ??
+    "—";
   return {
     fullName: fullName || "—",
     phone: v.phone ?? "—",

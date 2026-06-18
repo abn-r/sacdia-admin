@@ -42,6 +42,7 @@ import { UserDetailActionSidebar } from "@/components/users/detail/action-sideba
 import {
   calculateAge,
   computeTenure,
+  extractAssignmentLocation,
   extractAllAssignments,
   extractEmergencyContacts,
   extractHealthNames,
@@ -49,6 +50,7 @@ import {
   extractPrimaryAssignment,
   extractRoleNames,
   formatBloodType,
+  formatBaptismDisplay,
   formatDateLong,
 } from "@/components/users/detail/helpers";
 
@@ -165,10 +167,20 @@ export default async function UserDetailPage({ params }: { params: Params }) {
   const roleLabels = roleNamesRaw.map((r) => translateRole(r) || r);
   const primaryAssignment = extractPrimaryAssignment(user.club_assignments, translateRole);
   const assignments = extractAllAssignments(user.club_assignments, translateRole);
+  const assignmentLocation = extractAssignmentLocation(user.club_assignments);
   const emergencyContacts = extractEmergencyContacts(user.emergency_contacts ?? undefined);
   const legalRep = extractLegalRepresentative(user.legal_representative);
   const tenure = computeTenure(user.created_at);
   const classesCount = Array.isArray(user.classes) ? user.classes.length : 0;
+  const districtName = assignmentLocation.districtName;
+  const churchName = assignmentLocation.churchName;
+  const userScopeType = user.local_field?.name
+    ? t("fields.localField")
+    : user.union?.name
+      ? t("fields.union")
+      : user.country?.name
+        ? t("fields.country")
+        : t("sidebar.dash");
 
   const tenureValue = tenure ? t(`tenure.${tenure.unit}`, { count: tenure.count }) : t("sidebar.dash");
   const tenureSub = tenure
@@ -227,6 +239,16 @@ export default async function UserDetailPage({ params }: { params: Params }) {
   const healthDiseases = extractHealthNames(user.health?.diseases);
   const healthMedicines = extractHealthNames(user.health?.medicines);
   const hasHealthPayload = user.health != null;
+  const baptismValue = formatBaptismDisplay(
+    user.baptism,
+    user.baptism_date,
+    {
+      yes: t("sidebar.yes"),
+      no: t("fields.baptismNo"),
+      yesWithDate: (date) => t("fields.baptismYes", { date }),
+    },
+    dateLocale,
+  );
 
   const approvalState =
     user.approval === 1 || user.approval === true || user.approval === "approved"
@@ -299,16 +321,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                 { k: t("fields.gender"), v: user.gender ?? "—" },
                 {
                   k: t("fields.baptism"),
-                  v:
-                    user.baptism === true
-                      ? `${t("fields.baptismYes")}${
-                          user.baptism_date
-                            ? ` · ${formatDateLong(user.baptism_date, dateLocale)}`
-                            : ""
-                        }`
-                      : user.baptism === false
-                      ? t("fields.baptismNo")
-                      : "—",
+                  v: baptismValue,
                 },
                 { k: t("fields.email"), v: secondaryIdentityLabel },
               ]}
@@ -318,13 +331,13 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                 { k: t("fields.localField"), v: user.local_field?.name ?? "—" },
                 {
                   k: t("fields.district"),
-                  v: user.district_id != null ? `#${user.district_id}` : "—",
-                  muted: user.district_id == null,
+                  v: districtName ?? "—",
+                  muted: districtName == null,
                 },
                 {
                   k: t("fields.church"),
-                  v: user.church_id != null ? `#${user.church_id}` : "—",
-                  muted: user.church_id == null,
+                  v: churchName ?? "—",
+                  muted: churchName == null,
                 },
               ]}
               pastoralTitle={t("sections.pastoralTitle")}
@@ -416,17 +429,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                     <DetailField k={t("fields.gender")} v={user.gender} />
                     <DetailField
                       k={t("fields.baptism")}
-                      v={
-                        user.baptism === true
-                          ? `${t("fields.baptismYes")}${
-                              user.baptism_date
-                                ? ` (${formatDateLong(user.baptism_date, dateLocale)})`
-                                : ""
-                            }`
-                          : user.baptism === false
-                          ? t("fields.baptismNo")
-                          : "—"
-                      }
+                      v={baptismValue}
                     />
                     <DetailField
                       k={t("fields.internalId")}
@@ -446,13 +449,13 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                   <div>
                     <DetailField
                       k={t("fields.district")}
-                      v={user.district_id != null ? `#${user.district_id}` : null}
-                      muted={user.district_id == null}
+                      v={districtName}
+                      muted={districtName == null}
                     />
                     <DetailField
                       k={t("fields.church")}
-                      v={user.church_id != null ? `#${user.church_id}` : null}
-                      muted={user.church_id == null}
+                      v={churchName}
+                      muted={churchName == null}
                     />
                   </div>
                 </DetailCols2>
@@ -461,14 +464,14 @@ export default async function UserDetailPage({ params }: { params: Params }) {
               <DetailSection num="C" title={t("sections.scopeTitle")}>
                 <DetailCols2>
                   <div>
-                    <DetailField k={t("fields.scopeType")} v={user.scope?.type} />
+                    <DetailField k={t("fields.scopeType")} v={userScopeType} />
                     <DetailField
                       k={t("fields.scopeUnionId")}
-                      v={user.scope?.union_id}
+                      v={user.union?.name}
                     />
                     <DetailField
                       k={t("fields.scopeLocalFieldId")}
-                      v={user.scope?.local_field_id}
+                      v={user.local_field?.name}
                     />
                   </div>
                   <div>
