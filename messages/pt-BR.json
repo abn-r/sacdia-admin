@@ -119,7 +119,8 @@
       "materials_inventory": "Inventário",
       "materials_categories": "Categorias",
       "materials_config": "Configurações",
-      "certificate_bulk_imports": "Cargas por certificado"
+      "certificate_bulk_imports": "Cargas por certificado",
+      "coordination": "Coordenação"
     },
     "breadcrumbs": {
       "dashboard": "Painel",
@@ -156,7 +157,8 @@
       "permissions": "Permissões",
       "roles": "Funções",
       "matrix": "Matriz",
-      "support": "Suporte"
+      "support": "Suporte",
+      "coordination": "Coordenação"
     },
     "themeToggle": {
       "switchToLight": "Mudar para modo claro",
@@ -209,6 +211,93 @@
       "notifications": "Notificações",
       "resources": "Recursos",
       "system": "Sistema"
+    }
+  },
+  "coordinationAdmin": {
+    "page": {
+      "title": "Coordenação",
+      "description": "Zonas, coordenadores gerais e atribuições diretas por seção."
+    },
+    "emptyNoLocalField": {
+      "title": "Nenhum campo local disponível",
+      "description": "Selecione ou configure um campo local antes de administrar coordenadores."
+    },
+    "assignmentTypes": {
+      "general": "Geral",
+      "zone": "Zona + seção",
+      "section": "Clube/seção direta"
+    },
+    "targets": {
+      "allLocalField": "Todo o campo local",
+      "zoneFallback": "Zona {id}",
+      "clubTypeFallback": "Tipo {id}",
+      "clubFallback": "Clube",
+      "sectionFallback": "Seção {id}"
+    },
+    "errors": {
+      "generic": "Não foi possível concluir a operação.",
+      "zoneNameRequired": "O nome da zona é obrigatório.",
+      "zoneAndDistrictRequired": "Selecione uma zona e um distrito.",
+      "coordinatorRequired": "Selecione um coordenador.",
+      "assignmentScopeRequired": "Complete o escopo da atribuição."
+    },
+    "success": {
+      "zoneCreated": "Zona criada.",
+      "districtAssigned": "Distrito atribuído à zona.",
+      "districtRemoved": "Distrito removido da zona.",
+      "zoneActivated": "Zona ativada.",
+      "zoneDeactivated": "Zona desativada.",
+      "assignmentCreated": "Atribuição criada.",
+      "assignmentActivated": "Atribuição ativada.",
+      "assignmentDeactivated": "Atribuição desativada."
+    },
+    "localField": {
+      "title": "Campo local",
+      "description": "As zonas e atribuições são administradas dentro do campo local selecionado.",
+      "placeholder": "Selecionar campo local"
+    },
+    "zones": {
+      "title": "Zonas",
+      "description": "Agrupe distritos para que um coordenador de zona veja as seções correspondentes.",
+      "namePlaceholder": "Zona 1",
+      "descriptionPlaceholder": "Norte / Metropolitana",
+      "empty": "Ainda não há zonas para este campo local.",
+      "noDistricts": "Sem distritos"
+    },
+    "assignments": {
+      "newTitle": "Nova atribuição",
+      "newDescription": "A autoridade final sempre é resolvida para seções de clube.",
+      "directorConflictRule": "Regra: se o usuário já é diretor de uma seção, o backend rejeita atribuí-lo como coordenador dessa mesma seção.",
+      "title": "Atribuições ativas",
+      "description": "Um coordenador pode acumular vários escopos; o app receberá o escopo combinado.",
+      "empty": "Não há atribuições registradas."
+    },
+    "fields": {
+      "name": "Nome",
+      "description": "Descrição",
+      "zone": "Zona",
+      "selectZone": "Selecionar zona",
+      "district": "Distrito",
+      "districts": "Distritos",
+      "selectDistrict": "Selecionar distrito",
+      "status": "Status",
+      "actions": "Ações",
+      "coordinator": "Coordenador",
+      "selectUser": "Selecionar usuário",
+      "type": "Tipo",
+      "section": "Seção",
+      "clubSection": "Clube / seção",
+      "selectSection": "Selecionar seção",
+      "scope": "Escopo"
+    },
+    "actions": {
+      "createZone": "Criar zona",
+      "assignDistrict": "Atribuir distrito",
+      "createAssignment": "Criar atribuição"
+    },
+    "status": {
+      "active": "Ativa",
+      "inactive": "Inativa"
     }
   },
   "catalogs": {
@@ -1790,6 +1879,10 @@
       "club_roles:read": "Ver funções do clube",
       "club_roles:assign": "Atribuir função ao clube",
       "club_roles:revoke": "Revogar função do clube",
+      "coordination": {
+        "manage": "Administrar coordenação"
+      },
+      "coordination:manage": "Administrar coordenação",
       "club_members:approve": "Aprovar adesão",
       "club_members:reject": "Rejeitar adesão",
       "club_members:list_pending": "Ver solicitações pendentes",

@@ -119,7 +119,8 @@
       "materials_inventory": "Inventario",
       "materials_categories": "Categorías",
       "materials_config": "Configuración",
-      "certificate_bulk_imports": "Cargas por certificado"
+      "certificate_bulk_imports": "Cargas por certificado",
+      "coordination": "Coordinación"
     },
     "breadcrumbs": {
       "dashboard": "Dashboard",
@@ -156,7 +157,8 @@
       "permissions": "Permisos",
       "roles": "Roles",
       "matrix": "Matriz",
-      "support": "Soporte"
+      "support": "Soporte",
+      "coordination": "Coordinación"
     },
     "themeToggle": {
       "switchToLight": "Cambiar a modo claro",
@@ -209,6 +211,93 @@
       "notifications": "Notificaciones",
       "resources": "Recursos",
       "system": "Sistema"
+    }
+  },
+  "coordinationAdmin": {
+    "page": {
+      "title": "Coordinación",
+      "description": "Zonas, coordinadores generales y asignaciones directas por sección."
+    },
+    "emptyNoLocalField": {
+      "title": "No hay campo local disponible",
+      "description": "Selecciona o configura un campo local antes de administrar coordinadores."
+    },
+    "assignmentTypes": {
+      "general": "General",
+      "zone": "Zona + sección",
+      "section": "Club/sección directa"
+    },
+    "targets": {
+      "allLocalField": "Todo el campo local",
+      "zoneFallback": "Zona {id}",
+      "clubTypeFallback": "Tipo {id}",
+      "clubFallback": "Club",
+      "sectionFallback": "Sección {id}"
+    },
+    "errors": {
+      "generic": "No se pudo completar la operación.",
+      "zoneNameRequired": "El nombre de la zona es obligatorio.",
+      "zoneAndDistrictRequired": "Selecciona una zona y un distrito.",
+      "coordinatorRequired": "Selecciona un coordinador.",
+      "assignmentScopeRequired": "Completa el alcance de la asignación."
+    },
+    "success": {
+      "zoneCreated": "Zona creada.",
+      "districtAssigned": "Distrito asignado a la zona.",
+      "districtRemoved": "Distrito removido de la zona.",
+      "zoneActivated": "Zona activada.",
+      "zoneDeactivated": "Zona desactivada.",
+      "assignmentCreated": "Asignación creada.",
+      "assignmentActivated": "Asignación activada.",
+      "assignmentDeactivated": "Asignación desactivada."
+    },
+    "localField": {
+      "title": "Campo local",
+      "description": "Las zonas y asignaciones se administran dentro del campo local seleccionado.",
+      "placeholder": "Seleccionar campo local"
+    },
+    "zones": {
+      "title": "Zonas",
+      "description": "Agrupa distritos para que un coordinador de zona vea las secciones correspondientes.",
+      "namePlaceholder": "Zona 1",
+      "descriptionPlaceholder": "Norte / Metropolitana",
+      "empty": "Todavía no hay zonas para este campo local.",
+      "noDistricts": "Sin distritos"
+    },
+    "assignments": {
+      "newTitle": "Nueva asignación",
+      "newDescription": "La autoridad final siempre se resuelve a secciones de club.",
+      "directorConflictRule": "Regla: si el usuario ya es director de una sección, el backend rechaza asignarlo como coordinador de esa misma sección.",
+      "title": "Asignaciones activas",
+      "description": "Un coordinador puede acumular varios alcances; la app recibirá el scope combinado.",
+      "empty": "No hay asignaciones registradas."
+    },
+    "fields": {
+      "name": "Nombre",
+      "description": "Descripción",
+      "zone": "Zona",
+      "selectZone": "Seleccionar zona",
+      "district": "Distrito",
+      "districts": "Distritos",
+      "selectDistrict": "Seleccionar distrito",
+      "status": "Estado",
+      "actions": "Acciones",
+      "coordinator": "Coordinador",
+      "selectUser": "Seleccionar usuario",
+      "type": "Tipo",
+      "section": "Sección",
+      "clubSection": "Club / sección",
+      "selectSection": "Seleccionar sección",
+      "scope": "Alcance"
+    },
+    "actions": {
+      "createZone": "Crear zona",
+      "assignDistrict": "Asignar distrito",
+      "createAssignment": "Crear asignación"
+    },
+    "status": {
+      "active": "Activa",
+      "inactive": "Inactiva"
     }
   },
   "catalogs": {
@@ -1791,6 +1880,10 @@
       "club_roles:read": "Ver roles de club",
       "club_roles:assign": "Asignar rol de club",
       "club_roles:revoke": "Revocar rol de club",
+      "coordination": {
+        "manage": "Administrar coordinación"
+      },
+      "coordination:manage": "Administrar coordinación",
       "club_members:approve": "Aprobar membresía",
       "club_members:reject": "Rechazar membresía",
       "club_members:list_pending": "Ver solicitudes pendientes",

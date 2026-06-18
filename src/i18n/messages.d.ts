@@ -149,6 +149,7 @@ export interface IntlMessages {
       materials_categories: string;
       materials_config: string;
       certificate_bulk_imports: string;
+      coordination: string;
     };
     breadcrumbs: {
       dashboard: string;
@@ -186,6 +187,7 @@ export interface IntlMessages {
       roles: string;
       matrix: string;
       support: string;
+      coordination: string;
     };
     themeToggle: {
       switchToLight: string;
@@ -238,6 +240,93 @@ export interface IntlMessages {
       notifications: string;
       resources: string;
       system: string;
+    };
+  };
+  coordinationAdmin: {
+    page: {
+      title: string;
+      description: string;
+    };
+    emptyNoLocalField: {
+      title: string;
+      description: string;
+    };
+    assignmentTypes: {
+      general: string;
+      zone: string;
+      section: string;
+    };
+    targets: {
+      allLocalField: string;
+      zoneFallback: string;
+      clubTypeFallback: string;
+      clubFallback: string;
+      sectionFallback: string;
+    };
+    errors: {
+      generic: string;
+      zoneNameRequired: string;
+      zoneAndDistrictRequired: string;
+      coordinatorRequired: string;
+      assignmentScopeRequired: string;
+    };
+    success: {
+      zoneCreated: string;
+      districtAssigned: string;
+      districtRemoved: string;
+      zoneActivated: string;
+      zoneDeactivated: string;
+      assignmentCreated: string;
+      assignmentActivated: string;
+      assignmentDeactivated: string;
+    };
+    localField: {
+      title: string;
+      description: string;
+      placeholder: string;
+    };
+    zones: {
+      title: string;
+      description: string;
+      namePlaceholder: string;
+      descriptionPlaceholder: string;
+      empty: string;
+      noDistricts: string;
+    };
+    assignments: {
+      newTitle: string;
+      newDescription: string;
+      directorConflictRule: string;
+      title: string;
+      description: string;
+      empty: string;
+    };
+    fields: {
+      name: string;
+      description: string;
+      zone: string;
+      selectZone: string;
+      district: string;
+      districts: string;
+      selectDistrict: string;
+      status: string;
+      actions: string;
+      coordinator: string;
+      selectUser: string;
+      type: string;
+      section: string;
+      clubSection: string;
+      selectSection: string;
+      scope: string;
+    };
+    actions: {
+      createZone: string;
+      assignDistrict: string;
+      createAssignment: string;
+    };
+    status: {
+      active: string;
+      inactive: string;
     };
   };
   catalogs: {
@@ -1820,6 +1909,10 @@ export interface IntlMessages {
       "club_roles:read": string;
       "club_roles:assign": string;
       "club_roles:revoke": string;
+      coordination: {
+        manage: string;
+      };
+      "coordination:manage": string;
       "club_members:approve": string;
       "club_members:reject": string;
       "club_members:list_pending": string;
@@ -2789,12 +2882,12 @@ export interface IntlMessages {
     };
     client: {
       allYears: string;
-      selectYear: string;
       yearActive: string;
       countSingular: string;
       countPlural: string;
       refresh: string;
       errorRefresh: string;
+      selectYear: string;
     };
     pipeline: {
       refresh: string;
@@ -2832,10 +2925,7 @@ export interface IntlMessages {
       emptyDescription: string;
       colMember: string;
       colClass: string;
-      colClassYear: string;
       colClub: string;
-      colClubSection: string;
-      colSubmittedBy: string;
       colSubmitted: string;
       colStatus: string;
       colActions: string;
@@ -2847,6 +2937,12 @@ export interface IntlMessages {
       tooltipApprove: string;
       tooltipReject: string;
       tooltipMarkInvested: string;
+      historyTitle: string;
+      errorLoadHistory: string;
+      enrollmentFallback: string;
+      colClassYear: string;
+      colClubSection: string;
+      colSubmittedBy: string;
       viewDetail: string;
       detailTitle: string;
       detailMember: string;
@@ -2871,9 +2967,6 @@ export interface IntlMessages {
       progressPendingReview: string;
       progressPending: string;
       progressUnavailable: string;
-      historyTitle: string;
-      errorLoadHistory: string;
-      enrollmentFallback: string;
     };
     statusBadge: {
       inProgress: string;

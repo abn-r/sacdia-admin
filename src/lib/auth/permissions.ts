@@ -44,6 +44,7 @@ export const CLUB_SECTIONS_UPDATE = "club_sections:update";
 export const CLUB_ROLES_READ = "club_roles:read";
 export const CLUB_ROLES_ASSIGN = "club_roles:assign";
 export const CLUB_ROLES_REVOKE = "club_roles:revoke";
+export const COORDINATION_MANAGE = "coordination:manage";
 // Club membership approval
 export const CLUB_MEMBERS_APPROVE = "club_members:approve";
 export const CLUB_MEMBERS_REJECT = "club_members:reject";
@@ -289,6 +290,7 @@ export const PERMISSION_GROUPS = {
       { key: CLUB_ROLES_READ },
       { key: CLUB_ROLES_ASSIGN },
       { key: CLUB_ROLES_REVOKE },
+      { key: COORDINATION_MANAGE },
       { key: CLUB_MEMBERS_APPROVE },
       { key: CLUB_MEMBERS_REJECT },
       { key: CLUB_MEMBERS_LIST_PENDING },
