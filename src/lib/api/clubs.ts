@@ -77,6 +77,18 @@ export type ClubSectionMember = {
   role?: string | null;
   role_display_name?: string | null;
   role_id?: string;
+  current_class?: {
+    id?: number;
+    class_id?: number;
+    name?: string;
+    club_type_id?: number;
+    enrollment_id?: number;
+    ecclesiastical_year_id?: number;
+    investiture_status?: string;
+  } | null;
+  current_class_id?: number | null;
+  current_class_name?: string | null;
+  enrollment_id?: number | null;
   start_date?: string;
   active?: boolean;
 };
@@ -228,12 +240,51 @@ function pickString(record: Record<string, unknown> | null, key: string) {
     : null;
 }
 
+function pickNumber(record: Record<string, unknown> | null, key: string) {
+  const value = record?.[key];
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string" && value.trim().length > 0) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+}
+
 function normalizeMember(
   raw: RawMember,
   sectionId?: number,
 ): ClubSectionMember | null {
   const user = asRecord(raw.users);
   const role = asRecord(raw.roles);
+  const rawCurrentClass =
+    asRecord(raw.current_class) ?? asRecord(user?.current_class);
+  const currentClassName =
+    pickString(rawCurrentClass, "name") ??
+    pickString(raw, "current_class_name") ??
+    pickString(user, "current_class_name");
+  const currentClassId =
+    pickNumber(rawCurrentClass, "class_id") ??
+    pickNumber(rawCurrentClass, "id") ??
+    pickNumber(raw, "current_class_id") ??
+    pickNumber(user, "current_class_id");
+  const enrollmentId =
+    pickNumber(rawCurrentClass, "enrollment_id") ??
+    pickNumber(raw, "enrollment_id");
+  const currentClass =
+    currentClassName || currentClassId
+      ? {
+          id: currentClassId ?? undefined,
+          class_id: currentClassId ?? undefined,
+          name: currentClassName ?? undefined,
+          club_type_id:
+            pickNumber(rawCurrentClass, "club_type_id") ?? undefined,
+          enrollment_id: enrollmentId ?? undefined,
+          ecclesiastical_year_id:
+            pickNumber(rawCurrentClass, "ecclesiastical_year_id") ?? undefined,
+          investiture_status:
+            pickString(rawCurrentClass, "investiture_status") ?? undefined,
+        }
+      : null;
 
   const user_id =
     typeof raw.user_id === "string" && raw.user_id.trim().length > 0
@@ -276,6 +327,10 @@ function normalizeMember(
       typeof raw.role_id === "string"
         ? raw.role_id
         : (pickString(role, "role_id") ?? undefined),
+    current_class: currentClass,
+    current_class_id: currentClass?.class_id ?? null,
+    current_class_name: currentClass?.name ?? null,
+    enrollment_id: currentClass?.enrollment_id ?? null,
     active: raw.active !== false,
   };
 }

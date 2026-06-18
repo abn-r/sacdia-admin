@@ -29,6 +29,12 @@ describe("listNormalizedClubSectionMembers", () => {
           role_id: "role-director",
           role_name: "director",
         },
+        current_class: {
+          class_id: 6,
+          name: "Guía",
+          enrollment_id: 55,
+          ecclesiastical_year_id: 2026,
+        },
         active: true,
       },
     ]);
@@ -42,6 +48,9 @@ describe("listNormalizedClubSectionMembers", () => {
         picture_url: "avatar.jpg",
         role: "director",
         role_id: "role-director",
+        current_class_name: "Guía",
+        current_class_id: 6,
+        enrollment_id: 55,
       }),
     ]);
   });
