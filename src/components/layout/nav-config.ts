@@ -30,9 +30,11 @@ import {
   ShoppingBag,
   Tag,
   Headset,
+  Network,
   type LucideIcon,
 } from "lucide-react";
 import {
+  COORDINATION_MANAGE,
   USER_HONORS_VALIDATE,
   RANKINGS_READ,
   RANKING_WEIGHTS_READ,
@@ -187,6 +189,7 @@ export const navConfig: NavGroup[] = [
     label: "sections.clubs",
     items: [
       { title: "items.clubs", url: "/dashboard/clubs", icon: Building2, permission: "clubs:read" },
+      { title: "items.coordination", url: "/dashboard/coordination", icon: Network, permission: COORDINATION_MANAGE },
       {
         title: "items.camporees",
         url: "/dashboard/camporees",

@@ -119,7 +119,8 @@
       "materials_inventory": "Inventory",
       "materials_categories": "Categories",
       "materials_config": "Settings",
-      "certificate_bulk_imports": "Cargas por certificado"
+      "certificate_bulk_imports": "Cargas por certificado",
+      "coordination": "Coordination"
     },
     "breadcrumbs": {
       "dashboard": "Dashboard",
@@ -156,7 +157,8 @@
       "permissions": "Permissions",
       "roles": "Roles",
       "matrix": "Matrix",
-      "support": "Support"
+      "support": "Support",
+      "coordination": "Coordination"
     },
     "themeToggle": {
       "switchToLight": "Switch to light mode",
@@ -209,6 +211,93 @@
       "notifications": "Notifications",
       "resources": "Resources",
       "system": "System"
+    }
+  },
+  "coordinationAdmin": {
+    "page": {
+      "title": "Coordination",
+      "description": "Zones, general coordinators, and direct assignments by section."
+    },
+    "emptyNoLocalField": {
+      "title": "No local field available",
+      "description": "Select or configure a local field before managing coordinators."
+    },
+    "assignmentTypes": {
+      "general": "General",
+      "zone": "Zone + section",
+      "section": "Direct club/section"
+    },
+    "targets": {
+      "allLocalField": "Entire local field",
+      "zoneFallback": "Zone {id}",
+      "clubTypeFallback": "Type {id}",
+      "clubFallback": "Club",
+      "sectionFallback": "Section {id}"
+    },
+    "errors": {
+      "generic": "The operation could not be completed.",
+      "zoneNameRequired": "The zone name is required.",
+      "zoneAndDistrictRequired": "Select a zone and a district.",
+      "coordinatorRequired": "Select a coordinator.",
+      "assignmentScopeRequired": "Complete the assignment scope."
+    },
+    "success": {
+      "zoneCreated": "Zone created.",
+      "districtAssigned": "District assigned to the zone.",
+      "districtRemoved": "District removed from the zone.",
+      "zoneActivated": "Zone activated.",
+      "zoneDeactivated": "Zone deactivated.",
+      "assignmentCreated": "Assignment created.",
+      "assignmentActivated": "Assignment activated.",
+      "assignmentDeactivated": "Assignment deactivated."
+    },
+    "localField": {
+      "title": "Local field",
+      "description": "Zones and assignments are managed inside the selected local field.",
+      "placeholder": "Select local field"
+    },
+    "zones": {
+      "title": "Zones",
+      "description": "Group districts so a zone coordinator sees the corresponding sections.",
+      "namePlaceholder": "Zone 1",
+      "descriptionPlaceholder": "North / Metropolitan",
+      "empty": "There are no zones for this local field yet.",
+      "noDistricts": "No districts"
+    },
+    "assignments": {
+      "newTitle": "New assignment",
+      "newDescription": "Final authority is always resolved to club sections.",
+      "directorConflictRule": "Rule: if the user is already director of a section, the backend rejects assigning them as coordinator of that same section.",
+      "title": "Active assignments",
+      "description": "A coordinator can accumulate several scopes; the app receives the combined scope.",
+      "empty": "No assignments registered."
+    },
+    "fields": {
+      "name": "Name",
+      "description": "Description",
+      "zone": "Zone",
+      "selectZone": "Select zone",
+      "district": "District",
+      "districts": "Districts",
+      "selectDistrict": "Select district",
+      "status": "Status",
+      "actions": "Actions",
+      "coordinator": "Coordinator",
+      "selectUser": "Select user",
+      "type": "Type",
+      "section": "Section",
+      "clubSection": "Club / section",
+      "selectSection": "Select section",
+      "scope": "Scope"
+    },
+    "actions": {
+      "createZone": "Create zone",
+      "assignDistrict": "Assign district",
+      "createAssignment": "Create assignment"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
     }
   },
   "catalogs": {
@@ -1791,6 +1880,10 @@
       "club_roles:read": "View club roles",
       "club_roles:assign": "Assign club role",
       "club_roles:revoke": "Revoke club role",
+      "coordination": {
+        "manage": "Manage coordination"
+      },
+      "coordination:manage": "Manage coordination",
       "club_members:approve": "Approve membership",
       "club_members:reject": "Reject membership",
       "club_members:list_pending": "View pending requests",
