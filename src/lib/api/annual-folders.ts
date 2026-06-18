@@ -496,9 +496,12 @@ export async function reopenSection(
 export async function getFolderEvaluations(
   folderId: string,
 ): Promise<SectionEvaluation[]> {
-  return apiRequestFromClient<SectionEvaluation[]>(
+  const res = await apiRequestFromClient<
+    SectionEvaluation[] | ApiEnvelope<SectionEvaluation[]>
+  >(
     `/annual-folders/${folderId}/evaluations`,
   );
+  return unwrapApiData(res);
 }
 
 // ─── Rankings & Award Categories — Types ──────────────────────────────────────
