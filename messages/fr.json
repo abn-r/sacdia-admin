@@ -3568,7 +3568,7 @@
     },
     "pageEvaluate": {
       "title": "Évaluation des dossiers",
-      "description": "Recherchez un dossier par son identifiant et notez chaque section avec les points correspondants."
+      "description": "Recherchez par club, section ou champ et notez chaque section avec les points correspondants."
     },
     "pageRankings": {
       "title": "Classements du dossier annuel de preuves",

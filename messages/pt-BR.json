@@ -3568,7 +3568,7 @@
     },
     "pageEvaluate": {
       "title": "Avaliação de pastas",
-      "description": "Encontre uma pasta pelo ID e pontue cada seção com os pontos correspondentes."
+      "description": "Busque por clube, seção ou campo e pontue cada seção com os pontos correspondentes."
     },
     "pageRankings": {
       "title": "Rankings da pasta anual de evidências",

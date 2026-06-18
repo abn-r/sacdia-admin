@@ -3702,7 +3702,7 @@
     },
     "pageEvaluate": {
       "title": "Folder Evaluation",
-      "description": "Find a folder by its ID and score each section with the corresponding points."
+      "description": "Search by club, section, or field and score each section with the corresponding points."
     },
     "pageRankings": {
       "title": "Annual Evidence Folder Rankings",

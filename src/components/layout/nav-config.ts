@@ -300,7 +300,7 @@ export const navConfig: NavGroup[] = [
         children: [
           { title: "items.annual_folders_templates", url: "/dashboard/annual-folders/templates", permission: "annual_folder_templates:read" },
           { title: "items.annual_folders_mine", url: "/dashboard/annual-folders", permission: "annual_folder_templates:read" },
-          { title: "items.annual_folders_evaluate", url: "/dashboard/annual-folders/evaluate", permission: "evidence_folders:update" },
+          { title: "items.annual_folders_evaluate", url: "/dashboard/annual-folders/evaluate", permission: "annual_folders:evaluate" },
           { title: "items.annual_folders_rankings", url: "/dashboard/annual-folders/rankings", permission: RANKINGS_READ },
           { title: "items.annual_folders_ranking_config", url: "/dashboard/annual-folders/ranking-config", permission: RANKING_WEIGHTS_READ },
           { title: "items.annual_folders_categories", url: "/dashboard/annual-folders/categories", permission: "award_categories:read" },

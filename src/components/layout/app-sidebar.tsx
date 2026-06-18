@@ -59,6 +59,61 @@ function flattenChildren(children: NavItem["children"]): NavChild[] {
   return children as NavChild[];
 }
 
+function canSeePermission(
+  permission: string | undefined,
+  can: (permission: string) => boolean,
+  isSuperAdmin: boolean,
+) {
+  if (isSuperAdmin) return true;
+  if (!permission) return true;
+  return can(permission);
+}
+
+function filterChildrenByPermission(
+  children: NavItem["children"],
+  can: (permission: string) => boolean,
+  isSuperAdmin: boolean,
+): NavItem["children"] {
+  if (!children || children.length === 0) return undefined;
+
+  if (isSubGroup(children[0])) {
+    const groups = (children as NavSubGroup[])
+      .map((group) => ({
+        ...group,
+        items: group.items.filter((child) =>
+          canSeePermission(child.permission, can, isSuperAdmin),
+        ),
+      }))
+      .filter((group) => group.items.length > 0);
+
+    return groups.length > 0 ? groups : undefined;
+  }
+
+  const filtered = (children as NavChild[]).filter((child) =>
+    canSeePermission(child.permission, can, isSuperAdmin),
+  );
+  return filtered.length > 0 ? filtered : undefined;
+}
+
+function visibleNavItem(
+  item: NavItem,
+  can: (permission: string) => boolean,
+  isSuperAdmin: boolean,
+): NavItem | null {
+  const children = filterChildrenByPermission(item.children, can, isSuperAdmin);
+  const parentVisible = canSeePermission(item.permission, can, isSuperAdmin);
+
+  if (children) {
+    return { ...item, children };
+  }
+
+  if (parentVisible) {
+    return { ...item, children: undefined };
+  }
+
+  return null;
+}
+
 function NavSubChildLink({
   child,
   pathname,
@@ -157,11 +212,9 @@ function SidebarNavGroup({ group }: { group: NavGroup }) {
   const pathname = usePathname();
   const { can, isSuperAdmin } = usePermissions();
 
-  const visibleItems = group.items.filter((item) => {
-    if (isSuperAdmin) return true;
-    if (!item.permission) return true;
-    return can(item.permission);
-  });
+  const visibleItems = group.items
+    .map((item) => visibleNavItem(item, can, isSuperAdmin))
+    .filter((item): item is NavItem => item !== null);
 
   if (visibleItems.length === 0) return null;
 

@@ -133,8 +133,69 @@ export type AnnualFolder = {
   requires_union_confirmation: boolean;
   template?: Pick<FolderTemplate, "template_id" | "name"> | null;
   sections?: FolderSectionWithEvidences[];
-  // Enrollment info (available when fetched via evaluation endpoint)
-  enrollment?: { enrollment_id: string; club_name?: string | null } | null;
+  // Human-facing enrollment context. IDs are kept for API use; UI should prefer names.
+  club_enrollment?: {
+    club_enrollment_id: string;
+    club_section_id: number;
+    ecclesiastical_year_id: number;
+    status: string;
+    club_section: {
+      club_section_id: number;
+      name: string | null;
+      club_type: { name: string } | null;
+      club: {
+        club_id: number;
+        name: string;
+        local_field: {
+          local_field_id: number;
+          name: string;
+          union: { union_id: number; name: string } | null;
+        } | null;
+      } | null;
+    } | null;
+    ecclesiastical_year: {
+      year_id: number;
+      start_date: string;
+      end_date: string;
+      label: string;
+    } | null;
+  } | null;
+};
+
+export type AnnualFolderEvaluationQueueStatus =
+  | "needs_review"
+  | "submitted"
+  | "preapproved"
+  | "evaluated"
+  | "all";
+
+export type AnnualFolderEvaluationQueueItem = {
+  annual_folder_id: string;
+  display_name: string;
+  club_name: string;
+  club_section_name: string;
+  club_type_name: string | null;
+  local_field_name: string | null;
+  union_name: string | null;
+  template_name: string;
+  year_label: string;
+  folder_status: FolderStatus;
+  total_sections: number;
+  total_evidences: number;
+  submitted_sections_count: number;
+  preapproved_sections_count: number;
+  validated_sections_count: number;
+  rejected_sections_count: number;
+  pending_section_names: string[];
+  latest_submitted_at: string | null;
+  created_at: string | null;
+};
+
+export type PaginatedAnnualFolderEvaluationQueue = {
+  data: AnnualFolderEvaluationQueueItem[];
+  total: number;
+  page: number;
+  limit: number;
 };
 
 type AnnualFolderWire = AnnualFolder & {
@@ -142,6 +203,20 @@ type AnnualFolderWire = AnnualFolder & {
   enrollment_id?: string;
   template_id?: string;
 };
+
+type ApiEnvelope<T> = { status: string; data: T };
+
+function unwrapApiData<T>(value: T | ApiEnvelope<T>): T {
+  if (
+    value &&
+    typeof value === "object" &&
+    "data" in value &&
+    "status" in value
+  ) {
+    return (value as ApiEnvelope<T>).data;
+  }
+  return value as T;
+}
 
 function normalizeAnnualFolder(folder: AnnualFolderWire): AnnualFolder {
   return {
@@ -211,9 +286,10 @@ export async function getTemplate(templateId: string): Promise<FolderTemplate> {
 export async function getFolderByEnrollment(
   enrollmentId: string,
 ): Promise<AnnualFolder> {
-  const folder = await apiRequest<AnnualFolderWire>(
+  const res = await apiRequest<AnnualFolderWire | ApiEnvelope<AnnualFolderWire>>(
     `/annual-folders/by-enrollment/${enrollmentId}`,
   );
+  const folder = unwrapApiData(res);
   return normalizeAnnualFolder(folder);
 }
 
@@ -222,10 +298,27 @@ export async function getFolderByEnrollment(
  * Returns the folder with all section evidences.
  */
 export async function getFolder(folderId: string): Promise<AnnualFolder> {
-  const folder = await apiRequest<AnnualFolderWire>(
+  const res = await apiRequest<AnnualFolderWire | ApiEnvelope<AnnualFolderWire>>(
     `/annual-folders/${folderId}`,
   );
+  const folder = unwrapApiData(res);
   return normalizeAnnualFolder(folder);
+}
+
+/**
+ * GET /api/v1/annual-folders/evaluation/queue
+ * Returns human-readable folders available for evaluation.
+ */
+export async function getEvaluationQueue(params?: {
+  search?: string;
+  status?: AnnualFolderEvaluationQueueStatus;
+  page?: number;
+  limit?: number;
+}): Promise<PaginatedAnnualFolderEvaluationQueue> {
+  const res = await apiRequest<
+    PaginatedAnnualFolderEvaluationQueue | ApiEnvelope<PaginatedAnnualFolderEvaluationQueue>
+  >("/annual-folders/evaluation/queue", { params });
+  return unwrapApiData(res);
 }
 
 // ─── Client-side (mutations) ──────────────────────────────────────────────────
