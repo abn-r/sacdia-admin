@@ -13,8 +13,9 @@ import type { InventoryItem, InventoryCategory } from "@/lib/api/inventory";
 
 type AnyRecord = Record<string, unknown>;
 
-type Club = {
-  club_id: number;
+type InventoryClubOption = {
+  club_section_id: number;
+  main_club_id: number | null;
   name: string;
   club_type_id: number;
 };
@@ -30,12 +31,50 @@ function extractArray(payload: unknown): AnyRecord[] {
   return [];
 }
 
-function normalizeClub(raw: AnyRecord): Club {
-  return {
-    club_id: Number(raw.club_id ?? raw.id ?? 0),
-    name: String(raw.name ?? `Club ${raw.club_id ?? "?"}`),
-    club_type_id: Number(raw.club_type_id ?? 2),
-  };
+function clubTypeNameToId(name: unknown): number {
+  const normalized = String(name ?? "").toLowerCase();
+  if (normalized.includes("aventurer")) return 1;
+  if (normalized.includes("guía") || normalized.includes("guia")) return 3;
+  return 2;
+}
+
+function normalizeClubOptions(raw: AnyRecord): InventoryClubOption[] {
+  const mainClubId = Number(raw.club_id ?? raw.id ?? 0) || null;
+  const clubName = String(raw.name ?? `Club ${raw.club_id ?? "?"}`);
+  const sections = Array.isArray(raw.club_sections)
+    ? (raw.club_sections as AnyRecord[])
+    : [];
+
+  if (sections.length === 0) {
+    const sectionId = Number(raw.club_section_id ?? 0);
+    if (sectionId <= 0) return [];
+    return [
+      {
+        club_section_id: sectionId,
+        main_club_id: mainClubId,
+        name: clubName,
+        club_type_id: Number(raw.club_type_id ?? 2),
+      },
+    ];
+  }
+
+  return sections
+    .map((section) => {
+      const sectionId = Number(section.club_section_id ?? 0);
+      if (sectionId <= 0) return null;
+      const clubTypes =
+        section.club_types && typeof section.club_types === "object"
+          ? (section.club_types as AnyRecord)
+          : null;
+      const typeName = String(clubTypes?.name ?? "");
+      return {
+        club_section_id: sectionId,
+        main_club_id: mainClubId,
+        name: `${clubName} · ${typeName || `Sección ${sectionId}`}`,
+        club_type_id: clubTypeNameToId(typeName),
+      };
+    })
+    .filter((option): option is InventoryClubOption => option !== null);
 }
 
 function normalizeCategory(raw: AnyRecord): InventoryCategory {
@@ -50,6 +89,8 @@ function normalizeItem(raw: AnyRecord): InventoryItem {
   const category =
     raw.inventory_category && typeof raw.inventory_category === "object"
       ? (raw.inventory_category as AnyRecord)
+      : raw.category && typeof raw.category === "object"
+        ? (raw.category as AnyRecord)
       : null;
 
   return {
@@ -65,7 +106,9 @@ function normalizeItem(raw: AnyRecord): InventoryItem {
             typeof category.description === "string" ? category.description : null,
         }
       : null,
-    club_id: Number(raw.club_id ?? 0),
+    club_id: raw.club_id == null ? null : Number(raw.club_id),
+    club_section_id:
+      raw.club_section_id == null ? null : Number(raw.club_section_id),
     amount: Number(raw.amount ?? 0),
     active: raw.active !== false,
     created_at: typeof raw.created_at === "string" ? raw.created_at : null,
@@ -85,7 +128,7 @@ export default async function InventoryPage() {
   await requireAdminUser();
   const t = await getTranslations("inventory");
 
-  let clubs: Club[] = [];
+  let clubs: InventoryClubOption[] = [];
   let categories: InventoryCategory[] = [];
   let initialItems: InventoryItem[] = [];
   let loadError: string | null = null;
@@ -98,7 +141,7 @@ export default async function InventoryPage() {
 
   if (clubsResult.status === "fulfilled") {
     const rawClubs = extractArray(clubsResult.value);
-    clubs = rawClubs.map(normalizeClub).filter((c) => c.club_id > 0);
+    clubs = rawClubs.flatMap(normalizeClubOptions);
   } else {
     const err = clubsResult.reason;
     loadError =
@@ -120,7 +163,9 @@ export default async function InventoryPage() {
     const firstClub = clubs[0];
     const instanceType = clubTypeToInstanceType(firstClub.club_type_id);
     try {
-      const payload = await listClubInventory(firstClub.club_id, { instanceType });
+      const payload = await listClubInventory(firstClub.club_section_id, {
+        instanceType,
+      });
       const rawItems = extractArray(payload);
       initialItems = rawItems.map(normalizeItem);
     } catch (err) {
@@ -152,7 +197,7 @@ export default async function InventoryPage() {
           clubs={clubs}
           categories={categories}
           initialItems={initialItems}
-          initialClubId={clubs[0]?.club_id ?? null}
+          initialClubSectionId={clubs[0]?.club_section_id ?? null}
         />
       )}
     </div>

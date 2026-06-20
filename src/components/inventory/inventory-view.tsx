@@ -24,8 +24,9 @@ import { INSTANCE_TYPE_LABELS } from "@/lib/api/inventory";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
-type Club = {
-  club_id: number;
+type InventoryClubOption = {
+  club_section_id: number;
+  main_club_id: number | null;
   name: string;
   club_type_id: number;
 };
@@ -54,6 +55,8 @@ function normalizeItem(raw: AnyRecord): InventoryItem {
   const category =
     raw.inventory_category && typeof raw.inventory_category === "object"
       ? (raw.inventory_category as AnyRecord)
+      : raw.category && typeof raw.category === "object"
+        ? (raw.category as AnyRecord)
       : null;
 
   return {
@@ -69,7 +72,9 @@ function normalizeItem(raw: AnyRecord): InventoryItem {
             typeof category.description === "string" ? category.description : null,
         }
       : null,
-    club_id: Number(raw.club_id ?? 0),
+    club_id: raw.club_id == null ? null : Number(raw.club_id),
+    club_section_id:
+      raw.club_section_id == null ? null : Number(raw.club_section_id),
     amount: Number(raw.amount ?? 0),
     active: raw.active !== false,
     created_at: typeof raw.created_at === "string" ? raw.created_at : null,
@@ -80,10 +85,10 @@ function normalizeItem(raw: AnyRecord): InventoryItem {
 // ─── Props ─────────────────────────────────────────────────────────────────────
 
 interface InventoryViewProps {
-  clubs: Club[];
+  clubs: InventoryClubOption[];
   categories: InventoryCategory[];
   initialItems: InventoryItem[];
-  initialClubId: number | null;
+  initialClubSectionId: number | null;
 }
 
 // ─── Component ─────────────────────────────────────────────────────────────────
@@ -92,10 +97,12 @@ export function InventoryView({
   clubs,
   categories,
   initialItems,
-  initialClubId,
+  initialClubSectionId,
 }: InventoryViewProps) {
   const t = useTranslations("inventory");
-  const [selectedClubId, setSelectedClubId] = useState<number | null>(initialClubId);
+  const [selectedClubSectionId, setSelectedClubSectionId] = useState<
+    number | null
+  >(initialClubSectionId);
   const [items, setItems] = useState<InventoryItem[]>(initialItems);
   const [filterCategoryId, setFilterCategoryId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -106,14 +113,15 @@ export function InventoryView({
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deletingItem, setDeletingItem] = useState<InventoryItem | null>(null);
 
-  const selectedClub = clubs.find((c) => c.club_id === selectedClubId) ?? null;
+  const selectedClub =
+    clubs.find((c) => c.club_section_id === selectedClubSectionId) ?? null;
   const instanceType: InstanceType = selectedClub
     ? clubTypeToInstanceType(selectedClub.club_type_id)
     : "pathf";
 
   const loadItems = useCallback(
-    async (clubId: number, categoryId?: number | null) => {
-      const club = clubs.find((c) => c.club_id === clubId);
+    async (clubSectionId: number, categoryId?: number | null) => {
+      const club = clubs.find((c) => c.club_section_id === clubSectionId);
       const instType = club ? clubTypeToInstanceType(club.club_type_id) : "pathf";
 
       setIsLoading(true);
@@ -125,7 +133,7 @@ export function InventoryView({
         if (categoryId) params.category = categoryId;
 
         const payload = await apiRequestFromClient<unknown>(
-          `/inventory/clubs/${clubId}/inventory`,
+          `/inventory/clubs/${clubSectionId}/inventory`,
           { params },
         );
         const raw = extractArray(payload);
@@ -145,23 +153,23 @@ export function InventoryView({
   );
 
   function handleClubChange(value: string) {
-    const clubId = Number(value);
-    setSelectedClubId(clubId);
+    const clubSectionId = Number(value);
+    setSelectedClubSectionId(clubSectionId);
     setFilterCategoryId(null);
-    loadItems(clubId, null);
+    loadItems(clubSectionId, null);
   }
 
   function handleCategoryFilter(value: string) {
     const categoryId = value === "all" ? null : Number(value);
     setFilterCategoryId(categoryId);
-    if (selectedClubId) {
-      loadItems(selectedClubId, categoryId);
+    if (selectedClubSectionId) {
+      loadItems(selectedClubSectionId, categoryId);
     }
   }
 
   function handleRefresh() {
-    if (selectedClubId) {
-      loadItems(selectedClubId, filterCategoryId);
+    if (selectedClubSectionId) {
+      loadItems(selectedClubSectionId, filterCategoryId);
     }
   }
 
@@ -181,8 +189,8 @@ export function InventoryView({
   }
 
   function handleSuccess() {
-    if (selectedClubId) {
-      loadItems(selectedClubId, filterCategoryId);
+    if (selectedClubSectionId) {
+      loadItems(selectedClubSectionId, filterCategoryId);
     }
   }
 
@@ -193,7 +201,7 @@ export function InventoryView({
         <div className="flex flex-wrap items-center gap-2">
           {/* Club selector */}
           <Select
-            value={selectedClubId ? String(selectedClubId) : ""}
+            value={selectedClubSectionId ? String(selectedClubSectionId) : ""}
             onValueChange={handleClubChange}
           >
             <SelectTrigger className="w-52">
@@ -201,7 +209,10 @@ export function InventoryView({
             </SelectTrigger>
             <SelectContent>
               {clubs.map((club) => (
-                <SelectItem key={club.club_id} value={String(club.club_id)}>
+                <SelectItem
+                  key={club.club_section_id}
+                  value={String(club.club_section_id)}
+                >
                   {club.name}
                 </SelectItem>
               ))}
@@ -212,7 +223,7 @@ export function InventoryView({
           <Select
             value={filterCategoryId ? String(filterCategoryId) : "all"}
             onValueChange={handleCategoryFilter}
-            disabled={!selectedClubId}
+            disabled={!selectedClubSectionId}
           >
             <SelectTrigger className="w-48">
               <SelectValue placeholder={t("view.all_categories")} />
@@ -234,7 +245,7 @@ export function InventoryView({
             variant="outline"
             size="icon-sm"
             onClick={handleRefresh}
-            disabled={!selectedClubId || isLoading}
+            disabled={!selectedClubSectionId || isLoading}
             title={t("view.refresh_title")}
           >
             <RefreshCw className={`size-3.5 ${isLoading ? "animate-spin" : ""}`} />
@@ -248,7 +259,7 @@ export function InventoryView({
               {INSTANCE_TYPE_LABELS[instanceType]}
             </span>
           )}
-          <Button onClick={handleCreate} disabled={!selectedClubId} size="sm">
+          <Button onClick={handleCreate} disabled={!selectedClubSectionId} size="sm">
             <Plus className="size-4" />
             {t("view.new_item")}
           </Button>
@@ -263,7 +274,7 @@ export function InventoryView({
       )}
 
       {/* Count */}
-      {selectedClubId && !loadError && (
+      {selectedClubSectionId && !loadError && (
         <p className="text-sm text-muted-foreground">
           <span className="font-medium text-foreground">{items.length}</span>{" "}
           {t("view.items_found_label", { count: items.length })}
@@ -287,7 +298,7 @@ export function InventoryView({
       <InventoryFormDialog
         open={formOpen}
         onOpenChange={setFormOpen}
-        clubId={selectedClubId ?? 0}
+        clubId={selectedClubSectionId ?? 0}
         instanceType={instanceType}
         categories={categories}
         item={editingItem}
