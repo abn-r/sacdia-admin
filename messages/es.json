@@ -4441,7 +4441,8 @@
       "categories_load_failed": "No se pudieron cargar las categorías",
       "transaction_updated": "Movimiento actualizado correctamente",
       "transaction_created": "Movimiento creado correctamente",
-      "transaction_deleted": "Movimiento eliminado correctamente"
+      "transaction_deleted": "Movimiento eliminado correctamente",
+      "evidence_upload_failed": "No se pudieron subir las evidencias"
     },
     "validation": {
       "section_required": "Seleccioná una sección del club",
@@ -4457,7 +4458,8 @@
     "errors": {
       "delete_transaction_failed": "No se pudo eliminar el movimiento",
       "update_transaction_failed": "No se pudo actualizar el movimiento",
-      "create_transaction_failed": "No se pudo crear el movimiento"
+      "create_transaction_failed": "No se pudo crear el movimiento",
+      "upload_evidence_failed": "No se pudo subir la evidencia"
     },
     "dashboard": {
       "filtersLabel": "Filtros:",
@@ -4489,7 +4491,14 @@
       "descriptionPlaceholder": "Descripción del movimiento (opcional)",
       "cancelButton": "Cancelar",
       "saveButton": "Guardar cambios",
-      "createButton": "Crear movimiento"
+      "createButton": "Crear movimiento",
+      "evidenceLabel": "Evidencias",
+      "evidenceHint": "Podés adjuntar hasta 3 fotos del comprobante del ingreso o egreso.",
+      "evidenceCount": "{count}/3 fotos",
+      "evidenceLimit": "Solo se permiten hasta 3 fotos de evidencia por movimiento.",
+      "evidenceImageOnly": "Solo se pueden adjuntar imágenes.",
+      "evidenceAdd": "Seleccioná fotos del comprobante",
+      "evidenceRemove": "Quitar evidencia"
     },
     "table": {
       "colDate": "Fecha",
@@ -4504,7 +4513,8 @@
       "actionEdit": "Editar",
       "actionDelete": "Eliminar",
       "typeIncome": "Ingreso",
-      "typeExpense": "Egreso"
+      "typeExpense": "Egreso",
+      "colEvidence": "Evidencia"
     },
     "delete": {
       "title": "¿Eliminar movimiento?",

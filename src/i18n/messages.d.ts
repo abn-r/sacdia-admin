@@ -4471,6 +4471,7 @@ export interface IntlMessages {
       transaction_updated: string;
       transaction_created: string;
       transaction_deleted: string;
+      evidence_upload_failed: string;
     };
     validation: {
       section_required: string;
@@ -4487,6 +4488,7 @@ export interface IntlMessages {
       delete_transaction_failed: string;
       update_transaction_failed: string;
       create_transaction_failed: string;
+      upload_evidence_failed: string;
     };
     dashboard: {
       filtersLabel: string;
@@ -4519,6 +4521,13 @@ export interface IntlMessages {
       cancelButton: string;
       saveButton: string;
       createButton: string;
+      evidenceLabel: string;
+      evidenceHint: string;
+      evidenceCount: string;
+      evidenceLimit: string;
+      evidenceImageOnly: string;
+      evidenceAdd: string;
+      evidenceRemove: string;
     };
     table: {
       colDate: string;
@@ -4534,6 +4543,7 @@ export interface IntlMessages {
       actionDelete: string;
       typeIncome: string;
       typeExpense: string;
+      colEvidence: string;
     };
     delete: {
       title: string;
