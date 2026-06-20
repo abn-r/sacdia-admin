@@ -21,6 +21,25 @@ vi.mock("@/components/clubs/section-director-succession-card", () => ({
   SectionDirectorSuccessionCard: () => <div data-testid="director-succession-card" />,
 }));
 
+vi.mock("@/components/classes/class-counselor-assignments-card", () => ({
+  ClassCounselorAssignmentsCard: ({
+    clubId,
+    sectionId,
+    clubTypeId,
+  }: {
+    clubId: number;
+    sectionId: number;
+    clubTypeId: number;
+  }) => (
+    <div
+      data-testid="class-counselor-assignments-card"
+      data-club-id={clubId}
+      data-section-id={sectionId}
+      data-club-type-id={clubTypeId}
+    />
+  ),
+}));
+
 vi.mock("@/lib/format-locale", () => ({
   useFormatCurrency: () => (value: number) => `$${value}`,
 }));
@@ -67,5 +86,9 @@ describe("ClubSectionsPanel", () => {
     expect(screen.getByText("Conquistadores Central")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /editar/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /desactivar/i })).toBeInTheDocument();
+    expect(screen.getByTestId("class-counselor-assignments-card")).toHaveAttribute(
+      "data-section-id",
+      "7",
+    );
   });
 });

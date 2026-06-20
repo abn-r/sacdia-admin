@@ -1077,6 +1077,9 @@ export interface IntlMessages {
       update_section_failed: string;
       sync_section_failed: string;
       create_role_assignment_failed: string;
+      create_class_assignment_failed: string;
+      update_class_assignment_failed: string;
+      revoke_class_assignment_failed: string;
       update_role_failed: string;
       remove_assignment_failed: string;
       club_created_no_id: string;
@@ -1108,6 +1111,9 @@ export interface IntlMessages {
       section_created_short: string;
       section_updated: string;
       assignment_created: string;
+      class_assignment_created: string;
+      class_assignment_updated: string;
+      class_assignment_revoked: string;
       assignment_removed: string;
       role_updated: string;
       retry_failed_sections: string;

@@ -109,6 +109,64 @@ export type ClubRoleAssignmentUpdatePayload = {
   status?: string;
 };
 
+export type ClassCounselorResponsibilityType =
+  | "primary"
+  | "assistant"
+  | "substitute";
+
+export type ClassCounselorAssignment = {
+  assignment_id: string;
+  user_id: string;
+  club_section_id: number;
+  class_id: number;
+  ecclesiastical_year_id: number;
+  responsibility_type: ClassCounselorResponsibilityType;
+  active: boolean;
+  exceptional?: boolean;
+  exception_reason?: string | null;
+  start_date?: string | null;
+  end_date?: string | null;
+  users?: {
+    user_id?: string;
+    name?: string | null;
+    paternal_last_name?: string | null;
+    maternal_last_name?: string | null;
+    email?: string | null;
+    user_image?: string | null;
+  } | null;
+  classes?: {
+    class_id?: number;
+    name?: string | null;
+    club_type_id?: number;
+    display_order?: number | null;
+  } | null;
+};
+
+export type ClassCounselorAssignmentsQuery = {
+  yearId?: number;
+  classId?: number;
+  active?: boolean;
+};
+
+export type ClassCounselorAssignmentCreatePayload = {
+  user_id: string;
+  class_id: number;
+  ecclesiastical_year_id?: number;
+  responsibility_type?: ClassCounselorResponsibilityType;
+  exceptional?: boolean;
+  exception_reason?: string;
+  start_date?: string;
+  end_date?: string;
+};
+
+export type ClassCounselorAssignmentUpdatePayload = {
+  responsibility_type?: ClassCounselorResponsibilityType;
+  exceptional?: boolean;
+  exception_reason?: string;
+  start_date?: string;
+  end_date?: string;
+};
+
 export type ClubDirectorSuccessionPayload = {
   current_assignment_id: string;
   successor_user_id: string;
@@ -210,6 +268,53 @@ export async function revokeClubRoleAssignment(assignmentId: string) {
   return apiRequest(`/club-roles/${assignmentId}`, {
     method: "DELETE",
   });
+}
+
+export async function listClassCounselorAssignments(
+  clubId: number,
+  sectionId: number,
+  query: ClassCounselorAssignmentsQuery = {},
+) {
+  return apiRequest<ClassCounselorAssignment[]>(
+    `/clubs/${clubId}/sections/${sectionId}/class-counselor-assignments`,
+    { params: query },
+  );
+}
+
+export async function createClassCounselorAssignment(
+  clubId: number,
+  sectionId: number,
+  payload: ClassCounselorAssignmentCreatePayload,
+) {
+  return apiRequest<ClassCounselorAssignment>(
+    `/clubs/${clubId}/sections/${sectionId}/class-counselor-assignments`,
+    {
+      method: "POST",
+      body: payload,
+    },
+  );
+}
+
+export async function updateClassCounselorAssignment(
+  assignmentId: string,
+  payload: ClassCounselorAssignmentUpdatePayload,
+) {
+  return apiRequest<ClassCounselorAssignment>(
+    `/class-counselor-assignments/${assignmentId}`,
+    {
+      method: "PATCH",
+      body: payload,
+    },
+  );
+}
+
+export async function revokeClassCounselorAssignment(assignmentId: string) {
+  return apiRequest<ClassCounselorAssignment>(
+    `/class-counselor-assignments/${assignmentId}`,
+    {
+      method: "DELETE",
+    },
+  );
 }
 
 export async function succeedClubSectionDirector(

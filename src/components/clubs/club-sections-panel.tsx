@@ -32,6 +32,7 @@ import {
   updateClubSectionAction,
   type ClubActionState,
 } from "@/lib/clubs/actions";
+import { ClassCounselorAssignmentsCard } from "@/components/classes/class-counselor-assignments-card";
 import { MemberOfMonthCard } from "@/components/member-of-month/member-of-month-card";
 import { SectionDirectorSuccessionCard } from "@/components/clubs/section-director-succession-card";
 import { useFormatCurrency } from "@/lib/format-locale";
@@ -573,6 +574,15 @@ export function ClubSectionsPanel({ clubId, sections, clubTypes }: ClubSectionsP
                     onCancel={() => setEditingSectionId(null)}
                   />
                 )}
+
+              {section.club_section_id != null && (
+                <ClassCounselorAssignmentsCard
+                  clubId={clubId}
+                  sectionId={section.club_section_id}
+                  clubTypeId={section.club_type_id ?? clubType.club_type_id}
+                  sectionName={section.name ?? getSectionTypeName(section) ?? label}
+                />
+              )}
 
               {section.club_section_id != null && (
                 <MemberOfMonthCard

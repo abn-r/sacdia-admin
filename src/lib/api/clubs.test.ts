@@ -6,7 +6,13 @@ vi.mock("@/lib/api/client", () => ({
   apiRequest: (...args: unknown[]) => mockApiRequest(...args),
 }));
 
-import { listNormalizedClubSectionMembers } from "@/lib/api/clubs";
+import {
+  createClassCounselorAssignment,
+  listClassCounselorAssignments,
+  listNormalizedClubSectionMembers,
+  revokeClassCounselorAssignment,
+  updateClassCounselorAssignment,
+} from "@/lib/api/clubs";
 
 describe("listNormalizedClubSectionMembers", () => {
   beforeEach(() => {
@@ -53,5 +59,82 @@ describe("listNormalizedClubSectionMembers", () => {
         enrollment_id: 55,
       }),
     ]);
+  });
+});
+
+describe("class counselor assignment API", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("lists class counselor assignments scoped by club section", async () => {
+    mockApiRequest.mockResolvedValue([]);
+
+    await listClassCounselorAssignments(10, 7, {
+      yearId: 2026,
+      classId: 3,
+      active: true,
+    });
+
+    expect(mockApiRequest).toHaveBeenCalledWith(
+      "/clubs/10/sections/7/class-counselor-assignments",
+      {
+        params: {
+          yearId: 2026,
+          classId: 3,
+          active: true,
+        },
+      },
+    );
+  });
+
+  it("creates, updates and revokes class counselor assignments", async () => {
+    mockApiRequest.mockResolvedValue({ assignment_id: "assignment-1" });
+
+    await createClassCounselorAssignment(10, 7, {
+      user_id: "user-1",
+      class_id: 3,
+      ecclesiastical_year_id: 2026,
+      responsibility_type: "primary",
+    });
+    await updateClassCounselorAssignment("assignment-1", {
+      responsibility_type: "assistant",
+      exceptional: true,
+      exception_reason: "Apoyo temporal",
+    });
+    await revokeClassCounselorAssignment("assignment-1");
+
+    expect(mockApiRequest).toHaveBeenNthCalledWith(
+      1,
+      "/clubs/10/sections/7/class-counselor-assignments",
+      {
+        method: "POST",
+        body: {
+          user_id: "user-1",
+          class_id: 3,
+          ecclesiastical_year_id: 2026,
+          responsibility_type: "primary",
+        },
+      },
+    );
+    expect(mockApiRequest).toHaveBeenNthCalledWith(
+      2,
+      "/class-counselor-assignments/assignment-1",
+      {
+        method: "PATCH",
+        body: {
+          responsibility_type: "assistant",
+          exceptional: true,
+          exception_reason: "Apoyo temporal",
+        },
+      },
+    );
+    expect(mockApiRequest).toHaveBeenNthCalledWith(
+      3,
+      "/class-counselor-assignments/assignment-1",
+      {
+        method: "DELETE",
+      },
+    );
   });
 });

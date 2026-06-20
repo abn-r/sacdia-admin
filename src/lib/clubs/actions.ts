@@ -5,16 +5,20 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { getActionErrorMessage } from "@/lib/api/action-error";
 import {
+  createClassCounselorAssignment,
   createClub,
   createClubSection,
   createClubRoleAssignment,
   deleteClub,
+  revokeClassCounselorAssignment,
   revokeClubRoleAssignment,
   succeedClubSectionDirector,
+  updateClassCounselorAssignment,
   updateClub,
   updateClubSection,
   updateClubRoleAssignment,
 } from "@/lib/api/clubs";
+import type { ClassCounselorResponsibilityType } from "@/lib/api/clubs";
 import { unwrapObject } from "@/lib/api/response";
 import { requireAdminUser } from "@/lib/auth/session";
 import { extractRoles } from "@/lib/auth/roles";
@@ -46,6 +50,10 @@ function readString(formData: FormData, fieldName: string) {
 
 function buildClubSectionPath(clubId: number, sectionId: number) {
   return `/dashboard/clubs/${clubId}/sections/${sectionId}`;
+}
+
+function buildClubDetailPath(clubId: number) {
+  return `/dashboard/clubs/${clubId}`;
 }
 
 function parseRequiredNumber(
@@ -145,6 +153,22 @@ function parseOptionalNonNegativeInteger(
   }
 
   return parsed;
+}
+
+function parseOptionalBooleanField(formData: FormData, fieldName: string) {
+  if (!formData.has(fieldName)) return undefined;
+  const value = readString(formData, fieldName);
+  return value === "on" || value === "true" || value === "1";
+}
+
+function parseResponsibilityType(
+  value: string,
+): ClassCounselorResponsibilityType | undefined {
+  if (value === "primary" || value === "assistant" || value === "substitute") {
+    return value;
+  }
+
+  return undefined;
 }
 
 function buildCreatePayload(t: ClubsTranslator, formData: FormData) {
@@ -680,6 +704,166 @@ export async function updateClubSectionAction(
   revalidatePath(`/dashboard/clubs/${clubId}`);
   revalidatePath(buildClubSectionPath(clubId, sectionId));
   return { success: t("success.section_updated") };
+}
+
+export async function createClassCounselorAssignmentAction(
+  clubId: number,
+  sectionId: number,
+  _: ClubActionState,
+  formData: FormData,
+): Promise<ClubActionState> {
+  await requireAdminUser();
+  const t = await getTranslations("clubs");
+
+  const userId = readString(formData, "user_id");
+  if (!userId) {
+    return { error: t("validation.user_id_required") };
+  }
+
+  let classId = 0;
+  try {
+    classId = parseRequiredNumber(t, formData, "class_id", "Clase");
+  } catch (error) {
+    return {
+      error:
+        error instanceof Error
+          ? error.message
+          : t("validation.field_invalid", { field: "class_id" }),
+    };
+  }
+
+  const responsibilityType =
+    parseResponsibilityType(readString(formData, "responsibility_type")) ??
+    "primary";
+  const exceptional = parseOptionalBooleanField(formData, "exceptional") ?? false;
+  const exceptionReason = readString(formData, "exception_reason");
+  const ecclesiasticalYearId = parseOptionalNumber(
+    t,
+    formData,
+    "ecclesiastical_year_id",
+  );
+  const startDate = readString(formData, "start_date");
+  const endDate = readString(formData, "end_date");
+
+  const payload: Parameters<typeof createClassCounselorAssignment>[2] = {
+    user_id: userId,
+    class_id: classId,
+    responsibility_type: responsibilityType,
+    exceptional,
+  };
+
+  if (ecclesiasticalYearId !== undefined) {
+    payload.ecclesiastical_year_id = ecclesiasticalYearId;
+  }
+  if (exceptionReason) payload.exception_reason = exceptionReason;
+  if (startDate) payload.start_date = startDate;
+  if (endDate) payload.end_date = endDate;
+
+  try {
+    await createClassCounselorAssignment(clubId, sectionId, payload);
+  } catch (error) {
+    return {
+      error: getActionErrorMessage(
+        error,
+        t("errors.create_class_assignment_failed"),
+        {
+          endpointLabel: `/clubs/${clubId}/sections/${sectionId}/class-counselor-assignments`,
+        },
+      ),
+    };
+  }
+
+  revalidatePath(buildClubDetailPath(clubId));
+  revalidatePath(buildClubSectionPath(clubId, sectionId));
+  return { success: t("success.class_assignment_created") };
+}
+
+export async function updateClassCounselorAssignmentAction(
+  clubId: number,
+  sectionId: number,
+  assignmentId: string,
+  _: ClubActionState,
+  formData: FormData,
+): Promise<ClubActionState> {
+  await requireAdminUser();
+  const t = await getTranslations("clubs");
+
+  if (!assignmentId) {
+    return { error: t("validation.assignment_not_identified") };
+  }
+
+  const responsibilityType = parseResponsibilityType(
+    readString(formData, "responsibility_type"),
+  );
+  const exceptional = parseOptionalBooleanField(formData, "exceptional");
+  const exceptionReason = readString(formData, "exception_reason");
+  const startDate = readString(formData, "start_date");
+  const endDate = readString(formData, "end_date");
+
+  const payload: Parameters<typeof updateClassCounselorAssignment>[1] = {};
+  if (responsibilityType) payload.responsibility_type = responsibilityType;
+  if (exceptional !== undefined) payload.exceptional = exceptional;
+  if (exceptionReason) payload.exception_reason = exceptionReason;
+  if (startDate) payload.start_date = startDate;
+  if (endDate) payload.end_date = endDate;
+
+  if (Object.keys(payload).length === 0) {
+    return { error: t("validation.no_changes") };
+  }
+
+  try {
+    await updateClassCounselorAssignment(assignmentId, payload);
+  } catch (error) {
+    return {
+      error: getActionErrorMessage(
+        error,
+        t("errors.update_class_assignment_failed"),
+        {
+          endpointLabel: `/class-counselor-assignments/${assignmentId}`,
+        },
+      ),
+    };
+  }
+
+  revalidatePath(buildClubDetailPath(clubId));
+  revalidatePath(buildClubSectionPath(clubId, sectionId));
+  return { success: t("success.class_assignment_updated") };
+}
+
+export async function revokeClassCounselorAssignmentAction(
+  clubId: number,
+  sectionId: number,
+  assignmentId: string,
+  _: ClubActionState,
+  _formData: FormData,
+): Promise<ClubActionState> {
+  void _;
+  void _formData;
+
+  await requireAdminUser();
+  const t = await getTranslations("clubs");
+
+  if (!assignmentId) {
+    return { error: t("validation.assignment_remove_not_identified") };
+  }
+
+  try {
+    await revokeClassCounselorAssignment(assignmentId);
+  } catch (error) {
+    return {
+      error: getActionErrorMessage(
+        error,
+        t("errors.revoke_class_assignment_failed"),
+        {
+          endpointLabel: `/class-counselor-assignments/${assignmentId}`,
+        },
+      ),
+    };
+  }
+
+  revalidatePath(buildClubDetailPath(clubId));
+  revalidatePath(buildClubSectionPath(clubId, sectionId));
+  return { success: t("success.class_assignment_revoked") };
 }
 
 export async function addClubSectionMemberAction(
