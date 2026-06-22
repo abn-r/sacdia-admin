@@ -18,12 +18,20 @@ vi.mock("next/navigation", () => ({
 // Mock next/headers cookies — returns a controllable cookie store.
 const mockCookieGet = vi.fn();
 const mockCookieDelete = vi.fn();
+const mockCookieSet = vi.fn();
+const mockHeaderGet = vi.fn();
 
 vi.mock("next/headers", () => ({
   cookies: vi.fn(() =>
     Promise.resolve({
       get: mockCookieGet,
+      set: mockCookieSet,
       delete: mockCookieDelete,
+    }),
+  ),
+  headers: vi.fn(() =>
+    Promise.resolve({
+      get: mockHeaderGet,
     }),
   ),
 }));
@@ -56,13 +64,26 @@ function makeUser(overrides: Partial<AuthUser> = {}): AuthUser {
  * Seeds the mock cookie store to return a token for the access-token cookie
  * and nothing (undefined) for everything else.
  */
-function seedToken(token: string | undefined) {
+function seedTokens({
+  accessToken,
+  refreshToken,
+}: {
+  accessToken?: string;
+  refreshToken?: string;
+}) {
   mockCookieGet.mockImplementation((name: string) => {
     if (name === "sacdia_admin_access_token") {
-      return token ? { value: token } : undefined;
+      return accessToken ? { value: accessToken } : undefined;
+    }
+    if (name === "sacdia_admin_refresh_token") {
+      return refreshToken ? { value: refreshToken } : undefined;
     }
     return undefined;
   });
+}
+
+function seedToken(token: string | undefined) {
+  seedTokens({ accessToken: token });
 }
 
 // ---------------------------------------------------------------------------
@@ -78,7 +99,14 @@ describe("getCurrentUser()", () => {
     mockRedirect.mockClear();
     mockApiRequest.mockClear();
     mockCookieGet.mockClear();
+    mockCookieSet.mockClear();
     mockCookieDelete.mockClear();
+    mockHeaderGet.mockReset();
+    mockHeaderGet.mockImplementation((name: string) => {
+      if (name === "x-sacdia-pathname") return "/dashboard/users";
+      if (name === "x-sacdia-search") return "?page=2";
+      return null;
+    });
   });
 
   afterEach(() => {
@@ -109,13 +137,14 @@ describe("getCurrentUser()", () => {
     expect(result?.id).toBe("inner-user");
   });
 
-  it("returns null and clears cookies when /auth/me returns 401", async () => {
+  it("returns null and clears only the access cookie when /auth/me returns 401", async () => {
     const { ApiError } = await import("@/lib/api/client");
-    seedToken("expired-jwt");
+    seedTokens({ accessToken: "expired-jwt", refreshToken: "refresh-token" });
     mockApiRequest.mockRejectedValueOnce(new ApiError("Unauthorized", 401, {}));
     const result = await session.getCurrentUser();
     expect(result).toBeNull();
-    expect(mockCookieDelete).toHaveBeenCalled();
+    expect(mockCookieDelete).toHaveBeenCalledWith("sacdia_admin_access_token");
+    expect(mockCookieDelete).not.toHaveBeenCalledWith("sacdia_admin_refresh_token");
   });
 
   it("returns null and clears cookies when /auth/me returns 403", async () => {
@@ -164,27 +193,34 @@ describe("requireAdminUser()", () => {
     mockRedirect.mockClear();
     mockApiRequest.mockClear();
     mockCookieGet.mockClear();
+    mockCookieSet.mockClear();
     mockCookieDelete.mockClear();
+    mockHeaderGet.mockReset();
+    mockHeaderGet.mockImplementation((name: string) => {
+      if (name === "x-sacdia-pathname") return "/dashboard/users";
+      if (name === "x-sacdia-search") return "?page=2";
+      return null;
+    });
   });
 
   afterEach(() => {
     vi.clearAllMocks();
   });
 
-  it("redirects to logout when no token cookie exists", async () => {
+  it("redirects to login when no session cookie exists", async () => {
     seedToken(undefined);
     await expect(session.requireAdminUser()).rejects.toThrow(
-      "REDIRECT:/api/auth/logout?next=/login",
+      "REDIRECT:/login",
     );
-    expect(mockRedirect).toHaveBeenCalledWith("/api/auth/logout?next=/login");
+    expect(mockRedirect).toHaveBeenCalledWith("/login");
   });
 
-  it("redirects when /auth/me returns 401 (expired token)", async () => {
+  it("redirects to refresh when /auth/me returns 401 but a refresh token exists", async () => {
     const { ApiError } = await import("@/lib/api/client");
-    seedToken("expired-token");
+    seedTokens({ accessToken: "expired-token", refreshToken: "refresh-token" });
     mockApiRequest.mockRejectedValueOnce(new ApiError("Unauthorized", 401, {}));
     await expect(session.requireAdminUser()).rejects.toThrow(
-      "REDIRECT:/api/auth/logout?next=/login",
+      "REDIRECT:/api/auth/refresh?next=%2Fdashboard%2Fusers%3Fpage%3D2",
     );
   });
 
@@ -225,13 +261,43 @@ describe("requireAdminUser()", () => {
     expect(mockRedirect).not.toHaveBeenCalled();
   });
 
-  it("redirects when the user object is null (getCurrentUser returned null)", async () => {
-    // getCurrentUser returns null for 429 — requireAdminUser must redirect.
+  it("redirects to login without clearing cookies when a transient auth check returns null", async () => {
+    // getCurrentUser returns null for 429 — requireAdminUser must not logout.
     const { ApiError } = await import("@/lib/api/client");
     seedToken("valid-jwt");
     mockApiRequest.mockRejectedValueOnce(new ApiError("Rate limited", 429, {}));
     await expect(session.requireAdminUser()).rejects.toThrow(
-      "REDIRECT:/api/auth/logout?next=/login",
+      "REDIRECT:/login",
+    );
+    expect(mockCookieDelete).not.toHaveBeenCalledWith("sacdia_admin_refresh_token");
+  });
+
+  it("sets persistent httpOnly cookies when refreshing from the refresh token", async () => {
+    seedTokens({ refreshToken: "refresh-token" });
+    mockApiRequest.mockResolvedValueOnce({
+      status: "success",
+      data: {
+        accessToken: "new-access-token",
+        refreshToken: "new-refresh-token",
+        expiresAt: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
+      },
+    });
+
+    await expect(session.refreshSessionFromCookies()).resolves.toBe("new-access-token");
+
+    expect(mockApiRequest).toHaveBeenCalledWith("/auth/refresh", {
+      method: "POST",
+      body: { refreshToken: "refresh-token" },
+    });
+    expect(mockCookieSet).toHaveBeenCalledWith(
+      "sacdia_admin_access_token",
+      "new-access-token",
+      expect.objectContaining({ httpOnly: true, maxAge: expect.any(Number) }),
+    );
+    expect(mockCookieSet).toHaveBeenCalledWith(
+      "sacdia_admin_refresh_token",
+      "new-refresh-token",
+      expect.objectContaining({ httpOnly: true, maxAge: expect.any(Number) }),
     );
   });
 });

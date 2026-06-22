@@ -9,11 +9,12 @@ const axiosMock = vi.hoisted(() => {
     config: RequestConfig,
   ) => RequestConfig | Promise<RequestConfig>;
   type ResponseRejectInterceptor = (error: unknown) => unknown;
+  type RequestHandler = (config: RequestConfig) => Promise<{ data: unknown }>;
 
   const requestInterceptors: RequestInterceptor[] = [];
   const responseRejectInterceptors: ResponseRejectInterceptor[] = [];
 
-  let requestHandler = async (config: RequestConfig) => ({
+  let requestHandler: RequestHandler = async (config: RequestConfig) => ({
     data: { config },
   });
 
@@ -78,7 +79,7 @@ const axiosMock = vi.hoisted(() => {
         data: { config },
       });
     },
-    setRequestHandler(handler: typeof requestHandler) {
+    setRequestHandler(handler: RequestHandler) {
       requestHandler = handler;
     },
   };
@@ -122,7 +123,9 @@ describe("getClientAuthToken", () => {
     await expect(getClientAuthToken()).resolves.toBe("cached-admin-jwt");
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(fetchMock).toHaveBeenCalledWith("/api/auth/token");
+    expect(fetchMock).toHaveBeenCalledWith("/api/auth/token", {
+      credentials: "include",
+    });
   });
 
   it("deduplicates concurrent token fetches", async () => {
@@ -166,7 +169,7 @@ describe("apiRequestFromClient", () => {
     expect(result.config.headers.Authorization).toBe("Bearer explicit-admin-jwt");
   });
 
-  it("clears cached relay tokens after a 401 response", async () => {
+  it("refreshes the relay token and retries once after a 401 response", async () => {
     window.history.pushState(null, "", "/login");
 
     const fetchMock = vi
@@ -178,7 +181,7 @@ describe("apiRequestFromClient", () => {
         }),
       )
       .mockResolvedValueOnce(
-        new Response(JSON.stringify({ token: "fresh-admin-jwt" }), {
+        new Response(JSON.stringify({ token: "refreshed-admin-jwt" }), {
           status: 200,
           headers: { "content-type": "application/json" },
         }),
@@ -187,9 +190,20 @@ describe("apiRequestFromClient", () => {
 
     await expect(getClientAuthToken()).resolves.toBe("stale-admin-jwt");
 
+    let attempt = 0;
     axiosMock.setRequestHandler(async () => {
+      attempt += 1;
+      if (attempt === 2) {
+        return { data: { ok: true } };
+      }
+
       throw {
         isAxiosError: true,
+        config: {
+          url: "/clubs",
+          method: "GET",
+          headers: {},
+        },
         response: {
           status: 401,
           data: { message: "Unauthorized" },
@@ -197,11 +211,15 @@ describe("apiRequestFromClient", () => {
       };
     });
 
-    await expect(apiRequestFromClient("/clubs")).rejects.toMatchObject({
-      status: 401,
-    });
+    await expect(apiRequestFromClient("/clubs")).resolves.toEqual({ ok: true });
 
-    await expect(getClientAuthToken()).resolves.toBe("fresh-admin-jwt");
+    await expect(getClientAuthToken()).resolves.toBe("refreshed-admin-jwt");
     expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenLastCalledWith("/api/auth/refresh", {
+      method: "POST",
+      credentials: "include",
+      headers: { Accept: "application/json" },
+    });
+    expect(axiosMock.request).toHaveBeenCalledTimes(2);
   });
 });

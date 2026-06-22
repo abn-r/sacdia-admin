@@ -1,4 +1,4 @@
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
 import { ACCESS_TOKEN_COOKIE } from "@/lib/auth/cookies";
 
 export type ApiMethod = "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
@@ -45,6 +45,7 @@ const CLIENT_AUTH_TOKEN_TTL_MS = 60_000;
 
 let cachedClientAuthToken: { token: string; expiresAt: number } | null = null;
 let pendingClientAuthToken: Promise<string | null> | null = null;
+let pendingClientAuthRefresh: Promise<string | null> | null = null;
 
 function toRecord(headers?: HeadersInit) {
   if (!headers) {
@@ -208,11 +209,12 @@ async function resolveToken(token?: string) {
 export function clearClientAuthTokenCache() {
   cachedClientAuthToken = null;
   pendingClientAuthToken = null;
+  pendingClientAuthRefresh = null;
 }
 
 async function fetchClientAuthToken(): Promise<string | null> {
   try {
-    const res = await fetch("/api/auth/token");
+    const res = await fetch("/api/auth/token", { credentials: "include" });
 
     if (res.status === 401 || res.status === 403) {
       clearClientAuthTokenCache();
@@ -231,6 +233,46 @@ async function fetchClientAuthToken(): Promise<string | null> {
     clearClientAuthTokenCache();
     return null;
   }
+}
+
+async function refreshClientAuthToken(): Promise<string | null> {
+  if (!pendingClientAuthRefresh) {
+    pendingClientAuthRefresh = fetch("/api/auth/refresh", {
+      method: "POST",
+      credentials: "include",
+      headers: { Accept: "application/json" },
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          cachedClientAuthToken = null;
+          return null;
+        }
+
+        const body = (await res.json()) as { token?: unknown };
+        const token =
+          typeof body.token === "string" && body.token.length > 0 ? body.token : null;
+
+        if (token) {
+          cachedClientAuthToken = {
+            token,
+            expiresAt: Date.now() + CLIENT_AUTH_TOKEN_TTL_MS,
+          };
+        } else {
+          cachedClientAuthToken = null;
+        }
+
+        return token;
+      })
+      .catch(() => {
+        cachedClientAuthToken = null;
+        return null;
+      })
+      .finally(() => {
+        pendingClientAuthRefresh = null;
+      });
+  }
+
+  return pendingClientAuthRefresh;
 }
 
 export async function getClientAuthToken(): Promise<string | null> {
@@ -312,6 +354,10 @@ function setAuthorizationHeader(headers: unknown, token: string) {
   maybeHeaderBag.Authorization = value;
 }
 
+type RetriableAxiosConfig = InternalAxiosRequestConfig & {
+  _authRetry?: boolean;
+};
+
 const clientApi = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
@@ -354,10 +400,30 @@ function ensureClientInterceptors() {
 
   clientApi.interceptors.response.use(
     (response) => response,
-    (error: unknown) => {
+    async (error: unknown) => {
       const normalized = normalizeError(error);
+      const requestConfig = axios.isAxiosError(error)
+        ? ((error as AxiosError).config as RetriableAxiosConfig | undefined)
+        : undefined;
 
-      if (normalized.status === 401 || normalized.status === 403) {
+      if (normalized.status === 401) {
+        clearClientAuthTokenCache();
+
+        if (requestConfig && !requestConfig._authRetry) {
+          const refreshedToken = await refreshClientAuthToken();
+
+          if (refreshedToken) {
+            requestConfig._authRetry = true;
+            if (!requestConfig.headers) {
+              requestConfig.headers = {} as RetriableAxiosConfig["headers"];
+            }
+            setAuthorizationHeader(requestConfig.headers, refreshedToken);
+            return clientApi.request(requestConfig);
+          }
+        }
+      }
+
+      if (normalized.status === 403) {
         clearClientAuthTokenCache();
       }
 

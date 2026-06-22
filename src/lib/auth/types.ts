@@ -54,6 +54,8 @@ export type LoginResponse = {
   access_token?: string;
   refresh_token?: string;
   expires_in?: number;
+  expiresAt?: number;
+  expires_at?: number;
   user?: AuthUser;
   message?: string;
   error?: string;
@@ -63,6 +65,8 @@ export type LoginResponse = {
     refreshToken?: string;
     access_token?: string;
     refresh_token?: string;
+    expiresAt?: number;
+    expires_at?: number;
     user?: AuthUser;
     message?: string;
     error?: string;
