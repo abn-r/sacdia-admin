@@ -635,7 +635,7 @@ export function EventFormPage({
         {/* ── Footer actions ── */}
         <div className="flex items-center justify-between pt-2">
           <Button variant="outline" asChild>
-            <Link href={backHref}>
+            <Link href={backHref} prefetch={false}>
               <ArrowLeft className="size-4" />
               Cancelar
             </Link>

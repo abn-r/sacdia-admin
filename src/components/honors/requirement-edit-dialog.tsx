@@ -112,10 +112,14 @@ export function RequirementEditDialog({
 
   // Reset form state whenever the dialog opens or the target requirement changes.
   useEffect(() => {
-    if (open) {
+    if (!open) return;
+
+    const frameId = window.requestAnimationFrame(() => {
       setForm(buildInitialState(mode, requirement));
       setValidationError(null);
-    }
+    });
+
+    return () => window.cancelAnimationFrame(frameId);
   }, [open, mode, requirement]);
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) =>

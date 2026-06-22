@@ -124,11 +124,6 @@ export const HONOR_CATEGORIES_CREATE = "honor_categories:create";
 export const HONOR_CATEGORIES_UPDATE = "honor_categories:update";
 export const HONOR_CATEGORIES_DELETE = "honor_categories:delete";
 
-// --- Carpetas (Folders) ---
-export const FOLDERS_MANAGE = "folders:manage";
-export const FOLDER_MODULES_MANAGE = "folder_modules:manage";
-export const FOLDER_SECTIONS_MANAGE = "folder_sections:manage";
-
 // --- Categorías de Finanzas e Inventario ---
 export const FINANCE_CATEGORIES_MANAGE = "finance_categories:manage";
 export const INVENTORY_CATEGORIES_MANAGE = "inventory_categories:manage";
@@ -200,10 +195,6 @@ export const REQUESTS_REVIEW = "requests:review";
 // --- Certificaciones de Usuario (User Certifications) ---
 export const USER_CERTIFICATIONS_READ   = "user_certifications:read";
 export const USER_CERTIFICATIONS_MANAGE = "user_certifications:manage";
-
-// --- Carpetas de Usuario (User Folders) ---
-export const USER_FOLDERS_READ   = "user_folders:read";
-export const USER_FOLDERS_MANAGE = "user_folders:manage";
 
 // --- Logros (Achievements) ---
 export const ACHIEVEMENTS_READ = "achievements:read";
@@ -324,12 +315,6 @@ export const PERMISSION_GROUPS = {
     permissions: [
       { key: USER_CERTIFICATIONS_READ },
       { key: USER_CERTIFICATIONS_MANAGE },
-    ],
-  },
-  user_folders: {
-    permissions: [
-      { key: USER_FOLDERS_READ },
-      { key: USER_FOLDERS_MANAGE },
     ],
   },
   geography: {

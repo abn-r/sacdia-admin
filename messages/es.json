@@ -78,7 +78,6 @@
       "evidence_folders": "Carpetas Anuales de Evidencias",
       "annual_folders": "Carpeta Anual de Evidencias",
       "annual_folders_templates": "Plantillas",
-      "annual_folders_mine": "Mi carpeta",
       "annual_folders_evaluate": "Evaluación",
       "annual_folders_rankings": "Rankings",
       "annual_folders_ranking_config": "Configuración de rankings",
@@ -3562,7 +3561,8 @@
       "category_created": "Categoría creada correctamente",
       "template_updated": "Plantilla actualizada correctamente",
       "template_created": "Plantilla creada correctamente",
-      "owner_catalogs_load_failed": "No se pudieron cargar los catálogos de propietario"
+      "owner_catalogs_load_failed": "No se pudieron cargar los catálogos de propietario",
+      "section_submitted": "Sección enviada para revisión"
     },
     "errors": {
       "recalculate_rankings": "Error al recalcular los rankings",
@@ -3571,7 +3571,8 @@
       "save_section_failed": "Error al guardar la sección",
       "submit_folder_failed": "No se pudo enviar la carpeta",
       "close_folder_failed": "No se pudo cerrar la carpeta",
-      "save_template_failed": "Error al guardar la plantilla"
+      "save_template_failed": "Error al guardar la plantilla",
+      "submit_section_failed": "No se pudo enviar la sección"
     },
     "statusBadge": {
       "open": "Abierta",
@@ -3579,14 +3580,6 @@
       "under_evaluation": "En evaluación",
       "evaluated": "Evaluado",
       "closed": "Cerrada"
-    },
-    "byEnrollment": {
-      "title": "Buscar carpeta",
-      "enrollmentIdLabel": "Por ID de inscripción",
-      "enrollmentIdPlaceholder": "UUID de inscripción",
-      "folderIdLabel": "Por ID de carpeta",
-      "folderIdPlaceholder": "UUID de carpeta",
-      "searchButton": "Buscar"
     },
     "sectionCard": {
       "statusPending": "Pendiente",
@@ -3707,13 +3700,15 @@
     },
     "page": {
       "title": "Carpeta Anual de Evidencias",
-      "description": "Gestiona evidencias por sección de la Carpeta Anual de Evidencias del miembro.",
+      "description": "Gestiona la carpeta anual de tu asignación de club activa. Para revisión institucional usa la cola de evaluación.",
       "errorFolderFallback": "No se pudo cargar la carpeta.",
       "errorEnrollmentFallback": "No se pudo cargar la carpeta para esa inscripción.",
-      "emptySelectTitle": "Selecciona una inscripción",
-      "emptySelectDescription": "Ingresa el ID de inscripción o de carpeta para cargar las evidencias del miembro.",
       "emptyNotFoundTitle": "Carpeta no encontrada",
-      "emptyNotFoundDescription": "No existe una Carpeta Anual de Evidencias para el identificador ingresado. Verifica los datos e intentá de nuevo."
+      "emptyNotFoundDescription": "No existe una Carpeta Anual de Evidencias para el identificador ingresado. Verifica los datos e intenta de nuevo.",
+      "emptyNoActiveClubTitle": "Sin contexto de club activo",
+      "emptyNoActiveClubDescription": "Esta pantalla no usa UUID manuales. Selecciona un contexto de club o entra a Evaluación de Carpetas para revisar carpetas por club, sección o campo.",
+      "emptyContextFolderTitle": "No hay carpeta anual para el contexto activo",
+      "emptyContextFolderDescription": "La sección activa todavía no tiene inscripción/carpeta anual vigente. Cuando exista inscripción anual y template activo, el backend la creará automáticamente o podrá generarse desde el flujo de inscripción."
     },
     "pageCategories": {
       "title": "Categorías de premios",

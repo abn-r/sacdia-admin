@@ -24,7 +24,7 @@ if (!Element.prototype.scrollIntoView) {
 
 const mockRecalculateRankings = vi.fn();
 const mockListAnnualRankingsFromClient = vi.fn<
-  (...args: any[]) => Promise<unknown>
+  (...args: unknown[]) => Promise<unknown>
 >();
 
 vi.mock("@/lib/api/annual-folders", async (importOriginal) => {

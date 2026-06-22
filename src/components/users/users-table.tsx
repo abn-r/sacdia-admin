@@ -101,7 +101,7 @@ function UserMobileCard({
   const location = [union, localField].filter(Boolean).join(" · ");
 
   return (
-    <Link
+    <Link prefetch={false}
       href={`/dashboard/users/${user.user_id}`}
       className="block rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
@@ -227,7 +227,7 @@ export async function UsersTable({
                           size={32}
                         />
                         <div className="min-w-0">
-                          <Link
+                          <Link prefetch={false}
                             href={`/dashboard/users/${user.user_id}`}
                             className="block truncate text-sm font-medium hover:underline"
                           >

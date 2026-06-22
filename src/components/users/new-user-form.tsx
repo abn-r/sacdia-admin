@@ -501,7 +501,9 @@ export function NewUserForm({ allowedRoles }: NewUserFormProps) {
         {/* ── Footer ── */}
         <div className="flex items-center justify-between gap-4 pt-2">
           <Button variant="outline" asChild>
-            <Link href={LIST_HREF}>{t("actions.cancel")}</Link>
+            <Link href={LIST_HREF} prefetch={false}>
+              {t("actions.cancel")}
+            </Link>
           </Button>
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting && <Loader2 className="size-4 animate-spin" />}

@@ -428,6 +428,7 @@ export function HonorCategoriesCrudPage({
                             <Link
                               href={`/dashboard/catalogs/honor-categories/${categoryId}`}
                               className="text-primary hover:underline"
+                              prefetch={false}
                             >
                               {categoryName}
                             </Link>

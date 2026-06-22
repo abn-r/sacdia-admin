@@ -107,7 +107,6 @@ export interface IntlMessages {
       evidence_folders: string;
       annual_folders: string;
       annual_folders_templates: string;
-      annual_folders_mine: string;
       annual_folders_evaluate: string;
       annual_folders_rankings: string;
       annual_folders_ranking_config: string;
@@ -3592,6 +3591,7 @@ export interface IntlMessages {
       template_updated: string;
       template_created: string;
       owner_catalogs_load_failed: string;
+      section_submitted: string;
     };
     errors: {
       recalculate_rankings: string;
@@ -3601,6 +3601,7 @@ export interface IntlMessages {
       submit_folder_failed: string;
       close_folder_failed: string;
       save_template_failed: string;
+      submit_section_failed: string;
     };
     statusBadge: {
       open: string;
@@ -3608,14 +3609,6 @@ export interface IntlMessages {
       under_evaluation: string;
       evaluated: string;
       closed: string;
-    };
-    byEnrollment: {
-      title: string;
-      enrollmentIdLabel: string;
-      enrollmentIdPlaceholder: string;
-      folderIdLabel: string;
-      folderIdPlaceholder: string;
-      searchButton: string;
     };
     sectionCard: {
       statusPending: string;
@@ -3739,10 +3732,12 @@ export interface IntlMessages {
       description: string;
       errorFolderFallback: string;
       errorEnrollmentFallback: string;
-      emptySelectTitle: string;
-      emptySelectDescription: string;
       emptyNotFoundTitle: string;
       emptyNotFoundDescription: string;
+      emptyNoActiveClubTitle: string;
+      emptyNoActiveClubDescription: string;
+      emptyContextFolderTitle: string;
+      emptyContextFolderDescription: string;
     };
     pageCategories: {
       title: string;

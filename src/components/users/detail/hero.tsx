@@ -112,7 +112,7 @@ export function UserDetailHero({
 
         <div className="flex flex-col items-stretch gap-2 sm:items-end">
           <Button asChild variant="outline" size="sm">
-            <Link href={backHref}>
+            <Link href={backHref} prefetch={false}>
               <ArrowLeft className="size-4" />
               {backLabel}
             </Link>

@@ -189,6 +189,7 @@ export default async function ComprobantesPage({
                       <Button variant="ghost" size="sm" asChild>
                         <Link
                           href={`/dashboard/materials/receipts/${orden.folio_referencia ?? orden.id}`}
+                          prefetch={false}
                         >
                           Revisar comprobantes
                           <ArrowRight className="ml-1.5 size-3.5" />

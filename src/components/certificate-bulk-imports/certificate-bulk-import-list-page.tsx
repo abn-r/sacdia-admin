@@ -161,7 +161,7 @@ export function CertificateBulkImportListPage({ batches, total }: CertificateBul
                       </TableCell>
                       <TableCell className="text-right">
                         <Button size="sm" asChild>
-                          <Link href={`/dashboard/certificate-bulk-imports/${batch.batch_id}`}>
+                          <Link href={`/dashboard/certificate-bulk-imports/${batch.batch_id}`} prefetch={false}>
                             Revisar
                             <ArrowRight aria-hidden="true" />
                           </Link>

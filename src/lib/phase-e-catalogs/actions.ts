@@ -1,9 +1,9 @@
 "use server";
 
 /**
- * Phase E — server actions for all 10 i18n catalog targets:
- * classes, class_modules, class_sections, folders, folder_modules,
- * folder_sections, finance_categories, inventory_categories, honors, master_honors.
+ * Phase E — server actions for i18n catalog targets:
+ * classes, class_modules, class_sections, finance_categories,
+ * inventory_categories, honors, master_honors.
  *
  * Pattern mirrors honor-categories actions exactly.
  */
@@ -24,9 +24,6 @@ import {
   CLASSES_MANAGE,
   CLASS_MODULES_MANAGE,
   CLASS_SECTIONS_MANAGE,
-  FOLDERS_MANAGE,
-  FOLDER_MODULES_MANAGE,
-  FOLDER_SECTIONS_MANAGE,
   FINANCE_CATEGORIES_MANAGE,
   INVENTORY_CATEGORIES_MANAGE,
   HONORS_CREATE,
@@ -44,15 +41,6 @@ import {
   createAdminClassSection,
   updateAdminClassSection,
   deleteAdminClassSection,
-  createAdminFolder,
-  updateAdminFolder,
-  deleteAdminFolder,
-  createAdminFolderModule,
-  updateAdminFolderModule,
-  deleteAdminFolderModule,
-  createAdminFolderSection,
-  updateAdminFolderSection,
-  deleteAdminFolderSection,
   createAdminFinanceCategory,
   updateAdminFinanceCategory,
   deleteAdminFinanceCategory,
@@ -536,57 +524,6 @@ const classSectionsActions = makeActions(
 export const createClassSectionAction = classSectionsActions.createAction;
 export const updateClassSectionAction = classSectionsActions.updateAction;
 export const deleteClassSectionAction = classSectionsActions.deleteAction;
-
-// ─── Folders ──────────────────────────────────────────────────────────────────
-
-const foldersActions = makeActions(
-  "/dashboard/catalogs/catalog-folders",
-  { create: [FOLDERS_MANAGE, CATALOGS_CREATE], update: [FOLDERS_MANAGE, CATALOGS_UPDATE], delete: [FOLDERS_MANAGE, CATALOGS_DELETE] },
-  {
-    create: (p) => createAdminFolder(p as Parameters<typeof createAdminFolder>[0]),
-    update: (id, p) => updateAdminFolder(id, p),
-    delete: (id) => deleteAdminFolder(id),
-  },
-  true,
-);
-
-export const createFolderCatalogAction = foldersActions.createAction;
-export const updateFolderCatalogAction = foldersActions.updateAction;
-export const deleteFolderCatalogAction = foldersActions.deleteAction;
-
-// ─── Folder Modules ───────────────────────────────────────────────────────────
-
-const folderModulesActions = makeActions(
-  "/dashboard/catalogs/folder-modules",
-  { create: [FOLDER_MODULES_MANAGE, CATALOGS_CREATE], update: [FOLDER_MODULES_MANAGE, CATALOGS_UPDATE], delete: [FOLDER_MODULES_MANAGE, CATALOGS_DELETE] },
-  {
-    create: (p) => createAdminFolderModule(p as Parameters<typeof createAdminFolderModule>[0]),
-    update: (id, p) => updateAdminFolderModule(id, p),
-    delete: (id) => deleteAdminFolderModule(id),
-  },
-  true,
-);
-
-export const createFolderModuleAction = folderModulesActions.createAction;
-export const updateFolderModuleAction = folderModulesActions.updateAction;
-export const deleteFolderModuleAction = folderModulesActions.deleteAction;
-
-// ─── Folder Sections ──────────────────────────────────────────────────────────
-
-const folderSectionsActions = makeActions(
-  "/dashboard/catalogs/folder-sections",
-  { create: [FOLDER_SECTIONS_MANAGE, CATALOGS_CREATE], update: [FOLDER_SECTIONS_MANAGE, CATALOGS_UPDATE], delete: [FOLDER_SECTIONS_MANAGE, CATALOGS_DELETE] },
-  {
-    create: (p) => createAdminFolderSection(p as Parameters<typeof createAdminFolderSection>[0]),
-    update: (id, p) => updateAdminFolderSection(id, p),
-    delete: (id) => deleteAdminFolderSection(id),
-  },
-  true,
-);
-
-export const createFolderSectionAction = folderSectionsActions.createAction;
-export const updateFolderSectionAction = folderSectionsActions.updateAction;
-export const deleteFolderSectionAction = folderSectionsActions.deleteAction;
 
 // ─── Finance Categories ───────────────────────────────────────────────────────
 

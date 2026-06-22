@@ -206,7 +206,7 @@ export function CampoReesView({ initialCamporees }: CampoReesViewProps) {
                           <span className="sr-only">{t("list.deleteLabel")}</span>
                         </Button>
                         <Button variant="ghost" size="icon-sm" asChild>
-                          <Link href={`/dashboard/camporees/${id}`}>
+                          <Link prefetch={false} href={`/dashboard/camporees/${id}`}>
                             <ChevronRight className="size-4" />
                             <span className="sr-only">{t("list.viewDetail")}</span>
                           </Link>

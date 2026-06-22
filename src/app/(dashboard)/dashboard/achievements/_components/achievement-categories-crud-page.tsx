@@ -300,6 +300,7 @@ export function AchievementCategoriesCrudPage({
                             <Link
                               href={`/dashboard/achievements/${categoryId}`}
                               className="flex items-center gap-1.5 text-primary hover:underline"
+                              prefetch={false}
                             >
                               {categoryName}
                               <ChevronRight className="size-3.5 text-muted-foreground" />

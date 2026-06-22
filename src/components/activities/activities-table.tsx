@@ -129,7 +129,7 @@ export function ActivitiesTable({ items, onEdit, onDelete }: ActivitiesTableProp
                       </Button>
                     )}
                     <Button variant="ghost" size="icon-sm" asChild>
-                      <Link href={`/dashboard/activities/${activity.activity_id}`}>
+                      <Link prefetch={false} href={`/dashboard/activities/${activity.activity_id}`}>
                         <ChevronRight className="size-4" />
                         <span className="sr-only">{t("table.viewDetail")}</span>
                       </Link>

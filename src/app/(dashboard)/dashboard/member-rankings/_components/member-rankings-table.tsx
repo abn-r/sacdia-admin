@@ -176,7 +176,7 @@ export function MemberRankingsTable({
                 {/* Action */}
                 <TableCell className="px-3 py-2.5 align-middle text-right">
                   <Button variant="ghost" size="sm" asChild>
-                    <Link
+                    <Link prefetch={false}
                       href={`/dashboard/member-rankings/${item.enrollment_id}/breakdown?year_id=${selectedYearId}`}
                     >
                       {t("viewDetail")}

@@ -201,35 +201,39 @@ export function InventoryHistoryDialog({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!open || inventoryId === null) {
-      setEntries([]);
-      setError(null);
-      return;
-    }
-
     let cancelled = false;
-    setIsLoading(true);
-    setError(null);
+    const timeoutId = window.setTimeout(() => {
+      if (!open || inventoryId === null) {
+        setEntries([]);
+        setError(null);
+        setIsLoading(false);
+        return;
+      }
 
-    getInventoryHistory(inventoryId)
-      .then((data) => {
-        if (!cancelled) setEntries(data);
-      })
-      .catch((err: unknown) => {
-        if (!cancelled) {
-          setError(
-            err instanceof Error
-              ? err.message
-              : t("errors.load_history_failed"),
-          );
-        }
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false);
-      });
+      setIsLoading(true);
+      setError(null);
+
+      getInventoryHistory(inventoryId)
+        .then((data) => {
+          if (!cancelled) setEntries(data);
+        })
+        .catch((err: unknown) => {
+          if (!cancelled) {
+            setError(
+              err instanceof Error
+                ? err.message
+                : t("errors.load_history_failed"),
+            );
+          }
+        })
+        .finally(() => {
+          if (!cancelled) setIsLoading(false);
+        });
+    }, 0);
 
     return () => {
       cancelled = true;
+      window.clearTimeout(timeoutId);
     };
   }, [open, inventoryId, t]);
 

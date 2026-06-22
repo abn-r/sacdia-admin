@@ -211,7 +211,7 @@ export function ClubIdealListClient({
       <PageHeader title={t("listTitle")} description={t("description")}>
         {canCreate && (
           <Button asChild>
-            <Link href="/dashboard/catalogs/club-ideals/new">
+            <Link prefetch={false} href="/dashboard/catalogs/club-ideals/new">
               <Plus className="size-4" />
               {t("buttonCreate")}
             </Link>
@@ -282,7 +282,7 @@ export function ClubIdealListClient({
           >
             {canCreate && !hasActiveFilters && (
               <Button asChild>
-                <Link href="/dashboard/catalogs/club-ideals/new">
+                <Link prefetch={false} href="/dashboard/catalogs/club-ideals/new">
                   <Plus className="size-4" />
                   {t("buttonCreate")}
                 </Link>
@@ -348,7 +348,7 @@ export function ClubIdealListClient({
                                   asChild
                                   title="Editar"
                                 >
-                                  <Link
+                                  <Link prefetch={false}
                                     href={`/dashboard/catalogs/club-ideals/${itemId}/edit`}
                                   >
                                     <Pencil className="size-3.5" />
@@ -382,7 +382,7 @@ export function ClubIdealListClient({
                                 <DropdownMenuContent align="end">
                                   {canEdit && itemId && (
                                     <DropdownMenuItem asChild>
-                                      <Link
+                                      <Link prefetch={false}
                                         href={`/dashboard/catalogs/club-ideals/${itemId}/edit`}
                                       >
                                         <Pencil className="size-4" />

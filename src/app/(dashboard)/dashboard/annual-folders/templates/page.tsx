@@ -24,7 +24,10 @@ const TemplatesClientPage = dynamic(
         </div>
         <div className="rounded-xl border">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-4 border-b px-4 py-4 last:border-0">
+            <div
+              key={i}
+              className="flex items-center gap-4 border-b px-4 py-4 last:border-0"
+            >
               <div className="flex-1 space-y-1.5">
                 <Skeleton className="h-4 w-56" />
                 <Skeleton className="h-3 w-40" />
@@ -41,9 +44,9 @@ const TemplatesClientPage = dynamic(
     ),
   },
 );
-import { ApiError, apiRequest } from "@/lib/api/client";
+import { ApiError } from "@/lib/api/client";
 import { listClubTypes, listEcclesiasticalYears } from "@/lib/api/catalogs";
-import type { FolderTemplate } from "@/lib/api/annual-folders";
+import { listTemplates, type FolderTemplate } from "@/lib/api/annual-folders";
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
 
 // ─── Normalizers ───────────────────────────────────────────────────────────────
@@ -73,35 +76,40 @@ export default async function TemplatesPage() {
   let localFields: LocalField[] = [];
   let loadError: string | null = null;
 
-  const [templatesResult, clubTypesResult, yearsResult, unionsResult, localFieldsResult] =
-    await Promise.allSettled([
-      apiRequest<unknown>("/annual-folders/templates"),
-      listClubTypes(),
-      listEcclesiasticalYears(),
-      listUnionsForTerritory(user),
-      listLocalFieldsForTerritory(user),
-    ]);
+  const [
+    templatesResult,
+    clubTypesResult,
+    yearsResult,
+    unionsResult,
+    localFieldsResult,
+  ] = await Promise.allSettled([
+    listTemplates(),
+    listClubTypes(),
+    listEcclesiasticalYears(),
+    listUnionsForTerritory(user),
+    listLocalFieldsForTerritory(user),
+  ]);
 
   if (templatesResult.status === "fulfilled") {
-    templates = extractArray(templatesResult.value) as FolderTemplate[];
+    templates = Array.isArray(templatesResult.value)
+      ? templatesResult.value
+      : (extractArray(templatesResult.value) as FolderTemplate[]);
   } else {
     const err = templatesResult.reason;
     loadError =
-      err instanceof ApiError
-        ? err.message
-        : t("pageTemplates.errorFallback");
+      err instanceof ApiError ? err.message : t("pageTemplates.errorFallback");
   }
 
   if (clubTypesResult.status === "fulfilled") {
     clubTypes = Array.isArray(clubTypesResult.value)
       ? clubTypesResult.value
-      : extractArray(clubTypesResult.value) as ClubType[];
+      : (extractArray(clubTypesResult.value) as ClubType[]);
   }
 
   if (yearsResult.status === "fulfilled") {
     ecclesiasticalYears = Array.isArray(yearsResult.value)
       ? yearsResult.value
-      : extractArray(yearsResult.value) as EcclesiasticalYear[];
+      : (extractArray(yearsResult.value) as EcclesiasticalYear[]);
   }
 
   if (unionsResult.status === "fulfilled") {
@@ -131,9 +139,7 @@ export default async function TemplatesPage() {
         description={t("pageTemplates.description")}
       />
 
-      {loadError && (
-        <EndpointErrorBanner state="missing" detail={loadError} />
-      )}
+      {loadError && <EndpointErrorBanner state="missing" detail={loadError} />}
 
       {!loadError && (
         <TemplatesClientPage

@@ -28,9 +28,11 @@ import {
 } from "@/components/ui/alert-dialog";
 import { FolderStatusBadge } from "@/components/annual-folders/folder-status-badge";
 import { EvidenceUploadDialog } from "@/components/annual-folders/evidence-upload-dialog";
+import { usePermissions } from "@/lib/auth/use-permissions";
 import {
   getFolder,
   deleteEvidence,
+  submitSection,
   submitFolder,
   closeFolder,
 } from "@/lib/api/annual-folders";
@@ -63,18 +65,28 @@ function formatDate(dateString: string | null): string {
 interface SectionRowProps {
   section: FolderSectionWithEvidences;
   folderStatus: AnnualFolder["status"];
+  canUpdateEvidence: boolean;
+  isSubmitting: boolean;
   onUpload: (section: FolderSectionWithEvidences) => void;
   onDeleteEvidence: (evidence: FolderEvidence) => void;
+  onSubmitSection: (section: FolderSectionWithEvidences) => void;
 }
 
 function SectionRow({
   section,
   folderStatus,
+  canUpdateEvidence,
+  isSubmitting,
   onUpload,
   onDeleteEvidence,
+  onSubmitSection,
 }: SectionRowProps) {
   const hasEvidences = section.evidences.length > 0;
-  const isEditable = folderStatus === "open";
+  const isSubmitted = Boolean(section.submission?.submitted_at);
+  const isEditable =
+    canUpdateEvidence && folderStatus === "open" && !isSubmitted;
+  const canSubmitSection =
+    canUpdateEvidence && folderStatus === "open" && !isSubmitted;
 
   return (
     <div className="rounded-lg border border-border bg-card">
@@ -98,6 +110,11 @@ function SectionRow({
                   Requerida
                 </Badge>
               )}
+              {isSubmitted && (
+                <Badge variant="secondary" className="text-xs">
+                  Enviada
+                </Badge>
+              )}
             </div>
             {section.description && (
               <p className="mt-0.5 text-xs text-muted-foreground">
@@ -110,18 +127,42 @@ function SectionRow({
                 ? "evidencia subida"
                 : "evidencias subidas"}
             </p>
+            {section.submission?.submitted_at && (
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Enviada el {formatDate(section.submission.submitted_at)}
+              </p>
+            )}
           </div>
         </div>
 
-        {isEditable && (
-          <Button
-            size="xs"
-            variant="outline"
-            onClick={() => onUpload(section)}
-          >
-            <Upload className="size-3.5" />
-            Subir
-          </Button>
+        {(isEditable || canSubmitSection) && (
+          <div className="flex shrink-0 items-center gap-2">
+            {isEditable && (
+              <Button
+                size="xs"
+                variant="outline"
+                onClick={() => onUpload(section)}
+              >
+                <Upload className="size-3.5" />
+                Subir
+              </Button>
+            )}
+            {canSubmitSection && (
+              <Button
+                size="xs"
+                onClick={() => onSubmitSection(section)}
+                disabled={!hasEvidences || isSubmitting}
+                title={
+                  !hasEvidences
+                    ? "Sube al menos una evidencia antes de enviar la sección"
+                    : undefined
+                }
+              >
+                <Send className="size-3.5" />
+                {isSubmitting ? "Enviando..." : "Enviar sección"}
+              </Button>
+            )}
+          </div>
         )}
       </div>
 
@@ -190,8 +231,12 @@ function SectionRow({
 
 export function FolderClientPage({ initialFolder }: FolderClientPageProps) {
   const t = useTranslations("annual_folders");
+  const { can, isSuperAdmin } = usePermissions();
   const [folder, setFolder] = useState<AnnualFolder>(initialFolder);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const canUpdateEvidence = isSuperAdmin || can("evidence_folders:update");
+  const canSubmitFolder = isSuperAdmin || can("annual_folders:submit");
+  const canCloseFolder = canUpdateEvidence;
 
   // Upload dialog state
   const [uploadOpen, setUploadOpen] = useState(false);
@@ -208,6 +253,9 @@ export function FolderClientPage({ initialFolder }: FolderClientPageProps) {
   const [submitOpen, setSubmitOpen] = useState(false);
   const [closeOpen, setCloseOpen] = useState(false);
   const [isActioning, setIsActioning] = useState(false);
+  const [submittingSectionId, setSubmittingSectionId] = useState<string | null>(
+    null,
+  );
 
   // ─── Refresh folder ──────────────────────────────────────────────────────
 
@@ -232,6 +280,25 @@ export function FolderClientPage({ initialFolder }: FolderClientPageProps) {
   function handleOpenUpload(section: FolderSectionWithEvidences) {
     setUploadSection(section);
     setUploadOpen(true);
+  }
+
+  // ─── Submit section ──────────────────────────────────────────────────────
+
+  async function handleSubmitSection(section: FolderSectionWithEvidences) {
+    setSubmittingSectionId(section.section_id);
+    try {
+      await submitSection(folder.annual_folder_id, section.section_id);
+      toast.success(t("toasts.section_submitted"));
+      await refreshFolder();
+    } catch (err) {
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : t("errors.submit_section_failed");
+      toast.error(message);
+    } finally {
+      setSubmittingSectionId(null);
+    }
   }
 
   // ─── Delete evidence handlers ────────────────────────────────────────────
@@ -306,9 +373,13 @@ export function FolderClientPage({ initialFolder }: FolderClientPageProps) {
   const completedRequired = requiredSections.filter(
     (s) => s.evidences.length > 0,
   );
-  const allRequiredDone =
+  const submittedRequired = requiredSections.filter(
+    (s) => s.submission?.submitted_at,
+  );
+  const allRequiredSubmitted =
     requiredSections.length > 0 &&
-    completedRequired.length === requiredSections.length;
+    completedRequired.length === requiredSections.length &&
+    submittedRequired.length === requiredSections.length;
 
   const progressPct =
     requiredSections.length > 0
@@ -352,14 +423,14 @@ export function FolderClientPage({ initialFolder }: FolderClientPageProps) {
               Actualizar
             </Button>
 
-            {folder.status === "open" && (
+            {canSubmitFolder && folder.status === "open" && (
               <Button
                 size="sm"
                 onClick={() => setSubmitOpen(true)}
-                disabled={!allRequiredDone}
+                disabled={!allRequiredSubmitted}
                 title={
-                  !allRequiredDone
-                    ? "Completa todas las secciones requeridas primero"
+                  !allRequiredSubmitted
+                    ? "Envía todas las secciones requeridas primero"
                     : undefined
                 }
               >
@@ -368,7 +439,7 @@ export function FolderClientPage({ initialFolder }: FolderClientPageProps) {
               </Button>
             )}
 
-            {folder.status === "submitted" && (
+            {canCloseFolder && folder.status === "submitted" && (
               <Button
                 size="sm"
                 variant="outline"
@@ -421,8 +492,11 @@ export function FolderClientPage({ initialFolder }: FolderClientPageProps) {
               key={section.section_id}
               section={section}
               folderStatus={folder.status}
+              canUpdateEvidence={canUpdateEvidence}
+              isSubmitting={submittingSectionId === section.section_id}
               onUpload={handleOpenUpload}
               onDeleteEvidence={handleDeleteEvidence}
+              onSubmitSection={handleSubmitSection}
             />
           ))}
         </div>

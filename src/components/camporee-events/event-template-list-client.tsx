@@ -225,7 +225,7 @@ export function EventTemplateListClient({
       <PageHeader title={t("listTitle")} description={t("description")}>
         {canCreate && (
           <Button asChild>
-            <Link href="/dashboard/camporees/event-templates/new">
+            <Link prefetch={false} href="/dashboard/camporees/event-templates/new">
               <Plus className="size-4" />
               {t("buttonCreate")}
             </Link>
@@ -308,7 +308,7 @@ export function EventTemplateListClient({
           >
             {canCreate && !hasActiveFilters && (
               <Button asChild>
-                <Link href="/dashboard/camporees/event-templates/new">
+                <Link prefetch={false} href="/dashboard/camporees/event-templates/new">
                   <Plus className="size-4" />
                   {t("buttonCreate")}
                 </Link>
@@ -378,7 +378,7 @@ export function EventTemplateListClient({
                                   asChild
                                   title="Editar"
                                 >
-                                  <Link
+                                  <Link prefetch={false}
                                     href={`/dashboard/camporees/event-templates/${itemId}/edit`}
                                   >
                                     <Pencil className="size-3.5" />
@@ -408,7 +408,7 @@ export function EventTemplateListClient({
                                 <DropdownMenuContent align="end">
                                   {canEdit && itemId && (
                                     <DropdownMenuItem asChild>
-                                      <Link
+                                      <Link prefetch={false}
                                         href={`/dashboard/camporees/event-templates/${itemId}/edit`}
                                       >
                                         <Pencil className="size-4" />

@@ -243,7 +243,7 @@ export function GeographyListClient({
       <PageHeader title={t("listTitle")} description={t("description")}>
         {canCreate && (
           <Button asChild>
-            <Link href={`${basePath}/new`}>
+            <Link prefetch={false} href={`${basePath}/new`}>
               <Plus className="size-4" />
               {t("buttonCreate")}
             </Link>
@@ -308,7 +308,7 @@ export function GeographyListClient({
           >
             {canCreate && !hasActiveFilters && (
               <Button asChild>
-                <Link href={`${basePath}/new`}>
+                <Link prefetch={false} href={`${basePath}/new`}>
                   <Plus className="size-4" />
                   {t("buttonCreate")}
                 </Link>
@@ -376,7 +376,7 @@ export function GeographyListClient({
                                   asChild
                                   title="Configurar puntuación"
                                 >
-                                  <Link
+                                  <Link prefetch={false}
                                     href={`${basePath}/${itemId}?tab=scoring-categories`}
                                   >
                                     <Settings2 className="size-3.5" />
@@ -392,7 +392,7 @@ export function GeographyListClient({
                                   asChild
                                   title="Editar"
                                 >
-                                  <Link href={`${basePath}/${itemId}/edit`}>
+                                  <Link prefetch={false} href={`${basePath}/${itemId}/edit`}>
                                     <Pencil className="size-3.5" />
                                   </Link>
                                 </Button>
@@ -424,7 +424,7 @@ export function GeographyListClient({
                                 <DropdownMenuContent align="end">
                                   {canEdit && itemId && (
                                     <DropdownMenuItem asChild>
-                                      <Link href={`${basePath}/${itemId}/edit`}>
+                                      <Link prefetch={false} href={`${basePath}/${itemId}/edit`}>
                                         <Pencil className="size-4" />
                                         Editar
                                       </Link>
@@ -432,7 +432,7 @@ export function GeographyListClient({
                                   )}
                                   {enableScoringConfiguration && itemId && (
                                     <DropdownMenuItem asChild>
-                                      <Link
+                                      <Link prefetch={false}
                                         href={`${basePath}/${itemId}?tab=scoring-categories`}
                                       >
                                         <Settings2 className="size-4" />

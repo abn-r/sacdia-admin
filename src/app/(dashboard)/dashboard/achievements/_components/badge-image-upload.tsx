@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ImageIcon, Loader2, UploadCloud, X } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
@@ -50,10 +50,17 @@ export function BadgeImageUpload({
   const t = useTranslations("achievements.imageUpload");
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(currentImageUrl ?? null);
+  const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
 
   const ringColor = TIER_RING_COLORS[tier];
+
+  useEffect(() => {
+    return () => {
+      if (localPreviewUrl) URL.revokeObjectURL(localPreviewUrl);
+    };
+  }, [localPreviewUrl]);
 
   async function processFile(file: File) {
     const error = validateFile(file, t("validateTypeError"), t("validateSizeError"));
@@ -65,6 +72,7 @@ export function BadgeImageUpload({
     // Show local preview immediately
     const objectUrl = URL.createObjectURL(file);
     setPreview(objectUrl);
+    setLocalPreviewUrl(objectUrl);
 
     if (!achievementId) {
       // Can't upload without an ID — just preview
@@ -75,11 +83,14 @@ export function BadgeImageUpload({
     try {
       setUploading(true);
       const result = await uploadAchievementImage(achievementId, file);
+      setPreview(result.badge_image_url);
+      setLocalPreviewUrl(null);
       onUploaded?.(result.badge_image_url);
       toast.success(t("toastSuccess"));
     } catch {
       toast.error(t("toastError"));
       setPreview(currentImageUrl ?? null);
+      setLocalPreviewUrl(null);
     } finally {
       setUploading(false);
     }
@@ -108,6 +119,7 @@ export function BadgeImageUpload({
 
   function handleClear() {
     setPreview(null);
+    setLocalPreviewUrl(null);
     if (inputRef.current) inputRef.current.value = "";
   }
 

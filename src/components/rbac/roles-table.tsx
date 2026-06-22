@@ -222,7 +222,7 @@ function DeactivateDialog({ role, open, onClose, onSuccess }: DeactivateDialogPr
           </AlertDialogCancel>
           {isBlocked ? (
             <Button variant="outline" asChild>
-              <Link href="/dashboard/rbac/user-permissions">
+              <Link prefetch={false} href="/dashboard/rbac/user-permissions">
                 <Users className="size-4" />
                 Ver usuarios asignados
               </Link>
@@ -545,7 +545,7 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
                                       className="size-8"
                                       asChild
                                     >
-                                      <Link href={`/dashboard/rbac/roles/${role.role_id}`}>
+                                      <Link prefetch={false} href={`/dashboard/rbac/roles/${role.role_id}`}>
                                         <Pencil className="size-3.5" />
                                         <span className="sr-only">Editar {role.role_name}</span>
                                       </Link>
@@ -626,7 +626,7 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
                         )}
                       </div>
                       {!protected_ && isSuperAdmin && (
-                        <Link
+                        <Link prefetch={false}
                           href={`/dashboard/rbac/roles/${role.role_id}`}
                           className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                           aria-label={`Editar ${role.role_name}`}
@@ -664,7 +664,7 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
                     {isSuperAdmin && !protected_ && role.active !== false && (
                       <div className="mt-3 flex flex-wrap gap-1.5 border-t border-border/40 pt-3">
                         <Button variant="outline" size="xs" asChild>
-                          <Link href={`/dashboard/rbac/roles/${role.role_id}`}>
+                          <Link prefetch={false} href={`/dashboard/rbac/roles/${role.role_id}`}>
                             <Pencil className="size-3" />
                             Editar
                           </Link>

@@ -7,6 +7,10 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppAlertListener } from "@/components/shared/app-alert-listener";
 import { ThemeProvider } from "@/components/theme-provider";
+import {
+  ROOT_CLIENT_MESSAGE_NAMESPACES,
+  pickMessages,
+} from "@/lib/i18n/client-messages";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -51,6 +55,7 @@ export default async function RootLayout({
 }) {
   const locale = await getLocale();
   const messages = await getMessages();
+  const clientMessages = pickMessages(messages, ROOT_CLIENT_MESSAGE_NAMESPACES);
   const htmlLang = locale.startsWith("pt") ? "pt" : locale;
   return (
     <html lang={htmlLang} suppressHydrationWarning>
@@ -63,7 +68,7 @@ export default async function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
-          <NextIntlClientProvider locale={locale} messages={messages}>
+          <NextIntlClientProvider locale={locale} messages={clientMessages}>
             <TooltipProvider delayDuration={300}>
               {children}
               <Suspense fallback={null}>

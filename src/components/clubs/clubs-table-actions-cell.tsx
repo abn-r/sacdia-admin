@@ -76,7 +76,7 @@ export function ClubsTableActionsCell({
           asChild
           title="Ver detalle"
         >
-          <Link href={viewHref} aria-label={`Ver ${club.name}`}>
+          <Link prefetch={false} href={viewHref} aria-label={`Ver ${club.name}`}>
             <Eye className="size-3.5" />
           </Link>
         </Button>
@@ -88,7 +88,7 @@ export function ClubsTableActionsCell({
             asChild
             title="Editar"
           >
-            <Link href={editHref} aria-label={`Editar ${club.name}`}>
+            <Link prefetch={false} href={editHref} aria-label={`Editar ${club.name}`}>
               <Pencil className="size-3.5" />
             </Link>
           </Button>
@@ -117,14 +117,14 @@ export function ClubsTableActionsCell({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem asChild>
-              <Link href={viewHref}>
+              <Link prefetch={false} href={viewHref}>
                 <Eye className="size-4" />
                 Ver detalle
               </Link>
             </DropdownMenuItem>
             {canEdit && (
               <DropdownMenuItem asChild>
-                <Link href={editHref}>
+                <Link prefetch={false} href={editHref}>
                   <Pencil className="size-4" />
                   Editar
                 </Link>

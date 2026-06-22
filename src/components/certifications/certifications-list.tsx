@@ -90,7 +90,7 @@ export function CertificationsList({ items }: CertificationsListProps) {
               </TableCell>
               <TableCell className="px-3 py-2.5 align-middle">
                 <Button variant="ghost" size="icon-sm" asChild>
-                  <Link href={`/dashboard/certifications/${cert.certification_id}`}>
+                  <Link prefetch={false} href={`/dashboard/certifications/${cert.certification_id}`}>
                     <ChevronRight className="size-4" />
                     <span className="sr-only">{t("view_detail")}</span>
                   </Link>

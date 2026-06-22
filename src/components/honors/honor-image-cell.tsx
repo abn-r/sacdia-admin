@@ -170,7 +170,7 @@ export function HonorImageCell({
       </div>
       {showName && (
         nameHref ? (
-          <Link href={nameHref} className="truncate text-sm font-medium hover:underline">
+          <Link prefetch={false} href={nameHref} className="truncate text-sm font-medium hover:underline">
             {name}
           </Link>
         ) : (

@@ -478,6 +478,7 @@ export function AchievementsCrudPage({
                               >
                                 <Link
                                   href={`/dashboard/achievements/${categoryId}/${achId}/edit`}
+                                  prefetch={false}
                                 >
                                   <Pencil className="size-3.5" />
                                 </Link>
@@ -517,6 +518,7 @@ export function AchievementsCrudPage({
                                   <DropdownMenuItem asChild>
                                     <Link
                                       href={`/dashboard/achievements/${categoryId}/${achId}/edit`}
+                                      prefetch={false}
                                     >
                                       <Pencil className="size-4" />
                                       {t("actionEdit")}

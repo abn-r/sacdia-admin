@@ -127,7 +127,7 @@ function NavSubChildLink({
   return (
     <SidebarMenuSubItem>
       <SidebarMenuSubButton asChild isActive={pathname === child.url}>
-        <Link href={child.url}>
+        <Link href={child.url} prefetch={false}>
           <span className="truncate" title={childTitle}>{childTitle}</span>
         </Link>
       </SidebarMenuSubButton>
@@ -198,7 +198,7 @@ function NavItemSimple({ item, pathname }: { item: NavItem; pathname: string }) 
   return (
     <SidebarMenuItem>
       <SidebarMenuButton asChild tooltip={title} isActive={isActive} className="transition-colors duration-200">
-        <Link href={item.url}>
+        <Link href={item.url} prefetch={false}>
           <item.icon className="h-[18px] w-[18px] shrink-0" />
           <span className="truncate" title={title}>{title}</span>
         </Link>
@@ -280,7 +280,7 @@ function SidebarUserFooter() {
               sideOffset={8}
             >
               <DropdownMenuItem asChild>
-                <Link href={`/dashboard/users/${user?.id ?? ""}`}>
+                <Link href={`/dashboard/users/${user?.id ?? ""}`} prefetch={false}>
                   <User className="size-4" />
                   {t("profile")}
                 </Link>
@@ -317,7 +317,7 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/dashboard">
+              <Link href="/dashboard" prefetch={false}>
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                   <Image src="/svg/LogoSACDIA.svg" alt="SACDIA" width={48} height={48} />
                 </div>

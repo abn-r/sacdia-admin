@@ -350,7 +350,7 @@ export function ReportsSupervisionClient({
                   <TableCell>
                     <div className="flex items-center justify-end gap-2">
                       <Button asChild variant="outline" size="sm">
-                        <Link href={`/dashboard/reports/${item.monthly_report_id}`}>
+                        <Link prefetch={false} href={`/dashboard/reports/${item.monthly_report_id}`}>
                           {t("actionView")}
                         </Link>
                       </Button>

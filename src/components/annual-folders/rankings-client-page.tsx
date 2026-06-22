@@ -555,7 +555,7 @@ export function RankingsClientPage({
                       <ComponentSummary components={item.components} />
                     </TableCell>
                     <TableCell className="text-center">
-                      <Link
+                      <Link prefetch={false}
                         href={`/dashboard/annual-folders/rankings/${item.club_enrollment_id}/breakdown?year_id=${item.ecclesiastical_year_id ?? selectedYearId}`}
                         className="inline-flex items-center gap-1 text-xs text-primary underline-offset-4 hover:underline"
                       >
@@ -623,7 +623,7 @@ export function RankingsClientPage({
                   </div>
 
                   <div className="mt-3 border-t pt-3">
-                    <Link
+                    <Link prefetch={false}
                       href={`/dashboard/annual-folders/rankings/${item.club_enrollment_id}/breakdown?year_id=${item.ecclesiastical_year_id ?? selectedYearId}`}
                       className="inline-flex items-center gap-1 text-xs text-primary underline-offset-4 hover:underline"
                     >

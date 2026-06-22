@@ -1,6 +1,6 @@
 /**
  * Phase E catalog API — classes, class_modules, class_sections,
- * folders, folder_modules, folder_sections, finance_categories,
+ * finance_categories,
  * inventory_categories, honors (admin CRUD), master_honors.
  *
  * All endpoints under /admin/* — backend commit: feat(i18n): Phase E admin CRUD.
@@ -154,90 +154,6 @@ export async function updateAdminClassSection(id: number, payload: Partial<Trans
 
 export async function deleteAdminClassSection(id: number) {
   return apiRequest(`/admin/class-sections/${id}`, { method: "DELETE" });
-}
-
-// ─── Folders ──────────────────────────────────────────────────────────────────
-
-export type AdminFolder = {
-  folder_id: number;
-  name: string;
-  description?: string | null;
-  club_type_id?: number | null;
-  display_order?: number | null;
-  active?: boolean;
-  translations?: CatalogTranslation[];
-};
-
-export async function listAdminFolders(params?: Record<string, string | number | boolean>) {
-  return apiRequest<unknown>("/admin/folders", { params });
-}
-
-export async function createAdminFolder(payload: TranslatablePayload) {
-  return apiRequest("/admin/folders", { method: "POST", body: payload });
-}
-
-export async function updateAdminFolder(id: number, payload: Partial<TranslatablePayload>) {
-  return apiRequest(`/admin/folders/${id}`, { method: "PATCH", body: payload });
-}
-
-export async function deleteAdminFolder(id: number) {
-  return apiRequest(`/admin/folders/${id}`, { method: "DELETE" });
-}
-
-// ─── Folder Modules ───────────────────────────────────────────────────────────
-
-export type AdminFolderModule = {
-  module_id: number;
-  folder_id: number;
-  name: string;
-  description?: string | null;
-  display_order?: number | null;
-  active?: boolean;
-  translations?: CatalogTranslation[];
-};
-
-export async function listAdminFolderModules(params?: Record<string, string | number | boolean>) {
-  return apiRequest<unknown>("/admin/folder-modules", { params });
-}
-
-export async function createAdminFolderModule(payload: TranslatablePayload & { folder_id?: number }) {
-  return apiRequest("/admin/folder-modules", { method: "POST", body: payload });
-}
-
-export async function updateAdminFolderModule(id: number, payload: Partial<TranslatablePayload>) {
-  return apiRequest(`/admin/folder-modules/${id}`, { method: "PATCH", body: payload });
-}
-
-export async function deleteAdminFolderModule(id: number) {
-  return apiRequest(`/admin/folder-modules/${id}`, { method: "DELETE" });
-}
-
-// ─── Folder Sections ──────────────────────────────────────────────────────────
-
-export type AdminFolderSection = {
-  section_id: number;
-  module_id: number;
-  name: string;
-  description?: string | null;
-  display_order?: number | null;
-  active?: boolean;
-  translations?: CatalogTranslation[];
-};
-
-export async function listAdminFolderSections(params?: Record<string, string | number | boolean>) {
-  return apiRequest<unknown>("/admin/folder-sections", { params });
-}
-
-export async function createAdminFolderSection(payload: TranslatablePayload & { module_id?: number }) {
-  return apiRequest("/admin/folder-sections", { method: "POST", body: payload });
-}
-
-export async function updateAdminFolderSection(id: number, payload: Partial<TranslatablePayload>) {
-  return apiRequest(`/admin/folder-sections/${id}`, { method: "PATCH", body: payload });
-}
-
-export async function deleteAdminFolderSection(id: number) {
-  return apiRequest(`/admin/folder-sections/${id}`, { method: "DELETE" });
 }
 
 // ─── Finance Categories ───────────────────────────────────────────────────────

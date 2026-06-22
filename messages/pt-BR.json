@@ -78,7 +78,6 @@
       "evidence_folders": "Pastas de evidências",
       "annual_folders": "Pasta Anual de Evidências",
       "annual_folders_templates": "Modelos",
-      "annual_folders_mine": "Minha pasta",
       "annual_folders_evaluate": "Avaliação",
       "annual_folders_rankings": "Rankings",
       "annual_folders_ranking_config": "Configuração de rankings",
@@ -3403,7 +3402,8 @@
       "category_created": "Categoria criada com sucesso",
       "template_updated": "Modelo atualizado com sucesso",
       "template_created": "Modelo criado com sucesso",
-      "owner_catalogs_load_failed": "Não foi possível carregar os catálogos do proprietário"
+      "owner_catalogs_load_failed": "Não foi possível carregar os catálogos do proprietário",
+      "section_submitted": "Seção enviada para revisão"
     },
     "errors": {
       "recalculate_rankings": "Erro ao recalcular os rankings",
@@ -3412,7 +3412,8 @@
       "save_section_failed": "Erro ao salvar a seção",
       "submit_folder_failed": "Não foi possível enviar a pasta",
       "close_folder_failed": "Não foi possível fechar a pasta",
-      "save_template_failed": "Erro ao salvar o modelo"
+      "save_template_failed": "Erro ao salvar o modelo",
+      "submit_section_failed": "Não foi possível enviar a seção"
     },
     "statusBadge": {
       "open": "Aberta",
@@ -3420,14 +3421,6 @@
       "under_evaluation": "Em avaliação",
       "evaluated": "Avaliado",
       "closed": "Fechada"
-    },
-    "byEnrollment": {
-      "title": "Buscar pasta",
-      "enrollmentIdLabel": "Por ID de inscrição",
-      "enrollmentIdPlaceholder": "UUID de inscrição",
-      "folderIdLabel": "Por ID de pasta",
-      "folderIdPlaceholder": "UUID de pasta",
-      "searchButton": "Buscar"
     },
     "sectionCard": {
       "statusPending": "Pendente",
@@ -3548,13 +3541,15 @@
     },
     "page": {
       "title": "Pasta Anual de Evidências",
-      "description": "Gerencie evidências por seção da pasta anual de evidências do membro.",
+      "description": "Gerencie a pasta anual da sua atribuição ativa de clube. Use a fila de avaliação para revisão institucional.",
       "errorFolderFallback": "Não foi possível carregar a pasta.",
       "errorEnrollmentFallback": "Não foi possível carregar a pasta para essa inscrição.",
-      "emptySelectTitle": "Selecione uma inscrição",
-      "emptySelectDescription": "Insira o ID de inscrição ou de pasta para carregar as evidências do membro.",
       "emptyNotFoundTitle": "Pasta não encontrada",
-      "emptyNotFoundDescription": "Não existe uma pasta anual de evidências para o identificador informado. Verifique os dados e tente novamente."
+      "emptyNotFoundDescription": "Não existe uma pasta anual de evidências para o identificador informado. Verifique os dados e tente novamente.",
+      "emptyNoActiveClubTitle": "Sem contexto de clube ativo",
+      "emptyNoActiveClubDescription": "Esta tela não usa UUIDs manuais. Selecione um contexto de clube ou abra a Avaliação de Pastas para revisar por clube, seção ou campo.",
+      "emptyContextFolderTitle": "Não há pasta anual para o contexto ativo",
+      "emptyContextFolderDescription": "A seção ativa ainda não tem inscrição/pasta anual vigente. Quando a inscrição anual e o modelo ativo existirem, o backend a criará automaticamente ou ela poderá ser gerada pelo fluxo de inscrição."
     },
     "pageCategories": {
       "title": "Categorias de prêmios",

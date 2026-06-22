@@ -129,7 +129,7 @@ export function ClassesList({ items }: ClassesListProps) {
               </TableCell>
               <TableCell className="px-3 py-2.5 align-middle">
                 <Button variant="ghost" size="icon-sm" asChild>
-                  <Link href={`/dashboard/classes/${cls.class_id}`}>
+                  <Link prefetch={false} href={`/dashboard/classes/${cls.class_id}`}>
                     <ChevronRight className="size-4" />
                     <span className="sr-only">{t("view_detail", { name: cls.name })}</span>
                   </Link>

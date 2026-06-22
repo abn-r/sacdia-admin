@@ -55,15 +55,22 @@ import type { SectionFormDialogProps } from "@/components/annual-folders/section
 import type { AdminTerritoryScope } from "@/lib/auth/territory-scope";
 
 const SectionFormDialog = dynamic<SectionFormDialogProps>(
-  () => import("@/components/annual-folders/section-form-dialog").then((m) => ({ default: m.SectionFormDialog })),
+  () =>
+    import("@/components/annual-folders/section-form-dialog").then((m) => ({
+      default: m.SectionFormDialog,
+    })),
   { ssr: false, loading: () => null },
 );
 import {
   getTemplate,
+  listTemplates,
   deleteTemplateSection,
 } from "@/lib/api/annual-folders";
-import { ApiError, apiRequestFromClient } from "@/lib/api/client";
-import type { FolderTemplate, FolderTemplateSection } from "@/lib/api/annual-folders";
+import { ApiError } from "@/lib/api/client";
+import type {
+  FolderTemplate,
+  FolderTemplateSection,
+} from "@/lib/api/annual-folders";
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
 import type { LocalField, Union } from "@/lib/api/geography";
 
@@ -82,24 +89,21 @@ type OwnerTierFilter = "all" | "union" | "local_field";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function extractTemplates(payload: unknown): FolderTemplate[] {
-  if (Array.isArray(payload)) return payload as FolderTemplate[];
-  if (payload && typeof payload === "object") {
-    const root = payload as Record<string, unknown>;
-    if (Array.isArray(root.data)) return root.data as FolderTemplate[];
-  }
-  return [];
-}
-
 function resolveOwnerLabel(template: FolderTemplate): string {
-  if (template.owner_union_id !== null && template.owner_union_id !== undefined) {
+  if (
+    template.owner_union_id !== null &&
+    template.owner_union_id !== undefined
+  ) {
     return template.owner_union?.name ?? `Unión ${template.owner_union_id}`;
   }
   if (
     template.owner_local_field_id !== null &&
     template.owner_local_field_id !== undefined
   ) {
-    return template.owner_local_field?.name ?? `Campo ${template.owner_local_field_id}`;
+    return (
+      template.owner_local_field?.name ??
+      `Campo ${template.owner_local_field_id}`
+    );
   }
   return "—";
 }
@@ -121,29 +125,39 @@ export function TemplatesClientPage({
   const latestParamsRef = useRef(searchParams.toString());
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const [templates, setTemplates] = useState<FolderTemplate[]>(initialTemplates);
+  const [templates, setTemplates] =
+    useState<FolderTemplate[]>(initialTemplates);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Template CRUD state
   const [templateFormOpen, setTemplateFormOpen] = useState(false);
-  const [editingTemplate, setEditingTemplate] = useState<FolderTemplate | null>(null);
+  const [editingTemplate, setEditingTemplate] = useState<FolderTemplate | null>(
+    null,
+  );
 
   // Detail view state
-  const [activeTemplate, setActiveTemplate] = useState<FolderTemplate | null>(null);
+  const [activeTemplate, setActiveTemplate] = useState<FolderTemplate | null>(
+    null,
+  );
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
 
   // Section CRUD state
   const [sectionFormOpen, setSectionFormOpen] = useState(false);
-  const [editingSection, setEditingSection] = useState<FolderTemplateSection | null>(null);
+  const [editingSection, setEditingSection] =
+    useState<FolderTemplateSection | null>(null);
   const [deleteSectionOpen, setDeleteSectionOpen] = useState(false);
-  const [deletingSection, setDeletingSection] = useState<FolderTemplateSection | null>(null);
+  const [deletingSection, setDeletingSection] =
+    useState<FolderTemplateSection | null>(null);
   const [isDeletingSection, setIsDeletingSection] = useState(false);
 
   // ─── Filter state (URL-driven) ─────────────────────────────────────────────
 
-  const currentOwnerTierFilter = (searchParams.get("owner_tier") ?? "all") as OwnerTierFilter;
+  const currentOwnerTierFilter = (searchParams.get("owner_tier") ??
+    "all") as OwnerTierFilter;
   const currentOwnerIdFilter = searchParams.get("owner_id") ?? "";
-  const [searchInput, setSearchInput] = useState(searchParams.get("search") ?? "");
+  const [searchInput, setSearchInput] = useState(
+    searchParams.get("search") ?? "",
+  );
 
   const updateParam = useCallback(
     (key: string, value: string) => {
@@ -176,14 +190,22 @@ export function TemplatesClientPage({
 
   const filteredTemplates = templates.filter((tmpl) => {
     const searchTerm = searchParams.get("search") ?? "";
-    if (searchTerm && !tmpl.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+    if (
+      searchTerm &&
+      !tmpl.name.toLowerCase().includes(searchTerm.toLowerCase())
+    ) {
       return false;
     }
 
     if (currentOwnerTierFilter === "union") {
-      if (tmpl.owner_union_id === null || tmpl.owner_union_id === undefined) return false;
+      if (tmpl.owner_union_id === null || tmpl.owner_union_id === undefined)
+        return false;
     } else if (currentOwnerTierFilter === "local_field") {
-      if (tmpl.owner_local_field_id === null || tmpl.owner_local_field_id === undefined) return false;
+      if (
+        tmpl.owner_local_field_id === null ||
+        tmpl.owner_local_field_id === undefined
+      )
+        return false;
     }
 
     if (currentOwnerIdFilter) {
@@ -208,13 +230,11 @@ export function TemplatesClientPage({
   const refreshTemplates = useCallback(async () => {
     setIsRefreshing(true);
     try {
-      const payload = await apiRequestFromClient<unknown>("/annual-folders/templates");
-      setTemplates(extractTemplates(payload));
+      const payload = await listTemplates();
+      setTemplates(payload);
     } catch (err) {
       const message =
-        err instanceof ApiError
-          ? err.message
-          : t("templates.errorRefresh");
+        err instanceof ApiError ? err.message : t("templates.errorRefresh");
       toast.error(message);
     } finally {
       setIsRefreshing(false);
@@ -223,22 +243,25 @@ export function TemplatesClientPage({
 
   // ─── Open template detail ──────────────────────────────────────────────────
 
-  const handleOpenTemplate = useCallback(async (template: FolderTemplate) => {
-    setIsLoadingDetail(true);
-    setActiveTemplate(template);
-    try {
-      const detail = await getTemplate(template.template_id);
-      setActiveTemplate(detail);
-    } catch (err) {
-      const message =
-        err instanceof ApiError
-          ? err.message
-          : t("templates.errorLoadSections");
-      toast.error(message);
-    } finally {
-      setIsLoadingDetail(false);
-    }
-  }, [t]);
+  const handleOpenTemplate = useCallback(
+    async (template: FolderTemplate) => {
+      setIsLoadingDetail(true);
+      setActiveTemplate(template);
+      try {
+        const detail = await getTemplate(template.template_id);
+        setActiveTemplate(detail);
+      } catch (err) {
+        const message =
+          err instanceof ApiError
+            ? err.message
+            : t("templates.errorLoadSections");
+        toast.error(message);
+      } finally {
+        setIsLoadingDetail(false);
+      }
+    },
+    [t],
+  );
 
   // ─── Refresh active template detail ───────────────────────────────────────
 
@@ -337,9 +360,15 @@ export function TemplatesClientPage({
             <div>
               <h2 className="text-lg font-semibold">{activeTemplate.name}</h2>
               <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
-                <span>{activeTemplate.club_type?.name ?? `Tipo ${activeTemplate.club_type_id}`}</span>
+                <span>
+                  {activeTemplate.club_type?.name ??
+                    `Tipo ${activeTemplate.club_type_id}`}
+                </span>
                 <span aria-hidden>·</span>
-                <span>{activeTemplate.ecclesiastical_year?.name ?? `Año ${activeTemplate.ecclesiastical_year_id}`}</span>
+                <span>
+                  {activeTemplate.ecclesiastical_year?.name ??
+                    `Año ${activeTemplate.ecclesiastical_year_id}`}
+                </span>
                 <span aria-hidden>·</span>
                 <span>
                   {sortedSections.length}{" "}
@@ -352,7 +381,8 @@ export function TemplatesClientPage({
                     <span aria-hidden>·</span>
                     <span className="inline-flex items-center gap-1">
                       <Trophy className="size-3" />
-                      {activeTemplate.minimum_points} {t("templates.minPointsSuffix")}
+                      {activeTemplate.minimum_points}{" "}
+                      {t("templates.minPointsSuffix")}
                     </span>
                   </>
                 )}
@@ -372,7 +402,11 @@ export function TemplatesClientPage({
               </div>
             </div>
           </div>
-          <Button size="sm" onClick={handleAddSection} disabled={isLoadingDetail}>
+          <Button
+            size="sm"
+            onClick={handleAddSection}
+            disabled={isLoadingDetail}
+          >
             <Plus className="size-4" />
             {t("templates.addSection")}
           </Button>
@@ -387,7 +421,9 @@ export function TemplatesClientPage({
             <div className="flex size-12 items-center justify-center rounded-full bg-muted">
               <GripVertical className="size-6 text-muted-foreground" />
             </div>
-            <h3 className="mt-4 text-base font-semibold">{t("templates.noSectionsTitle")}</h3>
+            <h3 className="mt-4 text-base font-semibold">
+              {t("templates.noSectionsTitle")}
+            </h3>
             <p className="mt-1 max-w-sm text-sm text-muted-foreground">
               {t("templates.noSectionsDescription")}
             </p>
@@ -403,13 +439,23 @@ export function TemplatesClientPage({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-12 text-center">{t("templates.tableColOrder")}</TableHead>
+                    <TableHead className="w-12 text-center">
+                      {t("templates.tableColOrder")}
+                    </TableHead>
                     <TableHead>{t("templates.tableColName")}</TableHead>
                     <TableHead>{t("templates.tableColDescription")}</TableHead>
-                    <TableHead className="w-28 text-center">{t("templates.tableColRequired")}</TableHead>
-                    <TableHead className="w-24 text-center">{t("templates.tableColMaxPts")}</TableHead>
-                    <TableHead className="w-24 text-center">{t("templates.tableColMinPts")}</TableHead>
-                    <TableHead className="w-20 text-right">{t("templates.tableColActions")}</TableHead>
+                    <TableHead className="w-28 text-center">
+                      {t("templates.tableColRequired")}
+                    </TableHead>
+                    <TableHead className="w-24 text-center">
+                      {t("templates.tableColMaxPts")}
+                    </TableHead>
+                    <TableHead className="w-24 text-center">
+                      {t("templates.tableColMinPts")}
+                    </TableHead>
+                    <TableHead className="w-20 text-right">
+                      {t("templates.tableColActions")}
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -420,10 +466,14 @@ export function TemplatesClientPage({
                           {section.order}
                         </span>
                       </TableCell>
-                      <TableCell className="font-medium">{section.name}</TableCell>
+                      <TableCell className="font-medium">
+                        {section.name}
+                      </TableCell>
                       <TableCell className="max-w-xs truncate text-muted-foreground">
                         {section.description ?? (
-                          <span className="italic text-muted-foreground/60">{t("templates.noDescription")}</span>
+                          <span className="italic text-muted-foreground/60">
+                            {t("templates.noDescription")}
+                          </span>
                         )}
                       </TableCell>
                       <TableCell className="text-center">
@@ -448,7 +498,9 @@ export function TemplatesClientPage({
                             title={t("templates.editSection")}
                           >
                             <Pencil className="size-3.5" />
-                            <span className="sr-only">{t("templates.editSection")}</span>
+                            <span className="sr-only">
+                              {t("templates.editSection")}
+                            </span>
                           </Button>
                           <Button
                             variant="ghost"
@@ -458,7 +510,9 @@ export function TemplatesClientPage({
                             className="text-destructive hover:text-destructive"
                           >
                             <Trash2 className="size-3.5" />
-                            <span className="sr-only">{t("templates.deleteSection")}</span>
+                            <span className="sr-only">
+                              {t("templates.deleteSection")}
+                            </span>
                           </Button>
                         </div>
                       </TableCell>
@@ -469,7 +523,10 @@ export function TemplatesClientPage({
             </div>
 
             {/* Mobile: section cards */}
-            <ul className="space-y-3 md:hidden" aria-label={t("templates.mobileListLabel")}>
+            <ul
+              className="space-y-3 md:hidden"
+              aria-label={t("templates.mobileListLabel")}
+            >
               {sortedSections.map((section) => (
                 <li key={section.section_id}>
                   <div className="rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40 focus-visible:outline-none">
@@ -495,7 +552,9 @@ export function TemplatesClientPage({
                           title={t("templates.editSection")}
                         >
                           <Pencil className="size-3.5" />
-                          <span className="sr-only">{t("templates.editSection")}</span>
+                          <span className="sr-only">
+                            {t("templates.editSection")}
+                          </span>
                         </Button>
                         <Button
                           variant="ghost"
@@ -505,14 +564,18 @@ export function TemplatesClientPage({
                           className="text-destructive hover:text-destructive"
                         >
                           <Trash2 className="size-3.5" />
-                          <span className="sr-only">{t("templates.deleteSection")}</span>
+                          <span className="sr-only">
+                            {t("templates.deleteSection")}
+                          </span>
                         </Button>
                       </div>
                     </div>
 
                     <dl className="mt-3 grid grid-cols-3 gap-x-3 gap-y-1.5 text-xs">
                       <div>
-                        <dt className="text-muted-foreground">{t("templates.tableColRequired")}</dt>
+                        <dt className="text-muted-foreground">
+                          {t("templates.tableColRequired")}
+                        </dt>
                         <dd className="mt-0.5">
                           {section.required ? (
                             <CheckCircle2 className="size-4 text-success" />
@@ -522,11 +585,15 @@ export function TemplatesClientPage({
                         </dd>
                       </div>
                       <div>
-                        <dt className="text-muted-foreground">{t("templates.tableColMaxPts")}</dt>
+                        <dt className="text-muted-foreground">
+                          {t("templates.tableColMaxPts")}
+                        </dt>
                         <dd>{section.max_points}</dd>
                       </div>
                       <div>
-                        <dt className="text-muted-foreground">{t("templates.tableColMinPts")}</dt>
+                        <dt className="text-muted-foreground">
+                          {t("templates.tableColMinPts")}
+                        </dt>
                         <dd>{section.minimum_points}</dd>
                       </div>
                     </dl>
@@ -547,12 +614,19 @@ export function TemplatesClientPage({
           onSuccess={refreshActiveTemplate}
         />
 
-        <AlertDialog open={deleteSectionOpen} onOpenChange={setDeleteSectionOpen}>
+        <AlertDialog
+          open={deleteSectionOpen}
+          onOpenChange={setDeleteSectionOpen}
+        >
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>{t("templates.deleteSectionTitle")}</AlertDialogTitle>
+              <AlertDialogTitle>
+                {t("templates.deleteSectionTitle")}
+              </AlertDialogTitle>
               <AlertDialogDescription>
-                {t("templates.deleteSectionDescription", { name: deletingSection?.name ?? "" })}
+                {t("templates.deleteSectionDescription", {
+                  name: deletingSection?.name ?? "",
+                })}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -588,7 +662,8 @@ export function TemplatesClientPage({
             </span>
             {filteredTemplates.length !== templates.length && (
               <span className="text-muted-foreground">
-                {" "}{t("templates.countOf")} {templates.length}
+                {" "}
+                {t("templates.countOf")} {templates.length}
               </span>
             )}{" "}
             {templates.length === 1
@@ -602,11 +677,19 @@ export function TemplatesClientPage({
             disabled={isRefreshing}
             title={t("templates.refresh")}
           >
-            <RefreshCw className={`size-3.5 ${isRefreshing ? "animate-spin" : ""}`} />
+            <RefreshCw
+              className={`size-3.5 ${isRefreshing ? "animate-spin" : ""}`}
+            />
             <span className="sr-only">{t("templates.refresh")}</span>
           </Button>
         </div>
-        <Button size="sm" onClick={() => { setEditingTemplate(null); setTemplateFormOpen(true); }}>
+        <Button
+          size="sm"
+          onClick={() => {
+            setEditingTemplate(null);
+            setTemplateFormOpen(true);
+          }}
+        >
           <Plus className="size-4" />
           {t("templates.newTemplate")}
         </Button>
@@ -615,7 +698,9 @@ export function TemplatesClientPage({
       {/* Filters */}
       <div className="rounded-xl border bg-muted/20 p-4">
         <div className="mb-3 flex items-center justify-between gap-2">
-          <h3 className="text-sm font-semibold tracking-wide text-foreground">{t("templates.filtersTitle")}</h3>
+          <h3 className="text-sm font-semibold tracking-wide text-foreground">
+            {t("templates.filtersTitle")}
+          </h3>
           {hasActiveFilters && (
             <Button
               variant="ghost"
@@ -635,7 +720,9 @@ export function TemplatesClientPage({
           <div className="flex min-w-max items-end gap-4">
             {/* Search */}
             <div className="w-[260px] space-y-1">
-              <Label htmlFor="tmpl-filter-search">{t("templates.filterByName")}</Label>
+              <Label htmlFor="tmpl-filter-search">
+                {t("templates.filterByName")}
+              </Label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -650,7 +737,9 @@ export function TemplatesClientPage({
 
             {/* Owner tier */}
             <div className="w-[200px] space-y-1">
-              <Label htmlFor="tmpl-filter-owner-tier">{t("templates.filterOwnerTierLabel")}</Label>
+              <Label htmlFor="tmpl-filter-owner-tier">
+                {t("templates.filterOwnerTierLabel")}
+              </Label>
               <Select
                 value={currentOwnerTierFilter}
                 onValueChange={(val) => {
@@ -659,13 +748,24 @@ export function TemplatesClientPage({
                   updateParam("owner_id", "");
                 }}
               >
-                <SelectTrigger id="tmpl-filter-owner-tier" className="bg-background">
-                  <SelectValue placeholder={t("templates.filterOwnerTierLabel")} />
+                <SelectTrigger
+                  id="tmpl-filter-owner-tier"
+                  className="bg-background"
+                >
+                  <SelectValue
+                    placeholder={t("templates.filterOwnerTierLabel")}
+                  />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">{t("templates.filterOwnerTierAll")}</SelectItem>
-                  <SelectItem value="union">{t("templates.filterOwnerTierUnion")}</SelectItem>
-                  <SelectItem value="local_field">{t("templates.filterOwnerTierLocalField")}</SelectItem>
+                  <SelectItem value="all">
+                    {t("templates.filterOwnerTierAll")}
+                  </SelectItem>
+                  <SelectItem value="union">
+                    {t("templates.filterOwnerTierUnion")}
+                  </SelectItem>
+                  <SelectItem value="local_field">
+                    {t("templates.filterOwnerTierLocalField")}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -680,7 +780,9 @@ export function TemplatesClientPage({
             <Plus className="size-6 text-muted-foreground" />
           </div>
           <h3 className="mt-4 text-base font-semibold">
-            {hasActiveFilters ? t("templates.noResultsTitle") : t("templates.noTemplatesTitle")}
+            {hasActiveFilters
+              ? t("templates.noResultsTitle")
+              : t("templates.noTemplatesTitle")}
           </h3>
           <p className="mt-1 max-w-sm text-sm text-muted-foreground">
             {hasActiveFilters
@@ -691,7 +793,10 @@ export function TemplatesClientPage({
             <Button
               size="sm"
               className="mt-4"
-              onClick={() => { setEditingTemplate(null); setTemplateFormOpen(true); }}
+              onClick={() => {
+                setEditingTemplate(null);
+                setTemplateFormOpen(true);
+              }}
             >
               <Plus className="size-4" />
               {t("templates.newTemplate")}
@@ -707,11 +812,19 @@ export function TemplatesClientPage({
                 <TableRow>
                   <TableHead>{t("templates.tableColName")}</TableHead>
                   <TableHead>{t("templates.tableColClubType")}</TableHead>
-                  <TableHead>{t("templates.tableColEcclesiasticalYear")}</TableHead>
+                  <TableHead>
+                    {t("templates.tableColEcclesiasticalYear")}
+                  </TableHead>
                   <TableHead>{t("templates.tableColOwner")}</TableHead>
-                  <TableHead className="w-24 text-center">{t("templates.tableColSections")}</TableHead>
-                  <TableHead className="w-16 text-center">{t("templates.tableColStatus")}</TableHead>
-                  <TableHead className="w-16 text-right">{t("templates.tableColActions")}</TableHead>
+                  <TableHead className="w-24 text-center">
+                    {t("templates.tableColSections")}
+                  </TableHead>
+                  <TableHead className="w-16 text-center">
+                    {t("templates.tableColStatus")}
+                  </TableHead>
+                  <TableHead className="w-16 text-right">
+                    {t("templates.tableColActions")}
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -721,12 +834,16 @@ export function TemplatesClientPage({
                     className="cursor-pointer"
                     onClick={() => handleOpenTemplate(template)}
                   >
-                    <TableCell className="font-medium">{template.name}</TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {template.club_type?.name ?? `Tipo ${template.club_type_id}`}
+                    <TableCell className="font-medium">
+                      {template.name}
                     </TableCell>
                     <TableCell className="text-muted-foreground">
-                      {template.ecclesiastical_year?.name ?? `Año ${template.ecclesiastical_year_id}`}
+                      {template.club_type?.name ??
+                        `Tipo ${template.club_type_id}`}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {template.ecclesiastical_year?.name ??
+                        `Año ${template.ecclesiastical_year_id}`}
                     </TableCell>
                     <TableCell>
                       {template.owner_union_id !== null &&
@@ -755,7 +872,9 @@ export function TemplatesClientPage({
                         variant={template.active ? "success" : "secondary"}
                         className="text-xs"
                       >
-                        {template.active ? t("templates.statusActive") : t("templates.statusInactive")}
+                        {template.active
+                          ? t("templates.statusActive")
+                          : t("templates.statusInactive")}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
@@ -767,7 +886,9 @@ export function TemplatesClientPage({
                           title={t("templates.editTemplate")}
                         >
                           <Pencil className="size-3.5" />
-                          <span className="sr-only">{t("templates.editTemplate")}</span>
+                          <span className="sr-only">
+                            {t("templates.editTemplate")}
+                          </span>
                         </Button>
                         <ChevronRight className="size-4 text-muted-foreground" />
                       </div>
@@ -779,22 +900,29 @@ export function TemplatesClientPage({
           </div>
 
           {/* Mobile: template cards */}
-          <ul className="space-y-3 md:hidden" aria-label={t("templates.mobileTemplatesLabel")}>
+          <ul
+            className="space-y-3 md:hidden"
+            aria-label={t("templates.mobileTemplatesLabel")}
+          >
             {filteredTemplates.map((template) => (
               <li key={template.template_id}>
                 <button
                   type="button"
                   className="w-full rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring text-left"
                   onClick={() => handleOpenTemplate(template)}
-                  aria-label={t("templates.openTemplateAriaLabel", { name: template.name })}
+                  aria-label={t("templates.openTemplateAriaLabel", {
+                    name: template.name,
+                  })}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-medium">{template.name}</p>
                       <p className="mt-0.5 text-xs text-muted-foreground">
-                        {template.club_type?.name ?? `Tipo ${template.club_type_id}`}
+                        {template.club_type?.name ??
+                          `Tipo ${template.club_type_id}`}
                         {" · "}
-                        {template.ecclesiastical_year?.name ?? `Año ${template.ecclesiastical_year_id}`}
+                        {template.ecclesiastical_year?.name ??
+                          `Año ${template.ecclesiastical_year_id}`}
                       </p>
                     </div>
                     <div className="flex shrink-0 items-center gap-1.5">
@@ -802,7 +930,9 @@ export function TemplatesClientPage({
                         variant={template.active ? "success" : "secondary"}
                         className="text-xs"
                       >
-                        {template.active ? t("templates.statusActive") : t("templates.statusInactive")}
+                        {template.active
+                          ? t("templates.statusActive")
+                          : t("templates.statusInactive")}
                       </Badge>
                       <Button
                         variant="ghost"
@@ -811,9 +941,14 @@ export function TemplatesClientPage({
                         title={t("templates.editTemplate")}
                       >
                         <Pencil className="size-3.5" />
-                        <span className="sr-only">{t("templates.editTemplate")}</span>
+                        <span className="sr-only">
+                          {t("templates.editTemplate")}
+                        </span>
                       </Button>
-                      <ChevronRight className="size-4 text-muted-foreground" aria-hidden="true" />
+                      <ChevronRight
+                        className="size-4 text-muted-foreground"
+                        aria-hidden="true"
+                      />
                     </div>
                   </div>
 

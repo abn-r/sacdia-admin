@@ -7,6 +7,7 @@ export function proxy(request: NextRequest) {
 
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-pathname", pathname);
+  requestHeaders.set("x-sacdia-pathname", pathname);
 
   if (pathname.startsWith("/dashboard") && !token) {
     const loginUrl = new URL("/login", request.url);

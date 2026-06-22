@@ -186,7 +186,7 @@ async function ClubsContent({
       <EmptyState icon={Building2} title={t("emptyTitle")} description={t("emptyDescription")}>
         {canCreate && (
           <Button asChild>
-            <Link href="/dashboard/clubs/new">
+            <Link prefetch={false} href="/dashboard/clubs/new">
               <Plus className="size-4" />
               {t("emptyCreateButton")}
             </Link>
@@ -222,7 +222,7 @@ async function ClubsContent({
                 return (
                   <TableRow key={clubId}>
                     <TableCell className="font-medium">
-                      <Link
+                      <Link prefetch={false}
                         href={`/dashboard/clubs/${clubId}`}
                         className="hover:text-primary hover:underline underline-offset-4"
                       >
@@ -270,7 +270,7 @@ async function ClubsContent({
 
           return (
             <li key={clubId}>
-              <Link
+              <Link prefetch={false}
                 href={`/dashboard/clubs/${clubId}`}
                 className="block rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >

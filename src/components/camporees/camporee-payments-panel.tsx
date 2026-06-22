@@ -345,6 +345,7 @@ export function CamporeePaymentsPanel({
                               >
                                 <Link
                                   href={`/dashboard/camporees/${camporeeId}/payments/${payment.camporee_payment_id}/edit`}
+                                  prefetch={false}
                                 >
                                   <Pencil className="size-3.5" />
                                   <span className="sr-only">

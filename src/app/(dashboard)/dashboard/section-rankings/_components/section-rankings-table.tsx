@@ -150,7 +150,7 @@ export function SectionRankingsTable({
                   {/* Action */}
                   <TableCell className="px-3 py-2.5 align-middle text-right">
                     <Button variant="ghost" size="sm" asChild>
-                      <Link
+                      <Link prefetch={false}
                         href={`/dashboard/section-rankings/${item.club_section_id}/members?year_id=${yearId}`}
                       >
                         {t("viewMembers")}

@@ -78,7 +78,6 @@
       "evidence_folders": "Dossiers annuels de preuves",
       "annual_folders": "Dossier annuel de preuves",
       "annual_folders_templates": "Modèles",
-      "annual_folders_mine": "Mon dossier",
       "annual_folders_evaluate": "Évaluation",
       "annual_folders_rankings": "Classements",
       "annual_folders_ranking_config": "Configuration des classements",
@@ -3403,7 +3402,8 @@
       "category_created": "Catégorie créée avec succès",
       "template_updated": "Modèle mis à jour avec succès",
       "template_created": "Modèle créé avec succès",
-      "owner_catalogs_load_failed": "Impossible de charger les catalogues du propriétaire"
+      "owner_catalogs_load_failed": "Impossible de charger les catalogues du propriétaire",
+      "section_submitted": "Section envoyée pour révision"
     },
     "errors": {
       "recalculate_rankings": "Erreur lors du recalcul des classements",
@@ -3412,7 +3412,8 @@
       "save_section_failed": "Erreur lors de l'enregistrement de la section",
       "submit_folder_failed": "Impossible de soumettre le dossier",
       "close_folder_failed": "Impossible de clôturer le dossier",
-      "save_template_failed": "Erreur lors de l'enregistrement du modèle"
+      "save_template_failed": "Erreur lors de l'enregistrement du modèle",
+      "submit_section_failed": "Impossible d’envoyer la section"
     },
     "statusBadge": {
       "open": "Ouverte",
@@ -3420,14 +3421,6 @@
       "under_evaluation": "En évaluation",
       "evaluated": "Évalué",
       "closed": "Clôturée"
-    },
-    "byEnrollment": {
-      "title": "Rechercher un dossier",
-      "enrollmentIdLabel": "Par identifiant d'inscription",
-      "enrollmentIdPlaceholder": "UUID d'inscription",
-      "folderIdLabel": "Par identifiant de dossier",
-      "folderIdPlaceholder": "UUID de dossier",
-      "searchButton": "Rechercher"
     },
     "sectionCard": {
       "statusPending": "En attente",
@@ -3548,13 +3541,15 @@
     },
     "page": {
       "title": "Dossier annuel de preuves",
-      "description": "Gérez les preuves par section du dossier annuel de preuves du membre.",
+      "description": "Gérez le dossier annuel de votre affectation de club active. Utilisez la file d’évaluation pour la révision institutionnelle.",
       "errorFolderFallback": "Impossible de charger le dossier.",
       "errorEnrollmentFallback": "Impossible de charger le dossier pour cette inscription.",
-      "emptySelectTitle": "Sélectionnez une inscription",
-      "emptySelectDescription": "Entrez l'identifiant d'inscription ou de dossier pour charger les preuves du membre.",
       "emptyNotFoundTitle": "Dossier introuvable",
-      "emptyNotFoundDescription": "Aucun dossier annuel de preuves n'existe pour l'identifiant saisi. Vérifiez les données et réessayez."
+      "emptyNotFoundDescription": "Aucun dossier annuel de preuves n'existe pour l'identifiant saisi. Vérifiez les données et réessayez.",
+      "emptyNoActiveClubTitle": "Aucun contexte de club actif",
+      "emptyNoActiveClubDescription": "Cet écran n’utilise pas d’UUID saisis manuellement. Sélectionnez un contexte de club ou ouvrez l’évaluation des dossiers pour réviser par club, section ou champ.",
+      "emptyContextFolderTitle": "Aucun dossier annuel pour le contexte actif",
+      "emptyContextFolderDescription": "La section active n’a pas encore d’inscription/dossier annuel en cours. Lorsque l’inscription annuelle et le modèle actif existent, le backend le créera automatiquement ou il pourra être généré depuis le flux d’inscription."
     },
     "pageCategories": {
       "title": "Catégories de récompenses",

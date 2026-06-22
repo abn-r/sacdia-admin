@@ -132,7 +132,7 @@ export function ClubDetailHero({
         <div className="flex flex-col items-stretch gap-2 sm:flex-row md:flex-col md:items-end">
           <div className="flex gap-2">
             <Button variant="outline" size="sm" asChild>
-              <Link href="/dashboard/clubs">
+              <Link href="/dashboard/clubs" prefetch={false}>
                 <ArrowLeft className="size-3.5" /> Volver
               </Link>
             </Button>

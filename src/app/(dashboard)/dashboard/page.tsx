@@ -395,6 +395,7 @@ async function RecentUsersSection() {
           </div>
           <Link
             href="/dashboard/users"
+            prefetch={false}
             className="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
           >
             {t("recentUsers.viewAll")}
@@ -419,6 +420,7 @@ async function RecentUsersSection() {
         </div>
         <Link
           href="/dashboard/users"
+          prefetch={false}
           className="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
         >
           {t("recentUsers.viewAll")}
@@ -450,6 +452,7 @@ async function RecentUsersSection() {
                 <div className="flex-1 space-y-0.5 overflow-hidden">
                   <Link
                     href={`/dashboard/users/${user.user_id}`}
+                    prefetch={false}
                     className="block truncate text-sm font-medium leading-none hover:underline"
                     title={fullName}
                   >
@@ -670,7 +673,13 @@ export default async function DashboardPage() {
             const config =
               statCardConfig[link.colorIndex % statCardConfig.length];
             return (
-              <Link key={link.href} href={link.href} className={STAGGER_CLASSES} style={getStaggerStyle(index, 50)}>
+              <Link
+                key={link.href}
+                href={link.href}
+                prefetch={false}
+                className={STAGGER_CLASSES}
+                style={getStaggerStyle(index, 50)}
+              >
                 <Card className="group h-full transition-all hover:border-primary/20 hover:shadow-md">
                   <CardContent className="flex items-center gap-3.5 p-4">
                     <div

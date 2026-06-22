@@ -5,10 +5,19 @@ const mockApiRequestFromClient = vi.fn();
 
 vi.mock("@/lib/api/client", () => ({
   apiRequest: (...args: unknown[]) => mockApiRequest(...args),
-  apiRequestFromClient: (...args: unknown[]) => mockApiRequestFromClient(...args),
+  apiRequestFromClient: (...args: unknown[]) =>
+    mockApiRequestFromClient(...args),
 }));
 
-import { getFolderEvaluations } from "@/lib/api/annual-folders";
+import {
+  createTemplateSection,
+  getFolderBySection,
+  getFolderEvaluations,
+  listTemplates,
+  closeFolder,
+  submitFolder,
+  submitSection,
+} from "@/lib/api/annual-folders";
 
 describe("annual folders admin API", () => {
   beforeEach(() => {
@@ -41,9 +50,187 @@ describe("annual folders admin API", () => {
       data: evaluations,
     });
 
-    await expect(getFolderEvaluations("folder-1")).resolves.toEqual(evaluations);
+    await expect(getFolderEvaluations("folder-1")).resolves.toEqual(
+      evaluations,
+    );
     expect(mockApiRequestFromClient).toHaveBeenCalledWith(
       "/annual-folders/folder-1/evaluations",
     );
+  });
+
+  it("normalizes backend folder_template_id into template_id for template lists", async () => {
+    mockApiRequest.mockResolvedValue({
+      status: "success",
+      data: [
+        {
+          folder_template_id: "tmpl-backend-1",
+          name: "Carpeta anual",
+          club_type_id: 2,
+          ecclesiastical_year_id: 1,
+          active: true,
+          minimum_points: 70,
+          closing_date: null,
+          created_at: null,
+          owner_union_id: 10,
+          owner_local_field_id: null,
+          sections: [
+            {
+              section_id: "section-1",
+              folder_template_id: "tmpl-backend-1",
+              name: "Administración",
+              description: null,
+              order: 1,
+              required: true,
+              active: true,
+              max_points: 100,
+              minimum_points: 0,
+              created_at: null,
+            },
+          ],
+        },
+      ],
+    });
+
+    await expect(listTemplates()).resolves.toMatchObject([
+      {
+        template_id: "tmpl-backend-1",
+        sections: [{ template_id: "tmpl-backend-1" }],
+      },
+    ]);
+    expect(mockApiRequest).toHaveBeenCalledWith("/annual-folders/templates");
+  });
+
+  it("loads the current annual folder by club section without exposing UUID search", async () => {
+    mockApiRequest.mockResolvedValue({
+      status: "success",
+      data: {
+        folder_id: "folder-backend-1",
+        enrollment_id: "enrollment-backend-1",
+        template_id: "template-backend-1",
+        status: "open",
+        submitted_at: null,
+        closed_at: null,
+        created_at: null,
+        local_camporee_id: null,
+        union_camporee_id: null,
+        requires_union_confirmation: false,
+        sections: [],
+      },
+    });
+
+    await expect(getFolderBySection(33)).resolves.toMatchObject({
+      annual_folder_id: "folder-backend-1",
+      club_enrollment_id: "enrollment-backend-1",
+      folder_template_id: "template-backend-1",
+    });
+    expect(mockApiRequest).toHaveBeenCalledWith(
+      "/club-sections/33/annual-folder",
+    );
+  });
+
+  it("returns null when the active club section has no annual folder yet", async () => {
+    mockApiRequest.mockResolvedValue({ status: "success", data: null });
+
+    await expect(getFolderBySection(33)).resolves.toBeNull();
+  });
+
+  it("submits a section before complete folder submission", async () => {
+    mockApiRequestFromClient.mockResolvedValue({
+      status: "success",
+      data: {
+        section_submission_id: "submission-1",
+        section_id: "section-1",
+        folder_id: "folder-1",
+        submitted_at: "2026-06-22T00:00:00.000Z",
+        submitted_by: "user-1",
+      },
+    });
+
+    await expect(submitSection("folder-1", "section-1")).resolves.toMatchObject({
+      annual_folder_id: "folder-1",
+      section_id: "section-1",
+    });
+    expect(mockApiRequestFromClient).toHaveBeenCalledWith(
+      "/annual-folders/folder-1/sections/section-1/submit",
+      { method: "POST" },
+    );
+  });
+
+  it("unwraps and normalizes complete folder submit responses", async () => {
+    mockApiRequestFromClient.mockResolvedValue({
+      status: "success",
+      data: {
+        folder_id: "folder-1",
+        enrollment_id: "enrollment-1",
+        template_id: "template-1",
+        status: "submitted",
+        submitted_at: "2026-06-22T00:00:00.000Z",
+        closed_at: null,
+        created_at: null,
+        local_camporee_id: null,
+        union_camporee_id: null,
+        requires_union_confirmation: false,
+        sections: [],
+      },
+    });
+
+    await expect(submitFolder("folder-1")).resolves.toMatchObject({
+      annual_folder_id: "folder-1",
+      status: "submitted",
+    });
+  });
+
+  it("unwraps and normalizes close folder responses", async () => {
+    mockApiRequestFromClient.mockResolvedValue({
+      status: "success",
+      data: {
+        folder_id: "folder-1",
+        enrollment_id: "enrollment-1",
+        template_id: "template-1",
+        status: "closed",
+        submitted_at: "2026-06-22T00:00:00.000Z",
+        closed_at: "2026-06-23T00:00:00.000Z",
+        created_at: null,
+        local_camporee_id: null,
+        union_camporee_id: null,
+        requires_union_confirmation: false,
+        sections: [],
+      },
+    });
+
+    await expect(closeFolder("folder-1")).resolves.toMatchObject({
+      annual_folder_id: "folder-1",
+      status: "closed",
+    });
+  });
+
+  it("unwraps and normalizes template section mutations", async () => {
+    mockApiRequestFromClient.mockResolvedValue({
+      status: "success",
+      data: {
+        section_id: "section-2",
+        folder_template_id: "tmpl-backend-2",
+        name: "Operaciones",
+        description: null,
+        order: 2,
+        required: true,
+        active: true,
+        max_points: 50,
+        minimum_points: 0,
+        created_at: null,
+      },
+    });
+
+    await expect(
+      createTemplateSection("tmpl-backend-2", {
+        name: "Operaciones",
+        order: 2,
+        required: true,
+        max_points: 50,
+      }),
+    ).resolves.toMatchObject({
+      section_id: "section-2",
+      template_id: "tmpl-backend-2",
+    });
   });
 });

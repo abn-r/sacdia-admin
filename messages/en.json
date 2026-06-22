@@ -78,7 +78,6 @@
       "evidence_folders": "Annual Evidence Folders",
       "annual_folders": "Annual Evidence Folder",
       "annual_folders_templates": "Templates",
-      "annual_folders_mine": "My folder",
       "annual_folders_evaluate": "Evaluation",
       "annual_folders_rankings": "Rankings",
       "annual_folders_ranking_config": "Ranking configuration",
@@ -3537,7 +3536,8 @@
       "category_created": "Category created successfully",
       "template_updated": "Template updated successfully",
       "template_created": "Template created successfully",
-      "owner_catalogs_load_failed": "Could not load owner catalogs"
+      "owner_catalogs_load_failed": "Could not load owner catalogs",
+      "section_submitted": "Section submitted for review"
     },
     "errors": {
       "recalculate_rankings": "Error recalculating the rankings",
@@ -3546,7 +3546,8 @@
       "save_section_failed": "Error saving the section",
       "submit_folder_failed": "Could not submit the folder",
       "close_folder_failed": "Could not close the folder",
-      "save_template_failed": "Error saving the template"
+      "save_template_failed": "Error saving the template",
+      "submit_section_failed": "Could not submit the section"
     },
     "statusBadge": {
       "open": "Open",
@@ -3554,14 +3555,6 @@
       "under_evaluation": "Under evaluation",
       "evaluated": "Evaluated",
       "closed": "Closed"
-    },
-    "byEnrollment": {
-      "title": "Search folder",
-      "enrollmentIdLabel": "By enrollment ID",
-      "enrollmentIdPlaceholder": "Enrollment UUID",
-      "folderIdLabel": "By folder ID",
-      "folderIdPlaceholder": "Folder UUID",
-      "searchButton": "Search"
     },
     "sectionCard": {
       "statusPending": "Pending",
@@ -3682,13 +3675,15 @@
     },
     "page": {
       "title": "Annual Evidence Folder",
-      "description": "Manage evidence by section of the member's annual evidence folder.",
+      "description": "Manage the annual folder for your active club assignment. Use the evaluation queue for institutional review.",
       "errorFolderFallback": "Could not load the folder.",
       "errorEnrollmentFallback": "Could not load the folder for that enrollment.",
-      "emptySelectTitle": "Select an enrollment",
-      "emptySelectDescription": "Enter the enrollment ID or folder ID to load the member's evidence.",
       "emptyNotFoundTitle": "Folder not found",
-      "emptyNotFoundDescription": "No annual evidence folder exists for the provided identifier. Check your data and try again."
+      "emptyNotFoundDescription": "No annual evidence folder exists for the provided identifier. Check your data and try again.",
+      "emptyNoActiveClubTitle": "No active club context",
+      "emptyNoActiveClubDescription": "This screen does not use manual UUIDs. Select a club context or open Folder Evaluation to review folders by club, section, or field.",
+      "emptyContextFolderTitle": "No annual folder for the active context",
+      "emptyContextFolderDescription": "The active section does not have a current annual enrollment/folder yet. Once the annual enrollment and active template exist, the backend will create it automatically or it can be generated from the enrollment flow."
     },
     "pageCategories": {
       "title": "Award Categories",

@@ -157,7 +157,7 @@ export default async function NewClubPage() {
     <div className="space-y-6">
       <PageHeader title={t("title")}>
         <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/clubs">
+          <Link href="/dashboard/clubs" prefetch={false}>
             <ArrowLeft className="size-4" />
             {t("back")}
           </Link>

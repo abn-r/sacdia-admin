@@ -196,7 +196,7 @@ export default async function InboxPage({
                     </TableCell>
                     <TableCell className="px-3 py-2.5 align-middle">
                       <Button variant="ghost" size="icon-sm" asChild>
-                        <Link href={resolveDetailHref(orden)}>
+                        <Link href={resolveDetailHref(orden)} prefetch={false}>
                           <span className="sr-only">Ver solicitud</span>
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
