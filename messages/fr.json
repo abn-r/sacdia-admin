@@ -1664,8 +1664,8 @@
       "role_category_invalid": "La catégorie doit être GLOBAL ou CLUB",
       "role_required": "Sélectionnez un rôle avant d'attribuer.",
       "permission_required": "Sélectionnez une permission avant d'attribuer.",
-      "user_id_required": "Saisissez l'UUID de l'utilisateur.",
-      "uuid_invalid": "L'ID saisi n'est pas un UUID valide."
+      "user_id_required": "Sélectionnez un utilisateur.",
+      "uuid_invalid": "Sélectionnez un utilisateur valide."
     },
     "success": {
       "permissions_updated": "Permissions mises à jour avec succès"
@@ -2397,7 +2397,7 @@
       "labelEndDate": "Date de fin",
       "labelPlace": "Lieu",
       "placeholderPlace": "Ex. Centre Récréatif La Montagne",
-      "labelLocalFieldId": "ID du champ local",
+      "labelLocalFieldId": "Champ local",
       "labelRegistrationCost": "Coût d'inscription",
       "labelIncludes": "Inclut",
       "adventurers": "Aventuriers",
@@ -2530,13 +2530,13 @@
       "voucherAttachedLabel": "Justificatif joint",
       "approvedWithName": "Paiement de \"{name}\" approuvé",
       "approvedGeneric": "Paiement approuvé",
-      "errorNoPaymentUuid": "UUID de paiement non disponible",
+      "errorNoPaymentUuid": "Impossible d’identifier le paiement",
       "fallbackPayment": "Paiement #{id}",
       "entityLabel": "Paiement"
     },
     "enrollDialog": {
       "title": "Inscrire un club",
-      "labelSectionId": "ID de section de club",
+      "labelSectionId": "Section",
       "placeholderSectionId": "Ex. 42",
       "helpSectionId": "Entrez l'ID de la section de club que vous souhaitez inscrire.",
       "cancel": "Annuler",
@@ -2592,7 +2592,7 @@
     "registerMemberDialog": {
       "title": "Enregistrer un membre",
       "insuranceErrorTitle": "Erreur de validation d'assurance",
-      "labelUserId": "ID utilisateur (UUID)",
+      "labelUserId": "Membre",
       "labelCamporeeType": "Type de camporée",
       "placeholderCamporeeType": "Sélectionner le type",
       "typeLocal": "Local",
@@ -2737,7 +2737,7 @@
       "selectUnion": "Sélectionner l'union",
       "unionId": "ID de l'union",
       "selectLocalField": "Sélectionner le champ local",
-      "localFieldId": "ID du champ local",
+      "localFieldId": "Champ local",
       "videoUrl": "https://youtube.com/watch?v=... ou https://vimeo.com/...",
       "content": "Écrivez le contenu de la ressource ici...",
       "searchTitle": "Rechercher par titre...",
@@ -3353,7 +3353,7 @@
           "church": "Église",
           "club": "Club",
           "section": "Section",
-          "internalId": "ID interne",
+          "internalId": "Identifiant interne",
           "registrationDate": "Date d'inscription",
           "lastUpdate": "Dernière mise à jour",
           "role": "Rôle",
@@ -3403,7 +3403,8 @@
       "template_updated": "Modèle mis à jour avec succès",
       "template_created": "Modèle créé avec succès",
       "owner_catalogs_load_failed": "Impossible de charger les catalogues du propriétaire",
-      "section_submitted": "Section envoyée pour révision"
+      "section_submitted": "Section envoyée pour révision",
+      "folder_created": "Dossier annuel créé avec succès"
     },
     "errors": {
       "recalculate_rankings": "Erreur lors du recalcul des classements",
@@ -3413,7 +3414,8 @@
       "submit_folder_failed": "Impossible de soumettre le dossier",
       "close_folder_failed": "Impossible de clôturer le dossier",
       "save_template_failed": "Erreur lors de l'enregistrement du modèle",
-      "submit_section_failed": "Impossible d’envoyer la section"
+      "submit_section_failed": "Impossible d’envoyer la section",
+      "create_folder_failed": "Impossible de créer le dossier annuel"
     },
     "statusBadge": {
       "open": "Ouverte",
@@ -3549,7 +3551,9 @@
       "emptyNoActiveClubTitle": "Aucun contexte de club actif",
       "emptyNoActiveClubDescription": "Cet écran n’utilise pas d’UUID saisis manuellement. Sélectionnez un contexte de club ou ouvrez l’évaluation des dossiers pour réviser par club, section ou champ.",
       "emptyContextFolderTitle": "Aucun dossier annuel pour le contexte actif",
-      "emptyContextFolderDescription": "La section active n’a pas encore d’inscription/dossier annuel en cours. Lorsque l’inscription annuelle et le modèle actif existent, le backend le créera automatiquement ou il pourra être généré depuis le flux d’inscription."
+      "emptyContextFolderDescription": "La section active n'a pas encore de dossier annuel en cours. Si l'inscription annuelle et un modèle actif existent déjà pour son type de club, créez-le ici sans saisir d'UUID internes.",
+      "createFolder": "Créer le dossier annuel",
+      "creatingFolder": "Création..."
     },
     "pageCategories": {
       "title": "Catégories de récompenses",
@@ -5227,7 +5231,7 @@
     },
     "filters": {
       "labelYear": "Année ecclésiastique",
-      "labelClub": "ID du club",
+      "labelClub": "Club",
       "labelSection": "ID de la section",
       "placeholderYear": "2026",
       "placeholderClub": "Tous",
@@ -5259,7 +5263,7 @@
     },
     "sectionFilters": {
       "labelYear": "Année ecclésiastique",
-      "labelClub": "ID du club",
+      "labelClub": "Club",
       "placeholderYear": "2026",
       "placeholderClub": "Tous",
       "apply": "Filtrer",

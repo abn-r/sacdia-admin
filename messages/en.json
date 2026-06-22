@@ -1665,8 +1665,8 @@
       "role_category_invalid": "The category must be GLOBAL or CLUB",
       "role_required": "Select a role before assigning.",
       "permission_required": "Select a permission before assigning.",
-      "user_id_required": "Enter the user's UUID.",
-      "uuid_invalid": "The ID entered is not a valid UUID."
+      "user_id_required": "Select a user.",
+      "uuid_invalid": "Select a valid user."
     },
     "success": {
       "permissions_updated": "Permissions updated successfully"
@@ -2398,7 +2398,7 @@
       "labelEndDate": "End date",
       "labelPlace": "Location",
       "placeholderPlace": "e.g. Mountain Recreation Center",
-      "labelLocalFieldId": "Local field ID",
+      "labelLocalFieldId": "Local field",
       "labelRegistrationCost": "Registration cost",
       "labelIncludes": "Includes",
       "adventurers": "Adventurers",
@@ -2531,7 +2531,7 @@
       "voucherAttachedLabel": "Voucher attached",
       "approvedWithName": "Payment from \"{name}\" approved",
       "approvedGeneric": "Payment approved",
-      "errorNoPaymentUuid": "Payment UUID not available",
+      "errorNoPaymentUuid": "The payment could not be identified",
       "fallbackPayment": "Payment #{id}",
       "entityLabel": "Payment"
     },
@@ -2549,9 +2549,9 @@
       "loadingSections": "Loading sections...",
       "errorSections": "Could not load sections.",
       "emptySections": "This club has no eligible sections for this camporee.",
-      "labelSectionId": "Club section ID",
-      "placeholderSectionId": "e.g. 42",
-      "helpSectionId": "Enter the ID of the club section you want to enroll.",
+      "labelSectionId": "Section",
+      "placeholderSectionId": "Select section",
+      "helpSectionId": "Select the club section you want to enroll.",
       "cancel": "Cancel",
       "enrolling": "Enrolling...",
       "enroll": "Enroll club"
@@ -2605,7 +2605,7 @@
     "registerMemberDialog": {
       "title": "Register member",
       "insuranceErrorTitle": "Insurance validation error",
-      "labelUserId": "User ID (UUID)",
+      "labelUserId": "Member",
       "labelCamporeeType": "Camporee type",
       "placeholderCamporeeType": "Select type",
       "typeLocal": "Local",
@@ -2613,7 +2613,7 @@
       "labelClubName": "Club name",
       "clubNameRequiredForUnion": "(required for Union)",
       "placeholderClubName": "e.g. Central Pathfinder Club",
-      "labelInsuranceId": "Insurance policy ID",
+      "labelInsuranceId": "Insurance policy",
       "placeholderInsuranceId": "Optional",
       "helpInsurance": "Registration will fail if the insurance is not validated.",
       "cancel": "Cancel",
@@ -2647,7 +2647,7 @@
         "labelEndDate": "End date",
         "labelPlace": "Location",
         "labelCost": "Registration cost",
-        "labelLocalFieldId": "Local field ID",
+        "labelLocalFieldId": "Local field",
         "labelIncludes": "Includes",
         "labelDescription": "Description",
         "loadFailed": "Could not load the members list.",
@@ -2748,9 +2748,9 @@
       "selectClubType": "All clubs",
       "selectScope": "Scope",
       "selectUnion": "Select union",
-      "unionId": "Union ID",
+      "unionId": "Union",
       "selectLocalField": "Select local field",
-      "localFieldId": "Local field ID",
+      "localFieldId": "Local field",
       "videoUrl": "https://youtube.com/watch?v=... or https://vimeo.com/...",
       "content": "Write the resource content here...",
       "searchTitle": "Search by title...",
@@ -3423,7 +3423,7 @@
           "church": "Church",
           "club": "Club",
           "section": "Section",
-          "internalId": "Internal ID",
+          "internalId": "Internal identifier",
           "registrationDate": "Registration date",
           "lastUpdate": "Last update",
           "role": "Role",
@@ -3537,7 +3537,8 @@
       "template_updated": "Template updated successfully",
       "template_created": "Template created successfully",
       "owner_catalogs_load_failed": "Could not load owner catalogs",
-      "section_submitted": "Section submitted for review"
+      "section_submitted": "Section submitted for review",
+      "folder_created": "Annual folder created successfully"
     },
     "errors": {
       "recalculate_rankings": "Error recalculating the rankings",
@@ -3547,7 +3548,8 @@
       "submit_folder_failed": "Could not submit the folder",
       "close_folder_failed": "Could not close the folder",
       "save_template_failed": "Error saving the template",
-      "submit_section_failed": "Could not submit the section"
+      "submit_section_failed": "Could not submit the section",
+      "create_folder_failed": "Could not create the annual folder"
     },
     "statusBadge": {
       "open": "Open",
@@ -3683,7 +3685,9 @@
       "emptyNoActiveClubTitle": "No active club context",
       "emptyNoActiveClubDescription": "This screen does not use manual UUIDs. Select a club context or open Folder Evaluation to review folders by club, section, or field.",
       "emptyContextFolderTitle": "No annual folder for the active context",
-      "emptyContextFolderDescription": "The active section does not have a current annual enrollment/folder yet. Once the annual enrollment and active template exist, the backend will create it automatically or it can be generated from the enrollment flow."
+      "emptyContextFolderDescription": "The active section does not have a current annual folder yet. If the annual enrollment and an active template already exist for its club type, create it here without entering internal UUIDs.",
+      "createFolder": "Create annual folder",
+      "creatingFolder": "Creating..."
     },
     "pageCategories": {
       "title": "Award Categories",
@@ -5361,8 +5365,8 @@
     },
     "filters": {
       "labelYear": "Ecclesiastical year",
-      "labelClub": "Club ID",
-      "labelSection": "Section ID",
+      "labelClub": "Club",
+      "labelSection": "Section",
       "placeholderYear": "2026",
       "placeholderClub": "All",
       "placeholderSection": "All",
@@ -5393,7 +5397,7 @@
     },
     "sectionFilters": {
       "labelYear": "Ecclesiastical year",
-      "labelClub": "Club ID",
+      "labelClub": "Club",
       "placeholderYear": "2026",
       "placeholderClub": "All",
       "apply": "Filter",

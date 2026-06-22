@@ -44,7 +44,7 @@ import { MemberCombobox } from "@/components/units/member-combobox";
 // ─── Schema ────────────────────────────────────────────────────────────────────
 
 const formSchema = z.object({
-  user_id: z.string().uuid("El ID de usuario debe ser un UUID válido"),
+  user_id: z.string().uuid("Selecciona un miembro válido"),
   camporee_type: z.enum(["local", "union"]),
   club_name: z.string().optional(),
   insurance_id: z.coerce.number().int().positive().optional().or(z.literal("")),

@@ -205,7 +205,7 @@ describe("RegisterMemberDialog", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(/El ID de usuario debe ser un UUID válido/i),
+        screen.getByText(/Selecciona un miembro válido/i),
       ).toBeInTheDocument();
     });
     expect(mockRegister).not.toHaveBeenCalled();

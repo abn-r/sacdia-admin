@@ -51,8 +51,8 @@ const ResourcesCrudPage = dynamic(
 import { listResources, listResourceCategories } from "@/lib/api/resources";
 import type { ResourceType, ScopeLevel } from "@/lib/api/resources";
 import { listClubTypes, type ClubType } from "@/lib/api/catalogs";
-import { listUnions, listLocalFields } from "@/lib/api/geography";
-import type { Union, LocalField } from "@/lib/api/geography";
+import { listDivisions, listUnions, listLocalFields } from "@/lib/api/geography";
+import type { Division, Union, LocalField } from "@/lib/api/geography";
 import { hasAnyPermission } from "@/lib/auth/permission-utils";
 import {
   RESOURCES_CREATE,
@@ -191,6 +191,25 @@ function extractUnions(payload: unknown): Union[] {
   }, []);
 }
 
+function extractDivisions(payload: unknown): Division[] {
+  const items = extractItems(payload);
+  return items.reduce<Division[]>((acc, item) => {
+    const id = toPositiveNumber(item.division_id ?? item.id);
+    const name = typeof item.name === "string" ? item.name.trim() : null;
+    if (id && name && item.active !== false) {
+      acc.push({
+        division_id: id,
+        name,
+        code: typeof item.code === "string" ? item.code : undefined,
+        abbreviation:
+          typeof item.abbreviation === "string" ? item.abbreviation : undefined,
+        active: item.active as boolean | undefined,
+      });
+    }
+    return acc;
+  }, []);
+}
+
 function extractLocalFields(payload: unknown): LocalField[] {
   const items = extractItems(payload);
   return items.reduce<LocalField[]>((acc, item) => {
@@ -244,15 +263,24 @@ export default async function ResourcesPage({
   let loadError: string | null = null;
   let categories: CategoryRecord[] = [];
   let clubTypes: ClubType[] = [];
+  let divisions: Division[] = [];
   let unions: Union[] = [];
   let localFields: LocalField[] = [];
 
   // Fetch all data in parallel
-  const [resourcesResult, categoriesResult, clubTypesResult, unionsResult, localFieldsResult] =
+  const [
+    resourcesResult,
+    categoriesResult,
+    clubTypesResult,
+    divisionsResult,
+    unionsResult,
+    localFieldsResult,
+  ] =
     await Promise.allSettled([
       listResources({ page, limit, resource_type: resourceType, resource_category_id: categoryId, club_type_id: clubTypeId, scope_level: scopeLevel, search }),
       listResourceCategories({ limit: 500 }),
       listClubTypes(),
+      listDivisions(),
       listUnions(),
       listLocalFields(),
     ]);
@@ -279,6 +307,10 @@ export default async function ResourcesPage({
   }
   if (clubTypes.length === 0) {
     clubTypes = DEFAULT_CLUB_TYPES;
+  }
+
+  if (divisionsResult.status === "fulfilled") {
+    divisions = extractDivisions(divisionsResult.value);
   }
 
   if (unionsResult.status === "fulfilled") {
@@ -321,6 +353,7 @@ export default async function ResourcesPage({
         meta={meta}
         categories={categories}
         clubTypes={clubTypes}
+        divisions={divisions}
         unions={scopedUnions}
         localFields={scopedLocalFields}
         allowedScopeLevels={allowedScopeLevels}

@@ -83,7 +83,7 @@ import {
 } from "@/lib/api/resources";
 import { apiRequestFromClient } from "@/lib/api/client";
 import type { ClubType } from "@/lib/api/catalogs";
-import type { Union, LocalField } from "@/lib/api/geography";
+import type { Division, Union, LocalField } from "@/lib/api/geography";
 import {
   extractResourceSignedUrl,
   pickCategoryName,
@@ -134,6 +134,7 @@ interface ResourcesCrudPageProps {
   meta: { page: number; limit: number; total: number; totalPages: number };
   categories: CategoryRecord[];
   clubTypes: ClubType[];
+  divisions: Division[];
   unions: Union[];
   localFields: LocalField[];
   allowedScopeLevels: ScopeLevel[];
@@ -355,6 +356,7 @@ function ResourceFormFields({
   item,
   categories,
   clubTypes,
+  divisions,
   unions,
   localFields,
   allowedScopeLevels,
@@ -365,6 +367,7 @@ function ResourceFormFields({
   item?: ResourceRecord | null;
   categories: CategoryRecord[];
   clubTypes: ClubType[];
+  divisions: Division[];
   unions: Union[];
   localFields: LocalField[];
   allowedScopeLevels: ScopeLevel[];
@@ -422,6 +425,9 @@ function ResourceFormFields({
     (scopeIdLocked ? String(lockedScopeId) : null) ??
     toPositiveNumber(item?.scope_id)?.toString() ??
     "";
+  const selectedDivision = divisions.find(
+    (division) => division.division_id === lockedScopeId,
+  );
 
   return (
     <div className="space-y-4">
@@ -568,7 +574,7 @@ function ResourceFormFields({
         </div>
       </div>
 
-      {/* Scope ID — union / division / local field */}
+      {/* Scope selector — union / division / local field */}
       {showScopeId && (
         <div className="space-y-2">
           <Label htmlFor="res-scope-id">
@@ -587,9 +593,9 @@ function ResourceFormFields({
                   scopeLevel === "union"
                     ? unions.find((u) => u.union_id === lockedScopeId)?.name ?? `#${lockedScopeId}`
                     : scopeLevel === "division"
-                      ? `División #${lockedScopeId}`
+                      ? selectedDivision?.name ?? `División asignada`
                     : localFields.find((lf) => lf.local_field_id === lockedScopeId)?.name ??
-                      `#${lockedScopeId}`
+                      `Campo local asignado`
                 }
                 readOnly
                 disabled
@@ -600,15 +606,31 @@ function ResourceFormFields({
               </p>
             </>
           ) : scopeLevel === "division" ? (
-            <Input
-              id="res-scope-id"
-              name="scope_id"
-              type="number"
-              min={1}
-              defaultValue={currentScopeIdValue}
-              required
-              placeholder="ID de división"
-            />
+            divisions.length > 0 ? (
+              <Select
+                name="scope_id"
+                defaultValue={currentScopeIdValue || undefined}
+                required
+              >
+                <SelectTrigger id="res-scope-id">
+                  <SelectValue placeholder="Seleccionar división" />
+                </SelectTrigger>
+                <SelectContent>
+                  {divisions.map((division) => (
+                    <SelectItem
+                      key={division.division_id}
+                      value={String(division.division_id)}
+                    >
+                      {division.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <p className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+                No se pudieron cargar las divisiones. Actualizá la página antes de continuar.
+              </p>
+            )
           ) : scopeLevel === "union" ? (
             unions.length > 0 ? (
               <Select
@@ -628,15 +650,9 @@ function ResourceFormFields({
                 </SelectContent>
               </Select>
             ) : (
-              <Input
-                id="res-scope-id"
-                name="scope_id"
-                type="number"
-                min={1}
-                defaultValue={currentScopeIdValue}
-                required
-                placeholder={t("placeholders.unionId")}
-              />
+              <p className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+                No se pudieron cargar las uniones. Actualizá la página antes de continuar.
+              </p>
             )
           ) : localFields.length > 0 ? (
             <Select
@@ -656,15 +672,9 @@ function ResourceFormFields({
               </SelectContent>
             </Select>
           ) : (
-            <Input
-              id="res-scope-id"
-              name="scope_id"
-              type="number"
-              min={1}
-              defaultValue={currentScopeIdValue}
-              required
-              placeholder={t("placeholders.localFieldId")}
-            />
+            <p className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+              No se pudieron cargar los campos locales. Actualizá la página antes de continuar.
+            </p>
           )}
         </div>
       )}
@@ -745,6 +755,7 @@ export function ResourcesCrudPage({
   meta,
   categories,
   clubTypes,
+  divisions,
   unions,
   localFields,
   allowedScopeLevels,
@@ -1504,6 +1515,7 @@ export function ResourcesCrudPage({
               <ResourceFormFields
                 categories={categories}
                 clubTypes={effectiveClubTypes}
+                divisions={divisions}
                 unions={unions}
                 localFields={localFields}
                 allowedScopeLevels={allowedScopeLevels}
@@ -1564,6 +1576,7 @@ export function ResourcesCrudPage({
                 item={editItem}
                 categories={categories}
                 clubTypes={effectiveClubTypes}
+                divisions={divisions}
                 unions={unions}
                 localFields={localFields}
                 allowedScopeLevels={allowedScopeLevels}
