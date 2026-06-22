@@ -4,9 +4,11 @@ import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EmptyState } from "@/components/shared/empty-state";
 import { FolderClientPage } from "@/components/annual-folders/folder-client-page";
+import { CreateFolderForSectionButton } from "@/components/annual-folders/create-folder-for-section-button";
 import { requireAdminUser } from "@/lib/auth/session";
 import { ApiError } from "@/lib/api/client";
 import { getFolder, getFolderBySection } from "@/lib/api/annual-folders";
+import { hasPermission } from "@/lib/auth/permission-utils";
 import type { AnnualFolder } from "@/lib/api/annual-folders";
 import type { AuthUser } from "@/lib/auth/types";
 
@@ -107,6 +109,7 @@ export default async function AnnualFoldersPage({
   const rawParams = await searchParams;
   const folderId = getFolderId(rawParams);
   const activeClubContext = getActiveClubFolderContext(user);
+  const canCreateActiveFolder = hasPermission(user, "evidence_folders:update");
 
   let folder: AnnualFolder | null = null;
   let loadError: string | null = null;
@@ -156,7 +159,13 @@ export default async function AnnualFoldersPage({
           icon={FolderOpen}
           title={t("page.emptyContextFolderTitle")}
           description={t("page.emptyContextFolderDescription")}
-        />
+        >
+          {canCreateActiveFolder && (
+            <CreateFolderForSectionButton
+              sectionId={activeClubContext.sectionId}
+            />
+          )}
+        </EmptyState>
       )}
 
       {/* Folder deep link not found */}

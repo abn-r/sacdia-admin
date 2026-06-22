@@ -11,10 +11,13 @@ vi.mock("@/lib/api/client", () => ({
 
 import {
   createTemplateSection,
+  createFolderForSection,
+  getFolder,
   getFolderBySection,
   getFolderEvaluations,
   listTemplates,
   closeFolder,
+  confirmUnionSection,
   submitFolder,
   submitSection,
 } from "@/lib/api/annual-folders";
@@ -128,10 +131,92 @@ describe("annual folders admin API", () => {
     );
   });
 
+  it("normalizes section evidences from the backend folder response", async () => {
+    mockApiRequest.mockResolvedValue({
+      status: "success",
+      data: {
+        annual_folder_id: "folder-1",
+        club_enrollment_id: "enrollment-1",
+        folder_template_id: "template-1",
+        status: "open",
+        submitted_at: null,
+        closed_at: null,
+        created_at: null,
+        local_camporee_id: null,
+        union_camporee_id: null,
+        requires_union_confirmation: false,
+        sections: [
+          {
+            section_id: "section-1",
+            name: "Administración",
+            description: null,
+            order: 1,
+            required: true,
+            evidences: [
+              {
+                evidence_id: "evidence-1",
+                folder_id: "folder-1",
+                section_id: "section-1",
+                file_url: "https://files.test/evidence.pdf",
+                file_name: "Evidencia 1.pdf",
+                description: null,
+                created_at: "2026-06-22T18:00:00.000Z",
+                uploaded_by: "Directora Club",
+              },
+            ],
+          },
+        ],
+      },
+    });
+
+    await expect(getFolder("folder-1")).resolves.toMatchObject({
+      sections: [
+        {
+          section_id: "section-1",
+          evidences: [
+            {
+              annual_folder_id: "folder-1",
+              uploaded_at: "2026-06-22T18:00:00.000Z",
+            },
+          ],
+        },
+      ],
+    });
+  });
+
   it("returns null when the active club section has no annual folder yet", async () => {
     mockApiRequest.mockResolvedValue({ status: "success", data: null });
 
     await expect(getFolderBySection(33)).resolves.toBeNull();
+  });
+
+  it("creates an annual folder by club section without requiring enrollment UUID input", async () => {
+    mockApiRequestFromClient.mockResolvedValue({
+      status: "success",
+      data: {
+        folder_id: "folder-backend-1",
+        enrollment_id: "enrollment-backend-1",
+        template_id: "template-backend-1",
+        status: "open",
+        submitted_at: null,
+        closed_at: null,
+        created_at: null,
+        local_camporee_id: null,
+        union_camporee_id: null,
+        requires_union_confirmation: false,
+        sections: [],
+      },
+    });
+
+    await expect(createFolderForSection(33)).resolves.toMatchObject({
+      annual_folder_id: "folder-backend-1",
+      club_enrollment_id: "enrollment-backend-1",
+      folder_template_id: "template-backend-1",
+    });
+    expect(mockApiRequestFromClient).toHaveBeenCalledWith(
+      "/club-sections/33/annual-folder",
+      { method: "POST" },
+    );
   });
 
   it("submits a section before complete folder submission", async () => {
@@ -153,6 +238,30 @@ describe("annual folders admin API", () => {
     expect(mockApiRequestFromClient).toHaveBeenCalledWith(
       "/annual-folders/folder-1/sections/section-1/submit",
       { method: "POST" },
+    );
+  });
+
+  it("confirms a preapproved section at union level", async () => {
+    mockApiRequestFromClient.mockResolvedValue({
+      status: "success",
+      data: { union_decision: "APPROVED" },
+    });
+
+    await expect(
+      confirmUnionSection("folder-1", "section-1", {
+        decision: "APPROVED",
+        notes: "Validado por Unión",
+      }),
+    ).resolves.toEqual({
+      status: "success",
+      data: { union_decision: "APPROVED" },
+    });
+    expect(mockApiRequestFromClient).toHaveBeenCalledWith(
+      "/annual-folders/folder-1/sections/section-1/confirm-union",
+      {
+        method: "POST",
+        body: { decision: "APPROVED", notes: "Validado por Unión" },
+      },
     );
   });
 

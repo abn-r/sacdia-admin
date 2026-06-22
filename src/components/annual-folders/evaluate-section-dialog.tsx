@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { Eye, FileText, MessageSquareText } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -15,8 +16,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { evaluateSection } from "@/lib/api/annual-folders";
 import { ApiError } from "@/lib/api/client";
+import type { FolderEvidence } from "@/lib/api/annual-folders";
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -27,9 +30,27 @@ interface EvaluateSectionDialogProps {
   sectionId: string;
   sectionName: string;
   maxPoints: number;
+  evidences?: FolderEvidence[];
+  onPreviewEvidence?: (
+    evidence: FolderEvidence,
+    evidences: FolderEvidence[],
+  ) => void;
   currentPoints?: number | null;
   currentNotes?: string | null;
   onSuccess: () => void;
+}
+
+function formatEvidenceDate(evidence: FolderEvidence): string {
+  const dateString = evidence.uploaded_at ?? evidence.created_at;
+  if (!dateString) return "Fecha no disponible";
+
+  return new Date(dateString).toLocaleDateString("es-MX", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -41,6 +62,8 @@ export function EvaluateSectionDialog({
   sectionId,
   sectionName,
   maxPoints,
+  evidences = [],
+  onPreviewEvidence,
   currentPoints,
   currentNotes,
   onSuccess,
@@ -128,7 +151,7 @@ export function EvaluateSectionDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="w-[calc(100vw-2rem)] overflow-hidden sm:max-w-3xl">
         <DialogHeader>
           <DialogTitle>Evaluar sección</DialogTitle>
           <DialogDescription>
@@ -136,7 +159,71 @@ export function EvaluateSectionDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="min-w-0 space-y-4">
+          <div className="min-w-0 overflow-hidden rounded-lg border border-border">
+            <div className="flex items-center justify-between gap-3 border-b px-3 py-2">
+              <div className="min-w-0">
+                <p className="text-sm font-medium">Evidencias subidas</p>
+                <p className="text-xs text-muted-foreground">
+                  Revisá estos archivos antes de asignar puntos.
+                </p>
+              </div>
+              <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                {evidences.length}
+              </span>
+            </div>
+
+            {evidences.length === 0 ? (
+              <div className="flex items-center gap-2 px-3 py-4 text-sm text-muted-foreground">
+                <FileText className="size-4" />
+                Esta sección no tiene evidencias cargadas.
+              </div>
+            ) : (
+              <ScrollArea className="max-h-56">
+                <div className="divide-y">
+                  {evidences.map((evidence) => (
+                    <div
+                      key={evidence.evidence_id}
+                      className="grid min-w-0 gap-2 px-3 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start"
+                    >
+                      <div className="min-w-0 space-y-1">
+                        <p className="line-clamp-2 break-all text-sm font-medium">
+                          {evidence.file_name ?? "Evidencia sin nombre"}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {evidence.uploaded_by ?? "Usuario no disponible"} ·{" "}
+                          {formatEvidenceDate(evidence)}
+                        </p>
+                        {evidence.notes && (
+                          <p className="flex gap-1 text-xs text-muted-foreground">
+                            <MessageSquareText className="mt-0.5 size-3 shrink-0" />
+                            <span className="min-w-0 break-words">
+                              {evidence.notes}
+                            </span>
+                          </p>
+                        )}
+                        {evidence.reviewer_note && (
+                          <p className="rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground">
+                            Nota de revisión: {evidence.reviewer_note}
+                          </p>
+                        )}
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="xs"
+                        onClick={() => onPreviewEvidence?.(evidence, evidences)}
+                      >
+                        <Eye className="size-3.5" />
+                        Ver
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            )}
+          </div>
+
           {/* Points input */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">

@@ -71,6 +71,7 @@ vi.mock("sonner", () => ({
 
 import { EvaluateSectionDialog } from "@/components/annual-folders/evaluate-section-dialog";
 import { ApiError } from "@/lib/api/client";
+import type { FolderEvidence } from "@/lib/api/annual-folders";
 
 // ---------------------------------------------------------------------------
 // Constants / helpers
@@ -85,6 +86,18 @@ const DEFAULT_PROPS = {
   maxPoints: 50,
 } as const;
 
+const STUB_EVIDENCE: FolderEvidence = {
+  evidence_id: "evidence-1",
+  annual_folder_id: DEFAULT_PROPS.folderId,
+  section_id: DEFAULT_PROPS.sectionId,
+  file_url: "https://files.test/image_picker_D509FE77-77E2-4D14-9DE0-F852B909D57B.png",
+  file_name:
+    "image_picker_D509FE77-77E2-4D14-9DE0-F852B909D57B-17217-000002B123C46CFF.png",
+  description: null,
+  uploaded_at: "2026-06-22T18:00:00.000Z",
+  uploaded_by: "Abner Reyes Ramírez",
+};
+
 // ---------------------------------------------------------------------------
 // Render helper
 // ---------------------------------------------------------------------------
@@ -94,6 +107,11 @@ interface RenderOpts {
   currentPoints?: number | null;
   currentNotes?: string | null;
   maxPoints?: number;
+  evidences?: FolderEvidence[];
+  onPreviewEvidence?: (
+    evidence: FolderEvidence,
+    evidences: FolderEvidence[],
+  ) => void;
 }
 
 function renderDialog(opts: RenderOpts = {}) {
@@ -102,6 +120,8 @@ function renderDialog(opts: RenderOpts = {}) {
     currentPoints = null,
     currentNotes = null,
     maxPoints = DEFAULT_PROPS.maxPoints,
+    evidences = [],
+    onPreviewEvidence,
   } = opts;
 
   const onOpenChange = vi.fn();
@@ -116,6 +136,8 @@ function renderDialog(opts: RenderOpts = {}) {
         sectionId={DEFAULT_PROPS.sectionId}
         sectionName={DEFAULT_PROPS.sectionName}
         maxPoints={maxPoints}
+        evidences={evidences}
+        onPreviewEvidence={onPreviewEvidence}
         currentPoints={currentPoints}
         currentNotes={currentNotes}
         onSuccess={onSuccess}
@@ -171,6 +193,26 @@ describe("EvaluateSectionDialog", () => {
     expect(getNotesTextarea()).toBeInTheDocument();
     expect(getSubmitButton()).toBeInTheDocument();
     expect(getCancelButton()).toBeInTheDocument();
+  });
+
+  it("uses evaluation copy and opens uploaded evidences in the panel viewer", () => {
+    const onPreviewEvidence = vi.fn();
+    renderDialog({
+      evidences: [STUB_EVIDENCE],
+      onPreviewEvidence,
+    });
+
+    expect(
+      screen.getByRole("heading", { name: /evaluar sección/i }),
+    ).toBeInTheDocument();
+    expect(getSubmitButton()).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /ver/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /abrir/i })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /ver/i }));
+    expect(onPreviewEvidence).toHaveBeenCalledWith(STUB_EVIDENCE, [
+      STUB_EVIDENCE,
+    ]);
   });
 
   // ── 2. Dialog not in DOM when closed ────────────────────────────────────

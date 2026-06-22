@@ -2,6 +2,7 @@
 
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useReducer,
@@ -77,13 +78,13 @@ export function ActiveContextProvider({ children }: { children: ReactNode }) {
     }
   }, [activeYearId]);
 
-  function setActiveClubId(id: number | null) {
+  const setActiveClubId = useCallback((id: number | null) => {
     dispatch({ type: "SET_CLUB", id });
-  }
+  }, []);
 
-  function setActiveYearId(id: number | null) {
+  const setActiveYearId = useCallback((id: number | null) => {
     dispatch({ type: "SET_YEAR", id });
-  }
+  }, []);
 
   return (
     <ActiveContext.Provider

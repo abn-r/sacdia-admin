@@ -10,6 +10,8 @@ import {
   AlertCircle,
   RotateCcw,
   ClipboardEdit,
+  XCircle,
+  Eye,
   FileText,
   FolderSearch,
   Loader2,
@@ -19,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -26,6 +29,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,8 +49,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import { FolderStatusBadge } from "@/components/annual-folders/folder-status-badge";
 import { EvaluateSectionDialog } from "@/components/annual-folders/evaluate-section-dialog";
+import { AnnualFolderEvidenceViewerDialog } from "@/components/annual-folders/annual-folder-evidence-viewer-dialog";
 import { SectionStatusBadge } from "@/components/annual-folders/section-evaluation-card";
 import {
+  confirmUnionSection,
   getEvaluationQueue,
   getFolder,
   getFolderEvaluations,
@@ -50,8 +63,10 @@ import type {
   AnnualFolder,
   AnnualFolderEvaluationQueueItem,
   AnnualFolderEvaluationQueueStatus,
+  FolderEvidence,
   FolderSectionWithEvidences,
   SectionEvaluation,
+  UnionConfirmationDecision,
 } from "@/lib/api/annual-folders";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -76,6 +91,10 @@ function formatDateTime(dateString: string | null | undefined): string {
   });
 }
 
+function formatEvidenceDate(evidence: FolderEvidence): string {
+  return formatDateTime(evidence.uploaded_at ?? evidence.created_at);
+}
+
 function folderClubName(folder: AnnualFolder): string {
   return folder.club_enrollment?.club_section?.club?.name ?? "Club sin nombre";
 }
@@ -97,19 +116,40 @@ function folderYearLabel(folder: AnnualFolder): string {
 interface EvalSectionRowProps {
   section: FolderSectionWithEvidences;
   evaluation: SectionEvaluation | undefined;
+  folderRequiresUnionConfirmation: boolean;
+  canConfirmUnion: boolean;
   onEvaluate: (section: FolderSectionWithEvidences) => void;
   onReopen: (section: FolderSectionWithEvidences) => void;
+  onConfirmUnion: (section: FolderSectionWithEvidences) => void;
+  onPreviewEvidence: (
+    evidence: FolderEvidence,
+    evidences: FolderEvidence[],
+  ) => void;
 }
 
 function EvalSectionRow({
   section,
   evaluation,
+  folderRequiresUnionConfirmation,
+  canConfirmUnion,
   onEvaluate,
   onReopen,
+  onConfirmUnion,
+  onPreviewEvidence,
 }: EvalSectionRowProps) {
   const maxPoints = section.max_points ?? 0;
-  const isEvaluated = !!evaluation;
   const evalStatus = evaluation?.status;
+  const canEvaluate = evalStatus === "SUBMITTED";
+  const awaitsUnion =
+    folderRequiresUnionConfirmation && evalStatus === "PREAPPROVED_LF";
+  const canReopen =
+    evalStatus === "PREAPPROVED_LF" ||
+    evalStatus === "VALIDATED" ||
+    evalStatus === "REJECTED";
+  const showEvaluationDetail =
+    evalStatus === "PREAPPROVED_LF" ||
+    evalStatus === "VALIDATED" ||
+    evalStatus === "REJECTED";
 
   return (
     <div className="rounded-lg border border-border bg-card">
@@ -162,7 +202,7 @@ function EvalSectionRow({
 
         {/* Actions */}
         <div className="flex shrink-0 items-center gap-2">
-          {isEvaluated ? (
+          {canReopen ? (
             <Button
               variant="outline"
               size="xs"
@@ -173,15 +213,67 @@ function EvalSectionRow({
               Reabrir
             </Button>
           ) : null}
-          <Button size="xs" onClick={() => onEvaluate(section)}>
-            <ClipboardEdit className="size-3.5" />
-            {isEvaluated ? "Editar" : "Evaluar"}
-          </Button>
+          {canEvaluate ? (
+            <Button size="xs" onClick={() => onEvaluate(section)}>
+              <ClipboardEdit className="size-3.5" />
+              Evaluar
+            </Button>
+          ) : awaitsUnion && canConfirmUnion ? (
+            <Button size="xs" onClick={() => onConfirmUnion(section)}>
+              <CheckCircle2 className="size-3.5" />
+              Confirmar Unión
+            </Button>
+          ) : (
+            <Button size="xs" variant="outline" disabled>
+              {evalStatus === "PENDING"
+                ? "Pendiente de envío"
+                : awaitsUnion
+                  ? "Pendiente de Unión"
+                  : "No evaluable"}
+            </Button>
+          )}
         </div>
       </div>
 
+      {section.evidences.length > 0 && (
+        <div className="border-t border-border px-4 py-3">
+          <div className="space-y-2">
+            {section.evidences.map((evidence) => (
+              <div
+                key={evidence.evidence_id}
+                className="grid min-w-0 gap-2 rounded-md bg-muted/40 px-3 py-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+              >
+                <div className="min-w-0">
+                  <p className="break-all text-sm font-medium">
+                    {evidence.file_name ?? "Evidencia sin nombre"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {evidence.uploaded_by ?? "Usuario no disponible"} ·{" "}
+                    {formatEvidenceDate(evidence)}
+                  </p>
+                  {evidence.notes && (
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {evidence.notes}
+                    </p>
+                  )}
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="xs"
+                  onClick={() => onPreviewEvidence(evidence, section.evidences)}
+                >
+                  <Eye className="size-3.5" />
+                  Ver
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Evaluation detail (when evaluated) */}
-      {isEvaluated && (
+      {showEvaluationDetail && evaluation && (
         <div className="border-t border-border bg-muted/30 px-4 py-3">
           <div className="space-y-1.5">
             {/* Score */}
@@ -424,8 +516,19 @@ function QueueCard({ item, isSelected, isLoading, onSelect }: QueueCardProps) {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export function EvaluationClientPage() {
+interface EvaluationClientPageProps {
+  currentUserRoles?: string[];
+}
+
+const UNION_CONFIRMATION_ROLES = new Set(["director-union", "assistant-union"]);
+
+export function EvaluationClientPage({
+  currentUserRoles = [],
+}: EvaluationClientPageProps) {
   const t = useTranslations("annual_folders");
+  const canConfirmUnion = currentUserRoles.some((role) =>
+    UNION_CONFIRMATION_ROLES.has(role),
+  );
   const [searchInput, setSearchInput] = useState("");
   const [appliedSearch, setAppliedSearch] = useState("");
   const [queueStatus, setQueueStatus] =
@@ -452,6 +555,17 @@ export function EvaluationClientPage() {
   const [reopeningSection, setReopeningSection] =
     useState<FolderSectionWithEvidences | null>(null);
   const [isReopening, setIsReopening] = useState(false);
+  const [previewEvidence, setPreviewEvidence] = useState<FolderEvidence | null>(
+    null,
+  );
+  const [previewEvidences, setPreviewEvidences] = useState<FolderEvidence[]>([]);
+
+  // Union confirmation state
+  const [unionConfirmOpen, setUnionConfirmOpen] = useState(false);
+  const [unionConfirmingSection, setUnionConfirmingSection] =
+    useState<FolderSectionWithEvidences | null>(null);
+  const [unionNotes, setUnionNotes] = useState("");
+  const [isConfirmingUnion, setIsConfirmingUnion] = useState(false);
 
   // ─── Load folder + evaluations ─────────────────────────────────────────────
 
@@ -561,6 +675,21 @@ export function EvaluationClientPage() {
     setEvaluateOpen(true);
   }
 
+  function handlePreviewEvidence(
+    evidence: FolderEvidence,
+    evidences: FolderEvidence[],
+  ) {
+    setPreviewEvidences(evidences);
+    setPreviewEvidence(evidence);
+  }
+
+  function handlePreviewOpenChange(open: boolean) {
+    if (!open) {
+      setPreviewEvidence(null);
+      setPreviewEvidences([]);
+    }
+  }
+
   // ─── Reopen section ────────────────────────────────────────────────────────
 
   function handleReopen(section: FolderSectionWithEvidences) {
@@ -588,6 +717,46 @@ export function EvaluationClientPage() {
     }
   }
 
+  // ─── Union confirmation ───────────────────────────────────────────────────
+
+  function handleConfirmUnion(section: FolderSectionWithEvidences) {
+    setUnionConfirmingSection(section);
+    setUnionNotes("");
+    setUnionConfirmOpen(true);
+  }
+
+  async function submitUnionDecision(decision: UnionConfirmationDecision) {
+    if (!folder || !unionConfirmingSection) return;
+    setIsConfirmingUnion(true);
+    try {
+      await confirmUnionSection(
+        folder.annual_folder_id,
+        unionConfirmingSection.section_id,
+        {
+          decision,
+          notes: unionNotes.trim() || undefined,
+        },
+      );
+      toast.success(
+        decision === "APPROVED"
+          ? "Sección confirmada por Unión"
+          : "Sección rechazada por Unión",
+      );
+      setUnionConfirmOpen(false);
+      setUnionConfirmingSection(null);
+      setUnionNotes("");
+      await refreshFolder();
+    } catch (err) {
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : "No se pudo registrar la decisión de Unión";
+      toast.error(message);
+    } finally {
+      setIsConfirmingUnion(false);
+    }
+  }
+
   // ─── Derived data ──────────────────────────────────────────────────────────
 
   const sortedSections = [...(folder?.sections ?? [])].sort(
@@ -597,9 +766,31 @@ export function EvaluationClientPage() {
   function getEvaluationForSection(
     section: FolderSectionWithEvidences,
   ): SectionEvaluation | undefined {
-    return evaluations.find(
+    const apiEvaluation = evaluations.find(
       (ev) => String(ev.section_id) === String(section.section_id),
     );
+
+    if (!section.evaluation) {
+      return apiEvaluation?.status ? apiEvaluation : undefined;
+    }
+
+    return {
+      evaluation_id: section.evaluation.evaluation_id,
+      section_id: section.section_id,
+      section_name: section.name,
+      section_order: section.order,
+      earned_points: section.evaluation.earned_points,
+      max_points: section.evaluation.max_points,
+      notes: section.evaluation.notes,
+      evaluator: apiEvaluation?.evaluator ?? null,
+      evaluated_at: apiEvaluation?.evaluated_at ?? "",
+      status: section.evaluation.status,
+      lf_approver: apiEvaluation?.lf_approver ?? null,
+      lf_approved_at: apiEvaluation?.lf_approved_at ?? null,
+      union_approver: apiEvaluation?.union_approver ?? null,
+      union_approved_at: apiEvaluation?.union_approved_at ?? null,
+      union_decision: apiEvaluation?.union_decision ?? null,
+    };
   }
 
   const currentEvaluation = evaluatingSection
@@ -762,8 +953,14 @@ export function EvaluationClientPage() {
                   key={section.section_id}
                   section={section}
                   evaluation={getEvaluationForSection(section)}
+                  folderRequiresUnionConfirmation={
+                    folder.requires_union_confirmation
+                  }
+                  canConfirmUnion={canConfirmUnion}
                   onEvaluate={handleEvaluate}
                   onReopen={handleReopen}
+                  onConfirmUnion={handleConfirmUnion}
+                  onPreviewEvidence={handlePreviewEvidence}
                 />
               ))}
             </div>
@@ -780,11 +977,80 @@ export function EvaluationClientPage() {
           sectionId={evaluatingSection.section_id}
           sectionName={evaluatingSection.name}
           maxPoints={evaluatingSection.max_points ?? 0}
+          evidences={evaluatingSection.evidences}
+          onPreviewEvidence={handlePreviewEvidence}
           currentPoints={currentEvaluation?.earned_points ?? null}
           currentNotes={currentEvaluation?.notes ?? null}
           onSuccess={refreshFolder}
         />
       )}
+
+      <AnnualFolderEvidenceViewerDialog
+        key={previewEvidence?.evidence_id ?? "closed"}
+        evidence={previewEvidence}
+        evidences={previewEvidences}
+        onSelectEvidence={setPreviewEvidence}
+        onOpenChange={handlePreviewOpenChange}
+      />
+
+      {/* Union confirmation dialog */}
+      <Dialog open={unionConfirmOpen} onOpenChange={setUnionConfirmOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Confirmar revisión de Unión</DialogTitle>
+            <DialogDescription>
+              Registrá la decisión final para{" "}
+              <strong>{unionConfirmingSection?.name}</strong>. Aprobar valida la
+              sección; rechazar la marca como rechazada y no suma puntos.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="union-notes">Observaciones</Label>
+            <Textarea
+              id="union-notes"
+              value={unionNotes}
+              onChange={(event) => setUnionNotes(event.target.value)}
+              placeholder="Comentario opcional para auditoría..."
+              maxLength={500}
+              disabled={isConfirmingUnion}
+            />
+            <p className="text-right text-xs text-muted-foreground">
+              {unionNotes.length}/500
+            </p>
+          </div>
+
+          <DialogFooter className="gap-2 sm:justify-between">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setUnionConfirmOpen(false)}
+              disabled={isConfirmingUnion}
+            >
+              Cancelar
+            </Button>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={() => void submitUnionDecision("REJECTED_OVERRIDE")}
+                disabled={isConfirmingUnion}
+              >
+                <XCircle className="size-4" />
+                Rechazar
+              </Button>
+              <Button
+                type="button"
+                onClick={() => void submitUnionDecision("APPROVED")}
+                disabled={isConfirmingUnion}
+              >
+                <CheckCircle2 className="size-4" />
+                Aprobar
+              </Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Reopen section confirm dialog */}
       <AlertDialog open={reopenOpen} onOpenChange={setReopenOpen}>

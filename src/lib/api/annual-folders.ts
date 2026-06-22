@@ -19,6 +19,7 @@ export type SectionEvaluationStatus =
 
 /** Union-level decision when both actors have acted */
 export type UnionDecision = "APPROVED" | "REJECTED_OVERRIDE" | null;
+export type UnionConfirmationDecision = Exclude<UnionDecision, null>;
 
 /** Compact user reference hydrated in evaluation actor fields */
 export type UserSummary = {
@@ -96,7 +97,12 @@ export type FolderEvidence = {
   file_name: string | null;
   description: string | null;
   uploaded_at: string | null;
+  created_at?: string | null;
   uploaded_by: string | null;
+  notes?: string | null;
+  reviewer_note?: string | null;
+  reviewer_noted_by?: string | null;
+  reviewer_noted_at?: string | null;
 };
 
 export type FolderSectionSubmission = {
@@ -240,6 +246,11 @@ type SectionSubmissionWire = FolderSectionSubmission & {
   folder_id?: string;
 };
 
+type FolderEvidenceWire = FolderEvidence & {
+  folder_id?: string;
+  created_at?: string | null;
+};
+
 type ApiEnvelope<T> = { status: string; data: T };
 
 function unwrapApiData<T>(value: T | ApiEnvelope<T>): T {
@@ -265,12 +276,14 @@ function normalizeAnnualFolder(folder: AnnualFolderWire): AnnualFolder {
       : folder.template,
     sections: folder.sections?.map((section) => ({
       ...section,
-      evidences: section.evidences.map((evidence) => ({
+      evidences: (section.evidences ?? []).map((evidence) => ({
         ...evidence,
         annual_folder_id:
           evidence.annual_folder_id ??
-          (evidence as FolderEvidence & { folder_id?: string }).folder_id ??
+          (evidence as FolderEvidenceWire).folder_id ??
           "",
+        uploaded_at:
+          evidence.uploaded_at ?? (evidence as FolderEvidenceWire).created_at ?? null,
       })),
     })),
   };
@@ -464,6 +477,20 @@ export async function createFolderForEnrollment(
 }
 
 /**
+ * POST /api/v1/club-sections/:sectionId/annual-folder
+ * Creates the annual evidence folder for the active-year enrollment of a club section.
+ * This is the user-facing creation path; the UI does not ask users for enrollment UUIDs.
+ */
+export async function createFolderForSection(
+  sectionId: number,
+): Promise<AnnualFolder> {
+  const res = await apiRequestFromClient<
+    AnnualFolderWire | ApiEnvelope<AnnualFolderWire>
+  >(`/club-sections/${sectionId}/annual-folder`, { method: "POST" });
+  return normalizeAnnualFolder(unwrapApiData(res));
+}
+
+/**
  * POST /api/v1/annual-folders/templates/:templateId/sections
  * Adds a section to an existing template.
  */
@@ -627,6 +654,21 @@ export async function reopenSection(
   return apiRequestFromClient<unknown>(
     `/annual-folders/${folderId}/sections/${sectionId}/reopen`,
     { method: "POST" },
+  );
+}
+
+/**
+ * POST /api/v1/annual-folders/:folderId/sections/:sectionId/confirm-union
+ * Records the final Union decision for a section pre-approved by LF.
+ */
+export async function confirmUnionSection(
+  folderId: string,
+  sectionId: string,
+  data: { decision: UnionConfirmationDecision; notes?: string },
+): Promise<unknown> {
+  return apiRequestFromClient<unknown>(
+    `/annual-folders/${folderId}/sections/${sectionId}/confirm-union`,
+    { method: "POST", body: data },
   );
 }
 

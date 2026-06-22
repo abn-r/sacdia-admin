@@ -3592,6 +3592,7 @@ export interface IntlMessages {
       template_created: string;
       owner_catalogs_load_failed: string;
       section_submitted: string;
+      folder_created: string;
     };
     errors: {
       recalculate_rankings: string;
@@ -3602,6 +3603,7 @@ export interface IntlMessages {
       close_folder_failed: string;
       save_template_failed: string;
       submit_section_failed: string;
+      create_folder_failed: string;
     };
     statusBadge: {
       open: string;
@@ -3738,6 +3740,8 @@ export interface IntlMessages {
       emptyNoActiveClubDescription: string;
       emptyContextFolderTitle: string;
       emptyContextFolderDescription: string;
+      createFolder: string;
+      creatingFolder: string;
     };
     pageCategories: {
       title: string;

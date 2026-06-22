@@ -39,6 +39,14 @@ const ecclesiasticalYears: EcclesiasticalYear[] = [
   },
 ];
 
+const secondYear: EcclesiasticalYear = {
+  ecclesiastical_year_id: 2,
+  name: "2027",
+  start_date: "2027-01-01",
+  end_date: "2027-12-31",
+  active: false,
+};
+
 describe("AnnualRankingConfigClientPage", () => {
   afterEach(() => cleanup());
 
@@ -56,5 +64,25 @@ describe("AnnualRankingConfigClientPage", () => {
     expect(screen.getByText("Eje Administrativo")).toBeInTheDocument();
     expect(screen.getByText("Eje Operativo")).toBeInTheDocument();
     expect(screen.getByDisplayValue("Carpeta Anual de Evidencias")).toBeInTheDocument();
+  });
+
+  it("keeps year and club type selectors enabled when only one local field is available", () => {
+    render(
+      <AnnualRankingConfigClientPage
+        initialConfigs={[]}
+        initialTiers={[]}
+        localFields={localFields}
+        clubTypes={[
+          ...clubTypes,
+          { club_type_id: 3, name: "Aventureros" },
+        ]}
+        ecclesiasticalYears={[...ecclesiasticalYears, secondYear]}
+      />,
+    );
+
+    const selectors = screen.getAllByRole("combobox");
+    expect(selectors[0]).toBeDisabled();
+    expect(selectors[1]).not.toBeDisabled();
+    expect(selectors[2]).not.toBeDisabled();
   });
 });

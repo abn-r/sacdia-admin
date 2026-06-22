@@ -418,7 +418,10 @@ export function AnnualRankingConfigClientPage({
           <CardTitle>Presupuesto anual por campo local</CardTitle>
           <CardDescription>
             Definí el total anual y cómo se reparte entre cumplimiento
-            administrativo y vida operativa del club.
+            administrativo y vida operativa del club. Cada combinación de campo
+            local, año eclesiástico y tipo de club tiene su propia configuración:
+            si el año seleccionado no existe todavía, al guardar se crea una
+            configuración nueva para ese año.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -470,7 +473,7 @@ export function AnnualRankingConfigClientPage({
                       <Select
                         value={String(field.value)}
                         onValueChange={(value) => field.onChange(Number(value))}
-                        disabled={localFields.length <= 1}
+                        disabled={ecclesiasticalYears.length <= 1}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -502,7 +505,7 @@ export function AnnualRankingConfigClientPage({
                       <Select
                         value={String(field.value)}
                         onValueChange={(value) => field.onChange(Number(value))}
-                        disabled={localFields.length <= 1}
+                        disabled={clubTypes.length <= 1}
                       >
                         <FormControl>
                           <SelectTrigger>

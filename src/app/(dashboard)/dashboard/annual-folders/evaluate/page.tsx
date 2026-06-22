@@ -2,6 +2,7 @@ import dynamic from "next/dynamic";
 import { getTranslations } from "next-intl/server";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/shared/page-header";
+import { extractRoles } from "@/lib/auth/roles";
 import { requireAdminUser } from "@/lib/auth/session";
 
 const EvaluationClientPage = dynamic(
@@ -40,7 +41,7 @@ const EvaluationClientPage = dynamic(
 // ─── Page ──────────────────────────────────────────────────────────────────────
 
 export default async function EvaluateFoldersPage() {
-  await requireAdminUser();
+  const currentUser = await requireAdminUser();
   const t = await getTranslations("annual_folders");
 
   return (
@@ -50,7 +51,7 @@ export default async function EvaluateFoldersPage() {
         description={t("pageEvaluate.description")}
       />
 
-      <EvaluationClientPage />
+      <EvaluationClientPage currentUserRoles={extractRoles(currentUser)} />
     </div>
   );
 }

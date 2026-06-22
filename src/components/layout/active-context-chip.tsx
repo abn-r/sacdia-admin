@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { Building2, CalendarDays, ChevronDown } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -16,8 +18,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/lib/auth/auth-context";
 import { useActiveContext } from "@/lib/context/active-context";
-import { listClubs, type Club } from "@/lib/api/clubs";
+import { setActiveClubContext } from "@/lib/api/auth-context";
+import { ApiError } from "@/lib/api/client";
 import {
   listEcclesiasticalYears,
   getActiveEcclesiasticalYearId,
@@ -27,27 +31,85 @@ import {
 const STALE = 5 * 60_000;
 const GC = 10 * 60_000;
 
-function parseClubList(data: unknown): Club[] {
-  if (Array.isArray(data)) return data as Club[];
-  const paged = data as { data?: unknown } | null;
-  if (paged && Array.isArray(paged.data)) return paged.data as Club[];
-  return [];
+type AssignmentOption = {
+  assignmentId: string;
+  roleName: string | null;
+  clubId: number;
+  clubName: string;
+  sectionLabel: string | null;
+};
+
+type RawClubAssignment = {
+  assignment_id?: unknown;
+  role_name?: unknown;
+  status?: unknown;
+  club?: {
+    club_id?: unknown;
+    club_name?: unknown;
+  };
+  section?: {
+    club_section_id?: unknown;
+    club_type_name?: unknown;
+    name?: unknown;
+  };
+};
+
+function parseAssignmentOption(grant: unknown): AssignmentOption | null {
+  if (!grant || typeof grant !== "object") return null;
+
+  const record = grant as RawClubAssignment;
+  const assignmentId = record.assignment_id;
+  const clubId = record.club?.club_id;
+  const clubName = record.club?.club_name;
+
+  if (
+    typeof assignmentId !== "string" ||
+    typeof clubId !== "number" ||
+    !Number.isFinite(clubId) ||
+    typeof clubName !== "string"
+  ) {
+    return null;
+  }
+
+  if (record.status !== undefined && record.status !== "active") {
+    return null;
+  }
+
+  const roleName =
+    typeof record.role_name === "string" ? record.role_name : null;
+  const sectionLabel =
+    typeof record.section?.name === "string"
+      ? record.section.name
+      : typeof record.section?.club_type_name === "string"
+        ? record.section.club_type_name
+        : null;
+
+  return {
+    assignmentId,
+    roleName,
+    clubId,
+    clubName,
+    sectionLabel,
+  };
+}
+
+function formatAssignment(option: AssignmentOption) {
+  const parts = [option.clubName, option.sectionLabel, option.roleName].filter(
+    (part): part is string => Boolean(part),
+  );
+  return parts.join(" · ");
 }
 
 export function ActiveContextChip() {
   const t = useTranslations("nav.activeContext");
+  const router = useRouter();
+  const { user, isLoading: authLoading, refresh } = useAuth();
   const { activeClubId, activeYearId, setActiveClubId, setActiveYearId } =
     useActiveContext();
+  const [isChangingAssignment, setIsChangingAssignment] = useState(false);
 
   // Flag para el seteo automático inicial del año — solo una vez
   const autoYearSet = useRef(false);
-
-  const clubsQuery = useQuery({
-    queryKey: ["clubs", "list-for-context"],
-    queryFn: () => listClubs({ active: true }),
-    staleTime: STALE,
-    gcTime: GC,
-  });
 
   const yearsQuery = useQuery({
     queryKey: ["ecclesiastical-years", "all"],
@@ -56,17 +118,32 @@ export function ActiveContextChip() {
     gcTime: GC,
   });
 
-  const clubs = parseClubList(clubsQuery.data);
+  const assignments = useMemo(() => {
+    const grants = user?.authorization?.grants?.club_assignments;
+    if (!Array.isArray(grants)) return [];
+
+    return grants
+      .map(parseAssignmentOption)
+      .filter((option): option is AssignmentOption => option !== null);
+  }, [user]);
+
+  const activeAssignmentId =
+    user?.authorization?.active_assignment?.assignment_id ?? null;
+  const activeAssignment =
+    assignments.find((option) => option.assignmentId === activeAssignmentId) ??
+    null;
+
   const years = Array.isArray(yearsQuery.data)
     ? (yearsQuery.data as EcclesiasticalYear[])
     : [];
 
-  // Autoseleccionar club si solo hay uno
+  // Mantener el contexto local legado sincronizado con el contexto canónico del backend.
   useEffect(() => {
-    if (clubs.length === 1 && activeClubId === null) {
-      setActiveClubId(clubs[0].club_id);
-    }
-  }, [clubs, activeClubId, setActiveClubId]);
+    if (!activeAssignment) return;
+    if (activeClubId === activeAssignment.clubId) return;
+
+    setActiveClubId(activeAssignment.clubId);
+  }, [activeAssignment, activeClubId, setActiveClubId]);
 
   // Setear año activo automáticamente en primera carga sin valor guardado
   useEffect(() => {
@@ -79,8 +156,36 @@ export function ActiveContextChip() {
     });
   }, [yearsQuery.isSuccess, activeYearId, setActiveYearId]);
 
-  const isLoading = clubsQuery.isPending || yearsQuery.isPending;
-  const isError = clubsQuery.isError || yearsQuery.isError;
+  const handleAssignmentChange = useCallback(
+    async (assignmentId: string) => {
+      if (!assignmentId || assignmentId === activeAssignmentId) return;
+
+      const selected = assignments.find(
+        (option) => option.assignmentId === assignmentId,
+      );
+      if (!selected) return;
+
+      setIsChangingAssignment(true);
+      try {
+        await setActiveClubContext(assignmentId);
+        setActiveClubId(selected.clubId);
+        await refresh();
+        router.refresh();
+      } catch (err) {
+        const message =
+          err instanceof ApiError
+            ? err.message
+            : "No se pudo cambiar el contexto activo";
+        toast.error(message);
+      } finally {
+        setIsChangingAssignment(false);
+      }
+    },
+    [activeAssignmentId, assignments, refresh, router, setActiveClubId],
+  );
+
+  const isLoading = authLoading || yearsQuery.isPending;
+  const isError = yearsQuery.isError;
 
   if (isLoading) {
     return (
@@ -101,11 +206,15 @@ export function ActiveContextChip() {
     );
   }
 
-  const activeClub = clubs.find((c) => c.club_id === activeClubId) ?? null;
-  const activeYear = years.find((y) => y.ecclesiastical_year_id === activeYearId) ?? null;
+  const activeYear =
+    years.find((y) => y.ecclesiastical_year_id === activeYearId) ?? null;
 
   function handleClear() {
-    setActiveClubId(null);
+    if (activeAssignment) {
+      setActiveClubId(activeAssignment.clubId);
+    } else {
+      setActiveClubId(null);
+    }
     setActiveYearId(null);
     autoYearSet.current = false;
   }
@@ -116,12 +225,13 @@ export function ActiveContextChip() {
         <Button
           variant="outline"
           size="sm"
+          disabled={isChangingAssignment}
           className="h-8 shrink-0 gap-1.5 text-xs font-normal text-muted-foreground hover:text-foreground border-border/60"
         >
           {/* Club */}
           <Building2 className="size-3.5 shrink-0" aria-hidden="true" />
           <span className="hidden md:inline truncate max-w-[10rem]">
-            {activeClub?.name ?? t("noClub")}
+            {activeAssignment?.clubName ?? t("noClub")}
           </span>
 
           {/* Separador vertical */}
@@ -140,25 +250,30 @@ export function ActiveContextChip() {
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-56">
-        {/* ── Clubs ── */}
+      <DropdownMenuContent align="end" className="w-64">
+        {/* ── Club assignments ── */}
         <DropdownMenuLabel>{t("clubLabel")}</DropdownMenuLabel>
-        <DropdownMenuRadioGroup
-          value={activeClubId !== null ? String(activeClubId) : ""}
-          onValueChange={(val) =>
-            setActiveClubId(val ? parseInt(val, 10) : null)
-          }
-        >
-          {clubs.map((club) => (
-            <DropdownMenuRadioItem
-              key={club.club_id}
-              value={String(club.club_id)}
-              className="text-sm"
-            >
-              {club.name}
-            </DropdownMenuRadioItem>
-          ))}
-        </DropdownMenuRadioGroup>
+        {assignments.length === 0 ? (
+          <DropdownMenuItem disabled className="text-sm text-muted-foreground">
+            {t("noClub")}
+          </DropdownMenuItem>
+        ) : (
+          <DropdownMenuRadioGroup
+            value={activeAssignmentId ?? ""}
+            onValueChange={handleAssignmentChange}
+          >
+            {assignments.map((assignment) => (
+              <DropdownMenuRadioItem
+                key={assignment.assignmentId}
+                value={assignment.assignmentId}
+                className="text-sm"
+                disabled={isChangingAssignment}
+              >
+                {formatAssignment(assignment)}
+              </DropdownMenuRadioItem>
+            ))}
+          </DropdownMenuRadioGroup>
+        )}
 
         <DropdownMenuSeparator />
 
