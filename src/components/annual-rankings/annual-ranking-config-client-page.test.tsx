@@ -2,8 +2,24 @@ import React from "react";
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { AnnualRankingConfigClientPage } from "./annual-ranking-config-client-page";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
 import type { LocalField, Union } from "@/lib/api/geography";
+
+function renderPage(props: React.ComponentProps<typeof AnnualRankingConfigClientPage>) {
+  return render(
+    <TooltipProvider>
+      <AnnualRankingConfigClientPage {...props} />
+    </TooltipProvider>,
+  );
+}
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    refresh: vi.fn(),
+  }),
+}));
 
 vi.mock("sonner", () => ({
   toast: {
@@ -20,6 +36,7 @@ vi.mock("@/lib/api/annual-rankings", async (importOriginal) => {
     createAnnualRankingConfig: vi.fn(),
     updateAnnualRankingConfig: vi.fn(),
     updateRankingTier: vi.fn(),
+    deactivateAnnualRankingConfig: vi.fn(),
   };
 });
 
@@ -41,52 +58,54 @@ const ecclesiasticalYears: EcclesiasticalYear[] = [
   },
 ];
 
-const secondYear: EcclesiasticalYear = {
-  ecclesiastical_year_id: 2,
-  name: "2027",
-  start_date: "2027-01-01",
-  end_date: "2027-12-31",
-  active: false,
-};
-
 describe("AnnualRankingConfigClientPage", () => {
   afterEach(() => cleanup());
 
-  it("renders default administrative and operational axes", () => {
-    render(
-      <AnnualRankingConfigClientPage
-        initialConfigs={[]}
-        initialTiers={[]}
-        unions={unions}
-        localFields={localFields}
-        clubTypes={clubTypes}
-        ecclesiasticalYears={ecclesiasticalYears}
-      />,
-    );
+  it("renders budget list and tiers tabs", () => {
+    renderPage({
+      initialConfigs: [],
+      initialTiers: [],
+      unions,
+      localFields,
+      clubTypes,
+      ecclesiasticalYears,
+    });
 
-    expect(screen.getByText("Eje Administrativo")).toBeInTheDocument();
-    expect(screen.getByText("Eje Operativo")).toBeInTheDocument();
-    expect(screen.getByDisplayValue("Carpeta Anual de Evidencias")).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /Presupuesto anual/i })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /Rangos de reconocimiento/i })).toBeInTheDocument();
+    expect(screen.getByText("Presupuestos configurados")).toBeInTheDocument();
+    expect(
+      screen.getAllByRole("link", { name: /Nueva configuración/i }).length,
+    ).toBeGreaterThan(0);
   });
 
-  it("keeps year and club type selectors enabled when only one local field is available", () => {
-    render(
-      <AnnualRankingConfigClientPage
-        initialConfigs={[]}
-        initialTiers={[]}
-        unions={unions}
-        localFields={localFields}
-        clubTypes={[
-          ...clubTypes,
-          { club_type_id: 3, name: "Aventureros" },
-        ]}
-        ecclesiasticalYears={[...ecclesiasticalYears, secondYear]}
-      />,
-    );
+  it("shows configured records in the budget table", () => {
+    renderPage({
+      initialConfigs: [
+        {
+          annual_ranking_config_id: "f0000000-0000-4000-8000-000000000001",
+          union_id: null,
+          local_field_id: 4,
+          ecclesiastical_year_id: 1,
+          club_type_id: 2,
+          max_points: 10000,
+          active: true,
+          created_by: null,
+          updated_by: null,
+          created_at: "2026-01-01T00:00:00.000Z",
+          updated_at: "2026-01-01T00:00:00.000Z",
+          components: [],
+        },
+      ],
+      initialTiers: [],
+      unions,
+      localFields,
+      clubTypes,
+      ecclesiasticalYears,
+    });
 
-    const selectors = screen.getAllByRole("combobox");
-    expect(selectors[1]).toBeDisabled();
-    expect(selectors[2]).not.toBeDisabled();
-    expect(selectors[3]).not.toBeDisabled();
+    expect(screen.getByText("Centro Veracruz")).toBeInTheDocument();
+    expect(screen.getByText("Conquistadores")).toBeInTheDocument();
+    expect(screen.getByText("10,000 pts")).toBeInTheDocument();
   });
 });

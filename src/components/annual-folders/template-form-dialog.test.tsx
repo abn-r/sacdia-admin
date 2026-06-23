@@ -40,6 +40,7 @@ import { NextIntlClientProvider } from "next-intl";
 import messages from "../../../messages/es.json";
 import type { AdminTerritoryScope } from "@/lib/auth/territory-scope";
 import type { FolderTemplate } from "@/lib/api/annual-folders";
+import type { AnnualRankingConfig } from "@/lib/api/annual-rankings";
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
 
 // ---------------------------------------------------------------------------
@@ -135,6 +136,30 @@ const STUB_LOCAL_FIELDS = [
   { local_field_id: 101, name: "Campo Oeste", union_id: 1 },
 ];
 
+const STUB_RANKING_CONFIGS: AnnualRankingConfig[] = [
+  {
+    annual_ranking_config_id: "rank-001",
+    union_id: 1,
+    local_field_id: null,
+    ecclesiastical_year_id: 10,
+    club_type_id: 1,
+    max_points: 10000,
+    active: true,
+    created_by: null,
+    updated_by: null,
+    created_at: "2026-01-01T00:00:00.000Z",
+    updated_at: "2026-01-01T00:00:00.000Z",
+    components: [
+      {
+        component_key: "annual_evidence_folder",
+        label: "Carpeta Anual",
+        max_points: 3000,
+        sort_order: 1,
+      },
+    ],
+  },
+];
+
 const STUB_TEMPLATE: FolderTemplate = {
   template_id: "tmpl-001",
   name: "Plantilla Conquistadores 2026",
@@ -146,6 +171,20 @@ const STUB_TEMPLATE: FolderTemplate = {
   created_at: null,
   owner_union_id: 1,
   owner_local_field_id: null,
+  sections: [
+    {
+      section_id: "section-001",
+      template_id: "tmpl-001",
+      name: "Sección 1",
+      description: null,
+      order: 1,
+      required: true,
+      active: true,
+      max_points: 3000,
+      minimum_points: 0,
+      created_at: null,
+    },
+  ],
 };
 
 const t = messages.annual_folders;
@@ -161,6 +200,7 @@ interface RenderOpts {
   ecclesiasticalYears?: EcclesiasticalYear[];
   unions?: { union_id: number; name: string; country_id: number }[];
   localFields?: { local_field_id: number; name: string; union_id: number }[];
+  rankingConfigs?: AnnualRankingConfig[];
   territoryScope?: AdminTerritoryScope;
 }
 
@@ -172,6 +212,7 @@ function renderDialog(opts: RenderOpts = {}) {
     ecclesiasticalYears = STUB_YEARS,
     unions,
     localFields,
+    rankingConfigs = STUB_RANKING_CONFIGS,
     territoryScope,
   } = opts;
   const onOpenChange = vi.fn();
@@ -186,6 +227,7 @@ function renderDialog(opts: RenderOpts = {}) {
         ecclesiasticalYears={ecclesiasticalYears}
         unions={unions}
         localFields={localFields}
+        rankingConfigs={rankingConfigs}
         territoryScope={territoryScope}
         template={template}
         onSuccess={onSuccess}
@@ -234,7 +276,7 @@ describe("TemplateFormDialog", () => {
 
     expect(document.querySelector('input[name="name"]')).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: t.templateDialog.submitCreate }),
+      screen.getByRole("button", { name: t.templateDialog.submitDraft }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: t.templateDialog.cancel }),
@@ -256,7 +298,7 @@ describe("TemplateFormDialog", () => {
     expect(nameInput?.value).toBe("Plantilla Conquistadores 2026");
 
     expect(
-      screen.getByRole("button", { name: t.templateDialog.submitEdit }),
+      screen.getByRole("button", { name: t.templateDialog.submitDraft }),
     ).toBeInTheDocument();
   });
 
@@ -346,7 +388,7 @@ describe("TemplateFormDialog", () => {
     const [payload] = mockCreateTemplate.mock.calls[0] as [{ name: string; club_type_id: number; minimum_points: number }];
     expect(payload.name).toBe("Mi Plantilla Nueva");
     expect(payload.club_type_id).toBe(1);
-    expect(payload.minimum_points).toBeGreaterThanOrEqual(0);
+    expect(payload.minimum_points).toBe(0);
 
     expect(mockToastSuccess).toHaveBeenCalledWith(t.toasts.template_created);
     expect(onSuccess).toHaveBeenCalledOnce();
@@ -466,22 +508,27 @@ describe("TemplateFormDialog", () => {
     });
   });
 
-  // ── 10. minimum_points input exists and is settable ──────────────────────
+  // ── 10. Ranking budget is informational, not a manual template input ─────
 
-  it("renders minimum_points input and accepts numeric input", async () => {
-    renderDialog();
+  it("hides legacy minimum_points and shows the ranking-derived budget", async () => {
+    renderDialog({
+      territoryScope: {
+        level: "union",
+        unionId: 1,
+        unionName: "Unión Norte",
+      },
+    });
 
     await waitFor(() => expect(mockListUnions).toHaveBeenCalled());
 
     const minPointsInput = document.querySelector(
       'input[name="minimum_points"]',
     ) as HTMLInputElement | null;
-    expect(minPointsInput).toBeInTheDocument();
+    expect(minPointsInput).not.toBeInTheDocument();
 
-    await act(async () => {
-      if (minPointsInput) fireEvent.change(minPointsInput, { target: { value: "50" } });
-    });
-
-    expect(minPointsInput?.value).toBe("50");
+    expect(
+      screen.getByText("Presupuesto tomado del ranking"),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/3,000 pts/)).toBeInTheDocument();
   });
 });

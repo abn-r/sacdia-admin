@@ -2,6 +2,8 @@ import { apiRequest, apiRequestFromClient } from "@/lib/api/client";
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
 
+export type FolderTemplateStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED";
+
 export type FolderStatus =
   | "open"
   | "submitted"
@@ -75,6 +77,7 @@ export type FolderTemplate = {
   club_type_id: number;
   ecclesiastical_year_id: number;
   active: boolean;
+  status?: FolderTemplateStatus;
   minimum_points: number;
   closing_date: string | null;
   created_at: string | null;
@@ -331,6 +334,15 @@ export type CreateTemplatePayload = {
 
 export type UpdateTemplatePayload = Partial<CreateTemplatePayload>;
 
+export type CopyTemplatePayload = {
+  name?: string;
+  ecclesiastical_year_id?: number;
+  club_type_id?: number;
+  closing_date?: string | null;
+  owner_union_id?: number | null;
+  owner_local_field_id?: number | null;
+};
+
 export type CreateTemplateSectionPayload = {
   name: string;
   description?: string;
@@ -419,6 +431,17 @@ export async function getFolder(folderId: string): Promise<AnnualFolder> {
 export async function getEvaluationQueue(params?: {
   search?: string;
   status?: AnnualFolderEvaluationQueueStatus;
+  folder_status?: FolderStatus;
+  union_id?: number;
+  local_field_id?: number;
+  club_type_id?: number;
+  year_id?: number;
+  created_from?: string;
+  created_to?: string;
+  submitted_from?: string;
+  submitted_to?: string;
+  progress_min?: number;
+  progress_max?: number;
   page?: number;
   limit?: number;
 }): Promise<PaginatedAnnualFolderEvaluationQueue> {
@@ -462,6 +485,35 @@ export async function updateTemplate(
     body: payload,
   });
   return normalizeFolderTemplate(unwrapApiData(res));
+}
+
+
+/**
+ * POST /api/v1/annual-folders/templates/:templateId/copy
+ * Copies any template as a new draft.
+ */
+export async function copyTemplate(
+  templateId: string,
+  payload: CopyTemplatePayload,
+): Promise<FolderTemplate> {
+  const res = await apiRequestFromClient<
+    FolderTemplateWire | ApiEnvelope<FolderTemplateWire>
+  >(`/annual-folders/templates/${templateId}/copy`, {
+    method: "POST",
+    body: payload,
+  });
+  return normalizeFolderTemplate(unwrapApiData(res));
+}
+
+/**
+ * DELETE /api/v1/annual-folders/templates/:templateId
+ * Deletes a draft template.
+ */
+export async function deleteTemplate(templateId: string): Promise<unknown> {
+  return apiRequestFromClient<unknown>(
+    `/annual-folders/templates/${templateId}`,
+    { method: "DELETE" },
+  );
 }
 
 /**

@@ -11,12 +11,12 @@ export const annualRankingComponentSchema = z.object({
 });
 
 export const annualRankingAxisSchema = z.object({
-  axis_key: z.string().trim().min(1, "La clave del eje es requerida"),
-  label: z.string().trim().min(1, "La etiqueta del eje es requerida"),
+  axis_key: z.string().trim().min(1, "La clave de la sección es requerida"),
+  label: z.string().trim().min(1, "La etiqueta de la sección es requerida"),
   max_points: z
-    .number({ message: "Los puntos del eje son requeridos" })
-    .int("Los puntos del eje deben ser enteros")
-    .positive("Los puntos del eje deben ser mayores a cero"),
+    .number({ message: "Los puntos de la sección son requeridos" })
+    .int("Los puntos de la sección deben ser enteros")
+    .positive("Los puntos de la sección deben ser mayores a cero"),
   sort_order: z.number().int().min(0).optional(),
   components: z.array(annualRankingComponentSchema).min(1),
 });
@@ -73,7 +73,7 @@ export const annualRankingConfigSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["axes"],
-        message: `La suma de ejes (${axisTotal}) debe ser igual al total anual (${value.max_points}).`,
+        message: `La suma de secciones (${axisTotal}) debe ser igual al puntaje máximo (${value.max_points}).`,
       });
     }
 
@@ -87,7 +87,7 @@ export const annualRankingConfigSchema = z
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["axes", index, "components"],
-          message: `La suma de componentes (${componentTotal}) debe ser igual al máximo del eje ${axis.label} (${axis.max_points}).`,
+          message: `La suma de subsecciones (${componentTotal}) debe ser igual al máximo de la sección ${axis.label} (${axis.max_points}).`,
         });
       }
     });

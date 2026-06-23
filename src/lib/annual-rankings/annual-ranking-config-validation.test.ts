@@ -82,7 +82,7 @@ describe("annualRankingConfigSchema", () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.error?.issues.some((issue) => issue.message.includes("ejes"))).toBe(true);
+    expect(result.error?.issues.some((issue) => issue.message.includes("secciones"))).toBe(true);
   });
 
   it("requires component points to match their axis max points", () => {
@@ -108,7 +108,7 @@ describe("annualRankingConfigSchema", () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.error?.issues.some((issue) => issue.message.includes("eje"))).toBe(true);
+    expect(result.error?.issues.some((issue) => issue.message.includes("sección"))).toBe(true);
   });
 });
 

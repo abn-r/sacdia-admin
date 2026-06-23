@@ -67,7 +67,7 @@
       "validation": "Validation",
       "investiture": "Investiture",
       "investiture_pending": "En attente",
-      "investiture_pipeline": "Pipeline",
+      "investiture_pipeline": "Suivi",
       "investiture_config": "Configuration",
       "sla": "SLA",
       "year_end": "Clôture annuelle",
@@ -78,7 +78,7 @@
       "evidence_folders": "Dossiers annuels de preuves",
       "annual_folders": "Dossier annuel de preuves",
       "annual_folders_templates": "Modèles",
-      "annual_folders_evaluate": "Évaluation",
+      "annual_folders_evaluate": "Dossiers",
       "annual_folders_rankings": "Classements",
       "annual_folders_ranking_config": "Configuration des classements",
       "annual_folders_categories": "Catégories de prix",
@@ -2762,7 +2762,21 @@
         "verb_rejected": "rejetés",
         "succeeded_count": "{count} {verb} avec succès",
         "failed_count": "{count} ont échoué"
-      }
+      },
+      "selectedSingular": "sélectionné",
+      "selectedPlural": "sélectionnés",
+      "approveSelected": "Approuver la sélection",
+      "rejectSelected": "Rejeter la sélection",
+      "clearSelection": "Effacer la sélection",
+      "approveTitle": "Approbation en lot",
+      "approveDescription": "{count} inscriptions seront approuvées. Celles qui ne sont pas dans le bon état seront ignorées avec le détail dans le résultat.",
+      "rejectTitle": "Rejet en lot",
+      "rejectDescription": "{count} inscriptions seront rejetées. Le motif est obligatoire et sera appliqué à toutes.",
+      "reasonLabel": "Motif de rejet *",
+      "reasonPlaceholder": "Décrivez le motif du rejet...",
+      "cancel": "Annuler",
+      "confirmApprove": "Confirmer l’approbation",
+      "confirmReject": "Rejeter"
     },
     "toasts": {
       "approved": "Approuvé avec succès",
@@ -2830,13 +2844,16 @@
     "pipeline": {
       "refresh": "Actualiser",
       "errorRefresh": "Impossible de mettre à jour la liste",
-      "tabAll": "Tous",
-      "tabSubmitted": "Soumis",
-      "tabClubApproved": "Approuvés club",
-      "tabCoordinatorApproved": "Approuvés coord.",
-      "tabFieldApproved": "Approuvés terrain",
+      "tabAll": "Toute l’année",
+      "tabSubmitted": "Révision club",
+      "tabClubApproved": "Révision coordination",
+      "tabCoordinatorApproved": "Autorisation champ",
+      "tabFieldApproved": "Prêts pour investiture",
       "tabInvested": "Investis",
-      "tabRejected": "Rejetés"
+      "tabRejected": "Rejetés",
+      "currentYear": "Année ecclésiastique en cours : {year}",
+      "currentYearFallback": "aucune année définie",
+      "tabAllCurrentYear": "Toute l’année"
     },
     "historyDialog": {
       "title": "Historique d'investiture",
@@ -2938,11 +2955,11 @@
       "errorFallback": "Impossible de charger les configurations d'investiture."
     },
     "pagePipeline": {
-      "title": "Pipeline des investitures",
-      "description": "Suivi du processus d'approbation en chaîne : directeur, coordination et champ.",
+      "title": "Suivi des investitures",
+      "description": "Consultez les demandes de l’année ecclésiastique en cours : éléments à traiter et dossiers déjà traités.",
       "errorFallback": "Impossible de charger les investitures.",
-      "emptyTitle": "Aucune demande d'investiture",
-      "emptyDescription": "Il n'y a aucune demande d'investiture dans le système pour l'instant."
+      "emptyTitle": "Aucune demande d’investiture",
+      "emptyDescription": "Aucune demande d’investiture n’est enregistrée pour l’année ecclésiastique en cours."
     },
     "investidoDialog": {
       "title": "Enregistrer l'investiture",
@@ -2959,6 +2976,65 @@
       "reasonPlaceholder": "Décrivez le motif du rejet...",
       "cancel": "Annuler",
       "confirm": "Rejeter"
+    },
+    "configFormDialog": {
+      "titleCreate": "Nouvelle configuration",
+      "titleEdit": "Modifier la configuration",
+      "descriptionCreate": "Configurez les dates pour un champ local et une année ecclésiastique.",
+      "descriptionEdit": "Modifiez les dates de la configuration d’investiture.",
+      "localFieldLabel": "Champ local",
+      "loadingLocalFields": "Chargement des champs...",
+      "localFieldPlaceholder": "Sélectionnez un champ local",
+      "ecclesiasticalYearLabel": "Année ecclésiastique",
+      "loadingYears": "Chargement des années...",
+      "yearPlaceholder": "Sélectionnez une année",
+      "submissionDeadlineLabel": "Date limite d’envoi",
+      "investitureDateLabel": "Date d’investiture",
+      "cancel": "Annuler",
+      "submitCreate": "Créer la configuration",
+      "submitEdit": "Enregistrer les modifications"
+    },
+    "deleteConfigDialog": {
+      "title": "Désactiver la configuration ?",
+      "description": "Vous êtes sur le point de désactiver la configuration d’investiture de {localFieldName} pour l’année {yearName}. Les envois en attente liés à cette configuration ne seront pas affectés, mais aucun nouvel envoi ne pourra être enregistré.",
+      "fallbackDescription": "Cette action désactivera la configuration.",
+      "cancel": "Annuler",
+      "confirm": "Désactiver"
+    },
+    "validateDialog": {
+      "titleApprove": "Approuver l’investiture",
+      "titleReject": "Rejeter l’investiture",
+      "descriptionApprove": "La demande d’investiture de {memberName} sera approuvée. Vous pourrez la marquer comme investie une fois approuvée.",
+      "descriptionReject": "La demande d’investiture de {memberName} sera rejetée. Le motif est obligatoire.",
+      "commentsLabel": "Commentaires (facultatif)",
+      "reasonLabel": "Motif de rejet *",
+      "commentsPlaceholder": "Ajoutez un commentaire facultatif...",
+      "reasonPlaceholder": "Décrivez le motif du rejet...",
+      "cancel": "Annuler",
+      "confirmApprove": "Approuver",
+      "confirmReject": "Rejeter"
+    },
+    "pipelineTable": {
+      "emptyTitle": "Aucun dossier à cette étape",
+      "emptyDescription": "Aucune demande d’investiture ne se trouve à cette étape pour l’année ecclésiastique en cours.",
+      "enrollmentFallback": "Inscription #{id}",
+      "selectAll": "Tout sélectionner",
+      "selectRow": "Sélectionner {memberName}",
+      "colMember": "Membre",
+      "colClass": "Classe",
+      "colClub": "Club",
+      "colSection": "Section",
+      "colSubmitted": "Soumis",
+      "colStatus": "Statut",
+      "colActions": "Actions",
+      "ariaHistory": "Voir l’historique",
+      "ariaApprove": "Approuver",
+      "ariaReject": "Rejeter",
+      "ariaMarkInvested": "Marquer comme investi",
+      "tooltipHistory": "Voir l’historique",
+      "tooltipApprove": "Approuver",
+      "tooltipReject": "Rejeter",
+      "tooltipMarkInvested": "Marquer comme investi"
     }
   },
   "evidence_review": {
@@ -3450,7 +3526,7 @@
       "tableColName": "Nom",
       "tableColDescription": "Description",
       "tableColRequired": "Requise",
-      "tableColMaxPts": "Pts max",
+      "tableColMaxPts": "Points attribués",
       "tableColMinPts": "Pts min",
       "tableColActions": "Actions",
       "noDescription": "Sans description",
@@ -3521,7 +3597,15 @@
       "submitCreate": "Créer le modèle",
       "submitEdit": "Sauvegarder",
       "submittingCreate": "Création...",
-      "submittingEdit": "Sauvegarde..."
+      "submittingEdit": "Sauvegarde...",
+      "descriptionDraft": "Enregistrez le modèle comme brouillon. Ajoutez ensuite les sections et publiez-le depuis le détail lorsqu’il est complet.",
+      "descriptionEdit": "Modifiez les données du brouillon de dossier annuel de preuves.",
+      "budgetTitle": "Budget provenant du classement",
+      "budgetMissing": "Aucune configuration annuelle de classement ne s’applique à cette combinaison. Configurez-la avant de publier.",
+      "budgetResolved": "Le dossier annuel vaut {points} pts selon la configuration du classement. Les sections doivent répartir exactement ce total.",
+      "budgetPending": "Sélectionnez le type de club, l’année et le propriétaire pour résoudre le budget annuel.",
+      "submitDraft": "Enregistrer le brouillon",
+      "submittingDraft": "Enregistrement du brouillon..."
     },
     "sectionDialog": {
       "titleCreate": "Nouvelle section",
@@ -3533,7 +3617,7 @@
       "fieldOrder": "Ordre",
       "fieldRequired": "Section requise",
       "fieldRequiredDescription": "Le membre doit soumettre des preuves pour cette section",
-      "fieldMaxPoints": "Points maximum",
+      "fieldMaxPoints": "Points attribués à cette section",
       "fieldMinPoints": "Points minimum",
       "cancel": "Annuler",
       "submitCreate": "Créer la section",

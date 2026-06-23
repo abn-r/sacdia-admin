@@ -2830,6 +2830,20 @@ export interface IntlMessages {
         succeeded_count: string;
         failed_count: string;
       };
+      selectedSingular: string;
+      selectedPlural: string;
+      approveSelected: string;
+      rejectSelected: string;
+      clearSelection: string;
+      approveTitle: string;
+      approveDescription: string;
+      rejectTitle: string;
+      rejectDescription: string;
+      reasonLabel: string;
+      reasonPlaceholder: string;
+      cancel: string;
+      confirmApprove: string;
+      confirmReject: string;
     };
     toasts: {
       approved: string;
@@ -2904,6 +2918,9 @@ export interface IntlMessages {
       tabFieldApproved: string;
       tabInvested: string;
       tabRejected: string;
+      currentYear: string;
+      currentYearFallback: string;
+      tabAllCurrentYear: string;
     };
     historyDialog: {
       title: string;
@@ -3026,6 +3043,65 @@ export interface IntlMessages {
       reasonPlaceholder: string;
       cancel: string;
       confirm: string;
+    };
+    configFormDialog: {
+      titleCreate: string;
+      titleEdit: string;
+      descriptionCreate: string;
+      descriptionEdit: string;
+      localFieldLabel: string;
+      loadingLocalFields: string;
+      localFieldPlaceholder: string;
+      ecclesiasticalYearLabel: string;
+      loadingYears: string;
+      yearPlaceholder: string;
+      submissionDeadlineLabel: string;
+      investitureDateLabel: string;
+      cancel: string;
+      submitCreate: string;
+      submitEdit: string;
+    };
+    deleteConfigDialog: {
+      title: string;
+      description: string;
+      fallbackDescription: string;
+      cancel: string;
+      confirm: string;
+    };
+    validateDialog: {
+      titleApprove: string;
+      titleReject: string;
+      descriptionApprove: string;
+      descriptionReject: string;
+      commentsLabel: string;
+      reasonLabel: string;
+      commentsPlaceholder: string;
+      reasonPlaceholder: string;
+      cancel: string;
+      confirmApprove: string;
+      confirmReject: string;
+    };
+    pipelineTable: {
+      emptyTitle: string;
+      emptyDescription: string;
+      enrollmentFallback: string;
+      selectAll: string;
+      selectRow: string;
+      colMember: string;
+      colClass: string;
+      colClub: string;
+      colSection: string;
+      colSubmitted: string;
+      colStatus: string;
+      colActions: string;
+      ariaHistory: string;
+      ariaApprove: string;
+      ariaReject: string;
+      ariaMarkInvested: string;
+      tooltipHistory: string;
+      tooltipApprove: string;
+      tooltipReject: string;
+      tooltipMarkInvested: string;
     };
   };
   evidence_review: {
@@ -3710,6 +3786,14 @@ export interface IntlMessages {
       submitEdit: string;
       submittingCreate: string;
       submittingEdit: string;
+      descriptionDraft: string;
+      descriptionEdit: string;
+      budgetTitle: string;
+      budgetMissing: string;
+      budgetResolved: string;
+      budgetPending: string;
+      submitDraft: string;
+      submittingDraft: string;
     };
     sectionDialog: {
       titleCreate: string;

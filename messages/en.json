@@ -67,7 +67,7 @@
       "validation": "Validation",
       "investiture": "Investiture",
       "investiture_pending": "Pending",
-      "investiture_pipeline": "Pipeline",
+      "investiture_pipeline": "Tracking",
       "investiture_config": "Configuration",
       "sla": "SLA",
       "year_end": "Year-end close",
@@ -78,7 +78,7 @@
       "evidence_folders": "Annual Evidence Folders",
       "annual_folders": "Annual Evidence Folder",
       "annual_folders_templates": "Templates",
-      "annual_folders_evaluate": "Evaluation",
+      "annual_folders_evaluate": "Folders",
       "annual_folders_rankings": "Rankings",
       "annual_folders_ranking_config": "Ranking configuration",
       "annual_folders_categories": "Award categories",
@@ -2775,7 +2775,21 @@
         "verb_rejected": "rejected",
         "succeeded_count": "{count} {verb} successfully",
         "failed_count": "{count} failed"
-      }
+      },
+      "selectedSingular": "selected",
+      "selectedPlural": "selected",
+      "approveSelected": "Approve selected",
+      "rejectSelected": "Reject selected",
+      "clearSelection": "Clear selection",
+      "approveTitle": "Bulk approve",
+      "approveDescription": "{count} enrollments will be approved. Any not in the correct state will be skipped with details in the result.",
+      "rejectTitle": "Bulk reject",
+      "rejectDescription": "{count} enrollments will be rejected. The reason is required and will be applied to all of them.",
+      "reasonLabel": "Rejection reason *",
+      "reasonPlaceholder": "Describe the rejection reason...",
+      "cancel": "Cancel",
+      "confirmApprove": "Confirm approval",
+      "confirmReject": "Reject"
     },
     "toasts": {
       "approved": "Approved successfully",
@@ -2843,13 +2857,16 @@
     "pipeline": {
       "refresh": "Refresh",
       "errorRefresh": "Could not refresh the list",
-      "tabAll": "All",
-      "tabSubmitted": "Submitted",
-      "tabClubApproved": "Club approved",
-      "tabCoordinatorApproved": "Coord. approved",
-      "tabFieldApproved": "Field approved",
+      "tabAll": "Full year",
+      "tabSubmitted": "Club review",
+      "tabClubApproved": "Coordination review",
+      "tabCoordinatorApproved": "Field authorization",
+      "tabFieldApproved": "Ready for investiture",
       "tabInvested": "Invested",
-      "tabRejected": "Rejected"
+      "tabRejected": "Rejected",
+      "currentYear": "Current ecclesiastical year: {year}",
+      "currentYearFallback": "no year set",
+      "tabAllCurrentYear": "Full year"
     },
     "historyDialog": {
       "title": "Investiture history",
@@ -2951,11 +2968,11 @@
       "errorFallback": "Could not load investiture configurations."
     },
     "pagePipeline": {
-      "title": "Investiture Pipeline",
-      "description": "Track the chain approval process: director, coordination, and field.",
+      "title": "Investiture tracking",
+      "description": "Review current ecclesiastical year requests: items needing attention and records already handled.",
       "errorFallback": "Could not load investitures.",
       "emptyTitle": "No investiture requests",
-      "emptyDescription": "There are no investiture requests in the system at this time."
+      "emptyDescription": "There are no investiture requests recorded for the current ecclesiastical year."
     },
     "investidoDialog": {
       "title": "Register investiture",
@@ -2972,6 +2989,65 @@
       "reasonPlaceholder": "Describe the reason for rejection...",
       "cancel": "Cancel",
       "confirm": "Reject"
+    },
+    "configFormDialog": {
+      "titleCreate": "New configuration",
+      "titleEdit": "Edit configuration",
+      "descriptionCreate": "Configure dates for a local field and ecclesiastical year.",
+      "descriptionEdit": "Modify the dates for the investiture configuration.",
+      "localFieldLabel": "Local field",
+      "loadingLocalFields": "Loading fields...",
+      "localFieldPlaceholder": "Select a local field",
+      "ecclesiasticalYearLabel": "Ecclesiastical year",
+      "loadingYears": "Loading years...",
+      "yearPlaceholder": "Select a year",
+      "submissionDeadlineLabel": "Submission deadline",
+      "investitureDateLabel": "Investiture date",
+      "cancel": "Cancel",
+      "submitCreate": "Create configuration",
+      "submitEdit": "Save changes"
+    },
+    "deleteConfigDialog": {
+      "title": "Deactivate configuration?",
+      "description": "You are about to deactivate the investiture configuration for {localFieldName} in year {yearName}. Pending submissions linked to this configuration will not be affected, but new submissions cannot be registered.",
+      "fallbackDescription": "This action will deactivate the configuration.",
+      "cancel": "Cancel",
+      "confirm": "Deactivate"
+    },
+    "validateDialog": {
+      "titleApprove": "Approve investiture",
+      "titleReject": "Reject investiture",
+      "descriptionApprove": "The investiture request for {memberName} will be approved. You can mark it as invested once approved.",
+      "descriptionReject": "The investiture request for {memberName} will be rejected. The reason is required.",
+      "commentsLabel": "Comments (optional)",
+      "reasonLabel": "Rejection reason *",
+      "commentsPlaceholder": "Add an optional comment...",
+      "reasonPlaceholder": "Describe the rejection reason...",
+      "cancel": "Cancel",
+      "confirmApprove": "Approve",
+      "confirmReject": "Reject"
+    },
+    "pipelineTable": {
+      "emptyTitle": "No records in this stage",
+      "emptyDescription": "There are no investiture requests in this stage for the current ecclesiastical year.",
+      "enrollmentFallback": "Enrollment #{id}",
+      "selectAll": "Select all",
+      "selectRow": "Select {memberName}",
+      "colMember": "Member",
+      "colClass": "Class",
+      "colClub": "Club",
+      "colSection": "Section",
+      "colSubmitted": "Submitted",
+      "colStatus": "Status",
+      "colActions": "Actions",
+      "ariaHistory": "View history",
+      "ariaApprove": "Approve",
+      "ariaReject": "Reject",
+      "ariaMarkInvested": "Mark as invested",
+      "tooltipHistory": "View history",
+      "tooltipApprove": "Approve",
+      "tooltipReject": "Reject",
+      "tooltipMarkInvested": "Mark as invested"
     }
   },
   "evidence_review": {
@@ -3584,7 +3660,7 @@
       "tableColName": "Name",
       "tableColDescription": "Description",
       "tableColRequired": "Required",
-      "tableColMaxPts": "Max Pts",
+      "tableColMaxPts": "Assigned points",
       "tableColMinPts": "Min Pts",
       "tableColActions": "Actions",
       "noDescription": "No description",
@@ -3655,7 +3731,15 @@
       "submitCreate": "Create template",
       "submitEdit": "Save changes",
       "submittingCreate": "Creating...",
-      "submittingEdit": "Saving..."
+      "submittingEdit": "Saving...",
+      "descriptionDraft": "Save the template as a draft. Then add sections and publish it from the detail page when it is complete.",
+      "descriptionEdit": "Edit the Annual Evidence Folder draft details.",
+      "budgetTitle": "Budget from ranking",
+      "budgetMissing": "There is no annual ranking configuration for this combination. Configure it before publishing.",
+      "budgetResolved": "Annual Folder is worth {points} pts according to the ranking configuration. Sections must distribute exactly that total.",
+      "budgetPending": "Select club type, year, and owner to resolve the annual budget.",
+      "submitDraft": "Save draft",
+      "submittingDraft": "Saving draft..."
     },
     "sectionDialog": {
       "titleCreate": "New section",
@@ -3667,7 +3751,7 @@
       "fieldOrder": "Order",
       "fieldRequired": "Required section",
       "fieldRequiredDescription": "The member must upload evidence for this section",
-      "fieldMaxPoints": "Maximum points",
+      "fieldMaxPoints": "Points assigned to this section",
       "fieldMinPoints": "Minimum points",
       "cancel": "Cancel",
       "submitCreate": "Create section",

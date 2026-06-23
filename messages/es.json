@@ -67,7 +67,7 @@
       "validation": "Validación",
       "investiture": "Investidura",
       "investiture_pending": "Pendientes",
-      "investiture_pipeline": "Pipeline",
+      "investiture_pipeline": "Seguimiento",
       "investiture_config": "Configuración",
       "sla": "SLA",
       "year_end": "Cierre de año",
@@ -78,7 +78,7 @@
       "evidence_folders": "Carpetas Anuales de Evidencias",
       "annual_folders": "Carpeta Anual de Evidencias",
       "annual_folders_templates": "Plantillas",
-      "annual_folders_evaluate": "Evaluación",
+      "annual_folders_evaluate": "Carpetas",
       "annual_folders_rankings": "Rankings",
       "annual_folders_ranking_config": "Configuración de rankings",
       "annual_folders_categories": "Categorías de premios",
@@ -2800,7 +2800,21 @@
         "verb_rejected": "rechazados",
         "succeeded_count": "{count} {verb} correctamente",
         "failed_count": "{count} fallaron"
-      }
+      },
+      "selectedSingular": "seleccionado",
+      "selectedPlural": "seleccionados",
+      "approveSelected": "Aprobar seleccionados",
+      "rejectSelected": "Rechazar seleccionados",
+      "clearSelection": "Limpiar selección",
+      "approveTitle": "Aprobar en bloque",
+      "approveDescription": "Se aprobarán {count} inscripciones. Las que no estén en el estado correcto se omitirán con detalle en el resultado.",
+      "rejectTitle": "Rechazar en bloque",
+      "rejectDescription": "Se rechazarán {count} inscripciones. El motivo es obligatorio y se aplicará a todas.",
+      "reasonLabel": "Motivo de rechazo *",
+      "reasonPlaceholder": "Describe el motivo del rechazo...",
+      "cancel": "Cancelar",
+      "confirmApprove": "Confirmar aprobación",
+      "confirmReject": "Rechazar"
     },
     "toasts": {
       "approved": "Aprobado correctamente",
@@ -2868,13 +2882,16 @@
     "pipeline": {
       "refresh": "Actualizar",
       "errorRefresh": "No se pudo actualizar la lista",
-      "tabAll": "Todos",
-      "tabSubmitted": "Enviados",
-      "tabClubApproved": "Aprobados club",
-      "tabCoordinatorApproved": "Aprobados coord.",
-      "tabFieldApproved": "Aprobados campo",
+      "tabAll": "Todo el año",
+      "tabSubmitted": "Por revisar en club",
+      "tabClubApproved": "Por coordinación",
+      "tabCoordinatorApproved": "Por campo",
+      "tabFieldApproved": "Listos para investidura",
       "tabInvested": "Investidos",
-      "tabRejected": "Rechazados"
+      "tabRejected": "Rechazados",
+      "currentYear": "Año eclesiástico en curso: {year}",
+      "currentYearFallback": "sin año definido",
+      "tabAllCurrentYear": "Todo el año"
     },
     "historyDialog": {
       "title": "Historial de investidura",
@@ -2976,11 +2993,11 @@
       "errorFallback": "No se pudieron cargar las configuraciones de investidura."
     },
     "pagePipeline": {
-      "title": "Pipeline de Investiduras",
-      "description": "Seguimiento del proceso de aprobación en cadena: director, coordinación y campo.",
+      "title": "Seguimiento de investiduras",
+      "description": "Revisa las solicitudes del año eclesiástico en curso: pendientes por atender y registros ya tratados.",
       "errorFallback": "No se pudieron cargar las investiduras.",
       "emptyTitle": "Sin solicitudes de investidura",
-      "emptyDescription": "No hay solicitudes de investidura en el sistema en este momento."
+      "emptyDescription": "No hay solicitudes de investidura registradas para el año eclesiástico en curso."
     },
     "investidoDialog": {
       "title": "Registrar investidura",
@@ -2997,6 +3014,65 @@
       "reasonPlaceholder": "Describe el motivo del rechazo...",
       "cancel": "Cancelar",
       "confirm": "Rechazar"
+    },
+    "configFormDialog": {
+      "titleCreate": "Nueva configuración",
+      "titleEdit": "Editar configuración",
+      "descriptionCreate": "Configura las fechas para un campo local y año eclesiástico.",
+      "descriptionEdit": "Modifica las fechas de la configuración de investidura.",
+      "localFieldLabel": "Campo local",
+      "loadingLocalFields": "Cargando campos...",
+      "localFieldPlaceholder": "Selecciona un campo local",
+      "ecclesiasticalYearLabel": "Año eclesiástico",
+      "loadingYears": "Cargando años...",
+      "yearPlaceholder": "Selecciona un año",
+      "submissionDeadlineLabel": "Límite de envío",
+      "investitureDateLabel": "Fecha de investidura",
+      "cancel": "Cancelar",
+      "submitCreate": "Crear configuración",
+      "submitEdit": "Guardar cambios"
+    },
+    "deleteConfigDialog": {
+      "title": "¿Desactivar configuración?",
+      "description": "Estás por desactivar la configuración de investidura de {localFieldName} para el año {yearName}. Los envíos pendientes vinculados a esta configuración no se verán afectados, pero no se podrán registrar nuevos envíos.",
+      "fallbackDescription": "Esta acción desactivará la configuración.",
+      "cancel": "Cancelar",
+      "confirm": "Desactivar"
+    },
+    "validateDialog": {
+      "titleApprove": "Aprobar investidura",
+      "titleReject": "Rechazar investidura",
+      "descriptionApprove": "Se aprobará la solicitud de investidura de {memberName}. Podrás marcarla como investida una vez aprobada.",
+      "descriptionReject": "Se rechazará la solicitud de investidura de {memberName}. El motivo es obligatorio.",
+      "commentsLabel": "Comentarios (opcional)",
+      "reasonLabel": "Motivo de rechazo *",
+      "commentsPlaceholder": "Añade un comentario opcional...",
+      "reasonPlaceholder": "Describe el motivo del rechazo...",
+      "cancel": "Cancelar",
+      "confirmApprove": "Aprobar",
+      "confirmReject": "Rechazar"
+    },
+    "pipelineTable": {
+      "emptyTitle": "Sin registros en esta etapa",
+      "emptyDescription": "No hay solicitudes de investidura en esta etapa para el año eclesiástico en curso.",
+      "enrollmentFallback": "Inscripción #{id}",
+      "selectAll": "Seleccionar todo",
+      "selectRow": "Seleccionar {memberName}",
+      "colMember": "Miembro",
+      "colClass": "Clase",
+      "colClub": "Club",
+      "colSection": "Sección",
+      "colSubmitted": "Enviado",
+      "colStatus": "Estado",
+      "colActions": "Acciones",
+      "ariaHistory": "Ver historial",
+      "ariaApprove": "Aprobar",
+      "ariaReject": "Rechazar",
+      "ariaMarkInvested": "Marcar como investido",
+      "tooltipHistory": "Ver historial",
+      "tooltipApprove": "Aprobar",
+      "tooltipReject": "Rechazar",
+      "tooltipMarkInvested": "Marcar como investido"
     }
   },
   "evidence_review": {
@@ -3609,7 +3685,7 @@
       "tableColName": "Nombre",
       "tableColDescription": "Descripción",
       "tableColRequired": "Requerida",
-      "tableColMaxPts": "Max Pts",
+      "tableColMaxPts": "Puntos asignados",
       "tableColMinPts": "Min Pts",
       "tableColActions": "Acciones",
       "noDescription": "Sin descripción",
@@ -3680,7 +3756,15 @@
       "submitCreate": "Crear plantilla",
       "submitEdit": "Guardar cambios",
       "submittingCreate": "Creando...",
-      "submittingEdit": "Guardando..."
+      "submittingEdit": "Guardando...",
+      "descriptionDraft": "Guardá la plantilla como borrador. Después agregá secciones y publicala desde el detalle cuando esté completa.",
+      "descriptionEdit": "Modificá los datos del borrador de Carpeta Anual de Evidencias.",
+      "budgetTitle": "Presupuesto tomado del ranking",
+      "budgetMissing": "No hay configuración anual de ranking aplicable para esta combinación. Configurala antes de publicar.",
+      "budgetResolved": "Carpeta Anual vale {points} pts según la configuración de ranking. Las secciones deben repartir exactamente ese total.",
+      "budgetPending": "Seleccioná tipo de club, año y propietario para resolver el presupuesto anual.",
+      "submitDraft": "Guardar borrador",
+      "submittingDraft": "Guardando borrador..."
     },
     "sectionDialog": {
       "titleCreate": "Nueva sección",
@@ -3692,7 +3776,7 @@
       "fieldOrder": "Orden",
       "fieldRequired": "Sección requerida",
       "fieldRequiredDescription": "El miembro debe subir evidencia para esta sección",
-      "fieldMaxPoints": "Puntos máximos",
+      "fieldMaxPoints": "Puntos asignados a esta sección",
       "fieldMinPoints": "Puntos mínimos",
       "cancel": "Cancelar",
       "submitCreate": "Crear sección",

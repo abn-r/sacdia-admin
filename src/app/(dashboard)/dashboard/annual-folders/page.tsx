@@ -1,184 +1,139 @@
-import { Building2, FileSearch, FolderOpen } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import dynamic from "next/dynamic";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EmptyState } from "@/components/shared/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
+import { FolderOpen } from "lucide-react";
 import { FolderClientPage } from "@/components/annual-folders/folder-client-page";
-import { CreateFolderForSectionButton } from "@/components/annual-folders/create-folder-for-section-button";
+import { extractRoles } from "@/lib/auth/roles";
 import { requireAdminUser } from "@/lib/auth/session";
 import { ApiError } from "@/lib/api/client";
-import { getFolder, getFolderBySection } from "@/lib/api/annual-folders";
-import { hasPermission } from "@/lib/auth/permission-utils";
+import { getFolder } from "@/lib/api/annual-folders";
 import type { AnnualFolder } from "@/lib/api/annual-folders";
-import type { AuthUser } from "@/lib/auth/types";
+import { listClubTypes, listEcclesiasticalYears } from "@/lib/api/catalogs";
+import {
+  listLocalFieldsForTerritory,
+  listUnionsForTerritory,
+} from "@/lib/auth/territory-scope";
+import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
+import type { LocalField, Union } from "@/lib/api/geography";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+const EvaluationClientPage = dynamic(
+  () =>
+    import("@/components/annual-folders/evaluation-client-page").then((m) => ({
+      default: m.EvaluationClientPage,
+    })),
+  {
+    loading: () => (
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <Skeleton className="h-9 w-[220px]" />
+          <Skeleton className="h-9 w-[140px]" />
+          <div className="ml-auto flex gap-2">
+            <Skeleton className="h-9 w-[120px]" />
+          </div>
+        </div>
+        <div className="rounded-md border">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div
+              key={i}
+              className="flex items-center gap-4 border-b p-4 last:border-b-0"
+            >
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-5 w-20 rounded-full" />
+              <Skeleton className="ml-auto h-8 w-28 rounded" />
+            </div>
+          ))}
+        </div>
+      </div>
+    ),
+  },
+);
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
-
-type ActiveClubFolderContext = {
-  roleName: string | null;
-  clubName: string | null;
-  sectionId: number;
-  sectionName: string | null;
-  clubTypeName: string | null;
-};
 
 function getFolderId(
   raw: Record<string, string | string[] | undefined>,
 ): string | null {
-  const v = raw["folder"];
-  const str = typeof v === "string" ? v.trim() : undefined;
-  return str ?? null;
+  const value = raw.folder;
+  return typeof value === "string" && value.trim() ? value.trim() : null;
 }
-
-function getActiveClubFolderContext(
-  user: AuthUser,
-): ActiveClubFolderContext | null {
-  const scope = user.authorization?.effective?.scope;
-  if (!scope || typeof scope !== "object") return null;
-
-  const clubScope = (scope as { club?: unknown }).club;
-  if (!clubScope || typeof clubScope !== "object") return null;
-
-  const section = (clubScope as { section?: unknown }).section;
-  if (!section || typeof section !== "object") return null;
-
-  const rawSectionId = (section as { club_section_id?: unknown })
-    .club_section_id;
-  if (
-    typeof rawSectionId !== "number" ||
-    !Number.isFinite(rawSectionId) ||
-    rawSectionId <= 0
-  ) {
-    return null;
-  }
-
-  const club = (clubScope as { club?: unknown }).club;
-  const roleName = (clubScope as { role_name?: unknown }).role_name;
-  const clubName =
-    club && typeof club === "object"
-      ? (club as { club_name?: unknown }).club_name
-      : null;
-  const sectionName = (section as { name?: unknown }).name;
-  const clubTypeName = (section as { club_type_name?: unknown }).club_type_name;
-
-  return {
-    roleName: typeof roleName === "string" ? roleName : null,
-    clubName: typeof clubName === "string" ? clubName : null,
-    sectionId: rawSectionId,
-    sectionName: typeof sectionName === "string" ? sectionName : null,
-    clubTypeName: typeof clubTypeName === "string" ? clubTypeName : null,
-  };
-}
-
-function ActiveClubContextCard({
-  context,
-}: {
-  context: ActiveClubFolderContext;
-}) {
-  const sectionLabel =
-    context.sectionName ?? context.clubTypeName ?? `Sección #${context.sectionId}`;
-
-  return (
-    <div className="rounded-lg border border-border bg-card p-4">
-      <div className="flex items-start gap-3">
-        <Building2 className="mt-0.5 size-5 text-primary" />
-        <div>
-          <p className="text-sm font-medium">Carpeta de tu asignación activa</p>
-          <p className="text-sm text-muted-foreground">
-            {context.clubName ?? "Club"} · {sectionLabel}
-            {context.roleName ? ` · ${context.roleName}` : ""}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── Page ──────────────────────────────────────────────────────────────────────
 
 export default async function AnnualFoldersPage({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
-  const user = await requireAdminUser();
-  const t = await getTranslations("annual_folders");
-
+  const currentUser = await requireAdminUser();
   const rawParams = await searchParams;
   const folderId = getFolderId(rawParams);
-  const activeClubContext = getActiveClubFolderContext(user);
-  const canCreateActiveFolder = hasPermission(user, "evidence_folders:update");
 
   let folder: AnnualFolder | null = null;
   let loadError: string | null = null;
+  let clubTypes: ClubType[] = [];
+  let ecclesiasticalYears: EcclesiasticalYear[] = [];
+  let unions: Union[] = [];
+  let localFields: LocalField[] = [];
 
-  // Deep links from the evaluation queue may still open a specific folder.
+  if (!folderId) {
+    const [clubTypesResult, yearsResult, unionsResult, localFieldsResult] =
+      await Promise.allSettled([
+        listClubTypes(),
+        listEcclesiasticalYears(),
+        listUnionsForTerritory(currentUser),
+        listLocalFieldsForTerritory(currentUser),
+      ]);
+
+    if (clubTypesResult.status === "fulfilled") clubTypes = clubTypesResult.value;
+    if (yearsResult.status === "fulfilled") ecclesiasticalYears = yearsResult.value;
+    if (unionsResult.status === "fulfilled") unions = unionsResult.value;
+    if (localFieldsResult.status === "fulfilled") localFields = localFieldsResult.value;
+  }
+
   if (folderId) {
     try {
       folder = await getFolder(folderId);
     } catch (err) {
       loadError =
-        err instanceof ApiError ? err.message : t("page.errorFolderFallback");
-    }
-  } else if (activeClubContext) {
-    try {
-      folder = await getFolderBySection(activeClubContext.sectionId);
-    } catch (err) {
-      loadError =
         err instanceof ApiError
           ? err.message
-          : t("page.errorEnrollmentFallback");
+          : "No se pudo cargar la carpeta solicitada.";
     }
   }
 
   return (
     <div className="space-y-6">
-      <PageHeader title={t("page.title")} description={t("page.description")} />
+      <PageHeader
+        title={folderId ? "Detalle de carpeta" : "Carpetas de evidencias"}
+        description={
+          folderId
+            ? "Revisá los archivos y el avance completo de la carpeta seleccionada."
+            : "Buscá, filtrá y revisá carpetas creadas por club, jerarquía, año, estado y avance."
+        }
+      />
 
-      {!folderId && activeClubContext && (
-        <ActiveClubContextCard context={activeClubContext} />
-      )}
-
-      {/* Error state */}
       {loadError && <EndpointErrorBanner state="missing" detail={loadError} />}
 
-      {/* No active club context */}
-      {!loadError && !folder && !folderId && !activeClubContext && (
+      {!loadError && folderId && !folder && (
         <EmptyState
-          icon={FileSearch}
-          title={t("page.emptyNoActiveClubTitle")}
-          description={t("page.emptyNoActiveClubDescription")}
+          icon={FolderOpen}
+          title="Carpeta no encontrada"
+          description="Verificá que la carpeta exista o regresá al listado de carpetas."
         />
       )}
 
-      {/* Active context without annual folder */}
-      {!loadError && !folder && !folderId && activeClubContext && (
-        <EmptyState
-          icon={FolderOpen}
-          title={t("page.emptyContextFolderTitle")}
-          description={t("page.emptyContextFolderDescription")}
-        >
-          {canCreateActiveFolder && (
-            <CreateFolderForSectionButton
-              sectionId={activeClubContext.sectionId}
-            />
-          )}
-        </EmptyState>
-      )}
-
-      {/* Folder deep link not found */}
-      {!loadError && !folder && folderId && (
-        <EmptyState
-          icon={FolderOpen}
-          title={t("page.emptyNotFoundTitle")}
-          description={t("page.emptyNotFoundDescription")}
-        />
-      )}
-
-      {/* Folder view */}
       {!loadError && folder && <FolderClientPage initialFolder={folder} />}
+
+      {!folderId && (
+        <EvaluationClientPage
+          currentUserRoles={extractRoles(currentUser)}
+          clubTypes={clubTypes}
+          ecclesiasticalYears={ecclesiasticalYears}
+          unions={unions}
+          localFields={localFields}
+        />
+      )}
     </div>
   );
 }

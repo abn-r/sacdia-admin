@@ -25,7 +25,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Switch } from "@/components/ui/switch";
 import {
   Form,
   FormControl,
@@ -41,10 +40,7 @@ import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
 import { listUnions, listLocalFields } from "@/lib/api/geography";
 import type { Union, LocalField } from "@/lib/api/geography";
 import type { AdminTerritoryScope } from "@/lib/auth/territory-scope";
-import {
-  folderTemplateSectionPointsTotal,
-  resolveAnnualFolderMaxPointsForTemplateScope,
-} from "@/lib/annual-folders/ranking-budget";
+import { resolveAnnualFolderMaxPointsForTemplateScope } from "@/lib/annual-folders/ranking-budget";
 
 // ─── Schema factory ───────────────────────────────────────────────────────────
 
@@ -67,7 +63,6 @@ function buildSchema(t: ReturnType<typeof useTranslations<"annual_folders.valida
         .int()
         .min(0, t("minimum_points_min")),
       closing_date: z.string().optional(),
-      active: z.boolean().default(false),
       owner_tier: ownerTierSchema,
       owner_union_id: z.coerce.number().int().nullable().optional(),
       owner_local_field_id: z.coerce.number().int().nullable().optional(),
@@ -166,7 +161,6 @@ export function TemplateFormDialog({
     closing_date: template?.closing_date
       ? template.closing_date.slice(0, 16)
       : "",
-    active: template?.active ?? false,
     owner_tier: resolveDefaultOwnerTier(),
     owner_union_id:
       territoryScope?.level === "union"
@@ -187,7 +181,6 @@ export function TemplateFormDialog({
 
   // ownerTier drives conditional rendering — single watch is justified
   const ownerTier = form.watch("owner_tier");
-  const activeRequested = form.watch("active");
   const selectedClubTypeId = form.watch("club_type_id");
   const selectedYearId = form.watch("ecclesiastical_year_id");
   const selectedOwnerUnionId = form.watch("owner_union_id");
@@ -216,9 +209,6 @@ export function TemplateFormDialog({
           },
         ]
       : unions;
-  const sectionPointsTotal = folderTemplateSectionPointsTotal(
-    template?.sections,
-  );
   const effectiveOwnerUnionId =
     ownerTier === "union" && canChooseOwnerTier
       ? selectedOwnerUnionId
@@ -241,11 +231,12 @@ export function TemplateFormDialog({
     rankingConfigs,
     ownerLocalFieldOptions.length > 0 ? ownerLocalFieldOptions : localFields,
   );
-  const activationBlocked =
-    activeRequested &&
-    (!isEdit ||
-      requiredRankingPoints == null ||
-      sectionPointsTotal !== requiredRankingPoints);
+  const ownerSelectionComplete =
+    selectedClubTypeId > 0 &&
+    selectedYearId > 0 &&
+    (ownerTier === "union"
+      ? Boolean(effectiveOwnerUnionId)
+      : Boolean(effectiveOwnerLocalFieldId));
 
   // Load owner catalogs when dialog opens
   useEffect(() => {
@@ -278,8 +269,7 @@ export function TemplateFormDialog({
         closing_date: template?.closing_date
           ? template.closing_date.slice(0, 16)
           : "",
-        active: template?.active ?? false,
-        owner_tier: resolveDefaultOwnerTier(),
+            owner_tier: resolveDefaultOwnerTier(),
         owner_union_id:
           territoryScope?.level === "union"
             ? territoryScope.unionId
@@ -322,9 +312,11 @@ export function TemplateFormDialog({
         name: values.name,
         club_type_id: values.club_type_id,
         ecclesiastical_year_id: values.ecclesiastical_year_id,
-        minimum_points: values.minimum_points,
+        // Canonical scoring comes from annual_ranking_configs. Keep the legacy
+        // field stable for API compatibility, but do not expose it in the UI.
+        minimum_points: template?.minimum_points ?? 0,
         closing_date: values.closing_date ? values.closing_date : null,
-        active: values.active,
+        active: false,
         ...ownerFields,
       };
 
@@ -356,8 +348,8 @@ export function TemplateFormDialog({
           </DialogTitle>
           <DialogDescription>
             {isEdit
-              ? "Modificá los datos de la plantilla de Carpeta Anual de Evidencias."
-              : "Completá el formulario para crear una nueva plantilla de Carpeta Anual de Evidencias."}
+              ? t("templateDialog.descriptionEdit")
+              : t("templateDialog.descriptionDraft")}
           </DialogDescription>
         </DialogHeader>
 
@@ -625,27 +617,23 @@ export function TemplateFormDialog({
               />
             )}
 
-            {/* Puntos mínimos / Fecha de cierre */}
-            <div className="grid grid-cols-2 gap-3">
-              <FormField
-                control={form.control}
-                name="minimum_points"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("templateDialog.fieldMinPoints")}</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        type="number"
-                        min={0}
-                        placeholder="0"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <div className="rounded-lg border border-border bg-muted/20 p-3">
+              <p className="text-sm font-medium">
+                {t("templateDialog.budgetTitle")}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {ownerSelectionComplete
+                  ? requiredRankingPoints == null
+                    ? t("templateDialog.budgetMissing")
+                    : t("templateDialog.budgetResolved", {
+                        points: requiredRankingPoints.toLocaleString(),
+                      })
+                  : t("templateDialog.budgetPending")}
+              </p>
+            </div>
 
+            {/* Fecha de cierre */}
+            <div className="grid gap-3 sm:grid-cols-2">
               <FormField
                 control={form.control}
                 name="closing_date"
@@ -664,48 +652,6 @@ export function TemplateFormDialog({
               />
             </div>
 
-            <FormField
-              control={form.control}
-              name="active"
-              render={({ field }) => (
-                <FormItem className="rounded-lg border p-3">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <FormLabel>Publicar plantilla</FormLabel>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        Una plantilla publicada puede generar carpetas. Debe
-                        sumar exactamente el total requerido por ranking.
-                      </p>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </div>
-                  {field.value && (
-                    <div
-                      className={`mt-3 rounded-md px-3 py-2 text-xs ${
-                        activationBlocked
-                          ? "bg-destructive/10 text-destructive"
-                          : "bg-success/10 text-success"
-                      }`}
-                    >
-                      {activationBlocked
-                        ? requiredRankingPoints == null
-                          ? "No hay configuración anual de ranking aplicable para esta plantilla."
-                          : !isEdit
-                            ? "Guardá primero el borrador y agregá secciones antes de publicar."
-                            : `Las secciones suman ${sectionPointsTotal.toLocaleString()} pts y el ranking exige ${requiredRankingPoints.toLocaleString()} pts.`
-                        : `Listo para publicar: ${sectionPointsTotal.toLocaleString()} / ${requiredRankingPoints?.toLocaleString()} pts.`}
-                    </div>
-                  )}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             <DialogFooter className="pt-2">
               <Button
                 type="button"
@@ -715,14 +661,10 @@ export function TemplateFormDialog({
               >
                 {t("templateDialog.cancel")}
               </Button>
-              <Button type="submit" disabled={isSubmitting || activationBlocked}>
+              <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting
-                  ? isEdit
-                    ? t("templateDialog.submittingEdit")
-                    : t("templateDialog.submittingCreate")
-                  : isEdit
-                  ? t("templateDialog.submitEdit")
-                  : t("templateDialog.submitCreate")}
+                  ? t("templateDialog.submittingDraft")
+                  : t("templateDialog.submitDraft")}
               </Button>
             </DialogFooter>
           </form>

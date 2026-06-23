@@ -14,11 +14,11 @@ import {
   GripVertical,
   CheckCircle2,
   Circle,
-  Trophy,
   CalendarClock,
   Search,
   Building2,
   MapPin,
+  Copy,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -65,6 +65,9 @@ import {
   getTemplate,
   listTemplates,
   deleteTemplateSection,
+  updateTemplate,
+  copyTemplate as copyTemplateApi,
+  deleteTemplate,
 } from "@/lib/api/annual-folders";
 import type { AnnualRankingConfig } from "@/lib/api/annual-rankings";
 import { ApiError } from "@/lib/api/client";
@@ -92,6 +95,7 @@ interface TemplatesClientPageProps {
 }
 
 type OwnerTierFilter = "all" | "union" | "local_field";
+type TemplateStatusFilter = "all" | "DRAFT" | "PUBLISHED" | "ARCHIVED";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -112,6 +116,53 @@ function resolveOwnerLabel(template: FolderTemplate): string {
     );
   }
   return "—";
+}
+
+function resolveTemplateStatus(
+  template: FolderTemplate,
+): Exclude<FolderTemplate["status"], undefined> {
+  return template.status ?? (template.active ? "PUBLISHED" : "DRAFT");
+}
+
+function isDraftTemplate(template: FolderTemplate): boolean {
+  return resolveTemplateStatus(template) === "DRAFT";
+}
+
+function templateStatusLabel(template: FolderTemplate): string {
+  switch (resolveTemplateStatus(template)) {
+    case "PUBLISHED":
+      return "Publicada";
+    case "ARCHIVED":
+      return "Archivada";
+    case "DRAFT":
+    default:
+      return "Borrador";
+  }
+}
+
+function templateStatusVariant(template: FolderTemplate) {
+  switch (resolveTemplateStatus(template)) {
+    case "PUBLISHED":
+      return "success" as const;
+    case "ARCHIVED":
+      return "outline" as const;
+    case "DRAFT":
+    default:
+      return "secondary" as const;
+  }
+}
+
+function findNextEcclesiasticalYear(
+  template: FolderTemplate,
+  ecclesiasticalYears: EcclesiasticalYear[],
+) {
+  const sorted = [...ecclesiasticalYears].sort((a, b) =>
+    a.start_date.localeCompare(b.start_date),
+  );
+  const currentIndex = sorted.findIndex(
+    (year) => year.ecclesiastical_year_id === template.ecclesiastical_year_id,
+  );
+  return currentIndex >= 0 ? sorted[currentIndex + 1] : undefined;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -141,6 +192,16 @@ export function TemplatesClientPage({
   const [editingTemplate, setEditingTemplate] = useState<FolderTemplate | null>(
     null,
   );
+  const [publishingTemplateId, setPublishingTemplateId] = useState<string | null>(
+    null,
+  );
+  const [copyingTemplate, setCopyingTemplate] = useState<FolderTemplate | null>(
+    null,
+  );
+  const [isCopyingTemplate, setIsCopyingTemplate] = useState(false);
+  const [deletingTemplate, setDeletingTemplate] =
+    useState<FolderTemplate | null>(null);
+  const [isDeletingTemplate, setIsDeletingTemplate] = useState(false);
 
   // Detail view state
   const [activeTemplate, setActiveTemplate] = useState<FolderTemplate | null>(
@@ -162,6 +223,8 @@ export function TemplatesClientPage({
   const currentOwnerTierFilter = (searchParams.get("owner_tier") ??
     "all") as OwnerTierFilter;
   const currentOwnerIdFilter = searchParams.get("owner_id") ?? "";
+  const currentStatusFilter = (searchParams.get("status") ??
+    "all") as TemplateStatusFilter;
   const [searchInput, setSearchInput] = useState(
     searchParams.get("search") ?? "",
   );
@@ -224,12 +287,20 @@ export function TemplatesClientPage({
       }
     }
 
+    if (
+      currentStatusFilter !== "all" &&
+      resolveTemplateStatus(tmpl) !== currentStatusFilter
+    ) {
+      return false;
+    }
+
     return true;
   });
 
   const hasActiveFilters =
     Boolean(searchParams.get("search")) ||
     currentOwnerTierFilter !== "all" ||
+    currentStatusFilter !== "all" ||
     Boolean(currentOwnerIdFilter);
 
   // ─── Refresh list ──────────────────────────────────────────────────────────
@@ -284,8 +355,12 @@ export function TemplatesClientPage({
 
   // ─── Template edit ─────────────────────────────────────────────────────────
 
-  function handleEditTemplate(template: FolderTemplate, e: React.MouseEvent) {
-    e.stopPropagation();
+  function handleEditTemplate(template: FolderTemplate, e?: React.MouseEvent) {
+    e?.stopPropagation();
+    if (!isDraftTemplate(template)) {
+      toast.error("Esta plantilla ya está publicada. Copiala para crear un nuevo borrador.");
+      return;
+    }
     setEditingTemplate(template);
     setTemplateFormOpen(true);
   }
@@ -293,6 +368,100 @@ export function TemplatesClientPage({
   function handleTemplateFormClose(open: boolean) {
     setTemplateFormOpen(open);
     if (!open) setEditingTemplate(null);
+  }
+
+  const handleTemplateSaved = useCallback(async () => {
+    await refreshTemplates();
+    await refreshActiveTemplate();
+  }, [refreshActiveTemplate, refreshTemplates]);
+
+  async function handlePublishTemplate(template: FolderTemplate, e?: React.MouseEvent) {
+    e?.stopPropagation();
+    setPublishingTemplateId(template.template_id);
+    try {
+      const updated = await updateTemplate(template.template_id, { active: true });
+      toast.success("Plantilla publicada. Ya puede generar carpetas.");
+      setTemplates((current) =>
+        current.map((item) =>
+          item.template_id === updated.template_id ? updated : item,
+        ),
+      );
+      setActiveTemplate((current) =>
+        current?.template_id === updated.template_id ? updated : current,
+      );
+    } catch (err) {
+      const message =
+        err instanceof ApiError ? err.message : "No se pudo publicar la plantilla.";
+      toast.error(message);
+    } finally {
+      setPublishingTemplateId(null);
+    }
+  }
+
+  function handleCopyTemplate(template: FolderTemplate, e?: React.MouseEvent) {
+    e?.stopPropagation();
+    setCopyingTemplate(template);
+  }
+
+  async function confirmCopyTemplate() {
+    if (!copyingTemplate) return;
+    const nextYear = findNextEcclesiasticalYear(
+      copyingTemplate,
+      ecclesiasticalYears,
+    );
+    if (!nextYear) {
+      toast.error("No hay un año eclesiástico posterior para copiar la plantilla.");
+      return;
+    }
+
+    setIsCopyingTemplate(true);
+    try {
+      const copied = await copyTemplateApi(copyingTemplate.template_id, {
+        name: `${copyingTemplate.name} · ${nextYear.name}`,
+        ecclesiastical_year_id: nextYear.ecclesiastical_year_id,
+      });
+      toast.success("Plantilla copiada como borrador.");
+      setCopyingTemplate(null);
+      setTemplates((current) => [copied, ...current]);
+      setActiveTemplate(copied);
+    } catch (err) {
+      const message =
+        err instanceof ApiError ? err.message : "No se pudo copiar la plantilla.";
+      toast.error(message);
+    } finally {
+      setIsCopyingTemplate(false);
+    }
+  }
+
+  function handleDeleteTemplate(template: FolderTemplate, e?: React.MouseEvent) {
+    e?.stopPropagation();
+    if (!isDraftTemplate(template)) {
+      toast.error("Solo se pueden eliminar borradores.");
+      return;
+    }
+    setDeletingTemplate(template);
+  }
+
+  async function confirmDeleteTemplate() {
+    if (!deletingTemplate) return;
+    setIsDeletingTemplate(true);
+    try {
+      await deleteTemplate(deletingTemplate.template_id);
+      toast.success("Borrador eliminado.");
+      setTemplates((current) =>
+        current.filter((item) => item.template_id !== deletingTemplate.template_id),
+      );
+      setActiveTemplate((current) =>
+        current?.template_id === deletingTemplate.template_id ? null : current,
+      );
+      setDeletingTemplate(null);
+    } catch (err) {
+      const message =
+        err instanceof ApiError ? err.message : "No se pudo eliminar el borrador.";
+      toast.error(message);
+    } finally {
+      setIsDeletingTemplate(false);
+    }
   }
 
   // ─── Section add ──────────────────────────────────────────────────────────
@@ -351,11 +520,95 @@ export function TemplatesClientPage({
     : null;
   const sectionPointsMatch =
     requiredRankingPoints != null && sectionPointsTotal === requiredRankingPoints;
+  const activeTemplateIsDraft = activeTemplate
+    ? isDraftTemplate(activeTemplate)
+    : false;
+  const activeTemplateStatusLabel = activeTemplate
+    ? templateStatusLabel(activeTemplate)
+    : "";
 
   const nextSectionOrder =
     sortedSections.length > 0
       ? Math.max(...sortedSections.map((s) => s.order)) + 1
       : 1;
+
+  const copyTargetYear = copyingTemplate
+    ? findNextEcclesiasticalYear(copyingTemplate, ecclesiasticalYears)
+    : undefined;
+
+  const templateLifecycleDialogs = (
+    <>
+      <TemplateFormDialog
+        open={templateFormOpen}
+        onOpenChange={handleTemplateFormClose}
+        clubTypes={clubTypes}
+        ecclesiasticalYears={ecclesiasticalYears}
+        unions={unions}
+        localFields={localFields}
+        rankingConfigs={rankingConfigs}
+        territoryScope={territoryScope}
+        template={editingTemplate}
+        onSuccess={handleTemplateSaved}
+      />
+
+      <AlertDialog
+        open={Boolean(copyingTemplate)}
+        onOpenChange={(open) => {
+          if (!open && !isCopyingTemplate) setCopyingTemplate(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Copiar plantilla como borrador</AlertDialogTitle>
+            <AlertDialogDescription>
+              {copyingTemplate && copyTargetYear
+                ? `Se creará un borrador para ${copyTargetYear.name} copiando secciones y puntajes de “${copyingTemplate.name}”.`
+                : "No hay un año eclesiástico posterior disponible para copiar esta plantilla."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isCopyingTemplate}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmCopyTemplate}
+              disabled={isCopyingTemplate || !copyTargetYear}
+            >
+              {isCopyingTemplate ? "Copiando..." : "Copiar borrador"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={Boolean(deletingTemplate)}
+        onOpenChange={(open) => {
+          if (!open && !isDeletingTemplate) setDeletingTemplate(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Eliminar borrador</AlertDialogTitle>
+            <AlertDialogDescription>
+              {`Se eliminará el borrador “${deletingTemplate?.name ?? ""}” y sus secciones. Esta acción no aplica a plantillas publicadas.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeletingTemplate}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteTemplate}
+              disabled={isDeletingTemplate}
+              className="bg-destructive text-white hover:bg-destructive/90"
+            >
+              {isDeletingTemplate ? "Eliminando..." : "Eliminar borrador"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
 
   // ─── Render: detail view ───────────────────────────────────────────────────
 
@@ -393,16 +646,13 @@ export function TemplatesClientPage({
                     ? t("templates.sectionSingular")
                     : t("templates.sectionPlural")}
                 </span>
-                {(activeTemplate.minimum_points ?? 0) > 0 && (
-                  <>
-                    <span aria-hidden>·</span>
-                    <span className="inline-flex items-center gap-1">
-                      <Trophy className="size-3" />
-                      {activeTemplate.minimum_points}{" "}
-                      {t("templates.minPointsSuffix")}
-                    </span>
-                  </>
-                )}
+                <span aria-hidden>·</span>
+                <Badge
+                  variant={templateStatusVariant(activeTemplate)}
+                  className="text-xs"
+                >
+                  {activeTemplateStatusLabel}
+                </Badge>
                 {activeTemplate.closing_date && (
                   <>
                     <span aria-hidden>·</span>
@@ -419,14 +669,68 @@ export function TemplatesClientPage({
               </div>
             </div>
           </div>
-          <Button
-            size="sm"
-            onClick={handleAddSection}
-            disabled={isLoadingDetail}
-          >
-            <Plus className="size-4" />
-            {t("templates.addSection")}
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            {activeTemplateIsDraft ? (
+              <>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleEditTemplate(activeTemplate)}
+                  disabled={isLoadingDetail}
+                >
+                  <Pencil className="size-4" />
+                  Editar borrador
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleAddSection}
+                  disabled={isLoadingDetail}
+                >
+                  <Plus className="size-4" />
+                  {t("templates.addSection")}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => handlePublishTemplate(activeTemplate)}
+                  disabled={
+                    isLoadingDetail ||
+                    !sectionPointsMatch ||
+                    publishingTemplateId === activeTemplate.template_id
+                  }
+                  title={
+                    sectionPointsMatch
+                      ? "Publicar plantilla"
+                      : "Primero ajustá las secciones al total requerido"
+                  }
+                >
+                  <CheckCircle2 className="size-4" />
+                  {publishingTemplateId === activeTemplate.template_id
+                    ? "Publicando..."
+                    : "Publicar"}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-destructive hover:text-destructive"
+                  onClick={() => handleDeleteTemplate(activeTemplate)}
+                  disabled={isLoadingDetail}
+                >
+                  <Trash2 className="size-4" />
+                  Eliminar borrador
+                </Button>
+              </>
+            ) : (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleCopyTemplate(activeTemplate)}
+              >
+                <Copy className="size-4" />
+                Copiar como borrador
+              </Button>
+            )}
+          </div>
         </div>
 
         <div
@@ -467,10 +771,16 @@ export function TemplatesClientPage({
             <p className="mt-1 max-w-sm text-sm text-muted-foreground">
               {t("templates.noSectionsDescription")}
             </p>
-            <Button size="sm" className="mt-4" onClick={handleAddSection}>
-              <Plus className="size-4" />
-              {t("templates.addSection")}
-            </Button>
+            {activeTemplateIsDraft ? (
+              <Button size="sm" className="mt-4" onClick={handleAddSection}>
+                <Plus className="size-4" />
+                {t("templates.addSection")}
+              </Button>
+            ) : (
+              <p className="mt-4 text-xs text-muted-foreground">
+                Las plantillas publicadas quedan bloqueadas. Copiala si necesitás cambios.
+              </p>
+            )}
           </div>
         ) : (
           <>
@@ -489,9 +799,6 @@ export function TemplatesClientPage({
                     </TableHead>
                     <TableHead className="w-24 text-center">
                       {t("templates.tableColMaxPts")}
-                    </TableHead>
-                    <TableHead className="w-24 text-center">
-                      {t("templates.tableColMinPts")}
                     </TableHead>
                     <TableHead className="w-20 text-right">
                       {t("templates.tableColActions")}
@@ -526,34 +833,39 @@ export function TemplatesClientPage({
                       <TableCell className="text-center text-sm text-muted-foreground">
                         {section.max_points}
                       </TableCell>
-                      <TableCell className="text-center text-sm text-muted-foreground">
-                        {section.minimum_points}
-                      </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon-xs"
-                            onClick={() => handleEditSection(section)}
-                            title={t("templates.editSection")}
-                          >
-                            <Pencil className="size-3.5" />
-                            <span className="sr-only">
-                              {t("templates.editSection")}
+                          {activeTemplateIsDraft ? (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="icon-xs"
+                                onClick={() => handleEditSection(section)}
+                                title={t("templates.editSection")}
+                              >
+                                <Pencil className="size-3.5" />
+                                <span className="sr-only">
+                                  {t("templates.editSection")}
+                                </span>
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon-xs"
+                                onClick={() => handleDeleteSection(section)}
+                                title={t("templates.deleteSection")}
+                                className="text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="size-3.5" />
+                                <span className="sr-only">
+                                  {t("templates.deleteSection")}
+                                </span>
+                              </Button>
+                            </>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">
+                              Bloqueada
                             </span>
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon-xs"
-                            onClick={() => handleDeleteSection(section)}
-                            title={t("templates.deleteSection")}
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="size-3.5" />
-                            <span className="sr-only">
-                              {t("templates.deleteSection")}
-                            </span>
-                          </Button>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -584,34 +896,36 @@ export function TemplatesClientPage({
                           )}
                         </div>
                       </div>
-                      <div className="flex shrink-0 items-center gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon-xs"
-                          onClick={() => handleEditSection(section)}
-                          title={t("templates.editSection")}
-                        >
-                          <Pencil className="size-3.5" />
-                          <span className="sr-only">
-                            {t("templates.editSection")}
-                          </span>
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon-xs"
-                          onClick={() => handleDeleteSection(section)}
-                          title={t("templates.deleteSection")}
-                          className="text-destructive hover:text-destructive"
-                        >
-                          <Trash2 className="size-3.5" />
-                          <span className="sr-only">
-                            {t("templates.deleteSection")}
-                          </span>
-                        </Button>
-                      </div>
+                      {activeTemplateIsDraft && (
+                        <div className="flex shrink-0 items-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon-xs"
+                            onClick={() => handleEditSection(section)}
+                            title={t("templates.editSection")}
+                          >
+                            <Pencil className="size-3.5" />
+                            <span className="sr-only">
+                              {t("templates.editSection")}
+                            </span>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon-xs"
+                            onClick={() => handleDeleteSection(section)}
+                            title={t("templates.deleteSection")}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="size-3.5" />
+                            <span className="sr-only">
+                              {t("templates.deleteSection")}
+                            </span>
+                          </Button>
+                        </div>
+                      )}
                     </div>
 
-                    <dl className="mt-3 grid grid-cols-3 gap-x-3 gap-y-1.5 text-xs">
+                    <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
                       <div>
                         <dt className="text-muted-foreground">
                           {t("templates.tableColRequired")}
@@ -629,12 +943,6 @@ export function TemplatesClientPage({
                           {t("templates.tableColMaxPts")}
                         </dt>
                         <dd>{section.max_points}</dd>
-                      </div>
-                      <div>
-                        <dt className="text-muted-foreground">
-                          {t("templates.tableColMinPts")}
-                        </dt>
-                        <dd>{section.minimum_points}</dd>
                       </div>
                     </dl>
                   </div>
@@ -685,6 +993,8 @@ export function TemplatesClientPage({
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {templateLifecycleDialogs}
       </div>
     );
   }
@@ -809,6 +1119,27 @@ export function TemplatesClientPage({
                 </SelectContent>
               </Select>
             </div>
+
+            <div className="w-[200px] space-y-1">
+              <Label htmlFor="tmpl-filter-status">Estado</Label>
+              <Select
+                value={currentStatusFilter}
+                onValueChange={(val) => updateParam("status", val)}
+              >
+                <SelectTrigger
+                  id="tmpl-filter-status"
+                  className="bg-background"
+                >
+                  <SelectValue placeholder="Estado" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="DRAFT">Borradores</SelectItem>
+                  <SelectItem value="PUBLISHED">Publicadas</SelectItem>
+                  <SelectItem value="ARCHIVED">Archivadas</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
       </div>
@@ -909,27 +1240,59 @@ export function TemplatesClientPage({
                     </TableCell>
                     <TableCell className="text-center">
                       <Badge
-                        variant={template.active ? "success" : "secondary"}
+                        variant={templateStatusVariant(template)}
                         className="text-xs"
                       >
-                        {template.active
-                          ? t("templates.statusActive")
-                          : t("templates.statusInactive")}
+                        {templateStatusLabel(template)}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon-xs"
-                          onClick={(e) => handleEditTemplate(template, e)}
-                          title={t("templates.editTemplate")}
-                        >
-                          <Pencil className="size-3.5" />
-                          <span className="sr-only">
-                            {t("templates.editTemplate")}
-                          </span>
-                        </Button>
+                        {isDraftTemplate(template) ? (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="icon-xs"
+                              onClick={(e) => handleEditTemplate(template, e)}
+                              title={t("templates.editTemplate")}
+                            >
+                              <Pencil className="size-3.5" />
+                              <span className="sr-only">
+                                {t("templates.editTemplate")}
+                              </span>
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon-xs"
+                              onClick={(e) => handlePublishTemplate(template, e)}
+                              disabled={publishingTemplateId === template.template_id}
+                              title="Publicar plantilla"
+                            >
+                              <CheckCircle2 className="size-3.5" />
+                              <span className="sr-only">Publicar plantilla</span>
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon-xs"
+                              onClick={(e) => handleDeleteTemplate(template, e)}
+                              title="Eliminar borrador"
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="size-3.5" />
+                              <span className="sr-only">Eliminar borrador</span>
+                            </Button>
+                          </>
+                        ) : (
+                          <Button
+                            variant="ghost"
+                            size="icon-xs"
+                            onClick={(e) => handleCopyTemplate(template, e)}
+                            title="Copiar como borrador"
+                          >
+                            <Copy className="size-3.5" />
+                            <span className="sr-only">Copiar como borrador</span>
+                          </Button>
+                        )}
                         <ChevronRight className="size-4 text-muted-foreground" />
                       </div>
                     </TableCell>
@@ -971,24 +1334,34 @@ export function TemplatesClientPage({
                     </button>
                     <div className="flex shrink-0 items-center gap-1.5">
                       <Badge
-                        variant={template.active ? "success" : "secondary"}
+                        variant={templateStatusVariant(template)}
                         className="text-xs"
                       >
-                        {template.active
-                          ? t("templates.statusActive")
-                          : t("templates.statusInactive")}
+                        {templateStatusLabel(template)}
                       </Badge>
-                      <Button
-                        variant="ghost"
-                        size="icon-xs"
-                        onClick={(e) => handleEditTemplate(template, e)}
-                        title={t("templates.editTemplate")}
-                      >
-                        <Pencil className="size-3.5" />
-                        <span className="sr-only">
-                          {t("templates.editTemplate")}
-                        </span>
-                      </Button>
+                      {isDraftTemplate(template) ? (
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
+                          onClick={(e) => handleEditTemplate(template, e)}
+                          title={t("templates.editTemplate")}
+                        >
+                          <Pencil className="size-3.5" />
+                          <span className="sr-only">
+                            {t("templates.editTemplate")}
+                          </span>
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
+                          onClick={(e) => handleCopyTemplate(template, e)}
+                          title="Copiar como borrador"
+                        >
+                          <Copy className="size-3.5" />
+                          <span className="sr-only">Copiar como borrador</span>
+                        </Button>
+                      )}
                       <ChevronRight
                         className="size-4 text-muted-foreground"
                         aria-hidden="true"
@@ -1031,19 +1404,7 @@ export function TemplatesClientPage({
         </>
       )}
 
-      {/* Create / edit template dialog */}
-      <TemplateFormDialog
-        open={templateFormOpen}
-        onOpenChange={handleTemplateFormClose}
-        clubTypes={clubTypes}
-        ecclesiasticalYears={ecclesiasticalYears}
-        unions={unions}
-        localFields={localFields}
-        rankingConfigs={rankingConfigs}
-        territoryScope={territoryScope}
-        template={editingTemplate}
-        onSuccess={refreshTemplates}
-      />
+      {templateLifecycleDialogs}
     </div>
   );
 }

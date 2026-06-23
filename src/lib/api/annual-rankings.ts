@@ -197,6 +197,12 @@ export async function updateAnnualRankingConfig(
   return unwrapData(response);
 }
 
+export async function deactivateAnnualRankingConfig(id: string): Promise<void> {
+  await apiRequestFromClient(`/annual-ranking-configs/${id}`, {
+    method: "DELETE",
+  });
+}
+
 export async function listAnnualRankings(
   filters: AnnualRankingLeaderboardFilters,
 ): Promise<AnnualRankingLeaderboardRow[]> {

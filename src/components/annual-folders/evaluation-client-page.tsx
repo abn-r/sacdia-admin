@@ -63,11 +63,14 @@ import type {
   AnnualFolder,
   AnnualFolderEvaluationQueueItem,
   AnnualFolderEvaluationQueueStatus,
+  FolderStatus,
   FolderEvidence,
   FolderSectionWithEvidences,
   SectionEvaluation,
   UnionConfirmationDecision,
 } from "@/lib/api/annual-folders";
+import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
+import type { LocalField, Union } from "@/lib/api/geography";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -518,12 +521,20 @@ function QueueCard({ item, isSelected, isLoading, onSelect }: QueueCardProps) {
 
 interface EvaluationClientPageProps {
   currentUserRoles?: string[];
+  clubTypes?: ClubType[];
+  ecclesiasticalYears?: EcclesiasticalYear[];
+  unions?: Union[];
+  localFields?: LocalField[];
 }
 
 const UNION_CONFIRMATION_ROLES = new Set(["director-union", "assistant-union"]);
 
 export function EvaluationClientPage({
   currentUserRoles = [],
+  clubTypes = [],
+  ecclesiasticalYears = [],
+  unions = [],
+  localFields = [],
 }: EvaluationClientPageProps) {
   const t = useTranslations("annual_folders");
   const canConfirmUnion = currentUserRoles.some((role) =>
@@ -533,6 +544,12 @@ export function EvaluationClientPage({
   const [appliedSearch, setAppliedSearch] = useState("");
   const [queueStatus, setQueueStatus] =
     useState<AnnualFolderEvaluationQueueStatus>("needs_review");
+  const [folderStatus, setFolderStatus] = useState<"all" | FolderStatus>("all");
+  const [selectedUnionId, setSelectedUnionId] = useState("all");
+  const [selectedLocalFieldId, setSelectedLocalFieldId] = useState("all");
+  const [selectedClubTypeId, setSelectedClubTypeId] = useState("all");
+  const [selectedYearId, setSelectedYearId] = useState("all");
+  const [progressFilter, setProgressFilter] = useState("all");
   const [queueItems, setQueueItems] = useState<AnnualFolderEvaluationQueueItem[]>([]);
   const [isQueueLoading, setIsQueueLoading] = useState(true);
   const [queueError, setQueueError] = useState<string | null>(null);
@@ -594,13 +611,43 @@ export function EvaluationClientPage({
     async (
       search: string,
       status: AnnualFolderEvaluationQueueStatus,
+      filters: {
+        folderStatus: "all" | FolderStatus;
+        unionId: string;
+        localFieldId: string;
+        clubTypeId: string;
+        yearId: string;
+        progress: string;
+      },
     ) => {
       setIsQueueLoading(true);
       setQueueError(null);
       try {
+        const progressParams =
+          filters.progress === "empty"
+            ? { progress_max: 0 }
+            : filters.progress === "in_progress"
+              ? { progress_min: 1, progress_max: 99 }
+              : filters.progress === "complete"
+                ? { progress_min: 100 }
+                : {};
         const result = await getEvaluationQueue({
           search: search || undefined,
           status,
+          folder_status:
+            filters.folderStatus === "all" ? undefined : filters.folderStatus,
+          union_id:
+            filters.unionId === "all" ? undefined : Number(filters.unionId),
+          local_field_id:
+            filters.localFieldId === "all"
+              ? undefined
+              : Number(filters.localFieldId),
+          club_type_id:
+            filters.clubTypeId === "all"
+              ? undefined
+              : Number(filters.clubTypeId),
+          year_id: filters.yearId === "all" ? undefined : Number(filters.yearId),
+          ...progressParams,
           page: 1,
           limit: 50,
         });
@@ -620,8 +667,25 @@ export function EvaluationClientPage({
   );
 
   useEffect(() => {
-    void loadQueue(appliedSearch, queueStatus);
-  }, [appliedSearch, queueStatus, loadQueue]);
+    void loadQueue(appliedSearch, queueStatus, {
+      folderStatus,
+      unionId: selectedUnionId,
+      localFieldId: selectedLocalFieldId,
+      clubTypeId: selectedClubTypeId,
+      yearId: selectedYearId,
+      progress: progressFilter,
+    });
+  }, [
+    appliedSearch,
+    folderStatus,
+    loadQueue,
+    progressFilter,
+    queueStatus,
+    selectedClubTypeId,
+    selectedLocalFieldId,
+    selectedUnionId,
+    selectedYearId,
+  ]);
 
   // ─── Search handler ────────────────────────────────────────────────────────
 
@@ -818,7 +882,7 @@ export function EvaluationClientPage({
 
         <form
           onSubmit={handleQueueSearch}
-          className="mb-4 grid gap-3 lg:grid-cols-[1fr_220px_auto]"
+          className="mb-4 grid gap-3 lg:grid-cols-[minmax(260px,1fr)_repeat(3,180px)_auto]"
         >
           <div className="space-y-1.5">
             <Label htmlFor="folder-search" className="text-xs text-muted-foreground">
@@ -835,7 +899,7 @@ export function EvaluationClientPage({
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Estado</Label>
+            <Label className="text-xs text-muted-foreground">Estado de revisión</Label>
             <Select
               value={queueStatus}
               onValueChange={(value) =>
@@ -855,10 +919,139 @@ export function EvaluationClientPage({
             </Select>
           </div>
 
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Estado carpeta</Label>
+            <Select
+              value={folderStatus}
+              onValueChange={(value) => setFolderStatus(value as "all" | FolderStatus)}
+            >
+              <SelectTrigger className="h-9">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas</SelectItem>
+                <SelectItem value="open">Abiertas</SelectItem>
+                <SelectItem value="submitted">Enviadas</SelectItem>
+                <SelectItem value="under_evaluation">En evaluación</SelectItem>
+                <SelectItem value="evaluated">Evaluadas</SelectItem>
+                <SelectItem value="closed">Cerradas</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Avance</Label>
+            <Select value={progressFilter} onValueChange={setProgressFilter}>
+              <SelectTrigger className="h-9">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                <SelectItem value="empty">0%</SelectItem>
+                <SelectItem value="in_progress">1% a 99%</SelectItem>
+                <SelectItem value="complete">100%</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           <Button type="submit" size="sm" className="self-end">
             <Search className="size-4" />
             Buscar
           </Button>
+
+          <div className="grid gap-3 lg:col-span-5 lg:grid-cols-4">
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">Unión</Label>
+              <Select
+                value={selectedUnionId}
+                onValueChange={(value) => {
+                  setSelectedUnionId(value);
+                  setSelectedLocalFieldId("all");
+                }}
+              >
+                <SelectTrigger className="h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas</SelectItem>
+                  {unions.map((union) => (
+                    <SelectItem key={union.union_id} value={String(union.union_id)}>
+                      {union.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">Campo local</Label>
+              <Select
+                value={selectedLocalFieldId}
+                onValueChange={setSelectedLocalFieldId}
+              >
+                <SelectTrigger className="h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  {localFields
+                    .filter(
+                      (field) =>
+                        selectedUnionId === "all" ||
+                        String(field.union_id) === selectedUnionId,
+                    )
+                    .map((field) => (
+                      <SelectItem
+                        key={field.local_field_id}
+                        value={String(field.local_field_id)}
+                      >
+                        {field.name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">Tipo de club</Label>
+              <Select
+                value={selectedClubTypeId}
+                onValueChange={setSelectedClubTypeId}
+              >
+                <SelectTrigger className="h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  {clubTypes.map((type) => (
+                    <SelectItem key={type.club_type_id} value={String(type.club_type_id)}>
+                      {type.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">Año</Label>
+              <Select value={selectedYearId} onValueChange={setSelectedYearId}>
+                <SelectTrigger className="h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  {ecclesiasticalYears.map((year) => (
+                    <SelectItem
+                      key={year.ecclesiastical_year_id}
+                      value={String(year.ecclesiastical_year_id)}
+                    >
+                      {year.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </form>
 
         {queueError && (
