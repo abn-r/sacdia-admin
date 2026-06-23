@@ -52,7 +52,7 @@ import {
   type RankingTier,
 } from "@/lib/api/annual-rankings";
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
-import type { LocalField } from "@/lib/api/geography";
+import type { LocalField, Union } from "@/lib/api/geography";
 
 const DEFAULT_AXES = [
   {
@@ -112,24 +112,37 @@ const DEFAULT_AXES = [
 interface AnnualRankingConfigClientPageProps {
   initialConfigs: AnnualRankingConfig[];
   initialTiers: RankingTier[];
+  unions: Union[];
   localFields: LocalField[];
   clubTypes: ClubType[];
   ecclesiasticalYears: EcclesiasticalYear[];
 }
 
+type RankingScopeType = AnnualRankingConfigFormValues["scope_type"];
+
 function findConfig(
   configs: AnnualRankingConfig[],
   values: Pick<
     AnnualRankingConfigFormValues,
-    "local_field_id" | "ecclesiastical_year_id" | "club_type_id"
+    | "scope_type"
+    | "union_id"
+    | "local_field_id"
+    | "ecclesiastical_year_id"
+    | "club_type_id"
   >,
 ) {
   return configs.find(
     (config) =>
-      config.local_field_id === values.local_field_id &&
+      (values.scope_type === "union"
+        ? config.union_id === values.union_id
+        : config.local_field_id === values.local_field_id) &&
       config.ecclesiastical_year_id === values.ecclesiastical_year_id &&
       config.club_type_id === values.club_type_id,
   );
+}
+
+function scopeTypeFromConfig(config: AnnualRankingConfig): RankingScopeType {
+  return config.union_id != null ? "union" : "local_field";
 }
 
 function axisKeyForComponent(componentKey: string) {
@@ -153,12 +166,18 @@ function toFormValues(
   config: AnnualRankingConfig | undefined,
   fallback: Pick<
     AnnualRankingConfigFormValues,
-    "local_field_id" | "ecclesiastical_year_id" | "club_type_id"
+    | "scope_type"
+    | "union_id"
+    | "local_field_id"
+    | "ecclesiastical_year_id"
+    | "club_type_id"
   >,
 ): AnnualRankingConfigFormValues {
   if (config) {
     return {
       annual_ranking_config_id: config.annual_ranking_config_id,
+      scope_type: scopeTypeFromConfig(config),
+      union_id: config.union_id,
       local_field_id: config.local_field_id,
       ecclesiastical_year_id: config.ecclesiastical_year_id,
       club_type_id: config.club_type_id,
@@ -212,6 +231,7 @@ function toFormValues(
 export function AnnualRankingConfigClientPage({
   initialConfigs,
   initialTiers,
+  unions,
   localFields,
   clubTypes,
   ecclesiasticalYears,
@@ -228,6 +248,8 @@ export function AnnualRankingConfigClientPage({
 
   const initialScope = useMemo(
     () => ({
+      scope_type: (unions.length > 0 ? "union" : "local_field") as RankingScopeType,
+      union_id: unions[0]?.union_id ?? null,
       local_field_id: localFields[0]?.local_field_id ?? 1,
       ecclesiastical_year_id:
         ecclesiasticalYears.find((year) => year.active)?.ecclesiastical_year_id ??
@@ -235,7 +257,7 @@ export function AnnualRankingConfigClientPage({
         1,
       club_type_id: clubTypes[0]?.club_type_id ?? 1,
     }),
-    [clubTypes, ecclesiasticalYears, localFields],
+    [clubTypes, ecclesiasticalYears, localFields, unions],
   );
 
   const form = useForm<AnnualRankingConfigFormValues>({
@@ -251,16 +273,27 @@ export function AnnualRankingConfigClientPage({
     name: "axes",
   });
 
+  const selectedScopeType = form.watch("scope_type");
+  const selectedUnionId = form.watch("union_id");
   const selectedLocalFieldId = form.watch("local_field_id");
   const selectedYearId = form.watch("ecclesiastical_year_id");
   const selectedClubTypeId = form.watch("club_type_id");
   const scope = useMemo(
     () => ({
-      local_field_id: Number(selectedLocalFieldId),
+      scope_type: selectedScopeType,
+      union_id: selectedUnionId == null ? null : Number(selectedUnionId),
+      local_field_id:
+        selectedLocalFieldId == null ? null : Number(selectedLocalFieldId),
       ecclesiastical_year_id: Number(selectedYearId),
       club_type_id: Number(selectedClubTypeId),
     }),
-    [selectedClubTypeId, selectedLocalFieldId, selectedYearId],
+    [
+      selectedClubTypeId,
+      selectedLocalFieldId,
+      selectedScopeType,
+      selectedUnionId,
+      selectedYearId,
+    ],
   );
 
   useEffect(() => {
@@ -287,17 +320,36 @@ export function AnnualRankingConfigClientPage({
         : await createAnnualRankingConfig(values);
 
       setConfigs((current) => {
+        const withoutOverriddenLocalConfigs =
+          saved.union_id == null
+            ? current
+            : current.filter((config) => {
+                if (
+                  config.local_field_id == null ||
+                  config.ecclesiastical_year_id !==
+                    saved.ecclesiastical_year_id ||
+                  config.club_type_id !== saved.club_type_id
+                ) {
+                  return true;
+                }
+
+                const configLocalField = localFields.find(
+                  (fieldOption) =>
+                    fieldOption.local_field_id === config.local_field_id,
+                );
+                return configLocalField?.union_id !== saved.union_id;
+              });
         const exists = current.some(
           (config) =>
             config.annual_ranking_config_id === saved.annual_ranking_config_id,
         );
         return exists
-          ? current.map((config) =>
+          ? withoutOverriddenLocalConfigs.map((config) =>
               config.annual_ranking_config_id === saved.annual_ranking_config_id
                 ? saved
                 : config,
             )
-          : [...current, saved];
+          : [...withoutOverriddenLocalConfigs, saved];
       });
       form.reset(toFormValues(saved, scope));
       toast.success("Configuración anual guardada");
@@ -352,7 +404,7 @@ export function AnnualRankingConfigClientPage({
           <CardTitle>Rangos globales de reconocimiento</CardTitle>
           <CardDescription>
             Estos porcentajes son globales. El sistema calcula los puntos mínimos
-            según el máximo anual configurado por cada campo local.
+            según el máximo anual efectivo configurado por Unión o Campo Local.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -415,13 +467,12 @@ export function AnnualRankingConfigClientPage({
 
       <Card>
         <CardHeader>
-          <CardTitle>Presupuesto anual por campo local</CardTitle>
+          <CardTitle>Presupuesto anual por jerarquía</CardTitle>
           <CardDescription>
             Definí el total anual y cómo se reparte entre cumplimiento
-            administrativo y vida operativa del club. Cada combinación de campo
-            local, año eclesiástico y tipo de club tiene su propia configuración:
-            si el año seleccionado no existe todavía, al guardar se crea una
-            configuración nueva para ese año.
+            administrativo y vida operativa del club. Si configurás una Unión,
+            ese presupuesto manda sobre sus Campos Locales; Campo Local sólo
+            aplica cuando no hay una configuración superior vigente.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -431,38 +482,115 @@ export function AnnualRankingConfigClientPage({
               className="flex flex-col gap-5"
               noValidate
             >
-              <div className="grid gap-4 md:grid-cols-3">
+              <div className="grid gap-4 md:grid-cols-4">
                 <FormField
                   control={form.control}
-                  name="local_field_id"
+                  name="scope_type"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Campo local</FormLabel>
+                      <FormLabel>Alcance</FormLabel>
                       <Select
-                        value={String(field.value)}
-                        onValueChange={(value) => field.onChange(Number(value))}
-                        disabled={localFields.length <= 1}
+                        value={field.value}
+                        onValueChange={(value: RankingScopeType) => {
+                          field.onChange(value);
+                          if (value === "union" && !form.getValues("union_id")) {
+                            form.setValue("union_id", unions[0]?.union_id ?? null);
+                          }
+                          if (
+                            value === "local_field" &&
+                            !form.getValues("local_field_id")
+                          ) {
+                            form.setValue(
+                              "local_field_id",
+                              localFields[0]?.local_field_id ?? null,
+                            );
+                          }
+                        }}
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Seleccionar campo local" />
+                            <SelectValue placeholder="Seleccionar alcance" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {localFields.map((fieldOption) => (
-                            <SelectItem
-                              key={fieldOption.local_field_id}
-                              value={String(fieldOption.local_field_id)}
-                            >
-                              {fieldOption.name}
-                            </SelectItem>
-                          ))}
+                          {unions.length > 0 && (
+                            <SelectItem value="union">Unión</SelectItem>
+                          )}
+                          {localFields.length > 0 && (
+                            <SelectItem value="local_field">Campo Local</SelectItem>
+                          )}
                         </SelectContent>
                       </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
+                {selectedScopeType === "union" ? (
+                  <FormField
+                    control={form.control}
+                    name="union_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Unión</FormLabel>
+                        <Select
+                          value={field.value ? String(field.value) : ""}
+                          onValueChange={(value) => field.onChange(Number(value))}
+                          disabled={unions.length <= 1}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Seleccionar unión" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {unions.map((union) => (
+                              <SelectItem
+                                key={union.union_id}
+                                value={String(union.union_id)}
+                              >
+                                {union.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                ) : (
+                  <FormField
+                    control={form.control}
+                    name="local_field_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Campo local</FormLabel>
+                        <Select
+                          value={field.value ? String(field.value) : ""}
+                          onValueChange={(value) => field.onChange(Number(value))}
+                          disabled={localFields.length <= 1}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Seleccionar campo local" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {localFields.map((fieldOption) => (
+                              <SelectItem
+                                key={fieldOption.local_field_id}
+                                value={String(fieldOption.local_field_id)}
+                              >
+                                {fieldOption.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
 
                 <FormField
                   control={form.control}
@@ -721,9 +849,18 @@ export function AnnualRankingConfigClientPage({
               </div>
 
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <Badge variant={selectedConfigId ? "secondary" : "outline"}>
-                  {selectedConfigId ? "Editando configuración" : "Nueva configuración"}
-                </Badge>
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant={selectedConfigId ? "secondary" : "outline"}>
+                    {selectedConfigId
+                      ? "Editando configuración"
+                      : "Nueva configuración"}
+                  </Badge>
+                  <Badge variant="outline">
+                    {selectedScopeType === "union"
+                      ? "Alcance Unión"
+                      : "Alcance Campo Local"}
+                  </Badge>
+                </div>
                 <Button type="submit" disabled={savingConfig}>
                   {savingConfig ? <Loader2 className="animate-spin" /> : <Save />}
                   Guardar presupuesto anual

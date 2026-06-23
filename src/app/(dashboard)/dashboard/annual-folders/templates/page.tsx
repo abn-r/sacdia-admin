@@ -47,6 +47,10 @@ const TemplatesClientPage = dynamic(
 import { ApiError } from "@/lib/api/client";
 import { listClubTypes, listEcclesiasticalYears } from "@/lib/api/catalogs";
 import { listTemplates, type FolderTemplate } from "@/lib/api/annual-folders";
+import {
+  listAnnualRankingConfigs,
+  type AnnualRankingConfig,
+} from "@/lib/api/annual-rankings";
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
 
 // ─── Normalizers ───────────────────────────────────────────────────────────────
@@ -70,6 +74,7 @@ export default async function TemplatesPage() {
   const territoryScope = resolveAdminTerritoryScope(user);
 
   let templates: FolderTemplate[] = [];
+  let rankingConfigs: AnnualRankingConfig[] = [];
   let clubTypes: ClubType[] = [];
   let ecclesiasticalYears: EcclesiasticalYear[] = [];
   let unions: Union[] = [];
@@ -78,12 +83,14 @@ export default async function TemplatesPage() {
 
   const [
     templatesResult,
+    rankingConfigsResult,
     clubTypesResult,
     yearsResult,
     unionsResult,
     localFieldsResult,
   ] = await Promise.allSettled([
     listTemplates(),
+    listAnnualRankingConfigs(),
     listClubTypes(),
     listEcclesiasticalYears(),
     listUnionsForTerritory(user),
@@ -98,6 +105,16 @@ export default async function TemplatesPage() {
     const err = templatesResult.reason;
     loadError =
       err instanceof ApiError ? err.message : t("pageTemplates.errorFallback");
+  }
+
+  if (rankingConfigsResult.status === "fulfilled") {
+    rankingConfigs = rankingConfigsResult.value;
+  } else {
+    console.error(
+      "[TemplatesPage] Failed to load annual ranking configs:",
+      rankingConfigsResult.reason,
+    );
+    loadError = loadError ?? t("pageTemplates.errorFallback");
   }
 
   if (clubTypesResult.status === "fulfilled") {
@@ -144,6 +161,7 @@ export default async function TemplatesPage() {
       {!loadError && (
         <TemplatesClientPage
           initialTemplates={templates}
+          rankingConfigs={rankingConfigs}
           clubTypes={clubTypes}
           ecclesiasticalYears={ecclesiasticalYears}
           unions={unions}

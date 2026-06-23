@@ -24,7 +24,21 @@ export const annualRankingAxisSchema = z.object({
 export const annualRankingConfigSchema = z
   .object({
     annual_ranking_config_id: z.string().uuid().optional(),
-    local_field_id: z.number().int().positive("Seleccioná un campo local"),
+    scope_type: z.enum(["union", "local_field"], {
+      message: "Seleccioná si la configuración aplica a Unión o Campo Local",
+    }),
+    union_id: z
+      .number()
+      .int()
+      .positive("Seleccioná una unión")
+      .nullable()
+      .optional(),
+    local_field_id: z
+      .number()
+      .int()
+      .positive("Seleccioná un campo local")
+      .nullable()
+      .optional(),
     ecclesiastical_year_id: z.number().int().positive("Seleccioná un año"),
     club_type_id: z.number().int().positive("Seleccioná un tipo de club"),
     max_points: z
@@ -34,6 +48,22 @@ export const annualRankingConfigSchema = z
     axes: z.array(annualRankingAxisSchema).min(1),
   })
   .superRefine((value, ctx) => {
+    if (value.scope_type === "union" && !value.union_id) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["union_id"],
+        message: "Seleccioná una unión",
+      });
+    }
+
+    if (value.scope_type === "local_field" && !value.local_field_id) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["local_field_id"],
+        message: "Seleccioná un campo local",
+      });
+    }
+
     const axisTotal = value.axes.reduce(
       (sum, axis) => sum + axis.max_points,
       0,

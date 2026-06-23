@@ -321,6 +321,7 @@ export type CreateTemplatePayload = {
   name: string;
   club_type_id: number;
   ecclesiastical_year_id: number;
+  active?: boolean;
   minimum_points?: number;
   closing_date?: string | null;
   /** Exactly one must be provided; the other must be omitted / null. */

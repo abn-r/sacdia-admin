@@ -44,6 +44,8 @@ const validAxes = [
 describe("annualRankingConfigSchema", () => {
   it("accepts administrative and operational axes when sums match", () => {
     const result = annualRankingConfigSchema.safeParse({
+      scope_type: "local_field",
+      union_id: null,
       local_field_id: 4,
       ecclesiastical_year_id: 1,
       club_type_id: 2,
@@ -56,6 +58,8 @@ describe("annualRankingConfigSchema", () => {
 
   it("requires annual max points", () => {
     const result = annualRankingConfigSchema.safeParse({
+      scope_type: "local_field",
+      union_id: null,
       local_field_id: 4,
       ecclesiastical_year_id: 1,
       club_type_id: 2,
@@ -68,6 +72,8 @@ describe("annualRankingConfigSchema", () => {
 
   it("requires axis points to match annual max points", () => {
     const result = annualRankingConfigSchema.safeParse({
+      scope_type: "local_field",
+      union_id: null,
       local_field_id: 4,
       ecclesiastical_year_id: 1,
       club_type_id: 2,
@@ -76,11 +82,13 @@ describe("annualRankingConfigSchema", () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.error?.issues[0]?.message).toContain("ejes");
+    expect(result.error?.issues.some((issue) => issue.message.includes("ejes"))).toBe(true);
   });
 
   it("requires component points to match their axis max points", () => {
     const result = annualRankingConfigSchema.safeParse({
+      scope_type: "local_field",
+      union_id: null,
       local_field_id: 4,
       ecclesiastical_year_id: 1,
       club_type_id: 2,
@@ -100,7 +108,7 @@ describe("annualRankingConfigSchema", () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.error?.issues[0]?.message).toContain("eje");
+    expect(result.error?.issues.some((issue) => issue.message.includes("eje"))).toBe(true);
   });
 });
 

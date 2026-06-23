@@ -13,7 +13,7 @@ import {
 import { listClubTypes, listEcclesiasticalYears } from "@/lib/api/catalogs";
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
 import { listLocalFields, listUnions } from "@/lib/api/geography";
-import type { LocalField } from "@/lib/api/geography";
+import type { LocalField, Union } from "@/lib/api/geography";
 import { requireAdminUser } from "@/lib/auth/session";
 import {
   filterLocalFieldsByTerritory,
@@ -48,20 +48,57 @@ async function listRankingConfigLocalFieldsForScope(
   return listLocalFields();
 }
 
+async function listRankingConfigUnionsForScope(
+  user: Awaited<ReturnType<typeof requireAdminUser>>,
+) {
+  const territoryScope = resolveAdminTerritoryScope(user);
+
+  if (territoryScope.level === "union") {
+    return [
+      {
+        union_id: territoryScope.unionId,
+        name: territoryScope.unionName ?? `Unión #${territoryScope.unionId}`,
+        division_id: territoryScope.divisionId ?? undefined,
+        country_id: 0,
+        active: true,
+      },
+    ];
+  }
+
+  if (territoryScope.level === "division") {
+    return listUnions({ divisionId: territoryScope.divisionId });
+  }
+
+  if (territoryScope.level === "all") {
+    return listUnions();
+  }
+
+  return [];
+}
+
 export default async function AnnualRankingConfigPage() {
   const user = await requireAdminUser();
 
   let loadError: string | null = null;
   let configs: AnnualRankingConfig[] = [];
   let tiers: RankingTier[] = [];
+  let unions: Union[] = [];
   let localFields: LocalField[] = [];
   let clubTypes: ClubType[] = [];
   let ecclesiasticalYears: EcclesiasticalYear[] = [];
 
-  const [configsResult, tiersResult, localFieldsResult, clubTypesResult, yearsResult] =
+  const [
+    configsResult,
+    tiersResult,
+    unionsResult,
+    localFieldsResult,
+    clubTypesResult,
+    yearsResult,
+  ] =
     await Promise.allSettled([
       listAnnualRankingConfigs(),
       listRankingTiers(),
+      listRankingConfigUnionsForScope(user),
       listRankingConfigLocalFieldsForScope(user),
       listClubTypes(),
       listEcclesiasticalYears(),
@@ -69,6 +106,7 @@ export default async function AnnualRankingConfigPage() {
 
   if (configsResult.status === "fulfilled") configs = configsResult.value;
   if (tiersResult.status === "fulfilled") tiers = tiersResult.value;
+  if (unionsResult.status === "fulfilled") unions = unionsResult.value;
   if (localFieldsResult.status === "fulfilled") localFields = localFieldsResult.value;
   if (clubTypesResult.status === "fulfilled") clubTypes = clubTypesResult.value;
   if (yearsResult.status === "fulfilled") ecclesiasticalYears = yearsResult.value;
@@ -76,6 +114,7 @@ export default async function AnnualRankingConfigPage() {
   const firstRejected = [
     configsResult,
     tiersResult,
+    unionsResult,
     localFieldsResult,
     clubTypesResult,
     yearsResult,
@@ -89,7 +128,9 @@ export default async function AnnualRankingConfigPage() {
   }
 
   const missingCatalogs =
-    localFields.length === 0 || clubTypes.length === 0 || ecclesiasticalYears.length === 0;
+    (localFields.length === 0 && unions.length === 0) ||
+    clubTypes.length === 0 ||
+    ecclesiasticalYears.length === 0;
 
   return (
     <div className="flex flex-col gap-6">
@@ -117,6 +158,7 @@ export default async function AnnualRankingConfigPage() {
         <AnnualRankingConfigClientPage
           initialConfigs={configs}
           initialTiers={tiers}
+          unions={unions}
           localFields={localFields}
           clubTypes={clubTypes}
           ecclesiasticalYears={ecclesiasticalYears}

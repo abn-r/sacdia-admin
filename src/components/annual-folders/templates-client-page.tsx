@@ -66,6 +66,7 @@ import {
   listTemplates,
   deleteTemplateSection,
 } from "@/lib/api/annual-folders";
+import type { AnnualRankingConfig } from "@/lib/api/annual-rankings";
 import { ApiError } from "@/lib/api/client";
 import type {
   FolderTemplate,
@@ -73,11 +74,16 @@ import type {
 } from "@/lib/api/annual-folders";
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
 import type { LocalField, Union } from "@/lib/api/geography";
+import {
+  folderTemplateSectionPointsTotal,
+  resolveAnnualFolderMaxPointsForTemplateScope,
+} from "@/lib/annual-folders/ranking-budget";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface TemplatesClientPageProps {
   initialTemplates: FolderTemplate[];
+  rankingConfigs: AnnualRankingConfig[];
   clubTypes: ClubType[];
   ecclesiasticalYears: EcclesiasticalYear[];
   unions: Union[];
@@ -112,6 +118,7 @@ function resolveOwnerLabel(template: FolderTemplate): string {
 
 export function TemplatesClientPage({
   initialTemplates,
+  rankingConfigs,
   clubTypes,
   ecclesiasticalYears,
   unions,
@@ -334,6 +341,16 @@ export function TemplatesClientPage({
   const sortedSections = [...(activeTemplate?.sections ?? [])].sort(
     (a, b) => a.order - b.order,
   );
+  const sectionPointsTotal = folderTemplateSectionPointsTotal(sortedSections);
+  const requiredRankingPoints = activeTemplate
+    ? resolveAnnualFolderMaxPointsForTemplateScope(
+        activeTemplate,
+        rankingConfigs,
+        localFields,
+      )
+    : null;
+  const sectionPointsMatch =
+    requiredRankingPoints != null && sectionPointsTotal === requiredRankingPoints;
 
   const nextSectionOrder =
     sortedSections.length > 0
@@ -410,6 +427,29 @@ export function TemplatesClientPage({
             <Plus className="size-4" />
             {t("templates.addSection")}
           </Button>
+        </div>
+
+        <div
+          className={`rounded-lg border px-4 py-3 text-sm ${
+            sectionPointsMatch
+              ? "border-success/30 bg-success/10 text-success-foreground"
+              : "border-amber-500/30 bg-amber-500/10 text-amber-900 dark:text-amber-100"
+          }`}
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="font-medium">Total requerido por ranking</span>
+            <Badge variant={sectionPointsMatch ? "secondary" : "destructive"}>
+              {sectionPointsTotal.toLocaleString()} /{" "}
+              {(requiredRankingPoints ?? 0).toLocaleString()} pts
+            </Badge>
+          </div>
+          <p className="mt-1 text-xs opacity-80">
+            {requiredRankingPoints == null
+              ? "No existe una configuración de ranking aplicable para esta plantilla. Configurá primero el componente annual_evidence_folder."
+              : sectionPointsMatch
+                ? "La plantilla está alineada con el puntaje anual configurado."
+                : "No se podrá activar ni crear carpetas hasta que las secciones sumen exactamente el total requerido."}
+          </p>
         </div>
 
         {isLoadingDetail ? (
@@ -906,25 +946,29 @@ export function TemplatesClientPage({
           >
             {filteredTemplates.map((template) => (
               <li key={template.template_id}>
-                <button
-                  type="button"
+                <div
                   className="w-full rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring text-left"
-                  onClick={() => handleOpenTemplate(template)}
-                  aria-label={t("templates.openTemplateAriaLabel", {
-                    name: template.name,
-                  })}
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate font-medium">{template.name}</p>
-                      <p className="mt-0.5 text-xs text-muted-foreground">
+                    <button
+                      type="button"
+                      className="min-w-0 flex-1 rounded-md text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      onClick={() => handleOpenTemplate(template)}
+                      aria-label={t("templates.openTemplateAriaLabel", {
+                        name: template.name,
+                      })}
+                    >
+                      <span className="block truncate font-medium">
+                        {template.name}
+                      </span>
+                      <span className="mt-0.5 block text-xs text-muted-foreground">
                         {template.club_type?.name ??
                           `Tipo ${template.club_type_id}`}
                         {" · "}
                         {template.ecclesiastical_year?.name ??
                           `Año ${template.ecclesiastical_year_id}`}
-                      </p>
-                    </div>
+                      </span>
+                    </button>
                     <div className="flex shrink-0 items-center gap-1.5">
                       <Badge
                         variant={template.active ? "success" : "secondary"}
@@ -952,7 +996,14 @@ export function TemplatesClientPage({
                     </div>
                   </div>
 
-                  <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                  <button
+                    type="button"
+                    className="mt-3 flex w-full flex-wrap items-center gap-1.5 rounded-md text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    onClick={() => handleOpenTemplate(template)}
+                    aria-label={t("templates.openTemplateAriaLabel", {
+                      name: template.name,
+                    })}
+                  >
                     {template.owner_union_id !== null &&
                     template.owner_union_id !== undefined ? (
                       <Badge variant="default" className="gap-1 text-xs">
@@ -972,8 +1023,8 @@ export function TemplatesClientPage({
                         ? t("templates.sectionSingular")
                         : t("templates.sectionPlural")}
                     </span>
-                  </div>
-                </button>
+                  </button>
+                </div>
               </li>
             ))}
           </ul>
@@ -988,6 +1039,7 @@ export function TemplatesClientPage({
         ecclesiasticalYears={ecclesiasticalYears}
         unions={unions}
         localFields={localFields}
+        rankingConfigs={rankingConfigs}
         territoryScope={territoryScope}
         template={editingTemplate}
         onSuccess={refreshTemplates}

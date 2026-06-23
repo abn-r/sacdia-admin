@@ -28,7 +28,8 @@ export type AnnualRankingAxisConfig = {
 
 export type AnnualRankingConfig = {
   annual_ranking_config_id: string;
-  local_field_id: number;
+  union_id: number | null;
+  local_field_id: number | null;
   ecclesiastical_year_id: number;
   club_type_id: number;
   max_points: number;
@@ -37,6 +38,8 @@ export type AnnualRankingConfig = {
   updated_by: string | null;
   created_at: string;
   updated_at: string;
+  union?: { union_id: number; name: string } | null;
+  local_field?: { local_field_id: number; name: string; union_id: number } | null;
   axes?: AnnualRankingAxisConfig[];
   components: AnnualRankingComponentConfig[];
 };
@@ -106,6 +109,7 @@ function unwrapData<T>(payload: T | Envelope<T>): T {
 }
 
 export type AnnualRankingConfigFilters = {
+  unionId?: number;
   localFieldId?: number;
   ecclesiasticalYearId?: number;
   clubTypeId?: number;
@@ -119,9 +123,24 @@ export type AnnualRankingLeaderboardFilters = {
 
 function filtersToParams(filters: AnnualRankingConfigFilters = {}) {
   return {
+    union_id: filters.unionId,
     local_field_id: filters.localFieldId,
     year_id: filters.ecclesiasticalYearId,
     club_type_id: filters.clubTypeId,
+  };
+}
+
+function toAnnualRankingConfigPayload(values: AnnualRankingConfigFormValues) {
+  return {
+    ecclesiastical_year_id: values.ecclesiastical_year_id,
+    club_type_id: values.club_type_id,
+    max_points: values.max_points,
+    axes: values.axes,
+    union_id: values.scope_type === "union" ? (values.union_id ?? undefined) : undefined,
+    local_field_id:
+      values.scope_type === "local_field"
+        ? (values.local_field_id ?? undefined)
+        : undefined,
   };
 }
 
@@ -160,7 +179,7 @@ export async function createAnnualRankingConfig(
 ): Promise<AnnualRankingConfig> {
   const response = await apiRequestFromClient<Envelope<AnnualRankingConfig>>(
     "/annual-ranking-configs",
-    { method: "POST", body: payload },
+    { method: "POST", body: toAnnualRankingConfigPayload(payload) },
   );
 
   return unwrapData(response);

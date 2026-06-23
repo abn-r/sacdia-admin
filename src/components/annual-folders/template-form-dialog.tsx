@@ -25,6 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Switch } from "@/components/ui/switch";
 import {
   Form,
   FormControl,
@@ -35,10 +36,15 @@ import {
 } from "@/components/ui/form";
 import { createTemplate, updateTemplate } from "@/lib/api/annual-folders";
 import type { FolderTemplate } from "@/lib/api/annual-folders";
+import type { AnnualRankingConfig } from "@/lib/api/annual-rankings";
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
 import { listUnions, listLocalFields } from "@/lib/api/geography";
 import type { Union, LocalField } from "@/lib/api/geography";
 import type { AdminTerritoryScope } from "@/lib/auth/territory-scope";
+import {
+  folderTemplateSectionPointsTotal,
+  resolveAnnualFolderMaxPointsForTemplateScope,
+} from "@/lib/annual-folders/ranking-budget";
 
 // ─── Schema factory ───────────────────────────────────────────────────────────
 
@@ -61,6 +67,7 @@ function buildSchema(t: ReturnType<typeof useTranslations<"annual_folders.valida
         .int()
         .min(0, t("minimum_points_min")),
       closing_date: z.string().optional(),
+      active: z.boolean().default(false),
       owner_tier: ownerTierSchema,
       owner_union_id: z.coerce.number().int().nullable().optional(),
       owner_local_field_id: z.coerce.number().int().nullable().optional(),
@@ -97,6 +104,7 @@ interface TemplateFormDialogProps {
   ecclesiasticalYears: EcclesiasticalYear[];
   unions?: Union[];
   localFields?: LocalField[];
+  rankingConfigs?: AnnualRankingConfig[];
   territoryScope?: AdminTerritoryScope;
   /** When provided the dialog operates in edit mode. */
   template?: FolderTemplate | null;
@@ -120,6 +128,7 @@ export function TemplateFormDialog({
   ecclesiasticalYears,
   unions: scopedUnions,
   localFields: scopedLocalFields,
+  rankingConfigs = [],
   territoryScope,
   template,
   onSuccess,
@@ -136,7 +145,10 @@ export function TemplateFormDialog({
   const [loadingOwnerCatalogs, setLoadingOwnerCatalogs] = useState(false);
 
   const resolveDefaultOwnerTier = useCallback(() => {
-    if (territoryScope?.level === "union" || territoryScope?.level === "local_field") {
+    if (territoryScope?.level === "union") {
+      return "union" as const;
+    }
+    if (territoryScope?.level === "local_field") {
       return "local_field" as const;
     }
     return deriveOwnerTier(template);
@@ -154,10 +166,13 @@ export function TemplateFormDialog({
     closing_date: template?.closing_date
       ? template.closing_date.slice(0, 16)
       : "",
+    active: template?.active ?? false,
     owner_tier: resolveDefaultOwnerTier(),
     owner_union_id:
-      territoryScope?.level === "union" || territoryScope?.level === "local_field"
-        ? null
+      territoryScope?.level === "union"
+        ? territoryScope.unionId
+        : territoryScope?.level === "local_field"
+          ? null
         : template?.owner_union_id ?? null,
     owner_local_field_id:
       territoryScope?.level === "local_field"
@@ -172,6 +187,11 @@ export function TemplateFormDialog({
 
   // ownerTier drives conditional rendering — single watch is justified
   const ownerTier = form.watch("owner_tier");
+  const activeRequested = form.watch("active");
+  const selectedClubTypeId = form.watch("club_type_id");
+  const selectedYearId = form.watch("ecclesiastical_year_id");
+  const selectedOwnerUnionId = form.watch("owner_union_id");
+  const selectedOwnerLocalFieldId = form.watch("owner_local_field_id");
   const isUnionScope = territoryScope?.level === "union";
   const isLocalFieldScope = territoryScope?.level === "local_field";
   const canChooseOwnerTier = !isUnionScope && !isLocalFieldScope;
@@ -185,6 +205,47 @@ export function TemplateFormDialog({
           },
         ]
       : localFields;
+  const ownerUnionOptions =
+    isUnionScope && territoryScope
+      ? [
+          {
+            union_id: territoryScope.unionId,
+            name: territoryScope.unionName ?? `Unión #${territoryScope.unionId}`,
+            country_id: 0,
+            division_id: territoryScope.divisionId ?? undefined,
+          },
+        ]
+      : unions;
+  const sectionPointsTotal = folderTemplateSectionPointsTotal(
+    template?.sections,
+  );
+  const effectiveOwnerUnionId =
+    ownerTier === "union" && canChooseOwnerTier
+      ? selectedOwnerUnionId
+      : isUnionScope
+        ? territoryScope.unionId
+        : null;
+  const effectiveOwnerLocalFieldId =
+    ownerTier === "local_field" || !canChooseOwnerTier
+      ? isLocalFieldScope
+        ? territoryScope.localFieldId
+        : selectedOwnerLocalFieldId
+      : null;
+  const requiredRankingPoints = resolveAnnualFolderMaxPointsForTemplateScope(
+    {
+      owner_union_id: effectiveOwnerUnionId,
+      owner_local_field_id: effectiveOwnerLocalFieldId,
+      ecclesiastical_year_id: selectedYearId,
+      club_type_id: selectedClubTypeId,
+    },
+    rankingConfigs,
+    ownerLocalFieldOptions.length > 0 ? ownerLocalFieldOptions : localFields,
+  );
+  const activationBlocked =
+    activeRequested &&
+    (!isEdit ||
+      requiredRankingPoints == null ||
+      sectionPointsTotal !== requiredRankingPoints);
 
   // Load owner catalogs when dialog opens
   useEffect(() => {
@@ -217,10 +278,13 @@ export function TemplateFormDialog({
         closing_date: template?.closing_date
           ? template.closing_date.slice(0, 16)
           : "",
+        active: template?.active ?? false,
         owner_tier: resolveDefaultOwnerTier(),
         owner_union_id:
-          territoryScope?.level === "union" || territoryScope?.level === "local_field"
-            ? null
+          territoryScope?.level === "union"
+            ? territoryScope.unionId
+            : territoryScope?.level === "local_field"
+              ? null
             : template?.owner_union_id ?? null,
         owner_local_field_id:
           territoryScope?.level === "local_field"
@@ -234,12 +298,16 @@ export function TemplateFormDialog({
     setIsSubmitting(true);
     try {
       const resolvedOwnerTier =
-        territoryScope?.level === "union" || territoryScope?.level === "local_field"
-          ? "local_field"
+        territoryScope?.level === "union"
+          ? "union"
+          : territoryScope?.level === "local_field"
+            ? "local_field"
           : values.owner_tier;
       const resolvedOwnerUnionId =
-        territoryScope?.level === "union" || territoryScope?.level === "local_field"
-          ? null
+        territoryScope?.level === "union"
+          ? territoryScope.unionId
+          : territoryScope?.level === "local_field"
+            ? null
           : values.owner_union_id ?? null;
       const resolvedOwnerLocalFieldId =
         territoryScope?.level === "local_field"
@@ -256,6 +324,7 @@ export function TemplateFormDialog({
         ecclesiastical_year_id: values.ecclesiastical_year_id,
         minimum_points: values.minimum_points,
         closing_date: values.closing_date ? values.closing_date : null,
+        active: values.active,
         ...ownerFields,
       };
 
@@ -444,7 +513,7 @@ export function TemplateFormDialog({
                     ) : (
                       <div className="rounded-md border bg-muted/30 px-3 py-2 text-sm text-muted-foreground">
                         {isUnionScope
-                          ? "Tu alcance solo permite campos locales descendientes."
+                          ? "Tu alcance fija la unión como dueña de esta plantilla."
                           : "Tu alcance fija el campo local como dueño de esta plantilla."}
                       </div>
                     )}
@@ -455,7 +524,7 @@ export function TemplateFormDialog({
             />
 
             {/* Conditional owner select */}
-            {ownerTier === "union" && canChooseOwnerTier ? (
+            {ownerTier === "union" ? (
               <FormField
                 control={form.control}
                 name="owner_union_id"
@@ -467,7 +536,7 @@ export function TemplateFormDialog({
                     </FormLabel>
                     <FormControl>
                       <Select
-                        disabled={loadingOwnerCatalogs}
+                        disabled={loadingOwnerCatalogs || isUnionScope}
                         value={field.value ? String(field.value) : ""}
                         onValueChange={(val) =>
                           field.onChange(Number(val))
@@ -483,8 +552,8 @@ export function TemplateFormDialog({
                           />
                         </SelectTrigger>
                         <SelectContent>
-                          {unions.length > 0 ? (
-                            unions.map((u) => (
+                          {ownerUnionOptions.length > 0 ? (
+                            ownerUnionOptions.map((u) => (
                               <SelectItem key={u.union_id} value={String(u.union_id)}>
                                 {u.name}
                               </SelectItem>
@@ -595,6 +664,48 @@ export function TemplateFormDialog({
               />
             </div>
 
+            <FormField
+              control={form.control}
+              name="active"
+              render={({ field }) => (
+                <FormItem className="rounded-lg border p-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <FormLabel>Publicar plantilla</FormLabel>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Una plantilla publicada puede generar carpetas. Debe
+                        sumar exactamente el total requerido por ranking.
+                      </p>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </div>
+                  {field.value && (
+                    <div
+                      className={`mt-3 rounded-md px-3 py-2 text-xs ${
+                        activationBlocked
+                          ? "bg-destructive/10 text-destructive"
+                          : "bg-success/10 text-success"
+                      }`}
+                    >
+                      {activationBlocked
+                        ? requiredRankingPoints == null
+                          ? "No hay configuración anual de ranking aplicable para esta plantilla."
+                          : !isEdit
+                            ? "Guardá primero el borrador y agregá secciones antes de publicar."
+                            : `Las secciones suman ${sectionPointsTotal.toLocaleString()} pts y el ranking exige ${requiredRankingPoints.toLocaleString()} pts.`
+                        : `Listo para publicar: ${sectionPointsTotal.toLocaleString()} / ${requiredRankingPoints?.toLocaleString()} pts.`}
+                    </div>
+                  )}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <DialogFooter className="pt-2">
               <Button
                 type="button"
@@ -604,7 +715,7 @@ export function TemplateFormDialog({
               >
                 {t("templateDialog.cancel")}
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting || activationBlocked}>
                 {isSubmitting
                   ? isEdit
                     ? t("templateDialog.submittingEdit")

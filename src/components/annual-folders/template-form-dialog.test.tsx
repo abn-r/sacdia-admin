@@ -271,7 +271,7 @@ describe("TemplateFormDialog", () => {
     });
   });
 
-  it("uses scoped unions/local fields from props and hides union ownership for union actors", async () => {
+  it("uses scoped unions/local fields from props and fixes union ownership for union actors", async () => {
     renderDialog({
       unions: [],
       localFields: [STUB_LOCAL_FIELDS[0]],
@@ -284,7 +284,7 @@ describe("TemplateFormDialog", () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText(/solo permite campos locales descendientes/i)).toBeInTheDocument();
+      expect(screen.getByText(/fija la unión como dueña/i)).toBeInTheDocument();
     });
 
     expect(mockListUnions).not.toHaveBeenCalled();

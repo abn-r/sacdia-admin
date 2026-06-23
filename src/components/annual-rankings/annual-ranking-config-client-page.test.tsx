@@ -3,7 +3,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { AnnualRankingConfigClientPage } from "./annual-ranking-config-client-page";
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
-import type { LocalField } from "@/lib/api/geography";
+import type { LocalField, Union } from "@/lib/api/geography";
 
 vi.mock("sonner", () => ({
   toast: {
@@ -26,6 +26,8 @@ vi.mock("@/lib/api/annual-rankings", async (importOriginal) => {
 const localFields: LocalField[] = [
   { local_field_id: 4, name: "Centro Veracruz", union_id: 1, active: true },
 ];
+
+const unions: Union[] = [];
 
 const clubTypes: ClubType[] = [{ club_type_id: 2, name: "Conquistadores" }];
 
@@ -55,6 +57,7 @@ describe("AnnualRankingConfigClientPage", () => {
       <AnnualRankingConfigClientPage
         initialConfigs={[]}
         initialTiers={[]}
+        unions={unions}
         localFields={localFields}
         clubTypes={clubTypes}
         ecclesiasticalYears={ecclesiasticalYears}
@@ -71,6 +74,7 @@ describe("AnnualRankingConfigClientPage", () => {
       <AnnualRankingConfigClientPage
         initialConfigs={[]}
         initialTiers={[]}
+        unions={unions}
         localFields={localFields}
         clubTypes={[
           ...clubTypes,
@@ -81,8 +85,8 @@ describe("AnnualRankingConfigClientPage", () => {
     );
 
     const selectors = screen.getAllByRole("combobox");
-    expect(selectors[0]).toBeDisabled();
-    expect(selectors[1]).not.toBeDisabled();
+    expect(selectors[1]).toBeDisabled();
     expect(selectors[2]).not.toBeDisabled();
+    expect(selectors[3]).not.toBeDisabled();
   });
 });
