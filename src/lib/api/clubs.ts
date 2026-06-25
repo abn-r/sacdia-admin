@@ -30,7 +30,7 @@ export type ClubPayload = {
   name: string;
   description?: string;
   local_field_id: number;
-  district_id: number;
+  districlub_type_id: number;
   church_id: number;
   address?: string;
   coordinates?: {
@@ -189,7 +189,7 @@ export async function createClub(payload: ClubPayload) {
   });
 }
 
-export async function updateClub(clubId: number, payload: Partial<ClubPayload>) {
+export async function updateClub(clubId: number, payload: Record<string, unknown>) {
   return apiRequest(`/clubs/${clubId}`, {
     method: "PATCH",
     body: payload,

@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockRequireAdminUser = vi.fn();
+const mockCreateClub = vi.fn();
+const mockCreateClubSection = vi.fn();
 const mockCreateClassCounselorAssignment = vi.fn();
 const mockSucceedClubSectionDirector = vi.fn();
 const mockUpdateClubSection = vi.fn();
@@ -33,6 +35,8 @@ vi.mock("@/lib/api/clubs", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/api/clubs")>();
   return {
     ...actual,
+    createClub: (...args: unknown[]) => mockCreateClub(...args),
+    createClubSection: (...args: unknown[]) => mockCreateClubSection(...args),
     createClassCounselorAssignment: (...args: unknown[]) =>
       mockCreateClassCounselorAssignment(...args),
     updateClassCounselorAssignment: (...args: unknown[]) =>
@@ -46,6 +50,7 @@ vi.mock("@/lib/api/clubs", async (importOriginal) => {
 });
 
 import {
+  createClubWithSectionsAction,
   createClassCounselorAssignmentAction,
   revokeClassCounselorAssignmentAction,
   succeedClubSectionDirectorAction,
@@ -60,6 +65,55 @@ function makeFormData(entries: Record<string, string>) {
   }
   return formData;
 }
+
+describe("createClubWithSectionsAction", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockRequireAdminUser.mockResolvedValue({
+      id: "actor-1",
+      email: "actor@example.com",
+      roles: ["director-lf"],
+      authorization: {
+        effective: {
+          scope: {
+            global: {
+              local_field: { id: 10, name: "Campo Local" },
+            },
+          },
+        },
+      },
+    });
+    mockCreateClub.mockResolvedValue({ club_id: 55 });
+    mockCreateClubSection.mockResolvedValue({ club_section_id: 77 });
+  });
+
+  it("sends the backend district field when creating a club", async () => {
+    await createClubWithSectionsAction(
+      {},
+      makeFormData({
+        name: "Club Central",
+        description: "Club de prueba",
+        local_field_id: "10",
+        district_id: "20",
+        church_id: "30",
+        address: "Calle 123",
+        section_club_type_id_0: "2",
+        section_name_0: "Conquistadores",
+      }),
+    );
+
+    expect(mockCreateClub).toHaveBeenCalledWith({
+      name: "Club Central",
+      description: "Club de prueba",
+      local_field_id: 10,
+      districlub_type_id: 20,
+      church_id: 30,
+      address: "Calle 123",
+      coordinates: undefined,
+    });
+    expect(mockCreateClub.mock.calls[0]?.[0]).not.toHaveProperty("district_id");
+  });
+});
 
 describe("succeedClubSectionDirectorAction", () => {
   beforeEach(() => {

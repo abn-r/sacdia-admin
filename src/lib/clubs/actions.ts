@@ -186,7 +186,7 @@ function buildCreatePayload(t: ClubsTranslator, formData: FormData) {
       "local_field_id",
       t("fields.local_field"),
     ),
-    district_id: parseRequiredNumber(
+    districlub_type_id: parseRequiredNumber(
       t,
       formData,
       "district_id",
@@ -1154,7 +1154,7 @@ export async function bulkCreateClubsAction(
         name: row.name,
         description: row.description,
         local_field_id: row.local_field_id,
-        district_id: row.district_id,
+        districlub_type_id: row.district_id,
         church_id: row.church_id,
         address: row.address,
         coordinates: row.coordinates,
