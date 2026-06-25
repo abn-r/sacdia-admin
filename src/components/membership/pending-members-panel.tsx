@@ -15,9 +15,9 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PendingMembersTable } from "@/components/membership/pending-members-table";
-import {
-  listMembershipRequestsFromClient,
-} from "@/lib/api/membership-requests";
+import { TransfersTable } from "@/components/requests/transfers-table";
+import { listMembershipRequestsFromClient } from "@/lib/api/membership-requests";
+import { getTransferRequests } from "@/lib/api/requests";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -37,7 +37,9 @@ interface PendingMembersPanelProps {
 
 export function PendingMembersPanel({ sections }: PendingMembersPanelProps) {
   const t = useTranslations("membership");
-  const activeSections = sections.filter((s) => s.active !== false && s.club_section_id);
+  const activeSections = sections.filter(
+    (s) => s.active !== false && s.club_section_id,
+  );
 
   const [selectedSectionId, setSelectedSectionId] = useState<number | null>(
     activeSections[0]?.club_section_id ?? null,
@@ -53,11 +55,29 @@ export function PendingMembersPanel({ sections }: PendingMembersPanelProps) {
     enabled: selectedSectionId !== null,
     staleTime: 30_000,
   });
+  const {
+    data: transferRequests = [],
+    isFetching: isLoadingTransfers,
+    error: transferQueryError,
+    refetch: refetchTransfers,
+  } = useQuery({
+    queryKey: ["transfer-requests", selectedSectionId],
+    queryFn: () =>
+      getTransferRequests({ sectionId: selectedSectionId!, status: "PENDING" }),
+    enabled: selectedSectionId !== null,
+    staleTime: 30_000,
+  });
 
   const loadError =
     queryError instanceof Error
       ? queryError.message
       : queryError
+        ? t("pending.load_error")
+        : null;
+  const transferLoadError =
+    transferQueryError instanceof Error
+      ? transferQueryError.message
+      : transferQueryError
         ? t("pending.load_error")
         : null;
 
@@ -117,10 +137,13 @@ export function PendingMembersPanel({ sections }: PendingMembersPanelProps) {
       )}
 
       {/* Loading state */}
-      {isLoading && (
+      {(isLoading || isLoadingTransfers) && (
         <div className="space-y-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-4 rounded-md border p-4">
+            <div
+              key={i}
+              className="flex items-center gap-4 rounded-md border p-4"
+            >
               <Skeleton className="h-4 w-40" />
               <Skeleton className="h-4 w-24" />
               <Skeleton className="h-4 w-20" />
@@ -145,6 +168,30 @@ export function PendingMembersPanel({ sections }: PendingMembersPanelProps) {
           clubSectionId={selectedSectionId}
           initialRequests={requests}
         />
+      )}
+
+      {!isLoadingTransfers && transferLoadError && (
+        <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4">
+          <p className="text-sm text-destructive">{transferLoadError}</p>
+        </div>
+      )}
+
+      {!isLoadingTransfers && !transferLoadError && selectedSectionId && (
+        <div className="space-y-3 border-t pt-4">
+          <div>
+            <h4 className="text-sm font-semibold text-foreground">
+              Solicitudes de cambio de club
+            </h4>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Aprueba o rechaza miembros que solicitan integrarse a esta
+              sección.
+            </p>
+          </div>
+          <TransfersTable
+            requests={transferRequests}
+            onRefresh={() => void refetchTransfers()}
+          />
+        </div>
       )}
     </div>
   );

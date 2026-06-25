@@ -21,6 +21,27 @@ export type RequestSection = {
   name: string;
 };
 
+type ApiUser = {
+  user_id?: string;
+  first_name?: string | null;
+  name?: string | null;
+  last_name?: string | null;
+  paternal_last_name?: string | null;
+  maternal_last_name?: string | null;
+  email?: string | null;
+  photo?: string | null;
+  user_image?: string | null;
+};
+
+type ApiSection = {
+  section_id?: number;
+  club_section_id?: number;
+  name?: string | null;
+  club_type?: { name?: string | null } | null;
+  club_types?: { name?: string | null } | null;
+  clubs?: { name?: string | null } | null;
+};
+
 // ─── Transfer request types ───────────────────────────────────────────────────
 
 export type TransferRequest = {
@@ -62,6 +83,7 @@ export type AssignmentRequestDetail = AssignmentRequest & {
 export type RequestsQuery = {
   status?: RequestStatus;
   section_id?: number;
+  sectionId?: number;
 };
 
 // ─── Request payloads ─────────────────────────────────────────────────────────
@@ -82,21 +104,105 @@ function extractList<T>(payload: unknown): T[] {
   return [];
 }
 
+type RawTransferRequest = {
+  id?: number | string;
+  transfer_request_id?: number | string;
+  request_id?: number | string;
+  status?: unknown;
+  reason?: string | null;
+  comment?: string | null;
+  review_comment?: string | null;
+  created_at?: string;
+  reviewed_at?: string | null;
+  requester?: ApiUser | null;
+  user?: ApiUser | null;
+  from_section?: ApiSection | null;
+  to_section?: ApiSection | null;
+};
+
+function normalizeStatus(status: unknown): RequestStatus {
+  const normalized = String(status ?? "pending").toUpperCase();
+  if (
+    normalized === "PENDING" ||
+    normalized === "APPROVED" ||
+    normalized === "REJECTED"
+  ) {
+    return normalized;
+  }
+  return "PENDING";
+}
+
+function getSectionName(section: ApiSection): string {
+  return (
+    section?.name ??
+    section?.club_types?.name ??
+    section?.club_type?.name ??
+    section?.clubs?.name ??
+    "—"
+  );
+}
+
+function normalizeTransferRequest(raw: RawTransferRequest): TransferRequest {
+  const requester = raw.requester ?? raw.user ?? null;
+  const fromSection = raw.from_section ?? null;
+  const toSection = raw.to_section ?? null;
+  const derivedLastName = requester
+    ? [requester.paternal_last_name, requester.maternal_last_name]
+        .filter(Boolean)
+        .join(" ")
+    : "";
+  const lastName = requester
+    ? requester.last_name ?? (derivedLastName.length > 0 ? derivedLastName : null)
+    : null;
+
+  return {
+    request_id: raw.transfer_request_id ?? raw.request_id ?? raw.id ?? "",
+    status: normalizeStatus(raw.status),
+    reason: raw.reason ?? null,
+    comment: raw.review_comment ?? raw.comment ?? null,
+    created_at: raw.created_at ?? "",
+    reviewed_at: raw.reviewed_at ?? null,
+    requester: requester
+      ? {
+          user_id: requester.user_id ?? "",
+          first_name: requester.first_name ?? requester.name ?? null,
+          last_name: lastName,
+          email: requester.email ?? null,
+          photo: requester.photo ?? requester.user_image ?? null,
+        }
+      : null,
+    from_section: fromSection
+      ? {
+          section_id:
+            fromSection.section_id ?? fromSection.club_section_id ?? 0,
+          name: getSectionName(fromSection),
+        }
+      : null,
+    to_section: toSection
+      ? {
+          section_id: toSection.section_id ?? toSection.club_section_id ?? 0,
+          name: getSectionName(toSection),
+        }
+      : null,
+  };
+}
+
 // ─── Transfer API functions ───────────────────────────────────────────────────
 
 /**
- * GET /api/v1/requests/transfers?status=&section_id=
+ * GET /api/v1/requests/transfers?status=&sectionId=
  * List transfer requests optionally filtered by status and section.
  */
 export async function getTransferRequests(
   query: RequestsQuery = {},
 ): Promise<TransferRequest[]> {
   const params: Record<string, string | number | boolean | undefined> = {};
-  if (query.status) params.status = query.status;
-  if (query.section_id) params.section_id = query.section_id;
+  if (query.status) params.status = query.status.toLowerCase();
+  const sectionId = query.sectionId ?? query.section_id;
+  if (sectionId) params.sectionId = sectionId;
 
   const res = await apiRequest<unknown>("/requests/transfers", { params });
-  return extractList<TransferRequest>(res);
+  return extractList<RawTransferRequest>(res).map(normalizeTransferRequest);
 }
 
 /**
@@ -106,13 +212,15 @@ export async function getTransferRequests(
 export async function getTransferRequestDetail(
   requestId: number | string,
 ): Promise<TransferRequestDetail> {
-  const res = await apiRequest<TransferRequestDetail | { data: TransferRequestDetail }>(
+  const res = await apiRequest<RawTransferRequest | { data: RawTransferRequest }>(
     `/requests/transfers/${requestId}`,
   );
   if (res && typeof res === "object" && "data" in res) {
-    return (res as { data: TransferRequestDetail }).data;
+    return normalizeTransferRequest(
+      (res as { data: RawTransferRequest }).data,
+    ) as TransferRequestDetail;
   }
-  return res as TransferRequestDetail;
+  return normalizeTransferRequest(res) as TransferRequestDetail;
 }
 
 /**

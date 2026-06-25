@@ -245,10 +245,10 @@ export function ClubDetailView({
             <section className="rounded-2xl border bg-card p-5 shadow-sm">
               <header className="mb-4">
                 <h3 className="text-sm font-bold text-foreground">
-                  Solicitudes de membresía
+                  Solicitudes
                 </h3>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  Aprueba o rechaza nuevos miembros por sección.
+                  Aprueba o rechaza nuevos miembros y cambios de club por sección.
                 </p>
               </header>
               <PendingMembersPanel sections={rawSections} />
