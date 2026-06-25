@@ -1,4 +1,4 @@
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
@@ -26,11 +26,9 @@ export default async function DashboardLayout({
   const messages = await getMessages();
   const t = await getTranslations("nav.a11y");
   const cookieStore = await cookies();
-  const headerStore = await headers();
-  const pathname = headerStore.get("x-sacdia-pathname") ?? "/dashboard";
   const clientMessages = pickMessages(
     messages,
-    getClientMessageNamespacesForDashboardPath(pathname, messages),
+    getClientMessageNamespacesForDashboardPath("/dashboard", messages),
   );
   const sidebarState = cookieStore.get("sidebar_state")?.value;
   const defaultOpen = sidebarState !== "false";
