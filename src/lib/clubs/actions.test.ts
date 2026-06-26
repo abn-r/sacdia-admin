@@ -4,6 +4,7 @@ const mockRequireAdminUser = vi.fn();
 const mockCreateClub = vi.fn();
 const mockCreateClubSection = vi.fn();
 const mockCreateClassCounselorAssignment = vi.fn();
+const mockAssignInitialClubSectionDirector = vi.fn();
 const mockSucceedClubSectionDirector = vi.fn();
 const mockUpdateClubSection = vi.fn();
 const mockUpdateClassCounselorAssignment = vi.fn();
@@ -39,6 +40,8 @@ vi.mock("@/lib/api/clubs", async (importOriginal) => {
     createClubSection: (...args: unknown[]) => mockCreateClubSection(...args),
     createClassCounselorAssignment: (...args: unknown[]) =>
       mockCreateClassCounselorAssignment(...args),
+    assignInitialClubSectionDirector: (...args: unknown[]) =>
+      mockAssignInitialClubSectionDirector(...args),
     updateClassCounselorAssignment: (...args: unknown[]) =>
       mockUpdateClassCounselorAssignment(...args),
     revokeClassCounselorAssignment: (...args: unknown[]) =>
@@ -52,6 +55,7 @@ vi.mock("@/lib/api/clubs", async (importOriginal) => {
 import {
   createClubWithSectionsAction,
   createClassCounselorAssignmentAction,
+  assignInitialClubSectionDirectorAction,
   revokeClassCounselorAssignmentAction,
   succeedClubSectionDirectorAction,
   updateClassCounselorAssignmentAction,
@@ -133,7 +137,7 @@ describe("succeedClubSectionDirectorAction", () => {
     });
   });
 
-  it("rejects admin users that are not director-lf or assistant-lf before calling the API", async () => {
+  it("allows admin users to call the director succession endpoint", async () => {
     mockRequireAdminUser.mockResolvedValue({
       id: "actor-1",
       email: "actor@example.com",
@@ -151,7 +155,55 @@ describe("succeedClubSectionDirectorAction", () => {
       }),
     );
 
-    expect(result.error).toMatch(/director-lf|assistant-lf/i);
+    expect(result.success).toBeTruthy();
+    expect(mockSucceedClubSectionDirector).toHaveBeenCalledWith(10, 7, {
+      current_assignment_id: "old-assignment",
+      successor_user_id: "successor-user",
+      ecclesiastical_year_id: 2026,
+    });
+  });
+
+  it("allows super-admin users to call the director succession endpoint", async () => {
+    mockRequireAdminUser.mockResolvedValue({
+      id: "actor-1",
+      email: "actor@example.com",
+      roles: ["super-admin"],
+    });
+
+    const result = await succeedClubSectionDirectorAction(
+      10,
+      7,
+      {},
+      makeFormData({
+        current_assignment_id: "old-assignment",
+        successor_user_id: "successor-user",
+        ecclesiastical_year_id: "2026",
+      }),
+    );
+
+    expect(result.success).toBeTruthy();
+    expect(mockSucceedClubSectionDirector).toHaveBeenCalled();
+  });
+
+  it("rejects unrelated admin-panel roles before calling the API", async () => {
+    mockRequireAdminUser.mockResolvedValue({
+      id: "actor-1",
+      email: "actor@example.com",
+      roles: ["coordinator"],
+    });
+
+    const result = await succeedClubSectionDirectorAction(
+      10,
+      7,
+      {},
+      makeFormData({
+        current_assignment_id: "old-assignment",
+        successor_user_id: "successor-user",
+        ecclesiastical_year_id: "2026",
+      }),
+    );
+
+    expect(result.error).toMatch(/admin|super-admin|director-lf|assistant-lf/i);
     expect(mockSucceedClubSectionDirector).not.toHaveBeenCalled();
   });
 
@@ -175,6 +227,61 @@ describe("succeedClubSectionDirectorAction", () => {
       ecclesiastical_year_id: 2026,
       start_date: "2026-10-01",
     });
+  });
+});
+
+describe("assignInitialClubSectionDirectorAction", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockRequireAdminUser.mockResolvedValue({
+      id: "actor-1",
+      email: "actor@example.com",
+      roles: ["admin"],
+    });
+    mockAssignInitialClubSectionDirector.mockResolvedValue({
+      assignment_id: "director-assignment",
+    });
+  });
+
+  it("allows admin users to assign the initial section director", async () => {
+    const result = await assignInitialClubSectionDirectorAction(
+      10,
+      7,
+      {},
+      makeFormData({
+        user_id: "director-user",
+        ecclesiastical_year_id: "2026",
+        start_date: "2026-01-15",
+      }),
+    );
+
+    expect(result.success).toBeTruthy();
+    expect(mockAssignInitialClubSectionDirector).toHaveBeenCalledWith(10, 7, {
+      user_id: "director-user",
+      ecclesiastical_year_id: 2026,
+      start_date: "2026-01-15",
+    });
+  });
+
+  it("rejects unrelated roles before assigning the initial director", async () => {
+    mockRequireAdminUser.mockResolvedValue({
+      id: "actor-1",
+      email: "actor@example.com",
+      roles: ["coordinator"],
+    });
+
+    const result = await assignInitialClubSectionDirectorAction(
+      10,
+      7,
+      {},
+      makeFormData({
+        user_id: "director-user",
+        ecclesiastical_year_id: "2026",
+      }),
+    );
+
+    expect(result.error).toMatch(/admin|super-admin|director-lf|assistant-lf/i);
+    expect(mockAssignInitialClubSectionDirector).not.toHaveBeenCalled();
   });
 });
 

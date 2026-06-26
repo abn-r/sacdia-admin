@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { getActionErrorMessage } from "@/lib/api/action-error";
 import {
+  assignInitialClubSectionDirector,
   createClassCounselorAssignment,
   createClub,
   createClubSection,
@@ -22,6 +23,7 @@ import type { ClassCounselorResponsibilityType } from "@/lib/api/clubs";
 import { unwrapObject } from "@/lib/api/response";
 import { requireAdminUser } from "@/lib/auth/session";
 import { extractRoles } from "@/lib/auth/roles";
+import { canUseDirectorSuccession } from "@/lib/auth/director-succession";
 import { canManageClubsByRole } from "@/lib/auth/permission-utils";
 import { listLocalFieldsForTerritory } from "@/lib/auth/territory-scope";
 import type { AuthUser } from "@/lib/auth/types";
@@ -1018,12 +1020,11 @@ export async function succeedClubSectionDirectorAction(
   formData: FormData,
 ): Promise<ClubActionState> {
   const currentUser = await requireAdminUser();
-  const roles = new Set(extractRoles(currentUser));
 
-  if (!roles.has("director-lf") && !roles.has("assistant-lf")) {
+  if (!canUseDirectorSuccession(extractRoles(currentUser))) {
     return {
       error:
-        "Solo director-lf y assistant-lf pueden ejecutar la sucesión anual de director.",
+        "Solo admin, super-admin, director-lf y assistant-lf pueden ejecutar la sucesión anual de director.",
     };
   }
 
@@ -1072,6 +1073,62 @@ export async function succeedClubSectionDirectorAction(
   revalidatePath(`/dashboard/clubs/${clubId}`);
   revalidatePath(buildClubSectionPath(clubId, sectionId));
   return { success: "Director actualizado correctamente" };
+}
+
+export async function assignInitialClubSectionDirectorAction(
+  clubId: number,
+  sectionId: number,
+  _: ClubActionState,
+  formData: FormData,
+): Promise<ClubActionState> {
+  const currentUser = await requireAdminUser();
+
+  if (!canUseDirectorSuccession(extractRoles(currentUser))) {
+    return {
+      error:
+        "Solo admin, super-admin, director-lf y assistant-lf pueden asignar el director inicial.",
+    };
+  }
+
+  const t = await getTranslations("clubs");
+  const userId = readString(formData, "user_id");
+  if (!userId) {
+    return { error: t("validation.user_id_required") };
+  }
+
+  let ecclesiasticalYearId = 0;
+  try {
+    ecclesiasticalYearId = parseRequiredNumber(
+      t,
+      formData,
+      "ecclesiastical_year_id",
+      t("fields.ecclesiastical_year"),
+    );
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : t("validation.ecclesiastical_year_invalid"),
+    };
+  }
+
+  const startDate = readString(formData, "start_date") || undefined;
+
+  try {
+    await assignInitialClubSectionDirector(clubId, sectionId, {
+      user_id: userId,
+      ecclesiastical_year_id: ecclesiasticalYearId,
+      ...(startDate ? { start_date: startDate } : {}),
+    });
+  } catch (error) {
+    return {
+      error: getActionErrorMessage(error, "No se pudo asignar el director inicial", {
+        endpointLabel: `/clubs/${clubId}/sections/${sectionId}/director-assignment`,
+      }),
+    };
+  }
+
+  revalidatePath(`/dashboard/clubs/${clubId}`);
+  revalidatePath(buildClubSectionPath(clubId, sectionId));
+  return { success: "Director asignado correctamente" };
 }
 
 // ─── Bulk import ──────────────────────────────────────────────────────────────

@@ -174,6 +174,12 @@ export type ClubDirectorSuccessionPayload = {
   start_date?: string;
 };
 
+export type ClubDirectorInitialAssignmentPayload = {
+  user_id: string;
+  ecclesiastical_year_id: number;
+  start_date?: string;
+};
+
 export async function listClubs(query: ClubListQuery = {}) {
   return apiRequest("/clubs", { params: query });
 }
@@ -323,6 +329,17 @@ export async function succeedClubSectionDirector(
   payload: ClubDirectorSuccessionPayload,
 ) {
   return apiRequest(`/clubs/${clubId}/sections/${sectionId}/director-succession`, {
+    method: "POST",
+    body: payload,
+  });
+}
+
+export async function assignInitialClubSectionDirector(
+  clubId: number,
+  sectionId: number,
+  payload: ClubDirectorInitialAssignmentPayload,
+) {
+  return apiRequest(`/clubs/${clubId}/sections/${sectionId}/director-assignment`, {
     method: "POST",
     body: payload,
   });
