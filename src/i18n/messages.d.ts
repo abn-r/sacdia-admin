@@ -1195,6 +1195,15 @@ export interface IntlMessages {
       infoSectionId: string;
       infoCuota: string;
       infoMembers: string;
+      daysOfWeek: {
+        Monday: string;
+        Tuesday: string;
+        Wednesday: string;
+        Thursday: string;
+        Friday: string;
+        Saturday: string;
+        Sunday: string;
+      };
       workspace: {
         eyebrow: string;
         title: string;
@@ -1254,6 +1263,10 @@ export interface IntlMessages {
         historyEmptyTitle: string;
         historyEmptyLead: string;
         loadMore: string;
+        responsibilityPrimary: string;
+        responsibilityAssistant: string;
+        responsibilitySubstitute: string;
+        responsibilityFallback: string;
       };
     };
     detail: {
@@ -1321,6 +1334,7 @@ export interface IntlMessages {
         emptyCreateButton: string;
         createMenuManual: string;
         createMenuBulk: string;
+        unexpectedError: string;
       };
       v2: {
         metadataTitle: string;
@@ -5587,6 +5601,11 @@ export interface IntlMessages {
     };
     counselorAssignments: {
       responsibilityAriaLabel: string;
+      justificationPlaceholder: string;
+      responsibilityPrimary: string;
+      responsibilityAssistant: string;
+      responsibilitySubstitute: string;
+      responsibilityFallback: string;
     };
     tree: {
       no_modules: string;

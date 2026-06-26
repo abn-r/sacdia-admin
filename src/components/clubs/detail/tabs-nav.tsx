@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 export type ClubTabId =
   | "overview"
   | "sections"
+  | "responsables"
   | "units"
   | "membership"
   | "info"

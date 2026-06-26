@@ -1,6 +1,5 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import type { SectionView } from "./types";
 
 interface CompositionDonutProps {
@@ -58,8 +57,7 @@ export function CompositionDonut({ sections, total }: CompositionDonutProps) {
                   cy="80"
                   r={RADIUS}
                   fill="none"
-                  className={s.meta.barBg.replace("bg-", "stroke-")}
-                  stroke="currentColor"
+                  stroke={s.meta.donutHex}
                   strokeWidth="18"
                   strokeDasharray={dash}
                   strokeDashoffset={dashOffset}
@@ -93,7 +91,8 @@ export function CompositionDonut({ sections, total }: CompositionDonutProps) {
               className="grid grid-cols-[14px_1fr_auto_auto] items-center gap-3 border-b border-border/60 py-2 last:border-0"
             >
               <span
-                className={cn("size-3 rounded-sm", s.meta.barBg)}
+                className="size-3 rounded-sm"
+                style={{ backgroundColor: s.meta.donutHex }}
                 aria-hidden
               />
               <div className="min-w-0">

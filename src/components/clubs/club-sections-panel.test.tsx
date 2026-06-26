@@ -21,74 +21,56 @@ vi.mock("@/components/clubs/section-director-succession-card", () => ({
   SectionDirectorSuccessionCard: () => <div data-testid="director-succession-card" />,
 }));
 
-vi.mock("@/components/classes/class-counselor-assignments-card", () => ({
-  ClassCounselorAssignmentsCard: ({
-    clubId,
-    sectionId,
-    clubTypeId,
-  }: {
-    clubId: number;
-    sectionId: number;
-    clubTypeId: number;
-  }) => (
-    <div
-      data-testid="class-counselor-assignments-card"
-      data-club-id={clubId}
-      data-section-id={sectionId}
-      data-club-type-id={clubTypeId}
-    />
-  ),
-}));
-
 vi.mock("@/lib/format-locale", () => ({
   useFormatCurrency: () => (value: number) => `$${value}`,
 }));
 
 import { ClubSectionsPanel } from "@/components/clubs/club-sections-panel";
 
-function renderPanel() {
-  return render(
-    <NextIntlClientProvider locale="es" messages={messages}>
-      <ClubSectionsPanel
-        clubId={10}
-        clubTypes={[
-          { club_type_id: 1, name: "Aventureros" },
-          { club_type_id: 2, name: "Conquistadores" },
-        ]}
-        sections={[
-          {
-            club_section_id: 7,
-            club_type_id: 2,
-            club_type: { name: "Conquistadores" },
-            name: "Conquistadores Central",
-            active: true,
-            souls_target: 12,
-            fee: 150,
-            members_count: 8,
-          },
-        ]}
-      />
-    </NextIntlClientProvider>,
-  );
-}
-
 describe("ClubSectionsPanel", () => {
   afterEach(() => {
     cleanup();
   });
 
-  it("shows add controls for missing club types and management controls for existing sections", () => {
-    renderPanel();
+  it("renders section management controls without inner workspace tabs", () => {
+    const onAssignResponsible = vi.fn();
+    render(
+      <NextIntlClientProvider locale="es" messages={messages}>
+        <ClubSectionsPanel
+          clubId={10}
+          clubTypes={[
+            { club_type_id: 1, name: "Aventureros" },
+            { club_type_id: 2, name: "Conquistadores" },
+          ]}
+          sections={[
+            {
+              club_section_id: 7,
+              club_type_id: 2,
+              club_type: { name: "Conquistadores" },
+              name: "Conquistadores Central",
+              active: true,
+              souls_target: 12,
+              fee: 150,
+              members_count: 8,
+            },
+          ]}
+          onAssignResponsible={onAssignResponsible}
+        />
+      </NextIntlClientProvider>,
+    );
+
+    expect(screen.getByText("Secciones y responsables.")).toBeInTheDocument();
+    expect(screen.queryByRole("tab", { name: "Historial" })).not.toBeInTheDocument();
 
     expect(screen.getByText("Aventureros")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /agregar/i })).toBeInTheDocument();
 
-    expect(screen.getByText("Conquistadores Central")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /editar/i })).toBeInTheDocument();
+    expect(screen.getAllByText("Conquistadores Central").length).toBeGreaterThan(0);
+    expect(screen.getByRole("button", { name: /editar sección/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /desactivar/i })).toBeInTheDocument();
-    expect(screen.getByTestId("class-counselor-assignments-card")).toHaveAttribute(
-      "data-section-id",
-      "7",
-    );
+    expect(screen.getByTestId("member-of-month-card")).toBeInTheDocument();
+
+    screen.getByRole("button", { name: /asignar responsable/i }).click();
+    expect(onAssignResponsible).toHaveBeenCalledTimes(1);
   });
 });

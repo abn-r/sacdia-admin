@@ -5,7 +5,7 @@ import { useFormStatus } from "react-dom";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { AlertTriangle, Loader2, Trash2 } from "lucide-react";
+import { AlertTriangle, Building2, Loader2, MapPin, Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -15,32 +15,33 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/shared/page-header";
 import { EditClubForm } from "@/components/clubs/edit-club-form";
 import { ClubSectionsPanel } from "@/components/clubs/club-sections-panel";
+import { ClubSectionResponsablesPanel } from "@/components/clubs/club-section-responsables-panel";
+import { ClubSectionHistoryPanel } from "@/components/clubs/club-section-history-panel";
 import { PendingMembersPanel } from "@/components/membership/pending-members-panel";
 import { UnitsTab } from "@/components/units/units-tab";
-import { listUnits } from "@/lib/api/units";
 import {
   getClubLeadershipFromClient,
   getClubOverviewFromClient,
 } from "@/lib/api/club-detail";
 import type { ClubActionState } from "@/lib/clubs/actions";
-import { ClubDetailHero } from "./hero";
-import { ClubDetailStats } from "./stats";
-import { ClubTabsNav } from "./tabs-nav";
-import type { ClubTabId } from "./tab-utils";
 import { ClubOverviewTab } from "./overview-tab";
 import { ClubHistoryTab } from "./history-tab";
 import { ClubInfoPanel } from "./info-panel";
 import {
-  ClubRightSidebar,
-  LeadershipPanel,
-} from "./right-sidebar";
-import { buildSectionViews, getActiveUnits } from "./helpers";
+  buildSectionViews,
+  getActiveUnits,
+  getClubLocations,
+  getTotalMembers,
+} from "./helpers";
+import type { ClubTabId } from "./tabs-nav";
 import type { ClubFull, ClubSectionRaw } from "./types";
+import { listUnits } from "@/lib/api/units";
 
 interface SelectOption {
   label: string;
@@ -62,6 +63,17 @@ interface ClubDetailViewProps {
   deleteAction: (formData: FormData) => Promise<void>;
 }
 
+const TAB_ITEMS = [
+  { id: "overview" as const, labelKey: "tabOverview" as const },
+  { id: "sections" as const, labelKey: "tabSections" as const },
+  { id: "responsables" as const, labelKey: "tabResponsables" as const },
+  { id: "units" as const, labelKey: "tabUnits" as const },
+  { id: "membership" as const, labelKey: "tabMembership" as const },
+  { id: "info" as const, labelKey: "tabInfo" as const },
+  { id: "history" as const, labelKey: "tabHistory" as const },
+  { id: "edit" as const, labelKey: "tabEdit" as const },
+];
+
 export function ClubDetailView({
   club,
   clubId,
@@ -75,7 +87,8 @@ export function ClubDetailView({
 }: ClubDetailViewProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const t = useTranslations("clubs.pages.detail");
+  const t = useTranslations("clubs.pages.v2.detail");
+  const tDetail = useTranslations("clubs.pages.detail");
   const [tab, setTab] = useState<ClubTabId>(defaultTab);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
@@ -88,7 +101,9 @@ export function ClubDetailView({
   const {
     data: overview,
     isLoading: isLoadingOverview,
+    isFetching: isFetchingOverview,
     error: overviewErrorRaw,
+    refetch: refetchOverview,
   } = useQuery({
     queryKey: ["club-detail-overview", clubId],
     queryFn: () => getClubOverviewFromClient(clubId),
@@ -99,7 +114,9 @@ export function ClubDetailView({
   const {
     data: leadership,
     isLoading: isLoadingLeadership,
+    isFetching: isFetchingLeadership,
     error: leadershipErrorRaw,
+    refetch: refetchLeadership,
   } = useQuery({
     queryKey: ["club-detail-leadership", clubId],
     queryFn: () => getClubLeadershipFromClient(clubId),
@@ -108,26 +125,45 @@ export function ClubDetailView({
   const leadershipError =
     leadershipErrorRaw instanceof Error ? leadershipErrorRaw : null;
 
-  const pendingRequests = overview?.funnel.pending_requests ?? null;
-  const upcomingEvents = overview?.upcoming_events ?? null;
-
   const activeUnits = useMemo(() => getActiveUnits(units), [units]);
   const sections = useMemo(() => buildSectionViews(club, activeUnits), [club, activeUnits]);
   const sectionLookup = useMemo(() => {
     const map = new Map<number, ClubSectionRaw>();
-    for (const s of sections) {
-      if (s.sectionId != null) map.set(s.sectionId, s.raw);
+    for (const section of sections) {
+      if (section.sectionId != null) map.set(section.sectionId, section.raw);
     }
     return map;
   }, [sections]);
 
   const rawSections = useMemo(
     () =>
-      (club.club_sections ?? club.sections ?? []).map((s) => ({
-        ...s,
-        name: s.name ?? undefined,
+      (club.club_sections ?? club.sections ?? []).map((section) => ({
+        ...section,
+        name: section.name ?? undefined,
       })),
     [club.club_sections, club.sections],
+  );
+
+  const responsablesSections = useMemo(() => {
+    const existingByTypeId = new Map(
+      rawSections.map((section) => [section.club_type_id, section]),
+    );
+    return clubTypeOptions
+      .map((option) => {
+        const section = existingByTypeId.get(option.value);
+        if (!section?.club_section_id) return null;
+        return {
+          club_section_id: section.club_section_id,
+          club_type_id: section.club_type_id ?? option.value,
+          name: section.name ?? option.label,
+          typeName: option.label,
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item != null);
+  }, [clubTypeOptions, rawSections]);
+
+  const [selectedSectionId, setSelectedSectionId] = useState<number | null>(
+    responsablesSections[0]?.club_section_id ?? null,
   );
 
   const editClubProps = useMemo(
@@ -146,18 +182,8 @@ export function ClubDetailView({
     [club],
   );
 
-  const tabs = useMemo(
-    () => [
-      { id: "overview" as const, label: "Resumen" },
-      { id: "sections" as const, label: "Secciones", count: sections.length },
-      { id: "units" as const, label: "Unidades", count: activeUnits.length },
-      { id: "membership" as const, label: "Solicitudes" },
-      { id: "info" as const, label: "Información" },
-      { id: "history" as const, label: "Historial" },
-      { id: "edit" as const, label: "Editar" },
-    ],
-    [sections.length, activeUnits.length],
-  );
+  const { localField, district, church } = getClubLocations(club);
+  const members = getTotalMembers(sections);
 
   function setActiveTab(next: ClubTabId) {
     setTab(next);
@@ -167,40 +193,74 @@ export function ClubDetailView({
     router.replace(`?${params.toString()}`, { scroll: false });
   }
 
-  function handleDelete() {
-    setDeleteOpen(true);
-  }
-
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <PageHeader
-        title="Operación completa del club"
-        description={club.name ?? "Detalle de club"}
+        title={club.name ?? t("fallbackTitle")}
+        description={t("description")}
         breadcrumbs={[
-          { label: "Clubes", href: "/dashboard/clubs" },
-          { label: club.name ?? "Detalle" },
+          { label: t("breadcrumbList"), href: "/dashboard/clubs" },
+          { label: club.name ?? t("fallbackTitle") },
         ]}
-      />
+      >
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => setActiveTab("edit")}>
+            {t("editButton")}
+          </Button>
+          <Button variant="destructive" size="sm" onClick={() => setDeleteOpen(true)}>
+            {tDetail("deleteDialogConfirm")}
+          </Button>
+        </div>
+      </PageHeader>
 
-      <ClubDetailHero
-        club={club}
-        sections={sections}
-        unitsCount={activeUnits.length}
-        onEdit={() => setActiveTab("edit")}
-        onDelete={handleDelete}
-      />
+      <section className="rounded-xl border bg-muted/15 p-4">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="flex min-w-0 items-start gap-3">
+            <div className="grid size-11 place-items-center rounded-xl bg-primary/10 text-primary">
+              <Building2 className="size-5" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="text-lg font-semibold tracking-tight">{club.name ?? "—"}</h2>
+                <Badge variant={club.active !== false ? "soft-success" : "outline"}>
+                  {club.active !== false ? t("statusActive") : t("statusInactive")}
+                </Badge>
+              </div>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {club.description?.trim() || t("noDescription")}
+              </p>
+              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                {church && (
+                  <span className="inline-flex items-center gap-1">
+                    <MapPin className="size-3.5" />
+                    {church}
+                    {district ? ` · ${district}` : ""}
+                  </span>
+                )}
+                {localField && <span>{localField}</span>}
+                <span>
+                  {members} {t("membersLabel")} · {activeUnits.length} {t("unitsLabel")}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-      <ClubDetailStats
-        sections={sections}
-        unitsCount={activeUnits.length}
-        pendingRequests={pendingRequests}
-      />
+      <Tabs value={tab} onValueChange={(value) => setActiveTab(value as ClubTabId)}>
+        <TabsList
+          variant="line"
+          className="h-auto w-full justify-start gap-1 overflow-x-auto rounded-none border-b bg-muted/30 px-0"
+        >
+          {TAB_ITEMS.map((item) => (
+            <TabsTrigger key={item.id} value={item.id} className="min-h-11 px-4">
+              {t(item.labelKey)}
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
-      <ClubTabsNav tabs={tabs} value={tab} onChange={setActiveTab} />
-
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <div className="min-w-0 space-y-5">
-          {tab === "overview" && (
+        <TabsContent value="overview" className="mt-5">
+          <div className="rounded-xl border bg-card p-5 shadow-sm">
             <ClubOverviewTab
               sections={sections}
               units={activeUnits}
@@ -208,102 +268,92 @@ export function ClubDetailView({
               overview={overview}
               isLoadingOverview={isLoadingOverview}
               overviewError={overviewError}
+              leadership={leadership}
+              isLoadingLeadership={isLoadingLeadership}
+              leadershipError={leadershipError}
+              onRetryOverview={() => void refetchOverview()}
+              onRetryLeadership={() => void refetchLeadership()}
+              isRetryingOverview={isFetchingOverview && !isLoadingOverview}
+              isRetryingLeadership={isFetchingLeadership && !isLoadingLeadership}
             />
-          )}
+          </div>
+        </TabsContent>
 
-          {tab === "sections" && (
-            <section className="rounded-2xl border bg-card p-5 shadow-sm">
-              <header className="mb-4">
-                <h3 className="text-sm font-bold text-foreground">
-                  Secciones del club
-                </h3>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  Tres rangos por edad — cada uno con sus propias unidades.
-                </p>
-              </header>
-              <ClubSectionsPanel
-                clubId={clubId}
-                sections={rawSections}
-                clubTypes={clubTypeOptions.map((option) => ({
-                  club_type_id: option.value,
-                  name: option.label,
-                }))}
-              />
-            </section>
-          )}
-
-          {tab === "units" && (
-            <section className="rounded-2xl border bg-card p-5 shadow-sm">
-              <UnitsTab
-                clubId={clubId}
-                localFieldId={club.local_field_id ?? null}
-              />
-            </section>
-          )}
-
-          {tab === "membership" && (
-            <section className="rounded-2xl border bg-card p-5 shadow-sm">
-              <header className="mb-4">
-                <h3 className="text-sm font-bold text-foreground">
-                  Solicitudes
-                </h3>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  Aprueba o rechaza nuevos miembros y cambios de club por sección.
-                </p>
-              </header>
-              <PendingMembersPanel sections={rawSections} />
-            </section>
-          )}
-
-          {tab === "info" && (
-            <ClubInfoPanel
-              club={club}
-              sections={sections}
-              onEdit={() => setActiveTab("edit")}
+        <TabsContent value="sections" className="mt-5 space-y-5">
+          <div className="rounded-xl border bg-card shadow-sm">
+            <ClubSectionsPanel
+              clubId={clubId}
+              sections={rawSections}
+              clubTypes={clubTypeOptions.map((option) => ({
+                club_type_id: option.value,
+                name: option.label,
+              }))}
+              onAssignResponsible={() => setActiveTab("responsables")}
+              onSectionSelect={setSelectedSectionId}
             />
-          )}
+          </div>
+          <div className="rounded-xl border bg-card p-5 shadow-sm">
+            <ClubSectionHistoryPanel clubId={clubId} />
+          </div>
+        </TabsContent>
 
-          {tab === "history" && <ClubHistoryTab clubId={clubId} />}
-
-          {tab === "edit" && (
-            <section className="rounded-2xl border bg-card p-5 shadow-sm">
-              <header className="mb-4">
-                <h3 className="text-sm font-bold text-foreground">
-                  Editar información del club
-                </h3>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  Actualiza la identidad, ubicación y datos generales.
-                </p>
-              </header>
-              <EditClubForm
-                club={editClubProps}
-                localFields={localFieldOptions}
-                districts={districtOptions}
-                churches={churchOptions}
-                formAction={updateAction}
-                googleMapsApiKey={
-                  process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? ""
-                }
+        <TabsContent value="responsables" className="mt-5">
+          <div className="rounded-xl border bg-card p-5 shadow-sm">
+            {responsablesSections.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                {t("noSectionsForResponsables")}
+              </p>
+            ) : (
+              <ClubSectionResponsablesPanel
+                clubId={clubId}
+                sections={responsablesSections}
+                defaultSectionId={selectedSectionId ?? undefined}
               />
-            </section>
-          )}
-        </div>
+            )}
+          </div>
+        </TabsContent>
 
-        <ClubRightSidebar
-          clubId={clubId}
-          pendingRequests={pendingRequests}
-          upcomingEvents={upcomingEvents}
-          isLoadingEvents={isLoadingOverview}
-          onEdit={() => setActiveTab("edit")}
-          onDelete={handleDelete}
-        />
-      </div>
+        <TabsContent value="units" className="mt-5">
+          <div className="rounded-xl border bg-card p-5 shadow-sm">
+            <UnitsTab clubId={clubId} localFieldId={club.local_field_id ?? null} />
+          </div>
+        </TabsContent>
 
-      <LeadershipPanel
-        leadership={leadership}
-        isLoading={isLoadingLeadership}
-        error={leadershipError}
-      />
+        <TabsContent value="membership" className="mt-5">
+          <div className="rounded-xl border bg-card p-5 shadow-sm">
+            <header className="mb-4">
+              <h3 className="text-sm font-bold text-foreground">{t("membershipTitle")}</h3>
+              <p className="mt-0.5 text-xs text-muted-foreground">{t("membershipLead")}</p>
+            </header>
+            <PendingMembersPanel sections={rawSections} />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="info" className="mt-5">
+          <ClubInfoPanel club={club} sections={sections} onEdit={() => setActiveTab("edit")} />
+        </TabsContent>
+
+        <TabsContent value="history" className="mt-5">
+          <ClubHistoryTab clubId={clubId} />
+        </TabsContent>
+
+        <TabsContent value="edit" className="mt-5">
+          <div className="rounded-xl border bg-card p-5 shadow-sm">
+            <header className="mb-4">
+              <h3 className="text-sm font-bold text-foreground">{t("editTitle")}</h3>
+              <p className="mt-0.5 text-xs text-muted-foreground">{t("editLead")}</p>
+            </header>
+            <EditClubForm
+              club={editClubProps}
+              localFields={localFieldOptions}
+              districts={districtOptions}
+              churches={churchOptions}
+              formAction={updateAction}
+              googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? ""}
+            />
+          </div>
+        </TabsContent>
+      </Tabs>
 
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent className="sm:max-w-sm">
@@ -312,19 +362,19 @@ export function ClubDetailView({
               <AlertTriangle className="size-5 text-destructive" />
             </div>
             <AlertDialogTitle className="text-center">
-              {t("deleteDialogTitle")}
+              {tDetail("deleteDialogTitle")}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-center">
-              {t("deleteDialogDesc", { name: club.name ?? "" })}
+              {tDetail("deleteDialogDesc", { name: club.name ?? "" })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <form action={deleteAction}>
             <input type="hidden" name="id" value={clubId} />
             <AlertDialogFooter>
-              <AlertDialogCancel>{t("deleteDialogCancel")}</AlertDialogCancel>
+              <AlertDialogCancel>{tDetail("deleteDialogCancel")}</AlertDialogCancel>
               <DeleteClubButton
-                confirmLabel={t("deleteDialogConfirm")}
-                pendingLabel={t("deleteDialogDeleting")}
+                confirmLabel={tDetail("deleteDialogConfirm")}
+                pendingLabel={tDetail("deleteDialogDeleting")}
               />
             </AlertDialogFooter>
           </form>
@@ -351,19 +401,5 @@ function DeleteClubButton({
       )}
       {pending ? pendingLabel : confirmLabel}
     </Button>
-  );
-}
-
-export function ClubDetailLoadingSkeleton() {
-  return (
-    <div className="space-y-5">
-      <Skeleton className="h-7 w-48" />
-      <Skeleton className="h-32 w-full rounded-2xl" />
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="h-24 rounded-2xl" />
-        ))}
-      </div>
-    </div>
   );
 }

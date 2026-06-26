@@ -1166,6 +1166,15 @@
       "infoSectionId": "ID sección",
       "infoCuota": "Cuota",
       "infoMembers": "Miembros",
+      "daysOfWeek": {
+        "Monday": "Lunes",
+        "Tuesday": "Martes",
+        "Wednesday": "Miércoles",
+        "Thursday": "Jueves",
+        "Friday": "Viernes",
+        "Saturday": "Sábado",
+        "Sunday": "Domingo"
+      },
       "workspace": {
         "eyebrow": "Administración del club",
         "title": "Secciones y responsables.",
@@ -1224,7 +1233,11 @@
         "retry": "Reintentar",
         "historyEmptyTitle": "Aún sin eventos de sección",
         "historyEmptyLead": "Cuando edites secciones o asignes responsables por clase, los eventos aparecerán aquí.",
-        "loadMore": "Cargar más"
+        "loadMore": "Cargar más",
+        "responsibilityPrimary": "Principal",
+        "responsibilityAssistant": "Apoyo",
+        "responsibilitySubstitute": "Suplente",
+        "responsibilityFallback": "Responsable"
       }
     },
     "detail": {
@@ -1291,7 +1304,8 @@
         "emptyDescription": "Crea el primer club para comenzar.",
         "emptyCreateButton": "Crear club",
         "createMenuManual": "Crear manualmente",
-        "createMenuBulk": "Importar desde Excel"
+        "createMenuBulk": "Importar desde Excel",
+        "unexpectedError": "Error inesperado"
       },
       "v2": {
         "metadataTitle": "Clubes v2",
@@ -5557,7 +5571,12 @@
       "col_availability": "Disponibilidad"
     },
     "counselorAssignments": {
-      "responsibilityAriaLabel": "Responsabilidad"
+      "responsibilityAriaLabel": "Responsabilidad",
+      "justificationPlaceholder": "Justificación",
+      "responsibilityPrimary": "Principal",
+      "responsibilityAssistant": "Apoyo",
+      "responsibilitySubstitute": "Suplente",
+      "responsibilityFallback": "Responsable"
     },
     "tree": {
       "no_modules": "Esta clase no tiene módulos registrados.",

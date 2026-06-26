@@ -130,6 +130,16 @@ function CreateAssignmentForm({
   assignableMembers: AssignableCounselorOption[];
   isLoading: boolean;
 }) {
+  const t = useTranslations("classes.counselorAssignments");
+  const responsibilityLabels = useMemo(
+    () => ({
+      primary: t("responsibilityPrimary"),
+      assistant: t("responsibilityAssistant"),
+      substitute: t("responsibilitySubstitute"),
+      fallback: t("responsibilityFallback"),
+    }),
+    [t],
+  );
   const boundAction = createClassCounselorAssignmentAction.bind(
     null,
     clubId,
@@ -152,7 +162,7 @@ function CreateAssignmentForm({
             <SelectContent>
               {assignableMembers.map((member) => (
                 <SelectItem key={member.value} value={member.value}>
-                  {member.label} · {responsibilityLabel(member.role)}
+                  {member.label} · {responsibilityLabel(member.role, responsibilityLabels)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -186,9 +196,9 @@ function CreateAssignmentForm({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="primary">Principal</SelectItem>
-              <SelectItem value="assistant">Apoyo</SelectItem>
-              <SelectItem value="substitute">Suplente</SelectItem>
+              <SelectItem value="primary">{responsibilityLabels.primary}</SelectItem>
+              <SelectItem value="assistant">{responsibilityLabels.assistant}</SelectItem>
+              <SelectItem value="substitute">{responsibilityLabels.substitute}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -225,6 +235,15 @@ function AssignmentRow({
   sectionId: number;
 }) {
   const t = useTranslations("classes.counselorAssignments");
+  const responsibilityLabels = useMemo(
+    () => ({
+      primary: t("responsibilityPrimary"),
+      assistant: t("responsibilityAssistant"),
+      substitute: t("responsibilitySubstitute"),
+      fallback: t("responsibilityFallback"),
+    }),
+    [t],
+  );
   const updateAction = updateClassCounselorAssignmentAction.bind(
     null,
     clubId,
@@ -257,7 +276,7 @@ function AssignmentRow({
         </div>
         <div className="flex flex-wrap gap-2">
           <Badge variant={assignment.responsibility_type === "primary" ? "default" : "outline"}>
-            {responsibilityLabel(assignment.responsibility_type)}
+            {responsibilityLabel(assignment.responsibility_type, responsibilityLabels)}
           </Badge>
           {assignment.exceptional && <Badge variant="secondary">Excepcional</Badge>}
         </div>
@@ -276,9 +295,9 @@ function AssignmentRow({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="primary">Principal</SelectItem>
-              <SelectItem value="assistant">Apoyo</SelectItem>
-              <SelectItem value="substitute">Suplente</SelectItem>
+              <SelectItem value="primary">{responsibilityLabels.primary}</SelectItem>
+              <SelectItem value="assistant">{responsibilityLabels.assistant}</SelectItem>
+              <SelectItem value="substitute">{responsibilityLabels.substitute}</SelectItem>
             </SelectContent>
           </Select>
           <label className="flex items-center gap-2 text-sm">

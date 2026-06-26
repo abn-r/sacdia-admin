@@ -5,6 +5,7 @@ export type { ClubTabId };
 const TAB_KEYS: ClubTabId[] = [
   "overview",
   "sections",
+  "responsables",
   "units",
   "membership",
   "info",
