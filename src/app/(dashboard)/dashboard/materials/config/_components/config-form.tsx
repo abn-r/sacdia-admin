@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useForm, Controller } from "react-hook-form";
 import type { Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -55,6 +56,7 @@ export function ConfigForm({
   config,
   localFieldId,
 }: ConfigFormProps) {
+  const t = useTranslations("materials.pages.configForm");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -142,7 +144,7 @@ export function ConfigForm({
                 <FormLabel>CLABE interbancaria</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="18 dígitos"
+                    placeholder={t("clabePlaceholder")}
                     maxLength={18}
                     inputMode="numeric"
                     pattern="[0-9]*"
@@ -198,7 +200,7 @@ export function ConfigForm({
                 </FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="Dirección completa para retiro en persona..."
+                    placeholder={t("pickupAddressPlaceholder")}
                     className="resize-none"
                     rows={3}
                     {...field}

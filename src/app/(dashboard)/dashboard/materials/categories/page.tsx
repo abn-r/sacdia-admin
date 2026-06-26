@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { Tag } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -12,6 +13,7 @@ import { hasPermission } from "@/lib/auth/permission-utils";
 import type { MaterialCategoryAdmin } from "@/lib/types/materials";
 
 export default async function CategoriesPage() {
+  const t = await getTranslations("materials.pages.categories");
   const user = await requireAdminUser();
 
   if (!hasPermission(user, "materiales:manage-inventory")) {
@@ -29,7 +31,7 @@ export default async function CategoriesPage() {
       loadError = error.message;
       loadErrorStatus = error.status;
     } else {
-      loadError = "Error al cargar las categorías.";
+      loadError = t("loadError");
     }
   }
 
@@ -37,8 +39,8 @@ export default async function CategoriesPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <PageHeader
-          title="Categorías de materiales"
-          description="Taxonomía compartida entre todos los campos locales."
+          title={t("title")}
+          description={t("description")}
         />
         <NewCategoryButton />
       </div>
@@ -53,8 +55,8 @@ export default async function CategoriesPage() {
       {!loadError && categorias.length === 0 && (
         <EmptyState
           icon={<Tag className="size-6 text-muted-foreground" aria-hidden="true" />}
-          title="Sin categorías"
-          description="Aún no se ha creado ninguna categoría. Creá la primera."
+          title={t("emptyTitle")}
+          description={t("emptyDescription")}
         />
       )}
 

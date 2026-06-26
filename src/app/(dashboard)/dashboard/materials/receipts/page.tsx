@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Receipt, ArrowRight } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -69,6 +70,7 @@ export default async function ComprobantesPage({
 }: {
   searchParams: SearchParams;
 }) {
+  const t = await getTranslations("materials.pages.receipts");
   const user = await requireAdminUser();
 
   // Guard: only users with validate-receipt permission can access this route
@@ -102,7 +104,7 @@ export default async function ComprobantesPage({
       loadError = error.message;
       loadErrorStatus = error.status;
     } else {
-      loadError = "Error al cargar las órdenes.";
+      loadError = t("loadError");
     }
   }
 
@@ -111,8 +113,8 @@ export default async function ComprobantesPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Validación de comprobantes"
-        description="Órdenes aprobadas en espera de confirmación de pago."
+        title={t("title")}
+        description={t("description")}
       />
 
       {/* Filters */}
@@ -130,11 +132,11 @@ export default async function ComprobantesPage({
       {!loadError && ordenes.length === 0 && (
         <EmptyState
           icon={<Receipt className="size-6 text-muted-foreground" aria-hidden="true" />}
-          title="Sin órdenes pendientes"
+          title={t("emptyTitle")}
           description={
             q
-              ? "Ninguna orden aprobada coincide con la búsqueda."
-              : "No hay órdenes pendientes de validación de pago."
+              ? t("emptyDescriptionSearch")
+              : t("emptyDescriptionDefault")
           }
           variant={q ? "no-results" : "default"}
         />

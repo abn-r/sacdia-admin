@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Inbox } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -81,6 +82,7 @@ export default async function InboxPage({
 }: {
   searchParams: SearchParams;
 }) {
+  const t = await getTranslations("materials.pages.inbox");
   const raw = await searchParams;
 
   const estado = resolveEstado(raw["estado"]);
@@ -106,7 +108,7 @@ export default async function InboxPage({
       loadError = error.message;
       loadErrorStatus = error.status;
     } else {
-      loadError = "Error al cargar las solicitudes.";
+      loadError = t("loadError");
     }
   }
 
@@ -115,8 +117,8 @@ export default async function InboxPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Bandeja de solicitudes"
-        description="Gestión de pedidos de materiales enviados por directores de club."
+        title={t("title")}
+        description={t("description")}
       />
 
       {/* Filters */}
@@ -134,11 +136,11 @@ export default async function InboxPage({
       {!loadError && ordenes.length === 0 && (
         <EmptyState
           icon={<Inbox className="size-6 text-muted-foreground" aria-hidden="true" />}
-          title="Sin solicitudes"
+          title={t("emptyTitle")}
           description={
             estado === "all" || estado === "en_revision"
-              ? "No hay solicitudes pendientes de revisión."
-              : "No hay solicitudes con el estado y filtros seleccionados."
+              ? t("emptyDescriptionPending")
+              : t("emptyDescriptionFiltered")
           }
           variant={q ? "no-results" : "default"}
         />

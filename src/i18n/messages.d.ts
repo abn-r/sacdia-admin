@@ -5169,6 +5169,69 @@ export interface IntlMessages {
       invalid: string;
     };
   };
+  materials: {
+    pages: {
+      categories: {
+        title: string;
+        description: string;
+        loadError: string;
+        emptyTitle: string;
+        emptyDescription: string;
+      };
+      config: {
+        title: string;
+        description: string;
+        selectLocalField: string;
+      };
+      configForm: {
+        clabePlaceholder: string;
+        pickupAddressPlaceholder: string;
+      };
+      inbox: {
+        title: string;
+        description: string;
+        loadError: string;
+        emptyTitle: string;
+        emptyDescriptionPending: string;
+        emptyDescriptionFiltered: string;
+      };
+      receipts: {
+        title: string;
+        description: string;
+        loadError: string;
+        emptyTitle: string;
+        emptyDescriptionDefault: string;
+        emptyDescriptionSearch: string;
+      };
+      inventory: {
+        title: string;
+        description: string;
+        loadError: string;
+        emptyTitle: string;
+        emptyDescriptionDefault: string;
+        emptyDescriptionFiltered: string;
+      };
+    };
+    components: {
+      categoriesTable: {
+        editAriaLabel: string;
+        deleteAriaLabel: string;
+        statusActive: string;
+        statusInactive: string;
+      };
+    };
+  };
+  support: {
+    pages: {
+      reports: {
+        title: string;
+        description: string;
+        loadError: string;
+        emptyTitle: string;
+        emptyDescription: string;
+      };
+    };
+  };
   rankingWeights: {
     clientPage: {
       defaultGlobalTitle: string;

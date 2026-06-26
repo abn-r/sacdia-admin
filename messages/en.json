@@ -5105,6 +5105,69 @@
       "invalid": "— must be 100"
     }
   },
+  "materials": {
+    "pages": {
+      "categories": {
+        "title": "Material categories",
+        "description": "Shared taxonomy across all local fields.",
+        "loadError": "Could not load categories.",
+        "emptyTitle": "No categories",
+        "emptyDescription": "No category has been created yet. Create the first one."
+      },
+      "config": {
+        "title": "Materials configuration",
+        "description": "Bank details and delivery options per local field.",
+        "selectLocalField": "Select a local field to view and edit its configuration."
+      },
+      "configForm": {
+        "clabePlaceholder": "18 digits",
+        "pickupAddressPlaceholder": "Full address for in-person pickup..."
+      },
+      "inbox": {
+        "title": "Request inbox",
+        "description": "Manage material orders submitted by club directors.",
+        "loadError": "Could not load requests.",
+        "emptyTitle": "No requests",
+        "emptyDescriptionPending": "There are no requests pending review.",
+        "emptyDescriptionFiltered": "No requests match the selected status and filters."
+      },
+      "receipts": {
+        "title": "Receipt validation",
+        "description": "Approved orders awaiting payment confirmation.",
+        "loadError": "Could not load orders.",
+        "emptyTitle": "No pending orders",
+        "emptyDescriptionDefault": "There are no orders pending payment validation.",
+        "emptyDescriptionSearch": "No approved order matches your search."
+      },
+      "inventory": {
+        "title": "Inventory",
+        "description": "Manage the product catalog, prices, and stock per local field.",
+        "loadError": "Could not load inventory.",
+        "emptyTitle": "No products",
+        "emptyDescriptionDefault": "There are no products in inventory yet. Create the first one.",
+        "emptyDescriptionFiltered": "No product matches the selected filters."
+      }
+    },
+    "components": {
+      "categoriesTable": {
+        "editAriaLabel": "Edit",
+        "deleteAriaLabel": "Delete",
+        "statusActive": "Active",
+        "statusInactive": "Inactive"
+      }
+    }
+  },
+  "support": {
+    "pages": {
+      "reports": {
+        "title": "Support",
+        "description": "Review and handle reports submitted from the mobile app.",
+        "loadError": "Could not load support reports.",
+        "emptyTitle": "No support reports yet",
+        "emptyDescription": "When a user reports an error or request from the app, it will appear here for follow-up."
+      }
+    }
+  },
   "rankingWeights": {
     "clientPage": {
       "defaultGlobalTitle": "Global default",

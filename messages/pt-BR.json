@@ -4971,6 +4971,69 @@
       "invalid": "— deve ser 100"
     }
   },
+  "materials": {
+    "pages": {
+      "categories": {
+        "title": "Categorias de materiais",
+        "description": "Taxonomia compartilhada entre todos os campos locais.",
+        "loadError": "Não foi possível carregar as categorias.",
+        "emptyTitle": "Sem categorias",
+        "emptyDescription": "Nenhuma categoria foi criada ainda. Crie a primeira."
+      },
+      "config": {
+        "title": "Configuração de materiais",
+        "description": "Dados bancários e opções de entrega por campo local.",
+        "selectLocalField": "Selecione um campo local para ver e editar sua configuração."
+      },
+      "configForm": {
+        "clabePlaceholder": "18 dígitos",
+        "pickupAddressPlaceholder": "Endereço completo para retirada presencial..."
+      },
+      "inbox": {
+        "title": "Caixa de solicitações",
+        "description": "Gestão de pedidos de materiais enviados por diretores de clube.",
+        "loadError": "Não foi possível carregar as solicitações.",
+        "emptyTitle": "Sem solicitações",
+        "emptyDescriptionPending": "Não há solicitações pendentes de revisão.",
+        "emptyDescriptionFiltered": "Não há solicitações com o status e filtros selecionados."
+      },
+      "receipts": {
+        "title": "Validação de comprovantes",
+        "description": "Pedidos aprovados aguardando confirmação de pagamento.",
+        "loadError": "Não foi possível carregar os pedidos.",
+        "emptyTitle": "Sem pedidos pendentes",
+        "emptyDescriptionDefault": "Não há pedidos pendentes de validação de pagamento.",
+        "emptyDescriptionSearch": "Nenhum pedido aprovado corresponde à busca."
+      },
+      "inventory": {
+        "title": "Inventário",
+        "description": "Gerencie o catálogo de produtos, preços e estoque por campo local.",
+        "loadError": "Não foi possível carregar o inventário.",
+        "emptyTitle": "Sem produtos",
+        "emptyDescriptionDefault": "Ainda não há produtos no inventário. Crie o primeiro.",
+        "emptyDescriptionFiltered": "Nenhum produto corresponde aos filtros selecionados."
+      }
+    },
+    "components": {
+      "categoriesTable": {
+        "editAriaLabel": "Editar",
+        "deleteAriaLabel": "Excluir",
+        "statusActive": "Ativa",
+        "statusInactive": "Inativa"
+      }
+    }
+  },
+  "support": {
+    "pages": {
+      "reports": {
+        "title": "Suporte",
+        "description": "Consulte e atenda os relatórios enviados pelo aplicativo móvel.",
+        "loadError": "Não foi possível carregar os relatórios de suporte.",
+        "emptyTitle": "Ainda não há relatórios de suporte",
+        "emptyDescription": "Quando um usuário reportar um erro ou solicitação pelo app, aparecerá aqui para acompanhamento."
+      }
+    }
+  },
   "rankingWeights": {
     "clientPage": {
       "defaultGlobalTitle": "Padrão global",

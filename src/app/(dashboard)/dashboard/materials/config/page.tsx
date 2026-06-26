@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { ConfigForm } from "./_components/config-form";
@@ -29,6 +30,7 @@ export default async function ConfiguracionPage({
 }: {
   searchParams: SearchParams;
 }) {
+  const t = await getTranslations("materials.pages.config");
   const user = await requireAdminUser();
 
   if (!hasPermission(user, "materiales:configure")) {
@@ -80,8 +82,8 @@ export default async function ConfiguracionPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Configuración de materiales"
-        description="Datos bancarios y opciones de entrega por campo local."
+        title={t("title")}
+        description={t("description")}
       />
 
       {scope.scope === "all" && (
@@ -102,7 +104,7 @@ export default async function ConfiguracionPage({
       {/* Unscoped admin without a selected LF — prompt to pick */}
       {scope.scope === "all" && targetLocalFieldId == null && !loadError && (
         <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
-          Seleccioná un campo local para ver y editar su configuración.
+          {t("selectLocalField")}
         </div>
       )}
 

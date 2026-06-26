@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { Package } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -53,6 +54,7 @@ export default async function InventarioPage({
 }: {
   searchParams: SearchParams;
 }) {
+  const t = await getTranslations("materials.pages.inventory");
   const user = await requireAdminUser();
 
   if (!hasPermission(user, "materiales:manage-inventory")) {
@@ -103,7 +105,7 @@ export default async function InventarioPage({
       loadError = error.message;
       loadErrorStatus = error.status;
     } else {
-      loadError = "Error al cargar el inventario.";
+      loadError = t("loadError");
     }
   }
 
@@ -120,8 +122,8 @@ export default async function InventarioPage({
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <PageHeader
-          title="Inventario"
-          description="Administrá el catálogo de productos, precios y stock por campo local."
+          title={t("title")}
+          description={t("description")}
         />
         <NewProductButton
           categories={categories}
@@ -153,11 +155,11 @@ export default async function InventarioPage({
       {!loadError && products.length === 0 && (
         <EmptyState
           icon={<Package className="size-6 text-muted-foreground" aria-hidden="true" />}
-          title="Sin productos"
+          title={t("emptyTitle")}
           description={
             q || cat
-              ? "Ningún producto coincide con los filtros seleccionados."
-              : "No hay productos en el inventario todavía. Creá el primero."
+              ? t("emptyDescriptionFiltered")
+              : t("emptyDescriptionDefault")
           }
           variant={q || cat ? "no-results" : "default"}
         />

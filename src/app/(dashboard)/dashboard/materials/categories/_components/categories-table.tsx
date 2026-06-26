@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Pencil, Trash2 } from "lucide-react";
 import {
   Table,
@@ -21,6 +22,7 @@ interface CategoriesTableProps {
 }
 
 export function CategoriesTable({ categorias }: CategoriesTableProps) {
+  const t = useTranslations("materials.components.categoriesTable");
   const [editTarget, setEditTarget] = useState<MaterialCategoryAdmin | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<MaterialCategoryAdmin | null>(null);
 
@@ -73,7 +75,7 @@ export function CategoriesTable({ categorias }: CategoriesTableProps) {
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle">
                   <Badge variant={cat.active ? "success" : "secondary"}>
-                    {cat.active ? "Activa" : "Inactiva"}
+                    {cat.active ? t("statusActive") : t("statusInactive")}
                   </Badge>
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle">
@@ -81,7 +83,7 @@ export function CategoriesTable({ categorias }: CategoriesTableProps) {
                     <Button
                       variant="ghost"
                       size="icon-sm"
-                      aria-label="Editar"
+                      aria-label={t("editAriaLabel")}
                       onClick={() => setEditTarget(cat)}
                     >
                       <Pencil className="size-4" />
@@ -89,7 +91,7 @@ export function CategoriesTable({ categorias }: CategoriesTableProps) {
                     <Button
                       variant="ghost"
                       size="icon-sm"
-                      aria-label="Eliminar"
+                      aria-label={t("deleteAriaLabel")}
                       onClick={() => setDeleteTarget(cat)}
                     >
                       <Trash2 className="size-4 text-destructive" />

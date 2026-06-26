@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { Headset } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -86,6 +87,7 @@ async function SupportReportsContent({
 }: {
   filters: ReturnType<typeof parseFilters>;
 }) {
+  const t = await getTranslations("support.pages.reports");
   let data: SupportReportsPage;
 
   try {
@@ -94,7 +96,7 @@ async function SupportReportsContent({
     const detail =
       error instanceof ApiError
         ? error.message
-        : "No se pudieron cargar los reportes de soporte.";
+        : t("loadError");
     return <EndpointErrorBanner state="missing" detail={detail} />;
   }
 
@@ -107,8 +109,8 @@ async function SupportReportsContent({
     return (
       <EmptyState
         icon={Headset}
-        title="Aún no hay reportes de soporte"
-        description="Cuando un usuario reporte un error o solicitud desde la app, aparecerá aquí para seguimiento."
+        title={t("emptyTitle")}
+        description={t("emptyDescription")}
       />
     );
   }
@@ -117,6 +119,7 @@ async function SupportReportsContent({
 }
 
 export default async function SupportReportsPage({ searchParams }: PageProps) {
+  const t = await getTranslations("support.pages.reports");
   await requireAdminUser();
   const params = await searchParams;
   const filters = parseFilters(params);
@@ -124,8 +127,8 @@ export default async function SupportReportsPage({ searchParams }: PageProps) {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Soporte"
-        description="Consulta y atiende los reportes enviados desde la app móvil."
+        title={t("title")}
+        description={t("description")}
       />
       <Suspense fallback={<SupportReportsSkeleton />}>
         <SupportReportsContent filters={filters} />
