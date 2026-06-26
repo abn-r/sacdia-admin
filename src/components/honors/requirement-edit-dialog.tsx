@@ -275,7 +275,7 @@ export function RequirementEditDialog({
                 id="referenceText"
                 value={form.referenceText}
                 onChange={(e) => set("referenceText", e.target.value)}
-                placeholder="Ej: Libro de Especialidades, págs. 45-50"
+                placeholder={t("components.requirementEdit.referencePlaceholder")}
                 rows={3}
                 className="min-h-[70px] resize-none"
               />

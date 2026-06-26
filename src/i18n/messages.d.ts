@@ -1673,6 +1673,18 @@ export interface IntlMessages {
         loadError: string;
       };
     };
+    components: {
+      requirementEdit: {
+        referencePlaceholder: string;
+      };
+      requirementsTree: {
+        needsReviewAriaLabel: string;
+      };
+      reviewSplitView: {
+        openMaterialAriaLabel: string;
+        referencePlaceholder: string;
+      };
+    };
   };
   honor_categories: {
     errors: {
@@ -1784,6 +1796,10 @@ export interface IntlMessages {
       create: string;
       saveChanges: string;
       delete: string;
+    };
+    rolesTable: {
+      editProtectedAriaLabel: string;
+      editRoleAriaLabel: string;
     };
     permissionPicker: {
       searchPlaceholder: string;
@@ -4765,6 +4781,12 @@ export interface IntlMessages {
       empty_no_clubs_description: string;
       error_unexpected: string;
     };
+    clubSelector: {
+      label: string;
+      selectPlaceholder: string;
+      emptyTitle: string;
+      emptyDescription: string;
+    };
   };
   certifications: {
     toasts: {
@@ -5391,6 +5413,7 @@ export interface IntlMessages {
     };
     counselorAssignments: {
       responsibilityAriaLabel: string;
+      justificationPlaceholder: string;
     };
     tree: {
       no_modules: string;

@@ -292,7 +292,7 @@ function AssignmentRow({
           <Input
             name="exception_reason"
             defaultValue={assignment.exception_reason ?? ""}
-            placeholder="Justificación"
+            placeholder={t("justificationPlaceholder")}
           />
           <SubmitButton icon={<Save className="size-4" />}>Guardar</SubmitButton>
         </form>

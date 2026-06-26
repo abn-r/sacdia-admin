@@ -1637,6 +1637,18 @@
         "batchError": "Error in bulk operation.",
         "loadError": "Could not load pending requirements."
       }
+    },
+    "components": {
+      "requirementEdit": {
+        "referencePlaceholder": "E.g. Honor Handbook, pp. 45-50"
+      },
+      "requirementsTree": {
+        "needsReviewAriaLabel": "Pending review"
+      },
+      "reviewSplitView": {
+        "openMaterialAriaLabel": "Open material in new tab",
+        "referencePlaceholder": "E.g. Honor Handbook, pp. 45-50"
+      }
     }
   },
   "honor_categories": {
@@ -1749,6 +1761,10 @@
       "create": "Create",
       "saveChanges": "Save changes",
       "delete": "Delete"
+    },
+    "rolesTable": {
+      "editProtectedAriaLabel": "Edit protected role",
+      "editRoleAriaLabel": "Edit {name}"
     },
     "permissionPicker": {
       "searchPlaceholder": "Search permissions...",
@@ -4700,6 +4716,12 @@
       "empty_no_clubs_title": "No clubs available",
       "empty_no_clubs_description": "No active clubs were found. Create a club first to manage its finances.",
       "error_unexpected": "Unexpected error loading clubs."
+    },
+    "clubSelector": {
+      "label": "Club",
+      "selectPlaceholder": "Select a club",
+      "emptyTitle": "Select a club",
+      "emptyDescription": "Choose a club from the selector to view and manage its financial transactions."
     }
   },
   "certifications": {
@@ -5326,7 +5348,8 @@
       "col_availability": "Availability"
     },
     "counselorAssignments": {
-      "responsibilityAriaLabel": "Responsibility"
+      "responsibilityAriaLabel": "Responsibility",
+      "justificationPlaceholder": "Justification"
     },
     "tree": {
       "no_modules": "This class has no registered modules.",

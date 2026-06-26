@@ -262,6 +262,7 @@ interface RolesTableProps {
 }
 
 export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
+  const t = useTranslations("rbac");
   const translateRole = useRoleLabel();
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<ActiveFilter>("true");
@@ -528,7 +529,7 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
                                         size="icon"
                                         className="size-8 opacity-40"
                                         disabled
-                                        aria-label="Editar rol protegido"
+                                        aria-label={t("rolesTable.editProtectedAriaLabel")}
                                       >
                                         <Pencil className="size-3.5" />
                                       </Button>
@@ -629,7 +630,9 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
                         <Link prefetch={false}
                           href={`/dashboard/rbac/roles/${role.role_id}`}
                           className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                          aria-label={`Editar ${role.role_name}`}
+                          aria-label={t("rolesTable.editRoleAriaLabel", {
+                            name: role.role_name,
+                          })}
                         >
                           <ChevronRight className="size-4" aria-hidden="true" />
                         </Link>

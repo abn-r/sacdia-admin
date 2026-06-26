@@ -1636,6 +1636,18 @@
         "batchError": "Erreur lors de l'opération en masse.",
         "loadError": "Impossible de charger les exigences en attente."
       }
+    },
+    "components": {
+      "requirementEdit": {
+        "referencePlaceholder": "Ex. : Livre des spécialités, p. 45-50"
+      },
+      "requirementsTree": {
+        "needsReviewAriaLabel": "En attente de révision"
+      },
+      "reviewSplitView": {
+        "openMaterialAriaLabel": "Ouvrir le matériel dans un nouvel onglet",
+        "referencePlaceholder": "Ex. : Livre des spécialités, p. 45-50"
+      }
     }
   },
   "honor_categories": {
@@ -1748,6 +1760,10 @@
       "create": "Créer",
       "saveChanges": "Enregistrer les modifications",
       "delete": "Supprimer"
+    },
+    "rolesTable": {
+      "editProtectedAriaLabel": "Modifier le rôle protégé",
+      "editRoleAriaLabel": "Modifier {name}"
     },
     "permissionPicker": {
       "searchPlaceholder": "Rechercher des permissions...",
@@ -4566,6 +4582,12 @@
       "empty_no_clubs_title": "Aucun club disponible",
       "empty_no_clubs_description": "Aucun club actif n'a été trouvé. Créez d'abord un club pour gérer ses finances.",
       "error_unexpected": "Erreur inattendue lors du chargement des clubs."
+    },
+    "clubSelector": {
+      "label": "Club",
+      "selectPlaceholder": "Sélectionnez un club",
+      "emptyTitle": "Sélectionnez un club",
+      "emptyDescription": "Choisissez un club dans le sélecteur pour voir et gérer ses mouvements financiers."
     }
   },
   "certifications": {
@@ -5192,7 +5214,8 @@
       "col_availability": "Disponibilité"
     },
     "counselorAssignments": {
-      "responsibilityAriaLabel": "Responsabilité"
+      "responsibilityAriaLabel": "Responsabilité",
+      "justificationPlaceholder": "Justification"
     },
     "tree": {
       "no_modules": "Cette classe n'a aucun module enregistré.",

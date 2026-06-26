@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   AlertTriangle,
   ChevronDown,
@@ -112,6 +113,7 @@ function RequirementRow({
   onToggleBoolean,
   togglingId,
 }: RowProps) {
+  const t = useTranslations("honors");
   const isExpanded = expandedIds.has(node.requirement_id);
   const isFirst = siblingIndex === 0;
   const isLast = siblingIndex === siblings.length - 1;
@@ -199,7 +201,7 @@ function RequirementRow({
               onCheckedChange={(v) =>
                 onToggleBoolean(node, "needs_review", v)
               }
-              aria-label="Pendiente de revisión"
+              aria-label={t("components.requirementsTree.needsReviewAriaLabel")}
             />
           </div>
         </TableCell>
