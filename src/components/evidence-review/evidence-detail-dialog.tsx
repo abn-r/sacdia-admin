@@ -50,16 +50,16 @@ function getHonorCompletionModeCopy(mode: HonorReviewPacket["completion_mode"]) 
         label: "Fuera de la app",
         description:
           "El miembro completó la especialidad fuera de SACDIA. Validá el formato completado y las evidencias adjuntas.",
-        badgeClassName: "bg-amber-100 text-amber-900 border-amber-200",
-        panelClassName: "border-amber-200 bg-amber-50/70",
+        badgeClassName: "bg-warning/15 text-warning-foreground border-warning/30",
+        panelClassName: "border-warning/30 bg-warning/10",
       };
     case "IN_APP":
       return {
         label: "Dentro de la app",
         description:
           "El miembro trabajó los requisitos dentro de SACDIA. Revisá respuestas y evidencias por requisito.",
-        badgeClassName: "bg-emerald-100 text-emerald-900 border-emerald-200",
-        panelClassName: "border-emerald-200 bg-emerald-50/70",
+        badgeClassName: "bg-success/15 text-success-foreground border-success/30",
+        panelClassName: "border-success/30 bg-success/10",
       };
     case "UNDECIDED":
     default:
@@ -499,7 +499,7 @@ function HonorReviewPacketSection({ packet }: HonorReviewPacketSectionProps) {
             >
               <div className="flex items-start gap-2">
                 {requirement.completed ? (
-                  <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-600" />
+                  <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-success" />
                 ) : (
                   <Circle className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
                 )}

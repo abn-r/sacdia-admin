@@ -148,16 +148,16 @@ export function BirthdayCelebrationModal() {
 
         <div className="relative space-y-6 px-6 pb-6 pt-8 text-center sm:px-8">
           <DialogHeader className="items-center text-center">
-            <div className="relative flex size-24 items-center justify-center rounded-full border border-amber-300/70 bg-gradient-to-br from-amber-100 via-orange-50 to-white shadow-lg shadow-amber-500/20 dark:from-amber-300/20 dark:via-orange-500/10 dark:to-card">
-              <div className="birthday-float flex size-16 items-center justify-center rounded-2xl bg-amber-500 text-white shadow-md shadow-amber-700/20">
+            <div className="relative flex size-24 items-center justify-center rounded-full border border-warning/30 bg-gradient-to-br from-warning-soft via-brand-accent-light to-white shadow-lg shadow-warning/20 dark:from-warning/20 dark:via-brand-accent/10 dark:to-card">
+              <div className="birthday-float flex size-16 items-center justify-center rounded-2xl bg-warning text-warning-foreground shadow-md shadow-warning/20">
                 <CakeSlice className="size-9" aria-hidden="true" />
               </div>
               <Sparkles
-                className="birthday-sparkle absolute -right-1 top-2 size-6 text-amber-500"
+                className="birthday-sparkle absolute -right-1 top-2 size-6 text-warning"
                 aria-hidden="true"
               />
               <PartyPopper
-                className="birthday-sparkle absolute bottom-2 left-0 size-6 text-orange-500"
+                className="birthday-sparkle absolute bottom-2 left-0 size-6 text-brand-accent"
                 aria-hidden="true"
               />
             </div>
@@ -172,14 +172,14 @@ export function BirthdayCelebrationModal() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="mx-auto max-w-sm rounded-2xl border border-amber-200 bg-amber-50/80 px-4 py-3 text-sm font-medium leading-6 text-amber-950 shadow-sm dark:border-amber-400/20 dark:bg-amber-400/10 dark:text-amber-100">
+          <div className="mx-auto max-w-sm rounded-2xl border border-warning/30 bg-warning-soft/80 px-4 py-3 text-sm font-medium leading-6 text-warning-soft-foreground shadow-sm dark:border-warning/20 dark:bg-warning/10 dark:text-warning-foreground">
             {t("bibleMessage")}
           </div>
 
           <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
             <Button
               type="button"
-              className="min-h-11 cursor-pointer bg-amber-600 text-white shadow-sm shadow-amber-800/20 hover:bg-amber-700 focus-visible:ring-amber-500"
+              className="min-h-11 cursor-pointer bg-brand-accent text-warning-foreground shadow-sm shadow-warning/20 hover:bg-brand-accent-dark focus-visible:ring-warning"
               onClick={closeForSession}
             >
               {t("thanks")}
@@ -188,8 +188,8 @@ export function BirthdayCelebrationModal() {
               type="button"
               variant="outline"
               className={cn(
-                "min-h-11 cursor-pointer border-amber-300 text-amber-900 hover:bg-amber-50",
-                "dark:border-amber-400/30 dark:text-amber-100 dark:hover:bg-amber-400/10",
+                "min-h-11 cursor-pointer border-warning/30 text-warning-foreground hover:bg-warning-soft",
+                "dark:border-warning/30 dark:text-warning-foreground dark:hover:bg-warning/10",
               )}
               onClick={dismissForCurrentBirthday}
             >

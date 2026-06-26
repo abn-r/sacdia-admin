@@ -737,7 +737,7 @@ export function TemplatesClientPage({
           className={`rounded-lg border px-4 py-3 text-sm ${
             sectionPointsMatch
               ? "border-success/30 bg-success/10 text-success-foreground"
-              : "border-amber-500/30 bg-amber-500/10 text-amber-900 dark:text-amber-100"
+              : "border-warning/30 bg-warning/10 text-warning-foreground"
           }`}
         >
           <div className="flex flex-wrap items-center justify-between gap-2">
