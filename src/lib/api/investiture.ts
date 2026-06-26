@@ -750,6 +750,15 @@ export type PipelineStatus =
   | "INVESTED"
   | "REJECTED";
 
+export const PIPELINE_STATUSES = [
+  "SUBMITTED",
+  "CLUB_APPROVED",
+  "COORDINATOR_APPROVED",
+  "FIELD_APPROVED",
+  "INVESTED",
+  "REJECTED",
+] as const satisfies readonly PipelineStatus[];
+
 export type PipelineEnrollment = {
   enrollment_id: number;
   status: PipelineStatus;
@@ -775,6 +784,12 @@ export type PipelineHistoryEntry = {
 
 export type RejectPipelinePayload = {
   reason: string;
+};
+
+export type PipelineEnrollmentsQuery = {
+  status?: PipelineStatus;
+  ecclesiasticalYearId?: number | null;
+  limit?: number;
 };
 
 // ─── Multi-stage pipeline API functions ───────────────────────────────────────
@@ -814,16 +829,53 @@ function normalizePipelineEnrollment(raw: unknown): PipelineEnrollment {
  * List enrollments in the approval pipeline filtered by status.
  */
 export async function getPipelineEnrollments(
-  status?: PipelineStatus,
+  query?: PipelineStatus | PipelineEnrollmentsQuery,
 ): Promise<PipelineEnrollment[]> {
+  const normalizedQuery =
+    typeof query === "string" ? { status: query } : (query ?? {});
   const params: Record<string, string | number | boolean | undefined> = {};
-  if (status) params.status = toBackendPipelineStatus(status);
+  if (normalizedQuery.status) {
+    params.status = toBackendPipelineStatus(normalizedQuery.status);
+  }
+  if (normalizedQuery.ecclesiasticalYearId) {
+    params.ecclesiastical_year_id = normalizedQuery.ecclesiasticalYearId;
+  }
+  if (normalizedQuery.limit) params.limit = normalizedQuery.limit;
 
   const res = await apiRequest<unknown>("/investiture/pending", { params });
   const dataNode = getPaginatedDataNode(res);
   const rows = Array.isArray(dataNode) ? dataNode : [];
 
   return rows.map(normalizePipelineEnrollment);
+}
+
+/**
+ * Current-year overview for the human-facing investiture process.
+ * Includes both actionable statuses and already-treated records.
+ */
+export async function getPipelineEnrollmentsForYear(
+  ecclesiasticalYearId?: number | null,
+): Promise<PipelineEnrollment[]> {
+  if (ecclesiasticalYearId === null) return [];
+
+  const rows = await Promise.all(
+    PIPELINE_STATUSES.map((status) =>
+      getPipelineEnrollments({
+        status,
+        ecclesiasticalYearId,
+        limit: 200,
+      }),
+    ),
+  );
+
+  const byId = new Map<number, PipelineEnrollment>();
+  for (const row of rows.flat()) {
+    byId.set(row.enrollment_id, row);
+  }
+
+  return [...byId.values()].sort((a, b) =>
+    (a.submitted_at ?? "").localeCompare(b.submitted_at ?? ""),
+  );
 }
 
 /**

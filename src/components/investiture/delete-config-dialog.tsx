@@ -55,38 +55,41 @@ export function DeleteConfigDialog({
     }
   }
 
-  const localFieldName = config?.local_fields?.name ?? `Campo #${config?.local_field_id}`;
+  const localFieldName = config?.local_fields?.name ?? t("configTable.fieldFallback", {
+    id: config?.local_field_id ?? "—",
+  });
   const yearName =
-    config?.ecclesiastical_years?.name ?? `Año #${config?.ecclesiastical_year_id}`;
+    config?.ecclesiastical_years?.name ?? t("configTable.yearFallback", {
+      id: config?.ecclesiastical_year_id ?? "—",
+    });
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>¿Desactivar configuración?</AlertDialogTitle>
+          <AlertDialogTitle>{t("deleteConfigDialog.title")}</AlertDialogTitle>
           <AlertDialogDescription>
             {config ? (
-              <>
-                Estás por desactivar la configuración de investidura de{" "}
-                <strong className="text-foreground">{localFieldName}</strong> para el año{" "}
-                <strong className="text-foreground">{yearName}</strong>. Los envíos pendientes
-                vinculados a esta configuración no se verán afectados, pero no se podrán
-                registrar nuevos envíos.
-              </>
+              t("deleteConfigDialog.description", {
+                localFieldName,
+                yearName,
+              })
             ) : (
-              "Esta acción desactivará la configuración."
+              t("deleteConfigDialog.fallbackDescription")
             )}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+          <AlertDialogCancel disabled={isDeleting}>
+            {t("deleteConfigDialog.cancel")}
+          </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
             disabled={isDeleting}
             className="bg-destructive text-white hover:bg-destructive/90"
           >
             {isDeleting && <Loader2 className="size-4 animate-spin" />}
-            Desactivar
+            {t("deleteConfigDialog.confirm")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

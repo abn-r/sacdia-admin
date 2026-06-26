@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { InvestitureI18nProvider } from "@/components/investiture/investiture-i18n-provider";
 import { InvestitureClientPage } from "@/components/investiture/investiture-client-page";
 import { ApiError } from "@/lib/api/client";
 import { getPendingInvestitures } from "@/lib/api/investiture";
@@ -64,11 +65,13 @@ export default async function InvestiturePage() {
       )}
 
       {!loadError && (
-        <InvestitureClientPage
-          initialEnrollments={enrollments}
-          years={years}
-          initialYearId={initialYearId}
-        />
+        <InvestitureI18nProvider>
+          <InvestitureClientPage
+            initialEnrollments={enrollments}
+            years={years}
+            initialYearId={initialYearId}
+          />
+        </InvestitureI18nProvider>
       )}
     </div>
   );

@@ -1,15 +1,20 @@
 import dynamic from "next/dynamic";
-import { Star } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-import { EmptyState } from "@/components/shared/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getPipelineEnrollments, type PipelineEnrollment } from "@/lib/api/investiture";
+import { InvestitureI18nProvider } from "@/components/investiture/investiture-i18n-provider";
+import {
+  getPipelineEnrollmentsForYear,
+  type PipelineEnrollment,
+} from "@/lib/api/investiture";
+import { listEcclesiasticalYears, type EcclesiasticalYear } from "@/lib/api/catalogs";
 import { ApiError } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
 import { extractRoles, SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
 import type { UserRole } from "@/components/investiture/pipeline-table";
+
+type GenericRecord = Record<string, unknown>;
 
 const PipelineClientPage = dynamic(
   () =>
@@ -65,6 +70,23 @@ function resolveUserRole(roles: string[]): UserRole {
   return "director";
 }
 
+function extractYears(payload: unknown): EcclesiasticalYear[] {
+  if (Array.isArray(payload)) return payload as EcclesiasticalYear[];
+  if (payload && typeof payload === "object") {
+    const root = payload as GenericRecord;
+    if (Array.isArray(root.data)) return root.data as EcclesiasticalYear[];
+  }
+  return [];
+}
+
+function resolveCurrentYear(years: EcclesiasticalYear[]): EcclesiasticalYear | null {
+  return (
+    years.find((year) => year.active) ??
+    [...years].sort((a, b) => b.start_date.localeCompare(a.start_date))[0] ??
+    null
+  );
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function InvestiturePipelinePage() {
@@ -75,11 +97,17 @@ export default async function InvestiturePipelinePage() {
   const userRole = resolveUserRole(roles);
 
   let enrollments: PipelineEnrollment[] = [];
+  let currentYear: EcclesiasticalYear | null = null;
   let loadError: string | null = null;
   let loadErrorStatus: number | null = null;
 
   try {
-    enrollments = await getPipelineEnrollments();
+    const yearsPayload = await listEcclesiasticalYears();
+    const years = extractYears(yearsPayload);
+    currentYear = resolveCurrentYear(years);
+    enrollments = await getPipelineEnrollmentsForYear(
+      currentYear?.ecclesiastical_year_id ?? null,
+    );
   } catch (error) {
     if (error instanceof ApiError) {
       loadError = error.message;
@@ -103,19 +131,15 @@ export default async function InvestiturePipelinePage() {
         />
       )}
 
-      {!loadError && enrollments.length === 0 && (
-        <EmptyState
-          icon={Star}
-          title={t("pagePipeline.emptyTitle")}
-          description={t("pagePipeline.emptyDescription")}
-        />
-      )}
-
-      {!loadError && enrollments.length > 0 && (
-        <PipelineClientPage
-          initialEnrollments={enrollments}
-          userRole={userRole}
-        />
+      {!loadError && (
+        <InvestitureI18nProvider>
+          <PipelineClientPage
+            initialEnrollments={enrollments}
+            userRole={userRole}
+            currentYearId={currentYear?.ecclesiastical_year_id ?? null}
+            currentYearName={currentYear?.name ?? null}
+          />
+        </InvestitureI18nProvider>
       )}
     </div>
   );

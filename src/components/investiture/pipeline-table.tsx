@@ -61,11 +61,11 @@ import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function getMemberName(e: PipelineEnrollment): string {
+function getMemberName(e: PipelineEnrollment, fallback: string): string {
   const u = e.user;
-  if (!u) return `Inscripción #${e.enrollment_id}`;
+  if (!u) return fallback;
   const full = [u.first_name, u.last_name].filter(Boolean).join(" ");
-  return full || u.email || `Inscripción #${e.enrollment_id}`;
+  return full || u.email || fallback;
 }
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -210,12 +210,12 @@ function RowActions({
             variant="ghost"
             size="icon-sm"
             onClick={onHistory}
-            aria-label="Ver historial"
+            aria-label={t("pipelineTable.ariaHistory")}
           >
             <History className="size-4" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent>Ver historial</TooltipContent>
+        <TooltipContent>{t("pipelineTable.tooltipHistory")}</TooltipContent>
       </Tooltip>
 
       {/* Approve — role-gated */}
@@ -228,7 +228,7 @@ function RowActions({
               className="text-success hover:bg-success/10 hover:text-success"
               onClick={handleApprove}
               disabled={approving}
-              aria-label="Aprobar"
+              aria-label={t("pipelineTable.ariaApprove")}
             >
               {approving ? (
                 <Loader2 className="size-4 animate-spin" />
@@ -237,7 +237,7 @@ function RowActions({
               )}
             </Button>
           </TooltipTrigger>
-          <TooltipContent>Aprobar</TooltipContent>
+          <TooltipContent>{t("pipelineTable.tooltipApprove")}</TooltipContent>
         </Tooltip>
       )}
 
@@ -251,7 +251,7 @@ function RowActions({
               className="text-primary hover:bg-primary/10 hover:text-primary"
               onClick={handleInvest}
               disabled={investing}
-              aria-label="Marcar como investido"
+              aria-label={t("pipelineTable.ariaMarkInvested")}
             >
               {investing ? (
                 <Loader2 className="size-4 animate-spin" />
@@ -260,7 +260,7 @@ function RowActions({
               )}
             </Button>
           </TooltipTrigger>
-          <TooltipContent>Marcar como investido</TooltipContent>
+          <TooltipContent>{t("pipelineTable.tooltipMarkInvested")}</TooltipContent>
         </Tooltip>
       )}
 
@@ -273,12 +273,12 @@ function RowActions({
               size="icon-sm"
               className="text-destructive hover:bg-destructive/10 hover:text-destructive"
               onClick={onReject}
-              aria-label="Rechazar"
+              aria-label={t("pipelineTable.ariaReject")}
             >
               <XCircle className="size-4" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent>Rechazar</TooltipContent>
+          <TooltipContent>{t("pipelineTable.tooltipReject")}</TooltipContent>
         </Tooltip>
       )}
     </div>
@@ -292,6 +292,7 @@ export function PipelineTable({
   userRole,
   onRefresh,
 }: PipelineTableProps) {
+  const t = useTranslations("investiture");
   const formatDate = useFormatDate();
   const [dialog, setDialog] = useState<DialogState>(null);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
@@ -349,18 +350,15 @@ export function PipelineTable({
   const selectedStatus: PipelineStatus | null =
     uniqueStatuses.size === 1 ? [...uniqueStatuses][0] : null;
 
-  if (enrollments.length === 0) {
-    return (
-      <EmptyState
-        icon={Star}
-        title="Sin investiduras en esta etapa"
-        description="No hay solicitudes de investidura en este estado."
-      />
-    );
-  }
-
   const activeEnrollment = dialog?.enrollment ?? null;
-  const memberName = activeEnrollment ? getMemberName(activeEnrollment) : "";
+  const memberName = activeEnrollment
+    ? getMemberName(
+        activeEnrollment,
+        t("pipelineTable.enrollmentFallback", {
+          id: activeEnrollment.enrollment_id,
+        }),
+      )
+    : "";
 
   return (
     <>
@@ -374,37 +372,52 @@ export function PipelineTable({
                   <Checkbox
                     checked={allSelected ? true : someSelected ? "indeterminate" : false}
                     onCheckedChange={(checked) => toggleSelectAll(!!checked)}
-                    aria-label="Seleccionar todo"
+                    aria-label={t("pipelineTable.selectAll")}
                   />
                 )}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Miembro
+                {t("pipelineTable.colMember")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Clase
+                {t("pipelineTable.colClass")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Club
+                {t("pipelineTable.colClub")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Sección
+                {t("pipelineTable.colSection")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Enviado
+                {t("pipelineTable.colSubmitted")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Estado
+                {t("pipelineTable.colStatus")}
               </TableHead>
               <TableHead className="h-9 px-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Acciones
+                {t("pipelineTable.colActions")}
               </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {enrollments.map((enrollment, index) => {
+            {enrollments.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={8} className="px-3 py-10">
+                  <EmptyState
+                    icon={Star}
+                    title={t("pipelineTable.emptyTitle")}
+                    description={t("pipelineTable.emptyDescription")}
+                  />
+                </TableCell>
+              </TableRow>
+            ) : (
+              enrollments.map((enrollment, index) => {
               const isSelected = selectedIds.has(enrollment.enrollment_id);
               const selectable = isSelectableForRole(enrollment.status, userRole);
+              const enrollmentFallback = t("pipelineTable.enrollmentFallback", {
+                id: enrollment.enrollment_id,
+              });
+              const rowMemberName = getMemberName(enrollment, enrollmentFallback);
 
               return (
                 <TableRow
@@ -420,14 +433,16 @@ export function PipelineTable({
                         onCheckedChange={() =>
                           toggleRow(enrollment.enrollment_id, selectable)
                         }
-                        aria-label={`Seleccionar ${getMemberName(enrollment)}`}
+                        aria-label={t("pipelineTable.selectRow", {
+                          memberName: rowMemberName,
+                        })}
                       />
                     ) : (
                       <span className="inline-block size-4" />
                     )}
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle">
-                    <span className="font-medium">{getMemberName(enrollment)}</span>
+                    <span className="font-medium">{rowMemberName}</span>
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
                     {enrollment.class?.name ?? "—"}
@@ -456,7 +471,8 @@ export function PipelineTable({
                   </TableCell>
                 </TableRow>
               );
-            })}
+            })
+            )}
           </TableBody>
         </Table>
       </div>

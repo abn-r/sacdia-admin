@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { InvestitureI18nProvider } from "@/components/investiture/investiture-i18n-provider";
 import { ConfigClientPage } from "@/components/investiture/config-client-page";
 import { getInvestitureConfigs, type InvestitureConfig } from "@/lib/api/investiture";
 import { ApiError } from "@/lib/api/client";
@@ -43,11 +44,13 @@ export default async function InvestitureConfigPage() {
       )}
 
       {!loadError && (
-        <ConfigClientPage
-          initialConfigs={configs}
-          localFields={localFields}
-          territoryScope={territoryScope}
-        />
+        <InvestitureI18nProvider>
+          <ConfigClientPage
+            initialConfigs={configs}
+            localFields={localFields}
+            territoryScope={territoryScope}
+          />
+        </InvestitureI18nProvider>
       )}
     </div>
   );
