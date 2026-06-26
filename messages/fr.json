@@ -2412,6 +2412,13 @@
       "saveChanges": "Enregistrer les modifications",
       "createCamporee": "Créer la camporée"
     },
+    "eventInstanceForm": {
+      "titleCreate": "Nouvel événement",
+      "titleEdit": "Modifier l'événement",
+      "descriptionCreate": "Complétez les données pour ajouter un nouvel événement au programme du camporée.",
+      "descriptionEdit": "Modifiez les données de l'événement. Les changements seront visibles dans le programme du camporée.",
+      "backToEvents": "Retour aux événements"
+    },
     "unionList": {
       "countSingular": "camporée",
       "countPlural": "camporées",
@@ -3668,6 +3675,21 @@
       "description": "Détail par composant pour l'inscription {enrollmentId}",
       "errorFallback": "Impossible de charger le détail du classement. Vérifiez la connexion au serveur.",
       "paramsRequired": "Les paramètres enrollmentId et year_id sont requis."
+    },
+    "pageRankingConfig": {
+      "title": "Configuration annuelle des classements",
+      "description": "Gérez les budgets annuels par section et les paliers globaux de reconnaissance pour le Dossier Annuel de Preuves.",
+      "breadcrumbRankingConfig": "Configuration des classements",
+      "breadcrumbNew": "Nouveau",
+      "breadcrumbEdit": "Modifier",
+      "newTitle": "Nouvelle configuration budgétaire",
+      "newDescription": "Définissez le score annuel maximum et sa répartition par sections et sous-sections.",
+      "editTitle": "Modifier la configuration budgétaire",
+      "editDescription": "Mettez à jour le score maximum et sa répartition par sections et sous-sections.",
+      "missingCatalogsTitle": "Catalogues manquants pour configurer les classements",
+      "missingCatalogsDescription": "Vous avez besoin d'au moins une union ou un champ local, d'un type de club et d'une année ecclésiastique active.",
+      "unavailableTitle": "Configuration indisponible",
+      "unavailableDescription": "La configuration demandée est introuvable ou les catalogues nécessaires à l'édition sont manquants."
     },
     "validation": {
       "name_min": "Le nom doit contenir au moins {min} caractères",

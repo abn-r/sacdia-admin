@@ -1,4 +1,5 @@
 import { Settings2 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
@@ -6,18 +7,22 @@ import { AnnualRankingConfigClientPage } from "@/components/annual-rankings/annu
 import { loadRankingConfigPageData } from "@/lib/annual-rankings/load-ranking-config-page-data";
 
 export default async function AnnualRankingConfigPage() {
+  const t = await getTranslations("annual_folders.pageRankingConfig");
+  const tNav = await getTranslations("nav.items");
   const data = await loadRankingConfigPageData();
+
+  const breadcrumbs = [
+    { label: tNav("dashboard"), href: "/dashboard" },
+    { label: tNav("annual_folders"), href: "/dashboard/annual-folders" },
+    { label: t("breadcrumbRankingConfig") },
+  ];
 
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
-        title="Configuración anual de rankings"
-        description="Administrá presupuestos anuales por secciones y rangos globales de reconocimiento para la Carpeta Anual de Evidencias."
-        breadcrumbs={[
-          { label: "Dashboard", href: "/dashboard" },
-          { label: "Carpeta Anual de Evidencias", href: "/dashboard/annual-folders" },
-          { label: "Configuración de rankings" },
-        ]}
+        title={t("title")}
+        description={t("description")}
+        breadcrumbs={breadcrumbs}
       />
 
       {data.loadError && (
@@ -27,8 +32,8 @@ export default async function AnnualRankingConfigPage() {
       {!data.loadError && data.missingCatalogs && (
         <EmptyState
           icon={Settings2}
-          title="Faltan catálogos para configurar rankings"
-          description="Necesitás al menos un campo local o unión, un tipo de club y un año eclesiástico activo."
+          title={t("missingCatalogsTitle")}
+          description={t("missingCatalogsDescription")}
         />
       )}
 

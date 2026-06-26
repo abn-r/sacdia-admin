@@ -2423,6 +2423,13 @@
       "saveChanges": "Guardar cambios",
       "createCamporee": "Crear camporee"
     },
+    "eventInstanceForm": {
+      "titleCreate": "Nuevo evento",
+      "titleEdit": "Editar evento",
+      "descriptionCreate": "Completá los datos para agregar un nuevo evento a la agenda del camporee.",
+      "descriptionEdit": "Modificá los datos del evento. Los cambios se reflejarán en la agenda del camporee.",
+      "backToEvents": "Volver a eventos"
+    },
     "unionList": {
       "countSingular": "camporee",
       "countPlural": "camporees",
@@ -3827,6 +3834,21 @@
       "description": "Detalle por componente para la inscripción {enrollmentId}",
       "errorFallback": "No se pudo cargar el breakdown de ranking. Verificá la conexión con el servidor.",
       "paramsRequired": "Los parámetros enrollmentId y year_id son requeridos."
+    },
+    "pageRankingConfig": {
+      "title": "Configuración anual de rankings",
+      "description": "Administrá presupuestos anuales por secciones y rangos globales de reconocimiento para la Carpeta Anual de Evidencias.",
+      "breadcrumbRankingConfig": "Configuración de rankings",
+      "breadcrumbNew": "Nueva",
+      "breadcrumbEdit": "Editar",
+      "newTitle": "Nueva configuración de presupuesto",
+      "newDescription": "Definí el puntaje máximo anual y su distribución por secciones y subsecciones.",
+      "editTitle": "Editar configuración de presupuesto",
+      "editDescription": "Actualizá el puntaje máximo y la distribución por secciones y subsecciones.",
+      "missingCatalogsTitle": "Faltan catálogos para configurar rankings",
+      "missingCatalogsDescription": "Necesitás al menos un campo local o unión, un tipo de club y un año eclesiástico activo.",
+      "unavailableTitle": "Configuración no disponible",
+      "unavailableDescription": "No se encontró la configuración solicitada o faltan catálogos para editarla."
     },
     "validation": {
       "name_min": "El nombre debe tener al menos {min} caracteres",

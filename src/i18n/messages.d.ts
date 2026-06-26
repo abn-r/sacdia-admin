@@ -2452,6 +2452,13 @@ export interface IntlMessages {
       saveChanges: string;
       createCamporee: string;
     };
+    eventInstanceForm: {
+      titleCreate: string;
+      titleEdit: string;
+      descriptionCreate: string;
+      descriptionEdit: string;
+      backToEvents: string;
+    };
     unionList: {
       countSingular: string;
       countPlural: string;
@@ -3856,6 +3863,21 @@ export interface IntlMessages {
       description: string;
       errorFallback: string;
       paramsRequired: string;
+    };
+    pageRankingConfig: {
+      title: string;
+      description: string;
+      breadcrumbRankingConfig: string;
+      breadcrumbNew: string;
+      breadcrumbEdit: string;
+      newTitle: string;
+      newDescription: string;
+      editTitle: string;
+      editDescription: string;
+      missingCatalogsTitle: string;
+      missingCatalogsDescription: string;
+      unavailableTitle: string;
+      unavailableDescription: string;
     };
     validation: {
       name_min: string;

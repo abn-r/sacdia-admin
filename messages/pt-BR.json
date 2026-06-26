@@ -2412,6 +2412,13 @@
       "saveChanges": "Salvar alterações",
       "createCamporee": "Criar campori"
     },
+    "eventInstanceForm": {
+      "titleCreate": "Novo evento",
+      "titleEdit": "Editar evento",
+      "descriptionCreate": "Preencha os dados para adicionar um novo evento à agenda do campori.",
+      "descriptionEdit": "Atualize os dados do evento. As alterações aparecerão na agenda do campori.",
+      "backToEvents": "Voltar aos eventos"
+    },
     "unionList": {
       "countSingular": "campori",
       "countPlural": "camporis",
@@ -3668,6 +3675,21 @@
       "description": "Detalhe por componente para a inscrição {enrollmentId}",
       "errorFallback": "Não foi possível carregar o detalhamento do ranking. Verifique a conexão com o servidor.",
       "paramsRequired": "Os parâmetros enrollmentId e year_id são obrigatórios."
+    },
+    "pageRankingConfig": {
+      "title": "Configuração anual de rankings",
+      "description": "Gerencie orçamentos anuais por seção e faixas globais de reconhecimento para a Pasta Anual de Evidências.",
+      "breadcrumbRankingConfig": "Configuração de rankings",
+      "breadcrumbNew": "Nova",
+      "breadcrumbEdit": "Editar",
+      "newTitle": "Nova configuração de orçamento",
+      "newDescription": "Defina a pontuação máxima anual e sua distribuição por seções e subseções.",
+      "editTitle": "Editar configuração de orçamento",
+      "editDescription": "Atualize a pontuação máxima e sua distribuição por seções e subseções.",
+      "missingCatalogsTitle": "Catálogos ausentes para configurar rankings",
+      "missingCatalogsDescription": "Você precisa de pelo menos uma união ou campo local, um tipo de clube e um ano eclesiástico ativo.",
+      "unavailableTitle": "Configuração indisponível",
+      "unavailableDescription": "A configuração solicitada não foi encontrada ou faltam catálogos para editá-la."
     },
     "validation": {
       "name_min": "O nome deve ter pelo menos {min} caracteres",

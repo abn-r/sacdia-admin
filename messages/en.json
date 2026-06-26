@@ -2413,6 +2413,13 @@
       "saveChanges": "Save changes",
       "createCamporee": "Create camporee"
     },
+    "eventInstanceForm": {
+      "titleCreate": "New event",
+      "titleEdit": "Edit event",
+      "descriptionCreate": "Complete the details to add a new event to the camporee schedule.",
+      "descriptionEdit": "Update the event details. Changes will appear on the camporee schedule.",
+      "backToEvents": "Back to events"
+    },
     "unionList": {
       "countSingular": "camporee",
       "countPlural": "camporees",
@@ -3802,6 +3809,21 @@
       "description": "Component detail for enrollment {enrollmentId}",
       "errorFallback": "Could not load the ranking breakdown. Check your server connection.",
       "paramsRequired": "The enrollmentId and year_id parameters are required."
+    },
+    "pageRankingConfig": {
+      "title": "Annual ranking configuration",
+      "description": "Manage annual budgets by section and global recognition tiers for the Annual Evidence Folder.",
+      "breadcrumbRankingConfig": "Ranking configuration",
+      "breadcrumbNew": "New",
+      "breadcrumbEdit": "Edit",
+      "newTitle": "New budget configuration",
+      "newDescription": "Set the annual maximum score and its distribution across sections and subsections.",
+      "editTitle": "Edit budget configuration",
+      "editDescription": "Update the maximum score and its distribution across sections and subsections.",
+      "missingCatalogsTitle": "Missing catalogs to configure rankings",
+      "missingCatalogsDescription": "You need at least one union or local field, a club type, and an active ecclesiastical year.",
+      "unavailableTitle": "Configuration unavailable",
+      "unavailableDescription": "The requested configuration was not found or catalogs are missing to edit it."
     },
     "validation": {
       "name_min": "Name must be at least {min} characters",

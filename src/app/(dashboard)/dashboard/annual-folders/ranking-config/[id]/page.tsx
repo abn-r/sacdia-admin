@@ -1,5 +1,6 @@
 import { Settings2 } from "lucide-react";
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
@@ -14,10 +15,19 @@ type PageProps = {
 
 export default async function EditAnnualRankingConfigPage({ params }: PageProps) {
   const { id } = await params;
+  const t = await getTranslations("annual_folders.pageRankingConfig");
+  const tNav = await getTranslations("nav.items");
   const data = await loadRankingConfigPageData();
   const config = data.configs.find(
     (item) => item.annual_ranking_config_id === id,
   );
+
+  const breadcrumbs = [
+    { label: tNav("dashboard"), href: "/dashboard" },
+    { label: tNav("annual_folders"), href: "/dashboard/annual-folders" },
+    { label: t("breadcrumbRankingConfig"), href: ROUTE_BASE },
+    { label: t("breadcrumbEdit") },
+  ];
 
   if (!data.loadError && !data.missingCatalogs && !config) {
     notFound();
@@ -26,15 +36,7 @@ export default async function EditAnnualRankingConfigPage({ params }: PageProps)
   if (data.loadError) {
     return (
       <div className="flex flex-col gap-6">
-        <PageHeader
-          title="Editar configuración de presupuesto"
-          breadcrumbs={[
-            { label: "Dashboard", href: "/dashboard" },
-            { label: "Carpeta Anual de Evidencias", href: "/dashboard/annual-folders" },
-            { label: "Configuración de rankings", href: ROUTE_BASE },
-            { label: "Editar" },
-          ]}
-        />
+        <PageHeader title={t("editTitle")} breadcrumbs={breadcrumbs} />
         <EndpointErrorBanner state="missing" detail={data.loadError} />
       </div>
     );
@@ -43,19 +45,11 @@ export default async function EditAnnualRankingConfigPage({ params }: PageProps)
   if (data.missingCatalogs || !config) {
     return (
       <div className="flex flex-col gap-6">
-        <PageHeader
-          title="Editar configuración de presupuesto"
-          breadcrumbs={[
-            { label: "Dashboard", href: "/dashboard" },
-            { label: "Carpeta Anual de Evidencias", href: "/dashboard/annual-folders" },
-            { label: "Configuración de rankings", href: ROUTE_BASE },
-            { label: "Editar" },
-          ]}
-        />
+        <PageHeader title={t("editTitle")} breadcrumbs={breadcrumbs} />
         <EmptyState
           icon={Settings2}
-          title="Configuración no disponible"
-          description="No se encontró la configuración solicitada o faltan catálogos para editarla."
+          title={t("unavailableTitle")}
+          description={t("unavailableDescription")}
         />
       </div>
     );
@@ -64,14 +58,9 @@ export default async function EditAnnualRankingConfigPage({ params }: PageProps)
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
-        title="Editar configuración de presupuesto"
-        description="Actualizá el puntaje máximo y la distribución por secciones y subsecciones."
-        breadcrumbs={[
-          { label: "Dashboard", href: "/dashboard" },
-          { label: "Carpeta Anual de Evidencias", href: "/dashboard/annual-folders" },
-          { label: "Configuración de rankings", href: ROUTE_BASE },
-          { label: "Editar" },
-        ]}
+        title={t("editTitle")}
+        description={t("editDescription")}
+        breadcrumbs={breadcrumbs}
       />
 
       <AnnualBudgetConfigForm

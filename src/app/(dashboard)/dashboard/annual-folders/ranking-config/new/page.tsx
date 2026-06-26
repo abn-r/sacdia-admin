@@ -1,4 +1,5 @@
 import { Settings2 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
@@ -8,20 +9,21 @@ import { loadRankingConfigPageData } from "@/lib/annual-rankings/load-ranking-co
 const ROUTE_BASE = "/dashboard/annual-folders/ranking-config";
 
 export default async function NewAnnualRankingConfigPage() {
+  const t = await getTranslations("annual_folders.pageRankingConfig");
+  const tNav = await getTranslations("nav.items");
   const data = await loadRankingConfigPageData();
+
+  const breadcrumbs = [
+    { label: tNav("dashboard"), href: "/dashboard" },
+    { label: tNav("annual_folders"), href: "/dashboard/annual-folders" },
+    { label: t("breadcrumbRankingConfig"), href: ROUTE_BASE },
+    { label: t("breadcrumbNew") },
+  ];
 
   if (data.loadError) {
     return (
       <div className="flex flex-col gap-6">
-        <PageHeader
-          title="Nueva configuración de presupuesto"
-          breadcrumbs={[
-            { label: "Dashboard", href: "/dashboard" },
-            { label: "Carpeta Anual de Evidencias", href: "/dashboard/annual-folders" },
-            { label: "Configuración de rankings", href: ROUTE_BASE },
-            { label: "Nueva" },
-          ]}
-        />
+        <PageHeader title={t("newTitle")} breadcrumbs={breadcrumbs} />
         <EndpointErrorBanner state="missing" detail={data.loadError} />
       </div>
     );
@@ -30,19 +32,11 @@ export default async function NewAnnualRankingConfigPage() {
   if (data.missingCatalogs) {
     return (
       <div className="flex flex-col gap-6">
-        <PageHeader
-          title="Nueva configuración de presupuesto"
-          breadcrumbs={[
-            { label: "Dashboard", href: "/dashboard" },
-            { label: "Carpeta Anual de Evidencias", href: "/dashboard/annual-folders" },
-            { label: "Configuración de rankings", href: ROUTE_BASE },
-            { label: "Nueva" },
-          ]}
-        />
+        <PageHeader title={t("newTitle")} breadcrumbs={breadcrumbs} />
         <EmptyState
           icon={Settings2}
-          title="Faltan catálogos para configurar rankings"
-          description="Necesitás al menos un campo local o unión, un tipo de club y un año eclesiástico activo."
+          title={t("missingCatalogsTitle")}
+          description={t("missingCatalogsDescription")}
         />
       </div>
     );
@@ -51,14 +45,9 @@ export default async function NewAnnualRankingConfigPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
-        title="Nueva configuración de presupuesto"
-        description="Definí el puntaje máximo anual y su distribución por secciones y subsecciones."
-        breadcrumbs={[
-          { label: "Dashboard", href: "/dashboard" },
-          { label: "Carpeta Anual de Evidencias", href: "/dashboard/annual-folders" },
-          { label: "Configuración de rankings", href: ROUTE_BASE },
-          { label: "Nueva" },
-        ]}
+        title={t("newTitle")}
+        description={t("newDescription")}
+        breadcrumbs={breadcrumbs}
       />
 
       <AnnualBudgetConfigForm

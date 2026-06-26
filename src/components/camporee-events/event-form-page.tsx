@@ -16,6 +16,7 @@ import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import Link from "next/link";
 import { ArrowLeft, Loader2, Check, UserRound } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { Input } from "@/components/ui/input";
@@ -115,6 +116,7 @@ export function EventFormPage({
   event,
   action,
 }: EventFormPageProps) {
+  const t = useTranslations("camporees.eventInstanceForm");
   const isEdit = mode === "edit";
   const backHref = `/dashboard/camporees/${camporeeId}?tab=events`;
 
@@ -204,13 +206,9 @@ export function EventFormPage({
     <div className="space-y-8">
       {/* ── Header ── */}
       <PageHeader
-        title={isEdit ? "Editar evento" : "Nuevo evento"}
-        description={
-          isEdit
-            ? "Modificá los datos del evento. Los cambios se reflejarán en la agenda del camporee."
-            : "Completá los datos para agregar un nuevo evento a la agenda del camporee."
-        }
-        breadcrumbs={[{ label: "Volver a eventos", href: backHref }]}
+        title={isEdit ? t("titleEdit") : t("titleCreate")}
+        description={isEdit ? t("descriptionEdit") : t("descriptionCreate")}
+        breadcrumbs={[{ label: t("backToEvents"), href: backHref }]}
       />
 
       {/* ── Form ── */}
