@@ -1,6 +1,7 @@
 "use client";
 
 import { MoreVertical, XCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -34,6 +35,7 @@ export function OrderStickyBar({
   linesResolved,
   linesTotal,
 }: OrderStickyBarProps) {
+  const t = useTranslations("materials.components.orderStickyBar");
   const { estado } = orden;
   const allResolved = linesTotal > 0 && linesResolved === linesTotal;
   const pending = Math.max(0, linesTotal - linesResolved);
@@ -101,7 +103,7 @@ export function OrderStickyBar({
                 <Button
                   variant="outline"
                   size="icon-sm"
-                  aria-label="Más acciones"
+                  aria-label={t("moreActionsAriaLabel")}
                 >
                   <MoreVertical className="size-4" />
                 </Button>

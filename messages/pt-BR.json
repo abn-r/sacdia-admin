@@ -3663,6 +3663,15 @@
       "title": "Avaliação de pastas",
       "description": "Busque por clube, seção ou campo e pontue cada seção com os pontos correspondentes."
     },
+    "pageFolders": {
+      "titleList": "Pastas de evidências",
+      "titleDetail": "Detalhe da pasta",
+      "descriptionList": "Busque, filtre e revise pastas por clube, hierarquia, ano, status e progresso.",
+      "descriptionDetail": "Revise os arquivos e o progresso completo da pasta selecionada.",
+      "loadError": "Não foi possível carregar a pasta solicitada.",
+      "notFoundTitle": "Pasta não encontrada",
+      "notFoundDescription": "Verifique se a pasta existe ou volte à listagem de pastas."
+    },
     "pageRankings": {
       "title": "Rankings da pasta anual de evidências",
       "description": "Consulte o ranking de clubes por pontos obtidos na pasta anual de evidências.",
@@ -3675,6 +3684,14 @@
       "description": "Detalhe por componente para a inscrição {enrollmentId}",
       "errorFallback": "Não foi possível carregar o detalhamento do ranking. Verifique a conexão com o servidor.",
       "paramsRequired": "Os parâmetros enrollmentId e year_id são obrigatórios."
+    },
+    "awardCategoriesClient": {
+      "editCategoryTitle": "Editar categoria",
+      "deleteCategoryTitle": "Excluir categoria"
+    },
+    "awardCategoryFormDialog": {
+      "descriptionPlaceholder": "Descrição opcional da categoria",
+      "maxPointsPlaceholder": "Sem limite"
     },
     "pageRankingConfig": {
       "title": "Configuração anual de rankings",
@@ -5012,6 +5029,14 @@
         "emptyTitle": "Sem produtos",
         "emptyDescriptionDefault": "Ainda não há produtos no inventário. Crie o primeiro.",
         "emptyDescriptionFiltered": "Nenhum produto corresponde aos filtros selecionados."
+      },
+      "receiptsDetail": {
+        "backLink": "Voltar aos comprovantes",
+        "title": "Comprovantes — {folio}",
+        "description": "Revise e valide os comprovantes de pagamento anexados a esta solicitação."
+      },
+      "inventoryForm": {
+        "descriptionPlaceholder": "Descrição do produto..."
       }
     },
     "components": {
@@ -5020,6 +5045,22 @@
         "deleteAriaLabel": "Excluir",
         "statusActive": "Ativa",
         "statusInactive": "Inativa"
+      },
+      "inventoryTable": {
+        "editAriaLabel": "Editar produto",
+        "deactivateAriaLabel": "Desativar produto",
+        "statusActive": "Ativo",
+        "statusInactive": "Inativo"
+      },
+      "bankSnapshotCard": {
+        "labelPickupAddress": "Endereço de retirada",
+        "copyPickupAddress": "Copiar endereço"
+      },
+      "cancelDialog": {
+        "reasonPlaceholder": "Motivo do cancelamento (obrigatório, mínimo 10 caracteres)"
+      },
+      "orderStickyBar": {
+        "moreActionsAriaLabel": "Mais ações"
       }
     }
   },

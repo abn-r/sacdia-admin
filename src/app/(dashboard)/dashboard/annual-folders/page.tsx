@@ -1,4 +1,5 @@
 import dynamic from "next/dynamic";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -65,6 +66,7 @@ export default async function AnnualFoldersPage({
 }: {
   searchParams: SearchParams;
 }) {
+  const t = await getTranslations("annual_folders.pageFolders");
   const currentUser = await requireAdminUser();
   const rawParams = await searchParams;
   const folderId = getFolderId(rawParams);
@@ -98,18 +100,16 @@ export default async function AnnualFoldersPage({
       loadError =
         err instanceof ApiError
           ? err.message
-          : "No se pudo cargar la carpeta solicitada.";
+          : t("loadError");
     }
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title={folderId ? "Detalle de carpeta" : "Carpetas de evidencias"}
+        title={folderId ? t("titleDetail") : t("titleList")}
         description={
-          folderId
-            ? "Revisá los archivos y el avance completo de la carpeta seleccionada."
-            : "Buscá, filtrá y revisá carpetas creadas por club, jerarquía, año, estado y avance."
+          folderId ? t("descriptionDetail") : t("descriptionList")
         }
       />
 
@@ -118,8 +118,8 @@ export default async function AnnualFoldersPage({
       {!loadError && folderId && !folder && (
         <EmptyState
           icon={FolderOpen}
-          title="Carpeta no encontrada"
-          description="Verificá que la carpeta exista o regresá al listado de carpetas."
+          title={t("notFoundTitle")}
+          description={t("notFoundDescription")}
         />
       )}
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Pencil, Trash2 } from "lucide-react";
 import {
   Table,
@@ -36,6 +37,7 @@ export function InventoryTable({
   showLocalFieldColumn = false,
   localFields = [],
 }: InventoryTableProps) {
+  const t = useTranslations("materials.components.inventoryTable");
   const [editTarget, setEditTarget] = useState<MaterialProduct | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<MaterialProduct | null>(null);
 
@@ -137,9 +139,9 @@ export function InventoryTable({
                 {/* Estado */}
                 <TableCell className="px-3 py-2.5 align-middle">
                   {product.active ? (
-                    <Badge variant="success">Activo</Badge>
+                    <Badge variant="success">{t("statusActive")}</Badge>
                   ) : (
-                    <Badge variant="secondary">Inactivo</Badge>
+                    <Badge variant="secondary">{t("statusInactive")}</Badge>
                   )}
                 </TableCell>
 
@@ -149,7 +151,7 @@ export function InventoryTable({
                     <Button
                       variant="ghost"
                       size="icon-sm"
-                      aria-label="Editar producto"
+                      aria-label={t("editAriaLabel")}
                       onClick={() => setEditTarget(product)}
                     >
                       <Pencil className="size-3.5" />
@@ -158,7 +160,7 @@ export function InventoryTable({
                       variant="ghost"
                       size="icon-sm"
                       className="text-destructive hover:text-destructive"
-                      aria-label="Desactivar producto"
+                      aria-label={t("deactivateAriaLabel")}
                       onClick={() => setDeleteTarget(product)}
                     >
                       <Trash2 className="size-3.5" />

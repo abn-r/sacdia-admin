@@ -3663,6 +3663,15 @@
       "title": "Évaluation des dossiers",
       "description": "Recherchez par club, section ou champ et notez chaque section avec les points correspondants."
     },
+    "pageFolders": {
+      "titleList": "Dossiers de preuves",
+      "titleDetail": "Détail du dossier",
+      "descriptionList": "Recherchez, filtrez et consultez les dossiers par club, hiérarchie, année, statut et avancement.",
+      "descriptionDetail": "Consultez les fichiers et l'avancement complet du dossier sélectionné.",
+      "loadError": "Impossible de charger le dossier demandé.",
+      "notFoundTitle": "Dossier introuvable",
+      "notFoundDescription": "Vérifiez que le dossier existe ou retournez à la liste des dossiers."
+    },
     "pageRankings": {
       "title": "Classements du dossier annuel de preuves",
       "description": "Consultez le classement des clubs par points obtenus dans le dossier annuel de preuves.",
@@ -3675,6 +3684,14 @@
       "description": "Détail par composant pour l'inscription {enrollmentId}",
       "errorFallback": "Impossible de charger le détail du classement. Vérifiez la connexion au serveur.",
       "paramsRequired": "Les paramètres enrollmentId et year_id sont requis."
+    },
+    "awardCategoriesClient": {
+      "editCategoryTitle": "Modifier la catégorie",
+      "deleteCategoryTitle": "Supprimer la catégorie"
+    },
+    "awardCategoryFormDialog": {
+      "descriptionPlaceholder": "Description optionnelle de la catégorie",
+      "maxPointsPlaceholder": "Sans limite"
     },
     "pageRankingConfig": {
       "title": "Configuration annuelle des classements",
@@ -5012,6 +5029,14 @@
         "emptyTitle": "Aucun produit",
         "emptyDescriptionDefault": "Il n'y a pas encore de produits en inventaire. Créez le premier.",
         "emptyDescriptionFiltered": "Aucun produit ne correspond aux filtres sélectionnés."
+      },
+      "receiptsDetail": {
+        "backLink": "Retour aux justificatifs",
+        "title": "Justificatifs — {folio}",
+        "description": "Examinez et validez les justificatifs de paiement joints à cette demande."
+      },
+      "inventoryForm": {
+        "descriptionPlaceholder": "Description du produit..."
       }
     },
     "components": {
@@ -5020,6 +5045,22 @@
         "deleteAriaLabel": "Supprimer",
         "statusActive": "Active",
         "statusInactive": "Inactive"
+      },
+      "inventoryTable": {
+        "editAriaLabel": "Modifier le produit",
+        "deactivateAriaLabel": "Désactiver le produit",
+        "statusActive": "Actif",
+        "statusInactive": "Inactif"
+      },
+      "bankSnapshotCard": {
+        "labelPickupAddress": "Adresse de retrait",
+        "copyPickupAddress": "Copier l'adresse"
+      },
+      "cancelDialog": {
+        "reasonPlaceholder": "Motif d'annulation (obligatoire, minimum 10 caractères)"
+      },
+      "orderStickyBar": {
+        "moreActionsAriaLabel": "Plus d'actions"
       }
     }
   },

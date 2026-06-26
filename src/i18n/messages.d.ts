@@ -3851,6 +3851,15 @@ export interface IntlMessages {
       title: string;
       description: string;
     };
+    pageFolders: {
+      titleList: string;
+      titleDetail: string;
+      descriptionList: string;
+      descriptionDetail: string;
+      loadError: string;
+      notFoundTitle: string;
+      notFoundDescription: string;
+    };
     pageRankings: {
       title: string;
       description: string;
@@ -3863,6 +3872,14 @@ export interface IntlMessages {
       description: string;
       errorFallback: string;
       paramsRequired: string;
+    };
+    awardCategoriesClient: {
+      editCategoryTitle: string;
+      deleteCategoryTitle: string;
+    };
+    awardCategoryFormDialog: {
+      descriptionPlaceholder: string;
+      maxPointsPlaceholder: string;
     };
     pageRankingConfig: {
       title: string;
@@ -5211,6 +5228,14 @@ export interface IntlMessages {
         emptyDescriptionDefault: string;
         emptyDescriptionFiltered: string;
       };
+      receiptsDetail: {
+        backLink: string;
+        title: string;
+        description: string;
+      };
+      inventoryForm: {
+        descriptionPlaceholder: string;
+      };
     };
     components: {
       categoriesTable: {
@@ -5218,6 +5243,22 @@ export interface IntlMessages {
         deleteAriaLabel: string;
         statusActive: string;
         statusInactive: string;
+      };
+      inventoryTable: {
+        editAriaLabel: string;
+        deactivateAriaLabel: string;
+        statusActive: string;
+        statusInactive: string;
+      };
+      bankSnapshotCard: {
+        labelPickupAddress: string;
+        copyPickupAddress: string;
+      };
+      cancelDialog: {
+        reasonPlaceholder: string;
+      };
+      orderStickyBar: {
+        moreActionsAriaLabel: string;
       };
     };
   };

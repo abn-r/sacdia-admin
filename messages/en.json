@@ -3797,6 +3797,15 @@
       "title": "Folder Evaluation",
       "description": "Search by club, section, or field and score each section with the corresponding points."
     },
+    "pageFolders": {
+      "titleList": "Evidence folders",
+      "titleDetail": "Folder detail",
+      "descriptionList": "Search, filter, and review folders by club, hierarchy, year, status, and progress.",
+      "descriptionDetail": "Review files and full progress for the selected folder.",
+      "loadError": "Could not load the requested folder.",
+      "notFoundTitle": "Folder not found",
+      "notFoundDescription": "Verify the folder exists or return to the folder list."
+    },
     "pageRankings": {
       "title": "Annual Evidence Folder Rankings",
       "description": "View club rankings by points earned in the annual evidence folder.",
@@ -3809,6 +3818,14 @@
       "description": "Component detail for enrollment {enrollmentId}",
       "errorFallback": "Could not load the ranking breakdown. Check your server connection.",
       "paramsRequired": "The enrollmentId and year_id parameters are required."
+    },
+    "awardCategoriesClient": {
+      "editCategoryTitle": "Edit category",
+      "deleteCategoryTitle": "Delete category"
+    },
+    "awardCategoryFormDialog": {
+      "descriptionPlaceholder": "Optional category description",
+      "maxPointsPlaceholder": "No limit"
     },
     "pageRankingConfig": {
       "title": "Annual ranking configuration",
@@ -5146,6 +5163,14 @@
         "emptyTitle": "No products",
         "emptyDescriptionDefault": "There are no products in inventory yet. Create the first one.",
         "emptyDescriptionFiltered": "No product matches the selected filters."
+      },
+      "receiptsDetail": {
+        "backLink": "Back to receipts",
+        "title": "Receipts — {folio}",
+        "description": "Review and validate payment receipts attached to this request."
+      },
+      "inventoryForm": {
+        "descriptionPlaceholder": "Product description..."
       }
     },
     "components": {
@@ -5154,6 +5179,22 @@
         "deleteAriaLabel": "Delete",
         "statusActive": "Active",
         "statusInactive": "Inactive"
+      },
+      "inventoryTable": {
+        "editAriaLabel": "Edit product",
+        "deactivateAriaLabel": "Deactivate product",
+        "statusActive": "Active",
+        "statusInactive": "Inactive"
+      },
+      "bankSnapshotCard": {
+        "labelPickupAddress": "Pickup address",
+        "copyPickupAddress": "Copy address"
+      },
+      "cancelDialog": {
+        "reasonPlaceholder": "Cancellation reason (required, minimum 10 characters)"
+      },
+      "orderStickyBar": {
+        "moreActionsAriaLabel": "More actions"
       }
     }
   },

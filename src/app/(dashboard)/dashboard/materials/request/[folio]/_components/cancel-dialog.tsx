@@ -2,6 +2,7 @@
 
 import { useState, useTransition, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { z } from "zod";
@@ -44,6 +45,7 @@ export function CancelDialog({
   children,
   extraWarning,
 }: CancelDialogProps) {
+  const t = useTranslations("materials.components.cancelDialog");
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
@@ -94,7 +96,7 @@ export function CancelDialog({
         )}
 
         <Textarea
-          placeholder="Motivo de cancelación (obligatorio, mínimo 10 caracteres)"
+          placeholder={t("reasonPlaceholder")}
           maxLength={500}
           rows={3}
           value={reason}

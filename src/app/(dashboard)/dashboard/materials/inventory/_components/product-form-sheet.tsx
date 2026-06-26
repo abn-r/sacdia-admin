@@ -2,6 +2,7 @@
 
 import { useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useForm, Controller } from "react-hook-form";
 import type { Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -113,6 +114,7 @@ function CreateForm({
   actorLocalFieldId: number | null;
   onSuccess: () => void;
 }) {
+  const t = useTranslations("materials.pages.inventoryForm");
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<CreateFormValues>({
@@ -243,7 +245,7 @@ function CreateForm({
               </FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Descripción del producto..."
+                  placeholder={t("descriptionPlaceholder")}
                   className="resize-none"
                   rows={3}
                   {...field}
@@ -375,6 +377,7 @@ function EditForm({
   product: MaterialProduct;
   onSuccess: () => void;
 }) {
+  const t = useTranslations("materials.pages.inventoryForm");
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<EditFormValues>({

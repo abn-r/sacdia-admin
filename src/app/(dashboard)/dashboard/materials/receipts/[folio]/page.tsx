@@ -6,6 +6,7 @@ import {
   ShoppingBag,
   ChevronLeft,
 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatusBadge } from "@/components/materials/status-badge";
 import { MoneyFormat } from "@/components/materials/money-format";
@@ -37,6 +38,7 @@ export default async function ComprobantesDetailPage({
   params: Params;
 }) {
   const { folio } = await params;
+  const t = await getTranslations("materials.pages.receiptsDetail");
   const user = await requireAdminUser();
 
   // Guard: only users with validate-receipt permission can access this route
@@ -68,14 +70,14 @@ export default async function ComprobantesDetailPage({
       <Button variant="ghost" size="sm" className="-ml-1" asChild>
         <Link href="/dashboard/materials/receipts">
           <ChevronLeft className="mr-1 size-4" />
-          Volver a comprobantes
+          {t("backLink")}
         </Link>
       </Button>
 
       {/* Page header */}
       <PageHeader
-        title={`Comprobantes — ${orden.folio_referencia ?? folio}`}
-        description="Revisá y validá los comprobantes de pago adjuntos a esta solicitud."
+        title={t("title", { folio: orden.folio_referencia ?? folio })}
+        description={t("description")}
         actions={<StatusBadge estado={orden.estado} />}
       />
 

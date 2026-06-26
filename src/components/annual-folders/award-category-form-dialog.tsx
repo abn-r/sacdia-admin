@@ -276,7 +276,7 @@ export function AwardCategoryFormDialog({
                 <FormControl>
                   <Textarea
                     {...field}
-                    placeholder="Descripción opcional de la categoría"
+                    placeholder={t("awardCategoryFormDialog.descriptionPlaceholder")}
                     rows={3}
                   />
                 </FormControl>
@@ -409,7 +409,7 @@ export function AwardCategoryFormDialog({
                       value={field.value ?? ""}
                       type="number"
                       min={0}
-                      placeholder="Sin límite"
+                      placeholder={t("awardCategoryFormDialog.maxPointsPlaceholder")}
                     />
                   </FormControl>
                   <FormMessage />

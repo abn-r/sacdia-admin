@@ -1,6 +1,7 @@
 "use client";
 
 import { AlertTriangle, Landmark } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { CopyButton } from "@/components/ui/copy-button";
 import { FolioPill } from "@/components/materials/folio-pill";
 import { MoneyFormat } from "@/components/materials/money-format";
@@ -90,6 +91,7 @@ interface BankSnapshotCardProps {
 }
 
 export function BankSnapshotCard({ orden }: BankSnapshotCardProps) {
+  const t = useTranslations("materials.components.bankSnapshotCard");
   const clabe = orden.bank_account_clabe;
   const hasBank = Boolean(orden.bank_name) && Boolean(clabe);
 
@@ -200,8 +202,8 @@ export function BankSnapshotCard({ orden }: BankSnapshotCardProps) {
 
         {orden.entrega === "recoger" && orden.pickup_address && (
           <FieldRow
-            label="Dirección de recogida"
-            copyAriaLabel="Copiar dirección"
+            label={t("labelPickupAddress")}
+            copyAriaLabel={t("copyPickupAddress")}
             copyText={orden.pickup_address}
             fullWidth
           >
