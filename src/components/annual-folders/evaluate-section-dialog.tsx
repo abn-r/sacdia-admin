@@ -259,7 +259,7 @@ export function EvaluateSectionDialog({
               id="eval-notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Observaciones..."
+              placeholder={t("evaluateSectionDialog.notesPlaceholder")}
               rows={3}
               maxLength={500}
             />
@@ -278,7 +278,7 @@ export function EvaluateSectionDialog({
               Cancelar
             </Button>
             <Button type="submit" disabled={isSubmitting || !isValid}>
-              {isSubmitting ? "Guardando..." : "Guardar evaluación"}
+              {isSubmitting ? t("evaluateSectionDialog.saveLoading") : t("evaluateSectionDialog.saveButton")}
             </Button>
           </DialogFooter>
         </form>

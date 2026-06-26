@@ -1265,7 +1265,7 @@ export function EvaluationClientPage({
               disabled={isReopening}
               className="bg-warning text-white hover:bg-warning/90"
             >
-              {isReopening ? "Reabriendo..." : "Reabrir sección"}
+              {isReopening ? t("evaluationClient.reopenSectionLoading") : t("evaluationClient.reopenSectionButton")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

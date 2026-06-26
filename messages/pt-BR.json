@@ -54,7 +54,7 @@
       "camporees_local": "Locais",
       "camporees_union": "União",
       "classes": "Classes",
-      "enrollments": "Inscrições",
+      "enrollments": "Inscrições anuais",
       "honors": "Especialidades",
       "achievements": "Conquistas",
       "activities": "Atividades",
@@ -3888,23 +3888,48 @@
     },
     "awardCategoryFormDialog": {
       "descriptionPlaceholder": "Descrição opcional da categoria",
-      "maxPointsPlaceholder": "Sem limite"
+      "maxPointsPlaceholder": "Sem limite",
+      "saveButton": "Salvar alterações",
+      "createButton": "Criar categoria",
+      "savingLoading": "Salvando...",
+      "creatingLoading": "Criando..."
     },
     "folderClient": {
       "viewFileTitle": "Ver arquivo",
-      "deleteEvidenceTitle": "Excluir evidência"
+      "deleteEvidenceTitle": "Excluir evidência",
+      "submitSectionButton": "Enviar seção",
+      "submitSectionLoading": "Enviando..."
     },
     "evidenceUploadDialog": {
-      "descriptionPlaceholder": "Breve descrição do arquivo..."
+      "descriptionPlaceholder": "Breve descrição do arquivo...",
+      "submitButton": "Enviar evidência",
+      "submitLoading": "Enviando..."
+    },
+    "evaluateSectionDialog": {
+      "saveButton": "Salvar avaliação",
+      "saveLoading": "Salvando...",
+      "notesPlaceholder": "Observações..."
     },
     "evaluationClient": {
       "searchPlaceholder": "Ex. Clube Betel, Desbravadores, ACV...",
       "viewFullFolderTitle": "Ver pasta completa com evidências",
-      "unionNotesPlaceholder": "Comentário opcional para auditoria..."
+      "unionNotesPlaceholder": "Comentário opcional para auditoria...",
+      "reopenSectionButton": "Reabrir seção",
+      "reopenSectionLoading": "Reabrindo..."
     },
     "templatesClientPage": {
       "publishTemplateTitle": "Publicar modelo",
-      "deleteDraftTitle": "Excluir rascunho"
+      "deleteDraftTitle": "Excluir rascunho",
+      "copyDraftButton": "Copiar rascunho",
+      "copyDraftLoading": "Copiando...",
+      "deleteDraftButton": "Excluir rascunho",
+      "deleteDraftLoading": "Excluindo...",
+      "publishButton": "Publicar",
+      "publishLoading": "Publicando..."
+    },
+    "rankingsClientPage": {
+      "searchButton": "Buscar",
+      "searchLoading": "Buscando..."
     },
     "budgetConfigList": {
       "emptyTitle": "Sem configurações de orçamento",
@@ -4935,6 +4960,14 @@
       "impactFoldersDescription": "Serão arquivadas",
       "impactReportsLabel": "Relatórios",
       "impactReportsDescription": "Serão encerrados"
+    },
+    "client": {
+      "selectYearPlaceholder": "Selecione um ano...",
+      "yearActiveBadge": "(ativo)",
+      "previewButton": "Pré-visualizar",
+      "previewLoading": "Carregando...",
+      "confirmCloseButton": "Confirmar encerramento",
+      "confirmCloseLoading": "Encerrando..."
     }
   },
   "inventory": {
@@ -5622,48 +5655,48 @@
   },
   "enrollments": {
     "table": {
-      "col_member": "Membro",
-      "col_class": "Classe",
+      "col_club": "Clube",
+      "col_section": "Seção",
+      "col_local_field": "Campo Local",
       "col_status": "Status",
-      "col_enrollment_date": "Data de inscrição",
       "col_submitted_at": "Enviado em",
+      "col_leadership": "Diretoria",
       "col_actions": "Ações",
-      "empty": "Nenhuma inscrição para exibir.",
+      "empty": "Não há inscrições anuais para mostrar.",
       "status": {
-        "IN_PROGRESS": "Em andamento",
-        "SUBMITTED_FOR_VALIDATION": "Validação pendente",
-        "APPROVED": "Aprovado",
-        "REJECTED": "Rejeitado",
-        "INVESTIDO": "Investido"
+        "pending_validation": "Pendente Campo Local",
+        "active": "Aprovada",
+        "rejected": "Rejeitada",
+        "inactive": "Inativa"
       }
     },
     "actions": {
       "approve": "Aprovar",
       "reject": "Rejeitar",
-      "view_user": "Ver usuário",
-      "reject_dialog_title": "Rejeitar inscrição",
-      "reject_dialog_description": "Esta ação marcará a inscrição como rejeitada. O membro não poderá continuar o processo de investidura com esta inscrição.",
+      "reject_dialog_title": "Rejeitar inscrição anual",
+      "reject_dialog_description": "Esta ação marcará a inscrição anual do clube como rejeitada. O clube deverá corrigir os dados e enviá-la novamente.",
       "reject_dialog_cancel": "Cancelar",
       "reject_dialog_confirm": "Confirmar rejeição"
     },
     "toasts": {
-      "approved": "Inscrição aprovada com sucesso.",
-      "rejected": "Inscrição rejeitada com sucesso."
+      "approved": "Inscrição anual aprovada com sucesso.",
+      "rejected": "Inscrição anual rejeitada com sucesso."
     },
     "errors": {
       "generic": "Ocorreu um erro. Tente novamente."
     },
     "page": {
-      "title": "Inscrições",
-      "description": "Inscrições enviadas para validação de investidura. Aprove ou rejeite cada solicitação.",
-      "searchPlaceholder": "Buscar por nome ou e-mail...",
-      "errorEmptyTitle": "Não é possível exibir inscrições",
-      "emptyTitle": "Sem inscrições pendentes",
-      "emptyDescription": "Não existem inscrições enviadas para validação de investidura no momento.",
-      "countSingular": "inscrição pendente de validação",
-      "countPlural": "inscrições pendentes de validação"
+      "title": "Inscrições anuais",
+      "description": "Inscrições anuais de clubes enviadas para validação do Campo Local. Aprove ou rejeite cada solicitação.",
+      "searchPlaceholder": "Buscar por clube, seção, campo ou responsável...",
+      "errorEmptyTitle": "Não é possível mostrar inscrições anuais",
+      "emptyTitle": "Não há inscrições anuais pendentes",
+      "emptyDescription": "Não há inscrições anuais de clubes enviadas para validação do Campo Local neste momento.",
+      "countSingular": "inscrição anual pendente",
+      "countPlural": "inscrições anuais pendentes"
     }
   },
+
   "rankings": {
     "breakdown": {
       "compositeScore": "Pontuação composta institucional",

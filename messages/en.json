@@ -54,7 +54,7 @@
       "camporees_local": "Local",
       "camporees_union": "Union",
       "classes": "Classes",
-      "enrollments": "Enrollments",
+      "enrollments": "Annual enrollments",
       "honors": "Honors",
       "achievements": "Achievements",
       "activities": "Activities",
@@ -4022,23 +4022,48 @@
     },
     "awardCategoryFormDialog": {
       "descriptionPlaceholder": "Optional category description",
-      "maxPointsPlaceholder": "No limit"
+      "maxPointsPlaceholder": "No limit",
+      "saveButton": "Save changes",
+      "createButton": "Create category",
+      "savingLoading": "Saving...",
+      "creatingLoading": "Creating..."
     },
     "folderClient": {
       "viewFileTitle": "View file",
-      "deleteEvidenceTitle": "Delete evidence"
+      "deleteEvidenceTitle": "Delete evidence",
+      "submitSectionButton": "Submit section",
+      "submitSectionLoading": "Submitting..."
     },
     "evidenceUploadDialog": {
-      "descriptionPlaceholder": "Brief file description..."
+      "descriptionPlaceholder": "Brief file description...",
+      "submitButton": "Upload evidence",
+      "submitLoading": "Uploading..."
+    },
+    "evaluateSectionDialog": {
+      "saveButton": "Save evaluation",
+      "saveLoading": "Saving...",
+      "notesPlaceholder": "Notes..."
     },
     "evaluationClient": {
       "searchPlaceholder": "E.g. Bethel Club, Pathfinders, ACV...",
       "viewFullFolderTitle": "View full folder with evidence",
-      "unionNotesPlaceholder": "Optional comment for audit trail..."
+      "unionNotesPlaceholder": "Optional comment for audit trail...",
+      "reopenSectionButton": "Reopen section",
+      "reopenSectionLoading": "Reopening..."
     },
     "templatesClientPage": {
       "publishTemplateTitle": "Publish template",
-      "deleteDraftTitle": "Delete draft"
+      "deleteDraftTitle": "Delete draft",
+      "copyDraftButton": "Copy draft",
+      "copyDraftLoading": "Copying...",
+      "deleteDraftButton": "Delete draft",
+      "deleteDraftLoading": "Deleting...",
+      "publishButton": "Publish",
+      "publishLoading": "Publishing..."
+    },
+    "rankingsClientPage": {
+      "searchButton": "Search",
+      "searchLoading": "Searching..."
     },
     "budgetConfigList": {
       "emptyTitle": "No budget configurations",
@@ -5069,6 +5094,14 @@
       "impactFoldersDescription": "Will be archived",
       "impactReportsLabel": "Reports",
       "impactReportsDescription": "Will be closed"
+    },
+    "client": {
+      "selectYearPlaceholder": "Select a year...",
+      "yearActiveBadge": "(active)",
+      "previewButton": "Preview",
+      "previewLoading": "Loading...",
+      "confirmCloseButton": "Confirm close",
+      "confirmCloseLoading": "Closing..."
     }
   },
   "inventory": {
@@ -5756,48 +5789,48 @@
   },
   "enrollments": {
     "table": {
-      "col_member": "Member",
-      "col_class": "Class",
+      "col_club": "Club",
+      "col_section": "Section",
+      "col_local_field": "Local Field",
       "col_status": "Status",
-      "col_enrollment_date": "Enrollment date",
       "col_submitted_at": "Submitted on",
+      "col_leadership": "Leadership",
       "col_actions": "Actions",
-      "empty": "No enrollments to display.",
+      "empty": "No annual enrollments to display.",
       "status": {
-        "IN_PROGRESS": "In progress",
-        "SUBMITTED_FOR_VALIDATION": "Pending validation",
-        "APPROVED": "Approved",
-        "REJECTED": "Rejected",
-        "INVESTIDO": "Invested"
+        "pending_validation": "Pending Local Field",
+        "active": "Approved",
+        "rejected": "Rejected",
+        "inactive": "Inactive"
       }
     },
     "actions": {
       "approve": "Approve",
       "reject": "Reject",
-      "view_user": "View user",
-      "reject_dialog_title": "Reject enrollment",
-      "reject_dialog_description": "This action will mark the enrollment as rejected. The member will not be able to continue the investiture process with this enrollment.",
+      "reject_dialog_title": "Reject annual enrollment",
+      "reject_dialog_description": "This action will mark the club annual enrollment as rejected. The club must correct the data and submit it again.",
       "reject_dialog_cancel": "Cancel",
       "reject_dialog_confirm": "Confirm rejection"
     },
     "toasts": {
-      "approved": "Enrollment approved successfully.",
-      "rejected": "Enrollment rejected successfully."
+      "approved": "Annual enrollment approved successfully.",
+      "rejected": "Annual enrollment rejected successfully."
     },
     "errors": {
       "generic": "An error occurred. Please try again."
     },
     "page": {
-      "title": "Enrollments",
-      "description": "Enrollments submitted for investiture validation. Approve or reject each request.",
-      "searchPlaceholder": "Search by name or email...",
-      "errorEmptyTitle": "Cannot display enrollments",
-      "emptyTitle": "No pending enrollments",
-      "emptyDescription": "There are no enrollments submitted for investiture validation at this time.",
-      "countSingular": "enrollment pending validation",
-      "countPlural": "enrollments pending validation"
+      "title": "Annual enrollments",
+      "description": "Club annual enrollments submitted for Local Field validation. Approve or reject each request.",
+      "searchPlaceholder": "Search by club, section, field, or owner...",
+      "errorEmptyTitle": "Cannot display annual enrollments",
+      "emptyTitle": "No pending annual enrollments",
+      "emptyDescription": "There are no club annual enrollments submitted for Local Field validation at this time.",
+      "countSingular": "annual enrollment pending",
+      "countPlural": "annual enrollments pending"
     }
   },
+
   "rankings": {
     "breakdown": {
       "compositeScore": "Institutional composite score",

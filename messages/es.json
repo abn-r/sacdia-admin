@@ -54,7 +54,7 @@
       "camporees_local": "Locales",
       "camporees_union": "Unión",
       "classes": "Clases",
-      "enrollments": "Inscripciones",
+      "enrollments": "Inscripciones anuales",
       "honors": "Especialidades",
       "achievements": "Logros",
       "activities": "Actividades",
@@ -4047,23 +4047,48 @@
     },
     "awardCategoryFormDialog": {
       "descriptionPlaceholder": "Descripción opcional de la categoría",
-      "maxPointsPlaceholder": "Sin límite"
+      "maxPointsPlaceholder": "Sin límite",
+      "saveButton": "Guardar cambios",
+      "createButton": "Crear categoría",
+      "savingLoading": "Guardando...",
+      "creatingLoading": "Creando..."
     },
     "folderClient": {
       "viewFileTitle": "Ver archivo",
-      "deleteEvidenceTitle": "Eliminar evidencia"
+      "deleteEvidenceTitle": "Eliminar evidencia",
+      "submitSectionButton": "Enviar sección",
+      "submitSectionLoading": "Enviando..."
     },
     "evidenceUploadDialog": {
-      "descriptionPlaceholder": "Descripción breve del archivo..."
+      "descriptionPlaceholder": "Descripción breve del archivo...",
+      "submitButton": "Subir evidencia",
+      "submitLoading": "Subiendo..."
+    },
+    "evaluateSectionDialog": {
+      "saveButton": "Guardar evaluación",
+      "saveLoading": "Guardando...",
+      "notesPlaceholder": "Observaciones..."
     },
     "evaluationClient": {
       "searchPlaceholder": "Ej. Club Betel, Conquistadores, ACV...",
       "viewFullFolderTitle": "Ver carpeta completa con evidencias",
-      "unionNotesPlaceholder": "Comentario opcional para auditoría..."
+      "unionNotesPlaceholder": "Comentario opcional para auditoría...",
+      "reopenSectionButton": "Reabrir sección",
+      "reopenSectionLoading": "Reabriendo..."
     },
     "templatesClientPage": {
       "publishTemplateTitle": "Publicar plantilla",
-      "deleteDraftTitle": "Eliminar borrador"
+      "deleteDraftTitle": "Eliminar borrador",
+      "copyDraftButton": "Copiar borrador",
+      "copyDraftLoading": "Copiando...",
+      "deleteDraftButton": "Eliminar borrador",
+      "deleteDraftLoading": "Eliminando...",
+      "publishButton": "Publicar",
+      "publishLoading": "Publicando..."
+    },
+    "rankingsClientPage": {
+      "searchButton": "Buscar",
+      "searchLoading": "Buscando..."
     },
     "budgetConfigList": {
       "emptyTitle": "Sin configuraciones de presupuesto",
@@ -5104,6 +5129,14 @@
       "impactFoldersDescription": "Se archivarán",
       "impactReportsLabel": "Reportes",
       "impactReportsDescription": "Se cerrarán"
+    },
+    "client": {
+      "selectYearPlaceholder": "Selecciona un año...",
+      "yearActiveBadge": "(activo)",
+      "previewButton": "Vista previa",
+      "previewLoading": "Cargando...",
+      "confirmCloseButton": "Confirmar cierre",
+      "confirmCloseLoading": "Cerrando..."
     }
   },
   "inventory": {
@@ -5791,48 +5824,48 @@
   },
   "enrollments": {
     "table": {
-      "col_member": "Miembro",
-      "col_class": "Clase",
+      "col_club": "Club",
+      "col_section": "Sección",
+      "col_local_field": "Campo Local",
       "col_status": "Estado",
-      "col_enrollment_date": "Fecha inscripción",
       "col_submitted_at": "Enviado el",
+      "col_leadership": "Directiva",
       "col_actions": "Acciones",
-      "empty": "No hay inscripciones para mostrar.",
+      "empty": "No hay inscripciones anuales para mostrar.",
       "status": {
-        "IN_PROGRESS": "En progreso",
-        "SUBMITTED_FOR_VALIDATION": "Pendiente validación",
-        "APPROVED": "Aprobado",
-        "REJECTED": "Rechazado",
-        "INVESTIDO": "Investido"
+        "pending_validation": "Pendiente Campo Local",
+        "active": "Aprobada",
+        "rejected": "Rechazada",
+        "inactive": "Inactiva"
       }
     },
     "actions": {
       "approve": "Aprobar",
       "reject": "Rechazar",
-      "view_user": "Ver usuario",
-      "reject_dialog_title": "Rechazar inscripción",
-      "reject_dialog_description": "Esta acción marcará la inscripción como rechazada. El miembro no podrá continuar con el proceso de investidura con esta inscripción.",
+      "reject_dialog_title": "Rechazar inscripción anual",
+      "reject_dialog_description": "Esta acción marcará la inscripción anual del club como rechazada. El club deberá corregir los datos y volver a enviarla.",
       "reject_dialog_cancel": "Cancelar",
       "reject_dialog_confirm": "Confirmar rechazo"
     },
     "toasts": {
-      "approved": "Inscripción aprobada correctamente.",
-      "rejected": "Inscripción rechazada correctamente."
+      "approved": "Inscripción anual aprobada correctamente.",
+      "rejected": "Inscripción anual rechazada correctamente."
     },
     "errors": {
       "generic": "Ocurrió un error. Intenta de nuevo."
     },
     "page": {
-      "title": "Inscripciones",
-      "description": "Inscripciones enviadas para validación de investidura. Aprueba o rechaza cada solicitud.",
-      "searchPlaceholder": "Buscar por nombre o email...",
-      "errorEmptyTitle": "No se pueden mostrar inscripciones",
-      "emptyTitle": "No hay inscripciones pendientes",
-      "emptyDescription": "No existen inscripciones enviadas para validación de investidura en este momento.",
-      "countSingular": "inscripción pendiente de validación",
-      "countPlural": "inscripciones pendientes de validación"
+      "title": "Inscripciones anuales",
+      "description": "Inscripciones anuales de clubes enviadas para validación de Campo Local. Aprueba o rechaza cada solicitud.",
+      "searchPlaceholder": "Buscar por club, sección, campo o responsable...",
+      "errorEmptyTitle": "No se pueden mostrar inscripciones anuales",
+      "emptyTitle": "No hay inscripciones anuales pendientes",
+      "emptyDescription": "No existen inscripciones anuales de clubes enviadas para validación de Campo Local en este momento.",
+      "countSingular": "inscripción anual pendiente",
+      "countPlural": "inscripciones anuales pendientes"
     }
   },
+
   "rankings": {
     "breakdown": {
       "compositeScore": "Puntaje compuesto institucional",

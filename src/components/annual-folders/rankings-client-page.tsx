@@ -377,7 +377,7 @@ export function RankingsClientPage({
           className="h-9"
         >
           <Search className="size-4" />
-          {isLoading ? "Buscando..." : "Buscar"}
+          {isLoading ? t("rankingsClientPage.searchLoading") : t("rankingsClientPage.searchButton")}
         </Button>
 
         <div className="flex-1" />

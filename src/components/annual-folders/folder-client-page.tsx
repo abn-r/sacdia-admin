@@ -160,7 +160,7 @@ function SectionRow({
                 }
               >
                 <Send className="size-3.5" />
-                {isSubmitting ? "Enviando..." : "Enviar sección"}
+                {isSubmitting ? t("submitSectionLoading") : t("submitSectionButton")}
               </Button>
             )}
           </div>

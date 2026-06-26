@@ -4077,22 +4077,47 @@ export interface IntlMessages {
     awardCategoryFormDialog: {
       descriptionPlaceholder: string;
       maxPointsPlaceholder: string;
+      saveButton: string;
+      createButton: string;
+      savingLoading: string;
+      creatingLoading: string;
     };
     folderClient: {
       viewFileTitle: string;
       deleteEvidenceTitle: string;
+      submitSectionButton: string;
+      submitSectionLoading: string;
     };
     evidenceUploadDialog: {
       descriptionPlaceholder: string;
+      submitButton: string;
+      submitLoading: string;
+    };
+    evaluateSectionDialog: {
+      saveButton: string;
+      saveLoading: string;
+      notesPlaceholder: string;
     };
     evaluationClient: {
       searchPlaceholder: string;
       viewFullFolderTitle: string;
       unionNotesPlaceholder: string;
+      reopenSectionButton: string;
+      reopenSectionLoading: string;
     };
     templatesClientPage: {
       publishTemplateTitle: string;
       deleteDraftTitle: string;
+      copyDraftButton: string;
+      copyDraftLoading: string;
+      deleteDraftButton: string;
+      deleteDraftLoading: string;
+      publishButton: string;
+      publishLoading: string;
+    };
+    rankingsClientPage: {
+      searchButton: string;
+      searchLoading: string;
     };
     budgetConfigList: {
       emptyTitle: string;
@@ -5134,6 +5159,14 @@ export interface IntlMessages {
       impactReportsLabel: string;
       impactReportsDescription: string;
     };
+    client: {
+      selectYearPlaceholder: string;
+      yearActiveBadge: string;
+      previewButton: string;
+      previewLoading: string;
+      confirmCloseButton: string;
+      confirmCloseLoading: string;
+    };
   };
   inventory: {
     toasts: {
@@ -5820,25 +5853,24 @@ export interface IntlMessages {
   };
   enrollments: {
     table: {
-      col_member: string;
-      col_class: string;
+      col_club: string;
+      col_section: string;
+      col_local_field: string;
       col_status: string;
-      col_enrollment_date: string;
       col_submitted_at: string;
+      col_leadership: string;
       col_actions: string;
       empty: string;
       status: {
-        IN_PROGRESS: string;
-        SUBMITTED_FOR_VALIDATION: string;
-        APPROVED: string;
-        REJECTED: string;
-        INVESTIDO: string;
+        pending_validation: string;
+        active: string;
+        rejected: string;
+        inactive: string;
       };
     };
     actions: {
       approve: string;
       reject: string;
-      view_user: string;
       reject_dialog_title: string;
       reject_dialog_description: string;
       reject_dialog_cancel: string;

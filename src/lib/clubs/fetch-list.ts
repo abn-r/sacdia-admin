@@ -58,21 +58,17 @@ export function getClubChurchName(club: ClubListItem): string | null {
   return club.church?.name ?? club.churches?.name ?? null;
 }
 
-function filterItemsBySearch(items: ClubListItem[], search?: string) {
-  const needle = search?.trim().toLowerCase();
-  if (!needle) return items;
-  return items.filter((club) => {
-    const haystack = [
-      club.name,
-      getClubLocalFieldName(club),
-      getClubDistrictName(club),
-      getClubChurchName(club),
-    ]
-      .filter(Boolean)
-      .join(" ")
-      .toLowerCase();
-    return haystack.includes(needle);
+export function buildClubsListParams(query: ClubsListQuery): URLSearchParams {
+  const params = new URLSearchParams({
+    page: String(query.page),
+    limit: String(query.limit),
   });
+  const search = query.search?.trim();
+  if (search) params.set("search", search);
+  if (query.active === true) params.set("active", "true");
+  if (query.active === false) params.set("active", "false");
+  if (query.localFieldId) params.set("localFieldId", String(query.localFieldId));
+  return params;
 }
 
 export async function fetchClubsList(query: ClubsListQuery): Promise<ClubsListResult> {
@@ -84,18 +80,10 @@ export async function fetchClubsList(query: ClubsListQuery): Promise<ClubsListRe
   };
 
   try {
-    const params = new URLSearchParams({
-      page: String(query.page),
-      limit: String(query.limit),
-    });
-    if (query.active === true) params.set("active", "true");
-    if (query.active === false) params.set("active", "false");
-    if (query.localFieldId) params.set("localFieldId", String(query.localFieldId));
-
+    const params = buildClubsListParams(query);
     const payload = await apiRequest<unknown>(`/clubs?${params.toString()}`);
-    let items = extractItems(payload) as ClubListItem[];
+    const items = extractItems(payload) as ClubListItem[];
     const meta = extractMeta(payload, query.page, query.limit, items.length);
-    items = filterItemsBySearch(items, query.search);
 
     return { items, meta, available: true };
   } catch (error) {
