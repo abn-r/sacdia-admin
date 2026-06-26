@@ -240,21 +240,21 @@ export function YearEndClientPage({ ecclesiasticalYears }: YearEndClientPageProp
             <div className="grid gap-3 sm:grid-cols-3">
               <ImpactCard
                 icon={Users}
-                label="Inscripciones"
+                label={t("preview.impactEnrollmentsLabel")}
                 count={preview.enrollments_count}
-                description="Se marcarán como cerradas"
+                description={t("preview.impactEnrollmentsDescription")}
               />
               <ImpactCard
                 icon={FolderOpen}
-                label="Carpetas"
+                label={t("preview.impactFoldersLabel")}
                 count={preview.folders_count}
-                description="Se archivarán"
+                description={t("preview.impactFoldersDescription")}
               />
               <ImpactCard
                 icon={FileText}
-                label="Reportes"
+                label={t("preview.impactReportsLabel")}
                 count={preview.reports_count}
-                description="Se cerrarán"
+                description={t("preview.impactReportsDescription")}
               />
             </div>
 

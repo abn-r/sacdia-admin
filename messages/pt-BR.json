@@ -4810,6 +4810,14 @@
       "empty_no_years_title": "Sem anos eclesiásticos",
       "empty_no_years_description": "Nenhum ano eclesiástico está cadastrado no sistema.",
       "error_load_years": "Não foi possível carregar os anos eclesiásticos."
+    },
+    "preview": {
+      "impactEnrollmentsLabel": "Inscrições",
+      "impactEnrollmentsDescription": "Serão marcadas como encerradas",
+      "impactFoldersLabel": "Pastas",
+      "impactFoldersDescription": "Serão arquivadas",
+      "impactReportsLabel": "Relatórios",
+      "impactReportsDescription": "Serão encerrados"
     }
   },
   "inventory": {
@@ -4950,6 +4958,9 @@
       "removeMember": "Remover {name} da unidade",
       "editUnit": "Editar unidade {name}",
       "deleteUnit": "Desativar unidade {name}"
+    },
+    "weeklyRecords": {
+      "maxPointsTitle": "Máx. {max} pts"
     }
   },
   "system_config": {

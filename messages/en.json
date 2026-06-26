@@ -4944,6 +4944,14 @@
       "empty_no_years_title": "No ecclesiastical years",
       "empty_no_years_description": "No ecclesiastical years are registered in the system.",
       "error_load_years": "Could not load the ecclesiastical years."
+    },
+    "preview": {
+      "impactEnrollmentsLabel": "Enrollments",
+      "impactEnrollmentsDescription": "Will be marked as closed",
+      "impactFoldersLabel": "Folders",
+      "impactFoldersDescription": "Will be archived",
+      "impactReportsLabel": "Reports",
+      "impactReportsDescription": "Will be closed"
     }
   },
   "inventory": {
@@ -5084,6 +5092,9 @@
       "removeMember": "Remove {name} from unit",
       "editUnit": "Edit unit {name}",
       "deleteUnit": "Deactivate unit {name}"
+    },
+    "weeklyRecords": {
+      "maxPointsTitle": "Max. {max} pts"
     }
   },
   "system_config": {

@@ -5090,6 +5090,14 @@ export interface IntlMessages {
       empty_no_years_description: string;
       error_load_years: string;
     };
+    preview: {
+      impactEnrollmentsLabel: string;
+      impactEnrollmentsDescription: string;
+      impactFoldersLabel: string;
+      impactFoldersDescription: string;
+      impactReportsLabel: string;
+      impactReportsDescription: string;
+    };
   };
   inventory: {
     toasts: {
@@ -5229,6 +5237,9 @@ export interface IntlMessages {
       removeMember: string;
       editUnit: string;
       deleteUnit: string;
+    };
+    weeklyRecords: {
+      maxPointsTitle: string;
     };
   };
   system_config: {
