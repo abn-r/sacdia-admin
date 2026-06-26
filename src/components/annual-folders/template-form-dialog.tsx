@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
@@ -35,9 +35,12 @@ import {
 } from "@/components/ui/form";
 import { createTemplate, updateTemplate } from "@/lib/api/annual-folders";
 import type { FolderTemplate } from "@/lib/api/annual-folders";
+import type { AnnualRankingConfig } from "@/lib/api/annual-rankings";
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
 import { listUnions, listLocalFields } from "@/lib/api/geography";
 import type { Union, LocalField } from "@/lib/api/geography";
+import type { AdminTerritoryScope } from "@/lib/auth/territory-scope";
+import { resolveAnnualFolderMaxPointsForTemplateScope } from "@/lib/annual-folders/ranking-budget";
 
 // ─── Schema factory ───────────────────────────────────────────────────────────
 
@@ -94,6 +97,10 @@ interface TemplateFormDialogProps {
   onOpenChange: (open: boolean) => void;
   clubTypes: ClubType[];
   ecclesiasticalYears: EcclesiasticalYear[];
+  unions?: Union[];
+  localFields?: LocalField[];
+  rankingConfigs?: AnnualRankingConfig[];
+  territoryScope?: AdminTerritoryScope;
   /** When provided the dialog operates in edit mode. */
   template?: FolderTemplate | null;
   onSuccess: () => void;
@@ -114,6 +121,10 @@ export function TemplateFormDialog({
   onOpenChange,
   clubTypes,
   ecclesiasticalYears,
+  unions: scopedUnions,
+  localFields: scopedLocalFields,
+  rankingConfigs = [],
+  territoryScope,
   template,
   onSuccess,
 }: TemplateFormDialogProps) {
@@ -128,6 +139,16 @@ export function TemplateFormDialog({
   const [localFields, setLocalFields] = useState<LocalField[]>([]);
   const [loadingOwnerCatalogs, setLoadingOwnerCatalogs] = useState(false);
 
+  const resolveDefaultOwnerTier = useCallback(() => {
+    if (territoryScope?.level === "union") {
+      return "union" as const;
+    }
+    if (territoryScope?.level === "local_field") {
+      return "local_field" as const;
+    }
+    return deriveOwnerTier(template);
+  }, [template, territoryScope]);
+
   const defaultValues: FormValues = {
     name: template?.name ?? "",
     club_type_id: template?.club_type_id ?? (clubTypes[0]?.club_type_id ?? 0),
@@ -140,9 +161,17 @@ export function TemplateFormDialog({
     closing_date: template?.closing_date
       ? template.closing_date.slice(0, 16)
       : "",
-    owner_tier: deriveOwnerTier(template),
-    owner_union_id: template?.owner_union_id ?? null,
-    owner_local_field_id: template?.owner_local_field_id ?? null,
+    owner_tier: resolveDefaultOwnerTier(),
+    owner_union_id:
+      territoryScope?.level === "union"
+        ? territoryScope.unionId
+        : territoryScope?.level === "local_field"
+          ? null
+        : template?.owner_union_id ?? null,
+    owner_local_field_id:
+      territoryScope?.level === "local_field"
+        ? territoryScope.localFieldId
+        : template?.owner_local_field_id ?? null,
   };
 
   const form = useForm<FormValues>({
@@ -152,19 +181,78 @@ export function TemplateFormDialog({
 
   // ownerTier drives conditional rendering — single watch is justified
   const ownerTier = form.watch("owner_tier");
+  const selectedClubTypeId = form.watch("club_type_id");
+  const selectedYearId = form.watch("ecclesiastical_year_id");
+  const selectedOwnerUnionId = form.watch("owner_union_id");
+  const selectedOwnerLocalFieldId = form.watch("owner_local_field_id");
+  const isUnionScope = territoryScope?.level === "union";
+  const isLocalFieldScope = territoryScope?.level === "local_field";
+  const canChooseOwnerTier = !isUnionScope && !isLocalFieldScope;
+  const ownerLocalFieldOptions =
+    isLocalFieldScope && territoryScope
+      ? [
+          {
+            local_field_id: territoryScope.localFieldId,
+            name: territoryScope.localFieldName ?? `Campo local #${territoryScope.localFieldId}`,
+            union_id: territoryScope.unionId ?? 0,
+          },
+        ]
+      : localFields;
+  const ownerUnionOptions =
+    isUnionScope && territoryScope
+      ? [
+          {
+            union_id: territoryScope.unionId,
+            name: territoryScope.unionName ?? `Unión #${territoryScope.unionId}`,
+            country_id: 0,
+            division_id: territoryScope.divisionId ?? undefined,
+          },
+        ]
+      : unions;
+  const effectiveOwnerUnionId =
+    ownerTier === "union" && canChooseOwnerTier
+      ? selectedOwnerUnionId
+      : isUnionScope
+        ? territoryScope.unionId
+        : null;
+  const effectiveOwnerLocalFieldId =
+    ownerTier === "local_field" || !canChooseOwnerTier
+      ? isLocalFieldScope
+        ? territoryScope.localFieldId
+        : selectedOwnerLocalFieldId
+      : null;
+  const requiredRankingPoints = resolveAnnualFolderMaxPointsForTemplateScope(
+    {
+      owner_union_id: effectiveOwnerUnionId,
+      owner_local_field_id: effectiveOwnerLocalFieldId,
+      ecclesiastical_year_id: selectedYearId,
+      club_type_id: selectedClubTypeId,
+    },
+    rankingConfigs,
+    ownerLocalFieldOptions.length > 0 ? ownerLocalFieldOptions : localFields,
+  );
+  const ownerSelectionComplete =
+    selectedClubTypeId > 0 &&
+    selectedYearId > 0 &&
+    (ownerTier === "union"
+      ? Boolean(effectiveOwnerUnionId)
+      : Boolean(effectiveOwnerLocalFieldId));
 
   // Load owner catalogs when dialog opens
   useEffect(() => {
     if (!open) return;
     setLoadingOwnerCatalogs(true);
-    Promise.all([listUnions(), listLocalFields()])
+    Promise.all([
+      scopedUnions ? Promise.resolve(scopedUnions) : listUnions(),
+      scopedLocalFields ? Promise.resolve(scopedLocalFields) : listLocalFields(),
+    ])
       .then(([fetchedUnions, fetchedLocalFields]) => {
         setUnions(Array.isArray(fetchedUnions) ? fetchedUnions : []);
         setLocalFields(Array.isArray(fetchedLocalFields) ? fetchedLocalFields : []);
       })
       .catch(() => toast.error(t("toasts.owner_catalogs_load_failed")))
       .finally(() => setLoadingOwnerCatalogs(false));
-  }, [open, t]);
+  }, [open, scopedUnions, scopedLocalFields, t]);
 
   // Reset form when dialog opens or template changes
   useEffect(() => {
@@ -181,27 +269,54 @@ export function TemplateFormDialog({
         closing_date: template?.closing_date
           ? template.closing_date.slice(0, 16)
           : "",
-        owner_tier: deriveOwnerTier(template),
-        owner_union_id: template?.owner_union_id ?? null,
-        owner_local_field_id: template?.owner_local_field_id ?? null,
+            owner_tier: resolveDefaultOwnerTier(),
+        owner_union_id:
+          territoryScope?.level === "union"
+            ? territoryScope.unionId
+            : territoryScope?.level === "local_field"
+              ? null
+            : template?.owner_union_id ?? null,
+        owner_local_field_id:
+          territoryScope?.level === "local_field"
+            ? territoryScope.localFieldId
+            : template?.owner_local_field_id ?? null,
       });
     }
-  }, [open, template, clubTypes, ecclesiasticalYears, form]);
+  }, [open, template, clubTypes, ecclesiasticalYears, form, territoryScope, resolveDefaultOwnerTier]);
 
   const onSubmit: SubmitHandler<FormValues> = async (values) => {
     setIsSubmitting(true);
     try {
+      const resolvedOwnerTier =
+        territoryScope?.level === "union"
+          ? "union"
+          : territoryScope?.level === "local_field"
+            ? "local_field"
+          : values.owner_tier;
+      const resolvedOwnerUnionId =
+        territoryScope?.level === "union"
+          ? territoryScope.unionId
+          : territoryScope?.level === "local_field"
+            ? null
+          : values.owner_union_id ?? null;
+      const resolvedOwnerLocalFieldId =
+        territoryScope?.level === "local_field"
+          ? territoryScope.localFieldId
+          : values.owner_local_field_id ?? null;
       const ownerFields =
-        values.owner_tier === "union"
-          ? { owner_union_id: values.owner_union_id ?? null, owner_local_field_id: null }
-          : { owner_union_id: null, owner_local_field_id: values.owner_local_field_id ?? null };
+        resolvedOwnerTier === "union"
+          ? { owner_union_id: resolvedOwnerUnionId, owner_local_field_id: null }
+          : { owner_union_id: null, owner_local_field_id: resolvedOwnerLocalFieldId };
 
       const payload = {
         name: values.name,
         club_type_id: values.club_type_id,
         ecclesiastical_year_id: values.ecclesiastical_year_id,
-        minimum_points: values.minimum_points,
+        // Canonical scoring comes from annual_ranking_configs. Keep the legacy
+        // field stable for API compatibility, but do not expose it in the UI.
+        minimum_points: template?.minimum_points ?? 0,
         closing_date: values.closing_date ? values.closing_date : null,
+        active: false,
         ...ownerFields,
       };
 
@@ -233,8 +348,8 @@ export function TemplateFormDialog({
           </DialogTitle>
           <DialogDescription>
             {isEdit
-              ? "Modificá los datos de la plantilla de carpeta anual."
-              : "Completá el formulario para crear una nueva plantilla de carpeta anual."}
+              ? t("templateDialog.descriptionEdit")
+              : t("templateDialog.descriptionDraft")}
           </DialogDescription>
         </DialogHeader>
 
@@ -360,32 +475,40 @@ export function TemplateFormDialog({
                     <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
                   </FormLabel>
                   <FormControl>
-                    <RadioGroup
-                      value={field.value}
-                      onValueChange={(val) => {
-                        field.onChange(val);
-                        // Clear the other tier selection to avoid stale values
-                        if (val === "union") {
-                          form.setValue("owner_local_field_id", null);
-                        } else {
-                          form.setValue("owner_union_id", null);
-                        }
-                      }}
-                      className="flex gap-6"
-                    >
-                      <div className="flex items-center gap-2">
-                        <RadioGroupItem value="union" id="owner-tier-union" />
-                        <FormLabel htmlFor="owner-tier-union" className="cursor-pointer font-normal">
-                          {t("templateDialog.fieldOwnerTierUnion")}
-                        </FormLabel>
+                    {canChooseOwnerTier ? (
+                      <RadioGroup
+                        value={field.value}
+                        onValueChange={(val) => {
+                          field.onChange(val);
+                          // Clear the other tier selection to avoid stale values
+                          if (val === "union") {
+                            form.setValue("owner_local_field_id", null);
+                          } else {
+                            form.setValue("owner_union_id", null);
+                          }
+                        }}
+                        className="flex gap-6"
+                      >
+                        <div className="flex items-center gap-2">
+                          <RadioGroupItem value="union" id="owner-tier-union" />
+                          <FormLabel htmlFor="owner-tier-union" className="cursor-pointer font-normal">
+                            {t("templateDialog.fieldOwnerTierUnion")}
+                          </FormLabel>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <RadioGroupItem value="local_field" id="owner-tier-local-field" />
+                          <FormLabel htmlFor="owner-tier-local-field" className="cursor-pointer font-normal">
+                            {t("templateDialog.fieldOwnerTierLocalField")}
+                          </FormLabel>
+                        </div>
+                      </RadioGroup>
+                    ) : (
+                      <div className="rounded-md border bg-muted/30 px-3 py-2 text-sm text-muted-foreground">
+                        {isUnionScope
+                          ? "Tu alcance fija la unión como dueña de esta plantilla."
+                          : "Tu alcance fija el campo local como dueño de esta plantilla."}
                       </div>
-                      <div className="flex items-center gap-2">
-                        <RadioGroupItem value="local_field" id="owner-tier-local-field" />
-                        <FormLabel htmlFor="owner-tier-local-field" className="cursor-pointer font-normal">
-                          {t("templateDialog.fieldOwnerTierLocalField")}
-                        </FormLabel>
-                      </div>
-                    </RadioGroup>
+                    )}
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -405,7 +528,7 @@ export function TemplateFormDialog({
                     </FormLabel>
                     <FormControl>
                       <Select
-                        disabled={loadingOwnerCatalogs}
+                        disabled={loadingOwnerCatalogs || isUnionScope}
                         value={field.value ? String(field.value) : ""}
                         onValueChange={(val) =>
                           field.onChange(Number(val))
@@ -421,8 +544,8 @@ export function TemplateFormDialog({
                           />
                         </SelectTrigger>
                         <SelectContent>
-                          {unions.length > 0 ? (
-                            unions.map((u) => (
+                          {ownerUnionOptions.length > 0 ? (
+                            ownerUnionOptions.map((u) => (
                               <SelectItem key={u.union_id} value={String(u.union_id)}>
                                 {u.name}
                               </SelectItem>
@@ -453,7 +576,7 @@ export function TemplateFormDialog({
                     </FormLabel>
                     <FormControl>
                       <Select
-                        disabled={loadingOwnerCatalogs}
+                        disabled={loadingOwnerCatalogs || isLocalFieldScope}
                         value={field.value ? String(field.value) : ""}
                         onValueChange={(val) =>
                           field.onChange(Number(val))
@@ -469,8 +592,8 @@ export function TemplateFormDialog({
                           />
                         </SelectTrigger>
                         <SelectContent>
-                          {localFields.length > 0 ? (
-                            localFields.map((lf) => (
+                          {ownerLocalFieldOptions.length > 0 ? (
+                            ownerLocalFieldOptions.map((lf) => (
                               <SelectItem
                                 key={lf.local_field_id}
                                 value={String(lf.local_field_id)}
@@ -494,27 +617,23 @@ export function TemplateFormDialog({
               />
             )}
 
-            {/* Puntos mínimos / Fecha de cierre */}
-            <div className="grid grid-cols-2 gap-3">
-              <FormField
-                control={form.control}
-                name="minimum_points"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("templateDialog.fieldMinPoints")}</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        type="number"
-                        min={0}
-                        placeholder="0"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <div className="rounded-lg border border-border bg-muted/20 p-3">
+              <p className="text-sm font-medium">
+                {t("templateDialog.budgetTitle")}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {ownerSelectionComplete
+                  ? requiredRankingPoints == null
+                    ? t("templateDialog.budgetMissing")
+                    : t("templateDialog.budgetResolved", {
+                        points: requiredRankingPoints.toLocaleString(),
+                      })
+                  : t("templateDialog.budgetPending")}
+              </p>
+            </div>
 
+            {/* Fecha de cierre */}
+            <div className="grid gap-3 sm:grid-cols-2">
               <FormField
                 control={form.control}
                 name="closing_date"
@@ -544,12 +663,8 @@ export function TemplateFormDialog({
               </Button>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting
-                  ? isEdit
-                    ? t("templateDialog.submittingEdit")
-                    : t("templateDialog.submittingCreate")
-                  : isEdit
-                  ? t("templateDialog.submitEdit")
-                  : t("templateDialog.submitCreate")}
+                  ? t("templateDialog.submittingDraft")
+                  : t("templateDialog.submitDraft")}
               </Button>
             </DialogFooter>
           </form>

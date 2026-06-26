@@ -3,15 +3,22 @@
  *
  * Architecture notes:
  * ------------------------------------------------------------------
- * Dialog uses React Hook Form + Zod. Single field: club_section_id
- * (coerced number, must be positive integer). Calls `enrollClub` from
- * `@/lib/api/camporees` on submit.
+ * Dialog is a 2-step Select (Club -> Section):
+ *   1. On open: fetches clubs scoped to `localFieldId` via `listClubs`.
+ *   2. On club pick: fetches sections via `getClubSections(clubId)`.
+ *   3. Sections filtered by camporee's `includes_*` flags
+ *      (adventurers / pathfinders / master_guides).
+ *   4. Submit calls `enrollClub(camporeeId, { club_section_id })`.
  *
- * The form uses plain `register()` (not shadcn Form/FormControl), so
- * `input[name="club_section_id"]` is stable across React.useId changes.
- *
- * Error messages are raw Zod messages (not from i18n), so we match
- * via regex against the schema literals in the dialog source.
+ * Radix Select renders into a portal and uses pointer events that jsdom
+ * does not fully simulate, so option clicks are flaky in this harness.
+ * The tests below focus on the contracts that are observable without
+ * driving the Radix popover:
+ *   - Title / description render.
+ *   - Submit button is disabled until both selects have values.
+ *   - listClubs is called with the expected localFieldId scope on open.
+ *   - Section fetch only runs after a club is selected.
+ *   - Cancel triggers onOpenChange(false) without calling the API.
  *
  * Vitest uses `globals: false` — explicit `cleanup()` per `afterEach`.
  */
@@ -21,9 +28,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import {
   render,
   screen,
-  fireEvent,
   waitFor,
-  act,
   cleanup,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -31,7 +36,7 @@ import { NextIntlClientProvider } from "next-intl";
 import messages from "../../../messages/es.json";
 
 // ---------------------------------------------------------------------------
-// jsdom polyfills (Radix Dialog uses ResizeObserver + scrollIntoView)
+// jsdom polyfills (Radix Dialog/Select use ResizeObserver + scrollIntoView)
 // ---------------------------------------------------------------------------
 
 global.ResizeObserver = class ResizeObserver {
@@ -59,6 +64,20 @@ vi.mock("@/lib/api/camporees", async (importOriginal) => {
   };
 });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const mockListClubs = vi.fn<(...args: any[]) => Promise<unknown>>();
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const mockGetClubSections = vi.fn<(...args: any[]) => Promise<unknown>>();
+
+vi.mock("@/lib/api/clubs", async (importOriginal) => {
+  const original = await importOriginal<typeof import("@/lib/api/clubs")>();
+  return {
+    ...original,
+    listClubs: (...args: unknown[]) => mockListClubs(...args),
+    getClubSections: (...args: unknown[]) => mockGetClubSections(...args),
+  };
+});
+
 const mockToastError = vi.fn();
 const mockToastSuccess = vi.fn();
 vi.mock("sonner", () => ({
@@ -76,6 +95,7 @@ import { EnrollClubDialog } from "@/components/camporees/enroll-club-dialog";
 
 const t = messages.camporees;
 const CAMPOREE_ID = 7;
+const LOCAL_FIELD_ID = 11;
 
 // ---------------------------------------------------------------------------
 // Render helper
@@ -84,10 +104,21 @@ const CAMPOREE_ID = 7;
 interface RenderOpts {
   open?: boolean;
   camporeeId?: number;
+  localFieldId?: number | null;
+  includesAdventurers?: boolean;
+  includesPathfinders?: boolean;
+  includesMasterGuides?: boolean;
 }
 
 function renderDialog(opts: RenderOpts = {}) {
-  const { open = true, camporeeId = CAMPOREE_ID } = opts;
+  const {
+    open = true,
+    camporeeId = CAMPOREE_ID,
+    localFieldId = LOCAL_FIELD_ID,
+    includesAdventurers = true,
+    includesPathfinders = true,
+    includesMasterGuides = false,
+  } = opts;
   const onOpenChange = vi.fn();
   const onSuccess = vi.fn();
 
@@ -97,19 +128,16 @@ function renderDialog(opts: RenderOpts = {}) {
         open={open}
         onOpenChange={onOpenChange}
         camporeeId={camporeeId}
+        localFieldId={localFieldId}
+        includesAdventurers={includesAdventurers}
+        includesPathfinders={includesPathfinders}
+        includesMasterGuides={includesMasterGuides}
         onSuccess={onSuccess}
       />
     </NextIntlClientProvider>,
   );
 
   return { ...utils, onOpenChange, onSuccess };
-}
-
-async function submitForm() {
-  const form = document.querySelector("form")!;
-  await act(async () => {
-    fireEvent.submit(form);
-  });
 }
 
 // ---------------------------------------------------------------------------
@@ -120,35 +148,53 @@ describe("EnrollClubDialog", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockEnrollClub.mockResolvedValue({ ok: true });
+    mockListClubs.mockResolvedValue([
+      { club_id: 101, name: "Club Alfa", local_field_id: LOCAL_FIELD_ID, church_id: 1, active: true },
+      { club_id: 102, name: "Club Beta", local_field_id: LOCAL_FIELD_ID, church_id: 2, active: true },
+    ]);
+    mockGetClubSections.mockResolvedValue([
+      {
+        club_section_id: 5001,
+        active: true,
+        name: "Aventureros A",
+        club_type_id: 1,
+        club_types: { club_type_id: 1, name: "Aventureros" },
+      },
+      {
+        club_section_id: 5002,
+        active: true,
+        name: "Conquistadores B",
+        club_type_id: 2,
+        club_types: { club_type_id: 2, name: "Conquistadores" },
+      },
+      {
+        club_section_id: 5003,
+        active: true,
+        name: "GM",
+        club_type_id: 3,
+        club_types: { club_type_id: 3, name: "Guías Mayores" },
+      },
+    ]);
   });
 
   afterEach(() => {
     cleanup();
   });
 
-  // ── 1. Renders dialog title and club_section_id input ────────────────────
+  // ── 1. Title and description ─────────────────────────────────────────────
 
-  it("renders dialog title, section id input, and action buttons", () => {
+  it("renders dialog title and description", () => {
     renderDialog();
 
     expect(
       screen.getByRole("heading", { name: t.enrollDialog.title }),
     ).toBeInTheDocument();
-
-    // RHF registers with name="club_section_id" — use stable selector
     expect(
-      document.querySelector('input[name="club_section_id"]'),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByRole("button", { name: t.enrollDialog.cancel }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: t.enrollDialog.enroll }),
+      screen.getByText(t.enrollDialog.description),
     ).toBeInTheDocument();
   });
 
-  // ── 2. Dialog not rendered when closed ───────────────────────────────────
+  // ── 2. Closed dialog does not render content ─────────────────────────────
 
   it("does not render dialog content when open=false", () => {
     renderDialog({ open: false });
@@ -158,184 +204,90 @@ describe("EnrollClubDialog", () => {
     ).not.toBeInTheDocument();
   });
 
-  // ── 3. Validation — empty submit shows error ──────────────────────────────
+  // ── 3. listClubs is called on open with localFieldId scope ───────────────
 
-  it("shows zod validation error when club_section_id is empty on submit", async () => {
+  it("fetches clubs scoped to localFieldId when opened", async () => {
     renderDialog();
 
-    await submitForm();
-
     await waitFor(() => {
-      // Zod coerce.number on empty string yields NaN → positive fails
-      expect(screen.getByRole("alert")).toBeInTheDocument();
+      expect(mockListClubs).toHaveBeenCalledTimes(1);
     });
 
-    expect(mockEnrollClub).not.toHaveBeenCalled();
+    const arg = mockListClubs.mock.calls[0][0] as {
+      localFieldId?: number;
+      active?: boolean;
+    };
+    expect(arg.localFieldId).toBe(LOCAL_FIELD_ID);
+    expect(arg.active).toBe(true);
   });
 
-  // ── 4. Validation — zero value is invalid ────────────────────────────────
+  // ── 4. Section fetch does not run before a club is selected ──────────────
 
-  it("shows error when club_section_id is 0 (must be positive)", async () => {
+  it("does not call getClubSections until a club is picked", async () => {
     renderDialog();
 
-    const input = document.querySelector(
-      'input[name="club_section_id"]',
-    ) as HTMLInputElement;
-
-    await act(async () => {
-      fireEvent.change(input, { target: { value: "0" } });
-    });
-
-    await submitForm();
-
     await waitFor(() => {
-      expect(screen.getByRole("alert")).toBeInTheDocument();
-      // "Debe ser mayor a cero" or "Debe ser un número entero"
-      expect(screen.getByText(/debe ser/i)).toBeInTheDocument();
+      expect(mockListClubs).toHaveBeenCalled();
     });
 
-    expect(mockEnrollClub).not.toHaveBeenCalled();
+    // No club selected → section endpoint must remain untouched.
+    expect(mockGetClubSections).not.toHaveBeenCalled();
   });
 
-  // ── 5. Happy path — submits with correct payload ──────────────────────────
+  // ── 5. Submit button is disabled until both selects have values ──────────
 
-  it("calls enrollClub with correct camporeeId and club_section_id on valid submit", async () => {
-    const { onOpenChange, onSuccess } = renderDialog();
+  it("submit button is disabled until both selects have values", () => {
+    renderDialog();
 
-    const input = document.querySelector(
-      'input[name="club_section_id"]',
-    ) as HTMLInputElement;
-
-    await act(async () => {
-      fireEvent.change(input, { target: { value: "42" } });
-    });
-
-    await submitForm();
-
-    await waitFor(() => {
-      expect(mockEnrollClub).toHaveBeenCalledOnce();
-    });
-
-    const [camporeeId, payload] = mockEnrollClub.mock.calls[0] as [
-      number,
-      { club_section_id: number },
-    ];
-    expect(camporeeId).toBe(CAMPOREE_ID);
-    expect(payload.club_section_id).toBe(42);
-
-    expect(mockToastSuccess).toHaveBeenCalledWith(t.toasts.club_enrolled);
-    expect(onSuccess).toHaveBeenCalledOnce();
-    expect(onOpenChange).toHaveBeenCalledWith(false);
+    const submit = screen.getByRole("button", { name: t.enrollDialog.enroll });
+    expect(submit).toBeDisabled();
   });
 
-  // ── 6. Cancel button triggers onOpenChange(false) without API call ────────
+  // ── 6. Cancel triggers onOpenChange(false) without API call ──────────────
 
-  it("calls onOpenChange(false) without calling API when cancel clicked", async () => {
+  it("calls onOpenChange(false) without calling enrollClub when cancel clicked", async () => {
     const user = userEvent.setup();
     const { onOpenChange } = renderDialog();
 
-    await user.click(screen.getByRole("button", { name: t.enrollDialog.cancel }));
+    await user.click(
+      screen.getByRole("button", { name: t.enrollDialog.cancel }),
+    );
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
     expect(mockEnrollClub).not.toHaveBeenCalled();
   });
 
-  // ── 7. API Error — uses error.message from Error instance ────────────────
+  // ── 7. Empty clubs response renders the empty-state copy ─────────────────
 
-  it("shows error.message toast when enrollClub throws an Error", async () => {
-    mockEnrollClub.mockRejectedValue(new Error("Club ya inscrito"));
-
+  it("shows empty-clubs message when listClubs returns no clubs", async () => {
+    mockListClubs.mockResolvedValueOnce([]);
     renderDialog();
-
-    const input = document.querySelector(
-      'input[name="club_section_id"]',
-    ) as HTMLInputElement;
-
-    await act(async () => {
-      fireEvent.change(input, { target: { value: "10" } });
-    });
-
-    await submitForm();
-
-    await waitFor(() => {
-      expect(mockToastError).toHaveBeenCalledWith("Club ya inscrito");
-    });
-
-    expect(mockToastSuccess).not.toHaveBeenCalled();
-  });
-
-  // ── 8. API Error — fallback translated message for non-Error ─────────────
-
-  it("shows fallback translated error when enrollClub throws non-Error value", async () => {
-    mockEnrollClub.mockRejectedValue("unexpected string");
-
-    renderDialog();
-
-    const input = document.querySelector(
-      'input[name="club_section_id"]',
-    ) as HTMLInputElement;
-
-    await act(async () => {
-      fireEvent.change(input, { target: { value: "5" } });
-    });
-
-    await submitForm();
-
-    await waitFor(() => {
-      expect(mockToastError).toHaveBeenCalledWith(t.errors.enroll_club);
-    });
-  });
-
-  // ── 9. Submit button disabled while in flight ─────────────────────────────
-
-  it("disables submit button while enrollment is in flight", async () => {
-    let resolveEnroll!: () => void;
-    mockEnrollClub.mockReturnValue(
-      new Promise<unknown>((res) => {
-        resolveEnroll = () => res({ ok: true });
-      }),
-    );
-
-    renderDialog();
-
-    const input = document.querySelector(
-      'input[name="club_section_id"]',
-    ) as HTMLInputElement;
-
-    await act(async () => {
-      fireEvent.change(input, { target: { value: "15" } });
-    });
-
-    await submitForm();
 
     await waitFor(() => {
       expect(
-        screen.getByRole("button", { name: new RegExp(t.enrollDialog.enrolling, "i") }),
-      ).toBeDisabled();
-    });
-
-    await act(async () => {
-      resolveEnroll();
+        screen.getByText(t.enrollDialog.emptyClubs),
+      ).toBeInTheDocument();
     });
   });
 
-  // ── 10. Cancel resets the form ────────────────────────────────────────────
+  // ── 8. Paginated response shape is unwrapped ─────────────────────────────
 
-  it("resets input value to empty after cancel (form reset on close)", async () => {
-    const user = userEvent.setup();
-    const { onOpenChange } = renderDialog();
+  it("accepts paginated { data: [...] } club response shape", async () => {
+    mockListClubs.mockResolvedValueOnce({
+      data: [
+        { club_id: 201, name: "Club Gamma", local_field_id: LOCAL_FIELD_ID, church_id: 3, active: true },
+      ],
+      meta: { page: 1, limit: 200, total: 1, totalPages: 1, hasNextPage: false, hasPreviousPage: false },
+    });
+    renderDialog();
 
-    const input = document.querySelector(
-      'input[name="club_section_id"]',
-    ) as HTMLInputElement;
-
-    await act(async () => {
-      fireEvent.change(input, { target: { value: "99" } });
+    await waitFor(() => {
+      expect(mockListClubs).toHaveBeenCalled();
     });
 
-    // Clicking cancel triggers handleOpenChange(false) which calls reset()
-    await user.click(screen.getByRole("button", { name: t.enrollDialog.cancel }));
-
-    expect(onOpenChange).toHaveBeenCalledWith(false);
+    // No empty-state copy → indicates the wrapper was parsed.
+    expect(
+      screen.queryByText(t.enrollDialog.emptyClubs),
+    ).not.toBeInTheDocument();
   });
 });

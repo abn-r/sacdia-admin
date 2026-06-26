@@ -5,6 +5,7 @@ import { es } from "date-fns/locale";
 import { RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { SlaDashboard } from "@/lib/api/analytics";
+import { PageHeader } from "@/components/shared/page-header";
 import { SlaStatCards } from "./sla-stat-cards";
 import { SlaPipelineChart } from "./sla-pipeline-chart";
 import { SlaValidationCard } from "./sla-validation-card";
@@ -25,19 +26,19 @@ export function SlaDashboardClient({ data }: SlaDashboardClientProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
-          <p className="text-muted-foreground">
-            {t("description")}
-          </p>
-        </div>
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground pt-1">
-          <RefreshCw className="size-3" />
-          <span>{t("updated", { ago: computedAgo })}{data.cached ? t("cached") : ""}</span>
-        </div>
-      </div>
+      <PageHeader
+        title={t("title")}
+        description={t("description")}
+        actions={
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <RefreshCw className="size-3 shrink-0" aria-hidden="true" />
+            <span>
+              {t("updated", { ago: computedAgo })}
+              {data.cached ? t("cached") : ""}
+            </span>
+          </div>
+        }
+      />
 
       {/* KPI Cards */}
       <SlaStatCards data={data} />

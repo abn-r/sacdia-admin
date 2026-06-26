@@ -6,7 +6,7 @@ import type { SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { ImagePlus, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -38,6 +38,7 @@ import {
   getFinanceCategories,
   createFinance,
   updateFinance,
+  uploadFinanceEvidence,
   type Finance,
   type FinanceCategory,
   type CreateFinancePayload,
@@ -87,6 +88,7 @@ const MONTH_KEYS = [
 
 const currentYear = new Date().getFullYear();
 const YEARS = Array.from({ length: 6 }, (_, i) => currentYear - 2 + i);
+const MAX_EVIDENCE_FILES = 3;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -122,6 +124,8 @@ export function TransactionFormDialog({
   const [categories, setCategories] = useState<FinanceCategory[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [evidenceFiles, setEvidenceFiles] = useState<File[]>([]);
+  const [evidenceError, setEvidenceError] = useState<string | null>(null);
 
   // Fetch categories on open
   useEffect(() => {
@@ -164,21 +168,57 @@ export function TransactionFormDialog({
         club_type_id: finance?.club_type_id ?? sections[0]?.club_type_id,
         club_section_id: finance?.club_section_id ?? sections[0]?.club_section_id,
       });
+      setEvidenceFiles([]);
+      setEvidenceError(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, finance]);
 
+  const existingEvidenceCount = finance?.evidences?.length ?? 0;
+  const totalEvidenceCount = existingEvidenceCount + evidenceFiles.length;
+  const canAddEvidence = totalEvidenceCount < MAX_EVIDENCE_FILES;
+
+  function handleEvidenceFiles(files: FileList | null) {
+    if (!files) return;
+
+    const imageFiles = Array.from(files).filter((file) =>
+      file.type.startsWith("image/"),
+    );
+    if (imageFiles.length === 0) {
+      setEvidenceError(t("form.evidenceImageOnly"));
+      return;
+    }
+
+    const remaining =
+      MAX_EVIDENCE_FILES - existingEvidenceCount - evidenceFiles.length;
+    if (remaining <= 0) {
+      setEvidenceError(t("form.evidenceLimit"));
+      return;
+    }
+
+    const accepted = imageFiles.slice(0, remaining);
+    setEvidenceFiles((current) => [...current, ...accepted]);
+    setEvidenceError(
+      imageFiles.length > remaining ? t("form.evidenceLimit") : null,
+    );
+  }
+
   const onSubmit: SubmitHandler<FormValues> = async (values) => {
+    if (totalEvidenceCount > MAX_EVIDENCE_FILES) {
+      setEvidenceError(t("form.evidenceLimit"));
+      return;
+    }
+
     setIsSubmitting(true);
     try {
+      let savedFinance: Finance;
       if (isEdit && finance) {
-        await updateFinance(finance.finance_id, {
+        savedFinance = await updateFinance(finance.finance_id, {
           amount: Math.round(values.amount * 100),
           description: values.description,
           finance_category_id: values.finance_category_id,
           finance_date: values.finance_date,
         });
-        toast.success(t("toasts.transaction_updated"));
       } else {
         if (!values.club_section_id || !values.club_type_id) {
           toast.error(t("validation.section_required"));
@@ -194,9 +234,27 @@ export function TransactionFormDialog({
           finance_date: values.finance_date,
           club_section_id: values.club_section_id,
         };
-        await createFinance(clubId, payload);
-        toast.success(t("toasts.transaction_created"));
+        savedFinance = await createFinance(clubId, payload);
       }
+
+      try {
+        for (const file of evidenceFiles) {
+          await uploadFinanceEvidence(savedFinance.finance_id, file);
+        }
+      } catch (error: unknown) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : t("errors.upload_evidence_failed");
+        toast.error(message);
+        onSuccess();
+        onOpenChange(false);
+        return;
+      }
+
+      toast.success(
+        isEdit ? t("toasts.transaction_updated") : t("toasts.transaction_created"),
+      );
       onSuccess();
       onOpenChange(false);
     } catch (err: unknown) {
@@ -456,6 +514,92 @@ export function TransactionFormDialog({
                 </FormItem>
               )}
             />
+
+            {/* Evidencias */}
+            <div className="space-y-2 rounded-xl border border-border/70 bg-muted/20 p-3">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <FormLabel>{t("form.evidenceLabel")}</FormLabel>
+                  <p className="text-xs text-muted-foreground">
+                    {t("form.evidenceHint")}
+                  </p>
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  {t("form.evidenceCount", {
+                    count: totalEvidenceCount,
+                  })}
+                </span>
+              </div>
+
+              {finance?.evidences?.length ? (
+                <div className="flex flex-wrap gap-2">
+                  {finance.evidences.map((evidence) => (
+                    <a
+                      key={evidence.evidence_id}
+                      href={evidence.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="block size-16 overflow-hidden rounded-lg border border-border bg-background"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={evidence.url}
+                        alt={evidence.file_name}
+                        className="size-full object-cover"
+                      />
+                    </a>
+                  ))}
+                </div>
+              ) : null}
+
+              {evidenceFiles.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {evidenceFiles.map((file, index) => (
+                    <div
+                      key={`${file.name}-${index}`}
+                      className="flex max-w-full items-center gap-2 rounded-full border border-border bg-background px-2 py-1 text-xs"
+                    >
+                      <span className="max-w-[180px] truncate">{file.name}</span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setEvidenceFiles((current) =>
+                            current.filter((_, i) => i !== index),
+                          )
+                        }
+                        className="rounded-full text-muted-foreground hover:text-foreground"
+                        aria-label={t("form.evidenceRemove")}
+                      >
+                        <X className="size-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  disabled={!canAddEvidence || isSubmitting}
+                  onChange={(event) => {
+                    handleEvidenceFiles(event.target.files);
+                    event.target.value = "";
+                  }}
+                />
+                {canAddEvidence ? (
+                  <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+                    <ImagePlus className="size-3.5" />
+                    {t("form.evidenceAdd")}
+                  </p>
+                ) : null}
+              </div>
+
+              {evidenceError ? (
+                <p className="text-xs text-destructive">{evidenceError}</p>
+              ) : null}
+            </div>
 
             <DialogFooter className="pt-2">
               <Button

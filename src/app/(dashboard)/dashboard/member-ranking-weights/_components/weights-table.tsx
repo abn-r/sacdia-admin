@@ -208,7 +208,7 @@ export function WeightsTable({
                           asChild
                           title={t("editOverrideTitle")}
                         >
-                          <Link href={`/dashboard/member-ranking-weights/${row.id}/edit`}>
+                          <Link href={`/dashboard/member-ranking-weights/${row.id}/edit`} prefetch={false}>
                             <Pencil className="size-3.5" />
                             <span className="sr-only">{t("editButton")}</span>
                           </Link>

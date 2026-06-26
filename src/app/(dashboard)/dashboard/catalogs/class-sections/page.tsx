@@ -79,7 +79,7 @@ export default async function AdminClassSectionsPage({ searchParams }: { searchP
         title={t("title")}
         description={t("description")}
         entityLabel={t("entityLabel")}
-        emptyIcon={Layers}
+        emptyIcon={<Layers />}
         includeDescription={true}
         idField="section_id"
         nameField="name"

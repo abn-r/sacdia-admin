@@ -317,14 +317,22 @@ export default async function HonorDetailPage({ params }: { params: Params }) {
 
   return (
     <div className="space-y-6">
-      <PageHeader title={t("title")}>
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/honors">
-            <ArrowLeft className="size-4" />
-            {t("backButton")}
-          </Link>
-        </Button>
-      </PageHeader>
+      <PageHeader
+        title={t("title")}
+        description={name}
+        breadcrumbs={[
+          { label: t("backButton"), href: "/dashboard/honors" },
+          { label: name },
+        ]}
+        actions={
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/dashboard/honors">
+              <ArrowLeft className="size-4" />
+              {t("backButton")}
+            </Link>
+          </Button>
+        }
+      />
 
       <Card>
         <CardContent className="flex flex-row items-center justify-start overflow-x-auto pt-6" style={{ gap: '50px' }}>

@@ -197,7 +197,7 @@ export function EvidenceBulkActionBar({
           size="sm"
           variant="ghost"
           onClick={onClearSelection}
-          aria-label="Limpiar selección"
+          aria-label={t("bulk.clearSelectionAriaLabel")}
         >
           <X className="size-4" />
         </Button>

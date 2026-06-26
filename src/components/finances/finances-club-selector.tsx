@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Building2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   Select,
   SelectContent,
@@ -36,6 +37,7 @@ interface FinancesClubSelectorProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function FinancesClubSelector({ clubs }: FinancesClubSelectorProps) {
+  const t = useTranslations("finances.clubSelector");
   const [selectedClubId, setSelectedClubId] = useState<number | null>(
     clubs.length === 1 ? clubs[0].club_id : null,
   );
@@ -49,14 +51,14 @@ export function FinancesClubSelector({ clubs }: FinancesClubSelectorProps) {
         <div className="space-y-1.5">
           <Label className="flex items-center gap-1.5 text-sm font-medium">
             <Building2 className="size-4 text-muted-foreground" />
-            Club
+            {t("label")}
           </Label>
           <Select
             value={selectedClubId?.toString() ?? ""}
             onValueChange={(v) => setSelectedClubId(Number(v))}
           >
             <SelectTrigger className="w-[240px]">
-              <SelectValue placeholder="Seleccioná un club" />
+              <SelectValue placeholder={t("selectPlaceholder")} />
             </SelectTrigger>
             <SelectContent>
               {clubs.map((club) => (
@@ -73,8 +75,8 @@ export function FinancesClubSelector({ clubs }: FinancesClubSelectorProps) {
       {!selectedClub ? (
         <EmptyState
           icon={DollarSign}
-          title="Seleccioná un club"
-          description="Elegí un club del selector para ver y gestionar sus movimientos financieros."
+          title={t("emptyTitle")}
+          description={t("emptyDescription")}
         />
       ) : (
         <FinancesDashboard

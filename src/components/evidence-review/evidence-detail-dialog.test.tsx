@@ -20,13 +20,8 @@
 
 import React from "react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import {
-  render,
-  screen,
-  waitFor,
-  act,
-  cleanup,
-} from "@testing-library/react";
+import { render, screen, waitFor, cleanup } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import messages from "../../../messages/es.json";
 import type { EvidenceDetail, EvidenceType } from "@/lib/api/evidence-review";
@@ -66,11 +61,15 @@ vi.mock("@/lib/format-locale", () => ({
 
 // EvidenceStatusBadge and EvidenceTypeBadge — render as simple text nodes
 vi.mock("@/components/evidence-review/evidence-status-badge", () => ({
-  EvidenceStatusBadge: ({ status }: { status: string }) => <span data-testid="status-badge">{status}</span>,
+  EvidenceStatusBadge: ({ status }: { status: string }) => (
+    <span data-testid="status-badge">{status}</span>
+  ),
 }));
 
 vi.mock("@/components/evidence-review/evidence-type-badge", () => ({
-  EvidenceTypeBadge: ({ type }: { type: string }) => <span data-testid="type-badge">{type}</span>,
+  EvidenceTypeBadge: ({ type }: { type: string }) => (
+    <span data-testid="type-badge">{type}</span>
+  ),
 }));
 
 import { EvidenceDetailDialog } from "@/components/evidence-review/evidence-detail-dialog";
@@ -120,6 +119,119 @@ const STUB_DETAIL_REJECTED: EvidenceDetail = {
   validated_at: "2026-04-01T12:00:00.000Z",
   validated_by_name: "Admin Pérez",
 };
+
+const STUB_DETAIL_WITH_MULTIPLE_IMAGES: EvidenceDetail = {
+  ...STUB_DETAIL,
+  file_count: 3,
+  files: [
+    STUB_DETAIL.files[0],
+    {
+      evidence_file_id: 3,
+      file_url: "https://example.com/foto2.png",
+      file_name: "foto2.png",
+      file_type: "image/png",
+      uploaded_at: "2026-03-15T10:03:00.000Z",
+    },
+    STUB_DETAIL.files[1],
+  ],
+};
+
+const STUB_HONOR_DETAIL_WITH_PACKET = {
+  ...STUB_DETAIL,
+  id: 77,
+  type: "honor",
+  status: "PENDING_REVIEW",
+  section_name: "Arte cristiano",
+  file_count: 4,
+  files: [
+    ...STUB_DETAIL.files,
+    {
+      evidence_file_id: -100100,
+      file_url: "https://example.com/requisito.jpg",
+      file_name: "requisito.jpg",
+      file_type: "image/jpeg",
+      uploaded_at: "2026-03-15T10:10:00.000Z",
+    },
+    {
+      evidence_file_id: -1,
+      file_url: "https://example.com/certificado.pdf",
+      file_name: "certificado.pdf",
+      file_type: "application/pdf",
+      uploaded_at: "2026-03-15T10:15:00.000Z",
+    },
+  ],
+  honor_review_packet: {
+    user_honor_id: 77,
+    honor_id: 20,
+    honor_name: "Arte cristiano",
+    validation_status: "PENDING_REVIEW",
+    completion_mode: "EXTERNAL",
+    progress: {
+      total_requirements: 2,
+      completed_count: 1,
+      progress_percentage: 50,
+    },
+    completed_format_file: {
+      evidence_file_id: -2,
+      file_url: "https://example.com/formato.pdf",
+      file_name: "formato.pdf",
+      file_type: "application/pdf",
+      uploaded_at: "2026-03-15T10:15:00.000Z",
+    },
+    general_files: [
+      {
+        evidence_file_id: -1,
+        file_url: "https://example.com/certificado.pdf",
+        file_name: "certificado.pdf",
+        file_type: "application/pdf",
+        uploaded_at: "2026-03-15T10:15:00.000Z",
+      },
+    ],
+    requirement_files: [
+    {
+      evidence_file_id: -100100,
+        file_url: "https://example.com/requisito.jpg",
+        file_name: "requisito.jpg",
+        file_type: "image/jpeg",
+        uploaded_at: "2026-03-15T10:10:00.000Z",
+      },
+    ],
+    requirements: [
+      {
+        requirement_id: 1,
+        requirement_number: "1",
+        display_label: "1",
+        requirement_text: "Explicar el objetivo del honor",
+        requires_evidence: true,
+        completed: true,
+        text_response: "Respuesta redactada dentro de la app",
+        completed_at: "2026-03-15T10:10:00.000Z",
+        evidence_count: 1,
+        evidences: [
+          {
+            evidence_file_id: -100100,
+            file_url: "https://example.com/requisito.jpg",
+            file_name: "requisito.jpg",
+            file_type: "image/jpeg",
+            uploaded_at: "2026-03-15T10:10:00.000Z",
+          },
+        ],
+      },
+      {
+        requirement_id: 2,
+        requirement_number: "2",
+        display_label: "2",
+        requirement_text: "Completar una actividad práctica",
+        requires_evidence: false,
+        completed: false,
+        text_response: null,
+        completed_at: null,
+        evidence_count: 0,
+        evidences: [],
+      },
+    ],
+  },
+} as EvidenceDetail;
 
 // ---------------------------------------------------------------------------
 // Render helper
@@ -305,5 +417,85 @@ describe("EvidenceDetailDialog", () => {
       expect(screen.getByTestId("type-badge")).toBeInTheDocument();
       expect(screen.getByTestId("status-badge")).toBeInTheDocument();
     });
+  });
+
+  // ── 13. Honor review packet rendering ────────────────────────────────────
+
+  it("renders honor review packet progress and requirement evidence", async () => {
+    mockGetEvidenceDetail.mockResolvedValue(STUB_HONOR_DETAIL_WITH_PACKET);
+
+    renderDialog({ type: "honor", id: 77 });
+
+    await waitFor(() => {
+      expect(screen.getByText("Progreso del honor")).toBeInTheDocument();
+      expect(screen.getByText("Modo de trabajo")).toBeInTheDocument();
+      expect(screen.getByText("Fuera de la app")).toBeInTheDocument();
+      expect(screen.getByText(/completó la especialidad fuera de SACDIA/i)).toBeInTheDocument();
+      expect(screen.getByText("1 de 2 requisitos")).toBeInTheDocument();
+      expect(screen.getByText("50% completado")).toBeInTheDocument();
+      expect(
+        screen.getByText("Explicar el objetivo del honor"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText("Respuesta redactada dentro de la app"),
+      ).toBeInTheDocument();
+      expect(screen.getByText("requisito.jpg")).toBeInTheDocument();
+    });
+  });
+
+  it("opens an in-panel image viewer with all image thumbnails and zoom controls", async () => {
+    const user = userEvent.setup();
+    mockGetEvidenceDetail.mockResolvedValue(STUB_DETAIL_WITH_MULTIPLE_IMAGES);
+
+    renderDialog();
+
+    const firstImage = await screen.findByRole("img", { name: "foto1.jpg" });
+    await user.click(firstImage);
+
+    expect(
+      screen.getByRole("heading", { name: /visor de imágenes/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Ver foto1.jpg" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Ver foto2.png" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Ver doc.pdf" }),
+    ).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /acercar/i }));
+
+    const zoomedImage = screen.getByTestId("evidence-viewer-image");
+    expect(screen.getByTestId("evidence-image-scroll-area")).toHaveClass(
+      "overflow-auto",
+    );
+    expect(zoomedImage).toHaveStyle({ width: "125%" });
+    expect(zoomedImage.getAttribute("style") ?? "").not.toContain(
+      "transform: scale",
+    );
+  });
+
+  it("opens PDFs inside an in-panel PDF viewer", async () => {
+    const user = userEvent.setup();
+
+    renderDialog();
+
+    await waitFor(() => {
+      expect(screen.getByText("Carlos Ruiz")).toBeInTheDocument();
+    });
+
+    await user.click(
+      screen.getByRole("button", { name: "Abrir visor de doc.pdf" }),
+    );
+
+    expect(
+      screen.getByRole("heading", { name: /visor pdf/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByTitle("Visor PDF: doc.pdf")).toHaveAttribute(
+      "src",
+      "/api/evidence-review/pdf?type=class&id=42&fileId=2",
+    );
   });
 });

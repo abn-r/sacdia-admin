@@ -1,8 +1,14 @@
 import { Grid3X3 } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { getTranslations as getTranslationsStrict } from "next-intl/server";
+
+type LooseTranslator = (key: string) => string;
+const getTranslations = getTranslationsStrict as unknown as (
+  namespace?: string,
+) => Promise<LooseTranslator>;
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { PermissionsMatrix } from "@/components/rbac/permissions-matrix";
 import { requireAdminUser } from "@/lib/auth/session";
 import { listRoles, listPermissions } from "@/lib/rbac/service";
 import { syncRolePermissionsAction } from "@/lib/rbac/actions";
@@ -23,6 +29,8 @@ export default async function MatrixPage() {
     loadError = error instanceof ApiError ? error.message : t("loadError");
   }
 
+  const hasData = roles.length > 0 && permissions.length > 0;
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -34,11 +42,19 @@ export default async function MatrixPage() {
         <EndpointErrorBanner state="missing" detail={loadError} />
       )}
 
-      {!loadError && (roles.length === 0 || permissions.length === 0) && (
+      {!loadError && !hasData && (
         <EmptyState
           icon={Grid3X3}
           title={t("emptyTitle")}
           description={t("emptyDescription")}
+        />
+      )}
+
+      {!loadError && hasData && (
+        <PermissionsMatrix
+          roles={roles}
+          permissions={permissions}
+          syncAction={syncRolePermissionsAction}
         />
       )}
     </div>

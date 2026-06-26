@@ -25,3 +25,18 @@ Si el repo esta abierto aislado y `../AGENTS.md` no existe, usar este archivo co
 - No ejecutar build salvo pedido explicito del usuario.
 - Si cambia un flujo funcional o consumo API, actualizar docs de feature/API en el mismo trabajo.
 
+## Design system (DESIGN-SYSTEM.md)
+
+Checklist antes de merge en cambios de UI:
+
+- [ ] Titulos de pagina via `<PageHeader>` (no `h1` sueltos con `font-bold`)
+- [ ] Colores con tokens semanticos (`bg-primary`, `text-muted-foreground`, etc.)
+- [ ] Componentes interactivos desde `@/components/ui/*`
+- [ ] Strings de UI en `messages/*.json` (4 idiomas + `messages.d.ts`)
+- [ ] `pnpm audit:design-system` sin errores en modo strict
+
+```bash
+pnpm audit:design-system          # reporte
+pnpm audit:design-system --strict # falla en errores (h1 font-bold, etc.)
+```
+

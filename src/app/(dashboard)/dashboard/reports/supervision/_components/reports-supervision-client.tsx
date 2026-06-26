@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -7,8 +8,10 @@ import {
   ChevronRight,
   FileText,
   Download,
+  Loader2,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
 import {
@@ -26,10 +29,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getReportPdfUrl } from "@/lib/api/monthly-reports";
+import { triggerMonthlyReportPdfDownload } from "@/lib/api/monthly-reports";
 import type { AdminReportsPage, AdminReportItem } from "@/lib/api/monthly-reports";
 import type { ClubType } from "@/lib/api/catalogs";
-import type { LocalField } from "@/lib/api/geography";
+import type { Division, LocalField, Union } from "@/lib/api/geography";
+import type { AdminTerritoryScope } from "@/lib/auth/territory-scope";
 import { useFormatDate } from "@/lib/format-locale";
 
 function ReportStatusBadge({ status }: { status: AdminReportItem["status"] }) {
@@ -48,8 +52,13 @@ function ReportStatusBadge({ status }: { status: AdminReportItem["status"] }) {
 interface ReportsSupervisionClientProps {
   initialData: AdminReportsPage;
   clubTypes: ClubType[];
+  divisions: Division[];
+  unions: Union[];
   localFields: LocalField[];
+  territoryScope: AdminTerritoryScope;
   searchParams: {
+    division_id?: string;
+    union_id?: string;
     club_type_id?: string;
     local_field_id?: string;
     year?: string;
@@ -64,12 +73,16 @@ interface ReportsSupervisionClientProps {
 export function ReportsSupervisionClient({
   initialData,
   clubTypes,
+  divisions,
+  unions,
   localFields,
   searchParams,
+  territoryScope,
 }: ReportsSupervisionClientProps) {
   const t = useTranslations("reports.supervisionClient");
   const router = useRouter();
   const formatDate = useFormatDate();
+  const [downloadingReportId, setDownloadingReportId] = useState<string | null>(null);
 
   const currentPage = Number(searchParams.page ?? "1");
   const { total, limit, items } = initialData;
@@ -78,6 +91,9 @@ export function ReportsSupervisionClient({
   // Month options built from translation keys (values stay stable, labels from t())
   const MONTH_VALUES = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"] as const;
   const STATUS_VALUES = ["draft", "generated", "submitted"] as const;
+  const divisionLocked = territoryScope.level !== "all";
+  const unionLocked = territoryScope.level === "union" || territoryScope.level === "local_field";
+  const localFieldLocked = territoryScope.level === "local_field";
 
   // ─── URL builder ────────────────────────────────────────────────────────────
 
@@ -100,6 +116,49 @@ export function ReportsSupervisionClient({
     router.push(buildUrl({ [key]: value === "all" ? undefined : value, page: "1" }));
   }
 
+  function handleHierarchyFilter(
+    key: "division_id" | "union_id" | "local_field_id",
+    value: string,
+  ) {
+    const normalized = value === "all" ? undefined : value;
+
+    if (key === "division_id") {
+      router.push(
+        buildUrl({
+          division_id: normalized,
+          union_id: undefined,
+          local_field_id: undefined,
+          page: "1",
+        }),
+      );
+      return;
+    }
+
+    if (key === "union_id") {
+      router.push(
+        buildUrl({
+          union_id: normalized,
+          local_field_id: undefined,
+          page: "1",
+        }),
+      );
+      return;
+    }
+
+    handleFilter(key, value);
+  }
+
+  async function handleDownloadPdf(item: AdminReportItem) {
+    setDownloadingReportId(item.monthly_report_id);
+    try {
+      await triggerMonthlyReportPdfDownload(item.monthly_report_id);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : t("emptyHint"));
+    } finally {
+      setDownloadingReportId(null);
+    }
+  }
+
   function handlePage(newPage: number) {
     router.push(buildUrl({ page: String(newPage) }));
   }
@@ -110,6 +169,44 @@ export function ReportsSupervisionClient({
     <div className="space-y-4">
       {/* Filters */}
       <div className="flex flex-wrap gap-3">
+        {/* División */}
+        <Select
+          value={searchParams.division_id ?? "all"}
+          onValueChange={(v) => handleHierarchyFilter("division_id", v)}
+          disabled={divisionLocked}
+        >
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder={t("filterDivisionPlaceholder")} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{t("filterDivisionAll")}</SelectItem>
+            {divisions.map((division) => (
+              <SelectItem key={division.division_id} value={String(division.division_id)}>
+                {division.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {/* Unión */}
+        <Select
+          value={searchParams.union_id ?? "all"}
+          onValueChange={(v) => handleHierarchyFilter("union_id", v)}
+          disabled={unionLocked}
+        >
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder={t("filterUnionPlaceholder")} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{t("filterUnionAll")}</SelectItem>
+            {unions.map((union) => (
+              <SelectItem key={union.union_id} value={String(union.union_id)}>
+                {union.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
         {/* Tipo de club */}
         <Select
           value={searchParams.club_type_id ?? "all"}
@@ -131,7 +228,8 @@ export function ReportsSupervisionClient({
         {/* Campo local */}
         <Select
           value={searchParams.local_field_id ?? "all"}
-          onValueChange={(v) => handleFilter("local_field_id", v)}
+          onValueChange={(v) => handleHierarchyFilter("local_field_id", v)}
+          disabled={localFieldLocked}
         >
           <SelectTrigger className="w-48">
             <SelectValue placeholder={t("filterLocalFieldPlaceholder")} />
@@ -252,20 +350,23 @@ export function ReportsSupervisionClient({
                   <TableCell>
                     <div className="flex items-center justify-end gap-2">
                       <Button asChild variant="outline" size="sm">
-                        <Link href={`/dashboard/reports/${item.monthly_report_id}`}>
+                        <Link prefetch={false} href={`/dashboard/reports/${item.monthly_report_id}`}>
                           {t("actionView")}
                         </Link>
                       </Button>
                       {item.status !== "draft" && (
-                        <Button asChild variant="outline" size="sm">
-                          <a
-                            href={getReportPdfUrl(Number(item.monthly_report_id))}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDownloadPdf(item)}
+                          disabled={downloadingReportId === item.monthly_report_id}
+                        >
+                          {downloadingReportId === item.monthly_report_id ? (
+                            <Loader2 className="mr-1 size-3.5 animate-spin" />
+                          ) : (
                             <Download className="mr-1 size-3.5" />
-                            {t("actionPdf")}
-                          </a>
+                          )}
+                          {t("actionPdf")}
                         </Button>
                       )}
                     </div>

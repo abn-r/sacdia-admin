@@ -12,7 +12,14 @@ export default function CatalogsLoading() {
           <Skeleton className="mb-3 h-6 w-24" />
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="rounded-lg border p-4">
+              <div
+                key={i}
+                className="rounded-lg border p-4 animate-in fade-in slide-in-from-bottom-2 duration-300"
+                style={{
+                  animationDelay: `${Math.min((g * 5 + i) * 50, 400)}ms`,
+                  animationFillMode: "backwards",
+                }}
+              >
                 <div className="flex items-center gap-3">
                   <Skeleton className="size-10 rounded-lg" />
                   <div className="space-y-1">

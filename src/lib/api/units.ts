@@ -64,7 +64,7 @@ export type CreateUnitPayload = {
   advisor_id: string;
   substitute_advisor_id?: string;
   club_type_id: number;
-  club_section_id?: number;
+  club_section_id: number;
 };
 
 export type UpdateUnitPayload = Partial<CreateUnitPayload> & {

@@ -1,6 +1,6 @@
 /**
  * Phase E catalog API — classes, class_modules, class_sections,
- * folders, folder_modules, folder_sections, finance_categories,
+ * finance_categories,
  * inventory_categories, honors (admin CRUD), master_honors.
  *
  * All endpoints under /admin/* — backend commit: feat(i18n): Phase E admin CRUD.
@@ -29,6 +29,39 @@ export type TranslatablePayload = {
   translations?: CatalogTranslation[];
 };
 
+export type MasterHonorRuleGroupType =
+  | "EXPLICIT_OPTIONS"
+  | "CATEGORY_COUNT";
+
+export type MasterHonorApplicabilityScope = "ALL" | "SELECTED_DIVISIONS";
+
+export type MasterHonorRuleOptionPayload = {
+  option_id?: number;
+  label: string;
+  display_order: number;
+  honor_ids: number[];
+  active?: boolean;
+};
+
+export type MasterHonorRuleGroupPayload = {
+  group_id?: number;
+  group_type: MasterHonorRuleGroupType;
+  title?: string | null;
+  description?: string | null;
+  minimum_required: number;
+  honors_category_id?: number | null;
+  display_order: number;
+  options: MasterHonorRuleOptionPayload[];
+  active?: boolean;
+};
+
+export type ClassAvailabilityDurationPayload = {
+  available_from_year_id?: number | null;
+  available_until_year_id?: number | null;
+  min_duration_years?: number;
+  max_duration_years?: number;
+};
+
 export type NameOnlyPayload = {
   name: string;
   active?: boolean;
@@ -43,6 +76,10 @@ export type AdminClass = {
   description?: string | null;
   club_type_id?: number | null;
   display_order?: number | null;
+  available_from_year_id?: number | null;
+  available_until_year_id?: number | null;
+  min_duration_years?: number;
+  max_duration_years?: number;
   active?: boolean;
   translations?: CatalogTranslation[];
 };
@@ -51,11 +88,11 @@ export async function listAdminClasses(params?: Record<string, string | number |
   return apiRequest<unknown>("/admin/classes", { params });
 }
 
-export async function createAdminClass(payload: TranslatablePayload) {
+export async function createAdminClass(payload: TranslatablePayload & ClassAvailabilityDurationPayload) {
   return apiRequest("/admin/classes", { method: "POST", body: payload });
 }
 
-export async function updateAdminClass(id: number, payload: Partial<TranslatablePayload>) {
+export async function updateAdminClass(id: number, payload: Partial<TranslatablePayload & ClassAvailabilityDurationPayload>) {
   return apiRequest(`/admin/classes/${id}`, { method: "PATCH", body: payload });
 }
 
@@ -117,90 +154,6 @@ export async function updateAdminClassSection(id: number, payload: Partial<Trans
 
 export async function deleteAdminClassSection(id: number) {
   return apiRequest(`/admin/class-sections/${id}`, { method: "DELETE" });
-}
-
-// ─── Folders ──────────────────────────────────────────────────────────────────
-
-export type AdminFolder = {
-  folder_id: number;
-  name: string;
-  description?: string | null;
-  club_type_id?: number | null;
-  display_order?: number | null;
-  active?: boolean;
-  translations?: CatalogTranslation[];
-};
-
-export async function listAdminFolders(params?: Record<string, string | number | boolean>) {
-  return apiRequest<unknown>("/admin/folders", { params });
-}
-
-export async function createAdminFolder(payload: TranslatablePayload) {
-  return apiRequest("/admin/folders", { method: "POST", body: payload });
-}
-
-export async function updateAdminFolder(id: number, payload: Partial<TranslatablePayload>) {
-  return apiRequest(`/admin/folders/${id}`, { method: "PATCH", body: payload });
-}
-
-export async function deleteAdminFolder(id: number) {
-  return apiRequest(`/admin/folders/${id}`, { method: "DELETE" });
-}
-
-// ─── Folder Modules ───────────────────────────────────────────────────────────
-
-export type AdminFolderModule = {
-  module_id: number;
-  folder_id: number;
-  name: string;
-  description?: string | null;
-  display_order?: number | null;
-  active?: boolean;
-  translations?: CatalogTranslation[];
-};
-
-export async function listAdminFolderModules(params?: Record<string, string | number | boolean>) {
-  return apiRequest<unknown>("/admin/folder-modules", { params });
-}
-
-export async function createAdminFolderModule(payload: TranslatablePayload & { folder_id?: number }) {
-  return apiRequest("/admin/folder-modules", { method: "POST", body: payload });
-}
-
-export async function updateAdminFolderModule(id: number, payload: Partial<TranslatablePayload>) {
-  return apiRequest(`/admin/folder-modules/${id}`, { method: "PATCH", body: payload });
-}
-
-export async function deleteAdminFolderModule(id: number) {
-  return apiRequest(`/admin/folder-modules/${id}`, { method: "DELETE" });
-}
-
-// ─── Folder Sections ──────────────────────────────────────────────────────────
-
-export type AdminFolderSection = {
-  section_id: number;
-  module_id: number;
-  name: string;
-  description?: string | null;
-  display_order?: number | null;
-  active?: boolean;
-  translations?: CatalogTranslation[];
-};
-
-export async function listAdminFolderSections(params?: Record<string, string | number | boolean>) {
-  return apiRequest<unknown>("/admin/folder-sections", { params });
-}
-
-export async function createAdminFolderSection(payload: TranslatablePayload & { module_id?: number }) {
-  return apiRequest("/admin/folder-sections", { method: "POST", body: payload });
-}
-
-export async function updateAdminFolderSection(id: number, payload: Partial<TranslatablePayload>) {
-  return apiRequest(`/admin/folder-sections/${id}`, { method: "PATCH", body: payload });
-}
-
-export async function deleteAdminFolderSection(id: number) {
-  return apiRequest(`/admin/folder-sections/${id}`, { method: "DELETE" });
 }
 
 // ─── Finance Categories ───────────────────────────────────────────────────────
@@ -289,21 +242,43 @@ export type AdminMasterHonor = {
   name: string;
   description?: string | null;
   active?: boolean;
+  philosophy?: string | null;
+  notes?: string | null;
+  applicability_scope?: MasterHonorApplicabilityScope;
+  division_ids?: number[];
+  requirement_groups?: MasterHonorRuleGroupPayload[];
   translations?: CatalogTranslation[];
+};
+
+export type MasterHonorPayload = {
+  philosophy?: string;
+  notes?: string;
+  applicability_scope: MasterHonorApplicabilityScope;
+  division_ids?: number[];
+  requirement_groups: MasterHonorRuleGroupPayload[];
 };
 
 export async function listAdminMasterHonors(params?: Record<string, string | number | boolean>) {
   return apiRequest<unknown>("/admin/master-honors", { params });
 }
 
-export async function createAdminMasterHonor(payload: TranslatablePayload) {
+export async function createAdminMasterHonor(payload: TranslatablePayload & MasterHonorPayload) {
   return apiRequest("/admin/master-honors", { method: "POST", body: payload });
 }
 
-export async function updateAdminMasterHonor(id: number, payload: Partial<TranslatablePayload>) {
+export async function updateAdminMasterHonor(
+  id: number,
+  payload: Partial<TranslatablePayload & MasterHonorPayload>,
+) {
   return apiRequest(`/admin/master-honors/${id}`, { method: "PATCH", body: payload });
 }
 
 export async function deleteAdminMasterHonor(id: number) {
   return apiRequest(`/admin/master-honors/${id}`, { method: "DELETE" });
+}
+
+export async function recalculateMasterHonor(id: number) {
+  return apiRequest(`/admin/master-honors/${id}/recalculate`, {
+    method: "POST",
+  });
 }

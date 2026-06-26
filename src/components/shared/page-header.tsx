@@ -27,7 +27,7 @@ export function PageHeader({
   const rightSlot = actions ?? children;
 
   return (
-    <header className={cn("space-y-3", className)}>
+    <header className={cn("space-y-3 animate-in fade-in slide-in-from-top-1 duration-300", className)}>
       {breadcrumbs && breadcrumbs.length > 0 && (
         <nav
           aria-label="Breadcrumb"
@@ -58,7 +58,7 @@ export function PageHeader({
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 space-y-1">
-          <h1 className="text-2xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-3xl">
+          <h1 className="font-display text-3xl font-normal leading-[1.05] tracking-tight text-foreground sm:text-4xl">
             {title}
           </h1>
           {description && (

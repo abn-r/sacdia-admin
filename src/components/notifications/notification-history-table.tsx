@@ -31,7 +31,7 @@ function typeVariant(type: string): "default" | "secondary" | "outline" {
 function senderName(log: NotificationLog): string {
   const parts = [log.users?.name, log.users?.paternal_last_name].filter(Boolean);
   if (parts.length > 0) return parts.join(" ");
-  return log.users?.email ?? log.sent_by;
+  return log.users?.email ?? log.sent_by ?? "Sistema";
 }
 
 const TYPE_LABEL_KEYS: Record<string, string> = {

@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { AlertCircle, ArrowLeft, Loader2, Plus } from "lucide-react";
+import { AlertCircle, ArrowLeft, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
@@ -102,7 +102,11 @@ export default function HonorRequirementsPage() {
   }, [honorId, t]);
 
   useEffect(() => {
-    void load();
+    const timeoutId = window.setTimeout(() => {
+      void load();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
   }, [load]);
 
   // ─── Handlers ────────────────────────────────────────────────────────────
@@ -142,10 +146,25 @@ export default function HonorRequirementsPage() {
         )}
       </PageHeader>
 
-      {/* Loading */}
+      {/* Loading — same skeleton as RequirementsTree dynamic.loading to avoid double flash */}
       {status === "loading" && (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="size-8 animate-spin text-muted-foreground" />
+        <div className="space-y-2">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div
+              key={i}
+              className="flex items-center gap-3 rounded-lg border px-4 py-3"
+            >
+              <Skeleton className="size-5 rounded" />
+              <Skeleton
+                className="h-4 flex-1"
+                style={{ maxWidth: `${60 + (i % 3) * 15}%` }}
+              />
+              <div className="flex gap-1.5">
+                <Skeleton className="h-7 w-7 rounded-md" />
+                <Skeleton className="h-7 w-7 rounded-md" />
+              </div>
+            </div>
+          ))}
         </div>
       )}
 

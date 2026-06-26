@@ -345,7 +345,7 @@ export function HonorsCrudPage({
       <PageHeader title={t("pageTitle")} description={t("pageDescription")}>
         {canCreate && (
           <Button asChild>
-            <Link href="/dashboard/honors/new">
+            <Link prefetch={false} href="/dashboard/honors/new">
               <Plus className="size-4" />
               {t("createButton")}
             </Link>
@@ -449,7 +449,7 @@ export function HonorsCrudPage({
           >
             {canCreate && !hasActiveFilters && (
               <Button asChild>
-                <Link href="/dashboard/honors/new">
+                <Link prefetch={false} href="/dashboard/honors/new">
                   <Plus className="size-4" />
                   {t("createButton")}
                 </Link>
@@ -513,7 +513,7 @@ export function HonorsCrudPage({
                                   asChild
                                   title={t("editButton")}
                                 >
-                                  <Link href={editHref} aria-label={t("editAriaLabel", { name: honorName })}>
+                                  <Link prefetch={false} href={editHref} aria-label={t("editAriaLabel", { name: honorName })}>
                                     <Pencil className="size-3.5" />
                                   </Link>
                                 </Button>
@@ -542,7 +542,7 @@ export function HonorsCrudPage({
                                 <DropdownMenuContent align="end">
                                   {canEdit && editHref && (
                                     <DropdownMenuItem asChild>
-                                      <Link href={editHref}>
+                                      <Link prefetch={false} href={editHref}>
                                         <Pencil className="size-4" />
                                         {t("editButton")}
                                       </Link>

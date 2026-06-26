@@ -18,13 +18,17 @@ const LOCALES: Array<{ code: string; label: string; flag: string }> = [
   { code: "fr", label: "Français", flag: "🇫🇷" },
 ];
 
+function persistLocaleCookie(code: string) {
+  globalThis.document.cookie = `sacdia_admin_locale=${code}; path=/; max-age=31536000; samesite=lax`;
+}
+
 export function LocaleSwitcherMenu() {
   const current = useLocale();
   const [, startTransition] = useTransition();
 
   function pick(code: string) {
     if (code === current) return;
-    document.cookie = `sacdia_admin_locale=${code}; path=/; max-age=31536000; samesite=lax`;
+    persistLocaleCookie(code);
     startTransition(() => window.location.reload());
   }
 

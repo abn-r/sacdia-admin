@@ -1,5 +1,13 @@
 {
   "nav": {
+    "palette": {
+      "title": "Palette de commandes",
+      "description": "Recherchez et naviguez vers n’importe quelle section",
+      "placeholder": "Rechercher une page ou une section…",
+      "empty": "Aucun résultat",
+      "generalGroup": "Général",
+      "shortcutHint": "Cmd+K"
+    },
     "sections": {
       "overview": "Aperçu",
       "catalogs": "Catalogues",
@@ -10,7 +18,8 @@
       "requests_reports": "Demandes et rapports",
       "members": "Membres",
       "operations": "Opérations",
-      "rankings_analytics": "Classements & Analytique"
+      "rankings_analytics": "Classements & Analytique",
+      "materials": "Matériaux"
     },
     "items": {
       "dashboard": "Tableau de bord",
@@ -58,20 +67,20 @@
       "validation": "Validation",
       "investiture": "Investiture",
       "investiture_pending": "En attente",
-      "investiture_pipeline": "Pipeline",
+      "investiture_pipeline": "Suivi",
       "investiture_config": "Configuration",
       "sla": "SLA",
       "year_end": "Clôture annuelle",
       "notifications": "Notifications",
       "notifications_send": "Envoyer",
       "notifications_history": "Historique",
-      "evidence_review": "Révision des preuves",
-      "evidence_folders": "Dossiers de preuves",
-      "annual_folders": "Dossier annuel",
+      "evidence_review": "Révision des preuves des utilisateurs",
+      "evidence_folders": "Dossiers annuels de preuves",
+      "annual_folders": "Dossier annuel de preuves",
       "annual_folders_templates": "Modèles",
-      "annual_folders_mine": "Mon dossier",
-      "annual_folders_evaluate": "Évaluation",
+      "annual_folders_evaluate": "Dossiers",
       "annual_folders_rankings": "Classements",
+      "annual_folders_ranking_config": "Configuration des classements",
       "annual_folders_categories": "Catégories de prix",
       "member_rankings": "Classements des membres",
       "member_ranking_weights": "Pondérations des classements de membres",
@@ -84,6 +93,7 @@
       "reports": "Rapports",
       "reports_mine": "Mes rapports",
       "reports_supervision": "Supervision",
+      "support_reports": "Rapports de support",
       "member_of_month": "Membre du mois",
       "catalog_classes": "Classes",
       "catalog_class_modules": "Modules de classe",
@@ -102,7 +112,14 @@
       "subgroup_academics": "Académiques",
       "subgroup_business": "Affaires",
       "subgroup_honors_cat": "Honneurs",
-      "ranking_weights_root": "Configuration des poids"
+      "ranking_weights_root": "Configuration des poids",
+      "materials_inbox": "Boîte de réception",
+      "materials_receipts": "Reçus",
+      "materials_inventory": "Inventaire",
+      "materials_categories": "Catégories",
+      "materials_config": "Paramètres",
+      "certificate_bulk_imports": "Cargas por certificado",
+      "coordination": "Coordination"
     },
     "breadcrumbs": {
       "dashboard": "Tableau de bord",
@@ -138,7 +155,9 @@
       "rbac": "Rôles et permissions",
       "permissions": "Permissions",
       "roles": "Rôles",
-      "matrix": "Matrice"
+      "matrix": "Matrice",
+      "support": "Support",
+      "coordination": "Coordination"
     },
     "themeToggle": {
       "switchToLight": "Passer en mode clair",
@@ -156,7 +175,8 @@
       "description": "Rechercher des pages, catalogues et sections",
       "placeholder": "Rechercher pages, catalogues, sections...",
       "empty": "Aucun résultat",
-      "general": "Général"
+      "general": "Général",
+      "searchAriaLabel": "Recherche globale ({shortcut})"
     },
     "activeContext": {
       "noClub": "Aucun club",
@@ -165,7 +185,9 @@
       "yearLabel": "Année ecclésiastique",
       "clear": "Effacer la sélection",
       "loading": "Chargement du contexte...",
-      "unavailable": "Contexte indisponible"
+      "unavailable": "Contexte indisponible",
+      "changeFailed": "Impossible de changer le contexte actif",
+      "triggerLabel": "Contexte actif : {club}, {year}"
     }
   },
   "permissions": {
@@ -191,6 +213,93 @@
       "notifications": "Notifications",
       "resources": "Ressources",
       "system": "Système"
+    }
+  },
+  "coordinationAdmin": {
+    "page": {
+      "title": "Coordination",
+      "description": "Zones, coordinateurs généraux et assignations directes par section."
+    },
+    "emptyNoLocalField": {
+      "title": "Aucun champ local disponible",
+      "description": "Sélectionnez ou configurez un champ local avant de gérer les coordinateurs."
+    },
+    "assignmentTypes": {
+      "general": "Général",
+      "zone": "Zone + section",
+      "section": "Club/section direct"
+    },
+    "targets": {
+      "allLocalField": "Tout le champ local",
+      "zoneFallback": "Zone {id}",
+      "clubTypeFallback": "Type {id}",
+      "clubFallback": "Club",
+      "sectionFallback": "Section {id}"
+    },
+    "errors": {
+      "generic": "L'opération n'a pas pu être terminée.",
+      "zoneNameRequired": "Le nom de la zone est obligatoire.",
+      "zoneAndDistrictRequired": "Sélectionnez une zone et un district.",
+      "coordinatorRequired": "Sélectionnez un coordinateur.",
+      "assignmentScopeRequired": "Complétez le périmètre de l'assignation."
+    },
+    "success": {
+      "zoneCreated": "Zone créée.",
+      "districtAssigned": "District assigné à la zone.",
+      "districtRemoved": "District retiré de la zone.",
+      "zoneActivated": "Zone activée.",
+      "zoneDeactivated": "Zone désactivée.",
+      "assignmentCreated": "Assignation créée.",
+      "assignmentActivated": "Assignation activée.",
+      "assignmentDeactivated": "Assignation désactivée."
+    },
+    "localField": {
+      "title": "Champ local",
+      "description": "Les zones et assignations sont administrées dans le champ local sélectionné.",
+      "placeholder": "Sélectionner un champ local"
+    },
+    "zones": {
+      "title": "Zones",
+      "description": "Regroupez des districts afin qu'un coordinateur de zone voie les sections correspondantes.",
+      "namePlaceholder": "Zone 1",
+      "descriptionPlaceholder": "Nord / Métropolitaine",
+      "empty": "Il n'y a pas encore de zones pour ce champ local.",
+      "noDistricts": "Aucun district"
+    },
+    "assignments": {
+      "newTitle": "Nouvelle assignation",
+      "newDescription": "L'autorité finale est toujours résolue en sections de club.",
+      "directorConflictRule": "Règle : si l'utilisateur est déjà directeur d'une section, le backend refuse de l'assigner comme coordinateur de cette même section.",
+      "title": "Assignations actives",
+      "description": "Un coordinateur peut cumuler plusieurs périmètres ; l'app recevra le périmètre combiné.",
+      "empty": "Aucune assignation enregistrée."
+    },
+    "fields": {
+      "name": "Nom",
+      "description": "Description",
+      "zone": "Zone",
+      "selectZone": "Sélectionner une zone",
+      "district": "District",
+      "districts": "Districts",
+      "selectDistrict": "Sélectionner un district",
+      "status": "État",
+      "actions": "Actions",
+      "coordinator": "Coordinateur",
+      "selectUser": "Sélectionner un utilisateur",
+      "type": "Type",
+      "section": "Section",
+      "clubSection": "Club / section",
+      "selectSection": "Sélectionner une section",
+      "scope": "Périmètre"
+    },
+    "actions": {
+      "createZone": "Créer une zone",
+      "assignDistrict": "Assigner le district",
+      "createAssignment": "Créer l'assignation"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
     }
   },
   "catalogs": {
@@ -289,7 +398,9 @@
       "load_data_failed": "Erreur lors du chargement des données"
     },
     "validation": {
-      "delete_target_not_identified": "Impossible d'identifier l'enregistrement à supprimer"
+      "delete_target_not_identified": "Impossible d'identifier l'enregistrement à supprimer",
+      "field_required": "Le champ {field} est obligatoire",
+      "field_invalid": "La valeur de {field} n’est pas valide"
     },
     "success": {
       "op_create_title": "Enregistrement créé",
@@ -413,28 +524,133 @@
       "delete": "Supprimer",
       "cancel": "Annuler",
       "saveChanges": "Enregistrer les modifications",
-      "noPermissions": "Vous n'avez pas la permission de modifier ce catalogue."
+      "noPermissions": "Vous n'avez pas la permission de modifier ce catalogue.",
+      "colDuration": "Durée",
+      "colAvailability": "Disponibilité",
+      "classConfigTitle": "Disponibilité et durée",
+      "classConfigDescription": "Configure quand la classe peut commencer et combien d’années ecclésiastiques elle peut durer.",
+      "fieldAvailableFromYear": "Disponible depuis",
+      "fieldAvailableFromAny": "Aucune restriction de début",
+      "fieldAvailableUntilYear": "Disponible jusqu’à",
+      "fieldAvailableUntilNone": "Aucune expiration programmée",
+      "fieldMinDurationYears": "Durée minimale (années)",
+      "fieldMaxDurationYears": "Durée maximale (années)"
+    },
+    "shared": {
+      "editActionTitle": "Modifier",
+      "deleteActionTitle": "Supprimer",
+      "configureScoringTitle": "Configurer la notation"
     },
     "pages": {
       "countries": {
         "title": "Pays",
         "description": "Catalogue des pays du système.",
-        "metadataTitle": "Pays"
+        "metadataTitle": "Pays",
+        "entityLabel": "Pays",
+        "loadError": "Impossible de charger les pays."
       },
       "churches": {
         "title": "Églises",
         "description": "Catalogue des églises du système.",
-        "metadataTitle": "Églises"
+        "metadataTitle": "Églises",
+        "entityLabel": "Église",
+        "loadError": "Impossible de charger les églises.",
+        "listTitle": "Églises",
+        "createTitle": "Créer une église",
+        "editTitle": "Modifier l'église",
+        "entityLabelPlural": "Églises",
+        "fieldName": "Nom",
+        "fieldDistrict": "District",
+        "fieldActive": "Active",
+        "fieldNamePlaceholder": "Nom de l'église",
+        "fieldDistrictPlaceholder": "Sélectionner un district",
+        "buttonCreate": "Créer l'église",
+        "buttonSave": "Enregistrer",
+        "buttonCancel": "Annuler",
+        "buttonDelete": "Supprimer",
+        "emptyTitle": "Aucune église",
+        "emptyDescription": "Créez la première église.",
+        "deleteConfirmTitle": "Supprimer l'église ?",
+        "deleteConfirmDesc": "L'église \"{name}\" sera supprimée. Cette action est irréversible.",
+        "backToList": "Retour aux églises",
+        "validationName": "Le nom est obligatoire.",
+        "validationDistrict": "Le district est obligatoire.",
+        "colName": "Nom (es)",
+        "colDistrict": "District",
+        "colStatus": "Statut",
+        "colActions": "Actions",
+        "statusActive": "Active",
+        "statusInactive": "Inactive"
       },
       "districts": {
         "title": "Districts",
         "description": "Catalogue des districts du système.",
-        "metadataTitle": "Districts"
+        "metadataTitle": "Districts",
+        "entityLabel": "District",
+        "loadError": "Impossible de charger les districts.",
+        "listTitle": "Districts",
+        "createTitle": "Créer un district",
+        "editTitle": "Modifier le district",
+        "entityLabelPlural": "Districts",
+        "fieldName": "Nom",
+        "fieldLocalField": "Champ local",
+        "fieldActive": "Actif",
+        "fieldNamePlaceholder": "Nom du district",
+        "fieldLocalFieldPlaceholder": "Sélectionner un champ local",
+        "buttonCreate": "Créer le district",
+        "buttonSave": "Enregistrer",
+        "buttonCancel": "Annuler",
+        "buttonDelete": "Supprimer",
+        "emptyTitle": "Aucun district",
+        "emptyDescription": "Créez le premier district.",
+        "deleteConfirmTitle": "Supprimer le district ?",
+        "deleteConfirmDesc": "Le district \"{name}\" sera supprimé. Cette action est irréversible.",
+        "backToList": "Retour aux districts",
+        "validationName": "Le nom est obligatoire.",
+        "validationLocalField": "Le champ local est obligatoire.",
+        "colName": "Nom (es)",
+        "colLocalField": "Champ local",
+        "colStatus": "Statut",
+        "colActions": "Actions",
+        "statusActive": "Actif",
+        "statusInactive": "Inactif"
       },
       "unions": {
         "title": "Unions",
         "description": "Catalogue des unions du système.",
-        "metadataTitle": "Unions"
+        "metadataTitle": "Unions",
+        "entityLabel": "Union",
+        "loadError": "Impossible de charger les unions.",
+        "listTitle": "Unions",
+        "createTitle": "Créer une union",
+        "editTitle": "Modifier l'union",
+        "entityLabelPlural": "Unions",
+        "fieldName": "Nom",
+        "fieldAbbreviation": "Abréviation",
+        "fieldCountry": "Pays",
+        "fieldActive": "Active",
+        "fieldNamePlaceholder": "Nom de l'union",
+        "fieldAbbreviationPlaceholder": "Ex. UMN",
+        "fieldCountryPlaceholder": "Sélectionner un pays",
+        "buttonCreate": "Créer l'union",
+        "buttonSave": "Enregistrer",
+        "buttonCancel": "Annuler",
+        "buttonDelete": "Supprimer",
+        "emptyTitle": "Aucune union",
+        "emptyDescription": "Créez la première union.",
+        "deleteConfirmTitle": "Supprimer l'union ?",
+        "deleteConfirmDesc": "L'union \"{name}\" sera supprimée. Cette action est irréversible.",
+        "backToList": "Retour aux unions",
+        "validationName": "Le nom est obligatoire.",
+        "validationAbbreviation": "L'abréviation est obligatoire.",
+        "validationCountry": "Le pays est obligatoire.",
+        "colName": "Nom (es)",
+        "colAbbreviation": "Abréviation",
+        "colCountry": "Pays",
+        "colStatus": "Statut",
+        "colActions": "Actions",
+        "statusActive": "Active",
+        "statusInactive": "Inactive"
       },
       "unionsDetail": {
         "back": "Retour",
@@ -451,7 +667,39 @@
       "localFields": {
         "title": "Champs locaux",
         "description": "Catalogue des champs locaux du système.",
-        "metadataTitle": "Champs locaux"
+        "metadataTitle": "Champs locaux",
+        "entityLabel": "Champ local",
+        "loadError": "Impossible de charger les champs locaux.",
+        "listTitle": "Champs locaux",
+        "createTitle": "Créer un champ local",
+        "editTitle": "Modifier le champ local",
+        "entityLabelPlural": "Champs locaux",
+        "fieldName": "Nom",
+        "fieldAbbreviation": "Abréviation",
+        "fieldUnion": "Union",
+        "fieldActive": "Actif",
+        "fieldNamePlaceholder": "Nom du champ local",
+        "fieldAbbreviationPlaceholder": "Ex. CN",
+        "fieldUnionPlaceholder": "Sélectionner une union",
+        "buttonCreate": "Créer le champ local",
+        "buttonSave": "Enregistrer",
+        "buttonCancel": "Annuler",
+        "buttonDelete": "Supprimer",
+        "emptyTitle": "Aucun champ local",
+        "emptyDescription": "Créez le premier champ local.",
+        "deleteConfirmTitle": "Supprimer le champ local ?",
+        "deleteConfirmDesc": "Le champ local \"{name}\" sera supprimé. Cette action est irréversible.",
+        "backToList": "Retour aux champs locaux",
+        "validationName": "Le nom est obligatoire.",
+        "validationAbbreviation": "L'abréviation est obligatoire.",
+        "validationUnion": "L'union est obligatoire.",
+        "colName": "Nom (es)",
+        "colAbbreviation": "Abréviation",
+        "colUnion": "Union",
+        "colStatus": "Statut",
+        "colActions": "Actions",
+        "statusActive": "Actif",
+        "statusInactive": "Inactif"
       },
       "localFieldsDetail": {
         "back": "Retour",
@@ -468,7 +716,9 @@
       "activityTypes": {
         "title": "Types d'activité",
         "description": "Catalogue des types d'activité du système.",
-        "metadataTitle": "Types d'activité"
+        "metadataTitle": "Types d'activité",
+        "entityLabel": "Type d'activité",
+        "loadError": "Impossible de charger les types d'activité."
       },
       "folderSections": {
         "title": "Sections de dossier",
@@ -591,38 +841,171 @@
       "diseases": {
         "title": "Maladies",
         "description": "Maladies chroniques ou conditions médicales pertinentes.",
-        "metadataTitle": "Maladies"
+        "metadataTitle": "Maladies",
+        "entityLabel": "Maladie",
+        "loadError": "Impossible de charger les maladies."
       },
       "clubTypes": {
         "title": "Types de club",
         "description": "Types de club disponibles dans le système.",
-        "metadataTitle": "Types de club"
+        "metadataTitle": "Types de club",
+        "entityLabel": "Type de club",
+        "loadError": "Impossible de charger les types de club."
       },
       "medicines": {
         "title": "Médicaments",
         "description": "Médicaments couramment utilisés par les membres.",
-        "metadataTitle": "Médicaments"
+        "metadataTitle": "Médicaments",
+        "entityLabel": "Médicament",
+        "loadError": "Impossible de charger les médicaments."
       },
       "clubIdeals": {
         "title": "Idéaux de club",
         "description": "Idéaux associés à chaque type de club.",
-        "metadataTitle": "Idéaux de club"
+        "metadataTitle": "Idéaux de club",
+        "listTitle": "Idéaux de club",
+        "createTitle": "Créer un idéal de club",
+        "editTitle": "Modifier l'idéal de club",
+        "entityLabel": "Idéal",
+        "entityLabelPlural": "Idéaux",
+        "fieldName": "Nom",
+        "fieldIdeal": "Idéal",
+        "fieldClubType": "Type de club",
+        "fieldIdealOrder": "Ordre",
+        "fieldActive": "Actif",
+        "fieldNamePlaceholder": "Ex. Service",
+        "fieldIdealPlaceholder": "Décrivez l'idéal...",
+        "fieldClubTypePlaceholder": "Sélectionner un type de club",
+        "buttonCreate": "Créer un idéal",
+        "buttonSave": "Enregistrer",
+        "buttonCancel": "Annuler",
+        "buttonDelete": "Supprimer",
+        "emptyTitle": "Aucun idéal",
+        "emptyDescription": "Créez le premier idéal de club.",
+        "deleteConfirmTitle": "Supprimer l'idéal ?",
+        "deleteConfirmDesc": "L'idéal \"{name}\" sera définitivement supprimé.",
+        "backToList": "Retour aux idéaux",
+        "loadError": "Impossible de charger les idéaux de club.",
+        "validationName": "Le nom est obligatoire.",
+        "validationIdeal": "L'idéal est obligatoire.",
+        "validationClubType": "Le type de club est obligatoire.",
+        "validationIdealOrder": "L'ordre doit être un nombre positif.",
+        "colName": "Nom (es)",
+        "colClubType": "Type de club",
+        "colIdealOrder": "Ordre",
+        "colStatus": "Statut",
+        "colActions": "Actions",
+        "statusActive": "Actif",
+        "statusInactive": "Inactif",
+        "editActionTitle": "Modifier",
+        "deleteActionTitle": "Supprimer"
       },
       "allergies": {
         "title": "Allergies",
         "description": "Liste des allergies pour le profil de santé des membres.",
-        "metadataTitle": "Allergies"
+        "metadataTitle": "Allergies",
+        "entityLabel": "Allergie",
+        "loadError": "Impossible de charger les allergies."
       },
       "relationshipTypes": {
         "title": "Types de relation",
         "description": "Liens familiaux ou de contact d'urgence.",
-        "metadataTitle": "Types de relation"
+        "metadataTitle": "Types de relation",
+        "entityLabel": "Type de relation",
+        "loadError": "Impossible de charger les types de relation."
       },
       "ecclesiasticalYears": {
         "title": "Années ecclésiastiques",
         "description": "Périodes annuelles pour l'organisation des activités.",
         "metadataTitle": "Années ecclésiastiques"
+      },
+      "camporeeEventTypes": {
+        "title": "Types d'événements de camporee",
+        "description": "Catalogue des types d'événements pour camporees (spirituel, sportif, culturel, etc.).",
+        "metadataTitle": "Types d'événements de camporee",
+        "listTitle": "Types d'événements de camporee",
+        "createTitle": "Créer un type d'événement",
+        "editTitle": "Modifier le type d'événement",
+        "entityLabel": "Type d'événement",
+        "entityLabelPlural": "Types d'événements",
+        "fieldName": "Nom",
+        "fieldDescription": "Description",
+        "fieldCode": "Code",
+        "fieldDisplayOrder": "Ordre",
+        "fieldActive": "Actif",
+        "fieldNamePlaceholder": "Ex. Spirituel",
+        "fieldDescriptionPlaceholder": "Décrivez le type d'événement...",
+        "fieldCodePlaceholder": "ex. spiritual",
+        "buttonCreate": "Créer le type",
+        "buttonSave": "Enregistrer",
+        "buttonCancel": "Annuler",
+        "buttonDelete": "Supprimer",
+        "emptyTitle": "Aucun type d'événement",
+        "emptyDescription": "Créez le premier type d'événement pour les camporees.",
+        "deleteConfirmTitle": "Supprimer le type d'événement ?",
+        "deleteConfirmDesc": "Le type \"{name}\" sera supprimé définitivement.",
+        "backToList": "Retour aux types d'événements",
+        "loadError": "Impossible de charger les types d'événements.",
+        "validationName": "Le nom est obligatoire.",
+        "validationCode": "Le code ne peut contenir que des lettres, chiffres et underscores.",
+        "colName": "Nom (es)",
+        "colCode": "Code",
+        "colDisplayOrder": "Ordre",
+        "colStatus": "Statut",
+        "colActions": "Actions",
+        "statusActive": "Actif",
+        "statusInactive": "Inactif"
       }
+    },
+    "masterHonors": {
+      "colRulesSummary": "Résumé des règles",
+      "rulesSummaryNoRules": "Aucune règle configurée",
+      "rulesTitle": "Règles de l’honneur maître",
+      "fieldPhilosophy": "Philosophie",
+      "fieldPhilosophyPlaceholder": "Décris la philosophie officielle de cet honneur maître.",
+      "fieldNotes": "Notes",
+      "fieldNotesPlaceholder": "Ajoute des notes, exclusions ou substitutions permises.",
+      "fieldApplicabilityScope": "Applicabilité",
+      "scopeSelectPlaceholder": "Sélectionner l’applicabilité",
+      "scopeAll": "Toutes les divisions",
+      "scopeSelected": "Divisions sélectionnées",
+      "warningRecalculate": "Modifier ces exigences peut attribuer ou marquer comme non à jour des honneurs maîtres existants. Le recalcul sera exécuté automatiquement.",
+      "fieldDivisions": "Divisions",
+      "rulesGroupsTitle": "Groupes d’exigences",
+      "rulesGroupsDescription": "Configure les groupes que l’utilisateur doit satisfaire pour obtenir cet honneur maître.",
+      "buttonAddGroup": "Ajouter un groupe",
+      "groupLabel": "Groupe {index}",
+      "buttonRemoveGroup": "Retirer le groupe",
+      "fieldGroupType": "Type de groupe",
+      "groupTypeExplicit": "Honneurs spécifiques",
+      "groupTypeCategory": "Nombre par catégorie",
+      "fieldMinimumRequired": "Minimum requis",
+      "validationMinTooHigh": "Le minimum du groupe {index} ne peut pas dépasser les options actives ({count}).",
+      "fieldMinimumRequiredHint": "Options actives {activeCount}",
+      "fieldDisplayOrder": "Ordre",
+      "fieldGroupTitle": "Titre du groupe",
+      "fieldGroupTitlePlaceholder": "Exemple : Honneurs aquatiques",
+      "fieldGroupDescription": "Description du groupe",
+      "fieldGroupDescriptionPlaceholder": "Décris comment ce groupe est évalué.",
+      "fieldActive": "Actif",
+      "fieldHonorCategory": "Catégorie d’honneurs",
+      "fieldHonorCategoryPlaceholder": "Sélectionner une catégorie",
+      "optionsTitle": "Options",
+      "optionsDescription": "Chaque option peut avoir un ou plusieurs honneurs équivalents.",
+      "buttonAddOption": "Ajouter une option",
+      "noOptions": "Aucune option configurée.",
+      "optionLabel": "Option {index}",
+      "buttonRemoveOption": "Retirer l’option",
+      "fieldOptionLabel": "Étiquette",
+      "fieldOptionLabelPlaceholder": "Exemple : Plongée sous-marine et/ou avancée",
+      "fieldOptionOrder": "Ordre",
+      "fieldOptionActive": "Option active",
+      "fieldOptionHonorIds": "Honneurs équivalents",
+      "noHonors": "Aucun honneur disponible.",
+      "noGroups": "Aucun groupe configuré.",
+      "recalculateNow": "Recalculer maintenant",
+      "summaryGroupCount": "{count} groupes",
+      "summaryMinimumTotal": "Minimum total: {count}"
     }
   },
   "auth": {
@@ -697,7 +1080,8 @@
       "ecclesiastical_year_invalid": "Année ecclésiastique non valide",
       "member_not_identified": "Impossible d'identifier le membre",
       "assignment_not_identified": "Impossible d'identifier l'affectation à mettre à jour",
-      "assignment_remove_not_identified": "Impossible d'identifier l'affectation à supprimer"
+      "assignment_remove_not_identified": "Impossible d'identifier l'affectation à supprimer",
+      "bulk_row_invalid": "Ligne invalide : champs obligatoires manquants"
     },
     "success": {
       "section_created": "Section créée avec succès",
@@ -714,6 +1098,14 @@
       "church": "Église",
       "ecclesiastical_year": "Année ecclésiastique"
     },
+    "locationPicker": {
+      "searchLabel": "Rechercher une adresse",
+      "searchPlaceholder": "Saisissez l'adresse ou le lieu...",
+      "hint": "Recherchez, cliquez sur la carte ou faites glisser l'épingle pour définir l'emplacement.",
+      "noPin": "Aucun emplacement sélectionné",
+      "clear": "Retirer l'épingle",
+      "missingApiKey": "NEXT_PUBLIC_GOOGLE_MAPS_API_KEY n'est pas configurée."
+    },
     "form": {
       "labelName": "Nom",
       "labelDescription": "Description",
@@ -729,8 +1121,15 @@
       "placeholderDescription": "Description facultative",
       "placeholderLocalField": "Sélectionner un champ local",
       "placeholderDistrict": "Sélectionner un district",
+      "placeholderDistrictParent": "Sélectionnez d'abord un champ local",
       "placeholderChurch": "Sélectionner une église",
-      "placeholderAddress": "Adresse du club"
+      "placeholderChurchParent": "Sélectionnez d'abord un district",
+      "placeholderAddress": "Adresse du club",
+      "sectionsTitle": "Sections du club",
+      "sectionsDescription": "Choisissez les sections que ce club exploitera lors de sa création.",
+      "sectionToggleHint": "Elle sera créée avec le club.",
+      "sectionNameLabel": "Nom de la section (facultatif)",
+      "sectionNamePlaceholder": "Ex. {section}"
     },
     "edit": {
       "cardTitle": "Informations générales",
@@ -740,21 +1139,144 @@
     },
     "sections": {
       "description": "Un club peut avoir des sections pour chaque type de club (Aventuriers, Éclaireurs, Guides Maîtres).",
+      "labelName": "Nom de la section",
+      "placeholderName": "Ex. Éclaireurs Central",
       "labelSoulsTarget": "Objectif d'âmes",
       "labelFee": "Cotisation d'adhésion",
       "labelMeetingDay": "Jour de réunion",
       "placeholderMeetingDay": "Sélectionner un jour",
       "labelMeetingTime": "Heure de réunion",
       "createButton": "Créer une section",
+      "saveButton": "Enregistrer la section",
       "notCreated": "Non créée",
       "cancelButton": "Annuler",
       "addButton": "Ajouter",
+      "editButton": "Modifier",
+      "activateButton": "Activer",
+      "deactivateButton": "Désactiver",
       "statusActive": "Active",
       "statusInactive": "Inactive",
       "infoType": "Type",
       "infoSectionId": "ID section",
       "infoCuota": "Cotisation",
-      "infoMembers": "Membres"
+      "infoMembers": "Membres",
+      "daysOfWeek": {
+        "Monday": "Lundi",
+        "Tuesday": "Mardi",
+        "Wednesday": "Mercredi",
+        "Thursday": "Jeudi",
+        "Friday": "Vendredi",
+        "Saturday": "Samedi",
+        "Sunday": "Dimanche"
+      },
+      "workspace": {
+        "eyebrow": "Administration du club",
+        "title": "Sections et responsables.",
+        "lead": "Séparez la fiche de chaque section de l'assignation des classes : moins de bruit visuel, mêmes actions, meilleure traçabilité.",
+        "editSection": "Modifier la section",
+        "assignResponsible": "Assigner un responsable",
+        "tabSections": "Sections du club",
+        "tabResponsables": "Responsables par classe",
+        "tabHistory": "Historique",
+        "searchSection": "Rechercher une section",
+        "searchSectionPlaceholder": "ACV, Explorateurs, Guides…",
+        "selectSectionPrompt": "Sélectionnez une section dans la liste ou créez-en une nouvelle pour voir sa fiche.",
+        "sectionDetailLead": "Un club peut avoir des sections par type. Dans {section}, les classes disponibles appartiennent à {type}.",
+        "responsiblesRuleTitle": "Règle des responsables",
+        "responsiblesRuleLead": "Les classes visibles dépendent du type de club de la section ({type}). Un conseiller peut être principal ou suppléant.",
+        "viewResponsibles": "Voir les responsables",
+        "noSectionsForAssignments": "Créez au moins une section active avant d'assigner des responsables par classe.",
+        "searchAssignments": "Rechercher responsable ou classe",
+        "searchAssignmentsPlaceholder": "Counselor Test, Ami, Principal…",
+        "filterClubType": "Type de club",
+        "filterAll": "Tous",
+        "clearFilters": "Effacer les filtres",
+        "responsablesTitle": "Responsables par classe",
+        "responsablesLead": "Onglet dédié : le tableau conserve les actions et le formulaire précise quand une assignation est principale, suppléante ou exceptionnelle.",
+        "loadingAssignments": "Chargement des assignations…",
+        "emptyAssignments": "Aucun responsable ne correspond à ces filtres. Essayez d'effacer la recherche ou assignez une nouvelle classe.",
+        "exceptionalTag": "Exceptionnel",
+        "colSection": "Section",
+        "colClass": "Classe",
+        "colResponsible": "Responsable",
+        "colRole": "Rôle",
+        "colJustification": "Justification",
+        "colAction": "Action",
+        "assignFormTitle": "Assigner une classe",
+        "assignFormLead": "Choisissez d'abord une section ; les classes se mettent à jour selon le type de club. La cotisation peut se répéter sans bloquer l'assignation.",
+        "labelSection": "Section",
+        "placeholderSection": "Sélectionner une section",
+        "labelResponsible": "Responsable",
+        "placeholderResponsible": "Sélectionner une personne",
+        "labelClass": "Classe",
+        "placeholderClass": "Sélectionner une classe",
+        "labelResponsibility": "Responsabilité",
+        "labelExceptional": "Assignation exceptionnelle",
+        "labelExceptionalShort": "Exceptionnel",
+        "labelJustification": "Justification",
+        "placeholderJustification": "Requis pour suppléant ou exceptionnel",
+        "assignButton": "Assigner la classe",
+        "formErrorRequired": "Complétez responsable et classe avant d'assigner.",
+        "formErrorJustification": "Ajoutez une justification pour les suppléants ou assignations exceptionnelles.",
+        "saveAssignment": "Enregistrer",
+        "revokeAssignment": "Révoquer",
+        "historyTitle": "Changements récents",
+        "historyLead": "Audit bref pour comprendre qui a enregistré, révoqué ou modifié une responsabilité sans le mélanger à la fiche de section.",
+        "loadingHistory": "Chargement de l'historique…",
+        "historyError": "Impossible de charger l'historique.",
+        "retry": "Réessayer",
+        "historyEmptyTitle": "Pas encore d'événements de section",
+        "historyEmptyLead": "Lorsque vous modifiez des sections ou assignez des responsables par classe, les événements apparaîtront ici.",
+        "loadMore": "Charger plus",
+        "responsibilityPrimary": "Principal",
+        "responsibilityAssistant": "Appui",
+        "responsibilitySubstitute": "Suppléant",
+        "responsibilityFallback": "Responsable"
+      }
+    },
+    "detail": {
+      "overview": {
+        "compositionTitle": "Composition du club",
+        "compositionSubtitle": "Répartition des membres entre les trois sections",
+        "totalCount": "Total · {count}",
+        "healthTitle": "Santé du club",
+        "healthSubtitle": "Score composite",
+        "rankingTitle": "Classement des unités",
+        "rankingSubtitle": "Par taille · toutes les sections",
+        "unitsCount": "{count} unités",
+        "attendanceTitle": "Assiduité hebdomadaire",
+        "attendanceSubtitle": "Moyenne % par semaine",
+        "attendanceAverage": "Moyenne · {pct}%"
+      },
+      "sidebar": {
+        "quickActionsTitle": "Actions rapides",
+        "editClub": "Modifier le club",
+        "createUnit": "Créer une unité",
+        "approveRequests": "Approuver les demandes ({count})",
+        "reviewRequests": "Examiner les demandes",
+        "configureSections": "Configurer les sections",
+        "investitureCeremony": "Cérémonie d'investiture",
+        "deleteClub": "Supprimer le club",
+        "upcomingEventsTitle": "Événements à venir",
+        "loading": "Chargement…",
+        "noEventsTitle": "Aucun agenda visible",
+        "noEventsDescription": "Aucune activité future n'est enregistrée pour ce club.",
+        "clubFallback": "Club"
+      },
+      "leadership": {
+        "title": "Direction",
+        "titleBySection": "Direction par section",
+        "loading": "Chargement…",
+        "loadError": "Impossible de charger la direction du club.",
+        "emptyTitle": "Aucune direction assignée",
+        "emptyDescription": "Assignez un directeur, des adjoints et des secrétaires depuis les sections du club.",
+        "activeAssignments": "{count} affectations actives",
+        "generalSection": "Club général",
+        "noDirector": "Aucun directeur assigné.",
+        "sectionTeam": "Équipe de la section",
+        "roleSingular": "poste",
+        "rolePlural": "postes"
+      }
     },
     "pages": {
       "list": {
@@ -774,15 +1296,67 @@
         "cannotShow": "Impossible d’afficher les clubs",
         "emptyTitle": "Aucun club enregistré",
         "emptyDescription": "Créez le premier club pour commencer.",
-        "emptyCreateButton": "Créer un club"
+        "emptyCreateButton": "Créer un club",
+        "createMenuManual": "Créer manuellement",
+        "createMenuBulk": "Importer depuis Excel",
+        "unexpectedError": "Erreur inattendue"
       },
       "new": {
         "title": "Créer un club",
         "back": "Retour"
       },
+      "import": {
+        "title": "Importer des clubs depuis Excel",
+        "description": "Création en masse de clubs à partir d'un fichier .xlsx. Les noms du champ local, du district et de l'église doivent correspondre aux catalogues existants.",
+        "back": "Retour",
+        "uploadCardTitle": "Fichier Excel",
+        "uploadCardDescription": "Téléversez un fichier .xlsx ou .csv avec les clubs à créer.",
+        "downloadTemplate": "Télécharger le modèle",
+        "chooseFile": "Choisir un fichier",
+        "reset": "Réinitialiser",
+        "expectedHeadersTitle": "Colonnes attendues (ordre libre, en-têtes obligatoires) :",
+        "matchHint": "Les colonnes local_field, district et church sont résolues par nom exact contre les catalogues.",
+        "previewTitle": "Aperçu ({total} lignes)",
+        "previewSummary": "{valid} valides · {invalid} avec erreurs",
+        "colName": "Nom",
+        "colLocalField": "Champ local",
+        "colDistrict": "District",
+        "colChurch": "Église",
+        "colStatus": "Statut",
+        "colMessage": "Message",
+        "rowValid": "Valide",
+        "rowInvalid": "Erreur",
+        "rowCreated": "Créé",
+        "rowFailed": "Échec",
+        "submitButton": "Importer {count} clubs",
+        "resultTitle": "Résultat de l'importation",
+        "resultSummary": "{created} créés · {failed} en échec",
+        "resultForbidden": "Vous n'avez pas la permission d'importer des clubs",
+        "validation": {
+          "missingName": "Nom requis",
+          "missingLocalField": "Champ local requis",
+          "missingDistrict": "District requis",
+          "missingChurch": "Église requise",
+          "unknownLocalField": "Champ local inconnu : {value}",
+          "unknownDistrict": "District inconnu : {value}",
+          "unknownChurch": "Église inconnue : {value}",
+          "coordinatesInvalid": "Coordonnées invalides"
+        },
+        "errors": {
+          "emptyWorkbook": "Le fichier ne contient pas de feuilles",
+          "noRows": "Le fichier ne contient pas de lignes",
+          "missingHeaders": "Colonnes obligatoires manquantes : {headers}",
+          "parseFailed": "Impossible de lire le fichier"
+        }
+      },
       "detail": {
         "back": "Retour",
         "deleteButton": "Supprimer",
+        "deleteDialogTitle": "Supprimer ce club ?",
+        "deleteDialogDesc": "Le club « {name} » sera désactivé dans le système. Cette action peut être annulée en le réactivant plus tard.",
+        "deleteDialogConfirm": "Supprimer le club",
+        "deleteDialogCancel": "Annuler",
+        "deleteDialogDeleting": "Suppression…",
         "tabView": "Voir",
         "tabEdit": "Modifier",
         "tabSections": "Sections ({count})",
@@ -809,11 +1383,59 @@
         "title": "Modifier l’unité",
         "descriptionTemplate": "Modifier les données de « {unitName} » dans {clubName}",
         "back": "Retour au club"
+      },
+      "v2": {
+        "metadataTitle": "Clubs v2",
+        "badge": "Vue catalogue",
+        "title": "Clubs",
+        "description": "Liste opérationnelle avec filtres et tableau style catalogue.",
+        "switchToV2": "Essayer la vue catalogue (v2)",
+        "switchToClassic": "Retour à la vue classique",
+        "filtersTitle": "Filtres",
+        "filtersHint": "Affinez la liste par champ",
+        "searchPlaceholder": "Rechercher par nom ou lieu…",
+        "statusAll": "Tous les statuts",
+        "localFieldAll": "Tous les champs",
+        "colSections": "Sections actives",
+        "emptyFilteredTitle": "Aucun résultat",
+        "emptyFilteredDescription": "Aucun club ne correspond aux filtres appliqués.",
+        "actionView": "Voir le détail",
+        "actionEdit": "Modifier",
+        "detail": {
+          "fallbackTitle": "Détail du club",
+          "description": "Fiche opérationnelle du club avec onglets style catalogue.",
+          "breadcrumbList": "Clubs",
+          "openClassic": "Ouvrir la vue classique",
+          "editButton": "Modifier le club",
+          "statusActive": "Actif",
+          "statusInactive": "Inactif",
+          "noDescription": "Aucune description enregistrée",
+          "membersLabel": "membres",
+          "unitsLabel": "unités",
+          "tabOverview": "Résumé",
+          "tabSections": "Sections",
+          "tabResponsables": "Responsables par classe",
+          "tabUnits": "Unités",
+          "tabMembership": "Demandes",
+          "tabInfo": "Information",
+          "tabHistory": "Historique",
+          "tabEdit": "Modifier",
+          "membershipTitle": "Demandes",
+          "membershipLead": "Approuvez ou rejetez les nouveaux membres et changements de club par section.",
+          "noSectionsForResponsables": "Créez au moins une section de club pour assigner des responsables par classe.",
+          "editTitle": "Modifier les informations du club",
+          "editLead": "Mettez à jour l'identité, le lieu et les données générales."
+        }
       }
     },
     "a11y": {
       "deleteClub": "Supprimer le club {name}",
-      "actionsMenu": "Actions pour {name}"
+      "actionsMenu": "Actions pour {name}",
+      "viewDetailTitle": "Voir le détail",
+      "viewClub": "Voir {name}",
+      "editActionTitle": "Modifier",
+      "editClub": "Modifier {name}",
+      "deleteActionTitle": "Supprimer"
     }
   },
   "dashboardHub": {
@@ -837,7 +1459,9 @@
       "description": "Dernières inscriptions dans le système",
       "viewAll": "Voir tout",
       "noRole": "Sans rôle",
-      "loadError": "Impossible de charger les utilisateurs récents."
+      "loadError": "Impossible de charger les utilisateurs récents.",
+      "deletedAccount": "Compte supprimé",
+      "anonymizedAccount": "Données personnelles anonymisées"
     },
     "relativeDate": {
       "today": "Aujourd'hui",
@@ -878,6 +1502,13 @@
       "instructor": "Instructeur",
       "member": "Membre",
       "noRole": "Sans rôle"
+    },
+    "birthday": {
+      "title": "Joyeux anniversaire !",
+      "message": "Aujourd’hui, nous célébrons ta vie avec gratitude. Que cette nouvelle année soit remplie de sens, de paix et de joie.",
+      "bibleMessage": "« Que le Seigneur te bénisse et te garde. » — Nombres 6:24",
+      "thanks": "Merci",
+      "dismissToday": "Ne plus afficher aujourd’hui"
     }
   },
   "post_registration": {
@@ -915,13 +1546,13 @@
       "club_send_failed": "Impossible d'envoyer la notification au club"
     },
     "validation": {
-      "user_id_required": "Saisissez l'identifiant de l'utilisateur",
+      "user_id_required": "Sélectionner un membre",
       "title_required": "Saisissez le titre",
       "body_required": "Saisissez le message",
       "instance_type_required": "Sélectionnez le type de club",
       "instance_type_invalid": "Le type de club n'est pas valide",
-      "instance_id_required": "Saisissez l'identifiant de l'instance",
-      "instance_id_invalid": "L'identifiant de l'instance n'est pas valide"
+      "instance_id_required": "Sélectionner une section",
+      "instance_id_invalid": "La section sélectionnée est invalide"
     },
     "success": {
       "sent": "Notification envoyée avec succès",
@@ -936,8 +1567,12 @@
       "broadcast_warning": "Cette action enverra la notification à tous les utilisateurs avec un token FCM enregistré.",
       "club_title": "Par club",
       "club_description": "Envoyer une notification à tous les membres d'un club.",
-      "label_user_id": "ID utilisateur",
-      "placeholder_user_id": "UUID de l'utilisateur",
+      "label_instance_target": "Club/section autorisé",
+      "placeholder_instance_target": "Sélectionner club/section...",
+      "no_club_targets": "Vous n’avez aucune cible de club autorisée pour envoyer des notifications.",
+      "club_targets_load_error": "Impossible de charger les cibles de club autorisées.",
+      "label_user_id": "Membre",
+      "placeholder_user_id": "Rechercher un membre...",
       "label_title": "Titre",
       "placeholder_title_notification": "Titre de la notification",
       "placeholder_title_broadcast": "Titre de la diffusion",
@@ -948,8 +1583,8 @@
       "option_adventurers": "Aventuriers",
       "option_pathfinders": "Éclaireurs",
       "option_master_guilds": "Guides principaux",
-      "label_instance_id": "ID instance",
-      "placeholder_instance_id": "ID numérique du club",
+      "label_instance_id": "Section",
+      "placeholder_instance_id": "Sélectionner une section",
       "submit_send": "Envoyer la notification",
       "submit_broadcast": "Envoyer la diffusion",
       "submit_club": "Envoyer au club"
@@ -990,6 +1625,7 @@
     "validation": {
       "name_required": "Saisissez le nom",
       "club_type_required": "Sélectionnez le type de club",
+      "club_section_required": "Sélectionnez la section du club",
       "member_required": "Sélectionnez un membre pour {field}",
       "member_invalid": "Sélectionnez un membre valide pour {field}"
     },
@@ -1131,8 +1767,8 @@
         "invalidIdError": "ID de spécialité invalide."
       },
       "requirementsReview": {
-        "title": "Révision des exigences",
-        "description": "Révisez et approuvez les exigences importées qui nécessitent une validation.",
+        "title": "Révision des exigences du catalogue",
+        "description": "Révisez et approuvez les exigences importées du catalogue. Ce n'est pas une révision institutionnelle des preuves des utilisateurs.",
         "backToList": "Retour à la liste",
         "reviewItemTitle": "Révision d'exigence",
         "pendingBadge": "{count} en attente",
@@ -1160,6 +1796,18 @@
         "retryButton": "Réessayer",
         "batchError": "Erreur lors de l'opération en masse.",
         "loadError": "Impossible de charger les exigences en attente."
+      }
+    },
+    "components": {
+      "requirementEdit": {
+        "referencePlaceholder": "Ex. : Livre des spécialités, p. 45-50"
+      },
+      "requirementsTree": {
+        "needsReviewAriaLabel": "En attente de révision"
+      },
+      "reviewSplitView": {
+        "openMaterialAriaLabel": "Ouvrir le matériel dans un nouvel onglet",
+        "referencePlaceholder": "Ex. : Livre des spécialités, p. 45-50"
       }
     }
   },
@@ -1204,8 +1852,8 @@
       "role_category_invalid": "La catégorie doit être GLOBAL ou CLUB",
       "role_required": "Sélectionnez un rôle avant d'attribuer.",
       "permission_required": "Sélectionnez une permission avant d'attribuer.",
-      "user_id_required": "Saisissez l'UUID de l'utilisateur.",
-      "uuid_invalid": "L'ID saisi n'est pas un UUID valide."
+      "user_id_required": "Sélectionnez un utilisateur.",
+      "uuid_invalid": "Sélectionnez un utilisateur valide."
     },
     "success": {
       "permissions_updated": "Permissions mises à jour avec succès"
@@ -1274,6 +1922,10 @@
       "saveChanges": "Enregistrer les modifications",
       "delete": "Supprimer"
     },
+    "rolesTable": {
+      "editProtectedAriaLabel": "Modifier le rôle protégé",
+      "editRoleAriaLabel": "Modifier {name}"
+    },
     "permissionPicker": {
       "searchPlaceholder": "Rechercher des permissions...",
       "ofLabel": "sur",
@@ -1319,7 +1971,19 @@
         "description": "Attribuez des permissions aux rôles directement depuis le tableau. Chaque colonne est un rôle, chaque ligne une permission.",
         "emptyTitle": "Aucune donnée",
         "emptyDescription": "Aucun rôle ou permission enregistré pour afficher la matrice.",
-        "loadError": "Erreur inattendue"
+        "loadError": "Erreur inattendue",
+        "permissionColumn": "Permission",
+        "searchPlaceholder": "Rechercher une permission…",
+        "saveChanges": "Enregistrer",
+        "saving": "Enregistrement…",
+        "saveSuccess": "Permissions du rôle {role} mises à jour",
+        "saveError": "Impossible d’enregistrer les permissions du rôle {role}",
+        "dirtyBadge": "Modifications non enregistrées",
+        "categoryGlobal": "Global",
+        "categoryClub": "Club",
+        "discard": "Annuler",
+        "noMatches": "Aucun résultat",
+        "noMatchesDesc": "Aucune permission ne correspond à la recherche."
       },
       "permissions": {
         "title": "Catalogue des permissions",
@@ -1406,6 +2070,10 @@
       "club_roles:read": "Voir les rôles de club",
       "club_roles:assign": "Assigner un rôle de club",
       "club_roles:revoke": "Révoquer un rôle de club",
+      "coordination": {
+        "manage": "Gérer la coordination"
+      },
+      "coordination:manage": "Gérer la coordination",
       "club_members:approve": "Approuver une adhésion",
       "club_members:reject": "Rejeter une adhésion",
       "club_members:list_pending": "Voir les demandes en attente",
@@ -1891,6 +2559,11 @@
       "approve_payment": "Impossible d'approuver le paiement",
       "enroll_club": "Impossible d'inscrire le club"
     },
+    "membersTab": {
+      "refreshListTitle": "Actualiser la liste",
+      "previousPageAriaLabel": "Page précédente",
+      "nextPageAriaLabel": "Page suivante"
+    },
     "list": {
       "countSingular": "camporée",
       "countPlural": "camporées",
@@ -1921,7 +2594,7 @@
       "labelEndDate": "Date de fin",
       "labelPlace": "Lieu",
       "placeholderPlace": "Ex. Centre Récréatif La Montagne",
-      "labelLocalFieldId": "ID du champ local",
+      "labelLocalFieldId": "Champ local",
       "labelRegistrationCost": "Coût d'inscription",
       "labelIncludes": "Inclut",
       "adventurers": "Aventuriers",
@@ -1932,6 +2605,15 @@
       "creating": "Création...",
       "saveChanges": "Enregistrer les modifications",
       "createCamporee": "Créer la camporée"
+    },
+    "eventInstanceForm": {
+      "titleCreate": "Nouvel événement",
+      "titleEdit": "Modifier l'événement",
+      "descriptionCreate": "Complétez les données pour ajouter un nouvel événement au programme du camporée.",
+      "descriptionEdit": "Modifiez les données de l'événement. Les changements seront visibles dans le programme du camporée.",
+      "backToEvents": "Retour aux événements",
+      "descriptionPlaceholder": "Brève description de l'événement pour les participants",
+      "capacityPlaceholder": "Sans limite"
     },
     "unionList": {
       "countSingular": "camporée",
@@ -2051,15 +2733,16 @@
       "approveLabel": "Approuver le paiement",
       "rejectLabel": "Rejeter le paiement",
       "editLabel": "Modifier le paiement",
+      "voucherAttachedLabel": "Justificatif joint",
       "approvedWithName": "Paiement de \"{name}\" approuvé",
       "approvedGeneric": "Paiement approuvé",
-      "errorNoPaymentUuid": "UUID de paiement non disponible",
+      "errorNoPaymentUuid": "Impossible d’identifier le paiement",
       "fallbackPayment": "Paiement #{id}",
       "entityLabel": "Paiement"
     },
     "enrollDialog": {
       "title": "Inscrire un club",
-      "labelSectionId": "ID de section de club",
+      "labelSectionId": "Section",
       "placeholderSectionId": "Ex. 42",
       "helpSectionId": "Entrez l'ID de la section de club que vous souhaitez inscrire.",
       "cancel": "Annuler",
@@ -2088,10 +2771,34 @@
       "saveChanges": "Enregistrer les modifications",
       "registerPayment": "Enregistrer le paiement"
     },
+    "paymentVoucher": {
+      "sectionTitle": "Justificatif de paiement",
+      "empty": "Aucun justificatif joint",
+      "help": "JPG, PNG, WebP ou PDF · max 10MB",
+      "upload": "Téléverser le justificatif",
+      "replace": "Remplacer le justificatif",
+      "remove": "Supprimer le justificatif",
+      "removeConfirmTitle": "Supprimer le justificatif ?",
+      "removeConfirmDescription": "Cette action est irréversible.",
+      "removeConfirmAction": "Supprimer",
+      "removeConfirmCancel": "Annuler",
+      "clearSelection": "Effacer la sélection",
+      "selected": "Fichier sélectionné",
+      "uploadedAt": "Téléversé le {date}",
+      "openPdf": "Voir le justificatif (PDF)",
+      "openInNewTab": "Ouvrir dans un nouvel onglet",
+      "uploadedBadge": "Justificatif joint",
+      "errorTooLarge": "Le fichier dépasse la taille maximale de 10MB.",
+      "errorBadMime": "Format non autorisé. Utilisez JPG, PNG, WebP ou PDF.",
+      "errorUploadFailed": "Échec du téléversement du justificatif.",
+      "errorRemoveFailed": "Échec de la suppression du justificatif.",
+      "toastUploaded": "Justificatif téléversé",
+      "toastRemoved": "Justificatif supprimé"
+    },
     "registerMemberDialog": {
       "title": "Enregistrer un membre",
       "insuranceErrorTitle": "Erreur de validation d'assurance",
-      "labelUserId": "ID utilisateur (UUID)",
+      "labelUserId": "Membre",
       "labelCamporeeType": "Type de camporée",
       "placeholderCamporeeType": "Sélectionner le type",
       "typeLocal": "Local",
@@ -2104,7 +2811,17 @@
       "helpInsurance": "L'enregistrement échouera si l'assurance n'est pas validée.",
       "cancel": "Annuler",
       "registering": "Enregistrement...",
-      "register": "Enregistrer le membre"
+      "register": "Enregistrer le membre",
+      "description": "Sélectionnez le club et le membre à inscrire au camporee.",
+      "labelClub": "Club",
+      "labelMember": "Membre",
+      "placeholderMember": "Rechercher un membre...",
+      "placeholderSelectClubFirst": "Sélectionnez d’abord un club",
+      "insuranceLoading": "Recherche d’une assurance active...",
+      "insuranceActive": "Assurance active",
+      "insuranceExpires": "Expire le",
+      "noInsuranceTitle": "Aucune assurance active",
+      "noInsuranceDescription": "Ce membre n’a pas d’assurance active et ne peut pas être inscrit."
     },
     "pages": {
       "list": {
@@ -2226,7 +2943,7 @@
       "selectUnion": "Sélectionner l'union",
       "unionId": "ID de l'union",
       "selectLocalField": "Sélectionner le champ local",
-      "localFieldId": "ID du champ local",
+      "localFieldId": "Champ local",
       "videoUrl": "https://youtube.com/watch?v=... ou https://vimeo.com/...",
       "content": "Écrivez le contenu de la ressource ici...",
       "searchTitle": "Rechercher par titre...",
@@ -2251,7 +2968,21 @@
         "verb_rejected": "rejetés",
         "succeeded_count": "{count} {verb} avec succès",
         "failed_count": "{count} ont échoué"
-      }
+      },
+      "selectedSingular": "sélectionné",
+      "selectedPlural": "sélectionnés",
+      "approveSelected": "Approuver la sélection",
+      "rejectSelected": "Rejeter la sélection",
+      "clearSelection": "Effacer la sélection",
+      "approveTitle": "Approbation en lot",
+      "approveDescription": "{count} inscriptions seront approuvées. Celles qui ne sont pas dans le bon état seront ignorées avec le détail dans le résultat.",
+      "rejectTitle": "Rejet en lot",
+      "rejectDescription": "{count} inscriptions seront rejetées. Le motif est obligatoire et sera appliqué à toutes.",
+      "reasonLabel": "Motif de rejet *",
+      "reasonPlaceholder": "Décrivez le motif du rejet...",
+      "cancel": "Annuler",
+      "confirmApprove": "Confirmer l’approbation",
+      "confirmReject": "Rejeter"
     },
     "toasts": {
       "approved": "Approuvé avec succès",
@@ -2313,18 +3044,22 @@
       "countSingular": "en attente",
       "countPlural": "en attente",
       "refresh": "Actualiser",
-      "errorRefresh": "Impossible de mettre à jour la liste"
+      "errorRefresh": "Impossible de mettre à jour la liste",
+      "selectYear": "Sélectionner une année"
     },
     "pipeline": {
       "refresh": "Actualiser",
       "errorRefresh": "Impossible de mettre à jour la liste",
-      "tabAll": "Tous",
-      "tabSubmitted": "Soumis",
-      "tabClubApproved": "Approuvés club",
-      "tabCoordinatorApproved": "Approuvés coord.",
-      "tabFieldApproved": "Approuvés terrain",
+      "tabAll": "Toute l’année",
+      "tabSubmitted": "Révision club",
+      "tabClubApproved": "Révision coordination",
+      "tabCoordinatorApproved": "Autorisation champ",
+      "tabFieldApproved": "Prêts pour investiture",
       "tabInvested": "Investis",
-      "tabRejected": "Rejetés"
+      "tabRejected": "Rejetés",
+      "currentYear": "Année ecclésiastique en cours : {year}",
+      "currentYearFallback": "aucune année définie",
+      "tabAllCurrentYear": "Toute l’année"
     },
     "historyDialog": {
       "title": "Historique d'investiture",
@@ -2365,7 +3100,34 @@
       "tooltipMarkInvested": "Marquer comme investi",
       "historyTitle": "Historique d'investiture",
       "errorLoadHistory": "Impossible de charger l'historique",
-      "enrollmentFallback": "Inscription #{id}"
+      "enrollmentFallback": "Inscription #{id}",
+      "colClassYear": "Classe / Année",
+      "colClubSection": "Club / Section",
+      "colSubmittedBy": "Soumis par",
+      "viewDetail": "Voir le détail",
+      "detailTitle": "Détail de l'investiture",
+      "detailMember": "Membre",
+      "detailClass": "Classe",
+      "detailClub": "Club et section",
+      "detailSubmittedBy": "Soumis par",
+      "sectionUnknown": "Section indisponible",
+      "unknownSubmitter": "Émetteur indisponible",
+      "roleDirector": "Directeur",
+      "roleCounselor": "Conseiller",
+      "roleCoordinator": "Coordination",
+      "roleAdmin": "Administration",
+      "roleUnknown": "Rôle indisponible",
+      "errorLoadDetail": "Impossible de charger le détail de l'investiture",
+      "progressTitle": "Modules, sections et preuves",
+      "progressDescription": "Détail de la progression académique associée à cette investiture.",
+      "progressSummary": "{completed} section(s) terminée(s) sur {total}",
+      "moduleSummary": "{completed}/{total} section(s) terminée(s)",
+      "validatedBy": "Validé par {name}",
+      "progressValidated": "Validé",
+      "progressRejected": "Rejeté",
+      "progressPendingReview": "En révision",
+      "progressPending": "En attente",
+      "progressUnavailable": "Impossible de charger la progression de cette classe."
     },
     "statusBadge": {
       "inProgress": "En cours",
@@ -2399,11 +3161,11 @@
       "errorFallback": "Impossible de charger les configurations d'investiture."
     },
     "pagePipeline": {
-      "title": "Pipeline des investitures",
-      "description": "Suivi du processus d'approbation en chaîne : directeur, coordination et champ.",
+      "title": "Suivi des investitures",
+      "description": "Consultez les demandes de l’année ecclésiastique en cours : éléments à traiter et dossiers déjà traités.",
       "errorFallback": "Impossible de charger les investitures.",
-      "emptyTitle": "Aucune demande d'investiture",
-      "emptyDescription": "Il n'y a aucune demande d'investiture dans le système pour l'instant."
+      "emptyTitle": "Aucune demande d’investiture",
+      "emptyDescription": "Aucune demande d’investiture n’est enregistrée pour l’année ecclésiastique en cours."
     },
     "investidoDialog": {
       "title": "Enregistrer l'investiture",
@@ -2420,10 +3182,70 @@
       "reasonPlaceholder": "Décrivez le motif du rejet...",
       "cancel": "Annuler",
       "confirm": "Rejeter"
+    },
+    "configFormDialog": {
+      "titleCreate": "Nouvelle configuration",
+      "titleEdit": "Modifier la configuration",
+      "descriptionCreate": "Configurez les dates pour un champ local et une année ecclésiastique.",
+      "descriptionEdit": "Modifiez les dates de la configuration d’investiture.",
+      "localFieldLabel": "Champ local",
+      "loadingLocalFields": "Chargement des champs...",
+      "localFieldPlaceholder": "Sélectionnez un champ local",
+      "ecclesiasticalYearLabel": "Année ecclésiastique",
+      "loadingYears": "Chargement des années...",
+      "yearPlaceholder": "Sélectionnez une année",
+      "submissionDeadlineLabel": "Date limite d’envoi",
+      "investitureDateLabel": "Date d’investiture",
+      "cancel": "Annuler",
+      "submitCreate": "Créer la configuration",
+      "submitEdit": "Enregistrer les modifications"
+    },
+    "deleteConfigDialog": {
+      "title": "Désactiver la configuration ?",
+      "description": "Vous êtes sur le point de désactiver la configuration d’investiture de {localFieldName} pour l’année {yearName}. Les envois en attente liés à cette configuration ne seront pas affectés, mais aucun nouvel envoi ne pourra être enregistré.",
+      "fallbackDescription": "Cette action désactivera la configuration.",
+      "cancel": "Annuler",
+      "confirm": "Désactiver"
+    },
+    "validateDialog": {
+      "titleApprove": "Approuver l’investiture",
+      "titleReject": "Rejeter l’investiture",
+      "descriptionApprove": "La demande d’investiture de {memberName} sera approuvée. Vous pourrez la marquer comme investie une fois approuvée.",
+      "descriptionReject": "La demande d’investiture de {memberName} sera rejetée. Le motif est obligatoire.",
+      "commentsLabel": "Commentaires (facultatif)",
+      "reasonLabel": "Motif de rejet *",
+      "commentsPlaceholder": "Ajoutez un commentaire facultatif...",
+      "reasonPlaceholder": "Décrivez le motif du rejet...",
+      "cancel": "Annuler",
+      "confirmApprove": "Approuver",
+      "confirmReject": "Rejeter"
+    },
+    "pipelineTable": {
+      "emptyTitle": "Aucun dossier à cette étape",
+      "emptyDescription": "Aucune demande d’investiture ne se trouve à cette étape pour l’année ecclésiastique en cours.",
+      "enrollmentFallback": "Inscription #{id}",
+      "selectAll": "Tout sélectionner",
+      "selectRow": "Sélectionner {memberName}",
+      "colMember": "Membre",
+      "colClass": "Classe",
+      "colClub": "Club",
+      "colSection": "Section",
+      "colSubmitted": "Soumis",
+      "colStatus": "Statut",
+      "colActions": "Actions",
+      "ariaHistory": "Voir l’historique",
+      "ariaApprove": "Approuver",
+      "ariaReject": "Rejeter",
+      "ariaMarkInvested": "Marquer comme investi",
+      "tooltipHistory": "Voir l’historique",
+      "tooltipApprove": "Approuver",
+      "tooltipReject": "Rejeter",
+      "tooltipMarkInvested": "Marquer comme investi"
     }
   },
   "evidence_review": {
     "bulk": {
+      "clearSelectionAriaLabel": "Effacer la sélection",
       "toasts": {
         "verb_approved": "approuvées",
         "verb_rejected": "rejetées",
@@ -2557,7 +3379,9 @@
         "pending": "En attente",
         "completeDesktop": "Complet"
       },
-      "noRole": "Sans rôle"
+      "noRole": "Sans rôle",
+      "deletedAccount": "Compte supprimé",
+      "anonymizedAccount": "Données personnelles anonymisées"
     },
     "filters": {
       "searchPlaceholder": "Rechercher par nom ou email...",
@@ -2717,17 +3541,129 @@
         "emptyDescription": "Essayez d’ajuster les filtres de recherche."
       },
       "detail": {
-        "title": "Détail de l’utilisateur",
+        "title": "Détail de l'utilisateur",
+        "subtitle": "Informations complètes, accès, santé et activité de l'utilisateur.",
         "back": "Retour",
         "restrictedTitle": "Accès restreint",
-        "restrictedDescription": "Vous avez besoin d’une autorisation globale résolue pour consulter les données d’autres utilisateurs.",
+        "restrictedDescription": "Vous avez besoin d'une autorisation globale résolue pour consulter les données d'autres utilisateurs.",
         "statusActive": "Actif",
         "statusInactive": "Inactif",
+        "ageYears": "{count, plural, one {# an} other {# ans}}",
+        "approvalApproved": "Révision approuvée",
+        "approvalPending": "Aucune révision",
+        "approvalRejected": "Révision rejetée",
+        "tabResumen": "Résumé",
+        "tabPersonalData": "Données personnelles",
+        "tabHealth": "Santé",
+        "tabRolesAccess": "Rôles et accès",
         "tabInfo": "Informations",
         "tabPostRegistration": "Post-inscription",
         "tabSecurity": "Sécurité",
         "tabSessions": "Sessions",
-        "postRegistrationUnavailable": "Impossible de récupérer le statut post-inscription. L’utilisateur n’a peut-être pas commencé le processus ou il y a une erreur de connectivité."
+        "postRegistrationUnavailable": "Impossible de récupérer le statut post-inscription. L'utilisateur n'a peut-être pas commencé le processus ou il y a une erreur de connectivité.",
+        "tenure": {
+          "years": "{count, plural, one {# an} other {# ans}}",
+          "months": "{count, plural, one {# mois} other {# mois}}",
+          "days": "{count, plural, one {# jour} other {# jours}}"
+        },
+        "stats": {
+          "tenureLabel": "Temps dans SACDIA",
+          "tenureRegisteredOn": "Inscrit le {date}",
+          "classesLabel": "Classes",
+          "classesActive": "Inscriptions actives",
+          "rolesLabel": "Rôles",
+          "rolesEmpty": "Aucun rôle",
+          "rolesRbacNote": "Vue RBAC",
+          "lastUpdateLabel": "Dernière mise à jour",
+          "panelEnabled": "Panneau activé",
+          "panelDisabled": "Panneau désactivé",
+          "auditTracking": "Traçabilité"
+        },
+        "sidebar": {
+          "title": "Accès et statut",
+          "status": "Statut",
+          "approval": "Révision administrative",
+          "roles": "Rôles",
+          "appAccess": "Accès à l'app",
+          "panelAccess": "Accès au panneau",
+          "mfa": "MFA",
+          "assignments": "Affectations",
+          "enabled": "Activé",
+          "disabled": "Désactivé",
+          "yes": "Oui",
+          "no": "Non",
+          "dash": "—"
+        },
+        "sections": {
+          "identityTitle": "Identité",
+          "locationTitle": "Localisation",
+          "fullDataTitle": "Données complètes",
+          "rolesAccessTitle": "Rôles et accès",
+          "scopeTitle": "Portée",
+          "rolesLabel": "Rôles actifs",
+          "rolesEmpty": "Cet utilisateur n'a aucun rôle assigné.",
+          "contactsTitle": "Contacts d'urgence",
+          "contactsEmpty": "Aucun contact d'urgence enregistré.",
+          "contactsMissingPayload": "Impossible de charger les contacts.",
+          "legalRepTitle": "Représentant légal",
+          "legalRepEmpty": "Aucun représentant légal enregistré.",
+          "pastoralTitle": "Rôles de club",
+          "pastoralEmpty": "Aucun rôle de club enregistré.",
+          "healthTitle": "Santé",
+          "healthBlockTitle": "Informations médicales",
+          "healthEmpty": "Aucune information médicale enregistrée.",
+          "healthShow": "Afficher",
+          "healthHide": "Masquer",
+          "healthProtectedTitle": "Informations protégées",
+          "healthProtectedDescription": "Les données médicales ne sont affichées qu'aux rôles disposant d'une permission explicite."
+        },
+        "fields": {
+          "fullName": "Nom complet",
+          "name": "Prénom",
+          "paternalLastName": "Nom paternel",
+          "maternalLastName": "Nom maternel",
+          "birthday": "Date de naissance",
+          "gender": "Genre",
+          "baptism": "Baptisé",
+          "baptismYes": "Oui, le {date}",
+          "baptismNo": "Non",
+          "email": "Email",
+          "phone": "Téléphone",
+          "country": "Pays",
+          "union": "Union",
+          "localField": "Champ local",
+          "district": "District",
+          "church": "Église",
+          "club": "Club",
+          "section": "Section",
+          "internalId": "Identifiant interne",
+          "registrationDate": "Date d'inscription",
+          "lastUpdate": "Dernière mise à jour",
+          "role": "Rôle",
+          "scopeType": "Type de portée",
+          "scopeLocalFieldId": "Champ local",
+          "scopeUnionId": "Union",
+          "relationship": "Lien de parenté",
+          "bloodType": "Groupe sanguin",
+          "bloodUnspecified": "Non spécifié",
+          "allergies": "Allergies",
+          "diseases": "Maladies",
+          "medicines": "Médicaments"
+        },
+        "contacts": {
+          "principal": "Principal",
+          "call": "Appeler"
+        },
+        "access": {
+          "activeLabel": "Statut",
+          "activeSub": "Activé pour se connecter",
+          "appLabel": "App mobile",
+          "appSub": "Accès au client mobile",
+          "panelLabel": "Panneau admin",
+          "panelSub": "Accès au panneau administratif"
+        },
+        "deletedAccount": "Compte supprimé",
+        "anonymizedAccount": "Données personnelles anonymisées"
       }
     }
   },
@@ -2749,7 +3685,9 @@
       "category_created": "Catégorie créée avec succès",
       "template_updated": "Modèle mis à jour avec succès",
       "template_created": "Modèle créé avec succès",
-      "owner_catalogs_load_failed": "Impossible de charger les catalogues du propriétaire"
+      "owner_catalogs_load_failed": "Impossible de charger les catalogues du propriétaire",
+      "section_submitted": "Section envoyée pour révision",
+      "folder_created": "Dossier annuel créé avec succès"
     },
     "errors": {
       "recalculate_rankings": "Erreur lors du recalcul des classements",
@@ -2758,7 +3696,9 @@
       "save_section_failed": "Erreur lors de l'enregistrement de la section",
       "submit_folder_failed": "Impossible de soumettre le dossier",
       "close_folder_failed": "Impossible de clôturer le dossier",
-      "save_template_failed": "Erreur lors de l'enregistrement du modèle"
+      "save_template_failed": "Erreur lors de l'enregistrement du modèle",
+      "submit_section_failed": "Impossible d’envoyer la section",
+      "create_folder_failed": "Impossible de créer le dossier annuel"
     },
     "statusBadge": {
       "open": "Ouverte",
@@ -2766,14 +3706,6 @@
       "under_evaluation": "En évaluation",
       "evaluated": "Évalué",
       "closed": "Clôturée"
-    },
-    "byEnrollment": {
-      "title": "Rechercher un dossier",
-      "enrollmentIdLabel": "Par identifiant d'inscription",
-      "enrollmentIdPlaceholder": "UUID d'inscription",
-      "folderIdLabel": "Par identifiant de dossier",
-      "folderIdPlaceholder": "UUID de dossier",
-      "searchButton": "Rechercher"
     },
     "sectionCard": {
       "statusPending": "En attente",
@@ -2801,7 +3733,7 @@
       "tableColName": "Nom",
       "tableColDescription": "Description",
       "tableColRequired": "Requise",
-      "tableColMaxPts": "Pts max",
+      "tableColMaxPts": "Points attribués",
       "tableColMinPts": "Pts min",
       "tableColActions": "Actions",
       "noDescription": "Sans description",
@@ -2829,7 +3761,7 @@
       "noResultsTitle": "Aucun résultat",
       "noTemplatesTitle": "Aucun modèle",
       "noResultsDescription": "Aucun modèle ne correspond aux filtres appliqués.",
-      "noTemplatesDescription": "Créez le premier modèle pour définir la structure des dossiers annuels par type de club et année ecclésiastique.",
+      "noTemplatesDescription": "Créez le premier modèle pour définir la structure des dossiers annuels de preuves par type de club et année ecclésiastique.",
       "tableColClubType": "Type de club",
       "tableColEcclesiasticalYear": "Année ecclésiastique",
       "tableColOwner": "Propriétaire",
@@ -2872,7 +3804,15 @@
       "submitCreate": "Créer le modèle",
       "submitEdit": "Sauvegarder",
       "submittingCreate": "Création...",
-      "submittingEdit": "Sauvegarde..."
+      "submittingEdit": "Sauvegarde...",
+      "descriptionDraft": "Enregistrez le modèle comme brouillon. Ajoutez ensuite les sections et publiez-le depuis le détail lorsqu’il est complet.",
+      "descriptionEdit": "Modifiez les données du brouillon de dossier annuel de preuves.",
+      "budgetTitle": "Budget provenant du classement",
+      "budgetMissing": "Aucune configuration annuelle de classement ne s’applique à cette combinaison. Configurez-la avant de publier.",
+      "budgetResolved": "Le dossier annuel vaut {points} pts selon la configuration du classement. Les sections doivent répartir exactement ce total.",
+      "budgetPending": "Sélectionnez le type de club, l’année et le propriétaire pour résoudre le budget annuel.",
+      "submitDraft": "Enregistrer le brouillon",
+      "submittingDraft": "Enregistrement du brouillon..."
     },
     "sectionDialog": {
       "titleCreate": "Nouvelle section",
@@ -2884,7 +3824,7 @@
       "fieldOrder": "Ordre",
       "fieldRequired": "Section requise",
       "fieldRequiredDescription": "Le membre doit soumettre des preuves pour cette section",
-      "fieldMaxPoints": "Points maximum",
+      "fieldMaxPoints": "Points attribués à cette section",
       "fieldMinPoints": "Points minimum",
       "cancel": "Annuler",
       "submitCreate": "Créer la section",
@@ -2893,14 +3833,18 @@
       "submittingEdit": "Sauvegarde..."
     },
     "page": {
-      "title": "Dossier annuel",
-      "description": "Gérez les preuves par section du dossier annuel du membre.",
+      "title": "Dossier annuel de preuves",
+      "description": "Gérez le dossier annuel de votre affectation de club active. Utilisez la file d’évaluation pour la révision institutionnelle.",
       "errorFolderFallback": "Impossible de charger le dossier.",
       "errorEnrollmentFallback": "Impossible de charger le dossier pour cette inscription.",
-      "emptySelectTitle": "Sélectionnez une inscription",
-      "emptySelectDescription": "Entrez l'identifiant d'inscription ou de dossier pour charger les preuves du membre.",
       "emptyNotFoundTitle": "Dossier introuvable",
-      "emptyNotFoundDescription": "Aucun dossier annuel n'existe pour l'identifiant saisi. Vérifiez les données et réessayez."
+      "emptyNotFoundDescription": "Aucun dossier annuel de preuves n'existe pour l'identifiant saisi. Vérifiez les données et réessayez.",
+      "emptyNoActiveClubTitle": "Aucun contexte de club actif",
+      "emptyNoActiveClubDescription": "Cet écran n’utilise pas d’UUID saisis manuellement. Sélectionnez un contexte de club ou ouvrez l’évaluation des dossiers pour réviser par club, section ou champ.",
+      "emptyContextFolderTitle": "Aucun dossier annuel pour le contexte actif",
+      "emptyContextFolderDescription": "La section active n'a pas encore de dossier annuel en cours. Si l'inscription annuelle et un modèle actif existent déjà pour son type de club, créez-le ici sans saisir d'UUID internes.",
+      "createFolder": "Créer le dossier annuel",
+      "creatingFolder": "Création..."
     },
     "pageCategories": {
       "title": "Catégories de récompenses",
@@ -2908,17 +3852,26 @@
       "errorFallback": "Impossible de charger les catégories de récompenses."
     },
     "pageTemplates": {
-      "title": "Modèles de dossier annuel",
+      "title": "Modèles de dossier annuel de preuves",
       "description": "Définissez la structure des sections pour chaque type de club et année ecclésiastique.",
       "errorFallback": "Impossible de charger les modèles."
     },
     "pageEvaluate": {
       "title": "Évaluation des dossiers",
-      "description": "Recherchez un dossier par son identifiant et notez chaque section avec les points correspondants."
+      "description": "Recherchez par club, section ou champ et notez chaque section avec les points correspondants."
+    },
+    "pageFolders": {
+      "titleList": "Dossiers de preuves",
+      "titleDetail": "Détail du dossier",
+      "descriptionList": "Recherchez, filtrez et consultez les dossiers par club, hiérarchie, année, statut et avancement.",
+      "descriptionDetail": "Consultez les fichiers et l'avancement complet du dossier sélectionné.",
+      "loadError": "Impossible de charger le dossier demandé.",
+      "notFoundTitle": "Dossier introuvable",
+      "notFoundDescription": "Vérifiez que le dossier existe ou retournez à la liste des dossiers."
     },
     "pageRankings": {
-      "title": "Classements du dossier annuel",
-      "description": "Consultez le classement des clubs par points obtenus dans le dossier annuel.",
+      "title": "Classements du dossier annuel de preuves",
+      "description": "Consultez le classement des clubs par points obtenus dans le dossier annuel de preuves.",
       "errorFallback": "Impossible de charger les types de club ou les années ecclésiastiques. Vérifiez la connexion au serveur.",
       "emptyTitle": "Aucune donnée de catalogue",
       "emptyDescription": "Aucun type de club disponible pour afficher les classements."
@@ -2928,6 +3881,55 @@
       "description": "Détail par composant pour l'inscription {enrollmentId}",
       "errorFallback": "Impossible de charger le détail du classement. Vérifiez la connexion au serveur.",
       "paramsRequired": "Les paramètres enrollmentId et year_id sont requis."
+    },
+    "awardCategoriesClient": {
+      "editCategoryTitle": "Modifier la catégorie",
+      "deleteCategoryTitle": "Supprimer la catégorie"
+    },
+    "awardCategoryFormDialog": {
+      "descriptionPlaceholder": "Description optionnelle de la catégorie",
+      "maxPointsPlaceholder": "Sans limite"
+    },
+    "folderClient": {
+      "viewFileTitle": "Voir le fichier",
+      "deleteEvidenceTitle": "Supprimer la preuve"
+    },
+    "evidenceUploadDialog": {
+      "descriptionPlaceholder": "Brève description du fichier..."
+    },
+    "evaluationClient": {
+      "searchPlaceholder": "Ex. Club Bethel, Conquérants, ACV...",
+      "viewFullFolderTitle": "Voir le dossier complet avec preuves",
+      "unionNotesPlaceholder": "Commentaire optionnel pour l'audit..."
+    },
+    "templatesClientPage": {
+      "publishTemplateTitle": "Publier le modèle",
+      "deleteDraftTitle": "Supprimer le brouillon"
+    },
+    "budgetConfigList": {
+      "emptyTitle": "Aucune configuration budgétaire",
+      "emptyDescription": "Créez la première configuration pour définir la répartition des points annuels."
+    },
+    "budgetConfigForm": {
+      "sectionsAllocationLabel": "Répartition entre sections"
+    },
+    "budgetSectionCard": {
+      "subsectionsAllocationLabel": "Sous-sections de cette section"
+    },
+    "pageRankingConfig": {
+      "title": "Configuration annuelle des classements",
+      "description": "Gérez les budgets annuels par section et les paliers globaux de reconnaissance pour le Dossier Annuel de Preuves.",
+      "breadcrumbRankingConfig": "Configuration des classements",
+      "breadcrumbNew": "Nouveau",
+      "breadcrumbEdit": "Modifier",
+      "newTitle": "Nouvelle configuration budgétaire",
+      "newDescription": "Définissez le score annuel maximum et sa répartition par sections et sous-sections.",
+      "editTitle": "Modifier la configuration budgétaire",
+      "editDescription": "Mettez à jour le score maximum et sa répartition par sections et sous-sections.",
+      "missingCatalogsTitle": "Catalogues manquants pour configurer les classements",
+      "missingCatalogsDescription": "Vous avez besoin d'au moins une union ou un champ local, d'un type de club et d'une année ecclésiastique active.",
+      "unavailableTitle": "Configuration indisponible",
+      "unavailableDescription": "La configuration demandée est introuvable ou les catalogues nécessaires à l'édition sont manquants."
     },
     "validation": {
       "name_min": "Le nom doit contenir au moins {min} caractères",
@@ -3002,7 +4004,7 @@
       "noResultsTitle": "Aucun résultat",
       "noResultsDescription": "Aucun dossier correspondant à « {search} » n’a été trouvé.",
       "emptyTitle": "Aucun dossier",
-      "emptyDescription": "Aucun dossier de preuves n’a encore été configuré.",
+      "emptyDescription": "Aucun dossier annuel de preuves n’a encore été configuré.",
       "tableHeaderName": "Nom",
       "tableHeaderDescription": "Description",
       "tableHeaderModules": "Modules",
@@ -3044,12 +4046,12 @@
       "folder_refresh_failed": "Impossible de rafraîchir le dossier"
     },
     "page": {
-      "title": "Dossiers de preuves",
-      "description": "Gérez les modèles de dossiers de preuves disponibles pour les clubs.",
-      "errorLoad": "Impossible de charger les dossiers de preuves."
+      "title": "Dossiers annuels de preuves",
+      "description": "Gérez les modèles de dossiers annuels de preuves disponibles pour les clubs.",
+      "errorLoad": "Impossible de charger les dossiers annuels de preuves."
     },
     "pageDetail": {
-      "errorLoad": "Impossible de charger le dossier de preuves."
+      "errorLoad": "Impossible de charger le dossier annuel de preuves."
     },
     "validation": {
       "name_min": "Le nom doit contenir au moins {min} caractères",
@@ -3370,6 +4372,10 @@
       "error_load_reports": "Impossible de charger les rapports. Vérifiez la connexion avec le serveur."
     },
     "supervisionClient": {
+      "filterDivisionPlaceholder": "Division",
+      "filterDivisionAll": "Toutes les divisions",
+      "filterUnionPlaceholder": "Union",
+      "filterUnionAll": "Toutes les unions",
       "filterClubTypePlaceholder": "Type de club",
       "filterClubTypeAll": "Tous les types",
       "filterLocalFieldPlaceholder": "Champ local",
@@ -3737,6 +4743,12 @@
       "empty_no_clubs_title": "Aucun club disponible",
       "empty_no_clubs_description": "Aucun club actif n'a été trouvé. Créez d'abord un club pour gérer ses finances.",
       "error_unexpected": "Erreur inattendue lors du chargement des clubs."
+    },
+    "clubSelector": {
+      "label": "Club",
+      "selectPlaceholder": "Sélectionnez un club",
+      "emptyTitle": "Sélectionnez un club",
+      "emptyDescription": "Choisissez un club dans le sélecteur pour voir et gérer ses mouvements financiers."
     }
   },
   "certifications": {
@@ -3791,6 +4803,11 @@
         "enrolledCardTitle": "Utilisateurs inscrits",
         "enrollmentsEndpointMissing": "Le point de terminaison des certifications n’inclut pas la liste des utilisateurs inscrits dans la réponse de détail. Consultez directement le profil de chaque utilisateur."
       }
+    },
+    "enrolledUsers": {
+      "emptyTitle": "Aucun utilisateur inscrit",
+      "emptyDescription": "Aucun utilisateur n'est inscrit à cette certification.",
+      "viewProgressTitle": "Voir la progression détaillée"
     }
   },
   "activities": {
@@ -3910,6 +4927,14 @@
       "empty_no_years_title": "Aucune année ecclésiastique",
       "empty_no_years_description": "Aucune année ecclésiastique n'est enregistrée dans le système.",
       "error_load_years": "Impossible de charger les années ecclésiastiques."
+    },
+    "preview": {
+      "impactEnrollmentsLabel": "Inscriptions",
+      "impactEnrollmentsDescription": "Seront marquées comme clôturées",
+      "impactFoldersLabel": "Dossiers",
+      "impactFoldersDescription": "Seront archivés",
+      "impactReportsLabel": "Rapports",
+      "impactReportsDescription": "Seront clôturés"
     }
   },
   "inventory": {
@@ -4023,6 +5048,8 @@
       "requiredHintSuffix": "sont obligatoires.",
       "name": "Nom",
       "namePlaceholder": "Ex. Unité Aigles",
+      "clubSection": "Section du club",
+      "clubSectionEmpty": "Aucune section disponible",
       "clubType": "Type de club",
       "captain": "Capitaine",
       "captainPlaceholder": "Sélectionner le capitaine...",
@@ -4048,6 +5075,9 @@
       "removeMember": "Retirer {name} de l'unité",
       "editUnit": "Modifier l'unité {name}",
       "deleteUnit": "Désactiver l'unité {name}"
+    },
+    "weeklyRecords": {
+      "maxPointsTitle": "Max. {max} pts"
     }
   },
   "system_config": {
@@ -4110,6 +5140,12 @@
       "rateLimited": "Limite de requêtes atteinte",
       "goToLogin": "Aller à la connexion"
     },
+    "errorRetry": {
+      "retry": "Réessayer",
+      "loadClubScore": "Impossible de charger le score du club.",
+      "loadAttendance": "Impossible de charger la série de présence.",
+      "loadLeadership": "Impossible de charger le leadership du club."
+    },
     "appMetadata": {
       "title": "SACDIA Panneau d'administration",
       "description": "Panneau d'administration SACDIA"
@@ -4123,7 +5159,8 @@
   "translations": {
     "label_name": "Nom",
     "label_description": "Description",
-    "helper_optional": "Optionnel. Si laissé vide, l'espagnol sera affiché."
+    "helper_optional": "Optionnel. Si laissé vide, l'espagnol sera affiché.",
+    "label_ideal": "Idéal"
   },
   "memberRankingWeights": {
     "formDialog": {
@@ -4196,6 +5233,131 @@
       "invalid": "— doit être 100"
     }
   },
+  "materials": {
+    "pages": {
+      "categories": {
+        "title": "Catégories de matériels",
+        "description": "Taxonomie partagée entre tous les champs locaux.",
+        "loadError": "Impossible de charger les catégories.",
+        "emptyTitle": "Aucune catégorie",
+        "emptyDescription": "Aucune catégorie n'a encore été créée. Créez la première."
+      },
+      "config": {
+        "title": "Configuration des matériels",
+        "description": "Coordonnées bancaires et options de livraison par champ local.",
+        "selectLocalField": "Sélectionnez un champ local pour voir et modifier sa configuration."
+      },
+      "configForm": {
+        "clabePlaceholder": "18 chiffres",
+        "pickupAddressPlaceholder": "Adresse complète pour retrait en personne..."
+      },
+      "inbox": {
+        "title": "Boîte de demandes",
+        "description": "Gestion des commandes de matériels envoyées par les directeurs de club.",
+        "loadError": "Impossible de charger les demandes.",
+        "emptyTitle": "Aucune demande",
+        "emptyDescriptionPending": "Aucune demande en attente de révision.",
+        "emptyDescriptionFiltered": "Aucune demande ne correspond au statut et aux filtres sélectionnés."
+      },
+      "receipts": {
+        "title": "Validation des justificatifs",
+        "description": "Commandes approuvées en attente de confirmation de paiement.",
+        "loadError": "Impossible de charger les commandes.",
+        "emptyTitle": "Aucune commande en attente",
+        "emptyDescriptionDefault": "Aucune commande en attente de validation de paiement.",
+        "emptyDescriptionSearch": "Aucune commande approuvée ne correspond à la recherche."
+      },
+      "inventory": {
+        "title": "Inventaire",
+        "description": "Gérez le catalogue de produits, les prix et le stock par champ local.",
+        "loadError": "Impossible de charger l'inventaire.",
+        "emptyTitle": "Aucun produit",
+        "emptyDescriptionDefault": "Il n'y a pas encore de produits en inventaire. Créez le premier.",
+        "emptyDescriptionFiltered": "Aucun produit ne correspond aux filtres sélectionnés."
+      },
+      "receiptsDetail": {
+        "backLink": "Retour aux justificatifs",
+        "title": "Justificatifs — {folio}",
+        "description": "Examinez et validez les justificatifs de paiement joints à cette demande."
+      },
+      "inventoryForm": {
+        "descriptionPlaceholder": "Description du produit..."
+      }
+    },
+    "components": {
+      "categoriesTable": {
+        "editAriaLabel": "Modifier",
+        "deleteAriaLabel": "Supprimer",
+        "statusActive": "Active",
+        "statusInactive": "Inactive"
+      },
+      "inventoryTable": {
+        "editAriaLabel": "Modifier le produit",
+        "deactivateAriaLabel": "Désactiver le produit",
+        "statusActive": "Actif",
+        "statusInactive": "Inactif"
+      },
+      "bankSnapshotCard": {
+        "labelPickupAddress": "Adresse de retrait",
+        "copyPickupAddress": "Copier l'adresse"
+      },
+      "cancelDialog": {
+        "reasonPlaceholder": "Motif d'annulation (obligatoire, minimum 10 caractères)"
+      },
+      "orderStickyBar": {
+        "moreActionsAriaLabel": "Plus d'actions"
+      }
+    }
+  },
+  "support": {
+    "pages": {
+      "reports": {
+        "title": "Support",
+        "description": "Consultez et traitez les signalements envoyés depuis l'application mobile.",
+        "loadError": "Impossible de charger les signalements de support.",
+        "emptyTitle": "Aucun signalement de support pour le moment",
+        "emptyDescription": "Lorsqu'un utilisateur signale une erreur ou une demande depuis l'application, elle apparaîtra ici pour suivi.",
+        "summaryOpen": "Ouverts sur cette page",
+        "summaryInProgress": "En cours",
+        "summaryResolved": "Résolus",
+        "filtersTitle": "Filtres",
+        "searchPlaceholder": "Rechercher par titre, description, nom ou e-mail",
+        "searchButton": "Rechercher",
+        "statusPlaceholder": "Statut",
+        "statusAll": "Tous les statuts",
+        "categoryPlaceholder": "Catégorie",
+        "categoryAll": "Toutes les catégories",
+        "emptyFilteredTitle": "Aucun signalement de support",
+        "emptyFilteredDescription": "Aucun signalement ne correspond aux filtres actuels.",
+        "colReport": "Signalement",
+        "colUser": "Utilisateur",
+        "colCategory": "Catégorie",
+        "colStatus": "Statut",
+        "colDate": "Date",
+        "colAttention": "Prise en charge",
+        "technicalContext": "Contexte technique",
+        "noName": "Sans nom",
+        "toastStatusUpdated": "Signalement marqué comme {status}.",
+        "updateError": "Impossible de mettre à jour le signalement.",
+        "noData": "Sans données",
+        "contentError": "Impossible d'afficher le contenu",
+        "statuses": {
+          "open": "Ouvert",
+          "in_progress": "En cours",
+          "resolved": "Résolu",
+          "closed": "Fermé"
+        },
+        "categories": {
+          "bug": "Erreur",
+          "feature_request": "Suggestion",
+          "account": "Compte",
+          "data_issue": "Données",
+          "performance": "Performance",
+          "other": "Autre"
+        }
+      }
+    }
+  },
   "rankingWeights": {
     "clientPage": {
       "defaultGlobalTitle": "Défaut global",
@@ -4257,7 +5419,17 @@
       "col_club_type": "Type de club",
       "col_modules": "Modules",
       "col_status": "Statut",
-      "view_detail": "Voir le détail de {name}"
+      "view_detail": "Voir le détail de {name}",
+      "col_duration": "Durée",
+      "col_availability": "Disponibilité"
+    },
+    "counselorAssignments": {
+      "responsibilityAriaLabel": "Responsabilité",
+      "justificationPlaceholder": "Justification",
+      "responsibilityPrimary": "Principal",
+      "responsibilityAssistant": "Appui",
+      "responsibilitySubstitute": "Suppléant",
+      "responsibilityFallback": "Responsable"
     },
     "tree": {
       "no_modules": "Cette classe n'a aucun module enregistré.",
@@ -4298,8 +5470,33 @@
         "statPoints": "Points requis",
         "tabStructure": "Structure du programme",
         "structureCardTitle": "Modules et sections",
-        "modulesEndpointMissing": "Le point de terminaison des classes n’a pas retourné de modules dans la réponse de détail. Les modules se chargent depuis GET /classes/:id — vérifiez que le backend les inclut."
+        "modulesEndpointMissing": "Le point de terminaison des classes n’a pas retourné de modules dans la réponse de détail. Les modules se chargent depuis GET /classes/:id — vérifiez que le backend les inclut.",
+        "labelDuration": "Durée configurée",
+        "labelAvailableFrom": "Début de disponibilité",
+        "labelAvailableUntil": "Fin de disponibilité",
+        "statDuration": "Durée"
       }
+    },
+    "expiration": {
+      "title": "Expiration manuelle des classes",
+      "description": "Exécute une simulation ou applique l’expiration des inscriptions qui ont dépassé la durée maximale.",
+      "yearLabel": "Année ecclésiastique de référence",
+      "currentYearOption": "Utiliser l’année active du backend",
+      "dryRun": "Simuler",
+      "apply": "Appliquer l’expiration",
+      "modeDryRun": "simulation",
+      "modeApply": "application",
+      "result": "{mode}: {scanned} inscriptions vérifiées, {expired} expirées.",
+      "confirmApply": "Vous allez expirer {expired} inscriptions. Cette action modifie des données réelles. Continuer ?"
+    },
+    "display": {
+      "yearSingular": "an",
+      "yearPlural": "ans",
+      "yearFallback": "Année #{id}",
+      "availableFromAnyYear": "Disponible depuis n’importe quelle année",
+      "noProgrammedExpiration": "Aucune expiration programmée",
+      "availableFromYear": "Disponible depuis l’année ecclésiastique {label}",
+      "availableUntilYear": "Disponible jusqu’à l’année ecclésiastique {label}"
     }
   },
   "membership": {
@@ -4544,7 +5741,7 @@
     },
     "filters": {
       "labelYear": "Année ecclésiastique",
-      "labelClub": "ID du club",
+      "labelClub": "Club",
       "labelSection": "ID de la section",
       "placeholderYear": "2026",
       "placeholderClub": "Tous",
@@ -4576,7 +5773,7 @@
     },
     "sectionFilters": {
       "labelYear": "Année ecclésiastique",
-      "labelClub": "ID du club",
+      "labelClub": "Club",
       "placeholderYear": "2026",
       "placeholderClub": "Tous",
       "apply": "Filtrer",
@@ -4782,5 +5979,202 @@
     "secretary": "Secrétaire",
     "treasurer": "Trésorier",
     "counselor": "Conseiller"
+  },
+  "certificate_bulk_imports": {
+    "page": {
+      "title": "Cargas por certificado",
+      "description": "Consola admin para revisar lotes OCR enviados por certificado.",
+      "loadError": "No se pudieron cargar las cargas por certificado.",
+      "emptyTitle": "Sin cargas pendientes",
+      "emptyDescription": "No hay cargas por certificado esperando revisión."
+    },
+    "detailPage": {
+      "title": "Revisión de carga por certificado",
+      "description": "Lote {batchId}: comprobantes, filas OCR y auditoría.",
+      "breadcrumbList": "Cargas por certificado",
+      "loadError": "No se pudo cargar el detalle de la carga.",
+      "emptyTitle": "Carga no disponible",
+      "emptyDescription": "No encontramos datos visibles para este lote."
+    },
+    "actionDialog": {
+      "reasonRequired": "El motivo de rechazo es obligatorio",
+      "reasonMax": "Máximo 1000 caracteres",
+      "commentMax": "Máximo 1000 caracteres",
+      "reasonLabel": "Motivo de rechazo *",
+      "reasonPlaceholder": "Explicá qué debe corregir el miembro...",
+      "commentLabel": "Comentario opcional",
+      "commentPlaceholder": "Agregá una nota interna o visible para auditoría...",
+      "cancel": "Cancelar",
+      "approve": "Aprobar",
+      "reject": "Rechazar",
+      "batchApproved": "Lote aprobado correctamente",
+      "batchRejected": "Lote rechazado para corrección",
+      "itemApproved": "Fila aprobada correctamente",
+      "itemRejected": "Fila rechazada para corrección",
+      "genericError": "Impossible de terminer l'action"
+    },
+    "filesPanel": {
+      "emptyTitle": "Aucun justificatif",
+      "emptyDescription": "Ce lot n'inclut aucun fichier visible pour révision."
+    },
+    "auditTimeline": {
+      "emptyTitle": "Aucune piste d'audit",
+      "emptyDescription": "Aucun événement n'a encore été enregistré pour ce lot."
+    }
+  },
+  "camporeeEvents": {
+    "templates": {
+      "title": "Modèles d'événements",
+      "description": "Bibliothèque d'événements réutilisables pour camporees.",
+      "listTitle": "Modèles d'événements",
+      "createTitle": "Créer un modèle d'événement",
+      "editTitle": "Modifier le modèle d'événement",
+      "entityLabel": "Modèle",
+      "entityLabelPlural": "Modèles",
+      "fieldScope": "Portée",
+      "fieldScopeUnion": "Union",
+      "fieldScopeLocalField": "Champ local",
+      "fieldScopePlaceholder": "Sélectionner la portée",
+      "fieldUnion": "Union",
+      "fieldUnionPlaceholder": "Sélectionner l'union",
+      "fieldLocalField": "Champ local",
+      "fieldLocalFieldPlaceholder": "Sélectionner le champ local",
+      "fieldEventType": "Type d'événement",
+      "fieldEventTypePlaceholder": "Sélectionner le type d'événement",
+      "fieldTitle": "Titre",
+      "fieldTitlePlaceholder": "Ex. Ordre fermé",
+      "fieldDescription": "Description",
+      "fieldDescriptionPlaceholder": "Description de l'événement...",
+      "fieldRequirements": "Exigences",
+      "fieldRequirementsPlaceholder": "Conditions de participation...",
+      "fieldDevelopment": "Déroulement",
+      "fieldDevelopmentPlaceholder": "Comment l'événement se déroule...",
+      "fieldPrerequisites": "Prérequis",
+      "fieldPrerequisitesPlaceholder": "Prérequis du club ou du membre...",
+      "fieldMaterials": "Matériaux",
+      "fieldMaterialsPlaceholder": "Matériaux nécessaires...",
+      "fieldAuxiliaries": "Auxiliaires",
+      "fieldAuxiliariesPlaceholder": "Personnel d'appui...",
+      "fieldMaxPoints": "Points maximum",
+      "fieldMinPoints": "Points minimum",
+      "fieldPenalties": "Pénalités",
+      "fieldParticipantsMode": "Mode de participants",
+      "fieldParticipantsModeCount": "Nombre total",
+      "fieldParticipantsModeByClass": "Par classe",
+      "fieldParticipantsCount": "Nombre de participants",
+      "fieldParticipantsByClass": "Participants par classe",
+      "fieldDurationSeconds": "Durée (secondes)",
+      "fieldActive": "Actif",
+      "sectionIdentity": "Identité",
+      "sectionContent": "Contenu",
+      "sectionScoring": "Notation",
+      "sectionParticipants": "Participants",
+      "sectionSettings": "Paramètres",
+      "penaltyDescription": "Description de la pénalité",
+      "penaltyPoints": "Points déduits",
+      "penaltyTime": "Temps (sec.)",
+      "buttonAddPenalty": "Ajouter une pénalité",
+      "buttonRemovePenalty": "Supprimer",
+      "buttonCreate": "Créer le modèle",
+      "buttonSave": "Enregistrer",
+      "buttonCancel": "Annuler",
+      "buttonDelete": "Supprimer",
+      "emptyTitle": "Aucun modèle",
+      "emptyDescription": "Créez le premier modèle d'événement pour les camporees.",
+      "deleteConfirmTitle": "Supprimer le modèle ?",
+      "deleteConfirmDesc": "Le modèle \"{name}\" sera supprimé. Les instances existantes ne seront pas affectées.",
+      "backToList": "Retour aux modèles",
+      "loadError": "Impossible de charger les modèles d'événements.",
+      "filterScope": "Portée",
+      "filterEventType": "Type d'événement",
+      "filterStatus": "Statut",
+      "filterSearch": "Rechercher par titre",
+      "colTitle": "Titre",
+      "colScope": "Portée",
+      "colEventType": "Type d'événement",
+      "colMaxPoints": "Pts max.",
+      "colParticipants": "Participants",
+      "colStatus": "Statut",
+      "colActions": "Actions",
+      "statusActive": "Actif",
+      "statusInactive": "Inactif",
+      "validationScope": "La portée est obligatoire.",
+      "validationEventType": "Le type d'événement est obligatoire.",
+      "validationTitle": "Le titre est obligatoire.",
+      "validationMaxPoints": "Le score maximum est obligatoire.",
+      "validationParticipantsMode": "Le mode de participants est obligatoire.",
+      "validationParticipantsCount": "Le nombre de participants doit être supérieur à 0.",
+      "filterSearchPlaceholder": "Rechercher par titre...",
+      "editActionTitle": "Modifier",
+      "deleteActionTitle": "Supprimer"
+    },
+    "timeline": {
+      "toolbarSearchPlaceholder": "Rechercher événement, responsable ou lieu…",
+      "catalogImportTitle": "Importé du catalogue",
+      "fromCatalogLabel": "Depuis le catalogue"
+    },
+    "venueCreateDialog": {
+      "capacityPlaceholder": "Sans limite",
+      "notesPlaceholder": "Emplacement, accès, remarques…"
+    },
+    "instances": {
+      "title": "Événements du camporee",
+      "listTitle": "Événements",
+      "createTitle": "Créer un événement personnalisé",
+      "editTitle": "Modifier l'événement",
+      "entityLabel": "Événement",
+      "entityLabelPlural": "Événements",
+      "buttonAddFromTemplate": "Ajouter depuis un modèle",
+      "buttonCreateCustom": "Créer personnalisé",
+      "buttonSave": "Enregistrer",
+      "buttonCancel": "Annuler",
+      "buttonDelete": "Supprimer",
+      "emptyTitle": "Aucun événement",
+      "emptyDescription": "Ajoutez le premier événement à ce camporee.",
+      "deleteConfirmTitle": "Supprimer l'événement ?",
+      "deleteConfirmDesc": "L'événement \"{name}\" sera retiré de ce camporee.",
+      "loadError": "Impossible de charger les événements du camporee.",
+      "dialogAddTemplateTitle": "Ajouter un événement depuis un modèle",
+      "dialogAddTemplateDesc": "Sélectionnez un modèle à cloner comme événement de ce camporee.",
+      "colTitle": "Titre",
+      "colEventType": "Type",
+      "colMaxPoints": "Pts max.",
+      "colParticipants": "Participants",
+      "colOrder": "Ordre",
+      "colStatus": "Statut",
+      "colActions": "Actions",
+      "statusActive": "Actif",
+      "statusInactive": "Inactif",
+      "reorderUp": "Monter",
+      "reorderDown": "Descendre"
+    }
+  },
+  "selectors": {
+    "ecclesiasticalYear": {
+      "placeholder": "Sélectionner une année ecclésiastique",
+      "searchPlaceholder": "Rechercher une année...",
+      "loading": "Chargement des années...",
+      "empty": "Aucun résultat",
+      "loadError": "Erreur lors du chargement",
+      "clearSelection": "Effacer la sélection",
+      "activeBadge": "Actif"
+    },
+    "club": {
+      "placeholder": "Sélectionner un club",
+      "searchPlaceholder": "Rechercher un club...",
+      "loading": "Chargement des clubs...",
+      "empty": "Aucun résultat",
+      "loadError": "Erreur lors du chargement",
+      "clearSelection": "Effacer la sélection"
+    },
+    "clubSection": {
+      "placeholder": "Sélectionner une section",
+      "placeholderNoClub": "Sélectionnez d'abord un club",
+      "searchPlaceholder": "Rechercher une section...",
+      "loading": "Chargement des sections...",
+      "empty": "Aucun résultat",
+      "loadError": "Erreur lors du chargement",
+      "clearSelection": "Effacer la sélection"
+    }
   }
 }

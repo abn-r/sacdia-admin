@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { EcclesiasticalYearSelect } from "@/components/shared/selectors/ecclesiastical-year-select";
+import { ClubSelect } from "@/components/shared/selectors/club-select";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -21,11 +23,9 @@ interface SectionRankingsFiltersProps {
  * Filters: year_id + club_id only.
  * section_id is intentionally omitted — sections ARE the rows, not a filter.
  *
- * TODO: Replace number inputs with catalog-backed <Select> components once
- *       fetch helpers for ecclesiastical years and clubs are available.
- *
- * Submitting the form encodes values as query params (bookmarkable URLs).
- * The reset link navigates to the bare route, clearing all params.
+ * Uses catalog-backed selectors for year and club.
+ * Controlled state drives hidden inputs so the plain GET form
+ * submission still encodes values as bookmarkable URL params.
  */
 export function SectionRankingsFilters({
   defaultYear,
@@ -33,39 +33,46 @@ export function SectionRankingsFilters({
 }: SectionRankingsFiltersProps) {
   const t = useTranslations("rankings.sectionFilters");
 
+  const [yearId, setYearId] = useState<number | null>(defaultYear ?? null);
+  const [clubId, setClubId] = useState<number | null>(defaultClubId ?? null);
+
   return (
     <form className="flex flex-wrap items-end gap-3" method="GET">
+      {/* Hidden inputs carry selected values as GET params on submit */}
+      {yearId != null && (
+        <input type="hidden" name="year_id" value={yearId} />
+      )}
+      {clubId != null && (
+        <input type="hidden" name="club_id" value={clubId} />
+      )}
+
       {/* Year filter */}
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="filter-year" className="text-xs text-muted-foreground">
+        <Label className="text-xs text-muted-foreground">
           {t("labelYear")}
         </Label>
-        <Input
-          id="filter-year"
-          name="year_id"
-          type="number"
-          min={2000}
-          max={2100}
-          placeholder={t("placeholderYear")}
-          defaultValue={defaultYear}
-          className="h-9 w-32"
-        />
+        <div className="w-52">
+          <EcclesiasticalYearSelect
+            value={yearId}
+            onChange={setYearId}
+            placeholder={t("placeholderYear")}
+            activeOnly={false}
+          />
+        </div>
       </div>
 
       {/* Club filter */}
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="filter-club" className="text-xs text-muted-foreground">
+        <Label className="text-xs text-muted-foreground">
           {t("labelClub")}
         </Label>
-        <Input
-          id="filter-club"
-          name="club_id"
-          type="number"
-          min={1}
-          placeholder={t("placeholderClub")}
-          defaultValue={defaultClubId}
-          className="h-9 w-32"
-        />
+        <div className="w-56">
+          <ClubSelect
+            value={clubId}
+            onChange={setClubId}
+            placeholder={t("placeholderClub")}
+          />
+        </div>
       </div>
 
       {/* Actions */}

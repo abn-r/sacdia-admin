@@ -60,6 +60,7 @@ import {
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
+import { PageHeader } from "@/components/shared/page-header";
 import type { AchievementTier, AchievementType } from "@/lib/api/achievements";
 import type { AchievementActionState } from "@/lib/achievements/actions";
 
@@ -254,19 +255,18 @@ export function AchievementsCrudPage({
         </BreadcrumbList>
       </Breadcrumb>
 
-      {/* Page header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{categoryName}</h1>
-          <p className="text-muted-foreground">{t("pageDescription")}</p>
-        </div>
-        <Button asChild>
-          <Link href={`/dashboard/achievements/${categoryId}/new`}>
-            <Plus className="size-4" />
-            {t("newButton")}
-          </Link>
-        </Button>
-      </div>
+      <PageHeader
+        title={categoryName}
+        description={t("pageDescription")}
+        actions={
+          <Button asChild>
+            <Link href={`/dashboard/achievements/${categoryId}/new`}>
+              <Plus className="size-4" />
+              {t("newButton")}
+            </Link>
+          </Button>
+        }
+      />
 
       <div className="space-y-4">
         {/* Filters */}
@@ -478,6 +478,7 @@ export function AchievementsCrudPage({
                               >
                                 <Link
                                   href={`/dashboard/achievements/${categoryId}/${achId}/edit`}
+                                  prefetch={false}
                                 >
                                   <Pencil className="size-3.5" />
                                 </Link>
@@ -517,6 +518,7 @@ export function AchievementsCrudPage({
                                   <DropdownMenuItem asChild>
                                     <Link
                                       href={`/dashboard/achievements/${categoryId}/${achId}/edit`}
+                                      prefetch={false}
                                     >
                                       <Pencil className="size-4" />
                                       {t("actionEdit")}

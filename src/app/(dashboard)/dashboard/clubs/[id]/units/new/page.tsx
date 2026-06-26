@@ -8,6 +8,9 @@ import { UnitForm } from "@/components/units/unit-form";
 import { requireAdminUser } from "@/lib/auth/session";
 import { createUnitAction } from "@/lib/units/actions";
 import { apiRequest, ApiError } from "@/lib/api/client";
+import { listClubSections } from "@/lib/api/clubs";
+import { toUnitSectionOptions } from "@/lib/units/section-options";
+import type { UnitSectionOption } from "@/components/units/unit-form";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -33,11 +36,16 @@ export default async function NewUnitPage({ params }: { params: Params }) {
   }
 
   let clubName = "Club";
+  let sectionOptions: UnitSectionOption[] = [];
   try {
-    const payload = await apiRequest<unknown>(`/clubs/${clubId}`);
-    const res = payload as { data?: ClubMinimal } | ClubMinimal;
+    const [clubPayload, sectionsPayload] = await Promise.all([
+      apiRequest<unknown>(`/clubs/${clubId}`),
+      listClubSections(clubId),
+    ]);
+    const res = clubPayload as { data?: ClubMinimal } | ClubMinimal;
     const club = ("data" in res && res.data ? res.data : res) as ClubMinimal;
     clubName = club.name ?? "Club";
+    sectionOptions = toUnitSectionOptions(sectionsPayload);
   } catch (error) {
     if (error instanceof ApiError && (error.status === 404 || error.status === 403)) {
       notFound();
@@ -58,7 +66,12 @@ export default async function NewUnitPage({ params }: { params: Params }) {
         </Button>
       </PageHeader>
 
-      <UnitForm mode="create" clubId={clubId} formAction={boundAction} />
+      <UnitForm
+        mode="create"
+        clubId={clubId}
+        sectionOptions={sectionOptions}
+        formAction={boundAction}
+      />
     </div>
   );
 }

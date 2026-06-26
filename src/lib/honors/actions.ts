@@ -17,7 +17,39 @@ type HonorsTranslator = Awaited<ReturnType<typeof getTranslations<"honors">>>;
 
 export type HonorActionState = {
   error?: string;
+  fieldErrors?: Record<string, string>;
 };
+
+const NUMBER_FIELDS = [
+  "honors_category_id",
+  "club_type_id",
+  "skill_level",
+  "master_honors",
+] as const;
+
+function collectHonorFieldErrors(
+  t: HonorsTranslator,
+  formData: FormData,
+  mode: "create" | "update",
+): Record<string, string> {
+  const errors: Record<string, string> = {};
+
+  const name = readString(formData, "name");
+  if (mode === "create" && !name) {
+    errors.name = t("validation.honor_name_required");
+  } else if (mode === "update" && formData.has("name") && !name) {
+    errors.name = t("validation.honor_name_required");
+  }
+
+  for (const field of NUMBER_FIELDS) {
+    const value = readString(formData, field);
+    if (value && !Number.isFinite(Number(value))) {
+      errors[field] = t("validation.field_invalid", { field });
+    }
+  }
+
+  return errors;
+}
 
 function readString(formData: FormData, fieldName: string) {
   return String(formData.get(fieldName) ?? "").trim();
@@ -130,6 +162,11 @@ export async function createHonorAction(
     };
   }
 
+  const fieldErrors = collectHonorFieldErrors(t, formData, "create");
+  if (Object.keys(fieldErrors).length > 0) {
+    return { fieldErrors };
+  }
+
   try {
     const payload = buildCreatePayload(t, formData);
     await createHonor(payload);
@@ -157,6 +194,11 @@ export async function updateHonorAction(
     return {
       error: t("errors.no_permission_update"),
     };
+  }
+
+  const fieldErrors = collectHonorFieldErrors(t, formData, "update");
+  if (Object.keys(fieldErrors).length > 0) {
+    return { fieldErrors };
   }
 
   try {

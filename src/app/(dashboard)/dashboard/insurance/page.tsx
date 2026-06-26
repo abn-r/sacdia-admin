@@ -183,7 +183,7 @@ export default async function InsurancePage() {
         description={t("page.description")}
       >
         <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/insurance/expiring">
+          <Link href="/dashboard/insurance/expiring" prefetch={false}>
             <Clock className="mr-1.5 size-4" />
             {t("page.button_view_expiring")}
           </Link>

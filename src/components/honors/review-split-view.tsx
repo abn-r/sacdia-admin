@@ -204,7 +204,7 @@ export function ReviewSplitView({
                   href={materialUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="Abrir material en nueva pestaña"
+                  aria-label={t("components.reviewSplitView.openMaterialAriaLabel")}
                 >
                   <ExternalLink className="mr-1.5 size-4" />
                   Abrir en nueva pestaña
@@ -312,7 +312,7 @@ export function ReviewSplitView({
                   id="rv-referenceText"
                   value={form.referenceText}
                   onChange={(e) => set("referenceText", e.target.value)}
-                  placeholder="Ej: Libro de Especialidades, págs. 45-50"
+                  placeholder={t("components.reviewSplitView.referencePlaceholder")}
                   rows={3}
                   className="min-h-[70px] resize-none"
                   disabled={loading}

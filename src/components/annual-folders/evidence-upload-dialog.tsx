@@ -165,7 +165,7 @@ export function EvidenceUploadDialog({
               id="evidence-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Descripción breve del archivo..."
+              placeholder={t("evidenceUploadDialog.descriptionPlaceholder")}
               rows={2}
               maxLength={300}
             />

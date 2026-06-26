@@ -559,7 +559,7 @@ export function WeeklyRecordsPanel({
                   <TableHead
                     key={cat.scoring_category_id}
                     className="h-9 px-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground"
-                    title={`Máx. ${cat.max_points} pts`}
+                    title={t("weeklyRecords.maxPointsTitle", { max: cat.max_points })}
                   >
                     {cat.name}
                   </TableHead>

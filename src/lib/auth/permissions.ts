@@ -44,6 +44,7 @@ export const CLUB_SECTIONS_UPDATE = "club_sections:update";
 export const CLUB_ROLES_READ = "club_roles:read";
 export const CLUB_ROLES_ASSIGN = "club_roles:assign";
 export const CLUB_ROLES_REVOKE = "club_roles:revoke";
+export const COORDINATION_MANAGE = "coordination:manage";
 // Club membership approval
 export const CLUB_MEMBERS_APPROVE = "club_members:approve";
 export const CLUB_MEMBERS_REJECT = "club_members:reject";
@@ -62,6 +63,10 @@ export const LOCAL_FIELDS_READ = "local_fields:read";
 export const LOCAL_FIELDS_CREATE = "local_fields:create";
 export const LOCAL_FIELDS_UPDATE = "local_fields:update";
 export const LOCAL_FIELDS_DELETE = "local_fields:delete";
+export const DISTRICTS_READ = "districts:read";
+export const DISTRICTS_CREATE = "districts:create";
+export const DISTRICTS_UPDATE = "districts:update";
+export const DISTRICTS_DELETE = "districts:delete";
 export const CHURCHES_READ = "churches:read";
 export const CHURCHES_CREATE = "churches:create";
 export const CHURCHES_UPDATE = "churches:update";
@@ -72,6 +77,34 @@ export const CATALOGS_READ = "catalogs:read";
 export const CATALOGS_CREATE = "catalogs:create";
 export const CATALOGS_UPDATE = "catalogs:update";
 export const CATALOGS_DELETE = "catalogs:delete";
+export const RELATIONSHIP_TYPES_READ = "relationship_types:read";
+export const RELATIONSHIP_TYPES_CREATE = "relationship_types:create";
+export const RELATIONSHIP_TYPES_UPDATE = "relationship_types:update";
+export const RELATIONSHIP_TYPES_DELETE = "relationship_types:delete";
+export const ALLERGIES_READ = "allergies:read";
+export const ALLERGIES_CREATE = "allergies:create";
+export const ALLERGIES_UPDATE = "allergies:update";
+export const ALLERGIES_DELETE = "allergies:delete";
+export const DISEASES_READ = "diseases:read";
+export const DISEASES_CREATE = "diseases:create";
+export const DISEASES_UPDATE = "diseases:update";
+export const DISEASES_DELETE = "diseases:delete";
+export const MEDICINES_READ = "medicines:read";
+export const MEDICINES_CREATE = "medicines:create";
+export const MEDICINES_UPDATE = "medicines:update";
+export const MEDICINES_DELETE = "medicines:delete";
+export const CLUB_TYPES_READ = "club_types:read";
+export const CLUB_TYPES_CREATE = "club_types:create";
+export const CLUB_TYPES_UPDATE = "club_types:update";
+export const CLUB_TYPES_DELETE = "club_types:delete";
+export const CLUB_IDEALS_READ = "club_ideals:read";
+export const CLUB_IDEALS_CREATE = "club_ideals:create";
+export const CLUB_IDEALS_UPDATE = "club_ideals:update";
+export const CLUB_IDEALS_DELETE = "club_ideals:delete";
+export const ACTIVITY_TYPES_READ = "activity_types:read";
+export const ACTIVITY_TYPES_CREATE = "activity_types:create";
+export const ACTIVITY_TYPES_UPDATE = "activity_types:update";
+export const ACTIVITY_TYPES_DELETE = "activity_types:delete";
 
 // --- Clases y Honores ---
 export const CLASSES_READ = "classes:read";
@@ -91,11 +124,6 @@ export const HONOR_CATEGORIES_CREATE = "honor_categories:create";
 export const HONOR_CATEGORIES_UPDATE = "honor_categories:update";
 export const HONOR_CATEGORIES_DELETE = "honor_categories:delete";
 
-// --- Carpetas (Folders) ---
-export const FOLDERS_MANAGE = "folders:manage";
-export const FOLDER_MODULES_MANAGE = "folder_modules:manage";
-export const FOLDER_SECTIONS_MANAGE = "folder_sections:manage";
-
 // --- Categorías de Finanzas e Inventario ---
 export const FINANCE_CATEGORIES_MANAGE = "finance_categories:manage";
 export const INVENTORY_CATEGORIES_MANAGE = "inventory_categories:manage";
@@ -113,6 +141,18 @@ export const CAMPOREES_READ   = "camporees:read";
 export const CAMPOREES_CREATE = "camporees:create";
 export const CAMPOREES_UPDATE = "camporees:update";
 export const CAMPOREES_DELETE = "camporees:delete";
+
+// --- Camporee Event Types (catalog) ---
+export const CAMPOREE_EVENT_TYPES_READ   = "camporee_event_types:read";
+export const CAMPOREE_EVENT_TYPES_CREATE = "camporee_event_types:create";
+export const CAMPOREE_EVENT_TYPES_UPDATE = "camporee_event_types:update";
+export const CAMPOREE_EVENT_TYPES_DELETE = "camporee_event_types:delete";
+
+// --- Camporee Events (templates + instances) ---
+export const CAMPOREE_EVENTS_READ   = "camporee_events:read";
+export const CAMPOREE_EVENTS_CREATE = "camporee_events:create";
+export const CAMPOREE_EVENTS_UPDATE = "camporee_events:update";
+export const CAMPOREE_EVENTS_DELETE = "camporee_events:delete";
 
 // --- Validación (Validation) ---
 export const VALIDATION_SUBMIT = "validation:submit";
@@ -155,10 +195,6 @@ export const REQUESTS_REVIEW = "requests:review";
 // --- Certificaciones de Usuario (User Certifications) ---
 export const USER_CERTIFICATIONS_READ   = "user_certifications:read";
 export const USER_CERTIFICATIONS_MANAGE = "user_certifications:manage";
-
-// --- Carpetas de Usuario (User Folders) ---
-export const USER_FOLDERS_READ   = "user_folders:read";
-export const USER_FOLDERS_MANAGE = "user_folders:manage";
 
 // --- Logros (Achievements) ---
 export const ACHIEVEMENTS_READ = "achievements:read";
@@ -245,6 +281,7 @@ export const PERMISSION_GROUPS = {
       { key: CLUB_ROLES_READ },
       { key: CLUB_ROLES_ASSIGN },
       { key: CLUB_ROLES_REVOKE },
+      { key: COORDINATION_MANAGE },
       { key: CLUB_MEMBERS_APPROVE },
       { key: CLUB_MEMBERS_REJECT },
       { key: CLUB_MEMBERS_LIST_PENDING },
@@ -280,12 +317,6 @@ export const PERMISSION_GROUPS = {
       { key: USER_CERTIFICATIONS_MANAGE },
     ],
   },
-  user_folders: {
-    permissions: [
-      { key: USER_FOLDERS_READ },
-      { key: USER_FOLDERS_MANAGE },
-    ],
-  },
   geography: {
     permissions: [
       { key: COUNTRIES_READ },
@@ -300,6 +331,10 @@ export const PERMISSION_GROUPS = {
       { key: LOCAL_FIELDS_CREATE },
       { key: LOCAL_FIELDS_UPDATE },
       { key: LOCAL_FIELDS_DELETE },
+      { key: DISTRICTS_READ },
+      { key: DISTRICTS_CREATE },
+      { key: DISTRICTS_UPDATE },
+      { key: DISTRICTS_DELETE },
       { key: CHURCHES_READ },
       { key: CHURCHES_CREATE },
       { key: CHURCHES_UPDATE },
@@ -312,6 +347,34 @@ export const PERMISSION_GROUPS = {
       { key: CATALOGS_CREATE },
       { key: CATALOGS_UPDATE },
       { key: CATALOGS_DELETE },
+      { key: RELATIONSHIP_TYPES_READ },
+      { key: RELATIONSHIP_TYPES_CREATE },
+      { key: RELATIONSHIP_TYPES_UPDATE },
+      { key: RELATIONSHIP_TYPES_DELETE },
+      { key: ALLERGIES_READ },
+      { key: ALLERGIES_CREATE },
+      { key: ALLERGIES_UPDATE },
+      { key: ALLERGIES_DELETE },
+      { key: DISEASES_READ },
+      { key: DISEASES_CREATE },
+      { key: DISEASES_UPDATE },
+      { key: DISEASES_DELETE },
+      { key: MEDICINES_READ },
+      { key: MEDICINES_CREATE },
+      { key: MEDICINES_UPDATE },
+      { key: MEDICINES_DELETE },
+      { key: CLUB_TYPES_READ },
+      { key: CLUB_TYPES_CREATE },
+      { key: CLUB_TYPES_UPDATE },
+      { key: CLUB_TYPES_DELETE },
+      { key: CLUB_IDEALS_READ },
+      { key: CLUB_IDEALS_CREATE },
+      { key: CLUB_IDEALS_UPDATE },
+      { key: CLUB_IDEALS_DELETE },
+      { key: ACTIVITY_TYPES_READ },
+      { key: ACTIVITY_TYPES_CREATE },
+      { key: ACTIVITY_TYPES_UPDATE },
+      { key: ACTIVITY_TYPES_DELETE },
     ],
   },
   classes_honors: {
@@ -346,6 +409,14 @@ export const PERMISSION_GROUPS = {
       { key: CAMPOREES_CREATE },
       { key: CAMPOREES_UPDATE },
       { key: CAMPOREES_DELETE },
+      { key: CAMPOREE_EVENT_TYPES_READ },
+      { key: CAMPOREE_EVENT_TYPES_CREATE },
+      { key: CAMPOREE_EVENT_TYPES_UPDATE },
+      { key: CAMPOREE_EVENT_TYPES_DELETE },
+      { key: CAMPOREE_EVENTS_READ },
+      { key: CAMPOREE_EVENTS_CREATE },
+      { key: CAMPOREE_EVENTS_UPDATE },
+      { key: CAMPOREE_EVENTS_DELETE },
     ],
   },
   validation: {

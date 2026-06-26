@@ -38,7 +38,8 @@ export type InventoryItem = {
   description?: string | null;
   inventory_category_id: number;
   inventory_category?: InventoryCategory | null;
-  club_id: number;
+  club_id?: number | null;
+  club_section_id?: number | null;
   amount: number;
   active: boolean;
   created_at?: string | null;
@@ -72,7 +73,7 @@ export async function listInventoryCategories(): Promise<unknown> {
 }
 
 export async function listClubInventory(
-  clubId: number,
+  clubSectionId: number,
   query: InventoryListQuery,
 ): Promise<unknown> {
   const params: Record<string, string | number> = {
@@ -80,16 +81,16 @@ export async function listClubInventory(
   };
   if (query.category) params.category = query.category;
 
-  return apiRequest(`/inventory/clubs/${clubId}/inventory`, { params });
+  return apiRequest(`/inventory/clubs/${clubSectionId}/inventory`, { params });
 }
 
 // ─── Client-side API functions ────────────────────────────────────────────────
 
 export async function createInventoryItem(
-  clubId: number,
+  clubSectionId: number,
   data: CreateInventoryPayload,
 ): Promise<unknown> {
-  return apiRequestFromClient(`/inventory/clubs/${clubId}/inventory`, {
+  return apiRequestFromClient(`/inventory/clubs/${clubSectionId}/inventory`, {
     method: "POST",
     body: data,
   });

@@ -15,6 +15,12 @@ import { getClassById, listClasses } from "@/lib/api/classes";
 import type { ClassModule, ClassSection } from "@/lib/api/classes";
 import { listClubTypes } from "@/lib/api/catalogs";
 import { requireAdminUser } from "@/lib/auth/session";
+import {
+  formatClassAvailabilityFrom,
+  formatClassAvailabilityUntil,
+  formatClassDurationRange,
+  type ClassDisplayLabels,
+} from "@/lib/classes/display";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -91,9 +97,14 @@ function normalizeModules(raw: unknown): NormalizedModule[] {
   if (!Array.isArray(raw)) return [];
   return raw.map((mod: unknown, idx: number) => {
     const m = (mod && typeof mod === "object" ? mod : {}) as AnyRecord;
-    const sections = Array.isArray(m.sections)
-      ? m.sections.map((sec: unknown, sIdx: number) => normalizeSection(sec, sIdx))
-      : [];
+    const rawSections = Array.isArray(m.sections)
+      ? m.sections
+      : Array.isArray(m.class_sections)
+        ? m.class_sections
+        : [];
+    const sections = rawSections.map((sec: unknown, sIdx: number) =>
+      normalizeSection(sec, sIdx),
+    );
 
     return {
       module_id: toPositiveNumber(m.module_id) ?? idx + 1,
@@ -124,6 +135,16 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
 export default async function ClassDetailPage({ params }: { params: Params }) {
   await requireAdminUser();
   const t = await getTranslations("classes.pages.detail");
+  const displayT = await getTranslations("classes.display");
+  const displayLabels: ClassDisplayLabels = {
+    yearSingular: displayT("yearSingular"),
+    yearPlural: displayT("yearPlural"),
+    yearFallback: (id) => displayT("yearFallback", { id }),
+    availableFromAnyYear: displayT("availableFromAnyYear"),
+    noProgrammedExpiration: displayT("noProgrammedExpiration"),
+    availableFromYear: (label) => displayT("availableFromYear", { label }),
+    availableUntilYear: (label) => displayT("availableUntilYear", { label }),
+  };
 
   const { classId: classIdParam } = await params;
   const classId = toPositiveNumber(classIdParam);
@@ -162,7 +183,12 @@ export default async function ClassDetailPage({ params }: { params: Params }) {
     const normalized = normalizeClassPayload(payload);
     if (!normalized) notFound();
     classData = normalized;
-    modules = normalizeModules(classData.modules ?? []);
+    const rawModules = Array.isArray(classData.class_modules)
+      ? classData.class_modules
+      : Array.isArray(classData.modules)
+        ? classData.modules
+        : [];
+    modules = normalizeModules(rawModules);
   } catch (error) {
     if (error instanceof ApiError && (error.status === 404 || error.status === 403)) {
       notFound();
@@ -171,7 +197,7 @@ export default async function ClassDetailPage({ params }: { params: Params }) {
   }
 
   // If modules were not embedded in the detail response, show an informational note.
-  if (modules.length === 0 && !classData.modules) {
+  if (modules.length === 0 && !classData.class_modules && !classData.modules) {
     modulesError =
       "El endpoint de clases no retornó módulos en la respuesta de detalle. " +
       "Los módulos se cargan desde GET /classes/:id — verifica que el backend los incluya.";
@@ -188,19 +214,31 @@ export default async function ClassDetailPage({ params }: { params: Params }) {
   const isActive = classData.active !== false;
   const maxPoints = toPositiveNumber(classData.max_points ?? classData.maxPoints);
   const minPoints = toPositiveNumber(classData.minimum_points ?? classData.minimumPoints);
+  const availableFromYearId = toPositiveNumber(classData.available_from_year_id);
+  const availableUntilYearId = toPositiveNumber(classData.available_until_year_id);
+  const minDurationYears = toPositiveNumber(classData.min_duration_years) ?? 1;
+  const maxDurationYears = toPositiveNumber(classData.max_duration_years) ?? 1;
   const modulesCount = modules.length;
   const totalSections = modules.reduce((acc, m) => acc + m.sections.length, 0);
 
   return (
     <div className="space-y-6">
-      <PageHeader title={name} description={t("description")}>
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/classes">
-            <ArrowLeft className="size-4" />
-            {t("back")}
-          </Link>
-        </Button>
-      </PageHeader>
+      <PageHeader
+        title={name}
+        description={t("description")}
+        breadcrumbs={[
+          { label: t("back"), href: "/dashboard/classes" },
+          { label: name },
+        ]}
+        actions={
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/dashboard/classes">
+              <ArrowLeft className="size-4" />
+              {t("back")}
+            </Link>
+          </Button>
+        }
+      />
 
       {/* Hero card */}
       <Card>
@@ -222,11 +260,15 @@ export default async function ClassDetailPage({ params }: { params: Params }) {
       </Card>
 
       {/* Stats strip */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
         {[
           { label: t("statOrder"), value: displayOrder ?? "—" },
           { label: t("statModules"), value: modulesCount > 0 ? modulesCount : "—" },
           { label: t("statSections"), value: totalSections > 0 ? totalSections : "—" },
+          {
+            label: t("statDuration"),
+            value: formatClassDurationRange(minDurationYears, maxDurationYears, displayLabels),
+          },
           {
             label: t("statPoints"),
             value: minPoints != null ? `${minPoints} / ${maxPoints ?? "—"}` : "—",
@@ -251,6 +293,18 @@ export default async function ClassDetailPage({ params }: { params: Params }) {
           <InfoRow label={t("labelClubType")} value={clubTypeName} />
           <InfoRow label={t("labelOrder")} value={displayOrder ?? "—"} />
           <InfoRow label={t("labelStatus")} value={<ClassStatusBadge active={isActive} />} />
+          <InfoRow
+            label={t("labelDuration")}
+            value={formatClassDurationRange(minDurationYears, maxDurationYears, displayLabels)}
+          />
+          <InfoRow
+            label={t("labelAvailableFrom")}
+            value={formatClassAvailabilityFrom(availableFromYearId, displayLabels)}
+          />
+          <InfoRow
+            label={t("labelAvailableUntil")}
+            value={formatClassAvailabilityUntil(availableUntilYearId, displayLabels)}
+          />
           {maxPoints != null && (
             <InfoRow label={t("labelMaxPoints")} value={maxPoints} />
           )}

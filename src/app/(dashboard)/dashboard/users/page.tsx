@@ -9,6 +9,7 @@ import { DataTableShell } from "@/components/shared/data-table-shell";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import { UsersFilters } from "@/components/users/users-filters";
 import { UsersTable } from "@/components/users/users-table";
+import { UsersToolbarActions } from "@/components/users/users-toolbar-actions";
 import { listAdminUsers, type AdminUsersQuery } from "@/lib/api/admin-users";
 import { requireAdminUser } from "@/lib/auth/session";
 import { canViewAdministrativeCompletion } from "@/lib/auth/permission-utils";
@@ -47,10 +48,12 @@ async function UsersContent({
   const t = await getTranslations("users.pages.list");
   const result = await listAdminUsers(query);
   const showAdministrativeCompletion = canViewAdministrativeCompletion(currentUser);
+  const scope = result.meta?.scope;
 
   if (!result.endpointAvailable) {
     return (
       <div className="space-y-4">
+        <UsersFilters scope={scope} />
         <EndpointErrorBanner
           state={result.endpointState as "forbidden" | "missing" | "rate-limited"}
           detail={result.endpointDetail}
@@ -79,6 +82,7 @@ async function UsersContent({
 
   return (
     <div className="space-y-4">
+      <UsersFilters scope={scope} />
       <UsersTable
         users={result.items}
         showAdministrativeCompletion={showAdministrativeCompletion}
@@ -135,10 +139,10 @@ export default async function UsersPage({
       <PageHeader
         title={t("title")}
         description={t("description")}
+        actions={<UsersToolbarActions />}
       />
 
       <Suspense fallback={<UsersListSkeleton />}>
-        <UsersFilters />
         <UsersContent query={query} currentUser={currentUser} />
       </Suspense>
     </div>

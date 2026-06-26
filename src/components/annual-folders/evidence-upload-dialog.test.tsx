@@ -4,7 +4,7 @@
  * Architecture notes:
  * ------------------------------------------------------------------
  * Dialog with file upload (drop zone + file input) and optional textarea.
- * Action: uploadEvidence(folderId, sectionId, file, description?).
+ * Action: uploadEvidence(folderId, sectionId, file, notes?).
  * Guards: exits early (toast error) if no file selected.
  * Resets state (file + description) when dialog closes.
  *

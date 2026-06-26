@@ -16,6 +16,7 @@ import {
 import { EmptyState } from "@/components/shared/empty-state";
 import { InventoryHistoryDialog } from "@/components/inventory/inventory-history-dialog";
 import type { InventoryItem } from "@/lib/api/inventory";
+import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 
 // ─── Props ─────────────────────────────────────────────────────────────────────
 
@@ -71,13 +72,13 @@ export function InventoryTable({ items, onEdit, onDelete }: InventoryTableProps)
           </TableRow>
         </TableHeader>
         <TableBody>
-          {items.map((item) => {
+          {items.map((item, index) => {
             const categoryName =
               item.inventory_category?.name ??
               t("table.category_fallback", { id: item.inventory_category_id });
 
             return (
-              <TableRow key={item.inventory_id} className="hover:bg-muted/30">
+              <TableRow key={item.inventory_id} className={`hover:bg-muted/30 ${STAGGER_CLASSES}`} style={getStaggerStyle(index)}>
                 <TableCell className="px-3 py-2.5 align-middle">
                   <span className="font-medium">{item.name}</span>
                 </TableCell>

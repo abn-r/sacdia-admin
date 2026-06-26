@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle2, DollarSign, Loader2, Pencil, XCircle } from "lucide-react";
+import Link from "next/link";
+import { CheckCircle2, DollarSign, Loader2, Paperclip, Pencil, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -130,8 +131,8 @@ type DialogState = {
 // ─── Props ─────────────────────────────────────────────────────────────────────
 
 interface CamporeePaymentsPanelProps {
+  camporeeId: number;
   payments: CamporeePayment[];
-  onEdit: (payment: CamporeePayment) => void;
   onPaymentsChange?: () => void;
   isUnionCamporee?: boolean;
 }
@@ -139,8 +140,8 @@ interface CamporeePaymentsPanelProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function CamporeePaymentsPanel({
+  camporeeId,
   payments,
-  onEdit,
   onPaymentsChange,
   isUnionCamporee = false,
 }: CamporeePaymentsPanelProps) {
@@ -250,9 +251,30 @@ export function CamporeePaymentsPanel({
                 return (
                   <TableRow key={payment.payment_id} className="hover:bg-muted/30">
                     <TableCell className="px-3 py-2.5 align-middle">
-                      <span className="text-sm font-medium">
-                        {payment.member_name ?? payment.member_id}
-                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-sm font-medium">
+                          {payment.member_name ?? payment.member_id}
+                        </span>
+                        {payment.voucher_url && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <a
+                                href={payment.voucher_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex size-5 items-center justify-center rounded-full bg-primary/10 text-primary hover:bg-primary/20"
+                                aria-label={t("paymentsPanel.voucherAttachedLabel")}
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <Paperclip className="size-3" />
+                              </a>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              {t("paymentsPanel.voucherAttachedLabel")}
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell className="px-3 py-2.5 align-middle">
                       <span className="text-sm font-semibold tabular-nums">
@@ -312,20 +334,29 @@ export function CamporeePaymentsPanel({
                           </>
                         )}
 
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              onClick={() => onEdit(payment)}
-                              aria-label={t("paymentsPanel.editLabel")}
-                            >
-                              <Pencil className="size-3.5" />
-                              <span className="sr-only">{t("paymentsPanel.editLabel")}</span>
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>{t("paymentsPanel.editLabel")}</TooltipContent>
-                        </Tooltip>
+                        {payment.camporee_payment_id && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon-sm"
+                                asChild
+                                aria-label={t("paymentsPanel.editLabel")}
+                              >
+                                <Link
+                                  href={`/dashboard/camporees/${camporeeId}/payments/${payment.camporee_payment_id}/edit`}
+                                  prefetch={false}
+                                >
+                                  <Pencil className="size-3.5" />
+                                  <span className="sr-only">
+                                    {t("paymentsPanel.editLabel")}
+                                  </span>
+                                </Link>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>{t("paymentsPanel.editLabel")}</TooltipContent>
+                          </Tooltip>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>

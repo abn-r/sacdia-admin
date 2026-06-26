@@ -1,0 +1,73 @@
+"use client";
+
+import * as React from "react";
+import { useRouter } from "next/navigation";
+import type { CamporeeEventsData } from "@/lib/camporee-timeline/types";
+import { EventsSummaryKpis } from "./events-summary-kpis";
+import { EventsToolbar } from "./events-toolbar";
+import { EventDayCard } from "./event-day-card";
+
+interface Props {
+  camporeeId: string;
+  data: CamporeeEventsData;
+  readonly?: boolean;
+}
+
+export function EventsTimelineView({ camporeeId, data, readonly = false }: Props) {
+  const router = useRouter();
+
+  // Navigate to the dedicated create-event page instead of opening a drawer.
+  // The spec (PR6a+PR7) mandates a dedicated page for create/edit (DS §6.1.1:
+  // >4 fields + relations). The drawer is removed from the create flow.
+  const openCreate = React.useCallback(() => {
+    if (readonly) return;
+    router.push(`/dashboard/camporees/${camporeeId}/events/new`);
+  }, [readonly, router, camporeeId]);
+
+  const handleEdit = React.useCallback(
+    (eventId: string) => {
+      router.push(`/dashboard/camporees/${camporeeId}/events/${eventId}/edit`);
+    },
+    [router, camporeeId],
+  );
+
+  const eventsByDay = React.useMemo(() => {
+    const map = new Map<number, typeof data.events>();
+    data.days.forEach((d) => map.set(d.numero, []));
+    data.events.forEach((e) => {
+      const arr = map.get(e.dayNumber);
+      if (arr) arr.push(e);
+    });
+    return map;
+  }, [data]);
+
+  return (
+    <div>
+      <EventsSummaryKpis data={data} />
+
+      {!readonly && (
+        <EventsToolbar
+          data={data}
+          camporeeId={camporeeId}
+          onCreate={openCreate}
+          onImportFromCatalog={openCreate}
+        />
+      )}
+
+      <div className="flex flex-col gap-4">
+        {data.days.map((d) => (
+          <EventDayCard
+            key={d.id}
+            day={d}
+            events={eventsByDay.get(d.numero) ?? []}
+            venues={data.venues}
+            camporeeId={camporeeId}
+            onAdd={openCreate}
+            onEdit={handleEdit}
+            readonly={readonly}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}

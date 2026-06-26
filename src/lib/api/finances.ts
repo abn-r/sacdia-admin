@@ -18,6 +18,18 @@ export type FinanceUser = {
   paternal_last_name?: string | null;
 };
 
+export type FinanceEvidence = {
+  evidence_id: number;
+  finance_id: number;
+  url: string;
+  file_name: string;
+  file_type: string;
+  file_size?: number | null;
+  uploaded_by_id: string;
+  uploaded_at: string;
+  active: boolean;
+};
+
 export type Finance = {
   finance_id: number;
   year: number;
@@ -40,6 +52,7 @@ export type Finance = {
     name: string;
   } | null;
   users?: FinanceUser | null;
+  evidences?: FinanceEvidence[];
 };
 
 export type FinanceSummary = {
@@ -171,6 +184,23 @@ export async function updateFinance(
   return apiRequestFromClient<Finance>(`/finances/${financeId}`, {
     method: "PATCH",
     body: payload,
+  });
+}
+
+/**
+ * POST /api/v1/finances/:financeId/evidences
+ * Client-side only (multipart mutation)
+ */
+export async function uploadFinanceEvidence(
+  financeId: number,
+  file: File,
+): Promise<FinanceEvidence> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  return apiRequestFromClient<FinanceEvidence>(`/finances/${financeId}/evidences`, {
+    method: "POST",
+    body: formData,
   });
 }
 

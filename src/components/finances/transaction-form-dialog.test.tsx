@@ -65,6 +65,7 @@ if (!Element.prototype.scrollIntoView) {
 const mockGetFinanceCategories = vi.fn();
 const mockCreateFinance = vi.fn();
 const mockUpdateFinance = vi.fn();
+const mockUploadFinanceEvidence = vi.fn();
 
 vi.mock("@/lib/api/finances", () => ({
   getFinanceCategories: () => mockGetFinanceCategories(),
@@ -72,6 +73,8 @@ vi.mock("@/lib/api/finances", () => ({
     mockCreateFinance(clubId, payload),
   updateFinance: (financeId: number, payload: unknown) =>
     mockUpdateFinance(financeId, payload),
+  uploadFinanceEvidence: (financeId: number, file: File) =>
+    mockUploadFinanceEvidence(financeId, file),
 }));
 
 // sonner toast — we don't need to render the Toaster; just spy on calls.
@@ -170,6 +173,16 @@ describe("TransactionFormDialog", () => {
     // Default: mutations resolve (success path)
     mockCreateFinance.mockResolvedValue({ ...STUB_FINANCE });
     mockUpdateFinance.mockResolvedValue({ ...STUB_FINANCE });
+    mockUploadFinanceEvidence.mockResolvedValue({
+      evidence_id: 1,
+      finance_id: STUB_FINANCE.finance_id,
+      url: "https://example.com/evidence.jpg",
+      file_name: "recibo.jpg",
+      file_type: "image/jpeg",
+      uploaded_by_id: "user-1",
+      uploaded_at: "2026-06-19T00:00:00Z",
+      active: true,
+    });
   });
 
   afterEach(() => {
@@ -351,6 +364,27 @@ describe("TransactionFormDialog", () => {
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
     expect(onSuccess).toHaveBeenCalledOnce();
+  });
+
+  it("uploads selected evidence photos after saving the movement", async () => {
+    renderDialog({ finance: STUB_FINANCE });
+    await waitFor(() => expect(mockGetFinanceCategories).toHaveBeenCalledOnce());
+
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const receipt = new File(["image"], "recibo.jpg", { type: "image/jpeg" });
+
+    await act(async () => {
+      fireEvent.change(fileInput, { target: { files: [receipt] } });
+    });
+
+    await submitForm();
+
+    await waitFor(() => {
+      expect(mockUploadFinanceEvidence).toHaveBeenCalledWith(
+        STUB_FINANCE.finance_id,
+        receipt,
+      );
+    });
   });
 
   // ── 6. Submit during pending ──────────────────────────────────────────────

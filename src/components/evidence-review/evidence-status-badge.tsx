@@ -21,7 +21,9 @@ const classIntentMap: Record<string, IntentConfig> = {
 const honorIntentMap: Record<string, IntentConfig> = {
   PENDING:     { labelKey: "no_submit",  intent: "neutral" },
   SUBMITTED:   { labelKey: "submitted",  intent: "info" },
+  IN_PROGRESS: { labelKey: "submitted",  intent: "info" },
   VALIDATED:   { labelKey: "validated",  intent: "success" },
+  APPROVED:    { labelKey: "validated",  intent: "success" },
   REJECTED:    { labelKey: "rejected",   intent: "destructive" },
   PENDING_REVIEW: { labelKey: "submitted",  intent: "info" },
 

@@ -10,6 +10,7 @@ interface UserAvatarProps {
   email?: string | null;
   size?: number;
   className?: string;
+  priority?: boolean;
 }
 
 function getInitials(name?: string | null, email?: string | null): string {
@@ -17,7 +18,7 @@ function getInitials(name?: string | null, email?: string | null): string {
   return (email?.[0] ?? "?").toUpperCase();
 }
 
-export function UserAvatar({ src, name, email, size = 40, className }: UserAvatarProps) {
+export function UserAvatar({ src, name, email, size = 40, className, priority }: UserAvatarProps) {
   const [imgError, setImgError] = useState(false);
   const showImage = !!src && !imgError;
   const initials = getInitials(name, email);
@@ -38,6 +39,8 @@ export function UserAvatar({ src, name, email, size = 40, className }: UserAvata
           sizes={`${size}px`}
           className="object-cover"
           onError={() => setImgError(true)}
+          priority={priority}
+          loading={priority ? "eager" : undefined}
         />
       ) : (
         <span

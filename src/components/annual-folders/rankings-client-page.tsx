@@ -1,20 +1,30 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
-  Search,
-  Medal,
-  Trophy,
-  TrendingUp,
-  BarChart3,
   ArrowRight,
+  BarChart3,
+  Medal,
+  Search,
+  TrendingUp,
+  Trophy,
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import { RankingScoreBadge } from "@/components/rankings/ranking-score-badge";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import {
   Select,
   SelectContent,
@@ -31,50 +41,39 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Progress } from "@/components/ui/progress";
-import {
-  getRankingsFromClient,
-  getAwardCategoriesFromClient,
-  recalculateRankings,
-} from "@/lib/api/annual-folders";
-import { ApiError } from "@/lib/api/client";
-import {
   SortableHeader,
   type SortDirection,
 } from "@/components/shared/sortable-header";
-import type { ClubRanking, AwardCategory } from "@/lib/api/annual-folders";
+import { recalculateRankings } from "@/lib/api/annual-folders";
+import {
+  listAnnualRankingsFromClient,
+  type AnnualRankingComponentProgress,
+  type AnnualRankingLeaderboardRow,
+} from "@/lib/api/annual-rankings";
+import { ApiError } from "@/lib/api/client";
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
-
-// ─── Sort types ───────────────────────────────────────────────────────────────
+import type { LocalField } from "@/lib/api/geography";
 
 type SortField =
   | "rank_position"
   | "club_name"
-  | "composite_score_pct"
-  | "total_earned_points"
-  | "progress_percentage";
-
-// ─── Props ────────────────────────────────────────────────────────────────────
+  | "current_points"
+  | "progress_percentage"
+  | "current_tier";
 
 interface RankingsClientPageProps {
-  initialRankings: ClubRanking[];
-  initialCategories: AwardCategory[];
+  initialRankings: AnnualRankingLeaderboardRow[];
   clubTypes: ClubType[];
   ecclesiasticalYears: EcclesiasticalYear[];
+  localFields: LocalField[];
   initialClubTypeId: number;
   initialYearId: number;
+  initialLocalFieldId?: number;
 }
 
-// ─── Medal icon helper ─────────────────────────────────────────────────────────
+function formatPoints(value: number): string {
+  return value.toLocaleString("es-MX");
+}
 
 function RankBadge({ position }: { position: number | null }) {
   if (position === 1) {
@@ -87,6 +86,7 @@ function RankBadge({ position }: { position: number | null }) {
       </span>
     );
   }
+
   if (position === 2) {
     return (
       <span
@@ -97,6 +97,7 @@ function RankBadge({ position }: { position: number | null }) {
       </span>
     );
   }
+
   if (position === 3) {
     return (
       <span
@@ -107,6 +108,7 @@ function RankBadge({ position }: { position: number | null }) {
       </span>
     );
   }
+
   return (
     <span className="inline-flex size-7 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
       {position ?? "—"}
@@ -121,66 +123,103 @@ function rowHighlight(position: number | null): string {
   return "";
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+function RecognitionBadge({ row }: { row: AnnualRankingLeaderboardRow }) {
+  if (!row.current_tier) {
+    return (
+      <Badge variant="outline" className="whitespace-nowrap">
+        Sin rango
+      </Badge>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-1">
+      <Badge variant="secondary" className="w-fit whitespace-nowrap">
+        {row.current_tier.name}
+      </Badge>
+      {row.next_tier?.points_to_reach ? (
+        <span className="text-xs text-muted-foreground">
+          Faltan {formatPoints(row.next_tier.points_to_reach)} pts
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
+function ComponentSummary({
+  components,
+}: {
+  components: AnnualRankingComponentProgress[];
+}) {
+  if (components.length === 0) {
+    return <span className="text-xs text-muted-foreground">Sin componentes</span>;
+  }
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      {components.slice(0, 3).map((component) => (
+        <div key={component.key} className="flex items-center justify-between gap-3">
+          <span className="truncate text-xs text-muted-foreground">
+            {component.label}
+          </span>
+          <span className="shrink-0 text-xs font-medium tabular-nums">
+            {formatPoints(component.earned_points)}/{formatPoints(component.max_points)}
+          </span>
+        </div>
+      ))}
+      {components.length > 3 ? (
+        <span className="text-xs text-muted-foreground">
+          +{components.length - 3} componentes
+        </span>
+      ) : null}
+    </div>
+  );
+}
 
 export function RankingsClientPage({
   initialRankings,
-  initialCategories,
   clubTypes,
   ecclesiasticalYears,
+  localFields,
   initialClubTypeId,
   initialYearId,
+  initialLocalFieldId,
 }: RankingsClientPageProps) {
   const t = useTranslations("annual_folders");
-  // Filter state
   const [selectedClubTypeId, setSelectedClubTypeId] = useState<number>(
     initialClubTypeId,
   );
   const [selectedYearId, setSelectedYearId] = useState<number>(initialYearId);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("all");
-
-  // Data state
-  const [rankings, setRankings] = useState<ClubRanking[]>(initialRankings);
-  const [categories, setCategories] =
-    useState<AwardCategory[]>(initialCategories);
+  const [selectedLocalFieldId, setSelectedLocalFieldId] = useState<
+    number | undefined
+  >(initialLocalFieldId ?? localFields[0]?.local_field_id);
+  const [rankings, setRankings] =
+    useState<AnnualRankingLeaderboardRow[]>(initialRankings);
   const [isLoading, setIsLoading] = useState(false);
-
-  // Sort state
   const [sortField, setSortField] = useState<SortField>("rank_position");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const [recalcOpen, setRecalcOpen] = useState(false);
+  const [isRecalculating, setIsRecalculating] = useState(false);
 
   const handleSort = (field: SortField, direction: SortDirection) => {
     setSortField(field);
     setSortDirection(direction);
   };
 
-  // Recalculate dialog
-  const [recalcOpen, setRecalcOpen] = useState(false);
-  const [isRecalculating, setIsRecalculating] = useState(false);
-
-  // ─── Filter categories when club type changes ──────────────────────────────
-
-  const filteredCategories = categories.filter(
-    (c) =>
-      c.active &&
-      (c.club_type_id === null || c.club_type_id === selectedClubTypeId),
-  );
-
-  // ─── Search ───────────────────────────────────────────────────────────────
-
   const handleSearch = useCallback(async () => {
+    if (selectedLocalFieldId === undefined) {
+      toast.error("Seleccioná un campo local para consultar el ranking");
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const [newRankings, newCategories] = await Promise.all([
-        getRankingsFromClient(
-          selectedClubTypeId,
-          selectedYearId,
-          selectedCategoryId !== "all" ? selectedCategoryId : undefined,
-        ),
-        getAwardCategoriesFromClient(selectedClubTypeId, true, "club", false),
-      ]);
+      const newRankings = await listAnnualRankingsFromClient({
+        clubTypeId: selectedClubTypeId,
+        ecclesiasticalYearId: selectedYearId,
+        localFieldId: selectedLocalFieldId,
+      });
       setRankings(Array.isArray(newRankings) ? newRankings : []);
-      setCategories(Array.isArray(newCategories) ? newCategories : []);
     } catch (err) {
       const message =
         err instanceof ApiError
@@ -190,9 +229,7 @@ export function RankingsClientPage({
     } finally {
       setIsLoading(false);
     }
-  }, [selectedClubTypeId, selectedYearId, selectedCategoryId]);
-
-  // ─── Recalculate ──────────────────────────────────────────────────────────
+  }, [selectedClubTypeId, selectedLocalFieldId, selectedYearId]);
 
   async function confirmRecalculate() {
     setIsRecalculating(true);
@@ -203,7 +240,6 @@ export function RankingsClientPage({
           t("toasts.rankings_recalculated", { count: result.rankings_updated }),
       );
       setRecalcOpen(false);
-      // Reload rankings after recalculation
       await handleSearch();
     } catch (err) {
       const message =
@@ -216,77 +252,102 @@ export function RankingsClientPage({
     }
   }
 
-  // ─── Sorted rankings ──────────────────────────────────────────────────────
+  const activeYear = ecclesiasticalYears.find(
+    (year) => year.ecclesiastical_year_id === selectedYearId,
+  );
+  const activeLocalField = localFields.find(
+    (field) => field.local_field_id === selectedLocalFieldId,
+  );
+  const activeClubType = clubTypes.find(
+    (type) => type.club_type_id === selectedClubTypeId,
+  );
 
   const sortedRankings = useMemo(() => {
     return [...rankings].sort((a, b) => {
       const dir = sortDirection === "asc" ? 1 : -1;
+
       switch (sortField) {
-        case "rank_position": {
-          const posA = a.rank_position ?? Number.MAX_SAFE_INTEGER;
-          const posB = b.rank_position ?? Number.MAX_SAFE_INTEGER;
-          return (posA - posB) * dir;
-        }
+        case "rank_position":
+          return (a.rank_position - b.rank_position) * dir;
         case "club_name":
           return a.club_name.localeCompare(b.club_name) * dir;
-        case "composite_score_pct":
-          return (a.composite_score_pct - b.composite_score_pct) * dir;
-        case "total_earned_points":
-          return (a.total_earned_points - b.total_earned_points) * dir;
+        case "current_points":
+          return (a.current_points - b.current_points) * dir;
         case "progress_percentage":
           return (a.progress_percentage - b.progress_percentage) * dir;
+        case "current_tier":
+          return (
+            (a.current_tier?.name ?? "").localeCompare(
+              b.current_tier?.name ?? "",
+            ) * dir
+          );
         default:
           return 0;
       }
     });
-  }, [rankings, sortField, sortDirection]);
-
-  const activeYear = ecclesiasticalYears.find(
-    (y) => y.ecclesiastical_year_id === selectedYearId,
-  );
-
-  // ─── Render ───────────────────────────────────────────────────────────────
+  }, [rankings, sortDirection, sortField]);
 
   return (
     <div className="space-y-5">
-      {/* Filters bar */}
       <div className="flex flex-wrap items-end gap-3">
-        {/* Tipo de club */}
         <div className="flex min-w-40 flex-col gap-1.5">
           <span className="text-xs font-medium text-muted-foreground">
             Tipo de club
           </span>
           <Select
             value={String(selectedClubTypeId)}
-            onValueChange={(val) => {
-              setSelectedClubTypeId(Number(val));
-              setSelectedCategoryId("all");
-            }}
+            onValueChange={(value) => setSelectedClubTypeId(Number(value))}
           >
             <SelectTrigger className="h-9">
               <SelectValue placeholder="Tipo de club" />
             </SelectTrigger>
             <SelectContent>
-              {clubTypes.map((ct) => (
+              {clubTypes.map((clubType) => (
                 <SelectItem
-                  key={ct.club_type_id}
-                  value={String(ct.club_type_id)}
+                  key={clubType.club_type_id}
+                  value={String(clubType.club_type_id)}
                 >
-                  {ct.name}
+                  {clubType.name}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
 
-        {/* Año eclesiástico */}
+        {localFields.length > 0 && selectedLocalFieldId !== undefined && (
+          <div className="flex min-w-48 flex-col gap-1.5">
+            <span className="text-xs font-medium text-muted-foreground">
+              Campo local
+            </span>
+            <Select
+              value={String(selectedLocalFieldId)}
+              onValueChange={(value) => setSelectedLocalFieldId(Number(value))}
+              disabled={localFields.length <= 1}
+            >
+              <SelectTrigger className="h-9">
+                <SelectValue placeholder="Seleccionar campo local" />
+              </SelectTrigger>
+              <SelectContent>
+                {localFields.map((field) => (
+                  <SelectItem
+                    key={field.local_field_id}
+                    value={String(field.local_field_id)}
+                  >
+                    {field.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
         <div className="flex min-w-44 flex-col gap-1.5">
           <span className="text-xs font-medium text-muted-foreground">
             Año eclesiástico
           </span>
           <Select
             value={String(selectedYearId)}
-            onValueChange={(val) => setSelectedYearId(Number(val))}
+            onValueChange={(value) => setSelectedYearId(Number(value))}
           >
             <SelectTrigger className="h-9">
               <SelectValue placeholder="Seleccionar año" />
@@ -309,33 +370,6 @@ export function RankingsClientPage({
           </Select>
         </div>
 
-        {/* Categoría */}
-        <div className="flex min-w-44 flex-col gap-1.5">
-          <span className="text-xs font-medium text-muted-foreground">
-            Categoría de premio
-          </span>
-          <Select
-            value={selectedCategoryId}
-            onValueChange={setSelectedCategoryId}
-          >
-            <SelectTrigger className="h-9">
-              <SelectValue placeholder="Todas las categorías" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas las categorías</SelectItem>
-              {filteredCategories.map((cat) => (
-                <SelectItem
-                  key={cat.award_category_id}
-                  value={cat.award_category_id}
-                >
-                  {cat.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Buscar button */}
         <Button
           size="sm"
           onClick={handleSearch}
@@ -346,10 +380,8 @@ export function RankingsClientPage({
           {isLoading ? "Buscando..." : "Buscar"}
         </Button>
 
-        {/* Spacer */}
         <div className="flex-1" />
 
-        {/* Recalculate */}
         <Button
           variant="outline"
           size="sm"
@@ -362,22 +394,32 @@ export function RankingsClientPage({
         </Button>
       </div>
 
-      {/* Summary bar */}
-      <div className="flex items-center gap-3 text-sm text-muted-foreground">
+      <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
         <BarChart3 className="size-4" />
         <span>
           <span className="font-medium text-foreground">{rankings.length}</span>{" "}
           {rankings.length === 1 ? "club" : "clubes"} en el ranking
         </span>
+        {activeClubType && (
+          <>
+            <span aria-hidden>·</span>
+            <span>{activeClubType.name}</span>
+          </>
+        )}
         {activeYear && (
           <>
             <span aria-hidden>·</span>
             <span>{activeYear.name}</span>
           </>
         )}
+        {activeLocalField && (
+          <>
+            <span aria-hidden>·</span>
+            <span>{activeLocalField.name}</span>
+          </>
+        )}
       </div>
 
-      {/* Rankings table */}
       {sortedRankings.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
           <div className="flex size-12 items-center justify-center rounded-full bg-muted">
@@ -387,8 +429,8 @@ export function RankingsClientPage({
             No hay rankings calculados
           </h3>
           <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-            No hay rankings calculados para estos filtros. Selecciona un tipo de
-            club y año, luego usa &quot;Recalcular rankings&quot; para generarlos.
+            No hay datos para estos filtros. Revisá que exista configuración anual
+            de puntos y que el ranking base haya sido calculado.
           </p>
           <Button
             variant="outline"
@@ -402,70 +444,70 @@ export function RankingsClientPage({
         </div>
       ) : (
         <>
-          {/* Desktop: rankings table */}
           <div className="hidden rounded-lg border border-border/60 md:block">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead
-                    className="h-9 w-16 px-3 text-center"
-                    aria-sort={sortField === "rank_position" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
-                  >
-                    <SortableHeader field="rank_position" activeField={sortField} direction={sortDirection} onSort={handleSort}>
+                  <TableHead className="h-9 w-16 px-3 text-center">
+                    <SortableHeader
+                      field="rank_position"
+                      activeField={sortField}
+                      direction={sortDirection}
+                      onSort={handleSort}
+                    >
                       Posición
                     </SortableHeader>
                   </TableHead>
-                  <TableHead
-                    className="h-9 px-3"
-                    aria-sort={sortField === "club_name" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
-                  >
-                    <SortableHeader field="club_name" activeField={sortField} direction={sortDirection} onSort={handleSort}>
+                  <TableHead className="h-9 px-3">
+                    <SortableHeader
+                      field="club_name"
+                      activeField={sortField}
+                      direction={sortDirection}
+                      onSort={handleSort}
+                    >
                       Club
                     </SortableHeader>
                   </TableHead>
-                  <TableHead
-                    className="h-9 w-28 px-3 text-center"
-                    aria-sort={sortField === "composite_score_pct" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
-                  >
-                    <SortableHeader field="composite_score_pct" activeField={sortField} direction={sortDirection} onSort={handleSort} align="right">
-                      Composite
+                  <TableHead className="h-9 w-36 px-3 text-center">
+                    Tipo
+                  </TableHead>
+                  <TableHead className="h-9 w-36 px-3 text-right">
+                    <SortableHeader
+                      field="current_points"
+                      activeField={sortField}
+                      direction={sortDirection}
+                      onSort={handleSort}
+                      align="right"
+                    >
+                      Puntos
                     </SortableHeader>
                   </TableHead>
-                  <TableHead className="hidden h-9 w-24 px-3 text-center lg:table-cell text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Carpeta
-                  </TableHead>
-                  <TableHead className="hidden h-9 w-24 px-3 text-center lg:table-cell text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Finanzas
-                  </TableHead>
-                  <TableHead className="hidden h-9 w-24 px-3 text-center lg:table-cell text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Camporees
-                  </TableHead>
-                  <TableHead className="hidden h-9 w-24 px-3 text-center lg:table-cell text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Evidencias
-                  </TableHead>
-                  <TableHead
-                    className="h-9 w-32 px-3 text-center"
-                    aria-sort={sortField === "total_earned_points" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
-                  >
-                    <SortableHeader field="total_earned_points" activeField={sortField} direction={sortDirection} onSort={handleSort} align="right">
-                      Pts Obtenidos
-                    </SortableHeader>
-                  </TableHead>
-                  <TableHead className="hidden h-9 w-28 px-3 text-center lg:table-cell text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Pts Maximos
-                  </TableHead>
-                  <TableHead
-                    className="h-9 w-40 px-3"
-                    aria-sort={sortField === "progress_percentage" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
-                  >
-                    <SortableHeader field="progress_percentage" activeField={sortField} direction={sortDirection} onSort={handleSort}>
+                  <TableHead className="h-9 w-40 px-3">
+                    <SortableHeader
+                      field="progress_percentage"
+                      activeField={sortField}
+                      direction={sortDirection}
+                      onSort={handleSort}
+                    >
                       Progreso
                     </SortableHeader>
                   </TableHead>
-                  <TableHead className="hidden h-9 w-32 px-3 lg:table-cell text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Categoría
+                  <TableHead className="h-9 w-36 px-3">
+                    <SortableHeader
+                      field="current_tier"
+                      activeField={sortField}
+                      direction={sortDirection}
+                      onSort={handleSort}
+                    >
+                      Rango
+                    </SortableHeader>
                   </TableHead>
-                  <TableHead className="h-9 w-24 px-3 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">Acciones</TableHead>
+                  <TableHead className="h-9 min-w-56 px-3">
+                    Componentes
+                  </TableHead>
+                  <TableHead className="h-9 w-24 px-3 text-center">
+                    Acciones
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -480,34 +522,20 @@ export function RankingsClientPage({
                     <TableCell>
                       <span
                         className={
-                          item.rank_position !== null && item.rank_position <= 3
-                            ? "font-semibold"
-                            : "font-medium"
+                          item.rank_position <= 3 ? "font-semibold" : "font-medium"
                         }
                       >
                         {item.club_name}
                       </span>
                     </TableCell>
-                    <TableCell className="text-center">
-                      <RankingScoreBadge value={item.composite_score_pct} />
+                    <TableCell className="text-center text-sm text-muted-foreground">
+                      {activeClubType?.name ?? item.club_type_id}
                     </TableCell>
-                    <TableCell className="hidden text-center text-sm tabular-nums text-muted-foreground lg:table-cell">
-                      {item.folder_score_pct.toFixed(1)}%
-                    </TableCell>
-                    <TableCell className="hidden text-center text-sm tabular-nums text-muted-foreground lg:table-cell">
-                      {item.finance_score_pct.toFixed(1)}%
-                    </TableCell>
-                    <TableCell className="hidden text-center text-sm tabular-nums text-muted-foreground lg:table-cell">
-                      {item.camporee_score_pct.toFixed(1)}%
-                    </TableCell>
-                    <TableCell className="hidden text-center text-sm tabular-nums text-muted-foreground lg:table-cell">
-                      {item.evidence_score_pct.toFixed(1)}%
-                    </TableCell>
-                    <TableCell className="text-center text-sm font-medium">
-                      {item.total_earned_points}
-                    </TableCell>
-                    <TableCell className="hidden text-center text-sm text-muted-foreground lg:table-cell">
-                      {item.total_max_points}
+                    <TableCell className="text-right text-sm font-medium tabular-nums">
+                      {formatPoints(item.current_points)}
+                      <span className="text-muted-foreground">
+                        /{formatPoints(item.max_points)}
+                      </span>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
@@ -515,24 +543,19 @@ export function RankingsClientPage({
                           value={Math.min(item.progress_percentage, 100)}
                           className="h-2 flex-1"
                         />
-                        <span className="w-10 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
+                        <span className="w-12 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
                           {item.progress_percentage.toFixed(1)}%
                         </span>
                       </div>
                     </TableCell>
-                    <TableCell className="hidden lg:table-cell">
-                      {item.award_category_name ? (
-                        <Badge variant="outline" className="text-xs">
-                          {item.award_category_name}
-                        </Badge>
-                      ) : (
-                        <span className="text-xs italic text-muted-foreground/60">
-                          Sin categoría
-                        </span>
-                      )}
+                    <TableCell>
+                      <RecognitionBadge row={item} />
+                    </TableCell>
+                    <TableCell>
+                      <ComponentSummary components={item.components} />
                     </TableCell>
                     <TableCell className="text-center">
-                      <Link
+                      <Link prefetch={false}
                         href={`/dashboard/annual-folders/rankings/${item.club_enrollment_id}/breakdown?year_id=${item.ecclesiastical_year_id ?? selectedYearId}`}
                         className="inline-flex items-center gap-1 text-xs text-primary underline-offset-4 hover:underline"
                       >
@@ -546,75 +569,61 @@ export function RankingsClientPage({
             </Table>
           </div>
 
-          {/* Mobile: ranking cards */}
           <ul className="space-y-3 md:hidden" aria-label="Rankings de clubes">
             {sortedRankings.map((item) => (
               <li key={item.club_enrollment_id}>
                 <div
-                  className={`rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40 focus-visible:outline-none${item.rank_position === 1 ? " bg-warning/10" : item.rank_position === 2 ? " bg-muted/40" : item.rank_position === 3 ? " bg-primary/10" : ""}`}
+                  className={`rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40${
+                    item.rank_position === 1
+                      ? " bg-warning/10"
+                      : item.rank_position === 2
+                        ? " bg-muted/40"
+                        : item.rank_position === 3
+                          ? " bg-primary/10"
+                          : ""
+                  }`}
                 >
                   <div className="flex items-start gap-3">
                     <RankBadge position={item.rank_position} />
                     <div className="min-w-0 flex-1">
                       <p
-                        className={`truncate ${item.rank_position !== null && item.rank_position <= 3 ? "font-semibold" : "font-medium"}`}
+                        className={`truncate ${
+                          item.rank_position <= 3 ? "font-semibold" : "font-medium"
+                        }`}
                       >
                         {item.club_name}
                       </p>
-                      {item.award_category_name && (
-                        <p className="mt-0.5">
-                          <Badge variant="outline" className="text-xs">
-                            {item.award_category_name}
-                          </Badge>
-                        </p>
-                      )}
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        {activeClubType?.name ?? item.club_type_id}
+                      </p>
                     </div>
-                    <div className="shrink-0">
-                      <RankingScoreBadge value={item.composite_score_pct} />
-                    </div>
+                    <RecognitionBadge row={item} />
                   </div>
 
                   <div className="mt-3">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground">Puntos</span>
+                      <span className="font-medium tabular-nums">
+                        {formatPoints(item.current_points)}/{formatPoints(item.max_points)}
+                      </span>
+                    </div>
+                    <div className="mt-2 flex items-center gap-2">
                       <Progress
                         value={Math.min(item.progress_percentage, 100)}
                         className="h-2 flex-1"
                       />
-                      <span className="w-10 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
+                      <span className="w-12 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
                         {item.progress_percentage.toFixed(1)}%
                       </span>
                     </div>
                   </div>
 
-                  <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
-                    <div>
-                      <dt className="text-muted-foreground">Pts obtenidos</dt>
-                      <dd className="font-medium tabular-nums">{item.total_earned_points}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-muted-foreground">Pts máximos</dt>
-                      <dd className="tabular-nums text-muted-foreground">{item.total_max_points}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-muted-foreground">Carpeta</dt>
-                      <dd className="tabular-nums">{item.folder_score_pct.toFixed(1)}%</dd>
-                    </div>
-                    <div>
-                      <dt className="text-muted-foreground">Finanzas</dt>
-                      <dd className="tabular-nums">{item.finance_score_pct.toFixed(1)}%</dd>
-                    </div>
-                    <div>
-                      <dt className="text-muted-foreground">Camporees</dt>
-                      <dd className="tabular-nums">{item.camporee_score_pct.toFixed(1)}%</dd>
-                    </div>
-                    <div>
-                      <dt className="text-muted-foreground">Evidencias</dt>
-                      <dd className="tabular-nums">{item.evidence_score_pct.toFixed(1)}%</dd>
-                    </div>
-                  </dl>
+                  <div className="mt-3 rounded-lg bg-muted/40 p-3">
+                    <ComponentSummary components={item.components} />
+                  </div>
 
                   <div className="mt-3 border-t pt-3">
-                    <Link
+                    <Link prefetch={false}
                       href={`/dashboard/annual-folders/rankings/${item.club_enrollment_id}/breakdown?year_id=${item.ecclesiastical_year_id ?? selectedYearId}`}
                       className="inline-flex items-center gap-1 text-xs text-primary underline-offset-4 hover:underline"
                     >
@@ -629,11 +638,12 @@ export function RankingsClientPage({
         </>
       )}
 
-      {/* Recalculate confirmation */}
       <AlertDialog open={recalcOpen} onOpenChange={setRecalcOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("dialogs.recalculateRankings.title")}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("dialogs.recalculateRankings.title")}
+            </AlertDialogTitle>
             <AlertDialogDescription>
               {t("dialogs.recalculateRankings.description", {
                 year: activeYear?.name ?? selectedYearId ?? "",

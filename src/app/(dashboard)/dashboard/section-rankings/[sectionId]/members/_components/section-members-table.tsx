@@ -164,7 +164,7 @@ export function SectionMembersTable({
               {/* Action — links to existing member breakdown page */}
               <TableCell className="px-3 py-2.5 align-middle text-right">
                 <Button variant="ghost" size="sm" asChild>
-                  <Link
+                  <Link prefetch={false}
                     href={`/dashboard/member-rankings/${item.enrollment_id}/breakdown?year_id=${yearId}`}
                   >
                     {t("viewDetail")}

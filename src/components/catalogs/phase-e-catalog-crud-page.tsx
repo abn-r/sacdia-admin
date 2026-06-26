@@ -20,6 +20,7 @@ import {
 import {
   Loader2,
   MoreHorizontal,
+  RefreshCcw,
   Pencil,
   Plus,
   Search,
@@ -75,15 +76,58 @@ import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import type { PhaseEActionState } from "@/lib/phase-e-catalogs/actions";
+import {
+  formatClassAvailabilityUntil,
+  formatClassDurationRange,
+  type ClassDisplayLabels,
+} from "@/lib/classes/display";
 import { useFormStatus } from "react-dom";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import type { LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import {
+  MasterHonorRulesEditor,
+  type MasterHonorAuxCategory,
+  type MasterHonorAuxDivision,
+  type MasterHonorAuxHonor,
+} from "@/components/catalogs/master-honor-rules-editor";
+import type {
+  MasterHonorPayload,
+  MasterHonorRuleGroupPayload,
+  MasterHonorRuleGroupType,
+} from "@/lib/api/phase-e-catalogs";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type AnyRecord = Record<string, unknown>;
 type FormAction = (prev: PhaseEActionState, data: FormData) => Promise<PhaseEActionState>;
+
+type MasterHonorsCrudExtras = {
+  honors: MasterHonorAuxHonor[];
+  honorCategories: MasterHonorAuxCategory[];
+  divisions: MasterHonorAuxDivision[];
+  recalculateAction?: FormAction;
+};
+
+type MasterHonorRawRecord = {
+  philosophy?: unknown;
+  notes?: unknown;
+  applicability_scope?: unknown;
+  division_ids?: unknown;
+  master_honor_divisions?: unknown;
+  requirement_groups?: unknown;
+};
+
+const EMPTY_MASTER_HONOR_PAYLOAD: MasterHonorPayload = {
+  applicability_scope: "ALL",
+  division_ids: [],
+  requirement_groups: [],
+};
+
+export type ClassConfigYearOption = {
+  ecclesiastical_year_id: number;
+  name: string;
+};
 
 export interface PhaseECatalogCrudPageProps {
   /** Page title shown in PageHeader */
@@ -92,8 +136,8 @@ export interface PhaseECatalogCrudPageProps {
   description?: string;
   /** Noun used in dialog headers and button labels (singular) */
   entityLabel: string;
-  /** Icon shown in EmptyState */
-  emptyIcon: LucideIcon;
+  /** Icon shown in EmptyState. Must be a pre-rendered ReactNode (e.g. `<Network />`) so it crosses the server→client boundary. */
+  emptyIcon: ReactNode;
   /** Whether this catalog includes a description field */
   includeDescription?: boolean;
   /** Primary key field name on each record */
@@ -112,6 +156,10 @@ export interface PhaseECatalogCrudPageProps {
   createAction: FormAction;
   updateAction: FormAction;
   deleteAction: FormAction;
+  /** Enables class-specific availability/duration fields and columns. */
+  classConfigYearOptions?: ClassConfigYearOption[];
+  /** Optional master-honors extras to render rule controls and recalc action. */
+  masterHonorsConfig?: MasterHonorsCrudExtras;
 }
 
 // ─── SubmitButton ─────────────────────────────────────────────────────────────
@@ -152,6 +200,10 @@ interface FormFieldsProps {
   translations: CatalogTranslation[];
   onTranslationsChange: (t: CatalogTranslation[]) => void;
   entityLabel: string;
+  classConfigYearOptions?: ClassConfigYearOption[];
+  masterHonorsConfig?: MasterHonorsCrudExtras;
+  masterHonorsPayload?: MasterHonorPayload;
+  onMasterHonorsPayloadChange?: (value: MasterHonorPayload) => void;
 }
 
 function CatalogFormFields({
@@ -163,10 +215,25 @@ function CatalogFormFields({
   translations,
   onTranslationsChange,
   entityLabel,
+  classConfigYearOptions,
+  masterHonorsConfig,
+  masterHonorsPayload,
+  onMasterHonorsPayloadChange,
 }: FormFieldsProps) {
   const t = useTranslations("catalogs.phaseE");
   const nameVal = typeof item?.name === "string" ? item.name : "";
   const descVal = typeof item?.description === "string" ? item.description : "";
+  const showClassConfig = Array.isArray(classConfigYearOptions);
+  const availableFromVal = toPositiveInt(item?.available_from_year_id);
+  const availableUntilVal = toPositiveInt(item?.available_until_year_id);
+  const minDurationVal = toPositiveInt(item?.min_duration_years) ?? 1;
+  const maxDurationVal = toPositiveInt(item?.max_duration_years) ?? 1;
+  const yearOptions = [...(classConfigYearOptions ?? [])];
+  for (const yearId of [availableFromVal, availableUntilVal]) {
+    if (yearId && !yearOptions.some((year) => year.ecclesiastical_year_id === yearId)) {
+      yearOptions.push({ ecclesiastical_year_id: yearId, name: `Año #${yearId}` });
+    }
+  }
 
   const esContent = (
     <div className="space-y-4">
@@ -196,6 +263,90 @@ function CatalogFormFields({
         </div>
       )}
 
+      {showClassConfig && (
+        <div className="rounded-lg border bg-muted/20 p-4">
+          <div className="mb-4">
+            <h4 className="text-sm font-semibold">{t("classConfigTitle")}</h4>
+            <p className="text-xs text-muted-foreground">{t("classConfigDescription")}</p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor={`${idPrefix}-available-from`}>
+                {t("fieldAvailableFromYear")}
+              </Label>
+              <select
+                id={`${idPrefix}-available-from`}
+                name="available_from_year_id"
+                defaultValue={availableFromVal ? String(availableFromVal) : ""}
+                className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <option value="">{t("fieldAvailableFromAny")}</option>
+                {yearOptions.map((year) => (
+                  <option
+                    key={year.ecclesiastical_year_id}
+                    value={String(year.ecclesiastical_year_id)}
+                  >
+                    {year.name || `Año #${year.ecclesiastical_year_id}`}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor={`${idPrefix}-available-until`}>
+                {t("fieldAvailableUntilYear")}
+              </Label>
+              <select
+                id={`${idPrefix}-available-until`}
+                name="available_until_year_id"
+                defaultValue={availableUntilVal ? String(availableUntilVal) : ""}
+                className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <option value="">{t("fieldAvailableUntilNone")}</option>
+                {yearOptions.map((year) => (
+                  <option
+                    key={year.ecclesiastical_year_id}
+                    value={String(year.ecclesiastical_year_id)}
+                  >
+                    {year.name || `Año #${year.ecclesiastical_year_id}`}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor={`${idPrefix}-min-duration`}>
+                {t("fieldMinDurationYears")}
+              </Label>
+              <Input
+                id={`${idPrefix}-min-duration`}
+                name="min_duration_years"
+                type="number"
+                min={1}
+                step={1}
+                defaultValue={minDurationVal}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor={`${idPrefix}-max-duration`}>
+                {t("fieldMaxDurationYears")}
+              </Label>
+              <Input
+                id={`${idPrefix}-max-duration`}
+                name="max_duration_years"
+                type="number"
+                min={1}
+                step={1}
+                defaultValue={maxDurationVal}
+                required
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center gap-2">
         <input type="hidden" name="active" value={activeChecked ? "on" : ""} />
         <Checkbox
@@ -205,6 +356,16 @@ function CatalogFormFields({
         />
         <Label htmlFor={`${idPrefix}-active`}>{t("fieldActive")}</Label>
       </div>
+
+      {masterHonorsConfig && masterHonorsPayload && onMasterHonorsPayloadChange ? (
+        <MasterHonorRulesEditor
+          value={masterHonorsPayload}
+          onChange={onMasterHonorsPayloadChange}
+          honors={masterHonorsConfig.honors}
+          honorCategories={masterHonorsConfig.honorCategories}
+          divisions={masterHonorsConfig.divisions}
+        />
+      ) : null}
     </div>
   );
 
@@ -235,11 +396,209 @@ function toPositiveInt(value: unknown): number | null {
   return Math.floor(n);
 }
 
+function toNonNegativeInt(value: unknown): number | null {
+  const n = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(n) || n < 0) return null;
+  return Math.floor(n);
+}
+
+function isMasterHonorGroupType(value: unknown): value is MasterHonorRuleGroupType {
+  return value === "EXPLICIT_OPTIONS" || value === "CATEGORY_COUNT";
+}
+
+function normalizeText(value: unknown): string | undefined {
+  return typeof value === "string" && value.trim().length > 0
+    ? value.trim()
+    : undefined;
+}
+
+function normalizeMasterHonorsGroup(
+  raw: unknown,
+  fallbackDisplayOrder: number,
+): MasterHonorRuleGroupPayload {
+  if (!raw || typeof raw !== "object") {
+    return {
+      group_type: "EXPLICIT_OPTIONS",
+      minimum_required: 0,
+      display_order: fallbackDisplayOrder,
+      options: [],
+    };
+  }
+
+  const group = raw as Record<string, unknown>;
+  const groupType = isMasterHonorGroupType(group.group_type)
+    ? group.group_type
+    : "EXPLICIT_OPTIONS";
+  const minimumRequired = Math.max(0, toNonNegativeInt(group.minimum_required) ?? 0);
+  const displayOrder = Math.max(0, toNonNegativeInt(group.display_order) ?? fallbackDisplayOrder);
+  const title = normalizeText(group.title);
+  const description = normalizeText(group.description);
+  const groupId = toPositiveInt(group.group_id);
+  const honorsCategoryId = toPositiveInt(group.honors_category_id);
+  const rawOptions = Array.isArray(group.options) ? group.options : [];
+
+  const options = groupType === "EXPLICIT_OPTIONS"
+    ? rawOptions
+      .filter(
+        (option): option is Record<string, unknown> =>
+          option !== null && typeof option === "object",
+      )
+      .map((option, index) => {
+        const optionRecord = option as Record<string, unknown>;
+        const optionId = toPositiveInt(optionRecord.option_id);
+        const label = normalizeText(optionRecord.label) ?? "";
+        const honorIdsFromFlat = Array.isArray(optionRecord.honor_ids)
+          ? optionRecord.honor_ids.map((id) => toPositiveInt(id)).filter((value): value is number => value !== null)
+          : [];
+
+        const honorIdsFromNested = Array.isArray(optionRecord.honors)
+          ? optionRecord.honors
+            .map((honorRecord) => {
+              if (typeof honorRecord === "number") {
+                return toPositiveInt(honorRecord);
+              }
+              if (!honorRecord || typeof honorRecord !== "object") {
+                return null;
+              }
+              const honorObject = honorRecord as Record<string, unknown>;
+              if ("honor_id" in honorObject) {
+                return toPositiveInt(honorObject.honor_id);
+              }
+              if (
+                "honor" in honorObject &&
+                honorObject.honor !== null &&
+                typeof honorObject.honor === "object"
+              ) {
+                return toPositiveInt((honorObject.honor as Record<string, unknown>).honor_id);
+              }
+              return null;
+            })
+            .filter((value): value is number => value !== null)
+          : [];
+
+        const honor_ids = Array.from(new Set([
+          ...honorIdsFromFlat,
+          ...honorIdsFromNested,
+        ]));
+
+        return {
+          ...(optionId ? { option_id: optionId } : {}),
+          label,
+          display_order: Math.max(0, toNonNegativeInt(optionRecord.display_order) ?? index + 1),
+          honor_ids,
+          ...(typeof optionRecord.active === "boolean" ? { active: optionRecord.active } : {}),
+        };
+      })
+    : [];
+
+  const normalized: MasterHonorRuleGroupPayload = {
+    group_type: groupType,
+    minimum_required: minimumRequired,
+    display_order: displayOrder,
+    options,
+    ...(groupId ? { group_id: groupId } : {}),
+    ...(title ? { title } : {}),
+    ...(description ? { description } : {}),
+    ...(typeof group.active === "boolean" ? { active: group.active } : {}),
+  };
+
+  if (groupType === "CATEGORY_COUNT" && honorsCategoryId) {
+    normalized.honors_category_id = honorsCategoryId;
+  }
+
+  return normalized;
+}
+
+function normalizeMasterHonorsDivisionIds(
+  rawScope: unknown,
+  rawDivisionIds: unknown,
+  rawDivisionRecords: unknown,
+): number[] {
+  if (rawScope !== "SELECTED_DIVISIONS") return [];
+  const flatIds = Array.isArray(rawDivisionIds)
+    ? rawDivisionIds.map((id) => toPositiveInt(id)).filter((value): value is number => value !== null)
+    : [];
+
+  const nestedDivisionIds = Array.isArray(rawDivisionRecords)
+    ? rawDivisionRecords
+      .map((entry) =>
+        entry && typeof entry === "object" && "division_id" in entry
+          ? toPositiveInt((entry as Record<string, unknown>).division_id)
+          : null,
+      )
+      .filter((value): value is number => value !== null)
+    : [];
+
+  return Array.from(new Set([...flatIds, ...nestedDivisionIds]));
+}
+
+function normalizeMasterHonorsPayload(item?: MasterHonorRawRecord | null): MasterHonorPayload {
+  const requirementGroups = Array.isArray(item?.requirement_groups)
+    ? item?.requirement_groups
+    : [];
+
+  return {
+    ...(normalizeText(item?.philosophy) ? { philosophy: normalizeText(item?.philosophy) as string } : {}),
+    ...(normalizeText(item?.notes) ? { notes: normalizeText(item?.notes) as string } : {}),
+    applicability_scope:
+      item?.applicability_scope === "SELECTED_DIVISIONS"
+        ? "SELECTED_DIVISIONS"
+        : "ALL",
+    division_ids: normalizeMasterHonorsDivisionIds(
+      item?.applicability_scope,
+      item?.division_ids,
+      item?.master_honor_divisions,
+    ),
+    requirement_groups: requirementGroups.map((group, index) =>
+      normalizeMasterHonorsGroup(group, index + 1),
+    ),
+  };
+}
+
+function getMasterHonorsSummary(item: AnyRecord):
+  | { kind: "empty" }
+  | {
+      kind: "configured";
+      scope: "ALL" | "SELECTED_DIVISIONS";
+      divisionCount: number;
+      groupCount: number;
+      minimumTotal: number;
+    } {
+  const scope = item.applicability_scope === "SELECTED_DIVISIONS"
+    ? "SELECTED_DIVISIONS"
+    : "ALL";
+  const divisionIds = normalizeMasterHonorsDivisionIds(
+    scope,
+    item.division_ids,
+    item.master_honor_divisions,
+  );
+  const groups = Array.isArray(item.requirement_groups) ? item.requirement_groups : [];
+  const groupCount = groups.length;
+  if (groupCount === 0) {
+    return { kind: "empty" };
+  }
+
+  const minTotal = groups.reduce((total, rawGroup) => {
+    if (!rawGroup || typeof rawGroup !== "object") return total;
+    const group = rawGroup as Record<string, unknown>;
+    const minimum = toNonNegativeInt(group.minimum_required);
+    return total + (minimum ?? 0);
+  }, 0);
+
+  return {
+    kind: "configured",
+    scope,
+    divisionCount: divisionIds.length,
+    groupCount,
+    minimumTotal: minTotal,
+  };
+}
+
 export function PhaseECatalogCrudPage({
   title,
   description,
   entityLabel,
-  emptyIcon: EmptyIcon,
+  emptyIcon,
   includeDescription = true,
   idField,
   nameField,
@@ -251,6 +610,8 @@ export function PhaseECatalogCrudPage({
   createAction,
   updateAction,
   deleteAction,
+  classConfigYearOptions,
+  masterHonorsConfig,
 }: PhaseECatalogCrudPageProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -267,10 +628,16 @@ export function PhaseECatalogCrudPage({
   const [editActiveChecked, setEditActiveChecked] = useState(true);
   const [createTranslations, setCreateTranslations] = useState<CatalogTranslation[]>([]);
   const [editTranslations, setEditTranslations] = useState<CatalogTranslation[]>([]);
+  const [createMasterHonorsPayload, setCreateMasterHonorsPayload] = useState<MasterHonorPayload>(EMPTY_MASTER_HONOR_PAYLOAD);
+  const [editMasterHonorsPayload, setEditMasterHonorsPayload] = useState<MasterHonorPayload>(EMPTY_MASTER_HONOR_PAYLOAD);
 
   const [createState, createFormAction] = useActionState<PhaseEActionState, FormData>(createAction, {});
   const [updateState, updateFormAction] = useActionState<PhaseEActionState, FormData>(updateAction, {});
   const [deleteState, deleteFormAction] = useActionState<PhaseEActionState, FormData>(deleteAction, {});
+  const [recalculateState, recalculateFormAction] = useActionState<PhaseEActionState, FormData>(
+    masterHonorsConfig?.recalculateAction ?? (async () => ({})),
+    {},
+  );
 
   const getItemId = (item: AnyRecord): number | null => toPositiveInt(item[idField]);
   const getItemName = (item: AnyRecord): string =>
@@ -323,6 +690,22 @@ export function PhaseECatalogCrudPage({
     searchParams.get("search") ?? searchParams.get("name") ?? searchParams.get("q") ?? "";
   const currentStatusFilter = searchParams.get("active") ?? "all";
   const [searchInput, setSearchInput] = useState(currentSearch);
+  const isMasterHonorsDialog = Boolean(masterHonorsConfig);
+  const dialogContentClass = isMasterHonorsDialog
+    ? "grid max-h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] grid-rows-[auto_minmax(0,1fr)] gap-0 overflow-hidden p-0 sm:max-w-5xl xl:max-w-6xl"
+    : "sm:max-w-2xl";
+  const dialogHeaderClass = isMasterHonorsDialog
+    ? "border-b px-6 py-4 pr-12"
+    : undefined;
+  const dialogFormClass = isMasterHonorsDialog
+    ? "grid min-h-0 grid-rows-[minmax(0,1fr)_auto]"
+    : "space-y-4";
+  const dialogFormBodyClass = isMasterHonorsDialog
+    ? "min-h-0 space-y-4 overflow-y-auto px-6 py-4"
+    : "space-y-4";
+  const dialogFooterClass = isMasterHonorsDialog
+    ? "border-t bg-background px-6 py-4"
+    : undefined;
 
   useEffect(() => {
     setSearchInput(currentSearch);
@@ -340,8 +723,28 @@ export function PhaseECatalogCrudPage({
   );
 
   const t = useTranslations("catalogs.phaseE");
+  const displayT = useTranslations("classes.display");
+  const masterHonorsT = useTranslations("catalogs.masterHonors");
+  const displayLabels: ClassDisplayLabels = {
+    yearSingular: displayT("yearSingular"),
+    yearPlural: displayT("yearPlural"),
+    yearFallback: (id) => displayT("yearFallback", { id }),
+    availableFromAnyYear: displayT("availableFromAnyYear"),
+    noProgrammedExpiration: displayT("noProgrammedExpiration"),
+    availableFromYear: (label) => displayT("availableFromYear", { label }),
+    availableUntilYear: (label) => displayT("availableUntilYear", { label }),
+  };
   const hasActiveFilters = Boolean(currentSearch || currentStatusFilter !== "all");
   const canMutate = canCreate || canEdit || canDelete;
+  const isMasterHonorsCrud = Boolean(masterHonorsConfig);
+  const hasRecalculateAction = isMasterHonorsCrud && Boolean(masterHonorsConfig?.recalculateAction);
+  const showClassConfig = Array.isArray(classConfigYearOptions);
+  const yearNameById = new Map(
+    (classConfigYearOptions ?? []).map((year) => [
+      year.ecclesiastical_year_id,
+      year.name || displayLabels.yearFallback(year.ecclesiastical_year_id),
+    ]),
+  );
   const safePage = Math.max(1, meta.page || 1);
   const safeLimit = Math.max(1, meta.limit || 20);
   const safeTotalPages = Math.max(1, meta.totalPages || 1);
@@ -352,7 +755,24 @@ export function PhaseECatalogCrudPage({
     if (open) {
       setCreateActiveChecked(true);
       setCreateTranslations([]);
+      setCreateMasterHonorsPayload(EMPTY_MASTER_HONOR_PAYLOAD);
+      return;
     }
+    setCreateMasterHonorsPayload(EMPTY_MASTER_HONOR_PAYLOAD);
+  }
+
+  function handleEditOpen(item: AnyRecord | null) {
+    setEditItem(item);
+    if (!item) {
+      setEditMasterHonorsPayload(EMPTY_MASTER_HONOR_PAYLOAD);
+      return;
+    }
+
+    setEditActiveChecked(item.active !== false);
+    setEditTranslations(
+      Array.isArray(item.translations) ? (item.translations as CatalogTranslation[]) : [],
+    );
+    setEditMasterHonorsPayload(normalizeMasterHonorsPayload(item as MasterHonorRawRecord));
   }
 
   return (
@@ -411,7 +831,7 @@ export function PhaseECatalogCrudPage({
         {/* Table / empty state */}
         {items.length === 0 ? (
           <EmptyState
-            icon={EmptyIcon}
+            icon={emptyIcon}
             title={hasActiveFilters ? t("noResults") : t("emptyTitle", { entity: entityLabel.toLowerCase() })}
             description={
               hasActiveFilters
@@ -434,6 +854,11 @@ export function PhaseECatalogCrudPage({
                   <TableRow>
                     <TableHead>{t("colName")}</TableHead>
                     {includeDescription && <TableHead>{t("colDescription")}</TableHead>}
+                    {showClassConfig && <TableHead>{t("colDuration")}</TableHead>}
+                    {showClassConfig && <TableHead>{t("colAvailability")}</TableHead>}
+                    {isMasterHonorsCrud && (
+                      <TableHead>{masterHonorsT("colRulesSummary")}</TableHead>
+                    )}
                     <TableHead>{t("colStatus")}</TableHead>
                     {(canEdit || canDelete) && (
                       <TableHead className="sticky right-0 z-20 w-[100px] border-l bg-background">
@@ -456,6 +881,38 @@ export function PhaseECatalogCrudPage({
                             {toText(item.description) ?? "—"}
                           </TableCell>
                         )}
+                        {showClassConfig && (
+                          <TableCell className="text-sm text-muted-foreground">
+                            {formatClassDurationRange(
+                              toPositiveInt(item.min_duration_years) ?? 1,
+                              toPositiveInt(item.max_duration_years) ?? 1,
+                              displayLabels,
+                            )}
+                          </TableCell>
+                        )}
+                        {showClassConfig && (
+                          <TableCell className="max-w-[260px] text-sm text-muted-foreground">
+                            {formatClassAvailabilityUntil(
+                              toPositiveInt(item.available_until_year_id),
+                              displayLabels,
+                              yearNameById.get(toPositiveInt(item.available_until_year_id) ?? 0),
+                            )}
+                          </TableCell>
+                        )}
+                        {isMasterHonorsCrud ? (
+                          <TableCell className="max-w-[260px] whitespace-pre-line text-sm text-muted-foreground">
+                            {(() => {
+                              const summary = getMasterHonorsSummary(item);
+                              if (summary.kind === "empty") {
+                                return masterHonorsT("rulesSummaryNoRules");
+                              }
+                              const scopeText = summary.scope === "ALL"
+                                ? masterHonorsT("scopeAll")
+                                : `${masterHonorsT("scopeSelected")} (${summary.divisionCount})`;
+                              return `${scopeText} · ${masterHonorsT("summaryGroupCount", { count: summary.groupCount })} · ${masterHonorsT("summaryMinimumTotal", { count: summary.minimumTotal })}`;
+                            })()}
+                          </TableCell>
+                        ) : null}
                         <TableCell>
                           <Badge
                             variant={item.active !== false ? "soft-success" : "outline"}
@@ -473,20 +930,32 @@ export function PhaseECatalogCrudPage({
                                   size="icon"
                                   className="size-8"
                                   disabled={!itemId}
-                                  onClick={() => {
-                                    setEditItem(item);
-                                    setEditActiveChecked(item.active !== false);
-                                    setEditTranslations(
-                                      Array.isArray(item.translations)
-                                        ? (item.translations as CatalogTranslation[])
-                                        : [],
-                                    );
-                                  }}
+                                  onClick={() => handleEditOpen(item)}
                                   title={t("edit")}
                                 >
                                   <Pencil className="size-3.5" />
                                 </Button>
                               )}
+                              {hasRecalculateAction && canEdit && itemId ? (
+                                <form action={recalculateFormAction} className="inline">
+                                  <input
+                                    type="hidden"
+                                    name="id"
+                                    value={String(itemId)}
+                                  />
+                                <Button
+                                  type="submit"
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 gap-1.5"
+                                  aria-label={masterHonorsT("recalculateNow")}
+                                  title={masterHonorsT("recalculateNow")}
+                                >
+                                  <RefreshCcw className="size-3.5" />
+                                  <span className="hidden md:inline">{masterHonorsT("recalculateNow")}</span>
+                                </Button>
+                              </form>
+                            ) : null}
                               {canDelete && (
                                 <Button
                                   variant="ghost"
@@ -507,24 +976,30 @@ export function PhaseECatalogCrudPage({
                                     <MoreHorizontal className="size-4" />
                                   </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
+                                  <DropdownMenuContent align="end">
                                   {canEdit && (
                                     <DropdownMenuItem
                                       disabled={!itemId}
-                                      onSelect={() => {
-                                        setEditItem(item);
-                                        setEditActiveChecked(item.active !== false);
-                                        setEditTranslations(
-                                          Array.isArray(item.translations)
-                                            ? (item.translations as CatalogTranslation[])
-                                            : [],
-                                        );
-                                      }}
+                                      onSelect={() => handleEditOpen(item)}
                                     >
                                       <Pencil className="size-4" />
                                       {t("edit")}
                                     </DropdownMenuItem>
                                   )}
+                                  {hasRecalculateAction && canEdit && itemId ? (
+                                    <DropdownMenuItem
+                                      onSelect={(event) => {
+                                        event.preventDefault();
+                                        const recalculateForm = document.getElementById(
+                                          `recalculate-master-honor-${itemId}`,
+                                        ) as HTMLFormElement | null;
+                                        recalculateForm?.requestSubmit();
+                                      }}
+                                    >
+                                      <RefreshCcw className="size-4" />
+                                      {masterHonorsT("recalculateNow")}
+                                    </DropdownMenuItem>
+                                  ) : null}
                                   {canDelete && (
                                     <DropdownMenuItem
                                       disabled={!itemId}
@@ -538,6 +1013,15 @@ export function PhaseECatalogCrudPage({
                                 </DropdownMenuContent>
                               </DropdownMenu>
                             </div>
+                            {itemId && hasRecalculateAction ? (
+                              <form
+                                id={`recalculate-master-honor-${itemId}`}
+                                action={recalculateFormAction}
+                                className="sr-only"
+                              >
+                                <input type="hidden" name="id" value={String(itemId)} />
+                              </form>
+                            ) : null}
                           </TableCell>
                         )}
                       </TableRow>
@@ -561,29 +1045,35 @@ export function PhaseECatalogCrudPage({
       {/* Create dialog */}
       {canCreate && (
         <Dialog open={createOpen} onOpenChange={handleCreateOpen}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
+          <DialogContent className={dialogContentClass}>
+            <DialogHeader className={dialogHeaderClass}>
               <DialogTitle>{t("createDialogTitle", { entity: entityLabel.toLowerCase() })}</DialogTitle>
               <DialogDescription>
                 {t("createDialogDesc", { entity: entityLabel.toLowerCase() })}
               </DialogDescription>
             </DialogHeader>
-            <form action={createFormAction} className="space-y-4">
-              {createState.error && (
-                <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                  {createState.error}
-                </div>
-              )}
-              <CatalogFormFields
-                idPrefix={`${idPrefix}-create`}
-                includeDescription={includeDescription}
-                activeChecked={createActiveChecked}
-                onActiveChange={setCreateActiveChecked}
-                translations={createTranslations}
-                onTranslationsChange={setCreateTranslations}
-                entityLabel={entityLabel}
-              />
-              <DialogFooter>
+            <form action={createFormAction} className={dialogFormClass}>
+              <div className={dialogFormBodyClass}>
+                {createState.error && (
+                  <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                    {createState.error}
+                  </div>
+                )}
+                <CatalogFormFields
+                  idPrefix={`${idPrefix}-create`}
+                  includeDescription={includeDescription}
+                  activeChecked={createActiveChecked}
+                  onActiveChange={setCreateActiveChecked}
+                  translations={createTranslations}
+                  onTranslationsChange={setCreateTranslations}
+                  entityLabel={entityLabel}
+                  classConfigYearOptions={classConfigYearOptions}
+                  masterHonorsConfig={masterHonorsConfig}
+                  masterHonorsPayload={createMasterHonorsPayload}
+                  onMasterHonorsPayloadChange={setCreateMasterHonorsPayload}
+                />
+              </div>
+              <DialogFooter className={dialogFooterClass}>
                 <Button type="button" variant="outline" onClick={() => setCreateOpen(false)}>
                   {t("cancel")}
                 </Button>
@@ -597,28 +1087,37 @@ export function PhaseECatalogCrudPage({
       {/* Edit dialog */}
       {canEdit && editItem && (
         <Dialog open={!!editItem} onOpenChange={(open) => { if (!open) setEditItem(null); }}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
+          <DialogContent className={dialogContentClass}>
+            <DialogHeader className={dialogHeaderClass}>
               <DialogTitle>{t("editDialogTitle", { entity: entityLabel.toLowerCase() })}</DialogTitle>
+              <DialogDescription>
+                {t("createDialogDesc", { entity: entityLabel.toLowerCase() })}
+              </DialogDescription>
             </DialogHeader>
-            <form action={updateFormAction} className="space-y-4">
-              <input type="hidden" name="id" value={String(getItemId(editItem) ?? "")} />
-              {updateState.error && (
-                <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                  {updateState.error}
-                </div>
-              )}
-              <CatalogFormFields
-                idPrefix={`${idPrefix}-edit`}
-                item={editItem}
-                includeDescription={includeDescription}
-                activeChecked={editActiveChecked}
-                onActiveChange={setEditActiveChecked}
-                translations={editTranslations}
-                onTranslationsChange={setEditTranslations}
-                entityLabel={entityLabel}
-              />
-              <DialogFooter>
+            <form action={updateFormAction} className={dialogFormClass}>
+              <div className={dialogFormBodyClass}>
+                <input type="hidden" name="id" value={String(getItemId(editItem) ?? "")} />
+                {updateState.error && (
+                  <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                    {updateState.error}
+                  </div>
+                )}
+                <CatalogFormFields
+                  idPrefix={`${idPrefix}-edit`}
+                  item={editItem}
+                  includeDescription={includeDescription}
+                  activeChecked={editActiveChecked}
+                  onActiveChange={setEditActiveChecked}
+                  translations={editTranslations}
+                  onTranslationsChange={setEditTranslations}
+                  entityLabel={entityLabel}
+                  classConfigYearOptions={classConfigYearOptions}
+                  masterHonorsConfig={masterHonorsConfig}
+                  masterHonorsPayload={editMasterHonorsPayload}
+                  onMasterHonorsPayloadChange={setEditMasterHonorsPayload}
+                />
+              </div>
+              <DialogFooter className={dialogFooterClass}>
                 <Button type="button" variant="outline" onClick={() => setEditItem(null)}>
                   {t("cancel")}
                 </Button>
@@ -663,6 +1162,12 @@ export function PhaseECatalogCrudPage({
           {t("noPermissions")}
         </div>
       )}
+
+      {recalculateState.error ? (
+        <p className="rounded-md border border-destructive/40 bg-destructive/10 px-4 py-2 text-sm text-destructive">
+          {recalculateState.error}
+        </p>
+      ) : null}
     </div>
   );
 }
