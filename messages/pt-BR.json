@@ -1161,6 +1161,50 @@
       "infoCuota": "Mensalidade",
       "infoMembers": "Membros"
     },
+    "detail": {
+      "overview": {
+        "compositionTitle": "Composição do clube",
+        "compositionSubtitle": "Distribuição de membros entre as três seções",
+        "totalCount": "Total · {count}",
+        "healthTitle": "Saúde do clube",
+        "healthSubtitle": "Score composto",
+        "rankingTitle": "Ranking de unidades",
+        "rankingSubtitle": "Por tamanho · todas as seções",
+        "unitsCount": "{count} unidades",
+        "attendanceTitle": "Frequência semanal",
+        "attendanceSubtitle": "Média % por semana",
+        "attendanceAverage": "Média · {pct}%"
+      },
+      "sidebar": {
+        "quickActionsTitle": "Ações rápidas",
+        "editClub": "Editar clube",
+        "createUnit": "Criar unidade",
+        "approveRequests": "Aprovar solicitações ({count})",
+        "reviewRequests": "Revisar solicitações",
+        "configureSections": "Configurar seções",
+        "investitureCeremony": "Cerimônia de investidura",
+        "deleteClub": "Excluir clube",
+        "upcomingEventsTitle": "Próximos eventos",
+        "loading": "Carregando…",
+        "noEventsTitle": "Sem agenda visível",
+        "noEventsDescription": "Não há atividades futuras registradas para este clube.",
+        "clubFallback": "Clube"
+      },
+      "leadership": {
+        "title": "Liderança",
+        "titleBySection": "Liderança por seção",
+        "loading": "Carregando…",
+        "loadError": "Não foi possível carregar a liderança do clube.",
+        "emptyTitle": "Ainda sem liderança atribuída",
+        "emptyDescription": "Atribua diretor, vice-diretores e secretários nas seções do clube.",
+        "activeAssignments": "{count} atribuições ativas",
+        "generalSection": "Clube geral",
+        "noDirector": "Sem diretor atribuído.",
+        "sectionTeam": "Equipe da seção",
+        "roleSingular": "cargo",
+        "rolePlural": "cargos"
+      }
+    },
     "pages": {
       "list": {
         "title": "Clubes",
@@ -5144,7 +5188,45 @@
         "description": "Consulte e atenda os relatórios enviados pelo aplicativo móvel.",
         "loadError": "Não foi possível carregar os relatórios de suporte.",
         "emptyTitle": "Ainda não há relatórios de suporte",
-        "emptyDescription": "Quando um usuário reportar um erro ou solicitação pelo app, aparecerá aqui para acompanhamento."
+        "emptyDescription": "Quando um usuário reportar um erro ou solicitação pelo app, aparecerá aqui para acompanhamento.",
+        "summaryOpen": "Abertos nesta página",
+        "summaryInProgress": "Em atendimento",
+        "summaryResolved": "Resolvidos",
+        "filtersTitle": "Filtros",
+        "searchPlaceholder": "Buscar por título, descrição, nome ou e-mail",
+        "searchButton": "Buscar",
+        "statusPlaceholder": "Status",
+        "statusAll": "Todos os status",
+        "categoryPlaceholder": "Categoria",
+        "categoryAll": "Todas as categorias",
+        "emptyFilteredTitle": "Sem relatórios de suporte",
+        "emptyFilteredDescription": "Não há relatórios que correspondam aos filtros atuais.",
+        "colReport": "Relatório",
+        "colUser": "Usuário",
+        "colCategory": "Categoria",
+        "colStatus": "Status",
+        "colDate": "Data",
+        "colAttention": "Atendimento",
+        "technicalContext": "Contexto técnico",
+        "noName": "Sem nome",
+        "toastStatusUpdated": "Relatório marcado como {status}.",
+        "updateError": "Não foi possível atualizar o relatório.",
+        "noData": "Sem dados",
+        "contentError": "Não foi possível exibir o conteúdo",
+        "statuses": {
+          "open": "Aberto",
+          "in_progress": "Em atendimento",
+          "resolved": "Resolvido",
+          "closed": "Fechado"
+        },
+        "categories": {
+          "bug": "Erro",
+          "feature_request": "Sugestão",
+          "account": "Conta",
+          "data_issue": "Dados",
+          "performance": "Desempenho",
+          "other": "Outro"
+        }
       }
     }
   },

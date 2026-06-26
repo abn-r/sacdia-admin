@@ -1161,6 +1161,50 @@
       "infoCuota": "Fee",
       "infoMembers": "Members"
     },
+    "detail": {
+      "overview": {
+        "compositionTitle": "Club composition",
+        "compositionSubtitle": "Member distribution across the three sections",
+        "totalCount": "Total · {count}",
+        "healthTitle": "Club health",
+        "healthSubtitle": "Composite score",
+        "rankingTitle": "Unit ranking",
+        "rankingSubtitle": "By size · all sections",
+        "unitsCount": "{count} units",
+        "attendanceTitle": "Weekly attendance",
+        "attendanceSubtitle": "Average % per week",
+        "attendanceAverage": "Average · {pct}%"
+      },
+      "sidebar": {
+        "quickActionsTitle": "Quick actions",
+        "editClub": "Edit club",
+        "createUnit": "Create unit",
+        "approveRequests": "Approve requests ({count})",
+        "reviewRequests": "Review requests",
+        "configureSections": "Configure sections",
+        "investitureCeremony": "Investiture ceremony",
+        "deleteClub": "Delete club",
+        "upcomingEventsTitle": "Upcoming events",
+        "loading": "Loading…",
+        "noEventsTitle": "No visible schedule",
+        "noEventsDescription": "No upcoming activities are registered for this club.",
+        "clubFallback": "Club"
+      },
+      "leadership": {
+        "title": "Leadership",
+        "titleBySection": "Leadership by section",
+        "loading": "Loading…",
+        "loadError": "Could not load club leadership.",
+        "emptyTitle": "No leadership assigned yet",
+        "emptyDescription": "Assign a director, deputies and secretaries from the club sections.",
+        "activeAssignments": "{count} active assignments",
+        "generalSection": "General club",
+        "noDirector": "No director assigned.",
+        "sectionTeam": "Section team",
+        "roleSingular": "role",
+        "rolePlural": "roles"
+      }
+    },
     "pages": {
       "list": {
         "title": "Clubs",
@@ -5278,7 +5322,45 @@
         "description": "Review and handle reports submitted from the mobile app.",
         "loadError": "Could not load support reports.",
         "emptyTitle": "No support reports yet",
-        "emptyDescription": "When a user reports an error or request from the app, it will appear here for follow-up."
+        "emptyDescription": "When a user reports an error or request from the app, it will appear here for follow-up.",
+        "summaryOpen": "Open on this page",
+        "summaryInProgress": "In progress",
+        "summaryResolved": "Resolved",
+        "filtersTitle": "Filters",
+        "searchPlaceholder": "Search by title, description, name or email",
+        "searchButton": "Search",
+        "statusPlaceholder": "Status",
+        "statusAll": "All statuses",
+        "categoryPlaceholder": "Category",
+        "categoryAll": "All categories",
+        "emptyFilteredTitle": "No support reports",
+        "emptyFilteredDescription": "No reports match the current filters.",
+        "colReport": "Report",
+        "colUser": "User",
+        "colCategory": "Category",
+        "colStatus": "Status",
+        "colDate": "Date",
+        "colAttention": "Handling",
+        "technicalContext": "Technical context",
+        "noName": "No name",
+        "toastStatusUpdated": "Report marked as {status}.",
+        "updateError": "Could not update the report.",
+        "noData": "No data",
+        "contentError": "Could not display the content",
+        "statuses": {
+          "open": "Open",
+          "in_progress": "In progress",
+          "resolved": "Resolved",
+          "closed": "Closed"
+        },
+        "categories": {
+          "bug": "Bug",
+          "feature_request": "Suggestion",
+          "account": "Account",
+          "data_issue": "Data",
+          "performance": "Performance",
+          "other": "Other"
+        }
       }
     }
   },

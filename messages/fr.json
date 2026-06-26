@@ -1161,6 +1161,50 @@
       "infoCuota": "Cotisation",
       "infoMembers": "Membres"
     },
+    "detail": {
+      "overview": {
+        "compositionTitle": "Composition du club",
+        "compositionSubtitle": "Répartition des membres entre les trois sections",
+        "totalCount": "Total · {count}",
+        "healthTitle": "Santé du club",
+        "healthSubtitle": "Score composite",
+        "rankingTitle": "Classement des unités",
+        "rankingSubtitle": "Par taille · toutes les sections",
+        "unitsCount": "{count} unités",
+        "attendanceTitle": "Assiduité hebdomadaire",
+        "attendanceSubtitle": "Moyenne % par semaine",
+        "attendanceAverage": "Moyenne · {pct}%"
+      },
+      "sidebar": {
+        "quickActionsTitle": "Actions rapides",
+        "editClub": "Modifier le club",
+        "createUnit": "Créer une unité",
+        "approveRequests": "Approuver les demandes ({count})",
+        "reviewRequests": "Examiner les demandes",
+        "configureSections": "Configurer les sections",
+        "investitureCeremony": "Cérémonie d'investiture",
+        "deleteClub": "Supprimer le club",
+        "upcomingEventsTitle": "Événements à venir",
+        "loading": "Chargement…",
+        "noEventsTitle": "Aucun agenda visible",
+        "noEventsDescription": "Aucune activité future n'est enregistrée pour ce club.",
+        "clubFallback": "Club"
+      },
+      "leadership": {
+        "title": "Direction",
+        "titleBySection": "Direction par section",
+        "loading": "Chargement…",
+        "loadError": "Impossible de charger la direction du club.",
+        "emptyTitle": "Aucune direction assignée",
+        "emptyDescription": "Assignez un directeur, des adjoints et des secrétaires depuis les sections du club.",
+        "activeAssignments": "{count} affectations actives",
+        "generalSection": "Club général",
+        "noDirector": "Aucun directeur assigné.",
+        "sectionTeam": "Équipe de la section",
+        "roleSingular": "poste",
+        "rolePlural": "postes"
+      }
+    },
     "pages": {
       "list": {
         "title": "Clubs",
@@ -5144,7 +5188,45 @@
         "description": "Consultez et traitez les signalements envoyés depuis l'application mobile.",
         "loadError": "Impossible de charger les signalements de support.",
         "emptyTitle": "Aucun signalement de support pour le moment",
-        "emptyDescription": "Lorsqu'un utilisateur signale une erreur ou une demande depuis l'application, elle apparaîtra ici pour suivi."
+        "emptyDescription": "Lorsqu'un utilisateur signale une erreur ou une demande depuis l'application, elle apparaîtra ici pour suivi.",
+        "summaryOpen": "Ouverts sur cette page",
+        "summaryInProgress": "En cours",
+        "summaryResolved": "Résolus",
+        "filtersTitle": "Filtres",
+        "searchPlaceholder": "Rechercher par titre, description, nom ou e-mail",
+        "searchButton": "Rechercher",
+        "statusPlaceholder": "Statut",
+        "statusAll": "Tous les statuts",
+        "categoryPlaceholder": "Catégorie",
+        "categoryAll": "Toutes les catégories",
+        "emptyFilteredTitle": "Aucun signalement de support",
+        "emptyFilteredDescription": "Aucun signalement ne correspond aux filtres actuels.",
+        "colReport": "Signalement",
+        "colUser": "Utilisateur",
+        "colCategory": "Catégorie",
+        "colStatus": "Statut",
+        "colDate": "Date",
+        "colAttention": "Prise en charge",
+        "technicalContext": "Contexte technique",
+        "noName": "Sans nom",
+        "toastStatusUpdated": "Signalement marqué comme {status}.",
+        "updateError": "Impossible de mettre à jour le signalement.",
+        "noData": "Sans données",
+        "contentError": "Impossible d'afficher le contenu",
+        "statuses": {
+          "open": "Ouvert",
+          "in_progress": "En cours",
+          "resolved": "Résolu",
+          "closed": "Fermé"
+        },
+        "categories": {
+          "bug": "Erreur",
+          "feature_request": "Suggestion",
+          "account": "Compte",
+          "data_issue": "Données",
+          "performance": "Performance",
+          "other": "Autre"
+        }
       }
     }
   },

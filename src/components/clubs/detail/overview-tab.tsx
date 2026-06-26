@@ -43,6 +43,7 @@ export function ClubOverviewTab({
   isRetryingOverview = false,
   isRetryingLeadership = false,
 }: OverviewTabProps) {
+  const t = useTranslations("clubs.detail.overview");
   const tErrors = useTranslations("shared.errorRetry");
   const total = getTotalMembers(sections);
 
@@ -50,11 +51,11 @@ export function ClubOverviewTab({
     <div className="grid grid-cols-1 gap-3 lg:grid-cols-12">
       <PanelCard
         className="lg:col-span-7"
-        title="Composición del club"
-        subtitle="Distribución de miembros entre las tres secciones"
+        title={t("compositionTitle")}
+        subtitle={t("compositionSubtitle")}
         right={
           <span className="text-[11px] text-muted-foreground">
-            Total · {total}
+            {t("totalCount", { count: total })}
           </span>
         }
       >
@@ -63,8 +64,8 @@ export function ClubOverviewTab({
 
       <PanelCard
         className="lg:col-span-5"
-        title="Salud del club"
-        subtitle="Score compuesto"
+        title={t("healthTitle")}
+        subtitle={t("healthSubtitle")}
       >
         <HealthBlock
           overview={overview}
@@ -78,11 +79,11 @@ export function ClubOverviewTab({
 
       <PanelCard
         className="lg:col-span-7"
-        title="Ranking de unidades"
-        subtitle="Por tamaño · todas las secciones"
+        title={t("rankingTitle")}
+        subtitle={t("rankingSubtitle")}
         right={
           <span className="text-[11px] text-muted-foreground">
-            {units.length} unidades
+            {t("unitsCount", { count: units.length })}
           </span>
         }
       >
@@ -91,15 +92,14 @@ export function ClubOverviewTab({
 
       <PanelCard
         className="lg:col-span-5"
-        title="Asistencia semanal"
-        subtitle="Promedio % por semana"
+        title={t("attendanceTitle")}
+        subtitle={t("attendanceSubtitle")}
         right={
           overview?.attendance_average != null && (
             <span className="text-[11px] text-muted-foreground">
-              Promedio ·{" "}
-              <b className="text-foreground">
-                {Math.round(overview.attendance_average)}%
-              </b>
+              {t("attendanceAverage", {
+                pct: Math.round(overview.attendance_average),
+              })}
             </span>
           )
         }

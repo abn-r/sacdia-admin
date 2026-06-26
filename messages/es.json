@@ -1165,12 +1165,116 @@
       "infoType": "Tipo",
       "infoSectionId": "ID sección",
       "infoCuota": "Cuota",
-      "infoMembers": "Miembros"
+      "infoMembers": "Miembros",
+      "workspace": {
+        "eyebrow": "Administración del club",
+        "title": "Secciones y responsables.",
+        "lead": "Separá la ficha de cada sección de la asignación de clases: menos ruido visual, mismas acciones, mejor trazabilidad.",
+        "editSection": "Editar sección",
+        "assignResponsible": "Asignar responsable",
+        "tabSections": "Secciones del club",
+        "tabResponsables": "Responsables por clase",
+        "tabHistory": "Historial",
+        "searchSection": "Buscar sección",
+        "searchSectionPlaceholder": "ACV, Conquistadores, Guías…",
+        "selectSectionPrompt": "Seleccioná una sección de la lista o creá una nueva para ver su ficha.",
+        "sectionDetailLead": "Un club puede tener secciones por tipo. En {section}, las clases disponibles pertenecen a {type}.",
+        "responsiblesRuleTitle": "Regla de responsables",
+        "responsiblesRuleLead": "Las clases visibles dependen del tipo de club de la sección ({type}). Un consejero puede ser principal o suplente.",
+        "viewResponsibles": "Ver responsables",
+        "noSectionsForAssignments": "Creá al menos una sección activa antes de asignar responsables por clase.",
+        "searchAssignments": "Buscar responsable o clase",
+        "searchAssignmentsPlaceholder": "Counselor Test, Amigo, Principal…",
+        "filterClubType": "Tipo de club",
+        "filterAll": "Todos",
+        "clearFilters": "Limpiar filtros",
+        "responsablesTitle": "Responsables por clase",
+        "responsablesLead": "Pestaña dedicada: la tabla mantiene acciones y el formulario deja claro cuándo una asignación es principal, suplente o excepcional.",
+        "loadingAssignments": "Cargando asignaciones…",
+        "emptyAssignments": "No hay responsables con esos filtros. Probá limpiar la búsqueda o asigná una nueva clase.",
+        "exceptionalTag": "Excepcional",
+        "colSection": "Sección",
+        "colClass": "Clase",
+        "colResponsible": "Responsable",
+        "colRole": "Rol",
+        "colJustification": "Justificación",
+        "colAction": "Acción",
+        "assignFormTitle": "Asignar clase",
+        "assignFormLead": "Primero elegí sección; las clases se actualizan según el tipo de club. La cuota u ofrenda puede repetirse sin bloquear la asignación.",
+        "labelSection": "Sección",
+        "placeholderSection": "Seleccionar sección",
+        "labelResponsible": "Responsable",
+        "placeholderResponsible": "Seleccionar persona",
+        "labelClass": "Clase",
+        "placeholderClass": "Seleccionar clase",
+        "labelResponsibility": "Responsabilidad",
+        "labelExceptional": "Asignación excepcional",
+        "labelExceptionalShort": "Excepcional",
+        "labelJustification": "Justificación",
+        "placeholderJustification": "Requerida si es suplente o excepcional",
+        "assignButton": "Asignar clase",
+        "formErrorRequired": "Completá responsable y clase antes de asignar.",
+        "formErrorJustification": "Agregá una justificación para suplentes o asignaciones excepcionales.",
+        "saveAssignment": "Guardar",
+        "revokeAssignment": "Revocar",
+        "historyTitle": "Cambios recientes",
+        "historyLead": "Auditoría breve para entender quién guardó, revocó o cambió una responsabilidad sin mezclarlo con la ficha de sección.",
+        "loadingHistory": "Cargando historial…",
+        "historyError": "No se pudo cargar el historial.",
+        "retry": "Reintentar",
+        "historyEmptyTitle": "Aún sin eventos de sección",
+        "historyEmptyLead": "Cuando edites secciones o asignes responsables por clase, los eventos aparecerán aquí.",
+        "loadMore": "Cargar más"
+      }
+    },
+    "detail": {
+      "overview": {
+        "compositionTitle": "Composición del club",
+        "compositionSubtitle": "Distribución de miembros entre las tres secciones",
+        "totalCount": "Total · {count}",
+        "healthTitle": "Salud del club",
+        "healthSubtitle": "Score compuesto",
+        "rankingTitle": "Ranking de unidades",
+        "rankingSubtitle": "Por tamaño · todas las secciones",
+        "unitsCount": "{count} unidades",
+        "attendanceTitle": "Asistencia semanal",
+        "attendanceSubtitle": "Promedio % por semana",
+        "attendanceAverage": "Promedio · {pct}%"
+      },
+      "sidebar": {
+        "quickActionsTitle": "Acciones rápidas",
+        "editClub": "Editar club",
+        "createUnit": "Crear unidad",
+        "approveRequests": "Aprobar solicitudes ({count})",
+        "reviewRequests": "Revisar solicitudes",
+        "configureSections": "Configurar secciones",
+        "investitureCeremony": "Ceremonia de investidura",
+        "deleteClub": "Eliminar club",
+        "upcomingEventsTitle": "Próximos eventos",
+        "loading": "Cargando…",
+        "noEventsTitle": "Sin agenda visible",
+        "noEventsDescription": "No hay actividades futuras registradas para este club.",
+        "clubFallback": "Club"
+      },
+      "leadership": {
+        "title": "Liderazgo",
+        "titleBySection": "Liderazgo por sección",
+        "loading": "Cargando…",
+        "loadError": "No se pudo cargar el liderazgo del club.",
+        "emptyTitle": "Aún sin liderazgo asignado",
+        "emptyDescription": "Asigna director, subdirectores y secretarios desde las secciones del club.",
+        "activeAssignments": "{count} asignaciones activas",
+        "generalSection": "Club general",
+        "noDirector": "Sin director asignado.",
+        "sectionTeam": "Equipo de la sección",
+        "roleSingular": "cargo",
+        "rolePlural": "cargos"
+      }
     },
     "pages": {
       "list": {
         "title": "Clubes",
-        "description": "Gestión de clubes del sistema.",
+        "description": "Listado operativo con filtros y tabla al estilo catálogos administrativos.",
         "createButton": "Crear club",
         "colName": "Nombre",
         "colLocalField": "Campo local",
@@ -1188,6 +1292,49 @@
         "emptyCreateButton": "Crear club",
         "createMenuManual": "Crear manualmente",
         "createMenuBulk": "Importar desde Excel"
+      },
+      "v2": {
+        "metadataTitle": "Clubes v2",
+        "badge": "Vista catálogo",
+        "title": "Clubes",
+        "description": "Listado operativo con filtros y tabla al estilo catálogos administrativos.",
+        "switchToV2": "Probar vista catálogo (v2)",
+        "switchToClassic": "Volver a vista clásica",
+        "filtersTitle": "Filtros",
+        "filtersHint": "Refina el listado por campo",
+        "searchPlaceholder": "Buscar por nombre o ubicación…",
+        "statusAll": "Todos los estados",
+        "localFieldAll": "Todos los campos",
+        "colSections": "Secciones activas",
+        "emptyFilteredTitle": "Sin resultados",
+        "emptyFilteredDescription": "No hay clubes que coincidan con los filtros aplicados.",
+        "actionView": "Ver detalle",
+        "actionEdit": "Editar",
+        "detail": {
+          "fallbackTitle": "Detalle de club",
+          "description": "Ficha operativa del club con pestañas al estilo catálogo.",
+          "breadcrumbList": "Clubes",
+          "openClassic": "Abrir vista clásica",
+          "editButton": "Editar club",
+          "statusActive": "Activo",
+          "statusInactive": "Inactivo",
+          "noDescription": "Sin descripción registrada",
+          "membersLabel": "miembros",
+          "unitsLabel": "unidades",
+          "tabOverview": "Resumen",
+          "tabSections": "Secciones",
+          "tabResponsables": "Responsables por clase",
+          "tabUnits": "Unidades",
+          "tabMembership": "Solicitudes",
+          "tabInfo": "Información",
+          "tabHistory": "Historial",
+          "tabEdit": "Editar",
+          "membershipTitle": "Solicitudes",
+          "membershipLead": "Aprueba o rechaza nuevos miembros y cambios de club por sección.",
+          "noSectionsForResponsables": "Crea al menos una sección del club para asignar responsables por clase.",
+          "editTitle": "Editar información del club",
+          "editLead": "Actualiza la identidad, ubicación y datos generales."
+        }
       },
       "new": {
         "title": "Crear club",
@@ -1643,18 +1790,6 @@
         "batchError": "Error en la operación masiva.",
         "loadError": "No se pudieron cargar los requisitos pendientes."
       }
-    },
-    "components": {
-      "requirementEdit": {
-        "referencePlaceholder": "Ej: Libro de Especialidades, págs. 45-50"
-      },
-      "requirementsTree": {
-        "needsReviewAriaLabel": "Pendiente de revisión"
-      },
-      "reviewSplitView": {
-        "openMaterialAriaLabel": "Abrir material en nueva pestaña",
-        "referencePlaceholder": "Ej: Libro de Especialidades, págs. 45-50"
-      }
     }
   },
   "honor_categories": {
@@ -1767,10 +1902,6 @@
       "create": "Crear",
       "saveChanges": "Guardar cambios",
       "delete": "Eliminar"
-    },
-    "rolesTable": {
-      "editProtectedAriaLabel": "Editar rol protegido",
-      "editRoleAriaLabel": "Editar {name}"
     },
     "permissionPicker": {
       "searchPlaceholder": "Buscar permisos...",
@@ -4751,12 +4882,6 @@
       "empty_no_clubs_title": "No hay clubes disponibles",
       "empty_no_clubs_description": "No se encontraron clubes activos. Crea un club primero para gestionar sus finanzas.",
       "error_unexpected": "Error inesperado al cargar los clubes."
-    },
-    "clubSelector": {
-      "label": "Club",
-      "selectPlaceholder": "Seleccioná un club",
-      "emptyTitle": "Seleccioná un club",
-      "emptyDescription": "Elegí un club del selector para ver y gestionar sus movimientos financieros."
     }
   },
   "certifications": {
@@ -5313,7 +5438,45 @@
         "description": "Consulta y atiende los reportes enviados desde la app móvil.",
         "loadError": "No se pudieron cargar los reportes de soporte.",
         "emptyTitle": "Aún no hay reportes de soporte",
-        "emptyDescription": "Cuando un usuario reporte un error o solicitud desde la app, aparecerá aquí para seguimiento."
+        "emptyDescription": "Cuando un usuario reporte un error o solicitud desde la app, aparecerá aquí para seguimiento.",
+        "summaryOpen": "Abiertos en esta página",
+        "summaryInProgress": "En atención",
+        "summaryResolved": "Resueltos",
+        "filtersTitle": "Filtros",
+        "searchPlaceholder": "Buscar por título, descripción, nombre o correo",
+        "searchButton": "Buscar",
+        "statusPlaceholder": "Estado",
+        "statusAll": "Todos los estados",
+        "categoryPlaceholder": "Categoría",
+        "categoryAll": "Todas las categorías",
+        "emptyFilteredTitle": "Sin reportes de soporte",
+        "emptyFilteredDescription": "No hay reportes que coincidan con los filtros actuales.",
+        "colReport": "Reporte",
+        "colUser": "Usuario",
+        "colCategory": "Categoría",
+        "colStatus": "Estado",
+        "colDate": "Fecha",
+        "colAttention": "Atención",
+        "technicalContext": "Contexto técnico",
+        "noName": "Sin nombre",
+        "toastStatusUpdated": "Reporte marcado como {status}.",
+        "updateError": "No se pudo actualizar el reporte.",
+        "noData": "Sin datos",
+        "contentError": "No se pudo mostrar el contenido",
+        "statuses": {
+          "open": "Abierto",
+          "in_progress": "En atención",
+          "resolved": "Resuelto",
+          "closed": "Cerrado"
+        },
+        "categories": {
+          "bug": "Error",
+          "feature_request": "Sugerencia",
+          "account": "Cuenta",
+          "data_issue": "Datos",
+          "performance": "Rendimiento",
+          "other": "Otro"
+        }
       }
     }
   },
@@ -5383,8 +5546,7 @@
       "col_availability": "Disponibilidad"
     },
     "counselorAssignments": {
-      "responsibilityAriaLabel": "Responsabilidad",
-      "justificationPlaceholder": "Justificación"
+      "responsibilityAriaLabel": "Responsabilidad"
     },
     "tree": {
       "no_modules": "Esta clase no tiene módulos registrados.",

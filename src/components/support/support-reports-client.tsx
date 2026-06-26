@@ -2,6 +2,7 @@
 
 import { FormEvent, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import {
   AlertCircle,
@@ -46,22 +47,6 @@ import {
 } from "@/lib/api/support-reports";
 import { cn } from "@/lib/utils";
 
-const STATUS_LABELS: Record<SupportReportStatus, string> = {
-  open: "Abierto",
-  in_progress: "En atención",
-  resolved: "Resuelto",
-  closed: "Cerrado",
-};
-
-const CATEGORY_LABELS: Record<SupportReportCategory, string> = {
-  bug: "Error",
-  feature_request: "Sugerencia",
-  account: "Cuenta",
-  data_issue: "Datos",
-  performance: "Rendimiento",
-  other: "Otro",
-};
-
 const STATUS_STYLES: Record<SupportReportStatus, string> = {
   open: "border-red-200 bg-red-50 text-red-700",
   in_progress: "border-amber-200 bg-amber-50 text-amber-700",
@@ -79,12 +64,12 @@ function formatDate(value: string) {
   }).format(new Date(value));
 }
 
-function safeJson(value: unknown) {
-  if (value == null) return "Sin datos";
+function safeJson(value: unknown, noData: string, contentError: string) {
+  if (value == null) return noData;
   try {
     return JSON.stringify(value, null, 2);
   } catch {
-    return "No se pudo mostrar el contenido";
+    return contentError;
   }
 }
 
@@ -103,12 +88,18 @@ export function SupportReportsClient({
   pageData,
   filters,
 }: SupportReportsClientProps) {
+  const t = useTranslations("support.pages.reports");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
   const [search, setSearch] = useState(filters.search ?? "");
   const [loadingReportId, setLoadingReportId] = useState<string | null>(null);
+
+  const statusLabel = (status: SupportReportStatus) =>
+    t(`statuses.${status}` as "statuses.open");
+  const categoryLabel = (category: SupportReportCategory) =>
+    t(`categories.${category}` as "categories.bug");
 
   function updateFilters(next: Record<string, string | undefined>) {
     const params = new URLSearchParams(searchParams.toString());
@@ -136,14 +127,12 @@ export function SupportReportsClient({
     try {
       await updateSupportReportStatus(report.id, status);
       toast.success(
-        `Reporte marcado como ${STATUS_LABELS[status].toLowerCase()}.`,
+        t("toastStatusUpdated", { status: statusLabel(status).toLowerCase() }),
       );
       router.refresh();
     } catch (error) {
       const message =
-        error instanceof Error
-          ? error.message
-          : "No se pudo actualizar el reporte.";
+        error instanceof Error ? error.message : t("updateError");
       toast.error(message);
     } finally {
       setLoadingReportId(null);
@@ -165,13 +154,17 @@ export function SupportReportsClient({
     <div className="space-y-5">
       <div className="grid gap-3 md:grid-cols-3">
         <SummaryCard
-          label="Abiertos en esta página"
+          label={t("summaryOpen")}
           value={openCount}
           icon={AlertCircle}
         />
-        <SummaryCard label="En atención" value={activeCount} icon={Clock3} />
         <SummaryCard
-          label="Resueltos"
+          label={t("summaryInProgress")}
+          value={activeCount}
+          icon={Clock3}
+        />
+        <SummaryCard
+          label={t("summaryResolved")}
           value={resolvedCount}
           icon={CheckCircle2}
         />
@@ -179,7 +172,7 @@ export function SupportReportsClient({
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Filtros</CardTitle>
+          <CardTitle className="text-base">{t("filtersTitle")}</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-3 lg:flex-row lg:items-center">
           <form onSubmit={handleSearchSubmit} className="flex flex-1 gap-2">
@@ -188,7 +181,7 @@ export function SupportReportsClient({
               <Input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder="Buscar por título, descripción, nombre o correo"
+                placeholder={t("searchPlaceholder")}
                 className="pl-9"
               />
             </div>
@@ -196,7 +189,7 @@ export function SupportReportsClient({
               {isPending ? (
                 <Loader2 className="size-4 animate-spin" />
               ) : (
-                "Buscar"
+                t("searchButton")
               )}
             </Button>
           </form>
@@ -206,15 +199,17 @@ export function SupportReportsClient({
             onValueChange={(value) => updateFilters({ status: value })}
           >
             <SelectTrigger className="w-full lg:w-[180px]">
-              <SelectValue placeholder="Estado" />
+              <SelectValue placeholder={t("statusPlaceholder")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todos los estados</SelectItem>
-              {Object.entries(STATUS_LABELS).map(([value, label]) => (
-                <SelectItem key={value} value={value}>
-                  {label}
-                </SelectItem>
-              ))}
+              <SelectItem value="all">{t("statusAll")}</SelectItem>
+              {(Object.keys(STATUS_STYLES) as SupportReportStatus[]).map(
+                (value) => (
+                  <SelectItem key={value} value={value}>
+                    {statusLabel(value)}
+                  </SelectItem>
+                ),
+              )}
             </SelectContent>
           </Select>
 
@@ -223,13 +218,22 @@ export function SupportReportsClient({
             onValueChange={(value) => updateFilters({ category: value })}
           >
             <SelectTrigger className="w-full lg:w-[180px]">
-              <SelectValue placeholder="Categoría" />
+              <SelectValue placeholder={t("categoryPlaceholder")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todas las categorías</SelectItem>
-              {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
+              <SelectItem value="all">{t("categoryAll")}</SelectItem>
+              {(
+                [
+                  "bug",
+                  "feature_request",
+                  "account",
+                  "data_issue",
+                  "performance",
+                  "other",
+                ] as SupportReportCategory[]
+              ).map((value) => (
                 <SelectItem key={value} value={value}>
-                  {label}
+                  {categoryLabel(value)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -240,8 +244,8 @@ export function SupportReportsClient({
       {pageData.items.length === 0 ? (
         <EmptyState
           icon={HelpCircle}
-          title="Sin reportes de soporte"
-          description="No hay reportes que coincidan con los filtros actuales."
+          title={t("emptyFilteredTitle")}
+          description={t("emptyFilteredDescription")}
           variant="no-results"
         />
       ) : (
@@ -249,12 +253,12 @@ export function SupportReportsClient({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Reporte</TableHead>
-                <TableHead>Usuario</TableHead>
-                <TableHead>Categoría</TableHead>
-                <TableHead>Estado</TableHead>
-                <TableHead>Fecha</TableHead>
-                <TableHead className="w-[190px]">Atención</TableHead>
+                <TableHead>{t("colReport")}</TableHead>
+                <TableHead>{t("colUser")}</TableHead>
+                <TableHead>{t("colCategory")}</TableHead>
+                <TableHead>{t("colStatus")}</TableHead>
+                <TableHead>{t("colDate")}</TableHead>
+                <TableHead className="w-[190px]">{t("colAttention")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -271,13 +275,17 @@ export function SupportReportsClient({
                     </div>
                     <details className="rounded-md bg-muted/40 p-2 text-xs text-muted-foreground">
                       <summary className="cursor-pointer font-medium text-foreground">
-                        Contexto técnico
+                        {t("technicalContext")}
                       </summary>
                       <pre className="mt-2 max-h-52 overflow-auto whitespace-pre-wrap break-words">
-                        {safeJson({
-                          deviceInfo: report.deviceInfo,
-                          userContext: report.userContext,
-                        })}
+                        {safeJson(
+                          {
+                            deviceInfo: report.deviceInfo,
+                            userContext: report.userContext,
+                          },
+                          t("noData"),
+                          t("contentError"),
+                        )}
                       </pre>
                     </details>
                   </TableCell>
@@ -288,7 +296,7 @@ export function SupportReportsClient({
                       </div>
                       <div className="space-y-1">
                         <p className="font-medium">
-                          {report.user.name ?? "Sin nombre"}
+                          {report.user.name ?? t("noName")}
                         </p>
                         <p className="flex items-center gap-1 text-xs text-muted-foreground">
                           <Mail className="size-3" />
@@ -300,7 +308,7 @@ export function SupportReportsClient({
                   <TableCell>
                     <Badge variant="outline" className="gap-1">
                       <Bug className="size-3" />
-                      {CATEGORY_LABELS[report.category]}
+                      {categoryLabel(report.category)}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -308,7 +316,7 @@ export function SupportReportsClient({
                       variant="outline"
                       className={cn("border", STATUS_STYLES[report.status])}
                     >
-                      {STATUS_LABELS[report.status]}
+                      {statusLabel(report.status)}
                     </Badge>
                   </TableCell>
                   <TableCell className="min-w-[150px] text-sm text-muted-foreground">
@@ -326,11 +334,13 @@ export function SupportReportsClient({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {Object.entries(STATUS_LABELS).map(([value, label]) => (
-                          <SelectItem key={value} value={value}>
-                            {label}
-                          </SelectItem>
-                        ))}
+                        {(Object.keys(STATUS_STYLES) as SupportReportStatus[]).map(
+                          (value) => (
+                            <SelectItem key={value} value={value}>
+                              {statusLabel(value)}
+                            </SelectItem>
+                          ),
+                        )}
                       </SelectContent>
                     </Select>
                   </TableCell>

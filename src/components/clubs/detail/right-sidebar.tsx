@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import {
   Award,
   CalendarPlus,
@@ -14,11 +15,16 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { ErrorRetryBanner } from "@/components/shared/error-retry-banner";
 import type {
   ClubLeadership,
   LeadershipMember,
   UpcomingEvent,
 } from "@/lib/api/club-detail";
+import {
+  detectSectionKind,
+  getSectionMeta,
+} from "@/components/clubs/detail/types";
 
 interface RightSidebarProps {
   clubId: number;
@@ -88,40 +94,41 @@ function ActionsCard({
   onEdit?: () => void;
   onDelete?: () => void;
 }) {
+  const t = useTranslations("clubs.detail.sidebar");
   return (
-    <CardShell title="Acciones rápidas">
+    <CardShell title={t("quickActionsTitle")}>
       <div className="grid gap-1">
         <ActionRow
           icon={<Edit3 className="size-3.5" />}
-          label="Editar club"
+          label={t("editClub")}
           onClick={onEdit}
         />
         <ActionRow
           icon={<Plus className="size-3.5" />}
-          label="Crear unidad"
+          label={t("createUnit")}
           href={`/dashboard/clubs/${clubId}/units/new`}
         />
         <ActionRow
           icon={<Users className="size-3.5" />}
           label={
             pending != null
-              ? `Aprobar solicitudes (${pending})`
-              : "Revisar solicitudes"
+              ? t("approveRequests", { count: pending })
+              : t("reviewRequests")
           }
         />
         <ActionRow
           icon={<Layers className="size-3.5" />}
-          label="Configurar secciones"
+          label={t("configureSections")}
         />
         <ActionRow
           icon={<Award className="size-3.5" />}
-          label="Ceremonia de investidura"
+          label={t("investitureCeremony")}
           disabled
         />
         <div className="my-1.5 h-px bg-border" />
         <ActionRow
           icon={<Trash2 className="size-3.5" />}
-          label="Eliminar club"
+          label={t("deleteClub")}
           danger
           onClick={onDelete}
         />
@@ -196,14 +203,15 @@ function UpcomingEventsCard({
   events: UpcomingEvent[];
   isLoading: boolean;
 }) {
+  const t = useTranslations("clubs.detail.sidebar");
   return (
     <CardShell
-      title="Próximos eventos"
+      title={t("upcomingEventsTitle")}
       hint={events.length > 0 ? events.length : "—"}
     >
       {isLoading ? (
         <div className="flex items-center justify-center gap-2 py-6 text-xs text-muted-foreground">
-          <Loader2 className="size-4 animate-spin" /> Cargando…
+          <Loader2 className="size-4 animate-spin" /> {t("loading")}
         </div>
       ) : events.length === 0 ? (
         <div className="grid place-items-center gap-2 rounded-xl border border-dashed bg-muted/30 px-3 py-6 text-center">
@@ -211,10 +219,10 @@ function UpcomingEventsCard({
             <CalendarPlus className="size-5" />
           </span>
           <p className="text-sm font-semibold text-foreground">
-            Sin agenda visible
+            {t("noEventsTitle")}
           </p>
           <p className="max-w-[200px] text-xs text-muted-foreground">
-            No hay actividades futuras registradas para este club.
+            {t("noEventsDescription")}
           </p>
         </div>
       ) : (
@@ -242,7 +250,7 @@ function UpcomingEventsCard({
                     {ev.name}
                   </div>
                   <div className="truncate text-xs text-muted-foreground">
-                    {ev.section_name ?? "Club"}
+                    {ev.section_name ?? t("clubFallback")}
                     {ev.kind ? ` · ${ev.kind}` : ""}
                   </div>
                 </div>
@@ -259,18 +267,27 @@ interface LeadershipPanelProps {
   leadership: ClubLeadership | undefined;
   isLoading: boolean;
   error: Error | null;
+  onRetry?: () => void;
+  isRetrying?: boolean;
+  errorMessage?: string;
 }
 
 export function LeadershipPanel({
   leadership,
   isLoading,
   error,
+  onRetry,
+  isRetrying = false,
+  errorMessage,
 }: LeadershipPanelProps) {
+  const t = useTranslations("clubs.detail.leadership");
+  const resolvedErrorMessage = errorMessage ?? t("loadError");
+
   if (isLoading) {
     return (
-      <CardShell title="Liderazgo">
+      <CardShell title={t("title")}>
         <div className="flex items-center gap-2 py-6 text-xs text-muted-foreground">
-          <Loader2 className="size-4 animate-spin" /> Cargando…
+          <Loader2 className="size-4 animate-spin" /> {t("loading")}
         </div>
       </CardShell>
     );
@@ -278,10 +295,12 @@ export function LeadershipPanel({
 
   if (error || !leadership) {
     return (
-      <CardShell title="Liderazgo">
-        <p className="text-sm text-muted-foreground">
-          No se pudo cargar el liderazgo del club.
-        </p>
+      <CardShell title={t("title")}>
+        <ErrorRetryBanner
+          message={resolvedErrorMessage}
+          onRetry={onRetry}
+          isRetrying={isRetrying}
+        />
       </CardShell>
     );
   }
@@ -293,17 +312,16 @@ export function LeadershipPanel({
 
   if (!hasAnyone) {
     return (
-      <CardShell title="Liderazgo">
+      <CardShell title={t("title")}>
         <div className="grid place-items-center gap-2 rounded-xl border border-dashed bg-muted/30 px-3 py-6 text-center">
           <span className="grid size-9 place-items-center rounded-full bg-muted text-muted-foreground">
             <ClipboardList className="size-5" />
           </span>
           <p className="text-sm font-semibold text-foreground">
-            Aún sin liderazgo asignado
+            {t("emptyTitle")}
           </p>
           <p className="max-w-[260px] text-xs text-muted-foreground">
-            Asigná director, subdirectores y secretarios desde las secciones
-            del club.
+            {t("emptyDescription")}
           </p>
         </div>
       </CardShell>
@@ -312,47 +330,147 @@ export function LeadershipPanel({
 
   return (
     <CardShell
-      title="Liderazgo"
+      title={t("titleBySection")}
       hint={
         <span className="text-[11px] text-muted-foreground">
-          {1 + totalSecondary} activos
+          {t("activeAssignments", {
+            count: collectAllMembers(leadership).length,
+          })}
         </span>
       }
     >
-      <div className="grid gap-3">
-        {leadership.director && <DirectorRow member={leadership.director} />}
-
-        {leadership.deputies.length > 0 && (
-          <Group
-            label="Subdirectores"
-            members={leadership.deputies}
-            tone="primary"
-          />
-        )}
-        {leadership.secretaries.length > 0 && (
-          <Group
-            label="Secretaría"
-            members={leadership.secretaries}
-            tone="info"
-          />
-        )}
-        {leadership.others.length > 0 && (
-          <Group label="Otros roles" members={leadership.others} tone="muted" />
+      <div className="grid gap-4">
+        {groupLeadershipBySection(leadership, t("generalSection")).map(
+          ([sectionName, members]) => (
+            <SectionLeadershipBlock
+              key={sectionName}
+              sectionName={sectionName}
+              members={members}
+            />
+          ),
         )}
       </div>
     </CardShell>
   );
 }
 
-function DirectorRow({ member }: { member: LeadershipMember }) {
+function collectAllMembers(leadership: ClubLeadership): LeadershipMember[] {
+  const members: LeadershipMember[] = [];
+  if (leadership.director) members.push(leadership.director);
+  members.push(
+    ...leadership.deputies,
+    ...leadership.secretaries,
+    ...leadership.others,
+  );
+  return members;
+}
+
+function sectionSortKey(sectionName: string): number {
+  const kind = detectSectionKind({ name: sectionName });
+  const order = {
+    adventurers: 0,
+    pathfinders: 1,
+    master_guilds: 2,
+    unknown: 3,
+  } as const;
+  return order[kind];
+}
+
+function groupLeadershipBySection(
+  leadership: ClubLeadership,
+  generalSectionLabel: string,
+): Array<[string, LeadershipMember[]]> {
+  const grouped = new Map<string, LeadershipMember[]>();
+  for (const member of collectAllMembers(leadership)) {
+    const key = member.section_name?.trim() || generalSectionLabel;
+    const list = grouped.get(key) ?? [];
+    list.push(member);
+    grouped.set(key, list);
+  }
+
+  return [...grouped.entries()].sort(
+    (a, b) => sectionSortKey(a[0]) - sectionSortKey(b[0]),
+  );
+}
+
+function isDirectorRole(roleName: string): boolean {
+  return roleName.trim().toLowerCase() === "director";
+}
+
+function SectionLeadershipBlock({
+  sectionName,
+  members,
+}: {
+  sectionName: string;
+  members: LeadershipMember[];
+}) {
+  const t = useTranslations("clubs.detail.leadership");
+  const meta = getSectionMeta(detectSectionKind({ name: sectionName }));
+  const directors = members.filter((member) => isDirectorRole(member.role_name));
+  const others = members.filter((member) => !isDirectorRole(member.role_name));
+
+  return (
+    <section
+      className="overflow-hidden rounded-xl border bg-card"
+      style={{ borderLeftWidth: 4, borderLeftColor: meta.donutHex }}
+    >
+      <header className="flex items-center justify-between gap-2 border-b bg-muted/20 px-4 py-3">
+        <div className="flex items-center gap-2">
+          <span
+            className="size-2.5 rounded-full"
+            style={{ backgroundColor: meta.donutHex }}
+            aria-hidden
+          />
+          <h4 className="text-sm font-semibold text-foreground">{sectionName}</h4>
+        </div>
+        <span className="text-[11px] text-muted-foreground">
+          {members.length}{" "}
+          {members.length === 1 ? t("roleSingular") : t("rolePlural")}
+        </span>
+      </header>
+
+      <div className="space-y-3 p-4">
+        {directors.length === 0 && (
+          <p className="text-xs text-muted-foreground">{t("noDirector")}</p>
+        )}
+        {directors.map((member) => (
+          <DirectorRow key={member.assignment_id} member={member} accent={meta.donutHex} />
+        ))}
+        {others.length > 0 && (
+          <Group
+            label={t("sectionTeam")}
+            members={others}
+            tone="muted"
+          />
+        )}
+      </div>
+    </section>
+  );
+}
+
+function DirectorRow({
+  member,
+  accent = "var(--color-primary)",
+}: {
+  member: LeadershipMember;
+  accent?: string;
+}) {
   const fullName = getFullName(member);
   return (
-    <div className="grid grid-cols-[44px_1fr] items-center gap-3 rounded-xl border border-primary/20 bg-primary/5 p-2.5">
-      <Avatar member={member} className="bg-primary text-primary-foreground" />
+    <div
+      className="grid grid-cols-[44px_1fr] items-center gap-3 rounded-xl border p-2.5"
+      style={{
+        borderColor: `${accent}33`,
+        backgroundColor: `${accent}12`,
+      }}
+    >
+      <Avatar member={member} className="text-white" style={{ backgroundColor: accent }} />
       <div className="min-w-0">
-        <div className="truncate text-sm font-bold text-primary">{fullName}</div>
-        <div className="truncate text-[11px] text-primary/80">
-          Director{member.section_name ? ` · ${member.section_name}` : ""}
+        <div className="truncate text-sm font-bold" style={{ color: accent }}>
+          {fullName}
+        </div>
+        <div className="truncate text-[11px] text-muted-foreground">
+          Director de sección
         </div>
       </div>
     </div>
@@ -421,9 +539,11 @@ function Group({
 function Avatar({
   member,
   className,
+  style,
 }: {
   member: LeadershipMember;
   className?: string;
+  style?: React.CSSProperties;
 }) {
   if (member.user_image) {
     return (
@@ -434,6 +554,7 @@ function Avatar({
           "grid size-8 place-items-center rounded-full object-cover",
           className,
         )}
+        style={style}
       />
     );
   }
@@ -443,6 +564,7 @@ function Avatar({
         "grid size-8 place-items-center rounded-full text-[11px] font-bold",
         className,
       )}
+      style={style}
     >
       {getInitials(member)}
     </div>
