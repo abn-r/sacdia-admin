@@ -61,6 +61,20 @@
   --color-secondary-foreground: var(--secondary-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-brand-primary: var(--brand-primary);
+  --color-brand-primary-light: var(--brand-primary-light);
+  --color-brand-primary-dark: var(--brand-primary-dark);
+  --color-brand-primary-surface: var(--brand-primary-surface);
+  --color-brand-secondary: var(--brand-secondary);
+  --color-brand-secondary-light: var(--brand-secondary-light);
+  --color-brand-secondary-dark: var(--brand-secondary-dark);
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-accent-light: var(--brand-accent-light);
+  --color-brand-accent-dark: var(--brand-accent-dark);
+  --color-brand-error: var(--brand-error);
+  --color-brand-error-light: var(--brand-error-light);
+  --color-brand-error-dark: var(--brand-error-dark);
+  --color-brand-info: var(--brand-info);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
   --color-card: var(--card);
@@ -74,16 +88,16 @@
   --radius-2xl: calc(var(--radius) + 4px);
   --radius-3xl: calc(var(--radius) + 8px);
 
-  --shadow-xs: 0 1px 2px 0 oklch(0.2 0.02 60 / 0.04);
+  --shadow-xs: 0 1px 2px 0 rgb(15 23 42 / 0.04);
   --shadow-sm:
-    0 1px 2px 0 oklch(0.2 0.02 60 / 0.05),
-    0 1px 1px -1px oklch(0.2 0.02 60 / 0.03);
+    0 1px 2px 0 rgb(15 23 42 / 0.05),
+    0 1px 1px -1px rgb(15 23 42 / 0.03);
   --shadow-md:
-    0 2px 4px -1px oklch(0.2 0.02 60 / 0.06),
-    0 4px 8px -2px oklch(0.2 0.02 60 / 0.04);
+    0 2px 4px -1px rgb(15 23 42 / 0.06),
+    0 4px 8px -2px rgb(15 23 42 / 0.04);
   --shadow-lg:
-    0 8px 24px -6px oklch(0.2 0.02 60 / 0.10),
-    0 4px 12px -4px oklch(0.2 0.02 60 / 0.06);
+    0 8px 24px -6px rgb(15 23 42 / 0.10),
+    0 4px 12px -4px rgb(15 23 42 / 0.06);
 }
 
 :root {
@@ -92,139 +106,155 @@
      El valor real (15rem) se pasa como prop en src/app/(dashboard)/layout.tsx. Documentado como referencia. */
   /* --sidebar-width: 15rem; */
 
-  --background: oklch(0.975 0.004 75);
-  --foreground: oklch(0.18 0.015 60);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.015 60);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.015 60);
+  /* SACDIA App palette — source: sacdia-app/lib/core/theme/app_colors.dart */
+  --brand-primary: #f06151;
+  --brand-primary-light: #fde8e6;
+  --brand-primary-dark: #d94a3b;
+  --brand-primary-surface: #fff1ef;
+  --brand-secondary: #4fbf9f;
+  --brand-secondary-light: #e0f5ef;
+  --brand-secondary-dark: #2d8a70;
+  --brand-accent: #fbbd5e;
+  --brand-accent-light: #fff4e0;
+  --brand-accent-dark: #b8862b;
+  --brand-error: #dc2626;
+  --brand-error-light: #fee2e2;
+  --brand-error-dark: #991b1b;
+  --brand-info: #2ea0da;
 
-  --primary: oklch(0.66 0.21 42);
-  --primary-foreground: oklch(0.99 0.005 75);
+  --background: #ffffff;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
 
-  --secondary: oklch(0.96 0.008 75);
-  --secondary-foreground: oklch(0.25 0.015 60);
+  --primary: var(--brand-primary);
+  --primary-foreground: #0f172a;
 
-  --muted: oklch(0.96 0.008 75);
-  --muted-foreground: oklch(0.52 0.012 60);
+  --secondary: var(--brand-secondary-light);
+  --secondary-foreground: var(--brand-secondary-dark);
 
-  --accent: oklch(0.94 0.015 70);
-  --accent-foreground: oklch(0.25 0.015 60);
+  --muted: #f8fafc;
+  --muted-foreground: #64748b;
 
-  --destructive: oklch(0.58 0.22 27);
-  --destructive-foreground: oklch(0.99 0 0);
-  --success: oklch(0.56 0.15 152);
-  --success-foreground: oklch(0.99 0 0);
-  --warning: oklch(0.74 0.16 75);
-  --warning-foreground: oklch(0.2 0.02 75);
-  --info: oklch(0.58 0.14 235);
-  --info-foreground: oklch(0.99 0 0);
+  --accent: var(--brand-primary-surface);
+  --accent-foreground: var(--brand-primary-dark);
+
+  --destructive: var(--brand-error);
+  --destructive-foreground: #ffffff;
+  --success: var(--brand-secondary);
+  --success-foreground: #0f172a;
+  --warning: var(--brand-accent);
+  --warning-foreground: #0f172a;
+  --info: var(--brand-info);
+  --info-foreground: #0f172a;
 
   /* Camporee timeline — category colors */
-  --cat-espiritual: oklch(0.62 0.18 285);
-  --cat-competencia: oklch(0.66 0.21 42);
-  --cat-taller: oklch(0.62 0.15 200);
-  --cat-ceremonial: oklch(0.58 0.18 350);
-  --cat-social: oklch(0.66 0.18 140);
+  --cat-espiritual: #514082;
+  --cat-competencia: var(--brand-primary);
+  --cat-taller: var(--brand-info);
+  --cat-ceremonial: #d14b66;
+  --cat-social: var(--brand-secondary);
 
   /* Camporee timeline — section colors */
-  --section-aventureros: oklch(0.66 0.18 60);
-  --section-conquistadores: oklch(0.55 0.20 260);
-  --section-guias: oklch(0.55 0.18 25);
+  --section-aventureros: #70c1dc;
+  --section-conquistadores: var(--brand-primary);
+  --section-guias: #023682;
 
   /* Soft warning surface */
-  --warning-soft: oklch(0.95 0.05 85);
-  --warning-soft-foreground: oklch(0.40 0.15 60);
+  --warning-soft: var(--brand-accent-light);
+  --warning-soft-foreground: #0f172a;
 
-  --border: oklch(0.91 0.008 75);
-  --input: oklch(0.91 0.008 75);
-  --ring: oklch(0.66 0.21 42 / 0.4);
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: color-mix(in srgb, var(--brand-primary) 45%, transparent);
 
-  --disabled-bg: oklch(0.95 0 0);
-  --disabled-foreground: oklch(0.6 0 0);
+  --disabled-bg: #f1f5f9;
+  --disabled-foreground: #94a3b8;
 
-  --chart-1: oklch(0.66 0.21 42);
-  --chart-2: oklch(0.58 0.14 235);
-  --chart-3: oklch(0.56 0.15 152);
-  --chart-4: oklch(0.74 0.16 75);
-  --chart-5: oklch(0.48 0.09 300);
+  --chart-1: var(--brand-primary);
+  --chart-2: var(--brand-info);
+  --chart-3: var(--brand-secondary);
+  --chart-4: var(--brand-accent);
+  --chart-5: #ae69ba;
 
-  --sidebar: oklch(0.985 0.004 75);
-  --sidebar-foreground: oklch(0.42 0.015 60);
-  --sidebar-primary: oklch(0.66 0.21 42);
-  --sidebar-primary-foreground: oklch(0.99 0.005 75);
-  --sidebar-accent: oklch(0.94 0.01 75);
-  --sidebar-accent-foreground: oklch(0.25 0.015 60);
-  --sidebar-border: oklch(0 0 0 / 0);
-  --sidebar-ring: oklch(0.66 0.21 42 / 0.4);
+  --sidebar: #ffffff;
+  --sidebar-foreground: #64748b;
+  --sidebar-primary: var(--brand-primary);
+  --sidebar-primary-foreground: #0f172a;
+  --sidebar-accent: var(--brand-primary-surface);
+  --sidebar-accent-foreground: var(--brand-primary-dark);
+  --sidebar-border: #e2e8f0;
+  --sidebar-ring: color-mix(in srgb, var(--brand-primary) 45%, transparent);
 }
 
 .dark {
-  --background: oklch(0.155 0.012 60);
-  --foreground: oklch(0.96 0.005 75);
-  --card: oklch(0.19 0.014 60);
-  --card-foreground: oklch(0.96 0.005 75);
-  --popover: oklch(0.21 0.015 60);
-  --popover-foreground: oklch(0.96 0.005 75);
+  --background: #000000;
+  --foreground: #f2f2f2;
+  --card: #1a1a1a;
+  --card-foreground: #f2f2f2;
+  --popover: #1a1a1a;
+  --popover-foreground: #f2f2f2;
 
-  --primary: oklch(0.72 0.19 42);
-  --primary-foreground: oklch(0.15 0.015 60);
+  --primary: var(--brand-primary);
+  --primary-foreground: #0f172a;
 
-  --secondary: oklch(0.23 0.015 60);
-  --secondary-foreground: oklch(0.96 0.005 75);
+  --secondary: color-mix(in srgb, var(--brand-secondary) 20%, #1a1a1a);
+  --secondary-foreground: var(--brand-secondary-light);
 
-  --muted: oklch(0.23 0.015 60);
-  --muted-foreground: oklch(0.68 0.012 60);
+  --muted: #252525;
+  --muted-foreground: #8c8c8c;
 
-  --accent: oklch(0.26 0.018 60);
-  --accent-foreground: oklch(0.96 0.005 75);
+  --accent: #252525;
+  --accent-foreground: #f2f2f2;
 
-  --destructive: oklch(0.67 0.22 27);
-  --destructive-foreground: oklch(0.99 0 0);
-  --success: oklch(0.66 0.16 152);
-  --success-foreground: oklch(0.12 0.02 152);
-  --warning: oklch(0.78 0.16 75);
-  --warning-foreground: oklch(0.18 0.02 75);
-  --info: oklch(0.68 0.14 235);
-  --info-foreground: oklch(0.12 0.02 235);
+  --destructive: var(--brand-error);
+  --destructive-foreground: #ffffff;
+  --success: var(--brand-secondary);
+  --success-foreground: #0f172a;
+  --warning: var(--brand-accent);
+  --warning-foreground: #0f172a;
+  --info: var(--brand-info);
+  --info-foreground: #0f172a;
 
   /* Camporee timeline — category colors (dark) */
-  --cat-espiritual: oklch(0.70 0.18 285);
-  --cat-competencia: oklch(0.74 0.21 42);
-  --cat-taller: oklch(0.70 0.15 200);
-  --cat-ceremonial: oklch(0.66 0.18 350);
-  --cat-social: oklch(0.74 0.18 140);
+  --cat-espiritual: #a4a3c9;
+  --cat-competencia: var(--brand-primary);
+  --cat-taller: #70c1dc;
+  --cat-ceremonial: #d14b66;
+  --cat-social: var(--brand-secondary);
 
   /* Camporee timeline — section colors (dark) */
-  --section-aventureros: oklch(0.74 0.18 60);
-  --section-conquistadores: oklch(0.65 0.20 260);
-  --section-guias: oklch(0.65 0.18 25);
+  --section-aventureros: #70c1dc;
+  --section-conquistadores: var(--brand-primary);
+  --section-guias: #60a5fa;
 
   /* Soft warning surface (dark) */
-  --warning-soft: oklch(0.32 0.08 85);
-  --warning-soft-foreground: oklch(0.88 0.10 70);
+  --warning-soft: color-mix(in srgb, var(--brand-accent) 20%, #1a1a1a);
+  --warning-soft-foreground: var(--brand-accent-light);
 
-  --border: oklch(1 0 0 / 0.08);
-  --input: oklch(1 0 0 / 0.10);
-  --ring: oklch(0.72 0.19 42 / 0.5);
+  --border: #303030;
+  --input: #303030;
+  --ring: color-mix(in srgb, var(--brand-primary) 55%, transparent);
 
-  --disabled-bg: oklch(0.25 0.012 60);
-  --disabled-foreground: oklch(0.55 0.012 60);
+  --disabled-bg: #252525;
+  --disabled-foreground: #5c5c5c;
 
-  --chart-1: oklch(0.72 0.19 42);
-  --chart-2: oklch(0.68 0.14 235);
-  --chart-3: oklch(0.66 0.16 152);
-  --chart-4: oklch(0.78 0.16 75);
-  --chart-5: oklch(0.6 0.1 300);
+  --chart-1: var(--brand-primary);
+  --chart-2: var(--brand-info);
+  --chart-3: var(--brand-secondary);
+  --chart-4: var(--brand-accent);
+  --chart-5: #ae69ba;
 
-  --sidebar: oklch(0.175 0.013 60);
-  --sidebar-foreground: oklch(0.72 0.012 60);
-  --sidebar-primary: oklch(0.72 0.19 42);
-  --sidebar-primary-foreground: oklch(0.15 0.015 60);
-  --sidebar-accent: oklch(0.24 0.016 60);
-  --sidebar-accent-foreground: oklch(0.96 0.005 75);
-  --sidebar-border: oklch(1 0 0 / 0.06);
-  --sidebar-ring: oklch(0.72 0.19 42 / 0.5);
+  --sidebar: #1a1a1a;
+  --sidebar-foreground: #8c8c8c;
+  --sidebar-primary: var(--brand-primary);
+  --sidebar-primary-foreground: #0f172a;
+  --sidebar-accent: #252525;
+  --sidebar-accent-foreground: #f2f2f2;
+  --sidebar-border: #303030;
+  --sidebar-ring: color-mix(in srgb, var(--brand-primary) 55%, transparent);
 }
 
 @layer base {

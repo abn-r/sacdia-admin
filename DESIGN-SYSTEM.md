@@ -3,7 +3,7 @@
 > Documento de referencia para todas las interfaces del panel administrativo.
 > Cada nueva pantalla, componente o modal debe seguir estas definiciones.
 
-> **Auditado: 2026-04-16**
+> **Auditado: 2026-04-16** (estado histórico previo a la alineación cromática del 2026-06-24)
 >
 > **Changelog de esta auditoria**:
 > - **Drift encontrado (6 items)**:
@@ -17,7 +17,7 @@
 
 > **Actualizado 2026-04-15 — Ember Redesign (fases 1-4)**. Este documento refleja el estado actual del sistema despues del rediseno "Ember". Cambios principales desde la version original:
 >
-> - **Paleta**: migrada de azul-violeta a naranja cobre. Primary `oklch(0.66 0.21 42)` (~#F05A28). Sidebar claro con pill naranja en item activo (estilo Finexy). Ver seccion 2.
+> - **Paleta previa**: migrada de azul-violeta a naranja cobre. Esta decisión fue superada el 2026-06-24 por la alineación con la paleta SACDIA App descrita en la sección 2.
 > - **Tipografia**: `Instrument Serif` como `--font-display` para h1 de PageHeader. Geist Sans para el resto. Ver seccion 3.
 > - **Radius**: base `0.75rem` (12px), escala completa `xs` -> `3xl`. Ver seccion 4.1.
 > - **Sombras**: escala custom con `--shadow-xs` (casi imperceptible) para cards. Ver globals.css.
@@ -26,6 +26,15 @@
 > - **Dark mode**: noise texture sutil via `body::before` para dar profundidad sin glassmorphism.
 >
 > Commits de referencia en `development`: `3734d87` (Fase 1 tokens+fonts) -> `4d9fb20` (Fase 2 base components) -> `cb78d20` (Fase 3 StatusBadge+PageHeader+Ola A) -> `bf7f4d0` (polish RBAC+enum) -> `ce59e93` (Fase 4 shell layout) -> `76452a3` (apiRequest auto-detect) -> `84f799c` (Ola B color cleanup) -> `fab11df` (tabs line variant).
+
+> **Actualizado 2026-06-24 — Alineación con SACDIA App**. La paleta base del panel ahora toma como fuente `sacdia-app/lib/core/theme/app_colors.dart`:
+>
+> - **Primary** SACDIA Red `#F06151` para botones principales, AppBar, enlaces y navegación.
+> - **Secondary/Success** SACDIA Green `#4FBF9F` para completado, progreso y estados positivos.
+> - **Accent/Warning** SACDIA Yellow `#FBBD5E` para logros, recompensas y estados en progreso.
+> - **Light mode** usa superficies blancas/slate de la app (`#FFFFFF`, `#F8FAFC`, `#E2E8F0`).
+> - **Dark mode** usa true black/OLED de la app (`#000000`, `#1A1A1A`, `#252525`, `#303030`).
+> - Los valores de marca son exactos; los `*-foreground` del panel se ajustan cuando hace falta para mantener contraste legible en web.
 
 ---
 
@@ -53,94 +62,113 @@
 
 ---
 
-## 2. Paleta de Color (OKLCH — Ember)
+## 2. Paleta de Color (SACDIA App — Scout Vibrante)
 
-El sistema usa CSS custom properties en OKLCH para precision de color perceptual. Todas las clases de Tailwind referencian estos tokens. Los valores de abajo reflejan el estado actual de `src/app/globals.css` post-Ember.
+El sistema usa CSS custom properties expuestas a Tailwind v4 desde `src/app/globals.css`. La fuente de verdad cromática es `sacdia-app/lib/core/theme/app_colors.dart`; el panel conserva tokens semánticos shadcn (`primary`, `secondary`, `accent`, etc.) pero los alimenta con la paleta SACDIA App.
 
-### 2.1 Tokens de Superficie
+> Nota de accesibilidad: los hex de marca son exactos. Los tokens `*-foreground` pueden usar tinta oscura (`#0F172A`) sobre fondos vibrantes cuando blanco no alcanza contraste AA para texto de UI.
+
+### 2.1 Tokens de Marca
+
+| Token | Valor | Uso |
+|-------|-------|-----|
+| `--brand-primary` | `#F06151` | SACDIA Red: botones principales, AppBar, enlaces, navegación |
+| `--brand-primary-light` | `#FDE8E6` | Badges/chips/selecciones suaves |
+| `--brand-primary-dark` | `#D94A3B` | Énfasis y pressed states |
+| `--brand-primary-surface` | `#FFF1EF` | Hover y selecciones muy sutiles |
+| `--brand-secondary` | `#4FBF9F` | SACDIA Green: éxito, completado, progreso |
+| `--brand-secondary-light` | `#E0F5EF` | Fondos success suaves |
+| `--brand-secondary-dark` | `#2D8A70` | Texto success |
+| `--brand-accent` | `#FBBD5E` | SACDIA Yellow: logros, recompensas, en progreso |
+| `--brand-accent-light` | `#FFF4E0` | Fondos warning suaves |
+| `--brand-accent-dark` | `#B8862B` | Texto warning de baja jerarquía |
+| `--brand-error` | `#DC2626` | Errores/destructivo |
+| `--brand-info` | `#2EA0DA` | Información general / enviado |
+
+Estos tokens también están expuestos como clases Tailwind `brand-*` (`bg-brand-primary`, `text-brand-secondary`, etc.) para casos donde se necesite referencia directa de marca. Por defecto, preferí los tokens semánticos (`bg-primary`, `text-success`, `bg-warning/10`).
+
+### 2.2 Tokens de Superficie
 
 | Token | Light Mode | Dark Mode | Uso |
 |-------|-----------|-----------|-----|
-| `--background` | `oklch(0.975 0.004 75)` | `oklch(0.155 0.012 60)` | Fondo general (stone calido) |
-| `--foreground` | `oklch(0.18 0.015 60)` | `oklch(0.96 0.005 75)` | Texto principal |
-| `--card` | `oklch(1 0 0)` | `oklch(0.19 0.014 60)` | Fondo de tarjetas |
-| `--card-foreground` | `oklch(0.18 0.015 60)` | `oklch(0.96 0.005 75)` | Texto en tarjetas |
-| `--popover` | `oklch(1 0 0)` | `oklch(0.21 0.015 60)` | Fondo de popovers/menus |
-| `--muted` | `oklch(0.96 0.008 75)` | `oklch(0.23 0.015 60)` | Superficies secundarias |
-| `--muted-foreground` | `oklch(0.52 0.012 60)` | `oklch(0.68 0.012 60)` | Texto secundario/auxiliar |
-| `--accent` | `oklch(0.94 0.015 70)` | `oklch(0.26 0.018 60)` | Hover backgrounds |
-| `--secondary` | `oklch(0.96 0.008 75)` | `oklch(0.23 0.015 60)` | Botones secundarios |
+| `--background` | `#FFFFFF` | `#000000` | Fondo general |
+| `--foreground` | `#0F172A` | `#F2F2F2` | Texto principal |
+| `--card` | `#FFFFFF` | `#1A1A1A` | Cards, modales, bottom sheets |
+| `--card-foreground` | `#0F172A` | `#F2F2F2` | Texto en tarjetas |
+| `--popover` | `#FFFFFF` | `#1A1A1A` | Popovers/menus |
+| `--muted` | `#F8FAFC` | `#252525` | Superficies secundarias |
+| `--muted-foreground` | `#64748B` | `#8C8C8C` | Texto secundario/auxiliar |
+| `--accent` | `#FFF1EF` | `#252525` | Hover backgrounds / selección sutil |
+| `--secondary` | `#E0F5EF` | `color-mix(... #4FBF9F 20%, #1A1A1A)` | Botones/badges secundarios con tono green SACDIA |
 
-### 2.2 Colores Semanticos
+### 2.3 Colores Semánticos
 
 | Token | Light | Dark | Clase Tailwind | Uso |
 |-------|-------|------|----------------|-----|
-| `--primary` | `oklch(0.66 0.21 42)` | `oklch(0.72 0.19 42)` | `text-primary`, `bg-primary` | Acciones principales, enlaces, brand (naranja cobre Ember ~#F05A28) |
-| `--destructive` | `oklch(0.58 0.22 27)` | `oklch(0.67 0.22 27)` | `text-destructive`, `bg-destructive` | Errores, eliminaciones, alertas |
-| `--success` | `oklch(0.56 0.15 152)` | `oklch(0.66 0.16 152)` | `text-success`, `bg-success` | Estados activos, confirmaciones |
-| `--warning` | `oklch(0.74 0.16 75)` | `oklch(0.78 0.16 75)` | `text-warning`, `bg-warning` | Advertencias, estados pendientes |
-| `--info` | `oklch(0.58 0.14 235)` | `oklch(0.68 0.14 235)` | `text-info`, `bg-info` | Info general, estados "enviado" |
+| `--primary` | `#F06151` | `#F06151` | `text-primary`, `bg-primary` | Acciones principales, enlaces, navegación |
+| `--secondary` | `#E0F5EF` | green tint sobre `#1A1A1A` | `text-secondary`, `bg-secondary` | Acción secundaria/chips con tono green suave |
+| `--destructive` | `#DC2626` | `#DC2626` | `text-destructive`, `bg-destructive` | Errores, eliminaciones, alertas |
+| `--success` | `#4FBF9F` | `#4FBF9F` | `text-success`, `bg-success` | Estados activos/completados |
+| `--warning` | `#FBBD5E` | `#FBBD5E` | `text-warning`, `bg-warning` | Advertencias, pendientes, logros |
+| `--info` | `#2EA0DA` | `#2EA0DA` | `text-info`, `bg-info` | Info general, estados “enviado” |
 
-Cada semantico tiene un `*-foreground` pareado para texto sobre fondo pleno:
-- `--destructive-foreground`, `--success-foreground`, `--warning-foreground`, `--info-foreground`
+Cada semántico mantiene un `*-foreground` pareado para texto sobre fondo pleno. Para fondos translucidos, usar `bg-{token}/10` o `/15` + `text-{token}` y validar contraste en ambos temas.
 
-**Patron soft tint**: para fondos translucidos con texto legible, usar `bg-{token}/10` o `/15` + `text-{token}`. En dark mode, algunos tokens (ej. warning) requieren override explicito `dark:text-{token}` porque el `*-foreground` en light es oscuro y colapsa contra bg translucido.
-
-### 2.3 Colores de Borde e Input
+### 2.4 Colores de Borde e Input
 
 | Token | Light | Dark |
 |-------|-------|------|
-| `--border` | `oklch(0.91 0.008 75)` | `oklch(1 0 0 / 0.08)` (translucido) |
-| `--input` | `oklch(0.91 0.008 75)` | `oklch(1 0 0 / 0.10)` |
-| `--ring` | `oklch(0.66 0.21 42 / 0.4)` | `oklch(0.72 0.19 42 / 0.5)` |
+| `--border` | `#E2E8F0` | `#303030` |
+| `--input` | `#E2E8F0` | `#303030` |
+| `--ring` | `color-mix(in srgb, #F06151 45%, transparent)` | `color-mix(in srgb, #F06151 55%, transparent)` |
+| `--disabled-bg` | `#F1F5F9` | `#252525` |
+| `--disabled-foreground` | `#94A3B8` | `#5C5C5C` |
 
-### 2.4 Colores de Grafico (Paleta Ember)
+### 2.5 Colores de Gráfico
 
-Los 5 chart tokens son la paleta ordenada que usa `StatusBadge progress-1/2/3`, `role-distribution-chart.tsx` y otros graficos/listados:
+Los 5 chart tokens forman la paleta ordenada para `StatusBadge progress-*`, dashboards y visualizaciones:
 
-| Token | Light | Dark | Uso semantico |
-|-------|-------|------|---------------|
-| `--chart-1` | `oklch(0.66 0.21 42)` | `oklch(0.72 0.19 42)` | = primary (naranja cobre) — director, pipeline stage 1 |
-| `--chart-2` | `oklch(0.58 0.14 235)` | `oklch(0.68 0.14 235)` | azul — coordinacion, pipeline stage 2 |
-| `--chart-3` | `oklch(0.56 0.15 152)` | `oklch(0.66 0.16 152)` | verde — campo, pipeline stage 3 |
-| `--chart-4` | `oklch(0.74 0.16 75)` | `oklch(0.78 0.16 75)` | ambar warning-like |
-| `--chart-5` | `oklch(0.48 0.09 300)` | `oklch(0.6 0.1 300)` | purpura apagado |
+| Token | Valor | Uso semántico |
+|-------|-------|---------------|
+| `--chart-1` | `#F06151` | Primary / etapa 1 |
+| `--chart-2` | `#2EA0DA` | Info / etapa 2 |
+| `--chart-3` | `#4FBF9F` | Success / etapa 3 |
+| `--chart-4` | `#FBBD5E` | Warning / recompensa |
+| `--chart-5` | `#AE69BA` | Morado complementario (clase Viajero) |
 
-### 2.5 Colores de Sidebar (Light pill pattern)
+### 2.6 Colores de Sidebar
 
-El sidebar usa el pattern Finexy: fondo claro con pill naranja relleno en el item activo.
+El sidebar mantiene el patrón de navegación con pill activo, ahora con SACDIA Red.
 
 | Token | Light | Dark | Uso |
 |-------|-------|------|-----|
-| `--sidebar` | `oklch(0.985 0.004 75)` | `oklch(0.175 0.013 60)` | Fondo del sidebar (ligeramente mas claro que bg en light; mas oscuro en dark) |
-| `--sidebar-foreground` | `oklch(0.42 0.015 60)` | `oklch(0.72 0.012 60)` | Texto normal del sidebar |
-| `--sidebar-primary` | `oklch(0.66 0.21 42)` | `oklch(0.72 0.19 42)` | Pill naranja del item activo |
-| `--sidebar-primary-foreground` | `oklch(0.99 0.005 75)` | `oklch(0.15 0.015 60)` | Texto sobre pill activo |
-| `--sidebar-accent` | `oklch(0.94 0.01 75)` | `oklch(0.24 0.016 60)` | Hover bg (items inactivos) |
-| `--sidebar-border` | `transparent` | `oklch(1 0 0 / 0.06)` | Sin border visible en light |
+| `--sidebar` | `#FFFFFF` | `#1A1A1A` | Fondo del sidebar |
+| `--sidebar-foreground` | `#64748B` | `#8C8C8C` | Texto normal |
+| `--sidebar-primary` | `#F06151` | `#F06151` | Item activo |
+| `--sidebar-primary-foreground` | `#0F172A` | `#0F172A` | Texto sobre item activo |
+| `--sidebar-accent` | `#FFF1EF` | `#252525` | Hover de items inactivos |
+| `--sidebar-border` | `#E2E8F0` | `#303030` | Divider/borde |
 
-### 2.6 Reglas de Uso de Color
+### 2.7 Reglas de Uso de Color
 
 ```
 HACER:
-  bg-primary/10          -> Fondo tenue para iconos o badges
+  bg-primary/10          -> Fondo tenue para iconos o badges brand
   bg-destructive/10      -> Fondo tenue para estados de error
   bg-success/10          -> Fondo tenue para estados activos
-  bg-warning/10          -> Fondo tenue para estados pendientes
+  bg-warning/10          -> Fondo tenue para estados pendientes/logros
   text-muted-foreground  -> Texto auxiliar, labels secundarios
   bg-muted               -> Fondos neutros (skeletons, placeholders)
 
 EVITAR POR DEFECTO:
   bg-blue-50, bg-red-100, bg-amber-50  -> Colores hardcoded de Tailwind
-  text-blue-600, text-red-500           -> Usar tokens semanticos
+  text-blue-600, text-red-500           -> Usar tokens semánticos
   Cualquier color que no funcione en dark mode
 
-EXCEPCION:
-  Se permiten colores hardcoded cuando haya solicitud explicita de mejora visual
+EXCEPCIÓN:
+  Se permiten colores hardcoded cuando haya solicitud explícita de mejora visual
   y se valide compatibilidad en dark mode.
 ```
-
----
 
 ## 3. Tipografia
 
@@ -263,12 +291,12 @@ Spacing de padding en Cards:
 | `default` | Acciones primarias (Crear, Guardar) | `bg-primary text-primary-foreground hover:bg-primary/90` |
 | `destructive` | Eliminar, desactivar | `bg-destructive text-white hover:bg-destructive/90` |
 | `outline` | Acciones secundarias, filtros, cancelar | `border bg-background shadow-xs hover:bg-accent` |
-| `secondary` | Alternativa neutra | `bg-secondary text-secondary-foreground hover:bg-secondary/80` |
+| `secondary` | Alternativa secundaria con tono green SACDIA | `bg-secondary text-secondary-foreground hover:bg-secondary/80` |
 | `ghost` | Iconos, acciones sutiles en tablas | `hover:bg-accent hover:text-accent-foreground` |
 | `soft` | CTA secundario con color sin llenar | `bg-primary/10 text-primary hover:bg-primary/15` |
 | `link` | Links en texto, "Ver todos" | `text-primary underline-offset-4 hover:underline` |
 
-**Nuevo en Ember (Fase 2)**: la variante `soft` cubre el gap entre `default` (lleno, grita) y `ghost`/`secondary` (gris plano). Ideal para "Ver mas", "Exportar", CTAs de card header donde queres color sin competir con la accion primaria de la pagina.
+**Nuevo en Ember (Fase 2)**: la variante `soft` cubre el gap entre `default` (lleno, grita) y `ghost`/`secondary` (menos dominante). Ideal para "Ver mas", "Exportar", CTAs de card header donde queres color sin competir con la accion primaria de la pagina.
 
 | Tamano | Uso | Valor |
 |--------|-----|-------|
