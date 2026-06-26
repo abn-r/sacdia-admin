@@ -3,6 +3,7 @@
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { AnnualBudgetDeleteDialog } from "@/components/annual-rankings/annual-budget-delete-dialog";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -44,6 +45,7 @@ export function AnnualBudgetConfigList({
   clubTypes,
   ecclesiasticalYears,
 }: AnnualBudgetConfigListProps) {
+  const t = useTranslations("annual_folders.budgetConfigList");
   const router = useRouter();
   const [deleteTarget, setDeleteTarget] = useState<AnnualRankingConfig | null>(
     null,
@@ -70,8 +72,8 @@ export function AnnualBudgetConfigList({
       {configs.length === 0 ? (
         <EmptyState
           icon={Plus}
-          title="Sin configuraciones de presupuesto"
-          description="Creá la primera configuración para definir cómo se reparten los puntos anuales."
+          title={t("emptyTitle")}
+          description={t("emptyDescription")}
         >
           <Button asChild size="sm">
             <Link href={`${ROUTE_BASE}/new`}>Nueva configuración</Link>

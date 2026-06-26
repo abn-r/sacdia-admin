@@ -248,7 +248,7 @@ export function EventTemplateListClient({
                   <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="filter-search"
-                    placeholder="Buscar por título..."
+                    placeholder={t("filterSearchPlaceholder")}
                     value={searchInput}
                     onChange={(e) => handleSearchInputChange(e.target.value)}
                     className="bg-background pl-9"
@@ -376,7 +376,7 @@ export function EventTemplateListClient({
                                   size="icon"
                                   className="size-8"
                                   asChild
-                                  title="Editar"
+                                  title={t("editActionTitle")}
                                 >
                                   <Link prefetch={false}
                                     href={`/dashboard/camporees/event-templates/${itemId}/edit`}
@@ -392,7 +392,7 @@ export function EventTemplateListClient({
                                   className="size-8 text-destructive hover:text-destructive"
                                   disabled={!itemId}
                                   onClick={() => setDeleteItem(item)}
-                                  title="Eliminar"
+                                  title={t("deleteActionTitle")}
                                 >
                                   <Trash2 className="size-3.5" />
                                 </Button>

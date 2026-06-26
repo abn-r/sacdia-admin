@@ -891,7 +891,7 @@ export function EvaluationClientPage({
             <Input
               id="folder-search"
               type="search"
-              placeholder="Ej. Club Betel, Conquistadores, ACV..."
+              placeholder={t("evaluationClient.searchPlaceholder")}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               className="h-9"
@@ -1119,7 +1119,7 @@ export function EvaluationClientPage({
               variant="outline"
               size="sm"
               asChild
-              title="Ver carpeta completa con evidencias"
+              title={t("evaluationClient.viewFullFolderTitle")}
             >
               <a
                 href={`/dashboard/annual-folders?folder=${folder.annual_folder_id}`}
@@ -1204,7 +1204,7 @@ export function EvaluationClientPage({
               id="union-notes"
               value={unionNotes}
               onChange={(event) => setUnionNotes(event.target.value)}
-              placeholder="Comentario opcional para auditoría..."
+              placeholder={t("evaluationClient.unionNotesPlaceholder")}
               maxLength={500}
               disabled={isConfirmingUnion}
             />

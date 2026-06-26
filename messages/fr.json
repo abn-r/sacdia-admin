@@ -2417,7 +2417,9 @@
       "titleEdit": "Modifier l'événement",
       "descriptionCreate": "Complétez les données pour ajouter un nouvel événement au programme du camporée.",
       "descriptionEdit": "Modifiez les données de l'événement. Les changements seront visibles dans le programme du camporée.",
-      "backToEvents": "Retour aux événements"
+      "backToEvents": "Retour aux événements",
+      "descriptionPlaceholder": "Brève description de l'événement pour les participants",
+      "capacityPlaceholder": "Sans limite"
     },
     "unionList": {
       "countSingular": "camporée",
@@ -3692,6 +3694,32 @@
     "awardCategoryFormDialog": {
       "descriptionPlaceholder": "Description optionnelle de la catégorie",
       "maxPointsPlaceholder": "Sans limite"
+    },
+    "folderClient": {
+      "viewFileTitle": "Voir le fichier",
+      "deleteEvidenceTitle": "Supprimer la preuve"
+    },
+    "evidenceUploadDialog": {
+      "descriptionPlaceholder": "Brève description du fichier..."
+    },
+    "evaluationClient": {
+      "searchPlaceholder": "Ex. Club Bethel, Conquérants, ACV...",
+      "viewFullFolderTitle": "Voir le dossier complet avec preuves",
+      "unionNotesPlaceholder": "Commentaire optionnel pour l'audit..."
+    },
+    "templatesClientPage": {
+      "publishTemplateTitle": "Publier le modèle",
+      "deleteDraftTitle": "Supprimer le brouillon"
+    },
+    "budgetConfigList": {
+      "emptyTitle": "Aucune configuration budgétaire",
+      "emptyDescription": "Créez la première configuration pour définir la répartition des points annuels."
+    },
+    "budgetConfigForm": {
+      "sectionsAllocationLabel": "Répartition entre sections"
+    },
+    "budgetSectionCard": {
+      "subsectionsAllocationLabel": "Sous-sections de cette section"
     },
     "pageRankingConfig": {
       "title": "Configuration annuelle des classements",
@@ -5804,7 +5832,19 @@
       "validationTitle": "Le titre est obligatoire.",
       "validationMaxPoints": "Le score maximum est obligatoire.",
       "validationParticipantsMode": "Le mode de participants est obligatoire.",
-      "validationParticipantsCount": "Le nombre de participants doit être supérieur à 0."
+      "validationParticipantsCount": "Le nombre de participants doit être supérieur à 0.",
+      "filterSearchPlaceholder": "Rechercher par titre...",
+      "editActionTitle": "Modifier",
+      "deleteActionTitle": "Supprimer"
+    },
+    "timeline": {
+      "toolbarSearchPlaceholder": "Rechercher événement, responsable ou lieu…",
+      "catalogImportTitle": "Importé du catalogue",
+      "fromCatalogLabel": "Depuis le catalogue"
+    },
+    "venueCreateDialog": {
+      "capacityPlaceholder": "Sans limite",
+      "notesPlaceholder": "Emplacement, accès, remarques…"
     },
     "instances": {
       "title": "Événements du camporee",

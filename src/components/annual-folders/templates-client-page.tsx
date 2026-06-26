@@ -1266,7 +1266,7 @@ export function TemplatesClientPage({
                               size="icon-xs"
                               onClick={(e) => handlePublishTemplate(template, e)}
                               disabled={publishingTemplateId === template.template_id}
-                              title="Publicar plantilla"
+                              title={t("templatesClientPage.publishTemplateTitle")}
                             >
                               <CheckCircle2 className="size-3.5" />
                               <span className="sr-only">Publicar plantilla</span>
@@ -1275,7 +1275,7 @@ export function TemplatesClientPage({
                               variant="ghost"
                               size="icon-xs"
                               onClick={(e) => handleDeleteTemplate(template, e)}
-                              title="Eliminar borrador"
+                              title={t("templatesClientPage.deleteDraftTitle")}
                               className="text-destructive hover:text-destructive"
                             >
                               <Trash2 className="size-3.5" />

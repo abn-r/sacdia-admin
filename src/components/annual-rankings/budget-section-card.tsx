@@ -1,6 +1,7 @@
 "use client";
 
 import { Plus, Shield, Sparkles, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { UseFormReturn } from "react-hook-form";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -55,6 +56,7 @@ export function BudgetSectionCard({
   onAddSubsection,
   onRemoveSubsection,
 }: BudgetSectionCardProps) {
+  const t = useTranslations("annual_folders.budgetSectionCard");
   const axis = form.watch(`axes.${axisIndex}`);
   const meta = sectionMeta(axis?.axis_key ?? "");
   const styles = TONE_STYLES[meta.tone] ?? TONE_STYLES.info;
@@ -151,7 +153,7 @@ export function BudgetSectionCard({
 
       <div className="mt-4">
         <PointsAllocationBar
-          label="Subsecciones de esta sección"
+          label={t("subsectionsAllocationLabel")}
           allocated={componentTotal}
           total={sectionMax}
         />

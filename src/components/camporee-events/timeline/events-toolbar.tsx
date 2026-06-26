@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Search, Download, SlidersHorizontal, Plus, Library } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,7 @@ function useDebounce<T>(value: T, delay: number): T {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function EventsToolbar({ data, camporeeId, onCreate, onImportFromCatalog }: Props) {
+  const t = useTranslations("camporeeEvents.timeline");
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -77,7 +79,7 @@ export function EventsToolbar({ data, camporeeId, onCreate, onImportFromCatalog 
       <div className="relative">
         <Search className="size-3.5 text-muted-foreground absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
         <Input
-          placeholder="Buscar evento, líder o sede…"
+          placeholder={t("toolbarSearchPlaceholder")}
           className="pl-8 h-9 w-[280px] text-[12.5px]"
           value={query}
           onChange={(e) => setQuery(e.target.value)}

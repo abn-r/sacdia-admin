@@ -2428,7 +2428,9 @@
       "titleEdit": "Editar evento",
       "descriptionCreate": "Completá los datos para agregar un nuevo evento a la agenda del camporee.",
       "descriptionEdit": "Modificá los datos del evento. Los cambios se reflejarán en la agenda del camporee.",
-      "backToEvents": "Volver a eventos"
+      "backToEvents": "Volver a eventos",
+      "descriptionPlaceholder": "Breve descripción del evento para los participantes",
+      "capacityPlaceholder": "Sin límite"
     },
     "unionList": {
       "countSingular": "camporee",
@@ -3851,6 +3853,32 @@
     "awardCategoryFormDialog": {
       "descriptionPlaceholder": "Descripción opcional de la categoría",
       "maxPointsPlaceholder": "Sin límite"
+    },
+    "folderClient": {
+      "viewFileTitle": "Ver archivo",
+      "deleteEvidenceTitle": "Eliminar evidencia"
+    },
+    "evidenceUploadDialog": {
+      "descriptionPlaceholder": "Descripción breve del archivo..."
+    },
+    "evaluationClient": {
+      "searchPlaceholder": "Ej. Club Betel, Conquistadores, ACV...",
+      "viewFullFolderTitle": "Ver carpeta completa con evidencias",
+      "unionNotesPlaceholder": "Comentario opcional para auditoría..."
+    },
+    "templatesClientPage": {
+      "publishTemplateTitle": "Publicar plantilla",
+      "deleteDraftTitle": "Eliminar borrador"
+    },
+    "budgetConfigList": {
+      "emptyTitle": "Sin configuraciones de presupuesto",
+      "emptyDescription": "Creá la primera configuración para definir cómo se reparten los puntos anuales."
+    },
+    "budgetConfigForm": {
+      "sectionsAllocationLabel": "Distribución entre secciones"
+    },
+    "budgetSectionCard": {
+      "subsectionsAllocationLabel": "Subsecciones de esta sección"
     },
     "pageRankingConfig": {
       "title": "Configuración anual de rankings",
@@ -5973,7 +6001,19 @@
       "validationTitle": "El título es obligatorio.",
       "validationMaxPoints": "El puntaje máximo es obligatorio.",
       "validationParticipantsMode": "El modo de participantes es obligatorio.",
-      "validationParticipantsCount": "La cantidad de participantes debe ser mayor a 0."
+      "validationParticipantsCount": "La cantidad de participantes debe ser mayor a 0.",
+      "filterSearchPlaceholder": "Buscar por título...",
+      "editActionTitle": "Editar",
+      "deleteActionTitle": "Eliminar"
+    },
+    "timeline": {
+      "toolbarSearchPlaceholder": "Buscar evento, líder o sede…",
+      "catalogImportTitle": "Importado del catálogo",
+      "fromCatalogLabel": "Desde catálogo"
+    },
+    "venueCreateDialog": {
+      "capacityPlaceholder": "Sin límite",
+      "notesPlaceholder": "Ubicación, acceso, observaciones…"
     },
     "instances": {
       "title": "Eventos del camporee",

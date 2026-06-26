@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import { Calendar, Layers, Activity, Pin } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import type { CamporeeEventsData } from "@/lib/camporee-timeline/types";
@@ -30,6 +31,7 @@ function Kpi({ icon, label, value, hint }: KpiProps) {
 }
 
 export function EventsSummaryKpis({ data }: Props) {
+  const t = useTranslations("camporeeEvents.timeline");
   const { summary } = data;
   const reusePct = summary.total ? Math.round((summary.fromCatalog / summary.total) * 100) : 0;
   return (
@@ -48,7 +50,7 @@ export function EventsSummaryKpis({ data }: Props) {
       />
       <Kpi
         icon={<Layers />}
-        label="Desde catálogo"
+        label={t("fromCatalogLabel")}
         value={
           <span>
             {summary.fromCatalog}

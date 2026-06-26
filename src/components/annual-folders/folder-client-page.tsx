@@ -81,6 +81,7 @@ function SectionRow({
   onDeleteEvidence,
   onSubmitSection,
 }: SectionRowProps) {
+  const t = useTranslations("annual_folders.folderClient");
   const hasEvidences = section.evidences.length > 0;
   const isSubmitted = Boolean(section.submission?.submitted_at);
   const isEditable =
@@ -195,7 +196,7 @@ function SectionRow({
                   variant="ghost"
                   size="icon-xs"
                   asChild
-                  title="Ver archivo"
+                  title={t("viewFileTitle")}
                 >
                   <a
                     href={evidence.file_url}
@@ -211,7 +212,7 @@ function SectionRow({
                     variant="ghost"
                     size="icon-xs"
                     onClick={() => onDeleteEvidence(evidence)}
-                    title="Eliminar evidencia"
+                    title={t("deleteEvidenceTitle")}
                     className="text-destructive hover:text-destructive"
                   >
                     <Trash2 className="size-3.5" />

@@ -10,6 +10,7 @@
  */
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -46,6 +47,7 @@ export function VenueCreateDialog({
   camporeeId,
   onCreated,
 }: VenueCreateDialogProps) {
+  const t = useTranslations("camporeeEvents.venueCreateDialog");
   const [isPending, startTransition] = useTransition();
   const [name, setName] = useState("");
   const [capacity, setCapacity] = useState("");
@@ -137,7 +139,7 @@ export function VenueCreateDialog({
               min={0}
               value={capacity}
               onChange={(e) => setCapacity(e.target.value)}
-              placeholder="Sin límite"
+              placeholder={t("capacityPlaceholder")}
             />
           </div>
 
@@ -152,7 +154,7 @@ export function VenueCreateDialog({
               onChange={(e) => setDescription(e.target.value)}
               rows={2}
               maxLength={500}
-              placeholder="Ubicación, acceso, observaciones…"
+              placeholder={t("notesPlaceholder")}
             />
           </div>
 

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -84,6 +85,7 @@ export function AnnualBudgetConfigForm({
   clubTypes,
   ecclesiasticalYears,
 }: AnnualBudgetConfigFormProps) {
+  const t = useTranslations("annual_folders.budgetConfigForm");
   const router = useRouter();
   const [savingConfig, setSavingConfig] = useState(false);
   const isEdit = mode === "edit";
@@ -501,7 +503,7 @@ export function AnnualBudgetConfigForm({
               />
 
               <PointsAllocationBar
-                label="Distribución entre secciones"
+                label={t("sectionsAllocationLabel")}
                 allocated={axisTotal}
                 total={maxPoints}
               />

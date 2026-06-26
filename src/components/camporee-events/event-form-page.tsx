@@ -267,7 +267,7 @@ export function EventFormPage({
               name="description"
               rows={3}
               defaultValue={event?.description ?? ""}
-              placeholder="Breve descripción del evento para los participantes"
+              placeholder={t("descriptionPlaceholder")}
             />
           </div>
 
@@ -569,7 +569,7 @@ export function EventFormPage({
                 type="number"
                 min={0}
                 defaultValue={event?.capacity ?? ""}
-                placeholder="Sin límite"
+                placeholder={t("capacityPlaceholder")}
               />
             </div>
 

@@ -2417,7 +2417,9 @@
       "titleEdit": "Editar evento",
       "descriptionCreate": "Preencha os dados para adicionar um novo evento à agenda do campori.",
       "descriptionEdit": "Atualize os dados do evento. As alterações aparecerão na agenda do campori.",
-      "backToEvents": "Voltar aos eventos"
+      "backToEvents": "Voltar aos eventos",
+      "descriptionPlaceholder": "Breve descrição do evento para os participantes",
+      "capacityPlaceholder": "Sem limite"
     },
     "unionList": {
       "countSingular": "campori",
@@ -3692,6 +3694,32 @@
     "awardCategoryFormDialog": {
       "descriptionPlaceholder": "Descrição opcional da categoria",
       "maxPointsPlaceholder": "Sem limite"
+    },
+    "folderClient": {
+      "viewFileTitle": "Ver arquivo",
+      "deleteEvidenceTitle": "Excluir evidência"
+    },
+    "evidenceUploadDialog": {
+      "descriptionPlaceholder": "Breve descrição do arquivo..."
+    },
+    "evaluationClient": {
+      "searchPlaceholder": "Ex. Clube Betel, Desbravadores, ACV...",
+      "viewFullFolderTitle": "Ver pasta completa com evidências",
+      "unionNotesPlaceholder": "Comentário opcional para auditoria..."
+    },
+    "templatesClientPage": {
+      "publishTemplateTitle": "Publicar modelo",
+      "deleteDraftTitle": "Excluir rascunho"
+    },
+    "budgetConfigList": {
+      "emptyTitle": "Sem configurações de orçamento",
+      "emptyDescription": "Crie a primeira configuração para definir como os pontos anuais são distribuídos."
+    },
+    "budgetConfigForm": {
+      "sectionsAllocationLabel": "Distribuição entre seções"
+    },
+    "budgetSectionCard": {
+      "subsectionsAllocationLabel": "Subseções desta seção"
     },
     "pageRankingConfig": {
       "title": "Configuração anual de rankings",
@@ -5804,7 +5832,19 @@
       "validationTitle": "O título é obrigatório.",
       "validationMaxPoints": "A pontuação máxima é obrigatória.",
       "validationParticipantsMode": "O modo de participantes é obrigatório.",
-      "validationParticipantsCount": "A quantidade de participantes deve ser maior que 0."
+      "validationParticipantsCount": "A quantidade de participantes deve ser maior que 0.",
+      "filterSearchPlaceholder": "Buscar por título...",
+      "editActionTitle": "Editar",
+      "deleteActionTitle": "Excluir"
+    },
+    "timeline": {
+      "toolbarSearchPlaceholder": "Buscar evento, líder ou sede…",
+      "catalogImportTitle": "Importado do catálogo",
+      "fromCatalogLabel": "Do catálogo"
+    },
+    "venueCreateDialog": {
+      "capacityPlaceholder": "Sem limite",
+      "notesPlaceholder": "Localização, acesso, observações…"
     },
     "instances": {
       "title": "Eventos do acampamento",

@@ -2418,7 +2418,9 @@
       "titleEdit": "Edit event",
       "descriptionCreate": "Complete the details to add a new event to the camporee schedule.",
       "descriptionEdit": "Update the event details. Changes will appear on the camporee schedule.",
-      "backToEvents": "Back to events"
+      "backToEvents": "Back to events",
+      "descriptionPlaceholder": "Brief event description for participants",
+      "capacityPlaceholder": "No limit"
     },
     "unionList": {
       "countSingular": "camporee",
@@ -3826,6 +3828,32 @@
     "awardCategoryFormDialog": {
       "descriptionPlaceholder": "Optional category description",
       "maxPointsPlaceholder": "No limit"
+    },
+    "folderClient": {
+      "viewFileTitle": "View file",
+      "deleteEvidenceTitle": "Delete evidence"
+    },
+    "evidenceUploadDialog": {
+      "descriptionPlaceholder": "Brief file description..."
+    },
+    "evaluationClient": {
+      "searchPlaceholder": "E.g. Bethel Club, Pathfinders, ACV...",
+      "viewFullFolderTitle": "View full folder with evidence",
+      "unionNotesPlaceholder": "Optional comment for audit trail..."
+    },
+    "templatesClientPage": {
+      "publishTemplateTitle": "Publish template",
+      "deleteDraftTitle": "Delete draft"
+    },
+    "budgetConfigList": {
+      "emptyTitle": "No budget configurations",
+      "emptyDescription": "Create the first configuration to define how annual points are distributed."
+    },
+    "budgetConfigForm": {
+      "sectionsAllocationLabel": "Distribution across sections"
+    },
+    "budgetSectionCard": {
+      "subsectionsAllocationLabel": "Subsections in this section"
     },
     "pageRankingConfig": {
       "title": "Annual ranking configuration",
@@ -5938,7 +5966,19 @@
       "validationTitle": "Title is required.",
       "validationMaxPoints": "Max points is required.",
       "validationParticipantsMode": "Participants mode is required.",
-      "validationParticipantsCount": "Participants count must be greater than 0."
+      "validationParticipantsCount": "Participants count must be greater than 0.",
+      "filterSearchPlaceholder": "Search by title...",
+      "editActionTitle": "Edit",
+      "deleteActionTitle": "Delete"
+    },
+    "timeline": {
+      "toolbarSearchPlaceholder": "Search event, leader, or venue…",
+      "catalogImportTitle": "Imported from catalog",
+      "fromCatalogLabel": "From catalog"
+    },
+    "venueCreateDialog": {
+      "capacityPlaceholder": "No limit",
+      "notesPlaceholder": "Location, access, notes…"
     },
     "instances": {
       "title": "Camporee events",

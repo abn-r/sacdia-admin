@@ -2458,6 +2458,8 @@ export interface IntlMessages {
       descriptionCreate: string;
       descriptionEdit: string;
       backToEvents: string;
+      descriptionPlaceholder: string;
+      capacityPlaceholder: string;
     };
     unionList: {
       countSingular: string;
@@ -3880,6 +3882,32 @@ export interface IntlMessages {
     awardCategoryFormDialog: {
       descriptionPlaceholder: string;
       maxPointsPlaceholder: string;
+    };
+    folderClient: {
+      viewFileTitle: string;
+      deleteEvidenceTitle: string;
+    };
+    evidenceUploadDialog: {
+      descriptionPlaceholder: string;
+    };
+    evaluationClient: {
+      searchPlaceholder: string;
+      viewFullFolderTitle: string;
+      unionNotesPlaceholder: string;
+    };
+    templatesClientPage: {
+      publishTemplateTitle: string;
+      deleteDraftTitle: string;
+    };
+    budgetConfigList: {
+      emptyTitle: string;
+      emptyDescription: string;
+    };
+    budgetConfigForm: {
+      sectionsAllocationLabel: string;
+    };
+    budgetSectionCard: {
+      subsectionsAllocationLabel: string;
     };
     pageRankingConfig: {
       title: string;
@@ -6003,6 +6031,18 @@ export interface IntlMessages {
       validationMaxPoints: string;
       validationParticipantsMode: string;
       validationParticipantsCount: string;
+      filterSearchPlaceholder: string;
+      editActionTitle: string;
+      deleteActionTitle: string;
+    };
+    timeline: {
+      toolbarSearchPlaceholder: string;
+      catalogImportTitle: string;
+      fromCatalogLabel: string;
+    };
+    venueCreateDialog: {
+      capacityPlaceholder: string;
+      notesPlaceholder: string;
     };
     instances: {
       title: string;

@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   Clock,
   Pin,
@@ -57,6 +58,7 @@ interface Props {
 type DialogType = "cancel" | "delete" | null;
 
 export function EventRow({ event, venue, camporeeId, onEdit, readonly = false }: Props) {
+  const t = useTranslations("camporeeEvents.timeline");
   const router = useRouter();
   const cat = EVENT_CATEGORY_MAP[event.category];
   const status = event.status;
@@ -163,7 +165,7 @@ export function EventRow({ event, venue, camporeeId, onEdit, readonly = false }:
             {event.fromCatalog && (
               <span
                 className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground/80 bg-muted px-1.5 py-0.5 rounded"
-                title="Importado del catálogo"
+                title={t("catalogImportTitle")}
               >
                 <Copy className="size-2.5" />
                 Catálogo
