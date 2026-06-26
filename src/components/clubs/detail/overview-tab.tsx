@@ -1,11 +1,14 @@
 "use client";
 
 import { Loader2, TrendingUp } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { Unit } from "@/lib/api/units";
-import type { ClubOverview } from "@/lib/api/club-detail";
+import type { ClubOverview, ClubLeadership } from "@/lib/api/club-detail";
+import { ErrorRetryBanner } from "@/components/shared/error-retry-banner";
 import { CompositionDonut } from "./composition-donut";
 import { UnitRanking } from "./unit-ranking";
 import { AttendanceChart, ScoreBreakdown, ScoreCircle } from "./charts";
+import { LeadershipPanel } from "./right-sidebar";
 import { getTotalMembers } from "./helpers";
 import type { ClubSectionRaw, SectionView } from "./types";
 
@@ -16,6 +19,13 @@ interface OverviewTabProps {
   overview: ClubOverview | undefined;
   isLoadingOverview: boolean;
   overviewError: Error | null;
+  leadership?: ClubLeadership;
+  isLoadingLeadership?: boolean;
+  leadershipError?: Error | null;
+  onRetryOverview?: () => void;
+  onRetryLeadership?: () => void;
+  isRetryingOverview?: boolean;
+  isRetryingLeadership?: boolean;
 }
 
 export function ClubOverviewTab({
@@ -25,7 +35,15 @@ export function ClubOverviewTab({
   overview,
   isLoadingOverview,
   overviewError,
+  leadership,
+  isLoadingLeadership = false,
+  leadershipError = null,
+  onRetryOverview,
+  onRetryLeadership,
+  isRetryingOverview = false,
+  isRetryingLeadership = false,
 }: OverviewTabProps) {
+  const tErrors = useTranslations("shared.errorRetry");
   const total = getTotalMembers(sections);
 
   return (
@@ -52,6 +70,9 @@ export function ClubOverviewTab({
           overview={overview}
           isLoading={isLoadingOverview}
           error={overviewError}
+          onRetry={onRetryOverview}
+          isRetrying={isRetryingOverview}
+          errorMessage={tErrors("loadClubScore")}
         />
       </PanelCard>
 
@@ -87,8 +108,22 @@ export function ClubOverviewTab({
           overview={overview}
           isLoading={isLoadingOverview}
           error={overviewError}
+          onRetry={onRetryOverview}
+          isRetrying={isRetryingOverview}
+          errorMessage={tErrors("loadAttendance")}
         />
       </PanelCard>
+
+      <div className="lg:col-span-12">
+        <LeadershipPanel
+          leadership={leadership}
+          isLoading={isLoadingLeadership}
+          error={leadershipError}
+          onRetry={onRetryLeadership}
+          isRetrying={isRetryingLeadership}
+          errorMessage={tErrors("loadLeadership")}
+        />
+      </div>
     </div>
   );
 }
@@ -126,17 +161,25 @@ function HealthBlock({
   overview,
   isLoading,
   error,
+  onRetry,
+  isRetrying,
+  errorMessage,
 }: {
   overview: ClubOverview | undefined;
   isLoading: boolean;
   error: Error | null;
+  onRetry?: () => void;
+  isRetrying?: boolean;
+  errorMessage: string;
 }) {
   if (isLoading) return <CardLoader />;
   if (error || !overview) {
     return (
-      <p className="text-sm text-muted-foreground">
-        No se pudo cargar el score del club.
-      </p>
+      <ErrorRetryBanner
+        message={errorMessage}
+        onRetry={onRetry}
+        isRetrying={isRetrying}
+      />
     );
   }
   return (
@@ -161,17 +204,25 @@ function AttendanceBlock({
   overview,
   isLoading,
   error,
+  onRetry,
+  isRetrying,
+  errorMessage,
 }: {
   overview: ClubOverview | undefined;
   isLoading: boolean;
   error: Error | null;
+  onRetry?: () => void;
+  isRetrying?: boolean;
+  errorMessage: string;
 }) {
   if (isLoading) return <CardLoader />;
   if (error) {
     return (
-      <p className="text-sm text-muted-foreground">
-        No se pudo cargar la serie de asistencia.
-      </p>
+      <ErrorRetryBanner
+        message={errorMessage}
+        onRetry={onRetry}
+        isRetrying={isRetrying}
+      />
     );
   }
   if (!overview?.attendance || overview.attendance.length === 0) {

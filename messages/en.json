@@ -175,7 +175,8 @@
       "description": "Search pages, catalogs and sections in the admin",
       "placeholder": "Search pages, catalogs, sections...",
       "empty": "No results found",
-      "general": "General"
+      "general": "General",
+      "searchAriaLabel": "Global search ({shortcut})"
     },
     "activeContext": {
       "noClub": "No club",
@@ -184,7 +185,9 @@
       "yearLabel": "Ecclesiastical year",
       "clear": "Clear selection",
       "loading": "Loading context...",
-      "unavailable": "Context unavailable"
+      "unavailable": "Context unavailable",
+      "changeFailed": "Could not change the active context",
+      "triggerLabel": "Active context: {club}, {year}"
     }
   },
   "permissions": {
@@ -4986,6 +4989,12 @@
       "missing": "Not available",
       "rateLimited": "Rate limit reached",
       "goToLogin": "Go to login"
+    },
+    "errorRetry": {
+      "retry": "Retry",
+      "loadClubScore": "Could not load the club score.",
+      "loadAttendance": "Could not load the attendance series.",
+      "loadLeadership": "Could not load club leadership."
     },
     "appMetadata": {
       "title": "SACDIA Admin Panel",

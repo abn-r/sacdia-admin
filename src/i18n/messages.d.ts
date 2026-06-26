@@ -205,6 +205,7 @@ export interface IntlMessages {
       placeholder: string;
       empty: string;
       general: string;
+      searchAriaLabel: string;
     };
     activeContext: {
       noClub: string;
@@ -214,6 +215,8 @@ export interface IntlMessages {
       clear: string;
       loading: string;
       unavailable: string;
+      changeFailed: string;
+      triggerLabel: string;
     };
   };
   permissions: {
@@ -5050,6 +5053,12 @@ export interface IntlMessages {
       missing: string;
       rateLimited: string;
       goToLogin: string;
+    };
+    errorRetry: {
+      retry: string;
+      loadClubScore: string;
+      loadAttendance: string;
+      loadLeadership: string;
     };
     appMetadata: {
       title: string;

@@ -27,6 +27,7 @@ import {
   getActiveEcclesiasticalYearId,
   type EcclesiasticalYear,
 } from "@/lib/api/catalogs";
+import { abbreviateLabel, abbreviateYearLabel } from "@/lib/ui/abbreviate-label";
 
 const STALE = 5 * 60_000;
 const GC = 10 * 60_000;
@@ -175,7 +176,7 @@ export function ActiveContextChip() {
         const message =
           err instanceof ApiError
             ? err.message
-            : "No se pudo cambiar el contexto activo";
+            : t("changeFailed");
         toast.error(message);
       } finally {
         setIsChangingAssignment(false);
@@ -188,9 +189,7 @@ export function ActiveContextChip() {
   const isError = yearsQuery.isError;
 
   if (isLoading) {
-    return (
-      <Skeleton className="h-8 w-36 rounded-full shrink-0 hidden md:block" />
-    );
+    return <Skeleton className="h-8 w-24 shrink-0 rounded-full sm:w-36" />;
   }
 
   if (isError) {
@@ -209,6 +208,13 @@ export function ActiveContextChip() {
   const activeYear =
     years.find((y) => y.ecclesiastical_year_id === activeYearId) ?? null;
 
+  const clubLabel = activeAssignment?.clubName ?? t("noClub");
+  const yearLabel = activeYear?.name ?? t("noYear");
+  const mobileClubLabel = abbreviateLabel(clubLabel, 12);
+  const mobileYearLabel = activeYear?.name
+    ? abbreviateYearLabel(activeYear.name)
+    : t("noYear");
+
   function handleClear() {
     if (activeAssignment) {
       setActiveClubId(activeAssignment.clubId);
@@ -226,24 +232,28 @@ export function ActiveContextChip() {
           variant="outline"
           size="sm"
           disabled={isChangingAssignment}
-          className="h-8 shrink-0 gap-1.5 text-xs font-normal text-muted-foreground hover:text-foreground border-border/60"
+          aria-label={t("triggerLabel", { club: clubLabel, year: yearLabel })}
+          className="h-8 max-w-[11rem] shrink-0 gap-1 text-xs font-normal text-muted-foreground hover:text-foreground border-border/60 sm:max-w-none sm:gap-1.5"
         >
-          {/* Club */}
           <Building2 className="size-3.5 shrink-0" aria-hidden="true" />
-          <span className="hidden md:inline truncate max-w-[10rem]">
-            {activeAssignment?.clubName ?? t("noClub")}
+          <span className="truncate sm:hidden" title={clubLabel}>
+            {mobileClubLabel}
+          </span>
+          <span className="hidden truncate max-w-[10rem] md:inline" title={clubLabel}>
+            {clubLabel}
           </span>
 
-          {/* Separador vertical */}
           <span
-            className="mx-0.5 h-3 w-px bg-border shrink-0 hidden md:inline-block"
+            className="mx-0.5 h-3 w-px bg-border shrink-0"
             aria-hidden="true"
           />
 
-          {/* Año */}
           <CalendarDays className="size-3.5 shrink-0" aria-hidden="true" />
-          <span className="hidden md:inline truncate max-w-[6rem]">
-            {activeYear?.name ?? t("noYear")}
+          <span className="truncate sm:hidden" title={yearLabel}>
+            {mobileYearLabel}
+          </span>
+          <span className="hidden truncate max-w-[6rem] md:inline" title={yearLabel}>
+            {yearLabel}
           </span>
 
           <ChevronDown className="size-3 shrink-0 opacity-50" aria-hidden="true" />

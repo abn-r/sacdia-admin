@@ -175,7 +175,8 @@
       "description": "Buscá páginas, catálogos y secciones del panel",
       "placeholder": "Buscar páginas, catálogos, secciones...",
       "empty": "Sin resultados",
-      "general": "General"
+      "general": "General",
+      "searchAriaLabel": "Búsqueda global ({shortcut})"
     },
     "activeContext": {
       "noClub": "Sin club",
@@ -184,7 +185,9 @@
       "yearLabel": "Año eclesiástico",
       "clear": "Limpiar selección",
       "loading": "Cargando contexto...",
-      "unavailable": "Sin contexto disponible"
+      "unavailable": "Sin contexto disponible",
+      "changeFailed": "No se pudo cambiar el contexto activo",
+      "triggerLabel": "Contexto activo: {club}, {year}"
     }
   },
   "permissions": {
@@ -5021,6 +5024,12 @@
       "missing": "No disponible",
       "rateLimited": "Límite de solicitudes",
       "goToLogin": "Ir a login"
+    },
+    "errorRetry": {
+      "retry": "Reintentar",
+      "loadClubScore": "No se pudo cargar el score del club.",
+      "loadAttendance": "No se pudo cargar la serie de asistencia.",
+      "loadLeadership": "No se pudo cargar el liderazgo del club."
     },
     "appMetadata": {
       "title": "SACDIA Panel Administrativo",

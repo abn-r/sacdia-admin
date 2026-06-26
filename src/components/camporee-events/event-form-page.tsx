@@ -17,6 +17,7 @@ import { useFormStatus } from "react-dom";
 import Link from "next/link";
 import { ArrowLeft, Loader2, Check, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/shared/page-header";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -202,25 +203,15 @@ export function EventFormPage({
   return (
     <div className="space-y-8">
       {/* ── Header ── */}
-      <div className="space-y-3">
-        <nav className="flex items-center gap-1 text-sm text-muted-foreground">
-          <Link
-            href={backHref}
-            className="flex items-center gap-1 transition-colors hover:text-foreground"
-          >
-            <ArrowLeft className="size-3.5" />
-            Volver a eventos
-          </Link>
-        </nav>
-        <h1 className="text-3xl font-semibold tracking-tight">
-          {isEdit ? "Editar evento" : "Nuevo evento"}
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          {isEdit
+      <PageHeader
+        title={isEdit ? "Editar evento" : "Nuevo evento"}
+        description={
+          isEdit
             ? "Modificá los datos del evento. Los cambios se reflejarán en la agenda del camporee."
-            : "Completá los datos para agregar un nuevo evento a la agenda del camporee."}
-        </p>
-      </div>
+            : "Completá los datos para agregar un nuevo evento a la agenda del camporee."
+        }
+        breadcrumbs={[{ label: "Volver a eventos", href: backHref }]}
+      />
 
       {/* ── Form ── */}
       <form action={formAction} className="space-y-8">

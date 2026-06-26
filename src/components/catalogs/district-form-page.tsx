@@ -4,8 +4,9 @@ import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/shared/page-header";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -85,18 +86,10 @@ export function DistrictFormPage({
 
   return (
     <div className="space-y-8">
-      <div className="space-y-3">
-        <nav className="flex items-center gap-1 text-sm text-muted-foreground">
-          <Link
-            href={LIST_HREF}
-            className="flex items-center gap-1 transition-colors hover:text-foreground"
-          >
-            <ArrowLeft className="size-3.5" />
-            {t("backToList")}
-          </Link>
-        </nav>
-        <h1 className="text-3xl font-semibold tracking-tight">{pageTitle}</h1>
-      </div>
+      <PageHeader
+        title={pageTitle}
+        breadcrumbs={[{ label: t("backToList"), href: LIST_HREF }]}
+      />
 
       <form action={formAction} className="space-y-8">
         {isEdit && item && (

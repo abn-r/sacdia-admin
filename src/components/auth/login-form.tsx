@@ -80,7 +80,7 @@ export function LoginForm({ nextParam }: Props) {
         {t("eyebrow")}
       </div>
 
-      <h1 className="mb-2 text-3xl font-bold leading-[1.1] tracking-tight text-foreground sm:text-3xl">
+      <h1 className="mb-2 font-display text-3xl font-normal leading-[1.1] tracking-tight text-foreground sm:text-3xl">
         {t("welcome_title")}
       </h1>
       <p className="mb-8 text-sm leading-relaxed text-muted-foreground">
