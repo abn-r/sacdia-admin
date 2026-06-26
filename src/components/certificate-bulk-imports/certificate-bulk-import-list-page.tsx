@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { ArrowRight, FileText, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -46,6 +47,7 @@ function KpiCard({ label, value, hint }: { label: string; value: number; hint: s
 }
 
 export function CertificateBulkImportListPage({ batches, total }: CertificateBulkImportListPageProps) {
+  const t = useTranslations("certificate_bulk_imports.page");
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<"all" | "SUBMITTED" | "PARTIALLY_APPROVED" | "NEEDS_CORRECTION">("all");
 
@@ -69,8 +71,8 @@ export function CertificateBulkImportListPage({ batches, total }: CertificateBul
     return (
       <EmptyState
         icon={FileText}
-        title="Sin cargas pendientes"
-        description="No hay cargas por certificado esperando revisión."
+        title={t("emptyTitle")}
+        description={t("emptyDescription")}
       />
     );
   }

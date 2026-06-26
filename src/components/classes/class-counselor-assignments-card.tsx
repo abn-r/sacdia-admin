@@ -4,6 +4,7 @@ import { useActionState, useEffect, useMemo } from "react";
 import type { ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { BookOpenCheck, Loader2, Save, Trash2, UserPlus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -24,7 +25,6 @@ import {
   listClassCounselorAssignments,
   listNormalizedClubSectionMembers,
   type ClassCounselorAssignment,
-  type ClubSectionMember,
 } from "@/lib/api/clubs";
 import {
   createClassCounselorAssignmentAction,
@@ -33,47 +33,20 @@ import {
   type ClubActionState,
 } from "@/lib/clubs/actions";
 
-const ASSIGNABLE_ROLE_NAMES = new Set(["counselor", "secretary"]);
+import {
+  assignmentUserName,
+  responsibilityLabel,
+  toAssignableClassCounselorOptions,
+  type AssignableCounselorOption,
+} from "@/components/clubs/class-counselor-shared";
 
-type AssignableOption = {
-  value: string;
-  label: string;
-  role: string;
-};
+export { toAssignableClassCounselorOptions };
 
 interface ClassCounselorAssignmentsCardProps {
   clubId: number;
   sectionId: number;
   clubTypeId: number;
   sectionName: string;
-}
-
-function normalizeRole(member: Pick<ClubSectionMember, "role" | "role_display_name">) {
-  return (member.role ?? member.role_display_name ?? "").trim().toLowerCase();
-}
-
-export function toAssignableClassCounselorOptions(
-  members: Array<Pick<ClubSectionMember, "user_id" | "name" | "role" | "role_display_name">>,
-): AssignableOption[] {
-  const seen = new Set<string>();
-
-  return members
-    .flatMap((member) => {
-      const role = normalizeRole(member);
-      if (!ASSIGNABLE_ROLE_NAMES.has(role) || seen.has(member.user_id)) {
-        return [];
-      }
-
-      seen.add(member.user_id);
-      return [
-        {
-          value: member.user_id,
-          label: member.name,
-          role,
-        },
-      ];
-    })
-    .sort((a, b) => a.label.localeCompare(b.label, "es"));
 }
 
 function unwrapClasses(payload: unknown): ProgressiveClass[] {
@@ -84,27 +57,6 @@ function unwrapClasses(payload: unknown): ProgressiveClass[] {
   if (Array.isArray(data)) return data as ProgressiveClass[];
 
   return [];
-}
-
-function assignmentUserName(assignment: ClassCounselorAssignment) {
-  const user = assignment.users;
-  const fullName = [
-    user?.name,
-    user?.paternal_last_name,
-    user?.maternal_last_name,
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .trim();
-
-  return fullName || assignment.user_id;
-}
-
-function responsibilityLabel(value?: string) {
-  if (value === "primary") return "Principal";
-  if (value === "assistant") return "Apoyo";
-  if (value === "substitute") return "Suplente";
-  return "Responsable";
 }
 
 function SubmitButton({
@@ -175,7 +127,7 @@ function CreateAssignmentForm({
   clubId: number;
   sectionId: number;
   classes: ProgressiveClass[];
-  assignableMembers: AssignableOption[];
+  assignableMembers: AssignableCounselorOption[];
   isLoading: boolean;
 }) {
   const boundAction = createClassCounselorAssignmentAction.bind(
@@ -272,6 +224,7 @@ function AssignmentRow({
   clubId: number;
   sectionId: number;
 }) {
+  const t = useTranslations("classes.counselorAssignments");
   const updateAction = updateClassCounselorAssignmentAction.bind(
     null,
     clubId,
@@ -319,7 +272,7 @@ function AssignmentRow({
             name="responsibility_type"
             defaultValue={assignment.responsibility_type}
           >
-            <SelectTrigger aria-label="Responsabilidad">
+            <SelectTrigger aria-label={t("responsibilityAriaLabel")}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

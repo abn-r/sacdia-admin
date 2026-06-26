@@ -152,6 +152,7 @@ export function GeographyListClient({
   enableScoringConfiguration = false,
 }: GeographyListClientProps) {
   const t = useTranslations(`catalogs.pages.${i18nNamespace}`);
+  const tShared = useTranslations("catalogs.shared");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -374,7 +375,7 @@ export function GeographyListClient({
                                   size="sm"
                                   className="h-8 px-2.5 text-xs"
                                   asChild
-                                  title="Configurar puntuación"
+                                  title={tShared("configureScoringTitle")}
                                 >
                                   <Link prefetch={false}
                                     href={`${basePath}/${itemId}?tab=scoring-categories`}
@@ -390,7 +391,7 @@ export function GeographyListClient({
                                   size="icon"
                                   className="size-8"
                                   asChild
-                                  title="Editar"
+                                  title={tShared("editActionTitle")}
                                 >
                                   <Link prefetch={false} href={`${basePath}/${itemId}/edit`}>
                                     <Pencil className="size-3.5" />
@@ -404,7 +405,7 @@ export function GeographyListClient({
                                   className="size-8 text-destructive hover:text-destructive"
                                   disabled={!itemId}
                                   onClick={() => setDeleteItem(item)}
-                                  title="Eliminar"
+                                  title={tShared("deleteActionTitle")}
                                 >
                                   <Trash2 className="size-3.5" />
                                 </Button>

@@ -536,6 +536,11 @@
       "fieldMinDurationYears": "Minimum duration (years)",
       "fieldMaxDurationYears": "Maximum duration (years)"
     },
+    "shared": {
+      "editActionTitle": "Edit",
+      "deleteActionTitle": "Delete",
+      "configureScoringTitle": "Configure scoring"
+    },
     "pages": {
       "countries": {
         "title": "Countries",
@@ -891,7 +896,9 @@
         "colStatus": "Status",
         "colActions": "Actions",
         "statusActive": "Active",
-        "statusInactive": "Inactive"
+        "statusInactive": "Inactive",
+        "editActionTitle": "Edit",
+        "deleteActionTitle": "Delete"
       },
       "allergies": {
         "title": "Allergies",
@@ -1262,7 +1269,12 @@
     },
     "a11y": {
       "deleteClub": "Delete club {name}",
-      "actionsMenu": "Actions for {name}"
+      "actionsMenu": "Actions for {name}",
+      "viewDetailTitle": "View detail",
+      "viewClub": "View {name}",
+      "editActionTitle": "Edit",
+      "editClub": "Edit {name}",
+      "deleteActionTitle": "Delete"
     }
   },
   "dashboardHub": {
@@ -2371,6 +2383,11 @@
       "approve_payment": "Could not approve the payment",
       "enroll_club": "Could not enroll the club"
     },
+    "membersTab": {
+      "refreshListTitle": "Refresh list",
+      "previousPageAriaLabel": "Previous page",
+      "nextPageAriaLabel": "Next page"
+    },
     "list": {
       "countSingular": "camporee",
       "countPlural": "camporees",
@@ -3064,6 +3081,7 @@
   },
   "evidence_review": {
     "bulk": {
+      "clearSelectionAriaLabel": "Clear selection",
       "toasts": {
         "verb_approved": "approved",
         "verb_rejected": "rejected",
@@ -4736,6 +4754,11 @@
         "enrolledCardTitle": "Enrolled users",
         "enrollmentsEndpointMissing": "The certifications endpoint does not include the enrolled users list in the detail response. Check directly from each user's profile."
       }
+    },
+    "enrolledUsers": {
+      "emptyTitle": "No enrolled users",
+      "emptyDescription": "No users are enrolled in this certification.",
+      "viewProgressTitle": "View detailed progress"
     }
   },
   "activities": {
@@ -5301,6 +5324,9 @@
       "view_detail": "View detail for {name}",
       "col_duration": "Duration",
       "col_availability": "Availability"
+    },
+    "counselorAssignments": {
+      "responsibilityAriaLabel": "Responsibility"
     },
     "tree": {
       "no_modules": "This class has no registered modules.",
@@ -5882,7 +5908,15 @@
       "batchRejected": "Lote rechazado para corrección",
       "itemApproved": "Fila aprobada correctamente",
       "itemRejected": "Fila rechazada para corrección",
-      "genericError": "No se pudo completar la acción"
+      "genericError": "Could not complete the action"
+    },
+    "filesPanel": {
+      "emptyTitle": "No receipts",
+      "emptyDescription": "This batch has no files available for review."
+    },
+    "auditTimeline": {
+      "emptyTitle": "No audit trail",
+      "emptyDescription": "No events have been recorded for this batch yet."
     }
   },
   "camporeeEvents": {

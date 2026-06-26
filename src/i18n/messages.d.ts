@@ -565,6 +565,11 @@ export interface IntlMessages {
       fieldMinDurationYears: string;
       fieldMaxDurationYears: string;
     };
+    shared: {
+      editActionTitle: string;
+      deleteActionTitle: string;
+      configureScoringTitle: string;
+    };
     pages: {
       countries: {
         title: string;
@@ -921,6 +926,8 @@ export interface IntlMessages {
         colActions: string;
         statusActive: string;
         statusInactive: string;
+        editActionTitle: string;
+        deleteActionTitle: string;
       };
       allergies: {
         title: string;
@@ -1298,6 +1305,11 @@ export interface IntlMessages {
     a11y: {
       deleteClub: string;
       actionsMenu: string;
+      viewDetailTitle: string;
+      viewClub: string;
+      editActionTitle: string;
+      editClub: string;
+      deleteActionTitle: string;
     };
   };
   dashboardHub: {
@@ -2410,6 +2422,11 @@ export interface IntlMessages {
       register_member_failed: string;
       remove_member_failed: string;
     };
+    membersTab: {
+      refreshListTitle: string;
+      previousPageAriaLabel: string;
+      nextPageAriaLabel: string;
+    };
     list: {
       countSingular: string;
       countPlural: string;
@@ -3118,6 +3135,7 @@ export interface IntlMessages {
   };
   evidence_review: {
     bulk: {
+      clearSelectionAriaLabel: string;
       toasts: {
         verb_approved: string;
         verb_rejected: string;
@@ -4801,6 +4819,11 @@ export interface IntlMessages {
         enrollmentsEndpointMissing: string;
       };
     };
+    enrolledUsers: {
+      emptyTitle: string;
+      emptyDescription: string;
+      viewProgressTitle: string;
+    };
   };
   activities: {
     toasts: {
@@ -5365,6 +5388,9 @@ export interface IntlMessages {
       view_detail: string;
       col_duration: string;
       col_availability: string;
+    };
+    counselorAssignments: {
+      responsibilityAriaLabel: string;
     };
     tree: {
       no_modules: string;
@@ -5947,6 +5973,14 @@ export interface IntlMessages {
       itemApproved: string;
       itemRejected: string;
       genericError: string;
+    };
+    filesPanel: {
+      emptyTitle: string;
+      emptyDescription: string;
+    };
+    auditTimeline: {
+      emptyTitle: string;
+      emptyDescription: string;
     };
   };
   camporeeEvents: {

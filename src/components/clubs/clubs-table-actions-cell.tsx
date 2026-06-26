@@ -74,9 +74,9 @@ export function ClubsTableActionsCell({
           size="icon"
           className="size-8"
           asChild
-          title="Ver detalle"
+          title={t("viewDetailTitle")}
         >
-          <Link prefetch={false} href={viewHref} aria-label={`Ver ${club.name}`}>
+          <Link prefetch={false} href={viewHref} aria-label={t("viewClub", { name: club.name })}>
             <Eye className="size-3.5" />
           </Link>
         </Button>
@@ -86,9 +86,9 @@ export function ClubsTableActionsCell({
             size="icon"
             className="size-8"
             asChild
-            title="Editar"
+            title={t("editActionTitle")}
           >
-            <Link prefetch={false} href={editHref} aria-label={`Editar ${club.name}`}>
+            <Link prefetch={false} href={editHref} aria-label={t("editClub", { name: club.name })}>
               <Pencil className="size-3.5" />
             </Link>
           </Button>
@@ -99,7 +99,7 @@ export function ClubsTableActionsCell({
             size="icon"
             className="size-8 text-destructive hover:text-destructive"
             onClick={() => setDeleteItem(club)}
-            title="Eliminar"
+            title={t("deleteActionTitle")}
             aria-label={t("deleteClub", { name: club.name })}
           >
             <Trash2 className="size-3.5" />

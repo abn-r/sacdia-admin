@@ -346,7 +346,7 @@ export function ClubIdealListClient({
                                   size="icon"
                                   className="size-8"
                                   asChild
-                                  title="Editar"
+                                  title={t("editActionTitle")}
                                 >
                                   <Link prefetch={false}
                                     href={`/dashboard/catalogs/club-ideals/${itemId}/edit`}
@@ -362,7 +362,7 @@ export function ClubIdealListClient({
                                   className="size-8 text-destructive hover:text-destructive"
                                   disabled={!itemId}
                                   onClick={() => setDeleteItem(item)}
-                                  title="Eliminar"
+                                  title={t("deleteActionTitle")}
                                 >
                                   <Trash2 className="size-3.5" />
                                 </Button>

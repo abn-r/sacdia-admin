@@ -536,6 +536,11 @@
       "fieldMinDurationYears": "Durée minimale (années)",
       "fieldMaxDurationYears": "Durée maximale (années)"
     },
+    "shared": {
+      "editActionTitle": "Modifier",
+      "deleteActionTitle": "Supprimer",
+      "configureScoringTitle": "Configurer la notation"
+    },
     "pages": {
       "countries": {
         "title": "Pays",
@@ -891,7 +896,9 @@
         "colStatus": "Statut",
         "colActions": "Actions",
         "statusActive": "Actif",
-        "statusInactive": "Inactif"
+        "statusInactive": "Inactif",
+        "editActionTitle": "Modifier",
+        "deleteActionTitle": "Supprimer"
       },
       "allergies": {
         "title": "Allergies",
@@ -1262,7 +1269,12 @@
     },
     "a11y": {
       "deleteClub": "Supprimer le club {name}",
-      "actionsMenu": "Actions pour {name}"
+      "actionsMenu": "Actions pour {name}",
+      "viewDetailTitle": "Voir le détail",
+      "viewClub": "Voir {name}",
+      "editActionTitle": "Modifier",
+      "editClub": "Modifier {name}",
+      "deleteActionTitle": "Supprimer"
     }
   },
   "dashboardHub": {
@@ -2370,6 +2382,11 @@
       "approve_payment": "Impossible d'approuver le paiement",
       "enroll_club": "Impossible d'inscrire le club"
     },
+    "membersTab": {
+      "refreshListTitle": "Actualiser la liste",
+      "previousPageAriaLabel": "Page précédente",
+      "nextPageAriaLabel": "Page suivante"
+    },
     "list": {
       "countSingular": "camporée",
       "countPlural": "camporées",
@@ -3051,6 +3068,7 @@
   },
   "evidence_review": {
     "bulk": {
+      "clearSelectionAriaLabel": "Effacer la sélection",
       "toasts": {
         "verb_approved": "approuvées",
         "verb_rejected": "rejetées",
@@ -4602,6 +4620,11 @@
         "enrolledCardTitle": "Utilisateurs inscrits",
         "enrollmentsEndpointMissing": "Le point de terminaison des certifications n’inclut pas la liste des utilisateurs inscrits dans la réponse de détail. Consultez directement le profil de chaque utilisateur."
       }
+    },
+    "enrolledUsers": {
+      "emptyTitle": "Aucun utilisateur inscrit",
+      "emptyDescription": "Aucun utilisateur n'est inscrit à cette certification.",
+      "viewProgressTitle": "Voir la progression détaillée"
     }
   },
   "activities": {
@@ -5167,6 +5190,9 @@
       "view_detail": "Voir le détail de {name}",
       "col_duration": "Durée",
       "col_availability": "Disponibilité"
+    },
+    "counselorAssignments": {
+      "responsibilityAriaLabel": "Responsabilité"
     },
     "tree": {
       "no_modules": "Cette classe n'a aucun module enregistré.",
@@ -5748,7 +5774,15 @@
       "batchRejected": "Lote rechazado para corrección",
       "itemApproved": "Fila aprobada correctamente",
       "itemRejected": "Fila rechazada para corrección",
-      "genericError": "No se pudo completar la acción"
+      "genericError": "Impossible de terminer l'action"
+    },
+    "filesPanel": {
+      "emptyTitle": "Aucun justificatif",
+      "emptyDescription": "Ce lot n'inclut aucun fichier visible pour révision."
+    },
+    "auditTimeline": {
+      "emptyTitle": "Aucune piste d'audit",
+      "emptyDescription": "Aucun événement n'a encore été enregistré pour ce lot."
     }
   },
   "camporeeEvents": {

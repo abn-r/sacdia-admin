@@ -113,8 +113,8 @@ export function EnrolledUsersPanel({ enrollments, certificationId }: EnrolledUse
     return (
       <EmptyState
         icon={Users}
-        title="Sin usuarios inscritos"
-        description="Ningún usuario está inscrito en esta certificación."
+        title={t("enrolledUsers.emptyTitle")}
+        description={t("enrolledUsers.emptyDescription")}
       />
     );
   }
@@ -191,7 +191,7 @@ export function EnrolledUsersPanel({ enrollments, certificationId }: EnrolledUse
                       size="icon-sm"
                       disabled={isLoading}
                       onClick={() => handleViewProgress(enrollment)}
-                      title="Ver progreso detallado"
+                      title={t("enrolledUsers.viewProgressTitle")}
                     >
                       <BarChart2 className="size-4" />
                       <span className="sr-only">Ver progreso</span>

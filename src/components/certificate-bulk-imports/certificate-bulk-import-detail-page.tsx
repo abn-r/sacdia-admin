@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -56,6 +57,7 @@ function isPdf(file: CertificateBulkImportFile) {
 }
 
 function ProofViewer({ files }: { files: CertificateBulkImportFile[] }) {
+  const t = useTranslations("certificate_bulk_imports.filesPanel");
   const [activeFileId, setActiveFileId] = useState(files[0]?.file_id ?? "");
   const activeFile = files.find((file) => file.file_id === activeFileId) ?? files[0];
 
@@ -65,8 +67,8 @@ function ProofViewer({ files }: { files: CertificateBulkImportFile[] }) {
         <CardContent className="flex flex-1 items-center justify-center">
           <EmptyState
             icon={FileText}
-            title="Sin comprobantes"
-            description="El lote no incluye archivos visibles para revisión."
+            title={t("emptyTitle")}
+            description={t("emptyDescription")}
           />
         </CardContent>
       </Card>
@@ -179,13 +181,14 @@ function ItemRow({
 }
 
 function AuditTimeline({ batch }: { batch: CertificateBulkImportBatch }) {
+  const t = useTranslations("certificate_bulk_imports.auditTimeline");
   const events = batch.events ?? [];
   if (events.length === 0) {
     return (
       <EmptyState
         icon={FileText}
-        title="Sin auditoría"
-        description="Todavía no hay eventos registrados para este lote."
+        title={t("emptyTitle")}
+        description={t("emptyDescription")}
         variant="no-results"
       />
     );

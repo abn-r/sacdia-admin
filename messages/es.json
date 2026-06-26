@@ -536,6 +536,11 @@
       "fieldMinDurationYears": "Duración mínima (años)",
       "fieldMaxDurationYears": "Duración máxima (años)"
     },
+    "shared": {
+      "editActionTitle": "Editar",
+      "deleteActionTitle": "Eliminar",
+      "configureScoringTitle": "Configurar puntuación"
+    },
     "pages": {
       "countries": {
         "title": "Países",
@@ -891,7 +896,9 @@
         "colStatus": "Estado",
         "colActions": "Acciones",
         "statusActive": "Activo",
-        "statusInactive": "Inactivo"
+        "statusInactive": "Inactivo",
+        "editActionTitle": "Editar",
+        "deleteActionTitle": "Eliminar"
       },
       "allergies": {
         "title": "Alergias",
@@ -1268,7 +1275,12 @@
     },
     "a11y": {
       "deleteClub": "Eliminar club {name}",
-      "actionsMenu": "Acciones para {name}"
+      "actionsMenu": "Acciones para {name}",
+      "viewDetailTitle": "Ver detalle",
+      "viewClub": "Ver {name}",
+      "editActionTitle": "Editar",
+      "editClub": "Editar {name}",
+      "deleteActionTitle": "Eliminar"
     }
   },
   "dashboardHub": {
@@ -2381,6 +2393,11 @@
       "register_member_failed": "No se pudo registrar al miembro",
       "remove_member_failed": "No se pudo eliminar al miembro"
     },
+    "membersTab": {
+      "refreshListTitle": "Actualizar lista",
+      "previousPageAriaLabel": "Página anterior",
+      "nextPageAriaLabel": "Página siguiente"
+    },
     "list": {
       "countSingular": "camporee",
       "countPlural": "camporees",
@@ -3089,6 +3106,7 @@
   },
   "evidence_review": {
     "bulk": {
+      "clearSelectionAriaLabel": "Limpiar selección",
       "toasts": {
         "verb_approved": "aprobados",
         "verb_rejected": "rechazados",
@@ -4771,6 +4789,11 @@
         "enrolledCardTitle": "Usuarios inscritos",
         "enrollmentsEndpointMissing": "El endpoint de certificaciones no incluye la lista de usuarios inscritos en la respuesta de detalle. Consulta directamente desde el perfil de cada usuario."
       }
+    },
+    "enrolledUsers": {
+      "emptyTitle": "Sin usuarios inscritos",
+      "emptyDescription": "Ningún usuario está inscrito en esta certificación.",
+      "viewProgressTitle": "Ver progreso detallado"
     }
   },
   "activities": {
@@ -5336,6 +5359,9 @@
       "view_detail": "Ver detalle de {name}",
       "col_duration": "Duración",
       "col_availability": "Disponibilidad"
+    },
+    "counselorAssignments": {
+      "responsibilityAriaLabel": "Responsabilidad"
     },
     "tree": {
       "no_modules": "Esta clase no tiene módulos registrados.",
@@ -5918,6 +5944,14 @@
       "itemApproved": "Fila aprobada correctamente",
       "itemRejected": "Fila rechazada para corrección",
       "genericError": "No se pudo completar la acción"
+    },
+    "filesPanel": {
+      "emptyTitle": "Sin comprobantes",
+      "emptyDescription": "El lote no incluye archivos visibles para revisión."
+    },
+    "auditTimeline": {
+      "emptyTitle": "Sin auditoría",
+      "emptyDescription": "Todavía no hay eventos registrados para este lote."
     }
   },
   "camporeeEvents": {
