@@ -48,7 +48,6 @@ import {
   updateRequirement,
   type RequirementNode,
 } from "@/lib/api/honors";
-import { useTranslations } from "next-intl";
 import { RequirementEditDialog } from "@/components/honors/requirement-edit-dialog";
 
 // ─── Types ────────────────────────────────────────────────────────────────────

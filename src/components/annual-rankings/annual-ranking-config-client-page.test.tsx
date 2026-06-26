@@ -1,6 +1,8 @@
 import React from "react";
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { NextIntlClientProvider } from "next-intl";
+import messages from "../../../messages/es.json";
 import { AnnualRankingConfigClientPage } from "./annual-ranking-config-client-page";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
@@ -8,9 +10,11 @@ import type { LocalField, Union } from "@/lib/api/geography";
 
 function renderPage(props: React.ComponentProps<typeof AnnualRankingConfigClientPage>) {
   return render(
-    <TooltipProvider>
-      <AnnualRankingConfigClientPage {...props} />
-    </TooltipProvider>,
+    <NextIntlClientProvider locale="es" messages={messages}>
+      <TooltipProvider>
+        <AnnualRankingConfigClientPage {...props} />
+      </TooltipProvider>
+    </NextIntlClientProvider>,
   );
 }
 

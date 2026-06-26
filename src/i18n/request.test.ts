@@ -24,13 +24,13 @@ describe("i18n request config", () => {
   it("falls back to Spanish for missing locale keys", async () => {
     selectedLocale.value = "fr";
 
-    const result = await requestConfig();
+    const result = await requestConfig({ requestLocale: Promise.resolve("fr") });
 
     expect(result.locale).toBe("fr");
-    expect(result.messages.dashboardHub.roleChart.noRoleChip).toBe(
+    expect(result.messages!.dashboardHub!.roleChart!.noRoleChip).toBe(
       esMessages.dashboardHub.roleChart.noRoleChip,
     );
-    expect(result.messages.users.pages.new.title).toBe(
+    expect(result.messages!.users!.pages!.new!.title).toBe(
       esMessages.users.pages.new.title,
     );
   });
@@ -38,7 +38,7 @@ describe("i18n request config", () => {
   it("keeps the Spanish catalog unchanged for the base locale", async () => {
     selectedLocale.value = "es";
 
-    const result = await requestConfig();
+    const result = await requestConfig({ requestLocale: Promise.resolve("es") });
 
     expect(result.locale).toBe("es");
     expect(result.messages).toEqual(esMessages);

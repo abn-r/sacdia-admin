@@ -54,7 +54,9 @@ describe("getReportPdfUrl", () => {
     expect(blob.size).toBe(3);
     expect(blob.type).toBe("application/pdf");
 
-    expect(fetchMock).toHaveBeenNthCalledWith(1, "/api/auth/token");
+    expect(fetchMock).toHaveBeenNthCalledWith(1, "/api/auth/token", {
+      credentials: "include",
+    });
     expect(fetchMock).toHaveBeenNthCalledWith(
       2,
       "http://localhost:3000/api/v1/monthly-reports/46bebcb7-3f0a-49c7-930a-a25efc9bde89/pdf",

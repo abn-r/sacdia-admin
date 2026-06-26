@@ -1804,6 +1804,18 @@
         "batchError": "Error en la operación masiva.",
         "loadError": "No se pudieron cargar los requisitos pendientes."
       }
+    },
+    "components": {
+      "requirementEdit": {
+        "referencePlaceholder": "Ej: Libro de Especialidades, págs. 45-50"
+      },
+      "requirementsTree": {
+        "needsReviewAriaLabel": "Pendiente de revisión"
+      },
+      "reviewSplitView": {
+        "openMaterialAriaLabel": "Abrir material en nueva pestaña",
+        "referencePlaceholder": "Ej: Libro de Especialidades, págs. 45-50"
+      }
     }
   },
   "honor_categories": {
@@ -1916,6 +1928,10 @@
       "create": "Crear",
       "saveChanges": "Guardar cambios",
       "delete": "Eliminar"
+    },
+    "rolesTable": {
+      "editProtectedAriaLabel": "Editar rol protegido",
+      "editRoleAriaLabel": "Editar {name}"
     },
     "permissionPicker": {
       "searchPlaceholder": "Buscar permisos...",
@@ -4896,6 +4912,12 @@
       "empty_no_clubs_title": "No hay clubes disponibles",
       "empty_no_clubs_description": "No se encontraron clubes activos. Crea un club primero para gestionar sus finanzas.",
       "error_unexpected": "Error inesperado al cargar los clubes."
+    },
+    "clubSelector": {
+      "label": "Club",
+      "selectPlaceholder": "Seleccioná un club",
+      "emptyTitle": "Seleccioná un club",
+      "emptyDescription": "Elegí un club del selector para ver y gestionar sus movimientos financieros."
     }
   },
   "certifications": {
