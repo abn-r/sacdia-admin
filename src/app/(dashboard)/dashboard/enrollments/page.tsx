@@ -15,7 +15,9 @@ import { requireAdminUser } from "@/lib/auth/session";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
-function parseSearchParams(raw: Record<string, string | string[] | undefined>): EnrollmentsQuery {
+function parseSearchParams(
+  raw: Record<string, string | string[] | undefined>,
+): EnrollmentsQuery {
   const getString = (key: string) => {
     const v = raw[key];
     return typeof v === "string" && v.trim().length > 0 ? v.trim() : undefined;
@@ -86,7 +88,9 @@ async function EnrollmentsContent({
     return (
       <div className="space-y-4">
         <EndpointErrorBanner
-          state={result.endpointState as "forbidden" | "missing" | "rate-limited"}
+          state={
+            result.endpointState as "forbidden" | "missing" | "rate-limited"
+          }
           detail={result.endpointDetail}
           showLoginLink={result.endpointState === "forbidden"}
         />
@@ -112,8 +116,12 @@ async function EnrollmentsContent({
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        <span className="font-medium text-foreground">{result.items.length}</span>{" "}
-        {result.items.length === 1 ? messages.countSingular : messages.countPlural}
+        <span className="font-medium text-foreground">
+          {result.items.length}
+        </span>{" "}
+        {result.items.length === 1
+          ? messages.countSingular
+          : messages.countPlural}
       </p>
 
       <EnrollmentsTable enrollments={result.items} />
@@ -164,10 +172,7 @@ export default async function EnrollmentsPage({
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={t("page.title")}
-        description={t("page.description")}
-      />
+      <PageHeader title={t("page.title")} description={t("page.description")} />
 
       <Suspense fallback={<EnrollmentsListSkeleton />}>
         <div className="space-y-4">
