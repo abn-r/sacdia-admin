@@ -85,6 +85,8 @@ export type Camporee = {
   includes_pathfinders?: boolean;
   includes_master_guides?: boolean;
   local_camporee_place?: string;
+  lat?: number | null;
+  long?: number | null;
   registration_cost?: number;
   active?: boolean;
   local_field?: {
@@ -104,6 +106,8 @@ export type CamporeePayload = {
   includes_pathfinders: boolean;
   includes_master_guides: boolean;
   local_camporee_place: string;
+  lat?: number;
+  long?: number;
   registration_cost?: number;
   active?: boolean;
 };
@@ -288,7 +292,10 @@ export type UnionCamporee = {
   includes_adventurers?: boolean;
   includes_pathfinders?: boolean;
   includes_master_guides?: boolean;
+  union_camporee_place?: string | null;
   place?: string | null;
+  lat?: number | null;
+  long?: number | null;
   registration_cost?: number | null;
   active?: boolean;
 };
@@ -302,7 +309,9 @@ export type UnionCamporeePayload = {
   includes_adventurers: boolean;
   includes_pathfinders: boolean;
   includes_master_guides: boolean;
-  place: string;
+  union_camporee_place: string;
+  lat?: number;
+  long?: number;
   registration_cost?: number;
   active?: boolean;
 };

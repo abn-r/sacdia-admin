@@ -40,6 +40,11 @@ import type { Union } from "@/lib/api/geography";
 
 // ─── Schema factory ────────────────────────────────────────────────────────────
 
+const optionalNumber = z.preprocess(
+  (value) => (value === "" || value == null ? undefined : Number(value)),
+  z.number().optional(),
+);
+
 function buildSchema(t: ReturnType<typeof useTranslations<"camporees.validation">>) {
   return z
     .object({
@@ -48,7 +53,15 @@ function buildSchema(t: ReturnType<typeof useTranslations<"camporees.validation"
       start_date: z.string().min(1, t("start_date_required")),
       end_date: z.string().min(1, t("end_date_required")),
       union_id: z.coerce.number().int().min(1, t("union_required")),
-      place: z.string().min(1, t("place_required")),
+      union_camporee_place: z.string().min(1, t("place_required")),
+      lat: optionalNumber.refine(
+        (value) => value == null || (value >= -90 && value <= 90),
+        t("coordinates_invalid"),
+      ),
+      long: optionalNumber.refine(
+        (value) => value == null || (value >= -180 && value <= 180),
+        t("coordinates_invalid"),
+      ),
       registration_cost: z.coerce.number().min(0).optional(),
       includes_adventurers: z.boolean(),
       includes_pathfinders: z.boolean(),
@@ -57,6 +70,10 @@ function buildSchema(t: ReturnType<typeof useTranslations<"camporees.validation"
     .refine((data) => data.start_date <= data.end_date, {
       message: t("end_date_after_start"),
       path: ["end_date"],
+    })
+    .refine((data) => (data.lat == null) === (data.long == null), {
+      message: t("coordinates_pair_required"),
+      path: ["long"],
     });
 }
 
@@ -102,7 +119,9 @@ export function UnionCamporeeFormDialog({
       start_date: "",
       end_date: "",
       union_id: 0,
-      place: "",
+      union_camporee_place: "",
+      lat: undefined,
+      long: undefined,
       registration_cost: undefined,
       includes_adventurers: false,
       includes_pathfinders: true,
@@ -119,7 +138,10 @@ export function UnionCamporeeFormDialog({
           start_date: toDateInput(camporee.start_date),
           end_date: toDateInput(camporee.end_date),
           union_id: camporee.union_id ?? 0,
-          place: camporee.place ?? "",
+          union_camporee_place:
+            camporee.union_camporee_place ?? camporee.place ?? "",
+          lat: camporee.lat ?? undefined,
+          long: camporee.long ?? undefined,
           registration_cost: camporee.registration_cost ?? undefined,
           includes_adventurers: camporee.includes_adventurers ?? false,
           includes_pathfinders: camporee.includes_pathfinders ?? true,
@@ -132,7 +154,9 @@ export function UnionCamporeeFormDialog({
           start_date: "",
           end_date: "",
           union_id: 0,
-          place: "",
+          union_camporee_place: "",
+          lat: undefined,
+          long: undefined,
           registration_cost: undefined,
           includes_adventurers: false,
           includes_pathfinders: true,
@@ -151,7 +175,9 @@ export function UnionCamporeeFormDialog({
         start_date: values.start_date,
         end_date: values.end_date,
         union_id: values.union_id,
-        place: values.place,
+        union_camporee_place: values.union_camporee_place,
+        lat: values.lat,
+        long: values.long,
         registration_cost: values.registration_cost,
         includes_adventurers: values.includes_adventurers,
         includes_pathfinders: values.includes_pathfinders,
@@ -302,7 +328,7 @@ export function UnionCamporeeFormDialog({
             {/* Lugar */}
             <FormField
               control={form.control}
-              name="place"
+              name="union_camporee_place"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
@@ -319,6 +345,58 @@ export function UnionCamporeeFormDialog({
                 </FormItem>
               )}
             />
+
+            {/* Coordenadas */}
+            <div className="grid grid-cols-2 gap-3">
+              <FormField
+                control={form.control}
+                name="lat"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("unionForm.labelLatitude")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        name={field.name}
+                        ref={field.ref}
+                        onBlur={field.onBlur}
+                        value={field.value ?? ""}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        type="number"
+                        step="0.000001"
+                        min={-90}
+                        max={90}
+                        placeholder="19.173800"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="long"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("unionForm.labelLongitude")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        name={field.name}
+                        ref={field.ref}
+                        onBlur={field.onBlur}
+                        value={field.value ?? ""}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        type="number"
+                        step="0.000001"
+                        min={-180}
+                        max={180}
+                        placeholder="-96.134200"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             {/* Costo de inscripción */}
             <FormField
