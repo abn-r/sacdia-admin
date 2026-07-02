@@ -2,6 +2,8 @@ import { apiRequest } from "@/lib/api/client";
 
 // ─── Domain Types ─────────────────────────────────────────────────────────────
 
+export type ClassRequirementTrack = "BASIC" | "ADVANCED" | "EXTRA";
+
 export type ProgressiveClass = {
   class_id: number;
   name: string;
@@ -15,6 +17,7 @@ export type ProgressiveClass = {
   max_points?: number | null;
   minimum_points?: number | null;
   active: boolean;
+  advanced_enabled?: boolean;
 };
 
 /**
@@ -36,6 +39,13 @@ export type ClassSection = {
   description?: string | null;
   display_order?: number | null;
   active?: boolean;
+  requirement_track?: ClassRequirementTrack;
+  required_for_investiture?: boolean;
+  owner_division_id?: number | null;
+  owner_union_id?: number | null;
+  owner_local_field_id?: number | null;
+  available_from_year_id?: number | null;
+  available_until_year_id?: number | null;
   requirements?: ClassRequirement[];
 };
 

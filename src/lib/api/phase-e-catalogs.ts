@@ -62,10 +62,29 @@ export type ClassAvailabilityDurationPayload = {
   max_duration_years?: number;
 };
 
+export type ClassRequirementTrack = "BASIC" | "ADVANCED" | "EXTRA";
+
 export type NameOnlyPayload = {
   name: string;
   active?: boolean;
   translations?: CatalogTranslation[];
+};
+
+export type AdminClassPayload = TranslatablePayload &
+  ClassAvailabilityDurationPayload & {
+    advanced_enabled?: boolean;
+  };
+
+export type AdminClassSectionPayload = TranslatablePayload & {
+  module_id?: number;
+  requirement_track?: ClassRequirementTrack;
+  required_for_investiture?: boolean;
+  display_order?: number | null;
+  owner_division_id?: number | null;
+  owner_union_id?: number | null;
+  owner_local_field_id?: number | null;
+  available_from_year_id?: number | null;
+  available_until_year_id?: number | null;
 };
 
 // ─── Classes ──────────────────────────────────────────────────────────────────
@@ -80,6 +99,7 @@ export type AdminClass = {
   available_until_year_id?: number | null;
   min_duration_years?: number;
   max_duration_years?: number;
+  advanced_enabled?: boolean;
   active?: boolean;
   translations?: CatalogTranslation[];
 };
@@ -88,11 +108,11 @@ export async function listAdminClasses(params?: Record<string, string | number |
   return apiRequest<unknown>("/admin/classes", { params });
 }
 
-export async function createAdminClass(payload: TranslatablePayload & ClassAvailabilityDurationPayload) {
+export async function createAdminClass(payload: AdminClassPayload) {
   return apiRequest("/admin/classes", { method: "POST", body: payload });
 }
 
-export async function updateAdminClass(id: number, payload: Partial<TranslatablePayload & ClassAvailabilityDurationPayload>) {
+export async function updateAdminClass(id: number, payload: Partial<AdminClassPayload>) {
   return apiRequest(`/admin/classes/${id}`, { method: "PATCH", body: payload });
 }
 
@@ -135,7 +155,14 @@ export type AdminClassSection = {
   module_id: number;
   name: string;
   description?: string | null;
+  requirement_track?: ClassRequirementTrack;
+  required_for_investiture?: boolean;
   display_order?: number | null;
+  owner_division_id?: number | null;
+  owner_union_id?: number | null;
+  owner_local_field_id?: number | null;
+  available_from_year_id?: number | null;
+  available_until_year_id?: number | null;
   active?: boolean;
   translations?: CatalogTranslation[];
 };
@@ -144,11 +171,11 @@ export async function listAdminClassSections(params?: Record<string, string | nu
   return apiRequest<unknown>("/admin/class-sections", { params });
 }
 
-export async function createAdminClassSection(payload: TranslatablePayload & { module_id?: number }) {
+export async function createAdminClassSection(payload: AdminClassSectionPayload) {
   return apiRequest("/admin/class-sections", { method: "POST", body: payload });
 }
 
-export async function updateAdminClassSection(id: number, payload: Partial<TranslatablePayload>) {
+export async function updateAdminClassSection(id: number, payload: Partial<AdminClassSectionPayload>) {
   return apiRequest(`/admin/class-sections/${id}`, { method: "PATCH", body: payload });
 }
 

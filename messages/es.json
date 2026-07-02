@@ -534,7 +534,34 @@
       "fieldAvailableUntilYear": "Disponible hasta",
       "fieldAvailableUntilNone": "Sin expiración programada",
       "fieldMinDurationYears": "Duración mínima (años)",
-      "fieldMaxDurationYears": "Duración máxima (años)"
+      "fieldMaxDurationYears": "Duración máxima (años)",
+      "colAdvanced": "Avanzado",
+      "colRequirementTrack": "Track",
+      "colOwnerScope": "Alcance",
+      "yes": "Sí",
+      "no": "No",
+      "selectOptionAny": "Sin selección",
+      "requirementTrackBasic": "Básico",
+      "requirementTrackAdvanced": "Avanzado",
+      "requirementTrackExtra": "Extra",
+      "classAvailabilityAdvancedTitle": "Vía avanzada",
+      "classAvailabilityAdvancedDescription": "Habilita requisitos avanzados opcionales para obtener la insignia avanzada.",
+      "fieldAdvancedEnabled": "Clase con avanzado habilitado",
+      "classSectionConfigTitle": "Configuración de requisito",
+      "classSectionConfigDescription": "Define si la sección es básica, avanzada o extra institucional.",
+      "fieldRequirementTrack": "Track de requisito",
+      "fieldDisplayOrder": "Orden de despliegue",
+      "fieldDisplayOrderPlaceholder": "0",
+      "fieldOwnerDivisionId": "División propietaria",
+      "fieldOwnerDivisionIdPlaceholder": "ID de división",
+      "fieldOwnerUnionId": "Unión propietaria",
+      "fieldOwnerUnionIdPlaceholder": "ID de unión",
+      "fieldOwnerLocalFieldId": "Campo local/asociación propietaria",
+      "fieldOwnerLocalFieldIdPlaceholder": "ID de campo local",
+      "fieldRequiredForInvestiture": "Requerido para investidura",
+      "ownerDivisionShort": "División #{id}",
+      "ownerUnionShort": "Unión #{id}",
+      "ownerLocalFieldShort": "Campo #{id}"
     },
     "shared": {
       "editActionTitle": "Editar",
@@ -5871,7 +5898,6 @@
       "countPlural": "inscripciones anuales pendientes"
     }
   },
-
   "rankings": {
     "breakdown": {
       "compositeScore": "Puntaje compuesto institucional",

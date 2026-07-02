@@ -101,6 +101,7 @@ export default async function AdminClassesPage({ searchParams }: { searchParams:
         updateAction={updateClassAction}
         deleteAction={deleteClassAction}
         classConfigYearOptions={ecclesiasticalYears}
+        catalogEntityMode="classes"
       />
     </div>
   );

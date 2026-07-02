@@ -534,7 +534,34 @@
       "fieldAvailableUntilYear": "Available until",
       "fieldAvailableUntilNone": "No programmed expiration",
       "fieldMinDurationYears": "Minimum duration (years)",
-      "fieldMaxDurationYears": "Maximum duration (years)"
+      "fieldMaxDurationYears": "Maximum duration (years)",
+      "colAdvanced": "Advanced",
+      "colRequirementTrack": "Track",
+      "colOwnerScope": "Scope",
+      "yes": "Yes",
+      "no": "No",
+      "selectOptionAny": "No selection",
+      "requirementTrackBasic": "Basic",
+      "requirementTrackAdvanced": "Advanced",
+      "requirementTrackExtra": "Extra",
+      "classAvailabilityAdvancedTitle": "Advanced path",
+      "classAvailabilityAdvancedDescription": "Enables optional advanced requirements for the advanced badge.",
+      "fieldAdvancedEnabled": "Class has advanced enabled",
+      "classSectionConfigTitle": "Requirement configuration",
+      "classSectionConfigDescription": "Defines whether the section is basic, advanced, or institutional extra.",
+      "fieldRequirementTrack": "Requirement track",
+      "fieldDisplayOrder": "Display order",
+      "fieldDisplayOrderPlaceholder": "0",
+      "fieldOwnerDivisionId": "Owner division",
+      "fieldOwnerDivisionIdPlaceholder": "Division ID",
+      "fieldOwnerUnionId": "Owner union",
+      "fieldOwnerUnionIdPlaceholder": "Union ID",
+      "fieldOwnerLocalFieldId": "Owner local field/association",
+      "fieldOwnerLocalFieldIdPlaceholder": "Local field ID",
+      "fieldRequiredForInvestiture": "Required for investiture",
+      "ownerDivisionShort": "Division #{id}",
+      "ownerUnionShort": "Union #{id}",
+      "ownerLocalFieldShort": "Field #{id}"
     },
     "shared": {
       "editActionTitle": "Edit",
@@ -5836,7 +5863,6 @@
       "countPlural": "annual enrollments pending"
     }
   },
-
   "rankings": {
     "breakdown": {
       "compositeScore": "Institutional composite score",

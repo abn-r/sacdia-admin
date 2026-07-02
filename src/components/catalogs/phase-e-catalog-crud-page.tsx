@@ -77,6 +77,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import type { PhaseEActionState } from "@/lib/phase-e-catalogs/actions";
 import {
+  formatClassAvailabilityFrom,
   formatClassAvailabilityUntil,
   formatClassDurationRange,
   type ClassDisplayLabels,
@@ -101,6 +102,8 @@ import type {
 
 type AnyRecord = Record<string, unknown>;
 type FormAction = (prev: PhaseEActionState, data: FormData) => Promise<PhaseEActionState>;
+
+type CatalogEntityMode = "default" | "classes" | "class-sections";
 
 type MasterHonorsCrudExtras = {
   honors: MasterHonorAuxHonor[];
@@ -158,6 +161,7 @@ export interface PhaseECatalogCrudPageProps {
   deleteAction: FormAction;
   /** Enables class-specific availability/duration fields and columns. */
   classConfigYearOptions?: ClassConfigYearOption[];
+  catalogEntityMode?: CatalogEntityMode;
   /** Optional master-honors extras to render rule controls and recalc action. */
   masterHonorsConfig?: MasterHonorsCrudExtras;
 }
@@ -197,6 +201,7 @@ interface FormFieldsProps {
   includeDescription: boolean;
   activeChecked: boolean;
   onActiveChange: (v: boolean) => void;
+  entityMode: CatalogEntityMode;
   translations: CatalogTranslation[];
   onTranslationsChange: (t: CatalogTranslation[]) => void;
   entityLabel: string;
@@ -204,6 +209,10 @@ interface FormFieldsProps {
   masterHonorsConfig?: MasterHonorsCrudExtras;
   masterHonorsPayload?: MasterHonorPayload;
   onMasterHonorsPayloadChange?: (value: MasterHonorPayload) => void;
+  advancedEnabledChecked?: boolean;
+  onAdvancedEnabledChange?: (v: boolean) => void;
+  requiredForInvestitureChecked?: boolean;
+  onRequiredForInvestitureChange?: (v: boolean) => void;
 }
 
 function CatalogFormFields({
@@ -212,6 +221,7 @@ function CatalogFormFields({
   includeDescription,
   activeChecked,
   onActiveChange,
+  entityMode,
   translations,
   onTranslationsChange,
   entityLabel,
@@ -219,22 +229,38 @@ function CatalogFormFields({
   masterHonorsConfig,
   masterHonorsPayload,
   onMasterHonorsPayloadChange,
+  advancedEnabledChecked,
+  onAdvancedEnabledChange,
+  requiredForInvestitureChecked,
+  onRequiredForInvestitureChange,
 }: FormFieldsProps) {
   const t = useTranslations("catalogs.phaseE");
   const nameVal = typeof item?.name === "string" ? item.name : "";
   const descVal = typeof item?.description === "string" ? item.description : "";
-  const showClassConfig = Array.isArray(classConfigYearOptions);
+  const isClassesMode = entityMode === "classes";
+  const isClassSectionsMode = entityMode === "class-sections";
+  const showClassConfig = isClassesMode && Array.isArray(classConfigYearOptions);
   const availableFromVal = toPositiveInt(item?.available_from_year_id);
   const availableUntilVal = toPositiveInt(item?.available_until_year_id);
   const minDurationVal = toPositiveInt(item?.min_duration_years) ?? 1;
   const maxDurationVal = toPositiveInt(item?.max_duration_years) ?? 1;
+  const displayOrderVal = toNonNegativeInt(item?.display_order);
+  const requirementTrackVal = toText(item?.requirement_track) === "BASIC"
+    ? "BASIC"
+    : toText(item?.requirement_track) === "ADVANCED"
+      ? "ADVANCED"
+      : toText(item?.requirement_track) === "EXTRA"
+        ? "EXTRA"
+        : "";
+  const ownerDivisionVal = toPositiveInt(item?.owner_division_id);
+  const ownerUnionVal = toPositiveInt(item?.owner_union_id);
+  const ownerLocalFieldVal = toPositiveInt(item?.owner_local_field_id);
   const yearOptions = [...(classConfigYearOptions ?? [])];
   for (const yearId of [availableFromVal, availableUntilVal]) {
     if (yearId && !yearOptions.some((year) => year.ecclesiastical_year_id === yearId)) {
       yearOptions.push({ ecclesiastical_year_id: yearId, name: `Año #${yearId}` });
     }
   }
-
   const esContent = (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -343,6 +369,162 @@ function CatalogFormFields({
                 required
               />
             </div>
+          </div>
+        </div>
+      )}
+
+      {isClassesMode && (
+        <div className="rounded-lg border bg-muted/20 p-4">
+          <div className="mb-4">
+            <h4 className="text-sm font-semibold">{t("classAvailabilityAdvancedTitle")}</h4>
+            <p className="text-xs text-muted-foreground">{t("classAvailabilityAdvancedDescription")}</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="hidden"
+              name="advanced_enabled"
+              value={advancedEnabledChecked ? "on" : ""}
+            />
+            <Checkbox
+              id={`${idPrefix}-advanced-enabled`}
+              checked={advancedEnabledChecked ?? false}
+              onCheckedChange={(checked) => onAdvancedEnabledChange?.(!!checked)}
+            />
+            <Label htmlFor={`${idPrefix}-advanced-enabled`}>
+              {t("fieldAdvancedEnabled")}
+            </Label>
+          </div>
+        </div>
+      )}
+
+      {isClassSectionsMode && (
+        <div className="rounded-lg border bg-muted/20 p-4">
+          <div className="mb-4">
+            <h4 className="text-sm font-semibold">{t("classSectionConfigTitle")}</h4>
+            <p className="text-xs text-muted-foreground">{t("classSectionConfigDescription")}</p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor={`${idPrefix}-requirement-track`}>{t("fieldRequirementTrack")}</Label>
+              <select
+                id={`${idPrefix}-requirement-track`}
+                name="requirement_track"
+                defaultValue={requirementTrackVal}
+                className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <option value="">{t("selectOptionAny")}</option>
+                <option value="BASIC">{t("requirementTrackBasic")}</option>
+                <option value="ADVANCED">{t("requirementTrackAdvanced")}</option>
+                <option value="EXTRA">{t("requirementTrackExtra")}</option>
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor={`${idPrefix}-display-order`}>{t("fieldDisplayOrder")}</Label>
+              <Input
+                id={`${idPrefix}-display-order`}
+                name="display_order"
+                type="number"
+                min={0}
+                step={1}
+                defaultValue={displayOrderVal ?? ""}
+                placeholder={t("fieldDisplayOrderPlaceholder")}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor={`${idPrefix}-owner-division`}>{t("fieldOwnerDivisionId")}</Label>
+              <Input
+                id={`${idPrefix}-owner-division`}
+                name="owner_division_id"
+                type="number"
+                min={1}
+                step={1}
+                defaultValue={ownerDivisionVal ?? ""}
+                placeholder={t("fieldOwnerDivisionIdPlaceholder")}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor={`${idPrefix}-owner-union`}>{t("fieldOwnerUnionId")}</Label>
+              <Input
+                id={`${idPrefix}-owner-union`}
+                name="owner_union_id"
+                type="number"
+                min={1}
+                step={1}
+                defaultValue={ownerUnionVal ?? ""}
+                placeholder={t("fieldOwnerUnionIdPlaceholder")}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor={`${idPrefix}-owner-local-field`}>{t("fieldOwnerLocalFieldId")}</Label>
+              <Input
+                id={`${idPrefix}-owner-local-field`}
+                name="owner_local_field_id"
+                type="number"
+                min={1}
+                step={1}
+                defaultValue={ownerLocalFieldVal ?? ""}
+                placeholder={t("fieldOwnerLocalFieldIdPlaceholder")}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor={`${idPrefix}-available-from`}>{t("fieldAvailableFromYear")}</Label>
+              <select
+                id={`${idPrefix}-available-from`}
+                name="available_from_year_id"
+                defaultValue={availableFromVal ? String(availableFromVal) : ""}
+                className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <option value="">{t("fieldAvailableFromAny")}</option>
+                {yearOptions.map((year) => (
+                  <option
+                    key={`from-${year.ecclesiastical_year_id}`}
+                    value={String(year.ecclesiastical_year_id)}
+                  >
+                    {year.name || `Año #${year.ecclesiastical_year_id}`}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor={`${idPrefix}-available-until`}>{t("fieldAvailableUntilYear")}</Label>
+              <select
+                id={`${idPrefix}-available-until`}
+                name="available_until_year_id"
+                defaultValue={availableUntilVal ? String(availableUntilVal) : ""}
+                className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <option value="">{t("fieldAvailableUntilNone")}</option>
+                {yearOptions.map((year) => (
+                  <option
+                    key={`until-${year.ecclesiastical_year_id}`}
+                    value={String(year.ecclesiastical_year_id)}
+                  >
+                    {year.name || `Año #${year.ecclesiastical_year_id}`}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div className="mt-4 flex items-center gap-2">
+            <input
+              type="hidden"
+              name="required_for_investiture"
+              value={requiredForInvestitureChecked ? "on" : ""}
+            />
+            <Checkbox
+              id={`${idPrefix}-required-for-investiture`}
+              checked={requiredForInvestitureChecked ?? false}
+              onCheckedChange={(checked) => onRequiredForInvestitureChange?.(!!checked)}
+            />
+            <Label htmlFor={`${idPrefix}-required-for-investiture`}>
+              {t("fieldRequiredForInvestiture")}
+            </Label>
           </div>
         </div>
       )}
@@ -611,6 +793,7 @@ export function PhaseECatalogCrudPage({
   updateAction,
   deleteAction,
   classConfigYearOptions,
+  catalogEntityMode = "default",
   masterHonorsConfig,
 }: PhaseECatalogCrudPageProps) {
   const router = useRouter();
@@ -626,6 +809,11 @@ export function PhaseECatalogCrudPage({
 
   const [createActiveChecked, setCreateActiveChecked] = useState(true);
   const [editActiveChecked, setEditActiveChecked] = useState(true);
+  const [createAdvancedEnabledChecked, setCreateAdvancedEnabledChecked] = useState(false);
+  const [editAdvancedEnabledChecked, setEditAdvancedEnabledChecked] = useState(false);
+  const [createRequiredForInvestitureChecked, setCreateRequiredForInvestitureChecked] =
+    useState(true);
+  const [editRequiredForInvestitureChecked, setEditRequiredForInvestitureChecked] = useState(true);
   const [createTranslations, setCreateTranslations] = useState<CatalogTranslation[]>([]);
   const [editTranslations, setEditTranslations] = useState<CatalogTranslation[]>([]);
   const [createMasterHonorsPayload, setCreateMasterHonorsPayload] = useState<MasterHonorPayload>(EMPTY_MASTER_HONOR_PAYLOAD);
@@ -725,6 +913,8 @@ export function PhaseECatalogCrudPage({
   const t = useTranslations("catalogs.phaseE");
   const displayT = useTranslations("classes.display");
   const masterHonorsT = useTranslations("catalogs.masterHonors");
+  const isClassesMode = catalogEntityMode === "classes";
+  const isClassSectionsMode = catalogEntityMode === "class-sections";
   const displayLabels: ClassDisplayLabels = {
     yearSingular: displayT("yearSingular"),
     yearPlural: displayT("yearPlural"),
@@ -738,7 +928,9 @@ export function PhaseECatalogCrudPage({
   const canMutate = canCreate || canEdit || canDelete;
   const isMasterHonorsCrud = Boolean(masterHonorsConfig);
   const hasRecalculateAction = isMasterHonorsCrud && Boolean(masterHonorsConfig?.recalculateAction);
-  const showClassConfig = Array.isArray(classConfigYearOptions);
+  const showClassConfig = isClassesMode && Array.isArray(classConfigYearOptions);
+  const showSectionConfig = isClassSectionsMode && Array.isArray(classConfigYearOptions);
+  const showAvailability = showClassConfig || showSectionConfig;
   const yearNameById = new Map(
     (classConfigYearOptions ?? []).map((year) => [
       year.ecclesiastical_year_id,
@@ -754,6 +946,8 @@ export function PhaseECatalogCrudPage({
     setCreateOpen(open);
     if (open) {
       setCreateActiveChecked(true);
+      setCreateAdvancedEnabledChecked(false);
+      setCreateRequiredForInvestitureChecked(true);
       setCreateTranslations([]);
       setCreateMasterHonorsPayload(EMPTY_MASTER_HONOR_PAYLOAD);
       return;
@@ -769,6 +963,8 @@ export function PhaseECatalogCrudPage({
     }
 
     setEditActiveChecked(item.active !== false);
+    setEditAdvancedEnabledChecked(item.advanced_enabled === true);
+    setEditRequiredForInvestitureChecked(item.required_for_investiture !== false);
     setEditTranslations(
       Array.isArray(item.translations) ? (item.translations as CatalogTranslation[]) : [],
     );
@@ -854,8 +1050,11 @@ export function PhaseECatalogCrudPage({
                   <TableRow>
                     <TableHead>{t("colName")}</TableHead>
                     {includeDescription && <TableHead>{t("colDescription")}</TableHead>}
+                    {isClassesMode && <TableHead>{t("colAdvanced")}</TableHead>}
+                    {showSectionConfig && <TableHead>{t("colRequirementTrack")}</TableHead>}
+                    {showSectionConfig && <TableHead>{t("colOwnerScope")}</TableHead>}
                     {showClassConfig && <TableHead>{t("colDuration")}</TableHead>}
-                    {showClassConfig && <TableHead>{t("colAvailability")}</TableHead>}
+                    {showAvailability && <TableHead>{t("colAvailability")}</TableHead>}
                     {isMasterHonorsCrud && (
                       <TableHead>{masterHonorsT("colRulesSummary")}</TableHead>
                     )}
@@ -881,6 +1080,38 @@ export function PhaseECatalogCrudPage({
                             {toText(item.description) ?? "—"}
                           </TableCell>
                         )}
+                        {isClassesMode && (
+                          <TableCell>
+                            <Badge
+                              variant={item.advanced_enabled === true ? "soft-success" : "outline"}
+                              className="text-xs"
+                            >
+                              {item.advanced_enabled === true ? t("yes") : t("no")}
+                            </Badge>
+                          </TableCell>
+                        )}
+                        {showSectionConfig && (
+                          <TableCell className="text-sm text-muted-foreground">
+                            {toText(item.requirement_track) === "ADVANCED"
+                              ? t("requirementTrackAdvanced")
+                              : toText(item.requirement_track) === "EXTRA"
+                                ? t("requirementTrackExtra")
+                                : t("requirementTrackBasic")}
+                          </TableCell>
+                        )}
+                        {showSectionConfig && (
+                          <TableCell className="text-sm text-muted-foreground">
+                            {(() => {
+                              const localFieldId = toPositiveInt(item.owner_local_field_id);
+                              const unionId = toPositiveInt(item.owner_union_id);
+                              const divisionId = toPositiveInt(item.owner_division_id);
+                              if (localFieldId) return t("ownerLocalFieldShort", { id: localFieldId });
+                              if (unionId) return t("ownerUnionShort", { id: unionId });
+                              if (divisionId) return t("ownerDivisionShort", { id: divisionId });
+                              return "—";
+                            })()}
+                          </TableCell>
+                        )}
                         {showClassConfig && (
                           <TableCell className="text-sm text-muted-foreground">
                             {formatClassDurationRange(
@@ -890,13 +1121,22 @@ export function PhaseECatalogCrudPage({
                             )}
                           </TableCell>
                         )}
-                        {showClassConfig && (
+                        {showAvailability && (
                           <TableCell className="max-w-[260px] text-sm text-muted-foreground">
-                            {formatClassAvailabilityUntil(
-                              toPositiveInt(item.available_until_year_id),
-                              displayLabels,
-                              yearNameById.get(toPositiveInt(item.available_until_year_id) ?? 0),
-                            )}
+                            <span className="block">
+                              {formatClassAvailabilityFrom(
+                                toPositiveInt(item.available_from_year_id),
+                                displayLabels,
+                                yearNameById.get(toPositiveInt(item.available_from_year_id) ?? 0),
+                              )}
+                            </span>
+                            <span className="block">
+                              {formatClassAvailabilityUntil(
+                                toPositiveInt(item.available_until_year_id),
+                                displayLabels,
+                                yearNameById.get(toPositiveInt(item.available_until_year_id) ?? 0),
+                              )}
+                            </span>
                           </TableCell>
                         )}
                         {isMasterHonorsCrud ? (
@@ -1061,6 +1301,7 @@ export function PhaseECatalogCrudPage({
                 )}
                 <CatalogFormFields
                   idPrefix={`${idPrefix}-create`}
+                  entityMode={catalogEntityMode}
                   includeDescription={includeDescription}
                   activeChecked={createActiveChecked}
                   onActiveChange={setCreateActiveChecked}
@@ -1071,6 +1312,10 @@ export function PhaseECatalogCrudPage({
                   masterHonorsConfig={masterHonorsConfig}
                   masterHonorsPayload={createMasterHonorsPayload}
                   onMasterHonorsPayloadChange={setCreateMasterHonorsPayload}
+                  advancedEnabledChecked={createAdvancedEnabledChecked}
+                  onAdvancedEnabledChange={setCreateAdvancedEnabledChecked}
+                  requiredForInvestitureChecked={createRequiredForInvestitureChecked}
+                  onRequiredForInvestitureChange={setCreateRequiredForInvestitureChecked}
                 />
               </div>
               <DialogFooter className={dialogFooterClass}>
@@ -1105,6 +1350,7 @@ export function PhaseECatalogCrudPage({
                 <CatalogFormFields
                   idPrefix={`${idPrefix}-edit`}
                   item={editItem}
+                  entityMode={catalogEntityMode}
                   includeDescription={includeDescription}
                   activeChecked={editActiveChecked}
                   onActiveChange={setEditActiveChecked}
@@ -1115,6 +1361,10 @@ export function PhaseECatalogCrudPage({
                   masterHonorsConfig={masterHonorsConfig}
                   masterHonorsPayload={editMasterHonorsPayload}
                   onMasterHonorsPayloadChange={setEditMasterHonorsPayload}
+                  advancedEnabledChecked={editAdvancedEnabledChecked}
+                  onAdvancedEnabledChange={setEditAdvancedEnabledChecked}
+                  requiredForInvestitureChecked={editRequiredForInvestitureChecked}
+                  onRequiredForInvestitureChange={setEditRequiredForInvestitureChecked}
                 />
               </div>
               <DialogFooter className={dialogFooterClass}>
