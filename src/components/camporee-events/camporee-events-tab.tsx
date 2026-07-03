@@ -1,10 +1,22 @@
 "use client";
 
 import { EventsTimelineView } from "./timeline/events-timeline-view";
+import { CamporeeLeaderboard } from "@/components/camporee-scoring/camporee-leaderboard";
+import { CamporeeJudgesPanel } from "@/components/camporee-scoring/camporee-judges-panel";
+import { EventScoreEntryPanel } from "@/components/camporee-scoring/event-score-entry-panel";
+import { EventJudgeAssignmentsPanel } from "@/components/camporee-scoring/event-judge-assignments-panel";
 import { backendToTimeline } from "@/lib/camporee-timeline/mapper";
 import type { BackendCamporeeEvent, CamporeeEventTemplate } from "@/lib/api/camporee-events";
 import type { CamporeeVenue } from "@/lib/api/camporee-venues";
 import type { Camporee } from "@/lib/api/camporees";
+import type {
+  CamporeeEventJudgeAssignment,
+  CamporeeEventRubric,
+  CamporeeJudge,
+  CamporeeJudgeCandidate,
+  CamporeeLeaderboard as CamporeeLeaderboardData,
+  CamporeeScoringTarget,
+} from "@/lib/api/camporee-scoring";
 
 interface CamporeeEventsTabProps {
   camporeeId: number;
@@ -19,6 +31,13 @@ interface CamporeeEventsTabProps {
   canCreate?: boolean;
   canEdit?: boolean;
   canDelete?: boolean;
+  initialJudges?: CamporeeJudge[];
+  judgeCandidates?: CamporeeJudgeCandidate[];
+  judgeCandidatesError?: string | null;
+  assignmentsByEvent?: Record<number, CamporeeEventJudgeAssignment[]>;
+  scoringTargetsByEvent?: Record<number, CamporeeScoringTarget[]>;
+  rubricsByEvent?: Record<number, CamporeeEventRubric[]>;
+  leaderboard?: CamporeeLeaderboardData | null;
 }
 
 export function CamporeeEventsTab({
@@ -29,6 +48,14 @@ export function CamporeeEventsTab({
   camporee,
   isUnionCamporee = false,
   canCreate = false,
+  canEdit = false,
+  initialJudges = [],
+  judgeCandidates = [],
+  judgeCandidatesError = null,
+  assignmentsByEvent = {},
+  scoringTargetsByEvent = {},
+  rubricsByEvent = {},
+  leaderboard = null,
 }: CamporeeEventsTabProps) {
   // Build a minimal camporee context when the full record is not yet passed
   // through — this keeps the tab backwards-compatible while Phase 5 wiring lands.
@@ -53,10 +80,38 @@ export function CamporeeEventsTab({
   const viewData = isUnionCamporee ? { ...data, camporeeType: "union" as const } : data;
 
   return (
-    <EventsTimelineView
-      camporeeId={String(camporeeId)}
-      data={viewData}
-      readonly={!canCreate}
-    />
+    <div className="space-y-6">
+      <CamporeeJudgesPanel
+        camporeeId={camporeeId}
+        isUnionCamporee={isUnionCamporee}
+        judges={initialJudges}
+        judgeCandidates={judgeCandidates}
+        judgeCandidatesError={judgeCandidatesError}
+        canEdit={canEdit}
+      />
+      <EventJudgeAssignmentsPanel
+        camporeeId={camporeeId}
+        isUnionCamporee={isUnionCamporee}
+        events={initialEvents}
+        judges={initialJudges}
+        assignmentsByEvent={assignmentsByEvent}
+        targetsByEvent={scoringTargetsByEvent}
+        canEdit={canEdit}
+      />
+      <EventScoreEntryPanel
+        camporeeId={camporeeId}
+        isUnionCamporee={isUnionCamporee}
+        events={initialEvents}
+        rubricsByEvent={rubricsByEvent}
+        targetsByEvent={scoringTargetsByEvent}
+        canEdit={canEdit}
+      />
+      <CamporeeLeaderboard leaderboard={leaderboard} />
+      <EventsTimelineView
+        camporeeId={String(camporeeId)}
+        data={viewData}
+        readonly={!canCreate}
+      />
+    </div>
   );
 }

@@ -2659,6 +2659,9 @@ export interface IntlMessages {
       placeholderDescription: string;
       labelStartDate: string;
       labelEndDate: string;
+      labelClubRegistrationDeadline: string;
+      labelMemberRegistrationDeadline: string;
+      labelPaymentDeadline: string;
       labelPlace: string;
       placeholderPlace: string;
       labelLatitude: string;
@@ -2714,6 +2717,9 @@ export interface IntlMessages {
       placeholderDescription: string;
       labelStartDate: string;
       labelEndDate: string;
+      labelClubRegistrationDeadline: string;
+      labelMemberRegistrationDeadline: string;
+      labelPaymentDeadline: string;
       labelUnion: string;
       placeholderUnion: string;
       labelPlace: string;

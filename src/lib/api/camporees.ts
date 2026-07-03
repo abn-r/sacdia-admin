@@ -46,8 +46,8 @@ export type EnrollClubPayload = {
 export type PaymentType = "inscription" | "materials" | "other";
 
 export type CamporeePayment = {
-  payment_id: number;
-  camporee_payment_id?: string | null;
+  payment_id?: number | null;
+  camporee_payment_id: string;
   camporee_id: number;
   member_id: string;
   member_name?: string | null;
@@ -80,6 +80,9 @@ export type Camporee = {
   description?: string | null;
   start_date: string;
   end_date: string;
+  club_registration_deadline?: string | null;
+  member_registration_deadline?: string | null;
+  payment_deadline?: string | null;
   local_field_id?: number;
   includes_adventurers?: boolean;
   includes_pathfinders?: boolean;
@@ -101,6 +104,9 @@ export type CamporeePayload = {
   description?: string;
   start_date: string;
   end_date: string;
+  club_registration_deadline?: string;
+  member_registration_deadline?: string;
+  payment_deadline?: string;
   local_field_id: number;
   includes_adventurers: boolean;
   includes_pathfinders: boolean;
@@ -245,7 +251,7 @@ export async function getCamporeePayments(camporeeId: number) {
   return apiRequest<CamporeePayment[]>(`/camporees/${camporeeId}/payments`);
 }
 
-export async function updatePayment(paymentId: number, payload: UpdatePaymentPayload) {
+export async function updatePayment(paymentId: string, payload: UpdatePaymentPayload) {
   return apiRequest(`/camporees/payments/${paymentId}`, {
     method: "PATCH",
     body: payload,
@@ -287,6 +293,9 @@ export type UnionCamporee = {
   description?: string | null;
   start_date: string;
   end_date: string;
+  club_registration_deadline?: string | null;
+  member_registration_deadline?: string | null;
+  payment_deadline?: string | null;
   union_id?: number | null;
   union_name?: string | null;
   includes_adventurers?: boolean;
@@ -305,6 +314,9 @@ export type UnionCamporeePayload = {
   description?: string;
   start_date: string;
   end_date: string;
+  club_registration_deadline?: string;
+  member_registration_deadline?: string;
+  payment_deadline?: string;
   union_id: number;
   includes_adventurers: boolean;
   includes_pathfinders: boolean;
@@ -453,7 +465,7 @@ export async function rejectUnionCamporeeMember(
 }
 
 export async function approveUnionCamporeePayment(camporeePaymentId: string) {
-  return apiRequest(`/camporees/union/payments/${camporeePaymentId}/approve`, {
+  return apiRequest(`/camporees/payments/${camporeePaymentId}/approve`, {
     method: "PATCH",
   });
 }
@@ -462,7 +474,7 @@ export async function rejectUnionCamporeePayment(
   camporeePaymentId: string,
   payload: RejectPayload,
 ) {
-  return apiRequest(`/camporees/union/payments/${camporeePaymentId}/reject`, {
+  return apiRequest(`/camporees/payments/${camporeePaymentId}/reject`, {
     method: "PATCH",
     body: payload,
   });

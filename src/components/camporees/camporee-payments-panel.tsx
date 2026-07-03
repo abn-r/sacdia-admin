@@ -207,7 +207,11 @@ export function CamporeePaymentsPanel({
     );
   }
 
-  const dialogPaymentName = dialog?.payment.member_name ?? t("paymentsPanel.fallbackPayment", { id: dialog?.payment.payment_id ?? "" });
+  const dialogPaymentName =
+    dialog?.payment.member_name ??
+    t("paymentsPanel.fallbackPayment", {
+      id: dialog?.payment.camporee_payment_id ?? "",
+    });
 
   return (
     <>
@@ -249,7 +253,13 @@ export function CamporeePaymentsPanel({
                   approvingId === payment.camporee_payment_id;
 
                 return (
-                  <TableRow key={payment.payment_id} className="hover:bg-muted/30">
+                  <TableRow
+                    key={
+                      payment.camporee_payment_id ??
+                      `${payment.member_id}-${payment.created_at ?? payment.amount}`
+                    }
+                    className="hover:bg-muted/30"
+                  >
                     <TableCell className="px-3 py-2.5 align-middle">
                       <div className="flex items-center gap-1.5">
                         <span className="text-sm font-medium">

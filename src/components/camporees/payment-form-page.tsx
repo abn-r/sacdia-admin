@@ -268,7 +268,7 @@ export function PaymentFormPage({
         payment?.camporee_payment_id ?? null;
 
       if (isEditing && payment) {
-        await updatePayment(payment.payment_id, payloadBase);
+        await updatePayment(payment.camporee_payment_id, payloadBase);
       } else {
         const created = (await createPayment(
           camporeeId,

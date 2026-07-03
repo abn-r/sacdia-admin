@@ -13,11 +13,13 @@ import {
   type CamporeeVenue,
 } from "@/lib/api/camporee-venues";
 import { updateCamporeeAgendaEventAction } from "@/lib/camporee-events/actions";
+import { getCamporeeEventRubrics } from "@/lib/api/camporee-scoring";
 import {
   EventFormPage,
   type UserOption,
 } from "@/components/camporee-events/event-form-page";
 import type { BackendCamporeeEvent } from "@/lib/api/camporee-events";
+import type { CamporeeEventRubric } from "@/lib/api/camporee-scoring";
 import type { Camporee } from "@/lib/api/camporees";
 
 type Params = Promise<{ id: string; eventId: string }>;
@@ -95,6 +97,7 @@ export default async function LocalCamporeeEventEditPage({ params }: { params: P
   if (!eventId) notFound();
 
   let venues: CamporeeVenue[] = [];
+  let rubrics: CamporeeEventRubric[] = [];
 
   // Fetch all in parallel — best effort for venues
   const [camporeeRes, eventRes, venuesRes] = await Promise.allSettled([
@@ -117,6 +120,13 @@ export default async function LocalCamporeeEventEditPage({ params }: { params: P
     venues = extractList<CamporeeVenue>(venuesRes.value);
   }
 
+  try {
+    const rubricsPayload = await getCamporeeEventRubrics(eventId);
+    rubrics = extractList<CamporeeEventRubric>(rubricsPayload);
+  } catch {
+    rubrics = [];
+  }
+
   const users: UserOption[] = [];
 
   async function boundAction(
@@ -137,6 +147,7 @@ export default async function LocalCamporeeEventEditPage({ params }: { params: P
       venues={venues}
       users={users}
       event={event}
+      rubrics={rubrics}
       action={boundAction}
     />
   );

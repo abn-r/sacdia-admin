@@ -36,12 +36,17 @@ import {
 import {
   VenueCreateDialog,
 } from "@/components/camporee-events/venue-create-dialog";
+import { RubricsEditor } from "@/components/camporee-events/rubrics-editor";
 import type {
   CamporeeEventStatus,
   CamporeeEventDisplayCategory,
   CamporeeEventSection,
   BackendCamporeeEvent,
 } from "@/lib/api/camporee-events";
+import type {
+  CamporeeEventRubric,
+  CamporeeTemplateRubricInput,
+} from "@/lib/api/camporee-scoring";
 import type { CamporeeVenue } from "@/lib/api/camporee-venues";
 import type { Camporee } from "@/lib/api/camporees";
 import type { CamporeeEventActionState } from "@/lib/camporee-events/actions";
@@ -66,6 +71,7 @@ export interface EventFormPageProps {
   venues: CamporeeVenue[];
   users: UserOption[];
   event?: BackendCamporeeEvent;
+  rubrics?: CamporeeEventRubric[];
   action: FormAction;
 }
 
@@ -92,6 +98,9 @@ const SECTION_TINT: Record<CamporeeEventSection, string> = {
 };
 
 const TIME_REGEX = /^([01]\d|2[0-3]):[0-5]\d$/;
+const NO_VENUE_VALUE = "__no_venue__";
+const CREATE_VENUE_VALUE = "__create_venue__";
+const NO_LEADER_VALUE = "__no_leader__";
 
 // ─── SubmitButton ─────────────────────────────────────────────────────────────
 
@@ -114,6 +123,7 @@ export function EventFormPage({
   venues: initialVenues,
   users,
   event,
+  rubrics: initialRubrics = [],
   action,
 }: EventFormPageProps) {
   const t = useTranslations("camporees.eventInstanceForm");
@@ -161,7 +171,7 @@ export function EventFormPage({
   // ── PR6b: Venue state ────────────────────────────────────────────────────────
   const [venues, setVenues] = useState<CamporeeVenue[]>(initialVenues);
   const [selectedVenueId, setSelectedVenueId] = useState<string>(
-    event?.venue_id ? String(event.venue_id) : "",
+    event?.venue_id ? String(event.venue_id) : NO_VENUE_VALUE,
   );
   const [venueDialogOpen, setVenueDialogOpen] = useState(false);
 
@@ -176,7 +186,7 @@ export function EventFormPage({
     event?.leader_user_id ? "user" : event?.leader_name_override ? "external" : "user",
   );
   const [leaderUserId, setLeaderUserId] = useState<string>(
-    event?.leader_user_id ?? "",
+    event?.leader_user_id ?? NO_LEADER_VALUE,
   );
 
   // ── PR6c: Sections state ─────────────────────────────────────────────────────
@@ -191,6 +201,19 @@ export function EventFormPage({
         enabledSections.includes(s as CamporeeEventSection),
       ),
     ),
+  );
+
+  const [maxPoints, setMaxPoints] = useState<number>(event?.max_points ?? 0);
+  const [scoringEnabled, setScoringEnabled] = useState<boolean>(
+    event?.scoring_enabled ?? false,
+  );
+  const [rubrics, setRubrics] = useState<CamporeeTemplateRubricInput[]>(
+    initialRubrics.map((rubric) => ({
+      title: rubric.title,
+      description: rubric.description,
+      max_points: rubric.max_points,
+      display_order: rubric.display_order,
+    })),
   );
 
   function toggleSection(s: CamporeeEventSection) {
@@ -221,9 +244,21 @@ export function EventFormPage({
         <input type="hidden" name="display_category" value={category} />
         <input type="hidden" name="status" value={status} />
         <input type="hidden" name="day_number" value={String(dayNumber)} />
-        <input type="hidden" name="venue_id" value={selectedVenueId} />
+        <input
+          type="hidden"
+          name="venue_id"
+          value={
+            selectedVenueId === NO_VENUE_VALUE || selectedVenueId === CREATE_VENUE_VALUE
+              ? ""
+              : selectedVenueId
+          }
+        />
         {leaderMode === "user" && (
-          <input type="hidden" name="leader_user_id" value={leaderUserId} />
+          <input
+            type="hidden"
+            name="leader_user_id"
+            value={leaderUserId === NO_LEADER_VALUE ? "" : leaderUserId}
+          />
         )}
         <input
           type="hidden"
@@ -392,7 +427,7 @@ export function EventFormPage({
                   <SelectValue placeholder="Sin sede asignada" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Sin sede</SelectItem>
+                  <SelectItem value={NO_VENUE_VALUE}>Sin sede</SelectItem>
                   {venues.map((v) => (
                     <SelectItem key={v.camporee_venue_id} value={String(v.camporee_venue_id)}>
                       {v.name}
@@ -403,7 +438,7 @@ export function EventFormPage({
                       )}
                     </SelectItem>
                   ))}
-                  <SelectItem value="__create__">
+                  <SelectItem value={CREATE_VENUE_VALUE}>
                     <span className="text-primary font-medium">+ Crear nueva sede</span>
                   </SelectItem>
                 </SelectContent>
@@ -411,14 +446,14 @@ export function EventFormPage({
             )}
 
             {/* Trigger inline dialog when "Crear nueva sede" is picked */}
-            {selectedVenueId === "__create__" && !venueDialogOpen && (
+            {selectedVenueId === CREATE_VENUE_VALUE && !venueDialogOpen && (
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
                 className="w-fit"
                 onClick={() => {
-                  setSelectedVenueId("");
+                  setSelectedVenueId(NO_VENUE_VALUE);
                   setVenueDialogOpen(true);
                 }}
               >
@@ -476,7 +511,7 @@ export function EventFormPage({
                   <SelectValue placeholder="Seleccioná un usuario" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Sin responsable</SelectItem>
+                  <SelectItem value={NO_LEADER_VALUE}>Sin responsable</SelectItem>
                   {users.map((u) => (
                     <SelectItem key={u.value} value={u.value}>
                       {u.label}
@@ -593,12 +628,21 @@ export function EventFormPage({
                 name="max_points"
                 type="number"
                 min={0}
-                defaultValue={event?.max_points ?? ""}
+                value={maxPoints}
+                onChange={(e) => setMaxPoints(Number(e.target.value) || 0)}
                 placeholder="0"
               />
             </div>
           </div>
         </section>
+
+        <RubricsEditor
+          enabled={scoringEnabled}
+          onEnabledChange={setScoringEnabled}
+          value={rubrics}
+          onChange={setRubrics}
+          maxPoints={maxPoints}
+        />
 
         {/* ══ Section 7: Estado ══ */}
         <section className="space-y-6 rounded-xl border p-6">

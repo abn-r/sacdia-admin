@@ -51,6 +51,10 @@ import {
   type ParticipantsMode,
   type TemplateScope,
 } from "@/lib/api/camporee-events";
+import {
+  replaceCamporeeEventRubrics,
+  type CamporeeTemplateRubricInput,
+} from "@/lib/api/camporee-scoring";
 
 // ─── Shared action state ───────────────────────────────────────────────────────
 
@@ -100,6 +104,26 @@ function getJson<T>(formData: FormData, key: string): T | undefined {
   }
 }
 
+function extractCreatedEventId(payload: unknown): number | null {
+  if (!payload || typeof payload !== "object") return null;
+  const root = payload as Record<string, unknown>;
+  const candidate =
+    root.data && typeof root.data === "object"
+      ? (root.data as Record<string, unknown>)
+      : root;
+  const id = Number(candidate.camporee_event_id);
+  return Number.isFinite(id) && id > 0 ? id : null;
+}
+
+async function syncRubricsFromForm(eventId: number, formData: FormData) {
+  if (!formData.has("scoring_enabled") && !formData.has("rubrics")) return;
+
+  await replaceCamporeeEventRubrics(eventId, {
+    scoring_enabled: getBoolean(formData, "scoring_enabled"),
+    items: getJson<CamporeeTemplateRubricInput[]>(formData, "rubrics") ?? [],
+  });
+}
+
 /**
  * Extracts all template fields from FormData.
  */
@@ -139,6 +163,8 @@ function buildTemplatePayload(
   const participants_by_class = getJson<ParticipantsByClass[]>(formData, "participants_by_class");
   const duration_seconds = getPositiveInt(formData, "duration_seconds");
   const active = getBoolean(formData, "active");
+  const scoring_enabled = getBoolean(formData, "scoring_enabled");
+  const rubrics = getJson<CamporeeTemplateRubricInput[]>(formData, "rubrics") ?? [];
 
   return {
     scope,
@@ -153,6 +179,8 @@ function buildTemplatePayload(
     materials: getOptionalString(formData, "materials"),
     auxiliaries: getOptionalString(formData, "auxiliaries"),
     max_points,
+    scoring_enabled,
+    rubrics,
     min_points,
     penalties,
     participants_mode,
@@ -371,7 +399,9 @@ export async function createLocalCamporeeEventAction(
   if ("validationError" in payload) return { error: payload.validationError };
 
   try {
-    await createLocalCamporeeEvent(camporeeId, payload);
+    const created = await createLocalCamporeeEvent(camporeeId, payload);
+    const eventId = extractCreatedEventId(created);
+    if (eventId) await syncRubricsFromForm(eventId, formData);
   } catch (error) {
     return {
       error: getActionErrorMessage(error, "No se pudo crear el evento.", {
@@ -401,7 +431,9 @@ export async function createUnionCamporeeEventAction(
   if ("validationError" in payload) return { error: payload.validationError };
 
   try {
-    await createUnionCamporeeEvent(camporeeId, payload);
+    const created = await createUnionCamporeeEvent(camporeeId, payload);
+    const eventId = extractCreatedEventId(created);
+    if (eventId) await syncRubricsFromForm(eventId, formData);
   } catch (error) {
     return {
       error: getActionErrorMessage(error, "No se pudo crear el evento.", {
@@ -493,6 +525,7 @@ export async function updateCamporeeEventAction(
 
   try {
     await updateCamporeeEvent(id, payload);
+    await syncRubricsFromForm(id, formData);
   } catch (error) {
     return {
       error: getActionErrorMessage(error, "No se pudo actualizar el evento.", {
@@ -644,7 +677,9 @@ export async function createCamporeeAgendaEventAction(
   if ("validationError" in payload) return { error: payload.validationError };
 
   try {
-    await createLocalCamporeeEvent(camporeeId, payload);
+    const created = await createLocalCamporeeEvent(camporeeId, payload);
+    const eventId = extractCreatedEventId(created);
+    if (eventId) await syncRubricsFromForm(eventId, formData);
   } catch (error) {
     return {
       error: getActionErrorMessage(error, "No se pudo crear el evento.", {
@@ -677,6 +712,7 @@ export async function updateCamporeeAgendaEventAction(
 
   try {
     await updateCamporeeEvent(id, payload);
+    await syncRubricsFromForm(id, formData);
   } catch (error) {
     return {
       error: getActionErrorMessage(error, "No se pudo actualizar el evento.", {

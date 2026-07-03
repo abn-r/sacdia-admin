@@ -34,7 +34,9 @@ import {
 } from "@/components/ui/select";
 import { PenaltiesEditor } from "@/components/camporee-events/penalties-editor";
 import { ParticipantsField } from "@/components/camporee-events/participants-field";
+import { RubricsEditor } from "@/components/camporee-events/rubrics-editor";
 import type { CamporeeEventTemplate, PenaltyRule, ParticipantsByClass, ParticipantsMode, TemplateScope } from "@/lib/api/camporee-events";
+import type { CamporeeTemplateRubricInput } from "@/lib/api/camporee-scoring";
 import type { CamporeeEventActionState } from "@/lib/camporee-events/actions";
 import type { ProgressiveClass } from "@/lib/api/classes";
 
@@ -145,6 +147,20 @@ export function EventTemplateFormPage({
   );
   const [penalties, setPenalties] = useState<PenaltyRule[]>(
     Array.isArray(item?.penalties) ? item.penalties : [],
+  );
+  const [maxPoints, setMaxPoints] = useState<number>(item?.max_points ?? 100);
+  const [scoringEnabled, setScoringEnabled] = useState<boolean>(
+    item?.scoring_enabled ?? false,
+  );
+  const [rubrics, setRubrics] = useState<CamporeeTemplateRubricInput[]>(
+    Array.isArray(item?.rubrics)
+      ? item.rubrics.map((rubric) => ({
+          title: rubric.title,
+          description: rubric.description,
+          max_points: rubric.max_points,
+          display_order: rubric.display_order,
+        }))
+      : [],
   );
   const [participantsMode, setParticipantsMode] = useState<ParticipantsMode>(
     item?.participants_mode ?? "count",
@@ -387,7 +403,8 @@ export function EventTemplateFormPage({
                 type="number"
                 min={0}
                 required
-                defaultValue={item?.max_points ?? ""}
+                value={maxPoints}
+                onChange={(event) => setMaxPoints(Number(event.target.value) || 0)}
                 placeholder="100"
               />
             </div>
@@ -419,6 +436,14 @@ export function EventTemplateFormPage({
             />
           </div>
         </section>
+
+        <RubricsEditor
+          enabled={scoringEnabled}
+          onEnabledChange={setScoringEnabled}
+          value={rubrics}
+          onChange={setRubrics}
+          maxPoints={maxPoints}
+        />
 
         {/* ══ Section 4: Participants ══ */}
         <section className="space-y-6 rounded-xl border p-6">

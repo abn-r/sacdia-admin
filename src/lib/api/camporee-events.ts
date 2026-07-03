@@ -9,6 +9,11 @@
  */
 
 import { apiRequest } from "@/lib/api/client";
+import type {
+  CamporeeEventRubric,
+  CamporeeEventTemplateRubric,
+  CamporeeTemplateRubricInput,
+} from "@/lib/api/camporee-scoring";
 
 // ─── Shared shapes ─────────────────────────────────────────────────────────────
 
@@ -42,6 +47,8 @@ export type CamporeeEventTemplate = {
   materials?: string | null;
   auxiliaries?: string | null;
   max_points: number;
+  scoring_enabled: boolean;
+  rubrics?: CamporeeEventTemplateRubric[];
   min_points: number;
   penalties: PenaltyRule[];
   participants_mode: ParticipantsMode;
@@ -68,6 +75,8 @@ export type CreateCamporeeEventTemplatePayload = {
   materials?: string | null;
   auxiliaries?: string | null;
   max_points: number;
+  scoring_enabled?: boolean;
+  rubrics?: CamporeeTemplateRubricInput[];
   min_points?: number;
   penalties?: PenaltyRule[];
   participants_mode: ParticipantsMode;
@@ -135,6 +144,8 @@ export type BackendCamporeeEvent = {
   materials?: string | null;
   auxiliaries?: string | null;
   max_points: number;
+  scoring_enabled: boolean;
+  rubrics?: CamporeeEventRubric[];
   min_points: number;
   penalties: PenaltyRule[];
   participants_mode: ParticipantsMode;
@@ -185,6 +196,7 @@ export type CreateCamporeeEventPayload = {
   materials?: string | null;
   auxiliaries?: string | null;
   max_points: number;
+  scoring_enabled?: boolean;
   min_points?: number;
   penalties?: PenaltyRule[];
   participants_mode: ParticipantsMode;

@@ -72,6 +72,9 @@ function buildSchema(t: ReturnType<typeof useTranslations<"camporees.validation"
       description: z.string().optional(),
       start_date: z.string().min(1, t("start_date_required")),
       end_date: z.string().min(1, t("end_date_required")),
+      club_registration_deadline: z.string().optional(),
+      member_registration_deadline: z.string().optional(),
+      payment_deadline: z.string().optional(),
       local_camporee_place: z.string().min(1, t("place_required")),
       lat: optionalNumber.refine(
         (value) => value == null || (value >= -90 && value <= 90),
@@ -116,6 +119,20 @@ function toDateInput(dateStr?: string | null): string {
   return dateStr.split("T")[0] ?? "";
 }
 
+function toDateTimeInput(dateStr?: string | null): string {
+  if (!dateStr) return "";
+  const date = new Date(dateStr);
+  if (Number.isNaN(date.getTime())) return dateStr.slice(0, 16);
+  const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
+  return localDate.toISOString().slice(0, 16);
+}
+
+function toApiDateTime(value?: string): string | undefined {
+  if (!value) return undefined;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : date.toISOString();
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function CamporeeFormDialog({
@@ -139,6 +156,9 @@ export function CamporeeFormDialog({
       description: "",
       start_date: "",
       end_date: "",
+      club_registration_deadline: "",
+      member_registration_deadline: "",
+      payment_deadline: "",
       local_camporee_place: "",
       lat: undefined,
       long: undefined,
@@ -179,6 +199,13 @@ export function CamporeeFormDialog({
           description: camporee.description ?? "",
           start_date: toDateInput(camporee.start_date),
           end_date: toDateInput(camporee.end_date),
+          club_registration_deadline: toDateTimeInput(
+            camporee.club_registration_deadline,
+          ),
+          member_registration_deadline: toDateTimeInput(
+            camporee.member_registration_deadline,
+          ),
+          payment_deadline: toDateTimeInput(camporee.payment_deadline),
           local_camporee_place: camporee.local_camporee_place ?? "",
           lat: camporee.lat ?? undefined,
           long: camporee.long ?? undefined,
@@ -194,6 +221,9 @@ export function CamporeeFormDialog({
           description: "",
           start_date: "",
           end_date: "",
+          club_registration_deadline: "",
+          member_registration_deadline: "",
+          payment_deadline: "",
           local_camporee_place: "",
           lat: undefined,
           long: undefined,
@@ -217,6 +247,13 @@ export function CamporeeFormDialog({
           description: values.description,
           start_date: values.start_date,
           end_date: values.end_date,
+          club_registration_deadline: toApiDateTime(
+            values.club_registration_deadline,
+          ),
+          member_registration_deadline: toApiDateTime(
+            values.member_registration_deadline,
+          ),
+          payment_deadline: toApiDateTime(values.payment_deadline),
           local_camporee_place: values.local_camporee_place,
           lat: values.lat,
           long: values.long,
@@ -233,6 +270,13 @@ export function CamporeeFormDialog({
           description: values.description,
           start_date: values.start_date,
           end_date: values.end_date,
+          club_registration_deadline: toApiDateTime(
+            values.club_registration_deadline,
+          ),
+          member_registration_deadline: toApiDateTime(
+            values.member_registration_deadline,
+          ),
+          payment_deadline: toApiDateTime(values.payment_deadline),
           local_camporee_place: values.local_camporee_place,
           lat: values.lat,
           long: values.long,
@@ -341,6 +385,49 @@ export function CamporeeFormDialog({
                     </FormLabel>
                     <FormControl>
                       <Input {...field} type="date" aria-required="true" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Fechas límite */}
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <FormField
+                control={form.control}
+                name="club_registration_deadline"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("form.labelClubRegistrationDeadline")}</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="datetime-local" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="member_registration_deadline"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("form.labelMemberRegistrationDeadline")}</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="datetime-local" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="payment_deadline"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("form.labelPaymentDeadline")}</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="datetime-local" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

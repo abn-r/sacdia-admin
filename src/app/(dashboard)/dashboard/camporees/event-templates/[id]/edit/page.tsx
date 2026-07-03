@@ -223,6 +223,10 @@ function toTemplateRecord(raw: unknown): CamporeeEventTemplate | null {
     materials: typeof record.materials === "string" ? record.materials : null,
     auxiliaries: typeof record.auxiliaries === "string" ? record.auxiliaries : null,
     max_points: typeof record.max_points === "number" ? record.max_points : 0,
+    scoring_enabled: record.scoring_enabled === true,
+    rubrics: Array.isArray(record.rubrics)
+      ? (record.rubrics as CamporeeEventTemplate["rubrics"])
+      : [],
     min_points: typeof record.min_points === "number" ? record.min_points : 0,
     penalties: Array.isArray(record.penalties) ? (record.penalties as PenaltyRule[]) : [],
     participants_mode:

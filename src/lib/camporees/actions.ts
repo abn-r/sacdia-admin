@@ -67,6 +67,13 @@ function parseBool(formData: FormData, fieldName: string) {
   return formData.get(fieldName) === "on" || formData.get(fieldName) === "true";
 }
 
+function readOptionalDateTime(formData: FormData, fieldName: string) {
+  const value = readString(formData, fieldName);
+  if (!value) return undefined;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : date.toISOString();
+}
+
 function buildCreatePayload(t: CamporeesTranslator, formData: FormData) {
   const name = readString(formData, "name");
   if (!name) {
@@ -90,6 +97,15 @@ function buildCreatePayload(t: CamporeesTranslator, formData: FormData) {
     description: readString(formData, "description") || undefined,
     start_date: startDate,
     end_date: endDate,
+    club_registration_deadline: readOptionalDateTime(
+      formData,
+      "club_registration_deadline",
+    ),
+    member_registration_deadline: readOptionalDateTime(
+      formData,
+      "member_registration_deadline",
+    ),
+    payment_deadline: readOptionalDateTime(formData, "payment_deadline"),
     local_field_id: parseRequiredNumber(
       t,
       formData,
@@ -111,6 +127,15 @@ function buildUpdatePayload(t: CamporeesTranslator, formData: FormData) {
   const description = readString(formData, "description");
   const startDate = readString(formData, "start_date");
   const endDate = readString(formData, "end_date");
+  const clubRegistrationDeadline = readOptionalDateTime(
+    formData,
+    "club_registration_deadline",
+  );
+  const memberRegistrationDeadline = readOptionalDateTime(
+    formData,
+    "member_registration_deadline",
+  );
+  const paymentDeadline = readOptionalDateTime(formData, "payment_deadline");
   const place = readString(formData, "local_camporee_place");
 
   if (name) {
@@ -127,6 +152,18 @@ function buildUpdatePayload(t: CamporeesTranslator, formData: FormData) {
 
   if (endDate) {
     payload.end_date = endDate;
+  }
+
+  if (clubRegistrationDeadline) {
+    payload.club_registration_deadline = clubRegistrationDeadline;
+  }
+
+  if (memberRegistrationDeadline) {
+    payload.member_registration_deadline = memberRegistrationDeadline;
+  }
+
+  if (paymentDeadline) {
+    payload.payment_deadline = paymentDeadline;
   }
 
   if (place) {

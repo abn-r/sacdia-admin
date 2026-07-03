@@ -27,6 +27,20 @@ import {
   listLocalCamporeeVenues,
   type CamporeeVenue,
 } from "@/lib/api/camporee-venues";
+import {
+  getCamporeeEventRubrics,
+  getLocalCamporeeLeaderboard,
+  listLocalCamporeeJudgeCandidates,
+  listCamporeeEventJudgeAssignments,
+  listCamporeeEventScoringTargets,
+  listLocalCamporeeJudges,
+  type CamporeeEventJudgeAssignment,
+  type CamporeeEventRubric,
+  type CamporeeJudge,
+  type CamporeeJudgeCandidate,
+  type CamporeeLeaderboard,
+  type CamporeeScoringTarget,
+} from "@/lib/api/camporee-scoring";
 import { hasAnyPermission } from "@/lib/auth/permission-utils";
 import {
   CAMPOREE_EVENTS_CREATE,
@@ -117,6 +131,17 @@ function extractList<T>(payload: unknown): T[] {
   return [];
 }
 
+function extractLeaderboard(payload: unknown): CamporeeLeaderboard | null {
+  if (!payload || typeof payload !== "object") return null;
+  const root = payload as AnyRecord;
+  const candidate =
+    root.data && typeof root.data === "object" ? (root.data as AnyRecord) : root;
+  if (Array.isArray(candidate.rows)) {
+    return candidate as unknown as CamporeeLeaderboard;
+  }
+  return null;
+}
+
 // ─── Format helpers ───────────────────────────────────────────────────────────
 
 function formatRangeShort(
@@ -179,6 +204,13 @@ export default async function CamporeeDetailPage({
   let events: BackendCamporeeEvent[] = [];
   let availableTemplates: CamporeeEventTemplate[] = [];
   let venues: CamporeeVenue[] = [];
+  let judges: CamporeeJudge[] = [];
+  let judgeCandidates: CamporeeJudgeCandidate[] = [];
+  let judgeCandidatesError: string | null = null;
+  let assignmentsByEvent: Record<number, CamporeeEventJudgeAssignment[]> = {};
+  let scoringTargetsByEvent: Record<number, CamporeeScoringTarget[]> = {};
+  let rubricsByEvent: Record<number, CamporeeEventRubric[]> = {};
+  let leaderboard: CamporeeLeaderboard | null = null;
 
   // Fetch camporee detail
   try {
@@ -194,6 +226,9 @@ export default async function CamporeeDetailPage({
   }
 
   const t = await getTranslations("camporees.pages.detail");
+  const canCreateEvents = hasAnyPermission(user, [CAMPOREE_EVENTS_CREATE, CAMPOREES_CREATE]);
+  const canEditEvents = hasAnyPermission(user, [CAMPOREE_EVENTS_UPDATE, CAMPOREES_UPDATE]);
+  const canDeleteEvents = hasAnyPermission(user, [CAMPOREE_EVENTS_DELETE, CAMPOREES_DELETE]);
 
   // Fetch members — best effort
   try {
@@ -290,9 +325,75 @@ export default async function CamporeeDetailPage({
     // silently degrade — timeline renders without venue names
   }
 
-  const canCreateEvents = hasAnyPermission(user, [CAMPOREE_EVENTS_CREATE, CAMPOREES_CREATE]);
-  const canEditEvents = hasAnyPermission(user, [CAMPOREE_EVENTS_UPDATE, CAMPOREES_UPDATE]);
-  const canDeleteEvents = hasAnyPermission(user, [CAMPOREE_EVENTS_DELETE, CAMPOREES_DELETE]);
+  // Fetch scoring roster/assignments — best effort
+  try {
+    const judgesPayload = await listLocalCamporeeJudges(camporeeId);
+    judges = extractList<CamporeeJudge>(judgesPayload);
+  } catch {
+    judges = [];
+  }
+
+  // Fetch eligible users for the judge selector — best effort. The form must
+  // never ask operators to paste UUIDs manually.
+  if (canEditEvents) {
+    try {
+      const candidatesPayload = await listLocalCamporeeJudgeCandidates(camporeeId);
+      judgeCandidates = extractList<CamporeeJudgeCandidate>(candidatesPayload);
+    } catch (error) {
+      judgeCandidatesError =
+        error instanceof ApiError
+          ? error.message
+          : "No se pudieron cargar usuarios elegibles para el selector de jueces.";
+    }
+  }
+
+  if (events.length > 0) {
+    const assignmentResults = await Promise.allSettled(
+      events.map(async (event) => {
+        const payload = await listCamporeeEventJudgeAssignments(event.camporee_event_id);
+        return [event.camporee_event_id, extractList<CamporeeEventJudgeAssignment>(payload)] as const;
+      }),
+    );
+    assignmentsByEvent = Object.fromEntries(
+      assignmentResults
+        .filter((result): result is PromiseFulfilledResult<readonly [number, CamporeeEventJudgeAssignment[]]> => result.status === "fulfilled")
+        .map((result) => result.value),
+    );
+
+    const targetResults = await Promise.allSettled(
+      events.map(async (event) => {
+        const payload = await listCamporeeEventScoringTargets(event.camporee_event_id);
+        return [event.camporee_event_id, extractList<CamporeeScoringTarget>(payload)] as const;
+      }),
+    );
+    scoringTargetsByEvent = Object.fromEntries(
+      targetResults
+        .filter((result): result is PromiseFulfilledResult<readonly [number, CamporeeScoringTarget[]]> => result.status === "fulfilled")
+        .map((result) => result.value),
+    );
+
+    const rubricResults = await Promise.allSettled(
+      events
+        .filter((event) => event.scoring_enabled)
+        .map(async (event) => {
+          const payload = await getCamporeeEventRubrics(event.camporee_event_id);
+          return [event.camporee_event_id, extractList<CamporeeEventRubric>(payload)] as const;
+        }),
+    );
+    rubricsByEvent = Object.fromEntries(
+      rubricResults
+        .filter((result): result is PromiseFulfilledResult<readonly [number, CamporeeEventRubric[]]> => result.status === "fulfilled")
+        .map((result) => result.value),
+    );
+  }
+
+  // Fetch camporee leaderboard — best effort
+  try {
+    const leaderboardPayload = await getLocalCamporeeLeaderboard(camporeeId);
+    leaderboard = extractLeaderboard(leaderboardPayload);
+  } catch {
+    leaderboard = null;
+  }
 
   return (
     <div className="space-y-6">
@@ -334,6 +435,13 @@ export default async function CamporeeDetailPage({
         initialEvents={events}
         availableTemplates={availableTemplates}
         initialVenues={venues}
+        initialJudges={judges}
+        judgeCandidates={judgeCandidates}
+        judgeCandidatesError={judgeCandidatesError}
+        initialAssignmentsByEvent={assignmentsByEvent}
+        initialScoringTargetsByEvent={scoringTargetsByEvent}
+        initialRubricsByEvent={rubricsByEvent}
+        initialLeaderboard={leaderboard}
         canCreateEvents={canCreateEvents}
         canEditEvents={canEditEvents}
         canDeleteEvents={canDeleteEvents}

@@ -14,6 +14,14 @@ import type { CamporeePaymentsTabProps } from "@/components/camporees/camporee-p
 import { CamporeeEventsTab } from "@/components/camporee-events/camporee-events-tab";
 import type { BackendCamporeeEvent, CamporeeEventTemplate } from "@/lib/api/camporee-events";
 import type { CamporeeVenue } from "@/lib/api/camporee-venues";
+import type {
+  CamporeeEventJudgeAssignment,
+  CamporeeEventRubric,
+  CamporeeJudge,
+  CamporeeJudgeCandidate,
+  CamporeeLeaderboard,
+  CamporeeScoringTarget,
+} from "@/lib/api/camporee-scoring";
 
 const CamporeeMembersTab = dynamic<CamporeeMembersTabProps>(
   () =>
@@ -72,6 +80,13 @@ interface CamporeeDetailTabsProps {
   availableTemplates?: CamporeeEventTemplate[];
   /** Venues accessible to this camporee for timeline display */
   initialVenues?: CamporeeVenue[];
+  initialJudges?: CamporeeJudge[];
+  judgeCandidates?: CamporeeJudgeCandidate[];
+  judgeCandidatesError?: string | null;
+  initialAssignmentsByEvent?: Record<number, CamporeeEventJudgeAssignment[]>;
+  initialScoringTargetsByEvent?: Record<number, CamporeeScoringTarget[]>;
+  initialRubricsByEvent?: Record<number, CamporeeEventRubric[]>;
+  initialLeaderboard?: CamporeeLeaderboard | null;
   canCreateEvents?: boolean;
   canEditEvents?: boolean;
   canDeleteEvents?: boolean;
@@ -95,6 +110,13 @@ export function CamporeeDetailTabs({
   initialEvents = [],
   availableTemplates = [],
   initialVenues = [],
+  initialJudges = [],
+  judgeCandidates = [],
+  judgeCandidatesError = null,
+  initialAssignmentsByEvent = {},
+  initialScoringTargetsByEvent = {},
+  initialRubricsByEvent = {},
+  initialLeaderboard = null,
   canCreateEvents = false,
   canEditEvents = false,
   canDeleteEvents = false,
@@ -266,6 +288,13 @@ export function CamporeeDetailTabs({
           canCreate={canCreateEvents}
           canEdit={canEditEvents}
           canDelete={canDeleteEvents}
+          initialJudges={initialJudges}
+          judgeCandidates={judgeCandidates}
+          judgeCandidatesError={judgeCandidatesError}
+          assignmentsByEvent={initialAssignmentsByEvent}
+          scoringTargetsByEvent={initialScoringTargetsByEvent}
+          rubricsByEvent={initialRubricsByEvent}
+          leaderboard={initialLeaderboard}
         />
       </TabsContent>
     </Tabs>
