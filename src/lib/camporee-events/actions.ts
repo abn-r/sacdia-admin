@@ -45,6 +45,7 @@ import {
   reorderCamporeeEvent,
   type CreateCamporeeEventTemplatePayload,
   type UpdateCamporeeEventTemplatePayload,
+  type CamporeeEventScheduleBlock,
   type CreateCamporeeEventPayload,
   type PenaltyRule,
   type ParticipantsByClass,
@@ -631,12 +632,12 @@ function buildAgendaPayload(
   const capacity = getNonNegativeInt(formData, "capacity");
   const registered_count = getNonNegativeInt(formData, "registered_count") ?? 0;
   const max_points = getNonNegativeInt(formData, "max_points") ?? 0;
+  const event_type_id = getPositiveInt(formData, "event_type_id");
+  const schedule_blocks =
+    getJson<CamporeeEventScheduleBlock[]>(formData, "schedule_blocks") ?? [];
 
   return {
-    // event_type_id intentionally omitted — backend resolves the seeded
-    // `general` camporee_event_type for agenda events (see migration
-    // 20260521120000_camporee_event_type_general). Competition events go
-    // through createCamporeeEventAction with an explicit id.
+    ...(event_type_id ? { event_type_id } : {}),
     title,
     description: getOptionalString(formData, "description"),
     day_number,
@@ -655,8 +656,10 @@ function buildAgendaPayload(
     min_points: 0,
     penalties: [],
     participants_mode: "count",
+    participants_count: 1,
     active: true,
     display_order: getNonNegativeInt(formData, "display_order") ?? 0,
+    schedule_blocks,
   };
 }
 
@@ -692,6 +695,38 @@ export async function createCamporeeAgendaEventAction(
   redirect(`/dashboard/camporees/${camporeeId}?tab=events`);
 }
 
+/** Create a union camporee event with full agenda fields. */
+export async function createUnionCamporeeAgendaEventAction(
+  _: CamporeeEventActionState,
+  formData: FormData,
+): Promise<CamporeeEventActionState> {
+  const user = await requireAdminUser();
+  if (!hasAnyPermission(user, [CAMPOREE_EVENTS_CREATE, CAMPOREES_CREATE])) {
+    return { error: "Sin permisos para crear eventos." };
+  }
+
+  const camporeeId = getPositiveInt(formData, "camporee_id");
+  if (!camporeeId) return { error: "No se pudo identificar el camporee." };
+
+  const payload = buildAgendaPayload(formData);
+  if ("validationError" in payload) return { error: payload.validationError };
+
+  try {
+    const created = await createUnionCamporeeEvent(camporeeId, payload);
+    const eventId = extractCreatedEventId(created);
+    if (eventId) await syncRubricsFromForm(eventId, formData);
+  } catch (error) {
+    return {
+      error: getActionErrorMessage(error, "No se pudo crear el evento.", {
+        endpointLabel: `/union-camporees/${camporeeId}/events`,
+      }),
+    };
+  }
+
+  revalidatePath(`/dashboard/camporees/union/${camporeeId}`);
+  redirect(`/dashboard/camporees/union/${camporeeId}?tab=events`);
+}
+
 /** Update a camporee event with full agenda fields. */
 export async function updateCamporeeAgendaEventAction(
   _: CamporeeEventActionState,
@@ -706,6 +741,7 @@ export async function updateCamporeeAgendaEventAction(
   if (!id) return { error: "No se pudo identificar el evento a editar." };
 
   const camporeeId = getPositiveInt(formData, "camporee_id");
+  const isUnion = formData.get("is_union") === "true";
 
   const payload = buildAgendaPayload(formData);
   if ("validationError" in payload) return { error: payload.validationError };
@@ -722,8 +758,11 @@ export async function updateCamporeeAgendaEventAction(
   }
 
   if (camporeeId) {
-    revalidatePath(`/dashboard/camporees/${camporeeId}`);
-    redirect(`/dashboard/camporees/${camporeeId}?tab=events`);
+    const basePath = isUnion
+      ? `/dashboard/camporees/union/${camporeeId}`
+      : `/dashboard/camporees/${camporeeId}`;
+    revalidatePath(basePath);
+    redirect(`${basePath}?tab=events`);
   }
 
   redirect("/dashboard/camporees");

@@ -51,13 +51,21 @@ interface Props {
   event: CamporeeEvent;
   venue: Venue;
   camporeeId: string;
+  isUnionCamporee?: boolean;
   onEdit?: () => void;
   readonly?: boolean;
 }
 
 type DialogType = "cancel" | "delete" | null;
 
-export function EventRow({ event, venue, camporeeId, onEdit, readonly = false }: Props) {
+export function EventRow({
+  event,
+  venue,
+  camporeeId,
+  isUnionCamporee = false,
+  onEdit,
+  readonly = false,
+}: Props) {
   const t = useTranslations("camporeeEvents.timeline");
   const router = useRouter();
   const cat = EVENT_CATEGORY_MAP[event.category];
@@ -84,7 +92,7 @@ export function EventRow({ event, venue, camporeeId, onEdit, readonly = false }:
       const formData = new FormData();
       formData.set("id", event.id);
       formData.set("camporee_id", camporeeId);
-      formData.set("is_union", "false");
+      formData.set("is_union", String(isUnionCamporee));
 
       const result = await cancelCamporeeEventAction({}, formData);
 
@@ -106,7 +114,7 @@ export function EventRow({ event, venue, camporeeId, onEdit, readonly = false }:
       const formData = new FormData();
       formData.set("id", event.id);
       formData.set("camporee_id", camporeeId);
-      formData.set("is_union", "false");
+      formData.set("is_union", String(isUnionCamporee));
 
       const result = await softDeleteCamporeeEventAction({}, formData);
 

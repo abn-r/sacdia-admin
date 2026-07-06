@@ -2677,6 +2677,8 @@ export interface IntlMessages {
       creating: string;
       saveChanges: string;
       createCamporee: string;
+      labelAgendaVisibleFrom: string;
+      helpAgendaVisibleFrom: string;
     };
     eventInstanceForm: {
       titleCreate: string;
@@ -2736,6 +2738,8 @@ export interface IntlMessages {
       creating: string;
       saveChanges: string;
       createCamporee: string;
+      labelAgendaVisibleFrom: string;
+      helpAgendaVisibleFrom: string;
     };
     clubsPanel: {
       emptyTitle: string;

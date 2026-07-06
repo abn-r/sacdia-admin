@@ -33,7 +33,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { registerCamporeeMember } from "@/lib/api/camporees";
+import {
+  registerCamporeeMember,
+  registerUnionCamporeeMember,
+} from "@/lib/api/camporees";
 import {
   getMemberInsuranceFromClient,
   type InsuranceRecord,
@@ -69,6 +72,7 @@ export interface RegisterMemberDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   camporeeId: number;
+  isUnionCamporee?: boolean;
   onSuccess: () => void;
 }
 
@@ -78,6 +82,7 @@ export function RegisterMemberDialog({
   open,
   onOpenChange,
   camporeeId,
+  isUnionCamporee = false,
   onSuccess,
 }: RegisterMemberDialogProps) {
   const t = useTranslations("camporees");
@@ -97,7 +102,7 @@ export function RegisterMemberDialog({
     resolver: zodResolver(formSchema as z.ZodType<FormValues, FormValues>),
     defaultValues: {
       user_id: "",
-      camporee_type: "local",
+      camporee_type: isUnionCamporee ? "union" : "local",
       club_name: "",
       insurance_id: "",
     },
@@ -107,7 +112,12 @@ export function RegisterMemberDialog({
 
   function handleOpenChange(nextOpen: boolean) {
     if (!nextOpen) {
-      form.reset();
+      form.reset({
+        user_id: "",
+        camporee_type: isUnionCamporee ? "union" : "local",
+        club_name: "",
+        insurance_id: "",
+      });
       setInsuranceError(null);
       setSelectedClubId(null);
       setSelectedInsurance(null);
@@ -151,15 +161,20 @@ export function RegisterMemberDialog({
     setIsSubmitting(true);
     setInsuranceError(null);
     try {
-      await registerCamporeeMember(camporeeId, {
+      const payload = {
         user_id: values.user_id,
-        camporee_type: values.camporee_type,
+        camporee_type: isUnionCamporee ? "union" : values.camporee_type,
         club_name: values.club_name || undefined,
         insurance_id:
           values.insurance_id !== "" && values.insurance_id != null
             ? Number(values.insurance_id)
             : undefined,
-      });
+      } as const;
+      if (isUnionCamporee) {
+        await registerUnionCamporeeMember(camporeeId, payload);
+      } else {
+        await registerCamporeeMember(camporeeId, payload);
+      }
       toast.success(t("toasts.member_registered"));
       onSuccess();
       handleOpenChange(false);
@@ -304,46 +319,49 @@ export function RegisterMemberDialog({
               </div>
             )}
 
-            {/* Tipo de camporee */}
-            <FormField
-              control={form.control}
-              name="camporee_type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    {t("registerMemberDialog.labelCamporeeType")}{" "}
-                    <span aria-hidden="true" className="text-destructive">
-                      *
-                    </span>
-                  </FormLabel>
-                  <FormControl>
-                    <Select
-                      value={field.value}
-                      onValueChange={(val) =>
-                        field.onChange(val as "local" | "union")
-                      }
-                    >
-                      <SelectTrigger aria-required="true">
-                        <SelectValue
-                          placeholder={t(
-                            "registerMemberDialog.placeholderCamporeeType",
-                          )}
-                        />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="local">
-                          {t("registerMemberDialog.typeLocal")}
-                        </SelectItem>
-                        <SelectItem value="union">
-                          {t("registerMemberDialog.typeUnion")}
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {isUnionCamporee ? (
+              <input type="hidden" value="union" {...form.register("camporee_type")} />
+            ) : (
+              <FormField
+                control={form.control}
+                name="camporee_type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      {t("registerMemberDialog.labelCamporeeType")}{" "}
+                      <span aria-hidden="true" className="text-destructive">
+                        *
+                      </span>
+                    </FormLabel>
+                    <FormControl>
+                      <Select
+                        value={field.value}
+                        onValueChange={(val) =>
+                          field.onChange(val as "local" | "union")
+                        }
+                      >
+                        <SelectTrigger aria-required="true">
+                          <SelectValue
+                            placeholder={t(
+                              "registerMemberDialog.placeholderCamporeeType",
+                            )}
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="local">
+                            {t("registerMemberDialog.typeLocal")}
+                          </SelectItem>
+                          <SelectItem value="union">
+                            {t("registerMemberDialog.typeUnion")}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
 
             {/* Club name (required for union) */}
             <FormField

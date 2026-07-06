@@ -2636,7 +2636,9 @@
       "saving": "Salvando...",
       "creating": "Criando...",
       "saveChanges": "Salvar alterações",
-      "createCamporee": "Criar campori"
+      "createCamporee": "Criar campori",
+      "labelAgendaVisibleFrom": "Mostrar agenda a partir de",
+      "helpAgendaVisibleFrom": "Se ficar vazio, a agenda completa abre quando o camporee começar."
     },
     "eventInstanceForm": {
       "titleCreate": "Novo evento",
@@ -2695,7 +2697,9 @@
       "saving": "Salvando...",
       "creating": "Criando...",
       "saveChanges": "Salvar alterações",
-      "createCamporee": "Criar campori"
+      "createCamporee": "Criar campori",
+      "labelAgendaVisibleFrom": "Mostrar agenda a partir de",
+      "helpAgendaVisibleFrom": "Se ficar vazio, a agenda completa abre quando o camporee começar."
     },
     "clubsPanel": {
       "emptyTitle": "Nenhum clube inscrito",

@@ -6,7 +6,11 @@ import {
   CAMPOREE_EVENTS_CREATE,
   CAMPOREES_CREATE,
 } from "@/lib/auth/permissions";
-import { getCamporeeById } from "@/lib/api/camporees";
+import { getCamporeeById, getEnrolledClubs, type CamporeeClub } from "@/lib/api/camporees";
+import {
+  listCamporeeEventTypes,
+  type CamporeeEventType,
+} from "@/lib/api/camporee-events";
 import {
   listLocalCamporeeVenues,
   type CamporeeVenue,
@@ -81,6 +85,8 @@ export default async function LocalCamporeeEventNewPage({ params }: { params: Pa
 
   let camporee: Camporee;
   let venues: CamporeeVenue[] = [];
+  let eventTypes: CamporeeEventType[] = [];
+  let camporeeClubs: CamporeeClub[] = [];
 
   try {
     const payload = await getCamporeeById(camporeeId);
@@ -96,6 +102,20 @@ export default async function LocalCamporeeEventNewPage({ params }: { params: Pa
     venues = extractList<CamporeeVenue>(venuesPayload);
   } catch {
     // Degrade gracefully — venues not required to create an event
+  }
+
+  try {
+    const typesPayload = await listCamporeeEventTypes();
+    eventTypes = extractList<CamporeeEventType>(typesPayload);
+  } catch {
+    eventTypes = [];
+  }
+
+  try {
+    const clubsPayload = await getEnrolledClubs(camporeeId);
+    camporeeClubs = extractList<CamporeeClub>(clubsPayload);
+  } catch {
+    camporeeClubs = [];
   }
 
   // Users list: not fetching from backend in this version — empty list allowed
@@ -119,6 +139,8 @@ export default async function LocalCamporeeEventNewPage({ params }: { params: Pa
       camporee={camporee}
       venues={venues}
       users={users}
+      eventTypes={eventTypes}
+      camporeeClubs={camporeeClubs}
       action={boundAction}
     />
   );

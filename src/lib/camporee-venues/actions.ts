@@ -24,6 +24,7 @@ import {
 } from "@/lib/auth/permissions";
 import {
   createLocalCamporeeVenue,
+  createUnionCamporeeVenue,
   updateCamporeeVenue,
   deleteCamporeeVenue,
   type CamporeeVenue,
@@ -44,6 +45,7 @@ export type CamporeeVenueActionState = {
  */
 export async function createCamporeeVenueAction(input: {
   camporeeId: number;
+  isUnionCamporee?: boolean;
   name: string;
   capacity?: number;
   description?: string;
@@ -58,11 +60,17 @@ export async function createCamporeeVenueAction(input: {
   }
 
   try {
-    const result = await createLocalCamporeeVenue(input.camporeeId, {
-      name: input.name.trim(),
-      capacity: input.capacity,
-      description: input.description,
-    });
+    const result = input.isUnionCamporee
+      ? await createUnionCamporeeVenue(input.camporeeId, {
+          name: input.name.trim(),
+          capacity: input.capacity,
+          description: input.description,
+        })
+      : await createLocalCamporeeVenue(input.camporeeId, {
+          name: input.name.trim(),
+          capacity: input.capacity,
+          description: input.description,
+        });
 
     // Extract the venue from the response envelope
     const venue = extractVenue(result);
@@ -70,14 +78,21 @@ export async function createCamporeeVenueAction(input: {
       return { error: "La sede fue creada pero no se pudo leer la respuesta." };
     }
 
-    revalidatePath(`/dashboard/camporees/${input.camporeeId}`);
+    revalidatePath(
+      input.isUnionCamporee
+        ? `/dashboard/camporees/union/${input.camporeeId}`
+        : `/dashboard/camporees/${input.camporeeId}`,
+    );
     return { venue };
   } catch (error) {
+    const endpointLabel = input.isUnionCamporee
+      ? `/union-camporees/${input.camporeeId}/venues`
+      : `/local-camporees/${input.camporeeId}/venues`;
     return {
       error: getActionErrorMessage(
         error,
         "No se pudo crear la sede.",
-        { endpointLabel: `/local-camporees/${input.camporeeId}/venues` },
+        { endpointLabel },
       ),
     };
   }

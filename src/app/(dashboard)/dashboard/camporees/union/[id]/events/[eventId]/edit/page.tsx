@@ -7,13 +7,17 @@ import {
   CAMPOREES_UPDATE,
 } from "@/lib/auth/permissions";
 import { apiRequest } from "@/lib/api/client";
-import { getCamporeeById, getEnrolledClubs, type CamporeeClub } from "@/lib/api/camporees";
+import {
+  getUnionCamporeeById,
+  getUnionEnrolledClubs,
+  type CamporeeClub,
+} from "@/lib/api/camporees";
 import {
   listCamporeeEventTypes,
   type CamporeeEventType,
 } from "@/lib/api/camporee-events";
 import {
-  listLocalCamporeeVenues,
+  listUnionCamporeeVenues,
   type CamporeeVenue,
 } from "@/lib/api/camporee-venues";
 import { updateCamporeeAgendaEventAction } from "@/lib/camporee-events/actions";
@@ -46,19 +50,18 @@ function extractCamporee(payload: unknown): AnyRecord | null {
   const root = payload as AnyRecord;
   if (root.data && typeof root.data === "object") {
     const nested = root.data as AnyRecord;
-    if (nested.local_camporee_id != null || nested.name != null) return nested;
+    if (nested.union_camporee_id != null || nested.name != null) return nested;
   }
-  if (root.local_camporee_id != null || root.name != null) return root;
+  if (root.union_camporee_id != null || root.name != null) return root;
   return null;
 }
 
 function normalizeCamporee(raw: AnyRecord): Camporee {
   return {
-    camporee_id: toPositiveNumber(raw.local_camporee_id ?? raw.camporee_id ?? raw.id) ?? undefined,
+    camporee_id: toPositiveNumber(raw.union_camporee_id ?? raw.camporee_id ?? raw.id) ?? undefined,
     name: String(raw.name ?? ""),
     start_date: String(raw.start_date ?? ""),
     end_date: String(raw.end_date ?? ""),
-    local_field_id: toPositiveNumber(raw.local_field_id) ?? undefined,
     includes_adventurers: raw.includes_adventurers === true,
     includes_pathfinders: raw.includes_pathfinders !== false,
     includes_master_guides: raw.includes_master_guides === true,
@@ -88,11 +91,11 @@ function extractEvent(payload: unknown): BackendCamporeeEvent | null {
 
 // ─── Page ──────────────────────────────────────────────────────────────────────
 
-export default async function LocalCamporeeEventEditPage({ params }: { params: Params }) {
+export default async function UnionCamporeeEventEditPage({ params }: { params: Params }) {
   const user = await requireAdminUser();
 
   const canEdit = hasAnyPermission(user, [CAMPOREE_EVENTS_UPDATE, CAMPOREES_UPDATE]);
-  if (!canEdit) redirect("/dashboard/camporees");
+  if (!canEdit) redirect("/dashboard/camporees/union");
 
   const { id: idParam, eventId: eventIdParam } = await params;
   const camporeeId = toPositiveNumber(idParam);
@@ -107,9 +110,9 @@ export default async function LocalCamporeeEventEditPage({ params }: { params: P
 
   // Fetch all in parallel — best effort for venues
   const [camporeeRes, eventRes, venuesRes] = await Promise.allSettled([
-    getCamporeeById(camporeeId),
+    getUnionCamporeeById(camporeeId),
     apiRequest<unknown>(`/camporee-events/${eventId}`),
-    listLocalCamporeeVenues(camporeeId),
+    listUnionCamporeeVenues(camporeeId),
   ]);
 
   if (camporeeRes.status !== "fulfilled") notFound();
@@ -134,7 +137,7 @@ export default async function LocalCamporeeEventEditPage({ params }: { params: P
   }
 
   try {
-    const clubsPayload = await getEnrolledClubs(camporeeId);
+    const clubsPayload = await getUnionEnrolledClubs(camporeeId);
     camporeeClubs = extractList<CamporeeClub>(clubsPayload);
   } catch {
     camporeeClubs = [];
@@ -156,6 +159,7 @@ export default async function LocalCamporeeEventEditPage({ params }: { params: P
     "use server";
     formData.set("id", String(eventId));
     formData.set("camporee_id", String(camporeeId));
+    formData.set("is_union", "true");
     return updateCamporeeAgendaEventAction(prev, formData);
   }
 
@@ -168,6 +172,7 @@ export default async function LocalCamporeeEventEditPage({ params }: { params: P
       users={users}
       eventTypes={eventTypes}
       camporeeClubs={camporeeClubs}
+      isUnionCamporee
       event={event}
       rubrics={rubrics}
       action={boundAction}

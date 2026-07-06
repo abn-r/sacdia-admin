@@ -7,7 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-import { getCamporeePendingApprovals } from "@/lib/api/camporees";
+import {
+  getCamporeePendingApprovals,
+  getUnionCamporeePendingApprovals,
+} from "@/lib/api/camporees";
 import type { CamporeeMembersTabProps } from "@/components/camporees/camporee-members-tab";
 import type { CamporeeClubsTabProps } from "@/components/camporees/camporee-clubs-tab";
 import type { CamporeePaymentsTabProps } from "@/components/camporees/camporee-payments-tab";
@@ -125,14 +128,16 @@ export function CamporeeDetailTabs({
 
   const refreshPending = useCallback(async () => {
     try {
-      const payload = await getCamporeePendingApprovals(camporeeId);
+      const payload = isUnionCamporee
+        ? await getUnionCamporeePendingApprovals(camporeeId)
+        : await getCamporeePendingApprovals(camporeeId);
       if (payload && typeof payload === "object") {
         setPending(payload as PendingApprovals);
       }
     } catch {
       // Informational — silently ignore
     }
-  }, [camporeeId]);
+  }, [camporeeId, isUnionCamporee]);
 
   return (
     <Tabs defaultValue="info">

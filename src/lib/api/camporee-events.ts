@@ -112,6 +112,15 @@ export type CamporeeEventDisplayCategory =
   | "social"
   | "logistico";
 
+export type CamporeeEventType = {
+  event_type_id: number;
+  code: string;
+  name: string;
+  description?: string | null;
+  display_order?: number | null;
+  active?: boolean;
+};
+
 /** Leader info joined from the users table (present when leader_user_id is set) */
 export type CamporeeEventLeader = {
   user_id: string;
@@ -123,6 +132,37 @@ export type CamporeeEventLeader = {
 export type CamporeeEventVenueRef = {
   camporee_venue_id: number;
   name: string;
+};
+
+export type CamporeeEventScheduleBlockAssignment = {
+  camporee_event_schedule_block_assignment_id?: string;
+  schedule_block_id?: string;
+  camporee_club_id?: number | null;
+  club_section_id: number;
+  club_section?: {
+    club_section_id: number;
+    name?: string | null;
+    club_type_id?: number | null;
+    main_club_id?: number | null;
+    clubs?: { club_id: number; name?: string | null } | null;
+    club_types?: { club_type_id: number; name?: string | null } | null;
+  } | null;
+};
+
+export type CamporeeEventScheduleBlock = {
+  camporee_event_schedule_block_id?: string;
+  camporee_event_id?: number;
+  title?: string | null;
+  description?: string | null;
+  day_number: number;
+  starts_at?: string | null;
+  ends_at?: string | null;
+  venue_id?: number | null;
+  venue?: CamporeeEventVenueRef | null;
+  display_order?: number;
+  capacity?: number | null;
+  notes?: string | null;
+  assignments?: CamporeeEventScheduleBlockAssignment[];
 };
 
 /**
@@ -156,7 +196,7 @@ export type BackendCamporeeEvent = {
   active: boolean;
   created_at?: string;
   modified_at?: string;
-  event_type?: Record<string, unknown>;
+  event_type?: CamporeeEventType | null;
   // ── Agenda scheduling fields (added in camporee-agenda-events change) ──────
   day_number: number;
   starts_at?: string | null;
@@ -170,6 +210,8 @@ export type BackendCamporeeEvent = {
   status: CamporeeEventStatus;
   capacity?: number | null;
   registered_count: number;
+  agenda_visible?: boolean;
+  schedule_blocks?: CamporeeEventScheduleBlock[];
   // ── Joined relations (present when backend includes them) ──────────────────
   leader?: CamporeeEventLeader | null;
   venue?: CamporeeEventVenueRef | null;
@@ -218,6 +260,7 @@ export type CreateCamporeeEventPayload = {
   status?: CamporeeEventStatus;
   capacity?: number | null;
   registered_count?: number;
+  schedule_blocks?: CamporeeEventScheduleBlock[];
 };
 
 export type UpdateCamporeeEventPayload = Partial<CreateCamporeeEventPayload>;
@@ -227,6 +270,10 @@ export type ReorderCamporeeEventPayload = {
 };
 
 // ─── Template endpoints ────────────────────────────────────────────────────────
+
+export async function listCamporeeEventTypes() {
+  return apiRequest<unknown>("/camporee-event-types");
+}
 
 export async function listCamporeeEventTemplates(
   params?: Record<string, string | number | boolean>,
@@ -339,6 +386,16 @@ export async function updateCamporeeEvent(
   payload: UpdateCamporeeEventPayload,
 ) {
   return apiRequest(`/camporee-events/${id}`, { method: "PATCH", body: payload });
+}
+
+export async function replaceCamporeeEventScheduleBlocks(
+  id: number,
+  blocks: CamporeeEventScheduleBlock[],
+) {
+  return apiRequest(`/camporee-events/${id}/schedule-blocks`, {
+    method: "PUT",
+    body: { blocks },
+  });
 }
 
 export async function deleteCamporeeEvent(id: number) {

@@ -145,6 +145,7 @@ export function CamporeeMembersTab({
         open={registerOpen}
         onOpenChange={setRegisterOpen}
         camporeeId={camporeeId}
+        isUnionCamporee={isUnionCamporee}
         onSuccess={refreshMembers}
       />
     </div>

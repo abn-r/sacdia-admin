@@ -15,20 +15,24 @@ interface Props {
 
 export function EventsTimelineView({ camporeeId, data, readonly = false }: Props) {
   const router = useRouter();
+  const isUnionCamporee = data.camporeeType === "union";
+  const basePath = isUnionCamporee
+    ? `/dashboard/camporees/union/${camporeeId}`
+    : `/dashboard/camporees/${camporeeId}`;
 
   // Navigate to the dedicated create-event page instead of opening a drawer.
   // The spec (PR6a+PR7) mandates a dedicated page for create/edit (DS §6.1.1:
   // >4 fields + relations). The drawer is removed from the create flow.
   const openCreate = React.useCallback(() => {
     if (readonly) return;
-    router.push(`/dashboard/camporees/${camporeeId}/events/new`);
-  }, [readonly, router, camporeeId]);
+    router.push(`${basePath}/events/new`);
+  }, [readonly, router, basePath]);
 
   const handleEdit = React.useCallback(
     (eventId: string) => {
-      router.push(`/dashboard/camporees/${camporeeId}/events/${eventId}/edit`);
+      router.push(`${basePath}/events/${eventId}/edit`);
     },
-    [router, camporeeId],
+    [router, basePath],
   );
 
   const eventsByDay = React.useMemo(() => {
@@ -49,6 +53,7 @@ export function EventsTimelineView({ camporeeId, data, readonly = false }: Props
         <EventsToolbar
           data={data}
           camporeeId={camporeeId}
+          basePath={basePath}
           onCreate={openCreate}
           onImportFromCatalog={openCreate}
         />
@@ -62,6 +67,7 @@ export function EventsTimelineView({ camporeeId, data, readonly = false }: Props
             events={eventsByDay.get(d.numero) ?? []}
             venues={data.venues}
             camporeeId={camporeeId}
+            isUnionCamporee={isUnionCamporee}
             onAdd={openCreate}
             onEdit={handleEdit}
             readonly={readonly}

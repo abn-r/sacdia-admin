@@ -55,6 +55,7 @@ function buildSchema(t: ReturnType<typeof useTranslations<"camporees.validation"
       club_registration_deadline: z.string().optional(),
       member_registration_deadline: z.string().optional(),
       payment_deadline: z.string().optional(),
+      agenda_visible_from: z.string().optional(),
       union_id: z.coerce.number().int().min(1, t("union_required")),
       union_camporee_place: z.string().min(1, t("place_required")),
       lat: optionalNumber.refine(
@@ -138,6 +139,7 @@ export function UnionCamporeeFormDialog({
       club_registration_deadline: "",
       member_registration_deadline: "",
       payment_deadline: "",
+      agenda_visible_from: "",
       union_id: 0,
       union_camporee_place: "",
       lat: undefined,
@@ -164,6 +166,7 @@ export function UnionCamporeeFormDialog({
             camporee.member_registration_deadline,
           ),
           payment_deadline: toDateTimeInput(camporee.payment_deadline),
+          agenda_visible_from: toDateTimeInput(camporee.agenda_visible_from),
           union_id: camporee.union_id ?? 0,
           union_camporee_place:
             camporee.union_camporee_place ?? camporee.place ?? "",
@@ -183,6 +186,7 @@ export function UnionCamporeeFormDialog({
           club_registration_deadline: "",
           member_registration_deadline: "",
           payment_deadline: "",
+          agenda_visible_from: "",
           union_id: 0,
           union_camporee_place: "",
           lat: undefined,
@@ -211,6 +215,7 @@ export function UnionCamporeeFormDialog({
           values.member_registration_deadline,
         ),
         payment_deadline: toApiDateTime(values.payment_deadline),
+        agenda_visible_from: toApiDateTime(values.agenda_visible_from) ?? null,
         union_id: values.union_id,
         union_camporee_place: values.union_camporee_place,
         lat: values.lat,
@@ -373,6 +378,24 @@ export function UnionCamporeeFormDialog({
                 )}
               />
             </div>
+
+            {/* Apertura de agenda */}
+            <FormField
+              control={form.control}
+              name="agenda_visible_from"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("unionForm.labelAgendaVisibleFrom")}</FormLabel>
+                  <FormControl>
+                    <Input type="datetime-local" {...field} />
+                  </FormControl>
+                  <p className="text-xs text-muted-foreground">
+                    {t("unionForm.helpAgendaVisibleFrom")}
+                  </p>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Unión */}
             <FormField

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { PlusCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CamporeePaymentsPanel } from "@/components/camporees/camporee-payments-panel";
-import { getCamporeePayments } from "@/lib/api/camporees";
+import { getCamporeePayments, getUnionCamporeePayments } from "@/lib/api/camporees";
 import type { CamporeePayment } from "@/lib/api/camporees";
 
 export interface CamporeePaymentsTabProps {
@@ -29,7 +29,9 @@ export function CamporeePaymentsTab({
     setIsLoading(true);
     setLoadError(null);
     try {
-      const payload = await getCamporeePayments(camporeeId);
+      const payload = isUnionCamporee
+        ? await getUnionCamporeePayments(camporeeId)
+        : await getCamporeePayments(camporeeId);
       const raw = payload as unknown;
       let list: CamporeePayment[] = [];
       if (Array.isArray(raw)) {
@@ -51,7 +53,7 @@ export function CamporeePaymentsTab({
     } finally {
       setIsLoading(false);
     }
-  }, [camporeeId, onAfterChange]);
+  }, [camporeeId, isUnionCamporee, onAfterChange]);
 
   return (
     <div className="space-y-4">
@@ -72,12 +74,14 @@ export function CamporeePaymentsTab({
             <RefreshCw className={`size-3.5 ${isLoading ? "animate-spin" : ""}`} />
             <span className="sr-only">Actualizar</span>
           </Button>
-          <Button size="sm" asChild>
-            <Link href={`/dashboard/camporees/${camporeeId}/payments/new`}>
-              <PlusCircle className="size-4" />
-              Registrar pago
-            </Link>
-          </Button>
+          {!isUnionCamporee && (
+            <Button size="sm" asChild>
+              <Link href={`/dashboard/camporees/${camporeeId}/payments/new`}>
+                <PlusCircle className="size-4" />
+                Registrar pago
+              </Link>
+            </Button>
+          )}
         </div>
       </div>
 

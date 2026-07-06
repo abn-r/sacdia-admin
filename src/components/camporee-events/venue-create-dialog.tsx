@@ -35,6 +35,8 @@ interface VenueCreateDialogProps {
   onOpenChange: (open: boolean) => void;
   /** Local camporee ID — used to scope the venue to the correct local_field. */
   camporeeId: number;
+  /** When true, scope the venue to the union owning the camporee. */
+  isUnionCamporee?: boolean;
   /** Called with the newly created venue on success. */
   onCreated: (venue: CamporeeVenue) => void;
 }
@@ -45,6 +47,7 @@ export function VenueCreateDialog({
   open,
   onOpenChange,
   camporeeId,
+  isUnionCamporee = false,
   onCreated,
 }: VenueCreateDialogProps) {
   const t = useTranslations("camporeeEvents.venueCreateDialog");
@@ -77,6 +80,7 @@ export function VenueCreateDialog({
     startTransition(async () => {
       const result = await createCamporeeVenueAction({
         camporeeId,
+        isUnionCamporee,
         name: name.trim(),
         capacity: capacity ? Number(capacity) : undefined,
         description: description.trim() || undefined,
@@ -101,7 +105,9 @@ export function VenueCreateDialog({
         <DialogHeader>
           <DialogTitle>Crear nueva sede</DialogTitle>
           <DialogDescription>
-            La sede se asociará automáticamente al campo local del camporee.
+            {isUnionCamporee
+              ? "La sede se asociará automáticamente a la unión del camporee."
+              : "La sede se asociará automáticamente al campo local del camporee."}
           </DialogDescription>
         </DialogHeader>
 

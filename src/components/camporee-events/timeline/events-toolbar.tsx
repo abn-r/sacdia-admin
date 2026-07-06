@@ -22,6 +22,7 @@ import type { CamporeeEventsData } from "@/lib/camporee-timeline/types";
 interface Props {
   data: CamporeeEventsData;
   camporeeId: string;
+  basePath?: string;
   onCreate: () => void;
   onImportFromCatalog?: () => void;
 }
@@ -39,7 +40,13 @@ function useDebounce<T>(value: T, delay: number): T {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function EventsToolbar({ data, camporeeId, onCreate, onImportFromCatalog }: Props) {
+export function EventsToolbar({
+  data,
+  camporeeId,
+  basePath = `/dashboard/camporees/${camporeeId}`,
+  onCreate,
+  onImportFromCatalog,
+}: Props) {
   const t = useTranslations("camporeeEvents.timeline");
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -69,9 +76,9 @@ export function EventsToolbar({ data, camporeeId, onCreate, onImportFromCatalog 
     if (venue && venue !== "all") params.set("venue", venue);
     if (status && status !== "all") params.set("status", status);
 
-    router.push(`/dashboard/camporees/${camporeeId}?${params.toString()}`, { scroll: false });
+    router.push(`${basePath}?${params.toString()}`, { scroll: false });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedQuery, category, section, venue, status, camporeeId]);
+  }, [debouncedQuery, category, section, venue, status, basePath]);
 
   return (
     <div className="rounded-xl border border-border/60 bg-card shadow-xs p-3 mb-3.5 flex items-center gap-2 flex-wrap">

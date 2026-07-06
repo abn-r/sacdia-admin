@@ -18,6 +18,7 @@ import {
 import { EmptyState } from "@/components/shared/empty-state";
 import {
   removeCamporeeMember,
+  removeUnionCamporeeMember,
   approveCamporeeMember,
   rejectCamporeeMember,
   approveUnionCamporeeMember,
@@ -113,7 +114,11 @@ export function CamporeeMembersPanel({
     if (removingUserId) return;
     setRemovingUserId(userId);
     try {
-      await removeCamporeeMember(camporeeId, userId);
+      if (isUnionCamporee) {
+        await removeUnionCamporeeMember(camporeeId, userId);
+      } else {
+        await removeCamporeeMember(camporeeId, userId);
+      }
       toast.success(
         userName
           ? t("membersPanel.removedWithName", { name: userName })

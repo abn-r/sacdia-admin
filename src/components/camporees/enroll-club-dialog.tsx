@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useTranslations } from "next-intl";
-import { enrollClub } from "@/lib/api/camporees";
+import { enrollClub, enrollClubToUnionCamporee } from "@/lib/api/camporees";
 import { listClubs, getClubSections, type Club } from "@/lib/api/clubs";
 
 // ─── Props ─────────────────────────────────────────────────────────────────────
@@ -30,6 +30,7 @@ export interface EnrollClubDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   camporeeId: number;
+  isUnionCamporee?: boolean;
   /** Local field of the camporee — used to scope the club list. */
   localFieldId?: number | null;
   /** Section eligibility flags inherited from the camporee. */
@@ -133,6 +134,7 @@ export function EnrollClubDialog({
   open,
   onOpenChange,
   camporeeId,
+  isUnionCamporee = false,
   localFieldId,
   includesAdventurers = false,
   includesPathfinders = false,
@@ -182,7 +184,7 @@ export function EnrollClubDialog({
     (async () => {
       try {
         const payload = await listClubs({
-          localFieldId: localFieldId ?? undefined,
+          localFieldId: isUnionCamporee ? undefined : (localFieldId ?? undefined),
           active: true,
           page: 1,
           limit: 200,
@@ -202,7 +204,7 @@ export function EnrollClubDialog({
     return () => {
       cancelled = true;
     };
-  }, [open, localFieldId, t]);
+  }, [open, isUnionCamporee, localFieldId, t]);
 
   // ── Load sections when a club is picked ──
   useEffect(() => {
@@ -267,7 +269,13 @@ export function EnrollClubDialog({
 
     setIsSubmitting(true);
     try {
-      await enrollClub(camporeeId, { club_section_id: numericSectionId });
+      if (isUnionCamporee) {
+        await enrollClubToUnionCamporee(camporeeId, {
+          club_section_id: numericSectionId,
+        });
+      } else {
+        await enrollClub(camporeeId, { club_section_id: numericSectionId });
+      }
       toast.success(t("toasts.club_enrolled"));
       onSuccess();
       onOpenChange(false);

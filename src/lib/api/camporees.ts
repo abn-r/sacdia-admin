@@ -83,6 +83,7 @@ export type Camporee = {
   club_registration_deadline?: string | null;
   member_registration_deadline?: string | null;
   payment_deadline?: string | null;
+  agenda_visible_from?: string | null;
   local_field_id?: number;
   includes_adventurers?: boolean;
   includes_pathfinders?: boolean;
@@ -107,6 +108,7 @@ export type CamporeePayload = {
   club_registration_deadline?: string;
   member_registration_deadline?: string;
   payment_deadline?: string;
+  agenda_visible_from?: string | null;
   local_field_id: number;
   includes_adventurers: boolean;
   includes_pathfinders: boolean;
@@ -209,6 +211,22 @@ export async function removeCamporeeMember(camporeeId: number, userId: string) {
   });
 }
 
+export async function registerUnionCamporeeMember(
+  camporeeId: number,
+  payload: CamporeeRegisterMemberPayload,
+) {
+  return apiRequest(`/camporees/union/${camporeeId}/register`, {
+    method: "POST",
+    body: payload,
+  });
+}
+
+export async function removeUnionCamporeeMember(camporeeId: number, userId: string) {
+  return apiRequest(`/camporees/union/${camporeeId}/members/${userId}`, {
+    method: "DELETE",
+  });
+}
+
 // ─── Club enrollment functions ────────────────────────────────────────────────
 
 export async function enrollClub(camporeeId: number, payload: EnrollClubPayload) {
@@ -224,6 +242,23 @@ export async function getEnrolledClubs(camporeeId: number) {
 
 export async function cancelClubEnrollment(camporeeId: number, camporeeClubId: number) {
   return apiRequest(`/camporees/${camporeeId}/clubs/${camporeeClubId}`, {
+    method: "DELETE",
+  });
+}
+
+export async function enrollClubToUnionCamporee(camporeeId: number, payload: EnrollClubPayload) {
+  return apiRequest(`/camporees/union/${camporeeId}/clubs`, {
+    method: "POST",
+    body: payload,
+  });
+}
+
+export async function getUnionEnrolledClubs(camporeeId: number) {
+  return apiRequest<CamporeeClub[]>(`/camporees/union/${camporeeId}/clubs`);
+}
+
+export async function cancelUnionClubEnrollment(camporeeId: number, camporeeClubId: number) {
+  return apiRequest(`/camporees/union/${camporeeId}/clubs/${camporeeClubId}`, {
     method: "DELETE",
   });
 }
@@ -249,6 +284,10 @@ export async function getMemberPayments(camporeeId: number, memberId: string) {
 
 export async function getCamporeePayments(camporeeId: number) {
   return apiRequest<CamporeePayment[]>(`/camporees/${camporeeId}/payments`);
+}
+
+export async function getUnionCamporeePayments(camporeeId: number) {
+  return apiRequest<CamporeePayment[]>(`/camporees/union/${camporeeId}/payments`);
 }
 
 export async function updatePayment(paymentId: string, payload: UpdatePaymentPayload) {
@@ -296,6 +335,7 @@ export type UnionCamporee = {
   club_registration_deadline?: string | null;
   member_registration_deadline?: string | null;
   payment_deadline?: string | null;
+  agenda_visible_from?: string | null;
   union_id?: number | null;
   union_name?: string | null;
   includes_adventurers?: boolean;
@@ -317,6 +357,7 @@ export type UnionCamporeePayload = {
   club_registration_deadline?: string;
   member_registration_deadline?: string;
   payment_deadline?: string;
+  agenda_visible_from?: string | null;
   union_id: number;
   includes_adventurers: boolean;
   includes_pathfinders: boolean;

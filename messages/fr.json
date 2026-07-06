@@ -2636,7 +2636,9 @@
       "saving": "Enregistrement...",
       "creating": "Création...",
       "saveChanges": "Enregistrer les modifications",
-      "createCamporee": "Créer la camporée"
+      "createCamporee": "Créer la camporée",
+      "labelAgendaVisibleFrom": "Afficher l’agenda à partir de",
+      "helpAgendaVisibleFrom": "Si ce champ est vide, l’agenda complet s’ouvre au début du camporee."
     },
     "eventInstanceForm": {
       "titleCreate": "Nouvel événement",
@@ -2695,7 +2697,9 @@
       "saving": "Enregistrement...",
       "creating": "Création...",
       "saveChanges": "Enregistrer les modifications",
-      "createCamporee": "Créer la camporée"
+      "createCamporee": "Créer la camporée",
+      "labelAgendaVisibleFrom": "Afficher l’agenda à partir de",
+      "helpAgendaVisibleFrom": "Si ce champ est vide, l’agenda complet s’ouvre au début du camporee."
     },
     "clubsPanel": {
       "emptyTitle": "Aucun club inscrit",

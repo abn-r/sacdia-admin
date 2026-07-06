@@ -75,6 +75,7 @@ function buildSchema(t: ReturnType<typeof useTranslations<"camporees.validation"
       club_registration_deadline: z.string().optional(),
       member_registration_deadline: z.string().optional(),
       payment_deadline: z.string().optional(),
+      agenda_visible_from: z.string().optional(),
       local_camporee_place: z.string().min(1, t("place_required")),
       lat: optionalNumber.refine(
         (value) => value == null || (value >= -90 && value <= 90),
@@ -159,6 +160,7 @@ export function CamporeeFormDialog({
       club_registration_deadline: "",
       member_registration_deadline: "",
       payment_deadline: "",
+      agenda_visible_from: "",
       local_camporee_place: "",
       lat: undefined,
       long: undefined,
@@ -206,6 +208,7 @@ export function CamporeeFormDialog({
             camporee.member_registration_deadline,
           ),
           payment_deadline: toDateTimeInput(camporee.payment_deadline),
+          agenda_visible_from: toDateTimeInput(camporee.agenda_visible_from),
           local_camporee_place: camporee.local_camporee_place ?? "",
           lat: camporee.lat ?? undefined,
           long: camporee.long ?? undefined,
@@ -224,6 +227,7 @@ export function CamporeeFormDialog({
           club_registration_deadline: "",
           member_registration_deadline: "",
           payment_deadline: "",
+          agenda_visible_from: "",
           local_camporee_place: "",
           lat: undefined,
           long: undefined,
@@ -254,6 +258,7 @@ export function CamporeeFormDialog({
             values.member_registration_deadline,
           ),
           payment_deadline: toApiDateTime(values.payment_deadline),
+          agenda_visible_from: toApiDateTime(values.agenda_visible_from) ?? null,
           local_camporee_place: values.local_camporee_place,
           lat: values.lat,
           long: values.long,
@@ -277,6 +282,7 @@ export function CamporeeFormDialog({
             values.member_registration_deadline,
           ),
           payment_deadline: toApiDateTime(values.payment_deadline),
+          agenda_visible_from: toApiDateTime(values.agenda_visible_from) ?? null,
           local_camporee_place: values.local_camporee_place,
           lat: values.lat,
           long: values.long,
@@ -434,6 +440,24 @@ export function CamporeeFormDialog({
                 )}
               />
             </div>
+
+            {/* Apertura de agenda */}
+            <FormField
+              control={form.control}
+              name="agenda_visible_from"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("form.labelAgendaVisibleFrom")}</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="datetime-local" />
+                  </FormControl>
+                  <p className="text-xs text-muted-foreground">
+                    {t("form.helpAgendaVisibleFrom")}
+                  </p>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Lugar */}
             <FormField

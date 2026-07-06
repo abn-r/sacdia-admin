@@ -2637,7 +2637,9 @@
       "saving": "Saving...",
       "creating": "Creating...",
       "saveChanges": "Save changes",
-      "createCamporee": "Create camporee"
+      "createCamporee": "Create camporee",
+      "labelAgendaVisibleFrom": "Show agenda from",
+      "helpAgendaVisibleFrom": "If left empty, the full agenda opens when the camporee starts."
     },
     "eventInstanceForm": {
       "titleCreate": "New event",
@@ -2696,7 +2698,9 @@
       "saving": "Saving...",
       "creating": "Creating...",
       "saveChanges": "Save changes",
-      "createCamporee": "Create camporee"
+      "createCamporee": "Create camporee",
+      "labelAgendaVisibleFrom": "Show agenda from",
+      "helpAgendaVisibleFrom": "If left empty, the full agenda opens when the camporee starts."
     },
     "clubsPanel": {
       "emptyTitle": "No enrolled clubs",

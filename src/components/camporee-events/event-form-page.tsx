@@ -37,10 +37,13 @@ import {
   VenueCreateDialog,
 } from "@/components/camporee-events/venue-create-dialog";
 import { RubricsEditor } from "@/components/camporee-events/rubrics-editor";
+import { ScheduleBlocksEditor } from "@/components/camporee-events/schedule-blocks-editor";
 import type {
   CamporeeEventStatus,
   CamporeeEventDisplayCategory,
   CamporeeEventSection,
+  CamporeeEventScheduleBlock,
+  CamporeeEventType,
   BackendCamporeeEvent,
 } from "@/lib/api/camporee-events";
 import type {
@@ -48,7 +51,7 @@ import type {
   CamporeeTemplateRubricInput,
 } from "@/lib/api/camporee-scoring";
 import type { CamporeeVenue } from "@/lib/api/camporee-venues";
-import type { Camporee } from "@/lib/api/camporees";
+import type { Camporee, CamporeeClub } from "@/lib/api/camporees";
 import type { CamporeeEventActionState } from "@/lib/camporee-events/actions";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -70,6 +73,9 @@ export interface EventFormPageProps {
   camporee: Camporee;
   venues: CamporeeVenue[];
   users: UserOption[];
+  eventTypes?: CamporeeEventType[];
+  camporeeClubs?: CamporeeClub[];
+  isUnionCamporee?: boolean;
   event?: BackendCamporeeEvent;
   rubrics?: CamporeeEventRubric[];
   action: FormAction;
@@ -122,13 +128,18 @@ export function EventFormPage({
   camporee,
   venues: initialVenues,
   users,
+  eventTypes = [],
+  camporeeClubs = [],
+  isUnionCamporee = false,
   event,
   rubrics: initialRubrics = [],
   action,
 }: EventFormPageProps) {
   const t = useTranslations("camporees.eventInstanceForm");
   const isEdit = mode === "edit";
-  const backHref = `/dashboard/camporees/${camporeeId}?tab=events`;
+  const backHref = isUnionCamporee
+    ? `/dashboard/camporees/union/${camporeeId}?tab=events`
+    : `/dashboard/camporees/${camporeeId}?tab=events`;
 
   const [actionState, formAction] = useActionState<CamporeeEventActionState, FormData>(
     action,
@@ -215,6 +226,37 @@ export function EventFormPage({
       display_order: rubric.display_order,
     })),
   );
+  const defaultEventTypeId =
+    event?.event_type_id ??
+    eventTypes.find((type) => type.code === "general")?.event_type_id ??
+    eventTypes[0]?.event_type_id;
+  const [selectedEventTypeId, setSelectedEventTypeId] = useState<string>(
+    defaultEventTypeId ? String(defaultEventTypeId) : "",
+  );
+  const [scheduleBlocks, setScheduleBlocks] = useState<CamporeeEventScheduleBlock[]>(
+    (event?.schedule_blocks ?? []).map((block, index) => ({
+      title: block.title ?? "",
+      description: block.description ?? null,
+      day_number: block.day_number ?? event?.day_number ?? 1,
+      starts_at: block.starts_at ?? null,
+      ends_at: block.ends_at ?? null,
+      venue_id: block.venue_id ?? null,
+      display_order: block.display_order ?? index,
+      capacity: block.capacity ?? null,
+      notes: block.notes ?? null,
+      assignments: block.assignments ?? [],
+    })),
+  );
+
+  function handleEventTypeChange(value: string) {
+    setSelectedEventTypeId(value);
+    const selectedType = eventTypes.find(
+      (type) => String(type.event_type_id) === value,
+    );
+    if (selectedType?.code === "scoring") {
+      setScoringEnabled(true);
+    }
+  }
 
   function toggleSection(s: CamporeeEventSection) {
     setSelectedSections((prev) => {
@@ -238,12 +280,21 @@ export function EventFormPage({
       <form action={formAction} className="space-y-8">
         {/* Hidden fields for IDs and controlled state */}
         <input type="hidden" name="camporee_id" value={String(camporeeId)} />
+        <input type="hidden" name="is_union" value={String(isUnionCamporee)} />
         {isEdit && event && (
           <input type="hidden" name="id" value={String(event.camporee_event_id)} />
         )}
         <input type="hidden" name="display_category" value={category} />
         <input type="hidden" name="status" value={status} />
         <input type="hidden" name="day_number" value={String(dayNumber)} />
+        {selectedEventTypeId && (
+          <input type="hidden" name="event_type_id" value={selectedEventTypeId} />
+        )}
+        <input
+          type="hidden"
+          name="schedule_blocks"
+          value={JSON.stringify(scheduleBlocks)}
+        />
         <input
           type="hidden"
           name="venue_id"
@@ -333,6 +384,27 @@ export function EventFormPage({
               })}
             </div>
           </div>
+
+          {eventTypes.length > 0 && (
+            <div className="space-y-2">
+              <Label>Tipo de evento</Label>
+              <Select value={selectedEventTypeId} onValueChange={handleEventTypeChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccioná el tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  {eventTypes.map((type) => (
+                    <SelectItem key={type.event_type_id} value={String(type.event_type_id)}>
+                      {type.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                El tipo clasifica la agenda; los puntos oficiales dependen de rúbricas activas.
+              </p>
+            </div>
+          )}
         </section>
 
         {/* ══ Section 2: Horario ══ */}
@@ -466,6 +538,7 @@ export function EventFormPage({
             open={venueDialogOpen}
             onOpenChange={setVenueDialogOpen}
             camporeeId={camporeeId}
+            isUnionCamporee={isUnionCamporee}
             onCreated={handleVenueCreated}
           />
         </section>
@@ -642,6 +715,14 @@ export function EventFormPage({
           value={rubrics}
           onChange={setRubrics}
           maxPoints={maxPoints}
+        />
+
+        <ScheduleBlocksEditor
+          value={scheduleBlocks}
+          onChange={setScheduleBlocks}
+          days={days}
+          venues={venues}
+          camporeeClubs={camporeeClubs}
         />
 
         {/* ══ Section 7: Estado ══ */}

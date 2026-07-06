@@ -344,7 +344,7 @@ export function CamporeePaymentsPanel({
                           </>
                         )}
 
-                        {payment.camporee_payment_id && (
+                        {payment.camporee_payment_id && !isUnionCamporee && (
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Button
