@@ -43,10 +43,13 @@ import {
   updateCamporeeEvent,
   deleteCamporeeEvent,
   reorderCamporeeEvent,
+  replaceEventStaffAssignments,
   type CreateCamporeeEventTemplatePayload,
   type UpdateCamporeeEventTemplatePayload,
+  type CamporeeEventStaffAssignmentRole,
   type CamporeeEventScheduleBlock,
   type CreateCamporeeEventPayload,
+  type ReplaceCamporeeEventStaffAssignmentsPayload,
   type PenaltyRule,
   type ParticipantsByClass,
   type ParticipantsMode,
@@ -123,6 +126,49 @@ async function syncRubricsFromForm(eventId: number, formData: FormData) {
     scoring_enabled: getBoolean(formData, "scoring_enabled"),
     items: getJson<CamporeeTemplateRubricInput[]>(formData, "rubrics") ?? [],
   });
+}
+
+function getStaffAssignmentsFromForm(
+  formData: FormData,
+): ReplaceCamporeeEventStaffAssignmentsPayload["assignments"] | undefined {
+  if (!formData.has("staff_assignments")) return undefined;
+
+  const assignments =
+    getJson<ReplaceCamporeeEventStaffAssignmentsPayload["assignments"]>(
+      formData,
+      "staff_assignments",
+    ) ?? [];
+
+  return assignments
+    .filter((assignment) => {
+      const role = assignment.assignment_role as CamporeeEventStaffAssignmentRole;
+      return Boolean(assignment.camporee_staff_member_id) &&
+        (role === "responsible" ||
+          role === "assistant" ||
+          role === "evaluator" ||
+          role === "support");
+    })
+    .map((assignment, index) => ({
+      camporee_staff_member_id: assignment.camporee_staff_member_id,
+      assignment_role: assignment.assignment_role,
+      title_override: assignment.title_override?.trim() || null,
+      notes: assignment.notes?.trim() || null,
+      display_order: assignment.display_order ?? index,
+    }));
+}
+
+async function syncStaffAssignmentsFromForm(eventId: number, formData: FormData) {
+  const assignments = getStaffAssignmentsFromForm(formData);
+  if (!assignments) return;
+
+  await replaceEventStaffAssignments(eventId, { assignments });
+}
+
+function hasResponsibleStaffAssignment(formData: FormData) {
+  const assignments = getStaffAssignmentsFromForm(formData) ?? [];
+  return assignments.some(
+    (assignment) => assignment.assignment_role === "responsible",
+  );
 }
 
 /**
@@ -361,6 +407,7 @@ function buildInstancePayload(
   const duration_seconds = getPositiveInt(formData, "duration_seconds");
   const display_order = getNonNegativeInt(formData, "display_order") ?? 0;
   const active = getBoolean(formData, "active");
+  const status = getString(formData, "status") as CreateCamporeeEventPayload["status"];
 
   return {
     event_type_id,
@@ -379,6 +426,7 @@ function buildInstancePayload(
     participants_by_class: participants_mode === "by_class" ? participants_by_class : null,
     duration_seconds,
     display_order,
+    ...(status ? { status } : {}),
     active,
   };
 }
@@ -398,11 +446,27 @@ export async function createLocalCamporeeEventAction(
 
   const payload = buildInstancePayload(formData);
   if ("validationError" in payload) return { error: payload.validationError };
+  if (payload.status === "publicado" && !hasResponsibleStaffAssignment(formData)) {
+    return {
+      error:
+        "Para publicar el evento, asigná primero al menos una persona responsable.",
+    };
+  }
 
   try {
-    const created = await createLocalCamporeeEvent(camporeeId, payload);
+    const targetStatus = payload.status;
+    const created = await createLocalCamporeeEvent(camporeeId, {
+      ...payload,
+      ...(targetStatus === "publicado" ? { status: "programado" } : {}),
+    });
     const eventId = extractCreatedEventId(created);
-    if (eventId) await syncRubricsFromForm(eventId, formData);
+    if (eventId) {
+      await syncStaffAssignmentsFromForm(eventId, formData);
+      await syncRubricsFromForm(eventId, formData);
+      if (targetStatus === "publicado") {
+        await updateCamporeeEvent(eventId, { status: "publicado" });
+      }
+    }
   } catch (error) {
     return {
       error: getActionErrorMessage(error, "No se pudo crear el evento.", {
@@ -430,11 +494,27 @@ export async function createUnionCamporeeEventAction(
 
   const payload = buildInstancePayload(formData);
   if ("validationError" in payload) return { error: payload.validationError };
+  if (payload.status === "publicado" && !hasResponsibleStaffAssignment(formData)) {
+    return {
+      error:
+        "Para publicar el evento, asigná primero al menos una persona responsable.",
+    };
+  }
 
   try {
-    const created = await createUnionCamporeeEvent(camporeeId, payload);
+    const targetStatus = payload.status;
+    const created = await createUnionCamporeeEvent(camporeeId, {
+      ...payload,
+      ...(targetStatus === "publicado" ? { status: "programado" } : {}),
+    });
     const eventId = extractCreatedEventId(created);
-    if (eventId) await syncRubricsFromForm(eventId, formData);
+    if (eventId) {
+      await syncStaffAssignmentsFromForm(eventId, formData);
+      await syncRubricsFromForm(eventId, formData);
+      if (targetStatus === "publicado") {
+        await updateCamporeeEvent(eventId, { status: "publicado" });
+      }
+    }
   } catch (error) {
     return {
       error: getActionErrorMessage(error, "No se pudo crear el evento.", {
@@ -523,9 +603,21 @@ export async function updateCamporeeEventAction(
 
   const payload = buildInstancePayload(formData);
   if ("validationError" in payload) return { error: payload.validationError };
+  if (payload.status === "publicado" && !hasResponsibleStaffAssignment(formData)) {
+    return {
+      error:
+        "Para publicar el evento, asigná primero al menos una persona responsable.",
+    };
+  }
 
   try {
+    if (payload.status === "publicado") {
+      await syncStaffAssignmentsFromForm(id, formData);
+    }
     await updateCamporeeEvent(id, payload);
+    if (payload.status !== "publicado") {
+      await syncStaffAssignmentsFromForm(id, formData);
+    }
     await syncRubricsFromForm(id, formData);
   } catch (error) {
     return {
@@ -678,11 +770,27 @@ export async function createCamporeeAgendaEventAction(
 
   const payload = buildAgendaPayload(formData);
   if ("validationError" in payload) return { error: payload.validationError };
+  if (payload.status === "publicado" && !hasResponsibleStaffAssignment(formData)) {
+    return {
+      error:
+        "Para publicar el evento, asigná primero al menos una persona responsable.",
+    };
+  }
 
   try {
-    const created = await createLocalCamporeeEvent(camporeeId, payload);
+    const targetStatus = payload.status;
+    const created = await createLocalCamporeeEvent(camporeeId, {
+      ...payload,
+      ...(targetStatus === "publicado" ? { status: "programado" } : {}),
+    });
     const eventId = extractCreatedEventId(created);
-    if (eventId) await syncRubricsFromForm(eventId, formData);
+    if (eventId) {
+      await syncStaffAssignmentsFromForm(eventId, formData);
+      await syncRubricsFromForm(eventId, formData);
+      if (targetStatus === "publicado") {
+        await updateCamporeeEvent(eventId, { status: "publicado" });
+      }
+    }
   } catch (error) {
     return {
       error: getActionErrorMessage(error, "No se pudo crear el evento.", {
@@ -710,11 +818,27 @@ export async function createUnionCamporeeAgendaEventAction(
 
   const payload = buildAgendaPayload(formData);
   if ("validationError" in payload) return { error: payload.validationError };
+  if (payload.status === "publicado" && !hasResponsibleStaffAssignment(formData)) {
+    return {
+      error:
+        "Para publicar el evento, asigná primero al menos una persona responsable.",
+    };
+  }
 
   try {
-    const created = await createUnionCamporeeEvent(camporeeId, payload);
+    const targetStatus = payload.status;
+    const created = await createUnionCamporeeEvent(camporeeId, {
+      ...payload,
+      ...(targetStatus === "publicado" ? { status: "programado" } : {}),
+    });
     const eventId = extractCreatedEventId(created);
-    if (eventId) await syncRubricsFromForm(eventId, formData);
+    if (eventId) {
+      await syncStaffAssignmentsFromForm(eventId, formData);
+      await syncRubricsFromForm(eventId, formData);
+      if (targetStatus === "publicado") {
+        await updateCamporeeEvent(eventId, { status: "publicado" });
+      }
+    }
   } catch (error) {
     return {
       error: getActionErrorMessage(error, "No se pudo crear el evento.", {
@@ -745,9 +869,21 @@ export async function updateCamporeeAgendaEventAction(
 
   const payload = buildAgendaPayload(formData);
   if ("validationError" in payload) return { error: payload.validationError };
+  if (payload.status === "publicado" && !hasResponsibleStaffAssignment(formData)) {
+    return {
+      error:
+        "Para publicar el evento, asigná primero al menos una persona responsable.",
+    };
+  }
 
   try {
+    if (payload.status === "publicado") {
+      await syncStaffAssignmentsFromForm(id, formData);
+    }
     await updateCamporeeEvent(id, payload);
+    if (payload.status !== "publicado") {
+      await syncStaffAssignmentsFromForm(id, formData);
+    }
     await syncRubricsFromForm(id, formData);
   } catch (error) {
     return {

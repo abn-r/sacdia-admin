@@ -35,6 +35,7 @@ export interface CamporeeJudgesPanelProps {
   judgeCandidates?: CamporeeJudgeCandidate[];
   judgeCandidatesError?: string | null;
   canEdit?: boolean;
+  clubRegistrationClosed?: boolean;
 }
 
 const CLUB_ROLE_NAMES = new Set([
@@ -224,6 +225,7 @@ export function CamporeeJudgesPanel({
   judgeCandidates = [],
   judgeCandidatesError = null,
   canEdit = false,
+  clubRegistrationClosed = true,
 }: CamporeeJudgesPanelProps) {
   const [state, formAction] = useActionState<CamporeeScoringActionState, FormData>(
     addCamporeeJudgeAction,
@@ -296,7 +298,13 @@ export function CamporeeJudgesPanel({
           </div>
         )}
 
-        {canEdit && (
+        {canEdit && !clubRegistrationClosed && (
+          <p className="rounded-lg border border-warning/30 bg-warning/10 p-3 text-sm text-warning-foreground">
+            Primero cerrá/cierra la inscripción de clubes para congelar las secciones participantes.
+          </p>
+        )}
+
+        {canEdit && clubRegistrationClosed && (
           <form action={formAction} className="grid gap-3 rounded-lg border p-3 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_auto]">
             <input type="hidden" name="camporee_id" value={camporeeId} />
             <input type="hidden" name="is_union" value={isUnionCamporee ? "true" : "false"} />

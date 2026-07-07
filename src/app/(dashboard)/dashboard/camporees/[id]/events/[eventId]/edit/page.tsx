@@ -9,9 +9,15 @@ import {
 import { apiRequest } from "@/lib/api/client";
 import { getCamporeeById, getEnrolledClubs, type CamporeeClub } from "@/lib/api/camporees";
 import {
+  listCamporeeEventStaffAssignments,
   listCamporeeEventTypes,
+  type CamporeeEventStaffAssignment,
   type CamporeeEventType,
 } from "@/lib/api/camporee-events";
+import {
+  listCamporeeStaff,
+  type CamporeeStaffMember,
+} from "@/lib/api/camporee-staff";
 import {
   listLocalCamporeeVenues,
   type CamporeeVenue,
@@ -58,6 +64,14 @@ function normalizeCamporee(raw: AnyRecord): Camporee {
     name: String(raw.name ?? ""),
     start_date: String(raw.start_date ?? ""),
     end_date: String(raw.end_date ?? ""),
+    club_registration_closed_at:
+      typeof raw.club_registration_closed_at === "string"
+        ? raw.club_registration_closed_at
+        : null,
+    club_registration_closed_by:
+      typeof raw.club_registration_closed_by === "string"
+        ? raw.club_registration_closed_by
+        : null,
     local_field_id: toPositiveNumber(raw.local_field_id) ?? undefined,
     includes_adventurers: raw.includes_adventurers === true,
     includes_pathfinders: raw.includes_pathfinders !== false,
@@ -104,6 +118,7 @@ export default async function LocalCamporeeEventEditPage({ params }: { params: P
   let rubrics: CamporeeEventRubric[] = [];
   let eventTypes: CamporeeEventType[] = [];
   let camporeeClubs: CamporeeClub[] = [];
+  let staffRoster: CamporeeStaffMember[] = [];
 
   // Fetch all in parallel — best effort for venues
   const [camporeeRes, eventRes, venuesRes] = await Promise.allSettled([
@@ -141,6 +156,22 @@ export default async function LocalCamporeeEventEditPage({ params }: { params: P
   }
 
   try {
+    const staffPayload = await listCamporeeStaff("local", camporeeId);
+    staffRoster = extractList<CamporeeStaffMember>(staffPayload);
+  } catch {
+    staffRoster = [];
+  }
+
+  try {
+    const staffAssignmentsPayload = await listCamporeeEventStaffAssignments(eventId);
+    event.staff_assignments = extractList<CamporeeEventStaffAssignment>(
+      staffAssignmentsPayload,
+    );
+  } catch {
+    event.staff_assignments = event.staff_assignments ?? [];
+  }
+
+  try {
     const rubricsPayload = await getCamporeeEventRubrics(eventId);
     rubrics = extractList<CamporeeEventRubric>(rubricsPayload);
   } catch {
@@ -168,6 +199,8 @@ export default async function LocalCamporeeEventEditPage({ params }: { params: P
       users={users}
       eventTypes={eventTypes}
       camporeeClubs={camporeeClubs}
+      staffRoster={staffRoster}
+      scoringSetupEnabled={Boolean(camporee.club_registration_closed_at)}
       event={event}
       rubrics={rubrics}
       action={boundAction}

@@ -68,6 +68,7 @@ export function CamporeeEventsTab({
     includes_pathfinders: true,
     includes_master_guides: false,
   };
+  const clubRegistrationClosed = Boolean(camporeeCtx.club_registration_closed_at);
 
   const data = backendToTimeline(initialEvents, {
     camporee: camporeeCtx,
@@ -88,6 +89,7 @@ export function CamporeeEventsTab({
         judgeCandidates={judgeCandidates}
         judgeCandidatesError={judgeCandidatesError}
         canEdit={canEdit}
+        clubRegistrationClosed={clubRegistrationClosed}
       />
       <EventJudgeAssignmentsPanel
         camporeeId={camporeeId}
@@ -97,6 +99,7 @@ export function CamporeeEventsTab({
         assignmentsByEvent={assignmentsByEvent}
         targetsByEvent={scoringTargetsByEvent}
         canEdit={canEdit}
+        clubRegistrationClosed={clubRegistrationClosed}
       />
       <EventScoreEntryPanel
         camporeeId={camporeeId}
@@ -105,6 +108,7 @@ export function CamporeeEventsTab({
         rubricsByEvent={rubricsByEvent}
         targetsByEvent={scoringTargetsByEvent}
         canEdit={canEdit}
+        clubRegistrationClosed={clubRegistrationClosed}
       />
       <CamporeeLeaderboard leaderboard={leaderboard} />
       <EventsTimelineView

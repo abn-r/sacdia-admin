@@ -76,6 +76,12 @@ export function EventRow({
   const status = event.status;
   const capPct = event.capacity > 0 ? (event.registered / event.capacity) * 100 : 0;
   const hasCapacity = event.registered > 0;
+  const displayedLeaderName = event.staffResponsibleName || event.leaderName;
+  const displayedLeaderRole =
+    event.staffResponsibleRole || event.leaderRole || "responsable";
+  const helperNames = event.staffHelpers ?? [];
+  const helpersPreview = helperNames.slice(0, 2).join(", ");
+  const extraHelpersCount = Math.max(0, helperNames.length - 2);
 
   const [dialogOpen, setDialogOpen] = React.useState<DialogType>(null);
   const [isPending, startTransition] = React.useTransition();
@@ -230,14 +236,20 @@ export function EventRow({
         <div className="flex items-center gap-2 min-w-0">
           <Avatar className="size-7">
             <AvatarFallback className="text-[10px] bg-primary text-primary-foreground font-bold">
-              {initials(event.leaderName)}
+              {initials(displayedLeaderName)}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0">
-            <div className="text-[12px] font-medium truncate">{event.leaderName}</div>
+            <div className="text-[12px] font-medium truncate">{displayedLeaderName}</div>
             <div className="text-[10.5px] text-muted-foreground truncate">
-              {event.leaderRole ?? "responsable"}
+              {displayedLeaderRole}
             </div>
+            {helperNames.length > 0 && (
+              <div className="truncate text-[10.5px] text-muted-foreground">
+                Apoyan: {helpersPreview}
+                {extraHelpersCount > 0 ? ` +${extraHelpersCount}` : ""}
+              </div>
+            )}
           </div>
         </div>
 

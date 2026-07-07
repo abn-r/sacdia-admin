@@ -26,6 +26,7 @@ export interface EventJudgeAssignmentsPanelProps {
   assignmentsByEvent: Record<number, CamporeeEventJudgeAssignment[]>;
   targetsByEvent: Record<number, CamporeeScoringTarget[]>;
   canEdit?: boolean;
+  clubRegistrationClosed?: boolean;
 }
 
 export function EventJudgeAssignmentsPanel({
@@ -36,6 +37,7 @@ export function EventJudgeAssignmentsPanel({
   assignmentsByEvent,
   targetsByEvent,
   canEdit = false,
+  clubRegistrationClosed = true,
 }: EventJudgeAssignmentsPanelProps) {
   const scoringEvents = events.filter((event) => event.scoring_enabled);
   const [selectedEventId, setSelectedEventId] = useState<number | null>(
@@ -123,7 +125,13 @@ export function EventJudgeAssignmentsPanel({
           </div>
         )}
 
-        {canEdit && selectedEventId && (
+        {canEdit && selectedEventId && !clubRegistrationClosed && (
+          <p className="rounded-lg border border-warning/30 bg-warning/10 p-3 text-sm text-warning-foreground">
+            Primero cerrá/cierra la inscripción de clubes para congelar las secciones participantes.
+          </p>
+        )}
+
+        {canEdit && selectedEventId && clubRegistrationClosed && (
           <form action={formAction} className="grid gap-3 rounded-lg border p-3 md:grid-cols-4">
             <input type="hidden" name="camporee_id" value={camporeeId} />
             <input type="hidden" name="is_union" value={isUnionCamporee ? "true" : "false"} />

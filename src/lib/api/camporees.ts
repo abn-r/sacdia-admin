@@ -81,6 +81,8 @@ export type Camporee = {
   start_date: string;
   end_date: string;
   club_registration_deadline?: string | null;
+  club_registration_closed_at?: string | null;
+  club_registration_closed_by?: string | null;
   member_registration_deadline?: string | null;
   payment_deadline?: string | null;
   agenda_visible_from?: string | null;
@@ -263,6 +265,26 @@ export async function cancelUnionClubEnrollment(camporeeId: number, camporeeClub
   });
 }
 
+export async function closeClubRegistration(
+  scope: "local" | "union",
+  camporeeId: number,
+) {
+  const path = scope === "union"
+    ? `/union-camporees/${camporeeId}/club-registration/close`
+    : `/camporees/${camporeeId}/club-registration/close`;
+  return apiRequest<Camporee | UnionCamporee>(path, { method: "POST" });
+}
+
+export async function reopenClubRegistration(
+  scope: "local" | "union",
+  camporeeId: number,
+) {
+  const path = scope === "union"
+    ? `/union-camporees/${camporeeId}/club-registration/reopen`
+    : `/camporees/${camporeeId}/club-registration/reopen`;
+  return apiRequest<Camporee | UnionCamporee>(path, { method: "POST" });
+}
+
 // ─── Payment functions ────────────────────────────────────────────────────────
 
 export async function createPayment(
@@ -333,6 +355,8 @@ export type UnionCamporee = {
   start_date: string;
   end_date: string;
   club_registration_deadline?: string | null;
+  club_registration_closed_at?: string | null;
+  club_registration_closed_by?: string | null;
   member_registration_deadline?: string | null;
   payment_deadline?: string | null;
   agenda_visible_from?: string | null;

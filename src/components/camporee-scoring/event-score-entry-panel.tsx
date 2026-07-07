@@ -24,6 +24,7 @@ export interface EventScoreEntryPanelProps {
   rubricsByEvent: Record<number, CamporeeEventRubric[]>;
   targetsByEvent: Record<number, CamporeeScoringTarget[]>;
   canEdit?: boolean;
+  clubRegistrationClosed?: boolean;
 }
 
 function toNumber(value: string): number {
@@ -48,6 +49,7 @@ export function EventScoreEntryPanel({
   rubricsByEvent,
   targetsByEvent,
   canEdit = false,
+  clubRegistrationClosed = true,
 }: EventScoreEntryPanelProps) {
   const scoringEvents = useMemo(
     () => events.filter((event) => event.scoring_enabled),
@@ -145,7 +147,13 @@ export function EventScoreEntryPanel({
           </p>
         )}
 
-        {canEdit && selectedEventId && rubrics.length > 0 && (
+        {canEdit && selectedEventId && rubrics.length > 0 && !clubRegistrationClosed && (
+          <p className="rounded-lg border border-warning/30 bg-warning/10 p-3 text-sm text-warning-foreground">
+            Primero cerrá/cierra la inscripción de clubes para congelar las secciones participantes.
+          </p>
+        )}
+
+        {canEdit && selectedEventId && rubrics.length > 0 && clubRegistrationClosed && (
           <form action={formAction} className="space-y-4 rounded-lg border p-4">
             <input type="hidden" name="camporee_id" value={camporeeId} />
             <input type="hidden" name="is_union" value={isUnionCamporee ? "true" : "false"} />

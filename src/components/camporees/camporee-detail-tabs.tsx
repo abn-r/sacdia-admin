@@ -15,8 +15,13 @@ import type { CamporeeMembersTabProps } from "@/components/camporees/camporee-me
 import type { CamporeeClubsTabProps } from "@/components/camporees/camporee-clubs-tab";
 import type { CamporeePaymentsTabProps } from "@/components/camporees/camporee-payments-tab";
 import { CamporeeEventsTab } from "@/components/camporee-events/camporee-events-tab";
+import { CamporeeStaffPanel } from "@/components/camporee-staff/camporee-staff-panel";
 import type { BackendCamporeeEvent, CamporeeEventTemplate } from "@/lib/api/camporee-events";
 import type { CamporeeVenue } from "@/lib/api/camporee-venues";
+import type {
+  CamporeeStaffCandidate,
+  CamporeeStaffMember,
+} from "@/lib/api/camporee-staff";
 import type {
   CamporeeEventJudgeAssignment,
   CamporeeEventRubric,
@@ -75,6 +80,9 @@ interface CamporeeDetailTabsProps {
   membersError: string | null;
   clubsError: string | null;
   paymentsError: string | null;
+  initialStaff?: CamporeeStaffMember[];
+  staffCandidates?: CamporeeStaffCandidate[];
+  staffError?: string | null;
   isUnionCamporee?: boolean;
   /** Server-rendered info tab content passed as a slot */
   infoContent: ReactNode;
@@ -93,6 +101,7 @@ interface CamporeeDetailTabsProps {
   canCreateEvents?: boolean;
   canEditEvents?: boolean;
   canDeleteEvents?: boolean;
+  canManageClubRegistration?: boolean;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -108,6 +117,9 @@ export function CamporeeDetailTabs({
   membersError,
   clubsError,
   paymentsError,
+  initialStaff = [],
+  staffCandidates = [],
+  staffError = null,
   isUnionCamporee = false,
   infoContent,
   initialEvents = [],
@@ -123,6 +135,7 @@ export function CamporeeDetailTabs({
   canCreateEvents = false,
   canEditEvents = false,
   canDeleteEvents = false,
+  canManageClubRegistration = false,
 }: CamporeeDetailTabsProps) {
   const [pending, setPending] = useState<PendingApprovals>(initialPending);
 
@@ -186,6 +199,15 @@ export function CamporeeDetailTabs({
           )}
         </TabsTrigger>
 
+        <TabsTrigger value="staff">
+          Personal
+          {initialStaff.length > 0 && (
+            <Badge variant="secondary" className="ml-2">
+              {initialStaff.length}
+            </Badge>
+          )}
+        </TabsTrigger>
+
         <TabsTrigger value="events">
           Eventos
           {initialEvents.length > 0 && (
@@ -245,6 +267,8 @@ export function CamporeeDetailTabs({
                 includesAdventurers={camporee?.includes_adventurers ?? false}
                 includesPathfinders={camporee?.includes_pathfinders ?? false}
                 includesMasterGuides={camporee?.includes_master_guides ?? false}
+                clubRegistrationClosedAt={camporee?.club_registration_closed_at ?? null}
+                canManageClubRegistration={canManageClubRegistration}
                 onAfterChange={refreshPending}
               />
             )}
@@ -267,6 +291,28 @@ export function CamporeeDetailTabs({
                 initialPayments={initialPayments}
                 isUnionCamporee={isUnionCamporee}
                 onAfterChange={refreshPending}
+              />
+            )}
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      {/* ── Personal ── */}
+      <TabsContent value="staff" className="mt-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Personal del camporee</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {staffError ? (
+              <EndpointErrorBanner state="missing" detail={staffError} />
+            ) : (
+              <CamporeeStaffPanel
+                camporeeId={camporeeId}
+                isUnionCamporee={isUnionCamporee}
+                staff={initialStaff}
+                candidates={staffCandidates}
+                canEdit={canEditEvents}
               />
             )}
           </CardContent>

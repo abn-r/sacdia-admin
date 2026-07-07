@@ -65,6 +65,9 @@ export interface CamporeeEvent {
   venueId: string;
   leaderName: string;
   leaderRole?: string;
+  staffResponsibleName?: string;
+  staffResponsibleRole?: string;
+  staffHelpers?: string[];
   sections: Section[];
   capacity: number;
   registered: number;

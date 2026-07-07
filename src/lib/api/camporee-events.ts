@@ -14,6 +14,7 @@ import type {
   CamporeeEventTemplateRubric,
   CamporeeTemplateRubricInput,
 } from "@/lib/api/camporee-scoring";
+import type { CamporeeStaffMember } from "@/lib/api/camporee-staff";
 
 // ─── Shared shapes ─────────────────────────────────────────────────────────────
 
@@ -121,6 +122,46 @@ export type CamporeeEventType = {
   active?: boolean;
 };
 
+export type CamporeeEventStaffAssignmentRole =
+  | "responsible"
+  | "assistant"
+  | "evaluator"
+  | "support";
+
+export type CamporeeEventStaffAssignment = {
+  camporee_event_staff_assignment_id?: string;
+  camporee_event_id?: number;
+  camporee_staff_member_id: string;
+  assignment_role: CamporeeEventStaffAssignmentRole;
+  title_override?: string | null;
+  notes?: string | null;
+  display_order?: number;
+  active?: boolean;
+  staff_member?: Pick<
+    CamporeeStaffMember,
+    "camporee_staff_member_id" | "category" | "role_label" | "user_id"
+  > & {
+    user?: {
+      user_id: string;
+      name?: string | null;
+      paternal_last_name?: string | null;
+      maternal_last_name?: string | null;
+      full_name?: string | null;
+      user_image?: string | null;
+    } | null;
+  } | null;
+};
+
+export type ReplaceCamporeeEventStaffAssignmentsPayload = {
+  assignments: Array<{
+    camporee_staff_member_id: string;
+    assignment_role: CamporeeEventStaffAssignmentRole;
+    title_override?: string | null;
+    notes?: string | null;
+    display_order?: number;
+  }>;
+};
+
 /** Leader info joined from the users table (present when leader_user_id is set) */
 export type CamporeeEventLeader = {
   user_id: string;
@@ -212,6 +253,7 @@ export type BackendCamporeeEvent = {
   registered_count: number;
   agenda_visible?: boolean;
   schedule_blocks?: CamporeeEventScheduleBlock[];
+  staff_assignments?: CamporeeEventStaffAssignment[];
   // ── Joined relations (present when backend includes them) ──────────────────
   leader?: CamporeeEventLeader | null;
   venue?: CamporeeEventVenueRef | null;
@@ -386,6 +428,22 @@ export async function updateCamporeeEvent(
   payload: UpdateCamporeeEventPayload,
 ) {
   return apiRequest(`/camporee-events/${id}`, { method: "PATCH", body: payload });
+}
+
+export async function listCamporeeEventStaffAssignments(eventId: number) {
+  return apiRequest<CamporeeEventStaffAssignment[]>(
+    `/camporee-events/${eventId}/staff-assignments`,
+  );
+}
+
+export async function replaceEventStaffAssignments(
+  eventId: number,
+  payload: ReplaceCamporeeEventStaffAssignmentsPayload,
+) {
+  return apiRequest<CamporeeEventStaffAssignment[]>(
+    `/camporee-events/${eventId}/staff-assignments`,
+    { method: "PUT", body: payload },
+  );
 }
 
 export async function replaceCamporeeEventScheduleBlocks(
