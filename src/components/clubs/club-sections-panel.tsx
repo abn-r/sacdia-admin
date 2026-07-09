@@ -12,14 +12,27 @@ import {
   Plus,
   Power,
   Save,
+  Search,
   UserPlus,
   XCircle,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -37,6 +50,7 @@ import {
 } from "@/lib/clubs/actions";
 import { useFormatCurrency } from "@/lib/format-locale";
 import { cn } from "@/lib/utils";
+import { EmptyState } from "@/components/shared/empty-state";
 
 type Section = {
   club_section_id?: number;
@@ -388,6 +402,7 @@ export function ClubSectionsPanel({
 }: ClubSectionsPanelProps) {
   const t = useTranslations("clubs");
   const tw = useTranslations("clubs.sections.workspace");
+  const tDetail = useTranslations("clubs.pages.v2.detail");
   const formatCurrency = useFormatCurrency();
   const [sectionSearch, setSectionSearch] = useState("");
   const [openCreateTypeId, setOpenCreateTypeId] = useState<number | null>(null);
@@ -473,18 +488,26 @@ export function ClubSectionsPanel({
   }
 
   return (
-    <div className="space-y-5 p-5" key={refreshKey}>
-      <header className="flex flex-wrap items-end justify-between gap-4 border-b pb-5">
-        <div className="max-w-2xl">
-          <p className="font-mono text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
-            {tw("eyebrow")}
-          </p>
-          <h2 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
-            {tw("title")}
-          </h2>
-          <p className="mt-2 text-sm text-muted-foreground">{tw("lead")}</p>
-        </div>
-        <div className="flex flex-wrap gap-2">
+    <Card key={refreshKey}>
+      <CardHeader className="border-b has-data-[slot=card-action]:grid-cols-1 md:has-data-[slot=card-action]:grid-cols-[1fr_auto]">
+        <CardTitle className="text-xl font-normal leading-none">
+          {tDetail("tabSections")}
+        </CardTitle>
+        <CardDescription className="max-w-prose leading-snug">{tw("lead")}</CardDescription>
+        <CardAction className="col-start-1 row-start-auto flex w-full flex-wrap justify-start gap-2 justify-self-stretch md:col-start-2 md:row-span-2 md:row-start-1 md:w-auto md:flex-nowrap md:justify-end md:justify-self-end">
+          <InputGroup className="h-8 w-full md:w-72">
+            <InputGroupAddon align="inline-start">
+              <Search className="size-3.5" aria-hidden="true" />
+            </InputGroupAddon>
+            <InputGroupInput
+              id="searchSections"
+              type="search"
+              value={sectionSearch}
+              onChange={(event) => setSectionSearch(event.target.value)}
+              placeholder={tw("searchSectionPlaceholder")}
+              aria-label={tw("searchSection")}
+            />
+          </InputGroup>
           <Button
             type="button"
             variant="outline"
@@ -495,240 +518,219 @@ export function ClubSectionsPanel({
             <Pencil className="size-4" />
             {tw("editSection")}
           </Button>
-          <Button
-            type="button"
-            size="sm"
-            onClick={goToResponsables}
-          >
+          <Button type="button" size="sm" onClick={goToResponsables}>
             <UserPlus className="size-4" />
             {tw("assignResponsible")}
           </Button>
-        </div>
-      </header>
+        </CardAction>
+      </CardHeader>
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(240px,1fr)_minmax(0,2fr)] xl:items-start">
-            <aside className="space-y-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="searchSections">{tw("searchSection")}</Label>
-                <Input
-                  id="searchSections"
-                  type="search"
-                  value={sectionSearch}
-                  onChange={(event) => setSectionSearch(event.target.value)}
-                  placeholder={tw("searchSectionPlaceholder")}
+      <CardContent className="grid gap-5 px-4 py-4 xl:grid-cols-[minmax(240px,1fr)_minmax(0,2fr)] xl:items-start">
+        <aside className="space-y-2">
+          <div className="grid gap-2">
+            {filteredTypes.map((clubType) => {
+              const section = existingByTypeId.get(clubType.club_type_id);
+              const isCreated = section?.club_section_id != null;
+              const isActive =
+                isCreated && section?.club_section_id === selectedSectionId;
+              const isCreateOpen = openCreateTypeId === clubType.club_type_id;
+
+              if (!isCreated) {
+                return (
+                  <div
+                    key={clubType.club_type_id}
+                    className="rounded-lg border border-dashed p-3"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-3">
+                        <XCircle className="mt-0.5 size-4 text-muted-foreground" />
+                        <div>
+                          <p className="text-sm font-medium">{clubType.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {t("sections.notCreated")}
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          setOpenCreateTypeId((current) =>
+                            current === clubType.club_type_id ? null : clubType.club_type_id,
+                          )
+                        }
+                      >
+                        {isCreateOpen ? (
+                          <>
+                            <ChevronUp className="size-4" />
+                            {t("sections.cancelButton")}
+                          </>
+                        ) : (
+                          <>
+                            <Plus className="size-4" />
+                            {t("sections.addButton")}
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                    {isCreateOpen ? (
+                      <CreateSectionForm
+                        clubId={clubId}
+                        clubTypeId={clubType.club_type_id}
+                        onSuccess={() => {
+                          setOpenCreateTypeId(null);
+                          setRefreshKey((value) => value + 1);
+                        }}
+                      />
+                    ) : null}
+                  </div>
+                );
+              }
+
+              return (
+                <button
+                  key={clubType.club_type_id}
+                  type="button"
+                  onClick={() => selectSection(section.club_section_id ?? null)}
+                  className={cn(
+                    "grid w-full grid-cols-[auto_1fr_auto] items-center gap-3 rounded-lg border p-3 text-left transition-colors",
+                    isActive ? "border-foreground bg-muted/50" : "hover:bg-muted/30",
+                  )}
+                >
+                  <span className="grid size-8 place-items-center rounded-md bg-muted">
+                    <CheckCircle2 className="size-4" />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-medium">
+                      {section.name ?? getSectionTypeName(section) ?? clubType.name}
+                    </span>
+                    <span className="block truncate text-xs text-muted-foreground">
+                      {clubType.name} · ID {section.club_section_id}
+                    </span>
+                  </span>
+                  <Badge variant={section.active !== false ? "soft-success" : "outline"}>
+                    {section.active !== false
+                      ? t("sections.statusActive")
+                      : t("sections.statusInactive")}
+                  </Badge>
+                </button>
+              );
+            })}
+          </div>
+        </aside>
+
+        <article className="rounded-lg border">
+          {!selectedEntry ? (
+            <div className="p-6">
+              <EmptyState
+                icon={CheckCircle2}
+                title={tw("selectSectionPrompt")}
+                variant="default"
+              />
+            </div>
+          ) : (
+            <div className="space-y-5 p-4">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <Badge variant={selectedEntry.section.active !== false ? "soft-success" : "outline"}>
+                    {selectedEntry.section.active !== false
+                      ? t("sections.statusActive")
+                      : t("sections.statusInactive")}
+                  </Badge>
+                  <p className="mt-3 text-lg font-normal leading-snug">
+                    {selectedEntry.label}
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {tw("sectionDetailLead", {
+                      section: selectedEntry.label,
+                      type: selectedEntry.typeName,
+                    })}
+                  </p>
+                </div>
+                {selectedEntry.section.club_section_id != null ? (
+                  <SectionStatusForm
+                    clubId={clubId}
+                    sectionId={selectedEntry.section.club_section_id}
+                    active={selectedEntry.section.active !== false}
+                  />
+                ) : null}
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <Metric value={selectedEntry.typeName} label={t("sections.infoType")} />
+                <Metric
+                  value={String(selectedEntry.section.club_section_id ?? "—")}
+                  label={t("sections.infoSectionId")}
+                />
+                <Metric
+                  value={String(selectedEntry.section.souls_target ?? 0)}
+                  label={t("sections.labelSoulsTarget")}
+                />
+                <Metric
+                  value={
+                    selectedEntry.section.fee != null
+                      ? formatCurrency(selectedEntry.section.fee)
+                      : "—"
+                  }
+                  label={t("sections.infoCuota")}
                 />
               </div>
 
-              <div className="grid gap-2">
-                {filteredTypes.map((clubType) => {
-                  const section = existingByTypeId.get(clubType.club_type_id);
-                  const isCreated = section?.club_section_id != null;
-                  const isActive =
-                    isCreated && section?.club_section_id === selectedSectionId;
-                  const isCreateOpen = openCreateTypeId === clubType.club_type_id;
+              <div className="border-t" />
 
-                  if (!isCreated) {
-                    return (
-                      <div
-                        key={clubType.club_type_id}
-                        className="rounded-xl border border-dashed bg-muted/10 p-4"
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex items-start gap-3">
-                            <XCircle className="mt-0.5 size-5 text-muted-foreground" />
-                            <div>
-                              <p className="text-sm font-semibold">{clubType.name}</p>
-                              <p className="text-xs text-muted-foreground">
-                                {t("sections.notCreated")}
-                              </p>
-                            </div>
-                          </div>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              setOpenCreateTypeId((current) =>
-                                current === clubType.club_type_id ? null : clubType.club_type_id,
-                              )
-                            }
-                          >
-                            {isCreateOpen ? (
-                              <>
-                                <ChevronUp className="size-4" />
-                                {t("sections.cancelButton")}
-                              </>
-                            ) : (
-                              <>
-                                <Plus className="size-4" />
-                                {t("sections.addButton")}
-                              </>
-                            )}
-                          </Button>
-                        </div>
-                        {isCreateOpen && (
-                          <CreateSectionForm
-                            clubId={clubId}
-                            clubTypeId={clubType.club_type_id}
-                            onSuccess={() => {
-                              setOpenCreateTypeId(null);
-                              setRefreshKey((value) => value + 1);
-                            }}
-                          />
-                        )}
-                      </div>
-                    );
-                  }
-
-                  return (
-                    <button
-                      key={clubType.club_type_id}
-                      type="button"
-                      onClick={() => selectSection(section.club_section_id ?? null)}
-                      className={cn(
-                        "grid w-full grid-cols-[auto_1fr_auto] items-center gap-3 rounded-xl border bg-card p-4 text-left transition-colors",
-                        isActive
-                          ? "border-foreground shadow-[inset_3px_0_0_0_hsl(var(--foreground))]"
-                          : "hover:border-foreground/30",
-                      )}
-                    >
-                      <span className="grid size-8 place-items-center rounded-full border">
-                        <CheckCircle2 className="size-4" />
-                      </span>
-                      <span>
-                        <strong className="block text-sm">
-                          {section.name ?? getSectionTypeName(section) ?? clubType.name}
-                        </strong>
-                        <small className="block text-xs text-muted-foreground">
-                          {clubType.name} · ID {section.club_section_id}
-                        </small>
-                      </span>
-                      <Badge variant={section.active !== false ? "soft-success" : "outline"}>
-                        {section.active !== false
-                          ? t("sections.statusActive")
-                          : t("sections.statusInactive")}
-                      </Badge>
-                    </button>
-                  );
-                })}
-              </div>
-            </aside>
-
-            <article className="rounded-2xl border bg-card p-5 shadow-sm">
-              {!selectedEntry ? (
-                <div className="rounded-xl border border-dashed px-4 py-10 text-sm text-muted-foreground">
-                  {tw("selectSectionPrompt")}
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-medium">{tw("responsiblesRuleTitle")}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {tw("responsiblesRuleLead", { type: selectedEntry.typeName })}
+                  </p>
                 </div>
-              ) : (
-                <>
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <Badge variant={selectedEntry.section.active !== false ? "soft-success" : "outline"}>
-                        {selectedEntry.section.active !== false
-                          ? t("sections.statusActive")
-                          : t("sections.statusInactive")}
-                      </Badge>
-                      <h3 className="mt-3 text-xl font-semibold tracking-tight">
-                        {selectedEntry.label}
-                      </h3>
-                      <p className="mt-2 text-sm text-muted-foreground">
-                        {tw("sectionDetailLead", {
-                          section: selectedEntry.label,
-                          type: selectedEntry.typeName,
-                        })}
-                      </p>
-                    </div>
-                    {selectedEntry.section.club_section_id != null && (
-                      <SectionStatusForm
-                        clubId={clubId}
-                        sectionId={selectedEntry.section.club_section_id}
-                        active={selectedEntry.section.active !== false}
-                      />
-                    )}
-                  </div>
+                <Button type="button" variant="outline" size="sm" onClick={goToResponsables}>
+                  {tw("viewResponsibles")}
+                  <ArrowRight className="size-4" />
+                </Button>
+              </div>
 
-                  <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                    <Metric
-                      value={selectedEntry.typeName}
-                      label={t("sections.infoType")}
-                    />
-                    <Metric
-                      value={String(selectedEntry.section.club_section_id ?? "—")}
-                      label={t("sections.infoSectionId")}
-                    />
-                    <Metric
-                      value={String(selectedEntry.section.souls_target ?? 0)}
-                      label={t("sections.labelSoulsTarget")}
-                    />
-                    <Metric
-                      value={
-                        selectedEntry.section.fee != null
-                          ? formatCurrency(selectedEntry.section.fee)
-                          : "—"
-                      }
-                      label={t("sections.infoCuota")}
-                    />
-                  </div>
+              {selectedEntry.section.club_section_id != null &&
+              editingSectionId === selectedEntry.section.club_section_id ? (
+                <EditSectionForm
+                  clubId={clubId}
+                  sectionId={selectedEntry.section.club_section_id}
+                  section={selectedEntry.section}
+                  label={selectedEntry.typeName}
+                  onCancel={() => setEditingSectionId(null)}
+                />
+              ) : null}
 
-                  <div className="my-5 border-t" />
-
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <h4 className="text-sm font-semibold">{tw("responsiblesRuleTitle")}</h4>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {tw("responsiblesRuleLead", { type: selectedEntry.typeName })}
-                      </p>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={goToResponsables}
-                    >
-                      {tw("viewResponsibles")}
-                      <ArrowRight className="size-4" />
-                    </Button>
-                  </div>
-
-                  {selectedEntry.section.club_section_id != null &&
-                    editingSectionId === selectedEntry.section.club_section_id && (
-                      <EditSectionForm
-                        clubId={clubId}
-                        sectionId={selectedEntry.section.club_section_id}
-                        section={selectedEntry.section}
-                        label={selectedEntry.typeName}
-                        onCancel={() => setEditingSectionId(null)}
-                      />
-                    )}
-
-                  {selectedEntry.section.club_section_id != null && (
-                    <div className="mt-5 space-y-4 border-t pt-5">
-                      <MemberOfMonthCard
-                        clubId={clubId}
-                        sectionId={selectedEntry.section.club_section_id}
-                        sectionName={selectedEntry.label}
-                        isDirector={false}
-                      />
-                      <SectionDirectorSuccessionCard
-                        clubId={clubId}
-                        sectionId={selectedEntry.section.club_section_id}
-                        sectionName={selectedEntry.label}
-                      />
-                    </div>
-                  )}
-                </>
-              )}
-            </article>
-          </div>
-    </div>
+              {selectedEntry.section.club_section_id != null ? (
+                <div className="space-y-4 border-t pt-4">
+                  <MemberOfMonthCard
+                    clubId={clubId}
+                    sectionId={selectedEntry.section.club_section_id}
+                    sectionName={selectedEntry.label}
+                    isDirector={false}
+                  />
+                  <SectionDirectorSuccessionCard
+                    clubId={clubId}
+                    sectionId={selectedEntry.section.club_section_id}
+                    sectionName={selectedEntry.label}
+                  />
+                </div>
+              ) : null}
+            </div>
+          )}
+        </article>
+      </CardContent>
+    </Card>
   );
 }
 
 function Metric({ value, label }: { value: string; label: string }) {
   return (
-    <div className="rounded-lg border bg-background p-3.5">
-      <b className="block font-mono text-xl tabular-nums">{value}</b>
-      <span className="text-xs text-muted-foreground">{label}</span>
+    <div className="rounded-lg border bg-background p-3">
+      <p className="text-lg leading-none tabular-nums">{value}</p>
+      <p className="mt-1 text-xs text-muted-foreground">{label}</p>
     </div>
   );
 }

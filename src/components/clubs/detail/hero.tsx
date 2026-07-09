@@ -63,7 +63,7 @@ export function ClubDetailHero({
 
         <div className="min-w-0 space-y-2">
           <div className="flex flex-wrap items-center gap-3">
-            <h1 className="font-display text-2xl font-normal leading-tight tracking-tight text-foreground sm:text-3xl">
+            <h1 className="text-xl font-semibold leading-tight tracking-tight text-foreground sm:text-2xl">
               {name}
             </h1>
             <span className="font-mono text-sm font-semibold text-muted-foreground">

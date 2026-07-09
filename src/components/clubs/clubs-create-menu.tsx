@@ -17,7 +17,7 @@ export function ClubsCreateMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button>
+        <Button size="sm">
           <Plus className="size-4" />
           {t("createButton")}
           <ChevronDown className="size-4 opacity-70" aria-hidden="true" />

@@ -4,18 +4,24 @@ import { Loader2, TrendingUp } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Unit } from "@/lib/api/units";
 import type { ClubOverview, ClubLeadership } from "@/lib/api/club-detail";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { ErrorRetryBanner } from "@/components/shared/error-retry-banner";
 import { CompositionDonut } from "./composition-donut";
-import { UnitRanking } from "./unit-ranking";
 import { AttendanceChart, ScoreBreakdown, ScoreCircle } from "./charts";
-import { LeadershipPanel } from "./right-sidebar";
+import { SectionMembersRoster } from "./section-members-roster";
+import { ClubHubTeamSection } from "./hub-sections";
 import { getTotalMembers } from "./helpers";
-import type { ClubSectionRaw, SectionView } from "./types";
+import type { SectionView } from "./types";
 
 interface OverviewTabProps {
   sections: SectionView[];
   units: Unit[];
-  sectionLookup: Map<number, ClubSectionRaw>;
   overview: ClubOverview | undefined;
   isLoadingOverview: boolean;
   overviewError: Error | null;
@@ -26,134 +32,106 @@ interface OverviewTabProps {
   onRetryLeadership?: () => void;
   isRetryingOverview?: boolean;
   isRetryingLeadership?: boolean;
+  teamSections: Array<{
+    sectionId: number;
+    typeName: string;
+    memberCount: number;
+    active: boolean;
+  }>;
+  onOpenResponsables: (sectionId: number) => void;
+  onOpenSections: () => void;
 }
 
 export function ClubOverviewTab({
   sections,
   units,
-  sectionLookup,
   overview,
   isLoadingOverview,
   overviewError,
   leadership,
-  isLoadingLeadership = false,
-  leadershipError = null,
+  teamSections,
+  onOpenResponsables,
+  onOpenSections,
   onRetryOverview,
-  onRetryLeadership,
   isRetryingOverview = false,
-  isRetryingLeadership = false,
 }: OverviewTabProps) {
   const t = useTranslations("clubs.detail.overview");
   const tErrors = useTranslations("shared.errorRetry");
   const total = getTotalMembers(sections);
 
   return (
-    <div className="grid grid-cols-1 gap-3 lg:grid-cols-12">
-      <PanelCard
-        className="lg:col-span-7"
-        title={t("compositionTitle")}
-        subtitle={t("compositionSubtitle")}
-        right={
-          <span className="text-[11px] text-muted-foreground">
-            {t("totalCount", { count: total })}
-          </span>
-        }
-      >
-        <CompositionDonut sections={sections} total={total} />
-      </PanelCard>
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-12">
+        <Card className="xl:col-span-12">
+          <CardHeader>
+            <CardTitle className="font-normal">{t("attendanceTitle")}</CardTitle>
+            <CardDescription>{t("attendanceSubtitle")}</CardDescription>
+            {overview?.attendance_average != null ? (
+              <p className="text-sm text-muted-foreground">
+                {t("attendanceAverage", {
+                  pct: Math.round(overview.attendance_average),
+                })}
+              </p>
+            ) : null}
+          </CardHeader>
+          <CardContent>
+            <AttendanceBlock
+              overview={overview}
+              isLoading={isLoadingOverview}
+              error={overviewError}
+              onRetry={onRetryOverview}
+              isRetrying={isRetryingOverview}
+              errorMessage={tErrors("loadAttendance")}
+              emptyTitle={t("attendanceEmptyTitle")}
+              emptyDescription={t("attendanceEmptyDescription")}
+              loadingLabel={t("loading")}
+            />
+          </CardContent>
+        </Card>
 
-      <PanelCard
-        className="lg:col-span-5"
-        title={t("healthTitle")}
-        subtitle={t("healthSubtitle")}
-      >
-        <HealthBlock
-          overview={overview}
-          isLoading={isLoadingOverview}
-          error={overviewError}
-          onRetry={onRetryOverview}
-          isRetrying={isRetryingOverview}
-          errorMessage={tErrors("loadClubScore")}
-        />
-      </PanelCard>
+        <Card className="xl:col-span-4">
+          <CardHeader>
+            <CardTitle className="font-normal">{t("healthTitle")}</CardTitle>
+            <CardDescription>{t("healthSubtitle")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <HealthBlock
+              overview={overview}
+              isLoading={isLoadingOverview}
+              error={overviewError}
+              onRetry={onRetryOverview}
+              isRetrying={isRetryingOverview}
+              errorMessage={tErrors("loadClubScore")}
+              loadingLabel={t("loading")}
+            />
+          </CardContent>
+        </Card>
 
-      <PanelCard
-        className="lg:col-span-7"
-        title={t("rankingTitle")}
-        subtitle={t("rankingSubtitle")}
-        right={
-          <span className="text-[11px] text-muted-foreground">
-            {t("unitsCount", { count: units.length })}
-          </span>
-        }
-      >
-        <UnitRanking units={units} sectionLookup={sectionLookup} limit={8} />
-      </PanelCard>
-
-      <PanelCard
-        className="lg:col-span-5"
-        title={t("attendanceTitle")}
-        subtitle={t("attendanceSubtitle")}
-        right={
-          overview?.attendance_average != null && (
-            <span className="text-[11px] text-muted-foreground">
-              {t("attendanceAverage", {
-                pct: Math.round(overview.attendance_average),
-              })}
-            </span>
-          )
-        }
-      >
-        <AttendanceBlock
-          overview={overview}
-          isLoading={isLoadingOverview}
-          error={overviewError}
-          onRetry={onRetryOverview}
-          isRetrying={isRetryingOverview}
-          errorMessage={tErrors("loadAttendance")}
-        />
-      </PanelCard>
-
-      <div className="lg:col-span-12">
-        <LeadershipPanel
-          leadership={leadership}
-          isLoading={isLoadingLeadership}
-          error={leadershipError}
-          onRetry={onRetryLeadership}
-          isRetrying={isRetryingLeadership}
-          errorMessage={tErrors("loadLeadership")}
-        />
+        <Card className="xl:col-span-8">
+          <CardHeader>
+            <CardTitle className="font-normal">{t("compositionTitle")}</CardTitle>
+            <CardDescription>
+              {t("compositionSubtitle")} · {t("totalCount", { count: total })}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <CompositionDonut sections={sections} total={total} />
+          </CardContent>
+        </Card>
       </div>
-    </div>
-  );
-}
 
-function PanelCard({
-  className = "",
-  title,
-  subtitle,
-  right,
-  children,
-}: {
-  className?: string;
-  title: string;
-  subtitle?: string;
-  right?: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className={`rounded-2xl border bg-card p-5 shadow-sm ${className}`}>
-      <header className="mb-4 flex items-start justify-between">
-        <div>
-          <h3 className="text-sm font-bold text-foreground">{title}</h3>
-          {subtitle && (
-            <p className="mt-0.5 text-[11px] text-muted-foreground">{subtitle}</p>
-          )}
-        </div>
-        {right}
-      </header>
-      {children}
-    </section>
+      <SectionMembersRoster
+        sections={sections}
+        units={units}
+        leadership={leadership}
+      />
+
+      <ClubHubTeamSection
+        sections={teamSections}
+        onOpenResponsables={onOpenResponsables}
+        onOpenSections={onOpenSections}
+      />
+    </div>
   );
 }
 
@@ -164,6 +142,7 @@ function HealthBlock({
   onRetry,
   isRetrying,
   errorMessage,
+  loadingLabel,
 }: {
   overview: ClubOverview | undefined;
   isLoading: boolean;
@@ -171,8 +150,11 @@ function HealthBlock({
   onRetry?: () => void;
   isRetrying?: boolean;
   errorMessage: string;
+  loadingLabel: string;
 }) {
-  if (isLoading) return <CardLoader />;
+  const t = useTranslations("clubs.detail.overview");
+
+  if (isLoading) return <CardLoader label={loadingLabel} />;
   if (error || !overview) {
     return (
       <ErrorRetryBanner
@@ -183,16 +165,11 @@ function HealthBlock({
     );
   }
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div className="grid grid-cols-[96px_1fr] items-center gap-4">
         <ScoreCircle score={overview.score} />
-        <p className="text-xs text-muted-foreground">
-          Score compuesto basado en asistencia, secciones activas y ocupación de
-          cupo. Grado actual:{" "}
-          <span className="font-semibold text-foreground">
-            {overview.score.grade}
-          </span>
-          .
+        <p className="text-xs leading-relaxed text-muted-foreground">
+          {t("healthScoreDescription", { grade: overview.score.grade })}
         </p>
       </div>
       <ScoreBreakdown items={overview.score.breakdown} />
@@ -207,6 +184,9 @@ function AttendanceBlock({
   onRetry,
   isRetrying,
   errorMessage,
+  emptyTitle,
+  emptyDescription,
+  loadingLabel,
 }: {
   overview: ClubOverview | undefined;
   isLoading: boolean;
@@ -214,8 +194,11 @@ function AttendanceBlock({
   onRetry?: () => void;
   isRetrying?: boolean;
   errorMessage: string;
+  emptyTitle: string;
+  emptyDescription: string;
+  loadingLabel: string;
 }) {
-  if (isLoading) return <CardLoader />;
+  if (isLoading) return <CardLoader label={loadingLabel} />;
   if (error) {
     return (
       <ErrorRetryBanner
@@ -227,28 +210,22 @@ function AttendanceBlock({
   }
   if (!overview?.attendance || overview.attendance.length === 0) {
     return (
-      <div className="grid place-items-center gap-2 rounded-xl border border-dashed bg-muted/30 px-4 py-8 text-center">
+      <div className="grid place-items-center gap-2 rounded-xl border border-dashed bg-muted/30 px-4 py-10 text-center">
         <span className="grid size-9 place-items-center rounded-full bg-muted text-muted-foreground">
           <TrendingUp className="size-5" />
         </span>
-        <p className="text-sm font-semibold text-foreground">
-          Sin registros semanales todavía
-        </p>
-        <p className="max-w-xs text-xs text-muted-foreground">
-          Cuando se capturen `weekly-records`, aquí aparecerá la tendencia de
-          asistencia.
-        </p>
+        <p className="text-sm font-medium text-foreground">{emptyTitle}</p>
+        <p className="max-w-sm text-xs text-muted-foreground">{emptyDescription}</p>
       </div>
     );
   }
   return <AttendanceChart series={overview.attendance} />;
 }
 
-function CardLoader() {
+function CardLoader({ label }: { label: string }) {
   return (
-    <div className="flex items-center justify-center gap-2 py-8 text-sm text-muted-foreground">
-      <Loader2 className="size-4 animate-spin" /> Cargando…
+    <div className="flex items-center justify-center gap-2 py-10 text-sm text-muted-foreground">
+      <Loader2 className="size-4 animate-spin" /> {label}
     </div>
   );
 }
-

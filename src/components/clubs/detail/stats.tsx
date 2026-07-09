@@ -1,6 +1,15 @@
 "use client";
 
 import { Award, ClipboardList, Layers, Users } from "lucide-react";
+import { useTranslations } from "next-intl";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import {
   getTotalCapacity,
@@ -20,118 +29,122 @@ export function ClubDetailStats({
   unitsCount,
   pendingRequests,
 }: StatsProps) {
+  const t = useTranslations("clubs.detail.overview.stats");
   const members = getTotalMembers(sections);
   const capacity = getTotalCapacity(sections);
   const occupancyPct = pctOf(members, capacity);
   const activeSections = sections.filter((s) => s.active).length;
+  const inactiveCount = Math.max(0, sections.length - activeSections);
 
   return (
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-      <StatCard
-        icon={<Users className="size-3 " />}
-        label="Miembros"
-      >
-        <div className="text-2xl font-bold tracking-tight text-foreground">
-          {members}
-          {capacity != null && (
-            <span className="ml-1 text-sm font-medium text-muted-foreground">
-              / {capacity}
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm font-normal">{t("members")}</CardTitle>
+          <CardDescription className="text-3xl leading-none tracking-tight text-foreground tabular-nums">
+            {members}
+            {capacity != null ? (
+              <span className="ml-1 text-base font-normal text-muted-foreground">
+                / {capacity}
+              </span>
+            ) : null}
+          </CardDescription>
+          <CardAction className="grid size-8 place-items-center rounded-md bg-muted">
+            <Users className="size-4 text-foreground" />
+          </CardAction>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            {capacity != null
+              ? t("membersCapacity", { occupancy: occupancyPct })
+              : t("noCapacity")}
+          </p>
+          {capacity != null ? (
+            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full bg-chart-1"
+                style={{ width: `${occupancyPct}%` }}
+              />
+            </div>
+          ) : null}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm font-normal">{t("sections")}</CardTitle>
+          <CardDescription className="text-3xl leading-none tracking-tight text-foreground tabular-nums">
+            {activeSections}
+            <span className="ml-1 text-base font-normal text-muted-foreground">
+              / {sections.length || 3}
             </span>
-          )}
-        </div>
-        <p className="mt-0.5 text-xs text-muted-foreground">
-          {capacity != null
-            ? `${occupancyPct}% del cupo objetivo`
-            : "Sin meta de cupo definida"}
-        </p>
-        {capacity != null && (
-          <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-primary to-warning"
-              style={{ width: `${occupancyPct}%` }}
-            />
+          </CardDescription>
+          <CardAction className="grid size-8 place-items-center rounded-md bg-muted">
+            <Layers className="size-4 text-foreground" />
+          </CardAction>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            {activeSections === 3
+              ? t("sectionsAllActive")
+              : t("sectionsInactive", { count: inactiveCount })}
+          </p>
+          <div className="mt-3 flex gap-1">
+            {sections.map((s) => (
+              <span
+                key={s.kind + (s.sectionId ?? "")}
+                className={cn(
+                  "h-1.5 flex-1 rounded-sm",
+                  s.active ? s.meta.barBg : "bg-muted",
+                )}
+                title={s.label}
+              />
+            ))}
           </div>
-        )}
-      </StatCard>
+        </CardContent>
+      </Card>
 
-      <StatCard
-        icon={<Layers className="size-3" />}
-        label="Secciones activas"
-      >
-        <div className="text-2xl font-bold tracking-tight text-foreground">
-          {activeSections}
-          <span className="ml-1 text-sm font-medium text-muted-foreground">
-            / {sections.length || 3}
-          </span>
-        </div>
-        <p className="mt-0.5 text-xs text-muted-foreground">
-          {activeSections === 3
-            ? "Las tres secciones operando"
-            : `${3 - activeSections} sin activar`}
-        </p>
-        <div className="mt-3 flex gap-1">
-          {sections.map((s) => (
-            <span
-              key={s.kind + (s.sectionId ?? "")}
-              className={cn(
-                "h-1.5 flex-1 rounded-sm",
-                s.active ? s.meta.barBg : "bg-muted",
-              )}
-              title={`${s.label} · ${s.active ? "activa" : "inactiva"}`}
-            />
-          ))}
-        </div>
-      </StatCard>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm font-normal">{t("units")}</CardTitle>
+          <CardDescription className="text-3xl leading-none tracking-tight text-foreground tabular-nums">
+            {unitsCount}
+          </CardDescription>
+          <CardAction className="grid size-8 place-items-center rounded-md bg-muted">
+            <Award className="size-4 text-foreground" />
+          </CardAction>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            {unitsCount === 0
+              ? t("unitsEmpty")
+              : t("unitsAvg", {
+                  avg: Math.round(members / Math.max(1, unitsCount)),
+                })}
+          </p>
+        </CardContent>
+      </Card>
 
-      <StatCard
-        icon={<Award className="size-3" />}
-        label="Unidades"
-      >
-        <div className="text-2xl font-bold tracking-tight text-foreground">
-          {unitsCount}
-        </div>
-        <p className="mt-0.5 text-xs text-muted-foreground">
-          {unitsCount === 0
-            ? "Aún sin unidades creadas"
-            : `Promedio ${Math.round(members / Math.max(1, unitsCount))} miembros/unidad`}
-        </p>
-      </StatCard>
-
-      <StatCard
-        icon={<ClipboardList className="size-3" />}
-        label="Solicitudes pendientes"
-      >
-        <div className="text-2xl font-bold tracking-tight text-foreground">
-          {pendingRequests ?? "—"}
-        </div>
-        <p className="mt-0.5 text-xs text-muted-foreground">
-          {pendingRequests == null
-            ? "Sin datos cargados"
-            : pendingRequests === 0
-              ? "Bandeja al día"
-              : "Esperan revisión del coordinador"}
-        </p>
-      </StatCard>
-    </div>
-  );
-}
-
-function StatCard({
-  icon,
-  label,
-  children,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-2xl border bg-card p-4 shadow-sm">
-      <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-        {icon}
-        {label}
-      </div>
-      <div className="mt-1.5">{children}</div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm font-normal">{t("pending")}</CardTitle>
+          <CardDescription className="text-3xl leading-none tracking-tight text-foreground tabular-nums">
+            {pendingRequests ?? "—"}
+          </CardDescription>
+          <CardAction className="grid size-8 place-items-center rounded-md bg-muted">
+            <ClipboardList className="size-4 text-foreground" />
+          </CardAction>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            {pendingRequests == null
+              ? t("pendingNoData")
+              : pendingRequests === 0
+                ? t("pendingEmpty")
+                : t("pendingWaiting")}
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -1,11 +1,19 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { AlertTriangle, Building2, Loader2, MapPin, Trash2 } from "lucide-react";
+import {
+  AlertTriangle,
+  Building2,
+  Loader2,
+  MapPin,
+  Pencil,
+  Trash2,
+} from "lucide-react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -17,12 +25,22 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PageHeader } from "@/components/shared/page-header";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { EditClubForm } from "@/components/clubs/edit-club-form";
-import { ClubSectionsPanel } from "@/components/clubs/club-sections-panel";
-import { ClubSectionResponsablesPanel } from "@/components/clubs/club-section-responsables-panel";
-import { ClubSectionHistoryPanel } from "@/components/clubs/club-section-history-panel";
 import { PendingMembersPanel } from "@/components/membership/pending-members-panel";
 import { UnitsTab } from "@/components/units/units-tab";
 import {
@@ -33,14 +51,17 @@ import type { ClubActionState } from "@/lib/clubs/actions";
 import { ClubOverviewTab } from "./overview-tab";
 import { ClubHistoryTab } from "./history-tab";
 import { ClubInfoPanel } from "./info-panel";
+import { ClubSectionsTab } from "./sections-tab";
+import { ClubResponsablesTab } from "./responsables-tab";
+import { ClubDetailStats } from "./stats";
+import { ClubTabsNav } from "./tabs-nav";
+import type { ClubMainTabId } from "./tabs-nav";
 import {
   buildSectionViews,
   getActiveUnits,
   getClubLocations,
-  getTotalMembers,
 } from "./helpers";
-import type { ClubTabId } from "./tabs-nav";
-import type { ClubFull, ClubSectionRaw } from "./types";
+import type { ClubFull } from "./types";
 import { listUnits } from "@/lib/api/units";
 
 interface SelectOption {
@@ -51,7 +72,8 @@ interface SelectOption {
 interface ClubDetailViewProps {
   club: ClubFull;
   clubId: number;
-  defaultTab: ClubTabId;
+  defaultTab: ClubMainTabId;
+  defaultEditOpen?: boolean;
   localFieldOptions: SelectOption[];
   districtOptions: SelectOption[];
   churchOptions: SelectOption[];
@@ -61,36 +83,29 @@ interface ClubDetailViewProps {
     formData: FormData,
   ) => Promise<ClubActionState>;
   deleteAction: (formData: FormData) => Promise<void>;
+  pendingMembershipCount?: number;
 }
-
-const TAB_ITEMS = [
-  { id: "overview" as const, labelKey: "tabOverview" as const },
-  { id: "sections" as const, labelKey: "tabSections" as const },
-  { id: "responsables" as const, labelKey: "tabResponsables" as const },
-  { id: "units" as const, labelKey: "tabUnits" as const },
-  { id: "membership" as const, labelKey: "tabMembership" as const },
-  { id: "info" as const, labelKey: "tabInfo" as const },
-  { id: "history" as const, labelKey: "tabHistory" as const },
-  { id: "edit" as const, labelKey: "tabEdit" as const },
-];
 
 export function ClubDetailView({
   club,
   clubId,
   defaultTab,
+  defaultEditOpen = false,
   localFieldOptions,
   districtOptions,
   churchOptions,
   clubTypeOptions,
   updateAction,
   deleteAction,
+  pendingMembershipCount = 0,
 }: ClubDetailViewProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const t = useTranslations("clubs.pages.v2.detail");
   const tDetail = useTranslations("clubs.pages.detail");
-  const [tab, setTab] = useState<ClubTabId>(defaultTab);
+  const [tab, setTab] = useState<ClubMainTabId>(defaultTab);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(defaultEditOpen);
 
   const { data: units = [] } = useQuery({
     queryKey: ["club-detail-units", clubId],
@@ -127,13 +142,6 @@ export function ClubDetailView({
 
   const activeUnits = useMemo(() => getActiveUnits(units), [units]);
   const sections = useMemo(() => buildSectionViews(club, activeUnits), [club, activeUnits]);
-  const sectionLookup = useMemo(() => {
-    const map = new Map<number, ClubSectionRaw>();
-    for (const section of sections) {
-      if (section.sectionId != null) map.set(section.sectionId, section.raw);
-    }
-    return map;
-  }, [sections]);
 
   const rawSections = useMemo(
     () =>
@@ -165,6 +173,7 @@ export function ClubDetailView({
   const [selectedSectionId, setSelectedSectionId] = useState<number | null>(
     responsablesSections[0]?.club_section_id ?? null,
   );
+  const [openAssignOnResponsables, setOpenAssignOnResponsables] = useState(false);
 
   const editClubProps = useMemo(
     () => ({
@@ -183,166 +192,246 @@ export function ClubDetailView({
   );
 
   const { localField, district, church } = getClubLocations(club);
-  const members = getTotalMembers(sections);
+  const pendingCount =
+    pendingMembershipCount > 0
+      ? pendingMembershipCount
+      : overview?.funnel?.pending_requests ?? pendingMembershipCount;
 
-  function setActiveTab(next: ClubTabId) {
-    setTab(next);
+  useEffect(() => {
+    setTab(defaultTab);
+    setEditOpen(defaultEditOpen);
+  }, [defaultTab, defaultEditOpen]);
+
+  function syncRoute(nextTab: ClubMainTabId) {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(searchParams?.toString() ?? "");
-    params.set("tab", next);
-    router.replace(`?${params.toString()}`, { scroll: false });
+    params.delete("panel");
+    if (nextTab === "overview") {
+      params.delete("tab");
+    } else {
+      params.set("tab", nextTab);
+    }
+    const qs = params.toString();
+    router.replace(qs ? `?${qs}` : "?", { scroll: false });
   }
 
+  function setActiveTab(next: ClubMainTabId) {
+    setTab(next);
+    syncRoute(next);
+  }
+
+  function openResponsablesTab(sectionId?: number, withAssign = false) {
+    if (sectionId != null) setSelectedSectionId(sectionId);
+    setOpenAssignOnResponsables(withAssign);
+    setActiveTab("responsables");
+  }
+
+  const teamSections = sections
+    .filter((section) => section.sectionId != null)
+    .map((section) => ({
+      sectionId: section.sectionId!,
+      typeName: section.label,
+      memberCount: section.members,
+      active: section.active,
+    }));
+
+  const mainTabs = [
+    { id: "overview" as const, label: t("tabOverview") },
+    { id: "sections" as const, label: t("tabSections") },
+    { id: "responsables" as const, label: t("tabResponsables") },
+    { id: "units" as const, label: t("tabUnits") },
+    {
+      id: "membership" as const,
+      label: t("tabMembership"),
+      count: pendingCount > 0 ? pendingCount : null,
+    },
+    { id: "history" as const, label: t("tabHistory") },
+    { id: "info" as const, label: t("tabInfo") },
+  ];
+
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title={club.name ?? t("fallbackTitle")}
-        description={t("description")}
-        breadcrumbs={[
-          { label: t("breadcrumbList"), href: "/dashboard/clubs" },
-          { label: club.name ?? t("fallbackTitle") },
-        ]}
-      >
-        <div className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => setActiveTab("edit")}>
-            {t("editButton")}
-          </Button>
-          <Button variant="destructive" size="sm" onClick={() => setDeleteOpen(true)}>
-            {tDetail("deleteDialogConfirm")}
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardDescription className="text-xs">
+            <Link
+              href="/dashboard/clubs"
+              className="text-muted-foreground transition-colors hover:text-foreground"
+            >
+              {t("breadcrumbList")}
+            </Link>
+            <span className="text-muted-foreground"> / </span>
+            <span>{club.name ?? t("fallbackTitle")}</span>
+          </CardDescription>
+          <CardTitle className="text-xl">{club.name ?? t("fallbackTitle")}</CardTitle>
+          <CardDescription>
+            {club.description?.trim() || t("noDescription")}
+          </CardDescription>
+          <CardAction className="flex flex-wrap items-center gap-2">
+            <Badge variant={club.active !== false ? "soft-success" : "outline"}>
+              {club.active !== false ? t("statusActive") : t("statusInactive")}
+            </Badge>
+            <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
+              <Pencil className="size-3.5" />
+              {t("editButton")}
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setDeleteOpen(true)}>
+              <Trash2 className="size-3.5" />
+              {t("hubDeleteClub")}
+            </Button>
+          </CardAction>
+        </CardHeader>
+        <CardContent className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+          <span className="inline-flex items-center gap-2">
+            <span className="grid size-8 place-items-center rounded-md bg-muted">
+              <Building2 className="size-4" />
+            </span>
+            {club.name ?? "—"}
+          </span>
+          {church ? (
+            <span className="inline-flex items-center gap-1.5">
+              <MapPin className="size-3.5" />
+              {church}
+              {district ? ` · ${district}` : ""}
+            </span>
+          ) : null}
+          {localField ? <span>{localField}</span> : null}
+        </CardContent>
+      </Card>
+
+      {pendingMembershipCount > 0 ? (
+        <div className="flex flex-col gap-3 rounded-xl border border-warning/30 bg-warning/5 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-medium">
+              {t("pendingAlertTitle", { count: pendingMembershipCount })}
+            </p>
+            <p className="text-xs text-muted-foreground">{t("membershipLead")}</p>
+          </div>
+          <Button size="sm" onClick={() => setActiveTab("membership")}>
+            {t("pendingAlertAction")}
           </Button>
         </div>
-      </PageHeader>
+      ) : null}
 
-      <section className="rounded-xl border bg-muted/15 p-4">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="flex min-w-0 items-start gap-3">
-            <div className="grid size-11 place-items-center rounded-xl bg-primary/10 text-primary">
-              <Building2 className="size-5" />
-            </div>
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <h2 className="text-lg font-semibold tracking-tight">{club.name ?? "—"}</h2>
-                <Badge variant={club.active !== false ? "soft-success" : "outline"}>
-                  {club.active !== false ? t("statusActive") : t("statusInactive")}
-                </Badge>
-              </div>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {club.description?.trim() || t("noDescription")}
-              </p>
-              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                {church && (
-                  <span className="inline-flex items-center gap-1">
-                    <MapPin className="size-3.5" />
-                    {church}
-                    {district ? ` · ${district}` : ""}
-                  </span>
-                )}
-                {localField && <span>{localField}</span>}
-                <span>
-                  {members} {t("membersLabel")} · {activeUnits.length} {t("unitsLabel")}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <ClubDetailStats
+        sections={sections}
+        unitsCount={activeUnits.length}
+        pendingRequests={pendingCount}
+      />
 
-      <Tabs value={tab} onValueChange={(value) => setActiveTab(value as ClubTabId)}>
-        <TabsList
-          variant="line"
-          className="h-auto w-full justify-start gap-1 overflow-x-auto rounded-none border-b bg-muted/30 px-0"
-        >
-          {TAB_ITEMS.map((item) => (
-            <TabsTrigger key={item.id} value={item.id} className="min-h-11 px-4">
-              {t(item.labelKey)}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+      <ClubTabsNav
+        tabs={mainTabs}
+        value={tab}
+        onChange={setActiveTab}
+        ariaLabel={t("tabsAriaLabel")}
+      />
 
-        <TabsContent value="overview" className="mt-5">
-          <div className="rounded-xl border bg-card p-5 shadow-sm">
-            <ClubOverviewTab
-              sections={sections}
-              units={activeUnits}
-              sectionLookup={sectionLookup}
-              overview={overview}
-              isLoadingOverview={isLoadingOverview}
-              overviewError={overviewError}
-              leadership={leadership}
-              isLoadingLeadership={isLoadingLeadership}
-              leadershipError={leadershipError}
-              onRetryOverview={() => void refetchOverview()}
-              onRetryLeadership={() => void refetchLeadership()}
-              isRetryingOverview={isFetchingOverview && !isLoadingOverview}
-              isRetryingLeadership={isFetchingLeadership && !isLoadingLeadership}
-            />
-          </div>
-        </TabsContent>
+      <div className="space-y-4">
+        {tab === "overview" ? (
+          <ClubOverviewTab
+            sections={sections}
+            units={activeUnits}
+            overview={overview}
+            isLoadingOverview={isLoadingOverview}
+            overviewError={overviewError}
+            leadership={leadership}
+            isLoadingLeadership={isLoadingLeadership}
+            leadershipError={leadershipError}
+            onRetryOverview={() => void refetchOverview()}
+            onRetryLeadership={() => void refetchLeadership()}
+            isRetryingOverview={isFetchingOverview && !isLoadingOverview}
+            isRetryingLeadership={isFetchingLeadership && !isLoadingLeadership}
+            teamSections={teamSections}
+            onOpenResponsables={(sectionId) => openResponsablesTab(sectionId)}
+            onOpenSections={() => setActiveTab("sections")}
+          />
+        ) : null}
 
-        <TabsContent value="sections" className="mt-5 space-y-5">
-          <div className="rounded-xl border bg-card shadow-sm">
-            <ClubSectionsPanel
-              clubId={clubId}
-              sections={rawSections}
-              clubTypes={clubTypeOptions.map((option) => ({
-                club_type_id: option.value,
-                name: option.label,
-              }))}
-              onAssignResponsible={() => setActiveTab("responsables")}
-              onSectionSelect={setSelectedSectionId}
-            />
-          </div>
-          <div className="rounded-xl border bg-card p-5 shadow-sm">
-            <ClubSectionHistoryPanel clubId={clubId} />
-          </div>
-        </TabsContent>
+        {tab === "sections" ? (
+          <ClubSectionsTab
+            clubId={clubId}
+            rawSections={rawSections}
+            clubTypeOptions={clubTypeOptions.map((option) => ({
+              club_type_id: option.value,
+              name: option.label,
+            }))}
+            onAssignResponsible={() =>
+              openResponsablesTab(selectedSectionId ?? undefined, true)
+            }
+            onSectionSelect={setSelectedSectionId}
+          />
+        ) : null}
 
-        <TabsContent value="responsables" className="mt-5">
-          <div className="rounded-xl border bg-card p-5 shadow-sm">
-            {responsablesSections.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                {t("noSectionsForResponsables")}
-              </p>
-            ) : (
-              <ClubSectionResponsablesPanel
+        {tab === "responsables" ? (
+          <ClubResponsablesTab
+            clubId={clubId}
+            sections={responsablesSections}
+            defaultSectionId={selectedSectionId ?? undefined}
+            initialAssignOpen={openAssignOnResponsables}
+            onAssignOpenConsumed={() => setOpenAssignOnResponsables(false)}
+          />
+        ) : null}
+
+        {tab === "units" ? (
+          <Card>
+            <CardContent className="pt-6">
+              <UnitsTab
                 clubId={clubId}
-                sections={responsablesSections}
-                defaultSectionId={selectedSectionId ?? undefined}
+                localFieldId={club.local_field_id ?? null}
+                sections={sections
+                  .filter((section) => section.sectionId != null)
+                  .map((section) => ({
+                    sectionId: section.sectionId!,
+                    label: section.label,
+                    accent: section.meta.donutHex,
+                  }))}
               />
-            )}
-          </div>
-        </TabsContent>
+            </CardContent>
+          </Card>
+        ) : null}
 
-        <TabsContent value="units" className="mt-5">
-          <div className="rounded-xl border bg-card p-5 shadow-sm">
-            <UnitsTab clubId={clubId} localFieldId={club.local_field_id ?? null} />
-          </div>
-        </TabsContent>
+        {tab === "membership" ? (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-normal">{t("membershipTitle")}</CardTitle>
+              <CardDescription>{t("membershipLead")}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <PendingMembersPanel
+                sections={rawSections}
+                sectionMeta={sections
+                  .filter((section) => section.sectionId != null)
+                  .map((section) => ({
+                    sectionId: section.sectionId!,
+                    label: section.label,
+                    accent: section.meta.donutHex,
+                    kind: section.kind,
+                  }))}
+              />
+            </CardContent>
+          </Card>
+        ) : null}
 
-        <TabsContent value="membership" className="mt-5">
-          <div className="rounded-xl border bg-card p-5 shadow-sm">
-            <header className="mb-4">
-              <h3 className="text-sm font-bold text-foreground">{t("membershipTitle")}</h3>
-              <p className="mt-0.5 text-xs text-muted-foreground">{t("membershipLead")}</p>
-            </header>
-            <PendingMembersPanel sections={rawSections} />
-          </div>
-        </TabsContent>
+        {tab === "history" ? (
+          <Card>
+            <CardContent className="pt-6">
+              <ClubHistoryTab clubId={clubId} sections={sections} />
+            </CardContent>
+          </Card>
+        ) : null}
 
-        <TabsContent value="info" className="mt-5">
-          <ClubInfoPanel club={club} sections={sections} onEdit={() => setActiveTab("edit")} />
-        </TabsContent>
+        {tab === "info" ? (
+          <ClubInfoPanel club={club} sections={sections} />
+        ) : null}
+      </div>
 
-        <TabsContent value="history" className="mt-5">
-          <ClubHistoryTab clubId={clubId} />
-        </TabsContent>
-
-        <TabsContent value="edit" className="mt-5">
-          <div className="rounded-xl border bg-card p-5 shadow-sm">
-            <header className="mb-4">
-              <h3 className="text-sm font-bold text-foreground">{t("editTitle")}</h3>
-              <p className="mt-0.5 text-xs text-muted-foreground">{t("editLead")}</p>
-            </header>
+      <Sheet open={editOpen} onOpenChange={setEditOpen}>
+        <SheetContent className="overflow-y-auto sm:max-w-xl">
+          <SheetHeader>
+            <SheetTitle>{t("editTitle")}</SheetTitle>
+            <SheetDescription>{t("editLead")}</SheetDescription>
+          </SheetHeader>
+          <div className="px-4 pb-6">
             <EditClubForm
               club={editClubProps}
               localFields={localFieldOptions}
@@ -352,8 +441,8 @@ export function ClubDetailView({
               googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? ""}
             />
           </div>
-        </TabsContent>
-      </Tabs>
+        </SheetContent>
+      </Sheet>
 
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent className="sm:max-w-sm">

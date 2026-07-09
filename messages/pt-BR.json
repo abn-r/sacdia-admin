@@ -119,7 +119,11 @@
       "materials_categories": "Categorias",
       "materials_config": "Configurações",
       "certificate_bulk_imports": "Cargas por certificado",
-      "coordination": "Coordenação"
+      "coordination": "Coordenação",
+      "directorMyClub": "Meu clube",
+      "directorMembers": "Aprovar membros",
+      "directorRoster": "Minha equipe",
+      "coordinatorMembership": "Solicitações de membresia"
     },
     "breadcrumbs": {
       "dashboard": "Painel",
@@ -163,6 +167,29 @@
       "switchToLight": "Mudar para modo claro",
       "switchToDark": "Mudar para modo escuro",
       "switchTheme": "Alternar tema"
+    },
+    "layoutControls": {
+      "openAriaLabel": "Preferências de layout",
+      "title": "Preferências",
+      "description": "Personalize o layout e a aparência do painel.",
+      "themePreset": "Preset de tema",
+      "themeMode": "Modo de tema",
+      "light": "Claro",
+      "dark": "Escuro",
+      "pageLayout": "Layout da página",
+      "centered": "Centralizado",
+      "fullWidth": "Largura total",
+      "navbarBehavior": "Comportamento do cabeçalho",
+      "sticky": "Fixo",
+      "scroll": "Rolagem",
+      "sidebarStyle": "Estilo da barra lateral",
+      "inset": "Inset",
+      "sidebar": "Barra lateral",
+      "floating": "Flutuante",
+      "sidebarCollapse": "Recolhimento da barra",
+      "icon": "Ícone",
+      "offcanvas": "Fora da tela",
+      "restoreDefaults": "Restaurar padrões"
     },
     "a11y": {
       "skipToContent": "Ir para o conteúdo principal"
@@ -1195,6 +1222,14 @@
         "responsablesLead": "Aba dedicada: a tabela mantém ações e o formulário deixa claro quando uma atribuição é principal, suplente ou excepcional.",
         "loadingAssignments": "Carregando atribuições…",
         "emptyAssignments": "Não há responsáveis com esses filtros. Tente limpar a busca ou atribua uma nova classe.",
+        "emptyAssignmentsTitle": "Ainda não há responsáveis por classe",
+        "emptyAssignmentsDescription": "Atribua um conselheiro a uma classe para começar a gerenciar responsabilidades.",
+        "emptyFilteredTitle": "Nenhum resultado com esses filtros",
+        "emptyFilteredDescription": "Tente outro termo ou limpe os filtros ativos.",
+        "assignmentsSummary": "{count, plural, =0 {Sem atribuições} one {# atribuição} other {# atribuições}}",
+        "assignmentsFilteredSummary": "{shown} de {total} atribuições",
+        "editAssignment": "Editar",
+        "editAssignmentTitle": "Editar atribuição",
         "exceptionalTag": "Excepcional",
         "colSection": "Seção",
         "colClass": "Classe",
@@ -1246,7 +1281,40 @@
         "unitsCount": "{count} unidades",
         "attendanceTitle": "Frequência semanal",
         "attendanceSubtitle": "Média % por semana",
-        "attendanceAverage": "Média · {pct}%"
+        "attendanceAverage": "Média · {pct}%",
+        "loading": "Carregando…",
+        "attendanceEmptyTitle": "Ainda sem registros semanais",
+        "attendanceEmptyDescription": "Quando registros semanais forem capturados, a tendência de frequência aparecerá aqui.",
+        "attendanceSeriesLabel": "Frequência",
+        "healthScoreDescription": "Score composto baseado em frequência, seções ativas e ocupação da meta. Grau atual: {grade}.",
+        "scoreNoBreakdown": "Score sem componentes — sem agregados disponíveis.",
+        "membersCenterLabel": "Membros",
+        "noSectionsYet": "Ainda não há seções registradas.",
+        "membersRosterTitle": "Membros por seção",
+        "membersRosterSubtitle": "Pessoas ativas agrupadas por seção com seu papel",
+        "membersRosterCount": "{count} pessoas",
+        "membersRosterEmpty": "Sem membros registrados nesta seção.",
+        "roleCaptain": "Capitão",
+        "roleSecretary": "Secretário",
+        "roleAdvisor": "Conselheiro",
+        "roleSubstituteAdvisor": "Conselheiro suplente",
+        "roleMember": "Membro",
+        "generalSectionLabel": "Clube geral",
+        "stats": {
+          "members": "Membros",
+          "membersCapacity": "{occupancy}% da meta de vagas",
+          "noCapacity": "Sem meta de vagas definida",
+          "sections": "Seções ativas",
+          "sectionsAllActive": "As três seções em operação",
+          "sectionsInactive": "{count} sem ativar",
+          "units": "Unidades",
+          "unitsEmpty": "Ainda sem unidades criadas",
+          "unitsAvg": "Média de {avg} membros/unidade",
+          "pending": "Solicitações pendentes",
+          "pendingNoData": "Sem dados carregados",
+          "pendingEmpty": "Fila em dia",
+          "pendingWaiting": "Aguardam revisão do coordenador"
+        }
       },
       "sidebar": {
         "quickActionsTitle": "Ações rápidas",
@@ -1276,6 +1344,32 @@
         "sectionTeam": "Equipe da seção",
         "roleSingular": "cargo",
         "rolePlural": "cargos"
+      },
+      "history": {
+        "title": "Histórico do clube",
+        "subtitle": "Eventos auditados desde a criação",
+        "loadedCount": "{count} eventos carregados",
+        "loading": "Carregando histórico…",
+        "loadError": "Não foi possível carregar o histórico.",
+        "retry": "Tentar novamente",
+        "emptyTitle": "Ainda sem eventos registrados",
+        "emptyDescription": "Quando você editar o clube, criar seções ou atribuir liderança, os eventos aparecerão aqui.",
+        "clubGeneralTitle": "Clube geral",
+        "eventCount": "{count} eventos",
+        "sectionEmpty": "Sem eventos nesta seção.",
+        "loadMore": "Carregar mais",
+        "systemActor": "Sistema",
+        "byActor": "Por: {name}",
+        "action": {
+          "CREATED": "Criado",
+          "UPDATED": "Atualizado",
+          "DELETED": "Excluído"
+        },
+        "entity": {
+          "club": "Clube",
+          "club_section": "Seção",
+          "role_assignment": "Liderança"
+        }
       }
     },
     "pages": {
@@ -1299,7 +1393,16 @@
         "emptyCreateButton": "Criar clube",
         "createMenuManual": "Criar manualmente",
         "createMenuBulk": "Importar do Excel",
-        "unexpectedError": "Erro inesperado"
+        "unexpectedError": "Erro inesperado",
+        "pendingBadge": "{count} pendentes",
+        "clearFilters": "Limpar filtros",
+        "statsTotalLabel": "Total de clubes",
+        "statsTotalHint": "Registrados no sistema",
+        "statsActiveLabel": "Ativos na página",
+        "statsActiveHint": "De {count} visíveis",
+        "statsPendingLabel": "Solicitações pendentes",
+        "statsPendingHint": "Nos clubes desta página",
+        "resultsSummary": "{total} clubes · {active} ativos na página · {pending} pendentes"
       },
       "new": {
         "title": "Criar clube",
@@ -1412,7 +1515,7 @@
           "noDescription": "Sem descrição registrada",
           "membersLabel": "membros",
           "unitsLabel": "unidades",
-          "tabOverview": "Resumo",
+          "tabOverview": "Visão geral",
           "tabSections": "Seções",
           "tabResponsables": "Responsáveis por classe",
           "tabUnits": "Unidades",
@@ -1424,7 +1527,22 @@
           "membershipLead": "Aprove ou rejeite novos membros e mudanças de clube por seção.",
           "noSectionsForResponsables": "Crie pelo menos uma seção do clube para atribuir responsáveis por classe.",
           "editTitle": "Editar informações do clube",
-          "editLead": "Atualize identidade, localização e dados gerais."
+          "editLead": "Atualize identidade, localização e dados gerais.",
+          "hubTeamTitle": "Minha equipe",
+          "hubTeamSubtitle": "Seções ativas e responsáveis",
+          "hubSecondaryTitle": "Mais opções",
+          "hubManageSections": "Gerenciar seções",
+          "hubViewUnits": "Unidades",
+          "hubViewHistory": "Histórico",
+          "hubViewInfo": "Informação",
+          "hubEditClub": "Editar clube",
+          "hubDeleteClub": "Desativar clube",
+          "colPending": "Pendentes",
+          "activeLabel": "Ativa",
+          "inactiveLabel": "Inativa",
+          "pendingAlertTitle": "{count} solicitações pendentes",
+          "pendingAlertAction": "Revisar solicitações",
+          "tabsAriaLabel": "Seções do detalhe do clube"
         }
       }
     },
@@ -1452,7 +1570,11 @@
       "activeEvents": "Eventos ativos",
       "honors": "Especialidades",
       "totalClasses": "{count} classes registradas",
-      "totalHonors": "Total de especialidades"
+      "totalHonors": "Total de especialidades",
+      "pendingMembership": "Solicitações pendentes",
+      "pendingMembershipHint": "Membresias para aprovar no seu escopo",
+      "pendingMembershipUnavailable": "Sem permissão de aprovação",
+      "pendingBadge": "{count} pendentes"
     },
     "recentUsers": {
       "title": "Usuários recentes",
@@ -1509,6 +1631,25 @@
       "bibleMessage": "“O Senhor te abençoe e te guarde.” — Números 6:24",
       "thanks": "Obrigado",
       "dismissToday": "Não mostrar novamente hoje"
+    },
+    "scope": {
+      "scopeAll": "Visão global do sistema",
+      "scopeDivision": "Divisão: {name}",
+      "scopeUnion": "União: {name}",
+      "scopeLocalField": "Campo local: {name}"
+    },
+    "pendingMembership": {
+      "title": "Solicitações de membresia",
+      "description": "{count} solicitações aguardam sua revisão",
+      "empty": "Não há solicitações pendentes no seu escopo",
+      "reviewAll": "Ver todas",
+      "approve": "Aprovar",
+      "review": "Revisar",
+      "approveSuccess": "Solicitação aprovada",
+      "approveError": "Não foi possível aprovar a solicitação",
+      "more": "+{count} solicitações a mais",
+      "alertTitle": "{count} solicitações pendentes",
+      "alertAction": "Revisar solicitações"
     }
   },
   "post_registration": {
@@ -5546,7 +5687,10 @@
       "section_label": "Seção",
       "section_placeholder": "Selecionar seção",
       "section_fallback": "Seção {id}",
-      "load_error": "Não foi possível carregar as solicitações de adesão."
+      "load_error": "Não foi possível carregar as solicitações de adesão.",
+      "column_count": "{count} pendentes",
+      "column_empty": "Sem solicitações nesta seção.",
+      "transfers_title": "Solicitações de mudança de clube"
     },
     "table": {
       "count_one": "{count} solicitação pendente",
@@ -5702,7 +5846,6 @@
       "countPlural": "inscrições anuais pendentes"
     }
   },
-
   "rankings": {
     "breakdown": {
       "compositeScore": "Pontuação composta institucional",
@@ -6214,6 +6357,143 @@
       "empty": "Sem resultados",
       "loadError": "Falha ao carregar seções",
       "clearSelection": "Limpar seleção"
+    }
+  },
+  "designSystemSandbox": {
+    "title": "Sandbox Maia",
+    "description": "Padrões base do reset UX",
+    "patterns": {
+      "listTitle": "ListPage",
+      "listDescription": "Lista com badges de atenção",
+      "hubTitle": "DetailHub",
+      "hubDescription": "Alertas acionáveis no detalhe"
+    },
+    "sample": {
+      "pending": "2 pendentes",
+      "alert": "3 solicitações pendentes",
+      "action": "Revisar"
+    }
+  },
+  "directorHome": {
+    "greetingMorning": "Bom dia",
+    "greetingAfternoon": "Boa tarde",
+    "greetingEvening": "Boa noite",
+    "stats": {
+      "members": "{count} membros",
+      "investitures": "{count} investiduras este ano",
+      "pending": "{count} pendentes"
+    },
+    "pendingAlert": {
+      "title": "{count} pessoas aguardam sua aprovação",
+      "description": "Revise as solicitações de membresia do seu clube",
+      "action": "Revisar agora"
+    },
+    "team": {
+      "title": "Seções do clube",
+      "description": "Estado de cada seção e seu diretor",
+      "viewClub": "Ver clube completo",
+      "members": "{count} membros",
+      "director": "Diretor",
+      "noDirector": "Sem atribuição",
+      "active": "Ativa",
+      "inactive": "Inativa"
+    },
+    "quickActions": {
+      "title": "Ações rápidas",
+      "approve": "Aprovar membros",
+      "approveHint": "Solicitações pendentes",
+      "club": "Ver meu clube",
+      "clubHint": "Resumo e configuração",
+      "activities": "Atividades",
+      "activitiesHint": "Próximos eventos do clube",
+      "classes": "Classes",
+      "classesHint": "Progresso dos membros"
+    },
+    "upcoming": {
+      "title": "Próximas atividades",
+      "empty": "Não há atividades próximas programadas"
+    }
+  },
+  "coordinatorLfHome": {
+    "greetingMorning": "Bom dia",
+    "greetingAfternoon": "Boa tarde",
+    "greetingEvening": "Boa noite",
+    "subtitle": "Coordenação de clubes no seu campo",
+    "stats": {
+      "clubs": "{count} clubes ativos",
+      "pending": "{count} solicitações pendentes"
+    },
+    "pendingAlert": {
+      "title": "{count} solicitações aguardam revisão",
+      "description": "Aprove ou rejeite membresias de clubes no seu campo",
+      "action": "Revisar solicitações"
+    },
+    "clubs": {
+      "title": "Clubes do seu campo",
+      "description": "Estado operacional e pendências por clube",
+      "viewAll": "Ver listagem completa",
+      "empty": "Não há clubes ativos no seu escopo",
+      "pendingBadge": "{count} pendentes",
+      "sections": "{active}/{total} seções ativas"
+    },
+    "quickActions": {
+      "title": "Ações rápidas",
+      "clubs": "Clubes",
+      "users": "Usuários",
+      "membership": "Membresias",
+      "camporees": "Acampamentos"
+    },
+    "fieldStats": {
+      "title": "Estatísticas do campo",
+      "subtitle": "Ano eclesiástico {year} · relatórios de {month} de {yearNumber}",
+      "overview": {
+        "activeMembers": "Membros ativos",
+        "activeMembersHint": "Em unidades ativas do campo",
+        "enrolledClubs": "Clubes inscritos neste ano",
+        "enrolledClubsHint": "{sections} seções com matrícula ativa",
+        "withReport": "Clubes com relatório",
+        "withReportHint": "Relatório mensal gerado ou enviado ({month})",
+        "withoutReport": "Clubes sem relatório",
+        "withoutReportHint": "Sem relatório mensal em {month}"
+      },
+      "membersByClass": {
+        "title": "Membros por classe",
+        "empty": "Sem matrículas ativas neste clube"
+      },
+      "clubTypes": {
+        "adventurers": "Aventureiros",
+        "conquistadores": "Conquistadores",
+        "masterGuides": "Guias Maiores"
+      },
+      "honors": {
+        "title": "Especialidades concluídas",
+        "subtitle": "Honras aprovadas no campo"
+      },
+      "activities": {
+        "title": "Atividades registradas",
+        "week": "Última semana",
+        "month": "Último mês",
+        "year": "Último ano"
+      },
+      "windows": {
+        "week": "{count} em 7 dias",
+        "month": "{count} em 30 dias",
+        "quarter": "{count} em 90 dias"
+      },
+      "months": {
+        "1": "Janeiro",
+        "2": "Fevereiro",
+        "3": "Março",
+        "4": "Abril",
+        "5": "Maio",
+        "6": "Junho",
+        "7": "Julho",
+        "8": "Agosto",
+        "9": "Setembro",
+        "10": "Outubro",
+        "11": "Novembro",
+        "12": "Dezembro"
+      }
     }
   }
 }

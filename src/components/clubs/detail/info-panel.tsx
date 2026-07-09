@@ -6,9 +6,6 @@ import {
   getClubCode,
   getClubCoordinates,
   getClubLocations,
-  getTotalCapacity,
-  getTotalMembers,
-  pctOf,
 } from "./helpers";
 import type { ClubFull, SectionView } from "./types";
 
@@ -18,13 +15,10 @@ interface ClubInfoPanelProps {
   onEdit?: () => void;
 }
 
-export function ClubInfoPanel({ club, sections, onEdit }: ClubInfoPanelProps) {
+export function ClubInfoPanel({ club, onEdit }: ClubInfoPanelProps) {
   const code = getClubCode(club);
   const coords = getClubCoordinates(club);
   const { localField, district, church } = getClubLocations(club);
-  const members = getTotalMembers(sections);
-  const capacity = getTotalCapacity(sections);
-  const occupancy = pctOf(members, capacity);
   const address = club.address ?? null;
 
   return (
@@ -45,7 +39,7 @@ export function ClubInfoPanel({ club, sections, onEdit }: ClubInfoPanelProps) {
         )}
       </header>
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <Block label="Identidad">
           <div className="text-sm font-semibold text-foreground">
             {club.name ?? "—"}
@@ -75,30 +69,6 @@ export function ClubInfoPanel({ club, sections, onEdit }: ClubInfoPanelProps) {
           {coords && (
             <div className="mt-1 font-mono text-[11px] text-muted-foreground">
               {coords.lat.toFixed(4)}, {coords.lng.toFixed(4)}
-            </div>
-          )}
-        </Block>
-
-        <Block label="Capacidad">
-          <div className="text-lg font-extrabold tracking-tight text-foreground">
-            {members}
-            {capacity != null ? (
-              <span className="ml-1 text-sm font-medium text-muted-foreground">
-                / {capacity}
-              </span>
-            ) : null}
-          </div>
-          <div className="mt-0.5 text-xs text-muted-foreground">
-            {capacity != null
-              ? `${occupancy}% del cupo objetivo`
-              : "Sin meta de almas definida"}
-          </div>
-          {capacity != null && (
-            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-primary to-warning"
-                style={{ width: `${occupancy}%` }}
-              />
             </div>
           )}
         </Block>

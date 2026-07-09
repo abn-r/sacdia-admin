@@ -36,7 +36,10 @@ import { useTranslations } from "next-intl";
 import { useAuth } from "@/lib/auth/auth-context";
 import { usePermissions } from "@/lib/auth/use-permissions";
 import { navConfig, isSubGroup, type NavGroup, type NavItem, type NavChild, type NavSubGroup } from "@/components/layout/nav-config";
+import { buildCoordinatorLfNavConfig } from "@/components/layout/coordinator-lf-nav-config";
+import { shouldShowCoordinatorLfHome } from "@/lib/auth/panel-persona";
 import { LocaleSwitcherMenu } from "@/components/layout/locale-switcher";
+import type { SidebarCollapsible, SidebarVariant } from "@/lib/preferences/layout";
 
 function getInitials(name?: string | null, email?: string | null): string {
   if (name) {
@@ -308,11 +311,21 @@ function SidebarUserFooter() {
   );
 }
 
-export function AppSidebar() {
+export function AppSidebar({
+  variant = "sidebar",
+  collapsible = "icon",
+}: {
+  variant?: SidebarVariant;
+  collapsible?: SidebarCollapsible;
+}) {
   const t = useTranslations("nav");
+  const { user } = useAuth();
+  const groups: NavGroup[] = shouldShowCoordinatorLfHome(user)
+    ? buildCoordinatorLfNavConfig()
+    : navConfig;
 
   return (
-    <Sidebar collapsible="icon" variant="sidebar">
+    <Sidebar collapsible={collapsible} variant={variant}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -332,7 +345,7 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
-        {navConfig.map((group, idx) => (
+        {groups.map((group, idx) => (
           <SidebarNavGroup key={group.label ?? idx} group={group} />
         ))}
       </SidebarContent>

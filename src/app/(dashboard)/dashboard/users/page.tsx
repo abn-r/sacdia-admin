@@ -3,6 +3,7 @@ import { Users } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/shared/page-header";
+import { PendingMembershipQueue } from "@/components/membership/pending-membership-queue";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { DataTableShell } from "@/components/shared/data-table-shell";
@@ -141,6 +142,10 @@ export default async function UsersPage({
         description={t("description")}
         actions={<UsersToolbarActions />}
       />
+
+      <Suspense fallback={null}>
+        <PendingMembershipQueue />
+      </Suspense>
 
       <Suspense fallback={<UsersListSkeleton />}>
         <UsersContent query={query} currentUser={currentUser} />

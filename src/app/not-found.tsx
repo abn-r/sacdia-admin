@@ -11,7 +11,7 @@ export default async function NotFound() {
       <div className="flex size-16 items-center justify-center rounded-full bg-muted">
         <FileQuestion className="size-8 text-muted-foreground" />
       </div>
-      <h1 className="font-display text-3xl font-normal tracking-tight text-foreground">
+      <h1 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
         {t("notFoundTitle")}
       </h1>
       <p className="max-w-sm text-muted-foreground">{t("notFoundBody")}</p>
