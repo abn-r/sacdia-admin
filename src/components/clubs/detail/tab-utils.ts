@@ -1,22 +1,39 @@
-import type { ClubTabId } from "./tabs-nav";
+import type { ClubMainTabId, ClubSubPanelId } from "./tabs-nav";
 
-export type { ClubTabId };
+export type { ClubMainTabId, ClubSubPanelId };
+export type ClubTabId = ClubMainTabId | ClubSubPanelId | "edit";
 
-const TAB_KEYS: ClubTabId[] = [
+const MAIN_TAB_KEYS: ClubMainTabId[] = [
   "overview",
   "sections",
   "responsables",
   "units",
   "membership",
-  "info",
   "history",
-  "edit",
+  "info",
 ];
 
-export function resolveTabFromString(raw: string | undefined): ClubTabId {
-  if (raw && (TAB_KEYS as string[]).includes(raw)) {
-    return raw as ClubTabId;
+export type ResolvedClubDetailRoute = {
+  tab: ClubMainTabId;
+  openEdit: boolean;
+};
+
+export function resolveClubDetailRoute(
+  raw: string | undefined,
+): ResolvedClubDetailRoute {
+  if (raw === "edit") {
+    return { tab: "overview", openEdit: true };
   }
-  if (raw === "view") return "overview";
-  return "overview";
+  if (raw && (MAIN_TAB_KEYS as string[]).includes(raw)) {
+    return { tab: raw as ClubMainTabId, openEdit: false };
+  }
+  if (raw === "view") {
+    return { tab: "overview", openEdit: false };
+  }
+  return { tab: "overview", openEdit: false };
+}
+
+/** @deprecated Use resolveClubDetailRoute */
+export function resolveTabFromString(raw: string | undefined): ClubMainTabId {
+  return resolveClubDetailRoute(raw).tab;
 }

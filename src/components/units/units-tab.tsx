@@ -13,6 +13,10 @@ import { UnitDetailPanel } from "@/components/units/unit-detail-panel";
 import { useTranslations } from "next-intl";
 import { listUnits } from "@/lib/api/units";
 import type { Unit } from "@/lib/api/units";
+import {
+  SectionColumn,
+  SectionColumnsGrid,
+} from "@/components/clubs/detail/section-column";
 
 // ─── Loading skeleton ─────────────────────────────────────────────────────────
 
@@ -44,11 +48,16 @@ export const UNITS_QUERY_KEY = "units" as const;
 interface UnitsTabProps {
   clubId: number;
   localFieldId?: number | null;
+  sections?: Array<{
+    sectionId: number;
+    label: string;
+    accent: string;
+  }>;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function UnitsTab({ clubId, localFieldId }: UnitsTabProps) {
+export function UnitsTab({ clubId, localFieldId, sections = [] }: UnitsTabProps) {
   const t = useTranslations("units_admin");
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -138,21 +147,71 @@ export function UnitsTab({ clubId, localFieldId }: UnitsTabProps) {
 
       {/* Units list */}
       {!loading && !error && units.length > 0 && (
-        <div className="space-y-3">
-          {units.map((unit) => (
-            <UnitDetailPanel
-              key={unit.unit_id}
-              unit={unit}
-              clubId={clubId}
-              localFieldId={localFieldId}
-              onEdit={(u) => {
-                router.push(`/dashboard/clubs/${clubId}/units/${u.unit_id}`);
-              }}
-              onDelete={handleOpenDelete}
-              onMembersChanged={() => void queryClient.invalidateQueries({ queryKey: [UNITS_QUERY_KEY, clubId] })}
-            />
-          ))}
-        </div>
+        <>
+          {sections.length > 0 ? (
+            <SectionColumnsGrid>
+              {sections.map((section) => {
+                const sectionUnits = units.filter(
+                  (unit) => unit.club_section_id === section.sectionId,
+                );
+                return (
+                  <SectionColumn
+                    key={section.sectionId}
+                    title={section.label}
+                    accent={section.accent}
+                    countLabel={`${sectionUnits.length} unidades`}
+                  >
+                    {sectionUnits.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">
+                        Sin unidades en esta sección.
+                      </p>
+                    ) : (
+                      <div className="space-y-3">
+                        {sectionUnits.map((unit) => (
+                          <UnitDetailPanel
+                            key={unit.unit_id}
+                            unit={unit}
+                            clubId={clubId}
+                            localFieldId={localFieldId}
+                            onEdit={(u) => {
+                              router.push(`/dashboard/clubs/${clubId}/units/${u.unit_id}`);
+                            }}
+                            onDelete={handleOpenDelete}
+                            onMembersChanged={() =>
+                              void queryClient.invalidateQueries({
+                                queryKey: [UNITS_QUERY_KEY, clubId],
+                              })
+                            }
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </SectionColumn>
+                );
+              })}
+            </SectionColumnsGrid>
+          ) : (
+            <div className="space-y-3">
+              {units.map((unit) => (
+                <UnitDetailPanel
+                  key={unit.unit_id}
+                  unit={unit}
+                  clubId={clubId}
+                  localFieldId={localFieldId}
+                  onEdit={(u) => {
+                    router.push(`/dashboard/clubs/${clubId}/units/${u.unit_id}`);
+                  }}
+                  onDelete={handleOpenDelete}
+                  onMembersChanged={() =>
+                    void queryClient.invalidateQueries({
+                      queryKey: [UNITS_QUERY_KEY, clubId],
+                    })
+                  }
+                />
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       {/* Refreshing indicator — shows after initial load */}

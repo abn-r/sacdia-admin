@@ -59,7 +59,7 @@ describe("ClubSectionsPanel", () => {
       </NextIntlClientProvider>,
     );
 
-    expect(screen.getByText("Secciones y responsables.")).toBeInTheDocument();
+    expect(screen.getByText("Secciones")).toBeInTheDocument();
     expect(screen.queryByRole("tab", { name: "Historial" })).not.toBeInTheDocument();
 
     expect(screen.getByText("Aventureros")).toBeInTheDocument();

@@ -119,7 +119,11 @@
       "materials_categories": "Categories",
       "materials_config": "Settings",
       "certificate_bulk_imports": "Cargas por certificado",
-      "coordination": "Coordination"
+      "coordination": "Coordination",
+      "directorMyClub": "My club",
+      "directorMembers": "Approve members",
+      "directorRoster": "My team",
+      "coordinatorMembership": "Membership requests"
     },
     "breadcrumbs": {
       "dashboard": "Dashboard",
@@ -163,6 +167,29 @@
       "switchToLight": "Switch to light mode",
       "switchToDark": "Switch to dark mode",
       "switchTheme": "Toggle theme"
+    },
+    "layoutControls": {
+      "openAriaLabel": "Layout preferences",
+      "title": "Preferences",
+      "description": "Customize the panel layout and appearance.",
+      "themePreset": "Theme preset",
+      "themeMode": "Theme mode",
+      "light": "Light",
+      "dark": "Dark",
+      "pageLayout": "Page layout",
+      "centered": "Centered",
+      "fullWidth": "Full width",
+      "navbarBehavior": "Header behavior",
+      "sticky": "Sticky",
+      "scroll": "Scroll",
+      "sidebarStyle": "Sidebar style",
+      "inset": "Inset",
+      "sidebar": "Sidebar",
+      "floating": "Floating",
+      "sidebarCollapse": "Sidebar collapse",
+      "icon": "Icon",
+      "offcanvas": "Off-canvas",
+      "restoreDefaults": "Restore defaults"
     },
     "a11y": {
       "skipToContent": "Skip to main content"
@@ -1222,6 +1249,14 @@
         "responsablesLead": "Dedicated tab: the table keeps actions and the form clarifies when an assignment is primary, substitute, or exceptional.",
         "loadingAssignments": "Loading assignments…",
         "emptyAssignments": "No responsibles match these filters. Try clearing the search or assign a new class.",
+        "emptyAssignmentsTitle": "No class responsibles yet",
+        "emptyAssignmentsDescription": "Assign a counselor to a class to start managing responsibilities.",
+        "emptyFilteredTitle": "No results with those filters",
+        "emptyFilteredDescription": "Try another term or clear active filters.",
+        "assignmentsSummary": "{count, plural, =0 {No assignments} one {# assignment} other {# assignments}}",
+        "assignmentsFilteredSummary": "{shown} of {total} assignments",
+        "editAssignment": "Edit",
+        "editAssignmentTitle": "Edit assignment",
         "exceptionalTag": "Exceptional",
         "colSection": "Section",
         "colClass": "Class",
@@ -1273,7 +1308,40 @@
         "unitsCount": "{count} units",
         "attendanceTitle": "Weekly attendance",
         "attendanceSubtitle": "Average % per week",
-        "attendanceAverage": "Average · {pct}%"
+        "attendanceAverage": "Average · {pct}%",
+        "loading": "Loading…",
+        "attendanceEmptyTitle": "No weekly records yet",
+        "attendanceEmptyDescription": "When weekly records are captured, attendance trends will appear here.",
+        "attendanceSeriesLabel": "Attendance",
+        "healthScoreDescription": "Composite score based on attendance, active sections, and capacity occupancy. Current grade: {grade}.",
+        "scoreNoBreakdown": "Score has no components — no aggregates available.",
+        "membersCenterLabel": "Members",
+        "noSectionsYet": "No sections registered yet.",
+        "membersRosterTitle": "Members by section",
+        "membersRosterSubtitle": "Active people grouped by section with their role",
+        "membersRosterCount": "{count} people",
+        "membersRosterEmpty": "No members registered in this section.",
+        "roleCaptain": "Captain",
+        "roleSecretary": "Secretary",
+        "roleAdvisor": "Advisor",
+        "roleSubstituteAdvisor": "Substitute advisor",
+        "roleMember": "Member",
+        "generalSectionLabel": "Club general",
+        "stats": {
+          "members": "Members",
+          "membersCapacity": "{occupancy}% of target capacity",
+          "noCapacity": "No capacity target defined",
+          "sections": "Active sections",
+          "sectionsAllActive": "All three sections operating",
+          "sectionsInactive": "{count} not active",
+          "units": "Units",
+          "unitsEmpty": "No units created yet",
+          "unitsAvg": "Average {avg} members/unit",
+          "pending": "Pending requests",
+          "pendingNoData": "No data loaded",
+          "pendingEmpty": "Queue is clear",
+          "pendingWaiting": "Awaiting coordinator review"
+        }
       },
       "sidebar": {
         "quickActionsTitle": "Quick actions",
@@ -1303,6 +1371,32 @@
         "sectionTeam": "Section team",
         "roleSingular": "role",
         "rolePlural": "roles"
+      },
+      "history": {
+        "title": "Club history",
+        "subtitle": "Audited events since creation",
+        "loadedCount": "{count} events loaded",
+        "loading": "Loading history…",
+        "loadError": "Could not load history.",
+        "retry": "Retry",
+        "emptyTitle": "No events recorded yet",
+        "emptyDescription": "When you edit the club, create sections or assign leadership, events will appear here.",
+        "clubGeneralTitle": "General club",
+        "eventCount": "{count} events",
+        "sectionEmpty": "No events in this section.",
+        "loadMore": "Load more",
+        "systemActor": "System",
+        "byActor": "By: {name}",
+        "action": {
+          "CREATED": "Created",
+          "UPDATED": "Updated",
+          "DELETED": "Deleted"
+        },
+        "entity": {
+          "club": "Club",
+          "club_section": "Section",
+          "role_assignment": "Leadership"
+        }
       }
     },
     "pages": {
@@ -1326,7 +1420,16 @@
         "emptyCreateButton": "Create club",
         "createMenuManual": "Create manually",
         "createMenuBulk": "Import from Excel",
-        "unexpectedError": "Unexpected error"
+        "unexpectedError": "Unexpected error",
+        "pendingBadge": "{count} pending",
+        "clearFilters": "Clear filters",
+        "statsTotalLabel": "Total clubs",
+        "statsTotalHint": "Registered in the system",
+        "statsActiveLabel": "Active on page",
+        "statsActiveHint": "Of {count} visible",
+        "statsPendingLabel": "Pending requests",
+        "statsPendingHint": "Across clubs on this page",
+        "resultsSummary": "{total} clubs · {active} active on page · {pending} pending"
       },
       "new": {
         "title": "Create club",
@@ -1439,7 +1542,7 @@
           "noDescription": "No description registered",
           "membersLabel": "members",
           "unitsLabel": "units",
-          "tabOverview": "Overview",
+          "tabOverview": "General view",
           "tabSections": "Sections",
           "tabResponsables": "Class responsibles",
           "tabUnits": "Units",
@@ -1451,7 +1554,22 @@
           "membershipLead": "Approve or reject new members and club changes by section.",
           "noSectionsForResponsables": "Create at least one club section to assign class responsibles.",
           "editTitle": "Edit club information",
-          "editLead": "Update identity, location, and general data."
+          "editLead": "Update identity, location, and general data.",
+          "hubTeamTitle": "My team",
+          "hubTeamSubtitle": "Active sections and leaders",
+          "hubSecondaryTitle": "More options",
+          "hubManageSections": "Manage sections",
+          "hubViewUnits": "Units",
+          "hubViewHistory": "History",
+          "hubViewInfo": "Information",
+          "hubEditClub": "Edit club",
+          "hubDeleteClub": "Deactivate club",
+          "colPending": "Pending",
+          "activeLabel": "Active",
+          "inactiveLabel": "Inactive",
+          "pendingAlertTitle": "{count} pending requests",
+          "pendingAlertAction": "Review requests",
+          "tabsAriaLabel": "Club detail sections"
         }
       }
     },
@@ -1479,7 +1597,11 @@
       "activeEvents": "Active events",
       "honors": "Honors",
       "totalClasses": "{count} classes registered",
-      "totalHonors": "Total honors"
+      "totalHonors": "Total honors",
+      "pendingMembership": "Pending requests",
+      "pendingMembershipHint": "Membership requests in your scope",
+      "pendingMembershipUnavailable": "No approval permission",
+      "pendingBadge": "{count} pending"
     },
     "recentUsers": {
       "title": "Recent users",
@@ -1537,6 +1659,25 @@
       "bibleMessage": "“The Lord bless you and keep you.” — Numbers 6:24",
       "thanks": "Thank you",
       "dismissToday": "Do not show again today"
+    },
+    "scope": {
+      "scopeAll": "System-wide view",
+      "scopeDivision": "Division: {name}",
+      "scopeUnion": "Union: {name}",
+      "scopeLocalField": "Local field: {name}"
+    },
+    "pendingMembership": {
+      "title": "Membership requests",
+      "description": "{count} requests await your review",
+      "empty": "No pending requests in your scope",
+      "reviewAll": "View all",
+      "approve": "Approve",
+      "review": "Review",
+      "approveSuccess": "Request approved",
+      "approveError": "Could not approve request",
+      "more": "+{count} more requests",
+      "alertTitle": "{count} pending requests",
+      "alertAction": "Review requests"
     }
   },
   "post_registration": {
@@ -5717,7 +5858,10 @@
       "section_label": "Section",
       "section_placeholder": "Select section",
       "section_fallback": "Section {id}",
-      "load_error": "Could not load membership requests."
+      "load_error": "Could not load membership requests.",
+      "column_count": "{count} pending",
+      "column_empty": "No requests in this section.",
+      "transfers_title": "Club transfer requests"
     },
     "table": {
       "count_one": "{count} pending request",
@@ -6384,6 +6528,143 @@
       "empty": "No results",
       "loadError": "Failed to load sections",
       "clearSelection": "Clear selection"
+    }
+  },
+  "designSystemSandbox": {
+    "title": "Maia sandbox",
+    "description": "Base patterns for the UX reset",
+    "patterns": {
+      "listTitle": "ListPage",
+      "listDescription": "List with attention badges",
+      "hubTitle": "DetailHub",
+      "hubDescription": "Actionable alerts in detail"
+    },
+    "sample": {
+      "pending": "2 pending",
+      "alert": "3 pending requests",
+      "action": "Review"
+    }
+  },
+  "directorHome": {
+    "greetingMorning": "Good morning",
+    "greetingAfternoon": "Good afternoon",
+    "greetingEvening": "Good evening",
+    "stats": {
+      "members": "{count} members",
+      "investitures": "{count} investitures this year",
+      "pending": "{count} pending"
+    },
+    "pendingAlert": {
+      "title": "{count} people await your approval",
+      "description": "Review membership requests for your club",
+      "action": "Review now"
+    },
+    "team": {
+      "title": "Club sections",
+      "description": "Status of each section and its director",
+      "viewClub": "View full club",
+      "members": "{count} members",
+      "director": "Director",
+      "noDirector": "Unassigned",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "quickActions": {
+      "title": "Quick actions",
+      "approve": "Approve members",
+      "approveHint": "Pending requests",
+      "club": "View my club",
+      "clubHint": "Overview and settings",
+      "activities": "Activities",
+      "activitiesHint": "Upcoming club events",
+      "classes": "Classes",
+      "classesHint": "Member progress"
+    },
+    "upcoming": {
+      "title": "Upcoming activities",
+      "empty": "No upcoming activities scheduled"
+    }
+  },
+  "coordinatorLfHome": {
+    "greetingMorning": "Good morning",
+    "greetingAfternoon": "Good afternoon",
+    "greetingEvening": "Good evening",
+    "subtitle": "Club coordination in your field",
+    "stats": {
+      "clubs": "{count} active clubs",
+      "pending": "{count} pending requests"
+    },
+    "pendingAlert": {
+      "title": "{count} requests await review",
+      "description": "Approve or reject club memberships in your field",
+      "action": "Review requests"
+    },
+    "clubs": {
+      "title": "Clubs in your field",
+      "description": "Operational status and pending items per club",
+      "viewAll": "View full list",
+      "empty": "No active clubs in your scope",
+      "pendingBadge": "{count} pending",
+      "sections": "{active}/{total} active sections"
+    },
+    "quickActions": {
+      "title": "Quick actions",
+      "clubs": "Clubs",
+      "users": "Users",
+      "membership": "Memberships",
+      "camporees": "Camporees"
+    },
+    "fieldStats": {
+      "title": "Field statistics",
+      "subtitle": "Ecclesiastical year {year} · {month} {yearNumber} reports",
+      "overview": {
+        "activeMembers": "Active members",
+        "activeMembersHint": "In active field units",
+        "enrolledClubs": "Clubs enrolled this year",
+        "enrolledClubsHint": "{sections} sections with active enrollment",
+        "withReport": "Clubs with report",
+        "withReportHint": "Monthly report generated or submitted ({month})",
+        "withoutReport": "Clubs without report",
+        "withoutReportHint": "No monthly report in {month}"
+      },
+      "membersByClass": {
+        "title": "Members by class",
+        "empty": "No active enrollments in this club"
+      },
+      "clubTypes": {
+        "adventurers": "Adventurers",
+        "conquistadores": "Pathfinders",
+        "masterGuides": "Master Guides"
+      },
+      "honors": {
+        "title": "Completed specialties",
+        "subtitle": "Approved honors in the field"
+      },
+      "activities": {
+        "title": "Registered activities",
+        "week": "Last week",
+        "month": "Last month",
+        "year": "Last year"
+      },
+      "windows": {
+        "week": "{count} in 7 days",
+        "month": "{count} in 30 days",
+        "quarter": "{count} in 90 days"
+      },
+      "months": {
+        "1": "January",
+        "2": "February",
+        "3": "March",
+        "4": "April",
+        "5": "May",
+        "6": "June",
+        "7": "July",
+        "8": "August",
+        "9": "September",
+        "10": "October",
+        "11": "November",
+        "12": "December"
+      }
     }
   }
 }

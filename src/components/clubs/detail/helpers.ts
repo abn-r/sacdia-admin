@@ -4,8 +4,30 @@ import {
   getSectionMeta,
   type ClubFull,
   type ClubSectionRaw,
+  type SectionKind,
   type SectionView,
 } from "./types";
+
+const SECTION_KIND_ORDER: SectionKind[] = [
+  "adventurers",
+  "pathfinders",
+  "master_guilds",
+  "unknown",
+];
+
+export function getSectionKindOrder(kind: SectionKind): number {
+  const index = SECTION_KIND_ORDER.indexOf(kind);
+  return index === -1 ? SECTION_KIND_ORDER.length : index;
+}
+
+export function sortBySectionKind<T>(
+  items: T[],
+  getKind: (item: T) => SectionKind,
+): T[] {
+  return [...items].sort(
+    (a, b) => getSectionKindOrder(getKind(a)) - getSectionKindOrder(getKind(b)),
+  );
+}
 
 export function getClubInitials(name: string | null | undefined): string {
   if (!name) return "CL";

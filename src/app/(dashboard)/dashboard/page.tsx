@@ -1,4 +1,10 @@
 import { Suspense } from "react";
+import { RoleScopedStatsSection } from "@/components/dashboard/role-scoped-stats-section";
+import { PendingMembershipQueue } from "@/components/membership/pending-membership-queue";
+import { CoordinatorLfHome } from "@/components/dashboard/coordinator-lf-home";
+import { shouldShowCoordinatorLfHome } from "@/lib/auth/panel-persona";
+import { fetchCoordinatorLfHomeData } from "@/lib/dashboard/fetch-coordinator-lf-home-data";
+import { requireAdminUser } from "@/lib/auth/session";
 import {
   Users,
   Building2,
@@ -20,7 +26,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { apiRequest } from "@/lib/api/client";
-import { requireAdminUser } from "@/lib/auth/session";
 import {
   RoleDistributionChart,
   type RoleDistributionEntry,
@@ -636,7 +641,13 @@ function RecentUsersSkeleton() {
 }
 
 export default async function DashboardPage() {
-  await requireAdminUser();
+  const user = await requireAdminUser();
+
+  if (shouldShowCoordinatorLfHome(user)) {
+    const coordinatorData = await fetchCoordinatorLfHomeData(user);
+    return <CoordinatorLfHome data={coordinatorData} />;
+  }
+
   const t = await getTranslations("dashboardHub");
   const quickLinks = await buildQuickLinks(t);
 
@@ -647,9 +658,13 @@ export default async function DashboardPage() {
         description={t("description")}
       />
 
-      {/* Stats grid */}
+      {/* Stats scoped by role / territory */}
       <Suspense fallback={<StatsSkeleton />}>
-        <StatsSection />
+        <RoleScopedStatsSection />
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <PendingMembershipQueue />
       </Suspense>
 
       {/* Main grid: recent users + role chart */}
