@@ -34,6 +34,7 @@ import {
   getClubLocalFieldName,
   type ClubListItem,
 } from "@/lib/clubs/fetch-list";
+import { usePanelPath } from "@/lib/v2/panel-path-context";
 
 interface ClubsTableProps {
   items: ClubListItem[];
@@ -49,10 +50,12 @@ function ClubIdentity({
   club,
   pendingCount,
   tList,
+  clubHref,
 }: {
   club: ClubListItem;
   pendingCount: number;
   tList: ReturnType<typeof useTranslations<"clubs.pages.list">>;
+  clubHref: (id: number) => string;
 }) {
   const clubId = getClubListId(club);
   const localField = getClubLocalFieldName(club);
@@ -67,7 +70,7 @@ function ClubIdentity({
           {clubId ? (
             <Link
               prefetch={false}
-              href={`/dashboard/clubs/${clubId}`}
+              href={clubHref(clubId)}
               className="truncate text-sm font-medium hover:text-primary hover:underline underline-offset-4"
             >
               {club.name ?? "—"}
@@ -94,11 +97,13 @@ function ClubRowActions({
   canEdit,
   canCreate,
   t,
+  clubHref,
 }: {
   clubId: number | null;
   canEdit: boolean;
   canCreate: boolean;
   t: ReturnType<typeof useTranslations<"clubs.pages.v2">>;
+  clubHref: (id: number, suffix?: string) => string;
 }) {
   if (!clubId || (!canEdit && !canCreate)) return null;
 
@@ -106,13 +111,13 @@ function ClubRowActions({
     <>
       <div className="hidden items-center justify-end gap-1 md:flex">
         <Button variant="ghost" size="icon" className="size-8" asChild title={t("actionView")}>
-          <Link prefetch={false} href={`/dashboard/clubs/${clubId}`}>
+          <Link prefetch={false} href={clubHref(clubId)}>
             <Eye className="size-3.5" />
           </Link>
         </Button>
         {canEdit ? (
           <Button variant="ghost" size="icon" className="size-8" asChild title={t("actionEdit")}>
-            <Link prefetch={false} href={`/dashboard/clubs/${clubId}?tab=edit`}>
+            <Link prefetch={false} href={clubHref(clubId, "?tab=edit")}>
               <Pencil className="size-3.5" />
             </Link>
           </Button>
@@ -127,14 +132,14 @@ function ClubRowActions({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem asChild>
-              <Link prefetch={false} href={`/dashboard/clubs/${clubId}`}>
+              <Link prefetch={false} href={clubHref(clubId)}>
                 <Eye className="size-4" />
                 {t("actionView")}
               </Link>
             </DropdownMenuItem>
             {canEdit ? (
               <DropdownMenuItem asChild>
-                <Link prefetch={false} href={`/dashboard/clubs/${clubId}?tab=edit`}>
+                <Link prefetch={false} href={clubHref(clubId, "?tab=edit")}>
                   <Pencil className="size-4" />
                   {t("actionEdit")}
                 </Link>
@@ -155,6 +160,7 @@ function ClubMobileCard({
   sectionsCount,
   t,
   tList,
+  clubHref,
 }: {
   club: ClubListItem;
   clubId: number | null;
@@ -163,6 +169,7 @@ function ClubMobileCard({
   sectionsCount: number;
   t: ReturnType<typeof useTranslations<"clubs.pages.v2">>;
   tList: ReturnType<typeof useTranslations<"clubs.pages.list">>;
+  clubHref: (id: number) => string;
 }) {
   if (!clubId) return null;
 
@@ -172,7 +179,7 @@ function ClubMobileCard({
   return (
     <Link
       prefetch={false}
-      href={`/dashboard/clubs/${clubId}`}
+      href={clubHref(clubId)}
       className="block rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       <div className="flex items-start gap-3">
@@ -238,6 +245,9 @@ export function ClubsTable({
 }: ClubsTableProps) {
   const t = useTranslations("clubs.pages.v2");
   const tList = useTranslations("clubs.pages.list");
+  const { toPanelPath } = usePanelPath();
+  const clubHref = (id: number, suffix = "") =>
+    toPanelPath(`/dashboard/clubs/${id}${suffix}`);
   const safePage = Math.max(1, page || 1);
   const safeLimit = Math.max(1, limit || 20);
   const showActions = canEdit || canCreate;
@@ -277,7 +287,7 @@ export function ClubsTable({
               style={embedded ? undefined : getStaggerStyle(index)}
             >
               <TableCell className="max-w-[280px] px-3 py-4 align-middle">
-                <ClubIdentity club={club} pendingCount={pendingCount} tList={tList} />
+                <ClubIdentity club={club} pendingCount={pendingCount} tList={tList} clubHref={clubHref} />
               </TableCell>
               <TableCell className="max-w-[180px] px-3 py-4 align-middle text-sm text-muted-foreground">
                 <span className="block truncate">
@@ -309,6 +319,7 @@ export function ClubsTable({
                     canEdit={canEdit}
                     canCreate={canCreate}
                     t={t}
+                    clubHref={clubHref}
                   />
                 </TableCell>
               ) : null}
@@ -347,6 +358,7 @@ export function ClubsTable({
                 sectionsCount={sections.length}
                 t={t}
                 tList={tList}
+                clubHref={clubHref}
               />
             </div>
           );

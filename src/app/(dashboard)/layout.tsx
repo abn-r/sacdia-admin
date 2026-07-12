@@ -16,6 +16,7 @@ import {
 } from "@/lib/i18n/client-messages";
 import { cn } from "@/lib/utils";
 import { getPreference } from "@/server/preferences";
+import { V1PanelPathProvider } from "@/lib/v2/panel-path-context";
 
 export default async function DashboardLayout({
   children,
@@ -43,6 +44,7 @@ export default async function DashboardLayout({
     <NextIntlClientProvider locale={locale} messages={clientMessages}>
       <AuthProvider initialUser={initialUser}>
         <QueryProvider>
+          <V1PanelPathProvider>
           <SidebarProvider
             defaultOpen={defaultOpen}
             style={
@@ -84,6 +86,7 @@ export default async function DashboardLayout({
               </ActiveContextProvider>
             </SidebarInset>
           </SidebarProvider>
+          </V1PanelPathProvider>
         </QueryProvider>
       </AuthProvider>
     </NextIntlClientProvider>

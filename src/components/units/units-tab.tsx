@@ -1,5 +1,7 @@
 "use client";
 
+import { usePanelPath } from "@/lib/v2/panel-path-context";
+
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -58,6 +60,8 @@ interface UnitsTabProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function UnitsTab({ clubId, localFieldId, sections = [] }: UnitsTabProps) {
+  const { toPanelPath } = usePanelPath();
+
   const t = useTranslations("units_admin");
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -105,7 +109,7 @@ export function UnitsTab({ clubId, localFieldId, sections = [] }: UnitsTabProps)
           </p>
         </div>
         <Button size="sm" asChild>
-          <Link href={`/dashboard/clubs/${clubId}/units/new`}>
+          <Link href={`${toPanelPath(`/dashboard/clubs/`)}${clubId}/units/new`}>
             <Plus className="mr-1.5 size-3.5" />
             Nueva unidad
           </Link>
@@ -137,7 +141,7 @@ export function UnitsTab({ clubId, localFieldId, sections = [] }: UnitsTabProps)
           description="Este club no tiene unidades registradas. Crea la primera para comenzar a organizar a tus miembros."
         >
           <Button size="sm" asChild>
-            <Link href={`/dashboard/clubs/${clubId}/units/new`}>
+            <Link href={`${toPanelPath(`/dashboard/clubs/`)}${clubId}/units/new`}>
               <Plus className="mr-1.5 size-3.5" />
               Nueva unidad
             </Link>
@@ -174,7 +178,7 @@ export function UnitsTab({ clubId, localFieldId, sections = [] }: UnitsTabProps)
                             clubId={clubId}
                             localFieldId={localFieldId}
                             onEdit={(u) => {
-                              router.push(`/dashboard/clubs/${clubId}/units/${u.unit_id}`);
+                              router.push(toPanelPath(`/dashboard/clubs/${clubId}/units/${u.unit_id}`));
                             }}
                             onDelete={handleOpenDelete}
                             onMembersChanged={() =>
@@ -199,7 +203,7 @@ export function UnitsTab({ clubId, localFieldId, sections = [] }: UnitsTabProps)
                   clubId={clubId}
                   localFieldId={localFieldId}
                   onEdit={(u) => {
-                    router.push(`/dashboard/clubs/${clubId}/units/${u.unit_id}`);
+                    router.push(toPanelPath(`/dashboard/clubs/${clubId}/units/${u.unit_id}`));
                   }}
                   onDelete={handleOpenDelete}
                   onMembersChanged={() =>
@@ -239,6 +243,8 @@ export function UnitsTab({ clubId, localFieldId, sections = [] }: UnitsTabProps)
 
 // Re-export a loading indicator for Suspense boundaries if needed externally
 export function UnitsTabLoading() {
+  const { toPanelPath } = usePanelPath();
+
   return (
     <div className="flex items-center justify-center py-12 text-muted-foreground">
       <Loader2 className="size-4 animate-spin" />

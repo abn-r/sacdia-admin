@@ -1,5 +1,7 @@
 "use client";
 
+import { usePanelPath } from "@/lib/v2/panel-path-context";
+
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import {
@@ -36,7 +38,7 @@ import { PermissionPicker } from "@/components/rbac/permission-picker";
 import { createRoleAction, updateRoleAction } from "@/lib/rbac/actions";
 import type { Permission, Role, RbacActionState } from "@/lib/rbac/types";
 
-const ROLES_PATH = "/dashboard/rbac/roles";
+
 const MAX_DESCRIPTION = 500;
 
 // ─── Create form ─────────────────────────────────────────────────────────────
@@ -45,6 +47,8 @@ interface CreateRoleFormProps {
 }
 
 export function CreateRoleForm({ allPermissions }: CreateRoleFormProps) {
+  const { toPanelPath } = usePanelPath();
+
   const t = useTranslations("rbac");
   const [isPending, startTransition] = useTransition();
 
@@ -207,7 +211,7 @@ export function CreateRoleForm({ allPermissions }: CreateRoleFormProps) {
       <div className="sticky bottom-0 z-10 -mx-6 border-t border-border bg-background/95 px-6 py-4 backdrop-blur-sm">
         <div className="flex items-center justify-end gap-3">
           <Button type="button" variant="outline" asChild>
-            <Link href={ROLES_PATH}>
+            <Link href={toPanelPath("/dashboard/rbac/roles")}>
               <ArrowLeft className="size-4" />
               {t("roleForm.cancel")}
             </Link>
@@ -238,6 +242,8 @@ interface EditRoleFormProps {
 }
 
 export function EditRoleForm({ role, allPermissions }: EditRoleFormProps) {
+  const { toPanelPath } = usePanelPath();
+
   const t = useTranslations("rbac");
   const [isPending, startTransition] = useTransition();
 
@@ -397,7 +403,7 @@ export function EditRoleForm({ role, allPermissions }: EditRoleFormProps) {
       <div className="sticky bottom-0 z-10 -mx-6 border-t border-border bg-background/95 px-6 py-4 backdrop-blur-sm">
         <div className="flex items-center justify-end gap-3">
           <Button type="button" variant="outline" asChild>
-            <Link href={ROLES_PATH}>
+            <Link href={toPanelPath("/dashboard/rbac/roles")}>
               <ArrowLeft className="size-4" />
               {t("roleForm.cancel")}
             </Link>

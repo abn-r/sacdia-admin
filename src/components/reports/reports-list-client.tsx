@@ -1,5 +1,7 @@
 "use client";
 
+import { usePanelPath } from "@/lib/v2/panel-path-context";
+
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -103,6 +105,8 @@ interface ReportsListClientProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
+  const { toPanelPath } = usePanelPath();
+
   const t = useTranslations("reports");
   const router = useRouter();
   const formatDate = useFormatDate();
@@ -150,7 +154,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
           year: createYear,
         }),
       );
-      router.push(`/dashboard/reports/${report.report_id}`);
+      router.push(toPanelPath(`/dashboard/reports/${report.report_id}`));
     },
     onError: (error) => {
       const message =
@@ -419,7 +423,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                         <TableCell>
                           <div className="flex items-center gap-1.5">
                             <Button variant="ghost" size="xs" asChild>
-                              <Link prefetch={false} href={`/dashboard/reports/${report.report_id}`}>
+                              <Link prefetch={false} href={`${toPanelPath(`/dashboard/reports/`)}${report.report_id}`}>
                                 {isSubmitted ? (
                                   <Eye className="size-3" />
                                 ) : (
@@ -517,7 +521,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                         </p>
                       </div>
                       <Link prefetch={false}
-                        href={`/dashboard/reports/${report.report_id}`}
+                        href={`${toPanelPath(`/dashboard/reports/`)}${report.report_id}`}
                         className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         aria-label={isSubmitted ? t("list.ariaViewReport") : t("list.ariaEditReport")}
                       >
@@ -548,7 +552,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
 
                     <div className="mt-3 flex flex-wrap gap-1.5 border-t border-border/40 pt-3">
                       <Button variant="outline" size="xs" asChild>
-                        <Link prefetch={false} href={`/dashboard/reports/${report.report_id}`}>
+                        <Link prefetch={false} href={`${toPanelPath(`/dashboard/reports/`)}${report.report_id}`}>
                           {isSubmitted ? (
                             <Eye className="size-3" />
                           ) : (

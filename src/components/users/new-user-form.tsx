@@ -1,5 +1,7 @@
 "use client";
 
+import { usePanelPath } from "@/lib/v2/panel-path-context";
+
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -107,9 +109,11 @@ export interface NewUserFormProps {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-const LIST_HREF = "/dashboard/users";
+
 
 export function NewUserForm({ allowedRoles }: NewUserFormProps) {
+  const { toPanelPath } = usePanelPath();
+
   const t = useTranslations("users.pages.new");
   const router = useRouter();
   const getRoleLabel = useRoleLabel();
@@ -213,7 +217,7 @@ export function NewUserForm({ allowedRoles }: NewUserFormProps) {
         toast.warning(t("toast.inviteNotSent"));
       }
 
-      router.push(LIST_HREF);
+      router.push(toPanelPath("/dashboard/users"));
     } catch (error) {
       if (error instanceof ApiError) {
         if (error.status === 409) {
@@ -501,7 +505,7 @@ export function NewUserForm({ allowedRoles }: NewUserFormProps) {
         {/* ── Footer ── */}
         <div className="flex items-center justify-between gap-4 pt-2">
           <Button variant="outline" asChild>
-            <Link href={LIST_HREF} prefetch={false}>
+            <Link href={toPanelPath("/dashboard/users")} prefetch={false}>
               {t("actions.cancel")}
             </Link>
           </Button>

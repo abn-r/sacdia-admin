@@ -1,5 +1,7 @@
 "use client";
 
+import { usePanelPath } from "@/lib/v2/panel-path-context";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Pencil, Trash2 } from "lucide-react";
@@ -16,6 +18,7 @@ interface ActivityDetailActionsProps {
 export function ActivityDetailActions({ activity }: ActivityDetailActionsProps) {
   const t = useTranslations("activities");
   const router = useRouter();
+  const { toPanelPath } = usePanelPath();
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
@@ -24,7 +27,7 @@ export function ActivityDetailActions({ activity }: ActivityDetailActionsProps) 
   }
 
   function handleDeleteSuccess() {
-    router.push("/dashboard/activities");
+    router.push(toPanelPath("/dashboard/activities"));
   }
 
   return (

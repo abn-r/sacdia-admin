@@ -58,6 +58,7 @@ import {
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
+import { usePanelPath } from "@/lib/v2/panel-path-context";
 import type { GenericCatalogActionState } from "@/lib/generic-catalogs-i18n/actions";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -76,6 +77,8 @@ interface ClubIdealListClientProps {
   canEdit: boolean;
   canDelete: boolean;
   deleteAction: FormAction;
+  /** Hide embedded PageHeader when an outer shell (e.g. V2PageShell) provides the title. */
+  hidePageHeader?: boolean;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -118,8 +121,11 @@ export function ClubIdealListClient({
   canEdit,
   canDelete,
   deleteAction,
+  hidePageHeader = false,
 }: ClubIdealListClientProps) {
   const t = useTranslations("catalogs.pages.clubIdeals");
+  const { toPanelPath } = usePanelPath();
+  const listBasePath = toPanelPath("/dashboard/catalogs/club-ideals");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -207,17 +213,19 @@ export function ClubIdealListClient({
   const safeTotalPages = Math.max(1, meta.totalPages || 1);
 
   return (
-    <div className="space-y-6">
-      <PageHeader title={t("listTitle")} description={t("description")}>
-        {canCreate && (
-          <Button asChild>
-            <Link prefetch={false} href="/dashboard/catalogs/club-ideals/new">
-              <Plus className="size-4" />
-              {t("buttonCreate")}
-            </Link>
-          </Button>
-        )}
-      </PageHeader>
+    <div className={hidePageHeader ? "space-y-4" : "space-y-6"}>
+      {!hidePageHeader ? (
+        <PageHeader title={t("listTitle")} description={t("description")}>
+          {canCreate && (
+            <Button asChild>
+              <Link prefetch={false} href={`${listBasePath}/new`}>
+                <Plus className="size-4" />
+                {t("buttonCreate")}
+              </Link>
+            </Button>
+          )}
+        </PageHeader>
+      ) : null}
 
       <div className="space-y-4">
         {/* Filter bar */}
@@ -226,9 +234,19 @@ export function ClubIdealListClient({
             <h3 className="text-sm font-semibold tracking-wide text-foreground">
               Filtros
             </h3>
-            <span className="text-xs text-muted-foreground">
-              Refina el listado por campo
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">
+                Refina el listado por campo
+              </span>
+              {hidePageHeader && canCreate ? (
+                <Button size="sm" asChild>
+                  <Link prefetch={false} href={`${listBasePath}/new`}>
+                    <Plus className="size-4" />
+                    {t("buttonCreate")}
+                  </Link>
+                </Button>
+              ) : null}
+            </div>
           </div>
           <div className="overflow-x-auto pb-1">
             <div className="flex min-w-max items-end gap-4">
@@ -282,7 +300,7 @@ export function ClubIdealListClient({
           >
             {canCreate && !hasActiveFilters && (
               <Button asChild>
-                <Link prefetch={false} href="/dashboard/catalogs/club-ideals/new">
+                <Link prefetch={false} href={`${listBasePath}/new`}>
                   <Plus className="size-4" />
                   {t("buttonCreate")}
                 </Link>
@@ -349,7 +367,7 @@ export function ClubIdealListClient({
                                   title={t("editActionTitle")}
                                 >
                                   <Link prefetch={false}
-                                    href={`/dashboard/catalogs/club-ideals/${itemId}/edit`}
+                                    href={`${listBasePath}/${itemId}/edit`}
                                   >
                                     <Pencil className="size-3.5" />
                                   </Link>
@@ -383,7 +401,7 @@ export function ClubIdealListClient({
                                   {canEdit && itemId && (
                                     <DropdownMenuItem asChild>
                                       <Link prefetch={false}
-                                        href={`/dashboard/catalogs/club-ideals/${itemId}/edit`}
+                                        href={`${listBasePath}/${itemId}/edit`}
                                       >
                                         <Pencil className="size-4" />
                                         Editar

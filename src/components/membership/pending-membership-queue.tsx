@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { ArrowRight, UserPlus } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import {
@@ -9,9 +8,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { PanelDashboardLink } from "@/components/shared/panel-dashboard-link";
+import { PendingMembershipQueueClient } from "@/components/membership/pending-membership-queue-client";
 import { requireAdminUser } from "@/lib/auth/session";
 import { fetchPendingMembershipSummary } from "@/lib/dashboard/fetch-scoped-dashboard";
-import { PendingMembershipQueueClient } from "@/components/membership/pending-membership-queue-client";
 
 export async function PendingMembershipQueue({
   variant = "card",
@@ -62,10 +62,10 @@ export async function PendingMembershipQueue({
           </CardDescription>
         </div>
         <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/requests/membership" prefetch={false}>
+          <PanelDashboardLink href="/dashboard/requests/membership" prefetch={false}>
             {t("reviewAll")}
             <ArrowRight className="size-3.5" />
-          </Link>
+          </PanelDashboardLink>
         </Button>
       </CardHeader>
       <CardContent>

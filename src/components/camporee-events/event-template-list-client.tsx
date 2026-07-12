@@ -1,5 +1,7 @@
 "use client";
 
+import { usePanelPath } from "@/lib/v2/panel-path-context";
+
 /**
  * EventTemplateListClient
  *
@@ -137,6 +139,8 @@ export function EventTemplateListClient({
   canDelete,
   deleteAction,
 }: EventTemplateListClientProps) {
+  const { toPanelPath } = usePanelPath();
+
   const t = useTranslations("camporeeEvents.templates");
   const router = useRouter();
   const pathname = usePathname();
@@ -225,7 +229,7 @@ export function EventTemplateListClient({
       <PageHeader title={t("listTitle")} description={t("description")}>
         {canCreate && (
           <Button asChild>
-            <Link prefetch={false} href="/dashboard/camporees/event-templates/new">
+            <Link prefetch={false} href={toPanelPath("/dashboard/camporees/event-templates/new")}>
               <Plus className="size-4" />
               {t("buttonCreate")}
             </Link>
@@ -308,7 +312,7 @@ export function EventTemplateListClient({
           >
             {canCreate && !hasActiveFilters && (
               <Button asChild>
-                <Link prefetch={false} href="/dashboard/camporees/event-templates/new">
+                <Link prefetch={false} href={toPanelPath("/dashboard/camporees/event-templates/new")}>
                   <Plus className="size-4" />
                   {t("buttonCreate")}
                 </Link>
@@ -379,7 +383,7 @@ export function EventTemplateListClient({
                                   title={t("editActionTitle")}
                                 >
                                   <Link prefetch={false}
-                                    href={`/dashboard/camporees/event-templates/${itemId}/edit`}
+                                    href={`${toPanelPath(`/dashboard/camporees/event-templates/`)}${itemId}/edit`}
                                   >
                                     <Pencil className="size-3.5" />
                                   </Link>
@@ -409,7 +413,7 @@ export function EventTemplateListClient({
                                   {canEdit && itemId && (
                                     <DropdownMenuItem asChild>
                                       <Link prefetch={false}
-                                        href={`/dashboard/camporees/event-templates/${itemId}/edit`}
+                                        href={`${toPanelPath(`/dashboard/camporees/event-templates/`)}${itemId}/edit`}
                                       >
                                         <Pencil className="size-4" />
                                         Editar

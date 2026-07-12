@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { PanelDashboardLink } from "@/components/shared/panel-dashboard-link";
 import {
   ArrowRight,
   Building2,
@@ -75,11 +75,11 @@ export async function CoordinatorLfHome({ data }: CoordinatorLfHomeProps) {
               </p>
             </div>
             <Button size="lg" className="rounded-2xl" asChild>
-              <Link href="/dashboard/requests/membership" prefetch={false}>
+              <PanelDashboardLink href="/dashboard/requests/membership" prefetch={false}>
                 <CheckCircle2 className="size-4" />
                 {t("pendingAlert.action")}
                 <ArrowRight className="size-4" />
-              </Link>
+              </PanelDashboardLink>
             </Button>
           </div>
         </section>
@@ -96,9 +96,9 @@ export async function CoordinatorLfHome({ data }: CoordinatorLfHomeProps) {
             <p className="text-sm text-muted-foreground">{t("clubs.description")}</p>
           </div>
           <Button variant="outline" className="rounded-2xl" asChild>
-            <Link href="/dashboard/clubs" prefetch={false}>
+            <PanelDashboardLink href="/dashboard/clubs" prefetch={false}>
               {t("clubs.viewAll")}
-            </Link>
+            </PanelDashboardLink>
           </Button>
         </div>
 
@@ -109,7 +109,7 @@ export async function CoordinatorLfHome({ data }: CoordinatorLfHomeProps) {
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {data.clubs.map((club) => (
-              <Link
+              <PanelDashboardLink
                 key={club.clubId}
                 href={`/dashboard/clubs/${club.clubId}`}
                 prefetch={false}
@@ -139,7 +139,7 @@ export async function CoordinatorLfHome({ data }: CoordinatorLfHomeProps) {
                     })}
                   </p>
                 </div>
-              </Link>
+              </PanelDashboardLink>
             ))}
           </div>
         )}
@@ -149,36 +149,36 @@ export async function CoordinatorLfHome({ data }: CoordinatorLfHomeProps) {
         <h2 className="mb-4 text-lg font-semibold">{t("quickActions.title")}</h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Button variant="outline" className="h-auto justify-start rounded-2xl px-4 py-4" asChild>
-            <Link href="/dashboard/clubs" prefetch={false}>
+            <PanelDashboardLink href="/dashboard/clubs" prefetch={false}>
               <Building2 className="size-4" />
               <span className="text-left">
                 <span className="block font-medium">{t("quickActions.clubs")}</span>
               </span>
-            </Link>
+            </PanelDashboardLink>
           </Button>
           <Button variant="outline" className="h-auto justify-start rounded-2xl px-4 py-4" asChild>
-            <Link href="/dashboard/users" prefetch={false}>
+            <PanelDashboardLink href="/dashboard/users" prefetch={false}>
               <Users className="size-4" />
               <span className="text-left">
                 <span className="block font-medium">{t("quickActions.users")}</span>
               </span>
-            </Link>
+            </PanelDashboardLink>
           </Button>
           <Button variant="outline" className="h-auto justify-start rounded-2xl px-4 py-4" asChild>
-            <Link href="/dashboard/requests/membership" prefetch={false}>
+            <PanelDashboardLink href="/dashboard/requests/membership" prefetch={false}>
               <UserPlus className="size-4" />
               <span className="text-left">
                 <span className="block font-medium">{t("quickActions.membership")}</span>
               </span>
-            </Link>
+            </PanelDashboardLink>
           </Button>
           <Button variant="outline" className="h-auto justify-start rounded-2xl px-4 py-4" asChild>
-            <Link href="/dashboard/camporees" prefetch={false}>
+            <PanelDashboardLink href="/dashboard/camporees" prefetch={false}>
               <Tent className="size-4" />
               <span className="text-left">
                 <span className="block font-medium">{t("quickActions.camporees")}</span>
               </span>
-            </Link>
+            </PanelDashboardLink>
           </Button>
         </div>
       </section>
