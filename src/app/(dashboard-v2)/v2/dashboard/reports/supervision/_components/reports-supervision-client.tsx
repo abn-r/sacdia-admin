@@ -1,8 +1,9 @@
 "use client";
 
+import { PanelDashboardLink } from "@/components/shared/panel-dashboard-link";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import {
   ChevronLeft,
   ChevronRight,
@@ -350,9 +351,9 @@ export function ReportsSupervisionClient({
                   <TableCell>
                     <div className="flex items-center justify-end gap-2">
                       <Button asChild variant="outline" size="sm">
-                        <Link prefetch={false} href={`/dashboard/reports/${item.monthly_report_id}`}>
+                        <PanelDashboardLink prefetch={false} href={`/dashboard/reports/${item.monthly_report_id}`}>
                           {t("actionView")}
-                        </Link>
+                        </PanelDashboardLink>
                       </Button>
                       {item.status !== "draft" && (
                         <Button

@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { panelRedirect } from "@/lib/v2/panel-path-server";
+import { PanelDashboardLink } from "@/components/shared/panel-dashboard-link";
 import { redirect } from "next/navigation";
 import { Receipt, ArrowRight } from "lucide-react";
 import { getTranslations } from "next-intl/server";
@@ -190,13 +190,13 @@ export default async function ComprobantesPage({
                     </TableCell>
                     <TableCell className="px-3 py-2.5 align-middle">
                       <Button variant="ghost" size="sm" asChild>
-                        <Link
+                        <PanelDashboardLink
                           href={`/dashboard/materials/receipts/${orden.folio_referencia ?? orden.id}`}
                           prefetch={false}
                         >
                           Revisar comprobantes
                           <ArrowRight className="ml-1.5 size-3.5" />
-                        </Link>
+                        </PanelDashboardLink>
                       </Button>
                     </TableCell>
                   </TableRow>

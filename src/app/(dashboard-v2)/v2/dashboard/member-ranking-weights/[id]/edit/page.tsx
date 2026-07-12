@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { PanelDashboardLink } from "@/components/shared/panel-dashboard-link";
+import { toV2Path } from "@/lib/v2/route-map";
 import { ArrowLeft, Scale } from "lucide-react";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
@@ -50,16 +51,16 @@ export default async function EditWeightsPage({ params }: EditWeightsPageProps) 
         title={pageTitle}
         description={t("description")}
         breadcrumbs={[
-          { label: "Dashboard", href: "/dashboard" },
-          { label: tList("breadcrumbLabel"), href: BACK_HREF },
+          { label: "Dashboard", href: toV2Path("/dashboard") },
+          { label: tList("breadcrumbLabel"), href: toV2Path(BACK_HREF) },
           { label: isDefault ? t("breadcrumbDefault") : t("breadcrumbOverride") },
         ]}
       >
         <Button variant="outline" size="sm" asChild>
-          <Link href={BACK_HREF}>
+          <PanelDashboardLink href={BACK_HREF}>
             <ArrowLeft className="size-4" />
             {t("back")}
-          </Link>
+          </PanelDashboardLink>
         </Button>
       </PageHeader>
 

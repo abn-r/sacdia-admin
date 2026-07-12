@@ -1,5 +1,7 @@
 "use client";
 
+import { usePanelPath } from "@/lib/v2/panel-path-context";
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -113,6 +115,7 @@ export function WeightsForm({
   ecclesiasticalYears,
   backHref = "/dashboard/member-ranking-weights",
 }: WeightsFormProps) {
+  const { toPanelPath } = usePanelPath();
   const isEdit = mode === "edit";
   const t = useTranslations("memberRankingWeights.formDialog");
   const router = useRouter();
@@ -164,7 +167,7 @@ export function WeightsForm({
         toast.success("Sobreescritura de pesos creada");
       }
 
-      router.push(backHref);
+      router.push(toPanelPath(backHref));
       router.refresh();
     } catch (err: unknown) {
       toast.error(mapWeightsErrorMessage(err));
@@ -342,7 +345,7 @@ export function WeightsForm({
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => router.push(backHref)}
+                onClick={() => router.push(toPanelPath(backHref))}
                 disabled={isSubmitting}
               >
                 Cancelar

@@ -7,9 +7,10 @@ import {
 } from "@/lib/api/achievements";
 import { requireAdminUser } from "@/lib/auth/session";
 import { createAchievementAction } from "@/lib/achievements/actions";
-import { AchievementForm } from "@/app/(dashboard)/dashboard/achievements/_components/achievement-form";
+import { AchievementForm } from "../../_components/achievement-form";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { toV2Path } from "@/lib/v2/route-map";
 
 type Params = Promise<{ categoryId: string }>;
 
@@ -105,8 +106,8 @@ export default async function NewAchievementPage({ params }: { params: Params })
         title={t("title")}
         description={t("descriptionTemplate", { categoryName })}
         breadcrumbs={[
-          { label: t("breadcrumbRoot"), href: "/dashboard/achievements" },
-          { label: categoryName, href: cancelHref },
+          { label: t("breadcrumbRoot"), href: toV2Path("/dashboard/achievements") },
+          { label: categoryName, href: toV2Path(cancelHref) },
           { label: t("breadcrumbNew") },
         ]}
       />

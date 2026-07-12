@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState } from "react";
-import Link from "next/link";
+import { PanelDashboardLink } from "@/components/shared/panel-dashboard-link";
 import { useParams } from "next/navigation";
 import { AlertCircle, ArrowLeft, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -132,10 +132,10 @@ export default function HonorRequirementsPage() {
         description={status === "ready" ? honorName : undefined}
       >
         <Button variant="outline" size="sm" asChild>
-          <Link href={backHref}>
+          <PanelDashboardLink href={backHref}>
             <ArrowLeft className="size-4" />
             {t("backButton")}
-          </Link>
+          </PanelDashboardLink>
         </Button>
 
         {status === "ready" && (

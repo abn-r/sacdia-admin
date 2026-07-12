@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { panelRedirect } from "@/lib/v2/panel-path-server";
+import { PanelDashboardLink } from "@/components/shared/panel-dashboard-link";
 import { ArrowLeft, ShieldCheck } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { buildRoleTranslator } from "@/lib/auth/role-labels";
@@ -60,9 +60,9 @@ export default async function EditRolePage({ params }: EditRolePageProps) {
     <div className="mx-auto max-w-3xl space-y-6">
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
-          <Link href="/dashboard/rbac/roles" aria-label={t("backAriaLabel")}>
+          <PanelDashboardLink href="/dashboard/rbac/roles" aria-label={t("backAriaLabel")}>
             <ArrowLeft className="size-4" />
-          </Link>
+          </PanelDashboardLink>
         </Button>
         <PageHeader
           title={role ? t("editTitle", { name: translateRole(role.role_name) }) : t("editTitleFallback")}

@@ -1,6 +1,7 @@
 "use client";
 
-import Link from "next/link";
+import { PanelDashboardLink } from "@/components/shared/panel-dashboard-link";
+
 import { Pencil, Trash2, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
@@ -76,10 +77,10 @@ export function WeightsTable({
                 asChild
                 title={t("editDefaultTitle")}
               >
-                <Link href={`/dashboard/member-ranking-weights/${defaultRow.id}/edit`}>
+                <PanelDashboardLink href={`/dashboard/member-ranking-weights/${defaultRow.id}/edit`}>
                   <Pencil className="size-3.5" />
                   {t("editButton")}
-                </Link>
+                </PanelDashboardLink>
               </Button>
             </div>
           </CardHeader>
@@ -133,10 +134,10 @@ export function WeightsTable({
             <Badge variant="secondary">{overrides.length}</Badge>
           </div>
           <Button size="sm" asChild>
-            <Link href="/dashboard/member-ranking-weights/new">
+            <PanelDashboardLink href="/dashboard/member-ranking-weights/new">
               <Plus className="size-4" />
               {t("createOverride")}
-            </Link>
+            </PanelDashboardLink>
           </Button>
         </div>
 
@@ -147,10 +148,10 @@ export function WeightsTable({
               {t("emptyDescription")}
             </p>
             <Button size="sm" variant="outline" className="mt-4" asChild>
-              <Link href="/dashboard/member-ranking-weights/new">
+              <PanelDashboardLink href="/dashboard/member-ranking-weights/new">
                 <Plus className="size-4" />
                 {t("createOverride")}
-              </Link>
+              </PanelDashboardLink>
             </Button>
           </div>
         ) : (
@@ -208,10 +209,10 @@ export function WeightsTable({
                           asChild
                           title={t("editOverrideTitle")}
                         >
-                          <Link href={`/dashboard/member-ranking-weights/${row.id}/edit`} prefetch={false}>
+                          <PanelDashboardLink href={`/dashboard/member-ranking-weights/${row.id}/edit`} prefetch={false}>
                             <Pencil className="size-3.5" />
                             <span className="sr-only">{t("editButton")}</span>
-                          </Link>
+                          </PanelDashboardLink>
                         </Button>
                         <Button
                           variant="ghost"

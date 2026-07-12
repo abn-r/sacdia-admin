@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { ShieldCheck, Plus } from "lucide-react";
+import { PanelDashboardLink } from "@/components/shared/panel-dashboard-link";
 import { getTranslations } from "next-intl/server";
 import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
@@ -52,10 +52,10 @@ export default async function RolesPage() {
         actions={
           isSuperAdmin ? (
             <Button asChild>
-              <Link href="/dashboard/rbac/roles/new">
+              <PanelDashboardLink href="/dashboard/rbac/roles/new">
                 <Plus className="size-4" />
                 {t("newRole")}
-              </Link>
+              </PanelDashboardLink>
             </Button>
           ) : undefined
         }
@@ -80,10 +80,10 @@ export default async function RolesPage() {
         >
           {isSuperAdmin && (
             <Button asChild>
-              <Link href="/dashboard/rbac/roles/new">
+              <PanelDashboardLink href="/dashboard/rbac/roles/new">
                 <Plus className="size-4" />
                 {t("newRole")}
-              </Link>
+              </PanelDashboardLink>
             </Button>
           )}
         </EmptyState>

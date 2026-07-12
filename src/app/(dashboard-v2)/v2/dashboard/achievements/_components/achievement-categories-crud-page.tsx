@@ -1,6 +1,7 @@
 "use client";
 
-import Link from "next/link";
+import { PanelDashboardLink } from "@/components/shared/panel-dashboard-link";
+
 import { useActionState, useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -297,14 +298,14 @@ export function AchievementCategoriesCrudPage({
                       <TableRow key={rowKey} className="transition-colors hover:bg-muted/30">
                         <TableCell className="font-medium">
                           {categoryId ? (
-                            <Link
+                            <PanelDashboardLink
                               href={`/dashboard/achievements/${categoryId}`}
                               className="flex items-center gap-1.5 text-primary hover:underline"
                               prefetch={false}
                             >
                               {categoryName}
                               <ChevronRight className="size-3.5 text-muted-foreground" />
-                            </Link>
+                            </PanelDashboardLink>
                           ) : (
                             categoryName
                           )}

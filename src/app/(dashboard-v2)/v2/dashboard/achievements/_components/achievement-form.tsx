@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
-import Link from "next/link";
+import { PanelDashboardLink } from "@/components/shared/panel-dashboard-link";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
@@ -455,7 +455,7 @@ export function AchievementForm({
       {/* Form actions */}
       <div className="flex items-center justify-end gap-3 border-t pt-4">
         <Button type="button" variant="outline" asChild>
-          <Link href={cancelHref}>{t("cancelButton")}</Link>
+          <PanelDashboardLink href={cancelHref}>{t("cancelButton")}</PanelDashboardLink>
         </Button>
         <SubmitButton label={isEdit ? t("submitEdit") : t("submitCreate")} />
       </div>

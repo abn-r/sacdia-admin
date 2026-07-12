@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import { PanelDashboardLink } from "@/components/shared/panel-dashboard-link";
 import { ArrowLeft, GraduationCap } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";
@@ -232,10 +232,10 @@ export default async function ClassDetailPage({ params }: { params: Params }) {
         ]}
         actions={
           <Button variant="outline" size="sm" asChild>
-            <Link href="/dashboard/classes">
+            <PanelDashboardLink href="/dashboard/classes">
               <ArrowLeft className="size-4" />
               {t("back")}
-            </Link>
+            </PanelDashboardLink>
           </Button>
         }
       />

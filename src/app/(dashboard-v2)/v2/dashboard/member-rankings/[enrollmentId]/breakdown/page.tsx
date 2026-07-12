@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { PanelDashboardLink } from "@/components/shared/panel-dashboard-link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -89,10 +89,10 @@ export default async function MemberBreakdownPage({
         ]}
       >
         <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/member-rankings">
+          <PanelDashboardLink href="/dashboard/member-rankings">
             <ArrowLeft className="size-4" />
             {t("pageMemberBreakdown.back")}
-          </Link>
+          </PanelDashboardLink>
         </Button>
       </PageHeader>
 

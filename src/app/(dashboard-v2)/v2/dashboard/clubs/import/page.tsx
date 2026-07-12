@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { panelRedirect } from "@/lib/v2/panel-path-server";
+import { PanelDashboardLink } from "@/components/shared/panel-dashboard-link";
 import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
@@ -163,10 +163,10 @@ export default async function ImportClubsPage() {
     <div className="space-y-6">
       <PageHeader title={t("title")} description={t("description")}>
         <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/clubs">
+          <PanelDashboardLink href="/dashboard/clubs">
             <ArrowLeft className="size-4" />
             {t("back")}
-          </Link>
+          </PanelDashboardLink>
         </Button>
       </PageHeader>
 

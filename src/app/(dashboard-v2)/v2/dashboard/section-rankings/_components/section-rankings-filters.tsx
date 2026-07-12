@@ -1,10 +1,11 @@
 "use client";
 
+import { PanelDashboardLink } from "@/components/shared/panel-dashboard-link";
+
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { EcclesiasticalYearSelect } from "@/components/shared/selectors/ecclesiastical-year-select";
 import { ClubSelect } from "@/components/shared/selectors/club-select";
 
@@ -81,7 +82,7 @@ export function SectionRankingsFilters({
           {t("apply")}
         </Button>
         <Button variant="ghost" size="sm" asChild>
-          <Link href="/dashboard/section-rankings">{t("clear")}</Link>
+          <PanelDashboardLink href="/dashboard/section-rankings">{t("clear")}</PanelDashboardLink>
         </Button>
       </div>
     </form>

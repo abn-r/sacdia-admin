@@ -1,6 +1,7 @@
 "use client";
 
-import Link from "next/link";
+import { PanelDashboardLink } from "@/components/shared/panel-dashboard-link";
+
 import { useActionState, useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -245,7 +246,7 @@ export function AchievementsCrudPage({
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link href="/dashboard/achievements">{t("breadcrumbRoot")}</Link>
+              <PanelDashboardLink href="/dashboard/achievements">{t("breadcrumbRoot")}</PanelDashboardLink>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
@@ -260,10 +261,10 @@ export function AchievementsCrudPage({
         description={t("pageDescription")}
         actions={
           <Button asChild>
-            <Link href={`/dashboard/achievements/${categoryId}/new`}>
+            <PanelDashboardLink href={`/dashboard/achievements/${categoryId}/new`}>
               <Plus className="size-4" />
               {t("newButton")}
-            </Link>
+            </PanelDashboardLink>
           </Button>
         }
       />
@@ -363,10 +364,10 @@ export function AchievementsCrudPage({
           >
             {!hasActiveFilters && (
               <Button asChild>
-                <Link href={`/dashboard/achievements/${categoryId}/new`}>
+                <PanelDashboardLink href={`/dashboard/achievements/${categoryId}/new`}>
                   <Plus className="size-4" />
                   {t("newButton")}
-                </Link>
+                </PanelDashboardLink>
               </Button>
             )}
           </EmptyState>
@@ -476,12 +477,12 @@ export function AchievementsCrudPage({
                                 asChild
                                 title={t("actionEdit")}
                               >
-                                <Link
+                                <PanelDashboardLink
                                   href={`/dashboard/achievements/${categoryId}/${achId}/edit`}
                                   prefetch={false}
                                 >
                                   <Pencil className="size-3.5" />
-                                </Link>
+                                </PanelDashboardLink>
                               </Button>
                             ) : (
                               <Button
@@ -516,13 +517,13 @@ export function AchievementsCrudPage({
                               <DropdownMenuContent align="end">
                                 {achId ? (
                                   <DropdownMenuItem asChild>
-                                    <Link
+                                    <PanelDashboardLink
                                       href={`/dashboard/achievements/${categoryId}/${achId}/edit`}
                                       prefetch={false}
                                     >
                                       <Pencil className="size-4" />
                                       {t("actionEdit")}
-                                    </Link>
+                                    </PanelDashboardLink>
                                   </DropdownMenuItem>
                                 ) : (
                                   <DropdownMenuItem disabled>

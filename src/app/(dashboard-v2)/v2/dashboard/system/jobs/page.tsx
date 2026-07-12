@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { Suspense } from "react";
+import { PanelDashboardLink } from "@/components/shared/panel-dashboard-link";
 import { History } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { requireAdminUser } from "@/lib/auth/session";
@@ -122,10 +122,10 @@ async function JobsContent({ messages }: { messages: JobsMessages }) {
             </p>
           </div>
           <Button variant="outline" size="sm" asChild>
-            <Link href="/dashboard/system/jobs/history">
+            <PanelDashboardLink href="/dashboard/system/jobs/history">
               <History className="size-4 mr-2" />
               {messages.viewHistory}
-            </Link>
+            </PanelDashboardLink>
           </Button>
         </div>
         {cronSection}

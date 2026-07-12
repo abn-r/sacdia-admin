@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { PanelDashboardLink } from "@/components/shared/panel-dashboard-link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
@@ -88,10 +88,10 @@ export default async function UnionDetailPage({
     <div className="space-y-6">
       <PageHeader title={unionName}>
         <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/catalogs/geography/unions">
+          <PanelDashboardLink href="/dashboard/catalogs/geography/unions">
             <ArrowLeft className="size-4" />
             {t("back")}
-          </Link>
+          </PanelDashboardLink>
         </Button>
       </PageHeader>
 

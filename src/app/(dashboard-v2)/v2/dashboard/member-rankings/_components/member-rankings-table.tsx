@@ -1,6 +1,7 @@
 "use client";
 
-import Link from "next/link";
+import { PanelDashboardLink } from "@/components/shared/panel-dashboard-link";
+
 import { Trophy } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
@@ -176,11 +177,11 @@ export function MemberRankingsTable({
                 {/* Action */}
                 <TableCell className="px-3 py-2.5 align-middle text-right">
                   <Button variant="ghost" size="sm" asChild>
-                    <Link prefetch={false}
+                    <PanelDashboardLink prefetch={false}
                       href={`/dashboard/member-rankings/${item.enrollment_id}/breakdown?year_id=${selectedYearId}`}
                     >
                       {t("viewDetail")}
-                    </Link>
+                    </PanelDashboardLink>
                   </Button>
                 </TableCell>
               </TableRow>

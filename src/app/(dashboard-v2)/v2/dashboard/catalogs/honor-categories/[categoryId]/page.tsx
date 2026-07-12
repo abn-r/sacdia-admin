@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import Link from "next/link";
+import { PanelDashboardLink } from "@/components/shared/panel-dashboard-link";
 import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
@@ -148,10 +148,10 @@ export default async function HonorCategoryDetailPage({ params }: { params: Para
     <div className="space-y-6">
       <PageHeader title={t("pageTitle")}>
         <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/catalogs/honor-categories">
+          <PanelDashboardLink href="/dashboard/catalogs/honor-categories">
             <ArrowLeft className="size-4" />
             {t("backButton")}
-          </Link>
+          </PanelDashboardLink>
         </Button>
       </PageHeader>
 

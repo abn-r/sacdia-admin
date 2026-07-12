@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import { PanelDashboardLink } from "@/components/shared/panel-dashboard-link";
 import { ArrowLeft, ShieldCheck } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";
@@ -219,10 +219,10 @@ export default async function CertificationDetailPage({ params }: { params: Para
         ]}
         actions={
           <Button variant="outline" size="sm" asChild>
-            <Link href="/dashboard/certifications">
+            <PanelDashboardLink href="/dashboard/certifications">
               <ArrowLeft className="size-4" />
               {t("back")}
-            </Link>
+            </PanelDashboardLink>
           </Button>
         }
       />
