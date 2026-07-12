@@ -23,6 +23,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ErrorRetryBanner } from "@/components/shared/error-retry-banner";
+import { usePanelPath } from "@/lib/v2/panel-path-context";
 import type {
   ClubLeadership,
   LeadershipMember,
@@ -98,6 +99,8 @@ function ActionsCard({
   onDelete?: () => void;
 }) {
   const t = useTranslations("clubs.detail.sidebar");
+  const { toPanelPath } = usePanelPath();
+  const createUnitHref = toPanelPath(`/dashboard/clubs/${clubId}/units/new`);
   return (
     <CardShell title={t("quickActionsTitle")}>
       <div className="grid gap-1">
@@ -109,7 +112,7 @@ function ActionsCard({
         <ActionRow
           icon={<Plus className="size-3.5" />}
           label={t("createUnit")}
-          href={`/dashboard/clubs/${clubId}/units/new`}
+          href={createUnitHref}
         />
         <ActionRow
           icon={<Users className="size-3.5" />}

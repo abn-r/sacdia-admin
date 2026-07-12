@@ -1,5 +1,7 @@
 "use client";
 
+import { usePanelPath } from "@/lib/v2/panel-path-context";
+
 import Link from "next/link";
 import { useState, useCallback } from "react";
 import { Plus, ChevronRight, Trash2, RefreshCw } from "lucide-react";
@@ -70,6 +72,8 @@ interface CampoReesViewProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function CampoReesView({ initialCamporees }: CampoReesViewProps) {
+  const { toPanelPath } = usePanelPath();
+
   const t = useTranslations("camporees");
   const [camporees, setCamporees] = useState<Camporee[]>(initialCamporees);
   const [isLoading, setIsLoading] = useState(false);
@@ -206,7 +210,7 @@ export function CampoReesView({ initialCamporees }: CampoReesViewProps) {
                           <span className="sr-only">{t("list.deleteLabel")}</span>
                         </Button>
                         <Button variant="ghost" size="icon-sm" asChild>
-                          <Link prefetch={false} href={`/dashboard/camporees/${id}`}>
+                          <Link prefetch={false} href={`${toPanelPath(`/dashboard/camporees/`)}${id}`}>
                             <ChevronRight className="size-4" />
                             <span className="sr-only">{t("list.viewDetail")}</span>
                           </Link>

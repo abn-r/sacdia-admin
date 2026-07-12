@@ -7,9 +7,11 @@ import { toast } from "sonner";
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
+import { PanelDashboardLink } from "@/components/shared/panel-dashboard-link";
 import { approveMembershipRequest } from "@/lib/api/membership-requests";
 import type { PendingMembershipPreview } from "@/lib/dashboard/fetch-scoped-dashboard";
 import { ApiError } from "@/lib/api/client";
+import { usePanelPath } from "@/lib/v2/panel-path-context";
 
 interface PendingMembershipQueueClientProps {
   previews: PendingMembershipPreview[];
@@ -24,6 +26,7 @@ export function PendingMembershipQueueClient({
 }: PendingMembershipQueueClientProps) {
   const t = useTranslations("dashboardHub.pendingMembership");
   const router = useRouter();
+  const { toPanelPath } = usePanelPath();
   const [pendingId, setPendingId] = useState<string | null>(null);
 
   async function handleApprove(item: PendingMembershipPreview) {
@@ -49,7 +52,9 @@ export function PendingMembershipQueueClient({
     <div className="space-y-2">
       {previews.map((item) => {
         const isPending = pendingId === item.assignmentId;
-        const clubHref = item.clubId ? `/dashboard/clubs/${item.clubId}?panel=membership` : "/dashboard/clubs";
+        const clubHref = item.clubId
+          ? toPanelPath(`/dashboard/clubs/${item.clubId}?panel=membership`)
+          : toPanelPath("/dashboard/clubs");
 
         return (
           <div
@@ -82,10 +87,10 @@ export function PendingMembershipQueueClient({
                   {t("approve")}
                 </Button>
                 <Button size="sm" variant="ghost" asChild>
-                  <Link href="/dashboard/requests/membership" prefetch={false}>
+                  <PanelDashboardLink href="/dashboard/requests/membership" prefetch={false}>
                     <XCircle className="size-3.5" />
                     {t("review")}
-                  </Link>
+                  </PanelDashboardLink>
                 </Button>
               </div>
             ) : null}

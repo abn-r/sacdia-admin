@@ -1,5 +1,7 @@
 "use client";
 
+import { usePanelPath } from "@/lib/v2/panel-path-context";
+
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import type { CamporeeEventsData } from "@/lib/camporee-timeline/types";
@@ -15,6 +17,7 @@ interface Props {
 
 export function EventsTimelineView({ camporeeId, data, readonly = false }: Props) {
   const router = useRouter();
+  const { toPanelPath } = usePanelPath();
   const isUnionCamporee = data.camporeeType === "union";
   const basePath = isUnionCamporee
     ? `/dashboard/camporees/union/${camporeeId}`
@@ -25,14 +28,14 @@ export function EventsTimelineView({ camporeeId, data, readonly = false }: Props
   // >4 fields + relations). The drawer is removed from the create flow.
   const openCreate = React.useCallback(() => {
     if (readonly) return;
-    router.push(`${basePath}/events/new`);
-  }, [readonly, router, basePath]);
+    router.push(toPanelPath(`${basePath}/events/new`));
+  }, [readonly, router, basePath, toPanelPath]);
 
   const handleEdit = React.useCallback(
     (eventId: string) => {
-      router.push(`${basePath}/events/${eventId}/edit`);
+      router.push(toPanelPath(`${basePath}/events/${eventId}/edit`));
     },
-    [router, basePath],
+    [router, basePath, toPanelPath],
   );
 
   const eventsByDay = React.useMemo(() => {

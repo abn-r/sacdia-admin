@@ -60,6 +60,7 @@ import {
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
+import { usePanelPath } from "@/lib/v2/panel-path-context";
 import type { GenericCatalogActionState } from "@/lib/generic-catalogs-i18n/actions";
 
 type AnyRecord = Record<string, unknown>;
@@ -106,6 +107,8 @@ export interface GeographyListClientProps {
   canDelete: boolean;
   deleteAction: FormAction;
   enableScoringConfiguration?: boolean;
+  /** Hide embedded PageHeader when an outer shell (e.g. V2PageShell) provides the title. */
+  hidePageHeader?: boolean;
 }
 
 function toText(value: unknown): string | null {
@@ -150,9 +153,12 @@ export function GeographyListClient({
   canDelete,
   deleteAction,
   enableScoringConfiguration = false,
+  hidePageHeader = false,
 }: GeographyListClientProps) {
   const t = useTranslations(`catalogs.pages.${i18nNamespace}`);
   const tShared = useTranslations("catalogs.shared");
+  const { toPanelPath } = usePanelPath();
+  const resolvedBasePath = toPanelPath(basePath);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -240,17 +246,19 @@ export function GeographyListClient({
   const safeTotalPages = Math.max(1, meta.totalPages || 1);
 
   return (
-    <div className="space-y-6">
-      <PageHeader title={t("listTitle")} description={t("description")}>
-        {canCreate && (
-          <Button asChild>
-            <Link prefetch={false} href={`${basePath}/new`}>
-              <Plus className="size-4" />
-              {t("buttonCreate")}
-            </Link>
-          </Button>
-        )}
-      </PageHeader>
+    <div className={hidePageHeader ? "space-y-4" : "space-y-6"}>
+      {!hidePageHeader ? (
+        <PageHeader title={t("listTitle")} description={t("description")}>
+          {canCreate && (
+            <Button asChild>
+              <Link prefetch={false} href={`${resolvedBasePath}/new`}>
+                <Plus className="size-4" />
+                {t("buttonCreate")}
+              </Link>
+            </Button>
+          )}
+        </PageHeader>
+      ) : null}
 
       <div className="space-y-4">
         <div className="rounded-xl border bg-muted/20 p-4">
@@ -258,9 +266,19 @@ export function GeographyListClient({
             <h3 className="text-sm font-semibold tracking-wide text-foreground">
               Filtros
             </h3>
-            <span className="text-xs text-muted-foreground">
-              Refina el listado por campo
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">
+                Refina el listado por campo
+              </span>
+              {hidePageHeader && canCreate ? (
+                <Button size="sm" asChild>
+                  <Link prefetch={false} href={`${resolvedBasePath}/new`}>
+                    <Plus className="size-4" />
+                    {t("buttonCreate")}
+                  </Link>
+                </Button>
+              ) : null}
+            </div>
           </div>
           <div className="overflow-x-auto pb-1">
             <div className="flex min-w-max items-end gap-4">
@@ -309,7 +327,7 @@ export function GeographyListClient({
           >
             {canCreate && !hasActiveFilters && (
               <Button asChild>
-                <Link prefetch={false} href={`${basePath}/new`}>
+                <Link prefetch={false} href={`${resolvedBasePath}/new`}>
                   <Plus className="size-4" />
                   {t("buttonCreate")}
                 </Link>
@@ -378,7 +396,7 @@ export function GeographyListClient({
                                   title={tShared("configureScoringTitle")}
                                 >
                                   <Link prefetch={false}
-                                    href={`${basePath}/${itemId}?tab=scoring-categories`}
+                                    href={`${resolvedBasePath}/${itemId}?tab=scoring-categories`}
                                   >
                                     <Settings2 className="size-3.5" />
                                     Configurar puntuación
@@ -393,7 +411,7 @@ export function GeographyListClient({
                                   asChild
                                   title={tShared("editActionTitle")}
                                 >
-                                  <Link prefetch={false} href={`${basePath}/${itemId}/edit`}>
+                                  <Link prefetch={false} href={`${resolvedBasePath}/${itemId}/edit`}>
                                     <Pencil className="size-3.5" />
                                   </Link>
                                 </Button>
@@ -425,7 +443,7 @@ export function GeographyListClient({
                                 <DropdownMenuContent align="end">
                                   {canEdit && itemId && (
                                     <DropdownMenuItem asChild>
-                                      <Link prefetch={false} href={`${basePath}/${itemId}/edit`}>
+                                      <Link prefetch={false} href={`${resolvedBasePath}/${itemId}/edit`}>
                                         <Pencil className="size-4" />
                                         Editar
                                       </Link>
@@ -434,7 +452,7 @@ export function GeographyListClient({
                                   {enableScoringConfiguration && itemId && (
                                     <DropdownMenuItem asChild>
                                       <Link prefetch={false}
-                                        href={`${basePath}/${itemId}?tab=scoring-categories`}
+                                        href={`${resolvedBasePath}/${itemId}?tab=scoring-categories`}
                                       >
                                         <Settings2 className="size-4" />
                                         Configurar puntuación

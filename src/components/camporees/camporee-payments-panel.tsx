@@ -1,5 +1,7 @@
 "use client";
 
+import { usePanelPath } from "@/lib/v2/panel-path-context";
+
 import { useState } from "react";
 import Link from "next/link";
 import { CheckCircle2, DollarSign, Loader2, Paperclip, Pencil, XCircle } from "lucide-react";
@@ -145,6 +147,8 @@ export function CamporeePaymentsPanel({
   onPaymentsChange,
   isUnionCamporee = false,
 }: CamporeePaymentsPanelProps) {
+  const { toPanelPath } = usePanelPath();
+
   const t = useTranslations("camporees");
   const formatDateLocale = useFormatDate();
   const formatCurrency = useFormatCurrency();
@@ -354,7 +358,7 @@ export function CamporeePaymentsPanel({
                                 aria-label={t("paymentsPanel.editLabel")}
                               >
                                 <Link
-                                  href={`/dashboard/camporees/${camporeeId}/payments/${payment.camporee_payment_id}/edit`}
+                                  href={`${toPanelPath(`/dashboard/camporees/${camporeeId}/payments/`)}${payment.camporee_payment_id}/edit`}
                                   prefetch={false}
                                 >
                                   <Pencil className="size-3.5" />

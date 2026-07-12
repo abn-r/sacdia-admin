@@ -1,0 +1,144 @@
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+import { V2CatalogListShell } from "@/components/v2/catalogs/v2-catalog-list-shell";
+import { ApiError } from "@/lib/api/client";
+import {
+  listAdminCountries,
+  listAdminUnions,
+} from "@/lib/api/generic-catalogs-i18n";
+import {
+  extractItems,
+  extractMeta,
+  readParam,
+  readPositiveNumberParam,
+} from "@/lib/phase-e-catalogs/fetch-helpers";
+import { requireAdminUser } from "@/lib/auth/session";
+import { hasAnyPermission } from "@/lib/auth/permission-utils";
+import {
+  UNIONS_CREATE,
+  UNIONS_UPDATE,
+  UNIONS_DELETE,
+  CATALOGS_CREATE,
+  CATALOGS_UPDATE,
+  CATALOGS_DELETE,
+} from "@/lib/auth/permissions";
+import { deleteUnionAction } from "@/lib/generic-catalogs-i18n/actions";
+import { GeographyListClient } from "@/components/catalogs/geography-list-client";
+
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("catalogs.pages.unions");
+  return { title: t("metadataTitle") };
+}
+
+function buildCountryMap(payload: unknown): Map<number, string> {
+  const items = extractItems(payload);
+  const map = new Map<number, string>();
+  for (const item of items) {
+    const id =
+      typeof item.country_id === "number"
+        ? item.country_id
+        : Number(item.country_id);
+    const name = typeof item.name === "string" ? item.name.trim() : "";
+    if (Number.isFinite(id) && id > 0 && name) {
+      map.set(id, name);
+    }
+  }
+  return map;
+}
+
+export default async function V2UnionsPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const user = await requireAdminUser();
+  const t = await getTranslations("catalogs.pages.unions");
+  const raw = await searchParams;
+
+  const page = readPositiveNumberParam(raw, "page") ?? 1;
+  const limit = readPositiveNumberParam(raw, "limit") ?? 20;
+  const search =
+    readParam(raw, "search") ?? readParam(raw, "name") ?? readParam(raw, "q");
+  const activeRaw = readParam(raw, "active");
+
+  let items: Record<string, unknown>[] = [];
+  let meta = { page, limit, total: 0, totalPages: 1 };
+  let loadError: string | null = null;
+  let countryMap = new Map<number, string>();
+
+  try {
+    const params: Record<string, string | number | boolean> = { page, limit };
+    if (search) params.search = search;
+    if (activeRaw === "true") params.active = true;
+    if (activeRaw === "false") params.active = false;
+
+    const [unionsPayload, countriesPayload] = await Promise.allSettled([
+      listAdminUnions(params),
+      listAdminCountries(),
+    ]);
+
+    if (unionsPayload.status === "fulfilled") {
+      items = extractItems(unionsPayload.value);
+      meta = extractMeta(unionsPayload.value, page, limit, items.length);
+    } else if (
+      !(
+        unionsPayload.reason instanceof ApiError &&
+        unionsPayload.reason.status === 429
+      )
+    ) {
+      loadError =
+        unionsPayload.reason instanceof ApiError
+          ? unionsPayload.reason.message
+          : t("loadError");
+    }
+
+    if (countriesPayload.status === "fulfilled") {
+      countryMap = buildCountryMap(countriesPayload.value);
+    }
+  } catch (error) {
+    if (!(error instanceof ApiError && error.status === 429)) {
+      loadError = error instanceof ApiError ? error.message : t("loadError");
+    }
+  }
+
+  const canCreate = hasAnyPermission(user, [UNIONS_CREATE, CATALOGS_CREATE]);
+  const canEdit = hasAnyPermission(user, [UNIONS_UPDATE, CATALOGS_UPDATE]);
+  const canDelete = hasAnyPermission(user, [UNIONS_DELETE, CATALOGS_DELETE]);
+
+  const enrichedItems = items.map((item) => {
+    const raw = item.country_id;
+    const id = typeof raw === "number" ? raw : Number(raw);
+    const parentName = Number.isFinite(id)
+      ? countryMap.get(id) ?? String(id)
+      : "—";
+    return { ...item, _parent_name: parentName };
+  });
+
+  return (
+    <V2CatalogListShell
+      title={t("listTitle")}
+      description={t("description")}
+      loadError={loadError}
+    >
+      <GeographyListClient
+        i18nNamespace="unions"
+        basePath="/dashboard/catalogs/geography/unions"
+        pkField="union_id"
+        includeAbbreviation
+        parentLabel={t("colCountry")}
+        parentField="_parent_name"
+        fallbackName="esta unión"
+        items={enrichedItems}
+        meta={meta}
+        canCreate={canCreate}
+        canEdit={canEdit}
+        canDelete={canDelete}
+        deleteAction={deleteUnionAction}
+        enableScoringConfiguration
+        hidePageHeader
+      />
+    </V2CatalogListShell>
+  );
+}

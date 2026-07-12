@@ -234,6 +234,11 @@ export interface IntlMessages {
       general: string;
       searchAriaLabel: string;
     };
+    v2: {
+      switchToStudio: string;
+      switchToClassic: string;
+      badge: string;
+    };
     activeContext: {
       noClub: string;
       noYear: string;

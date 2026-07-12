@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { createFolderForSection } from "@/lib/api/annual-folders";
 import { ApiError } from "@/lib/api/client";
+import { usePanelPath } from "@/lib/v2/panel-path-context";
 
 type CreateFolderForSectionButtonProps = {
   sectionId: number;
@@ -18,6 +19,7 @@ export function CreateFolderForSectionButton({
 }: CreateFolderForSectionButtonProps) {
   const t = useTranslations("annual_folders");
   const router = useRouter();
+  const { toPanelPath } = usePanelPath();
   const [isCreating, setIsCreating] = useState(false);
 
   async function handleCreate() {
@@ -26,9 +28,11 @@ export function CreateFolderForSectionButton({
       const folder = await createFolderForSection(sectionId);
       toast.success(t("toasts.folder_created"));
       router.push(
-        `/dashboard/annual-folders?folder=${encodeURIComponent(
-          folder.annual_folder_id,
-        )}`,
+        toPanelPath(
+          `/dashboard/annual-folders?folder=${encodeURIComponent(
+            folder.annual_folder_id,
+          )}`,
+        ),
       );
       router.refresh();
     } catch (error) {

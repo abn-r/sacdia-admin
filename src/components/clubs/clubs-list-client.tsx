@@ -1,5 +1,7 @@
 "use client";
 
+import { usePanelPath } from "@/lib/v2/panel-path-context";
+
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -74,6 +76,8 @@ export function ClubsListClient({
   canEdit,
   pendingCountsByClubId = {},
 }: ClubsListClientProps) {
+  const { toPanelPath } = usePanelPath();
+
   const t = useTranslations("clubs.pages.v2");
   const tList = useTranslations("clubs.pages.list");
   const shortcut = useSearchShortcutLabel();
@@ -200,7 +204,7 @@ export function ClubsListClient({
             >
               {canCreate && !hasActiveFilters && (
                 <Button asChild size="sm">
-                  <Link prefetch={false} href="/dashboard/clubs/new">
+                  <Link prefetch={false} href={toPanelPath("/dashboard/clubs/new")}>
                     <Plus className="size-4" />
                     {tList("emptyCreateButton")}
                   </Link>

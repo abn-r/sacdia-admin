@@ -22,6 +22,7 @@ import type { CatalogItem } from "@/lib/catalogs/service";
 import type { CatalogActionState } from "@/lib/catalogs/actions";
 import { DataTableShell } from "@/components/shared/data-table-shell";
 import { PageHeader } from "@/components/shared/page-header";
+import { usePanelPath } from "@/lib/v2/panel-path-context";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -45,6 +46,7 @@ interface CatalogCrudPageProps {
   updateActionBase: UpdateActionBase;
   entityKey: EntityKey;
   routeBase: string;
+  hidePageHeader?: boolean;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -84,9 +86,12 @@ export function CatalogCrudPage({
   updateActionBase,
   entityKey,
   routeBase,
+  hidePageHeader = false,
 }: CatalogCrudPageProps) {
   const tEntities = useTranslations("catalogs.entities");
   const tActions = useTranslations("catalogs.actions");
+  const { toPanelPath } = usePanelPath();
+  const resolvedRouteBase = toPanelPath(routeBase);
   const tCatalogs = useTranslations("catalogs");
   const tCrud = useTranslations("catalogs.crudPage");
   const entityTitle = tEntities(`${config.key}.title`);
@@ -138,22 +143,32 @@ export function CatalogCrudPage({
   const lastColIsActions = canMutate;
 
   return (
-    <div className="space-y-6">
-      {/* ── Page title row ── */}
-      <PageHeader
-        title={entityTitle}
-        description={entityDescription}
-        actions={
-          canMutate ? (
-            <Button size="default" onClick={() => setCreateOpen(true)}>
-              <Plus className="mr-1.5 size-4" aria-hidden="true" />
-              {tActions("create", { entity: entitySingular })}
-            </Button>
-          ) : (
-            <Badge variant="outline">{tCrud("readOnly")}</Badge>
-          )
-        }
-      />
+    <div className={hidePageHeader ? "space-y-4" : "space-y-6"}>
+      {!hidePageHeader ? (
+        <PageHeader
+          title={entityTitle}
+          description={entityDescription}
+          actions={
+            canMutate ? (
+              <Button size="default" onClick={() => setCreateOpen(true)}>
+                <Plus className="mr-1.5 size-4" aria-hidden="true" />
+                {tActions("create", { entity: entitySingular })}
+              </Button>
+            ) : (
+              <Badge variant="outline">{tCrud("readOnly")}</Badge>
+            )
+          }
+        />
+      ) : null}
+
+      {hidePageHeader && canMutate ? (
+        <div className="flex justify-end">
+          <Button size="sm" onClick={() => setCreateOpen(true)}>
+            <Plus className="mr-1.5 size-4" aria-hidden="true" />
+            {tActions("create", { entity: entitySingular })}
+          </Button>
+        </div>
+      ) : null}
 
       {/* ── Filter bar (only when there is data to filter) ── */}
       {items.length > 0 && (
@@ -506,7 +521,7 @@ export function CatalogCrudPage({
           entityKey={config.key}
           itemId={deleteItemId}
           itemName={String(deleteItem[config.nameField] ?? "registro")}
-          returnPath={config.routeBase}
+          returnPath={resolvedRouteBase}
         />
       )}
     </div>
