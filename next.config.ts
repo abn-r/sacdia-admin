@@ -71,7 +71,7 @@ const cspValue = [
   `style-src 'self' 'unsafe-inline'`,
   `img-src 'self' data: blob: https://lh3.googleusercontent.com https://avatars.githubusercontent.com https://pub-c8aa231ae66c46ff96fc5e811994d9d2.r2.dev https://pub-c0e79f5fa4634581867fab5b0fed605c.r2.dev https://5da196c051c48c7a4ebeea275a2b23d1.r2.cloudflarestorage.com`,
   `font-src 'self' data:`,
-  `connect-src 'self' ${backendOrigin} https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.us.sentry.io`,
+  `connect-src 'self' ${backendOrigin} https://*.r2.cloudflarestorage.com https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.us.sentry.io`,
   `frame-ancestors 'none'`,
   `base-uri 'self'`,
   `form-action 'self'`,
@@ -80,6 +80,14 @@ const cspValue = [
   .concat(";");
 
 const nextConfig: NextConfig = {
+  // Bumping default 1MB so Server Actions still work for non-file resource
+  // forms. File resources are uploaded through the backend API as multipart
+  // POST /resources so the browser does not PUT directly to R2.
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "25mb",
+    },
+  },
   async headers() {
     return [
       {

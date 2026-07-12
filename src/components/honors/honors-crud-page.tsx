@@ -1,5 +1,7 @@
 "use client";
 
+import { usePanelPath } from "@/lib/v2/panel-path-context";
+
 import Link from "next/link";
 import { useActionState, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -191,6 +193,8 @@ export function HonorsCrudPage({
   canDelete,
   deactivateAction,
 }: HonorsCrudPageProps) {
+  const { toPanelPath } = usePanelPath();
+
   const t = useTranslations("honors.crud");
 
   const router = useRouter();
@@ -345,7 +349,7 @@ export function HonorsCrudPage({
       <PageHeader title={t("pageTitle")} description={t("pageDescription")}>
         {canCreate && (
           <Button asChild>
-            <Link href="/dashboard/honors/new">
+            <Link prefetch={false} href={toPanelPath("/dashboard/honors/new")}>
               <Plus className="size-4" />
               {t("createButton")}
             </Link>
@@ -449,7 +453,7 @@ export function HonorsCrudPage({
           >
             {canCreate && !hasActiveFilters && (
               <Button asChild>
-                <Link href="/dashboard/honors/new">
+                <Link prefetch={false} href={toPanelPath("/dashboard/honors/new")}>
                   <Plus className="size-4" />
                   {t("createButton")}
                 </Link>
@@ -483,7 +487,7 @@ export function HonorsCrudPage({
                     const clubTypeName = resolveClubTypeName(item, clubTypeById);
                     const skillLevel = toPositiveNumber(item.skill_level);
                     const rowKey = honorId ? `honor-${honorId}` : `honor-row-${(safePage - 1) * safeLimit + idx}`;
-                    const editHref = honorId ? `/dashboard/honors/${honorId}/edit` : null;
+                    const editHref = honorId ? toPanelPath(`/dashboard/honors/${honorId}/edit`) : null;
 
                     return (
                       <TableRow key={rowKey}>
@@ -491,7 +495,7 @@ export function HonorsCrudPage({
                           <HonorImageCell
                             name={honorName}
                             rawImage={honorImage}
-                            nameHref={honorId ? `/dashboard/honors/${honorId}` : undefined}
+                            nameHref={honorId  ? toPanelPath(`/dashboard/honors/${honorId}`) : undefined}
                           />
                         </TableCell>
                         <TableCell className="text-sm">{categoryName}</TableCell>
@@ -513,7 +517,7 @@ export function HonorsCrudPage({
                                   asChild
                                   title={t("editButton")}
                                 >
-                                  <Link href={editHref} aria-label={t("editAriaLabel", { name: honorName })}>
+                                  <Link prefetch={false} href={editHref} aria-label={t("editAriaLabel", { name: honorName })}>
                                     <Pencil className="size-3.5" />
                                   </Link>
                                 </Button>
@@ -542,7 +546,7 @@ export function HonorsCrudPage({
                                 <DropdownMenuContent align="end">
                                   {canEdit && editHref && (
                                     <DropdownMenuItem asChild>
-                                      <Link href={editHref}>
+                                      <Link prefetch={false} href={editHref}>
                                         <Pencil className="size-4" />
                                         {t("editButton")}
                                       </Link>

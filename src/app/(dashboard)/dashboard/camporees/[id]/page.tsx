@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, CalendarRange, MapPin, DollarSign, Hash } from "lucide-react";
+import { ArrowLeft, CalendarRange, MapPin, DollarSign, Building2 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/shared/page-header";
 import { CamporeeInfoCard } from "@/components/camporees/camporee-info-card";
 import { CamporeeDetailActions } from "@/components/camporees/camporee-detail-actions";
@@ -17,6 +17,39 @@ import {
   getCamporeePayments,
   getCamporeePendingApprovals,
 } from "@/lib/api/camporees";
+import {
+  listLocalCamporeeEvents,
+  listCamporeeEventTemplates,
+  type BackendCamporeeEvent,
+  type CamporeeEventTemplate,
+} from "@/lib/api/camporee-events";
+import {
+  listLocalCamporeeVenues,
+  type CamporeeVenue,
+} from "@/lib/api/camporee-venues";
+import {
+  getCamporeeEventRubrics,
+  getLocalCamporeeLeaderboard,
+  listLocalCamporeeJudgeCandidates,
+  listCamporeeEventJudgeAssignments,
+  listCamporeeEventScoringTargets,
+  listLocalCamporeeJudges,
+  type CamporeeEventJudgeAssignment,
+  type CamporeeEventRubric,
+  type CamporeeJudge,
+  type CamporeeJudgeCandidate,
+  type CamporeeLeaderboard,
+  type CamporeeScoringTarget,
+} from "@/lib/api/camporee-scoring";
+import { hasAnyPermission } from "@/lib/auth/permission-utils";
+import {
+  CAMPOREE_EVENTS_CREATE,
+  CAMPOREE_EVENTS_UPDATE,
+  CAMPOREE_EVENTS_DELETE,
+  CAMPOREES_CREATE,
+  CAMPOREES_UPDATE,
+  CAMPOREES_DELETE,
+} from "@/lib/auth/permissions";
 import { requireAdminUser } from "@/lib/auth/session";
 import type {
   Camporee,
@@ -28,6 +61,7 @@ import type {
 } from "@/lib/api/camporees";
 
 type Params = Promise<{ id: string }>;
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 type AnyRecord = Record<string, unknown>;
 
 // ─── Normalizers ───────────────────────────────────────────────────────────────
@@ -49,16 +83,16 @@ function extractCamporee(payload: unknown): AnyRecord | null {
   const root = payload as AnyRecord;
   if (root.data && typeof root.data === "object") {
     const nested = root.data as AnyRecord;
-    if (nested.camporee_id != null || nested.name != null) return nested;
+    if (nested.local_camporee_id != null || nested.camporee_id != null || nested.name != null) return nested;
     if (nested.data && typeof nested.data === "object") return nested.data as AnyRecord;
   }
-  if (root.camporee_id != null || root.name != null) return root;
+  if (root.local_camporee_id != null || root.camporee_id != null || root.name != null) return root;
   return null;
 }
 
 function normalizeCamporee(raw: AnyRecord): Camporee {
   return {
-    camporee_id: toPositiveNumber(raw.camporee_id ?? raw.id) ?? undefined,
+    camporee_id: toPositiveNumber(raw.local_camporee_id ?? raw.camporee_id ?? raw.id) ?? undefined,
     id: toPositiveNumber(raw.id) ?? undefined,
     name: String(raw.name ?? ""),
     description: toText(raw.description),
@@ -69,9 +103,22 @@ function normalizeCamporee(raw: AnyRecord): Camporee {
     includes_pathfinders: raw.includes_pathfinders !== false,
     includes_master_guides: raw.includes_master_guides === true,
     local_camporee_place: toText(raw.local_camporee_place) ?? undefined,
-    registration_cost:
-      typeof raw.registration_cost === "number" ? raw.registration_cost : undefined,
+    registration_cost: (() => {
+      const v = raw.registration_cost;
+      if (v == null || v === "") return undefined;
+      const n = Number(v);
+      return Number.isFinite(n) ? n : undefined;
+    })(),
     active: raw.active !== false,
+    local_field: (() => {
+      const lf = raw.local_fields as AnyRecord | undefined;
+      if (!lf || typeof lf !== "object") return undefined;
+      return {
+        local_field_id: toPositiveNumber(lf.local_field_id) ?? undefined,
+        name: toText(lf.name) ?? undefined,
+        abbreviation: toText(lf.abbreviation) ?? undefined,
+      };
+    })(),
   };
 }
 
@@ -84,49 +131,62 @@ function extractList<T>(payload: unknown): T[] {
   return [];
 }
 
-// ─── InfoRow ──────────────────────────────────────────────────────────────────
-
-function InfoRow({
-  label,
-  value,
-  icon: Icon,
-}: {
-  label: string;
-  value: React.ReactNode;
-  icon?: React.ElementType;
-}) {
-  return (
-    <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-4">
-      <span className="flex min-w-[180px] items-center gap-1.5 text-sm font-medium text-muted-foreground">
-        {Icon && <Icon className="size-3.5 shrink-0" />}
-        {label}
-      </span>
-      <span className="text-sm">
-        {value ?? <span className="text-muted-foreground">—</span>}
-      </span>
-    </div>
-  );
+function extractLeaderboard(payload: unknown): CamporeeLeaderboard | null {
+  if (!payload || typeof payload !== "object") return null;
+  const root = payload as AnyRecord;
+  const candidate =
+    root.data && typeof root.data === "object" ? (root.data as AnyRecord) : root;
+  if (Array.isArray(candidate.rows)) {
+    return candidate as unknown as CamporeeLeaderboard;
+  }
+  return null;
 }
 
-// ─── Date helpers ─────────────────────────────────────────────────────────────
+// ─── Format helpers ───────────────────────────────────────────────────────────
 
-function formatDate(dateStr?: string | null): string {
-  if (!dateStr) return "—";
+function formatRangeShort(
+  start?: string | null,
+  end?: string | null,
+): { range: string; year: string } {
+  if (!start || !end) return { range: "—", year: "" };
   try {
-    return new Date(dateStr).toLocaleDateString("es-MX", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
+    const s = new Date(start);
+    const e = new Date(end);
+    const fmt = (d: Date) =>
+      d.toLocaleDateString("es-MX", { day: "numeric", month: "short" });
+    const range = `${fmt(s)} – ${fmt(e)}`;
+    const sy = s.getFullYear();
+    const ey = e.getFullYear();
+    const year = sy === ey ? String(sy) : `${sy}–${ey}`;
+    return { range, year };
+  } catch {
+    return { range: "—", year: "" };
+  }
+}
+
+function formatCurrencyMXN(value?: number | null): string {
+  if (value == null) return "—";
+  try {
+    return value.toLocaleString("es-MX", {
+      style: "currency",
+      currency: "MXN",
+      minimumFractionDigits: 2,
     });
   } catch {
-    return "—";
+    return String(value);
   }
 }
 
 // ─── Page ──────────────────────────────────────────────────────────────────────
 
-export default async function CamporeeDetailPage({ params }: { params: Params }) {
-  await requireAdminUser();
+export default async function CamporeeDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Params;
+  searchParams?: SearchParams;
+}) {
+  const user = await requireAdminUser();
 
   const { id } = await params;
   const camporeeId = toPositiveNumber(id);
@@ -141,6 +201,16 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
   let payments: CamporeePayment[] = [];
   let paymentsError: string | null = null;
   let pending: PendingApprovals = { clubs: [], members: [], payments: [] };
+  let events: BackendCamporeeEvent[] = [];
+  let availableTemplates: CamporeeEventTemplate[] = [];
+  let venues: CamporeeVenue[] = [];
+  let judges: CamporeeJudge[] = [];
+  let judgeCandidates: CamporeeJudgeCandidate[] = [];
+  let judgeCandidatesError: string | null = null;
+  let assignmentsByEvent: Record<number, CamporeeEventJudgeAssignment[]> = {};
+  let scoringTargetsByEvent: Record<number, CamporeeScoringTarget[]> = {};
+  let rubricsByEvent: Record<number, CamporeeEventRubric[]> = {};
+  let leaderboard: CamporeeLeaderboard | null = null;
 
   // Fetch camporee detail
   try {
@@ -156,6 +226,9 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
   }
 
   const t = await getTranslations("camporees.pages.detail");
+  const canCreateEvents = hasAnyPermission(user, [CAMPOREE_EVENTS_CREATE, CAMPOREES_CREATE]);
+  const canEditEvents = hasAnyPermission(user, [CAMPOREE_EVENTS_UPDATE, CAMPOREES_UPDATE]);
+  const canDeleteEvents = hasAnyPermission(user, [CAMPOREE_EVENTS_DELETE, CAMPOREES_DELETE]);
 
   // Fetch members — best effort
   try {
@@ -201,17 +274,148 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
     // Silently ignore — pending count is informational only
   }
 
+  // Resolve URL filter params for the events tab
+  const sp = searchParams ? await searchParams : {};
+  const spStr = (key: string): string | undefined => {
+    const v = sp[key];
+    return typeof v === "string" ? v : undefined;
+  };
+  // Guard venue param against malformed/NaN values — backend @IsInt() would
+  // otherwise reject the request with 400 on garbage input.
+  const rawVenue = spStr("venue");
+  const parsedVenue = rawVenue !== undefined ? Number(rawVenue) : undefined;
+  const venueIdFilter =
+    parsedVenue !== undefined && Number.isFinite(parsedVenue)
+      ? parsedVenue
+      : undefined;
+
+  const eventsFilter: import("@/lib/api/camporee-events").ListCamporeeEventsParams = {
+    limit: 100,
+    ...(spStr("q") && { q: spStr("q") }),
+    ...(spStr("category") && { display_category: spStr("category") as import("@/lib/api/camporee-events").CamporeeEventDisplayCategory }),
+    ...(spStr("section") && { section: spStr("section") as import("@/lib/api/camporee-events").CamporeeEventSection }),
+    ...(venueIdFilter !== undefined && { venue_id: venueIdFilter }),
+    ...(spStr("status") && { status: spStr("status") as import("@/lib/api/camporee-events").CamporeeEventStatus }),
+  };
+
+  // Fetch camporee events (instances) — best effort
+  try {
+    const eventsPayload = await listLocalCamporeeEvents(camporeeId, eventsFilter);
+    const eventsData = extractList<BackendCamporeeEvent>(eventsPayload);
+    events = eventsData.sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0));
+  } catch {
+    // Events are not blocking — tab shows empty state
+  }
+
+  // Fetch templates available for this local camporee — best effort
+  // Local camporees can use local_field templates + their union's templates
+  try {
+    const templatesPayload = await listCamporeeEventTemplates({ limit: 200, active: true });
+    availableTemplates = extractList<CamporeeEventTemplate>(templatesPayload);
+  } catch {
+    // silently degrade
+  }
+
+  // Fetch venues accessible to this camporee — best effort
+  // listLocalCamporeeVenues returns both local_field-scoped and union-scoped venues
+  try {
+    const venuesPayload = await listLocalCamporeeVenues(camporeeId);
+    venues = extractList<CamporeeVenue>(venuesPayload);
+  } catch {
+    // silently degrade — timeline renders without venue names
+  }
+
+  // Fetch scoring roster/assignments — best effort
+  try {
+    const judgesPayload = await listLocalCamporeeJudges(camporeeId);
+    judges = extractList<CamporeeJudge>(judgesPayload);
+  } catch {
+    judges = [];
+  }
+
+  // Fetch eligible users for the judge selector — best effort. The form must
+  // never ask operators to paste UUIDs manually.
+  if (canEditEvents) {
+    try {
+      const candidatesPayload = await listLocalCamporeeJudgeCandidates(camporeeId);
+      judgeCandidates = extractList<CamporeeJudgeCandidate>(candidatesPayload);
+    } catch (error) {
+      judgeCandidatesError =
+        error instanceof ApiError
+          ? error.message
+          : "No se pudieron cargar usuarios elegibles para el selector de jueces.";
+    }
+  }
+
+  if (events.length > 0) {
+    const assignmentResults = await Promise.allSettled(
+      events.map(async (event) => {
+        const payload = await listCamporeeEventJudgeAssignments(event.camporee_event_id);
+        return [event.camporee_event_id, extractList<CamporeeEventJudgeAssignment>(payload)] as const;
+      }),
+    );
+    assignmentsByEvent = Object.fromEntries(
+      assignmentResults
+        .filter((result): result is PromiseFulfilledResult<readonly [number, CamporeeEventJudgeAssignment[]]> => result.status === "fulfilled")
+        .map((result) => result.value),
+    );
+
+    const targetResults = await Promise.allSettled(
+      events.map(async (event) => {
+        const payload = await listCamporeeEventScoringTargets(event.camporee_event_id);
+        return [event.camporee_event_id, extractList<CamporeeScoringTarget>(payload)] as const;
+      }),
+    );
+    scoringTargetsByEvent = Object.fromEntries(
+      targetResults
+        .filter((result): result is PromiseFulfilledResult<readonly [number, CamporeeScoringTarget[]]> => result.status === "fulfilled")
+        .map((result) => result.value),
+    );
+
+    const rubricResults = await Promise.allSettled(
+      events
+        .filter((event) => event.scoring_enabled)
+        .map(async (event) => {
+          const payload = await getCamporeeEventRubrics(event.camporee_event_id);
+          return [event.camporee_event_id, extractList<CamporeeEventRubric>(payload)] as const;
+        }),
+    );
+    rubricsByEvent = Object.fromEntries(
+      rubricResults
+        .filter((result): result is PromiseFulfilledResult<readonly [number, CamporeeEventRubric[]]> => result.status === "fulfilled")
+        .map((result) => result.value),
+    );
+  }
+
+  // Fetch camporee leaderboard — best effort
+  try {
+    const leaderboardPayload = await getLocalCamporeeLeaderboard(camporeeId);
+    leaderboard = extractLeaderboard(leaderboardPayload);
+  } catch {
+    leaderboard = null;
+  }
+
   return (
     <div className="space-y-6">
-      <PageHeader title={camporee.name} description={t("description")}>
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/camporees">
-            <ArrowLeft className="size-4" />
-            {t("back")}
-          </Link>
-        </Button>
-        <CamporeeDetailActions camporee={camporee} />
-      </PageHeader>
+      <PageHeader
+        title={camporee.name}
+        description={t("description")}
+        breadcrumbs={[
+          { label: t("back"), href: "/dashboard/camporees" },
+          { label: camporee.name },
+        ]}
+        actions={
+          <>
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/dashboard/camporees">
+                <ArrowLeft className="size-4" />
+                {t("back")}
+              </Link>
+            </Button>
+            <CamporeeDetailActions camporee={camporee} />
+          </>
+        }
+      />
 
       {/* Summary card */}
       <CamporeeInfoCard camporee={camporee} />
@@ -219,6 +423,7 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
       {/* Tabs */}
       <CamporeeDetailTabs
         camporeeId={camporeeId}
+        camporee={camporee}
         initialMembers={members}
         initialMembersMeta={membersMeta}
         initialClubs={clubs}
@@ -227,53 +432,102 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
         membersError={membersError}
         clubsError={clubsError}
         paymentsError={paymentsError}
+        initialEvents={events}
+        availableTemplates={availableTemplates}
+        initialVenues={venues}
+        initialJudges={judges}
+        judgeCandidates={judgeCandidates}
+        judgeCandidatesError={judgeCandidatesError}
+        initialAssignmentsByEvent={assignmentsByEvent}
+        initialScoringTargetsByEvent={scoringTargetsByEvent}
+        initialRubricsByEvent={rubricsByEvent}
+        initialLeaderboard={leaderboard}
+        canCreateEvents={canCreateEvents}
+        canEditEvents={canEditEvents}
+        canDeleteEvents={canDeleteEvents}
         infoContent={
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">{t("cardTitle")}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <InfoRow
-                label={t("labelId")}
-                value={camporee.camporee_id ?? camporee.id}
-                icon={Hash}
-              />
-              <InfoRow
-                label={t("labelStartDate")}
-                value={formatDate(camporee.start_date)}
-                icon={CalendarRange}
-              />
-              <InfoRow
-                label={t("labelEndDate")}
-                value={formatDate(camporee.end_date)}
-                icon={CalendarRange}
-              />
-              <InfoRow
-                label={t("labelPlace")}
-                value={camporee.local_camporee_place ?? "—"}
-                icon={MapPin}
-              />
-              <InfoRow
-                label={t("labelCost")}
-                value={
-                  camporee.registration_cost != null
-                    ? camporee.registration_cost.toLocaleString("es-MX", {
-                        style: "currency",
-                        currency: "MXN",
-                        minimumFractionDigits: 2,
-                      })
-                    : "—"
-                }
-                icon={DollarSign}
-              />
-              <InfoRow
-                label={t("labelLocalFieldId")}
-                value={camporee.local_field_id ?? "—"}
-                icon={Hash}
-              />
-              <InfoRow
-                label={t("labelIncludes")}
-                value={
+          <div className="space-y-4">
+            {/* KPI strip */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+              {(() => {
+                const { range, year } = formatRangeShort(
+                  camporee.start_date,
+                  camporee.end_date,
+                );
+                return (
+                  <Card className="rounded-xl border-border/60 bg-card shadow-xs px-4 py-3">
+                    <div className="flex items-center gap-1.5 text-[10.5px] uppercase tracking-wider font-semibold text-muted-foreground">
+                      <CalendarRange className="size-3.5" />
+                      Fechas
+                    </div>
+                    <div className="mt-1 text-[18px] font-bold tracking-tight tabular-nums">
+                      {range}
+                    </div>
+                    {year && (
+                      <div className="text-[11.5px] text-muted-foreground mt-0.5">
+                        {year}
+                      </div>
+                    )}
+                  </Card>
+                );
+              })()}
+
+              <Card className="rounded-xl border-border/60 bg-card shadow-xs px-4 py-3">
+                <div className="flex items-center gap-1.5 text-[10.5px] uppercase tracking-wider font-semibold text-muted-foreground">
+                  <MapPin className="size-3.5" />
+                  Lugar
+                </div>
+                <div className="mt-1 text-[15px] font-semibold tracking-tight truncate">
+                  {camporee.local_camporee_place ?? "—"}
+                </div>
+              </Card>
+
+              <Card className="rounded-xl border-border/60 bg-card shadow-xs px-4 py-3">
+                <div className="flex items-center gap-1.5 text-[10.5px] uppercase tracking-wider font-semibold text-muted-foreground">
+                  <DollarSign className="size-3.5" />
+                  Costo de inscripción
+                </div>
+                <div className="mt-1 text-[18px] font-bold tracking-tight tabular-nums">
+                  {formatCurrencyMXN(camporee.registration_cost)}
+                </div>
+                {camporee.registration_cost != null && (
+                  <div className="text-[11.5px] text-muted-foreground mt-0.5">
+                    por miembro
+                  </div>
+                )}
+              </Card>
+
+              <Card className="rounded-xl border-border/60 bg-card shadow-xs px-4 py-3">
+                <div className="flex items-center gap-1.5 text-[10.5px] uppercase tracking-wider font-semibold text-muted-foreground">
+                  <Building2 className="size-3.5" />
+                  Campo local
+                </div>
+                <div className="mt-1 text-[15px] font-semibold tracking-tight truncate">
+                  {camporee.local_field?.name ??
+                    camporee.local_field?.abbreviation ??
+                    "—"}
+                </div>
+                {camporee.local_field?.name &&
+                  camporee.local_field?.abbreviation && (
+                    <div className="text-[11.5px] text-muted-foreground mt-0.5">
+                      {camporee.local_field.abbreviation}
+                    </div>
+                  )}
+              </Card>
+            </div>
+
+            {/* Metadata card */}
+            <Card className="rounded-xl border-border/60 bg-card shadow-xs overflow-hidden">
+              <div className="px-5 py-3 border-b border-border/60 bg-muted/30">
+                <div className="text-[10.5px] uppercase tracking-wider font-semibold text-muted-foreground">
+                  {t("cardTitle")}
+                </div>
+              </div>
+              <div className="px-5 py-4 space-y-4">
+                <div>
+                  <div className="text-[10.5px] uppercase tracking-wider font-semibold text-muted-foreground mb-1.5">
+                    {t("labelIncludes")}
+                  </div>
                   <div className="flex flex-wrap gap-1.5">
                     {camporee.includes_adventurers && (
                       <Badge variant="secondary">Aventureros</Badge>
@@ -287,16 +541,33 @@ export default async function CamporeeDetailPage({ params }: { params: Params })
                     {!camporee.includes_adventurers &&
                       !camporee.includes_pathfinders &&
                       !camporee.includes_master_guides && (
-                        <span className="text-muted-foreground">—</span>
+                        <span className="text-[12px] text-muted-foreground">
+                          —
+                        </span>
                       )}
                   </div>
-                }
-              />
-              {camporee.description && (
-                <InfoRow label={t("labelDescription")} value={camporee.description} />
-              )}
-            </CardContent>
-          </Card>
+                </div>
+
+                {camporee.description && (
+                  <div>
+                    <div className="text-[10.5px] uppercase tracking-wider font-semibold text-muted-foreground mb-1.5">
+                      {t("labelDescription")}
+                    </div>
+                    <p className="text-[13px] text-foreground leading-relaxed whitespace-pre-line">
+                      {camporee.description}
+                    </p>
+                  </div>
+                )}
+
+                <div className="pt-2 border-t border-border/60">
+                  <span className="text-[11px] text-muted-foreground tabular-nums">
+                    ID interno · #
+                    {camporee.camporee_id ?? camporee.id ?? "—"}
+                  </span>
+                </div>
+              </div>
+            </Card>
+          </div>
         }
       />
     </div>

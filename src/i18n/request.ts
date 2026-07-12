@@ -19,9 +19,40 @@ function normalizeLocale(value: unknown): Locale {
     : DEFAULT_LOCALE;
 }
 
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function mergeMessages(
+  fallback: Record<string, unknown>,
+  localized: Record<string, unknown>,
+): Record<string, unknown> {
+  const merged: Record<string, unknown> = { ...fallback };
+
+  for (const [key, value] of Object.entries(localized)) {
+    const fallbackValue = merged[key];
+    if (isPlainObject(fallbackValue) && isPlainObject(value)) {
+      merged[key] = mergeMessages(fallbackValue, value);
+      continue;
+    }
+    merged[key] = value;
+  }
+
+  return merged;
+}
+
 export default getRequestConfig(async () => {
   const cookieStore = await cookies();
   const locale = normalizeLocale(cookieStore.get(LOCALE_COOKIE)?.value);
-  const messages = (await import(`../../messages/${locale}.json`)).default;
+  const [fallbackMessages, localizedMessages] = await Promise.all([
+    import("../../messages/es.json"),
+    locale === DEFAULT_LOCALE
+      ? null
+      : import(`../../messages/${locale}.json`),
+  ]);
+  const messages =
+    locale === DEFAULT_LOCALE || !localizedMessages
+      ? fallbackMessages.default
+      : mergeMessages(fallbackMessages.default, localizedMessages.default);
   return { locale, messages };
 });

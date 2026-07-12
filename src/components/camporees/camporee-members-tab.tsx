@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { UserPlus, RefreshCw, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CamporeeMembersPanel } from "@/components/camporees/camporee-members-panel";
@@ -26,6 +27,7 @@ export function CamporeeMembersTab({
   isUnionCamporee = false,
   onAfterChange,
 }: CamporeeMembersTabProps) {
+  const t = useTranslations("camporees.membersTab");
   const [members, setMembers] = useState<CamporeeMember[]>(initialMembers);
   const [meta, setMeta] = useState<PaginationMeta | undefined>(initialMeta);
   const [page, setPage] = useState(initialMeta?.page ?? 1);
@@ -82,7 +84,7 @@ export function CamporeeMembersTab({
             size="icon-sm"
             onClick={refreshMembers}
             disabled={isLoading}
-            title="Actualizar lista"
+            title={t("refreshListTitle")}
           >
             <RefreshCw className={`size-3.5 ${isLoading ? "animate-spin" : ""}`} />
             <span className="sr-only">Actualizar</span>
@@ -121,7 +123,7 @@ export function CamporeeMembersTab({
               className="size-8"
               onClick={() => fetchPage(page - 1)}
               disabled={!hasPrev || isLoading}
-              aria-label="Página anterior"
+              aria-label={t("previousPageAriaLabel")}
             >
               <ChevronLeft className="size-4" />
             </Button>
@@ -131,7 +133,7 @@ export function CamporeeMembersTab({
               className="size-8"
               onClick={() => fetchPage(page + 1)}
               disabled={!hasNext || isLoading}
-              aria-label="Página siguiente"
+              aria-label={t("nextPageAriaLabel")}
             >
               <ChevronRight className="size-4" />
             </Button>
@@ -143,6 +145,7 @@ export function CamporeeMembersTab({
         open={registerOpen}
         onOpenChange={setRegisterOpen}
         camporeeId={camporeeId}
+        isUnionCamporee={isUnionCamporee}
         onSuccess={refreshMembers}
       />
     </div>

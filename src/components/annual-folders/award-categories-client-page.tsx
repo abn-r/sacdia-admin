@@ -473,7 +473,7 @@ export function AwardCategoriesClientPage({
                                   variant="ghost"
                                   size="icon-xs"
                                   onClick={() => handleEdit(cat)}
-                                  title="Editar categoría"
+                                  title={t("awardCategoriesClient.editCategoryTitle")}
                                   disabled={cat.is_legacy}
                                 >
                                   <Pencil className="size-3.5" />
@@ -483,7 +483,7 @@ export function AwardCategoriesClientPage({
                                   variant="ghost"
                                   size="icon-xs"
                                   onClick={() => handleDelete(cat)}
-                                  title="Eliminar categoría"
+                                  title={t("awardCategoriesClient.deleteCategoryTitle")}
                                   className="text-destructive hover:text-destructive"
                                 >
                                   <Trash2 className="size-3.5" />
@@ -530,7 +530,7 @@ export function AwardCategoriesClientPage({
                                 variant="ghost"
                                 size="icon-xs"
                                 onClick={() => handleEdit(cat)}
-                                title="Editar categoría"
+                                title={t("awardCategoriesClient.editCategoryTitle")}
                                 disabled={cat.is_legacy}
                               >
                                 <Pencil className="size-3.5" />
@@ -540,7 +540,7 @@ export function AwardCategoriesClientPage({
                                 variant="ghost"
                                 size="icon-xs"
                                 onClick={() => handleDelete(cat)}
-                                title="Eliminar categoría"
+                                title={t("awardCategoriesClient.deleteCategoryTitle")}
                                 className="text-destructive hover:text-destructive"
                               >
                                 <Trash2 className="size-3.5" />

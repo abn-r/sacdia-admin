@@ -112,10 +112,14 @@ export function RequirementEditDialog({
 
   // Reset form state whenever the dialog opens or the target requirement changes.
   useEffect(() => {
-    if (open) {
+    if (!open) return;
+
+    const frameId = window.requestAnimationFrame(() => {
       setForm(buildInitialState(mode, requirement));
       setValidationError(null);
-    }
+    });
+
+    return () => window.cancelAnimationFrame(frameId);
   }, [open, mode, requirement]);
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) =>
@@ -271,7 +275,7 @@ export function RequirementEditDialog({
                 id="referenceText"
                 value={form.referenceText}
                 onChange={(e) => set("referenceText", e.target.value)}
-                placeholder="Ej: Libro de Especialidades, págs. 45-50"
+                placeholder={t("components.requirementEdit.referencePlaceholder")}
                 rows={3}
                 className="min-h-[70px] resize-none"
               />

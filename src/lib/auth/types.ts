@@ -1,4 +1,9 @@
-export type AdminRole = "super-admin" | "admin" | "coordinator";
+export type AdminRole =
+  | "super-admin"
+  | "admin"
+  | "coordinator"
+  | "zone-coordinator"
+  | "general-coordinator";
 
 export type AuthorizationGrant = {
   assignment_id?: string | null;
@@ -25,10 +30,12 @@ export type AuthorizationSnapshot = {
 
 export type AuthUser = {
   id: string;
+  user_id?: string | null;
   email: string;
   name?: string | null;
   paternal_last_name?: string | null;
   maternal_last_name?: string | null;
+  birthday?: string | Date | null;
   picture_url?: string | null;
   user_image?: string | null;
   avatar_url?: string | null;
@@ -47,6 +54,8 @@ export type LoginResponse = {
   access_token?: string;
   refresh_token?: string;
   expires_in?: number;
+  expiresAt?: number;
+  expires_at?: number;
   user?: AuthUser;
   message?: string;
   error?: string;
@@ -56,6 +65,8 @@ export type LoginResponse = {
     refreshToken?: string;
     access_token?: string;
     refresh_token?: string;
+    expiresAt?: number;
+    expires_at?: number;
     user?: AuthUser;
     message?: string;
     error?: string;

@@ -39,7 +39,7 @@ export function DeleteCamporeeDialog({
 
   async function handleConfirm() {
     if (!camporee) return;
-    const id = camporee.camporee_id ?? camporee.id ?? 0;
+    const id = camporee.local_camporee_id ?? camporee.camporee_id ?? camporee.id ?? 0;
     if (!id) return;
 
     setIsDeleting(true);

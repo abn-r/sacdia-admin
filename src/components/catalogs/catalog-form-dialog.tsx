@@ -50,6 +50,11 @@ function SubmitButton({ isEdit }: { isEdit: boolean }) {
 
 type SelectOption = { label: string; value: number };
 
+type CatalogDialogActionState = {
+  error?: string;
+  fieldErrors?: Record<string, string>;
+};
+
 interface CatalogFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -59,7 +64,10 @@ interface CatalogFormDialogProps {
   fields: EntityField[];
   initialValues?: CatalogItem | null;
   selectOptions?: Record<string, SelectOption[]>;
-  formAction: (prevState: { error?: string }, formData: FormData) => Promise<{ error?: string }>;
+  formAction: (
+    prevState: CatalogDialogActionState,
+    formData: FormData,
+  ) => Promise<CatalogDialogActionState>;
 }
 
 export function CatalogFormDialog({
@@ -75,7 +83,25 @@ export function CatalogFormDialog({
 }: CatalogFormDialogProps) {
   const t = useTranslations("catalogs");
   const isEdit = !!initialValues;
-  const [state, action] = useActionState(formAction, {});
+  const [state, action] = useActionState<CatalogDialogActionState, FormData>(
+    formAction,
+    {},
+  );
+  const fieldErrors = state.fieldErrors ?? {};
+  const ariaInvalid = (name: string) =>
+    fieldErrors[name] ? true : undefined;
+  const describedBy = (name: string) =>
+    fieldErrors[name] ? `catalog-${name}-error` : undefined;
+  const renderError = (name: string) =>
+    fieldErrors[name] ? (
+      <p
+        id={`catalog-${name}-error`}
+        role="alert"
+        className="text-xs text-destructive"
+      >
+        {fieldErrors[name]}
+      </p>
+    ) : null;
   const [checkboxValues, setCheckboxValues] = useState<Record<string, boolean>>({});
   const initialCheckboxValues = fields.reduce<Record<string, boolean>>((acc, field) => {
     if (field.type === "checkbox") {
@@ -170,7 +196,10 @@ export function CatalogFormDialog({
                     defaultValue={defaultValue != null && String(defaultValue) !== "0" ? String(defaultValue) : undefined}
                     required={field.required}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger
+                      aria-invalid={ariaInvalid(field.name)}
+                      aria-describedby={describedBy(field.name)}
+                    >
                       <SelectValue placeholder={`Seleccionar ${t(field.label as Parameters<typeof t>[0]).toLowerCase()}`} />
                     </SelectTrigger>
                     <SelectContent>
@@ -181,6 +210,7 @@ export function CatalogFormDialog({
                       ))}
                     </SelectContent>
                   </Select>
+                  {renderError(field.name)}
                 </div>
               );
             }
@@ -200,7 +230,10 @@ export function CatalogFormDialog({
                     required={field.required}
                     rows={3}
                     className="min-h-[80px] resize-none"
+                    aria-invalid={ariaInvalid(field.name)}
+                    aria-describedby={describedBy(field.name)}
                   />
+                  {renderError(field.name)}
                 </div>
               );
             }
@@ -218,7 +251,10 @@ export function CatalogFormDialog({
                   defaultValue={defaultValue != null ? String(defaultValue) : ""}
                   placeholder={field.placeholder}
                   required={field.required}
+                  aria-invalid={ariaInvalid(field.name)}
+                  aria-describedby={describedBy(field.name)}
                 />
+                {renderError(field.name)}
               </div>
             );
           })}

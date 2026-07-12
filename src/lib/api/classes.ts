@@ -2,15 +2,22 @@ import { apiRequest } from "@/lib/api/client";
 
 // ─── Domain Types ─────────────────────────────────────────────────────────────
 
+export type ClassRequirementTrack = "BASIC" | "ADVANCED" | "EXTRA";
+
 export type ProgressiveClass = {
   class_id: number;
   name: string;
   description?: string | null;
   club_type_id: number;
   display_order: number;
+  available_from_year_id?: number | null;
+  available_until_year_id?: number | null;
+  min_duration_years?: number;
+  max_duration_years?: number;
   max_points?: number | null;
   minimum_points?: number | null;
   active: boolean;
+  advanced_enabled?: boolean;
 };
 
 /**
@@ -32,6 +39,13 @@ export type ClassSection = {
   description?: string | null;
   display_order?: number | null;
   active?: boolean;
+  requirement_track?: ClassRequirementTrack;
+  required_for_investiture?: boolean;
+  owner_division_id?: number | null;
+  owner_union_id?: number | null;
+  owner_local_field_id?: number | null;
+  available_from_year_id?: number | null;
+  available_until_year_id?: number | null;
   requirements?: ClassRequirement[];
 };
 
@@ -56,6 +70,19 @@ export type ClassListQuery = {
   clubTypeId?: number;
   page?: number;
   limit?: number;
+};
+
+export type ExpireOverdueClassEnrollmentsPayload = {
+  ecclesiastical_year_id?: number;
+  dry_run?: boolean;
+};
+
+export type ExpireOverdueClassEnrollmentsResult = {
+  ecclesiastical_year_id: number;
+  dry_run: boolean;
+  scanned_count: number;
+  expired_count: number;
+  enrollment_ids: number[];
 };
 
 // ─── API Functions ────────────────────────────────────────────────────────────
@@ -83,4 +110,16 @@ export async function getClassById(classId: number) {
  */
 export async function listClassModules(classId: number) {
   return apiRequest<ClassModule[]>(`/classes/${classId}/modules`);
+}
+
+export async function expireOverdueClassEnrollments(
+  payload: ExpireOverdueClassEnrollmentsPayload = {},
+) {
+  return apiRequest<{
+    status: "success";
+    data: ExpireOverdueClassEnrollmentsResult;
+  }>("/admin/classes/enrollments/expire-overdue", {
+    method: "POST",
+    body: payload,
+  });
 }

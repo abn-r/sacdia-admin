@@ -2,7 +2,14 @@ import { apiRequest, apiRequestFromClient } from "@/lib/api/client";
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
 
-export type FolderStatus = "open" | "submitted" | "under_evaluation" | "evaluated" | "closed";
+export type FolderTemplateStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED";
+
+export type FolderStatus =
+  | "open"
+  | "submitted"
+  | "under_evaluation"
+  | "evaluated"
+  | "closed";
 
 /** Per-section evaluation lifecycle status returned by GET /annual-folders/:id */
 export type SectionEvaluationStatus =
@@ -14,6 +21,7 @@ export type SectionEvaluationStatus =
 
 /** Union-level decision when both actors have acted */
 export type UnionDecision = "APPROVED" | "REJECTED_OVERRIDE" | null;
+export type UnionConfirmationDecision = Exclude<UnionDecision, null>;
 
 /** Compact user reference hydrated in evaluation actor fields */
 export type UserSummary = {
@@ -69,6 +77,7 @@ export type FolderTemplate = {
   club_type_id: number;
   ecclesiastical_year_id: number;
   active: boolean;
+  status?: FolderTemplateStatus;
   minimum_points: number;
   closing_date: string | null;
   created_at: string | null;
@@ -91,7 +100,20 @@ export type FolderEvidence = {
   file_name: string | null;
   description: string | null;
   uploaded_at: string | null;
+  created_at?: string | null;
   uploaded_by: string | null;
+  notes?: string | null;
+  reviewer_note?: string | null;
+  reviewer_noted_by?: string | null;
+  reviewer_noted_at?: string | null;
+};
+
+export type FolderSectionSubmission = {
+  section_submission_id: string;
+  section_id: string;
+  annual_folder_id?: string;
+  submitted_at: string | null;
+  submitted_by: string | null;
 };
 
 export type FolderSectionWithEvidences = {
@@ -104,6 +126,14 @@ export type FolderSectionWithEvidences = {
   max_points?: number;
   earned_points?: number | null;
   evaluations?: SectionEvaluationEntry[];
+  evaluation?: {
+    evaluation_id: string;
+    status: SectionEvaluationStatus;
+    earned_points: number;
+    max_points: number;
+    notes: string | null;
+  } | null;
+  submission?: FolderSectionSubmission | null;
   evidences: FolderEvidence[];
 };
 
@@ -133,8 +163,69 @@ export type AnnualFolder = {
   requires_union_confirmation: boolean;
   template?: Pick<FolderTemplate, "template_id" | "name"> | null;
   sections?: FolderSectionWithEvidences[];
-  // Enrollment info (available when fetched via evaluation endpoint)
-  enrollment?: { enrollment_id: string; club_name?: string | null } | null;
+  // Human-facing enrollment context. IDs are kept for API use; UI should prefer names.
+  club_enrollment?: {
+    club_enrollment_id: string;
+    club_section_id: number;
+    ecclesiastical_year_id: number;
+    status: string;
+    club_section: {
+      club_section_id: number;
+      name: string | null;
+      club_type: { name: string } | null;
+      club: {
+        club_id: number;
+        name: string;
+        local_field: {
+          local_field_id: number;
+          name: string;
+          union: { union_id: number; name: string } | null;
+        } | null;
+      } | null;
+    } | null;
+    ecclesiastical_year: {
+      year_id: number;
+      start_date: string;
+      end_date: string;
+      label: string;
+    } | null;
+  } | null;
+};
+
+export type AnnualFolderEvaluationQueueStatus =
+  | "needs_review"
+  | "submitted"
+  | "preapproved"
+  | "evaluated"
+  | "all";
+
+export type AnnualFolderEvaluationQueueItem = {
+  annual_folder_id: string;
+  display_name: string;
+  club_name: string;
+  club_section_name: string;
+  club_type_name: string | null;
+  local_field_name: string | null;
+  union_name: string | null;
+  template_name: string;
+  year_label: string;
+  folder_status: FolderStatus;
+  total_sections: number;
+  total_evidences: number;
+  submitted_sections_count: number;
+  preapproved_sections_count: number;
+  validated_sections_count: number;
+  rejected_sections_count: number;
+  pending_section_names: string[];
+  latest_submitted_at: string | null;
+  created_at: string | null;
+};
+
+export type PaginatedAnnualFolderEvaluationQueue = {
+  data: AnnualFolderEvaluationQueueItem[];
+  total: number;
+  page: number;
+  limit: number;
 };
 
 type AnnualFolderWire = AnnualFolder & {
@@ -143,24 +234,87 @@ type AnnualFolderWire = AnnualFolder & {
   template_id?: string;
 };
 
+type FolderTemplateSectionWire = Omit<FolderTemplateSection, "template_id"> & {
+  template_id?: string;
+  folder_template_id?: string;
+};
+
+type FolderTemplateWire = Omit<FolderTemplate, "template_id" | "sections"> & {
+  template_id?: string;
+  folder_template_id?: string;
+  sections?: FolderTemplateSectionWire[];
+};
+
+type SectionSubmissionWire = FolderSectionSubmission & {
+  folder_id?: string;
+};
+
+type FolderEvidenceWire = FolderEvidence & {
+  folder_id?: string;
+  created_at?: string | null;
+};
+
+type ApiEnvelope<T> = { status: string; data: T };
+
+function unwrapApiData<T>(value: T | ApiEnvelope<T>): T {
+  if (
+    value &&
+    typeof value === "object" &&
+    "data" in value &&
+    "status" in value
+  ) {
+    return (value as ApiEnvelope<T>).data;
+  }
+  return value as T;
+}
+
 function normalizeAnnualFolder(folder: AnnualFolderWire): AnnualFolder {
   return {
     ...folder,
     annual_folder_id: folder.annual_folder_id ?? folder.folder_id ?? "",
-    club_enrollment_id:
-      folder.club_enrollment_id ?? folder.enrollment_id ?? "",
-    folder_template_id:
-      folder.folder_template_id ?? folder.template_id ?? "",
+    club_enrollment_id: folder.club_enrollment_id ?? folder.enrollment_id ?? "",
+    folder_template_id: folder.folder_template_id ?? folder.template_id ?? "",
+    template: folder.template
+      ? normalizeFolderTemplate(folder.template as FolderTemplateWire)
+      : folder.template,
     sections: folder.sections?.map((section) => ({
       ...section,
-      evidences: section.evidences.map((evidence) => ({
+      evidences: (section.evidences ?? []).map((evidence) => ({
         ...evidence,
         annual_folder_id:
           evidence.annual_folder_id ??
-          (evidence as FolderEvidence & { folder_id?: string }).folder_id ??
+          (evidence as FolderEvidenceWire).folder_id ??
           "",
+        uploaded_at:
+          evidence.uploaded_at ?? (evidence as FolderEvidenceWire).created_at ?? null,
       })),
     })),
+  };
+}
+
+function normalizeFolderTemplateSection(
+  section: FolderTemplateSectionWire,
+): FolderTemplateSection {
+  return {
+    ...section,
+    template_id: section.template_id ?? section.folder_template_id ?? "",
+  };
+}
+
+function normalizeFolderTemplate(template: FolderTemplateWire): FolderTemplate {
+  return {
+    ...template,
+    template_id: template.template_id ?? template.folder_template_id ?? "",
+    sections: template.sections?.map(normalizeFolderTemplateSection),
+  };
+}
+
+function normalizeSectionSubmission(
+  submission: SectionSubmissionWire,
+): FolderSectionSubmission {
+  return {
+    ...submission,
+    annual_folder_id: submission.annual_folder_id ?? submission.folder_id,
   };
 }
 
@@ -170,6 +324,7 @@ export type CreateTemplatePayload = {
   name: string;
   club_type_id: number;
   ecclesiastical_year_id: number;
+  active?: boolean;
   minimum_points?: number;
   closing_date?: string | null;
   /** Exactly one must be provided; the other must be omitted / null. */
@@ -178,6 +333,15 @@ export type CreateTemplatePayload = {
 };
 
 export type UpdateTemplatePayload = Partial<CreateTemplatePayload>;
+
+export type CopyTemplatePayload = {
+  name?: string;
+  ecclesiastical_year_id?: number;
+  club_type_id?: number;
+  closing_date?: string | null;
+  owner_union_id?: number | null;
+  owner_local_field_id?: number | null;
+};
 
 export type CreateTemplateSectionPayload = {
   name: string;
@@ -188,7 +352,8 @@ export type CreateTemplateSectionPayload = {
   minimum_points?: number;
 };
 
-export type UpdateTemplateSectionPayload = Partial<CreateTemplateSectionPayload>;
+export type UpdateTemplateSectionPayload =
+  Partial<CreateTemplateSectionPayload>;
 
 export type UpdateEvidencePayload = {
   description?: string;
@@ -201,7 +366,36 @@ export type UpdateEvidencePayload = {
  * Returns the template with its sections list.
  */
 export async function getTemplate(templateId: string): Promise<FolderTemplate> {
-  return apiRequest<FolderTemplate>(`/annual-folders/templates/${templateId}`);
+  const res = await apiRequest<
+    FolderTemplateWire | ApiEnvelope<FolderTemplateWire>
+  >(`/annual-folders/templates/${templateId}`);
+  return normalizeFolderTemplate(unwrapApiData(res));
+}
+
+/**
+ * GET /api/v1/annual-folders/templates
+ * Returns annual-folder templates for the admin list.
+ */
+export async function listTemplates(): Promise<FolderTemplate[]> {
+  const res = await apiRequest<
+    FolderTemplateWire[] | ApiEnvelope<FolderTemplateWire[]>
+  >("/annual-folders/templates");
+  return unwrapApiData(res).map(normalizeFolderTemplate);
+}
+
+/**
+ * GET /api/v1/club-sections/:sectionId/annual-folder
+ * Returns the annual folder for a club section in the current ecclesiastical year.
+ * The backend returns data: null when the section has no active enrollment/folder yet.
+ */
+export async function getFolderBySection(
+  sectionId: number,
+): Promise<AnnualFolder | null> {
+  const res = await apiRequest<
+    AnnualFolderWire | null | ApiEnvelope<AnnualFolderWire | null>
+  >(`/club-sections/${sectionId}/annual-folder`);
+  const folder = unwrapApiData(res);
+  return folder ? normalizeAnnualFolder(folder) : null;
 }
 
 /**
@@ -211,9 +405,10 @@ export async function getTemplate(templateId: string): Promise<FolderTemplate> {
 export async function getFolderByEnrollment(
   enrollmentId: string,
 ): Promise<AnnualFolder> {
-  const folder = await apiRequest<AnnualFolderWire>(
-    `/annual-folders/by-enrollment/${enrollmentId}`,
-  );
+  const res = await apiRequest<
+    AnnualFolderWire | ApiEnvelope<AnnualFolderWire>
+  >(`/annual-folders/by-enrollment/${enrollmentId}`);
+  const folder = unwrapApiData(res);
   return normalizeAnnualFolder(folder);
 }
 
@@ -222,10 +417,39 @@ export async function getFolderByEnrollment(
  * Returns the folder with all section evidences.
  */
 export async function getFolder(folderId: string): Promise<AnnualFolder> {
-  const folder = await apiRequest<AnnualFolderWire>(
-    `/annual-folders/${folderId}`,
-  );
+  const res = await apiRequest<
+    AnnualFolderWire | ApiEnvelope<AnnualFolderWire>
+  >(`/annual-folders/${folderId}`);
+  const folder = unwrapApiData(res);
   return normalizeAnnualFolder(folder);
+}
+
+/**
+ * GET /api/v1/annual-folders/evaluation/queue
+ * Returns human-readable folders available for evaluation.
+ */
+export async function getEvaluationQueue(params?: {
+  search?: string;
+  status?: AnnualFolderEvaluationQueueStatus;
+  folder_status?: FolderStatus;
+  union_id?: number;
+  local_field_id?: number;
+  club_type_id?: number;
+  year_id?: number;
+  created_from?: string;
+  created_to?: string;
+  submitted_from?: string;
+  submitted_to?: string;
+  progress_min?: number;
+  progress_max?: number;
+  page?: number;
+  limit?: number;
+}): Promise<PaginatedAnnualFolderEvaluationQueue> {
+  const res = await apiRequest<
+    | PaginatedAnnualFolderEvaluationQueue
+    | ApiEnvelope<PaginatedAnnualFolderEvaluationQueue>
+  >("/annual-folders/evaluation/queue", { params });
+  return unwrapApiData(res);
 }
 
 // ─── Client-side (mutations) ──────────────────────────────────────────────────
@@ -237,10 +461,13 @@ export async function getFolder(folderId: string): Promise<AnnualFolder> {
 export async function createTemplate(
   payload: CreateTemplatePayload,
 ): Promise<FolderTemplate> {
-  return apiRequestFromClient<FolderTemplate>("/annual-folders/templates", {
+  const res = await apiRequestFromClient<
+    FolderTemplateWire | ApiEnvelope<FolderTemplateWire>
+  >("/annual-folders/templates", {
     method: "POST",
     body: payload,
   });
+  return normalizeFolderTemplate(unwrapApiData(res));
 }
 
 /**
@@ -251,10 +478,69 @@ export async function updateTemplate(
   templateId: string,
   payload: UpdateTemplatePayload,
 ): Promise<FolderTemplate> {
-  return apiRequestFromClient<FolderTemplate>(
+  const res = await apiRequestFromClient<
+    FolderTemplateWire | ApiEnvelope<FolderTemplateWire>
+  >(`/annual-folders/templates/${templateId}`, {
+    method: "PATCH",
+    body: payload,
+  });
+  return normalizeFolderTemplate(unwrapApiData(res));
+}
+
+
+/**
+ * POST /api/v1/annual-folders/templates/:templateId/copy
+ * Copies any template as a new draft.
+ */
+export async function copyTemplate(
+  templateId: string,
+  payload: CopyTemplatePayload,
+): Promise<FolderTemplate> {
+  const res = await apiRequestFromClient<
+    FolderTemplateWire | ApiEnvelope<FolderTemplateWire>
+  >(`/annual-folders/templates/${templateId}/copy`, {
+    method: "POST",
+    body: payload,
+  });
+  return normalizeFolderTemplate(unwrapApiData(res));
+}
+
+/**
+ * DELETE /api/v1/annual-folders/templates/:templateId
+ * Deletes a draft template.
+ */
+export async function deleteTemplate(templateId: string): Promise<unknown> {
+  return apiRequestFromClient<unknown>(
     `/annual-folders/templates/${templateId}`,
-    { method: "PATCH", body: payload },
+    { method: "DELETE" },
   );
+}
+
+/**
+ * POST /api/v1/annual-folders/enrollments/:enrollmentId
+ * Creates the annual evidence folder for an existing section enrollment.
+ */
+export async function createFolderForEnrollment(
+  enrollmentId: string,
+): Promise<AnnualFolder> {
+  const res = await apiRequestFromClient<
+    AnnualFolderWire | ApiEnvelope<AnnualFolderWire>
+  >(`/annual-folders/enrollments/${enrollmentId}`, { method: "POST" });
+  return normalizeAnnualFolder(unwrapApiData(res));
+}
+
+/**
+ * POST /api/v1/club-sections/:sectionId/annual-folder
+ * Creates the annual evidence folder for the active-year enrollment of a club section.
+ * This is the user-facing creation path; the UI does not ask users for enrollment UUIDs.
+ */
+export async function createFolderForSection(
+  sectionId: number,
+): Promise<AnnualFolder> {
+  const res = await apiRequestFromClient<
+    AnnualFolderWire | ApiEnvelope<AnnualFolderWire>
+  >(`/club-sections/${sectionId}/annual-folder`, { method: "POST" });
+  return normalizeAnnualFolder(unwrapApiData(res));
 }
 
 /**
@@ -265,10 +551,13 @@ export async function createTemplateSection(
   templateId: string,
   payload: CreateTemplateSectionPayload,
 ): Promise<FolderTemplateSection> {
-  return apiRequestFromClient<FolderTemplateSection>(
-    `/annual-folders/templates/${templateId}/sections`,
-    { method: "POST", body: payload },
-  );
+  const res = await apiRequestFromClient<
+    FolderTemplateSectionWire | ApiEnvelope<FolderTemplateSectionWire>
+  >(`/annual-folders/templates/${templateId}/sections`, {
+    method: "POST",
+    body: payload,
+  });
+  return normalizeFolderTemplateSection(unwrapApiData(res));
 }
 
 /**
@@ -279,10 +568,13 @@ export async function updateTemplateSection(
   sectionId: string,
   payload: UpdateTemplateSectionPayload,
 ): Promise<FolderTemplateSection> {
-  return apiRequestFromClient<FolderTemplateSection>(
-    `/annual-folders/templates/sections/${sectionId}`,
-    { method: "PATCH", body: payload },
-  );
+  const res = await apiRequestFromClient<
+    FolderTemplateSectionWire | ApiEnvelope<FolderTemplateSectionWire>
+  >(`/annual-folders/templates/sections/${sectionId}`, {
+    method: "PATCH",
+    body: payload,
+  });
+  return normalizeFolderTemplateSection(unwrapApiData(res));
 }
 
 /**
@@ -306,11 +598,11 @@ export async function uploadEvidence(
   folderId: string,
   sectionId: string,
   file: File,
-  description?: string,
+  notes?: string,
 ): Promise<FolderEvidence> {
   const formData = new FormData();
   formData.append("file", file);
-  if (description) formData.append("description", description);
+  if (notes) formData.append("notes", notes);
 
   return apiRequestFromClient<FolderEvidence>(
     `/annual-folders/${folderId}/sections/${sectionId}/evidences`,
@@ -344,14 +636,33 @@ export async function deleteEvidence(evidenceId: string): Promise<unknown> {
 }
 
 /**
+ * POST /api/v1/annual-folders/:folderId/sections/:sectionId/submit
+ * Submits one folder section before the complete folder can be submitted.
+ */
+export async function submitSection(
+  folderId: string,
+  sectionId: string,
+): Promise<FolderSectionSubmission> {
+  const res = await apiRequestFromClient<
+    SectionSubmissionWire | ApiEnvelope<SectionSubmissionWire>
+  >(`/annual-folders/${folderId}/sections/${sectionId}/submit`, {
+    method: "POST",
+  });
+  return normalizeSectionSubmission(unwrapApiData(res));
+}
+
+/**
  * POST /api/v1/annual-folders/:folderId/submit
  * Submits the folder for review.
  */
 export async function submitFolder(folderId: string): Promise<AnnualFolder> {
-  return apiRequestFromClient<AnnualFolder>(
+  const res = await apiRequestFromClient<
+    AnnualFolderWire | ApiEnvelope<AnnualFolderWire>
+  >(
     `/annual-folders/${folderId}/submit`,
     { method: "POST" },
   );
+  return normalizeAnnualFolder(unwrapApiData(res));
 }
 
 /**
@@ -359,10 +670,13 @@ export async function submitFolder(folderId: string): Promise<AnnualFolder> {
  * Closes the folder (field-level action).
  */
 export async function closeFolder(folderId: string): Promise<AnnualFolder> {
-  return apiRequestFromClient<AnnualFolder>(
+  const res = await apiRequestFromClient<
+    AnnualFolderWire | ApiEnvelope<AnnualFolderWire>
+  >(
     `/annual-folders/${folderId}/close`,
     { method: "POST" },
   );
+  return normalizeAnnualFolder(unwrapApiData(res));
 }
 
 // ─── Evaluation API ───────────────────────────────────────────────────────────
@@ -397,23 +711,39 @@ export async function reopenSection(
 }
 
 /**
+ * POST /api/v1/annual-folders/:folderId/sections/:sectionId/confirm-union
+ * Records the final Union decision for a section pre-approved by LF.
+ */
+export async function confirmUnionSection(
+  folderId: string,
+  sectionId: string,
+  data: { decision: UnionConfirmationDecision; notes?: string },
+): Promise<unknown> {
+  return apiRequestFromClient<unknown>(
+    `/annual-folders/${folderId}/sections/${sectionId}/confirm-union`,
+    { method: "POST", body: data },
+  );
+}
+
+/**
  * GET /api/v1/annual-folders/:folderId/evaluations
  * Returns all evaluation records for the folder.
  */
 export async function getFolderEvaluations(
   folderId: string,
 ): Promise<SectionEvaluation[]> {
-  return apiRequestFromClient<SectionEvaluation[]>(
-    `/annual-folders/${folderId}/evaluations`,
-  );
+  const res = await apiRequestFromClient<
+    SectionEvaluation[] | ApiEnvelope<SectionEvaluation[]>
+  >(`/annual-folders/${folderId}/evaluations`);
+  return unwrapApiData(res);
 }
 
 // ─── Rankings & Award Categories — Types ──────────────────────────────────────
 
-export type AwardCategoryScope = 'club' | 'section' | 'member';
+export type AwardCategoryScope = "club" | "section" | "member";
 
 /** Visual tier assigned to an award category — maps to Prisma AwardTier enum (nullable). */
-export type AwardTier = 'BRONZE' | 'SILVER' | 'GOLD' | 'DIAMOND';
+export type AwardTier = "BRONZE" | "SILVER" | "GOLD" | "DIAMOND";
 
 export type AwardCategory = {
   award_category_id: string;
@@ -440,6 +770,7 @@ export type ClubRanking = {
   club_name: string;
   club_enrollment_id: string;
   ecclesiastical_year_id: number;
+  local_field_id: number | null;
   total_earned_points: number;
   total_max_points: number;
   progress_percentage: number;
@@ -476,12 +807,14 @@ export async function getRankings(
   clubTypeId: number,
   yearId: number,
   categoryId?: string,
+  localFieldId?: number,
 ): Promise<ClubRanking[]> {
   return apiRequest<ClubRanking[]>("/annual-folders/rankings", {
     params: {
       club_type_id: clubTypeId,
       year_id: yearId,
       ...(categoryId ? { category_id: categoryId } : {}),
+      ...(localFieldId !== undefined ? { local_field_id: localFieldId } : {}),
     },
   });
 }
@@ -496,12 +829,14 @@ export async function getRankingsFromClient(
   clubTypeId: number,
   yearId: number,
   categoryId?: string,
+  localFieldId?: number,
 ): Promise<ClubRanking[]> {
   return apiRequestFromClient<ClubRanking[]>("/annual-folders/rankings", {
     params: {
       club_type_id: clubTypeId,
       year_id: yearId,
       ...(categoryId ? { category_id: categoryId } : {}),
+      ...(localFieldId !== undefined ? { local_field_id: localFieldId } : {}),
     },
   });
 }
@@ -548,7 +883,9 @@ export async function getAwardCategories(
  * GET /api/v1/award-categories/:id
  * Returns a single award category.
  */
-export async function getAwardCategory(categoryId: string): Promise<AwardCategory> {
+export async function getAwardCategory(
+  categoryId: string,
+): Promise<AwardCategory> {
   return apiRequest<AwardCategory>(`/award-categories/${categoryId}`);
 }
 
@@ -595,10 +932,13 @@ export async function updateAwardCategory(
   categoryId: string,
   data: UpdateAwardCategoryPayload,
 ): Promise<AwardCategory> {
-  return apiRequestFromClient<AwardCategory>(`/award-categories/${categoryId}`, {
-    method: "PATCH",
-    body: data,
-  });
+  return apiRequestFromClient<AwardCategory>(
+    `/award-categories/${categoryId}`,
+    {
+      method: "PATCH",
+      body: data,
+    },
+  );
 }
 
 /**

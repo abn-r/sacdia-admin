@@ -25,7 +25,7 @@ import { ManualDataForm } from "@/components/reports/manual-data-form";
 import {
   generateReport,
   submitReport,
-  getReportPdfUrl,
+  triggerMonthlyReportPdfDownload,
   type MonthlyReport,
   type MonthlyReportAutoData,
 } from "@/lib/api/monthly-reports";
@@ -122,6 +122,7 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
   const [report, setReport] = useState<MonthlyReport>(initialReport);
   const [generating, setGenerating] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
 
   const statusVariant = (
     {
@@ -165,10 +166,18 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
     }
   }, [report.report_id, router, t]);
 
-  const handleDownloadPdf = useCallback(() => {
-    const url = getReportPdfUrl(report.report_id);
-    window.open(url, "_blank", "noopener,noreferrer");
-  }, [report.report_id]);
+  const handleDownloadPdf = useCallback(async () => {
+    setDownloadingPdf(true);
+    try {
+      await triggerMonthlyReportPdfDownload(report.report_id);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : t("errors.load_reports");
+      toast.error(message);
+    } finally {
+      setDownloadingPdf(false);
+    }
+  }, [report.report_id, t]);
 
   const autoDataRows: AutoDataRow[] = [
     { label: t("detail.fieldTotalMembers"), value: report.auto_data?.members_total },
@@ -272,8 +281,13 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
               size="sm"
               variant="outline"
               onClick={handleDownloadPdf}
+              disabled={downloadingPdf}
             >
-              <Download className="size-4" />
+              {downloadingPdf ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Download className="size-4" />
+              )}
               {t("detail.actionDownloadPdf")}
             </Button>
           )}

@@ -5,13 +5,19 @@ import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { usePreferences } from "@/lib/preferences/preferences-provider";
+import type { ThemeMode } from "@/lib/preferences/theme";
 
 export function ThemeToggle() {
   const t = useTranslations("nav.themeToggle");
+  const { setPreference } = usePreferences();
   const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    const frameId = window.requestAnimationFrame(() => setMounted(true));
+    return () => window.cancelAnimationFrame(frameId);
+  }, []);
 
   const current = mounted ? (theme === "system" ? resolvedTheme : theme) : null;
   const isDark = current === "dark";
@@ -22,11 +28,16 @@ export function ThemeToggle() {
       : t("switchToDark")
     : t("switchTheme");
 
+  const handleToggle = () => {
+    setTheme(nextTheme);
+    setPreference("theme_mode", nextTheme as ThemeMode);
+  };
+
   return (
     <Button
       variant="ghost"
       size="icon-sm"
-      onClick={() => setTheme(nextTheme)}
+      onClick={handleToggle}
       aria-label={label}
       title={label}
     >

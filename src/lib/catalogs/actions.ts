@@ -12,6 +12,7 @@ import {
 } from "@/lib/ui/app-alert-params";
 import {
   buildPayloadFromForm,
+  collectCatalogFieldErrors,
   createEntityItem,
   deleteEntityItem,
   updateEntityItem,
@@ -22,7 +23,22 @@ type CatalogsTranslator = Awaited<ReturnType<typeof getTranslations<"catalogs">>
 
 export type CatalogActionState = {
   error?: string;
+  fieldErrors?: Record<string, string>;
 };
+
+function buildFieldErrors(
+  t: CatalogsTranslator,
+  config: ReturnType<typeof getEntityConfig>,
+  formData: FormData,
+) {
+  if (!config) return {};
+  return collectCatalogFieldErrors(
+    config,
+    formData,
+    (label) => t("validation.field_required", { field: label }),
+    (label) => t("validation.field_invalid", { field: label }),
+  );
+}
 
 type RedirectAlert = {
   type: AppAlertType;
@@ -78,6 +94,11 @@ export async function createCatalogItemAction(
     return { error: t("errors.read_only_catalog") };
   }
 
+  const fieldErrors = buildFieldErrors(t, config, formData);
+  if (Object.keys(fieldErrors).length > 0) {
+    return { fieldErrors };
+  }
+
   try {
     const payload = buildPayloadFromForm(config, formData);
     await createEntityItem(entityKey, payload);
@@ -113,6 +134,11 @@ export async function updateCatalogItemAction(
 
   if (config.allowMutations === false) {
     return { error: t("errors.read_only_catalog") };
+  }
+
+  const fieldErrors = buildFieldErrors(t, config, formData);
+  if (Object.keys(fieldErrors).length > 0) {
+    return { fieldErrors };
   }
 
   try {

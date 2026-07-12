@@ -1,17 +1,18 @@
 "use client";
 
+import { usePanelPath } from "@/lib/v2/panel-path-context";
+
 import { useState, useCallback } from "react";
+import Link from "next/link";
 import { PlusCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CamporeePaymentsPanel } from "@/components/camporees/camporee-payments-panel";
-import { PaymentDialog } from "@/components/camporees/payment-dialog";
-import { getCamporeePayments } from "@/lib/api/camporees";
-import type { CamporeePayment, CamporeeMember } from "@/lib/api/camporees";
+import { getCamporeePayments, getUnionCamporeePayments } from "@/lib/api/camporees";
+import type { CamporeePayment } from "@/lib/api/camporees";
 
 export interface CamporeePaymentsTabProps {
   camporeeId: number;
   initialPayments: CamporeePayment[];
-  members: CamporeeMember[];
   isUnionCamporee?: boolean;
   onAfterChange?: () => void;
 }
@@ -19,21 +20,22 @@ export interface CamporeePaymentsTabProps {
 export function CamporeePaymentsTab({
   camporeeId,
   initialPayments,
-  members,
   isUnionCamporee = false,
   onAfterChange,
 }: CamporeePaymentsTabProps) {
+  const { toPanelPath } = usePanelPath();
+
   const [payments, setPayments] = useState<CamporeePayment[]>(initialPayments);
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingPayment, setEditingPayment] = useState<CamporeePayment | null>(null);
 
   const refreshPayments = useCallback(async () => {
     setIsLoading(true);
     setLoadError(null);
     try {
-      const payload = await getCamporeePayments(camporeeId);
+      const payload = isUnionCamporee
+        ? await getUnionCamporeePayments(camporeeId)
+        : await getCamporeePayments(camporeeId);
       const raw = payload as unknown;
       let list: CamporeePayment[] = [];
       if (Array.isArray(raw)) {
@@ -55,24 +57,7 @@ export function CamporeePaymentsTab({
     } finally {
       setIsLoading(false);
     }
-  }, [camporeeId, onAfterChange]);
-
-  function handleNewPayment() {
-    setEditingPayment(null);
-    setDialogOpen(true);
-  }
-
-  function handleEditPayment(payment: CamporeePayment) {
-    setEditingPayment(payment);
-    setDialogOpen(true);
-  }
-
-  function handleDialogOpenChange(open: boolean) {
-    if (!open) {
-      setEditingPayment(null);
-    }
-    setDialogOpen(open);
-  }
+  }, [camporeeId, isUnionCamporee, onAfterChange]);
 
   return (
     <div className="space-y-4">
@@ -93,10 +78,14 @@ export function CamporeePaymentsTab({
             <RefreshCw className={`size-3.5 ${isLoading ? "animate-spin" : ""}`} />
             <span className="sr-only">Actualizar</span>
           </Button>
-          <Button size="sm" onClick={handleNewPayment}>
-            <PlusCircle className="size-4" />
-            Registrar pago
-          </Button>
+          {!isUnionCamporee && (
+            <Button size="sm" asChild>
+              <Link href={toPanelPath(`/dashboard/camporees/${camporeeId}/payments/new`)}>
+                <PlusCircle className="size-4" />
+                Registrar pago
+              </Link>
+            </Button>
+          )}
         </div>
       </div>
 
@@ -108,19 +97,10 @@ export function CamporeePaymentsTab({
       )}
 
       <CamporeePaymentsPanel
+        camporeeId={camporeeId}
         payments={payments}
-        onEdit={handleEditPayment}
         onPaymentsChange={refreshPayments}
         isUnionCamporee={isUnionCamporee}
-      />
-
-      <PaymentDialog
-        open={dialogOpen}
-        onOpenChange={handleDialogOpenChange}
-        camporeeId={camporeeId}
-        members={members}
-        payment={editingPayment}
-        onSuccess={refreshPayments}
       />
     </div>
   );

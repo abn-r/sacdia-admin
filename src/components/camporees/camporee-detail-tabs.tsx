@@ -7,10 +7,24 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-import { getCamporeePendingApprovals } from "@/lib/api/camporees";
+import {
+  getCamporeePendingApprovals,
+  getUnionCamporeePendingApprovals,
+} from "@/lib/api/camporees";
 import type { CamporeeMembersTabProps } from "@/components/camporees/camporee-members-tab";
 import type { CamporeeClubsTabProps } from "@/components/camporees/camporee-clubs-tab";
 import type { CamporeePaymentsTabProps } from "@/components/camporees/camporee-payments-tab";
+import { CamporeeEventsTab } from "@/components/camporee-events/camporee-events-tab";
+import type { BackendCamporeeEvent, CamporeeEventTemplate } from "@/lib/api/camporee-events";
+import type { CamporeeVenue } from "@/lib/api/camporee-venues";
+import type {
+  CamporeeEventJudgeAssignment,
+  CamporeeEventRubric,
+  CamporeeJudge,
+  CamporeeJudgeCandidate,
+  CamporeeLeaderboard,
+  CamporeeScoringTarget,
+} from "@/lib/api/camporee-scoring";
 
 const CamporeeMembersTab = dynamic<CamporeeMembersTabProps>(
   () =>
@@ -36,6 +50,7 @@ const CamporeePaymentsTab = dynamic<CamporeePaymentsTabProps>(
   { ssr: false, loading: () => <Skeleton className="h-48 w-full" /> },
 );
 import type {
+  Camporee,
   CamporeeMember,
   CamporeeClub,
   CamporeePayment,
@@ -47,6 +62,11 @@ import type {
 
 interface CamporeeDetailTabsProps {
   camporeeId: number;
+  /**
+   * Full camporee record — needed to forward local field + section flags to
+   * the enroll-club dialog (club + section selects must scope by these).
+   */
+  camporee?: Camporee;
   initialMembers: CamporeeMember[];
   initialMembersMeta?: PaginationMeta;
   initialClubs: CamporeeClub[];
@@ -58,12 +78,28 @@ interface CamporeeDetailTabsProps {
   isUnionCamporee?: boolean;
   /** Server-rendered info tab content passed as a slot */
   infoContent: ReactNode;
+  // ── Events tab ───────────────────────────────────────────────────────────────
+  initialEvents?: BackendCamporeeEvent[];
+  availableTemplates?: CamporeeEventTemplate[];
+  /** Venues accessible to this camporee for timeline display */
+  initialVenues?: CamporeeVenue[];
+  initialJudges?: CamporeeJudge[];
+  judgeCandidates?: CamporeeJudgeCandidate[];
+  judgeCandidatesError?: string | null;
+  initialAssignmentsByEvent?: Record<number, CamporeeEventJudgeAssignment[]>;
+  initialScoringTargetsByEvent?: Record<number, CamporeeScoringTarget[]>;
+  initialRubricsByEvent?: Record<number, CamporeeEventRubric[]>;
+  initialLeaderboard?: CamporeeLeaderboard | null;
+  canCreateEvents?: boolean;
+  canEditEvents?: boolean;
+  canDeleteEvents?: boolean;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function CamporeeDetailTabs({
   camporeeId,
+  camporee,
   initialMembers,
   initialMembersMeta,
   initialClubs,
@@ -74,19 +110,34 @@ export function CamporeeDetailTabs({
   paymentsError,
   isUnionCamporee = false,
   infoContent,
+  initialEvents = [],
+  availableTemplates = [],
+  initialVenues = [],
+  initialJudges = [],
+  judgeCandidates = [],
+  judgeCandidatesError = null,
+  initialAssignmentsByEvent = {},
+  initialScoringTargetsByEvent = {},
+  initialRubricsByEvent = {},
+  initialLeaderboard = null,
+  canCreateEvents = false,
+  canEditEvents = false,
+  canDeleteEvents = false,
 }: CamporeeDetailTabsProps) {
   const [pending, setPending] = useState<PendingApprovals>(initialPending);
 
   const refreshPending = useCallback(async () => {
     try {
-      const payload = await getCamporeePendingApprovals(camporeeId);
+      const payload = isUnionCamporee
+        ? await getUnionCamporeePendingApprovals(camporeeId)
+        : await getCamporeePendingApprovals(camporeeId);
       if (payload && typeof payload === "object") {
         setPending(payload as PendingApprovals);
       }
     } catch {
       // Informational — silently ignore
     }
-  }, [camporeeId]);
+  }, [camporeeId, isUnionCamporee]);
 
   return (
     <Tabs defaultValue="info">
@@ -134,6 +185,15 @@ export function CamporeeDetailTabs({
             </Badge>
           )}
         </TabsTrigger>
+
+        <TabsTrigger value="events">
+          Eventos
+          {initialEvents.length > 0 && (
+            <Badge variant="secondary" className="ml-2">
+              {initialEvents.length}
+            </Badge>
+          )}
+        </TabsTrigger>
       </TabsList>
 
       {/* ── Informacion ── */}
@@ -177,6 +237,14 @@ export function CamporeeDetailTabs({
                 camporeeId={camporeeId}
                 initialClubs={initialClubs}
                 isUnionCamporee={isUnionCamporee}
+                localFieldId={
+                  camporee?.local_field?.local_field_id ??
+                  camporee?.local_field_id ??
+                  null
+                }
+                includesAdventurers={camporee?.includes_adventurers ?? false}
+                includesPathfinders={camporee?.includes_pathfinders ?? false}
+                includesMasterGuides={camporee?.includes_master_guides ?? false}
                 onAfterChange={refreshPending}
               />
             )}
@@ -197,13 +265,42 @@ export function CamporeeDetailTabs({
               <CamporeePaymentsTab
                 camporeeId={camporeeId}
                 initialPayments={initialPayments}
-                members={initialMembers}
                 isUnionCamporee={isUnionCamporee}
                 onAfterChange={refreshPending}
               />
             )}
           </CardContent>
         </Card>
+      </TabsContent>
+
+      {/* ── Eventos ── */}
+      {/*
+        Timeline (Variant K) is intentionally rendered without a wrapping
+        <Card>. The timeline owns its own per-day Card surfaces — wrapping it
+        in another Card+CardContent (px-6) shrinks the inner width and
+        squishes the 8-column event-row grid
+        (md:grid-cols-[88px_1fr_220px_180px_180px_140px_110px_auto]).
+        See docs/superpowers/specs/2026-05-20-camporee-timeline-admin-design.md.
+      */}
+      <TabsContent value="events" className="mt-4">
+        <CamporeeEventsTab
+          camporeeId={camporeeId}
+          initialEvents={initialEvents}
+          availableTemplates={availableTemplates}
+          venues={initialVenues}
+          camporee={camporee}
+          isUnionCamporee={isUnionCamporee}
+          canCreate={canCreateEvents}
+          canEdit={canEditEvents}
+          canDelete={canDeleteEvents}
+          initialJudges={initialJudges}
+          judgeCandidates={judgeCandidates}
+          judgeCandidatesError={judgeCandidatesError}
+          assignmentsByEvent={initialAssignmentsByEvent}
+          scoringTargetsByEvent={initialScoringTargetsByEvent}
+          rubricsByEvent={initialRubricsByEvent}
+          leaderboard={initialLeaderboard}
+        />
       </TabsContent>
     </Tabs>
   );

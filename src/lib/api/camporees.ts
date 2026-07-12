@@ -46,8 +46,8 @@ export type EnrollClubPayload = {
 export type PaymentType = "inscription" | "materials" | "other";
 
 export type CamporeePayment = {
-  payment_id: number;
-  camporee_payment_id?: string | null;
+  payment_id?: number | null;
+  camporee_payment_id: string;
   camporee_id: number;
   member_id: string;
   member_name?: string | null;
@@ -58,6 +58,8 @@ export type CamporeePayment = {
   paid_at?: string | null;
   created_at?: string | null;
   status?: string | null;
+  voucher_url?: string | null;
+  voucher_uploaded_at?: string | null;
 };
 
 export type CreatePaymentPayload = {
@@ -78,13 +80,24 @@ export type Camporee = {
   description?: string | null;
   start_date: string;
   end_date: string;
+  club_registration_deadline?: string | null;
+  member_registration_deadline?: string | null;
+  payment_deadline?: string | null;
+  agenda_visible_from?: string | null;
   local_field_id?: number;
   includes_adventurers?: boolean;
   includes_pathfinders?: boolean;
   includes_master_guides?: boolean;
   local_camporee_place?: string;
+  lat?: number | null;
+  long?: number | null;
   registration_cost?: number;
   active?: boolean;
+  local_field?: {
+    local_field_id?: number;
+    name?: string;
+    abbreviation?: string;
+  };
 };
 
 export type CamporeePayload = {
@@ -92,11 +105,17 @@ export type CamporeePayload = {
   description?: string;
   start_date: string;
   end_date: string;
+  club_registration_deadline?: string;
+  member_registration_deadline?: string;
+  payment_deadline?: string;
+  agenda_visible_from?: string | null;
   local_field_id: number;
   includes_adventurers: boolean;
   includes_pathfinders: boolean;
   includes_master_guides: boolean;
   local_camporee_place: string;
+  lat?: number;
+  long?: number;
   registration_cost?: number;
   active?: boolean;
 };
@@ -192,6 +211,22 @@ export async function removeCamporeeMember(camporeeId: number, userId: string) {
   });
 }
 
+export async function registerUnionCamporeeMember(
+  camporeeId: number,
+  payload: CamporeeRegisterMemberPayload,
+) {
+  return apiRequest(`/camporees/union/${camporeeId}/register`, {
+    method: "POST",
+    body: payload,
+  });
+}
+
+export async function removeUnionCamporeeMember(camporeeId: number, userId: string) {
+  return apiRequest(`/camporees/union/${camporeeId}/members/${userId}`, {
+    method: "DELETE",
+  });
+}
+
 // ─── Club enrollment functions ────────────────────────────────────────────────
 
 export async function enrollClub(camporeeId: number, payload: EnrollClubPayload) {
@@ -207,6 +242,23 @@ export async function getEnrolledClubs(camporeeId: number) {
 
 export async function cancelClubEnrollment(camporeeId: number, camporeeClubId: number) {
   return apiRequest(`/camporees/${camporeeId}/clubs/${camporeeClubId}`, {
+    method: "DELETE",
+  });
+}
+
+export async function enrollClubToUnionCamporee(camporeeId: number, payload: EnrollClubPayload) {
+  return apiRequest(`/camporees/union/${camporeeId}/clubs`, {
+    method: "POST",
+    body: payload,
+  });
+}
+
+export async function getUnionEnrolledClubs(camporeeId: number) {
+  return apiRequest<CamporeeClub[]>(`/camporees/union/${camporeeId}/clubs`);
+}
+
+export async function cancelUnionClubEnrollment(camporeeId: number, camporeeClubId: number) {
+  return apiRequest(`/camporees/union/${camporeeId}/clubs/${camporeeClubId}`, {
     method: "DELETE",
   });
 }
@@ -234,11 +286,41 @@ export async function getCamporeePayments(camporeeId: number) {
   return apiRequest<CamporeePayment[]>(`/camporees/${camporeeId}/payments`);
 }
 
-export async function updatePayment(paymentId: number, payload: UpdatePaymentPayload) {
+export async function getUnionCamporeePayments(camporeeId: number) {
+  return apiRequest<CamporeePayment[]>(`/camporees/union/${camporeeId}/payments`);
+}
+
+export async function updatePayment(paymentId: string, payload: UpdatePaymentPayload) {
   return apiRequest(`/camporees/payments/${paymentId}`, {
     method: "PATCH",
     body: payload,
   });
+}
+
+// ─── Payment voucher (multipart) ──────────────────────────────────────────────
+
+export async function uploadCamporeePaymentVoucher(
+  camporeeId: number,
+  paymentId: string,
+  file: File,
+): Promise<CamporeePayment> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  return apiRequest<CamporeePayment>(
+    `/camporees/${camporeeId}/payments/${paymentId}/voucher`,
+    { method: "POST", body: formData },
+  );
+}
+
+export async function removeCamporeePaymentVoucher(
+  camporeeId: number,
+  paymentId: string,
+): Promise<CamporeePayment> {
+  return apiRequest<CamporeePayment>(
+    `/camporees/${camporeeId}/payments/${paymentId}/voucher`,
+    { method: "DELETE" },
+  );
 }
 
 // ─── Union camporees ───────────────────────────────────────────────────────────
@@ -250,12 +332,19 @@ export type UnionCamporee = {
   description?: string | null;
   start_date: string;
   end_date: string;
+  club_registration_deadline?: string | null;
+  member_registration_deadline?: string | null;
+  payment_deadline?: string | null;
+  agenda_visible_from?: string | null;
   union_id?: number | null;
   union_name?: string | null;
   includes_adventurers?: boolean;
   includes_pathfinders?: boolean;
   includes_master_guides?: boolean;
+  union_camporee_place?: string | null;
   place?: string | null;
+  lat?: number | null;
+  long?: number | null;
   registration_cost?: number | null;
   active?: boolean;
 };
@@ -265,11 +354,17 @@ export type UnionCamporeePayload = {
   description?: string;
   start_date: string;
   end_date: string;
+  club_registration_deadline?: string;
+  member_registration_deadline?: string;
+  payment_deadline?: string;
+  agenda_visible_from?: string | null;
   union_id: number;
   includes_adventurers: boolean;
   includes_pathfinders: boolean;
   includes_master_guides: boolean;
-  place: string;
+  union_camporee_place: string;
+  lat?: number;
+  long?: number;
   registration_cost?: number;
   active?: boolean;
 };
@@ -411,7 +506,7 @@ export async function rejectUnionCamporeeMember(
 }
 
 export async function approveUnionCamporeePayment(camporeePaymentId: string) {
-  return apiRequest(`/camporees/union/payments/${camporeePaymentId}/approve`, {
+  return apiRequest(`/camporees/payments/${camporeePaymentId}/approve`, {
     method: "PATCH",
   });
 }
@@ -420,7 +515,7 @@ export async function rejectUnionCamporeePayment(
   camporeePaymentId: string,
   payload: RejectPayload,
 ) {
-  return apiRequest(`/camporees/union/payments/${camporeePaymentId}/reject`, {
+  return apiRequest(`/camporees/payments/${camporeePaymentId}/reject`, {
     method: "PATCH",
     body: payload,
   });

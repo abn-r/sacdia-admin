@@ -1,5 +1,7 @@
 "use client";
 
+import { usePanelPath } from "@/lib/v2/panel-path-context";
+
 import { useState, useMemo, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -179,6 +181,8 @@ function SortButton({
 // ─── Loading Skeleton ─────────────────────────────────────────────────────────
 
 export function ExpiringDashboardSkeleton() {
+  const { toPanelPath } = usePanelPath();
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -215,6 +219,8 @@ type ExpiringDashboardProps = {
 };
 
 export function ExpiringDashboard({ items, daysAhead }: ExpiringDashboardProps) {
+  const { toPanelPath } = usePanelPath();
+
   const t = useTranslations("insurance");
   const router = useRouter();
   const pathname = usePathname();
@@ -594,7 +600,7 @@ export function ExpiringDashboard({ items, daysAhead }: ExpiringDashboardProps) 
       {/* Back link */}
       <div>
         <Button variant="ghost" size="sm" asChild>
-          <Link href="/dashboard/insurance">
+          <Link href={toPanelPath("/dashboard/insurance")}>
             <ArrowLeft className="mr-1.5 size-4" />
             {t("expiring.back_link")}
           </Link>

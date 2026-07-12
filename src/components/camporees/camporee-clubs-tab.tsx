@@ -5,13 +5,19 @@ import { PlusCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CamporeeClubsPanel } from "@/components/camporees/camporee-clubs-panel";
 import { EnrollClubDialog } from "@/components/camporees/enroll-club-dialog";
-import { getEnrolledClubs } from "@/lib/api/camporees";
+import { getEnrolledClubs, getUnionEnrolledClubs } from "@/lib/api/camporees";
 import type { CamporeeClub } from "@/lib/api/camporees";
 
 export interface CamporeeClubsTabProps {
   camporeeId: number;
   initialClubs: CamporeeClub[];
   isUnionCamporee?: boolean;
+  /** Local field of the camporee — used to scope club selection in the enroll dialog. */
+  localFieldId?: number | null;
+  /** Section eligibility flags inherited from the camporee. */
+  includesAdventurers?: boolean;
+  includesPathfinders?: boolean;
+  includesMasterGuides?: boolean;
   onAfterChange?: () => void;
 }
 
@@ -19,6 +25,10 @@ export function CamporeeClubsTab({
   camporeeId,
   initialClubs,
   isUnionCamporee = false,
+  localFieldId,
+  includesAdventurers = false,
+  includesPathfinders = false,
+  includesMasterGuides = false,
   onAfterChange,
 }: CamporeeClubsTabProps) {
   const [clubs, setClubs] = useState<CamporeeClub[]>(initialClubs);
@@ -30,7 +40,9 @@ export function CamporeeClubsTab({
     setIsLoading(true);
     setLoadError(null);
     try {
-      const payload = await getEnrolledClubs(camporeeId);
+      const payload = isUnionCamporee
+        ? await getUnionEnrolledClubs(camporeeId)
+        : await getEnrolledClubs(camporeeId);
       const raw = payload as unknown;
       let list: CamporeeClub[] = [];
       if (Array.isArray(raw)) {
@@ -52,7 +64,7 @@ export function CamporeeClubsTab({
     } finally {
       setIsLoading(false);
     }
-  }, [camporeeId, onAfterChange]);
+  }, [camporeeId, isUnionCamporee, onAfterChange]);
 
   return (
     <div className="space-y-4">
@@ -98,6 +110,11 @@ export function CamporeeClubsTab({
         open={enrollOpen}
         onOpenChange={setEnrollOpen}
         camporeeId={camporeeId}
+        isUnionCamporee={isUnionCamporee}
+        localFieldId={localFieldId}
+        includesAdventurers={includesAdventurers}
+        includesPathfinders={includesPathfinders}
+        includesMasterGuides={includesMasterGuides}
         onSuccess={refreshClubs}
       />
     </div>

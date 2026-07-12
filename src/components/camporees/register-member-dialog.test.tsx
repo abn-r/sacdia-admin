@@ -1,22 +1,9 @@
 /**
  * Integration tests for RegisterMemberDialog.
  *
- * Architecture notes:
- * ------------------------------------------------------------------
- * The dialog uses React Hook Form + Zod (static schema, no useMemo).
- * It calls `registerCamporeeMember` from `@/lib/api/camporees` (HTTP).
- * We mock the module entirely — no MSW needed.
- *
- * Special behavior:
- *   - Insurance-related errors (containing "seguro"/"insurance"/"póliza")
- *     render a dedicated alert callout (role="alert") instead of toast.
- *   - Generic errors go to toast.error.
- *   - `camporee_type` defaults to "local"; the "union" type shows a hint
- *     on the club_name label.
- *
- * Renders are wrapped in `NextIntlClientProvider` with real `messages/es.json`.
- *
- * Vitest uses `globals: false` — explicit `cleanup()` per `afterEach`.
+ * The dialog now uses Club → Member selectors and auto-fills insurance from the
+ * backend. Selectors are mocked here because this suite verifies dialog submit
+ * behavior, not selector internals.
  */
 
 import React from "react";
@@ -48,11 +35,30 @@ if (!Element.prototype.scrollIntoView) {
 }
 
 // ---------------------------------------------------------------------------
-// Module-level mocks
+// Test constants + mocks
 // ---------------------------------------------------------------------------
+
+const VALID_UUID = "550e8400-e29b-41d4-a716-446655440000";
+const ACTIVE_INSURANCE = {
+  insurance_id: 42,
+  insurance_type: "CAMPOREE",
+  policy_number: "POL-42",
+  provider: "Seguro Test",
+  start_date: "2026-01-01",
+  end_date: "2026-12-31",
+  coverage_amount: 1000,
+  active: true,
+  evidence_file_url: null,
+  evidence_file_name: null,
+  created_at: null,
+  modified_at: null,
+  created_by_name: null,
+  modified_by_name: null,
+};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mockRegister = vi.fn<(...args: any[]) => Promise<unknown>>();
+const mockGetMemberInsurance = vi.fn();
 
 vi.mock("@/lib/api/camporees", async (importOriginal) => {
   const original = await importOriginal<typeof import("@/lib/api/camporees")>();
@@ -61,6 +67,41 @@ vi.mock("@/lib/api/camporees", async (importOriginal) => {
     registerCamporeeMember: (...args: unknown[]) => mockRegister(...args),
   };
 });
+
+vi.mock("@/lib/api/insurance", async (importOriginal) => {
+  const original = await importOriginal<typeof import("@/lib/api/insurance")>();
+  return {
+    ...original,
+    getMemberInsuranceFromClient: (...args: unknown[]) =>
+      mockGetMemberInsurance(...args),
+  };
+});
+
+vi.mock("@/components/shared/selectors/club-select", () => ({
+  ClubSelect: ({ onChange }: { onChange: (clubId: number | null) => void }) => (
+    <button type="button" onClick={() => onChange(1)}>
+      Seleccionar club
+    </button>
+  ),
+}));
+
+vi.mock("@/components/units/member-combobox", () => ({
+  MemberCombobox: ({
+    onChange,
+    disabled,
+  }: {
+    onChange: (userId: string) => void;
+    disabled?: boolean;
+  }) => (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={() => onChange(VALID_UUID)}
+    >
+      Seleccionar miembro
+    </button>
+  ),
+}));
 
 const mockToastError = vi.fn();
 const mockToastSuccess = vi.fn();
@@ -74,15 +115,10 @@ vi.mock("sonner", () => ({
 import { RegisterMemberDialog } from "@/components/camporees/register-member-dialog";
 
 // ---------------------------------------------------------------------------
-// Constants
+// Render helpers
 // ---------------------------------------------------------------------------
 
 const t = messages.camporees;
-const VALID_UUID = "550e8400-e29b-41d4-a716-446655440000";
-
-// ---------------------------------------------------------------------------
-// Render helper
-// ---------------------------------------------------------------------------
 
 interface RenderOpts {
   open?: boolean;
@@ -115,6 +151,15 @@ async function submitForm() {
   });
 }
 
+async function selectClubAndMember() {
+  const user = userEvent.setup();
+  await user.click(screen.getByRole("button", { name: "Seleccionar club" }));
+  await user.click(screen.getByRole("button", { name: "Seleccionar miembro" }));
+  await waitFor(() => {
+    expect(mockGetMemberInsurance).toHaveBeenCalledWith(VALID_UUID);
+  });
+}
+
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
@@ -123,75 +168,54 @@ describe("RegisterMemberDialog", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockRegister.mockResolvedValue({ ok: true });
+    mockGetMemberInsurance.mockResolvedValue(ACTIVE_INSURANCE);
   });
 
   afterEach(() => {
     cleanup();
   });
 
-  // ── 1. Rendering ──────────────────────────────────────────────────────────
-
-  it("renders title, user-id input, camporee-type select, club-name and insurance inputs", () => {
+  it("renders selector-based fields and no raw ID inputs", () => {
     renderDialog();
 
     expect(
       screen.getByRole("heading", { name: t.registerMemberDialog.title }),
     ).toBeInTheDocument();
 
-    // Use placeholder text to find inputs — avoids issues with label + <span> children
     expect(
-      screen.getByPlaceholderText("xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByPlaceholderText(t.registerMemberDialog.placeholderClubName),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByPlaceholderText(t.registerMemberDialog.placeholderInsuranceId),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByRole("button", { name: t.registerMemberDialog.register }),
+      screen.getByRole("button", { name: "Seleccionar club" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: t.registerMemberDialog.cancel }),
-    ).toBeInTheDocument();
+      screen.getByText(t.registerMemberDialog.placeholderSelectClubFirst),
+    ).toBeVisible();
+    expect(
+      screen
+        .getByText(t.registerMemberDialog.placeholderSelectClubFirst)
+        .closest("button"),
+    ).toBeDisabled();
+    expect(
+      document.querySelector('input[name="insurance_id"]'),
+    ).not.toBeInTheDocument();
   });
 
-  // ── 2. Validation — invalid UUID ─────────────────────────────────────────
-
-  it("shows UUID validation error when user_id is not a valid UUID", async () => {
+  it("requires selecting a member before submit", async () => {
     renderDialog();
-
-    const userIdInput = document.querySelector('input[name="user_id"]') as HTMLInputElement | null;
-    await act(async () => {
-      if (userIdInput) fireEvent.change(userIdInput, { target: { value: "not-a-uuid" } });
-    });
 
     await submitForm();
 
     await waitFor(() => {
-      // The Zod uuid error is "El ID de usuario debe ser un UUID válido"
       expect(
-        screen.getByText(/El ID de usuario debe ser un UUID válido/i),
+        screen.getByText(/Selecciona un miembro válido/i),
       ).toBeInTheDocument();
     });
-
     expect(mockRegister).not.toHaveBeenCalled();
   });
 
-  // ── 3. Happy path — local camporee ───────────────────────────────────────
-
-  it("calls registerCamporeeMember with correct args for local type", async () => {
+  it("auto-fills insurance and calls registerCamporeeMember with correct args", async () => {
     const { onOpenChange, onSuccess } = renderDialog();
 
-    const userIdInput = document.querySelector('input[name="user_id"]') as HTMLInputElement | null;
-    await act(async () => {
-      if (userIdInput) fireEvent.change(userIdInput, { target: { value: VALID_UUID } });
-    });
-
-    // camporee_type defaults to "local" — no change needed
+    await selectClubAndMember();
+    expect(screen.getByText(/Seguro activo/i)).toBeInTheDocument();
 
     await submitForm();
 
@@ -201,11 +225,20 @@ describe("RegisterMemberDialog", () => {
 
     const [camporeeId, payload] = mockRegister.mock.calls[0] as [
       number,
-      { user_id: string; camporee_type: string; club_name?: string; insurance_id?: number },
+      {
+        user_id: string;
+        camporee_type: string;
+        club_name?: string;
+        insurance_id?: number;
+      },
     ];
+
     expect(camporeeId).toBe(10);
-    expect(payload.user_id).toBe(VALID_UUID);
-    expect(payload.camporee_type).toBe("local");
+    expect(payload).toMatchObject({
+      user_id: VALID_UUID,
+      camporee_type: "local",
+      insurance_id: 42,
+    });
     expect(payload.club_name).toBeUndefined();
 
     expect(mockToastSuccess).toHaveBeenCalledWith(t.toasts.member_registered);
@@ -213,63 +246,34 @@ describe("RegisterMemberDialog", () => {
     expect(onSuccess).toHaveBeenCalledOnce();
   });
 
-  // ── 4. Happy path — union camporee with club name ─────────────────────────
-
-  it("forwards club_name and insurance_id when provided for union type", async () => {
+  it("disables submit and shows warning when selected member has no active insurance", async () => {
+    mockGetMemberInsurance.mockResolvedValue(null);
     renderDialog();
 
-    const userIdInput = document.querySelector('input[name="user_id"]') as HTMLInputElement | null;
-    await act(async () => {
-      if (userIdInput) fireEvent.change(userIdInput, { target: { value: VALID_UUID } });
-    });
-
-    // Switch camporee_type to "union" via the hidden Radix native <select>
-    // (only one select in this form — for camporee_type)
-    const typeNative = document.querySelector("select") as HTMLSelectElement | null;
-    if (typeNative) {
-      await act(async () => {
-        fireEvent.change(typeNative, { target: { value: "union" } });
-      });
-    }
-
-    const clubNameInput = document.querySelector('input[name="club_name"]') as HTMLInputElement | null;
-    await act(async () => {
-      if (clubNameInput) fireEvent.change(clubNameInput, { target: { value: "Club Central" } });
-    });
-
-    const insuranceInput = document.querySelector('input[name="insurance_id"]') as HTMLInputElement | null;
-    await act(async () => {
-      if (insuranceInput) fireEvent.change(insuranceInput, { target: { value: "42" } });
-    });
-
-    await submitForm();
+    await selectClubAndMember();
 
     await waitFor(() => {
-      expect(mockRegister).toHaveBeenCalledOnce();
+      expect(
+        screen.getByText(t.registerMemberDialog.noInsuranceTitle),
+      ).toBeInTheDocument();
     });
 
-    const [, payload] = mockRegister.mock.calls[0] as [
-      number,
-      { camporee_type: string; club_name?: string; insurance_id?: number },
-    ];
-    expect(payload.camporee_type).toBe("union");
-    expect(payload.club_name).toBe("Club Central");
-    expect(payload.insurance_id).toBe(42);
+    expect(
+      screen.getByRole("button", { name: t.registerMemberDialog.register }),
+    ).toBeDisabled();
   });
-
-  // ── 5. Cancel closes dialog ───────────────────────────────────────────────
 
   it("calls onOpenChange(false) and does NOT call API when cancel clicked", async () => {
     const user = userEvent.setup();
     const { onOpenChange } = renderDialog();
 
-    await user.click(screen.getByRole("button", { name: t.registerMemberDialog.cancel }));
+    await user.click(
+      screen.getByRole("button", { name: t.registerMemberDialog.cancel }),
+    );
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
     expect(mockRegister).not.toHaveBeenCalled();
   });
-
-  // ── 6. Submit button disabled while in flight ─────────────────────────────
 
   it("disables submit button while submission is in flight", async () => {
     let resolveRegister!: () => void;
@@ -280,12 +284,7 @@ describe("RegisterMemberDialog", () => {
     );
 
     renderDialog();
-
-    const userIdInput = document.querySelector('input[name="user_id"]') as HTMLInputElement | null;
-    await act(async () => {
-      if (userIdInput) fireEvent.change(userIdInput, { target: { value: VALID_UUID } });
-    });
-
+    await selectClubAndMember();
     await submitForm();
 
     await waitFor(() => {
@@ -301,20 +300,13 @@ describe("RegisterMemberDialog", () => {
     });
   });
 
-  // ── 7. Insurance error — renders dedicated alert callout ─────────────────
-
-  it("shows insurance error callout (not toast) when error message contains 'seguro'", async () => {
+  it("shows insurance error callout (not toast) when register API rejects with insurance error", async () => {
     mockRegister.mockRejectedValue(
       new Error("El seguro no está validado para este usuario"),
     );
 
     renderDialog();
-
-    const userIdInput = document.querySelector('input[name="user_id"]') as HTMLInputElement | null;
-    await act(async () => {
-      if (userIdInput) fireEvent.change(userIdInput, { target: { value: VALID_UUID } });
-    });
-
+    await selectClubAndMember();
     await submitForm();
 
     await waitFor(() => {
@@ -324,44 +316,26 @@ describe("RegisterMemberDialog", () => {
     expect(
       screen.getByText(t.registerMemberDialog.insuranceErrorTitle),
     ).toBeInTheDocument();
-
-    // Toast must NOT be called for insurance errors
     expect(mockToastError).not.toHaveBeenCalled();
   });
-
-  // ── 8. Generic API error — routes to toast ────────────────────────────────
 
   it("shows toast.error for generic non-insurance errors", async () => {
     mockRegister.mockRejectedValue(new Error("Duplicate member"));
 
     renderDialog();
-
-    const userIdInput = document.querySelector('input[name="user_id"]') as HTMLInputElement | null;
-    await act(async () => {
-      if (userIdInput) fireEvent.change(userIdInput, { target: { value: VALID_UUID } });
-    });
-
+    await selectClubAndMember();
     await submitForm();
 
     await waitFor(() => {
       expect(mockToastError).toHaveBeenCalledWith("Duplicate member");
     });
-
-    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
-
-  // ── 9. Fallback translated error ──────────────────────────────────────────
 
   it("shows fallback translated error when non-Error is thrown", async () => {
     mockRegister.mockRejectedValue("string error");
 
     renderDialog();
-
-    const userIdInput = document.querySelector('input[name="user_id"]') as HTMLInputElement | null;
-    await act(async () => {
-      if (userIdInput) fireEvent.change(userIdInput, { target: { value: VALID_UUID } });
-    });
-
+    await selectClubAndMember();
     await submitForm();
 
     await waitFor(() => {

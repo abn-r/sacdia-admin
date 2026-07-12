@@ -4,20 +4,16 @@ import { z } from "zod";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE } from "@/lib/auth/cookies";
 import { hasAdminRole } from "@/lib/auth/roles";
 import { apiRequest, ApiError } from "@/lib/api/client";
-import { clearSession } from "@/lib/auth/session";
+import {
+  clearSession,
+  normalizeAuthTokenResponse,
+  setAuthCookies,
+} from "@/lib/auth/session";
 import type { AuthActionState, AuthUser, LoginResponse } from "@/lib/auth/types";
 
 type AuthTranslator = Awaited<ReturnType<typeof getTranslations<"auth">>>;
-
-const COOKIE_OPTIONS = {
-  path: "/",
-  sameSite: "strict" as const,
-  secure: process.env.NODE_ENV === "production",
-  httpOnly: true,
-};
 
 function buildLoginSchema(t: AuthTranslator) {
   return z.object({
@@ -73,18 +69,6 @@ function pickString(...values: unknown[]): string | undefined {
   }
 
   return undefined;
-}
-
-function normalizeLoginResponse(auth: LoginResponse) {
-  const data = asRecord(auth.data);
-
-  const accessToken = pickString(auth.access_token, data?.accessToken, data?.access_token);
-  const refreshToken = pickString(auth.refresh_token, data?.refreshToken, data?.refresh_token);
-
-  const nestedUser = asRecord(data?.user) as AuthUser | null;
-  const user = auth.user ?? nestedUser ?? undefined;
-
-  return { accessToken, refreshToken, user };
 }
 
 function normalizeText(value: string): string {
@@ -208,7 +192,7 @@ export async function loginAction(_: AuthActionState, formData: FormData): Promi
     return { error: t("errors.login_failed") };
   }
 
-  const { accessToken, refreshToken, user } = normalizeLoginResponse(auth);
+  const { accessToken, refreshToken, expiresAt, user } = normalizeAuthTokenResponse(auth);
   const deniedAccessInfo = getDeniedAccessInfo(t, auth);
 
   if (user && !hasAdminRole(user)) {
@@ -245,11 +229,7 @@ export async function loginAction(_: AuthActionState, formData: FormData): Promi
   }
 
   const cookieStore = await cookies();
-  cookieStore.set(ACCESS_TOKEN_COOKIE, accessToken, COOKIE_OPTIONS);
-
-  if (refreshToken) {
-    cookieStore.set(REFRESH_TOKEN_COOKIE, refreshToken, COOKIE_OPTIONS);
-  }
+  setAuthCookies(cookieStore, { accessToken, refreshToken, expiresAt });
 
   const rawNext = formData.get("next");
   const nextPath = typeof rawNext === "string" ? sanitizeNextPath(rawNext) : null;

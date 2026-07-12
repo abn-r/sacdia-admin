@@ -9,7 +9,6 @@ import {
   updateResource,
   type ResourcePayload,
   type ResourceType,
-  type ClubTypeTarget,
   type ScopeLevel,
 } from "@/lib/api/resources";
 import { hasAnyPermission } from "@/lib/auth/permission-utils";
@@ -41,19 +40,18 @@ function parsePositiveNumber(formData: FormData, field: string) {
 }
 
 const VALID_RESOURCE_TYPES: ResourceType[] = ["document", "audio", "image", "video_link", "text"];
-const VALID_CLUB_TYPES: ClubTypeTarget[] = ["all", "Aventureros", "Conquistadores", "Guías Mayores"];
-const VALID_SCOPE_LEVELS: ScopeLevel[] = ["system", "union", "local_field"];
+const VALID_SCOPE_LEVELS: ScopeLevel[] = ["system", "division", "union", "local_field"];
 
 function toResourceType(value: string): ResourceType | null {
   return VALID_RESOURCE_TYPES.includes(value as ResourceType) ? (value as ResourceType) : null;
 }
 
-function toClubType(value: string): ClubTypeTarget | null {
-  return VALID_CLUB_TYPES.includes(value as ClubTypeTarget) ? (value as ClubTypeTarget) : null;
-}
-
 function toScopeLevel(value: string): ScopeLevel | null {
   return VALID_SCOPE_LEVELS.includes(value as ScopeLevel) ? (value as ScopeLevel) : null;
+}
+
+function parseResourceId(formData: FormData) {
+  return readString(formData, "id");
 }
 
 function buildCreateFormData(t: ResourcesTranslator, formData: FormData): FormData {
@@ -71,10 +69,10 @@ function buildCreateFormData(t: ResourcesTranslator, formData: FormData): FormDa
   if (description) out.set("description", description);
 
   const categoryId = parsePositiveNumber(formData, "category_id");
-  if (categoryId) out.set("category_id", String(categoryId));
+  if (categoryId) out.set("resource_category_id", String(categoryId));
 
-  const clubType = toClubType(readString(formData, "club_type"));
-  if (clubType) out.set("club_type", clubType);
+  const clubTypeId = parsePositiveNumber(formData, "club_type_id");
+  if (clubTypeId) out.set("club_type_id", String(clubTypeId));
 
   const scopeLevel = toScopeLevel(readString(formData, "scope_level"));
   if (scopeLevel) out.set("scope_level", scopeLevel);
@@ -111,8 +109,8 @@ function buildUpdatePayload(formData: FormData): Partial<ResourcePayload> {
   const description = readString(formData, "description");
   payload.description = description || "";
 
-  const clubType = toClubType(readString(formData, "club_type"));
-  if (clubType) payload.club_type = clubType;
+  const clubTypeId = parsePositiveNumber(formData, "club_type_id");
+  payload.club_type_id = clubTypeId;
 
   const scopeLevel = toScopeLevel(readString(formData, "scope_level"));
   if (scopeLevel) {
@@ -124,7 +122,7 @@ function buildUpdatePayload(formData: FormData): Partial<ResourcePayload> {
   }
 
   const categoryId = parsePositiveNumber(formData, "category_id");
-  if (categoryId) payload.category_id = categoryId;
+  if (categoryId) payload.resource_category_id = categoryId;
 
   const externalUrl = readString(formData, "external_url");
   if (externalUrl) payload.external_url = externalUrl;
@@ -163,7 +161,7 @@ export async function updateResourceAction(
   if (!hasAnyPermission(user, [RESOURCES_UPDATE])) {
     return { error: t("errors.update_permission_denied") };
   }
-  const id = parsePositiveNumber(formData, "id");
+  const id = parseResourceId(formData);
   if (!id) return { error: t("errors.update_not_found") };
   try {
     const payload = buildUpdatePayload(formData);
@@ -184,7 +182,7 @@ export async function deleteResourceAction(
   if (!hasAnyPermission(user, [RESOURCES_DELETE])) {
     return { error: t("errors.delete_permission_denied") };
   }
-  const id = parsePositiveNumber(formData, "id");
+  const id = parseResourceId(formData);
   if (!id) return { error: t("errors.delete_not_found") };
   try {
     await deleteResource(id);

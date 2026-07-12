@@ -17,6 +17,7 @@ import {
 import { EmptyState } from "@/components/shared/empty-state";
 import {
   cancelClubEnrollment,
+  cancelUnionClubEnrollment,
   approveCamporeeClub,
   rejectCamporeeClub,
   approveUnionCamporeeClub,
@@ -114,7 +115,11 @@ export function CamporeeClubsPanel({
     if (cancellingId !== null) return;
     setCancellingId(camporeeClubId);
     try {
-      await cancelClubEnrollment(camporeeId, camporeeClubId);
+      if (isUnionCamporee) {
+        await cancelUnionClubEnrollment(camporeeId, camporeeClubId);
+      } else {
+        await cancelClubEnrollment(camporeeId, camporeeClubId);
+      }
       toast.success(
         sectionName
           ? t("clubsPanel.cancelledWithName", { name: sectionName })

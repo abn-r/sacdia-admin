@@ -52,10 +52,6 @@ function buildSchema(t: ReturnType<typeof useTranslations<"annual_folders.valida
       .number()
       .int()
       .min(0, t("max_points_min")),
-    minimum_points: z.coerce
-      .number()
-      .int()
-      .min(0, t("minimum_points_min")),
   });
 }
 
@@ -96,7 +92,6 @@ export function SectionFormDialog({
       order: nextOrder,
       required: true,
       max_points: 0,
-      minimum_points: 0,
     },
   });
 
@@ -109,7 +104,6 @@ export function SectionFormDialog({
           order: section.order,
           required: section.required,
           max_points: section.max_points,
-          minimum_points: section.minimum_points,
         });
       } else {
         form.reset({
@@ -118,7 +112,6 @@ export function SectionFormDialog({
           order: nextOrder,
           required: true,
           max_points: 0,
-          minimum_points: 0,
         });
       }
     }
@@ -134,7 +127,6 @@ export function SectionFormDialog({
           order: values.order,
           required: values.required,
           max_points: values.max_points,
-          minimum_points: values.minimum_points,
         });
         toast.success(t("toasts.section_updated"));
       } else {
@@ -144,7 +136,7 @@ export function SectionFormDialog({
           order: values.order,
           required: values.required,
           max_points: values.max_points,
-          minimum_points: values.minimum_points,
+          minimum_points: 0,
         });
         toast.success(t("toasts.section_created"));
       }
@@ -266,8 +258,7 @@ export function SectionFormDialog({
             />
 
             {/* Puntos */}
-            <div className="grid grid-cols-2 gap-3">
-              {/* Puntos máximos */}
+            <div>
               <FormField
                 control={form.control}
                 name="max_points"
@@ -286,26 +277,11 @@ export function SectionFormDialog({
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Puntos mínimos */}
-              <FormField
-                control={form.control}
-                name="minimum_points"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("sectionDialog.fieldMinPoints")}</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        min={0}
-                        placeholder="0"
-                        {...field}
-                      />
-                    </FormControl>
+                    <p className="text-xs text-muted-foreground">
+                      Es la parte del presupuesto anual que se asigna a esta
+                      sección. La suma de todas las secciones debe coincidir
+                      con el total requerido por ranking.
+                    </p>
                     <FormMessage />
                   </FormItem>
                 )}

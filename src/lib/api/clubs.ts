@@ -19,6 +19,7 @@ export type Club = {
 export type ClubListQuery = {
   page?: number;
   limit?: number;
+  search?: string;
   clubTypeId?: number;
   localFieldId?: number;
   districtId?: number;
@@ -30,7 +31,7 @@ export type ClubPayload = {
   name: string;
   description?: string;
   local_field_id: number;
-  district_id: number;
+  districlub_type_id: number;
   church_id: number;
   address?: string;
   coordinates?: {
@@ -71,11 +72,24 @@ export type ClubSectionMembersQuery = {
 export type ClubSectionMember = {
   assignment_id?: string;
   user_id: string;
+  club_section_id?: number;
   name: string;
   picture_url?: string | null;
   role?: string | null;
   role_display_name?: string | null;
   role_id?: string;
+  current_class?: {
+    id?: number;
+    class_id?: number;
+    name?: string;
+    club_type_id?: number;
+    enrollment_id?: number;
+    ecclesiastical_year_id?: number;
+    investiture_status?: string;
+  } | null;
+  current_class_id?: number | null;
+  current_class_name?: string | null;
+  enrollment_id?: number | null;
   start_date?: string;
   active?: boolean;
 };
@@ -96,6 +110,77 @@ export type ClubRoleAssignmentUpdatePayload = {
   status?: string;
 };
 
+export type ClassCounselorResponsibilityType =
+  | "primary"
+  | "assistant"
+  | "substitute";
+
+export type ClassCounselorAssignment = {
+  assignment_id: string;
+  user_id: string;
+  club_section_id: number;
+  class_id: number;
+  ecclesiastical_year_id: number;
+  responsibility_type: ClassCounselorResponsibilityType;
+  active: boolean;
+  exceptional?: boolean;
+  exception_reason?: string | null;
+  start_date?: string | null;
+  end_date?: string | null;
+  users?: {
+    user_id?: string;
+    name?: string | null;
+    paternal_last_name?: string | null;
+    maternal_last_name?: string | null;
+    email?: string | null;
+    user_image?: string | null;
+  } | null;
+  classes?: {
+    class_id?: number;
+    name?: string | null;
+    club_type_id?: number;
+    display_order?: number | null;
+  } | null;
+};
+
+export type ClassCounselorAssignmentsQuery = {
+  yearId?: number;
+  classId?: number;
+  active?: boolean;
+};
+
+export type ClassCounselorAssignmentCreatePayload = {
+  user_id: string;
+  class_id: number;
+  ecclesiastical_year_id?: number;
+  responsibility_type?: ClassCounselorResponsibilityType;
+  exceptional?: boolean;
+  exception_reason?: string;
+  start_date?: string;
+  end_date?: string;
+};
+
+export type ClassCounselorAssignmentUpdatePayload = {
+  responsibility_type?: ClassCounselorResponsibilityType;
+  exceptional?: boolean;
+  exception_reason?: string;
+  start_date?: string;
+  end_date?: string;
+};
+
+export type ClubDirectorSuccessionPayload = {
+  current_assignment_id: string;
+  successor_user_id: string;
+  ecclesiastical_year_id: number;
+  start_date?: string;
+};
+
+export type ClubDirectorInitialAssignmentPayload = {
+  user_id: string;
+  ecclesiastical_year_id: number;
+  start_date?: string;
+};
+
 export async function listClubs(query: ClubListQuery = {}) {
   return apiRequest("/clubs", { params: query });
 }
@@ -111,7 +196,7 @@ export async function createClub(payload: ClubPayload) {
   });
 }
 
-export async function updateClub(clubId: number, payload: Partial<ClubPayload>) {
+export async function updateClub(clubId: number, payload: Record<string, unknown>) {
   return apiRequest(`/clubs/${clubId}`, {
     method: "PATCH",
     body: payload,
@@ -126,6 +211,15 @@ export async function deleteClub(clubId: number) {
 
 export async function listClubSections(clubId: number) {
   return apiRequest(`/clubs/${clubId}/sections`);
+}
+
+/**
+ * Alias of {@link listClubSections}. Returns the same payload — kept as a
+ * distinct named export so callers can express intent (single-club lookup
+ * for dropdowns) without re-reading the schema.
+ */
+export async function getClubSections(clubId: number) {
+  return listClubSections(clubId);
 }
 
 export async function createClubSection(clubId: number, payload: ClubSectionPayload) {
@@ -183,32 +277,205 @@ export async function revokeClubRoleAssignment(assignmentId: string) {
   });
 }
 
+export async function listClassCounselorAssignments(
+  clubId: number,
+  sectionId: number,
+  query: ClassCounselorAssignmentsQuery = {},
+) {
+  return apiRequest<ClassCounselorAssignment[]>(
+    `/clubs/${clubId}/sections/${sectionId}/class-counselor-assignments`,
+    { params: query },
+  );
+}
+
+export async function createClassCounselorAssignment(
+  clubId: number,
+  sectionId: number,
+  payload: ClassCounselorAssignmentCreatePayload,
+) {
+  return apiRequest<ClassCounselorAssignment>(
+    `/clubs/${clubId}/sections/${sectionId}/class-counselor-assignments`,
+    {
+      method: "POST",
+      body: payload,
+    },
+  );
+}
+
+export async function updateClassCounselorAssignment(
+  assignmentId: string,
+  payload: ClassCounselorAssignmentUpdatePayload,
+) {
+  return apiRequest<ClassCounselorAssignment>(
+    `/class-counselor-assignments/${assignmentId}`,
+    {
+      method: "PATCH",
+      body: payload,
+    },
+  );
+}
+
+export async function revokeClassCounselorAssignment(assignmentId: string) {
+  return apiRequest<ClassCounselorAssignment>(
+    `/class-counselor-assignments/${assignmentId}`,
+    {
+      method: "DELETE",
+    },
+  );
+}
+
+export async function succeedClubSectionDirector(
+  clubId: number,
+  sectionId: number,
+  payload: ClubDirectorSuccessionPayload,
+) {
+  return apiRequest(`/clubs/${clubId}/sections/${sectionId}/director-succession`, {
+    method: "POST",
+    body: payload,
+  });
+}
+
+export async function assignInitialClubSectionDirector(
+  clubId: number,
+  sectionId: number,
+  payload: ClubDirectorInitialAssignmentPayload,
+) {
+  return apiRequest(`/clubs/${clubId}/sections/${sectionId}/director-assignment`, {
+    method: "POST",
+    body: payload,
+  });
+}
+
 // ─── Club-level member aggregation ───────────────────────────────────────────
 
 type RawMember = Record<string, unknown>;
 
-function normalizeMember(raw: RawMember): ClubSectionMember | null {
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
+}
+
+function pickString(record: Record<string, unknown> | null, key: string) {
+  const value = record?.[key];
+  return typeof value === "string" && value.trim().length > 0
+    ? value.trim()
+    : null;
+}
+
+function pickNumber(record: Record<string, unknown> | null, key: string) {
+  const value = record?.[key];
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string" && value.trim().length > 0) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+}
+
+function normalizeMember(
+  raw: RawMember,
+  sectionId?: number,
+): ClubSectionMember | null {
+  const user = asRecord(raw.users);
+  const role = asRecord(raw.roles);
+  const rawCurrentClass =
+    asRecord(raw.current_class) ?? asRecord(user?.current_class);
+  const currentClassName =
+    pickString(rawCurrentClass, "name") ??
+    pickString(raw, "current_class_name") ??
+    pickString(user, "current_class_name");
+  const currentClassId =
+    pickNumber(rawCurrentClass, "class_id") ??
+    pickNumber(rawCurrentClass, "id") ??
+    pickNumber(raw, "current_class_id") ??
+    pickNumber(user, "current_class_id");
+  const enrollmentId =
+    pickNumber(rawCurrentClass, "enrollment_id") ??
+    pickNumber(raw, "enrollment_id");
+  const currentClass =
+    currentClassName || currentClassId
+      ? {
+          id: currentClassId ?? undefined,
+          class_id: currentClassId ?? undefined,
+          name: currentClassName ?? undefined,
+          club_type_id:
+            pickNumber(rawCurrentClass, "club_type_id") ?? undefined,
+          enrollment_id: enrollmentId ?? undefined,
+          ecclesiastical_year_id:
+            pickNumber(rawCurrentClass, "ecclesiastical_year_id") ?? undefined,
+          investiture_status:
+            pickString(rawCurrentClass, "investiture_status") ?? undefined,
+        }
+      : null;
+
   const user_id =
     typeof raw.user_id === "string" && raw.user_id.trim().length > 0
       ? raw.user_id.trim()
       : null;
   if (!user_id) return null;
 
+  const nestedName = [
+    pickString(user, "name"),
+    pickString(user, "paternal_last_name"),
+    pickString(user, "maternal_last_name"),
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+
   const name =
     typeof raw.name === "string" && raw.name.trim().length > 0
       ? raw.name.trim()
+      : nestedName.length > 0
+        ? nestedName
       : user_id;
 
   return {
     assignment_id: typeof raw.assignment_id === "string" ? raw.assignment_id : undefined,
     user_id,
+    club_section_id:
+      typeof raw.club_section_id === "number" ? raw.club_section_id : sectionId,
     name,
-    picture_url: typeof raw.picture_url === "string" ? raw.picture_url : null,
-    role: typeof raw.role === "string" ? raw.role : null,
+    picture_url:
+      typeof raw.picture_url === "string"
+        ? raw.picture_url
+        : pickString(user, "user_image"),
+    role:
+      typeof raw.role === "string"
+        ? raw.role
+        : pickString(role, "role_name"),
     role_display_name: typeof raw.role_display_name === "string" ? raw.role_display_name : null,
-    role_id: typeof raw.role_id === "string" ? raw.role_id : undefined,
+    role_id:
+      typeof raw.role_id === "string"
+        ? raw.role_id
+        : (pickString(role, "role_id") ?? undefined),
+    current_class: currentClass,
+    current_class_id: currentClass?.class_id ?? null,
+    current_class_name: currentClass?.name ?? null,
+    enrollment_id: currentClass?.enrollment_id ?? null,
     active: raw.active !== false,
   };
+}
+
+function unwrapMembers(payload: unknown): unknown[] {
+  return Array.isArray(payload)
+    ? payload
+    : Array.isArray((payload as { data?: unknown })?.data)
+      ? ((payload as { data: unknown[] }).data)
+      : [];
+}
+
+export async function listNormalizedClubSectionMembers(
+  clubId: number,
+  sectionId: number,
+  query: ClubSectionMembersQuery = {},
+): Promise<ClubSectionMember[]> {
+  const payload = await listClubSectionMembers(clubId, sectionId, query);
+  return unwrapMembers(payload)
+    .map((raw) => normalizeMember(raw as RawMember, sectionId))
+    .filter((member): member is ClubSectionMember => member !== null)
+    .sort((a, b) => a.name.localeCompare(b.name, "es"));
 }
 
 /**
@@ -248,17 +515,14 @@ export async function listClubMembers(clubId: number): Promise<ClubSectionMember
   const seen = new Set<string>();
   const members: ClubSectionMember[] = [];
 
-  for (const result of results) {
+  for (const [index, result] of results.entries()) {
     if (result.status !== "fulfilled") continue;
     const payload = result.value;
-    const arr = Array.isArray(payload)
-      ? payload
-      : Array.isArray((payload as { data?: unknown })?.data)
-        ? ((payload as { data: unknown[] }).data)
-        : [];
+    const arr = unwrapMembers(payload);
+    const sectionId = sections[index]?.club_section_id;
 
     for (const raw of arr) {
-      const member = normalizeMember(raw as RawMember);
+      const member = normalizeMember(raw as RawMember, sectionId);
       if (!member || seen.has(member.user_id)) continue;
       seen.add(member.user_id);
       members.push(member);

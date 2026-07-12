@@ -29,6 +29,14 @@ declare module "next-intl" {
 
 export interface IntlMessages {
   nav: {
+    palette: {
+      title: string;
+      description: string;
+      placeholder: string;
+      empty: string;
+      generalGroup: string;
+      shortcutHint: string;
+    };
     sections: {
       overview: string;
       catalogs: string;
@@ -40,6 +48,7 @@ export interface IntlMessages {
       members: string;
       operations: string;
       rankings_analytics: string;
+      materials: string;
     };
     items: {
       dashboard: string;
@@ -98,9 +107,9 @@ export interface IntlMessages {
       evidence_folders: string;
       annual_folders: string;
       annual_folders_templates: string;
-      annual_folders_mine: string;
       annual_folders_evaluate: string;
       annual_folders_rankings: string;
+      annual_folders_ranking_config: string;
       annual_folders_categories: string;
       member_rankings: string;
       member_ranking_weights: string;
@@ -113,6 +122,7 @@ export interface IntlMessages {
       reports: string;
       reports_mine: string;
       reports_supervision: string;
+      support_reports: string;
       member_of_month: string;
       catalog_classes: string;
       catalog_class_modules: string;
@@ -132,6 +142,17 @@ export interface IntlMessages {
       subgroup_business: string;
       subgroup_honors_cat: string;
       ranking_weights_root: string;
+      materials_inbox: string;
+      materials_receipts: string;
+      materials_inventory: string;
+      materials_categories: string;
+      materials_config: string;
+      certificate_bulk_imports: string;
+      coordination: string;
+      directorMyClub: string;
+      directorMembers: string;
+      directorRoster: string;
+      coordinatorMembership: string;
     };
     breadcrumbs: {
       dashboard: string;
@@ -168,11 +189,36 @@ export interface IntlMessages {
       permissions: string;
       roles: string;
       matrix: string;
+      support: string;
+      coordination: string;
     };
     themeToggle: {
       switchToLight: string;
       switchToDark: string;
       switchTheme: string;
+    };
+    layoutControls: {
+      openAriaLabel: string;
+      title: string;
+      description: string;
+      themePreset: string;
+      themeMode: string;
+      light: string;
+      dark: string;
+      pageLayout: string;
+      centered: string;
+      fullWidth: string;
+      navbarBehavior: string;
+      sticky: string;
+      scroll: string;
+      sidebarStyle: string;
+      inset: string;
+      sidebar: string;
+      floating: string;
+      sidebarCollapse: string;
+      icon: string;
+      offcanvas: string;
+      restoreDefaults: string;
     };
     a11y: {
       skipToContent: string;
@@ -186,6 +232,12 @@ export interface IntlMessages {
       placeholder: string;
       empty: string;
       general: string;
+      searchAriaLabel: string;
+    };
+    v2: {
+      switchToStudio: string;
+      switchToClassic: string;
+      badge: string;
     };
     activeContext: {
       noClub: string;
@@ -195,6 +247,8 @@ export interface IntlMessages {
       clear: string;
       loading: string;
       unavailable: string;
+      changeFailed: string;
+      triggerLabel: string;
     };
   };
   permissions: {
@@ -220,6 +274,93 @@ export interface IntlMessages {
       notifications: string;
       resources: string;
       system: string;
+    };
+  };
+  coordinationAdmin: {
+    page: {
+      title: string;
+      description: string;
+    };
+    emptyNoLocalField: {
+      title: string;
+      description: string;
+    };
+    assignmentTypes: {
+      general: string;
+      zone: string;
+      section: string;
+    };
+    targets: {
+      allLocalField: string;
+      zoneFallback: string;
+      clubTypeFallback: string;
+      clubFallback: string;
+      sectionFallback: string;
+    };
+    errors: {
+      generic: string;
+      zoneNameRequired: string;
+      zoneAndDistrictRequired: string;
+      coordinatorRequired: string;
+      assignmentScopeRequired: string;
+    };
+    success: {
+      zoneCreated: string;
+      districtAssigned: string;
+      districtRemoved: string;
+      zoneActivated: string;
+      zoneDeactivated: string;
+      assignmentCreated: string;
+      assignmentActivated: string;
+      assignmentDeactivated: string;
+    };
+    localField: {
+      title: string;
+      description: string;
+      placeholder: string;
+    };
+    zones: {
+      title: string;
+      description: string;
+      namePlaceholder: string;
+      descriptionPlaceholder: string;
+      empty: string;
+      noDistricts: string;
+    };
+    assignments: {
+      newTitle: string;
+      newDescription: string;
+      directorConflictRule: string;
+      title: string;
+      description: string;
+      empty: string;
+    };
+    fields: {
+      name: string;
+      description: string;
+      zone: string;
+      selectZone: string;
+      district: string;
+      districts: string;
+      selectDistrict: string;
+      status: string;
+      actions: string;
+      coordinator: string;
+      selectUser: string;
+      type: string;
+      section: string;
+      clubSection: string;
+      selectSection: string;
+      scope: string;
+    };
+    actions: {
+      createZone: string;
+      assignDistrict: string;
+      createAssignment: string;
+    };
+    status: {
+      active: string;
+      inactive: string;
     };
   };
   catalogs: {
@@ -319,6 +460,8 @@ export interface IntlMessages {
     };
     validation: {
       delete_target_not_identified: string;
+      field_required: string;
+      field_invalid: string;
     };
     success: {
       op_create_title: string;
@@ -443,27 +586,159 @@ export interface IntlMessages {
       cancel: string;
       saveChanges: string;
       noPermissions: string;
+      colDuration: string;
+      colAvailability: string;
+      classConfigTitle: string;
+      classConfigDescription: string;
+      fieldAvailableFromYear: string;
+      fieldAvailableFromAny: string;
+      fieldAvailableUntilYear: string;
+      fieldAvailableUntilNone: string;
+      fieldMinDurationYears: string;
+      fieldMaxDurationYears: string;
+      colAdvanced: string;
+      colRequirementTrack: string;
+      colOwnerScope: string;
+      yes: string;
+      no: string;
+      selectOptionAny: string;
+      requirementTrackBasic: string;
+      requirementTrackAdvanced: string;
+      requirementTrackExtra: string;
+      classAvailabilityAdvancedTitle: string;
+      classAvailabilityAdvancedDescription: string;
+      fieldAdvancedEnabled: string;
+      classSectionConfigTitle: string;
+      classSectionConfigDescription: string;
+      fieldRequirementTrack: string;
+      fieldDisplayOrder: string;
+      fieldDisplayOrderPlaceholder: string;
+      fieldOwnerDivisionId: string;
+      fieldOwnerDivisionIdPlaceholder: string;
+      fieldOwnerUnionId: string;
+      fieldOwnerUnionIdPlaceholder: string;
+      fieldOwnerLocalFieldId: string;
+      fieldOwnerLocalFieldIdPlaceholder: string;
+      fieldRequiredForInvestiture: string;
+      ownerDivisionShort: string;
+      ownerUnionShort: string;
+      ownerLocalFieldShort: string;
+    };
+    shared: {
+      editActionTitle: string;
+      deleteActionTitle: string;
+      configureScoringTitle: string;
     };
     pages: {
       countries: {
         title: string;
         description: string;
         metadataTitle: string;
+        entityLabel: string;
+        loadError: string;
       };
       churches: {
         title: string;
         description: string;
         metadataTitle: string;
+        entityLabel: string;
+        loadError: string;
+        listTitle: string;
+        createTitle: string;
+        editTitle: string;
+        entityLabelPlural: string;
+        fieldName: string;
+        fieldDistrict: string;
+        fieldActive: string;
+        fieldNamePlaceholder: string;
+        fieldDistrictPlaceholder: string;
+        buttonCreate: string;
+        buttonSave: string;
+        buttonCancel: string;
+        buttonDelete: string;
+        emptyTitle: string;
+        emptyDescription: string;
+        deleteConfirmTitle: string;
+        deleteConfirmDesc: string;
+        backToList: string;
+        validationName: string;
+        validationDistrict: string;
+        colName: string;
+        colDistrict: string;
+        colStatus: string;
+        colActions: string;
+        statusActive: string;
+        statusInactive: string;
       };
       districts: {
         title: string;
         description: string;
         metadataTitle: string;
+        entityLabel: string;
+        loadError: string;
+        listTitle: string;
+        createTitle: string;
+        editTitle: string;
+        entityLabelPlural: string;
+        fieldName: string;
+        fieldLocalField: string;
+        fieldActive: string;
+        fieldNamePlaceholder: string;
+        fieldLocalFieldPlaceholder: string;
+        buttonCreate: string;
+        buttonSave: string;
+        buttonCancel: string;
+        buttonDelete: string;
+        emptyTitle: string;
+        emptyDescription: string;
+        deleteConfirmTitle: string;
+        deleteConfirmDesc: string;
+        backToList: string;
+        validationName: string;
+        validationLocalField: string;
+        colName: string;
+        colLocalField: string;
+        colStatus: string;
+        colActions: string;
+        statusActive: string;
+        statusInactive: string;
       };
       unions: {
         title: string;
         description: string;
         metadataTitle: string;
+        entityLabel: string;
+        loadError: string;
+        listTitle: string;
+        createTitle: string;
+        editTitle: string;
+        entityLabelPlural: string;
+        fieldName: string;
+        fieldAbbreviation: string;
+        fieldCountry: string;
+        fieldActive: string;
+        fieldNamePlaceholder: string;
+        fieldAbbreviationPlaceholder: string;
+        fieldCountryPlaceholder: string;
+        buttonCreate: string;
+        buttonSave: string;
+        buttonCancel: string;
+        buttonDelete: string;
+        emptyTitle: string;
+        emptyDescription: string;
+        deleteConfirmTitle: string;
+        deleteConfirmDesc: string;
+        backToList: string;
+        validationName: string;
+        validationAbbreviation: string;
+        validationCountry: string;
+        colName: string;
+        colAbbreviation: string;
+        colCountry: string;
+        colStatus: string;
+        colActions: string;
+        statusActive: string;
+        statusInactive: string;
       };
       unionsDetail: {
         back: string;
@@ -481,6 +756,38 @@ export interface IntlMessages {
         title: string;
         description: string;
         metadataTitle: string;
+        entityLabel: string;
+        loadError: string;
+        listTitle: string;
+        createTitle: string;
+        editTitle: string;
+        entityLabelPlural: string;
+        fieldName: string;
+        fieldAbbreviation: string;
+        fieldUnion: string;
+        fieldActive: string;
+        fieldNamePlaceholder: string;
+        fieldAbbreviationPlaceholder: string;
+        fieldUnionPlaceholder: string;
+        buttonCreate: string;
+        buttonSave: string;
+        buttonCancel: string;
+        buttonDelete: string;
+        emptyTitle: string;
+        emptyDescription: string;
+        deleteConfirmTitle: string;
+        deleteConfirmDesc: string;
+        backToList: string;
+        validationName: string;
+        validationAbbreviation: string;
+        validationUnion: string;
+        colName: string;
+        colAbbreviation: string;
+        colUnion: string;
+        colStatus: string;
+        colActions: string;
+        statusActive: string;
+        statusInactive: string;
       };
       localFieldsDetail: {
         back: string;
@@ -498,6 +805,8 @@ export interface IntlMessages {
         title: string;
         description: string;
         metadataTitle: string;
+        entityLabel: string;
+        loadError: string;
       };
       folderSections: {
         title: string;
@@ -621,37 +930,170 @@ export interface IntlMessages {
         title: string;
         description: string;
         metadataTitle: string;
+        entityLabel: string;
+        loadError: string;
       };
       clubTypes: {
         title: string;
         description: string;
         metadataTitle: string;
+        entityLabel: string;
+        loadError: string;
       };
       medicines: {
         title: string;
         description: string;
         metadataTitle: string;
+        entityLabel: string;
+        loadError: string;
       };
       clubIdeals: {
         title: string;
         description: string;
         metadataTitle: string;
+        listTitle: string;
+        createTitle: string;
+        editTitle: string;
+        entityLabel: string;
+        entityLabelPlural: string;
+        fieldName: string;
+        fieldIdeal: string;
+        fieldClubType: string;
+        fieldIdealOrder: string;
+        fieldActive: string;
+        fieldNamePlaceholder: string;
+        fieldIdealPlaceholder: string;
+        fieldClubTypePlaceholder: string;
+        buttonCreate: string;
+        buttonSave: string;
+        buttonCancel: string;
+        buttonDelete: string;
+        emptyTitle: string;
+        emptyDescription: string;
+        deleteConfirmTitle: string;
+        deleteConfirmDesc: string;
+        backToList: string;
+        loadError: string;
+        validationName: string;
+        validationIdeal: string;
+        validationClubType: string;
+        validationIdealOrder: string;
+        colName: string;
+        colClubType: string;
+        colIdealOrder: string;
+        colStatus: string;
+        colActions: string;
+        statusActive: string;
+        statusInactive: string;
+        editActionTitle: string;
+        deleteActionTitle: string;
       };
       allergies: {
         title: string;
         description: string;
         metadataTitle: string;
+        entityLabel: string;
+        loadError: string;
       };
       relationshipTypes: {
         title: string;
         description: string;
         metadataTitle: string;
+        entityLabel: string;
+        loadError: string;
       };
       ecclesiasticalYears: {
         title: string;
         description: string;
         metadataTitle: string;
       };
+      camporeeEventTypes: {
+        title: string;
+        description: string;
+        metadataTitle: string;
+        listTitle: string;
+        createTitle: string;
+        editTitle: string;
+        entityLabel: string;
+        entityLabelPlural: string;
+        fieldName: string;
+        fieldDescription: string;
+        fieldCode: string;
+        fieldDisplayOrder: string;
+        fieldActive: string;
+        fieldNamePlaceholder: string;
+        fieldDescriptionPlaceholder: string;
+        fieldCodePlaceholder: string;
+        buttonCreate: string;
+        buttonSave: string;
+        buttonCancel: string;
+        buttonDelete: string;
+        emptyTitle: string;
+        emptyDescription: string;
+        deleteConfirmTitle: string;
+        deleteConfirmDesc: string;
+        backToList: string;
+        loadError: string;
+        validationName: string;
+        validationCode: string;
+        colName: string;
+        colCode: string;
+        colDisplayOrder: string;
+        colStatus: string;
+        colActions: string;
+        statusActive: string;
+        statusInactive: string;
+      };
+    };
+    masterHonors: {
+      colRulesSummary: string;
+      rulesSummaryNoRules: string;
+      rulesTitle: string;
+      fieldPhilosophy: string;
+      fieldPhilosophyPlaceholder: string;
+      fieldNotes: string;
+      fieldNotesPlaceholder: string;
+      fieldApplicabilityScope: string;
+      scopeSelectPlaceholder: string;
+      scopeAll: string;
+      scopeSelected: string;
+      warningRecalculate: string;
+      fieldDivisions: string;
+      rulesGroupsTitle: string;
+      rulesGroupsDescription: string;
+      buttonAddGroup: string;
+      groupLabel: string;
+      buttonRemoveGroup: string;
+      fieldGroupType: string;
+      groupTypeExplicit: string;
+      groupTypeCategory: string;
+      fieldMinimumRequired: string;
+      validationMinTooHigh: string;
+      fieldMinimumRequiredHint: string;
+      fieldDisplayOrder: string;
+      fieldGroupTitle: string;
+      fieldGroupTitlePlaceholder: string;
+      fieldGroupDescription: string;
+      fieldGroupDescriptionPlaceholder: string;
+      fieldActive: string;
+      fieldHonorCategory: string;
+      fieldHonorCategoryPlaceholder: string;
+      optionsTitle: string;
+      optionsDescription: string;
+      buttonAddOption: string;
+      noOptions: string;
+      optionLabel: string;
+      buttonRemoveOption: string;
+      fieldOptionLabel: string;
+      fieldOptionLabelPlaceholder: string;
+      fieldOptionOrder: string;
+      fieldOptionActive: string;
+      fieldOptionHonorIds: string;
+      noHonors: string;
+      noGroups: string;
+      recalculateNow: string;
+      summaryGroupCount: string;
+      summaryMinimumTotal: string;
     };
   };
   auth: {
@@ -703,6 +1145,9 @@ export interface IntlMessages {
       update_section_failed: string;
       sync_section_failed: string;
       create_role_assignment_failed: string;
+      create_class_assignment_failed: string;
+      update_class_assignment_failed: string;
+      revoke_class_assignment_failed: string;
       update_role_failed: string;
       remove_assignment_failed: string;
       club_created_no_id: string;
@@ -727,12 +1172,16 @@ export interface IntlMessages {
       member_not_identified: string;
       assignment_not_identified: string;
       assignment_remove_not_identified: string;
+      bulk_row_invalid: string;
     };
     success: {
       section_created: string;
       section_created_short: string;
       section_updated: string;
       assignment_created: string;
+      class_assignment_created: string;
+      class_assignment_updated: string;
+      class_assignment_revoked: string;
       assignment_removed: string;
       role_updated: string;
       retry_failed_sections: string;
@@ -742,6 +1191,14 @@ export interface IntlMessages {
       district: string;
       church: string;
       ecclesiastical_year: string;
+    };
+    locationPicker: {
+      searchLabel: string;
+      searchPlaceholder: string;
+      hint: string;
+      noPin: string;
+      clear: string;
+      missingApiKey: string;
     };
     form: {
       labelName: string;
@@ -758,8 +1215,15 @@ export interface IntlMessages {
       placeholderDescription: string;
       placeholderLocalField: string;
       placeholderDistrict: string;
+      placeholderDistrictParent: string;
       placeholderChurch: string;
+      placeholderChurchParent: string;
       placeholderAddress: string;
+      sectionsTitle: string;
+      sectionsDescription: string;
+      sectionToggleHint: string;
+      sectionNameLabel: string;
+      sectionNamePlaceholder: string;
     };
     edit: {
       cardTitle: string;
@@ -769,21 +1233,211 @@ export interface IntlMessages {
     };
     sections: {
       description: string;
+      labelName: string;
+      placeholderName: string;
       labelSoulsTarget: string;
       labelFee: string;
       labelMeetingDay: string;
       placeholderMeetingDay: string;
       labelMeetingTime: string;
       createButton: string;
+      saveButton: string;
       notCreated: string;
       cancelButton: string;
       addButton: string;
+      editButton: string;
+      activateButton: string;
+      deactivateButton: string;
       statusActive: string;
       statusInactive: string;
       infoType: string;
       infoSectionId: string;
       infoCuota: string;
       infoMembers: string;
+      daysOfWeek: {
+        Monday: string;
+        Tuesday: string;
+        Wednesday: string;
+        Thursday: string;
+        Friday: string;
+        Saturday: string;
+        Sunday: string;
+      };
+      workspace: {
+        eyebrow: string;
+        title: string;
+        lead: string;
+        editSection: string;
+        assignResponsible: string;
+        tabSections: string;
+        tabResponsables: string;
+        tabHistory: string;
+        searchSection: string;
+        searchSectionPlaceholder: string;
+        selectSectionPrompt: string;
+        sectionDetailLead: string;
+        responsiblesRuleTitle: string;
+        responsiblesRuleLead: string;
+        viewResponsibles: string;
+        noSectionsForAssignments: string;
+        searchAssignments: string;
+        searchAssignmentsPlaceholder: string;
+        filterClubType: string;
+        filterAll: string;
+        clearFilters: string;
+        responsablesTitle: string;
+        responsablesLead: string;
+        loadingAssignments: string;
+        emptyAssignments: string;
+        emptyAssignmentsTitle: string;
+        emptyAssignmentsDescription: string;
+        emptyFilteredTitle: string;
+        emptyFilteredDescription: string;
+        assignmentsSummary: string;
+        assignmentsFilteredSummary: string;
+        editAssignment: string;
+        editAssignmentTitle: string;
+        exceptionalTag: string;
+        colSection: string;
+        colClass: string;
+        colResponsible: string;
+        colRole: string;
+        colJustification: string;
+        colAction: string;
+        assignFormTitle: string;
+        assignFormLead: string;
+        labelSection: string;
+        placeholderSection: string;
+        labelResponsible: string;
+        placeholderResponsible: string;
+        labelClass: string;
+        placeholderClass: string;
+        labelResponsibility: string;
+        labelExceptional: string;
+        labelExceptionalShort: string;
+        labelJustification: string;
+        placeholderJustification: string;
+        assignButton: string;
+        formErrorRequired: string;
+        formErrorJustification: string;
+        saveAssignment: string;
+        revokeAssignment: string;
+        historyTitle: string;
+        historyLead: string;
+        loadingHistory: string;
+        historyError: string;
+        retry: string;
+        historyEmptyTitle: string;
+        historyEmptyLead: string;
+        loadMore: string;
+        responsibilityPrimary: string;
+        responsibilityAssistant: string;
+        responsibilitySubstitute: string;
+        responsibilityFallback: string;
+      };
+    };
+    detail: {
+      overview: {
+        compositionTitle: string;
+        compositionSubtitle: string;
+        totalCount: string;
+        healthTitle: string;
+        healthSubtitle: string;
+        rankingTitle: string;
+        rankingSubtitle: string;
+        unitsCount: string;
+        attendanceTitle: string;
+        attendanceSubtitle: string;
+        attendanceAverage: string;
+        loading: string;
+        attendanceEmptyTitle: string;
+        attendanceEmptyDescription: string;
+        attendanceSeriesLabel: string;
+        healthScoreDescription: string;
+        scoreNoBreakdown: string;
+        membersCenterLabel: string;
+        noSectionsYet: string;
+        membersRosterTitle: string;
+        membersRosterSubtitle: string;
+        membersRosterCount: string;
+        membersRosterEmpty: string;
+        roleCaptain: string;
+        roleSecretary: string;
+        roleAdvisor: string;
+        roleSubstituteAdvisor: string;
+        roleMember: string;
+        generalSectionLabel: string;
+        stats: {
+          members: string;
+          membersCapacity: string;
+          noCapacity: string;
+          sections: string;
+          sectionsAllActive: string;
+          sectionsInactive: string;
+          units: string;
+          unitsEmpty: string;
+          unitsAvg: string;
+          pending: string;
+          pendingNoData: string;
+          pendingEmpty: string;
+          pendingWaiting: string;
+        };
+      };
+      sidebar: {
+        quickActionsTitle: string;
+        editClub: string;
+        createUnit: string;
+        approveRequests: string;
+        reviewRequests: string;
+        configureSections: string;
+        investitureCeremony: string;
+        deleteClub: string;
+        upcomingEventsTitle: string;
+        loading: string;
+        noEventsTitle: string;
+        noEventsDescription: string;
+        clubFallback: string;
+      };
+      leadership: {
+        title: string;
+        titleBySection: string;
+        loading: string;
+        loadError: string;
+        emptyTitle: string;
+        emptyDescription: string;
+        activeAssignments: string;
+        generalSection: string;
+        noDirector: string;
+        sectionTeam: string;
+        roleSingular: string;
+        rolePlural: string;
+      };
+      history: {
+        title: string;
+        subtitle: string;
+        loadedCount: string;
+        loading: string;
+        loadError: string;
+        retry: string;
+        emptyTitle: string;
+        emptyDescription: string;
+        clubGeneralTitle: string;
+        eventCount: string;
+        sectionEmpty: string;
+        loadMore: string;
+        systemActor: string;
+        byActor: string;
+        action: {
+          CREATED: string;
+          UPDATED: string;
+          DELETED: string;
+        };
+        entity: {
+          club: string;
+          club_section: string;
+          role_assignment: string;
+        };
+      };
     };
     pages: {
       list: {
@@ -804,14 +1458,133 @@ export interface IntlMessages {
         emptyTitle: string;
         emptyDescription: string;
         emptyCreateButton: string;
+        createMenuManual: string;
+        createMenuBulk: string;
+        unexpectedError: string;
+        pendingBadge: string;
+        clearFilters: string;
+        statsTotalLabel: string;
+        statsTotalHint: string;
+        statsActiveLabel: string;
+        statsActiveHint: string;
+        statsPendingLabel: string;
+        statsPendingHint: string;
+        resultsSummary: string;
+      };
+      v2: {
+        metadataTitle: string;
+        badge: string;
+        title: string;
+        description: string;
+        switchToV2: string;
+        switchToClassic: string;
+        filtersTitle: string;
+        filtersHint: string;
+        searchPlaceholder: string;
+        statusAll: string;
+        localFieldAll: string;
+        colSections: string;
+        emptyFilteredTitle: string;
+        emptyFilteredDescription: string;
+        actionView: string;
+        actionEdit: string;
+        detail: {
+          fallbackTitle: string;
+          description: string;
+          breadcrumbList: string;
+          openClassic: string;
+          editButton: string;
+          statusActive: string;
+          statusInactive: string;
+          noDescription: string;
+          membersLabel: string;
+          unitsLabel: string;
+          tabOverview: string;
+          tabSections: string;
+          tabResponsables: string;
+          tabUnits: string;
+          tabMembership: string;
+          tabInfo: string;
+          tabHistory: string;
+          tabEdit: string;
+          membershipTitle: string;
+          membershipLead: string;
+          noSectionsForResponsables: string;
+          editTitle: string;
+          editLead: string;
+          hubTeamTitle: string;
+          hubTeamSubtitle: string;
+          hubSecondaryTitle: string;
+          hubManageSections: string;
+          hubViewUnits: string;
+          hubViewHistory: string;
+          hubViewInfo: string;
+          hubEditClub: string;
+          hubDeleteClub: string;
+          colPending: string;
+          activeLabel: string;
+          inactiveLabel: string;
+          pendingAlertTitle: string;
+          pendingAlertAction: string;
+          tabsAriaLabel: string;
+        };
       };
       new: {
         title: string;
         back: string;
       };
+      import: {
+        title: string;
+        description: string;
+        back: string;
+        uploadCardTitle: string;
+        uploadCardDescription: string;
+        downloadTemplate: string;
+        chooseFile: string;
+        reset: string;
+        expectedHeadersTitle: string;
+        matchHint: string;
+        previewTitle: string;
+        previewSummary: string;
+        colName: string;
+        colLocalField: string;
+        colDistrict: string;
+        colChurch: string;
+        colStatus: string;
+        colMessage: string;
+        rowValid: string;
+        rowInvalid: string;
+        rowCreated: string;
+        rowFailed: string;
+        submitButton: string;
+        resultTitle: string;
+        resultSummary: string;
+        resultForbidden: string;
+        validation: {
+          missingName: string;
+          missingLocalField: string;
+          missingDistrict: string;
+          missingChurch: string;
+          unknownLocalField: string;
+          unknownDistrict: string;
+          unknownChurch: string;
+          coordinatesInvalid: string;
+        };
+        errors: {
+          emptyWorkbook: string;
+          noRows: string;
+          missingHeaders: string;
+          parseFailed: string;
+        };
+      };
       detail: {
         back: string;
         deleteButton: string;
+        deleteDialogTitle: string;
+        deleteDialogDesc: string;
+        deleteDialogConfirm: string;
+        deleteDialogCancel: string;
+        deleteDialogDeleting: string;
         tabView: string;
         tabEdit: string;
         tabSections: string;
@@ -843,6 +1616,11 @@ export interface IntlMessages {
     a11y: {
       deleteClub: string;
       actionsMenu: string;
+      viewDetailTitle: string;
+      viewClub: string;
+      editActionTitle: string;
+      editClub: string;
+      deleteActionTitle: string;
     };
   };
   dashboardHub: {
@@ -860,6 +1638,10 @@ export interface IntlMessages {
       honors: string;
       totalClasses: string;
       totalHonors: string;
+      pendingMembership: string;
+      pendingMembershipHint: string;
+      pendingMembershipUnavailable: string;
+      pendingBadge: string;
     };
     recentUsers: {
       title: string;
@@ -867,6 +1649,8 @@ export interface IntlMessages {
       viewAll: string;
       noRole: string;
       loadError: string;
+      deletedAccount: string;
+      anonymizedAccount: string;
     };
     relativeDate: {
       today: string;
@@ -880,6 +1664,7 @@ export interface IntlMessages {
       noRolesFound: string;
       basedOn: string;
       userCount: string;
+      noRoleChip: string;
     };
     quickLinks: {
       title: string;
@@ -907,6 +1692,32 @@ export interface IntlMessages {
       instructor: string;
       member: string;
       noRole: string;
+    };
+    birthday: {
+      title: string;
+      message: string;
+      bibleMessage: string;
+      thanks: string;
+      dismissToday: string;
+    };
+    scope: {
+      scopeAll: string;
+      scopeDivision: string;
+      scopeUnion: string;
+      scopeLocalField: string;
+    };
+    pendingMembership: {
+      title: string;
+      description: string;
+      empty: string;
+      reviewAll: string;
+      approve: string;
+      review: string;
+      approveSuccess: string;
+      approveError: string;
+      more: string;
+      alertTitle: string;
+      alertAction: string;
     };
   };
   post_registration: {
@@ -965,6 +1776,10 @@ export interface IntlMessages {
       broadcast_warning: string;
       club_title: string;
       club_description: string;
+      label_instance_target: string;
+      placeholder_instance_target: string;
+      no_club_targets: string;
+      club_targets_load_error: string;
       label_user_id: string;
       placeholder_user_id: string;
       label_title: string;
@@ -1019,6 +1834,7 @@ export interface IntlMessages {
     validation: {
       name_required: string;
       club_type_required: string;
+      club_section_required: string;
       member_required: string;
       member_invalid: string;
     };
@@ -1191,6 +2007,18 @@ export interface IntlMessages {
         loadError: string;
       };
     };
+    components: {
+      requirementEdit: {
+        referencePlaceholder: string;
+      };
+      requirementsTree: {
+        needsReviewAriaLabel: string;
+      };
+      reviewSplitView: {
+        openMaterialAriaLabel: string;
+        referencePlaceholder: string;
+      };
+    };
   };
   honor_categories: {
     errors: {
@@ -1303,6 +2131,10 @@ export interface IntlMessages {
       saveChanges: string;
       delete: string;
     };
+    rolesTable: {
+      editProtectedAriaLabel: string;
+      editRoleAriaLabel: string;
+    };
     permissionPicker: {
       searchPlaceholder: string;
       ofLabel: string;
@@ -1349,6 +2181,18 @@ export interface IntlMessages {
         emptyTitle: string;
         emptyDescription: string;
         loadError: string;
+        permissionColumn: string;
+        searchPlaceholder: string;
+        saveChanges: string;
+        saving: string;
+        saveSuccess: string;
+        saveError: string;
+        dirtyBadge: string;
+        categoryGlobal: string;
+        categoryClub: string;
+        discard: string;
+        noMatches: string;
+        noMatchesDesc: string;
       };
       permissions: {
         title: string;
@@ -1435,6 +2279,10 @@ export interface IntlMessages {
       "club_roles:read": string;
       "club_roles:assign": string;
       "club_roles:revoke": string;
+      coordination: {
+        manage: string;
+      };
+      "coordination:manage": string;
       "club_members:approve": string;
       "club_members:reject": string;
       "club_members:list_pending": string;
@@ -1924,6 +2772,11 @@ export interface IntlMessages {
       register_member_failed: string;
       remove_member_failed: string;
     };
+    membersTab: {
+      refreshListTitle: string;
+      previousPageAriaLabel: string;
+      nextPageAriaLabel: string;
+    };
     list: {
       countSingular: string;
       countPlural: string;
@@ -1952,8 +2805,13 @@ export interface IntlMessages {
       placeholderDescription: string;
       labelStartDate: string;
       labelEndDate: string;
+      labelClubRegistrationDeadline: string;
+      labelMemberRegistrationDeadline: string;
+      labelPaymentDeadline: string;
       labelPlace: string;
       placeholderPlace: string;
+      labelLatitude: string;
+      labelLongitude: string;
       labelLocalFieldId: string;
       labelRegistrationCost: string;
       labelIncludes: string;
@@ -1965,6 +2823,17 @@ export interface IntlMessages {
       creating: string;
       saveChanges: string;
       createCamporee: string;
+      labelAgendaVisibleFrom: string;
+      helpAgendaVisibleFrom: string;
+    };
+    eventInstanceForm: {
+      titleCreate: string;
+      titleEdit: string;
+      descriptionCreate: string;
+      descriptionEdit: string;
+      backToEvents: string;
+      descriptionPlaceholder: string;
+      capacityPlaceholder: string;
     };
     unionList: {
       countSingular: string;
@@ -1996,10 +2865,15 @@ export interface IntlMessages {
       placeholderDescription: string;
       labelStartDate: string;
       labelEndDate: string;
+      labelClubRegistrationDeadline: string;
+      labelMemberRegistrationDeadline: string;
+      labelPaymentDeadline: string;
       labelUnion: string;
       placeholderUnion: string;
       labelPlace: string;
       placeholderPlace: string;
+      labelLatitude: string;
+      labelLongitude: string;
       labelRegistrationCost: string;
       labelIncludes: string;
       adventurers: string;
@@ -2010,6 +2884,8 @@ export interface IntlMessages {
       creating: string;
       saveChanges: string;
       createCamporee: string;
+      labelAgendaVisibleFrom: string;
+      helpAgendaVisibleFrom: string;
     };
     clubsPanel: {
       emptyTitle: string;
@@ -2084,6 +2960,7 @@ export interface IntlMessages {
       approveLabel: string;
       rejectLabel: string;
       editLabel: string;
+      voucherAttachedLabel: string;
       approvedWithName: string;
       approvedGeneric: string;
       errorNoPaymentUuid: string;
@@ -2092,6 +2969,18 @@ export interface IntlMessages {
     };
     enrollDialog: {
       title: string;
+      description: string;
+      labelClub: string;
+      placeholderClub: string;
+      loadingClubs: string;
+      errorClubs: string;
+      emptyClubs: string;
+      labelSection: string;
+      placeholderSection: string;
+      placeholderSectionPickClub: string;
+      loadingSections: string;
+      errorSections: string;
+      emptySections: string;
       labelSectionId: string;
       placeholderSectionId: string;
       helpSectionId: string;
@@ -2121,6 +3010,30 @@ export interface IntlMessages {
       saveChanges: string;
       registerPayment: string;
     };
+    paymentVoucher: {
+      sectionTitle: string;
+      empty: string;
+      help: string;
+      upload: string;
+      replace: string;
+      remove: string;
+      removeConfirmTitle: string;
+      removeConfirmDescription: string;
+      removeConfirmAction: string;
+      removeConfirmCancel: string;
+      clearSelection: string;
+      selected: string;
+      uploadedAt: string;
+      openPdf: string;
+      openInNewTab: string;
+      uploadedBadge: string;
+      errorTooLarge: string;
+      errorBadMime: string;
+      errorUploadFailed: string;
+      errorRemoveFailed: string;
+      toastUploaded: string;
+      toastRemoved: string;
+    };
     registerMemberDialog: {
       title: string;
       insuranceErrorTitle: string;
@@ -2138,6 +3051,16 @@ export interface IntlMessages {
       cancel: string;
       registering: string;
       register: string;
+      description: string;
+      labelClub: string;
+      labelMember: string;
+      placeholderMember: string;
+      placeholderSelectClubFirst: string;
+      insuranceLoading: string;
+      insuranceActive: string;
+      insuranceExpires: string;
+      noInsuranceTitle: string;
+      noInsuranceDescription: string;
     };
     pages: {
       list: {
@@ -2179,6 +3102,8 @@ export interface IntlMessages {
       end_date_required: string;
       union_required: string;
       place_required: string;
+      coordinates_invalid: string;
+      coordinates_pair_required: string;
       local_field_required: string;
       end_date_after_start: string;
       end_date_after_start_full: string;
@@ -2300,6 +3225,20 @@ export interface IntlMessages {
         succeeded_count: string;
         failed_count: string;
       };
+      selectedSingular: string;
+      selectedPlural: string;
+      approveSelected: string;
+      rejectSelected: string;
+      clearSelection: string;
+      approveTitle: string;
+      approveDescription: string;
+      rejectTitle: string;
+      rejectDescription: string;
+      reasonLabel: string;
+      reasonPlaceholder: string;
+      cancel: string;
+      confirmApprove: string;
+      confirmReject: string;
     };
     toasts: {
       approved: string;
@@ -2362,6 +3301,7 @@ export interface IntlMessages {
       countPlural: string;
       refresh: string;
       errorRefresh: string;
+      selectYear: string;
     };
     pipeline: {
       refresh: string;
@@ -2373,6 +3313,9 @@ export interface IntlMessages {
       tabFieldApproved: string;
       tabInvested: string;
       tabRejected: string;
+      currentYear: string;
+      currentYearFallback: string;
+      tabAllCurrentYear: string;
     };
     historyDialog: {
       title: string;
@@ -2414,6 +3357,33 @@ export interface IntlMessages {
       historyTitle: string;
       errorLoadHistory: string;
       enrollmentFallback: string;
+      colClassYear: string;
+      colClubSection: string;
+      colSubmittedBy: string;
+      viewDetail: string;
+      detailTitle: string;
+      detailMember: string;
+      detailClass: string;
+      detailClub: string;
+      detailSubmittedBy: string;
+      sectionUnknown: string;
+      unknownSubmitter: string;
+      roleDirector: string;
+      roleCounselor: string;
+      roleCoordinator: string;
+      roleAdmin: string;
+      roleUnknown: string;
+      errorLoadDetail: string;
+      progressTitle: string;
+      progressDescription: string;
+      progressSummary: string;
+      moduleSummary: string;
+      validatedBy: string;
+      progressValidated: string;
+      progressRejected: string;
+      progressPendingReview: string;
+      progressPending: string;
+      progressUnavailable: string;
     };
     statusBadge: {
       inProgress: string;
@@ -2469,9 +3439,69 @@ export interface IntlMessages {
       cancel: string;
       confirm: string;
     };
+    configFormDialog: {
+      titleCreate: string;
+      titleEdit: string;
+      descriptionCreate: string;
+      descriptionEdit: string;
+      localFieldLabel: string;
+      loadingLocalFields: string;
+      localFieldPlaceholder: string;
+      ecclesiasticalYearLabel: string;
+      loadingYears: string;
+      yearPlaceholder: string;
+      submissionDeadlineLabel: string;
+      investitureDateLabel: string;
+      cancel: string;
+      submitCreate: string;
+      submitEdit: string;
+    };
+    deleteConfigDialog: {
+      title: string;
+      description: string;
+      fallbackDescription: string;
+      cancel: string;
+      confirm: string;
+    };
+    validateDialog: {
+      titleApprove: string;
+      titleReject: string;
+      descriptionApprove: string;
+      descriptionReject: string;
+      commentsLabel: string;
+      reasonLabel: string;
+      commentsPlaceholder: string;
+      reasonPlaceholder: string;
+      cancel: string;
+      confirmApprove: string;
+      confirmReject: string;
+    };
+    pipelineTable: {
+      emptyTitle: string;
+      emptyDescription: string;
+      enrollmentFallback: string;
+      selectAll: string;
+      selectRow: string;
+      colMember: string;
+      colClass: string;
+      colClub: string;
+      colSection: string;
+      colSubmitted: string;
+      colStatus: string;
+      colActions: string;
+      ariaHistory: string;
+      ariaApprove: string;
+      ariaReject: string;
+      ariaMarkInvested: string;
+      tooltipHistory: string;
+      tooltipApprove: string;
+      tooltipReject: string;
+      tooltipMarkInvested: string;
+    };
   };
   evidence_review: {
     bulk: {
+      clearSelectionAriaLabel: string;
       toasts: {
         verb_approved: string;
         verb_rejected: string;
@@ -2606,6 +3636,8 @@ export interface IntlMessages {
         completeDesktop: string;
       };
       noRole: string;
+      deletedAccount: string;
+      anonymizedAccount: string;
     };
     filters: {
       searchPlaceholder: string;
@@ -2763,19 +3795,252 @@ export interface IntlMessages {
         cannotShow: string;
         emptyTitle: string;
         emptyDescription: string;
+        actions: {
+          addUser: string;
+          bulkUpload: string;
+        };
+      };
+      new: {
+        title: string;
+        description: string;
+        breadcrumb: string;
+        fields: {
+          name: string;
+          paternal_last_name: string;
+          maternal_last_name: string;
+          email: string;
+          role: string;
+          country: string;
+          union: string;
+          local_field: string;
+        };
+        placeholders: {
+          name: string;
+          paternal_last_name: string;
+          maternal_last_name: string;
+          email: string;
+          role: string;
+          country: string;
+          union: string;
+          local_field: string;
+        };
+        help: {
+          maternal_last_name: string;
+          role: string;
+          union: string;
+          local_field: string;
+        };
+        actions: {
+          submit: string;
+          cancel: string;
+          submitting: string;
+        };
+        toast: {
+          success: string;
+          inviteNotSent: string;
+          emailExists: string;
+          forbidden: string;
+          validationFailed: string;
+          generic: string;
+        };
+        validation: {
+          nameRequired: string;
+          paternalRequired: string;
+          emailRequired: string;
+          emailInvalid: string;
+          roleRequired: string;
+          countryRequired: string;
+          unionRequired: string;
+        };
       };
       detail: {
         title: string;
+        subtitle: string;
         back: string;
         restrictedTitle: string;
         restrictedDescription: string;
         statusActive: string;
         statusInactive: string;
+        ageYears: string;
+        approvalApproved: string;
+        approvalPending: string;
+        approvalRejected: string;
+        tabResumen: string;
+        tabPersonalData: string;
+        tabHealth: string;
+        tabRolesAccess: string;
         tabInfo: string;
         tabPostRegistration: string;
         tabSecurity: string;
         tabSessions: string;
         postRegistrationUnavailable: string;
+        tenure: {
+          years: string;
+          months: string;
+          days: string;
+        };
+        stats: {
+          tenureLabel: string;
+          tenureRegisteredOn: string;
+          classesLabel: string;
+          classesActive: string;
+          rolesLabel: string;
+          rolesEmpty: string;
+          rolesRbacNote: string;
+          lastUpdateLabel: string;
+          panelEnabled: string;
+          panelDisabled: string;
+          auditTracking: string;
+        };
+        sidebar: {
+          title: string;
+          status: string;
+          approval: string;
+          roles: string;
+          appAccess: string;
+          panelAccess: string;
+          mfa: string;
+          assignments: string;
+          enabled: string;
+          disabled: string;
+          yes: string;
+          no: string;
+          dash: string;
+        };
+        sections: {
+          identityTitle: string;
+          locationTitle: string;
+          fullDataTitle: string;
+          rolesAccessTitle: string;
+          scopeTitle: string;
+          rolesLabel: string;
+          rolesEmpty: string;
+          contactsTitle: string;
+          contactsEmpty: string;
+          contactsMissingPayload: string;
+          legalRepTitle: string;
+          legalRepEmpty: string;
+          pastoralTitle: string;
+          pastoralEmpty: string;
+          healthTitle: string;
+          healthBlockTitle: string;
+          healthEmpty: string;
+          healthShow: string;
+          healthHide: string;
+          healthProtectedTitle: string;
+          healthProtectedDescription: string;
+        };
+        fields: {
+          fullName: string;
+          name: string;
+          paternalLastName: string;
+          maternalLastName: string;
+          birthday: string;
+          gender: string;
+          baptism: string;
+          baptismYes: string;
+          baptismNo: string;
+          email: string;
+          phone: string;
+          country: string;
+          union: string;
+          localField: string;
+          district: string;
+          church: string;
+          club: string;
+          section: string;
+          internalId: string;
+          registrationDate: string;
+          lastUpdate: string;
+          role: string;
+          scopeType: string;
+          scopeLocalFieldId: string;
+          scopeUnionId: string;
+          relationship: string;
+          bloodType: string;
+          bloodUnspecified: string;
+          allergies: string;
+          diseases: string;
+          medicines: string;
+        };
+        contacts: {
+          principal: string;
+          call: string;
+        };
+        access: {
+          activeLabel: string;
+          activeSub: string;
+          appLabel: string;
+          appSub: string;
+          panelLabel: string;
+          panelSub: string;
+        };
+        deletedAccount: string;
+        anonymizedAccount: string;
+      };
+      bulk: {
+        title: string;
+        description: string;
+        breadcrumb: string;
+        downloadTemplate: string;
+        dropZone: {
+          title: string;
+          subtitle: string;
+          browse: string;
+          accept: string;
+        };
+        preview: {
+          title: string;
+          subtitle: string;
+          showingRowsOf: string;
+          moreColumns: string;
+          headersOk: string;
+          headersInvalid: string;
+          emptyFile: string;
+          tooManyRows: string;
+        };
+        actions: {
+          submit: string;
+          cancel: string;
+          uploadAnother: string;
+          filterAll: string;
+          filterSuccess: string;
+          filterError: string;
+        };
+        results: {
+          totalLabel: string;
+          succeededLabel: string;
+          failedLabel: string;
+          inviteSent: string;
+          inviteNotSent: string;
+          createdHeader: string;
+          emailHeader: string;
+          rowHeader: string;
+          detailHeader: string;
+          statusHeader: string;
+        };
+        statusBadges: {
+          success: string;
+          error: string;
+        };
+        errorCodes: {
+          validationFailed: string;
+          duplicateInFile: string;
+          emailAlreadyInUse: string;
+          invalidRole: string;
+          forbiddenRoleForActor: string;
+          internalError: string;
+        };
+        toast: {
+          success: string;
+          partialSuccess: string;
+          allFailed: string;
+          fileTooLarge: string;
+          fileTypeInvalid: string;
+          fileEmpty: string;
+          tooManyRows: string;
+          generic: string;
+        };
       };
     };
   };
@@ -2798,6 +4063,8 @@ export interface IntlMessages {
       template_updated: string;
       template_created: string;
       owner_catalogs_load_failed: string;
+      section_submitted: string;
+      folder_created: string;
     };
     errors: {
       recalculate_rankings: string;
@@ -2807,6 +4074,8 @@ export interface IntlMessages {
       submit_folder_failed: string;
       close_folder_failed: string;
       save_template_failed: string;
+      submit_section_failed: string;
+      create_folder_failed: string;
     };
     statusBadge: {
       open: string;
@@ -2814,14 +4083,6 @@ export interface IntlMessages {
       under_evaluation: string;
       evaluated: string;
       closed: string;
-    };
-    byEnrollment: {
-      title: string;
-      enrollmentIdLabel: string;
-      enrollmentIdPlaceholder: string;
-      folderIdLabel: string;
-      folderIdPlaceholder: string;
-      searchButton: string;
     };
     sectionCard: {
       statusPending: string;
@@ -2921,6 +4182,14 @@ export interface IntlMessages {
       submitEdit: string;
       submittingCreate: string;
       submittingEdit: string;
+      descriptionDraft: string;
+      descriptionEdit: string;
+      budgetTitle: string;
+      budgetMissing: string;
+      budgetResolved: string;
+      budgetPending: string;
+      submitDraft: string;
+      submittingDraft: string;
     };
     sectionDialog: {
       titleCreate: string;
@@ -2945,10 +4214,14 @@ export interface IntlMessages {
       description: string;
       errorFolderFallback: string;
       errorEnrollmentFallback: string;
-      emptySelectTitle: string;
-      emptySelectDescription: string;
       emptyNotFoundTitle: string;
       emptyNotFoundDescription: string;
+      emptyNoActiveClubTitle: string;
+      emptyNoActiveClubDescription: string;
+      emptyContextFolderTitle: string;
+      emptyContextFolderDescription: string;
+      createFolder: string;
+      creatingFolder: string;
     };
     pageCategories: {
       title: string;
@@ -2964,6 +4237,15 @@ export interface IntlMessages {
       title: string;
       description: string;
     };
+    pageFolders: {
+      titleList: string;
+      titleDetail: string;
+      descriptionList: string;
+      descriptionDetail: string;
+      loadError: string;
+      notFoundTitle: string;
+      notFoundDescription: string;
+    };
     pageRankings: {
       title: string;
       description: string;
@@ -2976,6 +4258,80 @@ export interface IntlMessages {
       description: string;
       errorFallback: string;
       paramsRequired: string;
+    };
+    awardCategoriesClient: {
+      editCategoryTitle: string;
+      deleteCategoryTitle: string;
+    };
+    awardCategoryFormDialog: {
+      descriptionPlaceholder: string;
+      maxPointsPlaceholder: string;
+      saveButton: string;
+      createButton: string;
+      savingLoading: string;
+      creatingLoading: string;
+    };
+    folderClient: {
+      viewFileTitle: string;
+      deleteEvidenceTitle: string;
+      submitSectionButton: string;
+      submitSectionLoading: string;
+    };
+    evidenceUploadDialog: {
+      descriptionPlaceholder: string;
+      submitButton: string;
+      submitLoading: string;
+    };
+    evaluateSectionDialog: {
+      saveButton: string;
+      saveLoading: string;
+      notesPlaceholder: string;
+    };
+    evaluationClient: {
+      searchPlaceholder: string;
+      viewFullFolderTitle: string;
+      unionNotesPlaceholder: string;
+      reopenSectionButton: string;
+      reopenSectionLoading: string;
+    };
+    templatesClientPage: {
+      publishTemplateTitle: string;
+      deleteDraftTitle: string;
+      copyDraftButton: string;
+      copyDraftLoading: string;
+      deleteDraftButton: string;
+      deleteDraftLoading: string;
+      publishButton: string;
+      publishLoading: string;
+    };
+    rankingsClientPage: {
+      searchButton: string;
+      searchLoading: string;
+    };
+    budgetConfigList: {
+      emptyTitle: string;
+      emptyDescription: string;
+    };
+    budgetConfigForm: {
+      sectionsAllocationLabel: string;
+    };
+    budgetSectionCard: {
+      subsectionsAllocationLabel: string;
+    };
+    pageRankingConfig: {
+      title: string;
+      description: string;
+      breadcrumbRankingConfig: string;
+      breadcrumbNew: string;
+      breadcrumbEdit: string;
+      newTitle: string;
+      newDescription: string;
+      editTitle: string;
+      editDescription: string;
+      missingCatalogsTitle: string;
+      missingCatalogsDescription: string;
+      unavailableTitle: string;
+      unavailableDescription: string;
     };
     validation: {
       name_min: string;
@@ -3418,6 +4774,10 @@ export interface IntlMessages {
       error_load_reports: string;
     };
     supervisionClient: {
+      filterDivisionPlaceholder: string;
+      filterDivisionAll: string;
+      filterUnionPlaceholder: string;
+      filterUnionAll: string;
       filterClubTypePlaceholder: string;
       filterClubTypeAll: string;
       filterLocalFieldPlaceholder: string;
@@ -3679,6 +5039,7 @@ export interface IntlMessages {
       transaction_updated: string;
       transaction_created: string;
       transaction_deleted: string;
+      evidence_upload_failed: string;
     };
     validation: {
       section_required: string;
@@ -3695,6 +5056,7 @@ export interface IntlMessages {
       delete_transaction_failed: string;
       update_transaction_failed: string;
       create_transaction_failed: string;
+      upload_evidence_failed: string;
     };
     dashboard: {
       filtersLabel: string;
@@ -3727,6 +5089,13 @@ export interface IntlMessages {
       cancelButton: string;
       saveButton: string;
       createButton: string;
+      evidenceLabel: string;
+      evidenceHint: string;
+      evidenceCount: string;
+      evidenceLimit: string;
+      evidenceImageOnly: string;
+      evidenceAdd: string;
+      evidenceRemove: string;
     };
     table: {
       colDate: string;
@@ -3742,6 +5111,7 @@ export interface IntlMessages {
       actionDelete: string;
       typeIncome: string;
       typeExpense: string;
+      colEvidence: string;
     };
     delete: {
       title: string;
@@ -3785,6 +5155,12 @@ export interface IntlMessages {
       empty_no_clubs_title: string;
       empty_no_clubs_description: string;
       error_unexpected: string;
+    };
+    clubSelector: {
+      label: string;
+      selectPlaceholder: string;
+      emptyTitle: string;
+      emptyDescription: string;
     };
   };
   certifications: {
@@ -3839,6 +5215,11 @@ export interface IntlMessages {
         enrolledCardTitle: string;
         enrollmentsEndpointMissing: string;
       };
+    };
+    enrolledUsers: {
+      emptyTitle: string;
+      emptyDescription: string;
+      viewProgressTitle: string;
     };
   };
   activities: {
@@ -3959,6 +5340,22 @@ export interface IntlMessages {
       empty_no_years_description: string;
       error_load_years: string;
     };
+    preview: {
+      impactEnrollmentsLabel: string;
+      impactEnrollmentsDescription: string;
+      impactFoldersLabel: string;
+      impactFoldersDescription: string;
+      impactReportsLabel: string;
+      impactReportsDescription: string;
+    };
+    client: {
+      selectYearPlaceholder: string;
+      yearActiveBadge: string;
+      previewButton: string;
+      previewLoading: string;
+      confirmCloseButton: string;
+      confirmCloseLoading: string;
+    };
   };
   inventory: {
     toasts: {
@@ -4071,6 +5468,8 @@ export interface IntlMessages {
       requiredHintSuffix: string;
       name: string;
       namePlaceholder: string;
+      clubSection: string;
+      clubSectionEmpty: string;
       clubType: string;
       captain: string;
       captainPlaceholder: string;
@@ -4096,6 +5495,9 @@ export interface IntlMessages {
       removeMember: string;
       editUnit: string;
       deleteUnit: string;
+    };
+    weeklyRecords: {
+      maxPointsTitle: string;
     };
   };
   system_config: {
@@ -4158,6 +5560,12 @@ export interface IntlMessages {
       rateLimited: string;
       goToLogin: string;
     };
+    errorRetry: {
+      retry: string;
+      loadClubScore: string;
+      loadAttendance: string;
+      loadLeadership: string;
+    };
     appMetadata: {
       title: string;
       description: string;
@@ -4172,6 +5580,7 @@ export interface IntlMessages {
     label_name: string;
     label_description: string;
     helper_optional: string;
+    label_ideal: string;
   };
   memberRankingWeights: {
     formDialog: {
@@ -4244,6 +5653,131 @@ export interface IntlMessages {
       invalid: string;
     };
   };
+  materials: {
+    pages: {
+      categories: {
+        title: string;
+        description: string;
+        loadError: string;
+        emptyTitle: string;
+        emptyDescription: string;
+      };
+      config: {
+        title: string;
+        description: string;
+        selectLocalField: string;
+      };
+      configForm: {
+        clabePlaceholder: string;
+        pickupAddressPlaceholder: string;
+      };
+      inbox: {
+        title: string;
+        description: string;
+        loadError: string;
+        emptyTitle: string;
+        emptyDescriptionPending: string;
+        emptyDescriptionFiltered: string;
+      };
+      receipts: {
+        title: string;
+        description: string;
+        loadError: string;
+        emptyTitle: string;
+        emptyDescriptionDefault: string;
+        emptyDescriptionSearch: string;
+      };
+      inventory: {
+        title: string;
+        description: string;
+        loadError: string;
+        emptyTitle: string;
+        emptyDescriptionDefault: string;
+        emptyDescriptionFiltered: string;
+      };
+      receiptsDetail: {
+        backLink: string;
+        title: string;
+        description: string;
+      };
+      inventoryForm: {
+        descriptionPlaceholder: string;
+      };
+    };
+    components: {
+      categoriesTable: {
+        editAriaLabel: string;
+        deleteAriaLabel: string;
+        statusActive: string;
+        statusInactive: string;
+      };
+      inventoryTable: {
+        editAriaLabel: string;
+        deactivateAriaLabel: string;
+        statusActive: string;
+        statusInactive: string;
+      };
+      bankSnapshotCard: {
+        labelPickupAddress: string;
+        copyPickupAddress: string;
+      };
+      cancelDialog: {
+        reasonPlaceholder: string;
+      };
+      orderStickyBar: {
+        moreActionsAriaLabel: string;
+      };
+    };
+  };
+  support: {
+    pages: {
+      reports: {
+        title: string;
+        description: string;
+        loadError: string;
+        emptyTitle: string;
+        emptyDescription: string;
+        summaryOpen: string;
+        summaryInProgress: string;
+        summaryResolved: string;
+        filtersTitle: string;
+        searchPlaceholder: string;
+        searchButton: string;
+        statusPlaceholder: string;
+        statusAll: string;
+        categoryPlaceholder: string;
+        categoryAll: string;
+        emptyFilteredTitle: string;
+        emptyFilteredDescription: string;
+        colReport: string;
+        colUser: string;
+        colCategory: string;
+        colStatus: string;
+        colDate: string;
+        colAttention: string;
+        technicalContext: string;
+        noName: string;
+        toastStatusUpdated: string;
+        updateError: string;
+        noData: string;
+        contentError: string;
+        statuses: {
+          open: string;
+          in_progress: string;
+          resolved: string;
+          closed: string;
+        };
+        categories: {
+          bug: string;
+          feature_request: string;
+          account: string;
+          data_issue: string;
+          performance: string;
+          other: string;
+        };
+      };
+    };
+  };
   rankingWeights: {
     clientPage: {
       defaultGlobalTitle: string;
@@ -4306,6 +5840,16 @@ export interface IntlMessages {
       col_modules: string;
       col_status: string;
       view_detail: string;
+      col_duration: string;
+      col_availability: string;
+    };
+    counselorAssignments: {
+      responsibilityAriaLabel: string;
+      justificationPlaceholder: string;
+      responsibilityPrimary: string;
+      responsibilityAssistant: string;
+      responsibilitySubstitute: string;
+      responsibilityFallback: string;
     };
     tree: {
       no_modules: string;
@@ -4347,7 +5891,32 @@ export interface IntlMessages {
         tabStructure: string;
         structureCardTitle: string;
         modulesEndpointMissing: string;
+        labelDuration: string;
+        labelAvailableFrom: string;
+        labelAvailableUntil: string;
+        statDuration: string;
       };
+    };
+    expiration: {
+      title: string;
+      description: string;
+      yearLabel: string;
+      currentYearOption: string;
+      dryRun: string;
+      apply: string;
+      modeDryRun: string;
+      modeApply: string;
+      result: string;
+      confirmApply: string;
+    };
+    display: {
+      yearSingular: string;
+      yearPlural: string;
+      yearFallback: string;
+      availableFromAnyYear: string;
+      noProgrammedExpiration: string;
+      availableFromYear: string;
+      availableUntilYear: string;
     };
   };
   membership: {
@@ -4359,6 +5928,9 @@ export interface IntlMessages {
       section_placeholder: string;
       section_fallback: string;
       load_error: string;
+      column_count: string;
+      column_empty: string;
+      transfers_title: string;
     };
     table: {
       count_one: string;
@@ -4473,25 +6045,24 @@ export interface IntlMessages {
   };
   enrollments: {
     table: {
-      col_member: string;
-      col_class: string;
+      col_club: string;
+      col_section: string;
+      col_local_field: string;
       col_status: string;
-      col_enrollment_date: string;
       col_submitted_at: string;
+      col_leadership: string;
       col_actions: string;
       empty: string;
       status: {
-        IN_PROGRESS: string;
-        SUBMITTED_FOR_VALIDATION: string;
-        APPROVED: string;
-        REJECTED: string;
-        INVESTIDO: string;
+        pending_validation: string;
+        active: string;
+        rejected: string;
+        inactive: string;
       };
     };
     actions: {
       approve: string;
       reject: string;
-      view_user: string;
       reject_dialog_title: string;
       reject_dialog_description: string;
       reject_dialog_cancel: string;
@@ -4830,5 +6401,339 @@ export interface IntlMessages {
     secretary: string;
     treasurer: string;
     counselor: string;
+  };
+  certificate_bulk_imports: {
+    page: {
+      title: string;
+      description: string;
+      loadError: string;
+      emptyTitle: string;
+      emptyDescription: string;
+    };
+    detailPage: {
+      title: string;
+      description: string;
+      breadcrumbList: string;
+      loadError: string;
+      emptyTitle: string;
+      emptyDescription: string;
+    };
+    actionDialog: {
+      reasonRequired: string;
+      reasonMax: string;
+      commentMax: string;
+      reasonLabel: string;
+      reasonPlaceholder: string;
+      commentLabel: string;
+      commentPlaceholder: string;
+      cancel: string;
+      approve: string;
+      reject: string;
+      batchApproved: string;
+      batchRejected: string;
+      itemApproved: string;
+      itemRejected: string;
+      genericError: string;
+    };
+    filesPanel: {
+      emptyTitle: string;
+      emptyDescription: string;
+    };
+    auditTimeline: {
+      emptyTitle: string;
+      emptyDescription: string;
+    };
+  };
+  camporeeEvents: {
+    templates: {
+      title: string;
+      description: string;
+      listTitle: string;
+      createTitle: string;
+      editTitle: string;
+      entityLabel: string;
+      entityLabelPlural: string;
+      fieldScope: string;
+      fieldScopeUnion: string;
+      fieldScopeLocalField: string;
+      fieldScopePlaceholder: string;
+      fieldUnion: string;
+      fieldUnionPlaceholder: string;
+      fieldLocalField: string;
+      fieldLocalFieldPlaceholder: string;
+      fieldEventType: string;
+      fieldEventTypePlaceholder: string;
+      fieldTitle: string;
+      fieldTitlePlaceholder: string;
+      fieldDescription: string;
+      fieldDescriptionPlaceholder: string;
+      fieldRequirements: string;
+      fieldRequirementsPlaceholder: string;
+      fieldDevelopment: string;
+      fieldDevelopmentPlaceholder: string;
+      fieldPrerequisites: string;
+      fieldPrerequisitesPlaceholder: string;
+      fieldMaterials: string;
+      fieldMaterialsPlaceholder: string;
+      fieldAuxiliaries: string;
+      fieldAuxiliariesPlaceholder: string;
+      fieldMaxPoints: string;
+      fieldMinPoints: string;
+      fieldPenalties: string;
+      fieldParticipantsMode: string;
+      fieldParticipantsModeCount: string;
+      fieldParticipantsModeByClass: string;
+      fieldParticipantsCount: string;
+      fieldParticipantsByClass: string;
+      fieldDurationSeconds: string;
+      fieldActive: string;
+      sectionIdentity: string;
+      sectionContent: string;
+      sectionScoring: string;
+      sectionParticipants: string;
+      sectionSettings: string;
+      penaltyDescription: string;
+      penaltyPoints: string;
+      penaltyTime: string;
+      buttonAddPenalty: string;
+      buttonRemovePenalty: string;
+      buttonCreate: string;
+      buttonSave: string;
+      buttonCancel: string;
+      buttonDelete: string;
+      emptyTitle: string;
+      emptyDescription: string;
+      deleteConfirmTitle: string;
+      deleteConfirmDesc: string;
+      backToList: string;
+      loadError: string;
+      filterScope: string;
+      filterEventType: string;
+      filterStatus: string;
+      filterSearch: string;
+      colTitle: string;
+      colScope: string;
+      colEventType: string;
+      colMaxPoints: string;
+      colParticipants: string;
+      colStatus: string;
+      colActions: string;
+      statusActive: string;
+      statusInactive: string;
+      validationScope: string;
+      validationEventType: string;
+      validationTitle: string;
+      validationMaxPoints: string;
+      validationParticipantsMode: string;
+      validationParticipantsCount: string;
+      filterSearchPlaceholder: string;
+      editActionTitle: string;
+      deleteActionTitle: string;
+    };
+    timeline: {
+      toolbarSearchPlaceholder: string;
+      catalogImportTitle: string;
+      fromCatalogLabel: string;
+    };
+    venueCreateDialog: {
+      capacityPlaceholder: string;
+      notesPlaceholder: string;
+    };
+    instances: {
+      title: string;
+      listTitle: string;
+      createTitle: string;
+      editTitle: string;
+      entityLabel: string;
+      entityLabelPlural: string;
+      buttonAddFromTemplate: string;
+      buttonCreateCustom: string;
+      buttonSave: string;
+      buttonCancel: string;
+      buttonDelete: string;
+      emptyTitle: string;
+      emptyDescription: string;
+      deleteConfirmTitle: string;
+      deleteConfirmDesc: string;
+      loadError: string;
+      dialogAddTemplateTitle: string;
+      dialogAddTemplateDesc: string;
+      colTitle: string;
+      colEventType: string;
+      colMaxPoints: string;
+      colParticipants: string;
+      colOrder: string;
+      colStatus: string;
+      colActions: string;
+      statusActive: string;
+      statusInactive: string;
+      reorderUp: string;
+      reorderDown: string;
+    };
+  };
+  selectors: {
+    ecclesiasticalYear: {
+      placeholder: string;
+      searchPlaceholder: string;
+      loading: string;
+      empty: string;
+      loadError: string;
+      clearSelection: string;
+      activeBadge: string;
+    };
+    club: {
+      placeholder: string;
+      searchPlaceholder: string;
+      loading: string;
+      empty: string;
+      loadError: string;
+      clearSelection: string;
+    };
+    clubSection: {
+      placeholder: string;
+      placeholderNoClub: string;
+      searchPlaceholder: string;
+      loading: string;
+      empty: string;
+      loadError: string;
+      clearSelection: string;
+    };
+  };
+  designSystemSandbox: {
+    title: string;
+    description: string;
+    patterns: {
+      listTitle: string;
+      listDescription: string;
+      hubTitle: string;
+      hubDescription: string;
+    };
+    sample: {
+      pending: string;
+      alert: string;
+      action: string;
+    };
+  };
+  directorHome: {
+    greetingMorning: string;
+    greetingAfternoon: string;
+    greetingEvening: string;
+    stats: {
+      members: string;
+      investitures: string;
+      pending: string;
+    };
+    pendingAlert: {
+      title: string;
+      description: string;
+      action: string;
+    };
+    team: {
+      title: string;
+      description: string;
+      viewClub: string;
+      members: string;
+      director: string;
+      noDirector: string;
+      active: string;
+      inactive: string;
+    };
+    quickActions: {
+      title: string;
+      approve: string;
+      approveHint: string;
+      club: string;
+      clubHint: string;
+      activities: string;
+      activitiesHint: string;
+      classes: string;
+      classesHint: string;
+    };
+    upcoming: {
+      title: string;
+      empty: string;
+    };
+  };
+  coordinatorLfHome: {
+    greetingMorning: string;
+    greetingAfternoon: string;
+    greetingEvening: string;
+    subtitle: string;
+    stats: {
+      clubs: string;
+      pending: string;
+    };
+    pendingAlert: {
+      title: string;
+      description: string;
+      action: string;
+    };
+    clubs: {
+      title: string;
+      description: string;
+      viewAll: string;
+      empty: string;
+      pendingBadge: string;
+      sections: string;
+    };
+    quickActions: {
+      title: string;
+      clubs: string;
+      users: string;
+      membership: string;
+      camporees: string;
+    };
+    fieldStats: {
+      title: string;
+      subtitle: string;
+      overview: {
+        activeMembers: string;
+        activeMembersHint: string;
+        enrolledClubs: string;
+        enrolledClubsHint: string;
+        withReport: string;
+        withReportHint: string;
+        withoutReport: string;
+        withoutReportHint: string;
+      };
+      membersByClass: {
+        title: string;
+        empty: string;
+      };
+      clubTypes: {
+        adventurers: string;
+        conquistadores: string;
+        masterGuides: string;
+      };
+      honors: {
+        title: string;
+        subtitle: string;
+      };
+      activities: {
+        title: string;
+        week: string;
+        month: string;
+        year: string;
+      };
+      windows: {
+        week: string;
+        month: string;
+        quarter: string;
+      };
+      months: {
+        "1": string;
+        "2": string;
+        "3": string;
+        "4": string;
+        "5": string;
+        "6": string;
+        "7": string;
+        "8": string;
+        "9": string;
+        "10": string;
+        "11": string;
+        "12": string;
+      };
+    };
   };
 }

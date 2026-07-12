@@ -20,7 +20,10 @@ import {
 } from "@/components/ui/popover";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useQuery } from "@tanstack/react-query";
-import { listClubMembers } from "@/lib/api/clubs";
+import {
+  listClubMembers,
+  listNormalizedClubSectionMembers,
+} from "@/lib/api/clubs";
 import type { ClubSectionMember } from "@/lib/api/clubs";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -36,6 +39,8 @@ function getInitials(name: string): string {
 export interface MemberComboboxProps {
   /** Club to scope the member list to */
   clubId: number;
+  /** Optional section to scope the member list to */
+  sectionId?: number;
   /** Currently selected user_id (controlled) */
   value: string;
   /** Called with the selected user_id, or empty string when cleared */
@@ -56,6 +61,7 @@ export interface MemberComboboxProps {
 
 export function MemberCombobox({
   clubId,
+  sectionId,
   value,
   onChange,
   placeholder,
@@ -75,9 +81,13 @@ export function MemberCombobox({
     isFetching: loading,
     error: fetchError,
   } = useQuery({
-    queryKey: ["club-members", clubId],
+    queryKey: ["club-members", clubId, sectionId ?? "all"],
     queryFn: async () => {
-      const data = await listClubMembers(clubId);
+      const data = sectionId
+        ? await listNormalizedClubSectionMembers(clubId, sectionId, {
+            active: true,
+          })
+        : await listClubMembers(clubId);
       onMembersLoaded?.(data);
       return data;
     },
@@ -137,10 +147,19 @@ export function MemberCombobox({
                   {getInitials(selected.name)}
                 </AvatarFallback>
               </Avatar>
-              <span className="truncate text-sm">{selected.name}</span>
+              <span className="min-w-0">
+                <span className="block truncate text-sm">{selected.name}</span>
+                {selected.current_class_name && (
+                  <span className="block truncate text-[11px] text-muted-foreground">
+                    {selected.current_class_name}
+                  </span>
+                )}
+              </span>
             </span>
           ) : (
-            <span className="truncate text-sm">{placeholder ?? t("searchPlaceholder")}</span>
+            <span className="truncate text-sm">
+              {placeholder ?? t("searchPlaceholder")}
+            </span>
           )}
 
           <span className="ml-2 flex shrink-0 items-center gap-0.5">
@@ -188,7 +207,9 @@ export function MemberCombobox({
                 {filteredMembers.map((member) => (
                   <CommandItem
                     key={member.user_id}
-                    value={`${member.name} ${member.user_id}`}
+                    value={[member.name, member.current_class_name, member.user_id]
+                      .filter(Boolean)
+                      .join(" ")}
                     onSelect={() => handleSelect(member.user_id)}
                   >
                     <Avatar size="sm">
@@ -203,7 +224,14 @@ export function MemberCombobox({
                       </AvatarFallback>
                     </Avatar>
 
-                    <span className="truncate">{member.name}</span>
+                    <span className="min-w-0">
+                      <span className="block truncate">{member.name}</span>
+                      {member.current_class_name && (
+                        <span className="block truncate text-xs text-muted-foreground">
+                          {member.current_class_name}
+                        </span>
+                      )}
+                    </span>
 
                     <Check
                       className={cn(

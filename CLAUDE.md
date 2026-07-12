@@ -32,6 +32,15 @@ lib/
 └── utils.ts        - Utilidades (cn, etc.)
 ```
 
+## Panel v2 (Studio Admin)
+
+Panel paralelo en `/v2/dashboard/*` — v1 intacto en `/dashboard/*`.
+
+- Shell: `src/app/(dashboard-v2)/`, `src/components/studio-shell/`
+- UI: `src/components/v2/`, loaders en `src/lib/v2/loaders/`
+- Regenerar bridged pages: `pnpm run scaffold:v2`
+- Docs: `docs/features/infrastructure/admin-panel-v2.md`
+
 ## Páginas de Coordinador/Admin
 
 - `/dashboard/evidence-review` — Validación de evidencias (carpetas, clases, honores)
@@ -53,6 +62,18 @@ lib/
 - **Auth**: JWT almacenado en cookie httpOnly, validado contra el backend API (no hay cliente Supabase)
 - **Styling**: Tailwind v4 + `cn()` utility de class-variance-authority
 - **Forms**: Siempre validar con Zod + React Hook Form
+
+## i18n catalogs (24 catálogos)
+
+- **Approach X**: español queda en columna principal, locales pt-BR/en/fr en tabla `<entity>_translations`. Backend overlay vía `TranslationService.translateMany` por `Accept-Language`.
+- **12 Phase E + 12 generic** = 24 catálogos i18n-aware. Lista generic: countries, unions, local-fields, districts, churches, relationship-types, allergies, diseases, medicines, club-types, club-ideals, activity-types.
+- **UI patterns**:
+  - `PhaseECatalogCrudPage` (Dialog + tabs) — usado por 22 catálogos. Viola DS rule actualizada (tabs → dedicated page) pero deferred como tech debt.
+  - **club-ideals dedicated page** (`components/catalogs/club-ideal-form-page.tsx`) — única página dedicada DS-compliant. Razón: >4 fields + relación club_type + tabs.
+- **Componente**: `TranslationsTabsField` con prop `secondField?: SecondFieldConfig` (default `description`, override para `ideal` u otros).
+- **Factory actions**: `lib/generic-catalogs-i18n/actions.ts` con `makeActions` extendido (`translatableFields`, `customFormFields`). Sync helpers en `helpers.ts` separados por constraint Next.js Server Actions ("use server" requires async exports).
+- **Permissions**: 8 nuevos grupos (DISTRICTS/RELATIONSHIP_TYPES/ALLERGIES/DISEASES/MEDICINES/CLUB_TYPES/CLUB_IDEALS/ACTIVITY_TYPES) con READ/CREATE/UPDATE/DELETE + fallback CATALOGS_*.
+- **Tech debt**: parent-filter regression para unions/local-fields/districts/churches (PhaseECatalogCrudPage no soporta filtros padre).
 
 ## Autenticación
 

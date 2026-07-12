@@ -5,19 +5,29 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { getActionErrorMessage } from "@/lib/api/action-error";
 import {
+  assignInitialClubSectionDirector,
+  createClassCounselorAssignment,
   createClub,
   createClubSection,
   createClubRoleAssignment,
   deleteClub,
-  listClubSections,
+  revokeClassCounselorAssignment,
   revokeClubRoleAssignment,
+  succeedClubSectionDirector,
+  updateClassCounselorAssignment,
   updateClub,
   updateClubSection,
   updateClubRoleAssignment,
-  type ClubSection,
 } from "@/lib/api/clubs";
-import { unwrapList, unwrapObject } from "@/lib/api/response";
+import type { ClassCounselorResponsibilityType } from "@/lib/api/clubs";
+import { unwrapObject } from "@/lib/api/response";
 import { requireAdminUser } from "@/lib/auth/session";
+import { extractRoles } from "@/lib/auth/roles";
+import { canUseDirectorSuccession } from "@/lib/auth/director-succession";
+import { canManageClubsByRole } from "@/lib/auth/permission-utils";
+import { listLocalFieldsForTerritory } from "@/lib/auth/territory-scope";
+import type { AuthUser } from "@/lib/auth/types";
+import { collectSelectedClubSections } from "@/lib/clubs/create-form-options";
 
 type ClubsTranslator = Awaited<ReturnType<typeof getTranslations<"clubs">>>;
 
@@ -33,6 +43,7 @@ export type ClubActionState = {
   success?: string;
   createdClubId?: number;
   sectionResults?: ClubSectionSyncResult[];
+  fieldErrors?: Record<string, string>;
 };
 
 function readString(formData: FormData, fieldName: string) {
@@ -41,6 +52,10 @@ function readString(formData: FormData, fieldName: string) {
 
 function buildClubSectionPath(clubId: number, sectionId: number) {
   return `/dashboard/clubs/${clubId}/sections/${sectionId}`;
+}
+
+function buildClubDetailPath(clubId: number) {
+  return `/dashboard/clubs/${clubId}`;
 }
 
 function parseRequiredNumber(
@@ -120,6 +135,44 @@ function parseOptionalPositiveNumber(
   return parsed;
 }
 
+function parseOptionalNonNegativeInteger(
+  t: ClubsTranslator,
+  formData: FormData,
+  fieldName: string,
+) {
+  if (!formData.has(fieldName)) {
+    return undefined;
+  }
+
+  const value = readString(formData, fieldName);
+  if (!value) {
+    return undefined;
+  }
+
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed < 0) {
+    throw new Error(t("validation.field_invalid", { field: fieldName }));
+  }
+
+  return parsed;
+}
+
+function parseOptionalBooleanField(formData: FormData, fieldName: string) {
+  if (!formData.has(fieldName)) return undefined;
+  const value = readString(formData, fieldName);
+  return value === "on" || value === "true" || value === "1";
+}
+
+function parseResponsibilityType(
+  value: string,
+): ClassCounselorResponsibilityType | undefined {
+  if (value === "primary" || value === "assistant" || value === "substitute") {
+    return value;
+  }
+
+  return undefined;
+}
+
 function buildCreatePayload(t: ClubsTranslator, formData: FormData) {
   const name = readString(formData, "name");
   if (!name) {
@@ -135,7 +188,7 @@ function buildCreatePayload(t: ClubsTranslator, formData: FormData) {
       "local_field_id",
       t("fields.local_field"),
     ),
-    district_id: parseRequiredNumber(
+    districlub_type_id: parseRequiredNumber(
       t,
       formData,
       "district_id",
@@ -150,6 +203,44 @@ function buildCreatePayload(t: ClubsTranslator, formData: FormData) {
     address: readString(formData, "address") || undefined,
     coordinates: parseCoordinates(t, formData),
   };
+}
+
+function collectFieldErrors(
+  t: ClubsTranslator,
+  formData: FormData,
+): Record<string, string> {
+  const errors: Record<string, string> = {};
+
+  if (!readString(formData, "name")) {
+    errors.name = t("validation.club_name_required");
+  }
+
+  for (const [field, label] of [
+    ["local_field_id", t("fields.local_field")],
+    ["district_id", t("fields.district")],
+    ["church_id", t("fields.church")],
+  ] as const) {
+    const value = readString(formData, field);
+    if (!value) {
+      errors[field] = t("validation.field_required", { field: label });
+    } else if (!Number.isFinite(Number(value))) {
+      errors[field] = t("validation.field_invalid", { field: label });
+    }
+  }
+
+  const latRaw = readString(formData, "coordinates_lat");
+  const lngRaw = readString(formData, "coordinates_lng");
+  if ((latRaw || lngRaw) && (!latRaw || !lngRaw)) {
+    errors.coordinates = t("validation.coordinates_incomplete");
+  } else if (
+    latRaw &&
+    lngRaw &&
+    (!Number.isFinite(Number(latRaw)) || !Number.isFinite(Number(lngRaw)))
+  ) {
+    errors.coordinates = t("validation.coordinates_invalid");
+  }
+
+  return errors;
 }
 
 function buildUpdatePayload(t: ClubsTranslator, formData: FormData) {
@@ -203,6 +294,34 @@ function buildUpdatePayload(t: ClubsTranslator, formData: FormData) {
   return payload;
 }
 
+
+async function ensureLocalFieldInActorScope(
+  user: AuthUser,
+  localFieldId: number | undefined,
+) {
+  if (!localFieldId) return;
+
+  const allowedLocalFields = await listLocalFieldsForTerritory(user);
+  if (allowedLocalFields.length === 0) {
+    return;
+  }
+
+  if (!allowedLocalFields.some((field) => field.local_field_id === localFieldId)) {
+    throw new Error("El campo local seleccionado está fuera de tu alcance.");
+  }
+}
+
+async function ensureClubPayloadInActorScope(
+  user: AuthUser,
+  payload: { local_field_id?: unknown },
+) {
+  const localFieldId =
+    typeof payload.local_field_id === "number" && Number.isFinite(payload.local_field_id)
+      ? payload.local_field_id
+      : undefined;
+  await ensureLocalFieldInActorScope(user, localFieldId);
+}
+
 function normalizeCreatedClubId(payload: unknown) {
   const createdClub = unwrapObject<Record<string, unknown>>(payload);
   const candidateIds = [createdClub?.club_id, createdClub?.id];
@@ -233,11 +352,17 @@ export async function createClubAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
-  await requireAdminUser();
+  const user = await requireAdminUser();
   const t = await getTranslations("clubs");
+
+  const fieldErrors = collectFieldErrors(t, formData);
+  if (Object.keys(fieldErrors).length > 0) {
+    return { fieldErrors };
+  }
 
   try {
     const payload = buildCreatePayload(t, formData);
+    await ensureClubPayloadInActorScope(user, payload);
     await createClub(payload);
   } catch (error) {
     return {
@@ -255,13 +380,19 @@ export async function createClubWithSectionsAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
-  await requireAdminUser();
+  const user = await requireAdminUser();
   const t = await getTranslations("clubs");
+
+  const fieldErrors = collectFieldErrors(t, formData);
+  if (Object.keys(fieldErrors).length > 0) {
+    return { fieldErrors };
+  }
 
   let clubId: number | null = null;
 
   try {
     const payload = buildCreatePayload(t, formData);
+    await ensureClubPayloadInActorScope(user, payload);
     const createdPayload = await createClub(payload);
     clubId = normalizeCreatedClubId(createdPayload);
   } catch (error) {
@@ -278,22 +409,12 @@ export async function createClubWithSectionsAction(
     };
   }
 
-  // Parse sections from form — form fields: section_club_type_id_0, section_name_0, etc.
   const sectionResults: ClubSectionSyncResult[] = [];
-  let idx = 0;
-  while (formData.has(`section_club_type_id_${idx}`)) {
-    const clubTypeId = Number(readString(formData, `section_club_type_id_${idx}`));
-    const sectionName = readString(formData, `section_name_${idx}`);
-
-    if (!Number.isFinite(clubTypeId) || clubTypeId <= 0) {
-      idx++;
-      continue;
-    }
-
+  for (const section of collectSelectedClubSections(formData)) {
     try {
       const result = await createClubSection(clubId, {
-        club_type_id: clubTypeId,
-        name: sectionName || undefined,
+        club_type_id: section.clubTypeId,
+        name: section.name,
       });
       sectionResults.push({
         action: "created",
@@ -310,7 +431,6 @@ export async function createClubWithSectionsAction(
         }),
       });
     }
-    idx++;
   }
 
   revalidatePath("/dashboard/clubs");
@@ -329,16 +449,61 @@ export async function createClubWithSectionsAction(
   redirect(`/dashboard/clubs/${clubId}`);
 }
 
+function collectUpdateFieldErrors(
+  t: ClubsTranslator,
+  formData: FormData,
+): Record<string, string> {
+  const errors: Record<string, string> = {};
+
+  const name = readString(formData, "name");
+  if (formData.has("name") && !name) {
+    errors.name = t("validation.club_name_required");
+  }
+
+  for (const field of ["local_field_id", "district_id", "church_id"] as const) {
+    const value = readString(formData, field);
+    if (value && !Number.isFinite(Number(value))) {
+      const label =
+        field === "local_field_id"
+          ? t("fields.local_field")
+          : field === "district_id"
+            ? t("fields.district")
+            : t("fields.church");
+      errors[field] = t("validation.field_invalid", { field: label });
+    }
+  }
+
+  const latRaw = readString(formData, "coordinates_lat");
+  const lngRaw = readString(formData, "coordinates_lng");
+  if ((latRaw || lngRaw) && (!latRaw || !lngRaw)) {
+    errors.coordinates = t("validation.coordinates_incomplete");
+  } else if (
+    latRaw &&
+    lngRaw &&
+    (!Number.isFinite(Number(latRaw)) || !Number.isFinite(Number(lngRaw)))
+  ) {
+    errors.coordinates = t("validation.coordinates_invalid");
+  }
+
+  return errors;
+}
+
 export async function updateClubAction(
   clubId: number,
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
-  await requireAdminUser();
+  const user = await requireAdminUser();
   const t = await getTranslations("clubs");
+
+  const fieldErrors = collectUpdateFieldErrors(t, formData);
+  if (Object.keys(fieldErrors).length > 0) {
+    return { fieldErrors };
+  }
 
   try {
     const payload = buildUpdatePayload(t, formData);
+    await ensureClubPayloadInActorScope(user, payload);
     await updateClub(clubId, payload);
   } catch (error) {
     return {
@@ -425,18 +590,21 @@ export async function createClubSectionAction(
 
   const clubTypeIdRaw = readString(formData, "club_type_id");
   const clubTypeId = Number(clubTypeIdRaw);
-  if (!Number.isFinite(clubTypeId) || clubTypeId <= 0) {
-    return { error: t("validation.club_type_invalid") };
-  }
-
   const soulsTarget = Number(readString(formData, "souls_target") || "0");
-  if (!Number.isFinite(soulsTarget) || soulsTarget < 0) {
-    return { error: t("validation.souls_target_positive") };
-  }
-
   const fee = Number(readString(formData, "fee") || "0");
-  if (!Number.isFinite(fee) || fee < 0) {
-    return { error: t("validation.fee_positive") };
+
+  const sectionFieldErrors: Record<string, string> = {};
+  if (!Number.isFinite(clubTypeId) || clubTypeId <= 0) {
+    sectionFieldErrors.club_type_id = t("validation.club_type_invalid");
+  }
+  if (!Number.isInteger(soulsTarget) || soulsTarget < 0) {
+    sectionFieldErrors.souls_target = t("validation.souls_target_positive");
+  }
+  if (!Number.isInteger(fee) || fee < 0) {
+    sectionFieldErrors.fee = t("validation.fee_positive");
+  }
+  if (Object.keys(sectionFieldErrors).length > 0) {
+    return { fieldErrors: sectionFieldErrors };
   }
 
   const meetingDayRaw = readString(formData, "meeting_day");
@@ -476,7 +644,7 @@ export async function updateClubSectionAction(
   await requireAdminUser();
   const t = await getTranslations("clubs");
 
-  const payload: { name?: string; active?: boolean; club_type_id?: number } = {};
+  const payload: Parameters<typeof updateClubSection>[2] = {};
   const name = readString(formData, "name");
   if (name) {
     payload.name = name;
@@ -493,6 +661,32 @@ export async function updateClubSectionAction(
   const clubTypeId = parseOptionalPositiveNumber(t, formData, "club_type_id");
   if (clubTypeId !== undefined) {
     payload.club_type_id = clubTypeId;
+  }
+
+  try {
+    const soulsTarget = parseOptionalNonNegativeInteger(t, formData, "souls_target");
+    if (soulsTarget !== undefined) {
+      payload.souls_target = soulsTarget;
+    }
+
+    const fee = parseOptionalNonNegativeInteger(t, formData, "fee");
+    if (fee !== undefined) {
+      payload.fee = fee;
+    }
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : t("validation.field_invalid", { field: "section" }),
+    };
+  }
+
+  if (formData.has("meeting_day")) {
+    const meetingDay = readString(formData, "meeting_day");
+    payload.meeting_day = meetingDay ? [{ day: meetingDay }] : [];
+  }
+
+  if (formData.has("meeting_time")) {
+    const meetingTime = readString(formData, "meeting_time").slice(0, 5);
+    payload.meeting_time = meetingTime ? [{ time: meetingTime }] : [];
   }
 
   if (Object.keys(payload).length === 0) {
@@ -512,6 +706,166 @@ export async function updateClubSectionAction(
   revalidatePath(`/dashboard/clubs/${clubId}`);
   revalidatePath(buildClubSectionPath(clubId, sectionId));
   return { success: t("success.section_updated") };
+}
+
+export async function createClassCounselorAssignmentAction(
+  clubId: number,
+  sectionId: number,
+  _: ClubActionState,
+  formData: FormData,
+): Promise<ClubActionState> {
+  await requireAdminUser();
+  const t = await getTranslations("clubs");
+
+  const userId = readString(formData, "user_id");
+  if (!userId) {
+    return { error: t("validation.user_id_required") };
+  }
+
+  let classId = 0;
+  try {
+    classId = parseRequiredNumber(t, formData, "class_id", "Clase");
+  } catch (error) {
+    return {
+      error:
+        error instanceof Error
+          ? error.message
+          : t("validation.field_invalid", { field: "class_id" }),
+    };
+  }
+
+  const responsibilityType =
+    parseResponsibilityType(readString(formData, "responsibility_type")) ??
+    "primary";
+  const exceptional = parseOptionalBooleanField(formData, "exceptional") ?? false;
+  const exceptionReason = readString(formData, "exception_reason");
+  const ecclesiasticalYearId = parseOptionalNumber(
+    t,
+    formData,
+    "ecclesiastical_year_id",
+  );
+  const startDate = readString(formData, "start_date");
+  const endDate = readString(formData, "end_date");
+
+  const payload: Parameters<typeof createClassCounselorAssignment>[2] = {
+    user_id: userId,
+    class_id: classId,
+    responsibility_type: responsibilityType,
+    exceptional,
+  };
+
+  if (ecclesiasticalYearId !== undefined) {
+    payload.ecclesiastical_year_id = ecclesiasticalYearId;
+  }
+  if (exceptionReason) payload.exception_reason = exceptionReason;
+  if (startDate) payload.start_date = startDate;
+  if (endDate) payload.end_date = endDate;
+
+  try {
+    await createClassCounselorAssignment(clubId, sectionId, payload);
+  } catch (error) {
+    return {
+      error: getActionErrorMessage(
+        error,
+        t("errors.create_class_assignment_failed"),
+        {
+          endpointLabel: `/clubs/${clubId}/sections/${sectionId}/class-counselor-assignments`,
+        },
+      ),
+    };
+  }
+
+  revalidatePath(buildClubDetailPath(clubId));
+  revalidatePath(buildClubSectionPath(clubId, sectionId));
+  return { success: t("success.class_assignment_created") };
+}
+
+export async function updateClassCounselorAssignmentAction(
+  clubId: number,
+  sectionId: number,
+  assignmentId: string,
+  _: ClubActionState,
+  formData: FormData,
+): Promise<ClubActionState> {
+  await requireAdminUser();
+  const t = await getTranslations("clubs");
+
+  if (!assignmentId) {
+    return { error: t("validation.assignment_not_identified") };
+  }
+
+  const responsibilityType = parseResponsibilityType(
+    readString(formData, "responsibility_type"),
+  );
+  const exceptional = parseOptionalBooleanField(formData, "exceptional");
+  const exceptionReason = readString(formData, "exception_reason");
+  const startDate = readString(formData, "start_date");
+  const endDate = readString(formData, "end_date");
+
+  const payload: Parameters<typeof updateClassCounselorAssignment>[1] = {};
+  if (responsibilityType) payload.responsibility_type = responsibilityType;
+  if (exceptional !== undefined) payload.exceptional = exceptional;
+  if (exceptionReason) payload.exception_reason = exceptionReason;
+  if (startDate) payload.start_date = startDate;
+  if (endDate) payload.end_date = endDate;
+
+  if (Object.keys(payload).length === 0) {
+    return { error: t("validation.no_changes") };
+  }
+
+  try {
+    await updateClassCounselorAssignment(assignmentId, payload);
+  } catch (error) {
+    return {
+      error: getActionErrorMessage(
+        error,
+        t("errors.update_class_assignment_failed"),
+        {
+          endpointLabel: `/class-counselor-assignments/${assignmentId}`,
+        },
+      ),
+    };
+  }
+
+  revalidatePath(buildClubDetailPath(clubId));
+  revalidatePath(buildClubSectionPath(clubId, sectionId));
+  return { success: t("success.class_assignment_updated") };
+}
+
+export async function revokeClassCounselorAssignmentAction(
+  clubId: number,
+  sectionId: number,
+  assignmentId: string,
+  _: ClubActionState,
+  _formData: FormData,
+): Promise<ClubActionState> {
+  void _;
+  void _formData;
+
+  await requireAdminUser();
+  const t = await getTranslations("clubs");
+
+  if (!assignmentId) {
+    return { error: t("validation.assignment_remove_not_identified") };
+  }
+
+  try {
+    await revokeClassCounselorAssignment(assignmentId);
+  } catch (error) {
+    return {
+      error: getActionErrorMessage(
+        error,
+        t("errors.revoke_class_assignment_failed"),
+        {
+          endpointLabel: `/class-counselor-assignments/${assignmentId}`,
+        },
+      ),
+    };
+  }
+
+  revalidatePath(buildClubDetailPath(clubId));
+  revalidatePath(buildClubSectionPath(clubId, sectionId));
+  return { success: t("success.class_assignment_revoked") };
 }
 
 export async function addClubSectionMemberAction(
@@ -657,4 +1011,236 @@ export async function removeClubSectionMemberAction(
   revalidatePath(`/dashboard/clubs/${clubId}`);
   revalidatePath(buildClubSectionPath(clubId, sectionId));
   return { success: t("success.assignment_removed") };
+}
+
+export async function succeedClubSectionDirectorAction(
+  clubId: number,
+  sectionId: number,
+  _: ClubActionState,
+  formData: FormData,
+): Promise<ClubActionState> {
+  const currentUser = await requireAdminUser();
+
+  if (!canUseDirectorSuccession(extractRoles(currentUser))) {
+    return {
+      error:
+        "Solo admin, super-admin, director-lf y assistant-lf pueden ejecutar la sucesión anual de director.",
+    };
+  }
+
+  const t = await getTranslations("clubs");
+  const currentAssignmentId = readString(formData, "current_assignment_id");
+  if (!currentAssignmentId) {
+    return { error: "No se pudo identificar al director actual." };
+  }
+
+  const successorUserId = readString(formData, "successor_user_id");
+  if (!successorUserId) {
+    return { error: t("validation.user_id_required") };
+  }
+
+  let ecclesiasticalYearId = 0;
+  try {
+    ecclesiasticalYearId = parseRequiredNumber(
+      t,
+      formData,
+      "ecclesiastical_year_id",
+      t("fields.ecclesiastical_year"),
+    );
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : t("validation.ecclesiastical_year_invalid"),
+    };
+  }
+
+  const startDate = readString(formData, "start_date") || undefined;
+
+  try {
+    await succeedClubSectionDirector(clubId, sectionId, {
+      current_assignment_id: currentAssignmentId,
+      successor_user_id: successorUserId,
+      ecclesiastical_year_id: ecclesiasticalYearId,
+      ...(startDate ? { start_date: startDate } : {}),
+    });
+  } catch (error) {
+    return {
+      error: getActionErrorMessage(error, "No se pudo cambiar el director de la sección", {
+        endpointLabel: `/clubs/${clubId}/sections/${sectionId}/director-succession`,
+      }),
+    };
+  }
+
+  revalidatePath(`/dashboard/clubs/${clubId}`);
+  revalidatePath(buildClubSectionPath(clubId, sectionId));
+  return { success: "Director actualizado correctamente" };
+}
+
+export async function assignInitialClubSectionDirectorAction(
+  clubId: number,
+  sectionId: number,
+  _: ClubActionState,
+  formData: FormData,
+): Promise<ClubActionState> {
+  const currentUser = await requireAdminUser();
+
+  if (!canUseDirectorSuccession(extractRoles(currentUser))) {
+    return {
+      error:
+        "Solo admin, super-admin, director-lf y assistant-lf pueden asignar el director inicial.",
+    };
+  }
+
+  const t = await getTranslations("clubs");
+  const userId = readString(formData, "user_id");
+  if (!userId) {
+    return { error: t("validation.user_id_required") };
+  }
+
+  let ecclesiasticalYearId = 0;
+  try {
+    ecclesiasticalYearId = parseRequiredNumber(
+      t,
+      formData,
+      "ecclesiastical_year_id",
+      t("fields.ecclesiastical_year"),
+    );
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : t("validation.ecclesiastical_year_invalid"),
+    };
+  }
+
+  const startDate = readString(formData, "start_date") || undefined;
+
+  try {
+    await assignInitialClubSectionDirector(clubId, sectionId, {
+      user_id: userId,
+      ecclesiastical_year_id: ecclesiasticalYearId,
+      ...(startDate ? { start_date: startDate } : {}),
+    });
+  } catch (error) {
+    return {
+      error: getActionErrorMessage(error, "No se pudo asignar el director inicial", {
+        endpointLabel: `/clubs/${clubId}/sections/${sectionId}/director-assignment`,
+      }),
+    };
+  }
+
+  revalidatePath(`/dashboard/clubs/${clubId}`);
+  revalidatePath(buildClubSectionPath(clubId, sectionId));
+  return { success: "Director asignado correctamente" };
+}
+
+// ─── Bulk import ──────────────────────────────────────────────────────────────
+
+export type BulkClubRow = {
+  rowNumber: number;
+  name: string;
+  local_field_id: number;
+  district_id: number;
+  church_id: number;
+  description?: string;
+  address?: string;
+  coordinates?: { lat: number; lng: number };
+};
+
+export type BulkClubRowResult = {
+  rowNumber: number;
+  name: string;
+  ok: boolean;
+  message?: string;
+  clubId?: number;
+};
+
+export type BulkClubsImportResult = {
+  results: BulkClubRowResult[];
+  created: number;
+  failed: number;
+  forbidden?: boolean;
+};
+
+export async function bulkCreateClubsAction(
+  rows: BulkClubRow[],
+): Promise<BulkClubsImportResult> {
+  const user = await requireAdminUser();
+  const t = await getTranslations("clubs");
+
+  if (!canManageClubsByRole(user)) {
+    return {
+      results: [],
+      created: 0,
+      failed: 0,
+      forbidden: true,
+    };
+  }
+
+  if (!Array.isArray(rows) || rows.length === 0) {
+    return { results: [], created: 0, failed: 0 };
+  }
+
+  const allowedLocalFields = await listLocalFieldsForTerritory(user);
+  const allowedLocalFieldIds = new Set(allowedLocalFields.map((field) => field.local_field_id));
+
+  const results: BulkClubRowResult[] = [];
+  let created = 0;
+  let failed = 0;
+
+  for (const row of rows) {
+    if (
+      !row.name ||
+      !Number.isFinite(row.local_field_id) ||
+      !Number.isFinite(row.district_id) ||
+      !Number.isFinite(row.church_id)
+    ) {
+      failed++;
+      results.push({
+        rowNumber: row.rowNumber,
+        name: row.name ?? "",
+        ok: false,
+        message: t("validation.bulk_row_invalid"),
+      });
+      continue;
+    }
+
+    try {
+      if (allowedLocalFieldIds.size > 0 && !allowedLocalFieldIds.has(row.local_field_id)) {
+        throw new Error("El campo local seleccionado está fuera de tu alcance.");
+      }
+
+      const payload = {
+        name: row.name,
+        description: row.description,
+        local_field_id: row.local_field_id,
+        districlub_type_id: row.district_id,
+        church_id: row.church_id,
+        address: row.address,
+        coordinates: row.coordinates,
+      };
+      const createdPayload = await createClub(payload);
+      const clubId = normalizeCreatedClubId(createdPayload) ?? undefined;
+      created++;
+      results.push({
+        rowNumber: row.rowNumber,
+        name: row.name,
+        ok: true,
+        clubId,
+      });
+    } catch (error) {
+      failed++;
+      results.push({
+        rowNumber: row.rowNumber,
+        name: row.name,
+        ok: false,
+        message: getActionErrorMessage(error, t("errors.create_club_failed"), {
+          endpointLabel: "/clubs",
+        }),
+      });
+    }
+  }
+
+  if (created > 0) {
+    revalidatePath("/dashboard/clubs");
+  }
+
+  return { results, created, failed };
 }

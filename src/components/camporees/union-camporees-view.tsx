@@ -2,7 +2,8 @@
 
 import { useState, useCallback } from "react";
 import dynamic from "next/dynamic";
-import { Plus, Pencil, Trash2, RefreshCw, Tent } from "lucide-react";
+import Link from "next/link";
+import { Plus, Pencil, Trash2, RefreshCw, Tent, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -200,7 +201,7 @@ export function UnionCampoReesView({ initialCamporees, unions }: UnionCampoReesV
                     </TableCell>
                     <TableCell className="max-w-[160px] px-3 py-2.5 align-middle">
                       <span className="truncate text-sm text-muted-foreground">
-                        {camporee.place ?? "—"}
+                        {camporee.union_camporee_place ?? camporee.place ?? "—"}
                       </span>
                     </TableCell>
                     <TableCell className="px-3 py-2.5 align-middle">
@@ -213,6 +214,17 @@ export function UnionCampoReesView({ initialCamporees, unions }: UnionCampoReesV
                     </TableCell>
                     <TableCell className="px-3 py-2.5 align-middle">
                       <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          asChild
+                          title="Ver detalle"
+                        >
+                          <Link href={`/dashboard/camporees/union/${id}`}>
+                            <Eye className="size-3.5" />
+                            <span className="sr-only">Ver detalle</span>
+                          </Link>
+                        </Button>
                         <Button
                           variant="ghost"
                           size="icon-sm"

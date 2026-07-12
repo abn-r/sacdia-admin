@@ -339,6 +339,22 @@ export function canByPermissionOrRole(
   return false;
 }
 
+/**
+ * Roles allowed to create clubs (manual or bulk import).
+ * Restricted set per business rule: only org-level admins + local-field leadership.
+ */
+export const CLUB_CREATE_ROLES = [
+  "super-admin",
+  "admin",
+  "director-lf",
+  "assistant-lf",
+] as const;
+
+export function canManageClubsByRole(user: AuthUser | null | undefined): boolean {
+  const roles = new Set(extractRoles(user));
+  return CLUB_CREATE_ROLES.some((role) => roles.has(role));
+}
+
 export function canReadClubs(user: AuthUser | null | undefined) {
   return canByPermissionOrRole(user, CLUBS_READ_KEYS, {
     allowAdminFallback: true,

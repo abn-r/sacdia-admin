@@ -1,10 +1,12 @@
 "use client";
 
+import { usePanelPath } from "@/lib/v2/panel-path-context";
+
 import Link from "next/link";
 import { useState } from "react";
 import { useFormStatus } from "react-dom";
 import { useTranslations } from "next-intl";
-import { Loader2, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Eye, Loader2, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -60,23 +62,36 @@ export function ClubsTableActionsCell({
   canDelete,
 }: ClubsTableActionsCellProps) {
   const t = useTranslations("clubs.a11y");
+  const { toPanelPath } = usePanelPath();
   const [deleteItem, setDeleteItem] = useState<ClubActionItem | null>(null);
 
-  const editHref = `/dashboard/clubs/${club.id}?tab=edit`;
+  const editHref = toPanelPath(`/dashboard/clubs/${club.id}?tab=edit`);
+  const viewHref = toPanelPath(`/dashboard/clubs/${club.id}`);
 
   return (
     <>
       {/* Desktop: icon buttons */}
       <div className="hidden gap-1 md:flex">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-8"
+          asChild
+          title={t("viewDetailTitle")}
+        >
+          <Link prefetch={false} href={viewHref} aria-label={t("viewClub", { name: club.name })}>
+            <Eye className="size-3.5" />
+          </Link>
+        </Button>
         {canEdit && (
           <Button
             variant="ghost"
             size="icon"
             className="size-8"
             asChild
-            title="Editar"
+            title={t("editActionTitle")}
           >
-            <Link href={editHref} aria-label={`Editar ${club.name}`}>
+            <Link prefetch={false} href={editHref} aria-label={t("editClub", { name: club.name })}>
               <Pencil className="size-3.5" />
             </Link>
           </Button>
@@ -87,7 +102,7 @@ export function ClubsTableActionsCell({
             size="icon"
             className="size-8 text-destructive hover:text-destructive"
             onClick={() => setDeleteItem(club)}
-            title="Eliminar"
+            title={t("deleteActionTitle")}
             aria-label={t("deleteClub", { name: club.name })}
           >
             <Trash2 className="size-3.5" />
@@ -104,9 +119,15 @@ export function ClubsTableActionsCell({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <DropdownMenuItem asChild>
+              <Link prefetch={false} href={viewHref}>
+                <Eye className="size-4" />
+                Ver detalle
+              </Link>
+            </DropdownMenuItem>
             {canEdit && (
               <DropdownMenuItem asChild>
-                <Link href={editHref}>
+                <Link prefetch={false} href={editHref}>
                   <Pencil className="size-4" />
                   Editar
                 </Link>

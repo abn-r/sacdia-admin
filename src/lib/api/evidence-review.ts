@@ -4,16 +4,41 @@ import { apiRequest, apiRequestFromClient } from "@/lib/api/client";
 
 export type EvidenceType = "class" | "honor";
 
-export type EvidenceStatus =
+export type ClassEvidenceStatus =
   | "PENDING"
   | "SUBMITTED"
   | "VALIDATED"
   | "REJECTED";
 
+export type LegacyEvidenceStatus =
+  | "pending"
+  | "pendiente"
+  | "validado"
+  | "rechazado"
+  | "rejected";
+
+export type HonorValidationStatus =
+  | "PENDING"
+  | "PENDING_REVIEW"
+  | "IN_PROGRESS"
+  | "APPROVED"
+  | "REJECTED";
+
+export type HonorCompletionMode = "UNDECIDED" | "IN_APP" | "EXTERNAL";
+
+export type EvidenceStatus =
+  | ClassEvidenceStatus
+  | HonorValidationStatus
+  | LegacyEvidenceStatus;
+
+export type EvidenceMutationStatus =
+  | ClassEvidenceStatus
+  | "APPROVED";
+
 export type EvidenceItem = {
   id: number;
   type: EvidenceType;
-  status: string;
+  status: EvidenceStatus;
   member_name: string;
   member_id: string;
   section_name: string;
@@ -31,9 +56,40 @@ export type EvidenceFile = {
   uploaded_at: string;
 };
 
+export type HonorRequirementReviewItem = {
+  requirement_id: number;
+  requirement_number: string;
+  display_label: string | null;
+  requirement_text: string;
+  requires_evidence: boolean;
+  completed: boolean;
+  text_response: string | null;
+  completed_at: string | null;
+  evidence_count: number;
+  evidences: EvidenceFile[];
+};
+
+export type HonorReviewPacket = {
+  user_honor_id: number;
+  honor_id: number;
+  honor_name: string;
+  validation_status: HonorValidationStatus;
+  completion_mode: HonorCompletionMode;
+  progress: {
+    total_requirements: number;
+    completed_count: number;
+    progress_percentage: number;
+  };
+  completed_format_file: EvidenceFile | null;
+  general_files: EvidenceFile[];
+  requirement_files: EvidenceFile[];
+  requirements: HonorRequirementReviewItem[];
+};
+
 export type EvidenceDetail = EvidenceItem & {
   files: EvidenceFile[];
   validated_by_name: string | null;
+  honor_review_packet?: HonorReviewPacket;
 };
 
 export type EvidenceHistoryEntry = {
@@ -66,7 +122,10 @@ export async function getEvidencePending(
   page = 1,
   limit = 50,
 ): Promise<PaginatedEvidenceItems> {
-  const params: Record<string, string | number | boolean | undefined> = { page, limit };
+  const params: Record<string, string | number | boolean | undefined> = {
+    page,
+    limit,
+  };
   if (type) params.type = type;
 
   const res = await apiRequest<{ status: string; data: PaginatedEvidenceItems }>(
@@ -102,15 +161,15 @@ export async function approveEvidence(
   type: EvidenceType,
   id: number,
   comments?: string,
-): Promise<{ id: number; type: EvidenceType; status: string }> {
+): Promise<{ id: number; type: EvidenceType; status: EvidenceMutationStatus }> {
   const res = await apiRequestFromClient<{
     status: string;
-    data: { id: number; type: EvidenceType; status: string };
+    data: { id: number; type: EvidenceType; status: EvidenceMutationStatus };
   }>(`/evidence-review/${type}/${id}/approve`, {
     method: "POST",
     body: { comments },
   });
-  return (res as { data: { id: number; type: EvidenceType; status: string } }).data;
+  return (res as { data: { id: number; type: EvidenceType; status: EvidenceMutationStatus } }).data;
 }
 
 /**
@@ -121,15 +180,15 @@ export async function rejectEvidence(
   type: EvidenceType,
   id: number,
   reason: string,
-): Promise<{ id: number; type: EvidenceType; status: string }> {
+): Promise<{ id: number; type: EvidenceType; status: EvidenceMutationStatus }> {
   const res = await apiRequestFromClient<{
     status: string;
-    data: { id: number; type: EvidenceType; status: string };
+    data: { id: number; type: EvidenceType; status: EvidenceMutationStatus };
   }>(`/evidence-review/${type}/${id}/reject`, {
     method: "POST",
     body: { reason },
   });
-  return (res as { data: { id: number; type: EvidenceType; status: string } }).data;
+  return (res as { data: { id: number; type: EvidenceType; status: EvidenceMutationStatus } }).data;
 }
 
 // ─── Bulk operations ──────────────────────────────────────────────────────────

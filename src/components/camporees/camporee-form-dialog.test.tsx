@@ -48,6 +48,12 @@ global.ResizeObserver = class ResizeObserver {
 if (!Element.prototype.scrollIntoView) {
   Element.prototype.scrollIntoView = () => {};
 }
+if (!Element.prototype.hasPointerCapture) {
+  Element.prototype.hasPointerCapture = () => false;
+}
+if (!Element.prototype.releasePointerCapture) {
+  Element.prototype.releasePointerCapture = () => {};
+}
 
 // ---------------------------------------------------------------------------
 // Module-level mocks
@@ -66,6 +72,17 @@ vi.mock("@/lib/api/camporees", async (importOriginal) => {
     updateCamporee: (...args: unknown[]) => mockUpdateCamporee(...args),
   };
 });
+
+// Component fetches local fields on mount; resolve with a known fixture
+// so the Select trigger is enabled and the test can pick a value.
+vi.mock("@/lib/api/generic-catalogs-i18n", () => ({
+  listAdminLocalFields: vi.fn().mockResolvedValue({
+    data: [
+      { local_field_id: 2, name: "Campo de prueba" },
+      { local_field_id: 3, name: "Otro campo" },
+    ],
+  }),
+}));
 
 const mockToastError = vi.fn();
 const mockToastSuccess = vi.fn();
@@ -133,7 +150,9 @@ async function submitForm() {
   });
 }
 
-// Fill all required fields with valid values (create mode)
+// Fill all required fields with valid values (create mode).
+// local_field_id is a Radix Select — set the value directly through the
+// hidden input that the Select renders for form submission.
 async function fillRequiredFields() {
   await act(async () => {
     const nameInput = document.querySelector('input[name="name"]') as HTMLInputElement | null;
@@ -147,10 +166,17 @@ async function fillRequiredFields() {
 
     const placeInput = document.querySelector('input[name="local_camporee_place"]') as HTMLInputElement | null;
     if (placeInput) fireEvent.change(placeInput, { target: { value: "Lugar de prueba" } });
-
-    const fieldIdInput = document.querySelector('input[name="local_field_id"]') as HTMLInputElement | null;
-    if (fieldIdInput) fireEvent.change(fieldIdInput, { target: { value: "2" } });
   });
+
+  // Pick the first local field via the Radix Select trigger.
+  await waitFor(() => {
+    const trigger = screen.getByRole("combobox");
+    expect(trigger).not.toBeDisabled();
+  });
+  const trigger = screen.getByRole("combobox");
+  await userEvent.click(trigger);
+  const option = await screen.findByRole("option", { name: "Campo de prueba" });
+  await userEvent.click(option);
 }
 
 // ---------------------------------------------------------------------------
@@ -182,7 +208,9 @@ describe("CamporeeFormDialog", () => {
     expect(document.querySelector('input[name="start_date"]')).toBeInTheDocument();
     expect(document.querySelector('input[name="end_date"]')).toBeInTheDocument();
     expect(document.querySelector('input[name="local_camporee_place"]')).toBeInTheDocument();
-    expect(document.querySelector('input[name="local_field_id"]')).toBeInTheDocument();
+    // local_field_id is rendered as a Radix Select trigger (combobox role)
+    // instead of a native input.
+    expect(screen.getByRole("combobox")).toBeInTheDocument();
     expect(document.querySelector('input[name="registration_cost"]')).toBeInTheDocument();
 
     // Club type checkboxes by label text

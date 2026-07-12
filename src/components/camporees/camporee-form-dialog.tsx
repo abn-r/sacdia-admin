@@ -19,6 +19,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Form,
   FormControl,
   FormField,
@@ -29,8 +36,34 @@ import {
 import { useTranslations } from "next-intl";
 import { createCamporee, updateCamporee } from "@/lib/api/camporees";
 import type { Camporee } from "@/lib/api/camporees";
+import { listAdminLocalFields } from "@/lib/api/generic-catalogs-i18n";
+import { extractItems } from "@/lib/phase-e-catalogs/fetch-helpers";
+
+// ─── Local field option (parent FK select) ────────────────────────────────────
+
+type LocalFieldOption = { value: number; label: string };
+
+function buildLocalFieldOptions(payload: unknown): LocalFieldOption[] {
+  const items = extractItems(payload);
+  return items
+    .map((item) => {
+      const id =
+        typeof item.local_field_id === "number"
+          ? item.local_field_id
+          : Number(item.local_field_id);
+      const name = typeof item.name === "string" ? item.name.trim() : "";
+      if (!Number.isFinite(id) || id <= 0 || !name) return null;
+      return { value: id, label: name };
+    })
+    .filter((x): x is LocalFieldOption => x !== null);
+}
 
 // ─── Schema factory ────────────────────────────────────────────────────────────
+
+const optionalNumber = z.preprocess(
+  (value) => (value === "" || value == null ? undefined : Number(value)),
+  z.number().optional(),
+);
 
 function buildSchema(t: ReturnType<typeof useTranslations<"camporees.validation">>) {
   return z
@@ -39,7 +72,19 @@ function buildSchema(t: ReturnType<typeof useTranslations<"camporees.validation"
       description: z.string().optional(),
       start_date: z.string().min(1, t("start_date_required")),
       end_date: z.string().min(1, t("end_date_required")),
+      club_registration_deadline: z.string().optional(),
+      member_registration_deadline: z.string().optional(),
+      payment_deadline: z.string().optional(),
+      agenda_visible_from: z.string().optional(),
       local_camporee_place: z.string().min(1, t("place_required")),
+      lat: optionalNumber.refine(
+        (value) => value == null || (value >= -90 && value <= 90),
+        t("coordinates_invalid"),
+      ),
+      long: optionalNumber.refine(
+        (value) => value == null || (value >= -180 && value <= 180),
+        t("coordinates_invalid"),
+      ),
       local_field_id: z.coerce.number().int().min(1, t("local_field_required")),
       registration_cost: z.coerce.number().min(0).optional(),
       includes_adventurers: z.boolean(),
@@ -49,6 +94,10 @@ function buildSchema(t: ReturnType<typeof useTranslations<"camporees.validation"
     .refine((data) => data.start_date <= data.end_date, {
       message: t("end_date_after_start_full"),
       path: ["end_date"],
+    })
+    .refine((data) => (data.lat == null) === (data.long == null), {
+      message: t("coordinates_pair_required"),
+      path: ["long"],
     });
 }
 
@@ -71,6 +120,20 @@ function toDateInput(dateStr?: string | null): string {
   return dateStr.split("T")[0] ?? "";
 }
 
+function toDateTimeInput(dateStr?: string | null): string {
+  if (!dateStr) return "";
+  const date = new Date(dateStr);
+  if (Number.isNaN(date.getTime())) return dateStr.slice(0, 16);
+  const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
+  return localDate.toISOString().slice(0, 16);
+}
+
+function toApiDateTime(value?: string): string | undefined {
+  if (!value) return undefined;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : date.toISOString();
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function CamporeeFormDialog({
@@ -83,6 +146,8 @@ export function CamporeeFormDialog({
   const tVal = useTranslations("camporees.validation");
   const isEdit = !!camporee;
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [localFields, setLocalFields] = useState<LocalFieldOption[]>([]);
+  const [loadingLocalFields, setLoadingLocalFields] = useState(false);
   const schema = useMemo(() => buildSchema(tVal), [tVal]);
 
   const form = useForm<FormValues>({
@@ -92,7 +157,13 @@ export function CamporeeFormDialog({
       description: "",
       start_date: "",
       end_date: "",
+      club_registration_deadline: "",
+      member_registration_deadline: "",
+      payment_deadline: "",
+      agenda_visible_from: "",
       local_camporee_place: "",
+      lat: undefined,
+      long: undefined,
       local_field_id: 0,
       registration_cost: undefined,
       includes_adventurers: false,
@@ -102,6 +173,27 @@ export function CamporeeFormDialog({
   });
 
   useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    setLoadingLocalFields(true);
+    listAdminLocalFields()
+      .then((payload) => {
+        if (cancelled) return;
+        setLocalFields(buildLocalFieldOptions(payload));
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setLocalFields([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingLocalFields(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open]);
+
+  useEffect(() => {
     if (open) {
       if (camporee) {
         form.reset({
@@ -109,7 +201,17 @@ export function CamporeeFormDialog({
           description: camporee.description ?? "",
           start_date: toDateInput(camporee.start_date),
           end_date: toDateInput(camporee.end_date),
+          club_registration_deadline: toDateTimeInput(
+            camporee.club_registration_deadline,
+          ),
+          member_registration_deadline: toDateTimeInput(
+            camporee.member_registration_deadline,
+          ),
+          payment_deadline: toDateTimeInput(camporee.payment_deadline),
+          agenda_visible_from: toDateTimeInput(camporee.agenda_visible_from),
           local_camporee_place: camporee.local_camporee_place ?? "",
+          lat: camporee.lat ?? undefined,
+          long: camporee.long ?? undefined,
           local_field_id: camporee.local_field_id ?? 0,
           registration_cost: camporee.registration_cost ?? undefined,
           includes_adventurers: camporee.includes_adventurers ?? false,
@@ -122,7 +224,13 @@ export function CamporeeFormDialog({
           description: "",
           start_date: "",
           end_date: "",
+          club_registration_deadline: "",
+          member_registration_deadline: "",
+          payment_deadline: "",
+          agenda_visible_from: "",
           local_camporee_place: "",
+          lat: undefined,
+          long: undefined,
           local_field_id: 0,
           registration_cost: undefined,
           includes_adventurers: false,
@@ -137,13 +245,23 @@ export function CamporeeFormDialog({
     setIsSubmitting(true);
     try {
       if (isEdit && camporee) {
-        const id = camporee.camporee_id ?? camporee.id ?? 0;
+        const id = camporee.local_camporee_id ?? camporee.camporee_id ?? camporee.id ?? 0;
         await updateCamporee(id, {
           name: values.name,
           description: values.description,
           start_date: values.start_date,
           end_date: values.end_date,
+          club_registration_deadline: toApiDateTime(
+            values.club_registration_deadline,
+          ),
+          member_registration_deadline: toApiDateTime(
+            values.member_registration_deadline,
+          ),
+          payment_deadline: toApiDateTime(values.payment_deadline),
+          agenda_visible_from: toApiDateTime(values.agenda_visible_from) ?? null,
           local_camporee_place: values.local_camporee_place,
+          lat: values.lat,
+          long: values.long,
           local_field_id: values.local_field_id,
           registration_cost: values.registration_cost,
           includes_adventurers: values.includes_adventurers,
@@ -157,7 +275,17 @@ export function CamporeeFormDialog({
           description: values.description,
           start_date: values.start_date,
           end_date: values.end_date,
+          club_registration_deadline: toApiDateTime(
+            values.club_registration_deadline,
+          ),
+          member_registration_deadline: toApiDateTime(
+            values.member_registration_deadline,
+          ),
+          payment_deadline: toApiDateTime(values.payment_deadline),
+          agenda_visible_from: toApiDateTime(values.agenda_visible_from) ?? null,
           local_camporee_place: values.local_camporee_place,
+          lat: values.lat,
+          long: values.long,
           local_field_id: values.local_field_id,
           registration_cost: values.registration_cost,
           includes_adventurers: values.includes_adventurers,
@@ -270,6 +398,67 @@ export function CamporeeFormDialog({
               />
             </div>
 
+            {/* Fechas límite */}
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <FormField
+                control={form.control}
+                name="club_registration_deadline"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("form.labelClubRegistrationDeadline")}</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="datetime-local" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="member_registration_deadline"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("form.labelMemberRegistrationDeadline")}</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="datetime-local" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="payment_deadline"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("form.labelPaymentDeadline")}</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="datetime-local" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Apertura de agenda */}
+            <FormField
+              control={form.control}
+              name="agenda_visible_from"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("form.labelAgendaVisibleFrom")}</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="datetime-local" />
+                  </FormControl>
+                  <p className="text-xs text-muted-foreground">
+                    {t("form.helpAgendaVisibleFrom")}
+                  </p>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             {/* Lugar */}
             <FormField
               control={form.control}
@@ -296,25 +485,102 @@ export function CamporeeFormDialog({
             <FormField
               control={form.control}
               name="local_field_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    {t("form.labelLocalFieldId")}{" "}
-                    <span aria-hidden="true" className="text-destructive">*</span>
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      type="number"
-                      min={1}
-                      placeholder="1"
-                      aria-required="true"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                const stringValue =
+                  field.value && field.value > 0 ? String(field.value) : "";
+                return (
+                  <FormItem>
+                    <FormLabel>
+                      {t("form.labelLocalFieldId")}{" "}
+                      <span aria-hidden="true" className="text-destructive">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Select
+                        value={stringValue}
+                        onValueChange={(v) => field.onChange(Number(v))}
+                        disabled={loadingLocalFields || localFields.length === 0}
+                      >
+                        <SelectTrigger
+                          ref={field.ref}
+                          onBlur={field.onBlur}
+                          aria-required="true"
+                        >
+                          <SelectValue
+                            placeholder={
+                              loadingLocalFields
+                                ? "Cargando..."
+                                : localFields.length === 0
+                                  ? "Sin campos locales"
+                                  : "Seleccionar campo local"
+                            }
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {localFields.map((lf) => (
+                            <SelectItem key={lf.value} value={String(lf.value)}>
+                              {lf.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
+
+            {/* Coordenadas */}
+            <div className="grid grid-cols-2 gap-3">
+              <FormField
+                control={form.control}
+                name="lat"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("form.labelLatitude")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        name={field.name}
+                        ref={field.ref}
+                        onBlur={field.onBlur}
+                        value={field.value ?? ""}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        type="number"
+                        step="0.000001"
+                        min={-90}
+                        max={90}
+                        placeholder="19.173800"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="long"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("form.labelLongitude")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        name={field.name}
+                        ref={field.ref}
+                        onBlur={field.onBlur}
+                        value={field.value ?? ""}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        type="number"
+                        step="0.000001"
+                        min={-180}
+                        max={180}
+                        placeholder="-96.134200"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             {/* Costo de inscripción */}
             <FormField
@@ -325,7 +591,23 @@ export function CamporeeFormDialog({
                   <FormLabel>{t("form.labelRegistrationCost")}</FormLabel>
                   <FormControl>
                     <Input
-                      {...field}
+                      name={field.name}
+                      ref={field.ref}
+                      onBlur={field.onBlur}
+                      value={
+                        field.value === undefined || field.value === null
+                          ? ""
+                          : field.value
+                      }
+                      onChange={(e) => {
+                        const raw = e.target.value;
+                        if (raw === "") {
+                          field.onChange(undefined);
+                        } else {
+                          const n = Number(raw);
+                          field.onChange(Number.isFinite(n) ? n : undefined);
+                        }
+                      }}
                       type="number"
                       min={0}
                       step="0.01"

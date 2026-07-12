@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { CheckCircle, XCircle, Eye, Loader2 } from "lucide-react";
+import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
@@ -26,63 +26,70 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { validateEnrollment, type Enrollment, type InvestitureStatus } from "@/lib/api/enrollments";
+import {
+  approveEnrollment,
+  rejectEnrollment,
+  type Enrollment,
+  type EnrollmentStatus,
+} from "@/lib/api/enrollments";
 import { ApiError } from "@/lib/api/client";
 import { useFormatDate } from "@/lib/format-locale";
+import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 
 // ─── Status badge ─────────────────────────────────────────────────────────────
 
-type BadgeVariant = "default" | "secondary" | "success" | "destructive" | "warning" | "outline";
+type BadgeVariant =
+  | "default"
+  | "secondary"
+  | "success"
+  | "destructive"
+  | "warning"
+  | "outline";
 
-const STATUS_VARIANTS: Record<InvestitureStatus, BadgeVariant> = {
-  IN_PROGRESS: "secondary",
-  SUBMITTED_FOR_VALIDATION: "warning",
-  APPROVED: "success",
-  REJECTED: "destructive",
-  INVESTIDO: "default",
+const STATUS_VARIANTS: Record<EnrollmentStatus, BadgeVariant> = {
+  pending_validation: "warning",
+  active: "success",
+  rejected: "destructive",
+  inactive: "secondary",
 };
 
-function StatusBadge({ status, label }: { status: InvestitureStatus; label: string }) {
-  return (
-    <Badge variant={STATUS_VARIANTS[status]}>
-      {label}
-    </Badge>
-  );
+function StatusBadge({
+  status,
+  label,
+}: {
+  status: EnrollmentStatus;
+  label: string;
+}) {
+  return <Badge variant={STATUS_VARIANTS[status]}>{label}</Badge>;
 }
 
-// ─── User display name helper ─────────────────────────────────────────────────
+function display(value?: string | null): string {
+  return value && value.trim().length > 0 ? value : "—";
+}
 
-function resolveFullName(enrollment: Enrollment): string {
-  const user = enrollment.user;
-  if (!user) return "—";
-
-  const parts = [
-    user.name ?? user.first_name,
-    user.paternal_last_name ?? user.last_name,
-    user.maternal_last_name,
+function leadershipSummary(enrollment: Enrollment): string {
+  const leaders = [
+    enrollment.director?.name,
+    enrollment.secretary_treasurer?.name,
+    enrollment.secretary?.name,
+    enrollment.treasurer?.name,
   ].filter(Boolean);
-
-  if (parts.length > 0) return parts.join(" ");
-  return user.email ?? "—";
-}
-
-function resolveEmail(enrollment: Enrollment): string {
-  return enrollment.user?.email ?? "—";
-}
-
-function resolveClassName(enrollment: Enrollment): string {
-  return enrollment.class?.name ?? enrollment.classes?.name ?? "—";
+  return leaders.length > 0 ? leaders.join(" · ") : "—";
 }
 
 // ─── Reject confirmation dialog ───────────────────────────────────────────────
 
 interface RejectDialogProps {
-  enrollmentId: number;
+  enrollmentId: string;
   disabled: boolean;
-  onConfirm: (enrollmentId: number) => void;
+  onConfirm: (enrollmentId: string) => void;
 }
 
-function RejectDialog({ enrollmentId, disabled, onConfirm }: RejectDialogProps) {
+function RejectDialog({
+  enrollmentId,
+  disabled,
+  onConfirm,
+}: RejectDialogProps) {
   const t = useTranslations("enrollments");
   return (
     <AlertDialog>
@@ -94,13 +101,17 @@ function RejectDialog({ enrollmentId, disabled, onConfirm }: RejectDialogProps) 
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>{t("actions.reject_dialog_title")}</AlertDialogTitle>
+          <AlertDialogTitle>
+            {t("actions.reject_dialog_title")}
+          </AlertDialogTitle>
           <AlertDialogDescription>
             {t("actions.reject_dialog_description")}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>{t("actions.reject_dialog_cancel")}</AlertDialogCancel>
+          <AlertDialogCancel>
+            {t("actions.reject_dialog_cancel")}
+          </AlertDialogCancel>
           <AlertDialogAction
             onClick={() => onConfirm(enrollmentId)}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
@@ -120,24 +131,29 @@ interface EnrollmentsTableProps {
   onRefresh?: () => void;
 }
 
-export function EnrollmentsTable({ enrollments, onRefresh }: EnrollmentsTableProps) {
+export function EnrollmentsTable({
+  enrollments,
+  onRefresh,
+}: EnrollmentsTableProps) {
   const t = useTranslations("enrollments");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [processingId, setProcessingId] = useState<number | null>(null);
+  const [processingId, setProcessingId] = useState<string | null>(null);
   const formatDate = useFormatDate();
 
   const handleAction = async (
-    enrollmentId: number,
-    action: "APPROVED" | "REJECTED",
+    enrollmentId: string,
+    action: "approved" | "rejected",
   ) => {
     setProcessingId(enrollmentId);
     try {
-      await validateEnrollment(enrollmentId, action);
+      if (action === "approved") {
+        await approveEnrollment(enrollmentId);
+      } else {
+        await rejectEnrollment(enrollmentId);
+      }
       toast.success(
-        action === "APPROVED"
-          ? t("toasts.approved")
-          : t("toasts.rejected"),
+        action === "approved" ? t("toasts.approved") : t("toasts.rejected"),
       );
       startTransition(() => {
         router.refresh();
@@ -145,9 +161,7 @@ export function EnrollmentsTable({ enrollments, onRefresh }: EnrollmentsTablePro
       });
     } catch (error) {
       const message =
-        error instanceof ApiError
-          ? error.message
-          : t("errors.generic");
+        error instanceof ApiError ? error.message : t("errors.generic");
       toast.error(message);
     } finally {
       setProcessingId(null);
@@ -160,17 +174,22 @@ export function EnrollmentsTable({ enrollments, onRefresh }: EnrollmentsTablePro
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>{t("table.col_member")}</TableHead>
-              <TableHead>{t("table.col_class")}</TableHead>
+              <TableHead>{t("table.col_club")}</TableHead>
+              <TableHead>{t("table.col_section")}</TableHead>
+              <TableHead>{t("table.col_local_field")}</TableHead>
               <TableHead>{t("table.col_status")}</TableHead>
-              <TableHead>{t("table.col_enrollment_date")}</TableHead>
               <TableHead>{t("table.col_submitted_at")}</TableHead>
-              <TableHead className="text-right">{t("table.col_actions")}</TableHead>
+              <TableHead className="text-right">
+                {t("table.col_actions")}
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             <TableRow>
-              <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
+              <TableCell
+                colSpan={6}
+                className="h-32 text-center text-muted-foreground"
+              >
                 {t("table.empty")}
               </TableCell>
             </TableRow>
@@ -185,101 +204,94 @@ export function EnrollmentsTable({ enrollments, onRefresh }: EnrollmentsTablePro
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>{t("table.col_member")}</TableHead>
-            <TableHead>{t("table.col_class")}</TableHead>
+            <TableHead>{t("table.col_club")}</TableHead>
+            <TableHead>{t("table.col_section")}</TableHead>
+            <TableHead>{t("table.col_local_field")}</TableHead>
             <TableHead>{t("table.col_status")}</TableHead>
-            <TableHead>{t("table.col_enrollment_date")}</TableHead>
             <TableHead>{t("table.col_submitted_at")}</TableHead>
-            <TableHead className="text-right">{t("table.col_actions")}</TableHead>
+            <TableHead>{t("table.col_leadership")}</TableHead>
+            <TableHead className="text-right">
+              {t("table.col_actions")}
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {enrollments.map((enrollment) => {
-            const isProcessing = processingId === enrollment.enrollment_id;
-            const isPendingValidation =
-              enrollment.investiture_status === "SUBMITTED_FOR_VALIDATION";
+          {enrollments.map((enrollment, index) => {
+            const isProcessing = processingId === enrollment.club_enrollment_id;
+            const canReview = enrollment.status === "pending_validation";
 
             return (
-              <TableRow key={enrollment.enrollment_id}>
-                {/* Member */}
+              <TableRow
+                key={enrollment.club_enrollment_id}
+                className={STAGGER_CLASSES}
+                style={getStaggerStyle(index)}
+              >
                 <TableCell>
                   <div className="space-y-0.5">
                     <p className="font-medium leading-none">
-                      {resolveFullName(enrollment)}
+                      {display(enrollment.club?.name)}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {resolveEmail(enrollment)}
+                      {display(enrollment.created_by?.name)}
                     </p>
                   </div>
                 </TableCell>
 
-                {/* Class */}
                 <TableCell>
-                  <span className="text-sm">{resolveClassName(enrollment)}</span>
+                  <div className="space-y-0.5">
+                    <p className="text-sm font-medium">
+                      {display(enrollment.section?.name)}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {display(enrollment.ecclesiastical_year?.name)}
+                    </p>
+                  </div>
                 </TableCell>
 
-                {/* Status */}
+                <TableCell className="text-sm text-muted-foreground">
+                  {display(enrollment.local_field?.name)}
+                </TableCell>
+
                 <TableCell>
                   <StatusBadge
-                    status={enrollment.investiture_status}
-                    label={t(`table.status.${enrollment.investiture_status}`)}
+                    status={enrollment.status}
+                    label={t(`table.status.${enrollment.status}`)}
                   />
                 </TableCell>
 
-                {/* Enrollment date */}
                 <TableCell className="text-sm text-muted-foreground">
-                  {enrollment.enrollment_date ? formatDate(enrollment.enrollment_date) : "—"}
+                  {enrollment.created_at
+                    ? formatDate(enrollment.created_at)
+                    : "—"}
                 </TableCell>
 
-                {/* Submitted at */}
-                <TableCell className="text-sm text-muted-foreground">
-                  {enrollment.submitted_at ? formatDate(enrollment.submitted_at) : "—"}
+                <TableCell className="max-w-xs text-sm text-muted-foreground">
+                  {leadershipSummary(enrollment)}
                 </TableCell>
 
-                {/* Actions */}
                 <TableCell>
                   <div className="flex items-center justify-end gap-2">
                     {isProcessing && (
                       <Loader2 className="size-4 animate-spin text-muted-foreground" />
                     )}
 
-                    {/* View user profile — only if user_id is available */}
-                    {enrollment.user?.user_id && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        asChild
-                        disabled={isProcessing || isPending}
-                      >
-                        <a href={`/dashboard/users/${enrollment.user.user_id}`}>
-                          <Eye className="mr-1.5 size-3.5" />
-                          {t("actions.view_user")}
-                        </a>
-                      </Button>
-                    )}
+                    <Button
+                      variant="default"
+                      size="sm"
+                      disabled={!canReview || isProcessing || isPending}
+                      onClick={() =>
+                        handleAction(enrollment.club_enrollment_id, "approved")
+                      }
+                    >
+                      <CheckCircle className="mr-1.5 size-3.5" />
+                      {t("actions.approve")}
+                    </Button>
 
-                    {/* Approve / Reject — only for pending validation */}
-                    {isPendingValidation && (
-                      <>
-                        <Button
-                          variant="default"
-                          size="sm"
-                          disabled={isProcessing || isPending}
-                          onClick={() =>
-                            handleAction(enrollment.enrollment_id, "APPROVED")
-                          }
-                        >
-                          <CheckCircle className="mr-1.5 size-3.5" />
-                          {t("actions.approve")}
-                        </Button>
-
-                        <RejectDialog
-                          enrollmentId={enrollment.enrollment_id}
-                          disabled={isProcessing || isPending}
-                          onConfirm={(id) => handleAction(id, "REJECTED")}
-                        />
-                      </>
-                    )}
+                    <RejectDialog
+                      enrollmentId={enrollment.club_enrollment_id}
+                      disabled={!canReview || isProcessing || isPending}
+                      onConfirm={(id) => handleAction(id, "rejected")}
+                    />
                   </div>
                 </TableCell>
               </TableRow>

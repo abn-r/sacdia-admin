@@ -11,7 +11,6 @@ import {
   Package,
   Shield,
   Bell,
-  FolderOpen,
   ShieldCheck,
   Heart,
   Star,
@@ -26,17 +25,18 @@ import {
   Activity,
   FileSearch,
   Trophy,
-  Users2,
-  Layers,
   SlidersHorizontal,
+  ShoppingBag,
+  Tag,
+  Headset,
+  Network,
   type LucideIcon,
 } from "lucide-react";
 import {
+  COORDINATION_MANAGE,
+  USER_HONORS_VALIDATE,
   RANKINGS_READ,
   RANKING_WEIGHTS_READ,
-  MEMBER_RANKINGS_READ_GLOBAL,
-  MEMBER_RANKING_WEIGHTS_READ,
-  SECTION_RANKINGS_READ_GLOBAL,
 } from "@/lib/auth/permissions";
 
 /**
@@ -147,9 +147,6 @@ export const navConfig: NavGroup[] = [
               { title: "items.catalog_classes", url: "/dashboard/catalogs/classes", permission: "catalogs:read" },
               { title: "items.catalog_class_modules", url: "/dashboard/catalogs/class-modules", permission: "catalogs:read" },
               { title: "items.catalog_class_sections", url: "/dashboard/catalogs/class-sections", permission: "catalogs:read" },
-              { title: "items.catalog_folders", url: "/dashboard/catalogs/catalog-folders", permission: "catalogs:read" },
-              { title: "items.catalog_folder_modules", url: "/dashboard/catalogs/folder-modules", permission: "catalogs:read" },
-              { title: "items.catalog_folder_sections", url: "/dashboard/catalogs/folder-sections", permission: "catalogs:read" },
               { title: "items.activity_types", url: "/dashboard/catalogs/activity-types", permission: "catalogs:read" },
             ],
           },
@@ -188,6 +185,7 @@ export const navConfig: NavGroup[] = [
     label: "sections.clubs",
     items: [
       { title: "items.clubs", url: "/dashboard/clubs", icon: Building2, permission: "clubs:read" },
+      { title: "items.coordination", url: "/dashboard/coordination", icon: Network, permission: COORDINATION_MANAGE },
       {
         title: "items.camporees",
         url: "/dashboard/camporees",
@@ -219,6 +217,43 @@ export const navConfig: NavGroup[] = [
     ],
   },
 
+  // ─── Materials (orders, receipts, inventory, config) ────────────────────────
+  {
+    label: "sections.materials",
+    items: [
+      {
+        title: "items.materials_inbox",
+        url: "/dashboard/materials/inbox",
+        icon: ShoppingBag,
+        permission: "materiales:read",
+      },
+      {
+        title: "items.materials_receipts",
+        url: "/dashboard/materials/receipts",
+        icon: FileText,
+        permission: "materiales:validate-receipt",
+      },
+      {
+        title: "items.materials_inventory",
+        url: "/dashboard/materials/inventory",
+        icon: Package,
+        permission: "materiales:manage-inventory",
+      },
+      {
+        title: "items.materials_categories",
+        url: "/dashboard/materials/categories",
+        icon: Tag,
+        permission: "materiales:manage-inventory",
+      },
+      {
+        title: "items.materials_config",
+        url: "/dashboard/materials/config",
+        icon: Settings2,
+        permission: "materiales:configure",
+      },
+    ],
+  },
+
   // ─── Operaciones (validación + folders + year-end) ───────────────────────────
   {
     label: "sections.operations",
@@ -233,6 +268,12 @@ export const navConfig: NavGroup[] = [
         title: "items.evidence_review",
         url: "/dashboard/evidence-review",
         icon: FileSearch,
+        permission: USER_HONORS_VALIDATE,
+      },
+      {
+        title: "items.certificate_bulk_imports",
+        url: "/dashboard/certificate-bulk-imports",
+        icon: FileText,
         permission: "investiture:read",
       },
       {
@@ -246,18 +287,16 @@ export const navConfig: NavGroup[] = [
           { title: "items.investiture_config", url: "/dashboard/investiture/config", permission: "investiture:read" },
         ],
       },
-      { title: "items.evidence_folders", url: "/dashboard/folders", icon: FolderOpen, permission: "user_folders:read" },
       {
         title: "items.annual_folders",
         url: "/dashboard/annual-folders",
         icon: FolderArchive,
-        permission: "annual_folder_templates:read",
+        permission: "evidence_folders:read",
         children: [
+          { title: "items.annual_folders_evaluate", url: "/dashboard/annual-folders", permission: "annual_folders:evaluate" },
           { title: "items.annual_folders_templates", url: "/dashboard/annual-folders/templates", permission: "annual_folder_templates:read" },
-          { title: "items.annual_folders_mine", url: "/dashboard/annual-folders", permission: "annual_folder_templates:read" },
-          { title: "items.annual_folders_evaluate", url: "/dashboard/annual-folders/evaluate", permission: "evidence_folders:update" },
           { title: "items.annual_folders_rankings", url: "/dashboard/annual-folders/rankings", permission: RANKINGS_READ },
-          { title: "items.annual_folders_categories", url: "/dashboard/annual-folders/categories", permission: "award_categories:read" },
+          { title: "items.annual_folders_ranking_config", url: "/dashboard/annual-folders/ranking-config", permission: RANKING_WEIGHTS_READ },
         ],
       },
       {
@@ -280,25 +319,12 @@ export const navConfig: NavGroup[] = [
         permission: "investiture:read",
       },
       {
-        title: "items.member_rankings",
-        url: "/dashboard/member-rankings",
-        icon: Users2,
-        permission: MEMBER_RANKINGS_READ_GLOBAL,
-      },
-      {
-        title: "items.section_rankings",
-        url: "/dashboard/section-rankings",
-        icon: Layers,
-        permission: SECTION_RANKINGS_READ_GLOBAL,
-      },
-      {
         title: "items.ranking_weights_root",
         url: "/dashboard/ranking-weights",
         icon: SlidersHorizontal,
         permission: RANKING_WEIGHTS_READ,
         children: [
           { title: "items.ranking_weights", url: "/dashboard/ranking-weights", permission: RANKING_WEIGHTS_READ },
-          { title: "items.member_ranking_weights", url: "/dashboard/member-ranking-weights", permission: MEMBER_RANKING_WEIGHTS_READ },
         ],
       },
     ],
@@ -345,6 +371,11 @@ export const navConfig: NavGroup[] = [
           { title: "items.reports_mine", url: "/dashboard/reports", permission: "reports:read" },
           { title: "items.reports_supervision", url: "/dashboard/reports/supervision", permission: "reports:read" },
         ],
+      },
+      {
+        title: "items.support_reports",
+        url: "/dashboard/support",
+        icon: Headset,
       },
       {
         title: "items.member_of_month",

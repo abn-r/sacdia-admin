@@ -1,5 +1,7 @@
 "use client";
 
+import { usePanelPath } from "@/lib/v2/panel-path-context";
+
 import Link from "next/link";
 import { ChevronRight, GraduationCap } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -15,6 +17,11 @@ import {
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ClassStatusBadge } from "@/components/classes/class-status-badge";
+import {
+  formatClassAvailabilityUntil,
+  formatClassDurationRange,
+  type ClassDisplayLabels,
+} from "@/lib/classes/display";
 
 export type ClassRow = {
   class_id: number;
@@ -23,6 +30,10 @@ export type ClassRow = {
   club_type_id: number;
   club_type_name: string;
   display_order: number;
+  available_from_year_id?: number | null;
+  available_until_year_id?: number | null;
+  min_duration_years: number;
+  max_duration_years: number;
   modules_count: number;
   active: boolean;
 };
@@ -32,7 +43,19 @@ interface ClassesListProps {
 }
 
 export function ClassesList({ items }: ClassesListProps) {
+  const { toPanelPath } = usePanelPath();
+
   const t = useTranslations("classes.list");
+  const displayT = useTranslations("classes.display");
+  const displayLabels: ClassDisplayLabels = {
+    yearSingular: displayT("yearSingular"),
+    yearPlural: displayT("yearPlural"),
+    yearFallback: (id) => displayT("yearFallback", { id }),
+    availableFromAnyYear: displayT("availableFromAnyYear"),
+    noProgrammedExpiration: displayT("noProgrammedExpiration"),
+    availableFromYear: (label) => displayT("availableFromYear", { label }),
+    availableUntilYear: (label) => displayT("availableUntilYear", { label }),
+  };
 
   if (items.length === 0) {
     return (
@@ -62,6 +85,12 @@ export function ClassesList({ items }: ClassesListProps) {
               {t("col_modules")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              {t("col_duration")}
+            </TableHead>
+            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              {t("col_availability")}
+            </TableHead>
+            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
               {t("col_status")}
             </TableHead>
             <TableHead className="h-9 w-12 px-3" />
@@ -89,12 +118,22 @@ export function ClassesList({ items }: ClassesListProps) {
               <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums">
                 {cls.modules_count > 0 ? cls.modules_count : "—"}
               </TableCell>
+              <TableCell className="px-3 py-2.5 align-middle text-sm">
+                {formatClassDurationRange(
+                  cls.min_duration_years,
+                  cls.max_duration_years,
+                  displayLabels,
+                )}
+              </TableCell>
+              <TableCell className="max-w-[260px] px-3 py-2.5 align-middle text-sm text-muted-foreground">
+                {formatClassAvailabilityUntil(cls.available_until_year_id, displayLabels)}
+              </TableCell>
               <TableCell className="px-3 py-2.5 align-middle">
                 <ClassStatusBadge active={cls.active} />
               </TableCell>
               <TableCell className="px-3 py-2.5 align-middle">
                 <Button variant="ghost" size="icon-sm" asChild>
-                  <Link href={`/dashboard/classes/${cls.class_id}`}>
+                  <Link prefetch={false} href={`${toPanelPath(`/dashboard/classes/`)}${cls.class_id}`}>
                     <ChevronRight className="size-4" />
                     <span className="sr-only">{t("view_detail", { name: cls.name })}</span>
                   </Link>

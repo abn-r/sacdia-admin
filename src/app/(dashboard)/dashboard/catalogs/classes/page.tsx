@@ -27,6 +27,7 @@ const PhaseECatalogCrudPage = dynamic(
 );
 import { ApiError } from "@/lib/api/client";
 import { listAdminClasses } from "@/lib/api/phase-e-catalogs";
+import { listEcclesiasticalYears } from "@/lib/api/catalogs";
 import { extractItems, extractMeta, readParam, readPositiveNumberParam } from "@/lib/phase-e-catalogs/fetch-helpers";
 import { requireAdminUser } from "@/lib/auth/session";
 import { hasAnyPermission } from "@/lib/auth/permission-utils";
@@ -52,6 +53,7 @@ export default async function AdminClassesPage({ searchParams }: { searchParams:
   let items: Record<string, unknown>[] = [];
   let meta = { page, limit, total: 0, totalPages: 1 };
   let loadError: string | null = null;
+  let ecclesiasticalYears: Array<{ ecclesiastical_year_id: number; name: string }> = [];
 
   try {
     const params: Record<string, string | number | boolean> = { page, limit };
@@ -59,9 +61,16 @@ export default async function AdminClassesPage({ searchParams }: { searchParams:
     if (activeRaw === "true") params.active = true;
     if (activeRaw === "false") params.active = false;
 
-    const payload = await listAdminClasses(params);
+    const [payload, years] = await Promise.all([
+      listAdminClasses(params),
+      listEcclesiasticalYears().catch(() => []),
+    ]);
     items = extractItems(payload);
     meta = extractMeta(payload, page, limit, items.length);
+    ecclesiasticalYears = years.map((year) => ({
+      ecclesiastical_year_id: year.ecclesiastical_year_id,
+      name: year.name,
+    }));
   } catch (error) {
     if (!(error instanceof ApiError && error.status === 429)) {
       loadError = error instanceof ApiError ? error.message : t("loadError");
@@ -79,7 +88,7 @@ export default async function AdminClassesPage({ searchParams }: { searchParams:
         title={t("title")}
         description={t("description")}
         entityLabel={t("entityLabel")}
-        emptyIcon={GraduationCap}
+        emptyIcon={<GraduationCap />}
         includeDescription={true}
         idField="class_id"
         nameField="name"
@@ -91,6 +100,8 @@ export default async function AdminClassesPage({ searchParams }: { searchParams:
         createAction={createClassAction}
         updateAction={updateClassAction}
         deleteAction={deleteClassAction}
+        classConfigYearOptions={ecclesiasticalYears}
+        catalogEntityMode="classes"
       />
     </div>
   );

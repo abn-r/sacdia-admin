@@ -39,12 +39,14 @@ export type Unit = {
 export type WeeklyRecordScore = {
   category_id: number;
   category_name?: string;
+  scoring_mode?: "numeric" | "boolean_full";
   points: number;
   max_points?: number;
 };
 
 export type WeeklyRecord = {
   record_id: number;
+  unit_id?: number | null;
   user_id: string;
   week: number;
   year: number;
@@ -64,7 +66,7 @@ export type CreateUnitPayload = {
   advisor_id: string;
   substitute_advisor_id?: string;
   club_type_id: number;
-  club_section_id?: number;
+  club_section_id: number;
 };
 
 export type UpdateUnitPayload = Partial<CreateUnitPayload> & {
@@ -80,8 +82,8 @@ export type CreateWeeklyRecordPayload = {
   user_id: string;
   week: number;
   year: number;
-  attendance: number;
-  punctuality: number;
+  attendance?: number;
+  punctuality?: number;
   scores?: ScoreEntry[];
 };
 
@@ -113,10 +115,10 @@ export async function createUnit(
   clubId: number,
   payload: CreateUnitPayload,
 ): Promise<Unit> {
-  const result = await apiRequestFromClient<unknown>(
-    `/clubs/${clubId}/units`,
-    { method: "POST", body: payload },
-  );
+  const result = await apiRequestFromClient<unknown>(`/clubs/${clubId}/units`, {
+    method: "POST",
+    body: payload,
+  });
   const res = result as { data?: unknown };
   if (res.data && typeof res.data === "object") return res.data as Unit;
   return result as Unit;

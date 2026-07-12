@@ -1,5 +1,7 @@
 "use client";
 
+import { usePanelPath } from "@/lib/v2/panel-path-context";
+
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -59,6 +61,7 @@ import {
 } from "@/components/shared/sortable-header";
 import { deactivateRoleAction } from "@/lib/rbac/actions";
 import type { Role } from "@/lib/rbac/types";
+import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 
 // ─── Alert component — may not exist yet, using inline div fallback ──────────
 // The admin uses a generic Alert from shadcn. We check for it and fallback gracefully.
@@ -151,6 +154,7 @@ function parseUsersCount(errorMessage: string): number | null {
 function DeactivateDialog({ role, open, onClose, onSuccess }: DeactivateDialogProps) {
   const t = useTranslations("rbac");
   const translateRole = useRoleLabel();
+  const { toPanelPath } = usePanelPath();
   const [loading, setLoading] = useState(false);
   const [blockError, setBlockError] = useState<{ usersCount: number } | null>(null);
 
@@ -221,7 +225,7 @@ function DeactivateDialog({ role, open, onClose, onSuccess }: DeactivateDialogPr
           </AlertDialogCancel>
           {isBlocked ? (
             <Button variant="outline" asChild>
-              <Link href="/dashboard/rbac/user-permissions">
+              <Link prefetch={false} href={toPanelPath("/dashboard/rbac/user-permissions")}>
                 <Users className="size-4" />
                 Ver usuarios asignados
               </Link>
@@ -261,6 +265,9 @@ interface RolesTableProps {
 }
 
 export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
+  const { toPanelPath } = usePanelPath();
+
+  const t = useTranslations("rbac");
   const translateRole = useRoleLabel();
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<ActiveFilter>("true");
@@ -459,7 +466,7 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
                       <TableRow
                         key={role.role_id}
                         className="transition-colors hover:bg-muted/30 animate-in fade-in slide-in-from-bottom-2 duration-300"
-                        style={{ animationDelay: `${index * 40}ms`, animationFillMode: "backwards" }}
+                        style={{ animationDelay: `${Math.min(index * 20, 200)}ms`, animationFillMode: "backwards" }}
                       >
                         {/* role_name — mono, lock icon for super-admin */}
                         <TableCell className="px-3 py-2.5 align-middle">
@@ -527,7 +534,7 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
                                         size="icon"
                                         className="size-8 opacity-40"
                                         disabled
-                                        aria-label="Editar rol protegido"
+                                        aria-label={t("rolesTable.editProtectedAriaLabel")}
                                       >
                                         <Pencil className="size-3.5" />
                                       </Button>
@@ -544,7 +551,7 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
                                       className="size-8"
                                       asChild
                                     >
-                                      <Link href={`/dashboard/rbac/roles/${role.role_id}`}>
+                                      <Link prefetch={false} href={toPanelPath(`/dashboard/rbac/roles/${role.role_id}`)}>
                                         <Pencil className="size-3.5" />
                                         <span className="sr-only">Editar {role.role_name}</span>
                                       </Link>
@@ -600,12 +607,12 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
 
           {/* Mobile: descriptive cards */}
           <ul className="space-y-3 md:hidden" aria-label="Lista de roles">
-            {filtered.map((role) => {
+            {filtered.map((role, index) => {
               const protected_ = isProtected(role);
               const permCount = role.role_permissions?.length ?? 0;
 
               return (
-                <li key={role.role_id}>
+                <li key={role.role_id} className={STAGGER_CLASSES} style={getStaggerStyle(index)}>
                   <div className="rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40 focus-visible:outline-none">
                     <div className="flex items-center gap-3">
                       <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
@@ -625,10 +632,12 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
                         )}
                       </div>
                       {!protected_ && isSuperAdmin && (
-                        <Link
-                          href={`/dashboard/rbac/roles/${role.role_id}`}
+                        <Link prefetch={false}
+                          href={toPanelPath(`/dashboard/rbac/roles/${role.role_id}`)}
                           className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                          aria-label={`Editar ${role.role_name}`}
+                          aria-label={t("rolesTable.editRoleAriaLabel", {
+                            name: role.role_name,
+                          })}
                         >
                           <ChevronRight className="size-4" aria-hidden="true" />
                         </Link>
@@ -663,7 +672,7 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
                     {isSuperAdmin && !protected_ && role.active !== false && (
                       <div className="mt-3 flex flex-wrap gap-1.5 border-t border-border/40 pt-3">
                         <Button variant="outline" size="xs" asChild>
-                          <Link href={`/dashboard/rbac/roles/${role.role_id}`}>
+                          <Link prefetch={false} href={toPanelPath(`/dashboard/rbac/roles/${role.role_id}`)}>
                             <Pencil className="size-3" />
                             Editar
                           </Link>

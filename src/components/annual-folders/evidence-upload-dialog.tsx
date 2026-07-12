@@ -165,7 +165,7 @@ export function EvidenceUploadDialog({
               id="evidence-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Descripción breve del archivo..."
+              placeholder={t("evidenceUploadDialog.descriptionPlaceholder")}
               rows={2}
               maxLength={300}
             />
@@ -181,7 +181,7 @@ export function EvidenceUploadDialog({
               Cancelar
             </Button>
             <Button type="submit" disabled={isSubmitting || !selectedFile}>
-              {isSubmitting ? "Subiendo..." : "Subir evidencia"}
+              {isSubmitting ? t("evidenceUploadDialog.submitLoading") : t("evidenceUploadDialog.submitButton")}
             </Button>
           </DialogFooter>
         </form>

@@ -488,7 +488,10 @@ describe("useFormField hook", () => {
     let capturedIds: ReturnType<typeof useFormField> | null = null;
 
     function IdCapture() {
-      capturedIds = useFormField();
+      const ids = useFormField();
+      React.useEffect(() => {
+        capturedIds = ids;
+      }, [ids]);
       return null;
     }
 
@@ -536,7 +539,9 @@ describe("useFormField hook", () => {
 
     function ErrorCapture() {
       const { error } = useFormField();
-      capturedError = error;
+      React.useEffect(() => {
+        capturedError = error;
+      }, [error]);
       return null;
     }
 
@@ -580,8 +585,10 @@ describe("Form (FormProvider)", () => {
 
     function ContextConsumer() {
       const ctx = useFormContext<EmailFormValues>();
-      // If useFormContext does not throw, the provider is in scope.
-      contextReceived = !!ctx.control;
+      React.useEffect(() => {
+        // If useFormContext does not throw, the provider is in scope.
+        contextReceived = !!ctx.control;
+      }, [ctx.control]);
       return null;
     }
 
@@ -608,7 +615,9 @@ describe("Form (FormProvider)", () => {
 
     function DirtyCapture() {
       const { formState } = useFormContext<EmailFormValues>();
-      isDirty = formState.isDirty;
+      React.useEffect(() => {
+        isDirty = formState.isDirty;
+      }, [formState.isDirty]);
       return null;
     }
 

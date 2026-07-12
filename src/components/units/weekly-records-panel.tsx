@@ -7,6 +7,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -43,6 +44,42 @@ import { getLocalFieldScoringCategories } from "@/lib/api/scoring-categories";
 import type { WeeklyRecord, UnitMember, ScoreEntry } from "@/lib/api/units";
 import type { ScoringCategory } from "@/lib/api/scoring-categories";
 
+function getIsoWeekYear(date: Date): { week: number; year: number } {
+  const target = new Date(date.valueOf());
+  const dayNumber = (target.getDay() + 6) % 7;
+  target.setDate(target.getDate() - dayNumber + 3);
+
+  const firstThursday = new Date(target.getFullYear(), 0, 4);
+  const firstThursdayDayNumber = (firstThursday.getDay() + 6) % 7;
+  firstThursday.setDate(firstThursday.getDate() - firstThursdayDayNumber + 3);
+
+  return {
+    week:
+      1 +
+      Math.round(
+        (target.getTime() - firstThursday.getTime()) /
+          (7 * 24 * 60 * 60 * 1000),
+      ),
+    year: target.getFullYear(),
+  };
+}
+
+function getCategoryMode(
+  category: ScoringCategory,
+): "numeric" | "boolean_full" {
+  return category.scoring_mode ?? "numeric";
+}
+
+function normalizeCategoryScore(
+  category: ScoringCategory,
+  value: number,
+): number {
+  if (getCategoryMode(category) === "boolean_full") {
+    return value > 0 ? category.max_points : 0;
+  }
+  return Math.min(category.max_points, Math.max(0, value));
+}
+
 // ─── Add Record Dialog ────────────────────────────────────────────────────────
 
 interface AddRecordDialogProps {
@@ -65,10 +102,10 @@ function AddRecordDialog({
   onSuccess,
 }: AddRecordDialogProps) {
   const t = useTranslations("units_admin");
+  const currentIsoPeriod = getIsoWeekYear(new Date());
   const [userId, setUserId] = useState("");
-  const [week, setWeek] = useState(1);
-  const [attendance, setAttendance] = useState(0);
-  const [punctuality, setPunctuality] = useState(0);
+  const [week, setWeek] = useState(currentIsoPeriod.week);
+  const [year, setYear] = useState(currentIsoPeriod.year);
   // Map of category_id → points value
   const [scoreMap, setScoreMap] = useState<Record<number, number>>({});
 
@@ -76,9 +113,8 @@ function AddRecordDialog({
   function handleClose(val: boolean) {
     if (!val) {
       setUserId("");
-      setWeek(1);
-      setAttendance(0);
-      setPunctuality(0);
+      setWeek(currentIsoPeriod.week);
+      setYear(currentIsoPeriod.year);
       setScoreMap({});
     }
     onOpenChange(val);
@@ -90,8 +126,22 @@ function AddRecordDialog({
     return scoreMap[categoryId] ?? 0;
   }
 
-  function setCategoryScore(categoryId: number, value: number) {
-    setScoreMap((prev) => ({ ...prev, [categoryId]: value }));
+  function setCategoryScore(category: ScoringCategory, value: number) {
+    setScoreMap((prev) => ({
+      ...prev,
+      [category.scoring_category_id]: normalizeCategoryScore(category, value),
+    }));
+  }
+
+  function setAllCategoryScores(value: "max" | "zero") {
+    setScoreMap(
+      Object.fromEntries(
+        activeCategories.map((cat) => [
+          cat.scoring_category_id,
+          value === "max" ? cat.max_points : 0,
+        ]),
+      ),
+    );
   }
 
   const totalPoints = activeCategories.reduce(
@@ -108,9 +158,7 @@ function AddRecordDialog({
       return createWeeklyRecord(clubId, unitId, {
         user_id: userId,
         week,
-        year: new Date().getFullYear(),
-        attendance,
-        punctuality,
+        year,
         scores,
       });
     },
@@ -141,7 +189,8 @@ function AddRecordDialog({
         <DialogHeader>
           <DialogTitle>Nuevo registro semanal</DialogTitle>
           <DialogDescription>
-            Registrá la asistencia, puntualidad y puntajes de categorías para un miembro de la unidad.
+            Registra los puntajes semanales por categoría para un miembro de la
+            unidad.
           </DialogDescription>
         </DialogHeader>
 
@@ -166,40 +215,31 @@ function AddRecordDialog({
           </div>
 
           {/* Week */}
-          <div className="space-y-1.5">
-            <Label htmlFor="record_week">
-              Semana <span className="ml-0.5 text-destructive">*</span>
-            </Label>
-            <Input
-              id="record_week"
-              type="number"
-              min={1}
-              max={52}
-              value={week}
-              onChange={(e) => setWeek(Number(e.target.value))}
-            />
-          </div>
-
-          {/* Fixed fields: attendance and punctuality */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="record_attendance">Asistencia</Label>
+              <Label htmlFor="record_week">
+                Semana ISO <span className="ml-0.5 text-destructive">*</span>
+              </Label>
               <Input
-                id="record_attendance"
+                id="record_week"
                 type="number"
-                min={0}
-                value={attendance}
-                onChange={(e) => setAttendance(Number(e.target.value))}
+                min={1}
+                max={53}
+                value={week}
+                onChange={(e) => setWeek(Number(e.target.value))}
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="record_punctuality">Puntualidad</Label>
+              <Label htmlFor="record_year">
+                Año ISO <span className="ml-0.5 text-destructive">*</span>
+              </Label>
               <Input
-                id="record_punctuality"
+                id="record_year"
                 type="number"
-                min={0}
-                value={punctuality}
-                onChange={(e) => setPunctuality(Number(e.target.value))}
+                min={2020}
+                max={2100}
+                value={year}
+                onChange={(e) => setYear(Number(e.target.value))}
               />
             </div>
           </div>
@@ -207,34 +247,92 @@ function AddRecordDialog({
           {/* Dynamic scoring categories */}
           {activeCategories.length > 0 && (
             <div className="space-y-3">
-              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Categorías de puntaje
-              </p>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Categorías de puntaje
+                </p>
+                <div className="flex gap-1">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setAllCategoryScores("max")}
+                  >
+                    Asignar todo
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setAllCategoryScores("zero")}
+                  >
+                    Limpiar
+                  </Button>
+                </div>
+              </div>
+              <div className="grid gap-3">
                 {activeCategories.map((cat) => (
                   <div key={cat.scoring_category_id} className="space-y-1.5">
-                    <Label htmlFor={`sc_${cat.scoring_category_id}`}>
-                      {cat.name}
-                      <span className="ml-1 text-[11px] text-muted-foreground">
-                        (máx. {cat.max_points})
-                      </span>
-                    </Label>
-                    <Input
-                      id={`sc_${cat.scoring_category_id}`}
-                      type="number"
-                      min={0}
-                      max={cat.max_points}
-                      value={getCategoryScore(cat.scoring_category_id)}
-                      onChange={(e) =>
-                        setCategoryScore(
-                          cat.scoring_category_id,
-                          Math.min(
-                            cat.max_points,
-                            Math.max(0, Number(e.target.value)),
-                          ),
-                        )
-                      }
-                    />
+                    <div className="flex items-center justify-between gap-2">
+                      <Label htmlFor={`sc_${cat.scoring_category_id}`}>
+                        {cat.name}
+                        <span className="ml-1 text-[11px] text-muted-foreground">
+                          (máx. {cat.max_points})
+                        </span>
+                      </Label>
+                      <Badge variant="secondary" className="text-[10px]">
+                        {getCategoryMode(cat) === "boolean_full"
+                          ? "Todo o nada"
+                          : "Numérico"}
+                      </Badge>
+                    </div>
+                    {getCategoryMode(cat) === "boolean_full" ? (
+                      <div className="flex items-center justify-between rounded-md border px-3 py-2">
+                        <span className="text-sm text-muted-foreground">
+                          {getCategoryScore(cat.scoring_category_id) ===
+                          cat.max_points
+                            ? `${cat.max_points} pts`
+                            : "0 pts"}
+                        </span>
+                        <Switch
+                          id={`sc_${cat.scoring_category_id}`}
+                          checked={
+                            getCategoryScore(cat.scoring_category_id) ===
+                            cat.max_points
+                          }
+                          onCheckedChange={(checked) =>
+                            setCategoryScore(cat, checked ? cat.max_points : 0)
+                          }
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        <Input
+                          id={`sc_${cat.scoring_category_id}`}
+                          type="number"
+                          min={0}
+                          max={cat.max_points}
+                          value={getCategoryScore(cat.scoring_category_id)}
+                          onChange={(e) =>
+                            setCategoryScore(cat, Number(e.target.value))
+                          }
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setCategoryScore(cat, 0)}
+                        >
+                          0
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setCategoryScore(cat, cat.max_points)}
+                        >
+                          Máx.
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -283,10 +381,17 @@ interface EditableCellProps {
   value: number;
   min?: number;
   max?: number;
+  disabled?: boolean;
   onSave: (val: number) => Promise<void>;
 }
 
-function EditableCell({ value, min = 0, max, onSave }: EditableCellProps) {
+function EditableCell({
+  value,
+  min = 0,
+  max,
+  disabled = false,
+  onSave,
+}: EditableCellProps) {
   const t = useTranslations("units_admin");
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
@@ -320,7 +425,11 @@ function EditableCell({ value, min = 0, max, onSave }: EditableCellProps) {
         autoFocus
         onChange={(e) => {
           const v = Number(e.target.value);
-          setDraft(max !== undefined ? Math.min(max, Math.max(min, v)) : Math.max(min, v));
+          setDraft(
+            max !== undefined
+              ? Math.min(max, Math.max(min, v))
+              : Math.max(min, v),
+          );
         }}
         onBlur={handleBlur}
         onKeyDown={(e) => {
@@ -338,15 +447,92 @@ function EditableCell({ value, min = 0, max, onSave }: EditableCellProps) {
   return (
     <button
       type="button"
-      className="cursor-pointer rounded px-1 tabular-nums hover:bg-muted/50"
+      className="rounded px-1 tabular-nums hover:bg-muted/50 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-transparent"
+      disabled={disabled}
       onClick={() => {
         setDraft(value);
         setEditing(true);
       }}
-      title="Clic para editar"
+      title={
+        disabled
+          ? "Solo se puede editar la semana ISO vigente"
+          : "Clic para editar"
+      }
     >
       {saving ? <Loader2 className="inline size-3 animate-spin" /> : value}
     </button>
+  );
+}
+
+interface ScoreCellProps {
+  value: number;
+  category: ScoringCategory;
+  disabled?: boolean;
+  onSave: (val: number) => Promise<void>;
+}
+
+function ScoreCell({
+  value,
+  category,
+  disabled = false,
+  onSave,
+}: ScoreCellProps) {
+  const mode = getCategoryMode(category);
+  const normalizedValue = normalizeCategoryScore(category, value);
+
+  if (mode === "boolean_full") {
+    return (
+      <div className="flex items-center justify-end gap-2">
+        <span className="text-xs tabular-nums text-muted-foreground">
+          {normalizedValue === category.max_points ? category.max_points : 0}
+        </span>
+        <Switch
+          checked={normalizedValue === category.max_points}
+          disabled={disabled}
+          onCheckedChange={(checked) => {
+            void onSave(checked ? category.max_points : 0).catch(
+              () => undefined,
+            );
+          }}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center justify-end gap-1">
+      <EditableCell
+        value={normalizedValue}
+        min={0}
+        max={category.max_points}
+        disabled={disabled}
+        onSave={(val) => onSave(normalizeCategoryScore(category, val))}
+      />
+      <Button
+        type="button"
+        size="sm"
+        variant="ghost"
+        className="h-7 px-2 text-xs"
+        disabled={disabled}
+        onClick={() => {
+          void onSave(0).catch(() => undefined);
+        }}
+      >
+        0
+      </Button>
+      <Button
+        type="button"
+        size="sm"
+        variant="ghost"
+        className="h-7 px-2 text-xs"
+        disabled={disabled}
+        onClick={() => {
+          void onSave(category.max_points).catch(() => undefined);
+        }}
+      >
+        Máx.
+      </Button>
+    </div>
   );
 }
 
@@ -388,10 +574,7 @@ export function WeeklyRecordsPanel({
 
   // ─── Queries ────────────────────────────────────────────────────────────────
 
-  const {
-    data: records = null,
-    isLoading: recordsLoading,
-  } = useQuery({
+  const { data: records = null, isLoading: recordsLoading } = useQuery({
     queryKey: weeklyRecordsQueryKey(clubId, unitId),
     queryFn: async () => {
       try {
@@ -416,26 +599,9 @@ export function WeeklyRecordsPanel({
   });
 
   const categories = allCategories.filter((c) => c.active);
+  const currentIsoPeriod = getIsoWeekYear(new Date());
 
   // ─── Mutations ───────────────────────────────────────────────────────────────
-
-  const { mutateAsync: updateFixed } = useMutation({
-    mutationFn: ({
-      recordId,
-      field,
-      value,
-    }: {
-      recordId: number;
-      field: "attendance" | "punctuality";
-      value: number;
-    }) => updateWeeklyRecord(clubId, unitId, recordId, { [field]: value }),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: weeklyRecordsQueryKey(clubId, unitId) });
-    },
-    onError: () => {
-      toast.error(t("errors.update_value_failed"));
-    },
-  });
 
   const { mutateAsync: updateScore } = useMutation({
     mutationFn: ({
@@ -451,35 +617,84 @@ export function WeeklyRecordsPanel({
         scores: [{ category_id: categoryId, points: value }],
       }),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: weeklyRecordsQueryKey(clubId, unitId) });
+      void queryClient.invalidateQueries({
+        queryKey: weeklyRecordsQueryKey(clubId, unitId),
+      });
     },
     onError: () => {
       toast.error(t("errors.update_value_failed"));
     },
   });
 
-  // ─── Handlers for EditableCell ───────────────────────────────────────────────
-
-  async function handleUpdateFixed(
-    recordId: number,
-    field: "attendance" | "punctuality",
-    value: number,
-  ) {
-    await updateFixed({ recordId, field, value });
-  }
+  // ─── Handlers for category score cells ──────────────────────────────────────
 
   async function handleUpdateScore(
     recordId: number,
-    categoryId: number,
+    category: ScoringCategory,
     value: number,
   ) {
-    await updateScore({ recordId, categoryId, value });
+    await updateScore({
+      recordId,
+      categoryId: category.scoring_category_id,
+      value: normalizeCategoryScore(category, value),
+    });
+  }
+
+  async function applyAllCategoriesToRecord(
+    record: WeeklyRecord,
+    value: "max" | "zero",
+  ) {
+    if (!isRecordEditable(record)) return;
+    try {
+      for (const category of categories) {
+        await handleUpdateScore(
+          record.record_id,
+          category,
+          value === "max" ? category.max_points : 0,
+        );
+      }
+      toast.success(
+        value === "max"
+          ? "Puntajes del miembro asignados"
+          : "Puntajes del miembro limpiados",
+      );
+    } catch {
+      toast.error(t("errors.update_value_failed"));
+    }
+  }
+
+  async function applyCategoryToAll(
+    category: ScoringCategory,
+    value: "max" | "zero",
+  ) {
+    const editableRecords = (records ?? []).filter(isRecordEditable);
+    try {
+      for (const record of editableRecords) {
+        await handleUpdateScore(
+          record.record_id,
+          category,
+          value === "max" ? category.max_points : 0,
+        );
+      }
+      toast.success(
+        value === "max"
+          ? "Categoría asignada a todos"
+          : "Categoría limpiada para todos",
+      );
+    } catch {
+      toast.error(t("errors.update_value_failed"));
+    }
   }
 
   // ─── Helpers ────────────────────────────────────────────────────────────────
 
-  function getScoreForCategory(record: WeeklyRecord, categoryId: number): number {
-    return record.scores?.find((s) => s.category_id === categoryId)?.points ?? 0;
+  function getScoreForCategory(
+    record: WeeklyRecord,
+    categoryId: number,
+  ): number {
+    return (
+      record.scores?.find((s) => s.category_id === categoryId)?.points ?? 0
+    );
   }
 
   function calculateTotal(record: WeeklyRecord): number {
@@ -487,6 +702,13 @@ export function WeeklyRecordsPanel({
       return record.scores.reduce((sum, s) => sum + s.points, 0);
     }
     return record.points;
+  }
+
+  function isRecordEditable(record: WeeklyRecord): boolean {
+    return (
+      record.week === currentIsoPeriod.week &&
+      record.year === currentIsoPeriod.year
+    );
   }
 
   const activeMembers = members.filter((m) => m.active);
@@ -508,8 +730,9 @@ export function WeeklyRecordsPanel({
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          Registros de asistencia y puntaje semanal. Haz clic en un valor para
-          editarlo.
+          Planilla semanal agregada por categorías. Solo la semana ISO vigente
+          se puede editar; asistencia y puntualidad deben configurarse como
+          categorías si deben sumar puntos.
         </p>
         {activeMembers.length > 0 && (
           <Button size="sm" onClick={() => setAddOpen(true)}>
@@ -526,7 +749,7 @@ export function WeeklyRecordsPanel({
           description={
             activeMembers.length === 0
               ? "Agrega miembros a la unidad primero para poder registrar asistencia."
-              : "No hay registros de asistencia aún. Crea el primero."
+              : "No hay registros semanales aún. Crea el primero."
           }
         >
           {activeMembers.length > 0 && (
@@ -547,26 +770,53 @@ export function WeeklyRecordsPanel({
                 <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Semana
                 </TableHead>
-                <TableHead className="h-9 px-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Asistencia
-                </TableHead>
-                <TableHead className="h-9 px-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Puntualidad
-                </TableHead>
-
                 {/* Dynamic category columns */}
                 {categories.map((cat) => (
                   <TableHead
                     key={cat.scoring_category_id}
                     className="h-9 px-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground"
-                    title={`Máx. ${cat.max_points} pts`}
+                    title={t("weeklyRecords.maxPointsTitle", {
+                      max: cat.max_points,
+                    })}
                   >
-                    {cat.name}
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-end gap-1">
+                        <span>{cat.name}</span>
+                        <Badge variant="secondary" className="text-[10px]">
+                          {getCategoryMode(cat) === "boolean_full"
+                            ? "Todo o nada"
+                            : "Num."}
+                        </Badge>
+                      </div>
+                      <div className="flex justify-end gap-1">
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="ghost"
+                          className="h-6 px-1.5 text-[10px]"
+                          onClick={() => void applyCategoryToAll(cat, "zero")}
+                        >
+                          0 todos
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="ghost"
+                          className="h-6 px-1.5 text-[10px]"
+                          onClick={() => void applyCategoryToAll(cat, "max")}
+                        >
+                          Máx.
+                        </Button>
+                      </div>
+                    </div>
                   </TableHead>
                 ))}
 
                 <TableHead className="h-9 px-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Total
+                </TableHead>
+                <TableHead className="h-9 px-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Acciones
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -578,45 +828,24 @@ export function WeeklyRecordsPanel({
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle">
                     <Badge variant="outline" className="tabular-nums">
-                      Sem. {record.week}
+                      Sem. {record.week}/{record.year}
                     </Badge>
                   </TableCell>
-                  <TableCell className="px-3 py-2.5 text-right align-middle text-sm">
-                    <EditableCell
-                      value={record.attendance}
-                      onSave={(val) =>
-                        handleUpdateFixed(record.record_id, "attendance", val)
-                      }
-                    />
-                  </TableCell>
-                  <TableCell className="px-3 py-2.5 text-right align-middle text-sm">
-                    <EditableCell
-                      value={record.punctuality}
-                      onSave={(val) =>
-                        handleUpdateFixed(record.record_id, "punctuality", val)
-                      }
-                    />
-                  </TableCell>
-
                   {/* Dynamic category score cells */}
                   {categories.map((cat) => (
                     <TableCell
                       key={cat.scoring_category_id}
                       className="px-3 py-2.5 text-right align-middle text-sm"
                     >
-                      <EditableCell
+                      <ScoreCell
                         value={getScoreForCategory(
                           record,
                           cat.scoring_category_id,
                         )}
-                        min={0}
-                        max={cat.max_points}
+                        category={cat}
+                        disabled={!isRecordEditable(record)}
                         onSave={(val) =>
-                          handleUpdateScore(
-                            record.record_id,
-                            cat.scoring_category_id,
-                            val,
-                          )
+                          handleUpdateScore(record.record_id, cat, val)
                         }
                       />
                     </TableCell>
@@ -625,6 +854,34 @@ export function WeeklyRecordsPanel({
                   {/* Total (calculated) */}
                   <TableCell className="px-3 py-2.5 text-right align-middle">
                     <TotalCell value={calculateTotal(record)} />
+                  </TableCell>
+                  <TableCell className="px-3 py-2.5 text-right align-middle">
+                    <div className="flex justify-end gap-1">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="h-7 px-2 text-xs"
+                        disabled={!isRecordEditable(record)}
+                        onClick={() =>
+                          void applyAllCategoriesToRecord(record, "max")
+                        }
+                      >
+                        Todo
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 px-2 text-xs"
+                        disabled={!isRecordEditable(record)}
+                        onClick={() =>
+                          void applyAllCategoriesToRecord(record, "zero")
+                        }
+                      >
+                        Limpiar
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -640,7 +897,11 @@ export function WeeklyRecordsPanel({
         unitId={unitId}
         members={activeMembers}
         categories={categories}
-        onSuccess={() => void queryClient.invalidateQueries({ queryKey: weeklyRecordsQueryKey(clubId, unitId) })}
+        onSuccess={() =>
+          void queryClient.invalidateQueries({
+            queryKey: weeklyRecordsQueryKey(clubId, unitId),
+          })
+        }
       />
     </div>
   );

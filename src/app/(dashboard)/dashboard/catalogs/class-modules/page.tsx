@@ -79,7 +79,7 @@ export default async function AdminClassModulesPage({ searchParams }: { searchPa
         title={t("title")}
         description={t("description")}
         entityLabel={t("entityLabel")}
-        emptyIcon={BookOpen}
+        emptyIcon={<BookOpen />}
         includeDescription={true}
         idField="module_id"
         nameField="name"

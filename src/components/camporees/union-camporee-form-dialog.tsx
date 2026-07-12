@@ -40,6 +40,11 @@ import type { Union } from "@/lib/api/geography";
 
 // ─── Schema factory ────────────────────────────────────────────────────────────
 
+const optionalNumber = z.preprocess(
+  (value) => (value === "" || value == null ? undefined : Number(value)),
+  z.number().optional(),
+);
+
 function buildSchema(t: ReturnType<typeof useTranslations<"camporees.validation">>) {
   return z
     .object({
@@ -47,8 +52,20 @@ function buildSchema(t: ReturnType<typeof useTranslations<"camporees.validation"
       description: z.string().optional(),
       start_date: z.string().min(1, t("start_date_required")),
       end_date: z.string().min(1, t("end_date_required")),
+      club_registration_deadline: z.string().optional(),
+      member_registration_deadline: z.string().optional(),
+      payment_deadline: z.string().optional(),
+      agenda_visible_from: z.string().optional(),
       union_id: z.coerce.number().int().min(1, t("union_required")),
-      place: z.string().min(1, t("place_required")),
+      union_camporee_place: z.string().min(1, t("place_required")),
+      lat: optionalNumber.refine(
+        (value) => value == null || (value >= -90 && value <= 90),
+        t("coordinates_invalid"),
+      ),
+      long: optionalNumber.refine(
+        (value) => value == null || (value >= -180 && value <= 180),
+        t("coordinates_invalid"),
+      ),
       registration_cost: z.coerce.number().min(0).optional(),
       includes_adventurers: z.boolean(),
       includes_pathfinders: z.boolean(),
@@ -57,6 +74,10 @@ function buildSchema(t: ReturnType<typeof useTranslations<"camporees.validation"
     .refine((data) => data.start_date <= data.end_date, {
       message: t("end_date_after_start"),
       path: ["end_date"],
+    })
+    .refine((data) => (data.lat == null) === (data.long == null), {
+      message: t("coordinates_pair_required"),
+      path: ["long"],
     });
 }
 
@@ -77,6 +98,20 @@ export interface UnionCamporeeFormDialogProps {
 function toDateInput(dateStr?: string | null): string {
   if (!dateStr) return "";
   return dateStr.split("T")[0] ?? "";
+}
+
+function toDateTimeInput(dateStr?: string | null): string {
+  if (!dateStr) return "";
+  const date = new Date(dateStr);
+  if (Number.isNaN(date.getTime())) return dateStr.slice(0, 16);
+  const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
+  return localDate.toISOString().slice(0, 16);
+}
+
+function toApiDateTime(value?: string): string | undefined {
+  if (!value) return undefined;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : date.toISOString();
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -101,8 +136,14 @@ export function UnionCamporeeFormDialog({
       description: "",
       start_date: "",
       end_date: "",
+      club_registration_deadline: "",
+      member_registration_deadline: "",
+      payment_deadline: "",
+      agenda_visible_from: "",
       union_id: 0,
-      place: "",
+      union_camporee_place: "",
+      lat: undefined,
+      long: undefined,
       registration_cost: undefined,
       includes_adventurers: false,
       includes_pathfinders: true,
@@ -118,8 +159,19 @@ export function UnionCamporeeFormDialog({
           description: camporee.description ?? "",
           start_date: toDateInput(camporee.start_date),
           end_date: toDateInput(camporee.end_date),
+          club_registration_deadline: toDateTimeInput(
+            camporee.club_registration_deadline,
+          ),
+          member_registration_deadline: toDateTimeInput(
+            camporee.member_registration_deadline,
+          ),
+          payment_deadline: toDateTimeInput(camporee.payment_deadline),
+          agenda_visible_from: toDateTimeInput(camporee.agenda_visible_from),
           union_id: camporee.union_id ?? 0,
-          place: camporee.place ?? "",
+          union_camporee_place:
+            camporee.union_camporee_place ?? camporee.place ?? "",
+          lat: camporee.lat ?? undefined,
+          long: camporee.long ?? undefined,
           registration_cost: camporee.registration_cost ?? undefined,
           includes_adventurers: camporee.includes_adventurers ?? false,
           includes_pathfinders: camporee.includes_pathfinders ?? true,
@@ -131,8 +183,14 @@ export function UnionCamporeeFormDialog({
           description: "",
           start_date: "",
           end_date: "",
+          club_registration_deadline: "",
+          member_registration_deadline: "",
+          payment_deadline: "",
+          agenda_visible_from: "",
           union_id: 0,
-          place: "",
+          union_camporee_place: "",
+          lat: undefined,
+          long: undefined,
           registration_cost: undefined,
           includes_adventurers: false,
           includes_pathfinders: true,
@@ -150,8 +208,18 @@ export function UnionCamporeeFormDialog({
         description: values.description,
         start_date: values.start_date,
         end_date: values.end_date,
+        club_registration_deadline: toApiDateTime(
+          values.club_registration_deadline,
+        ),
+        member_registration_deadline: toApiDateTime(
+          values.member_registration_deadline,
+        ),
+        payment_deadline: toApiDateTime(values.payment_deadline),
+        agenda_visible_from: toApiDateTime(values.agenda_visible_from) ?? null,
         union_id: values.union_id,
-        place: values.place,
+        union_camporee_place: values.union_camporee_place,
+        lat: values.lat,
+        long: values.long,
         registration_cost: values.registration_cost,
         includes_adventurers: values.includes_adventurers,
         includes_pathfinders: values.includes_pathfinders,
@@ -268,6 +336,67 @@ export function UnionCamporeeFormDialog({
               />
             </div>
 
+            {/* Fechas límite */}
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <FormField
+                control={form.control}
+                name="club_registration_deadline"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("unionForm.labelClubRegistrationDeadline")}</FormLabel>
+                    <FormControl>
+                      <Input type="datetime-local" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="member_registration_deadline"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("unionForm.labelMemberRegistrationDeadline")}</FormLabel>
+                    <FormControl>
+                      <Input type="datetime-local" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="payment_deadline"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("unionForm.labelPaymentDeadline")}</FormLabel>
+                    <FormControl>
+                      <Input type="datetime-local" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Apertura de agenda */}
+            <FormField
+              control={form.control}
+              name="agenda_visible_from"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("unionForm.labelAgendaVisibleFrom")}</FormLabel>
+                  <FormControl>
+                    <Input type="datetime-local" {...field} />
+                  </FormControl>
+                  <p className="text-xs text-muted-foreground">
+                    {t("unionForm.helpAgendaVisibleFrom")}
+                  </p>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             {/* Unión */}
             <FormField
               control={form.control}
@@ -302,7 +431,7 @@ export function UnionCamporeeFormDialog({
             {/* Lugar */}
             <FormField
               control={form.control}
-              name="place"
+              name="union_camporee_place"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
@@ -319,6 +448,58 @@ export function UnionCamporeeFormDialog({
                 </FormItem>
               )}
             />
+
+            {/* Coordenadas */}
+            <div className="grid grid-cols-2 gap-3">
+              <FormField
+                control={form.control}
+                name="lat"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("unionForm.labelLatitude")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        name={field.name}
+                        ref={field.ref}
+                        onBlur={field.onBlur}
+                        value={field.value ?? ""}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        type="number"
+                        step="0.000001"
+                        min={-90}
+                        max={90}
+                        placeholder="19.173800"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="long"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("unionForm.labelLongitude")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        name={field.name}
+                        ref={field.ref}
+                        onBlur={field.onBlur}
+                        value={field.value ?? ""}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        type="number"
+                        step="0.000001"
+                        min={-180}
+                        max={180}
+                        placeholder="-96.134200"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             {/* Costo de inscripción */}
             <FormField

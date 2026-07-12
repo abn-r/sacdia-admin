@@ -61,6 +61,7 @@ import {
 } from "@/components/ui/table";
 import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/shared/page-header";
+import { usePanelPath } from "@/lib/v2/panel-path-context";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import type { HonorCategoryActionState } from "@/lib/honor-categories/actions";
@@ -86,6 +87,7 @@ interface HonorCategoriesCrudPageProps {
   createAction: HonorCategoryFormAction;
   updateAction: HonorCategoryFormAction;
   deleteAction: HonorCategoryFormAction;
+  hidePageHeader?: boolean;
 }
 
 function toPositiveNumber(value: unknown): number | null {
@@ -214,8 +216,11 @@ export function HonorCategoriesCrudPage({
   createAction,
   updateAction,
   deleteAction,
+  hidePageHeader = false,
 }: HonorCategoriesCrudPageProps) {
   const t = useTranslations("catalogs.honorCategories");
+  const { toPanelPath } = usePanelPath();
+  const detailBasePath = toPanelPath("/dashboard/catalogs/honor-categories");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -331,21 +336,31 @@ export function HonorCategoriesCrudPage({
   const safeTotalPages = Math.max(1, meta.totalPages || 1);
 
   return (
-    <div className="space-y-6">
-      <PageHeader title={t("pageTitle")} description={t("pageDescription")}>
-        {canCreate && (
-          <Button onClick={() => handleCreateDialogChange(true)}>
-            <Plus className="size-4" />
-            {t("createCategory")}
-          </Button>
-        )}
-      </PageHeader>
+    <div className={hidePageHeader ? "space-y-4" : "space-y-6"}>
+      {!hidePageHeader ? (
+        <PageHeader title={t("pageTitle")} description={t("pageDescription")}>
+          {canCreate && (
+            <Button onClick={() => handleCreateDialogChange(true)}>
+              <Plus className="size-4" />
+              {t("createCategory")}
+            </Button>
+          )}
+        </PageHeader>
+      ) : null}
 
       <div className="space-y-4">
         <div className="rounded-xl border bg-muted/20 p-4">
           <div className="mb-3 flex items-center justify-between gap-2">
             <h3 className="text-sm font-semibold tracking-wide text-foreground">{t("filtersTitle")}</h3>
-            <span className="text-xs text-muted-foreground">{t("filtersSubtitle")}</span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">{t("filtersSubtitle")}</span>
+              {hidePageHeader && canCreate ? (
+                <Button size="sm" onClick={() => handleCreateDialogChange(true)}>
+                  <Plus className="size-4" />
+                  {t("createCategory")}
+                </Button>
+              ) : null}
+            </div>
           </div>
 
           <div className="overflow-x-auto pb-1">
@@ -426,8 +441,9 @@ export function HonorCategoriesCrudPage({
                         <TableCell className="font-medium">
                           {categoryId ? (
                             <Link
-                              href={`/dashboard/catalogs/honor-categories/${categoryId}`}
+                              href={`${detailBasePath}/${categoryId}`}
                               className="text-primary hover:underline"
+                              prefetch={false}
                             >
                               {categoryName}
                             </Link>
@@ -572,6 +588,9 @@ export function HonorCategoriesCrudPage({
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>{t("editDialogTitle")}</DialogTitle>
+              <DialogDescription>
+                {t("createDialogDesc")}
+              </DialogDescription>
             </DialogHeader>
             <form action={updateFormAction} className="space-y-4">
               <input type="hidden" name="id" value={String(pickCategoryId(editItem) ?? "")} />

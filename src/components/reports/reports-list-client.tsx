@@ -1,5 +1,7 @@
 "use client";
 
+import { usePanelPath } from "@/lib/v2/panel-path-context";
+
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -44,11 +46,12 @@ import {
   createOrGetDraftReport,
   generateReport,
   submitReport,
-  getReportPdfUrl,
+  triggerMonthlyReportPdfDownload,
   type MonthlyReport,
   type ReportStatus,
 } from "@/lib/api/monthly-reports";
 import { useFormatDate } from "@/lib/format-locale";
+import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -96,12 +99,14 @@ function ReportsTableSkeleton({ headers }: { headers: string[] }) {
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface ReportsListClientProps {
-  enrollmentId: number;
+  enrollmentId: string | number;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
+  const { toPanelPath } = usePanelPath();
+
   const t = useTranslations("reports");
   const router = useRouter();
   const formatDate = useFormatDate();
@@ -111,7 +116,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
   const [filterStatus, setFilterStatus] = useState<ReportStatus | "all">("all");
 
   // Action loading per report
-  const [actionLoading, setActionLoading] = useState<Record<number, string>>({});
+  const [actionLoading, setActionLoading] = useState<Record<string, string>>({});
 
   // New report creation state
   const [createMonth, setCreateMonth] = useState<number>(new Date().getMonth() + 1);
@@ -149,7 +154,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
           year: createYear,
         }),
       );
-      router.push(`/dashboard/reports/${report.report_id}`);
+      router.push(toPanelPath(`/dashboard/reports/${report.report_id}`));
     },
     onError: (error) => {
       const message =
@@ -228,9 +233,21 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
     },
   });
 
-  function handleDownloadPdf(report: MonthlyReport) {
-    const url = getReportPdfUrl(report.report_id);
-    window.open(url, "_blank", "noopener,noreferrer");
+  async function handleDownloadPdf(report: MonthlyReport) {
+    setActionLoading((prev) => ({ ...prev, [report.report_id]: "pdf" }));
+    try {
+      await triggerMonthlyReportPdfDownload(report.report_id);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : t("errors.load_reports");
+      toast.error(message);
+    } finally {
+      setActionLoading((prev) => {
+        const next = { ...prev };
+        delete next[report.report_id];
+        return next;
+      });
+    }
   }
 
   // ─── Render ───────────────────────────────────────────────────────────────
@@ -373,7 +390,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {reports.map((report) => {
+                  {reports.map((report, index) => {
                     const statusVariant = (
                       {
                         draft: "warning",
@@ -387,7 +404,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                     const isGenerated = report.status === "generated";
 
                     return (
-                      <TableRow key={report.report_id}>
+                      <TableRow key={report.report_id} className={STAGGER_CLASSES} style={getStaggerStyle(index, 50)}>
                         <TableCell className="font-medium">
                           {t(`months.${report.month}` as Parameters<typeof t>[0])}
                         </TableCell>
@@ -406,7 +423,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                         <TableCell>
                           <div className="flex items-center gap-1.5">
                             <Button variant="ghost" size="xs" asChild>
-                              <Link href={`/dashboard/reports/${report.report_id}`}>
+                              <Link prefetch={false} href={`${toPanelPath(`/dashboard/reports/`)}${report.report_id}`}>
                                 {isSubmitted ? (
                                   <Eye className="size-3" />
                                 ) : (
@@ -453,8 +470,13 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                                 variant="ghost"
                                 size="xs"
                                 onClick={() => handleDownloadPdf(report)}
+                                disabled={isDisabled}
                               >
-                                <Download className="size-3" />
+                                {loadingAction === "pdf" ? (
+                                  <Loader2 className="size-3 animate-spin" />
+                                ) : (
+                                  <Download className="size-3" />
+                                )}
                                 {t("list.actionPdf")}
                               </Button>
                             )}
@@ -470,7 +492,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
 
           {/* Mobile: descriptive cards */}
           <ul className="space-y-3 md:hidden" aria-label={t("list.ariaListLabel")}>
-            {reports.map((report) => {
+            {reports.map((report, index) => {
               const statusVariant = (
                 {
                   draft: "warning",
@@ -484,7 +506,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
               const isGenerated = report.status === "generated";
 
               return (
-                <li key={report.report_id}>
+                <li key={report.report_id} className={STAGGER_CLASSES} style={getStaggerStyle(index, 50)}>
                   <div className="rounded-xl border border-border/60 bg-card p-4 shadow-xs">
                     <div className="flex items-center gap-3">
                       <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
@@ -498,8 +520,8 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                           #{report.report_id}
                         </p>
                       </div>
-                      <Link
-                        href={`/dashboard/reports/${report.report_id}`}
+                      <Link prefetch={false}
+                        href={`${toPanelPath(`/dashboard/reports/`)}${report.report_id}`}
                         className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         aria-label={isSubmitted ? t("list.ariaViewReport") : t("list.ariaEditReport")}
                       >
@@ -530,7 +552,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
 
                     <div className="mt-3 flex flex-wrap gap-1.5 border-t border-border/40 pt-3">
                       <Button variant="outline" size="xs" asChild>
-                        <Link href={`/dashboard/reports/${report.report_id}`}>
+                        <Link prefetch={false} href={`${toPanelPath(`/dashboard/reports/`)}${report.report_id}`}>
                           {isSubmitted ? (
                             <Eye className="size-3" />
                           ) : (
@@ -577,8 +599,13 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                           variant="outline"
                           size="xs"
                           onClick={() => handleDownloadPdf(report)}
+                          disabled={isDisabled}
                         >
-                          <Download className="size-3" />
+                          {loadingAction === "pdf" ? (
+                            <Loader2 className="size-3 animate-spin" />
+                          ) : (
+                            <Download className="size-3" />
+                          )}
                           {t("list.actionPdf")}
                         </Button>
                       )}

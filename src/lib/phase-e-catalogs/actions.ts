@@ -1,9 +1,9 @@
 "use server";
 
 /**
- * Phase E — server actions for all 10 i18n catalog targets:
- * classes, class_modules, class_sections, folders, folder_modules,
- * folder_sections, finance_categories, inventory_categories, honors, master_honors.
+ * Phase E — server actions for i18n catalog targets:
+ * classes, class_modules, class_sections, finance_categories,
+ * inventory_categories, honors, master_honors.
  *
  * Pattern mirrors honor-categories actions exactly.
  */
@@ -24,9 +24,6 @@ import {
   CLASSES_MANAGE,
   CLASS_MODULES_MANAGE,
   CLASS_SECTIONS_MANAGE,
-  FOLDERS_MANAGE,
-  FOLDER_MODULES_MANAGE,
-  FOLDER_SECTIONS_MANAGE,
   FINANCE_CATEGORIES_MANAGE,
   INVENTORY_CATEGORIES_MANAGE,
   HONORS_CREATE,
@@ -44,15 +41,6 @@ import {
   createAdminClassSection,
   updateAdminClassSection,
   deleteAdminClassSection,
-  createAdminFolder,
-  updateAdminFolder,
-  deleteAdminFolder,
-  createAdminFolderModule,
-  updateAdminFolderModule,
-  deleteAdminFolderModule,
-  createAdminFolderSection,
-  updateAdminFolderSection,
-  deleteAdminFolderSection,
   createAdminFinanceCategory,
   updateAdminFinanceCategory,
   deleteAdminFinanceCategory,
@@ -65,7 +53,15 @@ import {
   createAdminMasterHonor,
   updateAdminMasterHonor,
   deleteAdminMasterHonor,
+  recalculateMasterHonor,
+  type ClassRequirementTrack,
+  type MasterHonorPayload,
+  type MasterHonorRuleGroupPayload,
+  type MasterHonorRuleOptionPayload,
+  type MasterHonorRuleGroupType,
+  type MasterHonorApplicabilityScope,
 } from "@/lib/api/phase-e-catalogs";
+import { parseClassConfigFormData } from "@/lib/classes/class-config";
 
 // ─── Shared types ──────────────────────────────────────────────────────────────
 
@@ -87,6 +83,234 @@ function parsePositiveInt(formData: FormData, field: string): number | null {
   const n = Number(raw);
   if (!Number.isFinite(n) || n <= 0) return null;
   return Math.floor(n);
+}
+
+function parseIntField(raw: string, min = 0): number | null {
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+  const n = Number(trimmed);
+  if (!Number.isInteger(n) || n < min) return null;
+  return n;
+}
+
+function parseOptionalInt(raw: string, min = 0): number | null {
+  return parseIntField(raw, min);
+}
+
+function parseOptionalIntField(formData: FormData, field: string, min = 0): number | null | undefined {
+  if (!formData.has(field)) return undefined;
+  return parseOptionalInt(readString(formData, field), min);
+}
+
+function parseRequirementTrackField(formData: FormData): ClassRequirementTrack | null | undefined {
+  if (!formData.has("requirement_track")) return undefined;
+  const raw = readString(formData, "requirement_track");
+  if (!raw) return undefined;
+  if (raw === "BASIC" || raw === "ADVANCED" || raw === "EXTRA") {
+    return raw;
+  }
+  return null;
+}
+
+function parseUnknownInt(value: unknown, min = 0): number | null {
+  if (typeof value === "number" && Number.isInteger(value) && value >= min) {
+    return value;
+  }
+  if (typeof value === "string") {
+    return parseIntField(value, min);
+  }
+  return null;
+}
+
+function parseUnknownString(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function parseUnknownBool(value: unknown): boolean | undefined {
+  if (typeof value === "boolean") return value;
+  return undefined;
+}
+
+function parseIntList(values: unknown): number[] {
+  if (!Array.isArray(values)) return [];
+  return values
+    .map((value) => parseUnknownInt(value, 1))
+    .filter((v): v is number => v !== null && Number.isFinite(v));
+}
+
+const MASTER_HONOR_SCOPE_VALUES = ["ALL", "SELECTED_DIVISIONS"] as const;
+
+function isMasterHonorApplicabilityScope(
+  value: unknown,
+): value is MasterHonorApplicabilityScope {
+  return typeof value === "string" && (MASTER_HONOR_SCOPE_VALUES as readonly string[]).includes(value);
+}
+
+function normalizeMasterHonorApplicabilityScope(
+  value: unknown,
+): MasterHonorApplicabilityScope {
+  return isMasterHonorApplicabilityScope(value) ? value : "ALL";
+}
+
+function normalizeScopeDivisionIds(
+  rawScope: unknown,
+  rawDivisionIds: unknown,
+): { scope: MasterHonorApplicabilityScope; division_ids: number[] } {
+  const scope = normalizeMasterHonorApplicabilityScope(rawScope);
+  const division_ids = scope === "SELECTED_DIVISIONS"
+    ? parseIntList(rawDivisionIds)
+    : [];
+  return { scope, division_ids };
+}
+
+function normalizeMasterHonorRuleOption(
+  raw: unknown,
+  index: number,
+): MasterHonorRuleOptionPayload {
+  if (!raw || typeof raw !== "object") {
+    throw new Error(`La opción ${index + 1} del grupo tiene estructura inválida.`);
+  }
+  const option = raw as Record<string, unknown>;
+  const label = parseUnknownString(option.label);
+  if (!label) throw new Error(`La opción ${index + 1} requiere etiqueta.`);
+
+  const display_order = parseUnknownInt(option.display_order, 0);
+  if (display_order === null) {
+    throw new Error(`La opción "${label}" requiere un orden de visualización válido.`);
+  }
+
+  const honor_ids = parseIntList(option.honor_ids);
+  if (honor_ids.length === 0) {
+    throw new Error(`La opción "${label}" requiere al menos un honor.`);
+  }
+
+  const option_id = parseUnknownInt(option.option_id, 1);
+  return {
+    ...(option_id ? { option_id } : {}),
+    label,
+    display_order,
+    honor_ids,
+    ...(parseUnknownBool(option.active) !== undefined
+      ? { active: parseUnknownBool(option.active) }
+      : {}),
+  };
+}
+
+function normalizeMasterHonorRuleGroup(
+  raw: unknown,
+  index: number,
+): MasterHonorRuleGroupPayload {
+  if (!raw || typeof raw !== "object") {
+    throw new Error(`El grupo ${index + 1} tiene estructura inválida.`);
+  }
+
+  const group = raw as Record<string, unknown>;
+  const group_type = parseUnknownString(group.group_type) as MasterHonorRuleGroupType;
+  if (group_type !== "EXPLICIT_OPTIONS" && group_type !== "CATEGORY_COUNT") {
+    throw new Error(`El grupo ${index + 1} tiene un tipo inválido.`);
+  }
+
+  const minimum_required = parseUnknownInt(group.minimum_required, 1);
+  if (minimum_required === null) {
+    throw new Error(`El grupo ${index + 1} requiere un mínimo válido mayor o igual a 1.`);
+  }
+
+  const display_order = parseUnknownInt(group.display_order, 0);
+  if (display_order === null) {
+    throw new Error(`El grupo ${index + 1} requiere un orden de visualización válido.`);
+  }
+
+  const title = parseUnknownString(group.title);
+  const description = parseUnknownString(group.description);
+  const group_id = parseUnknownInt(group.group_id, 1);
+
+  let options: MasterHonorRuleOptionPayload[] = [];
+  let honors_category_id: number | null | undefined;
+
+  if (group_type === "CATEGORY_COUNT") {
+    honors_category_id = parseUnknownInt(group.honors_category_id, 1) ?? null;
+    if (honors_category_id === null) {
+      throw new Error(`El grupo ${index + 1} requiere una categoría de honor.`);
+    }
+  } else {
+    const rawOptions = Array.isArray(group.options)
+      ? group.options
+      : [];
+    options = rawOptions.map((option, optionIdx) =>
+      normalizeMasterHonorRuleOption(option, optionIdx),
+    );
+
+    const activeOptions = options.filter((option) => option.active !== false).length;
+    if (minimum_required > activeOptions) {
+      throw new Error(`El mínimo del grupo ${index + 1} no puede superar las opciones activas.`);
+    }
+  }
+
+  return {
+    ...(group_id ? { group_id } : {}),
+    group_type,
+    ...(title ? { title } : {}),
+    ...(description ? { description } : {}),
+    minimum_required,
+    ...(honors_category_id !== null && honors_category_id !== undefined
+      ? { honors_category_id }
+      : {}),
+    display_order,
+    options,
+    ...(parseUnknownBool(group.active) !== undefined
+      ? { active: parseUnknownBool(group.active) }
+      : {}),
+  };
+}
+
+function parseMasterHonorPayload(formData: FormData): MasterHonorPayload {
+  const rawValue = formData.get("master_honor_payload");
+  if (!rawValue || typeof rawValue !== "string") {
+    return {
+      applicability_scope: "ALL",
+      division_ids: [],
+      requirement_groups: [],
+    };
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(rawValue);
+  } catch {
+    throw new Error("El payload de configuración de maestría es inválido.");
+  }
+
+  if (!parsed || typeof parsed !== "object") {
+    throw new Error("La configuración de maestría tiene formato inválido.");
+  }
+
+  const payload = parsed as Record<string, unknown>;
+  const philosophy = parseUnknownString(payload.philosophy);
+  const notes = parseUnknownString(payload.notes);
+  const { scope, division_ids } = normalizeScopeDivisionIds(
+    payload.applicability_scope,
+    payload.division_ids,
+  );
+
+  if (scope === "SELECTED_DIVISIONS" && division_ids.length === 0) {
+    throw new Error("La aplicación por divisiones exige al menos una división.");
+  }
+
+  const requirementGroupsRaw = Array.isArray(payload.requirement_groups)
+    ? payload.requirement_groups
+    : [];
+
+  const requirement_groups = requirementGroupsRaw.map((group, index) =>
+    normalizeMasterHonorRuleGroup(group, index),
+  );
+
+  return {
+    ...(philosophy ? { philosophy } : {}),
+    ...(notes ? { notes } : {}),
+    applicability_scope: scope,
+    division_ids,
+    requirement_groups,
+  };
 }
 
 function parseTranslations(formData: FormData): CatalogTranslation[] {
@@ -157,6 +381,56 @@ function buildNameOnlyUpdate(formData: FormData) {
   const dirty = formData.get("translations_dirty");
   if (dirty === "1") payload.translations = parseTranslations(formData);
   return payload;
+}
+
+function buildClassPayload(formData: FormData, includeTranslations = true) {
+  const config = parseClassConfigFormData(formData);
+  if (!config.success) return { error: config.error };
+
+  const payload: Record<string, unknown> = {
+    ...(
+      includeTranslations ? buildTranslatableCreate(formData) : buildTranslatableUpdate(formData)
+    ),
+    ...config.data,
+    advanced_enabled: parseBool(formData, "advanced_enabled"),
+  };
+  return { payload };
+}
+
+function buildClassSectionPayload(formData: FormData, includeTranslations = false) {
+  const requirementTrack = parseRequirementTrackField(formData);
+  if (requirementTrack === null) {
+    return { error: "El tipo de track de requisitos no es válido." };
+  }
+  const moduleId = parseOptionalIntField(formData, "module_id");
+  const displayOrder = parseOptionalIntField(formData, "display_order");
+  const ownerDivisionId = parseOptionalIntField(formData, "owner_division_id");
+  const ownerUnionId = parseOptionalIntField(formData, "owner_union_id");
+  const ownerLocalFieldId = parseOptionalIntField(formData, "owner_local_field_id");
+  const availableFromYearId = parseOptionalIntField(formData, "available_from_year_id");
+  const availableUntilYearId = parseOptionalIntField(formData, "available_until_year_id");
+
+  const payload: Record<string, unknown> = {
+    ...(includeTranslations ? buildTranslatableCreate(formData) : buildTranslatableUpdate(formData)),
+    ...(moduleId === undefined ? {} : { module_id: moduleId }),
+    ...(requirementTrack ? { requirement_track: requirementTrack } : {}),
+    ...(formData.has("required_for_investiture")
+      ? { required_for_investiture: parseBool(formData, "required_for_investiture") }
+      : {}),
+    ...(displayOrder === undefined ? {} : { display_order: displayOrder }),
+    ...(ownerDivisionId === undefined ? {} : { owner_division_id: ownerDivisionId }),
+    ...(ownerUnionId === undefined ? {} : { owner_union_id: ownerUnionId }),
+    ...(ownerLocalFieldId === undefined
+      ? {}
+      : { owner_local_field_id: ownerLocalFieldId }),
+    ...(availableFromYearId === undefined
+      ? {}
+      : { available_from_year_id: availableFromYearId }),
+    ...(availableUntilYearId === undefined
+      ? {}
+      : { available_until_year_id: availableUntilYearId }),
+  };
+  return { payload };
 }
 
 // ─── Generic factory ───────────────────────────────────────────────────────────
@@ -234,7 +508,41 @@ function makeActions(
 
 // ─── Classes ──────────────────────────────────────────────────────────────────
 
-const classesActions = makeActions(
+export async function createClassAction(_: PhaseEActionState, formData: FormData): Promise<PhaseEActionState> {
+  const user = await requireAdminUser();
+  if (!hasAnyPermission(user, [CLASSES_MANAGE, CATALOGS_CREATE])) {
+    return { error: "Sin permisos para crear." };
+  }
+  const built = buildClassPayload(formData, true);
+  if ("error" in built) return { error: built.error };
+  try {
+    await createAdminClass(built.payload as Parameters<typeof createAdminClass>[0]);
+  } catch (error) {
+    return { error: getActionErrorMessage(error, "No se pudo crear el registro.", { endpointLabel: "/admin/classes" }) };
+  }
+  revalidatePath("/dashboard/catalogs/classes");
+  redirect("/dashboard/catalogs/classes");
+}
+
+export async function updateClassAction(_: PhaseEActionState, formData: FormData): Promise<PhaseEActionState> {
+  const user = await requireAdminUser();
+  if (!hasAnyPermission(user, [CLASSES_MANAGE, CATALOGS_UPDATE])) {
+    return { error: "Sin permisos para editar." };
+  }
+  const id = parsePositiveInt(formData, "id");
+  if (!id) return { error: "No se pudo identificar el registro a editar." };
+  const built = buildClassPayload(formData, false);
+  if ("error" in built) return { error: built.error };
+  try {
+    await updateAdminClass(id, built.payload as Parameters<typeof updateAdminClass>[1]);
+  } catch (error) {
+    return { error: getActionErrorMessage(error, "No se pudo actualizar el registro.", { endpointLabel: `/admin/classes/${id}` }) };
+  }
+  revalidatePath("/dashboard/catalogs/classes");
+  redirect("/dashboard/catalogs/classes");
+}
+
+const classDeleteActions = makeActions(
   "/dashboard/catalogs/classes",
   { create: [CLASSES_MANAGE, CATALOGS_CREATE], update: [CLASSES_MANAGE, CATALOGS_UPDATE], delete: [CLASSES_MANAGE, CATALOGS_DELETE] },
   {
@@ -245,9 +553,7 @@ const classesActions = makeActions(
   true,
 );
 
-export const createClassAction = classesActions.createAction;
-export const updateClassAction = classesActions.updateAction;
-export const deleteClassAction = classesActions.deleteAction;
+export const deleteClassAction = classDeleteActions.deleteAction;
 
 // ─── Class Modules ────────────────────────────────────────────────────────────
 
@@ -268,7 +574,41 @@ export const deleteClassModuleAction = classModulesActions.deleteAction;
 
 // ─── Class Sections ───────────────────────────────────────────────────────────
 
-const classSectionsActions = makeActions(
+export async function createClassSectionAction(_: PhaseEActionState, formData: FormData): Promise<PhaseEActionState> {
+  const user = await requireAdminUser();
+  if (!hasAnyPermission(user, [CLASS_SECTIONS_MANAGE, CATALOGS_CREATE])) {
+    return { error: "Sin permisos para crear." };
+  }
+  const built = buildClassSectionPayload(formData, true);
+  if ("error" in built) return { error: built.error };
+  try {
+    await createAdminClassSection(built.payload as Parameters<typeof createAdminClassSection>[0]);
+  } catch (error) {
+    return { error: getActionErrorMessage(error, "No se pudo crear el registro.", { endpointLabel: "/admin/class-sections" }) };
+  }
+  revalidatePath("/dashboard/catalogs/class-sections");
+  redirect("/dashboard/catalogs/class-sections");
+}
+
+export async function updateClassSectionAction(_: PhaseEActionState, formData: FormData): Promise<PhaseEActionState> {
+  const user = await requireAdminUser();
+  if (!hasAnyPermission(user, [CLASS_SECTIONS_MANAGE, CATALOGS_UPDATE])) {
+    return { error: "Sin permisos para editar." };
+  }
+  const id = parsePositiveInt(formData, "id");
+  if (!id) return { error: "No se pudo identificar el registro a editar." };
+  const built = buildClassSectionPayload(formData, false);
+  if ("error" in built) return { error: built.error };
+  try {
+    await updateAdminClassSection(id, built.payload as Parameters<typeof updateAdminClassSection>[1]);
+  } catch (error) {
+    return { error: getActionErrorMessage(error, "No se pudo actualizar el registro.", { endpointLabel: `/admin/class-sections/${id}` }) };
+  }
+  revalidatePath("/dashboard/catalogs/class-sections");
+  redirect("/dashboard/catalogs/class-sections");
+}
+
+const classSectionsDeleteActions = makeActions(
   "/dashboard/catalogs/class-sections",
   { create: [CLASS_SECTIONS_MANAGE, CATALOGS_CREATE], update: [CLASS_SECTIONS_MANAGE, CATALOGS_UPDATE], delete: [CLASS_SECTIONS_MANAGE, CATALOGS_DELETE] },
   {
@@ -279,60 +619,7 @@ const classSectionsActions = makeActions(
   true,
 );
 
-export const createClassSectionAction = classSectionsActions.createAction;
-export const updateClassSectionAction = classSectionsActions.updateAction;
-export const deleteClassSectionAction = classSectionsActions.deleteAction;
-
-// ─── Folders ──────────────────────────────────────────────────────────────────
-
-const foldersActions = makeActions(
-  "/dashboard/catalogs/catalog-folders",
-  { create: [FOLDERS_MANAGE, CATALOGS_CREATE], update: [FOLDERS_MANAGE, CATALOGS_UPDATE], delete: [FOLDERS_MANAGE, CATALOGS_DELETE] },
-  {
-    create: (p) => createAdminFolder(p as Parameters<typeof createAdminFolder>[0]),
-    update: (id, p) => updateAdminFolder(id, p),
-    delete: (id) => deleteAdminFolder(id),
-  },
-  true,
-);
-
-export const createFolderCatalogAction = foldersActions.createAction;
-export const updateFolderCatalogAction = foldersActions.updateAction;
-export const deleteFolderCatalogAction = foldersActions.deleteAction;
-
-// ─── Folder Modules ───────────────────────────────────────────────────────────
-
-const folderModulesActions = makeActions(
-  "/dashboard/catalogs/folder-modules",
-  { create: [FOLDER_MODULES_MANAGE, CATALOGS_CREATE], update: [FOLDER_MODULES_MANAGE, CATALOGS_UPDATE], delete: [FOLDER_MODULES_MANAGE, CATALOGS_DELETE] },
-  {
-    create: (p) => createAdminFolderModule(p as Parameters<typeof createAdminFolderModule>[0]),
-    update: (id, p) => updateAdminFolderModule(id, p),
-    delete: (id) => deleteAdminFolderModule(id),
-  },
-  true,
-);
-
-export const createFolderModuleAction = folderModulesActions.createAction;
-export const updateFolderModuleAction = folderModulesActions.updateAction;
-export const deleteFolderModuleAction = folderModulesActions.deleteAction;
-
-// ─── Folder Sections ──────────────────────────────────────────────────────────
-
-const folderSectionsActions = makeActions(
-  "/dashboard/catalogs/folder-sections",
-  { create: [FOLDER_SECTIONS_MANAGE, CATALOGS_CREATE], update: [FOLDER_SECTIONS_MANAGE, CATALOGS_UPDATE], delete: [FOLDER_SECTIONS_MANAGE, CATALOGS_DELETE] },
-  {
-    create: (p) => createAdminFolderSection(p as Parameters<typeof createAdminFolderSection>[0]),
-    update: (id, p) => updateAdminFolderSection(id, p),
-    delete: (id) => deleteAdminFolderSection(id),
-  },
-  true,
-);
-
-export const createFolderSectionAction = folderSectionsActions.createAction;
-export const updateFolderSectionAction = folderSectionsActions.updateAction;
-export const deleteFolderSectionAction = folderSectionsActions.deleteAction;
+export const deleteClassSectionAction = classSectionsDeleteActions.deleteAction;
 
 // ─── Finance Categories ───────────────────────────────────────────────────────
 
@@ -387,17 +674,123 @@ export const deleteHonorCatalogAction = honorsAdminActions.deleteAction;
 
 // ─── Master Honors ────────────────────────────────────────────────────────────
 
-const masterHonorsActions = makeActions(
-  "/dashboard/catalogs/master-honors",
-  { create: [MASTER_HONORS_MANAGE, CATALOGS_CREATE], update: [MASTER_HONORS_MANAGE, CATALOGS_UPDATE], delete: [MASTER_HONORS_MANAGE, CATALOGS_DELETE] },
-  {
-    create: (p) => createAdminMasterHonor(p as Parameters<typeof createAdminMasterHonor>[0]),
-    update: (id, p) => updateAdminMasterHonor(id, p),
-    delete: (id) => deleteAdminMasterHonor(id),
-  },
-  true,
-);
+async function buildMasterHonorCreatePayload(formData: FormData) {
+  const payload = {
+    ...buildTranslatableCreate(formData),
+    ...parseMasterHonorPayload(formData),
+  };
+  return payload;
+}
 
-export const createMasterHonorAction = masterHonorsActions.createAction;
-export const updateMasterHonorAction = masterHonorsActions.updateAction;
-export const deleteMasterHonorAction = masterHonorsActions.deleteAction;
+async function buildMasterHonorUpdatePayload(formData: FormData) {
+  const payload = {
+    ...buildTranslatableUpdate(formData),
+    ...parseMasterHonorPayload(formData),
+  };
+  return payload;
+}
+
+export async function createMasterHonorAction(
+  _: PhaseEActionState,
+  formData: FormData,
+): Promise<PhaseEActionState> {
+  const user = await requireAdminUser();
+  if (!hasAnyPermission(user, [MASTER_HONORS_MANAGE, CATALOGS_CREATE])) {
+    return { error: "Sin permisos para crear." };
+  }
+
+  try {
+    const payload = await buildMasterHonorCreatePayload(formData);
+    await createAdminMasterHonor(payload as Parameters<typeof createAdminMasterHonor>[0]);
+  } catch (error) {
+    return {
+      error: getActionErrorMessage(error, "No se pudo crear el registro.", {
+        endpointLabel: "/admin/master-honors",
+      }),
+    };
+  }
+
+  revalidatePath("/dashboard/catalogs/master-honors");
+  redirect("/dashboard/catalogs/master-honors");
+}
+
+export async function updateMasterHonorAction(
+  _: PhaseEActionState,
+  formData: FormData,
+): Promise<PhaseEActionState> {
+  const user = await requireAdminUser();
+  if (!hasAnyPermission(user, [MASTER_HONORS_MANAGE, CATALOGS_UPDATE])) {
+    return { error: "Sin permisos para editar." };
+  }
+
+  const id = parsePositiveInt(formData, "id");
+  if (!id) return { error: "No se pudo identificar el registro a editar." };
+
+  try {
+    const payload = await buildMasterHonorUpdatePayload(formData);
+    await updateAdminMasterHonor(id, payload as Parameters<typeof updateAdminMasterHonor>[1]);
+  } catch (error) {
+    return {
+      error: getActionErrorMessage(error, "No se pudo actualizar el registro.", {
+        endpointLabel: `/admin/master-honors/${id}`,
+      }),
+    };
+  }
+
+  revalidatePath("/dashboard/catalogs/master-honors");
+  redirect("/dashboard/catalogs/master-honors");
+}
+
+export async function deleteMasterHonorAction(
+  _: PhaseEActionState,
+  formData: FormData,
+): Promise<PhaseEActionState> {
+  const user = await requireAdminUser();
+  if (!hasAnyPermission(user, [MASTER_HONORS_MANAGE, CATALOGS_DELETE])) {
+    return { error: "Sin permisos para eliminar." };
+  }
+
+  const id = parsePositiveInt(formData, "id");
+  if (!id) return { error: "No se pudo identificar el registro a editar." };
+
+  try {
+    await deleteAdminMasterHonor(id);
+  } catch (error) {
+    return {
+      error: getActionErrorMessage(error, "No se pudo eliminar el registro.", {
+        endpointLabel: `/admin/master-honors/${id}`,
+      }),
+    };
+  }
+
+  revalidatePath("/dashboard/catalogs/master-honors");
+  redirect("/dashboard/catalogs/master-honors");
+}
+
+export async function recalculateMasterHonorAction(
+  _: PhaseEActionState,
+  formData: FormData,
+): Promise<PhaseEActionState> {
+  const user = await requireAdminUser();
+  if (!hasAnyPermission(user, [MASTER_HONORS_MANAGE, CATALOGS_UPDATE])) {
+    return { error: "Sin permisos para editar." };
+  }
+
+  const id = parsePositiveInt(formData, "id");
+  if (!id) {
+    return { error: "No se pudo identificar el registro a recalcular." };
+  }
+
+  try {
+    await recalculateMasterHonor(id);
+  } catch (error) {
+    return {
+      error: getActionErrorMessage(error, "No se pudo recalcular la maestría.", {
+        endpointLabel: `/admin/master-honors/${id}/recalculate`,
+      }),
+    };
+  }
+
+  revalidatePath("/dashboard/catalogs/master-honors");
+  return {};
+}
