@@ -1,48 +1,42 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { usePanelPath } from "@/lib/v2/panel-path-context";
+
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Building2, Eye, MoreHorizontal, Pencil, Plus, Search } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Building2, Plus, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
+import { Kbd } from "@/components/ui/kbd";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { PageHeader } from "@/components/shared/page-header";
+import { Separator } from "@/components/ui/separator";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import { ClubsCreateMenu } from "@/components/clubs/clubs-create-menu";
-import {
-  getClubChurchName,
-  getClubDistrictName,
-  getClubListId,
-  getClubLocalFieldName,
-  type ClubListItem,
-} from "@/lib/clubs/fetch-list";
-
-type NavigationMode = "push" | "replace";
+import { ClubsTable } from "@/components/clubs/clubs-table";
+import { useClubsFilters } from "@/components/clubs/use-clubs-filters";
+import type { ClubListItem } from "@/lib/clubs/fetch-list";
+import { getClubListId } from "@/lib/clubs/fetch-list";
 
 interface LocalFieldOption {
   label: string;
@@ -55,6 +49,23 @@ interface ClubsListClientProps {
   localFieldOptions: LocalFieldOption[];
   canCreate: boolean;
   canEdit: boolean;
+  pendingCountsByClubId?: Record<number, number>;
+}
+
+function useSearchShortcutLabel(): string {
+  const [shortcut, setShortcut] = useState("⌘K");
+
+  useEffect(() => {
+    const frameId = window.requestAnimationFrame(() => {
+      const isMac =
+        typeof navigator !== "undefined" &&
+        /Mac|iPhone|iPad|iPod/.test(navigator.platform);
+      setShortcut(isMac ? "⌘K" : "Ctrl+K");
+    });
+    return () => window.cancelAnimationFrame(frameId);
+  }, []);
+
+  return shortcut;
 }
 
 export function ClubsListClient({
@@ -63,321 +74,167 @@ export function ClubsListClient({
   localFieldOptions,
   canCreate,
   canEdit,
+  pendingCountsByClubId = {},
 }: ClubsListClientProps) {
+  const { toPanelPath } = usePanelPath();
+
   const t = useTranslations("clubs.pages.v2");
   const tList = useTranslations("clubs.pages.list");
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const searchParamsString = searchParams.toString();
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const latestParamsRef = useRef(searchParamsString);
+  const shortcut = useSearchShortcutLabel();
+  const {
+    searchInput,
+    currentStatusFilter,
+    currentLocalField,
+    hasActiveFilters,
+    updateParam,
+    handleSearchInputChange,
+    clearFilters,
+  } = useClubsFilters();
 
-  const currentSearch =
-    searchParams.get("search") ??
-    searchParams.get("name") ??
-    searchParams.get("q") ??
-    "";
-  const currentStatusFilter = searchParams.get("active") ?? "all";
-  const currentLocalField = searchParams.get("localFieldId") ?? "all";
-  const [searchInput, setSearchInput] = useState(currentSearch);
-
-  useEffect(() => {
-    latestParamsRef.current = searchParamsString;
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-      debounceRef.current = null;
-    }
-  }, [searchParamsString]);
-
-  useEffect(() => {
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
-  }, []);
-
-  const updateParam = useCallback(
-    (key: string, value: string, mode: NavigationMode = "push") => {
-      if (key !== "search" && debounceRef.current) {
-        clearTimeout(debounceRef.current);
-        debounceRef.current = null;
-      }
-      const params = new URLSearchParams(latestParamsRef.current);
-      const normalized = value.trim();
-      if (!normalized || normalized === "all") {
-        params.delete(key);
-      } else {
-        params.set(key, normalized);
-      }
-      if (key === "search") {
-        params.delete("name");
-        params.delete("q");
-      }
-      params.set("page", "1");
-      const qs = params.toString();
-      const nextUrl = qs ? `${pathname}?${qs}` : pathname;
-      if (mode === "replace") {
-        router.replace(nextUrl);
-      } else {
-        router.push(nextUrl);
-      }
-    },
-    [pathname, router],
-  );
-
-  useEffect(() => {
-    setSearchInput(currentSearch);
-  }, [currentSearch]);
-
-  const handleSearchInputChange = useCallback(
-    (value: string) => {
-      setSearchInput(value);
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-      debounceRef.current = setTimeout(() => {
-        updateParam("search", value, "replace");
-      }, 400);
-    },
-    [updateParam],
-  );
-
-  const hasActiveFilters = Boolean(
-    currentSearch || currentStatusFilter !== "all" || currentLocalField !== "all",
-  );
   const safePage = Math.max(1, meta.page || 1);
   const safeLimit = Math.max(1, meta.limit || 20);
   const safeTotalPages = Math.max(1, meta.totalPages || 1);
 
-  return (
-    <div className="space-y-6">
-      <PageHeader title={tList("title")} description={t("description")}>
-        <div className="flex flex-wrap items-center gap-2">
-          {canCreate && <ClubsCreateMenu />}
-        </div>
-      </PageHeader>
+  const activeOnPage = items.filter((club) => club.active !== false).length;
+  const pendingTotal = items.reduce((sum, club) => {
+    const clubId = getClubListId(club);
+    return sum + (clubId ? pendingCountsByClubId[clubId] ?? 0 : 0);
+  }, 0);
 
-      <div className="space-y-4">
-        <div className="rounded-xl border bg-muted/20 p-4">
-          <div className="mb-3 flex items-center justify-between gap-2">
-            <h3 className="text-sm font-semibold tracking-wide text-foreground">
-              {t("filtersTitle")}
-            </h3>
-            <span className="text-xs text-muted-foreground">{t("filtersHint")}</span>
+  return (
+    <Card>
+      <CardHeader className="border-b has-data-[slot=card-action]:grid-cols-1 md:has-data-[slot=card-action]:grid-cols-[1fr_auto]">
+        <CardTitle className="text-xl leading-none">{tList("title")}</CardTitle>
+        <CardDescription className="max-w-prose leading-snug">
+          {t("description")}
+        </CardDescription>
+        <CardAction className="col-start-1 row-start-auto flex w-full flex-wrap justify-start gap-2 justify-self-stretch md:col-start-2 md:row-span-2 md:row-start-1 md:w-auto md:flex-nowrap md:justify-end md:justify-self-end">
+          <InputGroup className="h-8 w-full md:w-72">
+            <InputGroupAddon align="inline-start">
+              <Search className="size-3.5" aria-hidden="true" />
+            </InputGroupAddon>
+            <InputGroupInput
+              id="clubs-search"
+              placeholder={t("searchPlaceholder")}
+              value={searchInput}
+              onChange={(event) => handleSearchInputChange(event.target.value)}
+              aria-label={tList("colName")}
+            />
+            <InputGroupAddon align="inline-end">
+              <Kbd className="h-4 text-[10px]">{shortcut}</Kbd>
+            </InputGroupAddon>
+          </InputGroup>
+          {canCreate ? <ClubsCreateMenu /> : null}
+        </CardAction>
+      </CardHeader>
+
+      <CardContent className="flex flex-col gap-4 px-0">
+        <div className="flex flex-wrap items-center justify-between gap-3 px-4">
+          <div className="flex flex-wrap items-center gap-3">
+            <Select
+              value={currentStatusFilter}
+              onValueChange={(value) => updateParam("active", value)}
+            >
+              <SelectTrigger size="sm" className="w-[180px]" id="clubs-status">
+                <span className="text-muted-foreground">{tList("colStatus")}:</span>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent position="popper" align="start">
+                <SelectGroup>
+                  <SelectItem value="all">{t("statusAll")}</SelectItem>
+                  <SelectItem value="true">{tList("statusActive")}</SelectItem>
+                  <SelectItem value="false">{tList("statusInactive")}</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={currentLocalField}
+              onValueChange={(value) => updateParam("localFieldId", value)}
+            >
+              <SelectTrigger size="sm" className="w-[220px]" id="clubs-local-field">
+                <span className="text-muted-foreground">{tList("colLocalField")}:</span>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent position="popper" align="start">
+                <SelectGroup>
+                  <SelectItem value="all">{t("localFieldAll")}</SelectItem>
+                  {localFieldOptions.map((option) => (
+                    <SelectItem key={option.value} value={String(option.value)}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </div>
-          <div className="overflow-x-auto pb-1">
-            <div className="flex min-w-max items-end gap-4">
-              <div className="w-[300px] space-y-1">
-                <Label htmlFor="clubs-search">{tList("colName")}</Label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    id="clubs-search"
-                    placeholder={t("searchPlaceholder")}
-                    value={searchInput}
-                    onChange={(event) => handleSearchInputChange(event.target.value)}
-                    className="bg-background pl-9"
-                  />
-                </div>
-              </div>
-              <div className="w-[200px] space-y-1">
-                <Label htmlFor="clubs-status">{tList("colStatus")}</Label>
-                <Select
-                  value={currentStatusFilter}
-                  onValueChange={(value) => updateParam("active", value)}
-                >
-                  <SelectTrigger id="clubs-status" className="bg-background">
-                    <SelectValue placeholder={tList("colStatus")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">{t("statusAll")}</SelectItem>
-                    <SelectItem value="true">{tList("statusActive")}</SelectItem>
-                    <SelectItem value="false">{tList("statusInactive")}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="w-[240px] space-y-1">
-                <Label htmlFor="clubs-local-field">{tList("colLocalField")}</Label>
-                <Select
-                  value={currentLocalField}
-                  onValueChange={(value) => updateParam("localFieldId", value)}
-                >
-                  <SelectTrigger id="clubs-local-field" className="bg-background">
-                    <SelectValue placeholder={tList("colLocalField")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">{t("localFieldAll")}</SelectItem>
-                    {localFieldOptions.map((option) => (
-                      <SelectItem key={option.value} value={String(option.value)}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </div>
+
+          {hasActiveFilters ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-8 gap-1.5 text-xs"
+              onClick={clearFilters}
+            >
+              <X className="size-3.5" aria-hidden="true" />
+              {tList("clearFilters")}
+            </Button>
+          ) : null}
+        </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-3 px-4">
+          <p className="text-sm text-muted-foreground tabular-nums">
+            {tList("resultsSummary", {
+              total: meta.total,
+              active: activeOnPage,
+              pending: pendingTotal,
+            })}
+          </p>
         </div>
 
         {items.length === 0 ? (
-          <EmptyState
-            icon={hasActiveFilters ? Search : Building2}
-            title={hasActiveFilters ? t("emptyFilteredTitle") : tList("emptyTitle")}
-            description={
-              hasActiveFilters ? t("emptyFilteredDescription") : tList("emptyDescription")
-            }
-          >
-            {canCreate && !hasActiveFilters && (
-              <Button asChild>
-                <Link prefetch={false} href="/dashboard/clubs/new">
-                  <Plus className="size-4" />
-                  {tList("emptyCreateButton")}
-                </Link>
-              </Button>
-            )}
-          </EmptyState>
+          <div className="px-4 pb-2">
+            <EmptyState
+              icon={hasActiveFilters ? Search : Building2}
+              title={hasActiveFilters ? t("emptyFilteredTitle") : tList("emptyTitle")}
+              description={
+                hasActiveFilters ? t("emptyFilteredDescription") : tList("emptyDescription")
+              }
+            >
+              {canCreate && !hasActiveFilters && (
+                <Button asChild size="sm">
+                  <Link prefetch={false} href={toPanelPath("/dashboard/clubs/new")}>
+                    <Plus className="size-4" />
+                    {tList("emptyCreateButton")}
+                  </Link>
+                </Button>
+              )}
+            </EmptyState>
+          </div>
         ) : (
           <>
-            <div className="overflow-x-auto rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="pl-5">{tList("colName")}</TableHead>
-                    <TableHead>{tList("colLocalField")}</TableHead>
-                    <TableHead>{tList("colDistrict")}</TableHead>
-                    <TableHead>{tList("colChurch")}</TableHead>
-                    <TableHead>{t("colSections")}</TableHead>
-                    <TableHead>{tList("colStatus")}</TableHead>
-                    {(canEdit || canCreate) && (
-                      <TableHead className="sticky right-0 z-20 w-[100px] border-l bg-background">
-                        {tList("colActions")}
-                      </TableHead>
-                    )}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {items.map((club, index) => {
-                    const clubId = getClubListId(club);
-                    const rowKey = clubId
-                      ? `club-${clubId}`
-                      : `club-idx-${(safePage - 1) * safeLimit + index}`;
-                    const sections = Array.isArray(club.club_sections) ? club.club_sections : [];
-                    const activeSections = sections.filter(
-                      (section) => section.active !== false,
-                    ).length;
-
-                    return (
-                      <TableRow key={rowKey}>
-                        <TableCell className="pl-5 font-medium">
-                          <Link
-                            prefetch={false}
-                            href={`/dashboard/clubs/${clubId}`}
-                            className="hover:text-primary hover:underline underline-offset-4"
-                          >
-                            {club.name ?? "—"}
-                          </Link>
-                        </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {getClubLocalFieldName(club) ?? club.local_field_id ?? "—"}
-                        </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {getClubDistrictName(club) ?? club.district_id ?? "—"}
-                        </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {getClubChurchName(club) ?? club.church_id ?? "—"}
-                        </TableCell>
-                        <TableCell className="font-mono text-sm tabular-nums">
-                          {activeSections}/{sections.length || "—"}
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={club.active !== false ? "soft-success" : "outline"}
-                            className="text-xs"
-                          >
-                            {club.active !== false
-                              ? tList("statusActive")
-                              : tList("statusInactive")}
-                          </Badge>
-                        </TableCell>
-                        {(canEdit || canCreate) && (
-                          <TableCell className="sticky right-0 z-10 border-l bg-background">
-                            <div className="hidden gap-1 md:flex">
-                              {clubId && (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="size-8"
-                                  asChild
-                                  title={t("actionView")}
-                                >
-                                  <Link prefetch={false} href={`/dashboard/clubs/${clubId}`}>
-                                    <Eye className="size-3.5" />
-                                  </Link>
-                                </Button>
-                              )}
-                              {canEdit && clubId && (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="size-8"
-                                  asChild
-                                  title={t("actionEdit")}
-                                >
-                                  <Link
-                                    prefetch={false}
-                                    href={`/dashboard/clubs/${clubId}?tab=edit`}
-                                  >
-                                    <Pencil className="size-3.5" />
-                                  </Link>
-                                </Button>
-                              )}
-                            </div>
-                            <div className="md:hidden">
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="size-8">
-                                    <MoreHorizontal className="size-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  {clubId && (
-                                    <DropdownMenuItem asChild>
-                                      <Link prefetch={false} href={`/dashboard/clubs/${clubId}`}>
-                                        <Eye className="size-4" />
-                                        {t("actionView")}
-                                      </Link>
-                                    </DropdownMenuItem>
-                                  )}
-                                  {canEdit && clubId && (
-                                    <DropdownMenuItem asChild>
-                                      <Link
-                                        prefetch={false}
-                                        href={`/dashboard/clubs/${clubId}?tab=edit`}
-                                      >
-                                        <Pencil className="size-4" />
-                                        {t("actionEdit")}
-                                      </Link>
-                                    </DropdownMenuItem>
-                                  )}
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </div>
-                          </TableCell>
-                        )}
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
-
-            <DataTablePagination
+            <ClubsTable
+              embedded
+              items={items}
+              canCreate={canCreate}
+              canEdit={canEdit}
+              pendingCountsByClubId={pendingCountsByClubId}
               page={safePage}
-              totalPages={safeTotalPages}
-              total={meta.total}
               limit={safeLimit}
             />
+            <Separator />
+            <div className="px-4 pb-1">
+              <DataTablePagination
+                page={safePage}
+                totalPages={safeTotalPages}
+                total={meta.total}
+                limit={safeLimit}
+              />
+            </div>
           </>
         )}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

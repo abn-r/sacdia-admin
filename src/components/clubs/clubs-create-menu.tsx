@@ -1,5 +1,7 @@
 "use client";
 
+import { usePanelPath } from "@/lib/v2/panel-path-context";
+
 import Link from "next/link";
 import { ChevronDown, FileSpreadsheet, Plus, UserPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -12,12 +14,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function ClubsCreateMenu() {
+  const { toPanelPath } = usePanelPath();
+
   const t = useTranslations("clubs.pages.list");
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button>
+        <Button size="sm">
           <Plus className="size-4" />
           {t("createButton")}
           <ChevronDown className="size-4 opacity-70" aria-hidden="true" />
@@ -25,13 +29,13 @@ export function ClubsCreateMenu() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuItem asChild>
-          <Link href="/dashboard/clubs/new">
+          <Link href={toPanelPath("/dashboard/clubs/new")}>
             <UserPlus className="size-4" />
             {t("createMenuManual")}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/dashboard/clubs/import">
+          <Link href={toPanelPath("/dashboard/clubs/import")}>
             <FileSpreadsheet className="size-4" />
             {t("createMenuBulk")}
           </Link>

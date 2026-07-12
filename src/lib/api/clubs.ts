@@ -19,6 +19,7 @@ export type Club = {
 export type ClubListQuery = {
   page?: number;
   limit?: number;
+  search?: string;
   clubTypeId?: number;
   localFieldId?: number;
   districtId?: number;

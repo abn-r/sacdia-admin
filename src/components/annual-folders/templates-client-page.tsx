@@ -574,7 +574,7 @@ export function TemplatesClientPage({
               onClick={confirmCopyTemplate}
               disabled={isCopyingTemplate || !copyTargetYear}
             >
-              {isCopyingTemplate ? "Copiando..." : "Copiar borrador"}
+              {isCopyingTemplate ? t("templatesClientPage.copyDraftLoading") : t("templatesClientPage.copyDraftButton")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -602,7 +602,7 @@ export function TemplatesClientPage({
               disabled={isDeletingTemplate}
               className="bg-destructive text-white hover:bg-destructive/90"
             >
-              {isDeletingTemplate ? "Eliminando..." : "Eliminar borrador"}
+              {isDeletingTemplate ? t("templatesClientPage.deleteDraftLoading") : t("templatesClientPage.deleteDraftButton")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -706,8 +706,8 @@ export function TemplatesClientPage({
                 >
                   <CheckCircle2 className="size-4" />
                   {publishingTemplateId === activeTemplate.template_id
-                    ? "Publicando..."
-                    : "Publicar"}
+                    ? t("templatesClientPage.publishLoading")
+                    : t("templatesClientPage.publishButton")}
                 </Button>
                 <Button
                   size="sm"

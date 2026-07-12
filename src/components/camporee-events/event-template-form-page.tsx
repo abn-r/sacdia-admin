@@ -1,5 +1,7 @@
 "use client";
 
+import { usePanelPath } from "@/lib/v2/panel-path-context";
+
 /**
  * EventTemplateFormPage
  *
@@ -75,7 +77,7 @@ function SubmitButton({ label }: { label: string }) {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-const LIST_HREF = "/dashboard/camporees/event-templates";
+
 
 export function EventTemplateFormPage({
   mode,
@@ -87,6 +89,8 @@ export function EventTemplateFormPage({
   classes,
   action,
 }: EventTemplateFormPageProps) {
+  const { toPanelPath } = usePanelPath();
+
   const t = useTranslations("camporeeEvents.templates");
 
   const [actionState, formAction] = useActionState<CamporeeEventActionState, FormData>(
@@ -164,7 +168,7 @@ export function EventTemplateFormPage({
       {/* ── Header ── */}
       <PageHeader
         title={isEdit ? t("editTitle") : t("createTitle")}
-        breadcrumbs={[{ label: t("backToList"), href: LIST_HREF }]}
+        breadcrumbs={[{ label: t("backToList"), href: toPanelPath("/dashboard/camporees/event-templates") }]}
       />
 
       {/* ── Form ── */}
@@ -471,7 +475,7 @@ export function EventTemplateFormPage({
         {/* ── Footer ── */}
         <div className="flex items-center justify-between gap-4 pt-2">
           <Button variant="outline" asChild>
-            <Link href={LIST_HREF}>{t("buttonCancel")}</Link>
+            <Link href={toPanelPath("/dashboard/camporees/event-templates")}>{t("buttonCancel")}</Link>
           </Button>
           <SubmitButton label={isEdit ? t("buttonSave") : t("buttonCreate")} />
         </div>

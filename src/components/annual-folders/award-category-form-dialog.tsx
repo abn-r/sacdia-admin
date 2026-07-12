@@ -517,11 +517,11 @@ export function AwardCategoryFormDialog({
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting
                 ? isEdit
-                  ? "Guardando..."
-                  : "Creando..."
+                  ? t("awardCategoryFormDialog.savingLoading")
+                  : t("awardCategoryFormDialog.creatingLoading")
                 : isEdit
-                  ? "Guardar cambios"
-                  : "Crear categoría"}
+                  ? t("awardCategoryFormDialog.saveButton")
+                  : t("awardCategoryFormDialog.createButton")}
             </Button>
           </DialogFooter>
         </form>

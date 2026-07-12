@@ -15,7 +15,15 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { ErrorRetryBanner } from "@/components/shared/error-retry-banner";
+import { usePanelPath } from "@/lib/v2/panel-path-context";
 import type {
   ClubLeadership,
   LeadershipMember,
@@ -69,17 +77,13 @@ function CardShell({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border bg-card p-5 shadow-sm">
-      <h3 className="mb-3.5 flex items-center justify-between text-sm font-semibold text-foreground">
-        {title}
-        {hint && (
-          <span className="text-[11px] font-medium text-muted-foreground">
-            {hint}
-          </span>
-        )}
-      </h3>
-      {children}
-    </section>
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-sm font-normal">{title}</CardTitle>
+        {hint ? <CardAction>{hint}</CardAction> : null}
+      </CardHeader>
+      <CardContent>{children}</CardContent>
+    </Card>
   );
 }
 
@@ -95,6 +99,8 @@ function ActionsCard({
   onDelete?: () => void;
 }) {
   const t = useTranslations("clubs.detail.sidebar");
+  const { toPanelPath } = usePanelPath();
+  const createUnitHref = toPanelPath(`/dashboard/clubs/${clubId}/units/new`);
   return (
     <CardShell title={t("quickActionsTitle")}>
       <div className="grid gap-1">
@@ -106,7 +112,7 @@ function ActionsCard({
         <ActionRow
           icon={<Plus className="size-3.5" />}
           label={t("createUnit")}
-          href={`/dashboard/clubs/${clubId}/units/new`}
+          href={createUnitHref}
         />
         <ActionRow
           icon={<Users className="size-3.5" />}

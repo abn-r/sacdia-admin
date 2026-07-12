@@ -200,7 +200,7 @@ export function UnionCampoReesView({ initialCamporees, unions }: UnionCampoReesV
                     </TableCell>
                     <TableCell className="max-w-[160px] px-3 py-2.5 align-middle">
                       <span className="truncate text-sm text-muted-foreground">
-                        {camporee.place ?? "—"}
+                        {camporee.union_camporee_place ?? camporee.place ?? "—"}
                       </span>
                     </TableCell>
                     <TableCell className="px-3 py-2.5 align-middle">

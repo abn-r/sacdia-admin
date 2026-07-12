@@ -32,6 +32,15 @@ lib/
 └── utils.ts        - Utilidades (cn, etc.)
 ```
 
+## Panel v2 (Studio Admin)
+
+Panel paralelo en `/v2/dashboard/*` — v1 intacto en `/dashboard/*`.
+
+- Shell: `src/app/(dashboard-v2)/`, `src/components/studio-shell/`
+- UI: `src/components/v2/`, loaders en `src/lib/v2/loaders/`
+- Regenerar bridged pages: `pnpm run scaffold:v2`
+- Docs: `docs/features/infrastructure/admin-panel-v2.md`
+
 ## Páginas de Coordinador/Admin
 
 - `/dashboard/evidence-review` — Validación de evidencias (carpetas, clases, honores)

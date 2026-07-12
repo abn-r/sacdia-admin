@@ -5,6 +5,7 @@ import { ArrowLeft, Building2, Edit3, MapPin, MoreHorizontal, Users } from "luci
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { usePanelPath } from "@/lib/v2/panel-path-context";
 import {
   getClubCode,
   getClubInitials,
@@ -29,6 +30,8 @@ export function ClubDetailHero({
   onEdit,
   onDelete,
 }: HeroProps) {
+  const { toPanelPath } = usePanelPath();
+  const clubsListHref = toPanelPath("/dashboard/clubs");
   const name = club.name ?? "Club";
   const initials = getClubInitials(name);
   const code = getClubCode(club);
@@ -63,7 +66,7 @@ export function ClubDetailHero({
 
         <div className="min-w-0 space-y-2">
           <div className="flex flex-wrap items-center gap-3">
-            <h1 className="font-display text-2xl font-normal leading-tight tracking-tight text-foreground sm:text-3xl">
+            <h1 className="text-xl font-semibold leading-tight tracking-tight text-foreground sm:text-2xl">
               {name}
             </h1>
             <span className="font-mono text-sm font-semibold text-muted-foreground">
@@ -132,7 +135,7 @@ export function ClubDetailHero({
         <div className="flex flex-col items-stretch gap-2 sm:flex-row md:flex-col md:items-end">
           <div className="flex gap-2">
             <Button variant="outline" size="sm" asChild>
-              <Link href="/dashboard/clubs" prefetch={false}>
+              <Link href={clubsListHref} prefetch={false}>
                 <ArrowLeft className="size-3.5" /> Volver
               </Link>
             </Button>

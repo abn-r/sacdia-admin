@@ -1,5 +1,7 @@
 "use client";
 
+import { usePanelPath } from "@/lib/v2/panel-path-context";
+
 import Link from "next/link";
 import { ChevronRight, Pencil, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -30,6 +32,8 @@ function formatTime(time?: string | null): string {
 }
 
 export function ActivitiesTable({ items, onEdit, onDelete }: ActivitiesTableProps) {
+  const { toPanelPath } = usePanelPath();
+
   const t = useTranslations("activities");
 
   if (items.length === 0) {
@@ -129,7 +133,7 @@ export function ActivitiesTable({ items, onEdit, onDelete }: ActivitiesTableProp
                       </Button>
                     )}
                     <Button variant="ghost" size="icon-sm" asChild>
-                      <Link prefetch={false} href={`/dashboard/activities/${activity.activity_id}`}>
+                      <Link prefetch={false} href={`${toPanelPath(`/dashboard/activities/`)}${activity.activity_id}`}>
                         <ChevronRight className="size-4" />
                         <span className="sr-only">{t("table.viewDetail")}</span>
                       </Link>

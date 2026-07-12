@@ -5,7 +5,9 @@ import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { AppBreadcrumbs } from "@/components/layout/app-breadcrumbs";
+import { LayoutControls } from "@/components/layout/layout-controls";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { PanelVersionToggle } from "@/components/studio-shell/app-header";
 import { Button } from "@/components/ui/button";
 import { GlobalCommandPalette } from "@/components/layout/global-command-palette";
 import { ActiveContextChip } from "@/components/layout/active-context-chip";
@@ -57,8 +59,9 @@ export function AppHeader() {
     <>
       <header
         className={cn(
-          "sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b bg-background/95 px-4 backdrop-blur-sm supports-[backdrop-filter]:bg-background/60 transition-shadow",
-          scrolled && "shadow-sm",
+          "flex h-14 shrink-0 items-center gap-2 border-b bg-background/95 px-4 backdrop-blur-sm supports-[backdrop-filter]:bg-background/60 transition-shadow",
+          "[html[data-navbar-style=sticky]_&]:sticky [html[data-navbar-style=sticky]_&]:top-0 [html[data-navbar-style=sticky]_&]:z-10",
+          scrolled && "[html[data-navbar-style=sticky]_&]:shadow-sm",
         )}
       >
         <SidebarTrigger className="-ml-1 shrink-0" />
@@ -70,6 +73,7 @@ export function AppHeader() {
         </div>
 
         <div className="ml-auto flex shrink-0 items-center gap-1.5">
+          <PanelVersionToggle variant="classic" />
           <ActiveContextChip />
           <Button
             variant="ghost"
@@ -83,6 +87,7 @@ export function AppHeader() {
               {shortcut}
             </kbd>
           </Button>
+          <LayoutControls />
           <ThemeToggle />
         </div>
       </header>

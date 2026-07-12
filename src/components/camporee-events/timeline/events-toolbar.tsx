@@ -1,5 +1,7 @@
 "use client";
 
+import { usePanelPath } from "@/lib/v2/panel-path-context";
+
 import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -40,6 +42,8 @@ function useDebounce<T>(value: T, delay: number): T {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function EventsToolbar({ data, camporeeId, onCreate, onImportFromCatalog }: Props) {
+  const { toPanelPath } = usePanelPath();
+
   const t = useTranslations("camporeeEvents.timeline");
   const router = useRouter();
   const searchParams = useSearchParams();

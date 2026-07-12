@@ -1,5 +1,7 @@
 "use client";
 
+import { usePanelPath } from "@/lib/v2/panel-path-context";
+
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -133,6 +135,8 @@ export function CoordinationAdminClient({
   clubSections,
   canChangeLocalField,
 }: Props) {
+  const { toPanelPath } = usePanelPath();
+
   const router = useRouter();
   const t = useTranslations("coordinationAdmin");
   const [isPending, startTransition] = useTransition();
@@ -290,7 +294,7 @@ export function CoordinationAdminClient({
             value={String(selectedLocalFieldId)}
             disabled={!canChangeLocalField || isPending}
             onValueChange={(value) => {
-              router.push(`/dashboard/coordination?localFieldId=${value}`);
+              router.push(toPanelPath(`/dashboard/coordination?localFieldId=${value}`));
             }}
           >
             <SelectTrigger className="w-full sm:w-80">

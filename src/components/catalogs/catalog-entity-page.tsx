@@ -12,9 +12,13 @@ import { ApiError } from "@/lib/api/client";
 
 interface CatalogEntityPageProps {
   entityKey: EntityKey;
+  hidePageHeader?: boolean;
 }
 
-export async function CatalogEntityPage({ entityKey }: CatalogEntityPageProps) {
+export async function CatalogEntityPage({
+  entityKey,
+  hidePageHeader = false,
+}: CatalogEntityPageProps) {
   await requireAdminUser();
   const t = await getTranslations("catalogs");
 
@@ -69,6 +73,7 @@ export async function CatalogEntityPage({ entityKey }: CatalogEntityPageProps) {
           updateActionBase={updateCatalogItemAction}
           entityKey={entityKey}
           routeBase={config.routeBase}
+          hidePageHeader={hidePageHeader}
         />
       </div>
     );
@@ -84,6 +89,7 @@ export async function CatalogEntityPage({ entityKey }: CatalogEntityPageProps) {
       updateActionBase={updateCatalogItemAction}
       entityKey={entityKey}
       routeBase={config.routeBase}
+      hidePageHeader={hidePageHeader}
     />
   );
 }

@@ -14,6 +14,7 @@ import {
   hasPermission,
 } from "@/lib/auth/permission-utils";
 import { CLUBS_UPDATE } from "@/lib/auth/permissions";
+import { fetchPendingCountsByClubId } from "@/lib/dashboard/fetch-scoped-dashboard";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -55,6 +56,9 @@ export default async function ClubsPage({
   const canCreate =
     hasPermission(user, "clubs:create") && canManageClubsByRole(user);
   const canEdit = hasPermission(user, CLUBS_UPDATE);
+  const pendingCountsByClubId = result.available
+    ? await fetchPendingCountsByClubId(user, result.items)
+    : {};
 
   if (!result.available) {
     return (
@@ -72,6 +76,7 @@ export default async function ClubsPage({
       localFieldOptions={localFieldOptions}
       canCreate={canCreate}
       canEdit={canEdit}
+      pendingCountsByClubId={pendingCountsByClubId}
     />
   );
 }

@@ -14,6 +14,9 @@ import {
   getClientMessageNamespacesForDashboardPath,
   pickMessages,
 } from "@/lib/i18n/client-messages";
+import { cn } from "@/lib/utils";
+import { getPreference } from "@/server/preferences";
+import { V1PanelPathProvider } from "@/lib/v2/panel-path-context";
 
 export default async function DashboardLayout({
   children,
@@ -32,11 +35,16 @@ export default async function DashboardLayout({
   );
   const sidebarState = cookieStore.get("sidebar_state")?.value;
   const defaultOpen = sidebarState !== "false";
+  const [variant, collapsible] = await Promise.all([
+    getPreference("sidebar_variant"),
+    getPreference("sidebar_collapsible"),
+  ]);
 
   return (
     <NextIntlClientProvider locale={locale} messages={clientMessages}>
       <AuthProvider initialUser={initialUser}>
         <QueryProvider>
+          <V1PanelPathProvider>
           <SidebarProvider
             defaultOpen={defaultOpen}
             style={
@@ -51,20 +59,34 @@ export default async function DashboardLayout({
             >
               {t("skipToContent")}
             </a>
-            <AppSidebar />
-            <SidebarInset>
+            <AppSidebar variant={variant} collapsible={collapsible} />
+            <SidebarInset
+              className={cn(
+                "peer-data-[variant=inset]:border",
+                "min-w-0 overflow-x-clip",
+              )}
+            >
               <ActiveContextProvider>
                 <CommandPalette />
                 <BirthdayCelebrationModal />
                 <AppHeader />
                 <main id="main" className="flex-1 overflow-auto">
-                  <div className="mx-auto max-w-[1536px] px-4 py-4 md:px-6 md:py-6">
+                  <div
+                    className={cn(
+                      "px-4 py-4 md:px-6 md:py-6",
+                      "[html[data-content-layout=centered]_&]:mx-auto",
+                      "[html[data-content-layout=centered]_&]:w-full",
+                      "[html[data-content-layout=centered]_&]:max-w-[1536px]",
+                      "[html[data-content-layout=full-width]_&]:w-full",
+                    )}
+                  >
                     {children}
                   </div>
                 </main>
               </ActiveContextProvider>
             </SidebarInset>
           </SidebarProvider>
+          </V1PanelPathProvider>
         </QueryProvider>
       </AuthProvider>
     </NextIntlClientProvider>

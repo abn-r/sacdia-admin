@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { PanelDashboardLink } from "@/components/shared/panel-dashboard-link";
 import { ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { UserAvatar } from "@/components/users/user-avatar";
@@ -101,7 +101,7 @@ function UserMobileCard({
   const location = [union, localField].filter(Boolean).join(" · ");
 
   return (
-    <Link prefetch={false}
+    <PanelDashboardLink prefetch={false}
       href={`/dashboard/users/${user.user_id}`}
       className="block rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
@@ -179,7 +179,7 @@ function UserMobileCard({
           <dd>{formatDate(user.created_at)}</dd>
         </div>
       </dl>
-    </Link>
+    </PanelDashboardLink>
   );
 }
 
@@ -227,12 +227,12 @@ export async function UsersTable({
                           size={32}
                         />
                         <div className="min-w-0">
-                          <Link prefetch={false}
+                          <PanelDashboardLink prefetch={false}
                             href={`/dashboard/users/${user.user_id}`}
                             className="block truncate text-sm font-medium hover:underline"
                           >
                             {fullName}
-                          </Link>
+                          </PanelDashboardLink>
                           <p className="truncate text-xs text-muted-foreground">
                             {secondaryLabel}
                           </p>

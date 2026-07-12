@@ -1,5 +1,7 @@
 "use client";
 
+import { usePanelPath } from "@/lib/v2/panel-path-context";
+
 import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -210,6 +212,8 @@ function AuditTimeline({ batch }: { batch: CertificateBulkImportBatch }) {
 }
 
 export function CertificateBulkImportDetailPage({ batch }: { batch: CertificateBulkImportBatch }) {
+  const { toPanelPath } = usePanelPath();
+
   const router = useRouter();
   const [dialog, setDialog] = useState<DialogState>(null);
   const [, startTransition] = useTransition();
@@ -238,7 +242,7 @@ export function CertificateBulkImportDetailPage({ batch }: { batch: CertificateB
   return (
     <div className="flex flex-col gap-4">
       <Button variant="ghost" size="sm" className="w-fit" asChild>
-        <Link href="/dashboard/certificate-bulk-imports">
+        <Link href={toPanelPath("/dashboard/certificate-bulk-imports")}>
           <ArrowLeft aria-hidden="true" />
           Volver a cargas
         </Link>

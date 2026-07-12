@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { usePanelPath } from "@/lib/v2/panel-path-context";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -186,6 +187,7 @@ export function RankingsClientPage({
   initialLocalFieldId,
 }: RankingsClientPageProps) {
   const t = useTranslations("annual_folders");
+  const { toPanelPath } = usePanelPath();
   const [selectedClubTypeId, setSelectedClubTypeId] = useState<number>(
     initialClubTypeId,
   );
@@ -200,6 +202,11 @@ export function RankingsClientPage({
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [recalcOpen, setRecalcOpen] = useState(false);
   const [isRecalculating, setIsRecalculating] = useState(false);
+
+  const breakdownHref = (enrollmentId: string | number, yearId: number) =>
+    toPanelPath(
+      `/dashboard/annual-folders/rankings/${enrollmentId}/breakdown?year_id=${yearId}`,
+    );
 
   const handleSort = (field: SortField, direction: SortDirection) => {
     setSortField(field);
@@ -377,7 +384,7 @@ export function RankingsClientPage({
           className="h-9"
         >
           <Search className="size-4" />
-          {isLoading ? "Buscando..." : "Buscar"}
+          {isLoading ? t("rankingsClientPage.searchLoading") : t("rankingsClientPage.searchButton")}
         </Button>
 
         <div className="flex-1" />
@@ -556,7 +563,10 @@ export function RankingsClientPage({
                     </TableCell>
                     <TableCell className="text-center">
                       <Link prefetch={false}
-                        href={`/dashboard/annual-folders/rankings/${item.club_enrollment_id}/breakdown?year_id=${item.ecclesiastical_year_id ?? selectedYearId}`}
+                        href={breakdownHref(
+                          item.club_enrollment_id,
+                          item.ecclesiastical_year_id ?? selectedYearId,
+                        )}
                         className="inline-flex items-center gap-1 text-xs text-primary underline-offset-4 hover:underline"
                       >
                         Ver detalle
@@ -624,7 +634,10 @@ export function RankingsClientPage({
 
                   <div className="mt-3 border-t pt-3">
                     <Link prefetch={false}
-                      href={`/dashboard/annual-folders/rankings/${item.club_enrollment_id}/breakdown?year_id=${item.ecclesiastical_year_id ?? selectedYearId}`}
+                      href={breakdownHref(
+                        item.club_enrollment_id,
+                        item.ecclesiastical_year_id ?? selectedYearId,
+                      )}
                       className="inline-flex items-center gap-1 text-xs text-primary underline-offset-4 hover:underline"
                     >
                       Ver detalle

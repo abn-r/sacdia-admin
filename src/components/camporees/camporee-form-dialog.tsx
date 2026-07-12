@@ -60,6 +60,11 @@ function buildLocalFieldOptions(payload: unknown): LocalFieldOption[] {
 
 // ─── Schema factory ────────────────────────────────────────────────────────────
 
+const optionalNumber = z.preprocess(
+  (value) => (value === "" || value == null ? undefined : Number(value)),
+  z.number().optional(),
+);
+
 function buildSchema(t: ReturnType<typeof useTranslations<"camporees.validation">>) {
   return z
     .object({
@@ -68,6 +73,14 @@ function buildSchema(t: ReturnType<typeof useTranslations<"camporees.validation"
       start_date: z.string().min(1, t("start_date_required")),
       end_date: z.string().min(1, t("end_date_required")),
       local_camporee_place: z.string().min(1, t("place_required")),
+      lat: optionalNumber.refine(
+        (value) => value == null || (value >= -90 && value <= 90),
+        t("coordinates_invalid"),
+      ),
+      long: optionalNumber.refine(
+        (value) => value == null || (value >= -180 && value <= 180),
+        t("coordinates_invalid"),
+      ),
       local_field_id: z.coerce.number().int().min(1, t("local_field_required")),
       registration_cost: z.coerce.number().min(0).optional(),
       includes_adventurers: z.boolean(),
@@ -77,6 +90,10 @@ function buildSchema(t: ReturnType<typeof useTranslations<"camporees.validation"
     .refine((data) => data.start_date <= data.end_date, {
       message: t("end_date_after_start_full"),
       path: ["end_date"],
+    })
+    .refine((data) => (data.lat == null) === (data.long == null), {
+      message: t("coordinates_pair_required"),
+      path: ["long"],
     });
 }
 
@@ -123,6 +140,8 @@ export function CamporeeFormDialog({
       start_date: "",
       end_date: "",
       local_camporee_place: "",
+      lat: undefined,
+      long: undefined,
       local_field_id: 0,
       registration_cost: undefined,
       includes_adventurers: false,
@@ -161,6 +180,8 @@ export function CamporeeFormDialog({
           start_date: toDateInput(camporee.start_date),
           end_date: toDateInput(camporee.end_date),
           local_camporee_place: camporee.local_camporee_place ?? "",
+          lat: camporee.lat ?? undefined,
+          long: camporee.long ?? undefined,
           local_field_id: camporee.local_field_id ?? 0,
           registration_cost: camporee.registration_cost ?? undefined,
           includes_adventurers: camporee.includes_adventurers ?? false,
@@ -174,6 +195,8 @@ export function CamporeeFormDialog({
           start_date: "",
           end_date: "",
           local_camporee_place: "",
+          lat: undefined,
+          long: undefined,
           local_field_id: 0,
           registration_cost: undefined,
           includes_adventurers: false,
@@ -195,6 +218,8 @@ export function CamporeeFormDialog({
           start_date: values.start_date,
           end_date: values.end_date,
           local_camporee_place: values.local_camporee_place,
+          lat: values.lat,
+          long: values.long,
           local_field_id: values.local_field_id,
           registration_cost: values.registration_cost,
           includes_adventurers: values.includes_adventurers,
@@ -209,6 +234,8 @@ export function CamporeeFormDialog({
           start_date: values.start_date,
           end_date: values.end_date,
           local_camporee_place: values.local_camporee_place,
+          lat: values.lat,
+          long: values.long,
           local_field_id: values.local_field_id,
           registration_cost: values.registration_cost,
           includes_adventurers: values.includes_adventurers,
@@ -391,6 +418,58 @@ export function CamporeeFormDialog({
                 );
               }}
             />
+
+            {/* Coordenadas */}
+            <div className="grid grid-cols-2 gap-3">
+              <FormField
+                control={form.control}
+                name="lat"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("form.labelLatitude")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        name={field.name}
+                        ref={field.ref}
+                        onBlur={field.onBlur}
+                        value={field.value ?? ""}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        type="number"
+                        step="0.000001"
+                        min={-90}
+                        max={90}
+                        placeholder="19.173800"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="long"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("form.labelLongitude")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        name={field.name}
+                        ref={field.ref}
+                        onBlur={field.onBlur}
+                        value={field.value ?? ""}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        type="number"
+                        step="0.000001"
+                        min={-180}
+                        max={180}
+                        placeholder="-96.134200"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             {/* Costo de inscripción */}
             <FormField

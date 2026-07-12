@@ -20,6 +20,7 @@ import {
 import { TranslationsTabsField } from "@/components/forms/translations-tabs-field";
 import type { CatalogTranslation } from "@/lib/types/catalog-translation";
 import type { GenericCatalogActionState } from "@/lib/generic-catalogs-i18n/actions";
+import { usePanelPath } from "@/lib/v2/panel-path-context";
 
 export type CountryOption = { value: number; label: string };
 
@@ -54,8 +55,6 @@ function SubmitButton({ label }: { label: string }) {
   );
 }
 
-const LIST_HREF = "/dashboard/catalogs/geography/unions";
-
 export function UnionFormPage({
   mode,
   item,
@@ -64,6 +63,8 @@ export function UnionFormPage({
 }: UnionFormPageProps) {
   const t = useTranslations("catalogs.pages.unions");
   const tTrans = useTranslations("translations");
+  const { toPanelPath } = usePanelPath();
+  const listHref = toPanelPath("/dashboard/catalogs/geography/unions");
 
   const [actionState, formAction] = useActionState<
     GenericCatalogActionState,
@@ -89,7 +90,7 @@ export function UnionFormPage({
     <div className="space-y-8">
       <PageHeader
         title={pageTitle}
-        breadcrumbs={[{ label: t("backToList"), href: LIST_HREF }]}
+        breadcrumbs={[{ label: t("backToList"), href: listHref }]}
       />
 
       <form action={formAction} className="space-y-8">
@@ -201,7 +202,7 @@ export function UnionFormPage({
 
         <div className="flex items-center justify-between gap-4 pt-2">
           <Button variant="outline" asChild>
-            <Link href={LIST_HREF}>{t("buttonCancel")}</Link>
+            <Link href={listHref}>{t("buttonCancel")}</Link>
           </Button>
           <SubmitButton label={isEdit ? t("buttonSave") : t("buttonCreate")} />
         </div>

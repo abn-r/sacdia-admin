@@ -181,7 +181,7 @@ export function EvidenceUploadDialog({
               Cancelar
             </Button>
             <Button type="submit" disabled={isSubmitting || !selectedFile}>
-              {isSubmitting ? "Subiendo..." : "Subir evidencia"}
+              {isSubmitting ? t("evidenceUploadDialog.submitLoading") : t("evidenceUploadDialog.submitButton")}
             </Button>
           </DialogFooter>
         </form>

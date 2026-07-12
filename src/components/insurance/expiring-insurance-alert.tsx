@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { PanelDashboardLink } from "@/components/shared/panel-dashboard-link";
 import { AlertTriangle, Clock, ArrowRight } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { getExpiringInsurance, INSURANCE_TYPE_LABELS } from "@/lib/api/insurance";
@@ -63,13 +63,13 @@ export async function ExpiringInsuranceAlert() {
             )}
           </span>
         </div>
-        <Link
+        <PanelDashboardLink
           href="/dashboard/insurance/expiring"
           className="flex items-center gap-1 text-xs font-medium text-warning-foreground hover:text-foreground dark:text-warning dark:hover:text-foreground shrink-0"
         >
           {t("alert.view_all")}
           <ArrowRight className="size-3" />
-        </Link>
+        </PanelDashboardLink>
       </div>
 
       {/* List */}
