@@ -205,6 +205,11 @@
       "general": "General",
       "searchAriaLabel": "Búsqueda global ({shortcut})"
     },
+    "v2": {
+      "switchToStudio": "Panel nuevo",
+      "switchToClassic": "Panel clásico",
+      "badge": "v2"
+    },
     "activeContext": {
       "noClub": "Sin club",
       "noYear": "Sin año",

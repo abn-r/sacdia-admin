@@ -1,5 +1,7 @@
 "use client";
 
+import { usePanelPath } from "@/lib/v2/panel-path-context";
+
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import type { CamporeeEventsData } from "@/lib/camporee-timeline/types";
@@ -15,20 +17,21 @@ interface Props {
 
 export function EventsTimelineView({ camporeeId, data, readonly = false }: Props) {
   const router = useRouter();
+  const { toPanelPath } = usePanelPath();
 
   // Navigate to the dedicated create-event page instead of opening a drawer.
   // The spec (PR6a+PR7) mandates a dedicated page for create/edit (DS §6.1.1:
   // >4 fields + relations). The drawer is removed from the create flow.
   const openCreate = React.useCallback(() => {
     if (readonly) return;
-    router.push(`/dashboard/camporees/${camporeeId}/events/new`);
-  }, [readonly, router, camporeeId]);
+    router.push(toPanelPath(`/dashboard/camporees/${camporeeId}/events/new`));
+  }, [readonly, router, camporeeId, toPanelPath]);
 
   const handleEdit = React.useCallback(
     (eventId: string) => {
-      router.push(`/dashboard/camporees/${camporeeId}/events/${eventId}/edit`);
+      router.push(toPanelPath(`/dashboard/camporees/${camporeeId}/events/${eventId}/edit`));
     },
-    [router, camporeeId],
+    [router, camporeeId, toPanelPath],
   );
 
   const eventsByDay = React.useMemo(() => {

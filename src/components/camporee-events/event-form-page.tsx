@@ -1,5 +1,7 @@
 "use client";
 
+import { usePanelPath } from "@/lib/v2/panel-path-context";
+
 /**
  * EventFormPage — shared client component for create/edit camporee event instances.
  *
@@ -117,8 +119,9 @@ export function EventFormPage({
   action,
 }: EventFormPageProps) {
   const t = useTranslations("camporees.eventInstanceForm");
+  const { toPanelPath } = usePanelPath();
   const isEdit = mode === "edit";
-  const backHref = `/dashboard/camporees/${camporeeId}?tab=events`;
+  const backHref = toPanelPath(`/dashboard/camporees/${camporeeId}?tab=events`);
 
   const [actionState, formAction] = useActionState<CamporeeEventActionState, FormData>(
     action,

@@ -1,5 +1,7 @@
 "use client";
 
+import { usePanelPath } from "@/lib/v2/panel-path-context";
+
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -47,6 +49,8 @@ function KpiCard({ label, value, hint }: { label: string; value: number; hint: s
 }
 
 export function CertificateBulkImportListPage({ batches, total }: CertificateBulkImportListPageProps) {
+  const { toPanelPath } = usePanelPath();
+
   const t = useTranslations("certificate_bulk_imports.page");
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<"all" | "SUBMITTED" | "PARTIALLY_APPROVED" | "NEEDS_CORRECTION">("all");
@@ -163,7 +167,7 @@ export function CertificateBulkImportListPage({ batches, total }: CertificateBul
                       </TableCell>
                       <TableCell className="text-right">
                         <Button size="sm" asChild>
-                          <Link href={`/dashboard/certificate-bulk-imports/${batch.batch_id}`} prefetch={false}>
+                          <Link href={`${toPanelPath(`/dashboard/certificate-bulk-imports/`)}${batch.batch_id}`} prefetch={false}>
                             Revisar
                             <ArrowRight aria-hidden="true" />
                           </Link>

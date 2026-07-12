@@ -1,5 +1,7 @@
 "use client";
 
+import { usePanelPath } from "@/lib/v2/panel-path-context";
+
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -58,6 +60,8 @@ interface Props {
 type DialogType = "cancel" | "delete" | null;
 
 export function EventRow({ event, venue, camporeeId, onEdit, readonly = false }: Props) {
+  const { toPanelPath } = usePanelPath();
+
   const t = useTranslations("camporeeEvents.timeline");
   const router = useRouter();
   const cat = EVENT_CATEGORY_MAP[event.category];
@@ -75,7 +79,7 @@ export function EventRow({ event, venue, camporeeId, onEdit, readonly = false }:
     if (onEdit) {
       onEdit();
     } else {
-      router.push(`/dashboard/camporees/${camporeeId}/events/${event.id}/edit`);
+      router.push(toPanelPath(`/dashboard/camporees/${camporeeId}/events/${event.id}/edit`));
     }
   }
 

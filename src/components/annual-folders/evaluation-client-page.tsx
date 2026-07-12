@@ -59,6 +59,7 @@ import {
   reopenSection,
 } from "@/lib/api/annual-folders";
 import { ApiError } from "@/lib/api/client";
+import { usePanelPath } from "@/lib/v2/panel-path-context";
 import type {
   AnnualFolder,
   AnnualFolderEvaluationQueueItem,
@@ -537,6 +538,7 @@ export function EvaluationClientPage({
   localFields = [],
 }: EvaluationClientPageProps) {
   const t = useTranslations("annual_folders");
+  const { toPanelPath } = usePanelPath();
   const canConfirmUnion = currentUserRoles.some((role) =>
     UNION_CONFIRMATION_ROLES.has(role),
   );
@@ -1122,7 +1124,9 @@ export function EvaluationClientPage({
               title={t("evaluationClient.viewFullFolderTitle")}
             >
               <a
-                href={`/dashboard/annual-folders?folder=${folder.annual_folder_id}`}
+                href={toPanelPath(
+                  `/dashboard/annual-folders?folder=${folder.annual_folder_id}`,
+                )}
                 target="_blank"
                 rel="noopener noreferrer"
               >

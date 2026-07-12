@@ -1,5 +1,7 @@
 "use client";
 
+import { usePanelPath } from "@/lib/v2/panel-path-context";
+
 import Link from "next/link";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
@@ -43,6 +45,8 @@ export function HonorForm({
   clubTypeOptions,
   formAction,
 }: HonorFormProps) {
+  const { toPanelPath } = usePanelPath();
+
   const t = useTranslations("honors.form");
   const [state, action] = useActionState(formAction, initialState);
   const submitLabel = mode === "create" ? t("submitCreate") : t("submitEdit");
@@ -68,7 +72,7 @@ export function HonorForm({
 
       <div className="flex justify-end gap-2">
         <Button variant="outline" asChild>
-          <Link href="/dashboard/honors">{t("cancelButton")}</Link>
+          <Link href={toPanelPath("/dashboard/honors")}>{t("cancelButton")}</Link>
         </Button>
         <SubmitButton label={submitLabel} />
       </div>

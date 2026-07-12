@@ -1,5 +1,7 @@
 "use client";
 
+import { usePanelPath } from "@/lib/v2/panel-path-context";
+
 import { useState, useCallback } from "react";
 import Link from "next/link";
 import { PlusCircle, RefreshCw } from "lucide-react";
@@ -21,6 +23,8 @@ export function CamporeePaymentsTab({
   isUnionCamporee = false,
   onAfterChange,
 }: CamporeePaymentsTabProps) {
+  const { toPanelPath } = usePanelPath();
+
   const [payments, setPayments] = useState<CamporeePayment[]>(initialPayments);
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -73,7 +77,7 @@ export function CamporeePaymentsTab({
             <span className="sr-only">Actualizar</span>
           </Button>
           <Button size="sm" asChild>
-            <Link href={`/dashboard/camporees/${camporeeId}/payments/new`}>
+            <Link href={`${toPanelPath(`/dashboard/camporees/`)}${camporeeId}/payments/new`}>
               <PlusCircle className="size-4" />
               Registrar pago
             </Link>

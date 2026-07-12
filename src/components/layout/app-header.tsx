@@ -7,6 +7,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { AppBreadcrumbs } from "@/components/layout/app-breadcrumbs";
 import { LayoutControls } from "@/components/layout/layout-controls";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { PanelVersionToggle } from "@/components/studio-shell/app-header";
 import { Button } from "@/components/ui/button";
 import { GlobalCommandPalette } from "@/components/layout/global-command-palette";
 import { ActiveContextChip } from "@/components/layout/active-context-chip";
@@ -72,6 +73,7 @@ export function AppHeader() {
         </div>
 
         <div className="ml-auto flex shrink-0 items-center gap-1.5">
+          <PanelVersionToggle variant="classic" />
           <ActiveContextChip />
           <Button
             variant="ghost"

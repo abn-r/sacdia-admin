@@ -160,6 +160,8 @@ export interface PhaseECatalogCrudPageProps {
   classConfigYearOptions?: ClassConfigYearOption[];
   /** Optional master-honors extras to render rule controls and recalc action. */
   masterHonorsConfig?: MasterHonorsCrudExtras;
+  /** Hide embedded PageHeader when an outer shell (e.g. V2PageShell) provides the title. */
+  hidePageHeader?: boolean;
 }
 
 // ─── SubmitButton ─────────────────────────────────────────────────────────────
@@ -612,6 +614,7 @@ export function PhaseECatalogCrudPage({
   deleteAction,
   classConfigYearOptions,
   masterHonorsConfig,
+  hidePageHeader = false,
 }: PhaseECatalogCrudPageProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -776,22 +779,32 @@ export function PhaseECatalogCrudPage({
   }
 
   return (
-    <div className="space-y-6">
-      <PageHeader title={title} description={description}>
-        {canCreate && (
-          <Button onClick={() => handleCreateOpen(true)}>
-            <Plus className="size-4" />
-            {t("create", { entity: entityLabel.toLowerCase() })}
-          </Button>
-        )}
-      </PageHeader>
+    <div className={hidePageHeader ? "space-y-4" : "space-y-6"}>
+      {!hidePageHeader ? (
+        <PageHeader title={title} description={description}>
+          {canCreate && (
+            <Button onClick={() => handleCreateOpen(true)}>
+              <Plus className="size-4" />
+              {t("create", { entity: entityLabel.toLowerCase() })}
+            </Button>
+          )}
+        </PageHeader>
+      ) : null}
 
       <div className="space-y-4">
         {/* Filter bar */}
         <div className="rounded-xl border bg-muted/20 p-4">
           <div className="mb-3 flex items-center justify-between gap-2">
             <h3 className="text-sm font-semibold tracking-wide text-foreground">{t("filtersTitle")}</h3>
-            <span className="text-xs text-muted-foreground">{t("filtersSubtitle")}</span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">{t("filtersSubtitle")}</span>
+              {hidePageHeader && canCreate ? (
+                <Button size="sm" onClick={() => handleCreateOpen(true)}>
+                  <Plus className="size-4" />
+                  {t("create", { entity: entityLabel.toLowerCase() })}
+                </Button>
+              ) : null}
+            </div>
           </div>
           <div className="overflow-x-auto pb-1">
             <div className="flex min-w-max items-end gap-4">

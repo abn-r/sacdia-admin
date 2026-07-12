@@ -1,5 +1,7 @@
 "use client";
 
+import { usePanelPath } from "@/lib/v2/panel-path-context";
+
 import Link from "next/link";
 import { useState } from "react";
 import { useFormStatus } from "react-dom";
@@ -60,10 +62,11 @@ export function ClubsTableActionsCell({
   canDelete,
 }: ClubsTableActionsCellProps) {
   const t = useTranslations("clubs.a11y");
+  const { toPanelPath } = usePanelPath();
   const [deleteItem, setDeleteItem] = useState<ClubActionItem | null>(null);
 
-  const editHref = `/dashboard/clubs/${club.id}?tab=edit`;
-  const viewHref = `/dashboard/clubs/${club.id}`;
+  const editHref = toPanelPath(`/dashboard/clubs/${club.id}?tab=edit`);
+  const viewHref = toPanelPath(`/dashboard/clubs/${club.id}`);
 
   return (
     <>

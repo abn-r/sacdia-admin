@@ -48,6 +48,7 @@ import {
   getClubOverviewFromClient,
 } from "@/lib/api/club-detail";
 import type { ClubActionState } from "@/lib/clubs/actions";
+import { usePanelPath } from "@/lib/v2/panel-path-context";
 import { ClubOverviewTab } from "./overview-tab";
 import { ClubHistoryTab } from "./history-tab";
 import { ClubInfoPanel } from "./info-panel";
@@ -101,6 +102,8 @@ export function ClubDetailView({
 }: ClubDetailViewProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { toPanelPath } = usePanelPath();
+  const clubsListHref = toPanelPath("/dashboard/clubs");
   const t = useTranslations("clubs.pages.v2.detail");
   const tDetail = useTranslations("clubs.pages.detail");
   const [tab, setTab] = useState<ClubMainTabId>(defaultTab);
@@ -255,7 +258,7 @@ export function ClubDetailView({
         <CardHeader>
           <CardDescription className="text-xs">
             <Link
-              href="/dashboard/clubs"
+              href={clubsListHref}
               className="text-muted-foreground transition-colors hover:text-foreground"
             >
               {t("breadcrumbList")}
