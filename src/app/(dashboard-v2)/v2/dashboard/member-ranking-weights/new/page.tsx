@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { PanelDashboardLink } from "@/components/shared/panel-dashboard-link";
 import { ArrowLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,8 @@ import { PageHeader } from "@/components/shared/page-header";
 import { requireAdminUser } from "@/lib/auth/session";
 import { listClubTypes, listEcclesiasticalYears } from "@/lib/api/catalogs";
 import { WeightsForm } from "../_components/weights-form";
+
+import { toV2Path } from "@/lib/v2/route-map";
 
 const BACK_HREF = "/dashboard/member-ranking-weights";
 
@@ -25,16 +27,16 @@ export default async function NewWeightsPage() {
         title={t("title")}
         description={t("description")}
         breadcrumbs={[
-          { label: "Dashboard", href: "/dashboard" },
-          { label: tList("breadcrumbLabel"), href: BACK_HREF },
+          { label: "Dashboard", href: toV2Path("/dashboard") },
+          { label: tList("breadcrumbLabel"), href: toV2Path(BACK_HREF) },
           { label: t("breadcrumbLabel") },
         ]}
       >
         <Button variant="outline" size="sm" asChild>
-          <Link href={BACK_HREF}>
+          <PanelDashboardLink href={BACK_HREF}>
             <ArrowLeft className="size-4" />
             {t("back")}
-          </Link>
+          </PanelDashboardLink>
         </Button>
       </PageHeader>
 

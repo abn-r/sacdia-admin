@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
+import { PanelDashboardLink } from "@/components/shared/panel-dashboard-link";
 import { panelRedirect } from "@/lib/v2/panel-path-server";
-import Link from "next/link";
 import {
   Building2,
   Banknote,
@@ -69,10 +69,10 @@ export default async function ComprobantesDetailPage({
     <div className="space-y-6">
       {/* Back link */}
       <Button variant="ghost" size="sm" className="-ml-1" asChild>
-        <Link href="/dashboard/materials/receipts">
+        <PanelDashboardLink href="/dashboard/materials/receipts">
           <ChevronLeft className="mr-1 size-4" />
           {t("backLink")}
-        </Link>
+        </PanelDashboardLink>
       </Button>
 
       {/* Page header */}

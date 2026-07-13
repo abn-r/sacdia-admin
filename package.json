@@ -12,8 +12,10 @@
     "test:watch": "vitest",
     "test:e2e:smoke": "node scripts/e2e-smoke.mjs",
     "test:e2e:smoke:backlog": "node scripts/smoke-backlog.mjs",
+    "test:smoke:v1-v2": "node scripts/smoke-v1-v2-nav.mjs",
     "audit:design-system": "node scripts/audit-design-system.mjs",
     "scaffold:v2": "node scripts/generate-v2-bridges.mjs",
+    "patch:v2-links": "node scripts/patch-v2-dashboard-links.mjs",
     "analyze": "next experimental-analyze -o"
   },
   "dependencies": {

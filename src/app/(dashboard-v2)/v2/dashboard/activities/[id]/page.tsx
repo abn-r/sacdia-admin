@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import { PanelDashboardLink } from "@/components/shared/panel-dashboard-link";
 import { ArrowLeft, Calendar, MapPin, Clock, Monitor, Link2 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";
@@ -172,10 +172,10 @@ export default async function ActivityDetailPage({ params }: { params: Params })
         actions={
           <>
             <Button variant="outline" size="sm" asChild>
-              <Link href="/dashboard/activities">
+              <PanelDashboardLink href="/dashboard/activities">
                 <ArrowLeft className="size-4" />
                 {t("pageDetail.back_link")}
-              </Link>
+              </PanelDashboardLink>
             </Button>
             <ActivityDetailActions activity={activity} />
           </>

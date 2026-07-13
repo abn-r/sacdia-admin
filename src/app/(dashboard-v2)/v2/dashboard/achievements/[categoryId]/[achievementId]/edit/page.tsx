@@ -13,11 +13,13 @@ import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { Skeleton } from "@/components/ui/skeleton";
 
+import { toV2Path } from "@/lib/v2/route-map";
+
 const AchievementForm = dynamic(
   () =>
-    import(
-      "@/app/(dashboard)/dashboard/achievements/_components/achievement-form"
-    ).then((m) => ({ default: m.AchievementForm })),
+    import("../../../_components/achievement-form").then((m) => ({
+      default: m.AchievementForm,
+    })),
   {
     loading: () => (
       <div className="space-y-6">
@@ -154,8 +156,8 @@ export default async function EditAchievementPage({ params }: { params: Params }
         title={t("title")}
         description={achievementName}
         breadcrumbs={[
-          { label: t("breadcrumbRoot"), href: "/dashboard/achievements" },
-          { label: categoryName, href: cancelHref },
+          { label: t("breadcrumbRoot"), href: toV2Path("/dashboard/achievements") },
+          { label: categoryName, href: toV2Path(cancelHref) },
           { label: achievementName },
         ]}
       />

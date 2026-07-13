@@ -1,5 +1,6 @@
-import { notFound } from "next/navigation";
 import { PanelDashboardLink } from "@/components/shared/panel-dashboard-link";
+import { toV2Path } from "@/lib/v2/route-map";
+import { notFound } from "next/navigation";
 import { ArrowLeft, CalendarRange, MapPin, DollarSign, Building2 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";
@@ -7,26 +8,39 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/shared/page-header";
 import { CamporeeInfoCard } from "@/components/camporees/camporee-info-card";
-import { CamporeeDetailActions } from "@/components/camporees/camporee-detail-actions";
 import { CamporeeDetailTabs } from "@/components/camporees/camporee-detail-tabs";
 import { ApiError } from "@/lib/api/client";
 import {
-  getCamporeeById,
-  listCamporeeMembers,
-  getEnrolledClubs,
-  getCamporeePayments,
-  getCamporeePendingApprovals,
+  getUnionCamporeeById,
+  listUnionCamporeeMembers,
+  getUnionEnrolledClubs,
+  getUnionCamporeePayments,
+  getUnionCamporeePendingApprovals,
 } from "@/lib/api/camporees";
 import {
-  listLocalCamporeeEvents,
+  listUnionCamporeeEvents,
   listCamporeeEventTemplates,
   type BackendCamporeeEvent,
   type CamporeeEventTemplate,
 } from "@/lib/api/camporee-events";
 import {
-  listLocalCamporeeVenues,
+  listUnionCamporeeVenues,
   type CamporeeVenue,
 } from "@/lib/api/camporee-venues";
+import {
+  getCamporeeEventRubrics,
+  getUnionCamporeeLeaderboard,
+  listUnionCamporeeJudgeCandidates,
+  listCamporeeEventJudgeAssignments,
+  listCamporeeEventScoringTargets,
+  listUnionCamporeeJudges,
+  type CamporeeEventJudgeAssignment,
+  type CamporeeEventRubric,
+  type CamporeeJudge,
+  type CamporeeJudgeCandidate,
+  type CamporeeLeaderboard,
+  type CamporeeScoringTarget,
+} from "@/lib/api/camporee-scoring";
 import { hasAnyPermission } from "@/lib/auth/permission-utils";
 import {
   CAMPOREE_EVENTS_CREATE,
@@ -69,26 +83,25 @@ function extractCamporee(payload: unknown): AnyRecord | null {
   const root = payload as AnyRecord;
   if (root.data && typeof root.data === "object") {
     const nested = root.data as AnyRecord;
-    if (nested.local_camporee_id != null || nested.camporee_id != null || nested.name != null) return nested;
+    if (nested.union_camporee_id != null || nested.camporee_id != null || nested.name != null) return nested;
     if (nested.data && typeof nested.data === "object") return nested.data as AnyRecord;
   }
-  if (root.local_camporee_id != null || root.camporee_id != null || root.name != null) return root;
+  if (root.union_camporee_id != null || root.camporee_id != null || root.name != null) return root;
   return null;
 }
 
 function normalizeCamporee(raw: AnyRecord): Camporee {
   return {
-    camporee_id: toPositiveNumber(raw.local_camporee_id ?? raw.camporee_id ?? raw.id) ?? undefined,
+    camporee_id: toPositiveNumber(raw.union_camporee_id ?? raw.camporee_id ?? raw.id) ?? undefined,
     id: toPositiveNumber(raw.id) ?? undefined,
     name: String(raw.name ?? ""),
     description: toText(raw.description),
     start_date: String(raw.start_date ?? ""),
     end_date: String(raw.end_date ?? ""),
-    local_field_id: toPositiveNumber(raw.local_field_id) ?? undefined,
     includes_adventurers: raw.includes_adventurers === true,
     includes_pathfinders: raw.includes_pathfinders !== false,
     includes_master_guides: raw.includes_master_guides === true,
-    local_camporee_place: toText(raw.local_camporee_place) ?? undefined,
+    local_camporee_place: toText(raw.union_camporee_place) ?? toText(raw.place) ?? undefined,
     registration_cost: (() => {
       const v = raw.registration_cost;
       if (v == null || v === "") return undefined;
@@ -96,15 +109,7 @@ function normalizeCamporee(raw: AnyRecord): Camporee {
       return Number.isFinite(n) ? n : undefined;
     })(),
     active: raw.active !== false,
-    local_field: (() => {
-      const lf = raw.local_fields as AnyRecord | undefined;
-      if (!lf || typeof lf !== "object") return undefined;
-      return {
-        local_field_id: toPositiveNumber(lf.local_field_id) ?? undefined,
-        name: toText(lf.name) ?? undefined,
-        abbreviation: toText(lf.abbreviation) ?? undefined,
-      };
-    })(),
+    local_field: undefined,
   };
 }
 
@@ -115,6 +120,17 @@ function extractList<T>(payload: unknown): T[] {
     if (Array.isArray(root.data)) return root.data as T[];
   }
   return [];
+}
+
+function extractLeaderboard(payload: unknown): CamporeeLeaderboard | null {
+  if (!payload || typeof payload !== "object") return null;
+  const root = payload as AnyRecord;
+  const candidate =
+    root.data && typeof root.data === "object" ? (root.data as AnyRecord) : root;
+  if (Array.isArray(candidate.rows)) {
+    return candidate as unknown as CamporeeLeaderboard;
+  }
+  return null;
 }
 
 // ─── Format helpers ───────────────────────────────────────────────────────────
@@ -154,7 +170,7 @@ function formatCurrencyMXN(value?: number | null): string {
 
 // ─── Page ──────────────────────────────────────────────────────────────────────
 
-export default async function CamporeeDetailPage({
+export default async function UnionCamporeeDetailPage({
   params,
   searchParams,
 }: {
@@ -179,12 +195,21 @@ export default async function CamporeeDetailPage({
   let events: BackendCamporeeEvent[] = [];
   let availableTemplates: CamporeeEventTemplate[] = [];
   let venues: CamporeeVenue[] = [];
+  let judges: CamporeeJudge[] = [];
+  let judgeCandidates: CamporeeJudgeCandidate[] = [];
+  let judgeCandidatesError: string | null = null;
+  let assignmentsByEvent: Record<number, CamporeeEventJudgeAssignment[]> = {};
+  let scoringTargetsByEvent: Record<number, CamporeeScoringTarget[]> = {};
+  let rubricsByEvent: Record<number, CamporeeEventRubric[]> = {};
+  let leaderboard: CamporeeLeaderboard | null = null;
+  let unionName: string | null = null;
 
   // Fetch camporee detail
   try {
-    const payload = await getCamporeeById(camporeeId);
+    const payload = await getUnionCamporeeById(camporeeId);
     const raw = extractCamporee(payload);
     if (!raw) notFound();
+    unionName = toText(raw.union_name) ?? toText((raw.union as AnyRecord | undefined)?.name);
     camporee = normalizeCamporee(raw);
   } catch (error) {
     if (error instanceof ApiError && (error.status === 404 || error.status === 403)) {
@@ -194,10 +219,13 @@ export default async function CamporeeDetailPage({
   }
 
   const t = await getTranslations("camporees.pages.detail");
+  const canCreateEvents = hasAnyPermission(user, [CAMPOREE_EVENTS_CREATE, CAMPOREES_CREATE]);
+  const canEditEvents = hasAnyPermission(user, [CAMPOREE_EVENTS_UPDATE, CAMPOREES_UPDATE]);
+  const canDeleteEvents = hasAnyPermission(user, [CAMPOREE_EVENTS_DELETE, CAMPOREES_DELETE]);
 
   // Fetch members — best effort
   try {
-    const membersPayload = await listCamporeeMembers(camporeeId, { page: 1, limit: 50 });
+    const membersPayload = await listUnionCamporeeMembers(camporeeId, { page: 1, limit: 100 });
     members = membersPayload.data;
     membersMeta = membersPayload.meta;
   } catch (err) {
@@ -209,7 +237,7 @@ export default async function CamporeeDetailPage({
 
   // Fetch enrolled clubs — best effort
   try {
-    const clubsPayload = await getEnrolledClubs(camporeeId);
+    const clubsPayload = await getUnionEnrolledClubs(camporeeId);
     clubs = extractList<CamporeeClub>(clubsPayload);
   } catch (err) {
     clubsError =
@@ -220,7 +248,7 @@ export default async function CamporeeDetailPage({
 
   // Fetch payments — best effort
   try {
-    const paymentsPayload = await getCamporeePayments(camporeeId);
+    const paymentsPayload = await getUnionCamporeePayments(camporeeId);
     payments = extractList<CamporeePayment>(paymentsPayload);
   } catch (err) {
     paymentsError =
@@ -231,7 +259,7 @@ export default async function CamporeeDetailPage({
 
   // Fetch pending approvals — best effort (non-blocking)
   try {
-    const pendingPayload = await getCamporeePendingApprovals(camporeeId);
+    const pendingPayload = await getUnionCamporeePendingApprovals(camporeeId);
     if (pendingPayload && typeof pendingPayload === "object") {
       pending = pendingPayload as PendingApprovals;
     }
@@ -265,15 +293,14 @@ export default async function CamporeeDetailPage({
 
   // Fetch camporee events (instances) — best effort
   try {
-    const eventsPayload = await listLocalCamporeeEvents(camporeeId, eventsFilter);
+    const eventsPayload = await listUnionCamporeeEvents(camporeeId, eventsFilter);
     const eventsData = extractList<BackendCamporeeEvent>(eventsPayload);
     events = eventsData.sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0));
   } catch {
     // Events are not blocking — tab shows empty state
   }
 
-  // Fetch templates available for this local camporee — best effort
-  // Local camporees can use local_field templates + their union's templates
+  // Fetch templates available for this union camporee — best effort
   try {
     const templatesPayload = await listCamporeeEventTemplates({ limit: 200, active: true });
     availableTemplates = extractList<CamporeeEventTemplate>(templatesPayload);
@@ -281,18 +308,83 @@ export default async function CamporeeDetailPage({
     // silently degrade
   }
 
-  // Fetch venues accessible to this camporee — best effort
-  // listLocalCamporeeVenues returns both local_field-scoped and union-scoped venues
+  // Fetch venues accessible to this union camporee — best effort
   try {
-    const venuesPayload = await listLocalCamporeeVenues(camporeeId);
+    const venuesPayload = await listUnionCamporeeVenues(camporeeId);
     venues = extractList<CamporeeVenue>(venuesPayload);
   } catch {
     // silently degrade — timeline renders without venue names
   }
 
-  const canCreateEvents = hasAnyPermission(user, [CAMPOREE_EVENTS_CREATE, CAMPOREES_CREATE]);
-  const canEditEvents = hasAnyPermission(user, [CAMPOREE_EVENTS_UPDATE, CAMPOREES_UPDATE]);
-  const canDeleteEvents = hasAnyPermission(user, [CAMPOREE_EVENTS_DELETE, CAMPOREES_DELETE]);
+  // Fetch scoring roster/assignments — best effort
+  try {
+    const judgesPayload = await listUnionCamporeeJudges(camporeeId);
+    judges = extractList<CamporeeJudge>(judgesPayload);
+  } catch {
+    judges = [];
+  }
+
+  // Fetch eligible users for the judge selector — best effort. The form must
+  // never ask operators to paste UUIDs manually.
+  if (canEditEvents) {
+    try {
+      const candidatesPayload = await listUnionCamporeeJudgeCandidates(camporeeId);
+      judgeCandidates = extractList<CamporeeJudgeCandidate>(candidatesPayload);
+    } catch (error) {
+      judgeCandidatesError =
+        error instanceof ApiError
+          ? error.message
+          : "No se pudieron cargar usuarios elegibles para el selector de jueces.";
+    }
+  }
+
+  if (events.length > 0) {
+    const assignmentResults = await Promise.allSettled(
+      events.map(async (event) => {
+        const payload = await listCamporeeEventJudgeAssignments(event.camporee_event_id);
+        return [event.camporee_event_id, extractList<CamporeeEventJudgeAssignment>(payload)] as const;
+      }),
+    );
+    assignmentsByEvent = Object.fromEntries(
+      assignmentResults
+        .filter((result): result is PromiseFulfilledResult<readonly [number, CamporeeEventJudgeAssignment[]]> => result.status === "fulfilled")
+        .map((result) => result.value),
+    );
+
+    const targetResults = await Promise.allSettled(
+      events.map(async (event) => {
+        const payload = await listCamporeeEventScoringTargets(event.camporee_event_id);
+        return [event.camporee_event_id, extractList<CamporeeScoringTarget>(payload)] as const;
+      }),
+    );
+    scoringTargetsByEvent = Object.fromEntries(
+      targetResults
+        .filter((result): result is PromiseFulfilledResult<readonly [number, CamporeeScoringTarget[]]> => result.status === "fulfilled")
+        .map((result) => result.value),
+    );
+
+    const rubricResults = await Promise.allSettled(
+      events
+        .filter((event) => event.scoring_enabled)
+        .map(async (event) => {
+          const payload = await getCamporeeEventRubrics(event.camporee_event_id);
+          return [event.camporee_event_id, extractList<CamporeeEventRubric>(payload)] as const;
+        }),
+    );
+    rubricsByEvent = Object.fromEntries(
+      rubricResults
+        .filter((result): result is PromiseFulfilledResult<readonly [number, CamporeeEventRubric[]]> => result.status === "fulfilled")
+        .map((result) => result.value),
+    );
+  }
+
+  // Fetch camporee leaderboard — best effort
+  try {
+    const leaderboardPayload = await getUnionCamporeeLeaderboard(camporeeId);
+    leaderboard = extractLeaderboard(leaderboardPayload);
+  } catch {
+    leaderboard = null;
+  }
 
   return (
     <div className="space-y-6">
@@ -300,19 +392,16 @@ export default async function CamporeeDetailPage({
         title={camporee.name}
         description={t("description")}
         breadcrumbs={[
-          { label: t("back"), href: "/dashboard/camporees" },
+          { label: "Camporees de unión", href: toV2Path("/dashboard/camporees/union") },
           { label: camporee.name },
         ]}
         actions={
-          <>
-            <Button variant="outline" size="sm" asChild>
-              <PanelDashboardLink href="/dashboard/camporees">
-                <ArrowLeft className="size-4" />
-                {t("back")}
-              </PanelDashboardLink>
-            </Button>
-            <CamporeeDetailActions camporee={camporee} />
-          </>
+          <Button variant="outline" size="sm" asChild>
+            <PanelDashboardLink href="/dashboard/camporees/union">
+              <ArrowLeft className="size-4" />
+              {t("back")}
+            </PanelDashboardLink>
+          </Button>
         }
       />
 
@@ -323,6 +412,7 @@ export default async function CamporeeDetailPage({
       <CamporeeDetailTabs
         camporeeId={camporeeId}
         camporee={camporee}
+        isUnionCamporee
         initialMembers={members}
         initialMembersMeta={membersMeta}
         initialClubs={clubs}
@@ -334,6 +424,13 @@ export default async function CamporeeDetailPage({
         initialEvents={events}
         availableTemplates={availableTemplates}
         initialVenues={venues}
+        initialJudges={judges}
+        judgeCandidates={judgeCandidates}
+        judgeCandidatesError={judgeCandidatesError}
+        initialAssignmentsByEvent={assignmentsByEvent}
+        initialScoringTargetsByEvent={scoringTargetsByEvent}
+        initialRubricsByEvent={rubricsByEvent}
+        initialLeaderboard={leaderboard}
         canCreateEvents={canCreateEvents}
         canEditEvents={canEditEvents}
         canDeleteEvents={canDeleteEvents}
@@ -392,19 +489,11 @@ export default async function CamporeeDetailPage({
               <Card className="rounded-xl border-border/60 bg-card shadow-xs px-4 py-3">
                 <div className="flex items-center gap-1.5 text-[10.5px] uppercase tracking-wider font-semibold text-muted-foreground">
                   <Building2 className="size-3.5" />
-                  Campo local
+                  Unión
                 </div>
                 <div className="mt-1 text-[15px] font-semibold tracking-tight truncate">
-                  {camporee.local_field?.name ??
-                    camporee.local_field?.abbreviation ??
-                    "—"}
+                  {unionName ?? "—"}
                 </div>
-                {camporee.local_field?.name &&
-                  camporee.local_field?.abbreviation && (
-                    <div className="text-[11.5px] text-muted-foreground mt-0.5">
-                      {camporee.local_field.abbreviation}
-                    </div>
-                  )}
               </Card>
             </div>
 

@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { ShieldCheck, Clock } from "lucide-react";
+import { PanelDashboardLink } from "@/components/shared/panel-dashboard-link";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -183,10 +183,10 @@ export default async function InsurancePage() {
         description={t("page.description")}
       >
         <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/insurance/expiring" prefetch={false}>
+          <PanelDashboardLink href="/dashboard/insurance/expiring" prefetch={false}>
             <Clock className="mr-1.5 size-4" />
             {t("page.button_view_expiring")}
-          </Link>
+          </PanelDashboardLink>
         </Button>
       </PageHeader>
 

@@ -1,5 +1,7 @@
 "use client";
 
+import { usePanelPath } from "@/lib/v2/panel-path-context";
+
 import { useState, useCallback } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
@@ -76,6 +78,7 @@ interface UnionCampoReesViewProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function UnionCampoReesView({ initialCamporees, unions }: UnionCampoReesViewProps) {
+  const { toPanelPath } = usePanelPath();
   const t = useTranslations("camporees");
   const [camporees, setCamporees] = useState<UnionCamporee[]>(initialCamporees);
   const [isLoading, setIsLoading] = useState(false);
@@ -220,7 +223,7 @@ export function UnionCampoReesView({ initialCamporees, unions }: UnionCampoReesV
                           asChild
                           title="Ver detalle"
                         >
-                          <Link href={`/dashboard/camporees/union/${id}`}>
+                          <Link href={toPanelPath(`/dashboard/camporees/union/${id}`)}>
                             <Eye className="size-3.5" />
                             <span className="sr-only">Ver detalle</span>
                           </Link>

@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
+import { PanelDashboardLink } from "@/components/shared/panel-dashboard-link";
 import { getTranslations } from "next-intl/server";
 import { requireAdminUser } from "@/lib/auth/session";
 import { getCronRunsHistory } from "@/lib/api/analytics";
@@ -69,10 +69,10 @@ export default async function CronHistoryPage({ searchParams }: PageProps) {
         description={t("pageHistory.description")}
         actions={
           <Button variant="ghost" size="sm" asChild>
-            <Link href="/dashboard/system/jobs">
+            <PanelDashboardLink href="/dashboard/system/jobs">
               <ChevronLeft className="size-4 mr-1" />
               {t("pageHistory.back")}
-            </Link>
+            </PanelDashboardLink>
           </Button>
         }
       />

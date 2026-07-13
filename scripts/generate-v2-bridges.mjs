@@ -56,6 +56,9 @@ const CUSTOM_V2_PAGES = new Set([
   "catalogs",
   "catalogs/honor-categories",
   "catalogs/ecclesiastical-years",
+  "camporees/union/[id]",
+  "camporees/union/[id]/events/new",
+  "camporees/union/[id]/events/[eventId]/edit",
 ]);
 
 function walkPages(dir, base = "") {

@@ -21,6 +21,7 @@ const KEY_ROUTES = [
   "/dashboard/investiture",
   "/dashboard/rbac/roles",
   "/dashboard/settings",
+  "/dashboard/camporees/union",
 ];
 
 function toV2Path(v1) {

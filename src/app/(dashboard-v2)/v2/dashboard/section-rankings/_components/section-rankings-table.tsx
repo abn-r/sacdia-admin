@@ -1,6 +1,7 @@
 "use client";
 
-import Link from "next/link";
+import { PanelDashboardLink } from "@/components/shared/panel-dashboard-link";
+
 import { BarChart3 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
@@ -150,11 +151,11 @@ export function SectionRankingsTable({
                   {/* Action */}
                   <TableCell className="px-3 py-2.5 align-middle text-right">
                     <Button variant="ghost" size="sm" asChild>
-                      <Link prefetch={false}
+                      <PanelDashboardLink prefetch={false}
                         href={`/dashboard/section-rankings/${item.club_section_id}/members?year_id=${yearId}`}
                       >
                         {t("viewMembers")}
-                      </Link>
+                      </PanelDashboardLink>
                     </Button>
                   </TableCell>
                 </TableRow>

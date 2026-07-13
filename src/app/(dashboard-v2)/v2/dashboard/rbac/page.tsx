@@ -1,3 +1,4 @@
+import { toV2Path } from "@/lib/v2/route-map";
 import Link from "next/link";
 import { Shield, Key, Users, Grid3X3, ShieldCheck } from "lucide-react";
 import { getTranslations } from "next-intl/server";
@@ -13,25 +14,25 @@ export default async function RbacPage() {
     {
       title: t("sectionPermissions"),
       description: t("sectionPermissionsDesc"),
-      href: "/dashboard/rbac/permissions",
+      href: toV2Path("/dashboard/rbac/permissions"),
       icon: Key,
     },
     {
       title: t("sectionRoles"),
       description: t("sectionRolesDesc"),
-      href: "/dashboard/rbac/roles",
+      href: toV2Path("/dashboard/rbac/roles"),
       icon: Users,
     },
     {
       title: t("sectionUserPermissions"),
       description: t("sectionUserPermissionsDesc"),
-      href: "/dashboard/rbac/user-permissions",
+      href: toV2Path("/dashboard/rbac/user-permissions"),
       icon: ShieldCheck,
     },
     {
       title: t("sectionMatrix"),
       description: t("sectionMatrixDesc"),
-      href: "/dashboard/rbac/matrix",
+      href: toV2Path("/dashboard/rbac/matrix"),
       icon: Grid3X3,
     },
   ];

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { toV2Path } from "@/lib/v2/route-map";
 import { Inbox } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
@@ -60,7 +61,7 @@ function resolvePage(raw: unknown): number {
  */
 function resolveDetailHref(orden: OrdenSummary): string {
   const slug = orden.folio_referencia ?? orden.id;
-  return `/dashboard/materials/request/${slug}`;
+  return toV2Path(`/dashboard/materials/request/${slug}`);
 }
 
 function formatDate(iso: string): string {

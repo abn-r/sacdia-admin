@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import { PanelDashboardLink } from "@/components/shared/panel-dashboard-link";
 import { ArrowLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
@@ -71,10 +71,10 @@ export default async function EditHonorPage({ params }: { params: Params }) {
         description={t("description")}
       >
         <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/honors">
+          <PanelDashboardLink href="/dashboard/honors">
             <ArrowLeft className="size-4" />
             {t("backButton")}
-          </Link>
+          </PanelDashboardLink>
         </Button>
       </PageHeader>
 

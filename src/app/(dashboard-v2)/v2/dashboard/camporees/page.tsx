@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { Tent } from "lucide-react";
+import { PanelDashboardLink } from "@/components/shared/panel-dashboard-link";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -44,7 +44,7 @@ export default async function CamporeesPage() {
     <div className="space-y-6">
       <PageHeader title={t("title")} description={t("description")}>
         <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/camporees/union">{t("viewUnion")}</Link>
+          <PanelDashboardLink href="/dashboard/camporees/union">{t("viewUnion")}</PanelDashboardLink>
         </Button>
       </PageHeader>
 
