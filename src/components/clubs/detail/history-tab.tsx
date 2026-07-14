@@ -1,213 +1,200 @@
 "use client";
 
-import { useMemo } from "react";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { Building2, Edit3, History, Loader2, Users } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { History, Loader2 } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   getClubHistoryFromClient,
-  type AuditAction,
   type ClubHistoryItem,
 } from "@/lib/api/club-detail";
+import type { SectionMembersGroup } from "@/lib/clubs/types";
 
 interface HistoryTabProps {
   clubId: number;
+  sections: SectionMembersGroup[];
 }
 
-export function ClubHistoryTab({ clubId }: HistoryTabProps) {
-  const query = useInfiniteQuery({
-    queryKey: ["club-detail-history", clubId],
-    queryFn: ({ pageParam }) =>
-      getClubHistoryFromClient(clubId, {
-        limit: 25,
-        cursor: pageParam as string | null,
-      }),
-    initialPageParam: null as string | null,
-    getNextPageParam: (last) => last.next_cursor,
-    staleTime: 60_000,
-  });
+const SECTION_ENTITY_TYPES = new Set([
+  "club_section",
+  "class_counselor_assignment",
+  "role_assignment",
+]);
 
-  const items = useMemo(
-    () => query.data?.pages.flatMap((p) => p.items) ?? [],
-    [query.data],
+function entityLabel(
+  entityType: string,
+  t: ReturnType<typeof useTranslations<"clubs.detail.history">>,
+) {
+  if (entityType === "club_section") return t("entity.club_section");
+  if (entityType === "class_counselor_assignment") {
+    return t("entity.class_counselor_assignment");
+  }
+  if (entityType === "role_assignment") return t("entity.role_assignment");
+  return entityType;
+}
+
+export function HistoryTab({ clubId, sections }: HistoryTabProps) {
+  const t = useTranslations("clubs.detail.history");
+  const locale = useLocale();
+  const [items, setItems] = useState<ClubHistoryItem[]>([]);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [sectionFilter, setSectionFilter] = useState("all");
+
+  const loadPage = useCallback(
+    async (pageCursor: string | null, append: boolean) => {
+      append ? setLoadingMore(true) : setLoading(true);
+      setError(null);
+      try {
+        const page = await getClubHistoryFromClient(clubId, {
+          limit: 25,
+          cursor: pageCursor,
+        });
+        setItems((current) => (append ? [...current, ...page.items] : page.items));
+        setNextCursor(page.next_cursor);
+      } catch {
+        setError(t("loadError"));
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
+      }
+    },
+    [clubId, t],
   );
 
+  useEffect(() => {
+    void loadPage(null, false);
+  }, [loadPage]);
+
+  const filteredItems = useMemo(() => {
+    const sectionItems = items.filter((item) =>
+      SECTION_ENTITY_TYPES.has(item.entity_type),
+    );
+    if (sectionFilter === "all") return sectionItems;
+    return sectionItems.filter((item) => item.entity_id === sectionFilter);
+  }, [items, sectionFilter]);
+
+  const groupedItems = useMemo(() => {
+    const groups = new Map<string, ClubHistoryItem[]>();
+    for (const item of filteredItems) {
+      const key = item.entity_type;
+      const bucket = groups.get(key) ?? [];
+      bucket.push(item);
+      groups.set(key, bucket);
+    }
+    return Array.from(groups.entries());
+  }, [filteredItems]);
+
   return (
-    <section className="rounded-2xl border bg-card p-5 shadow-sm">
-      <header className="mb-4 flex items-start justify-between">
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h3 className="text-sm font-bold text-foreground">Historial del club</h3>
-          <p className="mt-0.5 text-[11px] text-muted-foreground">
-            Eventos auditados desde la creación
-          </p>
+          <h3 className="text-lg font-semibold">{t("title")}</h3>
+          <p className="text-sm text-muted-foreground">{t("description")}</p>
         </div>
-        <span className="text-[11px] text-muted-foreground">
-          {items.length} eventos cargados
-        </span>
-      </header>
-
-      {query.isLoading && (
-        <div className="flex items-center justify-center gap-2 py-12 text-sm text-muted-foreground">
-          <Loader2 className="size-4 animate-spin" /> Cargando historial…
+        <div className="w-[220px]">
+          <Select value={sectionFilter} onValueChange={setSectionFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder={t("filterSection")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("allSections")}</SelectItem>
+              {sections.map((section) => (
+                <SelectItem key={section.sectionId} value={String(section.sectionId)}>
+                  {section.sectionName}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-      )}
+      </div>
 
-      {query.isError && (
+      {loading ? (
+        <div className="flex items-center gap-2 py-8 text-sm text-muted-foreground">
+          <Loader2 className="size-4 animate-spin" />
+          {t("loading")}
+        </div>
+      ) : null}
+
+      {error ? (
         <div className="rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
-          No se pudo cargar el historial.{" "}
-          <button
-            type="button"
-            className="underline underline-offset-2"
-            onClick={() => void query.refetch()}
-          >
-            Reintentar
-          </button>
+          {error}
         </div>
-      )}
+      ) : null}
 
-      {!query.isLoading && !query.isError && items.length === 0 && (
-        <div className="grid place-items-center gap-2 rounded-xl border border-dashed bg-muted/30 px-4 py-12 text-center">
+      {!loading && !error && filteredItems.length === 0 ? (
+        <div className="grid place-items-center gap-2 rounded-xl border border-dashed bg-muted/20 px-4 py-10 text-center">
           <span className="grid size-10 place-items-center rounded-full bg-muted text-muted-foreground">
             <History className="size-5" />
           </span>
-          <p className="text-sm font-semibold text-foreground">
-            Aún sin eventos registrados
-          </p>
-          <p className="max-w-sm text-xs text-muted-foreground">
-            Cuando edites el club, crees secciones o asignes liderazgo, los
-            eventos aparecerán aquí en orden cronológico.
-          </p>
+          <p className="text-sm font-semibold">{t("emptyTitle")}</p>
+          <p className="max-w-sm text-xs text-muted-foreground">{t("emptyDescription")}</p>
         </div>
-      )}
+      ) : null}
 
-      {items.length > 0 && (
-        <>
-          <ol className="relative ml-2 border-l border-border pl-6">
-            {items.map((item) => (
-              <Row key={item.audit_log_id} item={item} />
-            ))}
-          </ol>
-
-          {query.hasNextPage && (
-            <div className="mt-4 flex justify-center">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => void query.fetchNextPage()}
-                disabled={query.isFetchingNextPage}
-              >
-                {query.isFetchingNextPage && (
-                  <Loader2 className="size-3.5 animate-spin" />
-                )}
-                Cargar más
-              </Button>
-            </div>
-          )}
-        </>
-      )}
-    </section>
-  );
-}
-
-function Row({ item }: { item: ClubHistoryItem }) {
-  const tone = ACTION_TONE[item.action];
-  const Icon = ENTITY_ICON[item.entity_type] ?? History;
-  const created = new Date(item.created_at);
-  const dateLabel = formatDateLong(created);
-  const timeLabel = created.toLocaleTimeString("es", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-  const actorName = item.actor
-    ? formatActorName(item.actor)
-    : "Sistema";
-
-  return (
-    <li className="relative pb-5 last:pb-0">
-      <span
-        className={cn(
-          "absolute -left-[33px] grid size-6 place-items-center rounded-full border-4 border-card",
-          tone.dot,
-        )}
-        aria-hidden
-      >
-        <Icon className="size-3" />
-      </span>
-      <div className="space-y-0.5">
-        <div className="flex flex-wrap items-center gap-2 text-xs">
-          <span
-            className={cn(
-              "rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider",
-              tone.badge,
-            )}
-          >
-            {ACTION_LABEL[item.action]}
-          </span>
-          <span className="text-[11px] text-muted-foreground">
-            {ENTITY_LABEL[item.entity_type] ?? item.entity_type}
-          </span>
-          <span className="text-[11px] text-muted-foreground tabular-nums">
-            · {dateLabel} {timeLabel}
-          </span>
-        </div>
-        <p className="text-sm font-medium text-foreground">
-          {item.summary ?? `${item.entity_type} ${item.action.toLowerCase()}`}
-        </p>
-        <p className="text-[11px] text-muted-foreground">Por: {actorName}</p>
+      <div className="space-y-6">
+        {groupedItems.map(([entityType, groupItems]) => (
+          <div key={entityType} className="space-y-3">
+            <h4 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              {entityLabel(entityType, t)}
+            </h4>
+            {groupItems.map((item) => {
+              const created = new Date(item.created_at);
+              return (
+                <Card key={item.audit_log_id}>
+                  <CardContent className="px-4 py-4">
+                    <p className="font-mono text-[11px] uppercase tracking-wide text-muted-foreground">
+                      {created.toLocaleDateString(locale, {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}{" "}
+                      ·{" "}
+                      {created.toLocaleTimeString(locale, {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                    <h5 className="mt-2 text-sm font-semibold">
+                      {item.summary ??
+                        `${item.entity_type} ${item.action.toLowerCase()}`}
+                    </h5>
+                    {item.actor?.name ? (
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {t("byActor", { name: item.actor.name })}
+                      </p>
+                    ) : null}
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        ))}
       </div>
-    </li>
+
+      {nextCursor ? (
+        <div className="flex justify-center">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={loadingMore}
+            onClick={() => void loadPage(nextCursor, true)}
+          >
+            {loadingMore ? <Loader2 className="size-4 animate-spin" /> : null}
+            {t("loadMore")}
+          </Button>
+        </div>
+      ) : null}
+    </div>
   );
-}
-
-const ACTION_TONE: Record<
-  AuditAction,
-  { dot: string; badge: string }
-> = {
-  CREATED: {
-    dot: "bg-success/15 text-success",
-    badge: "bg-success/15 text-success",
-  },
-  UPDATED: {
-    dot: "bg-info/15 text-info",
-    badge: "bg-info/15 text-info",
-  },
-  DELETED: {
-    dot: "bg-destructive/15 text-destructive",
-    badge: "bg-destructive/15 text-destructive",
-  },
-};
-
-const ACTION_LABEL: Record<AuditAction, string> = {
-  CREATED: "Creado",
-  UPDATED: "Actualizado",
-  DELETED: "Eliminado",
-};
-
-const ENTITY_LABEL: Record<string, string> = {
-  club: "Club",
-  club_section: "Sección",
-  role_assignment: "Liderazgo",
-};
-
-const ENTITY_ICON: Record<string, React.ComponentType<{ className?: string }>> = {
-  club: Building2,
-  club_section: Edit3,
-  role_assignment: Users,
-};
-
-function formatDateLong(date: Date): string {
-  return date.toLocaleDateString("es", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
-}
-
-function formatActorName(actor: {
-  name: string | null;
-  paternal_last_name: string | null;
-}): string {
-  const parts = [actor.name, actor.paternal_last_name].filter(Boolean);
-  return parts.join(" ").trim() || "Usuario";
 }

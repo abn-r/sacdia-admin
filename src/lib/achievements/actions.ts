@@ -24,7 +24,7 @@ type AchievementsTranslator = Awaited<
   ReturnType<typeof getTranslations<"achievements">>
 >;
 
-const ACHIEVEMENTS_PATH = "/dashboard/achievements";
+const ACHIEVEMENTS_PATH = "/dashboard/configuration/achievements";
 
 export type AchievementActionState = {
   error?: string;

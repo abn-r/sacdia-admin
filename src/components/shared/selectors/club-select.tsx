@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Check, ChevronsUpDown, X, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
@@ -18,7 +18,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useQuery } from "@tanstack/react-query";
 import { listClubs, type Club } from "@/lib/api/clubs";
 
 // ─── Re-export for consumers ───────────────────────────────────────────────────
@@ -79,32 +78,54 @@ export function ClubSelect({
   const [open, setOpen] = useState(false);
   // Lazy load: only enable the query once the popover has been opened at least once.
   const [hasOpened, setHasOpened] = useState(false);
+  const [fetchedClubs, setFetchedClubs] = useState<ClubListItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [fetchError, setFetchError] = useState<Error | null>(null);
 
-  const {
-    data: fetchedClubs = [],
-    isFetching: loading,
-    error: fetchError,
-  } = useQuery({
-    queryKey: [
-      "clubs-selector",
-      { localFieldId, districtId, churchId, activeOnly },
-    ],
-    queryFn: async () => {
-      const payload = await listClubs({
-        localFieldId,
-        districtId,
-        churchId,
-        active: activeOnly,
-        limit: 1000,
-        page: 1,
+  useEffect(() => {
+    if (externalClubs !== undefined) return;
+    if (!hasOpened && value == null) return;
+
+    let cancelled = false;
+    setLoading(true);
+    setFetchError(null);
+
+    listClubs({
+      localFieldId,
+      districtId,
+      churchId,
+      active: activeOnly,
+      limit: 1000,
+      page: 1,
+    })
+      .then((payload) => {
+        if (cancelled) return;
+        const clubs = parseClubList(payload);
+        onClubsLoaded?.(clubs);
+        setFetchedClubs(clubs);
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        setFetchError(error instanceof Error ? error : new Error(t("loadError")));
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
       });
-      const clubs = parseClubList(payload);
-      onClubsLoaded?.(clubs);
-      return clubs;
-    },
-    enabled: (hasOpened || value != null) && externalClubs === undefined,
-    staleTime: 60_000,
-  });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    activeOnly,
+    churchId,
+    districtId,
+    externalClubs,
+    hasOpened,
+    localFieldId,
+    onClubsLoaded,
+    t,
+    value,
+  ]);
 
   const clubs: ClubListItem[] = externalClubs ?? fetchedClubs;
 

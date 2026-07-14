@@ -36,8 +36,11 @@ global.ResizeObserver = class ResizeObserver {
   disconnect() {}
 };
 
-if (!Element.prototype.scrollIntoView) {
-  Element.prototype.scrollIntoView = () => {};
+if (!URL.createObjectURL) {
+  URL.createObjectURL = vi.fn(() => "blob:mock-pdf");
+}
+if (!URL.revokeObjectURL) {
+  URL.revokeObjectURL = vi.fn();
 }
 
 // ---------------------------------------------------------------------------
@@ -479,6 +482,12 @@ describe("EvidenceDetailDialog", () => {
 
   it("opens PDFs inside an in-panel PDF viewer", async () => {
     const user = userEvent.setup();
+    const fetchMock = vi.spyOn(global, "fetch").mockResolvedValue(
+      new Response(new Uint8Array([0x25, 0x50, 0x44, 0x46]), {
+        status: 200,
+        headers: { "Content-Type": "application/pdf" },
+      }),
+    );
 
     renderDialog();
 
@@ -493,9 +502,15 @@ describe("EvidenceDetailDialog", () => {
     expect(
       screen.getByRole("heading", { name: /visor pdf/i }),
     ).toBeInTheDocument();
-    expect(screen.getByTitle("Visor PDF: doc.pdf")).toHaveAttribute(
-      "src",
-      "/api/evidence-review/pdf?type=class&id=42&fileId=2",
-    );
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        "/api/evidence-review/pdf?type=class&id=42&fileId=2",
+        expect.objectContaining({ credentials: "include" }),
+      );
+      expect(screen.getByTestId("pdf-inline-viewer")).toBeInTheDocument();
+    });
+
+    fetchMock.mockRestore();
   });
 });

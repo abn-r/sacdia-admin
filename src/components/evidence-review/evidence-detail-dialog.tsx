@@ -38,7 +38,11 @@ import {
 import { EvidenceStatusBadge } from "@/components/evidence-review/evidence-status-badge";
 import { EvidenceTypeBadge } from "@/components/evidence-review/evidence-type-badge";
 import { ApiError } from "@/lib/api/client";
-import { useFormatDateTime } from "@/lib/format-locale";
+import {
+  getEvidenceDescription,
+  getEvidenceEntityName,
+  getEvidenceSectionName,
+} from "@/lib/evidence-review/display";
 
 type HonorReviewPacket = NonNullable<EvidenceDetail["honor_review_packet"]>;
 type EvidenceFile = EvidenceDetail["files"][number];
@@ -384,10 +388,10 @@ function EvidenceFileViewerDialog({
                 Descargar
               </a>
             </div>
-            <iframe
+            <PdfInlineViewer
               title={`Visor PDF: ${fileName}`}
               src={pdfViewerUrl}
-              className="h-[70vh] w-full bg-muted"
+              className="h-[70vh] w-full"
             />
           </div>
         )}
@@ -651,7 +655,7 @@ export function EvidenceDetailDialog({
                 <div className="flex items-start gap-2 text-sm">
                   <User className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
                   <div>
-                    <p className="text-xs text-muted-foreground">Miembro</p>
+                    <p className="text-xs text-muted-foreground">{t("detail.meta_member")}</p>
                     <p className="font-medium">{detail.member_name}</p>
                   </div>
                 </div>
@@ -659,15 +663,38 @@ export function EvidenceDetailDialog({
                 <div className="flex items-start gap-2 text-sm">
                   <div className="mt-0.5 size-4 shrink-0" />
                   <div>
-                    <p className="text-xs text-muted-foreground">Sección / Honor</p>
-                    <p className="font-medium">{detail.section_name}</p>
+                    <p className="text-xs text-muted-foreground">{t("detail.meta_entity")}</p>
+                    <p className="font-medium">{getEvidenceEntityName(detail)}</p>
+                  </div>
+                </div>
+
+                {detail.type === "class" && (
+                  <div className="flex items-start gap-2 text-sm">
+                    <div className="mt-0.5 size-4 shrink-0" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">{t("detail.meta_section")}</p>
+                      <p className="font-medium">{getEvidenceSectionName(detail)}</p>
+                      {detail.module_name && (
+                        <p className="text-xs text-muted-foreground">
+                          {t("detail.meta_module", { name: detail.module_name })}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex items-start gap-2 text-sm sm:col-span-2">
+                  <div className="mt-0.5 size-4 shrink-0" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">{t("detail.meta_description")}</p>
+                    <p className="text-sm">{getEvidenceDescription(detail)}</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-2 text-sm">
                   <Calendar className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
                   <div>
-                    <p className="text-xs text-muted-foreground">Enviado el</p>
+                    <p className="text-xs text-muted-foreground">{t("detail.meta_submitted")}</p>
                     <p>
                       {detail.submitted_at ? formatDate(detail.submitted_at) : "—"}
                     </p>

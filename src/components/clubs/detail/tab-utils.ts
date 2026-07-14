@@ -1,22 +1,24 @@
-import type { ClubTabId } from "./tabs-nav";
+import type { ClubDetailTab } from "@/lib/clubs/types";
 
-export type { ClubTabId };
-
-const TAB_KEYS: ClubTabId[] = [
-  "overview",
+const VALID_TABS = new Set<ClubDetailTab>([
+  "general",
   "sections",
-  "responsables",
-  "units",
-  "membership",
-  "info",
+  "roles",
+  "reports",
   "history",
-  "edit",
-];
+]);
 
-export function resolveTabFromString(raw: string | undefined): ClubTabId {
-  if (raw && (TAB_KEYS as string[]).includes(raw)) {
-    return raw as ClubTabId;
+export function resolveClubDetailTab(value: string | undefined): ClubDetailTab {
+  if (value && VALID_TABS.has(value as ClubDetailTab)) {
+    return value as ClubDetailTab;
   }
-  if (raw === "view") return "overview";
-  return "overview";
+  return "general";
 }
+
+export const CLUB_DETAIL_TABS: ClubDetailTab[] = [
+  "general",
+  "sections",
+  "roles",
+  "reports",
+  "history",
+];

@@ -67,6 +67,6 @@ describe("AnnualFolderEvidenceViewerDialog", () => {
     );
 
     expect(screen.getByText("Vista de PDF")).toBeInTheDocument();
-    expect(screen.getByTitle("Visor PDF: evidence.pdf")).toBeInTheDocument();
+    expect(screen.getByText("Cargando PDF…")).toBeInTheDocument();
   });
 });

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ChevronDown, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { toneBadgeProps } from "@/components/materials/badge-tones";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -26,14 +27,19 @@ const BADGE_CONFIG: Record<
   MaterialDisponibilidad,
   {
     label: string;
-    variant: "outline" | "success" | "warning" | "destructive";
+    tone: "outline" | "success" | "warning" | "danger";
   }
 > = {
-  pendiente: { label: "Pendiente", variant: "outline" },
-  disponible: { label: "Disponible", variant: "success" },
-  parcial: { label: "Parcial", variant: "warning" },
-  agotado: { label: "Agotado", variant: "destructive" },
+  pendiente: { label: "Pendiente", tone: "outline" },
+  disponible: { label: "Disponible", tone: "success" },
+  parcial: { label: "Parcial", tone: "warning" },
+  agotado: { label: "Agotado", tone: "danger" },
 };
+
+function resolveAvailabilityBadgeProps(tone: (typeof BADGE_CONFIG)[MaterialDisponibilidad]["tone"]) {
+  if (tone === "outline") return { variant: "outline" as const };
+  return toneBadgeProps(tone);
+}
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -81,11 +87,12 @@ export function LineAvailabilityCell({
   }
 
   const config = BADGE_CONFIG[currentDisponibilidad];
+  const badgeProps = resolveAvailabilityBadgeProps(config.tone);
 
   // Read-only mode (estado !== en_revision)
   if (!editable) {
     return (
-      <Badge variant={config.variant}>
+      <Badge {...badgeProps}>
         {config.label}
         {currentDisponibilidad === "parcial" &&
           currentQtyDisponible != null && (
@@ -147,7 +154,7 @@ export function LineAvailabilityCell({
             aria-label={`Cambiar disponibilidad (actual: ${config.label})`}
           >
             <Badge
-              variant={config.variant}
+              {...badgeProps}
               className="gap-1 cursor-pointer hover:opacity-90"
             >
               {config.label}

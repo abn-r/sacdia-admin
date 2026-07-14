@@ -3,8 +3,6 @@
 import React, { useState, useTransition } from "react";
 import {
   CheckCircle2,
-  Circle,
-  Clock,
   Image as ImageIcon,
   User,
   Building2,
@@ -81,78 +79,6 @@ function formatDate(iso: string | null): string {
   } catch {
     return "—";
   }
-}
-
-// ─── Step status icon ─────────────────────────────────────────────────────────
-
-function StepStatusIcon({
-  completed,
-  isNext,
-  number,
-  t,
-}: {
-  completed: boolean;
-  isNext: boolean;
-  number: number;
-  t: ReturnType<typeof useTranslations<"users">>;
-}) {
-  if (completed) {
-    return (
-      <span
-        aria-label={t("postRegistration.step_aria_complete", { number })}
-        className="flex size-8 items-center justify-center rounded-full bg-success/10"
-      >
-        <CheckCircle2 className="size-5 text-success" />
-      </span>
-    );
-  }
-  if (isNext) {
-    return (
-      <span
-        aria-label={t("postRegistration.step_aria_pending", { number })}
-        className="flex size-8 items-center justify-center rounded-full bg-warning/10"
-      >
-        <Clock className="size-5 text-warning-foreground" />
-      </span>
-    );
-  }
-  return (
-    <span
-      aria-label={t("postRegistration.step_aria_optional", { number })}
-      className="flex size-8 items-center justify-center rounded-full bg-muted"
-    >
-      <Circle className="size-5 text-muted-foreground" />
-    </span>
-  );
-}
-
-// ─── Step connector ───────────────────────────────────────────────────────────
-
-function StepConnector({
-  completed,
-  orientation = "horizontal",
-}: {
-  completed: boolean;
-  orientation?: "horizontal" | "vertical";
-}) {
-  if (orientation === "vertical") {
-    return (
-      <div
-        className={cn(
-          "ml-4 w-px self-stretch",
-          completed ? "bg-success/40" : "bg-border",
-        )}
-      />
-    );
-  }
-  return (
-    <div
-      className={cn(
-        "mx-4 h-px flex-1",
-        completed ? "bg-success/40" : "bg-border",
-      )}
-    />
-  );
 }
 
 // ─── Override button + confirmation dialog ────────────────────────────────────
@@ -291,91 +217,32 @@ export function PostRegistrationTab({
 
   return (
     <div className="space-y-6">
-      {/* Overall status banner */}
+      {/* Overall status */}
       <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base">
-            {t("postRegistration.status_card_title")}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="flex items-center justify-between gap-4 pt-0 pb-4">
-          <p className="text-sm text-muted-foreground">
-            {status.complete
-              ? t("postRegistration.status_complete", {
+        <CardHeader className="flex flex-row items-center justify-between gap-4 space-y-0">
+          <div className="min-w-0">
+            <CardTitle className="text-base">
+              {t("postRegistration.status_card_title")}
+            </CardTitle>
+            {status.complete && status.dateCompleted ? (
+              <p className="mt-1 text-xs text-muted-foreground">
+                {t("postRegistration.status_completed_at", {
                   date: formatDate(status.dateCompleted),
-                })
-              : t("postRegistration.status_in_progress")}
-          </p>
-          <Badge variant={status.complete ? "success" : "warning"}>
+                })}
+              </p>
+            ) : null}
+          </div>
+          <Badge variant={status.complete ? "secondary" : "outline"}>
             {status.complete
               ? t("postRegistration.badge_complete")
               : t("postRegistration.badge_pending")}
           </Badge>
-        </CardContent>
+        </CardHeader>
       </Card>
 
-      {/* Step progress — horizontal timeline */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">
-            {t("postRegistration.steps_card_title")}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {/* Timeline header row — vertical on mobile, horizontal on desktop */}
-          {/* Mobile: vertical stack */}
-          <div className="flex flex-col gap-0 sm:hidden">
-            {STEPS.map((step, index) => (
-              <div key={step.key} className="flex flex-col">
-                <div className="flex items-center gap-3">
-                  <StepStatusIcon
-                    completed={status.steps[step.key]}
-                    isNext={nextStep === step.key}
-                    number={step.number}
-                    t={t}
-                  />
-                  <span className="text-xs font-medium leading-tight">
-                    {t("postRegistration.step_label_full", {
-                      number: step.number,
-                      label: step.label,
-                    })}
-                  </span>
-                </div>
-                {index < STEPS.length - 1 && (
-                  <StepConnector
-                    completed={status.steps[step.key]}
-                    orientation="vertical"
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-
-          {/* Desktop: horizontal timeline */}
-          <div className="hidden sm:flex sm:items-center">
-            {STEPS.map((step, index) => (
-              <div key={step.key} className="flex flex-1 items-center">
-                <div className="flex flex-col items-center gap-1.5">
-                  <StepStatusIcon
-                    completed={status.steps[step.key]}
-                    isNext={nextStep === step.key}
-                    number={step.number}
-                    t={t}
-                  />
-                  <span className="text-xs font-medium text-center leading-tight max-w-[80px]">
-                    {t("postRegistration.step_label", { number: step.number })}
-                  </span>
-                </div>
-                {index < STEPS.length - 1 && (
-                  <StepConnector completed={status.steps[step.key]} />
-                )}
-              </div>
-            ))}
-          </div>
-
-          {/* Step detail cards */}
-          <div className="mt-6 space-y-4">
-            {STEPS.map((step) => {
+      {/* Step detail cards */}
+      <div className="space-y-4">
+        {STEPS.map((step) => {
               const completed = status.steps[step.key];
               const isNext = nextStep === step.key;
               const StepIcon = step.icon;
@@ -469,9 +336,7 @@ export function PostRegistrationTab({
                 </div>
               );
             })}
-          </div>
-        </CardContent>
-      </Card>
+      </div>
 
       {/* Photo status card */}
       <Card>

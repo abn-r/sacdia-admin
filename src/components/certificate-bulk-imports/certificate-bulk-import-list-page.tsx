@@ -30,6 +30,7 @@ import type { CertificateBulkImportBatch } from "@/lib/api/certificate-bulk-impo
 interface CertificateBulkImportListPageProps {
   batches: CertificateBulkImportBatch[];
   total: number;
+  detailBasePath?: string;
 }
 
 function KpiCard({ label, value, hint }: { label: string; value: number; hint: string }) {
@@ -46,7 +47,11 @@ function KpiCard({ label, value, hint }: { label: string; value: number; hint: s
   );
 }
 
-export function CertificateBulkImportListPage({ batches, total }: CertificateBulkImportListPageProps) {
+export function CertificateBulkImportListPage({
+  batches,
+  total,
+  detailBasePath = "/dashboard/certificate-bulk-imports",
+}: CertificateBulkImportListPageProps) {
   const t = useTranslations("certificate_bulk_imports.page");
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<"all" | "SUBMITTED" | "PARTIALLY_APPROVED" | "NEEDS_CORRECTION">("all");
@@ -163,7 +168,7 @@ export function CertificateBulkImportListPage({ batches, total }: CertificateBul
                       </TableCell>
                       <TableCell className="text-right">
                         <Button size="sm" asChild>
-                          <Link href={`/dashboard/certificate-bulk-imports/${batch.batch_id}`} prefetch={false}>
+                          <Link href={`${detailBasePath}/${batch.batch_id}`} prefetch={false}>
                             Revisar
                             <ArrowRight aria-hidden="true" />
                           </Link>

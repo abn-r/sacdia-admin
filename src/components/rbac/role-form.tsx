@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Lock,
   Loader2,
@@ -36,7 +37,7 @@ import { PermissionPicker } from "@/components/rbac/permission-picker";
 import { createRoleAction, updateRoleAction } from "@/lib/rbac/actions";
 import type { Permission, Role, RbacActionState } from "@/lib/rbac/types";
 
-const ROLES_PATH = "/dashboard/rbac/roles";
+const ROLES_PATH = "/dashboard/configuration/roles";
 const MAX_DESCRIPTION = 500;
 
 // ─── Create form ─────────────────────────────────────────────────────────────
@@ -46,6 +47,7 @@ interface CreateRoleFormProps {
 
 export function CreateRoleForm({ allPermissions }: CreateRoleFormProps) {
   const t = useTranslations("rbac");
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
   const [roleName, setRoleName] = useState("");
@@ -88,11 +90,15 @@ export function CreateRoleForm({ allPermissions }: CreateRoleFormProps) {
     formData.set("permission_ids", Array.from(selectedPerms).join(","));
 
     startTransition(async () => {
-      // Server action returns an error state or redirects on success.
-      // Next.js handles the server-side redirect automatically.
       const result = await createRoleAction({} as RbacActionState, formData);
       if (result?.error) {
         setError(result.error);
+        return;
+      }
+
+      if (result?.ok) {
+        router.push(ROLES_PATH);
+        router.refresh();
       }
     });
   }
@@ -239,6 +245,7 @@ interface EditRoleFormProps {
 
 export function EditRoleForm({ role, allPermissions }: EditRoleFormProps) {
   const t = useTranslations("rbac");
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
   const initialSelectedIds = new Set(
@@ -287,6 +294,12 @@ export function EditRoleForm({ role, allPermissions }: EditRoleFormProps) {
       const result = await boundAction({} as RbacActionState, formData);
       if (result?.error) {
         setError(result.error);
+        return;
+      }
+
+      if (result?.ok) {
+        router.push(ROLES_PATH);
+        router.refresh();
       }
     });
   }

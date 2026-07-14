@@ -1,61 +1,68 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+
+import { ClubIdealsPageClient } from "@/components/catalogs/club-ideals/club-ideals-page-client";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { listAdminClubIdeals } from "@/lib/api/admin-club-ideals";
+import { listAdminClubTypes } from "@/lib/api/admin-club-types";
 import { ApiError } from "@/lib/api/client";
-import { listAdminClubIdeals } from "@/lib/api/generic-catalogs-i18n";
-import { extractItems, extractMeta, readParam, readPositiveNumberParam } from "@/lib/phase-e-catalogs/fetch-helpers";
-import { requireAdminUser } from "@/lib/auth/session";
 import { hasAnyPermission } from "@/lib/auth/permission-utils";
 import {
-  CLUB_IDEALS_CREATE,
-  CLUB_IDEALS_UPDATE,
-  CLUB_IDEALS_DELETE,
   CATALOGS_CREATE,
-  CATALOGS_UPDATE,
   CATALOGS_DELETE,
+  CATALOGS_UPDATE,
+  CLUB_IDEALS_CREATE,
+  CLUB_IDEALS_DELETE,
+  CLUB_IDEALS_UPDATE,
 } from "@/lib/auth/permissions";
-import { deleteClubIdealAction } from "@/lib/generic-catalogs-i18n/actions";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-import { ClubIdealListClient } from "@/components/catalogs/club-ideal-list-client";
-
-type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+import { requireAdminUser } from "@/lib/auth/session";
+import type { AdminClubIdealRow } from "@/lib/catalogs/club-ideals/types";
+import type { AdminClubType } from "@/lib/catalogs/club-types/types";
+import { sortClubIdealsByTypeAndOrder } from "@/lib/catalogs/club-ideals/sort";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("catalogs.pages.clubIdeals");
-  return { title: t("metadataTitle") };
+  const t = await getTranslations("catalogs.entities.club-ideals");
+  return {
+    title: t("title"),
+    description: t("description"),
+  };
 }
 
-export default async function ClubIdealsPage({
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
+function enrichClubIdeals(
+  clubIdeals: Awaited<ReturnType<typeof listAdminClubIdeals>>,
+  clubTypes: AdminClubType[],
+): AdminClubIdealRow[] {
+  const clubTypeMap = new Map(
+    clubTypes.map((clubType) => [clubType.club_type_id, clubType.name]),
+  );
+
+  return sortClubIdealsByTypeAndOrder(
+    clubIdeals.map((clubIdeal) => ({
+      ...clubIdeal,
+      club_type_name: clubTypeMap.get(clubIdeal.club_type_id) ?? `#${clubIdeal.club_type_id}`,
+    })),
+    clubTypes,
+  );
+}
+
+export default async function ClubIdealsPage() {
   const user = await requireAdminUser();
-  const t = await getTranslations("catalogs.pages.clubIdeals");
-  const raw = await searchParams;
+  const t = await getTranslations("catalogs");
 
-  const page = readPositiveNumberParam(raw, "page") ?? 1;
-  const limit = readPositiveNumberParam(raw, "limit") ?? 20;
-  const search =
-    readParam(raw, "search") ?? readParam(raw, "name") ?? readParam(raw, "q");
-  const activeRaw = readParam(raw, "active");
-
-  let items: Record<string, unknown>[] = [];
-  let meta = { page, limit, total: 0, totalPages: 1 };
+  let clubIdeals: AdminClubIdealRow[] = [];
+  let clubTypes: AdminClubType[] = [];
   let loadError: string | null = null;
 
   try {
-    const params: Record<string, string | number | boolean> = { page, limit };
-    if (search) params.search = search;
-    if (activeRaw === "true") params.active = true;
-    if (activeRaw === "false") params.active = false;
-
-    const payload = await listAdminClubIdeals(params);
-    items = extractItems(payload);
-    meta = extractMeta(payload, page, limit, items.length);
+    const [ideals, types] = await Promise.all([
+      listAdminClubIdeals(),
+      listAdminClubTypes(),
+    ]);
+    clubTypes = types;
+    clubIdeals = enrichClubIdeals(ideals, types);
   } catch (error) {
     if (!(error instanceof ApiError && error.status === 429)) {
-      loadError =
-        error instanceof ApiError ? error.message : t("loadError");
+      loadError = error instanceof ApiError ? error.message : t("errors.load_data_failed");
     }
   }
 
@@ -64,18 +71,20 @@ export default async function ClubIdealsPage({
   const canDelete = hasAnyPermission(user, [CLUB_IDEALS_DELETE, CATALOGS_DELETE]);
 
   return (
-    <div className="space-y-6">
-      {loadError && (
-        <EndpointErrorBanner state="missing" detail={loadError} />
-      )}
-      <ClubIdealListClient
-        items={items}
-        meta={meta}
+    <>
+      {loadError ? (
+        <Alert variant="destructive" className="mb-4">
+          <AlertTitle>{t("errors.load_data_failed")}</AlertTitle>
+          <AlertDescription>{loadError}</AlertDescription>
+        </Alert>
+      ) : null}
+      <ClubIdealsPageClient
+        clubIdeals={clubIdeals}
+        clubTypes={clubTypes}
         canCreate={canCreate}
         canEdit={canEdit}
         canDelete={canDelete}
-        deleteAction={deleteClubIdealAction}
       />
-    </div>
+    </>
   );
 }

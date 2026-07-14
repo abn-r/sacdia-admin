@@ -22,6 +22,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type { FolderEvidence } from "@/lib/api/annual-folders";
+import { PdfEvidenceViewer } from "./pdf-evidence-viewer";
 
 function fileIdentity(evidence: FolderEvidence) {
   return evidence.evidence_id;
@@ -43,12 +44,6 @@ function isImageEvidence(evidence: FolderEvidence | null) {
 
 function isPdfEvidence(evidence: FolderEvidence | null) {
   return /\.pdf(?:$|[?#\s])/i.test(fileSearchText(evidence));
-}
-
-function buildPdfViewerUrl(fileUrl: string, zoom: number) {
-  const [baseUrl] = fileUrl.split("#");
-  const zoomPct = Math.round(zoom * 100);
-  return `${baseUrl}#toolbar=1&navpanes=0&zoom=${zoomPct}`;
 }
 
 interface AnnualFolderEvidenceViewerDialogProps {
@@ -218,11 +213,11 @@ export function AnnualFolderEvidenceViewerDialog({
               )}
 
               {isPdf && (
-                <iframe
-                  key={`${evidence.evidence_id}-${zoom}`}
-                  title={`Visor PDF: ${currentFileLabel}`}
-                  src={buildPdfViewerUrl(evidence.file_url, zoom)}
-                  className="h-[72vh] w-full bg-muted"
+                <PdfEvidenceViewer
+                  key={evidence.evidence_id}
+                  fileUrl={evidence.file_url}
+                  fileName={currentFileLabel}
+                  zoom={zoom}
                 />
               )}
 

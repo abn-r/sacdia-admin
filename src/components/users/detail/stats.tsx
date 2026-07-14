@@ -46,7 +46,7 @@ export function ProgressBar({ pct, tone = "primary" }: { pct: number; tone?: "pr
       ? "bg-success"
       : tone === "warning"
       ? "bg-warning"
-      : "bg-gradient-to-r from-primary to-warning";
+      : "bg-primary";
   return (
     <div className="h-1.5 overflow-hidden rounded-full bg-muted">
       <div className={cn("h-full rounded-full", bar)} style={{ width: `${clamped}%` }} />

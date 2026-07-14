@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { toneBadgeProps } from "@/components/materials/badge-tones";
 import { Button } from "@/components/ui/button";
 import { CategoryFormSheet } from "./category-form-sheet";
 import { DeleteCategoryDialog } from "./delete-category-dialog";
@@ -74,7 +75,7 @@ export function CategoriesTable({ categorias }: CategoriesTableProps) {
                   {cat.product_count}
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle">
-                  <Badge variant={cat.active ? "success" : "secondary"}>
+                  <Badge {...(cat.active ? toneBadgeProps("success") : { variant: "secondary" as const })}>
                     {cat.active ? t("statusActive") : t("statusInactive")}
                   </Badge>
                 </TableCell>

@@ -29,6 +29,7 @@ import type {
   ValidationAction,
   ValidationEntityType,
 } from "@/lib/api/validation";
+import { isPendingValidationStatus } from "@/lib/api/validation";
 import { useFormatDate } from "@/lib/format-locale";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -116,7 +117,7 @@ export function ValidationTable({
           <TableBody>
             {validations.map((v) => {
               const name = getMemberName(v);
-              const isPending = v.status === "PENDING";
+              const isPending = isPendingValidationStatus(v.status);
 
               return (
                 <TableRow key={String(v.validation_id)} className="hover:bg-muted/30">

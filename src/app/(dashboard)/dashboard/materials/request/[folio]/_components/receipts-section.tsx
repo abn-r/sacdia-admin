@@ -1,18 +1,23 @@
 import { ExternalLink, FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { toneBadgeProps } from "@/components/materials/badge-tones";
 import { MoneyFormat } from "@/components/materials/money-format";
 import type { Comprobante } from "@/lib/types/materials";
+import { extractComprobantes } from "@/lib/materials/comprobantes";
+import type { ReceiptPrintContext } from "@/lib/materials/receipt-print";
+import { ReceiptPrintButton } from "@/components/materials/receipt-print-button";
 import { ReceiptReviewActions } from "./receipt-review-actions";
+import { Button } from "@/components/ui/button";
 
 // ─── Status config ────────────────────────────────────────────────────────────
 
 const STATUS_CONFIG: Record<
   string,
-  { label: string; variant: "secondary" | "success" | "destructive" | "warning" | "outline" }
+  { label: string; tone: "warning" | "success" | "danger" }
 > = {
-  pendiente: { label: "Pendiente", variant: "warning" },
-  aprobado: { label: "Aprobado", variant: "success" },
-  rechazado: { label: "Rechazado", variant: "destructive" },
+  pendiente: { label: "Pendiente", tone: "warning" },
+  aprobado: { label: "Aprobado", tone: "success" },
+  rechazado: { label: "Rechazado", tone: "danger" },
 };
 
 function formatDate(iso: string | null): string {
@@ -38,9 +43,10 @@ function formatBytes(bytes: number): string {
 
 interface ReceiptsSectionProps {
   folio: string;
-  comprobantes: Comprobante[];
+  comprobantes?: Comprobante[] | { data?: Comprobante[] | null } | null;
   /** When true, review actions (approve/reject) are rendered for pendiente items */
   canReview: boolean;
+  printContext: ReceiptPrintContext;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -49,7 +55,10 @@ export function ReceiptsSection({
   folio,
   comprobantes,
   canReview,
+  printContext,
 }: ReceiptsSectionProps) {
+  const rows = extractComprobantes(comprobantes);
+
   return (
     <section
       aria-labelledby="comprobantes-heading"
@@ -62,40 +71,51 @@ export function ReceiptsSection({
         Comprobantes de pago
       </h2>
 
-      {comprobantes.length === 0 ? (
+      {rows.length === 0 ? (
         <p className="text-sm text-muted-foreground">
           No se han subido comprobantes aún.
         </p>
       ) : (
         <div className="space-y-3">
-          {comprobantes.map((c) => {
+          {rows.map((c) => {
             const statusCfg = STATUS_CONFIG[c.status] ?? {
               label: c.status,
-              variant: "outline" as const,
+              tone: "warning" as const,
             };
+            const receiptBadgeProps =
+              STATUS_CONFIG[c.status] != null
+                ? toneBadgeProps(statusCfg.tone)
+                : { variant: "outline" as const };
 
             return (
               <div
                 key={c.id}
                 className="space-y-2 rounded-md border border-border/60 bg-background px-4 py-3"
               >
-                <div className="flex flex-wrap items-center gap-2">
-                  <FileText className="size-4 shrink-0 text-muted-foreground" />
-                  <span className="min-w-0 flex-1 truncate text-sm font-medium">
-                    {c.file_name}
-                  </span>
-                  <Badge variant={statusCfg.variant}>{statusCfg.label}</Badge>
-                  {c.signed_url && (
-                    <a
-                      href={c.signed_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
-                    >
-                      Ver archivo
-                      <ExternalLink className="size-3" />
-                    </a>
-                  )}
+                <div className="flex flex-wrap items-start gap-2">
+                  <FileText className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">{c.file_name}</p>
+                    <Badge {...receiptBadgeProps} className="mt-1">
+                      {statusCfg.label}
+                    </Badge>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 border-t border-border/50 pt-3">
+                  <ReceiptPrintButton comprobante={c} context={printContext} />
+                  {c.signed_url ? (
+                    <Button variant="outline" size="sm" asChild>
+                      <a
+                        href={c.signed_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <ExternalLink data-icon="inline-start" />
+                        Ver archivo
+                      </a>
+                    </Button>
+                  ) : null}
                 </div>
 
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">

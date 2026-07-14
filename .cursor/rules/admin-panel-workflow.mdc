@@ -1,0 +1,45 @@
+---
+description: Workflow obligatorio para pantallas nuevas, contratos backend y alcance sacdia-admin
+alwaysApply: true
+---
+
+# SACDIA Admin — workflow de implementación
+
+## 1) Pantallas nuevas: docs primero
+
+Antes de implementar o rediseñar una pantalla/ruta del panel:
+
+1. Identificar el dominio en `../docs/features/`.
+2. Leer en orden (si existen): `CLAUDE.md` → `requirements.md` → `design.md` → `walkthrough-*.md` → `tasks.md`.
+3. Consultar contratos runtime:
+   - `../docs/api/ENDPOINTS-LIVE-REFERENCE.md`
+   - `../docs/api/FRONTEND-INTEGRATION-GUIDE.md`
+4. Para UI: `DESIGN-SYSTEM.md` y patrones del shell Studio Admin existente.
+
+**No empezar a codear** hasta tener claro qué dice la documentación sobre flujo, campos, permisos y endpoints.
+
+Si la doc no cubre el requisito: **parar y preguntar** al usuario. No improvisar pantallas ni contratos.
+
+## 2) Backend: solo lectura en `sacdia-backend`
+
+Este agente **no modifica** `sacdia-backend` (código, schema, migraciones, endpoints, permisos, DTOs).
+
+Si hace falta un cambio backend:
+
+1. Describir al usuario **qué** cambiar, **por qué** y **impacto** en el admin.
+2. Esperar confirmación explícita antes de tocar backend o asumir que el cambio existe.
+
+Mientras no haya OK: implementar solo lo que el backend **ya expone hoy**.
+
+## 3) Datos: verificar, nunca asumir
+
+Antes de consumir o mostrar datos:
+
+1. Confirmar endpoint, método, query/body y respuesta en `ENDPOINTS-LIVE-REFERENCE.md`.
+2. Validar tipos/campos en código backend efectivo (`sacdia-backend`) si la doc no alcanza.
+3. Validar permisos/RBAC y reglas de scope documentadas.
+4. Alinear formularios y tablas con **campos reales** del API (nombres, tipos, nullable, relaciones).
+
+**Prohibido** inventar campos, enums, estados, paginación o errores no documentados/verificados.
+
+Si hay discrepancia doc ↔ backend ↔ UI: reportarla y pedir definición antes de seguir.

@@ -1,45 +1,16 @@
-import dynamic from "next/dynamic";
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { Skeleton } from "@/components/ui/skeleton";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 
-const HonorCategoriesCrudPage = dynamic(
-  () =>
-    import("@/components/catalogs/honor-categories-crud-page").then((m) => ({
-      default: m.HonorCategoriesCrudPage,
-    })),
-  {
-    loading: () => (
-      <div className="space-y-4">
-        <div className="flex items-center gap-3">
-          <Skeleton className="h-9 w-[200px]" />
-          <div className="ml-auto flex gap-2">
-            <Skeleton className="h-9 w-[100px]" />
-          </div>
-        </div>
-        <div className="rounded-md border">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div
-              key={i}
-              className="flex items-center gap-4 border-b p-4 last:border-b-0"
-            >
-              <Skeleton className="h-4 w-48" />
-              <Skeleton className="h-5 w-16 rounded-full" />
-              <Skeleton className="ml-auto h-8 w-8 rounded" />
-            </div>
-          ))}
-        </div>
-      </div>
-    ),
-  },
-);
+import { HonorCategoriesPageClient } from "@/components/catalogs/honor-categories/honor-categories-page-client";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { listAdminHonorCategories } from "@/lib/api/admin-honor-categories";
 import { ApiError } from "@/lib/api/client";
-import {
-  listHonorCategoriesAdmin,
-  type HonorCategoryListQuery,
-} from "@/lib/api/honor-categories";
 import { hasAnyPermission } from "@/lib/auth/permission-utils";
 import {
+  CATALOGS_CREATE,
+  CATALOGS_DELETE,
+  CATALOGS_READ,
+  CATALOGS_UPDATE,
   HONOR_CATEGORIES_CREATE,
   HONOR_CATEGORIES_DELETE,
   HONOR_CATEGORIES_READ,
@@ -47,318 +18,56 @@ import {
 } from "@/lib/auth/permissions";
 import { requireAdminUser } from "@/lib/auth/session";
 import {
-  createHonorCategoryAction,
-  deleteHonorCategoryAction,
-  updateHonorCategoryAction,
-} from "@/lib/honor-categories/actions";
+  normalizeHonorCategoryRow,
+  type AdminHonorCategoryRow,
+} from "@/lib/catalogs/honor-categories/types";
 
-type SearchParams = Promise<Record<string, string | string[] | undefined>>;
-type GenericRecord = Record<string, unknown>;
-
-type HonorCategoriesMeta = {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-};
-
-const HONOR_CATEGORIES_FILTER_FETCH_LIMIT = 500;
-
-function toPositiveNumber(value: unknown): number | null {
-  const parsed = typeof value === "number" ? value : Number(value);
-  if (!Number.isFinite(parsed) || parsed <= 0) {
-    return null;
-  }
-  return parsed;
-}
-
-function toNonEmptyString(value: unknown): string | null {
-  if (typeof value !== "string") return null;
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : null;
-}
-
-function toBoolean(value: unknown): boolean | null {
-  if (typeof value === "boolean") return value;
-  if (typeof value === "number") {
-    if (value === 1) return true;
-    if (value === 0) return false;
-  }
-  if (typeof value === "string") {
-    const normalized = value.trim().toLowerCase();
-    if (normalized === "true" || normalized === "1") return true;
-    if (normalized === "false" || normalized === "0") return false;
-  }
-  return null;
-}
-
-function toRecord(value: unknown): GenericRecord | null {
-  if (!value || typeof value !== "object") {
-    return null;
-  }
-  return value as GenericRecord;
-}
-
-function readParam(
-  raw: Record<string, string | string[] | undefined>,
-  key: string,
-): string | undefined {
-  const value = raw[key];
-  if (typeof value === "string") {
-    return value;
-  }
-  if (Array.isArray(value)) {
-    return value.find((entry) => typeof entry === "string");
-  }
-  return undefined;
-}
-
-function readPositiveNumberParam(
-  raw: Record<string, string | string[] | undefined>,
-  key: string,
-): number | undefined {
-  const value = readParam(raw, key);
-  if (!value) return undefined;
-
-  const parsed = Number(value);
-  if (!Number.isFinite(parsed) || parsed <= 0) {
-    return undefined;
-  }
-
-  return parsed;
-}
-
-function parseSearchParams(
-  raw: Record<string, string | string[] | undefined>,
-): HonorCategoryListQuery {
-  const activeRaw = readParam(raw, "active");
-  const searchRaw =
-    readParam(raw, "search") ?? readParam(raw, "name") ?? readParam(raw, "q");
-  const page = readPositiveNumberParam(raw, "page") ?? 1;
-  const limit = readPositiveNumberParam(raw, "limit") ?? 20;
-
-  const query: HonorCategoryListQuery = {
-    search: toNonEmptyString(searchRaw) ?? undefined,
-    page,
-    limit,
-  };
-
-  if (activeRaw === "true") query.active = true;
-  if (activeRaw === "false") query.active = false;
-
-  return query;
-}
-
-function extractItems(payload: unknown): GenericRecord[] {
-  if (Array.isArray(payload)) return payload as GenericRecord[];
-
-  const root = toRecord(payload);
-  if (!root) return [];
-
-  if (Array.isArray(root.data)) return root.data as GenericRecord[];
-
-  const nestedData = toRecord(root.data);
-  if (nestedData && Array.isArray(nestedData.data)) {
-    return nestedData.data as GenericRecord[];
-  }
-  if (nestedData && Array.isArray(nestedData.items)) {
-    return nestedData.items as GenericRecord[];
-  }
-
-  return [];
-}
-
-function extractMeta(
-  payload: unknown,
-  fallbackPage: number,
-  fallbackLimit: number,
-  fallbackTotal: number,
-): HonorCategoriesMeta {
-  const root = toRecord(payload);
-  const nestedData = toRecord(root?.data);
-  const metaRecord = toRecord(nestedData?.meta) ?? toRecord(root?.meta) ?? nestedData;
-
-  const page = toPositiveNumber(metaRecord?.page) ?? fallbackPage;
-  const limit = toPositiveNumber(metaRecord?.limit) ?? fallbackLimit;
-  const total =
-    toPositiveNumber(metaRecord?.total) ??
-    toPositiveNumber(metaRecord?.count) ??
-    fallbackTotal;
-  const totalPages =
-    toPositiveNumber(metaRecord?.totalPages) ??
-    toPositiveNumber(metaRecord?.total_pages) ??
-    Math.max(1, Math.ceil(total / Math.max(limit, 1)));
-
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("catalogs.entities.honor-categories");
   return {
-    page,
-    limit,
-    total,
-    totalPages,
+    title: t("title"),
+    description: t("description"),
   };
 }
 
-function normalizeSearchText(value: string): string {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase();
-}
-
-function applyLocalFilters(
-  items: GenericRecord[],
-  query: HonorCategoryListQuery,
-): GenericRecord[] {
-  const search = typeof query.search === "string" ? query.search.trim() : "";
-  const normalizedSearch = search ? normalizeSearchText(search) : "";
-  const active = query.active;
-
-  if (!normalizedSearch && typeof active !== "boolean") {
-    return items;
-  }
-
-  return items.filter((item) => {
-    if (normalizedSearch) {
-      const name =
-        toNonEmptyString(item.name) ?? toNonEmptyString(item.title) ?? "";
-      if (!normalizeSearchText(name).includes(normalizedSearch)) {
-        return false;
-      }
-    }
-
-    if (typeof active === "boolean") {
-      const itemActive = toBoolean(item.active);
-      const normalizedActive = itemActive === null ? true : itemActive;
-      if (normalizedActive !== active) {
-        return false;
-      }
-    }
-
-    return true;
-  });
-}
-
-function paginateItems(
-  items: GenericRecord[],
-  page: number,
-  limit: number,
-): { pagedItems: GenericRecord[]; meta: HonorCategoriesMeta } {
-  const safeLimit = Math.max(1, limit);
-  const total = items.length;
-  const totalPages = Math.max(1, Math.ceil(total / safeLimit));
-  const safePage = Math.min(Math.max(1, page), totalPages);
-  const start = (safePage - 1) * safeLimit;
-  const end = start + safeLimit;
-
-  return {
-    pagedItems: items.slice(start, end),
-    meta: {
-      page: safePage,
-      limit: safeLimit,
-      total,
-      totalPages,
-    },
-  };
-}
-
-async function listAllHonorCategoriesForFiltering(): Promise<GenericRecord[]> {
-  const payload = await listHonorCategoriesAdmin({
-    page: 1,
-    limit: HONOR_CATEGORIES_FILTER_FETCH_LIMIT,
-  });
-  return extractItems(payload);
-}
-
-export default async function HonorCategoriesPage({
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
+export default async function HonorCategoriesPage() {
   const user = await requireAdminUser();
-  const t = await getTranslations("catalogs.pages.honorCategoriesList");
-  const canRead = hasAnyPermission(user, [HONOR_CATEGORIES_READ]);
+  const t = await getTranslations("catalogs");
 
-  if (!canRead) {
-    return (
-      <EndpointErrorBanner
-        state="forbidden"
-        detail={t("forbidden")}
-      />
-    );
-  }
-
-  const rawSearchParams = await searchParams;
-  const query = parseSearchParams(rawSearchParams);
-
-  let items: GenericRecord[] = [];
-  let meta: HonorCategoriesMeta = {
-    page: query.page ?? 1,
-    limit: query.limit ?? 20,
-    total: 0,
-    totalPages: 1,
-  };
+  let categories: AdminHonorCategoryRow[] = [];
   let loadError: string | null = null;
 
-  try {
-    const hasAnyFilter = Boolean(
-      query.search || typeof query.active === "boolean",
-    );
-
-    if (hasAnyFilter) {
-      const fetchedItems = await listAllHonorCategoriesForFiltering();
-      const filteredItems = applyLocalFilters(fetchedItems, query);
-      const paginated = paginateItems(
-        filteredItems,
-        query.page ?? 1,
-        query.limit ?? 20,
-      );
-
-      items = paginated.pagedItems;
-      meta = paginated.meta;
-    } else {
-      const payload = await listHonorCategoriesAdmin(query);
-      items = extractItems(payload);
-      meta = extractMeta(
-        payload,
-        query.page ?? 1,
-        query.limit ?? 20,
-        items.length,
-      );
-    }
-  } catch (error) {
-    if (error instanceof ApiError && error.status === 429) {
-      items = [];
-      meta = {
-        page: query.page ?? 1,
-        limit: query.limit ?? 20,
-        total: 0,
-        totalPages: 1,
-      };
-    } else {
-      loadError =
-        error instanceof ApiError
-          ? error.message
-          : t("loadError");
+  if (!hasAnyPermission(user, [HONOR_CATEGORIES_READ, CATALOGS_READ])) {
+    loadError = t("honorCategories.noPermissions");
+  } else {
+    try {
+      const result = await listAdminHonorCategories({ page: 1, limit: 100 });
+      categories = result.items.map(normalizeHonorCategoryRow);
+    } catch (error) {
+      if (!(error instanceof ApiError && error.status === 429)) {
+        loadError = error instanceof ApiError ? error.message : t("errors.load_data_failed");
+      }
     }
   }
 
-  const canCreate = hasAnyPermission(user, [HONOR_CATEGORIES_CREATE]);
-  const canEdit = hasAnyPermission(user, [HONOR_CATEGORIES_UPDATE]);
-  const canDelete = hasAnyPermission(user, [HONOR_CATEGORIES_DELETE]);
+  const canCreate = hasAnyPermission(user, [HONOR_CATEGORIES_CREATE, CATALOGS_CREATE]);
+  const canEdit = hasAnyPermission(user, [HONOR_CATEGORIES_UPDATE, CATALOGS_UPDATE]);
+  const canDelete = hasAnyPermission(user, [HONOR_CATEGORIES_DELETE, CATALOGS_DELETE]);
 
   return (
-    <div className="space-y-6">
-      {loadError && <EndpointErrorBanner state="missing" detail={loadError} />}
-
-      <HonorCategoriesCrudPage
-        items={items}
-        meta={meta}
+    <>
+      {loadError ? (
+        <Alert variant="destructive" className="mb-4">
+          <AlertTitle>{t("errors.load_data_failed")}</AlertTitle>
+          <AlertDescription>{loadError}</AlertDescription>
+        </Alert>
+      ) : null}
+      <HonorCategoriesPageClient
+        categories={categories}
         canCreate={canCreate}
         canEdit={canEdit}
         canDelete={canDelete}
-        createAction={createHonorCategoryAction}
-        updateAction={updateHonorCategoryAction}
-        deleteAction={deleteHonorCategoryAction}
       />
-    </div>
+    </>
   );
 }

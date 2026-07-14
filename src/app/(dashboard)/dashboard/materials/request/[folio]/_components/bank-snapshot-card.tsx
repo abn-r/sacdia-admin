@@ -1,14 +1,19 @@
 "use client";
 
-import { AlertTriangle, Landmark } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+import { AlertTriangle, Landmark, Check, Copy } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { CopyButton } from "@/components/ui/copy-button";
 import { FolioPill } from "@/components/materials/folio-pill";
 import { MoneyFormat } from "@/components/materials/money-format";
+import { PaymentSheetPrintButton } from "@/components/materials/payment-sheet-print-button";
 import { Button } from "@/components/ui/button";
-import type { Orden } from "@/lib/types/materials";
-import { useState } from "react";
-import { Check, Copy } from "lucide-react";
+import type { Orden, MaterialConfig } from "@/lib/types/materials";
+import {
+  ordenWithBankDisplay,
+  resolveBankDisplay,
+} from "@/lib/materials/bank-display";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -88,12 +93,14 @@ function CopyAllButton({ text }: CopyAllButtonProps) {
 
 interface BankSnapshotCardProps {
   orden: Orden;
+  liveConfig?: MaterialConfig | null;
 }
 
-export function BankSnapshotCard({ orden }: BankSnapshotCardProps) {
+export function BankSnapshotCard({ orden, liveConfig }: BankSnapshotCardProps) {
   const t = useTranslations("materials.components.bankSnapshotCard");
-  const clabe = orden.bank_account_clabe;
-  const hasBank = Boolean(orden.bank_name) && Boolean(clabe);
+  const display = resolveBankDisplay(orden, liveConfig);
+  const clabe = display.bank_account_clabe;
+  const hasBank = display.source !== "missing" && Boolean(clabe);
 
   if (!hasBank || !clabe) {
     return (
@@ -111,8 +118,14 @@ export function BankSnapshotCard({ orden }: BankSnapshotCardProps) {
               Datos bancarios no configurados
             </h2>
             <p className="text-sm text-warning-foreground/80">
-              Configurá la cuenta bancaria en Materiales → Configuración antes
-              de compartir esta solicitud con el director.
+              Configurá la cuenta bancaria en{" "}
+              <Link
+                href="/dashboard/configuration/local-field/payment-methods"
+                className="font-medium text-warning-foreground underline underline-offset-4"
+              >
+                Configuración → Configuraciones campo local → Métodos de pago
+              </Link>{" "}
+              antes de compartir esta solicitud con el director.
             </p>
           </div>
         </div>
@@ -122,15 +135,16 @@ export function BankSnapshotCard({ orden }: BankSnapshotCardProps) {
 
   const formattedClabe = formatClabe(clabe);
   const totalString = formatCentavosPlain(orden.total_centavos);
+  const displayOrden = ordenWithBankDisplay(orden, display);
 
   const copyAllLines: string[] = [];
   if (orden.folio_referencia) copyAllLines.push(`Folio: ${orden.folio_referencia}`);
   copyAllLines.push(`Total: ${totalString}`);
-  if (orden.bank_name) copyAllLines.push(`Banco: ${orden.bank_name}`);
+  if (display.bank_name) copyAllLines.push(`Banco: ${display.bank_name}`);
   copyAllLines.push(`CLABE: ${clabe}`);
-  if (orden.account_holder) copyAllLines.push(`Titular: ${orden.account_holder}`);
-  if (orden.entrega === "recoger" && orden.pickup_address) {
-    copyAllLines.push(`Recoger en: ${orden.pickup_address}`);
+  if (display.account_holder) copyAllLines.push(`Titular: ${display.account_holder}`);
+  if (orden.entrega === "recoger" && display.pickup_address) {
+    copyAllLines.push(`Recoger en: ${display.pickup_address}`);
   }
 
   return (
@@ -138,6 +152,12 @@ export function BankSnapshotCard({ orden }: BankSnapshotCardProps) {
       aria-labelledby="bank-snapshot-heading"
       className="mt-6 rounded-lg border border-border/60 bg-card p-5"
     >
+      {display.source === "live" && (
+        <div className="mb-4 rounded-md border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-sm text-amber-900 dark:text-amber-200">
+          {t("liveConfigNotice")}
+        </div>
+      )}
+
       <div className="mb-5 flex items-center gap-2">
         <Landmark className="size-5 text-muted-foreground" />
         <h2
@@ -146,7 +166,8 @@ export function BankSnapshotCard({ orden }: BankSnapshotCardProps) {
         >
           Datos de pago
         </h2>
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-2">
+          <PaymentSheetPrintButton orden={displayOrden} />
           <CopyAllButton text={copyAllLines.join("\n")} />
         </div>
       </div>
@@ -172,13 +193,13 @@ export function BankSnapshotCard({ orden }: BankSnapshotCardProps) {
           </span>
         </FieldRow>
 
-        {orden.bank_name && (
+        {display.bank_name && (
           <FieldRow
             label="Banco"
             copyAriaLabel="Copiar banco"
-            copyText={orden.bank_name}
+            copyText={display.bank_name}
           >
-            {orden.bank_name}
+            {display.bank_name}
           </FieldRow>
         )}
 
@@ -190,24 +211,24 @@ export function BankSnapshotCard({ orden }: BankSnapshotCardProps) {
           <span className="font-mono tracking-tight">{formattedClabe}</span>
         </FieldRow>
 
-        {orden.account_holder && (
+        {display.account_holder && (
           <FieldRow
             label="Titular"
             copyAriaLabel="Copiar titular"
-            copyText={orden.account_holder}
+            copyText={display.account_holder}
           >
-            {orden.account_holder}
+            {display.account_holder}
           </FieldRow>
         )}
 
-        {orden.entrega === "recoger" && orden.pickup_address && (
+        {orden.entrega === "recoger" && display.pickup_address && (
           <FieldRow
             label={t("labelPickupAddress")}
             copyAriaLabel={t("copyPickupAddress")}
-            copyText={orden.pickup_address}
+            copyText={display.pickup_address}
             fullWidth
           >
-            {orden.pickup_address}
+            {display.pickup_address}
           </FieldRow>
         )}
       </div>

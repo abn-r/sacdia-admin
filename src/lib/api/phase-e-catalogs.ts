@@ -56,6 +56,7 @@ export type MasterHonorRuleGroupPayload = {
 };
 
 export type ClassAvailabilityDurationPayload = {
+  club_type_id?: number;
   available_from_year_id?: number | null;
   available_until_year_id?: number | null;
   min_duration_years?: number;
@@ -120,7 +121,7 @@ export async function createAdminClassModule(payload: TranslatablePayload & { cl
   return apiRequest("/admin/class-modules", { method: "POST", body: payload });
 }
 
-export async function updateAdminClassModule(id: number, payload: Partial<TranslatablePayload>) {
+export async function updateAdminClassModule(id: number, payload: Partial<TranslatablePayload & { class_id?: number }>) {
   return apiRequest(`/admin/class-modules/${id}`, { method: "PATCH", body: payload });
 }
 
@@ -148,7 +149,7 @@ export async function createAdminClassSection(payload: TranslatablePayload & { m
   return apiRequest("/admin/class-sections", { method: "POST", body: payload });
 }
 
-export async function updateAdminClassSection(id: number, payload: Partial<TranslatablePayload>) {
+export async function updateAdminClassSection(id: number, payload: Partial<TranslatablePayload & { module_id?: number }>) {
   return apiRequest(`/admin/class-sections/${id}`, { method: "PATCH", body: payload });
 }
 

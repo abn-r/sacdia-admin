@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { toneBadgeProps } from "@/components/materials/badge-tones";
 import { Button } from "@/components/ui/button";
 import { MoneyFormat } from "@/components/materials/money-format";
 import { ProductFormSheet } from "./product-form-sheet";
@@ -47,51 +48,30 @@ export function InventoryTable({
 
   return (
     <>
-      <div className="overflow-x-auto rounded-xl border border-border/60 bg-card shadow-xs">
+      <div className="overflow-x-auto rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                SKU
+              <TableHead className="pl-5">SKU</TableHead>
+              <TableHead>{t("colProduct")}</TableHead>
+              {showLocalFieldColumn && <TableHead>{t("colLocalField")}</TableHead>}
+              <TableHead>{t("colProgram")}</TableHead>
+              <TableHead>{t("colCategory")}</TableHead>
+              <TableHead className="text-right">{t("colPrice")}</TableHead>
+              <TableHead className="text-right">{t("colStock")}</TableHead>
+              <TableHead>{t("colStatus")}</TableHead>
+              <TableHead className="sticky right-0 z-20 w-[88px] border-l bg-background">
+                {t("colActions")}
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Producto
-              </TableHead>
-              {showLocalFieldColumn && (
-                <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Campo local
-                </TableHead>
-              )}
-              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Programa
-              </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Categoría
-              </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground text-right">
-                Precio
-              </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground text-right">
-                Stock
-              </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Estado
-              </TableHead>
-              <TableHead className="h-9 w-24 px-3" />
             </TableRow>
           </TableHeader>
           <TableBody>
             {products.map((product) => (
-              <TableRow key={product.id} className="hover:bg-muted/30">
-                {/* SKU */}
-                <TableCell className="px-3 py-2.5 align-middle">
-                  <span className="font-mono text-xs text-muted-foreground">
-                    {product.sku}
-                  </span>
+              <TableRow key={product.id}>
+                <TableCell className="pl-5">
+                  <span className="font-mono text-xs text-muted-foreground">{product.sku}</span>
                 </TableCell>
-
-                {/* Product name */}
-                <TableCell className="px-3 py-2.5 align-middle">
+                <TableCell>
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium">{product.title}</p>
                     {product.description && (
@@ -104,29 +84,23 @@ export function InventoryTable({
 
                 {/* Local field (admin merged view only) */}
                 {showLocalFieldColumn && (
-                  <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
+                  <TableCell className="text-sm text-muted-foreground">
                     {lfNameById.get(product.local_field_id) ??
                       `LF-${product.local_field_id}`}
                   </TableCell>
                 )}
 
                 {/* Programa */}
-                <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
+                <TableCell className="text-sm text-muted-foreground">
                   {product.programa?.label ?? "—"}
                 </TableCell>
-
-                {/* Categoría */}
-                <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
+                <TableCell className="text-sm text-muted-foreground">
                   {product.cat?.label ?? "—"}
                 </TableCell>
-
-                {/* Precio */}
-                <TableCell className="px-3 py-2.5 align-middle text-right tabular-nums">
+                <TableCell className="text-right tabular-nums">
                   <MoneyFormat centavos={product.price_centavos} />
                 </TableCell>
-
-                {/* Stock */}
-                <TableCell className="px-3 py-2.5 align-middle text-right tabular-nums">
+                <TableCell className="text-right tabular-nums">
                   <span
                     className={
                       product.stock === 0 ? "text-destructive font-medium" : ""
@@ -137,16 +111,14 @@ export function InventoryTable({
                 </TableCell>
 
                 {/* Estado */}
-                <TableCell className="px-3 py-2.5 align-middle">
+                <TableCell>
                   {product.active ? (
-                    <Badge variant="success">{t("statusActive")}</Badge>
+                    <Badge {...toneBadgeProps("success")}>{t("statusActive")}</Badge>
                   ) : (
                     <Badge variant="secondary">{t("statusInactive")}</Badge>
                   )}
                 </TableCell>
-
-                {/* Acciones */}
-                <TableCell className="px-3 py-2.5 align-middle">
+                <TableCell className="sticky right-0 z-10 border-l bg-background">
                   <div className="flex items-center gap-1">
                     <Button
                       variant="ghost"

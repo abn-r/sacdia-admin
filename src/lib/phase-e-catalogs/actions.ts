@@ -84,6 +84,10 @@ function parsePositiveInt(formData: FormData, field: string): number | null {
   return Math.floor(n);
 }
 
+function parseClubTypeId(formData: FormData): number | null {
+  return parsePositiveInt(formData, "club_type_id");
+}
+
 function parseIntField(raw: string, min = 0): number | null {
   const trimmed = raw.trim();
   if (!trimmed) return null;
@@ -443,12 +447,15 @@ export async function createClassAction(_: PhaseEActionState, formData: FormData
   if (!hasAnyPermission(user, [CLASSES_MANAGE, CATALOGS_CREATE])) {
     return { error: "Sin permisos para crear." };
   }
+  const clubTypeId = parseClubTypeId(formData);
+  if (!clubTypeId) return { error: "El tipo de club es obligatorio." };
   const config = parseClassConfigFormData(formData);
   if (!config.success) return { error: config.error };
   try {
     await createAdminClass({
       ...buildTranslatableCreate(formData),
       ...config.data,
+      club_type_id: clubTypeId,
     });
   } catch (error) {
     return { error: getActionErrorMessage(error, "No se pudo crear el registro.", { endpointLabel: "/admin/classes" }) };
@@ -464,12 +471,15 @@ export async function updateClassAction(_: PhaseEActionState, formData: FormData
   }
   const id = parsePositiveInt(formData, "id");
   if (!id) return { error: "No se pudo identificar el registro a editar." };
+  const clubTypeId = parseClubTypeId(formData);
+  if (!clubTypeId) return { error: "El tipo de club es obligatorio." };
   const config = parseClassConfigFormData(formData);
   if (!config.success) return { error: config.error };
   try {
     await updateAdminClass(id, {
       ...buildTranslatableUpdate(formData),
       ...config.data,
+      club_type_id: clubTypeId,
     });
   } catch (error) {
     return { error: getActionErrorMessage(error, "No se pudo actualizar el registro.", { endpointLabel: `/admin/classes/${id}` }) };
@@ -493,7 +503,47 @@ export const deleteClassAction = classDeleteActions.deleteAction;
 
 // ─── Class Modules ────────────────────────────────────────────────────────────
 
-const classModulesActions = makeActions(
+export async function createClassModuleAction(_: PhaseEActionState, formData: FormData): Promise<PhaseEActionState> {
+  const user = await requireAdminUser();
+  if (!hasAnyPermission(user, [CLASS_MODULES_MANAGE, CATALOGS_CREATE])) {
+    return { error: "Sin permisos para crear." };
+  }
+  const classId = parsePositiveInt(formData, "class_id");
+  if (!classId) return { error: "La clase es obligatoria." };
+  try {
+    await createAdminClassModule({
+      ...buildTranslatableCreate(formData),
+      class_id: classId,
+    });
+  } catch (error) {
+    return { error: getActionErrorMessage(error, "No se pudo crear el registro.", { endpointLabel: "/admin/class-modules" }) };
+  }
+  revalidatePath("/dashboard/catalogs/class-modules");
+  redirect("/dashboard/catalogs/class-modules");
+}
+
+export async function updateClassModuleAction(_: PhaseEActionState, formData: FormData): Promise<PhaseEActionState> {
+  const user = await requireAdminUser();
+  if (!hasAnyPermission(user, [CLASS_MODULES_MANAGE, CATALOGS_UPDATE])) {
+    return { error: "Sin permisos para editar." };
+  }
+  const id = parsePositiveInt(formData, "id");
+  if (!id) return { error: "No se pudo identificar el registro a editar." };
+  const classId = parsePositiveInt(formData, "class_id");
+  if (!classId) return { error: "La clase es obligatoria." };
+  try {
+    await updateAdminClassModule(id, {
+      ...buildTranslatableUpdate(formData),
+      class_id: classId,
+    });
+  } catch (error) {
+    return { error: getActionErrorMessage(error, "No se pudo actualizar el registro.", { endpointLabel: `/admin/class-modules/${id}` }) };
+  }
+  revalidatePath("/dashboard/catalogs/class-modules");
+  redirect("/dashboard/catalogs/class-modules");
+}
+
+const classModuleDeleteActions = makeActions(
   "/dashboard/catalogs/class-modules",
   { create: [CLASS_MODULES_MANAGE, CATALOGS_CREATE], update: [CLASS_MODULES_MANAGE, CATALOGS_UPDATE], delete: [CLASS_MODULES_MANAGE, CATALOGS_DELETE] },
   {
@@ -504,13 +554,51 @@ const classModulesActions = makeActions(
   true,
 );
 
-export const createClassModuleAction = classModulesActions.createAction;
-export const updateClassModuleAction = classModulesActions.updateAction;
-export const deleteClassModuleAction = classModulesActions.deleteAction;
+export const deleteClassModuleAction = classModuleDeleteActions.deleteAction;
 
 // ─── Class Sections ───────────────────────────────────────────────────────────
 
-const classSectionsActions = makeActions(
+export async function createClassSectionAction(_: PhaseEActionState, formData: FormData): Promise<PhaseEActionState> {
+  const user = await requireAdminUser();
+  if (!hasAnyPermission(user, [CLASS_SECTIONS_MANAGE, CATALOGS_CREATE])) {
+    return { error: "Sin permisos para crear." };
+  }
+  const moduleId = parsePositiveInt(formData, "module_id");
+  if (!moduleId) return { error: "El módulo es obligatorio." };
+  try {
+    await createAdminClassSection({
+      ...buildTranslatableCreate(formData),
+      module_id: moduleId,
+    });
+  } catch (error) {
+    return { error: getActionErrorMessage(error, "No se pudo crear el registro.", { endpointLabel: "/admin/class-sections" }) };
+  }
+  revalidatePath("/dashboard/catalogs/class-sections");
+  redirect("/dashboard/catalogs/class-sections");
+}
+
+export async function updateClassSectionAction(_: PhaseEActionState, formData: FormData): Promise<PhaseEActionState> {
+  const user = await requireAdminUser();
+  if (!hasAnyPermission(user, [CLASS_SECTIONS_MANAGE, CATALOGS_UPDATE])) {
+    return { error: "Sin permisos para editar." };
+  }
+  const id = parsePositiveInt(formData, "id");
+  if (!id) return { error: "No se pudo identificar el registro a editar." };
+  const moduleId = parsePositiveInt(formData, "module_id");
+  if (!moduleId) return { error: "El módulo es obligatorio." };
+  try {
+    await updateAdminClassSection(id, {
+      ...buildTranslatableUpdate(formData),
+      module_id: moduleId,
+    });
+  } catch (error) {
+    return { error: getActionErrorMessage(error, "No se pudo actualizar el registro.", { endpointLabel: `/admin/class-sections/${id}` }) };
+  }
+  revalidatePath("/dashboard/catalogs/class-sections");
+  redirect("/dashboard/catalogs/class-sections");
+}
+
+const classSectionDeleteActions = makeActions(
   "/dashboard/catalogs/class-sections",
   { create: [CLASS_SECTIONS_MANAGE, CATALOGS_CREATE], update: [CLASS_SECTIONS_MANAGE, CATALOGS_UPDATE], delete: [CLASS_SECTIONS_MANAGE, CATALOGS_DELETE] },
   {
@@ -521,9 +609,7 @@ const classSectionsActions = makeActions(
   true,
 );
 
-export const createClassSectionAction = classSectionsActions.createAction;
-export const updateClassSectionAction = classSectionsActions.updateAction;
-export const deleteClassSectionAction = classSectionsActions.deleteAction;
+export const deleteClassSectionAction = classSectionDeleteActions.deleteAction;
 
 // ─── Finance Categories ───────────────────────────────────────────────────────
 

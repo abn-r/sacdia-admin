@@ -25,10 +25,10 @@ const itemLabels: Record<CertificateBulkImportItemStatus, string> = {
 };
 
 function variantForStatus(status: string): React.ComponentProps<typeof Badge>["variant"] {
-  if (status === "APPROVED") return "soft-success";
+  if (status === "APPROVED") return "default";
   if (status === "REJECTED") return "destructive";
-  if (status === "NEEDS_CORRECTION" || status === "PARTIALLY_APPROVED") return "soft-warning";
-  return "soft-info";
+  if (status === "NEEDS_CORRECTION" || status === "PARTIALLY_APPROVED") return "secondary";
+  return "outline";
 }
 
 export function CertificateBatchStatusBadge({ status }: { status: CertificateBulkImportBatchStatus }) {

@@ -94,28 +94,31 @@ export async function GET(request: NextRequest) {
   }
 
   const upstreamResponse = await fetch(file.file_url, {
-    headers: { Accept: "application/pdf" },
+    headers: { Accept: "application/pdf,*/*" },
     cache: "no-store",
+    redirect: "follow",
   });
 
-  if (!upstreamResponse.ok || !upstreamResponse.body) {
+  if (!upstreamResponse.ok) {
     return NextResponse.json(
       { error: "No se pudo abrir el PDF" },
       { status: 502 },
     );
   }
 
+  const pdfBytes = await upstreamResponse.arrayBuffer();
+  if (pdfBytes.byteLength === 0) {
+    return NextResponse.json({ error: "El PDF está vacío" }, { status: 502 });
+  }
+
   const headers = new Headers();
   headers.set("Content-Type", "application/pdf");
   headers.set("Content-Disposition", contentDispositionInline(file.file_name));
   headers.set("Cache-Control", "no-store");
+  headers.set("X-Frame-Options", "SAMEORIGIN");
+  headers.set("Content-Length", String(pdfBytes.byteLength));
 
-  const contentLength = upstreamResponse.headers.get("content-length");
-  if (contentLength) {
-    headers.set("Content-Length", contentLength);
-  }
-
-  return new NextResponse(upstreamResponse.body, {
+  return new NextResponse(pdfBytes, {
     status: 200,
     headers,
   });

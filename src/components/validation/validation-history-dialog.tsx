@@ -1,9 +1,9 @@
 "use client";
 
+import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { History, Clock, CheckCircle2, XCircle } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
 import {
   Dialog,
   DialogContent,
@@ -21,8 +21,6 @@ import {
 import { ApiError } from "@/lib/api/client";
 import { useFormatDateTime } from "@/lib/format-locale";
 
-// ─── Action config (visual/structural only — labels resolved via t()) ─────────
-
 const actionVisual: Record<
   string,
   { icon: React.ElementType; iconClass: string; dotClass: string }
@@ -39,8 +37,6 @@ const actionVisual: Record<
   },
 };
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export interface ValidationHistoryDialogProps {
   open: boolean;
   entityType: ValidationEntityType;
@@ -48,15 +44,6 @@ export interface ValidationHistoryDialogProps {
   title: string;
   onOpenChange: (open: boolean) => void;
 }
-
-// ─── Query key factory ────────────────────────────────────────────────────────
-
-export const validationHistoryQueryKey = (
-  entityType: ValidationEntityType,
-  entityId: number | string,
-) => ["validation-history", entityType, entityId] as const;
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function ValidationHistoryDialog({
   open,
@@ -67,6 +54,8 @@ export function ValidationHistoryDialog({
 }: ValidationHistoryDialogProps) {
   const t = useTranslations("validation_admin");
   const formatDateTime = useFormatDateTime();
+  const [entries, setEntries] = useState<ValidationHistoryEntry[]>([]);
+  const [loading, setLoading] = useState(false);
 
   function getPerformerName(entry: ValidationHistoryEntry): string {
     if (entry.performer?.first_name || entry.performer?.last_name) {
@@ -86,25 +75,25 @@ export function ValidationHistoryDialog({
     return action;
   }
 
-  const { data: entries = [], isLoading: loading } = useQuery({
-    queryKey: validationHistoryQueryKey(entityType, entityId),
-    queryFn: async () => {
-      try {
-        return await getValidationHistory(entityType, entityId);
-      } catch (error) {
-        const message =
-          error instanceof ApiError
-            ? error.message
-            : t("errors.loadHistory");
-        toast.error(message);
-        throw error;
-      }
-    },
-    // Validation history is append-only — once fetched it never changes.
-    staleTime: Infinity,
-    // Only fetch when the dialog is open.
-    enabled: open,
-  });
+  const loadHistory = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await getValidationHistory(entityType, entityId);
+      setEntries(data);
+    } catch (error) {
+      const message =
+        error instanceof ApiError ? error.message : t("errors.loadHistory");
+      toast.error(message);
+      setEntries([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [entityId, entityType, t]);
+
+  useEffect(() => {
+    if (!open) return;
+    void loadHistory();
+  }, [loadHistory, open]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

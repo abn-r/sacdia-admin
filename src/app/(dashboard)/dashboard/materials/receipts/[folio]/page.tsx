@@ -10,6 +10,7 @@ import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatusBadge } from "@/components/materials/status-badge";
 import { MoneyFormat } from "@/components/materials/money-format";
+import { PaymentSheetPrintButton } from "@/components/materials/payment-sheet-print-button";
 import {
   Card,
   CardContent,
@@ -18,6 +19,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { getOrder, listReceipts } from "@/lib/api/materials";
+import { buildReceiptPrintContextFromOrder } from "@/lib/materials/receipt-print";
 import { requireAdminUser } from "@/lib/auth/session";
 import { hasPermission } from "@/lib/auth/permission-utils";
 import { ApiError } from "@/lib/api/client";
@@ -130,8 +132,11 @@ export default async function ComprobantesDetailPage({
           <Card className="gap-3 py-4">
             <CardContent className="flex items-start gap-3">
               <Banknote className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-              <div>
-                <p className="text-xs text-muted-foreground">Datos bancarios</p>
+              <div className="min-w-0 flex-1">
+                <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-xs text-muted-foreground">Datos bancarios</p>
+                  <PaymentSheetPrintButton orden={orden} />
+                </div>
                 {orden.bank_name && (
                   <p className="text-xs">
                     <span className="text-muted-foreground">Banco: </span>
@@ -164,6 +169,7 @@ export default async function ComprobantesDetailPage({
             folio={folio}
             comprobantes={comprobantes}
             canReview={canReview}
+            printContext={buildReceiptPrintContextFromOrder(orden)}
           />
         </CardContent>
       </Card>

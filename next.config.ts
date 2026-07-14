@@ -1,8 +1,18 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 import createNextIntlPlugin from "next-intl/plugin";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
+
+const projectRoot = path.dirname(fileURLToPath(import.meta.url));
+// Turbopack resolveAlias requires project-relative paths, not absolute filesystem paths.
+const hugeiconsCompatPath = "./src/lib/icons/lucide-react-compat.tsx";
+const hugeiconsCompatAbsolute = path.join(
+  projectRoot,
+  "src/lib/icons/lucide-react-compat.tsx",
+);
 
 // ---------------------------------------------------------------------------
 // Content Security Policy
@@ -72,6 +82,9 @@ const cspValue = [
   `img-src 'self' data: blob: https://lh3.googleusercontent.com https://avatars.githubusercontent.com https://pub-c8aa231ae66c46ff96fc5e811994d9d2.r2.dev https://pub-c0e79f5fa4634581867fab5b0fed605c.r2.dev https://5da196c051c48c7a4ebeea275a2b23d1.r2.cloudflarestorage.com`,
   `font-src 'self' data:`,
   `connect-src 'self' ${backendOrigin} https://*.r2.cloudflarestorage.com https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.us.sentry.io`,
+  `worker-src 'self' blob:`,
+  `object-src 'self' blob:`,
+  `frame-src 'self' blob:`,
   `frame-ancestors 'none'`,
   `base-uri 'self'`,
   `form-action 'self'`,
@@ -80,6 +93,17 @@ const cspValue = [
   .concat(";");
 
 const nextConfig: NextConfig = {
+  turbopack: {
+    resolveAlias: {
+      "lucide-react": hugeiconsCompatPath,
+    },
+  },
+  webpack: (config) => {
+    config.resolve ??= {};
+    config.resolve.alias ??= {};
+    config.resolve.alias["lucide-react"] = hugeiconsCompatAbsolute;
+    return config;
+  },
   // Bumping default 1MB so Server Actions still work for non-file resource
   // forms. File resources are uploaded through the backend API as multipart
   // POST /resources so the browser does not PUT directly to R2.

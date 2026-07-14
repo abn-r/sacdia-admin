@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Check, ChevronsUpDown, X, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
@@ -19,7 +19,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useQuery } from "@tanstack/react-query";
 import {
   listClubMembers,
   listNormalizedClubSectionMembers,
@@ -75,25 +74,40 @@ export function MemberCombobox({
   // Delay enabling the query until the popover is opened at least once,
   // and only when no external list was provided.
   const [hasOpened, setHasOpened] = useState(false);
+  const [fetchedMembers, setFetchedMembers] = useState<ClubSectionMember[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [fetchError, setFetchError] = useState<Error | null>(null);
 
-  const {
-    data: fetchedMembers = [],
-    isFetching: loading,
-    error: fetchError,
-  } = useQuery({
-    queryKey: ["club-members", clubId, sectionId ?? "all"],
-    queryFn: async () => {
-      const data = sectionId
-        ? await listNormalizedClubSectionMembers(clubId, sectionId, {
-            active: true,
-          })
-        : await listClubMembers(clubId);
-      onMembersLoaded?.(data);
-      return data;
-    },
-    enabled: hasOpened && externalMembers === undefined,
-    staleTime: 60_000,
-  });
+  useEffect(() => {
+    if (externalMembers !== undefined) return;
+    if (!hasOpened) return;
+
+    let cancelled = false;
+    setLoading(true);
+    setFetchError(null);
+
+    const loadMembers = sectionId
+      ? listNormalizedClubSectionMembers(clubId, sectionId, { active: true })
+      : listClubMembers(clubId);
+
+    loadMembers
+      .then((data) => {
+        if (cancelled) return;
+        onMembersLoaded?.(data);
+        setFetchedMembers(data);
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        setFetchError(error instanceof Error ? error : new Error(t("loadError")));
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [clubId, externalMembers, hasOpened, onMembersLoaded, sectionId, t]);
 
   const members: ClubSectionMember[] = externalMembers ?? fetchedMembers;
   const error = fetchError

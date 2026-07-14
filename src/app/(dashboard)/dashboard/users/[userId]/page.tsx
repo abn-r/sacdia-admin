@@ -29,6 +29,8 @@ import { PostRegistrationTab } from "@/components/users/post-registration-tab";
 import { MfaTab } from "@/components/users/mfa-tab";
 import { SessionsTab } from "@/components/users/sessions-tab";
 import { UserRolesPanel } from "@/components/rbac/user-roles-panel";
+import { UserRolesOverview } from "@/components/users/user-roles-overview";
+import { bucketUserRoles } from "@/lib/users/role-buckets";
 
 import { UserDetailHero } from "@/components/users/detail/hero";
 import { UserDetailStats, ProgressBar, type StatItem } from "@/components/users/detail/stats";
@@ -36,8 +38,11 @@ import {
   DetailSection,
   DetailField,
   DetailCols2,
+  DetailChipList,
 } from "@/components/users/detail/section";
 import { UserDetailResumenTab } from "@/components/users/detail/resumen-tab";
+import { UserDetailHonorsTab } from "@/components/users/detail/honors-tab";
+import { UserDetailClassesTab } from "@/components/users/detail/classes-tab";
 import { UserDetailActionSidebar } from "@/components/users/detail/action-sidebar";
 import {
   calculateAge,
@@ -167,6 +172,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
   const roleLabels = roleNamesRaw.map((r) => translateRole(r) || r);
   const primaryAssignment = extractPrimaryAssignment(user.club_assignments, translateRole);
   const assignments = extractAllAssignments(user.club_assignments, translateRole);
+  const roleBuckets = bucketUserRoles(userRoles, assignments);
   const assignmentLocation = extractAssignmentLocation(user.club_assignments);
   const emergencyContacts = extractEmergencyContacts(user.emergency_contacts ?? undefined);
   const legalRep = extractLegalRepresentative(user.legal_representative);
@@ -280,13 +286,19 @@ export default async function UserDetailPage({ params }: { params: Params }) {
         backLabel={t("back")}
         statusActiveLabel={t("statusActive")}
         statusInactiveLabel={t("statusInactive")}
+        metaLabels={{
+          status: t("heroMeta.labelStatus"),
+          club: t("heroMeta.labelClub"),
+          section: t("heroMeta.labelSection"),
+          clubRole: t("heroMeta.labelClubRole"),
+          systemRole: t("heroMeta.labelSystemRole"),
+        }}
       />
 
       <UserDetailStats items={statItems} />
 
-      <div className="grid items-start gap-5 lg:grid-cols-[1fr_320px]">
-        <Tabs defaultValue="resumen" className="min-w-0">
-          <TabsList className="flex-wrap">
+      <Tabs defaultValue="resumen" className="w-full min-w-0">
+          <TabsList className="h-auto min-h-8 w-full flex-wrap">
             <TabsTrigger value="resumen">{t("tabResumen")}</TabsTrigger>
             <TabsTrigger value="datos">{t("tabPersonalData")}</TabsTrigger>
             {canSeeHealthData ? (
@@ -296,6 +308,8 @@ export default async function UserDetailPage({ params }: { params: Params }) {
               </TabsTrigger>
             ) : null}
             <TabsTrigger value="roles">{t("tabRolesAccess")}</TabsTrigger>
+            <TabsTrigger value="honors">{t("tabHonors")}</TabsTrigger>
+            <TabsTrigger value="classes">{t("tabClasses")}</TabsTrigger>
             {canSeeAdministrativeCompletion ? (
               <TabsTrigger value="post-registration">
                 {t("tabPostRegistration")}
@@ -305,7 +319,9 @@ export default async function UserDetailPage({ params }: { params: Params }) {
             <TabsTrigger value="sesiones">{t("tabSessions")}</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="resumen" className="mt-4">
+          <div className="mt-4 grid items-start gap-5 lg:grid-cols-[1fr_320px]">
+            <div className="min-w-0">
+          <TabsContent value="resumen" className="mt-0">
             <UserDetailResumenTab
               identityTitle={t("sections.identityTitle")}
               identityFieldsLeft={[
@@ -405,8 +421,8 @@ export default async function UserDetailPage({ params }: { params: Params }) {
             />
           </TabsContent>
 
-          <TabsContent value="datos" className="mt-4">
-            <div className="grid gap-3.5 lg:grid-cols-2">
+          <TabsContent value="datos" className="mt-0">
+            <div className="grid grid-cols-1 gap-3.5">
               <DetailSection num="A" title={t("sections.fullDataTitle")}>
                 <DetailCols2>
                   <div>
@@ -493,47 +509,35 @@ export default async function UserDetailPage({ params }: { params: Params }) {
           </TabsContent>
 
           {canSeeHealthData ? (
-            <TabsContent value="salud" className="mt-4">
+            <TabsContent value="salud" className="mt-0">
               <div className="space-y-3.5">
                 <DetailSection num="01" title={t("sections.healthBlockTitle")}>
                   {hasHealthPayload ? (
-                    <DetailCols2>
-                      <div>
-                        <DetailField
-                          k={t("fields.bloodType")}
-                          v={formatBloodType(
-                            user.health?.blood,
-                            t("fields.bloodUnspecified"),
-                          )}
-                        />
-                        <DetailField
-                          k={t("fields.allergies")}
-                          v={
-                            healthAllergies.length > 0
-                              ? healthAllergies.join(", ")
-                              : "—"
-                          }
-                        />
-                      </div>
-                      <div>
-                        <DetailField
-                          k={t("fields.diseases")}
-                          v={
-                            healthDiseases.length > 0
-                              ? healthDiseases.join(", ")
-                              : "—"
-                          }
-                        />
-                        <DetailField
-                          k={t("fields.medicines")}
-                          v={
-                            healthMedicines.length > 0
-                              ? healthMedicines.join(", ")
-                              : "—"
-                          }
-                        />
-                      </div>
-                    </DetailCols2>
+                    <div className="space-y-0">
+                      <DetailField
+                        k={t("fields.bloodType")}
+                        v={formatBloodType(
+                          user.health?.blood,
+                          t("fields.bloodUnspecified"),
+                        )}
+                      />
+                      <DetailChipList
+                        k={t("fields.allergies")}
+                        items={healthAllergies}
+                        tone="destructive"
+                      />
+                      <DetailChipList
+                        k={t("fields.diseases")}
+                        items={healthDiseases}
+                        tone="warning"
+                      />
+                      <DetailChipList
+                        k={t("fields.medicines")}
+                        items={healthMedicines}
+                        tone="info"
+                        className="border-b-0"
+                      />
+                    </div>
                   ) : (
                     <p className="text-sm text-muted-foreground">
                       {t("sections.healthEmpty")}
@@ -544,8 +548,9 @@ export default async function UserDetailPage({ params }: { params: Params }) {
             </TabsContent>
           ) : null}
 
-          <TabsContent value="roles" className="mt-4">
+          <TabsContent value="roles" className="mt-0">
             <div className="space-y-3.5">
+              <UserRolesOverview buckets={roleBuckets} />
               <UserRolesPanel
                 userId={userId}
                 initialUserRoles={userRoles}
@@ -561,8 +566,20 @@ export default async function UserDetailPage({ params }: { params: Params }) {
             </div>
           </TabsContent>
 
+          <TabsContent value="honors" className="mt-0">
+            <UserDetailHonorsTab userId={userId} locale={dateLocale} />
+          </TabsContent>
+
+          <TabsContent value="classes" className="mt-0">
+            <UserDetailClassesTab
+              userId={userId}
+              locale={dateLocale}
+              clubAssignments={user.club_assignments}
+            />
+          </TabsContent>
+
           {canSeeAdministrativeCompletion ? (
-            <TabsContent value="post-registration" className="mt-4">
+            <TabsContent value="post-registration" className="mt-0">
               {postRegistrationStatus && photoStatus ? (
                 <PostRegistrationTab
                   userId={userId}
@@ -582,7 +599,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
             </TabsContent>
           ) : null}
 
-          <TabsContent value="seguridad" className="mt-4">
+          <TabsContent value="seguridad" className="mt-0">
             <MfaTab
               userId={userId}
               mfaEnabled={mfaStatus?.enabled ?? null}
@@ -590,10 +607,10 @@ export default async function UserDetailPage({ params }: { params: Params }) {
             />
           </TabsContent>
 
-          <TabsContent value="sesiones" className="mt-4">
+          <TabsContent value="sesiones" className="mt-0">
             <SessionsTab userId={userId} initialData={sessionsData} />
           </TabsContent>
-        </Tabs>
+            </div>
 
         <aside className="hidden lg:block">
           <UserDetailActionSidebar
@@ -693,7 +710,8 @@ export default async function UserDetailPage({ params }: { params: Params }) {
             ]}
           />
         </aside>
-      </div>
+          </div>
+      </Tabs>
     </div>
   );
 }

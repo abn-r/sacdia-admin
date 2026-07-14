@@ -19,11 +19,11 @@ type BadgeVariant = NonNullable<VariantProps<typeof badgeVariants>["variant"]>;
 
 const intentToBadgeVariant: Record<StatusIntent, BadgeVariant> = {
   neutral: "outline",
-  info: "soft-info",
-  success: "soft-success",
-  warning: "soft-warning",
+  info: "secondary",
+  success: "default",
+  warning: "secondary",
   destructive: "destructive",
-  primary: "soft",
+  primary: "default",
   "progress-1": "outline",
   "progress-2": "outline",
   "progress-3": "outline",

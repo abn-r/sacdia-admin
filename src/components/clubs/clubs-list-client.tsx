@@ -1,10 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Building2, Eye, MoreHorizontal, Pencil, Plus, Search } from "lucide-react";
+import { Building2, Eye, MoreHorizontal, Pencil, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,7 +33,6 @@ import {
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
-import { ClubsCreateMenu } from "@/components/clubs/clubs-create-menu";
 import {
   getClubChurchName,
   getClubDistrictName,
@@ -53,15 +52,27 @@ interface ClubsListClientProps {
   items: ClubListItem[];
   meta: { page: number; limit: number; total: number; totalPages: number };
   localFieldOptions: LocalFieldOption[];
-  canCreate: boolean;
   canEdit: boolean;
+}
+
+function matchesSearch(club: ClubListItem, query: string): boolean {
+  const haystack = [
+    club.name,
+    getClubLocalFieldName(club),
+    getClubDistrictName(club),
+    getClubChurchName(club),
+  ]
+    .filter((value): value is string => Boolean(value))
+    .join(" ")
+    .toLowerCase();
+
+  return haystack.includes(query);
 }
 
 export function ClubsListClient({
   items,
   meta,
   localFieldOptions,
-  canCreate,
   canEdit,
 }: ClubsListClientProps) {
   const t = useTranslations("clubs.pages.v2");
@@ -143,17 +154,21 @@ export function ClubsListClient({
   const hasActiveFilters = Boolean(
     currentSearch || currentStatusFilter !== "all" || currentLocalField !== "all",
   );
+
+  const filteredItems = useMemo(() => {
+    const query = currentSearch.trim().toLowerCase();
+    if (!query) return items;
+    return items.filter((club) => matchesSearch(club, query));
+  }, [currentSearch, items]);
+
   const safePage = Math.max(1, meta.page || 1);
   const safeLimit = Math.max(1, meta.limit || 20);
   const safeTotalPages = Math.max(1, meta.totalPages || 1);
+  const showEmptyState = items.length === 0 || filteredItems.length === 0;
 
   return (
     <div className="space-y-6">
-      <PageHeader title={tList("title")} description={t("description")}>
-        <div className="flex flex-wrap items-center gap-2">
-          {canCreate && <ClubsCreateMenu />}
-        </div>
-      </PageHeader>
+      <PageHeader title={tList("title")} description={t("description")} />
 
       <div className="space-y-4">
         <div className="rounded-xl border bg-muted/20 p-4">
@@ -217,23 +232,15 @@ export function ClubsListClient({
           </div>
         </div>
 
-        {items.length === 0 ? (
+        {showEmptyState ? (
           <EmptyState
+            variant={hasActiveFilters ? "no-results" : "default"}
             icon={hasActiveFilters ? Search : Building2}
             title={hasActiveFilters ? t("emptyFilteredTitle") : tList("emptyTitle")}
             description={
               hasActiveFilters ? t("emptyFilteredDescription") : tList("emptyDescription")
             }
-          >
-            {canCreate && !hasActiveFilters && (
-              <Button asChild>
-                <Link prefetch={false} href="/dashboard/clubs/new">
-                  <Plus className="size-4" />
-                  {tList("emptyCreateButton")}
-                </Link>
-              </Button>
-            )}
-          </EmptyState>
+          />
         ) : (
           <>
             <div className="overflow-x-auto rounded-md border">
@@ -246,7 +253,7 @@ export function ClubsListClient({
                     <TableHead>{tList("colChurch")}</TableHead>
                     <TableHead>{t("colSections")}</TableHead>
                     <TableHead>{tList("colStatus")}</TableHead>
-                    {(canEdit || canCreate) && (
+                    {canEdit && (
                       <TableHead className="sticky right-0 z-20 w-[100px] border-l bg-background">
                         {tList("colActions")}
                       </TableHead>
@@ -254,12 +261,14 @@ export function ClubsListClient({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {items.map((club, index) => {
+                  {filteredItems.map((club, index) => {
                     const clubId = getClubListId(club);
                     const rowKey = clubId
                       ? `club-${clubId}`
                       : `club-idx-${(safePage - 1) * safeLimit + index}`;
-                    const sections = Array.isArray(club.club_sections) ? club.club_sections : [];
+                    const sections = Array.isArray(club.club_sections)
+                      ? club.club_sections
+                      : [];
                     const activeSections = sections.filter(
                       (section) => section.active !== false,
                     ).length;
@@ -267,13 +276,17 @@ export function ClubsListClient({
                     return (
                       <TableRow key={rowKey}>
                         <TableCell className="pl-5 font-medium">
-                          <Link
-                            prefetch={false}
-                            href={`/dashboard/clubs/${clubId}`}
-                            className="hover:text-primary hover:underline underline-offset-4"
-                          >
-                            {club.name ?? "—"}
-                          </Link>
+                          {clubId ? (
+                            <Link
+                              prefetch={false}
+                              href={`/dashboard/clubs/${clubId}`}
+                              className="hover:text-primary hover:underline underline-offset-4"
+                            >
+                              {club.name ?? "—"}
+                            </Link>
+                          ) : (
+                            (club.name ?? "—")
+                          )}
                         </TableCell>
                         <TableCell className="text-sm text-muted-foreground">
                           {getClubLocalFieldName(club) ?? club.local_field_id ?? "—"}
@@ -285,11 +298,13 @@ export function ClubsListClient({
                           {getClubChurchName(club) ?? club.church_id ?? "—"}
                         </TableCell>
                         <TableCell className="font-mono text-sm tabular-nums">
-                          {activeSections}/{sections.length || "—"}
+                          {sections.length > 0
+                            ? `${activeSections}/${sections.length}`
+                            : "—"}
                         </TableCell>
                         <TableCell>
                           <Badge
-                            variant={club.active !== false ? "soft-success" : "outline"}
+                            variant={club.active !== false ? "default" : "outline"}
                             className="text-xs"
                           >
                             {club.active !== false
@@ -297,7 +312,7 @@ export function ClubsListClient({
                               : tList("statusInactive")}
                           </Badge>
                         </TableCell>
-                        {(canEdit || canCreate) && (
+                        {canEdit && (
                           <TableCell className="sticky right-0 z-10 border-l bg-background">
                             <div className="hidden gap-1 md:flex">
                               {clubId && (
@@ -313,7 +328,7 @@ export function ClubsListClient({
                                   </Link>
                                 </Button>
                               )}
-                              {canEdit && clubId && (
+                              {clubId && (
                                 <Button
                                   variant="ghost"
                                   size="icon"
@@ -346,7 +361,7 @@ export function ClubsListClient({
                                       </Link>
                                     </DropdownMenuItem>
                                   )}
-                                  {canEdit && clubId && (
+                                  {clubId && (
                                     <DropdownMenuItem asChild>
                                       <Link
                                         prefetch={false}

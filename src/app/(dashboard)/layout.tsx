@@ -1,72 +1,74 @@
+import type { ReactNode } from "react";
+
 import { cookies } from "next/headers";
-import { NextIntlClientProvider } from "next-intl";
-import { getLocale, getMessages, getTranslations } from "next-intl/server";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/layout/app-sidebar";
-import { AppHeader } from "@/components/layout/app-header";
-import { CommandPalette } from "@/components/layout/command-palette";
-import { BirthdayCelebrationModal } from "@/components/dashboard/birthday-celebration-modal";
+
+import { AppSidebar } from "@/app/(dashboard)/dashboard/_components/sidebar/app-sidebar";
+import { HeaderUserMenu } from "@/app/(dashboard)/dashboard/_components/sidebar/header-user-menu";
+import { SearchDialog } from "@/app/(dashboard)/dashboard/_components/sidebar/search-dialog";
+import { ThemeSwitcher } from "@/app/(dashboard)/dashboard/_components/sidebar/theme-switcher";
+import { Separator } from "@/components/ui/separator";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AuthProvider } from "@/lib/auth/auth-context";
-import { QueryProvider } from "@/lib/providers/query-provider";
-import { ActiveContextProvider } from "@/lib/context/active-context";
 import { requireAdminUser } from "@/lib/auth/session";
-import {
-  getClientMessageNamespacesForDashboardPath,
-  pickMessages,
-} from "@/lib/i18n/client-messages";
+import { cn } from "@/lib/utils";
+import { getPreference } from "@/server/server-actions";
 
-export default async function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function DashboardLayout({ children }: Readonly<{ children: ReactNode }>) {
   const initialUser = await requireAdminUser();
-
-  const locale = await getLocale();
-  const messages = await getMessages();
-  const t = await getTranslations("nav.a11y");
   const cookieStore = await cookies();
-  const clientMessages = pickMessages(
-    messages,
-    getClientMessageNamespacesForDashboardPath("/dashboard", messages),
-  );
-  const sidebarState = cookieStore.get("sidebar_state")?.value;
-  const defaultOpen = sidebarState !== "false";
+  const defaultOpen = cookieStore.get("sidebar_state")?.value !== "false";
+  const [variant, collapsible] = await Promise.all([
+    getPreference("sidebar_variant"),
+    getPreference("sidebar_collapsible"),
+  ]);
 
   return (
-    <NextIntlClientProvider locale={locale} messages={clientMessages}>
-      <AuthProvider initialUser={initialUser}>
-        <QueryProvider>
-          <SidebarProvider
-            defaultOpen={defaultOpen}
-            style={
-              {
-                "--sidebar-width": "15rem",
-              } as React.CSSProperties
-            }
+    <AuthProvider initialUser={initialUser}>
+      <SidebarProvider
+        defaultOpen={defaultOpen}
+        style={
+          {
+            "--sidebar-width": "calc(var(--spacing) * 68)",
+          } as React.CSSProperties
+        }
+      >
+        <AppSidebar variant={variant} collapsible={collapsible} />
+        <SidebarInset
+          className={cn(
+            "[html[data-content-layout=centered]_&>*]:mx-auto",
+            "[html[data-content-layout=centered]_&>*]:w-full",
+            "[html[data-content-layout=centered]_&>*]:max-w-screen-2xl",
+            "peer-data-[variant=inset]:border",
+            "[--dashboard-header-height:--spacing(12)]",
+            "min-w-0 overflow-x-clip",
+          )}
+        >
+          <header
+            className={cn(
+              "flex h-12 shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12",
+              "[html[data-navbar-style=sticky]_&]:sticky [html[data-navbar-style=sticky]_&]:top-0 [html[data-navbar-style=sticky]_&]:z-50 [html[data-navbar-style=sticky]_&]:overflow-hidden [html[data-navbar-style=sticky]_&]:rounded-t-[inherit] [html[data-navbar-style=sticky]_&]:bg-background/50 [html[data-navbar-style=sticky]_&]:backdrop-blur-md",
+            )}
           >
-            <a
-              href="#main"
-              className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:bg-background focus:px-3 focus:py-2 focus:rounded-md focus:ring-2 focus:ring-ring"
-            >
-              {t("skipToContent")}
-            </a>
-            <AppSidebar />
-            <SidebarInset>
-              <ActiveContextProvider>
-                <CommandPalette />
-                <BirthdayCelebrationModal />
-                <AppHeader />
-                <main id="main" className="flex-1 overflow-auto">
-                  <div className="mx-auto max-w-[1536px] px-4 py-4 md:px-6 md:py-6">
-                    {children}
-                  </div>
-                </main>
-              </ActiveContextProvider>
-            </SidebarInset>
-          </SidebarProvider>
-        </QueryProvider>
-      </AuthProvider>
-    </NextIntlClientProvider>
+            <div className="flex w-full items-center justify-between px-4 lg:px-6">
+              <div className="flex items-center gap-1 lg:gap-2">
+                <SidebarTrigger className="-ml-1" />
+                <Separator
+                  orientation="vertical"
+                  className="mx-2 data-[orientation=vertical]:h-4 data-[orientation=vertical]:self-center"
+                />
+                <SearchDialog />
+              </div>
+              <div className="flex items-center gap-2">
+                <ThemeSwitcher />
+                <HeaderUserMenu />
+              </div>
+            </div>
+          </header>
+          <div className="min-h-0 min-w-0 flex-1 overflow-x-hidden p-4 has-data-[content-padding=false]:p-0 md:p-6 md:has-data-[content-padding=false]:p-0">
+            {children}
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    </AuthProvider>
   );
 }
