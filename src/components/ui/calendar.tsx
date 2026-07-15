@@ -8,6 +8,7 @@ import {
   type Locale,
 } from "react-day-picker"
 
+import { WEEK_STARTS_ON } from "@/lib/calendar/constants"
 import { cn } from "@/lib/utils"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { ChevronLeftIcon, ChevronRightIcon, ChevronDownIcon } from "lucide-react"
@@ -21,6 +22,7 @@ function Calendar({
   locale,
   formatters,
   components,
+  weekStartsOn = WEEK_STARTS_ON,
   ...props
 }: React.ComponentProps<typeof DayPicker> & {
   buttonVariant?: React.ComponentProps<typeof Button>["variant"]
@@ -29,6 +31,7 @@ function Calendar({
 
   return (
     <DayPicker
+      weekStartsOn={weekStartsOn}
       showOutsideDays={showOutsideDays}
       className={cn(
         "group/calendar bg-background p-2 [--cell-radius:var(--radius-md)] [--cell-size:--spacing(7)] in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent",

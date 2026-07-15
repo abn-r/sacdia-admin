@@ -8,6 +8,7 @@
 import { forwardRef, type ComponentPropsWithoutRef, type ForwardRefExoticComponent, type RefAttributes } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
+  ActivityIcon as __Huge_ActivityIcon,
   AlarmClockMinusIcon as __Huge_AlarmClockMinusIcon,
   Alert02Icon as __Huge_Alert02Icon,
   AlertCircleIcon as __Huge_AlertCircleIcon,
@@ -17,14 +18,18 @@ import {
   ArrowRight01Icon as __Huge_ArrowRight01Icon,
   ArrowUp01Icon as __Huge_ArrowUp01Icon,
   ArrowUpDownIcon as __Huge_ArrowUpDownIcon,
+  Attachment01Icon as __Huge_Attachment01Icon,
   Award01Icon as __Huge_Award01Icon,
+  BalanceScaleIcon as __Huge_BalanceScaleIcon,
   BankIcon as __Huge_BankIcon,
   BarChartIcon as __Huge_BarChartIcon,
   BookOpen01Icon as __Huge_BookOpen01Icon,
   Building02Icon as __Huge_Building02Icon,
+  CalculatorIcon as __Huge_CalculatorIcon,
   CalendarClockIcon as __Huge_CalendarClockIcon,
   CalendarDaysIcon as __Huge_CalendarDaysIcon,
   CalendarIcon as __Huge_CalendarIcon,
+  CalendarRangeIcon as __Huge_CalendarRangeIcon,
   CancelCircleIcon as __Huge_CancelCircleIcon,
   CheckListIcon as __Huge_CheckListIcon,
   CheckmarkCircle02Icon as __Huge_CheckmarkCircle02Icon,
@@ -41,12 +46,15 @@ import {
   Database01Icon as __Huge_Database01Icon,
   Delete02Icon as __Huge_Delete02Icon,
   DirectionLeft01Icon as __Huge_DirectionLeft01Icon,
+  DollarSignIcon as __Huge_DollarSignIcon,
   DownloadIcon as __Huge_DownloadIcon,
+  EditIcon as __Huge_EditIcon,
   ExternalLinkIcon as __Huge_ExternalLinkIcon,
   File01Icon as __Huge_File01Icon,
   FileImageIcon as __Huge_FileImageIcon,
   FileSearchIcon as __Huge_FileSearchIcon,
   FileSpreadsheetIcon as __Huge_FileSpreadsheetIcon,
+  FlagIcon as __Huge_FlagIcon,
   FloppyDiskIcon as __Huge_FloppyDiskIcon,
   Folder01Icon as __Huge_Folder01Icon,
   FolderAddIcon as __Huge_FolderAddIcon,
@@ -64,6 +72,7 @@ import {
   Key01Icon as __Huge_Key01Icon,
   LayersIcon as __Huge_LayersIcon,
   LayoutGridIcon as __Huge_LayoutGridIcon,
+  LibraryIcon as __Huge_LibraryIcon,
   Loading03Icon as __Huge_Loading03Icon,
   Logout01Icon as __Huge_Logout01Icon,
   Mail01Icon as __Huge_Mail01Icon,
@@ -71,6 +80,7 @@ import {
   MapPinIcon as __Huge_MapPinIcon,
   Medal01Icon as __Huge_Medal01Icon,
   Message01Icon as __Huge_Message01Icon,
+  MinusPlusCircle01Icon as __Huge_MinusPlusCircle01Icon,
   MinusSignCircleIcon as __Huge_MinusSignCircleIcon,
   Money01Icon as __Huge_Money01Icon,
   Moon01Icon as __Huge_Moon01Icon,
@@ -83,6 +93,7 @@ import {
   PanelLeftIcon as __Huge_PanelLeftIcon,
   PencilEdit01Icon as __Huge_PencilEdit01Icon,
   PieChart01Icon as __Huge_PieChart01Icon,
+  PinIcon as __Huge_PinIcon,
   PlusSignCircleIcon as __Huge_PlusSignCircleIcon,
   PlusSignIcon as __Huge_PlusSignIcon,
   PowerIcon as __Huge_PowerIcon,
@@ -98,6 +109,7 @@ import {
   ShieldEnergyIcon as __Huge_ShieldEnergyIcon,
   ShieldUserIcon as __Huge_ShieldUserIcon,
   ShoppingBag01Icon as __Huge_ShoppingBag01Icon,
+  SlidersHorizontalIcon as __Huge_SlidersHorizontalIcon,
   SmartPhone01Icon as __Huge_SmartPhone01Icon,
   SparklesIcon as __Huge_SparklesIcon,
   SquareLock01Icon as __Huge_SquareLock01Icon,
@@ -107,14 +119,17 @@ import {
   Tag01Icon as __Huge_Tag01Icon,
   Task01Icon as __Huge_Task01Icon,
   TelephoneIcon as __Huge_TelephoneIcon,
+  TentIcon as __Huge_TentIcon,
   Tick02Icon as __Huge_Tick02Icon,
   TradeUpIcon as __Huge_TradeUpIcon,
   TruckIcon as __Huge_TruckIcon,
   Undo02Icon as __Huge_Undo02Icon,
   Upload01Icon as __Huge_Upload01Icon,
   UserAdd01Icon as __Huge_UserAdd01Icon,
+  UserCheckIcon as __Huge_UserCheckIcon,
   UserGroupIcon as __Huge_UserGroupIcon,
   UserIcon as __Huge_UserIcon,
+  UserMinusIcon as __Huge_UserMinusIcon,
   UserRemove01Icon as __Huge_UserRemove01Icon,
   ViewIcon as __Huge_ViewIcon,
   ViewOffIcon as __Huge_ViewOffIcon,
@@ -186,6 +201,7 @@ function createLucideIcon(
 }
 
 const ICONS = {
+  ActivityIcon: __Huge_ActivityIcon,
   AlarmClockMinusIcon: __Huge_AlarmClockMinusIcon,
   Alert02Icon: __Huge_Alert02Icon,
   AlertCircleIcon: __Huge_AlertCircleIcon,
@@ -195,14 +211,18 @@ const ICONS = {
   ArrowRight01Icon: __Huge_ArrowRight01Icon,
   ArrowUp01Icon: __Huge_ArrowUp01Icon,
   ArrowUpDownIcon: __Huge_ArrowUpDownIcon,
+  Attachment01Icon: __Huge_Attachment01Icon,
   Award01Icon: __Huge_Award01Icon,
+  BalanceScaleIcon: __Huge_BalanceScaleIcon,
   BankIcon: __Huge_BankIcon,
   BarChartIcon: __Huge_BarChartIcon,
   BookOpen01Icon: __Huge_BookOpen01Icon,
   Building02Icon: __Huge_Building02Icon,
+  CalculatorIcon: __Huge_CalculatorIcon,
   CalendarClockIcon: __Huge_CalendarClockIcon,
   CalendarDaysIcon: __Huge_CalendarDaysIcon,
   CalendarIcon: __Huge_CalendarIcon,
+  CalendarRangeIcon: __Huge_CalendarRangeIcon,
   CancelCircleIcon: __Huge_CancelCircleIcon,
   CheckListIcon: __Huge_CheckListIcon,
   CheckmarkCircle02Icon: __Huge_CheckmarkCircle02Icon,
@@ -219,12 +239,15 @@ const ICONS = {
   Database01Icon: __Huge_Database01Icon,
   Delete02Icon: __Huge_Delete02Icon,
   DirectionLeft01Icon: __Huge_DirectionLeft01Icon,
+  DollarSignIcon: __Huge_DollarSignIcon,
   DownloadIcon: __Huge_DownloadIcon,
+  EditIcon: __Huge_EditIcon,
   ExternalLinkIcon: __Huge_ExternalLinkIcon,
   File01Icon: __Huge_File01Icon,
   FileImageIcon: __Huge_FileImageIcon,
   FileSearchIcon: __Huge_FileSearchIcon,
   FileSpreadsheetIcon: __Huge_FileSpreadsheetIcon,
+  FlagIcon: __Huge_FlagIcon,
   FloppyDiskIcon: __Huge_FloppyDiskIcon,
   Folder01Icon: __Huge_Folder01Icon,
   FolderAddIcon: __Huge_FolderAddIcon,
@@ -242,6 +265,7 @@ const ICONS = {
   Key01Icon: __Huge_Key01Icon,
   LayersIcon: __Huge_LayersIcon,
   LayoutGridIcon: __Huge_LayoutGridIcon,
+  LibraryIcon: __Huge_LibraryIcon,
   Loading03Icon: __Huge_Loading03Icon,
   Logout01Icon: __Huge_Logout01Icon,
   Mail01Icon: __Huge_Mail01Icon,
@@ -249,6 +273,7 @@ const ICONS = {
   MapPinIcon: __Huge_MapPinIcon,
   Medal01Icon: __Huge_Medal01Icon,
   Message01Icon: __Huge_Message01Icon,
+  MinusPlusCircle01Icon: __Huge_MinusPlusCircle01Icon,
   MinusSignCircleIcon: __Huge_MinusSignCircleIcon,
   Money01Icon: __Huge_Money01Icon,
   Moon01Icon: __Huge_Moon01Icon,
@@ -261,6 +286,7 @@ const ICONS = {
   PanelLeftIcon: __Huge_PanelLeftIcon,
   PencilEdit01Icon: __Huge_PencilEdit01Icon,
   PieChart01Icon: __Huge_PieChart01Icon,
+  PinIcon: __Huge_PinIcon,
   PlusSignCircleIcon: __Huge_PlusSignCircleIcon,
   PlusSignIcon: __Huge_PlusSignIcon,
   PowerIcon: __Huge_PowerIcon,
@@ -276,6 +302,7 @@ const ICONS = {
   ShieldEnergyIcon: __Huge_ShieldEnergyIcon,
   ShieldUserIcon: __Huge_ShieldUserIcon,
   ShoppingBag01Icon: __Huge_ShoppingBag01Icon,
+  SlidersHorizontalIcon: __Huge_SlidersHorizontalIcon,
   SmartPhone01Icon: __Huge_SmartPhone01Icon,
   SparklesIcon: __Huge_SparklesIcon,
   SquareLock01Icon: __Huge_SquareLock01Icon,
@@ -285,14 +312,17 @@ const ICONS = {
   Tag01Icon: __Huge_Tag01Icon,
   Task01Icon: __Huge_Task01Icon,
   TelephoneIcon: __Huge_TelephoneIcon,
+  TentIcon: __Huge_TentIcon,
   Tick02Icon: __Huge_Tick02Icon,
   TradeUpIcon: __Huge_TradeUpIcon,
   TruckIcon: __Huge_TruckIcon,
   Undo02Icon: __Huge_Undo02Icon,
   Upload01Icon: __Huge_Upload01Icon,
   UserAdd01Icon: __Huge_UserAdd01Icon,
+  UserCheckIcon: __Huge_UserCheckIcon,
   UserGroupIcon: __Huge_UserGroupIcon,
   UserIcon: __Huge_UserIcon,
+  UserMinusIcon: __Huge_UserMinusIcon,
   UserRemove01Icon: __Huge_UserRemove01Icon,
   ViewIcon: __Huge_ViewIcon,
   ViewOffIcon: __Huge_ViewOffIcon,
@@ -301,6 +331,7 @@ const ICONS = {
   ZoomOutAreaIcon: __Huge_ZoomOutAreaIcon,
 } as const;
 
+export const Activity = createLucideIcon(ICONS.ActivityIcon, "Activity");
 export const AlertCircle = createLucideIcon(ICONS.AlertCircleIcon, "AlertCircle");
 export const AlertTriangle = createLucideIcon(ICONS.Alert02Icon, "AlertTriangle");
 export const ArrowDown = createLucideIcon(ICONS.ArrowDownIcon, "ArrowDown");
@@ -315,9 +346,11 @@ export const BarChart3 = createLucideIcon(ICONS.BarChartIcon, "BarChart3");
 export const Bell = createLucideIcon(ICONS.Notification01Icon, "Bell");
 export const BookOpen = createLucideIcon(ICONS.BookOpen01Icon, "BookOpen");
 export const Building2 = createLucideIcon(ICONS.Building02Icon, "Building2");
+export const Calculator = createLucideIcon(ICONS.CalculatorIcon, "Calculator");
 export const Calendar = createLucideIcon(ICONS.CalendarIcon, "Calendar");
 export const CalendarClock = createLucideIcon(ICONS.CalendarClockIcon, "CalendarClock");
 export const CalendarDays = createLucideIcon(ICONS.CalendarDaysIcon, "CalendarDays");
+export const CalendarRange = createLucideIcon(ICONS.CalendarRangeIcon, "CalendarRange");
 export const Check = createLucideIcon(ICONS.Tick02Icon, "Check");
 export const CheckCircle = createLucideIcon(ICONS.CheckmarkCircle02Icon, "CheckCircle");
 export const CheckCircle2 = createLucideIcon(ICONS.CheckmarkCircle02Icon, "CheckCircle2");
@@ -339,7 +372,9 @@ export const ClipboardList = createLucideIcon(ICONS.Task01Icon, "ClipboardList")
 export const Clock = createLucideIcon(ICONS.Clock01Icon, "Clock");
 export const Command = createLucideIcon(ICONS.CommandIcon, "Command");
 export const Copy = createLucideIcon(ICONS.Copy01Icon, "Copy");
+export const DollarSign = createLucideIcon(ICONS.DollarSignIcon, "DollarSign");
 export const Download = createLucideIcon(ICONS.DownloadIcon, "Download");
+export const Edit = createLucideIcon(ICONS.EditIcon, "Edit");
 export const Ellipsis = createLucideIcon(ICONS.MoreHorizontalIcon, "Ellipsis");
 export const ExternalLink = createLucideIcon(ICONS.ExternalLinkIcon, "ExternalLink");
 export const Eye = createLucideIcon(ICONS.ViewIcon, "Eye");
@@ -349,6 +384,7 @@ export const FileSearch = createLucideIcon(ICONS.FileSearchIcon, "FileSearch");
 export const FileSpreadsheet = createLucideIcon(ICONS.FileSpreadsheetIcon, "FileSpreadsheet");
 export const FileStack = createLucideIcon(ICONS.StackStarIcon, "FileStack");
 export const FileText = createLucideIcon(ICONS.File01Icon, "FileText");
+export const Flag = createLucideIcon(ICONS.FlagIcon, "Flag");
 export const Folder = createLucideIcon(ICONS.Folder01Icon, "Folder");
 export const FolderOpen = createLucideIcon(ICONS.FolderOpenIcon, "FolderOpen");
 export const FolderPlus = createLucideIcon(ICONS.FolderAddIcon, "FolderPlus");
@@ -370,6 +406,7 @@ export const Landmark = createLucideIcon(ICONS.BankIcon, "Landmark");
 export const Layers = createLucideIcon(ICONS.LayersIcon, "Layers");
 export const LayoutDashboard = createLucideIcon(ICONS.DashboardSquare01Icon, "LayoutDashboard");
 export const LayoutGrid = createLucideIcon(ICONS.LayoutGridIcon, "LayoutGrid");
+export const Library = createLucideIcon(ICONS.LibraryIcon, "Library");
 export const ListChecks = createLucideIcon(ICONS.CheckListIcon, "ListChecks");
 export const Loader2 = createLucideIcon(ICONS.Loading03Icon, "Loader2");
 export const Loader2Icon = createLucideIcon(ICONS.Loading03Icon, "Loader2Icon");
@@ -394,10 +431,13 @@ export const MoreVertical = createLucideIcon(ICONS.MoreVerticalIcon, "MoreVertic
 export const OctagonXIcon = createLucideIcon(ICONS.CancelCircleIcon, "OctagonXIcon");
 export const Package = createLucideIcon(ICONS.PackageIcon, "Package");
 export const PanelLeftIcon = createLucideIcon(ICONS.PanelLeftIcon, "PanelLeftIcon");
+export const Paperclip = createLucideIcon(ICONS.Attachment01Icon, "Paperclip");
 export const Pencil = createLucideIcon(ICONS.PencilEdit01Icon, "Pencil");
 export const Phone = createLucideIcon(ICONS.TelephoneIcon, "Phone");
 export const PieChart = createLucideIcon(ICONS.PieChart01Icon, "PieChart");
+export const Pin = createLucideIcon(ICONS.PinIcon, "Pin");
 export const Plus = createLucideIcon(ICONS.PlusSignIcon, "Plus");
+export const PlusCircle = createLucideIcon(ICONS.MinusPlusCircle01Icon, "PlusCircle");
 export const PlusCircleIcon = createLucideIcon(ICONS.PlusSignCircleIcon, "PlusCircleIcon");
 export const Power = createLucideIcon(ICONS.PowerIcon, "Power");
 export const Printer = createLucideIcon(ICONS.PrinterIcon, "Printer");
@@ -407,6 +447,7 @@ export const RefreshCcw = createLucideIcon(ICONS.RefreshIcon, "RefreshCcw");
 export const RefreshCw = createLucideIcon(ICONS.RefreshIcon, "RefreshCw");
 export const RotateCcw = createLucideIcon(ICONS.Rotate01Icon, "RotateCcw");
 export const Save = createLucideIcon(ICONS.FloppyDiskIcon, "Save");
+export const Scale = createLucideIcon(ICONS.BalanceScaleIcon, "Scale");
 export const Search = createLucideIcon(ICONS.Search01Icon, "Search");
 export const SearchIcon = createLucideIcon(ICONS.Search01Icon, "SearchIcon");
 export const Send = createLucideIcon(ICONS.SentIcon, "Send");
@@ -418,11 +459,13 @@ export const ShieldCheck = createLucideIcon(ICONS.ShieldEnergyIcon, "ShieldCheck
 export const ShieldOff = createLucideIcon(ICONS.ShieldUserIcon, "ShieldOff");
 export const ShoppingBag = createLucideIcon(ICONS.ShoppingBag01Icon, "ShoppingBag");
 export const Signpost = createLucideIcon(ICONS.DirectionLeft01Icon, "Signpost");
+export const SlidersHorizontal = createLucideIcon(ICONS.SlidersHorizontalIcon, "SlidersHorizontal");
 export const Smartphone = createLucideIcon(ICONS.SmartPhone01Icon, "Smartphone");
 export const Sparkles = createLucideIcon(ICONS.SparklesIcon, "Sparkles");
 export const Sun = createLucideIcon(ICONS.Sun01Icon, "Sun");
 export const Tag = createLucideIcon(ICONS.Tag01Icon, "Tag");
 export const Tags = createLucideIcon(ICONS.Tag01Icon, "Tags");
+export const Tent = createLucideIcon(ICONS.TentIcon, "Tent");
 export const Trash2 = createLucideIcon(ICONS.Delete02Icon, "Trash2");
 export const TrendingUp = createLucideIcon(ICONS.TradeUpIcon, "TrendingUp");
 export const TriangleAlertIcon = createLucideIcon(ICONS.Alert02Icon, "TriangleAlertIcon");
@@ -432,7 +475,10 @@ export const Undo2 = createLucideIcon(ICONS.Undo02Icon, "Undo2");
 export const Upload = createLucideIcon(ICONS.Upload01Icon, "Upload");
 export const UploadCloud = createLucideIcon(ICONS.CloudUploadIcon, "UploadCloud");
 export const User = createLucideIcon(ICONS.UserIcon, "User");
+export const UserCheck = createLucideIcon(ICONS.UserCheckIcon, "UserCheck");
+export const UserMinus = createLucideIcon(ICONS.UserMinusIcon, "UserMinus");
 export const UserPlus = createLucideIcon(ICONS.UserAdd01Icon, "UserPlus");
+export const UserRound = createLucideIcon(ICONS.UserIcon, "UserRound");
 export const UserX = createLucideIcon(ICONS.UserRemove01Icon, "UserX");
 export const Users = createLucideIcon(ICONS.UserGroupIcon, "Users");
 export const Wifi = createLucideIcon(ICONS.Wifi01Icon, "Wifi");

@@ -19,7 +19,8 @@
       "members": "Membros",
       "operations": "Operações",
       "rankings_analytics": "Rankings e análises",
-      "materials": "Materiais"
+      "materials": "Materiais",
+      "campamentos": "Acampamentos"
     },
     "items": {
       "dashboard": "Dashboard",
@@ -2579,8 +2580,29 @@
     },
     "membersTab": {
       "refreshListTitle": "Atualizar lista",
+      "refreshLabel": "Atualizar",
       "previousPageAriaLabel": "Página anterior",
-      "nextPageAriaLabel": "Próxima página"
+      "nextPageAriaLabel": "Próxima página",
+      "countSingular": "membro inscrito",
+      "countPlural": "membros inscritos",
+      "visibleCount": "{count} visíveis com filtros",
+      "registerMember": "Inscrever membro",
+      "loadFailed": "Não foi possível atualizar a lista de membros",
+      "pageLabel": "Página {page} de {totalPages}",
+      "filterClub": "Clube",
+      "filterClubAll": "Todos os clubes",
+      "filterStatus": "Status",
+      "filterStatusAll": "Todos os status",
+      "filterStatusRegistered": "Registrado",
+      "filterStatusApproved": "Aprovado",
+      "filterStatusPending": "Pendente de aprovação",
+      "filterStatusRejected": "Rejeitado",
+      "filterStatusCancelled": "Cancelado",
+      "filterInsurance": "Seguro",
+      "filterInsuranceAll": "Todos",
+      "filterInsuranceVerified": "Verificado",
+      "filterInsurancePending": "Pendente",
+      "filterInsuranceNone": "Sem seguro"
     },
     "list": {
       "countSingular": "campori",
@@ -2682,6 +2704,14 @@
       "saveChanges": "Salvar alterações",
       "createCamporee": "Criar campori"
     },
+    "clubsTab": {
+      "countSingular": "clube inscrito",
+      "countPlural": "clubes inscritos",
+      "refreshListTitle": "Atualizar lista",
+      "refreshLabel": "Atualizar",
+      "enrollClub": "Inscrever clube",
+      "loadFailed": "Não foi possível atualizar a lista de clubes"
+    },
     "clubsPanel": {
       "emptyTitle": "Nenhum clube inscrito",
       "emptyDescription": "Não há clubes inscritos neste campori ainda.",
@@ -2696,6 +2726,12 @@
       "statusCancelled": "Cancelado",
       "fallbackSection": "Seção #{id}",
       "fallbackClub": "Clube #{id}",
+      "clubLabel": "Clube: {name}",
+      "sectionTypeLabel": "Tipo: {name}",
+      "noClubOrType": "Sem clube ou tipo atribuído",
+      "unknownRegistrar": "Registrador desconhecido",
+      "registrarRoleLabel": "Cargo: {role}",
+      "noRegistrarRole": "Sem cargo registrado",
       "approveLabel": "Aprovar inscrição",
       "rejectLabel": "Rejeitar inscrição",
       "cancelLabel": "Cancelar inscrição",
@@ -2722,6 +2758,10 @@
       "insuranceNone": "Sem seguro",
       "insuranceVerified": "Seguro verificado",
       "insurancePending": "Seguro pendente",
+      "insuranceExpired": "Seguro vencido",
+      "classLabel": "Classe: {name}",
+      "roleLabel": "Cargo: {name}",
+      "noClassOrRole": "Sem classe ou cargo atribuído",
       "typeLocal": "Local",
       "typeUnion": "União",
       "fallbackMember": "Membro",
@@ -5033,6 +5073,20 @@
       "empty_no_clubs_description": "Cadastre pelo menos um clube para gerenciar suas atividades.",
       "error_load_clubs": "Não foi possível carregar a lista de clubes."
     },
+    "calendar": {
+      "filterLocalField": "Campo local",
+      "filterLocalFieldAll": "Todos os campos",
+      "filterClub": "Clube",
+      "filterClubAll": "Todos os clubes",
+      "viewMonth": "Mês",
+      "viewWeek": "Semana",
+      "viewDay": "Dia",
+      "today": "Hoje",
+      "emptyDay": "Não há atividades para este dia.",
+      "moreCount": "+{count} mais",
+      "listTitle": "Lista de atividades",
+      "listEmpty": "Não há atividades para exibir."
+    },
     "pageDetail": {
       "description": "Detalhe da atividade",
       "back_link": "Voltar",
@@ -5043,6 +5097,7 @@
       "badge_active": "Ativa",
       "badge_inactive": "Inativa",
       "badge_in_person": "Presencial",
+      "info_date": "Data",
       "info_place": "Local",
       "info_time": "Horário",
       "info_mode": "Modalidade",
@@ -6240,6 +6295,45 @@
     "auditTimeline": {
       "emptyTitle": "Sem auditoria",
       "emptyDescription": "Ainda não há eventos registrados para este lote."
+    }
+  },
+  "campamentos": {
+    "pages": {
+      "judges": {
+        "title": "Juízes",
+        "description": "Consulte e administre o roster de juízes por acampamento.",
+        "breadcrumbRoot": "Acampamentos",
+        "scopeLabel": "Escopo",
+        "scopeLocal": "Campo local",
+        "scopeUnion": "União",
+        "camporeeLabel": "Acampamento",
+        "camporeePlaceholder": "Selecionar acampamento",
+        "emptyTitle": "Selecione um acampamento",
+        "emptyDescription": "Escolha um acampamento para ver e gerenciar seus juízes.",
+        "openCamporee": "Ver acampamento",
+        "loadFailed": "Não foi possível carregar as informações de juízes",
+        "permissionDenied": "Você não tem permissão para ver juízes de acampamentos"
+      },
+      "configLocalField": {
+        "title": "Configuração — campo local",
+        "description": "Variáveis operacionais para acampamentos de campo local.",
+        "breadcrumbRoot": "Acampamentos",
+        "templatesCardTitle": "Modelos de eventos",
+        "templatesCardDescription": "Biblioteca reutilizável de atividades para acampamentos locais.",
+        "templatesCardAction": "Ver modelos",
+        "eventTypesCardTitle": "Tipos de evento",
+        "eventTypesCardDescription": "Catálogo de tipos usados ao criar atividades e modelos."
+      },
+      "configUnion": {
+        "title": "Configuração — união",
+        "description": "Variáveis operacionais para acampamentos de união.",
+        "breadcrumbRoot": "Acampamentos",
+        "templatesCardTitle": "Modelos de eventos",
+        "templatesCardDescription": "Biblioteca reutilizável de atividades para acampamentos de união.",
+        "templatesCardAction": "Ver modelos",
+        "eventTypesCardTitle": "Tipos de evento",
+        "eventTypesCardDescription": "Catálogo de tipos usados ao criar atividades e modelos."
+      }
     }
   },
   "camporeeEvents": {

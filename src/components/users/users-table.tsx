@@ -21,6 +21,7 @@ import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 import {
   getAdminUserDisplayName,
   getAdminUserSecondaryLabel,
+  sortAdminUsersByName,
 } from "@/lib/admin-users/display";
 
 function extractRoleNames(user: AdminUser): string[] {
@@ -190,6 +191,9 @@ export async function UsersTable({
   const t = await getTranslations("users");
   const tRoles = await getTranslations("roles");
   const translateRole = buildRoleTranslator(tRoles);
+  const sortedUsers = sortAdminUsersByName(users, {
+    deletedAccount: t("list.deletedAccount"),
+  });
 
   return (
     <>
@@ -211,7 +215,7 @@ export async function UsersTable({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.map((user, index) => {
+              {sortedUsers.map((user, index) => {
                 const roleNames = extractRoleNames(user);
                 const fullName = getDisplayName(user, t);
                 const secondaryLabel = getSecondaryLabel(user, t);
@@ -301,7 +305,7 @@ export async function UsersTable({
 
       {/* Mobile: descriptive cards */}
       <ul className="space-y-3 md:hidden" aria-label={t("list.ariaLabel")}>
-        {users.map((user, index) => (
+        {sortedUsers.map((user, index) => (
           <li key={user.user_id} className={STAGGER_CLASSES} style={getStaggerStyle(index)}>
             <UserMobileCard
               user={user}

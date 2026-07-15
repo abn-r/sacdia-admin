@@ -14,7 +14,12 @@ interface PaymentSheetPrintButtonProps {
 
 export function PaymentSheetPrintButton({ orden }: PaymentSheetPrintButtonProps) {
   const handlePrint = () => {
-    openReceiptPrintWindow(buildPaymentSheetPrintDocument(orden));
+    const opened = openReceiptPrintWindow(buildPaymentSheetPrintDocument(orden));
+    if (!opened) {
+      window.alert(
+        "No se pudo abrir la vista de impresión. Revisá que el navegador permita ventanas emergentes.",
+      );
+    }
   };
 
   return (

@@ -19,7 +19,8 @@
       "members": "Members",
       "operations": "Operations",
       "rankings_analytics": "Rankings & Analytics",
-      "materials": "Materials"
+      "materials": "Materials",
+      "campamentos": "Camporees"
     },
     "items": {
       "dashboard": "Dashboard",
@@ -2580,8 +2581,29 @@
     },
     "membersTab": {
       "refreshListTitle": "Refresh list",
+      "refreshLabel": "Refresh",
       "previousPageAriaLabel": "Previous page",
-      "nextPageAriaLabel": "Next page"
+      "nextPageAriaLabel": "Next page",
+      "countSingular": "registered member",
+      "countPlural": "registered members",
+      "visibleCount": "{count} visible with filters",
+      "registerMember": "Register member",
+      "loadFailed": "Could not refresh the member list",
+      "pageLabel": "Page {page} of {totalPages}",
+      "filterClub": "Club",
+      "filterClubAll": "All clubs",
+      "filterStatus": "Status",
+      "filterStatusAll": "All statuses",
+      "filterStatusRegistered": "Registered",
+      "filterStatusApproved": "Approved",
+      "filterStatusPending": "Pending approval",
+      "filterStatusRejected": "Rejected",
+      "filterStatusCancelled": "Cancelled",
+      "filterInsurance": "Insurance",
+      "filterInsuranceAll": "All",
+      "filterInsuranceVerified": "Verified",
+      "filterInsurancePending": "Pending",
+      "filterInsuranceNone": "No insurance"
     },
     "list": {
       "countSingular": "camporee",
@@ -2683,6 +2705,14 @@
       "saveChanges": "Save changes",
       "createCamporee": "Create camporee"
     },
+    "clubsTab": {
+      "countSingular": "enrolled club",
+      "countPlural": "enrolled clubs",
+      "refreshListTitle": "Refresh list",
+      "refreshLabel": "Refresh",
+      "enrollClub": "Enroll club",
+      "loadFailed": "Could not refresh the club list"
+    },
     "clubsPanel": {
       "emptyTitle": "No enrolled clubs",
       "emptyDescription": "There are no clubs enrolled in this camporee yet.",
@@ -2697,6 +2727,12 @@
       "statusCancelled": "Cancelled",
       "fallbackSection": "Section #{id}",
       "fallbackClub": "Club #{id}",
+      "clubLabel": "Club: {name}",
+      "sectionTypeLabel": "Type: {name}",
+      "noClubOrType": "No club or type assigned",
+      "unknownRegistrar": "Unknown registrar",
+      "registrarRoleLabel": "Role: {role}",
+      "noRegistrarRole": "No role on record",
       "approveLabel": "Approve enrollment",
       "rejectLabel": "Reject enrollment",
       "cancelLabel": "Cancel enrollment",
@@ -2723,6 +2759,10 @@
       "insuranceNone": "No insurance",
       "insuranceVerified": "Insurance verified",
       "insurancePending": "Insurance pending",
+      "insuranceExpired": "Insurance expired",
+      "classLabel": "Class: {name}",
+      "roleLabel": "Role: {name}",
+      "noClassOrRole": "No class or role assigned",
       "typeLocal": "Local",
       "typeUnion": "Union",
       "fallbackMember": "Member",
@@ -5167,6 +5207,20 @@
       "empty_no_clubs_description": "Register at least one club to manage its activities.",
       "error_load_clubs": "Could not load the clubs list."
     },
+    "calendar": {
+      "filterLocalField": "Local field",
+      "filterLocalFieldAll": "All fields",
+      "filterClub": "Club",
+      "filterClubAll": "All clubs",
+      "viewMonth": "Month",
+      "viewWeek": "Week",
+      "viewDay": "Day",
+      "today": "Today",
+      "emptyDay": "No activities for this day.",
+      "moreCount": "+{count} more",
+      "listTitle": "Activity list",
+      "listEmpty": "No activities to display."
+    },
     "pageDetail": {
       "description": "Activity detail",
       "back_link": "Back",
@@ -5177,6 +5231,7 @@
       "badge_active": "Active",
       "badge_inactive": "Inactive",
       "badge_in_person": "In-person",
+      "info_date": "Date",
       "info_place": "Location",
       "info_time": "Time",
       "info_mode": "Mode",
@@ -6374,6 +6429,45 @@
     "auditTimeline": {
       "emptyTitle": "No audit trail",
       "emptyDescription": "No events have been recorded for this batch yet."
+    }
+  },
+  "campamentos": {
+    "pages": {
+      "judges": {
+        "title": "Judges",
+        "description": "View and manage the judge roster per camporee.",
+        "breadcrumbRoot": "Camporees",
+        "scopeLabel": "Scope",
+        "scopeLocal": "Local field",
+        "scopeUnion": "Union",
+        "camporeeLabel": "Camporee",
+        "camporeePlaceholder": "Select camporee",
+        "emptyTitle": "Select a camporee",
+        "emptyDescription": "Choose a camporee to view and manage its judges.",
+        "openCamporee": "View camporee",
+        "loadFailed": "Could not load judge information",
+        "permissionDenied": "You do not have permission to view camporee judges"
+      },
+      "configLocalField": {
+        "title": "Configuration — local field",
+        "description": "Operational variables for local-field camporees.",
+        "breadcrumbRoot": "Camporees",
+        "templatesCardTitle": "Event templates",
+        "templatesCardDescription": "Reusable activity library for local camporees.",
+        "templatesCardAction": "View templates",
+        "eventTypesCardTitle": "Event types",
+        "eventTypesCardDescription": "Catalog of types used when creating activities and templates."
+      },
+      "configUnion": {
+        "title": "Configuration — union",
+        "description": "Operational variables for union camporees.",
+        "breadcrumbRoot": "Camporees",
+        "templatesCardTitle": "Event templates",
+        "templatesCardDescription": "Reusable activity library for union camporees.",
+        "templatesCardAction": "View templates",
+        "eventTypesCardTitle": "Event types",
+        "eventTypesCardDescription": "Catalog of types used when creating activities and templates."
+      }
     }
   },
   "camporeeEvents": {

@@ -144,6 +144,8 @@ const MANUAL = {
   Copy: "Copy01Icon",
   Printer: "PrinterIcon",
   Bell: "Notification01Icon",
+  Paperclip: "Attachment01Icon",
+  UserRound: "UserIcon",
 };
 
 function resolveHugeiconName(lucideName) {

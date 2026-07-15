@@ -22,7 +22,7 @@ Si el repo esta abierto aislado y `../AGENTS.md` no existe, usar este archivo co
 Regla persistente: `.cursor/rules/admin-panel-workflow.mdc` (`alwaysApply: true`).
 
 - **Pantallas nuevas**: consultar docs del dominio (`../docs/features/`), API (`ENDPOINTS-LIVE-REFERENCE.md`, `FRONTEND-INTEGRATION-GUIDE.md`) y `DESIGN-SYSTEM.md` antes de implementar.
-- **Backend**: no modificar `sacdia-backend` desde este repo; proponer el cambio al usuario y esperar confirmación explícita.
+- **Backend**: no modificar `sacdia-backend` desde este repo. Entregar handoff implementable al usuario (ver `../AGENTS.md` → *Handoff backend*). Otra IA (Codex) implementa backend; este agente solo admin + consumo API.
 - **Datos**: verificar endpoints, campos, permisos y tipos en docs y código backend efectivo; no asumir contratos.
 
 ## Reglas admin

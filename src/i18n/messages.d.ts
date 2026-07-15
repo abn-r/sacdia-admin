@@ -49,6 +49,7 @@ export interface IntlMessages {
       operations: string;
       rankings_analytics: string;
       materials: string;
+      campamentos: string;
     };
     items: {
       dashboard: string;
@@ -2619,8 +2620,29 @@ export interface IntlMessages {
     };
     membersTab: {
       refreshListTitle: string;
+      refreshLabel: string;
       previousPageAriaLabel: string;
       nextPageAriaLabel: string;
+      countSingular: string;
+      countPlural: string;
+      visibleCount: string;
+      registerMember: string;
+      loadFailed: string;
+      pageLabel: string;
+      filterClub: string;
+      filterClubAll: string;
+      filterStatus: string;
+      filterStatusAll: string;
+      filterStatusRegistered: string;
+      filterStatusApproved: string;
+      filterStatusPending: string;
+      filterStatusRejected: string;
+      filterStatusCancelled: string;
+      filterInsurance: string;
+      filterInsuranceAll: string;
+      filterInsuranceVerified: string;
+      filterInsurancePending: string;
+      filterInsuranceNone: string;
     };
     list: {
       countSingular: string;
@@ -2722,6 +2744,14 @@ export interface IntlMessages {
       saveChanges: string;
       createCamporee: string;
     };
+    clubsTab: {
+      countSingular: string;
+      countPlural: string;
+      refreshListTitle: string;
+      refreshLabel: string;
+      enrollClub: string;
+      loadFailed: string;
+    };
     clubsPanel: {
       emptyTitle: string;
       emptyDescription: string;
@@ -2736,6 +2766,12 @@ export interface IntlMessages {
       statusCancelled: string;
       fallbackSection: string;
       fallbackClub: string;
+      clubLabel: string;
+      sectionTypeLabel: string;
+      noClubOrType: string;
+      unknownRegistrar: string;
+      registrarRoleLabel: string;
+      noRegistrarRole: string;
       approveLabel: string;
       rejectLabel: string;
       cancelLabel: string;
@@ -2762,6 +2798,10 @@ export interface IntlMessages {
       insuranceNone: string;
       insuranceVerified: string;
       insurancePending: string;
+      insuranceExpired: string;
+      classLabel: string;
+      roleLabel: string;
+      noClassOrRole: string;
       typeLocal: string;
       typeUnion: string;
       fallbackMember: string;
@@ -5231,6 +5271,20 @@ export interface IntlMessages {
       empty_no_clubs_description: string;
       error_load_clubs: string;
     };
+    calendar: {
+      filterLocalField: string;
+      filterLocalFieldAll: string;
+      filterClub: string;
+      filterClubAll: string;
+      viewMonth: string;
+      viewWeek: string;
+      viewDay: string;
+      today: string;
+      emptyDay: string;
+      moreCount: string;
+      listTitle: string;
+      listEmpty: string;
+    };
     pageDetail: {
       description: string;
       back_link: string;
@@ -5241,6 +5295,7 @@ export interface IntlMessages {
       badge_active: string;
       badge_inactive: string;
       badge_in_person: string;
+      info_date: string;
       info_place: string;
       info_time: string;
       info_mode: string;
@@ -6438,6 +6493,45 @@ export interface IntlMessages {
     auditTimeline: {
       emptyTitle: string;
       emptyDescription: string;
+    };
+  };
+  campamentos: {
+    pages: {
+      judges: {
+        title: string;
+        description: string;
+        breadcrumbRoot: string;
+        scopeLabel: string;
+        scopeLocal: string;
+        scopeUnion: string;
+        camporeeLabel: string;
+        camporeePlaceholder: string;
+        emptyTitle: string;
+        emptyDescription: string;
+        openCamporee: string;
+        loadFailed: string;
+        permissionDenied: string;
+      };
+      configLocalField: {
+        title: string;
+        description: string;
+        breadcrumbRoot: string;
+        templatesCardTitle: string;
+        templatesCardDescription: string;
+        templatesCardAction: string;
+        eventTypesCardTitle: string;
+        eventTypesCardDescription: string;
+      };
+      configUnion: {
+        title: string;
+        description: string;
+        breadcrumbRoot: string;
+        templatesCardTitle: string;
+        templatesCardDescription: string;
+        templatesCardAction: string;
+        eventTypesCardTitle: string;
+        eventTypesCardDescription: string;
+      };
     };
   };
   camporeeEvents: {

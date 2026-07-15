@@ -380,36 +380,106 @@ export function buildReceiptPrintDocument(
 </html>`;
 }
 
-export function openReceiptPrintWindow(html: string): void {
-  const printWindow = window.open("", "_blank", "noopener,noreferrer");
-  if (!printWindow) return;
+function withPrintBootstrap(html: string): string {
+  if (html.includes("data-sacdia-print-bootstrap")) return html;
 
-  printWindow.document.open();
-  printWindow.document.write(html);
-  printWindow.document.close();
-  printWindow.focus();
+  const bootstrap = `
+  <div data-sacdia-print-bootstrap class="no-print" style="position:fixed;top:16px;right:16px;z-index:9999;display:flex;gap:8px;">
+    <button type="button" onclick="window.print()" style="padding:8px 14px;border:1px solid #111;border-radius:8px;background:#fff;font:inherit;cursor:pointer;">
+      Imprimir
+    </button>
+  </div>
+  <style>@media print { .no-print { display: none !important; } }</style>
+  <script>
+    window.addEventListener("load", function () {
+      var images = Array.prototype.slice.call(document.images || []);
+      var trigger = function () {
+        window.setTimeout(function () {
+          window.focus();
+          window.print();
+        }, 200);
+      };
+      if (images.length === 0) {
+        trigger();
+        return;
+      }
+      var loaded = 0;
+      var done = function () {
+        loaded += 1;
+        if (loaded >= images.length) trigger();
+      };
+      images.forEach(function (img) {
+        if (img.complete) done();
+        else {
+          img.addEventListener("load", done);
+          img.addEventListener("error", done);
+        }
+      });
+    });
+  </script>`;
 
-  const triggerPrint = () => {
-    printWindow.print();
-  };
+  if (html.includes("</body>")) {
+    return html.replace("</body>", `${bootstrap}</body>`);
+  }
+  return `${html}${bootstrap}`;
+}
 
-  const images = Array.from(printWindow.document.images);
-  if (images.length === 0) {
-    triggerPrint();
-    return;
+export function openReceiptPrintWindow(html: string): boolean {
+  const documentHtml = withPrintBootstrap(html);
+  const blob = new Blob([documentHtml], { type: "text/html;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const printWindow = window.open(url, "_blank");
+
+  if (!printWindow) {
+    URL.revokeObjectURL(url);
+    return openPrintViaHiddenFrame(documentHtml);
   }
 
-  let loaded = 0;
-  const onDone = () => {
-    loaded += 1;
-    if (loaded >= images.length) triggerPrint();
+  window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  return true;
+}
+
+function openPrintViaHiddenFrame(html: string): boolean {
+  const iframe = document.createElement("iframe");
+  iframe.setAttribute(
+    "style",
+    "position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden",
+  );
+  iframe.setAttribute("title", "Vista previa de impresión");
+  document.body.appendChild(iframe);
+
+  const frameWindow = iframe.contentWindow;
+  const frameDocument = frameWindow?.document;
+  if (!frameWindow || !frameDocument) {
+    iframe.remove();
+    return false;
+  }
+
+  frameDocument.open();
+  frameDocument.write(html);
+  frameDocument.close();
+
+  const cleanup = () => {
+    window.setTimeout(() => iframe.remove(), 500);
   };
 
-  for (const image of images) {
-    if (image.complete) onDone();
-    else {
-      image.addEventListener("load", onDone);
-      image.addEventListener("error", onDone);
+  frameWindow.addEventListener(
+    "load",
+    () => {
+      frameWindow.focus();
+      frameWindow.print();
+      cleanup();
+    },
+    { once: true },
+  );
+
+  window.setTimeout(() => {
+    if (iframe.isConnected && frameDocument.readyState === "complete") {
+      frameWindow.focus();
+      frameWindow.print();
+      cleanup();
     }
-  }
+  }, 800);
+
+  return true;
 }

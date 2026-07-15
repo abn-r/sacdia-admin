@@ -20,7 +20,12 @@ export function ReceiptPrintButton({
 }: ReceiptPrintButtonProps) {
   const handlePrint = () => {
     const html = buildReceiptPrintDocument(comprobante, context);
-    openReceiptPrintWindow(html);
+    const opened = openReceiptPrintWindow(html);
+    if (!opened) {
+      window.alert(
+        "No se pudo abrir la vista de impresión. Revisá que el navegador permita ventanas emergentes.",
+      );
+    }
   };
 
   return (

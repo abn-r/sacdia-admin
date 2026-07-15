@@ -19,7 +19,8 @@
       "members": "Miembros",
       "operations": "Operaciones",
       "rankings_analytics": "Rankings y análisis",
-      "materials": "Materiales"
+      "materials": "Materiales",
+      "campamentos": "Campamentos"
     },
     "items": {
       "dashboard": "Dashboard",
@@ -2590,8 +2591,29 @@
     },
     "membersTab": {
       "refreshListTitle": "Actualizar lista",
+      "refreshLabel": "Actualizar",
       "previousPageAriaLabel": "Página anterior",
-      "nextPageAriaLabel": "Página siguiente"
+      "nextPageAriaLabel": "Página siguiente",
+      "countSingular": "miembro inscrito",
+      "countPlural": "miembros inscritos",
+      "visibleCount": "{count} visibles con filtros",
+      "registerMember": "Inscribir miembro",
+      "loadFailed": "No se pudo actualizar la lista de miembros",
+      "pageLabel": "Página {page} de {totalPages}",
+      "filterClub": "Club",
+      "filterClubAll": "Todos los clubes",
+      "filterStatus": "Estado",
+      "filterStatusAll": "Todos los estados",
+      "filterStatusRegistered": "Registrado",
+      "filterStatusApproved": "Aprobado",
+      "filterStatusPending": "Pendiente de aprobación",
+      "filterStatusRejected": "Rechazado",
+      "filterStatusCancelled": "Cancelado",
+      "filterInsurance": "Seguro",
+      "filterInsuranceAll": "Todos",
+      "filterInsuranceVerified": "Verificado",
+      "filterInsurancePending": "Pendiente",
+      "filterInsuranceNone": "Sin seguro"
     },
     "list": {
       "countSingular": "camporee",
@@ -2693,6 +2715,14 @@
       "saveChanges": "Guardar cambios",
       "createCamporee": "Crear camporee"
     },
+    "clubsTab": {
+      "countSingular": "club inscrito",
+      "countPlural": "clubes inscritos",
+      "refreshListTitle": "Actualizar lista",
+      "refreshLabel": "Actualizar",
+      "enrollClub": "Inscribir club",
+      "loadFailed": "No se pudo actualizar la lista de clubes"
+    },
     "clubsPanel": {
       "emptyTitle": "Sin clubes inscritos",
       "emptyDescription": "No hay clubes inscritos en este camporee todavía.",
@@ -2707,6 +2737,12 @@
       "statusCancelled": "Cancelado",
       "fallbackSection": "Sección #{id}",
       "fallbackClub": "Club #{id}",
+      "clubLabel": "Club: {name}",
+      "sectionTypeLabel": "Tipo: {name}",
+      "noClubOrType": "Sin club o tipo asignado",
+      "unknownRegistrar": "Registrador desconocido",
+      "registrarRoleLabel": "Cargo: {role}",
+      "noRegistrarRole": "Sin cargo registrado",
       "approveLabel": "Aprobar inscripción",
       "rejectLabel": "Rechazar inscripción",
       "cancelLabel": "Cancelar inscripción",
@@ -2733,6 +2769,10 @@
       "insuranceNone": "Sin seguro",
       "insuranceVerified": "Seguro verificado",
       "insurancePending": "Seguro pendiente",
+      "insuranceExpired": "Seguro vencido",
+      "classLabel": "Clase: {name}",
+      "roleLabel": "Cargo: {name}",
+      "noClassOrRole": "Sin clase ni cargo asignado",
       "typeLocal": "Local",
       "typeUnion": "Unión",
       "fallbackMember": "Miembro",
@@ -5202,6 +5242,20 @@
       "empty_no_clubs_description": "Registra al menos un club para gestionar sus actividades.",
       "error_load_clubs": "No se pudo cargar la lista de clubes."
     },
+    "calendar": {
+      "filterLocalField": "Campo local",
+      "filterLocalFieldAll": "Todos los campos",
+      "filterClub": "Club",
+      "filterClubAll": "Todos los clubes",
+      "viewMonth": "Mes",
+      "viewWeek": "Semana",
+      "viewDay": "Día",
+      "today": "Hoy",
+      "emptyDay": "No hay actividades para este día.",
+      "moreCount": "+{count} más",
+      "listTitle": "Listado de actividades",
+      "listEmpty": "No hay actividades para mostrar."
+    },
     "pageDetail": {
       "description": "Detalle de actividad",
       "back_link": "Volver",
@@ -5212,6 +5266,7 @@
       "badge_active": "Activa",
       "badge_inactive": "Inactiva",
       "badge_in_person": "Presencial",
+      "info_date": "Fecha",
       "info_place": "Lugar",
       "info_time": "Hora",
       "info_mode": "Modalidad",
@@ -6409,6 +6464,45 @@
     "auditTimeline": {
       "emptyTitle": "Sin auditoría",
       "emptyDescription": "Todavía no hay eventos registrados para este lote."
+    }
+  },
+  "campamentos": {
+    "pages": {
+      "judges": {
+        "title": "Jueces",
+        "description": "Consultá y administrá el roster de jueces por campamento.",
+        "breadcrumbRoot": "Campamentos",
+        "scopeLabel": "Alcance",
+        "scopeLocal": "Campo local",
+        "scopeUnion": "Unión",
+        "camporeeLabel": "Campamento",
+        "camporeePlaceholder": "Seleccionar campamento",
+        "emptyTitle": "Seleccioná un campamento",
+        "emptyDescription": "Elegí un campamento para ver y gestionar sus jueces.",
+        "openCamporee": "Ver campamento",
+        "loadFailed": "No se pudo cargar la información de jueces",
+        "permissionDenied": "No tenés permiso para ver jueces de campamentos"
+      },
+      "configLocalField": {
+        "title": "Configuración — campo local",
+        "description": "Variables operativas para campamentos de campo local.",
+        "breadcrumbRoot": "Campamentos",
+        "templatesCardTitle": "Plantillas de eventos",
+        "templatesCardDescription": "Biblioteca reutilizable de actividades para campamentos locales.",
+        "templatesCardAction": "Ver plantillas",
+        "eventTypesCardTitle": "Tipos de evento",
+        "eventTypesCardDescription": "Catálogo de tipos usados al crear actividades y plantillas."
+      },
+      "configUnion": {
+        "title": "Configuración — unión",
+        "description": "Variables operativas para campamentos de unión.",
+        "breadcrumbRoot": "Campamentos",
+        "templatesCardTitle": "Plantillas de eventos",
+        "templatesCardDescription": "Biblioteca reutilizable de actividades para campamentos de unión.",
+        "templatesCardAction": "Ver plantillas",
+        "eventTypesCardTitle": "Tipos de evento",
+        "eventTypesCardDescription": "Catálogo de tipos usados al crear actividades y plantillas."
+      }
     }
   },
   "camporeeEvents": {

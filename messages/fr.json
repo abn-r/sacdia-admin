@@ -19,7 +19,8 @@
       "members": "Membres",
       "operations": "Opérations",
       "rankings_analytics": "Classements & Analytique",
-      "materials": "Matériaux"
+      "materials": "Matériaux",
+      "campamentos": "Camporees"
     },
     "items": {
       "dashboard": "Tableau de bord",
@@ -2579,8 +2580,29 @@
     },
     "membersTab": {
       "refreshListTitle": "Actualiser la liste",
+      "refreshLabel": "Actualiser",
       "previousPageAriaLabel": "Page précédente",
-      "nextPageAriaLabel": "Page suivante"
+      "nextPageAriaLabel": "Page suivante",
+      "countSingular": "membre inscrit",
+      "countPlural": "membres inscrits",
+      "visibleCount": "{count} visibles avec filtres",
+      "registerMember": "Inscrire un membre",
+      "loadFailed": "Impossible d'actualiser la liste des membres",
+      "pageLabel": "Page {page} sur {totalPages}",
+      "filterClub": "Club",
+      "filterClubAll": "Tous les clubs",
+      "filterStatus": "Statut",
+      "filterStatusAll": "Tous les statuts",
+      "filterStatusRegistered": "Inscrit",
+      "filterStatusApproved": "Approuvé",
+      "filterStatusPending": "En attente d'approbation",
+      "filterStatusRejected": "Rejeté",
+      "filterStatusCancelled": "Annulé",
+      "filterInsurance": "Assurance",
+      "filterInsuranceAll": "Toutes",
+      "filterInsuranceVerified": "Vérifiée",
+      "filterInsurancePending": "En attente",
+      "filterInsuranceNone": "Sans assurance"
     },
     "list": {
       "countSingular": "camporée",
@@ -2682,6 +2704,14 @@
       "saveChanges": "Enregistrer les modifications",
       "createCamporee": "Créer la camporée"
     },
+    "clubsTab": {
+      "countSingular": "club inscrit",
+      "countPlural": "clubs inscrits",
+      "refreshListTitle": "Actualiser la liste",
+      "refreshLabel": "Actualiser",
+      "enrollClub": "Inscrire un club",
+      "loadFailed": "Impossible d'actualiser la liste des clubs"
+    },
     "clubsPanel": {
       "emptyTitle": "Aucun club inscrit",
       "emptyDescription": "Il n'y a pas de clubs inscrits dans cette camporée.",
@@ -2696,6 +2726,12 @@
       "statusCancelled": "Annulé",
       "fallbackSection": "Section #{id}",
       "fallbackClub": "Club #{id}",
+      "clubLabel": "Club : {name}",
+      "sectionTypeLabel": "Type : {name}",
+      "noClubOrType": "Aucun club ou type assigné",
+      "unknownRegistrar": "Inscrit par inconnu",
+      "registrarRoleLabel": "Rôle : {role}",
+      "noRegistrarRole": "Aucun rôle enregistré",
       "approveLabel": "Approuver l'inscription",
       "rejectLabel": "Rejeter l'inscription",
       "cancelLabel": "Annuler l'inscription",
@@ -2722,6 +2758,10 @@
       "insuranceNone": "Sans assurance",
       "insuranceVerified": "Assurance vérifiée",
       "insurancePending": "Assurance en attente",
+      "insuranceExpired": "Assurance expirée",
+      "classLabel": "Classe : {name}",
+      "roleLabel": "Rôle : {name}",
+      "noClassOrRole": "Aucune classe ni rôle assigné",
       "typeLocal": "Local",
       "typeUnion": "Union",
       "fallbackMember": "Membre",
@@ -5033,6 +5073,20 @@
       "empty_no_clubs_description": "Enregistrez au moins un club pour gérer ses activités.",
       "error_load_clubs": "Impossible de charger la liste des clubs."
     },
+    "calendar": {
+      "filterLocalField": "Champ local",
+      "filterLocalFieldAll": "Tous les champs",
+      "filterClub": "Club",
+      "filterClubAll": "Tous les clubs",
+      "viewMonth": "Mois",
+      "viewWeek": "Semaine",
+      "viewDay": "Jour",
+      "today": "Aujourd'hui",
+      "emptyDay": "Aucune activité pour ce jour.",
+      "moreCount": "+{count} de plus",
+      "listTitle": "Liste des activités",
+      "listEmpty": "Aucune activité à afficher."
+    },
     "pageDetail": {
       "description": "Détail de l'activité",
       "back_link": "Retour",
@@ -5043,6 +5097,7 @@
       "badge_active": "Active",
       "badge_inactive": "Inactive",
       "badge_in_person": "Présentiel",
+      "info_date": "Date",
       "info_place": "Lieu",
       "info_time": "Heure",
       "info_mode": "Modalité",

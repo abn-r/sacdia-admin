@@ -1,45 +1,46 @@
 ---
-description: Workflow obligatorio para pantallas nuevas, contratos backend y alcance sacdia-admin
+description: Admin panel workflow — no backend edits; handoff spec for Codex
 alwaysApply: true
 ---
 
-# SACDIA Admin — workflow de implementación
+# SACDIA Admin — workflow
 
-## 1) Pantallas nuevas: docs primero
+## Backend handoff (obligatorio)
 
-Antes de implementar o rediseñar una pantalla/ruta del panel:
+Este agente trabaja en `sacdia-admin`. **No editar** `sacdia-backend/`.
 
-1. Identificar el dominio en `../docs/features/`.
-2. Leer en orden (si existen): `CLAUDE.md` → `requirements.md` → `design.md` → `walkthrough-*.md` → `tasks.md`.
-3. Consultar contratos runtime:
-   - `../docs/api/ENDPOINTS-LIVE-REFERENCE.md`
-   - `../docs/api/FRONTEND-INTEGRATION-GUIDE.md`
-4. Para UI: `DESIGN-SYSTEM.md` y patrones del shell Studio Admin existente.
+Si un cambio requiere API, DTOs, Prisma, permisos o lógica de servidor:
 
-**No empezar a codear** hasta tener claro qué dice la documentación sobre flujo, campos, permisos y endpoints.
+1. Detener implementación backend.
+2. Entregar al usuario spec lista para otra IA (Codex).
 
-Si la doc no cubre el requisito: **parar y preguntar** al usuario. No improvisar pantallas ni contratos.
+### Formato del handoff
 
-## 2) Backend: solo lectura en `sacdia-backend`
+```markdown
+## Objetivo
+[Qué se necesita y por qué]
 
-Este agente **no modifica** `sacdia-backend` (código, schema, migraciones, endpoints, permisos, DTOs).
+## Archivos backend
+- `sacdia-backend/src/...`
 
-Si hace falta un cambio backend:
+## Cambios propuestos
+[Código o pseudocódigo concreto]
 
-1. Describir al usuario **qué** cambiar, **por qué** y **impacto** en el admin.
-2. Esperar confirmación explícita antes de tocar backend o asumir que el cambio existe.
+## Contrato API
+- Endpoint, method, query/body, defaults, permisos, errores
 
-Mientras no haya OK: implementar solo lo que el backend **ya expone hoy**.
+## Docs
+- `docs/api/...`
 
-## 3) Datos: verificar, nunca asumir
+## Test plan
+- [ ] ...
+```
 
-Antes de consumir o mostrar datos:
+3. Implementar en admin solo después de que el contrato exista o quede acordado en la spec.
 
-1. Confirmar endpoint, método, query/body y respuesta en `ENDPOINTS-LIVE-REFERENCE.md`.
-2. Validar tipos/campos en código backend efectivo (`sacdia-backend`) si la doc no alcanza.
-3. Validar permisos/RBAC y reglas de scope documentadas.
-4. Alinear formularios y tablas con **campos reales** del API (nombres, tipos, nullable, relaciones).
+Canon completo: `../AGENTS.md` → *Handoff backend*.
 
-**Prohibido** inventar campos, enums, estados, paginación o errores no documentados/verificados.
+## Admin scope
 
-Si hay discrepancia doc ↔ backend ↔ UI: reportarla y pedir definición antes de seguir.
+- UI, loaders, i18n, integración con API existente.
+- Verificar contratos en `docs/api/ENDPOINTS-LIVE-REFERENCE.md` antes de consumir endpoints.
