@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
-import { Loader2, Save, Search, Undo2 } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Loader2, Search } from "lucide-react";
 import { useTranslations as useTranslationsStrict } from "next-intl";
 import { toast } from "sonner";
 
@@ -14,7 +14,6 @@ const useTranslations = useTranslationsStrict as unknown as (
   namespace?: string,
 ) => LooseTranslator;
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Input } from "@/components/ui/input";
@@ -22,19 +21,25 @@ import { Label } from "@/components/ui/label";
 import type { Permission, Role } from "@/lib/rbac/types";
 import type { RbacActionState } from "@/lib/rbac/types";
 
-type SyncAction = (
+type ToggleAction = (
   roleId: string,
-  prev: RbacActionState,
-  formData: FormData,
+  permissionId: string,
+  enabled: boolean,
 ) => Promise<RbacActionState>;
 
 interface PermissionsMatrixProps {
   roles: Role[];
   permissions: Permission[];
-  syncAction: SyncAction;
+  toggleAction: ToggleAction;
 }
 
 type Selections = Record<string, Set<string>>;
+
+const MATRIX_TOAST_CLASSNAMES = {
+  toast: "min-w-[min(22rem,calc(100vw-2rem))] max-w-md",
+  title: "font-medium",
+  description: "text-pretty [overflow-wrap:anywhere]",
+} as const;
 
 function buildInitialSelections(roles: Role[]): Selections {
   const out: Selections = {};
@@ -48,28 +53,21 @@ function buildInitialSelections(roles: Role[]): Selections {
   return out;
 }
 
-function setsEqual(a: Set<string>, b: Set<string>): boolean {
-  if (a.size !== b.size) return false;
-  for (const v of a) if (!b.has(v)) return false;
-  return true;
+function cellKey(roleId: string, permissionId: string) {
+  return `${roleId}:${permissionId}`;
 }
 
 export function PermissionsMatrix({
   roles,
   permissions,
-  syncAction,
+  toggleAction,
 }: PermissionsMatrixProps) {
   const t = useTranslations("rbac.pages.matrix");
 
-  const initialSelections = useMemo(
-    () => buildInitialSelections(roles),
-    [roles],
-  );
   const [selections, setSelections] = useState<Selections>(() =>
     buildInitialSelections(roles),
   );
-  const [savingRoleId, setSavingRoleId] = useState<string | null>(null);
-  const [, startTransition] = useTransition();
+  const [pendingCells, setPendingCells] = useState<Set<string>>(() => new Set());
   const [query, setQuery] = useState("");
 
   const filteredPermissions = useMemo(() => {
@@ -82,50 +80,78 @@ export function PermissionsMatrix({
     });
   }, [permissions, query]);
 
-  function togglePermission(roleId: string, permissionId: string) {
+  function showPermissionToast(
+    type: "added" | "removed",
+    permission: Permission,
+    role: Role,
+  ) {
+    toast.message(
+      type === "added" ? t("permissionAddedTitle") : t("permissionRemovedTitle"),
+      {
+        description: t("permissionToastDesc", {
+          permission: permission.permission_name,
+          role: role.role_name,
+        }),
+        classNames: MATRIX_TOAST_CLASSNAMES,
+      },
+    );
+  }
+
+  async function togglePermission(role: Role, permission: Permission) {
+    const key = cellKey(role.role_id, permission.permission_id);
+    if (pendingCells.has(key)) {
+      return;
+    }
+
+    const wasSelected =
+      selections[role.role_id]?.has(permission.permission_id) ?? false;
+    const nextSelected = !wasSelected;
+
     setSelections((prev) => {
       const next = { ...prev };
-      const current = new Set(prev[roleId] ?? []);
-      if (current.has(permissionId)) {
-        current.delete(permissionId);
+      const current = new Set(prev[role.role_id] ?? []);
+      if (nextSelected) {
+        current.add(permission.permission_id);
       } else {
-        current.add(permissionId);
+        current.delete(permission.permission_id);
       }
-      next[roleId] = current;
+      next[role.role_id] = current;
       return next;
     });
-  }
+    setPendingCells((prev) => new Set(prev).add(key));
 
-  function isDirty(roleId: string): boolean {
-    const initial = initialSelections[roleId] ?? new Set<string>();
-    const current = selections[roleId] ?? new Set<string>();
-    return !setsEqual(initial, current);
-  }
+    const result = await toggleAction(
+      role.role_id,
+      permission.permission_id,
+      nextSelected,
+    );
 
-  function discardRole(roleId: string) {
-    setSelections((prev) => ({
-      ...prev,
-      [roleId]: new Set(initialSelections[roleId] ?? []),
-    }));
-  }
-
-  function saveRole(role: Role) {
-    const selected = selections[role.role_id] ?? new Set<string>();
-    const formData = new FormData();
-    formData.set("permission_ids", Array.from(selected).join(","));
-    setSavingRoleId(role.role_id);
-    startTransition(async () => {
-      const result = await syncAction(role.role_id, {}, formData);
-      setSavingRoleId(null);
-      if (result.error) {
-        toast.error(t("saveError", { role: role.role_name }), {
-          description: result.error,
-        });
-      } else {
-        toast.success(t("saveSuccess", { role: role.role_name }));
-        initialSelections[role.role_id] = new Set(selected);
-      }
+    setPendingCells((prev) => {
+      const next = new Set(prev);
+      next.delete(key);
+      return next;
     });
+
+    if (result.error) {
+      setSelections((prev) => {
+        const next = { ...prev };
+        const current = new Set(prev[role.role_id] ?? []);
+        if (wasSelected) {
+          current.add(permission.permission_id);
+        } else {
+          current.delete(permission.permission_id);
+        }
+        next[role.role_id] = current;
+        return next;
+      });
+      toast.error(t("toggleError", { role: role.role_name }), {
+        description: result.error,
+        classNames: MATRIX_TOAST_CLASSNAMES,
+      });
+      return;
+    }
+
+    showPermissionToast(nextSelected ? "added" : "removed", permission, role);
   }
 
   if (filteredPermissions.length === 0 && query.trim() !== "") {
@@ -155,64 +181,25 @@ export function PermissionsMatrix({
               >
                 {t("permissionColumn")}
               </th>
-              {roles.map((role) => {
-                const dirty = isDirty(role.role_id);
-                const saving = savingRoleId === role.role_id;
-                return (
-                  <th
-                    key={role.role_id}
-                    scope="col"
-                    className="min-w-[160px] border-b border-r px-2 py-2 text-center align-bottom font-medium last:border-r-0"
-                  >
-                    <div className="flex flex-col items-center gap-1.5">
-                      <span className="text-xs leading-tight">
-                        {role.role_name}
-                      </span>
-                      <Badge
-                        variant="outline"
-                        className="text-[10px] uppercase tracking-wide"
-                      >
-                        {role.role_category === "CLUB"
-                          ? t("categoryClub")
-                          : t("categoryGlobal")}
-                      </Badge>
-                      {dirty && (
-                        <div className="flex items-center gap-1">
-                          <Button
-                            type="button"
-                            size="xs"
-                            variant="ghost"
-                            onClick={() => discardRole(role.role_id)}
-                            disabled={saving}
-                            aria-label={t("discard")}
-                          >
-                            <Undo2 className="size-3" aria-hidden="true" />
-                          </Button>
-                          <Button
-                            type="button"
-                            size="xs"
-                            onClick={() => saveRole(role)}
-                            disabled={saving}
-                          >
-                            {saving ? (
-                              <Loader2
-                                className="size-3 animate-spin"
-                                aria-hidden="true"
-                              />
-                            ) : (
-                              <Save className="size-3" aria-hidden="true" />
-                            )}
-                            {saving ? t("saving") : t("saveChanges")}
-                          </Button>
-                        </div>
-                      )}
-                      {dirty && (
-                        <span className="sr-only">{t("dirtyBadge")}</span>
-                      )}
-                    </div>
-                  </th>
-                );
-              })}
+              {roles.map((role) => (
+                <th
+                  key={role.role_id}
+                  scope="col"
+                  className="min-w-[160px] border-b border-r px-2 py-2 text-center align-bottom font-medium last:border-r-0"
+                >
+                  <div className="flex flex-col items-center gap-1.5">
+                    <span className="text-xs leading-tight">{role.role_name}</span>
+                    <Badge
+                      variant="outline"
+                      className="text-[10px] uppercase tracking-wide"
+                    >
+                      {role.role_category === "CLUB"
+                        ? t("categoryClub")
+                        : t("categoryGlobal")}
+                    </Badge>
+                  </div>
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
@@ -240,14 +227,14 @@ export function PermissionsMatrix({
                   const selected = selections[role.role_id]?.has(
                     permission.permission_id,
                   );
-                  const dirty = isDirty(role.role_id);
+                  const pending = pendingCells.has(
+                    cellKey(role.role_id, permission.permission_id),
+                  );
                   const checkboxId = `m-${role.role_id}-${permission.permission_id}`;
                   return (
                     <td
                       key={role.role_id}
-                      className={`border-r px-2 py-2 text-center align-middle last:border-r-0 ${
-                        dirty ? "bg-warning-soft/30" : ""
-                      }`}
+                      className="border-r px-2 py-2 text-center align-middle last:border-r-0"
                     >
                       <Label
                         htmlFor={checkboxId}
@@ -256,17 +243,21 @@ export function PermissionsMatrix({
                         <span className="sr-only">
                           {permission.permission_name} · {role.role_name}
                         </span>
-                        <Checkbox
-                          id={checkboxId}
-                          checked={selected}
-                          onCheckedChange={() =>
-                            togglePermission(
-                              role.role_id,
-                              permission.permission_id,
-                            )
-                          }
-                          disabled={savingRoleId === role.role_id}
-                        />
+                        {pending ? (
+                          <Loader2
+                            className="size-4 animate-spin text-muted-foreground"
+                            aria-hidden="true"
+                          />
+                        ) : (
+                          <Checkbox
+                            id={checkboxId}
+                            checked={selected}
+                            onCheckedChange={() =>
+                              void togglePermission(role, permission)
+                            }
+                            disabled={pending}
+                          />
+                        )}
                       </Label>
                     </td>
                   );

@@ -9,6 +9,8 @@ import {
   updatePermission,
   deletePermission,
   syncRolePermissions,
+  assignPermissionsToRole,
+  removePermissionFromRole,
   createRole,
   updateRole,
   deactivateRole,
@@ -259,4 +261,35 @@ export async function syncRolePermissionsAction(
   revalidatePath(ROLES_PATH);
   revalidatePath(MATRIX_PATH);
   return { success: t("success.permissions_updated") };
+}
+
+export async function toggleRolePermissionAction(
+  roleId: string,
+  permissionId: string,
+  enabled: boolean,
+): Promise<RbacActionState> {
+  await requireAdminUser();
+  const t = await getTranslations("rbac");
+
+  if (!roleId || !permissionId) {
+    return { error: t("errors.sync_permissions_failed") };
+  }
+
+  try {
+    if (enabled) {
+      await assignPermissionsToRole(roleId, [permissionId]);
+    } else {
+      await removePermissionFromRole(roleId, permissionId);
+    }
+  } catch (error) {
+    return {
+      error: getActionErrorMessage(error, t("errors.sync_permissions_failed"), {
+        endpointLabel: `/rbac/roles/${roleId}/permissions/${permissionId}`,
+      }),
+    };
+  }
+
+  revalidatePath(ROLES_PATH);
+  revalidatePath(MATRIX_PATH);
+  return { ok: true };
 }

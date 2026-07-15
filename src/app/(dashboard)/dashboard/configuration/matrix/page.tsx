@@ -6,7 +6,7 @@ import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { PermissionsMatrix } from "@/components/rbac/permissions-matrix";
 import { requireAdminUser } from "@/lib/auth/session";
 import { listRoles, listPermissions } from "@/lib/rbac/service";
-import { syncRolePermissionsAction } from "@/lib/rbac/actions";
+import { toggleRolePermissionAction } from "@/lib/rbac/actions";
 import type { Role, Permission } from "@/lib/rbac/types";
 import { ApiError } from "@/lib/api/client";
 
@@ -53,7 +53,7 @@ export default async function ConfigurationMatrixPage() {
         <PermissionsMatrix
           roles={roles}
           permissions={permissions}
-          syncAction={syncRolePermissionsAction}
+          toggleAction={toggleRolePermissionAction}
         />
       ) : null}
     </div>

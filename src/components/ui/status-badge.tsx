@@ -19,9 +19,9 @@ type BadgeVariant = NonNullable<VariantProps<typeof badgeVariants>["variant"]>;
 
 const intentToBadgeVariant: Record<StatusIntent, BadgeVariant> = {
   neutral: "outline",
-  info: "secondary",
-  success: "default",
-  warning: "secondary",
+  info: "outline",
+  success: "outline",
+  warning: "outline",
   destructive: "destructive",
   primary: "default",
   "progress-1": "outline",
@@ -29,13 +29,17 @@ const intentToBadgeVariant: Record<StatusIntent, BadgeVariant> = {
   "progress-3": "outline",
 };
 
-const progressClasses: Partial<Record<StatusIntent, string>> = {
+const intentClasses: Partial<Record<StatusIntent, string>> = {
+  info: "border-info/25 bg-info/10 text-info",
+  success: "border-success/25 bg-success/10 text-success-foreground dark:text-success",
+  warning: "border-warning/30 bg-warning/15 text-warning-foreground dark:text-warning",
+  primary: "border-transparent bg-primary text-primary-foreground",
   "progress-1":
-    "bg-[color-mix(in_oklch,var(--chart-1)_12%,transparent)] text-[var(--chart-1)] border-[color-mix(in_oklch,var(--chart-1)_25%,transparent)]",
+    "bg-[color-mix(in_srgb,var(--chart-1)_12%,transparent)] text-[var(--chart-1)] border-[color-mix(in_srgb,var(--chart-1)_25%,transparent)]",
   "progress-2":
-    "bg-[color-mix(in_oklch,var(--chart-2)_12%,transparent)] text-[var(--chart-2)] border-[color-mix(in_oklch,var(--chart-2)_25%,transparent)]",
+    "bg-[color-mix(in_srgb,var(--chart-2)_12%,transparent)] text-[var(--chart-2)] border-[color-mix(in_srgb,var(--chart-2)_25%,transparent)]",
   "progress-3":
-    "bg-[color-mix(in_oklch,var(--chart-3)_12%,transparent)] text-[var(--chart-3)] border-[color-mix(in_oklch,var(--chart-3)_25%,transparent)]",
+    "bg-[color-mix(in_srgb,var(--chart-3)_12%,transparent)] text-[var(--chart-3)] border-[color-mix(in_srgb,var(--chart-3)_25%,transparent)]",
 };
 
 // Default icons per intent — ensures WCAG 1.4.1 (not color-only distinction)
@@ -65,7 +69,7 @@ export function StatusBadge({
   className,
 }: StatusBadgeProps) {
   const variant = intentToBadgeVariant[intent];
-  const progressClass = progressClasses[intent];
+  const intentClass = intentClasses[intent];
 
   // Resolve icon: explicit prop wins; null suppresses; undefined falls back to default
   const ResolvedIcon =
@@ -84,7 +88,7 @@ export function StatusBadge({
         "gap-1",
         size === "xs" && "h-5 px-1.5 text-[10px]",
         size === "sm" && "h-5 px-2 text-xs",
-        progressClass,
+        intentClass,
         className,
       )}
     >

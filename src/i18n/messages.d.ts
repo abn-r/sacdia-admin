@@ -2032,6 +2032,10 @@ export interface IntlMessages {
         saving: string;
         saveSuccess: string;
         saveError: string;
+        permissionAddedTitle: string;
+        permissionRemovedTitle: string;
+        permissionToastDesc: string;
+        toggleError: string;
         dirtyBadge: string;
         categoryGlobal: string;
         categoryClub: string;

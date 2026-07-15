@@ -110,6 +110,16 @@ export async function getRoleWithPermissions(id: string): Promise<Role | null> {
 
 // ─── Asignación ─────────────────────────────────────────────
 
+export async function assignPermissionsToRole(roleId: string, permissionIds: string[]) {
+  return apiRequest<{ success: boolean }>(
+    `/admin/rbac/roles/${roleId}/permissions`,
+    {
+      method: "POST",
+      body: { permission_ids: permissionIds },
+    },
+  );
+}
+
 export async function syncRolePermissions(roleId: string, permissionIds: string[]) {
   return apiRequest<{ success: boolean; added: number; removed: number }>(
     `/admin/rbac/roles/${roleId}/permissions`,

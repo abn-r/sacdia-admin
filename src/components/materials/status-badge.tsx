@@ -14,12 +14,12 @@ const STATUS_CONFIG: Record<
   aprobada: {
     label: "Aprobada",
     variant: "outline",
-    className: "border-amber-500/25 bg-amber-500/10 text-amber-800 dark:text-amber-300",
+    className: "border-warning/30 bg-warning/15 text-warning-foreground dark:text-warning",
   },
   pagada: {
     label: "Pagada",
     variant: "outline",
-    className: "border-emerald-500/25 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300",
+    className: "border-success/25 bg-success/10 text-success-foreground dark:text-success",
   },
   entregada: { label: "Entregada", variant: "default" },
   cancelada: { label: "Cancelada", variant: "destructive" },
