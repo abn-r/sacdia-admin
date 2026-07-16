@@ -87,6 +87,15 @@ export function resolveAdminTerritoryScope(
   return { level: "all" };
 }
 
+/** Union, division and system admins can pick a local field; LF-scoped admins cannot. */
+export function canAdminFilterByLocalField(scope: AdminTerritoryScope): boolean {
+  return (
+    scope.level === "all" ||
+    scope.level === "division" ||
+    scope.level === "union"
+  );
+}
+
 export function applyTerritoryToReportSearchParams<T extends Record<string, string | undefined>>(
   params: T,
   scope: AdminTerritoryScope,

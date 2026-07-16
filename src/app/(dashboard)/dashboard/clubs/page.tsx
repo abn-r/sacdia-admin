@@ -6,7 +6,7 @@ import { ClubsListClient } from "@/components/clubs/clubs-list-client";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { listAdminLocalFields } from "@/lib/api/admin-local-fields";
-import { canUpdateClubs } from "@/lib/auth/permission-utils";
+import { canManageClubsByRole, canUpdateClubs } from "@/lib/auth/permission-utils";
 import { requireAdminUser } from "@/lib/auth/session";
 import { fetchClubsList } from "@/lib/clubs/fetch-list";
 import {
@@ -53,6 +53,7 @@ export default async function ClubsPage({
     value: localField.local_field_id,
   }));
   const canEdit = canUpdateClubs(user);
+  const canBulkImport = canManageClubsByRole(user);
 
   if (!result.available) {
     return (
@@ -82,6 +83,7 @@ export default async function ClubsPage({
       meta={result.meta}
       localFieldOptions={localFieldOptions}
       canEdit={canEdit}
+      canBulkImport={canBulkImport}
     />
   );
 }

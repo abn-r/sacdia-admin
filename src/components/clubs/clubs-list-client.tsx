@@ -30,6 +30,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ClubsCreateMenu } from "@/components/clubs/clubs-create-menu";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
@@ -53,6 +54,7 @@ interface ClubsListClientProps {
   meta: { page: number; limit: number; total: number; totalPages: number };
   localFieldOptions: LocalFieldOption[];
   canEdit: boolean;
+  canBulkImport?: boolean;
 }
 
 function matchesSearch(club: ClubListItem, query: string): boolean {
@@ -74,6 +76,7 @@ export function ClubsListClient({
   meta,
   localFieldOptions,
   canEdit,
+  canBulkImport = false,
 }: ClubsListClientProps) {
   const t = useTranslations("clubs.pages.v2");
   const tList = useTranslations("clubs.pages.list");
@@ -168,7 +171,11 @@ export function ClubsListClient({
 
   return (
     <div className="space-y-6">
-      <PageHeader title={tList("title")} description={t("description")} />
+      <PageHeader
+        title={tList("title")}
+        description={t("description")}
+        actions={canBulkImport ? <ClubsCreateMenu /> : undefined}
+      />
 
       <div className="space-y-4">
         <div className="rounded-xl border bg-muted/20 p-4">

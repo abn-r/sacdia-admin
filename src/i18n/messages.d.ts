@@ -819,6 +819,21 @@ export interface IntlMessages {
         entityLabel: string;
         loadError: string;
       };
+      certificationCatalog: {
+        title: string;
+        description: string;
+        crudPendingTitle: string;
+        crudPendingDescription: string;
+        emptyTitle: string;
+        emptyDescription: string;
+        loadError: string;
+        detailDescription: string;
+        back: string;
+        statusActive: string;
+        statusInactive: string;
+        structureTitle: string;
+        eligibilityNote: string;
+      };
       classModules: {
         title: string;
         description: string;
@@ -1186,6 +1201,7 @@ export interface IntlMessages {
       noPin: string;
       clear: string;
       missingApiKey: string;
+      loadFailed: string;
     };
     form: {
       labelName: string;
@@ -1438,6 +1454,54 @@ export interface IntlMessages {
         createMenuBulk: string;
         unexpectedError: string;
       };
+      import: {
+        title: string;
+        description: string;
+        back: string;
+        uploadCardTitle: string;
+        uploadCardDescription: string;
+        downloadTemplate: string;
+        chooseFile: string;
+        reset: string;
+        expectedHeadersTitle: string;
+        matchHint: string;
+        previewTitle: string;
+        previewSummary: string;
+        colName: string;
+        colLocalField: string;
+        colDistrict: string;
+        colChurch: string;
+        colStatus: string;
+        colMessage: string;
+        rowValid: string;
+        rowInvalid: string;
+        rowCreated: string;
+        rowFailed: string;
+        submitButton: string;
+        resultTitle: string;
+        resultSummary: string;
+        resultForbidden: string;
+        validation: {
+          missingName: string;
+          missingLocalField: string;
+          missingDistrict: string;
+          missingChurch: string;
+          unknownLocalField: string;
+          unknownDistrict: string;
+          unknownChurch: string;
+          coordinatesInvalid: string;
+        };
+        errors: {
+          emptyWorkbook: string;
+          noRows: string;
+          missingHeaders: string;
+          parseFailed: string;
+        };
+      };
+      new: {
+        title: string;
+        back: string;
+      };
       v2: {
         metadataTitle: string;
         badge: string;
@@ -1555,6 +1619,286 @@ export interface IntlMessages {
       instructor: string;
       member: string;
       noRole: string;
+    };
+    operations: {
+      title: string;
+      description: string;
+      currentScope: string;
+      breadcrumbLabel: string;
+      ecclesiasticalYear: string;
+      reportingMonth: string;
+      noClosedMonth: string;
+      computedAt: string;
+      cachedResponse: string;
+      backToMyScope: string;
+      bento: {
+        groups: {
+          operation: string;
+          operationDescription: string;
+          adminClubs: string;
+          adminClubsDescription: string;
+          people: string;
+          peopleDescription: string;
+          reports: string;
+          reportsDescription: string;
+          reportsNotApplicable: string;
+          queues: string;
+          queuesDescription: string;
+          honors: string;
+          activities: string;
+          activitiesDescription: string;
+          formation: string;
+          formationDescription: string;
+        };
+        stats: {
+          operationalClubs: string;
+          operationalClubsDetail: string;
+          operationalSections: string;
+          operationalRate: string;
+          nonOperationalClubs: string;
+          adminClubsTotal: string;
+          adminActive: string;
+          adminInactive: string;
+          adminTotal: string;
+          institutionalActive: string;
+          institutionalActiveDetail: string;
+          platformActive: string;
+          platformInactive: string;
+          monthlyCoverage: string;
+          monthlyCoverageDetail: string;
+          noClosedMonth: string;
+          expectedSections: string;
+          submittedSections: string;
+          draftSections: string;
+          generatedSections: string;
+          missingSections: string;
+          roleAssignmentsPending: string;
+          transfersPending: string;
+          classValidationsPending: string;
+          honorsReviewPending: string;
+          annualFoldersPending: string;
+          honorsInProgress: string;
+          honorsPendingReview: string;
+          honorsApproved: string;
+          activitiesRegistered: string;
+          activitiesRegisteredDetail: string;
+          activitiesJoint: string;
+          activitiesSections: string;
+          totalEnrollments: string;
+          distinctPeople: string;
+        };
+        charts: {
+          submitted: string;
+          draft: string;
+          generated: string;
+          missing: string;
+          expected: string;
+          registered: string;
+          joint: string;
+          sections: string;
+        };
+        honorsAttribution: {
+          current_affiliation: string;
+          unavailable: string;
+        };
+      };
+      kpis: {
+        sectionTitle: string;
+        operationalClubs: string;
+        operationalClubsHint: string;
+        institutionalPeople: string;
+        institutionalPeopleHint: string;
+        monthlyCoverage: string;
+        monthlyCoverageHint: string;
+        noClosedMonthHint: string;
+        missingReports: string;
+        missingReportsHint: string;
+      };
+      adminDiagnostic: {
+        title: string;
+        description: string;
+        operationalSections: string;
+        adminActiveClubs: string;
+        adminInactiveClubs: string;
+        operationalRate: string;
+        platformActiveAccounts: string;
+        platformInactiveAccounts: string;
+      };
+      attention: {
+        title: string;
+        description: string;
+        roleAssignments: string;
+        transfers: string;
+        classValidations: string;
+        honorsReview: string;
+        annualFolders: string;
+      };
+      formation: {
+        title: string;
+        description: string;
+        chartAriaLabel: string;
+        chartSeries: string;
+        tableTitle: string;
+        tableClass: string;
+        tableClubType: string;
+        tableEnrollments: string;
+        emptyTitle: string;
+        emptyDescription: string;
+      };
+      honors: {
+        title: string;
+        inProgress: string;
+        pendingReview: string;
+        approved: string;
+        attribution: {
+          current_affiliation: string;
+          unavailable: string;
+        };
+      };
+      activities: {
+        title: string;
+        description: string;
+        registered: string;
+        jointRegistered: string;
+        participatingSections: string;
+      };
+      territory: {
+        title: string;
+        description: string;
+        columnTerritory: string;
+        columnAdminClubs: string;
+        columnOperationalClubs: string;
+        columnPeople: string;
+        columnClasses: string;
+        columnCoverage: string;
+        columnActivities: string;
+        columnPending: string;
+        pendingRole: string;
+        pendingTransfers: string;
+        pendingClasses: string;
+        pendingHonors: string;
+        pendingFolders: string;
+        emptyTitle: string;
+        emptyDescription: string;
+        level: {
+          division: string;
+          union: string;
+          local_field: string;
+          club: string;
+        };
+      };
+      dataQuality: {
+        title: string;
+        description: string;
+        status: {
+          exact: string;
+          current_affiliation: string;
+          unavailable: string;
+          not_applicable: string;
+        };
+      };
+      errors: {
+        title: string;
+        forbiddenDescription: string;
+        notFoundDescription: string;
+        rateLimitedDescription: string;
+        authTitle: string;
+        authDescription: string;
+        badRequestTitle: string;
+        badRequestDescription: string;
+        serverTitle: string;
+        serverDescription: string;
+        goToLogin: string;
+      };
+      version: {
+        v1: string;
+        v2: string;
+      };
+      v2: {
+        title: string;
+        description: string;
+        signals: {
+          title: string;
+          operativeGap: string;
+          operativeGapDetail: string;
+          reportDebt: string;
+          reportDebtDetail: string;
+          reportDebtUnavailable: string;
+          digitalGap: string;
+          digitalGapDetail: string;
+          workflowPressure: string;
+          workflowPressureDetail: string;
+        };
+        operationLens: {
+          title: string;
+          description: string;
+          operationalRate: string;
+          operationalClubs: string;
+          operationalSections: string;
+          adminActive: string;
+          adminInactive: string;
+        };
+        compliance: {
+          title: string;
+          description: string;
+          notApplicable: string;
+          coverage: string;
+          expected: string;
+          submitted: string;
+          missing: string;
+          draft: string;
+          generated: string;
+        };
+        people: {
+          title: string;
+          description: string;
+          institutional: string;
+          platformActive: string;
+          platformInactive: string;
+        };
+        formation: {
+          title: string;
+          description: string;
+          empty: string;
+        };
+        honors: {
+          title: string;
+          unavailable: string;
+          inProgress: string;
+          pendingReview: string;
+          approved: string;
+        };
+        activities: {
+          title: string;
+          description: string;
+          registered: string;
+          joint: string;
+          sections: string;
+        };
+        queues: {
+          title: string;
+          description: string;
+          roleAssignments: string;
+          transfers: string;
+          classValidations: string;
+          honorsReview: string;
+          annualFolders: string;
+        };
+        alerts: {
+          title: string;
+          description: string;
+          missingReports: string;
+          inspect: string;
+          openClub: string;
+        };
+        charts: {
+          territoryComparison: string;
+          territoryOperational: string;
+          territoryMissing: string;
+          territoryPeople: string;
+          nonOperationalClubs: string;
+        };
+      };
     };
     birthday: {
       title: string;
@@ -4952,6 +5296,8 @@ export interface IntlMessages {
     };
     view: {
       load_error: string;
+      select_local_field_placeholder: string;
+      local_field_all: string;
       select_club_placeholder: string;
       select_section_placeholder: string;
       refresh_tooltip: string;
@@ -5098,9 +5444,16 @@ export interface IntlMessages {
       actionsLabel: string;
       actionEdit: string;
       actionDelete: string;
+      actionViewEvidence: string;
       typeIncome: string;
       typeExpense: string;
       colEvidence: string;
+    };
+    evidenceViewer: {
+      title: string;
+      descriptionFallback: string;
+      itemLabel: string;
+      openExternal: string;
     };
     delete: {
       title: string;
@@ -5116,6 +5469,8 @@ export interface IntlMessages {
       balance: string;
       movementsCount: string;
       movementsCountPlural: string;
+      incomeMovementsCount: string;
+      incomeMovementsCountPlural: string;
       inPeriod: string;
       positiveBalance: string;
       negativeBalance: string;
@@ -5148,6 +5503,9 @@ export interface IntlMessages {
     clubSelector: {
       label: string;
       selectPlaceholder: string;
+      localFieldLabel: string;
+      localFieldPlaceholder: string;
+      localFieldAll: string;
       emptyTitle: string;
       emptyDescription: string;
     };
@@ -5411,6 +5769,10 @@ export interface IntlMessages {
       field_active: string;
     };
     view: {
+      select_local_field_placeholder: string;
+      local_field_all: string;
+      select_club_type_placeholder: string;
+      club_type_all: string;
       select_club_placeholder: string;
       all_categories: string;
       refresh_title: string;
@@ -6099,24 +6461,25 @@ export interface IntlMessages {
   };
   enrollments: {
     table: {
-      col_club: string;
-      col_section: string;
-      col_local_field: string;
+      col_member: string;
+      col_class: string;
       col_status: string;
+      col_enrollment_date: string;
       col_submitted_at: string;
-      col_leadership: string;
       col_actions: string;
       empty: string;
       status: {
-        pending_validation: string;
-        active: string;
-        rejected: string;
-        inactive: string;
+        IN_PROGRESS: string;
+        SUBMITTED_FOR_VALIDATION: string;
+        APPROVED: string;
+        REJECTED: string;
+        INVESTIDO: string;
       };
     };
     actions: {
       approve: string;
       reject: string;
+      view_user: string;
       reject_dialog_title: string;
       reject_dialog_description: string;
       reject_dialog_cancel: string;

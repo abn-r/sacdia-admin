@@ -18,7 +18,7 @@
       "requests_reports": "Solicitações e relatórios",
       "members": "Membros",
       "operations": "Operações",
-      "rankings_analytics": "Rankings e análises",
+      "rankings_analytics": "Classificações e análises",
       "materials": "Materiais",
       "campamentos": "Acampamentos"
     },
@@ -80,13 +80,13 @@
       "annual_folders": "Pasta Anual de Evidências",
       "annual_folders_templates": "Modelos",
       "annual_folders_evaluate": "Pastas",
-      "annual_folders_rankings": "Rankings",
-      "annual_folders_ranking_config": "Configuração de rankings",
+      "annual_folders_rankings": "Classificações",
+      "annual_folders_ranking_config": "Configuração de classificações",
       "annual_folders_categories": "Categorias de prêmios",
-      "member_rankings": "Rankings de membros",
-      "member_ranking_weights": "Pesos dos rankings de membros",
-      "ranking_weights": "Pesos dos rankings",
-      "section_rankings": "Rankings de seções",
+      "member_rankings": "Classificações de membros",
+      "member_ranking_weights": "Pesos dos classificações de membros",
+      "ranking_weights": "Pesos dos classificações",
+      "section_rankings": "Classificações de seções",
       "requests": "Solicitações",
       "requests_transfers": "Transferências",
       "requests_assignments": "Designações",
@@ -790,6 +790,21 @@
         "entityLabel": "Seção",
         "loadError": "Não foi possível carregar as seções de classe."
       },
+      "certificationCatalog": {
+        "title": "Certificações GM",
+        "description": "Catálogo de certificações para Guias Mestres. Apenas membros com investiduras concluídas podem se inscrever.",
+        "crudPendingTitle": "Edição via API pendente",
+        "crudPendingDescription": "A listagem e a estrutura são somente leitura até o backend expor endpoints admin para certificações, módulos e seções.",
+        "emptyTitle": "Sem certificações",
+        "emptyDescription": "Não há certificações registradas no catálogo.",
+        "loadError": "Não foi possível carregar as certificações.",
+        "detailDescription": "Estrutura de módulos e seções da certificação.",
+        "back": "Voltar ao catálogo",
+        "statusActive": "Ativa",
+        "statusInactive": "Inativa",
+        "structureTitle": "Módulos e seções",
+        "eligibilityNote": "Elegibilidade: apenas Guias Mestres com investiduras de classe concluídas podem se inscrever nestas certificações."
+      },
       "classModules": {
         "title": "Módulos de classe",
         "description": "Catálogo de módulos que compõem as classes do sistema.",
@@ -1150,7 +1165,8 @@
       "hint": "Busque, clique no mapa ou arraste o pino para definir a localização.",
       "noPin": "Nenhuma localização selecionada",
       "clear": "Remover pino",
-      "missingApiKey": "NEXT_PUBLIC_GOOGLE_MAPS_API_KEY não está configurada."
+      "missingApiKey": "NEXT_PUBLIC_GOOGLE_MAPS_API_KEY não está configurada.",
+      "loadFailed": "Não foi possível carregar o Google Maps. Verifique a chave API, se a Maps JavaScript API está ativa e as restrições de domínio."
     },
     "form": {
       "labelName": "Nome",
@@ -1403,6 +1419,54 @@
         "createMenuBulk": "Importar do Excel",
         "unexpectedError": "Erro inesperado"
       },
+      "import": {
+        "title": "Importar clubes do Excel",
+        "description": "Criação em massa de clubes a partir de um arquivo .xlsx. Os nomes de campo local, distrito e igreja devem corresponder aos catálogos existentes.",
+        "back": "Voltar",
+        "uploadCardTitle": "Arquivo Excel",
+        "uploadCardDescription": "Envie um arquivo .xlsx ou .csv com os clubes a criar.",
+        "downloadTemplate": "Baixar modelo",
+        "chooseFile": "Escolher arquivo",
+        "reset": "Limpar",
+        "expectedHeadersTitle": "Colunas esperadas (ordem livre, cabeçalhos obrigatórios):",
+        "matchHint": "As colunas local_field, district e church são resolvidas por nome exato contra os catálogos.",
+        "previewTitle": "Pré-visualização ({total} linhas)",
+        "previewSummary": "{valid} válidas · {invalid} com erros",
+        "colName": "Nome",
+        "colLocalField": "Campo local",
+        "colDistrict": "Distrito",
+        "colChurch": "Igreja",
+        "colStatus": "Status",
+        "colMessage": "Mensagem",
+        "rowValid": "Válida",
+        "rowInvalid": "Erro",
+        "rowCreated": "Criado",
+        "rowFailed": "Falhou",
+        "submitButton": "Importar {count} clubes",
+        "resultTitle": "Resultado da importação",
+        "resultSummary": "{created} criados · {failed} falharam",
+        "resultForbidden": "Você não tem permissão para importar clubes",
+        "validation": {
+          "missingName": "Nome obrigatório",
+          "missingLocalField": "Campo local obrigatório",
+          "missingDistrict": "Distrito obrigatório",
+          "missingChurch": "Igreja obrigatória",
+          "unknownLocalField": "Campo local desconhecido: {value}",
+          "unknownDistrict": "Distrito desconhecido: {value}",
+          "unknownChurch": "Igreja desconhecida: {value}",
+          "coordinatesInvalid": "Coordenadas inválidas"
+        },
+        "errors": {
+          "emptyWorkbook": "O arquivo não contém planilhas",
+          "noRows": "O arquivo não tem linhas",
+          "missingHeaders": "Colunas obrigatórias ausentes: {headers}",
+          "parseFailed": "Não foi possível ler o arquivo"
+        }
+      },
+      "new": {
+        "title": "Criar clube",
+        "back": "Voltar"
+      },
       "v2": {
         "metadataTitle": "Clubes v2",
         "badge": "Vista catálogo",
@@ -1519,6 +1583,286 @@
       "instructor": "Instrutor",
       "member": "Membro",
       "noRole": "Sem função"
+    },
+    "operations": {
+      "title": "Panorama operacional",
+      "description": "Recorte agregado do escopo territorial autorizado e seus filhos imediatos.",
+      "currentScope": "Escopo atual",
+      "breadcrumbLabel": "Caminho territorial informativo",
+      "ecclesiasticalYear": "Ano eclesiástico",
+      "reportingMonth": "Último mês fechado",
+      "noClosedMonth": "Ainda não há um mês fechado",
+      "computedAt": "Calculado em {date}",
+      "cachedResponse": "Resposta em cache",
+      "backToMyScope": "Voltar ao meu escopo",
+      "bento": {
+        "groups": {
+          "operation": "Operação anual",
+          "operationDescription": "Clubes com pelo menos uma seção matriculada no ano eclesiástico.",
+          "adminClubs": "Status administrativo",
+          "adminClubsDescription": "Registro administrativo do clube; não implica operação anual.",
+          "people": "Pessoas e contas",
+          "peopleDescription": "Afiliação institucional vs. status da conta na plataforma.",
+          "reports": "Relatórios mensais",
+          "reportsDescription": "Recorte do último mês fechado por seção matriculada.",
+          "reportsNotApplicable": "Sem mês fechado no ano; contagens não medem descumprimento.",
+          "queues": "Filas operacionais",
+          "queuesDescription": "Pendentes por tipo; sem total agregado.",
+          "honors": "Especialidades",
+          "activities": "Atividades registradas",
+          "activitiesDescription": "Registro no sistema; não confirma execução nem participação.",
+          "formation": "Formação por classe",
+          "formationDescription": "{enrollments} matrículas · {people} pessoas distintas"
+        },
+        "honorsAttribution": {
+          "current_affiliation": "Por afiliação atual do ano vigente",
+          "unavailable": "Histórico indisponível no contrato"
+        },
+        "stats": {
+          "operationalClubs": "Clubes operacionais",
+          "operationalClubsDetail": "Pelo menos uma seção matriculada",
+          "operationalSections": "Seções operacionais",
+          "operationalRate": "Taxa operacional",
+          "nonOperationalClubs": "Clubes não operacionais",
+          "adminClubsTotal": "Clubes administrativos",
+          "adminActive": "Ativos",
+          "adminInactive": "Inativos",
+          "adminTotal": "Total",
+          "institutionalActive": "Pessoas institucionalmente ativas",
+          "institutionalActiveDetail": "Com atribuição institucional ativa",
+          "platformActive": "Contas ativas",
+          "platformInactive": "Contas inativas",
+          "monthlyCoverage": "Cobertura enviada",
+          "monthlyCoverageDetail": "{submitted} de {expected} seções esperadas",
+          "noClosedMonth": "Ainda não há um mês fechado",
+          "expectedSections": "Seções esperadas",
+          "submittedSections": "Enviados",
+          "draftSections": "Rascunho",
+          "generatedSections": "Gerados",
+          "missingSections": "Sem relatório",
+          "roleAssignmentsPending": "Atribuições de função",
+          "transfersPending": "Transferências",
+          "classValidationsPending": "Validações de classe",
+          "honorsReviewPending": "Revisões de especialidades",
+          "annualFoldersPending": "Pastas da União",
+          "honorsInProgress": "Em progresso",
+          "honorsPendingReview": "Em revisão",
+          "honorsApproved": "Aprovadas",
+          "activitiesRegistered": "Atividades registradas",
+          "activitiesRegisteredDetail": "Atividades distintas no ano",
+          "activitiesJoint": "Conjuntas",
+          "activitiesSections": "Seções participantes",
+          "totalEnrollments": "Matrículas totais",
+          "distinctPeople": "Pessoas distintas"
+        },
+        "charts": {
+          "submitted": "Env",
+          "draft": "Ras",
+          "generated": "Ger",
+          "missing": "Fal",
+          "expected": "Esp",
+          "registered": "Reg",
+          "joint": "Con",
+          "sections": "Sec"
+        }
+      },
+      "kpis": {
+        "sectionTitle": "Indicadores primários",
+        "operationalClubs": "Clubes operacionais",
+        "operationalClubsHint": "Com pelo menos uma seção matriculada no ano",
+        "institutionalPeople": "Pessoas institucionalmente ativas",
+        "institutionalPeopleHint": "Atribuição institucional ativa no ano",
+        "monthlyCoverage": "Cobertura mensal",
+        "monthlyCoverageHint": "Relatórios enviados sobre seções esperadas",
+        "noClosedMonthHint": "Sem mês fechado aplicável ao período",
+        "missingReports": "Relatórios faltantes",
+        "missingReportsHint": "Seções sem relatório mensal registrado"
+      },
+      "adminDiagnostic": {
+        "title": "Diagnóstico administrativo",
+        "description": "Status administrativo e operação anual como conceitos distintos.",
+        "operationalSections": "Seções operacionais",
+        "adminActiveClubs": "Clubes administrativos ativos",
+        "adminInactiveClubs": "Clubes administrativos inativos",
+        "operationalRate": "Taxa operacional",
+        "platformActiveAccounts": "Contas de plataforma ativas",
+        "platformInactiveAccounts": "Contas de plataforma inativas"
+      },
+      "attention": {
+        "title": "Requer atenção",
+        "description": "Filas operacionais sem total agregado.",
+        "roleAssignments": "Atribuições pendentes",
+        "transfers": "Transferências pendentes",
+        "classValidations": "Validações de classe",
+        "honorsReview": "Revisões de especialidades",
+        "annualFolders": "Pastas pendentes da União"
+      },
+      "formation": {
+        "title": "Formação",
+        "description": "{enrollments} matrículas · {people} pessoas distintas",
+        "chartAriaLabel": "Matrículas por classe e tipo de clube",
+        "chartSeries": "Matrículas",
+        "tableTitle": "Detalhe tabular equivalente",
+        "tableClass": "Classe",
+        "tableClubType": "Tipo de clube",
+        "tableEnrollments": "Matrículas",
+        "emptyTitle": "Sem matrículas registradas",
+        "emptyDescription": "Não há matrículas por classe no escopo atual."
+      },
+      "honors": {
+        "title": "Especialidades",
+        "inProgress": "Em progresso",
+        "pendingReview": "Em revisão",
+        "approved": "Aprovadas",
+        "attribution": {
+          "current_affiliation": "Atribuição por afiliação atual",
+          "unavailable": "Indisponível para o ano selecionado"
+        }
+      },
+      "activities": {
+        "title": "Atividades",
+        "description": "Atividades registradas; não implica execução nem participação.",
+        "registered": "Registradas",
+        "jointRegistered": "Conjuntas registradas",
+        "participatingSections": "Seções participantes"
+      },
+      "territory": {
+        "title": "Comparação territorial",
+        "description": "Filhos imediatos do escopo. Totais não devem ser reconstruídos somando linhas.",
+        "columnTerritory": "Território",
+        "columnAdminClubs": "Clubes admin.",
+        "columnOperationalClubs": "Clubes operacionais",
+        "columnPeople": "Pessoas",
+        "columnClasses": "Classes (pessoas)",
+        "columnCoverage": "Cobertura",
+        "columnActivities": "Atividades",
+        "columnPending": "Pendentes",
+        "pendingRole": "Atrib.",
+        "pendingTransfers": "Transf.",
+        "pendingClasses": "Classes",
+        "pendingHonors": "Esp.",
+        "pendingFolders": "Pastas",
+        "emptyTitle": "Sem territórios filhos",
+        "emptyDescription": "Não há entidades filhas neste nível de escopo.",
+        "level": {
+          "division": "Divisão",
+          "union": "União",
+          "local_field": "Campo local",
+          "club": "Clube"
+        }
+      },
+      "dataQuality": {
+        "title": "Qualidade dos dados",
+        "description": "Notas contratuais sobre exatidão e atribuição de cada família de métricas.",
+        "status": {
+          "exact": "Exato",
+          "current_affiliation": "Afiliação atual",
+          "unavailable": "Indisponível",
+          "not_applicable": "Não aplicável"
+        }
+      },
+      "errors": {
+        "title": "Panorama operacional",
+        "forbiddenDescription": "Você não tem escopo para consultar este território.",
+        "notFoundDescription": "O ano ou território solicitado não foi encontrado.",
+        "rateLimitedDescription": "Muitas solicitações. Tente novamente em instantes.",
+        "authTitle": "Sessão necessária",
+        "authDescription": "Entre para ver o panorama operacional.",
+        "badRequestTitle": "Filtro inválido",
+        "badRequestDescription": "Verifique os parâmetros de período ou território.",
+        "serverTitle": "Erro do servidor",
+        "serverDescription": "Não foi possível carregar o panorama operacional.",
+        "goToLogin": "Ir para entrar"
+      },
+      "version": {
+        "v1": "Visão bento",
+        "v2": "Visão executiva"
+      },
+      "v2": {
+        "title": "Panorama executivo",
+        "description": "Sinais de decisão, conformidade e pressão operacional no escopo autorizado.",
+        "signals": {
+          "title": "Sinais prioritários",
+          "operativeGap": "Lacuna operacional",
+          "operativeGapDetail": "Clubes administrativos sem seção matriculada no ano · total admin. {total}",
+          "reportDebt": "Dívida de relatórios",
+          "reportDebtDetail": "Seções sem relatório no último mês fechado · esperadas {expected}",
+          "reportDebtUnavailable": "Nenhum mês fechado aplicável ao período",
+          "digitalGap": "Lacuna digital",
+          "digitalGapDetail": "Contas inativas frente a {institutional} pessoas institucionalmente ativas",
+          "workflowPressure": "Tipos de fila ativos",
+          "workflowPressureDetail": "Tipos de fila com pendências maiores que zero"
+        },
+        "operationLens": {
+          "title": "Lente operacional",
+          "description": "Operação anual vs. status administrativo do clube.",
+          "operationalRate": "Taxa operacional",
+          "operationalClubs": "Clubes operacionais",
+          "operationalSections": "Seções operacionais",
+          "adminActive": "Admin. ativos",
+          "adminInactive": "Admin. inativos"
+        },
+        "compliance": {
+          "title": "Conformidade mensal",
+          "description": "Cobertura do último mês fechado por seção matriculada.",
+          "notApplicable": "Sem mês fechado; as contagens não medem descumprimento.",
+          "coverage": "Cobertura enviada",
+          "expected": "Esperadas",
+          "submitted": "Enviadas",
+          "missing": "Faltantes",
+          "draft": "Rascunho",
+          "generated": "Geradas"
+        },
+        "people": {
+          "title": "Pessoas e plataforma",
+          "description": "Afiliação institucional vs. status da conta.",
+          "institutional": "Institucionalmente ativas",
+          "platformActive": "Contas ativas",
+          "platformInactive": "Contas inativas"
+        },
+        "formation": {
+          "title": "Formação por classe",
+          "description": "{enrollments} matrículas · {people} pessoas distintas",
+          "empty": "Sem matrículas no escopo atual."
+        },
+        "honors": {
+          "title": "Especialidades",
+          "unavailable": "Histórico indisponível no contrato do ano.",
+          "inProgress": "Em progresso",
+          "pendingReview": "Em revisão",
+          "approved": "Aprovadas"
+        },
+        "activities": {
+          "title": "Atividades registradas",
+          "description": "Registro no sistema; não confirma execução nem presença.",
+          "registered": "Registradas",
+          "joint": "Conjuntas",
+          "sections": "Seções participantes"
+        },
+        "queues": {
+          "title": "Filas operacionais",
+          "description": "Pendências por tipo; sem total agregado.",
+          "roleAssignments": "Atribuições de função",
+          "transfers": "Transferências",
+          "classValidations": "Validações de classe",
+          "honorsReview": "Revisão de especialidades",
+          "annualFolders": "Pastas União"
+        },
+        "alerts": {
+          "title": "Alertas territoriais",
+          "description": "Territórios com maior dívida de relatórios no último mês fechado.",
+          "missingReports": "{count} sem relatório",
+          "inspect": "Inspecionar",
+          "openClub": "Abrir clube"
+        },
+        "charts": {
+          "territoryComparison": "Comparação territorial",
+          "territoryOperational": "Clubes operacionais",
+          "territoryMissing": "Relatórios faltantes",
+          "territoryPeople": "Pessoas ativas",
+          "nonOperationalClubs": "Clubes não operacionais"
+        }
+      }
     },
     "birthday": {
       "title": "Feliz aniversário!",
@@ -3821,7 +4165,7 @@
       "section_evaluated": "Seção avaliada com sucesso",
       "file_required": "Selecione um arquivo para enviar",
       "evidence_uploaded": "Evidência enviada com sucesso",
-      "rankings_recalculated": "Rankings recalculados: {count} clubes atualizados",
+      "rankings_recalculated": "Classificações recalculados: {count} clubes atualizados",
       "section_updated": "Seção atualizada com sucesso",
       "section_created": "Seção criada com sucesso",
       "category_deleted": "Categoria excluída com sucesso",
@@ -3838,7 +4182,7 @@
       "folder_created": "Pasta anual criada com sucesso"
     },
     "errors": {
-      "recalculate_rankings": "Erro ao recalcular os rankings",
+      "recalculate_rankings": "Erro ao recalcular os classificações",
       "save_evaluation_failed": "Não foi possível salvar a avaliação",
       "upload_evidence_failed": "Erro ao enviar a evidência",
       "save_section_failed": "Erro ao salvar a seção",
@@ -3955,9 +4299,9 @@
       "submittingEdit": "Salvando...",
       "descriptionDraft": "Salve o modelo como rascunho. Depois adicione seções e publique-o no detalhe quando estiver completo.",
       "descriptionEdit": "Edite os dados do rascunho da Pasta Anual de Evidências.",
-      "budgetTitle": "Orçamento vindo do ranking",
-      "budgetMissing": "Não há configuração anual de ranking aplicável para esta combinação. Configure antes de publicar.",
-      "budgetResolved": "A Pasta Anual vale {points} pts conforme a configuração do ranking. As seções devem distribuir exatamente esse total.",
+      "budgetTitle": "Orçamento vindo do classificação",
+      "budgetMissing": "Não há configuração anual de classificação aplicável para esta combinação. Configure antes de publicar.",
+      "budgetResolved": "A Pasta Anual vale {points} pts conforme a configuração do classificação. As seções devem distribuir exatamente esse total.",
       "budgetPending": "Selecione tipo de clube, ano e proprietário para resolver o orçamento anual.",
       "submitDraft": "Salvar rascunho",
       "submittingDraft": "Salvando rascunho..."
@@ -4018,16 +4362,16 @@
       "notFoundDescription": "Verifique se a pasta existe ou volte à listagem de pastas."
     },
     "pageRankings": {
-      "title": "Rankings da pasta anual de evidências",
-      "description": "Consulte o ranking de clubes por pontos obtidos na pasta anual de evidências.",
+      "title": "Classificações da pasta anual de evidências",
+      "description": "Consulte o classificação de clubes por pontos obtidos na pasta anual de evidências.",
       "errorFallback": "Não foi possível carregar os tipos de clube ou anos eclesiásticos. Verifique a conexão com o servidor.",
       "emptyTitle": "Sem dados de catálogo",
-      "emptyDescription": "Não há tipos de clube disponíveis para exibir rankings."
+      "emptyDescription": "Não há tipos de clube disponíveis para exibir classificações."
     },
     "pageRankingsBreakdown": {
-      "title": "Detalhamento do ranking",
+      "title": "Detalhamento do classificação",
       "description": "Detalhe por componente para a inscrição {enrollmentId}",
-      "errorFallback": "Não foi possível carregar o detalhamento do ranking. Verifique a conexão com o servidor.",
+      "errorFallback": "Não foi possível carregar o detalhamento do classificação. Verifique a conexão com o servidor.",
       "paramsRequired": "Os parâmetros enrollmentId e year_id são obrigatórios."
     },
     "awardCategoriesClient": {
@@ -4117,16 +4461,16 @@
       "subsectionsAllocationLabel": "Subseções desta seção"
     },
     "pageRankingConfig": {
-      "title": "Configuração anual de rankings",
+      "title": "Configuração anual de classificações",
       "description": "Gerencie orçamentos anuais por seção e faixas globais de reconhecimento para a Pasta Anual de Evidências.",
-      "breadcrumbRankingConfig": "Configuração de rankings",
+      "breadcrumbRankingConfig": "Configuração de classificações",
       "breadcrumbNew": "Nova",
       "breadcrumbEdit": "Editar",
       "newTitle": "Nova configuração de orçamento",
       "newDescription": "Defina a pontuação máxima anual e sua distribuição por seções e subseções.",
       "editTitle": "Editar configuração de orçamento",
       "editDescription": "Atualize a pontuação máxima e sua distribuição por seções e subseções.",
-      "missingCatalogsTitle": "Catálogos ausentes para configurar rankings",
+      "missingCatalogsTitle": "Catálogos ausentes para configurar classificações",
       "missingCatalogsDescription": "Você precisa de pelo menos uma união ou campo local, um tipo de clube e um ano eclesiástico ativo.",
       "unavailableTitle": "Configuração indisponível",
       "unavailableDescription": "A configuração solicitada não foi encontrada ou faltam catálogos para editá-la."
@@ -4764,6 +5108,8 @@
     },
     "view": {
       "load_error": "Não foi possível carregar os seguros",
+      "select_local_field_placeholder": "Selecionar campo local",
+      "local_field_all": "Todos os campos",
       "select_club_placeholder": "Selecionar clube",
       "select_section_placeholder": "Selecionar seção",
       "refresh_tooltip": "Atualizar",
@@ -4887,7 +5233,14 @@
       "descriptionPlaceholder": "Descrição do movimento (opcional)",
       "cancelButton": "Cancelar",
       "saveButton": "Salvar alterações",
-      "createButton": "Criar movimento"
+      "createButton": "Criar movimento",
+      "evidenceLabel": "Evidências",
+      "evidenceHint": "Você pode anexar até 3 fotos do comprovante desta receita ou despesa.",
+      "evidenceCount": "{count}/3 fotos",
+      "evidenceLimit": "São permitidas apenas 3 fotos de evidência por movimento.",
+      "evidenceImageOnly": "Somente arquivos de imagem podem ser anexados.",
+      "evidenceAdd": "Selecionar fotos do comprovante",
+      "evidenceRemove": "Remover evidência"
     },
     "table": {
       "colDate": "Data",
@@ -4902,7 +5255,15 @@
       "actionEdit": "Editar",
       "actionDelete": "Excluir",
       "typeIncome": "Receita",
-      "typeExpense": "Despesa"
+      "typeExpense": "Despesa",
+      "colEvidence": "Evidência",
+      "actionViewEvidence": "Ver evidências"
+    },
+    "evidenceViewer": {
+      "title": "Evidências do movimento",
+      "descriptionFallback": "Fotos do comprovante deste movimento.",
+      "itemLabel": "Evidência {n}",
+      "openExternal": "Abrir em nova aba"
     },
     "delete": {
       "title": "Excluir movimento?",
@@ -4918,6 +5279,8 @@
       "balance": "Saldo",
       "movementsCount": "{count} movimento",
       "movementsCountPlural": "{count} movimentos",
+      "incomeMovementsCount": "{count} receita",
+      "incomeMovementsCountPlural": "{count} receitas",
       "inPeriod": "no período",
       "positiveBalance": "Saldo positivo",
       "negativeBalance": "Saldo negativo"
@@ -4950,6 +5313,9 @@
     "clubSelector": {
       "label": "Clube",
       "selectPlaceholder": "Selecione um clube",
+      "localFieldLabel": "Campo local",
+      "localFieldPlaceholder": "Selecione um campo local",
+      "localFieldAll": "Todos os campos",
       "emptyTitle": "Selecione um clube",
       "emptyDescription": "Escolha um clube no seletor para ver e gerenciar seus movimentos financeiros."
     }
@@ -5213,6 +5579,10 @@
       "field_active": "Status"
     },
     "view": {
+      "select_local_field_placeholder": "Selecionar campo local",
+      "local_field_all": "Todos os campos",
+      "select_club_type_placeholder": "Tipo de clube",
+      "club_type_all": "Todos os tipos",
       "select_club_placeholder": "Selecionar clube",
       "all_categories": "Todas as categorias",
       "refresh_title": "Atualizar",
@@ -5333,8 +5703,8 @@
       "reports": "Relatórios",
       "scoring": "Pontuação",
       "membership": "Membresias",
-      "member_ranking": "Rankings de membros",
-      "ranking": "Rankings",
+      "member_ranking": "Classificações de membros",
+      "ranking": "Classificações",
       "activity_reminder_minutes_before": "Lembretes de atividades",
       "validation": "Validação",
       "activities": "Atividades",
@@ -5438,10 +5808,10 @@
     },
     "pages": {
       "list": {
-        "title": "Pesos de ranking",
+        "title": "Pesos de classificação",
         "description": "Configure os percentuais de classe, investidura e campanha usados para calcular o score composto de cada membro.",
-        "breadcrumbLabel": "Pesos de ranking",
-        "cannotShow": "Não é possível exibir os pesos de ranking"
+        "breadcrumbLabel": "Pesos de classificação",
+        "cannotShow": "Não é possível exibir os pesos de classificação"
       },
       "new": {
         "title": "Nova substituição de pesos",
@@ -5461,7 +5831,7 @@
     },
     "weightsPage": {
       "deleteTitle": "Excluir substituição de pesos",
-      "deleteDescription": "Os cálculos de ranking que usavam esta configuração voltarão a usar a configuração padrão global. Esta ação não pode ser desfeita.",
+      "deleteDescription": "Os cálculos de classificação que usavam esta configuração voltarão a usar a configuração padrão global. Esta ação não pode ser desfeita.",
       "deleteCancel": "Cancelar",
       "deleteConfirm": "Excluir",
       "deleteConfirmLoading": "Excluindo...",
@@ -5681,9 +6051,9 @@
     },
     "pages": {
       "list": {
-        "title": "Pesos de ranking",
-        "description": "Configure a ponderação de cada dimensão (pasta, finança, camporee, evidência) para o cálculo do ranking anual. A soma dos 4 pesos deve ser exatamente 100.",
-        "loadFailed": "Não foi possível carregar os pesos de ranking. Verifique a conexão com o servidor.",
+        "title": "Pesos de classificação",
+        "description": "Configure a ponderação de cada dimensão (pasta, finança, camporee, evidência) para o cálculo do classificação anual. A soma dos 4 pesos deve ser exatamente 100.",
+        "loadFailed": "Não foi possível carregar os pesos de classificação. Verifique a conexão com o servidor.",
         "emptyTitle": "Sem configuração",
         "emptyDescription": "Nenhuma configuração de pesos encontrada. O backend deveria ter criado um padrão global ao iniciar."
       }
@@ -5901,45 +6271,46 @@
   },
   "enrollments": {
     "table": {
-      "col_club": "Clube",
-      "col_section": "Seção",
-      "col_local_field": "Campo Local",
+      "col_member": "Membro",
+      "col_class": "Classe",
       "col_status": "Status",
+      "col_enrollment_date": "Data de inscrição",
       "col_submitted_at": "Enviado em",
-      "col_leadership": "Diretoria",
       "col_actions": "Ações",
-      "empty": "Não há inscrições anuais para mostrar.",
+      "empty": "Nenhuma inscrição para exibir.",
       "status": {
-        "pending_validation": "Pendente Campo Local",
-        "active": "Aprovada",
-        "rejected": "Rejeitada",
-        "inactive": "Inativa"
+        "IN_PROGRESS": "Em andamento",
+        "SUBMITTED_FOR_VALIDATION": "Validação pendente",
+        "APPROVED": "Aprovado",
+        "REJECTED": "Rejeitado",
+        "INVESTIDO": "Investido"
       }
     },
     "actions": {
       "approve": "Aprovar",
       "reject": "Rejeitar",
-      "reject_dialog_title": "Rejeitar inscrição anual",
-      "reject_dialog_description": "Esta ação marcará a inscrição anual do clube como rejeitada. O clube deverá corrigir os dados e enviá-la novamente.",
+      "view_user": "Ver usuário",
+      "reject_dialog_title": "Rejeitar inscrição",
+      "reject_dialog_description": "Esta ação marcará a inscrição como rejeitada. O membro não poderá continuar o processo de investidura com esta inscrição.",
       "reject_dialog_cancel": "Cancelar",
       "reject_dialog_confirm": "Confirmar rejeição"
     },
     "toasts": {
-      "approved": "Inscrição anual aprovada com sucesso.",
-      "rejected": "Inscrição anual rejeitada com sucesso."
+      "approved": "Inscrição aprovada com sucesso.",
+      "rejected": "Inscrição rejeitada com sucesso."
     },
     "errors": {
       "generic": "Ocorreu um erro. Tente novamente."
     },
     "page": {
-      "title": "Inscrições anuais",
-      "description": "Inscrições anuais de clubes enviadas para validação do Campo Local. Aprove ou rejeite cada solicitação.",
-      "searchPlaceholder": "Buscar por clube, seção, campo ou responsável...",
-      "errorEmptyTitle": "Não é possível mostrar inscrições anuais",
-      "emptyTitle": "Não há inscrições anuais pendentes",
-      "emptyDescription": "Não há inscrições anuais de clubes enviadas para validação do Campo Local neste momento.",
-      "countSingular": "inscrição anual pendente",
-      "countPlural": "inscrições anuais pendentes"
+      "title": "Inscrições",
+      "description": "Inscrições enviadas para validação de investidura. Aprove ou rejeite cada solicitação.",
+      "searchPlaceholder": "Buscar por nome ou e-mail...",
+      "errorEmptyTitle": "Não é possível exibir inscrições",
+      "emptyTitle": "Sem inscrições pendentes",
+      "emptyDescription": "Não existem inscrições enviadas para validação de investidura no momento.",
+      "countSingular": "inscrição pendente de validação",
+      "countPlural": "inscrições pendentes de validação"
     }
   },
   "rankings": {
@@ -5963,16 +6334,16 @@
       "evidencePendingExcluded": "{pending} pendentes (excluídas do cálculo)"
     },
     "pageMember": {
-      "title": "Ranking de membros",
+      "title": "Classificação de membros",
       "description": "Classificação geral por categoria com composite calculado.",
       "emptyNoYearTitle": "Nenhum ano eclesiástico ativo",
-      "emptyNoYearDescription": "Configure um ano eclesiástico ativo no catálogo para ver os rankings.",
-      "emptyTitle": "Não é possível exibir os rankings",
-      "emptyDescription": "O endpoint de rankings não está disponível no momento."
+      "emptyNoYearDescription": "Configure um ano eclesiástico ativo no catálogo para ver os classificações.",
+      "emptyTitle": "Não é possível exibir os classificações",
+      "emptyDescription": "O endpoint de classificações não está disponível no momento."
     },
     "pageMemberBreakdown": {
-      "back": "Voltar para rankings",
-      "breadcrumbParent": "Rankings de membros",
+      "back": "Voltar para classificações",
+      "breadcrumbParent": "Classificações de membros",
       "position": "Posição",
       "compositeScore": "Pontuação composta",
       "category": "Categoria",
@@ -6001,12 +6372,12 @@
       "descriptionDetail": "Seção {sectionName} · Ano {yearId}"
     },
     "pageSection": {
-      "title": "Ranking de seções",
+      "title": "Classificação de seções",
       "description": "Classificação geral de seções por composite score.",
       "emptyNoYearTitle": "Nenhum ano eclesiástico ativo",
-      "emptyNoYearDescription": "Configure um ano eclesiástico ativo no catálogo para ver os rankings.",
-      "emptyTitle": "Não é possível exibir os rankings de seções",
-      "emptyDescription": "O endpoint de rankings de seções não está disponível no momento."
+      "emptyNoYearDescription": "Configure um ano eclesiástico ativo no catálogo para ver os classificações.",
+      "emptyTitle": "Não é possível exibir os classificações de seções",
+      "emptyDescription": "O endpoint de classificações de seções não está disponível no momento."
     },
     "pageSectionMembers": {
       "title": "Membros da seção",
@@ -6014,7 +6385,7 @@
       "memberSingular": "membro",
       "memberPlural": "membros",
       "back": "Voltar para seções",
-      "breadcrumbParent": "Ranking de seções",
+      "breadcrumbParent": "Classificação de seções",
       "breadcrumbCurrent": "Seção #{sectionId}"
     },
     "filters": {
@@ -6037,8 +6408,8 @@
       "colCamporee": "Camporees",
       "colCategory": "Categoria",
       "colAction": "Ação",
-      "emptyTitle": "Sem rankings disponíveis",
-      "emptyDescription": "Sem rankings para os filtros selecionados.",
+      "emptyTitle": "Sem classificações disponíveis",
+      "emptyDescription": "Sem classificações para os filtros selecionados.",
       "countSingular": "{total} membro classificado",
       "countPlural": "{total} membros classificados",
       "investedLabel": "Investido",
@@ -6065,8 +6436,8 @@
       "colCategory": "Categoria",
       "colCalculated": "Calculado",
       "colAction": "Ação",
-      "emptyTitle": "Sem rankings disponíveis",
-      "emptyDescription": "Sem rankings para os filtros selecionados.",
+      "emptyTitle": "Sem classificações disponíveis",
+      "emptyDescription": "Sem classificações para os filtros selecionados.",
       "countSingular": "{total} seção classificada",
       "countPlural": "{total} seções classificadas",
       "viewMembers": "Ver membros"
@@ -6080,8 +6451,8 @@
       "colCamporee": "Camporees",
       "colCategory": "Categoria",
       "colAction": "Ação",
-      "emptyTitle": "Sem membros com ranking",
-      "emptyDescription": "Esta seção não tem membros com ranking calculado.",
+      "emptyTitle": "Sem membros com classificação",
+      "emptyDescription": "Esta seção não tem membros com classificação calculado.",
       "investedLabel": "Investido",
       "inProgressLabel": "Em andamento",
       "viewDetail": "Ver detalhe"
@@ -6090,7 +6461,7 @@
   "system_jobs": {
     "page": {
       "title": "Jobs & Filas",
-      "description": "Status das filas BullMQ e trabalhos recentes com falha. As filas de baixa prioridade (relatórios, finanças, rankings, exports) foram agrupadas em background-jobs.",
+      "description": "Status das filas BullMQ e trabalhos recentes com falha. As filas de baixa prioridade (relatórios, finanças, classificações, exports) foram agrupadas em background-jobs.",
       "cronSection": {
         "heading": "Cron Jobs",
         "description": "Histórico recente e estatísticas dos jobs programados.",
@@ -6124,7 +6495,7 @@
       "statusRunning": "Executando",
       "statusSkipped": "Ignorado",
       "jobMonthlyReports": "Relatórios mensais (auto-gerar)",
-      "jobRankingsRecalculate": "Rankings anuais (recalcular)",
+      "jobRankingsRecalculate": "Classificações anuais (recalcular)",
       "jobDataExportCleanup": "Limpeza de exports vencidos",
       "jobMemberOfMonth": "Membro do mês (auto-avaliar)",
       "jobFinancePeriod": "Fechamento de período financeiro",
@@ -6172,7 +6543,7 @@
       "queueAchievements": "Conquistas",
       "queueAchievementsDesc": "Avaliação e correspondência de conquistas",
       "queueBackgroundJobs": "Jobs em segundo plano",
-      "queueBackgroundJobsDesc": "Relatórios, finanças, rankings, exports"
+      "queueBackgroundJobsDesc": "Relatórios, finanças, classificações, exports"
     },
     "history": {
       "filterLabelJob": "Job",
@@ -6208,7 +6579,7 @@
       "detailLabelError": "Mensagem de erro",
       "detailLabelMetadata": "Metadados",
       "jobMonthlyReports": "Relatórios mensais (auto-gerar)",
-      "jobRankingsRecalculate": "Rankings anuais (recalcular)",
+      "jobRankingsRecalculate": "Classificações anuais (recalcular)",
       "jobDataExportCleanup": "Limpeza de exports vencidos",
       "jobMemberOfMonth": "Membro do mês (auto-avaliar)",
       "jobFinancePeriod": "Fechamento de período financeiro",

@@ -1,32 +1,40 @@
-import { LayoutDashboard } from "lucide-react";
+import { ApiError } from "@/lib/api/client";
+import {
+  fetchOperationsDashboard,
+  parseOperationsDashboardSearchParams,
+} from "@/lib/api/operations-dashboard";
+import { OperationsDashboardView } from "@/components/dashboard/operations-dashboard-view";
+import { OperationsDashboardError } from "@/components/dashboard/operations-dashboard-error";
+import { requireAdminUser } from "@/lib/auth/session";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { APP_CONFIG } from "@/config/app-config";
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
-export default function DashboardHomePage() {
-  return (
-    <div className="@container/main flex flex-col gap-4 md:gap-6">
-      <div className="flex flex-col gap-1">
-        <h1 className="font-semibold text-2xl tracking-tight">{APP_CONFIG.name}</h1>
-        <p className="text-muted-foreground text-sm">
-          Panel en reconstrucción con Studio Admin. Los módulos se irán agregando desde aquí.
-        </p>
-      </div>
+export default async function DashboardHomePage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  await requireAdminUser();
 
-      <Card>
-        <CardHeader className="flex flex-row items-center gap-3 space-y-0">
-          <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            <LayoutDashboard className="size-5" />
-          </div>
-          <div>
-            <CardTitle className="text-base">Base lista</CardTitle>
-            <CardDescription>Shell Studio Admin + autenticación SACDIA operativos.</CardDescription>
-          </div>
-        </CardHeader>
-        <CardContent className="text-muted-foreground text-sm">
-          Usa el sidebar y los controles de layout/tema para validar el cascarón antes de migrar módulos.
-        </CardContent>
-      </Card>
-    </div>
-  );
+  const raw = await searchParams;
+  const query = parseOperationsDashboardSearchParams(raw);
+
+  let apiError: ApiError | null = null;
+  let data = null;
+
+  try {
+    data = await fetchOperationsDashboard(query);
+  } catch (error) {
+    if (error instanceof ApiError) {
+      apiError = error;
+    } else {
+      throw error;
+    }
+  }
+
+  if (apiError) {
+    return <OperationsDashboardError error={apiError} />;
+  }
+
+  return <OperationsDashboardView data={data!} query={query} />;
 }

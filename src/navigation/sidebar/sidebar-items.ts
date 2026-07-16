@@ -1,16 +1,25 @@
 import {
   Award,
+  ArrowUpDown,
+  Activity,
+  BarChart3,
   BookOpen,
   Building2,
   Banknote,
   Bell,
+  Calendar,
+  CalendarClock,
   CalendarDays,
   ClipboardCheck,
+  ClipboardList,
+  DollarSign,
   FileStack,
+  FileText,
   FolderOpen,
   Globe,
   GraduationCap,
   Grid3X3,
+  AlertCircle,
   Key,
   Landmark,
   LayoutDashboard,
@@ -19,14 +28,21 @@ import {
   Package,
   Scale,
   Settings2,
+  Shield,
+  ShieldCheck,
+  Library,
+  Receipt,
+  Tag,
   ShoppingBag,
   Signpost,
+  SlidersHorizontal,
   Sparkles,
   Tags,
   Tent,
   Trophy,
   Church,
   User,
+  UserPlus,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -65,7 +81,7 @@ interface NavItemBase {
 export interface NavMainLinkItem extends NavItemBase {
   url: string;
   subItems?: never;
-  activeMatch?: "exact" | "prefix";
+  activeMatch?: "exact" | "prefix" | "clubs-list";
 }
 
 export interface NavMainParentItem extends NavItemBase {
@@ -80,6 +96,10 @@ export interface NavGroup {
   items: NavMainItem[];
 }
 
+/**
+ * Sidebar orientado a personal administrativo (campo local, unión, división, sistema).
+ * No es el panel operativo del líder de club: agrupa supervisión, validación y configuración territorial.
+ */
 export const sidebarItems: NavGroup[] = [
   {
     id: 0,
@@ -94,7 +114,7 @@ export const sidebarItems: NavGroup[] = [
   },
   {
     id: 1,
-    label: "Mi operación",
+    label: "Gestión de clubes",
     items: [
       {
         id: "users",
@@ -106,14 +126,117 @@ export const sidebarItems: NavGroup[] = [
       {
         id: "clubs",
         title: "Clubes",
+        url: "/dashboard/clubs",
         icon: Building2,
+        activeMatch: "clubs-list",
+      },
+      {
+        id: "enrollments",
+        title: "Inscripciones",
+        url: "/dashboard/enrollments",
+        icon: ClipboardList,
+        activeMatch: "prefix",
+      },
+      {
+        id: "requests",
+        title: "Solicitudes",
+        icon: ArrowUpDown,
         subItems: [
           {
-            id: "clubs-list",
-            title: "Listado",
-            url: "/dashboard/clubs",
-            icon: Building2,
-            activeMatch: "clubs-list",
+            id: "requests-transfers",
+            title: "Traslados",
+            url: "/dashboard/requests/transfers",
+            icon: ArrowUpDown,
+            activeMatch: "prefix",
+          },
+          {
+            id: "requests-assignments",
+            title: "Asignaciones",
+            url: "/dashboard/requests/assignments",
+            icon: UserPlus,
+            activeMatch: "prefix",
+          },
+          {
+            id: "requests-membership",
+            title: "Membresía",
+            url: "/dashboard/requests/membership",
+            icon: Users,
+            activeMatch: "prefix",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 2,
+    label: "Operaciones",
+    items: [
+      {
+        id: "finances",
+        title: "Finanzas de clubes",
+        url: "/dashboard/finances",
+        icon: Banknote,
+        activeMatch: "prefix",
+      },
+      {
+        id: "club-inventory",
+        title: "Inventario de clubes",
+        url: "/dashboard/inventory",
+        icon: Package,
+        activeMatch: "prefix",
+      },
+      {
+        id: "insurance",
+        title: "Seguros",
+        icon: Shield,
+        subItems: [
+          {
+            id: "insurance-by-section",
+            title: "Por sección",
+            url: "/dashboard/insurance",
+            icon: Shield,
+            activeMatch: "exact",
+          },
+          {
+            id: "insurance-expiring",
+            title: "Por vencer",
+            url: "/dashboard/insurance/expiring",
+            icon: Shield,
+            activeMatch: "prefix",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 3,
+    label: "Validación e investiduras",
+    items: [
+      {
+        id: "investiture",
+        title: "Investidura",
+        icon: Sparkles,
+        subItems: [
+          {
+            id: "investiture-pending",
+            title: "Pendientes",
+            url: "/dashboard/investiture",
+            icon: Sparkles,
+            activeMatch: "exact",
+          },
+          {
+            id: "investiture-pipeline",
+            title: "Seguimiento",
+            url: "/dashboard/investiture/pipeline",
+            icon: ClipboardList,
+            activeMatch: "prefix",
+          },
+          {
+            id: "investiture-config",
+            title: "Configuración",
+            url: "/dashboard/investiture/config",
+            icon: Settings2,
+            activeMatch: "prefix",
           },
         ],
       },
@@ -124,9 +247,16 @@ export const sidebarItems: NavGroup[] = [
         subItems: [
           {
             id: "validations-investitures",
-            title: "Investiduras",
+            title: "Investiduras de club",
             url: "/dashboard/clubs/validations",
             icon: ClipboardCheck,
+            activeMatch: "prefix",
+          },
+          {
+            id: "certificate-bulk-imports",
+            title: "Cargas certificados",
+            url: "/dashboard/certificate-bulk-imports",
+            icon: FileText,
             activeMatch: "prefix",
           },
           {
@@ -152,6 +282,26 @@ export const sidebarItems: NavGroup[] = [
           },
         ],
       },
+      {
+        id: "certifications",
+        title: "Certificaciones GM",
+        url: "/dashboard/certifications",
+        icon: ShieldCheck,
+        activeMatch: "prefix",
+      },
+      {
+        id: "year-end",
+        title: "Cierre de año",
+        url: "/dashboard/year-end",
+        icon: CalendarClock,
+        activeMatch: "prefix",
+      },
+    ],
+  },
+  {
+    id: 4,
+    label: "Clasificaciones y análisis",
+    items: [
       {
         id: "annual-folders",
         title: "Carpetas anuales",
@@ -180,7 +330,7 @@ export const sidebarItems: NavGroup[] = [
           },
           {
             id: "annual-folders-ranking-config",
-            title: "Config. de ranking",
+            title: "Config. de clasificación",
             url: "/dashboard/annual-folders/ranking-config",
             icon: Settings2,
             activeMatch: "prefix",
@@ -194,11 +344,53 @@ export const sidebarItems: NavGroup[] = [
           },
         ],
       },
+      {
+        id: "ranking-weights",
+        title: "Pesos de clasificación",
+        url: "/dashboard/ranking-weights",
+        icon: SlidersHorizontal,
+        activeMatch: "prefix",
+      },
+      {
+        id: "section-rankings",
+        title: "Clasificaciones por sección",
+        url: "/dashboard/section-rankings",
+        icon: BarChart3,
+        activeMatch: "prefix",
+      },
+      {
+        id: "member-of-month",
+        title: "Miembro del mes",
+        url: "/dashboard/member-of-month",
+        icon: Award,
+        activeMatch: "prefix",
+      },
+      {
+        id: "reports",
+        title: "Reportes",
+        icon: FileText,
+        subItems: [
+          {
+            id: "reports-list",
+            title: "Mis reportes",
+            url: "/dashboard/reports",
+            icon: FileText,
+            activeMatch: "exact",
+          },
+          {
+            id: "reports-supervision",
+            title: "Supervisión territorial",
+            url: "/dashboard/reports/supervision",
+            icon: ClipboardCheck,
+            activeMatch: "prefix",
+          },
+        ],
+      },
     ],
   },
   {
-    id: 2,
-    label: "Eventos",
+    id: 5,
+    label: "Campamentos",
     items: [
       {
         id: "campamentos",
@@ -245,8 +437,8 @@ export const sidebarItems: NavGroup[] = [
     ],
   },
   {
-    id: 3,
-    label: "Logística",
+    id: 6,
+    label: "Materiales",
     items: [
       {
         id: "materials",
@@ -267,13 +459,48 @@ export const sidebarItems: NavGroup[] = [
             icon: Layers,
             activeMatch: "prefix",
           },
+          {
+            id: "materials-categories",
+            title: "Categorías",
+            url: "/dashboard/materials/categories",
+            icon: Tag,
+            activeMatch: "prefix",
+          },
+          {
+            id: "materials-receipts",
+            title: "Comprobantes",
+            url: "/dashboard/materials/receipts",
+            icon: Receipt,
+            activeMatch: "prefix",
+          },
+        ],
+      },
+      {
+        id: "resources",
+        title: "Recursos",
+        icon: Library,
+        subItems: [
+          {
+            id: "resources-list",
+            title: "Biblioteca",
+            url: "/dashboard/resources",
+            icon: Library,
+            activeMatch: "exact",
+          },
+          {
+            id: "resources-categories",
+            title: "Categorías",
+            url: "/dashboard/resources/categories",
+            icon: FolderOpen,
+            activeMatch: "prefix",
+          },
         ],
       },
     ],
   },
   {
-    id: 4,
-    label: "Comunicación",
+    id: 7,
+    label: "Comunicaciones",
     items: [
       {
         id: "notifications",
@@ -306,7 +533,7 @@ export const sidebarItems: NavGroup[] = [
     ],
   },
   {
-    id: 5,
+    id: 8,
     label: "Administración",
     items: [
       {
@@ -392,6 +619,74 @@ export const sidebarItems: NavGroup[] = [
                 url: "/dashboard/catalogs/class-sections",
                 icon: Grid3X3,
               },
+              {
+                id: "catalogs-certifications",
+                title: "Certificaciones GM",
+                url: "/dashboard/catalogs/certifications",
+                icon: ShieldCheck,
+              },
+              {
+                id: "catalogs-activity-types",
+                title: "Tipos de actividad",
+                url: "/dashboard/catalogs/activity-types",
+                icon: Activity,
+              },
+              {
+                id: "catalogs-ecclesiastical-years",
+                title: "Años eclesiásticos",
+                url: "/dashboard/catalogs/ecclesiastical-years",
+                icon: Calendar,
+              },
+            ],
+          },
+          {
+            id: "catalogs-health",
+            title: "Salud y referencia",
+            icon: AlertCircle,
+            subItems: [
+              {
+                id: "catalogs-allergies",
+                title: "Alergias",
+                url: "/dashboard/catalogs/allergies",
+                icon: AlertCircle,
+              },
+              {
+                id: "catalogs-diseases",
+                title: "Enfermedades",
+                url: "/dashboard/catalogs/diseases",
+                icon: AlertCircle,
+              },
+              {
+                id: "catalogs-medicines",
+                title: "Medicamentos",
+                url: "/dashboard/catalogs/medicines",
+                icon: Package,
+              },
+              {
+                id: "catalogs-relationship-types",
+                title: "Tipos de relación",
+                url: "/dashboard/catalogs/relationship-types",
+                icon: Users,
+              },
+            ],
+          },
+          {
+            id: "catalogs-business",
+            title: "Negocio",
+            icon: DollarSign,
+            subItems: [
+              {
+                id: "catalogs-finance-categories",
+                title: "Categorías finanzas",
+                url: "/dashboard/catalogs/finance-categories",
+                icon: DollarSign,
+              },
+              {
+                id: "catalogs-inventory-categories",
+                title: "Categorías inventario",
+                url: "/dashboard/catalogs/inventory-categories",
+                icon: Package,
+              },
             ],
           },
           {
@@ -472,6 +767,20 @@ export const sidebarItems: NavGroup[] = [
         ],
       },
       {
+        id: "admin-settings",
+        title: "Configuración",
+        icon: Settings2,
+        subItems: [
+          {
+            id: "admin-settings-scoring-categories",
+            title: "Categorías scoring",
+            url: "/dashboard/settings/scoring-categories",
+            icon: Tags,
+            activeMatch: "prefix",
+          },
+        ],
+      },
+      {
         id: "admin-system",
         title: "Sistema",
         icon: Key,
@@ -481,6 +790,20 @@ export const sidebarItems: NavGroup[] = [
             title: "Variables",
             url: "/dashboard/configuration/variables",
             icon: Settings2,
+            activeMatch: "prefix",
+          },
+          {
+            id: "admin-system-jobs",
+            title: "Jobs y colas",
+            url: "/dashboard/system/jobs",
+            icon: Activity,
+            activeMatch: "exact",
+          },
+          {
+            id: "admin-system-jobs-history",
+            title: "Historial jobs",
+            url: "/dashboard/system/jobs/history",
+            icon: ClipboardList,
             activeMatch: "prefix",
           },
           {

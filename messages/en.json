@@ -18,7 +18,7 @@
       "requests_reports": "Requests and reports",
       "members": "Members",
       "operations": "Operations",
-      "rankings_analytics": "Rankings & Analytics",
+      "rankings_analytics": "Classifications & Analytics",
       "materials": "Materials",
       "campamentos": "Camporees"
     },
@@ -80,13 +80,13 @@
       "annual_folders": "Annual Evidence Folder",
       "annual_folders_templates": "Templates",
       "annual_folders_evaluate": "Folders",
-      "annual_folders_rankings": "Rankings",
-      "annual_folders_ranking_config": "Ranking configuration",
+      "annual_folders_rankings": "Classifications",
+      "annual_folders_ranking_config": "Classification configuration",
       "annual_folders_categories": "Award categories",
-      "member_rankings": "Member rankings",
-      "member_ranking_weights": "Member ranking weights",
-      "ranking_weights": "Ranking weights",
-      "section_rankings": "Section rankings",
+      "member_rankings": "Member classifications",
+      "member_ranking_weights": "Member classification weights",
+      "ranking_weights": "Classification weights",
+      "section_rankings": "Section classifications",
       "requests": "Requests",
       "requests_transfers": "Transfers",
       "requests_assignments": "Assignments",
@@ -790,6 +790,21 @@
         "entityLabel": "Section",
         "loadError": "Could not load class sections."
       },
+      "certificationCatalog": {
+        "title": "GM certifications",
+        "description": "Catalog of certifications for Master Guides. Only members who have completed investitures can enroll.",
+        "crudPendingTitle": "API editing pending",
+        "crudPendingDescription": "Listing and structure are read-only until the backend exposes admin endpoints for certifications, modules, and sections.",
+        "emptyTitle": "No certifications",
+        "emptyDescription": "There are no certifications in the catalog.",
+        "loadError": "Could not load certifications.",
+        "detailDescription": "Module and section structure for this certification.",
+        "back": "Back to catalog",
+        "statusActive": "Active",
+        "statusInactive": "Inactive",
+        "structureTitle": "Modules and sections",
+        "eligibilityNote": "Eligibility: only Master Guides with completed class investitures can enroll in these certifications."
+      },
       "classModules": {
         "title": "Class modules",
         "description": "Catalog of modules that make up system classes.",
@@ -1150,7 +1165,8 @@
       "hint": "Search, click on the map, or drag the pin to set the location.",
       "noPin": "No location selected",
       "clear": "Remove pin",
-      "missingApiKey": "NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is not configured."
+      "missingApiKey": "NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is not configured.",
+      "loadFailed": "Google Maps could not load. Check the API key, that Maps JavaScript API is enabled, and domain restrictions."
     },
     "form": {
       "labelName": "Name",
@@ -1403,6 +1419,54 @@
         "createMenuBulk": "Import from Excel",
         "unexpectedError": "Unexpected error"
       },
+      "import": {
+        "title": "Import clubs from Excel",
+        "description": "Bulk-create clubs from an .xlsx file. Local field, district and church names must match existing catalogs.",
+        "back": "Back",
+        "uploadCardTitle": "Excel file",
+        "uploadCardDescription": "Upload an .xlsx or .csv file with clubs to create.",
+        "downloadTemplate": "Download template",
+        "chooseFile": "Choose file",
+        "reset": "Reset",
+        "expectedHeadersTitle": "Expected columns (free order, required headers):",
+        "matchHint": "Columns local_field, district and church are resolved by exact name against the catalogs.",
+        "previewTitle": "Preview ({total} rows)",
+        "previewSummary": "{valid} valid · {invalid} with errors",
+        "colName": "Name",
+        "colLocalField": "Local field",
+        "colDistrict": "District",
+        "colChurch": "Church",
+        "colStatus": "Status",
+        "colMessage": "Message",
+        "rowValid": "Valid",
+        "rowInvalid": "Error",
+        "rowCreated": "Created",
+        "rowFailed": "Failed",
+        "submitButton": "Import {count} clubs",
+        "resultTitle": "Import result",
+        "resultSummary": "{created} created · {failed} failed",
+        "resultForbidden": "You don't have permission to import clubs",
+        "validation": {
+          "missingName": "Name required",
+          "missingLocalField": "Local field required",
+          "missingDistrict": "District required",
+          "missingChurch": "Church required",
+          "unknownLocalField": "Unknown local field: {value}",
+          "unknownDistrict": "Unknown district: {value}",
+          "unknownChurch": "Unknown church: {value}",
+          "coordinatesInvalid": "Invalid coordinates"
+        },
+        "errors": {
+          "emptyWorkbook": "The file has no sheets",
+          "noRows": "The file has no rows",
+          "missingHeaders": "Missing required columns: {headers}",
+          "parseFailed": "Could not read the file"
+        }
+      },
+      "new": {
+        "title": "Create club",
+        "back": "Back"
+      },
       "v2": {
         "metadataTitle": "Clubs v2",
         "badge": "Catalog view",
@@ -1520,6 +1584,286 @@
       "instructor": "Instructor",
       "member": "Member",
       "noRole": "No role"
+    },
+    "operations": {
+      "title": "Operations overview",
+      "description": "Aggregated snapshot of the authorized territorial scope and its immediate children.",
+      "currentScope": "Current scope",
+      "breadcrumbLabel": "Informational territorial path",
+      "ecclesiasticalYear": "Ecclesiastical year",
+      "reportingMonth": "Last closed month",
+      "noClosedMonth": "No closed month yet",
+      "computedAt": "Computed on {date}",
+      "cachedResponse": "Cached response",
+      "backToMyScope": "Back to my scope",
+      "bento": {
+        "groups": {
+          "operation": "Annual operation",
+          "operationDescription": "Clubs with at least one section enrolled in the ecclesiastical year.",
+          "adminClubs": "Administrative status",
+          "adminClubsDescription": "Administrative club record; does not imply annual operation.",
+          "people": "People and accounts",
+          "peopleDescription": "Institutional affiliation vs. platform account status.",
+          "reports": "Monthly reports",
+          "reportsDescription": "Last closed month snapshot by enrolled section.",
+          "reportsNotApplicable": "No closed month in the year; counts do not measure non-compliance.",
+          "queues": "Operational queues",
+          "queuesDescription": "Pending items by type; no aggregated total.",
+          "honors": "Honors",
+          "activities": "Registered activities",
+          "activitiesDescription": "System registration; does not confirm execution or attendance.",
+          "formation": "Formation by class",
+          "formationDescription": "{enrollments} enrollments · {people} distinct people"
+        },
+        "honorsAttribution": {
+          "current_affiliation": "By current affiliation in the active year",
+          "unavailable": "Historical data unavailable in the contract"
+        },
+        "stats": {
+          "operationalClubs": "Operational clubs",
+          "operationalClubsDetail": "At least one enrolled section",
+          "operationalSections": "Operational sections",
+          "operationalRate": "Operational rate",
+          "nonOperationalClubs": "Non-operational clubs",
+          "adminClubsTotal": "Administrative clubs",
+          "adminActive": "Active",
+          "adminInactive": "Inactive",
+          "adminTotal": "Total",
+          "institutionalActive": "Institutionally active people",
+          "institutionalActiveDetail": "With an active institutional assignment",
+          "platformActive": "Active accounts",
+          "platformInactive": "Inactive accounts",
+          "monthlyCoverage": "Submitted coverage",
+          "monthlyCoverageDetail": "{submitted} of {expected} expected sections",
+          "noClosedMonth": "No closed month yet",
+          "expectedSections": "Expected sections",
+          "submittedSections": "Submitted",
+          "draftSections": "Draft",
+          "generatedSections": "Generated",
+          "missingSections": "Missing",
+          "roleAssignmentsPending": "Role assignments",
+          "transfersPending": "Transfers",
+          "classValidationsPending": "Class validations",
+          "honorsReviewPending": "Honor reviews",
+          "annualFoldersPending": "Union folders",
+          "honorsInProgress": "In progress",
+          "honorsPendingReview": "Pending review",
+          "honorsApproved": "Approved",
+          "activitiesRegistered": "Registered activities",
+          "activitiesRegisteredDetail": "Distinct activities in the year",
+          "activitiesJoint": "Joint",
+          "activitiesSections": "Participating sections",
+          "totalEnrollments": "Total enrollments",
+          "distinctPeople": "Distinct people"
+        },
+        "charts": {
+          "submitted": "Sub",
+          "draft": "Dft",
+          "generated": "Gen",
+          "missing": "Mis",
+          "expected": "Exp",
+          "registered": "Reg",
+          "joint": "Jnt",
+          "sections": "Sec"
+        }
+      },
+      "kpis": {
+        "sectionTitle": "Primary indicators",
+        "operationalClubs": "Operational clubs",
+        "operationalClubsHint": "With at least one enrolled section in the year",
+        "institutionalPeople": "Institutionally active people",
+        "institutionalPeopleHint": "Active institutional assignment in the year",
+        "monthlyCoverage": "Monthly coverage",
+        "monthlyCoverageHint": "Submitted reports over expected sections",
+        "noClosedMonthHint": "No closed month applies to the period",
+        "missingReports": "Missing reports",
+        "missingReportsHint": "Sections without a monthly report on record"
+      },
+      "adminDiagnostic": {
+        "title": "Administrative diagnostic",
+        "description": "Administrative status and annual operation as distinct concepts.",
+        "operationalSections": "Operational sections",
+        "adminActiveClubs": "Administratively active clubs",
+        "adminInactiveClubs": "Administratively inactive clubs",
+        "operationalRate": "Operational rate",
+        "platformActiveAccounts": "Active platform accounts",
+        "platformInactiveAccounts": "Inactive platform accounts"
+      },
+      "attention": {
+        "title": "Needs attention",
+        "description": "Operational queues without an aggregated total.",
+        "roleAssignments": "Pending role assignments",
+        "transfers": "Pending transfers",
+        "classValidations": "Class validations",
+        "honorsReview": "Honor reviews",
+        "annualFolders": "Union pending folders"
+      },
+      "formation": {
+        "title": "Formation",
+        "description": "{enrollments} enrollments · {people} distinct people",
+        "chartAriaLabel": "Enrollments by class and club type",
+        "chartSeries": "Enrollments",
+        "tableTitle": "Equivalent tabular detail",
+        "tableClass": "Class",
+        "tableClubType": "Club type",
+        "tableEnrollments": "Enrollments",
+        "emptyTitle": "No enrollments recorded",
+        "emptyDescription": "There are no class enrollments in the current scope."
+      },
+      "honors": {
+        "title": "Honors",
+        "inProgress": "In progress",
+        "pendingReview": "Pending review",
+        "approved": "Approved",
+        "attribution": {
+          "current_affiliation": "Attributed by current affiliation",
+          "unavailable": "Unavailable for the selected year"
+        }
+      },
+      "activities": {
+        "title": "Activities",
+        "description": "Registered activities; does not imply execution or attendance.",
+        "registered": "Registered",
+        "jointRegistered": "Joint registered",
+        "participatingSections": "Participating sections"
+      },
+      "territory": {
+        "title": "Territorial comparison",
+        "description": "Immediate children of the scope. Totals must not be rebuilt by summing rows.",
+        "columnTerritory": "Territory",
+        "columnAdminClubs": "Admin clubs",
+        "columnOperationalClubs": "Operational clubs",
+        "columnPeople": "People",
+        "columnClasses": "Classes (people)",
+        "columnCoverage": "Coverage",
+        "columnActivities": "Activities",
+        "columnPending": "Pending",
+        "pendingRole": "Roles",
+        "pendingTransfers": "Transfers",
+        "pendingClasses": "Classes",
+        "pendingHonors": "Honors",
+        "pendingFolders": "Folders",
+        "emptyTitle": "No child territories",
+        "emptyDescription": "There are no child entities at this scope level.",
+        "level": {
+          "division": "Division",
+          "union": "Union",
+          "local_field": "Local field",
+          "club": "Club"
+        }
+      },
+      "dataQuality": {
+        "title": "Data quality",
+        "description": "Contractual notes on accuracy and attribution for each metric family.",
+        "status": {
+          "exact": "Exact",
+          "current_affiliation": "Current affiliation",
+          "unavailable": "Unavailable",
+          "not_applicable": "Not applicable"
+        }
+      },
+      "errors": {
+        "title": "Operations overview",
+        "forbiddenDescription": "You are not authorized to query this territory.",
+        "notFoundDescription": "The requested year or territory was not found.",
+        "rateLimitedDescription": "Too many requests. Try again in a moment.",
+        "authTitle": "Session required",
+        "authDescription": "Sign in to view the operations overview.",
+        "badRequestTitle": "Invalid filter",
+        "badRequestDescription": "Check the period or territory parameters.",
+        "serverTitle": "Server error",
+        "serverDescription": "The operations overview could not be loaded.",
+        "goToLogin": "Go to sign in"
+      },
+      "version": {
+        "v1": "Bento view",
+        "v2": "Executive view"
+      },
+      "v2": {
+        "title": "Executive overview",
+        "description": "Decision signals, compliance, and operational pressure within the authorized scope.",
+        "signals": {
+          "title": "Priority signals",
+          "operativeGap": "Operational gap",
+          "operativeGapDetail": "Administrative clubs without enrolled sections this year · admin total {total}",
+          "reportDebt": "Report backlog",
+          "reportDebtDetail": "Sections without a report in the last closed month · expected {expected}",
+          "reportDebtUnavailable": "No closed month applies to this period",
+          "digitalGap": "Digital gap",
+          "digitalGapDetail": "Inactive accounts vs. {institutional} institutionally active people",
+          "workflowPressure": "Active queue types",
+          "workflowPressureDetail": "Queue types with pending items greater than zero"
+        },
+        "operationLens": {
+          "title": "Operations lens",
+          "description": "Annual operation vs. administrative club status.",
+          "operationalRate": "Operational rate",
+          "operationalClubs": "Operational clubs",
+          "operationalSections": "Operational sections",
+          "adminActive": "Admin active",
+          "adminInactive": "Admin inactive"
+        },
+        "compliance": {
+          "title": "Monthly compliance",
+          "description": "Coverage for the last closed month by enrolled section.",
+          "notApplicable": "No closed month; counts do not measure non-compliance.",
+          "coverage": "Submitted coverage",
+          "expected": "Expected",
+          "submitted": "Submitted",
+          "missing": "Missing",
+          "draft": "Draft",
+          "generated": "Generated"
+        },
+        "people": {
+          "title": "People and platform",
+          "description": "Institutional affiliation vs. account status.",
+          "institutional": "Institutionally active",
+          "platformActive": "Active accounts",
+          "platformInactive": "Inactive accounts"
+        },
+        "formation": {
+          "title": "Formation by class",
+          "description": "{enrollments} enrollments · {people} distinct people",
+          "empty": "No enrollments in the current scope."
+        },
+        "honors": {
+          "title": "Honors",
+          "unavailable": "Historical data unavailable in the year contract.",
+          "inProgress": "In progress",
+          "pendingReview": "Pending review",
+          "approved": "Approved"
+        },
+        "activities": {
+          "title": "Registered activities",
+          "description": "System registration; does not confirm execution or attendance.",
+          "registered": "Registered",
+          "joint": "Joint",
+          "sections": "Participating sections"
+        },
+        "queues": {
+          "title": "Operational queues",
+          "description": "Pending items by type; no aggregated total.",
+          "roleAssignments": "Role assignments",
+          "transfers": "Transfers",
+          "classValidations": "Class validations",
+          "honorsReview": "Honors review",
+          "annualFolders": "Union folders"
+        },
+        "alerts": {
+          "title": "Territorial alerts",
+          "description": "Territories with the highest report backlog in the last closed month.",
+          "missingReports": "{count} missing",
+          "inspect": "Inspect",
+          "openClub": "Open club"
+        },
+        "charts": {
+          "territoryComparison": "Territorial comparison",
+          "territoryOperational": "Operational clubs",
+          "territoryMissing": "Missing reports",
+          "territoryPeople": "Active people",
+          "nonOperationalClubs": "Non-operational clubs"
+        }
+      }
     },
     "birthday": {
       "title": "Happy birthday!",
@@ -2114,20 +2458,20 @@
       "user_folders:manage": "Enroll / update / delete folder assignments",
       "achievements:read": "View achievements",
       "achievements:manage": "Manage achievements",
-      "rankings:read": "View rankings",
-      "rankings:recalculate": "Recalculate rankings",
-      "ranking_weights:read": "View institutional ranking weights",
-      "ranking_weights:write": "Edit institutional ranking weights",
-      "member_rankings:read_self": "View my ranking",
-      "member_rankings:read_section": "View section ranking",
-      "member_rankings:read_club": "View club ranking",
-      "member_rankings:read_lf": "View local field ranking",
-      "member_rankings:read_global": "View global ranking",
-      "member_ranking_weights:read": "View member ranking weights",
-      "member_ranking_weights:write": "Edit member ranking weights",
-      "section_rankings:read_club": "View club section rankings",
-      "section_rankings:read_lf": "View local field section rankings",
-      "section_rankings:read_global": "View global section rankings",
+      "rankings:read": "View classifications",
+      "rankings:recalculate": "Recalculate classifications",
+      "ranking_weights:read": "View institutional classification weights",
+      "ranking_weights:write": "Edit institutional classification weights",
+      "member_rankings:read_self": "View my classification",
+      "member_rankings:read_section": "View section classification",
+      "member_rankings:read_club": "View club classification",
+      "member_rankings:read_lf": "View local field classification",
+      "member_rankings:read_global": "View global classification",
+      "member_ranking_weights:read": "View member classification weights",
+      "member_ranking_weights:write": "Edit member classification weights",
+      "section_rankings:read_club": "View club section classifications",
+      "section_rankings:read_lf": "View local field section classifications",
+      "section_rankings:read_global": "View global section classifications",
       "award_categories:create": "Create award category",
       "award_categories:read": "View award categories",
       "award_categories:update": "Edit award category",
@@ -3955,7 +4299,7 @@
       "section_evaluated": "Section evaluated successfully",
       "file_required": "Select a file to upload",
       "evidence_uploaded": "Evidence uploaded successfully",
-      "rankings_recalculated": "Rankings recalculated: {count} clubs updated",
+      "rankings_recalculated": "Classifications recalculated: {count} clubs updated",
       "section_updated": "Section updated successfully",
       "section_created": "Section created successfully",
       "category_deleted": "Category deleted successfully",
@@ -3972,7 +4316,7 @@
       "folder_created": "Annual folder created successfully"
     },
     "errors": {
-      "recalculate_rankings": "Error recalculating the rankings",
+      "recalculate_rankings": "Error recalculating the classifications",
       "save_evaluation_failed": "Could not save the evaluation",
       "upload_evidence_failed": "Error uploading the evidence",
       "save_section_failed": "Error saving the section",
@@ -4089,9 +4433,9 @@
       "submittingEdit": "Saving...",
       "descriptionDraft": "Save the template as a draft. Then add sections and publish it from the detail page when it is complete.",
       "descriptionEdit": "Edit the Annual Evidence Folder draft details.",
-      "budgetTitle": "Budget from ranking",
-      "budgetMissing": "There is no annual ranking configuration for this combination. Configure it before publishing.",
-      "budgetResolved": "Annual Folder is worth {points} pts according to the ranking configuration. Sections must distribute exactly that total.",
+      "budgetTitle": "Budget from classification",
+      "budgetMissing": "There is no annual classification configuration for this combination. Configure it before publishing.",
+      "budgetResolved": "Annual Folder is worth {points} pts according to the classification configuration. Sections must distribute exactly that total.",
       "budgetPending": "Select club type, year, and owner to resolve the annual budget.",
       "submitDraft": "Save draft",
       "submittingDraft": "Saving draft..."
@@ -4152,16 +4496,16 @@
       "notFoundDescription": "Verify the folder exists or return to the folder list."
     },
     "pageRankings": {
-      "title": "Annual Evidence Folder Rankings",
-      "description": "View club rankings by points earned in the annual evidence folder.",
+      "title": "Annual Evidence Folder Classifications",
+      "description": "View club classifications by points earned in the annual evidence folder.",
       "errorFallback": "Could not load club types or ecclesiastical years. Check your server connection.",
       "emptyTitle": "No catalog data",
-      "emptyDescription": "No club types are available to display rankings."
+      "emptyDescription": "No club types are available to display classifications."
     },
     "pageRankingsBreakdown": {
-      "title": "Ranking Breakdown",
+      "title": "Classification Breakdown",
       "description": "Component detail for enrollment {enrollmentId}",
-      "errorFallback": "Could not load the ranking breakdown. Check your server connection.",
+      "errorFallback": "Could not load the classification breakdown. Check your server connection.",
       "paramsRequired": "The enrollmentId and year_id parameters are required."
     },
     "awardCategoriesClient": {
@@ -4251,16 +4595,16 @@
       "subsectionsAllocationLabel": "Subsections in this section"
     },
     "pageRankingConfig": {
-      "title": "Annual ranking configuration",
+      "title": "Annual classification configuration",
       "description": "Manage annual budgets by section and global recognition tiers for the Annual Evidence Folder.",
-      "breadcrumbRankingConfig": "Ranking configuration",
+      "breadcrumbRankingConfig": "Classification configuration",
       "breadcrumbNew": "New",
       "breadcrumbEdit": "Edit",
       "newTitle": "New budget configuration",
       "newDescription": "Set the annual maximum score and its distribution across sections and subsections.",
       "editTitle": "Edit budget configuration",
       "editDescription": "Update the maximum score and its distribution across sections and subsections.",
-      "missingCatalogsTitle": "Missing catalogs to configure rankings",
+      "missingCatalogsTitle": "Missing catalogs to configure classifications",
       "missingCatalogsDescription": "You need at least one union or local field, a club type, and an active ecclesiastical year.",
       "unavailableTitle": "Configuration unavailable",
       "unavailableDescription": "The requested configuration was not found or catalogs are missing to edit it."
@@ -4306,14 +4650,14 @@
       },
       "deleteCategory": {
         "title": "Delete category",
-        "description": "This action will delete the category {name}. Existing rankings that reference it may be affected.",
+        "description": "This action will delete the category {name}. Existing classifications that reference it may be affected.",
         "confirm": "Delete category",
         "confirmLoading": "Deleting...",
         "cancel": "Cancel"
       },
       "recalculateRankings": {
-        "title": "Recalculate rankings",
-        "description": "Rankings will be recalculated for year {year}. This process may take a few seconds. Previous results will be replaced.",
+        "title": "Recalculate classifications",
+        "description": "Classifications will be recalculated for year {year}. This process may take a few seconds. Previous results will be replaced.",
         "confirm": "Confirm recalculation",
         "confirmLoading": "Recalculating...",
         "cancel": "Cancel"
@@ -4898,6 +5242,8 @@
     },
     "view": {
       "load_error": "Could not load insurances",
+      "select_local_field_placeholder": "Select local field",
+      "local_field_all": "All local fields",
       "select_club_placeholder": "Select club",
       "select_section_placeholder": "Select section",
       "refresh_tooltip": "Refresh",
@@ -5021,7 +5367,14 @@
       "descriptionPlaceholder": "Transaction description (optional)",
       "cancelButton": "Cancel",
       "saveButton": "Save changes",
-      "createButton": "Create transaction"
+      "createButton": "Create transaction",
+      "evidenceLabel": "Evidence",
+      "evidenceHint": "You can attach up to 3 photos of the receipt for this income or expense.",
+      "evidenceCount": "{count}/3 photos",
+      "evidenceLimit": "Only up to 3 evidence photos are allowed per transaction.",
+      "evidenceImageOnly": "Only image files can be attached.",
+      "evidenceAdd": "Select receipt photos",
+      "evidenceRemove": "Remove evidence"
     },
     "table": {
       "colDate": "Date",
@@ -5036,7 +5389,15 @@
       "actionEdit": "Edit",
       "actionDelete": "Delete",
       "typeIncome": "Income",
-      "typeExpense": "Expense"
+      "typeExpense": "Expense",
+      "colEvidence": "Evidence",
+      "actionViewEvidence": "View evidence"
+    },
+    "evidenceViewer": {
+      "title": "Transaction evidence",
+      "descriptionFallback": "Receipt photos for this transaction.",
+      "itemLabel": "Evidence {n}",
+      "openExternal": "Open in new tab"
     },
     "delete": {
       "title": "Delete transaction?",
@@ -5052,6 +5413,8 @@
       "balance": "Balance",
       "movementsCount": "{count} transaction",
       "movementsCountPlural": "{count} transactions",
+      "incomeMovementsCount": "{count} income entry",
+      "incomeMovementsCountPlural": "{count} income entries",
       "inPeriod": "in the period",
       "positiveBalance": "Positive balance",
       "negativeBalance": "Negative balance"
@@ -5084,6 +5447,9 @@
     "clubSelector": {
       "label": "Club",
       "selectPlaceholder": "Select a club",
+      "localFieldLabel": "Local field",
+      "localFieldPlaceholder": "Select a local field",
+      "localFieldAll": "All local fields",
       "emptyTitle": "Select a club",
       "emptyDescription": "Choose a club from the selector to view and manage its financial transactions."
     }
@@ -5347,6 +5713,10 @@
       "field_active": "Status"
     },
     "view": {
+      "select_local_field_placeholder": "Select local field",
+      "local_field_all": "All local fields",
+      "select_club_type_placeholder": "Club type",
+      "club_type_all": "All types",
       "select_club_placeholder": "Select club",
       "all_categories": "All categories",
       "refresh_title": "Refresh",
@@ -5467,8 +5837,8 @@
       "reports": "Reports",
       "scoring": "Scoring",
       "membership": "Membership",
-      "member_ranking": "Member rankings",
-      "ranking": "Rankings",
+      "member_ranking": "Member classifications",
+      "ranking": "Classifications",
       "activity_reminder_minutes_before": "Activity reminders",
       "validation": "Validation",
       "activities": "Activities",
@@ -5572,10 +5942,10 @@
     },
     "pages": {
       "list": {
-        "title": "Ranking weights",
+        "title": "Classification weights",
         "description": "Configure the class, investiture, and campaign percentages used to calculate each member's composite score.",
-        "breadcrumbLabel": "Ranking weights",
-        "cannotShow": "Cannot display ranking weights"
+        "breadcrumbLabel": "Classification weights",
+        "cannotShow": "Cannot display classification weights"
       },
       "new": {
         "title": "New weight override",
@@ -5595,7 +5965,7 @@
     },
     "weightsPage": {
       "deleteTitle": "Delete weight override",
-      "deleteDescription": "Rankings that used this configuration will revert to the global default. This action cannot be undone.",
+      "deleteDescription": "Classifications that used this configuration will revert to the global default. This action cannot be undone.",
       "deleteCancel": "Cancel",
       "deleteConfirm": "Delete",
       "deleteConfirmLoading": "Deleting...",
@@ -5815,9 +6185,9 @@
     },
     "pages": {
       "list": {
-        "title": "Ranking weights",
-        "description": "Configure the weight of each dimension (folder, finance, camporee, evidence) for the annual ranking calculation. The sum of the 4 weights must be exactly 100.",
-        "loadFailed": "Could not load ranking weights. Check the server connection.",
+        "title": "Classification weights",
+        "description": "Configure the weight of each dimension (folder, finance, camporee, evidence) for the annual classification calculation. The sum of the 4 weights must be exactly 100.",
+        "loadFailed": "Could not load classification weights. Check the server connection.",
         "emptyTitle": "No configuration",
         "emptyDescription": "No weight configurations found. The backend should have created a global default at startup."
       }
@@ -6035,45 +6405,46 @@
   },
   "enrollments": {
     "table": {
-      "col_club": "Club",
-      "col_section": "Section",
-      "col_local_field": "Local Field",
+      "col_member": "Member",
+      "col_class": "Class",
       "col_status": "Status",
+      "col_enrollment_date": "Enrollment date",
       "col_submitted_at": "Submitted on",
-      "col_leadership": "Leadership",
       "col_actions": "Actions",
-      "empty": "No annual enrollments to display.",
+      "empty": "No enrollments to display.",
       "status": {
-        "pending_validation": "Pending Local Field",
-        "active": "Approved",
-        "rejected": "Rejected",
-        "inactive": "Inactive"
+        "IN_PROGRESS": "In progress",
+        "SUBMITTED_FOR_VALIDATION": "Pending validation",
+        "APPROVED": "Approved",
+        "REJECTED": "Rejected",
+        "INVESTIDO": "Invested"
       }
     },
     "actions": {
       "approve": "Approve",
       "reject": "Reject",
-      "reject_dialog_title": "Reject annual enrollment",
-      "reject_dialog_description": "This action will mark the club annual enrollment as rejected. The club must correct the data and submit it again.",
+      "view_user": "View user",
+      "reject_dialog_title": "Reject enrollment",
+      "reject_dialog_description": "This action will mark the enrollment as rejected. The member will not be able to continue the investiture process with this enrollment.",
       "reject_dialog_cancel": "Cancel",
       "reject_dialog_confirm": "Confirm rejection"
     },
     "toasts": {
-      "approved": "Annual enrollment approved successfully.",
-      "rejected": "Annual enrollment rejected successfully."
+      "approved": "Enrollment approved successfully.",
+      "rejected": "Enrollment rejected successfully."
     },
     "errors": {
       "generic": "An error occurred. Please try again."
     },
     "page": {
-      "title": "Annual enrollments",
-      "description": "Club annual enrollments submitted for Local Field validation. Approve or reject each request.",
-      "searchPlaceholder": "Search by club, section, field, or owner...",
-      "errorEmptyTitle": "Cannot display annual enrollments",
-      "emptyTitle": "No pending annual enrollments",
-      "emptyDescription": "There are no club annual enrollments submitted for Local Field validation at this time.",
-      "countSingular": "annual enrollment pending",
-      "countPlural": "annual enrollments pending"
+      "title": "Enrollments",
+      "description": "Enrollments submitted for investiture validation. Approve or reject each request.",
+      "searchPlaceholder": "Search by name or email...",
+      "errorEmptyTitle": "Cannot display enrollments",
+      "emptyTitle": "No pending enrollments",
+      "emptyDescription": "There are no enrollments submitted for investiture validation at this time.",
+      "countSingular": "enrollment pending validation",
+      "countPlural": "enrollments pending validation"
     }
   },
   "rankings": {
@@ -6097,16 +6468,16 @@
       "evidencePendingExcluded": "{pending} pending (excluded from calculation)"
     },
     "pageMember": {
-      "title": "Member Rankings",
+      "title": "Member Classifications",
       "description": "General classification by category with calculated composite score.",
       "emptyNoYearTitle": "No active ecclesiastical year",
-      "emptyNoYearDescription": "Set an active ecclesiastical year in the catalog to view rankings.",
-      "emptyTitle": "Rankings cannot be displayed",
-      "emptyDescription": "The rankings endpoint is not available at this time."
+      "emptyNoYearDescription": "Set an active ecclesiastical year in the catalog to view classifications.",
+      "emptyTitle": "Classifications cannot be displayed",
+      "emptyDescription": "The classifications endpoint is not available at this time."
     },
     "pageMemberBreakdown": {
-      "back": "Back to rankings",
-      "breadcrumbParent": "Member Rankings",
+      "back": "Back to classifications",
+      "breadcrumbParent": "Member Classifications",
       "position": "Position",
       "compositeScore": "Composite score",
       "category": "Category",
@@ -6135,12 +6506,12 @@
       "descriptionDetail": "Section {sectionName} · Year {yearId}"
     },
     "pageSection": {
-      "title": "Section Rankings",
+      "title": "Section Classifications",
       "description": "General section classification by composite score.",
       "emptyNoYearTitle": "No active ecclesiastical year",
-      "emptyNoYearDescription": "Set an active ecclesiastical year in the catalog to view rankings.",
-      "emptyTitle": "Section rankings cannot be displayed",
-      "emptyDescription": "The section rankings endpoint is not available at this time."
+      "emptyNoYearDescription": "Set an active ecclesiastical year in the catalog to view classifications.",
+      "emptyTitle": "Section classifications cannot be displayed",
+      "emptyDescription": "The section classifications endpoint is not available at this time."
     },
     "pageSectionMembers": {
       "title": "Section members",
@@ -6148,7 +6519,7 @@
       "memberSingular": "member",
       "memberPlural": "members",
       "back": "Back to sections",
-      "breadcrumbParent": "Section Rankings",
+      "breadcrumbParent": "Section Classifications",
       "breadcrumbCurrent": "Section #{sectionId}"
     },
     "filters": {
@@ -6171,8 +6542,8 @@
       "colCamporee": "Camporees",
       "colCategory": "Category",
       "colAction": "Action",
-      "emptyTitle": "No rankings available",
-      "emptyDescription": "No rankings for the selected filters.",
+      "emptyTitle": "No classifications available",
+      "emptyDescription": "No classifications for the selected filters.",
       "countSingular": "{total} ranked member",
       "countPlural": "{total} ranked members",
       "investedLabel": "Invested",
@@ -6199,8 +6570,8 @@
       "colCategory": "Category",
       "colCalculated": "Calculated",
       "colAction": "Action",
-      "emptyTitle": "No rankings available",
-      "emptyDescription": "No rankings for the selected filters.",
+      "emptyTitle": "No classifications available",
+      "emptyDescription": "No classifications for the selected filters.",
       "countSingular": "{total} ranked section",
       "countPlural": "{total} ranked sections",
       "viewMembers": "View members"
@@ -6214,8 +6585,8 @@
       "colCamporee": "Camporees",
       "colCategory": "Category",
       "colAction": "Action",
-      "emptyTitle": "No members with ranking",
-      "emptyDescription": "This section has no members with a calculated ranking.",
+      "emptyTitle": "No members with classification",
+      "emptyDescription": "This section has no members with a calculated classification.",
       "investedLabel": "Invested",
       "inProgressLabel": "In progress",
       "viewDetail": "View detail"
@@ -6224,7 +6595,7 @@
   "system_jobs": {
     "page": {
       "title": "Jobs & Queues",
-      "description": "Status of BullMQ queues and recent failed jobs. Low-priority queues (reports, finances, rankings, exports) were grouped into background-jobs.",
+      "description": "Status of BullMQ queues and recent failed jobs. Low-priority queues (reports, finances, classifications, exports) were grouped into background-jobs.",
       "cronSection": {
         "heading": "Cron Jobs",
         "description": "Recent history and statistics of scheduled jobs.",
@@ -6258,7 +6629,7 @@
       "statusRunning": "Running",
       "statusSkipped": "Skipped",
       "jobMonthlyReports": "Monthly reports (auto-generate)",
-      "jobRankingsRecalculate": "Annual rankings (recalculate)",
+      "jobRankingsRecalculate": "Annual classifications (recalculate)",
       "jobDataExportCleanup": "Cleanup expired exports",
       "jobMemberOfMonth": "Member of the month (auto-evaluate)",
       "jobFinancePeriod": "Finance period closing",
@@ -6306,7 +6677,7 @@
       "queueAchievements": "Achievements",
       "queueAchievementsDesc": "Achievement evaluation and matching",
       "queueBackgroundJobs": "Background Jobs",
-      "queueBackgroundJobsDesc": "Reports, finances, rankings, exports"
+      "queueBackgroundJobsDesc": "Reports, finances, classifications, exports"
     },
     "history": {
       "filterLabelJob": "Job",
@@ -6342,7 +6713,7 @@
       "detailLabelError": "Error message",
       "detailLabelMetadata": "Metadata",
       "jobMonthlyReports": "Monthly reports (auto-generate)",
-      "jobRankingsRecalculate": "Annual rankings (recalculate)",
+      "jobRankingsRecalculate": "Annual classifications (recalculate)",
       "jobDataExportCleanup": "Cleanup expired exports",
       "jobMemberOfMonth": "Member of the month (auto-evaluate)",
       "jobFinancePeriod": "Finance period closing",

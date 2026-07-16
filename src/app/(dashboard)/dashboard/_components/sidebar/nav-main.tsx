@@ -70,31 +70,36 @@ interface NavCollapsibleItemProps {
   readonly isSubItemActive: (subItem: NavSubItem) => boolean;
 }
 
+function matchesNavPath(
+  path: string,
+  url: string,
+  activeMatch?: NavSubItem["activeMatch"] | NavMainLinkItem["activeMatch"],
+): boolean {
+  switch (activeMatch) {
+    case "prefix":
+      return path === url || path.startsWith(`${url}/`);
+    case "clubs-list":
+      return (
+        path === url ||
+        (/^\/dashboard\/clubs\/[^/]+$/.test(path) &&
+          !path.startsWith("/dashboard/clubs/validations") &&
+          !path.startsWith("/dashboard/clubs/evidence-folders"))
+      );
+    case "evidence-folders":
+      return path === url || path.startsWith(`${url}/`);
+    case "exact":
+    default:
+      return path === url;
+  }
+}
+
 function matchesSubItem(path: string, subItem: NavSubItem): boolean {
   if (subItem.subItems?.length) {
     return subItem.subItems.some((child) => matchesSubItem(path, child));
   }
   if (!subItem.url) return false;
 
-  switch (subItem.activeMatch) {
-    case "prefix":
-      return path === subItem.url || path.startsWith(`${subItem.url}/`);
-    case "clubs-list":
-      return (
-        path === subItem.url ||
-        (/^\/dashboard\/clubs\/[^/]+$/.test(path) &&
-          !path.startsWith("/dashboard/clubs/validations") &&
-          !path.startsWith("/dashboard/clubs/evidence-folders"))
-      );
-    case "evidence-folders":
-      return (
-        path === subItem.url ||
-        path.startsWith(`${subItem.url}/`)
-      );
-    case "exact":
-    default:
-      return path === subItem.url;
-  }
+  return matchesNavPath(path, subItem.url, subItem.activeMatch);
 }
 
 function CollapsedIconFallback({ title }: { title: string }) {
@@ -127,11 +132,11 @@ export function NavMain({ items }: NavMainProps) {
       return item.subItems.some((sub) => matchesSubItem(path, sub));
     }
 
-    if (item.activeMatch === "prefix") {
-      return path === item.url || path.startsWith(`${item.url}/`);
+    if (!item.url) {
+      return false;
     }
 
-    return path === item.url;
+    return matchesNavPath(path, item.url, item.activeMatch);
   };
 
   const isSubItemActive = (subItem: NavSubItem) => matchesSubItem(path, subItem);

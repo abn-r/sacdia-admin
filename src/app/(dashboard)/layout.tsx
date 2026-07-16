@@ -9,6 +9,7 @@ import { ThemeSwitcher } from "@/app/(dashboard)/dashboard/_components/sidebar/t
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AuthProvider } from "@/lib/auth/auth-context";
+import { QueryProvider } from "@/lib/providers/query-provider";
 import { requireAdminUser } from "@/lib/auth/session";
 import { cn } from "@/lib/utils";
 import { getPreference } from "@/server/server-actions";
@@ -24,6 +25,7 @@ export default async function DashboardLayout({ children }: Readonly<{ children:
 
   return (
     <AuthProvider initialUser={initialUser}>
+      <QueryProvider>
       <SidebarProvider
         defaultOpen={defaultOpen}
         style={
@@ -69,6 +71,7 @@ export default async function DashboardLayout({ children }: Readonly<{ children:
           </div>
         </SidebarInset>
       </SidebarProvider>
+      </QueryProvider>
     </AuthProvider>
   );
 }
