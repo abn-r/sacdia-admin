@@ -12,57 +12,18 @@ import {
   listLocalFieldsForTerritory,
   resolveAdminTerritoryScope,
 } from "@/lib/auth/territory-scope";
+import {
+  buildInventorySectionOptions,
+  clubTypeIdToInstanceType,
+  extractArray,
+  filterInventorySections,
+  type InventorySectionOption,
+} from "@/lib/inventory/club-sections";
 import type { ClubType } from "@/lib/api/catalogs";
 import type { LocalField } from "@/lib/api/geography";
 import type { InventoryItem, InventoryCategory } from "@/lib/api/inventory";
 
-// ─── Types ─────────────────────────────────────────────────────────────────────
-
 type AnyRecord = Record<string, unknown>;
-
-type Club = {
-  club_id: number;
-  name: string;
-  club_type_id: number;
-  local_field_id?: number;
-};
-
-// ─── Normalizers ───────────────────────────────────────────────────────────────
-
-function extractArray(payload: unknown): AnyRecord[] {
-  if (Array.isArray(payload)) return payload as AnyRecord[];
-  if (payload && typeof payload === "object") {
-    const root = payload as AnyRecord;
-    if (Array.isArray(root.data)) return root.data as AnyRecord[];
-  }
-  return [];
-}
-
-function normalizeClub(raw: AnyRecord): Club {
-  const localFieldId = Number(raw.local_field_id ?? 0);
-  return {
-    club_id: Number(raw.club_id ?? raw.id ?? 0),
-    name: String(raw.name ?? `Club ${raw.club_id ?? "?"}`),
-    club_type_id: Number(raw.club_type_id ?? raw.districlub_type_id ?? 2),
-    local_field_id: localFieldId > 0 ? localFieldId : undefined,
-  };
-}
-
-function filterClubsByScope(
-  clubs: Club[],
-  localFieldId: number | "all",
-  clubTypeId: number | "all",
-): Club[] {
-  return clubs.filter((club) => {
-    if (localFieldId !== "all" && club.local_field_id !== localFieldId) {
-      return false;
-    }
-    if (clubTypeId !== "all" && club.club_type_id !== clubTypeId) {
-      return false;
-    }
-    return true;
-  });
-}
 
 function normalizeCategory(raw: AnyRecord): InventoryCategory {
   return {
@@ -99,20 +60,12 @@ function normalizeItem(raw: AnyRecord): InventoryItem {
   };
 }
 
-function clubTypeToInstanceType(clubTypeId: number): "adv" | "pathf" | "mg" {
-  if (clubTypeId === 1) return "adv";
-  if (clubTypeId === 3) return "mg";
-  return "pathf";
-}
-
-// ─── Page ──────────────────────────────────────────────────────────────────────
-
 export default async function InventoryPage() {
   const user = await requireAdminUser();
   const t = await getTranslations("inventory");
   const territoryScope = resolveAdminTerritoryScope(user);
 
-  let clubs: Club[] = [];
+  let sections: InventorySectionOption[] = [];
   let categories: InventoryCategory[] = [];
   let localFields: LocalField[] = [];
   let clubTypes: ClubType[] = [];
@@ -125,7 +78,6 @@ export default async function InventoryPage() {
     initialLocalFieldId = territoryScope.localFieldId;
   }
 
-  // 1. Load clubs, categories, local fields and club types in parallel
   const [clubsResult, categoriesResult, localFieldsResult, clubTypesResult] =
     await Promise.allSettled([
       apiRequest<unknown>("/clubs"),
@@ -134,9 +86,13 @@ export default async function InventoryPage() {
       listClubTypes(),
     ]);
 
+  if (clubTypesResult.status === "fulfilled") {
+    clubTypes = clubTypesResult.value;
+  }
+
   if (clubsResult.status === "fulfilled") {
     const rawClubs = extractArray(clubsResult.value);
-    clubs = rawClubs.map(normalizeClub).filter((c) => c.club_id > 0);
+    sections = buildInventorySectionOptions(rawClubs, clubTypes);
   } else {
     const err = clubsResult.reason;
     loadError =
@@ -151,45 +107,50 @@ export default async function InventoryPage() {
       .map(normalizeCategory)
       .filter((c) => c.inventory_category_id > 0);
   }
-  // categories failure is non-fatal — user can still view items without category filter
 
   if (localFieldsResult.status === "fulfilled") {
     localFields = localFieldsResult.value;
   }
 
-  if (clubTypesResult.status === "fulfilled") {
-    clubTypes = clubTypesResult.value;
-  }
-
-  // 2. Fetch initial items for the first matching club (best effort)
-  if (clubs.length > 0 && !loadError) {
-    const scopedClubs = filterClubsByScope(
-      clubs,
+  if (sections.length > 0 && !loadError) {
+    const scopedSections = filterInventorySections(
+      sections,
       initialLocalFieldId,
       initialClubTypeId,
     );
-    const firstClub = scopedClubs[0] ?? clubs[0];
-    if (firstClub) {
-      if (initialLocalFieldId === "all" && firstClub.local_field_id) {
-        initialLocalFieldId = firstClub.local_field_id;
-      }
-      if (initialClubTypeId === "all" && firstClub.club_type_id) {
-        initialClubTypeId = firstClub.club_type_id;
+    const firstSection = scopedSections[0] ?? sections[0];
+
+    if (firstSection) {
+      if (initialLocalFieldId === "all" && firstSection.local_field_id) {
+        initialLocalFieldId = firstSection.local_field_id;
       }
     }
 
-    const initialClub =
-      filterClubsByScope(clubs, initialLocalFieldId, initialClubTypeId)[0] ??
-      firstClub;
-    const instanceType = clubTypeToInstanceType(initialClub.club_type_id);
-    try {
-      const payload = await listClubInventory(initialClub.club_id, { instanceType });
-      const rawItems = extractArray(payload);
-      initialItems = rawItems.map(normalizeItem);
-    } catch (err) {
-      console.warn("Failed to load initial inventory items:", err);
+    const initialSection =
+      filterInventorySections(
+        sections,
+        initialLocalFieldId,
+        initialClubTypeId,
+      )[0] ?? firstSection;
+
+    if (initialSection) {
+      const instanceType = clubTypeIdToInstanceType(initialSection.club_type_id);
+      try {
+        const payload = await listClubInventory(initialSection.club_section_id, {
+          instanceType,
+        });
+        const rawItems = extractArray(payload);
+        initialItems = rawItems.map(normalizeItem);
+      } catch (err) {
+        console.warn("Failed to load initial inventory items:", err);
+      }
     }
   }
+
+  const initialSection =
+    filterInventorySections(sections, initialLocalFieldId, initialClubTypeId)[0] ??
+    sections[0] ??
+    null;
 
   return (
     <div className="space-y-6">
@@ -202,7 +163,7 @@ export default async function InventoryPage() {
         <EndpointErrorBanner state="missing" detail={loadError} />
       )}
 
-      {!loadError && clubs.length === 0 && (
+      {!loadError && sections.length === 0 && (
         <EmptyState
           icon={Package}
           title={t("page.empty_no_clubs_title")}
@@ -210,20 +171,15 @@ export default async function InventoryPage() {
         />
       )}
 
-      {!loadError && clubs.length > 0 && (
+      {!loadError && sections.length > 0 && (
         <InventoryView
-          clubs={clubs}
+          sections={sections}
           categories={categories}
           localFields={localFields}
           clubTypes={clubTypes}
           territoryScope={territoryScope}
           initialItems={initialItems}
-          initialClubId={
-            filterClubsByScope(clubs, initialLocalFieldId, initialClubTypeId)[0]
-              ?.club_id ??
-            clubs[0]?.club_id ??
-            null
-          }
+          initialSectionId={initialSection?.club_section_id ?? null}
           initialLocalFieldId={initialLocalFieldId}
           initialClubTypeId={initialClubTypeId}
         />

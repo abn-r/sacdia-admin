@@ -4127,6 +4127,10 @@ export interface IntlMessages {
           loadError: string;
           unknownHonor: string;
           notCompleted: string;
+          sectionAdventurers: string;
+          sectionPathfinders: string;
+          sectionMasterGuides: string;
+          sectionOther: string;
           statusHonor: {
             IN_PROGRESS: string;
             PENDING_REVIEW: string;
@@ -5436,6 +5440,7 @@ export interface IntlMessages {
       colDate: string;
       colDescription: string;
       colCategory: string;
+      colSection: string;
       colPeriod: string;
       colType: string;
       colAmount: string;
@@ -5508,6 +5513,9 @@ export interface IntlMessages {
       localFieldAll: string;
       emptyTitle: string;
       emptyDescription: string;
+      sectionLabel: string;
+      sectionPlaceholder: string;
+      sectionAll: string;
     };
   };
   certifications: {

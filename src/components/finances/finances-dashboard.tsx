@@ -23,6 +23,7 @@ import {
   listFinances,
   getFinanceSummary,
   mergeFinanceSummaryForDisplay,
+  summarizeFinances,
   type Finance,
   type FinanceSummary,
   type FinanceSortField,
@@ -33,6 +34,7 @@ import type { TransactionFormDialogProps, ClubSection } from "@/components/finan
 import type { DeleteTransactionDialogProps } from "@/components/finances/delete-transaction-dialog";
 import type { FinanceEvidenceViewerDialogProps } from "@/components/finances/finance-evidence-viewer-dialog";
 import { useTranslations } from "next-intl";
+import { getFinanceSectionLabel } from "@/lib/finances/club-sections";
 
 // ─── Deferred dialogs (dialog-gated — zod bundle only loaded on first open) ───
 
@@ -86,6 +88,7 @@ interface FinancesDashboardProps {
   clubId: number;
   clubName: string;
   sections: ClubSection[];
+  sectionId: number | "all";
   renderLayout?: (parts: {
     toolbar: ReactNode;
     body: ReactNode;
@@ -98,6 +101,7 @@ export function FinancesDashboard({
   clubId,
   clubName: _clubName,
   sections,
+  sectionId,
   renderLayout,
 }: FinancesDashboardProps) {
   const t = useTranslations("finances");
@@ -123,8 +127,23 @@ export function FinancesDashboard({
   const [deleteFinance, setDeleteFinanceState] = useState<Finance | null>(null);
   const [evidenceFinance, setEvidenceFinance] = useState<Finance | null>(null);
 
+  const selectedSection =
+    sectionId === "all"
+      ? null
+      : sections.find((section) => section.club_section_id === sectionId) ?? null;
+
+  const formSections =
+    sectionId === "all"
+      ? sections
+      : sections.filter((section) => section.club_section_id === sectionId);
+
   // Fetch summary
   const fetchSummary = useCallback(async () => {
+    if (sectionId !== "all") {
+      setSummary(null);
+      return;
+    }
+
     setLoadingSummary(true);
     try {
       const data = await getFinanceSummary(clubId, year, month);
@@ -134,7 +153,7 @@ export function FinancesDashboard({
     } finally {
       setLoadingSummary(false);
     }
-  }, [clubId, year, month]);
+  }, [clubId, year, month, sectionId]);
 
   // Fetch transactions
   const fetchTransactions = useCallback(async () => {
@@ -145,6 +164,7 @@ export function FinancesDashboard({
         month,
         sortBy: sortField,
         sortOrder: sortDirection,
+        clubTypeId: selectedSection?.club_type_id,
       };
       let data = await listFinances(clubId, {
         ...baseFilters,
@@ -159,13 +179,24 @@ export function FinancesDashboard({
         });
       }
 
+      if (sectionId !== "all") {
+        const scoped = data.data.filter(
+          (item) => item.club_section_id === sectionId,
+        );
+        data = {
+          ...data,
+          data: scoped,
+          total: scoped.length,
+        };
+      }
+
       setResult(data);
     } catch {
       setResult(null);
     } finally {
       setLoadingTable(false);
     }
-  }, [clubId, year, month, sortField, sortDirection]);
+  }, [clubId, year, month, sortField, sortDirection, sectionId, selectedSection]);
 
   const handleSort = (field: FinanceSortField, direction: SortDirection) => {
     setSortField(field);
@@ -182,17 +213,56 @@ export function FinancesDashboard({
     refresh();
   }, [refresh]);
 
-  const displaySummary = useMemo(
+  const sectionLabels = useMemo(
     () =>
-      mergeFinanceSummaryForDisplay(
-        summary,
-        result?.data ?? [],
-        result?.total ?? 0,
-        clubId,
-        month,
+      Object.fromEntries(
+        sections.map((section) => [
+          section.club_section_id,
+          getFinanceSectionLabel(section),
+        ]),
       ),
-    [summary, result, clubId, month],
+    [sections],
   );
+
+  const displaySummary = useMemo(() => {
+    const transactions = result?.data ?? [];
+
+    if (sectionId !== "all") {
+      if (transactions.length === 0) {
+        return {
+          club_id: clubId,
+          period:
+            month && year
+              ? `${year}-${String(month).padStart(2, "0")}`
+              : year
+                ? String(year)
+                : "all",
+          total_income: 0,
+          total_expense: 0,
+          balance: 0,
+          movement_count: 0,
+        };
+      }
+
+      return summarizeFinances(
+        transactions,
+        clubId,
+        month && year
+          ? `${year}-${String(month).padStart(2, "0")}`
+          : year
+            ? String(year)
+            : "all",
+      );
+    }
+
+    return mergeFinanceSummaryForDisplay(
+      summary,
+      transactions,
+      result?.total ?? 0,
+      clubId,
+      month,
+    );
+  }, [summary, result, clubId, month, year, sectionId]);
 
   // Handlers
   function handleEdit(finance: Finance) {
@@ -285,7 +355,7 @@ export function FinancesDashboard({
 
   const body = (
     <>
-      {loadingSummary ? (
+      {loadingSummary || (sectionId !== "all" && loadingTable) ? (
         <FinancesSummaryCardsSkeleton />
       ) : displaySummary ? (
         <FinancesSummaryCards summary={displaySummary} />
@@ -298,6 +368,7 @@ export function FinancesDashboard({
         ) : (
           <TransactionsTable
             items={result?.data ?? []}
+            sectionLabels={sectionLabels}
             onEdit={handleEdit}
             onDelete={handleDelete}
             onViewEvidence={setEvidenceFinance}
@@ -321,7 +392,7 @@ export function FinancesDashboard({
         open={formOpen}
         onOpenChange={handleFormClose}
         clubId={clubId}
-        sections={sections}
+        sections={formSections}
         finance={editFinance}
         onSuccess={refresh}
       />

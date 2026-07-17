@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Building2, MapPin } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Building2, Layers, MapPin } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
   Select,
@@ -17,20 +17,15 @@ import { DollarSign } from "lucide-react";
 import type { LocalField } from "@/lib/api/geography";
 import type { AdminTerritoryScope } from "@/lib/auth/territory-scope";
 import { canAdminFilterByLocalField } from "@/lib/auth/territory-scope";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-type ClubSection = {
-  club_section_id: number;
-  club_type_id: number;
-  name: string;
-  club_type?: { name?: string; slug?: string } | null;
-};
+import {
+  getFinanceSectionLabel,
+  type FinanceClubSection,
+} from "@/lib/finances/club-sections";
 
 type ClubOption = {
   club_id: number;
   name: string;
-  sections: ClubSection[];
+  sections: FinanceClubSection[];
   local_field_id?: number;
 };
 
@@ -39,8 +34,6 @@ interface FinancesClubSelectorProps {
   localFields: LocalField[];
   territoryScope: AdminTerritoryScope;
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function FinancesClubSelector({
   clubs,
@@ -56,6 +49,9 @@ export function FinancesClubSelector({
   const [selectedClubId, setSelectedClubId] = useState<number | null>(
     clubs.length === 1 ? clubs[0].club_id : null,
   );
+  const [selectedSectionId, setSelectedSectionId] = useState<number | "all">(
+    "all",
+  );
 
   const filteredClubs = useMemo(() => {
     if (!showLocalFieldFilter || selectedLocalFieldId === "all") {
@@ -65,7 +61,30 @@ export function FinancesClubSelector({
   }, [clubs, selectedLocalFieldId, showLocalFieldFilter]);
 
   const selectedClub =
-    filteredClubs.find((c) => c.club_id === selectedClubId) ?? null;
+    filteredClubs.find((club) => club.club_id === selectedClubId) ?? null;
+
+  const availableSections = selectedClub?.sections ?? [];
+
+  useEffect(() => {
+    if (!selectedClub) {
+      setSelectedSectionId("all");
+      return;
+    }
+
+    if (availableSections.length === 1) {
+      setSelectedSectionId(availableSections[0].club_section_id);
+      return;
+    }
+
+    if (
+      selectedSectionId !== "all" &&
+      !availableSections.some(
+        (section) => section.club_section_id === selectedSectionId,
+      )
+    ) {
+      setSelectedSectionId("all");
+    }
+  }, [availableSections, selectedClub, selectedSectionId]);
 
   function handleLocalFieldChange(value: string) {
     const nextLocalFieldId = value === "all" ? "all" : Number(value);
@@ -79,6 +98,15 @@ export function FinancesClubSelector({
     if (selectedClubId && !nextClubs.some((club) => club.club_id === selectedClubId)) {
       setSelectedClubId(nextClubs.length === 1 ? nextClubs[0].club_id : null);
     }
+  }
+
+  function handleClubChange(value: string) {
+    setSelectedClubId(Number(value));
+    setSelectedSectionId("all");
+  }
+
+  function handleSectionChange(value: string) {
+    setSelectedSectionId(value === "all" ? "all" : Number(value));
   }
 
   const clubFilters = (
@@ -122,7 +150,7 @@ export function FinancesClubSelector({
         </Label>
         <Select
           value={selectedClubId?.toString() ?? ""}
-          onValueChange={(v) => setSelectedClubId(Number(v))}
+          onValueChange={handleClubChange}
           disabled={filteredClubs.length === 0}
         >
           <SelectTrigger className="h-9 w-[240px]">
@@ -132,6 +160,37 @@ export function FinancesClubSelector({
             {filteredClubs.map((club) => (
               <SelectItem key={club.club_id} value={club.club_id.toString()}>
                 {club.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label className="flex items-center gap-1.5 text-sm font-medium">
+          <Layers className="size-4 text-muted-foreground" />
+          {t("sectionLabel")}
+        </Label>
+        <Select
+          value={
+            selectedSectionId === "all" ? "all" : String(selectedSectionId)
+          }
+          onValueChange={handleSectionChange}
+          disabled={!selectedClub || availableSections.length === 0}
+        >
+          <SelectTrigger className="h-9 w-[240px]">
+            <SelectValue placeholder={t("sectionPlaceholder")} />
+          </SelectTrigger>
+          <SelectContent>
+            {availableSections.length > 1 && (
+              <SelectItem value="all">{t("sectionAll")}</SelectItem>
+            )}
+            {availableSections.map((section) => (
+              <SelectItem
+                key={section.club_section_id}
+                value={String(section.club_section_id)}
+              >
+                {getFinanceSectionLabel(section)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -155,7 +214,8 @@ export function FinancesClubSelector({
         <FinancesDashboard
           clubId={selectedClub.club_id}
           clubName={selectedClub.name}
-          sections={selectedClub.sections}
+          sections={availableSections}
+          sectionId={selectedSectionId}
           renderLayout={({ toolbar, body }) => (
             <div className="space-y-6">
               <div className="flex flex-wrap items-end gap-3">

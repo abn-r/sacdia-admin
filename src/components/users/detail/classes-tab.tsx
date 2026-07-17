@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { GraduationCap } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Card, CardContent } from "@/components/ui/card";
@@ -24,6 +25,7 @@ import {
   isInvestedStatus,
 } from "@/lib/users/formative-status";
 import { ApiError } from "@/lib/api/client";
+import { resolveClassLogoSrc } from "@/lib/classes/class-logo";
 
 interface UserDetailClassesTabProps {
   userId: string;
@@ -33,6 +35,38 @@ interface UserDetailClassesTabProps {
 
 function investitureStatusLabelKey(status: string): string {
   return `statusClass.${status}`;
+}
+
+function ClassImageCell({
+  className,
+  assetCode,
+}: {
+  className?: string | null;
+  assetCode?: string | null;
+}) {
+  const logoSrc = resolveClassLogoSrc(assetCode, className);
+  const label = className ?? "";
+
+  if (!logoSrc) {
+    return (
+      <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-muted">
+        <GraduationCap className="size-4 text-muted-foreground" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex size-10 shrink-0 items-center justify-center">
+      <Image
+        src={logoSrc}
+        alt={label}
+        width={40}
+        height={40}
+        className="max-h-10 max-w-10 object-contain"
+        sizes="40px"
+      />
+    </div>
+  );
 }
 
 export async function UserDetailClassesTab({
@@ -94,15 +128,21 @@ export async function UserDetailClassesTab({
               return (
                 <TableRow key={row.enrollment_id}>
                   <TableCell>
-                    <div className="min-w-0 max-w-[220px]">
-                      <p className="truncate font-medium text-sm">
-                        {row.classes?.name ?? t("unknownClass")}
-                      </p>
-                      {row.classes?.club_types?.name ? (
-                        <p className="truncate text-muted-foreground text-xs">
-                          {row.classes.club_types.name}
+                    <div className="flex min-w-0 max-w-[260px] items-center gap-3">
+                      <ClassImageCell
+                        className={row.classes?.name}
+                        assetCode={row.classes?.asset_code}
+                      />
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium">
+                          {row.classes?.name ?? t("unknownClass")}
                         </p>
-                      ) : null}
+                        {row.classes?.club_types?.name ? (
+                          <p className="truncate text-xs text-muted-foreground">
+                            {row.classes.club_types.name}
+                          </p>
+                        ) : null}
+                      </div>
                     </div>
                   </TableCell>
                   <TableCell className="max-w-[160px] truncate text-sm">

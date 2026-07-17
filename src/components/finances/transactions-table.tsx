@@ -63,6 +63,8 @@ export function TransactionsTableSkeleton() {
               t("table.colDate"),
               t("table.colDescription"),
               t("table.colCategory"),
+              t("table.colSection"),
+              t("table.colPeriod"),
               t("table.colType"),
               t("table.colAmount"),
               t("table.colEvidence"),
@@ -90,6 +92,12 @@ export function TransactionsTableSkeleton() {
                 <Skeleton className="h-4 w-28" />
               </TableCell>
               <TableCell className="px-3 py-2.5">
+                <Skeleton className="h-4 w-24" />
+              </TableCell>
+              <TableCell className="px-3 py-2.5">
+                <Skeleton className="h-4 w-16" />
+              </TableCell>
+              <TableCell className="px-3 py-2.5">
                 <Skeleton className="h-5 w-16 rounded-full" />
               </TableCell>
               <TableCell className="px-3 py-2.5">
@@ -113,6 +121,7 @@ export function TransactionsTableSkeleton() {
 
 interface TransactionsTableProps {
   items: Finance[];
+  sectionLabels?: Record<number, string>;
   onEdit: (finance: Finance) => void;
   onDelete: (finance: Finance) => void;
   onViewEvidence: (finance: Finance) => void;
@@ -123,6 +132,7 @@ interface TransactionsTableProps {
 
 export function TransactionsTable({
   items,
+  sectionLabels,
   onEdit,
   onDelete,
   onViewEvidence,
@@ -135,6 +145,14 @@ export function TransactionsTable({
   const formatCurrency = useFormatCurrency();
   const formatAmount = (amountInCentavos: number) =>
     formatFinanceAmount(amountInCentavos, formatCurrency);
+
+  function getSectionLabel(finance: Finance): string {
+    return (
+      sectionLabels?.[finance.club_section_id] ??
+      finance.club_types?.name ??
+      "—"
+    );
+  }
 
   if (items.length === 0) {
     return (
@@ -201,6 +219,9 @@ export function TransactionsTable({
               </SortableHeader>
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              {t("table.colSection")}
+            </TableHead>
+            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
               {t("table.colPeriod")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
@@ -251,6 +272,9 @@ export function TransactionsTable({
                   <span className="text-sm">
                     {finance.finances_categories?.name ?? "—"}
                   </span>
+                </TableCell>
+                <TableCell className="px-3 py-2.5 align-middle">
+                  <span className="text-sm">{getSectionLabel(finance)}</span>
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground tabular-nums">
                   {monthName(finance.month)}/{finance.year}

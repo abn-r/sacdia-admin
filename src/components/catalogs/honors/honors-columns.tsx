@@ -65,7 +65,7 @@ export function getHonorColumns({
               <img
                 src={honor.honor_image}
                 alt=""
-                className="size-10 shrink-0 rounded-md border object-cover"
+                className="max-h-10 max-w-10 shrink-0 object-contain"
               />
             ) : (
               <div

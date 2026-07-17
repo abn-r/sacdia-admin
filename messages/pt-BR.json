@@ -4003,6 +4003,10 @@
           "loadError": "Não foi possível carregar as especialidades do usuário.",
           "unknownHonor": "Especialidade desconhecida",
           "notCompleted": "—",
+          "sectionAdventurers": "Especialidades de aventureiros",
+          "sectionPathfinders": "Especialidades de desbravadores",
+          "sectionMasterGuides": "Especialidades de guias",
+          "sectionOther": "Outras especialidades",
           "statusHonor": {
             "IN_PROGRESS": "Em progresso",
             "PENDING_REVIEW": "Em revisão",
@@ -5246,6 +5250,7 @@
       "colDate": "Data",
       "colDescription": "Descrição",
       "colCategory": "Categoria",
+      "colSection": "Seção",
       "colPeriod": "Período",
       "colType": "Tipo",
       "colAmount": "Valor",
@@ -5317,7 +5322,10 @@
       "localFieldPlaceholder": "Selecione um campo local",
       "localFieldAll": "Todos os campos",
       "emptyTitle": "Selecione um clube",
-      "emptyDescription": "Escolha um clube no seletor para ver e gerenciar seus movimentos financeiros."
+      "emptyDescription": "Escolha um clube no seletor para ver e gerenciar seus movimentos financeiros.",
+      "sectionLabel": "Seção do clube",
+      "sectionPlaceholder": "Selecione uma seção",
+      "sectionAll": "Todas as seções"
     }
   },
   "certifications": {

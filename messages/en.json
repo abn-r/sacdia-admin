@@ -4073,6 +4073,10 @@
           "loadError": "Could not load user honors.",
           "unknownHonor": "Unknown honor",
           "notCompleted": "—",
+          "sectionAdventurers": "Adventurer honors",
+          "sectionPathfinders": "Pathfinder honors",
+          "sectionMasterGuides": "Master Guide honors",
+          "sectionOther": "Other honors",
           "statusHonor": {
             "IN_PROGRESS": "In progress",
             "PENDING_REVIEW": "Pending review",
@@ -5380,6 +5384,7 @@
       "colDate": "Date",
       "colDescription": "Description",
       "colCategory": "Category",
+      "colSection": "Section",
       "colPeriod": "Period",
       "colType": "Type",
       "colAmount": "Amount",
@@ -5451,7 +5456,10 @@
       "localFieldPlaceholder": "Select a local field",
       "localFieldAll": "All local fields",
       "emptyTitle": "Select a club",
-      "emptyDescription": "Choose a club from the selector to view and manage its financial transactions."
+      "emptyDescription": "Choose a club from the selector to view and manage its financial transactions.",
+      "sectionLabel": "Club section",
+      "sectionPlaceholder": "Select a section",
+      "sectionAll": "All sections"
     }
   },
   "certifications": {

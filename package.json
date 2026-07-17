@@ -13,6 +13,7 @@
     "test:e2e:smoke": "node scripts/e2e-smoke.mjs",
     "test:e2e:smoke:backlog": "node scripts/smoke-backlog.mjs",
     "audit:design-system": "node scripts/audit-design-system.mjs",
+    "sync:class-logos": "node scripts/sync-class-logos.mjs",
     "icons:generate": "node scripts/generate-hugeicons-compat.mjs",
     "analyze": "next experimental-analyze -o"
   },
