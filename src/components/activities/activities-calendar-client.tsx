@@ -71,6 +71,7 @@ export interface ActivitiesCalendarClientProps {
   initialActivities: Activity[];
   initialLocalFieldId: number | null;
   initialClubId: number | null;
+  initialSectionId: number | null;
   canCreate: boolean;
   canEdit: boolean;
 }
@@ -87,6 +88,7 @@ export function ActivitiesCalendarClient({
   initialActivities,
   initialLocalFieldId,
   initialClubId,
+  initialSectionId,
   canCreate,
   canEdit,
 }: ActivitiesCalendarClientProps) {
@@ -110,6 +112,7 @@ export function ActivitiesCalendarClient({
 
   const localFieldId = searchParams.get("localFieldId") ?? String(initialLocalFieldId ?? "all");
   const clubId = searchParams.get("clubId") ?? String(initialClubId ?? "all");
+  const sectionId = searchParams.get("sectionId") ?? String(initialSectionId ?? "all");
   const view = readViewMode(searchParams.get("view"));
   const anchorDate = searchParams.get("date") ?? toDateKey(new Date());
 
@@ -119,11 +122,28 @@ export function ActivitiesCalendarClient({
       : null;
   const selectedClubId =
     clubId !== "all" && Number.isFinite(Number(clubId)) ? Number(clubId) : null;
+  const selectedSectionId =
+    sectionId !== "all" && Number.isFinite(Number(sectionId))
+      ? Number(sectionId)
+      : null;
 
   const filteredClubs = useMemo(() => {
     if (!selectedLocalFieldId) return clubs;
     return clubs.filter((club) => club.local_field_id === selectedLocalFieldId);
   }, [clubs, selectedLocalFieldId]);
+
+  const availableSections = useMemo(() => {
+    if (!selectedClubId) return [];
+    return sectionsByClub[selectedClubId] ?? [];
+  }, [sectionsByClub, selectedClubId]);
+
+  const selectedSection = useMemo(
+    () =>
+      availableSections.find(
+        (section) => section.club_section_id === selectedSectionId,
+      ) ?? null,
+    [availableSections, selectedSectionId],
+  );
 
   const updateParams = useCallback(
     (updates: Record<string, string | null>) => {
@@ -153,11 +173,29 @@ export function ActivitiesCalendarClient({
 
       const results = await Promise.all(
         targetClubs.map(async (club) => {
+          const sectionForClub =
+            selectedClubId === club.club_id ? selectedSection : null;
           const payload = await apiRequestFromClient<unknown>(
             `/clubs/${club.club_id}/activities`,
-            { params: { page: 1, limit: 200, active: true } },
+            {
+              params: {
+                page: 1,
+                limit: 200,
+                active: true,
+                ...(sectionForClub
+                  ? { clubTypeId: sectionForClub.club_type_id }
+                  : {}),
+              },
+            },
           );
-          return normalizeActivities(payload, club.name);
+          let normalized = normalizeActivities(payload, club.name);
+          if (sectionForClub) {
+            normalized = normalized.filter(
+              (activity) =>
+                activity.club_section_id === sectionForClub.club_section_id,
+            );
+          }
+          return normalized;
         }),
       );
 
@@ -172,7 +210,7 @@ export function ActivitiesCalendarClient({
     } finally {
       setIsLoading(false);
     }
-  }, [filteredClubs, selectedClubId, t]);
+  }, [filteredClubs, selectedClubId, selectedSection, t]);
 
   useEffect(() => {
     void loadActivities();
@@ -221,11 +259,15 @@ export function ActivitiesCalendarClient({
   }, [anchor, view]);
 
   const handleLocalFieldChange = (value: string) => {
-    updateParams({ localFieldId: value, clubId: null });
+    updateParams({ localFieldId: value, clubId: null, sectionId: null });
   };
 
   const handleClubChange = (value: string) => {
-    updateParams({ clubId: value });
+    updateParams({ clubId: value, sectionId: null });
+  };
+
+  const handleSectionChange = (value: string) => {
+    updateParams({ sectionId: value });
   };
 
   return (
@@ -253,7 +295,7 @@ export function ActivitiesCalendarClient({
         }
       />
 
-      <div className="grid gap-4 rounded-xl border bg-card p-4 shadow-xs md:grid-cols-2">
+      <div className="grid gap-4 rounded-xl border bg-card p-4 shadow-xs md:grid-cols-3">
         <div className="space-y-2">
           <Label htmlFor="activities-local-field">{tCal("filterLocalField")}</Label>
           <Select value={localFieldId} onValueChange={handleLocalFieldChange}>
@@ -286,6 +328,30 @@ export function ActivitiesCalendarClient({
               {filteredClubs.map((club) => (
                 <SelectItem key={club.club_id} value={String(club.club_id)}>
                   {club.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="activities-section">{tCal("filterSection")}</Label>
+          <Select
+            value={sectionId}
+            onValueChange={handleSectionChange}
+            disabled={!selectedClubId || availableSections.length === 0}
+          >
+            <SelectTrigger id="activities-section">
+              <SelectValue placeholder={tCal("filterSectionPlaceholder")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{tCal("filterSectionAll")}</SelectItem>
+              {availableSections.map((section) => (
+                <SelectItem
+                  key={section.club_section_id}
+                  value={String(section.club_section_id)}
+                >
+                  {section.name}
                 </SelectItem>
               ))}
             </SelectContent>

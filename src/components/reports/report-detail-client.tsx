@@ -12,7 +12,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import {
   Card,
   CardContent,
@@ -124,13 +124,12 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
   const [submitting, setSubmitting] = useState(false);
   const [downloadingPdf, setDownloadingPdf] = useState(false);
 
-  const statusVariant = (
-    {
-      draft: "warning",
-      generated: "default",
-      submitted: "success",
-    } as const
-  )[report.status] ?? ("warning" as const);
+  const statusIntent =
+    report.status === "submitted"
+      ? "success"
+      : report.status === "draft"
+        ? "warning"
+        : "neutral";
 
   const monthName = t(`months.${report.month}` as Parameters<typeof t>[0]);
   const isSubmitted = report.status === "submitted";
@@ -213,7 +212,7 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
       <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-muted/30 px-4 py-3">
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">{t("detail.labelStatus")}</span>
-          <Badge variant={statusVariant}>{t(`status.${report.status}`)}</Badge>
+          <StatusBadge intent={statusIntent} label={t(`status.${report.status}`)} size="sm" />
         </div>
         <div className="h-4 w-px bg-border" />
         <div className="text-sm text-muted-foreground">

@@ -212,6 +212,65 @@ export type UpdateInvestitureConfigPayload = {
   active?: boolean;
 };
 
+type InvestitureConfigWire = {
+  config_id?: number;
+  investiture_config_id?: number;
+  local_field_id: number;
+  ecclesiastical_year_id: number;
+  submission_deadline: string;
+  investiture_date: string;
+  active: boolean;
+  created_at?: string | null;
+  modified_at?: string | null;
+  updated_at?: string | null;
+  local_fields?: { name: string } | null;
+  ecclesiastical_year?: {
+    ecclesiastical_year_id?: number;
+    name?: string;
+    start_date?: string | null;
+    end_date?: string | null;
+  } | null;
+  ecclesiastical_years?: InvestitureConfig["ecclesiastical_years"];
+};
+
+function unwrapConfigPayload<T>(payload: T | { data: T }): T {
+  if (payload && typeof payload === "object" && "data" in payload) {
+    return (payload as { data: T }).data;
+  }
+
+  return payload as T;
+}
+
+function normalizeInvestitureConfig(wire: InvestitureConfigWire): InvestitureConfig {
+  const configId = wire.investiture_config_id ?? wire.config_id;
+  if (typeof configId !== "number") {
+    throw new Error("Investiture config payload is missing config id");
+  }
+
+  const yearSource = wire.ecclesiastical_years ?? wire.ecclesiastical_year;
+
+  return {
+    investiture_config_id: configId,
+    local_field_id: wire.local_field_id,
+    ecclesiastical_year_id: wire.ecclesiastical_year_id,
+    submission_deadline: wire.submission_deadline,
+    investiture_date: wire.investiture_date,
+    active: wire.active,
+    created_at: wire.created_at ?? null,
+    updated_at: wire.updated_at ?? wire.modified_at ?? null,
+    local_fields: wire.local_fields ?? null,
+    ecclesiastical_years: yearSource
+      ? {
+          ecclesiastical_year_id:
+            yearSource.ecclesiastical_year_id ?? wire.ecclesiastical_year_id,
+          name: yearSource.name ?? `Año ${wire.ecclesiastical_year_id}`,
+          start_date: yearSource.start_date ?? null,
+          end_date: yearSource.end_date ?? null,
+        }
+      : null,
+  };
+}
+
 // ─── Config API functions ─────────────────────────────────────────────────────
 
 /**
@@ -223,11 +282,13 @@ export async function getInvestitureConfigs(
 ): Promise<InvestitureConfig[]> {
   const params: Record<string, string | number | boolean | undefined> = {};
   if (localFieldId) params.local_field_id = localFieldId;
-  const res = await apiRequest<{ status: string; data: InvestitureConfig[] }>(
+  const res = await apiRequest<{ status: string; data: InvestitureConfigWire[] } | InvestitureConfigWire[]>(
     "/admin/investiture/config",
     { params },
   );
-  return Array.isArray(res) ? res : (res as { data: InvestitureConfig[] }).data ?? [];
+  const data = unwrapConfigPayload(res);
+  const items = Array.isArray(data) ? data : [];
+  return items.map(normalizeInvestitureConfig);
 }
 
 /**
@@ -237,10 +298,10 @@ export async function getInvestitureConfigs(
 export async function getInvestitureConfig(
   configId: number,
 ): Promise<InvestitureConfig> {
-  const res = await apiRequest<{ status: string; data: InvestitureConfig }>(
+  const res = await apiRequest<{ status: string; data: InvestitureConfigWire } | InvestitureConfigWire>(
     `/admin/investiture/config/${configId}`,
   );
-  return (res as { data: InvestitureConfig }).data ?? (res as unknown as InvestitureConfig);
+  return normalizeInvestitureConfig(unwrapConfigPayload(res));
 }
 
 /**
@@ -251,11 +312,11 @@ export async function getInvestitureConfig(
 export async function createInvestitureConfig(
   payload: CreateInvestitureConfigPayload,
 ): Promise<InvestitureConfig> {
-  const res = await apiRequestFromClient<{ status: string; data: InvestitureConfig }>(
+  const res = await apiRequestFromClient<{ status: string; data: InvestitureConfigWire } | InvestitureConfigWire>(
     "/admin/investiture/config",
     { method: "POST", body: payload },
   );
-  return (res as { data: InvestitureConfig }).data ?? (res as unknown as InvestitureConfig);
+  return normalizeInvestitureConfig(unwrapConfigPayload(res));
 }
 
 /**
@@ -267,11 +328,11 @@ export async function updateInvestitureConfig(
   configId: number,
   payload: UpdateInvestitureConfigPayload,
 ): Promise<InvestitureConfig> {
-  const res = await apiRequestFromClient<{ status: string; data: InvestitureConfig }>(
+  const res = await apiRequestFromClient<{ status: string; data: InvestitureConfigWire } | InvestitureConfigWire>(
     `/admin/investiture/config/${configId}`,
     { method: "PATCH", body: payload },
   );
-  return (res as { data: InvestitureConfig }).data ?? (res as unknown as InvestitureConfig);
+  return normalizeInvestitureConfig(unwrapConfigPayload(res));
 }
 
 /**

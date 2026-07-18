@@ -70,7 +70,14 @@ export function ConfigTable({ configs, onEdit, onDelete }: ConfigTableProps) {
         </TableHeader>
         <TableBody>
           {configs.map((config, index) => (
-            <TableRow key={config.investiture_config_id} className={`hover:bg-muted/30 ${STAGGER_CLASSES}`} style={getStaggerStyle(index)}>
+            <TableRow
+              key={
+                config.investiture_config_id ??
+                `${config.local_field_id}-${config.ecclesiastical_year_id}-${index}`
+              }
+              className={`hover:bg-muted/30 ${STAGGER_CLASSES}`}
+              style={getStaggerStyle(index)}
+            >
               <TableCell className="px-3 py-2.5 align-middle font-medium">
                 {config.local_fields?.name ?? t("configTable.fieldFallback", { id: config.local_field_id })}
               </TableCell>

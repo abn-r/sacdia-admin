@@ -5,9 +5,12 @@ import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { ReportDetailClient } from "@/components/reports/report-detail-client";
-import { apiRequest, ApiError } from "@/lib/api/client";
+import { ApiError } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
-import type { MonthlyReport } from "@/lib/api/monthly-reports";
+import {
+  getMonthlyReport,
+  type MonthlyReport,
+} from "@/lib/api/monthly-reports";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -16,17 +19,7 @@ type Params = Promise<{ reportId: string }>;
 // ─── Data fetching ────────────────────────────────────────────────────────────
 
 async function fetchReport(reportId: string): Promise<MonthlyReport> {
-  const payload = await apiRequest<unknown>(
-    `/monthly-reports/${encodeURIComponent(reportId)}`,
-  );
-
-  // Normalize envelope { data: {...} } vs raw object
-  const data =
-    payload && typeof payload === "object" && "data" in payload
-      ? (payload as { data?: unknown }).data
-      : payload;
-
-  return data as MonthlyReport;
+  return getMonthlyReport(reportId);
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────

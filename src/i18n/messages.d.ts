@@ -5646,6 +5646,9 @@ export interface IntlMessages {
       filterLocalFieldAll: string;
       filterClub: string;
       filterClubAll: string;
+      filterSection: string;
+      filterSectionAll: string;
+      filterSectionPlaceholder: string;
       viewMonth: string;
       viewWeek: string;
       viewDay: string;

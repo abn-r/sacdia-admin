@@ -1,5 +1,30 @@
 import { apiRequest } from "@/lib/api/client";
 
+type ApiEnvelope<T> = { status: string; data: T };
+
+function unwrapApiList<T>(payload: unknown): T[] {
+  if (Array.isArray(payload)) {
+    return payload;
+  }
+
+  if (payload && typeof payload === "object" && "data" in payload) {
+    const data = (payload as ApiEnvelope<unknown>).data;
+    if (Array.isArray(data)) {
+      return data as T[];
+    }
+  }
+
+  return [];
+}
+
+function unwrapApiData<T>(payload: unknown): T {
+  if (payload && typeof payload === "object" && "data" in payload) {
+    return (payload as ApiEnvelope<T>).data;
+  }
+
+  return payload as T;
+}
+
 export type CamporeeJudgeRole = "primary" | "assistant";
 export type CamporeeScoreSource = "manual_lf" | "admin_override" | "judge_primary";
 export type CamporeeJudgeEligibilityReason =
@@ -145,49 +170,56 @@ export async function replaceCamporeeEventRubrics(
 }
 
 export async function listLocalCamporeeJudges(camporeeId: number) {
-  return apiRequest<CamporeeJudge[]>(`/local-camporees/${camporeeId}/judges`);
+  const res = await apiRequest<unknown>(`/local-camporees/${camporeeId}/judges`);
+  return unwrapApiList<CamporeeJudge>(res);
 }
 
 export async function listLocalCamporeeJudgeCandidates(camporeeId: number) {
-  return apiRequest<CamporeeJudgeCandidate[]>(
+  const res = await apiRequest<unknown>(
     `/local-camporees/${camporeeId}/judge-candidates`,
   );
+  return unwrapApiList<CamporeeJudgeCandidate>(res);
 }
 
 export async function addLocalCamporeeJudge(
   camporeeId: number,
   payload: AddCamporeeJudgePayload,
 ) {
-  return apiRequest<CamporeeJudge>(`/local-camporees/${camporeeId}/judges`, {
+  const res = await apiRequest<unknown>(`/local-camporees/${camporeeId}/judges`, {
     method: "POST",
     body: payload,
   });
+  return unwrapApiData<CamporeeJudge>(res);
 }
 
 export async function listUnionCamporeeJudges(camporeeId: number) {
-  return apiRequest<CamporeeJudge[]>(`/union-camporees/${camporeeId}/judges`);
+  const res = await apiRequest<unknown>(`/union-camporees/${camporeeId}/judges`);
+  return unwrapApiList<CamporeeJudge>(res);
 }
 
 export async function listUnionCamporeeJudgeCandidates(camporeeId: number) {
-  return apiRequest<CamporeeJudgeCandidate[]>(
+  const res = await apiRequest<unknown>(
     `/union-camporees/${camporeeId}/judge-candidates`,
   );
+  return unwrapApiList<CamporeeJudgeCandidate>(res);
 }
 
 export async function addUnionCamporeeJudge(
   camporeeId: number,
   payload: AddCamporeeJudgePayload,
 ) {
-  return apiRequest<CamporeeJudge>(`/union-camporees/${camporeeId}/judges`, {
+  const res = await apiRequest<unknown>(`/union-camporees/${camporeeId}/judges`, {
     method: "POST",
     body: payload,
   });
+  return unwrapApiData<CamporeeJudge>(res);
 }
 
 export async function listCamporeeEventJudgeAssignments(eventId: number) {
-  return apiRequest<CamporeeEventJudgeAssignment[]>(
+  const res = await apiRequest<unknown>(
     `/camporee-events/${eventId}/judge-assignments`,
   );
+  return unwrapApiList<CamporeeEventJudgeAssignment>(res);
 }
 
 export async function assignCamporeeEventJudge(
@@ -242,5 +274,6 @@ export async function getUnionCamporeeLeaderboard(camporeeId: number) {
 }
 
 export async function listMyCamporeeJudgeAssignments() {
-  return apiRequest<CamporeeEventJudgeAssignment[]>("/camporee-judges/me/assignments");
+  const res = await apiRequest<unknown>("/camporee-judges/me/assignments");
+  return unwrapApiList<CamporeeEventJudgeAssignment>(res);
 }

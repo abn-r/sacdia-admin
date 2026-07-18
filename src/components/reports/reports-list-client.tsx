@@ -20,7 +20,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import {
   Table,
   TableBody,
@@ -63,6 +63,14 @@ const REPORTS_DATE_OPTIONS: Intl.DateTimeFormatOptions = {
   month: "2-digit",
   year: "numeric",
 };
+
+function ReportStatusBadge({ status }: { status: ReportStatus }) {
+  const t = useTranslations("reports");
+  const intent =
+    status === "submitted" ? "success" : status === "draft" ? "warning" : "neutral";
+
+  return <StatusBadge intent={intent} label={t(`status.${status}`)} size="xs" />;
+}
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 
@@ -387,13 +395,6 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                 </TableHeader>
                 <TableBody>
                   {reports.map((report, index) => {
-                    const statusVariant = (
-                      {
-                        draft: "warning",
-                        generated: "default",
-                        submitted: "success",
-                      } as const
-                    )[report.status] ?? ("warning" as const);
                     const loadingAction = actionLoading[report.report_id];
                     const isDisabled = Boolean(loadingAction);
                     const isSubmitted = report.status === "submitted";
@@ -406,9 +407,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                         </TableCell>
                         <TableCell className="tabular-nums">{report.year}</TableCell>
                         <TableCell>
-                          <Badge variant={statusVariant} className="text-xs">
-                            {t(`status.${report.status}`)}
-                          </Badge>
+                          <ReportStatusBadge status={report.status} />
                         </TableCell>
                         <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
                           {report.generated_at ? formatDate(report.generated_at, REPORTS_DATE_OPTIONS) : "—"}
@@ -489,13 +488,6 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
           {/* Mobile: descriptive cards */}
           <ul className="space-y-3 md:hidden" aria-label={t("list.ariaListLabel")}>
             {reports.map((report, index) => {
-              const statusVariant = (
-                {
-                  draft: "warning",
-                  generated: "default",
-                  submitted: "success",
-                } as const
-              )[report.status] ?? ("warning" as const);
               const loadingAction = actionLoading[report.report_id];
               const isDisabled = Boolean(loadingAction);
               const isSubmitted = report.status === "submitted";
@@ -526,9 +518,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                     </div>
 
                     <div className="mt-3 flex flex-wrap items-center gap-1.5">
-                      <Badge variant={statusVariant} className="text-xs">
-                        {t(`status.${report.status}`)}
-                      </Badge>
+                      <ReportStatusBadge status={report.status} />
                     </div>
 
                     <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">

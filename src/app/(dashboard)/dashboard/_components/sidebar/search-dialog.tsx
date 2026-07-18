@@ -186,13 +186,19 @@ export function SearchDialog() {
         </kbd>
       </Button>
       <CommandDialog open={open} onOpenChange={handleOpenChange}>
-        <Command>
-          <CommandInput placeholder="Search dashboards, users, and more…" value={query} onValueChange={setQuery} />
-          <CommandList>
-            <CommandEmpty>No results found.</CommandEmpty>
-            {query ? renderGroups(searchItems) : renderGroups(recommendations)}
-          </CommandList>
-        </Command>
+        {open ? (
+          <Command>
+            <CommandInput
+              placeholder="Search dashboards, users, and more…"
+              value={query}
+              onValueChange={setQuery}
+            />
+            <CommandList>
+              <CommandEmpty>No results found.</CommandEmpty>
+              {query ? renderGroups(searchItems) : renderGroups(recommendations)}
+            </CommandList>
+          </Command>
+        ) : null}
       </CommandDialog>
     </>
   );

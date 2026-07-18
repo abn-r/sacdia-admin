@@ -62,12 +62,17 @@ export function CampamentosJudgesClient({
   const camporees = scope === "union" ? unionCamporees : localCamporees;
 
   const handleScopeChange = (nextScope: string) => {
+    if (nextScope === scope) return;
+
     const params = new URLSearchParams();
     params.set("scope", nextScope);
     router.push(`/dashboard/campamentos/jueces?${params.toString()}`);
   };
 
   const handleCamporeeChange = (value: string) => {
+    const currentValue = camporeeId != null ? String(camporeeId) : "none";
+    if (value === currentValue) return;
+
     const params = new URLSearchParams();
     params.set("scope", scope);
     if (value !== "none") params.set("camporeeId", value);

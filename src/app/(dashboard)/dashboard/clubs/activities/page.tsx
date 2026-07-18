@@ -44,10 +44,16 @@ function normalizeClub(raw: Record<string, unknown>): ClubOption {
 }
 
 function normalizeSection(raw: Record<string, unknown>): SectionOption {
+  const clubTypes = raw.club_types as Record<string, unknown> | undefined;
+  const clubTypeName =
+    typeof clubTypes?.name === "string" ? clubTypes.name : null;
+
   return {
     club_section_id: Number(raw.club_section_id ?? raw.id ?? 0),
-    name: String(raw.name ?? `Sección ${raw.club_section_id ?? "?"}`),
-    club_type_id: Number(raw.club_type_id ?? 0),
+    name: String(
+      raw.name ?? clubTypeName ?? `Sección ${raw.club_section_id ?? "?"}`,
+    ),
+    club_type_id: Number(raw.club_type_id ?? clubTypes?.club_type_id ?? 0),
   };
 }
 
@@ -76,6 +82,7 @@ export default async function ClubActivitiesPage({
 
   const localFieldId = readPositiveNumberParam(raw, "localFieldId");
   const clubId = readPositiveNumberParam(raw, "clubId");
+  const sectionId = readPositiveNumberParam(raw, "sectionId");
   const canCreate = hasAnyPermission(user, [ACTIVITIES_CREATE]);
   const canEdit = hasAnyPermission(user, [ACTIVITIES_UPDATE]);
 
@@ -113,9 +120,12 @@ export default async function ClubActivitiesPage({
           const payload = await apiRequest<unknown>(`/clubs/${club.club_id}/sections`);
           return {
             clubId: club.club_id,
-            sections: extractArray(payload).map((item) =>
-              normalizeSection(item as Record<string, unknown>),
-            ),
+            sections: extractArray(payload)
+              .filter(
+                (raw) => (raw as Record<string, unknown>).active !== false,
+              )
+              .map((item) => normalizeSection(item as Record<string, unknown>))
+              .filter((section) => section.club_section_id > 0),
           };
         } catch {
           return { clubId: club.club_id, sections: [] as SectionOption[] };
@@ -133,12 +143,24 @@ export default async function ClubActivitiesPage({
 
     if (targetClub) {
       try {
+        const targetSection = sectionId
+          ? sectionsByClub[targetClub.club_id]?.find(
+              (section) => section.club_section_id === sectionId,
+            )
+          : null;
         const activitiesPayload = await listActivities(targetClub.club_id, {
           page: 1,
           limit: 200,
           active: true,
+          ...(targetSection ? { clubTypeId: targetSection.club_type_id } : {}),
         });
-        initialActivities = normalizeActivities(activitiesPayload, targetClub.name);
+        let activities = normalizeActivities(activitiesPayload, targetClub.name);
+        if (targetSection) {
+          activities = activities.filter(
+            (activity) => activity.club_section_id === targetSection.club_section_id,
+          );
+        }
+        initialActivities = activities;
       } catch {
         initialActivities = [];
       }
@@ -157,6 +179,7 @@ export default async function ClubActivitiesPage({
       initialActivities={initialActivities}
       initialLocalFieldId={localFieldId ?? null}
       initialClubId={clubId ?? clubs[0]?.club_id ?? null}
+      initialSectionId={sectionId ?? null}
       canCreate={canCreate}
       canEdit={canEdit}
     />

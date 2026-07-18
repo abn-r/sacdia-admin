@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useEffect, useMemo, useState } from "react";
 import { Check, ChevronsUpDown, UserCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -233,14 +233,20 @@ export function CamporeeJudgesPanel({
   const [selectedUserId, setSelectedUserId] = useState("");
   const [search, setSearch] = useState("");
 
+  useEffect(() => {
+    if (!open) setSearch("");
+  }, [open]);
+
+  const judgeList = Array.isArray(judges) ? judges : [];
+
   const activeJudgeUserIds = useMemo(
     () =>
       new Set(
-        judges
+        judgeList
           .filter((judge) => judge.active)
           .map((judge) => judge.user_id),
       ),
-    [judges],
+    [judgeList],
   );
 
   const availableCandidates = useMemo(
@@ -276,15 +282,15 @@ export function CamporeeJudgesPanel({
         <CardTitle className="flex items-center gap-2 text-base">
           <UserCheck className="size-4" />
           Jueces del camporee
-          <Badge variant="secondary">{judges.length}</Badge>
+          <Badge variant="secondary">{judgeList.length}</Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {judges.length === 0 ? (
+        {judgeList.length === 0 ? (
           <p className="text-sm text-muted-foreground">Todavía no hay jueces en el roster.</p>
         ) : (
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            {judges.map((judge) => (
+            {judgeList.map((judge) => (
               <div key={judge.camporee_judge_id} className="rounded-lg border p-3">
                 <div className="font-medium">{judge.name || judge.user_id}</div>
                 <div className="mt-1 text-xs text-muted-foreground">{judge.user_id}</div>
@@ -331,37 +337,39 @@ export function CamporeeJudgesPanel({
                   align="start"
                   className="w-[var(--radix-popover-trigger-width)] max-w-[calc(100vw-2rem)] p-0"
                 >
-                  <Command shouldFilter={false}>
-                    <CommandInput
-                      value={search}
-                      onValueChange={setSearch}
-                      placeholder="Buscar por nombre, correo, rol o cargo..."
-                    />
-                    <CommandList className="max-h-80">
-                      <CommandEmpty>No encontramos usuarios con esa búsqueda.</CommandEmpty>
-                      <CommandGroup>
-                        {filteredCandidates.map((candidate) => (
-                          <CommandItem
-                            key={candidate.user_id}
-                            value={candidate.user_id}
-                            onSelect={() => {
-                              setSelectedUserId(candidate.user_id);
-                              setOpen(false);
-                            }}
-                            className="min-w-0 items-start gap-2 py-2"
-                          >
-                            <Check
-                              className={cn(
-                                "mt-2 size-4 shrink-0",
-                                selectedUserId === candidate.user_id ? "opacity-100" : "opacity-0",
-                              )}
-                            />
-                            <JudgeCandidateOption user={candidate} />
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
+                  {open ? (
+                    <Command shouldFilter={false}>
+                      <CommandInput
+                        value={search}
+                        onValueChange={setSearch}
+                        placeholder="Buscar por nombre, correo, rol o cargo..."
+                      />
+                      <CommandList className="max-h-80">
+                        <CommandEmpty>No encontramos usuarios con esa búsqueda.</CommandEmpty>
+                        <CommandGroup>
+                          {filteredCandidates.map((candidate) => (
+                            <CommandItem
+                              key={candidate.user_id}
+                              value={candidate.user_id}
+                              onSelect={() => {
+                                setSelectedUserId(candidate.user_id);
+                                setOpen(false);
+                              }}
+                              className="min-w-0 items-start gap-2 py-2"
+                            >
+                              <Check
+                                className={cn(
+                                  "mt-2 size-4 shrink-0",
+                                  selectedUserId === candidate.user_id ? "opacity-100" : "opacity-0",
+                                )}
+                              />
+                              <JudgeCandidateOption user={candidate} />
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  ) : null}
                 </PopoverContent>
               </Popover>
               {judgeCandidatesError ? (
