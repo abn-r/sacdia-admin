@@ -127,7 +127,7 @@
 }
 
 .documentMeta .field {
-  width: 35mm;
+  width: 24mm;
 }
 
 .documentMeta p {
@@ -454,7 +454,7 @@
 .metricSecondary { border-left-color: var(--sac-secondary); }
 .metricSecondary > svg { color: var(--sac-secondary); }
 .metricAccent { border-left-color: var(--sac-accent); }
-.metricAccent > svg { color: #c78c2f; }
+.metricAccent > svg { color: var(--sac-accent); }
 .metricInfo { border-left-color: var(--sac-info); }
 .metricInfo > svg { color: var(--sac-info); }
 
