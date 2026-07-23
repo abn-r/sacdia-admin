@@ -68,6 +68,10 @@ export function normalizeCamporeeClub(raw: unknown): CamporeeClub {
       0,
     club_section_id: clubSectionId,
     club_id: pickNumber(record.club_id) ?? pickNumber(clubs?.club_id),
+    club_type_id:
+      pickNumber(record.club_type_id) ??
+      pickNumber(clubTypes?.club_type_id) ??
+      pickNumber(clubSections?.club_type_id),
     section_name: sectionName,
     club_name: clubName,
     section_type_name: sectionTypeName,
@@ -91,6 +95,79 @@ export function normalizeCamporeeClubs(raw: unknown): CamporeeClub[] {
       : [];
 
   return list.map(normalizeCamporeeClub);
+}
+
+export type CamporeeSectionKind =
+  | "adventurers"
+  | "pathfinders"
+  | "master_guides"
+  | "unknown";
+
+function normalizeSectionToken(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase();
+}
+
+/**
+ * Classifies an enrolled camporee club section into AV / CQ / GM.
+ * Prefer stable club_type_id (1/2/3), then name heuristics including AV/CQ/GM prefixes.
+ */
+export function detectCamporeeSectionKind(
+  club: Pick<
+    CamporeeClub,
+    "club_type_id" | "section_type_name" | "section_name"
+  >,
+): CamporeeSectionKind {
+  if (club.club_type_id === 1) return "adventurers";
+  if (club.club_type_id === 2) return "pathfinders";
+  if (club.club_type_id === 3) return "master_guides";
+
+  const candidates = [club.section_type_name, club.section_name].filter(
+    (value): value is string => typeof value === "string" && value.length > 0,
+  );
+
+  for (const raw of candidates) {
+    const slug = normalizeSectionToken(raw);
+    if (
+      slug.includes("aventur") ||
+      slug.includes("adventur") ||
+      /(^|[^a-z])avn?([^a-z]|$)/.test(slug)
+    ) {
+      return "adventurers";
+    }
+    if (
+      slug.includes("conquist") ||
+      slug.includes("pathfind") ||
+      /(^|[^a-z])cq([^a-z]|$)/.test(slug)
+    ) {
+      return "pathfinders";
+    }
+    if (
+      slug.includes("guia") ||
+      slug.includes("master") ||
+      slug.includes("guild") ||
+      /(^|[^a-z])gm([^a-z]|$)/.test(slug)
+    ) {
+      return "master_guides";
+    }
+  }
+
+  return "unknown";
+}
+
+/** Keep only enrolled sections that match the allowed camporee/event kinds. */
+export function filterCamporeeClubsBySectionKinds(
+  clubs: CamporeeClub[],
+  allowedKinds: Array<"adventurers" | "pathfinders" | "master_guides">,
+): CamporeeClub[] {
+  if (allowedKinds.length === 0) return [];
+  const allowed = new Set(allowedKinds);
+  return clubs.filter((club) => {
+    const kind = detectCamporeeSectionKind(club);
+    return kind !== "unknown" && allowed.has(kind);
+  });
 }
 
 type SectionRef = {

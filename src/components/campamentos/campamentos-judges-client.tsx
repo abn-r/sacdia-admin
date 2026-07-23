@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Scale, Tent } from "lucide-react";
+import { ExternalLink, Scale } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { PAGE_ENTER_CLASSES, STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
+import { cn } from "@/lib/utils";
 import type { Camporee } from "@/lib/api/camporees";
 import type {
   CamporeeJudge,
@@ -84,8 +86,15 @@ export function CampamentosJudgesClient({
       ? camporees.find((item) => resolveCamporeeId(item) === camporeeId) ?? null
       : null;
 
+  const camporeeHref =
+    camporeeId == null
+      ? null
+      : scope === "union"
+        ? `/dashboard/campamentos/union/${camporeeId}`
+        : `/dashboard/campamentos/${camporeeId}`;
+
   return (
-    <div className="space-y-6">
+    <div className={cn("space-y-8", PAGE_ENTER_CLASSES)}>
       <PageHeader
         title={t("title")}
         description={t("description")}
@@ -95,41 +104,65 @@ export function CampamentosJudgesClient({
         ]}
       />
 
-      <div className="flex flex-col gap-4 rounded-xl border bg-card p-4 shadow-xs sm:flex-row sm:items-end sm:justify-between">
-        <div className="space-y-3">
-          <Label>{t("scopeLabel")}</Label>
-          <Tabs value={scope} onValueChange={handleScopeChange}>
-            <TabsList>
-              <TabsTrigger value="local">{t("scopeLocal")}</TabsTrigger>
-              <TabsTrigger value="union">{t("scopeUnion")}</TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </div>
+      {/* Floating control chrome — material layer, not a nested card stack */}
+      <section
+        className={cn(
+          "sticky top-2 z-10 rounded-2xl p-1",
+          "bg-background/70 shadow-sm ring-1 ring-foreground/10",
+          "backdrop-blur-xl backdrop-saturate-150",
+          "supports-backdrop-filter:bg-background/55",
+          "motion-reduce:backdrop-blur-none motion-reduce:bg-card",
+          STAGGER_CLASSES,
+        )}
+        style={getStaggerStyle(0, 40)}
+      >
+        <div className="grid gap-4 rounded-[calc(1rem-0.125rem)] bg-card/80 p-4 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-end sm:gap-6">
+          <div className="space-y-2">
+            <Label className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+              {t("scopeLabel")}
+            </Label>
+            <Tabs value={scope} onValueChange={handleScopeChange}>
+              <TabsList className="h-9">
+                <TabsTrigger value="local" className="px-4">
+                  {t("scopeLocal")}
+                </TabsTrigger>
+                <TabsTrigger value="union" className="px-4">
+                  {t("scopeUnion")}
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
 
-        <div className="w-full space-y-2 sm:max-w-md">
-          <Label htmlFor="camporee-select">{t("camporeeLabel")}</Label>
-          <Select
-            value={camporeeId != null ? String(camporeeId) : "none"}
-            onValueChange={handleCamporeeChange}
-          >
-            <SelectTrigger id="camporee-select">
-              <SelectValue placeholder={t("camporeePlaceholder")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none">{t("camporeePlaceholder")}</SelectItem>
-              {camporees.map((camporee) => {
-                const id = resolveCamporeeId(camporee);
-                if (!id) return null;
-                return (
-                  <SelectItem key={id} value={String(id)}>
-                    {formatCamporeeLabel(camporee)}
-                  </SelectItem>
-                );
-              })}
-            </SelectContent>
-          </Select>
+          <div className="space-y-2">
+            <Label
+              htmlFor="camporee-select"
+              className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground"
+            >
+              {t("camporeeLabel")}
+            </Label>
+            <Select
+              value={camporeeId != null ? String(camporeeId) : "none"}
+              onValueChange={handleCamporeeChange}
+            >
+              <SelectTrigger id="camporee-select" className="h-10 w-full">
+                <SelectValue placeholder={t("camporeePlaceholder")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">{t("camporeePlaceholder")}</SelectItem>
+                {camporees.map((camporee) => {
+                  const id = resolveCamporeeId(camporee);
+                  if (!id) return null;
+                  return (
+                    <SelectItem key={id} value={String(id)}>
+                      {formatCamporeeLabel(camporee)}
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-      </div>
+      </section>
 
       {!camporeeId ? (
         <EmptyState
@@ -138,27 +171,31 @@ export function CampamentosJudgesClient({
           description={t("emptyDescription")}
         />
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-6">
           {selectedCamporee ? (
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-muted/20 px-4 py-3">
-              <div>
-                <p className="text-sm font-medium">{selectedCamporee.name}</p>
-                <p className="text-xs text-muted-foreground">
+            <div
+              className={cn(
+                "flex flex-wrap items-end justify-between gap-4",
+                STAGGER_CLASSES,
+              )}
+              style={getStaggerStyle(1, 40)}
+            >
+              <div className="min-w-0 space-y-1">
+                <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
                   {scope === "union" ? t("scopeUnion") : t("scopeLocal")}
                 </p>
+                <h2 className="truncate text-2xl font-semibold tracking-tight text-foreground sm:text-[1.75rem] sm:leading-tight sm:tracking-[-0.02em]">
+                  {selectedCamporee.name}
+                </h2>
               </div>
-              <Button variant="outline" size="sm" asChild>
-                <Link
-                  href={
-                    scope === "union"
-                      ? `/dashboard/campamentos/union/${camporeeId}`
-                      : `/dashboard/campamentos/${camporeeId}`
-                  }
-                >
-                  <Tent className="mr-2 size-4" />
-                  {t("openCamporee")}
-                </Link>
-              </Button>
+              {camporeeHref ? (
+                <Button variant="ghost" size="sm" className="gap-1.5" asChild>
+                  <Link href={camporeeHref}>
+                    {t("openCamporee")}
+                    <ExternalLink className="size-4" aria-hidden />
+                  </Link>
+                </Button>
+              ) : null}
             </div>
           ) : null}
 

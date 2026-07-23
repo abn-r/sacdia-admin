@@ -262,7 +262,7 @@ function NavCollapsibleItem({ item, isActive, defaultOpen, isSubItemActive }: Na
           <SidebarMenuButton tooltip={item.title} isActive={isActive} disabled={item.disabled}>
             {Icon && <Icon />}
             <span>{item.title}</span>
-            <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+            <ChevronRight className="ml-auto transition-transform duration-200 ease-[var(--ease-out-expo)] group-data-[state=open]/collapsible:rotate-90" />
           </SidebarMenuButton>
         </CollapsibleTrigger>
         <NavItemBadge badge={item.badge} />

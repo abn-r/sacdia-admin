@@ -105,10 +105,10 @@ function ComposeTypeSelector({
             aria-checked={selected}
             onClick={() => onChange(type)}
             className={cn(
-              "flex flex-col items-center gap-2 rounded-lg border px-2 py-3 text-center transition-all",
+              "flex flex-col items-center gap-2 rounded-lg border px-2 py-3 text-center transition-[color,background-color,border-color,box-shadow,transform] duration-150 ease-[var(--ease-out-expo)] motion-reduce:transition-none active:scale-[0.97] motion-reduce:active:scale-100",
               selected
                 ? "border-primary bg-primary/5 text-foreground shadow-sm ring-1 ring-primary/20"
-                : "border-border/60 bg-muted/20 text-muted-foreground hover:border-border hover:bg-muted/40 hover:text-foreground",
+                : "border-border/60 bg-muted/20 text-muted-foreground [@media(hover:hover)_and_(pointer:fine)]:hover:border-border [@media(hover:hover)_and_(pointer:fine)]:hover:bg-muted/40 [@media(hover:hover)_and_(pointer:fine)]:hover:text-foreground",
             )}
           >
             <span

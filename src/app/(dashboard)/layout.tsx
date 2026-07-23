@@ -8,6 +8,7 @@ import { SearchDialog } from "@/app/(dashboard)/dashboard/_components/sidebar/se
 import { ThemeSwitcher } from "@/app/(dashboard)/dashboard/_components/sidebar/theme-switcher";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { PAGE_ENTER_CLASSES } from "@/lib/animations";
 import { AuthProvider } from "@/lib/auth/auth-context";
 import { QueryProvider } from "@/lib/providers/query-provider";
 import { requireAdminUser } from "@/lib/auth/session";
@@ -47,7 +48,7 @@ export default async function DashboardLayout({ children }: Readonly<{ children:
         >
           <header
             className={cn(
-              "flex h-12 shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12",
+              "flex h-12 shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear motion-reduce:transition-none group-has-data-[collapsible=icon]/sidebar-wrapper:h-12",
               "[html[data-navbar-style=sticky]_&]:sticky [html[data-navbar-style=sticky]_&]:top-0 [html[data-navbar-style=sticky]_&]:z-50 [html[data-navbar-style=sticky]_&]:overflow-hidden [html[data-navbar-style=sticky]_&]:rounded-t-[inherit] [html[data-navbar-style=sticky]_&]:bg-background/50 [html[data-navbar-style=sticky]_&]:backdrop-blur-md",
             )}
           >
@@ -66,7 +67,7 @@ export default async function DashboardLayout({ children }: Readonly<{ children:
               </div>
             </div>
           </header>
-          <div className="min-h-0 min-w-0 flex-1 overflow-x-hidden p-4 has-data-[content-padding=false]:p-0 md:p-6 md:has-data-[content-padding=false]:p-0">
+          <div className={cn("min-h-0 min-w-0 flex-1 overflow-x-hidden p-4 has-data-[content-padding=false]:p-0 md:p-6 md:has-data-[content-padding=false]:p-0", PAGE_ENTER_CLASSES)}>
             {children}
           </div>
         </SidebarInset>

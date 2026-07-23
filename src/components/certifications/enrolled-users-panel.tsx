@@ -166,7 +166,7 @@ export function EnrolledUsersPanel({ enrollments, certificationId }: EnrolledUse
                       <div className="flex items-center gap-2">
                         <div className="h-1.5 w-24 overflow-hidden rounded-full bg-muted">
                           <div
-                            className="h-full rounded-full bg-primary transition-all"
+                            className="h-full rounded-full bg-primary transition-[width] duration-200 ease-[var(--ease-out-expo)] motion-reduce:transition-none"
                             style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
                           />
                         </div>

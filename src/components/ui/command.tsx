@@ -56,6 +56,7 @@ function CommandDialog({
       <DialogContent
         className={cn(
           "top-1/3 translate-y-0 overflow-hidden rounded-4xl! p-0",
+          "motion-reduce:animate-none data-open:animate-none data-closed:animate-none",
           className
         )}
         showCloseButton={showCloseButton}

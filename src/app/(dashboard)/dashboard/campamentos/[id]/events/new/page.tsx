@@ -7,6 +7,7 @@ import {
   CAMPOREES_CREATE,
 } from "@/lib/auth/permissions";
 import { getCamporeeById, getEnrolledClubs, type CamporeeClub } from "@/lib/api/camporees";
+import { normalizeCamporeeClubs } from "@/lib/camporees/club-display";
 import {
   listCamporeeEventTypes,
   type CamporeeEventType,
@@ -113,7 +114,7 @@ export default async function LocalCamporeeEventNewPage({ params }: { params: Pa
 
   try {
     const clubsPayload = await getEnrolledClubs(camporeeId);
-    camporeeClubs = extractList<CamporeeClub>(clubsPayload);
+    camporeeClubs = normalizeCamporeeClubs(clubsPayload);
   } catch {
     camporeeClubs = [];
   }

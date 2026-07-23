@@ -291,6 +291,10 @@ export async function registerCamporeeMemberAction(
     };
   }
 
+  if (insuranceId === undefined) {
+    return { error: t("validation.insurance_invalid") };
+  }
+
   try {
     await registerCamporeeMember(camporeeId, {
       user_id: userId,

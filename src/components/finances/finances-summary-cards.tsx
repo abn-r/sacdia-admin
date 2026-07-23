@@ -6,6 +6,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { FinanceSummary } from "@/lib/api/finances";
 import { formatFinanceAmount } from "@/lib/finances/amount";
 import { useFormatCurrency } from "@/lib/format-locale";
+import { PAGE_ENTER_CLASSES, STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
+import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
@@ -88,11 +90,19 @@ export function FinancesSummaryCards({ summary }: FinancesSummaryCardsProps) {
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-      {cards.map((card) => {
+    <div className={cn("grid grid-cols-1 gap-4 sm:grid-cols-3", PAGE_ENTER_CLASSES)}>
+      {cards.map((card, index) => {
         const Icon = card.icon;
         return (
-          <Card key={card.label} className="group transition-all hover:border-primary/20">
+          <Card
+            key={card.label}
+            className={cn(
+              "group transition-[border-color,box-shadow,transform] duration-200 ease-[var(--ease-out-expo)] motion-reduce:transition-none",
+              "[@media(hover:hover)_and_(pointer:fine)]:hover:border-primary/20 [@media(hover:hover)_and_(pointer:fine)]:hover:-translate-y-0.5 [@media(hover:hover)_and_(pointer:fine)]:hover:shadow-md",
+              STAGGER_CLASSES,
+            )}
+            style={getStaggerStyle(index, 40)}
+          >
             <CardContent className="p-5">
               <div className="flex items-start justify-between">
                 <div className="space-y-1">

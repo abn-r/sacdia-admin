@@ -1,12 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, CalendarRange, MapPin, DollarSign, Building2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/shared/page-header";
 import { CamporeeInfoCard } from "@/components/camporees/camporee-info-card";
+import { CamporeeDetailInfoTab } from "@/components/camporees/camporee-detail-info-tab";
 import { CamporeeDetailTabs } from "@/components/camporees/camporee-detail-tabs";
 import { ApiError } from "@/lib/api/client";
 import {
@@ -39,6 +38,7 @@ import {
   type CamporeeScoringTarget,
 } from "@/lib/api/camporee-scoring";
 import { hasAnyPermission } from "@/lib/auth/permission-utils";
+import { canManageCamporeeJudgeAssignments } from "@/lib/camporee-scoring/permissions";
 import {
   CAMPOREE_EVENTS_CREATE,
   CAMPOREE_EVENTS_UPDATE,
@@ -99,6 +99,18 @@ function normalizeCamporee(raw: AnyRecord): Camporee {
     includes_pathfinders: raw.includes_pathfinders !== false,
     includes_master_guides: raw.includes_master_guides === true,
     local_camporee_place: toText(raw.union_camporee_place) ?? toText(raw.place) ?? undefined,
+    lat: (() => {
+      const value = raw.lat;
+      if (value == null || value === "") return undefined;
+      const n = Number(value);
+      return Number.isFinite(n) ? n : undefined;
+    })(),
+    long: (() => {
+      const value = raw.long;
+      if (value == null || value === "") return undefined;
+      const n = Number(value);
+      return Number.isFinite(n) ? n : undefined;
+    })(),
     registration_cost: (() => {
       const v = raw.registration_cost;
       if (v == null || v === "") return undefined;
@@ -128,41 +140,6 @@ function extractLeaderboard(payload: unknown): CamporeeLeaderboard | null {
     return candidate as unknown as CamporeeLeaderboard;
   }
   return null;
-}
-
-// ─── Format helpers ───────────────────────────────────────────────────────────
-
-function formatRangeShort(
-  start?: string | null,
-  end?: string | null,
-): { range: string; year: string } {
-  if (!start || !end) return { range: "—", year: "" };
-  try {
-    const s = new Date(start);
-    const e = new Date(end);
-    const fmt = (d: Date) =>
-      d.toLocaleDateString("es-MX", { day: "numeric", month: "short" });
-    const range = `${fmt(s)} – ${fmt(e)}`;
-    const sy = s.getFullYear();
-    const ey = e.getFullYear();
-    const year = sy === ey ? String(sy) : `${sy}–${ey}`;
-    return { range, year };
-  } catch {
-    return { range: "—", year: "" };
-  }
-}
-
-function formatCurrencyMXN(value?: number | null): string {
-  if (value == null) return "—";
-  try {
-    return value.toLocaleString("es-MX", {
-      style: "currency",
-      currency: "MXN",
-      minimumFractionDigits: 2,
-    });
-  } catch {
-    return String(value);
-  }
 }
 
 // ─── Page ──────────────────────────────────────────────────────────────────────
@@ -217,6 +194,9 @@ export default async function UnionCamporeeDetailPage({
   const canCreateEvents = hasAnyPermission(user, [CAMPOREE_EVENTS_CREATE, CAMPOREES_CREATE]);
   const canEditEvents = hasAnyPermission(user, [CAMPOREE_EVENTS_UPDATE, CAMPOREES_UPDATE]);
   const canDeleteEvents = hasAnyPermission(user, [CAMPOREE_EVENTS_DELETE, CAMPOREES_DELETE]);
+  const canEditJudgeAssignments = canManageCamporeeJudgeAssignments(user, {
+    isUnion: true,
+  });
 
   // Fetch members — best effort
   try {
@@ -413,121 +393,16 @@ export default async function UnionCamporeeDetailPage({
         canCreateEvents={canCreateEvents}
         canEditEvents={canEditEvents}
         canDeleteEvents={canDeleteEvents}
+        canEditJudgeAssignments={canEditJudgeAssignments}
+        initialTab={spStr("tab")}
         infoContent={
-          <div className="space-y-4">
-            {/* KPI strip */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
-              {(() => {
-                const { range, year } = formatRangeShort(
-                  camporee.start_date,
-                  camporee.end_date,
-                );
-                return (
-                  <Card className="rounded-xl border-border/60 bg-card shadow-xs px-4 py-3">
-                    <div className="flex items-center gap-1.5 text-[10.5px] uppercase tracking-wider font-semibold text-muted-foreground">
-                      <CalendarRange className="size-3.5" />
-                      Fechas
-                    </div>
-                    <div className="mt-1 text-[18px] font-bold tracking-tight tabular-nums">
-                      {range}
-                    </div>
-                    {year && (
-                      <div className="text-[11.5px] text-muted-foreground mt-0.5">
-                        {year}
-                      </div>
-                    )}
-                  </Card>
-                );
-              })()}
-
-              <Card className="rounded-xl border-border/60 bg-card shadow-xs px-4 py-3">
-                <div className="flex items-center gap-1.5 text-[10.5px] uppercase tracking-wider font-semibold text-muted-foreground">
-                  <MapPin className="size-3.5" />
-                  Lugar
-                </div>
-                <div className="mt-1 text-[15px] font-semibold tracking-tight truncate">
-                  {camporee.local_camporee_place ?? "—"}
-                </div>
-              </Card>
-
-              <Card className="rounded-xl border-border/60 bg-card shadow-xs px-4 py-3">
-                <div className="flex items-center gap-1.5 text-[10.5px] uppercase tracking-wider font-semibold text-muted-foreground">
-                  <DollarSign className="size-3.5" />
-                  Costo de inscripción
-                </div>
-                <div className="mt-1 text-[18px] font-bold tracking-tight tabular-nums">
-                  {formatCurrencyMXN(camporee.registration_cost)}
-                </div>
-                {camporee.registration_cost != null && (
-                  <div className="text-[11.5px] text-muted-foreground mt-0.5">
-                    por miembro
-                  </div>
-                )}
-              </Card>
-
-              <Card className="rounded-xl border-border/60 bg-card shadow-xs px-4 py-3">
-                <div className="flex items-center gap-1.5 text-[10.5px] uppercase tracking-wider font-semibold text-muted-foreground">
-                  <Building2 className="size-3.5" />
-                  Unión
-                </div>
-                <div className="mt-1 text-[15px] font-semibold tracking-tight truncate">
-                  {unionName ?? "—"}
-                </div>
-              </Card>
-            </div>
-
-            {/* Metadata card */}
-            <Card className="rounded-xl border-border/60 bg-card shadow-xs overflow-hidden">
-              <div className="px-5 py-3 border-b border-border/60 bg-muted/30">
-                <div className="text-[10.5px] uppercase tracking-wider font-semibold text-muted-foreground">
-                  {t("cardTitle")}
-                </div>
-              </div>
-              <div className="px-5 py-4 space-y-4">
-                <div>
-                  <div className="text-[10.5px] uppercase tracking-wider font-semibold text-muted-foreground mb-1.5">
-                    {t("labelIncludes")}
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {camporee.includes_adventurers && (
-                      <Badge variant="secondary">Aventureros</Badge>
-                    )}
-                    {camporee.includes_pathfinders && (
-                      <Badge variant="secondary">Conquistadores</Badge>
-                    )}
-                    {camporee.includes_master_guides && (
-                      <Badge variant="secondary">Guías Mayores</Badge>
-                    )}
-                    {!camporee.includes_adventurers &&
-                      !camporee.includes_pathfinders &&
-                      !camporee.includes_master_guides && (
-                        <span className="text-[12px] text-muted-foreground">
-                          —
-                        </span>
-                      )}
-                  </div>
-                </div>
-
-                {camporee.description && (
-                  <div>
-                    <div className="text-[10.5px] uppercase tracking-wider font-semibold text-muted-foreground mb-1.5">
-                      {t("labelDescription")}
-                    </div>
-                    <p className="text-[13px] text-foreground leading-relaxed whitespace-pre-line">
-                      {camporee.description}
-                    </p>
-                  </div>
-                )}
-
-                <div className="pt-2 border-t border-border/60">
-                  <span className="text-[11px] text-muted-foreground tabular-nums">
-                    ID interno · #
-                    {camporee.camporee_id ?? camporee.id ?? "—"}
-                  </span>
-                </div>
-              </div>
-            </Card>
-          </div>
+          <CamporeeDetailInfoTab
+            camporee={camporee}
+            orgCard={{
+              label: t("labelUnionKpi"),
+              title: unionName ?? "—",
+            }}
+          />
         }
       />
     </div>

@@ -36,6 +36,7 @@ import { useTranslations } from "next-intl";
 import {
   registerCamporeeMember,
   registerUnionCamporeeMember,
+  type CamporeeRegisterMemberPayload,
 } from "@/lib/api/camporees";
 import {
   getMemberInsuranceFromClient,
@@ -64,6 +65,16 @@ function formatDate(dateStr: string | null): string {
     month: "2-digit",
     year: "numeric",
   });
+}
+
+function isEligibleCamporeeInsurance(
+  insurance: InsuranceRecord | null,
+): insurance is InsuranceRecord {
+  return Boolean(
+    insurance?.active &&
+      (insurance.insurance_type === "CAMPOREE" ||
+        insurance.insurance_type === "GENERAL_ACTIVITIES"),
+  );
 }
 
 // ─── Props ─────────────────────────────────────────────────────────────────────
@@ -140,7 +151,7 @@ export function RegisterMemberDialog({
     setInsuranceFetching(true);
     try {
       const insurance = await getMemberInsuranceFromClient(userId);
-      if (insurance && insurance.active) {
+      if (isEligibleCamporeeInsurance(insurance)) {
         setSelectedInsurance(insurance);
         form.setValue("insurance_id", insurance.insurance_id);
         setNoInsuranceWarning(false);
@@ -158,18 +169,27 @@ export function RegisterMemberDialog({
   }
 
   const onSubmit: SubmitHandler<FormValues> = async (values) => {
-    setIsSubmitting(true);
     setInsuranceError(null);
+    const insuranceId = Number(values.insurance_id);
+
+    if (
+      !selectedInsurance ||
+      !isEligibleCamporeeInsurance(selectedInsurance) ||
+      !Number.isInteger(insuranceId) ||
+      insuranceId <= 0
+    ) {
+      setNoInsuranceWarning(true);
+      return;
+    }
+
+    setIsSubmitting(true);
     try {
-      const payload = {
+      const payload: CamporeeRegisterMemberPayload = {
         user_id: values.user_id,
         camporee_type: isUnionCamporee ? "union" : values.camporee_type,
         club_name: values.club_name || undefined,
-        insurance_id:
-          values.insurance_id !== "" && values.insurance_id != null
-            ? Number(values.insurance_id)
-            : undefined,
-      } as const;
+        insurance_id: insuranceId,
+      };
       if (isUnionCamporee) {
         await registerUnionCamporeeMember(camporeeId, payload);
       } else {
@@ -196,7 +216,7 @@ export function RegisterMemberDialog({
     }
   };
 
-  const submitDisabled = isSubmitting || noInsuranceWarning;
+  const submitDisabled = isSubmitting || insuranceFetching || noInsuranceWarning;
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>

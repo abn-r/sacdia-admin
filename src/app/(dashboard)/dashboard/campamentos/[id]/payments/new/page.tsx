@@ -10,6 +10,10 @@ import type {
 } from "@/lib/api/camporees";
 import { PaymentFormPage } from "@/components/camporees/payment-form-page";
 import { requireAdminUser } from "@/lib/auth/session";
+import {
+  LOCAL_CAMPOREE_MEMBERS_MAX_LIMIT,
+  normalizeCamporeeMembers,
+} from "@/lib/camporees/member-display";
 
 type Params = Promise<{ id: string }>;
 
@@ -45,11 +49,12 @@ export default async function CamporeePaymentNewPage({
   try {
     const payload: PaginatedCamporeeMembers = await listCamporeeMembers(
       camporeeId,
-      { page: 1, limit: 200 },
+      // Backend CamporeeMembersListQueryDto @Max(100) — limit:200 returns 400.
+      { page: 1, limit: LOCAL_CAMPOREE_MEMBERS_MAX_LIMIT },
     );
-    members = payload.data ?? [];
+    members = normalizeCamporeeMembers(payload.data ?? []);
   } catch {
-    // silently degrade — user can still submit if they know the member id
+    // silently degrade — form shows empty-members hint
   }
 
   return (

@@ -33,6 +33,12 @@ export const DEFAULT_CAMPOREE_MEMBER_FILTERS: CamporeeMemberFilters = {
   insurance: "all",
 };
 
+/** Max page size for GET /camporees/:id/members (backend `@Max(100)`). */
+export const LOCAL_CAMPOREE_MEMBERS_MAX_LIMIT = 100;
+
+/** Max page size for GET /camporees/union/:id/members (backend `@Max(200)`). */
+export const UNION_CAMPOREE_MEMBERS_MAX_LIMIT = 200;
+
 function pickString(value: unknown): string | null {
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : null;
 }
@@ -80,22 +86,27 @@ export function normalizeCamporeeMember(raw: unknown): CamporeeMember {
       pickString(users?.maternal_last_name),
     ]) ??
     pickString(users?.email) ??
-    userId;
+    undefined;
 
   const pictureUrl =
     pickString(record.picture_url) ??
     pickString(users?.user_image) ??
     null;
 
+  const rawCamporeeMemberId = record.camporee_member_id;
+  const camporeeMemberId =
+    typeof rawCamporeeMemberId === "number" && Number.isFinite(rawCamporeeMemberId)
+      ? rawCamporeeMemberId
+      : typeof rawCamporeeMemberId === "string" && /^\d+$/.test(rawCamporeeMemberId)
+        ? Number(rawCamporeeMemberId)
+        : null;
+
   return {
     user_id: userId,
-    camporee_member_id:
-      typeof record.camporee_member_id === "number"
-        ? record.camporee_member_id
-        : null,
+    camporee_member_id: camporeeMemberId,
     name: displayName,
     picture_url: pictureUrl,
-    email: pickString(users?.email),
+    email: pickString(users?.email) ?? pickString(record.email),
     club_name: pickString(record.club_name),
     camporee_type:
       record.camporee_type === "local" || record.camporee_type === "union"
@@ -129,6 +140,42 @@ export function normalizeCamporeeMembers(raw: unknown): CamporeeMember[] {
       : [];
 
   return list.map(normalizeCamporeeMember);
+}
+
+/** Human label for a member — never uses a bare UUID as the primary name. */
+export function getCamporeeMemberDisplayName(
+  member: Pick<CamporeeMember, "user_id" | "name" | "email">,
+  unknownLabel = "Usuario",
+): string {
+  const name = member.name?.trim();
+  if (name && name !== member.user_id) return name;
+
+  const email = member.email?.trim();
+  if (email) return email;
+
+  const id = member.user_id?.trim();
+  if (!id) return unknownLabel;
+  return `${unknownLabel} (${id.slice(0, 8)}…)`;
+}
+
+export type SelectableCamporeePaymentMember = CamporeeMember & {
+  camporee_member_id: number;
+};
+
+/**
+ * Members selectable for payment create — requires numeric camporee_member_id
+ * because POST .../members/:memberId/payments uses ParseIntPipe on that id.
+ */
+export function getSelectablePaymentMembers(
+  members: CamporeeMember[],
+): SelectableCamporeePaymentMember[] {
+  return members.filter(
+    (member): member is SelectableCamporeePaymentMember =>
+      typeof member.camporee_member_id === "number" &&
+      Number.isFinite(member.camporee_member_id) &&
+      member.camporee_member_id > 0 &&
+      Boolean(member.user_id?.trim()),
+  );
 }
 
 type SectionRef = {

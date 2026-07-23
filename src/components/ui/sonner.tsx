@@ -12,6 +12,9 @@ const Toaster = ({ ...props }: ToasterProps) => {
     <Sonner
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
+      expand={false}
+      gap={10}
+      visibleToasts={4}
       icons={{
         success: (
           <HugeiconsIcon icon={CheckmarkCircle02Icon} strokeWidth={2} className="size-4" />
@@ -26,7 +29,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
           <HugeiconsIcon icon={MultiplicationSignCircleIcon} strokeWidth={2} className="size-4" />
         ),
         loading: (
-          <HugeiconsIcon icon={Loading03Icon} strokeWidth={2} className="size-4 animate-spin" />
+          <HugeiconsIcon icon={Loading03Icon} strokeWidth={2} className="size-4 animate-spin motion-reduce:animate-none" />
         ),
       }}
       style={

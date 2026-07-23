@@ -29,6 +29,7 @@ export type CamporeeClub = {
   camporee_id: number;
   club_section_id: number;
   club_id?: number | null;
+  club_type_id?: number | null;
   section_name?: string | null;
   club_name?: string | null;
   section_type_name?: string | null;
@@ -49,13 +50,22 @@ export type EnrollClubPayload = {
 
 export type PaymentType = "inscription" | "materials" | "other";
 
+/**
+ * Payment row from GET /camporees/:id/payments (and union variant).
+ * Runtime Prisma payload uses `camporee_member_id` + nested `camporee_member`;
+ * `member_id` / `member_name` are optional flattened aliases some clients expect.
+ * `amount` may arrive as a Decimal string (`"450.00"`).
+ * Status lifecycle: `registered` (on-time) | `pending_approval` (late) |
+ * `approved` (late approved) | `rejected`.
+ */
 export type CamporeePayment = {
   payment_id?: number | null;
   camporee_payment_id: string;
-  camporee_id: number;
-  member_id: string;
+  camporee_id?: number;
+  camporee_member_id?: number | null;
+  member_id?: string;
   member_name?: string | null;
-  amount: number;
+  amount: number | string;
   payment_type: PaymentType;
   reference?: string | null;
   notes?: string | null;
@@ -64,6 +74,17 @@ export type CamporeePayment = {
   status?: string | null;
   voucher_url?: string | null;
   voucher_uploaded_at?: string | null;
+  camporee_member?: {
+    camporee_member_id?: number;
+    camporee_id?: number;
+    user_id?: string;
+    club_name?: string | null;
+    users?: {
+      name?: string | null;
+      paternal_last_name?: string | null;
+      maternal_last_name?: string | null;
+    } | null;
+  } | null;
 };
 
 export type CreatePaymentPayload = {
@@ -144,7 +165,7 @@ export type CamporeeRegisterMemberPayload = {
   user_id: string;
   camporee_type: "local" | "union";
   club_name?: string;
-  insurance_id?: number;
+  insurance_id: number;
 };
 
 export type PaginatedCamporeeMembers = PaginatedResult<CamporeeMember>;
@@ -272,9 +293,10 @@ export async function cancelUnionClubEnrollment(camporeeId: number, camporeeClub
 
 // ─── Payment functions ────────────────────────────────────────────────────────
 
+/** Create a payment for an enrolled member. `memberId` is camporee_member_id. */
 export async function createPayment(
   camporeeId: number,
-  memberId: string,
+  memberId: number | string,
   payload: CreatePaymentPayload,
 ) {
   return apiRequest(`/camporees/${camporeeId}/members/${memberId}/payments`, {

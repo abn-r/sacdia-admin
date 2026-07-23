@@ -68,6 +68,10 @@ export interface CamporeeJudge {
   camporee_judge_id: string;
   user_id: string;
   name: string | null;
+  /** Present once backend includes it on list response. */
+  email?: string | null;
+  notes?: string | null;
+  user_image?: string | null;
   status: string;
   active: boolean;
 }
@@ -97,6 +101,12 @@ export interface CamporeeJudgeCandidate {
 export interface AddCamporeeJudgePayload {
   user_id: string;
   notes?: string | null;
+}
+
+export interface UpdateCamporeeJudgePayload {
+  notes?: string | null;
+  status?: string;
+  active?: boolean;
 }
 
 export interface CamporeeEventJudgeAssignment {
@@ -211,6 +221,26 @@ export async function addUnionCamporeeJudge(
   const res = await apiRequest<unknown>(`/union-camporees/${camporeeId}/judges`, {
     method: "POST",
     body: payload,
+  });
+  return unwrapApiData<CamporeeJudge>(res);
+}
+
+/** Proposed contract: PATCH /camporee-judges/:judgeId */
+export async function updateCamporeeJudge(
+  judgeId: string,
+  payload: UpdateCamporeeJudgePayload,
+) {
+  const res = await apiRequest<unknown>(`/camporee-judges/${judgeId}`, {
+    method: "PATCH",
+    body: payload,
+  });
+  return unwrapApiData<CamporeeJudge>(res);
+}
+
+/** Proposed contract: DELETE /camporee-judges/:judgeId (soft-deactivate). */
+export async function deactivateCamporeeJudge(judgeId: string) {
+  const res = await apiRequest<unknown>(`/camporee-judges/${judgeId}`, {
+    method: "DELETE",
   });
   return unwrapApiData<CamporeeJudge>(res);
 }

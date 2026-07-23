@@ -464,7 +464,7 @@ export function FolderClientPage({ initialFolder }: FolderClientPageProps) {
             </div>
             <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
               <div
-                className="h-full rounded-full bg-primary transition-all duration-300"
+                className="h-full rounded-full bg-primary transition-[width] duration-200 ease-[var(--ease-out-expo)] motion-reduce:transition-none"
                 style={{ width: `${progressPct}%` }}
                 role="progressbar"
                 aria-valuenow={progressPct}

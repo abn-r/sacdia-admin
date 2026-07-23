@@ -8,6 +8,7 @@ import {
 } from "@/lib/auth/permissions";
 import { apiRequest } from "@/lib/api/client";
 import { getCamporeeById, getEnrolledClubs, type CamporeeClub } from "@/lib/api/camporees";
+import { normalizeCamporeeClubs } from "@/lib/camporees/club-display";
 import {
   listCamporeeEventTypes,
   type CamporeeEventType,
@@ -135,7 +136,7 @@ export default async function LocalCamporeeEventEditPage({ params }: { params: P
 
   try {
     const clubsPayload = await getEnrolledClubs(camporeeId);
-    camporeeClubs = extractList<CamporeeClub>(clubsPayload);
+    camporeeClubs = normalizeCamporeeClubs(clubsPayload);
   } catch {
     camporeeClubs = [];
   }

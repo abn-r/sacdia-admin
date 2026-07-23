@@ -89,6 +89,22 @@ export function resolveClubId(club: ClubFull, fallback: string | number): number
   return Number.isFinite(id) ? id : Number(fallback);
 }
 
+export function isDirectorRole(role: string | null | undefined): boolean {
+  if (!role) return false;
+  const normalized = role.trim().toLowerCase().replace(/-/g, "_");
+  return normalized === "director" || normalized === "director_club";
+}
+
+export function findSectionDirectorMember(
+  members: ClubSectionMember[],
+): ClubSectionMember | null {
+  return (
+    members.find((member) =>
+      isDirectorRole(member.role ?? member.role_display_name),
+    ) ?? null
+  );
+}
+
 export function getSectionDirector(
   leadership: ClubLeadership,
   sectionName: string,
@@ -100,12 +116,14 @@ export function getSectionDirector(
     ...leadership.others,
   ].filter((member): member is LeadershipMember => member != null);
 
-  const normalized = sectionName.trim().toLowerCase();
+  const normalizedSection = sectionName.trim().toLowerCase();
+
   const match = candidates.find(
     (member) =>
-      member.role_name.toLowerCase() === "director" &&
-      (member.section_name?.trim().toLowerCase() ?? "") === normalized,
+      isDirectorRole(member.role_name) &&
+      (member.section_name?.trim().toLowerCase() ?? "") === normalizedSection,
   );
+
   return match ?? null;
 }
 

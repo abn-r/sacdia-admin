@@ -107,7 +107,14 @@ const cspValue = [
   .concat(";");
 
 const nextConfig: NextConfig = {
+  // Parent `sacdia/package-lock.json` (stub) + this app's pnpm-workspace.yaml
+  // make Next infer the monorepo root as Turbopack's watch/trace root, which
+  // scans backend/app/.worktrees/node_modules and burns CPU/disk. Pin both to
+  // this package so HMR only watches sacdia-admin.
+  // https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory
+  outputFileTracingRoot: projectRoot,
   turbopack: {
+    root: projectRoot,
     resolveAlias: {
       "lucide-react": hugeiconsCompatPath,
     },

@@ -42,7 +42,7 @@ export function OperationsBentoTile({
         "group relative flex h-full min-h-[220px] flex-col overflow-hidden rounded-3xl",
         "border border-foreground/5 bg-gradient-to-br from-card via-card to-muted/15",
         "p-5 shadow-sm ring-1 ring-foreground/5 sm:p-6",
-        "motion-reduce:transition-none transition-shadow hover:shadow-md",
+        "motion-reduce:transition-none transition-[transform,box-shadow] duration-200 ease-[var(--ease-out-expo)] [@media(hover:hover)_and_(pointer:fine)]:hover:-translate-y-0.5 [@media(hover:hover)_and_(pointer:fine)]:hover:shadow-md",
         className,
       )}
       aria-label={ariaLabel ?? title}

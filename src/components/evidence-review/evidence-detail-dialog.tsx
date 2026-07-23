@@ -142,10 +142,10 @@ function FileCard({ file, index, onOpenViewer }: FileCardProps) {
           <img
             src={file.file_url}
             alt={fileLabel}
-            className="h-40 w-full object-cover transition-transform group-hover:scale-105"
+            className="h-40 w-full object-cover transition-transform duration-200 ease-[var(--ease-out-expo)] motion-reduce:transition-none [@media(hover:hover)_and_(pointer:fine)]:group-hover:scale-[1.03]"
             loading="lazy"
           />
-          <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all group-hover:bg-black/20 group-hover:opacity-100">
+          <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-[opacity,background-color] duration-200 ease-[var(--ease-out-expo)] motion-reduce:transition-none [@media(hover:hover)_and_(pointer:fine)]:group-hover:bg-black/20 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100">
             <ExternalLink className="size-6 text-white drop-shadow" />
           </div>
         </button>

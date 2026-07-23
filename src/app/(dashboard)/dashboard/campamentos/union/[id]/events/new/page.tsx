@@ -11,6 +11,7 @@ import {
   getUnionEnrolledClubs,
   type CamporeeClub,
 } from "@/lib/api/camporees";
+import { normalizeCamporeeClubs } from "@/lib/camporees/club-display";
 import {
   listCamporeeEventTypes,
   type CamporeeEventType,
@@ -116,7 +117,7 @@ export default async function UnionCamporeeEventNewPage({ params }: { params: Pa
 
   try {
     const clubsPayload = await getUnionEnrolledClubs(camporeeId);
-    camporeeClubs = extractList<CamporeeClub>(clubsPayload);
+    camporeeClubs = normalizeCamporeeClubs(clubsPayload);
   } catch {
     camporeeClubs = [];
   }

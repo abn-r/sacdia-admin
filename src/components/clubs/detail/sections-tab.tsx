@@ -18,6 +18,7 @@ import {
 } from "@/lib/clubs/detail-actions";
 import {
   formatLeaderName,
+  findSectionDirectorMember,
   getSectionDirector,
   type ClubDetailPayload,
   type ClubSectionRaw,
@@ -241,7 +242,13 @@ export function SectionsTab({ data }: SectionsTabProps) {
           );
         }
 
-        const director = getSectionDirector(
+        const memberGroup = data.sectionMemberGroups.find(
+          (group) => group.sectionId === section.club_section_id,
+        );
+        const directorFromMembers = memberGroup
+          ? findSectionDirectorMember(memberGroup.members)
+          : null;
+        const directorFromLeadership = getSectionDirector(
           data.leadership,
           section.name ?? clubType.name,
         );
@@ -251,8 +258,15 @@ export function SectionsTab({ data }: SectionsTabProps) {
             key={clubType.club_type_id}
             section={section}
             typeName={clubType.name}
-            directorName={director ? formatLeaderName(director) : null}
-            directorImage={director?.user_image ?? null}
+            directorName={
+              directorFromMembers?.name ??
+              (directorFromLeadership ? formatLeaderName(directorFromLeadership) : null)
+            }
+            directorImage={
+              directorFromMembers?.picture_url ??
+              directorFromLeadership?.user_image ??
+              null
+            }
           />
         );
       })}

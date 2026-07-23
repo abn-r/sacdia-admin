@@ -105,6 +105,64 @@ function getJson<T>(formData: FormData, key: string): T | undefined {
   }
 }
 
+/**
+ * Strip read-only / relation fields from schedule blocks before API write.
+ * Backend ValidationPipe uses forbidNonWhitelisted — sending assignment IDs,
+ * nested camporee_club/club_section, audit fields, etc. fails hard.
+ */
+function sanitizeScheduleBlocksForWrite(
+  blocks: CamporeeEventScheduleBlock[],
+): CamporeeEventScheduleBlock[] {
+  return blocks.map((block) => {
+    const startsAt =
+      typeof block.starts_at === "string" && block.starts_at.trim()
+        ? block.starts_at.trim()
+        : null;
+    const endsAt =
+      typeof block.ends_at === "string" && block.ends_at.trim()
+        ? block.ends_at.trim()
+        : null;
+
+    const assignments = (block.assignments ?? [])
+      .map((assignment) => {
+        const clubSectionId = Number(assignment.club_section_id);
+        if (!Number.isFinite(clubSectionId) || clubSectionId < 1) return null;
+        const camporeeClubId =
+          assignment.camporee_club_id != null
+            ? Number(assignment.camporee_club_id)
+            : null;
+        return {
+          club_section_id: clubSectionId,
+          ...(camporeeClubId != null &&
+          Number.isFinite(camporeeClubId) &&
+          camporeeClubId >= 1
+            ? { camporee_club_id: camporeeClubId }
+            : {}),
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item != null);
+
+    return {
+      title: block.title?.trim() ? block.title.trim() : undefined,
+      description: block.description?.trim() ? block.description.trim() : undefined,
+      day_number:
+        typeof block.day_number === "number" && block.day_number >= 1
+          ? block.day_number
+          : 1,
+      ...(startsAt ? { starts_at: startsAt } : {}),
+      ...(endsAt ? { ends_at: endsAt } : {}),
+      ...(typeof block.venue_id === "number" && block.venue_id >= 1
+        ? { venue_id: block.venue_id }
+        : {}),
+      ...(typeof block.capacity === "number" && block.capacity >= 0
+        ? { capacity: block.capacity }
+        : {}),
+      ...(block.notes?.trim() ? { notes: block.notes.trim() } : {}),
+      ...(assignments.length > 0 ? { assignments } : {}),
+    };
+  });
+}
+
 function extractCreatedEventId(payload: unknown): number | null {
   if (!payload || typeof payload !== "object") return null;
   const root = payload as Record<string, unknown>;
@@ -629,12 +687,22 @@ function buildAgendaPayload(
     sections = [];
   }
 
-  const capacity = getNonNegativeInt(formData, "capacity");
-  const registered_count = getNonNegativeInt(formData, "registered_count") ?? 0;
   const max_points = getNonNegativeInt(formData, "max_points") ?? 0;
+  const min_points = getNonNegativeInt(formData, "min_points") ?? 0;
+  if (min_points > max_points) {
+    return {
+      validationError: "Los puntos mínimos no pueden superar los puntos máximos.",
+    };
+  }
+  const penalties =
+    getJson<import("@/lib/api/camporee-events").PenaltyRule[]>(
+      formData,
+      "penalties",
+    ) ?? [];
   const event_type_id = getPositiveInt(formData, "event_type_id");
-  const schedule_blocks =
-    getJson<CamporeeEventScheduleBlock[]>(formData, "schedule_blocks") ?? [];
+  const schedule_blocks = sanitizeScheduleBlocksForWrite(
+    getJson<CamporeeEventScheduleBlock[]>(formData, "schedule_blocks") ?? [],
+  );
 
   return {
     ...(event_type_id ? { event_type_id } : {}),
@@ -650,15 +718,11 @@ function buildAgendaPayload(
     leader_name_override: leader_name_override || null,
     leader_role: leader_role || null,
     sections: (sections as import("@/lib/api/camporee-events").CamporeeEventSection[]) ?? [],
-    capacity: capacity ?? null,
-    registered_count,
     max_points,
-    min_points: 0,
-    penalties: [],
+    min_points,
+    penalties,
     participants_mode: "count",
     participants_count: 1,
-    active: true,
-    display_order: getNonNegativeInt(formData, "display_order") ?? 0,
     schedule_blocks,
   };
 }

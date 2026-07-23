@@ -4,8 +4,9 @@ import { useActionState, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Trash2, UserPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -48,6 +49,33 @@ function assignmentUserName(assignment: ClassCounselorAssignment) {
     .filter(Boolean)
     .join(" ")
     .trim();
+}
+
+function memberInitials(name: string) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+}
+
+function MemberIdentity({
+  name,
+  pictureUrl,
+}: {
+  name: string;
+  pictureUrl?: string | null;
+}) {
+  return (
+    <div className="flex min-w-0 items-center gap-3">
+      <Avatar size="sm">
+        {pictureUrl ? <AvatarImage src={pictureUrl} alt={name} /> : null}
+        <AvatarFallback>{memberInitials(name)}</AvatarFallback>
+      </Avatar>
+      <span className="truncate font-medium">{name}</span>
+    </div>
+  );
 }
 
 export function RolesTab({ data }: RolesTabProps) {
@@ -174,9 +202,19 @@ export function RolesTab({ data }: RolesTabProps) {
         <CardHeader>
           <CardTitle>{t("clubRolesTitle")}</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
           {data.canManageRoles ? (
-            <form action={roleAction} className="grid gap-3 md:grid-cols-4">
+            <section
+              aria-labelledby="assign-club-role-heading"
+              className="space-y-4 rounded-xl border border-dashed border-border/80 bg-muted/20 p-4"
+            >
+              <div className="space-y-1">
+                <h3 id="assign-club-role-heading" className="text-sm font-medium">
+                  {t("assignRoleTitle")}
+                </h3>
+                <CardDescription>{t("assignRoleDescription")}</CardDescription>
+              </div>
+              <form action={roleAction} className="grid gap-3 md:grid-cols-4">
               <input type="hidden" name="club_id" value={data.clubId} />
               <input
                 type="hidden"
@@ -243,8 +281,16 @@ export function RolesTab({ data }: RolesTabProps) {
                 </Button>
               </div>
             </form>
+            </section>
           ) : null}
 
+          <section aria-labelledby="club-role-assignments-heading" className="space-y-3">
+            <div className="space-y-1">
+              <h3 id="club-role-assignments-heading" className="text-sm font-medium">
+                {t("assignmentsTitle")}
+              </h3>
+            </div>
+            <div className="overflow-hidden rounded-xl border">
           <Table>
             <TableHeader>
               <TableRow>
@@ -264,7 +310,12 @@ export function RolesTab({ data }: RolesTabProps) {
               ) : (
                 allAssignments.map((member) => (
                   <TableRow key={`${member.sectionId}-${member.user_id}-${member.assignment_id ?? member.role}`}>
-                    <TableCell>{member.name}</TableCell>
+                    <TableCell>
+                      <MemberIdentity
+                        name={member.name}
+                        pictureUrl={member.picture_url}
+                      />
+                    </TableCell>
                     <TableCell>{member.sectionName}</TableCell>
                     <TableCell>
                       {translateRole(member.role ?? member.role_display_name)}
@@ -287,6 +338,8 @@ export function RolesTab({ data }: RolesTabProps) {
               )}
             </TableBody>
           </Table>
+            </div>
+          </section>
         </CardContent>
       </Card>
 
@@ -294,27 +347,38 @@ export function RolesTab({ data }: RolesTabProps) {
         <CardHeader>
           <CardTitle>{t("counselorsTitle")}</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-3 md:grid-cols-2">
-            <div className="space-y-1">
-              <Label>{t("sectionLabel")}</Label>
-              <Select value={counselorSectionId} onValueChange={setCounselorSectionId}>
-                <SelectTrigger>
-                  <SelectValue placeholder={t("sectionLabel")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {sections.map((section) => (
-                    <SelectItem key={section.sectionId} value={String(section.sectionId)}>
-                      {section.sectionName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
+        <CardContent className="space-y-6">
           {data.canManageRoles ? (
-            <form action={counselorAction} className="grid gap-3 md:grid-cols-4">
+            <section
+              aria-labelledby="assign-counselor-heading"
+              className="space-y-4 rounded-xl border border-dashed border-border/80 bg-muted/20 p-4"
+            >
+              <div className="space-y-1">
+                <h3 id="assign-counselor-heading" className="text-sm font-medium">
+                  {t("assignCounselorTitle")}
+                </h3>
+                <CardDescription>{t("assignCounselorDescription")}</CardDescription>
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-2">
+                <div className="space-y-1">
+                  <Label>{t("sectionLabel")}</Label>
+                  <Select value={counselorSectionId} onValueChange={setCounselorSectionId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder={t("sectionLabel")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {sections.map((section) => (
+                        <SelectItem key={section.sectionId} value={String(section.sectionId)}>
+                          {section.sectionName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <form action={counselorAction} className="grid gap-3 md:grid-cols-4">
               <input type="hidden" name="club_id" value={data.clubId} />
               <input type="hidden" name="section_id" value={counselorSectionId} />
               <input
@@ -378,7 +442,33 @@ export function RolesTab({ data }: RolesTabProps) {
                 </Button>
               </div>
             </form>
-          ) : null}
+            </section>
+          ) : (
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="space-y-1">
+                <Label>{t("sectionLabel")}</Label>
+                <Select value={counselorSectionId} onValueChange={setCounselorSectionId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={t("sectionLabel")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {sections.map((section) => (
+                      <SelectItem key={section.sectionId} value={String(section.sectionId)}>
+                        {section.sectionName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+
+          <section aria-labelledby="counselors-list-heading" className="space-y-3">
+            <div className="space-y-1">
+              <h3 id="counselors-list-heading" className="text-sm font-medium">
+                {t("counselorsListTitle")}
+              </h3>
+            </div>
 
           {loadingCounselors ? (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -386,6 +476,7 @@ export function RolesTab({ data }: RolesTabProps) {
               {t("loadingCounselors")}
             </div>
           ) : (
+            <div className="overflow-hidden rounded-xl border">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -406,7 +497,12 @@ export function RolesTab({ data }: RolesTabProps) {
                   counselorAssignments.map((assignment) => (
                     <TableRow key={assignment.assignment_id}>
                       <TableCell>{assignment.classes?.name ?? assignment.class_id}</TableCell>
-                      <TableCell>{assignmentUserName(assignment)}</TableCell>
+                      <TableCell>
+                        <MemberIdentity
+                          name={assignmentUserName(assignment)}
+                          pictureUrl={assignment.users?.user_image}
+                        />
+                      </TableCell>
                       <TableCell>
                         {assignment.responsibility_type === "primary"
                           ? t("responsibilityPrimary")
@@ -434,7 +530,9 @@ export function RolesTab({ data }: RolesTabProps) {
                 )}
               </TableBody>
             </Table>
+            </div>
           )}
+          </section>
         </CardContent>
       </Card>
     </div>

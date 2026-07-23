@@ -87,14 +87,14 @@ export function RubricsEditor({
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-1">
-          <h2 className="text-base font-semibold tracking-tight">Scoring por rúbricas</h2>
+          <h2 className="text-base font-semibold tracking-tight">Puntaje por rúbricas</h2>
           <p className="text-sm text-muted-foreground">
-            Activá esta opción cuando el evento/template aporte puntos reales al camporee.
+            Activa esta opción cuando el evento aporte puntos reales al camporee.
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Switch
-            aria-label="Habilitar scoring por rúbricas"
+            aria-label="Habilitar puntaje por rúbricas"
             checked={enabled}
             onCheckedChange={onEnabledChange}
           />

@@ -1,7 +1,9 @@
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { Suspense } from "react";
 import { FileText } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -154,7 +156,14 @@ export default async function ReportsPage() {
       <PageHeader
         title={t("page.title")}
         description={t("page.description")}
-      />
+      >
+        <Button variant="outline" size="sm" asChild>
+          <Link href="/reports/monthly-preview">
+            <FileText aria-hidden="true" />
+            {t("page.print_preview")}
+          </Link>
+        </Button>
+      </PageHeader>
 
       <Suspense fallback={<ReportsPageSkeleton />}>
         <ReportsContent t={t} user={user} />
