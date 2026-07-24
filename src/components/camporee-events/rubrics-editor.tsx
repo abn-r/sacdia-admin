@@ -17,6 +17,7 @@ export interface RubricsEditorProps {
   maxPoints: number;
   enabledFieldName?: string;
   rubricsFieldName?: string;
+  disabled?: boolean;
 }
 
 function normalizeNumber(value: string): number {
@@ -46,6 +47,7 @@ export function RubricsEditor({
   maxPoints,
   enabledFieldName = "scoring_enabled",
   rubricsFieldName = "rubrics",
+  disabled = false,
 }: RubricsEditorProps) {
   const total = calculateRubricsTotal(value);
   const isValid = areRubricsValid(enabled, value, maxPoints);
@@ -71,9 +73,13 @@ export function RubricsEditor({
 
   return (
     <section className="space-y-6 rounded-xl border p-6">
-      <input type="hidden" name={enabledFieldName} value={enabled ? "on" : ""} />
-      <input type="hidden" name={rubricsFieldName} value={JSON.stringify(value)} />
-      {enabled && !isValid && (
+      {!disabled && (
+        <>
+          <input type="hidden" name={enabledFieldName} value={enabled ? "on" : ""} />
+          <input type="hidden" name={rubricsFieldName} value={JSON.stringify(value)} />
+        </>
+      )}
+      {!disabled && enabled && !isValid && (
         <input
           aria-hidden="true"
           className="sr-only"
@@ -91,12 +97,18 @@ export function RubricsEditor({
           <p className="text-sm text-muted-foreground">
             Activá esta opción cuando el evento/template aporte puntos reales al camporee.
           </p>
+          {disabled && (
+            <p className="text-sm text-warning">
+              Primero cerrá/cierra la inscripción de clubes para congelar las secciones participantes.
+            </p>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <Switch
             aria-label="Habilitar scoring por rúbricas"
             checked={enabled}
             onCheckedChange={onEnabledChange}
+            disabled={disabled}
           />
           <span className="text-sm text-muted-foreground">
             {enabled ? "Puntuable" : "No puntuable"}
@@ -126,6 +138,7 @@ export function RubricsEditor({
                   <Input
                     id={`rubric-title-${index}`}
                     value={rubric.title}
+                    disabled={disabled}
                     maxLength={120}
                     onChange={(event) => updateRubric(index, { title: event.target.value })}
                     placeholder="Ej. Técnica"
@@ -133,6 +146,7 @@ export function RubricsEditor({
                   <Textarea
                     aria-label={`Descripción criterio ${index + 1}`}
                     value={rubric.description ?? ""}
+                    disabled={disabled}
                     rows={2}
                     onChange={(event) =>
                       updateRubric(index, { description: event.target.value || null })
@@ -149,6 +163,7 @@ export function RubricsEditor({
                     min={0}
                     step="0.01"
                     value={rubric.max_points}
+                    disabled={disabled}
                     onChange={(event) =>
                       updateRubric(index, { max_points: normalizeNumber(event.target.value) })
                     }
@@ -161,6 +176,7 @@ export function RubricsEditor({
                   className="self-start md:mt-7"
                   onClick={() => removeRubric(index)}
                   aria-label={`Eliminar criterio ${index + 1}`}
+                  disabled={disabled}
                 >
                   <Trash2 className="size-4" />
                 </Button>
@@ -168,7 +184,13 @@ export function RubricsEditor({
             ))}
           </div>
 
-          <Button type="button" variant="outline" size="sm" onClick={addRubric}>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={addRubric}
+            disabled={disabled}
+          >
             <Plus className="size-4" />
             Agregar criterio
           </Button>

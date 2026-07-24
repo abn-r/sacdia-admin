@@ -16,6 +16,10 @@ import {
   type CamporeeEventType,
 } from "@/lib/api/camporee-events";
 import {
+  listCamporeeStaff,
+  type CamporeeStaffMember,
+} from "@/lib/api/camporee-staff";
+import {
   listUnionCamporeeVenues,
   type CamporeeVenue,
 } from "@/lib/api/camporee-venues";
@@ -58,6 +62,14 @@ function normalizeCamporee(raw: AnyRecord): Camporee {
     name: String(raw.name ?? ""),
     start_date: String(raw.start_date ?? ""),
     end_date: String(raw.end_date ?? ""),
+    club_registration_closed_at:
+      typeof raw.club_registration_closed_at === "string"
+        ? raw.club_registration_closed_at
+        : null,
+    club_registration_closed_by:
+      typeof raw.club_registration_closed_by === "string"
+        ? raw.club_registration_closed_by
+        : null,
     includes_adventurers: raw.includes_adventurers === true,
     includes_pathfinders: raw.includes_pathfinders !== false,
     includes_master_guides: raw.includes_master_guides === true,
@@ -90,6 +102,7 @@ export default async function UnionCamporeeEventNewPage({ params }: { params: Pa
   let venues: CamporeeVenue[] = [];
   let eventTypes: CamporeeEventType[] = [];
   let camporeeClubs: CamporeeClub[] = [];
+  let staffRoster: CamporeeStaffMember[] = [];
 
   try {
     const payload = await getUnionCamporeeById(camporeeId);
@@ -121,6 +134,13 @@ export default async function UnionCamporeeEventNewPage({ params }: { params: Pa
     camporeeClubs = [];
   }
 
+  try {
+    const staffPayload = await listCamporeeStaff("union", camporeeId);
+    staffRoster = extractList<CamporeeStaffMember>(staffPayload);
+  } catch {
+    staffRoster = [];
+  }
+
   // Users list: not fetching from backend in this version — empty list allowed
   // (the form shows "Sin responsable" as default). A future PR can wire
   // a member-list endpoint here.
@@ -145,6 +165,8 @@ export default async function UnionCamporeeEventNewPage({ params }: { params: Pa
       users={users}
       eventTypes={eventTypes}
       camporeeClubs={camporeeClubs}
+      staffRoster={staffRoster}
+      scoringSetupEnabled={Boolean(camporee.club_registration_closed_at)}
       isUnionCamporee
       action={boundAction}
     />

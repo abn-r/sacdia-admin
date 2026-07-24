@@ -96,6 +96,7 @@ interface CamporeeClubsPanelProps {
   clubs: CamporeeClub[];
   onClubsChange: () => void;
   isUnionCamporee?: boolean;
+  clubRegistrationClosed?: boolean;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -105,6 +106,7 @@ export function CamporeeClubsPanel({
   clubs,
   onClubsChange,
   isUnionCamporee = false,
+  clubRegistrationClosed = false,
 }: CamporeeClubsPanelProps) {
   const t = useTranslations("camporees");
   const [cancellingId, setCancellingId] = useState<number | null>(null);
@@ -244,7 +246,7 @@ export function CamporeeClubsPanel({
                                 size="icon-sm"
                                 className="text-success hover:bg-success/10 hover:text-success"
                                 onClick={() => handleApprove(club.camporee_club_id)}
-                                disabled={isApproving}
+                                disabled={isApproving || clubRegistrationClosed}
                                 aria-label={t("clubsPanel.approveLabel")}
                               >
                                 {isApproving ? (
@@ -254,7 +256,11 @@ export function CamporeeClubsPanel({
                                 )}
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent>{t("clubsPanel.approveLabel")}</TooltipContent>
+                            <TooltipContent>
+                              {clubRegistrationClosed
+                                ? "Inscripción de clubes cerrada"
+                                : t("clubsPanel.approveLabel")}
+                            </TooltipContent>
                           </Tooltip>
 
                           <Tooltip>
@@ -264,12 +270,17 @@ export function CamporeeClubsPanel({
                                 size="icon-sm"
                                 className="text-destructive hover:bg-destructive/10 hover:text-destructive"
                                 onClick={() => setDialog({ club, mode: "reject" })}
+                                disabled={clubRegistrationClosed}
                                 aria-label={t("clubsPanel.rejectLabel")}
                               >
                                 <XCircle className="size-4" />
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent>{t("clubsPanel.rejectLabel")}</TooltipContent>
+                            <TooltipContent>
+                              {clubRegistrationClosed
+                                ? "Inscripción de clubes cerrada"
+                                : t("clubsPanel.rejectLabel")}
+                            </TooltipContent>
                           </Tooltip>
                         </>
                       )}
@@ -281,7 +292,7 @@ export function CamporeeClubsPanel({
                               variant="ghost"
                               size="icon-sm"
                               onClick={() => handleCancel(club.camporee_club_id, club.section_name)}
-                              disabled={cancellingId === club.camporee_club_id}
+                              disabled={cancellingId === club.camporee_club_id || clubRegistrationClosed}
                               aria-label={t("clubsPanel.cancelLabel")}
                               className="text-destructive hover:text-destructive"
                             >
@@ -289,7 +300,11 @@ export function CamporeeClubsPanel({
                               <span className="sr-only">{t("clubsPanel.cancelLabel")}</span>
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent>{t("clubsPanel.cancelLabel")}</TooltipContent>
+                          <TooltipContent>
+                            {clubRegistrationClosed
+                              ? "Inscripción de clubes cerrada"
+                              : t("clubsPanel.cancelLabel")}
+                          </TooltipContent>
                         </Tooltip>
                       )}
                     </div>

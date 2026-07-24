@@ -40,6 +40,11 @@ import {
 } from "@/components/camporee-events/venue-create-dialog";
 import { RubricsEditor } from "@/components/camporee-events/rubrics-editor";
 import { ScheduleBlocksEditor } from "@/components/camporee-events/schedule-blocks-editor";
+import {
+  EventStaffAssignmentsEditor,
+  normalizeEventStaffAssignments,
+  type EditableEventStaffAssignment,
+} from "@/components/camporee-events/event-staff-assignments-editor";
 import type {
   CamporeeEventStatus,
   CamporeeEventDisplayCategory,
@@ -54,6 +59,7 @@ import type {
 } from "@/lib/api/camporee-scoring";
 import type { CamporeeVenue } from "@/lib/api/camporee-venues";
 import type { Camporee, CamporeeClub } from "@/lib/api/camporees";
+import type { CamporeeStaffMember } from "@/lib/api/camporee-staff";
 import type { CamporeeEventActionState } from "@/lib/camporee-events/actions";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -77,6 +83,8 @@ export interface EventFormPageProps {
   users: UserOption[];
   eventTypes?: CamporeeEventType[];
   camporeeClubs?: CamporeeClub[];
+  staffRoster?: CamporeeStaffMember[];
+  scoringSetupEnabled?: boolean;
   isUnionCamporee?: boolean;
   event?: BackendCamporeeEvent;
   rubrics?: CamporeeEventRubric[];
@@ -132,6 +140,8 @@ export function EventFormPage({
   users,
   eventTypes = [],
   camporeeClubs = [],
+  staffRoster = [],
+  scoringSetupEnabled = true,
   isUnionCamporee = false,
   event,
   rubrics: initialRubrics = [],
@@ -251,6 +261,9 @@ export function EventFormPage({
       notes: block.notes ?? null,
       assignments: block.assignments ?? [],
     })),
+  );
+  const [staffAssignments, setStaffAssignments] = useState<EditableEventStaffAssignment[]>(
+    normalizeEventStaffAssignments(event?.staff_assignments),
   );
 
   function handleEventTypeChange(value: string) {
@@ -667,6 +680,13 @@ export function EventFormPage({
           </section>
         )}
 
+        <EventStaffAssignmentsEditor
+          staff={staffRoster}
+          value={staffAssignments}
+          onChange={setStaffAssignments}
+          publishRequested={status === "publicado"}
+        />
+
         {/* ══ Section 6: Capacidad y puntos ══ (PR6c) */}
         <section className="space-y-6 rounded-xl border p-6">
           <h2 className="text-base font-semibold tracking-tight">Capacidad y puntos</h2>
@@ -714,12 +734,19 @@ export function EventFormPage({
           </div>
         </section>
 
+        {!scoringSetupEnabled && (
+          <div className="rounded-lg border border-warning/30 bg-warning/10 p-3 text-sm text-warning">
+            Primero cerrá/cierra la inscripción de clubes para congelar las secciones participantes.
+          </div>
+        )}
+
         <RubricsEditor
           enabled={scoringEnabled}
           onEnabledChange={setScoringEnabled}
           value={rubrics}
           onChange={setRubrics}
           maxPoints={maxPoints}
+          disabled={!scoringSetupEnabled}
         />
 
         <ScheduleBlocksEditor

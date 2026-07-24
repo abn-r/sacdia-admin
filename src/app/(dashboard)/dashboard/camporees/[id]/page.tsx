@@ -41,6 +41,12 @@ import {
   type CamporeeLeaderboard,
   type CamporeeScoringTarget,
 } from "@/lib/api/camporee-scoring";
+import {
+  listCamporeeStaff,
+  listCamporeeStaffCandidates,
+  type CamporeeStaffCandidate,
+  type CamporeeStaffMember,
+} from "@/lib/api/camporee-staff";
 import { hasAnyPermission } from "@/lib/auth/permission-utils";
 import {
   CAMPOREE_EVENTS_CREATE,
@@ -98,6 +104,14 @@ function normalizeCamporee(raw: AnyRecord): Camporee {
     description: toText(raw.description),
     start_date: String(raw.start_date ?? ""),
     end_date: String(raw.end_date ?? ""),
+    club_registration_closed_at:
+      typeof raw.club_registration_closed_at === "string"
+        ? raw.club_registration_closed_at
+        : null,
+    club_registration_closed_by:
+      typeof raw.club_registration_closed_by === "string"
+        ? raw.club_registration_closed_by
+        : null,
     local_field_id: toPositiveNumber(raw.local_field_id) ?? undefined,
     includes_adventurers: raw.includes_adventurers === true,
     includes_pathfinders: raw.includes_pathfinders !== false,
@@ -211,6 +225,9 @@ export default async function CamporeeDetailPage({
   let scoringTargetsByEvent: Record<number, CamporeeScoringTarget[]> = {};
   let rubricsByEvent: Record<number, CamporeeEventRubric[]> = {};
   let leaderboard: CamporeeLeaderboard | null = null;
+  let staffRoster: CamporeeStaffMember[] = [];
+  let staffCandidates: CamporeeStaffCandidate[] = [];
+  let staffError: string | null = null;
 
   // Fetch camporee detail
   try {
@@ -229,6 +246,7 @@ export default async function CamporeeDetailPage({
   const canCreateEvents = hasAnyPermission(user, [CAMPOREE_EVENTS_CREATE, CAMPOREES_CREATE]);
   const canEditEvents = hasAnyPermission(user, [CAMPOREE_EVENTS_UPDATE, CAMPOREES_UPDATE]);
   const canDeleteEvents = hasAnyPermission(user, [CAMPOREE_EVENTS_DELETE, CAMPOREES_DELETE]);
+  const canManageClubRegistration = hasAnyPermission(user, [CAMPOREE_EVENTS_UPDATE]);
 
   // Fetch members — best effort
   try {
@@ -272,6 +290,26 @@ export default async function CamporeeDetailPage({
     }
   } catch {
     // Silently ignore — pending count is informational only
+  }
+
+  // Fetch operational staff roster — best effort
+  try {
+    const staffPayload = await listCamporeeStaff("local", camporeeId);
+    staffRoster = extractList<CamporeeStaffMember>(staffPayload);
+  } catch (err) {
+    staffError =
+      err instanceof ApiError
+        ? err.message
+        : "No se pudo cargar el personal del camporee.";
+  }
+
+  if (canEditEvents) {
+    try {
+      const candidatesPayload = await listCamporeeStaffCandidates("local", camporeeId);
+      staffCandidates = extractList<CamporeeStaffCandidate>(candidatesPayload);
+    } catch {
+      staffCandidates = [];
+    }
   }
 
   // Resolve URL filter params for the events tab
@@ -432,6 +470,9 @@ export default async function CamporeeDetailPage({
         membersError={membersError}
         clubsError={clubsError}
         paymentsError={paymentsError}
+        initialStaff={staffRoster}
+        staffCandidates={staffCandidates}
+        staffError={staffError}
         initialEvents={events}
         availableTemplates={availableTemplates}
         initialVenues={venues}
@@ -445,6 +486,7 @@ export default async function CamporeeDetailPage({
         canCreateEvents={canCreateEvents}
         canEditEvents={canEditEvents}
         canDeleteEvents={canDeleteEvents}
+        canManageClubRegistration={canManageClubRegistration}
         infoContent={
           <div className="space-y-4">
             {/* KPI strip */}
