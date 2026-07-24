@@ -6,7 +6,7 @@ import type { SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { ImagePlus, Loader2, X } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -43,6 +43,11 @@ import {
   type FinanceCategory,
   type CreateFinancePayload,
 } from "@/lib/api/finances";
+import {
+  financeAmountToDisplay,
+  financeDisplayToApiAmount,
+} from "@/lib/finances/amount";
+import { FinanceEvidenceField } from "@/components/finances/finance-evidence-field";
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
 
@@ -88,7 +93,6 @@ const MONTH_KEYS = [
 
 const currentYear = new Date().getFullYear();
 const YEARS = Array.from({ length: 6 }, (_, i) => currentYear - 2 + i);
-const MAX_EVIDENCE_FILES = 3;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -124,8 +128,7 @@ export function TransactionFormDialog({
   const [categories, setCategories] = useState<FinanceCategory[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [evidenceFiles, setEvidenceFiles] = useState<File[]>([]);
-  const [evidenceError, setEvidenceError] = useState<string | null>(null);
+  const [pendingEvidenceFiles, setPendingEvidenceFiles] = useState<File[]>([]);
 
   // Fetch categories on open
   useEffect(() => {
@@ -156,10 +159,11 @@ export function TransactionFormDialog({
   // Reset when dialog opens/finance changes
   useEffect(() => {
     if (open) {
+      setPendingEvidenceFiles([]);
       form.reset({
         year: finance?.year ?? currentYear,
         month: finance?.month ?? new Date().getMonth() + 1,
-        amount: finance ? finance.amount / 100 : undefined,
+        amount: finance ? financeAmountToDisplay(finance.amount) : undefined,
         description: finance?.description ?? "",
         finance_category_id: finance?.finance_category_id ?? undefined,
         finance_date: finance?.finance_date
@@ -168,57 +172,30 @@ export function TransactionFormDialog({
         club_type_id: finance?.club_type_id ?? sections[0]?.club_type_id,
         club_section_id: finance?.club_section_id ?? sections[0]?.club_section_id,
       });
-      setEvidenceFiles([]);
-      setEvidenceError(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, finance]);
 
-  const existingEvidenceCount = finance?.evidences?.length ?? 0;
-  const totalEvidenceCount = existingEvidenceCount + evidenceFiles.length;
-  const canAddEvidence = totalEvidenceCount < MAX_EVIDENCE_FILES;
-
-  function handleEvidenceFiles(files: FileList | null) {
-    if (!files) return;
-
-    const imageFiles = Array.from(files).filter((file) =>
-      file.type.startsWith("image/"),
-    );
-    if (imageFiles.length === 0) {
-      setEvidenceError(t("form.evidenceImageOnly"));
-      return;
+  async function uploadPendingEvidences(financeId: number) {
+    for (const file of pendingEvidenceFiles) {
+      await uploadFinanceEvidence(financeId, file);
     }
-
-    const remaining =
-      MAX_EVIDENCE_FILES - existingEvidenceCount - evidenceFiles.length;
-    if (remaining <= 0) {
-      setEvidenceError(t("form.evidenceLimit"));
-      return;
-    }
-
-    const accepted = imageFiles.slice(0, remaining);
-    setEvidenceFiles((current) => [...current, ...accepted]);
-    setEvidenceError(
-      imageFiles.length > remaining ? t("form.evidenceLimit") : null,
-    );
   }
 
   const onSubmit: SubmitHandler<FormValues> = async (values) => {
-    if (totalEvidenceCount > MAX_EVIDENCE_FILES) {
-      setEvidenceError(t("form.evidenceLimit"));
-      return;
-    }
-
     setIsSubmitting(true);
     try {
-      let savedFinance: Finance;
       if (isEdit && finance) {
-        savedFinance = await updateFinance(finance.finance_id, {
-          amount: Math.round(values.amount * 100),
+        await updateFinance(finance.finance_id, {
+          amount: financeDisplayToApiAmount(values.amount),
           description: values.description,
           finance_category_id: values.finance_category_id,
           finance_date: values.finance_date,
         });
+        if (pendingEvidenceFiles.length > 0) {
+          await uploadPendingEvidences(finance.finance_id);
+        }
+        toast.success(t("toasts.transaction_updated"));
       } else {
         if (!values.club_section_id || !values.club_type_id) {
           toast.error(t("validation.section_required"));
@@ -227,43 +204,30 @@ export function TransactionFormDialog({
         const payload: CreateFinancePayload = {
           year: values.year,
           month: values.month,
-          amount: Math.round(values.amount * 100),
+          amount: financeDisplayToApiAmount(values.amount),
           description: values.description,
           club_type_id: values.club_type_id,
           finance_category_id: values.finance_category_id,
           finance_date: values.finance_date,
           club_section_id: values.club_section_id,
         };
-        savedFinance = await createFinance(clubId, payload);
-      }
-
-      try {
-        for (const file of evidenceFiles) {
-          await uploadFinanceEvidence(savedFinance.finance_id, file);
+        const created = await createFinance(clubId, payload);
+        if (pendingEvidenceFiles.length > 0) {
+          await uploadPendingEvidences(created.finance_id);
         }
-      } catch (error: unknown) {
-        const message =
-          error instanceof Error
-            ? error.message
-            : t("errors.upload_evidence_failed");
-        toast.error(message);
-        onSuccess();
-        onOpenChange(false);
-        return;
+        toast.success(t("toasts.transaction_created"));
       }
-
-      toast.success(
-        isEdit ? t("toasts.transaction_updated") : t("toasts.transaction_created"),
-      );
       onSuccess();
       onOpenChange(false);
     } catch (err: unknown) {
       const message =
         err instanceof Error
           ? err.message
-          : isEdit
-            ? t("errors.update_transaction_failed")
-            : t("errors.create_transaction_failed");
+          : pendingEvidenceFiles.length > 0
+            ? t("errors.upload_evidence_failed")
+            : isEdit
+              ? t("errors.update_transaction_failed")
+              : t("errors.create_transaction_failed");
       toast.error(message);
     } finally {
       setIsSubmitting(false);
@@ -515,91 +479,12 @@ export function TransactionFormDialog({
               )}
             />
 
-            {/* Evidencias */}
-            <div className="space-y-2 rounded-xl border border-border/70 bg-muted/20 p-3">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <FormLabel>{t("form.evidenceLabel")}</FormLabel>
-                  <p className="text-xs text-muted-foreground">
-                    {t("form.evidenceHint")}
-                  </p>
-                </div>
-                <span className="text-xs text-muted-foreground">
-                  {t("form.evidenceCount", {
-                    count: totalEvidenceCount,
-                  })}
-                </span>
-              </div>
-
-              {finance?.evidences?.length ? (
-                <div className="flex flex-wrap gap-2">
-                  {finance.evidences.map((evidence) => (
-                    <a
-                      key={evidence.evidence_id}
-                      href={evidence.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="block size-16 overflow-hidden rounded-lg border border-border bg-background"
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={evidence.url}
-                        alt={evidence.file_name}
-                        className="size-full object-cover"
-                      />
-                    </a>
-                  ))}
-                </div>
-              ) : null}
-
-              {evidenceFiles.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {evidenceFiles.map((file, index) => (
-                    <div
-                      key={`${file.name}-${index}`}
-                      className="flex max-w-full items-center gap-2 rounded-full border border-border bg-background px-2 py-1 text-xs"
-                    >
-                      <span className="max-w-[180px] truncate">{file.name}</span>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setEvidenceFiles((current) =>
-                            current.filter((_, i) => i !== index),
-                          )
-                        }
-                        className="rounded-full text-muted-foreground hover:text-foreground"
-                        aria-label={t("form.evidenceRemove")}
-                      >
-                        <X className="size-3.5" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              <div>
-                <Input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  disabled={!canAddEvidence || isSubmitting}
-                  onChange={(event) => {
-                    handleEvidenceFiles(event.target.files);
-                    event.target.value = "";
-                  }}
-                />
-                {canAddEvidence ? (
-                  <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-                    <ImagePlus className="size-3.5" />
-                    {t("form.evidenceAdd")}
-                  </p>
-                ) : null}
-              </div>
-
-              {evidenceError ? (
-                <p className="text-xs text-destructive">{evidenceError}</p>
-              ) : null}
-            </div>
+            <FinanceEvidenceField
+              existingEvidences={finance?.evidences ?? []}
+              pendingFiles={pendingEvidenceFiles}
+              onPendingFilesChange={setPendingEvidenceFiles}
+              disabled={isSubmitting}
+            />
 
             <DialogFooter className="pt-2">
               <Button

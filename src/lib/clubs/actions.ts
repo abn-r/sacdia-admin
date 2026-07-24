@@ -5,25 +5,20 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { getActionErrorMessage } from "@/lib/api/action-error";
 import {
-  assignInitialClubSectionDirector,
-  createClassCounselorAssignment,
   createClub,
   createClubSection,
   createClubRoleAssignment,
   deleteClub,
-  revokeClassCounselorAssignment,
   revokeClubRoleAssignment,
   succeedClubSectionDirector,
-  updateClassCounselorAssignment,
   updateClub,
   updateClubSection,
   updateClubRoleAssignment,
+  type ClubPayload,
 } from "@/lib/api/clubs";
-import type { ClassCounselorResponsibilityType } from "@/lib/api/clubs";
 import { unwrapObject } from "@/lib/api/response";
 import { requireAdminUser } from "@/lib/auth/session";
 import { extractRoles } from "@/lib/auth/roles";
-import { canUseDirectorSuccession } from "@/lib/auth/director-succession";
 import { canManageClubsByRole } from "@/lib/auth/permission-utils";
 import { listLocalFieldsForTerritory } from "@/lib/auth/territory-scope";
 import type { AuthUser } from "@/lib/auth/types";
@@ -52,10 +47,6 @@ function readString(formData: FormData, fieldName: string) {
 
 function buildClubSectionPath(clubId: number, sectionId: number) {
   return `/dashboard/clubs/${clubId}/sections/${sectionId}`;
-}
-
-function buildClubDetailPath(clubId: number) {
-  return `/dashboard/clubs/${clubId}`;
 }
 
 function parseRequiredNumber(
@@ -135,45 +126,7 @@ function parseOptionalPositiveNumber(
   return parsed;
 }
 
-function parseOptionalNonNegativeInteger(
-  t: ClubsTranslator,
-  formData: FormData,
-  fieldName: string,
-) {
-  if (!formData.has(fieldName)) {
-    return undefined;
-  }
-
-  const value = readString(formData, fieldName);
-  if (!value) {
-    return undefined;
-  }
-
-  const parsed = Number(value);
-  if (!Number.isInteger(parsed) || parsed < 0) {
-    throw new Error(t("validation.field_invalid", { field: fieldName }));
-  }
-
-  return parsed;
-}
-
-function parseOptionalBooleanField(formData: FormData, fieldName: string) {
-  if (!formData.has(fieldName)) return undefined;
-  const value = readString(formData, fieldName);
-  return value === "on" || value === "true" || value === "1";
-}
-
-function parseResponsibilityType(
-  value: string,
-): ClassCounselorResponsibilityType | undefined {
-  if (value === "primary" || value === "assistant" || value === "substitute") {
-    return value;
-  }
-
-  return undefined;
-}
-
-function buildCreatePayload(t: ClubsTranslator, formData: FormData) {
+function buildCreatePayload(t: ClubsTranslator, formData: FormData): ClubPayload {
   const name = readString(formData, "name");
   if (!name) {
     throw new Error(t("validation.club_name_required"));
@@ -597,10 +550,10 @@ export async function createClubSectionAction(
   if (!Number.isFinite(clubTypeId) || clubTypeId <= 0) {
     sectionFieldErrors.club_type_id = t("validation.club_type_invalid");
   }
-  if (!Number.isInteger(soulsTarget) || soulsTarget < 0) {
+  if (!Number.isFinite(soulsTarget) || soulsTarget < 0) {
     sectionFieldErrors.souls_target = t("validation.souls_target_positive");
   }
-  if (!Number.isInteger(fee) || fee < 0) {
+  if (!Number.isFinite(fee) || fee < 0) {
     sectionFieldErrors.fee = t("validation.fee_positive");
   }
   if (Object.keys(sectionFieldErrors).length > 0) {
@@ -644,7 +597,7 @@ export async function updateClubSectionAction(
   await requireAdminUser();
   const t = await getTranslations("clubs");
 
-  const payload: Parameters<typeof updateClubSection>[2] = {};
+  const payload: { name?: string; active?: boolean; club_type_id?: number } = {};
   const name = readString(formData, "name");
   if (name) {
     payload.name = name;
@@ -661,32 +614,6 @@ export async function updateClubSectionAction(
   const clubTypeId = parseOptionalPositiveNumber(t, formData, "club_type_id");
   if (clubTypeId !== undefined) {
     payload.club_type_id = clubTypeId;
-  }
-
-  try {
-    const soulsTarget = parseOptionalNonNegativeInteger(t, formData, "souls_target");
-    if (soulsTarget !== undefined) {
-      payload.souls_target = soulsTarget;
-    }
-
-    const fee = parseOptionalNonNegativeInteger(t, formData, "fee");
-    if (fee !== undefined) {
-      payload.fee = fee;
-    }
-  } catch (error) {
-    return {
-      error: error instanceof Error ? error.message : t("validation.field_invalid", { field: "section" }),
-    };
-  }
-
-  if (formData.has("meeting_day")) {
-    const meetingDay = readString(formData, "meeting_day");
-    payload.meeting_day = meetingDay ? [{ day: meetingDay }] : [];
-  }
-
-  if (formData.has("meeting_time")) {
-    const meetingTime = readString(formData, "meeting_time").slice(0, 5);
-    payload.meeting_time = meetingTime ? [{ time: meetingTime }] : [];
   }
 
   if (Object.keys(payload).length === 0) {
@@ -706,166 +633,6 @@ export async function updateClubSectionAction(
   revalidatePath(`/dashboard/clubs/${clubId}`);
   revalidatePath(buildClubSectionPath(clubId, sectionId));
   return { success: t("success.section_updated") };
-}
-
-export async function createClassCounselorAssignmentAction(
-  clubId: number,
-  sectionId: number,
-  _: ClubActionState,
-  formData: FormData,
-): Promise<ClubActionState> {
-  await requireAdminUser();
-  const t = await getTranslations("clubs");
-
-  const userId = readString(formData, "user_id");
-  if (!userId) {
-    return { error: t("validation.user_id_required") };
-  }
-
-  let classId = 0;
-  try {
-    classId = parseRequiredNumber(t, formData, "class_id", "Clase");
-  } catch (error) {
-    return {
-      error:
-        error instanceof Error
-          ? error.message
-          : t("validation.field_invalid", { field: "class_id" }),
-    };
-  }
-
-  const responsibilityType =
-    parseResponsibilityType(readString(formData, "responsibility_type")) ??
-    "primary";
-  const exceptional = parseOptionalBooleanField(formData, "exceptional") ?? false;
-  const exceptionReason = readString(formData, "exception_reason");
-  const ecclesiasticalYearId = parseOptionalNumber(
-    t,
-    formData,
-    "ecclesiastical_year_id",
-  );
-  const startDate = readString(formData, "start_date");
-  const endDate = readString(formData, "end_date");
-
-  const payload: Parameters<typeof createClassCounselorAssignment>[2] = {
-    user_id: userId,
-    class_id: classId,
-    responsibility_type: responsibilityType,
-    exceptional,
-  };
-
-  if (ecclesiasticalYearId !== undefined) {
-    payload.ecclesiastical_year_id = ecclesiasticalYearId;
-  }
-  if (exceptionReason) payload.exception_reason = exceptionReason;
-  if (startDate) payload.start_date = startDate;
-  if (endDate) payload.end_date = endDate;
-
-  try {
-    await createClassCounselorAssignment(clubId, sectionId, payload);
-  } catch (error) {
-    return {
-      error: getActionErrorMessage(
-        error,
-        t("errors.create_class_assignment_failed"),
-        {
-          endpointLabel: `/clubs/${clubId}/sections/${sectionId}/class-counselor-assignments`,
-        },
-      ),
-    };
-  }
-
-  revalidatePath(buildClubDetailPath(clubId));
-  revalidatePath(buildClubSectionPath(clubId, sectionId));
-  return { success: t("success.class_assignment_created") };
-}
-
-export async function updateClassCounselorAssignmentAction(
-  clubId: number,
-  sectionId: number,
-  assignmentId: string,
-  _: ClubActionState,
-  formData: FormData,
-): Promise<ClubActionState> {
-  await requireAdminUser();
-  const t = await getTranslations("clubs");
-
-  if (!assignmentId) {
-    return { error: t("validation.assignment_not_identified") };
-  }
-
-  const responsibilityType = parseResponsibilityType(
-    readString(formData, "responsibility_type"),
-  );
-  const exceptional = parseOptionalBooleanField(formData, "exceptional");
-  const exceptionReason = readString(formData, "exception_reason");
-  const startDate = readString(formData, "start_date");
-  const endDate = readString(formData, "end_date");
-
-  const payload: Parameters<typeof updateClassCounselorAssignment>[1] = {};
-  if (responsibilityType) payload.responsibility_type = responsibilityType;
-  if (exceptional !== undefined) payload.exceptional = exceptional;
-  if (exceptionReason) payload.exception_reason = exceptionReason;
-  if (startDate) payload.start_date = startDate;
-  if (endDate) payload.end_date = endDate;
-
-  if (Object.keys(payload).length === 0) {
-    return { error: t("validation.no_changes") };
-  }
-
-  try {
-    await updateClassCounselorAssignment(assignmentId, payload);
-  } catch (error) {
-    return {
-      error: getActionErrorMessage(
-        error,
-        t("errors.update_class_assignment_failed"),
-        {
-          endpointLabel: `/class-counselor-assignments/${assignmentId}`,
-        },
-      ),
-    };
-  }
-
-  revalidatePath(buildClubDetailPath(clubId));
-  revalidatePath(buildClubSectionPath(clubId, sectionId));
-  return { success: t("success.class_assignment_updated") };
-}
-
-export async function revokeClassCounselorAssignmentAction(
-  clubId: number,
-  sectionId: number,
-  assignmentId: string,
-  _: ClubActionState,
-  _formData: FormData,
-): Promise<ClubActionState> {
-  void _;
-  void _formData;
-
-  await requireAdminUser();
-  const t = await getTranslations("clubs");
-
-  if (!assignmentId) {
-    return { error: t("validation.assignment_remove_not_identified") };
-  }
-
-  try {
-    await revokeClassCounselorAssignment(assignmentId);
-  } catch (error) {
-    return {
-      error: getActionErrorMessage(
-        error,
-        t("errors.revoke_class_assignment_failed"),
-        {
-          endpointLabel: `/class-counselor-assignments/${assignmentId}`,
-        },
-      ),
-    };
-  }
-
-  revalidatePath(buildClubDetailPath(clubId));
-  revalidatePath(buildClubSectionPath(clubId, sectionId));
-  return { success: t("success.class_assignment_revoked") };
 }
 
 export async function addClubSectionMemberAction(
@@ -1020,11 +787,12 @@ export async function succeedClubSectionDirectorAction(
   formData: FormData,
 ): Promise<ClubActionState> {
   const currentUser = await requireAdminUser();
+  const roles = new Set(extractRoles(currentUser));
 
-  if (!canUseDirectorSuccession(extractRoles(currentUser))) {
+  if (!roles.has("director-lf") && !roles.has("assistant-lf")) {
     return {
       error:
-        "Solo admin, super-admin, director-lf y assistant-lf pueden ejecutar la sucesión anual de director.",
+        "Solo director-lf y assistant-lf pueden ejecutar la sucesión anual de director.",
     };
   }
 
@@ -1073,62 +841,6 @@ export async function succeedClubSectionDirectorAction(
   revalidatePath(`/dashboard/clubs/${clubId}`);
   revalidatePath(buildClubSectionPath(clubId, sectionId));
   return { success: "Director actualizado correctamente" };
-}
-
-export async function assignInitialClubSectionDirectorAction(
-  clubId: number,
-  sectionId: number,
-  _: ClubActionState,
-  formData: FormData,
-): Promise<ClubActionState> {
-  const currentUser = await requireAdminUser();
-
-  if (!canUseDirectorSuccession(extractRoles(currentUser))) {
-    return {
-      error:
-        "Solo admin, super-admin, director-lf y assistant-lf pueden asignar el director inicial.",
-    };
-  }
-
-  const t = await getTranslations("clubs");
-  const userId = readString(formData, "user_id");
-  if (!userId) {
-    return { error: t("validation.user_id_required") };
-  }
-
-  let ecclesiasticalYearId = 0;
-  try {
-    ecclesiasticalYearId = parseRequiredNumber(
-      t,
-      formData,
-      "ecclesiastical_year_id",
-      t("fields.ecclesiastical_year"),
-    );
-  } catch (error) {
-    return {
-      error: error instanceof Error ? error.message : t("validation.ecclesiastical_year_invalid"),
-    };
-  }
-
-  const startDate = readString(formData, "start_date") || undefined;
-
-  try {
-    await assignInitialClubSectionDirector(clubId, sectionId, {
-      user_id: userId,
-      ecclesiastical_year_id: ecclesiasticalYearId,
-      ...(startDate ? { start_date: startDate } : {}),
-    });
-  } catch (error) {
-    return {
-      error: getActionErrorMessage(error, "No se pudo asignar el director inicial", {
-        endpointLabel: `/clubs/${clubId}/sections/${sectionId}/director-assignment`,
-      }),
-    };
-  }
-
-  revalidatePath(`/dashboard/clubs/${clubId}`);
-  revalidatePath(buildClubSectionPath(clubId, sectionId));
-  return { success: "Director asignado correctamente" };
 }
 
 // ─── Bulk import ──────────────────────────────────────────────────────────────
@@ -1207,7 +919,7 @@ export async function bulkCreateClubsAction(
         throw new Error("El campo local seleccionado está fuera de tu alcance.");
       }
 
-      const payload = {
+      const payload: ClubPayload = {
         name: row.name,
         description: row.description,
         local_field_id: row.local_field_id,

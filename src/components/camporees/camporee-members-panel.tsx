@@ -31,6 +31,8 @@ import {
 } from "@/components/camporees/camporee-approval-dialog";
 import { useTranslations } from "next-intl";
 import { ApiError } from "@/lib/api/client";
+import { useRoleLabel } from "@/lib/auth/role-labels";
+import { UserAvatar } from "@/components/users/user-avatar";
 
 // ─── Member status badge ───────────────────────────────────────────────────────
 
@@ -69,16 +71,54 @@ function InsuranceBadge({ status, t }: { status?: string | null; t: ReturnType<t
     return <StatusBadge intent="warning" label={t("membersPanel.insuranceNone")} />;
   }
 
+  const normalized = status.toLowerCase();
   const isVerified =
-    status.toLowerCase() === "verified" ||
-    status.toLowerCase() === "activo" ||
-    status.toLowerCase() === "active";
+    normalized === "verified" ||
+    normalized === "activo" ||
+    normalized === "active";
 
   if (isVerified) {
     return <StatusBadge intent="success" label={t("membersPanel.insuranceVerified")} />;
   }
 
+  if (normalized === "expired" || normalized === "vencido") {
+    return <StatusBadge intent="destructive" label={t("membersPanel.insuranceExpired")} />;
+  }
+
   return <StatusBadge intent="warning" label={t("membersPanel.insurancePending")} />;
+}
+
+function MemberIdentityCell({ member, t }: { member: CamporeeMember; t: ReturnType<typeof useTranslations<"camporees">> }) {
+  const translateRole = useRoleLabel();
+  const displayName = member.name?.trim() || member.user_id;
+  const roleLabel =
+    translateRole(member.role_display_name) ||
+    member.role_display_name ||
+    null;
+  const metaParts = [
+    member.class_name ? t("membersPanel.classLabel", { name: member.class_name }) : null,
+    roleLabel ? t("membersPanel.roleLabel", { name: roleLabel }) : null,
+  ].filter(Boolean);
+
+  return (
+    <div className="flex min-w-0 items-center gap-3">
+      <UserAvatar
+        src={member.picture_url}
+        name={displayName}
+        email={member.email}
+        size={36}
+        className="size-9"
+      />
+      <div className="min-w-0">
+        <p className="truncate text-sm font-medium text-foreground">{displayName}</p>
+        {metaParts.length > 0 ? (
+          <p className="truncate text-xs text-muted-foreground">{metaParts.join(" · ")}</p>
+        ) : (
+          <p className="truncate text-xs text-muted-foreground">{t("membersPanel.noClassOrRole")}</p>
+        )}
+      </div>
+    </div>
+  );
 }
 
 // ─── Dialog state ─────────────────────────────────────────────────────────────
@@ -222,9 +262,7 @@ export function CamporeeMembersPanel({
               return (
                 <TableRow key={member.user_id} className="hover:bg-muted/30">
                   <TableCell className="px-3 py-2.5 align-middle">
-                    <span className="text-sm font-medium">
-                      {member.name ?? member.user_id}
-                    </span>
+                    <MemberIdentityCell member={member} t={t} />
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
                     {member.club_name ?? "—"}

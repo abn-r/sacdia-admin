@@ -2,7 +2,16 @@
 
 import { useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations as useTranslationsStrict } from "next-intl";
+
+type LooseTranslator = (
+  key: string,
+  values?: Record<string, string | number>,
+) => string;
+
+const useTranslations = useTranslationsStrict as unknown as (
+  namespace?: string,
+) => LooseTranslator;
 import {
   AlertTriangle,
   CheckCircle2,
@@ -33,7 +42,7 @@ import { DataTableShell } from "@/components/shared/data-table-shell";
 import type {
   BulkClubRow,
   BulkClubsImportResult,
-} from "@/lib/clubs/actions";
+} from "@/lib/clubs/bulk-import-actions";
 
 type SelectOption = { label: string; value: number };
 
@@ -188,10 +197,10 @@ export function ClubsBulkImport({
         return;
       }
       const sheet = workbook.Sheets[firstSheetName];
-      const json = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, {
+      const json = XLSX.utils.sheet_to_json(sheet, {
         defval: "",
         raw: false,
-      });
+      }) as Record<string, unknown>[];
 
       if (json.length === 0) {
         setParseError(t("errors.noRows"));
@@ -399,7 +408,7 @@ export function ClubsBulkImport({
                         <TableCell className="text-sm">{row.churchRaw || "—"}</TableCell>
                         <TableCell>
                           {isValid ? (
-                            <Badge variant="soft-success" className="text-xs">
+                            <Badge variant="default" className="text-xs">
                               <CheckCircle2 className="size-3" />
                               {t("rowValid")}
                             </Badge>
@@ -473,7 +482,7 @@ export function ClubsBulkImport({
                         <TableCell className="font-medium">{res.name || "—"}</TableCell>
                         <TableCell>
                           {res.ok ? (
-                            <Badge variant="soft-success" className="text-xs">
+                            <Badge variant="default" className="text-xs">
                               <CheckCircle2 className="size-3" />
                               {t("rowCreated")}
                             </Badge>

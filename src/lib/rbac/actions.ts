@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { getActionErrorMessage } from "@/lib/api/action-error";
 import type { RbacActionState } from "@/lib/rbac/types";
@@ -10,14 +9,17 @@ import {
   updatePermission,
   deletePermission,
   syncRolePermissions,
+  assignPermissionsToRole,
+  removePermissionFromRole,
   createRole,
   updateRole,
   deactivateRole,
 } from "@/lib/rbac/service";
 import { requireAdminUser } from "@/lib/auth/session";
 
-const PERMISSIONS_PATH = "/dashboard/rbac/permissions";
-const ROLES_PATH = "/dashboard/rbac/roles";
+const PERMISSIONS_PATH = "/dashboard/configuration/permissions";
+const ROLES_PATH = "/dashboard/configuration/roles";
+const MATRIX_PATH = "/dashboard/configuration/matrix";
 
 export async function createPermissionAction(
   _: RbacActionState,
@@ -51,7 +53,7 @@ export async function createPermissionAction(
   }
 
   revalidatePath(PERMISSIONS_PATH);
-  redirect(PERMISSIONS_PATH);
+  return { ok: true };
 }
 
 export async function updatePermissionAction(
@@ -89,21 +91,29 @@ export async function updatePermissionAction(
   }
 
   revalidatePath(PERMISSIONS_PATH);
-  redirect(PERMISSIONS_PATH);
+  return { ok: true };
 }
 
-export async function deletePermissionAction(formData: FormData) {
+export async function deletePermissionAction(permissionId: string): Promise<RbacActionState> {
   await requireAdminUser();
+  const t = await getTranslations("rbac");
 
-  const id = String(formData.get("id"));
-
-  if (!id) {
-    return;
+  if (!permissionId) {
+    return { error: t("errors.update_permission_failed") };
   }
 
-  await deletePermission(id);
+  try {
+    await deletePermission(permissionId);
+  } catch (error) {
+    return {
+      error: getActionErrorMessage(error, t("errors.update_permission_failed"), {
+        endpointLabel: `/rbac/permissions/${permissionId}`,
+      }),
+    };
+  }
+
   revalidatePath(PERMISSIONS_PATH);
-  redirect(PERMISSIONS_PATH);
+  return { ok: true };
 }
 
 // ─── Role CRUD Actions ──────────────────────────────────────
@@ -163,7 +173,7 @@ export async function createRoleAction(
   }
 
   revalidatePath(ROLES_PATH);
-  redirect(ROLES_PATH);
+  return { ok: true };
 }
 
 export async function updateRoleAction(
@@ -202,7 +212,7 @@ export async function updateRoleAction(
   }
 
   revalidatePath(ROLES_PATH);
-  redirect(ROLES_PATH);
+  return { ok: true };
 }
 
 export async function deactivateRoleAction(
@@ -249,5 +259,37 @@ export async function syncRolePermissionsAction(
   }
 
   revalidatePath(ROLES_PATH);
+  revalidatePath(MATRIX_PATH);
   return { success: t("success.permissions_updated") };
+}
+
+export async function toggleRolePermissionAction(
+  roleId: string,
+  permissionId: string,
+  enabled: boolean,
+): Promise<RbacActionState> {
+  await requireAdminUser();
+  const t = await getTranslations("rbac");
+
+  if (!roleId || !permissionId) {
+    return { error: t("errors.sync_permissions_failed") };
+  }
+
+  try {
+    if (enabled) {
+      await assignPermissionsToRole(roleId, [permissionId]);
+    } else {
+      await removePermissionFromRole(roleId, permissionId);
+    }
+  } catch (error) {
+    return {
+      error: getActionErrorMessage(error, t("errors.sync_permissions_failed"), {
+        endpointLabel: `/rbac/roles/${roleId}/permissions/${permissionId}`,
+      }),
+    };
+  }
+
+  revalidatePath(ROLES_PATH);
+  revalidatePath(MATRIX_PATH);
+  return { ok: true };
 }

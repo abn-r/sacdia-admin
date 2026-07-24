@@ -10,17 +10,16 @@ import {
   FileText,
   Loader2,
   MoreHorizontal,
-  Music,
+  Radio,
   Pencil,
   Plus,
   Search,
   Trash2,
   Image,
-  Video,
   BookOpen,
   Globe,
   MapPin,
-  Building,
+  Building2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -83,7 +82,7 @@ import {
 } from "@/lib/api/resources";
 import { apiRequestFromClient } from "@/lib/api/client";
 import type { ClubType } from "@/lib/api/catalogs";
-import type { Division, Union, LocalField } from "@/lib/api/geography";
+import type { Union, LocalField } from "@/lib/api/geography";
 import {
   extractResourceSignedUrl,
   pickCategoryName,
@@ -134,7 +133,6 @@ interface ResourcesCrudPageProps {
   meta: { page: number; limit: number; total: number; totalPages: number };
   categories: CategoryRecord[];
   clubTypes: ClubType[];
-  divisions: Division[];
   unions: Union[];
   localFields: LocalField[];
   allowedScopeLevels: ScopeLevel[];
@@ -213,7 +211,7 @@ function resourceTypeBadgeConfig(type: ResourceType | null): {
         label: "Audio",
         className:
           "border-[color-mix(in_oklch,var(--chart-5)_35%,transparent)] bg-[color-mix(in_oklch,var(--chart-5)_15%,transparent)] text-[var(--chart-5)]",
-        Icon: Music,
+        Icon: Radio,
       };
     case "image":
       return {
@@ -226,7 +224,7 @@ function resourceTypeBadgeConfig(type: ResourceType | null): {
       return {
         label: "Video",
         className: "border-destructive/35 bg-destructive/10 text-destructive",
-        Icon: Video,
+        Icon: ExternalLink,
       };
     case "text":
       return {
@@ -259,7 +257,7 @@ function scopeLevelBadgeConfig(level: ScopeLevel | null): {
       return {
         label: "Unión",
         className: "border-border bg-secondary text-secondary-foreground",
-        Icon: Building,
+        Icon: Building2,
       };
     case "division":
       return {
@@ -356,7 +354,6 @@ function ResourceFormFields({
   item,
   categories,
   clubTypes,
-  divisions,
   unions,
   localFields,
   allowedScopeLevels,
@@ -367,7 +364,6 @@ function ResourceFormFields({
   item?: ResourceRecord | null;
   categories: CategoryRecord[];
   clubTypes: ClubType[];
-  divisions: Division[];
   unions: Union[];
   localFields: LocalField[];
   allowedScopeLevels: ScopeLevel[];
@@ -425,9 +421,6 @@ function ResourceFormFields({
     (scopeIdLocked ? String(lockedScopeId) : null) ??
     toPositiveNumber(item?.scope_id)?.toString() ??
     "";
-  const selectedDivision = divisions.find(
-    (division) => division.division_id === lockedScopeId,
-  );
 
   return (
     <div className="space-y-4">
@@ -574,7 +567,7 @@ function ResourceFormFields({
         </div>
       </div>
 
-      {/* Scope selector — union / division / local field */}
+      {/* Scope ID — union / division / local field */}
       {showScopeId && (
         <div className="space-y-2">
           <Label htmlFor="res-scope-id">
@@ -593,9 +586,9 @@ function ResourceFormFields({
                   scopeLevel === "union"
                     ? unions.find((u) => u.union_id === lockedScopeId)?.name ?? `#${lockedScopeId}`
                     : scopeLevel === "division"
-                      ? selectedDivision?.name ?? `División asignada`
+                      ? `División #${lockedScopeId}`
                     : localFields.find((lf) => lf.local_field_id === lockedScopeId)?.name ??
-                      `Campo local asignado`
+                      `#${lockedScopeId}`
                 }
                 readOnly
                 disabled
@@ -606,31 +599,15 @@ function ResourceFormFields({
               </p>
             </>
           ) : scopeLevel === "division" ? (
-            divisions.length > 0 ? (
-              <Select
-                name="scope_id"
-                defaultValue={currentScopeIdValue || undefined}
-                required
-              >
-                <SelectTrigger id="res-scope-id">
-                  <SelectValue placeholder="Seleccionar división" />
-                </SelectTrigger>
-                <SelectContent>
-                  {divisions.map((division) => (
-                    <SelectItem
-                      key={division.division_id}
-                      value={String(division.division_id)}
-                    >
-                      {division.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            ) : (
-              <p className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
-                No se pudieron cargar las divisiones. Actualizá la página antes de continuar.
-              </p>
-            )
+            <Input
+              id="res-scope-id"
+              name="scope_id"
+              type="number"
+              min={1}
+              defaultValue={currentScopeIdValue}
+              required
+              placeholder="ID de división"
+            />
           ) : scopeLevel === "union" ? (
             unions.length > 0 ? (
               <Select
@@ -650,9 +627,15 @@ function ResourceFormFields({
                 </SelectContent>
               </Select>
             ) : (
-              <p className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
-                No se pudieron cargar las uniones. Actualizá la página antes de continuar.
-              </p>
+              <Input
+                id="res-scope-id"
+                name="scope_id"
+                type="number"
+                min={1}
+                defaultValue={currentScopeIdValue}
+                required
+                placeholder={t("placeholders.unionId")}
+              />
             )
           ) : localFields.length > 0 ? (
             <Select
@@ -672,9 +655,15 @@ function ResourceFormFields({
               </SelectContent>
             </Select>
           ) : (
-            <p className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
-              No se pudieron cargar los campos locales. Actualizá la página antes de continuar.
-            </p>
+            <Input
+              id="res-scope-id"
+              name="scope_id"
+              type="number"
+              min={1}
+              defaultValue={currentScopeIdValue}
+              required
+              placeholder={t("placeholders.localFieldId")}
+            />
           )}
         </div>
       )}
@@ -755,7 +744,6 @@ export function ResourcesCrudPage({
   meta,
   categories,
   clubTypes,
-  divisions,
   unions,
   localFields,
   allowedScopeLevels,
@@ -1515,7 +1503,6 @@ export function ResourcesCrudPage({
               <ResourceFormFields
                 categories={categories}
                 clubTypes={effectiveClubTypes}
-                divisions={divisions}
                 unions={unions}
                 localFields={localFields}
                 allowedScopeLevels={allowedScopeLevels}
@@ -1576,7 +1563,6 @@ export function ResourcesCrudPage({
                 item={editItem}
                 categories={categories}
                 clubTypes={effectiveClubTypes}
-                divisions={divisions}
                 unions={unions}
                 localFields={localFields}
                 allowedScopeLevels={allowedScopeLevels}

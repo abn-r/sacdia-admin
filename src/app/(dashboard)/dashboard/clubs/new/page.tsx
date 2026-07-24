@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { requireAdminUser } from "@/lib/auth/session";
+import { canManageClubsByRole } from "@/lib/auth/permission-utils";
 import {
   resolveAdminTerritoryScope,
   type AdminTerritoryScope,
@@ -145,6 +147,9 @@ async function listClubScopeCatalogs(scope: AdminTerritoryScope) {
 
 export default async function NewClubPage() {
   const user = await requireAdminUser();
+  if (!canManageClubsByRole(user)) {
+    redirect("/dashboard/clubs");
+  }
   const t = await getTranslations("clubs.pages.new");
   const territoryScope = resolveAdminTerritoryScope(user);
 
@@ -157,7 +162,7 @@ export default async function NewClubPage() {
     <div className="space-y-6">
       <PageHeader title={t("title")}>
         <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/clubs" prefetch={false}>
+          <Link href="/dashboard/clubs">
             <ArrowLeft className="size-4" />
             {t("back")}
           </Link>
@@ -171,6 +176,7 @@ export default async function NewClubPage() {
         clubTypes={toClubTypeOptions(clubTypeItems)}
         formAction={createClubWithSectionsAction}
         googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? ""}
+        googleMapsMapId={process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID}
       />
     </div>
   );

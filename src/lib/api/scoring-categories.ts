@@ -4,13 +4,11 @@ import type { CatalogTranslation } from "@/lib/types/catalog-translation";
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type OriginLevel = "DIVISION" | "UNION" | "LOCAL_FIELD";
-export type ScoringMode = "numeric" | "boolean_full";
 
 export type ScoringCategory = {
   scoring_category_id: number;
   name: string;
   max_points: number;
-  scoring_mode?: ScoringMode;
   origin_level: OriginLevel;
   origin_id: number;
   origin_badge: string;
@@ -22,14 +20,12 @@ export type ScoringCategory = {
 export type CreateScoringCategoryPayload = {
   name: string;
   max_points: number;
-  scoring_mode?: ScoringMode;
   translations?: CatalogTranslation[];
 };
 
 export type UpdateScoringCategoryPayload = {
   name?: string;
   max_points?: number;
-  scoring_mode?: ScoringMode;
   active?: boolean;
   translations?: CatalogTranslation[];
 };
@@ -59,9 +55,7 @@ function extractItem(payload: unknown): ScoringCategory {
  * List all division-level scoring categories.
  * Server-side safe (uses apiRequest).
  */
-export async function getDivisionScoringCategories(): Promise<
-  ScoringCategory[]
-> {
+export async function getDivisionScoringCategories(): Promise<ScoringCategory[]> {
   const res = await apiRequest<unknown>("/divisions/scoring-categories");
   return extractList(res);
 }
@@ -73,13 +67,10 @@ export async function getDivisionScoringCategories(): Promise<
 export async function createDivisionScoringCategory(
   data: CreateScoringCategoryPayload,
 ): Promise<ScoringCategory> {
-  const res = await apiRequestFromClient<unknown>(
-    "/divisions/scoring-categories",
-    {
-      method: "POST",
-      body: data,
-    },
-  );
+  const res = await apiRequestFromClient<unknown>("/divisions/scoring-categories", {
+    method: "POST",
+    body: data,
+  });
   return extractItem(res);
 }
 
@@ -118,9 +109,7 @@ export async function deleteDivisionScoringCategory(id: number): Promise<void> {
 export async function getUnionScoringCategories(
   unionId: number,
 ): Promise<ScoringCategory[]> {
-  const res = await apiRequest<unknown>(
-    `/unions/${unionId}/scoring-categories`,
-  );
+  const res = await apiRequest<unknown>(`/unions/${unionId}/scoring-categories`);
   return extractList(res);
 }
 

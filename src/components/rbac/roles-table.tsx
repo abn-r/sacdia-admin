@@ -1,7 +1,5 @@
 "use client";
 
-import { usePanelPath } from "@/lib/v2/panel-path-context";
-
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -154,7 +152,6 @@ function parseUsersCount(errorMessage: string): number | null {
 function DeactivateDialog({ role, open, onClose, onSuccess }: DeactivateDialogProps) {
   const t = useTranslations("rbac");
   const translateRole = useRoleLabel();
-  const { toPanelPath } = usePanelPath();
   const [loading, setLoading] = useState(false);
   const [blockError, setBlockError] = useState<{ usersCount: number } | null>(null);
 
@@ -223,14 +220,7 @@ function DeactivateDialog({ role, open, onClose, onSuccess }: DeactivateDialogPr
           <AlertDialogCancel onClick={() => { setBlockError(null); onClose(); }}>
             {isBlocked ? "Cerrar" : "Cancelar"}
           </AlertDialogCancel>
-          {isBlocked ? (
-            <Button variant="outline" asChild>
-              <Link prefetch={false} href={toPanelPath("/dashboard/rbac/user-permissions")}>
-                <Users className="size-4" />
-                Ver usuarios asignados
-              </Link>
-            </Button>
-          ) : (
+          {!isBlocked ? (
             <AlertDialogAction
               variant="destructive"
               disabled={loading}
@@ -248,7 +238,7 @@ function DeactivateDialog({ role, open, onClose, onSuccess }: DeactivateDialogPr
                 "Desactivar"
               )}
             </AlertDialogAction>
-          )}
+          ) : null}
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
@@ -265,8 +255,6 @@ interface RolesTableProps {
 }
 
 export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
-  const { toPanelPath } = usePanelPath();
-
   const t = useTranslations("rbac");
   const translateRole = useRoleLabel();
   const [search, setSearch] = useState("");
@@ -551,7 +539,7 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
                                       className="size-8"
                                       asChild
                                     >
-                                      <Link prefetch={false} href={toPanelPath(`/dashboard/rbac/roles/${role.role_id}`)}>
+                                      <Link prefetch={false} href={`/dashboard/configuration/roles/${role.role_id}`}>
                                         <Pencil className="size-3.5" />
                                         <span className="sr-only">Editar {role.role_name}</span>
                                       </Link>
@@ -633,7 +621,7 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
                       </div>
                       {!protected_ && isSuperAdmin && (
                         <Link prefetch={false}
-                          href={toPanelPath(`/dashboard/rbac/roles/${role.role_id}`)}
+                          href={`/dashboard/configuration/roles/${role.role_id}`}
                           className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                           aria-label={t("rolesTable.editRoleAriaLabel", {
                             name: role.role_name,
@@ -672,7 +660,7 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
                     {isSuperAdmin && !protected_ && role.active !== false && (
                       <div className="mt-3 flex flex-wrap gap-1.5 border-t border-border/40 pt-3">
                         <Button variant="outline" size="xs" asChild>
-                          <Link prefetch={false} href={toPanelPath(`/dashboard/rbac/roles/${role.role_id}`)}>
+                          <Link prefetch={false} href={`/dashboard/configuration/roles/${role.role_id}`}>
                             <Pencil className="size-3" />
                             Editar
                           </Link>

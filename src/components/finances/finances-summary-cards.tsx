@@ -1,10 +1,13 @@
 "use client";
 
-import { TrendingUp, TrendingDown, Wallet } from "lucide-react";
+import { TrendingUp, ArrowDown, Banknote } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { FinanceSummary } from "@/lib/api/finances";
+import { formatFinanceAmount } from "@/lib/finances/amount";
 import { useFormatCurrency } from "@/lib/format-locale";
+import { PAGE_ENTER_CLASSES, STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
+import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
@@ -41,14 +44,18 @@ export function FinancesSummaryCards({ summary }: FinancesSummaryCardsProps) {
   const formatCurrency = useFormatCurrency();
   const isPositiveBalance = summary.balance >= 0;
 
-  function formatAmount(cents: number): string {
-    return formatCurrency(cents / 100);
-  }
+  const formatAmount = (amountInCentavos: number) =>
+    formatFinanceAmount(amountInCentavos, formatCurrency);
 
-  const movementsSub =
-    summary.movement_count === 1
-      ? t("summary.movementsCount", { count: summary.movement_count })
-      : t("summary.movementsCountPlural", { count: summary.movement_count });
+  const incomeCount = summary.income_count;
+  const incomeSub =
+    incomeCount === 1
+      ? t("summary.incomeMovementsCount", { count: incomeCount })
+      : incomeCount !== undefined
+        ? t("summary.incomeMovementsCountPlural", { count: incomeCount })
+        : t("summary.inPeriod");
+
+  const expenseSub = t("summary.inPeriod");
 
   const cards = [
     {
@@ -58,21 +65,21 @@ export function FinancesSummaryCards({ summary }: FinancesSummaryCardsProps) {
       iconClass: "text-success",
       iconBg: "bg-success/10",
       valueClass: "text-success",
-      sub: movementsSub,
+      sub: incomeSub,
     },
     {
       label: t("summary.totalExpense"),
       value: formatAmount(summary.total_expense),
-      icon: TrendingDown,
+      icon: ArrowDown,
       iconClass: "text-destructive",
       iconBg: "bg-destructive/10",
       valueClass: "text-destructive",
-      sub: t("summary.inPeriod"),
+      sub: expenseSub,
     },
     {
       label: t("summary.balance"),
       value: formatAmount(summary.balance),
-      icon: Wallet,
+      icon: Banknote,
       iconClass: isPositiveBalance ? "text-primary" : "text-destructive",
       iconBg: isPositiveBalance ? "bg-primary/10" : "bg-destructive/10",
       valueClass: isPositiveBalance ? "text-foreground" : "text-destructive",
@@ -83,11 +90,19 @@ export function FinancesSummaryCards({ summary }: FinancesSummaryCardsProps) {
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-      {cards.map((card) => {
+    <div className={cn("grid grid-cols-1 gap-4 sm:grid-cols-3", PAGE_ENTER_CLASSES)}>
+      {cards.map((card, index) => {
         const Icon = card.icon;
         return (
-          <Card key={card.label} className="group transition-all hover:border-primary/20">
+          <Card
+            key={card.label}
+            className={cn(
+              "group transition-[border-color,box-shadow,transform] duration-200 ease-[var(--ease-out-expo)] motion-reduce:transition-none",
+              "[@media(hover:hover)_and_(pointer:fine)]:hover:border-primary/20 [@media(hover:hover)_and_(pointer:fine)]:hover:-translate-y-0.5 [@media(hover:hover)_and_(pointer:fine)]:hover:shadow-md",
+              STAGGER_CLASSES,
+            )}
+            style={getStaggerStyle(index, 40)}
+          >
             <CardContent className="p-5">
               <div className="flex items-start justify-between">
                 <div className="space-y-1">

@@ -1,4 +1,4 @@
-import { PanelDashboardLink } from "@/components/shared/panel-dashboard-link";
+import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { UserAvatar } from "@/components/users/user-avatar";
@@ -21,6 +21,7 @@ import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 import {
   getAdminUserDisplayName,
   getAdminUserSecondaryLabel,
+  sortAdminUsersByName,
 } from "@/lib/admin-users/display";
 
 function extractRoleNames(user: AdminUser): string[] {
@@ -101,7 +102,7 @@ function UserMobileCard({
   const location = [union, localField].filter(Boolean).join(" · ");
 
   return (
-    <PanelDashboardLink prefetch={false}
+    <Link prefetch={false}
       href={`/dashboard/users/${user.user_id}`}
       className="block rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
@@ -179,7 +180,7 @@ function UserMobileCard({
           <dd>{formatDate(user.created_at)}</dd>
         </div>
       </dl>
-    </PanelDashboardLink>
+    </Link>
   );
 }
 
@@ -190,6 +191,9 @@ export async function UsersTable({
   const t = await getTranslations("users");
   const tRoles = await getTranslations("roles");
   const translateRole = buildRoleTranslator(tRoles);
+  const sortedUsers = sortAdminUsersByName(users, {
+    deletedAccount: t("list.deletedAccount"),
+  });
 
   return (
     <>
@@ -211,7 +215,7 @@ export async function UsersTable({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.map((user, index) => {
+              {sortedUsers.map((user, index) => {
                 const roleNames = extractRoleNames(user);
                 const fullName = getDisplayName(user, t);
                 const secondaryLabel = getSecondaryLabel(user, t);
@@ -227,12 +231,12 @@ export async function UsersTable({
                           size={32}
                         />
                         <div className="min-w-0">
-                          <PanelDashboardLink prefetch={false}
+                          <Link prefetch={false}
                             href={`/dashboard/users/${user.user_id}`}
                             className="block truncate text-sm font-medium hover:underline"
                           >
                             {fullName}
-                          </PanelDashboardLink>
+                          </Link>
                           <p className="truncate text-xs text-muted-foreground">
                             {secondaryLabel}
                           </p>
@@ -301,7 +305,7 @@ export async function UsersTable({
 
       {/* Mobile: descriptive cards */}
       <ul className="space-y-3 md:hidden" aria-label={t("list.ariaLabel")}>
-        {users.map((user, index) => (
+        {sortedUsers.map((user, index) => (
           <li key={user.user_id} className={STAGGER_CLASSES} style={getStaggerStyle(index)}>
             <UserMobileCard
               user={user}

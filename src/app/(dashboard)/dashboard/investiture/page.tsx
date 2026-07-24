@@ -1,7 +1,8 @@
+import { Award } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-import { InvestitureI18nProvider } from "@/components/investiture/investiture-i18n-provider";
+import { EmptyState } from "@/components/shared/empty-state";
 import { InvestitureClientPage } from "@/components/investiture/investiture-client-page";
 import { ApiError } from "@/lib/api/client";
 import { getPendingInvestitures } from "@/lib/api/investiture";
@@ -11,6 +12,23 @@ import type { EcclesiasticalYear } from "@/lib/api/catalogs";
 import type { PendingEnrollment } from "@/lib/api/investiture";
 
 type GenericRecord = Record<string, unknown>;
+
+function extractEnrollments(payload: unknown): GenericRecord[] {
+  if (Array.isArray(payload)) return payload as GenericRecord[];
+  if (payload && typeof payload === "object") {
+    const root = payload as GenericRecord;
+    if (Array.isArray(root.data)) return root.data as GenericRecord[];
+    const nested = root.data;
+    if (
+      nested &&
+      typeof nested === "object" &&
+      Array.isArray((nested as GenericRecord).data)
+    ) {
+      return (nested as GenericRecord).data as GenericRecord[];
+    }
+  }
+  return [];
+}
 
 function extractYears(payload: unknown): EcclesiasticalYear[] {
   if (Array.isArray(payload)) return payload as EcclesiasticalYear[];
@@ -27,25 +45,28 @@ export default async function InvestiturePage() {
 
   let enrollments: PendingEnrollment[] = [];
   let years: EcclesiasticalYear[] = [];
-  let initialYearId: number | null = null;
   let loadError: string | null = null;
 
   try {
-    const [yearsPayload] = await Promise.allSettled([listEcclesiasticalYears()]);
-    if (yearsPayload.status === "fulfilled") {
-      years = extractYears(yearsPayload.value);
-      initialYearId =
-        years.find((year) => year.active)?.ecclesiastical_year_id ??
-        years[0]?.ecclesiastical_year_id ??
-        null;
+    const [pendingPayload, yearsPayload] = await Promise.allSettled([
+      getPendingInvestitures({ page: 1, limit: 100 }),
+      listEcclesiasticalYears(),
+    ]);
+
+    if (pendingPayload.status === "fulfilled") {
+      const raw = extractEnrollments(pendingPayload.value);
+      enrollments = raw as PendingEnrollment[];
+    } else {
+      const err = pendingPayload.reason;
+      loadError =
+        err instanceof ApiError
+          ? err.message
+          : t("page.errorFallback");
     }
 
-    const pendingPayload = await getPendingInvestitures({
-      page: 1,
-      limit: 100,
-      ...(initialYearId ? { ecclesiastical_year_id: initialYearId } : {}),
-    });
-    enrollments = pendingPayload.data;
+    if (yearsPayload.status === "fulfilled") {
+      years = extractYears(yearsPayload.value);
+    }
   } catch (error) {
     loadError =
       error instanceof ApiError
@@ -64,14 +85,19 @@ export default async function InvestiturePage() {
         <EndpointErrorBanner state="missing" detail={loadError} />
       )}
 
-      {!loadError && (
-        <InvestitureI18nProvider>
-          <InvestitureClientPage
-            initialEnrollments={enrollments}
-            years={years}
-            initialYearId={initialYearId}
-          />
-        </InvestitureI18nProvider>
+      {!loadError && enrollments.length === 0 && (
+        <EmptyState
+          icon={Award}
+          title={t("page.emptyTitle")}
+          description={t("page.emptyDescription")}
+        />
+      )}
+
+      {!loadError && enrollments.length > 0 && (
+        <InvestitureClientPage
+          initialEnrollments={enrollments}
+          years={years}
+        />
       )}
     </div>
   );

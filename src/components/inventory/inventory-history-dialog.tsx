@@ -21,14 +21,14 @@ import { useFormatDateTime } from "@/lib/format-locale";
 const ACTION_META: Record<
   InventoryAction,
   {
-    badgeVariant: "success" | "default" | "destructive" | "secondary";
+    badgeVariant: "secondary" | "default" | "destructive";
     icon: React.ElementType;
     iconClassName: string;
     dotClassName: string;
   }
 > = {
   CREATE: {
-    badgeVariant: "success",
+    badgeVariant: "secondary",
     icon: PlusCircle,
     iconClassName: "text-success",
     dotClassName: "bg-success/20 border-success/40",
@@ -139,7 +139,10 @@ function HistoryTimeline({ entries }: HistoryTimelineProps) {
             {/* Content */}
             <div className={cn("pb-4 min-w-0 flex-1", isLast && "pb-0")}>
               <div className="flex flex-wrap items-center gap-1.5">
-                <Badge variant={config.badgeVariant} className="text-xs">
+                <Badge
+                  variant={config.badgeVariant}
+                  className={cn("text-xs", entry.action === "CREATE" && "text-success")}
+                >
                   {config.label}
                 </Badge>
                 {fieldLabel && (
@@ -201,39 +204,35 @@ export function InventoryHistoryDialog({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
-    const timeoutId = window.setTimeout(() => {
-      if (!open || inventoryId === null) {
-        setEntries([]);
-        setError(null);
-        setIsLoading(false);
-        return;
-      }
-
-      setIsLoading(true);
+    if (!open || inventoryId === null) {
+      setEntries([]);
       setError(null);
+      return;
+    }
 
-      getInventoryHistory(inventoryId)
-        .then((data) => {
-          if (!cancelled) setEntries(data);
-        })
-        .catch((err: unknown) => {
-          if (!cancelled) {
-            setError(
-              err instanceof Error
-                ? err.message
-                : t("errors.load_history_failed"),
-            );
-          }
-        })
-        .finally(() => {
-          if (!cancelled) setIsLoading(false);
-        });
-    }, 0);
+    let cancelled = false;
+    setIsLoading(true);
+    setError(null);
+
+    getInventoryHistory(inventoryId)
+      .then((data) => {
+        if (!cancelled) setEntries(data);
+      })
+      .catch((err: unknown) => {
+        if (!cancelled) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : t("errors.load_history_failed"),
+          );
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
 
     return () => {
       cancelled = true;
-      window.clearTimeout(timeoutId);
     };
   }, [open, inventoryId, t]);
 

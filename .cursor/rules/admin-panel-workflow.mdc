@@ -1,0 +1,46 @@
+---
+description: Admin panel workflow — no backend edits; handoff spec for Codex
+alwaysApply: true
+---
+
+# SACDIA Admin — workflow
+
+## Backend handoff (obligatorio)
+
+Este agente trabaja en `sacdia-admin`. **No editar** `sacdia-backend/`.
+
+Si un cambio requiere API, DTOs, Prisma, permisos o lógica de servidor:
+
+1. Detener implementación backend.
+2. Entregar al usuario spec lista para otra IA (Codex).
+
+### Formato del handoff
+
+```markdown
+## Objetivo
+[Qué se necesita y por qué]
+
+## Archivos backend
+- `sacdia-backend/src/...`
+
+## Cambios propuestos
+[Código o pseudocódigo concreto]
+
+## Contrato API
+- Endpoint, method, query/body, defaults, permisos, errores
+
+## Docs
+- `docs/api/...`
+
+## Test plan
+- [ ] ...
+```
+
+3. Implementar en admin solo después de que el contrato exista o quede acordado en la spec.
+
+Canon completo: `../AGENTS.md` → *Handoff backend*.
+
+## Admin scope
+
+- UI, loaders, i18n, integración con API existente.
+- Verificar contratos en `docs/api/ENDPOINTS-LIVE-REFERENCE.md` antes de consumir endpoints.

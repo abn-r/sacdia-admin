@@ -1,6 +1,5 @@
 "use client";
 
-import { usePanelPath } from "@/lib/v2/panel-path-context";
 
 import Link from "next/link";
 import { useState, useCallback } from "react";
@@ -72,8 +71,7 @@ interface CampoReesViewProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function CampoReesView({ initialCamporees }: CampoReesViewProps) {
-  const { toPanelPath } = usePanelPath();
-
+  
   const t = useTranslations("camporees");
   const [camporees, setCamporees] = useState<Camporee[]>(initialCamporees);
   const [isLoading, setIsLoading] = useState(false);
@@ -174,7 +172,7 @@ export function CampoReesView({ initialCamporees }: CampoReesViewProps) {
               {camporees.map((camporee, index) => {
                 const id = camporee.local_camporee_id ?? camporee.camporee_id ?? camporee.id ?? 0;
                 return (
-                  <TableRow key={id} className={`hover:bg-muted/30 ${STAGGER_CLASSES}`} style={getStaggerStyle(index, 50)}>
+                  <TableRow key={id} className={`hover:bg-muted/30 ${STAGGER_CLASSES}`} style={getStaggerStyle(index, 40)}>
                     <TableCell className="px-3 py-2.5 align-middle">
                       <span className="font-medium">{camporee.name}</span>
                     </TableCell>
@@ -210,7 +208,7 @@ export function CampoReesView({ initialCamporees }: CampoReesViewProps) {
                           <span className="sr-only">{t("list.deleteLabel")}</span>
                         </Button>
                         <Button variant="ghost" size="icon-sm" asChild>
-                          <Link prefetch={false} href={`${toPanelPath(`/dashboard/camporees/`)}${id}`}>
+                          <Link prefetch={false} href={`${`/dashboard/campamentos/`}${id}`}>
                             <ChevronRight className="size-4" />
                             <span className="sr-only">{t("list.viewDetail")}</span>
                           </Link>

@@ -1,12 +1,24 @@
 import React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { NextIntlClientProvider } from "next-intl";
 import { EventScoreEntryPanel } from "@/components/camporee-scoring/event-score-entry-panel";
+import es from "../../../messages/es.json";
 import type { BackendCamporeeEvent } from "@/lib/api/camporee-events";
 import type {
   CamporeeEventRubric,
   CamporeeScoringTarget,
 } from "@/lib/api/camporee-scoring";
+
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+
+if (!Element.prototype.scrollIntoView) {
+  Element.prototype.scrollIntoView = () => {};
+}
 
 vi.mock("@/lib/camporee-scoring/actions", () => ({
   submitCamporeeEventScoreAction: vi.fn(),
@@ -84,17 +96,24 @@ const targets: CamporeeScoringTarget[] = [
   },
 ];
 
-describe("EventScoreEntryPanel", () => {
-  it("calculates total from rubric inputs and does not expose a typed total field", () => {
-    const { container } = render(
+function renderPanel(props: Partial<React.ComponentProps<typeof EventScoreEntryPanel>> = {}) {
+  return render(
+    <NextIntlClientProvider locale="es" messages={es}>
       <EventScoreEntryPanel
         camporeeId={1}
         events={[event]}
         rubricsByEvent={{ 10: rubrics }}
         targetsByEvent={{ 10: targets }}
         canEdit
-      />,
-    );
+        {...props}
+      />
+    </NextIntlClientProvider>,
+  );
+}
+
+describe("EventScoreEntryPanel", () => {
+  it("calculates total from rubric inputs and does not expose a typed total field", () => {
+    const { container } = renderPanel();
 
     fireEvent.change(screen.getByLabelText("Puntos otorgados Técnica"), {
       target: { value: "30" },
@@ -115,19 +134,10 @@ describe("EventScoreEntryPanel", () => {
   });
 
   it("renders manual score form only for scoring events with rubrics and edit permission", () => {
-    render(
-      <EventScoreEntryPanel
-        camporeeId={1}
-        events={[event]}
-        rubricsByEvent={{ 10: rubrics }}
-        targetsByEvent={{ 10: targets }}
-        canEdit
-      />,
-    );
+    renderPanel();
 
-    expect(screen.getByText("Captura manual de puntajes")).toBeInTheDocument();
-    expect(screen.getByLabelText("Evento puntuable")).toHaveValue("10");
-    expect(screen.getByLabelText("Sección")).toHaveValue("99");
+    expect(screen.getByRole("heading", { name: "Registrar puntaje" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Sección")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Guardar puntaje oficial" })).toBeEnabled();
   });
 });

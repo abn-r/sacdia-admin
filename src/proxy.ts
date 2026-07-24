@@ -11,10 +11,7 @@ export function proxy(request: NextRequest) {
   requestHeaders.set("x-sacdia-pathname", pathname);
   requestHeaders.set("x-sacdia-search", request.nextUrl.search);
 
-  if (
-    (pathname.startsWith("/dashboard") || pathname.startsWith("/v2/dashboard")) &&
-    !token
-  ) {
+  if (pathname.startsWith("/dashboard") && !token) {
     const loginUrl = new URL(refreshToken ? "/api/auth/refresh" : "/login", request.url);
     const next = pathname + request.nextUrl.search;
     loginUrl.searchParams.set("next", next);
@@ -29,5 +26,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/v2/dashboard/:path*"],
+  matcher: ["/dashboard/:path*"],
 };

@@ -31,6 +31,12 @@ import { EvidenceHistoryDialog } from "@/components/evidence-review/evidence-his
 import type { EvidenceRejectDialogProps } from "@/components/evidence-review/evidence-reject-dialog";
 import type { EvidenceBulkActionBarProps } from "@/components/evidence-review/evidence-bulk-action-bar";
 import type { EvidenceItem, EvidenceType } from "@/lib/api/evidence-review";
+import {
+  getEvidenceContextLabel,
+  getEvidenceDescription,
+  getEvidenceEntityName,
+  getEvidenceSectionName,
+} from "@/lib/evidence-review/display";
 
 // Deferred: EvidenceRejectDialog and EvidenceBulkActionBar both import zodResolver + zod
 // (~103 KB compressed). Neither is needed at first paint — reject dialog requires a
@@ -264,7 +270,13 @@ export function EvidenceReviewTable({ items, onRefresh }: EvidenceReviewTablePro
                 {t("col_type")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                {t("col_entity")}
+              </TableHead>
+              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 {t("col_section")}
+              </TableHead>
+              <TableHead className="h-9 min-w-48 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                {t("col_description")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 {t("col_files")}
@@ -313,8 +325,18 @@ export function EvidenceReviewTable({ items, onRefresh }: EvidenceReviewTablePro
                     <EvidenceTypeBadge type={item.type} />
                   </TableCell>
 
+                  <TableCell className="px-3 py-2.5 align-middle text-sm">
+                    <span className="font-medium">{getEvidenceEntityName(item)}</span>
+                  </TableCell>
+
                   <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
-                    {item.section_name}
+                    {getEvidenceSectionName(item)}
+                  </TableCell>
+
+                  <TableCell className="max-w-xs px-3 py-2.5 align-middle text-sm text-muted-foreground">
+                    <span className="line-clamp-2" title={getEvidenceDescription(item)}>
+                      {getEvidenceDescription(item)}
+                    </span>
                   </TableCell>
 
                   <TableCell className="px-3 py-2.5 align-middle tabular-nums text-sm text-muted-foreground">
@@ -353,7 +375,7 @@ export function EvidenceReviewTable({ items, onRefresh }: EvidenceReviewTablePro
           type={activeItem.type}
           id={activeItem.id}
           memberName={activeItem.member_name}
-          sectionName={activeItem.section_name}
+          sectionName={getEvidenceContextLabel(activeItem)}
           onOpenChange={(open) => { if (!open) closeDialog(); }}
           onSuccess={() => { closeDialog(); onRefresh(); }}
         />
@@ -365,7 +387,7 @@ export function EvidenceReviewTable({ items, onRefresh }: EvidenceReviewTablePro
           type={activeItem.type}
           id={activeItem.id}
           memberName={activeItem.member_name}
-          sectionName={activeItem.section_name}
+          sectionName={getEvidenceContextLabel(activeItem)}
           onOpenChange={(open) => { if (!open) closeDialog(); }}
           onSuccess={() => { closeDialog(); onRefresh(); }}
         />

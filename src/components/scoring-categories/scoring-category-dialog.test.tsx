@@ -114,13 +114,15 @@ interface RenderOpts {
 }
 
 function renderDialog(opts: RenderOpts = {}) {
-  const { open = true, category, onSave, onSuccess, maxPointsCap } = opts;
+  const {
+    open = true,
+    category,
+    onSave,
+    onSuccess,
+    maxPointsCap,
+  } = opts;
   const onOpenChange = vi.fn();
-  const saveCb =
-    onSave ??
-    vi
-      .fn<(payload: unknown, id?: number) => Promise<ScoringCategory>>()
-      .mockResolvedValue(SAVED_CATEGORY);
+  const saveCb = onSave ?? vi.fn<(payload: unknown, id?: number) => Promise<ScoringCategory>>().mockResolvedValue(SAVED_CATEGORY);
   const successCb = onSuccess ?? vi.fn();
 
   const utils = render(
@@ -187,12 +189,8 @@ describe("ScoringCategoryDialog", () => {
   it("pre-fills name and max_points inputs in edit mode", () => {
     renderDialog({ category: STUB_CATEGORY });
 
-    const nameInput = document.querySelector(
-      'input[id="sc_name"]',
-    ) as HTMLInputElement;
-    const pointsInput = document.querySelector(
-      'input[id="sc_max_points"]',
-    ) as HTMLInputElement;
+    const nameInput = document.querySelector('input[id="sc_name"]') as HTMLInputElement;
+    const pointsInput = document.querySelector('input[id="sc_max_points"]') as HTMLInputElement;
 
     expect(nameInput?.value).toBe("Puntualidad");
     expect(pointsInput?.value).toBe("10");
@@ -204,9 +202,7 @@ describe("ScoringCategoryDialog", () => {
     renderDialog();
 
     // Clear the name input and submit
-    const nameInput = document.querySelector(
-      'input[id="sc_name"]',
-    ) as HTMLInputElement;
+    const nameInput = document.querySelector('input[id="sc_name"]') as HTMLInputElement;
     fireEvent.change(nameInput, { target: { value: "" } });
 
     const form = document.querySelector("form") as HTMLFormElement;
@@ -223,9 +219,7 @@ describe("ScoringCategoryDialog", () => {
   it("shows name_max toast when name exceeds 100 characters", async () => {
     renderDialog();
 
-    const nameInput = document.querySelector(
-      'input[id="sc_name"]',
-    ) as HTMLInputElement;
+    const nameInput = document.querySelector('input[id="sc_name"]') as HTMLInputElement;
     fireEvent.change(nameInput, { target: { value: "a".repeat(101) } });
 
     const form = document.querySelector("form") as HTMLFormElement;
@@ -241,14 +235,10 @@ describe("ScoringCategoryDialog", () => {
   it("shows points_invalid toast when max_points is 0", async () => {
     renderDialog();
 
-    const pointsInput = document.querySelector(
-      'input[id="sc_max_points"]',
-    ) as HTMLInputElement;
+    const pointsInput = document.querySelector('input[id="sc_max_points"]') as HTMLInputElement;
     fireEvent.change(pointsInput, { target: { value: "0" } });
 
-    const nameInput = document.querySelector(
-      'input[id="sc_name"]',
-    ) as HTMLInputElement;
+    const nameInput = document.querySelector('input[id="sc_name"]') as HTMLInputElement;
     fireEvent.change(nameInput, { target: { value: "Nombre válido" } });
 
     const form = document.querySelector("form") as HTMLFormElement;
@@ -307,9 +297,7 @@ describe("ScoringCategoryDialog", () => {
   it("calls onSave with name, max_points but no id in create mode", async () => {
     const { onOpenChange, onSave, onSuccess } = renderDialog();
 
-    const nameInput = document.querySelector(
-      'input[id="sc_name"]',
-    ) as HTMLInputElement;
+    const nameInput = document.querySelector('input[id="sc_name"]') as HTMLInputElement;
     fireEvent.change(nameInput, { target: { value: "Nueva cat" } });
 
     const form = document.querySelector("form") as HTMLFormElement;
@@ -319,11 +307,7 @@ describe("ScoringCategoryDialog", () => {
 
     await waitFor(() => {
       expect(onSave).toHaveBeenCalledWith(
-        expect.objectContaining({
-          name: "Nueva cat",
-          max_points: 1,
-          scoring_mode: "numeric",
-        }),
+        expect.objectContaining({ name: "Nueva cat" }),
         undefined,
       );
     });
@@ -345,10 +329,7 @@ describe("ScoringCategoryDialog", () => {
 
     await waitFor(() => {
       expect(onSave).toHaveBeenCalledWith(
-        expect.objectContaining({
-          name: "Puntualidad",
-          scoring_mode: "numeric",
-        }),
+        expect.objectContaining({ name: "Puntualidad" }),
         5,
       );
     });
@@ -357,14 +338,12 @@ describe("ScoringCategoryDialog", () => {
   // ── 12. Error path — shows Error.message in toast ────────────────────────
 
   it("shows Error.message in toast when onSave throws", async () => {
-    const failingSave = vi
-      .fn<(payload: unknown, id?: number) => Promise<ScoringCategory>>()
-      .mockRejectedValue(new Error("Categoría duplicada"));
+    const failingSave = vi.fn<(payload: unknown, id?: number) => Promise<ScoringCategory>>().mockRejectedValue(
+      new Error("Categoría duplicada"),
+    );
     renderDialog({ onSave: failingSave });
 
-    const nameInput = document.querySelector(
-      'input[id="sc_name"]',
-    ) as HTMLInputElement;
+    const nameInput = document.querySelector('input[id="sc_name"]') as HTMLInputElement;
     fireEvent.change(nameInput, { target: { value: "Duplicada" } });
 
     const form = document.querySelector("form") as HTMLFormElement;
@@ -393,18 +372,14 @@ describe("ScoringCategoryDialog", () => {
 
   it("disables buttons while save is in flight", async () => {
     let resolve!: (v: ScoringCategory) => void;
-    const slowSave = vi
-      .fn<(payload: unknown, id?: number) => Promise<ScoringCategory>>()
-      .mockReturnValue(
-        new Promise<ScoringCategory>((res) => {
-          resolve = res;
-        }),
-      );
+    const slowSave = vi.fn<(payload: unknown, id?: number) => Promise<ScoringCategory>>().mockReturnValue(
+      new Promise<ScoringCategory>((res) => {
+        resolve = res;
+      }),
+    );
     renderDialog({ onSave: slowSave });
 
-    const nameInput = document.querySelector(
-      'input[id="sc_name"]',
-    ) as HTMLInputElement;
+    const nameInput = document.querySelector('input[id="sc_name"]') as HTMLInputElement;
     fireEvent.change(nameInput, { target: { value: "Lento" } });
 
     const form = document.querySelector("form") as HTMLFormElement;

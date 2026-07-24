@@ -8,6 +8,7 @@ import type {
   MaterialConfig,
   MaterialCategoryAdmin,
 } from "@/lib/types/materials";
+import { extractComprobantes } from "@/lib/materials/comprobantes";
 import type { MaterialEstado } from "@/lib/types/materials";
 
 // ─── Categories (admin CRUD) ─────────────────────────────────────────────────
@@ -186,7 +187,10 @@ export async function deliverOrder(folioOrId: string): Promise<Orden> {
 // ─── Receipts ─────────────────────────────────────────────────────────────────
 
 export async function listReceipts(folioOrId: string): Promise<Comprobante[]> {
-  return apiRequest<Comprobante[]>(`/materials/receipts/${folioOrId}`);
+  const payload = await apiRequest<Comprobante[] | { data?: Comprobante[] }>(
+    `/materials/receipts/${folioOrId}`,
+  );
+  return extractComprobantes(payload);
 }
 
 export async function approveReceipt(
@@ -287,6 +291,15 @@ export async function listCatalog(
 
 // ─── Config ────────────────────────────────────────────────────────────────
 
+export type UpdateConfigDto = Partial<{
+  bank_name: string | null;
+  account_holder: string | null;
+  bank_account_clabe: string | null;
+  envio_centavos_default: number;
+  pickup_address: string | null;
+  delivery_options: unknown[];
+}>;
+
 export async function getConfig(
   options: { localFieldId?: number } = {},
 ): Promise<MaterialConfig> {
@@ -311,5 +324,18 @@ export async function updateConfig(
   return apiRequestFromClient<MaterialConfig>(
     `/materials/config${search}`,
     { method: "PATCH", body: dto },
+  );
+}
+
+export async function clearPaymentMethod(
+  localFieldId: number,
+): Promise<MaterialConfig> {
+  return updateConfig(
+    {
+      bank_name: null,
+      account_holder: null,
+      bank_account_clabe: null,
+    },
+    { localFieldId },
   );
 }

@@ -15,6 +15,8 @@ import {
 import { InsuranceTable } from "@/components/insurance/insurance-table";
 import { apiRequestFromClient, ApiError } from "@/lib/api/client";
 import type { MemberInsurance } from "@/lib/api/insurance";
+import type { LocalField } from "@/lib/api/geography";
+import type { AdminTerritoryScope } from "@/lib/auth/territory-scope";
 import type { InsuranceFormDialogProps } from "@/components/insurance/insurance-form-dialog";
 import type { DeleteInsuranceDialogProps } from "@/components/insurance/delete-insurance-dialog";
 
@@ -41,6 +43,7 @@ const DeleteInsuranceDialog = dynamic<DeleteInsuranceDialogProps>(
 type Club = {
   club_id: number;
   name: string;
+  local_field_id?: number;
 };
 
 type Section = {
@@ -103,9 +106,12 @@ function normalizeMemberInsurance(raw: AnyRecord): MemberInsurance {
 interface InsuranceViewProps {
   clubs: Club[];
   sectionsByClub: Record<number, Section[]>;
+  localFields: LocalField[];
+  territoryScope: AdminTerritoryScope;
   initialMembers: MemberInsurance[];
   initialClubId: number | null;
   initialSectionId: number | null;
+  initialLocalFieldId: number | "all";
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -113,11 +119,18 @@ interface InsuranceViewProps {
 export function InsuranceView({
   clubs,
   sectionsByClub,
+  localFields,
+  territoryScope,
   initialMembers,
   initialClubId,
   initialSectionId,
+  initialLocalFieldId,
 }: InsuranceViewProps) {
   const t = useTranslations("insurance");
+  const isLocalFieldLocked = territoryScope.level === "local_field";
+  const [selectedLocalFieldId, setSelectedLocalFieldId] = useState<number | "all">(
+    isLocalFieldLocked ? territoryScope.localFieldId : initialLocalFieldId,
+  );
   const [selectedClubId, setSelectedClubId] = useState<number | null>(initialClubId);
   const [selectedSectionId, setSelectedSectionId] = useState<number | null>(initialSectionId);
   const [members, setMembers] = useState<MemberInsurance[]>(initialMembers);
@@ -128,6 +141,11 @@ export function InsuranceView({
   const [editingMember, setEditingMember] = useState<MemberInsurance | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deletingMember, setDeletingMember] = useState<MemberInsurance | null>(null);
+
+  const filteredClubs =
+    selectedLocalFieldId === "all"
+      ? clubs
+      : clubs.filter((club) => club.local_field_id === selectedLocalFieldId);
 
   const sections = selectedClubId ? (sectionsByClub[selectedClubId] ?? []) : [];
 
@@ -151,6 +169,15 @@ export function InsuranceView({
       setIsLoading(false);
     }
   }, [t]);
+
+  function handleLocalFieldChange(value: string) {
+    const nextLocalFieldId = value === "all" ? "all" : Number(value);
+    setSelectedLocalFieldId(nextLocalFieldId);
+    setSelectedClubId(null);
+    setSelectedSectionId(null);
+    setMembers([]);
+    setLoadError(null);
+  }
 
   function handleClubChange(value: string) {
     const clubId = Number(value);
@@ -204,16 +231,45 @@ export function InsuranceView({
       {/* Toolbar */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-2">
+          {/* Local field selector */}
+          <Select
+            value={
+              selectedLocalFieldId === "all"
+                ? "all"
+                : String(selectedLocalFieldId)
+            }
+            onValueChange={handleLocalFieldChange}
+            disabled={isLocalFieldLocked}
+          >
+            <SelectTrigger className="h-9 w-52">
+              <SelectValue placeholder={t("view.select_local_field_placeholder")} />
+            </SelectTrigger>
+            <SelectContent>
+              {!isLocalFieldLocked && (
+                <SelectItem value="all">{t("view.local_field_all")}</SelectItem>
+              )}
+              {localFields.map((lf) => (
+                <SelectItem
+                  key={lf.local_field_id}
+                  value={String(lf.local_field_id)}
+                >
+                  {lf.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
           {/* Club selector */}
           <Select
             value={selectedClubId ? String(selectedClubId) : ""}
             onValueChange={handleClubChange}
+            disabled={filteredClubs.length === 0}
           >
-            <SelectTrigger className="w-52">
+            <SelectTrigger className="h-9 w-52">
               <SelectValue placeholder={t("view.select_club_placeholder")} />
             </SelectTrigger>
             <SelectContent>
-              {clubs.map((club) => (
+              {filteredClubs.map((club) => (
                 <SelectItem key={club.club_id} value={String(club.club_id)}>
                   {club.name}
                 </SelectItem>
@@ -227,7 +283,7 @@ export function InsuranceView({
             onValueChange={handleSectionChange}
             disabled={!selectedClubId || sections.length === 0}
           >
-            <SelectTrigger className="w-48">
+            <SelectTrigger className="h-9 w-48">
               <SelectValue placeholder={t("view.select_section_placeholder")} />
             </SelectTrigger>
             <SelectContent>

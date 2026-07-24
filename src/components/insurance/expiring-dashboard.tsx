@@ -1,7 +1,5 @@
 "use client";
 
-import { usePanelPath } from "@/lib/v2/panel-path-context";
-
 import { useState, useMemo, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -38,6 +36,7 @@ import {
 } from "@/components/ui/table";
 import { INSURANCE_TYPE_LABELS } from "@/lib/api/insurance";
 import type { ExpiringInsurance } from "@/lib/api/insurance";
+import { cn } from "@/lib/utils";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -83,10 +82,24 @@ function formatDate(iso: string | null): string {
   });
 }
 
-function getUrgencyVariant(days: number): "destructive" | "warning" | "success" | "outline" {
-  if (days <= 7) return "destructive";
+function getUrgencyTone(days: number): "critical" | "warning" | "active" {
+  if (days <= 7) return "critical";
   if (days <= 30) return "warning";
-  return "success";
+  return "active";
+}
+
+function getUrgencyBadgeVariant(
+  tone: "critical" | "warning" | "active",
+): "destructive" | "outline" | "secondary" {
+  if (tone === "critical") return "destructive";
+  if (tone === "warning") return "outline";
+  return "secondary";
+}
+
+function getUrgencyBadgeClassName(tone: "critical" | "warning" | "active"): string | undefined {
+  if (tone === "warning") return "border-warning/40 text-warning";
+  if (tone === "active") return "text-success";
+  return undefined;
 }
 
 function getDaysColor(days: number): string {
@@ -181,8 +194,6 @@ function SortButton({
 // ─── Loading Skeleton ─────────────────────────────────────────────────────────
 
 export function ExpiringDashboardSkeleton() {
-  const { toPanelPath } = usePanelPath();
-
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -219,8 +230,6 @@ type ExpiringDashboardProps = {
 };
 
 export function ExpiringDashboard({ items, daysAhead }: ExpiringDashboardProps) {
-  const { toPanelPath } = usePanelPath();
-
   const t = useTranslations("insurance");
   const router = useRouter();
   const pathname = usePathname();
@@ -433,11 +442,12 @@ export function ExpiringDashboard({ items, daysAhead }: ExpiringDashboardProps) 
                   </TableHeader>
                   <TableBody>
                     {paginated.map((item) => {
-                      const urgencyVariant = getUrgencyVariant(item.days_remaining);
+                      const urgencyTone = getUrgencyTone(item.days_remaining);
+                      const urgencyVariant = getUrgencyBadgeVariant(urgencyTone);
                       const urgencyLabel =
-                        urgencyVariant === "destructive"
+                        urgencyTone === "critical"
                           ? t("expiring.urgency_critical")
-                          : urgencyVariant === "warning"
+                          : urgencyTone === "warning"
                             ? t("expiring.urgency_warning")
                             : t("expiring.urgency_active");
                       return (
@@ -483,7 +493,12 @@ export function ExpiringDashboard({ items, daysAhead }: ExpiringDashboardProps) 
                             </span>
                           </TableCell>
                           <TableCell>
-                            <Badge variant={urgencyVariant}>{urgencyLabel}</Badge>
+                            <Badge
+                              variant={urgencyVariant}
+                              className={getUrgencyBadgeClassName(urgencyTone)}
+                            >
+                              {urgencyLabel}
+                            </Badge>
                           </TableCell>
                         </TableRow>
                       );
@@ -495,11 +510,12 @@ export function ExpiringDashboard({ items, daysAhead }: ExpiringDashboardProps) 
               {/* Mobile cards */}
               <ul className="space-y-3 md:hidden" aria-label={t("expiring.mobile_list_label")}>
                 {paginated.map((item) => {
-                  const urgencyVariant = getUrgencyVariant(item.days_remaining);
+                  const urgencyTone = getUrgencyTone(item.days_remaining);
+                  const urgencyVariant = getUrgencyBadgeVariant(urgencyTone);
                   const urgencyLabel =
-                    urgencyVariant === "destructive"
+                    urgencyTone === "critical"
                       ? t("expiring.urgency_critical")
-                      : urgencyVariant === "warning"
+                      : urgencyTone === "warning"
                         ? t("expiring.urgency_warning")
                         : t("expiring.urgency_active");
                   return (
@@ -519,7 +535,10 @@ export function ExpiringDashboard({ items, daysAhead }: ExpiringDashboardProps) 
                               </p>
                             )}
                           </div>
-                          <Badge variant={urgencyVariant} className="shrink-0">
+                          <Badge
+                            variant={urgencyVariant}
+                            className={cn("shrink-0", getUrgencyBadgeClassName(urgencyTone))}
+                          >
                             {urgencyLabel}
                           </Badge>
                         </div>
@@ -600,7 +619,7 @@ export function ExpiringDashboard({ items, daysAhead }: ExpiringDashboardProps) 
       {/* Back link */}
       <div>
         <Button variant="ghost" size="sm" asChild>
-          <Link href={toPanelPath("/dashboard/insurance")}>
+          <Link href="/dashboard/insurance">
             <ArrowLeft className="mr-1.5 size-4" />
             {t("expiring.back_link")}
           </Link>

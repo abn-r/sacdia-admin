@@ -1,4 +1,4 @@
-import { Tent, CalendarRange, MapPin, DollarSign, Lock } from "lucide-react";
+import { Tent, CalendarRange, MapPin, DollarSign } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Camporee } from "@/lib/api/camporees";
@@ -93,19 +93,9 @@ export function CamporeeInfoCard({ camporee }: CamporeeInfoCardProps) {
           </div>
 
           {/* Status badge */}
-          <div className="flex flex-col items-end gap-1.5">
-            <Badge variant={camporee.active !== false ? "soft-success" : "outline"}>
-              {camporee.active !== false ? "Activo" : "Inactivo"}
-            </Badge>
-            {camporee.club_registration_closed_at ? (
-              <Badge variant="warning" className="gap-1">
-                <Lock className="size-3" />
-                Clubes cerrados
-              </Badge>
-            ) : (
-              <Badge variant="outline">Clubes abiertos</Badge>
-            )}
-          </div>
+          <Badge variant={camporee.active !== false ? "soft-success" : "outline"}>
+            {camporee.active !== false ? "Activo" : "Inactivo"}
+          </Badge>
         </div>
       </CardContent>
     </Card>

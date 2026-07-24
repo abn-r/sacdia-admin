@@ -130,7 +130,7 @@ export type Orden = {
     abbreviation: string | null;
   };
   lines: OrdenLine[];
-  comprobantes: Comprobante[];
+  comprobantes?: Comprobante[];
 };
 
 // ─── Comprobantes ─────────────────────────────────────────────────────────────

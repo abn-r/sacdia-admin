@@ -63,3 +63,62 @@ export function DetailField({ k, v, muted, className }: FieldProps) {
 export function DetailCols2({ children, className }: { children: ReactNode; className?: string }) {
   return <div className={cn("grid gap-x-6 gap-y-0 sm:grid-cols-2", className)}>{children}</div>;
 }
+
+const chipToneClass = {
+  destructive: "border-destructive/20 bg-destructive/10 text-destructive",
+  warning:
+    "border-warning/25 bg-warning/15 text-warning-foreground dark:text-warning",
+  info: "border-info/20 bg-info/10 text-info",
+} as const;
+
+export type DetailChipTone = keyof typeof chipToneClass;
+
+export function DetailChipList({
+  k,
+  items,
+  tone = "info",
+  className,
+}: {
+  k: string;
+  items: string[];
+  tone?: DetailChipTone;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "border-b border-dashed border-border/70 py-3 last:border-b-0",
+        className,
+      )}
+    >
+      <div className="mb-2 flex items-center gap-2">
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          {k}
+        </span>
+        {items.length > 0 ? (
+          <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold tabular-nums text-muted-foreground">
+            {items.length}
+          </span>
+        ) : null}
+      </div>
+      {items.length === 0 ? (
+        <div className="text-sm italic text-muted-foreground/70">—</div>
+      ) : (
+        <ul className="flex flex-wrap gap-2">
+          {items.map((item) => (
+            <li key={item}>
+              <span
+                className={cn(
+                  "inline-flex max-w-full rounded-lg border px-2.5 py-1 text-xs font-medium leading-snug",
+                  chipToneClass[tone],
+                )}
+              >
+                {item}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}

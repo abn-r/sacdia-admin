@@ -28,6 +28,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { apiRequestFromClient } from "@/lib/api/client";
+import { isGlobalCategoryRole } from "@/lib/users/role-buckets";
 import type { Role, UserRole } from "@/lib/rbac/types";
 
 interface UserRolesPanelProps {
@@ -60,9 +61,12 @@ export function UserRolesPanel({
   const [selectedRoleId, setSelectedRoleId] = useState<string>("");
   const [isPending, startTransition] = useTransition();
 
-  const assignedRoleIds = new Set(userRoles.map((ur) => ur.roles.role_id));
+  const globalAssignableRoles = allRoles.filter(isGlobalCategoryRole);
+  const globalUserRoles = userRoles.filter((ur) => isGlobalCategoryRole(ur.roles));
 
-  const availableRoles = allRoles.filter(
+  const assignedRoleIds = new Set(globalUserRoles.map((ur) => ur.roles.role_id));
+
+  const availableRoles = globalAssignableRoles.filter(
     (r) => r.active && !assignedRoleIds.has(r.role_id),
   );
 
@@ -94,7 +98,7 @@ export function UserRolesPanel({
           },
         );
 
-        const role = allRoles.find((r) => r.role_id === selectedRoleId);
+        const role = globalAssignableRoles.find((r) => r.role_id === selectedRoleId);
         if (role) {
           const newEntry: UserRole = {
             user_role_id: crypto.randomUUID(),
@@ -172,7 +176,7 @@ export function UserRolesPanel({
           )}
         </CardHeader>
         <CardContent>
-          {userRoles.length === 0 ? (
+          {globalUserRoles.length === 0 ? (
             <div className="flex flex-col items-center gap-3 py-6 text-center">
               <ShieldAlert className="size-8 text-muted-foreground/40" />
               <p className="text-sm text-muted-foreground">
@@ -192,7 +196,7 @@ export function UserRolesPanel({
             </div>
           ) : (
             <div className="flex flex-wrap gap-2">
-              {userRoles.map((ur) => (
+              {globalUserRoles.map((ur) => (
                 <Badge
                   key={ur.user_role_id}
                   variant={getRoleBadgeVariant(ur.roles.role_name)}

@@ -1,7 +1,5 @@
 "use client";
 
-import { usePanelPath } from "@/lib/v2/panel-path-context";
-
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -22,7 +20,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import {
   Table,
   TableBody,
@@ -66,6 +64,14 @@ const REPORTS_DATE_OPTIONS: Intl.DateTimeFormatOptions = {
   year: "numeric",
 };
 
+function ReportStatusBadge({ status }: { status: ReportStatus }) {
+  const t = useTranslations("reports");
+  const intent =
+    status === "submitted" ? "success" : status === "draft" ? "warning" : "neutral";
+
+  return <StatusBadge intent={intent} label={t(`status.${status}`)} size="xs" />;
+}
+
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 
 function ReportsTableSkeleton({ headers }: { headers: string[] }) {
@@ -105,8 +111,6 @@ interface ReportsListClientProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
-  const { toPanelPath } = usePanelPath();
-
   const t = useTranslations("reports");
   const router = useRouter();
   const formatDate = useFormatDate();
@@ -154,7 +158,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
           year: createYear,
         }),
       );
-      router.push(toPanelPath(`/dashboard/reports/${report.report_id}`));
+      router.push(`/dashboard/reports/${report.report_id}`);
     },
     onError: (error) => {
       const message =
@@ -391,13 +395,6 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                 </TableHeader>
                 <TableBody>
                   {reports.map((report, index) => {
-                    const statusVariant = (
-                      {
-                        draft: "warning",
-                        generated: "default",
-                        submitted: "success",
-                      } as const
-                    )[report.status] ?? ("warning" as const);
                     const loadingAction = actionLoading[report.report_id];
                     const isDisabled = Boolean(loadingAction);
                     const isSubmitted = report.status === "submitted";
@@ -410,9 +407,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                         </TableCell>
                         <TableCell className="tabular-nums">{report.year}</TableCell>
                         <TableCell>
-                          <Badge variant={statusVariant} className="text-xs">
-                            {t(`status.${report.status}`)}
-                          </Badge>
+                          <ReportStatusBadge status={report.status} />
                         </TableCell>
                         <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
                           {report.generated_at ? formatDate(report.generated_at, REPORTS_DATE_OPTIONS) : "—"}
@@ -423,7 +418,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                         <TableCell>
                           <div className="flex items-center gap-1.5">
                             <Button variant="ghost" size="xs" asChild>
-                              <Link prefetch={false} href={`${toPanelPath(`/dashboard/reports/`)}${report.report_id}`}>
+                              <Link href={`/dashboard/reports/${report.report_id}`}>
                                 {isSubmitted ? (
                                   <Eye className="size-3" />
                                 ) : (
@@ -493,13 +488,6 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
           {/* Mobile: descriptive cards */}
           <ul className="space-y-3 md:hidden" aria-label={t("list.ariaListLabel")}>
             {reports.map((report, index) => {
-              const statusVariant = (
-                {
-                  draft: "warning",
-                  generated: "default",
-                  submitted: "success",
-                } as const
-              )[report.status] ?? ("warning" as const);
               const loadingAction = actionLoading[report.report_id];
               const isDisabled = Boolean(loadingAction);
               const isSubmitted = report.status === "submitted";
@@ -520,8 +508,8 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                           #{report.report_id}
                         </p>
                       </div>
-                      <Link prefetch={false}
-                        href={`${toPanelPath(`/dashboard/reports/`)}${report.report_id}`}
+                      <Link
+                        href={`/dashboard/reports/${report.report_id}`}
                         className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         aria-label={isSubmitted ? t("list.ariaViewReport") : t("list.ariaEditReport")}
                       >
@@ -530,9 +518,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                     </div>
 
                     <div className="mt-3 flex flex-wrap items-center gap-1.5">
-                      <Badge variant={statusVariant} className="text-xs">
-                        {t(`status.${report.status}`)}
-                      </Badge>
+                      <ReportStatusBadge status={report.status} />
                     </div>
 
                     <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
@@ -552,7 +538,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
 
                     <div className="mt-3 flex flex-wrap gap-1.5 border-t border-border/40 pt-3">
                       <Button variant="outline" size="xs" asChild>
-                        <Link prefetch={false} href={`${toPanelPath(`/dashboard/reports/`)}${report.report_id}`}>
+                        <Link href={`/dashboard/reports/${report.report_id}`}>
                           {isSubmitted ? (
                             <Eye className="size-3" />
                           ) : (

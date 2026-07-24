@@ -1,9 +1,9 @@
 "use client";
 
+import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { History, Clock, CheckCircle2, XCircle, Send } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
 import {
   Dialog,
   DialogContent,
@@ -15,12 +15,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import {
   getEvidenceHistory,
+  type EvidenceHistoryEntry,
   type EvidenceType,
 } from "@/lib/api/evidence-review";
 import { ApiError } from "@/lib/api/client";
 import { useFormatDateTime } from "@/lib/format-locale";
 
-// Action intent data (no user-facing strings here — labels resolved via t() below)
 const actionIntentMap: Record<
   string,
   {
@@ -50,8 +50,6 @@ const actionIntentMap: Record<
   },
 };
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface EvidenceHistoryDialogProps {
   open: boolean;
   type: EvidenceType;
@@ -59,13 +57,6 @@ interface EvidenceHistoryDialogProps {
   memberName: string;
   onOpenChange: (open: boolean) => void;
 }
-
-// ─── Query key factory ────────────────────────────────────────────────────────
-
-export const evidenceHistoryQueryKey = (type: EvidenceType, id: number) =>
-  ["evidence-history", type, id] as const;
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function EvidenceHistoryDialog({
   open,
@@ -76,26 +67,28 @@ export function EvidenceHistoryDialog({
 }: EvidenceHistoryDialogProps) {
   const t = useTranslations("evidence_review.history");
   const formatDate = useFormatDateTime();
+  const [entries, setEntries] = useState<EvidenceHistoryEntry[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  // Evidence history is append-only — once fetched it never changes.
-  const { data: entries = [], isLoading: loading } = useQuery({
-    queryKey: evidenceHistoryQueryKey(type, id),
-    queryFn: async () => {
-      try {
-        return await getEvidenceHistory(type, id);
-      } catch (error) {
-        const message =
-          error instanceof ApiError
-            ? error.message
-            : t("error_load");
-        toast.error(message);
-        throw error;
-      }
-    },
-    staleTime: Infinity,
-    // Only fetch when the dialog is open.
-    enabled: open,
-  });
+  const loadHistory = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await getEvidenceHistory(type, id);
+      setEntries(data);
+    } catch (error) {
+      const message =
+        error instanceof ApiError ? error.message : t("error_load");
+      toast.error(message);
+      setEntries([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [id, t, type]);
+
+  useEffect(() => {
+    if (!open) return;
+    void loadHistory();
+  }, [loadHistory, open]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -123,33 +116,31 @@ export function EvidenceHistoryDialog({
           ) : (
             <ol className="relative space-y-0">
               {entries.map((entry, idx) => {
-                const intent = actionIntentMap[entry.action];
-                const Icon = intent?.icon ?? Clock;
-                const iconClass = intent?.iconClass ?? "text-muted-foreground";
-                const dotClass = intent?.dotClass ?? "bg-muted border-border";
-                const label = intent
-                  ? t(intent.labelKey)
-                  : entry.action;
+                const visual = actionIntentMap[entry.action] ?? {
+                  labelKey: "action_submitted" as const,
+                  icon: Clock,
+                  iconClass: "text-muted-foreground",
+                  dotClass: "bg-muted border-border",
+                };
+                const Icon = visual.icon;
                 const isLast = idx === entries.length - 1;
 
                 return (
-                  <li key={idx} className="flex gap-3">
+                  <li key={`${entry.action}-${entry.created_at}-${idx}`} className="flex gap-3">
                     <div className="flex flex-col items-center">
                       <div
                         className={cn(
                           "flex size-7 shrink-0 items-center justify-center rounded-full border",
-                          dotClass,
+                          visual.dotClass,
                         )}
                       >
-                        <Icon className={cn("size-3.5", iconClass)} />
+                        <Icon className={cn("size-3.5", visual.iconClass)} />
                       </div>
-                      {!isLast && (
-                        <div className="mt-1 w-px flex-1 bg-border" />
-                      )}
+                      {!isLast && <div className="mt-1 w-px flex-1 bg-border" />}
                     </div>
                     <div className={cn("pb-4", isLast && "pb-0")}>
                       <p className="text-sm font-medium leading-tight">
-                        {label}
+                        {t(visual.labelKey)}
                       </p>
                       <p className="mt-0.5 text-xs text-muted-foreground">
                         {entry.performed_by_name ?? t("system")} &middot;{" "}

@@ -1,7 +1,5 @@
 "use client";
 
-import { usePanelPath } from "@/lib/v2/panel-path-context";
-
 import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -20,6 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { EmptyState } from "@/components/shared/empty-state";
+import { PdfInlineViewer } from "@/components/shared/pdf-inline-viewer";
 import { CertificateBulkImportActionDialog } from "@/components/certificate-bulk-imports/certificate-bulk-import-action-dialog";
 import {
   CertificateBatchStatusBadge,
@@ -103,7 +102,7 @@ function ProofViewer({ files }: { files: CertificateBulkImportFile[] }) {
               className="max-h-[70vh] rounded-lg border bg-background object-contain shadow-xs"
             />
           ) : isPdf(activeFile) ? (
-            <iframe
+            <PdfInlineViewer
               title={activeFile.file_name}
               src={activeFile.file_url}
               className="h-[70vh] w-full rounded-lg border bg-background"
@@ -211,9 +210,13 @@ function AuditTimeline({ batch }: { batch: CertificateBulkImportBatch }) {
   );
 }
 
-export function CertificateBulkImportDetailPage({ batch }: { batch: CertificateBulkImportBatch }) {
-  const { toPanelPath } = usePanelPath();
-
+export function CertificateBulkImportDetailPage({
+  batch,
+  listHref = "/dashboard/certificate-bulk-imports",
+}: {
+  batch: CertificateBulkImportBatch;
+  listHref?: string;
+}) {
   const router = useRouter();
   const [dialog, setDialog] = useState<DialogState>(null);
   const [, startTransition] = useTransition();
@@ -242,7 +245,7 @@ export function CertificateBulkImportDetailPage({ batch }: { batch: CertificateB
   return (
     <div className="flex flex-col gap-4">
       <Button variant="ghost" size="sm" className="w-fit" asChild>
-        <Link href={toPanelPath("/dashboard/certificate-bulk-imports")}>
+        <Link href={listHref}>
           <ArrowLeft aria-hidden="true" />
           Volver a cargas
         </Link>

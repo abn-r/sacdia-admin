@@ -41,7 +41,14 @@ export type EvidenceItem = {
   status: EvidenceStatus;
   member_name: string;
   member_id: string;
+  /** Class or specialty display name (from backend enrichment). */
+  entity_name?: string | null;
+  /** Class section catalog name, or legacy combined label. */
   section_name: string;
+  /** Section or specialty description (from backend enrichment). */
+  entity_description?: string | null;
+  /** Parent module name for class section evidence. */
+  module_name?: string | null;
   file_count: number;
   submitted_at: string | null;
   validated_at: string | null;

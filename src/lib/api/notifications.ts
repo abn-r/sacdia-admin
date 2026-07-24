@@ -1,3 +1,4 @@
+import type { NotificationCategorySetting } from "@/lib/notifications/categories";
 import { apiRequest } from "@/lib/api/client";
 
 export type SendNotificationPayload = {
@@ -82,4 +83,51 @@ export async function getNotificationHistory(
   return apiRequest<NotificationHistoryResponse>("/notifications/history", {
     params: { page, limit },
   });
+}
+
+export type DailyDeliveryRate = {
+  date: string;
+  tokens_sent: number;
+  tokens_failed: number;
+  success_rate: number | null;
+};
+
+export type NotificationStatsResponse = {
+  activeTokens: number;
+  inactiveTokens30d: number;
+  dailyDeliveryRate: DailyDeliveryRate[];
+};
+
+export async function getNotificationStats(
+  days = 30,
+): Promise<NotificationStatsResponse> {
+  return apiRequest<NotificationStatsResponse>("/admin/notifications/stats", {
+    params: { days },
+  });
+}
+
+export async function getNotificationCategorySettings(): Promise<
+  NotificationCategorySetting[]
+> {
+  return apiRequest<NotificationCategorySetting[]>(
+    "/admin/notifications/categories",
+  );
+}
+
+export type PatchNotificationCategorySettingPayload = {
+  category: string;
+  mobileEnabled?: boolean;
+  defaultEnabled?: boolean;
+};
+
+export async function patchNotificationCategorySetting(
+  payload: PatchNotificationCategorySettingPayload,
+): Promise<NotificationCategorySetting[]> {
+  return apiRequest<NotificationCategorySetting[]>(
+    "/admin/notifications/categories",
+    {
+      method: "PATCH",
+      body: payload,
+    },
+  );
 }

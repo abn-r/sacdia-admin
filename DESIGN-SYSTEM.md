@@ -597,9 +597,15 @@ La sombra default paso de `shadow-sm` a `shadow-xs` en Fase 2. El border cambio 
 
 **Import:** `@/components/ui/sheet`
 
-- Usado para mobile sidebar
+| Uso | Notas |
+|-----|-------|
+| **Sidebar mobile** | Patron original — overlay del menu en viewports `< md` |
+| **Compose panel** | Formulario de accion secundaria sobre un listado (ver **§6.1.2**) |
+
 - Soporta `side`: `top | right | bottom | left`
-- Default: `right`, ancho `w-3/4 sm:max-w-sm`
+- Default: `right`
+- Sidebar mobile: `w-3/4 sm:max-w-sm`
+- Compose panel: `sm:max-w-md`, `bg-background`, layout de tres zonas (header / body scroll / footer sticky) — ver **§11.5**
 
 ### 5.18 Tabs
 
@@ -720,6 +726,66 @@ Usar pagina dedicada (`/new`, `/[id]`) cuando:
 - El recurso tiene su propio ciclo de vida (puede editarse de nuevo mas adelante).
 - El formulario tiene 5+ campos o logica compleja (validaciones cruzadas, selects encadenados, uploads).
 - Se espera navegacion posterior al guardar (ej. ver detalle del recurso creado).
+
+Usar **`Sheet` compose panel** (§6.1.2) cuando el formulario supera un `Dialog` pero sigue siendo una accion secundaria sin CRUD propio.
+
+### 6.1.2 Sheet — Compose panel (acciones sobre listado)
+
+**Patron oficial** para lanzar una accion compuesta desde un listado sin navegar a otra ruta. Referencia canonica: `src/components/notifications/notification-compose-sheet.tsx`.
+
+**Cuando usar `Sheet` compose (TODOS):**
+1. La operacion es secundaria respecto al listado/pantalla actual (no es alta/edicion de entidad principal).
+2. No existe pantalla de edicion posterior del recurso creado (accion puntual: enviar, disparar, registrar).
+3. Mantener visible el listado/contexto padre despues del submit es el comportamiento esperado.
+4. El formulario no entra comodo en un `Dialog` (mas de 4 campos, selects encadenados, advertencias, o variantes de envio).
+
+**Cuando NO usar (elegir otra opcion):**
+
+| Situacion | Usar en su lugar |
+|-----------|------------------|
+| Entidad con CRUD propio (`/new`, `/[id]`) | Pagina dedicada (§6.1) |
+| ≤4 campos planos, sin variantes | `Dialog` (§6.1.1) |
+| Solo confirmacion destructiva | `AlertDialog` (§6.2) |
+| Solo lectura (log, historial inline) | `Dialog` de solo lectura |
+
+**Casos de referencia:**
+
+| Patron | Archivo | Por que Sheet |
+|--------|---------|---------------|
+| **Compose multi-variante** | `src/components/notifications/notification-compose-sheet.tsx` | Enviar push con 3 modos (directo / broadcast / club) sobre historial; post-submit refresca tabla sin salir |
+| **Formulario medio en dominio acotado** | `src/app/(dashboard)/dashboard/materials/inventory/_components/product-form-sheet.tsx` | Alta rapida de producto desde inventario; precedente v1, migrar a este layout en refactors |
+
+**Anatomia obligatoria del compose panel:**
+
+```
+┌─────────────────────────────────────┐
+│ SheetHeader (border-b, px-6 py-5)   │  ← titulo + SheetDescription dinamica
+├─────────────────────────────────────┤
+│ Type selector (opcional, border-b)  │  ← cards/radiogroup si hay 2+ variantes
+├─────────────────────────────────────┤
+│ Body (flex-1 overflow-y-auto px-6)  │  ← formulario con FieldSet / Alert
+│                                     │
+├─────────────────────────────────────┤
+│ Footer sticky (border-t, pt-4)      │  ← submit full-width + hint opcional
+└─────────────────────────────────────┘
+```
+
+**Reglas de implementacion:**
+- Trigger en `PageHeader.actions`: boton primario con icono `Plus`.
+- `SheetContent`: `flex h-full flex-col gap-0 overflow-hidden bg-background p-0 sm:max-w-md`.
+- Descripcion contextual en `SheetDescription` (cambia si hay selector de tipo).
+- Selector de tipo: cards con icono + estado activo `border-primary bg-primary/5 ring-1 ring-primary/20` — no usar `Tabs` pill para este caso.
+- Formulario embebido: secciones `FieldSet` + `FieldLegend` (**Destinatario** / **Contenido**); ver §11.5.
+- Submit sticky dentro del form; al exito: cerrar sheet, `router.refresh()`, limpiar query params (`?compose=1`).
+- i18n: chrome del panel en `configuration.<feature>.compose.*`; campos en namespace del dominio.
+
+**Query params opcionales** (deep-link / redirect legacy):
+
+```
+?compose=1&type=direct|broadcast|club
+```
+
+La ruta `/send` u homologa puede redirigir al listado unificado con esos params.
 
 ### 6.2 Eliminar / Desactivar -> Confirmacion (AlertDialog)
 
@@ -1364,6 +1430,58 @@ Los componentes Dialog y AlertDialog incluyen automaticamente:
 - Boton submit: `variant="default"` (primario)
 - Estado loading: texto del boton cambia + `disabled`
 - Usar modal solo en casos puntuales no-CRUD principal.
+
+### 11.5 Formularios en Sheet (compose panel)
+
+Patron visual obligatorio cuando el formulario vive en un compose panel (§6.1.2). Referencia: `notification-forms.tsx` (modo `embedded`).
+
+**Estructura del formulario embebido:**
+
+```tsx
+<form action={action} className="flex min-h-full flex-col" noValidate>
+  {/* Status / Alert de error o exito */}
+  <div className="flex flex-col gap-6">
+    <FieldGroup>
+      <FieldSet className="gap-4">
+        <FieldLegend variant="label">{t("sectionRecipient")}</FieldLegend>
+        {/* campos de destino / contexto */}
+      </FieldSet>
+      <FieldSet className="gap-4">
+        <FieldLegend variant="label">{t("sectionContent")}</FieldLegend>
+        {/* titulo, cuerpo, parametros */}
+      </FieldSet>
+    </FieldGroup>
+  </div>
+  <div className="sticky bottom-0 mt-8 border-t bg-background pt-4">
+    <Button type="submit" className="w-full">Enviar</Button>
+    <p className="mt-2 text-center text-xs text-muted-foreground">{hint}</p>
+  </div>
+</form>
+```
+
+**Reglas:**
+- Secciones con `FieldSet` + `FieldLegend variant="label"` — no repetir titulo de seccion como `<h3>` suelto.
+- Advertencias: componente `Alert` con icono (`AlertTriangle`), no divs con colores hardcodeados.
+- Errores de campo: `text-destructive text-xs` debajo del control.
+- Errores generales / exito: `Alert` variant `destructive` o borde success.
+- Campos requeridos: asterisco `<span className="text-destructive">*</span>`.
+- `Textarea` de mensaje: `rows={4}`, `min-h-28`, `resize-y`.
+- Submit: `w-full` en footer sticky; loading con `Loader2` + `disabled`.
+- Props del form embebido: `embedded` + `onSuccess` para cerrar panel y refrescar listado padre.
+- No duplicar descripcion del panel en el cuerpo del form — va en `SheetDescription`.
+
+**i18n minimo del compose:**
+
+```json
+"compose": {
+  "title": "Nueva …",
+  "newButton": "Nueva …",
+  "typeLabel": "Tipo de …",
+  "sectionRecipient": "Destinatario",
+  "sectionContent": "Contenido",
+  "submitHint": "La accion se ejecutara de inmediato."
+}
+```
 
 ---
 

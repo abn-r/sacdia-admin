@@ -8,13 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -61,16 +54,12 @@ export function ScoringCategoryDialog({
 }: ScoringCategoryDialogProps) {
   const t = useTranslations("scoring_categories");
   const isEdit = Boolean(category);
-  const resolvedMaxPointsCap =
-    Number.isInteger(maxPointsCap) && maxPointsCap > 0
-      ? maxPointsCap
-      : DEFAULT_SCORING_CATEGORY_MAX_POINTS_CAP;
+  const resolvedMaxPointsCap = Number.isInteger(maxPointsCap) && maxPointsCap > 0
+    ? maxPointsCap
+    : DEFAULT_SCORING_CATEGORY_MAX_POINTS_CAP;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [name, setName] = useState("");
   const [maxPoints, setMaxPoints] = useState(1);
-  const [scoringMode, setScoringMode] = useState<"numeric" | "boolean_full">(
-    "numeric",
-  );
   const [translations, setTranslations] = useState<CatalogTranslation[]>([]);
   // dirty = admin directly touched a non-es tab input; pre-populate does not set this
   const [translationsDirty, setTranslationsDirty] = useState(false);
@@ -80,7 +69,6 @@ export function ScoringCategoryDialog({
     if (open) {
       setName(category?.name ?? "");
       setMaxPoints(category?.max_points ?? 1);
-      setScoringMode(category?.scoring_mode ?? "numeric");
       setTranslations(category?.translations ?? []);
       setTranslationsDirty(false);
     }
@@ -123,8 +111,9 @@ export function ScoringCategoryDialog({
     // For CREATE flows always include it (empty array = no translations seeded).
     const translationsPayload: { translations?: CatalogTranslation[] } = {};
     if (!isEdit || translationsDirty) {
-      translationsPayload.translations =
-        nonEmptyTranslations.length > 0 ? nonEmptyTranslations : [];
+      translationsPayload.translations = nonEmptyTranslations.length > 0
+        ? nonEmptyTranslations
+        : [];
     }
 
     setIsSubmitting(true);
@@ -133,12 +122,13 @@ export function ScoringCategoryDialog({
         {
           name: trimmedName,
           max_points: maxPoints,
-          scoring_mode: scoringMode,
           ...translationsPayload,
         },
         category?.scoring_category_id,
       );
-      toast.success(isEdit ? "Categoría actualizada" : "Categoría creada");
+      toast.success(
+        isEdit ? "Categoría actualizada" : "Categoría creada",
+      );
       onSuccess(saved);
       onOpenChange(false);
     } catch (err: unknown) {
@@ -159,56 +149,31 @@ export function ScoringCategoryDialog({
           </DialogTitle>
           <DialogDescription>
             {isEdit
-              ? "Modifica el nombre, los puntos máximos y el tipo de captura de la categoría."
-              : "Completa el formulario para crear una nueva categoría de puntuación."}
+              ? "Modificá el nombre y los puntos máximos de la categoría."
+              : "Completá el formulario para crear una nueva categoría de puntuación."}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid gap-3 sm:grid-cols-2">
-            {/* Puntos Máximos — always visible above tabs */}
-            <div className="space-y-1.5">
-              <Label htmlFor="sc_max_points">
-                Puntos máximos{" "}
-                <span className="ml-0.5 text-destructive">*</span>
-              </Label>
-              <Input
-                id="sc_max_points"
-                type="number"
-                min={1}
-                max={resolvedMaxPointsCap}
-                value={maxPoints}
-                onChange={(e) => setMaxPoints(Number(e.target.value))}
-                required
-                disabled={isSubmitting}
-              />
-              <p className="text-[11px] text-muted-foreground">
-                Puntaje máximo permitido por el sistema: {resolvedMaxPointsCap}{" "}
-                puntos por aspecto.
-              </p>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="sc_scoring_mode">Tipo de captura</Label>
-              <Select
-                value={scoringMode}
-                onValueChange={(value) =>
-                  setScoringMode(value as "numeric" | "boolean_full")
-                }
-                disabled={isSubmitting}
-              >
-                <SelectTrigger id="sc_scoring_mode" className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="numeric">Numérico</SelectItem>
-                  <SelectItem value="boolean_full">Todo o nada</SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="text-[11px] text-muted-foreground">
-                “Todo o nada” solo permite 0 o el máximo.
-              </p>
-            </div>
+          {/* Puntos Máximos — always visible above tabs */}
+          <div className="space-y-1.5">
+            <Label htmlFor="sc_max_points">
+              Puntos máximos <span className="ml-0.5 text-destructive">*</span>
+            </Label>
+            <Input
+              id="sc_max_points"
+              type="number"
+              min={1}
+              max={resolvedMaxPointsCap}
+              value={maxPoints}
+              onChange={(e) => setMaxPoints(Number(e.target.value))}
+              required
+              disabled={isSubmitting}
+            />
+            <p className="text-[11px] text-muted-foreground">
+              Puntaje máximo permitido por el sistema: {resolvedMaxPointsCap}{" "}
+              puntos por aspecto.
+            </p>
           </div>
 
           {/* Translations tabs (es tab = name field, other tabs = translations) */}

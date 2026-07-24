@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/empty-state";
-import { MemberRankingScoreBadge } from "@/app/(dashboard)/dashboard/member-rankings/_components/member-ranking-score-badge";
+import { MemberRankingScoreBadge } from "@/components/rankings/member-ranking-score-badge";
 import type { MemberRankingItem } from "@/lib/api/section-rankings";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -164,7 +164,7 @@ export function SectionMembersTable({
               {/* Action — links to existing member breakdown page */}
               <TableCell className="px-3 py-2.5 align-middle text-right">
                 <Button variant="ghost" size="sm" asChild>
-                  <Link prefetch={false}
+                  <Link
                     href={`/dashboard/member-rankings/${item.enrollment_id}/breakdown?year_id=${yearId}`}
                   >
                     {t("viewDetail")}

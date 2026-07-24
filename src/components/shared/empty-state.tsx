@@ -1,6 +1,7 @@
 import { createElement, isValidElement, type ElementType, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { type LucideIcon } from "lucide-react";
+import { EMPTY_STATE_ENTER_CLASSES } from "@/lib/animations";
 
 interface EmptyStateProps {
   icon: LucideIcon | ReactNode;
@@ -39,7 +40,7 @@ export function EmptyState({
   variant = "default",
 }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
+    <div className={cn("flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center", EMPTY_STATE_ENTER_CLASSES)}>
       <div
         className={cn(
           "flex size-12 items-center justify-center rounded-full",

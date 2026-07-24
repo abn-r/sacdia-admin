@@ -1,18 +1,31 @@
 "use client";
 
-import { usePanelPath } from "@/lib/v2/panel-path-context";
-
 import { useState, useCallback } from "react";
 import Link from "next/link";
 import { PlusCircle, RefreshCw } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { CamporeePaymentsPanel } from "@/components/camporees/camporee-payments-panel";
-import { getCamporeePayments, getUnionCamporeePayments } from "@/lib/api/camporees";
-import type { CamporeePayment } from "@/lib/api/camporees";
+import { CamporeePaymentBalance } from "@/components/camporees/camporee-payment-balance";
+import {
+  getCamporeePayments,
+  getUnionCamporeePayments,
+  listCamporeeMembers,
+  listUnionCamporeeMembers,
+} from "@/lib/api/camporees";
+import type { CamporeeMember, CamporeePayment } from "@/lib/api/camporees";
+import {
+  LOCAL_CAMPOREE_MEMBERS_MAX_LIMIT,
+  UNION_CAMPOREE_MEMBERS_MAX_LIMIT,
+  normalizeCamporeeMembers,
+} from "@/lib/camporees/member-display";
 
 export interface CamporeePaymentsTabProps {
   camporeeId: number;
   initialPayments: CamporeePayment[];
+  initialMembers?: CamporeeMember[];
+  membersTotal?: number;
+  registrationCost?: number | null;
   isUnionCamporee?: boolean;
   onAfterChange?: () => void;
 }
@@ -20,12 +33,20 @@ export interface CamporeePaymentsTabProps {
 export function CamporeePaymentsTab({
   camporeeId,
   initialPayments,
+  initialMembers = [],
+  membersTotal,
+  registrationCost,
   isUnionCamporee = false,
   onAfterChange,
 }: CamporeePaymentsTabProps) {
-  const { toPanelPath } = usePanelPath();
-
+  const t = useTranslations("camporees.paymentsBalance");
   const [payments, setPayments] = useState<CamporeePayment[]>(initialPayments);
+  const [members, setMembers] = useState<CamporeeMember[]>(() =>
+    normalizeCamporeeMembers(initialMembers),
+  );
+  const [totalMembers, setTotalMembers] = useState(
+    membersTotal ?? initialMembers.length,
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -33,10 +54,23 @@ export function CamporeePaymentsTab({
     setIsLoading(true);
     setLoadError(null);
     try {
-      const payload = isUnionCamporee
-        ? await getUnionCamporeePayments(camporeeId)
-        : await getCamporeePayments(camporeeId);
-      const raw = payload as unknown;
+      const [paymentsPayload, membersPayload] = await Promise.all([
+        isUnionCamporee
+          ? getUnionCamporeePayments(camporeeId)
+          : getCamporeePayments(camporeeId),
+        isUnionCamporee
+          ? listUnionCamporeeMembers(camporeeId, {
+              page: 1,
+              limit: UNION_CAMPOREE_MEMBERS_MAX_LIMIT,
+            })
+          : listCamporeeMembers(camporeeId, {
+              page: 1,
+              // Local members DTO @Max(100); union allows 200.
+              limit: LOCAL_CAMPOREE_MEMBERS_MAX_LIMIT,
+            }),
+      ]);
+
+      const raw = paymentsPayload as unknown;
       let list: CamporeePayment[] = [];
       if (Array.isArray(raw)) {
         list = raw as CamporeePayment[];
@@ -47,61 +81,74 @@ export function CamporeePaymentsTab({
         }
       }
       setPayments(list);
+      setMembers(normalizeCamporeeMembers(membersPayload.data ?? []));
+      setTotalMembers(membersPayload.meta?.total ?? membersPayload.data?.length ?? 0);
       onAfterChange?.();
     } catch (err: unknown) {
       const message =
-        err instanceof Error
-          ? err.message
-          : "No se pudo actualizar la lista de pagos";
+        err instanceof Error ? err.message : t("refreshError");
       setLoadError(message);
     } finally {
       setIsLoading(false);
     }
-  }, [camporeeId, isUnionCamporee, onAfterChange]);
+  }, [camporeeId, isUnionCamporee, onAfterChange, t]);
 
   return (
-    <div className="space-y-4">
-      {/* Toolbar */}
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">{payments.length}</span>{" "}
-          {payments.length === 1 ? "pago registrado" : "pagos registrados"}
-        </p>
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="space-y-1">
+          <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
+            {t("eyebrow")}
+          </p>
+          <p className="text-sm text-muted-foreground">{t("description")}</p>
+        </div>
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="icon-sm"
             onClick={refreshPayments}
             disabled={isLoading}
-            title="Actualizar lista"
+            title={t("refresh")}
           >
             <RefreshCw className={`size-3.5 ${isLoading ? "animate-spin" : ""}`} />
-            <span className="sr-only">Actualizar</span>
+            <span className="sr-only">{t("refresh")}</span>
           </Button>
           {!isUnionCamporee && (
-            <Button size="sm" asChild>
-              <Link href={toPanelPath(`/dashboard/camporees/${camporeeId}/payments/new`)}>
+            <Button size="sm" asChild className="rounded-full">
+              <Link href={`/dashboard/campamentos/${camporeeId}/payments/new`}>
                 <PlusCircle className="size-4" />
-                Registrar pago
+                {t("registerPayment")}
               </Link>
             </Button>
           )}
         </div>
       </div>
 
-      {/* Error */}
       {loadError && (
         <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
           {loadError}
         </div>
       )}
 
-      <CamporeePaymentsPanel
-        camporeeId={camporeeId}
+      <CamporeePaymentBalance
+        members={members}
         payments={payments}
-        onPaymentsChange={refreshPayments}
-        isUnionCamporee={isUnionCamporee}
+        registrationCost={registrationCost}
+        membersTotal={totalMembers}
       />
+
+      <div className="space-y-3">
+        <div>
+          <p className="text-sm font-medium">{t("ledgerTitle")}</p>
+          <p className="text-xs text-muted-foreground">{t("ledgerDescription")}</p>
+        </div>
+        <CamporeePaymentsPanel
+          camporeeId={camporeeId}
+          payments={payments}
+          onPaymentsChange={refreshPayments}
+          isUnionCamporee={isUnionCamporee}
+        />
+      </div>
     </div>
   );
 }

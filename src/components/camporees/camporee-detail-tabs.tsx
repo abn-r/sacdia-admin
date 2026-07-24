@@ -15,18 +15,15 @@ import type { CamporeeMembersTabProps } from "@/components/camporees/camporee-me
 import type { CamporeeClubsTabProps } from "@/components/camporees/camporee-clubs-tab";
 import type { CamporeePaymentsTabProps } from "@/components/camporees/camporee-payments-tab";
 import { CamporeeEventsTab } from "@/components/camporee-events/camporee-events-tab";
-import { CamporeeStaffPanel } from "@/components/camporee-staff/camporee-staff-panel";
+import { EventJudgeAssignmentsPanel } from "@/components/camporee-scoring/event-judge-assignments-panel";
+import { EventScoreEntryPanel } from "@/components/camporee-scoring/event-score-entry-panel";
+import { CamporeeLeaderboard } from "@/components/camporee-scoring/camporee-leaderboard";
 import type { BackendCamporeeEvent, CamporeeEventTemplate } from "@/lib/api/camporee-events";
 import type { CamporeeVenue } from "@/lib/api/camporee-venues";
-import type {
-  CamporeeStaffCandidate,
-  CamporeeStaffMember,
-} from "@/lib/api/camporee-staff";
 import type {
   CamporeeEventJudgeAssignment,
   CamporeeEventRubric,
   CamporeeJudge,
-  CamporeeJudgeCandidate,
   CamporeeLeaderboard,
   CamporeeScoringTarget,
 } from "@/lib/api/camporee-scoring";
@@ -80,9 +77,6 @@ interface CamporeeDetailTabsProps {
   membersError: string | null;
   clubsError: string | null;
   paymentsError: string | null;
-  initialStaff?: CamporeeStaffMember[];
-  staffCandidates?: CamporeeStaffCandidate[];
-  staffError?: string | null;
   isUnionCamporee?: boolean;
   /** Server-rendered info tab content passed as a slot */
   infoContent: ReactNode;
@@ -92,8 +86,6 @@ interface CamporeeDetailTabsProps {
   /** Venues accessible to this camporee for timeline display */
   initialVenues?: CamporeeVenue[];
   initialJudges?: CamporeeJudge[];
-  judgeCandidates?: CamporeeJudgeCandidate[];
-  judgeCandidatesError?: string | null;
   initialAssignmentsByEvent?: Record<number, CamporeeEventJudgeAssignment[]>;
   initialScoringTargetsByEvent?: Record<number, CamporeeScoringTarget[]>;
   initialRubricsByEvent?: Record<number, CamporeeEventRubric[]>;
@@ -101,7 +93,26 @@ interface CamporeeDetailTabsProps {
   canCreateEvents?: boolean;
   canEditEvents?: boolean;
   canDeleteEvents?: boolean;
-  canManageClubRegistration?: boolean;
+  /** Assign / replace / remove event judge assignments. */
+  canEditJudgeAssignments?: boolean;
+  /** Active tab from ?tab= URL (e.g. after create/update event redirect). */
+  initialTab?: string;
+}
+
+const CAMPOREE_DETAIL_TABS = new Set([
+  "info",
+  "members",
+  "clubs",
+  "payments",
+  "events",
+  "judges",
+  "scores",
+  "ranking",
+]);
+
+function resolveInitialTab(tab: string | undefined): string {
+  if (tab && CAMPOREE_DETAIL_TABS.has(tab)) return tab;
+  return "info";
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -117,17 +128,12 @@ export function CamporeeDetailTabs({
   membersError,
   clubsError,
   paymentsError,
-  initialStaff = [],
-  staffCandidates = [],
-  staffError = null,
   isUnionCamporee = false,
   infoContent,
   initialEvents = [],
   availableTemplates = [],
   initialVenues = [],
   initialJudges = [],
-  judgeCandidates = [],
-  judgeCandidatesError = null,
   initialAssignmentsByEvent = {},
   initialScoringTargetsByEvent = {},
   initialRubricsByEvent = {},
@@ -135,9 +141,13 @@ export function CamporeeDetailTabs({
   canCreateEvents = false,
   canEditEvents = false,
   canDeleteEvents = false,
-  canManageClubRegistration = false,
+  canEditJudgeAssignments = false,
+  initialTab,
 }: CamporeeDetailTabsProps) {
   const [pending, setPending] = useState<PendingApprovals>(initialPending);
+  const totalJudgeAssignments = Object.values(initialAssignmentsByEvent)
+    .flat()
+    .filter((assignment) => assignment.active).length;
 
   const refreshPending = useCallback(async () => {
     try {
@@ -152,15 +162,17 @@ export function CamporeeDetailTabs({
     }
   }, [camporeeId, isUnionCamporee]);
 
+  const activeTab = resolveInitialTab(initialTab);
+
   return (
-    <Tabs defaultValue="info">
-      <TabsList>
+    <Tabs key={activeTab} defaultValue={activeTab} className="w-full min-w-0">
+      <TabsList className="h-auto min-h-8 w-full flex-wrap">
         <TabsTrigger value="info">Información</TabsTrigger>
 
         <TabsTrigger value="members">
           Miembros
           {(initialMembersMeta?.total ?? initialMembers.length) > 0 && (
-            <Badge variant="secondary" className="ml-2">
+            <Badge variant="secondary" className="ml-1.5">
               {initialMembersMeta?.total ?? initialMembers.length}
             </Badge>
           )}
@@ -174,7 +186,7 @@ export function CamporeeDetailTabs({
         <TabsTrigger value="clubs">
           Clubes
           {initialClubs.length > 0 && (
-            <Badge variant="secondary" className="ml-2">
+            <Badge variant="secondary" className="ml-1.5">
               {initialClubs.length}
             </Badge>
           )}
@@ -188,7 +200,7 @@ export function CamporeeDetailTabs({
         <TabsTrigger value="payments">
           Pagos
           {initialPayments.length > 0 && (
-            <Badge variant="secondary" className="ml-2">
+            <Badge variant="secondary" className="ml-1.5">
               {initialPayments.length}
             </Badge>
           )}
@@ -199,20 +211,31 @@ export function CamporeeDetailTabs({
           )}
         </TabsTrigger>
 
-        <TabsTrigger value="staff">
-          Personal
-          {initialStaff.length > 0 && (
-            <Badge variant="secondary" className="ml-2">
-              {initialStaff.length}
+        <TabsTrigger value="events">
+          Eventos
+          {initialEvents.length > 0 && (
+            <Badge variant="secondary" className="ml-1.5">
+              {initialEvents.length}
             </Badge>
           )}
         </TabsTrigger>
 
-        <TabsTrigger value="events">
-          Eventos
-          {initialEvents.length > 0 && (
-            <Badge variant="secondary" className="ml-2">
-              {initialEvents.length}
+        <TabsTrigger value="judges">
+          Jueces
+          {totalJudgeAssignments > 0 && (
+            <Badge variant="secondary" className="ml-1.5">
+              {totalJudgeAssignments}
+            </Badge>
+          )}
+        </TabsTrigger>
+
+        <TabsTrigger value="scores">Puntajes</TabsTrigger>
+
+        <TabsTrigger value="ranking">
+          Clasificación
+          {(initialLeaderboard?.rows.length ?? 0) > 0 && (
+            <Badge variant="secondary" className="ml-1.5">
+              {initialLeaderboard?.rows.length}
             </Badge>
           )}
         </TabsTrigger>
@@ -267,8 +290,6 @@ export function CamporeeDetailTabs({
                 includesAdventurers={camporee?.includes_adventurers ?? false}
                 includesPathfinders={camporee?.includes_pathfinders ?? false}
                 includesMasterGuides={camporee?.includes_master_guides ?? false}
-                clubRegistrationClosedAt={camporee?.club_registration_closed_at ?? null}
-                canManageClubRegistration={canManageClubRegistration}
                 onAfterChange={refreshPending}
               />
             )}
@@ -289,30 +310,11 @@ export function CamporeeDetailTabs({
               <CamporeePaymentsTab
                 camporeeId={camporeeId}
                 initialPayments={initialPayments}
+                initialMembers={initialMembers}
+                membersTotal={initialMembersMeta?.total ?? initialMembers.length}
+                registrationCost={camporee?.registration_cost}
                 isUnionCamporee={isUnionCamporee}
                 onAfterChange={refreshPending}
-              />
-            )}
-          </CardContent>
-        </Card>
-      </TabsContent>
-
-      {/* ── Personal ── */}
-      <TabsContent value="staff" className="mt-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Personal del camporee</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {staffError ? (
-              <EndpointErrorBanner state="missing" detail={staffError} />
-            ) : (
-              <CamporeeStaffPanel
-                camporeeId={camporeeId}
-                isUnionCamporee={isUnionCamporee}
-                staff={initialStaff}
-                candidates={staffCandidates}
-                canEdit={canEditEvents}
               />
             )}
           </CardContent>
@@ -337,16 +339,36 @@ export function CamporeeDetailTabs({
           camporee={camporee}
           isUnionCamporee={isUnionCamporee}
           canCreate={canCreateEvents}
-          canEdit={canEditEvents}
-          canDelete={canDeleteEvents}
-          initialJudges={initialJudges}
-          judgeCandidates={judgeCandidates}
-          judgeCandidatesError={judgeCandidatesError}
-          assignmentsByEvent={initialAssignmentsByEvent}
-          scoringTargetsByEvent={initialScoringTargetsByEvent}
-          rubricsByEvent={initialRubricsByEvent}
-          leaderboard={initialLeaderboard}
         />
+      </TabsContent>
+
+      <TabsContent value="judges" className="mt-4">
+        <EventJudgeAssignmentsPanel
+          camporeeId={camporeeId}
+          isUnionCamporee={isUnionCamporee}
+          events={initialEvents}
+          judges={initialJudges}
+          assignmentsByEvent={initialAssignmentsByEvent}
+          targetsByEvent={initialScoringTargetsByEvent}
+          canEdit={canEditJudgeAssignments}
+        />
+      </TabsContent>
+
+      <TabsContent value="scores" className="mt-4">
+        <EventScoreEntryPanel
+          camporeeId={camporeeId}
+          isUnionCamporee={isUnionCamporee}
+          events={initialEvents}
+          rubricsByEvent={initialRubricsByEvent}
+          targetsByEvent={initialScoringTargetsByEvent}
+          judges={initialJudges}
+          assignmentsByEvent={initialAssignmentsByEvent}
+          canEdit={canEditEvents}
+        />
+      </TabsContent>
+
+      <TabsContent value="ranking" className="mt-4">
+        <CamporeeLeaderboard leaderboard={initialLeaderboard} />
       </TabsContent>
     </Tabs>
   );

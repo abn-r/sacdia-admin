@@ -59,6 +59,7 @@ export type UserRole = {
 };
 
 export type RbacActionState = {
+  ok?: boolean;
   error?: string;
   success?: string;
 };

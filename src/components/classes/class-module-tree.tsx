@@ -8,8 +8,6 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { ClassModule, ClassSection } from "@/lib/api/classes";
 
-// ─── Section Node ─────────────────────────────────────────────────────────────
-
 interface SectionNodeProps {
   section: ClassSection;
 }
@@ -49,8 +47,6 @@ function SectionNode({ section }: SectionNodeProps) {
     </li>
   );
 }
-
-// ─── Module Node ──────────────────────────────────────────────────────────────
 
 interface ModuleNodeProps {
   mod: ClassModule;
@@ -107,8 +103,6 @@ function ModuleNode({ mod, defaultOpen = false }: ModuleNodeProps) {
   );
 }
 
-// ─── Tree Root ────────────────────────────────────────────────────────────────
-
 interface ClassModuleTreeProps {
   modules: ClassModule[];
 }
@@ -124,11 +118,7 @@ export function ClassModuleTree({ modules }: ClassModuleTreeProps) {
   }
 
   if (modules.length === 0) {
-    return (
-      <p className="text-sm text-muted-foreground">
-        {t("no_modules")}
-      </p>
-    );
+    return <p className="text-sm text-muted-foreground">{t("no_modules")}</p>;
   }
 
   return (
@@ -143,11 +133,7 @@ export function ClassModuleTree({ modules }: ClassModuleTreeProps) {
       </div>
       <div key={key} className={cn("space-y-2")}>
         {modules.map((mod, idx) => (
-          <ModuleNode
-            key={mod.module_id}
-            mod={mod}
-            defaultOpen={allOpen || idx === 0}
-          />
+          <ModuleNode key={mod.module_id} mod={mod} defaultOpen={allOpen || idx === 0} />
         ))}
       </div>
     </div>

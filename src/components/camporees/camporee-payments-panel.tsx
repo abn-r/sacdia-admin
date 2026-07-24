@@ -1,6 +1,5 @@
 "use client";
 
-import { usePanelPath } from "@/lib/v2/panel-path-context";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -56,7 +55,8 @@ function PaymentStatusBadge({ status, t }: { status?: string | null; t: ReturnTy
   if (!status) return null;
   const normalized = status.toLowerCase();
 
-  if (normalized === "approved") {
+  // On-time createPayment → `registered`; late review → `approved`.
+  if (normalized === "approved" || normalized === "registered") {
     return <StatusBadge intent="success" label={t("paymentsPanel.statusApproved")} />;
   }
 
@@ -80,12 +80,17 @@ interface PaymentSummaryProps {
   t: ReturnType<typeof useTranslations<"camporees">>;
 }
 
+function parseAmount(amount: unknown): number {
+  const n = typeof amount === "number" ? amount : Number(amount);
+  return Number.isFinite(n) ? n : 0;
+}
+
 function PaymentSummary({ payments, t }: PaymentSummaryProps) {
   const formatCurrency = useFormatCurrency();
-  const total = payments.reduce((sum, p) => sum + p.amount, 0);
+  const total = payments.reduce((sum, p) => sum + parseAmount(p.amount), 0);
 
   const byType = payments.reduce<Record<string, number>>((acc, p) => {
-    acc[p.payment_type] = (acc[p.payment_type] ?? 0) + p.amount;
+    acc[p.payment_type] = (acc[p.payment_type] ?? 0) + parseAmount(p.amount);
     return acc;
   }, {});
 
@@ -147,8 +152,7 @@ export function CamporeePaymentsPanel({
   onPaymentsChange,
   isUnionCamporee = false,
 }: CamporeePaymentsPanelProps) {
-  const { toPanelPath } = usePanelPath();
-
+  
   const t = useTranslations("camporees");
   const formatDateLocale = useFormatDate();
   const formatCurrency = useFormatCurrency();
@@ -206,7 +210,8 @@ export function CamporeePaymentsPanel({
       <EmptyState
         icon={DollarSign}
         title={t("paymentsPanel.emptyTitle")}
-        description={t("paymentsPanel.emptyDescription")}
+        description={t("paymentsPanel.emptyLedgerDescription")}
+        variant="no-results"
       />
     );
   }
@@ -292,7 +297,7 @@ export function CamporeePaymentsPanel({
                     </TableCell>
                     <TableCell className="px-3 py-2.5 align-middle">
                       <span className="text-sm font-semibold tabular-nums">
-                        {formatCurrency(payment.amount)}
+                        {formatCurrency(parseAmount(payment.amount))}
                       </span>
                     </TableCell>
                     <TableCell className="px-3 py-2.5 align-middle">
@@ -358,7 +363,7 @@ export function CamporeePaymentsPanel({
                                 aria-label={t("paymentsPanel.editLabel")}
                               >
                                 <Link
-                                  href={`${toPanelPath(`/dashboard/camporees/${camporeeId}/payments/`)}${payment.camporee_payment_id}/edit`}
+                                  href={`${`/dashboard/campamentos/${camporeeId}/payments/`}${payment.camporee_payment_id}/edit`}
                                   prefetch={false}
                                 >
                                   <Pencil className="size-3.5" />

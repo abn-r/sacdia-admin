@@ -117,14 +117,12 @@ export function ValidateDialog({
             ) : (
               <XCircle className="size-5 text-destructive" />
             )}
-            {isApprove
-              ? t("validateDialog.titleApprove")
-              : t("validateDialog.titleReject")}
+            {isApprove ? "Aprobar investidura" : "Rechazar investidura"}
           </DialogTitle>
           <DialogDescription>
             {isApprove
-              ? t("validateDialog.descriptionApprove", { memberName })
-              : t("validateDialog.descriptionReject", { memberName })}
+              ? `Se aprobará la solicitud de investidura de ${memberName}. Podrás marcarla como investida una vez aprobada.`
+              : `Se rechazará la solicitud de investidura de ${memberName}. El motivo es obligatorio.`}
           </DialogDescription>
         </DialogHeader>
 
@@ -136,16 +134,14 @@ export function ValidateDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    {isApprove
-                      ? t("validateDialog.commentsLabel")
-                      : t("validateDialog.reasonLabel")}
+                    {isApprove ? "Comentarios (opcional)" : "Motivo de rechazo *"}
                   </FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder={
                         isApprove
-                          ? t("validateDialog.commentsPlaceholder")
-                          : t("validateDialog.reasonPlaceholder")
+                          ? "Añade un comentario opcional..."
+                          : "Describe el motivo del rechazo..."
                       }
                       rows={3}
                       {...field}
@@ -164,7 +160,7 @@ export function ValidateDialog({
                 onClick={() => handleClose(false)}
                 disabled={isPending}
               >
-                {t("validateDialog.cancel")}
+                Cancelar
               </Button>
               <Button
                 type="submit"
@@ -172,9 +168,7 @@ export function ValidateDialog({
                 disabled={isPending}
               >
                 {isPending && <Loader2 className="size-4 animate-spin" />}
-                {isApprove
-                  ? t("validateDialog.confirmApprove")
-                  : t("validateDialog.confirmReject")}
+                {isApprove ? "Aprobar" : "Rechazar"}
               </Button>
             </DialogFooter>
           </form>

@@ -239,7 +239,7 @@ export default async function CertificationDetailPage({ params }: { params: Para
               <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
             )}
           </div>
-          <Badge variant={isActive ? "soft-success" : "outline"}>
+          <Badge variant={isActive ? "default" : "outline"}>
             {isActive ? t("statusActive") : t("statusInactive")}
           </Badge>
         </CardContent>

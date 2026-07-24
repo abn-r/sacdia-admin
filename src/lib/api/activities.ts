@@ -25,10 +25,13 @@ export type Activity = {
   name: string;
   description?: string | null;
   club_id: number;
+  club_name?: string | null;
   club_type_id: number;
   club_section_id: number;
   lat: number;
   long: number;
+  activity_date?: string | null;
+  activity_end_date?: string | null;
   activity_time?: string | null;
   activity_place: string;
   image?: string | null;
@@ -65,6 +68,8 @@ export type CreateActivityPayload = {
   lat: number;
   long: number;
   activity_time?: string;
+  activity_date?: string;
+  activity_end_date?: string;
   activity_place: string;
   image: string;
   platform?: number;
@@ -81,6 +86,8 @@ export type UpdateActivityPayload = {
   lat?: number;
   long?: number;
   activity_time?: string;
+  activity_date?: string;
+  activity_end_date?: string;
   activity_place?: string;
   image?: string;
   platform?: number;

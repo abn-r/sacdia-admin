@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
 import { MessageSquare } from "lucide-react";
 import { StatusBadge } from "@/components/materials/status-badge";
-import { getOrder } from "@/lib/api/materials";
+import { getOrder, listReceipts, getConfig } from "@/lib/api/materials";
+import { extractComprobantes } from "@/lib/materials/comprobantes";
+import { buildReceiptPrintContextFromOrder } from "@/lib/materials/receipt-print";
 import { requireAdminUser } from "@/lib/auth/session";
 import { hasPermission } from "@/lib/auth/permission-utils";
 import { ApiError } from "@/lib/api/client";
@@ -80,6 +82,18 @@ export default async function SolicitudDetailPage({
     orden.estado === "entregada" ||
     (orden.estado === "cancelada" && orden.refund_pending);
 
+  let comprobantes = extractComprobantes(orden.comprobantes);
+  if (comprobantes.length === 0) {
+    comprobantes = await listReceipts(folio).catch(() => []);
+  }
+
+  const showComprobantesSection =
+    showComprobantes || comprobantes.length > 0;
+
+  const livePaymentConfig = showBankSnapshot
+    ? await getConfig({ localFieldId: orden.local_field_id }).catch(() => null)
+    : null;
+
   const titulo =
     orden.folio_referencia ?? `Solicitud ${orden.id.slice(0, 8)}…`;
 
@@ -116,7 +130,9 @@ export default async function SolicitudDetailPage({
           )}
 
           {/* Bank snapshot (when applicable) */}
-          {showBankSnapshot && <BankSnapshotCard orden={orden} />}
+          {showBankSnapshot && (
+            <BankSnapshotCard orden={orden} liveConfig={livePaymentConfig} />
+          )}
 
           {/* Partidas */}
           <LinesTable
@@ -129,11 +145,12 @@ export default async function SolicitudDetailPage({
           />
 
           {/* Comprobantes */}
-          {showComprobantes && (
+          {showComprobantesSection && (
             <ReceiptsSection
               folio={orden.id}
-              comprobantes={orden.comprobantes}
+              comprobantes={comprobantes}
               canReview={canValidateReceipt}
+              printContext={buildReceiptPrintContextFromOrder(orden)}
             />
           )}
 

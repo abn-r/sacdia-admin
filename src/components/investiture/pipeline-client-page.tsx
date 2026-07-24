@@ -2,13 +2,13 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
-import { CalendarDays, RefreshCw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PipelineTable, type UserRole } from "@/components/investiture/pipeline-table";
 import {
-  getPipelineEnrollmentsForYear,
+  getPipelineEnrollments,
   type PipelineEnrollment,
   type PipelineStatus,
 } from "@/lib/api/investiture";
@@ -23,8 +23,6 @@ type TabKey = PipelineStatus | "ALL";
 interface PipelineClientPageProps {
   initialEnrollments: PipelineEnrollment[];
   userRole: UserRole;
-  currentYearId: number | null;
-  currentYearName: string | null;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -32,13 +30,11 @@ interface PipelineClientPageProps {
 export function PipelineClientPage({
   initialEnrollments,
   userRole,
-  currentYearId,
-  currentYearName,
 }: PipelineClientPageProps) {
   const t = useTranslations("investiture");
 
   const TABS: { key: TabKey; label: string }[] = [
-    { key: "ALL", label: t("pipeline.tabAllCurrentYear") },
+    { key: "ALL", label: t("pipeline.tabAll") },
     { key: "SUBMITTED", label: t("pipeline.tabSubmitted") },
     { key: "CLUB_APPROVED", label: t("pipeline.tabClubApproved") },
     { key: "COORDINATOR_APPROVED", label: t("pipeline.tabCoordinatorApproved") },
@@ -63,7 +59,9 @@ export function PipelineClientPage({
   const refresh = useCallback(async () => {
     setIsRefreshing(true);
     try {
-      const data = await getPipelineEnrollmentsForYear(currentYearId);
+      const status =
+        activeTab === "ALL" ? undefined : (activeTab as PipelineStatus);
+      const data = await getPipelineEnrollments(status);
       if (isMounted.current) {
         setEnrollments(data);
       }
@@ -78,7 +76,13 @@ export function PipelineClientPage({
         setIsRefreshing(false);
       }
     }
-  }, [currentYearId, t]);
+  }, [activeTab, t]);
+
+  // Reload data on tab change (server returns all on initial load)
+  useEffect(() => {
+    void refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
 
   const visibleEnrollments =
     activeTab === "ALL"
@@ -93,16 +97,7 @@ export function PipelineClientPage({
   return (
     <div className="space-y-4">
       {/* Toolbar */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <CalendarDays className="size-4" aria-hidden="true" />
-          <span>
-            {t("pipeline.currentYear", {
-              year: currentYearName ?? t("pipeline.currentYearFallback"),
-            })}
-          </span>
-        </div>
-
+      <div className="flex items-center justify-end">
         <Button
           variant="outline"
           size="sm"

@@ -64,6 +64,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { PageHeader } from "@/components/shared/page-header";
+import { UserAvatar } from "@/components/users/user-avatar";
 import {
   createPayment,
   removeCamporeePaymentVoucher,
@@ -77,6 +78,10 @@ import type {
 } from "@/lib/api/camporees";
 import { ApiError } from "@/lib/api/client";
 import { useFormatDate } from "@/lib/format-locale";
+import {
+  getCamporeeMemberDisplayName,
+  getSelectablePaymentMembers,
+} from "@/lib/camporees/member-display";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -154,12 +159,25 @@ export function PaymentFormPage({
 
   const isEditing = mode === "edit" && payment != null;
   const schema = useMemo(() => buildSchema(tVal), [tVal]);
+  const selectableMembers = useMemo(
+    () => getSelectablePaymentMembers(initialMembers),
+    [initialMembers],
+  );
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema as z.ZodType<FormValues, FormValues>),
     defaultValues: {
-      member_id: payment?.member_id ?? "",
-      amount: payment?.amount ?? undefined,
+      // Backend createPayment expects camporee_member_id (ParseIntPipe), not user_id.
+      member_id:
+        payment?.member_id ??
+        (payment?.camporee_member_id != null
+          ? String(payment.camporee_member_id)
+          : ""),
+      amount: (() => {
+        if (payment?.amount == null || payment.amount === "") return undefined;
+        const n = Number(payment.amount);
+        return Number.isFinite(n) ? n : undefined;
+      })(),
       payment_type: (payment?.payment_type ?? "inscription") as PaymentType,
       reference: payment?.reference ?? "",
       notes: payment?.notes ?? "",
@@ -380,21 +398,48 @@ export function PaymentFormPage({
                   <FormControl>
                     {isEditing ? (
                       <p className="rounded-md border border-border bg-muted/40 px-3 py-2 text-sm">
-                        {payment?.member_name ?? payment?.member_id}
+                        {payment?.member_name?.trim() ||
+                          payment?.member_id ||
+                          t("paymentDialog.unknownMember")}
+                      </p>
+                    ) : selectableMembers.length === 0 ? (
+                      <p className="rounded-md border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
+                        {t("paymentDialog.emptyMembers")}
                       </p>
                     ) : (
                       <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger aria-required="true">
+                        <SelectTrigger
+                          aria-required="true"
+                          className="w-full"
+                        >
                           <SelectValue
                             placeholder={t("paymentDialog.placeholderMember")}
                           />
                         </SelectTrigger>
-                        <SelectContent>
-                          {initialMembers.map((m) => (
-                            <SelectItem key={m.user_id} value={m.user_id}>
-                              {m.name ?? m.user_id}
-                            </SelectItem>
-                          ))}
+                        <SelectContent position="popper" className="w-(--radix-select-trigger-width)">
+                          {selectableMembers.map((m) => {
+                            const displayName = getCamporeeMemberDisplayName(
+                              m,
+                              t("paymentDialog.unknownMember"),
+                            );
+                            return (
+                              <SelectItem
+                                key={m.camporee_member_id}
+                                value={String(m.camporee_member_id)}
+                              >
+                                <span className="flex min-w-0 items-center gap-2">
+                                  <UserAvatar
+                                    src={m.picture_url}
+                                    name={displayName}
+                                    email={m.email}
+                                    size={28}
+                                    className="size-7"
+                                  />
+                                  <span className="truncate">{displayName}</span>
+                                </span>
+                              </SelectItem>
+                            );
+                          })}
                         </SelectContent>
                       </Select>
                     )}

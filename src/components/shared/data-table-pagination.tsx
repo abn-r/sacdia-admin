@@ -43,7 +43,7 @@ export function DataTablePagination({
     router.push(buildHref(1, Number(value)));
   }
 
-  const from = Math.min((page - 1) * limit + 1, total);
+  const from = total === 0 ? 0 : Math.min((page - 1) * limit + 1, total);
   const to = Math.min(page * limit, total);
 
   return (
@@ -59,8 +59,10 @@ export function DataTablePagination({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {limitOptions.map((opt) => (
-                <SelectItem key={opt} value={String(opt)}>{opt}</SelectItem>
+              {limitOptions.map((option) => (
+                <SelectItem key={option} value={String(option)}>
+                  {option}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>

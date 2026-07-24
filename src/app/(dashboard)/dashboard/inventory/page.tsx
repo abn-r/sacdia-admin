@@ -6,76 +6,24 @@ import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { InventoryView } from "@/components/inventory/inventory-view";
 import { apiRequest, ApiError } from "@/lib/api/client";
 import { listInventoryCategories, listClubInventory } from "@/lib/api/inventory";
+import { listClubTypes } from "@/lib/api/catalogs";
 import { requireAdminUser } from "@/lib/auth/session";
+import {
+  listLocalFieldsForTerritory,
+  resolveAdminTerritoryScope,
+} from "@/lib/auth/territory-scope";
+import {
+  buildInventorySectionOptions,
+  clubTypeIdToInstanceType,
+  extractArray,
+  filterInventorySections,
+  type InventorySectionOption,
+} from "@/lib/inventory/club-sections";
+import type { ClubType } from "@/lib/api/catalogs";
+import type { LocalField } from "@/lib/api/geography";
 import type { InventoryItem, InventoryCategory } from "@/lib/api/inventory";
 
-// ─── Types ─────────────────────────────────────────────────────────────────────
-
 type AnyRecord = Record<string, unknown>;
-
-type InventoryClubOption = {
-  club_section_id: number;
-  main_club_id: number | null;
-  name: string;
-  club_type_id: number;
-};
-
-// ─── Normalizers ───────────────────────────────────────────────────────────────
-
-function extractArray(payload: unknown): AnyRecord[] {
-  if (Array.isArray(payload)) return payload as AnyRecord[];
-  if (payload && typeof payload === "object") {
-    const root = payload as AnyRecord;
-    if (Array.isArray(root.data)) return root.data as AnyRecord[];
-  }
-  return [];
-}
-
-function clubTypeNameToId(name: unknown): number {
-  const normalized = String(name ?? "").toLowerCase();
-  if (normalized.includes("aventurer")) return 1;
-  if (normalized.includes("guía") || normalized.includes("guia")) return 3;
-  return 2;
-}
-
-function normalizeClubOptions(raw: AnyRecord): InventoryClubOption[] {
-  const mainClubId = Number(raw.club_id ?? raw.id ?? 0) || null;
-  const clubName = String(raw.name ?? `Club ${raw.club_id ?? "?"}`);
-  const sections = Array.isArray(raw.club_sections)
-    ? (raw.club_sections as AnyRecord[])
-    : [];
-
-  if (sections.length === 0) {
-    const sectionId = Number(raw.club_section_id ?? 0);
-    if (sectionId <= 0) return [];
-    return [
-      {
-        club_section_id: sectionId,
-        main_club_id: mainClubId,
-        name: clubName,
-        club_type_id: Number(raw.club_type_id ?? 2),
-      },
-    ];
-  }
-
-  return sections
-    .map((section) => {
-      const sectionId = Number(section.club_section_id ?? 0);
-      if (sectionId <= 0) return null;
-      const clubTypes =
-        section.club_types && typeof section.club_types === "object"
-          ? (section.club_types as AnyRecord)
-          : null;
-      const typeName = String(clubTypes?.name ?? "");
-      return {
-        club_section_id: sectionId,
-        main_club_id: mainClubId,
-        name: `${clubName} · ${typeName || `Sección ${sectionId}`}`,
-        club_type_id: clubTypeNameToId(typeName),
-      };
-    })
-    .filter((option): option is InventoryClubOption => option !== null);
-}
 
 function normalizeCategory(raw: AnyRecord): InventoryCategory {
   return {
@@ -89,8 +37,6 @@ function normalizeItem(raw: AnyRecord): InventoryItem {
   const category =
     raw.inventory_category && typeof raw.inventory_category === "object"
       ? (raw.inventory_category as AnyRecord)
-      : raw.category && typeof raw.category === "object"
-        ? (raw.category as AnyRecord)
       : null;
 
   return {
@@ -106,9 +52,7 @@ function normalizeItem(raw: AnyRecord): InventoryItem {
             typeof category.description === "string" ? category.description : null,
         }
       : null,
-    club_id: raw.club_id == null ? null : Number(raw.club_id),
-    club_section_id:
-      raw.club_section_id == null ? null : Number(raw.club_section_id),
+    club_id: Number(raw.club_id ?? 0),
     amount: Number(raw.amount ?? 0),
     active: raw.active !== false,
     created_at: typeof raw.created_at === "string" ? raw.created_at : null,
@@ -116,32 +60,39 @@ function normalizeItem(raw: AnyRecord): InventoryItem {
   };
 }
 
-function clubTypeToInstanceType(clubTypeId: number): "adv" | "pathf" | "mg" {
-  if (clubTypeId === 1) return "adv";
-  if (clubTypeId === 3) return "mg";
-  return "pathf";
-}
-
-// ─── Page ──────────────────────────────────────────────────────────────────────
-
 export default async function InventoryPage() {
-  await requireAdminUser();
+  const user = await requireAdminUser();
   const t = await getTranslations("inventory");
+  const territoryScope = resolveAdminTerritoryScope(user);
 
-  let clubs: InventoryClubOption[] = [];
+  let sections: InventorySectionOption[] = [];
   let categories: InventoryCategory[] = [];
+  let localFields: LocalField[] = [];
+  let clubTypes: ClubType[] = [];
   let initialItems: InventoryItem[] = [];
+  let initialLocalFieldId: number | "all" = "all";
+  let initialClubTypeId: number | "all" = "all";
   let loadError: string | null = null;
 
-  // 1. Load clubs and categories in parallel
-  const [clubsResult, categoriesResult] = await Promise.allSettled([
-    apiRequest<unknown>("/clubs"),
-    listInventoryCategories(),
-  ]);
+  if (territoryScope.level === "local_field") {
+    initialLocalFieldId = territoryScope.localFieldId;
+  }
+
+  const [clubsResult, categoriesResult, localFieldsResult, clubTypesResult] =
+    await Promise.allSettled([
+      apiRequest<unknown>("/clubs"),
+      listInventoryCategories(),
+      listLocalFieldsForTerritory(user),
+      listClubTypes(),
+    ]);
+
+  if (clubTypesResult.status === "fulfilled") {
+    clubTypes = clubTypesResult.value;
+  }
 
   if (clubsResult.status === "fulfilled") {
     const rawClubs = extractArray(clubsResult.value);
-    clubs = rawClubs.flatMap(normalizeClubOptions);
+    sections = buildInventorySectionOptions(rawClubs, clubTypes);
   } else {
     const err = clubsResult.reason;
     loadError =
@@ -156,22 +107,50 @@ export default async function InventoryPage() {
       .map(normalizeCategory)
       .filter((c) => c.inventory_category_id > 0);
   }
-  // categories failure is non-fatal — user can still view items without category filter
 
-  // 2. Fetch initial items for the first club (best effort)
-  if (clubs.length > 0 && !loadError) {
-    const firstClub = clubs[0];
-    const instanceType = clubTypeToInstanceType(firstClub.club_type_id);
-    try {
-      const payload = await listClubInventory(firstClub.club_section_id, {
-        instanceType,
-      });
-      const rawItems = extractArray(payload);
-      initialItems = rawItems.map(normalizeItem);
-    } catch (err) {
-      console.warn("Failed to load initial inventory items:", err);
+  if (localFieldsResult.status === "fulfilled") {
+    localFields = localFieldsResult.value;
+  }
+
+  if (sections.length > 0 && !loadError) {
+    const scopedSections = filterInventorySections(
+      sections,
+      initialLocalFieldId,
+      initialClubTypeId,
+    );
+    const firstSection = scopedSections[0] ?? sections[0];
+
+    if (firstSection) {
+      if (initialLocalFieldId === "all" && firstSection.local_field_id) {
+        initialLocalFieldId = firstSection.local_field_id;
+      }
+    }
+
+    const initialSection =
+      filterInventorySections(
+        sections,
+        initialLocalFieldId,
+        initialClubTypeId,
+      )[0] ?? firstSection;
+
+    if (initialSection) {
+      const instanceType = clubTypeIdToInstanceType(initialSection.club_type_id);
+      try {
+        const payload = await listClubInventory(initialSection.club_section_id, {
+          instanceType,
+        });
+        const rawItems = extractArray(payload);
+        initialItems = rawItems.map(normalizeItem);
+      } catch (err) {
+        console.warn("Failed to load initial inventory items:", err);
+      }
     }
   }
+
+  const initialSection =
+    filterInventorySections(sections, initialLocalFieldId, initialClubTypeId)[0] ??
+    sections[0] ??
+    null;
 
   return (
     <div className="space-y-6">
@@ -184,7 +163,7 @@ export default async function InventoryPage() {
         <EndpointErrorBanner state="missing" detail={loadError} />
       )}
 
-      {!loadError && clubs.length === 0 && (
+      {!loadError && sections.length === 0 && (
         <EmptyState
           icon={Package}
           title={t("page.empty_no_clubs_title")}
@@ -192,12 +171,17 @@ export default async function InventoryPage() {
         />
       )}
 
-      {!loadError && clubs.length > 0 && (
+      {!loadError && sections.length > 0 && (
         <InventoryView
-          clubs={clubs}
+          sections={sections}
           categories={categories}
+          localFields={localFields}
+          clubTypes={clubTypes}
+          territoryScope={territoryScope}
           initialItems={initialItems}
-          initialClubSectionId={clubs[0]?.club_section_id ?? null}
+          initialSectionId={initialSection?.club_section_id ?? null}
+          initialLocalFieldId={initialLocalFieldId}
+          initialClubTypeId={initialClubTypeId}
         />
       )}
     </div>

@@ -1,33 +1,29 @@
 import { apiRequest, apiRequestFromClient, ApiError } from "@/lib/api/client";
 
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+export type InvestitureStatus =
+  | "IN_PROGRESS"
+  | "SUBMITTED_FOR_VALIDATION"
+  | "APPROVED"
+  | "REJECTED"
+  | "INVESTIDO";
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type EnrollmentStatus =
-  | "pending_validation"
-  | "active"
-  | "rejected"
-  | "inactive";
-
-export type EnrollmentPerson = {
+export type EnrollmentUser = {
   user_id?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
   name?: string | null;
+  paternal_last_name?: string | null;
+  maternal_last_name?: string | null;
   email?: string | null;
+  photo?: string | null;
 };
 
-export type EnrollmentClub = {
-  club_id?: number | null;
-  name?: string | null;
-};
-
-export type EnrollmentSection = {
-  section_id?: number | null;
-  name?: string | null;
-  club_type_id?: number | null;
-  club_type_name?: string | null;
-};
-
-export type EnrollmentLocalField = {
-  local_field_id?: number | null;
+export type EnrollmentClass = {
+  class_id?: number | null;
   name?: string | null;
 };
 
@@ -39,31 +35,36 @@ export type EnrollmentEcclesiasticalYear = {
 };
 
 export type Enrollment = {
-  club_enrollment_id: string;
-  club_section_id?: number | null;
+  enrollment_id: number;
+  user_id?: string | null;
+  class_id?: number | null;
   ecclesiastical_year_id?: number | null;
-  status: EnrollmentStatus;
-  address?: string | null;
-  meeting_days?: string | null;
-  created_at?: string | null;
-  modified_at?: string | null;
-  club?: EnrollmentClub | null;
-  section?: EnrollmentSection | null;
-  local_field?: EnrollmentLocalField | null;
+  enrollment_date?: string | null;
+  investiture_status: InvestitureStatus;
+  submitted_for_validation?: boolean | null;
+  submitted_at?: string | null;
+  validated_by?: string | null;
+  validated_at?: string | null;
+  rejection_reason?: string | null;
+  investiture_date?: string | null;
+  advanced_status?: boolean | null;
+  locked_for_validation?: boolean | null;
+  cross_type_enrollment?: boolean | null;
+  active?: boolean;
+  // Nested relations (from pending investiture endpoint)
+  user?: EnrollmentUser | null;
+  class?: EnrollmentClass | null;
   ecclesiastical_year?: EnrollmentEcclesiasticalYear | null;
-  created_by?: EnrollmentPerson | null;
-  director?: EnrollmentPerson | null;
-  secretary?: EnrollmentPerson | null;
-  treasurer?: EnrollmentPerson | null;
-  secretary_treasurer?: EnrollmentPerson | null;
+  // Also from classes controller format
+  classes?: EnrollmentClass | null;
 };
 
 export type EnrollmentsQuery = {
-  status?: EnrollmentStatus | "all";
+  status?: InvestitureStatus | "all";
   search?: string;
   ecclesiastical_year_id?: number;
   local_field_id?: number;
-  club_type_id?: number;
+  class_id?: number;
   page?: number;
   limit?: number;
 };
@@ -90,9 +91,7 @@ function asRecord(value: unknown): GenericRecord | null {
 }
 
 function pickString(value: unknown): string | null {
-  return typeof value === "string" && value.trim().length > 0
-    ? value.trim()
-    : null;
+  return typeof value === "string" && value.trim().length > 0 ? value.trim() : null;
 }
 
 function pickNumber(value: unknown): number | null {
@@ -104,98 +103,84 @@ function pickNumber(value: unknown): number | null {
   return null;
 }
 
-function normalizeStatus(value: unknown): EnrollmentStatus {
-  const status = pickString(value) as EnrollmentStatus | null;
-  const valid: EnrollmentStatus[] = [
-    "pending_validation",
-    "active",
-    "rejected",
-    "inactive",
+function pickBoolean(value: unknown): boolean | null {
+  if (typeof value === "boolean") return value;
+  if (value === "true" || value === 1) return true;
+  if (value === "false" || value === 0) return false;
+  return null;
+}
+
+function normalizeStatus(value: unknown): InvestitureStatus {
+  const s = pickString(value);
+  const valid: InvestitureStatus[] = [
+    "IN_PROGRESS",
+    "SUBMITTED_FOR_VALIDATION",
+    "APPROVED",
+    "REJECTED",
+    "INVESTIDO",
   ];
-  return status && valid.includes(status) ? status : "pending_validation";
+  return valid.includes(s as InvestitureStatus) ? (s as InvestitureStatus) : "IN_PROGRESS";
 }
 
-function resolveFullName(value: GenericRecord | null): string | null {
-  if (!value) return null;
-  const parts = [
-    pickString(value.name),
-    pickString(value.paternal_last_name),
-    pickString(value.maternal_last_name),
-  ].filter(Boolean);
-  return parts.length > 0 ? parts.join(" ") : pickString(value.email);
-}
-
-function normalizePerson(value: unknown): EnrollmentPerson | null {
-  const record = asRecord(value);
-  if (!record) return null;
+function normalizeEnrollmentUser(value: unknown): EnrollmentUser | null {
+  const r = asRecord(value);
+  if (!r) return null;
   return {
-    user_id: pickString(record.user_id),
-    name: resolveFullName(record),
-    email: pickString(record.email),
+    user_id: pickString(r.user_id),
+    first_name: pickString(r.first_name) ?? pickString(r.name),
+    last_name: pickString(r.last_name) ?? pickString(r.paternal_last_name),
+    name: pickString(r.name),
+    paternal_last_name: pickString(r.paternal_last_name),
+    maternal_last_name: pickString(r.maternal_last_name),
+    email: pickString(r.email),
+    photo: pickString(r.photo) ?? pickString(r.user_image) ?? pickString(r.picture_url),
   };
 }
 
-function normalizeEcclesiasticalYear(
-  value: unknown,
-): EnrollmentEcclesiasticalYear | null {
-  const record = asRecord(value);
-  if (!record) return null;
-  const id =
-    pickNumber(record.ecclesiastical_year_id) ?? pickNumber(record.year_id);
-  const start = pickString(record.start_date);
-  const end = pickString(record.end_date);
+function normalizeEnrollmentClass(value: unknown): EnrollmentClass | null {
+  const r = asRecord(value);
+  if (!r) return null;
   return {
-    ecclesiastical_year_id: id,
-    name:
-      pickString(record.name) ??
-      (start && end ? `${start.slice(0, 4)}-${end.slice(0, 4)}` : null),
-    start_date: start,
-    end_date: end,
+    class_id: pickNumber(r.class_id),
+    name: pickString(r.name),
+  };
+}
+
+function normalizeEcclesiasticalYear(value: unknown): EnrollmentEcclesiasticalYear | null {
+  const r = asRecord(value);
+  if (!r) return null;
+  return {
+    ecclesiastical_year_id: pickNumber(r.ecclesiastical_year_id),
+    name: pickString(r.name),
+    start_date: pickString(r.start_date),
+    end_date: pickString(r.end_date),
   };
 }
 
 function normalizeEnrollment(item: GenericRecord): Enrollment | null {
-  const id = pickString(item.club_enrollment_id);
-  if (!id) return null;
-
-  const section = asRecord(item.club_section);
-  const club = asRecord(section?.clubs ?? section?.club);
-  const clubType = asRecord(section?.club_types ?? section?.club_type);
-  const localField = asRecord(club?.local_fields ?? club?.local_field);
-  const sectionName =
-    pickString(section?.name) ?? pickString(clubType?.name) ?? "Sección";
+  const id = pickNumber(item.enrollment_id);
+  if (id === null) return null;
 
   return {
-    club_enrollment_id: id,
-    club_section_id:
-      pickNumber(item.club_section_id) ?? pickNumber(section?.club_section_id),
+    enrollment_id: id,
+    user_id: pickString(item.user_id),
+    class_id: pickNumber(item.class_id),
     ecclesiastical_year_id: pickNumber(item.ecclesiastical_year_id),
-    status: normalizeStatus(item.status),
-    address: pickString(item.address),
-    meeting_days: pickString(item.meeting_days),
-    created_at: pickString(item.created_at),
-    modified_at: pickString(item.modified_at),
-    club: {
-      club_id: pickNumber(club?.club_id),
-      name: pickString(club?.name),
-    },
-    section: {
-      section_id: pickNumber(section?.club_section_id),
-      name: sectionName,
-      club_type_id:
-        pickNumber(section?.club_type_id) ?? pickNumber(clubType?.club_type_id),
-      club_type_name: pickString(clubType?.name),
-    },
-    local_field: {
-      local_field_id: pickNumber(localField?.local_field_id),
-      name: pickString(localField?.name),
-    },
+    enrollment_date: pickString(item.enrollment_date),
+    investiture_status: normalizeStatus(item.investiture_status),
+    submitted_for_validation: pickBoolean(item.submitted_for_validation),
+    submitted_at: pickString(item.submitted_at),
+    validated_by: pickString(item.validated_by),
+    validated_at: pickString(item.validated_at),
+    rejection_reason: pickString(item.rejection_reason),
+    investiture_date: pickString(item.investiture_date),
+    advanced_status: pickBoolean(item.advanced_status),
+    locked_for_validation: pickBoolean(item.locked_for_validation),
+    cross_type_enrollment: pickBoolean(item.cross_type_enrollment),
+    active: pickBoolean(item.active) ?? true,
+    user: normalizeEnrollmentUser(item.user ?? item.users),
+    class: normalizeEnrollmentClass(item.class ?? item.classes),
     ecclesiastical_year: normalizeEcclesiasticalYear(item.ecclesiastical_year),
-    created_by: normalizePerson(item.creator ?? item.created_by),
-    director: normalizePerson(item.director),
-    secretary: normalizePerson(item.secretary),
-    treasurer: normalizePerson(item.treasurer),
-    secretary_treasurer: normalizePerson(item.secretary_treasurer),
   };
 }
 
@@ -210,11 +195,11 @@ function extractEnrollmentArray(payload: unknown): GenericRecord[] {
 
   for (const path of candidates) {
     let current: unknown = payload;
-    for (const key of path) current = asRecord(current)?.[key];
+    for (const key of path) {
+      current = asRecord(current)?.[key];
+    }
     if (Array.isArray(current)) {
-      return current.filter((value): value is GenericRecord =>
-        Boolean(asRecord(value)),
-      );
+      return current.filter((v): v is GenericRecord => Boolean(asRecord(v)));
     }
   }
 
@@ -227,19 +212,21 @@ function normalizeEnrollmentListMeta(payload: unknown): {
   limit: number;
   totalPages: number;
 } {
-  const candidates: string[][] = [["data", "meta"], ["meta"], ["data"]];
-  let meta: GenericRecord | null = null;
+  const candidates: string[][] = [
+    ["data", "meta"],
+    ["meta"],
+    ["data"],
+  ];
 
+  let meta: GenericRecord | null = null;
   for (const path of candidates) {
     let current: unknown = payload;
-    for (const key of path) current = asRecord(current)?.[key];
-    const record = asRecord(current);
-    if (
-      record &&
-      (pickNumber(record.total) !== null ||
-        pickNumber(record.totalPages) !== null)
-    ) {
-      meta = record;
+    for (const key of path) {
+      current = asRecord(current)?.[key];
+    }
+    const r = asRecord(current);
+    if (r && (pickNumber(r.total) !== null || pickNumber(r.totalPages) !== null)) {
+      meta = r;
       break;
     }
   }
@@ -248,15 +235,12 @@ function normalizeEnrollmentListMeta(payload: unknown): {
   const limit = pickNumber(meta?.limit) ?? 20;
   const total = pickNumber(meta?.total) ?? 0;
   const totalPages =
-    pickNumber(meta?.totalPages) ??
-    Math.max(1, Math.ceil(total / Math.max(limit, 1)));
+    pickNumber(meta?.totalPages) ?? Math.max(1, Math.ceil(total / Math.max(limit, 1)));
 
   return { total, page, limit, totalPages };
 }
 
-function normalizeEndpointState(
-  error: ApiError,
-): EnrollmentsListResult["endpointState"] {
+function normalizeEndpointState(error: ApiError): EnrollmentsListResult["endpointState"] {
   if (error.status === 401 || error.status === 403) return "forbidden";
   if (error.status === 429) return "rate-limited";
   return "missing";
@@ -264,59 +248,58 @@ function normalizeEndpointState(
 
 function normalizeEndpointDetail(error: ApiError): string {
   if (error.status === 401) return "Sesión expirada o token inválido.";
-  if (error.status === 403)
-    return "Tu rol no tiene permisos para validar inscripciones anuales de clubes.";
-  if (error.status === 429)
-    return "Demasiadas solicitudes. Reintenta en unos segundos.";
-  if (error.status >= 500)
-    return "El backend no está disponible temporalmente.";
+  if (error.status === 403) return "Tu rol no tiene permisos para ver inscripciones.";
+  if (error.status === 429) return "Demasiadas solicitudes. Reintenta en unos segundos.";
+  if (error.status >= 500) return "El backend no está disponible temporalmente.";
   return "Endpoint no disponible en backend.";
 }
 
 // ─── API functions ─────────────────────────────────────────────────────────────
 
 /**
- * GET /api/v1/club-enrollments/validation/queue
- * Lists annual club enrollments awaiting Campo Local validation.
+ * GET /api/v1/investiture/pending
+ * Fetches enrollments that are in SUBMITTED_FOR_VALIDATION status.
+ * This is the primary admin enrollment listing endpoint available in the backend.
+ * GlobalRolesGuard (admin, coordinator)
  */
 export async function listEnrollments(
   query: EnrollmentsQuery = {},
 ): Promise<EnrollmentsListResult> {
-  const params: Record<string, string | number | undefined> = {};
+  const params: Record<string, string | number | boolean | undefined> = {};
 
-  if (query.status) params.status = query.status;
-  if (query.ecclesiastical_year_id)
+  if (query.ecclesiastical_year_id) {
     params.ecclesiastical_year_id = query.ecclesiastical_year_id;
-  if (query.local_field_id) params.local_field_id = query.local_field_id;
-  if (query.club_type_id) params.club_type_id = query.club_type_id;
+  }
+  if (query.local_field_id) {
+    params.local_field_id = query.local_field_id;
+  }
   if (query.page) params.page = query.page;
   if (query.limit) params.limit = query.limit;
 
   try {
-    const payload = await apiRequest<unknown>(
-      "/club-enrollments/validation/queue",
-      { params },
-    );
+    const payload = await apiRequest<unknown>("/investiture/pending", { params });
     const raw = extractEnrollmentArray(payload);
     const items = raw
       .map((item) => normalizeEnrollment(item))
       .filter((item): item is Enrollment => Boolean(item));
 
+    // Apply client-side search filter if provided
     const searchLower = query.search?.trim().toLowerCase();
     const filtered = searchLower
       ? items.filter((enrollment) => {
-          const values = [
-            enrollment.club?.name,
-            enrollment.section?.name,
-            enrollment.section?.club_type_name,
-            enrollment.local_field?.name,
-            enrollment.created_by?.name,
-            enrollment.created_by?.email,
+          const user = enrollment.user;
+          const fullName = [
+            user?.first_name,
+            user?.name,
+            user?.last_name,
+            user?.paternal_last_name,
+            user?.maternal_last_name,
           ]
             .filter(Boolean)
             .join(" ")
             .toLowerCase();
-          return values.includes(searchLower);
+          const email = (user?.email ?? "").toLowerCase();
+          return fullName.includes(searchLower) || email.includes(searchLower);
         })
       : items;
 
@@ -327,7 +310,7 @@ export async function listEnrollments(
       ...metaRaw,
       endpointAvailable: true,
       endpointState: "available",
-      endpointDetail: `Disponible (${metaRaw.total} inscripciones anuales pendientes).`,
+      endpointDetail: `Disponible (${metaRaw.total} inscripciones pendientes de validación).`,
     };
   } catch (error) {
     if (error instanceof ApiError) {
@@ -346,18 +329,22 @@ export async function listEnrollments(
   }
 }
 
-export async function approveEnrollment(
-  enrollmentId: string,
+/**
+ * POST /api/v1/enrollments/:enrollmentId/validate
+ * Approve or reject an enrollment for investiture validation.
+ * GlobalRolesGuard (admin, coordinator)
+ * Client-side only (mutation)
+ */
+export async function validateEnrollment(
+  enrollmentId: number,
+  action: "APPROVED" | "REJECTED",
+  comments?: string,
 ): Promise<unknown> {
   return apiRequestFromClient<unknown>(
-    `/club-enrollments/${enrollmentId}/approve`,
-    { method: "POST" },
-  );
-}
-
-export async function rejectEnrollment(enrollmentId: string): Promise<unknown> {
-  return apiRequestFromClient<unknown>(
-    `/club-enrollments/${enrollmentId}/reject`,
-    { method: "POST" },
+    `/enrollments/${enrollmentId}/validate`,
+    {
+      method: "POST",
+      body: { action, comments: comments ?? "" },
+    },
   );
 }

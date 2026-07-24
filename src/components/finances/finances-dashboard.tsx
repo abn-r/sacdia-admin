@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
-import { Plus, RefreshCw, Filter } from "lucide-react";
+import { Plus, RefreshCw, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -22,6 +22,8 @@ import {
 import {
   listFinances,
   getFinanceSummary,
+  mergeFinanceSummaryForDisplay,
+  summarizeFinances,
   type Finance,
   type FinanceSummary,
   type FinanceSortField,
@@ -30,7 +32,9 @@ import {
 import type { SortDirection } from "@/components/shared/sortable-header";
 import type { TransactionFormDialogProps, ClubSection } from "@/components/finances/transaction-form-dialog";
 import type { DeleteTransactionDialogProps } from "@/components/finances/delete-transaction-dialog";
+import type { FinanceEvidenceViewerDialogProps } from "@/components/finances/finance-evidence-viewer-dialog";
 import { useTranslations } from "next-intl";
+import { getFinanceSectionLabel } from "@/lib/finances/club-sections";
 
 // ─── Deferred dialogs (dialog-gated — zod bundle only loaded on first open) ───
 
@@ -46,6 +50,14 @@ const DeleteTransactionDialog = dynamic<DeleteTransactionDialogProps>(
   () =>
     import("@/components/finances/delete-transaction-dialog").then((m) => ({
       default: m.DeleteTransactionDialog,
+    })),
+  { ssr: false, loading: () => null },
+);
+
+const FinanceEvidenceViewerDialog = dynamic<FinanceEvidenceViewerDialogProps>(
+  () =>
+    import("@/components/finances/finance-evidence-viewer-dialog").then((m) => ({
+      default: m.FinanceEvidenceViewerDialog,
     })),
   { ssr: false, loading: () => null },
 );
@@ -76,14 +88,21 @@ interface FinancesDashboardProps {
   clubId: number;
   clubName: string;
   sections: ClubSection[];
+  sectionId: number | "all";
+  renderLayout?: (parts: {
+    toolbar: ReactNode;
+    body: ReactNode;
+  }) => ReactNode;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function FinancesDashboard({
   clubId,
-  clubName,
+  clubName: _clubName,
   sections,
+  sectionId,
+  renderLayout,
 }: FinancesDashboardProps) {
   const t = useTranslations("finances");
 
@@ -106,9 +125,25 @@ export function FinancesDashboard({
   const [editFinance, setEditFinance] = useState<Finance | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteFinance, setDeleteFinanceState] = useState<Finance | null>(null);
+  const [evidenceFinance, setEvidenceFinance] = useState<Finance | null>(null);
+
+  const selectedSection =
+    sectionId === "all"
+      ? null
+      : sections.find((section) => section.club_section_id === sectionId) ?? null;
+
+  const formSections =
+    sectionId === "all"
+      ? sections
+      : sections.filter((section) => section.club_section_id === sectionId);
 
   // Fetch summary
   const fetchSummary = useCallback(async () => {
+    if (sectionId !== "all") {
+      setSummary(null);
+      return;
+    }
+
     setLoadingSummary(true);
     try {
       const data = await getFinanceSummary(clubId, year, month);
@@ -118,26 +153,50 @@ export function FinancesDashboard({
     } finally {
       setLoadingSummary(false);
     }
-  }, [clubId, year, month]);
+  }, [clubId, year, month, sectionId]);
 
   // Fetch transactions
   const fetchTransactions = useCallback(async () => {
     setLoadingTable(true);
     try {
-      const data = await listFinances(clubId, {
+      const baseFilters = {
         year,
         month,
-        limit: 50,
         sortBy: sortField,
         sortOrder: sortDirection,
+        clubTypeId: selectedSection?.club_type_id,
+      };
+      let data = await listFinances(clubId, {
+        ...baseFilters,
+        limit: 50,
       });
+
+      if (data.total > data.data.length) {
+        const fullLimit = Math.min(data.total, 500);
+        data = await listFinances(clubId, {
+          ...baseFilters,
+          limit: fullLimit,
+        });
+      }
+
+      if (sectionId !== "all") {
+        const scoped = data.data.filter(
+          (item) => item.club_section_id === sectionId,
+        );
+        data = {
+          ...data,
+          data: scoped,
+          total: scoped.length,
+        };
+      }
+
       setResult(data);
     } catch {
       setResult(null);
     } finally {
       setLoadingTable(false);
     }
-  }, [clubId, year, month, sortField, sortDirection]);
+  }, [clubId, year, month, sortField, sortDirection, sectionId, selectedSection]);
 
   const handleSort = (field: FinanceSortField, direction: SortDirection) => {
     setSortField(field);
@@ -153,6 +212,57 @@ export function FinancesDashboard({
   useEffect(() => {
     refresh();
   }, [refresh]);
+
+  const sectionLabels = useMemo(
+    () =>
+      Object.fromEntries(
+        sections.map((section) => [
+          section.club_section_id,
+          getFinanceSectionLabel(section),
+        ]),
+      ),
+    [sections],
+  );
+
+  const displaySummary = useMemo(() => {
+    const transactions = result?.data ?? [];
+
+    if (sectionId !== "all") {
+      if (transactions.length === 0) {
+        return {
+          club_id: clubId,
+          period:
+            month && year
+              ? `${year}-${String(month).padStart(2, "0")}`
+              : year
+                ? String(year)
+                : "all",
+          total_income: 0,
+          total_expense: 0,
+          balance: 0,
+          movement_count: 0,
+        };
+      }
+
+      return summarizeFinances(
+        transactions,
+        clubId,
+        month && year
+          ? `${year}-${String(month).padStart(2, "0")}`
+          : year
+            ? String(year)
+            : "all",
+      );
+    }
+
+    return mergeFinanceSummaryForDisplay(
+      summary,
+      transactions,
+      result?.total ?? 0,
+      clubId,
+      month,
+    );
+  }, [summary, result, clubId, month, year, sectionId]);
 
   // Handlers
   function handleEdit(finance: Finance) {
@@ -175,79 +285,82 @@ export function FinancesDashboard({
     if (!open) setEditFinance(null);
   }
 
-  return (
-    <div className="space-y-6">
-      {/* Filters bar */}
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-          <Filter className="size-4" />
-          <span>{t("dashboard.filtersLabel")}</span>
-        </div>
+  const toolbar = (
+    <>
+      <div
+        className="hidden h-9 w-px shrink-0 self-end bg-border sm:block"
+        aria-hidden
+      />
 
-        {/* Year filter */}
-        <Select
-          value={year?.toString() ?? "all"}
-          onValueChange={(v) => setYear(v === "all" ? undefined : Number(v))}
-        >
-          <SelectTrigger className="h-8 w-[110px]">
-            <SelectValue placeholder={t("form.yearPlaceholder")} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{t("dashboard.allYears")}</SelectItem>
-            {YEARS.map((y) => (
-              <SelectItem key={y} value={y.toString()}>
-                {y}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        {/* Month filter */}
-        <Select
-          value={month?.toString() ?? "all"}
-          onValueChange={(v) => setMonth(v === "all" ? undefined : Number(v))}
-        >
-          <SelectTrigger className="h-8 w-[140px]">
-            <SelectValue placeholder={t("form.monthPlaceholder")} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{t("dashboard.allMonths")}</SelectItem>
-            {MONTH_KEYS.map((m) => (
-              <SelectItem key={m.value} value={m.value.toString()}>
-                {t(`months.${m.key}`)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <div className="ml-auto flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={refresh}
-            disabled={loadingSummary || loadingTable}
-          >
-            <RefreshCw
-              className={`size-4 ${loadingSummary || loadingTable ? "animate-spin" : ""}`}
-            />
-            {t("dashboard.refreshButton")}
-          </Button>
-
-          <Button size="sm" onClick={handleNewTransaction}>
-            <Plus className="size-4" />
-            {t("dashboard.newTransactionButton")}
-          </Button>
-        </div>
+      <div className="flex items-center gap-1.5 self-end pb-2 text-sm text-muted-foreground">
+        <SlidersHorizontal className="size-4" />
+        <span>{t("dashboard.filtersLabel")}</span>
       </div>
 
-      {/* Summary cards */}
-      {loadingSummary ? (
+      <Select
+        value={year?.toString() ?? "all"}
+        onValueChange={(v) => setYear(v === "all" ? undefined : Number(v))}
+      >
+        <SelectTrigger className="h-9 w-[110px]">
+          <SelectValue placeholder={t("form.yearPlaceholder")} />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">{t("dashboard.allYears")}</SelectItem>
+          {YEARS.map((y) => (
+            <SelectItem key={y} value={y.toString()}>
+              {y}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <Select
+        value={month?.toString() ?? "all"}
+        onValueChange={(v) => setMonth(v === "all" ? undefined : Number(v))}
+      >
+        <SelectTrigger className="h-9 w-[140px]">
+          <SelectValue placeholder={t("form.monthPlaceholder")} />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">{t("dashboard.allMonths")}</SelectItem>
+          {MONTH_KEYS.map((m) => (
+            <SelectItem key={m.value} value={m.value.toString()}>
+              {t(`months.${m.key}`)}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <div className="ml-auto flex items-center gap-2 self-end">
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-9"
+          onClick={refresh}
+          disabled={loadingSummary || loadingTable}
+        >
+          <RefreshCw
+            className={`size-4 ${loadingSummary || loadingTable ? "animate-spin" : ""}`}
+          />
+          {t("dashboard.refreshButton")}
+        </Button>
+
+        <Button size="sm" className="h-9" onClick={handleNewTransaction}>
+          <Plus className="size-4" />
+          {t("dashboard.newTransactionButton")}
+        </Button>
+      </div>
+    </>
+  );
+
+  const body = (
+    <>
+      {loadingSummary || (sectionId !== "all" && loadingTable) ? (
         <FinancesSummaryCardsSkeleton />
-      ) : summary ? (
-        <FinancesSummaryCards summary={summary} />
+      ) : displaySummary ? (
+        <FinancesSummaryCards summary={displaySummary} />
       ) : null}
 
-      {/* Transactions table */}
       <div className="space-y-3">
         <h2 className="text-base font-semibold">{t("dashboard.transactionsTitle")}</h2>
         {loadingTable ? (
@@ -255,15 +368,16 @@ export function FinancesDashboard({
         ) : (
           <TransactionsTable
             items={result?.data ?? []}
+            sectionLabels={sectionLabels}
             onEdit={handleEdit}
             onDelete={handleDelete}
+            onViewEvidence={setEvidenceFinance}
             sortField={sortField}
             sortDirection={sortDirection}
             onSort={handleSort}
           />
         )}
 
-        {/* Pagination info */}
         {result && result.total > result.data.length && (
           <p className="text-sm text-muted-foreground">
             {t("dashboard.showing", {
@@ -274,23 +388,39 @@ export function FinancesDashboard({
         )}
       </div>
 
-      {/* Create/Edit dialog */}
       <TransactionFormDialog
         open={formOpen}
         onOpenChange={handleFormClose}
         clubId={clubId}
-        sections={sections}
+        sections={formSections}
         finance={editFinance}
         onSuccess={refresh}
       />
 
-      {/* Delete dialog */}
       <DeleteTransactionDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
         finance={deleteFinance}
         onSuccess={refresh}
       />
+
+      <FinanceEvidenceViewerDialog
+        finance={evidenceFinance}
+        onOpenChange={(open) => {
+          if (!open) setEvidenceFinance(null);
+        }}
+      />
+    </>
+  );
+
+  if (renderLayout) {
+    return renderLayout({ toolbar, body });
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-end gap-3">{toolbar}</div>
+      <div className="space-y-6">{body}</div>
     </div>
   );
 }

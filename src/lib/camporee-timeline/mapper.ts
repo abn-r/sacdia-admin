@@ -14,11 +14,7 @@
  */
 
 import type { Camporee } from "@/lib/api/camporees";
-import type {
-  BackendCamporeeEvent,
-  CamporeeEventStaffAssignment,
-  CamporeeEventTemplate,
-} from "@/lib/api/camporee-events";
+import type { BackendCamporeeEvent, CamporeeEventTemplate } from "@/lib/api/camporee-events";
 import type { CamporeeVenue as BackendCamporeeVenue } from "@/lib/api/camporee-venues";
 import type {
   CamporeeEventsData,
@@ -101,44 +97,6 @@ function resolveLeaderName(event: BackendCamporeeEvent): string {
   }
   if (event.leader_name_override) return event.leader_name_override;
   return "—";
-}
-
-function resolveStaffName(assignment: CamporeeEventStaffAssignment): string | null {
-  const user = assignment.staff_member?.user;
-  if (!user) return null;
-  const joined = [user.name, user.paternal_last_name, user.maternal_last_name]
-    .filter((value): value is string => Boolean(value?.trim()))
-    .join(" ");
-  return user.full_name || joined || null;
-}
-
-function staffRoleLabel(assignment: CamporeeEventStaffAssignment): string {
-  if (assignment.title_override) return assignment.title_override;
-  if (assignment.staff_member?.role_label) return assignment.staff_member.role_label;
-  if (assignment.assignment_role === "responsible") return "Responsable";
-  if (assignment.assignment_role === "assistant") return "Ayudante";
-  if (assignment.assignment_role === "evaluator") return "Evaluador";
-  return "Apoyo";
-}
-
-function resolveStaffSummary(event: BackendCamporeeEvent) {
-  const assignments = (event.staff_assignments ?? [])
-    .filter((assignment) => assignment.active !== false)
-    .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0));
-  const responsible = assignments.find(
-    (assignment) => assignment.assignment_role === "responsible",
-  );
-  const helpers = assignments.filter(
-    (assignment) => assignment.assignment_role !== "responsible",
-  );
-
-  return {
-    staffResponsibleName: responsible ? resolveStaffName(responsible) ?? "Personal asignado" : undefined,
-    staffResponsibleRole: responsible ? staffRoleLabel(responsible) : undefined,
-    staffHelpers: helpers
-      .map((assignment) => resolveStaffName(assignment))
-      .filter((value): value is string => Boolean(value)),
-  };
 }
 
 /**
@@ -300,7 +258,6 @@ export function backendToTimeline(
     venueId: e.venue_id ? String(e.venue_id) : "",
     leaderName: resolveLeaderName(e),
     leaderRole: e.leader_role ?? "",
-    ...resolveStaffSummary(e),
     sections: e.sections.length > 0 ? mapSections(e.sections) : allSections,
     capacity: e.capacity ?? 0,
     registered: e.registered_count,

@@ -1,3 +1,18 @@
+/**
+ * How each preference should be saved.
+ *
+ * "client-cookie"  → write cookie on the browser only.
+ * "server-cookie"  → write cookie through a Server Action.
+ * "localStorage"   → save only on the client (non-layout stuff).
+ * "none"           → no saving, resets on reload.
+ *
+ * Layout-critical prefs (sidebar_variant / sidebar_collapsible)
+ * must stay consistent during SSR → so they can’t use localStorage.
+ * Others are flexible and can use any persistence.
+ */
+
+import { fontKeys } from "@/lib/fonts/registry";
+
 import {
   CONTENT_LAYOUT_VALUES,
   NAVBAR_STYLE_VALUES,
@@ -6,7 +21,9 @@ import {
 } from "./layout";
 import { THEME_MODE_VALUES, THEME_PRESET_VALUES } from "./theme";
 
-export type PreferencePersistence = "none" | "client-cookie";
+export type PreferencePersistence = "none" | "client-cookie" | "server-cookie" | "localStorage";
+
+type LayoutPersistence = Exclude<PreferencePersistence, "localStorage">;
 
 type PreferenceDefinition<
   Values extends readonly string[],
@@ -27,10 +44,18 @@ function definePreference<
   return definition;
 }
 
+function defineSSRPreference<
+  const Values extends readonly string[],
+  const Persistence extends LayoutPersistence,
+  const Attribute extends `data-${string}`,
+>(definition: PreferenceDefinition<Values, Persistence, Attribute>) {
+  return definition;
+}
+
 export const PREFERENCE_REGISTRY = {
   theme_mode: definePreference({
     values: THEME_MODE_VALUES,
-    defaultValue: "dark",
+    defaultValue: "light",
     persistence: "client-cookie",
     attribute: "data-theme-mode",
   }),
@@ -40,6 +65,13 @@ export const PREFERENCE_REGISTRY = {
     defaultValue: "default",
     persistence: "client-cookie",
     attribute: "data-theme-preset",
+  }),
+
+  font: definePreference({
+    values: fontKeys,
+    defaultValue: "geist",
+    persistence: "client-cookie",
+    attribute: "data-font",
   }),
 
   content_layout: definePreference({
@@ -56,14 +88,14 @@ export const PREFERENCE_REGISTRY = {
     attribute: "data-navbar-style",
   }),
 
-  sidebar_variant: definePreference({
+  sidebar_variant: defineSSRPreference({
     values: SIDEBAR_VARIANT_VALUES,
     defaultValue: "sidebar",
     persistence: "client-cookie",
     attribute: "data-sidebar-variant",
   }),
 
-  sidebar_collapsible: definePreference({
+  sidebar_collapsible: defineSSRPreference({
     values: SIDEBAR_COLLAPSIBLE_VALUES,
     defaultValue: "icon",
     persistence: "client-cookie",
@@ -77,9 +109,7 @@ export type PreferenceValueMap = {
   [K in PreferenceKey]: (typeof PREFERENCE_REGISTRY)[K]["values"][number];
 };
 
-export const PREFERENCE_KEYS = Object.freeze(
-  Object.keys(PREFERENCE_REGISTRY) as PreferenceKey[],
-);
+export const PREFERENCE_KEYS = Object.freeze(Object.keys(PREFERENCE_REGISTRY) as PreferenceKey[]);
 
 export function getPreferencePersistence(key: PreferenceKey): PreferencePersistence {
   return PREFERENCE_REGISTRY[key].persistence;

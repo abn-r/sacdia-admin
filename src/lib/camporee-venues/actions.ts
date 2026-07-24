@@ -80,8 +80,8 @@ export async function createCamporeeVenueAction(input: {
 
     revalidatePath(
       input.isUnionCamporee
-        ? `/dashboard/camporees/union/${input.camporeeId}`
-        : `/dashboard/camporees/${input.camporeeId}`,
+        ? `/dashboard/campamentos/union/${input.camporeeId}`
+        : `/dashboard/campamentos/${input.camporeeId}`,
     );
     return { venue };
   } catch (error) {
@@ -117,7 +117,7 @@ export async function updateCamporeeVenueAction(
   try {
     const result = await updateCamporeeVenue(id, input);
     const venue = extractVenue(result);
-    revalidatePath(`/dashboard/camporees/${camporeeId}`);
+    revalidatePath(`/dashboard/campamentos/${camporeeId}`);
     return { venue: venue ?? undefined };
   } catch (error) {
     return {
@@ -140,7 +140,7 @@ export async function deleteCamporeeVenueAction(
 
   try {
     await deleteCamporeeVenue(id);
-    revalidatePath(`/dashboard/camporees/${camporeeId}`);
+    revalidatePath(`/dashboard/campamentos/${camporeeId}`);
     return {};
   } catch (error) {
     return {

@@ -18,8 +18,9 @@
       "requests_reports": "Solicitações e relatórios",
       "members": "Membros",
       "operations": "Operações",
-      "rankings_analytics": "Rankings e análises",
-      "materials": "Materiais"
+      "rankings_analytics": "Classificações e análises",
+      "materials": "Materiais",
+      "campamentos": "Acampamentos"
     },
     "items": {
       "dashboard": "Dashboard",
@@ -79,13 +80,13 @@
       "annual_folders": "Pasta Anual de Evidências",
       "annual_folders_templates": "Modelos",
       "annual_folders_evaluate": "Pastas",
-      "annual_folders_rankings": "Rankings",
-      "annual_folders_ranking_config": "Configuração de rankings",
+      "annual_folders_rankings": "Classificações",
+      "annual_folders_ranking_config": "Configuração de classificações",
       "annual_folders_categories": "Categorias de prêmios",
-      "member_rankings": "Rankings de membros",
-      "member_ranking_weights": "Pesos dos rankings de membros",
-      "ranking_weights": "Pesos dos rankings",
-      "section_rankings": "Rankings de seções",
+      "member_rankings": "Classificações de membros",
+      "member_ranking_weights": "Pesos dos classificações de membros",
+      "ranking_weights": "Pesos dos classificações",
+      "section_rankings": "Classificações de seções",
       "requests": "Solicitações",
       "requests_transfers": "Transferências",
       "requests_assignments": "Designações",
@@ -120,10 +121,7 @@
       "materials_config": "Configurações",
       "certificate_bulk_imports": "Cargas por certificado",
       "coordination": "Coordenação",
-      "directorMyClub": "Meu clube",
-      "directorMembers": "Aprovar membros",
-      "directorRoster": "Minha equipe",
-      "coordinatorMembership": "Solicitações de membresia"
+      "geography_divisions": "Divisões"
     },
     "breadcrumbs": {
       "dashboard": "Painel",
@@ -168,29 +166,6 @@
       "switchToDark": "Mudar para modo escuro",
       "switchTheme": "Alternar tema"
     },
-    "layoutControls": {
-      "openAriaLabel": "Preferências de layout",
-      "title": "Preferências",
-      "description": "Personalize o layout e a aparência do painel.",
-      "themePreset": "Preset de tema",
-      "themeMode": "Modo de tema",
-      "light": "Claro",
-      "dark": "Escuro",
-      "pageLayout": "Layout da página",
-      "centered": "Centralizado",
-      "fullWidth": "Largura total",
-      "navbarBehavior": "Comportamento do cabeçalho",
-      "sticky": "Fixo",
-      "scroll": "Rolagem",
-      "sidebarStyle": "Estilo da barra lateral",
-      "inset": "Inset",
-      "sidebar": "Barra lateral",
-      "floating": "Flutuante",
-      "sidebarCollapse": "Recolhimento da barra",
-      "icon": "Ícone",
-      "offcanvas": "Fora da tela",
-      "restoreDefaults": "Restaurar padrões"
-    },
     "a11y": {
       "skipToContent": "Ir para o conteúdo principal"
     },
@@ -200,15 +175,11 @@
     "commandPalette": {
       "title": "Busca global",
       "description": "Busque páginas, catálogos e seções do painel",
+      "triggerLabel": "Buscar",
       "placeholder": "Buscar páginas, catálogos, seções...",
       "empty": "Nenhum resultado",
       "general": "Geral",
       "searchAriaLabel": "Busca global ({shortcut})"
-    },
-    "v2": {
-      "switchToStudio": "Painel novo",
-      "switchToClassic": "Painel clássico",
-      "badge": "v2"
     },
     "activeContext": {
       "noClub": "Sem clube",
@@ -352,7 +323,16 @@
       "union": "União",
       "local_field": "Campo local",
       "district": "Distrito",
-      "club_type": "Tipo de clube"
+      "club_type": "Tipo de clube",
+      "honor_category": "Categoria de especialidade",
+      "honor_image": "URL da imagem",
+      "material_url": "URL do material",
+      "skill_level": "Nível de habilidade",
+      "skill_level_format": "Nível {level}",
+      "approval": "Nível de aprovação",
+      "year": "Ano",
+      "ideal": "Ideal",
+      "ideal_order": "Ordem"
     },
     "entities": {
       "countries": {
@@ -379,6 +359,16 @@
         "title": "Igrejas",
         "singular": "igreja",
         "description": "Gestão de igrejas por distrito."
+      },
+      "honor-categories": {
+        "title": "Categorias de especialidades",
+        "singular": "categoria de especialidade",
+        "description": "Catálogo de categorias para classificar especialidades."
+      },
+      "honors": {
+        "title": "Especialidades",
+        "singular": "especialidade",
+        "description": "Catálogo mestre de especialidades com suporte multilíngue."
       },
       "relationship-types": {
         "title": "Tipos de relação",
@@ -419,6 +409,11 @@
         "title": "Tipos de atividade",
         "singular": "tipo de atividade",
         "description": "Catálogo de tipos de atividade para classificar as atividades do clube."
+      },
+      "divisions": {
+        "title": "Divisões",
+        "singular": "divisão",
+        "description": "Catálogo institucional de divisões."
       }
     },
     "errors": {
@@ -484,7 +479,8 @@
       "clear": "Limpar",
       "activeFilters": "Filtros ativos",
       "filtersLabel": "Filtros:",
-      "searchChip": "Pesquisa: \"{value}\""
+      "searchChip": "Pesquisa: \"{value}\"",
+      "clubTypeAll": "Todos os tipos"
     },
     "honorCategories": {
       "pageTitle": "Categorias de especialidades",
@@ -567,33 +563,25 @@
       "fieldAvailableUntilNone": "Sem expiração programada",
       "fieldMinDurationYears": "Duração mínima (anos)",
       "fieldMaxDurationYears": "Duração máxima (anos)",
-      "colAdvanced": "Avançado",
-      "colRequirementTrack": "Trilha",
-      "colOwnerScope": "Escopo",
-      "yes": "Sim",
-      "no": "Não",
-      "selectOptionAny": "Sem seleção",
-      "requirementTrackBasic": "Básico",
-      "requirementTrackAdvanced": "Avançado",
-      "requirementTrackExtra": "Extra",
-      "classAvailabilityAdvancedTitle": "Via avançada",
-      "classAvailabilityAdvancedDescription": "Habilita requisitos avançados opcionais para obter a insígnia avançada.",
-      "fieldAdvancedEnabled": "Classe com avançado habilitado",
-      "classSectionConfigTitle": "Configuração do requisito",
-      "classSectionConfigDescription": "Define se a seção é básica, avançada ou extra institucional.",
-      "fieldRequirementTrack": "Trilha do requisito",
-      "fieldDisplayOrder": "Ordem de exibição",
-      "fieldDisplayOrderPlaceholder": "0",
-      "fieldOwnerDivisionId": "Divisão proprietária",
-      "fieldOwnerDivisionIdPlaceholder": "ID da divisão",
-      "fieldOwnerUnionId": "União proprietária",
-      "fieldOwnerUnionIdPlaceholder": "ID da união",
-      "fieldOwnerLocalFieldId": "Campo local/associação proprietária",
-      "fieldOwnerLocalFieldIdPlaceholder": "ID do campo local",
-      "fieldRequiredForInvestiture": "Requerido para investidura",
-      "ownerDivisionShort": "Divisão #{id}",
-      "ownerUnionShort": "União #{id}",
-      "ownerLocalFieldShort": "Campo #{id}"
+      "colClubType": "Tipo de clube",
+      "filterClubType": "Tipo de clube",
+      "filterClubTypeAll": "Todos os tipos",
+      "fieldClubType": "Tipo de clube",
+      "fieldClubTypePlaceholder": "Selecionar tipo de clube",
+      "clubTypeFallback": "Tipo {id}",
+      "colClass": "Classe",
+      "filterClass": "Classe",
+      "filterClassAll": "Todas as classes",
+      "fieldClass": "Classe",
+      "fieldClassPlaceholder": "Selecionar classe",
+      "classFallback": "Classe {id}",
+      "colModule": "Módulo",
+      "filterModule": "Módulo",
+      "filterModuleAll": "Todos os módulos",
+      "fieldModule": "Módulo",
+      "fieldModulePlaceholder": "Selecionar módulo",
+      "moduleFallback": "Módulo {id}",
+      "viewDetail": "Ver detalhe"
     },
     "shared": {
       "editActionTitle": "Editar",
@@ -802,6 +790,21 @@
         "description": "Catálogo de seções que compõem os módulos de classe.",
         "entityLabel": "Seção",
         "loadError": "Não foi possível carregar as seções de classe."
+      },
+      "certificationCatalog": {
+        "title": "Certificações GM",
+        "description": "Catálogo de certificações para Guias Mestres. Apenas membros com investiduras concluídas podem se inscrever.",
+        "crudPendingTitle": "Edição via API pendente",
+        "crudPendingDescription": "A listagem e a estrutura são somente leitura até o backend expor endpoints admin para certificações, módulos e seções.",
+        "emptyTitle": "Sem certificações",
+        "emptyDescription": "Não há certificações registradas no catálogo.",
+        "loadError": "Não foi possível carregar as certificações.",
+        "detailDescription": "Estrutura de módulos e seções da certificação.",
+        "back": "Voltar ao catálogo",
+        "statusActive": "Ativa",
+        "statusInactive": "Inativa",
+        "structureTitle": "Módulos e seções",
+        "eligibilityNote": "Elegibilidade: apenas Guias Mestres com investiduras de classe concluídas podem se inscrever nestas certificações."
       },
       "classModules": {
         "title": "Módulos de classe",
@@ -1163,7 +1166,8 @@
       "hint": "Busque, clique no mapa ou arraste o pino para definir a localização.",
       "noPin": "Nenhuma localização selecionada",
       "clear": "Remover pino",
-      "missingApiKey": "NEXT_PUBLIC_GOOGLE_MAPS_API_KEY não está configurada."
+      "missingApiKey": "NEXT_PUBLIC_GOOGLE_MAPS_API_KEY não está configurada.",
+      "loadFailed": "Não foi possível carregar o Google Maps. Verifique a chave API, se a Maps JavaScript API está ativa e as restrições de domínio."
     },
     "form": {
       "labelName": "Nome",
@@ -1254,14 +1258,6 @@
         "responsablesLead": "Aba dedicada: a tabela mantém ações e o formulário deixa claro quando uma atribuição é principal, suplente ou excepcional.",
         "loadingAssignments": "Carregando atribuições…",
         "emptyAssignments": "Não há responsáveis com esses filtros. Tente limpar a busca ou atribua uma nova classe.",
-        "emptyAssignmentsTitle": "Ainda não há responsáveis por classe",
-        "emptyAssignmentsDescription": "Atribua um conselheiro a uma classe para começar a gerenciar responsabilidades.",
-        "emptyFilteredTitle": "Nenhum resultado com esses filtros",
-        "emptyFilteredDescription": "Tente outro termo ou limpe os filtros ativos.",
-        "assignmentsSummary": "{count, plural, =0 {Sem atribuições} one {# atribuição} other {# atribuições}}",
-        "assignmentsFilteredSummary": "{shown} de {total} atribuições",
-        "editAssignment": "Editar",
-        "editAssignmentTitle": "Editar atribuição",
         "exceptionalTag": "Excepcional",
         "colSection": "Seção",
         "colClass": "Classe",
@@ -1302,106 +1298,109 @@
       }
     },
     "detail": {
-      "overview": {
-        "compositionTitle": "Composição do clube",
-        "compositionSubtitle": "Distribuição de membros entre as três seções",
-        "totalCount": "Total · {count}",
-        "healthTitle": "Saúde do clube",
-        "healthSubtitle": "Score composto",
-        "rankingTitle": "Ranking de unidades",
-        "rankingSubtitle": "Por tamanho · todas as seções",
-        "unitsCount": "{count} unidades",
-        "attendanceTitle": "Frequência semanal",
-        "attendanceSubtitle": "Média % por semana",
-        "attendanceAverage": "Média · {pct}%",
-        "loading": "Carregando…",
-        "attendanceEmptyTitle": "Ainda sem registros semanais",
-        "attendanceEmptyDescription": "Quando registros semanais forem capturados, a tendência de frequência aparecerá aqui.",
-        "attendanceSeriesLabel": "Frequência",
-        "healthScoreDescription": "Score composto baseado em frequência, seções ativas e ocupação da meta. Grau atual: {grade}.",
-        "scoreNoBreakdown": "Score sem componentes — sem agregados disponíveis.",
-        "membersCenterLabel": "Membros",
-        "noSectionsYet": "Ainda não há seções registradas.",
-        "membersRosterTitle": "Membros por seção",
-        "membersRosterSubtitle": "Pessoas ativas agrupadas por seção com seu papel",
-        "membersRosterCount": "{count} pessoas",
-        "membersRosterEmpty": "Sem membros registrados nesta seção.",
-        "roleCaptain": "Capitão",
-        "roleSecretary": "Secretário",
-        "roleAdvisor": "Conselheiro",
-        "roleSubstituteAdvisor": "Conselheiro suplente",
-        "roleMember": "Membro",
-        "generalSectionLabel": "Clube geral",
-        "stats": {
-          "members": "Membros",
-          "membersCapacity": "{occupancy}% da meta de vagas",
-          "noCapacity": "Sem meta de vagas definida",
-          "sections": "Seções ativas",
-          "sectionsAllActive": "As três seções em operação",
-          "sectionsInactive": "{count} sem ativar",
-          "units": "Unidades",
-          "unitsEmpty": "Ainda sem unidades criadas",
-          "unitsAvg": "Média de {avg} membros/unidade",
-          "pending": "Solicitações pendentes",
-          "pendingNoData": "Sem dados carregados",
-          "pendingEmpty": "Fila em dia",
-          "pendingWaiting": "Aguardam revisão do coordenador"
-        }
+      "fallbackTitle": "Club detail",
+      "description": "Operational club record organized by area.",
+      "tabs": {
+        "general": "Informações gerais",
+        "sections": "Seções",
+        "roles": "Funções e classes",
+        "reports": "Relatórios",
+        "history": "Histórico"
       },
-      "sidebar": {
-        "quickActionsTitle": "Ações rápidas",
-        "editClub": "Editar clube",
-        "createUnit": "Criar unidade",
-        "approveRequests": "Aprovar solicitações ({count})",
-        "reviewRequests": "Revisar solicitações",
-        "configureSections": "Configurar seções",
-        "investitureCeremony": "Cerimônia de investidura",
-        "deleteClub": "Excluir clube",
-        "upcomingEventsTitle": "Próximos eventos",
-        "loading": "Carregando…",
-        "noEventsTitle": "Sem agenda visível",
-        "noEventsDescription": "Não há atividades futuras registradas para este clube.",
-        "clubFallback": "Clube"
+      "general": {
+        "clubInfoTitle": "Club data",
+        "labelName": "Name",
+        "labelStatus": "Status",
+        "labelAddress": "Address",
+        "labelLocalField": "Local field",
+        "labelDistrict": "District",
+        "labelChurch": "Church",
+        "labelSoulsTarget": "Souls target",
+        "labelFee": "Fee",
+        "statusActive": "Active",
+        "statusInactive": "Inactive",
+        "noSections": "This club has no registered sections yet.",
+        "noMembers": "No active members in this section.",
+        "membersCount": "{count} members"
       },
-      "leadership": {
-        "title": "Liderança",
-        "titleBySection": "Liderança por seção",
-        "loading": "Carregando…",
-        "loadError": "Não foi possível carregar a liderança do clube.",
-        "emptyTitle": "Ainda sem liderança atribuída",
-        "emptyDescription": "Atribua diretor, vice-diretores e secretários nas seções do clube.",
-        "activeAssignments": "{count} atribuições ativas",
-        "generalSection": "Clube geral",
-        "noDirector": "Sem diretor atribuído.",
-        "sectionTeam": "Equipe da seção",
-        "roleSingular": "cargo",
-        "rolePlural": "cargos"
+      "sections": {
+        "notCreated": "Section not created yet",
+        "directorLabel": "Director",
+        "noDirector": "No director assigned",
+        "active": "Active",
+        "inactive": "Inactive",
+        "createButton": "Registrar seção",
+        "labelName": "Nome da seção",
+        "placeholderName": "Ex. {type}",
+        "labelSoulsTarget": "Meta de almas",
+        "labelFee": "Taxa",
+        "noPermission": "Você não tem permissão para criar seções."
+      },
+      "roles": {
+        "clubRolesTitle": "Funções do clube",
+        "assignRoleTitle": "Nova atribuição",
+        "assignRoleDescription": "Escolha seção, membro e função para adicionar uma atribuição.",
+        "assignmentsTitle": "Atribuições atuais",
+        "counselorsTitle": "Conselheiros por classe",
+        "assignCounselorTitle": "Novo conselheiro",
+        "assignCounselorDescription": "Escolha classe, membro e responsabilidade para a seção selecionada.",
+        "counselorsListTitle": "Conselheiros atribuídos",
+        "sectionLabel": "Seção",
+        "memberLabel": "Member",
+        "roleLabel": "Role",
+        "classLabel": "Class",
+        "responsibilityLabel": "Responsibility",
+        "assignRole": "Assign role",
+        "assignCounselor": "Assign counselor",
+        "noAssignments": "No role assignments.",
+        "noCounselors": "No counselors assigned.",
+        "loadingCounselors": "Loading counselors…",
+        "responsibilityPrimary": "Primary",
+        "responsibilityAssistant": "Assistant",
+        "responsibilitySubstitute": "Substitute"
+      },
+      "reports": {
+        "annualTitle": "Annual reports",
+        "quarterlyTitle": "Quarterly reports",
+        "yearLabel": "Year",
+        "quarterLabel": "Quarter",
+        "statusLabel": "Status",
+        "createdLabel": "Created",
+        "emptyAnnual": "No annual reports.",
+        "emptyQuarterly": "No quarterly reports."
       },
       "history": {
-        "title": "Histórico do clube",
-        "subtitle": "Eventos auditados desde a criação",
-        "loadedCount": "{count} eventos carregados",
-        "loading": "Carregando histórico…",
-        "loadError": "Não foi possível carregar o histórico.",
-        "retry": "Tentar novamente",
-        "emptyTitle": "Ainda sem eventos registrados",
-        "emptyDescription": "Quando você editar o clube, criar seções ou atribuir liderança, os eventos aparecerão aqui.",
-        "clubGeneralTitle": "Clube geral",
-        "eventCount": "{count} eventos",
-        "sectionEmpty": "Sem eventos nesta seção.",
-        "loadMore": "Carregar mais",
-        "systemActor": "Sistema",
-        "byActor": "Por: {name}",
-        "action": {
-          "CREATED": "Criado",
-          "UPDATED": "Atualizado",
-          "DELETED": "Excluído"
-        },
+        "title": "Change history",
+        "description": "Section and assignment changes for this club.",
+        "filterSection": "Filter by section",
+        "allSections": "All sections",
+        "loading": "Loading history…",
+        "loadError": "Could not load history.",
+        "emptyTitle": "No changes recorded",
+        "emptyDescription": "There are no audit events for this club yet.",
+        "loadMore": "Load more",
+        "byActor": "By {name}",
         "entity": {
-          "club": "Clube",
-          "club_section": "Seção",
-          "role_assignment": "Liderança"
+          "club_section": "Sections",
+          "class_counselor_assignment": "Class counselors",
+          "role_assignment": "Role assignments"
         }
+      },
+      "actions": {
+        "missingFields": "Complete all required fields.",
+        "roleAssigned": "Role assigned successfully.",
+        "roleAssignFailed": "Could not assign role.",
+        "roleRevoked": "Role removed.",
+        "roleRevokeFailed": "Could not remove role.",
+        "counselorAssigned": "Counselor assigned.",
+        "counselorAssignFailed": "Could not assign counselor.",
+        "counselorRevoked": "Counselor removed.",
+        "counselorRevokeFailed": "Could not remove counselor.",
+        "sectionCreated": "Seção registrada com sucesso.",
+        "sectionCreateFailed": "Não foi possível registrar a seção.",
+        "invalidClubType": "Tipo de clube inválido.",
+        "invalidSoulsTarget": "A meta de almas deve ser um inteiro não negativo.",
+        "invalidFee": "A taxa deve ser um inteiro não negativo."
       }
     },
     "pages": {
@@ -1425,20 +1424,7 @@
         "emptyCreateButton": "Criar clube",
         "createMenuManual": "Criar manualmente",
         "createMenuBulk": "Importar do Excel",
-        "unexpectedError": "Erro inesperado",
-        "pendingBadge": "{count} pendentes",
-        "clearFilters": "Limpar filtros",
-        "statsTotalLabel": "Total de clubes",
-        "statsTotalHint": "Registrados no sistema",
-        "statsActiveLabel": "Ativos na página",
-        "statsActiveHint": "De {count} visíveis",
-        "statsPendingLabel": "Solicitações pendentes",
-        "statsPendingHint": "Nos clubes desta página",
-        "resultsSummary": "{total} clubes · {active} ativos na página · {pending} pendentes"
-      },
-      "new": {
-        "title": "Criar clube",
-        "back": "Voltar"
+        "unexpectedError": "Erro inesperado"
       },
       "import": {
         "title": "Importar clubes do Excel",
@@ -1484,40 +1470,9 @@
           "parseFailed": "Não foi possível ler o arquivo"
         }
       },
-      "detail": {
-        "back": "Voltar",
-        "deleteButton": "Excluir",
-        "deleteDialogTitle": "Excluir este clube?",
-        "deleteDialogDesc": "O clube \"{name}\" será desativado no sistema. Esta ação pode ser revertida reativando-o mais tarde.",
-        "deleteDialogConfirm": "Excluir clube",
-        "deleteDialogCancel": "Cancelar",
-        "deleteDialogDeleting": "Excluindo…",
-        "tabView": "Ver",
-        "tabEdit": "Editar",
-        "tabSections": "Seções ({count})",
-        "tabUnits": "Unidades",
-        "tabMembership": "Solicitações de associação",
-        "infoCardTitle": "Informações gerais",
-        "labelName": "Nome",
-        "labelDescription": "Descrição",
-        "labelStatus": "Status",
-        "labelLocalField": "Campo local",
-        "labelDistrict": "Distrito",
-        "labelChurch": "Igreja",
-        "labelAddress": "Endereço",
-        "labelCoordinates": "Coordenadas",
-        "statusActive": "Ativo",
-        "statusInactive": "Inativo"
-      },
-      "unitsNew": {
-        "title": "Nova unidade",
-        "descriptionTemplate": "Adicionar uma nova unidade a {clubName}",
-        "back": "Voltar ao clube"
-      },
-      "unitsDetail": {
-        "title": "Editar unidade",
-        "descriptionTemplate": "Modificar os dados de \"{unitName}\" em {clubName}",
-        "back": "Voltar ao clube"
+      "new": {
+        "title": "Criar clube",
+        "back": "Voltar"
       },
       "v2": {
         "metadataTitle": "Clubes v2",
@@ -1535,46 +1490,29 @@
         "emptyFilteredTitle": "Sem resultados",
         "emptyFilteredDescription": "Nenhum clube corresponde aos filtros aplicados.",
         "actionView": "Ver detalhe",
-        "actionEdit": "Editar",
-        "detail": {
-          "fallbackTitle": "Detalhe do clube",
-          "description": "Ficha operacional do clube com abas estilo catálogo.",
-          "breadcrumbList": "Clubes",
-          "openClassic": "Abrir vista clássica",
-          "editButton": "Editar clube",
-          "statusActive": "Ativo",
-          "statusInactive": "Inativo",
-          "noDescription": "Sem descrição registrada",
-          "membersLabel": "membros",
-          "unitsLabel": "unidades",
-          "tabOverview": "Visão geral",
-          "tabSections": "Seções",
-          "tabResponsables": "Responsáveis por classe",
-          "tabUnits": "Unidades",
-          "tabMembership": "Solicitações",
-          "tabInfo": "Informação",
-          "tabHistory": "Histórico",
-          "tabEdit": "Editar",
-          "membershipTitle": "Solicitações",
-          "membershipLead": "Aprove ou rejeite novos membros e mudanças de clube por seção.",
-          "noSectionsForResponsables": "Crie pelo menos uma seção do clube para atribuir responsáveis por classe.",
-          "editTitle": "Editar informações do clube",
-          "editLead": "Atualize identidade, localização e dados gerais.",
-          "hubTeamTitle": "Minha equipe",
-          "hubTeamSubtitle": "Seções ativas e responsáveis",
-          "hubSecondaryTitle": "Mais opções",
-          "hubManageSections": "Gerenciar seções",
-          "hubViewUnits": "Unidades",
-          "hubViewHistory": "Histórico",
-          "hubViewInfo": "Informação",
-          "hubEditClub": "Editar clube",
-          "hubDeleteClub": "Desativar clube",
-          "colPending": "Pendentes",
-          "activeLabel": "Ativa",
-          "inactiveLabel": "Inativa",
-          "pendingAlertTitle": "{count} solicitações pendentes",
-          "pendingAlertAction": "Revisar solicitações",
-          "tabsAriaLabel": "Seções do detalhe do clube"
+        "actionEdit": "Editar"
+      },
+      "validations": {
+        "title": "Validações",
+        "description": "Revisão de especialidades, módulos, seções de classe e cargas massivas de certificados.",
+        "emptyTitle": "Sem validações pendentes",
+        "emptyDescription": "Não há itens na fila no momento.",
+        "tabs": {
+          "honors": "Especialidades",
+          "modules": "Módulos",
+          "sections": "Seções de classe",
+          "certificates": "Certificados massivos"
+        },
+        "sections": {
+          "submissions": "Envios pendentes",
+          "submissionsHonorsHint": "Especialidades enviadas para aprovação institucional.",
+          "evidence": "Evidências pendentes",
+          "evidenceHonorsHint": "Arquivos e requisitos de especialidades para revisar."
+        },
+        "errors": {
+          "honors": "Não foi possível carregar as validações de especialidades.",
+          "modules": "Não foi possível carregar as validações de módulos.",
+          "generic": "Não foi possível carregar as validações pendentes."
         }
       }
     },
@@ -1602,11 +1540,7 @@
       "activeEvents": "Eventos ativos",
       "honors": "Especialidades",
       "totalClasses": "{count} classes registradas",
-      "totalHonors": "Total de especialidades",
-      "pendingMembership": "Solicitações pendentes",
-      "pendingMembershipHint": "Membresias para aprovar no seu escopo",
-      "pendingMembershipUnavailable": "Sem permissão de aprovação",
-      "pendingBadge": "{count} pendentes"
+      "totalHonors": "Total de especialidades"
     },
     "recentUsers": {
       "title": "Usuários recentes",
@@ -1657,31 +1591,292 @@
       "member": "Membro",
       "noRole": "Sem função"
     },
+    "operations": {
+      "title": "Panorama operacional",
+      "description": "Recorte agregado do escopo territorial autorizado e seus filhos imediatos.",
+      "currentScope": "Escopo atual",
+      "breadcrumbLabel": "Caminho territorial informativo",
+      "ecclesiasticalYear": "Ano eclesiástico",
+      "reportingMonth": "Último mês fechado",
+      "noClosedMonth": "Ainda não há um mês fechado",
+      "computedAt": "Calculado em {date}",
+      "cachedResponse": "Resposta em cache",
+      "backToMyScope": "Voltar ao meu escopo",
+      "bento": {
+        "groups": {
+          "operation": "Operação anual",
+          "operationDescription": "Clubes com pelo menos uma seção matriculada no ano eclesiástico.",
+          "adminClubs": "Status administrativo",
+          "adminClubsDescription": "Registro administrativo do clube; não implica operação anual.",
+          "people": "Pessoas e contas",
+          "peopleDescription": "Afiliação institucional vs. status da conta na plataforma.",
+          "reports": "Relatórios mensais",
+          "reportsDescription": "Recorte do último mês fechado por seção matriculada.",
+          "reportsNotApplicable": "Sem mês fechado no ano; contagens não medem descumprimento.",
+          "queues": "Filas operacionais",
+          "queuesDescription": "Pendentes por tipo; sem total agregado.",
+          "honors": "Especialidades",
+          "activities": "Atividades registradas",
+          "activitiesDescription": "Registro no sistema; não confirma execução nem participação.",
+          "formation": "Formação por classe",
+          "formationDescription": "{enrollments} matrículas · {people} pessoas distintas"
+        },
+        "honorsAttribution": {
+          "current_affiliation": "Por afiliação atual do ano vigente",
+          "unavailable": "Histórico indisponível no contrato"
+        },
+        "stats": {
+          "operationalClubs": "Clubes operacionais",
+          "operationalClubsDetail": "Pelo menos uma seção matriculada",
+          "operationalSections": "Seções operacionais",
+          "operationalRate": "Taxa operacional",
+          "nonOperationalClubs": "Clubes não operacionais",
+          "adminClubsTotal": "Clubes administrativos",
+          "adminActive": "Ativos",
+          "adminInactive": "Inativos",
+          "adminTotal": "Total",
+          "institutionalActive": "Pessoas institucionalmente ativas",
+          "institutionalActiveDetail": "Com atribuição institucional ativa",
+          "platformActive": "Contas ativas",
+          "platformInactive": "Contas inativas",
+          "monthlyCoverage": "Cobertura enviada",
+          "monthlyCoverageDetail": "{submitted} de {expected} seções esperadas",
+          "noClosedMonth": "Ainda não há um mês fechado",
+          "expectedSections": "Seções esperadas",
+          "submittedSections": "Enviados",
+          "draftSections": "Rascunho",
+          "generatedSections": "Gerados",
+          "missingSections": "Sem relatório",
+          "roleAssignmentsPending": "Atribuições de função",
+          "transfersPending": "Transferências",
+          "classValidationsPending": "Validações de classe",
+          "honorsReviewPending": "Revisões de especialidades",
+          "annualFoldersPending": "Pastas da União",
+          "honorsInProgress": "Em progresso",
+          "honorsPendingReview": "Em revisão",
+          "honorsApproved": "Aprovadas",
+          "activitiesRegistered": "Atividades registradas",
+          "activitiesRegisteredDetail": "Atividades distintas no ano",
+          "activitiesJoint": "Conjuntas",
+          "activitiesSections": "Seções participantes",
+          "totalEnrollments": "Matrículas totais",
+          "distinctPeople": "Pessoas distintas"
+        },
+        "charts": {
+          "submitted": "Env",
+          "draft": "Ras",
+          "generated": "Ger",
+          "missing": "Fal",
+          "expected": "Esp",
+          "registered": "Reg",
+          "joint": "Con",
+          "sections": "Sec"
+        }
+      },
+      "kpis": {
+        "sectionTitle": "Indicadores primários",
+        "operationalClubs": "Clubes operacionais",
+        "operationalClubsHint": "Com pelo menos uma seção matriculada no ano",
+        "institutionalPeople": "Pessoas institucionalmente ativas",
+        "institutionalPeopleHint": "Atribuição institucional ativa no ano",
+        "monthlyCoverage": "Cobertura mensal",
+        "monthlyCoverageHint": "Relatórios enviados sobre seções esperadas",
+        "noClosedMonthHint": "Sem mês fechado aplicável ao período",
+        "missingReports": "Relatórios faltantes",
+        "missingReportsHint": "Seções sem relatório mensal registrado"
+      },
+      "adminDiagnostic": {
+        "title": "Diagnóstico administrativo",
+        "description": "Status administrativo e operação anual como conceitos distintos.",
+        "operationalSections": "Seções operacionais",
+        "adminActiveClubs": "Clubes administrativos ativos",
+        "adminInactiveClubs": "Clubes administrativos inativos",
+        "operationalRate": "Taxa operacional",
+        "platformActiveAccounts": "Contas de plataforma ativas",
+        "platformInactiveAccounts": "Contas de plataforma inativas"
+      },
+      "attention": {
+        "title": "Requer atenção",
+        "description": "Filas operacionais sem total agregado.",
+        "roleAssignments": "Atribuições pendentes",
+        "transfers": "Transferências pendentes",
+        "classValidations": "Validações de classe",
+        "honorsReview": "Revisões de especialidades",
+        "annualFolders": "Pastas pendentes da União"
+      },
+      "formation": {
+        "title": "Formação",
+        "description": "{enrollments} matrículas · {people} pessoas distintas",
+        "chartAriaLabel": "Matrículas por classe e tipo de clube",
+        "chartSeries": "Matrículas",
+        "tableTitle": "Detalhe tabular equivalente",
+        "tableClass": "Classe",
+        "tableClubType": "Tipo de clube",
+        "tableEnrollments": "Matrículas",
+        "emptyTitle": "Sem matrículas registradas",
+        "emptyDescription": "Não há matrículas por classe no escopo atual."
+      },
+      "honors": {
+        "title": "Especialidades",
+        "inProgress": "Em progresso",
+        "pendingReview": "Em revisão",
+        "approved": "Aprovadas",
+        "attribution": {
+          "current_affiliation": "Atribuição por afiliação atual",
+          "unavailable": "Indisponível para o ano selecionado"
+        }
+      },
+      "activities": {
+        "title": "Atividades",
+        "description": "Atividades registradas; não implica execução nem participação.",
+        "registered": "Registradas",
+        "jointRegistered": "Conjuntas registradas",
+        "participatingSections": "Seções participantes"
+      },
+      "territory": {
+        "title": "Comparação territorial",
+        "description": "Filhos imediatos do escopo. Totais não devem ser reconstruídos somando linhas.",
+        "columnTerritory": "Território",
+        "columnAdminClubs": "Clubes admin.",
+        "columnOperationalClubs": "Clubes operacionais",
+        "columnPeople": "Pessoas",
+        "columnClasses": "Classes (pessoas)",
+        "columnCoverage": "Cobertura",
+        "columnActivities": "Atividades",
+        "columnPending": "Pendentes",
+        "pendingRole": "Atrib.",
+        "pendingTransfers": "Transf.",
+        "pendingClasses": "Classes",
+        "pendingHonors": "Esp.",
+        "pendingFolders": "Pastas",
+        "emptyTitle": "Sem territórios filhos",
+        "emptyDescription": "Não há entidades filhas neste nível de escopo.",
+        "level": {
+          "division": "Divisão",
+          "union": "União",
+          "local_field": "Campo local",
+          "club": "Clube"
+        }
+      },
+      "dataQuality": {
+        "title": "Qualidade dos dados",
+        "description": "Notas contratuais sobre exatidão e atribuição de cada família de métricas.",
+        "status": {
+          "exact": "Exato",
+          "current_affiliation": "Afiliação atual",
+          "unavailable": "Indisponível",
+          "not_applicable": "Não aplicável"
+        }
+      },
+      "errors": {
+        "title": "Panorama operacional",
+        "forbiddenDescription": "Você não tem escopo para consultar este território.",
+        "notFoundDescription": "O ano ou território solicitado não foi encontrado.",
+        "rateLimitedDescription": "Muitas solicitações. Tente novamente em instantes.",
+        "authTitle": "Sessão necessária",
+        "authDescription": "Entre para ver o panorama operacional.",
+        "badRequestTitle": "Filtro inválido",
+        "badRequestDescription": "Verifique os parâmetros de período ou território.",
+        "serverTitle": "Erro do servidor",
+        "serverDescription": "Não foi possível carregar o panorama operacional.",
+        "goToLogin": "Ir para entrar"
+      },
+      "version": {
+        "v1": "Visão bento",
+        "v2": "Visão executiva"
+      },
+      "v2": {
+        "title": "Panorama executivo",
+        "description": "Sinais de decisão, conformidade e pressão operacional no escopo autorizado.",
+        "signals": {
+          "title": "Sinais prioritários",
+          "operativeGap": "Lacuna operacional",
+          "operativeGapDetail": "Clubes administrativos sem seção matriculada no ano · total admin. {total}",
+          "reportDebt": "Dívida de relatórios",
+          "reportDebtDetail": "Seções sem relatório no último mês fechado · esperadas {expected}",
+          "reportDebtUnavailable": "Nenhum mês fechado aplicável ao período",
+          "digitalGap": "Lacuna digital",
+          "digitalGapDetail": "Contas inativas frente a {institutional} pessoas institucionalmente ativas",
+          "workflowPressure": "Tipos de fila ativos",
+          "workflowPressureDetail": "Tipos de fila com pendências maiores que zero"
+        },
+        "operationLens": {
+          "title": "Lente operacional",
+          "description": "Operação anual vs. status administrativo do clube.",
+          "operationalRate": "Taxa operacional",
+          "operationalClubs": "Clubes operacionais",
+          "operationalSections": "Seções operacionais",
+          "adminActive": "Admin. ativos",
+          "adminInactive": "Admin. inativos"
+        },
+        "compliance": {
+          "title": "Conformidade mensal",
+          "description": "Cobertura do último mês fechado por seção matriculada.",
+          "notApplicable": "Sem mês fechado; as contagens não medem descumprimento.",
+          "coverage": "Cobertura enviada",
+          "expected": "Esperadas",
+          "submitted": "Enviadas",
+          "missing": "Faltantes",
+          "draft": "Rascunho",
+          "generated": "Geradas"
+        },
+        "people": {
+          "title": "Pessoas e plataforma",
+          "description": "Afiliação institucional vs. status da conta.",
+          "institutional": "Institucionalmente ativas",
+          "platformActive": "Contas ativas",
+          "platformInactive": "Contas inativas"
+        },
+        "formation": {
+          "title": "Formação por classe",
+          "description": "{enrollments} matrículas · {people} pessoas distintas",
+          "empty": "Sem matrículas no escopo atual."
+        },
+        "honors": {
+          "title": "Especialidades",
+          "unavailable": "Histórico indisponível no contrato do ano.",
+          "inProgress": "Em progresso",
+          "pendingReview": "Em revisão",
+          "approved": "Aprovadas"
+        },
+        "activities": {
+          "title": "Atividades registradas",
+          "description": "Registro no sistema; não confirma execução nem presença.",
+          "registered": "Registradas",
+          "joint": "Conjuntas",
+          "sections": "Seções participantes"
+        },
+        "queues": {
+          "title": "Filas operacionais",
+          "description": "Pendências por tipo; sem total agregado.",
+          "roleAssignments": "Atribuições de função",
+          "transfers": "Transferências",
+          "classValidations": "Validações de classe",
+          "honorsReview": "Revisão de especialidades",
+          "annualFolders": "Pastas União"
+        },
+        "alerts": {
+          "title": "Alertas territoriais",
+          "description": "Territórios com maior dívida de relatórios no último mês fechado.",
+          "missingReports": "{count} sem relatório",
+          "inspect": "Inspecionar",
+          "openClub": "Abrir clube"
+        },
+        "charts": {
+          "territoryComparison": "Comparação territorial",
+          "territoryOperational": "Clubes operacionais",
+          "territoryMissing": "Relatórios faltantes",
+          "territoryPeople": "Pessoas ativas",
+          "nonOperationalClubs": "Clubes não operacionais"
+        }
+      }
+    },
     "birthday": {
       "title": "Feliz aniversário!",
       "message": "Hoje celebramos sua vida com gratidão. Que este novo ano venha cheio de propósito, paz e alegria.",
       "bibleMessage": "“O Senhor te abençoe e te guarde.” — Números 6:24",
       "thanks": "Obrigado",
       "dismissToday": "Não mostrar novamente hoje"
-    },
-    "scope": {
-      "scopeAll": "Visão global do sistema",
-      "scopeDivision": "Divisão: {name}",
-      "scopeUnion": "União: {name}",
-      "scopeLocalField": "Campo local: {name}"
-    },
-    "pendingMembership": {
-      "title": "Solicitações de membresia",
-      "description": "{count} solicitações aguardam sua revisão",
-      "empty": "Não há solicitações pendentes no seu escopo",
-      "reviewAll": "Ver todas",
-      "approve": "Aprovar",
-      "review": "Revisar",
-      "approveSuccess": "Solicitação aprovada",
-      "approveError": "Não foi possível aprovar a solicitação",
-      "more": "+{count} solicitações a mais",
-      "alertTitle": "{count} solicitações pendentes",
-      "alertAction": "Revisar solicitações"
     }
   },
   "post_registration": {
@@ -1778,6 +1973,7 @@
       "type_club": "Clube",
       "target_all": "Todos",
       "target_user": "Usuário",
+      "target_user_unknown": "Usuário não encontrado",
       "target_club_section": "Seção de clube"
     },
     "page": {
@@ -2151,6 +2347,10 @@
         "saving": "Salvando…",
         "saveSuccess": "Permissões da função {role} atualizadas",
         "saveError": "Não foi possível salvar as permissões da função {role}",
+        "permissionAddedTitle": "Permissão adicionada",
+        "permissionRemovedTitle": "Permissão removida",
+        "permissionToastDesc": "{permission} · {role}",
+        "toggleError": "Não foi possível atualizar a função {role}",
         "dirtyBadge": "Alterações não salvas",
         "categoryGlobal": "Global",
         "categoryClub": "Clube",
@@ -2451,7 +2651,7 @@
       "dropzoneAriaLabel": "Área de upload da imagem da conquista",
       "uploading": "Enviando imagem...",
       "dropzonePrompt": "Arraste uma imagem ou clique para selecionar",
-      "dropzoneHint": "PNG, SVG ou WebP — máximo 2 MB",
+      "dropzoneHint": "PNG ou WebP — máximo 2 MB",
       "previewAlt": "Pré-visualização da conquista",
       "previewTitle": "Pré-visualização",
       "tierLabel": "Nível:",
@@ -2460,7 +2660,7 @@
       "toastSuccess": "Imagem da conquista atualizada com sucesso.",
       "toastError": "Não foi possível enviar a imagem. Tente novamente.",
       "toastSaveFirst": "Salve a conquista primeiro para poder enviar a imagem.",
-      "validateTypeError": "Apenas imagens PNG, SVG ou WebP são permitidas.",
+      "validateTypeError": "Apenas imagens PNG ou WebP são permitidas.",
       "validateSizeError": "O arquivo não pode exceder 2 MB."
     },
     "cards": {
@@ -2643,6 +2843,7 @@
         "filterStatusActive": "Ativos",
         "filterStatusInactive": "Inativos",
         "tableColName": "Nome",
+        "tableColBadge": "Imagem",
         "tableColTier": "Nível",
         "tableColType": "Tipo",
         "tableColPoints": "Pontos",
@@ -2734,8 +2935,127 @@
     },
     "membersTab": {
       "refreshListTitle": "Atualizar lista",
+      "refreshLabel": "Atualizar",
       "previousPageAriaLabel": "Página anterior",
-      "nextPageAriaLabel": "Próxima página"
+      "nextPageAriaLabel": "Próxima página",
+      "countSingular": "membro inscrito",
+      "countPlural": "membros inscritos",
+      "visibleCount": "{count} visíveis com filtros",
+      "registerMember": "Inscrever membro",
+      "loadFailed": "Não foi possível atualizar a lista de membros",
+      "pageLabel": "Página {page} de {totalPages}",
+      "filterClub": "Clube",
+      "filterClubAll": "Todos os clubes",
+      "filterStatus": "Status",
+      "filterStatusAll": "Todos os status",
+      "filterStatusRegistered": "Registrado",
+      "filterStatusApproved": "Aprovado",
+      "filterStatusPending": "Pendente de aprovação",
+      "filterStatusRejected": "Rejeitado",
+      "filterStatusCancelled": "Cancelado",
+      "filterInsurance": "Seguro",
+      "filterInsuranceAll": "Todos",
+      "filterInsuranceVerified": "Verificado",
+      "filterInsurancePending": "Pendente",
+      "filterInsuranceNone": "Sem seguro"
+    },
+    "judgeAssignments": {
+      "eyebrow": "Pontuação",
+      "title": "Atribuições de juízes",
+      "manageJudges": "Gerenciar juízes",
+      "description": "Cada seção inscrita precisa de um juiz principal por prova pontuável. Assistentes são opcionais.",
+      "listDescription": "Escolha uma prova pontuável para ver e atribuir juízes por seção.",
+      "detailDescription": "Cada seção inscrita precisa de um juiz principal. Assistentes são opcionais.",
+      "colEvent": "Prova",
+      "colSections": "Seções",
+      "colCovered": "Com principal",
+      "colPending": "Pendentes",
+      "colPrimaryJudges": "Juízes principais",
+      "colActions": "Ações",
+      "openEvent": "Abrir",
+      "backToList": "Voltar às provas",
+      "noPrimaryJudges": "Sem juiz principal",
+      "primaryJudgesMore": "{names} +{count}",
+      "eventLabel": "Prova pontuável",
+      "eventAssignmentCount": "{count, plural, =0 {Sem atribuições} one {# atribuição} other {# atribuições}}",
+      "statSections": "Seções inscritas",
+      "statCovered": "Com juiz principal",
+      "statCoveredHint": "Prontas para pontuar",
+      "statPending": "Pendentes",
+      "statPendingHint": "Sem juiz principal",
+      "matrixSectionColumn": "Seção",
+      "matrixJudgesColumn": "Juízes atribuídos",
+      "sectionLabel": "Seção",
+      "judgeLabel": "Juiz",
+      "roleLabel": "Função",
+      "rolePrimary": "Principal",
+      "roleAssistant": "Assistente",
+      "selectPlaceholder": "Selecionar",
+      "assignButton": "Atribuir juiz",
+      "assignSlot": "Atribuir",
+      "editAssignment": "Editar atribuição",
+      "changeJudge": "Trocar juiz",
+      "changeJudgeDescription": "Escolha outro juiz do roster para esta função.",
+      "saveJudgeChange": "Salvar alteração",
+      "cancelEdit": "Cancelar",
+      "removeAssignment": "Remover",
+      "assignFormTitle": "Nova atribuição",
+      "assignFormDescription": "Vincule um juiz a uma seção para esta prova.",
+      "primaryConflict": "Esta seção já tem juiz principal ativo para a prova.",
+      "missingPrimaryBadge": "Falta juiz principal",
+      "unknownClub": "Clube",
+      "sectionFallback": "Seção {id}",
+      "emptyEventsTitle": "Sem provas pontuáveis",
+      "emptyEventsDescription": "Ative a pontuação em pelo menos uma prova do cronograma para atribuir juízes.",
+      "emptySectionsTitle": "Sem seções inscritas",
+      "emptySectionsDescription": "Inscreva clubes neste camporee para atribuir juízes por seção."
+    },
+    "scoreEntry": {
+      "eyebrow": "Respaldo LF",
+      "title": "Registrar pontuação",
+      "description": "Quando o juiz não pode enviar pelo app. Informe os pontos obtidos por critério.",
+      "eventLabel": "Prova pontuável",
+      "eventMeta": "{criteria} critérios · {sections} seções",
+      "statCriteria": "Critérios",
+      "statSections": "Seções",
+      "statTotal": "Total parcial",
+      "sectionLabel": "Seção",
+      "judgeFilterLabel": "Juiz atribuído",
+      "judgeFilterPlaceholder": "Filtrar por juiz",
+      "judgeFilterAll": "Todas as seções",
+      "judgeFilterHint": "Opcional: filtra as seções que esse juiz deve pontuar.",
+      "assignedJudgeHint": "Juiz principal atribuído: {name}",
+      "noSectionsForJudge": "Este juiz não tem seções atribuídas na prova selecionada.",
+      "selectPlaceholder": "Selecionar",
+      "unknownClub": "Clube",
+      "sectionFallback": "Seção {id}",
+      "maxPoints": "Máximo: {points} pontos",
+      "awardedLabel": "Pontos · {title}",
+      "awardedAria": "Pontos atribuídos {title}",
+      "totalLive": "Total calculado: {awarded} / {max} pontos",
+      "notesLabel": "Notas",
+      "notesPlaceholder": "Observações opcionais",
+      "submitButton": "Salvar pontuação oficial",
+      "readOnlyHint": "Permissões de gestão de eventos necessárias para registrar pontuações.",
+      "noRubrics": "Esta prova está marcada como pontuável, mas não tem rubricas ativas.",
+      "emptyEventsTitle": "Sem provas pontuáveis",
+      "emptyEventsDescription": "Ative a pontuação em pelo menos uma prova do cronograma.",
+      "emptySectionsTitle": "Sem seções inscritas",
+      "emptySectionsDescription": "Inscreva clubes para registrar pontuações."
+    },
+    "leaderboard": {
+      "eyebrow": "Resultados",
+      "title": "Ranking do camporee",
+      "description": "Posições com base nos pontos oficiais acumulados.",
+      "emptyTitle": "Sem resultados ainda",
+      "emptyDescription": "Aparecerão quando houver pontuações oficiais registradas.",
+      "colRank": "Pos.",
+      "colClub": "Clube",
+      "colSection": "Seção",
+      "colAwarded": "Pontos",
+      "colMax": "Máximo",
+      "colPercent": "%",
+      "sectionFallback": "Seção {id}"
     },
     "list": {
       "countSingular": "campori",
@@ -2765,9 +3085,6 @@
       "placeholderDescription": "Descrição opcional do campori",
       "labelStartDate": "Data de início",
       "labelEndDate": "Data de fim",
-      "labelClubRegistrationDeadline": "Prazo de inscrição de clubes",
-      "labelMemberRegistrationDeadline": "Prazo de inscrição de membros",
-      "labelPaymentDeadline": "Prazo de pagamento",
       "labelPlace": "Local",
       "placeholderPlace": "Ex. Centro Recreativo A Montanha",
       "labelLatitude": "Latitude",
@@ -2782,9 +3099,7 @@
       "saving": "Salvando...",
       "creating": "Criando...",
       "saveChanges": "Salvar alterações",
-      "createCamporee": "Criar campori",
-      "labelAgendaVisibleFrom": "Mostrar agenda a partir de",
-      "helpAgendaVisibleFrom": "Se ficar vazio, a agenda completa abre quando o camporee começar."
+      "createCamporee": "Criar campori"
     },
     "eventInstanceForm": {
       "titleCreate": "Novo evento",
@@ -2825,9 +3140,6 @@
       "placeholderDescription": "Descrição opcional do campori",
       "labelStartDate": "Data de início",
       "labelEndDate": "Data de fim",
-      "labelClubRegistrationDeadline": "Prazo de inscrição de clubes",
-      "labelMemberRegistrationDeadline": "Prazo de inscrição de membros",
-      "labelPaymentDeadline": "Prazo de pagamento",
       "labelUnion": "União",
       "placeholderUnion": "Selecione uma união...",
       "labelPlace": "Local",
@@ -2843,9 +3155,15 @@
       "saving": "Salvando...",
       "creating": "Criando...",
       "saveChanges": "Salvar alterações",
-      "createCamporee": "Criar campori",
-      "labelAgendaVisibleFrom": "Mostrar agenda a partir de",
-      "helpAgendaVisibleFrom": "Se ficar vazio, a agenda completa abre quando o camporee começar."
+      "createCamporee": "Criar campori"
+    },
+    "clubsTab": {
+      "countSingular": "clube inscrito",
+      "countPlural": "clubes inscritos",
+      "refreshListTitle": "Atualizar lista",
+      "refreshLabel": "Atualizar",
+      "enrollClub": "Inscrever clube",
+      "loadFailed": "Não foi possível atualizar a lista de clubes"
     },
     "clubsPanel": {
       "emptyTitle": "Nenhum clube inscrito",
@@ -2861,6 +3179,12 @@
       "statusCancelled": "Cancelado",
       "fallbackSection": "Seção #{id}",
       "fallbackClub": "Clube #{id}",
+      "clubLabel": "Clube: {name}",
+      "sectionTypeLabel": "Tipo: {name}",
+      "noClubOrType": "Sem clube ou tipo atribuído",
+      "unknownRegistrar": "Registrador desconhecido",
+      "registrarRoleLabel": "Cargo: {role}",
+      "noRegistrarRole": "Sem cargo registrado",
       "approveLabel": "Aprovar inscrição",
       "rejectLabel": "Rejeitar inscrição",
       "cancelLabel": "Cancelar inscrição",
@@ -2887,6 +3211,10 @@
       "insuranceNone": "Sem seguro",
       "insuranceVerified": "Seguro verificado",
       "insurancePending": "Seguro pendente",
+      "insuranceExpired": "Seguro vencido",
+      "classLabel": "Classe: {name}",
+      "roleLabel": "Cargo: {name}",
+      "noClassOrRole": "Sem classe ou cargo atribuído",
       "typeLocal": "Local",
       "typeUnion": "União",
       "fallbackMember": "Membro",
@@ -2904,6 +3232,7 @@
     "paymentsPanel": {
       "emptyTitle": "Nenhum pagamento registrado",
       "emptyDescription": "Não há pagamentos registrados para este campori ainda.",
+      "emptyLedgerDescription": "Quando diretores ou secretários registrarem pagamentos pelo app, eles aparecerão aqui.",
       "summaryTotal": "Total arrecadado",
       "paymentTypeInscription": "Inscrição",
       "paymentTypeMaterials": "Materiais",
@@ -2927,6 +3256,36 @@
       "fallbackPayment": "Pagamento #{id}",
       "entityLabel": "Pagamento"
     },
+    "paymentsBalance": {
+      "eyebrow": "Finanças do camporee",
+      "description": "Saldo esperado com base nos membros inscritos e no custo de inscrição, mais os pagamentos registrados pelo app ou painel.",
+      "refresh": "Atualizar",
+      "registerPayment": "Registrar pagamento",
+      "refreshError": "Não foi possível atualizar a lista de pagamentos",
+      "statEnrolled": "Membros inscritos",
+      "statUnitCost": "{amount} por membro",
+      "statExpected": "Total esperado",
+      "statExpectedHint": "Inscritos × custo de inscrição",
+      "statCollected": "Arrecadado",
+      "statPendingReview": "{amount} em revisão",
+      "statOutstanding": "A receber",
+      "statCoverage": "{paid} em dia · {pending} em andamento · {unpaid} sem pagamento",
+      "membersTitle": "Status por membro",
+      "membersDescription": "Relação entre inscrição e pagamentos de inscrição registrados.",
+      "emptyMembersTitle": "Sem membros inscritos",
+      "emptyMembersDescription": "Inscreva membros para calcular o total esperado de pagamentos.",
+      "colMember": "Membro",
+      "colClub": "Clube",
+      "colPaid": "Pago",
+      "colStatus": "Status",
+      "unknownMember": "Membro desconhecido",
+      "statusPaid": "Pago",
+      "statusPartial": "Parcial",
+      "statusPending": "Em revisão",
+      "statusUnpaid": "Sem pagamento",
+      "ledgerTitle": "Movimentos registrados",
+      "ledgerDescription": "Pagamentos carregados por diretores, secretários ou o painel admin."
+    },
     "enrollDialog": {
       "title": "Inscrever clube",
       "labelSectionId": "Seção",
@@ -2941,6 +3300,8 @@
       "titleEdit": "Editar pagamento",
       "labelMember": "Membro",
       "placeholderMember": "Selecionar membro",
+      "emptyMembers": "Não há membros inscritos disponíveis para registrar um pagamento.",
+      "unknownMember": "Membro desconhecido",
       "labelAmount": "Valor",
       "labelPaymentType": "Tipo de pagamento",
       "placeholderPaymentType": "Selecionar tipo",
@@ -3023,13 +3384,22 @@
         "back": "Voltar",
         "cardTitle": "Detalhes do camporee",
         "labelId": "ID",
+        "labelDatesKpi": "Datas",
         "labelStartDate": "Data de início",
         "labelEndDate": "Data de fim",
         "labelPlace": "Local",
+        "labelCampLocation": "Local do acampamento",
+        "labelCampLocationKpi": "Localização",
         "labelCost": "Custo de inscrição",
+        "costPerMember": "por membro",
         "labelLocalFieldId": "Campo local",
+        "labelLocalFieldKpi": "Campo local",
+        "labelUnionKpi": "União",
         "labelIncludes": "Inclui",
         "labelDescription": "Descrição",
+        "coordinates": "Coordenadas: {lat}, {lng}",
+        "openInMaps": "Ver no mapa",
+        "internalId": "ID interno · #{id}",
         "loadFailed": "Não foi possível carregar a lista de membros.",
         "loadClubsFailed": "Não foi possível carregar a lista de clubes.",
         "loadPaymentsFailed": "Não foi possível carregar a lista de pagamentos."
@@ -3466,7 +3836,9 @@
     "table": {
       "col_member": "Membro",
       "col_type": "Tipo",
-      "col_section": "Seção / Honra",
+      "col_entity": "Classe / Especialidade",
+      "col_section": "Seção",
+      "col_description": "Descrição",
       "col_files": "Arquivos",
       "col_submitted": "Enviado",
       "col_status": "Estado",
@@ -3483,7 +3855,7 @@
     "typeBadge": {
       "folder": "Pasta",
       "class": "Classe",
-      "honor": "Honra"
+      "honor": "Especialidade"
     },
     "statusBadge": {
       "no_submit": "Não enviado",
@@ -3495,7 +3867,7 @@
       "tab_all": "Todos",
       "tab_folders": "Pastas",
       "tab_classes": "Classes",
-      "tab_honors": "Honras",
+      "tab_honors": "Especialidades",
       "btn_refresh": "Atualizar",
       "error_refresh": "Não foi possível atualizar a lista"
     },
@@ -3515,6 +3887,14 @@
       "emptyTitle": "Sem evidências pendentes",
       "emptyDescription": "Não há evidências pendentes de revisão no momento.",
       "allReviewed": "Todas as evidências foram revisadas."
+    },
+    "detail": {
+      "meta_member": "Membro",
+      "meta_entity": "Classe / Especialidade",
+      "meta_section": "Seção",
+      "meta_module": "Módulo: {name}",
+      "meta_description": "Descrição",
+      "meta_submitted": "Enviado em"
     },
     "rejectDialog": {
       "title": "Rejeitar evidência",
@@ -3719,7 +4099,8 @@
       "step3_description": "Representante legal e consentimento.",
       "step3_req1": "Representante legal",
       "step3_req2": "Documento de identidade",
-      "step3_req3": "Consentimento"
+      "step3_req3": "Consentimento",
+      "status_completed_at": "Concluído em {date}"
     },
     "pages": {
       "list": {
@@ -3737,6 +4118,13 @@
         "restrictedDescription": "Você precisa de autorização global resolvida para consultar dados de outros usuários.",
         "statusActive": "Ativo",
         "statusInactive": "Inativo",
+        "heroMeta": {
+          "labelStatus": "Status",
+          "labelClub": "Clube",
+          "labelSection": "Seção",
+          "labelClubRole": "Função no clube",
+          "labelSystemRole": "Função do sistema"
+        },
         "ageYears": "{count, plural, one {# ano} other {# anos}}",
         "approvalApproved": "Revisão aprovada",
         "approvalPending": "Sem revisão",
@@ -3749,6 +4137,58 @@
         "tabPostRegistration": "Pós-registro",
         "tabSecurity": "Segurança",
         "tabSessions": "Sessões",
+        "tabHonors": "Especialidades",
+        "tabClasses": "Classes",
+        "honorsTab": {
+          "colImage": "Imagem",
+          "colHonor": "Especialidade",
+          "colStatus": "Status",
+          "colStarted": "Início",
+          "colCompleted": "Conclusão",
+          "emptyTitle": "Sem especialidades",
+          "emptyDescription": "Este usuário não possui especialidades registradas.",
+          "loadError": "Não foi possível carregar as especialidades do usuário.",
+          "unknownHonor": "Especialidade desconhecida",
+          "notCompleted": "—",
+          "sectionAdventurers": "Especialidades de aventureiros",
+          "sectionPathfinders": "Especialidades de desbravadores",
+          "sectionMasterGuides": "Especialidades de guias",
+          "sectionOther": "Outras especialidades",
+          "statusHonor": {
+            "IN_PROGRESS": "Em progresso",
+            "PENDING_REVIEW": "Em revisão",
+            "APPROVED": "Aprovada",
+            "REJECTED": "Rejeitada"
+          }
+        },
+        "classesTab": {
+          "colClass": "Classe",
+          "colClub": "Clube",
+          "colYear": "Ano eclesiástico",
+          "colStarted": "Início",
+          "colCompleted": "Conclusão",
+          "colInvested": "Investido",
+          "colStatus": "Status",
+          "emptyTitle": "Sem classes",
+          "emptyDescription": "Este usuário não possui matrículas de classe.",
+          "loadError": "Não foi possível carregar as classes do usuário.",
+          "unknownClass": "Classe desconhecida",
+          "clubUnknown": "—",
+          "notCompleted": "—",
+          "investedYes": "Sim",
+          "investedNo": "Não",
+          "statusClass": {
+            "IN_PROGRESS": "Em progresso",
+            "SUBMITTED_FOR_VALIDATION": "Enviada para validação",
+            "CLUB_APPROVED": "Aprovada pelo clube",
+            "COORDINATOR_APPROVED": "Aprovada pela coordenação",
+            "FIELD_APPROVED": "Aprovada pelo campo",
+            "APPROVED": "Aprovada",
+            "REJECTED": "Rejeitada",
+            "INVESTIDO": "Investido",
+            "EXPIRED": "Expirada"
+          }
+        },
         "postRegistrationUnavailable": "Não foi possível obter o status do pós-registro. O usuário pode não ter iniciado o processo ou pode haver um erro de conectividade.",
         "tenure": {
           "years": "{count, plural, one {# ano} other {# anos}}",
@@ -3852,7 +4292,21 @@
           "panelSub": "Acesso ao painel administrativo"
         },
         "deletedAccount": "Conta excluída",
-        "anonymizedAccount": "Dados pessoais anonimizados"
+        "anonymizedAccount": "Dados pessoais anonimizados",
+        "rolesOverview": {
+          "globalTitle": "Funções globais",
+          "globalDescription": "Funções do sistema atribuídas diretamente ao usuário.",
+          "administrativeTitle": "Funções administrativas",
+          "administrativeDescription": "Funções de liderança territorial e administração institucional.",
+          "operationalTitle": "Funções operacionais",
+          "operationalDescription": "Funções de coordenação e operação pastoral em campo.",
+          "clubSectionsTitle": "Funções por seção do clube",
+          "clubSectionsDescription": "Função ativa em cada seção do clube ao qual o usuário pertence.",
+          "clubColumn": "Clube",
+          "sectionColumn": "Seção",
+          "roleColumn": "Função",
+          "noRoleAssigned": "Sem função atribuída"
+        }
       }
     }
   },
@@ -3862,7 +4316,7 @@
       "section_evaluated": "Seção avaliada com sucesso",
       "file_required": "Selecione um arquivo para enviar",
       "evidence_uploaded": "Evidência enviada com sucesso",
-      "rankings_recalculated": "Rankings recalculados: {count} clubes atualizados",
+      "rankings_recalculated": "Classificações recalculados: {count} clubes atualizados",
       "section_updated": "Seção atualizada com sucesso",
       "section_created": "Seção criada com sucesso",
       "category_deleted": "Categoria excluída com sucesso",
@@ -3879,7 +4333,7 @@
       "folder_created": "Pasta anual criada com sucesso"
     },
     "errors": {
-      "recalculate_rankings": "Erro ao recalcular os rankings",
+      "recalculate_rankings": "Erro ao recalcular os classificações",
       "save_evaluation_failed": "Não foi possível salvar a avaliação",
       "upload_evidence_failed": "Erro ao enviar a evidência",
       "save_section_failed": "Erro ao salvar a seção",
@@ -3996,9 +4450,9 @@
       "submittingEdit": "Salvando...",
       "descriptionDraft": "Salve o modelo como rascunho. Depois adicione seções e publique-o no detalhe quando estiver completo.",
       "descriptionEdit": "Edite os dados do rascunho da Pasta Anual de Evidências.",
-      "budgetTitle": "Orçamento vindo do ranking",
-      "budgetMissing": "Não há configuração anual de ranking aplicável para esta combinação. Configure antes de publicar.",
-      "budgetResolved": "A Pasta Anual vale {points} pts conforme a configuração do ranking. As seções devem distribuir exatamente esse total.",
+      "budgetTitle": "Orçamento vindo do classificação",
+      "budgetMissing": "Não há configuração anual de classificação aplicável para esta combinação. Configure antes de publicar.",
+      "budgetResolved": "A Pasta Anual vale {points} pts conforme a configuração do classificação. As seções devem distribuir exatamente esse total.",
       "budgetPending": "Selecione tipo de clube, ano e proprietário para resolver o orçamento anual.",
       "submitDraft": "Salvar rascunho",
       "submittingDraft": "Salvando rascunho..."
@@ -4059,16 +4513,16 @@
       "notFoundDescription": "Verifique se a pasta existe ou volte à listagem de pastas."
     },
     "pageRankings": {
-      "title": "Rankings da pasta anual de evidências",
-      "description": "Consulte o ranking de clubes por pontos obtidos na pasta anual de evidências.",
+      "title": "Classificações da pasta anual de evidências",
+      "description": "Consulte o classificação de clubes por pontos obtidos na pasta anual de evidências.",
       "errorFallback": "Não foi possível carregar os tipos de clube ou anos eclesiásticos. Verifique a conexão com o servidor.",
       "emptyTitle": "Sem dados de catálogo",
-      "emptyDescription": "Não há tipos de clube disponíveis para exibir rankings."
+      "emptyDescription": "Não há tipos de clube disponíveis para exibir classificações."
     },
     "pageRankingsBreakdown": {
-      "title": "Detalhamento do ranking",
+      "title": "Detalhamento do classificação",
       "description": "Detalhe por componente para a inscrição {enrollmentId}",
-      "errorFallback": "Não foi possível carregar o detalhamento do ranking. Verifique a conexão com o servidor.",
+      "errorFallback": "Não foi possível carregar o detalhamento do classificação. Verifique a conexão com o servidor.",
       "paramsRequired": "Os parâmetros enrollmentId e year_id são obrigatórios."
     },
     "awardCategoriesClient": {
@@ -4100,6 +4554,33 @@
       "notesPlaceholder": "Observações..."
     },
     "evaluationClient": {
+      "filtersTitle": "Filtros",
+      "filtersHint": "Refine a lista de pastas",
+      "filterSearch": "Buscar pasta",
+      "filterReviewStatus": "Status de revisão",
+      "filterFolderStatus": "Status da pasta",
+      "filterProgress": "Progresso",
+      "filterUnion": "União",
+      "filterLocalField": "Campo local",
+      "filterClubType": "Tipo de clube",
+      "filterYear": "Ano",
+      "searchButton": "Buscar",
+      "refreshButton": "Atualizar",
+      "loadingDetail": "Carregando pasta...",
+      "summaryTitle": "Resumo da pasta",
+      "sectionsTitle": "Seções para revisar ({count})",
+      "noSections": "Esta pasta não tem seções configuradas.",
+      "labelClub": "Clube",
+      "labelSection": "Seção",
+      "labelTemplate": "Modelo",
+      "labelYear": "Ano eclesiástico",
+      "labelLocalField": "Campo local",
+      "labelUnion": "União",
+      "labelScore": "Pontuação",
+      "labelProgress": "Progresso",
+      "queueTitle": "Pastas prontas para revisão",
+      "queueHint": "Busque por nome do clube, seção, campo, união ou modelo. O ID interno não é necessário.",
+      "resultsCount": "{count} resultados visíveis",
       "searchPlaceholder": "Ex. Clube Betel, Desbravadores, ACV...",
       "viewFullFolderTitle": "Ver pasta completa com evidências",
       "unionNotesPlaceholder": "Comentário opcional para auditoria...",
@@ -4131,16 +4612,16 @@
       "subsectionsAllocationLabel": "Subseções desta seção"
     },
     "pageRankingConfig": {
-      "title": "Configuração anual de rankings",
+      "title": "Configuração anual de classificações",
       "description": "Gerencie orçamentos anuais por seção e faixas globais de reconhecimento para a Pasta Anual de Evidências.",
-      "breadcrumbRankingConfig": "Configuração de rankings",
+      "breadcrumbRankingConfig": "Configuração de classificações",
       "breadcrumbNew": "Nova",
       "breadcrumbEdit": "Editar",
       "newTitle": "Nova configuração de orçamento",
       "newDescription": "Defina a pontuação máxima anual e sua distribuição por seções e subseções.",
       "editTitle": "Editar configuração de orçamento",
       "editDescription": "Atualize a pontuação máxima e sua distribuição por seções e subseções.",
-      "missingCatalogsTitle": "Catálogos ausentes para configurar rankings",
+      "missingCatalogsTitle": "Catálogos ausentes para configurar classificações",
       "missingCatalogsDescription": "Você precisa de pelo menos uma união ou campo local, um tipo de clube e um ano eclesiástico ativo.",
       "unavailableTitle": "Configuração indisponível",
       "unavailableDescription": "A configuração solicitada não foi encontrada ou faltam catálogos para editá-la."
@@ -4281,6 +4762,9 @@
     },
     "status": {
       "PENDING": "Pendente",
+      "PENDING_REVIEW": "Pendente de revisão",
+      "IN_PROGRESS": "Em progresso",
+      "SUBMITTED_FOR_VALIDATION": "Enviado para validação",
       "APPROVED": "Aprovado",
       "REJECTED": "Rejeitado",
       "NEEDS_REVISION": "Revisão"
@@ -4567,9 +5051,10 @@
       "saveButton": "Salvar dados manuais"
     },
     "page": {
-      "title": "Relatórios Mensais",
-      "description": "Gestão dos relatórios mensais de atividades do clube.",
-      "empty_no_active_enrollment_title": "Sem matrícula ativa",
+    "title": "Relatórios Mensais",
+    "description": "Gestão dos relatórios mensais de atividades do clube.",
+    "print_preview": "Pré-visualização para impressão",
+    "empty_no_active_enrollment_title": "Sem matrícula ativa",
       "empty_no_active_enrollment_description": "Nenhuma matrícula ativa foi encontrada para o seu usuário."
     },
     "pageDetail": {
@@ -4775,6 +5260,8 @@
     },
     "view": {
       "load_error": "Não foi possível carregar os seguros",
+      "select_local_field_placeholder": "Selecionar campo local",
+      "local_field_all": "Todos os campos",
       "select_club_placeholder": "Selecionar clube",
       "select_section_placeholder": "Selecionar seção",
       "refresh_tooltip": "Atualizar",
@@ -4898,12 +5385,20 @@
       "descriptionPlaceholder": "Descrição do movimento (opcional)",
       "cancelButton": "Cancelar",
       "saveButton": "Salvar alterações",
-      "createButton": "Criar movimento"
+      "createButton": "Criar movimento",
+      "evidenceLabel": "Evidências",
+      "evidenceHint": "Você pode anexar até 3 fotos do comprovante desta receita ou despesa.",
+      "evidenceCount": "{count}/3 fotos",
+      "evidenceLimit": "São permitidas apenas 3 fotos de evidência por movimento.",
+      "evidenceImageOnly": "Somente arquivos de imagem podem ser anexados.",
+      "evidenceAdd": "Selecionar fotos do comprovante",
+      "evidenceRemove": "Remover evidência"
     },
     "table": {
       "colDate": "Data",
       "colDescription": "Descrição",
       "colCategory": "Categoria",
+      "colSection": "Seção",
       "colPeriod": "Período",
       "colType": "Tipo",
       "colAmount": "Valor",
@@ -4913,7 +5408,15 @@
       "actionEdit": "Editar",
       "actionDelete": "Excluir",
       "typeIncome": "Receita",
-      "typeExpense": "Despesa"
+      "typeExpense": "Despesa",
+      "colEvidence": "Evidência",
+      "actionViewEvidence": "Ver evidências"
+    },
+    "evidenceViewer": {
+      "title": "Evidências do movimento",
+      "descriptionFallback": "Fotos do comprovante deste movimento.",
+      "itemLabel": "Evidência {n}",
+      "openExternal": "Abrir em nova aba"
     },
     "delete": {
       "title": "Excluir movimento?",
@@ -4929,6 +5432,8 @@
       "balance": "Saldo",
       "movementsCount": "{count} movimento",
       "movementsCountPlural": "{count} movimentos",
+      "incomeMovementsCount": "{count} receita",
+      "incomeMovementsCountPlural": "{count} receitas",
       "inPeriod": "no período",
       "positiveBalance": "Saldo positivo",
       "negativeBalance": "Saldo negativo"
@@ -4961,8 +5466,14 @@
     "clubSelector": {
       "label": "Clube",
       "selectPlaceholder": "Selecione um clube",
+      "localFieldLabel": "Campo local",
+      "localFieldPlaceholder": "Selecione um campo local",
+      "localFieldAll": "Todos os campos",
       "emptyTitle": "Selecione um clube",
-      "emptyDescription": "Escolha um clube no seletor para ver e gerenciar seus movimentos financeiros."
+      "emptyDescription": "Escolha um clube no seletor para ver e gerenciar seus movimentos financeiros.",
+      "sectionLabel": "Seção do clube",
+      "sectionPlaceholder": "Selecione uma seção",
+      "sectionAll": "Todas as seções"
     }
   },
   "certifications": {
@@ -5088,6 +5599,23 @@
       "empty_no_clubs_description": "Cadastre pelo menos um clube para gerenciar suas atividades.",
       "error_load_clubs": "Não foi possível carregar a lista de clubes."
     },
+    "calendar": {
+      "filterLocalField": "Campo local",
+      "filterLocalFieldAll": "Todos os campos",
+      "filterClub": "Clube",
+      "filterClubAll": "Todos os clubes",
+      "filterSection": "Seção do clube",
+      "filterSectionAll": "Todas as seções",
+      "filterSectionPlaceholder": "Selecione uma seção",
+      "viewMonth": "Mês",
+      "viewWeek": "Semana",
+      "viewDay": "Dia",
+      "today": "Hoje",
+      "emptyDay": "Não há atividades para este dia.",
+      "moreCount": "+{count} mais",
+      "listTitle": "Lista de atividades",
+      "listEmpty": "Não há atividades para exibir."
+    },
     "pageDetail": {
       "description": "Detalhe da atividade",
       "back_link": "Voltar",
@@ -5098,6 +5626,7 @@
       "badge_active": "Ativa",
       "badge_inactive": "Inativa",
       "badge_in_person": "Presencial",
+      "info_date": "Data",
       "info_place": "Local",
       "info_time": "Horário",
       "info_mode": "Modalidade",
@@ -5209,6 +5738,10 @@
       "field_active": "Status"
     },
     "view": {
+      "select_local_field_placeholder": "Selecionar campo local",
+      "local_field_all": "Todos os campos",
+      "select_club_type_placeholder": "Tipo de clube",
+      "club_type_all": "Todos os tipos",
       "select_club_placeholder": "Selecionar clube",
       "all_categories": "Todas as categorias",
       "refresh_title": "Atualizar",
@@ -5324,6 +5857,20 @@
       "btn_refresh": "Atualizar",
       "error_refresh": "Não foi possível atualizar a configuração"
     },
+    "groups": {
+      "investiture": "Investidura",
+      "reports": "Relatórios",
+      "scoring": "Pontuação",
+      "membership": "Membresias",
+      "member_ranking": "Classificações de membros",
+      "ranking": "Classificações",
+      "activity_reminder_minutes_before": "Lembretes de atividades",
+      "validation": "Validação",
+      "activities": "Atividades",
+      "finances": "Finanças",
+      "notifications": "Notificações",
+      "general": "Geral"
+    },
     "validation": {
       "config_value_required": "O valor não pode estar vazio"
     }
@@ -5342,7 +5889,7 @@
       "notFoundGoHome": "Ir ao painel"
     },
     "pagination": {
-      "showing": "Mostrando {from}–{to} de {total} registros",
+      "showing": "Exibindo {from}–{to} de {total} registros",
       "perPage": "Por página",
       "pageOf": "Página {page} de {totalPages}",
       "prevPage": "Página anterior",
@@ -5381,7 +5928,7 @@
   "translations": {
     "label_name": "Nome",
     "label_description": "Descrição",
-    "helper_optional": "Opcional. Se deixado vazio, o espanhol será exibido.",
+    "helper_optional": "Opcional. Se ficar vazio, o espanhol será exibido.",
     "label_ideal": "Ideal"
   },
   "memberRankingWeights": {
@@ -5420,10 +5967,10 @@
     },
     "pages": {
       "list": {
-        "title": "Pesos de ranking",
+        "title": "Pesos de classificação",
         "description": "Configure os percentuais de classe, investidura e campanha usados para calcular o score composto de cada membro.",
-        "breadcrumbLabel": "Pesos de ranking",
-        "cannotShow": "Não é possível exibir os pesos de ranking"
+        "breadcrumbLabel": "Pesos de classificação",
+        "cannotShow": "Não é possível exibir os pesos de classificação"
       },
       "new": {
         "title": "Nova substituição de pesos",
@@ -5443,7 +5990,7 @@
     },
     "weightsPage": {
       "deleteTitle": "Excluir substituição de pesos",
-      "deleteDescription": "Os cálculos de ranking que usavam esta configuração voltarão a usar a configuração padrão global. Esta ação não pode ser desfeita.",
+      "deleteDescription": "Os cálculos de classificação que usavam esta configuração voltarão a usar a configuração padrão global. Esta ação não pode ser desfeita.",
       "deleteCancel": "Cancelar",
       "deleteConfirm": "Excluir",
       "deleteConfirmLoading": "Excluindo...",
@@ -5474,12 +6021,34 @@
         "pickupAddressPlaceholder": "Endereço completo para retirada presencial..."
       },
       "inbox": {
-        "title": "Caixa de solicitações",
-        "description": "Gestão de pedidos de materiais enviados por diretores de clube.",
+        "title": "Pedidos",
+        "description": "Lista de pedidos de materiais enviados por diretores de clube.",
         "loadError": "Não foi possível carregar as solicitações.",
         "emptyTitle": "Sem solicitações",
         "emptyDescriptionPending": "Não há solicitações pendentes de revisão.",
-        "emptyDescriptionFiltered": "Não há solicitações com o status e filtros selecionados."
+        "emptyDescriptionFiltered": "Não há solicitações com o status e filtros selecionados.",
+        "filtersTitle": "Filtros",
+        "filtersHint": "Refine a lista por status",
+        "filterSearch": "Buscar",
+        "filterStatus": "Estado",
+        "searchPlaceholder": "Buscar folio ou diretor…",
+        "statusOptions": {
+          "all": "Todos os status",
+          "en_revision": "Em revisão",
+          "aprobada": "Aprovada",
+          "pagada": "Paga",
+          "entregada": "Entregue",
+          "cancelada": "Cancelada"
+        },
+        "colFolio": "Folio",
+        "colDirector": "Director / Club",
+        "colStatus": "Estado",
+        "colTotal": "Total",
+        "colDate": "Fecha",
+        "colActions": "Acciones",
+        "viewDetail": "Ver detalhe",
+        "emptyFilteredTitle": "Sem resultados",
+        "emptyFilteredDescription": "Nenhum pedido corresponde aos filtros."
       },
       "receipts": {
         "title": "Validação de comprovantes",
@@ -5495,7 +6064,15 @@
         "loadError": "Não foi possível carregar o inventário.",
         "emptyTitle": "Sem produtos",
         "emptyDescriptionDefault": "Ainda não há produtos no inventário. Crie o primeiro.",
-        "emptyDescriptionFiltered": "Nenhum produto corresponde aos filtros selecionados."
+        "emptyDescriptionFiltered": "Nenhum produto corresponde aos filtros selecionados.",
+        "filtersTitle": "Filtros",
+        "filtersHint": "Refine o catálogo por categoria ou campo",
+        "filterSearch": "Buscar",
+        "filterCategory": "Categoría",
+        "filterLocalField": "Campo local",
+        "searchPlaceholder": "Buscar por nome ou SKU…",
+        "categoryAll": "Todas as categorias",
+        "localFieldAll": "Todos os campos"
       },
       "receiptsDetail": {
         "backLink": "Voltar aos comprovantes",
@@ -5517,11 +6094,20 @@
         "editAriaLabel": "Editar produto",
         "deactivateAriaLabel": "Desativar produto",
         "statusActive": "Ativo",
-        "statusInactive": "Inativo"
+        "statusInactive": "Inativo",
+        "colProduct": "Produto",
+        "colLocalField": "Campo local",
+        "colProgram": "Programa",
+        "colCategory": "Categoria",
+        "colPrice": "Preço",
+        "colStock": "Estoque",
+        "colStatus": "Status",
+        "colActions": "Ações"
       },
       "bankSnapshotCard": {
         "labelPickupAddress": "Endereço de retirada",
-        "copyPickupAddress": "Copiar endereço"
+        "copyPickupAddress": "Copiar endereço",
+        "liveConfigNotice": "Este pedido foi aprovado sem dados bancários salvos. Exibindo a configuração atual do campo local."
       },
       "cancelDialog": {
         "reasonPlaceholder": "Motivo do cancelamento (obrigatório, mínimo 10 caracteres)"
@@ -5624,9 +6210,9 @@
     },
     "pages": {
       "list": {
-        "title": "Pesos de ranking",
-        "description": "Configure a ponderação de cada dimensão (pasta, finança, camporee, evidência) para o cálculo do ranking anual. A soma dos 4 pesos deve ser exatamente 100.",
-        "loadFailed": "Não foi possível carregar os pesos de ranking. Verifique a conexão com o servidor.",
+        "title": "Pesos de classificação",
+        "description": "Configure a ponderação de cada dimensão (pasta, finança, camporee, evidência) para o cálculo do classificação anual. A soma dos 4 pesos deve ser exatamente 100.",
+        "loadFailed": "Não foi possível carregar os pesos de classificação. Verifique a conexão com o servidor.",
         "emptyTitle": "Sem configuração",
         "emptyDescription": "Nenhuma configuração de pesos encontrada. O backend deveria ter criado um padrão global ao iniciar."
       }
@@ -5729,10 +6315,7 @@
       "section_label": "Seção",
       "section_placeholder": "Selecionar seção",
       "section_fallback": "Seção {id}",
-      "load_error": "Não foi possível carregar as solicitações de adesão.",
-      "column_count": "{count} pendentes",
-      "column_empty": "Sem solicitações nesta seção.",
-      "transfers_title": "Solicitações de mudança de clube"
+      "load_error": "Não foi possível carregar as solicitações de adesão."
     },
     "table": {
       "count_one": "{count} solicitação pendente",
@@ -5847,45 +6430,46 @@
   },
   "enrollments": {
     "table": {
-      "col_club": "Clube",
-      "col_section": "Seção",
-      "col_local_field": "Campo Local",
+      "col_member": "Membro",
+      "col_class": "Classe",
       "col_status": "Status",
+      "col_enrollment_date": "Data de inscrição",
       "col_submitted_at": "Enviado em",
-      "col_leadership": "Diretoria",
       "col_actions": "Ações",
-      "empty": "Não há inscrições anuais para mostrar.",
+      "empty": "Nenhuma inscrição para exibir.",
       "status": {
-        "pending_validation": "Pendente Campo Local",
-        "active": "Aprovada",
-        "rejected": "Rejeitada",
-        "inactive": "Inativa"
+        "IN_PROGRESS": "Em andamento",
+        "SUBMITTED_FOR_VALIDATION": "Validação pendente",
+        "APPROVED": "Aprovado",
+        "REJECTED": "Rejeitado",
+        "INVESTIDO": "Investido"
       }
     },
     "actions": {
       "approve": "Aprovar",
       "reject": "Rejeitar",
-      "reject_dialog_title": "Rejeitar inscrição anual",
-      "reject_dialog_description": "Esta ação marcará a inscrição anual do clube como rejeitada. O clube deverá corrigir os dados e enviá-la novamente.",
+      "view_user": "Ver usuário",
+      "reject_dialog_title": "Rejeitar inscrição",
+      "reject_dialog_description": "Esta ação marcará a inscrição como rejeitada. O membro não poderá continuar o processo de investidura com esta inscrição.",
       "reject_dialog_cancel": "Cancelar",
       "reject_dialog_confirm": "Confirmar rejeição"
     },
     "toasts": {
-      "approved": "Inscrição anual aprovada com sucesso.",
-      "rejected": "Inscrição anual rejeitada com sucesso."
+      "approved": "Inscrição aprovada com sucesso.",
+      "rejected": "Inscrição rejeitada com sucesso."
     },
     "errors": {
       "generic": "Ocorreu um erro. Tente novamente."
     },
     "page": {
-      "title": "Inscrições anuais",
-      "description": "Inscrições anuais de clubes enviadas para validação do Campo Local. Aprove ou rejeite cada solicitação.",
-      "searchPlaceholder": "Buscar por clube, seção, campo ou responsável...",
-      "errorEmptyTitle": "Não é possível mostrar inscrições anuais",
-      "emptyTitle": "Não há inscrições anuais pendentes",
-      "emptyDescription": "Não há inscrições anuais de clubes enviadas para validação do Campo Local neste momento.",
-      "countSingular": "inscrição anual pendente",
-      "countPlural": "inscrições anuais pendentes"
+      "title": "Inscrições",
+      "description": "Inscrições enviadas para validação de investidura. Aprove ou rejeite cada solicitação.",
+      "searchPlaceholder": "Buscar por nome ou e-mail...",
+      "errorEmptyTitle": "Não é possível exibir inscrições",
+      "emptyTitle": "Sem inscrições pendentes",
+      "emptyDescription": "Não existem inscrições enviadas para validação de investidura no momento.",
+      "countSingular": "inscrição pendente de validação",
+      "countPlural": "inscrições pendentes de validação"
     }
   },
   "rankings": {
@@ -5909,16 +6493,16 @@
       "evidencePendingExcluded": "{pending} pendentes (excluídas do cálculo)"
     },
     "pageMember": {
-      "title": "Ranking de membros",
+      "title": "Classificação de membros",
       "description": "Classificação geral por categoria com composite calculado.",
       "emptyNoYearTitle": "Nenhum ano eclesiástico ativo",
-      "emptyNoYearDescription": "Configure um ano eclesiástico ativo no catálogo para ver os rankings.",
-      "emptyTitle": "Não é possível exibir os rankings",
-      "emptyDescription": "O endpoint de rankings não está disponível no momento."
+      "emptyNoYearDescription": "Configure um ano eclesiástico ativo no catálogo para ver os classificações.",
+      "emptyTitle": "Não é possível exibir os classificações",
+      "emptyDescription": "O endpoint de classificações não está disponível no momento."
     },
     "pageMemberBreakdown": {
-      "back": "Voltar para rankings",
-      "breadcrumbParent": "Rankings de membros",
+      "back": "Voltar para classificações",
+      "breadcrumbParent": "Classificações de membros",
       "position": "Posição",
       "compositeScore": "Pontuação composta",
       "category": "Categoria",
@@ -5947,12 +6531,12 @@
       "descriptionDetail": "Seção {sectionName} · Ano {yearId}"
     },
     "pageSection": {
-      "title": "Ranking de seções",
+      "title": "Classificação de seções",
       "description": "Classificação geral de seções por composite score.",
       "emptyNoYearTitle": "Nenhum ano eclesiástico ativo",
-      "emptyNoYearDescription": "Configure um ano eclesiástico ativo no catálogo para ver os rankings.",
-      "emptyTitle": "Não é possível exibir os rankings de seções",
-      "emptyDescription": "O endpoint de rankings de seções não está disponível no momento."
+      "emptyNoYearDescription": "Configure um ano eclesiástico ativo no catálogo para ver os classificações.",
+      "emptyTitle": "Não é possível exibir os classificações de seções",
+      "emptyDescription": "O endpoint de classificações de seções não está disponível no momento."
     },
     "pageSectionMembers": {
       "title": "Membros da seção",
@@ -5960,7 +6544,7 @@
       "memberSingular": "membro",
       "memberPlural": "membros",
       "back": "Voltar para seções",
-      "breadcrumbParent": "Ranking de seções",
+      "breadcrumbParent": "Classificação de seções",
       "breadcrumbCurrent": "Seção #{sectionId}"
     },
     "filters": {
@@ -5983,8 +6567,8 @@
       "colCamporee": "Camporees",
       "colCategory": "Categoria",
       "colAction": "Ação",
-      "emptyTitle": "Sem rankings disponíveis",
-      "emptyDescription": "Sem rankings para os filtros selecionados.",
+      "emptyTitle": "Sem classificações disponíveis",
+      "emptyDescription": "Sem classificações para os filtros selecionados.",
       "countSingular": "{total} membro classificado",
       "countPlural": "{total} membros classificados",
       "investedLabel": "Investido",
@@ -6011,8 +6595,8 @@
       "colCategory": "Categoria",
       "colCalculated": "Calculado",
       "colAction": "Ação",
-      "emptyTitle": "Sem rankings disponíveis",
-      "emptyDescription": "Sem rankings para os filtros selecionados.",
+      "emptyTitle": "Sem classificações disponíveis",
+      "emptyDescription": "Sem classificações para os filtros selecionados.",
       "countSingular": "{total} seção classificada",
       "countPlural": "{total} seções classificadas",
       "viewMembers": "Ver membros"
@@ -6026,8 +6610,8 @@
       "colCamporee": "Camporees",
       "colCategory": "Categoria",
       "colAction": "Ação",
-      "emptyTitle": "Sem membros com ranking",
-      "emptyDescription": "Esta seção não tem membros com ranking calculado.",
+      "emptyTitle": "Sem membros com classificação",
+      "emptyDescription": "Esta seção não tem membros com classificação calculado.",
       "investedLabel": "Investido",
       "inProgressLabel": "Em andamento",
       "viewDetail": "Ver detalhe"
@@ -6036,7 +6620,7 @@
   "system_jobs": {
     "page": {
       "title": "Jobs & Filas",
-      "description": "Status das filas BullMQ e trabalhos recentes com falha. As filas de baixa prioridade (relatórios, finanças, rankings, exports) foram agrupadas em background-jobs.",
+      "description": "Status das filas BullMQ e trabalhos recentes com falha. As filas de baixa prioridade (relatórios, finanças, classificações, exports) foram agrupadas em background-jobs.",
       "cronSection": {
         "heading": "Cron Jobs",
         "description": "Histórico recente e estatísticas dos jobs programados.",
@@ -6070,7 +6654,7 @@
       "statusRunning": "Executando",
       "statusSkipped": "Ignorado",
       "jobMonthlyReports": "Relatórios mensais (auto-gerar)",
-      "jobRankingsRecalculate": "Rankings anuais (recalcular)",
+      "jobRankingsRecalculate": "Classificações anuais (recalcular)",
       "jobDataExportCleanup": "Limpeza de exports vencidos",
       "jobMemberOfMonth": "Membro do mês (auto-avaliar)",
       "jobFinancePeriod": "Fechamento de período financeiro",
@@ -6118,7 +6702,7 @@
       "queueAchievements": "Conquistas",
       "queueAchievementsDesc": "Avaliação e correspondência de conquistas",
       "queueBackgroundJobs": "Jobs em segundo plano",
-      "queueBackgroundJobsDesc": "Relatórios, finanças, rankings, exports"
+      "queueBackgroundJobsDesc": "Relatórios, finanças, classificações, exports"
     },
     "history": {
       "filterLabelJob": "Job",
@@ -6154,7 +6738,7 @@
       "detailLabelError": "Mensagem de erro",
       "detailLabelMetadata": "Metadados",
       "jobMonthlyReports": "Relatórios mensais (auto-gerar)",
-      "jobRankingsRecalculate": "Rankings anuais (recalcular)",
+      "jobRankingsRecalculate": "Classificações anuais (recalcular)",
       "jobDataExportCleanup": "Limpeza de exports vencidos",
       "jobMemberOfMonth": "Membro do mês (auto-avaliar)",
       "jobFinancePeriod": "Fechamento de período financeiro",
@@ -6181,28 +6765,29 @@
     }
   },
   "roles": {
-    "super_admin": "Super Administrador",
-    "admin": "Administrador",
-    "coordinator": "Coordenador",
-    "zone_coordinator": "Coordenador de zona",
-    "general_coordinator": "Coordenador geral",
+    "super_admin": "Super admin",
+    "admin": "Administrator",
+    "coordinator": "Coordinator",
+    "zone_coordinator": "Zone coordinator",
+    "general_coordinator": "General coordinator",
     "pastor": "Pastor",
-    "director": "Diretor",
-    "deputy_director": "Subdiretor",
-    "director_club": "Diretor de clube",
-    "assistant_club": "Assistente de clube",
-    "director_dia": "Diretor DIA",
-    "assistant_dia": "Assistente DIA",
-    "director_lf": "Diretor de campo local",
-    "assistant_lf": "Assistente de campo local",
-    "director_union": "Diretor de união",
-    "assistant_union": "Assistente de união",
-    "instructor": "Instrutor",
-    "member": "Membro",
-    "user": "Usuário",
-    "secretary": "Secretário",
-    "treasurer": "Tesoureiro",
-    "counselor": "Conselheiro"
+    "director": "Director",
+    "deputy_director": "Deputy director",
+    "director_club": "Club director",
+    "assistant_club": "Club assistant",
+    "director_dia": "DIA director",
+    "assistant_dia": "DIA assistant",
+    "director_lf": "Local field director",
+    "assistant_lf": "Local field assistant",
+    "director_union": "Union director",
+    "assistant_union": "Union assistant",
+    "instructor": "Instructor",
+    "member": "Member",
+    "user": "User",
+    "secretary": "Secretary",
+    "treasurer": "Treasurer",
+    "counselor": "Counselor",
+    "secretary_treasurer": "Secretary treasurer"
   },
   "certificate_bulk_imports": {
     "page": {
@@ -6244,6 +6829,80 @@
     "auditTimeline": {
       "emptyTitle": "Sem auditoria",
       "emptyDescription": "Ainda não há eventos registrados para este lote."
+    }
+  },
+  "campamentos": {
+    "pages": {
+      "judges": {
+        "title": "Juízes",
+        "description": "Consulte e administre o roster de juízes por acampamento.",
+        "breadcrumbRoot": "Acampamentos",
+        "scopeLabel": "Escopo",
+        "scopeLocal": "Campo local",
+        "scopeUnion": "União",
+        "camporeeLabel": "Acampamento",
+        "camporeePlaceholder": "Selecionar acampamento",
+        "emptyTitle": "Selecione um acampamento",
+        "emptyDescription": "Escolha um acampamento para ver e gerenciar seus juízes.",
+        "openCamporee": "Ver acampamento",
+        "loadFailed": "Não foi possível carregar as informações de juízes",
+        "permissionDenied": "Você não tem permissão para ver juízes de acampamentos",
+        "rosterTitle": "Roster",
+        "rosterSubtitle": "{count, plural, =0 {Nenhum juiz ainda} one {# juiz neste acampamento} other {# juízes neste acampamento}}",
+        "rosterCount": "{count}",
+        "emptyRosterTitle": "Sem juízes",
+        "emptyRosterDescription": "Adicione pessoas elegíveis para avaliar provas pontuáveis.",
+        "statusActive": "Ativo",
+        "statusInactive": "Inativo",
+        "addTitle": "Adicionar juiz",
+        "addHint": "Só aparecem pastores, maiores de 18 anos ou Guias Maiores investidos.",
+        "userLabel": "Usuário juiz",
+        "userPlaceholder": "Selecionar por nome, função ou cargo",
+        "userSearchPlaceholder": "Buscar por nome, e-mail, função ou cargo...",
+        "userSearchEmpty": "Não encontramos usuários com essa busca.",
+        "rolePrefix": "Função",
+        "positionPrefix": "Cargo",
+        "noPosition": "Sem cargo ativo",
+        "noCandidates": "Não há usuários disponíveis para adicionar ao roster.",
+        "notesLabel": "Notas",
+        "notesPlaceholder": "Opcional",
+        "addButton": "Adicionar juiz",
+        "addingButton": "Adicionando...",
+        "addSuccess": "Juiz adicionado.",
+        "closeAdd": "Fechar",
+        "rowActions": "Ações do juiz",
+        "editNotes": "Editar notas",
+        "editNotesTitle": "Editar notas",
+        "editNotesDescription": "Atualize as notas deste juiz.",
+        "removeJudge": "Remover",
+        "removeConfirmTitle": "Remover juiz?",
+        "removeConfirmDescription": "Tem certeza de que deseja remover {name} do roster?",
+        "removeConfirm": "Remover",
+        "removeCancel": "Cancelar",
+        "removeSuccess": "Juiz removido do roster.",
+        "cancelEdit": "Cancelar",
+        "saveNotes": "Salvar"
+      },
+      "configLocalField": {
+        "title": "Configuração — campo local",
+        "description": "Variáveis operacionais para acampamentos de campo local.",
+        "breadcrumbRoot": "Acampamentos",
+        "templatesCardTitle": "Modelos de eventos",
+        "templatesCardDescription": "Biblioteca reutilizável de atividades para acampamentos locais.",
+        "templatesCardAction": "Ver modelos",
+        "eventTypesCardTitle": "Tipos de evento",
+        "eventTypesCardDescription": "Catálogo de tipos usados ao criar atividades e modelos."
+      },
+      "configUnion": {
+        "title": "Configuração — união",
+        "description": "Variáveis operacionais para acampamentos de união.",
+        "breadcrumbRoot": "Acampamentos",
+        "templatesCardTitle": "Modelos de eventos",
+        "templatesCardDescription": "Biblioteca reutilizável de atividades para acampamentos de união.",
+        "templatesCardAction": "Ver modelos",
+        "eventTypesCardTitle": "Tipos de evento",
+        "eventTypesCardDescription": "Catálogo de tipos usados ao criar atividades e modelos."
+      }
     }
   },
   "camporeeEvents": {
@@ -6401,140 +7060,163 @@
       "clearSelection": "Limpar seleção"
     }
   },
-  "designSystemSandbox": {
-    "title": "Sandbox Maia",
-    "description": "Padrões base do reset UX",
-    "patterns": {
-      "listTitle": "ListPage",
-      "listDescription": "Lista com badges de atenção",
-      "hubTitle": "DetailHub",
-      "hubDescription": "Alertas acionáveis no detalhe"
-    },
-    "sample": {
-      "pending": "2 pendentes",
-      "alert": "3 solicitações pendentes",
-      "action": "Revisar"
+  "localFieldConfig": {
+    "pages": {
+      "paymentMethods": {
+        "title": "Métodos de pagamento",
+        "description": "Gestão de métodos de pagamento por campo local.",
+        "breadcrumbRoot": "Início",
+        "breadcrumbGroup": "Configurações campo local",
+        "selectLocalField": "Selecione um campo local para gerenciar seus métodos de pagamento.",
+        "localFieldLabel": "Campo local",
+        "localFieldPlaceholder": "Selecione um campo local",
+        "scopedLocalFieldHint": "Você está editando a configuração do seu campo local atribuído.",
+        "editingFor": "Editando configuração para {name}.",
+        "transferTitle": "Transferência bancária",
+        "transferDescription": "Esses dados são exibidos ao diretor quando o pedido é aprovado.",
+        "bankName": "Banco",
+        "bankNamePlaceholder": "ex. BBVA Bancomer",
+        "accountHolder": "Titular da conta",
+        "accountHolderPlaceholder": "Nome completo do titular",
+        "clabe": "CLABE interbancária",
+        "clabePlaceholder": "18 dígitos",
+        "clabeHelp": "A CLABE deve ter exatamente 18 dígitos numéricos.",
+        "save": "Salvar alterações",
+        "saveSuccess": "Métodos de pagamento atualizados com sucesso.",
+        "saveError": "Erro ao atualizar os métodos de pagamento.",
+        "loadError": "Erro ao carregar a configuração.",
+        "deliveryHint": "Para custo de envio e endereço de retirada, use",
+        "deliveryLink": "Entrega de materiais",
+        "tableDescription": "Resumo dos métodos de pagamento por campo local. Você só pode gerenciar o registro do seu campo atribuído.",
+        "colLocalField": "Campo local",
+        "colStatus": "Estado",
+        "colMethod": "Método",
+        "colBank": "Banco",
+        "colHolder": "Titular",
+        "colClabe": "CLABE",
+        "colUpdated": "Atualizado",
+        "colActions": "Ações",
+        "statusConfigured": "Configurado",
+        "statusMissing": "Não configurado",
+        "methodTransfer": "Transferência bancária",
+        "actionCreate": "Criar",
+        "actionEdit": "Editar",
+        "actionDelete": "Excluir",
+        "actionReadonly": "Somente leitura",
+        "dialogCreateTitle": "Criar método de pagamento",
+        "dialogEditTitle": "Editar método de pagamento",
+        "dialogDescription": "Transferência bancária para {name}.",
+        "cancel": "Cancelar",
+        "deleteTitle": "Excluir método de pagamento",
+        "deleteDescription": "Os dados bancários de {name} serão removidos. Pedidos já aprovados mantêm o snapshot anterior.",
+        "deleteSuccess": "Método de pagamento excluído.",
+        "deleteError": "Não foi possível excluir o método de pagamento.",
+        "emptyTitle": "Sem campos locais",
+        "emptyDescription": "Não há campos locais disponíveis para configurar.",
+        "fallbackLocalFieldName": "Campo local #{id}"
+      },
+      "delivery": {
+        "title": "Entrega de materiais",
+        "description": "Custo de envio padrão e endereço de retirada por campo local.",
+        "breadcrumbRoot": "Início",
+        "breadcrumbGroup": "Configurações campo local",
+        "selectLocalField": "Selecione um campo local para configurar a entrega.",
+        "localFieldLabel": "Campo local",
+        "localFieldPlaceholder": "Selecione um campo local",
+        "sectionTitle": "Opções de entrega",
+        "sectionDescription": "Valores padrão para novos pedidos de materiais.",
+        "shippingCost": "Custo de envio padrão",
+        "pickupAddress": "Endereço de retirada",
+        "pickupAddressPlaceholder": "Endereço completo para retirada presencial...",
+        "optional": "opcional",
+        "save": "Salvar alterações",
+        "saveSuccess": "Configuração de entrega atualizada.",
+        "saveError": "Erro ao atualizar a configuração de entrega.",
+        "loadError": "Erro ao carregar a configuração."
+      }
     }
   },
-  "directorHome": {
-    "greetingMorning": "Bom dia",
-    "greetingAfternoon": "Boa tarde",
-    "greetingEvening": "Boa noite",
-    "stats": {
-      "members": "{count} membros",
-      "investitures": "{count} investiduras este ano",
-      "pending": "{count} pendentes"
-    },
-    "pendingAlert": {
-      "title": "{count} pessoas aguardam sua aprovação",
-      "description": "Revise as solicitações de membresia do seu clube",
-      "action": "Revisar agora"
-    },
-    "team": {
-      "title": "Seções do clube",
-      "description": "Estado de cada seção e seu diretor",
-      "viewClub": "Ver clube completo",
-      "members": "{count} membros",
-      "director": "Diretor",
-      "noDirector": "Sem atribuição",
-      "active": "Ativa",
-      "inactive": "Inativa"
-    },
-    "quickActions": {
-      "title": "Ações rápidas",
-      "approve": "Aprovar membros",
-      "approveHint": "Solicitações pendentes",
-      "club": "Ver meu clube",
-      "clubHint": "Resumo e configuração",
-      "activities": "Atividades",
-      "activitiesHint": "Próximos eventos do clube",
-      "classes": "Classes",
-      "classesHint": "Progresso dos membros"
-    },
-    "upcoming": {
-      "title": "Próximas atividades",
-      "empty": "Não há atividades próximas programadas"
-    }
-  },
-  "coordinatorLfHome": {
-    "greetingMorning": "Bom dia",
-    "greetingAfternoon": "Boa tarde",
-    "greetingEvening": "Boa noite",
-    "subtitle": "Coordenação de clubes no seu campo",
-    "stats": {
-      "clubs": "{count} clubes ativos",
-      "pending": "{count} solicitações pendentes"
-    },
-    "pendingAlert": {
-      "title": "{count} solicitações aguardam revisão",
-      "description": "Aprove ou rejeite membresias de clubes no seu campo",
-      "action": "Revisar solicitações"
-    },
-    "clubs": {
-      "title": "Clubes do seu campo",
-      "description": "Estado operacional e pendências por clube",
-      "viewAll": "Ver listagem completa",
-      "empty": "Não há clubes ativos no seu escopo",
-      "pendingBadge": "{count} pendentes",
-      "sections": "{active}/{total} seções ativas"
-    },
-    "quickActions": {
-      "title": "Ações rápidas",
-      "clubs": "Clubes",
-      "users": "Usuários",
-      "membership": "Membresias",
-      "camporees": "Acampamentos"
-    },
-    "fieldStats": {
-      "title": "Estatísticas do campo",
-      "subtitle": "Ano eclesiástico {year} · relatórios de {month} de {yearNumber}",
-      "overview": {
-        "activeMembers": "Membros ativos",
-        "activeMembersHint": "Em unidades ativas do campo",
-        "enrolledClubs": "Clubes inscritos neste ano",
-        "enrolledClubsHint": "{sections} seções com matrícula ativa",
-        "withReport": "Clubes com relatório",
-        "withReportHint": "Relatório mensal gerado ou enviado ({month})",
-        "withoutReport": "Clubes sem relatório",
-        "withoutReportHint": "Sem relatório mensal em {month}"
+  "configuration": {
+    "notifications": {
+      "title": "Notificações",
+      "description": "Envio push, histórico e categorias de notificações.",
+      "breadcrumbConfiguration": "Configuração",
+      "statsLoadError": "Não foi possível carregar as estatísticas de notificações.",
+      "sendPermissionHint": "Você não tem permissão para enviar notificações. Ainda pode consultar o histórico e as categorias.",
+      "unified": {
+        "title": "Notificações",
+        "description": "Histórico de envios e criação de novas notificações push."
       },
-      "membersByClass": {
-        "title": "Membros por classe",
-        "empty": "Sem matrículas ativas neste clube"
+      "compose": {
+        "title": "Nova notificação",
+        "newButton": "Nova notificação",
+        "typeLabel": "Tipo de envio",
+        "sectionRecipient": "Destinatário",
+        "sectionContent": "Conteúdo",
+        "submitHint": "A notificação será enviada imediatamente.",
+        "submitting": "Enviando…",
+        "submittingHint": "Processando o envio. Não feche este painel.",
+        "validationFailed": "Revise os campos destacados antes de enviar.",
+        "tabsShort": {
+          "direct": "Direto",
+          "broadcast": "Broadcast",
+          "club": "Clube"
+        }
       },
-      "clubTypes": {
-        "adventurers": "Aventureiros",
-        "conquistadores": "Conquistadores",
-        "masterGuides": "Guias Maiores"
+      "stats": {
+        "activeTokens": "Tokens ativos",
+        "inactiveTokens": "Tokens inativos (30 d)",
+        "sent30d": "Enviados (30 d)",
+        "successRate30d": "Taxa de sucesso (30 d)"
       },
-      "honors": {
-        "title": "Especialidades concluídas",
-        "subtitle": "Honras aprovadas no campo"
+      "sections": {
+        "management": {
+          "title": "Gestão",
+          "description": "Histórico e envio de notificações push."
+        },
+        "send": {
+          "title": "Enviar",
+          "description": "Envio direto, broadcast ou por clube."
+        },
+        "history": {
+          "title": "Histórico",
+          "description": "Registro de notificações enviadas."
+        },
+        "categories": {
+          "title": "Categorias",
+          "description": "Tipos de notificação e preferências móveis."
+        }
       },
-      "activities": {
-        "title": "Atividades registradas",
-        "week": "Última semana",
-        "month": "Último mês",
-        "year": "Último ano"
-      },
-      "windows": {
-        "week": "{count} em 7 dias",
-        "month": "{count} em 30 dias",
-        "quarter": "{count} em 90 dias"
-      },
-      "months": {
-        "1": "Janeiro",
-        "2": "Fevereiro",
-        "3": "Março",
-        "4": "Abril",
-        "5": "Maio",
-        "6": "Junho",
-        "7": "Julho",
-        "8": "Agosto",
-        "9": "Setembro",
-        "10": "Outubro",
-        "11": "Novembro",
-        "12": "Dezembro"
+      "categories": {
+        "intro": "Configure quais categorias entregam push no app móvel e o padrão para novos usuários.",
+        "colCategory": "Categoria",
+        "colMobile": "Entrega móvel",
+        "colDefault": "Padrão",
+        "colMobileApp": "Visível no app",
+        "colDescription": "Descrição",
+        "yes": "Sim",
+        "no": "Não",
+        "enabled": "Ativado",
+        "disabled": "Desativado",
+        "defaultEnabled": "Ativado",
+        "saveSuccess": "Configuração de categoria atualizada.",
+        "saveError": "Não foi possível atualizar a categoria.",
+        "loadError": "Não foi possível carregar as categorias. Exibindo padrões.",
+        "mobileToggleAria": "Entrega móvel para {category}",
+        "defaultToggleAria": "Padrão para {category}",
+        "mobileToggleHelp": "Desativar Entrega móvel bloqueia push e inbox móvel dessa categoria em todo o sistema. Visível no app indica se o usuário vê o toggle em Ajustes.",
+        "adminBypassNote": "Notificações administrativas ignoram preferências do usuário.",
+        "items": {
+          "activities": "Atividades e eventos do clube.",
+          "achievements": "Conquistas, especialidades e progresso.",
+          "approvals": "Aprovações e status de solicitações.",
+          "invitations": "Convites para clubes e funções.",
+          "reminders": "Lembretes e prazos.",
+          "investiture": "Investiduras e cerimônias.",
+          "validation": "Validação de evidências.",
+          "requests": "Solicitações de materiais e trâmites.",
+          "camporees": "Camporees e eventos regionais."
+        }
       }
     }
   }

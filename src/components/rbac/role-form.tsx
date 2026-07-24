@@ -1,9 +1,8 @@
 "use client";
 
-import { usePanelPath } from "@/lib/v2/panel-path-context";
-
 import { useState, useTransition } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Lock,
   Loader2,
@@ -38,7 +37,7 @@ import { PermissionPicker } from "@/components/rbac/permission-picker";
 import { createRoleAction, updateRoleAction } from "@/lib/rbac/actions";
 import type { Permission, Role, RbacActionState } from "@/lib/rbac/types";
 
-
+const ROLES_PATH = "/dashboard/configuration/roles";
 const MAX_DESCRIPTION = 500;
 
 // ─── Create form ─────────────────────────────────────────────────────────────
@@ -47,9 +46,8 @@ interface CreateRoleFormProps {
 }
 
 export function CreateRoleForm({ allPermissions }: CreateRoleFormProps) {
-  const { toPanelPath } = usePanelPath();
-
   const t = useTranslations("rbac");
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
   const [roleName, setRoleName] = useState("");
@@ -92,11 +90,15 @@ export function CreateRoleForm({ allPermissions }: CreateRoleFormProps) {
     formData.set("permission_ids", Array.from(selectedPerms).join(","));
 
     startTransition(async () => {
-      // Server action returns an error state or redirects on success.
-      // Next.js handles the server-side redirect automatically.
       const result = await createRoleAction({} as RbacActionState, formData);
       if (result?.error) {
         setError(result.error);
+        return;
+      }
+
+      if (result?.ok) {
+        router.push(ROLES_PATH);
+        router.refresh();
       }
     });
   }
@@ -211,7 +213,7 @@ export function CreateRoleForm({ allPermissions }: CreateRoleFormProps) {
       <div className="sticky bottom-0 z-10 -mx-6 border-t border-border bg-background/95 px-6 py-4 backdrop-blur-sm">
         <div className="flex items-center justify-end gap-3">
           <Button type="button" variant="outline" asChild>
-            <Link href={toPanelPath("/dashboard/rbac/roles")}>
+            <Link href={ROLES_PATH}>
               <ArrowLeft className="size-4" />
               {t("roleForm.cancel")}
             </Link>
@@ -242,9 +244,8 @@ interface EditRoleFormProps {
 }
 
 export function EditRoleForm({ role, allPermissions }: EditRoleFormProps) {
-  const { toPanelPath } = usePanelPath();
-
   const t = useTranslations("rbac");
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
   const initialSelectedIds = new Set(
@@ -293,6 +294,12 @@ export function EditRoleForm({ role, allPermissions }: EditRoleFormProps) {
       const result = await boundAction({} as RbacActionState, formData);
       if (result?.error) {
         setError(result.error);
+        return;
+      }
+
+      if (result?.ok) {
+        router.push(ROLES_PATH);
+        router.refresh();
       }
     });
   }
@@ -403,7 +410,7 @@ export function EditRoleForm({ role, allPermissions }: EditRoleFormProps) {
       <div className="sticky bottom-0 z-10 -mx-6 border-t border-border bg-background/95 px-6 py-4 backdrop-blur-sm">
         <div className="flex items-center justify-end gap-3">
           <Button type="button" variant="outline" asChild>
-            <Link href={toPanelPath("/dashboard/rbac/roles")}>
+            <Link href={ROLES_PATH}>
               <ArrowLeft className="size-4" />
               {t("roleForm.cancel")}
             </Link>

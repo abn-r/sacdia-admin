@@ -37,6 +37,14 @@ function groupByPrefix(configs: SystemConfig[]): Map<string, SystemConfig[]> {
   return groups;
 }
 
+function humanizePrefix(prefix: string): string {
+  return prefix
+    .split("_")
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface SystemConfigClientPageProps {
@@ -47,6 +55,7 @@ interface SystemConfigClientPageProps {
 
 export function SystemConfigClientPage({ initialConfigs }: SystemConfigClientPageProps) {
   const t = useTranslations("system_config.client");
+  const tGroups = useTranslations("system_config.groups");
   const [configs, setConfigs] = useState<SystemConfig[]>(initialConfigs);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [editingConfig, setEditingConfig] = useState<SystemConfig | null>(null);
@@ -103,7 +112,7 @@ export function SystemConfigClientPage({ initialConfigs }: SystemConfigClientPag
       {Array.from(groups.entries()).map(([prefix, groupConfigs]) => (
         <div key={prefix} className="space-y-2">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            {prefix}
+            {tGroups.has(prefix) ? tGroups(prefix) : humanizePrefix(prefix)}
           </h2>
           <SystemConfigTable configs={groupConfigs} onEdit={openEdit} />
         </div>

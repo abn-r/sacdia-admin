@@ -1,5 +1,8 @@
 import { apiRequest, ApiError } from "@/lib/api/client";
-import { extractItems, extractMeta } from "@/lib/phase-e-catalogs/fetch-helpers";
+import {
+  extractItems,
+  extractMeta,
+} from "@/lib/phase-e-catalogs/fetch-helpers";
 
 export type ClubListItem = {
   club_id?: number;
@@ -29,7 +32,6 @@ export type ClubsListMeta = {
 export type ClubsListQuery = {
   page: number;
   limit: number;
-  search?: string;
   active?: boolean;
   localFieldId?: number;
 };
@@ -63,15 +65,15 @@ export function buildClubsListParams(query: ClubsListQuery): URLSearchParams {
     page: String(query.page),
     limit: String(query.limit),
   });
-  const search = query.search?.trim();
-  if (search) params.set("search", search);
   if (query.active === true) params.set("active", "true");
   if (query.active === false) params.set("active", "false");
   if (query.localFieldId) params.set("localFieldId", String(query.localFieldId));
   return params;
 }
 
-export async function fetchClubsList(query: ClubsListQuery): Promise<ClubsListResult> {
+export async function fetchClubsList(
+  query: ClubsListQuery,
+): Promise<ClubsListResult> {
   const fallbackMeta: ClubsListMeta = {
     page: query.page,
     limit: query.limit,
@@ -88,8 +90,18 @@ export async function fetchClubsList(query: ClubsListQuery): Promise<ClubsListRe
     return { items, meta, available: true };
   } catch (error) {
     if (error instanceof ApiError) {
-      return { items: [], meta: fallbackMeta, available: false, error: error.message };
+      return {
+        items: [],
+        meta: fallbackMeta,
+        available: false,
+        error: error.message,
+      };
     }
-    return { items: [], meta: fallbackMeta, available: false, error: "UNEXPECTED" };
+    return {
+      items: [],
+      meta: fallbackMeta,
+      available: false,
+      error: "UNEXPECTED",
+    };
   }
 }

@@ -1,0 +1,860 @@
+.monthlyReportRoot {
+  --sac-primary: #f06151;
+  --sac-primary-light: #fde8e6;
+  --sac-primary-dark: #d94a3b;
+  --sac-secondary: #4fbf9f;
+  --sac-accent: #fbbd5e;
+  --sac-info: #2ea0da;
+  --sac-background: #ffffff;
+  --sac-surface: #f8fafc;
+  --sac-border: #e2e8f0;
+  --sac-text: #0f172a;
+  --sac-text-secondary: #64748b;
+  --sac-text-tertiary: #94a3b8;
+  min-width: min-content;
+  overflow-x: auto;
+  color: var(--sac-text);
+  background: var(--sac-surface);
+  font-family: Inter, Arial, Helvetica, sans-serif;
+}
+
+.screenControls {
+  display: flex;
+  width: min(215.9mm, 100%);
+  margin: 0 auto 16px;
+  justify-content: flex-end;
+}
+
+.screenControls button {
+  font-family: inherit;
+}
+
+.pagePreview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  min-width: 215.9mm;
+  padding-bottom: 24px;
+}
+
+.documentPage {
+  box-sizing: border-box;
+  display: flex;
+  width: 215.9mm;
+  height: 279.4mm;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 7.5mm 8mm 7mm;
+  color: var(--sac-text);
+  background: var(--sac-background);
+  box-shadow: 0 10px 28px rgb(15 23 42 / 12%);
+  font-size: 9.2pt;
+  line-height: 1.25;
+}
+
+.documentPage *,
+.documentPage *::before,
+.documentPage *::after {
+  box-sizing: border-box;
+}
+
+.documentPage input,
+.documentPage textarea,
+.documentPage button {
+  font: inherit;
+}
+
+.documentHeader {
+  height: 47mm;
+  flex: 0 0 47mm;
+}
+
+.documentTopRow {
+  display: grid;
+  min-height: 13mm;
+  grid-template-columns: 27% 46% 27%;
+  align-items: start;
+}
+
+.horizontalLogo {
+  width: 49mm;
+  max-width: 100%;
+  max-height: 16mm;
+  object-fit: contain;
+  object-position: left top;
+}
+
+.brandWarning {
+  display: inline-flex;
+  min-height: 8mm;
+  max-width: 49mm;
+  align-items: center;
+  border: 0.25mm dashed var(--sac-text-tertiary);
+  border-radius: 1.4mm;
+  color: var(--sac-text-secondary);
+  font-size: 7.4pt;
+  line-height: 1.15;
+  padding-inline: 1.5mm;
+}
+
+.documentTitle {
+  padding-top: 0.2mm;
+  text-align: center;
+}
+
+.documentTitle h1 {
+  margin: 0;
+  color: var(--sac-primary-dark);
+  font-size: 27pt;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  line-height: 0.9;
+}
+
+.documentTitle p {
+  margin: 1.2mm 0 0;
+  color: var(--sac-text-secondary);
+  font-size: 11pt;
+  line-height: 1;
+}
+
+.documentMeta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1.2mm;
+}
+
+.documentMeta .field {
+  width: 24mm;
+}
+
+.documentMeta p {
+  margin: 0;
+  color: var(--sac-text-secondary);
+  font-size: 7.5pt;
+  font-weight: 600;
+}
+
+.infoGrid {
+  display: grid;
+  height: 31.5mm;
+  margin-top: 2.5mm;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border: 0.25mm solid var(--sac-border);
+  border-radius: 1.4mm;
+  overflow: hidden;
+}
+
+.infoGridField {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 1.5mm;
+  padding: 1.2mm 2mm;
+  border-bottom: 0.25mm solid var(--sac-border);
+}
+
+.infoGridField:nth-child(odd) {
+  border-right: 0.25mm solid var(--sac-border);
+}
+
+.infoGridField:nth-last-child(-n + 2) {
+  border-bottom: 0;
+}
+
+.infoGridField:nth-child(1) svg,
+.infoGridField:nth-child(2) svg {
+  color: var(--sac-primary);
+}
+
+.infoGridField:nth-child(3) svg,
+.infoGridField:nth-child(4) svg {
+  color: var(--sac-secondary);
+}
+
+.infoGridField:nth-child(5) svg {
+  color: var(--sac-accent);
+}
+
+.infoGridField:nth-child(6) svg {
+  color: var(--sac-info);
+}
+
+.infoGridField > svg {
+  width: 4.2mm;
+  height: 4.2mm;
+  flex: none;
+}
+
+.infoGridField .field {
+  flex: 1;
+}
+
+.field {
+  min-width: 0;
+}
+
+.field > label,
+.textareaField > label {
+  display: block;
+  margin-bottom: 0.8mm;
+  color: var(--sac-text);
+  font-size: 8.2pt;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.compactField > label {
+  margin-bottom: 0.5mm;
+  font-size: 7.5pt;
+}
+
+.inputWrap {
+  position: relative;
+  display: flex;
+  min-height: 6.5mm;
+  align-items: end;
+}
+
+.field input,
+.reportTable input {
+  width: 100%;
+  min-width: 0;
+  min-height: 6.5mm;
+  border: 0;
+  border-bottom: 0.25mm solid var(--sac-text-tertiary);
+  border-radius: 0;
+  outline: none;
+  color: var(--sac-text);
+  background: transparent;
+  font-size: 9.2pt;
+  line-height: 1.1;
+  padding: 0 0 0.8mm;
+}
+
+.compactField input {
+  min-height: 4.7mm;
+  font-size: 8.4pt;
+}
+
+.field input:focus-visible,
+.reportTable input:focus-visible,
+.textareaField textarea:focus-visible,
+.yesNoField input:focus-visible + label {
+  outline: 0.5mm solid rgb(46 160 218 / 65%);
+  outline-offset: 0.5mm;
+}
+
+.inputPrefix,
+.inputSuffix {
+  position: absolute;
+  z-index: 1;
+  bottom: 1mm;
+  color: var(--sac-text-secondary);
+  font-size: 8.4pt;
+  pointer-events: none;
+}
+
+.inputPrefix {
+  left: 0;
+}
+
+.inputSuffix {
+  right: 0;
+}
+
+.hasPrefix {
+  padding-left: 3.5mm !important;
+}
+
+.hasSuffix {
+  padding-right: 3.5mm !important;
+}
+
+.textareaField {
+  min-width: 0;
+}
+
+.textareaField textarea {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 17mm;
+  resize: none;
+  border: 0.25mm solid var(--sac-border);
+  border-radius: 1.4mm;
+  outline: none;
+  color: var(--sac-text);
+  background: var(--sac-background);
+  font-size: 8.5pt;
+  line-height: 1.2;
+  padding: 2mm;
+}
+
+.pageContent {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 2mm;
+}
+
+.reportSection {
+  min-height: 0;
+  break-inside: avoid;
+  page-break-inside: avoid;
+  overflow: hidden;
+}
+
+.administrationSection {
+  flex: 0 0 62mm;
+}
+
+.teachingsSection {
+  flex: 0 0 63mm;
+}
+
+.activitiesSection {
+  flex: 0 0 58mm;
+}
+
+.sectionHeader {
+  display: grid;
+  height: 8.5mm;
+  grid-template-columns: 8.5mm max-content minmax(0, 1fr);
+  align-items: center;
+  gap: 2.5mm;
+}
+
+.sectionBadge {
+  display: inline-grid;
+  width: 8.5mm;
+  height: 8.5mm;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--sac-background);
+  background: var(--sac-primary);
+  font-size: 10pt;
+  font-weight: 800;
+}
+
+.sectionHeader h2 {
+  margin: 0;
+  color: var(--sac-primary-dark);
+  font-size: 14pt;
+  font-weight: 800;
+  letter-spacing: 0.015em;
+  line-height: 1;
+}
+
+.sectionRule {
+  display: block;
+  height: 0.35mm;
+  background: var(--sac-primary);
+}
+
+.administrationGrid {
+  display: grid;
+  height: calc(100% - 8.5mm);
+  grid-template-columns: 49fr 51fr;
+  gap: 4mm;
+}
+
+.leadershipFields {
+  display: grid;
+  min-height: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, 1fr) 20mm;
+  column-gap: 3mm;
+  row-gap: 1.5mm;
+}
+
+.counselorsField {
+  grid-column: 1 / -1;
+}
+
+.counselorsField textarea {
+  min-height: 18mm;
+}
+
+.administrationPanels {
+  display: grid;
+  min-height: 0;
+  grid-template-rows: 1.15fr 0.85fr;
+  gap: 2mm;
+}
+
+.panel {
+  min-height: 0;
+  border: 0.25mm solid var(--sac-border);
+  border-radius: 1.6mm;
+  overflow: hidden;
+  background: var(--sac-background);
+}
+
+.panel h3 {
+  min-height: 6mm;
+  margin: 0;
+  color: var(--sac-text);
+  font-size: 8.5pt;
+  font-weight: 700;
+  line-height: 1;
+  padding: 1.7mm 2mm;
+}
+
+.panelHeaderPrimary {
+  background: var(--sac-primary-light);
+}
+
+.panelHeaderSecondary {
+  background: rgb(79 191 159 / 13%);
+}
+
+.panelBody {
+  min-height: 0;
+  padding: 1.3mm 2mm;
+}
+
+.summaryMetrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.2mm;
+}
+
+.metricCard {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: 8mm minmax(0, 1fr);
+  align-items: center;
+  gap: 1mm;
+  border: 0.25mm solid var(--sac-border);
+  border-left-width: 1mm;
+  border-radius: 1.8mm;
+  background: var(--sac-background);
+  padding: 1.1mm;
+}
+
+.metricCard > svg {
+  width: 5.2mm;
+  height: 5.2mm;
+  justify-self: center;
+}
+
+.metricCard .field > label {
+  min-height: 2.4em;
+  color: var(--sac-text-secondary);
+  font-size: 7.4pt;
+  line-height: 1.08;
+}
+
+.metricPrimary { border-left-color: var(--sac-primary); }
+.metricPrimary > svg { color: var(--sac-primary); }
+.metricSecondary { border-left-color: var(--sac-secondary); }
+.metricSecondary > svg { color: var(--sac-secondary); }
+.metricAccent { border-left-color: var(--sac-accent); }
+.metricAccent > svg { color: var(--sac-accent); }
+.metricInfo { border-left-color: var(--sac-info); }
+.metricInfo > svg { color: var(--sac-info); }
+
+.yesNoList {
+  display: grid;
+  gap: 0.6mm;
+}
+
+.yesNoField {
+  display: grid;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  border: 0;
+}
+
+.yesNoField legend {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 1mm;
+  color: var(--sac-text);
+  font-size: 7.4pt;
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+.yesNoField legend svg {
+  width: 3.3mm;
+  height: 3.3mm;
+  flex: none;
+  color: var(--sac-text-secondary);
+}
+
+.radioOptions {
+  display: flex;
+  gap: 1.2mm;
+}
+
+.radioOptions > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6mm;
+}
+
+.radioOptions input {
+  width: 3.4mm;
+  height: 3.4mm;
+  margin: 0;
+  accent-color: var(--sac-primary-dark);
+}
+
+.radioOptions label {
+  color: var(--sac-text-secondary);
+  font-size: 7.4pt;
+  line-height: 1;
+}
+
+.teachingsTextareas {
+  display: grid;
+  height: 25mm;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2.5mm;
+}
+
+.teachingsTextareas textarea {
+  min-height: 20mm;
+}
+
+.reportTable {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.reportTable caption {
+  padding: 1.2mm 0 0.8mm;
+  color: var(--sac-text);
+  caption-side: top;
+  text-align: left;
+  font-size: 8.3pt;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.reportTable th,
+.reportTable td {
+  border: 0.25mm solid var(--sac-border);
+  padding: 1.1mm 1.4mm;
+  vertical-align: middle;
+}
+
+.reportTable th {
+  color: var(--sac-text);
+  background: var(--sac-primary-light);
+  font-size: 7.7pt;
+  font-weight: 600;
+  line-height: 1.05;
+  text-align: left;
+}
+
+.reportTable td {
+  height: 5.2mm;
+  padding-top: 0.4mm;
+  padding-bottom: 0.4mm;
+}
+
+.reportTable input {
+  display: block;
+  min-height: 4.2mm;
+  padding-bottom: 0;
+  font-size: 7.8pt;
+}
+
+.monthDescription {
+  height: 23mm;
+  margin-top: 1.6mm;
+}
+
+.monthDescription textarea {
+  min-height: 17mm;
+}
+
+.financesSection {
+  flex: 0 0 69mm;
+}
+
+.missionarySection,
+.serviceSection {
+  flex: 0 0 40mm;
+}
+
+.signaturesSection {
+  flex: 0 0 29mm;
+}
+
+.financeMetrics {
+  display: grid;
+  height: 17mm;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 2mm;
+}
+
+.financeMetrics .metricCard {
+  grid-template-columns: 8mm minmax(0, 1fr);
+}
+
+.financeMetrics .metricCard .field > label {
+  min-height: 2.2em;
+}
+
+.splitBody {
+  display: grid;
+  min-height: 0;
+  height: calc(100% - 25.5mm);
+  margin-top: 1.5mm;
+  grid-template-columns: 58fr 42fr;
+  gap: 4mm;
+}
+
+.missionarySection .splitBody,
+.serviceSection .splitBody {
+  height: calc(100% - 8.5mm);
+  margin-top: 0;
+}
+
+.splitBody .reportTable {
+  align-self: start;
+}
+
+.sideColumn {
+  display: grid;
+  min-height: 0;
+  grid-template-rows: 1fr auto;
+  gap: 1.2mm;
+}
+
+.financialObservations {
+  min-height: 20mm;
+}
+
+.financialObservations textarea {
+  min-height: 20mm;
+}
+
+.compactTextArea {
+  min-height: 16mm;
+}
+
+.compactTextArea textarea {
+  min-height: 14mm;
+}
+
+.sideColumn .panel h3 {
+  min-height: 5.2mm;
+  padding-block: 1.4mm;
+  font-size: 7.9pt;
+}
+
+.sideColumn .panelBody {
+  padding-block: 1mm;
+}
+
+.sideColumn .yesNoList {
+  gap: 0.25mm;
+}
+
+.sideColumn .yesNoField legend,
+.sideColumn .radioOptions label {
+  font-size: 7.4pt;
+}
+
+.signatureGrid {
+  display: grid;
+  height: 100%;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4mm;
+}
+
+.signatureFields {
+  display: grid;
+  height: 100%;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 2.5mm;
+  row-gap: 0.5mm;
+}
+
+.signatureFields .field:last-of-type {
+  grid-column: 1 / -1;
+}
+
+.signatureFields .field > label {
+  font-size: 7.4pt;
+}
+
+.signatureFields .field input {
+  min-height: 3.5mm;
+  font-size: 7.6pt;
+}
+
+.voboMark {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  gap: 1mm;
+  color: var(--sac-text-secondary);
+  font-size: 7.4pt;
+}
+
+.voboMark svg {
+  width: 3.5mm;
+  height: 3.5mm;
+  color: var(--sac-secondary);
+}
+
+.documentFooter {
+  display: grid;
+  height: 13mm;
+  flex: 0 0 13mm;
+  grid-template-columns: 16mm minmax(0, 1fr);
+  align-items: center;
+  border-top: 0.35mm solid var(--sac-primary);
+  column-gap: 2mm;
+  padding-top: 1.2mm;
+}
+
+.symbolLogo {
+  width: 12mm;
+  height: 12mm;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.documentFooter .brandWarning {
+  width: 12mm;
+  min-width: 12mm;
+  height: 10mm;
+  overflow: hidden;
+  font-size: 7.4pt;
+  padding: 0.7mm;
+}
+
+.documentFooter div {
+  text-align: center;
+}
+
+.documentFooter p,
+.documentFooter small {
+  display: block;
+  margin: 0;
+  color: var(--sac-text-secondary);
+  font-size: 7.4pt;
+  line-height: 1.2;
+}
+
+.documentFooter small {
+  margin-top: 0.7mm;
+  color: var(--sac-text-tertiary);
+  font-size: 7.4pt;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+@media (max-width: 820px) {
+  .monthlyReportRoot {
+    margin-inline: -1rem;
+  }
+
+  .screenControls {
+    position: sticky;
+    left: 0;
+    padding-inline: 1rem;
+  }
+
+  .pagePreview {
+    align-items: flex-start;
+    padding-inline: 1rem;
+  }
+}
+
+@page {
+  size: Letter portrait;
+  margin: 0;
+}
+
+@media print {
+  :global(html),
+  :global(body) {
+    width: 215.9mm !important;
+    min-width: 215.9mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  :global([data-sonner-toaster]),
+  .screenControls {
+    display: none !important;
+  }
+
+  .monthlyReportRoot {
+    width: 215.9mm !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+  }
+
+  .pagePreview {
+    display: block;
+    min-width: 0;
+    padding: 0;
+  }
+
+  .documentPage {
+    width: 215.9mm !important;
+    height: 279.4mm !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    break-after: page;
+    page-break-after: always;
+  }
+
+  .documentPage:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+
+  .reportSection,
+  .panel,
+  .reportTable,
+  .signatureGrid {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .documentPage input,
+  .documentPage textarea {
+    color: var(--sac-text) !important;
+    -webkit-text-fill-color: var(--sac-text) !important;
+    opacity: 1 !important;
+  }
+
+  .documentPage textarea {
+    overflow: hidden;
+  }
+
+  .documentPage input[type="radio"] {
+    appearance: auto;
+    accent-color: #000000;
+  }
+}

@@ -1,12 +1,28 @@
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
+
+import { ClubDetailView } from "@/components/clubs/detail/club-detail-view";
+import { resolveClubDetailTab } from "@/components/clubs/detail/tab-utils";
+import {
+  listClubAnnualReports,
+  listClubQuarterlyReports,
+} from "@/lib/api/reports";
+import { canCreateClubSections, hasAnyPermission } from "@/lib/auth/permission-utils";
+import { CLUB_ROLES_ASSIGN } from "@/lib/auth/permissions";
 import { requireAdminUser } from "@/lib/auth/session";
-import { ApiError } from "@/lib/api/client";
-import { ClubDetailView } from "@/components/clubs/detail/view";
-import { resolveClubDetailRoute } from "@/components/clubs/detail/tab-utils";
-import { loadClubDetail, parseClubDetailSearchParams } from "@/lib/v2/loaders/clubs";
+import { loadClubDetail } from "@/lib/clubs/fetch-detail";
 
 type Params = Promise<{ id: string }>;
-type SearchParams = Promise<{ tab?: string; panel?: string }>;
+type SearchParams = Promise<{ tab?: string }>;
+
+export async function generateMetadata({ params }: { params: Params }) {
+  const { id } = await params;
+  const t = await getTranslations("clubs.detail");
+  const detail = await loadClubDetail(id).catch(() => null);
+  return {
+    title: detail?.club.name ?? t("fallbackTitle"),
+  };
+}
 
 export default async function ClubDetailPage({
   params,
@@ -17,37 +33,24 @@ export default async function ClubDetailPage({
 }) {
   const user = await requireAdminUser();
   const { id } = await params;
-  const rawSearch = await searchParams;
-  const { tab: tabParam, panel: panelParam } = parseClubDetailSearchParams(rawSearch);
+  const { tab } = await searchParams;
 
-  let detail;
-  try {
-    detail = await loadClubDetail(id, user);
-  } catch (error) {
-    if (
-      error instanceof ApiError &&
-      (error.status === 404 || error.status === 403)
-    ) {
-      notFound();
-    }
-    throw error;
-  }
+  const canManageRoles = hasAnyPermission(user, [CLUB_ROLES_ASSIGN]);
+  const canCreateSections = canCreateClubSections(user);
+  const detail = await loadClubDetail(id, { canManageRoles, canCreateSections });
+  if (!detail) notFound();
 
-  const route = resolveClubDetailRoute(panelParam ?? tabParam);
+  const [annualReports, quarterlyReports] = await Promise.all([
+    listClubAnnualReports(detail.clubId).catch(() => []),
+    listClubQuarterlyReports(detail.clubId).catch(() => []),
+  ]);
 
   return (
     <ClubDetailView
-      club={detail.club}
-      clubId={detail.clubId}
-      defaultTab={route.tab}
-      defaultEditOpen={route.openEdit}
-      pendingMembershipCount={detail.pendingMembershipCount}
-      localFieldOptions={detail.localFieldOptions}
-      districtOptions={detail.districtOptions}
-      churchOptions={detail.churchOptions}
-      clubTypeOptions={detail.clubTypeOptions}
-      updateAction={detail.updateAction}
-      deleteAction={detail.deleteAction}
+      data={detail}
+      annualReports={annualReports}
+      quarterlyReports={quarterlyReports}
+      defaultTab={resolveClubDetailTab(tab)}
     />
   );
 }

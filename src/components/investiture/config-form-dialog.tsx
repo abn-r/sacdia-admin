@@ -197,14 +197,12 @@ export function ConfigFormDialog({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {isEdit
-              ? t("configFormDialog.titleEdit")
-              : t("configFormDialog.titleCreate")}
+            {isEdit ? "Editar configuración" : "Nueva configuración"}
           </DialogTitle>
           <DialogDescription>
             {isEdit
-              ? t("configFormDialog.descriptionEdit")
-              : t("configFormDialog.descriptionCreate")}
+              ? "Modificá las fechas de la configuración de investidura."
+              : "Configurá las fechas para un campo local y año eclesiástico."}
           </DialogDescription>
         </DialogHeader>
 
@@ -218,7 +216,7 @@ export function ConfigFormDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      {t("configFormDialog.localFieldLabel")} <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
+                      Campo Local <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
                     </FormLabel>
                     <FormControl>
                       <Select
@@ -229,9 +227,7 @@ export function ConfigFormDialog({
                         <SelectTrigger aria-required="true">
                           <SelectValue
                             placeholder={
-                              loadingCatalogs
-                                ? t("configFormDialog.loadingLocalFields")
-                                : t("configFormDialog.localFieldPlaceholder")
+                              loadingCatalogs ? "Cargando campos..." : "Seleccioná un campo local"
                             }
                           />
                         </SelectTrigger>
@@ -261,7 +257,7 @@ export function ConfigFormDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      {t("configFormDialog.ecclesiasticalYearLabel")} <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
+                      Año Eclesiástico <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
                     </FormLabel>
                     <FormControl>
                       <Select
@@ -272,9 +268,7 @@ export function ConfigFormDialog({
                         <SelectTrigger aria-required="true">
                           <SelectValue
                             placeholder={
-                              loadingCatalogs
-                                ? t("configFormDialog.loadingYears")
-                                : t("configFormDialog.yearPlaceholder")
+                              loadingCatalogs ? "Cargando años..." : "Seleccioná un año"
                             }
                           />
                         </SelectTrigger>
@@ -287,7 +281,7 @@ export function ConfigFormDialog({
                               {year.name}
                               {year.active && (
                                 <span className="ml-1.5 text-xs text-muted-foreground">
-                                  {t("client.yearActive")}
+                                  (activo)
                                 </span>
                               )}
                             </SelectItem>
@@ -308,7 +302,7 @@ export function ConfigFormDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    {t("configFormDialog.submissionDeadlineLabel")} <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
+                    Límite de Envío <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -329,7 +323,7 @@ export function ConfigFormDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    {t("configFormDialog.investitureDateLabel")} <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
+                    Fecha de Investidura <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -350,13 +344,11 @@ export function ConfigFormDialog({
                 onClick={() => onOpenChange(false)}
                 disabled={isSubmitting}
               >
-                {t("configFormDialog.cancel")}
+                Cancelar
               </Button>
               <Button type="submit" disabled={isSubmitting || loadingCatalogs}>
                 {isSubmitting && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
-                {isEdit
-                  ? t("configFormDialog.submitEdit")
-                  : t("configFormDialog.submitCreate")}
+                {isEdit ? "Guardar cambios" : "Crear configuración"}
               </Button>
             </DialogFooter>
           </form>

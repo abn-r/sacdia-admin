@@ -1,7 +1,5 @@
 "use client";
 
-import { usePanelPath } from "@/lib/v2/panel-path-context";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Pencil, Trash2 } from "lucide-react";
@@ -10,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ActivityFormDialog } from "@/components/activities/activity-form-dialog";
 import { DeleteActivityDialog } from "@/components/activities/delete-activity-dialog";
 import type { Activity } from "@/lib/api/activities";
+import { ACTIVITIES_BASE_PATH } from "@/lib/activities/helpers";
 
 interface ActivityDetailActionsProps {
   activity: Activity;
@@ -18,7 +17,6 @@ interface ActivityDetailActionsProps {
 export function ActivityDetailActions({ activity }: ActivityDetailActionsProps) {
   const t = useTranslations("activities");
   const router = useRouter();
-  const { toPanelPath } = usePanelPath();
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
@@ -27,7 +25,7 @@ export function ActivityDetailActions({ activity }: ActivityDetailActionsProps) 
   }
 
   function handleDeleteSuccess() {
-    router.push(toPanelPath("/dashboard/activities"));
+    router.push(ACTIVITIES_BASE_PATH);
   }
 
   return (

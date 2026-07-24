@@ -128,6 +128,16 @@ export const HONOR_CATEGORIES_DELETE = "honor_categories:delete";
 export const FINANCE_CATEGORIES_MANAGE = "finance_categories:manage";
 export const INVENTORY_CATEGORIES_MANAGE = "inventory_categories:manage";
 
+// --- Materiales (pedidos / catálogo LF) ---
+export const MATERIALS_READ = "materiales:read";
+export const MATERIALS_CREATE = "materiales:create";
+export const MATERIALS_APPROVE = "materiales:approve";
+export const MATERIALS_UPLOAD_RECEIPT = "materiales:upload-receipt";
+export const MATERIALS_VALIDATE_RECEIPT = "materiales:validate-receipt";
+export const MATERIALS_DELIVER = "materiales:deliver";
+export const MATERIALS_MANAGE_INVENTORY = "materiales:manage-inventory";
+export const MATERIALS_CONFIGURE = "materiales:configure";
+
 // --- Actividades ---
 export const ACTIVITIES_READ = "activities:read";
 export const ACTIVITIES_CREATE = "activities:create";

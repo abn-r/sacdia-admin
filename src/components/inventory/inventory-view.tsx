@@ -20,27 +20,17 @@ import type {
   InventoryCategory,
   InstanceType,
 } from "@/lib/api/inventory";
+import type { ClubType } from "@/lib/api/catalogs";
+import type { LocalField } from "@/lib/api/geography";
+import type { AdminTerritoryScope } from "@/lib/auth/territory-scope";
 import { INSTANCE_TYPE_LABELS } from "@/lib/api/inventory";
-
-// ─── Types ─────────────────────────────────────────────────────────────────────
-
-type InventoryClubOption = {
-  club_section_id: number;
-  main_club_id: number | null;
-  name: string;
-  club_type_id: number;
-};
+import {
+  clubTypeIdToInstanceType,
+  filterInventorySections,
+  type InventorySectionOption,
+} from "@/lib/inventory/club-sections";
 
 type AnyRecord = Record<string, unknown>;
-
-// ─── Helpers ───────────────────────────────────────────────────────────────────
-
-/** Map club_type_id (1=Aventureros, 2=Conquistadores, 3=Guías Mayores) to instanceType */
-function clubTypeToInstanceType(clubTypeId: number): InstanceType {
-  if (clubTypeId === 1) return "adv";
-  if (clubTypeId === 3) return "mg";
-  return "pathf";
-}
 
 function extractArray(payload: unknown): AnyRecord[] {
   if (Array.isArray(payload)) return payload as AnyRecord[];
@@ -55,8 +45,6 @@ function normalizeItem(raw: AnyRecord): InventoryItem {
   const category =
     raw.inventory_category && typeof raw.inventory_category === "object"
       ? (raw.inventory_category as AnyRecord)
-      : raw.category && typeof raw.category === "object"
-        ? (raw.category as AnyRecord)
       : null;
 
   return {
@@ -72,9 +60,7 @@ function normalizeItem(raw: AnyRecord): InventoryItem {
             typeof category.description === "string" ? category.description : null,
         }
       : null,
-    club_id: raw.club_id == null ? null : Number(raw.club_id),
-    club_section_id:
-      raw.club_section_id == null ? null : Number(raw.club_section_id),
+    club_id: Number(raw.club_id ?? 0),
     amount: Number(raw.amount ?? 0),
     active: raw.active !== false,
     created_at: typeof raw.created_at === "string" ? raw.created_at : null,
@@ -82,27 +68,40 @@ function normalizeItem(raw: AnyRecord): InventoryItem {
   };
 }
 
-// ─── Props ─────────────────────────────────────────────────────────────────────
-
 interface InventoryViewProps {
-  clubs: InventoryClubOption[];
+  sections: InventorySectionOption[];
   categories: InventoryCategory[];
+  localFields: LocalField[];
+  clubTypes: ClubType[];
+  territoryScope: AdminTerritoryScope;
   initialItems: InventoryItem[];
-  initialClubSectionId: number | null;
+  initialSectionId: number | null;
+  initialLocalFieldId: number | "all";
+  initialClubTypeId: number | "all";
 }
 
-// ─── Component ─────────────────────────────────────────────────────────────────
-
 export function InventoryView({
-  clubs,
+  sections,
   categories,
+  localFields,
+  clubTypes,
+  territoryScope,
   initialItems,
-  initialClubSectionId,
+  initialSectionId,
+  initialLocalFieldId,
+  initialClubTypeId,
 }: InventoryViewProps) {
   const t = useTranslations("inventory");
-  const [selectedClubSectionId, setSelectedClubSectionId] = useState<
-    number | null
-  >(initialClubSectionId);
+  const isLocalFieldLocked = territoryScope.level === "local_field";
+  const [selectedLocalFieldId, setSelectedLocalFieldId] = useState<number | "all">(
+    isLocalFieldLocked ? territoryScope.localFieldId : initialLocalFieldId,
+  );
+  const [selectedClubTypeId, setSelectedClubTypeId] = useState<number | "all">(
+    initialClubTypeId,
+  );
+  const [selectedSectionId, setSelectedSectionId] = useState<number | null>(
+    initialSectionId,
+  );
   const [items, setItems] = useState<InventoryItem[]>(initialItems);
   const [filterCategoryId, setFilterCategoryId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -113,16 +112,29 @@ export function InventoryView({
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deletingItem, setDeletingItem] = useState<InventoryItem | null>(null);
 
-  const selectedClub =
-    clubs.find((c) => c.club_section_id === selectedClubSectionId) ?? null;
-  const instanceType: InstanceType = selectedClub
-    ? clubTypeToInstanceType(selectedClub.club_type_id)
+  const filteredSections = filterInventorySections(
+    sections,
+    selectedLocalFieldId,
+    selectedClubTypeId,
+  );
+
+  const selectedSection =
+    filteredSections.find((section) => section.club_section_id === selectedSectionId) ??
+    sections.find((section) => section.club_section_id === selectedSectionId) ??
+    null;
+
+  const instanceType: InstanceType = selectedSection
+    ? clubTypeIdToInstanceType(selectedSection.club_type_id)
     : "pathf";
 
   const loadItems = useCallback(
     async (clubSectionId: number, categoryId?: number | null) => {
-      const club = clubs.find((c) => c.club_section_id === clubSectionId);
-      const instType = club ? clubTypeToInstanceType(club.club_type_id) : "pathf";
+      const section = sections.find(
+        (entry) => entry.club_section_id === clubSectionId,
+      );
+      const instType = section
+        ? clubTypeIdToInstanceType(section.club_type_id)
+        : "pathf";
 
       setIsLoading(true);
       setLoadError(null);
@@ -149,27 +161,72 @@ export function InventoryView({
         setIsLoading(false);
       }
     },
-    [clubs, t],
+    [sections, t],
   );
 
-  function handleClubChange(value: string) {
+  function selectSectionAndLoad(
+    clubSectionId: number,
+    categoryId: number | null = null,
+  ) {
+    setSelectedSectionId(clubSectionId);
+    setFilterCategoryId(categoryId);
+    loadItems(clubSectionId, categoryId);
+  }
+
+  function applySectionFilters(
+    localFieldId: number | "all",
+    clubTypeId: number | "all",
+  ) {
+    const nextSections = filterInventorySections(
+      sections,
+      localFieldId,
+      clubTypeId,
+    );
+
+    if (nextSections.length === 0) {
+      setSelectedSectionId(null);
+      setItems([]);
+      setLoadError(null);
+      return;
+    }
+
+    const currentSectionStillValid = nextSections.some(
+      (section) => section.club_section_id === selectedSectionId,
+    );
+    const nextSectionId = currentSectionStillValid
+      ? (selectedSectionId as number)
+      : nextSections[0].club_section_id;
+    selectSectionAndLoad(nextSectionId, null);
+  }
+
+  function handleLocalFieldChange(value: string) {
+    const nextLocalFieldId = value === "all" ? "all" : Number(value);
+    setSelectedLocalFieldId(nextLocalFieldId);
+    applySectionFilters(nextLocalFieldId, selectedClubTypeId);
+  }
+
+  function handleClubTypeChange(value: string) {
+    const nextClubTypeId = value === "all" ? "all" : Number(value);
+    setSelectedClubTypeId(nextClubTypeId);
+    applySectionFilters(selectedLocalFieldId, nextClubTypeId);
+  }
+
+  function handleSectionChange(value: string) {
     const clubSectionId = Number(value);
-    setSelectedClubSectionId(clubSectionId);
-    setFilterCategoryId(null);
-    loadItems(clubSectionId, null);
+    selectSectionAndLoad(clubSectionId, null);
   }
 
   function handleCategoryFilter(value: string) {
     const categoryId = value === "all" ? null : Number(value);
     setFilterCategoryId(categoryId);
-    if (selectedClubSectionId) {
-      loadItems(selectedClubSectionId, categoryId);
+    if (selectedSectionId) {
+      loadItems(selectedSectionId, categoryId);
     }
   }
 
   function handleRefresh() {
-    if (selectedClubSectionId) {
-      loadItems(selectedClubSectionId, filterCategoryId);
+    if (selectedSectionId) {
+      loadItems(selectedSectionId, filterCategoryId);
     }
   }
 
@@ -189,43 +246,90 @@ export function InventoryView({
   }
 
   function handleSuccess() {
-    if (selectedClubSectionId) {
-      loadItems(selectedClubSectionId, filterCategoryId);
+    if (selectedSectionId) {
+      loadItems(selectedSectionId, filterCategoryId);
     }
   }
 
   return (
     <div className="space-y-5">
-      {/* Toolbar */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-2">
-          {/* Club selector */}
           <Select
-            value={selectedClubSectionId ? String(selectedClubSectionId) : ""}
-            onValueChange={handleClubChange}
+            value={
+              selectedLocalFieldId === "all"
+                ? "all"
+                : String(selectedLocalFieldId)
+            }
+            onValueChange={handleLocalFieldChange}
+            disabled={isLocalFieldLocked}
           >
-            <SelectTrigger className="w-52">
-              <SelectValue placeholder={t("view.select_club_placeholder")} />
+            <SelectTrigger className="h-9 w-52">
+              <SelectValue placeholder={t("view.select_local_field_placeholder")} />
             </SelectTrigger>
             <SelectContent>
-              {clubs.map((club) => (
+              {!isLocalFieldLocked && (
+                <SelectItem value="all">{t("view.local_field_all")}</SelectItem>
+              )}
+              {localFields.map((lf) => (
                 <SelectItem
-                  key={club.club_section_id}
-                  value={String(club.club_section_id)}
+                  key={lf.local_field_id}
+                  value={String(lf.local_field_id)}
                 >
-                  {club.name}
+                  {lf.name}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
 
-          {/* Category filter */}
+          <Select
+            value={
+              selectedClubTypeId === "all" ? "all" : String(selectedClubTypeId)
+            }
+            onValueChange={handleClubTypeChange}
+          >
+            <SelectTrigger className="h-9 w-48">
+              <SelectValue placeholder={t("view.select_club_type_placeholder")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("view.club_type_all")}</SelectItem>
+              {clubTypes.map((clubType) => (
+                <SelectItem
+                  key={clubType.club_type_id}
+                  value={String(clubType.club_type_id)}
+                >
+                  {clubType.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={selectedSectionId ? String(selectedSectionId) : ""}
+            onValueChange={handleSectionChange}
+            disabled={filteredSections.length === 0}
+          >
+            <SelectTrigger className="h-9 w-52">
+              <SelectValue placeholder={t("view.select_club_placeholder")} />
+            </SelectTrigger>
+            <SelectContent>
+              {filteredSections.map((section) => (
+                <SelectItem
+                  key={section.club_section_id}
+                  value={String(section.club_section_id)}
+                >
+                  {section.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
           <Select
             value={filterCategoryId ? String(filterCategoryId) : "all"}
             onValueChange={handleCategoryFilter}
-            disabled={!selectedClubSectionId}
+            disabled={!selectedSectionId}
           >
-            <SelectTrigger className="w-48">
+            <SelectTrigger className="h-9 w-48">
               <SelectValue placeholder={t("view.all_categories")} />
             </SelectTrigger>
             <SelectContent>
@@ -245,7 +349,7 @@ export function InventoryView({
             variant="outline"
             size="icon-sm"
             onClick={handleRefresh}
-            disabled={!selectedClubSectionId || isLoading}
+            disabled={!selectedSectionId || isLoading}
             title={t("view.refresh_title")}
           >
             <RefreshCw className={`size-3.5 ${isLoading ? "animate-spin" : ""}`} />
@@ -254,34 +358,31 @@ export function InventoryView({
         </div>
 
         <div className="flex items-center gap-2">
-          {selectedClub && (
+          {selectedSection && (
             <span className="text-xs text-muted-foreground">
               {INSTANCE_TYPE_LABELS[instanceType]}
             </span>
           )}
-          <Button onClick={handleCreate} disabled={!selectedClubSectionId} size="sm">
+          <Button onClick={handleCreate} disabled={!selectedSectionId} size="sm">
             <Plus className="size-4" />
             {t("view.new_item")}
           </Button>
         </div>
       </div>
 
-      {/* Error */}
       {loadError && (
         <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
           {loadError}
         </div>
       )}
 
-      {/* Count */}
-      {selectedClubSectionId && !loadError && (
+      {selectedSectionId && !loadError && (
         <p className="text-sm text-muted-foreground">
           <span className="font-medium text-foreground">{items.length}</span>{" "}
           {t("view.items_found_label", { count: items.length })}
         </p>
       )}
 
-      {/* Table */}
       {isLoading ? (
         <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">
           {t("view.loading")}
@@ -294,11 +395,10 @@ export function InventoryView({
         />
       )}
 
-      {/* Dialogs */}
       <InventoryFormDialog
         open={formOpen}
         onOpenChange={setFormOpen}
-        clubId={selectedClubSectionId ?? 0}
+        clubId={selectedSectionId ?? 0}
         instanceType={instanceType}
         categories={categories}
         item={editingItem}

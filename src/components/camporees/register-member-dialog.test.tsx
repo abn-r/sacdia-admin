@@ -229,7 +229,7 @@ describe("RegisterMemberDialog", () => {
         user_id: string;
         camporee_type: string;
         club_name?: string;
-        insurance_id?: number;
+        insurance_id: number;
       },
     ];
 
@@ -261,6 +261,27 @@ describe("RegisterMemberDialog", () => {
     expect(
       screen.getByRole("button", { name: t.registerMemberDialog.register }),
     ).toBeDisabled();
+  });
+
+  it("does not submit a HIGH_RISK insurance because it is not eligible for camporees", async () => {
+    mockGetMemberInsurance.mockResolvedValue({
+      ...ACTIVE_INSURANCE,
+      insurance_type: "HIGH_RISK",
+    });
+    renderDialog();
+
+    await selectClubAndMember();
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(t.registerMemberDialog.noInsuranceTitle),
+      ).toBeInTheDocument();
+    });
+
+    expect(
+      screen.getByRole("button", { name: t.registerMemberDialog.register }),
+    ).toBeDisabled();
+    expect(mockRegister).not.toHaveBeenCalled();
   });
 
   it("calls onOpenChange(false) and does NOT call API when cancel clicked", async () => {

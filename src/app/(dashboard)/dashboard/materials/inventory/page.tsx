@@ -13,6 +13,7 @@ import { apiRequest } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
 import { resolveUserLocalField } from "@/lib/auth/user-local-field";
 import { hasPermission } from "@/lib/auth/permission-utils";
+import { MATERIALS_MANAGE_INVENTORY } from "@/lib/auth/permissions";
 import { ApiError } from "@/lib/api/client";
 import type {
   MaterialProduct,
@@ -57,7 +58,7 @@ export default async function InventarioPage({
   const t = await getTranslations("materials.pages.inventory");
   const user = await requireAdminUser();
 
-  if (!hasPermission(user, "materiales:manage-inventory")) {
+  if (!hasPermission(user, MATERIALS_MANAGE_INVENTORY)) {
     redirect("/dashboard");
   }
 
@@ -134,25 +135,23 @@ export default async function InventarioPage({
         />
       </div>
 
-      {/* Filters */}
-      <InventoryFilters
+      <div className="space-y-4">
+        <InventoryFilters
         currentQ={q}
         currentCat={cat}
         categories={categories}
         currentLocalFieldId={effectiveLocalFieldId ?? null}
         localFields={scope.scope === "all" ? localFields : []}
-      />
+        />
 
-      {/* Error state */}
-      {loadError && (
+        {loadError && (
         <EndpointErrorBanner
           state={loadErrorStatus === 403 ? "forbidden" : "missing"}
           detail={loadError}
         />
-      )}
+        )}
 
-      {/* Empty state */}
-      {!loadError && products.length === 0 && (
+        {!loadError && products.length === 0 && (
         <EmptyState
           icon={<Package className="size-6 text-muted-foreground" aria-hidden="true" />}
           title={t("emptyTitle")}
@@ -163,29 +162,28 @@ export default async function InventarioPage({
           }
           variant={q || cat ? "no-results" : "default"}
         />
-      )}
+        )}
 
-      {/* Table */}
-      {!loadError && products.length > 0 && (
-        <div className="space-y-4">
-          <InventoryTable
+        {!loadError && products.length > 0 && (
+          <>
+            <InventoryTable
             products={products}
             categories={categories}
             showLocalFieldColumn={scope.scope === "all"}
             localFields={localFields}
-          />
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <DataTablePagination
-              page={page}
-              totalPages={totalPages}
-              total={total}
-              limit={PAGE_SIZE}
             />
-          )}
-        </div>
-      )}
+
+            {totalPages > 1 && (
+              <DataTablePagination
+                page={page}
+                totalPages={totalPages}
+                total={total}
+                limit={PAGE_SIZE}
+              />
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }

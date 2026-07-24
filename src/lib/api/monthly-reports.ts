@@ -63,6 +63,31 @@ export type MonthlyReport = {
   updated_at?: string | null;
 };
 
+type ApiEnvelope<T> = { status: string; data: T };
+
+type BackendMonthlyReport = Omit<
+  MonthlyReport,
+  "report_id" | "enrollment_id"
+> & {
+  monthly_report_id: string;
+  club_enrollment_id: string;
+};
+
+function normalizeMonthlyReport(report: BackendMonthlyReport): MonthlyReport {
+  const reportId = report.monthly_report_id;
+  const enrollmentId = report.club_enrollment_id;
+
+  if (!reportId || !enrollmentId) {
+    throw new Error("Respuesta inválida del informe mensual");
+  }
+
+  return {
+    ...report,
+    report_id: reportId,
+    enrollment_id: enrollmentId,
+  };
+}
+
 export type MonthlyReportPreview = {
   enrollment_id: MonthlyReportEnrollmentId;
   month: number;
@@ -100,10 +125,12 @@ export async function listMonthlyReports(
   const params: Record<string, string | number | undefined> = {};
   if (status) params.status = status;
 
-  return apiRequest<MonthlyReport[]>(
+  const envelope = await apiRequest<ApiEnvelope<BackendMonthlyReport[]>>(
     `/monthly-reports/enrollment/${encodeURIComponent(String(enrollmentId))}`,
     { params },
   );
+
+  return envelope.data.map(normalizeMonthlyReport);
 }
 
 /**
@@ -111,9 +138,11 @@ export async function listMonthlyReports(
  * Get a single report. Server-side safe.
  */
 export async function getMonthlyReport(reportId: MonthlyReportId): Promise<MonthlyReport> {
-  return apiRequest<MonthlyReport>(
+  const envelope = await apiRequest<ApiEnvelope<BackendMonthlyReport>>(
     `/monthly-reports/${encodeURIComponent(reportId)}`,
   );
+
+  return normalizeMonthlyReport(envelope.data);
 }
 
 /**
@@ -125,13 +154,15 @@ export async function createOrGetDraftReport(
   month: number,
   year: number,
 ): Promise<MonthlyReport> {
-  return apiRequestFromClient<MonthlyReport>(
+  const envelope = await apiRequestFromClient<ApiEnvelope<BackendMonthlyReport>>(
     `/monthly-reports/${encodeURIComponent(String(enrollmentId))}`,
     {
       method: "POST",
       params: { month, year },
     },
   );
+
+  return normalizeMonthlyReport(envelope.data);
 }
 
 /**
@@ -142,13 +173,15 @@ export async function updateManualData(
   reportId: MonthlyReportId,
   payload: UpdateManualDataPayload,
 ): Promise<MonthlyReport> {
-  return apiRequestFromClient<MonthlyReport>(
+  const envelope = await apiRequestFromClient<ApiEnvelope<BackendMonthlyReport>>(
     `/monthly-reports/${encodeURIComponent(reportId)}/manual-data`,
     {
       method: "PATCH",
       body: payload,
     },
   );
+
+  return normalizeMonthlyReport(envelope.data);
 }
 
 /**
@@ -156,10 +189,12 @@ export async function updateManualData(
  * Freeze snapshot. Client-side only (mutation).
  */
 export async function generateReport(reportId: MonthlyReportId): Promise<MonthlyReport> {
-  return apiRequestFromClient<MonthlyReport>(
+  const envelope = await apiRequestFromClient<ApiEnvelope<BackendMonthlyReport>>(
     `/monthly-reports/${encodeURIComponent(reportId)}/generate`,
     { method: "POST" },
   );
+
+  return normalizeMonthlyReport(envelope.data);
 }
 
 /**
@@ -167,10 +202,12 @@ export async function generateReport(reportId: MonthlyReportId): Promise<Monthly
  * Submit to field. Client-side only (mutation).
  */
 export async function submitReport(reportId: MonthlyReportId): Promise<MonthlyReport> {
-  return apiRequestFromClient<MonthlyReport>(
+  const envelope = await apiRequestFromClient<ApiEnvelope<BackendMonthlyReport>>(
     `/monthly-reports/${encodeURIComponent(reportId)}/submit`,
     { method: "POST" },
   );
+
+  return normalizeMonthlyReport(envelope.data);
 }
 
 /**

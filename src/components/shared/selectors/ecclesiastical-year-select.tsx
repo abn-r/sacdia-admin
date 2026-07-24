@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Check, ChevronsUpDown, X, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
@@ -19,7 +19,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useQuery } from "@tanstack/react-query";
 import {
   listEcclesiasticalYears,
   type EcclesiasticalYear,
@@ -69,23 +68,37 @@ export function EcclesiasticalYearSelect({
 }: EcclesiasticalYearSelectProps) {
   const t = useTranslations("selectors.ecclesiasticalYear");
   const [open, setOpen] = useState(false);
-  // Lazy load: only enable the query once the popover has been opened at least once.
   const [hasOpened, setHasOpened] = useState(false);
+  const [fetchedYears, setFetchedYears] = useState<EcclesiasticalYear[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [fetchError, setFetchError] = useState<Error | null>(null);
 
-  const {
-    data: fetchedYears = [],
-    isFetching: loading,
-    error: fetchError,
-  } = useQuery({
-    queryKey: ["ecclesiastical-years"],
-    queryFn: async () => {
-      const data = await listEcclesiasticalYears();
-      onYearsLoaded?.(data);
-      return data;
-    },
-    enabled: (hasOpened || value != null) && externalYears === undefined,
-    staleTime: 60_000,
-  });
+  useEffect(() => {
+    if (externalYears !== undefined) return;
+    if (!hasOpened && value == null) return;
+
+    let cancelled = false;
+    setLoading(true);
+    setFetchError(null);
+
+    listEcclesiasticalYears()
+      .then((data) => {
+        if (cancelled) return;
+        onYearsLoaded?.(data);
+        setFetchedYears(data);
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        setFetchError(error instanceof Error ? error : new Error(t("loadError")));
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [externalYears, hasOpened, onYearsLoaded, t, value]);
 
   const allYears: EcclesiasticalYear[] = externalYears ?? fetchedYears;
 
@@ -137,7 +150,7 @@ export function EcclesiasticalYearSelect({
             <span className="flex min-w-0 items-center gap-2">
               <span className="truncate text-sm">{selected.name}</span>
               {selected.active && (
-                <Badge variant="soft-success" className="shrink-0">
+                <Badge variant="secondary" className="shrink-0">
                   {t("activeBadge")}
                 </Badge>
               )}
@@ -199,7 +212,7 @@ export function EcclesiasticalYearSelect({
                       <div className="flex items-center gap-2">
                         <span className="truncate text-sm">{year.name}</span>
                         {year.active && (
-                          <Badge variant="soft-success" className="shrink-0">
+                          <Badge variant="secondary" className="shrink-0">
                             {t("activeBadge")}
                           </Badge>
                         )}

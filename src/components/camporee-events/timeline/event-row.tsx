@@ -1,6 +1,5 @@
 "use client";
 
-import { usePanelPath } from "@/lib/v2/panel-path-context";
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
@@ -68,20 +67,13 @@ export function EventRow({
   onEdit,
   readonly = false,
 }: Props) {
-  const { toPanelPath } = usePanelPath();
-
+  
   const t = useTranslations("camporeeEvents.timeline");
   const router = useRouter();
   const cat = EVENT_CATEGORY_MAP[event.category];
   const status = event.status;
   const capPct = event.capacity > 0 ? (event.registered / event.capacity) * 100 : 0;
   const hasCapacity = event.registered > 0;
-  const displayedLeaderName = event.staffResponsibleName || event.leaderName;
-  const displayedLeaderRole =
-    event.staffResponsibleRole || event.leaderRole || "responsable";
-  const helperNames = event.staffHelpers ?? [];
-  const helpersPreview = helperNames.slice(0, 2).join(", ");
-  const extraHelpersCount = Math.max(0, helperNames.length - 2);
 
   const [dialogOpen, setDialogOpen] = React.useState<DialogType>(null);
   const [isPending, startTransition] = React.useTransition();
@@ -94,9 +86,9 @@ export function EventRow({
       onEdit();
     } else {
       const editPath = isUnionCamporee
-        ? `/dashboard/camporees/union/${camporeeId}/events/${event.id}/edit`
-        : `/dashboard/camporees/${camporeeId}/events/${event.id}/edit`;
-      router.push(toPanelPath(editPath));
+        ? `/dashboard/campamentos/union/${camporeeId}/events/${event.id}/edit`
+        : `/dashboard/campamentos/${camporeeId}/events/${event.id}/edit`;
+      router.push(editPath);
     }
   }
 
@@ -236,20 +228,14 @@ export function EventRow({
         <div className="flex items-center gap-2 min-w-0">
           <Avatar className="size-7">
             <AvatarFallback className="text-[10px] bg-primary text-primary-foreground font-bold">
-              {initials(displayedLeaderName)}
+              {initials(event.leaderName)}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0">
-            <div className="text-[12px] font-medium truncate">{displayedLeaderName}</div>
+            <div className="text-[12px] font-medium truncate">{event.leaderName}</div>
             <div className="text-[10.5px] text-muted-foreground truncate">
-              {displayedLeaderRole}
+              {event.leaderRole ?? "responsable"}
             </div>
-            {helperNames.length > 0 && (
-              <div className="truncate text-[10.5px] text-muted-foreground">
-                Apoyan: {helpersPreview}
-                {extraHelpersCount > 0 ? ` +${extraHelpersCount}` : ""}
-              </div>
-            )}
           </div>
         </div>
 

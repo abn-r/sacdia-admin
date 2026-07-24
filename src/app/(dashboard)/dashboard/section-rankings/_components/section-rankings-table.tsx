@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
-import { MemberRankingScoreBadge } from "@/app/(dashboard)/dashboard/member-rankings/_components/member-ranking-score-badge";
+import { MemberRankingScoreBadge } from "@/components/rankings/member-ranking-score-badge";
 import type { SectionRankingItem } from "@/lib/api/section-rankings";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -150,7 +150,7 @@ export function SectionRankingsTable({
                   {/* Action */}
                   <TableCell className="px-3 py-2.5 align-middle text-right">
                     <Button variant="ghost" size="sm" asChild>
-                      <Link prefetch={false}
+                      <Link
                         href={`/dashboard/section-rankings/${item.club_section_id}/members?year_id=${yearId}`}
                       >
                         {t("viewMembers")}

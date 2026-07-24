@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState, useTransition } from "react";
 import { useFormStatus } from "react-dom";
+import { useRouter } from "next/navigation";
 import { Plus, Pencil, Trash2, Key, Loader2, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
@@ -49,19 +50,9 @@ function SubmitButton({ label }: { label: string }) {
   );
 }
 
-function DeleteButton({ label }: { label: string }) {
-  const { pending } = useFormStatus();
-  return (
-    <AlertDialogAction type="submit" disabled={pending} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-      {pending && <Loader2 className="size-4 animate-spin" />}
-      {label}
-    </AlertDialogAction>
-  );
-}
-
 type CreateAction = (prev: RbacActionState, formData: FormData) => Promise<RbacActionState>;
 type UpdateAction = (id: string, prev: RbacActionState, formData: FormData) => Promise<RbacActionState>;
-type DeleteAction = (formData: FormData) => Promise<void>;
+type DeleteAction = (permissionId: string) => Promise<RbacActionState>;
 
 interface PermissionsTableProps {
   items: Permission[];
@@ -72,9 +63,12 @@ interface PermissionsTableProps {
 
 export function PermissionsTable({ items, createAction, updateAction, deleteAction }: PermissionsTableProps) {
   const t = useTranslations("rbac");
+  const router = useRouter();
   const [createOpen, setCreateOpen] = useState(false);
   const [editItem, setEditItem] = useState<Permission | null>(null);
   const [deleteItem, setDeleteItem] = useState<Permission | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deletePending, startDeleteTransition] = useTransition();
 
   const [createState, createFormAction] = useActionState(createAction, {});
 
@@ -83,6 +77,36 @@ export function PermissionsTable({ items, createAction, updateAction, deleteActi
     : async (_: RbacActionState, __: FormData): Promise<RbacActionState> => ({ error: "No item" });
 
   const [updateState, updateFormAction] = useActionState(boundUpdateAction, {});
+
+  useEffect(() => {
+    if (createState.ok) {
+      setCreateOpen(false);
+      router.refresh();
+    }
+  }, [createState.ok, router]);
+
+  useEffect(() => {
+    if (updateState.ok) {
+      setEditItem(null);
+      router.refresh();
+    }
+  }, [updateState.ok, router]);
+
+  function handleDelete() {
+    if (!deleteItem) return;
+
+    startDeleteTransition(async () => {
+      const result = await deleteAction(deleteItem.permission_id);
+      if (result.error) {
+        setDeleteError(result.error);
+        return;
+      }
+
+      setDeleteError(null);
+      setDeleteItem(null);
+      router.refresh();
+    });
+  }
 
   return (
     <>
@@ -285,7 +309,15 @@ export function PermissionsTable({ items, createAction, updateAction, deleteActi
 
       {/* Delete Dialog */}
       {deleteItem && (
-        <AlertDialog open={!!deleteItem} onOpenChange={(open) => { if (!open) setDeleteItem(null); }}>
+        <AlertDialog
+          open={!!deleteItem}
+          onOpenChange={(open) => {
+            if (!open) {
+              setDeleteItem(null);
+              setDeleteError(null);
+            }
+          }}
+        >
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>{t("permissionsTable.deleteDialogTitle")}</AlertDialogTitle>
@@ -295,12 +327,22 @@ export function PermissionsTable({ items, createAction, updateAction, deleteActi
                 {t("permissionsTable.deleteDialogDescPost")}
               </AlertDialogDescription>
             </AlertDialogHeader>
+            {deleteError ? (
+              <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">{deleteError}</div>
+            ) : null}
             <AlertDialogFooter>
-              <AlertDialogCancel>{t("permissionsTable.cancel")}</AlertDialogCancel>
-              <form action={deleteAction}>
-                <input type="hidden" name="id" value={deleteItem.permission_id} />
-                <DeleteButton label={t("permissionsTable.delete")} />
-              </form>
+              <AlertDialogCancel disabled={deletePending}>{t("permissionsTable.cancel")}</AlertDialogCancel>
+              <AlertDialogAction
+                disabled={deletePending}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                onClick={(event) => {
+                  event.preventDefault();
+                  handleDelete();
+                }}
+              >
+                {deletePending ? <Loader2 className="size-4 animate-spin" /> : null}
+                {t("permissionsTable.delete")}
+              </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>

@@ -27,11 +27,11 @@ export function PageHeader({
   const rightSlot = actions ?? children;
 
   return (
-    <header className={cn("space-y-3 animate-in fade-in slide-in-from-top-1 duration-300", className)}>
+    <header className={cn("space-y-3", className)}>
       {breadcrumbs && breadcrumbs.length > 0 && (
         <nav
           aria-label="Breadcrumb"
-          className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground"
+          className="flex flex-wrap items-center gap-1 text-muted-foreground text-xs"
         >
           {breadcrumbs.map((crumb, idx) => {
             const isLast = idx === breadcrumbs.length - 1;
@@ -39,16 +39,11 @@ export function PageHeader({
               <div key={`${crumb.label}-${idx}`} className="flex items-center gap-1">
                 {idx > 0 && <ChevronRight className="size-3 opacity-50" aria-hidden />}
                 {crumb.href && !isLast ? (
-                  <Link
-                    href={crumb.href}
-                    className="transition-colors hover:text-foreground"
-                  >
+                  <Link href={crumb.href} className="transition-colors hover:text-foreground">
                     {crumb.label}
                   </Link>
-                ) : ( 
-                  <span className={cn(isLast && "text-foreground/80")}>
-                    {crumb.label}
-                  </span>
+                ) : (
+                  <span className={cn(isLast && "text-foreground/80")}>{crumb.label}</span>
                 )}
               </div>
             );
@@ -58,20 +53,10 @@ export function PageHeader({
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 space-y-1">
-          <h1 className="text-xl font-semibold leading-none tracking-tight text-foreground sm:text-2xl">
-            {title}
-          </h1>
-          {description && (
-            <p className="max-w-prose text-sm text-muted-foreground">
-              {description}
-            </p>
-          )}
+          <h1 className="font-semibold text-2xl text-foreground tracking-tight sm:text-3xl">{title}</h1>
+          {description && <p className="max-w-prose text-muted-foreground text-sm">{description}</p>}
         </div>
-        {rightSlot && (
-          <div className="flex flex-wrap items-center gap-2 sm:shrink-0">
-            {rightSlot}
-          </div>
-        )}
+        {rightSlot && <div className="flex flex-wrap items-center gap-2 sm:shrink-0">{rightSlot}</div>}
       </div>
     </header>
   );

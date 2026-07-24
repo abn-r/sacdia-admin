@@ -22,7 +22,6 @@ import type { EcclesiasticalYear } from "@/lib/api/catalogs";
 interface InvestitureClientPageProps {
   initialEnrollments: PendingEnrollment[];
   years: EcclesiasticalYear[];
-  initialYearId: number | null;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -30,35 +29,42 @@ interface InvestitureClientPageProps {
 export function InvestitureClientPage({
   initialEnrollments,
   years,
-  initialYearId,
 }: InvestitureClientPageProps) {
   const t = useTranslations("investiture");
   const [enrollments, setEnrollments] =
     useState<PendingEnrollment[]>(initialEnrollments);
-  const [selectedYearId, setSelectedYearId] = useState<string>(
-    initialYearId ? String(initialYearId) : "all",
-  );
+  const [selectedYearId, setSelectedYearId] = useState<string>("all");
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const yearOptions = useMemo(
-    () =>
-      [...years].sort((a, b) => {
-        if (a.active !== b.active) return a.active ? -1 : 1;
-        return b.start_date.localeCompare(a.start_date);
-      }),
-    [years],
-  );
+  const filteredEnrollments = useMemo(() => {
+    if (selectedYearId === "all") return enrollments;
+    const yearId = parseInt(selectedYearId, 10);
+    return enrollments.filter(
+      (e) => e.ecclesiastical_year?.ecclesiastical_year_id === yearId,
+    );
+  }, [enrollments, selectedYearId]);
 
-  const loadEnrollments = useCallback(async (yearId: string) => {
+  const refresh = useCallback(async () => {
     setIsRefreshing(true);
     try {
       const query =
-        yearId !== "all"
-          ? { ecclesiastical_year_id: parseInt(yearId, 10), page: 1, limit: 100 }
+        selectedYearId !== "all"
+          ? { ecclesiastical_year_id: parseInt(selectedYearId, 10), page: 1, limit: 100 }
           : { page: 1, limit: 100 };
 
       const payload = await getPendingInvestitures(query);
-      setEnrollments(payload.data);
+
+      let fresh: PendingEnrollment[] = [];
+      if (Array.isArray(payload)) {
+        fresh = payload as PendingEnrollment[];
+      } else if (payload && typeof payload === "object") {
+        const root = payload as Record<string, unknown>;
+        if (Array.isArray(root.data)) {
+          fresh = root.data as PendingEnrollment[];
+        }
+      }
+
+      setEnrollments(fresh);
     } catch (error) {
       const message =
         error instanceof ApiError
@@ -68,19 +74,7 @@ export function InvestitureClientPage({
     } finally {
       setIsRefreshing(false);
     }
-  }, [t]);
-
-  const refresh = useCallback(async () => {
-    await loadEnrollments(selectedYearId);
-  }, [loadEnrollments, selectedYearId]);
-
-  const handleYearChange = useCallback(
-    (yearId: string) => {
-      setSelectedYearId(yearId);
-      void loadEnrollments(yearId);
-    },
-    [loadEnrollments],
-  );
+  }, [selectedYearId, t]);
 
   return (
     <div className="space-y-4">
@@ -88,13 +82,13 @@ export function InvestitureClientPage({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           {years.length > 0 && (
-            <Select value={selectedYearId} onValueChange={handleYearChange}>
+            <Select value={selectedYearId} onValueChange={setSelectedYearId}>
               <SelectTrigger className="w-52">
-                <SelectValue placeholder={t("client.selectYear")} />
+                <SelectValue placeholder={t("client.allYears")} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">{t("client.allYears")}</SelectItem>
-                {yearOptions.map((year) => (
+                {years.map((year) => (
                   <SelectItem
                     key={year.ecclesiastical_year_id}
                     value={String(year.ecclesiastical_year_id)}
@@ -115,9 +109,9 @@ export function InvestitureClientPage({
         <div className="flex items-center gap-2">
           <p className="text-sm text-muted-foreground">
             <span className="font-medium text-foreground">
-              {enrollments.length}
+              {filteredEnrollments.length}
             </span>{" "}
-            {enrollments.length === 1
+            {filteredEnrollments.length === 1
               ? t("client.countSingular")
               : t("client.countPlural")}
           </p>
@@ -137,7 +131,7 @@ export function InvestitureClientPage({
 
       {/* Table */}
       <PendingTable
-        enrollments={enrollments}
+        enrollments={filteredEnrollments}
         onRefresh={refresh}
       />
     </div>

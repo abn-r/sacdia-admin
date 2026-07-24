@@ -10,6 +10,7 @@
  * - useActionState for server actions
  */
 
+import Link from "next/link";
 import {
   useActionState,
   useCallback,
@@ -18,6 +19,7 @@ import {
   useState,
 } from "react";
 import {
+  Eye,
   Loader2,
   MoreHorizontal,
   RefreshCcw,
@@ -28,6 +30,10 @@ import {
 } from "lucide-react";
 import { TranslationsTabsField } from "@/components/forms/translations-tabs-field";
 import type { CatalogTranslation } from "@/lib/types/catalog-translation";
+import type { ClassModuleParentOption, ClassSectionModuleOption } from "@/lib/catalogs/club-ideals/sort";
+import { deriveClassOptionsFromSectionModules } from "@/lib/catalogs/club-ideals/sort";
+
+export type { ClassModuleParentOption, ClassSectionModuleOption };
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -77,7 +83,6 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import type { PhaseEActionState } from "@/lib/phase-e-catalogs/actions";
 import {
-  formatClassAvailabilityFrom,
   formatClassAvailabilityUntil,
   formatClassDurationRange,
   type ClassDisplayLabels,
@@ -103,8 +108,6 @@ import type {
 type AnyRecord = Record<string, unknown>;
 type FormAction = (prev: PhaseEActionState, data: FormData) => Promise<PhaseEActionState>;
 
-type CatalogEntityMode = "default" | "classes" | "class-sections";
-
 type MasterHonorsCrudExtras = {
   honors: MasterHonorAuxHonor[];
   honorCategories: MasterHonorAuxCategory[];
@@ -129,6 +132,11 @@ const EMPTY_MASTER_HONOR_PAYLOAD: MasterHonorPayload = {
 
 export type ClassConfigYearOption = {
   ecclesiastical_year_id: number;
+  name: string;
+};
+
+export type ClassClubTypeOption = {
+  club_type_id: number;
   name: string;
 };
 
@@ -161,11 +169,16 @@ export interface PhaseECatalogCrudPageProps {
   deleteAction: FormAction;
   /** Enables class-specific availability/duration fields and columns. */
   classConfigYearOptions?: ClassConfigYearOption[];
-  catalogEntityMode?: CatalogEntityMode;
+  /** Club type options for class catalog column, filter and form. */
+  classClubTypeOptions?: ClassClubTypeOption[];
+  /** Parent classes for class-module column, filters and form. */
+  classModuleParentOptions?: ClassModuleParentOption[];
+  /** Parent modules for class-section column, filters and form. */
+  classSectionModuleOptions?: ClassSectionModuleOption[];
+  /** When set, rows link to `${detailPathPrefix}/${id}` for read-only detail. */
+  detailPathPrefix?: string;
   /** Optional master-honors extras to render rule controls and recalc action. */
   masterHonorsConfig?: MasterHonorsCrudExtras;
-  /** Hide embedded PageHeader when an outer shell (e.g. V2PageShell) provides the title. */
-  hidePageHeader?: boolean;
 }
 
 // ─── SubmitButton ─────────────────────────────────────────────────────────────
@@ -203,18 +216,16 @@ interface FormFieldsProps {
   includeDescription: boolean;
   activeChecked: boolean;
   onActiveChange: (v: boolean) => void;
-  entityMode: CatalogEntityMode;
   translations: CatalogTranslation[];
   onTranslationsChange: (t: CatalogTranslation[]) => void;
   entityLabel: string;
   classConfigYearOptions?: ClassConfigYearOption[];
+  classClubTypeOptions?: ClassClubTypeOption[];
+  classModuleParentOptions?: ClassModuleParentOption[];
+  classSectionModuleOptions?: ClassSectionModuleOption[];
   masterHonorsConfig?: MasterHonorsCrudExtras;
   masterHonorsPayload?: MasterHonorPayload;
   onMasterHonorsPayloadChange?: (value: MasterHonorPayload) => void;
-  advancedEnabledChecked?: boolean;
-  onAdvancedEnabledChange?: (v: boolean) => void;
-  requiredForInvestitureChecked?: boolean;
-  onRequiredForInvestitureChange?: (v: boolean) => void;
 }
 
 function CatalogFormFields({
@@ -223,46 +234,42 @@ function CatalogFormFields({
   includeDescription,
   activeChecked,
   onActiveChange,
-  entityMode,
   translations,
   onTranslationsChange,
   entityLabel,
   classConfigYearOptions,
+  classClubTypeOptions,
+  classModuleParentOptions,
+  classSectionModuleOptions,
   masterHonorsConfig,
   masterHonorsPayload,
   onMasterHonorsPayloadChange,
-  advancedEnabledChecked,
-  onAdvancedEnabledChange,
-  requiredForInvestitureChecked,
-  onRequiredForInvestitureChange,
 }: FormFieldsProps) {
   const t = useTranslations("catalogs.phaseE");
   const nameVal = typeof item?.name === "string" ? item.name : "";
   const descVal = typeof item?.description === "string" ? item.description : "";
-  const isClassesMode = entityMode === "classes";
-  const isClassSectionsMode = entityMode === "class-sections";
-  const showClassConfig = isClassesMode && Array.isArray(classConfigYearOptions);
+  const showClassConfig = Array.isArray(classConfigYearOptions);
+  const showClubType = Array.isArray(classClubTypeOptions) && classClubTypeOptions.length > 0;
+  const showClassSectionModule =
+    Array.isArray(classSectionModuleOptions) && classSectionModuleOptions.length > 0;
+  const showClassModuleParent =
+    !showClassSectionModule &&
+    Array.isArray(classModuleParentOptions) &&
+    classModuleParentOptions.length > 0;
+  const clubTypeVal = toPositiveInt(item?.club_type_id);
+  const classVal = toPositiveInt(item?.class_id);
+  const moduleVal = toPositiveInt(item?.module_id);
   const availableFromVal = toPositiveInt(item?.available_from_year_id);
   const availableUntilVal = toPositiveInt(item?.available_until_year_id);
   const minDurationVal = toPositiveInt(item?.min_duration_years) ?? 1;
   const maxDurationVal = toPositiveInt(item?.max_duration_years) ?? 1;
-  const displayOrderVal = toNonNegativeInt(item?.display_order);
-  const requirementTrackVal = toText(item?.requirement_track) === "BASIC"
-    ? "BASIC"
-    : toText(item?.requirement_track) === "ADVANCED"
-      ? "ADVANCED"
-      : toText(item?.requirement_track) === "EXTRA"
-        ? "EXTRA"
-        : "";
-  const ownerDivisionVal = toPositiveInt(item?.owner_division_id);
-  const ownerUnionVal = toPositiveInt(item?.owner_union_id);
-  const ownerLocalFieldVal = toPositiveInt(item?.owner_local_field_id);
   const yearOptions = [...(classConfigYearOptions ?? [])];
   for (const yearId of [availableFromVal, availableUntilVal]) {
     if (yearId && !yearOptions.some((year) => year.ecclesiastical_year_id === yearId)) {
       yearOptions.push({ ecclesiastical_year_id: yearId, name: `Año #${yearId}` });
     }
   }
+
   const esContent = (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -288,6 +295,72 @@ function CatalogFormFields({
             defaultValue={descVal}
             placeholder={t("fieldDescriptionPlaceholder")}
           />
+        </div>
+      )}
+
+      {showClassSectionModule && (
+        <div className="space-y-2">
+          <Label htmlFor={`${idPrefix}-module-id`}>
+            {t("fieldModule")} <span className="text-destructive">*</span>
+          </Label>
+          <select
+            id={`${idPrefix}-module-id`}
+            name="module_id"
+            defaultValue={moduleVal ? String(moduleVal) : ""}
+            required
+            className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <option value="">{t("fieldModulePlaceholder")}</option>
+            {classSectionModuleOptions.map((moduleOption) => (
+              <option key={moduleOption.module_id} value={String(moduleOption.module_id)}>
+                {moduleOption.class_name} · {moduleOption.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {showClassModuleParent && (
+        <div className="space-y-2">
+          <Label htmlFor={`${idPrefix}-class-id`}>
+            {t("fieldClass")} <span className="text-destructive">*</span>
+          </Label>
+          <select
+            id={`${idPrefix}-class-id`}
+            name="class_id"
+            defaultValue={classVal ? String(classVal) : ""}
+            required
+            className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <option value="">{t("fieldClassPlaceholder")}</option>
+            {classModuleParentOptions.map((parentClass) => (
+              <option key={parentClass.class_id} value={String(parentClass.class_id)}>
+                {parentClass.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {showClubType && !showClassModuleParent && (
+        <div className="space-y-2">
+          <Label htmlFor={`${idPrefix}-club-type`}>
+            {t("fieldClubType")} <span className="text-destructive">*</span>
+          </Label>
+          <select
+            id={`${idPrefix}-club-type`}
+            name="club_type_id"
+            defaultValue={clubTypeVal ? String(clubTypeVal) : ""}
+            required
+            className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <option value="">{t("fieldClubTypePlaceholder")}</option>
+            {classClubTypeOptions?.map((clubType) => (
+              <option key={clubType.club_type_id} value={String(clubType.club_type_id)}>
+                {clubType.name}
+              </option>
+            ))}
+          </select>
         </div>
       )}
 
@@ -371,162 +444,6 @@ function CatalogFormFields({
                 required
               />
             </div>
-          </div>
-        </div>
-      )}
-
-      {isClassesMode && (
-        <div className="rounded-lg border bg-muted/20 p-4">
-          <div className="mb-4">
-            <h4 className="text-sm font-semibold">{t("classAvailabilityAdvancedTitle")}</h4>
-            <p className="text-xs text-muted-foreground">{t("classAvailabilityAdvancedDescription")}</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <input
-              type="hidden"
-              name="advanced_enabled"
-              value={advancedEnabledChecked ? "on" : ""}
-            />
-            <Checkbox
-              id={`${idPrefix}-advanced-enabled`}
-              checked={advancedEnabledChecked ?? false}
-              onCheckedChange={(checked) => onAdvancedEnabledChange?.(!!checked)}
-            />
-            <Label htmlFor={`${idPrefix}-advanced-enabled`}>
-              {t("fieldAdvancedEnabled")}
-            </Label>
-          </div>
-        </div>
-      )}
-
-      {isClassSectionsMode && (
-        <div className="rounded-lg border bg-muted/20 p-4">
-          <div className="mb-4">
-            <h4 className="text-sm font-semibold">{t("classSectionConfigTitle")}</h4>
-            <p className="text-xs text-muted-foreground">{t("classSectionConfigDescription")}</p>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor={`${idPrefix}-requirement-track`}>{t("fieldRequirementTrack")}</Label>
-              <select
-                id={`${idPrefix}-requirement-track`}
-                name="requirement_track"
-                defaultValue={requirementTrackVal}
-                className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <option value="">{t("selectOptionAny")}</option>
-                <option value="BASIC">{t("requirementTrackBasic")}</option>
-                <option value="ADVANCED">{t("requirementTrackAdvanced")}</option>
-                <option value="EXTRA">{t("requirementTrackExtra")}</option>
-              </select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor={`${idPrefix}-display-order`}>{t("fieldDisplayOrder")}</Label>
-              <Input
-                id={`${idPrefix}-display-order`}
-                name="display_order"
-                type="number"
-                min={0}
-                step={1}
-                defaultValue={displayOrderVal ?? ""}
-                placeholder={t("fieldDisplayOrderPlaceholder")}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor={`${idPrefix}-owner-division`}>{t("fieldOwnerDivisionId")}</Label>
-              <Input
-                id={`${idPrefix}-owner-division`}
-                name="owner_division_id"
-                type="number"
-                min={1}
-                step={1}
-                defaultValue={ownerDivisionVal ?? ""}
-                placeholder={t("fieldOwnerDivisionIdPlaceholder")}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor={`${idPrefix}-owner-union`}>{t("fieldOwnerUnionId")}</Label>
-              <Input
-                id={`${idPrefix}-owner-union`}
-                name="owner_union_id"
-                type="number"
-                min={1}
-                step={1}
-                defaultValue={ownerUnionVal ?? ""}
-                placeholder={t("fieldOwnerUnionIdPlaceholder")}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor={`${idPrefix}-owner-local-field`}>{t("fieldOwnerLocalFieldId")}</Label>
-              <Input
-                id={`${idPrefix}-owner-local-field`}
-                name="owner_local_field_id"
-                type="number"
-                min={1}
-                step={1}
-                defaultValue={ownerLocalFieldVal ?? ""}
-                placeholder={t("fieldOwnerLocalFieldIdPlaceholder")}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor={`${idPrefix}-available-from`}>{t("fieldAvailableFromYear")}</Label>
-              <select
-                id={`${idPrefix}-available-from`}
-                name="available_from_year_id"
-                defaultValue={availableFromVal ? String(availableFromVal) : ""}
-                className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <option value="">{t("fieldAvailableFromAny")}</option>
-                {yearOptions.map((year) => (
-                  <option
-                    key={`from-${year.ecclesiastical_year_id}`}
-                    value={String(year.ecclesiastical_year_id)}
-                  >
-                    {year.name || `Año #${year.ecclesiastical_year_id}`}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor={`${idPrefix}-available-until`}>{t("fieldAvailableUntilYear")}</Label>
-              <select
-                id={`${idPrefix}-available-until`}
-                name="available_until_year_id"
-                defaultValue={availableUntilVal ? String(availableUntilVal) : ""}
-                className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <option value="">{t("fieldAvailableUntilNone")}</option>
-                {yearOptions.map((year) => (
-                  <option
-                    key={`until-${year.ecclesiastical_year_id}`}
-                    value={String(year.ecclesiastical_year_id)}
-                  >
-                    {year.name || `Año #${year.ecclesiastical_year_id}`}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-          <div className="mt-4 flex items-center gap-2">
-            <input
-              type="hidden"
-              name="required_for_investiture"
-              value={requiredForInvestitureChecked ? "on" : ""}
-            />
-            <Checkbox
-              id={`${idPrefix}-required-for-investiture`}
-              checked={requiredForInvestitureChecked ?? false}
-              onCheckedChange={(checked) => onRequiredForInvestitureChange?.(!!checked)}
-            />
-            <Label htmlFor={`${idPrefix}-required-for-investiture`}>
-              {t("fieldRequiredForInvestiture")}
-            </Label>
           </div>
         </div>
       )}
@@ -795,9 +712,11 @@ export function PhaseECatalogCrudPage({
   updateAction,
   deleteAction,
   classConfigYearOptions,
-  catalogEntityMode = "default",
+  classClubTypeOptions,
+  classModuleParentOptions,
+  classSectionModuleOptions,
+  detailPathPrefix,
   masterHonorsConfig,
-  hidePageHeader = false,
 }: PhaseECatalogCrudPageProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -812,11 +731,6 @@ export function PhaseECatalogCrudPage({
 
   const [createActiveChecked, setCreateActiveChecked] = useState(true);
   const [editActiveChecked, setEditActiveChecked] = useState(true);
-  const [createAdvancedEnabledChecked, setCreateAdvancedEnabledChecked] = useState(false);
-  const [editAdvancedEnabledChecked, setEditAdvancedEnabledChecked] = useState(false);
-  const [createRequiredForInvestitureChecked, setCreateRequiredForInvestitureChecked] =
-    useState(true);
-  const [editRequiredForInvestitureChecked, setEditRequiredForInvestitureChecked] = useState(true);
   const [createTranslations, setCreateTranslations] = useState<CatalogTranslation[]>([]);
   const [editTranslations, setEditTranslations] = useState<CatalogTranslation[]>([]);
   const [createMasterHonorsPayload, setCreateMasterHonorsPayload] = useState<MasterHonorPayload>(EMPTY_MASTER_HONOR_PAYLOAD);
@@ -880,6 +794,9 @@ export function PhaseECatalogCrudPage({
   const currentSearch =
     searchParams.get("search") ?? searchParams.get("name") ?? searchParams.get("q") ?? "";
   const currentStatusFilter = searchParams.get("active") ?? "all";
+  const currentClubTypeFilter = searchParams.get("club_type_id") ?? "all";
+  const currentClassFilter = searchParams.get("class_id") ?? "all";
+  const currentModuleFilter = searchParams.get("module_id") ?? "all";
   const [searchInput, setSearchInput] = useState(currentSearch);
   const isMasterHonorsDialog = Boolean(masterHonorsConfig);
   const dialogContentClass = isMasterHonorsDialog
@@ -916,8 +833,6 @@ export function PhaseECatalogCrudPage({
   const t = useTranslations("catalogs.phaseE");
   const displayT = useTranslations("classes.display");
   const masterHonorsT = useTranslations("catalogs.masterHonors");
-  const isClassesMode = catalogEntityMode === "classes";
-  const isClassSectionsMode = catalogEntityMode === "class-sections";
   const displayLabels: ClassDisplayLabels = {
     yearSingular: displayT("yearSingular"),
     yearPlural: displayT("yearPlural"),
@@ -927,19 +842,160 @@ export function PhaseECatalogCrudPage({
     availableFromYear: (label) => displayT("availableFromYear", { label }),
     availableUntilYear: (label) => displayT("availableUntilYear", { label }),
   };
-  const hasActiveFilters = Boolean(currentSearch || currentStatusFilter !== "all");
+  const showClassConfig = Array.isArray(classConfigYearOptions);
+  const showClassSectionModule =
+    Array.isArray(classSectionModuleOptions) && classSectionModuleOptions.length > 0;
+  const showClassModuleParent =
+    !showClassSectionModule &&
+    Array.isArray(classModuleParentOptions) &&
+    classModuleParentOptions.length > 0;
+  const showClubType =
+    (Array.isArray(classClubTypeOptions) && classClubTypeOptions.length > 0) ||
+    showClassModuleParent ||
+    showClassSectionModule;
+  const hasActiveFilters = Boolean(
+    currentSearch ||
+      currentStatusFilter !== "all" ||
+      (showClubType && currentClubTypeFilter !== "all") ||
+      ((showClassModuleParent || showClassSectionModule) && currentClassFilter !== "all") ||
+      (showClassSectionModule && currentModuleFilter !== "all"),
+  );
   const canMutate = canCreate || canEdit || canDelete;
   const isMasterHonorsCrud = Boolean(masterHonorsConfig);
   const hasRecalculateAction = isMasterHonorsCrud && Boolean(masterHonorsConfig?.recalculateAction);
-  const showClassConfig = isClassesMode && Array.isArray(classConfigYearOptions);
-  const showSectionConfig = isClassSectionsMode && Array.isArray(classConfigYearOptions);
-  const showAvailability = showClassConfig || showSectionConfig;
   const yearNameById = new Map(
     (classConfigYearOptions ?? []).map((year) => [
       year.ecclesiastical_year_id,
       year.name || displayLabels.yearFallback(year.ecclesiastical_year_id),
     ]),
   );
+  const clubTypeNameById = new Map(
+    (classClubTypeOptions ?? []).map((clubType) => [clubType.club_type_id, clubType.name]),
+  );
+  const classParentById = new Map(
+    (classModuleParentOptions ?? []).map((parentClass) => [parentClass.class_id, parentClass]),
+  );
+  const sectionModuleById = new Map(
+    (classSectionModuleOptions ?? []).map((moduleOption) => [moduleOption.module_id, moduleOption]),
+  );
+  const sectionClassFilterOptions = showClassSectionModule
+    ? deriveClassOptionsFromSectionModules(
+        classSectionModuleOptions ?? [],
+        (classClubTypeOptions ?? []).map((clubType) => ({
+          club_type_id: clubType.club_type_id,
+          name: clubType.name,
+          active: true,
+          created_at: null,
+          modified_at: null,
+        })),
+      )
+    : [];
+  const filteredClassParentOptions = (showClassSectionModule
+    ? sectionClassFilterOptions
+    : (classModuleParentOptions ?? [])
+  ).filter((parentClass) => {
+    if (currentClubTypeFilter === "all") return true;
+    return String(parentClass.club_type_id) === currentClubTypeFilter;
+  });
+  const filteredSectionModuleOptions = (classSectionModuleOptions ?? []).filter((moduleOption) => {
+    if (currentClubTypeFilter !== "all" && String(moduleOption.club_type_id) !== currentClubTypeFilter) {
+      return false;
+    }
+    if (currentClassFilter !== "all" && String(moduleOption.class_id) !== currentClassFilter) {
+      return false;
+    }
+    return true;
+  });
+
+  const handleClubTypeFilterChange = useCallback(
+    (value: string) => {
+      const params = new URLSearchParams(latestParamsRef.current);
+      if (!value.trim() || value === "all") {
+        params.delete("club_type_id");
+      } else {
+        params.set("club_type_id", value.trim());
+      }
+      const classId = params.get("class_id");
+      if (classId && value !== "all") {
+        const parent = showClassSectionModule
+          ? sectionClassFilterOptions.find((entry) => entry.class_id === Number(classId))
+          : (classModuleParentOptions ?? []).find((entry) => entry.class_id === Number(classId));
+        if (parent && String(parent.club_type_id) !== value) {
+          params.delete("class_id");
+        }
+      }
+      const moduleId = params.get("module_id");
+      if (moduleId && value !== "all" && showClassSectionModule) {
+        const moduleOption = sectionModuleById.get(Number(moduleId));
+        if (moduleOption && String(moduleOption.club_type_id) !== value) {
+          params.delete("module_id");
+        }
+      }
+      params.set("page", "1");
+      const qs = params.toString();
+      router.push(qs ? `${pathname}?${qs}` : pathname);
+    },
+    [
+      classModuleParentOptions,
+      pathname,
+      router,
+      sectionClassFilterOptions,
+      sectionModuleById,
+      showClassSectionModule,
+    ],
+  );
+
+  const handleClassFilterChange = useCallback(
+    (value: string) => {
+      const params = new URLSearchParams(latestParamsRef.current);
+      if (!value.trim() || value === "all") {
+        params.delete("class_id");
+      } else {
+        params.set("class_id", value.trim());
+      }
+      const moduleId = params.get("module_id");
+      if (moduleId && value !== "all" && showClassSectionModule) {
+        const moduleOption = sectionModuleById.get(Number(moduleId));
+        if (moduleOption && String(moduleOption.class_id) !== value) {
+          params.delete("module_id");
+        }
+      }
+      params.set("page", "1");
+      const qs = params.toString();
+      router.push(qs ? `${pathname}?${qs}` : pathname);
+    },
+    [pathname, router, sectionModuleById, showClassSectionModule],
+  );
+
+  function resolveClubTypeId(item: AnyRecord): number | null {
+    const direct = toPositiveInt(item.club_type_id);
+    if (direct) return direct;
+    const moduleId = toPositiveInt(item.module_id);
+    if (moduleId) return sectionModuleById.get(moduleId)?.club_type_id ?? null;
+    const classId = toPositiveInt(item.class_id);
+    if (!classId) return null;
+    return classParentById.get(classId)?.club_type_id ?? null;
+  }
+
+  function resolveClassName(item: AnyRecord): string {
+    const className = toText(item.class_name);
+    if (className) return className;
+    const moduleId = toPositiveInt(item.module_id);
+    if (moduleId) {
+      return sectionModuleById.get(moduleId)?.class_name ?? "—";
+    }
+    const classId = toPositiveInt(item.class_id);
+    if (!classId) return "—";
+    return classParentById.get(classId)?.name ?? t("classFallback", { id: classId });
+  }
+
+  function resolveModuleName(item: AnyRecord): string {
+    const moduleName = toText(item.module_name);
+    if (moduleName) return moduleName;
+    const moduleId = toPositiveInt(item.module_id);
+    if (!moduleId) return "—";
+    return sectionModuleById.get(moduleId)?.name ?? t("moduleFallback", { id: moduleId });
+  }
   const safePage = Math.max(1, meta.page || 1);
   const safeLimit = Math.max(1, meta.limit || 20);
   const safeTotalPages = Math.max(1, meta.totalPages || 1);
@@ -949,8 +1005,6 @@ export function PhaseECatalogCrudPage({
     setCreateOpen(open);
     if (open) {
       setCreateActiveChecked(true);
-      setCreateAdvancedEnabledChecked(false);
-      setCreateRequiredForInvestitureChecked(true);
       setCreateTranslations([]);
       setCreateMasterHonorsPayload(EMPTY_MASTER_HONOR_PAYLOAD);
       return;
@@ -966,8 +1020,6 @@ export function PhaseECatalogCrudPage({
     }
 
     setEditActiveChecked(item.active !== false);
-    setEditAdvancedEnabledChecked(item.advanced_enabled === true);
-    setEditRequiredForInvestitureChecked(item.required_for_investiture !== false);
     setEditTranslations(
       Array.isArray(item.translations) ? (item.translations as CatalogTranslation[]) : [],
     );
@@ -975,32 +1027,22 @@ export function PhaseECatalogCrudPage({
   }
 
   return (
-    <div className={hidePageHeader ? "space-y-4" : "space-y-6"}>
-      {!hidePageHeader ? (
-        <PageHeader title={title} description={description}>
-          {canCreate && (
-            <Button onClick={() => handleCreateOpen(true)}>
-              <Plus className="size-4" />
-              {t("create", { entity: entityLabel.toLowerCase() })}
-            </Button>
-          )}
-        </PageHeader>
-      ) : null}
+    <div className="space-y-6">
+      <PageHeader title={title} description={description}>
+        {canCreate && (
+          <Button onClick={() => handleCreateOpen(true)}>
+            <Plus className="size-4" />
+            {t("create", { entity: entityLabel.toLowerCase() })}
+          </Button>
+        )}
+      </PageHeader>
 
       <div className="space-y-4">
         {/* Filter bar */}
         <div className="rounded-xl border bg-muted/20 p-4">
           <div className="mb-3 flex items-center justify-between gap-2">
             <h3 className="text-sm font-semibold tracking-wide text-foreground">{t("filtersTitle")}</h3>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">{t("filtersSubtitle")}</span>
-              {hidePageHeader && canCreate ? (
-                <Button size="sm" onClick={() => handleCreateOpen(true)}>
-                  <Plus className="size-4" />
-                  {t("create", { entity: entityLabel.toLowerCase() })}
-                </Button>
-              ) : null}
-            </div>
+            <span className="text-xs text-muted-foreground">{t("filtersSubtitle")}</span>
           </div>
           <div className="overflow-x-auto pb-1">
             <div className="flex min-w-max items-end gap-4">
@@ -1017,6 +1059,78 @@ export function PhaseECatalogCrudPage({
                   />
                 </div>
               </div>
+              {showClubType && classClubTypeOptions && classClubTypeOptions.length > 0 && (
+                <div className="w-[220px] space-y-1">
+                  <Label htmlFor={`${idPrefix}-filter-club-type`}>{t("filterClubType")}</Label>
+                  <Select
+                    value={currentClubTypeFilter}
+                    onValueChange={
+                      showClassModuleParent || showClassSectionModule
+                        ? handleClubTypeFilterChange
+                        : (v) => updateParam("club_type_id", v)
+                    }
+                  >
+                    <SelectTrigger id={`${idPrefix}-filter-club-type`} className="bg-background">
+                      <SelectValue placeholder={t("filterClubType")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">{t("filterClubTypeAll")}</SelectItem>
+                      {classClubTypeOptions.map((clubType) => (
+                        <SelectItem
+                          key={clubType.club_type_id}
+                          value={String(clubType.club_type_id)}
+                        >
+                          {clubType.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              {(showClassModuleParent || showClassSectionModule) && (
+                <div className="w-[240px] space-y-1">
+                  <Label htmlFor={`${idPrefix}-filter-class`}>{t("filterClass")}</Label>
+                  <Select
+                    value={currentClassFilter}
+                    onValueChange={
+                      showClassSectionModule ? handleClassFilterChange : (v) => updateParam("class_id", v)
+                    }
+                  >
+                    <SelectTrigger id={`${idPrefix}-filter-class`} className="bg-background">
+                      <SelectValue placeholder={t("filterClass")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">{t("filterClassAll")}</SelectItem>
+                      {filteredClassParentOptions.map((parentClass) => (
+                        <SelectItem key={parentClass.class_id} value={String(parentClass.class_id)}>
+                          {parentClass.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              {showClassSectionModule && (
+                <div className="w-[260px] space-y-1">
+                  <Label htmlFor={`${idPrefix}-filter-module`}>{t("filterModule")}</Label>
+                  <Select
+                    value={currentModuleFilter}
+                    onValueChange={(v) => updateParam("module_id", v)}
+                  >
+                    <SelectTrigger id={`${idPrefix}-filter-module`} className="bg-background">
+                      <SelectValue placeholder={t("filterModule")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">{t("filterModuleAll")}</SelectItem>
+                      {filteredSectionModuleOptions.map((moduleOption) => (
+                        <SelectItem key={moduleOption.module_id} value={String(moduleOption.module_id)}>
+                          {moduleOption.class_name} · {moduleOption.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               <div className="w-[200px] space-y-1">
                 <Label htmlFor={`${idPrefix}-filter-status`}>{t("filterStatus")}</Label>
                 <Select
@@ -1062,17 +1176,19 @@ export function PhaseECatalogCrudPage({
                 <TableHeader>
                   <TableRow>
                     <TableHead>{t("colName")}</TableHead>
+                    {showClassSectionModule && <TableHead>{t("colModule")}</TableHead>}
+                    {(showClassModuleParent || showClassSectionModule) && (
+                      <TableHead>{t("colClass")}</TableHead>
+                    )}
+                    {showClubType && <TableHead>{t("colClubType")}</TableHead>}
                     {includeDescription && <TableHead>{t("colDescription")}</TableHead>}
-                    {isClassesMode && <TableHead>{t("colAdvanced")}</TableHead>}
-                    {showSectionConfig && <TableHead>{t("colRequirementTrack")}</TableHead>}
-                    {showSectionConfig && <TableHead>{t("colOwnerScope")}</TableHead>}
                     {showClassConfig && <TableHead>{t("colDuration")}</TableHead>}
-                    {showAvailability && <TableHead>{t("colAvailability")}</TableHead>}
+                    {showClassConfig && <TableHead>{t("colAvailability")}</TableHead>}
                     {isMasterHonorsCrud && (
                       <TableHead>{masterHonorsT("colRulesSummary")}</TableHead>
                     )}
                     <TableHead>{t("colStatus")}</TableHead>
-                    {(canEdit || canDelete) && (
+                    {(canEdit || canDelete || detailPathPrefix) && (
                       <TableHead className="sticky right-0 z-20 w-[100px] border-l bg-background">
                         {t("colActions")}
                       </TableHead>
@@ -1087,42 +1203,43 @@ export function PhaseECatalogCrudPage({
 
                     return (
                       <TableRow key={rowKey}>
-                        <TableCell className="font-medium">{itemName}</TableCell>
+                        <TableCell className="font-medium">
+                          {detailPathPrefix && itemId ? (
+                            <Link
+                              href={`${detailPathPrefix}/${itemId}`}
+                              className="hover:underline"
+                            >
+                              {itemName}
+                            </Link>
+                          ) : (
+                            itemName
+                          )}
+                        </TableCell>
+                        {showClassSectionModule && (
+                          <TableCell className="text-sm text-muted-foreground">
+                            {resolveModuleName(item)}
+                          </TableCell>
+                        )}
+                        {(showClassModuleParent || showClassSectionModule) && (
+                          <TableCell className="text-sm text-muted-foreground">
+                            {resolveClassName(item)}
+                          </TableCell>
+                        )}
+                        {showClubType && (
+                          <TableCell className="text-sm text-muted-foreground">
+                            {(() => {
+                              const clubTypeId = resolveClubTypeId(item);
+                              if (!clubTypeId) return "—";
+                              return (
+                                clubTypeNameById.get(clubTypeId) ??
+                                t("clubTypeFallback", { id: clubTypeId })
+                              );
+                            })()}
+                          </TableCell>
+                        )}
                         {includeDescription && (
                           <TableCell className="max-w-[380px] text-sm text-muted-foreground">
                             {toText(item.description) ?? "—"}
-                          </TableCell>
-                        )}
-                        {isClassesMode && (
-                          <TableCell>
-                            <Badge
-                              variant={item.advanced_enabled === true ? "soft-success" : "outline"}
-                              className="text-xs"
-                            >
-                              {item.advanced_enabled === true ? t("yes") : t("no")}
-                            </Badge>
-                          </TableCell>
-                        )}
-                        {showSectionConfig && (
-                          <TableCell className="text-sm text-muted-foreground">
-                            {toText(item.requirement_track) === "ADVANCED"
-                              ? t("requirementTrackAdvanced")
-                              : toText(item.requirement_track) === "EXTRA"
-                                ? t("requirementTrackExtra")
-                                : t("requirementTrackBasic")}
-                          </TableCell>
-                        )}
-                        {showSectionConfig && (
-                          <TableCell className="text-sm text-muted-foreground">
-                            {(() => {
-                              const localFieldId = toPositiveInt(item.owner_local_field_id);
-                              const unionId = toPositiveInt(item.owner_union_id);
-                              const divisionId = toPositiveInt(item.owner_division_id);
-                              if (localFieldId) return t("ownerLocalFieldShort", { id: localFieldId });
-                              if (unionId) return t("ownerUnionShort", { id: unionId });
-                              if (divisionId) return t("ownerDivisionShort", { id: divisionId });
-                              return "—";
-                            })()}
                           </TableCell>
                         )}
                         {showClassConfig && (
@@ -1134,22 +1251,13 @@ export function PhaseECatalogCrudPage({
                             )}
                           </TableCell>
                         )}
-                        {showAvailability && (
+                        {showClassConfig && (
                           <TableCell className="max-w-[260px] text-sm text-muted-foreground">
-                            <span className="block">
-                              {formatClassAvailabilityFrom(
-                                toPositiveInt(item.available_from_year_id),
-                                displayLabels,
-                                yearNameById.get(toPositiveInt(item.available_from_year_id) ?? 0),
-                              )}
-                            </span>
-                            <span className="block">
-                              {formatClassAvailabilityUntil(
-                                toPositiveInt(item.available_until_year_id),
-                                displayLabels,
-                                yearNameById.get(toPositiveInt(item.available_until_year_id) ?? 0),
-                              )}
-                            </span>
+                            {formatClassAvailabilityUntil(
+                              toPositiveInt(item.available_until_year_id),
+                              displayLabels,
+                              yearNameById.get(toPositiveInt(item.available_until_year_id) ?? 0),
+                            )}
                           </TableCell>
                         )}
                         {isMasterHonorsCrud ? (
@@ -1174,9 +1282,19 @@ export function PhaseECatalogCrudPage({
                             {item.active !== false ? t("statusActive") : t("statusInactive")}
                           </Badge>
                         </TableCell>
-                        {(canEdit || canDelete) && (
+                        {(canEdit || canDelete || detailPathPrefix) && (
                           <TableCell className="sticky right-0 z-10 border-l bg-background">
                             <div className="hidden gap-1 md:flex">
+                              {detailPathPrefix && itemId ? (
+                                <Button variant="ghost" size="icon" className="size-8" asChild>
+                                  <Link
+                                    href={`${detailPathPrefix}/${itemId}`}
+                                    title={t("viewDetail")}
+                                  >
+                                    <Eye className="size-3.5" />
+                                  </Link>
+                                </Button>
+                              ) : null}
                               {canEdit && (
                                 <Button
                                   variant="ghost"
@@ -1230,6 +1348,14 @@ export function PhaseECatalogCrudPage({
                                   </Button>
                                 </DropdownMenuTrigger>
                                   <DropdownMenuContent align="end">
+                                  {detailPathPrefix && itemId ? (
+                                    <DropdownMenuItem asChild>
+                                      <Link href={`${detailPathPrefix}/${itemId}`}>
+                                        <Eye className="size-4" />
+                                        {t("viewDetail")}
+                                      </Link>
+                                    </DropdownMenuItem>
+                                  ) : null}
                                   {canEdit && (
                                     <DropdownMenuItem
                                       disabled={!itemId}
@@ -1314,7 +1440,6 @@ export function PhaseECatalogCrudPage({
                 )}
                 <CatalogFormFields
                   idPrefix={`${idPrefix}-create`}
-                  entityMode={catalogEntityMode}
                   includeDescription={includeDescription}
                   activeChecked={createActiveChecked}
                   onActiveChange={setCreateActiveChecked}
@@ -1322,13 +1447,12 @@ export function PhaseECatalogCrudPage({
                   onTranslationsChange={setCreateTranslations}
                   entityLabel={entityLabel}
                   classConfigYearOptions={classConfigYearOptions}
+                  classClubTypeOptions={classClubTypeOptions}
+                  classModuleParentOptions={classModuleParentOptions}
+                  classSectionModuleOptions={classSectionModuleOptions}
                   masterHonorsConfig={masterHonorsConfig}
                   masterHonorsPayload={createMasterHonorsPayload}
                   onMasterHonorsPayloadChange={setCreateMasterHonorsPayload}
-                  advancedEnabledChecked={createAdvancedEnabledChecked}
-                  onAdvancedEnabledChange={setCreateAdvancedEnabledChecked}
-                  requiredForInvestitureChecked={createRequiredForInvestitureChecked}
-                  onRequiredForInvestitureChange={setCreateRequiredForInvestitureChecked}
                 />
               </div>
               <DialogFooter className={dialogFooterClass}>
@@ -1363,7 +1487,6 @@ export function PhaseECatalogCrudPage({
                 <CatalogFormFields
                   idPrefix={`${idPrefix}-edit`}
                   item={editItem}
-                  entityMode={catalogEntityMode}
                   includeDescription={includeDescription}
                   activeChecked={editActiveChecked}
                   onActiveChange={setEditActiveChecked}
@@ -1371,13 +1494,12 @@ export function PhaseECatalogCrudPage({
                   onTranslationsChange={setEditTranslations}
                   entityLabel={entityLabel}
                   classConfigYearOptions={classConfigYearOptions}
+                  classClubTypeOptions={classClubTypeOptions}
+                  classModuleParentOptions={classModuleParentOptions}
+                  classSectionModuleOptions={classSectionModuleOptions}
                   masterHonorsConfig={masterHonorsConfig}
                   masterHonorsPayload={editMasterHonorsPayload}
                   onMasterHonorsPayloadChange={setEditMasterHonorsPayload}
-                  advancedEnabledChecked={editAdvancedEnabledChecked}
-                  onAdvancedEnabledChange={setEditAdvancedEnabledChecked}
-                  requiredForInvestitureChecked={editRequiredForInvestitureChecked}
-                  onRequiredForInvestitureChange={setEditRequiredForInvestitureChecked}
                 />
               </div>
               <DialogFooter className={dialogFooterClass}>

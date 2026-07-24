@@ -45,36 +45,6 @@ export function HistoryTimeline({ entries }: HistoryTimelineProps) {
       iconClassName: "text-success",
       dotClassName: "bg-success/20 border-success/40",
     },
-    CLUB_APPROVED: {
-      label: t("historyDialog.actionClubApproved"),
-      icon: CheckCircle2,
-      iconClassName: "text-success",
-      dotClassName: "bg-success/20 border-success/40",
-    },
-    COORDINATOR_APPROVED: {
-      label: t("historyDialog.actionCoordinatorApproved"),
-      icon: CheckCircle2,
-      iconClassName: "text-success",
-      dotClassName: "bg-success/20 border-success/40",
-    },
-    FIELD_APPROVED: {
-      label: t("historyDialog.actionFieldApproved"),
-      icon: CheckCircle2,
-      iconClassName: "text-success",
-      dotClassName: "bg-success/20 border-success/40",
-    },
-    INVESTED: {
-      label: t("historyDialog.actionInvested"),
-      icon: CheckCircle2,
-      iconClassName: "text-primary",
-      dotClassName: "bg-primary/20 border-primary/40",
-    },
-    INVESTIDO: {
-      label: t("historyDialog.actionInvested"),
-      icon: CheckCircle2,
-      iconClassName: "text-primary",
-      dotClassName: "bg-primary/20 border-primary/40",
-    },
     REJECTED: {
       label: t("history.actionRejected"),
       icon: XCircle,

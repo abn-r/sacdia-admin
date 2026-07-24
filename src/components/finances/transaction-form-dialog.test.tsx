@@ -67,15 +67,19 @@ const mockCreateFinance = vi.fn();
 const mockUpdateFinance = vi.fn();
 const mockUploadFinanceEvidence = vi.fn();
 
-vi.mock("@/lib/api/finances", () => ({
-  getFinanceCategories: () => mockGetFinanceCategories(),
-  createFinance: (clubId: number, payload: unknown) =>
-    mockCreateFinance(clubId, payload),
-  updateFinance: (financeId: number, payload: unknown) =>
-    mockUpdateFinance(financeId, payload),
-  uploadFinanceEvidence: (financeId: number, file: File) =>
-    mockUploadFinanceEvidence(financeId, file),
-}));
+vi.mock("@/lib/api/finances", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/api/finances")>();
+  return {
+    ...actual,
+    getFinanceCategories: () => mockGetFinanceCategories(),
+    createFinance: (clubId: number, payload: unknown) =>
+      mockCreateFinance(clubId, payload),
+    updateFinance: (financeId: number, payload: unknown) =>
+      mockUpdateFinance(financeId, payload),
+    uploadFinanceEvidence: (financeId: number, file: File) =>
+      mockUploadFinanceEvidence(financeId, file),
+  };
+});
 
 // sonner toast — we don't need to render the Toaster; just spy on calls.
 const mockToastError = vi.fn();
@@ -108,7 +112,7 @@ const STUB_FINANCE: Finance = {
   finance_id: 99,
   year: 2025,
   month: 3,
-  amount: 5000, // 50.00 in cents
+  amount: 50,
   description: "Cuota mensual",
   club_type_id: 1,
   finance_category_id: 1,
@@ -173,16 +177,6 @@ describe("TransactionFormDialog", () => {
     // Default: mutations resolve (success path)
     mockCreateFinance.mockResolvedValue({ ...STUB_FINANCE });
     mockUpdateFinance.mockResolvedValue({ ...STUB_FINANCE });
-    mockUploadFinanceEvidence.mockResolvedValue({
-      evidence_id: 1,
-      finance_id: STUB_FINANCE.finance_id,
-      url: "https://example.com/evidence.jpg",
-      file_name: "recibo.jpg",
-      file_type: "image/jpeg",
-      uploaded_by_id: "user-1",
-      uploaded_at: "2026-06-19T00:00:00Z",
-      active: true,
-    });
   });
 
   afterEach(() => {
@@ -323,13 +317,13 @@ describe("TransactionFormDialog", () => {
       expect(mockCreateFinance).toHaveBeenCalledOnce();
     });
 
-    // Payload amount should be in cents (50 * 100 = 5000)
+    // Payload amount is integer pesos (same as entered)
     const [calledClubId, calledPayload] = mockCreateFinance.mock.calls[0] as [
       number,
       { amount: number; finance_category_id: number },
     ];
     expect(calledClubId).toBe(1);
-    expect(calledPayload.amount).toBe(5000);
+    expect(calledPayload.amount).toBe(50);
     expect(calledPayload.finance_category_id).toBe(1);
 
     // Dialog closes and success callback fires
@@ -360,31 +354,10 @@ describe("TransactionFormDialog", () => {
       { amount: number },
     ];
     expect(calledId).toBe(STUB_FINANCE.finance_id);
-    expect(calledPayload.amount).toBe(10000); // 100 * 100
+    expect(calledPayload.amount).toBe(100);
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
     expect(onSuccess).toHaveBeenCalledOnce();
-  });
-
-  it("uploads selected evidence photos after saving the movement", async () => {
-    renderDialog({ finance: STUB_FINANCE });
-    await waitFor(() => expect(mockGetFinanceCategories).toHaveBeenCalledOnce());
-
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-    const receipt = new File(["image"], "recibo.jpg", { type: "image/jpeg" });
-
-    await act(async () => {
-      fireEvent.change(fileInput, { target: { files: [receipt] } });
-    });
-
-    await submitForm();
-
-    await waitFor(() => {
-      expect(mockUploadFinanceEvidence).toHaveBeenCalledWith(
-        STUB_FINANCE.finance_id,
-        receipt,
-      );
-    });
   });
 
   // ── 6. Submit during pending ──────────────────────────────────────────────

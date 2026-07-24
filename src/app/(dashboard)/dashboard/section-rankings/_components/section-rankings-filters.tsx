@@ -37,7 +37,11 @@ export function SectionRankingsFilters({
   const [clubId, setClubId] = useState<number | null>(defaultClubId ?? null);
 
   return (
-    <form className="flex flex-wrap items-end gap-3" method="GET">
+    <form
+      className="rounded-xl border border-border/60 bg-muted/20 p-4"
+      method="GET"
+    >
+      <div className="flex flex-wrap items-end gap-3">
       {/* Hidden inputs carry selected values as GET params on submit */}
       {yearId != null && (
         <input type="hidden" name="year_id" value={yearId} />
@@ -75,14 +79,20 @@ export function SectionRankingsFilters({
         </div>
       </div>
 
-      {/* Actions */}
-      <div className="flex items-center gap-2">
-        <Button type="submit" size="sm">
+      {/* Actions — label spacer matches field columns for baseline alignment */}
+      <div className="flex flex-col gap-1.5">
+        <Label className="pointer-events-none text-xs text-muted-foreground opacity-0">
           {t("apply")}
-        </Button>
-        <Button variant="ghost" size="sm" asChild>
-          <Link href="/dashboard/section-rankings">{t("clear")}</Link>
-        </Button>
+        </Label>
+        <div className="flex h-9 items-center gap-2">
+          <Button type="submit" className="h-9">
+            {t("apply")}
+          </Button>
+          <Button variant="outline" className="h-9" asChild>
+            <Link href="/dashboard/section-rankings">{t("clear")}</Link>
+          </Button>
+        </div>
+      </div>
       </div>
     </form>
   );

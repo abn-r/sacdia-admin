@@ -1,6 +1,6 @@
 "use client";
 
-import { Pencil, Trash2, MoreHorizontal } from "lucide-react";
+import { Pencil, Trash2, MoreHorizontal, Image } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,16 +25,14 @@ import {
 } from "@/components/shared/sortable-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DollarSign } from "lucide-react";
-import type { Finance, FinanceSortField } from "@/lib/api/finances";
-import { formatCurrency } from "@/lib/currency";
+import {
+  isFinanceIncome,
+  type Finance,
+  type FinanceSortField,
+} from "@/lib/api/finances";
+import { formatFinanceAmount } from "@/lib/finances/amount";
 import { useTranslations } from "next-intl";
-import { useFormatDate } from "@/lib/format-locale";
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatAmount(cents: number): string {
-  return formatCurrency(cents / 100);
-}
+import { useFormatDate, useFormatCurrency } from "@/lib/format-locale";
 
 const MONTH_KEYS: Record<number, string> = {
   1: "january",
@@ -65,8 +63,11 @@ export function TransactionsTableSkeleton() {
               t("table.colDate"),
               t("table.colDescription"),
               t("table.colCategory"),
+              t("table.colSection"),
+              t("table.colPeriod"),
               t("table.colType"),
               t("table.colAmount"),
+              t("table.colEvidence"),
               "",
             ].map((h, i) => (
               <TableHead
@@ -91,10 +92,19 @@ export function TransactionsTableSkeleton() {
                 <Skeleton className="h-4 w-28" />
               </TableCell>
               <TableCell className="px-3 py-2.5">
+                <Skeleton className="h-4 w-24" />
+              </TableCell>
+              <TableCell className="px-3 py-2.5">
+                <Skeleton className="h-4 w-16" />
+              </TableCell>
+              <TableCell className="px-3 py-2.5">
                 <Skeleton className="h-5 w-16 rounded-full" />
               </TableCell>
               <TableCell className="px-3 py-2.5">
                 <Skeleton className="h-4 w-24" />
+              </TableCell>
+              <TableCell className="px-3 py-2.5">
+                <Skeleton className="h-5 w-10 rounded-full" />
               </TableCell>
               <TableCell className="px-3 py-2.5">
                 <Skeleton className="size-8 rounded-md" />
@@ -111,8 +121,10 @@ export function TransactionsTableSkeleton() {
 
 interface TransactionsTableProps {
   items: Finance[];
+  sectionLabels?: Record<number, string>;
   onEdit: (finance: Finance) => void;
   onDelete: (finance: Finance) => void;
+  onViewEvidence: (finance: Finance) => void;
   sortField: FinanceSortField;
   sortDirection: SortDirection;
   onSort: (field: FinanceSortField, direction: SortDirection) => void;
@@ -120,14 +132,27 @@ interface TransactionsTableProps {
 
 export function TransactionsTable({
   items,
+  sectionLabels,
   onEdit,
   onDelete,
+  onViewEvidence,
   sortField,
   sortDirection,
   onSort,
 }: TransactionsTableProps) {
   const t = useTranslations("finances");
   const formatDate = useFormatDate();
+  const formatCurrency = useFormatCurrency();
+  const formatAmount = (amountInCentavos: number) =>
+    formatFinanceAmount(amountInCentavos, formatCurrency);
+
+  function getSectionLabel(finance: Finance): string {
+    return (
+      sectionLabels?.[finance.club_section_id] ??
+      finance.club_types?.name ??
+      "—"
+    );
+  }
 
   if (items.length === 0) {
     return (
@@ -194,6 +219,9 @@ export function TransactionsTable({
               </SortableHeader>
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              {t("table.colSection")}
+            </TableHead>
+            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
               {t("table.colPeriod")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
@@ -219,12 +247,16 @@ export function TransactionsTable({
                 {t("table.colAmount")}
               </SortableHeader>
             </TableHead>
+            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              {t("table.colEvidence")}
+            </TableHead>
             <TableHead className="h-9 w-12 px-3" />
           </TableRow>
         </TableHeader>
         <TableBody>
           {items.map((finance) => {
-            const isIncome = finance.finances_categories?.type === 0;
+            const isIncome = isFinanceIncome(finance);
+            const evidenceCount = finance.evidences?.length ?? 0;
 
             return (
               <TableRow key={finance.finance_id} className="hover:bg-muted/30">
@@ -241,11 +273,17 @@ export function TransactionsTable({
                     {finance.finances_categories?.name ?? "—"}
                   </span>
                 </TableCell>
+                <TableCell className="px-3 py-2.5 align-middle">
+                  <span className="text-sm">{getSectionLabel(finance)}</span>
+                </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground tabular-nums">
                   {monthName(finance.month)}/{finance.year}
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle">
-                  <Badge variant={isIncome ? "success" : "destructive"}>
+                  <Badge
+                    variant={isIncome ? "secondary" : "destructive"}
+                    className={isIncome ? "text-success" : undefined}
+                  >
                     {isIncome ? t("table.typeIncome") : t("table.typeExpense")}
                   </Badge>
                 </TableCell>
@@ -260,6 +298,22 @@ export function TransactionsTable({
                   </span>
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle">
+                  {evidenceCount > 0 ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-7 gap-1 px-2 text-xs"
+                      onClick={() => onViewEvidence(finance)}
+                    >
+                      <Image className="size-3.5" />
+                      {evidenceCount}
+                    </Button>
+                  ) : (
+                    <span className="text-sm text-muted-foreground">—</span>
+                  )}
+                </TableCell>
+                <TableCell className="px-3 py-2.5 align-middle">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon-sm">
@@ -268,6 +322,15 @@ export function TransactionsTable({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
+                      {evidenceCount > 0 && (
+                        <>
+                          <DropdownMenuItem onClick={() => onViewEvidence(finance)}>
+                            <Image className="size-4" />
+                            {t("table.actionViewEvidence")}
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                        </>
+                      )}
                       <DropdownMenuItem onClick={() => onEdit(finance)}>
                         <Pencil className="size-4" />
                         {t("table.actionEdit")}

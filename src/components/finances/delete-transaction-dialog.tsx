@@ -14,7 +14,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useTranslations } from "next-intl";
-import { deleteFinance, type Finance } from "@/lib/api/finances";
+import { deleteFinance, isFinanceIncome, type Finance } from "@/lib/api/finances";
+import { formatFinanceAmount } from "@/lib/finances/amount";
 import { useFormatCurrency } from "@/lib/format-locale";
 
 export interface DeleteTransactionDialogProps {
@@ -34,9 +35,8 @@ export function DeleteTransactionDialog({
   const formatCurrency = useFormatCurrency();
   const [isDeleting, setIsDeleting] = useState(false);
 
-  function formatAmount(cents: number): string {
-    return formatCurrency(cents / 100);
-  }
+  const formatAmount = (amount: number) =>
+    formatFinanceAmount(amount, formatCurrency);
 
   async function handleDelete() {
     if (!finance) return;
@@ -53,7 +53,7 @@ export function DeleteTransactionDialog({
     }
   }
 
-  const isIncome = finance?.finances_categories?.type === 0;
+  const isIncome = finance ? isFinanceIncome(finance) : false;
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>

@@ -1,9 +1,30 @@
 "use client";
 
-import { useActionState, useMemo, useState } from "react";
-import { Check, ChevronsUpDown, UserCheck } from "lucide-react";
+import { useEffect, useMemo, useState, useTransition, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import {
+  Check,
+  ChevronsUpDown,
+  Loader2,
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+  UserPlus,
+  Users,
+} from "lucide-react";
+import { useTranslations } from "next-intl";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Command,
   CommandEmpty,
@@ -12,15 +33,32 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { UserAvatar } from "@/components/users/user-avatar";
+import { EmptyState } from "@/components/shared/empty-state";
 import {
   addCamporeeJudgeAction,
-  type CamporeeScoringActionState,
+  removeCamporeeJudgeAction,
+  updateCamporeeJudgeAction,
 } from "@/lib/camporee-scoring/actions";
+import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 import type {
   CamporeeJudge,
   CamporeeJudgeCandidate,
@@ -35,7 +73,6 @@ export interface CamporeeJudgesPanelProps {
   judgeCandidates?: CamporeeJudgeCandidate[];
   judgeCandidatesError?: string | null;
   canEdit?: boolean;
-  clubRegistrationClosed?: boolean;
 }
 
 const CLUB_ROLE_NAMES = new Set([
@@ -142,36 +179,55 @@ function JudgeCandidateBadges({
   roleLabels,
   positionLabels,
   eligibilityReasons,
+  rolePrefix,
+  positionPrefix,
+  noPosition,
 }: {
   roleLabels: string[];
   positionLabels: string[];
   eligibilityReasons: CamporeeJudgeEligibilityReason[];
+  rolePrefix: string;
+  positionPrefix: string;
+  noPosition: string;
 }) {
-  const cargoLabel = positionLabels.length > 0 ? positionLabels.join(", ") : "Sin cargo activo";
+  const cargoLabel = positionLabels.length > 0 ? positionLabels.join(", ") : noPosition;
 
   return (
     <div className="mt-1 flex min-w-0 flex-wrap gap-1">
       {eligibilityReasons.map((reason) => (
-        <Badge key={reason} variant="secondary" className="max-w-full truncate text-[10px]">
+        <span
+          key={reason}
+          className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
+        >
           {ELIGIBILITY_LABELS[reason]}
-        </Badge>
+        </span>
       ))}
       {roleLabels.slice(0, 2).map((role) => (
-        <Badge key={role} variant="secondary" className="max-w-full truncate text-[10px]">
-          Rol: {role}
-        </Badge>
+        <span
+          key={role}
+          className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
+        >
+          {rolePrefix}: {role}
+        </span>
       ))}
-      <Badge
-        variant={positionLabels.length > 0 ? "outline" : "secondary"}
-        className="max-w-full truncate text-[10px]"
-      >
-        Cargo: {cargoLabel}
-      </Badge>
+      <span className="rounded-full bg-muted/60 px-2 py-0.5 text-[10px] font-medium text-muted-foreground ring-1 ring-foreground/10">
+        {positionPrefix}: {cargoLabel}
+      </span>
     </div>
   );
 }
 
-function JudgeCandidateOption({ user }: { user: CamporeeJudgeCandidate }) {
+function JudgeCandidateOption({
+  user,
+  rolePrefix,
+  positionPrefix,
+  noPosition,
+}: {
+  user: CamporeeJudgeCandidate;
+  rolePrefix: string;
+  positionPrefix: string;
+  noPosition: string;
+}) {
   const name = getUserName(user);
   const { roleLabels, positionLabels } = splitRoleAndPositionLabels(user);
   const eligibilityReasons = getEligibilityReasons(user);
@@ -181,11 +237,14 @@ function JudgeCandidateOption({ user }: { user: CamporeeJudgeCandidate }) {
       <UserAvatar src={user.user_image} name={name} email={user.email} size={36} />
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium">{name}</p>
-        <p className="truncate text-xs text-muted-foreground">{user.email ?? "Sin correo"}</p>
+        <p className="truncate text-xs text-muted-foreground">{user.email ?? "—"}</p>
         <JudgeCandidateBadges
           roleLabels={roleLabels}
           positionLabels={positionLabels}
           eligibilityReasons={eligibilityReasons}
+          rolePrefix={rolePrefix}
+          positionPrefix={positionPrefix}
+          noPosition={noPosition}
         />
       </div>
     </div>
@@ -200,8 +259,8 @@ function JudgeCandidateTriggerLabel({ user }: { user: CamporeeJudgeCandidate }) 
     .join(" · ");
   const detail = [
     user.email ?? null,
-    roleLabels[0] ? `Rol: ${roleLabels[0]}` : null,
-    positionLabels[0] ? `Cargo: ${positionLabels[0]}` : null,
+    roleLabels[0] ?? null,
+    positionLabels[0] ?? null,
     eligibilityLabel || null,
   ]
     .filter(Boolean)
@@ -225,24 +284,57 @@ export function CamporeeJudgesPanel({
   judgeCandidates = [],
   judgeCandidatesError = null,
   canEdit = false,
-  clubRegistrationClosed = true,
 }: CamporeeJudgesPanelProps) {
-  const [state, formAction] = useActionState<CamporeeScoringActionState, FormData>(
-    addCamporeeJudgeAction,
-    {},
-  );
-  const [open, setOpen] = useState(false);
+  const t = useTranslations("campamentos.pages.judges");
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [isAddPending, startAddTransition] = useTransition();
+
+  const [addOpen, setAddOpen] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState("");
   const [search, setSearch] = useState("");
+  const [notes, setNotes] = useState("");
+  const [addError, setAddError] = useState<string | null>(null);
+
+  const [editingJudge, setEditingJudge] = useState<CamporeeJudge | null>(null);
+  const [editNotes, setEditNotes] = useState("");
+  const [editError, setEditError] = useState<string | null>(null);
+  const [rowError, setRowError] = useState<string | null>(null);
+  const [removingJudge, setRemovingJudge] = useState<CamporeeJudge | null>(null);
+
+  useEffect(() => {
+    if (!pickerOpen) setSearch("");
+  }, [pickerOpen]);
+
+  useEffect(() => {
+    if (!addOpen) {
+      setSelectedUserId("");
+      setNotes("");
+      setPickerOpen(false);
+      setSearch("");
+      setAddError(null);
+    }
+  }, [addOpen]);
+
+  const judgeList = Array.isArray(judges) ? judges : [];
+
+  const candidateByUserId = useMemo(() => {
+    const map = new Map<string, CamporeeJudgeCandidate>();
+    for (const candidate of judgeCandidates) {
+      map.set(candidate.user_id, candidate);
+    }
+    return map;
+  }, [judgeCandidates]);
 
   const activeJudgeUserIds = useMemo(
     () =>
       new Set(
-        judges
+        judgeList
           .filter((judge) => judge.active)
           .map((judge) => judge.user_id),
       ),
-    [judges],
+    [judgeList],
   );
 
   const availableCandidates = useMemo(
@@ -272,64 +364,259 @@ export function CamporeeJudgesPanel({
     [availableCandidates, selectedUserId],
   );
 
+  function openEdit(judge: CamporeeJudge) {
+    setEditingJudge(judge);
+    setEditNotes(judge.notes ?? "");
+    setEditError(null);
+  }
+
+  function handleAddOpenChange(open: boolean) {
+    if (!open && isAddPending) return;
+    setAddOpen(open);
+  }
+
+  function handleAddSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!selectedUserId || isAddPending) return;
+
+    setAddError(null);
+    const formData = new FormData();
+    formData.set("camporee_id", String(camporeeId));
+    formData.set("is_union", isUnionCamporee ? "true" : "false");
+    formData.set("user_id", selectedUserId);
+    const trimmedNotes = notes.trim();
+    if (trimmedNotes) formData.set("notes", trimmedNotes);
+
+    startAddTransition(async () => {
+      const result = await addCamporeeJudgeAction({}, formData);
+      if (result.error) {
+        setAddError(result.error);
+        toast.error(result.error);
+        return;
+      }
+
+      toast.success(result.success ?? t("addSuccess"));
+      setSelectedUserId("");
+      setNotes("");
+      setPickerOpen(false);
+      setSearch("");
+      setAddError(null);
+      setAddOpen(false);
+      router.refresh();
+    });
+  }
+
+  function getJudgeDisplayName(judge: CamporeeJudge) {
+    const candidate = candidateByUserId.get(judge.user_id);
+    return judge.name || candidate?.full_name || judge.user_id;
+  }
+
+  function handleRemove(judge: CamporeeJudge) {
+    setRowError(null);
+    const formData = new FormData();
+    formData.set("camporee_judge_id", judge.camporee_judge_id);
+    formData.set("camporee_id", String(camporeeId));
+    formData.set("is_union", isUnionCamporee ? "true" : "false");
+
+    startTransition(async () => {
+      const result = await removeCamporeeJudgeAction({}, formData);
+      if (result.error) {
+        setRowError(result.error);
+        toast.error(result.error);
+        return;
+      }
+      toast.success(result.success ?? t("removeSuccess"));
+      setRemovingJudge(null);
+      router.refresh();
+    });
+  }
+
+  function handleSaveNotes() {
+    if (!editingJudge) return;
+    setEditError(null);
+    const formData = new FormData();
+    formData.set("camporee_judge_id", editingJudge.camporee_judge_id);
+    formData.set("camporee_id", String(camporeeId));
+    formData.set("is_union", isUnionCamporee ? "true" : "false");
+    formData.set("notes", editNotes);
+
+    startTransition(async () => {
+      const result = await updateCamporeeJudgeAction({}, formData);
+      if (result.error) {
+        setEditError(result.error);
+        return;
+      }
+      setEditingJudge(null);
+      router.refresh();
+    });
+  }
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-base">
-          <UserCheck className="size-4" />
-          Jueces del camporee
-          <Badge variant="secondary">{judges.length}</Badge>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {judges.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Todavía no hay jueces en el roster.</p>
-        ) : (
-          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            {judges.map((judge) => (
-              <div key={judge.camporee_judge_id} className="rounded-lg border p-3">
-                <div className="font-medium">{judge.name || judge.user_id}</div>
-                <div className="mt-1 text-xs text-muted-foreground">{judge.user_id}</div>
-                <Badge className="mt-2" variant={judge.active ? "secondary" : "outline"}>
-                  {judge.status}
-                </Badge>
-              </div>
-            ))}
+    <section className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <div className="flex size-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <Users className="size-4" aria-hidden />
           </div>
-        )}
+          <div>
+            <h3 className="text-base font-semibold tracking-tight">{t("rosterTitle")}</h3>
+            <p className="text-xs text-muted-foreground">
+              {t("rosterSubtitle", { count: judgeList.length })}
+            </p>
+          </div>
+        </div>
 
-        {canEdit && !clubRegistrationClosed && (
-          <p className="rounded-lg border border-warning/30 bg-warning/10 p-3 text-sm text-warning-foreground">
-            Primero cerrá/cierra la inscripción de clubes para congelar las secciones participantes.
-          </p>
-        )}
+        <div className="flex items-center gap-2">
+          <StatusBadge
+            intent={judgeList.length > 0 ? "success" : "neutral"}
+            size="sm"
+            label={t("rosterCount", { count: judgeList.length })}
+          />
+          {canEdit && (
+            <Button
+              type="button"
+              size="sm"
+              className="gap-1.5 rounded-full"
+              onClick={() => setAddOpen(true)}
+            >
+              <UserPlus className="size-4" aria-hidden />
+              {t("addButton")}
+            </Button>
+          )}
+        </div>
+      </div>
 
-        {canEdit && clubRegistrationClosed && (
-          <form action={formAction} className="grid gap-3 rounded-lg border p-3 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_auto]">
+      {rowError && <p className="text-sm text-destructive">{rowError}</p>}
+
+      <div className="overflow-hidden rounded-2xl bg-card ring-1 ring-foreground/10">
+        {judgeList.length === 0 ? (
+          <div className="p-8">
+            <EmptyState
+              icon={UserPlus}
+              title={t("emptyRosterTitle")}
+              description={t("emptyRosterDescription")}
+              variant="no-results"
+            />
+          </div>
+        ) : (
+          <ul className="divide-y divide-border/60">
+            {judgeList.map((judge, index) => {
+              const candidate = candidateByUserId.get(judge.user_id);
+              const displayName = judge.name || candidate?.full_name || judge.user_id;
+              const email = judge.email ?? candidate?.email ?? null;
+              const image = judge.user_image ?? candidate?.user_image ?? null;
+              const isActive = judge.active;
+
+              return (
+                <li
+                  key={judge.camporee_judge_id}
+                  className={cn(
+                    "flex items-center gap-3 px-4 py-3.5 transition-colors duration-150 hover:bg-muted/40 active:bg-muted/60",
+                    STAGGER_CLASSES,
+                  )}
+                  style={getStaggerStyle(index, 30)}
+                >
+                  <UserAvatar
+                    src={image}
+                    name={displayName}
+                    email={email}
+                    size={40}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium tracking-tight">
+                      {displayName}
+                    </p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {email || "—"}
+                    </p>
+                    {judge.notes ? (
+                      <p className="mt-0.5 truncate text-[11px] text-muted-foreground/80">
+                        {judge.notes}
+                      </p>
+                    ) : null}
+                  </div>
+                  <StatusBadge
+                    intent={isActive ? "success" : "neutral"}
+                    size="xs"
+                    label={
+                      isActive
+                        ? t("statusActive")
+                        : judge.status || t("statusInactive")
+                    }
+                  />
+                  {canEdit && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-sm"
+                          className="shrink-0"
+                          disabled={isPending}
+                          aria-label={t("rowActions")}
+                        >
+                          <MoreHorizontal className="size-4" aria-hidden />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-44">
+                        <DropdownMenuItem onSelect={() => openEdit(judge)}>
+                          <Pencil className="size-4" aria-hidden />
+                          {t("editNotes")}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          variant="destructive"
+                          disabled={isPending}
+                          onSelect={() => setRemovingJudge(judge)}
+                        >
+                          <Trash2 className="size-4" aria-hidden />
+                          {t("removeJudge")}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+
+      {/* Add judge modal — closes on success with toast feedback */}
+      <Dialog open={addOpen} onOpenChange={handleAddOpenChange}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{t("addTitle")}</DialogTitle>
+            <DialogDescription>{t("addHint")}</DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleAddSubmit} className="space-y-4">
             <input type="hidden" name="camporee_id" value={camporeeId} />
-            <input type="hidden" name="is_union" value={isUnionCamporee ? "true" : "false"} />
+            <input
+              type="hidden"
+              name="is_union"
+              value={isUnionCamporee ? "true" : "false"}
+            />
             <input type="hidden" name="user_id" value={selectedUserId} />
+
             <div className="space-y-2">
-              <Label>Usuario juez</Label>
-              <p className="text-xs text-muted-foreground">
-                Sólo se listan pastores, usuarios mayores de 18 años o Guías Mayores investidos.
-              </p>
-              <Popover open={open} onOpenChange={setOpen}>
+              <Label htmlFor="judge-user">{t("userLabel")}</Label>
+              <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
                 <PopoverTrigger asChild>
                   <Button
+                    id="judge-user"
                     type="button"
                     variant="outline"
                     role="combobox"
-                    aria-label="Usuario juez"
-                    aria-expanded={open}
-                    className="h-auto min-h-10 w-full justify-between gap-2 overflow-hidden px-3 py-2 text-left font-normal"
-                    disabled={availableCandidates.length === 0}
+                    aria-label={t("userLabel")}
+                    aria-expanded={pickerOpen}
+                    className="h-auto min-h-11 w-full justify-between gap-2 overflow-hidden rounded-xl px-3 py-2 text-left font-normal"
+                    disabled={availableCandidates.length === 0 || isAddPending}
                   >
                     {selectedUser ? (
                       <JudgeCandidateTriggerLabel user={selectedUser} />
                     ) : (
                       <span className="min-w-0 truncate text-muted-foreground">
-                        Seleccionar usuario por nombre, rol o cargo
+                        {t("userPlaceholder")}
                       </span>
                     )}
                     <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
@@ -339,59 +626,187 @@ export function CamporeeJudgesPanel({
                   align="start"
                   className="w-[var(--radix-popover-trigger-width)] max-w-[calc(100vw-2rem)] p-0"
                 >
-                  <Command shouldFilter={false}>
-                    <CommandInput
-                      value={search}
-                      onValueChange={setSearch}
-                      placeholder="Buscar por nombre, correo, rol o cargo..."
-                    />
-                    <CommandList className="max-h-80">
-                      <CommandEmpty>No encontramos usuarios con esa búsqueda.</CommandEmpty>
-                      <CommandGroup>
-                        {filteredCandidates.map((candidate) => (
-                          <CommandItem
-                            key={candidate.user_id}
-                            value={candidate.user_id}
-                            onSelect={() => {
-                              setSelectedUserId(candidate.user_id);
-                              setOpen(false);
-                            }}
-                            className="min-w-0 items-start gap-2 py-2"
-                          >
-                            <Check
-                              className={cn(
-                                "mt-2 size-4 shrink-0",
-                                selectedUserId === candidate.user_id ? "opacity-100" : "opacity-0",
-                              )}
-                            />
-                            <JudgeCandidateOption user={candidate} />
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
+                  {pickerOpen ? (
+                    <Command shouldFilter={false}>
+                      <CommandInput
+                        value={search}
+                        onValueChange={setSearch}
+                        placeholder={t("userSearchPlaceholder")}
+                      />
+                      <CommandList className="max-h-80">
+                        <CommandEmpty>{t("userSearchEmpty")}</CommandEmpty>
+                        <CommandGroup>
+                          {filteredCandidates.map((candidate) => (
+                            <CommandItem
+                              key={candidate.user_id}
+                              value={candidate.user_id}
+                              onSelect={() => {
+                                setSelectedUserId(candidate.user_id);
+                                setAddError(null);
+                                setPickerOpen(false);
+                              }}
+                              className="min-w-0 items-start gap-2 py-2"
+                            >
+                              <Check
+                                className={cn(
+                                  "mt-2 size-4 shrink-0",
+                                  selectedUserId === candidate.user_id
+                                    ? "opacity-100"
+                                    : "opacity-0",
+                                )}
+                              />
+                              <JudgeCandidateOption
+                                user={candidate}
+                                rolePrefix={t("rolePrefix")}
+                                positionPrefix={t("positionPrefix")}
+                                noPosition={t("noPosition")}
+                              />
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  ) : null}
                 </PopoverContent>
               </Popover>
               {judgeCandidatesError ? (
                 <p className="text-xs text-destructive">{judgeCandidatesError}</p>
               ) : availableCandidates.length === 0 ? (
-                <p className="text-xs text-muted-foreground">
-                  No hay usuarios disponibles para agregar al roster.
-                </p>
+                <p className="text-xs text-muted-foreground">{t("noCandidates")}</p>
               ) : null}
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="judge-notes">Notas</Label>
-              <Input id="judge-notes" name="notes" placeholder="Opcional" />
+              <Label htmlFor="judge-notes">{t("notesLabel")}</Label>
+              <Input
+                id="judge-notes"
+                name="notes"
+                value={notes}
+                onChange={(event) => setNotes(event.target.value)}
+                placeholder={t("notesPlaceholder")}
+                className="h-11 rounded-xl"
+                disabled={isAddPending}
+              />
             </div>
-            <Button type="submit" className="self-end" disabled={!selectedUserId}>
-              Agregar juez
-            </Button>
-            {state.error && <p className="text-sm text-destructive md:col-span-3">{state.error}</p>}
-            {state.success && <p className="text-sm text-emerald-700 md:col-span-3">{state.success}</p>}
+
+            {addError ? (
+              <p className="text-sm text-destructive" role="alert">
+                {addError}
+              </p>
+            ) : null}
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="ghost"
+                disabled={isAddPending}
+                onClick={() => handleAddOpenChange(false)}
+              >
+                {t("closeAdd")}
+              </Button>
+              <Button
+                type="submit"
+                disabled={!selectedUserId || isAddPending}
+                className="rounded-full px-6"
+              >
+                {isAddPending ? (
+                  <>
+                    <Loader2 className="size-4 animate-spin" aria-hidden />
+                    {t("addingButton")}
+                  </>
+                ) : (
+                  t("addButton")
+                )}
+              </Button>
+            </DialogFooter>
           </form>
-        )}
-      </CardContent>
-    </Card>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit notes modal */}
+      <Dialog
+        open={editingJudge != null}
+        onOpenChange={(open) => {
+          if (!open) setEditingJudge(null);
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t("editNotesTitle")}</DialogTitle>
+            <DialogDescription>
+              {editingJudge?.name ||
+                candidateByUserId.get(editingJudge?.user_id ?? "")?.full_name ||
+                t("editNotesDescription")}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-2">
+            <Label htmlFor="edit-judge-notes">{t("notesLabel")}</Label>
+            <Input
+              id="edit-judge-notes"
+              value={editNotes}
+              onChange={(event) => setEditNotes(event.target.value)}
+              placeholder={t("notesPlaceholder")}
+              className="h-11 rounded-xl"
+            />
+          </div>
+
+          {editError && <p className="text-sm text-destructive">{editError}</p>}
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="ghost"
+              disabled={isPending}
+              onClick={() => setEditingJudge(null)}
+            >
+              {t("cancelEdit")}
+            </Button>
+            <Button
+              type="button"
+              disabled={isPending}
+              className="rounded-full px-6"
+              onClick={handleSaveNotes}
+            >
+              {t("saveNotes")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog
+        open={removingJudge != null}
+        onOpenChange={(open) => {
+          if (!open && isPending) return;
+          if (!open) setRemovingJudge(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("removeConfirmTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("removeConfirmDescription", {
+                name: removingJudge ? getJudgeDisplayName(removingJudge) : "",
+              })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isPending}>
+              {t("removeCancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              disabled={isPending || !removingJudge}
+              onClick={(event) => {
+                event.preventDefault();
+                if (removingJudge) handleRemove(removingJudge);
+              }}
+            >
+              {t("removeConfirm")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </section>
   );
 }

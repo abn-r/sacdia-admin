@@ -1,7 +1,5 @@
 "use client";
 
-import { usePanelPath } from "@/lib/v2/panel-path-context";
-
 import Link from "next/link";
 import { ChevronRight, ShieldCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -28,11 +26,14 @@ type CertificationRow = {
 
 interface CertificationsListProps {
   items: CertificationRow[];
+  /** Base path for detail links. Default: operational certifications module */
+  detailBasePath?: string;
 }
 
-export function CertificationsList({ items }: CertificationsListProps) {
-  const { toPanelPath } = usePanelPath();
-
+export function CertificationsList({
+  items,
+  detailBasePath = "/dashboard/certifications",
+}: CertificationsListProps) {
   const t = useTranslations("certifications.list");
 
   if (items.length === 0) {
@@ -88,13 +89,13 @@ export function CertificationsList({ items }: CertificationsListProps) {
                 {cert.modules_count ?? "—"}
               </TableCell>
               <TableCell className="px-3 py-2.5 align-middle">
-                <Badge variant={cert.active !== false ? "soft-success" : "outline"}>
+                <Badge variant={cert.active !== false ? "default" : "outline"}>
                   {cert.active !== false ? t("status_active") : t("status_inactive")}
                 </Badge>
               </TableCell>
               <TableCell className="px-3 py-2.5 align-middle">
                 <Button variant="ghost" size="icon-sm" asChild>
-                  <Link prefetch={false} href={`${toPanelPath(`/dashboard/certifications/`)}${cert.certification_id}`}>
+                  <Link href={`${detailBasePath}/${cert.certification_id}`}>
                     <ChevronRight className="size-4" />
                     <span className="sr-only">{t("view_detail")}</span>
                   </Link>

@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { Eye, EyeOff, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DetailSection, DetailField, DetailCols2 } from "./section";
-import { cn } from "@/lib/utils";
+import { DetailSection, DetailField, DetailCols2, DetailChipList } from "./section";
 
 export interface HealthBlockProps {
   num?: string;
@@ -78,58 +77,19 @@ export function HealthBlock({
         <DetailCols2>
           <div>
             <DetailField k={bloodLabel} v={bloodValue} />
-            <ChipField label={allergiesLabel} chips={allergies} tone="destructive" />
+            <DetailChipList k={allergiesLabel} items={allergies} tone="destructive" />
           </div>
           <div>
-            <ChipField label={diseasesLabel} chips={diseases} tone="warning" />
-            <ChipField label={medicinesLabel} chips={medicines} tone="info" last />
+            <DetailChipList k={diseasesLabel} items={diseases} tone="warning" />
+            <DetailChipList
+              k={medicinesLabel}
+              items={medicines}
+              tone="info"
+              className="border-b-0"
+            />
           </div>
         </DetailCols2>
       )}
     </DetailSection>
-  );
-}
-
-function ChipField({
-  label,
-  chips,
-  tone,
-  last,
-}: {
-  label: string;
-  chips: string[];
-  tone: "destructive" | "warning" | "info";
-  last?: boolean;
-}) {
-  const toneClass =
-    tone === "destructive"
-      ? "bg-destructive/10 text-destructive"
-      : tone === "warning"
-      ? "bg-warning/15 text-warning-foreground dark:text-warning"
-      : "bg-info/10 text-info";
-
-  return (
-    <div className={cn("border-b border-dashed border-border/70 py-2.5", last && "border-b-0")}>
-      <div className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-        {label}
-      </div>
-      {chips.length === 0 ? (
-        <div className="text-sm italic text-muted-foreground/70">—</div>
-      ) : (
-        <div className="mt-1 flex flex-wrap gap-1.5">
-          {chips.map((c) => (
-            <span
-              key={c}
-              className={cn(
-                "rounded-md px-2.5 py-1 text-xs font-medium",
-                toneClass,
-              )}
-            >
-              {c}
-            </span>
-          ))}
-        </div>
-      )}
-    </div>
   );
 }

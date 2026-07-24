@@ -1,6 +1,5 @@
 "use client";
 
-import { usePanelPath } from "@/lib/v2/panel-path-context";
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
@@ -17,25 +16,24 @@ interface Props {
 
 export function EventsTimelineView({ camporeeId, data, readonly = false }: Props) {
   const router = useRouter();
-  const { toPanelPath } = usePanelPath();
-  const isUnionCamporee = data.camporeeType === "union";
+    const isUnionCamporee = data.camporeeType === "union";
   const basePath = isUnionCamporee
-    ? `/dashboard/camporees/union/${camporeeId}`
-    : `/dashboard/camporees/${camporeeId}`;
+    ? `/dashboard/campamentos/union/${camporeeId}`
+    : `/dashboard/campamentos/${camporeeId}`;
 
   // Navigate to the dedicated create-event page instead of opening a drawer.
   // The spec (PR6a+PR7) mandates a dedicated page for create/edit (DS §6.1.1:
   // >4 fields + relations). The drawer is removed from the create flow.
   const openCreate = React.useCallback(() => {
     if (readonly) return;
-    router.push(toPanelPath(`${basePath}/events/new`));
-  }, [readonly, router, basePath, toPanelPath]);
+    router.push(`${basePath}/events/new`);
+  }, [readonly, router, basePath]);
 
   const handleEdit = React.useCallback(
     (eventId: string) => {
-      router.push(toPanelPath(`${basePath}/events/${eventId}/edit`));
+      router.push(`${basePath}/events/${eventId}/edit`);
     },
-    [router, basePath, toPanelPath],
+    [router, basePath],
   );
 
   const eventsByDay = React.useMemo(() => {

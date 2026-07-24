@@ -65,7 +65,8 @@ import {
 } from "@/lib/api/annual-rankings";
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
 import type { LocalField, Union } from "@/lib/api/geography";
-import { usePanelPath } from "@/lib/v2/panel-path-context";
+
+const ROUTE_BASE = "/dashboard/annual-folders/ranking-config";
 
 interface AnnualBudgetConfigFormProps {
   mode: "create" | "edit";
@@ -86,8 +87,6 @@ export function AnnualBudgetConfigForm({
 }: AnnualBudgetConfigFormProps) {
   const t = useTranslations("annual_folders.budgetConfigForm");
   const router = useRouter();
-  const { toPanelPath } = usePanelPath();
-  const routeBase = toPanelPath("/dashboard/annual-folders/ranking-config");
   const [savingConfig, setSavingConfig] = useState(false);
   const isEdit = mode === "edit";
 
@@ -154,7 +153,7 @@ export function AnnualBudgetConfigForm({
         await createAnnualRankingConfig(values);
         toast.success("Configuración creada correctamente");
       }
-      router.push(routeBase);
+      router.push(ROUTE_BASE);
       router.refresh();
     } catch (error) {
       const message =
@@ -254,7 +253,7 @@ export function AnnualBudgetConfigForm({
   return (
     <div className="space-y-6">
       <Button variant="ghost" size="sm" className="w-fit" asChild>
-        <a href={routeBase}>
+        <a href={ROUTE_BASE}>
           <ArrowLeft className="size-4" />
           Volver al listado
         </a>
@@ -565,7 +564,7 @@ export function AnnualBudgetConfigForm({
             </Badge>
             <div className="flex gap-2">
               <Button type="button" variant="outline" asChild>
-                <a href={routeBase}>Cancelar</a>
+                <a href={ROUTE_BASE}>Cancelar</a>
               </Button>
               <Button type="submit" disabled={savingConfig}>
                 {savingConfig ? (

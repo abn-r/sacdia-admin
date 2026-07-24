@@ -30,6 +30,8 @@ import {
 } from "@/components/camporees/camporee-approval-dialog";
 import { useTranslations } from "next-intl";
 import { ApiError } from "@/lib/api/client";
+import { useRoleLabel } from "@/lib/auth/role-labels";
+import { UserAvatar } from "@/components/users/user-avatar";
 
 // ─── Status badge ──────────────────────────────────────────────────────────────
 
@@ -82,6 +84,76 @@ function formatDate(dateStr?: string | null): string {
   }
 }
 
+function SectionIdentityCell({
+  club,
+  t,
+}: {
+  club: CamporeeClub;
+  t: ReturnType<typeof useTranslations<"camporees">>;
+}) {
+  const sectionLabel =
+    club.section_name ??
+    t("clubsPanel.fallbackSection", { id: club.club_section_id ?? "" });
+
+  const metaParts = [
+    club.club_name ? t("clubsPanel.clubLabel", { name: club.club_name }) : null,
+    club.section_type_name
+      ? t("clubsPanel.sectionTypeLabel", { name: club.section_type_name })
+      : null,
+  ].filter(Boolean);
+
+  return (
+    <div className="min-w-0">
+      <p className="truncate text-sm font-medium text-foreground">{sectionLabel}</p>
+      {metaParts.length > 0 ? (
+        <p className="truncate text-xs text-muted-foreground">{metaParts.join(" · ")}</p>
+      ) : (
+        <p className="truncate text-xs text-muted-foreground">
+          {t("clubsPanel.noClubOrType")}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function RegistrarIdentityCell({
+  club,
+  t,
+}: {
+  club: CamporeeClub;
+  t: ReturnType<typeof useTranslations<"camporees">>;
+}) {
+  const translateRole = useRoleLabel();
+  const displayName =
+    club.registered_by_name?.trim() ||
+    club.registered_by ||
+    t("clubsPanel.unknownRegistrar");
+
+  const roleLabel =
+    translateRole(club.registered_by_role) ||
+    club.registered_by_role ||
+    null;
+
+  return (
+    <div className="flex min-w-0 items-center gap-3">
+      <UserAvatar
+        src={club.registered_by_picture_url}
+        name={displayName}
+        size={36}
+        className="size-9"
+      />
+      <div className="min-w-0">
+        <p className="truncate text-sm font-medium text-foreground">{displayName}</p>
+        <p className="truncate text-xs text-muted-foreground">
+          {roleLabel
+            ? t("clubsPanel.registrarRoleLabel", { role: roleLabel })
+            : t("clubsPanel.noRegistrarRole")}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 // ─── Dialog state ─────────────────────────────────────────────────────────────
 
 type DialogState = {
@@ -96,7 +168,6 @@ interface CamporeeClubsPanelProps {
   clubs: CamporeeClub[];
   onClubsChange: () => void;
   isUnionCamporee?: boolean;
-  clubRegistrationClosed?: boolean;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -106,7 +177,6 @@ export function CamporeeClubsPanel({
   clubs,
   onClubsChange,
   isUnionCamporee = false,
-  clubRegistrationClosed = false,
 }: CamporeeClubsPanelProps) {
   const t = useTranslations("camporees");
   const [cancellingId, setCancellingId] = useState<number | null>(null);
@@ -184,7 +254,10 @@ export function CamporeeClubsPanel({
     );
   }
 
-  const dialogClubName = dialog?.club.section_name ?? t("clubsPanel.fallbackClub", { id: dialog?.club.camporee_club_id ?? "" });
+  const dialogClubName =
+    dialog?.club.section_name ??
+    dialog?.club.club_name ??
+    t("clubsPanel.fallbackClub", { id: dialog?.club.camporee_club_id ?? "" });
 
   return (
     <>
@@ -217,20 +290,13 @@ export function CamporeeClubsPanel({
               return (
                 <TableRow key={club.camporee_club_id} className="hover:bg-muted/30">
                   <TableCell className="px-3 py-2.5 align-middle">
-                    <div className="space-y-0.5">
-                      <span className="text-sm font-medium">
-                        {club.section_name ?? t("clubsPanel.fallbackSection", { id: club.club_section_id ?? "" })}
-                      </span>
-                      {club.club_name && (
-                        <p className="text-xs text-muted-foreground">{club.club_name}</p>
-                      )}
-                    </div>
+                    <SectionIdentityCell club={club} t={t} />
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle">
                     <ClubStatusBadge status={club.status} t={t} />
                   </TableCell>
-                  <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
-                    {club.registered_by_name ?? club.registered_by ?? "—"}
+                  <TableCell className="px-3 py-2.5 align-middle">
+                    <RegistrarIdentityCell club={club} t={t} />
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
                     {formatDate(club.created_at)}
@@ -246,7 +312,7 @@ export function CamporeeClubsPanel({
                                 size="icon-sm"
                                 className="text-success hover:bg-success/10 hover:text-success"
                                 onClick={() => handleApprove(club.camporee_club_id)}
-                                disabled={isApproving || clubRegistrationClosed}
+                                disabled={isApproving}
                                 aria-label={t("clubsPanel.approveLabel")}
                               >
                                 {isApproving ? (
@@ -256,11 +322,7 @@ export function CamporeeClubsPanel({
                                 )}
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent>
-                              {clubRegistrationClosed
-                                ? "Inscripción de clubes cerrada"
-                                : t("clubsPanel.approveLabel")}
-                            </TooltipContent>
+                            <TooltipContent>{t("clubsPanel.approveLabel")}</TooltipContent>
                           </Tooltip>
 
                           <Tooltip>
@@ -270,17 +332,12 @@ export function CamporeeClubsPanel({
                                 size="icon-sm"
                                 className="text-destructive hover:bg-destructive/10 hover:text-destructive"
                                 onClick={() => setDialog({ club, mode: "reject" })}
-                                disabled={clubRegistrationClosed}
                                 aria-label={t("clubsPanel.rejectLabel")}
                               >
                                 <XCircle className="size-4" />
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent>
-                              {clubRegistrationClosed
-                                ? "Inscripción de clubes cerrada"
-                                : t("clubsPanel.rejectLabel")}
-                            </TooltipContent>
+                            <TooltipContent>{t("clubsPanel.rejectLabel")}</TooltipContent>
                           </Tooltip>
                         </>
                       )}
@@ -292,7 +349,7 @@ export function CamporeeClubsPanel({
                               variant="ghost"
                               size="icon-sm"
                               onClick={() => handleCancel(club.camporee_club_id, club.section_name)}
-                              disabled={cancellingId === club.camporee_club_id || clubRegistrationClosed}
+                              disabled={cancellingId === club.camporee_club_id}
                               aria-label={t("clubsPanel.cancelLabel")}
                               className="text-destructive hover:text-destructive"
                             >
@@ -300,11 +357,7 @@ export function CamporeeClubsPanel({
                               <span className="sr-only">{t("clubsPanel.cancelLabel")}</span>
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent>
-                            {clubRegistrationClosed
-                              ? "Inscripción de clubes cerrada"
-                              : t("clubsPanel.cancelLabel")}
-                          </TooltipContent>
+                          <TooltipContent>{t("clubsPanel.cancelLabel")}</TooltipContent>
                         </Tooltip>
                       )}
                     </div>

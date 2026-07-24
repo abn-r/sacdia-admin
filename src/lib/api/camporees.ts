@@ -28,11 +28,16 @@ export type CamporeeClub = {
   camporee_club_id: number;
   camporee_id: number;
   club_section_id: number;
+  club_id?: number | null;
+  club_type_id?: number | null;
   section_name?: string | null;
   club_name?: string | null;
+  section_type_name?: string | null;
   status?: string | null;
   registered_by?: string | null;
   registered_by_name?: string | null;
+  registered_by_role?: string | null;
+  registered_by_picture_url?: string | null;
   created_at?: string | null;
   rejection_reason?: string | null;
 };
@@ -45,13 +50,22 @@ export type EnrollClubPayload = {
 
 export type PaymentType = "inscription" | "materials" | "other";
 
+/**
+ * Payment row from GET /camporees/:id/payments (and union variant).
+ * Runtime Prisma payload uses `camporee_member_id` + nested `camporee_member`;
+ * `member_id` / `member_name` are optional flattened aliases some clients expect.
+ * `amount` may arrive as a Decimal string (`"450.00"`).
+ * Status lifecycle: `registered` (on-time) | `pending_approval` (late) |
+ * `approved` (late approved) | `rejected`.
+ */
 export type CamporeePayment = {
   payment_id?: number | null;
   camporee_payment_id: string;
-  camporee_id: number;
-  member_id: string;
+  camporee_id?: number;
+  camporee_member_id?: number | null;
+  member_id?: string;
   member_name?: string | null;
-  amount: number;
+  amount: number | string;
   payment_type: PaymentType;
   reference?: string | null;
   notes?: string | null;
@@ -60,6 +74,17 @@ export type CamporeePayment = {
   status?: string | null;
   voucher_url?: string | null;
   voucher_uploaded_at?: string | null;
+  camporee_member?: {
+    camporee_member_id?: number;
+    camporee_id?: number;
+    user_id?: string;
+    club_name?: string | null;
+    users?: {
+      name?: string | null;
+      paternal_last_name?: string | null;
+      maternal_last_name?: string | null;
+    } | null;
+  } | null;
 };
 
 export type CreatePaymentPayload = {
@@ -81,8 +106,6 @@ export type Camporee = {
   start_date: string;
   end_date: string;
   club_registration_deadline?: string | null;
-  club_registration_closed_at?: string | null;
-  club_registration_closed_by?: string | null;
   member_registration_deadline?: string | null;
   payment_deadline?: string | null;
   agenda_visible_from?: string | null;
@@ -127,7 +150,10 @@ export type CamporeeMember = {
   camporee_member_id?: number | null;
   name?: string;
   picture_url?: string | null;
+  email?: string | null;
   club_name?: string | null;
+  class_name?: string | null;
+  role_display_name?: string | null;
   camporee_type?: "local" | "union";
   insurance_id?: number | null;
   insurance_status?: string | null;
@@ -139,7 +165,7 @@ export type CamporeeRegisterMemberPayload = {
   user_id: string;
   camporee_type: "local" | "union";
   club_name?: string;
-  insurance_id?: number;
+  insurance_id: number;
 };
 
 export type PaginatedCamporeeMembers = PaginatedResult<CamporeeMember>;
@@ -265,31 +291,12 @@ export async function cancelUnionClubEnrollment(camporeeId: number, camporeeClub
   });
 }
 
-export async function closeClubRegistration(
-  scope: "local" | "union",
-  camporeeId: number,
-) {
-  const path = scope === "union"
-    ? `/union-camporees/${camporeeId}/club-registration/close`
-    : `/camporees/${camporeeId}/club-registration/close`;
-  return apiRequest<Camporee | UnionCamporee>(path, { method: "POST" });
-}
-
-export async function reopenClubRegistration(
-  scope: "local" | "union",
-  camporeeId: number,
-) {
-  const path = scope === "union"
-    ? `/union-camporees/${camporeeId}/club-registration/reopen`
-    : `/camporees/${camporeeId}/club-registration/reopen`;
-  return apiRequest<Camporee | UnionCamporee>(path, { method: "POST" });
-}
-
 // ─── Payment functions ────────────────────────────────────────────────────────
 
+/** Create a payment for an enrolled member. `memberId` is camporee_member_id. */
 export async function createPayment(
   camporeeId: number,
-  memberId: string,
+  memberId: number | string,
   payload: CreatePaymentPayload,
 ) {
   return apiRequest(`/camporees/${camporeeId}/members/${memberId}/payments`, {
@@ -355,8 +362,6 @@ export type UnionCamporee = {
   start_date: string;
   end_date: string;
   club_registration_deadline?: string | null;
-  club_registration_closed_at?: string | null;
-  club_registration_closed_by?: string | null;
   member_registration_deadline?: string | null;
   payment_deadline?: string | null;
   agenda_visible_from?: string | null;

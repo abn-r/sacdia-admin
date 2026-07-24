@@ -27,7 +27,8 @@ import { configLabel } from "@/lib/annual-rankings/annual-ranking-config-utils";
 import type { AnnualRankingConfig } from "@/lib/api/annual-rankings";
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
 import type { LocalField, Union } from "@/lib/api/geography";
-import { usePanelPath } from "@/lib/v2/panel-path-context";
+
+const ROUTE_BASE = "/dashboard/annual-folders/ranking-config";
 
 interface AnnualBudgetConfigListProps {
   configs: AnnualRankingConfig[];
@@ -46,8 +47,6 @@ export function AnnualBudgetConfigList({
 }: AnnualBudgetConfigListProps) {
   const t = useTranslations("annual_folders.budgetConfigList");
   const router = useRouter();
-  const { toPanelPath } = usePanelPath();
-  const routeBase = toPanelPath("/dashboard/annual-folders/ranking-config");
   const [deleteTarget, setDeleteTarget] = useState<AnnualRankingConfig | null>(
     null,
   );
@@ -63,7 +62,7 @@ export function AnnualBudgetConfigList({
           </p>
         </div>
         <Button asChild className="shrink-0">
-          <Link href={`${routeBase}/new`}>
+          <Link href={`${ROUTE_BASE}/new`}>
             <Plus className="size-4" />
             Nueva configuración
           </Link>
@@ -77,7 +76,7 @@ export function AnnualBudgetConfigList({
           description={t("emptyDescription")}
         >
           <Button asChild size="sm">
-            <Link href={`${routeBase}/new`}>Nueva configuración</Link>
+            <Link href={`${ROUTE_BASE}/new`}>Nueva configuración</Link>
           </Button>
         </EmptyState>
       ) : (
@@ -142,7 +141,7 @@ export function AnnualBudgetConfigList({
                               asChild
                             >
                               <Link
-                                href={`${routeBase}/${config.annual_ranking_config_id}`}
+                                href={`${ROUTE_BASE}/${config.annual_ranking_config_id}`}
                               >
                                 <Pencil className="size-3.5" />
                                 <span className="sr-only">Editar</span>

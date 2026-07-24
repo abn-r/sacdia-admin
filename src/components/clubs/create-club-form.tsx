@@ -50,6 +50,7 @@ interface CreateClubFormProps {
   clubTypes: SelectOption[];
   formAction: (prev: ClubActionState, formData: FormData) => Promise<ClubActionState>;
   googleMapsApiKey: string;
+  googleMapsMapId?: string;
 }
 
 const initialState: ClubActionState = {};
@@ -61,6 +62,7 @@ export function CreateClubForm({
   clubTypes,
   formAction,
   googleMapsApiKey,
+  googleMapsMapId,
 }: CreateClubFormProps) {
   const [state, action] = useActionState(formAction, initialState);
   const t = useTranslations("clubs");
@@ -345,7 +347,7 @@ export function CreateClubForm({
           <CardTitle className="text-base">{t("form.coordinatesTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
-          <LocationPicker apiKey={googleMapsApiKey} />
+          <LocationPicker apiKey={googleMapsApiKey} mapsMapId={googleMapsMapId} />
           {fieldErrors.coordinates && (
             <p
               id="coordinates-error"

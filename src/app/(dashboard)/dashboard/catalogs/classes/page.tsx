@@ -28,6 +28,8 @@ const PhaseECatalogCrudPage = dynamic(
 import { ApiError } from "@/lib/api/client";
 import { listAdminClasses } from "@/lib/api/phase-e-catalogs";
 import { listEcclesiasticalYears } from "@/lib/api/catalogs";
+import { listAdminClubTypes } from "@/lib/api/admin-club-types";
+import { sortClassesByClubTypeAndName, sortClubTypesForDisplay } from "@/lib/catalogs/club-ideals/sort";
 import { extractItems, extractMeta, readParam, readPositiveNumberParam } from "@/lib/phase-e-catalogs/fetch-helpers";
 import { requireAdminUser } from "@/lib/auth/session";
 import { hasAnyPermission } from "@/lib/auth/permission-utils";
@@ -49,11 +51,13 @@ export default async function AdminClassesPage({ searchParams }: { searchParams:
   const limit = readPositiveNumberParam(raw, "limit") ?? 20;
   const search = readParam(raw, "search") ?? readParam(raw, "name") ?? readParam(raw, "q");
   const activeRaw = readParam(raw, "active");
+  const clubTypeId = readPositiveNumberParam(raw, "club_type_id");
 
   let items: Record<string, unknown>[] = [];
   let meta = { page, limit, total: 0, totalPages: 1 };
   let loadError: string | null = null;
   let ecclesiasticalYears: Array<{ ecclesiastical_year_id: number; name: string }> = [];
+  let clubTypes: Array<{ club_type_id: number; name: string }> = [];
 
   try {
     const params: Record<string, string | number | boolean> = { page, limit };
@@ -61,15 +65,28 @@ export default async function AdminClassesPage({ searchParams }: { searchParams:
     if (activeRaw === "true") params.active = true;
     if (activeRaw === "false") params.active = false;
 
-    const [payload, years] = await Promise.all([
+    const [payload, years, types] = await Promise.all([
       listAdminClasses(params),
       listEcclesiasticalYears().catch(() => []),
+      listAdminClubTypes().catch(() => []),
     ]);
     items = extractItems(payload);
+    if (clubTypeId) {
+      items = items.filter((item) => {
+        const rawId = item.club_type_id;
+        const parsed = typeof rawId === "number" ? rawId : Number(rawId);
+        return Number.isFinite(parsed) && parsed === clubTypeId;
+      });
+    }
+    items = sortClassesByClubTypeAndName(items, types);
     meta = extractMeta(payload, page, limit, items.length);
     ecclesiasticalYears = years.map((year) => ({
       ecclesiastical_year_id: year.ecclesiastical_year_id,
       name: year.name,
+    }));
+    clubTypes = sortClubTypesForDisplay(types).map((type) => ({
+      club_type_id: type.club_type_id,
+      name: type.name,
     }));
   } catch (error) {
     if (!(error instanceof ApiError && error.status === 429)) {
@@ -101,7 +118,8 @@ export default async function AdminClassesPage({ searchParams }: { searchParams:
         updateAction={updateClassAction}
         deleteAction={deleteClassAction}
         classConfigYearOptions={ecclesiasticalYears}
-        catalogEntityMode="classes"
+        classClubTypeOptions={clubTypes}
+        detailPathPrefix="/dashboard/catalogs/classes"
       />
     </div>
   );

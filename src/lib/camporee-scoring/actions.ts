@@ -13,13 +13,16 @@ import {
   addLocalCamporeeJudge,
   addUnionCamporeeJudge,
   assignCamporeeEventJudge,
+  deactivateCamporeeJudge,
   deleteCamporeeEventJudgeAssignment,
   replaceCamporeeEventRubrics,
   submitCamporeeEventScore,
   updateCamporeeEventJudgeAssignment,
+  updateCamporeeJudge,
   type CamporeeJudgeRole,
   type CamporeeTemplateRubricInput,
 } from "@/lib/api/camporee-scoring";
+import { canManageCamporeeJudgeAssignments } from "@/lib/camporee-scoring/permissions";
 
 export type CamporeeScoringActionState = {
   error?: string;
@@ -50,16 +53,24 @@ function readJson<T>(formData: FormData, key: string, fallback: T): T {
 }
 
 function getCamporeePath(camporeeId: number | null, isUnion: boolean) {
-  if (!camporeeId) return "/dashboard/camporees";
+  if (!camporeeId) return "/dashboard/campamentos";
   return isUnion
-    ? `/dashboard/camporees/union/${camporeeId}`
-    : `/dashboard/camporees/${camporeeId}`;
+    ? `/dashboard/campamentos/union/${camporeeId}`
+    : `/dashboard/campamentos/${camporeeId}`;
 }
 
 async function assertCanUpdateScoring() {
   const user = await requireAdminUser();
   if (!hasAnyPermission(user, [CAMPOREE_EVENTS_UPDATE, CAMPOREES_UPDATE])) {
     return "Sin permisos para gestionar puntajes de camporee.";
+  }
+  return null;
+}
+
+async function assertCanManageJudgeAssignments(isUnion: boolean) {
+  const user = await requireAdminUser();
+  if (!canManageCamporeeJudgeAssignments(user, { isUnion })) {
+    return "Sin permisos para gestionar asignaciones de jueces.";
   }
   return null;
 }
@@ -126,14 +137,73 @@ export async function addCamporeeJudgeAction(
   }
 
   revalidatePath(getCamporeePath(camporeeId, isUnion));
+  revalidatePath("/dashboard/campamentos/jueces");
   return { success: "Juez agregado." };
+}
+
+export async function updateCamporeeJudgeAction(
+  _: CamporeeScoringActionState,
+  formData: FormData,
+): Promise<CamporeeScoringActionState> {
+  const permissionError = await assertCanUpdateScoring();
+  if (permissionError) return { error: permissionError };
+
+  const judgeId = readString(formData, "camporee_judge_id");
+  if (!judgeId) return { error: "No se pudo identificar el juez." };
+
+  const camporeeId = readPositiveNumber(formData, "camporee_id");
+  const isUnion = readBoolean(formData, "is_union");
+  const notes = readString(formData, "notes");
+
+  try {
+    await updateCamporeeJudge(judgeId, { notes: notes || null });
+  } catch (error) {
+    return {
+      error: getActionErrorMessage(error, "No se pudo actualizar el juez.", {
+        endpointLabel: `/camporee-judges/${judgeId}`,
+      }),
+    };
+  }
+
+  revalidatePath(getCamporeePath(camporeeId, isUnion));
+  revalidatePath("/dashboard/campamentos/jueces");
+  return { success: "Juez actualizado." };
+}
+
+export async function removeCamporeeJudgeAction(
+  _: CamporeeScoringActionState,
+  formData: FormData,
+): Promise<CamporeeScoringActionState> {
+  const permissionError = await assertCanUpdateScoring();
+  if (permissionError) return { error: permissionError };
+
+  const judgeId = readString(formData, "camporee_judge_id");
+  if (!judgeId) return { error: "No se pudo identificar el juez." };
+
+  const camporeeId = readPositiveNumber(formData, "camporee_id");
+  const isUnion = readBoolean(formData, "is_union");
+
+  try {
+    await deactivateCamporeeJudge(judgeId);
+  } catch (error) {
+    return {
+      error: getActionErrorMessage(error, "No se pudo quitar el juez.", {
+        endpointLabel: `/camporee-judges/${judgeId}`,
+      }),
+    };
+  }
+
+  revalidatePath(getCamporeePath(camporeeId, isUnion));
+  revalidatePath("/dashboard/campamentos/jueces");
+  return { success: "Juez quitado de la plantilla." };
 }
 
 export async function assignCamporeeEventJudgeAction(
   _: CamporeeScoringActionState,
   formData: FormData,
 ): Promise<CamporeeScoringActionState> {
-  const permissionError = await assertCanUpdateScoring();
+  const isUnion = readBoolean(formData, "is_union");
+  const permissionError = await assertCanManageJudgeAssignments(isUnion);
   if (permissionError) return { error: permissionError };
 
   const eventId = readPositiveNumber(formData, "event_id");
@@ -141,7 +211,6 @@ export async function assignCamporeeEventJudgeAction(
   const clubSectionId = readPositiveNumber(formData, "club_section_id");
   const judgeId = readString(formData, "camporee_judge_id");
   const judgeRole = readString(formData, "judge_role") as CamporeeJudgeRole;
-  const isUnion = readBoolean(formData, "is_union");
 
   if (!eventId || !clubSectionId || !judgeId) {
     return { error: "Faltan datos para asignar juez." };
@@ -169,18 +238,60 @@ export async function assignCamporeeEventJudgeAction(
   return { success: "Asignación guardada." };
 }
 
+export async function replaceCamporeeEventJudgeAssignmentAction(
+  _: CamporeeScoringActionState,
+  formData: FormData,
+): Promise<CamporeeScoringActionState> {
+  const isUnion = readBoolean(formData, "is_union");
+  const permissionError = await assertCanManageJudgeAssignments(isUnion);
+  if (permissionError) return { error: permissionError };
+
+  const assignmentId = readString(formData, "assignment_id");
+  const eventId = readPositiveNumber(formData, "event_id");
+  const camporeeId = readPositiveNumber(formData, "camporee_id");
+  const clubSectionId = readPositiveNumber(formData, "club_section_id");
+  const judgeId = readString(formData, "camporee_judge_id");
+  const judgeRole = readString(formData, "judge_role") as CamporeeJudgeRole;
+
+  if (!assignmentId || !eventId || !clubSectionId || !judgeId) {
+    return { error: "Faltan datos para reemplazar la asignación." };
+  }
+  if (judgeRole !== "primary" && judgeRole !== "assistant") {
+    return { error: "El rol de juez es inválido." };
+  }
+
+  try {
+    await deleteCamporeeEventJudgeAssignment(assignmentId);
+    await assignCamporeeEventJudge(eventId, {
+      camporee_judge_id: judgeId,
+      club_section_id: clubSectionId,
+      judge_role: judgeRole,
+      camporee_club_id: readPositiveNumber(formData, "camporee_club_id"),
+    });
+  } catch (error) {
+    return {
+      error: getActionErrorMessage(error, "No se pudo reemplazar la asignación.", {
+        endpointLabel: `/camporee-events/${eventId}/judge-assignments`,
+      }),
+    };
+  }
+
+  revalidatePath(getCamporeePath(camporeeId, isUnion));
+  return { success: "Asignación actualizada." };
+}
+
 export async function updateCamporeeEventJudgeAssignmentAction(
   _: CamporeeScoringActionState,
   formData: FormData,
 ): Promise<CamporeeScoringActionState> {
-  const permissionError = await assertCanUpdateScoring();
+  const isUnion = readBoolean(formData, "is_union");
+  const permissionError = await assertCanManageJudgeAssignments(isUnion);
   if (permissionError) return { error: permissionError };
 
   const assignmentId = readString(formData, "assignment_id");
   if (!assignmentId) return { error: "No se pudo identificar la asignación." };
 
   const camporeeId = readPositiveNumber(formData, "camporee_id");
-  const isUnion = readBoolean(formData, "is_union");
   const judgeRole = readString(formData, "judge_role") as CamporeeJudgeRole;
 
   try {
@@ -206,14 +317,14 @@ export async function deleteCamporeeEventJudgeAssignmentAction(
   _: CamporeeScoringActionState,
   formData: FormData,
 ): Promise<CamporeeScoringActionState> {
-  const permissionError = await assertCanUpdateScoring();
+  const isUnion = readBoolean(formData, "is_union");
+  const permissionError = await assertCanManageJudgeAssignments(isUnion);
   if (permissionError) return { error: permissionError };
 
   const assignmentId = readString(formData, "assignment_id");
   if (!assignmentId) return { error: "No se pudo identificar la asignación." };
 
   const camporeeId = readPositiveNumber(formData, "camporee_id");
-  const isUnion = readBoolean(formData, "is_union");
 
   try {
     await deleteCamporeeEventJudgeAssignment(assignmentId);

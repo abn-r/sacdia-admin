@@ -5,17 +5,13 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { getActionErrorMessage } from "@/lib/api/action-error";
 import {
-  closeClubRegistration,
   createCamporee,
   deleteCamporee,
   registerCamporeeMember,
   removeCamporeeMember,
-  reopenClubRegistration,
   updateCamporee,
 } from "@/lib/api/camporees";
 import { requireAdminUser } from "@/lib/auth/session";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import { CAMPOREE_EVENTS_UPDATE } from "@/lib/auth/permissions";
 
 type CamporeesTranslator = Awaited<
   ReturnType<typeof getTranslations<"camporees">>
@@ -69,19 +65,6 @@ function parseOptionalNumber(
 
 function parseBool(formData: FormData, fieldName: string) {
   return formData.get(fieldName) === "on" || formData.get(fieldName) === "true";
-}
-
-function parseOptionalPositiveInt(formData: FormData, fieldName: string) {
-  const value = readString(formData, fieldName);
-  if (!value) return null;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : null;
-}
-
-function camporeeDetailPath(camporeeId: number, isUnionCamporee: boolean) {
-  return isUnionCamporee
-    ? `/dashboard/camporees/union/${camporeeId}`
-    : `/dashboard/camporees/${camporeeId}`;
 }
 
 function readOptionalDateTime(formData: FormData, fieldName: string) {
@@ -239,8 +222,8 @@ export async function createCamporeeAction(
     };
   }
 
-  revalidatePath("/dashboard/camporees");
-  redirect("/dashboard/camporees");
+  revalidatePath("/dashboard/campamentos");
+  redirect("/dashboard/campamentos");
 }
 
 export async function updateCamporeeAction(
@@ -262,8 +245,8 @@ export async function updateCamporeeAction(
     };
   }
 
-  revalidatePath("/dashboard/camporees");
-  redirect("/dashboard/camporees");
+  revalidatePath("/dashboard/campamentos");
+  redirect("/dashboard/campamentos");
 }
 
 export async function deleteCamporeeAction(formData: FormData) {
@@ -275,8 +258,8 @@ export async function deleteCamporeeAction(formData: FormData) {
   }
 
   await deleteCamporee(camporeeId);
-  revalidatePath("/dashboard/camporees");
-  redirect("/dashboard/camporees");
+  revalidatePath("/dashboard/campamentos");
+  redirect("/dashboard/campamentos");
 }
 
 export async function registerCamporeeMemberAction(
@@ -308,6 +291,10 @@ export async function registerCamporeeMemberAction(
     };
   }
 
+  if (insuranceId === undefined) {
+    return { error: t("validation.insurance_invalid") };
+  }
+
   try {
     await registerCamporeeMember(camporeeId, {
       user_id: userId,
@@ -323,7 +310,7 @@ export async function registerCamporeeMemberAction(
     };
   }
 
-  revalidatePath(`/dashboard/camporees/${camporeeId}`);
+  revalidatePath(`/dashboard/campamentos/${camporeeId}`);
   return { success: t("success.member_registered") };
 }
 
@@ -350,78 +337,6 @@ export async function removeCamporeeMemberAction(
     };
   }
 
-  revalidatePath(`/dashboard/camporees/${camporeeId}`);
+  revalidatePath(`/dashboard/campamentos/${camporeeId}`);
   return { success: t("success.member_removed") };
-}
-
-export async function closeCamporeeClubRegistrationAction(
-  _: CamporeeActionState,
-  formData: FormData,
-): Promise<CamporeeActionState> {
-  const user = await requireAdminUser();
-  if (!hasAnyPermission(user, [CAMPOREE_EVENTS_UPDATE])) {
-    return { error: "Sin permisos para cerrar la inscripción de clubes." };
-  }
-
-  const camporeeId = parseOptionalPositiveInt(formData, "camporee_id");
-  if (!camporeeId) return { error: "No se pudo identificar el camporee." };
-
-  const isUnionCamporee = parseBool(formData, "is_union");
-  const scope = isUnionCamporee ? "union" : "local";
-
-  try {
-    await closeClubRegistration(scope, camporeeId);
-  } catch (error) {
-    return {
-      error: getActionErrorMessage(
-        error,
-        "No se pudo cerrar la inscripción de clubes.",
-        {
-          endpointLabel:
-            scope === "union"
-              ? `/union-camporees/${camporeeId}/club-registration/close`
-              : `/camporees/${camporeeId}/club-registration/close`,
-        },
-      ),
-    };
-  }
-
-  revalidatePath(camporeeDetailPath(camporeeId, isUnionCamporee));
-  return { success: "Inscripción de clubes cerrada." };
-}
-
-export async function reopenCamporeeClubRegistrationAction(
-  _: CamporeeActionState,
-  formData: FormData,
-): Promise<CamporeeActionState> {
-  const user = await requireAdminUser();
-  if (!hasAnyPermission(user, [CAMPOREE_EVENTS_UPDATE])) {
-    return { error: "Sin permisos para reabrir la inscripción de clubes." };
-  }
-
-  const camporeeId = parseOptionalPositiveInt(formData, "camporee_id");
-  if (!camporeeId) return { error: "No se pudo identificar el camporee." };
-
-  const isUnionCamporee = parseBool(formData, "is_union");
-  const scope = isUnionCamporee ? "union" : "local";
-
-  try {
-    await reopenClubRegistration(scope, camporeeId);
-  } catch (error) {
-    return {
-      error: getActionErrorMessage(
-        error,
-        "No se pudo reabrir la inscripción de clubes.",
-        {
-          endpointLabel:
-            scope === "union"
-              ? `/union-camporees/${camporeeId}/club-registration/reopen`
-              : `/camporees/${camporeeId}/club-registration/reopen`,
-        },
-      ),
-    };
-  }
-
-  revalidatePath(camporeeDetailPath(camporeeId, isUnionCamporee));
-  return { success: "Inscripción de clubes reabierta." };
 }

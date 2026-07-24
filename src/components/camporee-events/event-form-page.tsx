@@ -1,6 +1,5 @@
 "use client";
 
-import { usePanelPath } from "@/lib/v2/panel-path-context";
 
 /**
  * EventFormPage — shared client component for create/edit camporee event instances.
@@ -16,6 +15,7 @@ import { usePanelPath } from "@/lib/v2/panel-path-context";
 
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Loader2, Check, UserRound } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -24,6 +24,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -32,6 +33,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { resolveSectionLogoSrc } from "@/lib/camporees/section-logo";
 import {
   EVENT_CATEGORIES,
 } from "@/lib/camporee-timeline/event-categories";
@@ -39,12 +41,8 @@ import {
   VenueCreateDialog,
 } from "@/components/camporee-events/venue-create-dialog";
 import { RubricsEditor } from "@/components/camporee-events/rubrics-editor";
+import { PenaltiesEditor } from "@/components/camporee-events/penalties-editor";
 import { ScheduleBlocksEditor } from "@/components/camporee-events/schedule-blocks-editor";
-import {
-  EventStaffAssignmentsEditor,
-  normalizeEventStaffAssignments,
-  type EditableEventStaffAssignment,
-} from "@/components/camporee-events/event-staff-assignments-editor";
 import type {
   CamporeeEventStatus,
   CamporeeEventDisplayCategory,
@@ -52,6 +50,7 @@ import type {
   CamporeeEventScheduleBlock,
   CamporeeEventType,
   BackendCamporeeEvent,
+  PenaltyRule,
 } from "@/lib/api/camporee-events";
 import type {
   CamporeeEventRubric,
@@ -59,7 +58,6 @@ import type {
 } from "@/lib/api/camporee-scoring";
 import type { CamporeeVenue } from "@/lib/api/camporee-venues";
 import type { Camporee, CamporeeClub } from "@/lib/api/camporees";
-import type { CamporeeStaffMember } from "@/lib/api/camporee-staff";
 import type { CamporeeEventActionState } from "@/lib/camporee-events/actions";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -83,8 +81,6 @@ export interface EventFormPageProps {
   users: UserOption[];
   eventTypes?: CamporeeEventType[];
   camporeeClubs?: CamporeeClub[];
-  staffRoster?: CamporeeStaffMember[];
-  scoringSetupEnabled?: boolean;
   isUnionCamporee?: boolean;
   event?: BackendCamporeeEvent;
   rubrics?: CamporeeEventRubric[];
@@ -140,21 +136,16 @@ export function EventFormPage({
   users,
   eventTypes = [],
   camporeeClubs = [],
-  staffRoster = [],
-  scoringSetupEnabled = true,
   isUnionCamporee = false,
   event,
   rubrics: initialRubrics = [],
   action,
 }: EventFormPageProps) {
   const t = useTranslations("camporees.eventInstanceForm");
-  const { toPanelPath } = usePanelPath();
-  const isEdit = mode === "edit";
-  const backHref = toPanelPath(
-    isUnionCamporee
-      ? `/dashboard/camporees/union/${camporeeId}?tab=events`
-      : `/dashboard/camporees/${camporeeId}?tab=events`,
-  );
+    const isEdit = mode === "edit";
+  const backHref = isUnionCamporee
+    ? `/dashboard/campamentos/union/${camporeeId}?tab=events`
+    : `/dashboard/campamentos/${camporeeId}?tab=events`;
 
   const [actionState, formAction] = useActionState<CamporeeEventActionState, FormData>(
     action,
@@ -230,6 +221,16 @@ export function EventFormPage({
   );
 
   const [maxPoints, setMaxPoints] = useState<number>(event?.max_points ?? 0);
+  const [minPoints, setMinPoints] = useState<number>(event?.min_points ?? 0);
+  const [minPointsDraft, setMinPointsDraft] = useState<string>(
+    String(event?.min_points ?? 0),
+  );
+  const [penaltiesEnabled, setPenaltiesEnabled] = useState<boolean>(
+    (event?.penalties?.length ?? 0) > 0 || (event?.min_points ?? 0) > 0,
+  );
+  const [penalties, setPenalties] = useState<PenaltyRule[]>(
+    Array.isArray(event?.penalties) ? event.penalties : [],
+  );
   const [scoringEnabled, setScoringEnabled] = useState<boolean>(
     event?.scoring_enabled ?? false,
   );
@@ -249,22 +250,48 @@ export function EventFormPage({
     defaultEventTypeId ? String(defaultEventTypeId) : "",
   );
   const [scheduleBlocks, setScheduleBlocks] = useState<CamporeeEventScheduleBlock[]>(
-    (event?.schedule_blocks ?? []).map((block, index) => ({
-      title: block.title ?? "",
-      description: block.description ?? null,
-      day_number: block.day_number ?? event?.day_number ?? 1,
-      starts_at: block.starts_at ?? null,
-      ends_at: block.ends_at ?? null,
-      venue_id: block.venue_id ?? null,
-      display_order: block.display_order ?? index,
-      capacity: block.capacity ?? null,
-      notes: block.notes ?? null,
-      assignments: block.assignments ?? [],
-    })),
+    () => {
+      const existing = event?.schedule_blocks ?? [];
+      if (existing.length > 0) {
+        return existing.map((block, index) => ({
+          title: block.title ?? "",
+          description: block.description ?? null,
+          day_number: block.day_number ?? event?.day_number ?? 1,
+          starts_at: block.starts_at ?? null,
+          ends_at: block.ends_at ?? null,
+          venue_id: block.venue_id ?? null,
+          display_order: block.display_order ?? index,
+          capacity: block.capacity ?? null,
+          notes: block.notes ?? null,
+          assignments: (block.assignments ?? []).map((assignment) => ({
+            camporee_club_id: assignment.camporee_club_id ?? undefined,
+            club_section_id: assignment.club_section_id,
+          })),
+        }));
+      }
+      return [
+        {
+          title: "",
+          day_number: event?.day_number ?? 1,
+          starts_at: event?.starts_at ?? null,
+          ends_at: event?.ends_at ?? null,
+          venue_id: null,
+          display_order: 0,
+          assignments: [],
+        },
+      ];
+    },
   );
-  const [staffAssignments, setStaffAssignments] = useState<EditableEventStaffAssignment[]>(
-    normalizeEventStaffAssignments(event?.staff_assignments),
-  );
+
+  function handleScheduleBlocksChange(next: CamporeeEventScheduleBlock[]) {
+    setScheduleBlocks(next);
+    const primary = next[0];
+    if (!primary) return;
+    setDayNumber(primary.day_number);
+    setStartsAt(primary.starts_at ?? "");
+    setEndsAt(primary.ends_at ?? "");
+    validateTimes(primary.starts_at ?? "", primary.ends_at ?? "");
+  }
 
   function handleEventTypeChange(value: string) {
     setSelectedEventTypeId(value);
@@ -305,6 +332,8 @@ export function EventFormPage({
         <input type="hidden" name="display_category" value={category} />
         <input type="hidden" name="status" value={status} />
         <input type="hidden" name="day_number" value={String(dayNumber)} />
+        <input type="hidden" name="starts_at" value={startsAt} />
+        <input type="hidden" name="ends_at" value={endsAt} />
         {selectedEventTypeId && (
           <input type="hidden" name="event_type_id" value={selectedEventTypeId} />
         )}
@@ -425,77 +454,70 @@ export function EventFormPage({
           )}
         </section>
 
-        {/* ══ Section 2: Horario ══ */}
-        <section className="space-y-6 rounded-xl border p-6">
-          <h2 className="text-base font-semibold tracking-tight">Horario</h2>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {/* Day number */}
-            <div className="space-y-2">
-              <Label>
-                Día <span className="text-destructive">*</span>
-              </Label>
-              <Select
-                value={String(dayNumber)}
-                onValueChange={(v) => setDayNumber(Number(v))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccioná el día" />
-                </SelectTrigger>
-                <SelectContent>
-                  {days.map((d) => (
-                    <SelectItem key={d.number} value={String(d.number)}>
-                      {d.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+        {/* ══ Secciones participantes — early: filters club list in Horario ══ */}
+        {enabledSections.length > 0 && (
+          <section className="space-y-6 rounded-xl border p-6">
+            <div>
+              <h2 className="text-base font-semibold tracking-tight">Secciones participantes</h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Deja vacío para que aplique a todas las secciones del camporee.
+                Define qué clubes/secciones aparecen en Horario.
+              </p>
             </div>
 
-            {/* Starts at */}
-            <div className="space-y-2">
-              <Label htmlFor="starts_at">Inicio</Label>
-              <Input
-                id="starts_at"
-                name="starts_at"
-                type="time"
-                value={startsAt}
-                onChange={(e) => {
-                  setStartsAt(e.target.value);
-                  validateTimes(e.target.value, endsAt);
-                }}
-                placeholder="HH:MM"
-              />
+            <div className="flex flex-wrap gap-2">
+              {enabledSections.map((s) => {
+                const active = selectedSections.has(s);
+                return (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => toggleSection(s)}
+                    className={cn(
+                      "inline-flex items-center gap-2 rounded-full border px-3 py-2 text-[12px] transition-[transform,background-color,border-color,color] duration-150 ease-out active:scale-[0.98]",
+                      active
+                        ? cn("font-semibold", SECTION_TINT[s])
+                        : "border-border/60 text-foreground hover:bg-muted",
+                    )}
+                  >
+                    <span className="relative size-7 shrink-0 overflow-hidden rounded-full bg-background ring-1 ring-foreground/10">
+                      <Image
+                        src={resolveSectionLogoSrc(s)}
+                        alt=""
+                        fill
+                        sizes="28px"
+                        className="object-contain p-0.5"
+                      />
+                    </span>
+                    {SECTION_LABELS[s]}
+                    {active && <Check className="size-3.5 shrink-0" aria-hidden />}
+                  </button>
+                );
+              })}
             </div>
+          </section>
+        )}
 
-            {/* Ends at */}
-            <div className="space-y-2">
-              <Label htmlFor="ends_at">Fin</Label>
-              <Input
-                id="ends_at"
-                name="ends_at"
-                type="time"
-                value={endsAt}
-                onChange={(e) => {
-                  setEndsAt(e.target.value);
-                  validateTimes(startsAt, e.target.value);
-                }}
-                placeholder="HH:MM"
-              />
-            </div>
-          </div>
-
-          {timeError && (
-            <p className="text-sm text-destructive">{timeError}</p>
-          )}
-        </section>
+        {/* ══ Section 2: Horario (multi-slot via schedule_blocks) ══ */}
+        <ScheduleBlocksEditor
+          value={scheduleBlocks}
+          onChange={handleScheduleBlocksChange}
+          days={days}
+          venues={venues}
+          camporeeClubs={camporeeClubs}
+          allowedSectionKinds={
+            selectedSections.size > 0
+              ? Array.from(selectedSections)
+              : enabledSections
+          }
+          timeError={timeError}
+        />
 
         {/* ══ Section 3: Sede ══ (PR6b) */}
-        <section className="space-y-6 rounded-xl border p-6">
+        <section className="space-y-3 rounded-xl border p-4">
           <h2 className="text-base font-semibold tracking-tight">Sede</h2>
 
-          <div className="space-y-2">
-            <Label>Sede del evento</Label>
+          <div className="max-w-md space-y-2">
             {venues.length === 0 ? (
               <div className="flex flex-col gap-2">
                 <p className="text-sm text-muted-foreground">
@@ -513,7 +535,7 @@ export function EventFormPage({
               </div>
             ) : (
               <Select value={selectedVenueId} onValueChange={setSelectedVenueId}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Sin sede asignada" />
                 </SelectTrigger>
                 <SelectContent>
@@ -646,99 +668,124 @@ export function EventFormPage({
           </div>
         </section>
 
-        {/* ══ Section 5: Secciones ══ (PR6c) */}
-        {enabledSections.length > 0 && (
-          <section className="space-y-6 rounded-xl border p-6">
-            <div>
-              <h2 className="text-base font-semibold tracking-tight">Secciones participantes</h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                Dejá vacío para que aplique a todas las secciones del camporee.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap gap-1.5">
-              {enabledSections.map((s) => {
-                const active = selectedSections.has(s);
-                return (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => toggleSection(s)}
-                    className={cn(
-                      "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] border transition-colors",
-                      active
-                        ? cn("font-semibold", SECTION_TINT[s])
-                        : "border-border/60 text-foreground hover:bg-muted",
-                    )}
-                  >
-                    {SECTION_LABELS[s]}
-                    {active && <Check className="size-3" />}
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-        )}
-
-        <EventStaffAssignmentsEditor
-          staff={staffRoster}
-          value={staffAssignments}
-          onChange={setStaffAssignments}
-          publishRequested={status === "publicado"}
-        />
-
-        {/* ══ Section 6: Capacidad y puntos ══ (PR6c) */}
+        {/* ══ Section 6: Puntos ══ */}
         <section className="space-y-6 rounded-xl border p-6">
-          <h2 className="text-base font-semibold tracking-tight">Capacidad y puntos</h2>
+          <div>
+            <h2 className="text-base font-semibold tracking-tight">Puntos</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Máximo del evento, piso mínimo si hay penalizaciones, y reglas de
+              descuento.
+            </p>
+          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="capacity">
-                Cupo máximo <span className="text-muted-foreground font-normal">(opcional)</span>
-              </Label>
-              <Input
-                id="capacity"
-                name="capacity"
-                type="number"
-                min={0}
-                defaultValue={event?.capacity ?? ""}
-                placeholder={t("capacityPlaceholder")}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="registered_count">Inscritos actuales</Label>
-              <Input
-                id="registered_count"
-                name="registered_count"
-                type="number"
-                min={0}
-                defaultValue={event?.registered_count ?? 0}
-              />
-            </div>
-
+          <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="max_points">
-                Puntos en juego <span className="text-muted-foreground font-normal">(opcional)</span>
+                Puntos máximos <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="max_points"
                 name="max_points"
                 type="number"
                 min={0}
+                required
                 value={maxPoints}
-                onChange={(e) => setMaxPoints(Number(e.target.value) || 0)}
-                placeholder="0"
+                onChange={(e) => {
+                  const raw = e.target.value;
+                  const next = raw === "" ? 0 : Number(raw);
+                  if (!Number.isFinite(next) || next < 0) return;
+                  const floored = Math.floor(next);
+                  setMaxPoints(floored);
+                  if (minPoints > floored) {
+                    setMinPoints(floored);
+                    setMinPointsDraft(String(floored));
+                  }
+                }}
+                placeholder="100"
               />
             </div>
-          </div>
-        </section>
 
-        {!scoringSetupEnabled && (
-          <div className="rounded-lg border border-warning/30 bg-warning/10 p-3 text-sm text-warning">
-            Primero cerrá/cierra la inscripción de clubes para congelar las secciones participantes.
+            <div className="space-y-2">
+              <Label htmlFor="min_points">
+                Puntos mínimos
+                {!penaltiesEnabled && (
+                  <span className="text-muted-foreground font-normal">
+                    {" "}
+                    (solo con penalización)
+                  </span>
+                )}
+              </Label>
+              <Input
+                id="min_points"
+                name="min_points"
+                type="number"
+                min={0}
+                max={maxPoints}
+                disabled={!penaltiesEnabled}
+                value={penaltiesEnabled ? minPointsDraft : "0"}
+                onChange={(e) => {
+                  const raw = e.target.value;
+                  // Allow empty while editing so "0" can be typed / kept.
+                  if (raw !== "" && !/^\d+$/.test(raw)) return;
+                  setMinPointsDraft(raw);
+                  if (raw === "") {
+                    setMinPoints(0);
+                    return;
+                  }
+                  const next = Math.min(Number(raw), maxPoints);
+                  setMinPoints(next);
+                }}
+                onBlur={() => {
+                  setMinPointsDraft(String(minPoints));
+                }}
+                placeholder="0"
+              />
+              {penaltiesEnabled && (
+                <p className="text-xs text-muted-foreground">
+                  Piso al aplicar penalizaciones: el puntaje no baja de este
+                  valor (0 permitido; debe ser ≤ máximos).
+                </p>
+              )}
+            </div>
           </div>
-        )}
+
+          <div className="flex items-center justify-between gap-4 rounded-lg border px-4 py-3">
+            <div className="space-y-0.5">
+              <Label htmlFor="penalties_enabled" className="text-sm font-medium">
+                Aplica penalización
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Activa descuentos y permite definir puntos mínimos.
+              </p>
+            </div>
+            <Switch
+              id="penalties_enabled"
+              checked={penaltiesEnabled}
+              onCheckedChange={(checked) => {
+                setPenaltiesEnabled(checked);
+                if (!checked) {
+                  setMinPoints(0);
+                  setMinPointsDraft("0");
+                  setPenalties([]);
+                }
+              }}
+            />
+          </div>
+
+          {penaltiesEnabled && (
+            <div className="space-y-2">
+              <Label>Penalizaciones</Label>
+              <PenaltiesEditor value={penalties} onChange={setPenalties} />
+            </div>
+          )}
+
+          {!penaltiesEnabled && (
+            <>
+              <input type="hidden" name="min_points" value="0" />
+              <input type="hidden" name="penalties" value="[]" />
+            </>
+          )}
+        </section>
 
         <RubricsEditor
           enabled={scoringEnabled}
@@ -746,15 +793,6 @@ export function EventFormPage({
           value={rubrics}
           onChange={setRubrics}
           maxPoints={maxPoints}
-          disabled={!scoringSetupEnabled}
-        />
-
-        <ScheduleBlocksEditor
-          value={scheduleBlocks}
-          onChange={setScheduleBlocks}
-          days={days}
-          venues={venues}
-          camporeeClubs={camporeeClubs}
         />
 
         {/* ══ Section 7: Estado ══ */}

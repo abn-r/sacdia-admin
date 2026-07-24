@@ -9,6 +9,11 @@ import { ExpiringInsuranceAlert } from "@/components/insurance/expiring-insuranc
 import { Button } from "@/components/ui/button";
 import { ApiError, apiRequest } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
+import {
+  listLocalFieldsForTerritory,
+  resolveAdminTerritoryScope,
+} from "@/lib/auth/territory-scope";
+import type { LocalField } from "@/lib/api/geography";
 import type { MemberInsurance } from "@/lib/api/insurance";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
@@ -18,6 +23,7 @@ type AnyRecord = Record<string, unknown>;
 type Club = {
   club_id: number;
   name: string;
+  local_field_id?: number;
 };
 
 type Section = {
@@ -38,9 +44,11 @@ function extractArray(payload: unknown): AnyRecord[] {
 }
 
 function normalizeClub(raw: AnyRecord): Club {
+  const localFieldId = Number(raw.local_field_id ?? 0);
   return {
     club_id: Number(raw.club_id ?? raw.id ?? 0),
     name: String(raw.name ?? `Club ${raw.club_id ?? "?"}`),
+    local_field_id: localFieldId > 0 ? localFieldId : undefined,
   };
 }
 
@@ -113,14 +121,24 @@ function normalizeMemberInsurance(raw: AnyRecord): MemberInsurance {
 // ─── Page ──────────────────────────────────────────────────────────────────────
 
 export default async function InsurancePage() {
-  await requireAdminUser();
+  const user = await requireAdminUser();
   const t = await getTranslations("insurance");
+  const territoryScope = resolveAdminTerritoryScope(user);
 
   let clubs: Club[] = [];
+  let localFields: LocalField[] = [];
   let sectionsByClub: Record<number, Section[]> = {};
   let initialMembers: MemberInsurance[] = [];
   let initialSectionId: number | null = null;
+  let initialLocalFieldId: number | "all" = "all";
   let loadError: string | null = null;
+
+  const localFieldsResult = await listLocalFieldsForTerritory(user).catch(() => []);
+  localFields = localFieldsResult;
+
+  if (territoryScope.level === "local_field") {
+    initialLocalFieldId = territoryScope.localFieldId;
+  }
 
   // 1. Load clubs
   try {
@@ -157,8 +175,15 @@ export default async function InsurancePage() {
     );
 
     // 3. Pre-load first section insurances
-    const firstClub = clubs[0];
+    const scopedClubs =
+      initialLocalFieldId === "all"
+        ? clubs
+        : clubs.filter((club) => club.local_field_id === initialLocalFieldId);
+    const firstClub = scopedClubs[0] ?? clubs[0];
     if (firstClub) {
+      if (initialLocalFieldId === "all" && firstClub.local_field_id) {
+        initialLocalFieldId = firstClub.local_field_id;
+      }
       const firstSections = sectionsByClub[firstClub.club_id] ?? [];
       const firstSection = firstSections[0];
       if (firstSection) {
@@ -183,7 +208,7 @@ export default async function InsurancePage() {
         description={t("page.description")}
       >
         <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/insurance/expiring" prefetch={false}>
+          <Link href="/dashboard/insurance/expiring">
             <Clock className="mr-1.5 size-4" />
             {t("page.button_view_expiring")}
           </Link>
@@ -206,9 +231,18 @@ export default async function InsurancePage() {
         <InsuranceView
           clubs={clubs}
           sectionsByClub={sectionsByClub}
+          localFields={localFields}
+          territoryScope={territoryScope}
           initialMembers={initialMembers}
-          initialClubId={clubs[0]?.club_id ?? null}
+          initialClubId={
+            (initialLocalFieldId === "all"
+              ? clubs[0]
+              : clubs.find((club) => club.local_field_id === initialLocalFieldId))?.club_id ??
+            clubs[0]?.club_id ??
+            null
+          }
           initialSectionId={initialSectionId}
+          initialLocalFieldId={initialLocalFieldId}
         />
       )}
     </div>

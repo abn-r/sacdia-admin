@@ -1,8 +1,18 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 import createNextIntlPlugin from "next-intl/plugin";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
+
+const projectRoot = path.dirname(fileURLToPath(import.meta.url));
+// Turbopack resolveAlias requires project-relative paths, not absolute filesystem paths.
+const hugeiconsCompatPath = "./src/lib/icons/lucide-react-compat.tsx";
+const hugeiconsCompatAbsolute = path.join(
+  projectRoot,
+  "src/lib/icons/lucide-react-compat.tsx",
+);
 
 // ---------------------------------------------------------------------------
 // Content Security Policy
@@ -39,7 +49,14 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 //   NEXT_PUBLIC_API_URL — NestJS backend API. Sourced from the env var at
 //                         build time so the value is baked into the header.
 //                         Falls back to localhost:3000 to match client.ts.
+//   maps.googleapis.com / maps.gstatic.com — Google Maps JS API + Places
+//                                            (club location picker)
 //
+// script-src (maps):
+//   maps.googleapis.com / maps.gstatic.com — Maps bootstrap + marker libs
+//
+// img-src (maps):
+//   maps tile/sprites from googleapis + gstatic
 // frame-ancestors 'none' — redundant with X-Frame-Options: DENY but belt+
 //                           suspenders (CSP takes precedence in modern browsers).
 //
@@ -61,17 +78,27 @@ const backendOrigin = (() => {
   }
 })();
 
+const googleMapsScriptSrc =
+  "https://maps.googleapis.com https://maps.gstatic.com";
+const googleMapsConnectSrc =
+  "https://maps.googleapis.com https://maps.gstatic.com https://*.googleapis.com";
+const googleMapsImgSrc =
+  "https://maps.googleapis.com https://maps.gstatic.com https://*.googleapis.com https://*.gstatic.com https://*.ggpht.com";
+
 const scriptSrc = isDev
-  ? `'self' 'unsafe-inline' 'unsafe-eval'`
-  : `'self' 'unsafe-inline'`;
+  ? `'self' 'unsafe-inline' 'unsafe-eval' ${googleMapsScriptSrc}`
+  : `'self' 'unsafe-inline' ${googleMapsScriptSrc}`;
 
 const cspValue = [
   `default-src 'self'`,
   `script-src ${scriptSrc}`,
   `style-src 'self' 'unsafe-inline'`,
-  `img-src 'self' data: blob: https://lh3.googleusercontent.com https://avatars.githubusercontent.com https://pub-c8aa231ae66c46ff96fc5e811994d9d2.r2.dev https://pub-c0e79f5fa4634581867fab5b0fed605c.r2.dev https://5da196c051c48c7a4ebeea275a2b23d1.r2.cloudflarestorage.com`,
-  `font-src 'self' data:`,
-  `connect-src 'self' ${backendOrigin} https://*.r2.cloudflarestorage.com https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.us.sentry.io`,
+  `img-src 'self' data: blob: ${googleMapsImgSrc} https://lh3.googleusercontent.com https://avatars.githubusercontent.com https://pub-c8aa231ae66c46ff96fc5e811994d9d2.r2.dev https://pub-c0e79f5fa4634581867fab5b0fed605c.r2.dev https://5da196c051c48c7a4ebeea275a2b23d1.r2.cloudflarestorage.com`,
+  `font-src 'self' data: https://fonts.gstatic.com`,
+  `connect-src 'self' ${backendOrigin} ${googleMapsConnectSrc} https://*.r2.cloudflarestorage.com https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.us.sentry.io`,
+  `worker-src 'self' blob:`,
+  `object-src 'self' blob:`,
+  `frame-src 'self' blob:`,
   `frame-ancestors 'none'`,
   `base-uri 'self'`,
   `form-action 'self'`,
@@ -80,6 +107,24 @@ const cspValue = [
   .concat(";");
 
 const nextConfig: NextConfig = {
+  // Parent `sacdia/package-lock.json` (stub) + this app's pnpm-workspace.yaml
+  // make Next infer the monorepo root as Turbopack's watch/trace root, which
+  // scans backend/app/.worktrees/node_modules and burns CPU/disk. Pin both to
+  // this package so HMR only watches sacdia-admin.
+  // https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory
+  outputFileTracingRoot: projectRoot,
+  turbopack: {
+    root: projectRoot,
+    resolveAlias: {
+      "lucide-react": hugeiconsCompatPath,
+    },
+  },
+  webpack: (config) => {
+    config.resolve ??= {};
+    config.resolve.alias ??= {};
+    config.resolve.alias["lucide-react"] = hugeiconsCompatAbsolute;
+    return config;
+  },
   // Bumping default 1MB so Server Actions still work for non-file resource
   // forms. File resources are uploaded through the backend API as multipart
   // POST /resources so the browser does not PUT directly to R2.

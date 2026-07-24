@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Inbox } from "lucide-react";
+import { redirect } from "next/navigation";
+import { Eye, Inbox } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
@@ -20,6 +21,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { listOrders } from "@/lib/api/materials";
 import { ApiError } from "@/lib/api/client";
+import { requireAdminUser } from "@/lib/auth/session";
+import { hasPermission } from "@/lib/auth/permission-utils";
+import { MATERIALS_READ } from "@/lib/auth/permissions";
 import type { MaterialEstado } from "@/lib/types/materials";
 import type { OrdenSummary } from "@/lib/types/materials";
 
@@ -82,6 +86,11 @@ export default async function InboxPage({
 }: {
   searchParams: SearchParams;
 }) {
+  const user = await requireAdminUser();
+  if (!hasPermission(user, MATERIALS_READ)) {
+    redirect("/dashboard");
+  }
+
   const t = await getTranslations("materials.pages.inbox");
   const raw = await searchParams;
 
@@ -113,127 +122,107 @@ export default async function InboxPage({
   }
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const hasActiveFilters = Boolean(q || (estado !== "all" && estado !== "en_revision"));
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={t("title")}
-        description={t("description")}
-      />
+      <PageHeader title={t("title")} description={t("description")} />
 
-      {/* Filters */}
-      <InboxFilters currentEstado={estado} currentQ={q} />
+      <div className="space-y-4">
+        <InboxFilters currentEstado={estado} currentQ={q} />
 
-      {/* Error state */}
-      {loadError && (
-        <EndpointErrorBanner
-          state={loadErrorStatus === 403 ? "forbidden" : "missing"}
-          detail={loadError}
-        />
-      )}
+        {loadError && (
+          <EndpointErrorBanner
+            state={loadErrorStatus === 403 ? "forbidden" : "missing"}
+            detail={loadError}
+          />
+        )}
 
-      {/* Empty state */}
-      {!loadError && ordenes.length === 0 && (
-        <EmptyState
-          icon={<Inbox className="size-6 text-muted-foreground" aria-hidden="true" />}
-          title={t("emptyTitle")}
-          description={
-            estado === "all" || estado === "en_revision"
-              ? t("emptyDescriptionPending")
-              : t("emptyDescriptionFiltered")
-          }
-          variant={q ? "no-results" : "default"}
-        />
-      )}
+        {!loadError && ordenes.length === 0 && (
+          <EmptyState
+            icon={<Inbox className="size-6 text-muted-foreground" aria-hidden="true" />}
+            title={hasActiveFilters ? t("emptyFilteredTitle") : t("emptyTitle")}
+            description={
+              hasActiveFilters
+                ? t("emptyFilteredDescription")
+                : estado === "all" || estado === "en_revision"
+                  ? t("emptyDescriptionPending")
+                  : t("emptyDescriptionFiltered")
+            }
+            variant={hasActiveFilters || q ? "no-results" : "default"}
+          />
+        )}
 
-      {/* Table */}
-      {!loadError && ordenes.length > 0 && (
-        <div className="space-y-4">
-          <div className="overflow-x-auto rounded-xl border border-border/60 bg-card shadow-xs">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Folio
-                  </TableHead>
-                  <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Director / Club
-                  </TableHead>
-                  <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Estado
-                  </TableHead>
-                  <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground text-right">
-                    Total
-                  </TableHead>
-                  <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Fecha
-                  </TableHead>
-                  <TableHead className="h-9 w-20 px-3" />
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {ordenes.map((orden) => (
-                  <TableRow key={orden.id} className="hover:bg-muted/30">
-                    <TableCell className="px-3 py-2.5 align-middle">
-                      <FolioPill folio={orden.folio_referencia} />
-                    </TableCell>
-                    <TableCell className="px-3 py-2.5 align-middle">
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-medium">
-                          {orden.director.nombre}
-                        </p>
-                        <p className="truncate text-xs text-muted-foreground">
-                          {orden.director.club}
-                        </p>
-                      </div>
-                    </TableCell>
-                    <TableCell className="px-3 py-2.5 align-middle">
-                      <StatusBadge estado={orden.estado} />
-                    </TableCell>
-                    <TableCell className="px-3 py-2.5 align-middle text-right tabular-nums">
-                      <MoneyFormat centavos={orden.total_centavos} />
-                    </TableCell>
-                    <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
-                      {formatDate(orden.created_at)}
-                    </TableCell>
-                    <TableCell className="px-3 py-2.5 align-middle">
-                      <Button variant="ghost" size="icon-sm" asChild>
-                        <Link href={resolveDetailHref(orden)} prefetch={false}>
-                          <span className="sr-only">Ver solicitud</span>
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="16"
-                            height="16"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            aria-hidden="true"
-                          >
-                            <path d="m9 18 6-6-6-6" />
-                          </svg>
-                        </Link>
-                      </Button>
-                    </TableCell>
+        {!loadError && ordenes.length > 0 && (
+          <>
+            <div className="overflow-x-auto rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="pl-5">{t("colFolio")}</TableHead>
+                    <TableHead>{t("colDirector")}</TableHead>
+                    <TableHead>{t("colStatus")}</TableHead>
+                    <TableHead className="text-right">{t("colTotal")}</TableHead>
+                    <TableHead>{t("colDate")}</TableHead>
+                    <TableHead className="sticky right-0 z-20 w-[72px] border-l bg-background">
+                      {t("colActions")}
+                    </TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {ordenes.map((orden) => (
+                    <TableRow key={orden.id}>
+                      <TableCell className="pl-5 font-medium">
+                        <Link
+                          href={resolveDetailHref(orden)}
+                          prefetch={false}
+                          className="hover:text-primary hover:underline underline-offset-4"
+                        >
+                          <FolioPill folio={orden.folio_referencia} />
+                        </Link>
+                      </TableCell>
+                      <TableCell>
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-medium">{orden.director.nombre}</p>
+                          <p className="truncate text-xs text-muted-foreground">
+                            {orden.director.club}
+                          </p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <StatusBadge estado={orden.estado} />
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums">
+                        <MoneyFormat centavos={orden.total_centavos} />
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {formatDate(orden.created_at)}
+                      </TableCell>
+                      <TableCell className="sticky right-0 z-10 border-l bg-background">
+                        <Button variant="ghost" size="icon-sm" asChild>
+                          <Link href={resolveDetailHref(orden)} prefetch={false}>
+                            <Eye className="size-4" />
+                            <span className="sr-only">{t("viewDetail")}</span>
+                          </Link>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <DataTablePagination
-              page={page}
-              totalPages={totalPages}
-              total={total}
-              limit={PAGE_SIZE}
-            />
-          )}
-        </div>
-      )}
+            {totalPages > 1 && (
+              <DataTablePagination
+                page={page}
+                totalPages={totalPages}
+                total={total}
+                limit={PAGE_SIZE}
+              />
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }

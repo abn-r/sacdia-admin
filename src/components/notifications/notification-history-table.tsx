@@ -14,6 +14,10 @@ import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { getNotificationHistory, type NotificationLog } from "@/lib/api/notifications";
+import {
+  formatNotificationTargetUser,
+  resolveNotificationTargetUsers,
+} from "@/lib/notifications/history-targets";
 import { ApiError } from "@/lib/api/client";
 import { getFormatDateTime } from "@/lib/format-locale";
 
@@ -79,6 +83,49 @@ export async function NotificationHistoryTable({
     );
   }
 
+  const targetUserIds = result.data
+    .filter((log) => log.target_type === "user" && log.target_id)
+    .map((log) => log.target_id as string);
+
+  const targetUsers = await resolveNotificationTargetUsers(targetUserIds);
+
+  function renderTargetCell(log: NotificationLog) {
+    const targetLabelKey = TARGET_TYPE_LABEL_KEYS[log.target_type];
+
+    if (log.target_type === "user" && log.target_id) {
+      const user = targetUsers.get(log.target_id);
+      const display = user
+        ? formatNotificationTargetUser(user, log.target_id)
+        : { primary: t("target_user_unknown") };
+
+      return (
+        <div className="min-w-0 max-w-[220px]">
+          <p className="truncate font-medium text-sm">{display.primary}</p>
+          {display.secondary ? (
+            <p className="truncate text-muted-foreground text-xs">
+              {display.secondary}
+            </p>
+          ) : null}
+        </div>
+      );
+    }
+
+    if (log.target_type === "all") {
+      return (
+        <span className="text-muted-foreground text-sm">{t("target_all")}</span>
+      );
+    }
+
+    return (
+      <span className="text-muted-foreground text-sm">
+        {targetLabelKey ? t(targetLabelKey as Parameters<typeof t>[0]) : log.target_type}
+        {log.target_id ? (
+          <span className="ml-1 font-mono text-xs">({log.target_id})</span>
+        ) : null}
+      </span>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <Card>
@@ -98,13 +145,12 @@ export async function NotificationHistoryTable({
             <TableBody>
               {result.data.map((log) => {
                 const typeLabelKey = TYPE_LABEL_KEYS[log.type];
-                const targetLabelKey = TARGET_TYPE_LABEL_KEYS[log.target_type];
                 return (
                   <TableRow key={log.log_id}>
                     <TableCell>
                       <div className="max-w-[200px]">
                         <p className="truncate font-medium text-sm">{log.title}</p>
-                        <p className="truncate text-xs text-muted-foreground">{log.body}</p>
+                        <p className="truncate text-muted-foreground text-xs">{log.body}</p>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -112,14 +158,7 @@ export async function NotificationHistoryTable({
                         {typeLabelKey ? t(typeLabelKey as Parameters<typeof t>[0]) : log.type}
                       </Badge>
                     </TableCell>
-                    <TableCell>
-                      <span className="text-sm text-muted-foreground">
-                        {targetLabelKey ? t(targetLabelKey as Parameters<typeof t>[0]) : log.target_type}
-                        {log.target_id && (
-                          <span className="ml-1 font-mono text-xs">({log.target_id})</span>
-                        )}
-                      </span>
-                    </TableCell>
+                    <TableCell>{renderTargetCell(log)}</TableCell>
                     <TableCell className="text-center">
                       <span className="inline-flex items-center gap-1 text-sm text-success">
                         <CheckCircle2 className="size-3.5" />

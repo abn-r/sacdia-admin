@@ -397,7 +397,7 @@ export function ResourceCategoriesCrudPage({
                         </TableCell>
                         <TableCell>
                           <Badge
-                            variant={item.active !== false ? "soft-success" : "outline"}
+                            variant={item.active !== false ? "default" : "outline"}
                             className="text-xs"
                           >
                             {item.active !== false ? t("statusActive") : t("statusInactive")}

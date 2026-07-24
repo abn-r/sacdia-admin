@@ -18,7 +18,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useQuery } from "@tanstack/react-query";
 import { listClubSections, type ClubSection } from "@/lib/api/clubs";
 
 // ─── Re-export for consumers ───────────────────────────────────────────────────
@@ -93,6 +92,9 @@ export function ClubSectionSelect({
   // Lazy load: only enable the query once the popover has been opened at least once.
   const [hasOpened, setHasOpened] = useState(false);
   const previousClubId = useRef<number | null>(clubId ?? null);
+  const [fetchedSections, setFetchedSections] = useState<ClubSectionListItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [fetchError, setFetchError] = useState<Error | null>(null);
 
   // Reset value when clubId changes after the initial mount.
   // This preserves URL-hydrated default section values in GET filter forms.
@@ -106,20 +108,34 @@ export function ClubSectionSelect({
 
   const isDisabled = disabled || clubId == null;
 
-  const {
-    data: fetchedSections = [],
-    isFetching: loading,
-    error: fetchError,
-  } = useQuery({
-    queryKey: ["club-sections-selector", clubId],
-    queryFn: async () => {
-      // clubId is guaranteed non-null here because enabled guards it.
-      const payload = await listClubSections(clubId!);
-      return parseSectionList(payload);
-    },
-    enabled: (hasOpened || value != null) && clubId != null,
-    staleTime: 60_000,
-  });
+  useEffect(() => {
+    if (!hasOpened && value == null) return;
+    if (clubId == null) {
+      setFetchedSections([]);
+      return;
+    }
+
+    let cancelled = false;
+    setLoading(true);
+    setFetchError(null);
+
+    listClubSections(clubId)
+      .then((payload) => {
+        if (cancelled) return;
+        setFetchedSections(parseSectionList(payload));
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        setFetchError(error instanceof Error ? error : new Error(t("loadError")));
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [clubId, hasOpened, t, value]);
 
   // Resolve the effective club_type_id filter (sectionTypeKey takes precedence).
   const effectiveClubTypeId: number | undefined =

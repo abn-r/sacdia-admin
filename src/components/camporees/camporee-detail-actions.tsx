@@ -1,6 +1,5 @@
 "use client";
 
-import { usePanelPath } from "@/lib/v2/panel-path-context";
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
@@ -33,8 +32,7 @@ interface CamporeeDetailActionsProps {
 
 export function CamporeeDetailActions({ camporee }: CamporeeDetailActionsProps) {
   const router = useRouter();
-  const { toPanelPath } = usePanelPath();
-  const [editOpen, setEditOpen] = useState(false);
+    const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   function handleEditSuccess() {
@@ -68,7 +66,7 @@ export function CamporeeDetailActions({ camporee }: CamporeeDetailActionsProps) 
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
         camporee={camporee}
-        redirectTo={toPanelPath("/dashboard/camporees")}
+        redirectTo={"/dashboard/campamentos"}
       />
     </>
   );

@@ -5,60 +5,61 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { FinancesClubSelector } from "@/components/finances/finances-club-selector";
 import { apiRequest, ApiError } from "@/lib/api/client";
+import { listClubTypes } from "@/lib/api/catalogs";
 import { requireAdminUser } from "@/lib/auth/session";
+import {
+  canAdminFilterByLocalField,
+  listLocalFieldsForTerritory,
+  resolveAdminTerritoryScope,
+} from "@/lib/auth/territory-scope";
+import {
+  normalizeFinanceClubSections,
+  type FinanceClubSection,
+} from "@/lib/finances/club-sections";
+import type { LocalField } from "@/lib/api/geography";
+import type { ClubType } from "@/lib/api/catalogs";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-type ClubSection = {
-  club_section_id: number;
-  club_type_id: number;
-  name: string;
-  club_type?: { name?: string; slug?: string } | null;
-};
-
-type Club = {
-  club_id?: number;
-  id?: number;
-  name?: string;
-  active?: boolean;
-  sections?: ClubSection[];
-  [key: string]: unknown;
-};
+type AnyRecord = Record<string, unknown>;
 
 type ClubOption = {
   club_id: number;
   name: string;
-  sections: ClubSection[];
+  sections: FinanceClubSection[];
+  local_field_id?: number;
 };
-
-// ─── Data fetching ────────────────────────────────────────────────────────────
 
 type FetchClubsError =
   | { kind: "api"; message: string }
   | { kind: "unexpected" };
 
-async function fetchClubs(): Promise<{ clubs: ClubOption[]; fetchError?: FetchClubsError }> {
+function extractArray(payload: unknown): AnyRecord[] {
+  if (Array.isArray(payload)) return payload as AnyRecord[];
+  if (payload && typeof payload === "object") {
+    const root = payload as AnyRecord;
+    if (Array.isArray(root.data)) return root.data as AnyRecord[];
+  }
+  return [];
+}
+
+async function fetchClubs(
+  clubTypes: ClubType[],
+): Promise<{ clubs: ClubOption[]; fetchError?: FetchClubsError }> {
   try {
     const payload = await apiRequest<unknown>("/clubs");
-    let raw: Club[] = [];
-
-    if (Array.isArray(payload)) {
-      raw = payload as Club[];
-    } else if (payload && typeof payload === "object") {
-      const res = payload as { data?: unknown };
-      if (Array.isArray(res.data)) {
-        raw = res.data as Club[];
-      }
-    }
+    const raw = extractArray(payload);
 
     const clubs: ClubOption[] = raw
-      .filter((c) => c.active !== false)
-      .map((c) => ({
-        club_id: Number(c.club_id ?? c.id),
-        name: c.name ?? `Club ${c.club_id ?? c.id}`,
-        sections: Array.isArray(c.sections) ? c.sections : [],
-      }))
-      .filter((c) => c.club_id > 0);
+      .filter((club) => club.active !== false)
+      .map((club) => {
+        const localFieldId = Number(club.local_field_id ?? 0);
+        return {
+          club_id: Number(club.club_id ?? club.id),
+          name: String(club.name ?? `Club ${club.club_id ?? club.id}`),
+          sections: normalizeFinanceClubSections(club, clubTypes),
+          local_field_id: localFieldId > 0 ? localFieldId : undefined,
+        };
+      })
+      .filter((club) => club.club_id > 0);
 
     return { clubs };
   } catch (error) {
@@ -69,13 +70,18 @@ async function fetchClubs(): Promise<{ clubs: ClubOption[]; fetchError?: FetchCl
   }
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
 export default async function FinancesPage() {
-  await requireAdminUser();
+  const user = await requireAdminUser();
   const t = await getTranslations("finances");
+  const territoryScope = resolveAdminTerritoryScope(user);
 
-  const { clubs, fetchError } = await fetchClubs();
+  const clubTypes = await listClubTypes().catch(() => []);
+  const { clubs, fetchError } = await fetchClubs(clubTypes);
+  let localFields: LocalField[] = [];
+
+  if (canAdminFilterByLocalField(territoryScope)) {
+    localFields = await listLocalFieldsForTerritory(user).catch(() => []);
+  }
 
   const errorMessage = fetchError
     ? fetchError.kind === "api"
@@ -104,7 +110,11 @@ export default async function FinancesPage() {
           description={t("page.empty_no_clubs_description")}
         />
       ) : (
-        <FinancesClubSelector clubs={clubs} />
+        <FinancesClubSelector
+          clubs={clubs}
+          localFields={localFields}
+          territoryScope={territoryScope}
+        />
       )}
     </div>
   );

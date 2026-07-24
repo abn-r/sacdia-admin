@@ -1,4 +1,5 @@
 import { apiRequest, apiRequestFromClient } from "@/lib/api/client";
+import { normalizePendingValidationsResponse } from "@/lib/api/validation-normalize";
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
 
@@ -8,9 +9,24 @@ export type ValidationAction = "APPROVED" | "REJECTED";
 
 export type ValidationStatus =
   | "PENDING"
+  | "PENDING_REVIEW"
+  | "IN_PROGRESS"
+  | "SUBMITTED_FOR_VALIDATION"
   | "APPROVED"
   | "REJECTED"
   | "NEEDS_REVISION";
+
+const PENDING_VALIDATION_STATUSES = new Set<ValidationStatus>([
+  "PENDING",
+  "PENDING_REVIEW",
+  "IN_PROGRESS",
+  "SUBMITTED_FOR_VALIDATION",
+  "NEEDS_REVISION",
+]);
+
+export function isPendingValidationStatus(status: ValidationStatus | string): boolean {
+  return PENDING_VALIDATION_STATUSES.has(status as ValidationStatus);
+}
 
 // ─── Shared sub-types ─────────────────────────────────────────────────────────
 
@@ -100,15 +116,8 @@ export async function getPendingValidations(
   if (query.page) params.page = query.page;
   if (query.limit) params.limit = query.limit;
 
-  const res = await apiRequest<
-    PendingValidation[] | { data: PendingValidation[] } | { status: string; data: PendingValidation[] }
-  >("/validation/pending", { params });
-
-  if (Array.isArray(res)) return res;
-  if (res && typeof res === "object" && "data" in res && Array.isArray((res as { data: unknown }).data)) {
-    return (res as { data: PendingValidation[] }).data;
-  }
-  return [];
+  const res = await apiRequest<unknown>("/validation/pending", { params });
+  return normalizePendingValidationsResponse(res, query.entity_type);
 }
 
 /**

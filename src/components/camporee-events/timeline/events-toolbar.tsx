@@ -1,6 +1,5 @@
 "use client";
 
-import { usePanelPath } from "@/lib/v2/panel-path-context";
 
 import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -45,12 +44,11 @@ function useDebounce<T>(value: T, delay: number): T {
 export function EventsToolbar({
   data,
   camporeeId,
-  basePath = `/dashboard/camporees/${camporeeId}`,
+  basePath = `/dashboard/campamentos/${camporeeId}`,
   onCreate,
   onImportFromCatalog,
 }: Props) {
-  const { toPanelPath } = usePanelPath();
-
+  
   const t = useTranslations("camporeeEvents.timeline");
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -80,9 +78,9 @@ export function EventsToolbar({
     if (venue && venue !== "all") params.set("venue", venue);
     if (status && status !== "all") params.set("status", status);
 
-    router.push(`${toPanelPath(basePath)}?${params.toString()}`, { scroll: false });
+    router.push(`${basePath}?${params.toString()}`, { scroll: false });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedQuery, category, section, venue, status, basePath, router, toPanelPath]);
+  }, [debouncedQuery, category, section, venue, status, basePath, router]);
 
   return (
     <div className="rounded-xl border border-border/60 bg-card shadow-xs p-3 mb-3.5 flex items-center gap-2 flex-wrap">

@@ -74,21 +74,16 @@ function TableSkeleton() {
       <Table>
         <TableHeader>
           <TableRow>
-            {[
-              t("colName"),
-              t("colMaxPoints"),
-              "Tipo",
-              t("colOrigin"),
-              t("colStatus"),
-              t("colActions"),
-            ].map((h) => (
-              <TableHead
-                key={h}
-                className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground"
-              >
-                {h}
-              </TableHead>
-            ))}
+            {[t("colName"), t("colMaxPoints"), t("colOrigin"), t("colStatus"), t("colActions")].map(
+              (h) => (
+                <TableHead
+                  key={h}
+                  className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground"
+                >
+                  {h}
+                </TableHead>
+              ),
+            )}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -99,9 +94,6 @@ function TableSkeleton() {
               </TableCell>
               <TableCell className="px-3 py-2.5">
                 <Skeleton className="h-4 w-12" />
-              </TableCell>
-              <TableCell className="px-3 py-2.5">
-                <Skeleton className="h-5 w-24 rounded-full" />
               </TableCell>
               <TableCell className="px-3 py-2.5">
                 <Skeleton className="h-5 w-20 rounded-full" />
@@ -124,10 +116,6 @@ function TableSkeleton() {
 
 type SortField = "name" | "max_points" | "active";
 
-function getScoringModeLabel(mode?: ScoringCategory["scoring_mode"]) {
-  return mode === "boolean_full" ? "Todo o nada" : "Numérico";
-}
-
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface ScoringCategoriesTableProps {
@@ -145,7 +133,10 @@ interface ScoringCategoriesTableProps {
   /** Delete function for the editable level. */
   onDelete: (id: number) => Promise<void>;
   /** Optional: toggle active status for quick switch. */
-  onToggleActive?: (id: number, active: boolean) => Promise<ScoringCategory>;
+  onToggleActive?: (
+    id: number,
+    active: boolean,
+  ) => Promise<ScoringCategory>;
   /** Whether to show the origin badge column (union and local field views need it). */
   showOriginBadge?: boolean;
 }
@@ -178,9 +169,8 @@ export function ScoringCategoriesTable({
   const [editCategory, setEditCategory] = useState<ScoringCategory | null>(
     null,
   );
-  const [deleteCategory, setDeleteCategory] = useState<ScoringCategory | null>(
-    null,
-  );
+  const [deleteCategory, setDeleteCategory] =
+    useState<ScoringCategory | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [togglingIds, setTogglingIds] = useState<Set<number>>(new Set());
   const [maxPointsCap, setMaxPointsCap] = useState(
@@ -194,7 +184,10 @@ export function ScoringCategoriesTable({
       const data = await fetchCategories();
       setCategories(data);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : tTable("loadFailed");
+      const message =
+        err instanceof Error
+          ? err.message
+          : tTable("loadFailed");
       setError(message);
       toast.error(message);
     } finally {
@@ -250,7 +243,9 @@ export function ScoringCategoriesTable({
   }
 
   function handleDeleteSuccess(id: number) {
-    setCategories((prev) => prev.filter((c) => c.scoring_category_id !== id));
+    setCategories((prev) =>
+      prev.filter((c) => c.scoring_category_id !== id),
+    );
   }
 
   // ─── Toggle active ──────────────────────────────────────────────────────────
@@ -374,45 +369,19 @@ export function ScoringCategoriesTable({
               <TableRow>
                 <TableHead
                   className="h-9 px-3"
-                  aria-sort={
-                    sortField === "name"
-                      ? sortDirection === "asc"
-                        ? "ascending"
-                        : "descending"
-                      : "none"
-                  }
+                  aria-sort={sortField === "name" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
                 >
-                  <SortableHeader
-                    field="name"
-                    activeField={sortField}
-                    direction={sortDirection}
-                    onSort={handleSort}
-                  >
+                  <SortableHeader field="name" activeField={sortField} direction={sortDirection} onSort={handleSort}>
                     {tTable("colName")}
                   </SortableHeader>
                 </TableHead>
                 <TableHead
                   className="h-9 px-3"
-                  aria-sort={
-                    sortField === "max_points"
-                      ? sortDirection === "asc"
-                        ? "ascending"
-                        : "descending"
-                      : "none"
-                  }
+                  aria-sort={sortField === "max_points" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
                 >
-                  <SortableHeader
-                    field="max_points"
-                    activeField={sortField}
-                    direction={sortDirection}
-                    onSort={handleSort}
-                    align="right"
-                  >
+                  <SortableHeader field="max_points" activeField={sortField} direction={sortDirection} onSort={handleSort} align="right">
                     {tTable("colMaxPoints")}
                   </SortableHeader>
-                </TableHead>
-                <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Tipo
                 </TableHead>
                 {showOriginBadge && (
                   <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
@@ -421,20 +390,9 @@ export function ScoringCategoriesTable({
                 )}
                 <TableHead
                   className="h-9 px-3"
-                  aria-sort={
-                    sortField === "active"
-                      ? sortDirection === "asc"
-                        ? "ascending"
-                        : "descending"
-                      : "none"
-                  }
+                  aria-sort={sortField === "active" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
                 >
-                  <SortableHeader
-                    field="active"
-                    activeField={sortField}
-                    direction={sortDirection}
-                    onSort={handleSort}
-                  >
+                  <SortableHeader field="active" activeField={sortField} direction={sortDirection} onSort={handleSort}>
                     {tTable("colStatus")}
                   </SortableHeader>
                 </TableHead>
@@ -459,30 +417,16 @@ export function ScoringCategoriesTable({
                     <TableCell className="px-3 py-2.5 align-middle text-right text-sm tabular-nums">
                       {cat.max_points}
                     </TableCell>
-                    <TableCell className="px-3 py-2.5 align-middle">
-                      <Badge
-                        variant={
-                          cat.scoring_mode === "boolean_full"
-                            ? "default"
-                            : "secondary"
-                        }
-                        className="text-xs"
-                      >
-                        {getScoringModeLabel(cat.scoring_mode)}
-                      </Badge>
-                    </TableCell>
                     {showOriginBadge && (
                       <TableCell className="px-3 py-2.5 align-middle">
                         <Badge
-                          variant={ORIGIN_BADGE_VARIANTS[cat.origin_level]}
+                          variant={
+                            ORIGIN_BADGE_VARIANTS[cat.origin_level]
+                          }
                           className="text-xs"
                         >
                           {cat.origin_badge ||
-                            tTable(
-                              `origin.${cat.origin_level.toLowerCase()}` as Parameters<
-                                typeof tTable
-                              >[0],
-                            )}
+                            tTable(`origin.${cat.origin_level.toLowerCase()}` as Parameters<typeof tTable>[0])}
                         </Badge>
                       </TableCell>
                     )}
@@ -508,9 +452,7 @@ export function ScoringCategoriesTable({
                           variant={cat.active ? "success" : "secondary"}
                           className="text-xs"
                         >
-                          {cat.active
-                            ? tTable("statusActive")
-                            : tTable("statusInactive")}
+                          {cat.active ? tTable("statusActive") : tTable("statusInactive")}
                         </Badge>
                       )}
                     </TableCell>

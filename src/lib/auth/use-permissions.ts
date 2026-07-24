@@ -28,25 +28,28 @@ export function usePermissions() {
   // Verifica si el usuario tiene UN permiso específico
   const can = useCallback(
     (permission: string): boolean => {
+      if (isSuperAdmin) return true;
       return permissionSet.has(normalizePermission(permission));
     },
-    [permissionSet],
+    [isSuperAdmin, permissionSet],
   );
 
   // Verifica si tiene AL MENOS UNO de los permisos
   const canAny = useCallback(
     (permissions: string[]): boolean => {
+      if (isSuperAdmin) return true;
       return permissions.some((p) => permissionSet.has(normalizePermission(p)));
     },
-    [permissionSet],
+    [isSuperAdmin, permissionSet],
   );
 
   // Verifica si tiene TODOS los permisos
   const canAll = useCallback(
     (permissions: string[]): boolean => {
+      if (isSuperAdmin) return true;
       return permissions.every((p) => permissionSet.has(normalizePermission(p)));
     },
-    [permissionSet],
+    [isSuperAdmin, permissionSet],
   );
 
   // Verifica si tiene un rol administrativo válido

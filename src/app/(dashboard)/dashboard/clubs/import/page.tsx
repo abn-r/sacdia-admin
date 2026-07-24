@@ -1,7 +1,12 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { getTranslations as getTranslationsStrict } from "next-intl/server";
+
+type LooseTranslator = (key: string) => string;
+const getTranslations = getTranslationsStrict as unknown as (
+  namespace?: string,
+) => Promise<LooseTranslator>;
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { requireAdminUser } from "@/lib/auth/session";
@@ -10,7 +15,7 @@ import { listEntityItems } from "@/lib/catalogs/service";
 import { resolveAdminTerritoryScope, type AdminTerritoryScope } from "@/lib/auth/territory-scope";
 import { listAdminUnions } from "@/lib/api/generic-catalogs-i18n";
 import { ClubsBulkImport } from "@/components/clubs/clubs-bulk-import";
-import { bulkCreateClubsAction } from "@/lib/clubs/actions";
+import { bulkCreateClubsAction } from "@/lib/clubs/bulk-import-actions";
 
 type RawCatalogItem = Record<string, unknown>;
 

@@ -1,14 +1,19 @@
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { Suspense } from "react";
 import { FileText } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { DataTableShell } from "@/components/shared/data-table-shell";
 import { requireAdminUser } from "@/lib/auth/session";
-import { apiRequest, ApiError } from "@/lib/api/client";
+import { resolveActiveClubContext } from "@/lib/auth/club-context";
+import type { AuthUser } from "@/lib/auth/types";
+import { getCurrentClubEnrollment, getClubEnrollmentId } from "@/lib/api/club-enrollments";
+import { ApiError } from "@/lib/api/client";
 
 const ReportsListClient = dynamic(
   () =>
@@ -26,79 +31,57 @@ type ActiveEnrollmentResult =
   | { enrollment_id: string | number; available: true }
   | { enrollment_id: null; available: false; errorCode: EnrollmentErrorCode };
 
-function isValidEnrollmentId(id: unknown): id is string | number {
-  return (
-    (typeof id === "string" && id.trim().length > 0) ||
-    (typeof id === "number" && id > 0)
-  );
-}
-
 // ─── Data fetching ────────────────────────────────────────────────────────────
 
-async function fetchActiveEnrollment(): Promise<ActiveEnrollmentResult> {
+async function resolveReportEnrollment(user: AuthUser): Promise<ActiveEnrollmentResult> {
+  const clubContext = resolveActiveClubContext(user);
+  if (!clubContext) {
+    return {
+      enrollment_id: null,
+      available: false,
+      errorCode: "no_active_enrollment",
+    };
+  }
+
   try {
-    // Fetch the current user's active enrollment via the enrollments endpoint.
-    // We ask for the user's own active enrollment using the me/enrollment route.
-    const payload = await apiRequest<unknown>("/enrollments/me/active");
+    const enrollment = await getCurrentClubEnrollment(
+      clubContext.clubId,
+      clubContext.sectionId,
+    );
+    const enrollmentId = getClubEnrollmentId(enrollment);
 
-    const data = (
-      payload && typeof payload === "object" && "data" in payload
-        ? (payload as { data?: unknown }).data
-        : payload
-    ) as Record<string, unknown> | null;
-
-    const id =
-      data && typeof data === "object"
-        ? (data as Record<string, unknown>).enrollment_id
-        : null;
-
-    if (isValidEnrollmentId(id)) {
-      return { enrollment_id: id, available: true };
-    }
-
-    // Fallback: try /enrollments/my
-    const fallback = await apiRequest<unknown>("/enrollments/my");
-    const fallbackData = (
-      fallback && typeof fallback === "object" && "data" in fallback
-        ? (fallback as { data?: unknown }).data
-        : fallback
-    ) as Record<string, unknown> | null;
-
-    const fallbackId =
-      fallbackData && typeof fallbackData === "object"
-        ? (fallbackData as Record<string, unknown>).enrollment_id
-        : null;
-
-    if (isValidEnrollmentId(fallbackId)) {
-      return { enrollment_id: fallbackId, available: true };
+    if (enrollmentId) {
+      return { enrollment_id: enrollmentId, available: true };
     }
 
     return {
       enrollment_id: null,
       available: false,
-      errorCode: "no_active_enrollment" as const,
+      errorCode: "no_active_enrollment",
     };
   } catch (error) {
     if (error instanceof ApiError) {
-      if (error.status === 404) {
-        return {
-          enrollment_id: null,
-          available: false,
-          errorCode: "no_active_enrollment" as const,
-        };
-      }
       if (error.status === 403) {
         return {
           enrollment_id: null,
           available: false,
-          errorCode: "no_role_access" as const,
+          errorCode: "no_role_access",
+        };
+      }
+
+      if (error.status === 404) {
+        return {
+          enrollment_id: null,
+          available: false,
+          errorCode: "no_active_enrollment",
         };
       }
     }
+
     return {
       enrollment_id: null,
       available: false,
-      errorCode: "unknown" as const,
+      errorCode: "unknown",
     };
   }
 }
@@ -138,10 +121,12 @@ function ReportsPageSkeleton() {
 
 async function ReportsContent({
   t,
+  user,
 }: {
   t: Awaited<ReturnType<typeof getTranslations<"reports">>>;
+  user: AuthUser;
 }) {
-  const result = await fetchActiveEnrollment();
+  const result = await resolveReportEnrollment(user);
 
   if (!result.available) {
     const errorMessage = t(`errors.${result.errorCode}`);
@@ -163,7 +148,7 @@ async function ReportsContent({
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function ReportsPage() {
-  await requireAdminUser();
+  const user = await requireAdminUser();
   const t = await getTranslations("reports");
 
   return (
@@ -171,10 +156,17 @@ export default async function ReportsPage() {
       <PageHeader
         title={t("page.title")}
         description={t("page.description")}
-      />
+      >
+        <Button variant="outline" size="sm" asChild>
+          <Link href="/reports/monthly-preview">
+            <FileText aria-hidden="true" />
+            {t("page.print_preview")}
+          </Link>
+        </Button>
+      </PageHeader>
 
       <Suspense fallback={<ReportsPageSkeleton />}>
-        <ReportsContent t={t} />
+        <ReportsContent t={t} user={user} />
       </Suspense>
     </div>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import {
   Search,
@@ -51,6 +52,8 @@ import { FolderStatusBadge } from "@/components/annual-folders/folder-status-bad
 import { EvaluateSectionDialog } from "@/components/annual-folders/evaluate-section-dialog";
 import { AnnualFolderEvidenceViewerDialog } from "@/components/annual-folders/annual-folder-evidence-viewer-dialog";
 import { SectionStatusBadge } from "@/components/annual-folders/section-evaluation-card";
+import { PageHeader } from "@/components/shared/page-header";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   confirmUnionSection,
   getEvaluationQueue,
@@ -59,7 +62,6 @@ import {
   reopenSection,
 } from "@/lib/api/annual-folders";
 import { ApiError } from "@/lib/api/client";
-import { usePanelPath } from "@/lib/v2/panel-path-context";
 import type {
   AnnualFolder,
   AnnualFolderEvaluationQueueItem,
@@ -72,6 +74,10 @@ import type {
 } from "@/lib/api/annual-folders";
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
 import type { LocalField, Union } from "@/lib/api/geography";
+import {
+  CLUBS_EVIDENCE_FOLDERS_BASE,
+  clubsEvidenceFolderPath,
+} from "@/lib/clubs/evidence-folders-paths";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -336,130 +342,18 @@ function EvalSectionRow({
   );
 }
 
-// ─── Folder summary card ──────────────────────────────────────────────────────
-
-interface FolderSummaryCardProps {
-  folder: AnnualFolder;
-  onRefresh: () => void;
-  isRefreshing: boolean;
-}
-
-function FolderSummaryCard({
-  folder,
-  onRefresh,
-  isRefreshing,
-}: FolderSummaryCardProps) {
-  const totalEarned = folder.total_earned_points ?? 0;
-  const totalMax = folder.total_max_points ?? 0;
-  const progressPct = folder.progress_percentage ?? 0;
-  const club = folder.club_enrollment?.club_section?.club;
-  const localField = club?.local_field;
-
-  return (
-    <div className="rounded-lg border border-border bg-card p-4">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        {/* Left: folder info */}
-        <div className="space-y-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <FolderStatusBadge status={folder.status} />
-            <span className="text-sm font-semibold">
-              {folderClubName(folder)} · {folderSectionName(folder)} ·{" "}
-              {folderYearLabel(folder)}
-            </span>
-          </div>
-
-          <div className="grid gap-0.5 text-xs text-muted-foreground">
-            <span>
-              <span className="font-medium text-foreground">Campo:</span>{" "}
-              {localField?.name ?? "—"}
-              {localField?.union?.name ? ` · ${localField.union.name}` : ""}
-            </span>
-            <span>
-              <span className="font-medium text-foreground">Plantilla:</span>{" "}
-              {folder.template?.name ?? `#${folder.folder_template_id}`}
-            </span>
-            {folder.submitted_at && (
-              <span>
-                <span className="font-medium text-foreground">Enviada:</span>{" "}
-                {formatDate(folder.submitted_at)}
-              </span>
-            )}
-            {folder.evaluated_at && (
-              <span>
-                <span className="font-medium text-foreground">
-                  Última evaluación:
-                </span>{" "}
-                {formatDate(folder.evaluated_at)}
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* Right: score summary */}
-        <div className="flex shrink-0 flex-col items-start gap-1 sm:items-end">
-          <p className="text-2xl font-bold tabular-nums">
-            {totalEarned}
-            <span className="text-base font-normal text-muted-foreground">
-              {" "}/ {totalMax}
-            </span>
-          </p>
-          <p className="text-xs text-muted-foreground">puntos obtenidos</p>
-          <Button
-            variant="outline"
-            size="xs"
-            onClick={onRefresh}
-            disabled={isRefreshing}
-          >
-            <RefreshCw
-              className={`size-3.5 ${isRefreshing ? "animate-spin" : ""}`}
-            />
-            Actualizar
-          </Button>
-        </div>
-      </div>
-
-      {/* Progress bar */}
-      {totalMax > 0 && (
-        <div className="mt-4 space-y-1.5">
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Puntaje total</span>
-            <span className="font-medium">{progressPct}%</span>
-          </div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-            <div
-              className="h-full rounded-full bg-primary transition-all duration-300"
-              style={{ width: `${progressPct}%` }}
-              role="progressbar"
-              aria-valuenow={progressPct}
-              aria-valuemin={0}
-              aria-valuemax={100}
-            />
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
 // ─── Evaluation queue ─────────────────────────────────────────────────────────
 
 interface QueueCardProps {
   item: AnnualFolderEvaluationQueueItem;
-  isSelected: boolean;
-  isLoading: boolean;
-  onSelect: (item: AnnualFolderEvaluationQueueItem) => void;
 }
 
-function QueueCard({ item, isSelected, isLoading, onSelect }: QueueCardProps) {
+function QueueCard({ item }: QueueCardProps) {
   const pendingCount =
     item.submitted_sections_count + item.preapproved_sections_count;
 
   return (
-    <div
-      className={`rounded-lg border bg-card p-4 transition-colors ${
-        isSelected ? "border-primary/70 ring-1 ring-primary/40" : "border-border"
-      }`}
-    >
+    <div className="rounded-lg border border-border bg-card p-4 transition-colors">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0 space-y-2">
           <div className="flex flex-wrap items-center gap-2">
@@ -499,19 +393,11 @@ function QueueCard({ item, isSelected, isLoading, onSelect }: QueueCardProps) {
           )}
         </div>
 
-        <Button
-          type="button"
-          size="sm"
-          onClick={() => onSelect(item)}
-          disabled={isLoading}
-          className="shrink-0"
-        >
-          {isLoading ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : (
+        <Button asChild size="sm" className="shrink-0">
+          <Link href={clubsEvidenceFolderPath(item.annual_folder_id)}>
             <ClipboardEdit className="size-4" />
-          )}
-          Revisar carpeta
+            Revisar carpeta
+          </Link>
         </Button>
       </div>
     </div>
@@ -521,6 +407,8 @@ function QueueCard({ item, isSelected, isLoading, onSelect }: QueueCardProps) {
 // ─── Main component ───────────────────────────────────────────────────────────
 
 interface EvaluationClientPageProps {
+  mode?: "list" | "detail";
+  initialFolderId?: string;
   currentUserRoles?: string[];
   clubTypes?: ClubType[];
   ecclesiasticalYears?: EcclesiasticalYear[];
@@ -531,6 +419,8 @@ interface EvaluationClientPageProps {
 const UNION_CONFIRMATION_ROLES = new Set(["director-union", "assistant-union"]);
 
 export function EvaluationClientPage({
+  mode = "list",
+  initialFolderId,
   currentUserRoles = [],
   clubTypes = [],
   ecclesiasticalYears = [],
@@ -538,15 +428,17 @@ export function EvaluationClientPage({
   localFields = [],
 }: EvaluationClientPageProps) {
   const t = useTranslations("annual_folders");
-  const { toPanelPath } = usePanelPath();
+  const tFolders = useTranslations("annual_folders.pageFolders");
+  const isListMode = mode === "list";
+  const isDetailMode = mode === "detail";
   const canConfirmUnion = currentUserRoles.some((role) =>
     UNION_CONFIRMATION_ROLES.has(role),
   );
   const [searchInput, setSearchInput] = useState("");
   const [appliedSearch, setAppliedSearch] = useState("");
   const [queueStatus, setQueueStatus] =
-    useState<AnnualFolderEvaluationQueueStatus>("needs_review");
-  const [folderStatus, setFolderStatus] = useState<"all" | FolderStatus>("all");
+    useState<AnnualFolderEvaluationQueueStatus>("all");
+  const [folderStatus, setFolderStatus] = useState<"all" | FolderStatus>("open");
   const [selectedUnionId, setSelectedUnionId] = useState("all");
   const [selectedLocalFieldId, setSelectedLocalFieldId] = useState("all");
   const [selectedClubTypeId, setSelectedClubTypeId] = useState("all");
@@ -555,8 +447,6 @@ export function EvaluationClientPage({
   const [queueItems, setQueueItems] = useState<AnnualFolderEvaluationQueueItem[]>([]);
   const [isQueueLoading, setIsQueueLoading] = useState(true);
   const [queueError, setQueueError] = useState<string | null>(null);
-  const [selectedQueueItem, setSelectedQueueItem] =
-    useState<AnnualFolderEvaluationQueueItem | null>(null);
   const [isFolderLoading, setIsFolderLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -669,6 +559,8 @@ export function EvaluationClientPage({
   );
 
   useEffect(() => {
+    if (!isListMode) return;
+
     void loadQueue(appliedSearch, queueStatus, {
       folderStatus,
       unionId: selectedUnionId,
@@ -687,6 +579,7 @@ export function EvaluationClientPage({
     selectedLocalFieldId,
     selectedUnionId,
     selectedYearId,
+    isListMode,
   ]);
 
   // ─── Search handler ────────────────────────────────────────────────────────
@@ -696,25 +589,39 @@ export function EvaluationClientPage({
     setAppliedSearch(searchInput.trim());
   }
 
-  async function handleSelectFolder(item: AnnualFolderEvaluationQueueItem) {
-    setSelectedQueueItem(item);
-    setIsFolderLoading(true);
-    setFolderError(null);
-    setFolder(null);
-    setEvaluations([]);
+  useEffect(() => {
+    if (!isDetailMode || !initialFolderId) return;
+    if (folder?.annual_folder_id === initialFolderId) return;
 
-    try {
-      await loadFolder(item.annual_folder_id);
-    } catch (err) {
-      const message =
-        err instanceof ApiError
-          ? err.message
-          : "No se pudo cargar la carpeta seleccionada.";
-      setFolderError(message);
-    } finally {
-      setIsFolderLoading(false);
+    let cancelled = false;
+
+    async function loadInitialFolder() {
+      setIsFolderLoading(true);
+      setFolderError(null);
+
+      try {
+        await loadFolder(initialFolderId);
+      } catch (err) {
+        if (!cancelled) {
+          const message =
+            err instanceof ApiError
+              ? err.message
+              : "No se pudo cargar la carpeta seleccionada.";
+          setFolderError(message);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsFolderLoading(false);
+        }
+      }
     }
-  }
+
+    void loadInitialFolder();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [initialFolderId, folder?.annual_folder_id, loadFolder, isDetailMode]);
 
   // ─── Refresh ───────────────────────────────────────────────────────────────
 
@@ -865,307 +772,8 @@ export function EvaluationClientPage({
 
   // ─── Render ────────────────────────────────────────────────────────────────
 
-  return (
-    <div className="space-y-6">
-      {/* Human-readable queue */}
-      <div className="rounded-lg border border-border bg-card p-4">
-        <div className="mb-4 flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
-          <div>
-            <p className="text-sm font-medium">Carpetas listas para revisar</p>
-            <p className="text-xs text-muted-foreground">
-              Buscá por nombre de club, sección, campo, unión o plantilla. El
-              ID interno no hace falta para operar.
-            </p>
-          </div>
-          <Badge variant="outline" className="w-fit">
-            {queueItems.length} resultados visibles
-          </Badge>
-        </div>
-
-        <form
-          onSubmit={handleQueueSearch}
-          className="mb-4 grid gap-3 lg:grid-cols-[minmax(260px,1fr)_repeat(3,180px)_auto]"
-        >
-          <div className="space-y-1.5">
-            <Label htmlFor="folder-search" className="text-xs text-muted-foreground">
-              Buscar carpeta
-            </Label>
-            <Input
-              id="folder-search"
-              type="search"
-              placeholder={t("evaluationClient.searchPlaceholder")}
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              className="h-9"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Estado de revisión</Label>
-            <Select
-              value={queueStatus}
-              onValueChange={(value) =>
-                setQueueStatus(value as AnnualFolderEvaluationQueueStatus)
-              }
-            >
-              <SelectTrigger className="h-9">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="needs_review">Pendientes</SelectItem>
-                <SelectItem value="submitted">Enviadas por club</SelectItem>
-                <SelectItem value="preapproved">Preaprobadas LF</SelectItem>
-                <SelectItem value="evaluated">Evaluadas</SelectItem>
-                <SelectItem value="all">Todas</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Estado carpeta</Label>
-            <Select
-              value={folderStatus}
-              onValueChange={(value) => setFolderStatus(value as "all" | FolderStatus)}
-            >
-              <SelectTrigger className="h-9">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas</SelectItem>
-                <SelectItem value="open">Abiertas</SelectItem>
-                <SelectItem value="submitted">Enviadas</SelectItem>
-                <SelectItem value="under_evaluation">En evaluación</SelectItem>
-                <SelectItem value="evaluated">Evaluadas</SelectItem>
-                <SelectItem value="closed">Cerradas</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Avance</Label>
-            <Select value={progressFilter} onValueChange={setProgressFilter}>
-              <SelectTrigger className="h-9">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="empty">0%</SelectItem>
-                <SelectItem value="in_progress">1% a 99%</SelectItem>
-                <SelectItem value="complete">100%</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <Button type="submit" size="sm" className="self-end">
-            <Search className="size-4" />
-            Buscar
-          </Button>
-
-          <div className="grid gap-3 lg:col-span-5 lg:grid-cols-4">
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Unión</Label>
-              <Select
-                value={selectedUnionId}
-                onValueChange={(value) => {
-                  setSelectedUnionId(value);
-                  setSelectedLocalFieldId("all");
-                }}
-              >
-                <SelectTrigger className="h-9">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todas</SelectItem>
-                  {unions.map((union) => (
-                    <SelectItem key={union.union_id} value={String(union.union_id)}>
-                      {union.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Campo local</Label>
-              <Select
-                value={selectedLocalFieldId}
-                onValueChange={setSelectedLocalFieldId}
-              >
-                <SelectTrigger className="h-9">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos</SelectItem>
-                  {localFields
-                    .filter(
-                      (field) =>
-                        selectedUnionId === "all" ||
-                        String(field.union_id) === selectedUnionId,
-                    )
-                    .map((field) => (
-                      <SelectItem
-                        key={field.local_field_id}
-                        value={String(field.local_field_id)}
-                      >
-                        {field.name}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Tipo de club</Label>
-              <Select
-                value={selectedClubTypeId}
-                onValueChange={setSelectedClubTypeId}
-              >
-                <SelectTrigger className="h-9">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos</SelectItem>
-                  {clubTypes.map((type) => (
-                    <SelectItem key={type.club_type_id} value={String(type.club_type_id)}>
-                      {type.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Año</Label>
-              <Select value={selectedYearId} onValueChange={setSelectedYearId}>
-                <SelectTrigger className="h-9">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos</SelectItem>
-                  {ecclesiasticalYears.map((year) => (
-                    <SelectItem
-                      key={year.ecclesiastical_year_id}
-                      value={String(year.ecclesiastical_year_id)}
-                    >
-                      {year.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </form>
-
-        {queueError && (
-          <p className="mb-3 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive">
-            {queueError}
-          </p>
-        )}
-
-        {folderError && (
-          <p className="mb-3 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive">
-            {folderError}
-          </p>
-        )}
-
-        {isQueueLoading ? (
-          <div className="flex items-center gap-2 rounded-lg border border-dashed p-6 text-sm text-muted-foreground">
-            <Loader2 className="size-4 animate-spin" />
-            Cargando carpetas...
-          </div>
-        ) : queueItems.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
-            <FolderSearch className="mb-2 size-8 text-muted-foreground" />
-            <p className="text-sm font-medium">No hay carpetas para mostrar</p>
-            <p className="mt-1 max-w-md text-xs text-muted-foreground">
-              Probá cambiar el filtro de estado o buscar por otro nombre de
-              club, sección, campo o plantilla.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {queueItems.map((item) => (
-              <QueueCard
-                key={item.annual_folder_id}
-                item={item}
-                isSelected={
-                  selectedQueueItem?.annual_folder_id === item.annual_folder_id
-                }
-                isLoading={
-                  isFolderLoading &&
-                  selectedQueueItem?.annual_folder_id === item.annual_folder_id
-                }
-                onSelect={handleSelectFolder}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Folder loaded */}
-      {folder && (
-        <>
-          {/* Summary card */}
-          <FolderSummaryCard
-            folder={folder}
-            onRefresh={refreshFolder}
-            isRefreshing={isRefreshing}
-          />
-
-          {/* Actions bar */}
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-              Secciones ({sortedSections.length})
-            </h2>
-            <Button
-              variant="outline"
-              size="sm"
-              asChild
-              title={t("evaluationClient.viewFullFolderTitle")}
-            >
-              <a
-                href={toPanelPath(
-                  `/dashboard/annual-folders?folder=${folder.annual_folder_id}`,
-                )}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <ExternalLink className="size-4" />
-                Ver evidencias
-              </a>
-            </Button>
-          </div>
-
-          {/* Sections list */}
-          {sortedSections.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
-              <p className="text-sm text-muted-foreground">
-                Esta carpeta no tiene secciones configuradas.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {sortedSections.map((section) => (
-                <EvalSectionRow
-                  key={section.section_id}
-                  section={section}
-                  evaluation={getEvaluationForSection(section)}
-                  folderRequiresUnionConfirmation={
-                    folder.requires_union_confirmation
-                  }
-                  canConfirmUnion={canConfirmUnion}
-                  onEvaluate={handleEvaluate}
-                  onReopen={handleReopen}
-                  onConfirmUnion={handleConfirmUnion}
-                  onPreviewEvidence={handlePreviewEvidence}
-                />
-              ))}
-            </div>
-          )}
-        </>
-      )}
-
-      {/* Evaluate section dialog */}
+  const reviewDialogs = (
+    <>
       {evaluatingSection && folder && (
         <EvaluateSectionDialog
           open={evaluateOpen}
@@ -1190,7 +798,6 @@ export function EvaluationClientPage({
         onOpenChange={handlePreviewOpenChange}
       />
 
-      {/* Union confirmation dialog */}
       <Dialog open={unionConfirmOpen} onOpenChange={setUnionConfirmOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
@@ -1249,7 +856,6 @@ export function EvaluationClientPage({
         </DialogContent>
       </Dialog>
 
-      {/* Reopen section confirm dialog */}
       <AlertDialog open={reopenOpen} onOpenChange={setReopenOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -1274,6 +880,413 @@ export function EvaluationClientPage({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+    </>
+  );
+
+  if (isDetailMode) {
+    if (isFolderLoading && !folder) {
+      return (
+        <div className="flex items-center gap-2 rounded-lg border border-dashed p-8 text-sm text-muted-foreground">
+          <Loader2 className="size-4 animate-spin" />
+          {t("evaluationClient.loadingDetail")}
+        </div>
+      );
+    }
+
+    if (folderError && !folder) {
+      return (
+        <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          {folderError}
+        </p>
+      );
+    }
+
+    if (!folder) {
+      return (
+        <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
+          {tFolders("notFoundDescription")}
+        </div>
+      );
+    }
+
+    const club = folder.club_enrollment?.club_section?.club;
+    const localField = club?.local_field;
+    const totalEarned = folder.total_earned_points ?? 0;
+    const totalMax = folder.total_max_points ?? 0;
+    const progressPct = folder.progress_percentage ?? 0;
+
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title={`${folderClubName(folder)} · ${folderSectionName(folder)}`}
+          description={`${folder.template?.name ?? "—"} · ${folderYearLabel(folder)}`}
+          breadcrumbs={[
+            { label: tFolders("titleList"), href: CLUBS_EVIDENCE_FOLDERS_BASE },
+            { label: folderClubName(folder) },
+          ]}
+          actions={
+            <div className="flex flex-wrap items-center gap-2">
+              <FolderStatusBadge status={folder.status} />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => void refreshFolder()}
+                disabled={isRefreshing}
+              >
+                <RefreshCw
+                  className={`size-4 ${isRefreshing ? "animate-spin" : ""}`}
+                />
+                {t("evaluationClient.refreshButton")}
+              </Button>
+            </div>
+          }
+        />
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("evaluationClient.summaryTitle")}</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <p className="text-xs text-muted-foreground">
+                {t("evaluationClient.labelClub")}
+              </p>
+              <p className="text-sm font-medium">{folderClubName(folder)}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">
+                {t("evaluationClient.labelSection")}
+              </p>
+              <p className="text-sm font-medium">{folderSectionName(folder)}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">
+                {t("evaluationClient.labelTemplate")}
+              </p>
+              <p className="text-sm font-medium">
+                {folder.template?.name ?? "—"}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">
+                {t("evaluationClient.labelYear")}
+              </p>
+              <p className="text-sm font-medium">{folderYearLabel(folder)}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">
+                {t("evaluationClient.labelLocalField")}
+              </p>
+              <p className="text-sm font-medium">{localField?.name ?? "—"}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">
+                {t("evaluationClient.labelUnion")}
+              </p>
+              <p className="text-sm font-medium">
+                {localField?.union?.name ?? "—"}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">
+                {t("evaluationClient.labelScore")}
+              </p>
+              <p className="text-sm font-medium tabular-nums">
+                {totalEarned} / {totalMax} pts
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">
+                {t("evaluationClient.labelProgress")}
+              </p>
+              <p className="text-sm font-medium tabular-nums">{progressPct}%</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <CardTitle>
+              {t("evaluationClient.sectionsTitle", { count: sortedSections.length })}
+            </CardTitle>
+            <Button variant="outline" size="sm" asChild>
+              <Link
+                href={`${clubsEvidenceFolderPath(folder.annual_folder_id)}/view`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <ExternalLink className="size-4" />
+                {t("evaluationClient.viewFullFolderTitle")}
+              </Link>
+            </Button>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {sortedSections.length === 0 ? (
+              <p className="py-8 text-center text-sm text-muted-foreground">
+                {t("evaluationClient.noSections")}
+              </p>
+            ) : (
+              sortedSections.map((section) => (
+                <EvalSectionRow
+                  key={section.section_id}
+                  section={section}
+                  evaluation={getEvaluationForSection(section)}
+                  folderRequiresUnionConfirmation={folder.requires_union_confirmation}
+                  canConfirmUnion={canConfirmUnion}
+                  onEvaluate={handleEvaluate}
+                  onReopen={handleReopen}
+                  onConfirmUnion={handleConfirmUnion}
+                  onPreviewEvidence={handlePreviewEvidence}
+                />
+              ))
+            )}
+          </CardContent>
+        </Card>
+
+        {reviewDialogs}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Human-readable queue */}
+      <div className="space-y-4">
+        <div className="rounded-xl border bg-muted/20 p-4">
+          <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h3 className="text-sm font-semibold tracking-wide text-foreground">
+                {t("evaluationClient.queueTitle")}
+              </h3>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {t("evaluationClient.queueHint")}
+              </p>
+            </div>
+            <Badge variant="outline" className="w-fit shrink-0">
+              {t("evaluationClient.resultsCount", { count: queueItems.length })}
+            </Badge>
+          </div>
+
+          <form onSubmit={handleQueueSearch}>
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <h4 className="text-sm font-semibold tracking-wide text-foreground">
+                {t("evaluationClient.filtersTitle")}
+              </h4>
+              <span className="text-xs text-muted-foreground">
+                {t("evaluationClient.filtersHint")}
+              </span>
+            </div>
+
+            <div className="overflow-x-auto pb-1">
+              <div className="flex min-w-max items-end gap-4">
+                <div className="w-[300px] space-y-1">
+                  <Label htmlFor="folder-search">{t("evaluationClient.filterSearch")}</Label>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      id="folder-search"
+                      type="search"
+                      placeholder={t("evaluationClient.searchPlaceholder")}
+                      value={searchInput}
+                      onChange={(e) => setSearchInput(e.target.value)}
+                      className="bg-background pl-9"
+                    />
+                  </div>
+                </div>
+
+                <div className="w-[200px] space-y-1">
+                  <Label htmlFor="folder-review-status">
+                    {t("evaluationClient.filterReviewStatus")}
+                  </Label>
+                  <Select
+                    value={queueStatus}
+                    onValueChange={(value) =>
+                      setQueueStatus(value as AnnualFolderEvaluationQueueStatus)
+                    }
+                  >
+                    <SelectTrigger id="folder-review-status" className="bg-background">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="needs_review">Pendientes</SelectItem>
+                      <SelectItem value="submitted">Enviadas por club</SelectItem>
+                      <SelectItem value="preapproved">Preaprobadas LF</SelectItem>
+                      <SelectItem value="evaluated">Evaluadas</SelectItem>
+                      <SelectItem value="all">Todas</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="w-[200px] space-y-1">
+                  <Label htmlFor="folder-status">{t("evaluationClient.filterFolderStatus")}</Label>
+                  <Select
+                    value={folderStatus}
+                    onValueChange={(value) =>
+                      setFolderStatus(value as "all" | FolderStatus)
+                    }
+                  >
+                    <SelectTrigger id="folder-status" className="bg-background">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todas</SelectItem>
+                      <SelectItem value="open">Abiertas</SelectItem>
+                      <SelectItem value="submitted">Enviadas</SelectItem>
+                      <SelectItem value="under_evaluation">En evaluación</SelectItem>
+                      <SelectItem value="evaluated">Evaluadas</SelectItem>
+                      <SelectItem value="closed">Cerradas</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="w-[180px] space-y-1">
+                  <Label htmlFor="folder-progress">{t("evaluationClient.filterProgress")}</Label>
+                  <Select value={progressFilter} onValueChange={setProgressFilter}>
+                    <SelectTrigger id="folder-progress" className="bg-background">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todos</SelectItem>
+                      <SelectItem value="empty">0%</SelectItem>
+                      <SelectItem value="in_progress">1% a 99%</SelectItem>
+                      <SelectItem value="complete">100%</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="w-[220px] space-y-1">
+                  <Label htmlFor="folder-union">{t("evaluationClient.filterUnion")}</Label>
+                  <Select
+                    value={selectedUnionId}
+                    onValueChange={(value) => {
+                      setSelectedUnionId(value);
+                      setSelectedLocalFieldId("all");
+                    }}
+                  >
+                    <SelectTrigger id="folder-union" className="bg-background">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todas</SelectItem>
+                      {unions.map((union) => (
+                        <SelectItem key={union.union_id} value={String(union.union_id)}>
+                          {union.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="w-[220px] space-y-1">
+                  <Label htmlFor="folder-local-field">
+                    {t("evaluationClient.filterLocalField")}
+                  </Label>
+                  <Select
+                    value={selectedLocalFieldId}
+                    onValueChange={setSelectedLocalFieldId}
+                  >
+                    <SelectTrigger id="folder-local-field" className="bg-background">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todos</SelectItem>
+                      {localFields
+                        .filter(
+                          (field) =>
+                            selectedUnionId === "all" ||
+                            String(field.union_id) === selectedUnionId,
+                        )
+                        .map((field) => (
+                          <SelectItem
+                            key={field.local_field_id}
+                            value={String(field.local_field_id)}
+                          >
+                            {field.name}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="w-[200px] space-y-1">
+                  <Label htmlFor="folder-club-type">{t("evaluationClient.filterClubType")}</Label>
+                  <Select
+                    value={selectedClubTypeId}
+                    onValueChange={setSelectedClubTypeId}
+                  >
+                    <SelectTrigger id="folder-club-type" className="bg-background">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todos</SelectItem>
+                      {clubTypes.map((type) => (
+                        <SelectItem key={type.club_type_id} value={String(type.club_type_id)}>
+                          {type.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="w-[180px] space-y-1">
+                  <Label htmlFor="folder-year">{t("evaluationClient.filterYear")}</Label>
+                  <Select value={selectedYearId} onValueChange={setSelectedYearId}>
+                    <SelectTrigger id="folder-year" className="bg-background">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todos</SelectItem>
+                      {ecclesiasticalYears.map((year) => (
+                        <SelectItem
+                          key={year.ecclesiastical_year_id}
+                          value={String(year.ecclesiastical_year_id)}
+                        >
+                          {year.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <Button type="submit" className="shrink-0">
+                  <Search className="size-4" />
+                  {t("evaluationClient.searchButton")}
+                </Button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div className="rounded-xl border border-border/60 bg-card p-4 shadow-xs">
+          {queueError && (
+            <p className="mb-3 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+              {queueError}
+            </p>
+          )}
+
+          {isQueueLoading ? (
+            <div className="flex items-center gap-2 rounded-lg border border-dashed p-6 text-sm text-muted-foreground">
+              <Loader2 className="size-4 animate-spin" />
+              Cargando carpetas...
+            </div>
+          ) : queueItems.length === 0 ? (
+            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
+              <FolderSearch className="mb-2 size-8 text-muted-foreground" />
+              <p className="text-sm font-medium">No hay carpetas para mostrar</p>
+              <p className="mt-1 max-w-md text-xs text-muted-foreground">
+                Probá cambiar el filtro de estado o buscar por otro nombre de
+                club, sección, campo o plantilla.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {queueItems.map((item) => (
+                <QueueCard key={item.annual_folder_id} item={item} />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

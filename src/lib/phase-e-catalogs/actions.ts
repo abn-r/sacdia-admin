@@ -54,7 +54,6 @@ import {
   updateAdminMasterHonor,
   deleteAdminMasterHonor,
   recalculateMasterHonor,
-  type ClassRequirementTrack,
   type MasterHonorPayload,
   type MasterHonorRuleGroupPayload,
   type MasterHonorRuleOptionPayload,
@@ -85,31 +84,16 @@ function parsePositiveInt(formData: FormData, field: string): number | null {
   return Math.floor(n);
 }
 
+function parseClubTypeId(formData: FormData): number | null {
+  return parsePositiveInt(formData, "club_type_id");
+}
+
 function parseIntField(raw: string, min = 0): number | null {
   const trimmed = raw.trim();
   if (!trimmed) return null;
   const n = Number(trimmed);
   if (!Number.isInteger(n) || n < min) return null;
   return n;
-}
-
-function parseOptionalInt(raw: string, min = 0): number | null {
-  return parseIntField(raw, min);
-}
-
-function parseOptionalIntField(formData: FormData, field: string, min = 0): number | null | undefined {
-  if (!formData.has(field)) return undefined;
-  return parseOptionalInt(readString(formData, field), min);
-}
-
-function parseRequirementTrackField(formData: FormData): ClassRequirementTrack | null | undefined {
-  if (!formData.has("requirement_track")) return undefined;
-  const raw = readString(formData, "requirement_track");
-  if (!raw) return undefined;
-  if (raw === "BASIC" || raw === "ADVANCED" || raw === "EXTRA") {
-    return raw;
-  }
-  return null;
 }
 
 function parseUnknownInt(value: unknown, min = 0): number | null {
@@ -383,56 +367,6 @@ function buildNameOnlyUpdate(formData: FormData) {
   return payload;
 }
 
-function buildClassPayload(formData: FormData, includeTranslations = true) {
-  const config = parseClassConfigFormData(formData);
-  if (!config.success) return { error: config.error };
-
-  const payload: Record<string, unknown> = {
-    ...(
-      includeTranslations ? buildTranslatableCreate(formData) : buildTranslatableUpdate(formData)
-    ),
-    ...config.data,
-    advanced_enabled: parseBool(formData, "advanced_enabled"),
-  };
-  return { payload };
-}
-
-function buildClassSectionPayload(formData: FormData, includeTranslations = false) {
-  const requirementTrack = parseRequirementTrackField(formData);
-  if (requirementTrack === null) {
-    return { error: "El tipo de track de requisitos no es válido." };
-  }
-  const moduleId = parseOptionalIntField(formData, "module_id");
-  const displayOrder = parseOptionalIntField(formData, "display_order");
-  const ownerDivisionId = parseOptionalIntField(formData, "owner_division_id");
-  const ownerUnionId = parseOptionalIntField(formData, "owner_union_id");
-  const ownerLocalFieldId = parseOptionalIntField(formData, "owner_local_field_id");
-  const availableFromYearId = parseOptionalIntField(formData, "available_from_year_id");
-  const availableUntilYearId = parseOptionalIntField(formData, "available_until_year_id");
-
-  const payload: Record<string, unknown> = {
-    ...(includeTranslations ? buildTranslatableCreate(formData) : buildTranslatableUpdate(formData)),
-    ...(moduleId === undefined ? {} : { module_id: moduleId }),
-    ...(requirementTrack ? { requirement_track: requirementTrack } : {}),
-    ...(formData.has("required_for_investiture")
-      ? { required_for_investiture: parseBool(formData, "required_for_investiture") }
-      : {}),
-    ...(displayOrder === undefined ? {} : { display_order: displayOrder }),
-    ...(ownerDivisionId === undefined ? {} : { owner_division_id: ownerDivisionId }),
-    ...(ownerUnionId === undefined ? {} : { owner_union_id: ownerUnionId }),
-    ...(ownerLocalFieldId === undefined
-      ? {}
-      : { owner_local_field_id: ownerLocalFieldId }),
-    ...(availableFromYearId === undefined
-      ? {}
-      : { available_from_year_id: availableFromYearId }),
-    ...(availableUntilYearId === undefined
-      ? {}
-      : { available_until_year_id: availableUntilYearId }),
-  };
-  return { payload };
-}
-
 // ─── Generic factory ───────────────────────────────────────────────────────────
 
 type CrudPermissions = {
@@ -513,10 +447,16 @@ export async function createClassAction(_: PhaseEActionState, formData: FormData
   if (!hasAnyPermission(user, [CLASSES_MANAGE, CATALOGS_CREATE])) {
     return { error: "Sin permisos para crear." };
   }
-  const built = buildClassPayload(formData, true);
-  if ("error" in built) return { error: built.error };
+  const clubTypeId = parseClubTypeId(formData);
+  if (!clubTypeId) return { error: "El tipo de club es obligatorio." };
+  const config = parseClassConfigFormData(formData);
+  if (!config.success) return { error: config.error };
   try {
-    await createAdminClass(built.payload as Parameters<typeof createAdminClass>[0]);
+    await createAdminClass({
+      ...buildTranslatableCreate(formData),
+      ...config.data,
+      club_type_id: clubTypeId,
+    });
   } catch (error) {
     return { error: getActionErrorMessage(error, "No se pudo crear el registro.", { endpointLabel: "/admin/classes" }) };
   }
@@ -531,10 +471,16 @@ export async function updateClassAction(_: PhaseEActionState, formData: FormData
   }
   const id = parsePositiveInt(formData, "id");
   if (!id) return { error: "No se pudo identificar el registro a editar." };
-  const built = buildClassPayload(formData, false);
-  if ("error" in built) return { error: built.error };
+  const clubTypeId = parseClubTypeId(formData);
+  if (!clubTypeId) return { error: "El tipo de club es obligatorio." };
+  const config = parseClassConfigFormData(formData);
+  if (!config.success) return { error: config.error };
   try {
-    await updateAdminClass(id, built.payload as Parameters<typeof updateAdminClass>[1]);
+    await updateAdminClass(id, {
+      ...buildTranslatableUpdate(formData),
+      ...config.data,
+      club_type_id: clubTypeId,
+    });
   } catch (error) {
     return { error: getActionErrorMessage(error, "No se pudo actualizar el registro.", { endpointLabel: `/admin/classes/${id}` }) };
   }
@@ -557,7 +503,47 @@ export const deleteClassAction = classDeleteActions.deleteAction;
 
 // ─── Class Modules ────────────────────────────────────────────────────────────
 
-const classModulesActions = makeActions(
+export async function createClassModuleAction(_: PhaseEActionState, formData: FormData): Promise<PhaseEActionState> {
+  const user = await requireAdminUser();
+  if (!hasAnyPermission(user, [CLASS_MODULES_MANAGE, CATALOGS_CREATE])) {
+    return { error: "Sin permisos para crear." };
+  }
+  const classId = parsePositiveInt(formData, "class_id");
+  if (!classId) return { error: "La clase es obligatoria." };
+  try {
+    await createAdminClassModule({
+      ...buildTranslatableCreate(formData),
+      class_id: classId,
+    });
+  } catch (error) {
+    return { error: getActionErrorMessage(error, "No se pudo crear el registro.", { endpointLabel: "/admin/class-modules" }) };
+  }
+  revalidatePath("/dashboard/catalogs/class-modules");
+  redirect("/dashboard/catalogs/class-modules");
+}
+
+export async function updateClassModuleAction(_: PhaseEActionState, formData: FormData): Promise<PhaseEActionState> {
+  const user = await requireAdminUser();
+  if (!hasAnyPermission(user, [CLASS_MODULES_MANAGE, CATALOGS_UPDATE])) {
+    return { error: "Sin permisos para editar." };
+  }
+  const id = parsePositiveInt(formData, "id");
+  if (!id) return { error: "No se pudo identificar el registro a editar." };
+  const classId = parsePositiveInt(formData, "class_id");
+  if (!classId) return { error: "La clase es obligatoria." };
+  try {
+    await updateAdminClassModule(id, {
+      ...buildTranslatableUpdate(formData),
+      class_id: classId,
+    });
+  } catch (error) {
+    return { error: getActionErrorMessage(error, "No se pudo actualizar el registro.", { endpointLabel: `/admin/class-modules/${id}` }) };
+  }
+  revalidatePath("/dashboard/catalogs/class-modules");
+  redirect("/dashboard/catalogs/class-modules");
+}
+
+const classModuleDeleteActions = makeActions(
   "/dashboard/catalogs/class-modules",
   { create: [CLASS_MODULES_MANAGE, CATALOGS_CREATE], update: [CLASS_MODULES_MANAGE, CATALOGS_UPDATE], delete: [CLASS_MODULES_MANAGE, CATALOGS_DELETE] },
   {
@@ -568,9 +554,7 @@ const classModulesActions = makeActions(
   true,
 );
 
-export const createClassModuleAction = classModulesActions.createAction;
-export const updateClassModuleAction = classModulesActions.updateAction;
-export const deleteClassModuleAction = classModulesActions.deleteAction;
+export const deleteClassModuleAction = classModuleDeleteActions.deleteAction;
 
 // ─── Class Sections ───────────────────────────────────────────────────────────
 
@@ -579,10 +563,13 @@ export async function createClassSectionAction(_: PhaseEActionState, formData: F
   if (!hasAnyPermission(user, [CLASS_SECTIONS_MANAGE, CATALOGS_CREATE])) {
     return { error: "Sin permisos para crear." };
   }
-  const built = buildClassSectionPayload(formData, true);
-  if ("error" in built) return { error: built.error };
+  const moduleId = parsePositiveInt(formData, "module_id");
+  if (!moduleId) return { error: "El módulo es obligatorio." };
   try {
-    await createAdminClassSection(built.payload as Parameters<typeof createAdminClassSection>[0]);
+    await createAdminClassSection({
+      ...buildTranslatableCreate(formData),
+      module_id: moduleId,
+    });
   } catch (error) {
     return { error: getActionErrorMessage(error, "No se pudo crear el registro.", { endpointLabel: "/admin/class-sections" }) };
   }
@@ -597,10 +584,13 @@ export async function updateClassSectionAction(_: PhaseEActionState, formData: F
   }
   const id = parsePositiveInt(formData, "id");
   if (!id) return { error: "No se pudo identificar el registro a editar." };
-  const built = buildClassSectionPayload(formData, false);
-  if ("error" in built) return { error: built.error };
+  const moduleId = parsePositiveInt(formData, "module_id");
+  if (!moduleId) return { error: "El módulo es obligatorio." };
   try {
-    await updateAdminClassSection(id, built.payload as Parameters<typeof updateAdminClassSection>[1]);
+    await updateAdminClassSection(id, {
+      ...buildTranslatableUpdate(formData),
+      module_id: moduleId,
+    });
   } catch (error) {
     return { error: getActionErrorMessage(error, "No se pudo actualizar el registro.", { endpointLabel: `/admin/class-sections/${id}` }) };
   }
@@ -608,7 +598,7 @@ export async function updateClassSectionAction(_: PhaseEActionState, formData: F
   redirect("/dashboard/catalogs/class-sections");
 }
 
-const classSectionsDeleteActions = makeActions(
+const classSectionDeleteActions = makeActions(
   "/dashboard/catalogs/class-sections",
   { create: [CLASS_SECTIONS_MANAGE, CATALOGS_CREATE], update: [CLASS_SECTIONS_MANAGE, CATALOGS_UPDATE], delete: [CLASS_SECTIONS_MANAGE, CATALOGS_DELETE] },
   {
@@ -619,7 +609,7 @@ const classSectionsDeleteActions = makeActions(
   true,
 );
 
-export const deleteClassSectionAction = classSectionsDeleteActions.deleteAction;
+export const deleteClassSectionAction = classSectionDeleteActions.deleteAction;
 
 // ─── Finance Categories ───────────────────────────────────────────────────────
 

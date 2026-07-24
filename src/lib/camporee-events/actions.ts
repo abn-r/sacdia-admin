@@ -43,13 +43,10 @@ import {
   updateCamporeeEvent,
   deleteCamporeeEvent,
   reorderCamporeeEvent,
-  replaceEventStaffAssignments,
   type CreateCamporeeEventTemplatePayload,
   type UpdateCamporeeEventTemplatePayload,
-  type CamporeeEventStaffAssignmentRole,
   type CamporeeEventScheduleBlock,
   type CreateCamporeeEventPayload,
-  type ReplaceCamporeeEventStaffAssignmentsPayload,
   type PenaltyRule,
   type ParticipantsByClass,
   type ParticipantsMode,
@@ -108,6 +105,64 @@ function getJson<T>(formData: FormData, key: string): T | undefined {
   }
 }
 
+/**
+ * Strip read-only / relation fields from schedule blocks before API write.
+ * Backend ValidationPipe uses forbidNonWhitelisted — sending assignment IDs,
+ * nested camporee_club/club_section, audit fields, etc. fails hard.
+ */
+function sanitizeScheduleBlocksForWrite(
+  blocks: CamporeeEventScheduleBlock[],
+): CamporeeEventScheduleBlock[] {
+  return blocks.map((block) => {
+    const startsAt =
+      typeof block.starts_at === "string" && block.starts_at.trim()
+        ? block.starts_at.trim()
+        : null;
+    const endsAt =
+      typeof block.ends_at === "string" && block.ends_at.trim()
+        ? block.ends_at.trim()
+        : null;
+
+    const assignments = (block.assignments ?? [])
+      .map((assignment) => {
+        const clubSectionId = Number(assignment.club_section_id);
+        if (!Number.isFinite(clubSectionId) || clubSectionId < 1) return null;
+        const camporeeClubId =
+          assignment.camporee_club_id != null
+            ? Number(assignment.camporee_club_id)
+            : null;
+        return {
+          club_section_id: clubSectionId,
+          ...(camporeeClubId != null &&
+          Number.isFinite(camporeeClubId) &&
+          camporeeClubId >= 1
+            ? { camporee_club_id: camporeeClubId }
+            : {}),
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item != null);
+
+    return {
+      title: block.title?.trim() ? block.title.trim() : undefined,
+      description: block.description?.trim() ? block.description.trim() : undefined,
+      day_number:
+        typeof block.day_number === "number" && block.day_number >= 1
+          ? block.day_number
+          : 1,
+      ...(startsAt ? { starts_at: startsAt } : {}),
+      ...(endsAt ? { ends_at: endsAt } : {}),
+      ...(typeof block.venue_id === "number" && block.venue_id >= 1
+        ? { venue_id: block.venue_id }
+        : {}),
+      ...(typeof block.capacity === "number" && block.capacity >= 0
+        ? { capacity: block.capacity }
+        : {}),
+      ...(block.notes?.trim() ? { notes: block.notes.trim() } : {}),
+      ...(assignments.length > 0 ? { assignments } : {}),
+    };
+  });
+}
+
 function extractCreatedEventId(payload: unknown): number | null {
   if (!payload || typeof payload !== "object") return null;
   const root = payload as Record<string, unknown>;
@@ -126,49 +181,6 @@ async function syncRubricsFromForm(eventId: number, formData: FormData) {
     scoring_enabled: getBoolean(formData, "scoring_enabled"),
     items: getJson<CamporeeTemplateRubricInput[]>(formData, "rubrics") ?? [],
   });
-}
-
-function getStaffAssignmentsFromForm(
-  formData: FormData,
-): ReplaceCamporeeEventStaffAssignmentsPayload["assignments"] | undefined {
-  if (!formData.has("staff_assignments")) return undefined;
-
-  const assignments =
-    getJson<ReplaceCamporeeEventStaffAssignmentsPayload["assignments"]>(
-      formData,
-      "staff_assignments",
-    ) ?? [];
-
-  return assignments
-    .filter((assignment) => {
-      const role = assignment.assignment_role as CamporeeEventStaffAssignmentRole;
-      return Boolean(assignment.camporee_staff_member_id) &&
-        (role === "responsible" ||
-          role === "assistant" ||
-          role === "evaluator" ||
-          role === "support");
-    })
-    .map((assignment, index) => ({
-      camporee_staff_member_id: assignment.camporee_staff_member_id,
-      assignment_role: assignment.assignment_role,
-      title_override: assignment.title_override?.trim() || null,
-      notes: assignment.notes?.trim() || null,
-      display_order: assignment.display_order ?? index,
-    }));
-}
-
-async function syncStaffAssignmentsFromForm(eventId: number, formData: FormData) {
-  const assignments = getStaffAssignmentsFromForm(formData);
-  if (!assignments) return;
-
-  await replaceEventStaffAssignments(eventId, { assignments });
-}
-
-function hasResponsibleStaffAssignment(formData: FormData) {
-  const assignments = getStaffAssignmentsFromForm(formData) ?? [];
-  return assignments.some(
-    (assignment) => assignment.assignment_role === "responsible",
-  );
 }
 
 /**
@@ -277,7 +289,7 @@ async function assertTemplatePayloadInActorScope(
 
 // ─── Template actions ──────────────────────────────────────────────────────────
 
-const TEMPLATES_PATH = "/dashboard/camporees/event-templates";
+const TEMPLATES_PATH = "/dashboard/campamentos/plantillas";
 
 export async function createCamporeeEventTemplateAction(
   _: CamporeeEventActionState,
@@ -407,7 +419,6 @@ function buildInstancePayload(
   const duration_seconds = getPositiveInt(formData, "duration_seconds");
   const display_order = getNonNegativeInt(formData, "display_order") ?? 0;
   const active = getBoolean(formData, "active");
-  const status = getString(formData, "status") as CreateCamporeeEventPayload["status"];
 
   return {
     event_type_id,
@@ -426,7 +437,6 @@ function buildInstancePayload(
     participants_by_class: participants_mode === "by_class" ? participants_by_class : null,
     duration_seconds,
     display_order,
-    ...(status ? { status } : {}),
     active,
   };
 }
@@ -446,27 +456,11 @@ export async function createLocalCamporeeEventAction(
 
   const payload = buildInstancePayload(formData);
   if ("validationError" in payload) return { error: payload.validationError };
-  if (payload.status === "publicado" && !hasResponsibleStaffAssignment(formData)) {
-    return {
-      error:
-        "Para publicar el evento, asigná primero al menos una persona responsable.",
-    };
-  }
 
   try {
-    const targetStatus = payload.status;
-    const created = await createLocalCamporeeEvent(camporeeId, {
-      ...payload,
-      ...(targetStatus === "publicado" ? { status: "programado" } : {}),
-    });
+    const created = await createLocalCamporeeEvent(camporeeId, payload);
     const eventId = extractCreatedEventId(created);
-    if (eventId) {
-      await syncStaffAssignmentsFromForm(eventId, formData);
-      await syncRubricsFromForm(eventId, formData);
-      if (targetStatus === "publicado") {
-        await updateCamporeeEvent(eventId, { status: "publicado" });
-      }
-    }
+    if (eventId) await syncRubricsFromForm(eventId, formData);
   } catch (error) {
     return {
       error: getActionErrorMessage(error, "No se pudo crear el evento.", {
@@ -475,8 +469,8 @@ export async function createLocalCamporeeEventAction(
     };
   }
 
-  revalidatePath(`/dashboard/camporees/${camporeeId}`);
-  redirect(`/dashboard/camporees/${camporeeId}?tab=events`);
+  revalidatePath(`/dashboard/campamentos/${camporeeId}`);
+  redirect(`/dashboard/campamentos/${camporeeId}?tab=events`);
 }
 
 /** Create a custom event on a union camporee. */
@@ -494,27 +488,11 @@ export async function createUnionCamporeeEventAction(
 
   const payload = buildInstancePayload(formData);
   if ("validationError" in payload) return { error: payload.validationError };
-  if (payload.status === "publicado" && !hasResponsibleStaffAssignment(formData)) {
-    return {
-      error:
-        "Para publicar el evento, asigná primero al menos una persona responsable.",
-    };
-  }
 
   try {
-    const targetStatus = payload.status;
-    const created = await createUnionCamporeeEvent(camporeeId, {
-      ...payload,
-      ...(targetStatus === "publicado" ? { status: "programado" } : {}),
-    });
+    const created = await createUnionCamporeeEvent(camporeeId, payload);
     const eventId = extractCreatedEventId(created);
-    if (eventId) {
-      await syncStaffAssignmentsFromForm(eventId, formData);
-      await syncRubricsFromForm(eventId, formData);
-      if (targetStatus === "publicado") {
-        await updateCamporeeEvent(eventId, { status: "publicado" });
-      }
-    }
+    if (eventId) await syncRubricsFromForm(eventId, formData);
   } catch (error) {
     return {
       error: getActionErrorMessage(error, "No se pudo crear el evento.", {
@@ -523,8 +501,8 @@ export async function createUnionCamporeeEventAction(
     };
   }
 
-  revalidatePath(`/dashboard/camporees/union/${camporeeId}`);
-  redirect(`/dashboard/camporees/union/${camporeeId}?tab=events`);
+  revalidatePath(`/dashboard/campamentos/union/${camporeeId}`);
+  redirect(`/dashboard/campamentos/union/${camporeeId}?tab=events`);
 }
 
 /** Clone a template into a local camporee. */
@@ -552,8 +530,8 @@ export async function cloneTemplateToLocalCamporeeAction(
     };
   }
 
-  revalidatePath(`/dashboard/camporees/${camporeeId}`);
-  redirect(`/dashboard/camporees/${camporeeId}?tab=events`);
+  revalidatePath(`/dashboard/campamentos/${camporeeId}`);
+  redirect(`/dashboard/campamentos/${camporeeId}?tab=events`);
 }
 
 /** Clone a template into a union camporee. */
@@ -581,8 +559,8 @@ export async function cloneTemplateToUnionCamporeeAction(
     };
   }
 
-  revalidatePath(`/dashboard/camporees/union/${camporeeId}`);
-  redirect(`/dashboard/camporees/union/${camporeeId}?tab=events`);
+  revalidatePath(`/dashboard/campamentos/union/${camporeeId}`);
+  redirect(`/dashboard/campamentos/union/${camporeeId}?tab=events`);
 }
 
 /** Update an existing event instance. */
@@ -603,21 +581,9 @@ export async function updateCamporeeEventAction(
 
   const payload = buildInstancePayload(formData);
   if ("validationError" in payload) return { error: payload.validationError };
-  if (payload.status === "publicado" && !hasResponsibleStaffAssignment(formData)) {
-    return {
-      error:
-        "Para publicar el evento, asigná primero al menos una persona responsable.",
-    };
-  }
 
   try {
-    if (payload.status === "publicado") {
-      await syncStaffAssignmentsFromForm(id, formData);
-    }
     await updateCamporeeEvent(id, payload);
-    if (payload.status !== "publicado") {
-      await syncStaffAssignmentsFromForm(id, formData);
-    }
     await syncRubricsFromForm(id, formData);
   } catch (error) {
     return {
@@ -629,13 +595,13 @@ export async function updateCamporeeEventAction(
 
   if (camporeeId) {
     const basePath = isUnion
-      ? `/dashboard/camporees/union/${camporeeId}`
-      : `/dashboard/camporees/${camporeeId}`;
+      ? `/dashboard/campamentos/union/${camporeeId}`
+      : `/dashboard/campamentos/${camporeeId}`;
     revalidatePath(basePath);
     redirect(`${basePath}?tab=events`);
   }
 
-  redirect("/dashboard/camporees");
+  redirect("/dashboard/campamentos");
 }
 
 /** Delete an event instance. */
@@ -666,13 +632,13 @@ export async function deleteCamporeeEventAction(
 
   if (camporeeId) {
     const basePath = isUnion
-      ? `/dashboard/camporees/union/${camporeeId}`
-      : `/dashboard/camporees/${camporeeId}`;
+      ? `/dashboard/campamentos/union/${camporeeId}`
+      : `/dashboard/campamentos/${camporeeId}`;
     revalidatePath(basePath);
     redirect(`${basePath}?tab=events`);
   }
 
-  redirect("/dashboard/camporees");
+  redirect("/dashboard/campamentos");
 }
 
 // ─── Agenda-aware instance actions (PR6a/6b/6c) ────────────────────────────────
@@ -721,12 +687,22 @@ function buildAgendaPayload(
     sections = [];
   }
 
-  const capacity = getNonNegativeInt(formData, "capacity");
-  const registered_count = getNonNegativeInt(formData, "registered_count") ?? 0;
   const max_points = getNonNegativeInt(formData, "max_points") ?? 0;
+  const min_points = getNonNegativeInt(formData, "min_points") ?? 0;
+  if (min_points > max_points) {
+    return {
+      validationError: "Los puntos mínimos no pueden superar los puntos máximos.",
+    };
+  }
+  const penalties =
+    getJson<import("@/lib/api/camporee-events").PenaltyRule[]>(
+      formData,
+      "penalties",
+    ) ?? [];
   const event_type_id = getPositiveInt(formData, "event_type_id");
-  const schedule_blocks =
-    getJson<CamporeeEventScheduleBlock[]>(formData, "schedule_blocks") ?? [];
+  const schedule_blocks = sanitizeScheduleBlocksForWrite(
+    getJson<CamporeeEventScheduleBlock[]>(formData, "schedule_blocks") ?? [],
+  );
 
   return {
     ...(event_type_id ? { event_type_id } : {}),
@@ -742,15 +718,11 @@ function buildAgendaPayload(
     leader_name_override: leader_name_override || null,
     leader_role: leader_role || null,
     sections: (sections as import("@/lib/api/camporee-events").CamporeeEventSection[]) ?? [],
-    capacity: capacity ?? null,
-    registered_count,
     max_points,
-    min_points: 0,
-    penalties: [],
+    min_points,
+    penalties,
     participants_mode: "count",
     participants_count: 1,
-    active: true,
-    display_order: getNonNegativeInt(formData, "display_order") ?? 0,
     schedule_blocks,
   };
 }
@@ -770,27 +742,11 @@ export async function createCamporeeAgendaEventAction(
 
   const payload = buildAgendaPayload(formData);
   if ("validationError" in payload) return { error: payload.validationError };
-  if (payload.status === "publicado" && !hasResponsibleStaffAssignment(formData)) {
-    return {
-      error:
-        "Para publicar el evento, asigná primero al menos una persona responsable.",
-    };
-  }
 
   try {
-    const targetStatus = payload.status;
-    const created = await createLocalCamporeeEvent(camporeeId, {
-      ...payload,
-      ...(targetStatus === "publicado" ? { status: "programado" } : {}),
-    });
+    const created = await createLocalCamporeeEvent(camporeeId, payload);
     const eventId = extractCreatedEventId(created);
-    if (eventId) {
-      await syncStaffAssignmentsFromForm(eventId, formData);
-      await syncRubricsFromForm(eventId, formData);
-      if (targetStatus === "publicado") {
-        await updateCamporeeEvent(eventId, { status: "publicado" });
-      }
-    }
+    if (eventId) await syncRubricsFromForm(eventId, formData);
   } catch (error) {
     return {
       error: getActionErrorMessage(error, "No se pudo crear el evento.", {
@@ -799,8 +755,8 @@ export async function createCamporeeAgendaEventAction(
     };
   }
 
-  revalidatePath(`/dashboard/camporees/${camporeeId}`);
-  redirect(`/dashboard/camporees/${camporeeId}?tab=events`);
+  revalidatePath(`/dashboard/campamentos/${camporeeId}`);
+  redirect(`/dashboard/campamentos/${camporeeId}?tab=events`);
 }
 
 /** Create a union camporee event with full agenda fields. */
@@ -818,27 +774,11 @@ export async function createUnionCamporeeAgendaEventAction(
 
   const payload = buildAgendaPayload(formData);
   if ("validationError" in payload) return { error: payload.validationError };
-  if (payload.status === "publicado" && !hasResponsibleStaffAssignment(formData)) {
-    return {
-      error:
-        "Para publicar el evento, asigná primero al menos una persona responsable.",
-    };
-  }
 
   try {
-    const targetStatus = payload.status;
-    const created = await createUnionCamporeeEvent(camporeeId, {
-      ...payload,
-      ...(targetStatus === "publicado" ? { status: "programado" } : {}),
-    });
+    const created = await createUnionCamporeeEvent(camporeeId, payload);
     const eventId = extractCreatedEventId(created);
-    if (eventId) {
-      await syncStaffAssignmentsFromForm(eventId, formData);
-      await syncRubricsFromForm(eventId, formData);
-      if (targetStatus === "publicado") {
-        await updateCamporeeEvent(eventId, { status: "publicado" });
-      }
-    }
+    if (eventId) await syncRubricsFromForm(eventId, formData);
   } catch (error) {
     return {
       error: getActionErrorMessage(error, "No se pudo crear el evento.", {
@@ -847,8 +787,8 @@ export async function createUnionCamporeeAgendaEventAction(
     };
   }
 
-  revalidatePath(`/dashboard/camporees/union/${camporeeId}`);
-  redirect(`/dashboard/camporees/union/${camporeeId}?tab=events`);
+  revalidatePath(`/dashboard/campamentos/union/${camporeeId}`);
+  redirect(`/dashboard/campamentos/union/${camporeeId}?tab=events`);
 }
 
 /** Update a camporee event with full agenda fields. */
@@ -869,21 +809,9 @@ export async function updateCamporeeAgendaEventAction(
 
   const payload = buildAgendaPayload(formData);
   if ("validationError" in payload) return { error: payload.validationError };
-  if (payload.status === "publicado" && !hasResponsibleStaffAssignment(formData)) {
-    return {
-      error:
-        "Para publicar el evento, asigná primero al menos una persona responsable.",
-    };
-  }
 
   try {
-    if (payload.status === "publicado") {
-      await syncStaffAssignmentsFromForm(id, formData);
-    }
     await updateCamporeeEvent(id, payload);
-    if (payload.status !== "publicado") {
-      await syncStaffAssignmentsFromForm(id, formData);
-    }
     await syncRubricsFromForm(id, formData);
   } catch (error) {
     return {
@@ -895,13 +823,13 @@ export async function updateCamporeeAgendaEventAction(
 
   if (camporeeId) {
     const basePath = isUnion
-      ? `/dashboard/camporees/union/${camporeeId}`
-      : `/dashboard/camporees/${camporeeId}`;
+      ? `/dashboard/campamentos/union/${camporeeId}`
+      : `/dashboard/campamentos/${camporeeId}`;
     revalidatePath(basePath);
     redirect(`${basePath}?tab=events`);
   }
 
-  redirect("/dashboard/camporees");
+  redirect("/dashboard/campamentos");
 }
 
 /** Cancel an event (sets status = 'cancelado'). Requires AlertDialog confirm on the caller side. */
@@ -932,13 +860,13 @@ export async function cancelCamporeeEventAction(
 
   if (camporeeId) {
     const basePath = isUnion
-      ? `/dashboard/camporees/union/${camporeeId}`
-      : `/dashboard/camporees/${camporeeId}`;
+      ? `/dashboard/campamentos/union/${camporeeId}`
+      : `/dashboard/campamentos/${camporeeId}`;
     revalidatePath(basePath);
     redirect(`${basePath}?tab=events`);
   }
 
-  redirect("/dashboard/camporees");
+  redirect("/dashboard/campamentos");
 }
 
 /** Soft-delete an event (sets active = false). Requires AlertDialog confirm on the caller side. */
@@ -970,13 +898,13 @@ export async function softDeleteCamporeeEventAction(
 
   if (camporeeId) {
     const basePath = isUnion
-      ? `/dashboard/camporees/union/${camporeeId}`
-      : `/dashboard/camporees/${camporeeId}`;
+      ? `/dashboard/campamentos/union/${camporeeId}`
+      : `/dashboard/campamentos/${camporeeId}`;
     revalidatePath(basePath);
     redirect(`${basePath}?tab=events`);
   }
 
-  redirect("/dashboard/camporees");
+  redirect("/dashboard/campamentos");
 }
 
 /** Reorder an event instance. */
@@ -1010,8 +938,8 @@ export async function reorderCamporeeEventAction(
 
   if (camporeeId) {
     const basePath = isUnion
-      ? `/dashboard/camporees/union/${camporeeId}`
-      : `/dashboard/camporees/${camporeeId}`;
+      ? `/dashboard/campamentos/union/${camporeeId}`
+      : `/dashboard/campamentos/${camporeeId}`;
     revalidatePath(basePath);
   }
 

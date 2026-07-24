@@ -163,7 +163,7 @@ describe("InventoryHistoryDialog", () => {
     renderDialog();
 
     expect(
-      screen.getByRole("heading", { name: new RegExp(t.history.dialog_title, "i") }),
+      screen.getByText(new RegExp(t.history.dialog_title, "i")),
     ).toBeInTheDocument();
     expect(screen.getByText(/Guitarra acústica/)).toBeInTheDocument();
   });
@@ -191,9 +191,7 @@ describe("InventoryHistoryDialog", () => {
 
     renderDialog();
 
-    await waitFor(() => {
-      expect(screen.getByText(new RegExp(t.history.loading, "i"))).toBeInTheDocument();
-    });
+    expect(screen.getByText(new RegExp(t.history.loading, "i"))).toBeInTheDocument();
 
     resolve([]);
   });

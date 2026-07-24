@@ -186,7 +186,7 @@ export function YearEndClientPage({ ecclesiasticalYears }: YearEndClientPageProp
               <Label htmlFor="year-select">Año eclesiástico</Label>
               <Select value={selectedYearId} onValueChange={handleYearChange}>
                 <SelectTrigger id="year-select" className="w-full">
-                  <SelectValue placeholder={t("client.selectYearPlaceholder")} />
+                  <SelectValue placeholder="Selecciona un año..." />
                 </SelectTrigger>
                 <SelectContent>
                   {ecclesiasticalYears.map((year) => (
@@ -196,7 +196,7 @@ export function YearEndClientPage({ ecclesiasticalYears }: YearEndClientPageProp
                     >
                       {year.name}
                       {year.active && (
-                        <span className="ml-2 text-xs text-muted-foreground">{t("client.yearActiveBadge")}</span>
+                        <span className="ml-2 text-xs text-muted-foreground">(activo)</span>
                       )}
                     </SelectItem>
                   ))}
@@ -210,7 +210,7 @@ export function YearEndClientPage({ ecclesiasticalYears }: YearEndClientPageProp
               disabled={!selectedYearId || isPreviewing}
             >
               <Search className="size-4" />
-              {isPreviewing ? t("client.previewLoading") : t("client.previewButton")}
+              {isPreviewing ? "Cargando..." : "Vista previa"}
             </Button>
           </div>
         </CardContent>
@@ -240,21 +240,21 @@ export function YearEndClientPage({ ecclesiasticalYears }: YearEndClientPageProp
             <div className="grid gap-3 sm:grid-cols-3">
               <ImpactCard
                 icon={Users}
-                label={t("preview.impactEnrollmentsLabel")}
+                label="Inscripciones"
                 count={preview.enrollments_count}
-                description={t("preview.impactEnrollmentsDescription")}
+                description="Se marcarán como cerradas"
               />
               <ImpactCard
                 icon={FolderOpen}
-                label={t("preview.impactFoldersLabel")}
+                label="Carpetas"
                 count={preview.folders_count}
-                description={t("preview.impactFoldersDescription")}
+                description="Se archivarán"
               />
               <ImpactCard
                 icon={FileText}
-                label={t("preview.impactReportsLabel")}
+                label="Reportes"
                 count={preview.reports_count}
-                description={t("preview.impactReportsDescription")}
+                description="Se cerrarán"
               />
             </div>
 
@@ -319,7 +319,7 @@ export function YearEndClientPage({ ecclesiasticalYears }: YearEndClientPageProp
               disabled={isClosing}
               className="bg-destructive text-white hover:bg-destructive/90"
             >
-              {isClosing ? t("client.confirmCloseLoading") : t("client.confirmCloseButton")}
+              {isClosing ? "Cerrando..." : "Confirmar cierre"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

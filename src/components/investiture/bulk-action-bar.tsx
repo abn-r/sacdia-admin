@@ -202,7 +202,7 @@ export function BulkActionBar({
       {/* ─── Floating action bar ─────────────────────────────────────────────── */}
       <div className="fixed bottom-6 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 shadow-lg">
         <span className="text-sm font-medium text-foreground">
-          {count} {count === 1 ? t("bulk.selectedSingular") : t("bulk.selectedPlural")}
+          {count} {count === 1 ? "seleccionado" : "seleccionados"}
         </span>
 
         <div className="h-4 w-px bg-border" />
@@ -214,7 +214,7 @@ export function BulkActionBar({
             onClick={() => setApproveDialogOpen(true)}
           >
             <CheckCircle2 className="mr-1.5 size-4" />
-            {t("bulk.approveSelected")}
+            Aprobar seleccionados
           </Button>
         )}
 
@@ -224,14 +224,14 @@ export function BulkActionBar({
           onClick={() => setRejectDialogOpen(true)}
         >
           <XCircle className="mr-1.5 size-4" />
-          {t("bulk.rejectSelected")}
+          Rechazar seleccionados
         </Button>
 
         <Button
           size="sm"
           variant="ghost"
           onClick={onClearSelection}
-          aria-label={t("bulk.clearSelection")}
+          aria-label="Limpiar selección"
         >
           <X className="size-4" />
         </Button>
@@ -243,10 +243,12 @@ export function BulkActionBar({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <CheckCircle2 className="size-5 text-success" />
-              {t("bulk.approveTitle")}
+              Aprobar en bloque
             </DialogTitle>
             <DialogDescription>
-              {t("bulk.approveDescription", { count })}
+              Se aprobarán {count} enrollment{count !== 1 ? "s" : ""}. Los que
+              no estén en el estado correcto se omitirán con un detalle en el
+              resultado.
             </DialogDescription>
           </DialogHeader>
 
@@ -257,7 +259,7 @@ export function BulkActionBar({
               onClick={() => setApproveDialogOpen(false)}
               disabled={isApproving}
             >
-              {t("bulk.cancel")}
+              Cancelar
             </Button>
             <Button
               onClick={handleConfirmApprove}
@@ -265,7 +267,7 @@ export function BulkActionBar({
               className="bg-success hover:bg-success/90 text-success-foreground"
             >
               {isApproving && <Loader2 className="size-4 animate-spin" />}
-              {t("bulk.confirmApprove")}
+              Confirmar aprobación
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -277,10 +279,11 @@ export function BulkActionBar({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <XCircle className="size-5 text-destructive" />
-              {t("bulk.rejectTitle")}
+              Rechazar en bloque
             </DialogTitle>
             <DialogDescription>
-              {t("bulk.rejectDescription", { count })}
+              Se rechazarán {count} enrollment{count !== 1 ? "s" : ""}. El
+              motivo es obligatorio y se aplicará a todos.
             </DialogDescription>
           </DialogHeader>
 
@@ -291,10 +294,10 @@ export function BulkActionBar({
                 name="reason"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t("bulk.reasonLabel")}</FormLabel>
+                    <FormLabel>Motivo de rechazo *</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder={t("bulk.reasonPlaceholder")}
+                        placeholder="Describe el motivo del rechazo..."
                         rows={3}
                         {...field}
                         disabled={isRejecting}
@@ -312,13 +315,13 @@ export function BulkActionBar({
                   onClick={() => handleRejectClose(false)}
                   disabled={isRejecting}
                 >
-                  {t("bulk.cancel")}
+                  Cancelar
                 </Button>
                 <Button type="submit" variant="destructive" disabled={isRejecting}>
                   {isRejecting && (
                     <Loader2 className="size-4 animate-spin" />
                   )}
-                  {t("bulk.confirmReject")}
+                  Rechazar
                 </Button>
               </DialogFooter>
             </form>

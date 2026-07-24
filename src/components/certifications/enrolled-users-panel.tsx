@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Users, BarChart2 } from "lucide-react";
+import { Users, BarChart3 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -113,8 +113,8 @@ export function EnrolledUsersPanel({ enrollments, certificationId }: EnrolledUse
     return (
       <EmptyState
         icon={Users}
-        title={t("enrolledUsers.emptyTitle")}
-        description={t("enrolledUsers.emptyDescription")}
+        title="Sin usuarios inscritos"
+        description="Ningún usuario está inscrito en esta certificación."
       />
     );
   }
@@ -166,7 +166,7 @@ export function EnrolledUsersPanel({ enrollments, certificationId }: EnrolledUse
                       <div className="flex items-center gap-2">
                         <div className="h-1.5 w-24 overflow-hidden rounded-full bg-muted">
                           <div
-                            className="h-full rounded-full bg-primary transition-all"
+                            className="h-full rounded-full bg-primary transition-[width] duration-200 ease-[var(--ease-out-expo)] motion-reduce:transition-none"
                             style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
                           />
                         </div>
@@ -191,9 +191,9 @@ export function EnrolledUsersPanel({ enrollments, certificationId }: EnrolledUse
                       size="icon-sm"
                       disabled={isLoading}
                       onClick={() => handleViewProgress(enrollment)}
-                      title={t("enrolledUsers.viewProgressTitle")}
+                      title="Ver progreso detallado"
                     >
-                      <BarChart2 className="size-4" />
+                      <BarChart3 className="size-4" />
                       <span className="sr-only">Ver progreso</span>
                     </Button>
                   </TableCell>
