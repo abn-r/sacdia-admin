@@ -352,16 +352,16 @@ export async function deleteInvestitureConfig(
 // ─── Multi-stage pipeline types ───────────────────────────────────────────────
 
 export type PipelineStatus =
-  | "SUBMITTED"
+  | "SUBMITTED_FOR_VALIDATION"
   | "CLUB_APPROVED"
   | "COORDINATOR_APPROVED"
   | "FIELD_APPROVED"
-  | "INVESTED"
+  | "INVESTIDO"
   | "REJECTED";
 
 export type PipelineEnrollment = {
   enrollment_id: number;
-  status: PipelineStatus;
+  investiture_status: PipelineStatus;
   submitted_at?: string | null;
   updated_at?: string | null;
   rejection_reason?: string | null;
@@ -376,14 +376,31 @@ export type PipelineHistoryEntry = {
   history_id: number;
   enrollment_id: number;
   action: string;
-  performed_by?: string | null;
-  reason?: string | null;
+  performed_by?: {
+    name?: string | null;
+    paternal_last_name?: string | null;
+  } | null;
+  comments?: string | null;
   created_at: string;
-  performer?: InvestitureUser | null;
 };
 
 export type RejectPipelinePayload = {
   reason: string;
+};
+
+type PipelinePendingResponse = {
+  status: string;
+  data: {
+    data: PipelineEnrollment[];
+    meta: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+      hasNextPage: boolean;
+      hasPreviousPage: boolean;
+    };
+  };
 };
 
 // ─── Multi-stage pipeline API functions ───────────────────────────────────────
@@ -398,33 +415,25 @@ export async function getPipelineEnrollments(
   const params: Record<string, string | number | boolean | undefined> = {};
   if (status) params.status = status;
 
-  const res = await apiRequest<
-    PipelineEnrollment[] | { data: PipelineEnrollment[] } | { status: string; data: PipelineEnrollment[] }
-  >("/investiture/pending", { params });
+  const res = await apiRequest<PipelinePendingResponse>("/investiture/pending", {
+    params,
+  });
 
-  if (Array.isArray(res)) return res;
-  if (res && typeof res === "object" && "data" in res && Array.isArray((res as { data: unknown }).data)) {
-    return (res as { data: PipelineEnrollment[] }).data;
-  }
-  return [];
+  return Array.isArray(res?.data?.data) ? res.data.data : [];
 }
 
 /**
- * GET /api/v1/investiture/enrollments/:enrollmentId/investiture-history
+ * GET /api/v1/investiture/enrollments/:enrollmentId/history
  * History for a specific enrollment in the pipeline.
  */
 export async function getPipelineHistory(
   enrollmentId: number,
 ): Promise<PipelineHistoryEntry[]> {
   const res = await apiRequest<
-    PipelineHistoryEntry[] | { data: PipelineHistoryEntry[] }
-  >(`/investiture/enrollments/${enrollmentId}/investiture-history`);
+    { status: string; data: { enrollment_id: number; history: PipelineHistoryEntry[] } }
+  >(`/investiture/enrollments/${enrollmentId}/history`);
 
-  if (Array.isArray(res)) return res;
-  if (res && typeof res === "object" && "data" in res && Array.isArray((res as { data: unknown }).data)) {
-    return (res as { data: PipelineHistoryEntry[] }).data;
-  }
-  return [];
+  return Array.isArray(res?.data?.history) ? res.data.history : [];
 }
 
 /**

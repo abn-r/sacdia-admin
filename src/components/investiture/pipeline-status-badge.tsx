@@ -13,11 +13,11 @@ export function PipelineStatusBadge({ status, className }: PipelineStatusBadgePr
   const t = useTranslations("investiture");
 
   const statusMap: Record<PipelineStatus, { label: string; intent: StatusIntent }> = {
-    SUBMITTED: { label: t("pipelineStatusBadge.submitted"), intent: "warning" },
+    SUBMITTED_FOR_VALIDATION: { label: t("pipelineStatusBadge.submitted"), intent: "warning" },
     CLUB_APPROVED: { label: t("pipelineStatusBadge.clubApproved"), intent: "progress-1" },
     COORDINATOR_APPROVED: { label: t("pipelineStatusBadge.coordinatorApproved"), intent: "progress-2" },
     FIELD_APPROVED: { label: t("pipelineStatusBadge.fieldApproved"), intent: "progress-3" },
-    INVESTED: { label: t("pipelineStatusBadge.invested"), intent: "primary" },
+    INVESTIDO: { label: t("pipelineStatusBadge.invested"), intent: "primary" },
     REJECTED: { label: t("pipelineStatusBadge.rejected"), intent: "destructive" },
   };
 

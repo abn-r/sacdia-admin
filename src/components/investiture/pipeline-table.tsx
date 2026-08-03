@@ -88,13 +88,13 @@ interface PipelineTableProps {
 function canApprove(status: PipelineStatus, role: UserRole): boolean {
   if (role === "admin") {
     return (
-      status === "SUBMITTED" ||
+      status === "SUBMITTED_FOR_VALIDATION" ||
       status === "CLUB_APPROVED" ||
       status === "COORDINATOR_APPROVED" ||
       status === "FIELD_APPROVED"
     );
   }
-  if (role === "director") return status === "SUBMITTED";
+  if (role === "director") return status === "SUBMITTED_FOR_VALIDATION";
   if (role === "coordinator") return status === "CLUB_APPROVED";
   if (role === "field") return status === "COORDINATOR_APPROVED";
   return false;
@@ -112,9 +112,9 @@ function canInvest(status: PipelineStatus, role: UserRole): boolean {
  * a coordinator at club/coordinator steps, field/admin at any rejectable step.
  */
 function canReject(status: PipelineStatus, role: UserRole): boolean {
-  if (status === "INVESTED" || status === "REJECTED") return false;
-  if (role === "director") return status === "SUBMITTED";
-  if (role === "coordinator") return status === "SUBMITTED" || status === "CLUB_APPROVED";
+  if (status === "INVESTIDO" || status === "REJECTED") return false;
+  if (role === "director") return status === "SUBMITTED_FOR_VALIDATION";
+  if (role === "coordinator") return status === "SUBMITTED_FOR_VALIDATION" || status === "CLUB_APPROVED";
   // admin and field can reject any non-terminal status
   return true;
 }
@@ -129,7 +129,7 @@ function isSelectableForRole(status: PipelineStatus, role: UserRole): boolean {
 }
 
 async function runApprove(enrollmentId: number, status: PipelineStatus): Promise<void> {
-  if (status === "SUBMITTED") {
+  if (status === "SUBMITTED_FOR_VALIDATION") {
     await pipelineClubApprove(enrollmentId);
     return;
   }
@@ -166,7 +166,7 @@ function RowActions({
   const [approving, setApproving] = useState(false);
   const [investing, setInvesting] = useState(false);
 
-  const status = enrollment.status;
+  const status = enrollment.investiture_status;
   const showApprove = canApprove(status, userRole);
   const showInvest = canInvest(status, userRole);
   const showReject = canReject(status, userRole);
@@ -304,7 +304,7 @@ export function PipelineTable({
 
   /** Only enrollments actionable by this role participate in bulk selection */
   const selectableEnrollments = enrollments.filter((e) =>
-    isSelectableForRole(e.status, userRole),
+    isSelectableForRole(e.investiture_status, userRole),
   );
 
   const allSelected =
@@ -345,7 +345,7 @@ export function PipelineTable({
   const selectedEnrollments = enrollments.filter((e) =>
     selectedIds.has(e.enrollment_id),
   );
-  const uniqueStatuses = new Set(selectedEnrollments.map((e) => e.status));
+  const uniqueStatuses = new Set(selectedEnrollments.map((e) => e.investiture_status));
   const selectedStatus: PipelineStatus | null =
     uniqueStatuses.size === 1 ? [...uniqueStatuses][0] : null;
 
@@ -404,7 +404,7 @@ export function PipelineTable({
           <TableBody>
             {enrollments.map((enrollment, index) => {
               const isSelected = selectedIds.has(enrollment.enrollment_id);
-              const selectable = isSelectableForRole(enrollment.status, userRole);
+              const selectable = isSelectableForRole(enrollment.investiture_status, userRole);
 
               return (
                 <TableRow
@@ -442,7 +442,7 @@ export function PipelineTable({
                     {enrollment.submitted_at ? formatDate(enrollment.submitted_at) : "—"}
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle">
-                    <PipelineStatusBadge status={enrollment.status} />
+                    <PipelineStatusBadge status={enrollment.investiture_status} />
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle">
                     <RowActions

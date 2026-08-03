@@ -13,7 +13,7 @@
  *   - Loading skeleton while query is pending
  *   - Empty state when entries is []
  *   - Renders entries with translated action labels
- *   - Performer name shown; system fallback when performer is null
+ *   - Performer name shown; system fallback when performed_by is null
  *   - Rejection reason rendered when entry has reason
  *   - Fetch NOT triggered when open=false
  *   - Error toast fired when getPipelineHistory throws
@@ -89,18 +89,16 @@ const STUB_ENTRIES: PipelineHistoryEntry[] = [
     history_id: 1,
     enrollment_id: 10,
     action: "SUBMITTED",
-    performed_by: "user-001",
-    performer: { user_id: "u1", first_name: "Ana", last_name: "López" },
-    reason: null,
+    performed_by: { name: "Ana", paternal_last_name: "López" },
+    comments: null,
     created_at: "2026-01-10T09:00:00.000Z",
   },
   {
     history_id: 2,
     enrollment_id: 10,
     action: "CLUB_APPROVED",
-    performed_by: "user-002",
-    performer: { user_id: "u2", first_name: "Juan", last_name: "Pérez" },
-    reason: null,
+    performed_by: { name: "Juan", paternal_last_name: "Pérez" },
+    comments: null,
     created_at: "2026-02-15T14:00:00.000Z",
   },
   {
@@ -108,8 +106,7 @@ const STUB_ENTRIES: PipelineHistoryEntry[] = [
     enrollment_id: 10,
     action: "REJECTED",
     performed_by: null,
-    performer: null,
-    reason: "Documentación incompleta",
+    comments: "Documentación incompleta",
     created_at: "2026-03-20T16:00:00.000Z",
   },
 ];
@@ -264,9 +261,9 @@ describe("PipelineHistoryDialog", () => {
     });
   });
 
-  // ── 9. System fallback when performer is null ─────────────────────────────
+  // ── 9. System fallback when performed_by is null ──────────────────────────
 
-  it("shows system label when performer is null", async () => {
+  it("shows system label when performed_by is null", async () => {
     renderDialog();
 
     await waitFor(() => {
@@ -276,13 +273,33 @@ describe("PipelineHistoryDialog", () => {
     });
   });
 
-  // ── 10. Rejection reason rendered when entry has reason ──────────────────
+  // ── 10. Comments rendered when entry has comments ─────────────────────────
 
-  it("renders rejection reason when entry has a reason", async () => {
+  it("renders comments when an entry has comments", async () => {
     renderDialog();
 
     await waitFor(() => {
       expect(screen.getByText("Documentación incompleta")).toBeInTheDocument();
+    });
+  });
+
+  it("renders the canonical performed_by name and comments", async () => {
+    mockGetPipelineHistory.mockResolvedValue([
+      {
+        history_id: 4,
+        enrollment_id: 10,
+        action: "FIELD_APPROVED",
+        performed_by: { name: "María", paternal_last_name: "Gómez" },
+        comments: "Validación final completada",
+        created_at: "2026-04-01T10:00:00.000Z",
+      },
+    ]);
+
+    renderDialog();
+
+    await waitFor(() => {
+      expect(screen.getByText(/María Gómez/)).toBeInTheDocument();
+      expect(screen.getByText("Validación final completada")).toBeInTheDocument();
     });
   });
 

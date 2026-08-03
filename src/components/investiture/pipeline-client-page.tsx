@@ -35,11 +35,11 @@ export function PipelineClientPage({
 
   const TABS: { key: TabKey; label: string }[] = [
     { key: "ALL", label: t("pipeline.tabAll") },
-    { key: "SUBMITTED", label: t("pipeline.tabSubmitted") },
+    { key: "SUBMITTED_FOR_VALIDATION", label: t("pipeline.tabSubmitted") },
     { key: "CLUB_APPROVED", label: t("pipeline.tabClubApproved") },
     { key: "COORDINATOR_APPROVED", label: t("pipeline.tabCoordinatorApproved") },
     { key: "FIELD_APPROVED", label: t("pipeline.tabFieldApproved") },
-    { key: "INVESTED", label: t("pipeline.tabInvested") },
+    { key: "INVESTIDO", label: t("pipeline.tabInvested") },
     { key: "REJECTED", label: t("pipeline.tabRejected") },
   ];
 
@@ -87,11 +87,11 @@ export function PipelineClientPage({
   const visibleEnrollments =
     activeTab === "ALL"
       ? enrollments
-      : enrollments.filter((e) => e.status === activeTab);
+      : enrollments.filter((e) => e.investiture_status === activeTab);
 
   function countForTab(key: TabKey) {
     if (key === "ALL") return enrollments.length;
-    return enrollments.filter((e) => e.status === key).length;
+    return enrollments.filter((e) => e.investiture_status === key).length;
   }
 
   return (

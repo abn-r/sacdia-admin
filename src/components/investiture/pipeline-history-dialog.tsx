@@ -28,12 +28,11 @@ function getPerformerName(
   entry: PipelineHistoryEntry,
   systemLabel: string,
 ): string {
-  if (entry.performer?.first_name || entry.performer?.last_name) {
-    return [entry.performer.first_name, entry.performer.last_name]
+  if (entry.performed_by?.name || entry.performed_by?.paternal_last_name) {
+    return [entry.performed_by.name, entry.performed_by.paternal_last_name]
       .filter(Boolean)
       .join(" ");
   }
-  if (entry.performed_by) return entry.performed_by;
   return systemLabel;
 }
 
@@ -97,7 +96,7 @@ export function PipelineHistoryDialog({
       dotClass:
         "bg-[color-mix(in_oklch,var(--chart-3)_20%,transparent)] border-[color-mix(in_oklch,var(--chart-3)_40%,transparent)]",
     },
-    INVESTED: {
+    INVESTIDO: {
       label: t("historyDialog.actionInvested"),
       icon: Award,
       iconClass: "text-primary",
@@ -186,9 +185,9 @@ export function PipelineHistoryDialog({
                       <p className="mt-0.5 text-xs text-muted-foreground">
                         {getPerformerName(entry, t("historyDialog.system"))} &middot; {formatDate(entry.created_at)}
                       </p>
-                      {entry.reason && (
+                      {entry.comments && (
                         <p className="mt-1.5 rounded-md bg-muted px-3 py-2 text-xs text-foreground">
-                          {entry.reason}
+                          {entry.comments}
                         </p>
                       )}
                     </div>
