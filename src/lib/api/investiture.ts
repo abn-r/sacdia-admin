@@ -403,6 +403,28 @@ type PipelinePendingResponse = {
   };
 };
 
+function getPipelinePaginationError(message: string): Error {
+  return new Error(`Investiture pipeline pagination ${message}`);
+}
+
+function isValidPipelinePaginationMeta(
+  meta: PipelinePendingResponse["data"]["meta"] | undefined,
+): meta is PipelinePendingResponse["data"]["meta"] {
+  return Boolean(
+    meta
+      && Number.isInteger(meta.page)
+      && meta.page > 0
+      && Number.isInteger(meta.limit)
+      && meta.limit > 0
+      && Number.isInteger(meta.total)
+      && meta.total >= 0
+      && Number.isInteger(meta.totalPages)
+      && meta.totalPages >= 0
+      && typeof meta.hasNextPage === "boolean"
+      && typeof meta.hasPreviousPage === "boolean",
+  );
+}
+
 // ─── Multi-stage pipeline API functions ───────────────────────────────────────
 
 /**
@@ -412,14 +434,87 @@ type PipelinePendingResponse = {
 export async function getPipelineEnrollments(
   status?: PipelineStatus,
 ): Promise<PipelineEnrollment[]> {
-  const params: Record<string, string | number | boolean | undefined> = {};
-  if (status) params.status = status;
+  const enrollments: PipelineEnrollment[] = [];
+  const fetchedPages = new Set<number>();
+  const fetchedEnrollmentIds = new Set<number>();
+  let requestedPage = 1;
+  let expectedTotal: number | undefined;
+  let expectedLimit: number | undefined;
+  let expectedTotalPages: number | undefined;
 
-  const res = await apiRequest<PipelinePendingResponse>("/investiture/pending", {
-    params,
-  });
+  for (
+    let requestCount = 0;
+    expectedTotalPages === undefined || requestCount < expectedTotalPages;
+    requestCount += 1
+  ) {
+    const params: Record<string, string | number | boolean | undefined> = {};
+    if (status) params.status = status;
+    if (requestCount > 0) params.page = requestedPage;
 
-  return Array.isArray(res?.data?.data) ? res.data.data : [];
+    const res = await apiRequest<PipelinePendingResponse>("/investiture/pending", {
+      params,
+    });
+    const payload = res?.data;
+
+    if (!Array.isArray(payload?.data) || !isValidPipelinePaginationMeta(payload.meta)) {
+      throw getPipelinePaginationError("returned an invalid response");
+    }
+
+    const { meta } = payload;
+    if (fetchedPages.has(meta.page)) {
+      throw getPipelinePaginationError("returned a repeated page");
+    }
+    if (meta.page !== requestedPage) {
+      throw getPipelinePaginationError("returned an unexpected page");
+    }
+
+    const calculatedTotalPages = Math.ceil(meta.total / meta.limit);
+    const expectedHasNextPage = meta.totalPages > 0 && meta.page < meta.totalPages;
+    const expectedHasPreviousPage = meta.page > 1;
+    if (
+      (meta.totalPages === 0 && meta.page !== 1)
+      || (meta.totalPages > 0 && meta.page > meta.totalPages)
+      || meta.totalPages !== calculatedTotalPages
+      || meta.hasNextPage !== expectedHasNextPage
+      || meta.hasPreviousPage !== expectedHasPreviousPage
+    ) {
+      throw getPipelinePaginationError("returned inconsistent metadata");
+    }
+    if (expectedTotalPages === undefined) {
+      expectedTotal = meta.total;
+      expectedLimit = meta.limit;
+      expectedTotalPages = meta.totalPages;
+    } else if (
+      meta.total !== expectedTotal
+      || meta.limit !== expectedLimit
+      || meta.totalPages !== expectedTotalPages
+    ) {
+      throw getPipelinePaginationError("changed metadata between pages");
+    }
+    if (meta.hasNextPage && payload.data.length !== meta.limit) {
+      throw getPipelinePaginationError("returned a short non-final page");
+    }
+    for (const { enrollment_id } of payload.data) {
+      if (fetchedEnrollmentIds.has(enrollment_id)) {
+        throw getPipelinePaginationError("returned a duplicated enrollment");
+      }
+      fetchedEnrollmentIds.add(enrollment_id);
+    }
+
+    fetchedPages.add(meta.page);
+    enrollments.push(...payload.data);
+
+    if (!meta.hasNextPage) {
+      if (enrollments.length !== expectedTotal) {
+        throw getPipelinePaginationError("returned incomplete data");
+      }
+      return enrollments;
+    }
+
+    requestedPage = meta.page + 1;
+  }
+
+  throw getPipelinePaginationError("exhausted the metadata page bound");
 }
 
 /**
