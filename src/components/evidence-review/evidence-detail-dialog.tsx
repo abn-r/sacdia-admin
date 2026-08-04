@@ -37,7 +37,9 @@ import {
 } from "@/lib/api/evidence-review";
 import { EvidenceStatusBadge } from "@/components/evidence-review/evidence-status-badge";
 import { EvidenceTypeBadge } from "@/components/evidence-review/evidence-type-badge";
+import { PdfInlineViewer } from "@/components/shared/pdf-inline-viewer";
 import { ApiError } from "@/lib/api/client";
+import { useFormatDateTime } from "@/lib/format-locale";
 import {
   getEvidenceDescription,
   getEvidenceEntityName,

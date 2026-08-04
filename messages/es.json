@@ -4609,7 +4609,7 @@
       "submittingEdit": "Guardando...",
       "descriptionDraft": "Guardá la plantilla como borrador. Después agregá secciones y publicala desde el detalle cuando esté completa.",
       "descriptionEdit": "Modificá los datos del borrador de Carpeta Anual de Evidencias.",
-      "budgetTitle": "Presupuesto tomado del clasificación",
+      "budgetTitle": "Presupuesto tomado del ranking",
       "budgetMissing": "No hay configuración anual de clasificación aplicable para esta combinación. Configurala antes de publicar.",
       "budgetResolved": "Carpeta Anual vale {points} pts según la configuración de clasificación. Las secciones deben repartir exactamente ese total.",
       "budgetPending": "Seleccioná tipo de club, año y propietario para resolver el presupuesto anual.",

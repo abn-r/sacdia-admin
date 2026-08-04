@@ -5,6 +5,12 @@ import { EventFormPage } from "@/components/camporee-events/event-form-page";
 import type { Camporee } from "@/lib/api/camporees";
 import type { CamporeeVenue } from "@/lib/api/camporee-venues";
 
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));
