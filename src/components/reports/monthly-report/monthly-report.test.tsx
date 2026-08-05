@@ -1,8 +1,15 @@
 import React from "react";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { MonthlyReport } from "./monthly-report";
 import { createExampleMonthlyReportData } from "./monthly-report.types";
+
+const monthlyReportStyles = readFileSync(
+  resolve(process.cwd(), "src/components/reports/monthly-report/monthly-report.module.css"),
+  "utf8",
+);
 
 afterEach(() => {
   cleanup();
@@ -64,5 +71,14 @@ describe("MonthlyReport", () => {
     fireEvent.click(screen.getByRole("button", { name: "Imprimir / Guardar PDF" }));
 
     expect(print).toHaveBeenCalledOnce();
+  });
+
+  it("uses neutral metric borders and avoids negative layout offsets", () => {
+    const metricCardRule = monthlyReportStyles.match(/\.metricCard\s*\{([^}]*)\}/)?.[1] ?? "";
+
+    expect(metricCardRule).toContain("border: 0.25mm solid var(--sac-border)");
+    expect(metricCardRule).not.toContain("border-left");
+    expect(monthlyReportStyles).not.toMatch(/border-left-color\s*:/);
+    expect(monthlyReportStyles).not.toMatch(/margin-(?:top|right|bottom|left)\s*:\s*-/);
   });
 });
