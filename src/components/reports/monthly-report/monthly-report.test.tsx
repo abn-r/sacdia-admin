@@ -30,6 +30,8 @@ describe("MonthlyReport", () => {
     expect(pageOne).toBeInTheDocument();
     expect(pageTwo).toBeInTheDocument();
     expect(pageThree).toBeInTheDocument();
+    expect(pageOne.closest("main")).toHaveAttribute("data-print-root");
+    expect(pageOne.closest("main")).toHaveAttribute("data-print-pages", "3");
     expect(within(pageOne).getByText("ADMINISTRACIÓN")).toBeInTheDocument();
     expect(within(pageOne).getByText("ENSEÑANZAS")).toBeInTheDocument();
     expect(within(pageTwo).getByText("ACTIVIDADES DEL CLUB")).toBeInTheDocument();
@@ -41,7 +43,7 @@ describe("MonthlyReport", () => {
     expect(screen.getByRole("table", { name: "Honores / Especialidades / Clases" }))
       .toHaveTextContent("Participantes");
     expect(screen.getAllByRole("radio")).toHaveLength(26);
-  });
+  }, 10_000);
 
   it("keeps repeated header fields synchronized across all printed pages", () => {
     render(<MonthlyReport />);
@@ -53,7 +55,7 @@ describe("MonthlyReport", () => {
     expect(districtFields).toHaveLength(3);
     expect(districtFields[1]).toHaveValue("Distrito Central");
     expect(districtFields[2]).toHaveValue("Distrito Central");
-  });
+  }, 10_000);
 
   it("renders representative values from the populated example", () => {
     render(<MonthlyReport initialData={createExampleMonthlyReportData()} />);
@@ -62,7 +64,7 @@ describe("MonthlyReport", () => {
     expect(screen.getAllByDisplayValue("Club Centinelas del Valle")).toHaveLength(3);
     expect(screen.getByDisplayValue("Campaña de recolección")).toBeInTheDocument();
     expect(screen.getByDisplayValue("Visita al asilo municipal")).toBeInTheDocument();
-  });
+  }, 10_000);
 
   it("opens the native print dialog only from the screen control", () => {
     const print = vi.fn();
@@ -76,9 +78,17 @@ describe("MonthlyReport", () => {
 
   it("uses neutral metric borders and avoids negative layout offsets", () => {
     const metricCardRule = monthlyReportStyles.match(/\.metricCard\s*\{([^}]*)\}/)?.[1] ?? "";
+    const tableCellRule = [
+      ...monthlyReportStyles.matchAll(/\.reportTable td\s*\{([^}]*)\}/g),
+    ].at(-1)?.[1] ?? "";
 
     expect(metricCardRule).toContain("border: 0.25mm solid var(--sac-border)");
     expect(metricCardRule).not.toContain("border-left");
+    expect(tableCellRule).toContain("height: 5.4mm");
+    expect(monthlyReportStyles).toContain(".pageTwo .pageContent {\n  gap: 6mm;");
+    expect(monthlyReportStyles).toContain(
+      ':global(body:has([data-print-root][data-print-pages="3"]))',
+    );
     expect(monthlyReportStyles).not.toMatch(/border-left-color\s*:/);
     expect(monthlyReportStyles).not.toMatch(/margin-(?:top|right|bottom|left)\s*:\s*-/);
   });

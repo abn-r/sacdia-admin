@@ -499,7 +499,12 @@ export function MonthlyReport({ initialData }: { initialData?: MonthlyReportData
   }
 
   return (
-    <main className={styles.monthlyReportRoot} aria-label="Formato de reporte mensual">
+    <main
+      className={styles.monthlyReportRoot}
+      aria-label="Formato de reporte mensual"
+      data-print-root
+      data-print-pages="3"
+    >
       <div className={styles.screenControls}>
         <Button type="button" onClick={() => window.print()}>
           <Printer aria-hidden="true" />

@@ -12,6 +12,7 @@
   --sac-text-secondary: #64748b;
   --sac-text-tertiary: #94a3b8;
   min-width: min-content;
+  display: block;
   overflow-x: auto;
   color: var(--sac-text);
   background: var(--sac-surface);
@@ -67,7 +68,7 @@
 
 .documentHeader {
   flex: 0 0 auto;
-  padding-bottom: 6mm;
+  padding-bottom: 5mm;
 }
 
 .documentTopRow {
@@ -304,11 +305,11 @@
 
 .pageOne .pageContent,
 .pageTwo .pageContent {
-  gap: 8mm;
+  gap: 6mm;
 }
 
 .pageThree .pageContent {
-  gap: 6mm;
+  gap: 5mm;
 }
 
 .reportSection {
@@ -333,8 +334,8 @@
 
 .sectionHeader {
   display: grid;
-  min-height: 10mm;
-  margin-bottom: 3mm;
+  min-height: 9mm;
+  margin-bottom: 2mm;
   grid-template-columns: 9mm max-content minmax(0, 1fr);
   align-items: center;
   gap: 3mm;
@@ -369,7 +370,7 @@
 
 .administrationGrid {
   display: grid;
-  min-height: 62mm;
+  min-height: 56mm;
   grid-template-columns: 49fr 51fr;
   gap: 5mm;
 }
@@ -378,9 +379,9 @@
   display: grid;
   min-height: 0;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-template-rows: repeat(2, minmax(9mm, auto)) 25mm;
+  grid-template-rows: repeat(2, minmax(8mm, auto)) 21mm;
   column-gap: 4mm;
-  row-gap: 3mm;
+  row-gap: 2.5mm;
 }
 
 .counselorsField {
@@ -388,7 +389,7 @@
 }
 
 .counselorsField textarea {
-  min-height: 22mm;
+  min-height: 18mm;
 }
 
 .administrationPanels {
@@ -407,13 +408,13 @@
 }
 
 .panel h3 {
-  min-height: 7mm;
+  min-height: 6.5mm;
   margin: 0;
   color: var(--sac-text);
   font-size: 8.5pt;
   font-weight: 700;
   line-height: 1;
-  padding: 2mm 2.5mm;
+  padding: 1.8mm 2.5mm;
 }
 
 .panelHeaderPrimary {
@@ -426,26 +427,26 @@
 
 .panelBody {
   min-height: 0;
-  padding: 2mm 2.5mm;
+  padding: 1.5mm 2mm;
 }
 
 .summaryMetrics {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 2mm;
+  gap: 1.5mm;
 }
 
 .metricCard {
   display: grid;
   min-width: 0;
-  min-height: 14mm;
+  min-height: 12mm;
   grid-template-columns: 7.5mm minmax(0, 1fr);
   align-items: center;
   gap: 1.5mm;
   border: 0.25mm solid var(--sac-border);
   border-radius: 2mm;
   background: var(--sac-background);
-  padding: 2mm;
+  padding: 1.5mm;
 }
 
 .metricCard > svg {
@@ -525,13 +526,13 @@
 
 .teachingsTextareas {
   display: grid;
-  min-height: 30mm;
+  min-height: 25mm;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 4mm;
 }
 
 .teachingsTextareas textarea {
-  min-height: 25mm;
+  min-height: 21mm;
 }
 
 .reportTable {
@@ -543,7 +544,7 @@
 }
 
 .reportTable caption {
-  padding: 2.2mm 0 1.2mm;
+  padding: 1.6mm 0 1mm;
   color: var(--sac-text);
   caption-side: top;
   text-align: left;
@@ -555,7 +556,7 @@
 .reportTable th,
 .reportTable td {
   border: 0.25mm solid var(--sac-border);
-  padding: 1.4mm 1.6mm;
+  padding: 1mm 1.2mm;
   vertical-align: middle;
 }
 
@@ -569,43 +570,43 @@
 }
 
 .reportTable td {
-  height: 6.2mm;
+  height: 5.4mm;
   padding-top: 0.4mm;
   padding-bottom: 0.4mm;
 }
 
 .reportTable input {
   display: block;
-  min-height: 4.8mm;
+  min-height: 4.2mm;
   padding-bottom: 0;
   font-size: 7.8pt;
 }
 
 .monthDescription {
-  min-height: 27mm;
-  margin-top: 3mm;
+  min-height: 23mm;
+  margin-top: 2mm;
 }
 
 .monthDescription textarea {
-  min-height: 22mm;
+  min-height: 19mm;
 }
 
 .financesSection {
-  min-height: 86mm;
+  min-height: 81mm;
 }
 
 .missionarySection,
 .serviceSection {
-  min-height: 54mm;
+  min-height: 50mm;
 }
 
 .signaturesSection {
-  min-height: 37mm;
+  min-height: 34mm;
 }
 
 .financeMetrics {
   display: grid;
-  min-height: 20mm;
+  min-height: 18mm;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 2mm;
 }
@@ -621,9 +622,9 @@
 .splitBody {
   display: grid;
   min-height: 0;
-  margin-top: 3mm;
+  margin-top: 2mm;
   grid-template-columns: 58fr 42fr;
-  gap: 5mm;
+  gap: 4mm;
 }
 
 .missionarySection .splitBody,
@@ -643,19 +644,19 @@
 }
 
 .financialObservations {
-  min-height: 24mm;
+  min-height: 21mm;
 }
 
 .financialObservations textarea {
-  min-height: 24mm;
+  min-height: 21mm;
 }
 
 .compactTextArea {
-  min-height: 20mm;
+  min-height: 17mm;
 }
 
 .compactTextArea textarea {
-  min-height: 18mm;
+  min-height: 15mm;
 }
 
 .sideColumn .panel h3 {
@@ -679,14 +680,14 @@
 
 .signatureGrid {
   display: grid;
-  min-height: 37mm;
+  min-height: 34mm;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 4mm;
 }
 
 .signatureFields {
   display: grid;
-  min-height: 28mm;
+  min-height: 26mm;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   column-gap: 2.5mm;
   row-gap: 1.2mm;
@@ -809,6 +810,11 @@
     -webkit-print-color-adjust: exact;
   }
 
+  :global(body:has([data-print-root][data-print-pages="3"])) {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
   :global([data-sonner-toaster]),
   .screenControls {
     display: none !important;
@@ -816,6 +822,7 @@
 
   .monthlyReportRoot {
     width: 215.9mm !important;
+    height: auto !important;
     overflow: visible !important;
     background: #ffffff !important;
   }
