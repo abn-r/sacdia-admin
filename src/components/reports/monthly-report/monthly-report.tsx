@@ -418,7 +418,7 @@ function DocumentHeader({
   data,
   onChange,
 }: {
-  page: 1 | 2;
+  page: 1 | 2 | 3;
   data: MonthlyReportData["meta"];
   onChange: (field: string, value: FieldValue) => void;
 }) {
@@ -453,7 +453,7 @@ function DocumentHeader({
             onChange={(value) => onChange("folio", value)}
             compact
           />
-          <p>{`Página ${page} de 2`}</p>
+          <p>{`Página ${page} de 3`}</p>
         </div>
       </div>
       <div className={styles.infoGrid}>
@@ -509,7 +509,7 @@ export function MonthlyReport({ initialData }: { initialData?: MonthlyReportData
 
       <form onSubmit={(event) => event.preventDefault()}>
         <div className={styles.pagePreview}>
-          <article className={`${styles.documentPage} ${styles.pageOne}`} aria-label="Página 1 de 2">
+          <article className={`${styles.documentPage} ${styles.pageOne}`} aria-label="Página 1 de 3">
             <DocumentHeader
               page={1}
               data={data.meta}
@@ -611,16 +611,11 @@ export function MonthlyReport({ initialData }: { initialData?: MonthlyReportData
                 <EditableTable section="honores" label="Honores / Especialidades / Clases" rows={data.ensenanzas.honores} columns={honorsColumns} minimumRows={5} onChange={(rows) => updateTable("ensenanzas", "honores", rows)} />
               </section>
 
-              <section className={`${styles.reportSection} ${styles.activitiesSection}`}>
-                <SectionHeader number={3} title="ACTIVIDADES DEL CLUB" />
-                <EditableTable section="actividades" label="Actividades realizadas" rows={data.actividadesClub.actividades} columns={activitiesColumns} minimumRows={5} onChange={(rows) => updateTable("actividadesClub", "actividades", rows)} />
-                <TextareaField section="actividadesClub" field="descripcionMes" label="Descripción general del mes / Logros relevantes" value={data.actividadesClub.descripcionMes} onChange={(value) => updateField("actividadesClub", "descripcionMes", value)} className={styles.monthDescription} maxLength={240} />
-              </section>
             </div>
             <DocumentFooter />
           </article>
 
-          <article className={`${styles.documentPage} ${styles.pageTwo}`} aria-label="Página 2 de 2">
+          <article className={`${styles.documentPage} ${styles.pageTwo}`} aria-label="Página 2 de 3">
             <DocumentHeader
               page={2}
               data={data.meta}
@@ -628,6 +623,12 @@ export function MonthlyReport({ initialData }: { initialData?: MonthlyReportData
             />
 
             <div className={styles.pageContent}>
+              <section className={`${styles.reportSection} ${styles.activitiesSection}`}>
+                <SectionHeader number={3} title="ACTIVIDADES DEL CLUB" />
+                <EditableTable section="actividades" label="Actividades realizadas" rows={data.actividadesClub.actividades} columns={activitiesColumns} minimumRows={5} onChange={(rows) => updateTable("actividadesClub", "actividades", rows)} />
+                <TextareaField section="actividadesClub" field="descripcionMes" label="Descripción general del mes / Logros relevantes" value={data.actividadesClub.descripcionMes} onChange={(value) => updateField("actividadesClub", "descripcionMes", value)} className={styles.monthDescription} maxLength={240} />
+              </section>
+
               <section className={`${styles.reportSection} ${styles.financesSection}`}>
                 <SectionHeader number={4} title="FINANZAS" />
                 <div className={styles.financeMetrics}>
@@ -650,6 +651,19 @@ export function MonthlyReport({ initialData }: { initialData?: MonthlyReportData
                   </div>
                 </div>
               </section>
+
+            </div>
+            <DocumentFooter />
+          </article>
+
+          <article className={`${styles.documentPage} ${styles.pageThree}`} aria-label="Página 3 de 3">
+            <DocumentHeader
+              page={3}
+              data={data.meta}
+              onChange={(field, value) => updateField("meta", field, value)}
+            />
+
+            <div className={styles.pageContent}>
 
               <section className={`${styles.reportSection} ${styles.missionarySection}`}>
                 <SectionHeader number={5} title="ACTIVIDAD MISIONERA" />

@@ -152,3 +152,156 @@ export function createEmptyMonthlyReportData(): MonthlyReportData {
     },
   };
 }
+
+/**
+ * Provides a realistic, local-only example for visual and print validation.
+ * It intentionally follows the presentation model rather than the backend DTO.
+ */
+export function createExampleMonthlyReportData(): MonthlyReportData {
+  return {
+    meta: {
+      folio: "RM-2026-08-014",
+      distrito: "Distrito Central",
+      iglesia: "Iglesia Central",
+      nombreClub: "Club Centinelas del Valle",
+      tipoClub: "Conquistadores",
+      seccion: "Sección A",
+      mesAnio: "Agosto 2026",
+    },
+    administracion: {
+      director: "Daniel Hernández",
+      subdirector: "Laura Méndez",
+      secretario: "Mariana López",
+      tesorero: "Carlos Ramírez",
+      consejeros: "Ana Torres, José Castillo, Rebeca Silva y Samuel Ortega.",
+      totalMiembros: 42,
+      asistenciaPromedio: 88,
+      reunionesMes: 4,
+      reunionesDirectiva: 2,
+      planificacionMensual: true,
+      informeATiempo: true,
+      inventarioActualizado: true,
+      documentacionAlDia: false,
+    },
+    ensenanzas: {
+      temaEspiritual: "Servicio con propósito y compasión.",
+      objetivoFormativo: "Fortalecer liderazgo, trabajo en equipo y disciplina.",
+      observacionesEnsenanzas: "Se reforzará orientación y nudos durante septiembre.",
+      honores: [
+        {
+          nombre: "Primeros auxilios",
+          categoria: "Salud",
+          instructor: "Laura Méndez",
+          avance: "Completado",
+          participantes: "18",
+        },
+        {
+          nombre: "Campismo I",
+          categoria: "Recreación",
+          instructor: "José Castillo",
+          avance: "75 %",
+          participantes: "24",
+        },
+      ],
+    },
+    actividadesClub: {
+      actividades: [
+        {
+          fecha: "2026-08-03",
+          actividad: "Reunión regular",
+          lugar: "Iglesia Central",
+          participacion: "38 miembros",
+          resultado: "Plan completado",
+        },
+        {
+          fecha: "2026-08-17",
+          actividad: "Caminata ecológica",
+          lugar: "Parque Metropolitano",
+          participacion: "34 miembros",
+          resultado: "Ruta completada",
+        },
+      ],
+      descripcionMes: "El club mantuvo asistencia constante y completó las actividades previstas sin incidentes.",
+    },
+    finanzas: {
+      ingresosMes: 12850,
+      egresosMes: 8460,
+      saldoInicial: 7350,
+      saldoFinal: 11740,
+      movimientosFinancieros: [
+        {
+          fecha: "2026-08-02",
+          concepto: "Cuotas mensuales",
+          tipo: "Ingreso",
+          monto: "$8,400",
+          comprobante: "REC-0826-01",
+        },
+        {
+          fecha: "2026-08-10",
+          concepto: "Material de clases",
+          tipo: "Egreso",
+          monto: "$3,260",
+          comprobante: "FAC-1048",
+        },
+        {
+          fecha: "2026-08-22",
+          concepto: "Transporte de actividad",
+          tipo: "Egreso",
+          monto: "$2,800",
+          comprobante: "FAC-1092",
+        },
+      ],
+      observacionesFinancieras: "Todos los comprobantes fueron conciliados con el libro de tesorería.",
+      cajaConciliada: true,
+      comprobantesCompletos: true,
+      informeRevisado: true,
+    },
+    actividadMisionera: {
+      actividadesMisioneras: [
+        {
+          fecha: "2026-08-09",
+          actividad: "Campaña de recolección",
+          lugar: "Colonia Centro",
+          participantes: "26",
+          impacto: "85 familias",
+        },
+        {
+          fecha: "2026-08-24",
+          actividad: "Entrega de literatura",
+          lugar: "Plaza principal",
+          participantes: "18",
+          impacto: "120 ejemplares",
+        },
+      ],
+      resumenImpactoMisionero: "Las familias contactadas solicitaron una segunda jornada de apoyo comunitario.",
+      visitasMisioneras: true,
+      literaturaDistribuida: true,
+      seguimientoMisionero: true,
+    },
+    servicio: {
+      accionesServicio: [
+        {
+          fecha: "2026-08-30",
+          servicioRealizado: "Visita al asilo municipal",
+          beneficiarios: "32 residentes",
+          participacion: "30 miembros",
+          resultado: "Jornada completada",
+        },
+      ],
+      descripcionServicio: "Se realizaron dinámicas, limpieza de áreas comunes y entrega de artículos de higiene.",
+      participacionComunitaria: true,
+      trabajoEquipo: true,
+      evaluacionPositiva: true,
+    },
+    firmas: {
+      nombreSecretario: "Mariana López",
+      telefonoSecretario: "+52 55 1234 5678",
+      correoSecretario: "secretaria@centinelas.example",
+      fechaEntrega: "2026-09-03",
+      firmaSecretario: "Mariana López",
+      nombreDirectorVoBo: "Daniel Hernández",
+      fechaVoBo: "2026-09-04",
+      firmaDirector: "Daniel Hernández",
+    },
+  };
+}
