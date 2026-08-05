@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { MonthlyReport } from "./monthly-report";
 import { createExampleMonthlyReportData } from "./monthly-report.types";
+import { shouldUseMonthlyReportExample } from "../../../app/(printable)/reports/monthly-preview/page";
 
 const monthlyReportStyles = readFileSync(
   resolve(process.cwd(), "src/components/reports/monthly-report/monthly-report.module.css"),
@@ -80,5 +81,14 @@ describe("MonthlyReport", () => {
     expect(metricCardRule).not.toContain("border-left");
     expect(monthlyReportStyles).not.toMatch(/border-left-color\s*:/);
     expect(monthlyReportStyles).not.toMatch(/margin-(?:top|right|bottom|left)\s*:\s*-/);
+  });
+});
+
+describe("shouldUseMonthlyReportExample", () => {
+  it("enables example data only for the explicit scalar value 1", () => {
+    expect(shouldUseMonthlyReportExample(undefined)).toBe(false);
+    expect(shouldUseMonthlyReportExample("0")).toBe(false);
+    expect(shouldUseMonthlyReportExample("1")).toBe(true);
+    expect(shouldUseMonthlyReportExample(["1"])).toBe(false);
   });
 });
