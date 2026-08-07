@@ -3096,6 +3096,9 @@
       "placeholderDescription": "Descripción opcional del camporee",
       "labelStartDate": "Fecha de inicio",
       "labelEndDate": "Fecha de fin",
+      "labelClubRegistrationDeadline": "Límite inscripción de clubes",
+      "labelMemberRegistrationDeadline": "Límite inscripción de miembros",
+      "labelPaymentDeadline": "Límite de pago",
       "labelPlace": "Lugar",
       "placeholderPlace": "Ej. Centro Recreacional La Montaña",
       "labelLatitude": "Latitud",
@@ -3110,7 +3113,9 @@
       "saving": "Guardando...",
       "creating": "Creando...",
       "saveChanges": "Guardar cambios",
-      "createCamporee": "Crear camporee"
+      "createCamporee": "Crear camporee",
+      "labelAgendaVisibleFrom": "Mostrar agenda desde",
+      "helpAgendaVisibleFrom": "Si se deja vacío, la agenda completa se abre al iniciar el camporee."
     },
     "eventInstanceForm": {
       "titleCreate": "Nuevo evento",
@@ -3151,6 +3156,9 @@
       "placeholderDescription": "Descripción opcional del camporee",
       "labelStartDate": "Fecha de inicio",
       "labelEndDate": "Fecha de fin",
+      "labelClubRegistrationDeadline": "Límite inscripción de clubes",
+      "labelMemberRegistrationDeadline": "Límite inscripción de miembros",
+      "labelPaymentDeadline": "Límite de pago",
       "labelUnion": "Unión",
       "placeholderUnion": "Selecciona una unión...",
       "labelPlace": "Lugar",
@@ -3166,7 +3174,9 @@
       "saving": "Guardando...",
       "creating": "Creando...",
       "saveChanges": "Guardar cambios",
-      "createCamporee": "Crear camporee"
+      "createCamporee": "Crear camporee",
+      "labelAgendaVisibleFrom": "Mostrar agenda desde",
+      "helpAgendaVisibleFrom": "Si se deja vacío, la agenda completa se abre al iniciar el camporee."
     },
     "clubsTab": {
       "countSingular": "club inscrito",

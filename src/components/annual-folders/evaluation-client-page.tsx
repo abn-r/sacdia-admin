@@ -593,6 +593,8 @@ export function EvaluationClientPage({
     if (!isDetailMode || !initialFolderId) return;
     if (folder?.annual_folder_id === initialFolderId) return;
 
+    const folderId = initialFolderId;
+
     let cancelled = false;
 
     async function loadInitialFolder() {
@@ -600,7 +602,7 @@ export function EvaluationClientPage({
       setFolderError(null);
 
       try {
-        await loadFolder(initialFolderId);
+        await loadFolder(folderId);
       } catch (err) {
         if (!cancelled) {
           const message =

@@ -3125,6 +3125,9 @@ export interface IntlMessages {
       placeholderDescription: string;
       labelStartDate: string;
       labelEndDate: string;
+      labelClubRegistrationDeadline: string;
+      labelMemberRegistrationDeadline: string;
+      labelPaymentDeadline: string;
       labelPlace: string;
       placeholderPlace: string;
       labelLatitude: string;
@@ -3140,6 +3143,8 @@ export interface IntlMessages {
       creating: string;
       saveChanges: string;
       createCamporee: string;
+      labelAgendaVisibleFrom: string;
+      helpAgendaVisibleFrom: string;
     };
     eventInstanceForm: {
       titleCreate: string;
@@ -3180,6 +3185,9 @@ export interface IntlMessages {
       placeholderDescription: string;
       labelStartDate: string;
       labelEndDate: string;
+      labelClubRegistrationDeadline: string;
+      labelMemberRegistrationDeadline: string;
+      labelPaymentDeadline: string;
       labelUnion: string;
       placeholderUnion: string;
       labelPlace: string;
@@ -3196,6 +3204,8 @@ export interface IntlMessages {
       creating: string;
       saveChanges: string;
       createCamporee: string;
+      labelAgendaVisibleFrom: string;
+      helpAgendaVisibleFrom: string;
     };
     clubsTab: {
       countSingular: string;
