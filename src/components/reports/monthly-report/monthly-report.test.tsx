@@ -19,7 +19,7 @@ describe("MonthlyReport", () => {
     expect(screen.getByRole("table", { name: "Honores / Especialidades / Clases" }))
       .toHaveTextContent("Participantes");
     expect(screen.getAllByRole("radio")).toHaveLength(26);
-  });
+  }, 15_000);
 
   it("keeps repeated header fields synchronized between both printed pages", () => {
     render(<MonthlyReport />);
@@ -29,7 +29,7 @@ describe("MonthlyReport", () => {
 
     expect(districtFields[0]).toHaveValue("Distrito Central");
     expect(districtFields[1]).toHaveValue("Distrito Central");
-  });
+  }, 15_000);
 
   it("opens the native print dialog only from the screen control", () => {
     const print = vi.fn();

@@ -1,8 +1,10 @@
 import React from "react";
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
+import { NextIntlClientProvider } from "next-intl";
 import { CamporeeLeaderboard } from "@/components/camporee-scoring/camporee-leaderboard";
 import type { CamporeeLeaderboard as CamporeeLeaderboardData } from "@/lib/api/camporee-scoring";
+import messages from "../../../messages/es.json";
 
 const leaderboard: CamporeeLeaderboardData = {
   scope: { type: "local", camporeeId: 1 },
@@ -34,11 +36,19 @@ afterEach(() => {
   cleanup();
 });
 
+function renderLeaderboard(data: CamporeeLeaderboardData) {
+  return render(
+    <NextIntlClientProvider locale="es" messages={messages}>
+      <CamporeeLeaderboard leaderboard={data} />
+    </NextIntlClientProvider>,
+  );
+}
+
 describe("CamporeeLeaderboard", () => {
   it("shows ranking rows with club, section, points and percentage", () => {
-    render(<CamporeeLeaderboard leaderboard={leaderboard} />);
+    renderLeaderboard(leaderboard);
 
-    expect(screen.getByText("Leaderboard del camporee")).toBeInTheDocument();
+    expect(screen.getByText("Clasificación del camporee")).toBeInTheDocument();
     expect(screen.getByText("#1")).toBeInTheDocument();
     expect(screen.getByText("Halcones")).toBeInTheDocument();
     expect(screen.getByText("Conquistadores")).toBeInTheDocument();
@@ -49,10 +59,10 @@ describe("CamporeeLeaderboard", () => {
   });
 
   it("shows empty state without official results", () => {
-    render(<CamporeeLeaderboard leaderboard={{ scope: { type: "local", camporeeId: 1 }, rows: [] }} />);
+    renderLeaderboard({ scope: { type: "local", camporeeId: 1 }, rows: [] });
 
     expect(
-      screen.getByText("Todavía no hay resultados oficiales para mostrar."),
+      screen.getByText("Aparecerán cuando se registren puntajes oficiales."),
     ).toBeInTheDocument();
   });
 });
