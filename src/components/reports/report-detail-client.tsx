@@ -24,6 +24,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ManualDataForm } from "@/components/reports/manual-data-form";
 import {
   generateReport,
+  regenerateReport,
   submitReport,
   triggerMonthlyReportPdfDownload,
   type MonthlyReport,
@@ -138,7 +139,9 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
   const handleGenerate = useCallback(async () => {
     setGenerating(true);
     try {
-      const updated = await generateReport(report.report_id);
+      const updated = await (isGenerated
+        ? regenerateReport(report.report_id)
+        : generateReport(report.report_id));
       setReport(updated);
       toast.success(t("toasts.report_generated"));
       router.refresh();
@@ -148,7 +151,7 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
     } finally {
       setGenerating(false);
     }
-  }, [report.report_id, router, t]);
+  }, [isGenerated, report.report_id, router, t]);
 
   const handleSubmit = useCallback(async () => {
     setSubmitting(true);

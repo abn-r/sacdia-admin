@@ -16,6 +16,7 @@ import {
   createOrGetDraftReport,
   generateReport,
   listMonthlyReports,
+  regenerateReport,
 } from "./monthly-reports";
 
 const report = {
@@ -64,5 +65,37 @@ describe("monthly reports API adapter", () => {
     const result = await generateReport(report.monthly_report_id);
 
     expect(result.report_id).toBe(report.monthly_report_id);
+  });
+
+  it("calls the dedicated regeneration endpoint and preserves artifact metadata", async () => {
+    const generated = {
+      ...report,
+      status: "generated" as const,
+      pdf_r2_key: "2026/07/enrollment/report.pdf",
+      pdf_size_bytes: 2048,
+      pdf_sha256: "a".repeat(64),
+      pdf_generated_at: "2026-08-05T12:00:00.000Z",
+      pdf_template_version: "monthly-report-v2-three-page",
+    };
+    apiRequestFromClientMock.mockResolvedValueOnce({
+      status: "success",
+      data: generated,
+    });
+
+    const result = await regenerateReport(report.monthly_report_id);
+
+    expect(apiRequestFromClientMock).toHaveBeenCalledWith(
+      `/monthly-reports/${report.monthly_report_id}/regenerate`,
+      { method: "POST" },
+    );
+    expect(result).toEqual(
+      expect.objectContaining({
+        pdf_r2_key: generated.pdf_r2_key,
+        pdf_size_bytes: generated.pdf_size_bytes,
+        pdf_sha256: generated.pdf_sha256,
+        pdf_generated_at: generated.pdf_generated_at,
+        pdf_template_version: generated.pdf_template_version,
+      }),
+    );
   });
 });
