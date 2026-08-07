@@ -59,6 +59,11 @@ export type MonthlyReport = {
   snapshot_data?: MonthlyReportAutoData | null;
   generated_at?: string | null;
   submitted_at?: string | null;
+  pdf_r2_key?: string | null;
+  pdf_size_bytes?: number | string | null;
+  pdf_sha256?: string | null;
+  pdf_generated_at?: string | null;
+  pdf_template_version?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
 };
@@ -191,6 +196,20 @@ export async function updateManualData(
 export async function generateReport(reportId: MonthlyReportId): Promise<MonthlyReport> {
   const envelope = await apiRequestFromClient<ApiEnvelope<BackendMonthlyReport>>(
     `/monthly-reports/${encodeURIComponent(reportId)}/generate`,
+    { method: "POST" },
+  );
+
+  return normalizeMonthlyReport(envelope.data);
+}
+
+/**
+ * POST /api/v1/monthly-reports/:reportId/regenerate
+ * Re-render the frozen snapshot and overwrite the canonical private PDF artifact.
+ * Client-side only (mutation).
+ */
+export async function regenerateReport(reportId: MonthlyReportId): Promise<MonthlyReport> {
+  const envelope = await apiRequestFromClient<ApiEnvelope<BackendMonthlyReport>>(
+    `/monthly-reports/${encodeURIComponent(reportId)}/regenerate`,
     { method: "POST" },
   );
 
