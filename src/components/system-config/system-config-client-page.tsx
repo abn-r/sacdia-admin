@@ -112,7 +112,9 @@ export function SystemConfigClientPage({ initialConfigs }: SystemConfigClientPag
       {Array.from(groups.entries()).map(([prefix, groupConfigs]) => (
         <div key={prefix} className="space-y-2">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            {tGroups.has(prefix) ? tGroups(prefix) : humanizePrefix(prefix)}
+            {tGroups.has(prefix as Parameters<typeof tGroups>[0])
+              ? tGroups(prefix as Parameters<typeof tGroups>[0])
+              : humanizePrefix(prefix)}
           </h2>
           <SystemConfigTable configs={groupConfigs} onEdit={openEdit} />
         </div>

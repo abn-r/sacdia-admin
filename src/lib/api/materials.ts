@@ -118,15 +118,6 @@ export type PatchOrderLinePayload = {
   qty_disponible?: number;
 };
 
-export type UpdateConfigDto = Partial<{
-  bank_name: string;
-  bank_account_clabe: string;
-  account_holder: string;
-  envio_centavos_default: number;
-  pickup_address: string;
-  delivery_options: unknown[];
-}>;
-
 // ─── Orders — server-side reads ──────────────────────────────────────────────
 
 export async function listOrders(

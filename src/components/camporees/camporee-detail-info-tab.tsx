@@ -47,7 +47,9 @@ function formatCurrencyMXN(value?: number | null): string {
   }
 }
 
-function hasCoordinates(camporee: Camporee) {
+function hasCoordinates(
+  camporee: Camporee,
+): camporee is Camporee & { lat: number; long: number } {
   return (
     typeof camporee.lat === "number" &&
     Number.isFinite(camporee.lat) &&

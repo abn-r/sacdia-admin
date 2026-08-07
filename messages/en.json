@@ -3086,6 +3086,9 @@
       "placeholderDescription": "Optional description of the camporee",
       "labelStartDate": "Start date",
       "labelEndDate": "End date",
+      "labelClubRegistrationDeadline": "Club registration deadline",
+      "labelMemberRegistrationDeadline": "Member registration deadline",
+      "labelPaymentDeadline": "Payment deadline",
       "labelPlace": "Location",
       "placeholderPlace": "e.g. Mountain Recreation Center",
       "labelLatitude": "Latitude",
@@ -3100,7 +3103,9 @@
       "saving": "Saving...",
       "creating": "Creating...",
       "saveChanges": "Save changes",
-      "createCamporee": "Create camporee"
+      "createCamporee": "Create camporee",
+      "labelAgendaVisibleFrom": "Show agenda from",
+      "helpAgendaVisibleFrom": "If left empty, the full agenda opens when the camporee starts."
     },
     "eventInstanceForm": {
       "titleCreate": "New event",
@@ -3141,6 +3146,9 @@
       "placeholderDescription": "Optional description of the camporee",
       "labelStartDate": "Start date",
       "labelEndDate": "End date",
+      "labelClubRegistrationDeadline": "Club registration deadline",
+      "labelMemberRegistrationDeadline": "Member registration deadline",
+      "labelPaymentDeadline": "Payment deadline",
       "labelUnion": "Union",
       "placeholderUnion": "Select a union...",
       "labelPlace": "Location",
@@ -3156,7 +3164,9 @@
       "saving": "Saving...",
       "creating": "Creating...",
       "saveChanges": "Save changes",
-      "createCamporee": "Create camporee"
+      "createCamporee": "Create camporee",
+      "labelAgendaVisibleFrom": "Show agenda from",
+      "helpAgendaVisibleFrom": "If left empty, the full agenda opens when the camporee starts."
     },
     "clubsTab": {
       "countSingular": "enrolled club",

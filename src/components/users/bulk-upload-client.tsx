@@ -113,7 +113,7 @@ export function BulkUploadClient() {
       const buffer = await file.arrayBuffer();
       const wb = XLSX.read(buffer, { type: "array", cellDates: false });
       const sheet = wb.Sheets[wb.SheetNames[0]];
-      const json = XLSX.utils.sheet_to_json<PreviewRow>(sheet);
+      const json = XLSX.utils.sheet_to_json(sheet) as PreviewRow[];
 
       if (!Array.isArray(json) || json.length === 0) {
         toast.error(t("toast.fileEmpty"));

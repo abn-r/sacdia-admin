@@ -24,7 +24,7 @@ import type {
   CamporeeEventJudgeAssignment,
   CamporeeEventRubric,
   CamporeeJudge,
-  CamporeeLeaderboard,
+  CamporeeLeaderboard as CamporeeLeaderboardData,
   CamporeeScoringTarget,
 } from "@/lib/api/camporee-scoring";
 
@@ -89,7 +89,7 @@ interface CamporeeDetailTabsProps {
   initialAssignmentsByEvent?: Record<number, CamporeeEventJudgeAssignment[]>;
   initialScoringTargetsByEvent?: Record<number, CamporeeScoringTarget[]>;
   initialRubricsByEvent?: Record<number, CamporeeEventRubric[]>;
-  initialLeaderboard?: CamporeeLeaderboard | null;
+  initialLeaderboard?: CamporeeLeaderboardData | null;
   canCreateEvents?: boolean;
   canEditEvents?: boolean;
   canDeleteEvents?: boolean;
@@ -160,7 +160,7 @@ export function CamporeeDetailTabs({
     } catch {
       // Informational — silently ignore
     }
-  }, [camporeeId, isUnionCamporee]);
+  }, [camporeeId, isUnionCamporee, setPending]);
 
   const activeTab = resolveInitialTab(initialTab);
 
