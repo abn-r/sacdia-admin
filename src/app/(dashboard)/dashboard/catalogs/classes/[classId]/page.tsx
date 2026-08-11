@@ -9,11 +9,22 @@ import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { ClassModuleTree } from "@/components/classes/class-module-tree";
 import { ClassHonorsDialog, type ClassHonorOption } from "@/components/classes/class-honors-dialog";
+import {
+  ClassPrerequisitesDialog,
+  type ClassPrerequisiteOption,
+} from "@/components/classes/class-prerequisites-dialog";
 import { ApiError } from "@/lib/api/client";
 import { getClassById } from "@/lib/api/classes";
 import { listClubTypes } from "@/lib/api/catalogs";
 import { getClassHonors, type ClassHonorRelation } from "@/lib/api/class-honors";
+import {
+  getClassPrerequisites,
+  type ClassPrerequisiteRelation,
+} from "@/lib/api/class-prerequisites";
 import { listAdminHonorsCatalog } from "@/lib/api/admin-honors-catalog";
+import { listAdminClasses } from "@/lib/api/phase-e-catalogs";
+import { unwrapApiData } from "@/lib/api/unwrap";
+import type { AdminClass } from "@/lib/api/phase-e-catalogs";
 import {
   extractClassDetailRoot,
   extractClassModulesFromDetail,
@@ -102,6 +113,22 @@ export default async function CatalogClassDetailPage({ params }: { params: Param
     // Best-effort: relation management degrades gracefully if unavailable.
   }
 
+  let prerequisiteRelations: ClassPrerequisiteRelation[] = [];
+  let classOptions: ClassPrerequisiteOption[] = [];
+  try {
+    const [prerequisites, classesPayload] = await Promise.all([
+      getClassPrerequisites(classId, { active: true }),
+      listAdminClasses(),
+    ]);
+    prerequisiteRelations = prerequisites;
+    const allClasses = unwrapApiData<AdminClass[]>(classesPayload);
+    classOptions = allClasses
+      .filter((klass) => klass.active !== false && klass.class_id !== classId)
+      .map((klass) => ({ class_id: klass.class_id, name: klass.name }));
+  } catch {
+    // Best-effort: relation management degrades gracefully if unavailable.
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -141,6 +168,13 @@ export default async function CatalogClassDetailPage({ params }: { params: Param
               classId={classId}
               initialRelations={honorRelations}
               honorsCatalog={honorOptions}
+              canCreate={canManageRelations}
+              canDelete={canDeleteRelations}
+            />
+            <ClassPrerequisitesDialog
+              classId={classId}
+              initialPrerequisites={prerequisiteRelations}
+              classOptions={classOptions}
               canCreate={canManageRelations}
               canDelete={canDeleteRelations}
             />
