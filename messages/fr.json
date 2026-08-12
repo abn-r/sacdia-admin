@@ -7501,5 +7501,195 @@
       "forbiddenTitle": "Sin permiso de revisión",
       "forbiddenDescription": "Necesitas el permiso certifications:review para acceder a esta bandeja."
     }
+  },
+  "payment_orders": {
+    "page": {
+      "title": "Ordres de paiement",
+      "description": "Révision des ordres de paiement territoriaux d'assurances et de camporees"
+    },
+    "gate": {
+      "forbiddenTitle": "Accès restreint",
+      "forbiddenDescription": "Vous n'avez pas la permission de réviser les ordres de paiement."
+    },
+    "tabs": {
+      "orders": "Ordres",
+      "reassignments": "Réaffectations"
+    },
+    "tray": {
+      "filterPurpose": "Objet",
+      "filterStatus": "Statut",
+      "reviewQueue": "À réviser",
+      "refresh": "Actualiser",
+      "loading": "Chargement…",
+      "empty": "Aucun ordre pour ce filtre",
+      "colFolio": "Folio",
+      "colPurpose": "Objet",
+      "colBeneficiaries": "Bénéficiaires",
+      "colTotal": "Total",
+      "colStatus": "Statut",
+      "colIssued": "Émis",
+      "openDetail": "Réviser"
+    },
+    "purpose": {
+      "ALL": "Tous",
+      "INSURANCE": "Assurance",
+      "CAMPOREE": "Camporee"
+    },
+    "status": {
+      "ISSUED": "Émis",
+      "PROOF_SUBMITTED": "Justificatif envoyé",
+      "APPROVED": "Approuvé",
+      "PROOF_REJECTED": "Justificatif rejeté",
+      "CANCELLED": "Annulé",
+      "EXPIRED": "Expiré"
+    },
+    "proofStatus": {
+      "SUBMITTED": "Envoyé",
+      "APPROVED": "Approuvé",
+      "REJECTED": "Rejeté"
+    },
+    "detail": {
+      "title": "Détail de l'ordre",
+      "purpose": "Objet",
+      "status": "Statut",
+      "unitCost": "Coût unitaire",
+      "total": "Total",
+      "issued": "Émis",
+      "expires": "Expire",
+      "beneficiaries": "Bénéficiaires",
+      "colBeneficiary": "Bénéficiaire",
+      "colAmount": "Montant",
+      "proof": "Justificatif de paiement",
+      "viewProof": "Voir le justificatif",
+      "makerCheckerWarning": "Vous avez téléversé ce justificatif : une autre personne doit l'approuver (maker-checker).",
+      "approve": "Approuver",
+      "reject": "Rejeter",
+      "rejectTitle": "Rejeter le justificatif",
+      "rejectDescription": "Le club pourra téléverser un nouveau justificatif avec le même folio.",
+      "rejectPlaceholder": "Motif du rejet (obligatoire)",
+      "confirmReject": "Confirmer le rejet",
+      "cancel": "Annuler"
+    },
+    "reassignments": {
+      "empty": "Aucune demande de réaffectation",
+      "colFrom": "De",
+      "colTo": "Vers",
+      "colReason": "Motif",
+      "colRequested": "Demandée",
+      "PENDING": "En attente",
+      "APPROVED": "Approuvée",
+      "REJECTED": "Rejetée",
+      "approve": "Approuver",
+      "reject": "Rejeter",
+      "rejectTitle": "Rejeter la réaffectation",
+      "approved": "Réaffectation approuvée",
+      "rejected": "Réaffectation rejetée"
+    },
+    "camporeeTab": {
+      "empty": "Ce camporee n'a pas d'ordres de paiement"
+    },
+    "config": {
+      "description": "Instructions de paiement imprimées sur chaque ordre (virement bancaire et/ou caisse du Champ Local).",
+      "localField": "Champ Local (ID)",
+      "loadField": "Charger",
+      "bankSection": "Virement bancaire",
+      "bankName": "Banque",
+      "bankHolder": "Titulaire",
+      "bankAccount": "Compte",
+      "bankClabe": "CLABE",
+      "cashSection": "Paiement en caisse",
+      "cashInstructions": "Instructions de caisse",
+      "cashPlaceholder": "Ex. Payer à la caisse du Champ Local, lun-ven 9h00-17h00",
+      "extraNotes": "Notes supplémentaires",
+      "atLeastOneMethod": "Configurez au moins un moyen de paiement : coordonnées bancaires ou instructions de caisse.",
+      "save": "Enregistrer",
+      "saved": "Instructions de paiement enregistrées"
+    },
+    "errors": {
+      "forbidden": "Vous n'avez pas la permission d'effectuer cette action",
+      "invalidTransition": "L'ordre a changé d'état ; actualisez la liste",
+      "makerChecker": "La personne qui a téléversé le justificatif ne peut pas l'approuver",
+      "eligibilityFailed": "L'éligibilité d'un bénéficiaire a changé ; l'approbation a été annulée",
+      "proofNotFound": "L'ordre n'a pas de justificatif en attente",
+      "rejectReasonRequired": "Le motif du rejet est obligatoire",
+      "configInvalid": "Configurez au moins un moyen de paiement (banque ou caisse)"
+    },
+    "toasts": {
+      "approved": "Ordre approuvé",
+      "rejected": "Justificatif rejeté",
+      "actionFailed": "L'action n'a pas pu être effectuée",
+      "loadFailed": "Les données n'ont pas pu être chargées",
+      "downloadFailed": "Le justificatif n'a pas pu être récupéré"
+    }
+  },
+  "insurance_config": {
+    "page": {
+      "title": "Configuration des assurances",
+      "description": "Produits, cycles de coût et instructions de paiement du Champ Local"
+    },
+    "gate": {
+      "forbiddenTitle": "Accès restreint",
+      "forbiddenDescription": "Vous n'avez pas la permission de configurer les assurances."
+    },
+    "tabs": {
+      "products": "Produits",
+      "cycles": "Cycles",
+      "paymentInstructions": "Instructions de paiement"
+    },
+    "loading": "Chargement…",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "products": {
+      "description": "Produits d'assurance du Champ Local",
+      "create": "Nouveau produit",
+      "createTitle": "Créer un produit",
+      "editTitle": "Modifier le produit",
+      "empty": "Aucun produit configuré",
+      "colName": "Nom",
+      "colScope": "Couverture",
+      "colValidity": "Validité",
+      "colActive": "Statut",
+      "active": "Actif",
+      "inactive": "Inactif",
+      "edit": "Modifier",
+      "activate": "Activer",
+      "deactivate": "Désactiver",
+      "scopeMember": "Membre",
+      "scopeEventExternal": "Externe (événement)",
+      "validityFixedMonths": "Mois fixes",
+      "validityUntilDate": "Jusqu'à une date",
+      "durationMonths": "Durée (mois)",
+      "saved": "Produit enregistré"
+    },
+    "cycles": {
+      "description": "Cycles de coût par année ecclésiastique et type de club",
+      "create": "Nouveau cycle",
+      "createTitle": "Créer un cycle",
+      "editTitle": "Modifier le cycle",
+      "empty": "Aucun cycle configuré",
+      "colProduct": "Produit",
+      "colYear": "Année",
+      "colClubType": "Type de club",
+      "colCost": "Coût unitaire",
+      "colDeadline": "Date limite",
+      "colActive": "Statut",
+      "selectProduct": "Sélectionnez un produit",
+      "timezone": "Fuseau horaire",
+      "saved": "Cycle enregistré"
+    },
+    "errors": {
+      "forbidden": "Vous n'avez pas la permission d'effectuer cette action",
+      "invalidTransition": "L'enregistrement a changé ; rechargez la page",
+      "makerChecker": "-",
+      "eligibilityFailed": "-",
+      "proofNotFound": "-",
+      "rejectReasonRequired": "-",
+      "configInvalid": "Configurez au moins un moyen de paiement (banque ou caisse)"
+    },
+    "toasts": {
+      "actionFailed": "L'action n'a pas pu être effectuée",
+      "loadFailed": "Les données n'ont pas pu être chargées",
+      "downloadFailed": "-"
+    }
   }
 }

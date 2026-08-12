@@ -7712,4 +7712,194 @@ export interface IntlMessages {
       forbiddenDescription: string;
     };
   };
+  payment_orders: {
+    page: {
+      title: string;
+      description: string;
+    };
+    gate: {
+      forbiddenTitle: string;
+      forbiddenDescription: string;
+    };
+    tabs: {
+      orders: string;
+      reassignments: string;
+    };
+    tray: {
+      filterPurpose: string;
+      filterStatus: string;
+      reviewQueue: string;
+      refresh: string;
+      loading: string;
+      empty: string;
+      colFolio: string;
+      colPurpose: string;
+      colBeneficiaries: string;
+      colTotal: string;
+      colStatus: string;
+      colIssued: string;
+      openDetail: string;
+    };
+    purpose: {
+      ALL: string;
+      INSURANCE: string;
+      CAMPOREE: string;
+    };
+    status: {
+      ISSUED: string;
+      PROOF_SUBMITTED: string;
+      APPROVED: string;
+      PROOF_REJECTED: string;
+      CANCELLED: string;
+      EXPIRED: string;
+    };
+    proofStatus: {
+      SUBMITTED: string;
+      APPROVED: string;
+      REJECTED: string;
+    };
+    detail: {
+      title: string;
+      purpose: string;
+      status: string;
+      unitCost: string;
+      total: string;
+      issued: string;
+      expires: string;
+      beneficiaries: string;
+      colBeneficiary: string;
+      colAmount: string;
+      proof: string;
+      viewProof: string;
+      makerCheckerWarning: string;
+      approve: string;
+      reject: string;
+      rejectTitle: string;
+      rejectDescription: string;
+      rejectPlaceholder: string;
+      confirmReject: string;
+      cancel: string;
+    };
+    reassignments: {
+      empty: string;
+      colFrom: string;
+      colTo: string;
+      colReason: string;
+      colRequested: string;
+      PENDING: string;
+      APPROVED: string;
+      REJECTED: string;
+      approve: string;
+      reject: string;
+      rejectTitle: string;
+      approved: string;
+      rejected: string;
+    };
+    camporeeTab: {
+      empty: string;
+    };
+    config: {
+      description: string;
+      localField: string;
+      loadField: string;
+      bankSection: string;
+      bankName: string;
+      bankHolder: string;
+      bankAccount: string;
+      bankClabe: string;
+      cashSection: string;
+      cashInstructions: string;
+      cashPlaceholder: string;
+      extraNotes: string;
+      atLeastOneMethod: string;
+      save: string;
+      saved: string;
+    };
+    errors: {
+      forbidden: string;
+      invalidTransition: string;
+      makerChecker: string;
+      eligibilityFailed: string;
+      proofNotFound: string;
+      rejectReasonRequired: string;
+      configInvalid: string;
+    };
+    toasts: {
+      approved: string;
+      rejected: string;
+      actionFailed: string;
+      loadFailed: string;
+      downloadFailed: string;
+    };
+  };
+  insurance_config: {
+    page: {
+      title: string;
+      description: string;
+    };
+    gate: {
+      forbiddenTitle: string;
+      forbiddenDescription: string;
+    };
+    tabs: {
+      products: string;
+      cycles: string;
+      paymentInstructions: string;
+    };
+    loading: string;
+    save: string;
+    cancel: string;
+    products: {
+      description: string;
+      create: string;
+      createTitle: string;
+      editTitle: string;
+      empty: string;
+      colName: string;
+      colScope: string;
+      colValidity: string;
+      colActive: string;
+      active: string;
+      inactive: string;
+      edit: string;
+      activate: string;
+      deactivate: string;
+      scopeMember: string;
+      scopeEventExternal: string;
+      validityFixedMonths: string;
+      validityUntilDate: string;
+      durationMonths: string;
+      saved: string;
+    };
+    cycles: {
+      description: string;
+      create: string;
+      createTitle: string;
+      editTitle: string;
+      empty: string;
+      colProduct: string;
+      colYear: string;
+      colClubType: string;
+      colCost: string;
+      colDeadline: string;
+      colActive: string;
+      selectProduct: string;
+      timezone: string;
+      saved: string;
+    };
+    errors: {
+      forbidden: string;
+      invalidTransition: string;
+      makerChecker: string;
+      eligibilityFailed: string;
+      proofNotFound: string;
+      rejectReasonRequired: string;
+      configInvalid: string;
+    };
+    toasts: {
+      actionFailed: string;
+      loadFailed: string;
+      downloadFailed: string;
+    };
+  };
 }

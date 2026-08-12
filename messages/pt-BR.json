@@ -7521,5 +7521,195 @@
       "forbiddenTitle": "Sin permiso de revisión",
       "forbiddenDescription": "Necesitas el permiso certifications:review para acceder a esta bandeja."
     }
+  },
+  "payment_orders": {
+    "page": {
+      "title": "Ordens de pagamento",
+      "description": "Revisão de ordens de pagamento territoriais de seguros e camporis"
+    },
+    "gate": {
+      "forbiddenTitle": "Acesso restrito",
+      "forbiddenDescription": "Você não tem permissão para revisar ordens de pagamento."
+    },
+    "tabs": {
+      "orders": "Ordens",
+      "reassignments": "Reatribuições"
+    },
+    "tray": {
+      "filterPurpose": "Propósito",
+      "filterStatus": "Status",
+      "reviewQueue": "Para revisar",
+      "refresh": "Atualizar",
+      "loading": "Carregando…",
+      "empty": "Nenhuma ordem neste filtro",
+      "colFolio": "Folio",
+      "colPurpose": "Propósito",
+      "colBeneficiaries": "Beneficiários",
+      "colTotal": "Total",
+      "colStatus": "Status",
+      "colIssued": "Emitida",
+      "openDetail": "Revisar"
+    },
+    "purpose": {
+      "ALL": "Todos",
+      "INSURANCE": "Seguro",
+      "CAMPOREE": "Campori"
+    },
+    "status": {
+      "ISSUED": "Emitida",
+      "PROOF_SUBMITTED": "Comprovante enviado",
+      "APPROVED": "Aprovada",
+      "PROOF_REJECTED": "Comprovante rejeitado",
+      "CANCELLED": "Cancelada",
+      "EXPIRED": "Vencida"
+    },
+    "proofStatus": {
+      "SUBMITTED": "Enviado",
+      "APPROVED": "Aprovado",
+      "REJECTED": "Rejeitado"
+    },
+    "detail": {
+      "title": "Detalhe da ordem",
+      "purpose": "Propósito",
+      "status": "Status",
+      "unitCost": "Custo unitário",
+      "total": "Total",
+      "issued": "Emitida",
+      "expires": "Vence",
+      "beneficiaries": "Beneficiários",
+      "colBeneficiary": "Beneficiário",
+      "colAmount": "Valor",
+      "proof": "Comprovante de pagamento",
+      "viewProof": "Ver comprovante",
+      "makerCheckerWarning": "Você enviou este comprovante: outra pessoa deve aprová-lo (maker-checker).",
+      "approve": "Aprovar",
+      "reject": "Rejeitar",
+      "rejectTitle": "Rejeitar comprovante",
+      "rejectDescription": "O clube poderá enviar um novo comprovante com o mesmo folio.",
+      "rejectPlaceholder": "Motivo da rejeição (obrigatório)",
+      "confirmReject": "Confirmar rejeição",
+      "cancel": "Cancelar"
+    },
+    "reassignments": {
+      "empty": "Nenhuma solicitação de reatribuição",
+      "colFrom": "De",
+      "colTo": "Para",
+      "colReason": "Motivo",
+      "colRequested": "Solicitada",
+      "PENDING": "Pendente",
+      "APPROVED": "Aprovada",
+      "REJECTED": "Rejeitada",
+      "approve": "Aprovar",
+      "reject": "Rejeitar",
+      "rejectTitle": "Rejeitar reatribuição",
+      "approved": "Reatribuição aprovada",
+      "rejected": "Reatribuição rejeitada"
+    },
+    "camporeeTab": {
+      "empty": "Este campori não tem ordens de pagamento"
+    },
+    "config": {
+      "description": "Instruções de pagamento impressas em cada ordem (transferência bancária e/ou caixa do Campo Local).",
+      "localField": "Campo Local (ID)",
+      "loadField": "Carregar",
+      "bankSection": "Transferência bancária",
+      "bankName": "Banco",
+      "bankHolder": "Titular",
+      "bankAccount": "Conta",
+      "bankClabe": "CLABE",
+      "cashSection": "Pagamento no caixa",
+      "cashInstructions": "Instruções do caixa",
+      "cashPlaceholder": "Ex. Pagar no caixa do Campo Local, seg-sex 9h-17h",
+      "extraNotes": "Notas adicionais",
+      "atLeastOneMethod": "Configure pelo menos um meio de pagamento: dados bancários ou instruções do caixa.",
+      "save": "Salvar",
+      "saved": "Instruções de pagamento salvas"
+    },
+    "errors": {
+      "forbidden": "Você não tem permissão para realizar esta ação",
+      "invalidTransition": "A ordem mudou de estado; atualize a lista",
+      "makerChecker": "Quem enviou o comprovante não pode aprová-lo",
+      "eligibilityFailed": "A elegibilidade de um beneficiário mudou; a aprovação foi revertida",
+      "proofNotFound": "A ordem não tem comprovante pendente",
+      "rejectReasonRequired": "O motivo da rejeição é obrigatório",
+      "configInvalid": "Configure pelo menos um meio de pagamento (banco ou caixa)"
+    },
+    "toasts": {
+      "approved": "Ordem aprovada",
+      "rejected": "Comprovante rejeitado",
+      "actionFailed": "Não foi possível concluir a ação",
+      "loadFailed": "Não foi possível carregar os dados",
+      "downloadFailed": "Não foi possível obter o comprovante"
+    }
+  },
+  "insurance_config": {
+    "page": {
+      "title": "Configuração de seguros",
+      "description": "Produtos, ciclos de custo e instruções de pagamento do Campo Local"
+    },
+    "gate": {
+      "forbiddenTitle": "Acesso restrito",
+      "forbiddenDescription": "Você não tem permissão para configurar seguros."
+    },
+    "tabs": {
+      "products": "Produtos",
+      "cycles": "Ciclos",
+      "paymentInstructions": "Instruções de pagamento"
+    },
+    "loading": "Carregando…",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "products": {
+      "description": "Produtos de seguro do Campo Local",
+      "create": "Novo produto",
+      "createTitle": "Criar produto",
+      "editTitle": "Editar produto",
+      "empty": "Nenhum produto configurado",
+      "colName": "Nome",
+      "colScope": "Cobertura",
+      "colValidity": "Vigência",
+      "colActive": "Status",
+      "active": "Ativo",
+      "inactive": "Inativo",
+      "edit": "Editar",
+      "activate": "Ativar",
+      "deactivate": "Desativar",
+      "scopeMember": "Membro",
+      "scopeEventExternal": "Externo (evento)",
+      "validityFixedMonths": "Meses fixos",
+      "validityUntilDate": "Até a data",
+      "durationMonths": "Duração (meses)",
+      "saved": "Produto salvo"
+    },
+    "cycles": {
+      "description": "Ciclos de custo por ano eclesiástico e tipo de clube",
+      "create": "Novo ciclo",
+      "createTitle": "Criar ciclo",
+      "editTitle": "Editar ciclo",
+      "empty": "Nenhum ciclo configurado",
+      "colProduct": "Produto",
+      "colYear": "Ano",
+      "colClubType": "Tipo de clube",
+      "colCost": "Custo unitário",
+      "colDeadline": "Prazo",
+      "colActive": "Status",
+      "selectProduct": "Selecione um produto",
+      "timezone": "Fuso horário",
+      "saved": "Ciclo salvo"
+    },
+    "errors": {
+      "forbidden": "Você não tem permissão para realizar esta ação",
+      "invalidTransition": "O registro mudou; recarregue a página",
+      "makerChecker": "-",
+      "eligibilityFailed": "-",
+      "proofNotFound": "-",
+      "rejectReasonRequired": "-",
+      "configInvalid": "Configure pelo menos um meio de pagamento (banco ou caixa)"
+    },
+    "toasts": {
+      "actionFailed": "Não foi possível concluir a ação",
+      "loadFailed": "Não foi possível carregar os dados",
+      "downloadFailed": "-"
+    }
   }
 }

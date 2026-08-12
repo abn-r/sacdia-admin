@@ -264,6 +264,14 @@ export const CERTIFICATIONS_PUBLISH = "certifications:publish";
 export const CERTIFICATIONS_REVIEW = "certifications:review";
 export const CERTIFICATIONS_CERTIFY = "certifications:certify";
 
+// --- Seguros (capacity model) y órdenes de pago territoriales ---
+export const INSURANCE_READ = "insurance:read";
+export const INSURANCE_REVIEW = "insurance:review";
+export const INSURANCE_CONFIGURE = "insurance:configure";
+export const FIELD_PAYMENT_ORDERS_READ = "field-payment-orders:read";
+export const FIELD_PAYMENT_ORDERS_REVIEW = "field-payment-orders:review";
+export const FIELD_PAYMENT_ORDERS_CONFIGURE = "field-payment-orders:configure";
+
 // ═══════════════════════════════════════════════════════════════════════════
 // Agrupación por módulo (útil para UI de asignación de permisos)
 // Labels removed — use getPermissionGroupLabel(t, groupKey) and

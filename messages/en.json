@@ -7655,5 +7655,195 @@
       "forbiddenTitle": "Review permission required",
       "forbiddenDescription": "You need the certifications:review permission to access this tray."
     }
+  },
+  "payment_orders": {
+    "page": {
+      "title": "Payment orders",
+      "description": "Review territorial payment orders for insurance and camporees"
+    },
+    "gate": {
+      "forbiddenTitle": "Restricted access",
+      "forbiddenDescription": "You do not have permission to review payment orders."
+    },
+    "tabs": {
+      "orders": "Orders",
+      "reassignments": "Reassignments"
+    },
+    "tray": {
+      "filterPurpose": "Purpose",
+      "filterStatus": "Status",
+      "reviewQueue": "To review",
+      "refresh": "Refresh",
+      "loading": "Loading…",
+      "empty": "No orders match this filter",
+      "colFolio": "Folio",
+      "colPurpose": "Purpose",
+      "colBeneficiaries": "Beneficiaries",
+      "colTotal": "Total",
+      "colStatus": "Status",
+      "colIssued": "Issued",
+      "openDetail": "Review"
+    },
+    "purpose": {
+      "ALL": "All",
+      "INSURANCE": "Insurance",
+      "CAMPOREE": "Camporee"
+    },
+    "status": {
+      "ISSUED": "Issued",
+      "PROOF_SUBMITTED": "Proof submitted",
+      "APPROVED": "Approved",
+      "PROOF_REJECTED": "Proof rejected",
+      "CANCELLED": "Cancelled",
+      "EXPIRED": "Expired"
+    },
+    "proofStatus": {
+      "SUBMITTED": "Submitted",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected"
+    },
+    "detail": {
+      "title": "Order detail",
+      "purpose": "Purpose",
+      "status": "Status",
+      "unitCost": "Unit cost",
+      "total": "Total",
+      "issued": "Issued",
+      "expires": "Expires",
+      "beneficiaries": "Beneficiaries",
+      "colBeneficiary": "Beneficiary",
+      "colAmount": "Amount",
+      "proof": "Payment proof",
+      "viewProof": "View proof",
+      "makerCheckerWarning": "You uploaded this proof: someone else must approve it (maker-checker).",
+      "approve": "Approve",
+      "reject": "Reject",
+      "rejectTitle": "Reject proof",
+      "rejectDescription": "The club will be able to upload a new proof with the same folio.",
+      "rejectPlaceholder": "Rejection reason (required)",
+      "confirmReject": "Confirm rejection",
+      "cancel": "Cancel"
+    },
+    "reassignments": {
+      "empty": "No reassignment requests",
+      "colFrom": "From",
+      "colTo": "To",
+      "colReason": "Reason",
+      "colRequested": "Requested",
+      "PENDING": "Pending",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "approve": "Approve",
+      "reject": "Reject",
+      "rejectTitle": "Reject reassignment",
+      "approved": "Reassignment approved",
+      "rejected": "Reassignment rejected"
+    },
+    "camporeeTab": {
+      "empty": "This camporee has no payment orders"
+    },
+    "config": {
+      "description": "Payment instructions printed on every order (bank transfer and/or Local Field cashier).",
+      "localField": "Local Field (ID)",
+      "loadField": "Load",
+      "bankSection": "Bank transfer",
+      "bankName": "Bank",
+      "bankHolder": "Account holder",
+      "bankAccount": "Account",
+      "bankClabe": "CLABE",
+      "cashSection": "Cashier payment",
+      "cashInstructions": "Cashier instructions",
+      "cashPlaceholder": "E.g. Pay at the Local Field cashier, Mon-Fri 9:00-17:00",
+      "extraNotes": "Additional notes",
+      "atLeastOneMethod": "Configure at least one payment method: bank details or cashier instructions.",
+      "save": "Save",
+      "saved": "Payment instructions saved"
+    },
+    "errors": {
+      "forbidden": "You do not have permission to perform this action",
+      "invalidTransition": "The order changed state; refresh the tray",
+      "makerChecker": "The proof uploader cannot approve it",
+      "eligibilityFailed": "A beneficiary's eligibility changed; the approval was rolled back",
+      "proofNotFound": "The order has no pending proof",
+      "rejectReasonRequired": "The rejection reason is required",
+      "configInvalid": "Configure at least one payment method (bank or cashier)"
+    },
+    "toasts": {
+      "approved": "Order approved",
+      "rejected": "Proof rejected",
+      "actionFailed": "The action could not be completed",
+      "loadFailed": "The data could not be loaded",
+      "downloadFailed": "The proof could not be retrieved"
+    }
+  },
+  "insurance_config": {
+    "page": {
+      "title": "Insurance configuration",
+      "description": "Products, cost cycles, and payment instructions for the Local Field"
+    },
+    "gate": {
+      "forbiddenTitle": "Restricted access",
+      "forbiddenDescription": "You do not have permission to configure insurance."
+    },
+    "tabs": {
+      "products": "Products",
+      "cycles": "Cycles",
+      "paymentInstructions": "Payment instructions"
+    },
+    "loading": "Loading…",
+    "save": "Save",
+    "cancel": "Cancel",
+    "products": {
+      "description": "Insurance products of the Local Field",
+      "create": "New product",
+      "createTitle": "Create product",
+      "editTitle": "Edit product",
+      "empty": "No products configured",
+      "colName": "Name",
+      "colScope": "Coverage",
+      "colValidity": "Validity",
+      "colActive": "Status",
+      "active": "Active",
+      "inactive": "Inactive",
+      "edit": "Edit",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "scopeMember": "Member",
+      "scopeEventExternal": "External (event)",
+      "validityFixedMonths": "Fixed months",
+      "validityUntilDate": "Until date",
+      "durationMonths": "Duration (months)",
+      "saved": "Product saved"
+    },
+    "cycles": {
+      "description": "Cost cycles per ecclesiastical year and club type",
+      "create": "New cycle",
+      "createTitle": "Create cycle",
+      "editTitle": "Edit cycle",
+      "empty": "No cycles configured",
+      "colProduct": "Product",
+      "colYear": "Year",
+      "colClubType": "Club type",
+      "colCost": "Unit cost",
+      "colDeadline": "Deadline",
+      "colActive": "Status",
+      "selectProduct": "Select a product",
+      "timezone": "Timezone",
+      "saved": "Cycle saved"
+    },
+    "errors": {
+      "forbidden": "You do not have permission to perform this action",
+      "invalidTransition": "The record changed; reload the page",
+      "makerChecker": "-",
+      "eligibilityFailed": "-",
+      "proofNotFound": "-",
+      "rejectReasonRequired": "-",
+      "configInvalid": "Configure at least one payment method (bank or cashier)"
+    },
+    "toasts": {
+      "actionFailed": "The action could not be completed",
+      "loadFailed": "The data could not be loaded",
+      "downloadFailed": "-"
+    }
   }
 }
