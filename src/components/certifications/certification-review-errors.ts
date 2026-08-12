@@ -17,10 +17,26 @@ function extractErrorCode(error: unknown): string | null {
   return null;
 }
 
+type ReviewErrorKey =
+  | "errors.scopeForbidden"
+  | "errors.invalidTransition"
+  | "errors.concurrentUpdate"
+  | "errors.forbidden"
+  | "toasts.actionFailed"
+  | "toasts.loadFailed"
+  | "toasts.detailFailed"
+  | "toasts.downloadFailed";
+
+type ReviewTranslator = (key: ReviewErrorKey) => string;
+
 export function getCertificationReviewErrorMessage(
   error: unknown,
-  t: (key: string) => string,
-  fallbackKey = "toasts.actionFailed",
+  t: ReviewTranslator,
+  fallbackKey:
+    | "toasts.actionFailed"
+    | "toasts.loadFailed"
+    | "toasts.detailFailed"
+    | "toasts.downloadFailed" = "toasts.actionFailed",
 ): string {
   const code = extractErrorCode(error);
 
