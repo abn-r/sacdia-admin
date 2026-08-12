@@ -7559,5 +7559,101 @@
         }
       }
     }
+  },
+  "certification_reviews": {
+    "page": {
+      "title": "Certification reviews",
+      "description": "Tray for submitted requirements and final closeouts pending institutional review."
+    },
+    "tabs": {
+      "requirements": "Requirements",
+      "final": "Closeouts"
+    },
+    "tray": {
+      "empty": "No pending requirements for the current filter.",
+      "loading": "Loading tray…",
+      "refresh": "Refresh",
+      "filterStatus": "Status",
+      "filterAll": "Submitted (default)",
+      "colParticipant": "Participant",
+      "colCertification": "Certification",
+      "colModule": "Module",
+      "colRequirement": "Requirement",
+      "colStatus": "Status",
+      "colSubmitted": "Submitted",
+      "openDetail": "Review"
+    },
+    "status": {
+      "DRAFT": "Draft",
+      "SUBMITTED": "Submitted",
+      "CHANGES_REQUESTED": "Changes requested",
+      "APPROVED": "Approved"
+    },
+    "detail": {
+      "title": "Requirement detail",
+      "components": "Components",
+      "history": "History",
+      "noResponse": "No response",
+      "attestationYes": "Attestation confirmed",
+      "attestationNo": "Attestation not confirmed",
+      "linkedHonor": "Linked honor {id}",
+      "linkedActivity": "Linked activity {id}",
+      "viewEvidence": "View",
+      "approve": "Approve",
+      "requestChanges": "Request changes",
+      "commentLabel": "Comment",
+      "commentPlaceholder": "Explain what the participant must correct",
+      "commentRequired": "A comment is required to request changes.",
+      "actionsDisabled": "Only requirements in Submitted status can be approved or returned.",
+      "close": "Close"
+    },
+    "final": {
+      "placeholder": "The closeout tray will be enabled next.",
+      "empty": "No pending closeouts.",
+      "loading": "Loading closeouts…",
+      "colParticipant": "Participant",
+      "colCertification": "Certification",
+      "colStatus": "Status",
+      "colSubmitted": "Submitted",
+      "colEvidence": "Board proof",
+      "viewEvidence": "View",
+      "approveEvidence": "Approve proof",
+      "requestChanges": "Request changes",
+      "certify": "Certify",
+      "certifyConfirmTitle": "Confirm certification",
+      "certifyConfirmDescription": "This marks the enrollment as certified. The action is idempotent.",
+      "certifyConfirm": "Yes, certify",
+      "certifyCancel": "Cancel",
+      "commentLabel": "Comment",
+      "commentPlaceholder": "Explain what the participant must correct",
+      "commentRequired": "A comment is required to request changes."
+    },
+    "enrollmentStatus": {
+      "SUBMITTED_FOR_FINAL_REVIEW": "Final review",
+      "APPROVED": "Approved",
+      "CHANGES_REQUESTED": "Changes requested",
+      "CERTIFIED": "Certified"
+    },
+    "toasts": {
+      "approved": "Requirement approved",
+      "changesRequested": "Requirement returned",
+      "loadFailed": "Could not load the tray",
+      "detailFailed": "Could not load the detail",
+      "downloadFailed": "Could not get the download URL",
+      "actionFailed": "Could not complete the action",
+      "closeoutApproved": "Closeout proof approved",
+      "closeoutChangesRequested": "Closeout returned",
+      "certified": "Enrollment certified"
+    },
+    "errors": {
+      "scopeForbidden": "This item is outside your institutional scope.",
+      "invalidTransition": "The status transition is not valid.",
+      "concurrentUpdate": "Another reviewer updated this item. Refresh and try again.",
+      "forbidden": "You do not have permission for this action."
+    },
+    "gate": {
+      "forbiddenTitle": "Review permission required",
+      "forbiddenDescription": "You need the certifications:review permission to access this tray."
+    }
   }
 }

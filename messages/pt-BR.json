@@ -7425,5 +7425,101 @@
         }
       }
     }
+  },
+  "certification_reviews": {
+    "page": {
+      "title": "Revisões de certificações",
+      "description": "Bandeja de requisitos enviados e fechamentos finais pendentes de revisão institucional."
+    },
+    "tabs": {
+      "requirements": "Requisitos",
+      "final": "Fechamentos"
+    },
+    "tray": {
+      "empty": "No hay requisitos pendientes con el filtro actual.",
+      "loading": "Cargando bandeja…",
+      "refresh": "Actualizar",
+      "filterStatus": "Estado",
+      "filterAll": "Enviados (default)",
+      "colParticipant": "Participante",
+      "colCertification": "Certificación",
+      "colModule": "Módulo",
+      "colRequirement": "Requisito",
+      "colStatus": "Estado",
+      "colSubmitted": "Enviado",
+      "openDetail": "Revisar"
+    },
+    "status": {
+      "DRAFT": "Borrador",
+      "SUBMITTED": "Enviado",
+      "CHANGES_REQUESTED": "Cambios solicitados",
+      "APPROVED": "Aprobado"
+    },
+    "detail": {
+      "title": "Detalle del requisito",
+      "components": "Componentes",
+      "history": "Historial",
+      "noResponse": "Sin respuesta",
+      "attestationYes": "Constancia confirmada",
+      "attestationNo": "Constancia no confirmada",
+      "linkedHonor": "Honor vinculado {id}",
+      "linkedActivity": "Actividad vinculada {id}",
+      "viewEvidence": "Ver",
+      "approve": "Aprobar",
+      "requestChanges": "Devolver",
+      "commentLabel": "Comentario",
+      "commentPlaceholder": "Explica qué debe corregir el participante",
+      "commentRequired": "El comentario es obligatorio para devolver.",
+      "actionsDisabled": "Solo se pueden aprobar o devolver requisitos en estado Enviado.",
+      "close": "Cerrar"
+    },
+    "final": {
+      "placeholder": "La bandeja de cierres se habilitará a continuación.",
+      "empty": "No hay cierres pendientes.",
+      "loading": "Cargando cierres…",
+      "colParticipant": "Participante",
+      "colCertification": "Certificación",
+      "colStatus": "Estado",
+      "colSubmitted": "Enviado",
+      "colEvidence": "Comprobante",
+      "viewEvidence": "Ver",
+      "approveEvidence": "Aprobar comprobante",
+      "requestChanges": "Devolver",
+      "certify": "Certificar",
+      "certifyConfirmTitle": "Confirmar certificación",
+      "certifyConfirmDescription": "Esta acción marca la inscripción como certificada. Es idempotente.",
+      "certifyConfirm": "Sí, certificar",
+      "certifyCancel": "Cancelar",
+      "commentLabel": "Comentario",
+      "commentPlaceholder": "Explica qué debe corregir el participante",
+      "commentRequired": "El comentario es obligatorio para devolver."
+    },
+    "enrollmentStatus": {
+      "SUBMITTED_FOR_FINAL_REVIEW": "En revisión final",
+      "APPROVED": "Aprobado",
+      "CHANGES_REQUESTED": "Cambios solicitados",
+      "CERTIFIED": "Certificado"
+    },
+    "toasts": {
+      "approved": "Requisito aprobado",
+      "changesRequested": "Requisito devuelto",
+      "loadFailed": "No se pudo cargar la bandeja",
+      "detailFailed": "No se pudo cargar el detalle",
+      "downloadFailed": "No se pudo obtener la URL de descarga",
+      "actionFailed": "No se pudo completar la acción",
+      "closeoutApproved": "Comprobante aprobado",
+      "closeoutChangesRequested": "Cierre devuelto",
+      "certified": "Inscripción certificada"
+    },
+    "errors": {
+      "scopeForbidden": "Este ítem está fuera de tu alcance institucional.",
+      "invalidTransition": "La transición de estado no es válida.",
+      "concurrentUpdate": "Otro revisor actualizó este ítem. Actualiza e intenta de nuevo.",
+      "forbidden": "No tienes permisos para realizar esta acción."
+    },
+    "gate": {
+      "forbiddenTitle": "Sin permiso de revisión",
+      "forbiddenDescription": "Necesitas el permiso certifications:review para acceder a esta bandeja."
+    }
   }
 }

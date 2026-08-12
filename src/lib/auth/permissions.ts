@@ -261,6 +261,8 @@ export const ECCLESIASTICAL_YEARS_UPDATE = "ecclesiastical_years:update";
 // --- Certificaciones (motor configurable — definición de versiones) ---
 export const CERTIFICATIONS_CONFIGURE = "certifications:configure";
 export const CERTIFICATIONS_PUBLISH = "certifications:publish";
+export const CERTIFICATIONS_REVIEW = "certifications:review";
+export const CERTIFICATIONS_CERTIFY = "certifications:certify";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Agrupación por módulo (útil para UI de asignación de permisos)
@@ -493,6 +495,8 @@ export const PERMISSION_GROUPS = {
     permissions: [
       { key: CERTIFICATIONS_CONFIGURE },
       { key: CERTIFICATIONS_PUBLISH },
+      { key: CERTIFICATIONS_REVIEW },
+      { key: CERTIFICATIONS_CERTIFY },
     ],
   },
 } as const;

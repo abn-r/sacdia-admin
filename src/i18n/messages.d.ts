@@ -7616,4 +7616,100 @@ export interface IntlMessages {
       };
     };
   };
+  certification_reviews: {
+    page: {
+      title: string;
+      description: string;
+    };
+    tabs: {
+      requirements: string;
+      final: string;
+    };
+    tray: {
+      empty: string;
+      loading: string;
+      refresh: string;
+      filterStatus: string;
+      filterAll: string;
+      colParticipant: string;
+      colCertification: string;
+      colModule: string;
+      colRequirement: string;
+      colStatus: string;
+      colSubmitted: string;
+      openDetail: string;
+    };
+    status: {
+      DRAFT: string;
+      SUBMITTED: string;
+      CHANGES_REQUESTED: string;
+      APPROVED: string;
+    };
+    detail: {
+      title: string;
+      components: string;
+      history: string;
+      noResponse: string;
+      attestationYes: string;
+      attestationNo: string;
+      linkedHonor: string;
+      linkedActivity: string;
+      viewEvidence: string;
+      approve: string;
+      requestChanges: string;
+      commentLabel: string;
+      commentPlaceholder: string;
+      commentRequired: string;
+      actionsDisabled: string;
+      close: string;
+    };
+    final: {
+      placeholder: string;
+      empty: string;
+      loading: string;
+      colParticipant: string;
+      colCertification: string;
+      colStatus: string;
+      colSubmitted: string;
+      colEvidence: string;
+      viewEvidence: string;
+      approveEvidence: string;
+      requestChanges: string;
+      certify: string;
+      certifyConfirmTitle: string;
+      certifyConfirmDescription: string;
+      certifyConfirm: string;
+      certifyCancel: string;
+      commentLabel: string;
+      commentPlaceholder: string;
+      commentRequired: string;
+    };
+    enrollmentStatus: {
+      SUBMITTED_FOR_FINAL_REVIEW: string;
+      APPROVED: string;
+      CHANGES_REQUESTED: string;
+      CERTIFIED: string;
+    };
+    toasts: {
+      approved: string;
+      changesRequested: string;
+      loadFailed: string;
+      detailFailed: string;
+      downloadFailed: string;
+      actionFailed: string;
+      closeoutApproved: string;
+      closeoutChangesRequested: string;
+      certified: string;
+    };
+    errors: {
+      scopeForbidden: string;
+      invalidTransition: string;
+      concurrentUpdate: string;
+      forbidden: string;
+    };
+    gate: {
+      forbiddenTitle: string;
+      forbiddenDescription: string;
+    };
+  };
 }
