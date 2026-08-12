@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RequirementReviewTray } from "@/components/certifications/requirement-review-tray";
+import { FinalReviewTray } from "@/components/certifications/final-review-tray";
 
 export function CertificationReviewsClient() {
   const t = useTranslations("certification_reviews");
@@ -18,7 +19,7 @@ export function CertificationReviewsClient() {
         <RequirementReviewTray />
       </TabsContent>
       <TabsContent value="final">
-        <p className="text-muted-foreground text-sm">{t("final.placeholder")}</p>
+        <FinalReviewTray />
       </TabsContent>
     </Tabs>
   );
