@@ -794,8 +794,8 @@
       "certificationCatalog": {
         "title": "Certificações GM",
         "description": "Catálogo de certificações para Guias Mestres. Apenas membros com investiduras concluídas podem se inscrever.",
-        "crudPendingTitle": "Edição via API pendente",
-        "crudPendingDescription": "A listagem e a estrutura são somente leitura até o backend expor endpoints admin para certificações, módulos e seções.",
+        "crudPendingTitle": "Sem permissão de configuração",
+        "crudPendingDescription": "Sua conta não tem a permissão \"certifications:configure\" necessária para criar ou editar certificações. A lista abaixo é somente leitura.",
         "emptyTitle": "Sem certificações",
         "emptyDescription": "Não há certificações registradas no catálogo.",
         "loadError": "Não foi possível carregar as certificações.",
@@ -2415,7 +2415,8 @@
       "reports": "Relatórios",
       "notifications": "Notificações",
       "resources": "Recursos",
-      "system": "Sistema"
+      "system": "Sistema",
+      "certifications_admin": "Certificações (motor configurável)"
     },
     "permissions": {
       "users:read": "Ver lista",
@@ -2560,7 +2561,9 @@
       "resource_categories:delete": "Excluir categoria de recursos",
       "ecclesiastical_years:read": "Ver anos eclesiásticos",
       "ecclesiastical_years:create": "Criar ano eclesiástico",
-      "ecclesiastical_years:update": "Editar ano eclesiástico"
+      "ecclesiastical_years:update": "Editar ano eclesiástico",
+      "certifications:configure": "Configurar certificações",
+      "certifications:publish": "Publicar certificações"
     },
     "userPermissionsPanel": {
       "title": "Permissões diretas",
@@ -5061,10 +5064,10 @@
       "saveButton": "Salvar dados manuais"
     },
     "page": {
-    "title": "Relatórios Mensais",
-    "description": "Gestão dos relatórios mensais de atividades do clube.",
-    "print_preview": "Pré-visualização para impressão",
-    "empty_no_active_enrollment_title": "Sem matrícula ativa",
+      "title": "Relatórios Mensais",
+      "description": "Gestão dos relatórios mensais de atividades do clube.",
+      "print_preview": "Pré-visualização para impressão",
+      "empty_no_active_enrollment_title": "Sem matrícula ativa",
       "empty_no_active_enrollment_description": "Nenhuma matrícula ativa foi encontrada para o seu usuário."
     },
     "pageDetail": {
@@ -5543,6 +5546,199 @@
       "emptyTitle": "Sem usuários inscritos",
       "emptyDescription": "Nenhum usuário está inscrito nesta certificação.",
       "viewProgressTitle": "Ver progresso detalhado"
+    }
+  },
+  "certificationsAdmin": {
+    "panelTitle": "Motor de certificações configuráveis",
+    "panelDescription": "Crie certificações, monte versões rascunho (regras de elegibilidade, módulos, seções e componentes) e publique-as. As versões existentes são carregadas do backend: as publicadas e retiradas abrem em modo somente leitura e os rascunhos continuam editáveis.",
+    "newCertificationButton": "Nova certificação",
+    "workbenchDescription": "Edite metadados, regras de elegibilidade e estrutura desta versão. Uma versão publicada ou retirada não pode mais ser alterada: clone-a para criar um novo rascunho.",
+    "immutableNotice": "Esta versão não está em rascunho e é somente leitura. Use \"Clonar\" para criar um novo rascunho editável.",
+    "versionLabel": "Versão {number}",
+    "status": {
+      "DRAFT": "Rascunho",
+      "PUBLISHED": "Publicada",
+      "RETIRED": "Retirada"
+    },
+    "table": {
+      "name": "Certificação",
+      "versions": "Versões",
+      "loading": "Carregando certificações…",
+      "empty": "Ainda não há certificações.",
+      "noVersions": "Sem versões",
+      "createDraft": "Criar versão rascunho",
+      "creatingDraft": "Criando…"
+    },
+    "toasts": {
+      "draftCreated": "Versão rascunho criada.",
+      "draftCreateFailed": "Não foi possível criar a versão rascunho.",
+      "listLoadFailed": "Não foi possível carregar as certificações.",
+      "versionLoadFailed": "Não foi possível carregar a versão."
+    },
+    "createDialog": {
+      "title": "Nova certificação",
+      "description": "A certificação será criada junto com sua primeira versão rascunho.",
+      "fieldName": "Nome",
+      "fieldNamePlaceholder": "Ex. Guia de Trilhas",
+      "fieldDescription": "Descrição",
+      "fieldDescriptionPlaceholder": "Breve descrição da certificação (opcional)",
+      "cancel": "Cancelar",
+      "submit": "Criar certificação",
+      "submitting": "Criando…",
+      "validation": {
+        "nameMin": "O nome deve ter pelo menos 3 caracteres.",
+        "nameMax": "O nome não pode exceder 255 caracteres.",
+        "descriptionMax": "A descrição não pode exceder 2000 caracteres."
+      },
+      "toasts": {
+        "created": "Certificação criada.",
+        "createFailed": "Não foi possível criar a certificação."
+      }
+    },
+    "metadata": {
+      "title": "Metadados da versão",
+      "fieldTitle": "Título",
+      "fieldDescription": "Descrição",
+      "fieldMinDuration": "Duração mínima (meses)",
+      "fieldMaxDuration": "Duração máxima (meses)",
+      "save": "Salvar metadados",
+      "saving": "Salvando…",
+      "toasts": {
+        "saved": "Metadados atualizados.",
+        "saveFailed": "Não foi possível salvar os metadados."
+      }
+    },
+    "tabs": {
+      "eligibility": "Elegibilidade",
+      "tree": "Estrutura"
+    },
+    "eligibility": {
+      "title": "Regras de elegibilidade",
+      "description": "Todas as regras desta versão são substituídas ao salvar. É necessária pelo menos uma regra para publicar.",
+      "addRule": "Adicionar regra",
+      "empty": "Ainda não há regras de elegibilidade.",
+      "ruleType": "Tipo de regra",
+      "ruleTypeLabels": {
+        "MIN_AGE": "Idade mínima",
+        "BAPTIZED": "Batizado",
+        "INVESTED_CLASS": "Classe investida",
+        "ACTIVE_CLUB_TYPE": "Tipo de clube ativo",
+        "ACTIVE_ROLE": "Função ativa"
+      },
+      "fields": {
+        "minAge": "Idade mínima",
+        "classId": "ID da classe",
+        "clubTypeId": "ID do tipo de clube",
+        "roleId": "ID da função (UUID)"
+      },
+      "noConfigNeeded": "Esta regra não requer configuração adicional.",
+      "moveUp": "Subir",
+      "moveDown": "Descer",
+      "remove": "Remover",
+      "save": "Salvar regras",
+      "saving": "Salvando…",
+      "validation": {
+        "minAgeInvalid": "A idade mínima deve ser um número inteiro maior ou igual a 0.",
+        "classIdRequired": "Selecione um ID de classe para esta regra.",
+        "clubTypeIdRequired": "Selecione um ID de tipo de clube para esta regra.",
+        "roleIdRequired": "Informe o ID da função para esta regra."
+      },
+      "toasts": {
+        "saved": "Regras de elegibilidade salvas.",
+        "saveFailed": "Não foi possível salvar as regras de elegibilidade."
+      }
+    },
+    "tree": {
+      "title": "Módulos, seções e componentes",
+      "description": "Toda a estrutura da versão é substituída ao salvar. Cada módulo precisa de pelo menos uma seção e cada seção de pelo menos um componente para publicar.",
+      "addModule": "Adicionar módulo",
+      "addSection": "Adicionar seção",
+      "addComponent": "Adicionar componente",
+      "empty": "Ainda não há módulos.",
+      "moveUp": "Subir",
+      "moveDown": "Descer",
+      "remove": "Remover",
+      "save": "Salvar estrutura",
+      "saving": "Salvando…",
+      "fields": {
+        "moduleName": "Nome do módulo",
+        "moduleNamePlaceholder": "Ex. Módulo 1 — Liderança",
+        "description": "Descrição",
+        "sectionName": "Nome da seção",
+        "sectionNamePlaceholder": "Ex. Liderança de unidade",
+        "instructions": "Instruções",
+        "required": "Obrigatório",
+        "componentType": "Tipo de componente",
+        "label": "Rótulo",
+        "minLength": "Tamanho mínimo",
+        "maxLength": "Tamanho máximo",
+        "maxFiles": "Máx. de arquivos",
+        "allowedMimeTypes": "Tipos MIME permitidos (separados por vírgula)",
+        "honorId": "ID da especialidade vinculada",
+        "activityTypeId": "ID do tipo de atividade vinculada",
+        "statement": "Declaração a confirmar",
+        "criteria": "Critério de validação automática"
+      },
+      "componentTypeLabels": {
+        "TEXT_RESPONSE": "Resposta em texto",
+        "FILE_EVIDENCE": "Evidência em arquivo",
+        "LINKED_HONOR": "Especialidade vinculada",
+        "LINKED_ACTIVITY": "Atividade vinculada",
+        "ATTESTATION": "Declaração",
+        "AUTO_VALIDATION": "Validação automática"
+      },
+      "validation": {
+        "moduleNameRequired": "Todos os módulos precisam de um nome.",
+        "sectionNameRequired": "Todas as seções precisam de um nome.",
+        "componentLabelRequired": "Todos os componentes precisam de um rótulo.",
+        "honorIdRequired": "Componentes de especialidade vinculada exigem um ID de especialidade.",
+        "activityTypeIdRequired": "Componentes de atividade vinculada exigem um ID de tipo de atividade.",
+        "statementRequired": "Componentes de declaração exigem o texto da declaração.",
+        "criteriaRequired": "Componentes de validação automática exigem um critério."
+      },
+      "toasts": {
+        "saved": "Estrutura salva.",
+        "saveFailed": "Não foi possível salvar a estrutura."
+      }
+    },
+    "publishDialog": {
+      "trigger": "Publicar",
+      "title": "Publicar versão",
+      "confirmDescription": "Esta versão será publicada e a versão publicada anterior (se houver) será retirada automaticamente. Esta ação não pode ser desfeita por aqui.",
+      "notReadyDescription": "Esta versão ainda não atende ao critério de publicação (é necessária pelo menos uma regra de elegibilidade e pelo menos um módulo com seções e componentes). O backend rejeitará a publicação até que esteja completa.",
+      "readyHint": "Atende ao critério de publicação.",
+      "notReadyHint": "Faltam regras de elegibilidade ou estrutura para publicar.",
+      "cancel": "Cancelar",
+      "confirm": "Publicar",
+      "publishing": "Publicando…",
+      "toasts": {
+        "published": "Versão publicada.",
+        "failed": "Não foi possível publicar a versão."
+      }
+    },
+    "retireDialog": {
+      "trigger": "Retirar",
+      "title": "Retirar versão publicada",
+      "description": "A versão deixará de estar disponível para novas inscrições. Esta ação não pode ser desfeita.",
+      "cancel": "Cancelar",
+      "confirm": "Retirar",
+      "retiring": "Retirando…",
+      "toasts": {
+        "retired": "Versão retirada.",
+        "failed": "Não foi possível retirar a versão."
+      }
+    },
+    "cloneDialog": {
+      "trigger": "Clonar",
+      "title": "Clonar versão",
+      "description": "Uma nova versão rascunho será criada copiando metadados, regras de elegibilidade e estrutura desta versão.",
+      "cancel": "Cancelar",
+      "confirm": "Clonar",
+      "cloning": "Clonando…",
+      "toasts": {
+        "cloned": "Versão clonada como novo rascunho.",
+        "failed": "Não foi possível clonar a versão."
+      }
     }
   },
   "activities": {
@@ -7228,6 +7424,102 @@
           "camporees": "Camporees e eventos regionais."
         }
       }
+    }
+  },
+  "certification_reviews": {
+    "page": {
+      "title": "Revisões de certificações",
+      "description": "Bandeja de requisitos enviados e fechamentos finais pendentes de revisão institucional."
+    },
+    "tabs": {
+      "requirements": "Requisitos",
+      "final": "Fechamentos"
+    },
+    "tray": {
+      "empty": "No hay requisitos pendientes con el filtro actual.",
+      "loading": "Cargando bandeja…",
+      "refresh": "Actualizar",
+      "filterStatus": "Estado",
+      "filterAll": "Enviados (default)",
+      "colParticipant": "Participante",
+      "colCertification": "Certificación",
+      "colModule": "Módulo",
+      "colRequirement": "Requisito",
+      "colStatus": "Estado",
+      "colSubmitted": "Enviado",
+      "openDetail": "Revisar"
+    },
+    "status": {
+      "DRAFT": "Borrador",
+      "SUBMITTED": "Enviado",
+      "CHANGES_REQUESTED": "Cambios solicitados",
+      "APPROVED": "Aprobado"
+    },
+    "detail": {
+      "title": "Detalle del requisito",
+      "components": "Componentes",
+      "history": "Historial",
+      "noResponse": "Sin respuesta",
+      "attestationYes": "Constancia confirmada",
+      "attestationNo": "Constancia no confirmada",
+      "linkedHonor": "Honor vinculado {id}",
+      "linkedActivity": "Actividad vinculada {id}",
+      "viewEvidence": "Ver",
+      "approve": "Aprobar",
+      "requestChanges": "Devolver",
+      "commentLabel": "Comentario",
+      "commentPlaceholder": "Explica qué debe corregir el participante",
+      "commentRequired": "El comentario es obligatorio para devolver.",
+      "actionsDisabled": "Solo se pueden aprobar o devolver requisitos en estado Enviado.",
+      "close": "Cerrar"
+    },
+    "final": {
+      "placeholder": "La bandeja de cierres se habilitará a continuación.",
+      "empty": "No hay cierres pendientes.",
+      "loading": "Cargando cierres…",
+      "colParticipant": "Participante",
+      "colCertification": "Certificación",
+      "colStatus": "Estado",
+      "colSubmitted": "Enviado",
+      "colEvidence": "Comprobante",
+      "viewEvidence": "Ver",
+      "approveEvidence": "Aprobar comprobante",
+      "requestChanges": "Devolver",
+      "certify": "Certificar",
+      "certifyConfirmTitle": "Confirmar certificación",
+      "certifyConfirmDescription": "Esta acción marca la inscripción como certificada. Es idempotente.",
+      "certifyConfirm": "Sí, certificar",
+      "certifyCancel": "Cancelar",
+      "commentLabel": "Comentario",
+      "commentPlaceholder": "Explica qué debe corregir el participante",
+      "commentRequired": "El comentario es obligatorio para devolver."
+    },
+    "enrollmentStatus": {
+      "SUBMITTED_FOR_FINAL_REVIEW": "En revisión final",
+      "APPROVED": "Aprobado",
+      "CHANGES_REQUESTED": "Cambios solicitados",
+      "CERTIFIED": "Certificado"
+    },
+    "toasts": {
+      "approved": "Requisito aprobado",
+      "changesRequested": "Requisito devuelto",
+      "loadFailed": "No se pudo cargar la bandeja",
+      "detailFailed": "No se pudo cargar el detalle",
+      "downloadFailed": "No se pudo obtener la URL de descarga",
+      "actionFailed": "No se pudo completar la acción",
+      "closeoutApproved": "Comprobante aprobado",
+      "closeoutChangesRequested": "Cierre devuelto",
+      "certified": "Inscripción certificada"
+    },
+    "errors": {
+      "scopeForbidden": "Este ítem está fuera de tu alcance institucional.",
+      "invalidTransition": "La transición de estado no es válida.",
+      "concurrentUpdate": "Otro revisor actualizó este ítem. Actualiza e intenta de nuevo.",
+      "forbidden": "No tienes permisos para realizar esta acción."
+    },
+    "gate": {
+      "forbiddenTitle": "Sin permiso de revisión",
+      "forbiddenDescription": "Necesitas el permiso certifications:review para acceder a esta bandeja."
     }
   }
 }

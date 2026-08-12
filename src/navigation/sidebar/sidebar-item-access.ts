@@ -55,6 +55,7 @@ import {
   UNIONS_READ,
   USERS_READ,
   USER_CERTIFICATIONS_READ,
+  CERTIFICATIONS_REVIEW,
   VALIDATION_READ,
 } from "@/lib/auth/permissions";
 
@@ -73,7 +74,8 @@ export const NAV_ITEM_ACCESS: Record<string, NavAccess> = {
   enrollments: {
     permissions: ["investiture:read", "investiture:validate", CLASSES_READ],
   },
-  certifications: { permissions: [USER_CERTIFICATIONS_READ] },
+  "certifications-list": { permissions: [USER_CERTIFICATIONS_READ] },
+  "certifications-reviews": { permissions: [CERTIFICATIONS_REVIEW] },
   finances: { permissions: [FINANCES_READ] },
   "club-inventory": { permissions: [INVENTORY_READ] },
   "insurance-by-section": { permissions: ["insurance:read"] },

@@ -285,9 +285,23 @@ export const sidebarItems: NavGroup[] = [
       {
         id: "certifications",
         title: "Certificaciones GM",
-        url: "/dashboard/certifications",
         icon: ShieldCheck,
-        activeMatch: "prefix",
+        subItems: [
+          {
+            id: "certifications-list",
+            title: "Catálogo y progreso",
+            url: "/dashboard/certifications",
+            icon: ShieldCheck,
+            activeMatch: "exact",
+          },
+          {
+            id: "certifications-reviews",
+            title: "Revisiones de certificaciones",
+            url: "/dashboard/certifications/reviews",
+            icon: ClipboardCheck,
+            activeMatch: "prefix",
+          },
+        ],
       },
       {
         id: "year-end",
