@@ -5752,16 +5752,18 @@ export interface IntlMessages {
     };
     table: {
       name: string;
-      sessionStatus: string;
+      versions: string;
+      loading: string;
       empty: string;
-      noSessionDraft: string;
+      noVersions: string;
       createDraft: string;
       creatingDraft: string;
-      openEditor: string;
     };
     toasts: {
       draftCreated: string;
       draftCreateFailed: string;
+      listLoadFailed: string;
+      versionLoadFailed: string;
     };
     createDialog: {
       title: string;
@@ -5920,7 +5922,6 @@ export interface IntlMessages {
       trigger: string;
       title: string;
       description: string;
-      readGapWarning: string;
       cancel: string;
       confirm: string;
       cloning: string;

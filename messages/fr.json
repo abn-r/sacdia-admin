@@ -5550,7 +5550,7 @@
   },
   "certificationsAdmin": {
     "panelTitle": "Moteur de certifications configurables",
-    "panelDescription": "Crée des certifications, construis des versions brouillon (règles d'éligibilité, modules, sections et composants) et publie-les. Les modifications d'une version brouillon ne sont conservées que dans cette session du navigateur tant que le backend n'expose pas d'endpoints de lecture pour reprendre l'édition (voir le handoff de la phase 6).",
+    "panelDescription": "Crée des certifications, construis des versions brouillon (règles d'éligibilité, modules, sections et composants) et publie-les. Les versions existantes sont chargées depuis le backend : les versions publiées et retirées s'ouvrent en lecture seule et les brouillons restent modifiables.",
     "newCertificationButton": "Nouvelle certification",
     "workbenchDescription": "Modifie les métadonnées, les règles d'éligibilité et la structure de cette version. Une version publiée ou retirée ne peut plus être modifiée : clone-la pour créer un nouveau brouillon.",
     "immutableNotice": "Cette version n'est pas en brouillon et est en lecture seule. Utilise « Cloner » pour créer un nouveau brouillon modifiable.",
@@ -5562,16 +5562,18 @@
     },
     "table": {
       "name": "Certification",
-      "sessionStatus": "Statut (session actuelle)",
+      "versions": "Versions",
+      "loading": "Chargement des certifications…",
       "empty": "Aucune certification pour le moment.",
-      "noSessionDraft": "Aucun brouillon dans cette session",
+      "noVersions": "Aucune version",
       "createDraft": "Créer une version brouillon",
-      "creatingDraft": "Création…",
-      "openEditor": "Ouvrir l'éditeur"
+      "creatingDraft": "Création…"
     },
     "toasts": {
       "draftCreated": "Version brouillon créée.",
-      "draftCreateFailed": "Impossible de créer la version brouillon."
+      "draftCreateFailed": "Impossible de créer la version brouillon.",
+      "listLoadFailed": "Impossible de charger les certifications.",
+      "versionLoadFailed": "Impossible de charger la version."
     },
     "createDialog": {
       "title": "Nouvelle certification",
@@ -5730,7 +5732,6 @@
       "trigger": "Cloner",
       "title": "Cloner la version",
       "description": "Une nouvelle version brouillon sera créée en copiant les métadonnées, les règles d'éligibilité et la structure de cette version.",
-      "readGapWarning": "Le backend n'expose pas encore d'endpoint de lecture pour les versions clonées : après le clonage, le contenu copié ne sera pas affiché ici tant que tu ne l'auras pas réenregistré manuellement (règles et structure). Consulte le handoff de la phase 6 pour plus de contexte.",
       "cancel": "Annuler",
       "confirm": "Cloner",
       "cloning": "Clonage…",

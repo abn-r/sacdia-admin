@@ -254,6 +254,33 @@ export type CreateCertificationResult = {
   version: AdminCertificationVersion;
 };
 
+/** Version summary returned by GET /admin/certifications. */
+export type AdminCertificationVersionSummary = {
+  certification_version_id: number;
+  version_number: number;
+  status: CertificationVersionStatus;
+  title?: string | null;
+  published_at?: string | null;
+  retired_at?: string | null;
+  created_at?: string;
+  modified_at?: string;
+};
+
+export type AdminCertificationListItem = AdminCertification & {
+  certification_versions: AdminCertificationVersionSummary[];
+};
+
+/**
+ * Full version tree returned by
+ * GET /admin/certifications/:certificationId/versions/:versionId —
+ * version metadata plus ordered eligibility rules and modules → sections →
+ * components (each component with its `configuration`).
+ */
+export type AdminCertificationVersionDetail = AdminCertificationVersion & {
+  certification_eligibility_rules: AdminEligibilityRule[];
+  certification_modules: AdminCertificationModule[];
+};
+
 export type UpsertEligibilityRuleInput = {
   rule_type: CertificationEligibilityRuleType;
   configuration?: Record<string, unknown>;
@@ -291,6 +318,19 @@ export type UpsertModuleInput = {
 };
 
 // ─── Admin engine API functions ─────────────────────────────────────────────
+
+export async function listAdminCertifications() {
+  return apiRequest<AdminCertificationListItem[]>("/admin/certifications");
+}
+
+export async function getCertificationVersionDetail(
+  certificationId: number,
+  versionId: number,
+) {
+  return apiRequest<AdminCertificationVersionDetail>(
+    `/admin/certifications/${certificationId}/versions/${versionId}`,
+  );
+}
 
 export async function createCertification(payload: {
   name: string;

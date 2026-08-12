@@ -31,6 +31,7 @@ import { CertificationEligibilityRulesEditor } from "@/components/certifications
 import { CertificationTreeEditor } from "@/components/certifications/certification-tree-editor";
 import {
   cloneCertificationVersion,
+  getCertificationVersionDetail,
   publishCertificationVersion,
   retireCertificationVersion,
   updateVersionMetadata,
@@ -173,11 +174,15 @@ export function CertificationVersionWorkbench({
         state.certification.certification_id,
         state.version.certification_version_id,
       );
+      const detail = await getCertificationVersionDetail(
+        state.certification.certification_id,
+        clonedVersion.certification_version_id,
+      );
       onStateChange({
         ...state,
-        version: clonedVersion,
-        modules: [],
-        rules: [],
+        version: detail,
+        modules: detail.certification_modules ?? [],
+        rules: detail.certification_eligibility_rules ?? [],
       });
       toast.success(t("cloneDialog.toasts.cloned"));
       setConfirmAction(null);
@@ -410,9 +415,6 @@ export function CertificationVersionWorkbench({
             <AlertDialogTitle>{t("cloneDialog.title")}</AlertDialogTitle>
             <AlertDialogDescription>{t("cloneDialog.description")}</AlertDialogDescription>
           </AlertDialogHeader>
-          <div className="rounded-lg border border-warning/30 bg-warning/10 p-3 text-sm text-warning-foreground">
-            {t("cloneDialog.readGapWarning")}
-          </div>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isCloning}>{t("cloneDialog.cancel")}</AlertDialogCancel>
             <AlertDialogAction

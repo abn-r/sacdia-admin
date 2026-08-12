@@ -5711,7 +5711,7 @@
   },
   "certificationsAdmin": {
     "panelTitle": "Motor de certificaciones configurables",
-    "panelDescription": "Crea certificaciones, arma versiones borrador (reglas de elegibilidad, módulos, secciones y componentes) y publícalas. Los cambios de una versión borrador solo se conservan en esta sesión del navegador hasta que el backend exponga endpoints de lectura para reanudar ediciones (ver handoff de Fase 6).",
+    "panelDescription": "Crea certificaciones, arma versiones borrador (reglas de elegibilidad, módulos, secciones y componentes) y publícalas. Las versiones existentes se cargan desde el backend: las publicadas y retiradas se consultan en modo lectura y los borradores se pueden seguir editando.",
     "newCertificationButton": "Nueva certificación",
     "workbenchDescription": "Edita metadatos, reglas de elegibilidad y estructura de esta versión. Una versión publicada o retirada ya no admite cambios: clónala para crear un nuevo borrador.",
     "immutableNotice": "Esta versión no está en borrador y es de solo lectura. Usa \"Clonar\" para crear un nuevo borrador editable.",
@@ -5723,16 +5723,18 @@
     },
     "table": {
       "name": "Certificación",
-      "sessionStatus": "Estado (sesión actual)",
+      "versions": "Versiones",
+      "loading": "Cargando certificaciones…",
       "empty": "No hay certificaciones todavía.",
-      "noSessionDraft": "Sin borrador en esta sesión",
+      "noVersions": "Sin versiones",
       "createDraft": "Crear versión borrador",
-      "creatingDraft": "Creando…",
-      "openEditor": "Abrir editor"
+      "creatingDraft": "Creando…"
     },
     "toasts": {
       "draftCreated": "Versión borrador creada.",
-      "draftCreateFailed": "No se pudo crear la versión borrador."
+      "draftCreateFailed": "No se pudo crear la versión borrador.",
+      "listLoadFailed": "No se pudieron cargar las certificaciones.",
+      "versionLoadFailed": "No se pudo cargar la versión."
     },
     "createDialog": {
       "title": "Nueva certificación",
@@ -5891,7 +5893,6 @@
       "trigger": "Clonar",
       "title": "Clonar versión",
       "description": "Se creará una nueva versión en borrador copiando metadatos, reglas de elegibilidad y estructura de esta versión.",
-      "readGapWarning": "El backend todavía no expone un endpoint de lectura para versiones clonadas: después de clonar, el contenido copiado no se mostrará aquí hasta que lo vuelvas a guardar manualmente (reglas y estructura). Revisa el handoff de Fase 6 para más contexto.",
       "cancel": "Cancelar",
       "confirm": "Clonar",
       "cloning": "Clonando…",

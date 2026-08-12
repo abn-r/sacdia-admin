@@ -5684,7 +5684,7 @@
   },
   "certificationsAdmin": {
     "panelTitle": "Configurable certifications engine",
-    "panelDescription": "Create certifications, build draft versions (eligibility rules, modules, sections and components) and publish them. Draft version changes are only kept in this browser session until the backend exposes read endpoints to resume editing (see the Phase 6 handoff).",
+    "panelDescription": "Create certifications, build draft versions (eligibility rules, modules, sections and components) and publish them. Existing versions are loaded from the backend: published and retired versions open read-only and drafts remain editable.",
     "newCertificationButton": "New certification",
     "workbenchDescription": "Edit metadata, eligibility rules and structure for this version. A published or retired version can no longer be changed: clone it to create a new draft.",
     "immutableNotice": "This version is not in draft and is read-only. Use \"Clone\" to create a new editable draft.",
@@ -5696,16 +5696,18 @@
     },
     "table": {
       "name": "Certification",
-      "sessionStatus": "Status (current session)",
+      "versions": "Versions",
+      "loading": "Loading certifications…",
       "empty": "No certifications yet.",
-      "noSessionDraft": "No draft in this session",
+      "noVersions": "No versions",
       "createDraft": "Create draft version",
-      "creatingDraft": "Creating…",
-      "openEditor": "Open editor"
+      "creatingDraft": "Creating…"
     },
     "toasts": {
       "draftCreated": "Draft version created.",
-      "draftCreateFailed": "Could not create the draft version."
+      "draftCreateFailed": "Could not create the draft version.",
+      "listLoadFailed": "Could not load certifications.",
+      "versionLoadFailed": "Could not load the version."
     },
     "createDialog": {
       "title": "New certification",
@@ -5864,7 +5866,6 @@
       "trigger": "Clone",
       "title": "Clone version",
       "description": "A new draft version will be created copying metadata, eligibility rules and structure from this version.",
-      "readGapWarning": "The backend does not yet expose a read endpoint for cloned versions: after cloning, the copied content will not be shown here until you save it again manually (rules and structure). See the Phase 6 handoff for context.",
       "cancel": "Cancel",
       "confirm": "Clone",
       "cloning": "Cloning…",

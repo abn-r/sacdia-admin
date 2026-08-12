@@ -5550,7 +5550,7 @@
   },
   "certificationsAdmin": {
     "panelTitle": "Motor de certificações configuráveis",
-    "panelDescription": "Crie certificações, monte versões rascunho (regras de elegibilidade, módulos, seções e componentes) e publique-as. As alterações de uma versão rascunho só são mantidas nesta sessão do navegador até que o backend disponibilize endpoints de leitura para retomar a edição (veja o handoff da Fase 6).",
+    "panelDescription": "Crie certificações, monte versões rascunho (regras de elegibilidade, módulos, seções e componentes) e publique-as. As versões existentes são carregadas do backend: as publicadas e retiradas abrem em modo somente leitura e os rascunhos continuam editáveis.",
     "newCertificationButton": "Nova certificação",
     "workbenchDescription": "Edite metadados, regras de elegibilidade e estrutura desta versão. Uma versão publicada ou retirada não pode mais ser alterada: clone-a para criar um novo rascunho.",
     "immutableNotice": "Esta versão não está em rascunho e é somente leitura. Use \"Clonar\" para criar um novo rascunho editável.",
@@ -5562,16 +5562,18 @@
     },
     "table": {
       "name": "Certificação",
-      "sessionStatus": "Status (sessão atual)",
+      "versions": "Versões",
+      "loading": "Carregando certificações…",
       "empty": "Ainda não há certificações.",
-      "noSessionDraft": "Sem rascunho nesta sessão",
+      "noVersions": "Sem versões",
       "createDraft": "Criar versão rascunho",
-      "creatingDraft": "Criando…",
-      "openEditor": "Abrir editor"
+      "creatingDraft": "Criando…"
     },
     "toasts": {
       "draftCreated": "Versão rascunho criada.",
-      "draftCreateFailed": "Não foi possível criar a versão rascunho."
+      "draftCreateFailed": "Não foi possível criar a versão rascunho.",
+      "listLoadFailed": "Não foi possível carregar as certificações.",
+      "versionLoadFailed": "Não foi possível carregar a versão."
     },
     "createDialog": {
       "title": "Nova certificação",
@@ -5730,7 +5732,6 @@
       "trigger": "Clonar",
       "title": "Clonar versão",
       "description": "Uma nova versão rascunho será criada copiando metadados, regras de elegibilidade e estrutura desta versão.",
-      "readGapWarning": "O backend ainda não expõe um endpoint de leitura para versões clonadas: depois de clonar, o conteúdo copiado não será exibido aqui até que você o salve novamente manualmente (regras e estrutura). Consulte o handoff da Fase 6 para mais contexto.",
       "cancel": "Cancelar",
       "confirm": "Clonar",
       "cloning": "Clonando…",
