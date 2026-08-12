@@ -80,6 +80,10 @@ export const NAV_ITEM_ACCESS: Record<string, NavAccess> = {
   "club-inventory": { permissions: [INVENTORY_READ] },
   "insurance-by-section": { permissions: ["insurance:read"] },
   "insurance-expiring": { permissions: ["insurance:read"] },
+  "insurance-config": {
+    permissions: ["insurance:configure", "field-payment-orders:configure"],
+  },
+  "payment-orders": { permissions: ["field-payment-orders:review"] },
 
   "validations-investitures": {
     permissions: [VALIDATION_READ, "investiture:read"],

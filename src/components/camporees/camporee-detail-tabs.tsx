@@ -14,6 +14,7 @@ import {
 import type { CamporeeMembersTabProps } from "@/components/camporees/camporee-members-tab";
 import type { CamporeeClubsTabProps } from "@/components/camporees/camporee-clubs-tab";
 import type { CamporeePaymentsTabProps } from "@/components/camporees/camporee-payments-tab";
+import type { CamporeePaymentOrdersTabProps } from "@/components/payment-orders/camporee-payment-orders-tab";
 import { CamporeeEventsTab } from "@/components/camporee-events/camporee-events-tab";
 import { EventJudgeAssignmentsPanel } from "@/components/camporee-scoring/event-judge-assignments-panel";
 import { EventScoreEntryPanel } from "@/components/camporee-scoring/event-score-entry-panel";
@@ -48,6 +49,14 @@ const CamporeePaymentsTab = dynamic<CamporeePaymentsTabProps>(
   () =>
     import("@/components/camporees/camporee-payments-tab").then(
       (m) => m.CamporeePaymentsTab,
+    ),
+  { ssr: false, loading: () => <Skeleton className="h-48 w-full" /> },
+);
+
+const CamporeePaymentOrdersTab = dynamic<CamporeePaymentOrdersTabProps>(
+  () =>
+    import("@/components/payment-orders/camporee-payment-orders-tab").then(
+      (m) => m.CamporeePaymentOrdersTab,
     ),
   { ssr: false, loading: () => <Skeleton className="h-48 w-full" /> },
 );
@@ -104,6 +113,7 @@ const CAMPOREE_DETAIL_TABS = new Set([
   "members",
   "clubs",
   "payments",
+  "payment-orders",
   "events",
   "judges",
   "scores",
@@ -210,6 +220,10 @@ export function CamporeeDetailTabs({
             </Badge>
           )}
         </TabsTrigger>
+
+        {!isUnionCamporee && (
+          <TabsTrigger value="payment-orders">Órdenes de pago</TabsTrigger>
+        )}
 
         <TabsTrigger value="events">
           Eventos
@@ -320,6 +334,20 @@ export function CamporeeDetailTabs({
           </CardContent>
         </Card>
       </TabsContent>
+
+      {/* ── Órdenes de pago (solo camporees locales) ── */}
+      {!isUnionCamporee && (
+        <TabsContent value="payment-orders" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Órdenes de pago</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CamporeePaymentOrdersTab camporeeId={camporeeId} />
+            </CardContent>
+          </Card>
+        </TabsContent>
+      )}
 
       {/* ── Eventos ── */}
       {/*
