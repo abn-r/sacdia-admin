@@ -794,8 +794,8 @@
       "certificationCatalog": {
         "title": "Certifications GM",
         "description": "Catalogue des certifications pour Guides Maîtres. Seuls les membres ayant complété des investitures peuvent s'inscrire.",
-        "crudPendingTitle": "Édition API en attente",
-        "crudPendingDescription": "La liste et la structure sont en lecture seule jusqu'à ce que le backend expose les endpoints admin pour certifications, modules et sections.",
+        "crudPendingTitle": "Aucune permission de configuration",
+        "crudPendingDescription": "Ton compte n'a pas la permission « certifications:configure » nécessaire pour créer ou modifier des certifications. La liste ci-dessous est en lecture seule.",
         "emptyTitle": "Aucune certification",
         "emptyDescription": "Aucune certification n'est enregistrée dans le catalogue.",
         "loadError": "Impossible de charger les certifications.",
@@ -2415,7 +2415,8 @@
       "reports": "Rapports",
       "notifications": "Notifications",
       "resources": "Ressources",
-      "system": "Système"
+      "system": "Système",
+      "certifications_admin": "Certifications (moteur configurable)"
     },
     "permissions": {
       "users:read": "Voir la liste",
@@ -2560,7 +2561,9 @@
       "resource_categories:delete": "Supprimer une catégorie de ressources",
       "ecclesiastical_years:read": "Voir les années ecclésiastiques",
       "ecclesiastical_years:create": "Créer une année ecclésiastique",
-      "ecclesiastical_years:update": "Modifier une année ecclésiastique"
+      "ecclesiastical_years:update": "Modifier une année ecclésiastique",
+      "certifications:configure": "Configurer les certifications",
+      "certifications:publish": "Publier les certifications"
     },
     "userPermissionsPanel": {
       "title": "Permissions directes",
@@ -5061,10 +5064,10 @@
       "saveButton": "Enregistrer les données manuelles"
     },
     "page": {
-    "title": "Rapports mensuels",
-    "description": "Gestion des rapports mensuels d'activités du club.",
-    "print_preview": "Aperçu imprimable",
-    "empty_no_active_enrollment_title": "Aucune inscription active",
+      "title": "Rapports mensuels",
+      "description": "Gestion des rapports mensuels d'activités du club.",
+      "print_preview": "Aperçu imprimable",
+      "empty_no_active_enrollment_title": "Aucune inscription active",
       "empty_no_active_enrollment_description": "Aucune inscription active n'a été trouvée pour votre utilisateur."
     },
     "pageDetail": {
@@ -5543,6 +5546,198 @@
       "emptyTitle": "Aucun utilisateur inscrit",
       "emptyDescription": "Aucun utilisateur n'est inscrit à cette certification.",
       "viewProgressTitle": "Voir la progression détaillée"
+    }
+  },
+  "certificationsAdmin": {
+    "panelTitle": "Moteur de certifications configurables",
+    "panelDescription": "Crée des certifications, construis des versions brouillon (règles d'éligibilité, modules, sections et composants) et publie-les. Les modifications d'une version brouillon ne sont conservées que dans cette session du navigateur tant que le backend n'expose pas d'endpoints de lecture pour reprendre l'édition (voir le handoff de la phase 6).",
+    "newCertificationButton": "Nouvelle certification",
+    "workbenchDescription": "Modifie les métadonnées, les règles d'éligibilité et la structure de cette version. Une version publiée ou retirée ne peut plus être modifiée : clone-la pour créer un nouveau brouillon.",
+    "immutableNotice": "Cette version n'est pas en brouillon et est en lecture seule. Utilise « Cloner » pour créer un nouveau brouillon modifiable.",
+    "versionLabel": "Version {number}",
+    "status": {
+      "DRAFT": "Brouillon",
+      "PUBLISHED": "Publiée",
+      "RETIRED": "Retirée"
+    },
+    "table": {
+      "name": "Certification",
+      "sessionStatus": "Statut (session actuelle)",
+      "empty": "Aucune certification pour le moment.",
+      "noSessionDraft": "Aucun brouillon dans cette session",
+      "createDraft": "Créer une version brouillon",
+      "creatingDraft": "Création…",
+      "openEditor": "Ouvrir l'éditeur"
+    },
+    "toasts": {
+      "draftCreated": "Version brouillon créée.",
+      "draftCreateFailed": "Impossible de créer la version brouillon."
+    },
+    "createDialog": {
+      "title": "Nouvelle certification",
+      "description": "La certification sera créée avec sa première version brouillon.",
+      "fieldName": "Nom",
+      "fieldNamePlaceholder": "Ex. Guide de randonnée",
+      "fieldDescription": "Description",
+      "fieldDescriptionPlaceholder": "Brève description de la certification (optionnel)",
+      "cancel": "Annuler",
+      "submit": "Créer la certification",
+      "submitting": "Création…",
+      "validation": {
+        "nameMin": "Le nom doit contenir au moins 3 caractères.",
+        "nameMax": "Le nom ne peut pas dépasser 255 caractères.",
+        "descriptionMax": "La description ne peut pas dépasser 2000 caractères."
+      },
+      "toasts": {
+        "created": "Certification créée.",
+        "createFailed": "Impossible de créer la certification."
+      }
+    },
+    "metadata": {
+      "title": "Métadonnées de la version",
+      "fieldTitle": "Titre",
+      "fieldDescription": "Description",
+      "fieldMinDuration": "Durée minimale (mois)",
+      "fieldMaxDuration": "Durée maximale (mois)",
+      "save": "Enregistrer les métadonnées",
+      "saving": "Enregistrement…",
+      "toasts": {
+        "saved": "Métadonnées mises à jour.",
+        "saveFailed": "Impossible d'enregistrer les métadonnées."
+      }
+    },
+    "tabs": {
+      "eligibility": "Éligibilité",
+      "tree": "Structure"
+    },
+    "eligibility": {
+      "title": "Règles d'éligibilité",
+      "description": "Toutes les règles de cette version sont remplacées lors de l'enregistrement. Au moins une règle est requise pour publier.",
+      "addRule": "Ajouter une règle",
+      "empty": "Aucune règle d'éligibilité pour le moment.",
+      "ruleType": "Type de règle",
+      "ruleTypeLabels": {
+        "MIN_AGE": "Âge minimum",
+        "BAPTIZED": "Baptisé",
+        "INVESTED_CLASS": "Classe investie",
+        "ACTIVE_CLUB_TYPE": "Type de club actif",
+        "ACTIVE_ROLE": "Rôle actif"
+      },
+      "fields": {
+        "minAge": "Âge minimum",
+        "classId": "ID de classe",
+        "clubTypeId": "ID de type de club",
+        "roleId": "ID de rôle (UUID)"
+      },
+      "noConfigNeeded": "Cette règle ne nécessite pas de configuration supplémentaire.",
+      "moveUp": "Monter",
+      "moveDown": "Descendre",
+      "remove": "Supprimer",
+      "save": "Enregistrer les règles",
+      "saving": "Enregistrement…",
+      "validation": {
+        "minAgeInvalid": "L'âge minimum doit être un entier supérieur ou égal à 0.",
+        "classIdRequired": "Sélectionne un ID de classe pour cette règle.",
+        "clubTypeIdRequired": "Sélectionne un ID de type de club pour cette règle.",
+        "roleIdRequired": "Saisis l'ID de rôle pour cette règle."
+      },
+      "toasts": {
+        "saved": "Règles d'éligibilité enregistrées.",
+        "saveFailed": "Impossible d'enregistrer les règles d'éligibilité."
+      }
+    },
+    "tree": {
+      "title": "Modules, sections et composants",
+      "description": "Toute la structure de la version est remplacée lors de l'enregistrement. Chaque module nécessite au moins une section et chaque section au moins un composant pour publier.",
+      "addModule": "Ajouter un module",
+      "addSection": "Ajouter une section",
+      "addComponent": "Ajouter un composant",
+      "empty": "Aucun module pour le moment.",
+      "moveUp": "Monter",
+      "moveDown": "Descendre",
+      "remove": "Supprimer",
+      "save": "Enregistrer la structure",
+      "saving": "Enregistrement…",
+      "fields": {
+        "moduleName": "Nom du module",
+        "moduleNamePlaceholder": "Ex. Module 1 — Leadership",
+        "description": "Description",
+        "sectionName": "Nom de la section",
+        "sectionNamePlaceholder": "Ex. Leadership d'unité",
+        "instructions": "Instructions",
+        "required": "Requis",
+        "componentType": "Type de composant",
+        "label": "Libellé",
+        "minLength": "Longueur minimale",
+        "maxLength": "Longueur maximale",
+        "maxFiles": "Nb. max de fichiers",
+        "allowedMimeTypes": "Types MIME autorisés (séparés par des virgules)",
+        "honorId": "ID de la distinction liée",
+        "activityTypeId": "ID du type d'activité lié",
+        "statement": "Déclaration à confirmer",
+        "criteria": "Critère de validation automatique"
+      },
+      "componentTypeLabels": {
+        "TEXT_RESPONSE": "Réponse texte",
+        "FILE_EVIDENCE": "Preuve fichier",
+        "LINKED_HONOR": "Distinction liée",
+        "LINKED_ACTIVITY": "Activité liée",
+        "ATTESTATION": "Déclaration",
+        "AUTO_VALIDATION": "Validation automatique"
+      },
+      "validation": {
+        "moduleNameRequired": "Tous les modules ont besoin d'un nom.",
+        "sectionNameRequired": "Toutes les sections ont besoin d'un nom.",
+        "componentLabelRequired": "Tous les composants ont besoin d'un libellé.",
+        "honorIdRequired": "Les composants de distinction liée nécessitent un ID de distinction.",
+        "activityTypeIdRequired": "Les composants d'activité liée nécessitent un ID de type d'activité.",
+        "statementRequired": "Les composants de déclaration nécessitent le texte de la déclaration.",
+        "criteriaRequired": "Les composants de validation automatique nécessitent un critère."
+      },
+      "toasts": {
+        "saved": "Structure enregistrée.",
+        "saveFailed": "Impossible d'enregistrer la structure."
+      }
+    },
+    "publishDialog": {
+      "trigger": "Publier",
+      "title": "Publier la version",
+      "confirmDescription": "Cette version sera publiée et la version publiée précédente (le cas échéant) sera automatiquement retirée. Cette action ne peut pas être annulée depuis ici.",
+      "notReadyDescription": "Cette version ne remplit pas encore les critères de publication (il faut au moins une règle d'éligibilité et au moins un module avec des sections et des composants). Le backend refusera la publication tant qu'elle n'est pas complète.",
+      "readyHint": "Remplit les critères de publication.",
+      "notReadyHint": "Il manque des règles d'éligibilité ou une structure pour publier.",
+      "cancel": "Annuler",
+      "confirm": "Publier",
+      "publishing": "Publication…",
+      "toasts": {
+        "published": "Version publiée.",
+        "failed": "Impossible de publier la version."
+      }
+    },
+    "retireDialog": {
+      "trigger": "Retirer",
+      "title": "Retirer la version publiée",
+      "description": "La version ne sera plus disponible pour de nouvelles inscriptions. Cette action ne peut pas être annulée.",
+      "cancel": "Annuler",
+      "confirm": "Retirer",
+      "retiring": "Retrait…",
+      "toasts": {
+        "retired": "Version retirée.",
+        "failed": "Impossible de retirer la version."
+      }
+    },
+    "cloneDialog": {
+      "trigger": "Cloner",
+      "title": "Cloner la version",
+      "description": "Une nouvelle version brouillon sera créée en copiant les métadonnées, les règles d'éligibilité et la structure de cette version.",
+      "readGapWarning": "Le backend n'expose pas encore d'endpoint de lecture pour les versions clonées : après le clonage, le contenu copié ne sera pas affiché ici tant que tu ne l'auras pas réenregistré manuellement (règles et structure). Consulte le handoff de la phase 6 pour plus de contexte.",
+      "cancel": "Annuler",
+      "confirm": "Cloner",
+      "cloning": "Clonage…",
+      "toasts": {
+        "cloned": "Version clonée en tant que nouveau brouillon.",
+        "failed": "Impossible de cloner la version."
+      }
     }
   },
   "activities": {

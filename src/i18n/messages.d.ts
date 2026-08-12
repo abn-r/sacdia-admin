@@ -2452,6 +2452,7 @@ export interface IntlMessages {
       notifications: string;
       resources: string;
       system: string;
+      certifications_admin: string;
     };
     permissions: {
       "users:read": string;
@@ -2597,6 +2598,8 @@ export interface IntlMessages {
       "ecclesiastical_years:read": string;
       "ecclesiastical_years:create": string;
       "ecclesiastical_years:update": string;
+      "certifications:configure": string;
+      "certifications:publish": string;
     };
     userPermissionsPanel: {
       title: string;
@@ -5733,6 +5736,198 @@ export interface IntlMessages {
       emptyTitle: string;
       emptyDescription: string;
       viewProgressTitle: string;
+    };
+  };
+  certificationsAdmin: {
+    panelTitle: string;
+    panelDescription: string;
+    newCertificationButton: string;
+    workbenchDescription: string;
+    immutableNotice: string;
+    versionLabel: string;
+    status: {
+      DRAFT: string;
+      PUBLISHED: string;
+      RETIRED: string;
+    };
+    table: {
+      name: string;
+      sessionStatus: string;
+      empty: string;
+      noSessionDraft: string;
+      createDraft: string;
+      creatingDraft: string;
+      openEditor: string;
+    };
+    toasts: {
+      draftCreated: string;
+      draftCreateFailed: string;
+    };
+    createDialog: {
+      title: string;
+      description: string;
+      fieldName: string;
+      fieldNamePlaceholder: string;
+      fieldDescription: string;
+      fieldDescriptionPlaceholder: string;
+      cancel: string;
+      submit: string;
+      submitting: string;
+      validation: {
+        nameMin: string;
+        nameMax: string;
+        descriptionMax: string;
+      };
+      toasts: {
+        created: string;
+        createFailed: string;
+      };
+    };
+    metadata: {
+      title: string;
+      fieldTitle: string;
+      fieldDescription: string;
+      fieldMinDuration: string;
+      fieldMaxDuration: string;
+      save: string;
+      saving: string;
+      toasts: {
+        saved: string;
+        saveFailed: string;
+      };
+    };
+    tabs: {
+      eligibility: string;
+      tree: string;
+    };
+    eligibility: {
+      title: string;
+      description: string;
+      addRule: string;
+      empty: string;
+      ruleType: string;
+      ruleTypeLabels: {
+        MIN_AGE: string;
+        BAPTIZED: string;
+        INVESTED_CLASS: string;
+        ACTIVE_CLUB_TYPE: string;
+        ACTIVE_ROLE: string;
+      };
+      fields: {
+        minAge: string;
+        classId: string;
+        clubTypeId: string;
+        roleId: string;
+      };
+      noConfigNeeded: string;
+      moveUp: string;
+      moveDown: string;
+      remove: string;
+      save: string;
+      saving: string;
+      validation: {
+        minAgeInvalid: string;
+        classIdRequired: string;
+        clubTypeIdRequired: string;
+        roleIdRequired: string;
+      };
+      toasts: {
+        saved: string;
+        saveFailed: string;
+      };
+    };
+    tree: {
+      title: string;
+      description: string;
+      addModule: string;
+      addSection: string;
+      addComponent: string;
+      empty: string;
+      moveUp: string;
+      moveDown: string;
+      remove: string;
+      save: string;
+      saving: string;
+      fields: {
+        moduleName: string;
+        moduleNamePlaceholder: string;
+        description: string;
+        sectionName: string;
+        sectionNamePlaceholder: string;
+        instructions: string;
+        required: string;
+        componentType: string;
+        label: string;
+        minLength: string;
+        maxLength: string;
+        maxFiles: string;
+        allowedMimeTypes: string;
+        honorId: string;
+        activityTypeId: string;
+        statement: string;
+        criteria: string;
+      };
+      componentTypeLabels: {
+        TEXT_RESPONSE: string;
+        FILE_EVIDENCE: string;
+        LINKED_HONOR: string;
+        LINKED_ACTIVITY: string;
+        ATTESTATION: string;
+        AUTO_VALIDATION: string;
+      };
+      validation: {
+        moduleNameRequired: string;
+        sectionNameRequired: string;
+        componentLabelRequired: string;
+        honorIdRequired: string;
+        activityTypeIdRequired: string;
+        statementRequired: string;
+        criteriaRequired: string;
+      };
+      toasts: {
+        saved: string;
+        saveFailed: string;
+      };
+    };
+    publishDialog: {
+      trigger: string;
+      title: string;
+      confirmDescription: string;
+      notReadyDescription: string;
+      readyHint: string;
+      notReadyHint: string;
+      cancel: string;
+      confirm: string;
+      publishing: string;
+      toasts: {
+        published: string;
+        failed: string;
+      };
+    };
+    retireDialog: {
+      trigger: string;
+      title: string;
+      description: string;
+      cancel: string;
+      confirm: string;
+      retiring: string;
+      toasts: {
+        retired: string;
+        failed: string;
+      };
+    };
+    cloneDialog: {
+      trigger: string;
+      title: string;
+      description: string;
+      readGapWarning: string;
+      cancel: string;
+      confirm: string;
+      cloning: string;
+      toasts: {
+        cloned: string;
+        failed: string;
+      };
     };
   };
   activities: {

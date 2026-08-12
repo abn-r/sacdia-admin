@@ -794,8 +794,8 @@
       "certificationCatalog": {
         "title": "GM certifications",
         "description": "Catalog of certifications for Master Guides. Only members who have completed investitures can enroll.",
-        "crudPendingTitle": "API editing pending",
-        "crudPendingDescription": "Listing and structure are read-only until the backend exposes admin endpoints for certifications, modules, and sections.",
+        "crudPendingTitle": "No configuration permission",
+        "crudPendingDescription": "Your account lacks the \"certifications:configure\" permission needed to create or edit certifications. The list below is read-only.",
         "emptyTitle": "No certifications",
         "emptyDescription": "There are no certifications in the catalog.",
         "loadError": "Could not load certifications.",
@@ -2416,7 +2416,8 @@
       "reports": "Reports",
       "notifications": "Notifications",
       "resources": "Resources",
-      "system": "System"
+      "system": "System",
+      "certifications_admin": "Certifications (configurable engine)"
     },
     "permissions": {
       "users:read": "View list",
@@ -2561,7 +2562,9 @@
       "resource_categories:delete": "Delete resource category",
       "ecclesiastical_years:read": "View ecclesiastical years",
       "ecclesiastical_years:create": "Create ecclesiastical year",
-      "ecclesiastical_years:update": "Edit ecclesiastical year"
+      "ecclesiastical_years:update": "Edit ecclesiastical year",
+      "certifications:configure": "Configure certifications",
+      "certifications:publish": "Publish certifications"
     },
     "userPermissionsPanel": {
       "title": "Direct permissions",
@@ -5195,10 +5198,10 @@
       "saveButton": "Save manual data"
     },
     "page": {
-    "title": "Monthly Reports",
-    "description": "Manage monthly activity reports for the club.",
-    "print_preview": "Printable preview",
-    "empty_no_active_enrollment_title": "No active enrollment",
+      "title": "Monthly Reports",
+      "description": "Manage monthly activity reports for the club.",
+      "print_preview": "Printable preview",
+      "empty_no_active_enrollment_title": "No active enrollment",
       "empty_no_active_enrollment_description": "No active enrollment was found for your user."
     },
     "pageDetail": {
@@ -5677,6 +5680,198 @@
       "emptyTitle": "No enrolled users",
       "emptyDescription": "No users are enrolled in this certification.",
       "viewProgressTitle": "View detailed progress"
+    }
+  },
+  "certificationsAdmin": {
+    "panelTitle": "Configurable certifications engine",
+    "panelDescription": "Create certifications, build draft versions (eligibility rules, modules, sections and components) and publish them. Draft version changes are only kept in this browser session until the backend exposes read endpoints to resume editing (see the Phase 6 handoff).",
+    "newCertificationButton": "New certification",
+    "workbenchDescription": "Edit metadata, eligibility rules and structure for this version. A published or retired version can no longer be changed: clone it to create a new draft.",
+    "immutableNotice": "This version is not in draft and is read-only. Use \"Clone\" to create a new editable draft.",
+    "versionLabel": "Version {number}",
+    "status": {
+      "DRAFT": "Draft",
+      "PUBLISHED": "Published",
+      "RETIRED": "Retired"
+    },
+    "table": {
+      "name": "Certification",
+      "sessionStatus": "Status (current session)",
+      "empty": "No certifications yet.",
+      "noSessionDraft": "No draft in this session",
+      "createDraft": "Create draft version",
+      "creatingDraft": "Creating…",
+      "openEditor": "Open editor"
+    },
+    "toasts": {
+      "draftCreated": "Draft version created.",
+      "draftCreateFailed": "Could not create the draft version."
+    },
+    "createDialog": {
+      "title": "New certification",
+      "description": "The certification will be created together with its first draft version.",
+      "fieldName": "Name",
+      "fieldNamePlaceholder": "E.g. Hiking Guide",
+      "fieldDescription": "Description",
+      "fieldDescriptionPlaceholder": "Short description of the certification (optional)",
+      "cancel": "Cancel",
+      "submit": "Create certification",
+      "submitting": "Creating…",
+      "validation": {
+        "nameMin": "Name must be at least 3 characters.",
+        "nameMax": "Name cannot exceed 255 characters.",
+        "descriptionMax": "Description cannot exceed 2000 characters."
+      },
+      "toasts": {
+        "created": "Certification created.",
+        "createFailed": "Could not create the certification."
+      }
+    },
+    "metadata": {
+      "title": "Version metadata",
+      "fieldTitle": "Title",
+      "fieldDescription": "Description",
+      "fieldMinDuration": "Minimum duration (months)",
+      "fieldMaxDuration": "Maximum duration (months)",
+      "save": "Save metadata",
+      "saving": "Saving…",
+      "toasts": {
+        "saved": "Metadata updated.",
+        "saveFailed": "Could not save the metadata."
+      }
+    },
+    "tabs": {
+      "eligibility": "Eligibility",
+      "tree": "Structure"
+    },
+    "eligibility": {
+      "title": "Eligibility rules",
+      "description": "All rules for this version are replaced when saving. At least one rule is required to publish.",
+      "addRule": "Add rule",
+      "empty": "No eligibility rules yet.",
+      "ruleType": "Rule type",
+      "ruleTypeLabels": {
+        "MIN_AGE": "Minimum age",
+        "BAPTIZED": "Baptized",
+        "INVESTED_CLASS": "Invested class",
+        "ACTIVE_CLUB_TYPE": "Active club type",
+        "ACTIVE_ROLE": "Active role"
+      },
+      "fields": {
+        "minAge": "Minimum age",
+        "classId": "Class ID",
+        "clubTypeId": "Club type ID",
+        "roleId": "Role ID (UUID)"
+      },
+      "noConfigNeeded": "This rule does not require additional configuration.",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "remove": "Remove",
+      "save": "Save rules",
+      "saving": "Saving…",
+      "validation": {
+        "minAgeInvalid": "Minimum age must be an integer greater than or equal to 0.",
+        "classIdRequired": "Select a class ID for this rule.",
+        "clubTypeIdRequired": "Select a club type ID for this rule.",
+        "roleIdRequired": "Enter the role ID for this rule."
+      },
+      "toasts": {
+        "saved": "Eligibility rules saved.",
+        "saveFailed": "Could not save the eligibility rules."
+      }
+    },
+    "tree": {
+      "title": "Modules, sections and components",
+      "description": "The entire version structure is replaced when saving. Each module needs at least one section and each section at least one component to publish.",
+      "addModule": "Add module",
+      "addSection": "Add section",
+      "addComponent": "Add component",
+      "empty": "No modules yet.",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "remove": "Remove",
+      "save": "Save structure",
+      "saving": "Saving…",
+      "fields": {
+        "moduleName": "Module name",
+        "moduleNamePlaceholder": "E.g. Module 1 — Leadership",
+        "description": "Description",
+        "sectionName": "Section name",
+        "sectionNamePlaceholder": "E.g. Unit leadership",
+        "instructions": "Instructions",
+        "required": "Required",
+        "componentType": "Component type",
+        "label": "Label",
+        "minLength": "Minimum length",
+        "maxLength": "Maximum length",
+        "maxFiles": "Max. files",
+        "allowedMimeTypes": "Allowed MIME types (comma separated)",
+        "honorId": "Linked honor ID",
+        "activityTypeId": "Linked activity type ID",
+        "statement": "Statement to confirm",
+        "criteria": "Auto-validation criteria"
+      },
+      "componentTypeLabels": {
+        "TEXT_RESPONSE": "Text response",
+        "FILE_EVIDENCE": "File evidence",
+        "LINKED_HONOR": "Linked honor",
+        "LINKED_ACTIVITY": "Linked activity",
+        "ATTESTATION": "Attestation",
+        "AUTO_VALIDATION": "Auto validation"
+      },
+      "validation": {
+        "moduleNameRequired": "All modules need a name.",
+        "sectionNameRequired": "All sections need a name.",
+        "componentLabelRequired": "All components need a label.",
+        "honorIdRequired": "Linked honor components require an honor ID.",
+        "activityTypeIdRequired": "Linked activity components require an activity type ID.",
+        "statementRequired": "Attestation components require the statement text.",
+        "criteriaRequired": "Auto-validation components require a criteria."
+      },
+      "toasts": {
+        "saved": "Structure saved.",
+        "saveFailed": "Could not save the structure."
+      }
+    },
+    "publishDialog": {
+      "trigger": "Publish",
+      "title": "Publish version",
+      "confirmDescription": "This version will be published and the previous published version (if any) will be retired automatically. This action cannot be undone from here.",
+      "notReadyDescription": "This version does not yet meet the publish criteria (it needs at least one eligibility rule and at least one module with sections and components). The backend will reject publishing until it is complete.",
+      "readyHint": "Meets the publish criteria.",
+      "notReadyHint": "Missing eligibility rules or structure to publish.",
+      "cancel": "Cancel",
+      "confirm": "Publish",
+      "publishing": "Publishing…",
+      "toasts": {
+        "published": "Version published.",
+        "failed": "Could not publish the version."
+      }
+    },
+    "retireDialog": {
+      "trigger": "Retire",
+      "title": "Retire published version",
+      "description": "The version will stop being available for new enrollments. This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Retire",
+      "retiring": "Retiring…",
+      "toasts": {
+        "retired": "Version retired.",
+        "failed": "Could not retire the version."
+      }
+    },
+    "cloneDialog": {
+      "trigger": "Clone",
+      "title": "Clone version",
+      "description": "A new draft version will be created copying metadata, eligibility rules and structure from this version.",
+      "readGapWarning": "The backend does not yet expose a read endpoint for cloned versions: after cloning, the copied content will not be shown here until you save it again manually (rules and structure). See the Phase 6 handoff for context.",
+      "cancel": "Cancel",
+      "confirm": "Clone",
+      "cloning": "Cloning…",
+      "toasts": {
+        "cloned": "Version cloned as a new draft.",
+        "failed": "Could not clone the version."
+      }
     }
   },
   "activities": {
