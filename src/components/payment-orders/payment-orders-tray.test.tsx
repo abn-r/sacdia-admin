@@ -48,6 +48,7 @@ export const STUB_ORDER: PaymentOrder = {
   folio_reference: "OP-2026-0001",
   insurance_cycle_config_id: 5,
   local_camporee_id: null,
+  union_camporee_id: null,
   currency: "MXN",
   unit_cost_centavos: 15000,
   total_centavos: 30000,
