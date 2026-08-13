@@ -131,6 +131,13 @@ export const sidebarItems: NavGroup[] = [
         activeMatch: "clubs-list",
       },
       {
+        id: "coordination",
+        title: "Coordinación",
+        url: "/dashboard/coordination",
+        icon: Signpost,
+        activeMatch: "prefix",
+      },
+      {
         id: "enrollments",
         title: "Inscripciones",
         url: "/dashboard/enrollments",

@@ -244,7 +244,10 @@
       "zoneNameRequired": "O nome da zona é obrigatório.",
       "zoneAndDistrictRequired": "Selecione uma zona e um distrito.",
       "coordinatorRequired": "Selecione um coordenador.",
-      "assignmentScopeRequired": "Complete o escopo da atribuição."
+      "assignmentScopeRequired": "Complete o escopo da atribuição.",
+      "directorConflict": "Esse usuário já é diretor de uma seção incluída neste escopo.",
+      "missingRole": "O usuário precisa de um papel de coordenador antes de ser atribuído.",
+      "districtInZone": "Esse distrito já pertence a outra zona ativa."
     },
     "success": {
       "zoneCreated": "Zona criada.",
@@ -275,7 +278,9 @@
       "directorConflictRule": "Regra: se o usuário já é diretor de uma seção, o backend rejeita atribuí-lo como coordenador dessa mesma seção.",
       "title": "Atribuições ativas",
       "description": "Um coordenador pode acumular vários escopos; o app receberá o escopo combinado.",
-      "empty": "Não há atribuições registradas."
+      "empty": "Não há atribuições registradas.",
+      "usersEmpty": "Não há usuários com papel de coordenador.",
+      "usersEmptyLink": "Criar usuário"
     },
     "fields": {
       "name": "Nome",
@@ -293,16 +298,46 @@
       "section": "Seção",
       "clubSection": "Clube / seção",
       "selectSection": "Selecionar seção",
+      "club": "Clube",
+      "selectClub": "Selecionar clube",
+      "clubType": "Tipo de clube",
+      "selectClubType": "Selecionar tipo",
       "scope": "Escopo"
     },
     "actions": {
       "createZone": "Criar zona",
       "assignDistrict": "Atribuir distrito",
-      "createAssignment": "Criar atribuição"
+      "createAssignment": "Criar atribuição",
+      "activate": "Ativar",
+      "deactivate": "Desativar"
     },
     "status": {
       "active": "Ativa",
       "inactive": "Inativa"
+    },
+    "gate": {
+      "forbiddenTitle": "Sem permissão para administrar coordenação",
+      "forbiddenDescription": "É necessária a permissão coordination:manage. Os coordenadores não administram este painel."
+    },
+    "backfill": {
+      "action": "Migrar coordenadores atuais",
+      "title": "Migrar coordenadores do campo",
+      "description": "Pega usuários com papel de coordenador e este campo local, e cria no máximo uma atribuição GENERAL. Não escreve zonas nem seções.",
+      "loading": "Calculando candidatos…",
+      "existingGeneral": "Este campo já tem um coordenador geral ativo.",
+      "willCreate": "Será criada {count} atribuição GENERAL.",
+      "noneEligible": "Ninguém é elegível para GENERAL neste campo.",
+      "skipped": "{count} omitidos",
+      "cancel": "Cancelar",
+      "confirm": "Criar atribuição",
+      "applied": "Foi criada {count} atribuição GENERAL.",
+      "nothingToApply": "Não havia nada para migrar.",
+      "reasons": {
+        "alreadyHasGeneral": "já é o coordenador geral",
+        "alreadyAssigned": "já tem uma atribuição neste campo",
+        "directorConflict": "é diretor de uma seção do campo",
+        "generalSlotTaken": "a vaga GENERAL já está ocupada"
+      }
     }
   },
   "catalogs": {

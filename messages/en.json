@@ -244,7 +244,10 @@
       "zoneNameRequired": "The zone name is required.",
       "zoneAndDistrictRequired": "Select a zone and a district.",
       "coordinatorRequired": "Select a coordinator.",
-      "assignmentScopeRequired": "Complete the assignment scope."
+      "assignmentScopeRequired": "Complete the assignment scope.",
+      "directorConflict": "That user is already director of a section in this scope.",
+      "missingRole": "The user needs a coordinator role before they can be assigned.",
+      "districtInZone": "That district already belongs to another active zone."
     },
     "success": {
       "zoneCreated": "Zone created.",
@@ -275,7 +278,9 @@
       "directorConflictRule": "Rule: if the user is already director of a section, the backend rejects assigning them as coordinator of that same section.",
       "title": "Active assignments",
       "description": "A coordinator can accumulate several scopes; the app receives the combined scope.",
-      "empty": "No assignments registered."
+      "empty": "No assignments registered.",
+      "usersEmpty": "There are no users with a coordinator role.",
+      "usersEmptyLink": "Create user"
     },
     "fields": {
       "name": "Name",
@@ -293,16 +298,46 @@
       "section": "Section",
       "clubSection": "Club / section",
       "selectSection": "Select section",
+      "club": "Club",
+      "selectClub": "Select club",
+      "clubType": "Club type",
+      "selectClubType": "Select type",
       "scope": "Scope"
     },
     "actions": {
       "createZone": "Create zone",
       "assignDistrict": "Assign district",
-      "createAssignment": "Create assignment"
+      "createAssignment": "Create assignment",
+      "activate": "Activate",
+      "deactivate": "Deactivate"
     },
     "status": {
       "active": "Active",
       "inactive": "Inactive"
+    },
+    "gate": {
+      "forbiddenTitle": "No permission to manage coordination",
+      "forbiddenDescription": "The coordination:manage permission is required. Coordinators do not administer this panel."
+    },
+    "backfill": {
+      "action": "Migrate current coordinators",
+      "title": "Migrate local-field coordinators",
+      "description": "Takes users with a coordinator role and this local field, and creates at most one GENERAL assignment. It does not write zones or sections.",
+      "loading": "Calculating candidates…",
+      "existingGeneral": "This local field already has an active general coordinator.",
+      "willCreate": "{count} GENERAL assignment will be created.",
+      "noneEligible": "Nobody is eligible for GENERAL in this local field.",
+      "skipped": "{count} skipped",
+      "cancel": "Cancel",
+      "confirm": "Create assignment",
+      "applied": "Created {count} GENERAL assignment.",
+      "nothingToApply": "There was nothing to migrate.",
+      "reasons": {
+        "alreadyHasGeneral": "already the general coordinator",
+        "alreadyAssigned": "already has an assignment in this field",
+        "directorConflict": "is director of a section in this field",
+        "generalSlotTaken": "the GENERAL slot is already taken"
+      }
     }
   },
   "catalogs": {

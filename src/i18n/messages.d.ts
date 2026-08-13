@@ -274,6 +274,9 @@ export interface IntlMessages {
       zoneAndDistrictRequired: string;
       coordinatorRequired: string;
       assignmentScopeRequired: string;
+      directorConflict: string;
+      missingRole: string;
+      districtInZone: string;
     };
     success: {
       zoneCreated: string;
@@ -305,6 +308,8 @@ export interface IntlMessages {
       title: string;
       description: string;
       empty: string;
+      usersEmpty: string;
+      usersEmptyLink: string;
     };
     fields: {
       name: string;
@@ -322,16 +327,46 @@ export interface IntlMessages {
       section: string;
       clubSection: string;
       selectSection: string;
+      club: string;
+      selectClub: string;
+      clubType: string;
+      selectClubType: string;
       scope: string;
     };
     actions: {
       createZone: string;
       assignDistrict: string;
       createAssignment: string;
+      activate: string;
+      deactivate: string;
     };
     status: {
       active: string;
       inactive: string;
+    };
+    gate: {
+      forbiddenTitle: string;
+      forbiddenDescription: string;
+    };
+    backfill: {
+      action: string;
+      title: string;
+      description: string;
+      loading: string;
+      existingGeneral: string;
+      willCreate: string;
+      noneEligible: string;
+      skipped: string;
+      cancel: string;
+      confirm: string;
+      applied: string;
+      nothingToApply: string;
+      reasons: {
+        alreadyHasGeneral: string;
+        alreadyAssigned: string;
+        directorConflict: string;
+        generalSlotTaken: string;
+      };
     };
   };
   catalogs: {
