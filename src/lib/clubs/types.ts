@@ -79,6 +79,23 @@ export type ClubDetailPayload = {
   canCreateSections: boolean;
 };
 
+export function clubSectionTypeName(section: {
+  club_types?: { name?: string | null } | null;
+  club_type?: { name?: string | null } | null;
+}): string {
+  return section.club_types?.name?.trim() || section.club_type?.name?.trim() || "";
+}
+
+export function clubSectionDisplayLabel(
+  clubName: string | null | undefined,
+  typeName: string | null | undefined,
+): string {
+  const club = clubName?.trim() ?? "";
+  const type = typeName?.trim() ?? "";
+  if (club && type) return `${club} · ${type}`;
+  return club || type;
+}
+
 export function getClubSections(club: ClubFull): ClubSectionRaw[] {
   const sections = club.club_sections ?? club.sections ?? [];
   return Array.isArray(sections) ? sections : [];

@@ -1,7 +1,7 @@
 export type SelectOption = { label: string; value: number };
 export type DistrictOption = SelectOption & { localFieldId: number };
 export type ChurchOption = SelectOption & { districtId: number };
-export type SelectedClubSection = { clubTypeId: number; name?: string };
+export type SelectedClubSection = { clubTypeId: number };
 
 type RawCatalogItem = Record<string, unknown>;
 
@@ -91,7 +91,6 @@ export function collectSelectedClubSections(formData: FormData): SelectedClubSec
     );
     if (!clubTypeId) return [];
 
-    const name = readString(formData, `section_name_${index}`);
-    return [{ clubTypeId, name: name || undefined }];
+    return [{ clubTypeId }];
   });
 }

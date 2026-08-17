@@ -1178,7 +1178,9 @@
       "member_not_identified": "Não foi possível identificar o membro",
       "assignment_not_identified": "Não foi possível identificar a atribuição a atualizar",
       "assignment_remove_not_identified": "Não foi possível identificar a atribuição a remover",
-      "bulk_row_invalid": "Linha inválida: faltam campos obrigatórios"
+      "bulk_row_invalid": "Linha inválida: faltam campos obrigatórios",
+      "sections_required": "Habilite pelo menos uma seção.",
+      "no_catalog_types": "Não há tipos de clube ativos no catálogo."
     },
     "success": {
       "section_created": "Seção criada com sucesso",
@@ -1187,7 +1189,8 @@
       "assignment_created": "Atribuição criada com sucesso",
       "assignment_removed": "Atribuição removida com sucesso",
       "role_updated": "Papel atualizado com sucesso",
-      "retry_failed_sections": "Você pode continuar no detalhe do clube e tentar novamente as seções que falharam"
+      "retry_failed_sections": "Você pode continuar no detalhe do clube e tentar novamente as seções que falharam",
+      "section_toggled": "Status da seção atualizado."
     },
     "fields": {
       "local_field": "Campo local",
@@ -1224,10 +1227,8 @@
       "placeholderChurchParent": "Selecione primeiro um distrito",
       "placeholderAddress": "Endereço do clube",
       "sectionsTitle": "Seções do clube",
-      "sectionsDescription": "Escolha as seções que este clube vai operar ao ser criado.",
-      "sectionToggleHint": "Será criada junto com o clube.",
-      "sectionNameLabel": "Nome da seção (opcional)",
-      "sectionNamePlaceholder": "Ex. {section}"
+      "sectionsDescription": "Habilite as seções que este clube operará. As três sempre são criadas; as não marcadas ficam inativas.",
+      "sectionToggleHint": "Habilitar seção."
     },
     "edit": {
       "cardTitle": "Informações gerais",
@@ -1359,17 +1360,18 @@
         "membersCount": "{count} members"
       },
       "sections": {
-        "notCreated": "Section not created yet",
-        "directorLabel": "Director",
-        "noDirector": "No director assigned",
-        "active": "Active",
-        "inactive": "Inactive",
-        "createButton": "Registrar seção",
-        "labelName": "Nome da seção",
-        "placeholderName": "Ex. {type}",
+        "notCreated": "Seção pendente de habilitação",
+        "directorLabel": "Diretor",
+        "noDirector": "Nenhum diretor atribuído",
+        "active": "Ativa",
+        "inactive": "Inativa",
+        "typeEyebrow": "Tipo de seção",
+        "enableLabel": "Habilitar",
+        "disableLabel": "Desabilitar",
+        "enableMissing": "Habilitar seção",
         "labelSoulsTarget": "Meta de almas",
         "labelFee": "Taxa",
-        "noPermission": "Você não tem permissão para criar seções."
+        "noPermission": "Você não tem permissão para habilitar ou desabilitar seções."
       },
       "roles": {
         "clubRolesTitle": "Funções do clube",
@@ -1431,11 +1433,14 @@
         "counselorAssignFailed": "Could not assign counselor.",
         "counselorRevoked": "Counselor removed.",
         "counselorRevokeFailed": "Could not remove counselor.",
-        "sectionCreated": "Seção registrada com sucesso.",
-        "sectionCreateFailed": "Não foi possível registrar a seção.",
+        "sectionCreated": "Seção habilitada com sucesso.",
+        "sectionCreateFailed": "Não foi possível habilitar a seção.",
         "invalidClubType": "Tipo de clube inválido.",
         "invalidSoulsTarget": "A meta de almas deve ser um inteiro não negativo.",
-        "invalidFee": "A taxa deve ser um inteiro não negativo."
+        "invalidFee": "A taxa deve ser um inteiro não negativo.",
+        "invalidSectionStatus": "O status da seção é inválido.",
+        "sectionUpdated": "Seção atualizada.",
+        "sectionUpdateFailed": "Não foi possível atualizar a seção."
       }
     },
     "pages": {

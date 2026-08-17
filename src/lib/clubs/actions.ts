@@ -23,6 +23,7 @@ import { canManageClubsByRole } from "@/lib/auth/permission-utils";
 import { listLocalFieldsForTerritory } from "@/lib/auth/territory-scope";
 import type { AuthUser } from "@/lib/auth/types";
 import { collectSelectedClubSections } from "@/lib/clubs/create-form-options";
+import { listAdminClubTypes } from "@/lib/api/admin-club-types";
 
 type ClubsTranslator = Awaited<ReturnType<typeof getTranslations<"clubs">>>;
 
@@ -155,6 +156,9 @@ function buildCreatePayload(t: ClubsTranslator, formData: FormData): ClubPayload
     ),
     address: readString(formData, "address") || undefined,
     coordinates: parseCoordinates(t, formData),
+    enabled_club_type_ids: collectSelectedClubSections(formData).map(
+      (section) => section.clubTypeId,
+    ),
   };
 }
 
@@ -191,6 +195,10 @@ function collectFieldErrors(
     (!Number.isFinite(Number(latRaw)) || !Number.isFinite(Number(lngRaw)))
   ) {
     errors.coordinates = t("validation.coordinates_invalid");
+  }
+
+  if (collectSelectedClubSections(formData).length === 0) {
+    errors.sections = t("validation.sections_required");
   }
 
   return errors;
@@ -288,19 +296,6 @@ function normalizeCreatedClubId(payload: unknown) {
   return null;
 }
 
-function normalizeCreatedSectionId(payload: unknown) {
-  const created = unwrapObject<Record<string, unknown>>(payload);
-  const candidateIds = [created?.club_section_id, created?.id];
-  for (const candidateId of candidateIds) {
-    const parsed = Number(candidateId);
-    if (Number.isFinite(parsed) && parsed > 0) {
-      return parsed;
-    }
-  }
-
-  return undefined;
-}
-
 export async function createClubAction(
   _: ClubActionState,
   formData: FormData,
@@ -362,43 +357,8 @@ export async function createClubWithSectionsAction(
     };
   }
 
-  const sectionResults: ClubSectionSyncResult[] = [];
-  for (const section of collectSelectedClubSections(formData)) {
-    try {
-      const result = await createClubSection(clubId, {
-        club_type_id: section.clubTypeId,
-        name: section.name,
-      });
-      sectionResults.push({
-        action: "created",
-        ok: true,
-        message: t("success.section_created_short"),
-        sectionId: normalizeCreatedSectionId(result),
-      });
-    } catch (error) {
-      sectionResults.push({
-        action: "failed",
-        ok: false,
-        message: getActionErrorMessage(error, t("errors.create_section_failed"), {
-          endpointLabel: `/clubs/${clubId}/sections`,
-        }),
-      });
-    }
-  }
-
   revalidatePath("/dashboard/clubs");
   revalidatePath(`/dashboard/clubs/${clubId}`);
-
-  const failed = sectionResults.filter((r) => !r.ok);
-  if (failed.length > 0) {
-    return {
-      error: t("errors.club_created_sections_failed"),
-      success: t("success.retry_failed_sections"),
-      createdClubId: clubId,
-      sectionResults,
-    };
-  }
-
   redirect(`/dashboard/clubs/${clubId}`);
 }
 
@@ -480,7 +440,6 @@ export async function syncClubSectionsAction(
   const t = await getTranslations("clubs");
 
   const sectionIdRaw = readString(formData, "section_id");
-  const name = readString(formData, "name");
   const clubTypeIdRaw = readString(formData, "club_type_id");
   const activeRaw = readString(formData, "active");
 
@@ -495,7 +454,6 @@ export async function syncClubSectionsAction(
     if (sectionId && Number.isFinite(sectionId)) {
       // Update existing section
       const payload: Record<string, unknown> = {};
-      if (name) payload.name = name;
       if (clubTypeId) payload.club_type_id = clubTypeId;
       if (activeRaw) payload.active = activeRaw === "true";
 
@@ -506,7 +464,6 @@ export async function syncClubSectionsAction(
       // Create new section
       await createClubSection(clubId, {
         club_type_id: clubTypeId,
-        name: name || undefined,
       });
       revalidatePath(`/dashboard/clubs/${clubId}`);
       return { success: t("success.section_created") };
@@ -567,8 +524,6 @@ export async function createClubSectionAction(
     club_type_id: clubTypeId,
   };
 
-  const name = readString(formData, "name");
-  if (name) payload.name = name;
   payload.souls_target = soulsTarget;
   payload.fee = fee;
   if (meetingDayRaw) payload.meeting_day = [{ day: meetingDayRaw }];
@@ -597,11 +552,7 @@ export async function updateClubSectionAction(
   await requireAdminUser();
   const t = await getTranslations("clubs");
 
-  const payload: { name?: string; active?: boolean; club_type_id?: number } = {};
-  const name = readString(formData, "name");
-  if (name) {
-    payload.name = name;
-  }
+  const payload: { active?: boolean; club_type_id?: number } = {};
 
   const activeRaw = readString(formData, "active");
   if (activeRaw) {
@@ -893,6 +844,30 @@ export async function bulkCreateClubsAction(
   const allowedLocalFields = await listLocalFieldsForTerritory(user);
   const allowedLocalFieldIds = new Set(allowedLocalFields.map((field) => field.local_field_id));
 
+  let enabledClubTypeIds: number[] = [];
+  try {
+    const catalogTypes = await listAdminClubTypes();
+    enabledClubTypeIds = catalogTypes
+      .filter((type) => type.active !== false)
+      .map((type) => type.club_type_id)
+      .filter((id) => Number.isFinite(id) && id > 0);
+  } catch {
+    enabledClubTypeIds = [];
+  }
+
+  if (enabledClubTypeIds.length === 0) {
+    return {
+      results: rows.map((row) => ({
+        rowNumber: row.rowNumber,
+        name: row.name ?? "",
+        ok: false,
+        message: t("validation.no_catalog_types"),
+      })),
+      created: 0,
+      failed: rows.length,
+    };
+  }
+
   const results: BulkClubRowResult[] = [];
   let created = 0;
   let failed = 0;
@@ -927,6 +902,7 @@ export async function bulkCreateClubsAction(
         church_id: row.church_id,
         address: row.address,
         coordinates: row.coordinates,
+        enabled_club_type_ids: enabledClubTypeIds,
       };
       const createdPayload = await createClub(payload);
       const clubId = normalizeCreatedClubId(createdPayload) ?? undefined;

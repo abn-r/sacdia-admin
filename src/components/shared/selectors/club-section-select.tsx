@@ -40,6 +40,14 @@ function parseSectionList(payload: unknown): ClubSectionListItem[] {
   return [];
 }
 
+function clubSectionLabel(section: ClubSectionListItem): string {
+  return (
+    section.club_types?.name?.trim() ||
+    section.club_type?.name?.trim() ||
+    ""
+  );
+}
+
 /**
  * Maps a sectionTypeKey string to the corresponding `club_type_id` integer.
  *
@@ -119,7 +127,7 @@ export function ClubSectionSelect({
     setLoading(true);
     setFetchError(null);
 
-    listClubSections(clubId)
+    listClubSections(clubId, { includeInactive: activeOnly === false })
       .then((payload) => {
         if (cancelled) return;
         setFetchedSections(parseSectionList(payload));
@@ -135,7 +143,7 @@ export function ClubSectionSelect({
     return () => {
       cancelled = true;
     };
-  }, [clubId, hasOpened, t, value]);
+  }, [clubId, hasOpened, t, value, activeOnly]);
 
   // Resolve the effective club_type_id filter (sectionTypeKey takes precedence).
   const effectiveClubTypeId: number | undefined =
@@ -202,9 +210,7 @@ export function ClubSectionSelect({
         >
           {selected ? (
             <span className="truncate text-sm">
-              {selected.club_type?.name
-                ? `${selected.club_type.name}${selected.name ? ` · ${selected.name}` : ""}`
-                : selected.name}
+              {clubSectionLabel(selected)}
             </span>
           ) : (
             <span className="truncate text-sm">{triggerPlaceholder}</span>
@@ -253,9 +259,7 @@ export function ClubSectionSelect({
             {!loading && !error && sections.length > 0 && (
               <CommandGroup>
                 {sections.map((section) => {
-                  const label = section.club_type?.name
-                    ? `${section.club_type.name}${section.name ? ` · ${section.name}` : ""}`
-                    : section.name;
+                  const label = clubSectionLabel(section);
                   return (
                     <CommandItem
                       key={section.club_section_id}

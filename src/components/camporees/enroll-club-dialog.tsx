@@ -83,7 +83,6 @@ function detectSectionKind(section: RawClubSection): SectionKind {
   if (section.club_types?.name) candidates.push(section.club_types.name);
   if (section.club_type?.name) candidates.push(section.club_type.name);
   if (section.club_type?.slug) candidates.push(section.club_type.slug);
-  if (section.name) candidates.push(section.name);
 
   for (const raw of candidates) {
     const slug = normalize(raw);

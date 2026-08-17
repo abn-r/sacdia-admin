@@ -1178,7 +1178,9 @@
       "member_not_identified": "Impossible d'identifier le membre",
       "assignment_not_identified": "Impossible d'identifier l'affectation à mettre à jour",
       "assignment_remove_not_identified": "Impossible d'identifier l'affectation à supprimer",
-      "bulk_row_invalid": "Ligne invalide : champs obligatoires manquants"
+      "bulk_row_invalid": "Ligne invalide : champs obligatoires manquants",
+      "sections_required": "Activez au moins une section.",
+      "no_catalog_types": "Aucun type de club actif dans le catalogue."
     },
     "success": {
       "section_created": "Section créée avec succès",
@@ -1187,7 +1189,8 @@
       "assignment_created": "Affectation créée avec succès",
       "assignment_removed": "Affectation supprimée avec succès",
       "role_updated": "Rôle mis à jour avec succès",
-      "retry_failed_sections": "Vous pouvez continuer vers le détail du club et relancer les sections en échec"
+      "retry_failed_sections": "Vous pouvez continuer vers le détail du club et relancer les sections en échec",
+      "section_toggled": "Statut de la section mis à jour."
     },
     "fields": {
       "local_field": "Champ local",
@@ -1224,10 +1227,8 @@
       "placeholderChurchParent": "Sélectionnez d'abord un district",
       "placeholderAddress": "Adresse du club",
       "sectionsTitle": "Sections du club",
-      "sectionsDescription": "Choisissez les sections que ce club exploitera lors de sa création.",
-      "sectionToggleHint": "Elle sera créée avec le club.",
-      "sectionNameLabel": "Nom de la section (facultatif)",
-      "sectionNamePlaceholder": "Ex. {section}"
+      "sectionsDescription": "Activez les sections que ce club opérera. Les trois sont toujours créées ; les types non cochés restent inactifs.",
+      "sectionToggleHint": "Activer la section."
     },
     "edit": {
       "cardTitle": "Informations générales",
@@ -1359,17 +1360,18 @@
         "membersCount": "{count} members"
       },
       "sections": {
-        "notCreated": "Section not created yet",
-        "directorLabel": "Director",
-        "noDirector": "No director assigned",
+        "notCreated": "Section en attente d'activation",
+        "directorLabel": "Directeur",
+        "noDirector": "Aucun directeur assigné",
         "active": "Active",
         "inactive": "Inactive",
-        "createButton": "Enregistrer la section",
-        "labelName": "Nom de la section",
-        "placeholderName": "Ex. {type}",
+        "typeEyebrow": "Type de section",
+        "enableLabel": "Activer",
+        "disableLabel": "Désactiver",
+        "enableMissing": "Activer la section",
         "labelSoulsTarget": "Objectif d'âmes",
         "labelFee": "Cotisation",
-        "noPermission": "Vous n'avez pas la permission de créer des sections."
+        "noPermission": "Vous n'avez pas la permission d'activer ou de désactiver des sections."
       },
       "roles": {
         "clubRolesTitle": "Rôles du club",
@@ -1431,11 +1433,14 @@
         "counselorAssignFailed": "Could not assign counselor.",
         "counselorRevoked": "Counselor removed.",
         "counselorRevokeFailed": "Could not remove counselor.",
-        "sectionCreated": "Section enregistrée avec succès.",
-        "sectionCreateFailed": "Impossible d'enregistrer la section.",
+        "sectionCreated": "Section activée avec succès.",
+        "sectionCreateFailed": "Impossible d'activer la section.",
         "invalidClubType": "Type de club invalide.",
         "invalidSoulsTarget": "L'objectif d'âmes doit être un entier positif.",
-        "invalidFee": "La cotisation doit être un entier positif."
+        "invalidFee": "La cotisation doit être un entier positif.",
+        "invalidSectionStatus": "Le statut de la section n'est pas valide.",
+        "sectionUpdated": "Section mise à jour.",
+        "sectionUpdateFailed": "Impossible de mettre à jour la section."
       }
     },
     "pages": {

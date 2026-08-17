@@ -58,7 +58,7 @@ async function loadSectionMembers(
 
       return {
         sectionId,
-        sectionName: section.name ?? clubTypeName,
+        sectionName: clubTypeName,
         clubTypeId: section.club_type_id ?? section.club_types?.club_type_id ?? 0,
         clubTypeName,
         fee: section.fee ?? null,

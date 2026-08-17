@@ -25,6 +25,7 @@ type Section = {
   club_section_id?: number;
   club_type_id?: number;
   club_type?: { name?: string } | null;
+  club_types?: { name?: string } | null;
   name?: string;
   active?: boolean;
 };
@@ -73,7 +74,7 @@ export function PendingMembersPanel({ sections }: PendingMembersPanelProps) {
 
   const getSectionLabel = (section: Section): string => {
     return (
-      section.name ??
+      section.club_types?.name ??
       section.club_type?.name ??
       t("pending.section_fallback", { id: section.club_section_id ?? "?" })
     );

@@ -1,19 +1,19 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useFormStatus } from "react-dom";
-import { LayoutGrid, Loader2, Plus } from "lucide-react";
+import { LayoutGrid, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { useRoleLabel } from "@/lib/auth/role-labels";
 import {
   createClubSectionAction,
+  toggleClubSectionActiveAction,
   type DetailActionState,
 } from "@/lib/clubs/detail-actions";
 import {
@@ -41,26 +41,26 @@ function findSectionForType(
   );
 }
 
-function SubmitButton({ label }: { label: string }) {
+function EnableMissingButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" className="w-full" disabled={pending}>
-      {pending ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
+      {pending ? <Loader2 className="size-4 animate-spin" /> : null}
       {label}
     </Button>
   );
 }
 
-function CreateSectionSlot({
+function EnableMissingSectionSlot({
   clubId,
   clubTypeId,
   typeName,
-  canCreate,
+  canManage,
 }: {
   clubId: number;
   clubTypeId: number;
   typeName: string;
-  canCreate: boolean;
+  canManage: boolean;
 }) {
   const t = useTranslations("clubs.detail.sections");
   const router = useRouter();
@@ -81,12 +81,12 @@ function CreateSectionSlot({
             <LayoutGrid className="size-5" />
           </span>
           <div>
-            <p className="text-sm font-medium text-muted-foreground">{typeName}</p>
+            <h3 className="text-lg font-semibold">{typeName}</h3>
             <p className="mt-1 text-xs text-muted-foreground">{t("notCreated")}</p>
           </div>
         </div>
 
-        {canCreate ? (
+        {canManage ? (
           <form action={action} className="space-y-3 border-t pt-4">
             <input type="hidden" name="club_type_id" value={clubTypeId} />
             {state.error ? (
@@ -99,47 +99,7 @@ function CreateSectionSlot({
                 {state.success}
               </p>
             ) : null}
-            <div className="space-y-1">
-              <Label htmlFor={`section-name-${clubTypeId}`}>{t("labelName")}</Label>
-              <Input
-                id={`section-name-${clubTypeId}`}
-                name="name"
-                placeholder={t("placeholderName", { type: typeName })}
-                defaultValue={typeName}
-              />
-              {state.fieldErrors?.name ? (
-                <p className="text-xs text-destructive">{state.fieldErrors.name}</p>
-              ) : null}
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <Label htmlFor={`section-souls-${clubTypeId}`}>{t("labelSoulsTarget")}</Label>
-                <Input
-                  id={`section-souls-${clubTypeId}`}
-                  name="souls_target"
-                  type="number"
-                  min="0"
-                  defaultValue="0"
-                />
-                {state.fieldErrors?.souls_target ? (
-                  <p className="text-xs text-destructive">{state.fieldErrors.souls_target}</p>
-                ) : null}
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor={`section-fee-${clubTypeId}`}>{t("labelFee")}</Label>
-                <Input
-                  id={`section-fee-${clubTypeId}`}
-                  name="fee"
-                  type="number"
-                  min="0"
-                  defaultValue="0"
-                />
-                {state.fieldErrors?.fee ? (
-                  <p className="text-xs text-destructive">{state.fieldErrors.fee}</p>
-                ) : null}
-              </div>
-            </div>
-            <SubmitButton label={t("createButton")} />
+            <EnableMissingButton label={t("enableMissing")} />
           </form>
         ) : (
           <p className="border-t pt-4 text-center text-xs text-muted-foreground">
@@ -151,19 +111,74 @@ function CreateSectionSlot({
   );
 }
 
+function SectionActiveToggle({
+  clubId,
+  sectionId,
+  active,
+  disabled,
+}: {
+  clubId: number;
+  sectionId: number;
+  active: boolean;
+  disabled: boolean;
+}) {
+  const t = useTranslations("clubs.detail.sections");
+  const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
+  const boundAction = toggleClubSectionActiveAction.bind(null, clubId, sectionId);
+  const [state, action, pending] = useActionState(
+    boundAction,
+    {} as DetailActionState,
+  );
+
+  useEffect(() => {
+    if (state.ok) {
+      router.refresh();
+    }
+  }, [state.ok, router]);
+
+  return (
+    <form ref={formRef} action={action} className="space-y-2">
+      <input type="hidden" name="active" value={active ? "false" : "true"} />
+      <div className="flex items-center justify-end gap-2">
+        <span className="text-xs text-muted-foreground">
+          {active ? t("disableLabel") : t("enableLabel")}
+        </span>
+        <Switch
+          type="button"
+          checked={active}
+          disabled={disabled || pending}
+          onCheckedChange={() => formRef.current?.requestSubmit()}
+          aria-label={active ? t("disableLabel") : t("enableLabel")}
+        />
+      </div>
+      {state.error ? (
+        <p role="alert" className="text-xs text-destructive">
+          {state.error}
+        </p>
+      ) : null}
+    </form>
+  );
+}
+
 function SectionCard({
+  clubId,
   section,
   typeName,
   directorName,
   directorImage,
+  canManage,
 }: {
+  clubId: number;
   section: ClubSectionRaw;
   typeName: string;
   directorName: string | null;
   directorImage: string | null;
+  canManage: boolean;
 }) {
   const t = useTranslations("clubs.detail.sections");
   const translateRole = useRoleLabel();
+  const isActive = section.active !== false;
 
   return (
     <Card>
@@ -171,14 +186,23 @@ function SectionCard({
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-xs uppercase tracking-wide text-muted-foreground">
-              {typeName}
+              {t("typeEyebrow")}
             </p>
-            <h3 className="text-lg font-semibold">{section.name ?? typeName}</h3>
+            <h3 className="text-lg font-semibold">{typeName}</h3>
           </div>
-          <Badge variant={section.active !== false ? "default" : "outline"}>
-            {section.active !== false ? t("active") : t("inactive")}
+          <Badge variant={isActive ? "default" : "outline"}>
+            {isActive ? t("active") : t("inactive")}
           </Badge>
         </div>
+
+        {canManage && section.club_section_id ? (
+          <SectionActiveToggle
+            clubId={clubId}
+            sectionId={section.club_section_id}
+            active={isActive}
+            disabled={!canManage}
+          />
+        ) : null}
 
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div>
@@ -232,12 +256,12 @@ export function SectionsTab({ data }: SectionsTabProps) {
         const section = findSectionForType(data.sections, clubType.club_type_id);
         if (!section?.club_section_id) {
           return (
-            <CreateSectionSlot
+            <EnableMissingSectionSlot
               key={clubType.club_type_id}
               clubId={data.clubId}
               clubTypeId={clubType.club_type_id}
               typeName={clubType.name}
-              canCreate={data.canCreateSections}
+              canManage={data.canCreateSections}
             />
           );
         }
@@ -250,14 +274,16 @@ export function SectionsTab({ data }: SectionsTabProps) {
           : null;
         const directorFromLeadership = getSectionDirector(
           data.leadership,
-          section.name ?? clubType.name,
+          clubType.name,
         );
 
         return (
           <SectionCard
             key={clubType.club_type_id}
+            clubId={data.clubId}
             section={section}
             typeName={clubType.name}
+            canManage={data.canCreateSections}
             directorName={
               directorFromMembers?.name ??
               (directorFromLeadership ? formatLeaderName(directorFromLeadership) : null)

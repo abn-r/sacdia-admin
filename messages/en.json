@@ -1178,7 +1178,9 @@
       "member_not_identified": "The member could not be identified",
       "assignment_not_identified": "The assignment to update could not be identified",
       "assignment_remove_not_identified": "The assignment to remove could not be identified",
-      "bulk_row_invalid": "Invalid row: missing required fields"
+      "bulk_row_invalid": "Invalid row: missing required fields",
+      "sections_required": "Enable at least one section.",
+      "no_catalog_types": "There are no active club types in the catalog."
     },
     "success": {
       "section_created": "Section created successfully",
@@ -1187,7 +1189,8 @@
       "assignment_created": "Assignment created successfully",
       "assignment_removed": "Assignment removed successfully",
       "role_updated": "Role updated successfully",
-      "retry_failed_sections": "You can continue to the club detail and retry the failed sections"
+      "retry_failed_sections": "You can continue to the club detail and retry the failed sections",
+      "section_toggled": "Section status updated."
     },
     "fields": {
       "local_field": "Local field",
@@ -1224,10 +1227,8 @@
       "placeholderChurchParent": "Select a district first",
       "placeholderAddress": "Club address",
       "sectionsTitle": "Club sections",
-      "sectionsDescription": "Choose the sections this club will operate when it is created.",
-      "sectionToggleHint": "It will be created together with the club.",
-      "sectionNameLabel": "Section name (optional)",
-      "sectionNamePlaceholder": "E.g. {section}"
+      "sectionsDescription": "Enable the sections this club will operate. All three are always created; unchecked types stay inactive.",
+      "sectionToggleHint": "Enable section."
     },
     "edit": {
       "cardTitle": "General information",
@@ -1359,17 +1360,18 @@
         "membersCount": "{count} members"
       },
       "sections": {
-        "notCreated": "Section not created yet",
+        "notCreated": "Section pending enablement",
         "directorLabel": "Director",
         "noDirector": "No director assigned",
         "active": "Active",
         "inactive": "Inactive",
-        "createButton": "Register section",
-        "labelName": "Section name",
-        "placeholderName": "E.g. {type}",
+        "typeEyebrow": "Section type",
+        "enableLabel": "Enable",
+        "disableLabel": "Disable",
+        "enableMissing": "Enable section",
         "labelSoulsTarget": "Souls target",
         "labelFee": "Fee",
-        "noPermission": "You do not have permission to create sections."
+        "noPermission": "You do not have permission to enable or disable sections."
       },
       "roles": {
         "clubRolesTitle": "Club roles",
@@ -1431,11 +1433,14 @@
         "counselorAssignFailed": "Could not assign counselor.",
         "counselorRevoked": "Counselor removed.",
         "counselorRevokeFailed": "Could not remove counselor.",
-        "sectionCreated": "Section registered successfully.",
-        "sectionCreateFailed": "Could not register section.",
+        "sectionCreated": "Section enabled successfully.",
+        "sectionCreateFailed": "Could not enable the section.",
         "invalidClubType": "Invalid club type.",
         "invalidSoulsTarget": "Souls target must be a non-negative integer.",
-        "invalidFee": "Fee must be a non-negative integer."
+        "invalidFee": "Fee must be a non-negative integer.",
+        "invalidSectionStatus": "Section status is invalid.",
+        "sectionUpdated": "Section updated.",
+        "sectionUpdateFailed": "Could not update the section."
       }
     },
     "pages": {

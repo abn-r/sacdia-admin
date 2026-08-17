@@ -107,7 +107,7 @@ export function buildInventorySectionOptions(
       options.push({
         club_section_id: clubSectionId,
         club_id: clubId,
-        name: `${clubName} — ${clubTypeName}`,
+        name: `${clubName} · ${clubTypeName}`,
         club_name: clubName,
         club_type_id: clubTypeId,
         club_type_name: clubTypeName,

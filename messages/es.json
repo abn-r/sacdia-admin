@@ -1181,7 +1181,9 @@
       "member_not_identified": "No se pudo identificar al miembro",
       "assignment_not_identified": "No se pudo identificar la asignación a actualizar",
       "assignment_remove_not_identified": "No se pudo identificar la asignación a remover",
-      "bulk_row_invalid": "Fila inválida: faltan campos requeridos"
+      "bulk_row_invalid": "Fila inválida: faltan campos requeridos",
+      "sections_required": "Habilita al menos una sección.",
+      "no_catalog_types": "No hay tipos de club activos en el catálogo."
     },
     "success": {
       "section_created": "Sección creada correctamente",
@@ -1193,7 +1195,8 @@
       "class_assignment_revoked": "Asignación de clase revocada correctamente",
       "assignment_removed": "Asignación removida correctamente",
       "role_updated": "Rol actualizado correctamente",
-      "retry_failed_sections": "Puede continuar al detalle del club y reintentar las secciones fallidas"
+      "retry_failed_sections": "Puede continuar al detalle del club y reintentar las secciones fallidas",
+      "section_toggled": "Estado de la sección actualizado."
     },
     "fields": {
       "local_field": "Campo local",
@@ -1230,10 +1233,8 @@
       "placeholderChurchParent": "Seleccioná un distrito primero",
       "placeholderAddress": "Dirección del club",
       "sectionsTitle": "Secciones del club",
-      "sectionsDescription": "Marcá las secciones que este club va a operar al crearlo.",
-      "sectionToggleHint": "Se creará junto con el club.",
-      "sectionNameLabel": "Nombre de la sección (opcional)",
-      "sectionNamePlaceholder": "Ej. {section}"
+      "sectionsDescription": "Habilita las secciones que este club operará. Siempre se crean las tres; las no marcadas quedan inactivas.",
+      "sectionToggleHint": "Habilitar sección."
     },
     "edit": {
       "cardTitle": "Información general",
@@ -1365,17 +1366,18 @@
         "membersCount": "{count} miembros"
       },
       "sections": {
-        "notCreated": "Sección pendiente de crear",
+        "notCreated": "Sección pendiente de habilitar",
         "directorLabel": "Director",
         "noDirector": "Sin director asignado",
         "active": "Activa",
         "inactive": "Inactiva",
-        "createButton": "Registrar sección",
-        "labelName": "Nombre de la sección",
-        "placeholderName": "Ej. {type}",
+        "typeEyebrow": "Tipo de sección",
+        "enableLabel": "Habilitar",
+        "disableLabel": "Deshabilitar",
+        "enableMissing": "Habilitar sección",
         "labelSoulsTarget": "Blanco de almas",
         "labelFee": "Cuota",
-        "noPermission": "No tienes permiso para crear secciones."
+        "noPermission": "No tienes permiso para habilitar o deshabilitar secciones."
       },
       "roles": {
         "clubRolesTitle": "Roles del club",
@@ -1437,11 +1439,14 @@
         "counselorAssignFailed": "No se pudo asignar el consejero.",
         "counselorRevoked": "Consejero removido.",
         "counselorRevokeFailed": "No se pudo remover el consejero.",
-        "sectionCreated": "Sección registrada correctamente.",
-        "sectionCreateFailed": "No se pudo registrar la sección.",
+        "sectionCreated": "Sección habilitada correctamente.",
+        "sectionCreateFailed": "No se pudo habilitar la sección.",
         "invalidClubType": "Tipo de club inválido.",
         "invalidSoulsTarget": "El blanco de almas debe ser un número entero positivo.",
-        "invalidFee": "La cuota debe ser un número entero positivo."
+        "invalidFee": "La cuota debe ser un número entero positivo.",
+        "invalidSectionStatus": "El estado de la sección no es válido.",
+        "sectionUpdated": "Sección actualizada.",
+        "sectionUpdateFailed": "No se pudo actualizar la sección."
       }
     },
     "pages": {

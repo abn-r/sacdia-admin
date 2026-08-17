@@ -1211,6 +1211,8 @@ export interface IntlMessages {
       assignment_not_identified: string;
       assignment_remove_not_identified: string;
       bulk_row_invalid: string;
+      sections_required: string;
+      no_catalog_types: string;
     };
     success: {
       section_created: string;
@@ -1223,6 +1225,7 @@ export interface IntlMessages {
       assignment_removed: string;
       role_updated: string;
       retry_failed_sections: string;
+      section_toggled: string;
     };
     fields: {
       local_field: string;
@@ -1261,8 +1264,6 @@ export interface IntlMessages {
       sectionsTitle: string;
       sectionsDescription: string;
       sectionToggleHint: string;
-      sectionNameLabel: string;
-      sectionNamePlaceholder: string;
     };
     edit: {
       cardTitle: string;
@@ -1399,9 +1400,10 @@ export interface IntlMessages {
         noDirector: string;
         active: string;
         inactive: string;
-        createButton: string;
-        labelName: string;
-        placeholderName: string;
+        typeEyebrow: string;
+        enableLabel: string;
+        disableLabel: string;
+        enableMissing: string;
         labelSoulsTarget: string;
         labelFee: string;
         noPermission: string;
@@ -1471,6 +1473,9 @@ export interface IntlMessages {
         invalidClubType: string;
         invalidSoulsTarget: string;
         invalidFee: string;
+        invalidSectionStatus: string;
+        sectionUpdated: string;
+        sectionUpdateFailed: string;
       };
     };
     pages: {

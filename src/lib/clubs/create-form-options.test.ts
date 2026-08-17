@@ -67,13 +67,11 @@ describe("club create form options", () => {
   it("collects checked section indexes even when earlier options were unchecked", () => {
     const formData = new FormData();
     formData.set("section_club_type_id_1", "2");
-    formData.set("section_name_1", "Conquistadores");
     formData.set("section_club_type_id_3", "4");
-    formData.set("section_name_3", "");
 
     expect(collectSelectedClubSections(formData)).toEqual([
-      { clubTypeId: 2, name: "Conquistadores" },
-      { clubTypeId: 4, name: undefined },
+      { clubTypeId: 2 },
+      { clubTypeId: 4 },
     ]);
   });
 });
