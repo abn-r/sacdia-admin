@@ -19,11 +19,17 @@ import { formatCentavos } from "@/components/payment-orders/format";
 
 export interface CamporeePaymentOrdersTabProps {
   camporeeId: number;
+  /**
+   * v1.1: union camporees also collect through the issuing local field
+   * (opción A); the only difference is the backend filter used.
+   */
+  camporeeType?: "local" | "union";
 }
 
-/** Payment orders scoped to one local camporee (plan base Task 3.4-admin). */
+/** Payment orders scoped to one camporee, local or union (plan base Task 3.4-admin). */
 export function CamporeePaymentOrdersTab({
   camporeeId,
+  camporeeType = "local",
 }: CamporeePaymentOrdersTabProps) {
   const t = useTranslations("payment_orders");
   const [orders, setOrders] = useState<PaymentOrder[]>([]);
@@ -36,7 +42,9 @@ export function CamporeePaymentOrdersTab({
       setOrders(
         await listPaymentOrders({
           purpose: "CAMPOREE",
-          camporee_id: camporeeId,
+          ...(camporeeType === "union"
+            ? { union_camporee_id: camporeeId }
+            : { camporee_id: camporeeId }),
         }),
       );
     } catch (error) {
@@ -45,7 +53,7 @@ export function CamporeePaymentOrdersTab({
     } finally {
       setLoading(false);
     }
-  }, [camporeeId, t]);
+  }, [camporeeId, camporeeType, t]);
 
   useEffect(() => {
     void load();

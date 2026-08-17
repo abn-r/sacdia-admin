@@ -221,9 +221,7 @@ export function CamporeeDetailTabs({
           )}
         </TabsTrigger>
 
-        {!isUnionCamporee && (
-          <TabsTrigger value="payment-orders">Órdenes de pago</TabsTrigger>
-        )}
+        <TabsTrigger value="payment-orders">Órdenes de pago</TabsTrigger>
 
         <TabsTrigger value="events">
           Eventos
@@ -335,19 +333,20 @@ export function CamporeeDetailTabs({
         </Card>
       </TabsContent>
 
-      {/* ── Órdenes de pago (solo camporees locales) ── */}
-      {!isUnionCamporee && (
-        <TabsContent value="payment-orders" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Órdenes de pago</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CamporeePaymentOrdersTab camporeeId={camporeeId} />
-            </CardContent>
-          </Card>
-        </TabsContent>
-      )}
+      {/* ── Órdenes de pago (locales y de unión; v1.1: cobra el Campo Local) ── */}
+      <TabsContent value="payment-orders" className="mt-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Órdenes de pago</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CamporeePaymentOrdersTab
+              camporeeId={camporeeId}
+              camporeeType={isUnionCamporee ? "union" : "local"}
+            />
+          </CardContent>
+        </Card>
+      </TabsContent>
 
       {/* ── Eventos ── */}
       {/*

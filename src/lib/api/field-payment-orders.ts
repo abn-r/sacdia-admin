@@ -51,6 +51,7 @@ export type PaymentOrder = {
   folio_reference: string;
   insurance_cycle_config_id: number | null;
   local_camporee_id: number | null;
+  union_camporee_id: number | null;
   currency: string;
   unit_cost_centavos: number;
   total_centavos: number;
@@ -68,6 +69,7 @@ export type PaymentOrderListFilters = {
   purpose?: PaymentOrderPurpose;
   status?: PaymentOrderStatus;
   camporee_id?: number;
+  union_camporee_id?: number;
 };
 
 export type ProofDownload = {
@@ -124,6 +126,8 @@ function buildFilters(filters: PaymentOrderListFilters) {
   if (filters.purpose) params.purpose = filters.purpose;
   if (filters.status) params.status = filters.status;
   if (filters.camporee_id) params.camporee_id = String(filters.camporee_id);
+  if (filters.union_camporee_id)
+    params.union_camporee_id = String(filters.union_camporee_id);
   return Object.keys(params).length > 0 ? params : undefined;
 }
 
