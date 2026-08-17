@@ -16,6 +16,7 @@ import {
   CLUB_IDEALS_READ,
   CLUB_TYPES_READ,
   CLUBS_READ,
+  COORDINATION_MANAGE,
   CATALOGS_READ,
   COUNTRIES_READ,
   DISEASES_READ,
@@ -70,6 +71,7 @@ export const NAV_ITEM_ACCESS: Record<string, NavAccess> = {
 
   users: { permissions: [USERS_READ] },
   clubs: { permissions: [CLUBS_READ] },
+  coordination: { permissions: [COORDINATION_MANAGE] },
 
   enrollments: {
     permissions: ["investiture:read", "investiture:validate", CLASSES_READ],

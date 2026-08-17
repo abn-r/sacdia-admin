@@ -244,7 +244,10 @@
       "zoneNameRequired": "Le nom de la zone est obligatoire.",
       "zoneAndDistrictRequired": "Sélectionnez une zone et un district.",
       "coordinatorRequired": "Sélectionnez un coordinateur.",
-      "assignmentScopeRequired": "Complétez le périmètre de l'assignation."
+      "assignmentScopeRequired": "Complétez le périmètre de l'assignation.",
+      "directorConflict": "Cet utilisateur est déjà directeur d'une section incluse dans ce périmètre.",
+      "missingRole": "L'utilisateur doit avoir un rôle de coordinateur avant d'être assigné.",
+      "districtInZone": "Ce district appartient déjà à une autre zone active."
     },
     "success": {
       "zoneCreated": "Zone créée.",
@@ -275,7 +278,9 @@
       "directorConflictRule": "Règle : si l'utilisateur est déjà directeur d'une section, le backend refuse de l'assigner comme coordinateur de cette même section.",
       "title": "Assignations actives",
       "description": "Un coordinateur peut cumuler plusieurs périmètres ; l'app recevra le périmètre combiné.",
-      "empty": "Aucune assignation enregistrée."
+      "empty": "Aucune assignation enregistrée.",
+      "usersEmpty": "Aucun utilisateur n'a le rôle de coordinateur.",
+      "usersEmptyLink": "Créer un utilisateur"
     },
     "fields": {
       "name": "Nom",
@@ -293,16 +298,46 @@
       "section": "Section",
       "clubSection": "Club / section",
       "selectSection": "Sélectionner une section",
+      "club": "Club",
+      "selectClub": "Sélectionner un club",
+      "clubType": "Type de club",
+      "selectClubType": "Sélectionner un type",
       "scope": "Périmètre"
     },
     "actions": {
       "createZone": "Créer une zone",
       "assignDistrict": "Assigner le district",
-      "createAssignment": "Créer l'assignation"
+      "createAssignment": "Créer l'assignation",
+      "activate": "Activer",
+      "deactivate": "Désactiver"
     },
     "status": {
       "active": "Active",
       "inactive": "Inactive"
+    },
+    "gate": {
+      "forbiddenTitle": "Pas d'autorisation pour gérer la coordination",
+      "forbiddenDescription": "L'autorisation coordination:manage est requise. Les coordinateurs n'administrent pas ce panneau."
+    },
+    "backfill": {
+      "action": "Migrer les coordinateurs actuels",
+      "title": "Migrer les coordinateurs du champ",
+      "description": "Prend les utilisateurs avec un rôle de coordinateur et ce champ local, et crée au plus une assignation GENERAL. N'écrit ni zones ni sections.",
+      "loading": "Calcul des candidats…",
+      "existingGeneral": "Ce champ a déjà un coordinateur général actif.",
+      "willCreate": "{count} assignation GENERAL sera créée.",
+      "noneEligible": "Personne n'est éligible pour GENERAL dans ce champ.",
+      "skipped": "{count} ignorés",
+      "cancel": "Annuler",
+      "confirm": "Créer l'assignation",
+      "applied": "{count} assignation GENERAL créée.",
+      "nothingToApply": "Rien à migrer.",
+      "reasons": {
+        "alreadyHasGeneral": "est déjà le coordinateur général",
+        "alreadyAssigned": "a déjà une assignation dans ce champ",
+        "directorConflict": "est directeur d'une section du champ",
+        "generalSlotTaken": "le créneau GENERAL est déjà pris"
+      }
     }
   },
   "catalogs": {
