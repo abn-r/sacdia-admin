@@ -1836,7 +1836,8 @@
       },
       "version": {
         "v1": "Vista bento",
-        "v2": "Vista ejecutiva"
+        "v2": "Vista ejecutiva",
+        "switchLabel": "Vista del panorama"
       },
       "v2": {
         "title": "Panorama ejecutivo",

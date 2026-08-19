@@ -1829,7 +1829,8 @@
       },
       "version": {
         "v1": "Visão bento",
-        "v2": "Visão executiva"
+        "v2": "Visão executiva",
+        "switchLabel": "Visão do panorama"
       },
       "v2": {
         "title": "Panorama executivo",

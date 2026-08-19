@@ -16,12 +16,30 @@ export async function DashboardVersionSwitch({ query, active }: DashboardVersion
   const t = await getTranslations("dashboardHub.operations.version");
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <Button variant={active === "v1" ? "default" : "outline"} size="sm" asChild>
-        <Link href={buildDashboardHref(query)}>{t("v1")}</Link>
+    <div
+      className="inline-flex items-center rounded-4xl bg-muted p-[3px]"
+      role="group"
+      aria-label={t("switchLabel")}
+    >
+      <Button
+        variant={active === "v1" ? "default" : "ghost"}
+        size="sm"
+        className="rounded-4xl"
+        asChild
+      >
+        <Link href={buildDashboardHref(query)} aria-current={active === "v1" ? "page" : undefined}>
+          {t("v1")}
+        </Link>
       </Button>
-      <Button variant={active === "v2" ? "default" : "outline"} size="sm" asChild>
-        <Link href={buildDashboardV2Href(query)}>{t("v2")}</Link>
+      <Button
+        variant={active === "v2" ? "default" : "ghost"}
+        size="sm"
+        className="rounded-4xl"
+        asChild
+      >
+        <Link href={buildDashboardV2Href(query)} aria-current={active === "v2" ? "page" : undefined}>
+          {t("v2")}
+        </Link>
       </Button>
     </div>
   );

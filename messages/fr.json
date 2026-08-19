@@ -1829,7 +1829,8 @@
       },
       "version": {
         "v1": "Vue bento",
-        "v2": "Vue exécutive"
+        "v2": "Vue exécutive",
+        "switchLabel": "Vue du panorama"
       },
       "v2": {
         "title": "Vue exécutive",

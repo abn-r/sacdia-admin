@@ -1866,6 +1866,7 @@ export interface IntlMessages {
       version: {
         v1: string;
         v2: string;
+        switchLabel: string;
       };
       v2: {
         title: string;

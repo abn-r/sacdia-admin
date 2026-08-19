@@ -1830,7 +1830,8 @@
       },
       "version": {
         "v1": "Bento view",
-        "v2": "Executive view"
+        "v2": "Executive view",
+        "switchLabel": "Overview view"
       },
       "v2": {
         "title": "Executive overview",

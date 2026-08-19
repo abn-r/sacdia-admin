@@ -67,7 +67,7 @@ export function BentoSplitBar({
           return (
             <div
               key={segment.key}
-              className="h-full transition-all"
+              className="h-full"
               style={{
                 width: `${width}%`,
                 backgroundColor: segment.color ?? CHART_COLORS.primary,
@@ -98,7 +98,7 @@ export function BentoPillMeter({
           <div
             key={item.key}
             className={cn(
-              "w-2.5 rounded-full transition-all",
+              "w-2.5 rounded-full",
               filled ? "bg-[hsl(var(--chart-1))]" : "bg-muted/40",
             )}
             style={{ height }}

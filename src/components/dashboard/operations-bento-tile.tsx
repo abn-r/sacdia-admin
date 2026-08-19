@@ -1,100 +1,73 @@
 "use client";
 
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 interface OperationsBentoTileProps {
   title: string;
-  value: string;
-  subValue?: string;
-  subValueTone?: "default" | "positive" | "warning";
-  footer?: ReactNode;
-  visual?: ReactNode;
+  description?: string;
+  children?: ReactNode;
   className?: string;
   href?: string;
-  ariaLabel?: string;
+  hrefLabel?: string;
 }
 
 export function OperationsBentoTile({
   title,
-  value,
-  subValue,
-  subValueTone = "default",
-  footer,
-  visual,
+  description,
+  children,
   className,
   href,
-  ariaLabel,
+  hrefLabel,
 }: OperationsBentoTileProps) {
-  const action = (
-    <span
-      className="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted/60 text-muted-foreground ring-1 ring-foreground/5 transition-colors group-hover:bg-primary/10 group-hover:text-primary"
-      aria-hidden
-    >
-      <ArrowRight className="size-4" />
-    </span>
-  );
-
   return (
-    <article
-      className={cn(
-        "group relative flex h-full min-h-[220px] flex-col overflow-hidden rounded-3xl",
-        "border border-foreground/5 bg-gradient-to-br from-card via-card to-muted/15",
-        "p-5 shadow-sm ring-1 ring-foreground/5 sm:p-6",
-        "motion-reduce:transition-none transition-[transform,box-shadow] duration-200 ease-[var(--ease-out-expo)] [@media(hover:hover)_and_(pointer:fine)]:hover:-translate-y-0.5 [@media(hover:hover)_and_(pointer:fine)]:hover:shadow-md",
-        className,
-      )}
-      aria-label={ariaLabel ?? title}
-    >
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(var(--chart-1)/0.08),transparent_55%)]" />
-
-      <header className="relative z-10 flex items-start justify-between gap-3">
-        <p className="font-medium text-muted-foreground text-sm">{title}</p>
-        {href ? (
-          <a href={href} className="pointer-events-auto rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-            {action}
-          </a>
-        ) : (
-          action
-        )}
-      </header>
-
-      <div className="relative z-10 mt-4 flex flex-1 flex-col">
-        <p className="font-semibold text-3xl text-foreground tracking-tight tabular-nums sm:text-4xl">
-          {value}
-        </p>
-        {subValue ? (
-          <p
-            className={cn(
-              "mt-2 text-sm tabular-nums",
-              subValueTone === "positive" && "text-[hsl(var(--chart-2))]",
-              subValueTone === "warning" && "text-destructive",
-              subValueTone === "default" && "text-muted-foreground",
-            )}
-          >
-            {subValue}
-          </p>
-        ) : null}
-        {footer ? <div className="mt-2 text-muted-foreground text-xs">{footer}</div> : null}
-
-        {visual ? <div className="mt-auto pt-4">{visual}</div> : null}
-      </div>
-    </article>
+    <Card size="sm" className={cn("h-auto gap-3 py-4", className)} aria-label={title}>
+      <CardHeader className="gap-1">
+        <div className="flex items-start justify-between gap-3">
+          <CardTitle className="text-sm">{title}</CardTitle>
+          {href ? (
+            <Button variant="ghost" size="icon-xs" className="shrink-0" asChild>
+              <Link href={href} aria-label={hrefLabel ?? title}>
+                <ArrowRight />
+              </Link>
+            </Button>
+          ) : null}
+        </div>
+        {description ? <CardDescription className="text-xs">{description}</CardDescription> : null}
+      </CardHeader>
+      {children ? <CardContent className="space-y-3">{children}</CardContent> : null}
+    </Card>
   );
 }
 
-interface OperationsBentoMetricProps {
+interface OperationsStatRowProps {
   label: string;
   value: string;
+  tone?: "default" | "warning";
   className?: string;
 }
 
-export function OperationsBentoMetric({ label, value, className }: OperationsBentoMetricProps) {
+export function OperationsStatRow({
+  label,
+  value,
+  tone = "default",
+  className,
+}: OperationsStatRowProps) {
   return (
-    <div className={cn("min-w-0", className)}>
-      <p className="text-[11px] text-muted-foreground uppercase tracking-wide">{label}</p>
-      <p className="mt-1 font-semibold text-lg tabular-nums">{value}</p>
+    <div className={cn("flex items-center justify-between gap-3 text-sm", className)}>
+      <span className="min-w-0 truncate text-muted-foreground">{label}</span>
+      <span
+        className={cn(
+          "shrink-0 font-medium tabular-nums",
+          tone === "warning" && "text-destructive",
+        )}
+      >
+        {value}
+      </span>
     </div>
   );
 }

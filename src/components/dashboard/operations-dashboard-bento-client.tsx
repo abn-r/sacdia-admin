@@ -2,43 +2,41 @@
 
 import { ClassEnrollmentsChart } from "@/components/dashboard/class-enrollments-chart";
 import {
-  BentoAreaSparkline,
   BentoBarChart,
   BentoDonut,
-  BentoPillMeter,
   BentoSplitBar,
 } from "@/components/dashboard/operations-bento-mini-charts";
 import {
-  OperationsBentoMetric,
   OperationsBentoTile,
+  OperationsStatRow,
 } from "@/components/dashboard/operations-bento-tile";
 import type { ClassBreakdownItem, DashboardMetrics } from "@/lib/api/operations-dashboard";
 
 export type OperationsBentoLabels = {
-  operationTitle: string;
-  operationSub: string;
-  adminTitle: string;
-  adminActive: string;
-  adminInactive: string;
   reportsTitle: string;
-  reportsPeriod: string;
-  reportsNoMonth: string;
+  reportsDescription: string;
   peopleTitle: string;
+  peopleDescription: string;
   peoplePlatformActive: string;
   peoplePlatformInactive: string;
   queuesTitle: string;
-  queuesFooter: string;
+  queuesDescription: string;
+  queueRoles: string;
+  queueTransfers: string;
+  queueClasses: string;
+  queueHonors: string;
+  queueFolders: string;
   honorsTitle: string;
   honorsInProgress: string;
   honorsPending: string;
   honorsApproved: string;
   honorsUnavailable: string;
   activitiesTitle: string;
+  activitiesDescription: string;
   activitiesJoint: string;
   activitiesSections: string;
   formationTitle: string;
-  formationEnrollments: string;
-  formationPeople: string;
+  formationDescription: string;
   chartSubmitted: string;
   chartDraft: string;
   chartGenerated: string;
@@ -54,17 +52,8 @@ export interface OperationsDashboardBentoClientProps {
   classItems: ClassBreakdownItem[];
   labels: OperationsBentoLabels;
   formatted: {
-    operationalClubs: string;
-    operationalSections: string;
-    operationalRate: string;
-    nonOperationalClubs: string;
-    adminTotal: string;
-    adminActive: string;
-    adminInactive: string;
-    institutionalActive: string;
     platformActive: string;
     platformInactive: string;
-    coverage: string;
     expected: string;
     submitted: string;
     draft: string;
@@ -81,27 +70,17 @@ export interface OperationsDashboardBentoClientProps {
     activitiesRegistered: string;
     activitiesJoint: string;
     activitiesSections: string;
-    totalEnrollments: string;
-    distinctPeople: string;
   };
-  reportingMonthLabel: string | null;
   honorsUnavailable: boolean;
-};
+}
 
 export function OperationsDashboardBentoClient({
   summary,
   classItems,
   labels,
   formatted,
-  reportingMonthLabel,
   honorsUnavailable,
 }: OperationsDashboardBentoClientProps) {
-  const operationSpark = [
-    { label: "operational", value: summary.operations.operational_clubs },
-    { label: "nonOperational", value: summary.operations.non_operational_clubs },
-    { label: "sections", value: summary.operations.operational_sections },
-  ];
-
   const reportBars = [
     { key: "submitted", label: labels.chartSubmitted, value: summary.monthly_reports.submitted_sections },
     { key: "draft", label: labels.chartDraft, value: summary.monthly_reports.draft_sections },
@@ -116,12 +95,12 @@ export function OperationsDashboardBentoClient({
     { key: "sections", label: labels.chartSections, value: summary.activities.distinct_participating_sections },
   ];
 
-  const queuePills = [
-    { key: "roles", value: summary.queues.role_assignments_pending },
-    { key: "transfers", value: summary.queues.transfers_pending },
-    { key: "classes", value: summary.queues.class_validations_pending },
-    { key: "honors", value: summary.queues.honors_review_pending ?? 0 },
-    { key: "folders", value: summary.queues.annual_folders_pending_union },
+  const queueRows = [
+    { key: "roles", label: labels.queueRoles, value: formatted.roleAssignments, raw: summary.queues.role_assignments_pending },
+    { key: "transfers", label: labels.queueTransfers, value: formatted.transfers, raw: summary.queues.transfers_pending },
+    { key: "classes", label: labels.queueClasses, value: formatted.classValidations, raw: summary.queues.class_validations_pending },
+    { key: "honors", label: labels.queueHonors, value: formatted.honorsReview, raw: summary.queues.honors_review_pending ?? 0 },
+    { key: "folders", label: labels.queueFolders, value: formatted.annualFolders, raw: summary.queues.annual_folders_pending_union },
   ];
 
   const honorsSegments = honorsUnavailable
@@ -150,165 +129,105 @@ export function OperationsDashboardBentoClient({
   return (
     <div
       data-bento-grid="operations-dashboard"
-      className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 xl:auto-rows-fr"
+      className="grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3"
     >
-      {/* Fila 1: pequeño · pequeño · ancho */}
       <OperationsBentoTile
-        className="sm:col-span-1 xl:col-span-1"
-        title={labels.operationTitle}
-        value={formatted.operationalClubs}
-        subValue={`${formatted.operationalSections} · ${formatted.operationalRate}`}
-        subValueTone="positive"
-        footer={labels.operationSub}
-        visual={<BentoAreaSparkline points={operationSpark} />}
-      />
-
-      <OperationsBentoTile
-        className="sm:col-span-1 xl:col-span-1"
-        title={labels.adminTitle}
-        value={formatted.adminTotal}
-        subValue={`${formatted.adminActive} / ${formatted.adminInactive}`}
-        visual={
-          <BentoSplitBar
-            segments={[
-              {
-                key: "active",
-                label: labels.adminActive,
-                value: summary.administrative_clubs.active,
-                color: "hsl(var(--chart-1))",
-              },
-              {
-                key: "inactive",
-                label: labels.adminInactive,
-                value: summary.administrative_clubs.inactive,
-                color: "hsl(var(--muted-foreground) / 0.35)",
-              },
-            ]}
-          />
-        }
-      />
-
-      <OperationsBentoTile
-        className="sm:col-span-2 xl:col-span-2"
+        className="xl:col-span-2"
         title={labels.reportsTitle}
-        value={formatted.coverage}
-        subValue={
-          reportingMonthLabel
-            ? `${labels.reportsPeriod}: ${reportingMonthLabel}`
-            : labels.reportsNoMonth
-        }
-        footer={`${formatted.submitted} / ${formatted.expected}`}
-        visual={
-          <BentoBarChart
-            items={reportBars}
-            highlightKey={summary.monthly_reports.missing_sections > 0 ? "missing" : "submitted"}
-          />
-        }
-      />
-
-      {/* Fila 2: pequeño · pequeño · ancho */}
-      <OperationsBentoTile
-        className="sm:col-span-1 xl:col-span-1"
-        title={labels.peopleTitle}
-        value={formatted.institutionalActive}
-        subValue={`${labels.peoplePlatformActive} ${formatted.platformActive}`}
-        footer={`${labels.peoplePlatformInactive} ${formatted.platformInactive}`}
-        visual={
-          <BentoDonut
-            segments={[
-              {
-                key: "active",
-                label: labels.peoplePlatformActive,
-                value: summary.people.platform_accounts.active,
-                color: "hsl(var(--chart-1))",
-              },
-              {
-                key: "inactive",
-                label: labels.peoplePlatformInactive,
-                value: summary.people.platform_accounts.inactive,
-                color: "hsl(var(--muted-foreground) / 0.35)",
-              },
-            ]}
-          />
-        }
-      />
-
-      <OperationsBentoTile
-        className="sm:col-span-1 xl:col-span-1"
-        title={labels.queuesTitle}
-        value={formatted.roleAssignments}
-        subValue={`${labels.queuesFooter}: ${formatted.transfers}`}
-        subValueTone={
-          summary.queues.role_assignments_pending > 0 ? "warning" : "default"
-        }
-        visual={<BentoPillMeter items={queuePills} />}
-        footer={`${formatted.classValidations} · ${formatted.honorsReview} · ${formatted.annualFolders}`}
-      />
-
-      <OperationsBentoTile
-        className="sm:col-span-2 xl:col-span-2"
-        title={labels.formationTitle}
-        value={formatted.totalEnrollments}
-        subValue={`${labels.formationPeople}: ${formatted.distinctPeople}`}
-        visual={
-          <div className="rounded-2xl bg-muted/15 p-3 ring-1 ring-foreground/5">
-            <ClassEnrollmentsChart items={classItems} />
-          </div>
-        }
-      />
-
-      {/* Fila 3: complementos */}
-      <OperationsBentoTile
-        className="sm:col-span-1 xl:col-span-1"
-        title={labels.honorsTitle}
-        value={honorsUnavailable ? "—" : formatted.honorsApproved}
-        subValue={honorsUnavailable ? labels.honorsUnavailable : formatted.honorsPending}
-        visual={
-          honorsUnavailable ? null : (
-            <BentoDonut segments={honorsSegments} />
-          )
-        }
-      />
-
-      <OperationsBentoTile
-        className="sm:col-span-1 xl:col-span-1"
-        title={labels.activitiesTitle}
-        value={formatted.activitiesRegistered}
-        subValue={`${labels.activitiesJoint}: ${formatted.activitiesJoint}`}
-        footer={`${labels.activitiesSections}: ${formatted.activitiesSections}`}
-        visual={<BentoBarChart items={activityBars} highlightKey="registered" />}
-      />
-
-      <article
-        className="flex h-full min-h-[220px] flex-col gap-4 rounded-3xl border border-foreground/5 bg-gradient-to-br from-card via-card to-muted/15 p-5 ring-1 ring-foreground/5 sm:col-span-2 sm:p-6 xl:col-span-2"
+        description={labels.reportsDescription}
       >
-        <header>
-          <p className="font-medium text-muted-foreground text-sm">{labels.operationTitle}</p>
-          <p className="mt-1 text-muted-foreground text-xs">{labels.operationSub}</p>
-        </header>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <OperationsBentoMetric label={labels.adminActive} value={formatted.adminActive} />
-          <OperationsBentoMetric label={labels.adminInactive} value={formatted.adminInactive} />
-          <OperationsBentoMetric label={labels.reportsTitle} value={formatted.missing} />
-          <OperationsBentoMetric label={labels.formationEnrollments} value={formatted.distinctPeople} />
+        <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 sm:grid-cols-4">
+          <OperationsStatRow label={labels.chartSubmitted} value={formatted.submitted} />
+          <OperationsStatRow label={labels.chartDraft} value={formatted.draft} />
+          <OperationsStatRow label={labels.chartGenerated} value={formatted.generated} />
+          <OperationsStatRow
+            label={labels.chartMissing}
+            value={formatted.missing}
+            tone={summary.monthly_reports.missing_sections > 0 ? "warning" : "default"}
+          />
         </div>
+        <BentoBarChart
+          items={reportBars}
+          highlightKey={summary.monthly_reports.missing_sections > 0 ? "missing" : "submitted"}
+        />
+      </OperationsBentoTile>
+
+      <OperationsBentoTile title={labels.queuesTitle} description={labels.queuesDescription}>
+        <ul className="space-y-1.5">
+          {queueRows.map((row) => (
+            <li key={row.key}>
+              <OperationsStatRow
+                label={row.label}
+                value={row.value}
+                tone={row.raw > 0 ? "warning" : "default"}
+              />
+            </li>
+          ))}
+        </ul>
+      </OperationsBentoTile>
+
+      <OperationsBentoTile title={labels.peopleTitle} description={labels.peopleDescription}>
         <BentoSplitBar
           segments={[
             {
-              key: "operational",
-              label: labels.operationTitle,
-              value: summary.operations.operational_clubs,
-              color: "hsl(var(--chart-2))",
+              key: "active",
+              label: labels.peoplePlatformActive,
+              value: summary.people.platform_accounts.active,
+              color: "hsl(var(--chart-1))",
             },
             {
-              key: "nonOperational",
-              label: labels.adminInactive,
-              value: summary.operations.non_operational_clubs,
+              key: "inactive",
+              label: labels.peoplePlatformInactive,
+              value: summary.people.platform_accounts.inactive,
               color: "hsl(var(--muted-foreground) / 0.35)",
             },
           ]}
         />
-      </article>
+        <div className="space-y-1.5">
+          <OperationsStatRow label={labels.peoplePlatformActive} value={formatted.platformActive} />
+          <OperationsStatRow
+            label={labels.peoplePlatformInactive}
+            value={formatted.platformInactive}
+            tone={summary.people.platform_accounts.inactive > 0 ? "warning" : "default"}
+          />
+        </div>
+      </OperationsBentoTile>
+
+      <OperationsBentoTile
+        className="xl:col-span-2"
+        title={labels.formationTitle}
+        description={labels.formationDescription}
+      >
+        <ClassEnrollmentsChart items={classItems} compact showTable={false} />
+      </OperationsBentoTile>
+
+      <OperationsBentoTile title={labels.honorsTitle}>
+        {honorsUnavailable ? (
+          <p className="text-muted-foreground text-sm">{labels.honorsUnavailable}</p>
+        ) : (
+          <>
+            <div className="space-y-1.5">
+              <OperationsStatRow label={labels.honorsInProgress} value={formatted.honorsInProgress} />
+              <OperationsStatRow label={labels.honorsPending} value={formatted.honorsPending} />
+              <OperationsStatRow label={labels.honorsApproved} value={formatted.honorsApproved} />
+            </div>
+            <BentoDonut segments={honorsSegments} />
+          </>
+        )}
+      </OperationsBentoTile>
+
+      <OperationsBentoTile
+        className="xl:col-span-2"
+        title={labels.activitiesTitle}
+        description={labels.activitiesDescription}
+      >
+        <div className="grid grid-cols-3 gap-3">
+          <OperationsStatRow label={labels.chartRegistered} value={formatted.activitiesRegistered} />
+          <OperationsStatRow label={labels.activitiesJoint} value={formatted.activitiesJoint} />
+          <OperationsStatRow label={labels.activitiesSections} value={formatted.activitiesSections} />
+        </div>
+        <BentoBarChart items={activityBars} highlightKey="registered" />
+      </OperationsBentoTile>
     </div>
   );
 }
