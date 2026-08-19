@@ -28,7 +28,8 @@ const PhaseECatalogCrudPage = dynamic(
 import { ApiError } from "@/lib/api/client";
 import { listAdminActivityTypes } from "@/lib/api/generic-catalogs-i18n";
 import { extractItems, extractMeta, readParam, readPositiveNumberParam } from "@/lib/phase-e-catalogs/fetch-helpers";
-import { requireAdminUser } from "@/lib/auth/session";
+import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
+import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
 import { hasAnyPermission } from "@/lib/auth/permission-utils";
 import {
   ACTIVITY_TYPES_CREATE,
@@ -47,7 +48,10 @@ import {
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 export default async function ActivityTypesPage({ searchParams }: { searchParams: SearchParams }) {
-  const user = await requireAdminUser();
+  const { user, allowed } = await loadCatalogEditorSession();
+  if (!allowed) {
+    return <CatalogEditorForbidden />;
+  }
   const t = await getTranslations("catalogs.pages.activityTypes");
   const raw = await searchParams;
 

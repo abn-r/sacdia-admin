@@ -16,7 +16,8 @@ import {
   HONOR_CATEGORIES_READ,
   HONOR_CATEGORIES_UPDATE,
 } from "@/lib/auth/permissions";
-import { requireAdminUser } from "@/lib/auth/session";
+import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
+import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
 import {
   normalizeHonorCategoryRow,
   type AdminHonorCategoryRow,
@@ -31,7 +32,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HonorCategoriesPage() {
-  const user = await requireAdminUser();
+  const { user, allowed } = await loadCatalogEditorSession();
+  if (!allowed) {
+    return <CatalogEditorForbidden />;
+  }
   const t = await getTranslations("catalogs");
 
   let categories: AdminHonorCategoryRow[] = [];

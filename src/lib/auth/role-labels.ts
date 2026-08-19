@@ -3,6 +3,7 @@ import { useTranslations } from "next-intl";
 const KNOWN_ROLE_KEYS = new Set([
   "super_admin",
   "admin",
+  "assistant_admin",
   "coordinator",
   "zone_coordinator",
   "general_coordinator",
@@ -23,6 +24,7 @@ const KNOWN_ROLE_KEYS = new Set([
   "secretary",
   "treasurer",
   "counselor",
+  "secretary_treasurer",
 ]);
 
 export function roleToI18nKey(roleName: string): string {

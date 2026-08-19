@@ -15,7 +15,8 @@ import {
   CLUB_IDEALS_DELETE,
   CLUB_IDEALS_UPDATE,
 } from "@/lib/auth/permissions";
-import { requireAdminUser } from "@/lib/auth/session";
+import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
+import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
 import type { AdminClubIdealRow } from "@/lib/catalogs/club-ideals/types";
 import type { AdminClubType } from "@/lib/catalogs/club-types/types";
 import { sortClubIdealsByTypeAndOrder } from "@/lib/catalogs/club-ideals/sort";
@@ -46,7 +47,10 @@ function enrichClubIdeals(
 }
 
 export default async function ClubIdealsPage() {
-  const user = await requireAdminUser();
+  const { user, allowed } = await loadCatalogEditorSession();
+  if (!allowed) {
+    return <CatalogEditorForbidden />;
+  }
   const t = await getTranslations("catalogs");
 
   let clubIdeals: AdminClubIdealRow[] = [];

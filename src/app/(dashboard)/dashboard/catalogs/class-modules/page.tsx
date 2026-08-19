@@ -34,7 +34,8 @@ import {
   sortClubTypesForDisplay,
 } from "@/lib/catalogs/club-ideals/sort";
 import { extractItems, extractMeta, readParam, readPositiveNumberParam } from "@/lib/phase-e-catalogs/fetch-helpers";
-import { requireAdminUser } from "@/lib/auth/session";
+import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
+import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
 import { hasAnyPermission } from "@/lib/auth/permission-utils";
 import { CATALOGS_CREATE, CATALOGS_UPDATE, CATALOGS_DELETE, CLASS_MODULES_MANAGE } from "@/lib/auth/permissions";
 import {
@@ -53,7 +54,10 @@ function readClassId(item: Record<string, unknown>): number | null {
 
 export default async function AdminClassModulesPage({ searchParams }: { searchParams: SearchParams }) {
   const t = await getTranslations("catalogs.pages.classModules");
-  const user = await requireAdminUser();
+  const { user, allowed } = await loadCatalogEditorSession();
+  if (!allowed) {
+    return <CatalogEditorForbidden />;
+  }
   const raw = await searchParams;
 
   const page = readPositiveNumberParam(raw, "page") ?? 1;

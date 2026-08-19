@@ -1133,6 +1133,10 @@ export interface IntlMessages {
       summaryGroupCount: string;
       summaryMinimumTotal: string;
     };
+    gate: {
+      forbiddenTitle: string;
+      forbiddenDescription: string;
+    };
   };
   auth: {
     login: {
@@ -2341,6 +2345,7 @@ export interface IntlMessages {
       emptyDescription: string;
       colId: string;
       colKey: string;
+      colName: string;
       colDescription: string;
       colStatus: string;
       colActions: string;
@@ -2370,6 +2375,30 @@ export interface IntlMessages {
     rolesTable: {
       editProtectedAriaLabel: string;
       editRoleAriaLabel: string;
+    };
+    copyPermissions: {
+      button: string;
+      dialogTitle: string;
+      dialogDescription: string;
+      sourceLabel: string;
+      targetLabel: string;
+      sourcePlaceholder: string;
+      targetPlaceholder: string;
+      confirm: string;
+      cancel: string;
+      copying: string;
+      preview: string;
+      previewEmpty: string;
+      categoryMismatch: string;
+      same_role: string;
+      source_protected: string;
+      target_protected: string;
+      source_missing: string;
+      target_missing: string;
+      forbidden: string;
+      error: string;
+      success: string;
+      successToast: string;
     };
     permissionPicker: {
       searchPlaceholder: string;
@@ -2492,6 +2521,55 @@ export interface IntlMessages {
       notifications: string;
       resources: string;
       system: string;
+      achievements: string;
+      activity_types: string;
+      allergies: string;
+      attendance: string;
+      award_categories: string;
+      camporee_event_types: string;
+      camporee_events: string;
+      certifications: string;
+      churches: string;
+      class_modules: string;
+      class_sections: string;
+      classes: string;
+      club_ideals: string;
+      club_members: string;
+      club_roles: string;
+      club_sections: string;
+      club_types: string;
+      coordination: string;
+      countries: string;
+      dashboard: string;
+      diseases: string;
+      districts: string;
+      ecclesiastical_years: string;
+      emergency_contacts: string;
+      "field-payment-orders": string;
+      finance_categories: string;
+      health: string;
+      honor_categories: string;
+      honors: string;
+      insurance: string;
+      inventory_categories: string;
+      legal_representative: string;
+      local_fields: string;
+      master_honors: string;
+      materiales: string;
+      medicines: string;
+      member_ranking_weights: string;
+      member_rankings: string;
+      mom: string;
+      permissions: string;
+      post_registration: string;
+      ranking_weights: string;
+      rankings: string;
+      registration: string;
+      relationship_types: string;
+      resource_categories: string;
+      section_rankings: string;
+      unions: string;
+      user_honors: string;
       certifications_admin: string;
     };
     permissions: {
@@ -2520,9 +2598,6 @@ export interface IntlMessages {
       "club_roles:read": string;
       "club_roles:assign": string;
       "club_roles:revoke": string;
-      coordination: {
-        manage: string;
-      };
       "coordination:manage": string;
       "club_members:approve": string;
       "club_members:reject": string;
@@ -2640,6 +2715,61 @@ export interface IntlMessages {
       "ecclesiastical_years:update": string;
       "certifications:configure": string;
       "certifications:publish": string;
+      "activity_types:read": string;
+      "activity_types:create": string;
+      "activity_types:update": string;
+      "activity_types:delete": string;
+      "allergies:read": string;
+      "allergies:create": string;
+      "allergies:update": string;
+      "allergies:delete": string;
+      "camporee_event_types:read": string;
+      "camporee_event_types:create": string;
+      "camporee_event_types:update": string;
+      "camporee_event_types:delete": string;
+      "camporee_events:create": string;
+      "camporee_events:update": string;
+      "camporee_events:delete": string;
+      "certifications:review": string;
+      "certifications:certify": string;
+      "club_ideals:read": string;
+      "club_ideals:create": string;
+      "club_ideals:update": string;
+      "club_ideals:delete": string;
+      "club_types:read": string;
+      "club_types:create": string;
+      "club_types:update": string;
+      "club_types:delete": string;
+      "diseases:read": string;
+      "diseases:create": string;
+      "diseases:update": string;
+      "diseases:delete": string;
+      "districts:read": string;
+      "districts:create": string;
+      "districts:update": string;
+      "districts:delete": string;
+      "field-payment-orders:read": string;
+      "field-payment-orders:review": string;
+      "field-payment-orders:configure": string;
+      "insurance:read": string;
+      "insurance:review": string;
+      "insurance:configure": string;
+      "materiales:read": string;
+      "materiales:create": string;
+      "materiales:configure": string;
+      "materiales:approve": string;
+      "materiales:deliver": string;
+      "materiales:manage-inventory": string;
+      "materiales:upload-receipt": string;
+      "materiales:validate-receipt": string;
+      "medicines:read": string;
+      "medicines:create": string;
+      "medicines:update": string;
+      "medicines:delete": string;
+      "relationship_types:read": string;
+      "relationship_types:create": string;
+      "relationship_types:update": string;
+      "relationship_types:delete": string;
     };
     userPermissionsPanel: {
       title: string;
@@ -7266,6 +7396,7 @@ export interface IntlMessages {
     treasurer: string;
     counselor: string;
     secretary_treasurer: string;
+    assistant_admin: string;
   };
   certificate_bulk_imports: {
     page: {

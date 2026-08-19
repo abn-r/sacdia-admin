@@ -59,8 +59,13 @@ import {
   CERTIFICATIONS_REVIEW,
   VALIDATION_READ,
 } from "@/lib/auth/permissions";
+import { CATALOG_EDITOR_ROLES } from "@/lib/auth/catalog-editor-access";
 
 import type { NavAccess } from "./nav-access";
+
+function catalogEditorAccess(permissions: string[]): NavAccess {
+  return { permissions, roles: [...CATALOG_EDITOR_ROLES] };
+}
 
 /**
  * Permission gates for sidebar leaf items (keyed by nav item id).
@@ -177,46 +182,51 @@ export const NAV_ITEM_ACCESS: Record<string, NavAccess> = {
     permissions: [NOTIFICATIONS_SEND, NOTIFICATIONS_BROADCAST],
   },
 
-  "catalogs-divisions": { permissions: [UNIONS_READ, COUNTRIES_READ] },
-  "catalogs-countries": { permissions: [COUNTRIES_READ] },
-  "catalogs-unions": { permissions: [UNIONS_READ] },
-  "catalogs-local-fields": { permissions: [LOCAL_FIELDS_READ] },
-  "catalogs-districts": { permissions: [DISTRICTS_READ] },
-  "catalogs-churches": { permissions: [CHURCHES_READ] },
+  "catalogs-divisions": catalogEditorAccess([UNIONS_READ, COUNTRIES_READ]),
+  "catalogs-countries": catalogEditorAccess([COUNTRIES_READ]),
+  "catalogs-unions": catalogEditorAccess([UNIONS_READ]),
+  "catalogs-local-fields": catalogEditorAccess([LOCAL_FIELDS_READ]),
+  "catalogs-districts": catalogEditorAccess([DISTRICTS_READ]),
+  "catalogs-churches": catalogEditorAccess([CHURCHES_READ]),
 
-  "catalogs-club-ideals": { permissions: [CLUB_IDEALS_READ] },
-  "catalogs-club-types": { permissions: [CLUB_TYPES_READ] },
-  "catalogs-classes": { permissions: [CLASSES_READ, CLASSES_MANAGE] },
-  "catalogs-class-modules": { permissions: [CLASS_MODULES_MANAGE] },
-  "catalogs-class-sections": { permissions: [CLASS_SECTIONS_MANAGE] },
+  "catalogs-club-ideals": catalogEditorAccess([CLUB_IDEALS_READ]),
+  "catalogs-club-types": catalogEditorAccess([CLUB_TYPES_READ]),
+  "catalogs-classes": catalogEditorAccess([CLASSES_READ, CLASSES_MANAGE]),
+  "catalogs-class-modules": catalogEditorAccess([CLASS_MODULES_MANAGE]),
+  "catalogs-class-sections": catalogEditorAccess([CLASS_SECTIONS_MANAGE]),
   "catalogs-certifications": {
     permissions: [CATALOGS_READ, USER_CERTIFICATIONS_READ],
   },
-  "catalogs-activity-types": {
-    permissions: [ACTIVITY_TYPES_READ, CATALOGS_READ],
-  },
-  "catalogs-ecclesiastical-years": {
-    permissions: [ECCLESIASTICAL_YEARS_READ, CATALOGS_READ],
-  },
-  "catalogs-allergies": { permissions: [ALLERGIES_READ, CATALOGS_READ] },
-  "catalogs-diseases": { permissions: [DISEASES_READ, CATALOGS_READ] },
-  "catalogs-medicines": { permissions: [MEDICINES_READ, CATALOGS_READ] },
-  "catalogs-relationship-types": {
-    permissions: [RELATIONSHIP_TYPES_READ, CATALOGS_READ],
-  },
-  "catalogs-finance-categories": {
-    permissions: [FINANCE_CATEGORIES_MANAGE, CATALOGS_READ],
-  },
-  "catalogs-inventory-categories": {
-    permissions: [INVENTORY_CATEGORIES_MANAGE, CATALOGS_READ],
-  },
+  "catalogs-activity-types": catalogEditorAccess([
+    ACTIVITY_TYPES_READ,
+    CATALOGS_READ,
+  ]),
+  "catalogs-ecclesiastical-years": catalogEditorAccess([
+    ECCLESIASTICAL_YEARS_READ,
+    CATALOGS_READ,
+  ]),
+  "catalogs-allergies": catalogEditorAccess([ALLERGIES_READ, CATALOGS_READ]),
+  "catalogs-diseases": catalogEditorAccess([DISEASES_READ, CATALOGS_READ]),
+  "catalogs-medicines": catalogEditorAccess([MEDICINES_READ, CATALOGS_READ]),
+  "catalogs-relationship-types": catalogEditorAccess([
+    RELATIONSHIP_TYPES_READ,
+    CATALOGS_READ,
+  ]),
+  "catalogs-finance-categories": catalogEditorAccess([
+    FINANCE_CATEGORIES_MANAGE,
+    CATALOGS_READ,
+  ]),
+  "catalogs-inventory-categories": catalogEditorAccess([
+    INVENTORY_CATEGORIES_MANAGE,
+    CATALOGS_READ,
+  ]),
 
-  "catalogs-honor-categories": { permissions: [HONOR_CATEGORIES_READ] },
-  "catalogs-honors": { permissions: [HONORS_READ] },
+  "catalogs-honor-categories": catalogEditorAccess([HONOR_CATEGORIES_READ]),
+  "catalogs-honors": catalogEditorAccess([HONORS_READ]),
 
-  "catalogs-camporee-event-types": {
-    permissions: [CAMPOREE_EVENT_TYPES_READ],
-  },
+  "catalogs-camporee-event-types": catalogEditorAccess([
+    CAMPOREE_EVENT_TYPES_READ,
+  ]),
 
   "admin-local-field-payment-methods": {
     permissions: [MATERIALS_CONFIGURE],

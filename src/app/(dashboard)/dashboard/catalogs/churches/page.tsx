@@ -17,7 +17,8 @@ import {
   DISTRICTS_DELETE,
   DISTRICTS_UPDATE,
 } from "@/lib/auth/permissions";
-import { requireAdminUser } from "@/lib/auth/session";
+import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
+import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
 import type { AdminChurchRow } from "@/lib/catalogs/churches/types";
 import type { AdminDistrict } from "@/lib/catalogs/districts/types";
 
@@ -44,7 +45,10 @@ function enrichChurches(
 }
 
 export default async function ChurchesPage() {
-  const user = await requireAdminUser();
+  const { user, allowed } = await loadCatalogEditorSession();
+  if (!allowed) {
+    return <CatalogEditorForbidden />;
+  }
   const t = await getTranslations("catalogs");
 
   let churches: AdminChurchRow[] = [];

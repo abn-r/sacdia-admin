@@ -27,6 +27,10 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { apiRequestFromClient } from "@/lib/api/client";
+import {
+  getPermissionLabel,
+  permissionMatchesQuery,
+} from "@/lib/auth/permissions";
 import type { Permission, UserPermission } from "@/lib/rbac/types";
 
 interface UserPermissionsPanelProps {
@@ -55,8 +59,7 @@ export function UserPermissionsPanel({
   );
 
   const filteredPermissions = availablePermissions.filter((p) =>
-    p.permission_name.toLowerCase().includes(search.toLowerCase()) ||
-    (p.description ?? "").toLowerCase().includes(search.toLowerCase()),
+    permissionMatchesQuery(t, p, search),
   );
 
   function handleOpenAddDialog() {
@@ -174,15 +177,17 @@ export function UserPermissionsPanel({
                 <Badge
                   key={up.user_permission_id}
                   variant="secondary"
-                  className="gap-1.5 pr-1 font-mono text-xs"
+                  className="gap-1.5 pr-1 text-xs"
                 >
-                  {up.permissions.permission_name}
+                  <span>{getPermissionLabel(t, up.permissions.permission_name)}</span>
                   <button
                     type="button"
                     onClick={() => setPermToRemove(up)}
                     disabled={isPending}
                     className="ml-0.5 rounded-sm opacity-60 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
-                    title={t("userPermissionsPanel.removePermission", { name: up.permissions.permission_name })}
+                    title={t("userPermissionsPanel.removePermission", {
+                      name: getPermissionLabel(t, up.permissions.permission_name),
+                    })}
                   >
                     <X className="size-3" />
                     <span className="sr-only">{t("userPermissionsPanel.removeSrOnly")}</span>
@@ -241,14 +246,12 @@ export function UserPermissionsPanel({
                       .filter(Boolean)
                       .join(" ")}
                   >
-                    <code className="font-mono text-xs font-medium">
+                    <span className="text-sm font-medium">
+                      {getPermissionLabel(t, perm.permission_name)}
+                    </span>
+                    <code className="font-mono text-xs text-muted-foreground">
                       {perm.permission_name}
                     </code>
-                    {perm.description && (
-                      <span className="text-xs text-muted-foreground">
-                        {perm.description}
-                      </span>
-                    )}
                   </button>
                 ))}
               </div>
@@ -289,7 +292,10 @@ export function UserPermissionsPanel({
               <AlertDialogTitle>{t("userPermissionsPanel.removeDialogTitle")}</AlertDialogTitle>
               <AlertDialogDescription>
                 {t("userPermissionsPanel.removeDialogDescription", {
-                  name: permToRemove.permissions.permission_name,
+                  name: getPermissionLabel(
+                    t,
+                    permToRemove.permissions.permission_name,
+                  ),
                 })}
               </AlertDialogDescription>
             </AlertDialogHeader>

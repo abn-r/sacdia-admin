@@ -30,7 +30,8 @@ import {
   extractClassModulesFromDetail,
   sortClassStructureModules,
 } from "@/lib/catalogs/classes/class-structure";
-import { requireAdminUser } from "@/lib/auth/session";
+import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
+import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
 import { hasAnyPermission } from "@/lib/auth/permission-utils";
 import { CATALOGS_CREATE, CATALOGS_DELETE, CLASSES_MANAGE } from "@/lib/auth/permissions";
 
@@ -49,7 +50,10 @@ function toText(value: unknown): string | null {
 }
 
 export default async function CatalogClassDetailPage({ params }: { params: Params }) {
-  const user = await requireAdminUser();
+  const { user, allowed } = await loadCatalogEditorSession();
+  if (!allowed) {
+    return <CatalogEditorForbidden />;
+  }
   const t = await getTranslations("classes.pages.detail");
   const statusT = await getTranslations("classes.status");
   const catalogT = await getTranslations("catalogs.pages.classes");

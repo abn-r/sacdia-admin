@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { CopyRolePermissionsDialog } from "@/components/rbac/copy-role-permissions-dialog";
 import { requireAdminUser } from "@/lib/auth/session";
 import { extractRoles, SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
 import { listRoles } from "@/lib/rbac/service";
@@ -55,12 +56,17 @@ export default async function ConfigurationRolesPage() {
         ]}
         actions={
           isSuperAdmin ? (
-            <Button asChild>
-              <Link href="/dashboard/configuration/roles/new">
-                <Plus className="size-4" />
-                {t("newRole")}
-              </Link>
-            </Button>
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              {!loadError && roles.length > 0 ? (
+                <CopyRolePermissionsDialog roles={roles} />
+              ) : null}
+              <Button asChild>
+                <Link href="/dashboard/configuration/roles/new">
+                  <Plus className="size-4" />
+                  {t("newRole")}
+                </Link>
+              </Button>
+            </div>
           ) : undefined
         }
       />

@@ -33,7 +33,8 @@ import {
   readParam,
   readPositiveNumberParam,
 } from "@/lib/phase-e-catalogs/fetch-helpers";
-import { requireAdminUser } from "@/lib/auth/session";
+import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
+import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
 import { hasAnyPermission } from "@/lib/auth/permission-utils";
 import {
   CAMPOREE_EVENT_TYPES_CREATE,
@@ -56,7 +57,10 @@ export default async function CamporeeEventTypesPage({
 }: {
   searchParams: SearchParams;
 }) {
-  const user = await requireAdminUser();
+  const { user, allowed } = await loadCatalogEditorSession();
+  if (!allowed) {
+    return <CatalogEditorForbidden />;
+  }
   const t = await getTranslations("catalogs.pages.camporeeEventTypes");
   const raw = await searchParams;
 

@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
-import { requireAdminUser } from "@/lib/auth/session";
+import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
+import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
 import { entityConfigs, type EntityKey } from "@/lib/catalogs/entities";
 import { listEntityItems, getSelectOptions } from "@/lib/catalogs/service";
 import {
@@ -15,7 +16,10 @@ interface CatalogEntityPageProps {
 }
 
 export async function CatalogEntityPage({ entityKey }: CatalogEntityPageProps) {
-  await requireAdminUser();
+  const { allowed } = await loadCatalogEditorSession();
+  if (!allowed) {
+    return <CatalogEditorForbidden />;
+  }
   const t = await getTranslations("catalogs");
 
   const config = entityConfigs[entityKey];

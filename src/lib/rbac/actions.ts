@@ -14,12 +14,41 @@ import {
   createRole,
   updateRole,
   deactivateRole,
+  getRoleWithPermissions,
 } from "@/lib/rbac/service";
 import { requireAdminUser } from "@/lib/auth/session";
+import { extractRoles, SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
+import {
+  activePermissionIds,
+  validateCopyRolePermissions,
+  type CopyRolePermissionsIssue,
+} from "@/lib/rbac/copy-role-permissions";
 
 const PERMISSIONS_PATH = "/dashboard/configuration/permissions";
 const ROLES_PATH = "/dashboard/configuration/roles";
 const MATRIX_PATH = "/dashboard/configuration/matrix";
+
+function copyIssueKey(
+  issue: CopyRolePermissionsIssue,
+):
+  | "copyPermissions.same_role"
+  | "copyPermissions.source_protected"
+  | "copyPermissions.target_protected"
+  | "copyPermissions.source_missing"
+  | "copyPermissions.target_missing" {
+  switch (issue) {
+    case "same_role":
+      return "copyPermissions.same_role";
+    case "source_protected":
+      return "copyPermissions.source_protected";
+    case "target_protected":
+      return "copyPermissions.target_protected";
+    case "source_missing":
+      return "copyPermissions.source_missing";
+    case "target_missing":
+      return "copyPermissions.target_missing";
+  }
+}
 
 export async function createPermissionAction(
   _: RbacActionState,
@@ -292,4 +321,45 @@ export async function toggleRolePermissionAction(
   revalidatePath(ROLES_PATH);
   revalidatePath(MATRIX_PATH);
   return { ok: true };
+}
+
+export async function copyRolePermissionsAction(
+  sourceRoleId: string,
+  targetRoleId: string,
+): Promise<RbacActionState> {
+  const user = await requireAdminUser();
+  const t = await getTranslations("rbac");
+
+  if (!extractRoles(user).includes(SUPER_ADMIN_ROLE)) {
+    return { error: t("copyPermissions.forbidden") };
+  }
+
+  if (!sourceRoleId || !targetRoleId) {
+    return { error: t("copyPermissions.error") };
+  }
+
+  try {
+    const [source, target] = await Promise.all([
+      getRoleWithPermissions(sourceRoleId),
+      getRoleWithPermissions(targetRoleId),
+    ]);
+
+    const issue = validateCopyRolePermissions(source, target);
+    if (issue || !source) {
+      return { error: t(copyIssueKey(issue ?? "source_missing")) };
+    }
+
+    const permissionIds = activePermissionIds(source);
+    await syncRolePermissions(targetRoleId, permissionIds);
+  } catch (error) {
+    return {
+      error: getActionErrorMessage(error, t("copyPermissions.error"), {
+        endpointLabel: `/rbac/roles/${targetRoleId}/permissions`,
+      }),
+    };
+  }
+
+  revalidatePath(ROLES_PATH);
+  revalidatePath(MATRIX_PATH);
+  return { ok: true, success: t("copyPermissions.success") };
 }

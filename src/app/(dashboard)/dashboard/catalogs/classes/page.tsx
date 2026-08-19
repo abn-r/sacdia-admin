@@ -31,7 +31,8 @@ import { listEcclesiasticalYears } from "@/lib/api/catalogs";
 import { listAdminClubTypes } from "@/lib/api/admin-club-types";
 import { sortClassesByClubTypeAndName, sortClubTypesForDisplay } from "@/lib/catalogs/club-ideals/sort";
 import { extractItems, extractMeta, readParam, readPositiveNumberParam } from "@/lib/phase-e-catalogs/fetch-helpers";
-import { requireAdminUser } from "@/lib/auth/session";
+import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
+import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
 import { hasAnyPermission } from "@/lib/auth/permission-utils";
 import { CATALOGS_CREATE, CATALOGS_UPDATE, CATALOGS_DELETE, CLASSES_MANAGE } from "@/lib/auth/permissions";
 import {
@@ -44,7 +45,10 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 export default async function AdminClassesPage({ searchParams }: { searchParams: SearchParams }) {
   const t = await getTranslations("catalogs.pages.classes");
-  const user = await requireAdminUser();
+  const { user, allowed } = await loadCatalogEditorSession();
+  if (!allowed) {
+    return <CatalogEditorForbidden />;
+  }
   const raw = await searchParams;
 
   const page = readPositiveNumberParam(raw, "page") ?? 1;

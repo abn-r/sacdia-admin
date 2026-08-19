@@ -516,9 +516,29 @@ export type PermissionKey = string;
 // i18n helpers — use these in all UI components instead of hardcoded strings
 // ═══════════════════════════════════════════════════════════════════════════
 
+type RbacTranslator = ((key: string) => string) & {
+  has?: (key: string) => boolean;
+};
+
+function readRbacMessage(t: RbacTranslator, key: string): string | null {
+  if (typeof t.has === "function" && !t.has(key)) {
+    return null;
+  }
+  try {
+    const label = t(key as Parameters<typeof t>[0]);
+    if (!label || label === key) {
+      return null;
+    }
+    return label;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Returns the localised label for a permission key.
  * Looks up `rbac.permissions.<key>` in the active locale.
+ * Messages store literal colon keys (`users:read`), not nested dots.
  * Falls back to the raw key string when no translation exists.
  *
  * @example
@@ -526,16 +546,16 @@ export type PermissionKey = string;
  *   getPermissionLabel(t, "clubs:read") // → "Ver clubes" (es)
  */
 export function getPermissionLabel(
-  t: (key: string) => string,
+  t: RbacTranslator,
   permissionKey: string,
 ): string {
-  // next-intl colon keys require dot notation for nested lookup
-  const safeKey = permissionKey.replace(":", ".");
-  try {
-    return t(`permissions.${safeKey}` as Parameters<typeof t>[0]);
-  } catch {
-    return permissionKey;
-  }
+  const colonKey = `permissions.${permissionKey}`;
+  const dottedKey = `permissions.${permissionKey.replaceAll(":", ".")}`;
+  return (
+    readRbacMessage(t, colonKey) ??
+    readRbacMessage(t, dottedKey) ??
+    permissionKey
+  );
 }
 
 /**
@@ -548,12 +568,31 @@ export function getPermissionLabel(
  *   getPermissionGroupLabel(t, "clubs") // → "Clubes" (es)
  */
 export function getPermissionGroupLabel(
-  t: (key: string) => string,
+  t: RbacTranslator,
   groupKey: string,
 ): string {
-  try {
-    return t(`permissionGroups.${groupKey}` as Parameters<typeof t>[0]);
-  } catch {
-    return groupKey;
-  }
+  return readRbacMessage(t, `permissionGroups.${groupKey}`) ?? groupKey;
+}
+
+export function permissionMatchesQuery(
+  t: RbacTranslator,
+  permission: {
+    permission_name: string;
+    description?: string | null;
+  },
+  query: string,
+): boolean {
+  const q = query.trim().toLowerCase();
+  if (!q) return true;
+  const label = getPermissionLabel(t, permission.permission_name).toLowerCase();
+  const name = permission.permission_name.toLowerCase();
+  const desc = (permission.description ?? "").toLowerCase();
+  const resource = permission.permission_name.split(":")[0] ?? "";
+  const group = getPermissionGroupLabel(t, resource).toLowerCase();
+  return (
+    label.includes(q) ||
+    name.includes(q) ||
+    desc.includes(q) ||
+    group.includes(q)
+  );
 }
