@@ -37,6 +37,7 @@ import { useTranslations } from "next-intl";
 import { createUnionCamporee, updateUnionCamporee } from "@/lib/api/camporees";
 import type { UnionCamporee } from "@/lib/api/camporees";
 import type { Union } from "@/lib/api/geography";
+import { CamporeeLocationFields } from "@/components/camporees/camporee-location-fields";
 
 // ─── Schema factory ────────────────────────────────────────────────────────────
 
@@ -248,15 +249,15 @@ export function UnionCamporeeFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>
             {isEdit ? t("unionForm.titleEdit") : t("unionForm.titleCreate")}
           </DialogTitle>
           <DialogDescription>
             {isEdit
-              ? "Modificá los datos del camporee de unión."
-              : "Completá el formulario para crear un nuevo camporee de unión."}
+              ? t("unionForm.descriptionEdit")
+              : t("unionForm.descriptionCreate")}
           </DialogDescription>
         </DialogHeader>
 
@@ -450,56 +451,34 @@ export function UnionCamporeeFormDialog({
             />
 
             {/* Coordenadas */}
-            <div className="grid grid-cols-2 gap-3">
-              <FormField
-                control={form.control}
-                name="lat"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("unionForm.labelLatitude")}</FormLabel>
-                    <FormControl>
-                      <Input
-                        name={field.name}
-                        ref={field.ref}
-                        onBlur={field.onBlur}
-                        value={field.value ?? ""}
-                        onChange={(e) => field.onChange(e.target.value)}
-                        type="number"
-                        step="0.000001"
-                        min={-90}
-                        max={90}
-                        placeholder="19.173800"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="long"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("unionForm.labelLongitude")}</FormLabel>
-                    <FormControl>
-                      <Input
-                        name={field.name}
-                        ref={field.ref}
-                        onBlur={field.onBlur}
-                        value={field.value ?? ""}
-                        onChange={(e) => field.onChange(e.target.value)}
-                        type="number"
-                        step="0.000001"
-                        min={-180}
-                        max={180}
-                        placeholder="-96.134200"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name="long"
+              render={() => (
+                <CamporeeLocationFields
+                  resetKey={
+                    isEdit
+                      ? String(camporee?.union_camporee_id ?? camporee?.id ?? "edit")
+                      : "new"
+                  }
+                  lat={form.watch("lat")}
+                  lng={form.watch("long")}
+                  place={form.watch("union_camporee_place")}
+                  label={t("unionForm.labelMap")}
+                  help={t("unionForm.helpMap")}
+                  onCoordinatesChange={({ lat, long }) => {
+                    form.setValue("lat", lat, { shouldValidate: true, shouldDirty: true });
+                    form.setValue("long", long, { shouldValidate: true, shouldDirty: true });
+                  }}
+                  onPlaceFill={(nextPlace) => {
+                    form.setValue("union_camporee_place", nextPlace, {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    });
+                  }}
+                />
+              )}
+            />
 
             {/* Costo de inscripción */}
             <FormField

@@ -44,6 +44,7 @@ import {
 } from "@/lib/api/insurance";
 import { ClubSelect } from "@/components/shared/selectors/club-select";
 import { MemberCombobox } from "@/components/units/member-combobox";
+import { formatCalendarDate } from "@/lib/format-locale";
 
 // ─── Schema ────────────────────────────────────────────────────────────────────
 
@@ -59,12 +60,7 @@ type FormValues = z.infer<typeof formSchema>;
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatDate(dateStr: string | null): string {
-  if (!dateStr) return "—";
-  return new Date(dateStr).toLocaleDateString("es-AR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
+  return formatCalendarDate(dateStr, "es", "numeric");
 }
 
 function isEligibleCamporeeInsurance(

@@ -2,6 +2,9 @@
 
 import { useState, useCallback, type ReactNode } from "react";
 import dynamic from "next/dynamic";
+import { Lock } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -68,6 +71,7 @@ import type {
   PendingApprovals,
   PaginationMeta,
 } from "@/lib/api/camporees";
+import { isClubRegistrationClosed } from "@/lib/camporees/club-registration";
 
 // ─── Props ─────────────────────────────────────────────────────────────────────
 
@@ -154,7 +158,11 @@ export function CamporeeDetailTabs({
   canEditJudgeAssignments = false,
   initialTab,
 }: CamporeeDetailTabsProps) {
+  const tClubRegistration = useTranslations("camporees.clubRegistration");
   const [pending, setPending] = useState<PendingApprovals>(initialPending);
+  const clubRegistrationClosed = isClubRegistrationClosed(
+    camporee?.club_registration_closed_at,
+  );
   const totalJudgeAssignments = Object.values(initialAssignmentsByEvent)
     .flat()
     .filter((assignment) => assignment.active).length;
@@ -369,7 +377,16 @@ export function CamporeeDetailTabs({
         />
       </TabsContent>
 
-      <TabsContent value="judges" className="mt-4">
+      <TabsContent value="judges" className="mt-4 space-y-4">
+        {!clubRegistrationClosed && (
+          <Alert>
+            <Lock />
+            <AlertTitle>{tClubRegistration("scoringGateTitle")}</AlertTitle>
+            <AlertDescription>
+              {tClubRegistration("scoringGateBody")}
+            </AlertDescription>
+          </Alert>
+        )}
         <EventJudgeAssignmentsPanel
           camporeeId={camporeeId}
           isUnionCamporee={isUnionCamporee}
@@ -381,7 +398,16 @@ export function CamporeeDetailTabs({
         />
       </TabsContent>
 
-      <TabsContent value="scores" className="mt-4">
+      <TabsContent value="scores" className="mt-4 space-y-4">
+        {!clubRegistrationClosed && (
+          <Alert>
+            <Lock />
+            <AlertTitle>{tClubRegistration("scoringGateTitle")}</AlertTitle>
+            <AlertDescription>
+              {tClubRegistration("scoringGateBody")}
+            </AlertDescription>
+          </Alert>
+        )}
         <EventScoreEntryPanel
           camporeeId={camporeeId}
           isUnionCamporee={isUnionCamporee}

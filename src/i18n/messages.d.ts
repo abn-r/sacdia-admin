@@ -3016,6 +3016,37 @@ export interface IntlMessages {
       register_member_failed: string;
       remove_member_failed: string;
     };
+    clubRegistration: {
+      statusOpen: string;
+      statusClosed: string;
+      closedAt: string;
+      closeButton: string;
+      reopenButton: string;
+      closeTitle: string;
+      closeDescription: string;
+      closeConfirm: string;
+      reopenTitle: string;
+      reopenDescription: string;
+      reopenConfirm: string;
+      cancel: string;
+      closing: string;
+      reopening: string;
+      closeSuccess: string;
+      reopenSuccess: string;
+      closeFailed: string;
+      reopenFailed: string;
+      noClubsHint: string;
+      reopenBlockedHint: string;
+      inactiveHint: string;
+      scoringGateTitle: string;
+      scoringGateBody: string;
+      errors: {
+        noEnrolledClubs: string;
+        alreadyClosed: string;
+        reopenBlocked: string;
+        notActive: string;
+      };
+    };
     membersTab: {
       refreshListTitle: string;
       refreshLabel: string;
@@ -3162,6 +3193,8 @@ export interface IntlMessages {
     form: {
       titleCreate: string;
       titleEdit: string;
+      descriptionCreate: string;
+      descriptionEdit: string;
       labelName: string;
       placeholderName: string;
       labelDescription: string;
@@ -3175,7 +3208,12 @@ export interface IntlMessages {
       placeholderPlace: string;
       labelLatitude: string;
       labelLongitude: string;
+      labelMap: string;
+      helpMap: string;
       labelLocalFieldId: string;
+      loadingLocalFields: string;
+      emptyLocalFields: string;
+      placeholderLocalField: string;
       labelRegistrationCost: string;
       labelIncludes: string;
       adventurers: string;
@@ -3222,6 +3260,8 @@ export interface IntlMessages {
     unionForm: {
       titleCreate: string;
       titleEdit: string;
+      descriptionCreate: string;
+      descriptionEdit: string;
       labelName: string;
       placeholderName: string;
       labelDescription: string;
@@ -3237,6 +3277,8 @@ export interface IntlMessages {
       placeholderPlace: string;
       labelLatitude: string;
       labelLongitude: string;
+      labelMap: string;
+      helpMap: string;
       labelRegistrationCost: string;
       labelIncludes: string;
       adventurers: string;

@@ -29,6 +29,7 @@ import {
   type ApprovalDialogMode,
 } from "@/components/camporees/camporee-approval-dialog";
 import { useTranslations } from "next-intl";
+import { formatTimestamp } from "@/lib/format-locale";
 import { ApiError } from "@/lib/api/client";
 import { useRoleLabel } from "@/lib/auth/role-labels";
 import { UserAvatar } from "@/components/users/user-avatar";
@@ -72,16 +73,7 @@ function ClubStatusBadge({ status, t }: { status?: string | null; t: ReturnType<
 // ─── Date helper ───────────────────────────────────────────────────────────────
 
 function formatDate(dateStr?: string | null): string {
-  if (!dateStr) return "—";
-  try {
-    return new Date(dateStr).toLocaleDateString("es-MX", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-  } catch {
-    return "—";
-  }
+  return formatTimestamp(dateStr);
 }
 
 function SectionIdentityCell({

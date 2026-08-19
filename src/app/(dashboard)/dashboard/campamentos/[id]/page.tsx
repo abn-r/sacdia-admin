@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { CamporeeInfoCard } from "@/components/camporees/camporee-info-card";
 import { CamporeeDetailInfoTab } from "@/components/camporees/camporee-detail-info-tab";
 import { CamporeeDetailActions } from "@/components/camporees/camporee-detail-actions";
+import { ClubRegistrationActions } from "@/components/camporees/club-registration-actions";
 import { CamporeeDetailTabs } from "@/components/camporees/camporee-detail-tabs";
 import { ApiError } from "@/lib/api/client";
 import {
@@ -49,6 +50,10 @@ import {
   CAMPOREES_DELETE,
 } from "@/lib/auth/permissions";
 import { requireAdminUser } from "@/lib/auth/session";
+import {
+  countCompetitiveEnrolledClubs,
+  hasCamporeeScoringArtifacts,
+} from "@/lib/camporees/club-registration";
 import type {
   Camporee,
   CamporeeMember,
@@ -74,6 +79,14 @@ function toText(value: unknown): string | null {
   if (typeof value !== "string") return null;
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : null;
+}
+
+function toIsoTimestamp(value: unknown): string | null {
+  if (typeof value === "string") return toText(value);
+  if (value instanceof Date && Number.isFinite(value.getTime())) {
+    return value.toISOString();
+  }
+  return null;
 }
 
 function extractCamporee(payload: unknown): AnyRecord | null {
@@ -120,6 +133,8 @@ function normalizeCamporee(raw: AnyRecord): Camporee {
       return Number.isFinite(n) ? n : undefined;
     })(),
     active: raw.active !== false,
+    club_registration_closed_at: toIsoTimestamp(raw.club_registration_closed_at),
+    club_registration_closed_by: toText(raw.club_registration_closed_by),
     local_field: (() => {
       const lf = raw.local_fields as AnyRecord | undefined;
       if (!lf || typeof lf !== "object") return undefined;
@@ -375,6 +390,21 @@ export default async function CamporeeDetailPage({
               </Link>
             </Button>
             <CamporeeDetailActions camporee={camporee} />
+            <ClubRegistrationActions
+              camporeeId={camporeeId}
+              closedAt={camporee.club_registration_closed_at}
+              canManage={canEditEvents}
+              enrolledClubCount={countCompetitiveEnrolledClubs(clubs)}
+              clubsLoadFailed={Boolean(clubsError)}
+              hasScoringArtifacts={hasCamporeeScoringArtifacts({
+                assignmentCount: Object.values(assignmentsByEvent).reduce(
+                  (total, assignments) => total + assignments.length,
+                  0,
+                ),
+                leaderboardRowCount: leaderboard?.rows.length ?? 0,
+              })}
+              camporeeActive={camporee.active !== false}
+            />
           </>
         }
       />

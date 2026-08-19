@@ -21,6 +21,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 type LatLng = { lat: number; lng: number };
 
+export type LocationPickerValue = {
+  lat: number;
+  lng: number;
+  address: string;
+};
+
 const DEFAULT_CENTER: LatLng = { lat: 19.4326, lng: -99.1332 }; // CDMX
 const DEFAULT_ZOOM = 12;
 const PINNED_ZOOM = 16;
@@ -34,6 +40,7 @@ type LocationPickerProps = {
   initialLat?: number | null;
   initialLng?: number | null;
   initialAddress?: string | null;
+  onLocationChange?: (value: LocationPickerValue | null) => void;
 };
 
 function PlaceAutocomplete({
@@ -136,6 +143,7 @@ function LocationPickerFields({
   initialLat,
   initialLng,
   initialAddress,
+  onLocationChange,
 }: LocationPickerFieldsProps) {
   const t = useTranslations("clubs.locationPicker");
   const status = useApiLoadingStatus();
@@ -161,26 +169,42 @@ function LocationPickerFields({
       setCenter(next);
       setZoom(PINNED_ZOOM);
       if (place.address) setAddress(place.address);
+      onLocationChange?.({
+        lat: place.lat,
+        lng: place.lng,
+        address: place.address,
+      });
     },
-    [],
+    [onLocationChange],
   );
 
-  const handleMarkerDrag = useCallback((event: google.maps.MapMouseEvent) => {
-    if (!event.latLng) return;
-    setPosition({ lat: event.latLng.lat(), lng: event.latLng.lng() });
-  }, []);
+  const handleMarkerDrag = useCallback(
+    (event: google.maps.MapMouseEvent) => {
+      if (!event.latLng) return;
+      const next = { lat: event.latLng.lat(), lng: event.latLng.lng() };
+      setPosition(next);
+      onLocationChange?.({ ...next, address });
+    },
+    [address, onLocationChange],
+  );
 
-  const handleMapClick = useCallback((event: MapMouseEvent) => {
-    if (!event.detail.latLng) return;
-    setPosition({
-      lat: event.detail.latLng.lat,
-      lng: event.detail.latLng.lng,
-    });
-  }, []);
+  const handleMapClick = useCallback(
+    (event: MapMouseEvent) => {
+      if (!event.detail.latLng) return;
+      const next = {
+        lat: event.detail.latLng.lat,
+        lng: event.detail.latLng.lng,
+      };
+      setPosition(next);
+      onLocationChange?.({ ...next, address });
+    },
+    [address, onLocationChange],
+  );
 
   function clear() {
     setPosition(null);
     setAddress("");
+    onLocationChange?.(null);
   }
 
   if (status === APILoadingStatus.FAILED) {

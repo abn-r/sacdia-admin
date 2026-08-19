@@ -20,6 +20,7 @@ import {
   type CamporeeScoringActionState,
 } from "@/lib/camporee-scoring/actions";
 import { cn } from "@/lib/utils";
+import { formatTabularNumber } from "@/lib/format-locale";
 import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 import type { BackendCamporeeEvent } from "@/lib/api/camporee-events";
 import type {
@@ -48,9 +49,7 @@ function toNumber(value: string): number {
 }
 
 function formatPoints(value: number) {
-  return new Intl.NumberFormat("es-MX", {
-    maximumFractionDigits: 2,
-  }).format(value);
+  return formatTabularNumber(value);
 }
 
 export function calculateAwardedTotal(values: Record<number, number>) {

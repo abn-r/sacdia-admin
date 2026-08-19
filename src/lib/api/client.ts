@@ -212,6 +212,11 @@ export function clearClientAuthTokenCache() {
   pendingClientAuthRefresh = null;
 }
 
+/** Solo 401 (sesión expirada). 403 es permiso denegado: no matar la sesión. */
+export function shouldRedirectToLoginOnApiError(status: number): boolean {
+  return status === 401;
+}
+
 async function fetchClientAuthToken(): Promise<string | null> {
   try {
     const res = await fetch("/api/auth/token", { credentials: "include" });
@@ -423,13 +428,12 @@ function ensureClientInterceptors() {
         }
       }
 
-      if (normalized.status === 403) {
-        clearClientAuthTokenCache();
-      }
-
+      // 403 = sin permiso, sesión sigue viva. Redirigir a login mataba el
+      // formulario de camporee (GET /admin/local-fields) y cualquier otra
+      // acción denegada: bounce a /login y de vuelta al dashboard.
       if (
         typeof window !== "undefined" &&
-        (normalized.status === 401 || normalized.status === 403) &&
+        shouldRedirectToLoginOnApiError(normalized.status) &&
         !window.location.pathname.startsWith("/login")
       ) {
         const next = window.location.pathname + window.location.search;

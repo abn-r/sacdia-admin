@@ -16,7 +16,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { formatCalendarDate } from "@/lib/format-locale";
 import { listUnionCamporees } from "@/lib/api/camporees";
 import type { UnionCamporee } from "@/lib/api/camporees";
 import type { Union } from "@/lib/api/geography";
@@ -41,17 +42,8 @@ const DeleteUnionCamporeeDialog = dynamic<DeleteUnionCamporeeDialogProps>(
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function formatDate(dateStr?: string | null): string {
-  if (!dateStr) return "—";
-  try {
-    return new Date(dateStr).toLocaleDateString("es-MX", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-  } catch {
-    return "—";
-  }
+function formatDate(dateStr: string | null | undefined, locale: string): string {
+  return formatCalendarDate(dateStr, locale);
 }
 
 function extractCamporees(payload: unknown): UnionCamporee[] {
@@ -78,6 +70,7 @@ interface UnionCampoReesViewProps {
 
 export function UnionCampoReesView({ initialCamporees, unions }: UnionCampoReesViewProps) {
     const t = useTranslations("camporees");
+  const locale = useLocale();
   const [camporees, setCamporees] = useState<UnionCamporee[]>(initialCamporees);
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -195,10 +188,10 @@ export function UnionCampoReesView({ initialCamporees, unions }: UnionCampoReesV
                       {camporee.union_name ?? "—"}
                     </TableCell>
                     <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums">
-                      {formatDate(camporee.start_date)}
+                      {formatDate(camporee.start_date, locale)}
                     </TableCell>
                     <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums">
-                      {formatDate(camporee.end_date)}
+                      {formatDate(camporee.end_date, locale)}
                     </TableCell>
                     <TableCell className="max-w-[160px] px-3 py-2.5 align-middle">
                       <span className="truncate text-sm text-muted-foreground">

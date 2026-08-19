@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { resolveSectionLogoSrc } from "@/lib/camporees/section-logo";
+import { deriveDaysFromRange } from "@/lib/camporee-timeline/mapper";
 import {
   EVENT_CATEGORIES,
 } from "@/lib/camporee-timeline/event-categories";
@@ -838,22 +839,12 @@ function deriveDays(
   startDateStr: string,
   endDateStr: string,
 ): { number: number; label: string }[] {
-  try {
-    // Parse as UTC to avoid timezone drift
-    const start = new Date(startDateStr + "T00:00:00Z");
-    const end = new Date(endDateStr + "T00:00:00Z");
-    if (isNaN(start.getTime()) || isNaN(end.getTime())) return fallbackDays();
-    const days: { number: number; label: string }[] = [];
-    let n = 1;
-    for (const d = new Date(start); d <= end; d.setUTCDate(d.getUTCDate() + 1), n++) {
-      const day = d.getUTCDate();
-      const month = d.toLocaleString("es-MX", { month: "short", timeZone: "UTC" });
-      days.push({ number: n, label: `Día ${n} · ${day} ${month}` });
-    }
-    return days.length > 0 ? days : fallbackDays();
-  } catch {
-    return fallbackDays();
-  }
+  const days = deriveDaysFromRange(startDateStr, endDateStr);
+  if (days.length === 0) return fallbackDays();
+  return days.map((day) => ({
+    number: day.numero,
+    label: `Día ${day.numero} · ${day.fechaFmt}`,
+  }));
 }
 
 function fallbackDays(): { number: number; label: string }[] {

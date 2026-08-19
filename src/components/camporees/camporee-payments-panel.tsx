@@ -31,7 +31,7 @@ import {
 } from "@/components/camporees/camporee-approval-dialog";
 import { useTranslations } from "next-intl";
 import { ApiError } from "@/lib/api/client";
-import { useFormatDate, useFormatCurrency } from "@/lib/format-locale";
+import { formatTimestamp, useFormatCurrency } from "@/lib/format-locale";
 
 // ─── Payment type badge ────────────────────────────────────────────────────────
 
@@ -154,18 +154,12 @@ export function CamporeePaymentsPanel({
 }: CamporeePaymentsPanelProps) {
   
   const t = useTranslations("camporees");
-  const formatDateLocale = useFormatDate();
   const formatCurrency = useFormatCurrency();
   const [approvingId, setApprovingId] = useState<string | null>(null);
   const [dialog, setDialog] = useState<DialogState>(null);
 
   function formatDate(dateStr?: string | null): string {
-    if (!dateStr) return "—";
-    try {
-      return formatDateLocale(dateStr, { day: "numeric", month: "short", year: "numeric" });
-    } catch {
-      return "—";
-    }
+    return formatTimestamp(dateStr);
   }
 
   async function handleApprove(payment: CamporeePayment) {

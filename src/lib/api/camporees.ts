@@ -118,6 +118,8 @@ export type Camporee = {
   long?: number | null;
   registration_cost?: number;
   active?: boolean;
+  club_registration_closed_at?: string | null;
+  club_registration_closed_by?: string | null;
   local_field?: {
     local_field_id?: number;
     name?: string;
@@ -268,6 +270,26 @@ export async function getEnrolledClubs(camporeeId: number) {
   return apiRequest<CamporeeClub[]>(`/camporees/${camporeeId}/clubs`);
 }
 
+export async function closeCamporeeClubRegistration(
+  camporeeId: number,
+  options: { isUnion?: boolean } = {},
+) {
+  const path = options.isUnion
+    ? `/union-camporees/${camporeeId}/club-registration/close`
+    : `/camporees/${camporeeId}/club-registration/close`;
+  return apiRequest(path, { method: "POST" });
+}
+
+export async function reopenCamporeeClubRegistration(
+  camporeeId: number,
+  options: { isUnion?: boolean } = {},
+) {
+  const path = options.isUnion
+    ? `/union-camporees/${camporeeId}/club-registration/reopen`
+    : `/camporees/${camporeeId}/club-registration/reopen`;
+  return apiRequest(path, { method: "POST" });
+}
+
 export async function cancelClubEnrollment(camporeeId: number, camporeeClubId: number) {
   return apiRequest(`/camporees/${camporeeId}/clubs/${camporeeClubId}`, {
     method: "DELETE",
@@ -376,6 +398,8 @@ export type UnionCamporee = {
   long?: number | null;
   registration_cost?: number | null;
   active?: boolean;
+  club_registration_closed_at?: string | null;
+  club_registration_closed_by?: string | null;
 };
 
 export type UnionCamporeePayload = {

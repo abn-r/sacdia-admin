@@ -114,6 +114,16 @@ function hasSubItems(item: NavMainItem): item is NavMainParentItem {
   return Boolean(item.subItems?.length);
 }
 
+function useHydrated() {
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
+
+  return hydrated;
+}
+
 function useHydratedCollapsibleOpen(shouldBeOpen: boolean) {
   const [open, setOpen] = useState(false);
 
@@ -175,7 +185,8 @@ export function NavMain({ items }: NavMainProps) {
 
 function NavItem({ item, isItemActive, isSubItemActive, isSubmenuOpen }: NavItemProps) {
   const { state, isMobile } = useSidebar();
-  const isCollapsedDesktop = state === "collapsed" && !isMobile;
+  const hydrated = useHydrated();
+  const isCollapsedDesktop = hydrated && state === "collapsed" && !isMobile;
 
   if (!hasSubItems(item)) {
     return <NavLinkItem item={item} isActive={isItemActive(item)} showIconFallback={isCollapsedDesktop} />;

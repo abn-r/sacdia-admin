@@ -36,21 +36,20 @@ import {
 import { useTranslations } from "next-intl";
 import { createCamporee, updateCamporee } from "@/lib/api/camporees";
 import type { Camporee } from "@/lib/api/camporees";
-import { listAdminLocalFields } from "@/lib/api/generic-catalogs-i18n";
-import { extractItems } from "@/lib/phase-e-catalogs/fetch-helpers";
+import type { LocalField } from "@/lib/api/geography";
+import { useAuth } from "@/lib/auth/auth-context";
+import { listLocalFieldsForTerritory } from "@/lib/auth/territory-scope";
+import { resolveUserLocalField } from "@/lib/auth/user-local-field";
+import { CamporeeLocationFields } from "@/components/camporees/camporee-location-fields";
 
 // ─── Local field option (parent FK select) ────────────────────────────────────
 
 type LocalFieldOption = { value: number; label: string };
 
-function buildLocalFieldOptions(payload: unknown): LocalFieldOption[] {
-  const items = extractItems(payload);
-  return items
+function buildLocalFieldOptions(fields: LocalField[]): LocalFieldOption[] {
+  return fields
     .map((item) => {
-      const id =
-        typeof item.local_field_id === "number"
-          ? item.local_field_id
-          : Number(item.local_field_id);
+      const id = item.local_field_id;
       const name = typeof item.name === "string" ? item.name.trim() : "";
       if (!Number.isFinite(id) || id <= 0 || !name) return null;
       return { value: id, label: name };
@@ -144,7 +143,11 @@ export function CamporeeFormDialog({
 }: CamporeeFormDialogProps) {
   const t = useTranslations("camporees");
   const tVal = useTranslations("camporees.validation");
+  const { user } = useAuth();
   const isEdit = !!camporee;
+  const fieldScope = resolveUserLocalField(user);
+  const fieldLocked = fieldScope.scope === "single";
+  const lockedFieldId = fieldLocked ? fieldScope.localFieldId : 0;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [localFields, setLocalFields] = useState<LocalFieldOption[]>([]);
   const [loadingLocalFields, setLoadingLocalFields] = useState(false);
@@ -176,10 +179,11 @@ export function CamporeeFormDialog({
     if (!open) return;
     let cancelled = false;
     setLoadingLocalFields(true);
-    listAdminLocalFields()
-      .then((payload) => {
+    listLocalFieldsForTerritory(user)
+      .then((fields) => {
         if (cancelled) return;
-        setLocalFields(buildLocalFieldOptions(payload));
+        const options = buildLocalFieldOptions(fields);
+        setLocalFields(options);
       })
       .catch(() => {
         if (cancelled) return;
@@ -191,7 +195,7 @@ export function CamporeeFormDialog({
     return () => {
       cancelled = true;
     };
-  }, [open]);
+  }, [open, user]);
 
   useEffect(() => {
     if (open) {
@@ -212,7 +216,7 @@ export function CamporeeFormDialog({
           local_camporee_place: camporee.local_camporee_place ?? "",
           lat: camporee.lat ?? undefined,
           long: camporee.long ?? undefined,
-          local_field_id: camporee.local_field_id ?? 0,
+          local_field_id: camporee.local_field_id ?? lockedFieldId,
           registration_cost: camporee.registration_cost ?? undefined,
           includes_adventurers: camporee.includes_adventurers ?? false,
           includes_pathfinders: camporee.includes_pathfinders ?? true,
@@ -231,7 +235,7 @@ export function CamporeeFormDialog({
           local_camporee_place: "",
           lat: undefined,
           long: undefined,
-          local_field_id: 0,
+          local_field_id: lockedFieldId,
           registration_cost: undefined,
           includes_adventurers: false,
           includes_pathfinders: true,
@@ -239,7 +243,14 @@ export function CamporeeFormDialog({
         });
       }
     }
-  }, [open, camporee, form]);
+  }, [open, camporee, form, lockedFieldId]);
+
+  useEffect(() => {
+    if (!open || isEdit || fieldLocked) return;
+    if (localFields.length === 1 && form.getValues("local_field_id") <= 0) {
+      form.setValue("local_field_id", localFields[0].value);
+    }
+  }, [open, isEdit, fieldLocked, localFields, form]);
 
   const onSubmit: SubmitHandler<FormValues> = async (values) => {
     setIsSubmitting(true);
@@ -307,15 +318,13 @@ export function CamporeeFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>
             {isEdit ? t("form.titleEdit") : t("form.titleCreate")}
           </DialogTitle>
           <DialogDescription>
-            {isEdit
-              ? "Modificá los datos del camporee local."
-              : "Completá el formulario para crear un nuevo camporee local."}
+            {isEdit ? t("form.descriptionEdit") : t("form.descriptionCreate")}
           </DialogDescription>
         </DialogHeader>
 
@@ -498,7 +507,11 @@ export function CamporeeFormDialog({
                       <Select
                         value={stringValue}
                         onValueChange={(v) => field.onChange(Number(v))}
-                        disabled={loadingLocalFields || localFields.length === 0}
+                        disabled={
+                          loadingLocalFields ||
+                          fieldLocked ||
+                          localFields.length === 0
+                        }
                       >
                         <SelectTrigger
                           ref={field.ref}
@@ -508,10 +521,10 @@ export function CamporeeFormDialog({
                           <SelectValue
                             placeholder={
                               loadingLocalFields
-                                ? "Cargando..."
+                                ? t("form.loadingLocalFields")
                                 : localFields.length === 0
-                                  ? "Sin campos locales"
-                                  : "Seleccionar campo local"
+                                  ? t("form.emptyLocalFields")
+                                  : t("form.placeholderLocalField")
                             }
                           />
                         </SelectTrigger>
@@ -531,56 +544,39 @@ export function CamporeeFormDialog({
             />
 
             {/* Coordenadas */}
-            <div className="grid grid-cols-2 gap-3">
-              <FormField
-                control={form.control}
-                name="lat"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("form.labelLatitude")}</FormLabel>
-                    <FormControl>
-                      <Input
-                        name={field.name}
-                        ref={field.ref}
-                        onBlur={field.onBlur}
-                        value={field.value ?? ""}
-                        onChange={(e) => field.onChange(e.target.value)}
-                        type="number"
-                        step="0.000001"
-                        min={-90}
-                        max={90}
-                        placeholder="19.173800"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="long"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("form.labelLongitude")}</FormLabel>
-                    <FormControl>
-                      <Input
-                        name={field.name}
-                        ref={field.ref}
-                        onBlur={field.onBlur}
-                        value={field.value ?? ""}
-                        onChange={(e) => field.onChange(e.target.value)}
-                        type="number"
-                        step="0.000001"
-                        min={-180}
-                        max={180}
-                        placeholder="-96.134200"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name="long"
+              render={() => (
+                <CamporeeLocationFields
+                  resetKey={
+                    isEdit
+                      ? String(
+                          camporee?.local_camporee_id ??
+                            camporee?.camporee_id ??
+                            camporee?.id ??
+                            "edit",
+                        )
+                      : "new"
+                  }
+                  lat={form.watch("lat")}
+                  lng={form.watch("long")}
+                  place={form.watch("local_camporee_place")}
+                  label={t("form.labelMap")}
+                  help={t("form.helpMap")}
+                  onCoordinatesChange={({ lat, long }) => {
+                    form.setValue("lat", lat, { shouldValidate: true, shouldDirty: true });
+                    form.setValue("long", long, { shouldValidate: true, shouldDirty: true });
+                  }}
+                  onPlaceFill={(nextPlace) => {
+                    form.setValue("local_camporee_place", nextPlace, {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    });
+                  }}
+                />
+              )}
+            />
 
             {/* Costo de inscripción */}
             <FormField
