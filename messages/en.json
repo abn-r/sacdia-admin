@@ -1375,7 +1375,9 @@
         "enableMissing": "Enable section",
         "labelSoulsTarget": "Souls target",
         "labelFee": "Fee",
-        "noPermission": "You do not have permission to enable or disable sections."
+        "noPermission": "You do not have permission to enable or disable sections.",
+        "counselorsLabel": "Counselors",
+        "unassigned": "Unassigned"
       },
       "roles": {
         "clubRolesTitle": "Club roles",

@@ -1381,7 +1381,9 @@
         "enableMissing": "Habilitar sección",
         "labelSoulsTarget": "Blanco de almas",
         "labelFee": "Cuota",
-        "noPermission": "No tienes permiso para habilitar o deshabilitar secciones."
+        "noPermission": "No tienes permiso para habilitar o deshabilitar secciones.",
+        "counselorsLabel": "Consejeros",
+        "unassigned": "Sin asignar"
       },
       "roles": {
         "clubRolesTitle": "Roles del club",

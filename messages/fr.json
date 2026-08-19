@@ -1375,7 +1375,9 @@
         "enableMissing": "Activer la section",
         "labelSoulsTarget": "Objectif d'âmes",
         "labelFee": "Cotisation",
-        "noPermission": "Vous n'avez pas la permission d'activer ou de désactiver des sections."
+        "noPermission": "Vous n'avez pas la permission d'activer ou de désactiver des sections.",
+        "counselorsLabel": "Conseillers",
+        "unassigned": "Non assigné"
       },
       "roles": {
         "clubRolesTitle": "Rôles du club",

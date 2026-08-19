@@ -1411,6 +1411,8 @@ export interface IntlMessages {
         labelSoulsTarget: string;
         labelFee: string;
         noPermission: string;
+        counselorsLabel: string;
+        unassigned: string;
       };
       roles: {
         clubRolesTitle: string;

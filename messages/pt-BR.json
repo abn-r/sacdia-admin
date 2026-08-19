@@ -1375,7 +1375,9 @@
         "enableMissing": "Habilitar seção",
         "labelSoulsTarget": "Meta de almas",
         "labelFee": "Taxa",
-        "noPermission": "Você não tem permissão para habilitar ou desabilitar seções."
+        "noPermission": "Você não tem permissão para habilitar ou desabilitar seções.",
+        "counselorsLabel": "Conselheiros",
+        "unassigned": "Sem atribuição"
       },
       "roles": {
         "clubRolesTitle": "Funções do clube",

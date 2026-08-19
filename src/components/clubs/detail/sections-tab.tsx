@@ -17,11 +17,12 @@ import {
   type DetailActionState,
 } from "@/lib/clubs/detail-actions";
 import {
-  formatLeaderName,
-  findSectionDirectorMember,
-  getSectionDirector,
+  getSectionOfficers,
   type ClubDetailPayload,
   type ClubSectionRaw,
+  type SectionOfficerPerson,
+  type SectionOfficerRole,
+  type SectionOfficers,
 } from "@/lib/clubs/types";
 
 interface SectionsTabProps {
@@ -161,19 +162,100 @@ function SectionActiveToggle({
   );
 }
 
+function officerInitials(name: string) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => part[0] ?? "")
+    .join("")
+    .slice(0, 2);
+}
+
+function OfficerPersonRow({
+  person,
+  roleLabel,
+}: {
+  person: SectionOfficerPerson;
+  roleLabel: string;
+}) {
+  return (
+    <div className="flex items-center gap-2.5">
+      <Avatar size="sm">
+        {person.image ? <AvatarImage src={person.image} alt={person.name} /> : null}
+        <AvatarFallback>{officerInitials(person.name)}</AvatarFallback>
+      </Avatar>
+      <div className="min-w-0">
+        <p className="truncate text-sm font-medium">{person.name}</p>
+        <p className="truncate text-xs text-muted-foreground">{roleLabel}</p>
+      </div>
+    </div>
+  );
+}
+
+function OfficerRoleBlock({
+  heading,
+  people,
+  roleLabel,
+  emptyLabel,
+  compactList = false,
+}: {
+  heading: string;
+  people: SectionOfficerPerson[];
+  roleLabel: string;
+  emptyLabel: string;
+  compactList?: boolean;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <p className="text-xs text-muted-foreground">{heading}</p>
+      {people.length > 0 ? (
+        <div
+          className={
+            compactList
+              ? "max-h-36 space-y-1.5 overflow-y-auto pr-0.5"
+              : "space-y-1.5"
+          }
+        >
+          {people.map((person) => (
+            <OfficerPersonRow
+              key={person.userId}
+              person={person}
+              roleLabel={roleLabel}
+            />
+          ))}
+        </div>
+      ) : (
+        <p className="text-sm text-muted-foreground">{emptyLabel}</p>
+      )}
+    </div>
+  );
+}
+
+const OFFICER_BLOCK_ORDER: Array<{
+  role: SectionOfficerRole;
+  headingKey?: "directorLabel" | "counselorsLabel";
+  omitWhenEmpty?: boolean;
+  compactList?: boolean;
+}> = [
+  { role: "director", headingKey: "directorLabel" },
+  { role: "deputy-director" },
+  { role: "secretary" },
+  { role: "secretary-treasurer", omitWhenEmpty: true },
+  { role: "treasurer" },
+  { role: "counselor", headingKey: "counselorsLabel", compactList: true },
+];
+
 function SectionCard({
   clubId,
   section,
   typeName,
-  directorName,
-  directorImage,
+  officers,
   canManage,
 }: {
   clubId: number;
   section: ClubSectionRaw;
   typeName: string;
-  directorName: string | null;
-  directorImage: string | null;
+  officers: SectionOfficers;
   canManage: boolean;
 }) {
   const t = useTranslations("clubs.detail.sections");
@@ -215,32 +297,29 @@ function SectionCard({
           </div>
         </div>
 
-        <div className="rounded-lg border bg-muted/20 p-4">
-          <p className="text-xs text-muted-foreground">{t("directorLabel")}</p>
-          {directorName ? (
-            <div className="mt-2 flex items-center gap-3">
-              <Avatar size="sm">
-                {directorImage ? (
-                  <AvatarImage src={directorImage} alt={directorName} />
-                ) : null}
-                <AvatarFallback>
-                  {directorName
-                    .split(/\s+/)
-                    .map((part) => part[0])
-                    .join("")
-                    .slice(0, 2)}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <p className="text-sm font-medium">{directorName}</p>
-                <p className="text-xs text-muted-foreground">
-                  {translateRole("director")}
-                </p>
-              </div>
-            </div>
-          ) : (
-            <p className="mt-2 text-sm text-muted-foreground">{t("noDirector")}</p>
-          )}
+        <div className="space-y-3 rounded-lg border bg-muted/20 p-4">
+          {OFFICER_BLOCK_ORDER.map((block) => {
+            const people = officers[block.role];
+            if (block.omitWhenEmpty && people.length === 0) return null;
+
+            const heading =
+              block.headingKey === "directorLabel"
+                ? t("directorLabel")
+                : block.headingKey === "counselorsLabel"
+                  ? t("counselorsLabel")
+                  : translateRole(block.role);
+
+            return (
+              <OfficerRoleBlock
+                key={block.role}
+                heading={heading}
+                people={people}
+                roleLabel={translateRole(block.role)}
+                emptyLabel={t("unassigned")}
+                compactList={block.compactList}
+              />
+            );
+          })}
         </div>
       </CardContent>
     </Card>
@@ -269,13 +348,6 @@ export function SectionsTab({ data }: SectionsTabProps) {
         const memberGroup = data.sectionMemberGroups.find(
           (group) => group.sectionId === section.club_section_id,
         );
-        const directorFromMembers = memberGroup
-          ? findSectionDirectorMember(memberGroup.members)
-          : null;
-        const directorFromLeadership = getSectionDirector(
-          data.leadership,
-          clubType.name,
-        );
 
         return (
           <SectionCard
@@ -284,15 +356,11 @@ export function SectionsTab({ data }: SectionsTabProps) {
             section={section}
             typeName={clubType.name}
             canManage={data.canCreateSections}
-            directorName={
-              directorFromMembers?.name ??
-              (directorFromLeadership ? formatLeaderName(directorFromLeadership) : null)
-            }
-            directorImage={
-              directorFromMembers?.picture_url ??
-              directorFromLeadership?.user_image ??
-              null
-            }
+            officers={getSectionOfficers(
+              memberGroup?.members ?? [],
+              data.leadership,
+              clubType.name,
+            )}
           />
         );
       })}

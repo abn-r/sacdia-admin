@@ -106,42 +106,141 @@ export function resolveClubId(club: ClubFull, fallback: string | number): number
   return Number.isFinite(id) ? id : Number(fallback);
 }
 
+export const SECTION_OFFICER_ROLES = [
+  "director",
+  "deputy-director",
+  "secretary",
+  "secretary-treasurer",
+  "treasurer",
+  "counselor",
+] as const;
+
+export type SectionOfficerRole = (typeof SECTION_OFFICER_ROLES)[number];
+
+export type SectionOfficerPerson = {
+  userId: string;
+  name: string;
+  image: string | null;
+  role: SectionOfficerRole;
+};
+
+export type SectionOfficers = Record<SectionOfficerRole, SectionOfficerPerson[]>;
+
+export function normalizeClubRole(role: string | null | undefined): string {
+  return (role ?? "").trim().toLowerCase().replace(/_/g, "-");
+}
+
+export function isClubRole(
+  value: string | null | undefined,
+  expected: SectionOfficerRole,
+): boolean {
+  return normalizeClubRole(value) === expected;
+}
+
 export function isDirectorRole(role: string | null | undefined): boolean {
-  if (!role) return false;
-  const normalized = role.trim().toLowerCase().replace(/-/g, "_");
-  return normalized === "director" || normalized === "director_club";
+  const normalized = normalizeClubRole(role);
+  return normalized === "director" || normalized === "director-club";
 }
 
 export function findSectionDirectorMember(
   members: ClubSectionMember[],
 ): ClubSectionMember | null {
-  return (
-    members.find((member) =>
-      isDirectorRole(member.role ?? member.role_display_name),
-    ) ?? null
-  );
+  return members.find((member) => isDirectorRole(member.role)) ?? null;
+}
+
+function leadershipPool(leadership: ClubLeadership): LeadershipMember[] {
+  return [
+    leadership.director,
+    ...leadership.deputies,
+    ...leadership.secretaries,
+    ...leadership.others,
+  ].filter((member): member is LeadershipMember => member != null);
+}
+
+function leadershipMatchesSection(
+  member: LeadershipMember,
+  sectionName: string,
+): boolean {
+  const normalizedSection = sectionName.trim().toLowerCase();
+  return (member.section_name?.trim().toLowerCase() ?? "") === normalizedSection;
 }
 
 export function getSectionDirector(
   leadership: ClubLeadership,
   sectionName: string,
 ): LeadershipMember | null {
-  const candidates = [
-    leadership.director,
-    ...leadership.deputies,
-    ...leadership.secretaries,
-    ...leadership.others,
-  ].filter((member): member is LeadershipMember => member != null);
-
-  const normalizedSection = sectionName.trim().toLowerCase();
-
-  const match = candidates.find(
-    (member) =>
-      isDirectorRole(member.role_name) &&
-      (member.section_name?.trim().toLowerCase() ?? "") === normalizedSection,
+  return (
+    leadershipPool(leadership).find(
+      (member) =>
+        isDirectorRole(member.role_name) &&
+        leadershipMatchesSection(member, sectionName),
+    ) ?? null
   );
+}
 
-  return match ?? null;
+function officerFromMember(
+  member: ClubSectionMember,
+  role: SectionOfficerRole,
+): SectionOfficerPerson {
+  return {
+    userId: member.user_id,
+    name: member.name,
+    image: member.picture_url ?? null,
+    role,
+  };
+}
+
+function officerFromLeader(
+  member: LeadershipMember,
+  role: SectionOfficerRole,
+): SectionOfficerPerson {
+  return {
+    userId: member.user_id,
+    name: formatLeaderName(member),
+    image: member.user_image ?? null,
+    role,
+  };
+}
+
+function uniqueOfficers(people: SectionOfficerPerson[]): SectionOfficerPerson[] {
+  const seen = new Set<string>();
+  return people.filter((person) => {
+    if (!person.userId || !person.name || seen.has(person.userId)) return false;
+    seen.add(person.userId);
+    return true;
+  });
+}
+
+export function getSectionOfficers(
+  members: ClubSectionMember[],
+  leadership: ClubLeadership,
+  sectionName: string,
+): SectionOfficers {
+  const leaders = leadershipPool(leadership);
+  const officers = {} as SectionOfficers;
+
+  for (const role of SECTION_OFFICER_ROLES) {
+    const fromMembers = members
+      .filter((member) => isClubRole(member.role, role))
+      .map((member) => officerFromMember(member, role));
+
+    if (fromMembers.length > 0) {
+      officers[role] = uniqueOfficers(fromMembers);
+      continue;
+    }
+
+    officers[role] = uniqueOfficers(
+      leaders
+        .filter(
+          (member) =>
+            isClubRole(member.role_name, role) &&
+            leadershipMatchesSection(member, sectionName),
+        )
+        .map((member) => officerFromLeader(member, role)),
+    );
+  }
+
+  return officers;
 }
 
 export function formatLeaderName(member: LeadershipMember | null): string {
