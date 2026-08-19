@@ -7756,7 +7756,8 @@
       "APPROVED": "Approuvé",
       "PROOF_REJECTED": "Justificatif rejeté",
       "CANCELLED": "Annulé",
-      "EXPIRED": "Expiré"
+      "EXPIRED": "Expiré",
+      "ALL": "Tous"
     },
     "proofStatus": {
       "SUBMITTED": "Envoyé",
@@ -7783,7 +7784,12 @@
       "rejectDescription": "Le club pourra téléverser un nouveau justificatif avec le même folio.",
       "rejectPlaceholder": "Motif du rejet (obligatoire)",
       "confirmReject": "Confirmer le rejet",
-      "cancel": "Annuler"
+      "cancel": "Annuler",
+      "proofFileGeneric": "Justificatif",
+      "proofFileJpeg": "Justificatif JPEG",
+      "proofFilePdf": "Justificatif PDF",
+      "proofFilePng": "Justificatif PNG",
+      "unknownBeneficiary": "Utilisateur"
     },
     "reassignments": {
       "empty": "Aucune demande de réaffectation",

@@ -124,11 +124,58 @@ describe("PaymentOrderDetail", () => {
     renderDetail();
 
     expect(await screen.findByText("OP-2026-0007")).toBeInTheDocument();
-    expect(screen.getByText("ben-1")).toBeInTheDocument();
+    expect(screen.getByText("Usuario")).toBeInTheDocument();
+    expect(screen.queryByText("ben-1")).not.toBeInTheDocument();
     expect(screen.getByText("comprobante.pdf")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Aprobar" }),
     ).not.toBeDisabled();
+  });
+
+  it("shows the beneficiary full name from nested users, not the UUID", async () => {
+    mockGetPaymentOrder.mockResolvedValue({
+      ...STUB_ORDER,
+      lines: [
+        {
+          ...STUB_ORDER.lines![0],
+          beneficiary_user_id: "104a2549-2056-4b9b-aaeb-51d8fd43191d",
+          users: {
+            name: "Ana",
+            paternal_last_name: "Pérez",
+            maternal_last_name: "López",
+          },
+        },
+      ],
+    });
+    renderDetail();
+
+    expect(await screen.findByText("Ana Pérez López")).toBeInTheDocument();
+    expect(
+      screen.queryByText("104a2549-2056-4b9b-aaeb-51d8fd43191d"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows a friendly proof label instead of a generated storage filename", async () => {
+    mockGetPaymentOrder.mockResolvedValue({
+      ...STUB_ORDER,
+      proofs: [
+        {
+          ...STUB_ORDER.proofs![0],
+          file_name:
+            "sacdia_report_0bf16955-08e7-4959-bfe8-de3708cf9636_1784749569596.pdf",
+          mime_type: "application/pdf",
+        },
+      ],
+    });
+    renderDetail();
+
+    expect(await screen.findByText("Comprobante PDF")).toBeInTheDocument();
+    expect(
+      screen.queryByText(/sacdia_report_/),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Ver comprobante" }),
+    ).toBeInTheDocument();
   });
 
   it("approves a submitted proof", async () => {

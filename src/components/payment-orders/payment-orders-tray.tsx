@@ -29,7 +29,7 @@ export const ORDER_STATUS_INTENT: Record<PaymentOrderStatus, StatusIntent> = {
 };
 
 type PurposeFilter = PaymentOrderPurpose | "ALL";
-type StatusFilter = PaymentOrderStatus | "REVIEW_QUEUE";
+type StatusFilter = PaymentOrderStatus | "ALL" | "REVIEW_QUEUE";
 
 function formatDate(value: string | null | undefined) {
   if (!value) return "—";
@@ -45,7 +45,7 @@ function formatDate(value: string | null | undefined) {
 export function PaymentOrdersTray() {
   const t = useTranslations("payment_orders");
   const [purpose, setPurpose] = useState<PurposeFilter>("ALL");
-  const [status, setStatus] = useState<StatusFilter>("REVIEW_QUEUE");
+  const [status, setStatus] = useState<StatusFilter>("ALL");
   const [orders, setOrders] = useState<PaymentOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
@@ -57,7 +57,10 @@ export function PaymentOrdersTray() {
       const data =
         status === "REVIEW_QUEUE"
           ? await getPaymentOrdersReviewQueue({ purpose: purposeFilter })
-          : await listPaymentOrders({ purpose: purposeFilter, status });
+          : await listPaymentOrders({
+              purpose: purposeFilter,
+              ...(status === "ALL" ? {} : { status }),
+            });
       setOrders(data);
     } catch (error) {
       toast.error(getPaymentOrderErrorMessage(error, t, "toasts.loadFailed"));
@@ -109,6 +112,7 @@ export function PaymentOrdersTray() {
             onChange={(event) => setStatus(event.target.value as StatusFilter)}
             aria-label={t("tray.filterStatus")}
           >
+            <option value="ALL">{t("status.ALL")}</option>
             <option value="REVIEW_QUEUE">{t("tray.reviewQueue")}</option>
             <option value="ISSUED">{t("status.ISSUED")}</option>
             <option value="APPROVED">{t("status.APPROVED")}</option>

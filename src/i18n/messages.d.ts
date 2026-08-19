@@ -7967,6 +7967,7 @@ export interface IntlMessages {
       PROOF_REJECTED: string;
       CANCELLED: string;
       EXPIRED: string;
+      ALL: string;
     };
     proofStatus: {
       SUBMITTED: string;
@@ -7994,6 +7995,11 @@ export interface IntlMessages {
       rejectPlaceholder: string;
       confirmReject: string;
       cancel: string;
+      proofFileGeneric: string;
+      proofFileJpeg: string;
+      proofFilePdf: string;
+      proofFilePng: string;
+      unknownBeneficiary: string;
     };
     reassignments: {
       empty: string;

@@ -24,7 +24,12 @@ import {
 } from "@/components/ui/sheet";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Textarea } from "@/components/ui/textarea";
+import { UserAvatar } from "@/components/users/user-avatar";
 import { useAuth } from "@/lib/auth/auth-context";
+import {
+  getPaymentOrderLineBeneficiary,
+  getProofDisplayLabel,
+} from "@/lib/payment-orders/display";
 import {
   approvePaymentOrder,
   getPaymentOrder,
@@ -89,6 +94,15 @@ export function PaymentOrderDetail({
   }, [open, load]);
 
   const latestProof = order?.proofs?.[0] ?? null;
+  const proofFileLabels = {
+    pdf: t("detail.proofFilePdf"),
+    jpeg: t("detail.proofFileJpeg"),
+    png: t("detail.proofFilePng"),
+    generic: t("detail.proofFileGeneric"),
+  };
+  const proofLabel = latestProof
+    ? getProofDisplayLabel(latestProof, proofFileLabels)
+    : null;
   const isMakerChecker =
     latestProof != null &&
     currentUserId != null &&
@@ -211,23 +225,45 @@ export function PaymentOrderDetail({
                       </tr>
                     </thead>
                     <tbody>
-                      {(order.lines ?? []).map((line) => (
-                        <tr
-                          key={line.field_payment_order_line_id}
-                          className="border-t"
-                        >
-                          <td className="px-3 py-1.5">{line.sequence}</td>
-                          <td className="px-3 py-1.5 font-mono text-xs">
-                            {line.beneficiary_user_id}
-                          </td>
-                          <td className="px-3 py-1.5">
-                            {formatCentavos(
-                              line.unit_cost_centavos,
-                              order.currency,
-                            )}
-                          </td>
-                        </tr>
-                      ))}
+                      {(order.lines ?? []).map((line) => {
+                        const beneficiary =
+                          getPaymentOrderLineBeneficiary(line);
+                        const label =
+                          beneficiary.full_name ??
+                          t("detail.unknownBeneficiary");
+
+                        return (
+                          <tr
+                            key={line.field_payment_order_line_id}
+                            className="border-t"
+                          >
+                            <td className="px-3 py-1.5">{line.sequence}</td>
+                            <td className="px-3 py-1.5">
+                              <div className="flex min-w-0 items-center gap-2">
+                                <UserAvatar
+                                  src={beneficiary.picture_url}
+                                  name={label}
+                                  email={beneficiary.email}
+                                  size={28}
+                                  className="size-7"
+                                />
+                                <span
+                                  className="truncate font-medium"
+                                  title={label}
+                                >
+                                  {label}
+                                </span>
+                              </div>
+                            </td>
+                            <td className="px-3 py-1.5">
+                              {formatCentavos(
+                                line.unit_cost_centavos,
+                                order.currency,
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -236,9 +272,14 @@ export function PaymentOrderDetail({
               {latestProof && (
                 <div className="space-y-2">
                   <h3 className="font-medium text-sm">{t("detail.proof")}</h3>
-                  <div className="flex items-center justify-between rounded-md border p-3 text-sm">
-                    <div>
-                      <p>{latestProof.file_name}</p>
+                  <div className="flex items-center justify-between gap-3 rounded-md border p-3 text-sm">
+                    <div className="min-w-0">
+                      <p
+                        className="truncate font-medium"
+                        title={proofLabel ?? undefined}
+                      >
+                        {proofLabel}
+                      </p>
                       <p className="text-muted-foreground text-xs">
                         {t(`proofStatus.${latestProof.status}`)} ·{" "}
                         {formatDateTime(latestProof.created_at)}
@@ -253,6 +294,7 @@ export function PaymentOrderDetail({
                       type="button"
                       size="sm"
                       variant="outline"
+                      className="shrink-0"
                       onClick={() => void openProof()}
                     >
                       <ExternalLink className="size-4" />

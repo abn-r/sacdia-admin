@@ -96,8 +96,8 @@ describe("PaymentOrdersTray", () => {
     mockListPaymentOrders.mockReset();
     mockGetReviewQueue.mockReset();
     mockGetPaymentOrder.mockReset();
-    mockGetReviewQueue.mockResolvedValue([STUB_ORDER]);
-    mockListPaymentOrders.mockResolvedValue([]);
+    mockListPaymentOrders.mockResolvedValue([STUB_ORDER]);
+    mockGetReviewQueue.mockResolvedValue([]);
     mockGetPaymentOrder.mockResolvedValue(STUB_ORDER);
   });
 
@@ -105,17 +105,21 @@ describe("PaymentOrdersTray", () => {
     cleanup();
   });
 
-  it("loads the review queue by default and renders order rows", async () => {
+  it("loads all orders by default without a status filter", async () => {
     renderTray();
 
     await waitFor(() => {
-      expect(mockGetReviewQueue).toHaveBeenCalledWith({ purpose: undefined });
+      expect(mockListPaymentOrders).toHaveBeenCalledWith({
+        purpose: undefined,
+      });
     });
+    expect(mockGetReviewQueue).not.toHaveBeenCalled();
     expect(await screen.findByText("OP-2026-0001")).toBeInTheDocument();
     expect(screen.getByText("Comprobante enviado")).toBeInTheDocument();
+    expect(screen.getByLabelText("Estado")).toHaveValue("ALL");
   });
 
-  it("passes the purpose filter to the review queue", async () => {
+  it("passes the purpose filter to the list endpoint", async () => {
     const user = userEvent.setup();
     renderTray();
     await screen.findByText("OP-2026-0001");
@@ -123,7 +127,9 @@ describe("PaymentOrdersTray", () => {
     await user.selectOptions(screen.getByLabelText("Propósito"), "CAMPOREE");
 
     await waitFor(() => {
-      expect(mockGetReviewQueue).toHaveBeenCalledWith({ purpose: "CAMPOREE" });
+      expect(mockListPaymentOrders).toHaveBeenCalledWith({
+        purpose: "CAMPOREE",
+      });
     });
   });
 
@@ -139,6 +145,19 @@ describe("PaymentOrdersTray", () => {
         purpose: undefined,
         status: "APPROVED",
       });
+    });
+  });
+
+  it("uses the review queue when Por revisar is selected", async () => {
+    const user = userEvent.setup();
+    mockGetReviewQueue.mockResolvedValue([STUB_ORDER]);
+    renderTray();
+    await screen.findByText("OP-2026-0001");
+
+    await user.selectOptions(screen.getByLabelText("Estado"), "REVIEW_QUEUE");
+
+    await waitFor(() => {
+      expect(mockGetReviewQueue).toHaveBeenCalledWith({ purpose: undefined });
     });
   });
 

@@ -7910,7 +7910,8 @@
       "APPROVED": "Approved",
       "PROOF_REJECTED": "Proof rejected",
       "CANCELLED": "Cancelled",
-      "EXPIRED": "Expired"
+      "EXPIRED": "Expired",
+      "ALL": "All"
     },
     "proofStatus": {
       "SUBMITTED": "Submitted",
@@ -7937,7 +7938,12 @@
       "rejectDescription": "The club will be able to upload a new proof with the same folio.",
       "rejectPlaceholder": "Rejection reason (required)",
       "confirmReject": "Confirm rejection",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "proofFileGeneric": "Payment receipt",
+      "proofFileJpeg": "Payment receipt JPEG",
+      "proofFilePdf": "Payment receipt PDF",
+      "proofFilePng": "Payment receipt PNG",
+      "unknownBeneficiary": "User"
     },
     "reassignments": {
       "empty": "No reassignment requests",

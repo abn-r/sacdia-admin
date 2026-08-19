@@ -6,6 +6,8 @@
  */
 import { apiRequest } from "@/lib/api/client";
 import { unwrapApiData } from "@/lib/api/unwrap";
+import { listNormalizedClubSectionMembers } from "@/lib/api/clubs";
+import { attachPaymentOrderBeneficiaries } from "@/lib/payment-orders/display";
 
 export type PaymentOrderPurpose = "INSURANCE" | "CAMPOREE";
 
@@ -19,6 +21,28 @@ export type PaymentOrderStatus =
 
 export type PaymentOrderProofStatus = "SUBMITTED" | "APPROVED" | "REJECTED";
 
+export type PaymentOrderUserLike = {
+  user_id?: string;
+  id?: string;
+  name?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
+  paternal_last_name?: string | null;
+  maternal_last_name?: string | null;
+  full_name?: string | null;
+  email?: string | null;
+  picture_url?: string | null;
+  user_image?: string | null;
+  avatar_url?: string | null;
+};
+
+export type PaymentOrderLineBeneficiary = {
+  user_id: string;
+  full_name: string | null;
+  picture_url: string | null;
+  email: string | null;
+};
+
 export type PaymentOrderLine = {
   field_payment_order_line_id: string;
   sequence: number;
@@ -28,6 +52,14 @@ export type PaymentOrderLine = {
   purpose_ref_id: number;
   insurance_assignment_id: number | null;
   camporee_member_id: number | null;
+  /** Present after GET detail normalization, or nested Prisma `users.*`. */
+  full_name?: string | null;
+  beneficiary_full_name?: string | null;
+  users?: PaymentOrderUserLike | null;
+  user?: PaymentOrderUserLike | null;
+  member?: PaymentOrderUserLike | null;
+  beneficiary?: PaymentOrderUserLike | PaymentOrderLineBeneficiary | null;
+  beneficiary_user?: PaymentOrderUserLike | null;
 };
 
 export type PaymentOrderProof = {
@@ -39,6 +71,9 @@ export type PaymentOrderProof = {
   uploaded_by_id: string;
   reviewed_by_id: string | null;
   created_at: string;
+  original_file_name?: string | null;
+  original_filename?: string | null;
+  display_name?: string | null;
 };
 
 export type PaymentOrder = {
@@ -151,7 +186,17 @@ export async function getPaymentOrdersReviewQueue(
 
 export async function getPaymentOrder(orderId: string): Promise<PaymentOrder> {
   const payload = await apiRequest<unknown>(`/payment-orders/${orderId}`);
-  return unwrapApiData<PaymentOrder>(payload);
+  const order = unwrapApiData<PaymentOrder>(payload);
+  return attachPaymentOrderBeneficiaries(order, async () => {
+    try {
+      return await listNormalizedClubSectionMembers(
+        order.club_id,
+        order.club_section_id,
+      );
+    } catch {
+      return [];
+    }
+  });
 }
 
 export async function getPaymentOrderProofDownload(

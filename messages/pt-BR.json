@@ -7776,7 +7776,8 @@
       "APPROVED": "Aprovada",
       "PROOF_REJECTED": "Comprovante rejeitado",
       "CANCELLED": "Cancelada",
-      "EXPIRED": "Vencida"
+      "EXPIRED": "Vencida",
+      "ALL": "Todos"
     },
     "proofStatus": {
       "SUBMITTED": "Enviado",
@@ -7803,7 +7804,12 @@
       "rejectDescription": "O clube poderá enviar um novo comprovante com o mesmo folio.",
       "rejectPlaceholder": "Motivo da rejeição (obrigatório)",
       "confirmReject": "Confirmar rejeição",
-      "cancel": "Cancelar"
+      "cancel": "Cancelar",
+      "proofFileGeneric": "Comprovante",
+      "proofFileJpeg": "Comprovante JPEG",
+      "proofFilePdf": "Comprovante PDF",
+      "proofFilePng": "Comprovante PNG",
+      "unknownBeneficiary": "Usuário"
     },
     "reassignments": {
       "empty": "Nenhuma solicitação de reatribuição",
