@@ -126,6 +126,14 @@ export function EventScoreEntryPanel({
     awarded_points: awardedPoints[rubric.camporee_event_rubric_id] ?? 0,
   }));
 
+  const selectedTarget = useMemo(
+    () =>
+      visibleTargets.find((target) => target.club_section_id === selectedSectionId) ??
+      null,
+    [selectedSectionId, visibleTargets],
+  );
+  const isOverride = Boolean(selectedTarget?.active_result_id);
+
   const assignedJudgeForSection = useMemo(() => {
     if (!selectedSectionId) return null;
     const assignment = eventAssignments.find(
@@ -286,6 +294,11 @@ export function EventScoreEntryPanel({
             <input type="hidden" name="event_id" value={selectedEventId} />
             <input type="hidden" name="club_section_id" value={selectedSectionId ?? ""} />
             <input type="hidden" name="source" value="manual_lf" />
+            <input
+              type="hidden"
+              name="expected_active_result_id"
+              value={selectedTarget?.active_result_id ?? ""}
+            />
             <input type="hidden" name="items" value={JSON.stringify(scoreItems)} />
 
             <div className="grid gap-4 md:grid-cols-2">
@@ -407,8 +420,14 @@ export function EventScoreEntryPanel({
                 id="score-entry-notes"
                 name="notes"
                 rows={2}
-                placeholder={t("notesPlaceholder")}
+                required={isOverride}
+                placeholder={
+                  isOverride ? t("notesOverridePlaceholder") : t("notesPlaceholder")
+                }
               />
+              {isOverride && (
+                <p className="text-xs text-muted-foreground">{t("notesOverrideHint")}</p>
+              )}
             </div>
 
             <div className="flex flex-wrap items-center gap-3">

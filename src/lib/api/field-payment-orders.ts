@@ -4,7 +4,7 @@
  * Backend: /payment-orders/..., /insurance/reassignments/...
  * Contract: docs/plans/handoffs/field-payment-orders-admin-handoff.md
  */
-import { apiRequest } from "@/lib/api/client";
+import { API_BASE_URL, apiRequest, getClientAuthToken } from "@/lib/api/client";
 import { unwrapApiData } from "@/lib/api/unwrap";
 import { listNormalizedClubSectionMembers } from "@/lib/api/clubs";
 import { attachPaymentOrderBeneficiaries } from "@/lib/payment-orders/display";
@@ -204,6 +204,41 @@ export async function getPaymentOrderProofDownload(
 ): Promise<ProofDownload> {
   const payload = await apiRequest<unknown>(`/payment-orders/${orderId}/proof`);
   return unwrapApiData<ProofDownload>(payload);
+}
+
+export async function downloadPaymentOrderPdf(orderId: string): Promise<Blob> {
+  const token = await getClientAuthToken();
+  const headers: Record<string, string> = { Accept: "application/pdf" };
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  const response = await fetch(
+    `${API_BASE_URL}/payment-orders/${encodeURIComponent(orderId)}/document`,
+    { headers },
+  );
+  if (!response.ok) {
+    throw new Error(`No se pudo descargar el PDF (${response.status})`);
+  }
+
+  return response.blob();
+}
+
+export async function triggerPaymentOrderPdfDownload(
+  orderId: string,
+  filename = `orden-${orderId}.pdf`,
+): Promise<void> {
+  const blob = await downloadPaymentOrderPdf(orderId);
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+  URL.revokeObjectURL(url);
 }
 
 export async function approvePaymentOrder(

@@ -3257,7 +3257,9 @@
       "emptyEventsTitle": "Aucune épreuve notée",
       "emptyEventsDescription": "Activez le score sur au moins une épreuve du programme.",
       "emptySectionsTitle": "Aucune section inscrite",
-      "emptySectionsDescription": "Inscrivez des clubs pour enregistrer des scores."
+      "emptySectionsDescription": "Inscrivez des clubs pour enregistrer des scores.",
+      "notesOverrideHint": "Cette section a déjà un score officiel. Indiquez le motif de la correction.",
+      "notesOverridePlaceholder": "Motif de la correction"
     },
     "leaderboard": {
       "eyebrow": "Résultats",
@@ -7800,7 +7802,8 @@
       "proofFileJpeg": "Justificatif JPEG",
       "proofFilePdf": "Justificatif PDF",
       "proofFilePng": "Justificatif PNG",
-      "unknownBeneficiary": "Utilisateur"
+      "unknownBeneficiary": "Utilisateur",
+      "downloadPdf": "Télécharger le PDF"
     },
     "reassignments": {
       "empty": "Aucune demande de réaffectation",

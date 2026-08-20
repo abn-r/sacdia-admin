@@ -3291,6 +3291,8 @@ export interface IntlMessages {
       totalLive: string;
       notesLabel: string;
       notesPlaceholder: string;
+      notesOverrideHint: string;
+      notesOverridePlaceholder: string;
       submitButton: string;
       readOnlyHint: string;
       noRubrics: string;
@@ -7997,6 +7999,7 @@ export interface IntlMessages {
       colAmount: string;
       proof: string;
       viewProof: string;
+      downloadPdf: string;
       makerCheckerWarning: string;
       approve: string;
       reject: string;

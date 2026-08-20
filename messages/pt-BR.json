@@ -3257,7 +3257,9 @@
       "emptyEventsTitle": "Sem provas pontuáveis",
       "emptyEventsDescription": "Ative a pontuação em pelo menos uma prova do cronograma.",
       "emptySectionsTitle": "Sem seções inscritas",
-      "emptySectionsDescription": "Inscreva clubes para registrar pontuações."
+      "emptySectionsDescription": "Inscreva clubes para registrar pontuações.",
+      "notesOverrideHint": "Esta seção já tem uma pontuação oficial. Informe o motivo da correção.",
+      "notesOverridePlaceholder": "Motivo da correção"
     },
     "leaderboard": {
       "eyebrow": "Resultados",
@@ -7820,7 +7822,8 @@
       "proofFileJpeg": "Comprovante JPEG",
       "proofFilePdf": "Comprovante PDF",
       "proofFilePng": "Comprovante PNG",
-      "unknownBeneficiary": "Usuário"
+      "unknownBeneficiary": "Usuário",
+      "downloadPdf": "Baixar PDF"
     },
     "reassignments": {
       "empty": "Nenhuma solicitação de reatribuição",

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { AlertTriangle, ExternalLink, Loader2 } from "lucide-react";
+import { AlertTriangle, Download, ExternalLink, Loader2 } from "lucide-react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -35,6 +35,7 @@ import {
   getPaymentOrder,
   getPaymentOrderProofDownload,
   rejectPaymentOrder,
+  triggerPaymentOrderPdfDownload,
   type PaymentOrder,
 } from "@/lib/api/field-payment-orders";
 import { getPaymentOrderErrorMessage } from "@/components/payment-orders/payment-order-errors";
@@ -73,6 +74,7 @@ export function PaymentOrderDetail({
   const [order, setOrder] = useState<PaymentOrder | null>(null);
   const [loading, setLoading] = useState(false);
   const [acting, setActing] = useState(false);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
 
@@ -118,6 +120,23 @@ export function PaymentOrderDetail({
       toast.error(
         getPaymentOrderErrorMessage(error, t, "toasts.downloadFailed"),
       );
+    }
+  };
+
+  const downloadPdf = async () => {
+    if (!orderId || !order) return;
+    setDownloadingPdf(true);
+    try {
+      await triggerPaymentOrderPdfDownload(
+        orderId,
+        `orden-${order.folio_reference}.pdf`,
+      );
+    } catch (error) {
+      toast.error(
+        getPaymentOrderErrorMessage(error, t, "toasts.downloadFailed"),
+      );
+    } finally {
+      setDownloadingPdf(false);
     }
   };
 
@@ -170,6 +189,20 @@ export function PaymentOrderDetail({
             </p>
           ) : (
             <div className="space-y-5 px-4 pb-6">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => void downloadPdf()}
+                disabled={downloadingPdf}
+              >
+                {downloadingPdf ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Download className="size-4" />
+                )}
+                {t("detail.downloadPdf")}
+              </Button>
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div>
                   <p className="text-muted-foreground">{t("detail.purpose")}</p>

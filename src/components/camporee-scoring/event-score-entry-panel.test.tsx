@@ -93,6 +93,7 @@ const targets: CamporeeScoringTarget[] = [
     club_name: "Halcones",
     section_name: "Conquistadores",
     status: "approved",
+    active_result_id: null,
   },
 ];
 
@@ -131,6 +132,30 @@ describe("EventScoreEntryPanel", () => {
       { camporee_event_rubric_id: 101, awarded_points: 30 },
       { camporee_event_rubric_id: 102, awarded_points: 40 },
     ]);
+  });
+
+  it("sends the active result id and requires notes when overriding a scored section", () => {
+    const { container } = renderPanel({
+      targetsByEvent: {
+        10: [
+          {
+            ...targets[0],
+            active_result_id: "33333333-3333-4333-8333-333333333333",
+          },
+        ],
+      },
+    });
+
+    const expectedId = container.querySelector<HTMLInputElement>(
+      'input[name="expected_active_result_id"]',
+    );
+    const notes = container.querySelector<HTMLTextAreaElement>('textarea[name="notes"]');
+
+    expect(expectedId?.value).toBe("33333333-3333-4333-8333-333333333333");
+    expect(notes).toHaveAttribute("required");
+    expect(
+      screen.getByText("Ya hay un puntaje activo. Indica el motivo de la corrección."),
+    ).toBeInTheDocument();
   });
 
   it("renders manual score form only for scoring events with rubrics and edit permission", () => {

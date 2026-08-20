@@ -3258,7 +3258,9 @@
       "emptyEventsTitle": "No scoring events",
       "emptyEventsDescription": "Enable scoring on at least one schedule event.",
       "emptySectionsTitle": "No enrolled sections",
-      "emptySectionsDescription": "Enroll clubs to record scores."
+      "emptySectionsDescription": "Enroll clubs to record scores.",
+      "notesOverrideHint": "This section already has an official score. Enter the reason for the correction.",
+      "notesOverridePlaceholder": "Reason for the correction"
     },
     "leaderboard": {
       "eyebrow": "Results",
@@ -7954,7 +7956,8 @@
       "proofFileJpeg": "Payment receipt JPEG",
       "proofFilePdf": "Payment receipt PDF",
       "proofFilePng": "Payment receipt PNG",
-      "unknownBeneficiary": "User"
+      "unknownBeneficiary": "User",
+      "downloadPdf": "Download PDF"
     },
     "reassignments": {
       "empty": "No reassignment requests",

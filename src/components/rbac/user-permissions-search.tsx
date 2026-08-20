@@ -80,7 +80,7 @@ export function UserPermissionsSearch({ allPermissions }: UserPermissionsSearchP
     const trimmed = query.trim();
 
     if (!trimmed) {
-      toast.error("Ingresá un nombre o correo para buscar.");
+      toast.error("Ingresa un nombre o correo para buscar.");
       return;
     }
 
@@ -139,7 +139,7 @@ export function UserPermissionsSearch({ allPermissions }: UserPermissionsSearchP
             </Button>
           </div>
           <p className="text-xs text-muted-foreground">
-            Buscá y seleccioná un usuario para ver y gestionar sus permisos directos.
+            Busca y selecciona un usuario para ver y gestionar sus permisos directos.
           </p>
         </div>
 
