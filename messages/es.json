@@ -1,4 +1,10 @@
 {
+  "access": {
+    "page": {
+      "forbiddenTitle": "Sin acceso a esta sección",
+      "forbiddenDescription": "Tu rol no incluye los permisos necesarios para abrir esta página."
+    }
+  },
   "nav": {
     "palette": {
       "title": "Paleta de comandos",
@@ -2254,6 +2260,7 @@
     "errors": {
       "create_permission_failed": "No se pudo crear el permiso",
       "update_permission_failed": "No se pudo actualizar el permiso",
+      "forbidden_super_admin": "Solo un super administrador puede cambiar permisos o roles.",
       "create_role_failed": "No se pudo crear el rol",
       "update_role_failed": "No se pudo actualizar el rol",
       "deactivate_role_failed": "No se pudo desactivar el rol",
@@ -2435,13 +2442,15 @@
         "categoryClub": "Club",
         "discard": "Descartar",
         "noMatches": "Sin coincidencias",
-        "noMatchesDesc": "Ningún permiso coincide con la búsqueda."
+        "noMatchesDesc": "Ningún permiso coincide con la búsqueda.",
+        "readOnlyBanner": "Vista de solo lectura. Solo un super administrador puede cambiar la matriz."
       },
       "permissions": {
         "title": "Catálogo de permisos",
         "description": "Permisos disponibles en el sistema.",
         "loadError": "Error inesperado",
-        "emptyLoadTitle": "No se pudo cargar el catálogo"
+        "emptyLoadTitle": "No se pudo cargar el catálogo",
+        "readOnlyBanner": "Vista de solo lectura. Solo un super administrador puede crear o editar permisos."
       },
       "userPermissions": {
         "title": "Permisos directos de usuario",

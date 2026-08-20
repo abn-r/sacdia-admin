@@ -18,6 +18,7 @@ import {
 } from "@/lib/rbac/service";
 import { requireAdminUser } from "@/lib/auth/session";
 import { extractRoles, SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
+import type { AuthUser } from "@/lib/auth/types";
 import {
   activePermissionIds,
   validateCopyRolePermissions,
@@ -27,6 +28,21 @@ import {
 const PERMISSIONS_PATH = "/dashboard/configuration/permissions";
 const ROLES_PATH = "/dashboard/configuration/roles";
 const MATRIX_PATH = "/dashboard/configuration/matrix";
+
+async function requireSuperAdminUser(): Promise<AuthUser | RbacActionState> {
+  const user = await requireAdminUser();
+  if (!extractRoles(user).includes(SUPER_ADMIN_ROLE)) {
+    const t = await getTranslations("rbac");
+    return { error: t("errors.forbidden_super_admin") };
+  }
+  return user;
+}
+
+function isForbidden(
+  value: AuthUser | RbacActionState,
+): value is RbacActionState {
+  return "error" in value && typeof value.error === "string";
+}
 
 function copyIssueKey(
   issue: CopyRolePermissionsIssue,
@@ -54,7 +70,10 @@ export async function createPermissionAction(
   _: RbacActionState,
   formData: FormData,
 ): Promise<RbacActionState> {
-  await requireAdminUser();
+  const gate = await requireSuperAdminUser();
+  if (isForbidden(gate)) {
+    return gate;
+  }
   const t = await getTranslations("rbac");
 
   const permissionName = String(formData.get("permission_name") ?? "").trim();
@@ -90,7 +109,10 @@ export async function updatePermissionAction(
   _: RbacActionState,
   formData: FormData,
 ): Promise<RbacActionState> {
-  await requireAdminUser();
+  const gate = await requireSuperAdminUser();
+  if (isForbidden(gate)) {
+    return gate;
+  }
   const t = await getTranslations("rbac");
 
   const permissionName = String(formData.get("permission_name") ?? "").trim();
@@ -124,7 +146,10 @@ export async function updatePermissionAction(
 }
 
 export async function deletePermissionAction(permissionId: string): Promise<RbacActionState> {
-  await requireAdminUser();
+  const gate = await requireSuperAdminUser();
+  if (isForbidden(gate)) {
+    return gate;
+  }
   const t = await getTranslations("rbac");
 
   if (!permissionId) {
@@ -151,7 +176,10 @@ export async function createRoleAction(
   _: RbacActionState,
   formData: FormData,
 ): Promise<RbacActionState> {
-  await requireAdminUser();
+  const gate = await requireSuperAdminUser();
+  if (isForbidden(gate)) {
+    return gate;
+  }
   const t = await getTranslations("rbac");
 
   const roleName = String(formData.get("role_name") ?? "").trim();
@@ -210,7 +238,10 @@ export async function updateRoleAction(
   _: RbacActionState,
   formData: FormData,
 ): Promise<RbacActionState> {
-  await requireAdminUser();
+  const gate = await requireSuperAdminUser();
+  if (isForbidden(gate)) {
+    return gate;
+  }
   const t = await getTranslations("rbac");
 
   const description = String(formData.get("description") ?? "").trim();
@@ -247,7 +278,10 @@ export async function updateRoleAction(
 export async function deactivateRoleAction(
   roleId: string,
 ): Promise<{ error?: string }> {
-  await requireAdminUser();
+  const gate = await requireSuperAdminUser();
+  if (isForbidden(gate)) {
+    return gate;
+  }
   const t = await getTranslations("rbac");
 
   try {
@@ -269,7 +303,10 @@ export async function syncRolePermissionsAction(
   _: RbacActionState,
   formData: FormData,
 ): Promise<RbacActionState> {
-  await requireAdminUser();
+  const gate = await requireSuperAdminUser();
+  if (isForbidden(gate)) {
+    return gate;
+  }
   const t = await getTranslations("rbac");
 
   const permissionIdsRaw = formData.get("permission_ids");
@@ -297,7 +334,10 @@ export async function toggleRolePermissionAction(
   permissionId: string,
   enabled: boolean,
 ): Promise<RbacActionState> {
-  await requireAdminUser();
+  const gate = await requireSuperAdminUser();
+  if (isForbidden(gate)) {
+    return gate;
+  }
   const t = await getTranslations("rbac");
 
   if (!roleId || !permissionId) {
@@ -327,12 +367,11 @@ export async function copyRolePermissionsAction(
   sourceRoleId: string,
   targetRoleId: string,
 ): Promise<RbacActionState> {
-  const user = await requireAdminUser();
-  const t = await getTranslations("rbac");
-
-  if (!extractRoles(user).includes(SUPER_ADMIN_ROLE)) {
-    return { error: t("copyPermissions.forbidden") };
+  const gate = await requireSuperAdminUser();
+  if (isForbidden(gate)) {
+    return gate;
   }
+  const t = await getTranslations("rbac");
 
   if (!sourceRoleId || !targetRoleId) {
     return { error: t("copyPermissions.error") };

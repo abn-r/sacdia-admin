@@ -62,9 +62,16 @@ interface PermissionsTableProps {
   createAction: CreateAction;
   updateAction: UpdateAction;
   deleteAction: DeleteAction;
+  canWrite?: boolean;
 }
 
-export function PermissionsTable({ items, createAction, updateAction, deleteAction }: PermissionsTableProps) {
+export function PermissionsTable({
+  items,
+  createAction,
+  updateAction,
+  deleteAction,
+  canWrite = false,
+}: PermissionsTableProps) {
   const t = useTranslations("rbac");
   const router = useRouter();
   const [createOpen, setCreateOpen] = useState(false);
@@ -113,19 +120,23 @@ export function PermissionsTable({ items, createAction, updateAction, deleteActi
 
   return (
     <>
+      {canWrite ? (
       <div className="flex justify-end">
         <Button onClick={() => setCreateOpen(true)}>
           <Plus className="size-4" />
           {t("permissionsTable.createPermission")}
         </Button>
       </div>
+      ) : null}
 
       {items.length === 0 ? (
         <EmptyState icon={Key} title={t("permissionsTable.emptyTitle")} description={t("permissionsTable.emptyDescription")}>
+          {canWrite ? (
           <Button onClick={() => setCreateOpen(true)}>
             <Plus className="size-4" />
             {t("permissionsTable.createPermission")}
           </Button>
+          ) : null}
         </EmptyState>
       ) : (
         <>
@@ -169,6 +180,7 @@ export function PermissionsTable({ items, createAction, updateAction, deleteActi
                         </Badge>
                       </TableCell>
                       <TableCell>
+                        {canWrite ? (
                         <div className="flex gap-1">
                           <Button variant="ghost" size="icon" className="size-8" onClick={() => setEditItem(perm)} title={t("permissionsTable.actionEdit")}>
                             <Pencil className="size-3.5" />
@@ -177,6 +189,7 @@ export function PermissionsTable({ items, createAction, updateAction, deleteActi
                             <Trash2 className="size-3.5" />
                           </Button>
                         </div>
+                        ) : null}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -227,6 +240,7 @@ export function PermissionsTable({ items, createAction, updateAction, deleteActi
                     </p>
                   )}
 
+                  {canWrite ? (
                   <div className="mt-3 flex flex-wrap gap-1.5 border-t border-border/40 pt-3">
                     <Button
                       variant="outline"
@@ -248,6 +262,7 @@ export function PermissionsTable({ items, createAction, updateAction, deleteActi
                       {t("permissionsTable.actionDelete")}
                     </Button>
                   </div>
+                  ) : null}
                 </div>
               </li>
             ))}

@@ -1,4 +1,10 @@
 {
+  "access": {
+    "page": {
+      "forbiddenTitle": "Vous ne pouvez pas ouvrir cette section",
+      "forbiddenDescription": "Votre rôle n’inclut pas les autorisations nécessaires pour ouvrir cette page."
+    }
+  },
   "nav": {
     "palette": {
       "title": "Palette de commandes",
@@ -2255,7 +2261,8 @@
       "remove_role_failed": "Impossible de retirer le rôle.",
       "assign_permission_failed": "Impossible d'attribuer la permission.",
       "remove_permission_failed": "Impossible de retirer la permission.",
-      "load_user_permissions_failed": "Impossible de charger les permissions de l'utilisateur."
+      "load_user_permissions_failed": "Impossible de charger les permissions de l'utilisateur.",
+      "forbidden_super_admin": "Seul un super administrateur peut modifier les permissions ou les rôles."
     },
     "validation": {
       "permission_name_required": "Le nom de la permission est obligatoire",
@@ -2428,13 +2435,15 @@
         "categoryClub": "Club",
         "discard": "Annuler",
         "noMatches": "Aucun résultat",
-        "noMatchesDesc": "Aucune permission ne correspond à la recherche."
+        "noMatchesDesc": "Aucune permission ne correspond à la recherche.",
+        "readOnlyBanner": "Vue en lecture seule. Seul un super administrateur peut modifier la matrice."
       },
       "permissions": {
         "title": "Catalogue des permissions",
         "description": "Permissions disponibles dans le système.",
         "loadError": "Erreur inattendue",
-        "emptyLoadTitle": "Impossible de charger le catalogue"
+        "emptyLoadTitle": "Impossible de charger le catalogue",
+        "readOnlyBanner": "Vue en lecture seule. Seul un super administrateur peut créer ou modifier des permissions."
       },
       "userPermissions": {
         "title": "Permissions directes de l'utilisateur",

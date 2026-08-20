@@ -36,6 +36,7 @@ interface PermissionsMatrixProps {
   roles: Role[];
   permissions: Permission[];
   toggleAction: ToggleAction;
+  canWrite?: boolean;
 }
 
 type Selections = Record<string, Set<string>>;
@@ -66,6 +67,7 @@ export function PermissionsMatrix({
   roles,
   permissions,
   toggleAction,
+  canWrite = false,
 }: PermissionsMatrixProps) {
   const t = useTranslations("rbac.pages.matrix");
   const tRbac = useTranslations("rbac");
@@ -244,7 +246,11 @@ export function PermissionsMatrix({
                     >
                       <Label
                         htmlFor={checkboxId}
-                        className="flex cursor-pointer items-center justify-center"
+                        className={
+                          canWrite
+                            ? "flex cursor-pointer items-center justify-center"
+                            : "flex cursor-default items-center justify-center"
+                        }
                       >
                         <span className="sr-only">
                           {getPermissionLabel(tRbac, permission.permission_name)}{" "}
@@ -262,7 +268,7 @@ export function PermissionsMatrix({
                             onCheckedChange={() =>
                               void togglePermission(role, permission)
                             }
-                            disabled={pending}
+                            disabled={pending || !canWrite}
                           />
                         )}
                       </Label>

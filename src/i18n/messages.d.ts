@@ -28,6 +28,12 @@ declare module "next-intl" {
 }
 
 export interface IntlMessages {
+  access: {
+    page: {
+      forbiddenTitle: string;
+      forbiddenDescription: string;
+    };
+  };
   nav: {
     palette: {
       title: string;
@@ -2283,6 +2289,7 @@ export interface IntlMessages {
     errors: {
       create_permission_failed: string;
       update_permission_failed: string;
+      forbidden_super_admin: string;
       create_role_failed: string;
       update_role_failed: string;
       deactivate_role_failed: string;
@@ -2465,12 +2472,14 @@ export interface IntlMessages {
         discard: string;
         noMatches: string;
         noMatchesDesc: string;
+        readOnlyBanner: string;
       };
       permissions: {
         title: string;
         description: string;
         loadError: string;
         emptyLoadTitle: string;
+        readOnlyBanner: string;
       };
       userPermissions: {
         title: string;

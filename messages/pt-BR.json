@@ -1,4 +1,10 @@
 {
+  "access": {
+    "page": {
+      "forbiddenTitle": "Sem acesso a esta seção",
+      "forbiddenDescription": "Seu perfil não inclui as permissões necessárias para abrir esta página."
+    }
+  },
   "nav": {
     "palette": {
       "title": "Paleta de comandos",
@@ -2255,7 +2261,8 @@
       "remove_role_failed": "Não foi possível remover o papel.",
       "assign_permission_failed": "Não foi possível atribuir a permissão.",
       "remove_permission_failed": "Não foi possível remover a permissão.",
-      "load_user_permissions_failed": "Não foi possível carregar as permissões do usuário."
+      "load_user_permissions_failed": "Não foi possível carregar as permissões do usuário.",
+      "forbidden_super_admin": "Apenas um super administrador pode alterar permissões ou papéis."
     },
     "validation": {
       "permission_name_required": "O nome da permissão é obrigatório",
@@ -2428,13 +2435,15 @@
         "categoryClub": "Clube",
         "discard": "Descartar",
         "noMatches": "Sem correspondências",
-        "noMatchesDesc": "Nenhuma permissão corresponde à pesquisa."
+        "noMatchesDesc": "Nenhuma permissão corresponde à pesquisa.",
+        "readOnlyBanner": "Visualização somente leitura. Apenas um super administrador pode alterar a matriz."
       },
       "permissions": {
         "title": "Catálogo de permissões",
         "description": "Permissões disponíveis no sistema.",
         "loadError": "Erro inesperado",
-        "emptyLoadTitle": "Não foi possível carregar o catálogo"
+        "emptyLoadTitle": "Não foi possível carregar o catálogo",
+        "readOnlyBanner": "Visualização somente leitura. Apenas um super administrador pode criar ou editar permissões."
       },
       "userPermissions": {
         "title": "Permissões diretas de usuário",

@@ -1,4 +1,10 @@
 {
+  "access": {
+    "page": {
+      "forbiddenTitle": "You cannot open this section",
+      "forbiddenDescription": "Your role does not include the permissions required for this page."
+    }
+  },
   "nav": {
     "palette": {
       "title": "Command palette",
@@ -2248,6 +2254,7 @@
     "errors": {
       "create_permission_failed": "The permission could not be created",
       "update_permission_failed": "The permission could not be updated",
+      "forbidden_super_admin": "Only a super administrator can change permissions or roles.",
       "create_role_failed": "The role could not be created",
       "update_role_failed": "The role could not be updated",
       "deactivate_role_failed": "The role could not be deactivated",
@@ -2429,13 +2436,15 @@
         "categoryClub": "Club",
         "discard": "Discard",
         "noMatches": "No matches",
-        "noMatchesDesc": "No permission matches the search."
+        "noMatchesDesc": "No permission matches the search.",
+        "readOnlyBanner": "Read-only view. Only a super administrator can change the matrix."
       },
       "permissions": {
         "title": "Permissions catalog",
         "description": "Permissions available in the system.",
         "loadError": "Unexpected error",
-        "emptyLoadTitle": "Could not load catalog"
+        "emptyLoadTitle": "Could not load catalog",
+        "readOnlyBanner": "Read-only view. Only a super administrator can create or edit permissions."
       },
       "userPermissions": {
         "title": "Direct user permissions",
