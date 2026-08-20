@@ -232,6 +232,7 @@ export function mergeCamporeePaymentLedger(
 ): CamporeeLedgerPayment[] {
   const real: CamporeeLedgerPayment[] = payments.map((payment) => ({
     ...payment,
+    member_name: resolveCamporeePaymentMemberName(payment, members),
     ledgerSource: "camporee_payment",
   }));
   const used = new Set<number>();
@@ -295,6 +296,41 @@ function isCountableInscriptionPayment(payment: CamporeePayment) {
   if (payment.payment_type !== "inscription") return false;
   const status = payment.status?.toLowerCase();
   return status !== "rejected";
+}
+
+function nestedPaymentUserName(payment: CamporeePayment): string | null {
+  const users = payment.camporee_member?.users;
+  if (!users) return null;
+  const name = [users.name, users.paternal_last_name, users.maternal_last_name]
+    .filter((part): part is string => Boolean(part && part.trim()))
+    .join(" ")
+    .trim();
+  return name.length > 0 ? name : null;
+}
+
+/**
+ * Ledger/member label for a camporee_payments row.
+ * GET /payments often omits `member_name`; fall back to the roster, then nested users.
+ */
+export function resolveCamporeePaymentMemberName(
+  payment: CamporeePayment,
+  members: CamporeeMember[] = [],
+): string | null {
+  const member = members.find((row) => paymentBelongsToMember(payment, row));
+  if (member) {
+    const label = getCamporeeMemberDisplayName(member);
+    if (label) return label;
+  }
+
+  const nested = nestedPaymentUserName(payment);
+  if (nested) return nested;
+
+  const flat = payment.member_name?.trim();
+  if (flat && flat !== payment.member_id && flat !== payment.camporee_member?.user_id) {
+    return flat;
+  }
+
+  return null;
 }
 
 /** Match API nested `camporee_member` / `camporee_member_id` or flat `member_id`. */

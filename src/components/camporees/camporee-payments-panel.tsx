@@ -27,6 +27,7 @@ import {
 import type { CamporeePayment, PaymentType } from "@/lib/api/camporees";
 import {
   isLedgerPaymentMutable,
+  resolveCamporeePaymentMemberName,
   type CamporeeLedgerPayment,
 } from "@/components/camporees/camporee-payment-balance";
 import {
@@ -217,6 +218,9 @@ export function CamporeePaymentsPanel({
   }
 
   const dialogPaymentName =
+    (dialog
+      ? resolveCamporeePaymentMemberName(dialog.payment)
+      : null) ??
     dialog?.payment.member_name ??
     t("paymentsPanel.fallbackPayment", {
       id: dialog?.payment.camporee_payment_id ?? "",
@@ -272,7 +276,9 @@ export function CamporeePaymentsPanel({
                     <TableCell className="px-3 py-2.5 align-middle">
                       <div className="flex items-center gap-1.5">
                         <span className="text-sm font-medium">
-                          {payment.member_name ?? payment.member_id}
+                          {resolveCamporeePaymentMemberName(payment) ??
+                            payment.member_name ??
+                            payment.member_id}
                         </span>
                         {payment.voucher_url && (
                           <Tooltip>

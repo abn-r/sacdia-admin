@@ -395,6 +395,7 @@ describe("camporee payment balance", () => {
     const camila = ledger.find((row) => row.camporee_member_id === 9);
     expect(camila?.ledgerSource).toBe("camporee_payment");
     expect(camila?.camporee_payment_id).toBe("pay-camila");
+    expect(camila?.member_name).toBe("Camila");
     expect(isLedgerPaymentMutable(camila!)).toBe(true);
     expect(ledger.filter((row) => row.ledgerSource === "payment_order")).toHaveLength(2);
   });
@@ -424,5 +425,32 @@ describe("camporee payment balance", () => {
     expect(ledger[0]?.status).toBe("pending_approval");
     expect(ledger[0]?.ledgerSource).toBe("payment_order");
     expect(ledger[0]?.member_name).toBe("Luis");
+  });
+
+  it("fills a camporee_payments name from nested users when the roster has no label", () => {
+    const ledger = mergeCamporeePaymentLedger(
+      [
+        {
+          camporee_payment_id: "pay-nested",
+          camporee_member_id: 21,
+          amount: "450.00",
+          payment_type: "inscription",
+          status: "approved",
+          camporee_member: {
+            camporee_member_id: 21,
+            user_id: "u-nested",
+            users: {
+              name: "Camila",
+              paternal_last_name: "García",
+              maternal_last_name: "Morales",
+            },
+          },
+        },
+      ],
+      [],
+      [],
+    );
+
+    expect(ledger[0]?.member_name).toBe("Camila García Morales");
   });
 });
