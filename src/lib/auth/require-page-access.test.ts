@@ -77,4 +77,49 @@ describe("canAccessDashboardPath", () => {
       ),
     ).toBe(false);
   });
+
+  it("denies an empty pathname", () => {
+    expect(
+      canAccessDashboardPath(buildUser(["director-lf"], ["dashboard:read"]), ""),
+    ).toBe(false);
+  });
+
+  it("denies an unmapped dashboard URL", () => {
+    expect(
+      canAccessDashboardPath(
+        buildUser(["director-lf"], ["dashboard:read"]),
+        "/dashboard/unknown-shell",
+      ),
+    ).toBe(false);
+  });
+
+  it("gates materials request deep links with materiales:read", () => {
+    expect(
+      canAccessDashboardPath(
+        buildUser(["director-lf"], ["dashboard:read"]),
+        "/dashboard/materials/request/FOLIO-1",
+      ),
+    ).toBe(false);
+    expect(
+      canAccessDashboardPath(
+        buildUser(["director-lf"], ["materiales:read"]),
+        "/dashboard/materials/request/FOLIO-1",
+      ),
+    ).toBe(true);
+  });
+
+  it("requires super-admin for direct user-permissions", () => {
+    expect(
+      canAccessDashboardPath(
+        buildUser(["admin"], ["permissions:assign", "permissions:read"]),
+        "/dashboard/rbac/user-permissions",
+      ),
+    ).toBe(false);
+    expect(
+      canAccessDashboardPath(
+        buildUser(["super-admin"], []),
+        "/dashboard/rbac/user-permissions",
+      ),
+    ).toBe(true);
+  });
 });

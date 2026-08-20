@@ -1,4 +1,11 @@
 import { extractPermissions } from "@/lib/auth/permission-utils";
+import {
+  MATERIALS_CONFIGURE,
+  MATERIALS_READ,
+  PERMISSIONS_ASSIGN,
+  PERMISSIONS_READ,
+  ROLES_READ,
+} from "@/lib/auth/permissions";
 import { extractRoles, SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
 import type { AuthUser } from "@/lib/auth/types";
 import type { NavAccess } from "@/navigation/sidebar/nav-access";
@@ -14,6 +21,54 @@ type NavUrlEntry = {
   url: string;
   access: NavAccess | undefined;
 };
+
+/**
+ * Dashboard URLs that are not sidebar leaves. Longest prefix wins after
+ * the sidebar map. Unmapped URLs fail closed.
+ */
+const EXTRA_PATH_ACCESS: Array<{ prefix: string; access: NavAccess }> = [
+  {
+    prefix: "/dashboard/materials/request",
+    access: { permissions: [MATERIALS_READ] },
+  },
+  {
+    prefix: "/dashboard/materials/config",
+    access: { permissions: [MATERIALS_CONFIGURE] },
+  },
+  {
+    prefix: "/dashboard/materials",
+    access: { permissions: [MATERIALS_READ] },
+  },
+  {
+    prefix: "/dashboard/rbac/user-permissions",
+    access: {
+      permissions: [PERMISSIONS_ASSIGN],
+      roles: [SUPER_ADMIN_ROLE],
+    },
+  },
+  {
+    prefix: "/dashboard/coming-soon",
+    access: { permissions: ["dashboard:read"] },
+  },
+  {
+    prefix: "/dashboard/configuration",
+    access: { permissions: [PERMISSIONS_READ, ROLES_READ] },
+  },
+  {
+    prefix: "/dashboard/v2",
+    access: { permissions: ["dashboard:read"] },
+  },
+  {
+    prefix: "/dashboard/annual-folders",
+    access: {
+      permissions: [
+        "annual_folders:evaluate",
+        "rankings:read",
+        "annual_folder_templates:read",
+      ],
+    },
+  },
+];
 
 function walkSubItems(items: NavSubItem[], out: NavUrlEntry[]) {
   for (const item of items) {
@@ -53,6 +108,13 @@ export function collectNavUrlEntries(
   return out;
 }
 
+function matchExtraPathAccess(path: string): NavAccess | undefined {
+  const match = EXTRA_PATH_ACCESS.filter(
+    (entry) => path === entry.prefix || path.startsWith(`${entry.prefix}/`),
+  ).sort((left, right) => right.prefix.length - left.prefix.length)[0];
+  return match?.access;
+}
+
 export function resolveNavAccessForPath(
   pathname: string,
   groups: NavGroup[] = sidebarItems,
@@ -75,7 +137,11 @@ export function resolveNavAccessForPath(
     )
     .sort((left, right) => right.url.length - left.url.length)[0];
 
-  return prefix?.access;
+  if (prefix) {
+    return prefix.access;
+  }
+
+  return matchExtraPathAccess(path);
 }
 
 export function canAccessDashboardPath(
@@ -87,9 +153,14 @@ export function canAccessDashboardPath(
     return true;
   }
 
+  const path = (pathname.split("?")[0] ?? pathname).trim();
+  if (!path) {
+    return false;
+  }
+
   const access = resolveNavAccessForPath(pathname);
   if (!access) {
-    return true;
+    return false;
   }
 
   const permissions = access.permissions ?? [];

@@ -41,6 +41,11 @@ describe("hasAdminRole — legacy fallback OFF", () => {
     expect(roles.hasAdminRole(user)).toBe(true);
   });
 
+  it("returns true when user.roles contains 'assistant-admin'", () => {
+    const user = buildUserWithRoles(["assistant-admin"]);
+    expect(roles.hasAdminRole(user)).toBe(true);
+  });
+
   it("returns true when user.roles contains 'super-admin'", () => {
     const user = buildUserWithRoles(["super-admin"]);
     expect(roles.hasAdminRole(user)).toBe(true);

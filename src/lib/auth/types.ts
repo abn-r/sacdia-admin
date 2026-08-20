@@ -1,6 +1,7 @@
 export type AdminRole =
   | "super-admin"
   | "admin"
+  | "assistant-admin"
   | "coordinator"
   | "zone-coordinator"
   | "general-coordinator";
@@ -19,6 +20,7 @@ export type AuthorizationSnapshot = {
   grants?: {
     global_roles?: AuthorizationGrant[];
     club_assignments?: AuthorizationGrant[];
+    direct_permissions?: string[];
     [key: string]: unknown;
   };
   active_assignment?: {
