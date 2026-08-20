@@ -1,6 +1,7 @@
 import type { AuthUser } from "@/lib/auth/types";
 import type { Division, LocalField, Union } from "@/lib/api/geography";
 import { listLocalFields, listUnions } from "@/lib/api/geography";
+import { extractRoles } from "@/lib/auth/roles";
 
 export type AdminTerritoryScope =
   | { level: "all" }
@@ -42,46 +43,80 @@ function readEffectiveGlobalScope(
   return effective?.scope?.global ?? null;
 }
 
+const SUPER_ADMIN_ROLES = new Set(["super-admin"]);
+const DIVISION_ROLES = new Set(["director-dia", "assistant-dia"]);
+const UNION_ROLES = new Set(["director-union", "assistant-union"]);
+const LOCAL_FIELD_ROLES = new Set(["director-lf", "assistant-lf"]);
+const ADMIN_SCOPE_ROLES = new Set(["admin", "assistant-admin"]);
+
+function hasAnyRole(roles: Set<string>, allowed: Set<string>): boolean {
+  for (const role of allowed) {
+    if (roles.has(role)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export function resolveAdminTerritoryScope(
   user: Pick<AuthUser, "authorization"> | null | undefined,
 ): AdminTerritoryScope {
+  const roles = new Set(extractRoles(user as AuthUser | null | undefined));
   const globalScope = readEffectiveGlobalScope(user);
+  const localFieldId = toPositiveNumber(globalScope?.local_field?.id);
+  const unionId = toPositiveNumber(globalScope?.union?.id);
+  const divisionId = toPositiveNumber(globalScope?.division?.id);
 
-  if (!globalScope) {
+  const localFieldScope = (): AdminTerritoryScope => ({
+    level: "local_field",
+    localFieldId: localFieldId as number,
+    localFieldName: globalScope?.local_field?.name ?? null,
+    unionId: toPositiveNumber(globalScope?.local_field?.union_id) ?? unionId,
+    divisionId:
+      toPositiveNumber(globalScope?.local_field?.division_id) ??
+      toPositiveNumber(globalScope?.union?.division_id) ??
+      divisionId,
+  });
+
+  const unionScope = (): AdminTerritoryScope => ({
+    level: "union",
+    unionId: unionId as number,
+    unionName: globalScope?.union?.name ?? null,
+    divisionId: toPositiveNumber(globalScope?.union?.division_id) ?? divisionId,
+  });
+
+  const divisionScope = (): AdminTerritoryScope => ({
+    level: "division",
+    divisionId: divisionId as number,
+    divisionName: globalScope?.division?.name ?? null,
+  });
+
+  if (hasAnyRole(roles, SUPER_ADMIN_ROLES)) {
     return { level: "all" };
   }
 
-  const localFieldId = toPositiveNumber(globalScope.local_field?.id);
-  if (localFieldId) {
-    return {
-      level: "local_field",
-      localFieldId,
-      localFieldName: globalScope.local_field?.name ?? null,
-      unionId: toPositiveNumber(globalScope.local_field?.union_id) ?? toPositiveNumber(globalScope.union?.id),
-      divisionId:
-        toPositiveNumber(globalScope.local_field?.division_id) ??
-        toPositiveNumber(globalScope.union?.division_id) ??
-        toPositiveNumber(globalScope.division?.id),
-    };
+  if (hasAnyRole(roles, DIVISION_ROLES) && divisionId) {
+    return divisionScope();
   }
 
-  const unionId = toPositiveNumber(globalScope.union?.id);
-  if (unionId) {
-    return {
-      level: "union",
-      unionId,
-      unionName: globalScope.union?.name ?? null,
-      divisionId: toPositiveNumber(globalScope.union?.division_id) ?? toPositiveNumber(globalScope.division?.id),
-    };
+  if (hasAnyRole(roles, UNION_ROLES) && unionId) {
+    return unionScope();
   }
 
-  const divisionId = toPositiveNumber(globalScope.division?.id);
-  if (divisionId) {
-    return {
-      level: "division",
-      divisionId,
-      divisionName: globalScope.division?.name ?? null,
-    };
+  if (hasAnyRole(roles, LOCAL_FIELD_ROLES) && localFieldId) {
+    return localFieldScope();
+  }
+
+  if (hasAnyRole(roles, ADMIN_SCOPE_ROLES)) {
+    if (unionId) {
+      return unionScope();
+    }
+    if (localFieldId) {
+      return localFieldScope();
+    }
+    if (divisionId) {
+      return divisionScope();
+    }
   }
 
   return { level: "all" };

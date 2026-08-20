@@ -418,6 +418,9 @@ describe("CamporeeFormDialog", () => {
       id: "u-lf",
       email: "director-lf@sacdia.com",
       authorization: {
+        grants: {
+          global_roles: [{ role_name: "director-lf", permissions: [] }],
+        },
         effective: {
           scope: {
             global: {
