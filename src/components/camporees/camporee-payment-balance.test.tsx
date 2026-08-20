@@ -2,6 +2,10 @@ import { describe, expect, it } from "vitest";
 import {
   buildMemberPaymentRows,
   computePaymentBalance,
+  inscriptionCreditsFromOrders,
+  isLedgerPaymentMutable,
+  mergeCamporeePaymentLedger,
+  parsePaymentAmount,
 } from "@/components/camporees/camporee-payment-balance";
 import type { CamporeeMember, CamporeePayment } from "@/lib/api/camporees";
 import {
@@ -53,6 +57,59 @@ describe("camporee payment balance", () => {
     expect(rows).toHaveLength(2);
     expect(rows.find((row) => row.member.user_id === "u1")?.status).toBe("paid");
     expect(rows.find((row) => row.member.user_id === "u2")?.status).toBe("pending");
+  });
+
+  it("counts approved camporee payment orders as cobrado without double-counting legacy rows", () => {
+    const credits = inscriptionCreditsFromOrders([
+      {
+        purpose: "CAMPOREE",
+        status: "APPROVED",
+        unit_cost_centavos: 45000,
+        lines: [
+          { beneficiary_user_id: "u1", camporee_member_id: null, unit_cost_centavos: 45000 },
+          { beneficiary_user_id: "u2", camporee_member_id: null, unit_cost_centavos: 45000 },
+        ],
+      },
+    ]);
+    const balance = computePaymentBalance(members, payments, 450, 2, credits);
+
+    expect(balance.collectedApproved).toBe(900);
+    expect(balance.outstanding).toBe(0);
+    expect(balance.rows.find((row) => row.member.user_id === "u1")?.status).toBe("paid");
+    expect(balance.rows.find((row) => row.member.user_id === "u2")?.status).toBe("paid");
+  });
+
+  it("does not double-count an approved order and a matching camporee_payments row", () => {
+    const credits = inscriptionCreditsFromOrders([
+      {
+        purpose: "CAMPOREE",
+        status: "APPROVED",
+        unit_cost_centavos: 45000,
+        lines: [{ beneficiary_user_id: "u1", unit_cost_centavos: 45000 }],
+      },
+    ]);
+    const balance = computePaymentBalance(members, payments, 450, 2, credits);
+
+    expect(balance.rows.find((row) => row.member.user_id === "u1")?.inscriptionPaid).toBe(
+      450,
+    );
+    expect(balance.collectedApproved).toBe(450);
+  });
+
+  it("treats PROOF_SUBMITTED orders as pending, not cobrado", () => {
+    const credits = inscriptionCreditsFromOrders([
+      {
+        purpose: "CAMPOREE",
+        status: "PROOF_SUBMITTED",
+        unit_cost_centavos: 45000,
+        lines: [{ beneficiary_user_id: "u2", unit_cost_centavos: 45000 }],
+      },
+    ]);
+    const balance = computePaymentBalance(members, [], 450, 2, credits);
+
+    expect(balance.collectedApproved).toBe(0);
+    expect(balance.collectedPending).toBe(450);
+    expect(balance.rows.find((row) => row.member.user_id === "u2")?.status).toBe("pending");
   });
 
   it("does not count registered or pending_approval toward COBRADO", () => {
@@ -210,5 +267,162 @@ describe("camporee payment balance", () => {
     expect(selectable[0]?.camporee_member_id).toBe(17);
     expect(selectable[0]?.name).toBe("Ana Pérez");
     expect(String(selectable[0]?.camporee_member_id)).toBe("17");
+  });
+
+  it("synthesizes ledger rows from approved orders when camporee_payments is empty", () => {
+    const ledgerMembers: CamporeeMember[] = [
+      { user_id: "u1", name: "Ana", camporee_member_id: 6, status: "approved" },
+      { user_id: "u2", name: "Luis", camporee_member_id: 7, status: "approved" },
+      { user_id: "u4", name: "Adrián", camporee_member_id: 8, status: "approved" },
+    ];
+    const ledger = mergeCamporeePaymentLedger(
+      [],
+      [
+        {
+          purpose: "CAMPOREE",
+          status: "APPROVED",
+          folio_reference: "ORD20260002",
+          field_payment_order_id: "o1",
+          unit_cost_centavos: 45000,
+          lines: [
+            {
+              field_payment_order_line_id: "l1",
+              beneficiary_user_id: "u1",
+              camporee_member_id: 6,
+              unit_cost_centavos: 45000,
+            },
+            {
+              field_payment_order_line_id: "l2",
+              beneficiary_user_id: "u2",
+              camporee_member_id: 7,
+              unit_cost_centavos: 45000,
+            },
+          ],
+        },
+        {
+          purpose: "CAMPOREE",
+          status: "APPROVED",
+          folio_reference: "ORD20260003",
+          field_payment_order_id: "o2",
+          unit_cost_centavos: 45000,
+          lines: [
+            {
+              field_payment_order_line_id: "l3",
+              beneficiary_user_id: "u4",
+              camporee_member_id: 8,
+              unit_cost_centavos: 45000,
+            },
+          ],
+        },
+      ],
+      ledgerMembers,
+    );
+
+    expect(ledger).toHaveLength(3);
+    expect(ledger.every((row) => row.ledgerSource === "payment_order")).toBe(true);
+    expect(ledger.reduce((sum, row) => sum + parsePaymentAmount(row.amount), 0)).toBe(
+      1350,
+    );
+    expect(isLedgerPaymentMutable(ledger[0]!)).toBe(false);
+  });
+
+  it("does not duplicate a camporee_payments row that already fulfills an order line", () => {
+    const ledgerMembers: CamporeeMember[] = [
+      { user_id: "u1", name: "Ana", camporee_member_id: 6, status: "approved" },
+      { user_id: "u2", name: "Luis", camporee_member_id: 7, status: "approved" },
+      {
+        user_id: "u-camila",
+        name: "Camila",
+        camporee_member_id: 9,
+        status: "approved",
+      },
+    ];
+    const ledger = mergeCamporeePaymentLedger(
+      [
+        {
+          camporee_payment_id: "pay-camila",
+          camporee_member_id: 9,
+          member_id: "u-camila",
+          amount: "450.00",
+          payment_type: "inscription",
+          status: "approved",
+          reference: "ORD20260004",
+          notes: "field_payment_order:o3",
+        },
+      ],
+      [
+        {
+          purpose: "CAMPOREE",
+          status: "APPROVED",
+          folio_reference: "ORD20260002",
+          field_payment_order_id: "o1",
+          unit_cost_centavos: 45000,
+          lines: [
+            {
+              field_payment_order_line_id: "l1",
+              beneficiary_user_id: "u1",
+              camporee_member_id: 6,
+              unit_cost_centavos: 45000,
+            },
+            {
+              field_payment_order_line_id: "l2",
+              beneficiary_user_id: "u2",
+              camporee_member_id: 7,
+              unit_cost_centavos: 45000,
+            },
+          ],
+        },
+        {
+          purpose: "CAMPOREE",
+          status: "APPROVED",
+          folio_reference: "ORD20260004",
+          field_payment_order_id: "o3",
+          unit_cost_centavos: 45000,
+          lines: [
+            {
+              field_payment_order_line_id: "l4",
+              beneficiary_user_id: "u-camila",
+              camporee_member_id: 9,
+              unit_cost_centavos: 45000,
+            },
+          ],
+        },
+      ],
+      ledgerMembers,
+    );
+
+    expect(ledger).toHaveLength(3);
+    const camila = ledger.find((row) => row.camporee_member_id === 9);
+    expect(camila?.ledgerSource).toBe("camporee_payment");
+    expect(camila?.camporee_payment_id).toBe("pay-camila");
+    expect(isLedgerPaymentMutable(camila!)).toBe(true);
+    expect(ledger.filter((row) => row.ledgerSource === "payment_order")).toHaveLength(2);
+  });
+
+  it("maps PROOF_SUBMITTED order lines to pending_approval ledger rows", () => {
+    const ledger = mergeCamporeePaymentLedger(
+      [],
+      [
+        {
+          purpose: "CAMPOREE",
+          status: "PROOF_SUBMITTED",
+          folio_reference: "ORD1",
+          unit_cost_centavos: 45000,
+          lines: [
+            {
+              beneficiary_user_id: "u2",
+              unit_cost_centavos: 45000,
+              full_name: "Luis",
+            },
+          ],
+        },
+      ],
+      members,
+    );
+
+    expect(ledger).toHaveLength(1);
+    expect(ledger[0]?.status).toBe("pending_approval");
+    expect(ledger[0]?.ledgerSource).toBe("payment_order");
+    expect(ledger[0]?.member_name).toBe("Luis");
   });
 });

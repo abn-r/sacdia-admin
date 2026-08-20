@@ -3495,7 +3495,7 @@
     },
     "paymentsBalance": {
       "eyebrow": "Finances du camporee",
-      "description": "Solde attendu selon les membres inscrits et le coût d'inscription, plus les paiements enregistrés depuis l'app ou le panneau.",
+      "description": "Solde attendu selon les membres inscrits et le coût d'inscription. Inclut les ordres de paiement approuvés de ce camporee et les paiements enregistrés dans le panneau.",
       "refresh": "Actualiser",
       "registerPayment": "Enregistrer un paiement",
       "refreshError": "Impossible d'actualiser la liste des paiements",
@@ -3505,10 +3505,11 @@
       "statExpectedHint": "Inscrits × coût d'inscription",
       "statCollected": "Encaissé",
       "statPendingReview": "{amount} en révision",
+      "statOrdersHint": "Inclut {count} ordres de paiement de ce camporee.",
       "statOutstanding": "À encaisser",
       "statCoverage": "{paid} à jour · {pending} en cours · {unpaid} sans paiement",
       "membersTitle": "Statut par membre",
-      "membersDescription": "Lien entre inscription et paiements d'inscription enregistrés.",
+      "membersDescription": "Lien entre inscription, ordres de paiement et paiements d'inscription enregistrés.",
       "emptyMembersTitle": "Aucun membre inscrit",
       "emptyMembersDescription": "Inscrivez des membres pour calculer le total attendu.",
       "colMember": "Membre",
@@ -3521,7 +3522,7 @@
       "statusPending": "En révision",
       "statusUnpaid": "Sans paiement",
       "ledgerTitle": "Mouvements enregistrés",
-      "ledgerDescription": "Paiements chargés par les directeurs, secrétaires ou le panneau admin."
+      "ledgerDescription": "Inclut les paiements du ledger et les ordres de ce camporee, sans doublons."
     },
     "enrollDialog": {
       "title": "Inscrire un club",

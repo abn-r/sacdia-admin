@@ -17,6 +17,7 @@ import {
 import type { CamporeeMembersTabProps } from "@/components/camporees/camporee-members-tab";
 import type { CamporeeClubsTabProps } from "@/components/camporees/camporee-clubs-tab";
 import type { CamporeePaymentsTabProps } from "@/components/camporees/camporee-payments-tab";
+import { mergeCamporeePaymentLedger } from "@/components/camporees/camporee-payment-balance";
 import type { CamporeePaymentOrdersTabProps } from "@/components/payment-orders/camporee-payment-orders-tab";
 import { CamporeeEventsTab } from "@/components/camporee-events/camporee-events-tab";
 import { EventJudgeAssignmentsPanel } from "@/components/camporee-scoring/event-judge-assignments-panel";
@@ -71,6 +72,7 @@ import type {
   PendingApprovals,
   PaginationMeta,
 } from "@/lib/api/camporees";
+import type { PaymentOrder } from "@/lib/api/field-payment-orders";
 import { isClubRegistrationClosed } from "@/lib/camporees/club-registration";
 
 // ─── Props ─────────────────────────────────────────────────────────────────────
@@ -86,6 +88,7 @@ interface CamporeeDetailTabsProps {
   initialMembersMeta?: PaginationMeta;
   initialClubs: CamporeeClub[];
   initialPayments: CamporeePayment[];
+  initialPaymentOrders?: PaymentOrder[];
   initialPending: PendingApprovals;
   membersError: string | null;
   clubsError: string | null;
@@ -138,6 +141,7 @@ export function CamporeeDetailTabs({
   initialMembersMeta,
   initialClubs,
   initialPayments,
+  initialPaymentOrders = [],
   initialPending,
   membersError,
   clubsError,
@@ -160,6 +164,16 @@ export function CamporeeDetailTabs({
 }: CamporeeDetailTabsProps) {
   const tClubRegistration = useTranslations("camporees.clubRegistration");
   const [pending, setPending] = useState<PendingApprovals>(initialPending);
+  const [paymentsLedgerCount, setPaymentsLedgerCount] = useState(() =>
+    mergeCamporeePaymentLedger(
+      initialPayments,
+      initialPaymentOrders,
+      initialMembers,
+    ).length,
+  );
+  const handlePaymentsLedgerCountChange = useCallback((count: number) => {
+    setPaymentsLedgerCount(count);
+  }, []);
   const clubRegistrationClosed = isClubRegistrationClosed(
     camporee?.club_registration_closed_at,
   );
@@ -217,9 +231,9 @@ export function CamporeeDetailTabs({
 
         <TabsTrigger value="payments">
           Pagos
-          {initialPayments.length > 0 && (
+          {paymentsLedgerCount > 0 && (
             <Badge variant="secondary" className="ml-1.5">
-              {initialPayments.length}
+              {paymentsLedgerCount}
             </Badge>
           )}
           {pending.payments.length > 0 && (
@@ -331,10 +345,12 @@ export function CamporeeDetailTabs({
                 camporeeId={camporeeId}
                 initialPayments={initialPayments}
                 initialMembers={initialMembers}
+                initialOrders={initialPaymentOrders}
                 membersTotal={initialMembersMeta?.total ?? initialMembers.length}
                 registrationCost={camporee?.registration_cost}
                 isUnionCamporee={isUnionCamporee}
                 onAfterChange={refreshPending}
+                onLedgerCountChange={handlePaymentsLedgerCountChange}
               />
             )}
           </CardContent>

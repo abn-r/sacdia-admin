@@ -26,6 +26,10 @@ import {
 } from "@/lib/api/camporees";
 import type { CamporeePayment, PaymentType } from "@/lib/api/camporees";
 import {
+  isLedgerPaymentMutable,
+  type CamporeeLedgerPayment,
+} from "@/components/camporees/camporee-payment-balance";
+import {
   CamporeeApprovalDialog,
   type ApprovalDialogMode,
 } from "@/components/camporees/camporee-approval-dialog";
@@ -139,7 +143,7 @@ type DialogState = {
 
 interface CamporeePaymentsPanelProps {
   camporeeId: number;
-  payments: CamporeePayment[];
+  payments: Array<CamporeePayment | CamporeeLedgerPayment>;
   onPaymentsChange?: () => void;
   isUnionCamporee?: boolean;
 }
@@ -164,7 +168,7 @@ export function CamporeePaymentsPanel({
 
   async function handleApprove(payment: CamporeePayment) {
     const paymentUuid = payment.camporee_payment_id;
-    if (!paymentUuid || approvingId !== null) return;
+    if (!isLedgerPaymentMutable(payment) || !paymentUuid || approvingId !== null) return;
     setApprovingId(paymentUuid);
     try {
       if (isUnionCamporee) {
@@ -190,7 +194,9 @@ export function CamporeePaymentsPanel({
   async function handleRejectConfirm(rejectionReason?: string) {
     if (!dialog) return;
     const paymentUuid = dialog.payment.camporee_payment_id;
-    if (!paymentUuid) throw new Error(t("paymentsPanel.errorNoPaymentUuid"));
+    if (!isLedgerPaymentMutable(dialog.payment) || !paymentUuid) {
+      throw new Error(t("paymentsPanel.errorNoPaymentUuid"));
+    }
     const payload = { rejection_reason: rejectionReason };
     if (isUnionCamporee) {
       await rejectUnionCamporeePayment(paymentUuid, payload);
@@ -249,8 +255,8 @@ export function CamporeePaymentsPanel({
             <TableBody>
               {payments.map((payment) => {
                 const isPending = payment.status?.toLowerCase() === "pending_approval";
-                const hasUuid = Boolean(payment.camporee_payment_id);
-                const canApprove = isPending && hasUuid;
+                const canMutate = isLedgerPaymentMutable(payment);
+                const canApprove = isPending && canMutate;
                 const isApproving =
                   payment.camporee_payment_id != null &&
                   approvingId === payment.camporee_payment_id;
@@ -347,7 +353,7 @@ export function CamporeePaymentsPanel({
                           </>
                         )}
 
-                        {payment.camporee_payment_id && !isUnionCamporee && (
+                        {canMutate && !isUnionCamporee && (
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Button

@@ -3496,7 +3496,7 @@
     },
     "paymentsBalance": {
       "eyebrow": "Camporee finances",
-      "description": "Expected balance from enrolled members and registration cost, plus payments recorded from the app or admin panel.",
+      "description": "Expected balance from enrolled members and registration cost. Includes approved payment orders for this camporee and payments recorded in the panel.",
       "refresh": "Refresh",
       "registerPayment": "Record payment",
       "refreshError": "Could not refresh the payments list",
@@ -3506,10 +3506,11 @@
       "statExpectedHint": "Enrolled × registration cost",
       "statCollected": "Collected",
       "statPendingReview": "{amount} under review",
+      "statOrdersHint": "Includes {count} payment orders for this camporee.",
       "statOutstanding": "Outstanding",
       "statCoverage": "{paid} paid · {pending} in progress · {unpaid} unpaid",
       "membersTitle": "Status by member",
-      "membersDescription": "Link between enrollment and recorded registration payments.",
+      "membersDescription": "Link between enrollment, payment orders, and recorded registration payments.",
       "emptyMembersTitle": "No enrolled members",
       "emptyMembersDescription": "Enroll members to calculate the expected payment total.",
       "colMember": "Member",
@@ -3522,7 +3523,7 @@
       "statusPending": "Under review",
       "statusUnpaid": "Unpaid",
       "ledgerTitle": "Recorded movements",
-      "ledgerDescription": "Payments uploaded by directors, secretaries, or the admin panel."
+      "ledgerDescription": "Includes ledger payments and this camporee's orders, without duplicates."
     },
     "enrollDialog": {
       "title": "Enroll club",

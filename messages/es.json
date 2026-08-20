@@ -3506,7 +3506,7 @@
     },
     "paymentsBalance": {
       "eyebrow": "Finanzas del camporee",
-      "description": "Balance esperado según miembros inscritos y costo de inscripción, más el listado de pagos registrados desde la app o el panel.",
+      "description": "Balance esperado según miembros inscritos y costo de inscripción. Incluye órdenes de pago aprobadas de este camporee y pagos registrados en el panel.",
       "refresh": "Actualizar",
       "registerPayment": "Registrar pago",
       "refreshError": "No se pudo actualizar la lista de pagos",
@@ -3516,10 +3516,11 @@
       "statExpectedHint": "Inscritos × costo de inscripción",
       "statCollected": "Cobrado",
       "statPendingReview": "{amount} en revisión",
+      "statOrdersHint": "Incluye {count} órdenes de pago de este camporee.",
       "statOutstanding": "Por cobrar",
       "statCoverage": "{paid} al día · {pending} en proceso · {unpaid} sin pago",
       "membersTitle": "Estado por miembro",
-      "membersDescription": "Relación entre inscripción y pagos de inscripción registrados.",
+      "membersDescription": "Relación entre inscripción, órdenes de pago y pagos de inscripción registrados.",
       "emptyMembersTitle": "Sin miembros inscritos",
       "emptyMembersDescription": "Inscribí miembros para calcular el total esperado de pagos.",
       "colMember": "Miembro",
@@ -3532,7 +3533,7 @@
       "statusPending": "En revisión",
       "statusUnpaid": "Sin pago",
       "ledgerTitle": "Movimientos registrados",
-      "ledgerDescription": "Pagos cargados por directores, secretarios o el panel administrativo."
+      "ledgerDescription": "Incluye pagos del ledger y órdenes de este camporee, sin duplicar."
     },
     "enrollDialog": {
       "title": "Inscribir club",

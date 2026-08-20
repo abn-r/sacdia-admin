@@ -17,6 +17,7 @@ import {
   getCamporeePayments,
   getCamporeePendingApprovals,
 } from "@/lib/api/camporees";
+import { listPaymentOrders, type PaymentOrder } from "@/lib/api/field-payment-orders";
 import {
   listLocalCamporeeEvents,
   listCamporeeEventTemplates,
@@ -190,6 +191,7 @@ export default async function CamporeeDetailPage({
   let clubsError: string | null = null;
   let payments: CamporeePayment[] = [];
   let paymentsError: string | null = null;
+  let paymentOrders: PaymentOrder[] = [];
   let pending: PendingApprovals = { clubs: [], members: [], payments: [] };
   let events: BackendCamporeeEvent[] = [];
   let availableTemplates: CamporeeEventTemplate[] = [];
@@ -253,6 +255,15 @@ export default async function CamporeeDetailPage({
       err instanceof ApiError
         ? err.message
         : t("loadPaymentsFailed");
+  }
+
+  try {
+    paymentOrders = await listPaymentOrders({
+      purpose: "CAMPOREE",
+      camporee_id: camporeeId,
+    });
+  } catch {
+    paymentOrders = [];
   }
 
   // Fetch pending approvals — best effort (non-blocking)
@@ -420,6 +431,7 @@ export default async function CamporeeDetailPage({
         initialMembersMeta={membersMeta}
         initialClubs={clubs}
         initialPayments={payments}
+        initialPaymentOrders={paymentOrders}
         initialPending={pending}
         membersError={membersError}
         clubsError={clubsError}
