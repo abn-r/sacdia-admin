@@ -62,6 +62,7 @@ import {
 import { EmptyState } from "@/components/shared/empty-state";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import { PageHeader } from "@/components/shared/page-header";
+import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 import type { AchievementTier, AchievementType } from "@/lib/api/achievements";
 import type { AchievementActionState } from "@/lib/achievements/actions";
 
@@ -408,8 +409,8 @@ export function AchievementsCrudPage({
                     return (
                       <TableRow
                         key={rowKey}
-                        className="animate-in fade-in slide-in-from-bottom-2 transition-colors hover:bg-muted/30"
-                        style={{ animationDelay: `${idx * 30}ms`, animationFillMode: "backwards" }}
+                        className={`transition-colors hover:bg-muted/30 ${STAGGER_CLASSES}`}
+                        style={getStaggerStyle(idx)}
                       >
                         <TableCell>
                           <div

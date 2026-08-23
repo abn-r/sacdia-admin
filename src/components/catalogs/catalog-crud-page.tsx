@@ -22,6 +22,7 @@ import type { CatalogItem } from "@/lib/catalogs/service";
 import type { CatalogActionState } from "@/lib/catalogs/actions";
 import { DataTableShell } from "@/components/shared/data-table-shell";
 import { PageHeader } from "@/components/shared/page-header";
+import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 import { usePanelPath } from "@/lib/v2/panel-path-context";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -263,11 +264,8 @@ export function CatalogCrudPage({
                       return (
                         <TableRow
                           key={rowKey}
-                          className={`${ROW_H} border-b border-border transition-colors hover:bg-muted/30 animate-in fade-in slide-in-from-bottom-2 duration-300`}
-                          style={{
-                            animationDelay: `${Math.min(idx * 20, 200)}ms`,
-                            animationFillMode: "backwards",
-                          }}
+                          className={`${ROW_H} border-b border-border transition-colors hover:bg-muted/30 ${STAGGER_CLASSES}`}
+                          style={getStaggerStyle(idx)}
                         >
                           {/* ID — first column */}
                           <TableCell
@@ -395,11 +393,8 @@ export function CatalogCrudPage({
               return (
                 <li
                   key={rowKey}
-                  className="animate-in fade-in slide-in-from-bottom-2 duration-300"
-                  style={{
-                    animationDelay: `${Math.min(idx * 20, 200)}ms`,
-                    animationFillMode: "backwards",
-                  }}
+                  className={STAGGER_CLASSES}
+                  style={getStaggerStyle(idx)}
                 >
                   <div className="rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40 focus-visible:outline-none">
                     {/* Card header: icon + name + edit chevron */}
