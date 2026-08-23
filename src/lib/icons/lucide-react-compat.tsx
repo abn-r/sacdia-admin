@@ -383,6 +383,7 @@ export const FileSearch = createLucideIcon(ICONS.FileSearchIcon, "FileSearch");
 export const FileSpreadsheet = createLucideIcon(ICONS.FileSpreadsheetIcon, "FileSpreadsheet");
 export const FileStack = createLucideIcon(ICONS.StackStarIcon, "FileStack");
 export const FileText = createLucideIcon(ICONS.File01Icon, "FileText");
+export const ScrollText = createLucideIcon(ICONS.File01Icon, "ScrollText");
 export const Filter = createLucideIcon(ICONS.FilterIcon, "Filter");
 export const Flag = createLucideIcon(ICONS.FlagIcon, "Flag");
 export const Folder = createLucideIcon(ICONS.Folder01Icon, "Folder");

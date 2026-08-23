@@ -517,7 +517,8 @@ export type PermissionKey = string;
 // i18n helpers — use these in all UI components instead of hardcoded strings
 // ═══════════════════════════════════════════════════════════════════════════
 
-type RbacTranslator = ((key: string) => string) & {
+type RbacTranslator = {
+  (key: never): string;
   has?: (key: string) => boolean;
 };
 
