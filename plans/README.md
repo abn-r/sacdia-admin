@@ -1,7 +1,7 @@
 # Animation / design plans
 
-Commit stamp: `1d5c22b` (`development`).  
-Source: improve-animations audit, user chose the recommended top 5.
+Commit stamp: `f71b8b4` (`development`).  
+Source: improve-animations audit. Top 5 shipped in `f71b8b4`. Leftovers 006–008 executed in the same working tree.
 
 | # | Title | Severity | Status | Deps |
 | --- | --- | --- | --- | --- |
@@ -10,20 +10,20 @@ Source: improve-animations audit, user chose the recommended top 5.
 | 003 | Login enter under 300ms with motion tokens | MEDIUM | DONE | — |
 | 004 | Tooltip delay on first hover, skip on the next | MEDIUM | DONE | — |
 | 005 | Replace sidebar Command icon with SACDIA logo | MEDIUM | DONE | — |
+| 006 | Accordion honors prefers-reduced-motion | MEDIUM | DONE | — |
+| 007 | Gate hover translates behind pointer:fine | MEDIUM | DONE | — |
+| 008 | Align DESIGN-SYSTEM §7.1 and §9 with runtime | LOW | DONE | — |
 
 ## Execution order
 
-1. `001` — keyboard surface; highest daily frequency.
-2. `002` — four list pages; same token pattern.
-3. `003` — login only.
-4. `004` — global tooltip feel.
-5. `005` — brand mark; no motion dependency.
+1. `001`–`005` — already on `origin/development`.
+2. `006` — accordion primitive.
+3. `007` — login + activities hover.
+4. `008` — docs only; no runtime dep.
 
-No plan blocks another. Safe to run in that order or in parallel by different executors **except** do not edit `dialog.tsx` from two plans (only `001` touches it).
+## Still out of scope
 
-## Out of scope (audit leftovers)
-
-Accordion `motion-reduce`, ungated hover translates, `DESIGN-SYSTEM.md` §7.1/§9 rewrite, sidebar rail `transition-all`. Do not fold those into these plans.
+Sidebar rail `transition-all` — settled exemption. Do not re-open.
 
 ## How to run
 

@@ -13,7 +13,8 @@
 >   4. Nuevo componente shared `endpoint-error-banner.tsx` no documentado. Documentado en seccion 7.11.
 >   5. Nuevo componente shared `module-list-page.tsx` (Server Component para listados de modulos genericos). Documentado en seccion 7.12.
 >   6. CRUD pattern actualizado: la regla de la seccion 6.1 dice "Crear/Editar = Dialog modal" pero el doc Ember ya la cambio a "flujo por paginas". Confirmado como correcto — Dialog solo para excepciones puntuales. Sin drift, solo clarificacion.
-> - **Sin drift**: paleta OKLCH (todas las secciones 2.x), radio tokens (4.1), spacing (4.2-4.4), Button variants y sizes (5.1), Badge variants (5.2 salvo `link`), Tabs `line` variant (seccion nueva), iconos (8.x), animaciones (9.x), dark mode (13.x).
+> - **Sin drift**: paleta OKLCH (todas las secciones 2.x), radio tokens (4.1), spacing (4.2-4.4), Button variants y sizes (5.1), Badge variants (5.2 salvo `link`), Tabs `line` variant (seccion nueva), iconos (8.x), dark mode (13.x).
+> - **2026-08-23**: §7.1 alineado con `page-header.tsx` (Geist semibold, sin Instrument). §9 alineado con `src/lib/animations.ts` y los primitivos de motion (stagger cap, command instant, tooltip skip-delay).
 
 > **Actualizado 2026-04-15 — Ember Redesign (fases 1-4)**. Este documento refleja el estado actual del sistema despues del rediseno "Ember". Cambios principales desde la version original:
 >
@@ -902,7 +903,7 @@ import {
 
 **Import:** `@/components/shared/page-header`
 
-Consumido por ~61 paginas del admin. **La firma tipografica del rediseno Ember vive aqui** — el h1 renderiza con `font-display` (Instrument Serif) para dar presencia editorial a los titulos de pagina.
+Titulo canonico de pagina. La jerarquia se expresa con peso y tamano de Geist (`--font-sans`), no con una segunda familia. Ver seccion 3.1: **no** uses `font-display` ni Instrument Serif en titulos del admin.
 
 ```tsx
 <PageHeader
@@ -919,12 +920,11 @@ Consumido por ~61 paginas del admin. **La firma tipografica del rediseno Ember v
 </PageHeader>
 ```
 
-**Estilo aplicado al h1**: `font-display text-3xl font-normal leading-[1.05] tracking-tight text-foreground sm:text-4xl`.
+**Estilo aplicado al h1**: `font-semibold text-2xl text-foreground tracking-tight sm:text-3xl`.
 
 **Reglas**:
-- **NO** uses `font-bold` en el h1 — Instrument Serif solo tiene weight 400 en Google Fonts y bold visualmente colapsa el caracter del serif.
-- El titulo va en `font-normal` (400) con tracking negativo + leading apretado. Confiar en el peso del serif.
-- `text-3xl` en mobile, `text-4xl` en desktop (≥640px).
+- **NO** dejes un `h1` suelto con `font-bold` — pasa por `<PageHeader>`.
+- `text-2xl` en mobile, `text-3xl` en desktop (≥640px).
 - Breadcrumbs opcionales con separador chevron, semanticos (`<nav aria-label="Breadcrumb">`).
 - Description tiene `max-w-prose` para que no se estire todo el ancho.
 - Actions se agrupan a la derecha en desktop, debajo en mobile.
@@ -1251,56 +1251,62 @@ Todos los iconos provienen de `lucide-react`. No usar ninguna otra libreria de i
 
 ## 9. Animaciones y Transiciones
 
-### 9.1 Micro-interacciones
+Fuente de verdad: `src/lib/animations.ts` + tokens en `src/app/globals.css`. No copies duraciones sueltas.
 
-| Elemento | Propiedad | Valor |
-|----------|-----------|-------|
-| Cards hover | border + shadow | `transition-all hover:border-primary/20 hover:shadow-md` |
-| Card title hover | color | `transition-colors group-hover:text-primary` |
-| Botones | todos | `transition-all` (incluido en buttonVariants) |
-| Nav items | background + color | `transition-colors` |
-| Filas de tabla | background | `transition-colors hover:bg-muted/30` |
-| Chevron submenu | rotacion | `transition-transform duration-200` |
-| Inputs focus | ring | `transition-colors` |
+### 9.1 Tokens
 
-### 9.2 Animaciones de Entrada (tw-animate-css)
+| Token | Valor | Uso |
+|-------|-------|-----|
+| `--ease-out-expo` | `cubic-bezier(0.23, 1, 0.32, 1)` | Entradas y press |
+| `--ease-drawer` | `cubic-bezier(0.32, 0.72, 0, 1)` | Sheet / drawer |
+| `--duration-fast` | `150ms` | Press, tooltip |
+| `--duration-normal` | `200ms` | Overlays |
+| `--duration-slow` | `250ms` | Page / stagger item |
+| `--duration-sheet` | `300ms` | Techo UI (sheet) |
 
-```tsx
-// Filas de tabla con stagger
-<TableRow
-  className="animate-in fade-in slide-in-from-bottom-2 duration-300"
-  style={{ animationDelay: `${index * 50}ms`, animationFillMode: "backwards" }}
-/>
-
-// Elementos que aparecen
-className="animate-in fade-in duration-300"
-
-// Error messages
-className="animate-in fade-in slide-in-from-top-1"
-```
-
-### 9.3 Animaciones de Modales
-
-Los componentes Dialog y AlertDialog incluyen automaticamente:
-- `data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95`
-- `data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95`
-
-### 9.4 Animaciones Customizadas (Login)
-
-```css
-/* Orbes flotantes */
-.animate-float-slow    { animation: float-slow 20s ease-in-out infinite; }
-.animate-float-medium  { animation: float-medium 15s ease-in-out infinite; }
-.animate-float-fast    { animation: float-fast 12s ease-in-out infinite; }
-
-/* Fade up para entrada de pagina */
-.animate-fade-up { animation: fade-up 0.5s ease-out forwards; }
-```
-
-### 9.5 Loading States
+Helpers TS (usar estos, no strings sueltos):
 
 ```tsx
-// Spinner en boton
+import {
+  PAGE_ENTER_CLASSES,       // 250ms, slide-in-from-bottom-2, motion-reduce
+  STAGGER_CLASSES,          // 250ms, slide-in-from-bottom-1, motion-reduce
+  EMPTY_STATE_ENTER_CLASSES,
+  SURFACE_MOTION_CLASSES,   // 200ms overlays
+  getStaggerStyle,          // getStaggerStyle(index, step = 40, cap = 200)
+} from "@/lib/animations";
+```
+
+### 9.2 Reglas
+
+- UI ≤ 300ms. Nada de `ease-in`. Nada de `scale(0)` — arrancar en `scale(0.95)` + opacity.
+- No agregues `transition-all`. El rail del sidebar es excepcion settled; no lo copies.
+- Superficie de teclado (`⌘J` / command palette): **sin** animacion de overlay ni contenido (`overlayInstant`, `animate-none`).
+- Hover con **transform**: solo `[@media(hover:hover)_and_(pointer:fine)]:`. Color puede quedar sin gate.
+- `motion-reduce:` quita movimiento; color/opacity pueden quedarse.
+- Press: `scale(0.97)` a 150ms (`--ease-out-expo`).
+
+### 9.3 Listas
+
+```tsx
+<TableRow className={STAGGER_CLASSES} style={getStaggerStyle(index)} />
+```
+
+No uses `duration-300` ni `index * 50` sin cap.
+
+### 9.4 Overlays
+
+- Dialog / AlertDialog: fade + `zoom-in-95` via `SURFACE_MOTION_CLASSES` (200ms). Selectores radix-nova: `data-open` / `data-closed`.
+- Command palette: `overlayInstant` en overlay; contenido `animate-none`.
+- Tooltip: `delayDuration={300}`, `skipDelayDuration={300}`. Anima solo `data-[state=delayed-open]`. `data-[state=instant-open]:animate-none`.
+- Accordion / collapsible: keyframes de altura + `motion-reduce:animate-none`.
+
+### 9.5 Login
+
+Entrada del form: `PAGE_ENTER_CLASSES` (250ms). No hay orbes flotantes ni `animate-fade-up`.
+
+### 9.6 Loading
+
+```tsx
 <Button disabled={loading}>
   {loading ? (
     <>
@@ -1312,12 +1318,10 @@ Los componentes Dialog y AlertDialog incluyen automaticamente:
   )}
 </Button>
 
-// Spinner centrado en pagina
 <div className="flex items-center justify-center py-20">
   <Loader2 className="h-8 w-8 animate-spin text-primary" />
 </div>
 
-// Skeleton loading
 <LoadingSkeleton rows={5} />
 ```
 

@@ -33,7 +33,7 @@ function SubmitButton() {
       ) : (
         <>
           {t("submit_idle")}
-          <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+          <ArrowRight className="size-4 transition-transform motion-reduce:transition-none [@media(hover:hover)_and_(pointer:fine)]:group-hover:translate-x-0.5" />
         </>
       )}
     </Button>

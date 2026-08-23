@@ -143,7 +143,7 @@ function ActivityListCard({
         </div>
       </div>
 
-      <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
+      <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform motion-reduce:transition-none group-hover:text-foreground [@media(hover:hover)_and_(pointer:fine)]:group-hover:translate-x-0.5" />
     </Link>
   );
 }
