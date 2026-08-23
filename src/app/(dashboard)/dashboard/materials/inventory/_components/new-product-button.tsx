@@ -12,10 +12,10 @@ import type {
 interface NewProductButtonProps {
   categories: MaterialCategory[];
   /**
-   * Local fields available to pick from. Only populated for unscoped
-   * admin/super-admin callers. LF-scoped users get an empty list and the
-   * form skips the LF selector — actorLocalFieldId is forwarded to the
-   * server as the implicit scope.
+   * Local fields available to pick from. Populated for union/division/unscoped
+   * callers. LF-scoped users get an empty list and the form skips the LF
+   * selector — actorLocalFieldId is forwarded to the server as the implicit
+   * scope.
    */
   localFields: LocalFieldOption[];
   /**
