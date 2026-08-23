@@ -127,7 +127,8 @@
       "materials_config": "Settings",
       "certificate_bulk_imports": "Cargas por certificado",
       "coordination": "Coordination",
-      "geography_divisions": "Divisions"
+      "geography_divisions": "Divisions",
+      "audit_logs": "Audit log"
     },
     "breadcrumbs": {
       "dashboard": "Dashboard",
@@ -1419,9 +1420,10 @@
         "emptyQuarterly": "No quarterly reports."
       },
       "history": {
-        "title": "Change history",
-        "description": "Section and assignment changes for this club.",
+        "title": "Audit history",
+        "description": "Who changed the club, its sections, and assignments.",
         "filterSection": "Filter by section",
+        "allEvents": "All events",
         "allSections": "All sections",
         "loading": "Loading history…",
         "loadError": "Could not load history.",
@@ -1429,7 +1431,13 @@
         "emptyDescription": "There are no audit events for this club yet.",
         "loadMore": "Load more",
         "byActor": "By {name}",
+        "action": {
+          "CREATED": "Created",
+          "UPDATED": "Updated",
+          "DELETED": "Deleted"
+        },
         "entity": {
+          "club": "Club",
           "club_section": "Sections",
           "class_counselor_assignment": "Class counselors",
           "role_assignment": "Role assignments"
@@ -2547,7 +2555,8 @@
       "section_rankings": "Section rankings",
       "unions": "Unions",
       "user_honors": "User honors",
-      "certifications_admin": "Certifications (configurable engine)"
+      "certifications_admin": "Certifications (configurable engine)",
+      "audit": "Audit"
     },
     "permissions": {
       "users:read": "View list",
@@ -2746,7 +2755,8 @@
       "relationship_types:read": "View relationship types",
       "relationship_types:create": "Create relationship type",
       "relationship_types:update": "Edit relationship type",
-      "relationship_types:delete": "Delete relationship type"
+      "relationship_types:delete": "Delete relationship type",
+      "audit:read": "View audit log"
     },
     "userPermissionsPanel": {
       "title": "Direct permissions",
@@ -8079,6 +8089,55 @@
       "actionFailed": "The action could not be completed",
       "loadFailed": "The data could not be loaded",
       "downloadFailed": "-"
+    }
+  },
+  "audit": {
+    "logs": {
+      "title": "Audit log",
+      "description": "System mutation trail. Super-admin only.",
+      "loading": "Loading audit log…",
+      "loadError": "Could not load the audit log. The global list is not on the API yet.",
+      "emptyTitle": "No events",
+      "emptyDescription": "No audit rows match these filters.",
+      "loadMore": "Load more",
+      "unknownActor": "No actor",
+      "detailTitle": "Event detail",
+      "detailDescription": "Operation context. Request bodies are never stored.",
+      "detailUnavailable": "Enriched detail is not available yet.",
+      "correlation": "Correlation",
+      "changes": "Changes",
+      "requestContext": "HTTP context",
+      "columns": {
+        "when": "When",
+        "action": "Action",
+        "entity": "Entity",
+        "summary": "Summary",
+        "actor": "Actor",
+        "result": "Result"
+      },
+      "filters": {
+        "all": "All",
+        "entityType": "Entity type",
+        "entityPlaceholder": "clubs, roles…",
+        "action": "Action",
+        "result": "Result",
+        "source": "Source",
+        "from": "From",
+        "to": "To"
+      },
+      "action": {
+        "CREATED": "Created",
+        "UPDATED": "Updated",
+        "DELETED": "Deleted"
+      },
+      "result": {
+        "succeeded": "OK",
+        "failed": "Failed"
+      },
+      "source": {
+        "http": "HTTP",
+        "service": "Service"
+      }
     }
   }
 }

@@ -31,6 +31,7 @@ export const REGISTRATION_COMPLETE = "registration:complete";
 export const ROLES_READ = "roles:read";
 export const PERMISSIONS_READ = "permissions:read";
 export const PERMISSIONS_ASSIGN = "permissions:assign";
+export const AUDIT_READ = "audit:read";
 
 // --- Clubes ---
 export const CLUBS_READ = "clubs:read";

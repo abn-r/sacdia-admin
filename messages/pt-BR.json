@@ -127,7 +127,8 @@
       "materials_config": "Configurações",
       "certificate_bulk_imports": "Cargas por certificado",
       "coordination": "Coordenação",
-      "geography_divisions": "Divisões"
+      "geography_divisions": "Divisões",
+      "audit_logs": "Auditoria"
     },
     "breadcrumbs": {
       "dashboard": "Painel",
@@ -1419,20 +1420,27 @@
         "emptyQuarterly": "No quarterly reports."
       },
       "history": {
-        "title": "Change history",
-        "description": "Section and assignment changes for this club.",
-        "filterSection": "Filter by section",
-        "allSections": "All sections",
-        "loading": "Loading history…",
-        "loadError": "Could not load history.",
-        "emptyTitle": "No changes recorded",
-        "emptyDescription": "There are no audit events for this club yet.",
-        "loadMore": "Load more",
-        "byActor": "By {name}",
+        "title": "Histórico de auditoria",
+        "description": "Quem alterou o clube, as seções e as atribuições.",
+        "filterSection": "Filtrar por seção",
+        "allEvents": "Todos os eventos",
+        "allSections": "Todas as seções",
+        "loading": "Carregando histórico…",
+        "loadError": "Não foi possível carregar o histórico.",
+        "emptyTitle": "Nenhuma alteração registrada",
+        "emptyDescription": "Ainda não há eventos de auditoria para este clube.",
+        "loadMore": "Carregar mais",
+        "byActor": "Por {name}",
+        "action": {
+          "CREATED": "Criado",
+          "UPDATED": "Atualizado",
+          "DELETED": "Excluído"
+        },
         "entity": {
-          "club_section": "Sections",
-          "class_counselor_assignment": "Class counselors",
-          "role_assignment": "Role assignments"
+          "club": "Clube",
+          "club_section": "Seções",
+          "class_counselor_assignment": "Conselheiros de classe",
+          "role_assignment": "Atribuições de função"
         }
       },
       "actions": {
@@ -2546,7 +2554,8 @@
       "section_rankings": "Classificação de seções",
       "unions": "Uniões",
       "user_honors": "Especialidades do usuário",
-      "certifications_admin": "Certificações (motor configurável)"
+      "certifications_admin": "Certificações (motor configurável)",
+      "audit": "Auditoria"
     },
     "permissions": {
       "users:read": "Ver lista",
@@ -2745,7 +2754,8 @@
       "relationship_types:read": "Ver tipos de relacionamento",
       "relationship_types:create": "Criar tipo de relacionamento",
       "relationship_types:update": "Editar tipo de relacionamento",
-      "relationship_types:delete": "Excluir tipo de relacionamento"
+      "relationship_types:delete": "Excluir tipo de relacionamento",
+      "audit:read": "Ver auditoria"
     },
     "userPermissionsPanel": {
       "title": "Permissões diretas",
@@ -7945,6 +7955,55 @@
       "actionFailed": "Não foi possível concluir a ação",
       "loadFailed": "Não foi possível carregar os dados",
       "downloadFailed": "-"
+    }
+  },
+  "audit": {
+    "logs": {
+      "title": "Auditoria",
+      "description": "Trilha de mutações do sistema. Apenas super-admin.",
+      "loading": "Carregando auditoria…",
+      "loadError": "Não foi possível carregar a auditoria. A lista global ainda não está na API.",
+      "emptyTitle": "Sem eventos",
+      "emptyDescription": "Não há linhas de auditoria para estes filtros.",
+      "loadMore": "Carregar mais",
+      "unknownActor": "Sem ator",
+      "detailTitle": "Detalhe do evento",
+      "detailDescription": "Contexto da operação. O body da request nunca é persistido.",
+      "detailUnavailable": "O detalhe enriquecido ainda não está disponível.",
+      "correlation": "Correlação",
+      "changes": "Alterações",
+      "requestContext": "Contexto HTTP",
+      "columns": {
+        "when": "Quando",
+        "action": "Ação",
+        "entity": "Entidade",
+        "summary": "Resumo",
+        "actor": "Ator",
+        "result": "Resultado"
+      },
+      "filters": {
+        "all": "Todos",
+        "entityType": "Tipo de entidade",
+        "entityPlaceholder": "clubs, roles…",
+        "action": "Ação",
+        "result": "Resultado",
+        "source": "Origem",
+        "from": "De",
+        "to": "Até"
+      },
+      "action": {
+        "CREATED": "Criado",
+        "UPDATED": "Atualizado",
+        "DELETED": "Excluído"
+      },
+      "result": {
+        "succeeded": "OK",
+        "failed": "Falhou"
+      },
+      "source": {
+        "http": "HTTP",
+        "service": "Serviço"
+      }
     }
   }
 }

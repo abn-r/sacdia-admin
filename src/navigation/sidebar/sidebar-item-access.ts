@@ -1,5 +1,6 @@
 import {
   ACHIEVEMENTS_READ,
+  AUDIT_READ,
   ACTIVITIES_READ,
   ACTIVITY_TYPES_READ,
   ALLERGIES_READ,
@@ -60,6 +61,7 @@ import {
   VALIDATION_READ,
 } from "@/lib/auth/permissions";
 import { CATALOG_EDITOR_ROLES } from "@/lib/auth/catalog-editor-access";
+import { SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
 
 import type { NavAccess } from "./nav-access";
 
@@ -250,6 +252,10 @@ export const NAV_ITEM_ACCESS: Record<string, NavAccess> = {
   "admin-system-jobs": { permissions: [PERMISSIONS_READ] },
   "admin-system-jobs-history": { permissions: [PERMISSIONS_READ] },
   "admin-system-achievements": { permissions: [ACHIEVEMENTS_READ] },
+  "admin-system-audit": {
+    permissions: [AUDIT_READ],
+    roles: [SUPER_ADMIN_ROLE],
+  },
   "admin-system-roles": { permissions: [ROLES_READ] },
   "admin-system-permissions": { permissions: [PERMISSIONS_READ] },
   "admin-system-matrix": {

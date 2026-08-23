@@ -127,7 +127,8 @@
       "materials_config": "Configuración",
       "certificate_bulk_imports": "Cargas por certificado",
       "coordination": "Coordinación",
-      "geography_divisions": "Divisiones"
+      "geography_divisions": "Divisiones",
+      "audit_logs": "Auditoría"
     },
     "breadcrumbs": {
       "dashboard": "Dashboard",
@@ -1425,9 +1426,10 @@
         "emptyQuarterly": "Sin informes trimestrales."
       },
       "history": {
-        "title": "Historial de cambios",
-        "description": "Cambios por sección y asignaciones del club.",
+        "title": "Historial de auditoría",
+        "description": "Quién cambió el club, las secciones y las asignaciones.",
         "filterSection": "Filtrar por sección",
+        "allEvents": "Todos los eventos",
         "allSections": "Todas las secciones",
         "loading": "Cargando historial…",
         "loadError": "No se pudo cargar el historial.",
@@ -1435,7 +1437,13 @@
         "emptyDescription": "Aún no hay eventos de auditoría para este club.",
         "loadMore": "Cargar más",
         "byActor": "Por {name}",
+        "action": {
+          "CREATED": "Creado",
+          "UPDATED": "Actualizado",
+          "DELETED": "Eliminado"
+        },
         "entity": {
+          "club": "Club",
           "club_section": "Secciones",
           "class_counselor_assignment": "Consejeros de clase",
           "role_assignment": "Asignaciones de rol"
@@ -2553,7 +2561,8 @@
       "section_rankings": "Clasificación de secciones",
       "unions": "Uniones",
       "user_honors": "Especialidades de usuario",
-      "certifications_admin": "Certificaciones (motor configurable)"
+      "certifications_admin": "Certificaciones (motor configurable)",
+      "audit": "Auditoría"
     },
     "permissions": {
       "users:read": "Ver listado",
@@ -2752,7 +2761,8 @@
       "relationship_types:read": "Ver tipos de relación",
       "relationship_types:create": "Crear tipo de relación",
       "relationship_types:update": "Editar tipo de relación",
-      "relationship_types:delete": "Eliminar tipo de relación"
+      "relationship_types:delete": "Eliminar tipo de relación",
+      "audit:read": "Ver auditoría"
     },
     "userPermissionsPanel": {
       "title": "Permisos directos",
@@ -8106,6 +8116,55 @@
       "actionFailed": "No se pudo completar la acción",
       "loadFailed": "No se pudieron cargar los datos",
       "downloadFailed": "-"
+    }
+  },
+  "audit": {
+    "logs": {
+      "title": "Auditoría",
+      "description": "Registro de mutaciones del sistema. Solo super-admin.",
+      "loading": "Cargando auditoría…",
+      "loadError": "No se pudo cargar la auditoría. El listado global aún no está en el API.",
+      "emptyTitle": "Sin eventos",
+      "emptyDescription": "No hay filas de auditoría para estos filtros.",
+      "loadMore": "Cargar más",
+      "unknownActor": "Sin actor",
+      "detailTitle": "Detalle del evento",
+      "detailDescription": "Contexto de la operación. El body del request nunca se persiste.",
+      "detailUnavailable": "El detalle enriquecido aún no está disponible.",
+      "correlation": "Correlación",
+      "changes": "Cambios",
+      "requestContext": "Contexto HTTP",
+      "columns": {
+        "when": "Cuándo",
+        "action": "Acción",
+        "entity": "Entidad",
+        "summary": "Resumen",
+        "actor": "Actor",
+        "result": "Resultado"
+      },
+      "filters": {
+        "all": "Todos",
+        "entityType": "Tipo de entidad",
+        "entityPlaceholder": "clubs, roles…",
+        "action": "Acción",
+        "result": "Resultado",
+        "source": "Origen",
+        "from": "Desde",
+        "to": "Hasta"
+      },
+      "action": {
+        "CREATED": "Creado",
+        "UPDATED": "Actualizado",
+        "DELETED": "Eliminado"
+      },
+      "result": {
+        "succeeded": "OK",
+        "failed": "Falló"
+      },
+      "source": {
+        "http": "HTTP",
+        "service": "Servicio"
+      }
     }
   }
 }

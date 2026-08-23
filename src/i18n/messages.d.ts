@@ -157,6 +157,7 @@ export interface IntlMessages {
       certificate_bulk_imports: string;
       coordination: string;
       geography_divisions: string;
+      audit_logs: string;
     };
     breadcrumbs: {
       dashboard: string;
@@ -1457,6 +1458,7 @@ export interface IntlMessages {
         title: string;
         description: string;
         filterSection: string;
+        allEvents: string;
         allSections: string;
         loading: string;
         loadError: string;
@@ -1464,7 +1466,13 @@ export interface IntlMessages {
         emptyDescription: string;
         loadMore: string;
         byActor: string;
+        action: {
+          CREATED: string;
+          UPDATED: string;
+          DELETED: string;
+        };
         entity: {
+          club: string;
           club_section: string;
           class_counselor_assignment: string;
           role_assignment: string;
@@ -2583,6 +2591,7 @@ export interface IntlMessages {
       unions: string;
       user_honors: string;
       certifications_admin: string;
+      audit: string;
     };
     permissions: {
       "users:read": string;
@@ -2782,6 +2791,7 @@ export interface IntlMessages {
       "relationship_types:create": string;
       "relationship_types:update": string;
       "relationship_types:delete": string;
+      "audit:read": string;
     };
     userPermissionsPanel: {
       title: string;
@@ -3291,8 +3301,6 @@ export interface IntlMessages {
       totalLive: string;
       notesLabel: string;
       notesPlaceholder: string;
-      notesOverrideHint: string;
-      notesOverridePlaceholder: string;
       submitButton: string;
       readOnlyHint: string;
       noRubrics: string;
@@ -3300,6 +3308,8 @@ export interface IntlMessages {
       emptyEventsDescription: string;
       emptySectionsTitle: string;
       emptySectionsDescription: string;
+      notesOverrideHint: string;
+      notesOverridePlaceholder: string;
     };
     leaderboard: {
       eyebrow: string;
@@ -3547,6 +3557,7 @@ export interface IntlMessages {
       statExpectedHint: string;
       statCollected: string;
       statPendingReview: string;
+      statOrdersHint: string;
       statOutstanding: string;
       statCoverage: string;
       membersTitle: string;
@@ -7999,7 +8010,6 @@ export interface IntlMessages {
       colAmount: string;
       proof: string;
       viewProof: string;
-      downloadPdf: string;
       makerCheckerWarning: string;
       approve: string;
       reject: string;
@@ -8013,6 +8023,7 @@ export interface IntlMessages {
       proofFilePdf: string;
       proofFilePng: string;
       unknownBeneficiary: string;
+      downloadPdf: string;
     };
     reassignments: {
       empty: string;
@@ -8134,6 +8145,55 @@ export interface IntlMessages {
       actionFailed: string;
       loadFailed: string;
       downloadFailed: string;
+    };
+  };
+  audit: {
+    logs: {
+      title: string;
+      description: string;
+      loading: string;
+      loadError: string;
+      emptyTitle: string;
+      emptyDescription: string;
+      loadMore: string;
+      unknownActor: string;
+      detailTitle: string;
+      detailDescription: string;
+      detailUnavailable: string;
+      correlation: string;
+      changes: string;
+      requestContext: string;
+      columns: {
+        when: string;
+        action: string;
+        entity: string;
+        summary: string;
+        actor: string;
+        result: string;
+      };
+      filters: {
+        all: string;
+        entityType: string;
+        entityPlaceholder: string;
+        action: string;
+        result: string;
+        source: string;
+        from: string;
+        to: string;
+      };
+      action: {
+        CREATED: string;
+        UPDATED: string;
+        DELETED: string;
+      };
+      result: {
+        succeeded: string;
+        failed: string;
+      };
+      source: {
+        http: string;
+        service: string;
+      };
     };
   };
 }

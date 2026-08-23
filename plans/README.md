@@ -28,3 +28,5 @@ Sidebar rail `transition-all` — settled exemption. Do not re-open.
 ## How to run
 
 `improve-animations execute plans/00N-….md` or any agent with that file as the only spec. Executor has zero chat context — follow the file verbatim.
+
+Backend (not motion): `009-admin-audit-logs-api.md` — Codex handoff for `GET /admin/audit-logs`.

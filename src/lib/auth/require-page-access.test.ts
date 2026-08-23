@@ -108,6 +108,21 @@ describe("canAccessDashboardPath", () => {
     ).toBe(true);
   });
 
+  it("requires super-admin for the global audit viewer", () => {
+    expect(
+      canAccessDashboardPath(
+        buildUser(["admin"], ["audit:read", "roles:read"]),
+        "/dashboard/configuration/audit",
+      ),
+    ).toBe(false);
+    expect(
+      canAccessDashboardPath(
+        buildUser(["super-admin"], []),
+        "/dashboard/configuration/audit",
+      ),
+    ).toBe(true);
+  });
+
   it("requires super-admin for direct user-permissions", () => {
     expect(
       canAccessDashboardPath(

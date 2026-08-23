@@ -40,6 +40,7 @@ import {
   Tags,
   Tent,
   Trophy,
+  ScrollText,
   Church,
   User,
   UserPlus,
@@ -846,6 +847,13 @@ export const sidebarItems: NavGroup[] = [
             title: "Logros",
             url: "/dashboard/configuration/achievements",
             icon: Trophy,
+            activeMatch: "prefix",
+          },
+          {
+            id: "admin-system-audit",
+            title: "Auditoría",
+            url: "/dashboard/configuration/audit",
+            icon: ScrollText,
             activeMatch: "prefix",
           },
           {
