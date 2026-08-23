@@ -13,6 +13,7 @@ Source: improve-animations audit. Top 5 shipped in `f71b8b4`. Leftovers 006–00
 | 006 | Accordion honors prefers-reduced-motion | MEDIUM | DONE | — |
 | 007 | Gate hover translates behind pointer:fine | MEDIUM | DONE | — |
 | 008 | Align DESIGN-SYSTEM §7.1 and §9 with runtime | LOW | DONE | — |
+| 009 | Admin audit-logs API (`GET /admin/audit-logs`) | HIGH | DONE | backend |
 
 ## Execution order
 

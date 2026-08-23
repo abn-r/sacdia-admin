@@ -1,7 +1,7 @@
 # 009 — Admin audit-logs API (Codex / backend)
 
-- **Status**: TODO (backend)
-- **Commit**: a72a8a0
+- **Status**: DONE (backend 2026-08-23)
+- **Commit**: a72a8a0 (admin UI) + pending `feat/admin-audit-logs-api` (backend)
 - **Severity**: HIGH
 - **Category**: Contract
 - **Estimated scope**: audit-logs module + seeds + docs
