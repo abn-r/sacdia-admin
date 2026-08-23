@@ -299,7 +299,7 @@ export async function getConfig(
   return apiRequest<MaterialConfig>("/materials/config", { params });
 }
 
-/** Admin/super-admin only — list configs across every local_field. */
+/** Lists configs in the caller territory. Unscoped admins see every field. */
 export async function listConfigAll(): Promise<MaterialConfig[]> {
   return apiRequest<MaterialConfig[]>("/materials/config/all");
 }

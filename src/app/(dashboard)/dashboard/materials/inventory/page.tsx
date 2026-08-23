@@ -11,7 +11,13 @@ import { NewProductButton } from "./_components/new-product-button";
 import { listInventory } from "@/lib/api/materials";
 import { apiRequest } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
-import { resolveUserLocalField } from "@/lib/auth/user-local-field";
+import { listLocalFieldsForTerritory } from "@/lib/auth/territory-scope";
+import {
+  canPickLocalField,
+  pickLocalFieldIdInScope,
+  resolveUserLocalField,
+  toLocalFieldOptions,
+} from "@/lib/auth/user-local-field";
 import { hasPermission } from "@/lib/auth/permission-utils";
 import { MATERIALS_MANAGE_INVENTORY } from "@/lib/auth/permissions";
 import { ApiError } from "@/lib/api/client";
@@ -63,16 +69,12 @@ export default async function InventarioPage({
   }
 
   const scope = resolveUserLocalField(user);
+  const canPickField = canPickLocalField(scope);
   const raw = await searchParams;
   const q = resolveQ(raw["q"]);
   const cat = resolveCat(raw["cat"]);
   const page = resolvePage(raw["page"]);
-
-  // LF-scoped users always see their LF. Admin/super-admin honor
-  // ?local_field_id= or default to a merged view.
   const lfOverride = resolveLfParam(raw["local_field_id"]);
-  const effectiveLocalFieldId =
-    scope.scope === "single" ? scope.localFieldId : lfOverride;
 
   let products: MaterialProduct[] = [];
   let total = 0;
@@ -81,40 +83,37 @@ export default async function InventarioPage({
   let loadError: string | null = null;
   let loadErrorStatus: number | null = null;
 
-  // Parallel fetch: inventario + categories + (admin-only) local_fields list
-  const [inventarioResult, catResult, lfResult] = await Promise.allSettled([
-    listInventory({
+  const [catResult, fields] = await Promise.all([
+    apiRequest<{ data: MaterialCategory[] }>("/materials/catalog/categories")
+      .then((payload) => payload.data)
+      .catch(() => [] as MaterialCategory[]),
+    listLocalFieldsForTerritory(user).catch(() => []),
+  ]);
+  categories = catResult;
+  localFields = toLocalFieldOptions(fields);
+  const effectiveLocalFieldId = pickLocalFieldIdInScope(
+    scope,
+    lfOverride,
+    new Set(localFields.map((field) => field.local_field_id)),
+  );
+
+  try {
+    const result = (await listInventory({
       cat: cat || undefined,
       q: q || undefined,
       page,
       pageSize: PAGE_SIZE,
       local_field_id: effectiveLocalFieldId,
-    }),
-    apiRequest<{ data: MaterialCategory[] }>("/materials/catalog/categories"),
-    scope.scope === "all"
-      ? apiRequest<{ data: LocalFieldOption[] }>("/admin/local-fields")
-      : Promise.resolve({ data: [] as LocalFieldOption[] }),
-  ]);
-
-  if (inventarioResult.status === "fulfilled") {
-    const result = inventarioResult.value as Paginated<MaterialProduct>;
+    })) as Paginated<MaterialProduct>;
     products = result.data;
     total = result.total;
-  } else {
-    const error = inventarioResult.reason;
+  } catch (error) {
     if (error instanceof ApiError) {
       loadError = error.message;
       loadErrorStatus = error.status;
     } else {
       loadError = t("loadError");
     }
-  }
-
-  if (catResult.status === "fulfilled") {
-    categories = catResult.value.data;
-  }
-  if (lfResult.status === "fulfilled") {
-    localFields = lfResult.value.data;
   }
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -128,7 +127,7 @@ export default async function InventarioPage({
         />
         <NewProductButton
           categories={categories}
-          localFields={localFields}
+          localFields={canPickField ? localFields : []}
           actorLocalFieldId={
             scope.scope === "single" ? scope.localFieldId : null
           }
@@ -141,7 +140,7 @@ export default async function InventarioPage({
         currentCat={cat}
         categories={categories}
         currentLocalFieldId={effectiveLocalFieldId ?? null}
-        localFields={scope.scope === "all" ? localFields : []}
+        localFields={canPickField ? localFields : []}
         />
 
         {loadError && (
@@ -169,7 +168,7 @@ export default async function InventarioPage({
             <InventoryTable
             products={products}
             categories={categories}
-            showLocalFieldColumn={scope.scope === "all"}
+            showLocalFieldColumn={canPickField}
             localFields={localFields}
             />
 

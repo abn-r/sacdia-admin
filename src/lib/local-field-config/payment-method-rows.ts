@@ -41,7 +41,7 @@ export function buildPaymentMethodRows(
     .map((lf) => {
       const config = configByLf.get(lf.local_field_id) ?? null;
       const canManage =
-        scope.scope === "all" || scope.localFieldId === lf.local_field_id;
+        scope.scope !== "single" || scope.localFieldId === lf.local_field_id;
 
       return {
         localFieldId: lf.local_field_id,

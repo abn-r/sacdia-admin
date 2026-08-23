@@ -1,59 +1,101 @@
 import type { AuthUser } from "@/lib/auth/types";
+import { extractRoles } from "@/lib/auth/roles";
+import { resolveAdminTerritoryScope } from "@/lib/auth/territory-scope";
+import type { LocalFieldOption } from "@/lib/types/materials";
 
 /**
- * Describes whether a session is bound to a single local_field (directors,
- * director-lf, assistant-lf) or is unscoped (admin / super-admin) and can
- * therefore address any local_field with an explicit override.
+ * Materials/local-field UI constraint. Mirrors backend
+ * `resolveActorLocalField`: role-first, union/division never collapse to
+ * the home `local_field_id`.
  */
 export type UserLocalFieldScope =
   | { scope: "single"; localFieldId: number }
+  | { scope: "union"; unionId: number }
+  | { scope: "division"; divisionId: number }
   | { scope: "all" };
 
-type ScopeNode = { id?: number | string | null } | null | undefined;
+const TERRITORIAL_ROLES = new Set([
+  "director-dia",
+  "assistant-dia",
+  "director-union",
+  "assistant-union",
+  "director-lf",
+  "assistant-lf",
+]);
+
+function hasTerritorialRole(user: AuthUser | null | undefined): boolean {
+  return extractRoles(user).some((role) => TERRITORIAL_ROLES.has(role));
+}
 
 /**
- * Reads the AuthorizationSnapshot attached to the session user and returns
- * the local_field constraint that should drive UI filters and form payloads:
+ * Role-first local_field constraint for materials and camporee forms.
  *
- *   1. effective.scope.global.local_field.id   → director-lf / assistant-lf
- *   2. effective.scope.club.local_field_id      → director (CLUB role); we
- *      fall back to legacy.club.local_field_id which the backend includes
- *      when the user has an active club assignment
- *   3. otherwise                                 → 'all'
- *
- * The backend enforces the same scope server-side via PermissionsGuard +
- * resolveActorLocalField. This helper exists so the UI can hide the LF
- * selector and pre-fill values for LF-scoped users.
+ *   1. `resolveAdminTerritoryScope` (roles before home field)
+ *   2. Club-only actors may still bind via `legacy.club.local_field_id`
+ *   3. Territorial roles that failed to resolve never fall back to home field
  */
 export function resolveUserLocalField(
   user: AuthUser | null | undefined,
 ): UserLocalFieldScope {
-  if (!user?.authorization) return { scope: "all" };
+  const territory = resolveAdminTerritoryScope(user);
 
-  const effective = (user.authorization as Record<string, unknown>).effective as
-    | { scope?: { global?: { local_field?: ScopeNode }; club?: unknown } }
-    | undefined;
-
-  const lfNode = effective?.scope?.global?.local_field;
-  const lfNodeId = lfNode?.id;
-  const lfFromTerritory =
-    typeof lfNodeId === "string"
-      ? parseInt(lfNodeId, 10)
-      : typeof lfNodeId === "number"
-        ? lfNodeId
-        : null;
-  if (lfFromTerritory != null && Number.isFinite(lfFromTerritory)) {
-    return { scope: "single", localFieldId: lfFromTerritory };
+  if (territory.level === "local_field") {
+    return { scope: "single", localFieldId: territory.localFieldId };
   }
 
-  // Fallback: legacy club hierarchy carries local_field_id for directors
-  const legacy = (user.authorization as Record<string, unknown>).legacy as
-    | { club?: { local_field_id?: number | null } | null }
-    | undefined;
+  if (territory.level === "union") {
+    return { scope: "union", unionId: territory.unionId };
+  }
+
+  if (territory.level === "division") {
+    return { scope: "division", divisionId: territory.divisionId };
+  }
+
+  if (hasTerritorialRole(user)) {
+    return { scope: "all" };
+  }
+
+  const legacy = (user?.authorization as Record<string, unknown> | undefined)
+    ?.legacy as { club?: { local_field_id?: number | null } | null } | undefined;
   const clubLf = legacy?.club?.local_field_id;
-  if (typeof clubLf === "number" && Number.isFinite(clubLf)) {
+  if (typeof clubLf === "number" && Number.isFinite(clubLf) && clubLf > 0) {
     return { scope: "single", localFieldId: clubLf };
   }
 
   return { scope: "all" };
+}
+
+/** Union, division and unscoped admins can pick a child local field. */
+export function canPickLocalField(scope: UserLocalFieldScope): boolean {
+  return scope.scope !== "single";
+}
+
+export function toLocalFieldOptions(
+  fields: Array<{
+    local_field_id: number;
+    name: string;
+    abbreviation?: string | null;
+  }>,
+): LocalFieldOption[] {
+  return fields.map((field) => ({
+    local_field_id: field.local_field_id,
+    name: field.name,
+    abbreviation: field.abbreviation ?? "",
+  }));
+}
+
+export function pickLocalFieldIdInScope(
+  scope: UserLocalFieldScope,
+  override: number | undefined,
+  allowedIds: ReadonlySet<number>,
+): number | undefined {
+  if (scope.scope === "single") {
+    return scope.localFieldId;
+  }
+
+  if (override !== undefined && allowedIds.has(override)) {
+    return override;
+  }
+
+  return undefined;
 }
