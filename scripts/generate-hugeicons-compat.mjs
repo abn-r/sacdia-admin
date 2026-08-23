@@ -50,6 +50,7 @@ const MANUAL = {
   RefreshCcw: "RefreshIcon",
   Undo2: "Undo02Icon",
   FileText: "File01Icon",
+  ScrollText: "File01Icon",
   Trophy: "Award01Icon",
   Medal: "Medal01Icon",
   Sparkles: "SparklesIcon",

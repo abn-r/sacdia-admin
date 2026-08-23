@@ -380,6 +380,8 @@ describe("CamporeeFormDialog", () => {
         end_date: string;
         local_camporee_place: string;
         local_field_id: number;
+        lat?: number;
+        long?: number;
       },
     ];
     expect(payload.name).toBe("Camporee Test");

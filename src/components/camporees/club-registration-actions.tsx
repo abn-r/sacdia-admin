@@ -78,7 +78,7 @@ export function ClubRegistrationActions({
       setConfirmOpen(false);
       router.refresh();
     } catch (error: unknown) {
-      toast.error(resolveErrorMessage(error, closed, (key) => t(key)));
+      toast.error(resolveErrorMessage(error, closed, t));
     } finally {
       setIsSubmitting(false);
     }
@@ -148,7 +148,17 @@ export function ClubRegistrationActions({
 function resolveErrorMessage(
   error: unknown,
   closed: boolean,
-  t: (key: string) => string,
+  t: {
+    (
+      key:
+        | "errors.noEnrolledClubs"
+        | "errors.alreadyClosed"
+        | "errors.reopenBlocked"
+        | "errors.notActive"
+        | "reopenFailed"
+        | "closeFailed",
+    ): string;
+  },
 ): string {
   const code = getApiErrorCode(error);
   switch (code) {

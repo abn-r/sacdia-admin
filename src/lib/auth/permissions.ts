@@ -517,16 +517,30 @@ export type PermissionKey = string;
 // i18n helpers — use these in all UI components instead of hardcoded strings
 // ═══════════════════════════════════════════════════════════════════════════
 
-type RbacTranslator = ((key: string) => string) & {
+/**
+ * next-intl `useTranslations("rbac")` is not assignable to `(key: string) =>
+ * string` because message keys are branded. Accept the runtime translator
+ * structurally and call it with dynamic permission keys.
+ */
+type RbacTranslator = object;
+
+function asRbacTranslator(t: RbacTranslator): {
+  (key: string): string;
   has?: (key: string) => boolean;
-};
+} {
+  return t as {
+    (key: string): string;
+    has?: (key: string) => boolean;
+  };
+}
 
 function readRbacMessage(t: RbacTranslator, key: string): string | null {
-  if (typeof t.has === "function" && !t.has(key)) {
+  const translator = asRbacTranslator(t);
+  if (typeof translator.has === "function" && !translator.has(key)) {
     return null;
   }
   try {
-    const label = t(key as Parameters<typeof t>[0]);
+    const label = translator(key);
     if (!label || label === key) {
       return null;
     }
