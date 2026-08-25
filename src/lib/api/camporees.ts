@@ -125,6 +125,9 @@ export type Camporee = {
     name?: string;
     abbreviation?: string;
   };
+  orders_enabled?: boolean;
+  orders_opens_at?: string | null;
+  orders_deadline?: string | null;
 };
 
 export type CamporeePayload = {
@@ -400,6 +403,9 @@ export type UnionCamporee = {
   active?: boolean;
   club_registration_closed_at?: string | null;
   club_registration_closed_by?: string | null;
+  orders_enabled?: boolean;
+  orders_opens_at?: string | null;
+  orders_deadline?: string | null;
 };
 
 export type UnionCamporeePayload = {

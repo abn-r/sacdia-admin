@@ -8139,5 +8139,201 @@
         "service": "Service"
       }
     }
+  },
+  "camporee_orders": {
+    "catalogPage": {
+      "title": "Order catalog",
+      "description": "Territorial product library for camporees"
+    },
+    "reviewPage": {
+      "title": "Order review tray",
+      "description": "Review merchandise order payment proofs"
+    },
+    "gate": {
+      "forbiddenTitle": "Access restricted",
+      "forbiddenDescription": "You do not have permission to access camporee orders."
+    },
+    "tray": {
+      "refresh": "Refresh",
+      "loading": "Loading…",
+      "empty": "No orders",
+      "colFolio": "Folio",
+      "colLines": "Lines",
+      "colTotal": "Total",
+      "colStatus": "Status",
+      "colIssued": "Issued",
+      "openDetail": "Open detail"
+    },
+    "status": {
+      "ISSUED": "Issued",
+      "PROOF_SUBMITTED": "Proof submitted",
+      "PROOF_REJECTED": "Proof rejected",
+      "PAID": "Paid",
+      "DELIVERED": "Delivered",
+      "CANCELLED": "Cancelled",
+      "EXPIRED": "Expired"
+    },
+    "distribution": {
+      "NOT_STARTED": "Not started",
+      "PARTIAL": "Partial",
+      "COMPLETE": "Complete"
+    },
+    "detail": {
+      "title": "Order detail",
+      "status": "Status",
+      "total": "Total",
+      "issued": "Issued",
+      "expires": "Expires",
+      "summary": "Summary",
+      "namedLines": "Named lines",
+      "colProduct": "Product",
+      "colSize": "Size",
+      "colQty": "Qty",
+      "colSubtotal": "Subtotal",
+      "colBeneficiary": "Beneficiary",
+      "colMemberDelivery": "Member delivery",
+      "pendingMemberDelivery": "Pending",
+      "proof": "Proof",
+      "viewProof": "View proof",
+      "downloadPdf": "Download PDF",
+      "approve": "Approve",
+      "reject": "Reject",
+      "authorizeWithoutProof": "Authorize without proof",
+      "deliverToSection": "Deliver to section",
+      "authorizedWithoutProof": "Authorized without proof",
+      "distributionStatus": "Member distribution",
+      "rejectTitle": "Reject proof",
+      "rejectDescription": "The section may upload a new proof with the same folio.",
+      "rejectPlaceholder": "Rejection reason (required)",
+      "confirmReject": "Confirm rejection",
+      "authorizeTitle": "Authorize without proof",
+      "authorizeDescription": "Cash exception: mark the order paid without proof.",
+      "authorizeWarning": "This is an exceptional action and is audited.",
+      "authorizePlaceholder": "Authorization reason (required)",
+      "confirmAuthorize": "Confirm authorization",
+      "cancel": "Cancel"
+    },
+    "catalog": {
+      "empty": "No products in the territorial catalog",
+      "createProduct": "New product",
+      "createTitle": "Create product",
+      "editTitle": "Edit product",
+      "colTitle": "Product",
+      "colOwner": "Owner",
+      "colSizes": "Scheme",
+      "colOptions": "Sizes",
+      "colStatus": "Access",
+      "readOnly": "Read only",
+      "inactive": "Inactive",
+      "edit": "Edit",
+      "deactivate": "Deactivate",
+      "save": "Save",
+      "created": "Product created",
+      "updated": "Product updated",
+      "deactivated": "Product deactivated",
+      "fieldTitle": "Title",
+      "fieldDescription": "Description",
+      "fieldSizeScheme": "Size scheme",
+      "ownerDivision": "Division",
+      "ownerUnion": "Union",
+      "ownerLocalField": "Local field",
+      "sizeScheme": {
+        "LETTER": "Letter",
+        "NUMERIC": "Numeric",
+        "NONE": "No size"
+      }
+    },
+    "settings": {
+      "title": "Merchandise orders",
+      "description": "Order window and event offerings",
+      "enabled": "Orders enabled",
+      "opensAt": "Opens",
+      "deadline": "Deadline",
+      "offeringsTitle": "Camporee offerings",
+      "offeringsEmpty": "No active products in the territorial catalog",
+      "priceLabel": "Price for {product}",
+      "save": "Save orders",
+      "saved": "Order settings saved"
+    },
+    "camporeeTab": {
+      "empty": "This camporee has no merchandise orders"
+    },
+    "toasts": {
+      "approved": "Order approved",
+      "rejected": "Order rejected",
+      "authorized": "Order authorized without proof",
+      "delivered": "Order delivered to section",
+      "loadFailed": "Could not load orders",
+      "actionFailed": "Could not complete action",
+      "downloadFailed": "Could not download file"
+    },
+    "errors": {
+      "forbidden": "You do not have permission for this action",
+      "invalidTransition": "Order status changed; refresh the view",
+      "makerChecker": "Proof uploader cannot approve",
+      "proofNotFound": "No current proof",
+      "rejectReasonRequired": "Rejection requires a reason",
+      "authorizationReasonRequired": "Authorization requires a reason",
+      "ordersDisabled": "Orders are disabled for this camporee",
+      "ordersNotOpen": "Order window is not open yet",
+      "ordersClosed": "Order window has closed"
+    }
+  },
+  "payment_obligations": {
+    "page": {
+      "title": "Pending payments",
+      "description": "Inscription, materials, and merchandise orders by folio"
+    },
+    "tabs": {
+      "pending": "Pending payments"
+    },
+    "tray": {
+      "refresh": "Refresh",
+      "loading": "Loading…",
+      "empty": "No pending payments",
+      "colFolio": "Folio",
+      "colSource": "Source",
+      "colPurpose": "Purpose",
+      "colTotal": "Total",
+      "colStatus": "Status",
+      "colCreated": "Created"
+    },
+    "source": {
+      "CAMPOREE_ORDER": "Camporee order",
+      "FIELD_PAYMENT_ORDER": "Inscription order",
+      "MATERIAL_ORDER": "Materials order"
+    },
+    "purpose": {
+      "CAMPOREE_MATERIALS": "Camporee materials",
+      "CAMPOREE": "Camporee inscription",
+      "INSURANCE": "Insurance",
+      "MATERIALS": "Materials"
+    },
+    "status": {
+      "PAYMENT_DUE": "Payment due",
+      "UNDER_REVIEW": "Under review",
+      "PROOF_REJECTED": "Proof rejected",
+      "ORDER_REVIEW": "Order review"
+    },
+    "actions": {
+      "camporee-order": {
+        "UPLOAD_PROOF": "Upload proof",
+        "WAIT_REVIEW": "Open review tray",
+        "RESUBMIT_PROOF": "Resubmit proof",
+        "WAIT_APPROVAL": "View order"
+      },
+      "inscription": {
+        "UPLOAD_PROOF": "Upload proof",
+        "WAIT_REVIEW": "Review inscription",
+        "RESUBMIT_PROOF": "Resubmit proof",
+        "WAIT_APPROVAL": "View order"
+      },
+      "materials": {
+        "UPLOAD_PROOF": "View order",
+        "WAIT_REVIEW": "View order",
+        "RESUBMIT_PROOF": "View order",
+        "WAIT_APPROVAL": "View order"
+      }
+    }
   }
 }

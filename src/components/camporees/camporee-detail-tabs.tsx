@@ -64,6 +64,14 @@ const CamporeePaymentOrdersTab = dynamic<CamporeePaymentOrdersTabProps>(
     ),
   { ssr: false, loading: () => <Skeleton className="h-48 w-full" /> },
 );
+
+const CamporeeOrdersTab = dynamic(
+  () =>
+    import("@/components/camporee-orders/camporee-orders-tab").then(
+      (m) => m.CamporeeOrdersTab,
+    ),
+  { ssr: false, loading: () => <Skeleton className="h-48 w-full" /> },
+);
 import type {
   Camporee,
   CamporeeMember,
@@ -121,6 +129,7 @@ const CAMPOREE_DETAIL_TABS = new Set([
   "clubs",
   "payments",
   "payment-orders",
+  "merchandise-orders",
   "events",
   "judges",
   "scores",
@@ -245,6 +254,8 @@ export function CamporeeDetailTabs({
 
         <TabsTrigger value="payment-orders">Órdenes de pago</TabsTrigger>
 
+        <TabsTrigger value="merchandise-orders">Pedidos</TabsTrigger>
+
         <TabsTrigger value="events">
           Eventos
           {initialEvents.length > 0 && (
@@ -365,6 +376,21 @@ export function CamporeeDetailTabs({
           </CardHeader>
           <CardContent>
             <CamporeePaymentOrdersTab
+              camporeeId={camporeeId}
+              camporeeType={isUnionCamporee ? "union" : "local"}
+            />
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      {/* ── Pedidos de mercancía (folios PED; distinto de inscripción) ── */}
+      <TabsContent value="merchandise-orders" className="mt-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Pedidos de mercancía</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CamporeeOrdersTab
               camporeeId={camporeeId}
               camporeeType={isUnionCamporee ? "union" : "local"}
             />

@@ -461,6 +461,20 @@ export const sidebarItems: NavGroup[] = [
             icon: Scale,
             activeMatch: "prefix",
           },
+          {
+            id: "campamentos-pedidos-catalogo",
+            title: "Catálogo pedidos",
+            url: "/dashboard/campamentos/pedidos/catalogo",
+            icon: ShoppingBag,
+            activeMatch: "prefix",
+          },
+          {
+            id: "campamentos-pedidos-bandeja",
+            title: "Bandeja pedidos",
+            url: "/dashboard/campamentos/pedidos/bandeja",
+            icon: ClipboardList,
+            activeMatch: "prefix",
+          },
         ],
       },
       {

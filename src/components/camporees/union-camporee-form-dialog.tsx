@@ -38,6 +38,10 @@ import { createUnionCamporee, updateUnionCamporee } from "@/lib/api/camporees";
 import type { UnionCamporee } from "@/lib/api/camporees";
 import type { Union } from "@/lib/api/geography";
 import { CamporeeLocationFields } from "@/components/camporees/camporee-location-fields";
+import { CamporeeOrderSettingsPanel } from "@/components/camporee-orders/camporee-order-settings-panel";
+import { useAuth } from "@/lib/auth/auth-context";
+import { hasPermission } from "@/lib/auth/permission-utils";
+import { CAMPOREE_ORDERS_OFFERING_CONFIGURE } from "@/lib/auth/permissions";
 
 // ─── Schema factory ────────────────────────────────────────────────────────────
 
@@ -126,7 +130,9 @@ export function UnionCamporeeFormDialog({
 }: UnionCamporeeFormDialogProps) {
   const t = useTranslations("camporees");
   const tVal = useTranslations("camporees.validation");
+  const { user } = useAuth();
   const isEdit = !!camporee;
+  const canConfigureOrders = hasPermission(user, CAMPOREE_ORDERS_OFFERING_CONFIGURE);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const schema = useMemo(() => buildSchema(tVal), [tVal]);
 
@@ -570,6 +576,17 @@ export function UnionCamporeeFormDialog({
                 />
               </div>
             </div>
+
+            {isEdit && camporee ? (
+              <CamporeeOrderSettingsPanel
+                camporeeId={camporee.union_camporee_id ?? camporee.id ?? 0}
+                kind="union"
+                ordersEnabled={camporee.orders_enabled}
+                ordersOpensAt={camporee.orders_opens_at}
+                ordersDeadline={camporee.orders_deadline}
+                canConfigure={canConfigureOrders}
+              />
+            ) : null}
 
             <DialogFooter className="pt-2">
               <Button

@@ -7,6 +7,9 @@ import {
   AWARD_CATEGORIES_READ,
   CAMPOREE_EVENTS_READ,
   CAMPOREE_EVENT_TYPES_READ,
+  CAMPOREE_ORDERS_CATALOG_MANAGE,
+  CAMPOREE_ORDERS_READ,
+  CAMPOREE_ORDERS_REVIEW,
   CAMPOREES_READ,
   CAMPOREES_UPDATE,
   CHURCHES_READ,
@@ -154,6 +157,12 @@ export const NAV_ITEM_ACCESS: Record<string, NavAccess> = {
   },
   "campamentos-judges": {
     permissions: [CAMPOREES_READ, SCORING_CATEGORIES_READ],
+  },
+  "campamentos-pedidos-catalogo": {
+    permissions: [CAMPOREE_ORDERS_CATALOG_MANAGE, CAMPOREE_ORDERS_READ],
+  },
+  "campamentos-pedidos-bandeja": {
+    permissions: [CAMPOREE_ORDERS_REVIEW],
   },
   activities: { permissions: [ACTIVITIES_READ] },
 
