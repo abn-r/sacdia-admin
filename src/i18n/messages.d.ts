@@ -8290,6 +8290,10 @@ export interface IntlMessages {
       fieldTitle: string;
       fieldDescription: string;
       fieldSizeScheme: string;
+      fieldOwnerScope: string;
+      fieldOwnerTerritory: string;
+      ownerTerritoryPlaceholder: string;
+      ownerHint: string;
       ownerDivision: string;
       ownerUnion: string;
       ownerLocalField: string;
@@ -8333,6 +8337,7 @@ export interface IntlMessages {
       ordersDisabled: string;
       ordersNotOpen: string;
       ordersClosed: string;
+      productScopeInvalid: string;
     };
   };
   payment_obligations: {

@@ -8234,6 +8234,10 @@
       "fieldTitle": "Title",
       "fieldDescription": "Description",
       "fieldSizeScheme": "Size scheme",
+      "fieldOwnerScope": "Owner scope",
+      "fieldOwnerTerritory": "Owner territory",
+      "ownerTerritoryPlaceholder": "Choose a territory",
+      "ownerHint": "Platform admins must choose a division, union, or local field.",
       "ownerDivision": "Division",
       "ownerUnion": "Union",
       "ownerLocalField": "Local field",
@@ -8276,7 +8280,8 @@
       "authorizationReasonRequired": "Authorization requires a reason",
       "ordersDisabled": "Orders are disabled for this camporee",
       "ordersNotOpen": "Order window is not open yet",
-      "ordersClosed": "Order window has closed"
+      "ordersClosed": "Order window has closed",
+      "productScopeInvalid": "Choose the product's owner territory"
     }
   },
   "payment_obligations": {

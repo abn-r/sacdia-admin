@@ -8261,6 +8261,10 @@
       "fieldTitle": "Título",
       "fieldDescription": "Descripción",
       "fieldSizeScheme": "Esquema de tallas",
+      "fieldOwnerScope": "Alcance del dueño",
+      "fieldOwnerTerritory": "Territorio dueño",
+      "ownerTerritoryPlaceholder": "Elige un territorio",
+      "ownerHint": "Quien administra toda la plataforma debe indicar división, unión o campo local.",
       "ownerDivision": "División",
       "ownerUnion": "Unión",
       "ownerLocalField": "Campo Local",
@@ -8303,7 +8307,8 @@
       "authorizationReasonRequired": "La autorización requiere un motivo",
       "ordersDisabled": "Los pedidos de este camporee están desactivados",
       "ordersNotOpen": "La ventana de pedidos aún no abre",
-      "ordersClosed": "La ventana de pedidos ya cerró"
+      "ordersClosed": "La ventana de pedidos ya cerró",
+      "productScopeInvalid": "Indica el territorio dueño del producto"
     }
   },
   "payment_obligations": {
