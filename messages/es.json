@@ -8166,5 +8166,201 @@
         "service": "Servicio"
       }
     }
+  },
+  "camporee_orders": {
+    "catalogPage": {
+      "title": "Catálogo de pedidos",
+      "description": "Biblioteca territorial de productos para camporees"
+    },
+    "reviewPage": {
+      "title": "Bandeja de pedidos",
+      "description": "Revisión de comprobantes de pedidos de mercancía"
+    },
+    "gate": {
+      "forbiddenTitle": "Acceso restringido",
+      "forbiddenDescription": "No tienes permiso para acceder a pedidos de camporee."
+    },
+    "tray": {
+      "refresh": "Actualizar",
+      "loading": "Cargando…",
+      "empty": "No hay pedidos",
+      "colFolio": "Folio",
+      "colLines": "Líneas",
+      "colTotal": "Total",
+      "colStatus": "Estado",
+      "colIssued": "Emitido",
+      "openDetail": "Ver detalle"
+    },
+    "status": {
+      "ISSUED": "Emitido",
+      "PROOF_SUBMITTED": "Comprobante enviado",
+      "PROOF_REJECTED": "Comprobante rechazado",
+      "PAID": "Pagado",
+      "DELIVERED": "Entregado",
+      "CANCELLED": "Cancelado",
+      "EXPIRED": "Vencido"
+    },
+    "distribution": {
+      "NOT_STARTED": "Sin iniciar",
+      "PARTIAL": "Parcial",
+      "COMPLETE": "Completo"
+    },
+    "detail": {
+      "title": "Detalle del pedido",
+      "status": "Estado",
+      "total": "Total",
+      "issued": "Emitido",
+      "expires": "Vence",
+      "summary": "Consolidado",
+      "namedLines": "Líneas nominadas",
+      "colProduct": "Producto",
+      "colSize": "Talla",
+      "colQty": "Cant.",
+      "colSubtotal": "Subtotal",
+      "colBeneficiary": "Beneficiario",
+      "colMemberDelivery": "Entrega al miembro",
+      "pendingMemberDelivery": "Pendiente",
+      "proof": "Comprobante",
+      "viewProof": "Ver comprobante",
+      "downloadPdf": "Descargar PDF",
+      "approve": "Aprobar",
+      "reject": "Rechazar",
+      "authorizeWithoutProof": "Autorizar sin comprobante",
+      "deliverToSection": "Entregar a la sección",
+      "authorizedWithoutProof": "Autorizado sin comprobante",
+      "distributionStatus": "Distribución a miembros",
+      "rejectTitle": "Rechazar comprobante",
+      "rejectDescription": "La sección podrá subir un nuevo comprobante con el mismo folio.",
+      "rejectPlaceholder": "Motivo del rechazo (obligatorio)",
+      "confirmReject": "Confirmar rechazo",
+      "authorizeTitle": "Autorizar sin comprobante",
+      "authorizeDescription": "Excepción de caja: marca el pedido como pagado sin comprobante.",
+      "authorizeWarning": "Esta acción es excepcional y queda auditada.",
+      "authorizePlaceholder": "Motivo de la autorización (obligatorio)",
+      "confirmAuthorize": "Confirmar autorización",
+      "cancel": "Cancelar"
+    },
+    "catalog": {
+      "empty": "No hay productos en el catálogo territorial",
+      "createProduct": "Nuevo producto",
+      "createTitle": "Crear producto",
+      "editTitle": "Editar producto",
+      "colTitle": "Producto",
+      "colOwner": "Propietario",
+      "colSizes": "Esquema",
+      "colOptions": "Tallas",
+      "colStatus": "Acceso",
+      "readOnly": "Solo lectura",
+      "inactive": "Inactivo",
+      "edit": "Editar",
+      "deactivate": "Desactivar",
+      "save": "Guardar",
+      "created": "Producto creado",
+      "updated": "Producto actualizado",
+      "deactivated": "Producto desactivado",
+      "fieldTitle": "Título",
+      "fieldDescription": "Descripción",
+      "fieldSizeScheme": "Esquema de tallas",
+      "ownerDivision": "División",
+      "ownerUnion": "Unión",
+      "ownerLocalField": "Campo Local",
+      "sizeScheme": {
+        "LETTER": "Letras",
+        "NUMERIC": "Numérico",
+        "NONE": "Sin talla"
+      }
+    },
+    "settings": {
+      "title": "Pedidos de mercancía",
+      "description": "Ventana de pedidos y ofertas del evento",
+      "enabled": "Pedidos habilitados",
+      "opensAt": "Apertura",
+      "deadline": "Cierre",
+      "offeringsTitle": "Ofertas del camporee",
+      "offeringsEmpty": "No hay productos activos en el catálogo territorial",
+      "priceLabel": "Precio de {product}",
+      "save": "Guardar pedidos",
+      "saved": "Configuración de pedidos guardada"
+    },
+    "camporeeTab": {
+      "empty": "Este camporee no tiene pedidos de mercancía"
+    },
+    "toasts": {
+      "approved": "Pedido aprobado",
+      "rejected": "Pedido rechazado",
+      "authorized": "Pedido autorizado sin comprobante",
+      "delivered": "Pedido entregado a la sección",
+      "loadFailed": "No se pudieron cargar los pedidos",
+      "actionFailed": "No se pudo completar la acción",
+      "downloadFailed": "No se pudo descargar el archivo"
+    },
+    "errors": {
+      "forbidden": "No tienes permiso para realizar esta acción",
+      "invalidTransition": "El pedido cambió de estado; actualiza la vista",
+      "makerChecker": "Quien subió el comprobante no puede aprobarlo",
+      "proofNotFound": "No hay comprobante vigente",
+      "rejectReasonRequired": "El rechazo requiere un motivo",
+      "authorizationReasonRequired": "La autorización requiere un motivo",
+      "ordersDisabled": "Los pedidos de este camporee están desactivados",
+      "ordersNotOpen": "La ventana de pedidos aún no abre",
+      "ordersClosed": "La ventana de pedidos ya cerró"
+    }
+  },
+  "payment_obligations": {
+    "page": {
+      "title": "Pagos pendientes",
+      "description": "Inscripciones, materiales y pedidos de mercancía por folio"
+    },
+    "tabs": {
+      "pending": "Pagos pendientes"
+    },
+    "tray": {
+      "refresh": "Actualizar",
+      "loading": "Cargando…",
+      "empty": "No hay pagos pendientes",
+      "colFolio": "Folio",
+      "colSource": "Origen",
+      "colPurpose": "Propósito",
+      "colTotal": "Total",
+      "colStatus": "Estado",
+      "colCreated": "Creado"
+    },
+    "source": {
+      "CAMPOREE_ORDER": "Pedido camporee",
+      "FIELD_PAYMENT_ORDER": "Orden de inscripción",
+      "MATERIAL_ORDER": "Pedido de materiales"
+    },
+    "purpose": {
+      "CAMPOREE_MATERIALS": "Materiales camporee",
+      "CAMPOREE": "Inscripción camporee",
+      "INSURANCE": "Seguro",
+      "MATERIALS": "Materiales"
+    },
+    "status": {
+      "PAYMENT_DUE": "Pago pendiente",
+      "UNDER_REVIEW": "En revisión",
+      "PROOF_REJECTED": "Comprobante rechazado",
+      "ORDER_REVIEW": "Revisión de pedido"
+    },
+    "actions": {
+      "camporee-order": {
+        "UPLOAD_PROOF": "Subir comprobante",
+        "WAIT_REVIEW": "Ver en bandeja",
+        "RESUBMIT_PROOF": "Reenviar comprobante",
+        "WAIT_APPROVAL": "Ver pedido"
+      },
+      "inscription": {
+        "UPLOAD_PROOF": "Subir comprobante",
+        "WAIT_REVIEW": "Revisar inscripción",
+        "RESUBMIT_PROOF": "Reenviar comprobante",
+        "WAIT_APPROVAL": "Ver orden"
+      },
+      "materials": {
+        "UPLOAD_PROOF": "Ver pedido",
+        "WAIT_REVIEW": "Ver pedido",
+        "RESUBMIT_PROOF": "Ver pedido",
+        "WAIT_APPROVAL": "Ver pedido"
+      }
+    }
   }
 }

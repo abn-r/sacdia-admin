@@ -41,6 +41,9 @@ import { useAuth } from "@/lib/auth/auth-context";
 import { listLocalFieldsForTerritory } from "@/lib/auth/territory-scope";
 import { resolveUserLocalField } from "@/lib/auth/user-local-field";
 import { CamporeeLocationFields } from "@/components/camporees/camporee-location-fields";
+import { CamporeeOrderSettingsPanel } from "@/components/camporee-orders/camporee-order-settings-panel";
+import { hasPermission } from "@/lib/auth/permission-utils";
+import { CAMPOREE_ORDERS_OFFERING_CONFIGURE } from "@/lib/auth/permissions";
 
 // ─── Local field option (parent FK select) ────────────────────────────────────
 
@@ -145,6 +148,7 @@ export function CamporeeFormDialog({
   const tVal = useTranslations("camporees.validation");
   const { user } = useAuth();
   const isEdit = !!camporee;
+  const canConfigureOrders = hasPermission(user, CAMPOREE_ORDERS_OFFERING_CONFIGURE);
   const fieldScope = resolveUserLocalField(user);
   const fieldLocked = fieldScope.scope === "single";
   const lockedFieldId = fieldLocked ? fieldScope.localFieldId : 0;
@@ -677,6 +681,19 @@ export function CamporeeFormDialog({
                 />
               </div>
             </div>
+
+            {isEdit && camporee ? (
+              <CamporeeOrderSettingsPanel
+                camporeeId={
+                  camporee.local_camporee_id ?? camporee.camporee_id ?? camporee.id ?? 0
+                }
+                kind="local"
+                ordersEnabled={camporee.orders_enabled}
+                ordersOpensAt={camporee.orders_opens_at}
+                ordersDeadline={camporee.orders_deadline}
+                canConfigure={canConfigureOrders}
+              />
+            ) : null}
 
             <DialogFooter className="pt-2">
               <Button

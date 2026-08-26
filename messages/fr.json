@@ -7985,5 +7985,201 @@
         "service": "Service"
       }
     }
+  },
+  "camporee_orders": {
+    "catalogPage": {
+      "title": "Catalogue des commandes",
+      "description": "Bibliothèque territoriale de produits pour camporees"
+    },
+    "reviewPage": {
+      "title": "File de commandes",
+      "description": "Révision des justificatifs de commandes de marchandises"
+    },
+    "gate": {
+      "forbiddenTitle": "Accès restreint",
+      "forbiddenDescription": "Vous n'avez pas la permission d'accéder aux commandes camporee."
+    },
+    "tray": {
+      "refresh": "Actualiser",
+      "loading": "Chargement…",
+      "empty": "Aucune commande",
+      "colFolio": "Folio",
+      "colLines": "Lignes",
+      "colTotal": "Total",
+      "colStatus": "Statut",
+      "colIssued": "Émis",
+      "openDetail": "Voir le détail"
+    },
+    "status": {
+      "ISSUED": "Émis",
+      "PROOF_SUBMITTED": "Justificatif envoyé",
+      "PROOF_REJECTED": "Justificatif rejeté",
+      "PAID": "Payé",
+      "DELIVERED": "Livré",
+      "CANCELLED": "Annulé",
+      "EXPIRED": "Expiré"
+    },
+    "distribution": {
+      "NOT_STARTED": "Non commencé",
+      "PARTIAL": "Partiel",
+      "COMPLETE": "Complet"
+    },
+    "detail": {
+      "title": "Détail de la commande",
+      "status": "Statut",
+      "total": "Total",
+      "issued": "Émis",
+      "expires": "Expire",
+      "summary": "Consolidé",
+      "namedLines": "Lignes nominatives",
+      "colProduct": "Produit",
+      "colSize": "Taille",
+      "colQty": "Qté",
+      "colSubtotal": "Sous-total",
+      "colBeneficiary": "Bénéficiaire",
+      "colMemberDelivery": "Livraison membre",
+      "pendingMemberDelivery": "En attente",
+      "proof": "Justificatif",
+      "viewProof": "Voir le justificatif",
+      "downloadPdf": "Télécharger PDF",
+      "approve": "Approuver",
+      "reject": "Rejeter",
+      "authorizeWithoutProof": "Autoriser sans justificatif",
+      "deliverToSection": "Livrer à la section",
+      "authorizedWithoutProof": "Autorisé sans justificatif",
+      "distributionStatus": "Distribution aux membres",
+      "rejectTitle": "Rejeter le justificatif",
+      "rejectDescription": "La section pourra téléverser un nouveau justificatif avec le même folio.",
+      "rejectPlaceholder": "Motif du rejet (obligatoire)",
+      "confirmReject": "Confirmer le rejet",
+      "authorizeTitle": "Autoriser sans justificatif",
+      "authorizeDescription": "Exception caisse : marquer la commande payée sans justificatif.",
+      "authorizeWarning": "Action exceptionnelle et auditée.",
+      "authorizePlaceholder": "Motif de l'autorisation (obligatoire)",
+      "confirmAuthorize": "Confirmer l'autorisation",
+      "cancel": "Annuler"
+    },
+    "catalog": {
+      "empty": "Aucun produit dans le catalogue territorial",
+      "createProduct": "Nouveau produit",
+      "createTitle": "Créer un produit",
+      "editTitle": "Modifier le produit",
+      "colTitle": "Produit",
+      "colOwner": "Propriétaire",
+      "colSizes": "Schéma",
+      "colOptions": "Tailles",
+      "colStatus": "Accès",
+      "readOnly": "Lecture seule",
+      "inactive": "Inactif",
+      "edit": "Modifier",
+      "deactivate": "Désactiver",
+      "save": "Enregistrer",
+      "created": "Produit créé",
+      "updated": "Produit mis à jour",
+      "deactivated": "Produit désactivé",
+      "fieldTitle": "Titre",
+      "fieldDescription": "Description",
+      "fieldSizeScheme": "Schéma de tailles",
+      "ownerDivision": "Division",
+      "ownerUnion": "Union",
+      "ownerLocalField": "Champ local",
+      "sizeScheme": {
+        "LETTER": "Lettres",
+        "NUMERIC": "Numérique",
+        "NONE": "Sans taille"
+      }
+    },
+    "settings": {
+      "title": "Commandes de marchandises",
+      "description": "Fenêtre de commande et offres de l'événement",
+      "enabled": "Commandes activées",
+      "opensAt": "Ouverture",
+      "deadline": "Clôture",
+      "offeringsTitle": "Offres du camporee",
+      "offeringsEmpty": "Aucun produit actif dans le catalogue territorial",
+      "priceLabel": "Prix de {product}",
+      "save": "Enregistrer les commandes",
+      "saved": "Configuration des commandes enregistrée"
+    },
+    "camporeeTab": {
+      "empty": "Ce camporee n'a pas de commandes de marchandises"
+    },
+    "toasts": {
+      "approved": "Commande approuvée",
+      "rejected": "Commande rejetée",
+      "authorized": "Commande autorisée sans justificatif",
+      "delivered": "Commande livrée à la section",
+      "loadFailed": "Impossible de charger les commandes",
+      "actionFailed": "Impossible de terminer l'action",
+      "downloadFailed": "Impossible de télécharger le fichier"
+    },
+    "errors": {
+      "forbidden": "Permission insuffisante",
+      "invalidTransition": "Statut modifié ; actualisez la vue",
+      "makerChecker": "Le téléverseur ne peut pas approuver",
+      "proofNotFound": "Aucun justificatif en cours",
+      "rejectReasonRequired": "Motif de rejet requis",
+      "authorizationReasonRequired": "Motif d'autorisation requis",
+      "ordersDisabled": "Commandes désactivées pour ce camporee",
+      "ordersNotOpen": "Fenêtre de commande pas encore ouverte",
+      "ordersClosed": "Fenêtre de commande fermée"
+    }
+  },
+  "payment_obligations": {
+    "page": {
+      "title": "Paiements en attente",
+      "description": "Inscriptions, matériaux et commandes par folio"
+    },
+    "tabs": {
+      "pending": "Paiements en attente"
+    },
+    "tray": {
+      "refresh": "Actualiser",
+      "loading": "Chargement…",
+      "empty": "Aucun paiement en attente",
+      "colFolio": "Folio",
+      "colSource": "Source",
+      "colPurpose": "Objet",
+      "colTotal": "Total",
+      "colStatus": "Statut",
+      "colCreated": "Créé"
+    },
+    "source": {
+      "CAMPOREE_ORDER": "Commande camporee",
+      "FIELD_PAYMENT_ORDER": "Ordre d'inscription",
+      "MATERIAL_ORDER": "Commande matériaux"
+    },
+    "purpose": {
+      "CAMPOREE_MATERIALS": "Matériaux camporee",
+      "CAMPOREE": "Inscription camporee",
+      "INSURANCE": "Assurance",
+      "MATERIALS": "Matériaux"
+    },
+    "status": {
+      "PAYMENT_DUE": "Paiement dû",
+      "UNDER_REVIEW": "En révision",
+      "PROOF_REJECTED": "Justificatif rejeté",
+      "ORDER_REVIEW": "Révision commande"
+    },
+    "actions": {
+      "camporee-order": {
+        "UPLOAD_PROOF": "Téléverser justificatif",
+        "WAIT_REVIEW": "Voir la file",
+        "RESUBMIT_PROOF": "Renvoyer justificatif",
+        "WAIT_APPROVAL": "Voir commande"
+      },
+      "inscription": {
+        "UPLOAD_PROOF": "Téléverser justificatif",
+        "WAIT_REVIEW": "Réviser inscription",
+        "RESUBMIT_PROOF": "Renvoyer justificatif",
+        "WAIT_APPROVAL": "Voir ordre"
+      },
+      "materials": {
+        "UPLOAD_PROOF": "Voir commande",
+        "WAIT_REVIEW": "Voir commande",
+        "RESUBMIT_PROOF": "Voir commande",
+        "WAIT_APPROVAL": "Voir commande"
+      }
+    }
   }
 }

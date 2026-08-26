@@ -8196,4 +8196,200 @@ export interface IntlMessages {
       };
     };
   };
+  camporee_orders: {
+    catalogPage: {
+      title: string;
+      description: string;
+    };
+    reviewPage: {
+      title: string;
+      description: string;
+    };
+    gate: {
+      forbiddenTitle: string;
+      forbiddenDescription: string;
+    };
+    tray: {
+      refresh: string;
+      loading: string;
+      empty: string;
+      colFolio: string;
+      colLines: string;
+      colTotal: string;
+      colStatus: string;
+      colIssued: string;
+      openDetail: string;
+    };
+    status: {
+      ISSUED: string;
+      PROOF_SUBMITTED: string;
+      PROOF_REJECTED: string;
+      PAID: string;
+      DELIVERED: string;
+      CANCELLED: string;
+      EXPIRED: string;
+    };
+    distribution: {
+      NOT_STARTED: string;
+      PARTIAL: string;
+      COMPLETE: string;
+    };
+    detail: {
+      title: string;
+      status: string;
+      total: string;
+      issued: string;
+      expires: string;
+      summary: string;
+      namedLines: string;
+      colProduct: string;
+      colSize: string;
+      colQty: string;
+      colSubtotal: string;
+      colBeneficiary: string;
+      colMemberDelivery: string;
+      pendingMemberDelivery: string;
+      proof: string;
+      viewProof: string;
+      downloadPdf: string;
+      approve: string;
+      reject: string;
+      authorizeWithoutProof: string;
+      deliverToSection: string;
+      authorizedWithoutProof: string;
+      distributionStatus: string;
+      rejectTitle: string;
+      rejectDescription: string;
+      rejectPlaceholder: string;
+      confirmReject: string;
+      authorizeTitle: string;
+      authorizeDescription: string;
+      authorizeWarning: string;
+      authorizePlaceholder: string;
+      confirmAuthorize: string;
+      cancel: string;
+    };
+    catalog: {
+      empty: string;
+      createProduct: string;
+      createTitle: string;
+      editTitle: string;
+      colTitle: string;
+      colOwner: string;
+      colSizes: string;
+      colOptions: string;
+      colStatus: string;
+      readOnly: string;
+      inactive: string;
+      edit: string;
+      deactivate: string;
+      save: string;
+      created: string;
+      updated: string;
+      deactivated: string;
+      fieldTitle: string;
+      fieldDescription: string;
+      fieldSizeScheme: string;
+      ownerDivision: string;
+      ownerUnion: string;
+      ownerLocalField: string;
+      sizeScheme: {
+        LETTER: string;
+        NUMERIC: string;
+        NONE: string;
+      };
+    };
+    settings: {
+      title: string;
+      description: string;
+      enabled: string;
+      opensAt: string;
+      deadline: string;
+      offeringsTitle: string;
+      offeringsEmpty: string;
+      priceLabel: string;
+      save: string;
+      saved: string;
+    };
+    camporeeTab: {
+      empty: string;
+    };
+    toasts: {
+      approved: string;
+      rejected: string;
+      authorized: string;
+      delivered: string;
+      loadFailed: string;
+      actionFailed: string;
+      downloadFailed: string;
+    };
+    errors: {
+      forbidden: string;
+      invalidTransition: string;
+      makerChecker: string;
+      proofNotFound: string;
+      rejectReasonRequired: string;
+      authorizationReasonRequired: string;
+      ordersDisabled: string;
+      ordersNotOpen: string;
+      ordersClosed: string;
+    };
+  };
+  payment_obligations: {
+    page: {
+      title: string;
+      description: string;
+    };
+    tabs: {
+      pending: string;
+    };
+    tray: {
+      refresh: string;
+      loading: string;
+      empty: string;
+      colFolio: string;
+      colSource: string;
+      colPurpose: string;
+      colTotal: string;
+      colStatus: string;
+      colCreated: string;
+    };
+    source: {
+      CAMPOREE_ORDER: string;
+      FIELD_PAYMENT_ORDER: string;
+      MATERIAL_ORDER: string;
+    };
+    purpose: {
+      CAMPOREE_MATERIALS: string;
+      CAMPOREE: string;
+      INSURANCE: string;
+      MATERIALS: string;
+    };
+    status: {
+      PAYMENT_DUE: string;
+      UNDER_REVIEW: string;
+      PROOF_REJECTED: string;
+      ORDER_REVIEW: string;
+    };
+    actions: {
+      "camporee-order": {
+        UPLOAD_PROOF: string;
+        WAIT_REVIEW: string;
+        RESUBMIT_PROOF: string;
+        WAIT_APPROVAL: string;
+      };
+      inscription: {
+        UPLOAD_PROOF: string;
+        WAIT_REVIEW: string;
+        RESUBMIT_PROOF: string;
+        WAIT_APPROVAL: string;
+      };
+      materials: {
+        UPLOAD_PROOF: string;
+        WAIT_REVIEW: string;
+        RESUBMIT_PROOF: string;
+        WAIT_APPROVAL: string;
+      };
+    };
+  };
 }
