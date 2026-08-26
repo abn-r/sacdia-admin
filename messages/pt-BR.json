@@ -8167,13 +8167,16 @@
     "source": {
       "CAMPOREE_ORDER": "Pedido camporee",
       "FIELD_PAYMENT_ORDER": "Ordem de inscrição",
-      "MATERIAL_ORDER": "Pedido de materiais"
+      "MATERIAL_ORDER": "Pedido de materiais",
+      "CAMPOREE_SUPPLY_CHARGE": "Cargo de insumos",
+      "CAMPOREE_SUPPLY_REFUND": "Devolução de insumos"
     },
     "purpose": {
       "CAMPOREE_MATERIALS": "Materiais camporee",
       "CAMPOREE": "Inscrição camporee",
       "INSURANCE": "Seguro",
-      "MATERIALS": "Materiais"
+      "MATERIALS": "Materiais",
+      "CAMPOREE_SUPPLIES": "Insumos camporee"
     },
     "status": {
       "PAYMENT_DUE": "Pagamento pendente",
@@ -8199,7 +8202,109 @@
         "WAIT_REVIEW": "Ver pedido",
         "RESUBMIT_PROOF": "Ver pedido",
         "WAIT_APPROVAL": "Ver pedido"
+      },
+      "camporee-supplies": {
+        "PAY_AT_CAMP": "Cobrar no caixa",
+        "PROCESS_REFUND": "Processar devolução",
+        "UPLOAD_PROOF": "Ver insumos",
+        "WAIT_REVIEW": "Ver insumos",
+        "RESUBMIT_PROOF": "Ver insumos",
+        "WAIT_APPROVAL": "Ver insumos"
       }
+    }
+  },
+  "camporee_supplies": {
+    "loading": "Carregando…",
+    "actions": {
+      "refresh": "Atualizar",
+      "saveCutoff": "Salvar corte",
+      "addSlot": "Adicionar horário",
+      "addProduct": "Adicionar produto",
+      "deactivate": "Desativar",
+      "activate": "Ativar",
+      "openDetail": "Ver detalhe",
+      "close": "Fechar",
+      "deliver": "Entregar",
+      "markPaid": "Marcar pago"
+    },
+    "catalog": {
+      "title": "Catálogo e horários",
+      "hint": "O clube escolhe produto × horário. Não inventa slots. O preço trava se já houver um plano enviado.",
+      "cutoff": "Corte de edição (hora local)",
+      "slotLabel": "Horário",
+      "slotTime": "Hora",
+      "productName": "Produto",
+      "uom": "Unidade",
+      "unitPrice": "Preço unitário",
+      "active": "Ativo",
+      "yes": "Sim",
+      "no": "Não"
+    },
+    "plans": {
+      "title": "Planos por seção",
+      "hint": "O admin não envia o plano do clube. Um plano por seção inscrita. Folios INS, não PED.",
+      "empty": "Não há planos de insumos",
+      "colClub": "Seção",
+      "colStatus": "Status",
+      "colNet": "Líquido",
+      "colFolio": "Folio",
+      "colDate": "Data",
+      "colSlot": "Horário",
+      "colProduct": "Produto",
+      "colQty": "Qtd.",
+      "colDelivered": "Entregue",
+      "colKind": "Tipo",
+      "colTotal": "Total",
+      "colPayStatus": "Pagamento",
+      "deliverQty": "Quantidade a entregar"
+    },
+    "reports": {
+      "kitchen": "Relatório de cozinha",
+      "cash": "Relatório de caixa",
+      "date": "Data",
+      "principal": "Principal",
+      "charges": "Cargos",
+      "refunds": "Devoluções",
+      "net": "Líquido",
+      "outstanding": "Pendente"
+    },
+    "status": {
+      "DRAFT": "Rascunho",
+      "SUBMITTED": "Enviado"
+    },
+    "kind": {
+      "PRINCIPAL": "Principal",
+      "CHARGE": "Cargo",
+      "REFUND": "Devolução"
+    },
+    "payStatus": {
+      "ISSUED": "Emitido",
+      "PAID": "Pago",
+      "CANCELLED": "Cancelado"
+    },
+    "uom": {
+      "KG": "kg",
+      "L": "L",
+      "BAG": "Saco",
+      "UNIT": "Un"
+    },
+    "errors": {
+      "forbidden": "Você não tem permissão para insumos de camporee.",
+      "priceLocked": "O preço já não pode mudar: há um plano enviado.",
+      "dayLocked": "Esse dia já está congelado para o clube.",
+      "bypassReasonRequired": "O ajuste fora do corte exige um motivo.",
+      "cutoffInvalid": "A hora de corte não é válida.",
+      "overDelivery": "A entrega supera o pedido.",
+      "qtyInvalid": "A quantidade não é válida."
+    },
+    "toasts": {
+      "loadFailed": "Não foi possível carregar os insumos.",
+      "actionFailed": "Não foi possível concluir a ação.",
+      "cutoffSaved": "Corte atualizado.",
+      "slotCreated": "Horário criado.",
+      "productCreated": "Produto criado.",
+      "markedPaid": "Folio marcado como pago.",
+      "delivered": "Entrega registrada."
     }
   }
 }

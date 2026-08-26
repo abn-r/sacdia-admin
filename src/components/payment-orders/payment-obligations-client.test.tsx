@@ -78,6 +78,18 @@ const STUB_OBLIGATIONS: PaymentObligation[] = [
     camporee: null,
     created_at: "2026-08-10T00:00:00.000Z",
   },
+  {
+    source: "CAMPOREE_SUPPLY_CHARGE",
+    source_id: "ins-1",
+    purpose: "CAMPOREE_SUPPLIES",
+    folio: "INS20260001",
+    total_centavos: 80000,
+    currency: "MXN",
+    status: "PAYMENT_DUE",
+    action_required: "PAY_AT_CAMP",
+    camporee: { type: "local", id: 3, name: "Camporee LF" },
+    created_at: "2026-08-14T00:00:00.000Z",
+  },
 ];
 
 function renderClient() {
@@ -112,6 +124,9 @@ describe("PaymentObligationsClient", () => {
     expect(screen.getAllByText("Pedido camporee")).toHaveLength(2);
     expect(screen.getByText("Orden de inscripción")).toBeInTheDocument();
     expect(screen.getByText("Pedido de materiales")).toBeInTheDocument();
+    expect(screen.getByText("INS20260001")).toBeInTheDocument();
+    expect(screen.getByText("Cargo de insumos")).toBeInTheDocument();
+    expect(screen.getByText("Insumos camporee")).toBeInTheDocument();
   });
 
   it("links each source to its owning surface", async () => {
@@ -127,5 +142,8 @@ describe("PaymentObligationsClient", () => {
     expect(
       screen.getByRole("link", { name: "Ver pedido" }).getAttribute("href"),
     ).toContain("/dashboard/materials/request/mat-1");
+    expect(
+      screen.getByRole("link", { name: "Cobrar en caja" }).getAttribute("href"),
+    ).toContain("/dashboard/campamentos/3?tab=supplies");
   });
 });

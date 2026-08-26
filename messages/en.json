@@ -8301,13 +8301,16 @@
     "source": {
       "CAMPOREE_ORDER": "Camporee order",
       "FIELD_PAYMENT_ORDER": "Inscription order",
-      "MATERIAL_ORDER": "Materials order"
+      "MATERIAL_ORDER": "Materials order",
+      "CAMPOREE_SUPPLY_CHARGE": "Supplies charge",
+      "CAMPOREE_SUPPLY_REFUND": "Supplies refund"
     },
     "purpose": {
       "CAMPOREE_MATERIALS": "Camporee materials",
       "CAMPOREE": "Camporee inscription",
       "INSURANCE": "Insurance",
-      "MATERIALS": "Materials"
+      "MATERIALS": "Materials",
+      "CAMPOREE_SUPPLIES": "Camporee supplies"
     },
     "status": {
       "PAYMENT_DUE": "Payment due",
@@ -8333,7 +8336,109 @@
         "WAIT_REVIEW": "View order",
         "RESUBMIT_PROOF": "View order",
         "WAIT_APPROVAL": "View order"
+      },
+      "camporee-supplies": {
+        "PAY_AT_CAMP": "Collect at cash desk",
+        "PROCESS_REFUND": "Process refund",
+        "UPLOAD_PROOF": "View supplies",
+        "WAIT_REVIEW": "View supplies",
+        "RESUBMIT_PROOF": "View supplies",
+        "WAIT_APPROVAL": "View supplies"
       }
+    }
+  },
+  "camporee_supplies": {
+    "loading": "Loading…",
+    "actions": {
+      "refresh": "Refresh",
+      "saveCutoff": "Save cutoff",
+      "addSlot": "Add slot",
+      "addProduct": "Add product",
+      "deactivate": "Deactivate",
+      "activate": "Activate",
+      "openDetail": "View detail",
+      "close": "Close",
+      "deliver": "Deliver",
+      "markPaid": "Mark paid"
+    },
+    "catalog": {
+      "title": "Catalog and slots",
+      "hint": "The club picks product × slot. Clubs do not invent slots. Price locks once any plan is submitted.",
+      "cutoff": "Edit cutoff (local time)",
+      "slotLabel": "Slot",
+      "slotTime": "Time",
+      "productName": "Product",
+      "uom": "Unit",
+      "unitPrice": "Unit price",
+      "active": "Active",
+      "yes": "Yes",
+      "no": "No"
+    },
+    "plans": {
+      "title": "Plans by section",
+      "hint": "Admin does not submit the club plan. One plan per enrolled section. INS folios, not PED.",
+      "empty": "No supply plans",
+      "colClub": "Section",
+      "colStatus": "Status",
+      "colNet": "Net",
+      "colFolio": "Folio",
+      "colDate": "Date",
+      "colSlot": "Slot",
+      "colProduct": "Product",
+      "colQty": "Qty",
+      "colDelivered": "Delivered",
+      "colKind": "Kind",
+      "colTotal": "Total",
+      "colPayStatus": "Payment",
+      "deliverQty": "Quantity to deliver"
+    },
+    "reports": {
+      "kitchen": "Kitchen report",
+      "cash": "Cash report",
+      "date": "Date",
+      "principal": "Principal",
+      "charges": "Charges",
+      "refunds": "Refunds",
+      "net": "Net",
+      "outstanding": "Outstanding"
+    },
+    "status": {
+      "DRAFT": "Draft",
+      "SUBMITTED": "Submitted"
+    },
+    "kind": {
+      "PRINCIPAL": "Principal",
+      "CHARGE": "Charge",
+      "REFUND": "Refund"
+    },
+    "payStatus": {
+      "ISSUED": "Issued",
+      "PAID": "Paid",
+      "CANCELLED": "Cancelled"
+    },
+    "uom": {
+      "KG": "kg",
+      "L": "L",
+      "BAG": "Bag",
+      "UNIT": "Unit"
+    },
+    "errors": {
+      "forbidden": "You do not have permission for camporee supplies.",
+      "priceLocked": "Price is locked because a plan is already submitted.",
+      "dayLocked": "That day is frozen for the club.",
+      "bypassReasonRequired": "A reason is required to edit past the cutoff.",
+      "cutoffInvalid": "The cutoff time is invalid.",
+      "overDelivery": "Delivery exceeds the ordered quantity.",
+      "qtyInvalid": "The quantity is invalid."
+    },
+    "toasts": {
+      "loadFailed": "Could not load supplies.",
+      "actionFailed": "The action could not be completed.",
+      "cutoffSaved": "Cutoff updated.",
+      "slotCreated": "Slot created.",
+      "productCreated": "Product created.",
+      "markedPaid": "Folio marked as paid.",
+      "delivered": "Delivery recorded."
     }
   }
 }

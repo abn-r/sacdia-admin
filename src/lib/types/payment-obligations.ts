@@ -1,16 +1,19 @@
 /**
  * Aggregated pending-payment read model.
- * Sources stay as separate rows: inscription, materials, and each camporee
- * merchandise folio. Never merge two camporee orders.
+ * Sources stay as separate rows: inscription, materials, camporee merchandise
+ * folios, and camporee supply PRINCIPAL/CHARGE/REFUND docs. Never merge folios.
  */
 
 export type PaymentObligationSource =
   | "CAMPOREE_ORDER"
+  | "CAMPOREE_SUPPLY_CHARGE"
+  | "CAMPOREE_SUPPLY_REFUND"
   | "FIELD_PAYMENT_ORDER"
   | "MATERIAL_ORDER";
 
 export type PaymentObligationPurpose =
   | "CAMPOREE_MATERIALS"
+  | "CAMPOREE_SUPPLIES"
   | "CAMPOREE"
   | "INSURANCE"
   | "MATERIALS";
@@ -25,7 +28,9 @@ export type PaymentObligationAction =
   | "UPLOAD_PROOF"
   | "WAIT_REVIEW"
   | "RESUBMIT_PROOF"
-  | "WAIT_APPROVAL";
+  | "WAIT_APPROVAL"
+  | "PAY_AT_CAMP"
+  | "PROCESS_REFUND";
 
 export type PaymentObligationCamporee = {
   type: "local" | "union";
@@ -53,10 +58,10 @@ export type PaymentObligationListFilters = {
 
 /**
  * Admin detail routes. Mutations stay on the owning surface:
- * inscription tray, materials request, camporee-order review.
+ * inscription tray, materials request, camporee-order review, camporee supplies tab.
  */
 export function paymentObligationDetailPath(
-  obligation: Pick<PaymentObligation, "source" | "source_id">,
+  obligation: Pick<PaymentObligation, "source" | "source_id" | "camporee">,
 ): string {
   const id = encodeURIComponent(obligation.source_id);
   switch (obligation.source) {
@@ -66,12 +71,22 @@ export function paymentObligationDetailPath(
       return `/dashboard/materials/request/${id}`;
     case "CAMPOREE_ORDER":
       return `/dashboard/campamentos/pedidos/bandeja?orderId=${id}`;
+    case "CAMPOREE_SUPPLY_CHARGE":
+    case "CAMPOREE_SUPPLY_REFUND": {
+      const camporee = obligation.camporee;
+      if (!camporee) return "/dashboard/campamentos";
+      const base =
+        camporee.type === "union"
+          ? `/dashboard/campamentos/union/${camporee.id}`
+          : `/dashboard/campamentos/${camporee.id}`;
+      return `${base}?tab=supplies`;
+    }
   }
 }
 
 export function paymentObligationActionOwner(
   source: PaymentObligationSource,
-): "inscription" | "materials" | "camporee-order" {
+): "inscription" | "materials" | "camporee-order" | "camporee-supplies" {
   switch (source) {
     case "FIELD_PAYMENT_ORDER":
       return "inscription";
@@ -79,5 +94,8 @@ export function paymentObligationActionOwner(
       return "materials";
     case "CAMPOREE_ORDER":
       return "camporee-order";
+    case "CAMPOREE_SUPPLY_CHARGE":
+    case "CAMPOREE_SUPPLY_REFUND":
+      return "camporee-supplies";
   }
 }

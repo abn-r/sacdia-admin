@@ -8328,13 +8328,16 @@
     "source": {
       "CAMPOREE_ORDER": "Pedido camporee",
       "FIELD_PAYMENT_ORDER": "Orden de inscripción",
-      "MATERIAL_ORDER": "Pedido de materiales"
+      "MATERIAL_ORDER": "Pedido de materiales",
+      "CAMPOREE_SUPPLY_CHARGE": "Cargo de insumos",
+      "CAMPOREE_SUPPLY_REFUND": "Devolución de insumos"
     },
     "purpose": {
       "CAMPOREE_MATERIALS": "Materiales camporee",
       "CAMPOREE": "Inscripción camporee",
       "INSURANCE": "Seguro",
-      "MATERIALS": "Materiales"
+      "MATERIALS": "Materiales",
+      "CAMPOREE_SUPPLIES": "Insumos camporee"
     },
     "status": {
       "PAYMENT_DUE": "Pago pendiente",
@@ -8360,7 +8363,109 @@
         "WAIT_REVIEW": "Ver pedido",
         "RESUBMIT_PROOF": "Ver pedido",
         "WAIT_APPROVAL": "Ver pedido"
+      },
+      "camporee-supplies": {
+        "PAY_AT_CAMP": "Cobrar en caja",
+        "PROCESS_REFUND": "Procesar devolución",
+        "UPLOAD_PROOF": "Ver insumos",
+        "WAIT_REVIEW": "Ver insumos",
+        "RESUBMIT_PROOF": "Ver insumos",
+        "WAIT_APPROVAL": "Ver insumos"
       }
+    }
+  },
+  "camporee_supplies": {
+    "loading": "Cargando…",
+    "actions": {
+      "refresh": "Actualizar",
+      "saveCutoff": "Guardar corte",
+      "addSlot": "Agregar horario",
+      "addProduct": "Agregar producto",
+      "deactivate": "Desactivar",
+      "activate": "Activar",
+      "openDetail": "Ver detalle",
+      "close": "Cerrar",
+      "deliver": "Entregar",
+      "markPaid": "Marcar pagado"
+    },
+    "catalog": {
+      "title": "Catálogo y horarios",
+      "hint": "El club elige producto × horario. No inventa slots. El precio se bloquea si ya hay un plan enviado.",
+      "cutoff": "Corte de edición (hora local)",
+      "slotLabel": "Horario",
+      "slotTime": "Hora",
+      "productName": "Producto",
+      "uom": "Unidad",
+      "unitPrice": "Precio unitario",
+      "active": "Activo",
+      "yes": "Sí",
+      "no": "No"
+    },
+    "plans": {
+      "title": "Planes por sección",
+      "hint": "Admin no envía el plan del club. Un plan por sección inscrita. Folios INS, no PED.",
+      "empty": "No hay planes de insumos",
+      "colClub": "Sección",
+      "colStatus": "Estado",
+      "colNet": "Neto",
+      "colFolio": "Folio",
+      "colDate": "Fecha",
+      "colSlot": "Horario",
+      "colProduct": "Producto",
+      "colQty": "Cant.",
+      "colDelivered": "Entregado",
+      "colKind": "Tipo",
+      "colTotal": "Total",
+      "colPayStatus": "Pago",
+      "deliverQty": "Cantidad a entregar"
+    },
+    "reports": {
+      "kitchen": "Reporte de cocina",
+      "cash": "Reporte de caja",
+      "date": "Fecha",
+      "principal": "Principal",
+      "charges": "Cargos",
+      "refunds": "Devoluciones",
+      "net": "Neto",
+      "outstanding": "Pendiente"
+    },
+    "status": {
+      "DRAFT": "Borrador",
+      "SUBMITTED": "Enviado"
+    },
+    "kind": {
+      "PRINCIPAL": "Principal",
+      "CHARGE": "Cargo",
+      "REFUND": "Devolución"
+    },
+    "payStatus": {
+      "ISSUED": "Emitido",
+      "PAID": "Pagado",
+      "CANCELLED": "Cancelado"
+    },
+    "uom": {
+      "KG": "kg",
+      "L": "L",
+      "BAG": "Bolsa",
+      "UNIT": "Pza"
+    },
+    "errors": {
+      "forbidden": "No tienes permiso para insumos de camporee.",
+      "priceLocked": "El precio ya no se puede cambiar: hay un plan enviado.",
+      "dayLocked": "Ese día ya está congelado para el club.",
+      "bypassReasonRequired": "El ajuste fuera de corte requiere un motivo.",
+      "cutoffInvalid": "La hora de corte no es válida.",
+      "overDelivery": "La entrega supera lo pedido.",
+      "qtyInvalid": "La cantidad no es válida."
+    },
+    "toasts": {
+      "loadFailed": "No se pudieron cargar los insumos.",
+      "actionFailed": "No se pudo completar la acción.",
+      "cutoffSaved": "Corte actualizado.",
+      "slotCreated": "Horario creado.",
+      "productCreated": "Producto creado.",
+      "markedPaid": "Folio marcado como pagado.",
+      "delivered": "Entrega registrada."
     }
   }
 }

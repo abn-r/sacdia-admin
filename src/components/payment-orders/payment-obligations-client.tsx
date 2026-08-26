@@ -32,6 +32,8 @@ const OBLIGATION_STATUS_INTENT: Record<PaymentObligationStatus, StatusIntent> = 
 
 const SOURCE_LABEL_KEY = {
   CAMPOREE_ORDER: "source.CAMPOREE_ORDER",
+  CAMPOREE_SUPPLY_CHARGE: "source.CAMPOREE_SUPPLY_CHARGE",
+  CAMPOREE_SUPPLY_REFUND: "source.CAMPOREE_SUPPLY_REFUND",
   FIELD_PAYMENT_ORDER: "source.FIELD_PAYMENT_ORDER",
   MATERIAL_ORDER: "source.MATERIAL_ORDER",
 } as const satisfies Record<PaymentObligationSource, `source.${PaymentObligationSource}`>;

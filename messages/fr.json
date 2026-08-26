@@ -8147,13 +8147,16 @@
     "source": {
       "CAMPOREE_ORDER": "Commande camporee",
       "FIELD_PAYMENT_ORDER": "Ordre d'inscription",
-      "MATERIAL_ORDER": "Commande matériaux"
+      "MATERIAL_ORDER": "Commande matériaux",
+      "CAMPOREE_SUPPLY_CHARGE": "Charge d'intrants",
+      "CAMPOREE_SUPPLY_REFUND": "Remboursement d'intrants"
     },
     "purpose": {
       "CAMPOREE_MATERIALS": "Matériaux camporee",
       "CAMPOREE": "Inscription camporee",
       "INSURANCE": "Assurance",
-      "MATERIALS": "Matériaux"
+      "MATERIALS": "Matériaux",
+      "CAMPOREE_SUPPLIES": "Intrants camporee"
     },
     "status": {
       "PAYMENT_DUE": "Paiement dû",
@@ -8179,7 +8182,109 @@
         "WAIT_REVIEW": "Voir commande",
         "RESUBMIT_PROOF": "Voir commande",
         "WAIT_APPROVAL": "Voir commande"
+      },
+      "camporee-supplies": {
+        "PAY_AT_CAMP": "Encaisser",
+        "PROCESS_REFUND": "Traiter le remboursement",
+        "UPLOAD_PROOF": "Voir les intrants",
+        "WAIT_REVIEW": "Voir les intrants",
+        "RESUBMIT_PROOF": "Voir les intrants",
+        "WAIT_APPROVAL": "Voir les intrants"
       }
+    }
+  },
+  "camporee_supplies": {
+    "loading": "Chargement…",
+    "actions": {
+      "refresh": "Actualiser",
+      "saveCutoff": "Enregistrer la coupure",
+      "addSlot": "Ajouter un créneau",
+      "addProduct": "Ajouter un produit",
+      "deactivate": "Désactiver",
+      "activate": "Activer",
+      "openDetail": "Voir le détail",
+      "close": "Fermer",
+      "deliver": "Livrer",
+      "markPaid": "Marquer payé"
+    },
+    "catalog": {
+      "title": "Catalogue et créneaux",
+      "hint": "Le club choisit produit × créneau. Il n'invente pas d'horaires. Le prix se verrouille dès qu'un plan est envoyé.",
+      "cutoff": "Coupure d'édition (heure locale)",
+      "slotLabel": "Créneau",
+      "slotTime": "Heure",
+      "productName": "Produit",
+      "uom": "Unité",
+      "unitPrice": "Prix unitaire",
+      "active": "Actif",
+      "yes": "Oui",
+      "no": "Non"
+    },
+    "plans": {
+      "title": "Plans par section",
+      "hint": "L'admin n'envoie pas le plan du club. Un plan par section inscrite. Folios INS, pas PED.",
+      "empty": "Aucun plan d'intrants",
+      "colClub": "Section",
+      "colStatus": "Statut",
+      "colNet": "Net",
+      "colFolio": "Folio",
+      "colDate": "Date",
+      "colSlot": "Créneau",
+      "colProduct": "Produit",
+      "colQty": "Qté",
+      "colDelivered": "Livré",
+      "colKind": "Type",
+      "colTotal": "Total",
+      "colPayStatus": "Paiement",
+      "deliverQty": "Quantité à livrer"
+    },
+    "reports": {
+      "kitchen": "Rapport cuisine",
+      "cash": "Rapport caisse",
+      "date": "Date",
+      "principal": "Principal",
+      "charges": "Charges",
+      "refunds": "Remboursements",
+      "net": "Net",
+      "outstanding": "Restant"
+    },
+    "status": {
+      "DRAFT": "Brouillon",
+      "SUBMITTED": "Envoyé"
+    },
+    "kind": {
+      "PRINCIPAL": "Principal",
+      "CHARGE": "Charge",
+      "REFUND": "Remboursement"
+    },
+    "payStatus": {
+      "ISSUED": "Émis",
+      "PAID": "Payé",
+      "CANCELLED": "Annulé"
+    },
+    "uom": {
+      "KG": "kg",
+      "L": "L",
+      "BAG": "Sac",
+      "UNIT": "Pce"
+    },
+    "errors": {
+      "forbidden": "Vous n'avez pas l'autorisation pour les intrants de camporee.",
+      "priceLocked": "Le prix est verrouillé : un plan a déjà été envoyé.",
+      "dayLocked": "Ce jour est gelé pour le club.",
+      "bypassReasonRequired": "Un motif est requis pour modifier après la coupure.",
+      "cutoffInvalid": "L'heure de coupure n'est pas valide.",
+      "overDelivery": "La livraison dépasse la quantité commandée.",
+      "qtyInvalid": "La quantité n'est pas valide."
+    },
+    "toasts": {
+      "loadFailed": "Impossible de charger les intrants.",
+      "actionFailed": "L'action n'a pas pu aboutir.",
+      "cutoffSaved": "Coupure mise à jour.",
+      "slotCreated": "Créneau créé.",
+      "productCreated": "Produit créé.",
+      "markedPaid": "Folio marqué comme payé.",
+      "delivered": "Livraison enregistrée."
     }
   }
 }
