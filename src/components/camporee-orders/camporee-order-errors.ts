@@ -11,6 +11,7 @@ type CamporeeOrderErrorKey =
   | "errors.ordersDisabled"
   | "errors.ordersNotOpen"
   | "errors.ordersClosed"
+  | "errors.productScopeInvalid"
   | "toasts.actionFailed"
   | "toasts.loadFailed"
   | "toasts.downloadFailed";
@@ -27,6 +28,7 @@ const CODE_TO_KEY: Record<string, CamporeeOrderErrorKey> = {
   CAMPOREE_ORDERS_DISABLED: "errors.ordersDisabled",
   CAMPOREE_ORDERS_NOT_OPEN: "errors.ordersNotOpen",
   CAMPOREE_ORDERS_CLOSED: "errors.ordersClosed",
+  CAMPOREE_ORDER_PRODUCT_SCOPE_INVALID: "errors.productScopeInvalid",
 };
 
 export function getCamporeeOrderUiErrorMessage(
