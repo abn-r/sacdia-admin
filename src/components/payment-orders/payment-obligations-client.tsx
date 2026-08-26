@@ -70,9 +70,19 @@ export function PaymentObligationsClient() {
     void load();
   }, [load]);
 
-  const actionLabel = (action: PaymentObligationAction, source: PaymentObligationSource) => {
+  const actionLabel = (
+    action: PaymentObligationAction,
+    source: PaymentObligationSource,
+  ) => {
     const owner = paymentObligationActionOwner(source);
-    return t(`actions.${owner}.${action}`);
+    if (owner === "camporee-supplies") {
+      return t(`actions.camporee-supplies.${action}`);
+    }
+    const trayAction =
+      action === "PAY_AT_CAMP" || action === "PROCESS_REFUND"
+        ? "WAIT_APPROVAL"
+        : action;
+    return t(`actions.${owner}.${trayAction}`);
   };
 
   return (

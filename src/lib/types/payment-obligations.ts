@@ -61,7 +61,9 @@ export type PaymentObligationListFilters = {
  * inscription tray, materials request, camporee-order review, camporee supplies tab.
  */
 export function paymentObligationDetailPath(
-  obligation: Pick<PaymentObligation, "source" | "source_id" | "camporee">,
+  obligation: Pick<PaymentObligation, "source" | "source_id"> & {
+    camporee?: PaymentObligationCamporee | null;
+  },
 ): string {
   const id = encodeURIComponent(obligation.source_id);
   switch (obligation.source) {
