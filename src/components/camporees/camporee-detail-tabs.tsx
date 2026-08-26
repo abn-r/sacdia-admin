@@ -72,6 +72,14 @@ const CamporeeOrdersTab = dynamic(
     ),
   { ssr: false, loading: () => <Skeleton className="h-48 w-full" /> },
 );
+
+const CamporeeSuppliesTab = dynamic(
+  () =>
+    import("@/components/camporee-supplies/camporee-supplies-tab").then(
+      (m) => m.CamporeeSuppliesTab,
+    ),
+  { ssr: false, loading: () => <Skeleton className="h-48 w-full" /> },
+);
 import type {
   Camporee,
   CamporeeMember,
@@ -130,6 +138,7 @@ const CAMPOREE_DETAIL_TABS = new Set([
   "payments",
   "payment-orders",
   "merchandise-orders",
+  "supplies",
   "events",
   "judges",
   "scores",
@@ -255,6 +264,8 @@ export function CamporeeDetailTabs({
         <TabsTrigger value="payment-orders">Órdenes de pago</TabsTrigger>
 
         <TabsTrigger value="merchandise-orders">Pedidos</TabsTrigger>
+
+        <TabsTrigger value="supplies">Insumos</TabsTrigger>
 
         <TabsTrigger value="events">
           Eventos
@@ -391,6 +402,21 @@ export function CamporeeDetailTabs({
           </CardHeader>
           <CardContent>
             <CamporeeOrdersTab
+              camporeeId={camporeeId}
+              camporeeType={isUnionCamporee ? "union" : "local"}
+            />
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      {/* ── Insumos de sección (folios INS; distinto de mercancía) ── */}
+      <TabsContent value="supplies" className="mt-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Insumos de camporee</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CamporeeSuppliesTab
               camporeeId={camporeeId}
               camporeeType={isUnionCamporee ? "union" : "local"}
             />

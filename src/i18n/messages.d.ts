@@ -8358,12 +8358,15 @@ export interface IntlMessages {
       CAMPOREE_ORDER: string;
       FIELD_PAYMENT_ORDER: string;
       MATERIAL_ORDER: string;
+      CAMPOREE_SUPPLY_CHARGE: string;
+      CAMPOREE_SUPPLY_REFUND: string;
     };
     purpose: {
       CAMPOREE_MATERIALS: string;
       CAMPOREE: string;
       INSURANCE: string;
       MATERIALS: string;
+      CAMPOREE_SUPPLIES: string;
     };
     status: {
       PAYMENT_DUE: string;
@@ -8390,6 +8393,108 @@ export interface IntlMessages {
         RESUBMIT_PROOF: string;
         WAIT_APPROVAL: string;
       };
+      "camporee-supplies": {
+        PAY_AT_CAMP: string;
+        PROCESS_REFUND: string;
+        UPLOAD_PROOF: string;
+        WAIT_REVIEW: string;
+        RESUBMIT_PROOF: string;
+        WAIT_APPROVAL: string;
+      };
+    };
+  };
+  camporee_supplies: {
+    loading: string;
+    actions: {
+      refresh: string;
+      saveCutoff: string;
+      addSlot: string;
+      addProduct: string;
+      deactivate: string;
+      activate: string;
+      openDetail: string;
+      close: string;
+      deliver: string;
+      markPaid: string;
+    };
+    catalog: {
+      title: string;
+      hint: string;
+      cutoff: string;
+      slotLabel: string;
+      slotTime: string;
+      productName: string;
+      uom: string;
+      unitPrice: string;
+      active: string;
+      yes: string;
+      no: string;
+    };
+    plans: {
+      title: string;
+      hint: string;
+      empty: string;
+      colClub: string;
+      colStatus: string;
+      colNet: string;
+      colFolio: string;
+      colDate: string;
+      colSlot: string;
+      colProduct: string;
+      colQty: string;
+      colDelivered: string;
+      colKind: string;
+      colTotal: string;
+      colPayStatus: string;
+      deliverQty: string;
+    };
+    reports: {
+      kitchen: string;
+      cash: string;
+      date: string;
+      principal: string;
+      charges: string;
+      refunds: string;
+      net: string;
+      outstanding: string;
+    };
+    status: {
+      DRAFT: string;
+      SUBMITTED: string;
+    };
+    kind: {
+      PRINCIPAL: string;
+      CHARGE: string;
+      REFUND: string;
+    };
+    payStatus: {
+      ISSUED: string;
+      PAID: string;
+      CANCELLED: string;
+    };
+    uom: {
+      KG: string;
+      L: string;
+      BAG: string;
+      UNIT: string;
+    };
+    errors: {
+      forbidden: string;
+      priceLocked: string;
+      dayLocked: string;
+      bypassReasonRequired: string;
+      cutoffInvalid: string;
+      overDelivery: string;
+      qtyInvalid: string;
+    };
+    toasts: {
+      loadFailed: string;
+      actionFailed: string;
+      cutoffSaved: string;
+      slotCreated: string;
+      productCreated: string;
+      markedPaid: string;
+      delivered: string;
     };
   };
 }

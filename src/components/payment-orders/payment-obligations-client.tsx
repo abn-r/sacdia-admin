@@ -32,6 +32,8 @@ const OBLIGATION_STATUS_INTENT: Record<PaymentObligationStatus, StatusIntent> = 
 
 const SOURCE_LABEL_KEY = {
   CAMPOREE_ORDER: "source.CAMPOREE_ORDER",
+  CAMPOREE_SUPPLY_CHARGE: "source.CAMPOREE_SUPPLY_CHARGE",
+  CAMPOREE_SUPPLY_REFUND: "source.CAMPOREE_SUPPLY_REFUND",
   FIELD_PAYMENT_ORDER: "source.FIELD_PAYMENT_ORDER",
   MATERIAL_ORDER: "source.MATERIAL_ORDER",
 } as const satisfies Record<PaymentObligationSource, `source.${PaymentObligationSource}`>;
@@ -68,9 +70,19 @@ export function PaymentObligationsClient() {
     void load();
   }, [load]);
 
-  const actionLabel = (action: PaymentObligationAction, source: PaymentObligationSource) => {
+  const actionLabel = (
+    action: PaymentObligationAction,
+    source: PaymentObligationSource,
+  ) => {
     const owner = paymentObligationActionOwner(source);
-    return t(`actions.${owner}.${action}`);
+    if (owner === "camporee-supplies") {
+      return t(`actions.camporee-supplies.${action}`);
+    }
+    const trayAction =
+      action === "PAY_AT_CAMP" || action === "PROCESS_REFUND"
+        ? "WAIT_APPROVAL"
+        : action;
+    return t(`actions.${owner}.${trayAction}`);
   };
 
   return (

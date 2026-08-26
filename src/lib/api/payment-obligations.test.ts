@@ -106,6 +106,28 @@ describe("payment-obligations API client", () => {
       paymentObligationDetailPath(result[1]!),
     );
   });
+
+  it("keeps supply INS folios distinct from merchandise PED folios", async () => {
+    mockApiRequest.mockResolvedValue({
+      status: "success",
+      data: [
+        stubObligation({ source_id: "co-1", folio: "PED20260001" }),
+        stubObligation({
+          source: "CAMPOREE_SUPPLY_CHARGE",
+          source_id: "ins-1",
+          purpose: "CAMPOREE_SUPPLIES",
+          folio: "INS20260001",
+          action_required: "PAY_AT_CAMP",
+        }),
+      ],
+    });
+
+    const result = await listPendingPaymentObligations();
+    expect(result.map((row) => row.folio)).toEqual(["PED20260001", "INS20260001"]);
+    expect(paymentObligationDetailPath(result[1]!)).toBe(
+      "/dashboard/campamentos/40?tab=supplies",
+    );
+  });
 });
 
 describe("payment obligation navigation", () => {
@@ -128,6 +150,13 @@ describe("payment obligation navigation", () => {
         source_id: "co-3",
       }),
     ).toBe("/dashboard/campamentos/pedidos/bandeja?orderId=co-3");
+    expect(
+      paymentObligationDetailPath({
+        source: "CAMPOREE_SUPPLY_CHARGE",
+        source_id: "ins-1",
+        camporee: { type: "union", id: 88, name: "Unión" },
+      }),
+    ).toBe("/dashboard/campamentos/union/88?tab=supplies");
   });
 
   it("does not mix mutation owners across sources", () => {
@@ -137,6 +166,9 @@ describe("payment obligation navigation", () => {
     expect(paymentObligationActionOwner("MATERIAL_ORDER")).toBe("materials");
     expect(paymentObligationActionOwner("CAMPOREE_ORDER")).toBe(
       "camporee-order",
+    );
+    expect(paymentObligationActionOwner("CAMPOREE_SUPPLY_REFUND")).toBe(
+      "camporee-supplies",
     );
   });
 });
