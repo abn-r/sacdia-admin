@@ -1382,6 +1382,23 @@ export interface IntlMessages {
     detail: {
       fallbackTitle: string;
       description: string;
+      back: string;
+      stats: {
+        membersLabel: string;
+        membersSub: string;
+        sectionsLabel: string;
+        sectionsRegistered: string;
+        sectionsEmpty: string;
+        soulsLabel: string;
+        soulsSub: string;
+        reportsLabel: string;
+        reportsSub: string;
+        reportsEmpty: string;
+      };
+      sidebar: {
+        title: string;
+        dash: string;
+      };
       tabs: {
         general: string;
         sections: string;
@@ -1399,6 +1416,7 @@ export interface IntlMessages {
         labelChurch: string;
         labelSoulsTarget: string;
         labelFee: string;
+        labelMembers: string;
         statusActive: string;
         statusInactive: string;
         noSections: string;
@@ -6244,6 +6262,12 @@ export interface IntlMessages {
       viewWeek: string;
       viewDay: string;
       today: string;
+      pickDate: string;
+      chooseMonth: string;
+      chooseYear: string;
+      previousPeriod: string;
+      nextPeriod: string;
+      refresh: string;
       emptyDay: string;
       moreCount: string;
       listTitle: string;

@@ -1347,6 +1347,23 @@
     "detail": {
       "fallbackTitle": "Club detail",
       "description": "Operational club record organized by area.",
+      "back": "Back",
+      "stats": {
+        "membersLabel": "Members",
+        "membersSub": "{count} active in sections",
+        "sectionsLabel": "Sections",
+        "sectionsRegistered": "{count} registered",
+        "sectionsEmpty": "No sections",
+        "soulsLabel": "Souls target",
+        "soulsSub": "Sum of sections",
+        "reportsLabel": "Reports",
+        "reportsSub": "{count} records",
+        "reportsEmpty": "No reports"
+      },
+      "sidebar": {
+        "title": "Club status",
+        "dash": "—"
+      },
       "tabs": {
         "general": "General information",
         "sections": "Sections",
@@ -1364,6 +1381,7 @@
         "labelChurch": "Church",
         "labelSoulsTarget": "Souls target",
         "labelFee": "Fee",
+        "labelMembers": "Members",
         "statusActive": "Active",
         "statusInactive": "Inactive",
         "noSections": "This club has no registered sections yet.",
@@ -6188,6 +6206,12 @@
       "viewWeek": "Week",
       "viewDay": "Day",
       "today": "Today",
+      "pickDate": "Choose a date",
+      "chooseMonth": "Choose month",
+      "chooseYear": "Choose year",
+      "previousPeriod": "Previous period",
+      "nextPeriod": "Next period",
+      "refresh": "Refresh activities",
       "emptyDay": "No activities for this day.",
       "moreCount": "+{count} more",
       "listTitle": "Activity list",

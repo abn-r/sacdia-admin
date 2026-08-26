@@ -1347,6 +1347,23 @@
     "detail": {
       "fallbackTitle": "Club detail",
       "description": "Operational club record organized by area.",
+      "back": "Retour",
+      "stats": {
+        "membersLabel": "Membres",
+        "membersSub": "{count} actifs dans les sections",
+        "sectionsLabel": "Sections",
+        "sectionsRegistered": "{count} enregistrées",
+        "sectionsEmpty": "Aucune section",
+        "soulsLabel": "Objectif d'âmes",
+        "soulsSub": "Somme des sections",
+        "reportsLabel": "Rapports",
+        "reportsSub": "{count} enregistrements",
+        "reportsEmpty": "Aucun rapport"
+      },
+      "sidebar": {
+        "title": "Statut du club",
+        "dash": "—"
+      },
       "tabs": {
         "general": "Informations générales",
         "sections": "Sections",
@@ -1364,6 +1381,7 @@
         "labelChurch": "Church",
         "labelSoulsTarget": "Souls target",
         "labelFee": "Fee",
+        "labelMembers": "Membres",
         "statusActive": "Active",
         "statusInactive": "Inactive",
         "noSections": "This club has no registered sections yet.",
@@ -6054,6 +6072,12 @@
       "viewWeek": "Semaine",
       "viewDay": "Jour",
       "today": "Aujourd'hui",
+      "pickDate": "Choisir une date",
+      "chooseMonth": "Choisir le mois",
+      "chooseYear": "Choisir l'année",
+      "previousPeriod": "Période précédente",
+      "nextPeriod": "Période suivante",
+      "refresh": "Actualiser les activités",
       "emptyDay": "Aucune activité pour ce jour.",
       "moreCount": "+{count} de plus",
       "listTitle": "Liste des activités",

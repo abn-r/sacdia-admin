@@ -5,11 +5,16 @@ import { useRouter } from "next/navigation";
 import { useFormStatus } from "react-dom";
 import { LayoutGrid, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
+import { UserAvatar } from "@/components/users/user-avatar";
+import {
+  DetailSection,
+  DetailField,
+  DetailCols2,
+} from "@/components/users/detail/section";
 import { useRoleLabel } from "@/lib/auth/role-labels";
 import {
   createClubSectionAction,
@@ -75,14 +80,16 @@ function EnableMissingSectionSlot({
   }, [state.ok, router]);
 
   return (
-    <Card className="border-dashed bg-muted/10">
-      <CardContent className="space-y-4 py-6">
+    <Card className="gap-4 border-dashed bg-muted/10 py-5">
+      <CardContent className="space-y-4">
         <div className="flex flex-col items-center gap-3 text-center">
-          <span className="grid size-12 place-items-center rounded-full border border-dashed bg-muted/30 text-muted-foreground">
+          <span className="grid size-12 place-items-center rounded-xl border border-dashed bg-muted/30 text-muted-foreground">
             <LayoutGrid className="size-5" />
           </span>
           <div>
-            <h3 className="text-lg font-semibold">{typeName}</h3>
+            <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+              {typeName}
+            </h3>
             <p className="mt-1 text-xs text-muted-foreground">{t("notCreated")}</p>
           </div>
         </div>
@@ -162,15 +169,6 @@ function SectionActiveToggle({
   );
 }
 
-function officerInitials(name: string) {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((part) => part[0] ?? "")
-    .join("")
-    .slice(0, 2);
-}
-
 function OfficerPersonRow({
   person,
   roleLabel,
@@ -179,14 +177,11 @@ function OfficerPersonRow({
   roleLabel: string;
 }) {
   return (
-    <div className="flex items-center gap-2.5">
-      <Avatar size="sm">
-        {person.image ? <AvatarImage src={person.image} alt={person.name} /> : null}
-        <AvatarFallback>{officerInitials(person.name)}</AvatarFallback>
-      </Avatar>
-      <div className="min-w-0">
-        <p className="truncate text-sm font-medium">{person.name}</p>
-        <p className="truncate text-xs text-muted-foreground">{roleLabel}</p>
+    <div className="flex items-center gap-3.5 rounded-xl border border-border bg-card p-3">
+      <UserAvatar src={person.image} name={person.name} size={40} className="rounded-xl" />
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-semibold text-foreground">{person.name}</p>
+        <p className="mt-0.5 truncate text-xs text-muted-foreground">{roleLabel}</p>
       </div>
     </div>
   );
@@ -207,7 +202,9 @@ function OfficerRoleBlock({
 }) {
   return (
     <div className="space-y-1.5">
-      <p className="text-xs text-muted-foreground">{heading}</p>
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        {heading}
+      </p>
       {people.length > 0 ? (
         <div
           className={
@@ -251,78 +248,74 @@ function SectionCard({
   typeName,
   officers,
   canManage,
+  index,
 }: {
   clubId: number;
   section: ClubSectionRaw;
   typeName: string;
   officers: SectionOfficers;
   canManage: boolean;
+  index: number;
 }) {
   const t = useTranslations("clubs.detail.sections");
   const translateRole = useRoleLabel();
   const isActive = section.active !== false;
 
   return (
-    <Card>
-      <CardContent className="space-y-4 py-6">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">
-              {t("typeEyebrow")}
-            </p>
-            <h3 className="text-lg font-semibold">{typeName}</h3>
-          </div>
-          <Badge variant={isActive ? "default" : "outline"}>
-            {isActive ? t("active") : t("inactive")}
-          </Badge>
-        </div>
+    <DetailSection
+      num={String(index + 1).padStart(2, "0")}
+      title={typeName}
+      action={
+        <Badge variant={isActive ? "soft" : "outline"}>
+          {isActive ? t("active") : t("inactive")}
+        </Badge>
+      }
+    >
+      <p className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        {t("typeEyebrow")}
+      </p>
 
-        {canManage && section.club_section_id ? (
+      {canManage && section.club_section_id ? (
+        <div className="mb-3">
           <SectionActiveToggle
             clubId={clubId}
             sectionId={section.club_section_id}
             active={isActive}
             disabled={!canManage}
           />
-        ) : null}
-
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <div>
-            <p className="text-xs text-muted-foreground">{t("labelSoulsTarget")}</p>
-            <p className="font-medium">{section.souls_target ?? "—"}</p>
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">{t("labelFee")}</p>
-            <p className="font-medium">{section.fee ?? "—"}</p>
-          </div>
         </div>
+      ) : null}
 
-        <div className="space-y-3 rounded-lg border bg-muted/20 p-4">
-          {OFFICER_BLOCK_ORDER.map((block) => {
-            const people = officers[block.role];
-            if (block.omitWhenEmpty && people.length === 0) return null;
+      <DetailCols2>
+        <DetailField k={t("labelSoulsTarget")} v={section.souls_target} />
+        <DetailField k={t("labelFee")} v={section.fee} />
+      </DetailCols2>
 
-            const heading =
-              block.headingKey === "directorLabel"
-                ? t("directorLabel")
-                : block.headingKey === "counselorsLabel"
-                  ? t("counselorsLabel")
-                  : translateRole(block.role);
+      <div className="mt-4 space-y-3 rounded-xl border border-border/70 bg-muted/20 p-4">
+        {OFFICER_BLOCK_ORDER.map((block) => {
+          const people = officers[block.role];
+          if (block.omitWhenEmpty && people.length === 0) return null;
 
-            return (
-              <OfficerRoleBlock
-                key={block.role}
-                heading={heading}
-                people={people}
-                roleLabel={translateRole(block.role)}
-                emptyLabel={t("unassigned")}
-                compactList={block.compactList}
-              />
-            );
-          })}
-        </div>
-      </CardContent>
-    </Card>
+          const heading =
+            block.headingKey === "directorLabel"
+              ? t("directorLabel")
+              : block.headingKey === "counselorsLabel"
+                ? t("counselorsLabel")
+                : translateRole(block.role);
+
+          return (
+            <OfficerRoleBlock
+              key={block.role}
+              heading={heading}
+              people={people}
+              roleLabel={translateRole(block.role)}
+              emptyLabel={t("unassigned")}
+              compactList={block.compactList}
+            />
+          );
+        })}
+      </div>
+    </DetailSection>
   );
 }
 
@@ -330,8 +323,8 @@ export function SectionsTab({ data }: SectionsTabProps) {
   const slotTypes = data.clubTypes.slice(0, MAX_SECTION_SLOTS);
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-      {slotTypes.map((clubType) => {
+    <div className="grid gap-3.5 md:grid-cols-2 xl:grid-cols-3">
+      {slotTypes.map((clubType, index) => {
         const section = findSectionForType(data.sections, clubType.club_type_id);
         if (!section?.club_section_id) {
           return (
@@ -356,6 +349,7 @@ export function SectionsTab({ data }: SectionsTabProps) {
             section={section}
             typeName={clubType.name}
             canManage={data.canCreateSections}
+            index={index}
             officers={getSectionOfficers(
               memberGroup?.members ?? [],
               data.leadership,

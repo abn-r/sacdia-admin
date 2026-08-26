@@ -1,7 +1,6 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -10,6 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { DetailSection } from "@/components/users/detail/section";
 import type { AnnualReport, QuarterlyReport } from "@/lib/api/reports";
 
 interface ReportsTabProps {
@@ -25,14 +25,11 @@ export function ReportsTab({ annualReports, quarterlyReports }: ReportsTabProps)
   const t = useTranslations("clubs.detail.reports");
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("annualTitle")}</CardTitle>
-        </CardHeader>
-        <CardContent>
+    <div className="space-y-3.5">
+      <DetailSection num="01" title={t("annualTitle")}>
+        <div className="overflow-hidden rounded-lg border border-border/70">
           <Table>
-            <TableHeader>
+            <TableHeader className="bg-muted/40">
               <TableRow>
                 <TableHead>{t("yearLabel")}</TableHead>
                 <TableHead>{t("statusLabel")}</TableHead>
@@ -61,16 +58,13 @@ export function ReportsTab({ annualReports, quarterlyReports }: ReportsTabProps)
               )}
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
+        </div>
+      </DetailSection>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("quarterlyTitle")}</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <DetailSection num="02" title={t("quarterlyTitle")}>
+        <div className="overflow-hidden rounded-lg border border-border/70">
           <Table>
-            <TableHeader>
+            <TableHeader className="bg-muted/40">
               <TableRow>
                 <TableHead>{t("yearLabel")}</TableHead>
                 <TableHead>{t("quarterLabel")}</TableHead>
@@ -101,8 +95,8 @@ export function ReportsTab({ annualReports, quarterlyReports }: ReportsTabProps)
               )}
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
+        </div>
+      </DetailSection>
     </div>
   );
 }

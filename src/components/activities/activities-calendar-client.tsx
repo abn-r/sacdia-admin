@@ -2,8 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import type { Locale as DateFnsLocale } from "date-fns/locale";
+import { enUS } from "date-fns/locale/en-US";
+import { es } from "date-fns/locale/es";
+import { fr } from "date-fns/locale/fr";
+import { ptBR } from "date-fns/locale/pt-BR";
 import {
   CalendarDays,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   LayoutGrid,
@@ -11,10 +17,16 @@ import {
   Plus,
   RefreshCw,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -28,6 +40,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { ActivityFormDialog } from "@/components/activities/activity-form-dialog";
 import { DeleteActivityDialog } from "@/components/activities/delete-activity-dialog";
 import { ActivitiesCalendarGrid } from "@/components/activities/activities-calendar-grid";
+import type { Locale } from "@/i18n/request";
 import type { Activity } from "@/lib/api/activities";
 import { apiRequestFromClient } from "@/lib/api/client";
 import {
@@ -42,10 +55,90 @@ import {
   startOfWeek,
   toDateKey,
 } from "@/lib/activities/helpers";
+import { localeToBcp47 } from "@/lib/format-locale";
 import { ActivitiesDateList } from "@/components/activities/activities-date-list";
 import { cn } from "@/lib/utils";
 
 export type CalendarViewMode = "month" | "week" | "day";
+
+const DAY_PICKER_LOCALES: Record<Locale, DateFnsLocale> = {
+  es,
+  en: enUS,
+  fr,
+  "pt-BR": ptBR,
+};
+
+const PICKER_YEARS_BACK = 10;
+const PICKER_YEARS_FORWARD = 5;
+
+function CalendarPeriodPicker({
+  anchor,
+  periodLabel,
+  onSelectDate,
+}: {
+  anchor: Date;
+  periodLabel: string;
+  onSelectDate: (date: Date) => void;
+}) {
+  const tCal = useTranslations("activities.calendar");
+  const locale = useLocale();
+  const [open, setOpen] = useState(false);
+  const [pickerMonth, setPickerMonth] = useState(anchor);
+
+  const dayPickerLocale = DAY_PICKER_LOCALES[locale as Locale] ?? es;
+
+  const { startMonth, endMonth } = useMemo(() => {
+    const year = new Date().getFullYear();
+    return {
+      startMonth: new Date(year - PICKER_YEARS_BACK, 0),
+      endMonth: new Date(year + PICKER_YEARS_FORWARD, 11),
+    };
+  }, []);
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (nextOpen) setPickerMonth(anchor);
+    setOpen(nextOpen);
+  };
+
+  return (
+    <Popover open={open} onOpenChange={handleOpenChange}>
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          aria-label={tCal("pickDate")}
+          className="min-w-[11.25rem] max-w-[20rem] font-medium capitalize"
+        >
+          <span className="truncate">{periodLabel}</span>
+          <ChevronDown className="size-4 text-muted-foreground" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent align="center" className="w-auto p-0">
+        <Calendar
+          mode="single"
+          selected={anchor}
+          month={pickerMonth}
+          onMonthChange={setPickerMonth}
+          onSelect={(date) => {
+            if (!date) return;
+            onSelectDate(date);
+            setOpen(false);
+          }}
+          captionLayout="dropdown"
+          navLayout="after"
+          startMonth={startMonth}
+          endMonth={endMonth}
+          locale={dayPickerLocale}
+          labels={{
+            labelMonthDropdown: () => tCal("chooseMonth"),
+            labelYearDropdown: () => tCal("chooseYear"),
+          }}
+        />
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 export type LocalFieldOption = {
   label: string;
@@ -94,6 +187,8 @@ export function ActivitiesCalendarClient({
 }: ActivitiesCalendarClientProps) {
   const t = useTranslations("activities");
   const tCal = useTranslations("activities.calendar");
+  const locale = useLocale();
+  const dateLocale = localeToBcp47(locale);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -243,20 +338,20 @@ export function ActivitiesCalendarClient({
 
   const periodLabel = useMemo(() => {
     if (view === "month") {
-      return anchor.toLocaleDateString("es-MX", { month: "long", year: "numeric" });
+      return anchor.toLocaleDateString(dateLocale, { month: "long", year: "numeric" });
     }
     if (view === "week") {
       const weekStart = startOfWeek(anchor);
       const weekEnd = addDays(weekStart, 6);
-      return `${weekStart.toLocaleDateString("es-MX", { day: "numeric", month: "short" })} – ${weekEnd.toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric" })}`;
+      return `${weekStart.toLocaleDateString(dateLocale, { day: "numeric", month: "short" })} – ${weekEnd.toLocaleDateString(dateLocale, { day: "numeric", month: "short", year: "numeric" })}`;
     }
-    return anchor.toLocaleDateString("es-MX", {
+    return anchor.toLocaleDateString(dateLocale, {
       weekday: "long",
       day: "numeric",
       month: "long",
       year: "numeric",
     });
-  }, [anchor, view]);
+  }, [anchor, dateLocale, view]);
 
   const handleLocalFieldChange = (value: string) => {
     updateParams({ localFieldId: value, clubId: null, sectionId: null });
@@ -381,18 +476,30 @@ export function ActivitiesCalendarClient({
         </Tabs>
 
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon-sm" onClick={() => shiftAnchor(-1)}>
+          <Button
+            variant="outline"
+            size="icon-sm"
+            aria-label={tCal("previousPeriod")}
+            onClick={() => shiftAnchor(-1)}
+          >
             <ChevronLeft className="size-4" />
           </Button>
-          <span className="min-w-[180px] text-center text-sm font-medium capitalize">
-            {periodLabel}
-          </span>
-          <Button variant="outline" size="icon-sm" onClick={() => shiftAnchor(1)}>
+          <CalendarPeriodPicker
+            anchor={anchor}
+            periodLabel={periodLabel}
+            onSelectDate={(date) => updateParams({ date: toDateKey(date) })}
+          />
+          <Button
+            variant="outline"
+            size="icon-sm"
+            aria-label={tCal("nextPeriod")}
+            onClick={() => shiftAnchor(1)}
+          >
             <ChevronRight className="size-4" />
           </Button>
           <Button
             variant="outline"
-            size="icon-sm"
+            size="sm"
             onClick={() => updateParams({ date: toDateKey(new Date()) })}
           >
             {tCal("today")}
@@ -400,6 +507,7 @@ export function ActivitiesCalendarClient({
           <Button
             variant="outline"
             size="icon-sm"
+            aria-label={tCal("refresh")}
             onClick={() => void loadActivities()}
             disabled={isLoading}
           >

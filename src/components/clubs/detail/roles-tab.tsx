@@ -4,10 +4,9 @@ import { useActionState, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Trash2, UserPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { CardDescription } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -23,6 +22,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { UserAvatar } from "@/components/users/user-avatar";
+import { DetailSection } from "@/components/users/detail/section";
 import { useRoleLabel } from "@/lib/auth/role-labels";
 import {
   assignClassCounselorAction,
@@ -51,15 +52,6 @@ function assignmentUserName(assignment: ClassCounselorAssignment) {
     .trim();
 }
 
-function memberInitials(name: string) {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("");
-}
-
 function MemberIdentity({
   name,
   pictureUrl,
@@ -69,10 +61,7 @@ function MemberIdentity({
 }) {
   return (
     <div className="flex min-w-0 items-center gap-3">
-      <Avatar size="sm">
-        {pictureUrl ? <AvatarImage src={pictureUrl} alt={name} /> : null}
-        <AvatarFallback>{memberInitials(name)}</AvatarFallback>
-      </Avatar>
+      <UserAvatar src={pictureUrl} name={name} size={32} className="rounded-lg" />
       <span className="truncate font-medium">{name}</span>
     </div>
   );
@@ -193,16 +182,13 @@ export function RolesTab({ data }: RolesTabProps) {
     revokeCounselorState.success;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3.5">
       {actionMessage ? (
-        <p className="rounded-md border bg-muted/30 px-3 py-2 text-sm">{actionMessage}</p>
+        <p className="rounded-xl border border-border/70 bg-muted/30 px-3 py-2 text-sm">{actionMessage}</p>
       ) : null}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("clubRolesTitle")}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
+      <DetailSection num="01" title={t("clubRolesTitle")}>
+        <div className="space-y-6">
           {data.canManageRoles ? (
             <section
               aria-labelledby="assign-club-role-heading"
@@ -290,9 +276,9 @@ export function RolesTab({ data }: RolesTabProps) {
                 {t("assignmentsTitle")}
               </h3>
             </div>
-            <div className="overflow-hidden rounded-xl border">
+            <div className="overflow-hidden rounded-lg border border-border/70">
           <Table>
-            <TableHeader>
+            <TableHeader className="bg-muted/40">
               <TableRow>
                 <TableHead>{t("memberLabel")}</TableHead>
                 <TableHead>{t("sectionLabel")}</TableHead>
@@ -340,14 +326,11 @@ export function RolesTab({ data }: RolesTabProps) {
           </Table>
             </div>
           </section>
-        </CardContent>
-      </Card>
+        </div>
+      </DetailSection>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("counselorsTitle")}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
+      <DetailSection num="02" title={t("counselorsTitle")}>
+        <div className="space-y-6">
           {data.canManageRoles ? (
             <section
               aria-labelledby="assign-counselor-heading"
@@ -476,9 +459,9 @@ export function RolesTab({ data }: RolesTabProps) {
               {t("loadingCounselors")}
             </div>
           ) : (
-            <div className="overflow-hidden rounded-xl border">
+            <div className="overflow-hidden rounded-lg border border-border/70">
             <Table>
-              <TableHeader>
+              <TableHeader className="bg-muted/40">
                 <TableRow>
                   <TableHead>{t("classLabel")}</TableHead>
                   <TableHead>{t("memberLabel")}</TableHead>
@@ -533,8 +516,8 @@ export function RolesTab({ data }: RolesTabProps) {
             </div>
           )}
           </section>
-        </CardContent>
-      </Card>
+        </div>
+      </DetailSection>
     </div>
   );
 }

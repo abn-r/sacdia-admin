@@ -1,17 +1,9 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { UserAvatar } from "@/components/users/user-avatar";
 import { useRoleLabel } from "@/lib/auth/role-labels";
 import type { ClubSectionMember } from "@/lib/api/clubs";
-
-function initials(name: string) {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("");
-}
 
 interface MemberRowProps {
   member: ClubSectionMember;
@@ -25,24 +17,24 @@ export function MemberRow({ member }: MemberRowProps) {
     "—";
 
   return (
-    <div className="flex items-center gap-3 rounded-lg border bg-background px-3 py-2">
-      <Avatar size="sm">
-        {member.picture_url ? (
-          <AvatarImage src={member.picture_url} alt={member.name} />
-        ) : null}
-        <AvatarFallback>{initials(member.name)}</AvatarFallback>
-      </Avatar>
+    <div className="flex items-center gap-3.5 rounded-xl border border-border bg-card p-3.5">
+      <UserAvatar
+        src={member.picture_url}
+        name={member.name}
+        size={40}
+        className="rounded-xl"
+      />
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium">{member.name}</p>
+        <p className="truncate text-sm font-semibold text-foreground">{member.name}</p>
         {member.current_class_name ? (
-          <p className="truncate text-xs text-muted-foreground">
+          <p className="mt-0.5 truncate text-xs text-muted-foreground">
             {member.current_class_name}
           </p>
         ) : null}
       </div>
-      <span className="shrink-0 text-right text-xs font-medium text-muted-foreground">
+      <Badge variant="soft" className="shrink-0">
         {roleLabel}
-      </span>
+      </Badge>
     </div>
   );
 }

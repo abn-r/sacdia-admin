@@ -1353,6 +1353,23 @@
     "detail": {
       "fallbackTitle": "Detalle de club",
       "description": "Ficha operativa del club con pestañas por área.",
+      "back": "Volver",
+      "stats": {
+        "membersLabel": "Miembros",
+        "membersSub": "{count} activos en secciones",
+        "sectionsLabel": "Secciones",
+        "sectionsRegistered": "{count} registradas",
+        "sectionsEmpty": "Sin secciones",
+        "soulsLabel": "Blanco de almas",
+        "soulsSub": "Suma de las secciones",
+        "reportsLabel": "Reportes",
+        "reportsSub": "{count} registros",
+        "reportsEmpty": "Sin reportes"
+      },
+      "sidebar": {
+        "title": "Estado del club",
+        "dash": "—"
+      },
       "tabs": {
         "general": "Información general",
         "sections": "Secciones",
@@ -1370,6 +1387,7 @@
         "labelChurch": "Iglesia",
         "labelSoulsTarget": "Blanco de almas",
         "labelFee": "Cuota",
+        "labelMembers": "Miembros",
         "statusActive": "Activo",
         "statusInactive": "Inactivo",
         "noSections": "Este club aún no tiene secciones registradas.",
@@ -6215,6 +6233,12 @@
       "viewWeek": "Semana",
       "viewDay": "Día",
       "today": "Hoy",
+      "pickDate": "Elegir fecha",
+      "chooseMonth": "Elegir mes",
+      "chooseYear": "Elegir año",
+      "previousPeriod": "Periodo anterior",
+      "nextPeriod": "Periodo siguiente",
+      "refresh": "Actualizar actividades",
       "emptyDay": "No hay actividades para este día.",
       "moreCount": "+{count} más",
       "listTitle": "Listado de actividades",

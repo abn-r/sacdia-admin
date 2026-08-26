@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { DetailSection } from "@/components/users/detail/section";
 import {
   getClubHistoryFromClient,
   type ClubHistoryItem,
@@ -93,28 +94,29 @@ export function HistoryTab({ clubId, sections }: HistoryTabProps) {
   }, [items, sectionFilter]);
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h3 className="text-lg font-semibold">{t("title")}</h3>
-          <p className="text-sm text-muted-foreground">{t("description")}</p>
-        </div>
-        <div className="w-[220px]">
-          <Select value={sectionFilter} onValueChange={setSectionFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder={t("filterSection")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("allEvents")}</SelectItem>
-              {sections.map((section) => (
-                <SelectItem key={section.sectionId} value={String(section.sectionId)}>
-                  {section.sectionName}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+    <div className="space-y-3.5">
+      <DetailSection
+        num="01"
+        title={t("title")}
+        action={
+          <div className="w-[220px]">
+            <Select value={sectionFilter} onValueChange={setSectionFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder={t("filterSection")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("allEvents")}</SelectItem>
+                {sections.map((section) => (
+                  <SelectItem key={section.sectionId} value={String(section.sectionId)}>
+                    {section.sectionName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        }
+      >
+        <p className="mb-4 text-sm text-muted-foreground">{t("description")}</p>
 
       {loading ? (
         <div className="flex items-center gap-2 py-8 text-sm text-muted-foreground">
@@ -139,13 +141,13 @@ export function HistoryTab({ clubId, sections }: HistoryTabProps) {
         </div>
       ) : null}
 
-      <div className="space-y-3">
+      <div className="space-y-2.5">
         {filteredItems.map((item) => {
           const created = new Date(item.created_at);
           const actorName = formatAuditActorName(item.actor);
           return (
-            <Card key={item.audit_log_id}>
-              <CardContent className="px-4 py-4">
+            <Card key={item.audit_log_id} className="gap-2 px-4 py-3.5">
+              <CardContent className="px-0 py-0">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="font-mono text-[11px] uppercase tracking-wide text-muted-foreground">
                     {created.toLocaleDateString(locale, {
@@ -182,7 +184,7 @@ export function HistoryTab({ clubId, sections }: HistoryTabProps) {
       </div>
 
       {nextCursor ? (
-        <div className="flex justify-center">
+        <div className="flex justify-center pt-2">
           <Button
             variant="outline"
             size="sm"
@@ -194,6 +196,7 @@ export function HistoryTab({ clubId, sections }: HistoryTabProps) {
           </Button>
         </div>
       ) : null}
+      </DetailSection>
     </div>
   );
 }

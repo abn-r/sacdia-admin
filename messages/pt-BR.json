@@ -1347,6 +1347,23 @@
     "detail": {
       "fallbackTitle": "Club detail",
       "description": "Operational club record organized by area.",
+      "back": "Voltar",
+      "stats": {
+        "membersLabel": "Membros",
+        "membersSub": "{count} ativos nas seções",
+        "sectionsLabel": "Seções",
+        "sectionsRegistered": "{count} registradas",
+        "sectionsEmpty": "Sem seções",
+        "soulsLabel": "Alvo de almas",
+        "soulsSub": "Soma das seções",
+        "reportsLabel": "Relatórios",
+        "reportsSub": "{count} registros",
+        "reportsEmpty": "Sem relatórios"
+      },
+      "sidebar": {
+        "title": "Status do clube",
+        "dash": "—"
+      },
       "tabs": {
         "general": "Informações gerais",
         "sections": "Seções",
@@ -1364,6 +1381,7 @@
         "labelChurch": "Church",
         "labelSoulsTarget": "Souls target",
         "labelFee": "Fee",
+        "labelMembers": "Membros",
         "statusActive": "Active",
         "statusInactive": "Inactive",
         "noSections": "This club has no registered sections yet.",
@@ -6054,6 +6072,12 @@
       "viewWeek": "Semana",
       "viewDay": "Dia",
       "today": "Hoje",
+      "pickDate": "Escolher data",
+      "chooseMonth": "Escolher mês",
+      "chooseYear": "Escolher ano",
+      "previousPeriod": "Período anterior",
+      "nextPeriod": "Próximo período",
+      "refresh": "Atualizar atividades",
       "emptyDay": "Não há atividades para este dia.",
       "moreCount": "+{count} mais",
       "listTitle": "Lista de atividades",
