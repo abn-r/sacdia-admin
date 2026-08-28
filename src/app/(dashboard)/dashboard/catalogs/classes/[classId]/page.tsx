@@ -33,7 +33,7 @@ import {
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
 import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import { CATALOGS_CREATE, CATALOGS_DELETE, CLASSES_MANAGE } from "@/lib/auth/permissions";
+import { CATALOGS_CREATE, CATALOGS_DELETE, CATALOGS_UPDATE, CLASSES_MANAGE } from "@/lib/auth/permissions";
 
 type Params = Promise<{ classId: string }>;
 
@@ -63,6 +63,7 @@ export default async function CatalogClassDetailPage({ params }: { params: Param
   if (!classId) notFound();
 
   const canManageRelations = hasAnyPermission(user, [CLASSES_MANAGE, CATALOGS_CREATE]);
+  const canUpdateRelations = hasAnyPermission(user, [CLASSES_MANAGE, CATALOGS_UPDATE]);
   const canDeleteRelations = hasAnyPermission(user, [CLASSES_MANAGE, CATALOGS_DELETE]);
 
   const clubTypeNameById = new Map<number, string>();
@@ -172,7 +173,12 @@ export default async function CatalogClassDetailPage({ params }: { params: Param
               classId={classId}
               initialRelations={honorRelations}
               honorsCatalog={honorOptions}
+              modules={modules.map((mod) => ({
+                module_id: mod.module_id,
+                name: (mod.title ?? mod.name).trim() || `Módulo #${mod.module_id}`,
+              }))}
               canCreate={canManageRelations}
+              canUpdate={canUpdateRelations}
               canDelete={canDeleteRelations}
             />
             <ClassPrerequisitesDialog
@@ -194,7 +200,7 @@ export default async function CatalogClassDetailPage({ params }: { params: Param
           {loadError ? (
             <EndpointErrorBanner state="missing" detail={loadError} />
           ) : (
-            <ClassModuleTree modules={modules} />
+            <ClassModuleTree modules={modules} honorRelations={honorRelations} />
           )}
         </CardContent>
       </Card>

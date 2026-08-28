@@ -11,6 +11,8 @@ const CLASS_RELATION_ERROR_MESSAGES: Record<string, string> = {
   ADMIN_CLASS_HONOR_DUPLICATE:
     "Esta especialidad ya está asociada a la clase con ese tipo de relación.",
   ADMIN_CLASS_HONOR_NOT_FOUND: "La relación de especialidad ya no existe.",
+  ADMIN_CLASS_MODULE_NOT_FOUND:
+    "El módulo no existe, está inactivo o no pertenece a esta clase.",
   ADMIN_HONOR_NOT_FOUND_CATALOG:
     "La especialidad seleccionada no existe en el catálogo.",
   ADMIN_CLASS_PREREQUISITE_CYCLE:
