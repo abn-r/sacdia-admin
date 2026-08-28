@@ -38,6 +38,7 @@ if (!Element.prototype.releasePointerCapture) {
 
 const mockCreateClassHonor = vi.fn();
 const mockDeleteClassHonor = vi.fn();
+const mockUpdateClassHonor = vi.fn();
 
 vi.mock("@/lib/api/class-honors", async (importOriginal) => {
   const original = await importOriginal<typeof import("@/lib/api/class-honors")>();
@@ -45,6 +46,7 @@ vi.mock("@/lib/api/class-honors", async (importOriginal) => {
     ...original,
     createClassHonor: (...args: unknown[]) => mockCreateClassHonor(...args),
     deleteClassHonor: (...args: unknown[]) => mockDeleteClassHonor(...args),
+    updateClassHonor: (...args: unknown[]) => mockUpdateClassHonor(...args),
   };
 });
 
@@ -100,6 +102,11 @@ const HONORS_CATALOG: ClassHonorOption[] = [
   { honor_id: 102, name: "Astronomía" },
 ];
 
+const MODULES = [
+  { module_id: 12, name: "Vida al aire libre" },
+  { module_id: 13, name: "Arte de acampar" },
+];
+
 const NEW_RELATION: ClassHonorRelation = {
   class_honor_id: 3,
   class_id: 10,
@@ -120,7 +127,9 @@ function renderDialog(overrides: Partial<React.ComponentProps<typeof ClassHonors
     classId: 10,
     initialRelations: [REQUIRED_RELATION, RECOMMENDED_RELATION],
     honorsCatalog: HONORS_CATALOG,
+    modules: MODULES,
     canCreate: true,
+    canUpdate: true,
     canDelete: true,
     ...overrides,
   };
@@ -168,7 +177,7 @@ describe("ClassHonorsDialog", () => {
   });
 
   it("hides the create form and delete buttons without permissions", async () => {
-    renderDialog({ canCreate: false, canDelete: false });
+    renderDialog({ canCreate: false, canUpdate: false, canDelete: false });
     await openDialog();
 
     expect(screen.queryByLabelText("Especialidad")).not.toBeInTheDocument();
@@ -180,7 +189,8 @@ describe("ClassHonorsDialog", () => {
     renderDialog();
     await openDialog();
 
-    const [honorTrigger, relationTrigger] = screen.getAllByRole("combobox");
+    const honorTrigger = screen.getByLabelText("Especialidad");
+    const relationTrigger = screen.getByLabelText("Tipo de relación");
 
     await userEvent.click(honorTrigger);
     const honorOption = await screen.findByRole("option", { name: "Astronomía" });
@@ -215,7 +225,7 @@ describe("ClassHonorsDialog", () => {
     renderDialog();
     await openDialog();
 
-    const [honorTrigger] = screen.getAllByRole("combobox");
+    const honorTrigger = screen.getByLabelText("Especialidad");
     await userEvent.click(honorTrigger);
     const honorOption = await screen.findByRole("option", { name: "Astronomía" });
     await userEvent.click(honorOption);
@@ -254,5 +264,49 @@ describe("ClassHonorsDialog", () => {
         within(screen.getByTestId("class-honors-list")).queryByText("Primeros auxilios"),
       ).not.toBeInTheDocument();
     });
+  });
+
+  it("creates a relation assigned to a module", async () => {
+    mockCreateClassHonor.mockResolvedValue({
+      ...NEW_RELATION,
+      module_id: 12,
+      module: { module_id: 12, name: "Vida al aire libre" },
+    });
+    renderDialog();
+    await openDialog();
+
+    await userEvent.click(screen.getByLabelText("Especialidad"));
+    await userEvent.click(await screen.findByRole("option", { name: "Astronomía" }));
+
+    await userEvent.click(screen.getByLabelText("Módulo"));
+    await userEvent.click(await screen.findByRole("option", { name: "Vida al aire libre" }));
+
+    await userEvent.click(screen.getByRole("button", { name: /agregar/i }));
+
+    await waitFor(() => {
+      expect(mockCreateClassHonor).toHaveBeenCalledWith(10, {
+        honor_id: 102,
+        relation_type: "RECOMMENDED",
+        module_id: 12,
+      });
+    });
+  });
+
+  it("reassigns an existing relation to a module", async () => {
+    mockUpdateClassHonor.mockResolvedValue({
+      ...REQUIRED_RELATION,
+      module_id: 13,
+      module: { module_id: 13, name: "Arte de acampar" },
+    });
+    renderDialog();
+    await openDialog();
+
+    await userEvent.click(screen.getByLabelText("Módulo de Primeros auxilios"));
+    await userEvent.click(await screen.findByRole("option", { name: "Arte de acampar" }));
+
+    await waitFor(() => {
+      expect(mockUpdateClassHonor).toHaveBeenCalledWith(10, 1, { module_id: 13 });
+    });
+    expect(mockToastSuccess).toHaveBeenCalledWith("Módulo actualizado.");
   });
 });

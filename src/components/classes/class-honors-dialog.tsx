@@ -35,6 +35,7 @@ import {
 import {
   createClassHonor,
   deleteClassHonor,
+  updateClassHonor,
   type ClassHonorRelation,
   type ClassHonorRelationType,
 } from "@/lib/api/class-honors";
@@ -44,6 +45,13 @@ export type ClassHonorOption = {
   honor_id: number;
   name: string;
 };
+
+export type ClassHonorModuleOption = {
+  module_id: number;
+  name: string;
+};
+
+const NONE_MODULE = "none";
 
 const RELATION_TYPE_ORDER: ClassHonorRelationType[] = [
   "REQUIRED",
@@ -70,15 +78,31 @@ type ClassHonorsDialogProps = {
   classId: number;
   initialRelations: ClassHonorRelation[];
   honorsCatalog: ClassHonorOption[];
+  modules?: ClassHonorModuleOption[];
   canCreate: boolean;
+  canUpdate?: boolean;
   canDelete: boolean;
 };
+
+function moduleLabel(
+  relation: ClassHonorRelation,
+  modules: ClassHonorModuleOption[],
+): string {
+  if (relation.module?.name) return relation.module.name;
+  if (relation.module_id == null) return "Sin módulo";
+  return (
+    modules.find((module) => module.module_id === relation.module_id)?.name ??
+    `Módulo #${relation.module_id}`
+  );
+}
 
 export function ClassHonorsDialog({
   classId,
   initialRelations,
   honorsCatalog,
+  modules = [],
   canCreate,
+  canUpdate = false,
   canDelete,
 }: ClassHonorsDialogProps) {
   const [open, setOpen] = useState(false);
@@ -86,7 +110,9 @@ export function ClassHonorsDialog({
 
   const [selectedHonorId, setSelectedHonorId] = useState("");
   const [relationType, setRelationType] = useState<ClassHonorRelationType>("RECOMMENDED");
+  const [selectedModuleId, setSelectedModuleId] = useState(NONE_MODULE);
   const [submitting, setSubmitting] = useState(false);
+  const [updatingId, setUpdatingId] = useState<number | null>(null);
 
   const [deleteTarget, setDeleteTarget] = useState<ClassHonorRelation | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -99,22 +125,53 @@ export function ClassHonorsDialog({
       return;
     }
 
+    const moduleId =
+      selectedModuleId === NONE_MODULE ? undefined : Number(selectedModuleId);
+
     setSubmitting(true);
     try {
       const created = await createClassHonor(classId, {
         honor_id: honorId,
         relation_type: relationType,
+        ...(moduleId != null && Number.isFinite(moduleId) ? { module_id: moduleId } : {}),
       });
       setRelations((current) => [...current, created]);
       toast.success("Especialidad agregada a la clase.");
       setSelectedHonorId("");
       setRelationType("RECOMMENDED");
+      setSelectedModuleId(NONE_MODULE);
     } catch (error) {
       toast.error(
         getClassRelationErrorMessage(error, "No se pudo agregar la especialidad."),
       );
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  async function handleModuleChange(relation: ClassHonorRelation, value: string) {
+    const nextModuleId = value === NONE_MODULE ? null : Number(value);
+    if (value !== NONE_MODULE && (!Number.isFinite(nextModuleId) || nextModuleId <= 0)) {
+      return;
+    }
+
+    setUpdatingId(relation.class_honor_id);
+    try {
+      const updated = await updateClassHonor(classId, relation.class_honor_id, {
+        module_id: nextModuleId,
+      });
+      setRelations((current) =>
+        current.map((item) =>
+          item.class_honor_id === relation.class_honor_id ? updated : item,
+        ),
+      );
+      toast.success("Módulo actualizado.");
+    } catch (error) {
+      toast.error(
+        getClassRelationErrorMessage(error, "No se pudo actualizar el módulo."),
+      );
+    } finally {
+      setUpdatingId(null);
     }
   }
 
@@ -155,12 +212,13 @@ export function ClassHonorsDialog({
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl">
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>Especialidades relacionadas</DialogTitle>
             <DialogDescription>
-              Asocia especialidades a esta clase. La relación es informativa: no bloquea
-              la investidura, incluso si es «Requerida».
+              Asocia especialidades a esta clase o a un módulo. La relación es
+              informativa: no bloquea el progreso ni la investidura, incluso si es
+              «Requerida».
             </DialogDescription>
           </DialogHeader>
 
@@ -168,7 +226,7 @@ export function ClassHonorsDialog({
             {canCreate ? (
               <form
                 onSubmit={handleCreate}
-                className="grid gap-3 rounded-lg border bg-muted/20 p-3 sm:grid-cols-[1fr_160px_auto] sm:items-end"
+                className="grid gap-3 rounded-lg border bg-muted/20 p-3 sm:grid-cols-[1fr_140px_1fr_auto] sm:items-end"
               >
                 <div className="space-y-1.5">
                   <Label htmlFor="class-honor-select">Especialidad</Label>
@@ -198,6 +256,22 @@ export function ClassHonorsDialog({
                       {RELATION_TYPE_ORDER.map((type) => (
                         <SelectItem key={type} value={type}>
                           {RELATION_TYPE_LABELS[type]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="class-honor-module">Módulo</Label>
+                  <Select value={selectedModuleId} onValueChange={setSelectedModuleId}>
+                    <SelectTrigger id="class-honor-module" className="w-full bg-background">
+                      <SelectValue placeholder="Sin módulo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={NONE_MODULE}>Sin módulo</SelectItem>
+                      {modules.map((module) => (
+                        <SelectItem key={module.module_id} value={String(module.module_id)}>
+                          {module.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -237,7 +311,44 @@ export function ClassHonorsDialog({
                           key={relation.class_honor_id}
                           className="flex items-center justify-between gap-3 rounded-md border bg-card px-3 py-2"
                         >
-                          <span className="text-sm font-medium">{relation.honor.name}</span>
+                          <div className="min-w-0 flex-1">
+                            <span className="text-sm font-medium">{relation.honor.name}</span>
+                            {canUpdate ? (
+                              <div className="mt-1.5 max-w-xs">
+                                <Select
+                                  value={
+                                    relation.module_id != null
+                                      ? String(relation.module_id)
+                                      : NONE_MODULE
+                                  }
+                                  onValueChange={(value) => handleModuleChange(relation, value)}
+                                  disabled={updatingId === relation.class_honor_id}
+                                >
+                                  <SelectTrigger
+                                    aria-label={`Módulo de ${relation.honor.name}`}
+                                    className="h-8 bg-background"
+                                  >
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value={NONE_MODULE}>Sin módulo</SelectItem>
+                                    {modules.map((module) => (
+                                      <SelectItem
+                                        key={module.module_id}
+                                        value={String(module.module_id)}
+                                      >
+                                        {module.name}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            ) : (
+                              <p className="mt-0.5 text-xs text-muted-foreground">
+                                {moduleLabel(relation, modules)}
+                              </p>
+                            )}
+                          </div>
                           {canDelete ? (
                             <Button
                               type="button"
