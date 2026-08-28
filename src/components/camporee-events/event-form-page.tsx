@@ -44,6 +44,7 @@ import {
 import { RubricsEditor } from "@/components/camporee-events/rubrics-editor";
 import { PenaltiesEditor } from "@/components/camporee-events/penalties-editor";
 import { ScheduleBlocksEditor } from "@/components/camporee-events/schedule-blocks-editor";
+import { EventHonorsPicker } from "@/components/camporee-events/event-honors-picker";
 import type {
   CamporeeEventStatus,
   CamporeeEventDisplayCategory,
@@ -51,6 +52,7 @@ import type {
   CamporeeEventScheduleBlock,
   CamporeeEventType,
   BackendCamporeeEvent,
+  CamporeeEventHonor,
   PenaltyRule,
 } from "@/lib/api/camporee-events";
 import type {
@@ -249,6 +251,9 @@ export function EventFormPage({
     eventTypes[0]?.event_type_id;
   const [selectedEventTypeId, setSelectedEventTypeId] = useState<string>(
     defaultEventTypeId ? String(defaultEventTypeId) : "",
+  );
+  const [selectedHonors, setSelectedHonors] = useState<CamporeeEventHonor[]>(
+    event?.honors ?? [],
   );
   const [scheduleBlocks, setScheduleBlocks] = useState<CamporeeEventScheduleBlock[]>(
     () => {
@@ -453,6 +458,19 @@ export function EventFormPage({
               </p>
             </div>
           )}
+        </section>
+
+        <section className="space-y-6 rounded-xl border p-6">
+          <div>
+            <h2 className="text-base font-semibold tracking-tight">
+              Especialidades de preparación
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Relaciona especialidades del catálogo para que los participantes
+              consulten el material PDF antes del evento.
+            </p>
+          </div>
+          <EventHonorsPicker value={selectedHonors} onChange={setSelectedHonors} />
         </section>
 
         {/* ══ Secciones participantes — early: filters club list in Horario ══ */}

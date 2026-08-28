@@ -31,6 +31,10 @@ vi.mock("@/components/camporee-events/rubrics-editor", () => ({
   RubricsEditor: () => <div data-testid="rubrics-editor" />,
 }));
 
+vi.mock("@/lib/api/admin-honors-catalog", () => ({
+  listAdminHonorsCatalog: vi.fn(async () => []),
+}));
+
 vi.mock("next/link", () => ({
   default: ({
     href,
@@ -81,5 +85,6 @@ describe("EventFormPage", () => {
 
     expect(screen.getByText("Sede")).toBeInTheDocument();
     expect(screen.getByText("Responsable")).toBeInTheDocument();
+    expect(screen.getByText("Especialidades de preparación")).toBeInTheDocument();
   });
 });
