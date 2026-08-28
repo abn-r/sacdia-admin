@@ -747,6 +747,7 @@ export async function createCamporeeAgendaEventAction(
 
   const payload = buildAgendaPayload(formData);
   if ("validationError" in payload) return { error: payload.validationError };
+  payload.status = "programado";
 
   try {
     const created = await createLocalCamporeeEvent(camporeeId, payload);
@@ -779,6 +780,7 @@ export async function createUnionCamporeeAgendaEventAction(
 
   const payload = buildAgendaPayload(formData);
   if ("validationError" in payload) return { error: payload.validationError };
+  payload.status = "programado";
 
   try {
     const created = await createUnionCamporeeEvent(camporeeId, payload);

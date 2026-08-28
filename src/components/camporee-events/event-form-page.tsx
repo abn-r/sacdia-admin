@@ -336,7 +336,7 @@ export function EventFormPage({
           <input type="hidden" name="id" value={String(event.camporee_event_id)} />
         )}
         <input type="hidden" name="display_category" value={category} />
-        <input type="hidden" name="status" value={status} />
+        <input type="hidden" name="status" value={isEdit ? status : "programado"} />
         <input type="hidden" name="day_number" value={String(dayNumber)} />
         <input type="hidden" name="starts_at" value={startsAt} />
         <input type="hidden" name="ends_at" value={endsAt} />
@@ -604,7 +604,13 @@ export function EventFormPage({
 
         {/* ══ Section 4: Responsable ══ (PR6c) */}
         <section className="space-y-6 rounded-xl border p-6">
-          <h2 className="text-base font-semibold tracking-tight">Responsable</h2>
+          <div>
+            <h2 className="text-base font-semibold tracking-tight">Responsable</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Nombre visible en la agenda. No alcanza para publicar: eso pide un
+              responsable del roster de personal del camporee.
+            </p>
+          </div>
 
           {/* Leader mode toggle */}
           <div className="flex gap-2">
@@ -818,21 +824,33 @@ export function EventFormPage({
         <section className="space-y-6 rounded-xl border p-6">
           <h2 className="text-base font-semibold tracking-tight">Estado</h2>
 
-          <div className="space-y-2 max-w-xs">
-            <Label>Estado del evento</Label>
-            <Select value={status} onValueChange={(v) => setStatus(v as CamporeeEventStatus)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {STATUS_OPTIONS.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          {isEdit ? (
+            <div className="space-y-2 max-w-xs">
+              <Label>Estado del evento</Label>
+              <Select value={status} onValueChange={(v) => setStatus(v as CamporeeEventStatus)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {STATUS_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Publicar exige un responsable activo del roster de personal.
+                El líder de esta ficha no cubre ese requisito.
+              </p>
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              El evento se crea como Programado. Las especialidades de
+              preparación se guardan igual. Publicar viene después, con un
+              responsable del roster de personal.
+            </p>
+          )}
         </section>
 
         {/* ── Footer actions ── */}
