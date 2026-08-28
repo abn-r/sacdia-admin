@@ -68,9 +68,8 @@ export function LoginBrandPanel() {
         </p>
       </div>
 
-      <div className="relative flex items-center justify-between font-mono text-[11px] uppercase tracking-[0.06em] opacity-70">
-        <span>{t("version_label")}</span>
-        <span>{t("region_label")}</span>
+      <div className="relative font-mono text-[11px] uppercase tracking-[0.06em] opacity-70">
+        {t("version_label")}
       </div>
     </aside>
   );

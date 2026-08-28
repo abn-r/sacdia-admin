@@ -26,12 +26,17 @@ import {
 } from "@/lib/api/camporees";
 import type { CamporeePayment, PaymentType } from "@/lib/api/camporees";
 import {
+  isLedgerPaymentMutable,
+  resolveCamporeePaymentMemberName,
+  type CamporeeLedgerPayment,
+} from "@/components/camporees/camporee-payment-balance";
+import {
   CamporeeApprovalDialog,
   type ApprovalDialogMode,
 } from "@/components/camporees/camporee-approval-dialog";
 import { useTranslations } from "next-intl";
 import { ApiError } from "@/lib/api/client";
-import { useFormatDate, useFormatCurrency } from "@/lib/format-locale";
+import { formatTimestamp, useFormatCurrency } from "@/lib/format-locale";
 
 // ─── Payment type badge ────────────────────────────────────────────────────────
 
@@ -139,7 +144,7 @@ type DialogState = {
 
 interface CamporeePaymentsPanelProps {
   camporeeId: number;
-  payments: CamporeePayment[];
+  payments: Array<CamporeePayment | CamporeeLedgerPayment>;
   onPaymentsChange?: () => void;
   isUnionCamporee?: boolean;
 }
@@ -154,23 +159,17 @@ export function CamporeePaymentsPanel({
 }: CamporeePaymentsPanelProps) {
   
   const t = useTranslations("camporees");
-  const formatDateLocale = useFormatDate();
   const formatCurrency = useFormatCurrency();
   const [approvingId, setApprovingId] = useState<string | null>(null);
   const [dialog, setDialog] = useState<DialogState>(null);
 
   function formatDate(dateStr?: string | null): string {
-    if (!dateStr) return "—";
-    try {
-      return formatDateLocale(dateStr, { day: "numeric", month: "short", year: "numeric" });
-    } catch {
-      return "—";
-    }
+    return formatTimestamp(dateStr);
   }
 
   async function handleApprove(payment: CamporeePayment) {
     const paymentUuid = payment.camporee_payment_id;
-    if (!paymentUuid || approvingId !== null) return;
+    if (!isLedgerPaymentMutable(payment) || !paymentUuid || approvingId !== null) return;
     setApprovingId(paymentUuid);
     try {
       if (isUnionCamporee) {
@@ -196,7 +195,9 @@ export function CamporeePaymentsPanel({
   async function handleRejectConfirm(rejectionReason?: string) {
     if (!dialog) return;
     const paymentUuid = dialog.payment.camporee_payment_id;
-    if (!paymentUuid) throw new Error(t("paymentsPanel.errorNoPaymentUuid"));
+    if (!isLedgerPaymentMutable(dialog.payment) || !paymentUuid) {
+      throw new Error(t("paymentsPanel.errorNoPaymentUuid"));
+    }
     const payload = { rejection_reason: rejectionReason };
     if (isUnionCamporee) {
       await rejectUnionCamporeePayment(paymentUuid, payload);
@@ -217,6 +218,9 @@ export function CamporeePaymentsPanel({
   }
 
   const dialogPaymentName =
+    (dialog
+      ? resolveCamporeePaymentMemberName(dialog.payment)
+      : null) ??
     dialog?.payment.member_name ??
     t("paymentsPanel.fallbackPayment", {
       id: dialog?.payment.camporee_payment_id ?? "",
@@ -255,8 +259,8 @@ export function CamporeePaymentsPanel({
             <TableBody>
               {payments.map((payment) => {
                 const isPending = payment.status?.toLowerCase() === "pending_approval";
-                const hasUuid = Boolean(payment.camporee_payment_id);
-                const canApprove = isPending && hasUuid;
+                const canMutate = isLedgerPaymentMutable(payment);
+                const canApprove = isPending && canMutate;
                 const isApproving =
                   payment.camporee_payment_id != null &&
                   approvingId === payment.camporee_payment_id;
@@ -272,7 +276,9 @@ export function CamporeePaymentsPanel({
                     <TableCell className="px-3 py-2.5 align-middle">
                       <div className="flex items-center gap-1.5">
                         <span className="text-sm font-medium">
-                          {payment.member_name ?? payment.member_id}
+                          {resolveCamporeePaymentMemberName(payment) ??
+                            payment.member_name ??
+                            payment.member_id}
                         </span>
                         {payment.voucher_url && (
                           <Tooltip>
@@ -353,7 +359,7 @@ export function CamporeePaymentsPanel({
                           </>
                         )}
 
-                        {payment.camporee_payment_id && !isUnionCamporee && (
+                        {canMutate && !isUnionCamporee && (
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Button

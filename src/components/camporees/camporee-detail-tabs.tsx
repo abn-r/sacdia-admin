@@ -2,6 +2,9 @@
 
 import { useState, useCallback, type ReactNode } from "react";
 import dynamic from "next/dynamic";
+import { Lock } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -14,6 +17,8 @@ import {
 import type { CamporeeMembersTabProps } from "@/components/camporees/camporee-members-tab";
 import type { CamporeeClubsTabProps } from "@/components/camporees/camporee-clubs-tab";
 import type { CamporeePaymentsTabProps } from "@/components/camporees/camporee-payments-tab";
+import { mergeCamporeePaymentLedger } from "@/components/camporees/camporee-payment-balance";
+import type { CamporeePaymentOrdersTabProps } from "@/components/payment-orders/camporee-payment-orders-tab";
 import { CamporeeEventsTab } from "@/components/camporee-events/camporee-events-tab";
 import { EventJudgeAssignmentsPanel } from "@/components/camporee-scoring/event-judge-assignments-panel";
 import { EventScoreEntryPanel } from "@/components/camporee-scoring/event-score-entry-panel";
@@ -24,7 +29,7 @@ import type {
   CamporeeEventJudgeAssignment,
   CamporeeEventRubric,
   CamporeeJudge,
-  CamporeeLeaderboard,
+  CamporeeLeaderboard as CamporeeLeaderboardData,
   CamporeeScoringTarget,
 } from "@/lib/api/camporee-scoring";
 
@@ -51,6 +56,30 @@ const CamporeePaymentsTab = dynamic<CamporeePaymentsTabProps>(
     ),
   { ssr: false, loading: () => <Skeleton className="h-48 w-full" /> },
 );
+
+const CamporeePaymentOrdersTab = dynamic<CamporeePaymentOrdersTabProps>(
+  () =>
+    import("@/components/payment-orders/camporee-payment-orders-tab").then(
+      (m) => m.CamporeePaymentOrdersTab,
+    ),
+  { ssr: false, loading: () => <Skeleton className="h-48 w-full" /> },
+);
+
+const CamporeeOrdersTab = dynamic(
+  () =>
+    import("@/components/camporee-orders/camporee-orders-tab").then(
+      (m) => m.CamporeeOrdersTab,
+    ),
+  { ssr: false, loading: () => <Skeleton className="h-48 w-full" /> },
+);
+
+const CamporeeSuppliesTab = dynamic(
+  () =>
+    import("@/components/camporee-supplies/camporee-supplies-tab").then(
+      (m) => m.CamporeeSuppliesTab,
+    ),
+  { ssr: false, loading: () => <Skeleton className="h-48 w-full" /> },
+);
 import type {
   Camporee,
   CamporeeMember,
@@ -59,6 +88,8 @@ import type {
   PendingApprovals,
   PaginationMeta,
 } from "@/lib/api/camporees";
+import type { PaymentOrder } from "@/lib/api/field-payment-orders";
+import { isClubRegistrationClosed } from "@/lib/camporees/club-registration";
 
 // ─── Props ─────────────────────────────────────────────────────────────────────
 
@@ -73,6 +104,7 @@ interface CamporeeDetailTabsProps {
   initialMembersMeta?: PaginationMeta;
   initialClubs: CamporeeClub[];
   initialPayments: CamporeePayment[];
+  initialPaymentOrders?: PaymentOrder[];
   initialPending: PendingApprovals;
   membersError: string | null;
   clubsError: string | null;
@@ -89,7 +121,7 @@ interface CamporeeDetailTabsProps {
   initialAssignmentsByEvent?: Record<number, CamporeeEventJudgeAssignment[]>;
   initialScoringTargetsByEvent?: Record<number, CamporeeScoringTarget[]>;
   initialRubricsByEvent?: Record<number, CamporeeEventRubric[]>;
-  initialLeaderboard?: CamporeeLeaderboard | null;
+  initialLeaderboard?: CamporeeLeaderboardData | null;
   canCreateEvents?: boolean;
   canEditEvents?: boolean;
   canDeleteEvents?: boolean;
@@ -104,6 +136,9 @@ const CAMPOREE_DETAIL_TABS = new Set([
   "members",
   "clubs",
   "payments",
+  "payment-orders",
+  "merchandise-orders",
+  "supplies",
   "events",
   "judges",
   "scores",
@@ -124,6 +159,7 @@ export function CamporeeDetailTabs({
   initialMembersMeta,
   initialClubs,
   initialPayments,
+  initialPaymentOrders = [],
   initialPending,
   membersError,
   clubsError,
@@ -144,7 +180,21 @@ export function CamporeeDetailTabs({
   canEditJudgeAssignments = false,
   initialTab,
 }: CamporeeDetailTabsProps) {
+  const tClubRegistration = useTranslations("camporees.clubRegistration");
   const [pending, setPending] = useState<PendingApprovals>(initialPending);
+  const [paymentsLedgerCount, setPaymentsLedgerCount] = useState(() =>
+    mergeCamporeePaymentLedger(
+      initialPayments,
+      initialPaymentOrders,
+      initialMembers,
+    ).length,
+  );
+  const handlePaymentsLedgerCountChange = useCallback((count: number) => {
+    setPaymentsLedgerCount(count);
+  }, []);
+  const clubRegistrationClosed = isClubRegistrationClosed(
+    camporee?.club_registration_closed_at,
+  );
   const totalJudgeAssignments = Object.values(initialAssignmentsByEvent)
     .flat()
     .filter((assignment) => assignment.active).length;
@@ -160,7 +210,7 @@ export function CamporeeDetailTabs({
     } catch {
       // Informational — silently ignore
     }
-  }, [camporeeId, isUnionCamporee]);
+  }, [camporeeId, isUnionCamporee, setPending]);
 
   const activeTab = resolveInitialTab(initialTab);
 
@@ -199,9 +249,9 @@ export function CamporeeDetailTabs({
 
         <TabsTrigger value="payments">
           Pagos
-          {initialPayments.length > 0 && (
+          {paymentsLedgerCount > 0 && (
             <Badge variant="secondary" className="ml-1.5">
-              {initialPayments.length}
+              {paymentsLedgerCount}
             </Badge>
           )}
           {pending.payments.length > 0 && (
@@ -210,6 +260,12 @@ export function CamporeeDetailTabs({
             </Badge>
           )}
         </TabsTrigger>
+
+        <TabsTrigger value="payment-orders">Órdenes de pago</TabsTrigger>
+
+        <TabsTrigger value="merchandise-orders">Pedidos</TabsTrigger>
+
+        <TabsTrigger value="supplies">Insumos</TabsTrigger>
 
         <TabsTrigger value="events">
           Eventos
@@ -311,12 +367,59 @@ export function CamporeeDetailTabs({
                 camporeeId={camporeeId}
                 initialPayments={initialPayments}
                 initialMembers={initialMembers}
+                initialOrders={initialPaymentOrders}
                 membersTotal={initialMembersMeta?.total ?? initialMembers.length}
                 registrationCost={camporee?.registration_cost}
                 isUnionCamporee={isUnionCamporee}
                 onAfterChange={refreshPending}
+                onLedgerCountChange={handlePaymentsLedgerCountChange}
               />
             )}
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      {/* ── Órdenes de pago (locales y de unión; v1.1: cobra el Campo Local) ── */}
+      <TabsContent value="payment-orders" className="mt-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Órdenes de pago</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CamporeePaymentOrdersTab
+              camporeeId={camporeeId}
+              camporeeType={isUnionCamporee ? "union" : "local"}
+            />
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      {/* ── Pedidos de mercancía (folios PED; distinto de inscripción) ── */}
+      <TabsContent value="merchandise-orders" className="mt-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Pedidos de mercancía</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CamporeeOrdersTab
+              camporeeId={camporeeId}
+              camporeeType={isUnionCamporee ? "union" : "local"}
+            />
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      {/* ── Insumos de sección (folios INS; distinto de mercancía) ── */}
+      <TabsContent value="supplies" className="mt-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Insumos de camporee</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CamporeeSuppliesTab
+              camporeeId={camporeeId}
+              camporeeType={isUnionCamporee ? "union" : "local"}
+            />
           </CardContent>
         </Card>
       </TabsContent>
@@ -342,7 +445,16 @@ export function CamporeeDetailTabs({
         />
       </TabsContent>
 
-      <TabsContent value="judges" className="mt-4">
+      <TabsContent value="judges" className="mt-4 space-y-4">
+        {!clubRegistrationClosed && (
+          <Alert>
+            <Lock />
+            <AlertTitle>{tClubRegistration("scoringGateTitle")}</AlertTitle>
+            <AlertDescription>
+              {tClubRegistration("scoringGateBody")}
+            </AlertDescription>
+          </Alert>
+        )}
         <EventJudgeAssignmentsPanel
           camporeeId={camporeeId}
           isUnionCamporee={isUnionCamporee}
@@ -354,7 +466,16 @@ export function CamporeeDetailTabs({
         />
       </TabsContent>
 
-      <TabsContent value="scores" className="mt-4">
+      <TabsContent value="scores" className="mt-4 space-y-4">
+        {!clubRegistrationClosed && (
+          <Alert>
+            <Lock />
+            <AlertTitle>{tClubRegistration("scoringGateTitle")}</AlertTitle>
+            <AlertDescription>
+              {tClubRegistration("scoringGateBody")}
+            </AlertDescription>
+          </Alert>
+        )}
         <EventScoreEntryPanel
           camporeeId={camporeeId}
           isUnionCamporee={isUnionCamporee}

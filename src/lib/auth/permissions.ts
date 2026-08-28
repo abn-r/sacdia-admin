@@ -31,6 +31,7 @@ export const REGISTRATION_COMPLETE = "registration:complete";
 export const ROLES_READ = "roles:read";
 export const PERMISSIONS_READ = "permissions:read";
 export const PERMISSIONS_ASSIGN = "permissions:assign";
+export const AUDIT_READ = "audit:read";
 
 // --- Clubes ---
 export const CLUBS_READ = "clubs:read";
@@ -257,6 +258,33 @@ export const RESOURCE_CATEGORIES_DELETE = "resource_categories:delete";
 export const ECCLESIASTICAL_YEARS_READ = "ecclesiastical_years:read";
 export const ECCLESIASTICAL_YEARS_CREATE = "ecclesiastical_years:create";
 export const ECCLESIASTICAL_YEARS_UPDATE = "ecclesiastical_years:update";
+
+// --- Certificaciones (motor configurable — definición de versiones) ---
+export const CERTIFICATIONS_CONFIGURE = "certifications:configure";
+export const CERTIFICATIONS_PUBLISH = "certifications:publish";
+export const CERTIFICATIONS_REVIEW = "certifications:review";
+export const CERTIFICATIONS_CERTIFY = "certifications:certify";
+
+// --- Seguros (capacity model) y órdenes de pago territoriales ---
+export const INSURANCE_READ = "insurance:read";
+export const INSURANCE_REVIEW = "insurance:review";
+export const INSURANCE_CONFIGURE = "insurance:configure";
+export const FIELD_PAYMENT_ORDERS_READ = "field-payment-orders:read";
+export const FIELD_PAYMENT_ORDERS_REVIEW = "field-payment-orders:review";
+export const FIELD_PAYMENT_ORDERS_CONFIGURE = "field-payment-orders:configure";
+
+// --- Pedidos de mercancía de camporee (distintos de inscripción) ---
+export const CAMPOREE_ORDERS_READ = "camporee-orders:read";
+export const CAMPOREE_ORDERS_CATALOG_MANAGE = "camporee-orders:catalog-manage";
+export const CAMPOREE_ORDERS_OFFERING_CONFIGURE =
+  "camporee-orders:offering-configure";
+export const CAMPOREE_ORDERS_CREATE = "camporee-orders:create";
+export const CAMPOREE_ORDERS_UPLOAD_PROOF = "camporee-orders:upload-proof";
+export const CAMPOREE_ORDERS_REVIEW = "camporee-orders:review";
+export const CAMPOREE_ORDERS_AUTHORIZE_WITHOUT_PROOF =
+  "camporee-orders:authorize-without-proof";
+export const CAMPOREE_ORDERS_DELIVER = "camporee-orders:deliver";
+export const CAMPOREE_ORDERS_DISTRIBUTE = "camporee-orders:distribute";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Agrupación por módulo (útil para UI de asignación de permisos)
@@ -485,6 +513,14 @@ export const PERMISSION_GROUPS = {
       { key: ECCLESIASTICAL_YEARS_UPDATE },
     ],
   },
+  certifications_admin: {
+    permissions: [
+      { key: CERTIFICATIONS_CONFIGURE },
+      { key: CERTIFICATIONS_PUBLISH },
+      { key: CERTIFICATIONS_REVIEW },
+      { key: CERTIFICATIONS_CERTIFY },
+    ],
+  },
 } as const;
 
 // Tipo derivado de las constantes (acepta cualquier string para compatibilidad con DB)
@@ -495,8 +531,42 @@ export type PermissionKey = string;
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
+ * next-intl `useTranslations("rbac")` is not assignable to `(key: string) =>
+ * string` because message keys are branded. Accept the runtime translator
+ * structurally and call it with dynamic permission keys.
+ */
+type RbacTranslator = object;
+
+function asRbacTranslator(t: RbacTranslator): {
+  (key: string): string;
+  has?: (key: string) => boolean;
+} {
+  return t as {
+    (key: string): string;
+    has?: (key: string) => boolean;
+  };
+}
+
+function readRbacMessage(t: RbacTranslator, key: string): string | null {
+  const translator = asRbacTranslator(t);
+  if (typeof translator.has === "function" && !translator.has(key)) {
+    return null;
+  }
+  try {
+    const label = translator(key);
+    if (!label || label === key) {
+      return null;
+    }
+    return label;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Returns the localised label for a permission key.
  * Looks up `rbac.permissions.<key>` in the active locale.
+ * Messages store literal colon keys (`users:read`), not nested dots.
  * Falls back to the raw key string when no translation exists.
  *
  * @example
@@ -504,16 +574,16 @@ export type PermissionKey = string;
  *   getPermissionLabel(t, "clubs:read") // → "Ver clubes" (es)
  */
 export function getPermissionLabel(
-  t: (key: string) => string,
+  t: RbacTranslator,
   permissionKey: string,
 ): string {
-  // next-intl colon keys require dot notation for nested lookup
-  const safeKey = permissionKey.replace(":", ".");
-  try {
-    return t(`permissions.${safeKey}` as Parameters<typeof t>[0]);
-  } catch {
-    return permissionKey;
-  }
+  const colonKey = `permissions.${permissionKey}`;
+  const dottedKey = `permissions.${permissionKey.replaceAll(":", ".")}`;
+  return (
+    readRbacMessage(t, colonKey) ??
+    readRbacMessage(t, dottedKey) ??
+    permissionKey
+  );
 }
 
 /**
@@ -526,12 +596,31 @@ export function getPermissionLabel(
  *   getPermissionGroupLabel(t, "clubs") // → "Clubes" (es)
  */
 export function getPermissionGroupLabel(
-  t: (key: string) => string,
+  t: RbacTranslator,
   groupKey: string,
 ): string {
-  try {
-    return t(`permissionGroups.${groupKey}` as Parameters<typeof t>[0]);
-  } catch {
-    return groupKey;
-  }
+  return readRbacMessage(t, `permissionGroups.${groupKey}`) ?? groupKey;
+}
+
+export function permissionMatchesQuery(
+  t: RbacTranslator,
+  permission: {
+    permission_name: string;
+    description?: string | null;
+  },
+  query: string,
+): boolean {
+  const q = query.trim().toLowerCase();
+  if (!q) return true;
+  const label = getPermissionLabel(t, permission.permission_name).toLowerCase();
+  const name = permission.permission_name.toLowerCase();
+  const desc = (permission.description ?? "").toLowerCase();
+  const resource = permission.permission_name.split(":")[0] ?? "";
+  const group = getPermissionGroupLabel(t, resource).toLowerCase();
+  return (
+    label.includes(q) ||
+    name.includes(q) ||
+    desc.includes(q) ||
+    group.includes(q)
+  );
 }

@@ -5,6 +5,7 @@ import type { NavGroup, NavMainItem, NavSubItem } from "./sidebar-items";
 export type SidebarPermissionChecker = {
   canAny: (permissions: string[]) => boolean;
   canAll: (permissions: string[]) => boolean;
+  hasAnyRole: (roles: string[]) => boolean;
   isSuperAdmin: boolean;
 };
 
@@ -17,13 +18,26 @@ function isItemAllowed(
   }
 
   const access = getNavItemAccess(item);
-  if (!access?.permissions.length) {
+  if (!access) {
     return true;
   }
 
-  return access.requireAll
-    ? checker.canAll(access.permissions)
-    : checker.canAny(access.permissions);
+  const permissions = access.permissions ?? [];
+  const roles = access.roles ?? [];
+
+  if (permissions.length === 0 && roles.length === 0) {
+    return true;
+  }
+
+  const permissionsOk =
+    permissions.length === 0 ||
+    (access.requireAll
+      ? checker.canAll(permissions)
+      : checker.canAny(permissions));
+
+  const rolesOk = roles.length === 0 || checker.hasAnyRole(roles);
+
+  return permissionsOk && rolesOk;
 }
 
 function filterSubItems(

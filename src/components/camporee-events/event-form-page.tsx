@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { resolveSectionLogoSrc } from "@/lib/camporees/section-logo";
+import { deriveDaysFromRange } from "@/lib/camporee-timeline/mapper";
 import {
   EVENT_CATEGORIES,
 } from "@/lib/camporee-timeline/event-categories";
@@ -43,6 +44,7 @@ import {
 import { RubricsEditor } from "@/components/camporee-events/rubrics-editor";
 import { PenaltiesEditor } from "@/components/camporee-events/penalties-editor";
 import { ScheduleBlocksEditor } from "@/components/camporee-events/schedule-blocks-editor";
+import { EventHonorsPicker } from "@/components/camporee-events/event-honors-picker";
 import type {
   CamporeeEventStatus,
   CamporeeEventDisplayCategory,
@@ -50,6 +52,7 @@ import type {
   CamporeeEventScheduleBlock,
   CamporeeEventType,
   BackendCamporeeEvent,
+  CamporeeEventHonor,
   PenaltyRule,
 } from "@/lib/api/camporee-events";
 import type {
@@ -249,6 +252,9 @@ export function EventFormPage({
   const [selectedEventTypeId, setSelectedEventTypeId] = useState<string>(
     defaultEventTypeId ? String(defaultEventTypeId) : "",
   );
+  const [selectedHonors, setSelectedHonors] = useState<CamporeeEventHonor[]>(
+    event?.honors ?? [],
+  );
   const [scheduleBlocks, setScheduleBlocks] = useState<CamporeeEventScheduleBlock[]>(
     () => {
       const existing = event?.schedule_blocks ?? [];
@@ -330,7 +336,7 @@ export function EventFormPage({
           <input type="hidden" name="id" value={String(event.camporee_event_id)} />
         )}
         <input type="hidden" name="display_category" value={category} />
-        <input type="hidden" name="status" value={status} />
+        <input type="hidden" name="status" value={isEdit ? status : "programado"} />
         <input type="hidden" name="day_number" value={String(dayNumber)} />
         <input type="hidden" name="starts_at" value={startsAt} />
         <input type="hidden" name="ends_at" value={endsAt} />
@@ -452,6 +458,19 @@ export function EventFormPage({
               </p>
             </div>
           )}
+        </section>
+
+        <section className="space-y-6 rounded-xl border p-6">
+          <div>
+            <h2 className="text-base font-semibold tracking-tight">
+              Especialidades de preparación
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Relaciona especialidades del catálogo para que los participantes
+              consulten el material PDF antes del evento.
+            </p>
+          </div>
+          <EventHonorsPicker value={selectedHonors} onChange={setSelectedHonors} />
         </section>
 
         {/* ══ Secciones participantes — early: filters club list in Horario ══ */}
@@ -585,7 +604,13 @@ export function EventFormPage({
 
         {/* ══ Section 4: Responsable ══ (PR6c) */}
         <section className="space-y-6 rounded-xl border p-6">
-          <h2 className="text-base font-semibold tracking-tight">Responsable</h2>
+          <div>
+            <h2 className="text-base font-semibold tracking-tight">Responsable</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Nombre visible en la agenda. No alcanza para publicar: eso pide un
+              responsable del roster de personal del camporee.
+            </p>
+          </div>
 
           {/* Leader mode toggle */}
           <div className="flex gap-2">
@@ -799,21 +824,33 @@ export function EventFormPage({
         <section className="space-y-6 rounded-xl border p-6">
           <h2 className="text-base font-semibold tracking-tight">Estado</h2>
 
-          <div className="space-y-2 max-w-xs">
-            <Label>Estado del evento</Label>
-            <Select value={status} onValueChange={(v) => setStatus(v as CamporeeEventStatus)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {STATUS_OPTIONS.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          {isEdit ? (
+            <div className="space-y-2 max-w-xs">
+              <Label>Estado del evento</Label>
+              <Select value={status} onValueChange={(v) => setStatus(v as CamporeeEventStatus)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {STATUS_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Publicar exige un responsable activo del roster de personal.
+                El líder de esta ficha no cubre ese requisito.
+              </p>
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              El evento se crea como Programado. Las especialidades de
+              preparación se guardan igual. Publicar viene después, con un
+              responsable del roster de personal.
+            </p>
+          )}
         </section>
 
         {/* ── Footer actions ── */}
@@ -838,22 +875,12 @@ function deriveDays(
   startDateStr: string,
   endDateStr: string,
 ): { number: number; label: string }[] {
-  try {
-    // Parse as UTC to avoid timezone drift
-    const start = new Date(startDateStr + "T00:00:00Z");
-    const end = new Date(endDateStr + "T00:00:00Z");
-    if (isNaN(start.getTime()) || isNaN(end.getTime())) return fallbackDays();
-    const days: { number: number; label: string }[] = [];
-    let n = 1;
-    for (const d = new Date(start); d <= end; d.setUTCDate(d.getUTCDate() + 1), n++) {
-      const day = d.getUTCDate();
-      const month = d.toLocaleString("es-MX", { month: "short", timeZone: "UTC" });
-      days.push({ number: n, label: `Día ${n} · ${day} ${month}` });
-    }
-    return days.length > 0 ? days : fallbackDays();
-  } catch {
-    return fallbackDays();
-  }
+  const days = deriveDaysFromRange(startDateStr, endDateStr);
+  if (days.length === 0) return fallbackDays();
+  return days.map((day) => ({
+    number: day.numero,
+    label: `Día ${day.numero} · ${day.fechaFmt}`,
+  }));
 }
 
 function fallbackDays(): { number: number; label: string }[] {

@@ -14,7 +14,8 @@ import {
   COUNTRIES_DELETE,
   COUNTRIES_UPDATE,
 } from "@/lib/auth/permissions";
-import { requireAdminUser } from "@/lib/auth/session";
+import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
+import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
 import type { AdminCountry } from "@/lib/catalogs/countries/types";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -26,7 +27,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function CountriesPage() {
-  const user = await requireAdminUser();
+  const { user, allowed } = await loadCatalogEditorSession();
+  if (!allowed) {
+    return <CatalogEditorForbidden />;
+  }
   const t = await getTranslations("catalogs");
 
   let countries: AdminCountry[] = [];

@@ -51,7 +51,7 @@ function normalizeSection(raw: Record<string, unknown>): SectionOption {
   return {
     club_section_id: Number(raw.club_section_id ?? raw.id ?? 0),
     name: String(
-      raw.name ?? clubTypeName ?? `Sección ${raw.club_section_id ?? "?"}`,
+      clubTypeName ?? `Sección ${raw.club_section_id ?? "?"}`,
     ),
     club_type_id: Number(raw.club_type_id ?? clubTypes?.club_type_id ?? 0),
   };

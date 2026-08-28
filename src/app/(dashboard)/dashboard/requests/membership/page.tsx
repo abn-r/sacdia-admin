@@ -11,7 +11,8 @@ type ClubSection = {
   club_section_id: number;
   club_type_id: number;
   club_type?: { name?: string } | null;
-  name: string;
+  club_types?: { name?: string } | null;
+  name?: string | null;
   active: boolean;
   club?: { club_id?: number; name?: string } | null;
 };
@@ -21,6 +22,7 @@ type Club = {
   id?: number;
   name?: string;
   sections?: ClubSection[];
+  club_sections?: ClubSection[];
 };
 
 type FetchResult = {
@@ -47,12 +49,13 @@ async function fetchClubSections(): Promise<FetchResult> {
 
     for (const club of clubs) {
       const clubName = club.name ?? "Club";
-      for (const section of club.sections ?? []) {
+      for (const section of club.club_sections ?? club.sections ?? []) {
         if (section.active && section.club_section_id) {
-          const typeName = section.club_type?.name ?? section.name ?? "Sección";
+          const typeName =
+            section.club_types?.name ?? section.club_type?.name ?? "Sección";
           sections.push({
             club_section_id: section.club_section_id,
-            label: `${clubName} — ${typeName}`,
+            label: `${clubName} · ${typeName}`,
           });
         }
       }

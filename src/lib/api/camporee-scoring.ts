@@ -134,6 +134,7 @@ export interface UpdateCamporeeEventJudgeAssignmentPayload {
 export interface CamporeeEventScoreInput {
   source: "manual_lf" | "admin_override";
   notes?: string;
+  expected_active_result_id?: string;
   items: Array<{
     camporee_event_rubric_id: number;
     awarded_points: number;
@@ -147,6 +148,7 @@ export interface CamporeeScoringTarget {
   club_name: string | null;
   section_name: string | null;
   status: string;
+  active_result_id?: string | null;
 }
 
 export interface CamporeeLeaderboardRow {

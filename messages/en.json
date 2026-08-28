@@ -1,4 +1,10 @@
 {
+  "access": {
+    "page": {
+      "forbiddenTitle": "You cannot open this section",
+      "forbiddenDescription": "Your role does not include the permissions required for this page."
+    }
+  },
   "nav": {
     "palette": {
       "title": "Command palette",
@@ -121,7 +127,8 @@
       "materials_config": "Settings",
       "certificate_bulk_imports": "Cargas por certificado",
       "coordination": "Coordination",
-      "geography_divisions": "Divisions"
+      "geography_divisions": "Divisions",
+      "audit_logs": "Audit log"
     },
     "breadcrumbs": {
       "dashboard": "Dashboard",
@@ -244,7 +251,10 @@
       "zoneNameRequired": "The zone name is required.",
       "zoneAndDistrictRequired": "Select a zone and a district.",
       "coordinatorRequired": "Select a coordinator.",
-      "assignmentScopeRequired": "Complete the assignment scope."
+      "assignmentScopeRequired": "Complete the assignment scope.",
+      "directorConflict": "That user is already director of a section in this scope.",
+      "missingRole": "The user needs a coordinator role before they can be assigned.",
+      "districtInZone": "That district already belongs to another active zone."
     },
     "success": {
       "zoneCreated": "Zone created.",
@@ -275,7 +285,9 @@
       "directorConflictRule": "Rule: if the user is already director of a section, the backend rejects assigning them as coordinator of that same section.",
       "title": "Active assignments",
       "description": "A coordinator can accumulate several scopes; the app receives the combined scope.",
-      "empty": "No assignments registered."
+      "empty": "No assignments registered.",
+      "usersEmpty": "There are no users with a coordinator role.",
+      "usersEmptyLink": "Create user"
     },
     "fields": {
       "name": "Name",
@@ -293,16 +305,46 @@
       "section": "Section",
       "clubSection": "Club / section",
       "selectSection": "Select section",
+      "club": "Club",
+      "selectClub": "Select club",
+      "clubType": "Club type",
+      "selectClubType": "Select type",
       "scope": "Scope"
     },
     "actions": {
       "createZone": "Create zone",
       "assignDistrict": "Assign district",
-      "createAssignment": "Create assignment"
+      "createAssignment": "Create assignment",
+      "activate": "Activate",
+      "deactivate": "Deactivate"
     },
     "status": {
       "active": "Active",
       "inactive": "Inactive"
+    },
+    "gate": {
+      "forbiddenTitle": "No permission to manage coordination",
+      "forbiddenDescription": "The coordination:manage permission is required. Coordinators do not administer this panel."
+    },
+    "backfill": {
+      "action": "Migrate current coordinators",
+      "title": "Migrate local-field coordinators",
+      "description": "Takes users with a coordinator role and this local field, and creates at most one GENERAL assignment. It does not write zones or sections.",
+      "loading": "Calculating candidates…",
+      "existingGeneral": "This local field already has an active general coordinator.",
+      "willCreate": "{count} GENERAL assignment will be created.",
+      "noneEligible": "Nobody is eligible for GENERAL in this local field.",
+      "skipped": "{count} skipped",
+      "cancel": "Cancel",
+      "confirm": "Create assignment",
+      "applied": "Created {count} GENERAL assignment.",
+      "nothingToApply": "There was nothing to migrate.",
+      "reasons": {
+        "alreadyHasGeneral": "already the general coordinator",
+        "alreadyAssigned": "already has an assignment in this field",
+        "directorConflict": "is director of a section in this field",
+        "generalSlotTaken": "the GENERAL slot is already taken"
+      }
     }
   },
   "catalogs": {
@@ -794,8 +836,8 @@
       "certificationCatalog": {
         "title": "GM certifications",
         "description": "Catalog of certifications for Master Guides. Only members who have completed investitures can enroll.",
-        "crudPendingTitle": "API editing pending",
-        "crudPendingDescription": "Listing and structure are read-only until the backend exposes admin endpoints for certifications, modules, and sections.",
+        "crudPendingTitle": "No configuration permission",
+        "crudPendingDescription": "Your account lacks the \"certifications:configure\" permission needed to create or edit certifications. The list below is read-only.",
         "emptyTitle": "No certifications",
         "emptyDescription": "There are no certifications in the catalog.",
         "loadError": "Could not load certifications.",
@@ -1068,6 +1110,10 @@
       "recalculateNow": "Recalculate now",
       "summaryGroupCount": "{count} groups",
       "summaryMinimumTotal": "Minimum total: {count}"
+    },
+    "gate": {
+      "forbiddenTitle": "No permission to manage catalogs",
+      "forbiddenDescription": "Catalog editing is reserved for system administrators. You do not have permission to open this section."
     }
   },
   "auth": {
@@ -1143,7 +1189,9 @@
       "member_not_identified": "The member could not be identified",
       "assignment_not_identified": "The assignment to update could not be identified",
       "assignment_remove_not_identified": "The assignment to remove could not be identified",
-      "bulk_row_invalid": "Invalid row: missing required fields"
+      "bulk_row_invalid": "Invalid row: missing required fields",
+      "sections_required": "Enable at least one section.",
+      "no_catalog_types": "There are no active club types in the catalog."
     },
     "success": {
       "section_created": "Section created successfully",
@@ -1152,7 +1200,8 @@
       "assignment_created": "Assignment created successfully",
       "assignment_removed": "Assignment removed successfully",
       "role_updated": "Role updated successfully",
-      "retry_failed_sections": "You can continue to the club detail and retry the failed sections"
+      "retry_failed_sections": "You can continue to the club detail and retry the failed sections",
+      "section_toggled": "Section status updated."
     },
     "fields": {
       "local_field": "Local field",
@@ -1189,10 +1238,8 @@
       "placeholderChurchParent": "Select a district first",
       "placeholderAddress": "Club address",
       "sectionsTitle": "Club sections",
-      "sectionsDescription": "Choose the sections this club will operate when it is created.",
-      "sectionToggleHint": "It will be created together with the club.",
-      "sectionNameLabel": "Section name (optional)",
-      "sectionNamePlaceholder": "E.g. {section}"
+      "sectionsDescription": "Enable the sections this club will operate. All three are always created; unchecked types stay inactive.",
+      "sectionToggleHint": "Enable section."
     },
     "edit": {
       "cardTitle": "General information",
@@ -1300,6 +1347,23 @@
     "detail": {
       "fallbackTitle": "Club detail",
       "description": "Operational club record organized by area.",
+      "back": "Back",
+      "stats": {
+        "membersLabel": "Members",
+        "membersSub": "{count} active in sections",
+        "sectionsLabel": "Sections",
+        "sectionsRegistered": "{count} registered",
+        "sectionsEmpty": "No sections",
+        "soulsLabel": "Souls target",
+        "soulsSub": "Sum of sections",
+        "reportsLabel": "Reports",
+        "reportsSub": "{count} records",
+        "reportsEmpty": "No reports"
+      },
+      "sidebar": {
+        "title": "Club status",
+        "dash": "—"
+      },
       "tabs": {
         "general": "General information",
         "sections": "Sections",
@@ -1317,6 +1381,7 @@
         "labelChurch": "Church",
         "labelSoulsTarget": "Souls target",
         "labelFee": "Fee",
+        "labelMembers": "Members",
         "statusActive": "Active",
         "statusInactive": "Inactive",
         "noSections": "This club has no registered sections yet.",
@@ -1324,17 +1389,20 @@
         "membersCount": "{count} members"
       },
       "sections": {
-        "notCreated": "Section not created yet",
+        "notCreated": "Section pending enablement",
         "directorLabel": "Director",
         "noDirector": "No director assigned",
         "active": "Active",
         "inactive": "Inactive",
-        "createButton": "Register section",
-        "labelName": "Section name",
-        "placeholderName": "E.g. {type}",
+        "typeEyebrow": "Section type",
+        "enableLabel": "Enable",
+        "disableLabel": "Disable",
+        "enableMissing": "Enable section",
         "labelSoulsTarget": "Souls target",
         "labelFee": "Fee",
-        "noPermission": "You do not have permission to create sections."
+        "noPermission": "You do not have permission to enable or disable sections.",
+        "counselorsLabel": "Counselors",
+        "unassigned": "Unassigned"
       },
       "roles": {
         "clubRolesTitle": "Club roles",
@@ -1370,9 +1438,10 @@
         "emptyQuarterly": "No quarterly reports."
       },
       "history": {
-        "title": "Change history",
-        "description": "Section and assignment changes for this club.",
+        "title": "Audit history",
+        "description": "Who changed the club, its sections, and assignments.",
         "filterSection": "Filter by section",
+        "allEvents": "All events",
         "allSections": "All sections",
         "loading": "Loading history…",
         "loadError": "Could not load history.",
@@ -1380,7 +1449,13 @@
         "emptyDescription": "There are no audit events for this club yet.",
         "loadMore": "Load more",
         "byActor": "By {name}",
+        "action": {
+          "CREATED": "Created",
+          "UPDATED": "Updated",
+          "DELETED": "Deleted"
+        },
         "entity": {
+          "club": "Club",
           "club_section": "Sections",
           "class_counselor_assignment": "Class counselors",
           "role_assignment": "Role assignments"
@@ -1396,11 +1471,14 @@
         "counselorAssignFailed": "Could not assign counselor.",
         "counselorRevoked": "Counselor removed.",
         "counselorRevokeFailed": "Could not remove counselor.",
-        "sectionCreated": "Section registered successfully.",
-        "sectionCreateFailed": "Could not register section.",
+        "sectionCreated": "Section enabled successfully.",
+        "sectionCreateFailed": "Could not enable the section.",
         "invalidClubType": "Invalid club type.",
         "invalidSoulsTarget": "Souls target must be a non-negative integer.",
-        "invalidFee": "Fee must be a non-negative integer."
+        "invalidFee": "Fee must be a non-negative integer.",
+        "invalidSectionStatus": "Section status is invalid.",
+        "sectionUpdated": "Section updated.",
+        "sectionUpdateFailed": "Could not update the section."
       }
     },
     "pages": {
@@ -1784,7 +1862,8 @@
       },
       "version": {
         "v1": "Bento view",
-        "v2": "Executive view"
+        "v2": "Executive view",
+        "switchLabel": "Overview view"
       },
       "v2": {
         "title": "Executive overview",
@@ -2201,6 +2280,7 @@
     "errors": {
       "create_permission_failed": "The permission could not be created",
       "update_permission_failed": "The permission could not be updated",
+      "forbidden_super_admin": "Only a super administrator can change permissions or roles.",
       "create_role_failed": "The role could not be created",
       "update_role_failed": "The role could not be updated",
       "deactivate_role_failed": "The role could not be deactivated",
@@ -2266,6 +2346,7 @@
       "emptyDescription": "No registered permissions found.",
       "colId": "ID",
       "colKey": "Key",
+      "colName": "Name",
       "colDescription": "Description",
       "colStatus": "Status",
       "colActions": "Actions",
@@ -2295,6 +2376,30 @@
     "rolesTable": {
       "editProtectedAriaLabel": "Edit protected role",
       "editRoleAriaLabel": "Edit {name}"
+    },
+    "copyPermissions": {
+      "button": "Copy permissions",
+      "dialogTitle": "Copy permissions between roles",
+      "dialogDescription": "Replaces every permission on the target role with those from the source role. The super-admin role cannot be used.",
+      "sourceLabel": "Copy from",
+      "targetLabel": "Copy to",
+      "sourcePlaceholder": "Select the source role",
+      "targetPlaceholder": "Select the target role",
+      "confirm": "Copy and replace",
+      "cancel": "Cancel",
+      "copying": "Copying…",
+      "preview": "{count} permissions will be copied from {source} to {target}. Current target permissions will be replaced.",
+      "previewEmpty": "{source} has no active permissions. {target} will end up with none.",
+      "categoryMismatch": "These roles have different categories ({sourceCategory} → {targetCategory}).",
+      "same_role": "Choose two different roles.",
+      "source_protected": "Permissions cannot be copied from super-admin.",
+      "target_protected": "The super-admin role cannot be modified.",
+      "source_missing": "Source role was not found.",
+      "target_missing": "Target role was not found.",
+      "forbidden": "Only a super administrator can copy permissions.",
+      "error": "Permissions could not be copied.",
+      "success": "Permissions copied.",
+      "successToast": "Permissions copied from {source} to {target}."
     },
     "permissionPicker": {
       "searchPlaceholder": "Search permissions...",
@@ -2357,13 +2462,15 @@
         "categoryClub": "Club",
         "discard": "Discard",
         "noMatches": "No matches",
-        "noMatchesDesc": "No permission matches the search."
+        "noMatchesDesc": "No permission matches the search.",
+        "readOnlyBanner": "Read-only view. Only a super administrator can change the matrix."
       },
       "permissions": {
         "title": "Permissions catalog",
         "description": "Permissions available in the system.",
         "loadError": "Unexpected error",
-        "emptyLoadTitle": "Could not load catalog"
+        "emptyLoadTitle": "Could not load catalog",
+        "readOnlyBanner": "Read-only view. Only a super administrator can create or edit permissions."
       },
       "userPermissions": {
         "title": "Direct user permissions",
@@ -2416,7 +2523,58 @@
       "reports": "Reports",
       "notifications": "Notifications",
       "resources": "Resources",
-      "system": "System"
+      "system": "System",
+      "achievements": "Achievements",
+      "activity_types": "Activity types",
+      "allergies": "Allergies",
+      "attendance": "Attendance",
+      "award_categories": "Award categories",
+      "camporee_event_types": "Camporee event types",
+      "camporee_events": "Camporee events",
+      "certifications": "Certifications",
+      "churches": "Churches",
+      "class_modules": "Class modules",
+      "class_sections": "Class sections",
+      "classes": "Classes",
+      "club_ideals": "Club ideals",
+      "club_members": "Club membership",
+      "club_roles": "Club roles",
+      "club_sections": "Club sections",
+      "club_types": "Club types",
+      "coordination": "Coordination",
+      "countries": "Countries",
+      "dashboard": "Dashboard",
+      "diseases": "Diseases",
+      "districts": "Districts",
+      "ecclesiastical_years": "Ecclesiastical years",
+      "emergency_contacts": "Emergency contacts",
+      "field-payment-orders": "Payment orders",
+      "finance_categories": "Finance categories",
+      "health": "Health",
+      "honor_categories": "Honor categories",
+      "honors": "Honors",
+      "insurance": "Insurance",
+      "inventory_categories": "Inventory categories",
+      "legal_representative": "Legal representative",
+      "local_fields": "Local fields",
+      "master_honors": "Master honors",
+      "materiales": "Materials",
+      "medicines": "Medicines",
+      "member_ranking_weights": "Member ranking weights",
+      "member_rankings": "Member rankings",
+      "mom": "Member of the month",
+      "permissions": "Permissions",
+      "post_registration": "Post-registration",
+      "ranking_weights": "Ranking weights",
+      "rankings": "Rankings",
+      "registration": "Registration",
+      "relationship_types": "Relationship types",
+      "resource_categories": "Resource categories",
+      "section_rankings": "Section rankings",
+      "unions": "Unions",
+      "user_honors": "User honors",
+      "certifications_admin": "Certifications (configurable engine)",
+      "audit": "Audit"
     },
     "permissions": {
       "users:read": "View list",
@@ -2444,9 +2602,6 @@
       "club_roles:read": "View club roles",
       "club_roles:assign": "Assign club role",
       "club_roles:revoke": "Revoke club role",
-      "coordination": {
-        "manage": "Manage coordination"
-      },
       "coordination:manage": "Manage coordination",
       "club_members:approve": "Approve membership",
       "club_members:reject": "Reject membership",
@@ -2561,7 +2716,65 @@
       "resource_categories:delete": "Delete resource category",
       "ecclesiastical_years:read": "View ecclesiastical years",
       "ecclesiastical_years:create": "Create ecclesiastical year",
-      "ecclesiastical_years:update": "Edit ecclesiastical year"
+      "ecclesiastical_years:update": "Edit ecclesiastical year",
+      "certifications:configure": "Configure certifications",
+      "certifications:publish": "Publish certifications",
+      "activity_types:read": "View activity types",
+      "activity_types:create": "Create activity type",
+      "activity_types:update": "Edit activity type",
+      "activity_types:delete": "Delete activity type",
+      "allergies:read": "View allergies",
+      "allergies:create": "Create allergy",
+      "allergies:update": "Edit allergy",
+      "allergies:delete": "Delete allergy",
+      "camporee_event_types:read": "View camporee event types",
+      "camporee_event_types:create": "Create camporee event type",
+      "camporee_event_types:update": "Edit camporee event type",
+      "camporee_event_types:delete": "Delete camporee event type",
+      "camporee_events:create": "Create camporee event",
+      "camporee_events:update": "Edit camporee event",
+      "camporee_events:delete": "Delete camporee event",
+      "certifications:review": "Review certifications",
+      "certifications:certify": "Certify",
+      "club_ideals:read": "View club ideals",
+      "club_ideals:create": "Create club ideal",
+      "club_ideals:update": "Edit club ideal",
+      "club_ideals:delete": "Delete club ideal",
+      "club_types:read": "View club types",
+      "club_types:create": "Create club type",
+      "club_types:update": "Edit club type",
+      "club_types:delete": "Delete club type",
+      "diseases:read": "View diseases",
+      "diseases:create": "Create disease",
+      "diseases:update": "Edit disease",
+      "diseases:delete": "Delete disease",
+      "districts:read": "View districts",
+      "districts:create": "Create district",
+      "districts:update": "Edit district",
+      "districts:delete": "Delete district",
+      "field-payment-orders:read": "View payment orders",
+      "field-payment-orders:review": "Review payment orders",
+      "field-payment-orders:configure": "Configure payment orders",
+      "insurance:read": "View insurance",
+      "insurance:review": "Review insurance",
+      "insurance:configure": "Configure insurance",
+      "materiales:read": "View materials",
+      "materiales:create": "Create material",
+      "materiales:configure": "Configure materials",
+      "materiales:approve": "Approve materials",
+      "materiales:deliver": "Deliver materials",
+      "materiales:manage-inventory": "Manage materials inventory",
+      "materiales:upload-receipt": "Upload materials receipt",
+      "materiales:validate-receipt": "Validate materials receipt",
+      "medicines:read": "View medicines",
+      "medicines:create": "Create medicine",
+      "medicines:update": "Edit medicine",
+      "medicines:delete": "Delete medicine",
+      "relationship_types:read": "View relationship types",
+      "relationship_types:create": "Create relationship type",
+      "relationship_types:update": "Edit relationship type",
+      "relationship_types:delete": "Delete relationship type",
+      "audit:read": "View audit log"
     },
     "userPermissionsPanel": {
       "title": "Direct permissions",
@@ -2934,6 +3147,37 @@
       "approve_payment": "Could not approve the payment",
       "enroll_club": "Could not enroll the club"
     },
+    "clubRegistration": {
+      "statusOpen": "Club registration is open",
+      "statusClosed": "Club registration is closed",
+      "closedAt": "Closed on {date}",
+      "closeButton": "Close club registration",
+      "reopenButton": "Reopen club registration",
+      "closeTitle": "Close club registration?",
+      "closeDescription": "Enrolled sections freeze for scoring and clubs can no longer enroll. Member registration still follows the participant deadline.",
+      "closeConfirm": "Close registration",
+      "reopenTitle": "Reopen club registration?",
+      "reopenDescription": "Clubs will be able to enroll again. Reopening is blocked once scores or judge assignments exist.",
+      "reopenConfirm": "Reopen",
+      "cancel": "Cancel",
+      "closing": "Closing...",
+      "reopening": "Reopening...",
+      "closeSuccess": "Club registration closed",
+      "reopenSuccess": "Club registration reopened",
+      "closeFailed": "Could not close club registration",
+      "reopenFailed": "Could not reopen club registration",
+      "noClubsHint": "Enroll at least one active club before closing.",
+      "reopenBlockedHint": "Cannot reopen: scores or judge assignments already exist.",
+      "inactiveHint": "This camporee is inactive.",
+      "scoringGateTitle": "Club registration is still open",
+      "scoringGateBody": "Close club registration on this page before assigning judges or entering official scores.",
+      "errors": {
+        "noEnrolledClubs": "Club registration cannot close without active enrolled club sections.",
+        "alreadyClosed": "Club registration is already closed.",
+        "reopenBlocked": "Cannot reopen after scoring results or judge assignments exist.",
+        "notActive": "This camporee is not active."
+      }
+    },
     "membersTab": {
       "refreshListTitle": "Refresh list",
       "refreshLabel": "Refresh",
@@ -3042,7 +3286,9 @@
       "emptyEventsTitle": "No scoring events",
       "emptyEventsDescription": "Enable scoring on at least one schedule event.",
       "emptySectionsTitle": "No enrolled sections",
-      "emptySectionsDescription": "Enroll clubs to record scores."
+      "emptySectionsDescription": "Enroll clubs to record scores.",
+      "notesOverrideHint": "This section already has an official score. Enter the reason for the correction.",
+      "notesOverridePlaceholder": "Reason for the correction"
     },
     "leaderboard": {
       "eyebrow": "Results",
@@ -3080,17 +3326,27 @@
     "form": {
       "titleCreate": "New camporee",
       "titleEdit": "Edit camporee",
+      "descriptionCreate": "Fill in the form to create a local camporee.",
+      "descriptionEdit": "Update the local camporee details.",
       "labelName": "Name",
       "placeholderName": "e.g. Spring Camporee 2025",
       "labelDescription": "Description",
       "placeholderDescription": "Optional description of the camporee",
       "labelStartDate": "Start date",
       "labelEndDate": "End date",
+      "labelClubRegistrationDeadline": "Club registration deadline",
+      "labelMemberRegistrationDeadline": "Member registration deadline",
+      "labelPaymentDeadline": "Payment deadline",
       "labelPlace": "Location",
       "placeholderPlace": "e.g. Mountain Recreation Center",
       "labelLatitude": "Latitude",
       "labelLongitude": "Longitude",
+      "labelMap": "Map location",
+      "helpMap": "Optional. Search, click, or drag the pin. The app shows a map on the detail screen when coordinates exist.",
       "labelLocalFieldId": "Local field",
+      "loadingLocalFields": "Loading...",
+      "emptyLocalFields": "No local fields",
+      "placeholderLocalField": "Select local field",
       "labelRegistrationCost": "Registration cost",
       "labelIncludes": "Includes",
       "adventurers": "Adventurers",
@@ -3100,7 +3356,9 @@
       "saving": "Saving...",
       "creating": "Creating...",
       "saveChanges": "Save changes",
-      "createCamporee": "Create camporee"
+      "createCamporee": "Create camporee",
+      "labelAgendaVisibleFrom": "Show agenda from",
+      "helpAgendaVisibleFrom": "If left empty, the full agenda opens when the camporee starts."
     },
     "eventInstanceForm": {
       "titleCreate": "New event",
@@ -3135,18 +3393,25 @@
     "unionForm": {
       "titleCreate": "New union camporee",
       "titleEdit": "Edit union camporee",
+      "descriptionCreate": "Fill in the form to create a union camporee.",
+      "descriptionEdit": "Update the union camporee details.",
       "labelName": "Name",
       "placeholderName": "e.g. Union Camporee 2025",
       "labelDescription": "Description",
       "placeholderDescription": "Optional description of the camporee",
       "labelStartDate": "Start date",
       "labelEndDate": "End date",
+      "labelClubRegistrationDeadline": "Club registration deadline",
+      "labelMemberRegistrationDeadline": "Member registration deadline",
+      "labelPaymentDeadline": "Payment deadline",
       "labelUnion": "Union",
       "placeholderUnion": "Select a union...",
       "labelPlace": "Location",
       "placeholderPlace": "e.g. National Recreation Center",
       "labelLatitude": "Latitude",
       "labelLongitude": "Longitude",
+      "labelMap": "Map location",
+      "helpMap": "Optional. Search, click, or drag the pin. The app shows a map on the detail screen when coordinates exist.",
       "labelRegistrationCost": "Registration cost",
       "labelIncludes": "Includes",
       "adventurers": "Adventurers",
@@ -3156,7 +3421,9 @@
       "saving": "Saving...",
       "creating": "Creating...",
       "saveChanges": "Save changes",
-      "createCamporee": "Create camporee"
+      "createCamporee": "Create camporee",
+      "labelAgendaVisibleFrom": "Show agenda from",
+      "helpAgendaVisibleFrom": "If left empty, the full agenda opens when the camporee starts."
     },
     "clubsTab": {
       "countSingular": "enrolled club",
@@ -3259,7 +3526,7 @@
     },
     "paymentsBalance": {
       "eyebrow": "Camporee finances",
-      "description": "Expected balance from enrolled members and registration cost, plus payments recorded from the app or admin panel.",
+      "description": "Expected balance from enrolled members and registration cost. Includes approved payment orders for this camporee and payments recorded in the panel.",
       "refresh": "Refresh",
       "registerPayment": "Record payment",
       "refreshError": "Could not refresh the payments list",
@@ -3269,10 +3536,11 @@
       "statExpectedHint": "Enrolled × registration cost",
       "statCollected": "Collected",
       "statPendingReview": "{amount} under review",
+      "statOrdersHint": "Includes {count} payment orders for this camporee.",
       "statOutstanding": "Outstanding",
       "statCoverage": "{paid} paid · {pending} in progress · {unpaid} unpaid",
       "membersTitle": "Status by member",
-      "membersDescription": "Link between enrollment and recorded registration payments.",
+      "membersDescription": "Link between enrollment, payment orders, and recorded registration payments.",
       "emptyMembersTitle": "No enrolled members",
       "emptyMembersDescription": "Enroll members to calculate the expected payment total.",
       "colMember": "Member",
@@ -3285,7 +3553,7 @@
       "statusPending": "Under review",
       "statusUnpaid": "Unpaid",
       "ledgerTitle": "Recorded movements",
-      "ledgerDescription": "Payments uploaded by directors, secretaries, or the admin panel."
+      "ledgerDescription": "Includes ledger payments and this camporee's orders, without duplicates."
     },
     "enrollDialog": {
       "title": "Enroll club",
@@ -5185,10 +5453,10 @@
       "saveButton": "Save manual data"
     },
     "page": {
-    "title": "Monthly Reports",
-    "description": "Manage monthly activity reports for the club.",
-    "print_preview": "Printable preview",
-    "empty_no_active_enrollment_title": "No active enrollment",
+      "title": "Monthly Reports",
+      "description": "Manage monthly activity reports for the club.",
+      "print_preview": "Printable preview",
+      "empty_no_active_enrollment_title": "No active enrollment",
       "empty_no_active_enrollment_description": "No active enrollment was found for your user."
     },
     "pageDetail": {
@@ -5669,6 +5937,199 @@
       "viewProgressTitle": "View detailed progress"
     }
   },
+  "certificationsAdmin": {
+    "panelTitle": "Configurable certifications engine",
+    "panelDescription": "Create certifications, build draft versions (eligibility rules, modules, sections and components) and publish them. Existing versions are loaded from the backend: published and retired versions open read-only and drafts remain editable.",
+    "newCertificationButton": "New certification",
+    "workbenchDescription": "Edit metadata, eligibility rules and structure for this version. A published or retired version can no longer be changed: clone it to create a new draft.",
+    "immutableNotice": "This version is not in draft and is read-only. Use \"Clone\" to create a new editable draft.",
+    "versionLabel": "Version {number}",
+    "status": {
+      "DRAFT": "Draft",
+      "PUBLISHED": "Published",
+      "RETIRED": "Retired"
+    },
+    "table": {
+      "name": "Certification",
+      "versions": "Versions",
+      "loading": "Loading certifications…",
+      "empty": "No certifications yet.",
+      "noVersions": "No versions",
+      "createDraft": "Create draft version",
+      "creatingDraft": "Creating…"
+    },
+    "toasts": {
+      "draftCreated": "Draft version created.",
+      "draftCreateFailed": "Could not create the draft version.",
+      "listLoadFailed": "Could not load certifications.",
+      "versionLoadFailed": "Could not load the version."
+    },
+    "createDialog": {
+      "title": "New certification",
+      "description": "The certification will be created together with its first draft version.",
+      "fieldName": "Name",
+      "fieldNamePlaceholder": "E.g. Hiking Guide",
+      "fieldDescription": "Description",
+      "fieldDescriptionPlaceholder": "Short description of the certification (optional)",
+      "cancel": "Cancel",
+      "submit": "Create certification",
+      "submitting": "Creating…",
+      "validation": {
+        "nameMin": "Name must be at least 3 characters.",
+        "nameMax": "Name cannot exceed 255 characters.",
+        "descriptionMax": "Description cannot exceed 2000 characters."
+      },
+      "toasts": {
+        "created": "Certification created.",
+        "createFailed": "Could not create the certification."
+      }
+    },
+    "metadata": {
+      "title": "Version metadata",
+      "fieldTitle": "Title",
+      "fieldDescription": "Description",
+      "fieldMinDuration": "Minimum duration (months)",
+      "fieldMaxDuration": "Maximum duration (months)",
+      "save": "Save metadata",
+      "saving": "Saving…",
+      "toasts": {
+        "saved": "Metadata updated.",
+        "saveFailed": "Could not save the metadata."
+      }
+    },
+    "tabs": {
+      "eligibility": "Eligibility",
+      "tree": "Structure"
+    },
+    "eligibility": {
+      "title": "Eligibility rules",
+      "description": "All rules for this version are replaced when saving. At least one rule is required to publish.",
+      "addRule": "Add rule",
+      "empty": "No eligibility rules yet.",
+      "ruleType": "Rule type",
+      "ruleTypeLabels": {
+        "MIN_AGE": "Minimum age",
+        "BAPTIZED": "Baptized",
+        "INVESTED_CLASS": "Invested class",
+        "ACTIVE_CLUB_TYPE": "Active club type",
+        "ACTIVE_ROLE": "Active role"
+      },
+      "fields": {
+        "minAge": "Minimum age",
+        "classId": "Class ID",
+        "clubTypeId": "Club type ID",
+        "roleId": "Role ID (UUID)"
+      },
+      "noConfigNeeded": "This rule does not require additional configuration.",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "remove": "Remove",
+      "save": "Save rules",
+      "saving": "Saving…",
+      "validation": {
+        "minAgeInvalid": "Minimum age must be an integer greater than or equal to 0.",
+        "classIdRequired": "Select a class ID for this rule.",
+        "clubTypeIdRequired": "Select a club type ID for this rule.",
+        "roleIdRequired": "Enter the role ID for this rule."
+      },
+      "toasts": {
+        "saved": "Eligibility rules saved.",
+        "saveFailed": "Could not save the eligibility rules."
+      }
+    },
+    "tree": {
+      "title": "Modules, sections and components",
+      "description": "The entire version structure is replaced when saving. Each module needs at least one section and each section at least one component to publish.",
+      "addModule": "Add module",
+      "addSection": "Add section",
+      "addComponent": "Add component",
+      "empty": "No modules yet.",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "remove": "Remove",
+      "save": "Save structure",
+      "saving": "Saving…",
+      "fields": {
+        "moduleName": "Module name",
+        "moduleNamePlaceholder": "E.g. Module 1 — Leadership",
+        "description": "Description",
+        "sectionName": "Section name",
+        "sectionNamePlaceholder": "E.g. Unit leadership",
+        "instructions": "Instructions",
+        "required": "Required",
+        "componentType": "Component type",
+        "label": "Label",
+        "minLength": "Minimum length",
+        "maxLength": "Maximum length",
+        "maxFiles": "Max. files",
+        "allowedMimeTypes": "Allowed MIME types (comma separated)",
+        "honorId": "Linked honor ID",
+        "activityTypeId": "Linked activity type ID",
+        "statement": "Statement to confirm",
+        "criteria": "Auto-validation criteria"
+      },
+      "componentTypeLabels": {
+        "TEXT_RESPONSE": "Text response",
+        "FILE_EVIDENCE": "File evidence",
+        "LINKED_HONOR": "Linked honor",
+        "LINKED_ACTIVITY": "Linked activity",
+        "ATTESTATION": "Attestation",
+        "AUTO_VALIDATION": "Auto validation"
+      },
+      "validation": {
+        "moduleNameRequired": "All modules need a name.",
+        "sectionNameRequired": "All sections need a name.",
+        "componentLabelRequired": "All components need a label.",
+        "honorIdRequired": "Linked honor components require an honor ID.",
+        "activityTypeIdRequired": "Linked activity components require an activity type ID.",
+        "statementRequired": "Attestation components require the statement text.",
+        "criteriaRequired": "Auto-validation components require a criteria."
+      },
+      "toasts": {
+        "saved": "Structure saved.",
+        "saveFailed": "Could not save the structure."
+      }
+    },
+    "publishDialog": {
+      "trigger": "Publish",
+      "title": "Publish version",
+      "confirmDescription": "This version will be published and the previous published version (if any) will be retired automatically. This action cannot be undone from here.",
+      "notReadyDescription": "This version does not yet meet the publish criteria (it needs at least one eligibility rule and at least one module with sections and components). The backend will reject publishing until it is complete.",
+      "readyHint": "Meets the publish criteria.",
+      "notReadyHint": "Missing eligibility rules or structure to publish.",
+      "cancel": "Cancel",
+      "confirm": "Publish",
+      "publishing": "Publishing…",
+      "toasts": {
+        "published": "Version published.",
+        "failed": "Could not publish the version."
+      }
+    },
+    "retireDialog": {
+      "trigger": "Retire",
+      "title": "Retire published version",
+      "description": "The version will stop being available for new enrollments. This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Retire",
+      "retiring": "Retiring…",
+      "toasts": {
+        "retired": "Version retired.",
+        "failed": "Could not retire the version."
+      }
+    },
+    "cloneDialog": {
+      "trigger": "Clone",
+      "title": "Clone version",
+      "description": "A new draft version will be created copying metadata, eligibility rules and structure from this version.",
+      "cancel": "Cancel",
+      "confirm": "Clone",
+      "cloning": "Cloning…",
+      "toasts": {
+        "cloned": "Version cloned as a new draft.",
+        "failed": "Could not clone the version."
+      }
+    }
+  },
   "activities": {
     "toasts": {
       "updated": "Activity updated successfully",
@@ -5745,6 +6206,12 @@
       "viewWeek": "Week",
       "viewDay": "Day",
       "today": "Today",
+      "pickDate": "Choose a date",
+      "chooseMonth": "Choose month",
+      "chooseYear": "Choose year",
+      "previousPeriod": "Previous period",
+      "nextPeriod": "Next period",
+      "refresh": "Refresh activities",
       "emptyDay": "No activities for this day.",
       "moreCount": "+{count} more",
       "listTitle": "Activity list",
@@ -6921,7 +7388,8 @@
     "secretary": "Secretary",
     "treasurer": "Treasurer",
     "counselor": "Counselor",
-    "secretary_treasurer": "Secretary treasurer"
+    "secretary_treasurer": "Secretary treasurer",
+    "assistant_admin": "Assistant administrator"
   },
   "certificate_bulk_imports": {
     "page": {
@@ -7352,6 +7820,654 @@
           "camporees": "Camporees and regional events."
         }
       }
+    }
+  },
+  "certification_reviews": {
+    "page": {
+      "title": "Certification reviews",
+      "description": "Tray for submitted requirements and final closeouts pending institutional review."
+    },
+    "tabs": {
+      "requirements": "Requirements",
+      "final": "Closeouts"
+    },
+    "tray": {
+      "empty": "No pending requirements for the current filter.",
+      "loading": "Loading tray…",
+      "refresh": "Refresh",
+      "filterStatus": "Status",
+      "filterAll": "Submitted (default)",
+      "colParticipant": "Participant",
+      "colCertification": "Certification",
+      "colModule": "Module",
+      "colRequirement": "Requirement",
+      "colStatus": "Status",
+      "colSubmitted": "Submitted",
+      "openDetail": "Review"
+    },
+    "status": {
+      "DRAFT": "Draft",
+      "SUBMITTED": "Submitted",
+      "CHANGES_REQUESTED": "Changes requested",
+      "APPROVED": "Approved"
+    },
+    "detail": {
+      "title": "Requirement detail",
+      "components": "Components",
+      "history": "History",
+      "noResponse": "No response",
+      "attestationYes": "Attestation confirmed",
+      "attestationNo": "Attestation not confirmed",
+      "linkedHonor": "Linked honor {id}",
+      "linkedActivity": "Linked activity {id}",
+      "viewEvidence": "View",
+      "approve": "Approve",
+      "requestChanges": "Request changes",
+      "commentLabel": "Comment",
+      "commentPlaceholder": "Explain what the participant must correct",
+      "commentRequired": "A comment is required to request changes.",
+      "actionsDisabled": "Only requirements in Submitted status can be approved or returned.",
+      "close": "Close"
+    },
+    "final": {
+      "placeholder": "The closeout tray will be enabled next.",
+      "empty": "No pending closeouts.",
+      "loading": "Loading closeouts…",
+      "colParticipant": "Participant",
+      "colCertification": "Certification",
+      "colStatus": "Status",
+      "colSubmitted": "Submitted",
+      "colEvidence": "Board proof",
+      "viewEvidence": "View",
+      "approveEvidence": "Approve proof",
+      "requestChanges": "Request changes",
+      "certify": "Certify",
+      "certifyConfirmTitle": "Confirm certification",
+      "certifyConfirmDescription": "This marks the enrollment as certified. The action is idempotent.",
+      "certifyConfirm": "Yes, certify",
+      "certifyCancel": "Cancel",
+      "commentLabel": "Comment",
+      "commentPlaceholder": "Explain what the participant must correct",
+      "commentRequired": "A comment is required to request changes."
+    },
+    "enrollmentStatus": {
+      "SUBMITTED_FOR_FINAL_REVIEW": "Final review",
+      "APPROVED": "Approved",
+      "CHANGES_REQUESTED": "Changes requested",
+      "CERTIFIED": "Certified"
+    },
+    "toasts": {
+      "approved": "Requirement approved",
+      "changesRequested": "Requirement returned",
+      "loadFailed": "Could not load the tray",
+      "detailFailed": "Could not load the detail",
+      "downloadFailed": "Could not get the download URL",
+      "actionFailed": "Could not complete the action",
+      "closeoutApproved": "Closeout proof approved",
+      "closeoutChangesRequested": "Closeout returned",
+      "certified": "Enrollment certified"
+    },
+    "errors": {
+      "scopeForbidden": "This item is outside your institutional scope.",
+      "invalidTransition": "The status transition is not valid.",
+      "concurrentUpdate": "Another reviewer updated this item. Refresh and try again.",
+      "forbidden": "You do not have permission for this action."
+    },
+    "gate": {
+      "forbiddenTitle": "Review permission required",
+      "forbiddenDescription": "You need the certifications:review permission to access this tray."
+    }
+  },
+  "payment_orders": {
+    "page": {
+      "title": "Payment orders",
+      "description": "Review territorial payment orders for insurance and camporees"
+    },
+    "gate": {
+      "forbiddenTitle": "Restricted access",
+      "forbiddenDescription": "You do not have permission to review payment orders."
+    },
+    "tabs": {
+      "orders": "Orders",
+      "reassignments": "Reassignments"
+    },
+    "tray": {
+      "filterPurpose": "Purpose",
+      "filterStatus": "Status",
+      "reviewQueue": "To review",
+      "refresh": "Refresh",
+      "loading": "Loading…",
+      "empty": "No orders match this filter",
+      "colFolio": "Folio",
+      "colPurpose": "Purpose",
+      "colBeneficiaries": "Beneficiaries",
+      "colTotal": "Total",
+      "colStatus": "Status",
+      "colIssued": "Issued",
+      "openDetail": "Review"
+    },
+    "purpose": {
+      "ALL": "All",
+      "INSURANCE": "Insurance",
+      "CAMPOREE": "Camporee"
+    },
+    "status": {
+      "ISSUED": "Issued",
+      "PROOF_SUBMITTED": "Proof submitted",
+      "APPROVED": "Approved",
+      "PROOF_REJECTED": "Proof rejected",
+      "CANCELLED": "Cancelled",
+      "EXPIRED": "Expired",
+      "ALL": "All"
+    },
+    "proofStatus": {
+      "SUBMITTED": "Submitted",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected"
+    },
+    "detail": {
+      "title": "Order detail",
+      "purpose": "Purpose",
+      "status": "Status",
+      "unitCost": "Unit cost",
+      "total": "Total",
+      "issued": "Issued",
+      "expires": "Expires",
+      "beneficiaries": "Beneficiaries",
+      "colBeneficiary": "Beneficiary",
+      "colAmount": "Amount",
+      "proof": "Payment proof",
+      "viewProof": "View proof",
+      "makerCheckerWarning": "You uploaded this proof: someone else must approve it (maker-checker).",
+      "approve": "Approve",
+      "reject": "Reject",
+      "rejectTitle": "Reject proof",
+      "rejectDescription": "The club will be able to upload a new proof with the same folio.",
+      "rejectPlaceholder": "Rejection reason (required)",
+      "confirmReject": "Confirm rejection",
+      "cancel": "Cancel",
+      "proofFileGeneric": "Payment receipt",
+      "proofFileJpeg": "Payment receipt JPEG",
+      "proofFilePdf": "Payment receipt PDF",
+      "proofFilePng": "Payment receipt PNG",
+      "unknownBeneficiary": "User",
+      "downloadPdf": "Download PDF"
+    },
+    "reassignments": {
+      "empty": "No reassignment requests",
+      "colFrom": "From",
+      "colTo": "To",
+      "colReason": "Reason",
+      "colRequested": "Requested",
+      "PENDING": "Pending",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "approve": "Approve",
+      "reject": "Reject",
+      "rejectTitle": "Reject reassignment",
+      "approved": "Reassignment approved",
+      "rejected": "Reassignment rejected"
+    },
+    "camporeeTab": {
+      "empty": "This camporee has no payment orders"
+    },
+    "config": {
+      "description": "Payment instructions printed on every order (bank transfer and/or Local Field cashier).",
+      "localField": "Local Field (ID)",
+      "loadField": "Load",
+      "bankSection": "Bank transfer",
+      "bankName": "Bank",
+      "bankHolder": "Account holder",
+      "bankAccount": "Account",
+      "bankClabe": "CLABE",
+      "cashSection": "Cashier payment",
+      "cashInstructions": "Cashier instructions",
+      "cashPlaceholder": "E.g. Pay at the Local Field cashier, Mon-Fri 9:00-17:00",
+      "extraNotes": "Additional notes",
+      "atLeastOneMethod": "Configure at least one payment method: bank details or cashier instructions.",
+      "save": "Save",
+      "saved": "Payment instructions saved"
+    },
+    "errors": {
+      "forbidden": "You do not have permission to perform this action",
+      "invalidTransition": "The order changed state; refresh the tray",
+      "makerChecker": "The proof uploader cannot approve it",
+      "eligibilityFailed": "A beneficiary's eligibility changed; the approval was rolled back",
+      "proofNotFound": "The order has no pending proof",
+      "rejectReasonRequired": "The rejection reason is required",
+      "configInvalid": "Configure at least one payment method (bank or cashier)"
+    },
+    "toasts": {
+      "approved": "Order approved",
+      "rejected": "Proof rejected",
+      "actionFailed": "The action could not be completed",
+      "loadFailed": "The data could not be loaded",
+      "downloadFailed": "The proof could not be retrieved"
+    }
+  },
+  "insurance_config": {
+    "page": {
+      "title": "Insurance configuration",
+      "description": "Products, cost cycles, and payment instructions for the Local Field"
+    },
+    "gate": {
+      "forbiddenTitle": "Restricted access",
+      "forbiddenDescription": "You do not have permission to configure insurance."
+    },
+    "tabs": {
+      "products": "Products",
+      "cycles": "Cycles",
+      "paymentInstructions": "Payment instructions"
+    },
+    "loading": "Loading…",
+    "save": "Save",
+    "cancel": "Cancel",
+    "products": {
+      "description": "Insurance products of the Local Field",
+      "create": "New product",
+      "createTitle": "Create product",
+      "editTitle": "Edit product",
+      "empty": "No products configured",
+      "colName": "Name",
+      "colScope": "Coverage",
+      "colValidity": "Validity",
+      "colActive": "Status",
+      "active": "Active",
+      "inactive": "Inactive",
+      "edit": "Edit",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "scopeMember": "Member",
+      "scopeEventExternal": "External (event)",
+      "validityFixedMonths": "Fixed months",
+      "validityUntilDate": "Until date",
+      "durationMonths": "Duration (months)",
+      "saved": "Product saved"
+    },
+    "cycles": {
+      "description": "Cost cycles per ecclesiastical year and club type",
+      "create": "New cycle",
+      "createTitle": "Create cycle",
+      "editTitle": "Edit cycle",
+      "empty": "No cycles configured",
+      "colProduct": "Product",
+      "colYear": "Year",
+      "colClubType": "Club type",
+      "colCost": "Unit cost",
+      "colDeadline": "Deadline",
+      "colActive": "Status",
+      "selectProduct": "Select a product",
+      "timezone": "Timezone",
+      "saved": "Cycle saved"
+    },
+    "errors": {
+      "forbidden": "You do not have permission to perform this action",
+      "invalidTransition": "The record changed; reload the page",
+      "makerChecker": "-",
+      "eligibilityFailed": "-",
+      "proofNotFound": "-",
+      "rejectReasonRequired": "-",
+      "configInvalid": "Configure at least one payment method (bank or cashier)"
+    },
+    "toasts": {
+      "actionFailed": "The action could not be completed",
+      "loadFailed": "The data could not be loaded",
+      "downloadFailed": "-"
+    }
+  },
+  "audit": {
+    "logs": {
+      "title": "Audit log",
+      "description": "System mutation trail. Super-admin only.",
+      "loading": "Loading audit log…",
+      "loadError": "Could not load the audit log. The global list is not on the API yet.",
+      "emptyTitle": "No events",
+      "emptyDescription": "No audit rows match these filters.",
+      "loadMore": "Load more",
+      "unknownActor": "No actor",
+      "detailTitle": "Event detail",
+      "detailDescription": "Operation context. Request bodies are never stored.",
+      "detailUnavailable": "Enriched detail is not available yet.",
+      "correlation": "Correlation",
+      "changes": "Changes",
+      "requestContext": "HTTP context",
+      "columns": {
+        "when": "When",
+        "action": "Action",
+        "entity": "Entity",
+        "summary": "Summary",
+        "actor": "Actor",
+        "result": "Result"
+      },
+      "filters": {
+        "all": "All",
+        "entityType": "Entity type",
+        "entityPlaceholder": "clubs, roles…",
+        "action": "Action",
+        "result": "Result",
+        "source": "Source",
+        "from": "From",
+        "to": "To"
+      },
+      "action": {
+        "CREATED": "Created",
+        "UPDATED": "Updated",
+        "DELETED": "Deleted"
+      },
+      "result": {
+        "succeeded": "OK",
+        "failed": "Failed"
+      },
+      "source": {
+        "http": "HTTP",
+        "service": "Service"
+      }
+    }
+  },
+  "camporee_orders": {
+    "catalogPage": {
+      "title": "Order catalog",
+      "description": "Territorial product library for camporees"
+    },
+    "reviewPage": {
+      "title": "Order review tray",
+      "description": "Review merchandise order payment proofs"
+    },
+    "gate": {
+      "forbiddenTitle": "Access restricted",
+      "forbiddenDescription": "You do not have permission to access camporee orders."
+    },
+    "tray": {
+      "refresh": "Refresh",
+      "loading": "Loading…",
+      "empty": "No orders",
+      "colFolio": "Folio",
+      "colLines": "Lines",
+      "colTotal": "Total",
+      "colStatus": "Status",
+      "colIssued": "Issued",
+      "openDetail": "Open detail"
+    },
+    "status": {
+      "ISSUED": "Issued",
+      "PROOF_SUBMITTED": "Proof submitted",
+      "PROOF_REJECTED": "Proof rejected",
+      "PAID": "Paid",
+      "DELIVERED": "Delivered",
+      "CANCELLED": "Cancelled",
+      "EXPIRED": "Expired"
+    },
+    "distribution": {
+      "NOT_STARTED": "Not started",
+      "PARTIAL": "Partial",
+      "COMPLETE": "Complete"
+    },
+    "detail": {
+      "title": "Order detail",
+      "status": "Status",
+      "total": "Total",
+      "issued": "Issued",
+      "expires": "Expires",
+      "summary": "Summary",
+      "namedLines": "Named lines",
+      "colProduct": "Product",
+      "colSize": "Size",
+      "colQty": "Qty",
+      "colSubtotal": "Subtotal",
+      "colBeneficiary": "Beneficiary",
+      "colMemberDelivery": "Member delivery",
+      "pendingMemberDelivery": "Pending",
+      "proof": "Proof",
+      "viewProof": "View proof",
+      "downloadPdf": "Download PDF",
+      "approve": "Approve",
+      "reject": "Reject",
+      "authorizeWithoutProof": "Authorize without proof",
+      "deliverToSection": "Deliver to section",
+      "authorizedWithoutProof": "Authorized without proof",
+      "distributionStatus": "Member distribution",
+      "rejectTitle": "Reject proof",
+      "rejectDescription": "The section may upload a new proof with the same folio.",
+      "rejectPlaceholder": "Rejection reason (required)",
+      "confirmReject": "Confirm rejection",
+      "authorizeTitle": "Authorize without proof",
+      "authorizeDescription": "Cash exception: mark the order paid without proof.",
+      "authorizeWarning": "This is an exceptional action and is audited.",
+      "authorizePlaceholder": "Authorization reason (required)",
+      "confirmAuthorize": "Confirm authorization",
+      "cancel": "Cancel"
+    },
+    "catalog": {
+      "empty": "No products in the territorial catalog",
+      "createProduct": "New product",
+      "createTitle": "Create product",
+      "editTitle": "Edit product",
+      "colTitle": "Product",
+      "colOwner": "Owner",
+      "colSizes": "Scheme",
+      "colOptions": "Sizes",
+      "colStatus": "Access",
+      "readOnly": "Read only",
+      "inactive": "Inactive",
+      "edit": "Edit",
+      "deactivate": "Deactivate",
+      "save": "Save",
+      "created": "Product created",
+      "updated": "Product updated",
+      "deactivated": "Product deactivated",
+      "fieldTitle": "Title",
+      "fieldDescription": "Description",
+      "fieldSizeScheme": "Size scheme",
+      "fieldOwnerScope": "Owner scope",
+      "fieldOwnerTerritory": "Owner territory",
+      "ownerTerritoryPlaceholder": "Choose a territory",
+      "ownerHint": "Platform admins must choose a division, union, or local field.",
+      "ownerDivision": "Division",
+      "ownerUnion": "Union",
+      "ownerLocalField": "Local field",
+      "sizeScheme": {
+        "LETTER": "Letter",
+        "NUMERIC": "Numeric",
+        "NONE": "No size"
+      }
+    },
+    "settings": {
+      "title": "Merchandise orders",
+      "description": "Order window and event offerings",
+      "enabled": "Orders enabled",
+      "opensAt": "Opens",
+      "deadline": "Deadline",
+      "offeringsTitle": "Camporee offerings",
+      "offeringsEmpty": "No active products in the territorial catalog",
+      "priceLabel": "Price for {product}",
+      "save": "Save orders",
+      "saved": "Order settings saved"
+    },
+    "camporeeTab": {
+      "empty": "This camporee has no merchandise orders"
+    },
+    "toasts": {
+      "approved": "Order approved",
+      "rejected": "Order rejected",
+      "authorized": "Order authorized without proof",
+      "delivered": "Order delivered to section",
+      "loadFailed": "Could not load orders",
+      "actionFailed": "Could not complete action",
+      "downloadFailed": "Could not download file"
+    },
+    "errors": {
+      "forbidden": "You do not have permission for this action",
+      "invalidTransition": "Order status changed; refresh the view",
+      "makerChecker": "Proof uploader cannot approve",
+      "proofNotFound": "No current proof",
+      "rejectReasonRequired": "Rejection requires a reason",
+      "authorizationReasonRequired": "Authorization requires a reason",
+      "ordersDisabled": "Orders are disabled for this camporee",
+      "ordersNotOpen": "Order window is not open yet",
+      "ordersClosed": "Order window has closed",
+      "productScopeInvalid": "Choose the product's owner territory"
+    }
+  },
+  "payment_obligations": {
+    "page": {
+      "title": "Pending payments",
+      "description": "Inscription, materials, and merchandise orders by folio"
+    },
+    "tabs": {
+      "pending": "Pending payments"
+    },
+    "tray": {
+      "refresh": "Refresh",
+      "loading": "Loading…",
+      "empty": "No pending payments",
+      "colFolio": "Folio",
+      "colSource": "Source",
+      "colPurpose": "Purpose",
+      "colTotal": "Total",
+      "colStatus": "Status",
+      "colCreated": "Created"
+    },
+    "source": {
+      "CAMPOREE_ORDER": "Camporee order",
+      "FIELD_PAYMENT_ORDER": "Inscription order",
+      "MATERIAL_ORDER": "Materials order",
+      "CAMPOREE_SUPPLY_CHARGE": "Supplies charge",
+      "CAMPOREE_SUPPLY_REFUND": "Supplies refund"
+    },
+    "purpose": {
+      "CAMPOREE_MATERIALS": "Camporee materials",
+      "CAMPOREE": "Camporee inscription",
+      "INSURANCE": "Insurance",
+      "MATERIALS": "Materials",
+      "CAMPOREE_SUPPLIES": "Camporee supplies"
+    },
+    "status": {
+      "PAYMENT_DUE": "Payment due",
+      "UNDER_REVIEW": "Under review",
+      "PROOF_REJECTED": "Proof rejected",
+      "ORDER_REVIEW": "Order review"
+    },
+    "actions": {
+      "camporee-order": {
+        "UPLOAD_PROOF": "Upload proof",
+        "WAIT_REVIEW": "Open review tray",
+        "RESUBMIT_PROOF": "Resubmit proof",
+        "WAIT_APPROVAL": "View order"
+      },
+      "inscription": {
+        "UPLOAD_PROOF": "Upload proof",
+        "WAIT_REVIEW": "Review inscription",
+        "RESUBMIT_PROOF": "Resubmit proof",
+        "WAIT_APPROVAL": "View order"
+      },
+      "materials": {
+        "UPLOAD_PROOF": "View order",
+        "WAIT_REVIEW": "View order",
+        "RESUBMIT_PROOF": "View order",
+        "WAIT_APPROVAL": "View order"
+      },
+      "camporee-supplies": {
+        "PAY_AT_CAMP": "Collect at cash desk",
+        "PROCESS_REFUND": "Process refund",
+        "UPLOAD_PROOF": "View supplies",
+        "WAIT_REVIEW": "View supplies",
+        "RESUBMIT_PROOF": "View supplies",
+        "WAIT_APPROVAL": "View supplies"
+      }
+    }
+  },
+  "camporee_supplies": {
+    "loading": "Loading…",
+    "actions": {
+      "refresh": "Refresh",
+      "saveCutoff": "Save cutoff",
+      "addSlot": "Add slot",
+      "addProduct": "Add product",
+      "deactivate": "Deactivate",
+      "activate": "Activate",
+      "openDetail": "View detail",
+      "close": "Close",
+      "deliver": "Deliver",
+      "markPaid": "Mark paid"
+    },
+    "catalog": {
+      "title": "Catalog and slots",
+      "hint": "The club picks product × slot. Clubs do not invent slots. Price locks once any plan is submitted.",
+      "cutoff": "Edit cutoff (local time)",
+      "slotLabel": "Slot",
+      "slotTime": "Time",
+      "productName": "Product",
+      "uom": "Unit",
+      "unitPrice": "Unit price",
+      "active": "Active",
+      "yes": "Yes",
+      "no": "No"
+    },
+    "plans": {
+      "title": "Plans by section",
+      "hint": "Admin does not submit the club plan. One plan per enrolled section. INS folios, not PED.",
+      "empty": "No supply plans",
+      "colClub": "Section",
+      "colStatus": "Status",
+      "colNet": "Net",
+      "colFolio": "Folio",
+      "colDate": "Date",
+      "colSlot": "Slot",
+      "colProduct": "Product",
+      "colQty": "Qty",
+      "colDelivered": "Delivered",
+      "colKind": "Kind",
+      "colTotal": "Total",
+      "colPayStatus": "Payment",
+      "deliverQty": "Quantity to deliver"
+    },
+    "reports": {
+      "kitchen": "Kitchen report",
+      "cash": "Cash report",
+      "date": "Date",
+      "principal": "Principal",
+      "charges": "Charges",
+      "refunds": "Refunds",
+      "net": "Net",
+      "outstanding": "Outstanding"
+    },
+    "status": {
+      "DRAFT": "Draft",
+      "SUBMITTED": "Submitted"
+    },
+    "kind": {
+      "PRINCIPAL": "Principal",
+      "CHARGE": "Charge",
+      "REFUND": "Refund"
+    },
+    "payStatus": {
+      "ISSUED": "Issued",
+      "PAID": "Paid",
+      "CANCELLED": "Cancelled"
+    },
+    "uom": {
+      "KG": "kg",
+      "L": "L",
+      "BAG": "Bag",
+      "UNIT": "Unit"
+    },
+    "errors": {
+      "forbidden": "You do not have permission for camporee supplies.",
+      "priceLocked": "Price is locked because a plan is already submitted.",
+      "dayLocked": "That day is frozen for the club.",
+      "bypassReasonRequired": "A reason is required to edit past the cutoff.",
+      "cutoffInvalid": "The cutoff time is invalid.",
+      "overDelivery": "Delivery exceeds the ordered quantity.",
+      "qtyInvalid": "The quantity is invalid."
+    },
+    "toasts": {
+      "loadFailed": "Could not load supplies.",
+      "actionFailed": "The action could not be completed.",
+      "cutoffSaved": "Cutoff updated.",
+      "slotCreated": "Slot created.",
+      "productCreated": "Product created.",
+      "markedPaid": "Folio marked as paid.",
+      "delivered": "Delivery recorded."
     }
   }
 }

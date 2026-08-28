@@ -48,6 +48,12 @@ export type ClassModule = {
   sections_count?: number;
   active?: boolean;
   sections?: ClassSection[];
+  honors?: Array<{
+    class_honor_id: number;
+    relation_type: string;
+    module_id?: number | null;
+    honor?: { honor_id: number; name: string };
+  }>;
 };
 
 export type ClassDetail = ProgressiveClass & {

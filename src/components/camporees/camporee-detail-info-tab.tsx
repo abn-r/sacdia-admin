@@ -1,9 +1,13 @@
 import Link from "next/link";
 import { CalendarRange, MapPin, DollarSign, Building2, ExternalLink } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import type { Camporee } from "@/lib/api/camporees";
+import {
+  formatCalendarDateRange,
+  formatMxnAmount,
+} from "@/lib/format-locale";
 
 type CamporeeDetailInfoTabProps = {
   camporee: Camporee;
@@ -17,37 +21,19 @@ type CamporeeDetailInfoTabProps = {
 function formatRangeShort(
   start?: string | null,
   end?: string | null,
+  locale = "es",
 ): { range: string; year: string } {
-  if (!start || !end) return { range: "—", year: "" };
-  try {
-    const s = new Date(start);
-    const e = new Date(end);
-    const fmt = (d: Date) =>
-      d.toLocaleDateString("es-MX", { day: "numeric", month: "short" });
-    const range = `${fmt(s)} – ${fmt(e)}`;
-    const sy = s.getFullYear();
-    const ey = e.getFullYear();
-    const year = sy === ey ? String(sy) : `${sy}–${ey}`;
-    return { range, year };
-  } catch {
-    return { range: "—", year: "" };
-  }
+  return formatCalendarDateRange(start, end, locale);
 }
 
 function formatCurrencyMXN(value?: number | null): string {
   if (value == null) return "—";
-  try {
-    return value.toLocaleString("es-MX", {
-      style: "currency",
-      currency: "MXN",
-      minimumFractionDigits: 2,
-    });
-  } catch {
-    return String(value);
-  }
+  return formatMxnAmount(value);
 }
 
-function hasCoordinates(camporee: Camporee) {
+function hasCoordinates(
+  camporee: Camporee,
+): camporee is Camporee & { lat: number; long: number } {
   return (
     typeof camporee.lat === "number" &&
     Number.isFinite(camporee.lat) &&
@@ -61,7 +47,12 @@ export async function CamporeeDetailInfoTab({
   orgCard,
 }: CamporeeDetailInfoTabProps) {
   const t = await getTranslations("camporees.pages.detail");
-  const { range, year } = formatRangeShort(camporee.start_date, camporee.end_date);
+  const locale = await getLocale();
+  const { range, year } = formatRangeShort(
+    camporee.start_date,
+    camporee.end_date,
+    locale,
+  );
   const campLocation = camporee.local_camporee_place?.trim();
   const coordinatesAvailable = hasCoordinates(camporee);
 

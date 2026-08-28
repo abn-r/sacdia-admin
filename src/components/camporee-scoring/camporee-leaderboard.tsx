@@ -13,6 +13,7 @@ import {
 import { EmptyState } from "@/components/shared/empty-state";
 import { cn } from "@/lib/utils";
 import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
+import { formatTabularNumber } from "@/lib/format-locale";
 import type { CamporeeLeaderboard as CamporeeLeaderboardData } from "@/lib/api/camporee-scoring";
 
 export interface CamporeeLeaderboardProps {
@@ -20,9 +21,7 @@ export interface CamporeeLeaderboardProps {
 }
 
 function formatNumber(value: number) {
-  return new Intl.NumberFormat("es-MX", {
-    maximumFractionDigits: 2,
-  }).format(value);
+  return formatTabularNumber(value);
 }
 
 export function CamporeeLeaderboard({ leaderboard }: CamporeeLeaderboardProps) {

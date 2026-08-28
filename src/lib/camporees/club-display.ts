@@ -34,8 +34,9 @@ export function normalizeCamporeeClub(raw: unknown): CamporeeClub {
     pickNumber(record.club_section_id) ?? pickNumber(clubSections?.club_section_id) ?? 0;
 
   const sectionName =
-    pickString(record.section_name) ??
-    pickString(clubSections?.name);
+    pickString(clubTypes?.name) ??
+    pickString(record.section_type_name) ??
+    pickString(record.section_name);
 
   const clubName =
     pickString(record.club_name) ??

@@ -5,10 +5,14 @@ import { Building2 } from "lucide-react";
 import { ClubsListClient } from "@/components/clubs/clubs-list-client";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-import { listAdminLocalFields } from "@/lib/api/admin-local-fields";
 import { canManageClubsByRole, canUpdateClubs } from "@/lib/auth/permission-utils";
 import { requireAdminUser } from "@/lib/auth/session";
 import { fetchClubsList } from "@/lib/clubs/fetch-list";
+import {
+  canAdminFilterByLocalField,
+  listLocalFieldsForTerritory,
+  resolveAdminTerritoryScope,
+} from "@/lib/auth/territory-scope";
 import {
   readParam,
   readPositiveNumberParam,
@@ -37,17 +41,26 @@ export default async function ClubsPage({
 
   const active =
     activeRaw === "true" ? true : activeRaw === "false" ? false : undefined;
-  const localFieldId = localFieldRaw ? Number(localFieldRaw) : undefined;
+  const requestedLocalFieldId = localFieldRaw ? Number(localFieldRaw) : undefined;
+  const territory = resolveAdminTerritoryScope(user);
+  const localFields = await listLocalFieldsForTerritory(user).catch(() => []);
+  const allowedLocalFieldIds = new Set(
+    localFields.map((localField) => localField.local_field_id),
+  );
+  const localFieldId =
+    requestedLocalFieldId &&
+    Number.isFinite(requestedLocalFieldId) &&
+    (territory.level === "all" || allowedLocalFieldIds.has(requestedLocalFieldId))
+      ? requestedLocalFieldId
+      : undefined;
 
   const result = await fetchClubsList({
     page,
     limit,
     active,
-    localFieldId:
-      localFieldId && Number.isFinite(localFieldId) ? localFieldId : undefined,
+    localFieldId: canAdminFilterByLocalField(territory) ? localFieldId : undefined,
   });
 
-  const localFields = await listAdminLocalFields().catch(() => []);
   const localFieldOptions = localFields.map((localField) => ({
     label: localField.name,
     value: localField.local_field_id,

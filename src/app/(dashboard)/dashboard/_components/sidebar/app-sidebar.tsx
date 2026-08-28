@@ -1,8 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 
-import { Command } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 
 import {
@@ -40,8 +40,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <Link prefetch={false} href="/dashboard">
-                <Command />
+              <Link prefetch={false} href="/dashboard" aria-label={APP_CONFIG.name}>
+                <Image
+                  src="/svg/LogoSACDIA.svg"
+                  alt=""
+                  width={16}
+                  height={16}
+                  className="size-4 shrink-0"
+                />
                 <span className="font-semibold text-base">{APP_CONFIG.name}</span>
               </Link>
             </SidebarMenuButton>

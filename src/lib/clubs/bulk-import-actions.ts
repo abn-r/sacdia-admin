@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 
 import { getActionErrorMessage } from "@/lib/api/action-error";
 import { createClub } from "@/lib/api/clubs";
+import { listAdminClubTypes } from "@/lib/api/admin-club-types";
 import { canManageClubsByRole } from "@/lib/auth/permission-utils";
 import { requireAdminUser } from "@/lib/auth/session";
 import { listLocalFieldsForTerritory } from "@/lib/auth/territory-scope";
@@ -80,6 +81,30 @@ export async function bulkCreateClubsAction(
     allowedLocalFields.map((field) => field.local_field_id),
   );
 
+  let enabledClubTypeIds: number[] = [];
+  try {
+    const catalogTypes = await listAdminClubTypes();
+    enabledClubTypeIds = catalogTypes
+      .filter((type) => type.active !== false)
+      .map((type) => type.club_type_id)
+      .filter((id) => Number.isFinite(id) && id > 0);
+  } catch {
+    enabledClubTypeIds = [];
+  }
+
+  if (enabledClubTypeIds.length === 0) {
+    return {
+      results: rows.map((row) => ({
+        rowNumber: row.rowNumber,
+        name: row.name ?? "",
+        ok: false,
+        message: t("validation.no_catalog_types"),
+      })),
+      created: 0,
+      failed: rows.length,
+    };
+  }
+
   const results: BulkClubRowResult[] = [];
   let created = 0;
   let failed = 0;
@@ -117,6 +142,7 @@ export async function bulkCreateClubsAction(
         church_id: row.church_id,
         address: row.address,
         coordinates: row.coordinates,
+        enabled_club_type_ids: enabledClubTypeIds,
       });
       const clubId = normalizeCreatedClubId(createdPayload) ?? undefined;
       created++;

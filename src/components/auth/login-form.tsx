@@ -10,6 +10,7 @@ import type { AuthActionState } from "@/lib/auth/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PAGE_ENTER_CLASSES } from "@/lib/animations";
 import { cn } from "@/lib/utils";
 
 const initialState: AuthActionState = {};
@@ -32,7 +33,7 @@ function SubmitButton() {
       ) : (
         <>
           {t("submit_idle")}
-          <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+          <ArrowRight className="size-4 transition-transform motion-reduce:transition-none [@media(hover:hover)_and_(pointer:fine)]:group-hover:translate-x-0.5" />
         </>
       )}
     </Button>
@@ -52,7 +53,7 @@ export function LoginForm({ nextParam }: Props) {
     <div
       className={cn(
         "w-full max-w-[380px]",
-        "animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out"
+        PAGE_ENTER_CLASSES,
       )}
     >
       {/* Mobile-only brand mark above form */}

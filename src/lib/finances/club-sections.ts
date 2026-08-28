@@ -70,10 +70,7 @@ export function normalizeFinanceClubSections(
     sections.push({
       club_section_id: clubSectionId,
       club_type_id: clubTypeId,
-      name:
-        typeof section.name === "string" && section.name.trim()
-          ? section.name.trim()
-          : clubTypeName,
+      name: clubTypeName,
       club_type: clubTypeName ? { name: clubTypeName } : null,
     });
   }

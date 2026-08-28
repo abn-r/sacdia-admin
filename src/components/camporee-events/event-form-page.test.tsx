@@ -5,6 +5,16 @@ import { EventFormPage } from "@/components/camporee-events/event-form-page";
 import type { Camporee } from "@/lib/api/camporees";
 import type { CamporeeVenue } from "@/lib/api/camporee-venues";
 
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+
+if (!Element.prototype.scrollIntoView) {
+  Element.prototype.scrollIntoView = () => {};
+}
+
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));
@@ -19,6 +29,10 @@ vi.mock("@/components/camporee-events/venue-create-dialog", () => ({
 
 vi.mock("@/components/camporee-events/rubrics-editor", () => ({
   RubricsEditor: () => <div data-testid="rubrics-editor" />,
+}));
+
+vi.mock("@/lib/api/admin-honors-catalog", () => ({
+  listAdminHonorsCatalog: vi.fn(async () => []),
 }));
 
 vi.mock("next/link", () => ({
@@ -71,5 +85,6 @@ describe("EventFormPage", () => {
 
     expect(screen.getByText("Sede")).toBeInTheDocument();
     expect(screen.getByText("Responsable")).toBeInTheDocument();
+    expect(screen.getByText("Especialidades de preparación")).toBeInTheDocument();
   });
 });

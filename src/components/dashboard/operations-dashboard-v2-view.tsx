@@ -1,45 +1,30 @@
 import Link from "next/link";
-import { getTranslations, getLocale } from "next-intl/server";
-import {
-  ArrowLeft,
-  CalendarRange,
-  ClipboardList,
-  Info,
-  MapPin,
-} from "lucide-react";
-import { PageHeader } from "@/components/shared/page-header";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { DashboardVersionSwitch } from "@/components/dashboard/dashboard-version-switch";
+import { getTranslations } from "next-intl/server";
+import { ClipboardList, Info } from "lucide-react";
+import { OperationsDashboardChrome } from "@/components/dashboard/operations-dashboard-chrome";
+import { OperationsKpiStrip } from "@/components/dashboard/operations-kpi-strip";
 import {
   OperationsDashboardV2Charts,
   type OperationsV2ChartLabels,
 } from "@/components/dashboard/operations-dashboard-v2-charts";
 import { TerritoryBreakdownTable } from "@/components/dashboard/territory-breakdown-table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   buildDashboardHref,
   buildDrillDownQuery,
-  buildResetScopeQuery,
   formatMetricCount,
   type OperationsDashboardChild,
   type OperationsDashboardData,
   type OperationsDashboardDataQuality,
   type OperationsDashboardQuery,
 } from "@/lib/api/operations-dashboard";
-import { formatDate, formatDateTime, getFormatNumber } from "@/lib/format-locale";
+import { getFormatNumber } from "@/lib/format-locale";
 
 interface OperationsDashboardV2ViewProps {
   data: OperationsDashboardData;
   query: OperationsDashboardQuery;
-}
-
-function scopeBreadcrumbLabels(data: OperationsDashboardData): string[] {
-  const labels = data.meta.scope.path.map((node) => node.name);
-  if (data.meta.scope.level !== "all") {
-    labels.push(data.meta.scope.name);
-  }
-  return labels;
 }
 
 function qualityBadgeVariant(
@@ -71,33 +56,31 @@ function topTerritoryAlerts(
     .filter((child) => child.monthly_reports.missing_sections > 0);
 }
 
+function activeQueueTypes(summary: OperationsDashboardData["summary"]): number {
+  return [
+    summary.queues.role_assignments_pending,
+    summary.queues.transfers_pending,
+    summary.queues.class_validations_pending,
+    summary.queues.honors_review_pending,
+    summary.queues.annual_folders_pending_union,
+  ].filter((value) => (value ?? 0) > 0).length;
+}
+
 export async function OperationsDashboardV2View({ data, query }: OperationsDashboardV2ViewProps) {
   const t = await getTranslations("dashboardHub.operations.v2");
   const tBase = await getTranslations("dashboardHub.operations");
   const tCharts = await getTranslations("dashboardHub.operations.v2.charts");
-  const locale = await getLocale();
   const formatNumber = await getFormatNumber();
   const { meta, summary, children, data_quality } = data;
   const reportingMonth = meta.period.reporting_month;
 
   const fmt = (value: number | null | undefined) => formatMetricCount(value, formatNumber);
 
-  const breadcrumbText = scopeBreadcrumbLabels(data).join(" › ") || meta.scope.name;
-  const resetHref = buildDashboardHref(buildResetScopeQuery(query));
-  const hasTerritorialFilter = Boolean(query.division_id || query.union_id || query.local_field_id);
-
-  const monthLabel = reportingMonth
-    ? formatDate(new Date(reportingMonth.year, reportingMonth.month - 1, 1), locale, {
-        month: "long",
-        year: "numeric",
-      })
-    : tBase("noClosedMonth");
-
   const territoryAlerts = topTerritoryAlerts(children, reportingMonth);
   const honorsUnavailable = summary.honors.attribution === "unavailable";
+  const queuePressure = activeQueueTypes(summary);
 
   const chartLabels: OperationsV2ChartLabels = {
-    signalsTitle: t("signals.title"),
     operationTitle: t("operationLens.title"),
     operationDescription: t("operationLens.description"),
     complianceTitle: t("compliance.title"),
@@ -125,7 +108,6 @@ export async function OperationsDashboardV2View({ data, query }: OperationsDashb
     operationalRate: t("operationLens.operationalRate"),
     coverage: t("compliance.coverage"),
     operationalClubs: t("operationLens.operationalClubs"),
-    operationalSections: t("operationLens.operationalSections"),
     nonOperationalClubs: tCharts("nonOperationalClubs"),
     adminActive: t("operationLens.adminActive"),
     adminInactive: t("operationLens.adminInactive"),
@@ -151,60 +133,62 @@ export async function OperationsDashboardV2View({ data, query }: OperationsDashb
     territoryOperational: tCharts("territoryOperational"),
     territoryMissing: tCharts("territoryMissing"),
     territoryPeople: tCharts("territoryPeople"),
-    signalOperative: t("signals.operativeGap"),
-    signalReports: t("signals.reportDebt"),
-    signalDigital: t("signals.digitalGap"),
-    signalQueues: t("signals.workflowPressure"),
   };
 
   return (
-    <div className="@container/main flex flex-col gap-6 md:gap-8">
-      <PageHeader
+    <div className="@container/main flex flex-col gap-5 md:gap-6">
+      <OperationsDashboardChrome
+        data={data}
+        query={query}
+        activeVersion="v2"
         title={t("title")}
         description={t("description")}
-        actions={
-          <div className="flex flex-wrap items-center gap-2">
-            <DashboardVersionSwitch query={query} active="v2" />
-            {hasTerritorialFilter ? (
-              <Button variant="outline" size="sm" asChild>
-                <Link href={resetHref}>
-                  <ArrowLeft className="mr-2 size-4" aria-hidden />
-                  {tBase("backToMyScope")}
-                </Link>
-              </Button>
-            ) : null}
-          </div>
-        }
       />
 
-      <div className="flex flex-col gap-3 text-sm">
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="secondary" className="gap-1">
-            <MapPin className="size-3" aria-hidden />
-            {tBase("currentScope")}: {meta.scope.name}
-          </Badge>
-          {meta.cached ? (
-            <Badge variant="outline" className="text-muted-foreground">
-              {tBase("cachedResponse")}
-            </Badge>
-          ) : null}
-        </div>
-        <p className="text-muted-foreground text-xs">{breadcrumbText}</p>
-        <div className="flex flex-wrap gap-x-6 gap-y-2 text-muted-foreground text-xs">
-          <span className="inline-flex items-center gap-1.5">
-            <CalendarRange className="size-3.5" aria-hidden />
-            {tBase("ecclesiasticalYear")}:{" "}
-            {formatDate(meta.period.ecclesiastical_year.start_date, locale)} –{" "}
-            {formatDate(meta.period.ecclesiastical_year.end_date, locale)}
-          </span>
-          <span>
-            {tBase("reportingMonth")}: {monthLabel}
-          </span>
-          <time dateTime={meta.computed_at}>
-            {tBase("computedAt", { date: formatDateTime(meta.computed_at, locale) })}
-          </time>
-        </div>
-      </div>
+      <OperationsKpiStrip
+        heading={t("signals.title")}
+        items={[
+          {
+            id: "operative-gap",
+            label: t("signals.operativeGap"),
+            value: fmt(summary.operations.non_operational_clubs),
+            hint: t("signals.operativeGapDetail", {
+              total: fmt(summary.administrative_clubs.total),
+            }),
+            hintTone: summary.operations.non_operational_clubs > 0 ? "warning" : "default",
+          },
+          {
+            id: "report-debt",
+            label: t("signals.reportDebt"),
+            value: reportingMonth ? fmt(summary.monthly_reports.missing_sections) : "—",
+            hint: reportingMonth
+              ? t("signals.reportDebtDetail", {
+                  expected: fmt(summary.monthly_reports.expected_sections),
+                })
+              : t("signals.reportDebtUnavailable"),
+            hintTone:
+              reportingMonth && summary.monthly_reports.missing_sections > 0
+                ? "warning"
+                : "default",
+          },
+          {
+            id: "digital-gap",
+            label: t("signals.digitalGap"),
+            value: fmt(summary.people.platform_accounts.inactive),
+            hint: t("signals.digitalGapDetail", {
+              institutional: fmt(summary.people.institutionally_active),
+            }),
+            hintTone: summary.people.platform_accounts.inactive > 0 ? "warning" : "default",
+          },
+          {
+            id: "queue-pressure",
+            label: t("signals.workflowPressure"),
+            value: fmt(queuePressure),
+            hint: t("signals.workflowPressureDetail"),
+            hintTone: queuePressure > 0 ? "warning" : "default",
+          },
+        ]}
+      />
 
       <OperationsDashboardV2Charts
         summary={summary}
@@ -216,7 +200,7 @@ export async function OperationsDashboardV2View({ data, query }: OperationsDashb
       />
 
       {territoryAlerts.length > 0 ? (
-        <Card>
+        <Card size="sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <ClipboardList className="size-4" aria-hidden />
@@ -262,7 +246,7 @@ export async function OperationsDashboardV2View({ data, query }: OperationsDashb
         </Card>
       ) : null}
 
-      <Card>
+      <Card size="sm">
         <CardHeader>
           <CardTitle>{tBase("territory.title")}</CardTitle>
           <CardDescription>{tBase("territory.description")}</CardDescription>
@@ -277,7 +261,7 @@ export async function OperationsDashboardV2View({ data, query }: OperationsDashb
       </Card>
 
       {data_quality.length > 0 ? (
-        <Card>
+        <Card size="sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Info className="size-4" aria-hidden />
@@ -286,7 +270,7 @@ export async function OperationsDashboardV2View({ data, query }: OperationsDashb
             <CardDescription>{tBase("dataQuality.description")}</CardDescription>
           </CardHeader>
           <CardContent>
-            <ul className="grid gap-3 sm:grid-cols-2">
+            <ul className="grid gap-2 sm:grid-cols-2">
               {data_quality.map((entry) => (
                 <li key={entry.metric} className="rounded-xl border px-3 py-2">
                   <div className="flex flex-wrap items-center gap-2">

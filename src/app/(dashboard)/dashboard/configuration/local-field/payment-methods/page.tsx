@@ -7,9 +7,14 @@ import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PaymentMethodsTable } from "@/components/local-field-config/payment-methods-table";
 import { getConfig, listConfigAll } from "@/lib/api/materials";
-import { apiRequest, ApiError } from "@/lib/api/client";
+import { ApiError } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
-import { resolveUserLocalField } from "@/lib/auth/user-local-field";
+import { listLocalFieldsForTerritory } from "@/lib/auth/territory-scope";
+import {
+  canPickLocalField,
+  resolveUserLocalField,
+  toLocalFieldOptions,
+} from "@/lib/auth/user-local-field";
 import { hasPermission } from "@/lib/auth/permission-utils";
 import { buildPaymentMethodRows } from "@/lib/local-field-config/payment-method-rows";
 import type { LocalFieldOption, MaterialConfig } from "@/lib/types/materials";
@@ -29,17 +34,12 @@ export default async function LocalFieldPaymentMethodsPage() {
   let loadErrorStatus: number | null = null;
 
   try {
+    localFields = toLocalFieldOptions(
+      await listLocalFieldsForTerritory(user),
+    );
+
     if (scope.scope === "single") {
-      const [config, lfRes] = await Promise.all([
-        getConfig({ localFieldId: scope.localFieldId }),
-        apiRequest<{ data: LocalFieldOption[] }>("/admin/local-fields").catch(
-          () => ({ data: [] as LocalFieldOption[] }),
-        ),
-      ]);
-      configs = [config];
-      localFields =
-        lfRes.data.filter((lf) => lf.local_field_id === scope.localFieldId) ||
-        [];
+      configs = [await getConfig({ localFieldId: scope.localFieldId })];
       if (localFields.length === 0) {
         localFields = [
           {
@@ -50,12 +50,7 @@ export default async function LocalFieldPaymentMethodsPage() {
         ];
       }
     } else {
-      const [lfRes, configsAll] = await Promise.all([
-        apiRequest<{ data: LocalFieldOption[] }>("/admin/local-fields"),
-        listConfigAll(),
-      ]);
-      localFields = lfRes.data;
-      configs = configsAll;
+      configs = await listConfigAll();
     }
   } catch (error) {
     if (error instanceof ApiError) {
@@ -80,7 +75,7 @@ export default async function LocalFieldPaymentMethodsPage() {
         ]}
       />
 
-      {scope.scope === "single" && (
+      {!canPickLocalField(scope) && (
         <div className="rounded-lg border bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
           {t("scopedLocalFieldHint")}
         </div>

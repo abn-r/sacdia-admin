@@ -356,12 +356,17 @@ export async function submitCamporeeEventScoreAction(
   const source = readString(formData, "source") === "admin_override"
     ? "admin_override"
     : "manual_lf";
+  const expectedActiveResultId = readString(formData, "expected_active_result_id");
+  const notes = readString(formData, "notes");
 
   try {
     await submitCamporeeEventScore(eventId, clubSectionId, {
       source,
-      notes: readString(formData, "notes") || undefined,
+      notes: notes || undefined,
       items: readJson(formData, "items", []),
+      ...(expectedActiveResultId
+        ? { expected_active_result_id: expectedActiveResultId }
+        : {}),
     });
   } catch (error) {
     return {

@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { CamporeeInfoCard } from "@/components/camporees/camporee-info-card";
 import { CamporeeDetailInfoTab } from "@/components/camporees/camporee-detail-info-tab";
 import { CamporeeDetailActions } from "@/components/camporees/camporee-detail-actions";
+import { ClubRegistrationActions } from "@/components/camporees/club-registration-actions";
 import { CamporeeDetailTabs } from "@/components/camporees/camporee-detail-tabs";
 import { ApiError } from "@/lib/api/client";
 import {
@@ -16,6 +17,7 @@ import {
   getCamporeePayments,
   getCamporeePendingApprovals,
 } from "@/lib/api/camporees";
+import { listPaymentOrders, type PaymentOrder } from "@/lib/api/field-payment-orders";
 import {
   listLocalCamporeeEvents,
   listCamporeeEventTemplates,
@@ -49,6 +51,10 @@ import {
   CAMPOREES_DELETE,
 } from "@/lib/auth/permissions";
 import { requireAdminUser } from "@/lib/auth/session";
+import {
+  countCompetitiveEnrolledClubs,
+  hasCamporeeScoringArtifacts,
+} from "@/lib/camporees/club-registration";
 import type {
   Camporee,
   CamporeeMember,
@@ -74,6 +80,14 @@ function toText(value: unknown): string | null {
   if (typeof value !== "string") return null;
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : null;
+}
+
+function toIsoTimestamp(value: unknown): string | null {
+  if (typeof value === "string") return toText(value);
+  if (value instanceof Date && Number.isFinite(value.getTime())) {
+    return value.toISOString();
+  }
+  return null;
 }
 
 function extractCamporee(payload: unknown): AnyRecord | null {
@@ -120,6 +134,8 @@ function normalizeCamporee(raw: AnyRecord): Camporee {
       return Number.isFinite(n) ? n : undefined;
     })(),
     active: raw.active !== false,
+    club_registration_closed_at: toIsoTimestamp(raw.club_registration_closed_at),
+    club_registration_closed_by: toText(raw.club_registration_closed_by),
     local_field: (() => {
       const lf = raw.local_fields as AnyRecord | undefined;
       if (!lf || typeof lf !== "object") return undefined;
@@ -175,6 +191,7 @@ export default async function CamporeeDetailPage({
   let clubsError: string | null = null;
   let payments: CamporeePayment[] = [];
   let paymentsError: string | null = null;
+  let paymentOrders: PaymentOrder[] = [];
   let pending: PendingApprovals = { clubs: [], members: [], payments: [] };
   let events: BackendCamporeeEvent[] = [];
   let availableTemplates: CamporeeEventTemplate[] = [];
@@ -238,6 +255,15 @@ export default async function CamporeeDetailPage({
       err instanceof ApiError
         ? err.message
         : t("loadPaymentsFailed");
+  }
+
+  try {
+    paymentOrders = await listPaymentOrders({
+      purpose: "CAMPOREE",
+      camporee_id: camporeeId,
+    });
+  } catch {
+    paymentOrders = [];
   }
 
   // Fetch pending approvals — best effort (non-blocking)
@@ -375,6 +401,21 @@ export default async function CamporeeDetailPage({
               </Link>
             </Button>
             <CamporeeDetailActions camporee={camporee} />
+            <ClubRegistrationActions
+              camporeeId={camporeeId}
+              closedAt={camporee.club_registration_closed_at}
+              canManage={canEditEvents}
+              enrolledClubCount={countCompetitiveEnrolledClubs(clubs)}
+              clubsLoadFailed={Boolean(clubsError)}
+              hasScoringArtifacts={hasCamporeeScoringArtifacts({
+                assignmentCount: Object.values(assignmentsByEvent).reduce(
+                  (total, assignments) => total + assignments.length,
+                  0,
+                ),
+                leaderboardRowCount: leaderboard?.rows.length ?? 0,
+              })}
+              camporeeActive={camporee.active !== false}
+            />
           </>
         }
       />
@@ -390,6 +431,7 @@ export default async function CamporeeDetailPage({
         initialMembersMeta={membersMeta}
         initialClubs={clubs}
         initialPayments={payments}
+        initialPaymentOrders={paymentOrders}
         initialPending={pending}
         membersError={membersError}
         clubsError={clubsError}

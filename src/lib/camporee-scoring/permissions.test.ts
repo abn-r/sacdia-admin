@@ -5,6 +5,7 @@ import type { AuthUser } from "@/lib/auth/types";
 function userWithRoles(roles: string[], permissions: string[] = []): AuthUser {
   return {
     id: "u1",
+    email: "test@example.com",
     roles,
     authorization: {
       grants: {

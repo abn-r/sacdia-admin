@@ -301,6 +301,14 @@ export function CreateClubForm({
             <CardDescription>{t("create.sectionsDescription")}</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-3 sm:grid-cols-2">
+            {fieldErrors.sections && (
+              <p
+                role="alert"
+                className="text-xs text-destructive sm:col-span-2"
+              >
+                {fieldErrors.sections}
+              </p>
+            )}
             {clubTypes.map((clubType, index) => {
               const checkboxId = `section_club_type_id_${index}`;
               return (
@@ -322,18 +330,6 @@ export function CreateClubForm({
                         {t("create.sectionToggleHint")}
                       </p>
                     </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor={`section_name_${index}`}>
-                      {t("create.sectionNameLabel")}
-                    </Label>
-                    <Input
-                      id={`section_name_${index}`}
-                      name={`section_name_${index}`}
-                      placeholder={t("create.sectionNamePlaceholder", {
-                        section: clubType.label,
-                      })}
-                    />
                   </div>
                 </div>
               );

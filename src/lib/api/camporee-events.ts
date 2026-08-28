@@ -165,6 +165,18 @@ export type CamporeeEventScheduleBlock = {
   assignments?: CamporeeEventScheduleBlockAssignment[];
 };
 
+export type CamporeeEventHonor = {
+  honor_id: number;
+  name: string;
+  honor_image?: string | null;
+  material_url?: string | null;
+  honors_category_id?: number | null;
+  category_name?: string | null;
+  skill_level?: number | null;
+  active?: boolean;
+  display_order?: number;
+};
+
 /**
  * Backend response shape for a camporee event instance.
  * Previously exported as `CamporeeEvent` — renamed to avoid collision with
@@ -212,6 +224,7 @@ export type BackendCamporeeEvent = {
   registered_count: number;
   agenda_visible?: boolean;
   schedule_blocks?: CamporeeEventScheduleBlock[];
+  honors?: CamporeeEventHonor[];
   // ── Joined relations (present when backend includes them) ──────────────────
   leader?: CamporeeEventLeader | null;
   venue?: CamporeeEventVenueRef | null;
@@ -261,6 +274,7 @@ export type CreateCamporeeEventPayload = {
   capacity?: number | null;
   registered_count?: number;
   schedule_blocks?: CamporeeEventScheduleBlock[];
+  honor_ids?: number[];
 };
 
 export type UpdateCamporeeEventPayload = Partial<CreateCamporeeEventPayload>;

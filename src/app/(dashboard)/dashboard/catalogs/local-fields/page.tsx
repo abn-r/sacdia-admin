@@ -15,7 +15,8 @@ import {
   LOCAL_FIELDS_DELETE,
   LOCAL_FIELDS_UPDATE,
 } from "@/lib/auth/permissions";
-import { requireAdminUser } from "@/lib/auth/session";
+import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
+import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
 import type { AdminLocalFieldRow } from "@/lib/catalogs/local-fields/types";
 import type { AdminUnion } from "@/lib/catalogs/unions/types";
 
@@ -40,7 +41,10 @@ function enrichLocalFields(
 }
 
 export default async function LocalFieldsPage() {
-  const user = await requireAdminUser();
+  const { user, allowed } = await loadCatalogEditorSession();
+  if (!allowed) {
+    return <CatalogEditorForbidden />;
+  }
   const t = await getTranslations("catalogs");
 
   let localFields: AdminLocalFieldRow[] = [];

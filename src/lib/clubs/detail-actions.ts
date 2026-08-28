@@ -9,6 +9,7 @@ import {
   createClubSection,
   revokeClassCounselorAssignment,
   revokeClubRoleAssignment,
+  updateClubSection,
   type ClassCounselorResponsibilityType,
 } from "@/lib/api/clubs";
 import { requireAdminUser } from "@/lib/auth/session";
@@ -124,7 +125,6 @@ export async function createClubSectionAction(
     const clubTypeId = Number(readString(formData, "club_type_id"));
     const soulsTarget = Number(readString(formData, "souls_target") || "0");
     const fee = Number(readString(formData, "fee") || "0");
-    const name = readString(formData, "name");
 
     const fieldErrors: Record<string, string> = {};
     if (!Number.isFinite(clubTypeId) || clubTypeId <= 0) {
@@ -142,7 +142,6 @@ export async function createClubSectionAction(
 
     await createClubSection(clubId, {
       club_type_id: clubTypeId,
-      name: name || undefined,
       souls_target: soulsTarget,
       fee,
     });
@@ -152,6 +151,32 @@ export async function createClubSectionAction(
     return { ok: true, success: t("sectionCreated") };
   } catch (error) {
     return { error: getActionErrorMessage(error, t("sectionCreateFailed")) };
+  }
+}
+
+export async function toggleClubSectionActiveAction(
+  clubId: number,
+  sectionId: number,
+  _prev: DetailActionState,
+  formData: FormData,
+): Promise<DetailActionState> {
+  const t = await getTranslations("clubs.detail.actions");
+  try {
+    await requireAdminUser();
+    const activeRaw = readString(formData, "active");
+    if (activeRaw !== "true" && activeRaw !== "false") {
+      return { error: t("invalidSectionStatus") };
+    }
+
+    await updateClubSection(clubId, sectionId, {
+      active: activeRaw === "true",
+    });
+
+    revalidatePath(buildClubPath(clubId, "sections"));
+    revalidatePath(buildClubPath(clubId, "general"));
+    return { ok: true, success: t("sectionUpdated") };
+  } catch (error) {
+    return { error: getActionErrorMessage(error, t("sectionUpdateFailed")) };
   }
 }
 

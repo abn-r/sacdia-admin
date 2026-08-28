@@ -136,7 +136,7 @@ export function ReceiptReviewActions({
           <AlertDialogHeader>
             <AlertDialogTitle>Rechazar comprobante</AlertDialogTitle>
             <AlertDialogDescription>
-              El director podrá subir un nuevo comprobante. Ingresá el motivo
+              El director podrá subir un nuevo comprobante. Ingresa el motivo
               de rechazo.
             </AlertDialogDescription>
           </AlertDialogHeader>

@@ -1,26 +1,28 @@
-import { Tent, CalendarRange, MapPin, DollarSign } from "lucide-react";
+import { Tent, CalendarRange, MapPin, DollarSign, Lock, LockOpen } from "lucide-react";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Camporee } from "@/lib/api/camporees";
+import { isClubRegistrationClosed } from "@/lib/camporees/club-registration";
+import {
+  formatCalendarDate,
+  formatMxnAmount,
+  formatTimestamp,
+} from "@/lib/format-locale";
 
 interface CamporeeInfoCardProps {
   camporee: Camporee;
 }
 
-function formatDate(dateStr?: string | null): string {
-  if (!dateStr) return "—";
-  try {
-    return new Date(dateStr).toLocaleDateString("es-MX", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
-  } catch {
-    return "—";
-  }
-}
-
-export function CamporeeInfoCard({ camporee }: CamporeeInfoCardProps) {
+export async function CamporeeInfoCard({ camporee }: CamporeeInfoCardProps) {
+  const t = await getTranslations("camporees.clubRegistration");
+  const locale = await getLocale();
+  const clubRegistrationClosed = isClubRegistrationClosed(
+    camporee.club_registration_closed_at,
+  );
+  const closedAtLabel = clubRegistrationClosed
+    ? formatTimestamp(camporee.club_registration_closed_at)
+    : null;
   const clubTypeBadges: React.ReactNode[] = [];
   if (camporee.includes_adventurers) {
     clubTypeBadges.push(
@@ -68,7 +70,8 @@ export function CamporeeInfoCard({ camporee }: CamporeeInfoCardProps) {
             <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
               <span className="flex items-center gap-1.5">
                 <CalendarRange className="size-3.5 shrink-0" />
-                {formatDate(camporee.start_date)} — {formatDate(camporee.end_date)}
+                {formatCalendarDate(camporee.start_date, locale, "long")} —{" "}
+                {formatCalendarDate(camporee.end_date, locale, "long")}
               </span>
               {camporee.local_camporee_place && (
                 <span className="flex items-center gap-1.5">
@@ -79,9 +82,7 @@ export function CamporeeInfoCard({ camporee }: CamporeeInfoCardProps) {
               {camporee.registration_cost != null && (
                 <span className="flex items-center gap-1.5">
                   <DollarSign className="size-3.5 shrink-0" />
-                  {camporee.registration_cost.toLocaleString("es-MX", {
-                    minimumFractionDigits: 2,
-                  })}
+                  {formatMxnAmount(camporee.registration_cost)}
                 </span>
               )}
             </div>
@@ -92,10 +93,28 @@ export function CamporeeInfoCard({ camporee }: CamporeeInfoCardProps) {
             )}
           </div>
 
-          {/* Status badge */}
-          <Badge variant={camporee.active !== false ? "soft-success" : "outline"}>
-            {camporee.active !== false ? "Activo" : "Inactivo"}
-          </Badge>
+          {/* Status badges */}
+          <div className="flex flex-col items-end gap-1.5">
+            <Badge variant={camporee.active !== false ? "soft-success" : "outline"}>
+              {camporee.active !== false ? "Activo" : "Inactivo"}
+            </Badge>
+            <Badge
+              variant={clubRegistrationClosed ? "outline" : "secondary"}
+              className="h-auto max-w-[12rem] whitespace-normal py-1 text-right"
+            >
+              {clubRegistrationClosed ? (
+                <Lock className="size-3" />
+              ) : (
+                <LockOpen className="size-3" />
+              )}
+              {clubRegistrationClosed ? t("statusClosed") : t("statusOpen")}
+            </Badge>
+            {closedAtLabel && (
+              <span className="max-w-[16rem] text-right text-[11px] text-muted-foreground">
+                {t("closedAt", { date: closedAtLabel })}
+              </span>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>

@@ -5,9 +5,15 @@ import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { LocalFieldPicker } from "@/components/local-field-config/local-field-picker";
 import { DeliveryConfigForm } from "@/components/local-field-config/delivery-config-form";
 import { getConfig } from "@/lib/api/materials";
-import { apiRequest, ApiError } from "@/lib/api/client";
+import { ApiError } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
-import { resolveUserLocalField } from "@/lib/auth/user-local-field";
+import { listLocalFieldsForTerritory } from "@/lib/auth/territory-scope";
+import {
+  canPickLocalField,
+  pickLocalFieldIdInScope,
+  resolveUserLocalField,
+  toLocalFieldOptions,
+} from "@/lib/auth/user-local-field";
 import { hasPermission } from "@/lib/auth/permission-utils";
 import type { LocalFieldOption, MaterialConfig } from "@/lib/types/materials";
 
@@ -31,26 +37,29 @@ export default async function LocalFieldDeliveryPage({
   }
 
   const scope = resolveUserLocalField(user);
+  const canPickField = canPickLocalField(scope);
   const raw = await searchParams;
   const lfOverride = resolveLfParam(raw["local_field_id"]);
-  const targetLocalFieldId =
-    scope.scope === "single" ? scope.localFieldId : (lfOverride ?? null);
 
   let config: MaterialConfig | null = null;
   let loadError: string | null = null;
   let loadErrorStatus: number | null = null;
   let localFields: LocalFieldOption[] = [];
 
-  if (scope.scope === "all") {
-    try {
-      const res = await apiRequest<{ data: LocalFieldOption[] }>(
-        "/admin/local-fields",
-      );
-      localFields = res.data;
-    } catch {
-      // empty picker
-    }
+  try {
+    localFields = toLocalFieldOptions(
+      await listLocalFieldsForTerritory(user),
+    );
+  } catch {
+    localFields = [];
   }
+
+  const targetLocalFieldId =
+    pickLocalFieldIdInScope(
+      scope,
+      lfOverride,
+      new Set(localFields.map((field) => field.local_field_id)),
+    ) ?? null;
 
   if (targetLocalFieldId != null) {
     try {
@@ -77,7 +86,7 @@ export default async function LocalFieldDeliveryPage({
         ]}
       />
 
-      {scope.scope === "all" && (
+      {canPickField && (
         <LocalFieldPicker
           currentLocalFieldId={targetLocalFieldId}
           localFields={localFields}
@@ -93,7 +102,7 @@ export default async function LocalFieldDeliveryPage({
         />
       )}
 
-      {scope.scope === "all" && targetLocalFieldId == null && !loadError && (
+      {canPickField && targetLocalFieldId == null && !loadError && (
         <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
           {t("selectLocalField")}
         </div>

@@ -12,6 +12,11 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import {
+  getPermissionGroupLabel,
+  getPermissionLabel,
+  permissionMatchesQuery,
+} from "@/lib/auth/permissions";
 import type { Permission } from "@/lib/rbac/types";
 
 const DESTRUCTIVE_KEYWORDS = ["delete", "destroy", "purge", "remove"];
@@ -65,12 +70,8 @@ function AccordionGroup({
   const visiblePerms = useMemo(() => {
     if (!searchQuery.trim()) return group.permissions;
     const q = searchQuery.toLowerCase();
-    return group.permissions.filter(
-      (p) =>
-        p.permission_name.toLowerCase().includes(q) ||
-        (p.description?.toLowerCase().includes(q) ?? false),
-    );
-  }, [group.permissions, searchQuery]);
+    return group.permissions.filter((p) => permissionMatchesQuery(t, p, q));
+  }, [group.permissions, searchQuery, t]);
 
   // Auto-open when there is a search match
   const hasMatch = visiblePerms.length > 0 && searchQuery.trim().length > 0;
@@ -113,7 +114,7 @@ function AccordionGroup({
           aria-controls={`group-${group.resource}-content`}
         >
           <span className="flex-1 text-sm font-semibold uppercase tracking-wider text-foreground">
-            {group.resource}
+            {getPermissionGroupLabel(t, group.resource)}
           </span>
 
           <span className="shrink-0 text-xs text-muted-foreground font-mono">
@@ -160,12 +161,12 @@ function AccordionGroup({
                       <TooltipContent>{t("permissionPicker.destructiveAction")}</TooltipContent>
                     </Tooltip>
                   )}
-                  <code className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono text-foreground">
+                  <span className="text-sm text-foreground">
+                    {getPermissionLabel(t, perm.permission_name)}
+                  </span>
+                  <code className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono text-muted-foreground">
                     {perm.permission_name}
                   </code>
-                  {perm.description && (
-                    <span className="text-xs text-muted-foreground">{perm.description}</span>
-                  )}
                 </label>
               </div>
             );
@@ -233,13 +234,9 @@ export function PermissionPicker({
     if (!search.trim()) return true;
     const q = search.toLowerCase();
     return groups.some((g) =>
-      g.permissions.some(
-        (p) =>
-          p.permission_name.toLowerCase().includes(q) ||
-          (p.description?.toLowerCase().includes(q) ?? false),
-      ),
+      g.permissions.some((p) => permissionMatchesQuery(t, p, q)),
     );
-  }, [search, groups]);
+  }, [search, groups, t]);
 
   return (
     <div className="space-y-3">

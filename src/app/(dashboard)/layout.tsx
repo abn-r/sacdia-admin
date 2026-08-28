@@ -1,6 +1,6 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 import { AppSidebar } from "@/app/(dashboard)/dashboard/_components/sidebar/app-sidebar";
 import { HeaderUserMenu } from "@/app/(dashboard)/dashboard/_components/sidebar/header-user-menu";
@@ -8,9 +8,11 @@ import { SearchDialog } from "@/app/(dashboard)/dashboard/_components/sidebar/se
 import { ThemeSwitcher } from "@/app/(dashboard)/dashboard/_components/sidebar/theme-switcher";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { PageAccessForbidden } from "@/components/shared/page-access-forbidden";
 import { PAGE_ENTER_CLASSES } from "@/lib/animations";
 import { AuthProvider } from "@/lib/auth/auth-context";
 import { QueryProvider } from "@/lib/providers/query-provider";
+import { canAccessDashboardPath } from "@/lib/auth/require-page-access";
 import { requireAdminUser } from "@/lib/auth/session";
 import { cn } from "@/lib/utils";
 import { getPreference } from "@/server/server-actions";
@@ -18,6 +20,12 @@ import { getPreference } from "@/server/server-actions";
 export default async function DashboardLayout({ children }: Readonly<{ children: ReactNode }>) {
   const initialUser = await requireAdminUser();
   const cookieStore = await cookies();
+  const headerStore = await headers();
+  const pathname =
+    headerStore.get("x-sacdia-pathname") ??
+    headerStore.get("x-pathname") ??
+    "";
+  const canOpenPage = canAccessDashboardPath(initialUser, pathname);
   const defaultOpen = cookieStore.get("sidebar_state")?.value !== "false";
   const [variant, collapsible] = await Promise.all([
     getPreference("sidebar_variant"),
@@ -32,7 +40,7 @@ export default async function DashboardLayout({ children }: Readonly<{ children:
         style={
           {
             "--sidebar-width": "calc(var(--spacing) * 68)",
-          } as React.CSSProperties
+          } as CSSProperties
         }
       >
         <AppSidebar variant={variant} collapsible={collapsible} />
@@ -68,7 +76,7 @@ export default async function DashboardLayout({ children }: Readonly<{ children:
             </div>
           </header>
           <div className={cn("min-h-0 min-w-0 flex-1 overflow-x-hidden p-4 has-data-[content-padding=false]:p-0 md:p-6 md:has-data-[content-padding=false]:p-0", PAGE_ENTER_CLASSES)}>
-            {children}
+            {canOpenPage ? children : <PageAccessForbidden />}
           </div>
         </SidebarInset>
       </SidebarProvider>

@@ -84,7 +84,7 @@ export function CancelDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>¿Cancelar esta solicitud?</AlertDialogTitle>
           <AlertDialogDescription>
-            Esta acción no se puede deshacer. Ingresá el motivo de cancelación
+            Esta acción no se puede deshacer. Ingresa el motivo de cancelación
             (mínimo 10 caracteres).
           </AlertDialogDescription>
         </AlertDialogHeader>

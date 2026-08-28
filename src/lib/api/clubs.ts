@@ -39,13 +39,15 @@ export type ClubPayload = {
     lng: number;
   };
   active?: boolean;
+  enabled_club_type_ids: number[];
 };
 
 export type ClubSection = {
   club_section_id: number;
   club_type_id: number;
   club_type?: { name?: string; slug?: string } | null;
-  name: string;
+  club_types?: { club_type_id?: number; name?: string } | null;
+  name?: string | null;
   active: boolean;
   souls_target?: number;
   fee?: number;
@@ -56,7 +58,6 @@ export type ClubSection = {
 
 export type ClubSectionPayload = {
   club_type_id: number;
-  name?: string;
   souls_target?: number;
   fee?: number;
   meeting_day?: Array<{ day: string }>;
@@ -209,8 +210,13 @@ export async function deleteClub(clubId: number) {
   });
 }
 
-export async function listClubSections(clubId: number) {
-  return apiRequest(`/clubs/${clubId}/sections`);
+export async function listClubSections(
+  clubId: number,
+  query: { includeInactive?: boolean } = {},
+) {
+  return apiRequest(`/clubs/${clubId}/sections`, {
+    params: query.includeInactive ? { includeInactive: true } : undefined,
+  });
 }
 
 /**

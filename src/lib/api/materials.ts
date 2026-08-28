@@ -118,15 +118,6 @@ export type PatchOrderLinePayload = {
   qty_disponible?: number;
 };
 
-export type UpdateConfigDto = Partial<{
-  bank_name: string;
-  bank_account_clabe: string;
-  account_holder: string;
-  envio_centavos_default: number;
-  pickup_address: string;
-  delivery_options: unknown[];
-}>;
-
 // ─── Orders — server-side reads ──────────────────────────────────────────────
 
 export async function listOrders(
@@ -308,7 +299,7 @@ export async function getConfig(
   return apiRequest<MaterialConfig>("/materials/config", { params });
 }
 
-/** Admin/super-admin only — list configs across every local_field. */
+/** Lists configs in the caller territory. Unscoped admins see every field. */
 export async function listConfigAll(): Promise<MaterialConfig[]> {
   return apiRequest<MaterialConfig[]>("/materials/config/all");
 }

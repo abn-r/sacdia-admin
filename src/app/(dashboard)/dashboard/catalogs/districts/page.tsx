@@ -17,7 +17,8 @@ import {
   LOCAL_FIELDS_DELETE,
   LOCAL_FIELDS_UPDATE,
 } from "@/lib/auth/permissions";
-import { requireAdminUser } from "@/lib/auth/session";
+import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
+import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
 import type { AdminDistrictRow } from "@/lib/catalogs/districts/types";
 import type { AdminLocalField } from "@/lib/catalogs/local-fields/types";
 
@@ -45,7 +46,10 @@ function enrichDistricts(
 }
 
 export default async function DistrictsPage() {
-  const user = await requireAdminUser();
+  const { user, allowed } = await loadCatalogEditorSession();
+  if (!allowed) {
+    return <CatalogEditorForbidden />;
+  }
   const t = await getTranslations("catalogs");
 
   let districts: AdminDistrictRow[] = [];

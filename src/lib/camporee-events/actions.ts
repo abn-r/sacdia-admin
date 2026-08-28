@@ -703,6 +703,10 @@ function buildAgendaPayload(
   const schedule_blocks = sanitizeScheduleBlocksForWrite(
     getJson<CamporeeEventScheduleBlock[]>(formData, "schedule_blocks") ?? [],
   );
+  const honorIdsRaw = getJson<number[]>(formData, "honor_ids");
+  const honor_ids = Array.isArray(honorIdsRaw)
+    ? honorIdsRaw.filter((id) => Number.isInteger(id) && id > 0)
+    : [];
 
   return {
     ...(event_type_id ? { event_type_id } : {}),
@@ -724,6 +728,7 @@ function buildAgendaPayload(
     participants_mode: "count",
     participants_count: 1,
     schedule_blocks,
+    honor_ids,
   };
 }
 
@@ -742,6 +747,7 @@ export async function createCamporeeAgendaEventAction(
 
   const payload = buildAgendaPayload(formData);
   if ("validationError" in payload) return { error: payload.validationError };
+  payload.status = "programado";
 
   try {
     const created = await createLocalCamporeeEvent(camporeeId, payload);
@@ -774,6 +780,7 @@ export async function createUnionCamporeeAgendaEventAction(
 
   const payload = buildAgendaPayload(formData);
   if ("validationError" in payload) return { error: payload.validationError };
+  payload.status = "programado";
 
   try {
     const created = await createUnionCamporeeEvent(camporeeId, payload);

@@ -18,6 +18,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  getPermissionLabel,
+  permissionMatchesQuery,
+} from "@/lib/auth/permissions";
+import { useRoleLabel } from "@/lib/auth/role-labels";
 import type { Permission, Role } from "@/lib/rbac/types";
 import type { RbacActionState } from "@/lib/rbac/types";
 
@@ -31,6 +36,7 @@ interface PermissionsMatrixProps {
   roles: Role[];
   permissions: Permission[];
   toggleAction: ToggleAction;
+  canWrite?: boolean;
 }
 
 type Selections = Record<string, Set<string>>;
@@ -61,8 +67,11 @@ export function PermissionsMatrix({
   roles,
   permissions,
   toggleAction,
+  canWrite = false,
 }: PermissionsMatrixProps) {
   const t = useTranslations("rbac.pages.matrix");
+  const tRbac = useTranslations("rbac");
+  const translateRole = useRoleLabel();
 
   const [selections, setSelections] = useState<Selections>(() =>
     buildInitialSelections(roles),
@@ -73,12 +82,8 @@ export function PermissionsMatrix({
   const filteredPermissions = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return permissions;
-    return permissions.filter((p) => {
-      const name = p.permission_name?.toLowerCase() ?? "";
-      const desc = p.description?.toLowerCase() ?? "";
-      return name.includes(q) || desc.includes(q);
-    });
-  }, [permissions, query]);
+    return permissions.filter((p) => permissionMatchesQuery(tRbac, p, q));
+  }, [permissions, query, tRbac]);
 
   function showPermissionToast(
     type: "added" | "removed",
@@ -89,8 +94,8 @@ export function PermissionsMatrix({
       type === "added" ? t("permissionAddedTitle") : t("permissionRemovedTitle"),
       {
         description: t("permissionToastDesc", {
-          permission: permission.permission_name,
-          role: role.role_name,
+          permission: getPermissionLabel(tRbac, permission.permission_name),
+          role: translateRole(role.role_name),
         }),
         classNames: MATRIX_TOAST_CLASSNAMES,
       },
@@ -144,7 +149,7 @@ export function PermissionsMatrix({
         next[role.role_id] = current;
         return next;
       });
-      toast.error(t("toggleError", { role: role.role_name }), {
+      toast.error(t("toggleError", { role: translateRole(role.role_name) }), {
         description: result.error,
         classNames: MATRIX_TOAST_CLASSNAMES,
       });
@@ -188,7 +193,12 @@ export function PermissionsMatrix({
                   className="min-w-[160px] border-b border-r px-2 py-2 text-center align-bottom font-medium last:border-r-0"
                 >
                   <div className="flex flex-col items-center gap-1.5">
-                    <span className="text-xs leading-tight">{role.role_name}</span>
+                    <span className="text-xs leading-tight">
+                      {translateRole(role.role_name)}
+                    </span>
+                    <span className="font-mono text-[10px] font-normal text-muted-foreground">
+                      {role.role_name}
+                    </span>
                     <Badge
                       variant="outline"
                       className="text-[10px] uppercase tracking-wide"
@@ -213,14 +223,12 @@ export function PermissionsMatrix({
                   className="sticky left-0 z-10 border-r bg-card px-3 py-2 text-left align-top font-normal"
                 >
                   <div className="flex flex-col">
-                    <span className="font-mono text-xs font-medium text-foreground">
+                    <span className="text-sm font-medium text-foreground">
+                      {getPermissionLabel(tRbac, permission.permission_name)}
+                    </span>
+                    <span className="font-mono text-xs text-muted-foreground">
                       {permission.permission_name}
                     </span>
-                    {permission.description && (
-                      <span className="text-xs text-muted-foreground">
-                        {permission.description}
-                      </span>
-                    )}
                   </div>
                 </th>
                 {roles.map((role) => {
@@ -238,10 +246,15 @@ export function PermissionsMatrix({
                     >
                       <Label
                         htmlFor={checkboxId}
-                        className="flex cursor-pointer items-center justify-center"
+                        className={
+                          canWrite
+                            ? "flex cursor-pointer items-center justify-center"
+                            : "flex cursor-default items-center justify-center"
+                        }
                       >
                         <span className="sr-only">
-                          {permission.permission_name} · {role.role_name}
+                          {getPermissionLabel(tRbac, permission.permission_name)}{" "}
+                          · {translateRole(role.role_name)}
                         </span>
                         {pending ? (
                           <Loader2
@@ -255,7 +268,7 @@ export function PermissionsMatrix({
                             onCheckedChange={() =>
                               void togglePermission(role, permission)
                             }
-                            disabled={pending}
+                            disabled={pending || !canWrite}
                           />
                         )}
                       </Label>

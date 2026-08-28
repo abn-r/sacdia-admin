@@ -16,6 +16,7 @@ import {
 } from "recharts";
 import { ClassEnrollmentsChart } from "@/components/dashboard/class-enrollments-chart";
 import { BentoSplitBar } from "@/components/dashboard/operations-bento-mini-charts";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartContainer,
   ChartTooltip,
@@ -40,10 +41,7 @@ const C = {
   muted: "hsl(var(--muted-foreground) / 0.28)",
 } as const;
 
-const PALETTE = [C.c1, C.c2, C.c3, C.c4, C.c5] as const;
-
 export type OperationsV2ChartLabels = {
-  signalsTitle: string;
   operationTitle: string;
   operationDescription: string;
   complianceTitle: string;
@@ -67,7 +65,6 @@ export type OperationsV2ChartLabels = {
   coverage: string;
   operationalClubs: string;
   nonOperationalClubs: string;
-  operationalSections: string;
   adminActive: string;
   adminInactive: string;
   institutional: string;
@@ -92,10 +89,6 @@ export type OperationsV2ChartLabels = {
   territoryOperational: string;
   territoryMissing: string;
   territoryPeople: string;
-  signalOperative: string;
-  signalReports: string;
-  signalDigital: string;
-  signalQueues: string;
 };
 
 interface OperationsDashboardV2ChartsProps {
@@ -107,39 +100,25 @@ interface OperationsDashboardV2ChartsProps {
   honorsUnavailable: boolean;
 }
 
-const ACCENT: Record<string, string> = {
-  c1: "border-l-[hsl(var(--chart-1))] bg-[linear-gradient(135deg,hsl(var(--chart-1)/0.12),transparent_55%)]",
-  c2: "border-l-[hsl(var(--chart-2))] bg-[linear-gradient(135deg,hsl(var(--chart-2)/0.12),transparent_55%)]",
-  c3: "border-l-[hsl(var(--chart-3))] bg-[linear-gradient(135deg,hsl(var(--chart-3)/0.12),transparent_55%)]",
-  c4: "border-l-[hsl(var(--chart-4))] bg-[linear-gradient(135deg,hsl(var(--chart-4)/0.12),transparent_55%)]",
-  c5: "border-l-[hsl(var(--chart-5))] bg-[linear-gradient(135deg,hsl(var(--chart-5)/0.12),transparent_55%)]",
-  danger: "border-l-[hsl(var(--destructive))] bg-[linear-gradient(135deg,hsl(var(--destructive)/0.1),transparent_55%)]",
-};
-
 function V2Tile({
   title,
-  accent = "c1",
+  description,
   className,
   children,
 }: {
   title: string;
-  accent?: keyof typeof ACCENT;
+  description?: string;
   className?: string;
   children: ReactNode;
 }) {
   return (
-    <article
-      className={cn(
-        "flex min-h-0 flex-col rounded-xl border border-foreground/8 border-l-[3px] p-2.5 ring-1 ring-foreground/5 sm:p-3",
-        ACCENT[accent],
-        className,
-      )}
-    >
-      <h3 className="mb-1.5 truncate font-medium text-[11px] text-muted-foreground uppercase tracking-wide">
-        {title}
-      </h3>
-      <div className="min-h-0 flex-1">{children}</div>
-    </article>
+    <Card size="sm" className={cn("h-auto gap-3 py-4", className)}>
+      <CardHeader className="gap-1">
+        <CardTitle className="text-sm">{title}</CardTitle>
+        {description ? <CardDescription className="text-xs">{description}</CardDescription> : null}
+      </CardHeader>
+      <CardContent>{children}</CardContent>
+    </Card>
   );
 }
 
@@ -265,29 +244,6 @@ function V2MiniDonut({
   );
 }
 
-function V2ColoredPills({
-  items,
-}: {
-  items: Array<{ key: string; value: number; color: string }>;
-}) {
-  const max = Math.max(...items.map((i) => i.value), 1);
-
-  return (
-    <div className="flex h-[72px] items-end justify-between gap-1" aria-hidden>
-      {items.map((item) => {
-        const height = item.value > 0 ? Math.max(14, Math.round((item.value / max) * 56)) : 8;
-        return (
-          <div
-            key={item.key}
-            className="w-full max-w-3 rounded-full transition-all"
-            style={{ height, backgroundColor: item.value > 0 ? item.color : C.muted }}
-          />
-        );
-      })}
-    </div>
-  );
-}
-
 function V2QueueBars({
   items,
   ariaLabel,
@@ -397,12 +353,6 @@ export function OperationsDashboardV2Charts({
     { key: "folders", label: labels.queueFolders, value: summary.queues.annual_folders_pending_union, color: C.c5 },
   ];
 
-  const queuePills = queueItems.map((item, index) => ({
-    key: item.key,
-    value: item.value ?? 0,
-    color: PALETTE[index % PALETTE.length],
-  }));
-
   const honorsSegments = honorsUnavailable
     ? []
     : [
@@ -412,110 +362,102 @@ export function OperationsDashboardV2Charts({
       ];
 
   return (
-    <div className="flex flex-col gap-2.5 md:gap-3">
-      <h2 className="font-medium text-muted-foreground text-xs uppercase tracking-wide">{labels.signalsTitle}</h2>
+    <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+      <V2Tile title={labels.operationTitle} description={labels.operationDescription}>
+        <V2Gauge value={summary.operations.operational_rate_pct} label={labels.operationalRate} color={C.c1} />
+        <BentoSplitBar
+          className="mt-2"
+          segments={[
+            { key: "operational", label: labels.operationalClubs, value: summary.operations.operational_clubs, color: C.c1 },
+            { key: "nonOperational", label: labels.nonOperationalClubs, value: summary.operations.non_operational_clubs, color: C.muted },
+          ]}
+        />
+        <BentoSplitBar
+          className="mt-2"
+          segments={[
+            { key: "active", label: labels.adminActive, value: summary.administrative_clubs.active, color: C.c2 },
+            { key: "inactive", label: labels.adminInactive, value: summary.administrative_clubs.inactive, color: C.muted },
+          ]}
+        />
+      </V2Tile>
 
-      <div className="grid grid-cols-2 gap-2 lg:grid-cols-4 xl:grid-cols-12">
-        <V2Tile title={labels.signalOperative} accent="c1" className="xl:col-span-3">
-          <BentoSplitBar
-            segments={[
-              { key: "operational", label: labels.operationalClubs, value: summary.operations.operational_clubs, color: C.c1 },
-              { key: "nonOperational", label: labels.nonOperationalClubs, value: summary.operations.non_operational_clubs, color: C.muted },
-            ]}
-          />
-        </V2Tile>
-
-        <V2Tile title={labels.signalReports} accent="c2" className="xl:col-span-3">
-          {reportingMonthActive ? (
-            <V2ColorBars items={reportBars} height={68} />
-          ) : (
-            <div className="flex h-[68px] items-center justify-center text-muted-foreground text-xs">—</div>
-          )}
-        </V2Tile>
-
-        <V2Tile title={labels.signalDigital} accent="c3" className="xl:col-span-3">
-          <V2MiniDonut
-            segments={[
-              { key: "active", label: labels.platformActive, value: summary.people.platform_accounts.active, color: C.c2 },
-              { key: "inactive", label: labels.platformInactive, value: summary.people.platform_accounts.inactive, color: C.muted },
-            ]}
-          />
-        </V2Tile>
-
-        <V2Tile title={labels.signalQueues} accent="c4" className="xl:col-span-3">
-          <V2ColoredPills items={queuePills} />
-        </V2Tile>
-
-        <V2Tile title={labels.operationTitle} accent="c1" className="xl:col-span-3">
-          <V2Gauge value={summary.operations.operational_rate_pct} label={labels.operationalRate} color={C.c1} />
-          <BentoSplitBar
-            className="mt-1"
-            segments={[
-              { key: "active", label: labels.adminActive, value: summary.administrative_clubs.active, color: C.c2 },
-              { key: "inactive", label: labels.adminInactive, value: summary.administrative_clubs.inactive, color: C.muted },
-            ]}
-          />
-        </V2Tile>
-
-        <V2Tile title={labels.complianceTitle} accent="c2" className="xl:col-span-3">
-          <V2Gauge
-            value={reportingMonthActive ? summary.monthly_reports.coverage_pct : null}
-            label={labels.coverage}
-            color={C.c2}
-          />
-          {reportingMonthActive ? (
-            <V2ColorBars items={reportBars.slice(0, 4)} height={56} className="mt-1" />
-          ) : null}
-        </V2Tile>
-
-        <V2Tile title={labels.peopleTitle} accent="c3" className="xl:col-span-3">
-          <p className="mb-1 font-bold text-xl tabular-nums" style={{ color: C.c3 }}>
-            {formatNumber(summary.people.institutionally_active)}
-          </p>
-          <V2MiniDonut
-            size={64}
-            segments={[
-              { key: "active", label: labels.platformActive, value: summary.people.platform_accounts.active, color: C.c2 },
-              { key: "inactive", label: labels.platformInactive, value: summary.people.platform_accounts.inactive, color: C.c4 },
-            ]}
-          />
-        </V2Tile>
-
-        <V2Tile title={labels.honorsTitle} accent="c4" className="xl:col-span-3">
-          {honorsUnavailable ? (
-            <div className="flex h-[88px] items-center justify-center text-muted-foreground text-xs">—</div>
-          ) : (
-            <V2MiniDonut segments={honorsSegments} />
-          )}
-        </V2Tile>
-
-        <V2Tile title={labels.activitiesTitle} accent="c5" className="col-span-2 lg:col-span-1 xl:col-span-4">
-          <V2ColorBars items={activityBars} height={80} />
-        </V2Tile>
-
-        <V2Tile title={labels.queuesTitle} accent="danger" className="col-span-2 lg:col-span-1 xl:col-span-4">
-          <V2QueueBars items={queueItems} ariaLabel={labels.queuesTitle} />
-        </V2Tile>
-
-        <V2Tile title={labels.formationTitle} accent="c1" className="col-span-2 lg:col-span-2 xl:col-span-4">
-          {classItems.length === 0 ? (
-            <p className="text-muted-foreground text-xs">{labels.formationEmpty}</p>
-          ) : (
-            <ClassEnrollmentsChart items={classItems} showTable={false} compact colored />
-          )}
-        </V2Tile>
-
-        {territoryChildren.length > 0 ? (
-          <V2Tile title={labels.territoryTitle} accent="c3" className="col-span-2 lg:col-span-4 xl:col-span-12">
-            <V2TerritoryChart children={territoryChildren} labels={labels} />
-            <div className="mt-1 flex flex-wrap gap-3 text-[10px] text-muted-foreground">
-              <span><span className="mr-1 inline-block size-2 rounded-sm" style={{ background: C.c1 }} />{labels.territoryOperational}</span>
-              <span><span className="mr-1 inline-block size-2 rounded-sm" style={{ background: C.danger }} />{labels.territoryMissing}</span>
-              <span><span className="mr-1 inline-block size-2 rounded-sm" style={{ background: C.c3 }} />{labels.territoryPeople}</span>
-            </div>
-          </V2Tile>
+      <V2Tile
+        title={labels.complianceTitle}
+        description={reportingMonthActive ? labels.complianceDescription : labels.complianceNotApplicable}
+      >
+        <V2Gauge
+          value={reportingMonthActive ? summary.monthly_reports.coverage_pct : null}
+          label={labels.coverage}
+          color={C.c2}
+        />
+        {reportingMonthActive ? (
+          <V2ColorBars items={reportBars.slice(0, 4)} height={72} className="mt-2" />
         ) : null}
-      </div>
+      </V2Tile>
+
+      <V2Tile title={labels.peopleTitle} description={labels.peopleDescription}>
+        <p className="mb-2 font-semibold text-2xl text-primary tabular-nums tracking-tight">
+          {formatNumber(summary.people.institutionally_active)}
+        </p>
+        <V2MiniDonut
+          segments={[
+            { key: "active", label: labels.platformActive, value: summary.people.platform_accounts.active, color: C.c2 },
+            { key: "inactive", label: labels.platformInactive, value: summary.people.platform_accounts.inactive, color: C.c4 },
+          ]}
+        />
+      </V2Tile>
+
+      <V2Tile title={labels.honorsTitle} description={labels.honorsDescription}>
+        {honorsUnavailable ? (
+          <p className="text-muted-foreground text-sm">{labels.honorsUnavailable}</p>
+        ) : (
+          <V2MiniDonut segments={honorsSegments} />
+        )}
+      </V2Tile>
+
+      <V2Tile title={labels.queuesTitle} description={labels.queuesDescription}>
+        <V2QueueBars items={queueItems} ariaLabel={labels.queuesTitle} />
+      </V2Tile>
+
+      <V2Tile title={labels.activitiesTitle} description={labels.activitiesDescription}>
+        <V2ColorBars items={activityBars} height={96} />
+      </V2Tile>
+
+      <V2Tile
+        className="lg:col-span-2"
+        title={labels.formationTitle}
+        description={labels.formationDescription}
+      >
+        {classItems.length === 0 ? (
+          <p className="text-muted-foreground text-sm">{labels.formationEmpty}</p>
+        ) : (
+          <ClassEnrollmentsChart items={classItems} showTable={false} compact />
+        )}
+      </V2Tile>
+
+      {territoryChildren.length > 0 ? (
+        <V2Tile
+          className="lg:col-span-2"
+          title={labels.territoryTitle}
+          description={labels.territoryDescription}
+        >
+          <V2TerritoryChart children={territoryChildren} labels={labels} />
+          <div className="mt-2 flex flex-wrap gap-3 text-muted-foreground text-xs">
+            <span>
+              <span className="mr-1 inline-block size-2 rounded-sm bg-[hsl(var(--chart-1))]" />
+              {labels.territoryOperational}
+            </span>
+            <span>
+              <span className="mr-1 inline-block size-2 rounded-sm bg-destructive" />
+              {labels.territoryMissing}
+            </span>
+            <span>
+              <span className="mr-1 inline-block size-2 rounded-sm bg-[hsl(var(--chart-3))]" />
+              {labels.territoryPeople}
+            </span>
+          </div>
+        </V2Tile>
+      ) : null}
     </div>
   );
 }

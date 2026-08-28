@@ -8,6 +8,9 @@
  * `@/lib/api/camporees` (HTTP). We mock the module entirely — MSW is active
  * per vitest.setup but is not exercised here (no fetch path).
  *
+ * Local fields come from `listLocalFieldsForTerritory` (`GET /catalogs/local-fields`
+ * or the actor's locked LF). Tests mock geography + auth.
+ *
  * Two modes:
  *   - Create: empty form, submit calls createCamporee
  *   - Edit:   pre-filled from camporee prop, submit calls updateCamporee
@@ -34,6 +37,7 @@ import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import messages from "../../../messages/es.json";
 import type { Camporee } from "@/lib/api/camporees";
+import type { AuthUser } from "@/lib/auth/types";
 
 // ---------------------------------------------------------------------------
 // jsdom polyfills (Radix Dialog uses ResizeObserver + scrollIntoView)
@@ -73,15 +77,56 @@ vi.mock("@/lib/api/camporees", async (importOriginal) => {
   };
 });
 
+const mocks = vi.hoisted(() => ({
+  listLocalFields: vi.fn(),
+  user: null as AuthUser | null,
+}));
+
+vi.mock("@/lib/auth/auth-context", () => ({
+  useAuth: () => ({
+    user: mocks.user,
+    isLoading: false,
+    refresh: async () => {},
+  }),
+}));
+
+vi.mock("@/lib/api/geography", () => ({
+  listLocalFields: (...args: unknown[]) => mocks.listLocalFields(...args),
+  listUnions: vi.fn().mockResolvedValue([]),
+}));
+
 // Component fetches local fields on mount; resolve with a known fixture
 // so the Select trigger is enabled and the test can pick a value.
-vi.mock("@/lib/api/generic-catalogs-i18n", () => ({
-  listAdminLocalFields: vi.fn().mockResolvedValue({
-    data: [
-      { local_field_id: 2, name: "Campo de prueba" },
-      { local_field_id: 3, name: "Otro campo" },
-    ],
-  }),
+mocks.listLocalFields.mockResolvedValue([
+  { local_field_id: 2, name: "Campo de prueba", union_id: 1 },
+  { local_field_id: 3, name: "Otro campo", union_id: 1 },
+]);
+
+vi.mock("@/components/camporees/camporee-location-fields", () => ({
+  CamporeeLocationFields: ({
+    onCoordinatesChange,
+  }: {
+    onCoordinatesChange: (coords: { lat?: number; long?: number }) => void;
+  }) => (
+    <div>
+      <button
+        type="button"
+        onClick={() =>
+          onCoordinatesChange({ lat: 19.1738, long: -96.1342 })
+        }
+      >
+        mock-set-pin
+      </button>
+      <button
+        type="button"
+        onClick={() =>
+          onCoordinatesChange({ lat: undefined, long: undefined })
+        }
+      >
+        mock-clear-pin
+      </button>
+    </div>
+  ),
 }));
 
 const mockToastError = vi.fn();
@@ -186,6 +231,11 @@ async function fillRequiredFields() {
 describe("CamporeeFormDialog", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.user = null;
+    mocks.listLocalFields.mockResolvedValue([
+      { local_field_id: 2, name: "Campo de prueba", union_id: 1 },
+      { local_field_id: 3, name: "Otro campo", union_id: 1 },
+    ]);
     mockCreateCamporee.mockResolvedValue({ ok: true });
     mockUpdateCamporee.mockResolvedValue({ ok: true });
   });
@@ -330,6 +380,8 @@ describe("CamporeeFormDialog", () => {
         end_date: string;
         local_camporee_place: string;
         local_field_id: number;
+        lat?: number;
+        long?: number;
       },
     ];
     expect(payload.name).toBe("Camporee Test");
@@ -337,10 +389,81 @@ describe("CamporeeFormDialog", () => {
     expect(payload.end_date).toBe("2026-07-05");
     expect(payload.local_camporee_place).toBe("Lugar de prueba");
     expect(payload.local_field_id).toBe(2);
+    expect(payload.lat).toBeUndefined();
+    expect(payload.long).toBeUndefined();
 
     expect(mockToastSuccess).toHaveBeenCalledWith(t.toasts.camporee_created);
     expect(onOpenChange).toHaveBeenCalledWith(false);
     expect(onSuccess).toHaveBeenCalledOnce();
+  });
+
+  it("sends lat/long together when the map pin is set", async () => {
+    renderDialog();
+
+    await fillRequiredFields();
+    await userEvent.click(screen.getByRole("button", { name: "mock-set-pin" }));
+    await submitForm();
+
+    await waitFor(() => {
+      expect(mockCreateCamporee).toHaveBeenCalledOnce();
+    });
+
+    const [payload] = mockCreateCamporee.mock.calls[0] as [
+      { lat?: number; long?: number },
+    ];
+    expect(payload.lat).toBe(19.1738);
+    expect(payload.long).toBe(-96.1342);
+  });
+
+  it("locks local field for a director-lf and does not call admin catalogs", async () => {
+    mocks.user = {
+      id: "u-lf",
+      email: "director-lf@sacdia.com",
+      authorization: {
+        grants: {
+          global_roles: [{ role_name: "director-lf", permissions: [] }],
+        },
+        effective: {
+          scope: {
+            global: {
+              local_field: { id: 4, name: "Campo ACV", union_id: 1 },
+            },
+          },
+        },
+      },
+    };
+
+    renderDialog();
+
+    await act(async () => {
+      const nameInput = document.querySelector('input[name="name"]') as HTMLInputElement | null;
+      if (nameInput) fireEvent.change(nameInput, { target: { value: "Camporee LF" } });
+
+      const startInput = document.querySelector('input[name="start_date"]') as HTMLInputElement | null;
+      if (startInput) fireEvent.change(startInput, { target: { value: "2026-08-21" } });
+
+      const endInput = document.querySelector('input[name="end_date"]') as HTMLInputElement | null;
+      if (endInput) fireEvent.change(endInput, { target: { value: "2026-08-23" } });
+
+      const placeInput = document.querySelector('input[name="local_camporee_place"]') as HTMLInputElement | null;
+      if (placeInput) fireEvent.change(placeInput, { target: { value: "Campo de prueba ACV" } });
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole("combobox")).toBeDisabled();
+    });
+    expect(mocks.listLocalFields).not.toHaveBeenCalled();
+
+    await submitForm();
+
+    await waitFor(() => {
+      expect(mockCreateCamporee).toHaveBeenCalledOnce();
+    });
+
+    const [payload] = mockCreateCamporee.mock.calls[0] as [
+      { local_field_id: number },
+    ];
+    expect(payload.local_field_id).toBe(4);
   });
 
   // ── 6. Happy path — edit camporee ────────────────────────────────────────

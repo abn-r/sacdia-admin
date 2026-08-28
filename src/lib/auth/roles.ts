@@ -12,6 +12,7 @@ export const SUPER_ADMIN_ROLE = "super-admin" as const;
 export const ALLOWED_ADMIN_ROLES = [
   "super-admin",
   "admin",
+  "assistant-admin",
   "coordinator",
   "zone-coordinator",
   "general-coordinator",

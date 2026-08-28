@@ -16,7 +16,8 @@ import {
   HONORS_DELETE,
   HONORS_UPDATE,
 } from "@/lib/auth/permissions";
-import { requireAdminUser } from "@/lib/auth/session";
+import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
+import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
 import type { AdminClubType } from "@/lib/api/admin-club-types";
 import { normalizeHonorCategoryRow, type AdminHonorCategoryRow } from "@/lib/catalogs/honor-categories/types";
 import type { AdminHonorRow } from "@/lib/catalogs/honors/types";
@@ -43,7 +44,10 @@ function enrichHonors(
 }
 
 export default async function HonorsPage() {
-  const user = await requireAdminUser();
+  const { user, allowed } = await loadCatalogEditorSession();
+  if (!allowed) {
+    return <CatalogEditorForbidden />;
+  }
   const t = await getTranslations("catalogs");
 
   let honors: AdminHonorRow[] = [];

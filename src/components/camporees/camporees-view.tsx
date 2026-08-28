@@ -28,7 +28,8 @@ const CamporeeFormDialog = dynamic<CamporeeFormDialogProps>(
     ),
   { ssr: false, loading: () => null }
 );
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { formatCalendarDate } from "@/lib/format-locale";
 import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 import { listCamporees } from "@/lib/api/camporees";
 import type { Camporee } from "@/lib/api/camporees";
@@ -36,17 +37,8 @@ import { Tent } from "lucide-react";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function formatDate(dateStr?: string | null): string {
-  if (!dateStr) return "—";
-  try {
-    return new Date(dateStr).toLocaleDateString("es-MX", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-  } catch {
-    return "—";
-  }
+function formatDate(dateStr: string | null | undefined, locale: string): string {
+  return formatCalendarDate(dateStr, locale);
 }
 
 function extractCamporees(payload: unknown): Camporee[] {
@@ -73,6 +65,7 @@ interface CampoReesViewProps {
 export function CampoReesView({ initialCamporees }: CampoReesViewProps) {
   
   const t = useTranslations("camporees");
+  const locale = useLocale();
   const [camporees, setCamporees] = useState<Camporee[]>(initialCamporees);
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -177,10 +170,10 @@ export function CampoReesView({ initialCamporees }: CampoReesViewProps) {
                       <span className="font-medium">{camporee.name}</span>
                     </TableCell>
                     <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums">
-                      {formatDate(camporee.start_date)}
+                      {formatDate(camporee.start_date, locale)}
                     </TableCell>
                     <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums">
-                      {formatDate(camporee.end_date)}
+                      {formatDate(camporee.end_date, locale)}
                     </TableCell>
                     <TableCell className="max-w-[160px] px-3 py-2.5 align-middle">
                       <span className="truncate text-sm text-muted-foreground">

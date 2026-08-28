@@ -18,6 +18,10 @@ import {
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useRoleLabel } from "@/lib/auth/role-labels";
+import {
+  getPermissionGroupLabel,
+  getPermissionLabel,
+} from "@/lib/auth/permissions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -77,6 +81,7 @@ function ReadOnlyAlert() {
 
 // ─── Permissions popover ─────────────────────────────────────────────────────
 function PermissionsPopover({ role }: { role: Role }) {
+  const t = useTranslations("rbac");
   const permCount = role.role_permissions?.length ?? 0;
 
   const grouped = useMemo(() => {
@@ -114,16 +119,17 @@ function PermissionsPopover({ role }: { role: Role }) {
             {Array.from(grouped.entries()).map(([resource, perms]) => (
               <div key={resource} className="space-y-1">
                 <p className="text-xs font-semibold uppercase tracking-wider text-foreground">
-                  {resource}
+                  {getPermissionGroupLabel(t, resource)}
                 </p>
                 <div className="flex flex-wrap gap-1">
                   {perms.map((p) => (
-                    <code
+                    <span
                       key={p}
-                      className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono text-foreground"
+                      title={p}
+                      className="rounded bg-muted px-1.5 py-0.5 text-xs text-foreground"
                     >
-                      {p}
-                    </code>
+                      {getPermissionLabel(t, p)}
+                    </span>
                   ))}
                 </div>
               </div>
@@ -453,8 +459,8 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
                     return (
                       <TableRow
                         key={role.role_id}
-                        className="transition-colors hover:bg-muted/30 animate-in fade-in slide-in-from-bottom-2 duration-300"
-                        style={{ animationDelay: `${Math.min(index * 20, 200)}ms`, animationFillMode: "backwards" }}
+                        className={`transition-colors hover:bg-muted/30 ${STAGGER_CLASSES}`}
+                        style={getStaggerStyle(index)}
                       >
                         {/* role_name — mono, lock icon for super-admin */}
                         <TableCell className="px-3 py-2.5 align-middle">

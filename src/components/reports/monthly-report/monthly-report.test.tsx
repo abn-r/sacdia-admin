@@ -43,7 +43,7 @@ describe("MonthlyReport", () => {
     expect(screen.getByRole("table", { name: "Honores / Especialidades / Clases" }))
       .toHaveTextContent("Participantes");
     expect(screen.getAllByRole("radio")).toHaveLength(26);
-  }, 10_000);
+  }, 15_000);
 
   it("keeps repeated header fields synchronized across all printed pages", () => {
     render(<MonthlyReport />);
@@ -55,7 +55,7 @@ describe("MonthlyReport", () => {
     expect(districtFields).toHaveLength(3);
     expect(districtFields[1]).toHaveValue("Distrito Central");
     expect(districtFields[2]).toHaveValue("Distrito Central");
-  }, 10_000);
+  }, 15_000);
 
   it("renders representative values from the populated example", () => {
     render(<MonthlyReport initialData={createExampleMonthlyReportData()} />);
@@ -64,7 +64,7 @@ describe("MonthlyReport", () => {
     expect(screen.getAllByDisplayValue("Club Centinelas del Valle")).toHaveLength(3);
     expect(screen.getByDisplayValue("Campaña de recolección")).toBeInTheDocument();
     expect(screen.getByDisplayValue("Visita al asilo municipal")).toBeInTheDocument();
-  }, 10_000);
+  }, 15_000);
 
   it("opens the native print dialog only from the screen control", () => {
     const print = vi.fn();

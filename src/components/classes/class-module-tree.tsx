@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { ClassModule, ClassSection } from "@/lib/api/classes";
+import type { ClassHonorRelation } from "@/lib/api/class-honors";
 
 interface SectionNodeProps {
   section: ClassSection;
@@ -50,10 +51,11 @@ function SectionNode({ section }: SectionNodeProps) {
 
 interface ModuleNodeProps {
   mod: ClassModule;
+  honors: ClassHonorRelation[];
   defaultOpen?: boolean;
 }
 
-function ModuleNode({ mod, defaultOpen = false }: ModuleNodeProps) {
+function ModuleNode({ mod, honors, defaultOpen = false }: ModuleNodeProps) {
   const t = useTranslations("classes.tree");
   const [open, setOpen] = useState(defaultOpen);
   const sections = mod.sections ?? [];
@@ -88,6 +90,15 @@ function ModuleNode({ mod, defaultOpen = false }: ModuleNodeProps) {
 
       {open && (
         <div className="border-t border-border px-4 py-3">
+          {honors.length > 0 ? (
+            <div className="mb-3 flex flex-wrap gap-1.5">
+              {honors.map((relation) => (
+                <Badge key={relation.class_honor_id} variant="outline" className="text-xs">
+                  {relation.honor.name}
+                </Badge>
+              ))}
+            </div>
+          ) : null}
           {sections.length === 0 ? (
             <p className="text-sm text-muted-foreground">{t("no_sections")}</p>
           ) : (
@@ -105,9 +116,10 @@ function ModuleNode({ mod, defaultOpen = false }: ModuleNodeProps) {
 
 interface ClassModuleTreeProps {
   modules: ClassModule[];
+  honorRelations?: ClassHonorRelation[];
 }
 
-export function ClassModuleTree({ modules }: ClassModuleTreeProps) {
+export function ClassModuleTree({ modules, honorRelations = [] }: ClassModuleTreeProps) {
   const t = useTranslations("classes.tree");
   const [allOpen, setAllOpen] = useState(false);
   const [key, setKey] = useState(0);
@@ -133,7 +145,12 @@ export function ClassModuleTree({ modules }: ClassModuleTreeProps) {
       </div>
       <div key={key} className={cn("space-y-2")}>
         {modules.map((mod, idx) => (
-          <ModuleNode key={mod.module_id} mod={mod} defaultOpen={allOpen || idx === 0} />
+          <ModuleNode
+            key={mod.module_id}
+            mod={mod}
+            honors={honorRelations.filter((relation) => relation.module_id === mod.module_id)}
+            defaultOpen={allOpen || idx === 0}
+          />
         ))}
       </div>
     </div>

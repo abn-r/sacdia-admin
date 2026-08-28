@@ -37,6 +37,9 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { EmptyState } from "@/components/shared/empty-state";
+import {
+  getPermissionLabel,
+} from "@/lib/auth/permissions";
 import type { Permission, RbacActionState } from "@/lib/rbac/types";
 import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 
@@ -59,9 +62,16 @@ interface PermissionsTableProps {
   createAction: CreateAction;
   updateAction: UpdateAction;
   deleteAction: DeleteAction;
+  canWrite?: boolean;
 }
 
-export function PermissionsTable({ items, createAction, updateAction, deleteAction }: PermissionsTableProps) {
+export function PermissionsTable({
+  items,
+  createAction,
+  updateAction,
+  deleteAction,
+  canWrite = false,
+}: PermissionsTableProps) {
   const t = useTranslations("rbac");
   const router = useRouter();
   const [createOpen, setCreateOpen] = useState(false);
@@ -110,19 +120,23 @@ export function PermissionsTable({ items, createAction, updateAction, deleteActi
 
   return (
     <>
+      {canWrite ? (
       <div className="flex justify-end">
         <Button onClick={() => setCreateOpen(true)}>
           <Plus className="size-4" />
           {t("permissionsTable.createPermission")}
         </Button>
       </div>
+      ) : null}
 
       {items.length === 0 ? (
         <EmptyState icon={Key} title={t("permissionsTable.emptyTitle")} description={t("permissionsTable.emptyDescription")}>
+          {canWrite ? (
           <Button onClick={() => setCreateOpen(true)}>
             <Plus className="size-4" />
             {t("permissionsTable.createPermission")}
           </Button>
+          ) : null}
         </EmptyState>
       ) : (
         <>
@@ -133,6 +147,7 @@ export function PermissionsTable({ items, createAction, updateAction, deleteActi
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-[60px]">{t("permissionsTable.colId")}</TableHead>
+                    <TableHead>{t("permissionsTable.colName")}</TableHead>
                     <TableHead>{t("permissionsTable.colKey")}</TableHead>
                     <TableHead className="hidden md:table-cell">{t("permissionsTable.colDescription")}</TableHead>
                     <TableHead>{t("permissionsTable.colStatus")}</TableHead>
@@ -144,12 +159,20 @@ export function PermissionsTable({ items, createAction, updateAction, deleteActi
                     <TableRow key={perm.permission_id} className={STAGGER_CLASSES} style={getStaggerStyle(index)}>
                       <TableCell className="text-xs text-muted-foreground">{perm.permission_id}</TableCell>
                       <TableCell>
+                        <span className="text-sm font-medium">
+                          {getPermissionLabel(t, perm.permission_name)}
+                        </span>
+                      </TableCell>
+                      <TableCell>
                         <code className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono">
                           {perm.permission_name}
                         </code>
                       </TableCell>
                       <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
-                        {perm.description ?? "—"}
+                        {getPermissionLabel(t, perm.permission_name) ===
+                        perm.permission_name
+                          ? (perm.description ?? "—")
+                          : "—"}
                       </TableCell>
                       <TableCell>
                         <Badge variant={perm.active !== false ? "soft-success" : "outline"} className="text-xs">
@@ -157,6 +180,7 @@ export function PermissionsTable({ items, createAction, updateAction, deleteActi
                         </Badge>
                       </TableCell>
                       <TableCell>
+                        {canWrite ? (
                         <div className="flex gap-1">
                           <Button variant="ghost" size="icon" className="size-8" onClick={() => setEditItem(perm)} title={t("permissionsTable.actionEdit")}>
                             <Pencil className="size-3.5" />
@@ -165,6 +189,7 @@ export function PermissionsTable({ items, createAction, updateAction, deleteActi
                             <Trash2 className="size-3.5" />
                           </Button>
                         </div>
+                        ) : null}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -186,6 +211,9 @@ export function PermissionsTable({ items, createAction, updateAction, deleteActi
                       <code className="block truncate rounded bg-muted px-1.5 py-0.5 text-xs font-mono">
                         {perm.permission_name}
                       </code>
+                      <p className="mt-0.5 text-sm font-medium">
+                        {getPermissionLabel(t, perm.permission_name)}
+                      </p>
                       <p className="mt-0.5 text-xs tabular-nums text-muted-foreground">
                         #{perm.permission_id}
                       </p>
@@ -212,6 +240,7 @@ export function PermissionsTable({ items, createAction, updateAction, deleteActi
                     </p>
                   )}
 
+                  {canWrite ? (
                   <div className="mt-3 flex flex-wrap gap-1.5 border-t border-border/40 pt-3">
                     <Button
                       variant="outline"
@@ -233,6 +262,7 @@ export function PermissionsTable({ items, createAction, updateAction, deleteActi
                       {t("permissionsTable.actionDelete")}
                     </Button>
                   </div>
+                  ) : null}
                 </div>
               </li>
             ))}

@@ -26,6 +26,7 @@ import {
 import { configLabel } from "@/lib/annual-rankings/annual-ranking-config-utils";
 import type { AnnualRankingConfig } from "@/lib/api/annual-rankings";
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
+import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 import type { LocalField, Union } from "@/lib/api/geography";
 
 const ROUTE_BASE = "/dashboard/annual-folders/ranking-config";
@@ -105,11 +106,8 @@ export function AnnualBudgetConfigList({
                 return (
                   <TableRow
                     key={config.annual_ranking_config_id}
-                    className="animate-in fade-in slide-in-from-bottom-2 duration-300"
-                    style={{
-                      animationDelay: `${index * 40}ms`,
-                      animationFillMode: "backwards",
-                    }}
+                    className={STAGGER_CLASSES}
+                    style={getStaggerStyle(index)}
                   >
                     <TableCell>
                       <div className="flex flex-col gap-1">
