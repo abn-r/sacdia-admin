@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
+import { Repeat } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Activity } from "@/lib/api/activities";
 import { ACTIVITY_TYPE_LABELS } from "@/lib/api/activities";
@@ -44,7 +45,12 @@ function ActivityChip({
         compact ? "truncate text-[11px]" : "text-sm",
       )}
     >
-      <div className="truncate font-medium">{activity.name}</div>
+      <div className="truncate font-medium">
+        {activity.activity_series_id ? (
+          <Repeat className="mr-1 inline size-3 text-success" aria-hidden />
+        ) : null}
+        {activity.name}
+      </div>
       {!compact ? (
         <div className="mt-0.5 flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
           {activity.activity_time ? <span>{activity.activity_time}</span> : null}

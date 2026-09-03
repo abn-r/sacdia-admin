@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { AttendancePanel } from "@/components/activities/attendance-panel";
-import { ActivityDetailActions } from "@/components/activities/activity-detail-actions";
+import { ActivitySeriesPanel } from "@/components/activities/activity-series-panel";
 import { ApiError } from "@/lib/api/client";
 import { getActivity, getAttendance, PLATFORM_LABELS, ACTIVITY_TYPE_LABELS } from "@/lib/api/activities";
 import { normalizeActivity as normalizeActivityRecord } from "@/lib/activities/helpers";
@@ -185,6 +185,9 @@ export default async function ActivityDetailPage({ params }: { params: Params })
             )}
           </div>
           <div className="flex items-center gap-2">
+            {activity.activity_series_id ? (
+              <Badge variant="soft-success">{t("series.badge")}</Badge>
+            ) : null}
             <Badge variant="secondary">{typeLabel}</Badge>
             <Badge variant={activity.active ? "soft-success" : "outline"}>
               {activity.active ? t("pageDetail.badge_active") : t("pageDetail.badge_inactive")}
@@ -192,6 +195,10 @@ export default async function ActivityDetailPage({ params }: { params: Params })
           </div>
         </CardContent>
       </Card>
+
+      {activity.activity_series_id ? (
+        <ActivitySeriesPanel seriesId={activity.activity_series_id} />
+      ) : null}
 
       {/* Info card */}
       <Card className="gap-2 py-3 [--card-spacing:--spacing(3)]">

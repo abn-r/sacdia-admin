@@ -16,6 +16,8 @@ import {
   ListChecks,
   Plus,
   RefreshCw,
+  Repeat,
+  X,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
@@ -187,6 +189,7 @@ export function ActivitiesCalendarClient({
 }: ActivitiesCalendarClientProps) {
   const t = useTranslations("activities");
   const tCal = useTranslations("activities.calendar");
+  const tSeries = useTranslations("activities.series");
   const locale = useLocale();
   const dateLocale = localeToBcp47(locale);
   const router = useRouter();
@@ -208,6 +211,7 @@ export function ActivitiesCalendarClient({
   const localFieldId = searchParams.get("localFieldId") ?? String(initialLocalFieldId ?? "all");
   const clubId = searchParams.get("clubId") ?? String(initialClubId ?? "all");
   const sectionId = searchParams.get("sectionId") ?? String(initialSectionId ?? "all");
+  const seriesId = searchParams.get("seriesId");
   const view = readViewMode(searchParams.get("view"));
   const anchorDate = searchParams.get("date") ?? toDateKey(new Date());
 
@@ -221,6 +225,8 @@ export function ActivitiesCalendarClient({
     sectionId !== "all" && Number.isFinite(Number(sectionId))
       ? Number(sectionId)
       : null;
+  const selectedSeriesId =
+    seriesId && Number.isFinite(Number(seriesId)) ? Number(seriesId) : null;
 
   const filteredClubs = useMemo(() => {
     if (!selectedLocalFieldId) return clubs;
@@ -280,6 +286,7 @@ export function ActivitiesCalendarClient({
                 ...(sectionForClub
                   ? { clubTypeId: sectionForClub.club_type_id }
                   : {}),
+                ...(selectedSeriesId ? { seriesId: selectedSeriesId } : {}),
               },
             },
           );
@@ -305,7 +312,7 @@ export function ActivitiesCalendarClient({
     } finally {
       setIsLoading(false);
     }
-  }, [filteredClubs, selectedClubId, selectedSection, t]);
+  }, [filteredClubs, selectedClubId, selectedSection, selectedSeriesId, t]);
 
   useEffect(() => {
     void loadActivities();
@@ -354,11 +361,11 @@ export function ActivitiesCalendarClient({
   }, [anchor, dateLocale, view]);
 
   const handleLocalFieldChange = (value: string) => {
-    updateParams({ localFieldId: value, clubId: null, sectionId: null });
+    updateParams({ localFieldId: value, clubId: null, sectionId: null, seriesId: null });
   };
 
   const handleClubChange = (value: string) => {
-    updateParams({ clubId: value, sectionId: null });
+    updateParams({ clubId: value, sectionId: null, seriesId: null });
   };
 
   const handleSectionChange = (value: string) => {
@@ -515,6 +522,23 @@ export function ActivitiesCalendarClient({
           </Button>
         </div>
       </div>
+
+      {selectedSeriesId ? (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-success/30 bg-success/10 px-4 py-3">
+          <div className="flex items-center gap-2 text-sm font-medium">
+            <Repeat className="size-4 text-success" aria-hidden />
+            {tSeries("viewingBanner")}
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => updateParams({ seriesId: null })}
+          >
+            <X className="size-3.5" />
+            {tSeries("clearFilter")}
+          </Button>
+        </div>
+      ) : null}
 
       {loadError ? (
         <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">

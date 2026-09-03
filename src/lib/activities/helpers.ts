@@ -66,6 +66,8 @@ export function normalizeActivity(
     active: raw.active !== false,
     created_at: pickString(raw.created_at),
     updated_at: pickString(raw.updated_at),
+    activity_series_id:
+      raw.activity_series_id == null ? null : Number(raw.activity_series_id),
   };
 }
 

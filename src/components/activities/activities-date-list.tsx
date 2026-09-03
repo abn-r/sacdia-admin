@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Building2, ChevronRight, Clock, MapPin } from "lucide-react";
+import { Building2, ChevronRight, Clock, MapPin, Repeat } from "lucide-react";
 import { useMemo, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
@@ -73,6 +73,7 @@ function ActivityListCard({
   activity: Activity;
   href: string;
 }) {
+  const tSeries = useTranslations("activities.series");
   const dateKey = getActivityDateKey(activity);
   const dateParts = dateKey ? getDateParts(dateKey) : null;
   const dateRangeLabel = formatDateRangeShort(activity);
@@ -112,6 +113,12 @@ function ActivityListCard({
         {typeLabel ? (
           <Badge variant="secondary" className="shrink-0 text-[10px]">
             {typeLabel}
+          </Badge>
+        ) : null}
+        {activity.activity_series_id ? (
+          <Badge variant="soft-success" className="shrink-0 text-[10px]">
+            <Repeat className="mr-1 size-3" aria-hidden />
+            {tSeries("badge")}
           </Badge>
         ) : null}
 

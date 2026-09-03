@@ -44,6 +44,7 @@ export type Activity = {
   active: boolean;
   created_at?: string | null;
   updated_at?: string | null;
+  activity_series_id?: number | null;
 };
 
 export type ActivityListQuery = {
@@ -52,6 +53,7 @@ export type ActivityListQuery = {
   activityTypeId?: number;
   active?: boolean;
   clubTypeId?: number;
+  seriesId?: number;
 };
 
 export type ActivityListResponse = {
@@ -79,6 +81,63 @@ export type CreateActivityPayload = {
   classes?: number[];
   club_section_id: number;
 };
+
+export type RecurrencePayload = {
+  kind: "interval" | "weekly";
+  interval_days?: number;
+  weekdays?: number[];
+  until?: string;
+};
+
+export type CreateActivitySeriesPayload = Omit<CreateActivityPayload, "image"> & {
+  image?: string;
+  recurrence: RecurrencePayload;
+  activity_date: string;
+};
+
+export type ActivitySeriesPreview = {
+  count: number;
+  dates: string[];
+  until: string;
+  ecclesiastical_year: {
+    year_id: number;
+    start_date?: string;
+    end_date?: string;
+  };
+};
+
+export type ActivitySeriesSummary = {
+  activity_series_id: number;
+  club_id: number;
+  ecclesiastical_year_id: number;
+  name: string;
+  first_date?: string;
+  until_date: string;
+  kind: string;
+  interval_days?: number | null;
+  weekdays?: number[];
+  counts?: {
+    total: number;
+    active: number;
+    upcoming: number;
+    past: number;
+  };
+};
+
+function unwrapApiObject<T>(payload: unknown): T {
+  if (payload && typeof payload === "object" && "data" in payload) {
+    const data = (payload as { data: unknown }).data;
+    if (data && typeof data === "object" && !Array.isArray(data)) {
+      return data as T;
+    }
+  }
+  return payload as T;
+}
+
+function toDateOnly(value: unknown): string | undefined {
+  if (typeof value !== "string" || value.trim().length === 0) return undefined;
+  return value.slice(0, 10);
+}
 
 export type UpdateActivityPayload = {
   name?: string;
@@ -127,6 +186,7 @@ export async function listActivities(
   if (query.activityTypeId) params.activityTypeId = query.activityTypeId;
   if (typeof query.active === "boolean") params.active = query.active;
   if (query.clubTypeId) params.clubTypeId = query.clubTypeId;
+  if (query.seriesId) params.seriesId = query.seriesId;
 
   return apiRequest(`/clubs/${clubId}/activities`, { params });
 }
@@ -165,6 +225,79 @@ export async function deleteActivity(activityId: number): Promise<unknown> {
   return apiRequestFromClient(`/activities/${activityId}`, {
     method: "DELETE",
   });
+}
+
+export async function previewActivitySeries(
+  clubId: number,
+  data: CreateActivitySeriesPayload,
+): Promise<ActivitySeriesPreview> {
+  const payload = await apiRequestFromClient<unknown>(
+    `/clubs/${clubId}/activity-series/preview`,
+    { method: "POST", body: data },
+  );
+  return unwrapApiObject<ActivitySeriesPreview>(payload);
+}
+
+export async function createActivitySeries(
+  clubId: number,
+  data: CreateActivitySeriesPayload,
+): Promise<{ created_count: number; activity_ids?: number[] }> {
+  const payload = await apiRequestFromClient<unknown>(
+    `/clubs/${clubId}/activity-series`,
+    { method: "POST", body: data },
+  );
+  return unwrapApiObject(payload);
+}
+
+export async function getActivitySeries(
+  seriesId: number,
+): Promise<ActivitySeriesSummary> {
+  const payload = await apiRequestFromClient<unknown>(
+    `/activity-series/${seriesId}`,
+  );
+  return unwrapApiObject<ActivitySeriesSummary>(payload);
+}
+
+export async function cancelFutureActivitySeries(
+  seriesId: number,
+): Promise<{ canceled_count: number }> {
+  const payload = await apiRequestFromClient<unknown>(
+    `/activity-series/${seriesId}/cancel-future`,
+    { method: "POST", body: {} },
+  );
+  return unwrapApiObject(payload);
+}
+
+export async function extendActivitySeries(
+  seriesId: number,
+  until: string,
+): Promise<{ created_count: number; activity_ids: number[] }> {
+  const payload = await apiRequestFromClient<unknown>(
+    `/activity-series/${seriesId}/extend`,
+    { method: "POST", body: { until } },
+  );
+  return unwrapApiObject(payload);
+}
+
+export async function getCurrentEcclesiasticalYearFromClient(): Promise<{
+  year_id: number;
+  start_date?: string;
+  end_date?: string;
+}> {
+  const payload = await apiRequestFromClient<unknown>(
+    "/catalogs/ecclesiastical-years/current",
+  );
+  const year = unwrapApiObject<{
+    year_id?: number;
+    ecclesiastical_year_id?: number;
+    start_date?: string | Date;
+    end_date?: string | Date;
+  }>(payload);
+  return {
+    year_id: Number(year.year_id ?? year.ecclesiastical_year_id ?? 0),
+    start_date: toDateOnly(year.start_date),
+    end_date: toDateOnly(year.end_date),
+  };
 }
 
 export async function registerAttendance(
