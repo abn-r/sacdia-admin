@@ -56,13 +56,12 @@ function ClassImageCell({
   }
 
   return (
-    <div className="flex size-10 shrink-0 items-center justify-center">
+    <div className="relative size-10 shrink-0">
       <Image
         src={logoSrc}
         alt={label}
-        width={40}
-        height={40}
-        className="max-h-10 max-w-10 object-contain"
+        fill
+        className="object-contain"
         sizes="40px"
       />
     </div>
