@@ -140,7 +140,6 @@ export async function OperationsDashboardV2View({ data, query }: OperationsDashb
       <OperationsDashboardChrome
         data={data}
         query={query}
-        activeVersion="v2"
         title={t("title")}
         description={t("description")}
       />

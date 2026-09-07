@@ -14,7 +14,7 @@ export default async function DashboardHomePage({
 }: {
   searchParams: SearchParams;
 }) {
-  await requireAdminUser();
+  const user = await requireAdminUser();
 
   const raw = await searchParams;
   const query = parseOperationsDashboardSearchParams(raw);
@@ -36,5 +36,5 @@ export default async function DashboardHomePage({
     return <OperationsDashboardError error={apiError} />;
   }
 
-  return <OperationsDashboardView data={data!} query={query} />;
+  return <OperationsDashboardView data={data!} query={query} user={user} />;
 }

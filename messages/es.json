@@ -1687,6 +1687,33 @@
       "computedAt": "Calculado el {date}",
       "cachedResponse": "Respuesta en caché",
       "backToMyScope": "Volver a mi alcance",
+      "home": {
+        "title": "Inicio",
+        "description": "Pendientes, cobertura y acceso a los módulos de tu alcance.",
+        "inboxTitle": "Para atender",
+        "inboxDescription": "Colas con destino en el panel. Sin total agregado.",
+        "inboxEmptyTitle": "Nada pendiente",
+        "inboxEmptyDescription": "No hay colas con trabajo pendiente en este alcance.",
+        "openQueue": "Atender",
+        "coverageTitle": "Informes del mes",
+        "coverageAction": "Ver supervisión",
+        "formationAction": "Ver inscripciones",
+        "honorsAction": "Revisar especialidades",
+        "activitiesAction": "Ver actividades",
+        "shortcutsTitle": "Módulos",
+        "shortcutsDescription": "Las mismas pantallas del menú, según tu acceso.",
+        "shortcuts": {
+          "clubs": "Clubes",
+          "users": "Usuarios",
+          "enrollments": "Inscripciones",
+          "assignments": "Asignaciones",
+          "validations": "Validaciones",
+          "reports": "Reportes",
+          "folders": "Carpetas anuales",
+          "activities": "Actividades",
+          "camporees": "Campamentos"
+        }
+      },
       "bento": {
         "groups": {
           "operation": "Operación anual",
@@ -3742,7 +3769,8 @@
       "update_failed": "No se pudo actualizar el recurso.",
       "delete_failed": "No se pudo eliminar el recurso.",
       "update_not_found": "No se pudo identificar el recurso a editar.",
-      "delete_not_found": "No se pudo identificar el recurso a eliminar."
+      "delete_not_found": "No se pudo identificar el recurso a eliminar.",
+      "scope_denied": "No puedes asignar este recurso fuera de tu territorio."
     },
     "validation": {
       "title_required": "El título del recurso es obligatorio.",

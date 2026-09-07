@@ -1681,6 +1681,33 @@
       "computedAt": "Computed on {date}",
       "cachedResponse": "Cached response",
       "backToMyScope": "Back to my scope",
+      "home": {
+        "title": "Home",
+        "description": "Queues, coverage, and shortcuts into the modules you can open.",
+        "inboxTitle": "Needs attention",
+        "inboxDescription": "Queues with a destination in the panel. No aggregated total.",
+        "inboxEmptyTitle": "Nothing pending",
+        "inboxEmptyDescription": "No queues have pending work in this scope.",
+        "openQueue": "Open",
+        "coverageTitle": "Monthly reports",
+        "coverageAction": "Open supervision",
+        "formationAction": "Open enrollments",
+        "honorsAction": "Review honors",
+        "activitiesAction": "Open activities",
+        "shortcutsTitle": "Modules",
+        "shortcutsDescription": "The same screens as the menu, filtered by your access.",
+        "shortcuts": {
+          "clubs": "Clubs",
+          "users": "Users",
+          "enrollments": "Enrollments",
+          "assignments": "Assignments",
+          "validations": "Validations",
+          "reports": "Reports",
+          "folders": "Annual folders",
+          "activities": "Activities",
+          "camporees": "Camporees"
+        }
+      },
       "bento": {
         "groups": {
           "operation": "Annual operation",
@@ -3717,7 +3744,8 @@
       "update_failed": "The resource could not be updated.",
       "delete_failed": "The resource could not be deleted.",
       "update_not_found": "Could not identify the resource to edit.",
-      "delete_not_found": "Could not identify the resource to delete."
+      "delete_not_found": "Could not identify the resource to delete.",
+      "scope_denied": "You cannot assign this resource outside your territory."
     },
     "validation": {
       "title_required": "The resource title is required.",

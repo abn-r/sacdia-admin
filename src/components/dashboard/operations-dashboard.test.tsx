@@ -49,10 +49,10 @@ describe("ClassEnrollmentsChart", () => {
   it("exposes accessible chart label and tabular alternative", () => {
     renderChart("es", es);
 
-    expect(screen.getByRole("img", { name: es.dashboardHub.operations.formation.chartAriaLabel })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: es.dashboardHub.operations.formation.chartAriaLabel })).toBeInTheDocument();
     expect(screen.getByRole("table")).toBeInTheDocument();
-    expect(screen.getByText("Amigo")).toBeInTheDocument();
-    expect(screen.getByText("0")).toBeInTheDocument();
+    expect(screen.getAllByText("Amigo").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("0").length).toBeGreaterThan(0);
   });
 
   it("renders empty state for empty collection", () => {
@@ -63,6 +63,39 @@ describe("ClassEnrollmentsChart", () => {
     );
 
     expect(screen.getByText(es.dashboardHub.operations.formation.emptyTitle)).toBeInTheDocument();
+  });
+
+  it("hides zero-enrollment classes in compact mode", () => {
+    render(
+      <NextIntlClientProvider locale="es" messages={es}>
+        <ClassEnrollmentsChart
+          compact
+          showTable={false}
+          items={[
+            {
+              class_id: 1,
+              class_name: "Amigo",
+              club_type_id: 2,
+              club_type_name: "Conquistadores",
+              display_order: 1,
+              enrollment_count: 12,
+            },
+            {
+              class_id: 2,
+              class_name: "Compañero",
+              club_type_id: 2,
+              club_type_name: "Conquistadores",
+              display_order: 2,
+              enrollment_count: 0,
+            },
+          ]}
+        />
+      </NextIntlClientProvider>,
+    );
+
+    expect(screen.getByText("Amigo")).toBeInTheDocument();
+    expect(screen.queryByText("Compañero")).not.toBeInTheDocument();
+    expect(screen.queryByRole("table")).not.toBeInTheDocument();
   });
 });
 
@@ -76,6 +109,7 @@ describe("dashboardHub.operations translations", () => {
 
   it.each(locales)("includes operations keys in %s", (_locale, messages) => {
     expect(messages.dashboardHub.operations.title).toBeTruthy();
+    expect(messages.dashboardHub.operations.home.title).toBeTruthy();
     expect(messages.dashboardHub.operations.bento.groups.operation).toBeTruthy();
     expect(messages.dashboardHub.operations.bento.stats.operationalClubs).toBeTruthy();
     expect(messages.dashboardHub.operations.errors.forbiddenDescription).toBeTruthy();
@@ -123,5 +157,27 @@ describe("OperationsKpiStrip", () => {
     expect(screen.getByRole("heading", { name: "Indicadores primarios" })).toBeInTheDocument();
     expect(screen.getByText("Clubes operativos")).toBeInTheDocument();
     expect(container.querySelector("[class*='min-h-']")).toBeNull();
+  });
+
+  it("turns metric cards into module links when href is provided", () => {
+    render(
+      <OperationsKpiStrip
+        heading="Indicadores primarios"
+        items={[
+          {
+            id: "clubs",
+            label: "Clubes operativos",
+            value: "1",
+            hint: "2 secciones",
+            href: "/dashboard/clubs",
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "Clubes operativos" })).toHaveAttribute(
+      "href",
+      "/dashboard/clubs",
+    );
   });
 });

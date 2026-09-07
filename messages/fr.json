@@ -1680,6 +1680,33 @@
       "computedAt": "Calculé le {date}",
       "cachedResponse": "Réponse en cache",
       "backToMyScope": "Revenir à mon périmètre",
+      "home": {
+        "title": "Accueil",
+        "description": "Files, couverture et accès aux modules de votre périmètre.",
+        "inboxTitle": "À traiter",
+        "inboxDescription": "Files avec une destination dans le panneau. Sans total agrégé.",
+        "inboxEmptyTitle": "Rien en attente",
+        "inboxEmptyDescription": "Aucune file n'a de travail en attente dans ce périmètre.",
+        "openQueue": "Traiter",
+        "coverageTitle": "Rapports du mois",
+        "coverageAction": "Voir la supervision",
+        "formationAction": "Voir les inscriptions",
+        "honorsAction": "Réviser les spécialités",
+        "activitiesAction": "Voir les activités",
+        "shortcutsTitle": "Modules",
+        "shortcutsDescription": "Les mêmes écrans que le menu, selon votre accès.",
+        "shortcuts": {
+          "clubs": "Clubs",
+          "users": "Utilisateurs",
+          "enrollments": "Inscriptions",
+          "assignments": "Affectations",
+          "validations": "Validations",
+          "reports": "Rapports",
+          "folders": "Dossiers annuels",
+          "activities": "Activités",
+          "camporees": "Camporees"
+        }
+      },
       "bento": {
         "groups": {
           "operation": "Opération annuelle",
@@ -3704,7 +3731,8 @@
       "update_failed": "Impossible de mettre à jour la ressource.",
       "delete_failed": "Impossible de supprimer la ressource.",
       "update_not_found": "Impossible d'identifier la ressource à modifier.",
-      "delete_not_found": "Impossible d'identifier la ressource à supprimer."
+      "delete_not_found": "Impossible d'identifier la ressource à supprimer.",
+      "scope_denied": "Vous ne pouvez pas assigner cette ressource hors de votre territoire."
     },
     "validation": {
       "title_required": "Le titre de la ressource est obligatoire.",

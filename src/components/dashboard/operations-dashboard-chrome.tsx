@@ -2,7 +2,6 @@ import Link from "next/link";
 import { getTranslations, getLocale } from "next-intl/server";
 import { ArrowLeft, CalendarClock, CalendarRange, Clock, MapPin } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
-import { DashboardVersionSwitch } from "@/components/dashboard/dashboard-version-switch";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -17,7 +16,6 @@ import { formatDate, formatDateTime } from "@/lib/format-locale";
 interface OperationsDashboardChromeProps {
   data: OperationsDashboardData;
   query: OperationsDashboardQuery;
-  activeVersion: "v1" | "v2";
   title: string;
   description: string;
 }
@@ -33,7 +31,6 @@ function scopePathLabels(data: OperationsDashboardData): string[] {
 export async function OperationsDashboardChrome({
   data,
   query,
-  activeVersion,
   title,
   description,
 }: OperationsDashboardChromeProps) {
@@ -65,17 +62,14 @@ export async function OperationsDashboardChrome({
         title={title}
         description={description}
         actions={
-          <div className="flex flex-wrap items-center gap-2">
-            <DashboardVersionSwitch query={query} active={activeVersion} />
-            {hasTerritorialFilter ? (
-              <Button variant="outline" size="sm" asChild>
-                <Link href={resetHref}>
-                  <ArrowLeft className="size-4" aria-hidden />
-                  {t("backToMyScope")}
-                </Link>
-              </Button>
-            ) : null}
-          </div>
+          hasTerritorialFilter ? (
+            <Button variant="outline" size="sm" asChild>
+              <Link href={resetHref}>
+                <ArrowLeft className="size-4" aria-hidden />
+                {t("backToMyScope")}
+              </Link>
+            </Button>
+          ) : null
         }
       />
 

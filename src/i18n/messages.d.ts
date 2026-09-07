@@ -1716,6 +1716,33 @@ export interface IntlMessages {
       computedAt: string;
       cachedResponse: string;
       backToMyScope: string;
+      home: {
+        title: string;
+        description: string;
+        inboxTitle: string;
+        inboxDescription: string;
+        inboxEmptyTitle: string;
+        inboxEmptyDescription: string;
+        openQueue: string;
+        coverageTitle: string;
+        coverageAction: string;
+        formationAction: string;
+        honorsAction: string;
+        activitiesAction: string;
+        shortcutsTitle: string;
+        shortcutsDescription: string;
+        shortcuts: {
+          clubs: string;
+          users: string;
+          enrollments: string;
+          assignments: string;
+          validations: string;
+          reports: string;
+          folders: string;
+          activities: string;
+          camporees: string;
+        };
+      };
       bento: {
         groups: {
           operation: string;
@@ -3772,6 +3799,7 @@ export interface IntlMessages {
       delete_failed: string;
       update_not_found: string;
       delete_not_found: string;
+      scope_denied: string;
     };
     validation: {
       title_required: string;
@@ -6191,6 +6219,69 @@ export interface IntlMessages {
       updated: string;
       created: string;
       deleted: string;
+    };
+    series: {
+      toggle: string;
+      toggleHelp: string;
+      sessionDate: string;
+      firstDate: string;
+      endDate: string;
+      viewingBanner: string;
+      clearFilter: string;
+      countsLine: string;
+      extendUntil: string;
+      previewError: string;
+      kindWeeklyHint: string;
+      kindIntervalHint: string;
+      kindWeekly: string;
+      kindInterval: string;
+      weekday: string;
+      everyDays: string;
+      until: string;
+      untilLabel: string;
+      previewTitle: string;
+      previewMore: string;
+      previewLoading: string;
+      dateRequired: string;
+      created: string;
+      createOne: string;
+      createMany: string;
+      saving: string;
+      creating: string;
+      saveChanges: string;
+      badge: string;
+      viewSeries: string;
+      cancelFuture: string;
+      cancelFutureConfirmTitle: string;
+      cancelFutureConfirmBody: string;
+      cancelFutureAction: string;
+      canceled: string;
+      extend: string;
+      extendTitle: string;
+      extendBody: string;
+      extendAction: string;
+      extended: string;
+      dismiss: string;
+      weekdays: {
+        "1": string;
+        "2": string;
+        "3": string;
+        "4": string;
+        "5": string;
+        "6": string;
+        "7": string;
+      };
+      weekdaysShort: {
+        "1": string;
+        "2": string;
+        "3": string;
+        "4": string;
+        "5": string;
+        "6": string;
+        "7": string;
+      };
+      intervalDecrease: string;
+      intervalIncrease: string;
     };
     errors: {
       save_failed: string;
