@@ -1,64 +1,66 @@
 import type { AuthUser } from "@/lib/auth/types";
 import type { ScopeLevel } from "@/lib/api/resources";
-
-type ScopeNode = { id?: number | string | null } | null | undefined;
-type GlobalScope = {
-  country?: ScopeNode;
-  division?: ScopeNode;
-  union?: ScopeNode;
-  local_field?: ScopeNode;
-};
+import { resolveAdminTerritoryScope } from "@/lib/auth/territory-scope";
 
 export type ResourceScopeOptions = {
   allowedScopeLevels: ScopeLevel[];
   lockedScopeId: number | null;
 };
 
-const ALL_RESOURCE_SCOPE_LEVELS: ScopeLevel[] = ["system", "division", "union", "local_field"];
-
-function toPositiveNumber(value: unknown): number | null {
-  const parsed = typeof value === "number" ? value : Number(value);
-  if (!Number.isFinite(parsed) || parsed <= 0) return null;
-  return parsed;
-}
+const ALL_RESOURCE_SCOPE_LEVELS: ScopeLevel[] = [
+  "system",
+  "division",
+  "union",
+  "local_field",
+];
 
 /**
- * Resolves the resource scopes the current admin can target.
- *
- * Empty global scope means a global/unscoped admin; that user can target every
- * resource scope. Territorial admins are narrowed to their assigned hierarchy.
+ * Resource create/edit targets follow the same role-first territory as the rest
+ * of the admin. `country` on `/auth/me` is geography, not a global unlock.
  */
 export function resolveResourceScopeOptions(
   user: Pick<AuthUser, "authorization"> | null | undefined,
 ): ResourceScopeOptions {
-  const effective = (user?.authorization as Record<string, unknown> | undefined)
-    ?.effective as { scope?: { global?: GlobalScope } } | undefined;
-  const globalScope = effective?.scope?.global;
+  const territory = resolveAdminTerritoryScope(user);
 
-  if (!globalScope) {
-    return { allowedScopeLevels: [], lockedScopeId: null };
+  if (territory.level === "division") {
+    return { allowedScopeLevels: ["division"], lockedScopeId: territory.divisionId };
   }
 
-  const userCountryId = toPositiveNumber(globalScope.country?.id);
-  const userDivisionId = toPositiveNumber(globalScope.division?.id);
-  const userUnionId = toPositiveNumber(globalScope.union?.id);
-  const userLocalFieldId = toPositiveNumber(globalScope.local_field?.id);
-
-  if (userCountryId || (!userDivisionId && !userUnionId && !userLocalFieldId)) {
-    return { allowedScopeLevels: ALL_RESOURCE_SCOPE_LEVELS, lockedScopeId: null };
+  if (territory.level === "union") {
+    return { allowedScopeLevels: ["union"], lockedScopeId: territory.unionId };
   }
 
-  if (userDivisionId) {
-    return { allowedScopeLevels: ["division"], lockedScopeId: userDivisionId };
+  if (territory.level === "local_field") {
+    return {
+      allowedScopeLevels: ["local_field"],
+      lockedScopeId: territory.localFieldId,
+    };
   }
 
-  if (userUnionId) {
-    return { allowedScopeLevels: ["union"], lockedScopeId: userUnionId };
+  return { allowedScopeLevels: ALL_RESOURCE_SCOPE_LEVELS, lockedScopeId: null };
+}
+
+export function isResourceScopeAllowed(
+  options: ResourceScopeOptions,
+  scopeLevel: ScopeLevel | null,
+  scopeId: number | null,
+): boolean {
+  if (!scopeLevel) {
+    return true;
   }
 
-  if (userLocalFieldId) {
-    return { allowedScopeLevels: ["local_field"], lockedScopeId: userLocalFieldId };
+  if (!options.allowedScopeLevels.includes(scopeLevel)) {
+    return false;
   }
 
-  return { allowedScopeLevels: [], lockedScopeId: null };
+  if (scopeLevel === "system") {
+    return true;
+  }
+
+  if (options.lockedScopeId === null) {
+    return true;
+  }
+
+  return scopeId === options.lockedScopeId;
 }

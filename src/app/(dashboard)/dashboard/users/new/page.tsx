@@ -1,10 +1,16 @@
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
-import { NewUserForm } from "@/components/users/new-user-form";
+import { NewUserForm, type NewUserGeography } from "@/components/users/new-user-form";
 import { requireAdminUser } from "@/lib/auth/session";
 import { extractRoles } from "@/lib/auth/roles";
 import type { AdminCreatableRole } from "@/lib/api/admin-users";
+import { listCountries } from "@/lib/api/geography";
+import {
+  listLocalFieldsForTerritory,
+  listUnionsForTerritory,
+  resolveAdminTerritoryScope,
+} from "@/lib/auth/territory-scope";
 
 // ─── Role-to-allowed-creatable-roles mapping ──────────────────────────────────
 
@@ -85,6 +91,51 @@ export default async function NewUserPage() {
   const allowedRoles = resolveAllowedRoles(userRoles);
   const t = await getTranslations("users.pages.new");
   const tList = await getTranslations("users.pages.list");
+  const territory = resolveAdminTerritoryScope(currentUser);
+
+  let geography: NewUserGeography | undefined;
+  if (territory.level !== "all") {
+    const [countries, unions, localFields] = await Promise.all([
+      listCountries().catch(() => []),
+      listUnionsForTerritory(currentUser).catch(() => []),
+      listLocalFieldsForTerritory(currentUser).catch(() => []),
+    ]);
+
+    const countryIds = new Set(
+      unions
+        .map((union) => union.country_id)
+        .filter((id): id is number => typeof id === "number" && id > 0),
+    );
+    if (territory.countryId) {
+      countryIds.add(territory.countryId);
+    }
+    const scopedCountries = countries.filter((country) =>
+      countryIds.size > 0 ? countryIds.has(country.country_id) : true,
+    );
+
+    const defaultUnionId =
+      territory.level === "union"
+        ? territory.unionId
+        : territory.level === "local_field"
+          ? (territory.unionId ?? unions[0]?.union_id)
+          : unions.length === 1
+            ? unions[0]?.union_id
+            : undefined;
+
+    geography = {
+      lockCountry: scopedCountries.length <= 1 || territory.level !== "division",
+      lockUnion: territory.level === "union" || territory.level === "local_field",
+      lockLocalField: territory.level === "local_field",
+      countries: scopedCountries,
+      unions,
+      localFields,
+      defaultCountryId:
+        scopedCountries[0]?.country_id ?? territory.countryId ?? undefined,
+      defaultUnionId,
+      defaultLocalFieldId:
+        territory.level === "local_field" ? territory.localFieldId : undefined,
+    };
+  }
 
   return (
     <div className="space-y-6">
@@ -97,7 +148,7 @@ export default async function NewUserPage() {
         ]}
       />
 
-      <NewUserForm allowedRoles={allowedRoles} />
+      <NewUserForm allowedRoles={allowedRoles} geography={geography} />
     </div>
   );
 }

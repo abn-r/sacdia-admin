@@ -5,14 +5,26 @@ import { extractRoles } from "@/lib/auth/roles";
 
 export type AdminTerritoryScope =
   | { level: "all" }
-  | { level: "division"; divisionId: number; divisionName?: string | null }
-  | { level: "union"; unionId: number; unionName?: string | null; divisionId?: number | null }
+  | {
+      level: "division";
+      divisionId: number;
+      divisionName?: string | null;
+      countryId?: number | null;
+    }
+  | {
+      level: "union";
+      unionId: number;
+      unionName?: string | null;
+      divisionId?: number | null;
+      countryId?: number | null;
+    }
   | {
       level: "local_field";
       localFieldId: number;
       localFieldName?: string | null;
       unionId?: number | null;
       divisionId?: number | null;
+      countryId?: number | null;
     };
 
 type ScopeNode = {
@@ -66,6 +78,7 @@ export function resolveAdminTerritoryScope(
   const localFieldId = toPositiveNumber(globalScope?.local_field?.id);
   const unionId = toPositiveNumber(globalScope?.union?.id);
   const divisionId = toPositiveNumber(globalScope?.division?.id);
+  const countryId = toPositiveNumber(globalScope?.country?.id);
 
   const localFieldScope = (): AdminTerritoryScope => ({
     level: "local_field",
@@ -76,6 +89,7 @@ export function resolveAdminTerritoryScope(
       toPositiveNumber(globalScope?.local_field?.division_id) ??
       toPositiveNumber(globalScope?.union?.division_id) ??
       divisionId,
+    countryId,
   });
 
   const unionScope = (): AdminTerritoryScope => ({
@@ -83,12 +97,14 @@ export function resolveAdminTerritoryScope(
     unionId: unionId as number,
     unionName: globalScope?.union?.name ?? null,
     divisionId: toPositiveNumber(globalScope?.union?.division_id) ?? divisionId,
+    countryId,
   });
 
   const divisionScope = (): AdminTerritoryScope => ({
     level: "division",
     divisionId: divisionId as number,
     divisionName: globalScope?.division?.name ?? null,
+    countryId,
   });
 
   if (hasAnyRole(roles, SUPER_ADMIN_ROLES)) {
@@ -257,18 +273,48 @@ export async function listLocalFieldsForTerritory(
   return listLocalFields();
 }
 
+export function unionOptionFromTerritory(scope: AdminTerritoryScope): Union | null {
+  if (scope.level === "union") {
+    return {
+      union_id: scope.unionId,
+      name: scope.unionName ?? `Unión #${scope.unionId}`,
+      country_id: scope.countryId ?? 0,
+      division_id: scope.divisionId ?? undefined,
+      active: true,
+    };
+  }
+
+  if (scope.level === "local_field" && scope.unionId) {
+    return {
+      union_id: scope.unionId,
+      name: `Unión #${scope.unionId}`,
+      country_id: scope.countryId ?? 0,
+      division_id: scope.divisionId ?? undefined,
+      active: true,
+    };
+  }
+
+  return null;
+}
+
 export async function listUnionsForTerritory(
   user: Pick<AuthUser, "authorization"> | null | undefined,
 ): Promise<Union[]> {
   const scope = resolveAdminTerritoryScope(user);
 
-  if (scope.level === "division") {
-    return listUnions({ divisionId: scope.divisionId });
-  }
-
   if (scope.level === "all") {
     return listUnions();
   }
 
-  return [];
+  if (scope.level === "division") {
+    return listUnions({ divisionId: scope.divisionId });
+  }
+
+  const unions = filterUnionsByTerritory(await listUnions(), scope);
+  if (unions.length > 0) {
+    return unions;
+  }
+
+  const fallback = unionOptionFromTerritory(scope);
+  return fallback ? [fallback] : [];
 }

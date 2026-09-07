@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import type { AuthUser } from "@/lib/auth/types";
-import { resolveAdminTerritoryScope } from "./territory-scope";
+import {
+  filterUnionsByTerritory,
+  resolveAdminTerritoryScope,
+  unionOptionFromTerritory,
+} from "./territory-scope";
 
 function userWithRoles(
   roleName: string,
@@ -60,5 +64,30 @@ describe("resolveAdminTerritoryScope", () => {
         }),
       ),
     ).toEqual({ level: "all" });
+  });
+
+  it("keeps a union director's union when listing unions for territory", () => {
+    const scope = resolveAdminTerritoryScope(
+      userWithRoles("director-union", {
+        country: { id: 1 },
+        union: { id: 2, name: "Unión Norte" },
+        local_field: { id: 9, name: "Campo Casa" },
+      }),
+    );
+
+    expect(
+      filterUnionsByTerritory(
+        [
+          { union_id: 2, name: "Unión Norte", country_id: 1 },
+          { union_id: 8, name: "Otra unión", country_id: 1 },
+        ],
+        scope,
+      ).map((union) => union.union_id),
+    ).toEqual([2]);
+
+    expect(unionOptionFromTerritory(scope)).toMatchObject({
+      union_id: 2,
+      name: "Unión Norte",
+    });
   });
 });

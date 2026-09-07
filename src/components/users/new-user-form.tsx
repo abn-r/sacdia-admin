@@ -101,24 +101,38 @@ type FormValues = {
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
+export interface NewUserGeography {
+  lockCountry: boolean;
+  lockUnion: boolean;
+  lockLocalField: boolean;
+  countries: Country[];
+  unions: Union[];
+  localFields: LocalField[];
+  defaultCountryId?: number;
+  defaultUnionId?: number;
+  defaultLocalFieldId?: number;
+}
+
 export interface NewUserFormProps {
   allowedRoles: AdminCreatableRole[];
+  geography?: NewUserGeography;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const LIST_HREF = "/dashboard/users";
 
-export function NewUserForm({ allowedRoles }: NewUserFormProps) {
+export function NewUserForm({ allowedRoles, geography }: NewUserFormProps) {
   const t = useTranslations("users.pages.new");
   const router = useRouter();
   const getRoleLabel = useRoleLabel();
+  const isScoped = Boolean(geography);
 
   // Geography state
-  const [countries, setCountries] = useState<Country[]>([]);
-  const [unions, setUnions] = useState<Union[]>([]);
-  const [localFields, setLocalFields] = useState<LocalField[]>([]);
-  const [loadingCountries, setLoadingCountries] = useState(false);
+  const [countries, setCountries] = useState<Country[]>(() => geography?.countries ?? []);
+  const [unions, setUnions] = useState<Union[]>(() => geography?.unions ?? []);
+  const [localFields, setLocalFields] = useState<LocalField[]>(() => geography?.localFields ?? []);
+  const [loadingCountries, setLoadingCountries] = useState(!isScoped);
   const [loadingUnions, setLoadingUnions] = useState(false);
   const [loadingLocalFields, setLoadingLocalFields] = useState(false);
 
@@ -133,26 +147,53 @@ export function NewUserForm({ allowedRoles }: NewUserFormProps) {
       maternal_last_name: "",
       email: "",
       role: undefined,
-      country_id: undefined,
-      union_id: undefined,
-      local_field_id: undefined,
+      country_id: geography?.defaultCountryId,
+      union_id: geography?.defaultUnionId,
+      local_field_id: geography?.defaultLocalFieldId,
     },
   });
 
   const { formState: { isSubmitting } } = form;
 
-  // Load countries on mount
+  // Load countries on mount unless the server already scoped them.
   useEffect(() => {
+    if (isScoped) {
+      setCountries(geography?.countries ?? []);
+      setLoadingCountries(false);
+      return;
+    }
+
     setLoadingCountries(true);
     listCountries()
       .then((data) => setCountries(Array.isArray(data) ? data : []))
       .catch(() => toast.error(t("toast.generic")))
       .finally(() => setLoadingCountries(false));
-  }, [t]);
+  }, [geography?.countries, isScoped, t]);
 
   // Watch country_id and load unions when it changes
   const watchedCountryId = form.watch("country_id");
   useEffect(() => {
+    if (isScoped) {
+      const nextUnions = (geography?.unions ?? []).filter(
+        (union) =>
+          !watchedCountryId ||
+          union.country_id === 0 ||
+          union.country_id === watchedCountryId,
+      );
+      setUnions(nextUnions);
+      setLoadingUnions(false);
+      if (
+        !geography?.lockUnion &&
+        watchedCountryId &&
+        form.getValues("union_id") &&
+        !nextUnions.some((union) => union.union_id === form.getValues("union_id"))
+      ) {
+        form.setValue("union_id", undefined as unknown as number);
+        form.setValue("local_field_id", undefined);
+      }
+      return;
+    }
+
     if (!watchedCountryId || watchedCountryId < 1) {
       setUnions([]);
       setLocalFields([]);
@@ -171,11 +212,30 @@ export function NewUserForm({ allowedRoles }: NewUserFormProps) {
       .then((data) => setUnions(Array.isArray(data) ? data : []))
       .catch(() => toast.error(t("toast.generic")))
       .finally(() => setLoadingUnions(false));
-  }, [watchedCountryId, form, t]);
+  }, [watchedCountryId, form, geography, isScoped, t]);
 
   // Watch union_id and load local fields when it changes
   const watchedUnionId = form.watch("union_id");
   useEffect(() => {
+    if (isScoped) {
+      const nextFields = (geography?.localFields ?? []).filter(
+        (field) => !watchedUnionId || field.union_id === watchedUnionId,
+      );
+      setLocalFields(nextFields);
+      setLoadingLocalFields(false);
+      if (
+        !geography?.lockLocalField &&
+        watchedUnionId &&
+        form.getValues("local_field_id") &&
+        !nextFields.some(
+          (field) => field.local_field_id === form.getValues("local_field_id"),
+        )
+      ) {
+        form.setValue("local_field_id", undefined);
+      }
+      return;
+    }
+
     if (!watchedUnionId || watchedUnionId < 1) {
       setLocalFields([]);
       form.setValue("local_field_id", undefined);
@@ -190,9 +250,24 @@ export function NewUserForm({ allowedRoles }: NewUserFormProps) {
       .then((data) => setLocalFields(Array.isArray(data) ? data : []))
       .catch(() => toast.error(t("toast.generic")))
       .finally(() => setLoadingLocalFields(false));
-  }, [watchedUnionId, form, t]);
+  }, [watchedUnionId, form, geography, isScoped, t]);
 
   async function onSubmit(values: FormValues) {
+    if (geography) {
+      const unionAllowed = geography.unions.some(
+        (union) => union.union_id === values.union_id,
+      );
+      const fieldAllowed =
+        values.local_field_id == null ||
+        geography.localFields.some(
+          (field) => field.local_field_id === values.local_field_id,
+        );
+      if (!unionAllowed || !fieldAllowed) {
+        toast.error(t("toast.forbidden"));
+        return;
+      }
+    }
+
     try {
       const result = await createAdminUserFromClient({
         name: values.name,
@@ -393,6 +468,7 @@ export function NewUserForm({ allowedRoles }: NewUserFormProps) {
                   <Select
                     onValueChange={(val) => field.onChange(Number(val))}
                     value={field.value ? String(field.value) : ""}
+                    disabled={geography?.lockCountry}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -431,7 +507,11 @@ export function NewUserForm({ allowedRoles }: NewUserFormProps) {
                   <Select
                     onValueChange={(val) => field.onChange(Number(val))}
                     value={field.value ? String(field.value) : ""}
-                    disabled={!watchedCountryId || watchedCountryId < 1}
+                    disabled={
+                      geography?.lockUnion ||
+                      !watchedCountryId ||
+                      watchedCountryId < 1
+                    }
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -470,7 +550,11 @@ export function NewUserForm({ allowedRoles }: NewUserFormProps) {
                       field.onChange(val ? Number(val) : undefined)
                     }
                     value={field.value ? String(field.value) : ""}
-                    disabled={!watchedUnionId || watchedUnionId < 1}
+                    disabled={
+                      geography?.lockLocalField ||
+                      !watchedUnionId ||
+                      watchedUnionId < 1
+                    }
                   >
                     <FormControl>
                       <SelectTrigger>

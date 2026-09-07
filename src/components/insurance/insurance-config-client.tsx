@@ -6,16 +6,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { InsuranceProductsPanel } from "@/components/insurance/insurance-products-panel";
 import { InsuranceCyclesPanel } from "@/components/insurance/insurance-cycles-panel";
 import { PaymentInstructionsPanel } from "@/components/insurance/payment-instructions-panel";
+import type { LocalField } from "@/lib/api/geography";
 
 interface InsuranceConfigClientProps {
   /** Global admins (no territorial LF) must pick the local field explicitly. */
   requiresLocalFieldId: boolean;
+  localFieldOptions?: LocalField[];
   canConfigureInsurance: boolean;
   canConfigurePaymentInstructions: boolean;
 }
 
 export function InsuranceConfigClient({
   requiresLocalFieldId,
+  localFieldOptions = [],
   canConfigureInsurance,
   canConfigurePaymentInstructions,
 }: InsuranceConfigClientProps) {
@@ -51,6 +54,7 @@ export function InsuranceConfigClient({
         <TabsContent value="payment">
           <PaymentInstructionsPanel
             requiresLocalFieldId={requiresLocalFieldId}
+            localFieldOptions={localFieldOptions}
           />
         </TabsContent>
       )}

@@ -51,8 +51,11 @@ const ResourcesCrudPage = dynamic(
 import { listResources, listResourceCategories } from "@/lib/api/resources";
 import type { ResourceType, ScopeLevel } from "@/lib/api/resources";
 import { listClubTypes, type ClubType } from "@/lib/api/catalogs";
-import { listUnions, listLocalFields } from "@/lib/api/geography";
 import type { Union, LocalField } from "@/lib/api/geography";
+import {
+  listLocalFieldsForTerritory,
+  listUnionsForTerritory,
+} from "@/lib/auth/territory-scope";
 import { hasAnyPermission } from "@/lib/auth/permission-utils";
 import {
   RESOURCES_CREATE,
@@ -253,8 +256,8 @@ export default async function ResourcesPage({
       listResources({ page, limit, resource_type: resourceType, resource_category_id: categoryId, club_type_id: clubTypeId, scope_level: scopeLevel, search }),
       listResourceCategories({ limit: 500 }),
       listClubTypes(),
-      listUnions(),
-      listLocalFields(),
+      listUnionsForTerritory(user),
+      listLocalFieldsForTerritory(user),
     ]);
 
   if (resourcesResult.status === "fulfilled") {
@@ -282,11 +285,15 @@ export default async function ResourcesPage({
   }
 
   if (unionsResult.status === "fulfilled") {
-    unions = extractUnions(unionsResult.value);
+    unions = Array.isArray(unionsResult.value)
+      ? unionsResult.value
+      : extractUnions(unionsResult.value);
   }
 
   if (localFieldsResult.status === "fulfilled") {
-    localFields = extractLocalFields(localFieldsResult.value);
+    localFields = Array.isArray(localFieldsResult.value)
+      ? localFieldsResult.value
+      : extractLocalFields(localFieldsResult.value);
   }
 
   const canCreate = hasAnyPermission(user, [RESOURCES_CREATE]);

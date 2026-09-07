@@ -9,7 +9,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ApiError } from "@/lib/api/client";
+import type { LocalField } from "@/lib/api/geography";
 import {
   getPaymentOrderConfig,
   upsertPaymentOrderConfig,
@@ -20,6 +28,7 @@ import { getPaymentOrderErrorMessage } from "@/components/payment-orders/payment
 interface PaymentInstructionsPanelProps {
   /** Global admins must target an explicit local field. */
   requiresLocalFieldId?: boolean;
+  localFieldOptions?: LocalField[];
 }
 
 type FormState = {
@@ -60,6 +69,7 @@ function toForm(config: PaymentOrderConfig): FormState {
  */
 export function PaymentInstructionsPanel({
   requiresLocalFieldId = false,
+  localFieldOptions = [],
 }: PaymentInstructionsPanelProps) {
   const t = useTranslations("payment_orders");
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
@@ -95,14 +105,32 @@ export function PaymentInstructionsPanel({
     if (!requiresLocalFieldId) void load();
   }, [requiresLocalFieldId, load]);
 
+  useEffect(() => {
+    if (!requiresLocalFieldId || localFieldOptions.length !== 1) {
+      return;
+    }
+    const onlyId = String(localFieldOptions[0].local_field_id);
+    setForm((previous) =>
+      previous.local_field_id === onlyId
+        ? previous
+        : { ...previous, local_field_id: onlyId },
+    );
+  }, [requiresLocalFieldId, localFieldOptions]);
+
   const set = (key: keyof FormState) =>
     (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       setForm((previous) => ({ ...previous, [key]: event.target.value }));
 
   const hasBank = Boolean(form.bank_account.trim() || form.bank_clabe.trim());
   const hasCash = Boolean(form.cash_instructions.trim());
+  const allowedFieldIds = new Set(
+    localFieldOptions.map((field) => field.local_field_id),
+  );
+  const selectedFieldId = Number(form.local_field_id);
   const localFieldMissing =
-    requiresLocalFieldId && !form.local_field_id.trim();
+    requiresLocalFieldId &&
+    (!form.local_field_id.trim() ||
+      (allowedFieldIds.size > 0 && !allowedFieldIds.has(selectedFieldId)));
 
   const save = async () => {
     setSaving(true);
@@ -138,14 +166,37 @@ export function PaymentInstructionsPanel({
             <Label htmlFor="config-local-field">
               {t("config.localField")}
             </Label>
-            <Input
-              id="config-local-field"
-              type="number"
-              min={1}
-              value={form.local_field_id}
-              onChange={set("local_field_id")}
-              className="w-40"
-            />
+            {localFieldOptions.length > 0 ? (
+              <Select
+                value={form.local_field_id}
+                onValueChange={(value) =>
+                  setForm((previous) => ({ ...previous, local_field_id: value }))
+                }
+              >
+                <SelectTrigger id="config-local-field" className="w-64">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {localFieldOptions.map((field) => (
+                    <SelectItem
+                      key={field.local_field_id}
+                      value={String(field.local_field_id)}
+                    >
+                      {field.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <Input
+                id="config-local-field"
+                type="number"
+                min={1}
+                value={form.local_field_id}
+                onChange={set("local_field_id")}
+                className="w-40"
+              />
+            )}
           </div>
           <Button
             type="button"

@@ -18,6 +18,10 @@ import {
   RESOURCES_UPDATE,
 } from "@/lib/auth/permissions";
 import { requireAdminUser } from "@/lib/auth/session";
+import {
+  isResourceScopeAllowed,
+  resolveResourceScopeOptions,
+} from "@/lib/resources/scope-options";
 
 type ResourcesTranslator = Awaited<ReturnType<typeof getTranslations<"resources">>>;
 
@@ -52,6 +56,18 @@ function toScopeLevel(value: string): ScopeLevel | null {
 
 function parseResourceId(formData: FormData) {
   return readString(formData, "id");
+}
+
+function assertResourceTerritory(
+  user: Awaited<ReturnType<typeof requireAdminUser>>,
+  t: ResourcesTranslator,
+  scopeLevel: ScopeLevel | null,
+  scopeId: number | null,
+) {
+  const options = resolveResourceScopeOptions(user);
+  if (!isResourceScopeAllowed(options, scopeLevel, scopeId)) {
+    throw new Error(t("errors.scope_denied"));
+  }
 }
 
 function buildCreateFormData(t: ResourcesTranslator, formData: FormData): FormData {
@@ -144,6 +160,9 @@ export async function createResourceAction(
   }
   try {
     const outFormData = buildCreateFormData(t, formData);
+    const scopeLevel = toScopeLevel(readString(formData, "scope_level"));
+    const scopeId = parsePositiveNumber(formData, "scope_id");
+    assertResourceTerritory(user, t, scopeLevel, scopeId);
     await createResource(outFormData);
   } catch (error) {
     return { error: error instanceof Error ? error.message : t("errors.create_failed") };
@@ -165,6 +184,12 @@ export async function updateResourceAction(
   if (!id) return { error: t("errors.update_not_found") };
   try {
     const payload = buildUpdatePayload(formData);
+    assertResourceTerritory(
+      user,
+      t,
+      payload.scope_level ?? null,
+      payload.scope_id ?? null,
+    );
     await updateResource(id, payload);
   } catch (error) {
     return { error: error instanceof Error ? error.message : t("errors.update_failed") };

@@ -37,10 +37,20 @@ const STUB_CONFIG: PaymentOrderConfig = {
   active: true,
 };
 
-function renderPanel(requiresLocalFieldId = false) {
+function renderPanel(
+  requiresLocalFieldId = false,
+  localFieldOptions: Array<{
+    local_field_id: number;
+    name: string;
+    union_id: number;
+  }> = [],
+) {
   return render(
     <NextIntlClientProvider locale="es" messages={messages}>
-      <PaymentInstructionsPanel requiresLocalFieldId={requiresLocalFieldId} />
+      <PaymentInstructionsPanel
+        requiresLocalFieldId={requiresLocalFieldId}
+        localFieldOptions={localFieldOptions}
+      />
     </NextIntlClientProvider>,
   );
 }
@@ -82,6 +92,20 @@ describe("PaymentInstructionsPanel", () => {
     await waitFor(() => {
       expect(mockGetConfig).toHaveBeenCalledWith(4);
     });
+  });
+
+  it("shows a territorial field picker instead of skipping to the home field", () => {
+    renderPanel(true, [
+      { local_field_id: 4, name: "Campo Norte", union_id: 2 },
+      { local_field_id: 9, name: "Campo Casa", union_id: 2 },
+    ]);
+
+    expect(mockGetConfig).not.toHaveBeenCalled();
+    expect(screen.getByLabelText("Campo Local (ID)")).toHaveAttribute(
+      "role",
+      "combobox",
+    );
+    expect(screen.queryByRole("spinbutton")).not.toBeInTheDocument();
   });
 
   it("blocks saving when neither bank nor cashier data is present", async () => {

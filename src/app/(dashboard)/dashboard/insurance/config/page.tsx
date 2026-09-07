@@ -10,6 +10,10 @@ import {
   INSURANCE_CONFIGURE,
 } from "@/lib/auth/permissions";
 import { requireAdminUser } from "@/lib/auth/session";
+import {
+  listLocalFieldsForTerritory,
+  resolveAdminTerritoryScope,
+} from "@/lib/auth/territory-scope";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("insurance_config.page");
@@ -41,17 +45,19 @@ export default async function InsuranceConfigPage() {
     );
   }
 
-  const scope = user.authorization?.effective?.scope as
-    | { global?: { local_field?: { id?: number } } }
-    | undefined;
-  const requiresLocalFieldId =
-    typeof scope?.global?.local_field?.id !== "number";
+  const territory = resolveAdminTerritoryScope(user);
+  const requiresLocalFieldId = territory.level !== "local_field";
+  const localFieldOptions =
+    requiresLocalFieldId && territory.level !== "all"
+      ? await listLocalFieldsForTerritory(user).catch(() => [])
+      : [];
 
   return (
     <div className="space-y-6">
       <PageHeader title={t("page.title")} description={t("page.description")} />
       <InsuranceConfigClient
         requiresLocalFieldId={requiresLocalFieldId}
+        localFieldOptions={localFieldOptions}
         canConfigureInsurance={canConfigureInsurance}
         canConfigurePaymentInstructions={canConfigurePaymentInstructions}
       />
