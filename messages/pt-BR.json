@@ -1402,7 +1402,12 @@
         "labelFee": "Taxa",
         "noPermission": "Você não tem permissão para habilitar ou desabilitar seções.",
         "counselorsLabel": "Conselheiros",
-        "unassigned": "Sem atribuição"
+        "unassigned": "Sem atribuição",
+        "designatedHeading": "Diretor designado para {year}",
+        "designateNextYear": "Designar diretor do próximo ano",
+        "replaceDesignation": "Substituir designado",
+        "noDesignation": "Ninguém designado para o próximo ano",
+        "designateHint": "Não será diretor até que esse ano entre em vigor."
       },
       "roles": {
         "clubRolesTitle": "Funções do clube",

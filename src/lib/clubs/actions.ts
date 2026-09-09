@@ -11,11 +11,14 @@ import {
   deleteClub,
   revokeClubRoleAssignment,
   succeedClubSectionDirector,
+  designateClubSectionDirector,
+  replaceClubSectionDirectorDesignation,
   updateClub,
   updateClubSection,
   updateClubRoleAssignment,
   type ClubPayload,
 } from "@/lib/api/clubs";
+import { canDesignateNextDirector } from "@/lib/auth/director-succession";
 import { unwrapObject } from "@/lib/api/response";
 import { requireAdminUser } from "@/lib/auth/session";
 import { extractRoles } from "@/lib/auth/roles";
@@ -792,6 +795,107 @@ export async function succeedClubSectionDirectorAction(
   revalidatePath(`/dashboard/clubs/${clubId}`);
   revalidatePath(buildClubSectionPath(clubId, sectionId));
   return { success: "Director actualizado correctamente" };
+}
+
+// ─── Director Designation (future year) ──────────────────────────────────────
+
+export async function designateClubSectionDirectorAction(
+  clubId: number,
+  sectionId: number,
+  _: ClubActionState,
+  formData: FormData,
+): Promise<ClubActionState> {
+  const currentUser = await requireAdminUser();
+  const roles = new Set(extractRoles(currentUser));
+
+  if (!canDesignateNextDirector(roles)) {
+    return {
+      error:
+        "Solo super-admin, admin, director-lf y assistant-lf pueden designar director para el próximo año.",
+    };
+  }
+
+  const t = await getTranslations("clubs");
+
+  const userId = readString(formData, "user_id");
+  if (!userId) {
+    return { error: t("validation.user_id_required") };
+  }
+
+  let ecclesiasticalYearId = 0;
+  try {
+    ecclesiasticalYearId = parseRequiredNumber(
+      t,
+      formData,
+      "ecclesiastical_year_id",
+      t("fields.ecclesiastical_year"),
+    );
+  } catch (error) {
+    return {
+      error:
+        error instanceof Error
+          ? error.message
+          : t("validation.ecclesiastical_year_invalid"),
+    };
+  }
+
+  const isReplace = readString(formData, "replace") === "true";
+
+  try {
+    if (isReplace) {
+      const successionId = readString(formData, "succession_id");
+      let version = 0;
+      try {
+        version = parseRequiredNumber(
+          t,
+          formData,
+          "version",
+          t("fields.version"),
+        );
+      } catch (error) {
+        return {
+          error:
+            error instanceof Error
+              ? error.message
+              : t("validation.field_required", { field: "version" }),
+        };
+      }
+      if (!successionId || !Number.isInteger(version)) {
+        return {
+          error: t("validation.field_required", { field: "succession_id" }),
+        };
+      }
+      await replaceClubSectionDirectorDesignation(clubId, sectionId, {
+        succession_id: successionId,
+        version,
+        successor_user_id: userId,
+      });
+    } else {
+      await designateClubSectionDirector(
+        clubId,
+        sectionId,
+        {
+          user_id: userId,
+          ecclesiastical_year_id: ecclesiasticalYearId,
+        },
+        { headers: { "Idempotency-Key": crypto.randomUUID() } },
+      );
+    }
+  } catch (error) {
+    return {
+      error: getActionErrorMessage(
+        error,
+        "No se pudo designar al director para el próximo año",
+        {
+          endpointLabel: `/clubs/${clubId}/sections/${sectionId}/director-designation`,
+        },
+      ),
+    };
+  }
+
+  revalidatePath(`/dashboard/clubs/${clubId}`);
+  revalidatePath(buildClubSectionPath(clubId, sectionId));
+  return { success: "Director designado correctamente para el próximo año." };
 }
 
 // ─── Bulk import ──────────────────────────────────────────────────────────────

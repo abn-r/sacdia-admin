@@ -1,4 +1,4 @@
-import type { ClubSectionMember } from "@/lib/api/clubs";
+import type { ClubSectionMember, ClubDirectorDesignation } from "@/lib/api/clubs";
 import type { ClubLeadership, LeadershipMember } from "@/lib/api/club-detail";
 
 export type ClubSectionRaw = {
@@ -77,6 +77,12 @@ export type ClubDetailPayload = {
   currentYearId: number | null;
   canManageRoles: boolean;
   canCreateSections: boolean;
+  /** Whether the current user can designate a director for the next year. */
+  canDesignateNextDirector: boolean;
+  /** year_id of the next (not-yet-vigente) ecclesiastical year, or null if none exists. */
+  nextYearId: number | null;
+  /** Map of sectionId → designation row (or null) for the next year. */
+  designationsBySectionId: Record<number, ClubDirectorDesignation>;
 };
 
 export function clubSectionTypeName(section: {

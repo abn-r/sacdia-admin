@@ -1402,7 +1402,12 @@
         "labelFee": "Cotisation",
         "noPermission": "Vous n'avez pas la permission d'activer ou de désactiver des sections.",
         "counselorsLabel": "Conseillers",
-        "unassigned": "Non assigné"
+        "unassigned": "Non assigné",
+        "designatedHeading": "Directeur désigné pour {year}",
+        "designateNextYear": "Désigner le directeur pour l'année prochaine",
+        "replaceDesignation": "Remplacer le désigné",
+        "noDesignation": "Personne désignée pour l'année prochaine",
+        "designateHint": "Il ne sera directeur qu'à l'entrée en vigueur de cette année."
       },
       "roles": {
         "clubRolesTitle": "Rôles du club",

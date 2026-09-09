@@ -352,6 +352,64 @@ export async function assignInitialClubSectionDirector(
   });
 }
 
+// ─── Director Designation (future year) ──────────────────────────────────────
+
+export type ClubDirectorDesignationPayload = {
+  user_id: string;
+  ecclesiastical_year_id: number;
+};
+
+export type ClubDirectorDesignationReplacePayload = {
+  succession_id: string;
+  version: number;
+  successor_user_id: string;
+};
+
+export type ClubDirectorDesignation = {
+  succession_id: string;
+  user_id: string;
+  ecclesiastical_year_id: number;
+  effective_date: string;
+  status: string;
+  version: number;
+  outgoing_assignment_id: string | null;
+} | null;
+
+export async function getClubSectionDirectorDesignation(
+  clubId: number,
+  sectionId: number,
+  yearId: number,
+): Promise<ClubDirectorDesignation> {
+  return apiRequest<ClubDirectorDesignation>(
+    `/clubs/${clubId}/sections/${sectionId}/director-designation`,
+    { params: { yearId } },
+  );
+}
+
+export async function designateClubSectionDirector(
+  clubId: number,
+  sectionId: number,
+  payload: ClubDirectorDesignationPayload,
+  options?: { headers?: HeadersInit },
+) {
+  return apiRequest(`/clubs/${clubId}/sections/${sectionId}/director-designation`, {
+    method: "POST",
+    body: payload,
+    headers: options?.headers,
+  });
+}
+
+export async function replaceClubSectionDirectorDesignation(
+  clubId: number,
+  sectionId: number,
+  payload: ClubDirectorDesignationReplacePayload,
+) {
+  return apiRequest(`/clubs/${clubId}/sections/${sectionId}/director-designation`, {
+    method: "PATCH",
+    body: payload,
+  });
+}
+
 // ─── Club-level member aggregation ───────────────────────────────────────────
 
 type RawMember = Record<string, unknown>;

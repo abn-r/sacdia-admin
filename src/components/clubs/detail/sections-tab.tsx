@@ -22,6 +22,10 @@ import {
   type DetailActionState,
 } from "@/lib/clubs/detail-actions";
 import {
+  designateClubSectionDirectorAction,
+  type ClubActionState,
+} from "@/lib/clubs/actions";
+import {
   getSectionOfficers,
   type ClubDetailPayload,
   type ClubSectionRaw,
@@ -29,6 +33,7 @@ import {
   type SectionOfficerRole,
   type SectionOfficers,
 } from "@/lib/clubs/types";
+import type { ClubSectionMember } from "@/lib/api/clubs";
 
 interface SectionsTabProps {
   data: ClubDetailPayload;
@@ -242,12 +247,122 @@ const OFFICER_BLOCK_ORDER: Array<{
   { role: "counselor", headingKey: "counselorsLabel", compactList: true },
 ];
 
+function DesignationSubmitButton({ label }: { label: string }) {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" size="sm" variant="outline" className="w-full" disabled={pending}>
+      {pending ? <Loader2 className="size-3.5 animate-spin" /> : null}
+      {label}
+    </Button>
+  );
+}
+
+function DesignationBlock({
+  clubId,
+  sectionId,
+  nextYearId,
+  existingUserId,
+  successionId,
+  version,
+  members,
+}: {
+  clubId: number;
+  sectionId: number;
+  nextYearId: number;
+  existingUserId: string | null;
+  successionId: string | null;
+  version: number | null;
+  members: ClubSectionMember[];
+}) {
+  const t = useTranslations("clubs.detail.sections");
+  const router = useRouter();
+  const boundAction = designateClubSectionDirectorAction.bind(null, clubId, sectionId);
+  const [state, action] = useActionState(boundAction, {} as ClubActionState);
+
+  useEffect(() => {
+    if (state.success) {
+      router.refresh();
+    }
+  }, [state.success, router]);
+
+  const existingMember = existingUserId
+    ? members.find((m) => m.user_id === existingUserId)
+    : null;
+
+  const existingName =
+    existingMember?.name ?? (existingUserId ? existingUserId : null);
+
+  return (
+    <div className="mt-4 space-y-2 rounded-xl border border-dashed border-border/70 bg-muted/10 p-4">
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        {t("designatedHeading", { year: nextYearId })}
+      </p>
+
+      {existingName ? (
+        <p className="truncate text-sm text-foreground">{existingName}</p>
+      ) : (
+        <p className="text-sm text-muted-foreground">{t("noDesignation")}</p>
+      )}
+
+      <p className="text-[11px] text-muted-foreground">{t("designateHint")}</p>
+
+      <form action={action} className="space-y-2 border-t pt-3">
+        <input type="hidden" name="ecclesiastical_year_id" value={nextYearId} />
+        {existingUserId ? (
+          <>
+            <input type="hidden" name="replace" value="true" />
+            {successionId ? (
+              <input type="hidden" name="succession_id" value={successionId} />
+            ) : null}
+            {version != null ? (
+              <input type="hidden" name="version" value={String(version)} />
+            ) : null}
+          </>
+        ) : null}
+
+        <select
+          name="user_id"
+          required
+          className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+          defaultValue=""
+        >
+          <option value="" disabled>
+            {t("designateNextYear")}
+          </option>
+          {members.map((m) => (
+            <option key={m.user_id} value={m.user_id}>
+              {m.name}
+            </option>
+          ))}
+        </select>
+
+        {state.error ? (
+          <p role="alert" className="text-xs text-destructive">
+            {state.error}
+          </p>
+        ) : null}
+        {state.success ? (
+          <p className="text-xs text-primary">{state.success}</p>
+        ) : null}
+
+        <DesignationSubmitButton
+          label={existingUserId ? t("replaceDesignation") : t("designateNextYear")}
+        />
+      </form>
+    </div>
+  );
+}
+
 function SectionCard({
   clubId,
   section,
   typeName,
   officers,
   canManage,
+  canDesignate,
+  nextYearId,
+  designation,
+  members,
   index,
 }: {
   clubId: number;
@@ -255,6 +370,10 @@ function SectionCard({
   typeName: string;
   officers: SectionOfficers;
   canManage: boolean;
+  canDesignate: boolean;
+  nextYearId: number | null;
+  designation: import("@/lib/api/clubs").ClubDirectorDesignation;
+  members: ClubSectionMember[];
   index: number;
 }) {
   const t = useTranslations("clubs.detail.sections");
@@ -315,6 +434,18 @@ function SectionCard({
           );
         })}
       </div>
+
+      {canDesignate && nextYearId != null && section.club_section_id ? (
+        <DesignationBlock
+          clubId={clubId}
+          sectionId={section.club_section_id}
+          nextYearId={nextYearId}
+          existingUserId={designation?.user_id ?? null}
+          successionId={designation?.succession_id ?? null}
+          version={designation?.version ?? null}
+          members={members}
+        />
+      ) : null}
     </DetailSection>
   );
 }
@@ -342,6 +473,11 @@ export function SectionsTab({ data }: SectionsTabProps) {
           (group) => group.sectionId === section.club_section_id,
         );
 
+        const designation =
+          section.club_section_id != null
+            ? (data.designationsBySectionId[section.club_section_id] ?? null)
+            : null;
+
         return (
           <SectionCard
             key={clubType.club_type_id}
@@ -349,6 +485,10 @@ export function SectionsTab({ data }: SectionsTabProps) {
             section={section}
             typeName={clubType.name}
             canManage={data.canCreateSections}
+            canDesignate={data.canDesignateNextDirector}
+            nextYearId={data.nextYearId}
+            designation={designation}
+            members={memberGroup?.members ?? []}
             index={index}
             officers={getSectionOfficers(
               memberGroup?.members ?? [],

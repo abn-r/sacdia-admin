@@ -4,8 +4,13 @@ import {
   getCurrentEcclesiasticalYear,
   listCatalogRoles,
 } from "@/lib/api/catalog-roles";
+import { listEcclesiasticalYears } from "@/lib/api/catalogs";
 import { listAdminClubTypes } from "@/lib/api/admin-club-types";
-import { listNormalizedClubSectionMembers } from "@/lib/api/clubs";
+import {
+  listNormalizedClubSectionMembers,
+  getClubSectionDirectorDesignation,
+  type ClubDirectorDesignation,
+} from "@/lib/api/clubs";
 import type { ClubFull, ClubDetailPayload, SectionMembersGroup } from "@/lib/clubs/types";
 import {
   getClubSections,
@@ -71,9 +76,25 @@ async function loadSectionMembers(
   return groups.filter((group): group is SectionMembersGroup => group != null);
 }
 
+/** Find the next ecclesiastical year: first year whose start_date > currentEndDate. */
+function resolveNextYearId(
+  allYears: Awaited<ReturnType<typeof listEcclesiasticalYears>>,
+  currentEndDate: string | undefined,
+): number | null {
+  if (!currentEndDate) return null;
+  const future = allYears
+    .filter((y) => y.start_date > currentEndDate)
+    .sort((a, b) => a.start_date.localeCompare(b.start_date));
+  return future[0]?.ecclesiastical_year_id ?? null;
+}
+
 export async function loadClubDetail(
   clubIdParam: string | number,
-  options: { canManageRoles?: boolean; canCreateSections?: boolean } = {},
+  options: {
+    canManageRoles?: boolean;
+    canCreateSections?: boolean;
+    canDesignateNextDirector?: boolean;
+  } = {},
 ): Promise<ClubDetailPayload | null> {
   const club = await fetchClubById(Number(clubIdParam));
   if (!club) return null;
@@ -81,7 +102,7 @@ export async function loadClubDetail(
   const clubId = resolveClubId(club, clubIdParam);
   const sections = getClubSections(club);
 
-  const [clubTypes, leadership, clubRoles, currentYear, sectionMemberGroups] =
+  const [clubTypes, leadership, clubRoles, currentYear, sectionMemberGroups, allYears] =
     await Promise.all([
       listAdminClubTypes().catch(() => []),
       getClubLeadership(clubId).catch(() => ({
@@ -93,7 +114,31 @@ export async function loadClubDetail(
       listCatalogRoles("CLUB").catch(() => []),
       getCurrentEcclesiasticalYear().catch(() => null),
       loadSectionMembers(clubId, sections),
+      listEcclesiasticalYears().catch(() => [] as Awaited<ReturnType<typeof listEcclesiasticalYears>>),
     ]);
+
+  const nextYearId = resolveNextYearId(allYears, currentYear?.end_date);
+
+  // Fetch designations for each section when the actor can designate and a next year exists.
+  const canDesignate = options.canDesignateNextDirector ?? false;
+  let designationsBySectionId: Record<number, ClubDirectorDesignation> = {};
+  if (canDesignate && nextYearId != null) {
+    const sectionIds = sections
+      .map((s) => s.club_section_id)
+      .filter((id): id is number => id != null);
+
+    const entries = await Promise.all(
+      sectionIds.map(async (sectionId) => {
+        const designation = await getClubSectionDirectorDesignation(
+          clubId,
+          sectionId,
+          nextYearId,
+        ).catch(() => null);
+        return [sectionId, designation] as [number, ClubDirectorDesignation];
+      }),
+    );
+    designationsBySectionId = Object.fromEntries(entries);
+  }
 
   return {
     club,
@@ -113,5 +158,8 @@ export async function loadClubDetail(
     currentYearId: currentYear?.year_id ?? null,
     canManageRoles: options.canManageRoles ?? false,
     canCreateSections: options.canCreateSections ?? false,
+    canDesignateNextDirector: canDesignate,
+    nextYearId,
+    designationsBySectionId,
   };
 }

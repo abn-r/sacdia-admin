@@ -1402,7 +1402,12 @@
         "labelFee": "Fee",
         "noPermission": "You do not have permission to enable or disable sections.",
         "counselorsLabel": "Counselors",
-        "unassigned": "Unassigned"
+        "unassigned": "Unassigned",
+        "designatedHeading": "Designated director for {year}",
+        "designateNextYear": "Designate next year director",
+        "replaceDesignation": "Replace designee",
+        "noDesignation": "No one designated for the next year",
+        "designateHint": "Not a director until that year takes effect."
       },
       "roles": {
         "clubRolesTitle": "Club roles",

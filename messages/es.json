@@ -1408,7 +1408,12 @@
         "labelFee": "Cuota",
         "noPermission": "No tienes permiso para habilitar o deshabilitar secciones.",
         "counselorsLabel": "Consejeros",
-        "unassigned": "Sin asignar"
+        "unassigned": "Sin asignar",
+        "designatedHeading": "Director designado para {year}",
+        "designateNextYear": "Designar director del próximo año",
+        "replaceDesignation": "Reemplazar designado",
+        "noDesignation": "Nadie designado para el próximo año",
+        "designateHint": "No es director hasta que ese año entre en vigor."
       },
       "roles": {
         "clubRolesTitle": "Roles del club",

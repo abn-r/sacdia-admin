@@ -1438,6 +1438,11 @@ export interface IntlMessages {
         noPermission: string;
         counselorsLabel: string;
         unassigned: string;
+        designatedHeading: string;
+        designateNextYear: string;
+        replaceDesignation: string;
+        noDesignation: string;
+        designateHint: string;
       };
       roles: {
         clubRolesTitle: string;
