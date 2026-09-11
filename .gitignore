@@ -48,3 +48,6 @@ next-env.d.ts
 
 # Claude Code local state (worktrees, plugins, transcripts)
 .claude/
+
+# graft's local graph cache — regenerable, not committed (run `graft build`).
+/graft/
