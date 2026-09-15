@@ -37,25 +37,6 @@ describe("screen titles", () => {
     for (const screen of withoutNavKey) {
       expect(getScreenTitle(tNav, screen).length, screen.id).toBeGreaterThan(0);
     }
-    // Keep the fallback list from silently growing: add a nav key or an alias.
-    expect(withoutNavKey.map((screen) => screen.id).sort()).toEqual(
-      [
-        "insurance-config",
-        "payment-orders",
-        "clubs-evidence-folders-templates",
-        "certifications-reviews",
-        "campamentos-plantillas",
-        "campamentos-judges",
-        "campamentos-pedidos-catalogo",
-        "campamentos-pedidos-bandeja",
-        "notifications-categories",
-        "catalogs-certifications",
-        "catalogs-camporee-event-types",
-        "admin-local-field-delivery",
-        "admin-campamentos-config-local",
-        "admin-campamentos-config-union",
-        "admin-system-jobs-history",
-      ].sort(),
-    );
+    expect(withoutNavKey.map((screen) => screen.id)).toEqual([]);
   });
 });

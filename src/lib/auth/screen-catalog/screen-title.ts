@@ -56,6 +56,7 @@ export const NAV_KEY_BY_SCREEN_ID: Readonly<Record<string, string>> = {
   "admin-system-roles": "rbac_roles",
   "admin-system-permissions": "rbac_permissions",
   "admin-system-matrix": "rbac",
+  "clubs-evidence-folders-templates": "annual_folders_templates",
 };
 
 /** `nav.items` key candidates for a screen, most specific first. */

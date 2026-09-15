@@ -131,17 +131,21 @@ describe("catalogs-domain capabilities", () => {
     expect(canViewScreen(noRole, "catalogs-master-honors")).toBe(false);
   });
 
-  it("mirrors ecclesiastical_years:* and hides delete from admin without :delete", () => {
+  it("hides ecclesiastical year create/delete from admin even with :create/:delete", () => {
     const admin = buildUser(
       ["admin"],
       [
         "ecclesiastical_years:read",
         "ecclesiastical_years:create",
         "ecclesiastical_years:update",
+        "ecclesiastical_years:delete",
       ],
     );
     expect(canViewScreen(admin, "catalogs-ecclesiastical-years")).toBe(true);
     expect(canCapability(admin, "catalogs-ecclesiastical-years", "create")).toBe(
+      false,
+    );
+    expect(canCapability(admin, "catalogs-ecclesiastical-years", "update")).toBe(
       true,
     );
     expect(canCapability(admin, "catalogs-ecclesiastical-years", "delete")).toBe(
@@ -149,6 +153,9 @@ describe("catalogs-domain capabilities", () => {
     );
 
     const superAdmin = buildUser(["super-admin"], []);
+    expect(
+      canCapability(superAdmin, "catalogs-ecclesiastical-years", "create"),
+    ).toBe(true);
     expect(
       canCapability(superAdmin, "catalogs-ecclesiastical-years", "delete"),
     ).toBe(true);

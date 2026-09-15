@@ -54,25 +54,31 @@ function makeFormData(entries: Record<string, string>) {
 }
 
 describe("succeedClubSectionDirectorAction", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
+  const ASSIGN_AND_REVOKE = ["club_roles:assign", "club_roles:revoke"];
+
+  function setupUser(roles: string[], permissions = ASSIGN_AND_REVOKE) {
     mockRequireAdminUser.mockResolvedValue({
       id: "actor-1",
       email: "actor@example.com",
-      roles: ["director-lf"],
+      roles,
+      authorization: {
+        grants: { global_roles: roles.map((role_name) => ({ role_name })) },
+        effective: { permissions },
+      },
     });
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    setupUser(["director-lf"]);
     mockSucceedClubSectionDirector.mockResolvedValue({
       ended_assignment_id: "old-assignment",
       new_assignment_id: "new-assignment",
     });
   });
 
-  it("rejects admin users that are not director-lf or assistant-lf before calling the API", async () => {
-    mockRequireAdminUser.mockResolvedValue({
-      id: "actor-1",
-      email: "actor@example.com",
-      roles: ["admin"],
-    });
+  it("lets admin with assign and revoke call the API", async () => {
+    setupUser(["admin"]);
 
     const result = await succeedClubSectionDirectorAction(
       10,
@@ -85,7 +91,40 @@ describe("succeedClubSectionDirectorAction", () => {
       }),
     );
 
-    expect(result.error).toMatch(/director-lf|assistant-lf/i);
+    expect(result.success).toBeTruthy();
+    expect(mockSucceedClubSectionDirector).toHaveBeenCalled();
+  });
+
+  it("rejects director-union and admin without revoke before calling the API", async () => {
+    setupUser(["director-union"]);
+
+    const union = await succeedClubSectionDirectorAction(
+      10,
+      7,
+      {},
+      makeFormData({
+        current_assignment_id: "old-assignment",
+        successor_user_id: "successor-user",
+        ecclesiastical_year_id: "2026",
+      }),
+    );
+
+    expect(union.error).toMatch(/director-lf|assistant-lf|admin/i);
+    expect(mockSucceedClubSectionDirector).not.toHaveBeenCalled();
+
+    setupUser(["admin"], ["club_roles:assign"]);
+    const missingRevoke = await succeedClubSectionDirectorAction(
+      10,
+      7,
+      {},
+      makeFormData({
+        current_assignment_id: "old-assignment",
+        successor_user_id: "successor-user",
+        ecclesiastical_year_id: "2026",
+      }),
+    );
+
+    expect(missingRevoke.error).toBeTruthy();
     expect(mockSucceedClubSectionDirector).not.toHaveBeenCalled();
   });
 

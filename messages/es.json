@@ -135,7 +135,21 @@
       "app_materials": "Pedidos de materiales",
       "app_classes": "Clases",
       "geography_divisions": "Divisiones",
-      "audit_logs": "Auditoría"
+      "audit_logs": "Auditoría",
+      "insurance_config": "Configuración",
+      "payment_orders": "Órdenes de pago",
+      "certifications_reviews": "Revisiones de certificaciones",
+      "campamentos_plantillas": "Plantillas",
+      "campamentos_judges": "Jueces",
+      "campamentos_pedidos_catalogo": "Catálogo pedidos",
+      "campamentos_pedidos_bandeja": "Bandeja pedidos",
+      "notifications_categories": "Categorías",
+      "catalogs_certifications": "Certificaciones GM",
+      "catalogs_camporee_event_types": "Tipos de evento",
+      "admin_local_field_delivery": "Entrega de materiales",
+      "admin_campamentos_config_local": "Campo local",
+      "admin_campamentos_config_union": "Unión",
+      "admin_system_jobs_history": "Historial jobs"
     },
     "breadcrumbs": {
       "dashboard": "Dashboard",

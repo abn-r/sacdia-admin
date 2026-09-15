@@ -138,13 +138,13 @@ describe("canAccessDashboardPath", () => {
     ).toBe(true);
   });
 
-  it("hides enrollments from director-lf with investiture:read", () => {
+  it("lets director-lf with investiture:read into enrollments via coordinator alias", () => {
     expect(
       canAccessDashboardPath(
         buildUser(["director-lf"], ["investiture:read"]),
         "/dashboard/enrollments",
       ),
-    ).toBe(false);
+    ).toBe(true);
   });
 
   it("allows admin with investiture:read into enrollments", () => {

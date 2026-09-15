@@ -31,7 +31,10 @@ describe("app screens", () => {
 
     const field = buildUser(["director-lf"], ["coordination:manage"]);
     expect(canViewScreen(field, "coordination")).toBe(true);
-    expect(canViewScreen(field, "coordinator-hub")).toBe(false);
+    expect(canViewScreen(field, "coordinator-hub")).toBe(true);
+
+    const union = buildUser(["director-union"], []);
+    expect(canViewScreen(union, "coordinator-hub")).toBe(false);
   });
 
   it("opens club-staff tiles without USER_MANAGEMENT_ROLES", () => {

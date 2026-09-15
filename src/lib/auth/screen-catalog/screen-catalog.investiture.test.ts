@@ -40,11 +40,21 @@ describe("enrollments", () => {
   it("hides validate when the actor has the permission but not admin/coordinator", () => {
     expect(
       canCapability(
-        buildUser(["director-lf"], ["investiture:read", "investiture:validate"]),
+        buildUser(["pastor"], ["investiture:read", "investiture:validate"]),
         "enrollments",
         "validate",
       ),
     ).toBe(false);
+  });
+
+  it("lets director-lf through the coordinator alias on validate", () => {
+    expect(
+      canCapability(
+        buildUser(["director-lf"], ["investiture:read", "investiture:validate"]),
+        "enrollments",
+        "validate",
+      ),
+    ).toBe(true);
   });
 
   it("lets assistant-admin through the admin alias on validate", () => {
@@ -127,7 +137,7 @@ describe("investiture-pipeline", () => {
         "investiture-pipeline",
         "invest",
       ),
-    ).toBe(false);
+    ).toBe(true);
   });
 });
 

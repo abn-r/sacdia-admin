@@ -5,6 +5,7 @@ import {
   AWARD_CATEGORIES_READ,
   CLUB_MEMBERS_APPROVE,
   CLUB_ROLES_ASSIGN,
+  CLUB_ROLES_REVOKE,
   CLUBS_READ,
   COORDINATION_MANAGE,
   ECCLESIASTICAL_YEARS_UPDATE,
@@ -34,11 +35,14 @@ const ANNUAL_FOLDERS_EVALUATE = "annual_folders:evaluate";
 const ANNUAL_FOLDER_TEMPLATES_READ = "annual_folder_templates:read";
 
 /**
- * `ALLOWED_DESIGNATION_ROLES` in
- * `sacdia-backend/src/clubs/director-designation.service.ts`. Compared
- * literally by the service (not via GlobalRolesGuard) → `exactRoles`.
+ * Literal global roles for director designation and annual succession.
+ * Designation: `ALLOWED_DESIGNATION_ROLES` in
+ * `sacdia-backend/src/clubs/director-designation.service.ts`.
+ * Succession: `assertCanSucceedSectionDirector` in
+ * `sacdia-backend/src/clubs/clubs.service.ts:1694-1700`.
+ * Compared literally (not via GlobalRolesGuard) → `exactRoles`.
  */
-const DIRECTOR_DESIGNATION_ROLES = [
+const DIRECTOR_FIELD_AND_ADMIN_ROLES = [
   SUPER_ADMIN_ROLE,
   "admin",
   "director-lf",
@@ -51,7 +55,7 @@ export const clubsScreens: ScreenDefinition[] = [
     surfaces: ["admin"],
     viewAny: { permissions: [CLUBS_READ] },
     capabilities: [
-      // POST/DELETE /clubs/:clubId/sections/:sectionId/roles*, director-succession
+      // POST/DELETE /clubs/:clubId/sections/:sectionId/roles*
       { id: "manage_roles", kind: "button", gate: { permissions: [CLUB_ROLES_ASSIGN] } },
       {
         // POST /clubs/:clubId/sections/:sectionId/director-designation
@@ -59,7 +63,19 @@ export const clubsScreens: ScreenDefinition[] = [
         kind: "button",
         gate: {
           permissions: [CLUB_ROLES_ASSIGN],
-          roles: [...DIRECTOR_DESIGNATION_ROLES],
+          roles: [...DIRECTOR_FIELD_AND_ADMIN_ROLES],
+          exactRoles: true,
+        },
+      },
+      {
+        // POST /clubs/:clubId/sections/:sectionId/director-succession
+        // @RequirePermissions assign+revoke + hasAnyGlobalRole literal list.
+        id: "succeed_director",
+        kind: "button",
+        gate: {
+          permissions: [CLUB_ROLES_ASSIGN, CLUB_ROLES_REVOKE],
+          requireAll: true,
+          roles: [...DIRECTOR_FIELD_AND_ADMIN_ROLES],
           exactRoles: true,
         },
       },

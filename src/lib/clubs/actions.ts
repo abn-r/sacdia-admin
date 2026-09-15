@@ -21,7 +21,6 @@ import {
 import { canCapability } from "@/lib/auth/screen-catalog";
 import { unwrapObject } from "@/lib/api/response";
 import { requireAdminUser } from "@/lib/auth/session";
-import { extractRoles } from "@/lib/auth/roles";
 import { canManageClubsByRole } from "@/lib/auth/permission-utils";
 import { listLocalFieldsForTerritory } from "@/lib/auth/territory-scope";
 import type { AuthUser } from "@/lib/auth/types";
@@ -741,13 +740,14 @@ export async function succeedClubSectionDirectorAction(
   formData: FormData,
 ): Promise<ClubActionState> {
   const currentUser = await requireAdminUser();
-  const roles = new Set(extractRoles(currentUser));
 
-  // Solo-UI LF-only; stays out of the catalog (API also allows admin/super-admin).
-  if (!roles.has("director-lf") && !roles.has("assistant-lf")) {
+  // Mirrors POST /clubs/:clubId/sections/:sectionId/director-succession:
+  // club_roles:assign + club_roles:revoke + literal
+  // super-admin/admin/director-lf/assistant-lf (clubs.service.ts:1694-1700).
+  if (!canCapability(currentUser, "clubs", "succeed_director")) {
     return {
       error:
-        "Solo director-lf y assistant-lf pueden ejecutar la sucesión anual de director.",
+        "Solo super-admin, admin, director-lf y assistant-lf pueden ejecutar la sucesión anual de director.",
     };
   }
 

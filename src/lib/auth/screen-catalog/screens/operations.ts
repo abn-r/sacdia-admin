@@ -94,9 +94,12 @@ export const operationsScreens: ScreenDefinition[] = [
     ],
   },
   // GET insurance/expiring — insurance.controller.ts:245-248
-  // @GlobalRoles('admin','coordinator') + @SkipPermissions(); insurance:read is
-  // not accepted (same class of drift as club_ideals:read).
-  viewOnlyScreen("insurance-expiring", roleOnlyAccess(["admin", "coordinator"])),
+  // @GlobalRoles('admin','coordinator') + @SkipPermissions.
+  // director-lf / assistant-lf enter via coordinator alias (not union/dia).
+  viewOnlyScreen(
+    "insurance-expiring",
+    roleOnlyAccess(["admin", "coordinator"]),
+  ),
   {
     id: "insurance-config",
     surfaces: ["admin"],

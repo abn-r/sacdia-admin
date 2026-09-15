@@ -135,7 +135,21 @@
       "app_materials": "Material orders",
       "app_classes": "Classes",
       "geography_divisions": "Divisions",
-      "audit_logs": "Audit log"
+      "audit_logs": "Audit log",
+      "insurance_config": "Settings",
+      "payment_orders": "Payment orders",
+      "certifications_reviews": "Certification reviews",
+      "campamentos_plantillas": "Templates",
+      "campamentos_judges": "Judges",
+      "campamentos_pedidos_catalogo": "Order catalog",
+      "campamentos_pedidos_bandeja": "Order inbox",
+      "notifications_categories": "Categories",
+      "catalogs_certifications": "Master Guide certifications",
+      "catalogs_camporee_event_types": "Event types",
+      "admin_local_field_delivery": "Materials delivery",
+      "admin_campamentos_config_local": "Local field",
+      "admin_campamentos_config_union": "Union",
+      "admin_system_jobs_history": "Job history"
     },
     "breadcrumbs": {
       "dashboard": "Dashboard",

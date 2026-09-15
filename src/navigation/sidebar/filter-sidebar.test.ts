@@ -92,7 +92,7 @@ describe("filterSidebarItems", () => {
     expect(collectTitles(filtered)).not.toContain("Inscripciones");
   });
 
-  it("hides enrollments for director-lf even with investiture:read", () => {
+  it("keeps enrollments for director-lf via coordinator alias", () => {
     const filtered = filterSidebarItems(sidebarItems, {
       isSuperAdmin: false,
       canAny: (permissions) => permissions.includes("investiture:read"),
@@ -100,7 +100,7 @@ describe("filterSidebarItems", () => {
       hasAnyRole: (roles) => roles.includes("director-lf"),
     });
 
-    expect(collectTitles(filtered)).not.toContain("Inscripciones");
+    expect(collectTitles(filtered)).toContain("Inscripciones");
   });
 
   it("keeps enrollments for admin with investiture:read", () => {

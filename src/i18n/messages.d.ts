@@ -165,6 +165,20 @@ export interface IntlMessages {
       app_classes: string;
       geography_divisions: string;
       audit_logs: string;
+      insurance_config: string;
+      payment_orders: string;
+      certifications_reviews: string;
+      campamentos_plantillas: string;
+      campamentos_judges: string;
+      campamentos_pedidos_catalogo: string;
+      campamentos_pedidos_bandeja: string;
+      notifications_categories: string;
+      catalogs_certifications: string;
+      catalogs_camporee_event_types: string;
+      admin_local_field_delivery: string;
+      admin_campamentos_config_local: string;
+      admin_campamentos_config_union: string;
+      admin_system_jobs_history: string;
     };
     breadcrumbs: {
       dashboard: string;

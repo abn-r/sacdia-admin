@@ -135,7 +135,21 @@
       "app_materials": "Commandes de matériel",
       "app_classes": "Classes",
       "geography_divisions": "Divisions",
-      "audit_logs": "Audit"
+      "audit_logs": "Audit",
+      "insurance_config": "Configuration",
+      "payment_orders": "Ordres de paiement",
+      "certifications_reviews": "Révisions de certifications",
+      "campamentos_plantillas": "Modèles",
+      "campamentos_judges": "Juges",
+      "campamentos_pedidos_catalogo": "Catalogue de commandes",
+      "campamentos_pedidos_bandeja": "Boîte de commandes",
+      "notifications_categories": "Catégories",
+      "catalogs_certifications": "Certifications GM",
+      "catalogs_camporee_event_types": "Types d'événement",
+      "admin_local_field_delivery": "Livraison de matériel",
+      "admin_campamentos_config_local": "Champ local",
+      "admin_campamentos_config_union": "Union",
+      "admin_system_jobs_history": "Historique des tâches"
     },
     "breadcrumbs": {
       "dashboard": "Tableau de bord",

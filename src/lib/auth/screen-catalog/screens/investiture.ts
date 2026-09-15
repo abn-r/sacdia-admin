@@ -70,6 +70,7 @@ const INVESTITURE_CONFIG_WRITE_ROLES = [
 /**
  * `@GlobalRoles('admin', 'coordinator')` on validate / reject / invest /
  * coordinator-approve / bulk (`investiture.controller.ts`).
+ * director-lf / assistant-lf enter via coordinator alias.
  */
 const INVESTITURE_ADMIN_COORD_ROLES = ["admin", "coordinator"] as const;
 

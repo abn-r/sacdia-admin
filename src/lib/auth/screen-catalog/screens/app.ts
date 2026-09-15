@@ -24,7 +24,8 @@ export const appScreens: ScreenDefinition[] = [
     // analytics.controller.ts L63-64 GET sla-dashboard
     // class @SkipPermissions + method @GlobalRoles('admin','coordinator').
     // Distinct from admin `coordination` (`/admin/coordination` =
-    // coordination:manage + USER_MANAGEMENT_ROLES).
+    // coordination:manage + USER_MANAGEMENT_ROLES). director-lf / assistant-lf
+    // enter via coordinator alias; union/dia do not.
     viewAny: roleOnlyAccess(["admin", "coordinator"]),
     capabilities: [],
   },

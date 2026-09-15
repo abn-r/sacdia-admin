@@ -145,9 +145,11 @@ describe("screen catalog integrity", () => {
     const guard = readFileSync(guardPath, "utf8");
     for (const [role, aliases] of Object.entries(GLOBAL_ROLE_ALIASES)) {
       const key = /^[a-z]+$/.test(role) ? role : `'${role}'`;
-      const line = guard.match(new RegExp(`^\\s*${key}:\\s*(.+),\\s*$`, "m"));
-      expect(line, `alias entry for ${role}`).not.toBeNull();
-      const rhs = line![1]!.trim();
+      const match = guard.match(
+        new RegExp(`${key}:\\s*(FIELD_ADMIN_ROLES|\\[[\\s\\S]*?\\])`),
+      );
+      expect(match, `alias entry for ${role}`).not.toBeNull();
+      const rhs = match![1]!.trim();
       if (rhs === "FIELD_ADMIN_ROLES") {
         expect([...aliases].sort()).toEqual(
           [
@@ -164,7 +166,7 @@ describe("screen catalog integrity", () => {
           .replace(/^\[|\]$/g, "")
           .split(",")
           .map((token) => token.trim().replace(/^'|'$/g, ""))
-          .filter(Boolean);
+          .filter((token) => token.length > 0 && !token.startsWith("//"));
         expect([...aliases].sort(), role).toEqual(parsed.sort());
       }
     }
@@ -319,6 +321,26 @@ describe("exactRoles gates (service-level rules)", () => {
     ).toBe(false);
     expect(
       canCapability(buildUser(["director-lf"], []), "clubs", "designate_director"),
+    ).toBe(false);
+  });
+
+  it("requires assign+revoke and a field/admin role for annual succession", () => {
+    const both = ["club_roles:assign", "club_roles:revoke"];
+    expect(
+      canCapability(buildUser(["admin"], both), "clubs", "succeed_director"),
+    ).toBe(true);
+    expect(
+      canCapability(buildUser(["assistant-lf"], both), "clubs", "succeed_director"),
+    ).toBe(true);
+    expect(
+      canCapability(
+        buildUser(["admin"], ["club_roles:assign"]),
+        "clubs",
+        "succeed_director",
+      ),
+    ).toBe(false);
+    expect(
+      canCapability(buildUser(["director-union"], both), "clubs", "succeed_director"),
     ).toBe(false);
   });
 

@@ -17,6 +17,7 @@ import {
   HONORS_READ,
   HONORS_UPDATE,
 } from "@/lib/auth/permissions";
+import { SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
 
 import type { ScreenCapability, ScreenDefinition } from "../types";
 import { catalogEditorAccess } from "./_helpers";
@@ -26,8 +27,9 @@ import { CAMPOREE_EVENT_TYPE_CAPABILITIES } from "./campamentos";
  * Domain catalogs: academics (classes), health, business, honors, activity
  * types, ecclesiastical years (`/dashboard/catalogs/*`).
  * Backend: `admin-reference.controller.ts`, `admin-phase-e-catalogs.controller.ts`.
- * Class-level `@GlobalRoles('admin','super-admin')` on both — method does not
- * override, so every gate uses `catalogEditorAccess`.
+ * Class-level `@GlobalRoles('admin','super-admin')` on both. Method
+ * `@GlobalRoles('super-admin')` on ecclesiastical-year POST/DELETE (same
+ * fence as club ideals/types). Other catalog writes stay `catalogEditorAccess`.
  * `catalogs-certifications` lives in `investiture.ts`;
  * `catalogs-camporee-event-types` capabilities come from `campamentos.ts`.
  */
@@ -96,14 +98,36 @@ export const catalogsDomainScreens: ScreenDefinition[] = [
     CATALOGS_UPDATE,
     CATALOGS_DELETE,
   ),
-  // admin-reference.controller.ts L526-L576
-  catalogScreen(
-    "catalogs-ecclesiastical-years",
-    ECCLESIASTICAL_YEARS_READ,
-    ECCLESIASTICAL_YEARS_CREATE,
-    ECCLESIASTICAL_YEARS_UPDATE,
-    ECCLESIASTICAL_YEARS_DELETE,
-  ),
+  // admin-reference.controller.ts L526-L577
+  // POST/DELETE: method `@GlobalRoles('super-admin')`. PATCH stays admin.
+  {
+    id: "catalogs-ecclesiastical-years",
+    surfaces: ["admin"],
+    viewAny: catalogEditorAccess([ECCLESIASTICAL_YEARS_READ]),
+    capabilities: [
+      {
+        id: "create",
+        kind: "button",
+        gate: {
+          permissions: [ECCLESIASTICAL_YEARS_CREATE],
+          roles: [SUPER_ADMIN_ROLE],
+        },
+      },
+      {
+        id: "update",
+        kind: "button",
+        gate: catalogEditorAccess([ECCLESIASTICAL_YEARS_UPDATE]),
+      },
+      {
+        id: "delete",
+        kind: "button",
+        gate: {
+          permissions: [ECCLESIASTICAL_YEARS_DELETE],
+          roles: [SUPER_ADMIN_ROLE],
+        },
+      },
+    ],
+  },
   // admin-reference.controller.ts L194-L244
   catalogScreen(
     "catalogs-allergies",
