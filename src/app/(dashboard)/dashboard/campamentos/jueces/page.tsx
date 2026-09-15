@@ -10,12 +10,7 @@ import {
   type CamporeeJudgeCandidate,
 } from "@/lib/api/camporee-scoring";
 import { requireAdminUser } from "@/lib/auth/session";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  CAMPOREE_EVENTS_READ,
-  CAMPOREE_EVENTS_UPDATE,
-  CAMPOREES_READ,
-} from "@/lib/auth/permissions";
+import { canCapability, canViewScreen } from "@/lib/auth/screen-catalog";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import {
   CampamentosJudgesClient,
@@ -60,7 +55,7 @@ export default async function CampamentosJudgesPage({
   const scope = readScope(raw);
   const camporeeId = readCamporeeId(raw);
 
-  if (!hasAnyPermission(user, [CAMPOREES_READ, CAMPOREE_EVENTS_READ])) {
+  if (!canViewScreen(user, "campamentos-judges")) {
     return (
       <EndpointErrorBanner
         state="missing"
@@ -91,12 +86,12 @@ export default async function CampamentosJudgesPage({
     try {
       if (scope === "union") {
         judges = await listUnionCamporeeJudges(camporeeId);
-        if (hasAnyPermission(user, [CAMPOREE_EVENTS_UPDATE])) {
+        if (canCapability(user, "campamentos-judges", "manage")) {
           judgeCandidates = await listUnionCamporeeJudgeCandidates(camporeeId);
         }
       } else {
         judges = await listLocalCamporeeJudges(camporeeId);
-        if (hasAnyPermission(user, [CAMPOREE_EVENTS_UPDATE])) {
+        if (canCapability(user, "campamentos-judges", "manage")) {
           judgeCandidates = await listLocalCamporeeJudgeCandidates(camporeeId);
         }
       }
@@ -105,7 +100,7 @@ export default async function CampamentosJudgesPage({
     }
   }
 
-  const canEdit = hasAnyPermission(user, [CAMPOREE_EVENTS_UPDATE]);
+  const canEdit = canCapability(user, "campamentos-judges", "manage");
 
   return (
     <div className="space-y-6">

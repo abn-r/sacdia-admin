@@ -33,8 +33,7 @@ import { sortClassesByClubTypeAndName, sortClubTypesForDisplay } from "@/lib/cat
 import { extractItems, extractMeta, readParam, readPositiveNumberParam } from "@/lib/phase-e-catalogs/fetch-helpers";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import { CATALOGS_CREATE, CATALOGS_UPDATE, CATALOGS_DELETE, CLASSES_MANAGE } from "@/lib/auth/permissions";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import {
   createClassAction,
   updateClassAction,
@@ -98,9 +97,9 @@ export default async function AdminClassesPage({ searchParams }: { searchParams:
     }
   }
 
-  const canCreate = hasAnyPermission(user, [CLASSES_MANAGE, CATALOGS_CREATE]);
-  const canEdit = hasAnyPermission(user, [CLASSES_MANAGE, CATALOGS_UPDATE]);
-  const canDelete = hasAnyPermission(user, [CLASSES_MANAGE, CATALOGS_DELETE]);
+  const canCreate = canCapability(user, "catalogs-classes", "create");
+  const canEdit = canCapability(user, "catalogs-classes", "update");
+  const canDelete = canCapability(user, "catalogs-classes", "delete");
 
   return (
     <div className="space-y-6">

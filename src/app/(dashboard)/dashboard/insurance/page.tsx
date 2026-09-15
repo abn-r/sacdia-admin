@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { ShieldCheck, Clock } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
@@ -8,6 +9,7 @@ import { InsuranceView } from "@/components/insurance/insurance-view";
 import { ExpiringInsuranceAlert } from "@/components/insurance/expiring-insurance-alert";
 import { Button } from "@/components/ui/button";
 import { ApiError, apiRequest } from "@/lib/api/client";
+import { canViewScreen } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 import {
   listLocalFieldsForTerritory,
@@ -122,8 +124,12 @@ function normalizeMemberInsurance(raw: AnyRecord): MemberInsurance {
 
 export default async function InsurancePage() {
   const user = await requireAdminUser();
+  if (!canViewScreen(user, "insurance-by-section")) {
+    redirect("/dashboard");
+  }
   const t = await getTranslations("insurance");
   const territoryScope = resolveAdminTerritoryScope(user);
+  const canOpenExpiring = canViewScreen(user, "insurance-expiring");
 
   let clubs: Club[] = [];
   let localFields: LocalField[] = [];
@@ -207,15 +213,17 @@ export default async function InsurancePage() {
         title={t("page.title")}
         description={t("page.description")}
       >
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/insurance/expiring">
-            <Clock className="mr-1.5 size-4" />
-            {t("page.button_view_expiring")}
-          </Link>
-        </Button>
+        {canOpenExpiring ? (
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/dashboard/insurance/expiring">
+              <Clock className="mr-1.5 size-4" />
+              {t("page.button_view_expiring")}
+            </Link>
+          </Button>
+        ) : null}
       </PageHeader>
 
-      <ExpiringInsuranceAlert />
+      {canOpenExpiring ? <ExpiringInsuranceAlert /> : null}
 
       {loadError && <EndpointErrorBanner state="missing" detail={loadError} />}
 

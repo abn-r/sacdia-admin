@@ -8,15 +8,7 @@ import {
   updateAdminClubIdeal,
 } from "@/lib/api/admin-club-ideals";
 import { clubIdealFormSchema } from "@/lib/catalogs/club-ideals/schema";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  CATALOGS_CREATE,
-  CATALOGS_DELETE,
-  CATALOGS_UPDATE,
-  CLUB_IDEALS_CREATE,
-  CLUB_IDEALS_DELETE,
-  CLUB_IDEALS_UPDATE,
-} from "@/lib/auth/permissions";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 
 const REVALIDATE_PATH = "/dashboard/catalogs/club-ideals";
@@ -71,7 +63,7 @@ export async function createClubIdealAction(
 ): Promise<ClubIdealActionState> {
   try {
     const user = await requireAdminUser();
-    if (!hasAnyPermission(user, [CLUB_IDEALS_CREATE, CATALOGS_CREATE])) {
+    if (!canCapability(user, "catalogs-club-ideals", "create")) {
       return { error: "No tienes permisos para crear ideales de club." };
     }
 
@@ -95,7 +87,7 @@ export async function updateClubIdealAction(
 ): Promise<ClubIdealActionState> {
   try {
     const user = await requireAdminUser();
-    if (!hasAnyPermission(user, [CLUB_IDEALS_UPDATE, CATALOGS_UPDATE])) {
+    if (!canCapability(user, "catalogs-club-ideals", "update")) {
       return { error: "No tienes permisos para editar ideales de club." };
     }
 
@@ -121,7 +113,7 @@ export async function updateClubIdealAction(
 export async function deleteClubIdealAction(clubIdealId: number): Promise<ClubIdealActionState> {
   try {
     const user = await requireAdminUser();
-    if (!hasAnyPermission(user, [CLUB_IDEALS_DELETE, CATALOGS_DELETE])) {
+    if (!canCapability(user, "catalogs-club-ideals", "delete")) {
       return { error: "No tienes permisos para eliminar ideales de club." };
     }
 

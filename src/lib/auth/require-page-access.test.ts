@@ -137,4 +137,88 @@ describe("canAccessDashboardPath", () => {
       ),
     ).toBe(true);
   });
+
+  it("hides enrollments from director-lf with investiture:read", () => {
+    expect(
+      canAccessDashboardPath(
+        buildUser(["director-lf"], ["investiture:read"]),
+        "/dashboard/enrollments",
+      ),
+    ).toBe(false);
+  });
+
+  it("allows admin with investiture:read into enrollments", () => {
+    expect(
+      canAccessDashboardPath(
+        buildUser(["admin"], ["investiture:read"]),
+        "/dashboard/enrollments",
+      ),
+    ).toBe(true);
+  });
+
+  it("does not treat classes:read as enrollments viewAny", () => {
+    expect(
+      canAccessDashboardPath(
+        buildUser(["admin"], ["classes:read"]),
+        "/dashboard/enrollments",
+      ),
+    ).toBe(false);
+  });
+
+  it("requires ecclesiastical_years:update plus admin role for year-end", () => {
+    expect(
+      canAccessDashboardPath(
+        buildUser(["admin"], ["ecclesiastical_years:read", "permissions:read"]),
+        "/dashboard/year-end",
+      ),
+    ).toBe(false);
+    expect(
+      canAccessDashboardPath(
+        buildUser(["admin"], ["ecclesiastical_years:update"]),
+        "/dashboard/year-end",
+      ),
+    ).toBe(true);
+  });
+
+  it("lets admin open jobs without permissions:read", () => {
+    expect(
+      canAccessDashboardPath(buildUser(["admin"], []), "/dashboard/system/jobs"),
+    ).toBe(true);
+    expect(
+      canAccessDashboardPath(
+        buildUser(["director-lf"], ["permissions:read"]),
+        "/dashboard/system/jobs",
+      ),
+    ).toBe(false);
+  });
+
+  it("requires certifications:configure for the GM catalog editor", () => {
+    expect(
+      canAccessDashboardPath(
+        buildUser(["director-lf"], ["catalogs:read", "user_certifications:read"]),
+        "/dashboard/catalogs/certifications",
+      ),
+    ).toBe(false);
+    expect(
+      canAccessDashboardPath(
+        buildUser(["director-lf"], ["certifications:configure"]),
+        "/dashboard/catalogs/certifications",
+      ),
+    ).toBe(true);
+  });
+
+  it("requires both roles:read and permissions:read for the RBAC matrix", () => {
+    expect(
+      canAccessDashboardPath(
+        buildUser(["admin"], ["roles:read"]),
+        "/dashboard/configuration/matrix",
+      ),
+    ).toBe(false);
+    expect(
+      canAccessDashboardPath(
+        buildUser(["admin"], ["roles:read", "permissions:read"]),
+        "/dashboard/configuration/matrix",
+      ),
+    ).toBe(true);
+  });
 });

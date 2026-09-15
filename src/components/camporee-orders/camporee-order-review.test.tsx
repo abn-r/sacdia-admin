@@ -33,14 +33,26 @@ vi.mock("@/lib/api/camporee-orders", async (importOriginal) => {
   };
 });
 
-const mockHasPermission = vi.fn();
-
-vi.mock("@/lib/auth/permission-utils", () => ({
-  hasPermission: (...args: unknown[]) => mockHasPermission(...args),
-}));
-
+// Gates come from the screen catalog (`campamentos-pedidos-bandeja`), so the
+// reviewer carries real effective permissions instead of a mocked helper.
 vi.mock("@/lib/auth/auth-context", () => ({
-  useAuth: () => ({ user: { id: "reviewer-1", user_id: "reviewer-1" } }),
+  useAuth: () => ({
+    user: {
+      id: "reviewer-1",
+      user_id: "reviewer-1",
+      email: "reviewer@example.com",
+      roles: ["coordinator"],
+      authorization: {
+        grants: { global_roles: [{ role_name: "coordinator" }] },
+        effective: {
+          permissions: [
+            "camporee-orders:review",
+            "camporee-orders:authorize-without-proof",
+          ],
+        },
+      },
+    },
+  }),
 }));
 
 vi.mock("sonner", () => ({
@@ -101,7 +113,6 @@ describe("CamporeeOrderReviewTray", () => {
     mockApprove.mockReset();
     mockAuthorize.mockReset();
     mockReject.mockReset();
-    mockHasPermission.mockReset();
     mockGetReviewQueue.mockResolvedValue([STUB_ORDER]);
     mockGetCamporeeOrder.mockResolvedValue(STUB_ORDER);
     mockApprove.mockResolvedValue({ ...STUB_ORDER, status: "PAID" });
@@ -109,12 +120,6 @@ describe("CamporeeOrderReviewTray", () => {
       ...STUB_ORDER,
       status: "PAID",
       authorized_without_proof: true,
-    });
-    mockHasPermission.mockImplementation((_user, permission: string) => {
-      if (permission === "camporee-orders:review") return true;
-      if (permission === "camporee-orders:authorize-without-proof") return true;
-      if (permission === "camporee-orders:deliver") return false;
-      return false;
     });
   });
 

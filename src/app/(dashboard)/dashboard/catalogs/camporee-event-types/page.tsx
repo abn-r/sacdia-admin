@@ -35,15 +35,7 @@ import {
 } from "@/lib/phase-e-catalogs/fetch-helpers";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  CAMPOREE_EVENT_TYPES_CREATE,
-  CAMPOREE_EVENT_TYPES_UPDATE,
-  CAMPOREE_EVENT_TYPES_DELETE,
-  CATALOGS_CREATE,
-  CATALOGS_UPDATE,
-  CATALOGS_DELETE,
-} from "@/lib/auth/permissions";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import {
   createCamporeeEventTypeAction,
   updateCamporeeEventTypeAction,
@@ -88,9 +80,11 @@ export default async function CamporeeEventTypesPage({
     }
   }
 
-  const canCreate = hasAnyPermission(user, [CAMPOREE_EVENT_TYPES_CREATE, CATALOGS_CREATE]);
-  const canEdit = hasAnyPermission(user, [CAMPOREE_EVENT_TYPES_UPDATE, CATALOGS_UPDATE]);
-  const canDelete = hasAnyPermission(user, [CAMPOREE_EVENT_TYPES_DELETE, CATALOGS_DELETE]);
+  // camporee_event_types:* + admin role (admin-camporee-event-types.controller.ts);
+  // the API does not accept catalogs:* here.
+  const canCreate = canCapability(user, "catalogs-camporee-event-types", "create");
+  const canEdit = canCapability(user, "catalogs-camporee-event-types", "update");
+  const canDelete = canCapability(user, "catalogs-camporee-event-types", "delete");
 
   return (
     <div className="space-y-6">

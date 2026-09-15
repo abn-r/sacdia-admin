@@ -3,13 +3,7 @@ import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { getTranslations } from "next-intl/server";
 import { ApiError } from "@/lib/api/client";
 import { listResourceCategories } from "@/lib/api/resources";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  RESOURCE_CATEGORIES_CREATE,
-  RESOURCE_CATEGORIES_DELETE,
-  RESOURCE_CATEGORIES_READ,
-  RESOURCE_CATEGORIES_UPDATE,
-} from "@/lib/auth/permissions";
+import { canCapability, canViewScreen } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 import {
   createResourceCategoryAction,
@@ -96,7 +90,7 @@ export default async function ResourceCategoriesPage({
   const user = await requireAdminUser();
   const t = await getTranslations("resources.pages.categories");
 
-  if (!hasAnyPermission(user, [RESOURCE_CATEGORIES_READ])) {
+  if (!canViewScreen(user, "resources-categories")) {
     return (
       <EndpointErrorBanner
         state="forbidden"
@@ -128,9 +122,9 @@ export default async function ResourceCategoriesPage({
     }
   }
 
-  const canCreate = hasAnyPermission(user, [RESOURCE_CATEGORIES_CREATE]);
-  const canEdit = hasAnyPermission(user, [RESOURCE_CATEGORIES_UPDATE]);
-  const canDelete = hasAnyPermission(user, [RESOURCE_CATEGORIES_DELETE]);
+  const canCreate = canCapability(user, "resources-categories", "create");
+  const canEdit = canCapability(user, "resources-categories", "update");
+  const canDelete = canCapability(user, "resources-categories", "delete");
 
   return (
     <div className="space-y-6">

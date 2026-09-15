@@ -22,8 +22,7 @@ import { Button } from "@/components/ui/button";
 import { listOrders } from "@/lib/api/materials";
 import { ApiError } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
-import { hasPermission } from "@/lib/auth/permission-utils";
-import { MATERIALS_READ } from "@/lib/auth/permissions";
+import { canViewScreen } from "@/lib/auth/screen-catalog";
 import type { MaterialEstado } from "@/lib/types/materials";
 import type { OrdenSummary } from "@/lib/types/materials";
 
@@ -87,7 +86,7 @@ export default async function InboxPage({
   searchParams: SearchParams;
 }) {
   const user = await requireAdminUser();
-  if (!hasPermission(user, MATERIALS_READ)) {
+  if (!canViewScreen(user, "materials-inbox")) {
     redirect("/dashboard");
   }
 

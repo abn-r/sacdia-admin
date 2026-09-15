@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { DollarSign } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
@@ -6,6 +7,7 @@ import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { FinancesClubSelector } from "@/components/finances/finances-club-selector";
 import { apiRequest, ApiError } from "@/lib/api/client";
 import { listClubTypes } from "@/lib/api/catalogs";
+import { canViewScreen } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 import {
   canAdminFilterByLocalField,
@@ -72,6 +74,9 @@ async function fetchClubs(
 
 export default async function FinancesPage() {
   const user = await requireAdminUser();
+  if (!canViewScreen(user, "finances")) {
+    redirect("/dashboard");
+  }
   const t = await getTranslations("finances");
   const territoryScope = resolveAdminTerritoryScope(user);
 

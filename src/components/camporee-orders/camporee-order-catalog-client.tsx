@@ -26,10 +26,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { EmptyState } from "@/components/shared/empty-state";
 import { useAuth } from "@/lib/auth/auth-context";
-import { hasPermission } from "@/lib/auth/permission-utils";
-import {
-  CAMPOREE_ORDERS_CATALOG_MANAGE,
-} from "@/lib/auth/permissions";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import { resolveAdminTerritoryScope } from "@/lib/auth/territory-scope";
 import {
   createCamporeeOrderProduct,
@@ -68,7 +65,7 @@ const OWNER_SCOPES: CamporeeOrderOwnerScope[] = [
 export function CamporeeOrderCatalogClient() {
   const t = useTranslations("camporee_orders");
   const { user } = useAuth();
-  const canManage = hasPermission(user, CAMPOREE_ORDERS_CATALOG_MANAGE);
+  const canManage = canCapability(user, "campamentos-pedidos-catalogo", "manage");
   const actor = useMemo(
     () => toCatalogTerritoryActor(resolveAdminTerritoryScope(user)),
     [user],

@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import { entityConfigs, type EntityKey } from "@/lib/catalogs/entities";
 import { listEntityItems, getSelectOptions } from "@/lib/catalogs/service";
 import {
@@ -15,14 +16,28 @@ interface CatalogEntityPageProps {
   entityKey: EntityKey;
 }
 
+const ENTITY_SCREEN_ID: Partial<Record<EntityKey, string>> = {
+  "ecclesiastical-years": "catalogs-ecclesiastical-years",
+};
+
 export async function CatalogEntityPage({ entityKey }: CatalogEntityPageProps) {
-  const { allowed } = await loadCatalogEditorSession();
+  const { user, allowed } = await loadCatalogEditorSession();
   if (!allowed) {
     return <CatalogEditorForbidden />;
   }
   const t = await getTranslations("catalogs");
 
   const config = entityConfigs[entityKey];
+  const screenId = ENTITY_SCREEN_ID[entityKey];
+  const canCreate = screenId
+    ? canCapability(user, screenId, "create")
+    : undefined;
+  const canEdit = screenId
+    ? canCapability(user, screenId, "update")
+    : undefined;
+  const canDelete = screenId
+    ? canCapability(user, screenId, "delete")
+    : undefined;
 
   let items: Record<string, unknown>[] = [];
   let loadError: string | null = null;
@@ -73,6 +88,9 @@ export async function CatalogEntityPage({ entityKey }: CatalogEntityPageProps) {
           updateActionBase={updateCatalogItemAction}
           entityKey={entityKey}
           routeBase={config.routeBase}
+          canCreate={canCreate}
+          canEdit={canEdit}
+          canDelete={canDelete}
         />
       </div>
     );
@@ -88,6 +106,9 @@ export async function CatalogEntityPage({ entityKey }: CatalogEntityPageProps) {
       updateActionBase={updateCatalogItemAction}
       entityKey={entityKey}
       routeBase={config.routeBase}
+      canCreate={canCreate}
+      canEdit={canEdit}
+      canDelete={canDelete}
     />
   );
 }

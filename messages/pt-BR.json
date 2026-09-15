@@ -127,6 +127,13 @@
       "materials_config": "Configurações",
       "certificate_bulk_imports": "Cargas por certificado",
       "coordination": "Coordenação",
+      "coordinator_hub": "Hub de coordenação",
+      "app_members": "Membros",
+      "app_club": "Clube",
+      "app_units": "Unidades",
+      "app_grouped_class": "Classe agrupada",
+      "app_materials": "Pedidos de materiais",
+      "app_classes": "Classes",
       "geography_divisions": "Divisões",
       "audit_logs": "Auditoria"
     },
@@ -2438,7 +2445,9 @@
       "selectedLabel": "permissões selecionadas",
       "noMatches": "Sem permissões correspondentes a «{query}»",
       "selectAllInGroup": "Selecionar todas as permissões de {resource}",
-      "destructiveAction": "Ação destrutiva"
+      "destructiveAction": "Ação destrutiva",
+      "otherGroup": "Outras permissões",
+      "requiresRoles": "A API exige o papel: {roles}"
     },
     "userRolesPanel": {
       "title": "Papéis globais",
@@ -2494,7 +2503,12 @@
         "discard": "Descartar",
         "noMatches": "Sem correspondências",
         "noMatchesDesc": "Nenhuma permissão corresponde à pesquisa.",
-        "readOnlyBanner": "Visualização somente leitura. Apenas um super administrador pode alterar a matriz."
+        "readOnlyBanner": "Visualização somente leitura. Apenas um super administrador pode alterar a matriz.",
+        "fullScreen": "Tela completa",
+        "otherGroup": "Outras permissões",
+        "requiresRoles": "A API exige o papel: {roles}. A permissão só tem efeito em papéis que o cumpram.",
+        "bundleUpdatedTitle": "Tela atualizada",
+        "bundleUpdatedDesc": "{screen} · {role}"
       },
       "permissions": {
         "title": "Catálogo de permissões",
@@ -2805,7 +2819,9 @@
       "relationship_types:create": "Criar tipo de relacionamento",
       "relationship_types:update": "Editar tipo de relacionamento",
       "relationship_types:delete": "Excluir tipo de relacionamento",
-      "audit:read": "Ver auditoria"
+      "audit:read": "Ver auditoria",
+      "users:create": "Criar usuário",
+      "users:bulk_create": "Criação em massa de usuários"
     },
     "userPermissionsPanel": {
       "title": "Permissões diretas",

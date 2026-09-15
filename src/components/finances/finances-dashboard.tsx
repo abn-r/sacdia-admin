@@ -35,6 +35,7 @@ import type { DeleteTransactionDialogProps } from "@/components/finances/delete-
 import type { FinanceEvidenceViewerDialogProps } from "@/components/finances/finance-evidence-viewer-dialog";
 import { useTranslations } from "next-intl";
 import { getFinanceSectionLabel } from "@/lib/finances/club-sections";
+import { useScreenAccess } from "@/lib/auth/screen-catalog/use-screen-access";
 
 // ─── Deferred dialogs (dialog-gated — zod bundle only loaded on first open) ───
 
@@ -99,12 +100,15 @@ interface FinancesDashboardProps {
 
 export function FinancesDashboard({
   clubId,
-  clubName: _clubName,
   sections,
   sectionId,
   renderLayout,
 }: FinancesDashboardProps) {
   const t = useTranslations("finances");
+  const { canCapability } = useScreenAccess();
+  const canCreate = canCapability("finances", "create");
+  const canUpdate = canCapability("finances", "update");
+  const canDelete = canCapability("finances", "delete");
 
   // Filters
   const [year, setYear] = useState<number | undefined>(currentYear);
@@ -345,10 +349,12 @@ export function FinancesDashboard({
           {t("dashboard.refreshButton")}
         </Button>
 
-        <Button size="sm" className="h-9" onClick={handleNewTransaction}>
-          <Plus className="size-4" />
-          {t("dashboard.newTransactionButton")}
-        </Button>
+        {canCreate ? (
+          <Button size="sm" className="h-9" onClick={handleNewTransaction}>
+            <Plus className="size-4" />
+            {t("dashboard.newTransactionButton")}
+          </Button>
+        ) : null}
       </div>
     </>
   );
@@ -369,8 +375,8 @@ export function FinancesDashboard({
           <TransactionsTable
             items={result?.data ?? []}
             sectionLabels={sectionLabels}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
+            onEdit={canUpdate ? handleEdit : undefined}
+            onDelete={canDelete ? handleDelete : undefined}
             onViewEvidence={setEvidenceFinance}
             sortField={sortField}
             sortDirection={sortDirection}

@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Settings2 } from "lucide-react";
+import { useScreenAccess } from "@/lib/auth/screen-catalog/use-screen-access";
 import type { InvestitureConfig } from "@/lib/api/investiture";
 import { useFormatDate } from "@/lib/format-locale";
 import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
@@ -32,6 +33,9 @@ interface ConfigTableProps {
 export function ConfigTable({ configs, onEdit, onDelete }: ConfigTableProps) {
   const t = useTranslations("investiture");
   const formatDate = useFormatDate();
+  const { canCapability } = useScreenAccess();
+  const canUpdate = canCapability("investiture-config", "update");
+  const canDelete = canCapability("investiture-config", "delete");
 
   if (configs.length === 0) {
     return (
@@ -101,6 +105,7 @@ export function ConfigTable({ configs, onEdit, onDelete }: ConfigTableProps) {
               </TableCell>
               <TableCell className="px-3 py-2.5 align-middle">
                 <div className="flex items-center justify-end gap-1">
+                  {canUpdate ? (
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
@@ -114,7 +119,9 @@ export function ConfigTable({ configs, onEdit, onDelete }: ConfigTableProps) {
                     </TooltipTrigger>
                     <TooltipContent>{t("configTable.tooltipEdit")}</TooltipContent>
                   </Tooltip>
+                  ) : null}
 
+                  {canDelete ? (
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
@@ -134,6 +141,7 @@ export function ConfigTable({ configs, onEdit, onDelete }: ConfigTableProps) {
                         : t("configTable.tooltipAlreadyInactive")}
                     </TooltipContent>
                   </Tooltip>
+                  ) : null}
                 </div>
               </TableCell>
             </TableRow>

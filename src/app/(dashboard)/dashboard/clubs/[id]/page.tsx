@@ -7,10 +7,8 @@ import {
   listClubAnnualReports,
   listClubQuarterlyReports,
 } from "@/lib/api/reports";
-import { canCreateClubSections, hasAnyPermission } from "@/lib/auth/permission-utils";
-import { CLUB_ROLES_ASSIGN } from "@/lib/auth/permissions";
-import { extractRoles } from "@/lib/auth/roles";
-import { canDesignateNextDirector } from "@/lib/auth/director-succession";
+import { canCreateClubSections } from "@/lib/auth/permission-utils";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 import { loadClubDetail } from "@/lib/clubs/fetch-detail";
 
@@ -37,9 +35,9 @@ export default async function ClubDetailPage({
   const { id } = await params;
   const { tab } = await searchParams;
 
-  const canManageRoles = hasAnyPermission(user, [CLUB_ROLES_ASSIGN]);
+  const canManageRoles = canCapability(user, "clubs", "manage_roles");
   const canCreateSections = canCreateClubSections(user);
-  const canDesignate = canDesignateNextDirector(extractRoles(user));
+  const canDesignate = canCapability(user, "clubs", "designate_director");
   const detail = await loadClubDetail(id, {
     canManageRoles,
     canCreateSections,

@@ -10,15 +10,7 @@ import {
   readPositiveNumberParam,
 } from "@/lib/phase-e-catalogs/fetch-helpers";
 import { requireAdminUser } from "@/lib/auth/session";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  CAMPOREE_EVENTS_CREATE,
-  CAMPOREE_EVENTS_UPDATE,
-  CAMPOREE_EVENTS_DELETE,
-  CAMPOREES_CREATE,
-  CAMPOREES_UPDATE,
-  CAMPOREES_DELETE,
-} from "@/lib/auth/permissions";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import { deleteCamporeeEventTemplateAction } from "@/lib/camporee-events/actions";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EventTemplateListClient } from "@/components/camporee-events/event-template-list-client";
@@ -65,9 +57,9 @@ export default async function EventTemplatesPage({
     }
   }
 
-  const canCreate = hasAnyPermission(user, [CAMPOREE_EVENTS_CREATE, CAMPOREES_CREATE]);
-  const canEdit = hasAnyPermission(user, [CAMPOREE_EVENTS_UPDATE, CAMPOREES_UPDATE]);
-  const canDelete = hasAnyPermission(user, [CAMPOREE_EVENTS_DELETE, CAMPOREES_DELETE]);
+  const canCreate = canCapability(user, "campamentos-plantillas", "create");
+  const canEdit = canCapability(user, "campamentos-plantillas", "update");
+  const canDelete = canCapability(user, "campamentos-plantillas", "delete");
 
   return (
     <div className="space-y-6">

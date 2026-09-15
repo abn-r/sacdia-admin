@@ -8,7 +8,7 @@
  *
  * Follows the same pattern as lib/generic-catalogs-i18n/actions.ts:
  *   - requireAdminUser for auth
- *   - hasAnyPermission for RBAC
+ *   - canCapability for RBAC (screen catalog, no dead camporees:* OR)
  *   - revalidatePath + redirect on success
  *   - getActionErrorMessage on failure
  */
@@ -16,22 +16,14 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getActionErrorMessage } from "@/lib/api/action-error";
+import { camporeeScreenId, canCapability } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
 import {
   listLocalFieldsForTerritory,
   listUnionsForTerritory,
   resolveAdminTerritoryScope,
 } from "@/lib/auth/territory-scope";
 import type { AuthUser } from "@/lib/auth/types";
-import {
-  CAMPOREE_EVENTS_CREATE,
-  CAMPOREE_EVENTS_UPDATE,
-  CAMPOREE_EVENTS_DELETE,
-  CAMPOREES_CREATE,
-  CAMPOREES_UPDATE,
-  CAMPOREES_DELETE,
-} from "@/lib/auth/permissions";
 import {
   createCamporeeEventTemplate,
   updateCamporeeEventTemplate,
@@ -289,16 +281,34 @@ async function assertTemplatePayloadInActorScope(
 
 // ─── Template actions ──────────────────────────────────────────────────────────
 
+
 const TEMPLATES_PATH = "/dashboard/campamentos/plantillas";
+
+function denyUnlessCapability(
+  user: AuthUser,
+  screenId: string,
+  capabilityId: string,
+  error: string,
+): string | null {
+  return canCapability(user, screenId, capabilityId) ? null : error;
+}
+
+function eventScreenIdFromForm(formData: FormData): string {
+  return camporeeScreenId(formData.get("is_union") === "true" ? "union" : "local");
+}
 
 export async function createCamporeeEventTemplateAction(
   _: CamporeeEventActionState,
   formData: FormData,
 ): Promise<CamporeeEventActionState> {
   const user = await requireAdminUser();
-  if (!hasAnyPermission(user, [CAMPOREE_EVENTS_CREATE, CAMPOREES_CREATE])) {
-    return { error: "Sin permisos para crear templates." };
-  }
+  const denied = denyUnlessCapability(
+    user,
+    "campamentos-plantillas",
+    "create",
+    "Sin permisos para crear templates.",
+  );
+  if (denied) return { error: denied };
 
   const payload = buildTemplatePayload(formData);
   if ("validationError" in payload) {
@@ -327,9 +337,13 @@ export async function updateCamporeeEventTemplateAction(
   formData: FormData,
 ): Promise<CamporeeEventActionState> {
   const user = await requireAdminUser();
-  if (!hasAnyPermission(user, [CAMPOREE_EVENTS_UPDATE, CAMPOREES_UPDATE])) {
-    return { error: "Sin permisos para editar templates." };
-  }
+  const denied = denyUnlessCapability(
+    user,
+    "campamentos-plantillas",
+    "update",
+    "Sin permisos para editar templates.",
+  );
+  if (denied) return { error: denied };
 
   const id = getPositiveInt(formData, "id");
   if (!id) return { error: "No se pudo identificar el template a editar." };
@@ -362,9 +376,13 @@ export async function deleteCamporeeEventTemplateAction(
   formData: FormData,
 ): Promise<CamporeeEventActionState> {
   const user = await requireAdminUser();
-  if (!hasAnyPermission(user, [CAMPOREE_EVENTS_DELETE, CAMPOREES_DELETE])) {
-    return { error: "Sin permisos para eliminar templates." };
-  }
+  const denied = denyUnlessCapability(
+    user,
+    "campamentos-plantillas",
+    "delete",
+    "Sin permisos para eliminar templates.",
+  );
+  if (denied) return { error: denied };
 
   const id = getPositiveInt(formData, "id");
   if (!id) return { error: "No se pudo identificar el template a eliminar." };
@@ -447,9 +465,13 @@ export async function createLocalCamporeeEventAction(
   formData: FormData,
 ): Promise<CamporeeEventActionState> {
   const user = await requireAdminUser();
-  if (!hasAnyPermission(user, [CAMPOREE_EVENTS_CREATE, CAMPOREES_CREATE])) {
-    return { error: "Sin permisos para crear eventos." };
-  }
+  const denied = denyUnlessCapability(
+    user,
+    camporeeScreenId("local"),
+    "events.create",
+    "Sin permisos para crear eventos.",
+  );
+  if (denied) return { error: denied };
 
   const camporeeId = getPositiveInt(formData, "camporee_id");
   if (!camporeeId) return { error: "No se pudo identificar el camporee." };
@@ -479,9 +501,13 @@ export async function createUnionCamporeeEventAction(
   formData: FormData,
 ): Promise<CamporeeEventActionState> {
   const user = await requireAdminUser();
-  if (!hasAnyPermission(user, [CAMPOREE_EVENTS_CREATE, CAMPOREES_CREATE])) {
-    return { error: "Sin permisos para crear eventos." };
-  }
+  const denied = denyUnlessCapability(
+    user,
+    camporeeScreenId("union"),
+    "events.create",
+    "Sin permisos para crear eventos.",
+  );
+  if (denied) return { error: denied };
 
   const camporeeId = getPositiveInt(formData, "camporee_id");
   if (!camporeeId) return { error: "No se pudo identificar el camporee." };
@@ -511,9 +537,13 @@ export async function cloneTemplateToLocalCamporeeAction(
   formData: FormData,
 ): Promise<CamporeeEventActionState> {
   const user = await requireAdminUser();
-  if (!hasAnyPermission(user, [CAMPOREE_EVENTS_CREATE, CAMPOREES_CREATE])) {
-    return { error: "Sin permisos para agregar eventos." };
-  }
+  const denied = denyUnlessCapability(
+    user,
+    camporeeScreenId("local"),
+    "events.create",
+    "Sin permisos para agregar eventos.",
+  );
+  if (denied) return { error: denied };
 
   const camporeeId = getPositiveInt(formData, "camporee_id");
   const templateId = getPositiveInt(formData, "template_id");
@@ -540,9 +570,13 @@ export async function cloneTemplateToUnionCamporeeAction(
   formData: FormData,
 ): Promise<CamporeeEventActionState> {
   const user = await requireAdminUser();
-  if (!hasAnyPermission(user, [CAMPOREE_EVENTS_CREATE, CAMPOREES_CREATE])) {
-    return { error: "Sin permisos para agregar eventos." };
-  }
+  const denied = denyUnlessCapability(
+    user,
+    camporeeScreenId("union"),
+    "events.create",
+    "Sin permisos para agregar eventos.",
+  );
+  if (denied) return { error: denied };
 
   const camporeeId = getPositiveInt(formData, "camporee_id");
   const templateId = getPositiveInt(formData, "template_id");
@@ -569,9 +603,13 @@ export async function updateCamporeeEventAction(
   formData: FormData,
 ): Promise<CamporeeEventActionState> {
   const user = await requireAdminUser();
-  if (!hasAnyPermission(user, [CAMPOREE_EVENTS_UPDATE, CAMPOREES_UPDATE])) {
-    return { error: "Sin permisos para editar eventos." };
-  }
+  const denied = denyUnlessCapability(
+    user,
+    eventScreenIdFromForm(formData),
+    "events.update",
+    "Sin permisos para editar eventos.",
+  );
+  if (denied) return { error: denied };
 
   const id = getPositiveInt(formData, "id");
   if (!id) return { error: "No se pudo identificar el evento a editar." };
@@ -610,9 +648,13 @@ export async function deleteCamporeeEventAction(
   formData: FormData,
 ): Promise<CamporeeEventActionState> {
   const user = await requireAdminUser();
-  if (!hasAnyPermission(user, [CAMPOREE_EVENTS_DELETE, CAMPOREES_DELETE])) {
-    return { error: "Sin permisos para eliminar eventos." };
-  }
+  const denied = denyUnlessCapability(
+    user,
+    eventScreenIdFromForm(formData),
+    "events.delete",
+    "Sin permisos para eliminar eventos.",
+  );
+  if (denied) return { error: denied };
 
   const id = getPositiveInt(formData, "id");
   if (!id) return { error: "No se pudo identificar el evento a eliminar." };
@@ -738,9 +780,13 @@ export async function createCamporeeAgendaEventAction(
   formData: FormData,
 ): Promise<CamporeeEventActionState> {
   const user = await requireAdminUser();
-  if (!hasAnyPermission(user, [CAMPOREE_EVENTS_CREATE, CAMPOREES_CREATE])) {
-    return { error: "Sin permisos para crear eventos." };
-  }
+  const denied = denyUnlessCapability(
+    user,
+    eventScreenIdFromForm(formData),
+    "events.create",
+    "Sin permisos para crear eventos.",
+  );
+  if (denied) return { error: denied };
 
   const camporeeId = getPositiveInt(formData, "camporee_id");
   if (!camporeeId) return { error: "No se pudo identificar el camporee." };
@@ -771,9 +817,13 @@ export async function createUnionCamporeeAgendaEventAction(
   formData: FormData,
 ): Promise<CamporeeEventActionState> {
   const user = await requireAdminUser();
-  if (!hasAnyPermission(user, [CAMPOREE_EVENTS_CREATE, CAMPOREES_CREATE])) {
-    return { error: "Sin permisos para crear eventos." };
-  }
+  const denied = denyUnlessCapability(
+    user,
+    eventScreenIdFromForm(formData),
+    "events.create",
+    "Sin permisos para crear eventos.",
+  );
+  if (denied) return { error: denied };
 
   const camporeeId = getPositiveInt(formData, "camporee_id");
   if (!camporeeId) return { error: "No se pudo identificar el camporee." };
@@ -804,9 +854,13 @@ export async function updateCamporeeAgendaEventAction(
   formData: FormData,
 ): Promise<CamporeeEventActionState> {
   const user = await requireAdminUser();
-  if (!hasAnyPermission(user, [CAMPOREE_EVENTS_UPDATE, CAMPOREES_UPDATE])) {
-    return { error: "Sin permisos para editar eventos." };
-  }
+  const denied = denyUnlessCapability(
+    user,
+    eventScreenIdFromForm(formData),
+    "events.update",
+    "Sin permisos para editar eventos.",
+  );
+  if (denied) return { error: denied };
 
   const id = getPositiveInt(formData, "id");
   if (!id) return { error: "No se pudo identificar el evento a editar." };
@@ -845,9 +899,13 @@ export async function cancelCamporeeEventAction(
   formData: FormData,
 ): Promise<CamporeeEventActionState> {
   const user = await requireAdminUser();
-  if (!hasAnyPermission(user, [CAMPOREE_EVENTS_UPDATE, CAMPOREES_UPDATE])) {
-    return { error: "Sin permisos para cancelar eventos." };
-  }
+  const denied = denyUnlessCapability(
+    user,
+    eventScreenIdFromForm(formData),
+    "events.update",
+    "Sin permisos para cancelar eventos.",
+  );
+  if (denied) return { error: denied };
 
   const id = getPositiveInt(formData, "id");
   if (!id) return { error: "No se pudo identificar el evento a cancelar." };
@@ -882,9 +940,13 @@ export async function softDeleteCamporeeEventAction(
   formData: FormData,
 ): Promise<CamporeeEventActionState> {
   const user = await requireAdminUser();
-  if (!hasAnyPermission(user, [CAMPOREE_EVENTS_DELETE, CAMPOREES_DELETE])) {
-    return { error: "Sin permisos para eliminar eventos." };
-  }
+  const denied = denyUnlessCapability(
+    user,
+    eventScreenIdFromForm(formData),
+    "events.delete",
+    "Sin permisos para eliminar eventos.",
+  );
+  if (denied) return { error: denied };
 
   const id = getPositiveInt(formData, "id");
   if (!id) return { error: "No se pudo identificar el evento a eliminar." };
@@ -920,9 +982,13 @@ export async function reorderCamporeeEventAction(
   formData: FormData,
 ): Promise<CamporeeEventActionState> {
   const user = await requireAdminUser();
-  if (!hasAnyPermission(user, [CAMPOREE_EVENTS_UPDATE, CAMPOREES_UPDATE])) {
-    return { error: "Sin permisos para reordenar eventos." };
-  }
+  const denied = denyUnlessCapability(
+    user,
+    eventScreenIdFromForm(formData),
+    "events.update",
+    "Sin permisos para reordenar eventos.",
+  );
+  if (denied) return { error: denied };
 
   const id = getPositiveInt(formData, "id");
   if (!id) return { error: "No se pudo identificar el evento." };

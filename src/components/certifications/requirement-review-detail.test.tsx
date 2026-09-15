@@ -44,6 +44,20 @@ vi.mock("sonner", () => ({
   },
 }));
 
+const mockPermissions = new Set<string>(["certifications:review"]);
+const mockRoles = new Set<string>(["admin"]);
+
+vi.mock("@/lib/auth/use-permissions", () => ({
+  usePermissions: () => ({
+    can: (permission: string) => mockPermissions.has(permission),
+    canAny: () => false,
+    canAll: () => false,
+    isSuperAdmin: false,
+    permissions: mockPermissions,
+    roles: mockRoles,
+  }),
+}));
+
 import { RequirementReviewDetail as RequirementReviewDetailSheet } from "@/components/certifications/requirement-review-detail";
 
 const STUB_DETAIL: RequirementReviewDetail = {

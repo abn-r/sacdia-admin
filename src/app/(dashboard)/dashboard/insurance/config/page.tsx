@@ -4,11 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { InsuranceConfigClient } from "@/components/insurance/insurance-config-client";
 import { PageHeader } from "@/components/shared/page-header";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { hasPermission } from "@/lib/auth/permission-utils";
-import {
-  FIELD_PAYMENT_ORDERS_CONFIGURE,
-  INSURANCE_CONFIGURE,
-} from "@/lib/auth/permissions";
+import { canCapability, canViewScreen } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 import {
   listLocalFieldsForTerritory,
@@ -24,13 +20,18 @@ export default async function InsuranceConfigPage() {
   const user = await requireAdminUser();
   const t = await getTranslations("insurance_config");
 
-  const canConfigureInsurance = hasPermission(user, INSURANCE_CONFIGURE);
-  const canConfigurePaymentInstructions = hasPermission(
+  const canConfigureInsurance = canCapability(
     user,
-    FIELD_PAYMENT_ORDERS_CONFIGURE,
+    "insurance-config",
+    "configure",
+  );
+  const canConfigurePaymentInstructions = canCapability(
+    user,
+    "insurance-config",
+    "configure_payment_instructions",
   );
 
-  if (!canConfigureInsurance && !canConfigurePaymentInstructions) {
+  if (!canViewScreen(user, "insurance-config")) {
     return (
       <div className="space-y-6">
         <PageHeader

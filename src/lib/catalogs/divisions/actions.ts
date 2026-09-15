@@ -7,15 +7,7 @@ import {
   deleteAdminDivision,
   updateAdminDivision,
 } from "@/lib/api/admin-divisions";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  CATALOGS_CREATE,
-  CATALOGS_DELETE,
-  CATALOGS_UPDATE,
-  COUNTRIES_CREATE,
-  COUNTRIES_DELETE,
-  COUNTRIES_UPDATE,
-} from "@/lib/auth/permissions";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 import {
   CATALOG_LOCALES,
@@ -70,7 +62,7 @@ export async function createDivisionAction(
 ): Promise<DivisionActionState> {
   try {
     const user = await requireAdminUser();
-    if (!hasAnyPermission(user, [COUNTRIES_CREATE, CATALOGS_CREATE])) {
+    if (!canCapability(user, "catalogs-divisions", "create")) {
       return { error: "No tienes permisos para crear divisiones." };
     }
 
@@ -100,7 +92,7 @@ export async function updateDivisionAction(
 ): Promise<DivisionActionState> {
   try {
     const user = await requireAdminUser();
-    if (!hasAnyPermission(user, [COUNTRIES_UPDATE, CATALOGS_UPDATE])) {
+    if (!canCapability(user, "catalogs-divisions", "update")) {
       return { error: "No tienes permisos para editar divisiones." };
     }
 
@@ -132,7 +124,7 @@ export async function updateDivisionAction(
 export async function deleteDivisionAction(divisionId: number): Promise<DivisionActionState> {
   try {
     const user = await requireAdminUser();
-    if (!hasAnyPermission(user, [COUNTRIES_DELETE, CATALOGS_DELETE])) {
+    if (!canCapability(user, "catalogs-divisions", "delete")) {
       return { error: "No tienes permisos para eliminar divisiones." };
     }
 

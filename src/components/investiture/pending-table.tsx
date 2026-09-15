@@ -38,6 +38,7 @@ const InvestidoDialog = dynamic<InvestidoDialogProps>(
   () => import("@/components/investiture/investido-dialog").then((m) => ({ default: m.InvestidoDialog })),
   { ssr: false, loading: () => null },
 );
+import { useScreenAccess } from "@/lib/auth/screen-catalog/use-screen-access";
 import {
   getInvestitureHistory,
   type PendingEnrollment,
@@ -77,6 +78,9 @@ type DialogState =
 export function PendingTable({ enrollments, onRefresh }: PendingTableProps) {
   const t = useTranslations("investiture");
   const formatDate = useFormatDate();
+  const { canCapability } = useScreenAccess();
+  const canValidate = canCapability("investiture-pending", "validate");
+  const canMarkInvested = canCapability("investiture-pending", "mark_invested");
   const [dialog, setDialog] = useState<DialogState>(null);
   const [historyEntries, setHistoryEntries] = useState<InvestitureHistoryEntry[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
@@ -199,7 +203,7 @@ export function PendingTable({ enrollments, onRefresh }: PendingTableProps) {
                       </Tooltip>
 
                       {/* Approve — only for SUBMITTED */}
-                      {isSubmitted && (
+                      {isSubmitted && canValidate && (
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button
@@ -223,7 +227,7 @@ export function PendingTable({ enrollments, onRefresh }: PendingTableProps) {
                       )}
 
                       {/* Reject — only for SUBMITTED */}
-                      {isSubmitted && (
+                      {isSubmitted && canValidate && (
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button
@@ -247,7 +251,7 @@ export function PendingTable({ enrollments, onRefresh }: PendingTableProps) {
                       )}
 
                       {/* Mark as Investido — only for APPROVED */}
-                      {isApproved && (
+                      {isApproved && canMarkInvested && (
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button

@@ -60,7 +60,7 @@ export interface NavSubItem {
   badge?: NavBadge;
   disabled?: boolean;
   newTab?: boolean;
-  /** RBAC gate — falls back to NAV_ITEM_ACCESS[id] when omitted */
+  /** RBAC gate — falls back to the screen catalog `viewAny` for this id when omitted */
   access?: NavAccess;
   /** How to mark this sub-item active in the sidebar */
   activeMatch?: "exact" | "prefix" | "clubs-list" | "evidence-folders";
@@ -75,7 +75,7 @@ interface NavItemBase {
   badge?: NavBadge;
   disabled?: boolean;
   newTab?: boolean;
-  /** RBAC gate — falls back to NAV_ITEM_ACCESS[id] when omitted */
+  /** RBAC gate — falls back to the screen catalog `viewAny` for this id when omitted */
   access?: NavAccess;
 }
 
@@ -755,6 +755,12 @@ export const sidebarItems: NavGroup[] = [
                 title: "Especialidades",
                 url: "/dashboard/catalogs/honors",
                 icon: Award,
+              },
+              {
+                id: "catalogs-master-honors",
+                title: "Maestrías",
+                url: "/dashboard/catalogs/master-honors",
+                icon: Trophy,
               },
             ],
           },

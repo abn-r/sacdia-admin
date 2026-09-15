@@ -5,7 +5,7 @@ import { getOrder, listReceipts, getConfig } from "@/lib/api/materials";
 import { extractComprobantes } from "@/lib/materials/comprobantes";
 import { buildReceiptPrintContextFromOrder } from "@/lib/materials/receipt-print";
 import { requireAdminUser } from "@/lib/auth/session";
-import { hasPermission } from "@/lib/auth/permission-utils";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import { ApiError } from "@/lib/api/client";
 import { BankSnapshotCard } from "./_components/bank-snapshot-card";
 import { PageHeader } from "@/components/shared/page-header";
@@ -50,9 +50,9 @@ export default async function SolicitudDetailPage({
   const { folio } = await params;
   const user = await requireAdminUser();
 
-  const canApprove = hasPermission(user, "materiales:approve");
-  const canDeliver = hasPermission(user, "materiales:deliver");
-  const canValidateReceipt = hasPermission(user, "materiales:validate-receipt");
+  const canApprove = canCapability(user, "materials-inbox", "approve");
+  const canDeliver = canCapability(user, "materials-inbox", "deliver");
+  const canValidateReceipt = canCapability(user, "materials-receipts", "validate");
 
   let orden;
   try {

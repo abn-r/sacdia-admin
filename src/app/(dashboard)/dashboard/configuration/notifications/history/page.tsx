@@ -2,12 +2,7 @@ import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { requireAdminUser } from "@/lib/auth/session";
-import { hasPermission } from "@/lib/auth/permission-utils";
-import {
-  NOTIFICATIONS_BROADCAST,
-  NOTIFICATIONS_CLUB,
-  NOTIFICATIONS_SEND,
-} from "@/lib/auth/permissions";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import { listAuthorizedNotificationClubTargets } from "@/lib/notifications/club-targets";
 import { NotificationHistoryTable } from "@/components/notifications/notification-history-table";
 import { NotificationComposeSheet } from "@/components/notifications/notification-compose-sheet";
@@ -43,9 +38,9 @@ export default async function ConfigurationNotificationsHistoryPage({
   const composeOpen = params.compose === "1";
   const composeType = parseComposeType(params.type);
 
-  const canSendDirect = hasPermission(user, NOTIFICATIONS_SEND);
-  const canBroadcast = hasPermission(user, NOTIFICATIONS_BROADCAST);
-  const canSendClub = hasPermission(user, NOTIFICATIONS_CLUB);
+  const canSendDirect = canCapability(user, "notifications-hub", "send_direct");
+  const canBroadcast = canCapability(user, "notifications-hub", "broadcast");
+  const canSendClub = canCapability(user, "notifications-hub", "send_club");
   const canCompose = canSendDirect || canBroadcast || canSendClub;
 
   let clubTargets: Awaited<

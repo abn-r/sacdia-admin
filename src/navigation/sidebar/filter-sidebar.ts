@@ -1,3 +1,5 @@
+import { expandRequiredRoles } from "@/lib/auth/screen-catalog";
+
 import type { NavAccess } from "./nav-access";
 import { getNavItemAccess } from "./sidebar-item-access";
 import type { NavGroup, NavMainItem, NavSubItem } from "./sidebar-items";
@@ -18,8 +20,9 @@ function isItemAllowed(
   }
 
   const access = getNavItemAccess(item);
+  // Unmapped leaves stay hidden. Matches route fail-closed in canAccessDashboardPath.
   if (!access) {
-    return true;
+    return false;
   }
 
   const permissions = access.permissions ?? [];
@@ -35,7 +38,9 @@ function isItemAllowed(
       ? checker.canAll(permissions)
       : checker.canAny(permissions));
 
-  const rolesOk = roles.length === 0 || checker.hasAnyRole(roles);
+  // Same alias expansion as the backend GlobalRolesGuard (admin ⇒ assistant-admin, …).
+  const rolesOk =
+    roles.length === 0 || checker.hasAnyRole(expandRequiredRoles(roles));
 
   return permissionsOk && rolesOk;
 }

@@ -18,8 +18,7 @@ import {
   resolveUserLocalField,
   toLocalFieldOptions,
 } from "@/lib/auth/user-local-field";
-import { hasPermission } from "@/lib/auth/permission-utils";
-import { MATERIALS_MANAGE_INVENTORY } from "@/lib/auth/permissions";
+import { canViewScreen } from "@/lib/auth/screen-catalog";
 import { ApiError } from "@/lib/api/client";
 import type {
   MaterialProduct,
@@ -64,7 +63,7 @@ export default async function InventarioPage({
   const t = await getTranslations("materials.pages.inventory");
   const user = await requireAdminUser();
 
-  if (!hasPermission(user, MATERIALS_MANAGE_INVENTORY)) {
+  if (!canViewScreen(user, "materials-inventory")) {
     redirect("/dashboard");
   }
 

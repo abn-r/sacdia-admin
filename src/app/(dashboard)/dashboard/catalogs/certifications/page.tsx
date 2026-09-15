@@ -13,14 +13,13 @@ import {
   normalizeCertificationListItem,
 } from "@/lib/certifications/catalog-normalize";
 import { requireAdminUser } from "@/lib/auth/session";
-import { hasPermission } from "@/lib/auth/permission-utils";
-import { CERTIFICATIONS_CONFIGURE, CERTIFICATIONS_PUBLISH } from "@/lib/auth/permissions";
+import { canCapability } from "@/lib/auth/screen-catalog";
 
 export default async function CatalogCertificationsPage() {
   const user = await requireAdminUser();
   const t = await getTranslations("catalogs.pages.certificationCatalog");
-  const canConfigure = hasPermission(user, CERTIFICATIONS_CONFIGURE);
-  const canPublish = hasPermission(user, CERTIFICATIONS_PUBLISH);
+  const canConfigure = canCapability(user, "catalogs-certifications", "configure");
+  const canPublish = canCapability(user, "catalogs-certifications", "publish");
 
   let items: ReturnType<typeof normalizeCertificationListItem>[] = [];
   let loadError: string | null = null;

@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { redirect } from "next/navigation";
 import { ShieldAlert } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
@@ -14,6 +15,7 @@ const ExpiringDashboard = dynamic(
   { loading: () => <ExpiringDashboardSkeleton /> },
 );
 import { getExpiringInsurance } from "@/lib/api/insurance";
+import { canViewScreen } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 import type { ExpiringInsurance } from "@/lib/api/insurance";
 
@@ -80,7 +82,10 @@ type PageProps = {
 export default async function ExpiringInsurancePage({
   searchParams,
 }: PageProps) {
-  await requireAdminUser();
+  const user = await requireAdminUser();
+  if (!canViewScreen(user, "insurance-expiring")) {
+    redirect("/dashboard");
+  }
   const t = await getTranslations("insurance");
 
   const params = await searchParams;

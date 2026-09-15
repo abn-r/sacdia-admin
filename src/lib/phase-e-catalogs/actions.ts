@@ -16,21 +16,7 @@ import {
   type CatalogTranslation,
 } from "@/lib/types/catalog-translation";
 import { requireAdminUser } from "@/lib/auth/session";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  CATALOGS_CREATE,
-  CATALOGS_UPDATE,
-  CATALOGS_DELETE,
-  CLASSES_MANAGE,
-  CLASS_MODULES_MANAGE,
-  CLASS_SECTIONS_MANAGE,
-  FINANCE_CATEGORIES_MANAGE,
-  INVENTORY_CATEGORIES_MANAGE,
-  HONORS_CREATE,
-  HONORS_UPDATE,
-  HONORS_DELETE,
-  MASTER_HONORS_MANAGE,
-} from "@/lib/auth/permissions";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import {
   createAdminClass,
   updateAdminClass,
@@ -369,15 +355,9 @@ function buildNameOnlyUpdate(formData: FormData) {
 
 // ─── Generic factory ───────────────────────────────────────────────────────────
 
-type CrudPermissions = {
-  create: string[];
-  update: string[];
-  delete: string[];
-};
-
 function makeActions(
   routePath: string,
-  permissions: CrudPermissions,
+  screenId: string,
   api: {
     create: (payload: Record<string, unknown>) => Promise<unknown>;
     update: (id: number, payload: Record<string, unknown>) => Promise<unknown>;
@@ -387,7 +367,7 @@ function makeActions(
 ) {
   async function createAction(_: PhaseEActionState, formData: FormData): Promise<PhaseEActionState> {
     const user = await requireAdminUser();
-    if (!hasAnyPermission(user, permissions.create)) {
+    if (!canCapability(user, screenId, "create")) {
       return { error: "Sin permisos para crear." };
     }
     try {
@@ -404,7 +384,7 @@ function makeActions(
 
   async function updateAction(_: PhaseEActionState, formData: FormData): Promise<PhaseEActionState> {
     const user = await requireAdminUser();
-    if (!hasAnyPermission(user, permissions.update)) {
+    if (!canCapability(user, screenId, "update")) {
       return { error: "Sin permisos para editar." };
     }
     const id = parsePositiveInt(formData, "id");
@@ -423,7 +403,7 @@ function makeActions(
 
   async function deleteAction(_: PhaseEActionState, formData: FormData): Promise<PhaseEActionState> {
     const user = await requireAdminUser();
-    if (!hasAnyPermission(user, permissions.delete)) {
+    if (!canCapability(user, screenId, "delete")) {
       return { error: "Sin permisos para eliminar." };
     }
     const id = parsePositiveInt(formData, "id");
@@ -444,7 +424,7 @@ function makeActions(
 
 export async function createClassAction(_: PhaseEActionState, formData: FormData): Promise<PhaseEActionState> {
   const user = await requireAdminUser();
-  if (!hasAnyPermission(user, [CLASSES_MANAGE, CATALOGS_CREATE])) {
+  if (!canCapability(user, "catalogs-classes", "create")) {
     return { error: "Sin permisos para crear." };
   }
   const clubTypeId = parseClubTypeId(formData);
@@ -466,7 +446,7 @@ export async function createClassAction(_: PhaseEActionState, formData: FormData
 
 export async function updateClassAction(_: PhaseEActionState, formData: FormData): Promise<PhaseEActionState> {
   const user = await requireAdminUser();
-  if (!hasAnyPermission(user, [CLASSES_MANAGE, CATALOGS_UPDATE])) {
+  if (!canCapability(user, "catalogs-classes", "update")) {
     return { error: "Sin permisos para editar." };
   }
   const id = parsePositiveInt(formData, "id");
@@ -490,7 +470,7 @@ export async function updateClassAction(_: PhaseEActionState, formData: FormData
 
 const classDeleteActions = makeActions(
   "/dashboard/catalogs/classes",
-  { create: [CLASSES_MANAGE, CATALOGS_CREATE], update: [CLASSES_MANAGE, CATALOGS_UPDATE], delete: [CLASSES_MANAGE, CATALOGS_DELETE] },
+  "catalogs-classes",
   {
     create: (p) => createAdminClass(p as Parameters<typeof createAdminClass>[0]),
     update: (id, p) => updateAdminClass(id, p),
@@ -505,7 +485,7 @@ export const deleteClassAction = classDeleteActions.deleteAction;
 
 export async function createClassModuleAction(_: PhaseEActionState, formData: FormData): Promise<PhaseEActionState> {
   const user = await requireAdminUser();
-  if (!hasAnyPermission(user, [CLASS_MODULES_MANAGE, CATALOGS_CREATE])) {
+  if (!canCapability(user, "catalogs-class-modules", "create")) {
     return { error: "Sin permisos para crear." };
   }
   const classId = parsePositiveInt(formData, "class_id");
@@ -524,7 +504,7 @@ export async function createClassModuleAction(_: PhaseEActionState, formData: Fo
 
 export async function updateClassModuleAction(_: PhaseEActionState, formData: FormData): Promise<PhaseEActionState> {
   const user = await requireAdminUser();
-  if (!hasAnyPermission(user, [CLASS_MODULES_MANAGE, CATALOGS_UPDATE])) {
+  if (!canCapability(user, "catalogs-class-modules", "update")) {
     return { error: "Sin permisos para editar." };
   }
   const id = parsePositiveInt(formData, "id");
@@ -545,7 +525,7 @@ export async function updateClassModuleAction(_: PhaseEActionState, formData: Fo
 
 const classModuleDeleteActions = makeActions(
   "/dashboard/catalogs/class-modules",
-  { create: [CLASS_MODULES_MANAGE, CATALOGS_CREATE], update: [CLASS_MODULES_MANAGE, CATALOGS_UPDATE], delete: [CLASS_MODULES_MANAGE, CATALOGS_DELETE] },
+  "catalogs-class-modules",
   {
     create: (p) => createAdminClassModule(p as Parameters<typeof createAdminClassModule>[0]),
     update: (id, p) => updateAdminClassModule(id, p),
@@ -560,7 +540,7 @@ export const deleteClassModuleAction = classModuleDeleteActions.deleteAction;
 
 export async function createClassSectionAction(_: PhaseEActionState, formData: FormData): Promise<PhaseEActionState> {
   const user = await requireAdminUser();
-  if (!hasAnyPermission(user, [CLASS_SECTIONS_MANAGE, CATALOGS_CREATE])) {
+  if (!canCapability(user, "catalogs-class-sections", "create")) {
     return { error: "Sin permisos para crear." };
   }
   const moduleId = parsePositiveInt(formData, "module_id");
@@ -579,7 +559,7 @@ export async function createClassSectionAction(_: PhaseEActionState, formData: F
 
 export async function updateClassSectionAction(_: PhaseEActionState, formData: FormData): Promise<PhaseEActionState> {
   const user = await requireAdminUser();
-  if (!hasAnyPermission(user, [CLASS_SECTIONS_MANAGE, CATALOGS_UPDATE])) {
+  if (!canCapability(user, "catalogs-class-sections", "update")) {
     return { error: "Sin permisos para editar." };
   }
   const id = parsePositiveInt(formData, "id");
@@ -600,7 +580,7 @@ export async function updateClassSectionAction(_: PhaseEActionState, formData: F
 
 const classSectionDeleteActions = makeActions(
   "/dashboard/catalogs/class-sections",
-  { create: [CLASS_SECTIONS_MANAGE, CATALOGS_CREATE], update: [CLASS_SECTIONS_MANAGE, CATALOGS_UPDATE], delete: [CLASS_SECTIONS_MANAGE, CATALOGS_DELETE] },
+  "catalogs-class-sections",
   {
     create: (p) => createAdminClassSection(p as Parameters<typeof createAdminClassSection>[0]),
     update: (id, p) => updateAdminClassSection(id, p),
@@ -615,7 +595,7 @@ export const deleteClassSectionAction = classSectionDeleteActions.deleteAction;
 
 const finCatActions = makeActions(
   "/dashboard/catalogs/finance-categories",
-  { create: [FINANCE_CATEGORIES_MANAGE, CATALOGS_CREATE], update: [FINANCE_CATEGORIES_MANAGE, CATALOGS_UPDATE], delete: [FINANCE_CATEGORIES_MANAGE, CATALOGS_DELETE] },
+  "catalogs-finance-categories",
   {
     create: (p) => createAdminFinanceCategory(p as Parameters<typeof createAdminFinanceCategory>[0]),
     update: (id, p) => updateAdminFinanceCategory(id, p),
@@ -632,7 +612,7 @@ export const deleteFinanceCategoryAction = finCatActions.deleteAction;
 
 const invCatActions = makeActions(
   "/dashboard/catalogs/inventory-categories",
-  { create: [INVENTORY_CATEGORIES_MANAGE, CATALOGS_CREATE], update: [INVENTORY_CATEGORIES_MANAGE, CATALOGS_UPDATE], delete: [INVENTORY_CATEGORIES_MANAGE, CATALOGS_DELETE] },
+  "catalogs-inventory-categories",
   {
     create: (p) => createAdminInventoryCategory(p as Parameters<typeof createAdminInventoryCategory>[0]),
     update: (id, p) => updateAdminInventoryCategory(id, p),
@@ -649,7 +629,7 @@ export const deleteInventoryCategoryAction = invCatActions.deleteAction;
 
 const honorsAdminActions = makeActions(
   "/dashboard/catalogs/honors-catalog",
-  { create: [HONORS_CREATE, CATALOGS_CREATE], update: [HONORS_UPDATE, CATALOGS_UPDATE], delete: [HONORS_DELETE, CATALOGS_DELETE] },
+  "catalogs-honors",
   {
     create: (p) => createAdminHonorCatalog(p as Parameters<typeof createAdminHonorCatalog>[0]),
     update: (id, p) => updateAdminHonorCatalog(id, p),
@@ -685,7 +665,7 @@ export async function createMasterHonorAction(
   formData: FormData,
 ): Promise<PhaseEActionState> {
   const user = await requireAdminUser();
-  if (!hasAnyPermission(user, [MASTER_HONORS_MANAGE, CATALOGS_CREATE])) {
+  if (!canCapability(user, "catalogs-master-honors", "create")) {
     return { error: "Sin permisos para crear." };
   }
 
@@ -709,7 +689,7 @@ export async function updateMasterHonorAction(
   formData: FormData,
 ): Promise<PhaseEActionState> {
   const user = await requireAdminUser();
-  if (!hasAnyPermission(user, [MASTER_HONORS_MANAGE, CATALOGS_UPDATE])) {
+  if (!canCapability(user, "catalogs-master-honors", "update")) {
     return { error: "Sin permisos para editar." };
   }
 
@@ -736,7 +716,7 @@ export async function deleteMasterHonorAction(
   formData: FormData,
 ): Promise<PhaseEActionState> {
   const user = await requireAdminUser();
-  if (!hasAnyPermission(user, [MASTER_HONORS_MANAGE, CATALOGS_DELETE])) {
+  if (!canCapability(user, "catalogs-master-honors", "delete")) {
     return { error: "Sin permisos para eliminar." };
   }
 
@@ -762,7 +742,8 @@ export async function recalculateMasterHonorAction(
   formData: FormData,
 ): Promise<PhaseEActionState> {
   const user = await requireAdminUser();
-  if (!hasAnyPermission(user, [MASTER_HONORS_MANAGE, CATALOGS_UPDATE])) {
+  // POST /admin/master-honors/:id/recalculate → honors:update
+  if (!canCapability(user, "catalogs-master-honors", "update")) {
     return { error: "Sin permisos para editar." };
   }
 

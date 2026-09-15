@@ -32,8 +32,7 @@ import {
 } from "@/lib/catalogs/classes/class-structure";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import { CATALOGS_CREATE, CATALOGS_DELETE, CATALOGS_UPDATE, CLASSES_MANAGE } from "@/lib/auth/permissions";
+import { canCapability } from "@/lib/auth/screen-catalog";
 
 type Params = Promise<{ classId: string }>;
 
@@ -62,9 +61,9 @@ export default async function CatalogClassDetailPage({ params }: { params: Param
   const classId = toPositiveNumber(classIdParam);
   if (!classId) notFound();
 
-  const canManageRelations = hasAnyPermission(user, [CLASSES_MANAGE, CATALOGS_CREATE]);
-  const canUpdateRelations = hasAnyPermission(user, [CLASSES_MANAGE, CATALOGS_UPDATE]);
-  const canDeleteRelations = hasAnyPermission(user, [CLASSES_MANAGE, CATALOGS_DELETE]);
+  const canManageRelations = canCapability(user, "catalogs-classes", "create");
+  const canUpdateRelations = canCapability(user, "catalogs-classes", "update");
+  const canDeleteRelations = canCapability(user, "catalogs-classes", "delete");
 
   const clubTypeNameById = new Map<number, string>();
   try {

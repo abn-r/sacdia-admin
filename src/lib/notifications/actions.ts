@@ -8,13 +8,8 @@ import {
   sendClubNotification,
   type NotificationInstanceType,
 } from "@/lib/api/notifications";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
-import { hasPermission } from "@/lib/auth/permission-utils";
-import {
-  NOTIFICATIONS_BROADCAST,
-  NOTIFICATIONS_CLUB,
-  NOTIFICATIONS_SEND,
-} from "@/lib/auth/permissions";
 
 type NotificationsTranslator = Awaited<
   ReturnType<typeof getTranslations<"notifications">>
@@ -75,7 +70,7 @@ export async function sendDirectNotificationAction(
   const user = await requireAdminUser();
   const t = await getTranslations("notifications");
 
-  if (!hasPermission(user, NOTIFICATIONS_SEND)) {
+  if (!canCapability(user, "notifications-hub", "send_direct")) {
     return { error: t("errors.send_failed") };
   }
 
@@ -109,7 +104,7 @@ export async function broadcastNotificationAction(
   const user = await requireAdminUser();
   const t = await getTranslations("notifications");
 
-  if (!hasPermission(user, NOTIFICATIONS_BROADCAST)) {
+  if (!canCapability(user, "notifications-hub", "broadcast")) {
     return { error: t("errors.broadcast_failed") };
   }
 
@@ -141,7 +136,7 @@ export async function clubNotificationAction(
   const user = await requireAdminUser();
   const t = await getTranslations("notifications");
 
-  if (!hasPermission(user, NOTIFICATIONS_CLUB)) {
+  if (!canCapability(user, "notifications-hub", "send_club")) {
     return { error: t("errors.club_send_failed") };
   }
 

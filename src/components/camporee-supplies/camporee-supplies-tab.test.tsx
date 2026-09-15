@@ -17,7 +17,6 @@ const mockListPlans = vi.fn();
 const mockKitchen = vi.fn();
 const mockCash = vi.fn();
 const mockMarkPaid = vi.fn();
-const mockHasPermission = vi.fn();
 
 vi.mock("@/lib/api/camporee-supplies", async (importOriginal) => {
   const original =
@@ -32,12 +31,28 @@ vi.mock("@/lib/api/camporee-supplies", async (importOriginal) => {
   };
 });
 
+// Gates come from the screen catalog (`campamentos-list-*` supplies.*), so the
+// actor carries real effective permissions instead of a mocked helper.
 vi.mock("@/lib/auth/auth-context", () => ({
-  useAuth: () => ({ user: { id: "lf-1", user_id: "lf-1" } }),
-}));
-
-vi.mock("@/lib/auth/permission-utils", () => ({
-  hasPermission: (...args: unknown[]) => mockHasPermission(...args),
+  useAuth: () => ({
+    user: {
+      id: "lf-1",
+      user_id: "lf-1",
+      email: "lf@example.com",
+      roles: ["director-lf"],
+      authorization: {
+        grants: { global_roles: [{ role_name: "director-lf" }] },
+        effective: {
+          permissions: [
+            "camporee-supplies:read",
+            "camporee-supplies:configure",
+            "camporee-supplies:review-pay",
+            "camporee-supplies:deliver",
+          ],
+        },
+      },
+    },
+  }),
 }));
 
 vi.mock("sonner", () => ({
@@ -125,8 +140,6 @@ describe("CamporeeSuppliesTab", () => {
     mockKitchen.mockReset();
     mockCash.mockReset();
     mockMarkPaid.mockReset();
-    mockHasPermission.mockReset();
-    mockHasPermission.mockReturnValue(true);
     mockGetCatalog.mockResolvedValue(STUB_CATALOG);
     mockListPlans.mockResolvedValue([STUB_PLAN]);
     mockKitchen.mockResolvedValue({ timezone: "America/Mexico_City", date: null, rows: [] });

@@ -10,12 +10,7 @@ import {
   updateResourceCategory,
   type ResourceCategoryPayload,
 } from "@/lib/api/resources";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  RESOURCE_CATEGORIES_CREATE,
-  RESOURCE_CATEGORIES_DELETE,
-  RESOURCE_CATEGORIES_UPDATE,
-} from "@/lib/auth/permissions";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 
 const RESOURCE_CATEGORIES_PATH = "/dashboard/resources/categories";
@@ -72,7 +67,7 @@ export async function createResourceCategoryAction(
 ): Promise<ResourceCategoryActionState> {
   const user = await requireAdminUser();
   const t = await getTranslations("resource_categories");
-  if (!hasAnyPermission(user, [RESOURCE_CATEGORIES_CREATE])) {
+  if (!canCapability(user, "resources-categories", "create")) {
     return { error: t("errors.no_permission_create") };
   }
   try {
@@ -95,7 +90,7 @@ export async function updateResourceCategoryAction(
 ): Promise<ResourceCategoryActionState> {
   const user = await requireAdminUser();
   const t = await getTranslations("resource_categories");
-  if (!hasAnyPermission(user, [RESOURCE_CATEGORIES_UPDATE])) {
+  if (!canCapability(user, "resources-categories", "update")) {
     return { error: t("errors.no_permission_update") };
   }
   const id = parsePositiveNumber(formData, "id");
@@ -120,7 +115,7 @@ export async function deleteResourceCategoryAction(
 ): Promise<ResourceCategoryActionState> {
   const user = await requireAdminUser();
   const t = await getTranslations("resource_categories");
-  if (!hasAnyPermission(user, [RESOURCE_CATEGORIES_DELETE])) {
+  if (!canCapability(user, "resources-categories", "delete")) {
     return { error: t("errors.no_permission_delete") };
   }
   const id = parsePositiveNumber(formData, "id");

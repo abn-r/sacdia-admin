@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { Package } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
@@ -7,6 +8,7 @@ import { InventoryView } from "@/components/inventory/inventory-view";
 import { apiRequest, ApiError } from "@/lib/api/client";
 import { listInventoryCategories, listClubInventory } from "@/lib/api/inventory";
 import { listClubTypes } from "@/lib/api/catalogs";
+import { canViewScreen } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 import {
   listLocalFieldsForTerritory,
@@ -62,6 +64,9 @@ function normalizeItem(raw: AnyRecord): InventoryItem {
 
 export default async function InventoryPage() {
   const user = await requireAdminUser();
+  if (!canViewScreen(user, "club-inventory")) {
+    redirect("/dashboard");
+  }
   const t = await getTranslations("inventory");
   const territoryScope = resolveAdminTerritoryScope(user);
 
@@ -71,7 +76,7 @@ export default async function InventoryPage() {
   let clubTypes: ClubType[] = [];
   let initialItems: InventoryItem[] = [];
   let initialLocalFieldId: number | "all" = "all";
-  let initialClubTypeId: number | "all" = "all";
+  const initialClubTypeId: number | "all" = "all";
   let loadError: string | null = null;
 
   if (territoryScope.level === "local_field") {

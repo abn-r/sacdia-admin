@@ -8,15 +8,7 @@ import {
   updateAdminClubType,
 } from "@/lib/api/admin-club-types";
 import { clubTypeFormSchema } from "@/lib/catalogs/club-types/schema";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  CATALOGS_CREATE,
-  CATALOGS_DELETE,
-  CATALOGS_UPDATE,
-  CLUB_TYPES_CREATE,
-  CLUB_TYPES_DELETE,
-  CLUB_TYPES_UPDATE,
-} from "@/lib/auth/permissions";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 
 const REVALIDATE_PATH = "/dashboard/catalogs/club-types";
@@ -50,7 +42,7 @@ export async function createClubTypeAction(
 ): Promise<ClubTypeActionState> {
   try {
     const user = await requireAdminUser();
-    if (!hasAnyPermission(user, [CLUB_TYPES_CREATE, CATALOGS_CREATE])) {
+    if (!canCapability(user, "catalogs-club-types", "create")) {
       return { error: "No tienes permisos para crear tipos de club." };
     }
 
@@ -74,7 +66,7 @@ export async function updateClubTypeAction(
 ): Promise<ClubTypeActionState> {
   try {
     const user = await requireAdminUser();
-    if (!hasAnyPermission(user, [CLUB_TYPES_UPDATE, CATALOGS_UPDATE])) {
+    if (!canCapability(user, "catalogs-club-types", "update")) {
       return { error: "No tienes permisos para editar tipos de club." };
     }
 
@@ -100,7 +92,7 @@ export async function updateClubTypeAction(
 export async function deleteClubTypeAction(clubTypeId: number): Promise<ClubTypeActionState> {
   try {
     const user = await requireAdminUser();
-    if (!hasAnyPermission(user, [CLUB_TYPES_DELETE, CATALOGS_DELETE])) {
+    if (!canCapability(user, "catalogs-club-types", "delete")) {
       return { error: "No tienes permisos para eliminar tipos de club." };
     }
 

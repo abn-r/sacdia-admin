@@ -20,7 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { listOrders } from "@/lib/api/materials";
 import { requireAdminUser } from "@/lib/auth/session";
-import { hasPermission } from "@/lib/auth/permission-utils";
+import { canViewScreen } from "@/lib/auth/screen-catalog";
 import { ApiError } from "@/lib/api/client";
 import type { OrdenSummary } from "@/lib/types/materials";
 
@@ -74,7 +74,7 @@ export default async function ComprobantesPage({
   const user = await requireAdminUser();
 
   // Guard: only users with validate-receipt permission can access this route
-  if (!hasPermission(user, "materiales:validate-receipt")) {
+  if (!canViewScreen(user, "materials-receipts")) {
     redirect("/dashboard");
   }
 

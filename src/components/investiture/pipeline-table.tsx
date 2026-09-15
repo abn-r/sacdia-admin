@@ -47,6 +47,7 @@ const BulkActionBar = dynamic<BulkActionBarProps>(
     ),
   { ssr: false, loading: () => null }
 );
+import { useScreenAccess } from "@/lib/auth/screen-catalog/use-screen-access";
 import {
   pipelineClubApprove,
   pipelineCoordinatorApprove,
@@ -70,8 +71,6 @@ function getMemberName(e: PipelineEnrollment): string {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type UserRole = "director" | "coordinator" | "field" | "admin";
-
 type DialogState =
   | { type: "reject"; enrollment: PipelineEnrollment }
   | { type: "history"; enrollment: PipelineEnrollment }
@@ -79,53 +78,39 @@ type DialogState =
 
 interface PipelineTableProps {
   enrollments: PipelineEnrollment[];
-  userRole: UserRole;
   onRefresh: () => void;
 }
 
-// ─── Inline action logic ──────────────────────────────────────────────────────
+type PipelineCaps = {
+  clubApprove: boolean;
+  coordinatorApprove: boolean;
+  fieldApprove: boolean;
+  invest: boolean;
+  reject: boolean;
+};
 
-function canApprove(status: PipelineStatus, role: UserRole): boolean {
-  if (role === "admin") {
-    return (
-      status === "SUBMITTED" ||
-      status === "CLUB_APPROVED" ||
-      status === "COORDINATOR_APPROVED" ||
-      status === "FIELD_APPROVED"
-    );
-  }
-  if (role === "director") return status === "SUBMITTED";
-  if (role === "coordinator") return status === "CLUB_APPROVED";
-  if (role === "field") return status === "COORDINATOR_APPROVED";
+function canApproveStatus(status: PipelineStatus, caps: PipelineCaps): boolean {
+  if (status === "SUBMITTED") return caps.clubApprove;
+  if (status === "CLUB_APPROVED") return caps.coordinatorApprove;
+  if (status === "COORDINATOR_APPROVED") return caps.fieldApprove;
   return false;
 }
 
-function canInvest(status: PipelineStatus, role: UserRole): boolean {
-  return (
-    status === "FIELD_APPROVED" && (role === "admin" || role === "field")
-  );
+function canInvestStatus(status: PipelineStatus, caps: PipelineCaps): boolean {
+  return status === "FIELD_APPROVED" && caps.invest;
 }
 
-/**
- * Returns true when this enrollment can be rejected by the given role.
- * Mirrors the backend RBAC — a director can only reject at the club step,
- * a coordinator at club/coordinator steps, field/admin at any rejectable step.
- */
-function canReject(status: PipelineStatus, role: UserRole): boolean {
+function canRejectStatus(status: PipelineStatus, caps: PipelineCaps): boolean {
   if (status === "INVESTED" || status === "REJECTED") return false;
-  if (role === "director") return status === "SUBMITTED";
-  if (role === "coordinator") return status === "SUBMITTED" || status === "CLUB_APPROVED";
-  // admin and field can reject any non-terminal status
-  return true;
+  return caps.reject;
 }
 
-/**
- * Returns true when this enrollment's status can be acted upon (approve or
- * invest) by the current user role — used to decide whether to render a
- * selectable checkbox for that row.
- */
-function isSelectableForRole(status: PipelineStatus, role: UserRole): boolean {
-  return canApprove(status, role) || canInvest(status, role) || canReject(status, role);
+function isSelectable(status: PipelineStatus, caps: PipelineCaps): boolean {
+  return (
+    canApproveStatus(status, caps) ||
+    canInvestStatus(status, caps) ||
+    canRejectStatus(status, caps)
+  );
 }
 
 async function runApprove(enrollmentId: number, status: PipelineStatus): Promise<void> {
@@ -147,7 +132,7 @@ async function runApprove(enrollmentId: number, status: PipelineStatus): Promise
 
 interface RowActionsProps {
   enrollment: PipelineEnrollment;
-  userRole: UserRole;
+  caps: PipelineCaps;
   onApproved: () => void;
   onInvested: () => void;
   onReject: () => void;
@@ -156,7 +141,7 @@ interface RowActionsProps {
 
 function RowActions({
   enrollment,
-  userRole,
+  caps,
   onApproved,
   onInvested,
   onReject,
@@ -167,9 +152,9 @@ function RowActions({
   const [investing, setInvesting] = useState(false);
 
   const status = enrollment.status;
-  const showApprove = canApprove(status, userRole);
-  const showInvest = canInvest(status, userRole);
-  const showReject = canReject(status, userRole);
+  const showApprove = canApproveStatus(status, caps);
+  const showInvest = canInvestStatus(status, caps);
+  const showReject = canRejectStatus(status, caps);
 
   async function handleApprove() {
     setApproving(true);
@@ -289,10 +274,17 @@ function RowActions({
 
 export function PipelineTable({
   enrollments,
-  userRole,
   onRefresh,
 }: PipelineTableProps) {
   const formatDate = useFormatDate();
+  const { canCapability } = useScreenAccess();
+  const caps: PipelineCaps = {
+    clubApprove: canCapability("investiture-pipeline", "club_approve"),
+    coordinatorApprove: canCapability("investiture-pipeline", "coordinator_approve"),
+    fieldApprove: canCapability("investiture-pipeline", "field_approve"),
+    invest: canCapability("investiture-pipeline", "invest"),
+    reject: canCapability("investiture-pipeline", "reject"),
+  };
   const [dialog, setDialog] = useState<DialogState>(null);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
 
@@ -304,7 +296,7 @@ export function PipelineTable({
 
   /** Only enrollments actionable by this role participate in bulk selection */
   const selectableEnrollments = enrollments.filter((e) =>
-    isSelectableForRole(e.status, userRole),
+    isSelectable(e.status, caps),
   );
 
   const allSelected =
@@ -404,7 +396,7 @@ export function PipelineTable({
           <TableBody>
             {enrollments.map((enrollment, index) => {
               const isSelected = selectedIds.has(enrollment.enrollment_id);
-              const selectable = isSelectableForRole(enrollment.status, userRole);
+              const selectable = isSelectable(enrollment.status, caps);
 
               return (
                 <TableRow
@@ -447,7 +439,7 @@ export function PipelineTable({
                   <TableCell className="px-3 py-2.5 align-middle">
                     <RowActions
                       enrollment={enrollment}
-                      userRole={userRole}
+                      caps={caps}
                       onApproved={() => { onRefresh(); }}
                       onInvested={() => { onRefresh(); }}
                       onReject={() => setDialog({ type: "reject", enrollment })}
@@ -487,7 +479,6 @@ export function PipelineTable({
         <BulkActionBar
           selectedIds={[...selectedIds]}
           selectedStatus={selectedStatus}
-          userRole={userRole}
           onClearSelection={clearSelection}
           onSuccess={() => {
             clearSelection();

@@ -3,12 +3,11 @@ import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { AuditLogsViewer } from "@/components/audit/audit-logs-viewer";
 import { requireAdminUser } from "@/lib/auth/session";
-import { extractRoles, SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
+import { canViewScreen } from "@/lib/auth/screen-catalog";
 
 export default async function ConfigurationAuditPage() {
   const user = await requireAdminUser();
-  const isSuperAdmin = extractRoles(user).includes(SUPER_ADMIN_ROLE);
-  if (!isSuperAdmin) {
+  if (!canViewScreen(user, "admin-system-audit")) {
     redirect("/dashboard");
   }
 

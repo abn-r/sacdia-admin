@@ -5,8 +5,7 @@ import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CoordinationAdminClient } from "@/components/coordination/coordination-admin-client";
 import { ApiError } from "@/lib/api/client";
-import { hasPermission } from "@/lib/auth/permission-utils";
-import { COORDINATION_MANAGE } from "@/lib/auth/permissions";
+import { canViewScreen } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 import {
   listLocalFieldsForTerritory,
@@ -24,7 +23,7 @@ export default async function CoordinationAdminPage() {
   const t = await getTranslations("coordinationAdmin");
   const territoryScope = resolveAdminTerritoryScope(user);
 
-  if (!hasPermission(user, COORDINATION_MANAGE)) {
+  if (!canViewScreen(user, "coordination")) {
     return (
       <div className="space-y-6">
         <PageHeader

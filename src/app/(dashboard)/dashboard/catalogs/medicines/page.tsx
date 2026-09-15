@@ -30,15 +30,7 @@ import { listAdminMedicines } from "@/lib/api/generic-catalogs-i18n";
 import { extractItems, extractMeta, readParam, readPositiveNumberParam } from "@/lib/phase-e-catalogs/fetch-helpers";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  MEDICINES_CREATE,
-  MEDICINES_UPDATE,
-  MEDICINES_DELETE,
-  CATALOGS_CREATE,
-  CATALOGS_UPDATE,
-  CATALOGS_DELETE,
-} from "@/lib/auth/permissions";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import {
   createMedicineAction,
   updateMedicineAction,
@@ -79,9 +71,9 @@ export default async function MedicinesPage({ searchParams }: { searchParams: Se
     }
   }
 
-  const canCreate = hasAnyPermission(user, [MEDICINES_CREATE, CATALOGS_CREATE]);
-  const canEdit = hasAnyPermission(user, [MEDICINES_UPDATE, CATALOGS_UPDATE]);
-  const canDelete = hasAnyPermission(user, [MEDICINES_DELETE, CATALOGS_DELETE]);
+  const canCreate = canCapability(user, "catalogs-medicines", "create");
+  const canEdit = canCapability(user, "catalogs-medicines", "update");
+  const canDelete = canCapability(user, "catalogs-medicines", "delete");
 
   return (
     <div className="space-y-6">

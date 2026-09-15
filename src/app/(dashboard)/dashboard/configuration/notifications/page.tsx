@@ -6,12 +6,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { NotificationStatsCards } from "@/components/notifications/notification-stats-cards";
 import { requireAdminUser } from "@/lib/auth/session";
-import { hasPermission } from "@/lib/auth/permission-utils";
-import {
-  NOTIFICATIONS_BROADCAST,
-  NOTIFICATIONS_CLUB,
-  NOTIFICATIONS_SEND,
-} from "@/lib/auth/permissions";
+import { canViewScreen } from "@/lib/auth/screen-catalog";
 import { getNotificationStats } from "@/lib/api/notifications";
 import { ApiError } from "@/lib/api/client";
 
@@ -19,10 +14,7 @@ export default async function ConfigurationNotificationsPage() {
   const user = await requireAdminUser();
   const t = await getTranslations("configuration.notifications");
 
-  const canSend =
-    hasPermission(user, NOTIFICATIONS_SEND) ||
-    hasPermission(user, NOTIFICATIONS_BROADCAST) ||
-    hasPermission(user, NOTIFICATIONS_CLUB);
+  const canSend = canViewScreen(user, "notifications-hub");
 
   let stats = null;
   let statsError: string | null = null;

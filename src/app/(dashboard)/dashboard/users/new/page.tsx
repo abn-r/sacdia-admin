@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { NewUserForm, type NewUserGeography } from "@/components/users/new-user-form";
 import { requireAdminUser } from "@/lib/auth/session";
 import { extractRoles } from "@/lib/auth/roles";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import type { AdminCreatableRole } from "@/lib/api/admin-users";
 import { listCountries } from "@/lib/api/geography";
 import {
@@ -13,17 +14,6 @@ import {
 } from "@/lib/auth/territory-scope";
 
 // ─── Role-to-allowed-creatable-roles mapping ──────────────────────────────────
-
-const ALLOWED_PAGE_ROLES = new Set([
-  "super-admin",
-  "admin",
-  "director-dia",
-  "assistant-dia",
-  "director-union",
-  "assistant-union",
-  "director-lf",
-  "assistant-lf",
-]);
 
 /**
  * Returns the subset of AdminCreatableRole values the actor may assign.
@@ -80,14 +70,13 @@ function resolveAllowedRoles(userRoles: string[]): AdminCreatableRole[] {
 
 export default async function NewUserPage() {
   const currentUser = await requireAdminUser();
-  const userRoles = extractRoles(currentUser);
 
-  // Check that at least one of the allowed page roles is present
-  const hasAccess = userRoles.some((r) => ALLOWED_PAGE_ROLES.has(r));
-  if (!hasAccess) {
+  // Page gate = `users.create` capability (users:create AND @GlobalRoles), as the API.
+  if (!canCapability(currentUser, "users", "create")) {
     notFound();
   }
 
+  const userRoles = extractRoles(currentUser);
   const allowedRoles = resolveAllowedRoles(userRoles);
   const t = await getTranslations("users.pages.new");
   const tList = await getTranslations("users.pages.list");

@@ -66,12 +66,10 @@ import {
 import { ApiError } from "@/lib/api/client";
 import {
   canManageAdministrativeCompletion,
-  canReadSensitiveUserFamily,
   canViewAdministrativeCompletion,
-  hasAnyPermission,
 } from "@/lib/auth/permission-utils";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import { getAdminUserMfaStatus } from "@/lib/api/mfa";
-import { USERS_UPDATE_ADMIN } from "@/lib/auth/permissions";
 import { requireAdminUser } from "@/lib/auth/session";
 import {
   getUserRoles,
@@ -144,17 +142,20 @@ export default async function UserDetailPage({ params }: { params: Params }) {
   }
 
   const mfaStatus = await getAdminUserMfaStatus(userId).catch(() => null);
-  const canManageMfa = hasAnyPermission(currentUser, [USERS_UPDATE_ADMIN]);
+  // Screen catalog capabilities (`users` screen) — same gates as the API.
+  const canManageMfa = canCapability(currentUser, "users", "update_admin");
   sessionsData = await getAdminUserSessions(userId).catch(() => null);
 
-  const canSeeHealthData = canReadSensitiveUserFamily(currentUser, "health");
-  const canSeeEmergencyContacts = canReadSensitiveUserFamily(
+  const canSeeHealthData = canCapability(currentUser, "users", "health.read");
+  const canSeeEmergencyContacts = canCapability(
     currentUser,
-    "emergency_contacts",
+    "users",
+    "emergency_contacts.read",
   );
-  const canSeeLegalRepresentative = canReadSensitiveUserFamily(
+  const canSeeLegalRepresentative = canCapability(
     currentUser,
-    "legal_representative",
+    "users",
+    "legal_representative.read",
   );
   const canUpdateAdministrativeCompletion =
     canManageAdministrativeCompletion(currentUser);

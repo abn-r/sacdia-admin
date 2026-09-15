@@ -8,15 +8,7 @@ import {
   updateAdminLocalField,
 } from "@/lib/api/admin-local-fields";
 import { localFieldFormSchema } from "@/lib/catalogs/local-fields/schema";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  CATALOGS_CREATE,
-  CATALOGS_DELETE,
-  CATALOGS_UPDATE,
-  LOCAL_FIELDS_CREATE,
-  LOCAL_FIELDS_DELETE,
-  LOCAL_FIELDS_UPDATE,
-} from "@/lib/auth/permissions";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 
 const REVALIDATE_PATH = "/dashboard/catalogs/local-fields";
@@ -57,7 +49,7 @@ export async function createLocalFieldAction(
 ): Promise<LocalFieldActionState> {
   try {
     const user = await requireAdminUser();
-    if (!hasAnyPermission(user, [LOCAL_FIELDS_CREATE, CATALOGS_CREATE])) {
+    if (!canCapability(user, "catalogs-local-fields", "create")) {
       return { error: "No tienes permisos para crear campos locales." };
     }
 
@@ -81,7 +73,7 @@ export async function updateLocalFieldAction(
 ): Promise<LocalFieldActionState> {
   try {
     const user = await requireAdminUser();
-    if (!hasAnyPermission(user, [LOCAL_FIELDS_UPDATE, CATALOGS_UPDATE])) {
+    if (!canCapability(user, "catalogs-local-fields", "update")) {
       return { error: "No tienes permisos para editar campos locales." };
     }
 
@@ -109,7 +101,7 @@ export async function deleteLocalFieldAction(
 ): Promise<LocalFieldActionState> {
   try {
     const user = await requireAdminUser();
-    if (!hasAnyPermission(user, [LOCAL_FIELDS_DELETE, CATALOGS_DELETE])) {
+    if (!canCapability(user, "catalogs-local-fields", "delete")) {
       return { error: "No tienes permisos para eliminar campos locales." };
     }
 

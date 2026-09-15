@@ -13,10 +13,14 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import {
-  getPermissionGroupLabel,
   getPermissionLabel,
   permissionMatchesQuery,
 } from "@/lib/auth/permissions";
+import { groupByScreen } from "@/lib/auth/screen-catalog";
+import {
+  getScreenGroupTitle,
+  type NavTranslator,
+} from "@/lib/auth/screen-catalog/screen-title";
 import type { Permission } from "@/lib/rbac/types";
 
 const DESTRUCTIVE_KEYWORDS = ["delete", "destroy", "purge", "remove"];
@@ -27,22 +31,25 @@ function isDestructivePermission(name: string): boolean {
 
 // ─── Group type ──────────────────────────────────────────────────────────────
 type PermissionGroup = {
+  /** Screen id from the catalog, or the "other" bucket. */
   resource: string;
+  title: string;
+  requiredRoles: string[];
   permissions: Permission[];
 };
 
-function groupPermissions(permissions: Permission[]): PermissionGroup[] {
-  const map = new Map<string, Permission[]>();
-
-  for (const p of permissions) {
-    const resource = p.permission_name.split(":")[0] ?? "other";
-    if (!map.has(resource)) map.set(resource, []);
-    map.get(resource)!.push(p);
-  }
-
-  return Array.from(map.entries())
-    .map(([resource, perms]) => ({ resource, permissions: perms }))
-    .sort((a, b) => a.resource.localeCompare(b.resource));
+/** Groups by screen (catalog order); keys outside every screen go last. */
+function groupPermissions(
+  permissions: Permission[],
+  tNav: NavTranslator,
+  otherLabel: string,
+): PermissionGroup[] {
+  return groupByScreen(permissions, (p) => p.permission_name).map((group) => ({
+    resource: group.screenId,
+    title: getScreenGroupTitle(tNav, group, otherLabel),
+    requiredRoles: group.requiredRoles,
+    permissions: group.items,
+  }));
 }
 
 // ─── Accordion group row ─────────────────────────────────────────────────────
@@ -101,7 +108,7 @@ function AccordionGroup({
           id={`group-${group.resource}`}
           checked={allSelected ? true : someSelected ? "indeterminate" : false}
           onCheckedChange={handleGroupCheck}
-          aria-label={t("permissionPicker.selectAllInGroup", { resource: group.resource })}
+          aria-label={t("permissionPicker.selectAllInGroup", { resource: group.title })}
           className="shrink-0"
         />
 
@@ -114,8 +121,26 @@ function AccordionGroup({
           aria-controls={`group-${group.resource}-content`}
         >
           <span className="flex-1 text-sm font-semibold uppercase tracking-wider text-foreground">
-            {getPermissionGroupLabel(t, group.resource)}
+            {group.title}
           </span>
+
+          {group.requiredRoles.length > 0 && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <AlertTriangle
+                  className="size-3.5 shrink-0 text-warning"
+                  aria-label={t("permissionPicker.requiresRoles", {
+                    roles: group.requiredRoles.join(", "),
+                  })}
+                />
+              </TooltipTrigger>
+              <TooltipContent>
+                {t("permissionPicker.requiresRoles", {
+                  roles: group.requiredRoles.join(", "),
+                })}
+              </TooltipContent>
+            </Tooltip>
+          )}
 
           <span className="shrink-0 text-xs text-muted-foreground font-mono">
             [{selectedInGroup.length}/{group.permissions.length}]
@@ -193,6 +218,7 @@ export function PermissionPicker({
   defaultOpenGroups,
 }: PermissionPickerProps) {
   const t = useTranslations("rbac");
+  const tNav = useTranslations("nav.items") as unknown as NavTranslator;
   const [search, setSearch] = useState("");
 
   const activePermissions = useMemo(
@@ -200,7 +226,11 @@ export function PermissionPicker({
     [permissions],
   );
 
-  const groups = useMemo(() => groupPermissions(activePermissions), [activePermissions]);
+  const otherLabel = t("permissionPicker.otherGroup");
+  const groups = useMemo(
+    () => groupPermissions(activePermissions, tNav, otherLabel),
+    [activePermissions, tNav, otherLabel],
+  );
 
   const handleToggleOne = useCallback(
     (id: string) => {

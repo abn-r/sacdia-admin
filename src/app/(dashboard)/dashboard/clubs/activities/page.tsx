@@ -9,12 +9,7 @@ import {
   extractArray,
   normalizeActivities,
 } from "@/lib/activities/helpers";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  ACTIVITIES_CREATE,
-  ACTIVITIES_READ,
-  ACTIVITIES_UPDATE,
-} from "@/lib/auth/permissions";
+import { canCapability, canViewScreen } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 import {
   readPositiveNumberParam,
@@ -71,7 +66,7 @@ export default async function ClubActivitiesPage({
   const t = await getTranslations("activities.page");
   const raw = await searchParams;
 
-  if (!hasAnyPermission(user, [ACTIVITIES_READ])) {
+  if (!canViewScreen(user, "activities")) {
     return (
       <EndpointErrorBanner
         state="missing"
@@ -84,8 +79,8 @@ export default async function ClubActivitiesPage({
   const clubId = readPositiveNumberParam(raw, "clubId");
   const sectionId = readPositiveNumberParam(raw, "sectionId");
   const seriesId = readPositiveNumberParam(raw, "seriesId");
-  const canCreate = hasAnyPermission(user, [ACTIVITIES_CREATE]);
-  const canEdit = hasAnyPermission(user, [ACTIVITIES_UPDATE]);
+  const canCreate = canCapability(user, "activities", "create");
+  const canEdit = canCapability(user, "activities", "update");
 
   let clubs: ClubOption[] = [];
   let sectionsByClub: Record<number, SectionOption[]> = {};

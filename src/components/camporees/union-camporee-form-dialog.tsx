@@ -40,8 +40,7 @@ import type { Union } from "@/lib/api/geography";
 import { CamporeeLocationFields } from "@/components/camporees/camporee-location-fields";
 import { CamporeeOrderSettingsPanel } from "@/components/camporee-orders/camporee-order-settings-panel";
 import { useAuth } from "@/lib/auth/auth-context";
-import { hasPermission } from "@/lib/auth/permission-utils";
-import { CAMPOREE_ORDERS_OFFERING_CONFIGURE } from "@/lib/auth/permissions";
+import { canCapability } from "@/lib/auth/screen-catalog";
 
 // ─── Schema factory ────────────────────────────────────────────────────────────
 
@@ -132,7 +131,11 @@ export function UnionCamporeeFormDialog({
   const tVal = useTranslations("camporees.validation");
   const { user } = useAuth();
   const isEdit = !!camporee;
-  const canConfigureOrders = hasPermission(user, CAMPOREE_ORDERS_OFFERING_CONFIGURE);
+  const canConfigureOrders = canCapability(
+    user,
+    "campamentos-list-union",
+    "orders.configure_offering",
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const schema = useMemo(() => buildSchema(tVal), [tVal]);
 

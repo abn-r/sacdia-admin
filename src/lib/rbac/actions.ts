@@ -329,6 +329,40 @@ export async function syncRolePermissionsAction(
   return { success: t("success.permissions_updated") };
 }
 
+/**
+ * Replaces the full permission set of a role in one `PUT`. Used by the matrix
+ * for screen bundles and viewAny cascades so a multi-key change never lands
+ * half-applied.
+ */
+export async function setRolePermissionsAction(
+  roleId: string,
+  permissionIds: string[],
+): Promise<RbacActionState> {
+  const gate = await requireSuperAdminUser();
+  if (isForbidden(gate)) {
+    return gate;
+  }
+  const t = await getTranslations("rbac");
+
+  if (!roleId) {
+    return { error: t("errors.sync_permissions_failed") };
+  }
+
+  try {
+    await syncRolePermissions(roleId, Array.from(new Set(permissionIds)));
+  } catch (error) {
+    return {
+      error: getActionErrorMessage(error, t("errors.sync_permissions_failed"), {
+        endpointLabel: `/rbac/roles/${roleId}/permissions`,
+      }),
+    };
+  }
+
+  revalidatePath(ROLES_PATH);
+  revalidatePath(MATRIX_PATH);
+  return { ok: true };
+}
+
 export async function toggleRolePermissionAction(
   roleId: string,
   permissionId: string,

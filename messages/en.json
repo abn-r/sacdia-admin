@@ -127,6 +127,13 @@
       "materials_config": "Settings",
       "certificate_bulk_imports": "Cargas por certificado",
       "coordination": "Coordination",
+      "coordinator_hub": "Coordination hub",
+      "app_members": "Members",
+      "app_club": "Club",
+      "app_units": "Units",
+      "app_grouped_class": "Grouped class",
+      "app_materials": "Material orders",
+      "app_classes": "Classes",
       "geography_divisions": "Divisions",
       "audit_logs": "Audit log"
     },
@@ -2439,7 +2446,9 @@
       "selectedLabel": "permissions selected",
       "noMatches": "No permissions matching «{query}»",
       "selectAllInGroup": "Select all permissions in {resource}",
-      "destructiveAction": "Destructive action"
+      "destructiveAction": "Destructive action",
+      "otherGroup": "Other permissions",
+      "requiresRoles": "The API requires role: {roles}"
     },
     "userRolesPanel": {
       "title": "Global roles",
@@ -2495,7 +2504,12 @@
         "discard": "Discard",
         "noMatches": "No matches",
         "noMatchesDesc": "No permission matches the search.",
-        "readOnlyBanner": "Read-only view. Only a super administrator can change the matrix."
+        "readOnlyBanner": "Read-only view. Only a super administrator can change the matrix.",
+        "fullScreen": "Full screen",
+        "otherGroup": "Other permissions",
+        "requiresRoles": "The API requires role: {roles}. The grant only takes effect for roles that satisfy it.",
+        "bundleUpdatedTitle": "Screen updated",
+        "bundleUpdatedDesc": "{screen} · {role}"
       },
       "permissions": {
         "title": "Permissions catalog",
@@ -2806,7 +2820,9 @@
       "relationship_types:create": "Create relationship type",
       "relationship_types:update": "Edit relationship type",
       "relationship_types:delete": "Delete relationship type",
-      "audit:read": "View audit log"
+      "audit:read": "View audit log",
+      "users:create": "Create user",
+      "users:bulk_create": "Bulk create users"
     },
     "userPermissionsPanel": {
       "title": "Direct permissions",

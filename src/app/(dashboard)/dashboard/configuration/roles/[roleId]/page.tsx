@@ -9,7 +9,7 @@ import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EditRoleForm } from "@/components/rbac/role-form";
 import { requireAdminUser } from "@/lib/auth/session";
-import { extractRoles, SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import { getRoleWithPermissions, listPermissions } from "@/lib/rbac/service";
 import { ApiError } from "@/lib/api/client";
 import type { Permission, Role } from "@/lib/rbac/types";
@@ -26,7 +26,7 @@ export default async function ConfigurationEditRolePage({ params }: EditRolePage
   const { roleId } = await params;
 
   const user = await requireAdminUser();
-  const isSuperAdmin = extractRoles(user).includes(SUPER_ADMIN_ROLE);
+  const isSuperAdmin = canCapability(user, "admin-system-roles", "manage");
 
   if (!isSuperAdmin) {
     redirect("/dashboard/configuration/roles");

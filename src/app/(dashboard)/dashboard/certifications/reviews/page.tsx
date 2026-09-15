@@ -4,8 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { CertificationReviewsClient } from "@/components/certifications/certification-reviews-client";
 import { PageHeader } from "@/components/shared/page-header";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { hasPermission } from "@/lib/auth/permission-utils";
-import { CERTIFICATIONS_REVIEW } from "@/lib/auth/permissions";
+import { canViewScreen } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -17,7 +16,7 @@ export default async function CertificationReviewsPage() {
   const user = await requireAdminUser();
   const t = await getTranslations("certification_reviews");
 
-  if (!hasPermission(user, CERTIFICATIONS_REVIEW)) {
+  if (!canViewScreen(user, "certifications-reviews")) {
     return (
       <div className="space-y-6">
         <PageHeader

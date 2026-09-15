@@ -5,7 +5,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { PermissionsTable } from "@/components/rbac/permissions-table";
 import { requireAdminUser } from "@/lib/auth/session";
-import { extractRoles, SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import { listPermissions } from "@/lib/rbac/service";
 import {
   createPermissionAction,
@@ -19,7 +19,7 @@ export default async function ConfigurationPermissionsPage() {
   const t = await getTranslations("rbac.pages.permissions");
   const tNav = await getTranslations("nav.items");
   const user = await requireAdminUser();
-  const canWrite = extractRoles(user).includes(SUPER_ADMIN_ROLE);
+  const canWrite = canCapability(user, "admin-system-permissions", "manage");
 
   let items: Permission[] = [];
   let loadError: string | null = null;

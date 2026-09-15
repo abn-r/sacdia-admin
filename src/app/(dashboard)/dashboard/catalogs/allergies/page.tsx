@@ -30,15 +30,7 @@ import { listAdminAllergies } from "@/lib/api/generic-catalogs-i18n";
 import { extractItems, extractMeta, readParam, readPositiveNumberParam } from "@/lib/phase-e-catalogs/fetch-helpers";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  ALLERGIES_CREATE,
-  ALLERGIES_UPDATE,
-  ALLERGIES_DELETE,
-  CATALOGS_CREATE,
-  CATALOGS_UPDATE,
-  CATALOGS_DELETE,
-} from "@/lib/auth/permissions";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import {
   createAllergyAction,
   updateAllergyAction,
@@ -79,9 +71,9 @@ export default async function AllergiesPage({ searchParams }: { searchParams: Se
     }
   }
 
-  const canCreate = hasAnyPermission(user, [ALLERGIES_CREATE, CATALOGS_CREATE]);
-  const canEdit = hasAnyPermission(user, [ALLERGIES_UPDATE, CATALOGS_UPDATE]);
-  const canDelete = hasAnyPermission(user, [ALLERGIES_DELETE, CATALOGS_DELETE]);
+  const canCreate = canCapability(user, "catalogs-allergies", "create");
+  const canEdit = canCapability(user, "catalogs-allergies", "update");
+  const canDelete = canCapability(user, "catalogs-allergies", "delete");
 
   return (
     <div className="space-y-6">

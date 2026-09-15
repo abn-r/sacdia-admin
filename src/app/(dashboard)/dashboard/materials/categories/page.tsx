@@ -9,14 +9,14 @@ import { NewCategoryButton } from "./_components/new-category-button";
 import { listCategoriesAdmin } from "@/lib/api/materials";
 import { ApiError } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
-import { hasPermission } from "@/lib/auth/permission-utils";
+import { canViewScreen } from "@/lib/auth/screen-catalog";
 import type { MaterialCategoryAdmin } from "@/lib/types/materials";
 
 export default async function CategoriesPage() {
   const t = await getTranslations("materials.pages.categories");
   const user = await requireAdminUser();
 
-  if (!hasPermission(user, "materiales:manage-inventory")) {
+  if (!canViewScreen(user, "materials-categories")) {
     redirect("/dashboard");
   }
 

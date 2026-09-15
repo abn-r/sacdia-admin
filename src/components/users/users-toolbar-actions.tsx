@@ -4,28 +4,35 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { UserPlus, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useCanManageUsers } from "@/lib/auth/use-can-manage-users";
+import { useScreenAccess } from "@/lib/auth/screen-catalog/use-screen-access";
 
 export function UsersToolbarActions() {
-  const canManage = useCanManageUsers();
+  const { canCapability } = useScreenAccess();
   const t = useTranslations("users.pages.list");
 
-  if (!canManage) return null;
+  const canCreate = canCapability("users", "create");
+  const canBulkCreate = canCapability("users", "bulk_create");
+
+  if (!canCreate && !canBulkCreate) return null;
 
   return (
     <div className="flex items-center gap-2">
-      <Button asChild size="sm" variant="outline">
-        <Link href="/dashboard/users/bulk-upload" className="inline-flex items-center gap-1.5">
-          <Upload className="size-4" aria-hidden="true" />
-          {t("actions.bulkUpload")}
-        </Link>
-      </Button>
-      <Button asChild size="sm">
-        <Link href="/dashboard/users/new" className="inline-flex items-center gap-1.5">
-          <UserPlus className="size-4" aria-hidden="true" />
-          {t("actions.addUser")}
-        </Link>
-      </Button>
+      {canBulkCreate ? (
+        <Button asChild size="sm" variant="outline">
+          <Link href="/dashboard/users/bulk-upload" className="inline-flex items-center gap-1.5">
+            <Upload className="size-4" aria-hidden="true" />
+            {t("actions.bulkUpload")}
+          </Link>
+        </Button>
+      ) : null}
+      {canCreate ? (
+        <Button asChild size="sm">
+          <Link href="/dashboard/users/new" className="inline-flex items-center gap-1.5">
+            <UserPlus className="size-4" aria-hidden="true" />
+            {t("actions.addUser")}
+          </Link>
+        </Button>
+      ) : null}
     </div>
   );
 }

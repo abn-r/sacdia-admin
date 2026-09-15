@@ -6,7 +6,7 @@ import { RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PipelineTable, type UserRole } from "@/components/investiture/pipeline-table";
+import { PipelineTable } from "@/components/investiture/pipeline-table";
 import {
   getPipelineEnrollments,
   type PipelineEnrollment,
@@ -22,14 +22,12 @@ type TabKey = PipelineStatus | "ALL";
 
 interface PipelineClientPageProps {
   initialEnrollments: PipelineEnrollment[];
-  userRole: UserRole;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function PipelineClientPage({
   initialEnrollments,
-  userRole,
 }: PipelineClientPageProps) {
   const t = useTranslations("investiture");
 
@@ -142,7 +140,6 @@ export function PipelineClientPage({
           <TabsContent key={key} value={key} className="mt-4">
             <PipelineTable
               enrollments={visibleEnrollments}
-              userRole={userRole}
               onRefresh={refresh}
             />
           </TabsContent>

@@ -156,6 +156,13 @@ export interface IntlMessages {
       materials_config: string;
       certificate_bulk_imports: string;
       coordination: string;
+      coordinator_hub: string;
+      app_members: string;
+      app_club: string;
+      app_units: string;
+      app_grouped_class: string;
+      app_materials: string;
+      app_classes: string;
       geography_divisions: string;
       audit_logs: string;
     };
@@ -2475,6 +2482,8 @@ export interface IntlMessages {
       noMatches: string;
       selectAllInGroup: string;
       destructiveAction: string;
+      otherGroup: string;
+      requiresRoles: string;
     };
     userRolesPanel: {
       title: string;
@@ -2531,6 +2540,11 @@ export interface IntlMessages {
         noMatches: string;
         noMatchesDesc: string;
         readOnlyBanner: string;
+        fullScreen: string;
+        otherGroup: string;
+        requiresRoles: string;
+        bundleUpdatedTitle: string;
+        bundleUpdatedDesc: string;
       };
       permissions: {
         title: string;
@@ -2842,6 +2856,8 @@ export interface IntlMessages {
       "relationship_types:update": string;
       "relationship_types:delete": string;
       "audit:read": string;
+      "users:create": string;
+      "users:bulk_create": string;
     };
     userPermissionsPanel: {
       title: string;

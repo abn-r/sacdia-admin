@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { validateEnrollment, type Enrollment, type InvestitureStatus } from "@/lib/api/enrollments";
 import { ApiError } from "@/lib/api/client";
+import { useScreenAccess } from "@/lib/auth/screen-catalog/use-screen-access";
 import { useFormatDate } from "@/lib/format-locale";
 import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 
@@ -124,6 +125,8 @@ interface EnrollmentsTableProps {
 export function EnrollmentsTable({ enrollments, onRefresh }: EnrollmentsTableProps) {
   const t = useTranslations("enrollments");
   const router = useRouter();
+  const { canCapability } = useScreenAccess();
+  const canValidate = canCapability("enrollments", "validate");
   const [isPending, startTransition] = useTransition();
   const [processingId, setProcessingId] = useState<number | null>(null);
   const formatDate = useFormatDate();
@@ -260,7 +263,7 @@ export function EnrollmentsTable({ enrollments, onRefresh }: EnrollmentsTablePro
                     )}
 
                     {/* Approve / Reject — only for pending validation */}
-                    {isPendingValidation && (
+                    {isPendingValidation && canValidate && (
                       <>
                         <Button
                           variant="default"

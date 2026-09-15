@@ -18,7 +18,7 @@ import {
   updateClubRoleAssignment,
   type ClubPayload,
 } from "@/lib/api/clubs";
-import { canDesignateNextDirector } from "@/lib/auth/director-succession";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import { unwrapObject } from "@/lib/api/response";
 import { requireAdminUser } from "@/lib/auth/session";
 import { extractRoles } from "@/lib/auth/roles";
@@ -743,6 +743,7 @@ export async function succeedClubSectionDirectorAction(
   const currentUser = await requireAdminUser();
   const roles = new Set(extractRoles(currentUser));
 
+  // Solo-UI LF-only; stays out of the catalog (API also allows admin/super-admin).
   if (!roles.has("director-lf") && !roles.has("assistant-lf")) {
     return {
       error:
@@ -806,9 +807,10 @@ export async function designateClubSectionDirectorAction(
   formData: FormData,
 ): Promise<ClubActionState> {
   const currentUser = await requireAdminUser();
-  const roles = new Set(extractRoles(currentUser));
 
-  if (!canDesignateNextDirector(roles)) {
+  // Mirrors POST /clubs/:clubId/sections/:sectionId/director-designation:
+  // club_roles:assign + ALLOWED_DESIGNATION_ROLES (service, literal match).
+  if (!canCapability(currentUser, "clubs", "designate_director")) {
     return {
       error:
         "Solo super-admin, admin, director-lf y assistant-lf pueden designar director para el próximo año.",

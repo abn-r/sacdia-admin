@@ -6,19 +6,9 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { listAdminDistricts } from "@/lib/api/admin-districts";
 import { listAdminLocalFields } from "@/lib/api/admin-local-fields";
 import { ApiError } from "@/lib/api/client";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  CATALOGS_CREATE,
-  CATALOGS_DELETE,
-  CATALOGS_UPDATE,
-  DISTRICTS_CREATE,
-  DISTRICTS_DELETE,
-  DISTRICTS_UPDATE,
-  LOCAL_FIELDS_DELETE,
-  LOCAL_FIELDS_UPDATE,
-} from "@/lib/auth/permissions";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import type { AdminDistrictRow } from "@/lib/catalogs/districts/types";
 import type { AdminLocalField } from "@/lib/catalogs/local-fields/types";
 
@@ -69,21 +59,9 @@ export default async function DistrictsPage() {
     }
   }
 
-  const canCreate = hasAnyPermission(user, [
-    DISTRICTS_CREATE,
-    LOCAL_FIELDS_UPDATE,
-    CATALOGS_CREATE,
-  ]);
-  const canEdit = hasAnyPermission(user, [
-    DISTRICTS_UPDATE,
-    LOCAL_FIELDS_UPDATE,
-    CATALOGS_UPDATE,
-  ]);
-  const canDelete = hasAnyPermission(user, [
-    DISTRICTS_DELETE,
-    LOCAL_FIELDS_DELETE,
-    CATALOGS_DELETE,
-  ]);
+  const canCreate = canCapability(user, "catalogs-districts", "create");
+  const canEdit = canCapability(user, "catalogs-districts", "update");
+  const canDelete = canCapability(user, "catalogs-districts", "delete");
 
   return (
     <>

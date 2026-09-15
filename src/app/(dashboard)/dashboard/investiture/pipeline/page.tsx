@@ -8,8 +8,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { getPipelineEnrollments, type PipelineEnrollment } from "@/lib/api/investiture";
 import { ApiError } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
-import { extractRoles, SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
-import type { UserRole } from "@/components/investiture/pipeline-table";
 
 const PipelineClientPage = dynamic(
   () =>
@@ -54,25 +52,9 @@ const PipelineClientPage = dynamic(
   },
 );
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function resolveUserRole(roles: string[]): UserRole {
-  const set = new Set(roles);
-  // extractRoles() normalizes underscores to hyphens — compare with SUPER_ADMIN_ROLE
-  if (set.has(SUPER_ADMIN_ROLE) || set.has("admin")) return "admin";
-  if (set.has("coordinator")) return "coordinator";
-  if (set.has("field")) return "field";
-  return "director";
-}
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
 export default async function InvestiturePipelinePage() {
-  const user = await requireAdminUser();
+  await requireAdminUser();
   const t = await getTranslations("investiture");
-
-  const roles = extractRoles(user);
-  const userRole = resolveUserRole(roles);
 
   let enrollments: PipelineEnrollment[] = [];
   let loadError: string | null = null;
@@ -114,7 +96,6 @@ export default async function InvestiturePipelinePage() {
       {!loadError && enrollments.length > 0 && (
         <PipelineClientPage
           initialEnrollments={enrollments}
-          userRole={userRole}
         />
       )}
     </div>

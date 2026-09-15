@@ -416,6 +416,7 @@ interface EvaluationClientPageProps {
   localFields?: LocalField[];
 }
 
+// Service rule, not catalog: confirm-union is director-union/assistant-union with no super-admin bypass.
 const UNION_CONFIRMATION_ROLES = new Set(["director-union", "assistant-union"]);
 
 export function EvaluationClientPage({

@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import dynamic from "next/dynamic";
-import { Plus, RefreshCw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { InsuranceTable } from "@/components/insurance/insurance-table";
 import { apiRequestFromClient, ApiError } from "@/lib/api/client";
+import { useScreenAccess } from "@/lib/auth/screen-catalog/use-screen-access";
 import type { MemberInsurance } from "@/lib/api/insurance";
 import type { LocalField } from "@/lib/api/geography";
 import type { AdminTerritoryScope } from "@/lib/auth/territory-scope";
@@ -127,6 +128,10 @@ export function InsuranceView({
   initialLocalFieldId,
 }: InsuranceViewProps) {
   const t = useTranslations("insurance");
+  const { canCapability } = useScreenAccess();
+  const canCreate = canCapability("insurance-by-section", "create");
+  const canUpdate = canCapability("insurance-by-section", "update");
+  const canDelete = canCapability("insurance-by-section", "delete");
   const isLocalFieldLocked = territoryScope.level === "local_field";
   const [selectedLocalFieldId, setSelectedLocalFieldId] = useState<number | "all">(
     isLocalFieldLocked ? territoryScope.localFieldId : initialLocalFieldId,
@@ -199,13 +204,6 @@ export function InsuranceView({
     if (selectedClubId && selectedSectionId) {
       loadInsurances(selectedClubId, selectedSectionId);
     }
-  }
-
-  function handleCreateForSection() {
-    // Open form with a blank member to create by entering user_id manually
-    // In this flow, we don't have a specific member — user picks from table
-    setEditingMember(null);
-    setFormOpen(true);
   }
 
   function handleEdit(member: MemberInsurance) {
@@ -338,8 +336,10 @@ export function InsuranceView({
         ) : (
           <InsuranceTable
             items={members}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
+            onEdit={canCreate || canUpdate ? handleEdit : undefined}
+            onDelete={canDelete ? handleDelete : undefined}
+            canCreate={canCreate}
+            canUpdate={canUpdate}
           />
         )
       )}

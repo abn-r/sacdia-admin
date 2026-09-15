@@ -11,12 +11,7 @@ import {
   type ResourceType,
   type ScopeLevel,
 } from "@/lib/api/resources";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  RESOURCES_CREATE,
-  RESOURCES_DELETE,
-  RESOURCES_UPDATE,
-} from "@/lib/auth/permissions";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 import {
   isResourceScopeAllowed,
@@ -155,7 +150,7 @@ export async function createResourceAction(
 ): Promise<ResourceActionState> {
   const user = await requireAdminUser();
   const t = await getTranslations("resources");
-  if (!hasAnyPermission(user, [RESOURCES_CREATE])) {
+  if (!canCapability(user, "resources-list", "create")) {
     return { error: t("errors.create_permission_denied") };
   }
   try {
@@ -177,7 +172,7 @@ export async function updateResourceAction(
 ): Promise<ResourceActionState> {
   const user = await requireAdminUser();
   const t = await getTranslations("resources");
-  if (!hasAnyPermission(user, [RESOURCES_UPDATE])) {
+  if (!canCapability(user, "resources-list", "update")) {
     return { error: t("errors.update_permission_denied") };
   }
   const id = parseResourceId(formData);
@@ -204,7 +199,7 @@ export async function deleteResourceAction(
 ): Promise<ResourceActionState> {
   const user = await requireAdminUser();
   const t = await getTranslations("resources");
-  if (!hasAnyPermission(user, [RESOURCES_DELETE])) {
+  if (!canCapability(user, "resources-list", "delete")) {
     return { error: t("errors.delete_permission_denied") };
   }
   const id = parseResourceId(formData);

@@ -8,17 +8,7 @@ import {
   updateAdminDistrict,
 } from "@/lib/api/admin-districts";
 import { districtFormSchema } from "@/lib/catalogs/districts/schema";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  CATALOGS_CREATE,
-  CATALOGS_DELETE,
-  CATALOGS_UPDATE,
-  DISTRICTS_CREATE,
-  DISTRICTS_DELETE,
-  DISTRICTS_UPDATE,
-  LOCAL_FIELDS_DELETE,
-  LOCAL_FIELDS_UPDATE,
-} from "@/lib/auth/permissions";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 
 const REVALIDATE_PATH = "/dashboard/catalogs/districts";
@@ -58,7 +48,7 @@ export async function createDistrictAction(
 ): Promise<DistrictActionState> {
   try {
     const user = await requireAdminUser();
-    if (!hasAnyPermission(user, [DISTRICTS_CREATE, LOCAL_FIELDS_UPDATE, CATALOGS_CREATE])) {
+    if (!canCapability(user, "catalogs-districts", "create")) {
       return { error: "No tienes permisos para crear distritos." };
     }
 
@@ -82,7 +72,7 @@ export async function updateDistrictAction(
 ): Promise<DistrictActionState> {
   try {
     const user = await requireAdminUser();
-    if (!hasAnyPermission(user, [DISTRICTS_UPDATE, LOCAL_FIELDS_UPDATE, CATALOGS_UPDATE])) {
+    if (!canCapability(user, "catalogs-districts", "update")) {
       return { error: "No tienes permisos para editar distritos." };
     }
 
@@ -108,7 +98,7 @@ export async function updateDistrictAction(
 export async function deleteDistrictAction(districtId: number): Promise<DistrictActionState> {
   try {
     const user = await requireAdminUser();
-    if (!hasAnyPermission(user, [DISTRICTS_DELETE, LOCAL_FIELDS_DELETE, CATALOGS_DELETE])) {
+    if (!canCapability(user, "catalogs-districts", "delete")) {
       return { error: "No tienes permisos para eliminar distritos." };
     }
 

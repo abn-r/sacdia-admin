@@ -5,9 +5,12 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { PermissionsMatrix } from "@/components/rbac/permissions-matrix";
 import { requireAdminUser } from "@/lib/auth/session";
-import { extractRoles, SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import { listRoles, listPermissions } from "@/lib/rbac/service";
-import { toggleRolePermissionAction } from "@/lib/rbac/actions";
+import {
+  setRolePermissionsAction,
+  toggleRolePermissionAction,
+} from "@/lib/rbac/actions";
 import type { Role, Permission } from "@/lib/rbac/types";
 import { ApiError } from "@/lib/api/client";
 
@@ -20,7 +23,7 @@ export default async function ConfigurationMatrixPage() {
   const t = await getTranslations("rbac.pages.matrix");
   const tNav = await getTranslations("nav.items");
   const user = await requireAdminUser();
-  const canWrite = extractRoles(user).includes(SUPER_ADMIN_ROLE);
+  const canWrite = canCapability(user, "admin-system-matrix", "write");
 
   let roles: Role[] = [];
   let permissions: Permission[] = [];
@@ -62,6 +65,7 @@ export default async function ConfigurationMatrixPage() {
           roles={roles}
           permissions={permissions}
           toggleAction={toggleRolePermissionAction}
+          setAction={setRolePermissionsAction}
           canWrite={canWrite}
         />
       ) : null}

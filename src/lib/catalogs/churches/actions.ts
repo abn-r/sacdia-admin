@@ -8,17 +8,7 @@ import {
   updateAdminChurch,
 } from "@/lib/api/admin-churches";
 import { churchFormSchema } from "@/lib/catalogs/churches/schema";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  CATALOGS_CREATE,
-  CATALOGS_DELETE,
-  CATALOGS_UPDATE,
-  CHURCHES_CREATE,
-  CHURCHES_DELETE,
-  CHURCHES_UPDATE,
-  DISTRICTS_DELETE,
-  DISTRICTS_UPDATE,
-} from "@/lib/auth/permissions";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 import {
   CATALOG_LOCALES,
@@ -76,7 +66,7 @@ export async function createChurchAction(
 ): Promise<ChurchActionState> {
   try {
     const user = await requireAdminUser();
-    if (!hasAnyPermission(user, [CHURCHES_CREATE, DISTRICTS_UPDATE, CATALOGS_CREATE])) {
+    if (!canCapability(user, "catalogs-churches", "create")) {
       return { error: "No tienes permisos para crear iglesias." };
     }
 
@@ -100,7 +90,7 @@ export async function updateChurchAction(
 ): Promise<ChurchActionState> {
   try {
     const user = await requireAdminUser();
-    if (!hasAnyPermission(user, [CHURCHES_UPDATE, DISTRICTS_UPDATE, CATALOGS_UPDATE])) {
+    if (!canCapability(user, "catalogs-churches", "update")) {
       return { error: "No tienes permisos para editar iglesias." };
     }
 
@@ -126,7 +116,7 @@ export async function updateChurchAction(
 export async function deleteChurchAction(churchId: number): Promise<ChurchActionState> {
   try {
     const user = await requireAdminUser();
-    if (!hasAnyPermission(user, [CHURCHES_DELETE, DISTRICTS_DELETE, CATALOGS_DELETE])) {
+    if (!canCapability(user, "catalogs-churches", "delete")) {
       return { error: "No tienes permisos para eliminar iglesias." };
     }
 

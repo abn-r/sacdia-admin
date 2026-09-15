@@ -24,6 +24,7 @@ import type { ClubType } from "@/lib/api/catalogs";
 import type { LocalField } from "@/lib/api/geography";
 import type { AdminTerritoryScope } from "@/lib/auth/territory-scope";
 import { INSTANCE_TYPE_LABELS } from "@/lib/api/inventory";
+import { useScreenAccess } from "@/lib/auth/screen-catalog/use-screen-access";
 import {
   clubTypeIdToInstanceType,
   filterInventorySections,
@@ -92,6 +93,10 @@ export function InventoryView({
   initialClubTypeId,
 }: InventoryViewProps) {
   const t = useTranslations("inventory");
+  const { canCapability } = useScreenAccess();
+  const canCreate = canCapability("club-inventory", "create");
+  const canUpdate = canCapability("club-inventory", "update");
+  const canDelete = canCapability("club-inventory", "delete");
   const isLocalFieldLocked = territoryScope.level === "local_field";
   const [selectedLocalFieldId, setSelectedLocalFieldId] = useState<number | "all">(
     isLocalFieldLocked ? territoryScope.localFieldId : initialLocalFieldId,
@@ -363,10 +368,12 @@ export function InventoryView({
               {INSTANCE_TYPE_LABELS[instanceType]}
             </span>
           )}
-          <Button onClick={handleCreate} disabled={!selectedSectionId} size="sm">
-            <Plus className="size-4" />
-            {t("view.new_item")}
-          </Button>
+          {canCreate ? (
+            <Button onClick={handleCreate} disabled={!selectedSectionId} size="sm">
+              <Plus className="size-4" />
+              {t("view.new_item")}
+            </Button>
+          ) : null}
         </div>
       </div>
 
@@ -390,8 +397,8 @@ export function InventoryView({
       ) : (
         <InventoryTable
           items={items}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
+          onEdit={canUpdate ? handleEdit : undefined}
+          onDelete={canDelete ? handleDelete : undefined}
         />
       )}
 

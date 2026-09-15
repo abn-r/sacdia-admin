@@ -127,6 +127,13 @@
       "materials_config": "Configuración",
       "certificate_bulk_imports": "Cargas por certificado",
       "coordination": "Coordinación",
+      "coordinator_hub": "Hub de coordinación",
+      "app_members": "Miembros",
+      "app_club": "Club",
+      "app_units": "Unidades",
+      "app_grouped_class": "Clase agrupada",
+      "app_materials": "Pedidos de materiales",
+      "app_classes": "Clases",
       "geography_divisions": "Divisiones",
       "audit_logs": "Auditoría"
     },
@@ -2445,7 +2452,9 @@
       "selectedLabel": "permisos seleccionados",
       "noMatches": "Sin permisos que coincidan con «{query}»",
       "selectAllInGroup": "Seleccionar todos los permisos de {resource}",
-      "destructiveAction": "Acción destructiva"
+      "destructiveAction": "Acción destructiva",
+      "otherGroup": "Otros permisos",
+      "requiresRoles": "El API exige rol: {roles}"
     },
     "userRolesPanel": {
       "title": "Roles globales",
@@ -2501,7 +2510,12 @@
         "discard": "Descartar",
         "noMatches": "Sin coincidencias",
         "noMatchesDesc": "Ningún permiso coincide con la búsqueda.",
-        "readOnlyBanner": "Vista de solo lectura. Solo un super administrador puede cambiar la matriz."
+        "readOnlyBanner": "Vista de solo lectura. Solo un super administrador puede cambiar la matriz.",
+        "fullScreen": "Pantalla completa",
+        "otherGroup": "Otros permisos",
+        "requiresRoles": "El API exige rol: {roles}. El permiso solo surte efecto en roles que lo cumplan.",
+        "bundleUpdatedTitle": "Pantalla actualizada",
+        "bundleUpdatedDesc": "{screen} · {role}"
       },
       "permissions": {
         "title": "Catálogo de permisos",
@@ -2812,7 +2826,9 @@
       "relationship_types:create": "Crear tipo de relación",
       "relationship_types:update": "Editar tipo de relación",
       "relationship_types:delete": "Eliminar tipo de relación",
-      "audit:read": "Ver auditoría"
+      "audit:read": "Ver auditoría",
+      "users:create": "Crear usuario",
+      "users:bulk_create": "Carga masiva de usuarios"
     },
     "userPermissionsPanel": {
       "title": "Permisos directos",

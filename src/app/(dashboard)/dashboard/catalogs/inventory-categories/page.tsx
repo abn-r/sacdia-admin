@@ -30,8 +30,7 @@ import { listAdminInventoryCategories } from "@/lib/api/phase-e-catalogs";
 import { extractItems, extractMeta, readParam, readPositiveNumberParam } from "@/lib/phase-e-catalogs/fetch-helpers";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import { CATALOGS_CREATE, CATALOGS_UPDATE, CATALOGS_DELETE, INVENTORY_CATEGORIES_MANAGE } from "@/lib/auth/permissions";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import {
   createInventoryCategoryAction,
   updateInventoryCategoryAction,
@@ -72,9 +71,9 @@ export default async function AdminInventoryCategoriesPage({ searchParams }: { s
     }
   }
 
-  const canCreate = hasAnyPermission(user, [INVENTORY_CATEGORIES_MANAGE, CATALOGS_CREATE]);
-  const canEdit = hasAnyPermission(user, [INVENTORY_CATEGORIES_MANAGE, CATALOGS_UPDATE]);
-  const canDelete = hasAnyPermission(user, [INVENTORY_CATEGORIES_MANAGE, CATALOGS_DELETE]);
+  const canCreate = canCapability(user, "catalogs-inventory-categories", "create");
+  const canEdit = canCapability(user, "catalogs-inventory-categories", "update");
+  const canDelete = canCapability(user, "catalogs-inventory-categories", "delete");
 
   return (
     <div className="space-y-6">

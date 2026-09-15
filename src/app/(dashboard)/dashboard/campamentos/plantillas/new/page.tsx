@@ -2,11 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { requireAdminUser } from "@/lib/auth/session";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  CAMPOREE_EVENTS_CREATE,
-  CAMPOREES_CREATE,
-} from "@/lib/auth/permissions";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import { resolveAdminTerritoryScope, type AdminTerritoryScope } from "@/lib/auth/territory-scope";
 import {
   listAdminCamporeeEventTypes,
@@ -188,7 +184,7 @@ function buildClassOptions(payload: unknown): ProgressiveClass[] {
 export default async function EventTemplateNewPage() {
   const user = await requireAdminUser();
 
-  const canCreate = hasAnyPermission(user, [CAMPOREE_EVENTS_CREATE, CAMPOREES_CREATE]);
+  const canCreate = canCapability(user, "campamentos-plantillas", "create");
   if (!canCreate) {
     redirect("/dashboard/campamentos/plantillas");
   }

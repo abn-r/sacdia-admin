@@ -1,11 +1,7 @@
 import type { Metadata } from "next";
 import { redirect, notFound } from "next/navigation";
 import { requireAdminUser } from "@/lib/auth/session";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  CAMPOREE_EVENTS_UPDATE,
-  CAMPOREES_UPDATE,
-} from "@/lib/auth/permissions";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import { apiRequest } from "@/lib/api/client";
 import {
   getUnionCamporeeById,
@@ -95,7 +91,7 @@ function extractEvent(payload: unknown): BackendCamporeeEvent | null {
 export default async function UnionCamporeeEventEditPage({ params }: { params: Params }) {
   const user = await requireAdminUser();
 
-  const canEdit = hasAnyPermission(user, [CAMPOREE_EVENTS_UPDATE, CAMPOREES_UPDATE]);
+  const canEdit = canCapability(user, "campamentos-list-union", "events.update");
   if (!canEdit) redirect("/dashboard/campamentos/union");
 
   const { id: idParam, eventId: eventIdParam } = await params;

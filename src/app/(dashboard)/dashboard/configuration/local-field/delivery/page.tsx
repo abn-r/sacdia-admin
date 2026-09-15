@@ -14,7 +14,7 @@ import {
   resolveUserLocalField,
   toLocalFieldOptions,
 } from "@/lib/auth/user-local-field";
-import { hasPermission } from "@/lib/auth/permission-utils";
+import { canViewScreen } from "@/lib/auth/screen-catalog";
 import type { LocalFieldOption, MaterialConfig } from "@/lib/types/materials";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -32,7 +32,7 @@ export default async function LocalFieldDeliveryPage({
   const t = await getTranslations("localFieldConfig.pages.delivery");
   const user = await requireAdminUser();
 
-  if (!hasPermission(user, "materiales:configure")) {
+  if (!canViewScreen(user, "admin-local-field-delivery")) {
     redirect("/dashboard");
   }
 

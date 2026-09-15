@@ -27,6 +27,22 @@ const mockApproveRequirement = vi.fn();
 const mockRequestRequirementChanges = vi.fn();
 const mockGetRequirementEvidenceDownload = vi.fn();
 
+// The detail sheet gates approve / request-changes through the screen catalog
+// (`certifications-reviews`), which reads the session via useAuth.
+vi.mock("@/lib/auth/auth-context", () => ({
+  useAuth: () => ({
+    user: {
+      id: "reviewer-1",
+      email: "reviewer@example.com",
+      roles: ["director-lf"],
+      authorization: {
+        grants: { global_roles: [{ role_name: "director-lf" }] },
+        effective: { permissions: ["certifications:review"] },
+      },
+    },
+  }),
+}));
+
 vi.mock("@/lib/api/certification-reviews", async (importOriginal) => {
   const original =
     await importOriginal<typeof import("@/lib/api/certification-reviews")>();

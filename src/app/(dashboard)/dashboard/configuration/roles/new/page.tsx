@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { CreateRoleForm } from "@/components/rbac/role-form";
 import { requireAdminUser } from "@/lib/auth/session";
-import { extractRoles, SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import { listPermissions } from "@/lib/rbac/service";
 import { ApiError } from "@/lib/api/client";
 import type { Permission } from "@/lib/rbac/types";
@@ -16,7 +16,7 @@ export default async function ConfigurationNewRolePage() {
   const t = await getTranslations("rbac.pages.rolesNew");
   const tNav = await getTranslations("nav.items");
   const user = await requireAdminUser();
-  const isSuperAdmin = extractRoles(user).includes(SUPER_ADMIN_ROLE);
+  const isSuperAdmin = canCapability(user, "admin-system-roles", "manage");
 
   if (!isSuperAdmin) {
     redirect("/dashboard/configuration/roles");

@@ -127,6 +127,13 @@
       "materials_config": "Paramètres",
       "certificate_bulk_imports": "Cargas por certificado",
       "coordination": "Coordination",
+      "coordinator_hub": "Hub de coordination",
+      "app_members": "Membres",
+      "app_club": "Club",
+      "app_units": "Unités",
+      "app_grouped_class": "Classe groupée",
+      "app_materials": "Commandes de matériel",
+      "app_classes": "Classes",
       "geography_divisions": "Divisions",
       "audit_logs": "Audit"
     },
@@ -2438,7 +2445,9 @@
       "selectedLabel": "permissions sélectionnées",
       "noMatches": "Aucune permission correspondant à « {query} »",
       "selectAllInGroup": "Sélectionner toutes les permissions de {resource}",
-      "destructiveAction": "Action destructive"
+      "destructiveAction": "Action destructive",
+      "otherGroup": "Autres permissions",
+      "requiresRoles": "L’API exige le rôle : {roles}"
     },
     "userRolesPanel": {
       "title": "Rôles globaux",
@@ -2494,7 +2503,12 @@
         "discard": "Annuler",
         "noMatches": "Aucun résultat",
         "noMatchesDesc": "Aucune permission ne correspond à la recherche.",
-        "readOnlyBanner": "Vue en lecture seule. Seul un super administrateur peut modifier la matrice."
+        "readOnlyBanner": "Vue en lecture seule. Seul un super administrateur peut modifier la matrice.",
+        "fullScreen": "Écran complet",
+        "otherGroup": "Autres permissions",
+        "requiresRoles": "L’API exige le rôle : {roles}. La permission n’a d’effet que pour les rôles qui le satisfont.",
+        "bundleUpdatedTitle": "Écran mis à jour",
+        "bundleUpdatedDesc": "{screen} · {role}"
       },
       "permissions": {
         "title": "Catalogue des permissions",
@@ -2805,7 +2819,9 @@
       "relationship_types:create": "Créer un type de relation",
       "relationship_types:update": "Modifier un type de relation",
       "relationship_types:delete": "Supprimer un type de relation",
-      "audit:read": "Voir l’audit"
+      "audit:read": "Voir l’audit",
+      "users:create": "Créer un utilisateur",
+      "users:bulk_create": "Création en masse d’utilisateurs"
     },
     "userPermissionsPanel": {
       "title": "Permissions directes",

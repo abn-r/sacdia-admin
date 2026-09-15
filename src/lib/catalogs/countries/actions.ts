@@ -8,15 +8,7 @@ import {
   updateAdminCountry,
 } from "@/lib/api/admin-countries";
 import { countryFormSchema } from "@/lib/catalogs/countries/schema";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  CATALOGS_CREATE,
-  CATALOGS_DELETE,
-  CATALOGS_UPDATE,
-  COUNTRIES_CREATE,
-  COUNTRIES_DELETE,
-  COUNTRIES_UPDATE,
-} from "@/lib/auth/permissions";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 
 const REVALIDATE_PATH = "/dashboard/catalogs/countries";
@@ -51,7 +43,7 @@ export async function createCountryAction(
 ): Promise<CountryActionState> {
   try {
     const user = await requireAdminUser();
-    if (!hasAnyPermission(user, [COUNTRIES_CREATE, CATALOGS_CREATE])) {
+    if (!canCapability(user, "catalogs-countries", "create")) {
       return { error: "No tienes permisos para crear países." };
     }
 
@@ -75,7 +67,7 @@ export async function updateCountryAction(
 ): Promise<CountryActionState> {
   try {
     const user = await requireAdminUser();
-    if (!hasAnyPermission(user, [COUNTRIES_UPDATE, CATALOGS_UPDATE])) {
+    if (!canCapability(user, "catalogs-countries", "update")) {
       return { error: "No tienes permisos para editar países." };
     }
 
@@ -101,7 +93,7 @@ export async function updateCountryAction(
 export async function deleteCountryAction(countryId: number): Promise<CountryActionState> {
   try {
     const user = await requireAdminUser();
-    if (!hasAnyPermission(user, [COUNTRIES_DELETE, CATALOGS_DELETE])) {
+    if (!canCapability(user, "catalogs-countries", "delete")) {
       return { error: "No tienes permisos para eliminar países." };
     }
 

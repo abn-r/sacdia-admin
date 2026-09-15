@@ -5,17 +5,9 @@ import { CountriesPageClient } from "@/components/catalogs/countries/countries-p
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ApiError } from "@/lib/api/client";
 import { listAdminCountries } from "@/lib/api/admin-countries";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  CATALOGS_CREATE,
-  CATALOGS_DELETE,
-  CATALOGS_UPDATE,
-  COUNTRIES_CREATE,
-  COUNTRIES_DELETE,
-  COUNTRIES_UPDATE,
-} from "@/lib/auth/permissions";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import type { AdminCountry } from "@/lib/catalogs/countries/types";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -44,9 +36,9 @@ export default async function CountriesPage() {
     }
   }
 
-  const canCreate = hasAnyPermission(user, [COUNTRIES_CREATE, CATALOGS_CREATE]);
-  const canEdit = hasAnyPermission(user, [COUNTRIES_UPDATE, CATALOGS_UPDATE]);
-  const canDelete = hasAnyPermission(user, [COUNTRIES_DELETE, CATALOGS_DELETE]);
+  const canCreate = canCapability(user, "catalogs-countries", "create");
+  const canEdit = canCapability(user, "catalogs-countries", "update");
+  const canDelete = canCapability(user, "catalogs-countries", "delete");
 
   return (
     <>

@@ -26,8 +26,7 @@ import {
   requestCloseoutChanges,
   type FinalTrayItem,
 } from "@/lib/api/certification-reviews";
-import { CERTIFICATIONS_CERTIFY } from "@/lib/auth/permissions";
-import { usePermissions } from "@/lib/auth/use-permissions";
+import { useScreenAccess } from "@/lib/auth/screen-catalog/use-screen-access";
 import { getCertificationReviewErrorMessage } from "@/components/certifications/certification-review-errors";
 
 function participantName(item: FinalTrayItem) {
@@ -84,8 +83,10 @@ function enrollmentStatusLabel(
 
 export function FinalReviewTray() {
   const t = useTranslations("certification_reviews");
-  const { can } = usePermissions();
-  const canCertify = can(CERTIFICATIONS_CERTIFY);
+  const { canCapability } = useScreenAccess();
+  const canApprove = canCapability("certifications-reviews", "approve");
+  const canRequestChanges = canCapability("certifications-reviews", "request_changes");
+  const canCertify = canCapability("certifications-reviews", "certify");
 
   const [items, setItems] = useState<FinalTrayItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -262,6 +263,7 @@ export function FinalReviewTray() {
                       <div className="flex flex-wrap justify-end gap-2">
                         {isSubmitted ? (
                           <>
+                            {canRequestChanges ? (
                             <Button
                               type="button"
                               size="sm"
@@ -274,6 +276,8 @@ export function FinalReviewTray() {
                             >
                               {t("final.requestChanges")}
                             </Button>
+                            ) : null}
+                            {canApprove ? (
                             <Button
                               type="button"
                               size="sm"
@@ -284,6 +288,7 @@ export function FinalReviewTray() {
                             >
                               {t("final.approveEvidence")}
                             </Button>
+                            ) : null}
                           </>
                         ) : null}
                         {isApproved && canCertify ? (

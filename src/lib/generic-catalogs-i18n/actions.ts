@@ -19,7 +19,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getActionErrorMessage } from "@/lib/api/action-error";
 import { requireAdminUser } from "@/lib/auth/session";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import type { CatalogTranslation } from "@/lib/types/catalog-translation";
 import {
   type TranslatableField,
@@ -29,50 +29,6 @@ import {
   buildNameOnlyCreate,
   buildNameOnlyUpdate,
 } from "@/lib/generic-catalogs-i18n/helpers";
-import {
-  CATALOGS_CREATE,
-  CATALOGS_UPDATE,
-  CATALOGS_DELETE,
-  CAMPOREE_EVENT_TYPES_CREATE,
-  CAMPOREE_EVENT_TYPES_UPDATE,
-  CAMPOREE_EVENT_TYPES_DELETE,
-  COUNTRIES_CREATE,
-  COUNTRIES_UPDATE,
-  COUNTRIES_DELETE,
-  UNIONS_CREATE,
-  UNIONS_UPDATE,
-  UNIONS_DELETE,
-  LOCAL_FIELDS_CREATE,
-  LOCAL_FIELDS_UPDATE,
-  LOCAL_FIELDS_DELETE,
-  DISTRICTS_CREATE,
-  DISTRICTS_UPDATE,
-  DISTRICTS_DELETE,
-  CHURCHES_CREATE,
-  CHURCHES_UPDATE,
-  CHURCHES_DELETE,
-  RELATIONSHIP_TYPES_CREATE,
-  RELATIONSHIP_TYPES_UPDATE,
-  RELATIONSHIP_TYPES_DELETE,
-  ALLERGIES_CREATE,
-  ALLERGIES_UPDATE,
-  ALLERGIES_DELETE,
-  DISEASES_CREATE,
-  DISEASES_UPDATE,
-  DISEASES_DELETE,
-  MEDICINES_CREATE,
-  MEDICINES_UPDATE,
-  MEDICINES_DELETE,
-  CLUB_TYPES_CREATE,
-  CLUB_TYPES_UPDATE,
-  CLUB_TYPES_DELETE,
-  CLUB_IDEALS_CREATE,
-  CLUB_IDEALS_UPDATE,
-  CLUB_IDEALS_DELETE,
-  ACTIVITY_TYPES_CREATE,
-  ACTIVITY_TYPES_UPDATE,
-  ACTIVITY_TYPES_DELETE,
-} from "@/lib/auth/permissions";
 import {
   createAdminCamporeeEventType,
   updateAdminCamporeeEventType,
@@ -121,18 +77,15 @@ export type GenericCatalogActionState = { error?: string };
 
 // ─── Generic factory ───────────────────────────────────────────────────────────
 
-type CrudPermissions = {
-  create: string[];
-  update: string[];
-  delete: string[];
-};
+/** Screen id in the screen catalog; verbs are its `create` / `update` / `delete` capabilities. */
+type CatalogScreenId = string;
 
 /**
  * Factory that generates (createAction, updateAction, deleteAction) for a
  * given catalog route.
  *
  * @param routePath         Dashboard path — used for revalidatePath + redirect
- * @param permissions       RBAC permission arrays (any-of semantics)
+ * @param screenId          Screen catalog id — gates copy the API (`create` / `update` / `delete`)
  * @param api               Object with create / update / delete async fns
  * @param hasDescription    When false, uses name-only builders (ignores translatableFields)
  * @param translatableFields  When hasDescription is true, overrides which fields
@@ -144,7 +97,7 @@ type CrudPermissions = {
  */
 function makeActions(
   routePath: string,
-  permissions: CrudPermissions,
+  screenId: CatalogScreenId,
   api: {
     create: (payload: Record<string, unknown>) => Promise<unknown>;
     update: (id: number, payload: Record<string, unknown>) => Promise<unknown>;
@@ -159,7 +112,7 @@ function makeActions(
     formData: FormData,
   ): Promise<GenericCatalogActionState> {
     const user = await requireAdminUser();
-    if (!hasAnyPermission(user, permissions.create)) {
+    if (!canCapability(user, screenId, "create")) {
       return { error: "Sin permisos para crear." };
     }
     try {
@@ -186,7 +139,7 @@ function makeActions(
     formData: FormData,
   ): Promise<GenericCatalogActionState> {
     const user = await requireAdminUser();
-    if (!hasAnyPermission(user, permissions.update)) {
+    if (!canCapability(user, screenId, "update")) {
       return { error: "Sin permisos para editar." };
     }
     const id = parsePositiveInt(formData, "id");
@@ -215,7 +168,7 @@ function makeActions(
     formData: FormData,
   ): Promise<GenericCatalogActionState> {
     const user = await requireAdminUser();
-    if (!hasAnyPermission(user, permissions.delete)) {
+    if (!canCapability(user, screenId, "delete")) {
       return { error: "Sin permisos para eliminar." };
     }
     const id = parsePositiveInt(formData, "id");
@@ -240,11 +193,7 @@ function makeActions(
 
 const countriesActions = makeActions(
   "/dashboard/catalogs/geography/countries",
-  {
-    create: [COUNTRIES_CREATE, CATALOGS_CREATE],
-    update: [COUNTRIES_UPDATE, CATALOGS_UPDATE],
-    delete: [COUNTRIES_DELETE, CATALOGS_DELETE],
-  },
+  "catalogs-countries",
   {
     create: (p) => createAdminCountry(p as Parameters<typeof createAdminCountry>[0]),
     update: (id, p) => updateAdminCountry(id, p),
@@ -277,11 +226,7 @@ function extractUnionExtraFields(formData: FormData): Record<string, unknown> {
 
 const unionsActions = makeActions(
   "/dashboard/catalogs/geography/unions",
-  {
-    create: [UNIONS_CREATE, CATALOGS_CREATE],
-    update: [UNIONS_UPDATE, CATALOGS_UPDATE],
-    delete: [UNIONS_DELETE, CATALOGS_DELETE],
-  },
+  "catalogs-unions",
   {
     create: (p) => createAdminUnion(p as Parameters<typeof createAdminUnion>[0]),
     update: (id, p) => updateAdminUnion(id, p),
@@ -316,11 +261,7 @@ function extractLocalFieldExtraFields(formData: FormData): Record<string, unknow
 
 const localFieldsActions = makeActions(
   "/dashboard/catalogs/geography/local-fields",
-  {
-    create: [LOCAL_FIELDS_CREATE, CATALOGS_CREATE],
-    update: [LOCAL_FIELDS_UPDATE, CATALOGS_UPDATE],
-    delete: [LOCAL_FIELDS_DELETE, CATALOGS_DELETE],
-  },
+  "catalogs-local-fields",
   {
     create: (p) => createAdminLocalField(p as Parameters<typeof createAdminLocalField>[0]),
     update: (id, p) => updateAdminLocalField(id, p),
@@ -352,11 +293,7 @@ function extractDistrictExtraFields(formData: FormData): Record<string, unknown>
 
 const districtsActions = makeActions(
   "/dashboard/catalogs/geography/districts",
-  {
-    create: [DISTRICTS_CREATE, CATALOGS_CREATE],
-    update: [DISTRICTS_UPDATE, CATALOGS_UPDATE],
-    delete: [DISTRICTS_DELETE, CATALOGS_DELETE],
-  },
+  "catalogs-districts",
   {
     create: (p) => createAdminDistrict(p as Parameters<typeof createAdminDistrict>[0]),
     update: (id, p) => updateAdminDistrict(id, p),
@@ -388,11 +325,7 @@ function extractChurchExtraFields(formData: FormData): Record<string, unknown> {
 
 const churchesActions = makeActions(
   "/dashboard/catalogs/geography/churches",
-  {
-    create: [CHURCHES_CREATE, CATALOGS_CREATE],
-    update: [CHURCHES_UPDATE, CATALOGS_UPDATE],
-    delete: [CHURCHES_DELETE, CATALOGS_DELETE],
-  },
+  "catalogs-churches",
   {
     create: (p) => createAdminChurch(p as Parameters<typeof createAdminChurch>[0]),
     update: (id, p) => updateAdminChurch(id, p),
@@ -411,11 +344,7 @@ export const deleteChurchAction = churchesActions.deleteAction;
 
 const relationshipTypesActions = makeActions(
   "/dashboard/catalogs/relationship-types",
-  {
-    create: [RELATIONSHIP_TYPES_CREATE, CATALOGS_CREATE],
-    update: [RELATIONSHIP_TYPES_UPDATE, CATALOGS_UPDATE],
-    delete: [RELATIONSHIP_TYPES_DELETE, CATALOGS_DELETE],
-  },
+  "catalogs-relationship-types",
   {
     create: (p) => createAdminRelationshipType(p as Parameters<typeof createAdminRelationshipType>[0]),
     update: (id, p) => updateAdminRelationshipType(id, p),
@@ -432,11 +361,7 @@ export const deleteRelationshipTypeAction = relationshipTypesActions.deleteActio
 
 const allergiesActions = makeActions(
   "/dashboard/catalogs/allergies",
-  {
-    create: [ALLERGIES_CREATE, CATALOGS_CREATE],
-    update: [ALLERGIES_UPDATE, CATALOGS_UPDATE],
-    delete: [ALLERGIES_DELETE, CATALOGS_DELETE],
-  },
+  "catalogs-allergies",
   {
     create: (p) => createAdminAllergy(p as Parameters<typeof createAdminAllergy>[0]),
     update: (id, p) => updateAdminAllergy(id, p),
@@ -453,11 +378,7 @@ export const deleteAllergyAction = allergiesActions.deleteAction;
 
 const diseasesActions = makeActions(
   "/dashboard/catalogs/diseases",
-  {
-    create: [DISEASES_CREATE, CATALOGS_CREATE],
-    update: [DISEASES_UPDATE, CATALOGS_UPDATE],
-    delete: [DISEASES_DELETE, CATALOGS_DELETE],
-  },
+  "catalogs-diseases",
   {
     create: (p) => createAdminDisease(p as Parameters<typeof createAdminDisease>[0]),
     update: (id, p) => updateAdminDisease(id, p),
@@ -474,11 +395,7 @@ export const deleteDiseaseAction = diseasesActions.deleteAction;
 
 const medicinesActions = makeActions(
   "/dashboard/catalogs/medicines",
-  {
-    create: [MEDICINES_CREATE, CATALOGS_CREATE],
-    update: [MEDICINES_UPDATE, CATALOGS_UPDATE],
-    delete: [MEDICINES_DELETE, CATALOGS_DELETE],
-  },
+  "catalogs-medicines",
   {
     create: (p) => createAdminMedicine(p as Parameters<typeof createAdminMedicine>[0]),
     update: (id, p) => updateAdminMedicine(id, p),
@@ -495,11 +412,7 @@ export const deleteMedicineAction = medicinesActions.deleteAction;
 
 const clubTypesActions = makeActions(
   "/dashboard/catalogs/club-types",
-  {
-    create: [CLUB_TYPES_CREATE, CATALOGS_CREATE],
-    update: [CLUB_TYPES_UPDATE, CATALOGS_UPDATE],
-    delete: [CLUB_TYPES_DELETE, CATALOGS_DELETE],
-  },
+  "catalogs-club-types",
   {
     create: (p) => createAdminClubType(p as Parameters<typeof createAdminClubType>[0]),
     update: (id, p) => updateAdminClubType(id, p),
@@ -540,11 +453,7 @@ function extractClubIdealExtraFields(formData: FormData): Record<string, unknown
 
 const clubIdealsActions = makeActions(
   "/dashboard/catalogs/club-ideals",
-  {
-    create: [CLUB_IDEALS_CREATE, CATALOGS_CREATE],
-    update: [CLUB_IDEALS_UPDATE, CATALOGS_UPDATE],
-    delete: [CLUB_IDEALS_DELETE, CATALOGS_DELETE],
-  },
+  "catalogs-club-ideals",
   {
     create: (p) => {
       const { name, ideal, club_type_id, ideal_order, active, translations } = p as {
@@ -584,11 +493,7 @@ export const deleteClubIdealAction = clubIdealsActions.deleteAction;
 
 const activityTypesActions = makeActions(
   "/dashboard/catalogs/activity-types",
-  {
-    create: [ACTIVITY_TYPES_CREATE, CATALOGS_CREATE],
-    update: [ACTIVITY_TYPES_UPDATE, CATALOGS_UPDATE],
-    delete: [ACTIVITY_TYPES_DELETE, CATALOGS_DELETE],
-  },
+  "catalogs-activity-types",
   {
     create: (p) => createAdminActivityType(p as Parameters<typeof createAdminActivityType>[0]),
     update: (id, p) => updateAdminActivityType(id, p),
@@ -621,11 +526,7 @@ function extractCamporeeEventTypeExtraFields(formData: FormData): Record<string,
 
 const camporeeEventTypesActions = makeActions(
   "/dashboard/catalogs/camporee-event-types",
-  {
-    create: [CAMPOREE_EVENT_TYPES_CREATE, CATALOGS_CREATE],
-    update: [CAMPOREE_EVENT_TYPES_UPDATE, CATALOGS_UPDATE],
-    delete: [CAMPOREE_EVENT_TYPES_DELETE, CATALOGS_DELETE],
-  },
+  "catalogs-camporee-event-types",
   {
     create: (p) => createAdminCamporeeEventType(p as Parameters<typeof createAdminCamporeeEventType>[0]),
     update: (id, p) => updateAdminCamporeeEventType(id, p),

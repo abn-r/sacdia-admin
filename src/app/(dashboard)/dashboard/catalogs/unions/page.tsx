@@ -7,17 +7,9 @@ import { listAdminCountries } from "@/lib/api/admin-countries";
 import { listAdminDivisions } from "@/lib/api/admin-divisions";
 import { listAdminUnions } from "@/lib/api/admin-unions";
 import { ApiError } from "@/lib/api/client";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  CATALOGS_CREATE,
-  CATALOGS_DELETE,
-  CATALOGS_UPDATE,
-  UNIONS_CREATE,
-  UNIONS_DELETE,
-  UNIONS_UPDATE,
-} from "@/lib/auth/permissions";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import type { AdminCountry } from "@/lib/catalogs/countries/types";
 import type { AdminDivision } from "@/lib/catalogs/divisions/types";
 import type { AdminUnionRow } from "@/lib/catalogs/unions/types";
@@ -72,9 +64,9 @@ export default async function UnionsPage() {
     }
   }
 
-  const canCreate = hasAnyPermission(user, [UNIONS_CREATE, CATALOGS_CREATE]);
-  const canEdit = hasAnyPermission(user, [UNIONS_UPDATE, CATALOGS_UPDATE]);
-  const canDelete = hasAnyPermission(user, [UNIONS_DELETE, CATALOGS_DELETE]);
+  const canCreate = canCapability(user, "catalogs-unions", "create");
+  const canEdit = canCapability(user, "catalogs-unions", "update");
+  const canDelete = canCapability(user, "catalogs-unions", "delete");
 
   return (
     <>

@@ -18,6 +18,7 @@ import {
   updateEntityItem,
 } from "@/lib/catalogs/service";
 import { requireAdminUser } from "@/lib/auth/session";
+import { canCapability } from "@/lib/auth/screen-catalog";
 
 type CatalogsTranslator = Awaited<ReturnType<typeof getTranslations<"catalogs">>>;
 
@@ -45,6 +46,22 @@ type RedirectAlert = {
   title: string;
   description?: string;
 };
+
+const ENTITY_MUTATION_SCREEN: Partial<Record<EntityKey, string>> = {
+  "ecclesiastical-years": "catalogs-ecclesiastical-years",
+};
+
+function catalogMutationDenied(
+  user: Awaited<ReturnType<typeof requireAdminUser>>,
+  entityKey: EntityKey,
+  capabilityId: "create" | "update" | "delete",
+): boolean {
+  const screenId = ENTITY_MUTATION_SCREEN[entityKey];
+  if (!screenId) {
+    return false;
+  }
+  return !canCapability(user, screenId, capabilityId);
+}
 
 function withAlertRedirect(path: string, alert: RedirectAlert) {
   if (!path.startsWith("/")) {
@@ -81,7 +98,7 @@ export async function createCatalogItemAction(
   _: CatalogActionState,
   formData: FormData,
 ): Promise<CatalogActionState> {
-  await requireAdminUser();
+  const user = await requireAdminUser();
   const t = await getTranslations("catalogs");
 
   const config = getEntityConfig(entityKey);
@@ -91,6 +108,10 @@ export async function createCatalogItemAction(
   }
 
   if (config.allowMutations === false) {
+    return { error: t("errors.read_only_catalog") };
+  }
+
+  if (catalogMutationDenied(user, entityKey, "create")) {
     return { error: t("errors.read_only_catalog") };
   }
 
@@ -123,7 +144,7 @@ export async function updateCatalogItemAction(
   _: CatalogActionState,
   formData: FormData,
 ): Promise<CatalogActionState> {
-  await requireAdminUser();
+  const user = await requireAdminUser();
   const t = await getTranslations("catalogs");
 
   const config = getEntityConfig(entityKey);
@@ -133,6 +154,10 @@ export async function updateCatalogItemAction(
   }
 
   if (config.allowMutations === false) {
+    return { error: t("errors.read_only_catalog") };
+  }
+
+  if (catalogMutationDenied(user, entityKey, "update")) {
     return { error: t("errors.read_only_catalog") };
   }
 
@@ -162,7 +187,7 @@ export async function deleteCatalogItemAction(
   _: CatalogActionState,
   formData: FormData,
 ): Promise<CatalogActionState> {
-  await requireAdminUser();
+  const user = await requireAdminUser();
   const t = await getTranslations("catalogs");
 
   const entityKey = String(formData.get("entityKey")) as EntityKey;
@@ -176,6 +201,10 @@ export async function deleteCatalogItemAction(
   }
 
   if (config.allowMutations === false) {
+    return { error: t("errors.read_only_catalog") };
+  }
+
+  if (catalogMutationDenied(user, entityKey, "delete")) {
     return { error: t("errors.read_only_catalog") };
   }
 

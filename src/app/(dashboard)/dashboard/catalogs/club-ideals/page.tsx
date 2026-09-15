@@ -6,17 +6,9 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { listAdminClubIdeals } from "@/lib/api/admin-club-ideals";
 import { listAdminClubTypes } from "@/lib/api/admin-club-types";
 import { ApiError } from "@/lib/api/client";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  CATALOGS_CREATE,
-  CATALOGS_DELETE,
-  CATALOGS_UPDATE,
-  CLUB_IDEALS_CREATE,
-  CLUB_IDEALS_DELETE,
-  CLUB_IDEALS_UPDATE,
-} from "@/lib/auth/permissions";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import type { AdminClubIdealRow } from "@/lib/catalogs/club-ideals/types";
 import type { AdminClubType } from "@/lib/catalogs/club-types/types";
 import { sortClubIdealsByTypeAndOrder } from "@/lib/catalogs/club-ideals/sort";
@@ -70,9 +62,9 @@ export default async function ClubIdealsPage() {
     }
   }
 
-  const canCreate = hasAnyPermission(user, [CLUB_IDEALS_CREATE, CATALOGS_CREATE]);
-  const canEdit = hasAnyPermission(user, [CLUB_IDEALS_UPDATE, CATALOGS_UPDATE]);
-  const canDelete = hasAnyPermission(user, [CLUB_IDEALS_DELETE, CATALOGS_DELETE]);
+  const canCreate = canCapability(user, "catalogs-club-ideals", "create");
+  const canEdit = canCapability(user, "catalogs-club-ideals", "update");
+  const canDelete = canCapability(user, "catalogs-club-ideals", "delete");
 
   return (
     <>

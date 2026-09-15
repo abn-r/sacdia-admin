@@ -40,8 +40,7 @@ import {
 import { extractItems, extractMeta, readParam, readPositiveNumberParam } from "@/lib/phase-e-catalogs/fetch-helpers";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import { CATALOGS_CREATE, CATALOGS_UPDATE, CATALOGS_DELETE, CLASS_SECTIONS_MANAGE } from "@/lib/auth/permissions";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import {
   createClassSectionAction,
   updateClassSectionAction,
@@ -180,9 +179,9 @@ export default async function AdminClassSectionsPage({ searchParams }: { searchP
     }
   }
 
-  const canCreate = hasAnyPermission(user, [CLASS_SECTIONS_MANAGE, CATALOGS_CREATE]);
-  const canEdit = hasAnyPermission(user, [CLASS_SECTIONS_MANAGE, CATALOGS_UPDATE]);
-  const canDelete = hasAnyPermission(user, [CLASS_SECTIONS_MANAGE, CATALOGS_DELETE]);
+  const canCreate = canCapability(user, "catalogs-class-sections", "create");
+  const canEdit = canCapability(user, "catalogs-class-sections", "update");
+  const canDelete = canCapability(user, "catalogs-class-sections", "delete");
 
   return (
     <div className="space-y-6">

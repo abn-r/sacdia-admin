@@ -2,10 +2,12 @@ import type { CamporeeKind } from "@/lib/types/camporee-orders";
 
 export type { CamporeeKind };
 
-export const CAMPOREE_SUPPLIES_READ = "camporee-supplies:read";
-export const CAMPOREE_SUPPLIES_CONFIGURE = "camporee-supplies:configure";
-export const CAMPOREE_SUPPLIES_REVIEW_PAY = "camporee-supplies:review-pay";
-export const CAMPOREE_SUPPLIES_DELIVER = "camporee-supplies:deliver";
+export {
+  CAMPOREE_SUPPLIES_CONFIGURE,
+  CAMPOREE_SUPPLIES_DELIVER,
+  CAMPOREE_SUPPLIES_READ,
+  CAMPOREE_SUPPLIES_REVIEW_PAY,
+} from "@/lib/auth/permissions";
 
 export type SupplyUom = "KG" | "L" | "BAG" | "UNIT";
 

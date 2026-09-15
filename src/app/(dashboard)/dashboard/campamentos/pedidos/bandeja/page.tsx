@@ -4,8 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { CamporeeOrderReviewTray } from "@/components/camporee-orders/camporee-order-review-tray";
 import { PageHeader } from "@/components/shared/page-header";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { hasPermission } from "@/lib/auth/permission-utils";
-import { CAMPOREE_ORDERS_REVIEW } from "@/lib/auth/permissions";
+import { canViewScreen } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -29,7 +28,7 @@ export default async function CamporeeOrderReviewPage({
       ? rawOrderId.trim()
       : null;
 
-  if (!hasPermission(user, CAMPOREE_ORDERS_REVIEW)) {
+  if (!canViewScreen(user, "campamentos-pedidos-bandeja")) {
     return (
       <div className="space-y-6">
         <PageHeader

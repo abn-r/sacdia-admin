@@ -7,17 +7,9 @@ import { listAdminClubTypes } from "@/lib/api/admin-club-types";
 import { listAdminHonorCategories } from "@/lib/api/admin-honor-categories";
 import { listAdminHonorsCatalog } from "@/lib/api/admin-honors-catalog";
 import { ApiError } from "@/lib/api/client";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  CATALOGS_CREATE,
-  CATALOGS_DELETE,
-  CATALOGS_UPDATE,
-  HONORS_CREATE,
-  HONORS_DELETE,
-  HONORS_UPDATE,
-} from "@/lib/auth/permissions";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import type { AdminClubType } from "@/lib/api/admin-club-types";
 import { normalizeHonorCategoryRow, type AdminHonorCategoryRow } from "@/lib/catalogs/honor-categories/types";
 import type { AdminHonorRow } from "@/lib/catalogs/honors/types";
@@ -79,9 +71,9 @@ export default async function HonorsPage() {
     }
   }
 
-  const canCreate = hasAnyPermission(user, [HONORS_CREATE, CATALOGS_CREATE]);
-  const canEdit = hasAnyPermission(user, [HONORS_UPDATE, CATALOGS_UPDATE]);
-  const canDelete = hasAnyPermission(user, [HONORS_DELETE, CATALOGS_DELETE]);
+  const canCreate = canCapability(user, "catalogs-honors", "create");
+  const canEdit = canCapability(user, "catalogs-honors", "update");
+  const canDelete = canCapability(user, "catalogs-honors", "delete");
 
   return (
     <>

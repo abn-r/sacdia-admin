@@ -1,11 +1,7 @@
 import type { Metadata } from "next";
 import { redirect, notFound } from "next/navigation";
 import { requireAdminUser } from "@/lib/auth/session";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  CAMPOREE_EVENTS_CREATE,
-  CAMPOREES_CREATE,
-} from "@/lib/auth/permissions";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import { getCamporeeById, getEnrolledClubs, type CamporeeClub } from "@/lib/api/camporees";
 import { normalizeCamporeeClubs } from "@/lib/camporees/club-display";
 import {
@@ -77,7 +73,7 @@ function extractList<T>(payload: unknown): T[] {
 export default async function LocalCamporeeEventNewPage({ params }: { params: Params }) {
   const user = await requireAdminUser();
 
-  const canCreate = hasAnyPermission(user, [CAMPOREE_EVENTS_CREATE, CAMPOREES_CREATE]);
+  const canCreate = canCapability(user, "campamentos-list-local", "events.create");
   if (!canCreate) redirect("/dashboard/campamentos");
 
   const { id: idParam } = await params;

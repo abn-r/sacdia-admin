@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { toast } from "sonner";
 import { Plus, RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useScreenAccess } from "@/lib/auth/screen-catalog/use-screen-access";
 import { Button } from "@/components/ui/button";
 import { ConfigTable } from "@/components/investiture/config-table";
 import { getInvestitureConfigs, type InvestitureConfig } from "@/lib/api/investiture";
@@ -40,6 +41,8 @@ export function ConfigClientPage({
   territoryScope,
 }: ConfigClientPageProps) {
   const t = useTranslations("investiture");
+  const { canCapability } = useScreenAccess();
+  const canCreate = canCapability("investiture-config", "create");
   const [configs, setConfigs] = useState<InvestitureConfig[]>(initialConfigs);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -104,10 +107,12 @@ export function ConfigClientPage({
           </Button>
         </div>
 
-        <Button size="sm" onClick={openCreate}>
-          <Plus className="size-4" />
-          {t("configClient.newConfig")}
-        </Button>
+        {canCreate ? (
+          <Button size="sm" onClick={openCreate}>
+            <Plus className="size-4" />
+            {t("configClient.newConfig")}
+          </Button>
+        ) : null}
       </div>
 
       {/* Table */}

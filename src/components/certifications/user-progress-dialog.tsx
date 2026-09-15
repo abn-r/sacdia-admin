@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { apiRequestFromClient } from "@/lib/api/client";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { useScreenAccess } from "@/lib/auth/screen-catalog/use-screen-access";
 
 type SectionProgress = {
   section_id: number;
@@ -73,6 +74,8 @@ function ModuleProgressNode({
   onUpdated: () => void;
 }) {
   const t = useTranslations("certifications");
+  const { canCapability } = useScreenAccess();
+  const canManage = canCapability("certifications-list", "manage");
   const [open, setOpen] = useState(true);
   const [isPending, startTransition] = useTransition();
   const [pendingSectionId, setPendingSectionId] = useState<number | null>(null);
@@ -81,6 +84,7 @@ function ModuleProgressNode({
   const totalCount = mod.sections.length;
 
   function handleToggle(section: SectionProgress) {
+    if (!canManage) return;
     setPendingSectionId(section.section_id);
     startTransition(async () => {
       try {
@@ -140,13 +144,20 @@ function ModuleProgressNode({
                   >
                     <button
                       type="button"
-                      disabled={isPending}
+                      disabled={isPending || !canManage}
                       onClick={() => handleToggle(section)}
                       className={cn(
                         "shrink-0 transition-opacity",
-                        isPending && !isLoading && "opacity-50",
+                        (isPending && !isLoading) || !canManage ? "opacity-50" : null,
+                        !canManage && "cursor-default",
                       )}
-                      title={section.completed ? "Marcar como pendiente" : "Marcar como completada"}
+                      title={
+                        !canManage
+                          ? undefined
+                          : section.completed
+                            ? "Marcar como pendiente"
+                            : "Marcar como completada"
+                      }
                     >
                       {isLoading ? (
                         <Loader2 className="size-5 animate-spin text-primary" />

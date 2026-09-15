@@ -25,6 +25,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { useScreenAccess } from "@/lib/auth/screen-catalog/use-screen-access";
 import {
   bulkApproveEnrollments,
   bulkRejectEnrollments,
@@ -32,7 +33,6 @@ import {
   type BulkOperationResult,
 } from "@/lib/api/investiture";
 import { ApiError } from "@/lib/api/client";
-import type { UserRole } from "@/components/investiture/pipeline-table";
 import type { PipelineStatus } from "@/lib/api/investiture";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -92,7 +92,6 @@ export interface BulkActionBarProps {
   selectedIds: number[];
   /** Status of the currently selected enrollments (used to derive the bulk action) */
   selectedStatus: PipelineStatus | null;
-  userRole: UserRole;
   onClearSelection: () => void;
   onSuccess: () => void;
 }
@@ -102,11 +101,11 @@ export interface BulkActionBarProps {
 export function BulkActionBar({
   selectedIds,
   selectedStatus,
-  userRole,
   onClearSelection,
   onSuccess,
 }: BulkActionBarProps) {
   const t = useTranslations("investiture");
+  const { canCapability } = useScreenAccess();
   const [approveDialogOpen, setApproveDialogOpen] = useState(false);
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
@@ -128,11 +127,8 @@ export function BulkActionBar({
   // Only show the approve button when there's a valid action for this role.
   // club-approve is not available in bulk (directors use individual actions).
   const canShowApprove =
-    approveAction !== null &&
-    (userRole === "admin" ||
-      (approveAction === "coordinator-approve" && userRole === "coordinator") ||
-      (approveAction === "field-approve" && userRole === "field") ||
-      (approveAction === "invest" && userRole === "field"));
+    approveAction !== null && canCapability("investiture-pipeline", "bulk_approve");
+  const canShowReject = canCapability("investiture-pipeline", "bulk_reject");
 
   // ─── Approve confirmation ────────────────────────────────────────────────────
 
@@ -218,14 +214,16 @@ export function BulkActionBar({
           </Button>
         )}
 
-        <Button
-          size="sm"
-          variant="destructive"
-          onClick={() => setRejectDialogOpen(true)}
-        >
-          <XCircle className="mr-1.5 size-4" />
-          Rechazar seleccionados
-        </Button>
+        {canShowReject && (
+          <Button
+            size="sm"
+            variant="destructive"
+            onClick={() => setRejectDialogOpen(true)}
+          >
+            <XCircle className="mr-1.5 size-4" />
+            Rechazar seleccionados
+          </Button>
+        )}
 
         <Button
           size="sm"

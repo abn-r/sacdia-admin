@@ -9,7 +9,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { CopyRolePermissionsDialog } from "@/components/rbac/copy-role-permissions-dialog";
 import { requireAdminUser } from "@/lib/auth/session";
-import { extractRoles, SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import { listRoles } from "@/lib/rbac/service";
 import { ApiError } from "@/lib/api/client";
 import type { Role } from "@/lib/rbac/types";
@@ -34,7 +34,7 @@ export default async function ConfigurationRolesPage() {
   const t = await getTranslations("rbac.pages.roles");
   const tNav = await getTranslations("nav.items");
   const user = await requireAdminUser();
-  const isSuperAdmin = extractRoles(user).includes(SUPER_ADMIN_ROLE);
+  const isSuperAdmin = canCapability(user, "admin-system-roles", "manage");
 
   let roles: Role[] = [];
   let loadError: string | null = null;

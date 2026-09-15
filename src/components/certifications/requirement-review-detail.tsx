@@ -26,6 +26,7 @@ import {
   type ReviewComponentView,
 } from "@/lib/api/certification-reviews";
 import { getCertificationReviewErrorMessage } from "@/components/certifications/certification-review-errors";
+import { useScreenAccess } from "@/lib/auth/screen-catalog/use-screen-access";
 
 type Props = {
   progressId: number | null;
@@ -93,6 +94,12 @@ export function RequirementReviewDetail({
   onChanged,
 }: Props) {
   const t = useTranslations("certification_reviews");
+  const { canCapability } = useScreenAccess();
+  const canApprove = canCapability("certifications-reviews", "approve");
+  const canRequestChanges = canCapability(
+    "certifications-reviews",
+    "request_changes",
+  );
   const [detail, setDetail] = useState<Detail | null>(null);
   const [loading, setLoading] = useState(false);
   const [comment, setComment] = useState("");
@@ -323,6 +330,7 @@ export function RequirementReviewDetail({
             {t("detail.close")}
           </Button>
           <div className="flex flex-wrap gap-2">
+            {canRequestChanges ? (
             <Button
               type="button"
               variant="secondary"
@@ -331,6 +339,8 @@ export function RequirementReviewDetail({
             >
               {t("detail.requestChanges")}
             </Button>
+            ) : null}
+            {canApprove ? (
             <Button
               type="button"
               disabled={!canAct || submitting}
@@ -338,6 +348,7 @@ export function RequirementReviewDetail({
             >
               {t("detail.approve")}
             </Button>
+            ) : null}
           </div>
         </SheetFooter>
       </SheetContent>

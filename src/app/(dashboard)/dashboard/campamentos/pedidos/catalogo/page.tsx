@@ -4,11 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { CamporeeOrderCatalogClient } from "@/components/camporee-orders/camporee-order-catalog-client";
 import { PageHeader } from "@/components/shared/page-header";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  CAMPOREE_ORDERS_CATALOG_MANAGE,
-  CAMPOREE_ORDERS_READ,
-} from "@/lib/auth/permissions";
+import { canViewScreen } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -20,12 +16,7 @@ export default async function CamporeeOrderCatalogPage() {
   const user = await requireAdminUser();
   const t = await getTranslations("camporee_orders");
 
-  if (
-    !hasAnyPermission(user, [
-      CAMPOREE_ORDERS_READ,
-      CAMPOREE_ORDERS_CATALOG_MANAGE,
-    ])
-  ) {
+  if (!canViewScreen(user, "campamentos-pedidos-catalogo")) {
     return (
       <div className="space-y-6">
         <PageHeader

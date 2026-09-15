@@ -4,12 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { PaymentOrdersClient } from "@/components/payment-orders/payment-orders-client";
 import { PageHeader } from "@/components/shared/page-header";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  CAMPOREE_ORDERS_READ,
-  FIELD_PAYMENT_ORDERS_REVIEW,
-  MATERIALS_READ,
-} from "@/lib/auth/permissions";
+import { canCapability, canViewScreen } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -22,14 +17,13 @@ export default async function PaymentOrdersPage() {
   const t = await getTranslations("payment_orders");
   const tPending = await getTranslations("payment_obligations");
 
-  const canAccess = hasAnyPermission(user, [
-    CAMPOREE_ORDERS_READ,
-    "field-payment-orders:read",
-    MATERIALS_READ,
-    FIELD_PAYMENT_ORDERS_REVIEW,
-  ]);
+  const tabs = {
+    pending: canCapability(user, "payment-orders", "pending"),
+    orders: canCapability(user, "payment-orders", "orders"),
+    reassignments: canCapability(user, "payment-orders", "reassignments"),
+  };
 
-  if (!canAccess) {
+  if (!canViewScreen(user, "payment-orders")) {
     return (
       <div className="space-y-6">
         <PageHeader
@@ -50,7 +44,7 @@ export default async function PaymentOrdersPage() {
         title={tPending("page.title")}
         description={tPending("page.description")}
       />
-      <PaymentOrdersClient />
+      <PaymentOrdersClient tabs={tabs} />
     </div>
   );
 }

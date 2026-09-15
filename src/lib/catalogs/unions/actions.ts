@@ -8,15 +8,7 @@ import {
   updateAdminUnion,
 } from "@/lib/api/admin-unions";
 import { unionFormSchema } from "@/lib/catalogs/unions/schema";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  CATALOGS_CREATE,
-  CATALOGS_DELETE,
-  CATALOGS_UPDATE,
-  UNIONS_CREATE,
-  UNIONS_DELETE,
-  UNIONS_UPDATE,
-} from "@/lib/auth/permissions";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 
 const REVALIDATE_PATH = "/dashboard/catalogs/unions";
@@ -58,7 +50,7 @@ export async function createUnionAction(
 ): Promise<UnionActionState> {
   try {
     const user = await requireAdminUser();
-    if (!hasAnyPermission(user, [UNIONS_CREATE, CATALOGS_CREATE])) {
+    if (!canCapability(user, "catalogs-unions", "create")) {
       return { error: "No tienes permisos para crear uniones." };
     }
 
@@ -82,7 +74,7 @@ export async function updateUnionAction(
 ): Promise<UnionActionState> {
   try {
     const user = await requireAdminUser();
-    if (!hasAnyPermission(user, [UNIONS_UPDATE, CATALOGS_UPDATE])) {
+    if (!canCapability(user, "catalogs-unions", "update")) {
       return { error: "No tienes permisos para editar uniones." };
     }
 
@@ -108,7 +100,7 @@ export async function updateUnionAction(
 export async function deleteUnionAction(unionId: number): Promise<UnionActionState> {
   try {
     const user = await requireAdminUser();
-    if (!hasAnyPermission(user, [UNIONS_DELETE, CATALOGS_DELETE])) {
+    if (!canCapability(user, "catalogs-unions", "delete")) {
       return { error: "No tienes permisos para eliminar uniones." };
     }
 

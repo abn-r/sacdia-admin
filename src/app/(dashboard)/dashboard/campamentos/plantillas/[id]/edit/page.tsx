@@ -2,11 +2,7 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { requireAdminUser } from "@/lib/auth/session";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  CAMPOREE_EVENTS_UPDATE,
-  CAMPOREES_UPDATE,
-} from "@/lib/auth/permissions";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import {
   getCamporeeEventTemplate,
   type CamporeeEventTemplate,
@@ -250,7 +246,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function EventTemplateEditPage({ params }: { params: Params }) {
   const user = await requireAdminUser();
 
-  const canEdit = hasAnyPermission(user, [CAMPOREE_EVENTS_UPDATE, CAMPOREES_UPDATE]);
+  const canEdit = canCapability(user, "campamentos-plantillas", "update");
   if (!canEdit) {
     redirect("/dashboard/campamentos/plantillas");
   }

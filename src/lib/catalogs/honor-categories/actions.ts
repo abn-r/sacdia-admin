@@ -8,15 +8,7 @@ import {
   updateAdminHonorCategory,
 } from "@/lib/api/admin-honor-categories";
 import { honorCategoryFormSchema } from "@/lib/catalogs/honor-categories/schema";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  CATALOGS_CREATE,
-  CATALOGS_DELETE,
-  CATALOGS_UPDATE,
-  HONOR_CATEGORIES_CREATE,
-  HONOR_CATEGORIES_DELETE,
-  HONOR_CATEGORIES_UPDATE,
-} from "@/lib/auth/permissions";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 import {
   CATALOG_LOCALES,
@@ -80,7 +72,7 @@ export async function createHonorCategoryAction(
 ): Promise<HonorCategoryActionState> {
   try {
     const user = await requireAdminUser();
-    if (!hasAnyPermission(user, [HONOR_CATEGORIES_CREATE, CATALOGS_CREATE])) {
+    if (!canCapability(user, "catalogs-honor-categories", "create")) {
       return { error: "No tienes permisos para crear categorías de especialidades." };
     }
 
@@ -104,7 +96,7 @@ export async function updateHonorCategoryAction(
 ): Promise<HonorCategoryActionState> {
   try {
     const user = await requireAdminUser();
-    if (!hasAnyPermission(user, [HONOR_CATEGORIES_UPDATE, CATALOGS_UPDATE])) {
+    if (!canCapability(user, "catalogs-honor-categories", "update")) {
       return { error: "No tienes permisos para editar categorías de especialidades." };
     }
 
@@ -132,7 +124,7 @@ export async function deleteHonorCategoryAction(
 ): Promise<HonorCategoryActionState> {
   try {
     const user = await requireAdminUser();
-    if (!hasAnyPermission(user, [HONOR_CATEGORIES_DELETE, CATALOGS_DELETE])) {
+    if (!canCapability(user, "catalogs-honor-categories", "delete")) {
       return { error: "No tienes permisos para eliminar categorías de especialidades." };
     }
 

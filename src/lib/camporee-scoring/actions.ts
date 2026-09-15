@@ -2,13 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 import { getActionErrorMessage } from "@/lib/api/action-error";
-import { requireAdminUser } from "@/lib/auth/session";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  CAMPOREE_EVENTS_READ,
-  CAMPOREE_EVENTS_UPDATE,
-  CAMPOREES_UPDATE,
-} from "@/lib/auth/permissions";
 import {
   addLocalCamporeeJudge,
   addUnionCamporeeJudge,
@@ -22,7 +15,8 @@ import {
   type CamporeeJudgeRole,
   type CamporeeTemplateRubricInput,
 } from "@/lib/api/camporee-scoring";
-import { canManageCamporeeJudgeAssignments } from "@/lib/camporee-scoring/permissions";
+import { camporeeScreenId, canCapability } from "@/lib/auth/screen-catalog";
+import { requireAdminUser } from "@/lib/auth/session";
 
 export type CamporeeScoringActionState = {
   error?: string;
@@ -61,7 +55,8 @@ function getCamporeePath(camporeeId: number | null, isUnion: boolean) {
 
 async function assertCanUpdateScoring() {
   const user = await requireAdminUser();
-  if (!hasAnyPermission(user, [CAMPOREE_EVENTS_UPDATE, CAMPOREES_UPDATE])) {
+  // Gates identical on campamentos-list-local and -union.
+  if (!canCapability(user, camporeeScreenId("local"), "events.update")) {
     return "Sin permisos para gestionar puntajes de camporee.";
   }
   return null;
@@ -69,7 +64,13 @@ async function assertCanUpdateScoring() {
 
 async function assertCanManageJudgeAssignments(isUnion: boolean) {
   const user = await requireAdminUser();
-  if (!canManageCamporeeJudgeAssignments(user, { isUnion })) {
+  if (
+    !canCapability(
+      user,
+      camporeeScreenId(isUnion ? "union" : "local"),
+      "events.update",
+    )
+  ) {
     return "Sin permisos para gestionar asignaciones de jueces.";
   }
   return null;
@@ -382,5 +383,6 @@ export async function submitCamporeeEventScoreAction(
 
 export async function assertCanReadCamporeeScoringAction() {
   const user = await requireAdminUser();
-  return hasAnyPermission(user, [CAMPOREE_EVENTS_READ, CAMPOREE_EVENTS_UPDATE, CAMPOREES_UPDATE]);
+  // Gates identical on campamentos-list-local and -union.
+  return canCapability(user, camporeeScreenId("local"), "scoring.read");
 }

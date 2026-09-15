@@ -115,11 +115,17 @@ describe("succeedClubSectionDirectorAction", () => {
 describe("designateClubSectionDirectorAction", () => {
   const ALLOWED_ROLES = ["super-admin", "admin", "director-lf", "assistant-lf"];
 
-  function setupUser(roles: string[]) {
+  // Gate = `clubs.designate_director` capability: club_roles:assign AND one of
+  // ALLOWED_ROLES (literal match, as the backend service).
+  function setupUser(roles: string[], permissions = ["club_roles:assign"]) {
     mockRequireAdminUser.mockResolvedValue({
       id: "actor-1",
       email: "actor@example.com",
       roles,
+      authorization: {
+        grants: { global_roles: roles.map((role_name) => ({ role_name })) },
+        effective: { permissions },
+      },
     });
   }
 
@@ -173,6 +179,40 @@ describe("designateClubSectionDirectorAction", () => {
         }),
       }),
     );
+  });
+
+  it("rejects an allowed role without club_roles:assign", async () => {
+    setupUser(["director-lf"], []);
+
+    const result = await designateClubSectionDirectorAction(
+      10,
+      7,
+      {},
+      makeFormData({
+        user_id: "00000000-0000-0000-0000-000000000002",
+        ecclesiastical_year_id: "2027",
+      }),
+    );
+
+    expect(result.error).toBeTruthy();
+    expect(mockDesignateClubSectionDirector).not.toHaveBeenCalled();
+  });
+
+  it("rejects assistant-admin (no alias expansion for service-level rules)", async () => {
+    setupUser(["assistant-admin"]);
+
+    const result = await designateClubSectionDirectorAction(
+      10,
+      7,
+      {},
+      makeFormData({
+        user_id: "00000000-0000-0000-0000-000000000002",
+        ecclesiastical_year_id: "2027",
+      }),
+    );
+
+    expect(result.error).toBeTruthy();
+    expect(mockDesignateClubSectionDirector).not.toHaveBeenCalled();
   });
 
   it("rejects members without allowed roles", async () => {

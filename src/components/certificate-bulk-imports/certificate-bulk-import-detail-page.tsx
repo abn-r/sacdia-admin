@@ -36,6 +36,7 @@ import {
   isReviewableItem,
   itemCatalogName,
 } from "@/components/certificate-bulk-imports/helpers";
+import { useScreenAccess } from "@/lib/auth/screen-catalog/use-screen-access";
 import type {
   CertificateBulkImportBatch,
   CertificateBulkImportFile,
@@ -136,10 +137,14 @@ function ProofViewer({ files }: { files: CertificateBulkImportFile[] }) {
 
 function ItemRow({
   item,
+  canApprove,
+  canReject,
   onApprove,
   onReject,
 }: {
   item: CertificateBulkImportItem;
+  canApprove: boolean;
+  canReject: boolean;
   onApprove: () => void;
   onReject: () => void;
 }) {
@@ -164,16 +169,20 @@ function ItemRow({
             </div>
           )}
         </div>
-        {reviewable && (
+        {reviewable && (canApprove || canReject) && (
           <div className="flex gap-2 lg:justify-end">
+            {canReject ? (
             <Button variant="outline" size="sm" onClick={onReject}>
               <XCircle aria-hidden="true" />
               Rechazar
             </Button>
+            ) : null}
+            {canApprove ? (
             <Button size="sm" onClick={onApprove}>
               <CheckCircle2 aria-hidden="true" />
               Aprobar
             </Button>
+            ) : null}
           </div>
         )}
       </div>
@@ -218,6 +227,9 @@ export function CertificateBulkImportDetailPage({
   listHref?: string;
 }) {
   const router = useRouter();
+  const { canCapability } = useScreenAccess();
+  const canApprove = canCapability("certificate-bulk-imports", "approve");
+  const canReject = canCapability("certificate-bulk-imports", "reject");
   const [dialog, setDialog] = useState<DialogState>(null);
   const [, startTransition] = useTransition();
   const counts = useMemo(() => getBatchCounts(batch), [batch]);
@@ -283,6 +295,7 @@ export function CertificateBulkImportDetailPage({
               </div>
               <Separator />
               <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+                {canReject ? (
                 <Button
                   variant="outline"
                   disabled={!hasReviewableItems}
@@ -291,6 +304,8 @@ export function CertificateBulkImportDetailPage({
                   <XCircle aria-hidden="true" />
                   Rechazar lote
                 </Button>
+                ) : null}
+                {canApprove ? (
                 <Button
                   disabled={!hasReviewableItems}
                   onClick={() => setDialog({ action: "approve", scope: "batch" })}
@@ -298,6 +313,7 @@ export function CertificateBulkImportDetailPage({
                   <CheckCircle2 aria-hidden="true" />
                   Aprobar lote
                 </Button>
+                ) : null}
               </div>
             </CardContent>
           </Card>
@@ -315,6 +331,8 @@ export function CertificateBulkImportDetailPage({
                   <ItemRow
                     key={item.item_id}
                     item={item}
+                    canApprove={canApprove}
+                    canReject={canReject}
                     onApprove={() => setDialog({ action: "approve", scope: "item", item })}
                     onReject={() => setDialog({ action: "reject", scope: "item", item })}
                   />

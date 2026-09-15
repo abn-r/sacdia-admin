@@ -30,15 +30,7 @@ import { listAdminRelationshipTypes } from "@/lib/api/generic-catalogs-i18n";
 import { extractItems, extractMeta, readParam, readPositiveNumberParam } from "@/lib/phase-e-catalogs/fetch-helpers";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  RELATIONSHIP_TYPES_CREATE,
-  RELATIONSHIP_TYPES_UPDATE,
-  RELATIONSHIP_TYPES_DELETE,
-  CATALOGS_CREATE,
-  CATALOGS_UPDATE,
-  CATALOGS_DELETE,
-} from "@/lib/auth/permissions";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import {
   createRelationshipTypeAction,
   updateRelationshipTypeAction,
@@ -79,9 +71,9 @@ export default async function RelationshipTypesPage({ searchParams }: { searchPa
     }
   }
 
-  const canCreate = hasAnyPermission(user, [RELATIONSHIP_TYPES_CREATE, CATALOGS_CREATE]);
-  const canEdit = hasAnyPermission(user, [RELATIONSHIP_TYPES_UPDATE, CATALOGS_UPDATE]);
-  const canDelete = hasAnyPermission(user, [RELATIONSHIP_TYPES_DELETE, CATALOGS_DELETE]);
+  const canCreate = canCapability(user, "catalogs-relationship-types", "create");
+  const canEdit = canCapability(user, "catalogs-relationship-types", "update");
+  const canDelete = canCapability(user, "catalogs-relationship-types", "delete");
 
   return (
     <div className="space-y-6">

@@ -16,15 +16,7 @@ import {
   readPositiveNumberParam,
 } from "@/lib/phase-e-catalogs/fetch-helpers";
 import { requireAdminUser } from "@/lib/auth/session";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  CAMPOREE_EVENT_TYPES_CREATE,
-  CAMPOREE_EVENT_TYPES_UPDATE,
-  CAMPOREE_EVENT_TYPES_DELETE,
-  CATALOGS_CREATE,
-  CATALOGS_UPDATE,
-  CATALOGS_DELETE,
-} from "@/lib/auth/permissions";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import {
   createCamporeeEventTypeAction,
   updateCamporeeEventTypeAction,
@@ -87,18 +79,14 @@ export async function CamporeeScopeConfigPage({
     loadError = error instanceof ApiError ? error.message : tCatalog("loadError");
   }
 
-  const canCreate = hasAnyPermission(user, [
-    CAMPOREE_EVENT_TYPES_CREATE,
-    CATALOGS_CREATE,
-  ]);
-  const canEdit = hasAnyPermission(user, [
-    CAMPOREE_EVENT_TYPES_UPDATE,
-    CATALOGS_UPDATE,
-  ]);
-  const canDelete = hasAnyPermission(user, [
-    CAMPOREE_EVENT_TYPES_DELETE,
-    CATALOGS_DELETE,
-  ]);
+  // Same endpoints as /catalogs/camporee-event-types: camporee_event_types:* + admin role.
+  const screenId =
+    scope === "union"
+      ? "admin-campamentos-config-union"
+      : "admin-campamentos-config-local";
+  const canCreate = canCapability(user, screenId, "create");
+  const canEdit = canCapability(user, screenId, "update");
+  const canDelete = canCapability(user, screenId, "delete");
 
   const templateScope = scope === "union" ? "union" : "local_field";
 

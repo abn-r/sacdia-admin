@@ -5,19 +5,9 @@ import { HonorCategoriesPageClient } from "@/components/catalogs/honor-categorie
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { listAdminHonorCategories } from "@/lib/api/admin-honor-categories";
 import { ApiError } from "@/lib/api/client";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  CATALOGS_CREATE,
-  CATALOGS_DELETE,
-  CATALOGS_READ,
-  CATALOGS_UPDATE,
-  HONOR_CATEGORIES_CREATE,
-  HONOR_CATEGORIES_DELETE,
-  HONOR_CATEGORIES_READ,
-  HONOR_CATEGORIES_UPDATE,
-} from "@/lib/auth/permissions";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
+import { canCapability, canViewScreen } from "@/lib/auth/screen-catalog";
 import {
   normalizeHonorCategoryRow,
   type AdminHonorCategoryRow,
@@ -41,7 +31,7 @@ export default async function HonorCategoriesPage() {
   let categories: AdminHonorCategoryRow[] = [];
   let loadError: string | null = null;
 
-  if (!hasAnyPermission(user, [HONOR_CATEGORIES_READ, CATALOGS_READ])) {
+  if (!canViewScreen(user, "catalogs-honor-categories")) {
     loadError = t("honorCategories.noPermissions");
   } else {
     try {
@@ -54,9 +44,9 @@ export default async function HonorCategoriesPage() {
     }
   }
 
-  const canCreate = hasAnyPermission(user, [HONOR_CATEGORIES_CREATE, CATALOGS_CREATE]);
-  const canEdit = hasAnyPermission(user, [HONOR_CATEGORIES_UPDATE, CATALOGS_UPDATE]);
-  const canDelete = hasAnyPermission(user, [HONOR_CATEGORIES_DELETE, CATALOGS_DELETE]);
+  const canCreate = canCapability(user, "catalogs-honor-categories", "create");
+  const canEdit = canCapability(user, "catalogs-honor-categories", "update");
+  const canDelete = canCapability(user, "catalogs-honor-categories", "delete");
 
   return (
     <>

@@ -18,10 +18,12 @@ import {
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useRoleLabel } from "@/lib/auth/role-labels";
+import { getPermissionLabel } from "@/lib/auth/permissions";
+import { groupByScreen } from "@/lib/auth/screen-catalog";
 import {
-  getPermissionGroupLabel,
-  getPermissionLabel,
-} from "@/lib/auth/permissions";
+  getScreenGroupTitle,
+  type NavTranslator,
+} from "@/lib/auth/screen-catalog/screen-title";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -82,18 +84,20 @@ function ReadOnlyAlert() {
 // ─── Permissions popover ─────────────────────────────────────────────────────
 function PermissionsPopover({ role }: { role: Role }) {
   const t = useTranslations("rbac");
+  const tNav = useTranslations("nav.items") as unknown as NavTranslator;
   const permCount = role.role_permissions?.length ?? 0;
 
+  const otherLabel = t("permissionPicker.otherGroup");
   const grouped = useMemo(() => {
-    const map = new Map<string, string[]>();
-    for (const rp of role.role_permissions ?? []) {
-      const name = rp.permissions?.permission_name ?? rp.permission_id;
-      const resource = name.split(":")[0] ?? "other";
-      if (!map.has(resource)) map.set(resource, []);
-      map.get(resource)!.push(name);
-    }
-    return map;
-  }, [role.role_permissions]);
+    const names = (role.role_permissions ?? []).map(
+      (rp) => rp.permissions?.permission_name ?? rp.permission_id,
+    );
+    return groupByScreen(names, (name) => name).map((group) => ({
+      id: group.screenId,
+      title: getScreenGroupTitle(tNav, group, otherLabel),
+      permissions: group.items,
+    }));
+  }, [role.role_permissions, tNav, otherLabel]);
 
   return (
     <Popover>
@@ -116,10 +120,10 @@ function PermissionsPopover({ role }: { role: Role }) {
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
               {permCount} permisos asignados
             </p>
-            {Array.from(grouped.entries()).map(([resource, perms]) => (
-              <div key={resource} className="space-y-1">
+            {grouped.map(({ id, title, permissions: perms }) => (
+              <div key={id} className="space-y-1">
                 <p className="text-xs font-semibold uppercase tracking-wider text-foreground">
-                  {getPermissionGroupLabel(t, resource)}
+                  {title}
                 </p>
                 <div className="flex flex-wrap gap-1">
                   {perms.map((p) => (

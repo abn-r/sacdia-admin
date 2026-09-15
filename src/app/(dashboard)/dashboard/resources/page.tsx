@@ -56,13 +56,7 @@ import {
   listLocalFieldsForTerritory,
   listUnionsForTerritory,
 } from "@/lib/auth/territory-scope";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  RESOURCES_CREATE,
-  RESOURCES_DELETE,
-  RESOURCES_READ,
-  RESOURCES_UPDATE,
-} from "@/lib/auth/permissions";
+import { canCapability, canViewScreen } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 import { resolveResourceScopeOptions } from "@/lib/resources/scope-options";
 import {
@@ -214,7 +208,7 @@ export default async function ResourcesPage({
   const user = await requireAdminUser();
   const t = await getTranslations("resources.pages.list");
 
-  if (!hasAnyPermission(user, [RESOURCES_READ])) {
+  if (!canViewScreen(user, "resources-list")) {
     return (
       <EndpointErrorBanner
         state="forbidden"
@@ -296,9 +290,9 @@ export default async function ResourcesPage({
       : extractLocalFields(localFieldsResult.value);
   }
 
-  const canCreate = hasAnyPermission(user, [RESOURCES_CREATE]);
-  const canEdit = hasAnyPermission(user, [RESOURCES_UPDATE]);
-  const canDelete = hasAnyPermission(user, [RESOURCES_DELETE]);
+  const canCreate = canCapability(user, "resources-list", "create");
+  const canEdit = canCapability(user, "resources-list", "update");
+  const canDelete = canCapability(user, "resources-list", "delete");
 
   // Resolve user's effective global scope to limit available scope levels and
   // pre-select / lock the scope_id in the create form per RBAC hierarchy.

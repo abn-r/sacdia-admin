@@ -71,11 +71,19 @@ interface InsuranceTableProps {
   items: MemberInsurance[];
   onEdit?: (member: MemberInsurance) => void;
   onDelete?: (member: MemberInsurance) => void;
+  canCreate?: boolean;
+  canUpdate?: boolean;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function InsuranceTable({ items, onEdit, onDelete }: InsuranceTableProps) {
+export function InsuranceTable({
+  items,
+  onEdit,
+  onDelete,
+  canCreate = Boolean(onEdit),
+  canUpdate = Boolean(onEdit),
+}: InsuranceTableProps) {
   const t = useTranslations("insurance");
   const formatDateLocale = useFormatDate();
   const formatCurrencyLocale = useFormatCurrency();
@@ -291,7 +299,7 @@ export function InsuranceTable({ items, onEdit, onDelete }: InsuranceTableProps)
                       </Button>
                     )}
 
-                    {onEdit && (
+                    {onEdit && ((ins && canUpdate) || (!ins && canCreate)) && (
                       <Button
                         variant="ghost"
                         size="icon-sm"

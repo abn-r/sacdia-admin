@@ -22,7 +22,8 @@ const mockApproveCloseoutEvidence = vi.fn();
 const mockRequestCloseoutChanges = vi.fn();
 const mockCertify = vi.fn();
 const mockGetCloseoutEvidenceDownload = vi.fn();
-const mockCan = vi.fn();
+const mockPermissions = new Set<string>();
+const mockRoles = new Set<string>();
 
 vi.mock("@/lib/api/certification-reviews", async (importOriginal) => {
   const original =
@@ -42,10 +43,12 @@ vi.mock("@/lib/api/certification-reviews", async (importOriginal) => {
 
 vi.mock("@/lib/auth/use-permissions", () => ({
   usePermissions: () => ({
-    can: (permission: string) => mockCan(permission),
+    can: (permission: string) => mockPermissions.has(permission),
     canAny: () => false,
     canAll: () => false,
     isSuperAdmin: false,
+    permissions: mockPermissions,
+    roles: mockRoles,
   }),
 }));
 
@@ -108,7 +111,11 @@ describe("FinalReviewTray", () => {
     mockRequestCloseoutChanges.mockReset();
     mockCertify.mockReset();
     mockGetCloseoutEvidenceDownload.mockReset();
-    mockCan.mockReset();
+    mockPermissions.clear();
+    mockRoles.clear();
+    mockPermissions.add("certifications:review");
+    mockPermissions.add("certifications:certify");
+    mockRoles.add("admin");
     vi.mocked(toast.error).mockReset();
     vi.mocked(toast.success).mockReset();
     mockGetFinalTray.mockResolvedValue([SUBMITTED_ITEM, APPROVED_ITEM]);
@@ -131,9 +138,6 @@ describe("FinalReviewTray", () => {
       original_filename: "junta.pdf",
       mime_type: "application/pdf",
     });
-    mockCan.mockImplementation(
-      (permission: string) => permission === "certifications:certify",
-    );
     openSpy.mockReset();
     vi.stubGlobal("open", openSpy);
   });
@@ -224,7 +228,7 @@ describe("FinalReviewTray", () => {
   });
 
   it("hides Certificar when the user lacks certifications:certify", async () => {
-    mockCan.mockReturnValue(false);
+    mockPermissions.delete("certifications:certify");
     renderTray();
     await screen.findAllByText("Ana López");
     expect(screen.queryByRole("button", { name: "Certificar" })).toBeNull();

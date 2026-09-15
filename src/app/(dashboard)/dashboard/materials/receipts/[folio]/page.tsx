@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/button";
 import { getOrder, listReceipts } from "@/lib/api/materials";
 import { buildReceiptPrintContextFromOrder } from "@/lib/materials/receipt-print";
 import { requireAdminUser } from "@/lib/auth/session";
-import { hasPermission } from "@/lib/auth/permission-utils";
+import { canViewScreen } from "@/lib/auth/screen-catalog";
 import { ApiError } from "@/lib/api/client";
 // Direct cross-route import — component lives co-located with solicitud detail;
 // no duplication. Next.js allows importing from any route's _components folder.
@@ -44,7 +44,7 @@ export default async function ComprobantesDetailPage({
   const user = await requireAdminUser();
 
   // Guard: only users with validate-receipt permission can access this route
-  if (!hasPermission(user, "materiales:validate-receipt")) {
+  if (!canViewScreen(user, "materials-receipts")) {
     redirect("/dashboard");
   }
 

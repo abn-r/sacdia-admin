@@ -40,16 +40,7 @@ import {
   type CamporeeLeaderboard,
   type CamporeeScoringTarget,
 } from "@/lib/api/camporee-scoring";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import { canManageCamporeeJudgeAssignments } from "@/lib/camporee-scoring/permissions";
-import {
-  CAMPOREE_EVENTS_CREATE,
-  CAMPOREE_EVENTS_UPDATE,
-  CAMPOREE_EVENTS_DELETE,
-  CAMPOREES_CREATE,
-  CAMPOREES_UPDATE,
-  CAMPOREES_DELETE,
-} from "@/lib/auth/permissions";
+import { camporeeScreenId, canCapability } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 import {
   countCompetitiveEnrolledClubs,
@@ -216,12 +207,15 @@ export default async function CamporeeDetailPage({
   }
 
   const t = await getTranslations("camporees.pages.detail");
-  const canCreateEvents = hasAnyPermission(user, [CAMPOREE_EVENTS_CREATE, CAMPOREES_CREATE]);
-  const canEditEvents = hasAnyPermission(user, [CAMPOREE_EVENTS_UPDATE, CAMPOREES_UPDATE]);
-  const canDeleteEvents = hasAnyPermission(user, [CAMPOREE_EVENTS_DELETE, CAMPOREES_DELETE]);
-  const canEditJudgeAssignments = canManageCamporeeJudgeAssignments(user, {
-    isUnion: false,
-  });
+  // camporee_events:* only — the API does not accept camporees:* for events.
+  const canCreateEvents = canCapability(user, "campamentos-list-local", "events.create");
+  const canEditEvents = canCapability(user, "campamentos-list-local", "events.update");
+  const canDeleteEvents = canCapability(user, "campamentos-list-local", "events.delete");
+  const canEditJudgeAssignments = canCapability(
+    user,
+    camporeeScreenId("local"),
+    "events.update",
+  );
 
   // Fetch members — best effort
   try {

@@ -12,16 +12,8 @@
 
 import { revalidatePath } from "next/cache";
 import { getActionErrorMessage } from "@/lib/api/action-error";
+import { camporeeScreenId, canCapability } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  CAMPOREE_EVENTS_CREATE,
-  CAMPOREE_EVENTS_UPDATE,
-  CAMPOREE_EVENTS_DELETE,
-  CAMPOREES_CREATE,
-  CAMPOREES_UPDATE,
-  CAMPOREES_DELETE,
-} from "@/lib/auth/permissions";
 import {
   createLocalCamporeeVenue,
   createUnionCamporeeVenue,
@@ -51,7 +43,13 @@ export async function createCamporeeVenueAction(input: {
   description?: string;
 }): Promise<CamporeeVenueActionState> {
   const user = await requireAdminUser();
-  if (!hasAnyPermission(user, [CAMPOREE_EVENTS_CREATE, CAMPOREES_CREATE])) {
+  if (
+    !canCapability(
+      user,
+      camporeeScreenId(input.isUnionCamporee ? "union" : "local"),
+      "venues.create",
+    )
+  ) {
     return { error: "Sin permisos para crear sedes." };
   }
 
@@ -110,7 +108,8 @@ export async function updateCamporeeVenueAction(
   },
 ): Promise<CamporeeVenueActionState> {
   const user = await requireAdminUser();
-  if (!hasAnyPermission(user, [CAMPOREE_EVENTS_UPDATE, CAMPOREES_UPDATE])) {
+  // Gates identical on campamentos-list-local and -union.
+  if (!canCapability(user, camporeeScreenId("local"), "venues.update")) {
     return { error: "Sin permisos para editar sedes." };
   }
 
@@ -134,7 +133,8 @@ export async function deleteCamporeeVenueAction(
   camporeeId: number,
 ): Promise<CamporeeVenueActionState> {
   const user = await requireAdminUser();
-  if (!hasAnyPermission(user, [CAMPOREE_EVENTS_DELETE, CAMPOREES_DELETE])) {
+  // Gates identical on campamentos-list-local and -union.
+  if (!canCapability(user, camporeeScreenId("local"), "venues.delete")) {
     return { error: "Sin permisos para eliminar sedes." };
   }
 

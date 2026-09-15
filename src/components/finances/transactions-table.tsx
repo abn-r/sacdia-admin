@@ -1,6 +1,6 @@
 "use client";
 
-import { Pencil, Trash2, MoreHorizontal, Image } from "lucide-react";
+import { Pencil, Trash2, MoreHorizontal, Image as ImageIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -122,8 +122,8 @@ export function TransactionsTableSkeleton() {
 interface TransactionsTableProps {
   items: Finance[];
   sectionLabels?: Record<number, string>;
-  onEdit: (finance: Finance) => void;
-  onDelete: (finance: Finance) => void;
+  onEdit?: (finance: Finance) => void;
+  onDelete?: (finance: Finance) => void;
   onViewEvidence: (finance: Finance) => void;
   sortField: FinanceSortField;
   sortDirection: SortDirection;
@@ -306,7 +306,7 @@ export function TransactionsTable({
                       className="h-7 gap-1 px-2 text-xs"
                       onClick={() => onViewEvidence(finance)}
                     >
-                      <Image className="size-3.5" />
+                      <ImageIcon className="size-3.5" />
                       {evidenceCount}
                     </Button>
                   ) : (
@@ -314,37 +314,43 @@ export function TransactionsTable({
                   )}
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon-sm">
-                        <MoreHorizontal className="size-4" />
-                        <span className="sr-only">{t("table.actionsLabel")}</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      {evidenceCount > 0 && (
-                        <>
-                          <DropdownMenuItem onClick={() => onViewEvidence(finance)}>
-                            <Image className="size-4" />
-                            {t("table.actionViewEvidence")}
+                  {evidenceCount > 0 || onEdit || onDelete ? (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon-sm">
+                          <MoreHorizontal className="size-4" />
+                          <span className="sr-only">{t("table.actionsLabel")}</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        {evidenceCount > 0 && (
+                          <>
+                            <DropdownMenuItem onClick={() => onViewEvidence(finance)}>
+                              <ImageIcon className="size-4" />
+                              {t("table.actionViewEvidence")}
+                            </DropdownMenuItem>
+                            {(onEdit || onDelete) ? <DropdownMenuSeparator /> : null}
+                          </>
+                        )}
+                        {onEdit ? (
+                          <DropdownMenuItem onClick={() => onEdit(finance)}>
+                            <Pencil className="size-4" />
+                            {t("table.actionEdit")}
                           </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                        </>
-                      )}
-                      <DropdownMenuItem onClick={() => onEdit(finance)}>
-                        <Pencil className="size-4" />
-                        {t("table.actionEdit")}
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        variant="destructive"
-                        onClick={() => onDelete(finance)}
-                      >
-                        <Trash2 className="size-4" />
-                        {t("table.actionDelete")}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                        ) : null}
+                        {onEdit && onDelete ? <DropdownMenuSeparator /> : null}
+                        {onDelete ? (
+                          <DropdownMenuItem
+                            variant="destructive"
+                            onClick={() => onDelete(finance)}
+                          >
+                            <Trash2 className="size-4" />
+                            {t("table.actionDelete")}
+                          </DropdownMenuItem>
+                        ) : null}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  ) : null}
                 </TableCell>
               </TableRow>
             );

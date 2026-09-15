@@ -11,12 +11,9 @@ import { Label } from "@/components/ui/label";
 import { StatusBadge, type StatusIntent } from "@/components/ui/status-badge";
 import { EmptyState } from "@/components/shared/empty-state";
 import { useAuth } from "@/lib/auth/auth-context";
-import { hasPermission } from "@/lib/auth/permission-utils";
+import { camporeeScreenId, canCapability } from "@/lib/auth/screen-catalog";
 import type { CamporeeKind } from "@/lib/types/camporee-orders";
 import {
-  CAMPOREE_SUPPLIES_CONFIGURE,
-  CAMPOREE_SUPPLIES_DELIVER,
-  CAMPOREE_SUPPLIES_REVIEW_PAY,
   type CamporeeSupplyCatalog,
   type CamporeeSupplyPlan,
   type CashReport,
@@ -72,9 +69,10 @@ export function CamporeeSuppliesTab({
 }: CamporeeSuppliesTabProps) {
   const t = useTranslations("camporee_supplies");
   const { user } = useAuth();
-  const canConfigure = hasPermission(user, CAMPOREE_SUPPLIES_CONFIGURE);
-  const canReviewPay = hasPermission(user, CAMPOREE_SUPPLIES_REVIEW_PAY);
-  const canDeliver = hasPermission(user, CAMPOREE_SUPPLIES_DELIVER);
+  const screenId = camporeeScreenId(camporeeType);
+  const canConfigure = canCapability(user, screenId, "supplies.configure");
+  const canReviewPay = canCapability(user, screenId, "supplies.review_pay");
+  const canDeliver = canCapability(user, screenId, "supplies.deliver");
 
   const [loading, setLoading] = useState(true);
   const [catalog, setCatalog] = useState<CamporeeSupplyCatalog | null>(null);

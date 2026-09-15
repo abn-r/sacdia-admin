@@ -42,8 +42,7 @@ import { listLocalFieldsForTerritory } from "@/lib/auth/territory-scope";
 import { resolveUserLocalField } from "@/lib/auth/user-local-field";
 import { CamporeeLocationFields } from "@/components/camporees/camporee-location-fields";
 import { CamporeeOrderSettingsPanel } from "@/components/camporee-orders/camporee-order-settings-panel";
-import { hasPermission } from "@/lib/auth/permission-utils";
-import { CAMPOREE_ORDERS_OFFERING_CONFIGURE } from "@/lib/auth/permissions";
+import { canCapability } from "@/lib/auth/screen-catalog";
 
 // ─── Local field option (parent FK select) ────────────────────────────────────
 
@@ -148,7 +147,11 @@ export function CamporeeFormDialog({
   const tVal = useTranslations("camporees.validation");
   const { user } = useAuth();
   const isEdit = !!camporee;
-  const canConfigureOrders = hasPermission(user, CAMPOREE_ORDERS_OFFERING_CONFIGURE);
+  const canConfigureOrders = canCapability(
+    user,
+    "campamentos-list-local",
+    "orders.configure_offering",
+  );
   const fieldScope = resolveUserLocalField(user);
   const fieldLocked = fieldScope.scope === "single";
   const lockedFieldId = fieldLocked ? fieldScope.localFieldId : 0;

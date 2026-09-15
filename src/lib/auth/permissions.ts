@@ -18,6 +18,8 @@ export const USERS_READ = "users:read";
 export const USERS_READ_DETAIL = "users:read_detail";
 export const USERS_UPDATE_PROFILE = "users:update_profile";
 export const USERS_UPDATE_ADMIN = "users:update_admin";
+export const USERS_CREATE = "users:create";
+export const USERS_BULK_CREATE = "users:bulk_create";
 export const HEALTH_READ = "health:read";
 export const HEALTH_UPDATE = "health:update";
 export const EMERGENCY_CONTACTS_READ = "emergency_contacts:read";
@@ -117,7 +119,6 @@ export const HONORS_READ = "honors:read";
 export const HONORS_CREATE = "honors:create";
 export const HONORS_UPDATE = "honors:update";
 export const HONORS_DELETE = "honors:delete";
-export const MASTER_HONORS_MANAGE = "master_honors:manage";
 export const USER_HONORS_SUBMIT = "user_honors:submit";
 export const USER_HONORS_VALIDATE = "user_honors:validate";
 export const HONOR_CATEGORIES_READ = "honor_categories:read";
@@ -170,6 +171,14 @@ export const VALIDATION_SUBMIT = "validation:submit";
 export const VALIDATION_REVIEW = "validation:review";
 export const VALIDATION_READ   = "validation:read";
 
+export const INVESTITURE_READ = "investiture:read";
+export const INVESTITURE_VALIDATE = "investiture:validate";
+export const INVESTITURE_MARK_INVESTED = "investiture:mark_invested";
+export const INVESTITURE_CONFIG_READ = "investiture_config:read";
+export const INVESTITURE_CONFIG_CREATE = "investiture_config:create";
+export const INVESTITURE_CONFIG_UPDATE = "investiture_config:update";
+export const INVESTITURE_CONFIG_DELETE = "investiture_config:delete";
+
 // --- Finanzas ---
 export const FINANCES_READ = "finances:read";
 export const FINANCES_CREATE = "finances:create";
@@ -189,6 +198,7 @@ export const NOTIFICATIONS_CLUB = "notifications:club";
 
 // --- Unidades (Units) ---
 export const UNITS_READ = "units:read";
+export const UNITS_UPDATE = "units:update";
 
 // --- Miembro del Mes ---
 export const MOM_READ      = "mom:read";
@@ -258,6 +268,7 @@ export const RESOURCE_CATEGORIES_DELETE = "resource_categories:delete";
 export const ECCLESIASTICAL_YEARS_READ = "ecclesiastical_years:read";
 export const ECCLESIASTICAL_YEARS_CREATE = "ecclesiastical_years:create";
 export const ECCLESIASTICAL_YEARS_UPDATE = "ecclesiastical_years:update";
+export const ECCLESIASTICAL_YEARS_DELETE = "ecclesiastical_years:delete";
 
 // --- Certificaciones (motor configurable — definición de versiones) ---
 export const CERTIFICATIONS_CONFIGURE = "certifications:configure";
@@ -267,6 +278,8 @@ export const CERTIFICATIONS_CERTIFY = "certifications:certify";
 
 // --- Seguros (capacity model) y órdenes de pago territoriales ---
 export const INSURANCE_READ = "insurance:read";
+export const INSURANCE_CREATE = "insurance:create";
+export const INSURANCE_UPDATE = "insurance:update";
 export const INSURANCE_REVIEW = "insurance:review";
 export const INSURANCE_CONFIGURE = "insurance:configure";
 export const FIELD_PAYMENT_ORDERS_READ = "field-payment-orders:read";
@@ -285,243 +298,13 @@ export const CAMPOREE_ORDERS_AUTHORIZE_WITHOUT_PROOF =
   "camporee-orders:authorize-without-proof";
 export const CAMPOREE_ORDERS_DELIVER = "camporee-orders:deliver";
 export const CAMPOREE_ORDERS_DISTRIBUTE = "camporee-orders:distribute";
+export const CAMPOREE_SUPPLIES_READ = "camporee-supplies:read";
+export const CAMPOREE_SUPPLIES_CONFIGURE = "camporee-supplies:configure";
+export const CAMPOREE_SUPPLIES_REVIEW_PAY = "camporee-supplies:review-pay";
+export const CAMPOREE_SUPPLIES_DELIVER = "camporee-supplies:deliver";
 
-// ═══════════════════════════════════════════════════════════════════════════
-// Agrupación por módulo (útil para UI de asignación de permisos)
-// Labels removed — use getPermissionGroupLabel(t, groupKey) and
-// getPermissionLabel(t, permissionKey) for localised display.
-// ═══════════════════════════════════════════════════════════════════════════
-export const PERMISSION_GROUPS = {
-  users: {
-    permissions: [
-      { key: USERS_READ },
-      { key: USERS_READ_DETAIL },
-      { key: USERS_UPDATE_PROFILE },
-      { key: USERS_UPDATE_ADMIN },
-    ],
-  },
-  roles: {
-    permissions: [
-      { key: ROLES_READ },
-      { key: PERMISSIONS_READ },
-      { key: PERMISSIONS_ASSIGN },
-    ],
-  },
-  clubs: {
-    permissions: [
-      { key: CLUBS_READ },
-      { key: CLUBS_CREATE },
-      { key: CLUBS_UPDATE },
-      { key: CLUBS_DELETE },
-      { key: CLUB_SECTIONS_READ },
-      { key: CLUB_SECTIONS_CREATE },
-      { key: CLUB_SECTIONS_UPDATE },
-      { key: CLUB_ROLES_READ },
-      { key: CLUB_ROLES_ASSIGN },
-      { key: CLUB_ROLES_REVOKE },
-      { key: COORDINATION_MANAGE },
-      { key: CLUB_MEMBERS_APPROVE },
-      { key: CLUB_MEMBERS_REJECT },
-      { key: CLUB_MEMBERS_LIST_PENDING },
-    ],
-  },
-  units: {
-    permissions: [
-      { key: UNITS_READ },
-    ],
-  },
-  member_of_month: {
-    permissions: [
-      { key: MOM_READ },
-      { key: MOM_SUPERVISE },
-      { key: MOM_EVALUATE },
-    ],
-  },
-  scoring_categories: {
-    permissions: [
-      { key: SCORING_CATEGORIES_READ },
-      { key: SCORING_CATEGORIES_MANAGE },
-    ],
-  },
-  requests: {
-    permissions: [
-      { key: REQUESTS_READ },
-      { key: REQUESTS_REVIEW },
-    ],
-  },
-  user_certifications: {
-    permissions: [
-      { key: USER_CERTIFICATIONS_READ },
-      { key: USER_CERTIFICATIONS_MANAGE },
-    ],
-  },
-  geography: {
-    permissions: [
-      { key: COUNTRIES_READ },
-      { key: COUNTRIES_CREATE },
-      { key: COUNTRIES_UPDATE },
-      { key: COUNTRIES_DELETE },
-      { key: UNIONS_READ },
-      { key: UNIONS_CREATE },
-      { key: UNIONS_UPDATE },
-      { key: UNIONS_DELETE },
-      { key: LOCAL_FIELDS_READ },
-      { key: LOCAL_FIELDS_CREATE },
-      { key: LOCAL_FIELDS_UPDATE },
-      { key: LOCAL_FIELDS_DELETE },
-      { key: DISTRICTS_READ },
-      { key: DISTRICTS_CREATE },
-      { key: DISTRICTS_UPDATE },
-      { key: DISTRICTS_DELETE },
-      { key: CHURCHES_READ },
-      { key: CHURCHES_CREATE },
-      { key: CHURCHES_UPDATE },
-      { key: CHURCHES_DELETE },
-    ],
-  },
-  catalogs: {
-    permissions: [
-      { key: CATALOGS_READ },
-      { key: CATALOGS_CREATE },
-      { key: CATALOGS_UPDATE },
-      { key: CATALOGS_DELETE },
-      { key: RELATIONSHIP_TYPES_READ },
-      { key: RELATIONSHIP_TYPES_CREATE },
-      { key: RELATIONSHIP_TYPES_UPDATE },
-      { key: RELATIONSHIP_TYPES_DELETE },
-      { key: ALLERGIES_READ },
-      { key: ALLERGIES_CREATE },
-      { key: ALLERGIES_UPDATE },
-      { key: ALLERGIES_DELETE },
-      { key: DISEASES_READ },
-      { key: DISEASES_CREATE },
-      { key: DISEASES_UPDATE },
-      { key: DISEASES_DELETE },
-      { key: MEDICINES_READ },
-      { key: MEDICINES_CREATE },
-      { key: MEDICINES_UPDATE },
-      { key: MEDICINES_DELETE },
-      { key: CLUB_TYPES_READ },
-      { key: CLUB_TYPES_CREATE },
-      { key: CLUB_TYPES_UPDATE },
-      { key: CLUB_TYPES_DELETE },
-      { key: CLUB_IDEALS_READ },
-      { key: CLUB_IDEALS_CREATE },
-      { key: CLUB_IDEALS_UPDATE },
-      { key: CLUB_IDEALS_DELETE },
-      { key: ACTIVITY_TYPES_READ },
-      { key: ACTIVITY_TYPES_CREATE },
-      { key: ACTIVITY_TYPES_UPDATE },
-      { key: ACTIVITY_TYPES_DELETE },
-    ],
-  },
-  classes_honors: {
-    permissions: [
-      { key: CLASSES_READ },
-      { key: CLASSES_SUBMIT_PROGRESS },
-      { key: HONORS_READ },
-      { key: HONORS_CREATE },
-      { key: HONORS_UPDATE },
-      { key: HONORS_DELETE },
-      { key: USER_HONORS_SUBMIT },
-      { key: USER_HONORS_VALIDATE },
-      { key: HONOR_CATEGORIES_READ },
-      { key: HONOR_CATEGORIES_CREATE },
-      { key: HONOR_CATEGORIES_UPDATE },
-      { key: HONOR_CATEGORIES_DELETE },
-    ],
-  },
-  activities: {
-    permissions: [
-      { key: ACTIVITIES_READ },
-      { key: ACTIVITIES_CREATE },
-      { key: ACTIVITIES_UPDATE },
-      { key: ACTIVITIES_DELETE },
-      { key: ATTENDANCE_READ },
-      { key: ATTENDANCE_MANAGE },
-    ],
-  },
-  camporees: {
-    permissions: [
-      { key: CAMPOREES_READ },
-      { key: CAMPOREES_CREATE },
-      { key: CAMPOREES_UPDATE },
-      { key: CAMPOREES_DELETE },
-      { key: CAMPOREE_EVENT_TYPES_READ },
-      { key: CAMPOREE_EVENT_TYPES_CREATE },
-      { key: CAMPOREE_EVENT_TYPES_UPDATE },
-      { key: CAMPOREE_EVENT_TYPES_DELETE },
-      { key: CAMPOREE_EVENTS_READ },
-      { key: CAMPOREE_EVENTS_CREATE },
-      { key: CAMPOREE_EVENTS_UPDATE },
-      { key: CAMPOREE_EVENTS_DELETE },
-    ],
-  },
-  validation: {
-    permissions: [
-      { key: VALIDATION_READ },
-      { key: VALIDATION_SUBMIT },
-      { key: VALIDATION_REVIEW },
-    ],
-  },
-  finances: {
-    permissions: [
-      { key: FINANCES_READ },
-      { key: FINANCES_CREATE },
-      { key: FINANCES_UPDATE },
-      { key: FINANCES_DELETE },
-    ],
-  },
-  inventory: {
-    permissions: [
-      { key: INVENTORY_READ },
-      { key: INVENTORY_CREATE },
-      { key: INVENTORY_UPDATE },
-      { key: INVENTORY_DELETE },
-    ],
-  },
-  reports: {
-    permissions: [
-      { key: REPORTS_READ },
-      { key: REPORTS_DOWNLOAD },
-      { key: DASHBOARD_VIEW },
-    ],
-  },
-  notifications: {
-    permissions: [
-      { key: NOTIFICATIONS_SEND },
-      { key: NOTIFICATIONS_BROADCAST },
-      { key: NOTIFICATIONS_CLUB },
-    ],
-  },
-  resources: {
-    permissions: [
-      { key: RESOURCES_READ },
-      { key: RESOURCES_CREATE },
-      { key: RESOURCES_UPDATE },
-      { key: RESOURCES_DELETE },
-      { key: RESOURCE_CATEGORIES_READ },
-      { key: RESOURCE_CATEGORIES_CREATE },
-      { key: RESOURCE_CATEGORIES_UPDATE },
-      { key: RESOURCE_CATEGORIES_DELETE },
-    ],
-  },
-  system: {
-    permissions: [
-      { key: ECCLESIASTICAL_YEARS_READ },
-      { key: ECCLESIASTICAL_YEARS_CREATE },
-      { key: ECCLESIASTICAL_YEARS_UPDATE },
-    ],
-  },
-  certifications_admin: {
-    permissions: [
-      { key: CERTIFICATIONS_CONFIGURE },
-      { key: CERTIFICATIONS_PUBLISH },
-      { key: CERTIFICATIONS_REVIEW },
-      { key: CERTIFICATIONS_CERTIFY },
-    ],
-  },
-} as const;
+// Agrupación por pantalla: ver `src/lib/auth/screen-catalog/` (groupByScreen).
+// El antiguo PERMISSION_GROUPS (por módulo) se retiró en 2026-09-15: no tenía consumidores.
 
 // Tipo derivado de las constantes (acepta cualquier string para compatibilidad con DB)
 export type PermissionKey = string;

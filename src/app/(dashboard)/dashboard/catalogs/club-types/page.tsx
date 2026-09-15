@@ -5,17 +5,9 @@ import { ClubTypesPageClient } from "@/components/catalogs/club-types/club-types
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { listAdminClubTypes } from "@/lib/api/admin-club-types";
 import { ApiError } from "@/lib/api/client";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  CATALOGS_CREATE,
-  CATALOGS_DELETE,
-  CATALOGS_UPDATE,
-  CLUB_TYPES_CREATE,
-  CLUB_TYPES_DELETE,
-  CLUB_TYPES_UPDATE,
-} from "@/lib/auth/permissions";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import type { AdminClubType } from "@/lib/catalogs/club-types/types";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -44,9 +36,9 @@ export default async function ClubTypesPage() {
     }
   }
 
-  const canCreate = hasAnyPermission(user, [CLUB_TYPES_CREATE, CATALOGS_CREATE]);
-  const canEdit = hasAnyPermission(user, [CLUB_TYPES_UPDATE, CATALOGS_UPDATE]);
-  const canDelete = hasAnyPermission(user, [CLUB_TYPES_DELETE, CATALOGS_DELETE]);
+  const canCreate = canCapability(user, "catalogs-club-types", "create");
+  const canEdit = canCapability(user, "catalogs-club-types", "update");
+  const canDelete = canCapability(user, "catalogs-club-types", "delete");
 
   return (
     <>

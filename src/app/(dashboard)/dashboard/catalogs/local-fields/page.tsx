@@ -6,17 +6,9 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { listAdminLocalFields } from "@/lib/api/admin-local-fields";
 import { listAdminUnions } from "@/lib/api/admin-unions";
 import { ApiError } from "@/lib/api/client";
-import { hasAnyPermission } from "@/lib/auth/permission-utils";
-import {
-  CATALOGS_CREATE,
-  CATALOGS_DELETE,
-  CATALOGS_UPDATE,
-  LOCAL_FIELDS_CREATE,
-  LOCAL_FIELDS_DELETE,
-  LOCAL_FIELDS_UPDATE,
-} from "@/lib/auth/permissions";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import type { AdminLocalFieldRow } from "@/lib/catalogs/local-fields/types";
 import type { AdminUnion } from "@/lib/catalogs/unions/types";
 
@@ -64,9 +56,9 @@ export default async function LocalFieldsPage() {
     }
   }
 
-  const canCreate = hasAnyPermission(user, [LOCAL_FIELDS_CREATE, CATALOGS_CREATE]);
-  const canEdit = hasAnyPermission(user, [LOCAL_FIELDS_UPDATE, CATALOGS_UPDATE]);
-  const canDelete = hasAnyPermission(user, [LOCAL_FIELDS_DELETE, CATALOGS_DELETE]);
+  const canCreate = canCapability(user, "catalogs-local-fields", "create");
+  const canEdit = canCapability(user, "catalogs-local-fields", "update");
+  const canDelete = canCapability(user, "catalogs-local-fields", "delete");
 
   return (
     <>

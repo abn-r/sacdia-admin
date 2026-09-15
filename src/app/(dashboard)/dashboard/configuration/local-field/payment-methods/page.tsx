@@ -15,7 +15,7 @@ import {
   resolveUserLocalField,
   toLocalFieldOptions,
 } from "@/lib/auth/user-local-field";
-import { hasPermission } from "@/lib/auth/permission-utils";
+import { canViewScreen } from "@/lib/auth/screen-catalog";
 import { buildPaymentMethodRows } from "@/lib/local-field-config/payment-method-rows";
 import type { LocalFieldOption, MaterialConfig } from "@/lib/types/materials";
 
@@ -23,7 +23,7 @@ export default async function LocalFieldPaymentMethodsPage() {
   const t = await getTranslations("localFieldConfig.pages.paymentMethods");
   const user = await requireAdminUser();
 
-  if (!hasPermission(user, "materiales:configure")) {
+  if (!canViewScreen(user, "admin-local-field-payment-methods")) {
     redirect("/dashboard");
   }
 

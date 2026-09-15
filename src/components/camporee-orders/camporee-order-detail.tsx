@@ -25,12 +25,7 @@ import {
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/lib/auth/auth-context";
-import { hasPermission } from "@/lib/auth/permission-utils";
-import {
-  CAMPOREE_ORDERS_AUTHORIZE_WITHOUT_PROOF,
-  CAMPOREE_ORDERS_DELIVER,
-  CAMPOREE_ORDERS_REVIEW,
-} from "@/lib/auth/permissions";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import {
   approveCamporeeOrder,
   authorizeCamporeeOrderWithoutProof,
@@ -71,9 +66,14 @@ export function CamporeeOrderDetail({
   const t = useTranslations("camporee_orders");
   const { user } = useAuth();
 
-  const canReviewPerm = hasPermission(user, CAMPOREE_ORDERS_REVIEW);
-  const canAuthorize = hasPermission(user, CAMPOREE_ORDERS_AUTHORIZE_WITHOUT_PROOF);
-  const canDeliverPerm = hasPermission(user, CAMPOREE_ORDERS_DELIVER);
+  // Order verbs are owned by the review inbox screen (same endpoints everywhere).
+  const canReviewPerm = canCapability(user, "campamentos-pedidos-bandeja", "review");
+  const canAuthorize = canCapability(
+    user,
+    "campamentos-pedidos-bandeja",
+    "authorize_without_proof",
+  );
+  const canDeliverPerm = canCapability(user, "campamentos-pedidos-bandeja", "deliver");
 
   const [order, setOrder] = useState<CamporeeOrder | null>(null);
   const [loading, setLoading] = useState(false);
