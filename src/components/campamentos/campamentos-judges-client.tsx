@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { PAGE_ENTER_CLASSES, STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 import { cn } from "@/lib/utils";
 import type { Camporee } from "@/lib/api/camporees";
 import type {
@@ -94,7 +93,7 @@ export function CampamentosJudgesClient({
         : `/dashboard/campamentos/${camporeeId}`;
 
   return (
-    <div className={cn("space-y-8", PAGE_ENTER_CLASSES)}>
+    <div className="space-y-8">
       <PageHeader
         title={t("title")}
         description={t("description")}
@@ -112,9 +111,7 @@ export function CampamentosJudgesClient({
           "backdrop-blur-xl backdrop-saturate-150",
           "supports-backdrop-filter:bg-background/55",
           "motion-reduce:backdrop-blur-none motion-reduce:bg-card",
-          STAGGER_CLASSES,
         )}
-        style={getStaggerStyle(0, 40)}
       >
         <div className="grid gap-4 rounded-[calc(1rem-0.125rem)] bg-card/80 p-4 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-end sm:gap-6">
           <div className="space-y-2">
@@ -173,13 +170,7 @@ export function CampamentosJudgesClient({
       ) : (
         <div className="space-y-6">
           {selectedCamporee ? (
-            <div
-              className={cn(
-                "flex flex-wrap items-end justify-between gap-4",
-                STAGGER_CLASSES,
-              )}
-              style={getStaggerStyle(1, 40)}
-            >
+            <div className="flex flex-wrap items-end justify-between gap-4">
               <div className="min-w-0 space-y-1">
                 <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
                   {scope === "union" ? t("scopeUnion") : t("scopeLocal")}

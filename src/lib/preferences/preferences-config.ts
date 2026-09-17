@@ -9,6 +9,9 @@
  * Layout-critical prefs (sidebar_variant / sidebar_collapsible)
  * must stay consistent during SSR → so they can’t use localStorage.
  * Others are flexible and can use any persistence.
+ *
+ * Product identity is locked: Scout Vibrante (`theme_preset=default`) + Geist.
+ * Extra palettes and UI fonts are not preference knobs.
  */
 
 import { fontKeys } from "@/lib/fonts/registry";

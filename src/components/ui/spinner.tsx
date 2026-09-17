@@ -14,7 +14,7 @@ function Spinner({ className, strokeWidth = 2, ...props }: SpinnerProps) {
       data-slot="spinner"
       role="status"
       aria-label="Loading"
-      className={cn("size-4 animate-spin", className)}
+      className={cn("size-4 animate-spin motion-reduce:animate-none", className)}
       {...props}
     />
   );

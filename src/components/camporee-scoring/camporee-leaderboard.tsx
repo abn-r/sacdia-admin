@@ -11,8 +11,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
-import { cn } from "@/lib/utils";
-import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 import { formatTabularNumber } from "@/lib/format-locale";
 import type { CamporeeLeaderboard as CamporeeLeaderboardData } from "@/lib/api/camporee-scoring";
 
@@ -67,12 +65,8 @@ export function CamporeeLeaderboard({ leaderboard }: CamporeeLeaderboardProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {rows.map((row, index) => (
-              <TableRow
-                key={`${row.club_section_id}-${row.rank}`}
-                className={cn(STAGGER_CLASSES)}
-                style={getStaggerStyle(index, 35)}
-              >
+            {rows.map((row) => (
+              <TableRow key={`${row.club_section_id}-${row.rank}`}>
                 <TableCell className="font-medium tabular-nums">#{row.rank}</TableCell>
                 <TableCell>{row.club_name ?? "—"}</TableCell>
                 <TableCell>

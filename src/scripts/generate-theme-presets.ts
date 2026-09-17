@@ -1,11 +1,9 @@
 /**
  * Script: generate-theme-presets.ts
  *
- * This script scans the /styles/presets directory for CSS files containing theme definitions.
- * It extracts `label:`, `value:`, and primary color definitions (`--primary`) for both light and dark modes.
- * These primary colors are used to visually represent each theme in the UI (e.g., colored dots or theme previews).
- * Default theme colors are fetched from /app/globals.css.
- * All extracted metadata is injected into a marked section of the /lib/preferences/theme.ts file.
+ * Extra CSS files in /styles/presets are not part of the product.
+ * Identity is Scout Vibrante (default in globals.css). `generate:presets`
+ * should emit only that option unless you are doing a one-off experiment.
  *
  * Usage:
  * - During local development, run manually after adding any new theme preset:
@@ -20,18 +18,14 @@ import fs from "node:fs";
 import path from "node:path";
 
 const presetDir = path.resolve(__dirname, "../styles/presets");
-
-if (!fs.existsSync(presetDir)) {
-  console.error(`❌ Preset directory not found at: ${presetDir}`);
-  process.exit(1);
-}
-
 const outputPath = path.resolve(__dirname, "../lib/preferences/theme.ts");
 
-const files = fs.readdirSync(presetDir).filter((file) => file.endsWith(".css"));
+const files = fs.existsSync(presetDir)
+  ? fs.readdirSync(presetDir).filter((file) => file.endsWith(".css"))
+  : [];
 
 if (files.length === 0) {
-  console.warn("⚠️ No preset CSS files found. Only default preset will be included.");
+  console.warn("⚠️ No extra preset CSS files. Only Scout Vibrante (default) will be included.");
 }
 
 const presets = files.map((file) => {
@@ -88,7 +82,7 @@ const defaultPrimary = {
   dark: defaultDarkPrimaryMatch?.[1]?.trim() ?? "",
 };
 
-presets.unshift({ label: "Default", value: "default", primary: defaultPrimary });
+presets.unshift({ label: "Scout Vibrante", value: "default", primary: defaultPrimary });
 
 const generatedBlock = `// --- generated:themePresets:start ---
 

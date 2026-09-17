@@ -9,7 +9,6 @@ import { ThemeSwitcher } from "@/app/(dashboard)/dashboard/_components/sidebar/t
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { PageAccessForbidden } from "@/components/shared/page-access-forbidden";
-import { PAGE_ENTER_CLASSES } from "@/lib/animations";
 import { AuthProvider } from "@/lib/auth/auth-context";
 import { QueryProvider } from "@/lib/providers/query-provider";
 import { canAccessDashboardPath } from "@/lib/auth/require-page-access";
@@ -75,7 +74,7 @@ export default async function DashboardLayout({ children }: Readonly<{ children:
               </div>
             </div>
           </header>
-          <div className={cn("min-h-0 min-w-0 flex-1 overflow-x-hidden p-4 has-data-[content-padding=false]:p-0 md:p-6 md:has-data-[content-padding=false]:p-0", PAGE_ENTER_CLASSES)}>
+          <div className="min-h-0 min-w-0 flex-1 overflow-x-hidden p-4 has-data-[content-padding=false]:p-0 md:p-6 md:has-data-[content-padding=false]:p-0">
             {canOpenPage ? children : <PageAccessForbidden />}
           </div>
         </SidebarInset>

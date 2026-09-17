@@ -47,7 +47,6 @@ import {
   type CamporeeScoringActionState,
 } from "@/lib/camporee-scoring/actions";
 import { cn } from "@/lib/utils";
-import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 import type { BackendCamporeeEvent } from "@/lib/api/camporee-events";
 import type {
   CamporeeEventJudgeAssignment,
@@ -483,7 +482,7 @@ export function EventJudgeAssignmentsPanel({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {eventSummaries.map((summary, index) => {
+              {eventSummaries.map((summary) => {
                 const judgesLabel =
                   summary.primaryJudgeNames.length === 0
                     ? t("noPrimaryJudges")
@@ -499,10 +498,8 @@ export function EventJudgeAssignmentsPanel({
                     key={summary.event.camporee_event_id}
                     className={cn(
                       "cursor-pointer",
-                      STAGGER_CLASSES,
                       summary.pendingSections > 0 && "bg-warning/5",
                     )}
-                    style={getStaggerStyle(index, 30)}
                     onClick={() => openEvent(summary.event.camporee_event_id)}
                   >
                     <TableCell>
@@ -611,14 +608,10 @@ export function EventJudgeAssignmentsPanel({
             value: pendingSections,
             hint: t("statPendingHint"),
           },
-        ].map((stat, index) => (
+        ].map((stat) => (
           <div
             key={stat.label}
-            className={cn(
-              "rounded-2xl bg-muted/30 p-4 ring-1 ring-foreground/10",
-              STAGGER_CLASSES,
-            )}
-            style={getStaggerStyle(index, 40)}
+            className="rounded-2xl bg-muted/30 p-4 ring-1 ring-foreground/10"
           >
             <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
               {stat.label}
@@ -652,7 +645,7 @@ export function EventJudgeAssignmentsPanel({
           </div>
         ) : (
           <div className="divide-y divide-border/60">
-            {targets.map((target, index) => {
+            {targets.map((target) => {
               const sectionAssignments = activeAssignments.filter(
                 (item) => item.club_section_id === target.club_section_id,
               );
@@ -670,9 +663,7 @@ export function EventJudgeAssignmentsPanel({
                   className={cn(
                     "grid gap-4 px-4 py-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] md:items-start",
                     missingPrimary && "bg-warning/5",
-                    STAGGER_CLASSES,
                   )}
-                  style={getStaggerStyle(index, 30)}
                 >
                   <div className="space-y-1">
                     <p className="font-medium leading-snug">

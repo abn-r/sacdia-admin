@@ -40,8 +40,6 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
-import { cn } from "@/lib/utils";
 
 const KNOWN_ACTIONS = new Set(["CREATED", "UPDATED", "DELETED"]);
 
@@ -238,14 +236,13 @@ export function AuditLogsViewer() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {items.map((item, index) => {
+              {items.map((item) => {
                 const created = new Date(item.created_at);
                 const actorName = formatAuditActorName(item.actor);
                 return (
                   <TableRow
                     key={item.audit_log_id}
-                    className={cn("cursor-pointer", STAGGER_CLASSES)}
-                    style={getStaggerStyle(index)}
+                    className="cursor-pointer"
                     onClick={() => void openDetail(item)}
                   >
                     <TableCell className="whitespace-nowrap font-mono text-xs text-muted-foreground">

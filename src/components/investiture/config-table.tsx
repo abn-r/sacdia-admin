@@ -18,7 +18,6 @@ import { Settings2 } from "lucide-react";
 import { useScreenAccess } from "@/lib/auth/screen-catalog/use-screen-access";
 import type { InvestitureConfig } from "@/lib/api/investiture";
 import { useFormatDate } from "@/lib/format-locale";
-import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -79,8 +78,7 @@ export function ConfigTable({ configs, onEdit, onDelete }: ConfigTableProps) {
                 config.investiture_config_id ??
                 `${config.local_field_id}-${config.ecclesiastical_year_id}-${index}`
               }
-              className={`hover:bg-muted/30 ${STAGGER_CLASSES}`}
-              style={getStaggerStyle(index)}
+              className="hover:bg-muted/30"
             >
               <TableCell className="px-3 py-2.5 align-middle font-medium">
                 {config.local_fields?.name ?? t("configTable.fieldFallback", { id: config.local_field_id })}

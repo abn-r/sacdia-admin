@@ -58,7 +58,6 @@ import {
   removeCamporeeJudgeAction,
   updateCamporeeJudgeAction,
 } from "@/lib/camporee-scoring/actions";
-import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 import type {
   CamporeeJudge,
   CamporeeJudgeCandidate,
@@ -500,7 +499,7 @@ export function CamporeeJudgesPanel({
           </div>
         ) : (
           <ul className="divide-y divide-border/60">
-            {judgeList.map((judge, index) => {
+            {judgeList.map((judge) => {
               const candidate = candidateByUserId.get(judge.user_id);
               const displayName = judge.name || candidate?.full_name || judge.user_id;
               const email = judge.email ?? candidate?.email ?? null;
@@ -510,11 +509,7 @@ export function CamporeeJudgesPanel({
               return (
                 <li
                   key={judge.camporee_judge_id}
-                  className={cn(
-                    "flex items-center gap-3 px-4 py-3.5 transition-colors duration-150 hover:bg-muted/40 active:bg-muted/60",
-                    STAGGER_CLASSES,
-                  )}
-                  style={getStaggerStyle(index, 30)}
+                  className="flex items-center gap-3 px-4 py-3.5 transition-colors duration-150 hover:bg-muted/40 active:bg-muted/60"
                 >
                   <UserAvatar
                     src={image}

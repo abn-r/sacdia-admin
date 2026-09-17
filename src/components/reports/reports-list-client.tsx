@@ -49,7 +49,6 @@ import {
   type ReportStatus,
 } from "@/lib/api/monthly-reports";
 import { useFormatDate } from "@/lib/format-locale";
-import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -394,14 +393,14 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {reports.map((report, index) => {
+                  {reports.map((report) => {
                     const loadingAction = actionLoading[report.report_id];
                     const isDisabled = Boolean(loadingAction);
                     const isSubmitted = report.status === "submitted";
                     const isGenerated = report.status === "generated";
 
                     return (
-                      <TableRow key={report.report_id} className={STAGGER_CLASSES} style={getStaggerStyle(index, 50)}>
+                      <TableRow key={report.report_id}>
                         <TableCell className="font-medium">
                           {t(`months.${report.month}` as Parameters<typeof t>[0])}
                         </TableCell>
@@ -487,14 +486,14 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
 
           {/* Mobile: descriptive cards */}
           <ul className="space-y-3 md:hidden" aria-label={t("list.ariaListLabel")}>
-            {reports.map((report, index) => {
+            {reports.map((report) => {
               const loadingAction = actionLoading[report.report_id];
               const isDisabled = Boolean(loadingAction);
               const isSubmitted = report.status === "submitted";
               const isGenerated = report.status === "generated";
 
               return (
-                <li key={report.report_id} className={STAGGER_CLASSES} style={getStaggerStyle(index, 50)}>
+                <li key={report.report_id}>
                   <div className="rounded-xl border border-border/60 bg-card p-4 shadow-xs">
                     <div className="flex items-center gap-3">
                       <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">

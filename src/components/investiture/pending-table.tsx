@@ -47,7 +47,6 @@ import {
 } from "@/lib/api/investiture";
 import { ApiError } from "@/lib/api/client";
 import { useFormatDate } from "@/lib/format-locale";
-import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -153,7 +152,7 @@ export function PendingTable({ enrollments, onRefresh }: PendingTableProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {enrollments.map((enrollment, index) => {
+            {enrollments.map((enrollment) => {
               const name = getMemberName(
                 enrollment,
                 t("pendingTable.enrollmentFallback", { id: enrollment.enrollment_id }),
@@ -165,8 +164,7 @@ export function PendingTable({ enrollments, onRefresh }: PendingTableProps) {
               return (
                 <TableRow
                   key={enrollment.enrollment_id}
-                  className={`hover:bg-muted/30 ${STAGGER_CLASSES}`}
-                  style={getStaggerStyle(index)}
+                  className="hover:bg-muted/30"
                 >
                   <TableCell className="px-3 py-2.5 align-middle">
                     <span className="font-medium">{name}</span>

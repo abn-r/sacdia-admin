@@ -21,7 +21,6 @@ import {
 } from "@/lib/camporee-scoring/actions";
 import { cn } from "@/lib/utils";
 import { formatTabularNumber } from "@/lib/format-locale";
-import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 import type { BackendCamporeeEvent } from "@/lib/api/camporee-events";
 import type {
   CamporeeEventJudgeAssignment,
@@ -251,11 +250,7 @@ export function EventScoreEntryPanel({
         ].map((stat, index) => (
           <div
             key={stat.label}
-            className={cn(
-              "rounded-2xl bg-muted/30 p-4 ring-1 ring-foreground/10",
-              STAGGER_CLASSES,
-            )}
-            style={getStaggerStyle(index, 40)}
+            className="rounded-2xl bg-muted/30 p-4 ring-1 ring-foreground/10"
           >
             <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
               {stat.label}
@@ -372,14 +367,10 @@ export function EventScoreEntryPanel({
             </div>
 
             <div className="space-y-3">
-              {rubrics.map((rubric, index) => (
+              {rubrics.map((rubric) => (
                 <div
                   key={rubric.camporee_event_rubric_id}
-                  className={cn(
-                    "grid gap-4 rounded-xl bg-muted/20 p-4 ring-1 ring-foreground/10 md:grid-cols-[1fr_9rem] md:items-end",
-                    STAGGER_CLASSES,
-                  )}
-                  style={getStaggerStyle(index, 30)}
+                  className="grid gap-4 rounded-xl bg-muted/20 p-4 ring-1 ring-foreground/10 md:grid-cols-[1fr_9rem] md:items-end"
                 >
                   <div className="space-y-1">
                     <p className="font-medium">{rubric.title}</p>

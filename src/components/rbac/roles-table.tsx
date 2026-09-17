@@ -65,7 +65,6 @@ import {
 } from "@/components/shared/sortable-header";
 import { deactivateRoleAction } from "@/lib/rbac/actions";
 import type { Role } from "@/lib/rbac/types";
-import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 
 // ─── Alert component — may not exist yet, using inline div fallback ──────────
 // The admin uses a generic Alert from shadcn. We check for it and fallback gracefully.
@@ -458,13 +457,12 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filtered.map((role, index) => {
+                  {filtered.map((role) => {
                     const protected_ = isProtected(role);
                     return (
                       <TableRow
                         key={role.role_id}
-                        className={`transition-colors hover:bg-muted/30 ${STAGGER_CLASSES}`}
-                        style={getStaggerStyle(index)}
+                        className="transition-colors hover:bg-muted/30"
                       >
                         {/* role_name — mono, lock icon for super-admin */}
                         <TableCell className="px-3 py-2.5 align-middle">
@@ -605,12 +603,12 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
 
           {/* Mobile: descriptive cards */}
           <ul className="space-y-3 md:hidden" aria-label="Lista de roles">
-            {filtered.map((role, index) => {
+            {filtered.map((role) => {
               const protected_ = isProtected(role);
               const permCount = role.role_permissions?.length ?? 0;
 
               return (
-                <li key={role.role_id} className={STAGGER_CLASSES} style={getStaggerStyle(index)}>
+                <li key={role.role_id}>
                   <div className="rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40 focus-visible:outline-none">
                     <div className="flex items-center gap-3">
                       <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">

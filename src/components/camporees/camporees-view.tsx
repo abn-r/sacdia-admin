@@ -30,7 +30,6 @@ const CamporeeFormDialog = dynamic<CamporeeFormDialogProps>(
 );
 import { useLocale, useTranslations } from "next-intl";
 import { formatCalendarDate } from "@/lib/format-locale";
-import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 import { listCamporees } from "@/lib/api/camporees";
 import type { Camporee } from "@/lib/api/camporees";
 import { Tent } from "lucide-react";
@@ -162,10 +161,10 @@ export function CampoReesView({ initialCamporees }: CampoReesViewProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {camporees.map((camporee, index) => {
+              {camporees.map((camporee) => {
                 const id = camporee.local_camporee_id ?? camporee.camporee_id ?? camporee.id ?? 0;
                 return (
-                  <TableRow key={id} className={`hover:bg-muted/30 ${STAGGER_CLASSES}`} style={getStaggerStyle(index, 40)}>
+                  <TableRow key={id} className="hover:bg-muted/30">
                     <TableCell className="px-3 py-2.5 align-middle">
                       <span className="font-medium">{camporee.name}</span>
                     </TableCell>

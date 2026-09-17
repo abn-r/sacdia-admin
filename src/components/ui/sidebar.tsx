@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { flushSync } from "react-dom"
 import { cva, type VariantProps } from "class-variance-authority"
 import { Slot } from "radix-ui"
 
@@ -32,6 +33,11 @@ const SIDEBAR_WIDTH_MOBILE = "18rem"
 const SIDEBAR_WIDTH_ICON = "3rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
+type ToggleSidebarOptions = {
+  /** Skip width/sheet motion. Required for keyboard (⌘B, Enter on trigger). */
+  instant?: boolean
+}
+
 type SidebarContextProps = {
   state: "expanded" | "collapsed"
   open: boolean
@@ -39,7 +45,20 @@ type SidebarContextProps = {
   openMobile: boolean
   setOpenMobile: (open: boolean) => void
   isMobile: boolean
-  toggleSidebar: () => void
+  toggleSidebar: (options?: ToggleSidebarOptions) => void
+}
+
+function withInstantMotion(update: () => void) {
+  if (typeof document === "undefined") {
+    update()
+    return
+  }
+  const root = document.documentElement
+  root.classList.add("instant-motion")
+  flushSync(update)
+  requestAnimationFrame(() => {
+    root.classList.remove("instant-motion")
+  })
 }
 
 const SidebarContext = React.createContext<SidebarContextProps | null>(null)
@@ -89,9 +108,18 @@ function SidebarProvider({
   )
 
   // Helper to toggle the sidebar.
-  const toggleSidebar = React.useCallback(() => {
-    return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open)
-  }, [isMobile, setOpen, setOpenMobile])
+  const toggleSidebar = React.useCallback(
+    (options?: ToggleSidebarOptions) => {
+      const run = () =>
+        isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open)
+      if (options?.instant) {
+        withInstantMotion(run)
+        return
+      }
+      run()
+    },
+    [isMobile, setOpen, setOpenMobile]
+  )
 
   // Adds a keyboard shortcut to toggle the sidebar.
   React.useEffect(() => {
@@ -101,7 +129,7 @@ function SidebarProvider({
         (event.metaKey || event.ctrlKey)
       ) {
         event.preventDefault()
-        toggleSidebar()
+        toggleSidebar({ instant: true })
       }
     }
 
@@ -267,7 +295,8 @@ function SidebarTrigger({
       className={cn(className)}
       onClick={(event) => {
         onClick?.(event)
-        toggleSidebar()
+        // Keyboard activation (Enter/Space) has detail 0; pointer clicks are >= 1.
+        toggleSidebar({ instant: event.detail === 0 })
       }}
       {...props}
     >
@@ -277,7 +306,11 @@ function SidebarTrigger({
   )
 }
 
-function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
+function SidebarRail({
+  className,
+  onClick,
+  ...props
+}: React.ComponentProps<"button">) {
   const { toggleSidebar } = useSidebar()
 
   return (
@@ -286,7 +319,10 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
       data-slot="sidebar-rail"
       aria-label="Toggle Sidebar"
       tabIndex={-1}
-      onClick={toggleSidebar}
+      onClick={(event) => {
+        onClick?.(event)
+        toggleSidebar({ instant: event.detail === 0 })
+      }}
       title="Toggle Sidebar"
       className={cn(
         "absolute inset-y-0 z-20 hidden w-4 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:start-1/2 after:w-[2px] hover:after:bg-sidebar-border sm:flex ltr:-translate-x-1/2 rtl:-translate-x-1/2",

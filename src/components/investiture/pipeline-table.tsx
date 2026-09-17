@@ -58,7 +58,6 @@ import {
 } from "@/lib/api/investiture";
 import { ApiError } from "@/lib/api/client";
 import { useFormatDate } from "@/lib/format-locale";
-import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -394,15 +393,14 @@ export function PipelineTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {enrollments.map((enrollment, index) => {
+            {enrollments.map((enrollment) => {
               const isSelected = selectedIds.has(enrollment.enrollment_id);
               const selectable = isSelectable(enrollment.status, caps);
 
               return (
                 <TableRow
                   key={enrollment.enrollment_id}
-                  className={`hover:bg-muted/30 ${isSelected ? "bg-muted/50" : ""} ${STAGGER_CLASSES}`}
-                  style={getStaggerStyle(index)}
+                  className={`hover:bg-muted/30 ${isSelected ? "bg-muted/50" : ""}`}
                 >
                   {/* Checkbox cell */}
                   <TableCell className="px-3 py-2.5 align-middle">

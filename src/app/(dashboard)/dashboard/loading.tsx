@@ -1,13 +1,8 @@
-import type { CSSProperties } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 
-function KpiSkeleton({ style }: { style?: CSSProperties }) {
+function KpiSkeleton() {
   return (
-    <div
-      style={style}
-      className={`rounded-2xl bg-card px-4 py-3.5 ring-1 ring-foreground/10 ${STAGGER_CLASSES}`}
-    >
+    <div className="rounded-2xl bg-card px-4 py-3.5 ring-1 ring-foreground/10">
       <Skeleton className="h-3 w-28" />
       <Skeleton className="mt-2 h-7 w-16" />
       <Skeleton className="mt-2 h-3 w-40" />
@@ -36,10 +31,10 @@ export default function DashboardLoading() {
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <KpiSkeleton style={getStaggerStyle(0)} />
-        <KpiSkeleton style={getStaggerStyle(1)} />
-        <KpiSkeleton style={getStaggerStyle(2)} />
-        <KpiSkeleton style={getStaggerStyle(3)} />
+        <KpiSkeleton />
+        <KpiSkeleton />
+        <KpiSkeleton />
+        <KpiSkeleton />
       </div>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">

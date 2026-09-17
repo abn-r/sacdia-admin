@@ -7,7 +7,7 @@
 >
 > **Changelog de esta auditoria**:
 > - **Drift encontrado (6 items)**:
->   1. `globals.css` confirma que `--font-display` esta mapeado a `--font-geist-sans` (NOT Instrument Serif) — el token CSS apunta a Geist. La referencia en seccion 3.1 a "Instrument Serif" como `--font-display` requiere verificacion en `layout.tsx`; el archivo CSS actual lo sobreescribe con Geist Sans. Anotado como posible regresion en Fase 4.
+>   1. ~~`--font-display` / Instrument Serif~~ — 2026-09-17: **Geist** es `--font-sans` en todo el panel. Instrument Serif no es cara de producto. Ver §3.1.
 >   2. `badge.tsx` tiene una variante adicional no documentada: `link` (`text-primary underline-offset-4 [a&]:hover:underline`). Documentada en seccion 5.2.
 >   3. Nuevos componentes de `ui/` no documentados: `calendar.tsx`, `command.tsx`, `popover.tsx`, `progress.tsx`, `radio-group.tsx`, `scroll-area.tsx`, `sonner.tsx`. Documentados en seccion 5.18 (Nuevos componentes UI).
 >   4. Nuevo componente shared `endpoint-error-banner.tsx` no documentado. Documentado en seccion 7.11.
@@ -15,21 +15,12 @@
 >   6. CRUD pattern actualizado: la regla de la seccion 6.1 dice "Crear/Editar = Dialog modal" pero el doc Ember ya la cambio a "flujo por paginas". Confirmado como correcto — Dialog solo para excepciones puntuales. Sin drift, solo clarificacion.
 > - **Sin drift**: paleta OKLCH (todas las secciones 2.x), radio tokens (4.1), spacing (4.2-4.4), Button variants y sizes (5.1), Badge variants (5.2 salvo `link`), Tabs `line` variant (seccion nueva), iconos (8.x), dark mode (13.x).
 > - **2026-08-23**: §7.1 alineado con `page-header.tsx` (Geist semibold, sin Instrument). §9 alineado con `src/lib/animations.ts` y los primitivos de motion (stagger cap, command instant, tooltip skip-delay).
+> - **2026-09-17**: Navegación del dashboard y tablas operativas sin enter/stagger. `PAGE_ENTER_CLASSES` solo en login. `STAGGER_CLASSES` reservado a superficies raras. Sidebar `⌘B` instantáneo (`instant-motion`). Loaders respetan `prefers-reduced-motion`. Sheet exit 200ms. Empty state fade 200ms sin zoom. Identidad de producto: Scout Vibrante + **Geist** (todo el UI; Geist Mono para código). Canon de runtime: Hugeicons, `--radius: 0.625rem`, header `h-12`, preferencias por cookie (no `next-themes` ThemeProvider).
 
-> **Actualizado 2026-04-15 — Ember Redesign (fases 1-4)**. Este documento refleja el estado actual del sistema despues del rediseno "Ember". Cambios principales desde la version original:
->
-> - **Paleta previa**: migrada de azul-violeta a naranja cobre. Esta decisión fue superada el 2026-06-24 por la alineación con la paleta SACDIA App descrita en la sección 2.
-> - **Tipografia**: `Instrument Serif` como `--font-display` para h1 de PageHeader. Geist Sans para el resto. Ver seccion 3.
-> - **Radius**: base `0.75rem` (12px), escala completa `xs` -> `3xl`. Ver seccion 4.1.
-> - **Sombras**: escala custom con `--shadow-xs` (casi imperceptible) para cards. Ver globals.css.
-> - **Semanticos nuevos**: tokens `--success`, `--warning`, `--info` + foregrounds pareados. Badge variants `soft`, `soft-info`, `soft-success`, `soft-warning` para status tinted.
-> - **Componentes nuevos**: `<StatusBadge>` unificado con 9 intents (incluye `progress-1/2/3` para pipelines ordenados). `<PageHeader>` extendido con `font-display` + breadcrumbs.
-> - **Dark mode**: noise texture sutil via `body::before` para dar profundidad sin glassmorphism.
->
-> Commits de referencia en `development`: `3734d87` (Fase 1 tokens+fonts) -> `4d9fb20` (Fase 2 base components) -> `cb78d20` (Fase 3 StatusBadge+PageHeader+Ola A) -> `bf7f4d0` (polish RBAC+enum) -> `ce59e93` (Fase 4 shell layout) -> `76452a3` (apiRequest auto-detect) -> `84f799c` (Ola B color cleanup) -> `fab11df` (tabs line variant).
+> **Histórico 2026-04-15 — Ember Redesign**. Superado en paleta y tipografía. Runtime: Geist en todo el panel (§3). `--radius: 0.625rem`, Hugeicons, header `h-12`.
 
-> **Actualizado 2026-06-24 — Alineación con SACDIA App**. La paleta base del panel ahora toma como fuente `sacdia-app/lib/core/theme/app_colors.dart`:
->
+> **Actualizado 2026-06-24 — Alineación con SACDIA App**. Paleta desde `sacdia-app/lib/core/theme/app_colors.dart`:
+
 > - **Primary** SACDIA Red `#F06151` para botones principales, AppBar, enlaces y navegación.
 > - **Secondary/Success** SACDIA Green `#4FBF9F` para completado, progreso y estados positivos.
 > - **Accent/Warning** SACDIA Yellow `#FBBD5E` para logros, recompensas y estados en progreso.
@@ -47,11 +38,11 @@
 | Componentes | shadcn/ui (estilo `new-york`) | latest |
 | Primitivos | Radix UI (`radix-ui`) | 1.4.x |
 | Estilos | Tailwind CSS v4 + `tw-animate-css` | 4.x |
-| Iconos | `lucide-react` | 0.563+ |
+| Iconos | Hugeicons (`@hugeicons/react`) + shim `lucide-react-compat` | latest |
 | Graficos | Recharts | 3.x |
 | Formularios | React Hook Form + Zod | 7.x / 4.x |
 | Toasts | Sonner | 2.x |
-| Temas | next-themes | 0.4.x |
+| Temas | Preferencias SACDIA (cookie + `ThemeBootScript`) | — |
 | Utilidad CSS | `cn()` de `clsx` + `tailwind-merge` | - |
 
 **Regla absoluta (retroactiva)**: Toda interfaz, nueva o existente, usa componentes de `@/components/ui/*` (shadcn/Radix) para elementos interactivos visibles. Si se necesita un componente que no existe, instalar via `npx shadcn@latest add <componente>`.
@@ -175,22 +166,23 @@ EXCEPCIÓN:
 
 ### 3.1 Fuentes
 
-Cargadas via `next/font/google` en `src/app/layout.tsx` y expuestas como CSS variables en `globals.css @theme`:
+Cargadas via `next/font/google` en `src/lib/fonts/registry.ts`. `fontVars` va en `<html>` (para que `--font-geist` exista en `:root`) y `sansFont.className` en `<body>`. En `@theme inline` `--font-sans` / `--font-heading` / `--font-display` apuntan a `--font-geist` (nunca `--font-sans: var(--font-sans)`). Cookie `instrumentSerif` u otras caras viejas caen a Geist via `parsePreference`.
 
 | Variable | Fuente | Uso |
 |----------|--------|-----|
-| `--font-geist-sans` | `Geist` (Vercel) | Todo el texto de UI — geometrica, distintiva, con stylistic alternates activadas (`cv02`, `cv03`, `cv04`, `cv11`, `ss01`) |
-| `--font-geist-mono` | `Geist Mono` (Vercel) | Codigo, valores tabulares |
-| `--font-display` | `Instrument Serif` (Google Fonts) | **NO SE USA en el admin** — token reservado para futuro uso en marketing/landing. El `@theme` lo mapea a `--font-instrument-serif` pero ninguna clase `font-display` debe aparecer en el admin. |
+| `--font-sans` | `Geist` (`--font-geist`) | Todo el texto de UI |
+| `--font-mono` | `Geist Mono` (`--font-geist-mono`) | Codigo, valores tabulares |
+| `--font-heading` | alias de `--font-sans` | Titulos; misma familia |
 
-**Regla critica (actualizada 2026-05-11)**: Los titulos del admin (incluyendo `<PageHeader>` h1) usan `--font-sans` (Geist) con `font-semibold tracking-tight`. La jerarquia se expresa con `font-weight` y `font-size`, NO con cambio de familia. Instrument Serif fue removido de todos los titulos en auditoria UX/UI de mayo 2026. Los numeros KPI van en Geist bold con `tabular-nums` (ver seccion 3.2).
+**Regla de producto**: una familia para el panel. Geist en **todo** el admin. `font-display` es alias de Geist, no una segunda cara. Instrument Serif no se carga. Cookies viejas de Inter/Instrument caen a Geist via `parsePreference`.
+
+**Titulos**: `<PageHeader>` h1 usa `--font-sans` con `font-semibold tracking-tight`. KPI: misma familia + `tabular-nums`.
 
 ### 3.2 Escala Tipografica
 
 | Elemento | Clase | Tamano | Peso | Tracking |
 |----------|-------|--------|------|----------|
-| Titulo de pagina (h1) | `text-2xl font-bold` | 1.5rem | 700 | - |
-| Titulo de pagina (h1 alternativo) | `text-xl font-semibold tracking-tight` | 1.25rem | 600 | tight |
+| Titulo de pagina (h1) | `text-2xl font-semibold tracking-tight sm:text-3xl` | 1.5rem / 1.875rem | 600 | tight |
 | Subtitulo / Card Title | `text-base font-semibold` | 1rem | 600 | - |
 | Nombre de seccion (sidebar) | `text-[10px] font-semibold uppercase tracking-widest` | 10px | 600 | widest |
 | Texto normal | `text-sm` | 0.875rem | 400 | - |
@@ -208,7 +200,7 @@ Cargadas via `next/font/google` en `src/app/layout.tsx` y expuestas como CSS var
 ### 3.3 Reglas Tipograficas
 
 - Nunca usar `font-size` arbitrario fuera de la escala definida
-- Titulos principales: `font-bold` (700) o `font-semibold` (600)
+- Titulos principales: `font-semibold` (600). Geist tiene pesos reales.
 - Nunca usar `font-light` o `font-thin`
 - Valores numericos: siempre `tabular-nums` para alineacion consistente
 - Texto truncado: `truncate` con `max-w-*` definido
@@ -219,25 +211,17 @@ Cargadas via `next/font/google` en `src/app/layout.tsx` y expuestas como CSS var
 
 ### 4.1 Radios de Borde
 
-Base 12px (mas generoso que shadcn default) con escala de 6 pasos:
+Base `0.625rem` (10px) en `globals.css`. Tailwind v4 deriva `sm/md/lg/xl` desde `--radius`. Runtime **no** usa la escala Ember de 12px.
 
-| Token | Valor | Uso |
-|-------|-------|-----|
-| `--radius` | `0.75rem` (12px) | Base |
-| `--radius-xs` | `calc(var(--radius) - 8px)` = 4px | Elementos micro |
-| `--radius-sm` | `calc(var(--radius) - 6px)` = 6px | Checkboxes, badges pequenos |
-| `--radius-md` | `calc(var(--radius) - 4px)` = 8px | Inputs, buttons |
-| `--radius-lg` | `calc(var(--radius) - 2px)` = 10px | Menu items, dropdowns |
-| `--radius-xl` | `var(--radius)` = 12px | Cards, dialogs |
-| `--radius-2xl` | `calc(var(--radius) + 4px)` = 16px | Cards grandes, containers destacados |
-| `--radius-3xl` | `calc(var(--radius) + 8px)` = 20px | Elementos especiales, hero |
+| Token / clase | Valor efectivo | Uso |
+|---------------|----------------|-----|
+| `--radius` | `0.625rem` (10px) | Base |
+| `rounded-xl` | ~10–12px | Cards, skeleton |
+| `rounded-2xl` | overlays / accordion / select content | Dialogs, menus, accordion |
+| `rounded-4xl` | pill | Buttons, inputs, select trigger |
+| `rounded-full` | circulo | Avatars, dots, empty-state icon well |
 
-**Clases principales:**
-- `rounded-md` -> Inputs, buttons, selects (8px)
-- `rounded-lg` -> Dropdown content, menu items (10px)
-- `rounded-xl` -> Cards, modals, containers principales (12px)
-- `rounded-2xl` -> Cards destacadas, contenedores con presencia (16px)
-- `rounded-full` -> Avatars, dots, badges circulares, search bars
+**No** uses `rounded-md` en buttons/inputs nuevos: el primitivo es `rounded-4xl`.
 
 ### 4.2 Grid del Dashboard
 
@@ -246,7 +230,7 @@ Layout principal:
   Sidebar (w-60 = 240px, sticky top-0, h-screen) | Contenido (flex-1, max-w-[1536px] mx-auto)
 
 Contenido:
-  Header (h-14, sticky top-0, border-b)
+  Header (h-12, sticky top-0, border-b)
   Main (padding: p-4 md:p-6)
 
 Spacing vertical entre secciones:
@@ -452,8 +436,9 @@ La sombra default paso de `shadow-sm` a `shadow-xs` en Fase 2. El border cambio 
 **Import:** `@/components/ui/input`
 
 - Altura: `h-9`
-- Border radius: `rounded-md`
-- Focus: `ring-2 ring-ring ring-offset-1`
+- Border radius: `rounded-4xl`
+- Focus: `border-ring` + `ring-[3px] ring-ring/50`
+- Transicion: `color, border-color, box-shadow` a 150ms `--ease-out-expo`. `motion-reduce:transition-none`.
 - Con icono a la izquierda:
 
 ```tsx
@@ -467,8 +452,8 @@ La sombra default paso de `shadow-sm` a `shadow-xs` en Fase 2. El border cambio 
 
 **Import:** `@/components/ui/select`
 
-- Mismo estilo que Input (`h-9`, `rounded-md`)
-- Incluye `ChevronDown` automatico
+- Mismo estilo que Input (`h-9`, `rounded-4xl`)
+- Incluye icono Hugeicons `UnfoldMore` automatico
 - `appearance-none` para ocultar el select nativo
 
 ### 5.7 Textarea
@@ -534,8 +519,9 @@ La sombra default paso de `shadow-sm` a `shadow-xs` en Fase 2. El border cambio 
 
 **Import:** `@/components/ui/skeleton`
 
-- Clase: `animate-pulse rounded-md bg-muted`
+- Clase: `animate-pulse rounded-xl bg-muted motion-reduce:animate-none`
 - Usar en loading states con dimensiones que simulen el contenido real
+- `prefers-reduced-motion`: sin pulse (global en `globals.css` + primitivo)
 
 ### 5.13 Separator
 
@@ -592,7 +578,7 @@ La sombra default paso de `shadow-sm` a `shadow-xs` en Fase 2. El border cambio 
 **Import:** `@/components/ui/collapsible`
 
 - Usado en sidebar para submenus
-- Transicion de `ChevronDown` con `rotate-180` cuando esta abierto
+- **Sin** animacion de altura (nav de alta frecuencia). Abre/cierra instantaneo.
 
 ### 5.17 Sheet (Panel lateral)
 
@@ -606,6 +592,7 @@ La sombra default paso de `shadow-sm` a `shadow-xs` en Fase 2. El border cambio 
 - Soporta `side`: `top | right | bottom | left`
 - Default: `right`
 - Sidebar mobile: `w-3/4 sm:max-w-sm`
+- Enter: 300ms (`--duration-sheet`) + `--ease-drawer`. Exit: 200ms (`--duration-normal`). Fade + slide. `motion-reduce:animate-none`.
 - Compose panel: `sm:max-w-md`, `bg-background`, layout de tres zonas (header / body scroll / footer sticky) — ver **§11.5**
 
 ### 5.18 Tabs
@@ -903,7 +890,7 @@ import {
 
 **Import:** `@/components/shared/page-header`
 
-Titulo canonico de pagina. La jerarquia se expresa con peso y tamano de Geist (`--font-sans`), no con una segunda familia. Ver seccion 3.1: **no** uses `font-display` ni Instrument Serif en titulos del admin.
+Titulo canonico de pagina. Misma familia que el resto del panel: Geist (`--font-sans`), `font-semibold`. `font-display` es alias de Geist.
 
 ```tsx
 <PageHeader
@@ -1195,7 +1182,9 @@ Server Component asincrono para paginas de listado de modulos con fetch de API i
 
 ### 8.1 Libreria
 
-Todos los iconos provienen de `lucide-react`. No usar ninguna otra libreria de iconos.
+Iconos de producto: **Hugeicons** (`@hugeicons/react` + `@hugeicons/core-free-icons`).
+
+Imports `lucide-react` pasan por el shim `lucide-react-compat` (mismo API, glifos Hugeicons). No agregues otra libreria de iconos. Preferí Hugeicons directo en primitivos nuevos (`Spinner`, `Sheet` close, `Select` chevron).
 
 ### 8.2 Tamanos Estandar
 
@@ -1233,19 +1222,19 @@ Todos los iconos provienen de `lucide-react`. No usar ninguna otra libreria de i
 
 | Accion | Icono | Import |
 |--------|-------|--------|
-| Crear/Agregar | `Plus` | `lucide-react` |
-| Editar | `Pencil` | `lucide-react` |
-| Eliminar/Desactivar | `Ban` o `Trash2` | `lucide-react` |
-| Buscar | `Search` | `lucide-react` |
-| Menu de acciones | `MoreHorizontal` | `lucide-react` |
-| Cerrar | `X` | `lucide-react` |
-| Cargando | `Loader2` con `animate-spin` | `lucide-react` |
-| Alerta/Error | `AlertTriangle` o `AlertCircle` | `lucide-react` |
-| Exito | `Check` o `CheckCircle` | `lucide-react` |
-| Expandir | `ChevronDown` con rotacion | `lucide-react` |
-| Link externo | `ArrowUpRight` | `lucide-react` |
-| Tendencia positiva | `TrendingUp` | `lucide-react` |
-| Tendencia negativa | `TrendingDown` | `lucide-react` |
+| Crear/Agregar | `Plus` / Hugeicons `Add01` | `lucide-react` o `@hugeicons/core-free-icons` |
+| Editar | `Pencil` | shim lucide |
+| Eliminar/Desactivar | `Ban` o `Trash2` | shim lucide |
+| Buscar | `Search` | shim lucide |
+| Menu de acciones | `MoreHorizontal` | shim lucide |
+| Cerrar | `X` / Hugeicons `Cancel01` | Hugeicons en Sheet |
+| Cargando | `<Spinner />` (`animate-spin motion-reduce:animate-none`) | `@/components/ui/spinner` |
+| Alerta/Error | `AlertTriangle` o `AlertCircle` | shim lucide |
+| Exito | `Check` o `CheckCircle` | shim lucide |
+| Expandir | Hugeicons `ArrowDown01` / `UnfoldMore` | no rotar chevron 180 si hay icono open/close |
+| Link externo | `ArrowUpRight` | shim lucide |
+| Tendencia positiva | `TrendingUp` | shim lucide |
+| Tendencia negativa | `TrendingDown` | shim lucide |
 
 ---
 
@@ -1261,18 +1250,16 @@ Fuente de verdad: `src/lib/animations.ts` + tokens en `src/app/globals.css`. No 
 | `--ease-drawer` | `cubic-bezier(0.32, 0.72, 0, 1)` | Sheet / drawer |
 | `--duration-fast` | `150ms` | Press, tooltip |
 | `--duration-normal` | `200ms` | Overlays |
-| `--duration-slow` | `250ms` | Page / stagger item |
-| `--duration-sheet` | `300ms` | Techo UI (sheet) |
+| `--duration-slow` | `250ms` | Login enter (no dashboard) |
+| `--duration-sheet` | `300ms` | Sheet **enter** only. Exit usa `--duration-normal` (200ms). |
 
 Helpers TS (usar estos, no strings sueltos):
 
 ```tsx
 import {
-  PAGE_ENTER_CLASSES,       // 250ms, slide-in-from-bottom-2, motion-reduce
-  STAGGER_CLASSES,          // 250ms, slide-in-from-bottom-1, motion-reduce
-  EMPTY_STATE_ENTER_CLASSES,
+  PAGE_ENTER_CLASSES,       // login only — never dashboard layout
+  EMPTY_STATE_ENTER_CLASSES, // 200ms fade, no zoom
   SURFACE_MOTION_CLASSES,   // 200ms overlays
-  getStaggerStyle,          // getStaggerStyle(index, step = 40, cap = 200)
 } from "@/lib/animations";
 ```
 
@@ -1281,36 +1268,44 @@ import {
 - UI ≤ 300ms. Nada de `ease-in`. Nada de `scale(0)` — arrancar en `scale(0.95)` + opacity.
 - No agregues `transition-all`. El rail del sidebar es excepcion settled; no lo copies.
 - Superficie de teclado (`⌘J` / command palette): **sin** animacion de overlay ni contenido (`overlayInstant`, `animate-none`).
+- Sidebar `⌘B` (y Enter/Space en el trigger): **sin** motion. Clase `instant-motion` en `html` durante el toggle. Click de puntero conserva `duration-200`.
 - Hover con **transform**: solo `[@media(hover:hover)_and_(pointer:fine)]:`. Color puede quedar sin gate.
-- `motion-reduce:` quita movimiento; color/opacity pueden quedarse.
+- `motion-reduce:` quita movimiento (spin, pulse, slide, zoom); color/opacity pueden quedarse.
 - Press: `scale(0.97)` a 150ms (`--ease-out-expo`).
+- Navegación del dashboard: **sin** `PAGE_ENTER_CLASSES`. El layout no anima el contenido.
+- Tablas, listas operativas y `loading.tsx` de ruta: **sin** stagger. Montar instantáneo.
+- Input/textarea: transicion nombrada 150ms, no `transition-all` ni `transition-colors` sin duration.
 
 ### 9.3 Listas
 
-```tsx
-<TableRow className={STAGGER_CLASSES} style={getStaggerStyle(index)} />
-```
+Tablas y listados del panel (users, catálogos, enrollments, investiture, camporee, reports, RBAC, inventory, requests, audit, finances KPIs): sin `STAGGER_CLASSES` ni `getStaggerStyle`.
 
-No uses `duration-300` ni `index * 50` sin cap.
+`STAGGER_CLASSES` queda exportado solo para superficies raras / primera vez. No lo copies en CRUD.
 
 ### 9.4 Overlays
 
 - Dialog / AlertDialog: fade + `zoom-in-95` via `SURFACE_MOTION_CLASSES` (200ms). Selectores radix-nova: `data-open` / `data-closed`.
 - Command palette: `overlayInstant` en overlay; contenido `animate-none`.
 - Tooltip: `delayDuration={300}`, `skipDelayDuration={300}`. Anima solo `data-[state=delayed-open]`. `data-[state=instant-open]:animate-none`.
-- Accordion / collapsible: keyframes de altura + `motion-reduce:animate-none`.
+- Accordion: fade 150ms, **sin** keyframes de altura.
+- Collapsible (sidebar): instantaneo, sin slide de altura.
+- Sheet: enter 300ms / exit 200ms.
 
 ### 9.5 Login
 
-Entrada del form: `PAGE_ENTER_CLASSES` (250ms). No hay orbes flotantes ni `animate-fade-up`.
+Entrada del form: `PAGE_ENTER_CLASSES` (250ms). Único uso de page-enter. No hay orbes flotantes ni `animate-fade-up`. No aplicar en `(dashboard)/layout.tsx`.
 
 ### 9.6 Loading
 
+Usar `<Spinner />` de `@/components/ui/spinner`. No copies `Loader2` + `animate-spin` a mano: el primitivo y `globals.css` ya apagan spin/pulse con `prefers-reduced-motion`.
+
 ```tsx
+import { Spinner } from "@/components/ui/spinner";
+
 <Button disabled={loading}>
   {loading ? (
     <>
-      <Loader2 className="h-4 w-4 animate-spin" />
+      <Spinner />
       Procesando...
     </>
   ) : (
@@ -1319,11 +1314,11 @@ Entrada del form: `PAGE_ENTER_CLASSES` (250ms). No hay orbes flotantes ni `anima
 </Button>
 
 <div className="flex items-center justify-center py-20">
-  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+  <Spinner className="h-8 w-8 text-primary" />
 </div>
-
-<LoadingSkeleton rows={5} />
 ```
+
+Skeletons: `<Skeleton>` de `@/components/ui/skeleton`. Ver §7.3.
 
 ---
 
@@ -1333,7 +1328,7 @@ Entrada del form: `PAGE_ENTER_CLASSES` (250ms). No hay orbes flotantes ni `anima
 
 ```
 +-------------------------------------------------------------------+
-| Sidebar (w-60)  |  Header (h-14, sticky)                         |
+| Sidebar (w-60)  |  Header (h-12, sticky)                         |
 | - Brand logo    |  [Mobile menu] [Breadcrumbs] ... [Search]      |
 | - Nav groups    |  [Theme] [Notifications] [User]                |
 | - Separators    |                                                 |
@@ -1347,7 +1342,7 @@ Entrada del form: `PAGE_ENTER_CLASSES` (250ms). No hay orbes flotantes ni `anima
 
 ### 10.2 Sidebar
 
-- Ancho fijo: `w-60` (240px, set via `--sidebar-width: 15rem` en SidebarProvider)
+- Ancho: `--sidebar-width: calc(var(--spacing) * 68)` en `SidebarProvider` (`(dashboard)/layout.tsx`)
 - Oculto en mobile (`hidden md:block`)
 - Mobile: usa `Sheet` (panel lateral)
 - Brand: icono `h-8 w-8 rounded-lg` + nombre `text-lg font-bold`
@@ -1359,14 +1354,10 @@ Entrada del form: `PAGE_ENTER_CLASSES` (250ms). No hay orbes flotantes ni `anima
 
 ### 10.3 Header
 
-- Altura: `h-14` (56px, reducido de 64px en Fase 4 para ganar espacio vertical)
-- Sticky: `sticky top-0 z-30`
-- Background: `bg-card/80 backdrop-blur-sm`
-- Border: `border-b border-border`
-- Contenido: Breadcrumbs (izquierda) | Acciones (derecha)
-- Acciones: Buscador | Separator | ThemeToggle | Notificaciones | Separator | UserNav
-- Buscador: visible solo en `md:`
-- Separadores verticales: `Separator className="mx-1.5 h-6 w-px"`
+- Altura: `h-12` (`[--dashboard-header-height:--spacing(12)]`)
+- Sticky si `data-navbar-style=sticky`: `sticky top-0 z-50 bg-background/50 backdrop-blur-md`
+- Border: `border-b`
+- Contenido: SidebarTrigger + Search (izquierda) | ThemeSwitcher + User (derecha)
 
 ### 10.4 Breadcrumbs
 
@@ -1582,17 +1573,20 @@ Patron visual obligatorio cuando el formulario vive en un compose panel (§6.1.2
 ### 13.1 Configuracion
 
 ```tsx
-// layout.tsx
-<ThemeProvider
-  attribute="class"
-  defaultTheme="dark"    // Dark por defecto
-  enableSystem={false}
-  disableTransitionOnChange
-/>
+// src/app/layout.tsx — no next-themes ThemeProvider
+<html data-theme-mode={theme_mode} data-theme-preset="default" data-font="geist" ...>
+  <head>
+    <ThemeBootScript />
+  </head>
+  ...
+</html>
 ```
 
+- Default: **light**. Toggle: `ThemeSwitcher` cicla `light → dark → system`.
+- Persistencia: cookie `theme_mode` + clase `.dark` en `<html>` via `applyThemeMode`.
 - Selector CSS: `@custom-variant dark (&:is(.dark *));`
-- Theme toggle: `next-themes` con `useTheme()`
+- Sonner lee `resolvedThemeMode` del store de preferencias, no `useTheme()`.
+- Identidad: Scout Vibrante fijo. No hay preset picker.
 
 ### 13.2 Reglas de Compatibilidad
 
@@ -1853,15 +1847,15 @@ Aplicar con `className="custom-scrollbar"` en contenedores con scroll.
 src/
 ├── app/
 │   ├── (auth)/              # Rutas de autenticacion (login)
-│   │   ├── layout.tsx       # Layout con orbes animados
+│   │   ├── layout.tsx       # Layout auth (sin orbes)
 │   │   └── login/page.tsx
-│   ├── dashboard/           # Rutas protegidas
-│   │   ├── layout.tsx       # Sidebar + Header + main
-│   │   ├── page.tsx         # Dashboard home
+│   ├── (dashboard)/         # Rutas protegidas
+│   │   ├── layout.tsx       # Sidebar + Header h-12 + main
+│   │   ├── dashboard/page.tsx
 │   │   ├── catalogs/        # Modulos CRUD de catalogos
 │   │   ├── rbac/            # Roles y permisos
 │   │   └── [modulo]/        # Cada modulo del sistema
-│   ├── layout.tsx           # Root layout (ThemeProvider, TooltipProvider, Toaster)
+│   ├── layout.tsx           # Root: ThemeBootScript, PreferencesStoreProvider, TooltipProvider, Toaster
 │   └── globals.css          # Tokens de color, animaciones
 ├── components/
 │   ├── ui/                  # Componentes base shadcn/Radix

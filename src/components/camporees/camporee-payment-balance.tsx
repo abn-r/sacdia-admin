@@ -15,8 +15,6 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { UserAvatar } from "@/components/users/user-avatar";
 import { Users } from "lucide-react";
 import { useFormatCurrency } from "@/lib/format-locale";
-import { cn } from "@/lib/utils";
-import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 import type { CamporeeMember, CamporeePayment } from "@/lib/api/camporees";
 import { getCamporeeMemberDisplayName } from "@/lib/camporees/member-display";
 
@@ -635,7 +633,7 @@ export function CamporeePaymentBalance({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {balance.rows.map((row, index) => {
+              {balance.rows.map((row) => {
                 const displayName = getCamporeeMemberDisplayName(
                   row.member,
                   t("unknownMember"),
@@ -647,11 +645,7 @@ export function CamporeePaymentBalance({
                     : null);
 
                 return (
-                  <TableRow
-                    key={row.member.user_id}
-                    className={cn(STAGGER_CLASSES)}
-                    style={getStaggerStyle(index, 35)}
-                  >
+                  <TableRow key={row.member.user_id}>
                     <TableCell>
                       <div className="flex min-w-0 items-center gap-3">
                         <UserAvatar

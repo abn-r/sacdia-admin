@@ -12,24 +12,27 @@ export const PRESS_SCALE = "0.97";
 const STAGGER_BASE =
   "motion-reduce:animate-none animate-in fade-in slide-in-from-bottom-1 fill-mode-backwards duration-250 [animation-timing-function:var(--ease-out-expo)]";
 
-/** Table rows, list items — cap stagger so long lists stay snappy. */
+/**
+ * Rare / first-time surfaces only. Never on dashboard lists, tables, or
+ * route loading skeletons — those fire tens of times a day.
+ */
 export const STAGGER_CLASSES = STAGGER_BASE;
 
-/** Page sections and cards. Keep under ~300ms — navigation is frequent. */
+/** Login and other rare first-time screens. Never on dashboard layout. */
 export const PAGE_ENTER_CLASSES =
   "motion-reduce:animate-none animate-in fade-in slide-in-from-bottom-2 fill-mode-backwards duration-250 [animation-timing-function:var(--ease-out-expo)]";
 
-/** Empty states and placeholders. */
+/** Empty states and placeholders. Fade only — no zoom. */
 export const EMPTY_STATE_ENTER_CLASSES =
-  "motion-reduce:animate-none animate-in fade-in zoom-in-95 fill-mode-backwards duration-300 [animation-timing-function:var(--ease-out-expo)]";
+  "motion-reduce:animate-none animate-in fade-in fill-mode-backwards duration-200 [animation-timing-function:var(--ease-out-expo)]";
 
 /** Overlay surfaces: dialog, popover, dropdown, select. */
 export const SURFACE_MOTION_CLASSES =
   "duration-200 motion-reduce:animate-none motion-reduce:transition-none [animation-timing-function:var(--ease-out-expo)]";
 
 /**
- * Stagger delay for list/table entrances.
- * Prefer 30–80ms steps; cap keeps long lists from feeling sluggish.
+ * Pair with STAGGER_CLASSES on rare first-time surfaces only.
+ * Prefer 30–80ms steps; cap at 200ms. Do not use on operational tables.
  */
 export function getStaggerStyle(
   index: number,

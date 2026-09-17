@@ -40,7 +40,7 @@ const hugeiconsCompatAbsolute = path.join(
 //   *.r2.cloudflarestorage.com — Cloudflare R2 private endpoint
 //
 // font-src:
-//   'self' data:     — next/font/google downloads Geist + Instrument Serif at
+//   'self' data:     — next/font/google downloads Geist + Geist Mono at
 //                      BUILD TIME and self-hosts them. No runtime Google Fonts
 //                      requests are made, so no external font origin is needed.
 //

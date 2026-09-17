@@ -23,7 +23,6 @@ import {
   type ReviewRequestPayload,
 } from "@/lib/api/requests";
 import { useFormatDate } from "@/lib/format-locale";
-import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -100,10 +99,10 @@ export function AssignmentsTable({ requests, onRefresh }: AssignmentsTableProps)
             </TableRow>
           </TableHeader>
           <TableBody>
-            {requests.map((req, index) => {
+            {requests.map((req) => {
               const isPending = req.status === "PENDING";
               return (
-                <TableRow key={String(req.request_id)} className={`hover:bg-muted/30 ${STAGGER_CLASSES}`} style={getStaggerStyle(index)}>
+                <TableRow key={String(req.request_id)} className="hover:bg-muted/30">
                   <TableCell className="px-3 py-2.5 align-middle font-medium">
                     {getUserName(req.target_user)}
                   </TableCell>

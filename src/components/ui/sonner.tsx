@@ -1,16 +1,16 @@
 "use client"
 
-import { useTheme } from "next-themes"
 import { Toaster as Sonner, type ToasterProps } from "sonner"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { CheckmarkCircle02Icon, InformationCircleIcon, Alert02Icon, MultiplicationSignCircleIcon, Loading03Icon } from "@hugeicons/core-free-icons"
+import { usePreferencesStore } from "@/stores/preferences/preferences-provider"
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "system" } = useTheme()
+  const resolvedThemeMode = usePreferencesStore((state) => state.resolvedThemeMode)
 
   return (
     <Sonner
-      theme={theme as ToasterProps["theme"]}
+      theme={resolvedThemeMode}
       className="toaster group"
       expand={false}
       gap={10}
