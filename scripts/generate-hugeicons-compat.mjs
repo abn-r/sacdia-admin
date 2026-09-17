@@ -48,6 +48,8 @@ const MANUAL = {
   AlertTriangle: "Alert02Icon",
   RefreshCw: "RefreshIcon",
   RefreshCcw: "RefreshIcon",
+  Repeat: "RepeatIcon",
+  CalendarPlus: "CalendarPlusIcon",
   Undo2: "Undo02Icon",
   FileText: "File01Icon",
   ScrollText: "File01Icon",

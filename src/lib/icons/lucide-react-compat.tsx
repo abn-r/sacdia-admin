@@ -31,6 +31,7 @@ import {
   CalendarDaysIcon as __Huge_CalendarDaysIcon,
   CalendarIcon as __Huge_CalendarIcon,
   CalendarOffIcon as __Huge_CalendarOffIcon,
+  CalendarPlusIcon as __Huge_CalendarPlusIcon,
   CalendarRangeIcon as __Huge_CalendarRangeIcon,
   CancelCircleIcon as __Huge_CancelCircleIcon,
   CheckListIcon as __Huge_CheckListIcon,
@@ -39,7 +40,6 @@ import {
   ClipboardPenIcon as __Huge_ClipboardPenIcon,
   Clock01Icon as __Huge_Clock01Icon,
   CloudUploadIcon as __Huge_CloudUploadIcon,
-  CommandIcon as __Huge_CommandIcon,
   ComputerIcon as __Huge_ComputerIcon,
   Copy01Icon as __Huge_Copy01Icon,
   DashboardSquare01Icon as __Huge_DashboardSquare01Icon,
@@ -102,6 +102,7 @@ import {
   RadioIcon as __Huge_RadioIcon,
   RecordIcon as __Huge_RecordIcon,
   RefreshIcon as __Huge_RefreshIcon,
+  RepeatIcon as __Huge_RepeatIcon,
   Rotate01Icon as __Huge_Rotate01Icon,
   Search01Icon as __Huge_Search01Icon,
   SentIcon as __Huge_SentIcon,
@@ -126,7 +127,6 @@ import {
   TruckIcon as __Huge_TruckIcon,
   Upload01Icon as __Huge_Upload01Icon,
   UserAdd01Icon as __Huge_UserAdd01Icon,
-  UserCheckIcon as __Huge_UserCheckIcon,
   UserGroupIcon as __Huge_UserGroupIcon,
   UserIcon as __Huge_UserIcon,
   UserMinusIcon as __Huge_UserMinusIcon,
@@ -226,6 +226,7 @@ const ICONS = {
   CalendarDaysIcon: __Huge_CalendarDaysIcon,
   CalendarIcon: __Huge_CalendarIcon,
   CalendarOffIcon: __Huge_CalendarOffIcon,
+  CalendarPlusIcon: __Huge_CalendarPlusIcon,
   CalendarRangeIcon: __Huge_CalendarRangeIcon,
   CancelCircleIcon: __Huge_CancelCircleIcon,
   CheckListIcon: __Huge_CheckListIcon,
@@ -234,7 +235,6 @@ const ICONS = {
   ClipboardPenIcon: __Huge_ClipboardPenIcon,
   Clock01Icon: __Huge_Clock01Icon,
   CloudUploadIcon: __Huge_CloudUploadIcon,
-  CommandIcon: __Huge_CommandIcon,
   ComputerIcon: __Huge_ComputerIcon,
   Copy01Icon: __Huge_Copy01Icon,
   DashboardSquare01Icon: __Huge_DashboardSquare01Icon,
@@ -297,6 +297,7 @@ const ICONS = {
   RadioIcon: __Huge_RadioIcon,
   RecordIcon: __Huge_RecordIcon,
   RefreshIcon: __Huge_RefreshIcon,
+  RepeatIcon: __Huge_RepeatIcon,
   Rotate01Icon: __Huge_Rotate01Icon,
   Search01Icon: __Huge_Search01Icon,
   SentIcon: __Huge_SentIcon,
@@ -321,7 +322,6 @@ const ICONS = {
   TruckIcon: __Huge_TruckIcon,
   Upload01Icon: __Huge_Upload01Icon,
   UserAdd01Icon: __Huge_UserAdd01Icon,
-  UserCheckIcon: __Huge_UserCheckIcon,
   UserGroupIcon: __Huge_UserGroupIcon,
   UserIcon: __Huge_UserIcon,
   UserMinusIcon: __Huge_UserMinusIcon,
@@ -355,6 +355,7 @@ export const Calendar = createLucideIcon(ICONS.CalendarIcon, "Calendar");
 export const CalendarClock = createLucideIcon(ICONS.CalendarClockIcon, "CalendarClock");
 export const CalendarDays = createLucideIcon(ICONS.CalendarDaysIcon, "CalendarDays");
 export const CalendarOff = createLucideIcon(ICONS.CalendarOffIcon, "CalendarOff");
+export const CalendarPlus = createLucideIcon(ICONS.CalendarPlusIcon, "CalendarPlus");
 export const CalendarRange = createLucideIcon(ICONS.CalendarRangeIcon, "CalendarRange");
 export const Check = createLucideIcon(ICONS.Tick02Icon, "Check");
 export const CheckCircle = createLucideIcon(ICONS.CheckmarkCircle02Icon, "CheckCircle");
@@ -369,7 +370,6 @@ export const ClipboardCheck = createLucideIcon(ICONS.ClipboardCheckIcon, "Clipbo
 export const ClipboardEdit = createLucideIcon(ICONS.ClipboardPenIcon, "ClipboardEdit");
 export const ClipboardList = createLucideIcon(ICONS.Task01Icon, "ClipboardList");
 export const Clock = createLucideIcon(ICONS.Clock01Icon, "Clock");
-export const Command = createLucideIcon(ICONS.CommandIcon, "Command");
 export const Copy = createLucideIcon(ICONS.Copy01Icon, "Copy");
 export const DollarSign = createLucideIcon(ICONS.DollarSignIcon, "DollarSign");
 export const Download = createLucideIcon(ICONS.DownloadIcon, "Download");
@@ -383,7 +383,6 @@ export const FileSearch = createLucideIcon(ICONS.FileSearchIcon, "FileSearch");
 export const FileSpreadsheet = createLucideIcon(ICONS.FileSpreadsheetIcon, "FileSpreadsheet");
 export const FileStack = createLucideIcon(ICONS.StackStarIcon, "FileStack");
 export const FileText = createLucideIcon(ICONS.File01Icon, "FileText");
-export const ScrollText = createLucideIcon(ICONS.File01Icon, "ScrollText");
 export const Filter = createLucideIcon(ICONS.FilterIcon, "Filter");
 export const Flag = createLucideIcon(ICONS.FlagIcon, "Flag");
 export const Folder = createLucideIcon(ICONS.Folder01Icon, "Folder");
@@ -440,9 +439,11 @@ export const Radio = createLucideIcon(ICONS.RadioIcon, "Radio");
 export const Receipt = createLucideIcon(ICONS.Invoice01Icon, "Receipt");
 export const RefreshCcw = createLucideIcon(ICONS.RefreshIcon, "RefreshCcw");
 export const RefreshCw = createLucideIcon(ICONS.RefreshIcon, "RefreshCw");
+export const Repeat = createLucideIcon(ICONS.RepeatIcon, "Repeat");
 export const RotateCcw = createLucideIcon(ICONS.Rotate01Icon, "RotateCcw");
 export const Save = createLucideIcon(ICONS.FloppyDiskIcon, "Save");
 export const Scale = createLucideIcon(ICONS.BalanceScaleIcon, "Scale");
+export const ScrollText = createLucideIcon(ICONS.File01Icon, "ScrollText");
 export const Search = createLucideIcon(ICONS.Search01Icon, "Search");
 export const Send = createLucideIcon(ICONS.SentIcon, "Send");
 export const ServerOff = createLucideIcon(ICONS.Database01Icon, "ServerOff");
@@ -467,7 +468,6 @@ export const Truck = createLucideIcon(ICONS.TruckIcon, "Truck");
 export const Upload = createLucideIcon(ICONS.Upload01Icon, "Upload");
 export const UploadCloud = createLucideIcon(ICONS.CloudUploadIcon, "UploadCloud");
 export const User = createLucideIcon(ICONS.UserIcon, "User");
-export const UserCheck = createLucideIcon(ICONS.UserCheckIcon, "UserCheck");
 export const UserCog = createLucideIcon(ICONS.UserSettings01Icon, "UserCog");
 export const UserMinus = createLucideIcon(ICONS.UserMinusIcon, "UserMinus");
 export const UserPlus = createLucideIcon(ICONS.UserAdd01Icon, "UserPlus");
