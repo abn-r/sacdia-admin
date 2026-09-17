@@ -63,6 +63,7 @@ export const usersScreen: ScreenDefinition = {
       gate: { permissions: [USERS_UPDATE_PROFILE] },
     },
     {
+      // Accesos: Roles switches, Resumen grid, aside rows + PATCH /admin/users/:userId.
       id: "update_admin",
       kind: "section",
       gate: { permissions: [USERS_UPDATE_ADMIN], roles: [...ADMIN_ROLES] },

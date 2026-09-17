@@ -3,7 +3,6 @@ import { getTranslations, getLocale } from "next-intl/server";
 import Link from "next/link";
 import {
   Calendar,
-  KeyRound,
   Layers,
   LockOpen,
   MailCheck,
@@ -19,21 +18,18 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { buildRoleTranslator } from "@/lib/auth/role-labels";
-import { normalizeApprovalStatus } from "@/lib/admin-users/approval-status";
 import {
   getAdminUserDisplayName,
   getAdminUserSecondaryLabel,
 } from "@/lib/admin-users/display";
+import { canManageUserAccessFlags } from "@/lib/admin-users/can-manage-user-access-flags";
 import { UserAccessToggles } from "@/components/users/user-access-toggles";
 import { PostRegistrationTab } from "@/components/users/post-registration-tab";
-import { MfaTab } from "@/components/users/mfa-tab";
-import { SessionsTab } from "@/components/users/sessions-tab";
 import { UserRolesPanel } from "@/components/rbac/user-roles-panel";
 import { UserRolesOverview } from "@/components/users/user-roles-overview";
-import { bucketUserRoles } from "@/lib/users/role-buckets";
 
 import { UserDetailHero } from "@/components/users/detail/hero";
-import { UserDetailStats, ProgressBar, type StatItem } from "@/components/users/detail/stats";
+import { UserDetailStats, type StatItem } from "@/components/users/detail/stats";
 import {
   DetailSection,
   DetailField,
@@ -69,7 +65,6 @@ import {
   canViewAdministrativeCompletion,
 } from "@/lib/auth/permission-utils";
 import { canCapability } from "@/lib/auth/screen-catalog";
-import { getAdminUserMfaStatus } from "@/lib/api/mfa";
 import { requireAdminUser } from "@/lib/auth/session";
 import {
   getUserRoles,
@@ -81,10 +76,6 @@ import {
   type PostRegistrationStatus,
   type PhotoStatusResponse,
 } from "@/lib/api/post-registration";
-import {
-  getAdminUserSessions,
-  type AdminSessionListData,
-} from "@/lib/api/sessions";
 import type { UserRole, Role } from "@/lib/rbac/types";
 import { PageHeader } from "@/components/shared/page-header";
 
@@ -104,7 +95,6 @@ export default async function UserDetailPage({ params }: { params: Params }) {
   let allRoles: Role[] = [];
   let postRegistrationStatus: PostRegistrationStatus | null = null;
   let photoStatus: PhotoStatusResponse | null = null;
-  let sessionsData: AdminSessionListData | null = null;
 
   try {
     const results = await Promise.all([
@@ -141,11 +131,6 @@ export default async function UserDetailPage({ params }: { params: Params }) {
     photoStatus = prPhotoStatus;
   }
 
-  const mfaStatus = await getAdminUserMfaStatus(userId).catch(() => null);
-  // Screen catalog capabilities (`users` screen) — same gates as the API.
-  const canManageMfa = canCapability(currentUser, "users", "update_admin");
-  sessionsData = await getAdminUserSessions(userId).catch(() => null);
-
   const canSeeHealthData = canCapability(currentUser, "users", "health.read");
   const canSeeEmergencyContacts = canCapability(
     currentUser,
@@ -159,6 +144,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
   );
   const canUpdateAdministrativeCompletion =
     canManageAdministrativeCompletion(currentUser);
+  const canSeeAccessToggles = canManageUserAccessFlags(currentUser);
 
   const fullName = getAdminUserDisplayName(user, {
     deletedAccount: t("deletedAccount"),
@@ -173,7 +159,6 @@ export default async function UserDetailPage({ params }: { params: Params }) {
   const roleLabels = roleNamesRaw.map((r) => translateRole(r) || r);
   const primaryAssignment = extractPrimaryAssignment(user.club_assignments, translateRole);
   const assignments = extractAllAssignments(user.club_assignments, translateRole);
-  const roleBuckets = bucketUserRoles(userRoles, assignments);
   const assignmentLocation = extractAssignmentLocation(user.club_assignments);
   const emergencyContacts = extractEmergencyContacts(user.emergency_contacts ?? undefined);
   const legalRep = extractLegalRepresentative(user.legal_representative);
@@ -199,18 +184,11 @@ export default async function UserDetailPage({ params }: { params: Params }) {
       label: t("stats.tenureLabel"),
       value: tenureValue,
       sub: tenureSub,
-      accent: <ProgressBar pct={tenure ? 100 : 0} tone="primary" />,
     },
     {
       label: t("stats.classesLabel"),
       value: classesCount,
       sub: t("stats.classesActive", { count: classesCount }),
-      accent: (
-        <ProgressBar
-          pct={classesCount === 0 ? 0 : Math.min(100, classesCount * 25)}
-          tone="warning"
-        />
-      ),
     },
     {
       label: t("stats.rolesLabel"),
@@ -232,7 +210,11 @@ export default async function UserDetailPage({ params }: { params: Params }) {
         user.updated_at ?? user.modified_at ?? user.created_at,
         dateLocale,
       ),
-      sub: user.access_panel ? t("stats.panelEnabled") : t("stats.panelDisabled"),
+      sub: canSeeAccessToggles
+        ? user.access_panel
+          ? t("stats.panelEnabled")
+          : t("stats.panelDisabled")
+        : undefined,
       accent: (
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <Calendar className="size-3.5" />
@@ -256,20 +238,6 @@ export default async function UserDetailPage({ params }: { params: Params }) {
     },
     dateLocale,
   );
-
-  const approvalState =
-    user.approval === 1 || user.approval === true || user.approval === "approved"
-      ? t("approvalApproved")
-      : user.approval === -1 || user.approval === "rejected"
-      ? t("approvalRejected")
-      : t("approvalPending");
-
-  const mfaSidebarValue =
-    mfaStatus?.enabled === true
-      ? t("sidebar.enabled")
-      : mfaStatus?.enabled === false
-      ? t("sidebar.disabled")
-      : t("sidebar.dash");
 
   return (
     <div className="space-y-5">
@@ -316,8 +284,6 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                 {t("tabPostRegistration")}
               </TabsTrigger>
             ) : null}
-            <TabsTrigger value="seguridad">{t("tabSecurity")}</TabsTrigger>
-            <TabsTrigger value="sesiones">{t("tabSessions")}</TabsTrigger>
           </TabsList>
 
           <div className="mt-4 grid items-start gap-5 lg:grid-cols-[1fr_320px]">
@@ -393,6 +359,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
               rolesLabel={t("sections.rolesLabel")}
               rolesEmpty={t("sections.rolesEmpty")}
               globalRoles={roleLabels}
+              showAccessFlags={canSeeAccessToggles}
               accessAppLabel={t("access.appLabel")}
               accessAppSub={t("access.appSub")}
               accessPanelLabel={t("access.panelLabel")}
@@ -551,19 +518,21 @@ export default async function UserDetailPage({ params }: { params: Params }) {
 
           <TabsContent value="roles" className="mt-0">
             <div className="space-y-3.5">
-              <UserRolesOverview buckets={roleBuckets} />
+              <UserRolesOverview clubSections={assignments} />
               <UserRolesPanel
                 userId={userId}
                 initialUserRoles={userRoles}
                 allRoles={allRoles}
               />
-              <UserAccessToggles
-                userId={user.user_id}
-                initialAccessApp={user.access_app}
-                initialAccessPanel={user.access_panel}
-                initialActive={user.active}
-                initialApprovalStatus={normalizeApprovalStatus(user.approval)}
-              />
+              {canSeeAccessToggles ? (
+                <UserAccessToggles
+                  userId={user.user_id}
+                  initialAccessApp={user.access_app}
+                  initialAccessPanel={user.access_panel}
+                  initialActive={user.active}
+                  canManage
+                />
+              ) : null}
             </div>
           </TabsContent>
 
@@ -599,18 +568,6 @@ export default async function UserDetailPage({ params }: { params: Params }) {
               )}
             </TabsContent>
           ) : null}
-
-          <TabsContent value="seguridad" className="mt-0">
-            <MfaTab
-              userId={userId}
-              mfaEnabled={mfaStatus?.enabled ?? null}
-              canManageMfa={canManageMfa}
-            />
-          </TabsContent>
-
-          <TabsContent value="sesiones" className="mt-0">
-            <SessionsTab userId={userId} initialData={sessionsData} />
-          </TabsContent>
             </div>
 
         <aside className="hidden lg:block">
@@ -619,43 +576,37 @@ export default async function UserDetailPage({ params }: { params: Params }) {
             sections={[
               {
                 items: [
-                  <SidebarRow
-                    key="status"
-                    label={t("sidebar.status")}
-                    value={
-                      user.active !== false
-                        ? t("statusActive")
-                        : t("statusInactive")
-                    }
-                  />,
-                  <SidebarRow
-                    key="approval"
-                    label={t("sidebar.approval")}
-                    value={approvalState}
-                  />,
-                  <SidebarRow
-                    key="appAccess"
-                    label={t("sidebar.appAccess")}
-                    value={
-                      user.access_app
-                        ? t("sidebar.yes")
-                        : t("sidebar.no")
-                    }
-                  />,
-                  <SidebarRow
-                    key="panelAccess"
-                    label={t("sidebar.panelAccess")}
-                    value={
-                      user.access_panel
-                        ? t("sidebar.yes")
-                        : t("sidebar.no")
-                    }
-                  />,
-                  <SidebarRow
-                    key="mfa"
-                    label={t("sidebar.mfa")}
-                    value={mfaSidebarValue}
-                  />,
+                  ...(canSeeAccessToggles
+                    ? [
+                        <SidebarRow
+                          key="status"
+                          label={t("sidebar.status")}
+                          value={
+                            user.active !== false
+                              ? t("statusActive")
+                              : t("statusInactive")
+                          }
+                        />,
+                        <SidebarRow
+                          key="appAccess"
+                          label={t("sidebar.appAccess")}
+                          value={
+                            user.access_app
+                              ? t("sidebar.yes")
+                              : t("sidebar.no")
+                          }
+                        />,
+                        <SidebarRow
+                          key="panelAccess"
+                          label={t("sidebar.panelAccess")}
+                          value={
+                            user.access_panel
+                              ? t("sidebar.yes")
+                              : t("sidebar.no")
+                          }
+                        />,
+                      ]
+                    : []),
                   <SidebarRow
                     key="roles"
                     label={t("sidebar.roles")}
@@ -680,18 +631,6 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                     <Link href="/dashboard/users">
                       <LockOpen className="size-4" />
                       {t("back")}
-                    </Link>
-                  </Button>,
-                  <Button
-                    key="mfa-link"
-                    asChild
-                    variant="ghost"
-                    size="sm"
-                    className="w-full justify-start"
-                  >
-                    <Link href={`#seguridad`}>
-                      <KeyRound className="size-4" />
-                      {t("tabSecurity")}
                     </Link>
                   </Button>,
                   <Button

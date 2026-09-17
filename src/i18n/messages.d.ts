@@ -1296,6 +1296,20 @@ export interface IntlMessages {
       sectionsTitle: string;
       sectionsDescription: string;
       sectionToggleHint: string;
+      prerequisites: {
+        title: string;
+        contactAdmin: string;
+        "local-fields": string;
+        "club-types": string;
+        districts: string;
+        churches: string;
+        go: {
+          "local-fields": string;
+          "club-types": string;
+          districts: string;
+          churches: string;
+        };
+      };
     };
     edit: {
       cardTitle: string;
@@ -5211,6 +5225,23 @@ export interface IntlMessages {
         confirm: string;
         confirmLoading: string;
         cancel: string;
+      };
+    };
+    setup: {
+      title: string;
+      contactAdmin: string;
+      years: string;
+      "club-types": string;
+      templates: string;
+      ranking: string;
+      unions: string;
+      emptyHint: string;
+      go: {
+        years: string;
+        "club-types": string;
+        templates: string;
+        ranking: string;
+        unions: string;
       };
     };
   };

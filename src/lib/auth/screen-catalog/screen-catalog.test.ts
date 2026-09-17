@@ -253,14 +253,35 @@ describe("users screen", () => {
     expect(canCapability(user, "users", "bulk_create")).toBe(false);
   });
 
-  it("keeps administrative writes admin-only", () => {
+  it("keeps Accesos / administrative writes admin-only", () => {
+    const fieldRoles = [
+      "director-lf",
+      "assistant-lf",
+      "director-union",
+      "assistant-union",
+      "director-dia",
+      "assistant-dia",
+    ];
+    for (const role of fieldRoles) {
+      expect(
+        canCapability(
+          buildUser([role], ["users:update_admin"]),
+          "users",
+          "update_admin",
+        ),
+        role,
+      ).toBe(false);
+    }
     expect(
       canCapability(
-        buildUser(["director-lf"], ["users:update_admin"]),
+        buildUser(["admin"], ["users:update_admin"]),
         "users",
         "update_admin",
       ),
-    ).toBe(false);
+    ).toBe(true);
+    expect(
+      canCapability(buildUser(["super-admin"], []), "users", "update_admin"),
+    ).toBe(true);
     expect(
       canCapability(
         buildUser(["assistant-admin"], ["users:update_admin"]),

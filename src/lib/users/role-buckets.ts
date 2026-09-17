@@ -31,24 +31,20 @@ export type ClubSectionRoleRow = {
   roleName: string | null;
 };
 
-export type UserRoleBuckets = {
-  global: UserRole[];
+export type SystemRoleGroups = {
   administrative: UserRole[];
   operational: UserRole[];
-  clubSections: ClubSectionRoleRow[];
+  other: UserRole[];
 };
 
 function normalizeRoleName(roleName: string): string {
   return roleName.trim().toLowerCase();
 }
 
-export function bucketUserRoles(
-  userRoles: UserRole[],
-  clubAssignments: ClubSectionRoleRow[],
-): UserRoleBuckets {
-  const global: UserRole[] = [];
+export function groupSystemRoles(userRoles: UserRole[]): SystemRoleGroups {
   const administrative: UserRole[] = [];
   const operational: UserRole[] = [];
+  const other: UserRole[] = [];
 
   for (const entry of userRoles) {
     if (!isGlobalCategoryRole(entry.roles)) continue;
@@ -61,13 +57,12 @@ export function bucketUserRoles(
       operational.push(entry);
       continue;
     }
-    global.push(entry);
+    other.push(entry);
   }
 
-  return {
-    global,
-    administrative,
-    operational,
-    clubSections: clubAssignments,
-  };
+  return { administrative, operational, other };
+}
+
+export function flattenSystemRoleGroups(groups: SystemRoleGroups): UserRole[] {
+  return [...groups.administrative, ...groups.operational, ...groups.other];
 }

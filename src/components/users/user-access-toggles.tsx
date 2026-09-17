@@ -7,29 +7,16 @@ import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { apiRequestFromClient } from "@/lib/api/client";
-import {
-  updateAdminUserApprovalFromClient,
-  type UpdateAdminUserPayload,
-} from "@/lib/api/admin-users";
-import {
-  normalizeApprovalStatus,
-  type ApprovalStatus,
-} from "@/lib/admin-users/approval-status";
+import type { UpdateAdminUserPayload } from "@/lib/api/admin-users";
 
 interface UserAccessTogglesProps {
   userId: string;
   initialAccessApp: boolean | undefined;
   initialAccessPanel: boolean | undefined;
   initialActive: boolean | undefined;
-  initialApprovalStatus: ApprovalStatus | null;
+  /** Accesos is admin/super-admin only; hide (do not disable) otherwise. */
+  canManage: boolean;
 }
 
 async function patchUser(userId: string, payload: UpdateAdminUserPayload): Promise<void> {
@@ -39,23 +26,28 @@ async function patchUser(userId: string, payload: UpdateAdminUserPayload): Promi
   });
 }
 
-export function UserAccessToggles({
+export function UserAccessToggles(props: UserAccessTogglesProps) {
+  if (!props.canManage) {
+    return null;
+  }
+
+  return <UserAccessTogglesForm {...props} />;
+}
+
+function UserAccessTogglesForm({
   userId,
   initialAccessApp,
   initialAccessPanel,
   initialActive,
-  initialApprovalStatus,
+  canManage,
 }: UserAccessTogglesProps) {
   const t = useTranslations("users");
   const [accessApp, setAccessApp] = useState(initialAccessApp ?? false);
   const [accessPanel, setAccessPanel] = useState(initialAccessPanel ?? false);
   const [active, setActive] = useState(initialActive ?? true);
-  const [approvalStatus, setApprovalStatus] = useState<ApprovalStatus | null>(
-    initialApprovalStatus,
-  );
 
   const [pendingField, setPendingField] = useState<
-    "access_app" | "access_panel" | "active" | "approval_status" | null
+    "access_app" | "access_panel" | "active" | null
   >(null);
   const [isPending, startTransition] = useTransition();
 
@@ -64,6 +56,10 @@ export function UserAccessToggles({
     currentValue: boolean,
     setter: (v: boolean) => void,
   ) {
+    if (!canManage) {
+      return;
+    }
+
     const nextValue = !currentValue;
     setter(nextValue);
     setPendingField(field);
@@ -78,36 +74,6 @@ export function UserAccessToggles({
       } catch {
         setter(currentValue);
         toast.error(t("toasts.access_update_failed"));
-      } finally {
-        setPendingField(null);
-      }
-    });
-  }
-
-  function handleApprovalChange(value: string) {
-    const next = value as ApprovalStatus;
-    const previous = approvalStatus;
-    setApprovalStatus(next);
-    setPendingField("approval_status");
-
-    startTransition(async () => {
-      try {
-        // Use dedicated PATCH /admin/users/:userId/approval endpoint.
-        // Falls back to generic PATCH on 404/405/422 automatically.
-        const decision = next === "approved" ? "approve" : next === "rejected" ? "reject" : null;
-        if (decision) {
-          await updateAdminUserApprovalFromClient({ userId, decision });
-        } else {
-          // "pending" state — reset via generic PATCH since dedicated endpoint only handles approve/reject
-          await apiRequestFromClient<unknown>(`/admin/users/${encodeURIComponent(userId)}`, {
-            method: "PATCH",
-            body: { approval: 0, approval_status: "pending", approved: false },
-          });
-        }
-        toast.success(t("toasts.approval_updated"));
-      } catch {
-        setApprovalStatus(previous);
-        toast.error(t("toasts.approval_update_failed"));
       } finally {
         setPendingField(null);
       }
@@ -130,6 +96,7 @@ export function UserAccessToggles({
             )}
             <Switch
               id="toggle-access-app"
+              aria-label={t("access.access_app_label")}
               checked={accessApp}
               disabled={isPending}
               onCheckedChange={() =>
@@ -149,6 +116,7 @@ export function UserAccessToggles({
             )}
             <Switch
               id="toggle-access-panel"
+              aria-label={t("access.access_panel_label")}
               checked={accessPanel}
               disabled={isPending}
               onCheckedChange={() =>
@@ -168,6 +136,7 @@ export function UserAccessToggles({
             )}
             <Switch
               id="toggle-active"
+              aria-label={t("access.active_label")}
               checked={active}
               disabled={isPending}
               onCheckedChange={() =>
@@ -176,32 +145,7 @@ export function UserAccessToggles({
             />
           </div>
         </div>
-
-        <div className="flex items-center justify-between gap-4">
-          <Label className="text-sm text-muted-foreground">{t("access.approval_label")}</Label>
-          <div className="flex items-center gap-2">
-            {isPending && pendingField === "approval_status" && (
-              <Loader2 className="size-3.5 animate-spin text-muted-foreground" />
-            )}
-            <Select
-              value={approvalStatus ?? ""}
-              onValueChange={handleApprovalChange}
-              disabled={isPending}
-            >
-              <SelectTrigger size="sm" className="w-[130px]">
-                <SelectValue placeholder="—" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="pending">{t("access.approval_pending")}</SelectItem>
-                <SelectItem value="approved">{t("access.approval_approved")}</SelectItem>
-                <SelectItem value="rejected">{t("access.approval_rejected")}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
       </CardContent>
     </Card>
   );
 }
-
-export { normalizeApprovalStatus } from "@/lib/admin-users/approval-status";

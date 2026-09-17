@@ -57,19 +57,3 @@ export function getAdminUserSecondaryLabel(
 
   return user.email || labels.fallback || "—";
 }
-
-export function sortAdminUsersByName(
-  users: AdminUser[],
-  labels: {
-    deletedAccount: string;
-    fallback?: string;
-  },
-): AdminUser[] {
-  return [...users].sort((a, b) =>
-    getAdminUserDisplayName(a, labels).localeCompare(
-      getAdminUserDisplayName(b, labels),
-      "es",
-      { sensitivity: "base" },
-    ),
-  );
-}

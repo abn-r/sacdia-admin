@@ -1260,7 +1260,21 @@
       "placeholderAddress": "Club address",
       "sectionsTitle": "Club sections",
       "sectionsDescription": "Enable the sections this club will operate. All three are always created; unchecked types stay inactive.",
-      "sectionToggleHint": "Enable section."
+      "sectionToggleHint": "Enable section.",
+      "prerequisites": {
+        "title": "This club cannot be created yet",
+        "contactAdmin": "Ask an administrator to add this.",
+        "local-fields": "At least one active local field is missing.",
+        "club-types": "At least one active club type is missing.",
+        "districts": "Districts are missing in the {name} field.",
+        "churches": "Churches are missing in the {name} district.",
+        "go": {
+          "local-fields": "Go to local fields",
+          "club-types": "Go to club types",
+          "districts": "Go to districts",
+          "churches": "Go to churches"
+        }
+      }
     },
     "edit": {
       "cardTitle": "General information",
@@ -5157,6 +5171,23 @@
         "confirm": "Confirm recalculation",
         "confirmLoading": "Recalculating...",
         "cancel": "Cancel"
+      }
+    },
+    "setup": {
+      "title": "The annual folder cannot be created yet",
+      "contactAdmin": "Ask an administrator to add this.",
+      "years": "There is no ecclesiastical year covering today.",
+      "club-types": "At least one club type is missing.",
+      "templates": "An active annual folder template is missing.",
+      "ranking": "Annual ranking with the folder component is missing.",
+      "unions": "At least one union or local field is missing.",
+      "emptyHint": "Folders appear here once setup is complete.",
+      "go": {
+        "years": "Go to ecclesiastical years",
+        "club-types": "Go to club types",
+        "templates": "Go to templates",
+        "ranking": "Go to annual ranking",
+        "unions": "Go to unions"
       }
     }
   },

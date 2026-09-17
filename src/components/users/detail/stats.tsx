@@ -38,18 +38,3 @@ export function UserDetailStats({ items }: { items: StatItem[] }) {
     </div>
   );
 }
-
-export function ProgressBar({ pct, tone = "primary" }: { pct: number; tone?: "primary" | "success" | "warning" }) {
-  const clamped = Math.max(0, Math.min(100, pct));
-  const bar =
-    tone === "success"
-      ? "bg-success"
-      : tone === "warning"
-      ? "bg-warning"
-      : "bg-primary";
-  return (
-    <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-      <div className={cn("h-full rounded-full", bar)} style={{ width: `${clamped}%` }} />
-    </div>
-  );
-}

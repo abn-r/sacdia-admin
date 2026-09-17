@@ -1266,7 +1266,21 @@
       "placeholderAddress": "Dirección del club",
       "sectionsTitle": "Secciones del club",
       "sectionsDescription": "Habilita las secciones que este club operará. Siempre se crean las tres; las no marcadas quedan inactivas.",
-      "sectionToggleHint": "Habilitar sección."
+      "sectionToggleHint": "Habilitar sección.",
+      "prerequisites": {
+        "title": "No se puede crear el club todavía",
+        "contactAdmin": "Pide al administrador que cargue esto.",
+        "local-fields": "Falta al menos un campo local activo.",
+        "club-types": "Falta al menos un tipo de club activo.",
+        "districts": "Faltan distritos en el campo {name}.",
+        "churches": "Faltan iglesias en el distrito {name}.",
+        "go": {
+          "local-fields": "Ir a campos locales",
+          "club-types": "Ir a tipos de club",
+          "districts": "Ir a distritos",
+          "churches": "Ir a iglesias"
+        }
+      }
     },
     "edit": {
       "cardTitle": "Información general",
@@ -5182,6 +5196,23 @@
         "confirm": "Confirmar recálculo",
         "confirmLoading": "Recalculando...",
         "cancel": "Cancelar"
+      }
+    },
+    "setup": {
+      "title": "No se puede crear la carpeta anual todavía",
+      "contactAdmin": "Pide al administrador que cargue esto.",
+      "years": "Falta un año eclesiástico que cubra hoy.",
+      "club-types": "Falta al menos un tipo de club.",
+      "templates": "Falta una plantilla activa de carpeta anual.",
+      "ranking": "Falta la clasificación anual con el componente de carpeta.",
+      "unions": "Falta al menos una unión o un campo local.",
+      "emptyHint": "Cuando la configuración esté lista, las carpetas aparecen aquí.",
+      "go": {
+        "years": "Ir a años eclesiásticos",
+        "club-types": "Ir a tipos de club",
+        "templates": "Ir a plantillas",
+        "ranking": "Ir a clasificación anual",
+        "unions": "Ir a uniones"
       }
     }
   },

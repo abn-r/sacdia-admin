@@ -39,6 +39,7 @@ export interface ResumenTabProps {
   rolesLabel: string;
   rolesEmpty: string;
   globalRoles: string[];
+  showAccessFlags: boolean;
   accessAppLabel: string;
   accessAppSub: string;
   accessPanelLabel: string;
@@ -129,7 +130,7 @@ export function UserDetailResumenTab(props: ResumenTabProps) {
       {props.showHealth ? <HealthBlock {...props.healthProps} /> : null}
 
       <DetailSection num="04" title={props.rolesAccessTitle}>
-        <div className="mb-4">
+        <div className={props.showAccessFlags ? "mb-4" : undefined}>
           <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
             {props.rolesLabel}
           </div>
@@ -147,11 +148,25 @@ export function UserDetailResumenTab(props: ResumenTabProps) {
             </div>
           )}
         </div>
-        <div className="grid gap-3 sm:grid-cols-3">
-          <ReadOnlyToggle label={props.accessAppLabel} sub={props.accessAppSub} on={props.accessApp} />
-          <ReadOnlyToggle label={props.accessPanelLabel} sub={props.accessPanelSub} on={props.accessPanel} />
-          <ReadOnlyToggle label={props.activeLabel} sub={props.activeSub} on={props.active} />
-        </div>
+        {props.showAccessFlags ? (
+          <div className="grid gap-3 sm:grid-cols-3">
+            <ReadOnlyToggle
+              label={props.accessAppLabel}
+              sub={props.accessAppSub}
+              on={props.accessApp}
+            />
+            <ReadOnlyToggle
+              label={props.accessPanelLabel}
+              sub={props.accessPanelSub}
+              on={props.accessPanel}
+            />
+            <ReadOnlyToggle
+              label={props.activeLabel}
+              sub={props.activeSub}
+              on={props.active}
+            />
+          </div>
+        ) : null}
       </DetailSection>
 
       {props.showContacts ? (

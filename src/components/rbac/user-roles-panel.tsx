@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { Plus, X, ShieldAlert, Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
-import { useRoleLabel } from "@/lib/auth/role-labels";
+import { useRoleLabel, type RoleTranslator } from "@/lib/auth/role-labels";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,7 +28,12 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { apiRequestFromClient } from "@/lib/api/client";
-import { isGlobalCategoryRole } from "@/lib/users/role-buckets";
+import {
+  flattenSystemRoleGroups,
+  groupSystemRoles,
+  isGlobalCategoryRole,
+  type SystemRoleGroups,
+} from "@/lib/users/role-buckets";
 import type { Role, UserRole } from "@/lib/rbac/types";
 
 interface UserRolesPanelProps {
@@ -61,12 +66,13 @@ export function UserRolesPanel({
   const [selectedRoleId, setSelectedRoleId] = useState<string>("");
   const [isPending, startTransition] = useTransition();
 
-  const globalAssignableRoles = allRoles.filter(isGlobalCategoryRole);
-  const globalUserRoles = userRoles.filter((ur) => isGlobalCategoryRole(ur.roles));
+  const systemAssignableRoles = allRoles.filter(isGlobalCategoryRole);
+  const systemRoleGroups = groupSystemRoles(userRoles);
+  const systemUserRoles = flattenSystemRoleGroups(systemRoleGroups);
 
-  const assignedRoleIds = new Set(globalUserRoles.map((ur) => ur.roles.role_id));
+  const assignedRoleIds = new Set(systemUserRoles.map((ur) => ur.roles.role_id));
 
-  const availableRoles = globalAssignableRoles.filter(
+  const availableRoles = systemAssignableRoles.filter(
     (r) => r.active && !assignedRoleIds.has(r.role_id),
   );
 
@@ -98,7 +104,7 @@ export function UserRolesPanel({
           },
         );
 
-        const role = globalAssignableRoles.find((r) => r.role_id === selectedRoleId);
+        const role = systemAssignableRoles.find((r) => r.role_id === selectedRoleId);
         if (role) {
           const newEntry: UserRole = {
             user_role_id: crypto.randomUUID(),
@@ -176,7 +182,7 @@ export function UserRolesPanel({
           )}
         </CardHeader>
         <CardContent>
-          {globalUserRoles.length === 0 ? (
+          {systemUserRoles.length === 0 ? (
             <div className="flex flex-col items-center gap-3 py-6 text-center">
               <ShieldAlert className="size-8 text-muted-foreground/40" />
               <p className="text-sm text-muted-foreground">
@@ -195,27 +201,13 @@ export function UserRolesPanel({
               )}
             </div>
           ) : (
-            <div className="flex flex-wrap gap-2">
-              {globalUserRoles.map((ur) => (
-                <Badge
-                  key={ur.user_role_id}
-                  variant={getRoleBadgeVariant(ur.roles.role_name)}
-                  className="gap-1.5 pr-1 text-xs"
-                >
-                  {translateRole(ur.roles.role_name)}
-                  <button
-                    type="button"
-                    onClick={() => setRoleToRemove(ur)}
-                    disabled={isPending}
-                    className="ml-0.5 rounded-sm opacity-60 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
-                    title={t("userRolesPanel.removeRoleTitle", { name: translateRole(ur.roles.role_name) })}
-                  >
-                    <X className="size-3" />
-                    <span className="sr-only">{t("userRolesPanel.removeSrOnly")}</span>
-                  </button>
-                </Badge>
-              ))}
-            </div>
+            <SystemRoleGroupsList
+              groups={systemRoleGroups}
+              isPending={isPending}
+              onRemove={setRoleToRemove}
+              t={t}
+              translateRole={translateRole}
+            />
           )}
         </CardContent>
       </Card>
@@ -332,5 +324,78 @@ export function UserRolesPanel({
         </AlertDialog>
       )}
     </>
+  );
+}
+
+type RbacTranslator = ReturnType<typeof useTranslations<"rbac">>;
+
+function SystemRoleGroupsList({
+  groups,
+  isPending,
+  onRemove,
+  t,
+  translateRole,
+}: {
+  groups: SystemRoleGroups;
+  isPending: boolean;
+  onRemove: (role: UserRole) => void;
+  t: RbacTranslator;
+  translateRole: RoleTranslator;
+}) {
+  const sections = [
+    {
+      key: "administrative",
+      title: t("userRolesPanel.administrativeGroup"),
+      roles: groups.administrative,
+    },
+    {
+      key: "operational",
+      title: t("userRolesPanel.operationalGroup"),
+      roles: groups.operational,
+    },
+    {
+      key: "other",
+      title: t("userRolesPanel.otherGroup"),
+      roles: groups.other,
+    },
+  ].filter((section) => section.roles.length > 0);
+
+  const showHeadings = sections.length > 1;
+
+  return (
+    <div className={showHeadings ? "space-y-4" : undefined}>
+      {sections.map((section) => (
+        <div key={section.key}>
+          {showHeadings ? (
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              {section.title}
+            </p>
+          ) : null}
+          <div className="flex flex-wrap gap-2">
+            {section.roles.map((ur) => (
+              <Badge
+                key={ur.user_role_id}
+                variant={getRoleBadgeVariant(ur.roles.role_name)}
+                className="gap-1.5 pr-1 text-xs"
+              >
+                {translateRole(ur.roles.role_name)}
+                <button
+                  type="button"
+                  onClick={() => onRemove(ur)}
+                  disabled={isPending}
+                  className="ml-0.5 rounded-sm opacity-60 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
+                  title={t("userRolesPanel.removeRoleTitle", {
+                    name: translateRole(ur.roles.role_name),
+                  })}
+                >
+                  <X className="size-3" />
+                  <span className="sr-only">{t("userRolesPanel.removeSrOnly")}</span>
+                </button>
+              </Badge>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }

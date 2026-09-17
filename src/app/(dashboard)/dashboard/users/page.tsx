@@ -11,8 +11,14 @@ import { UsersFilters } from "@/components/users/users-filters";
 import { UsersTable } from "@/components/users/users-table";
 import { UsersToolbarActions } from "@/components/users/users-toolbar-actions";
 import { listAdminUsers, type AdminUsersQuery } from "@/lib/api/admin-users";
+import { listCatalogRoles } from "@/lib/api/catalog-roles";
+import {
+  filterUsersRoleOptionsByViewer,
+  toUsersRoleFilterOptions,
+} from "@/lib/admin-users/role-filter-options";
 import { requireAdminUser } from "@/lib/auth/session";
 import { canViewAdministrativeCompletion } from "@/lib/auth/permission-utils";
+import { extractRoles } from "@/lib/auth/roles";
 import type { AuthUser } from "@/lib/auth/types";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -46,14 +52,24 @@ async function UsersContent({
   currentUser: AuthUser;
 }) {
   const t = await getTranslations("users.pages.list");
-  const result = await listAdminUsers(query);
-  const showAdministrativeCompletion = canViewAdministrativeCompletion(currentUser);
+  const [result, catalogRoles] = await Promise.all([
+    listAdminUsers(query),
+    listCatalogRoles().catch(() => []),
+  ]);
   const scope = result.meta?.scope;
+  const roleOptions = filterUsersRoleOptionsByViewer(
+    toUsersRoleFilterOptions(catalogRoles),
+    {
+      scopeType: scope?.type,
+      actorRoles: extractRoles(currentUser),
+    },
+  );
+  const showAdministrativeCompletion = canViewAdministrativeCompletion(currentUser);
 
   if (!result.endpointAvailable) {
     return (
       <div className="space-y-4">
-        <UsersFilters scope={scope} />
+        <UsersFilters scope={scope} roles={roleOptions} />
         <EndpointErrorBanner
           state={result.endpointState as "forbidden" | "missing" | "rate-limited"}
           detail={result.endpointDetail}
@@ -70,11 +86,14 @@ async function UsersContent({
 
   if (result.items.length === 0) {
     return (
-      <EmptyState
-        icon={Users}
-        title={t("emptyTitle")}
-        description={t("emptyDescription")}
-      />
+      <div className="space-y-4">
+        <UsersFilters scope={scope} roles={roleOptions} />
+        <EmptyState
+          icon={Users}
+          title={t("emptyTitle")}
+          description={t("emptyDescription")}
+        />
+      </div>
     );
   }
 
@@ -82,7 +101,7 @@ async function UsersContent({
 
   return (
     <div className="space-y-4">
-      <UsersFilters scope={scope} />
+      <UsersFilters scope={scope} roles={roleOptions} />
       <UsersTable
         users={result.items}
         showAdministrativeCompletion={showAdministrativeCompletion}
@@ -104,7 +123,7 @@ function UsersListSkeleton() {
     <div className="space-y-4">
       <div className="flex gap-3">
         <Skeleton className="h-9 flex-1" />
-        <Skeleton className="h-9 w-[160px]" />
+        <Skeleton className="h-9 w-[200px]" />
         <Skeleton className="h-9 w-[140px]" />
       </div>
       <DataTableShell>

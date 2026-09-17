@@ -1260,7 +1260,21 @@
       "placeholderAddress": "Adresse du club",
       "sectionsTitle": "Sections du club",
       "sectionsDescription": "Activez les sections que ce club opérera. Les trois sont toujours créées ; les types non cochés restent inactifs.",
-      "sectionToggleHint": "Activer la section."
+      "sectionToggleHint": "Activer la section.",
+      "prerequisites": {
+        "title": "Ce club ne peut pas encore être créé",
+        "contactAdmin": "Demandez à un administrateur de charger ceci.",
+        "local-fields": "Il manque au moins un champ local actif.",
+        "club-types": "Il manque au moins un type de club actif.",
+        "districts": "Il manque des districts dans le champ {name}.",
+        "churches": "Il manque des églises dans le district {name}.",
+        "go": {
+          "local-fields": "Aller aux champs locaux",
+          "club-types": "Aller aux types de club",
+          "districts": "Aller aux districts",
+          "churches": "Aller aux églises"
+        }
+      }
     },
     "edit": {
       "cardTitle": "Informations générales",
@@ -5023,6 +5037,23 @@
         "confirm": "Confirmer le recalcul",
         "confirmLoading": "Recalcul...",
         "cancel": "Annuler"
+      }
+    },
+    "setup": {
+      "title": "Le dossier annuel ne peut pas encore être créé",
+      "contactAdmin": "Demandez à un administrateur de charger ceci.",
+      "years": "Il manque une année ecclésiastique qui couvre aujourd'hui.",
+      "club-types": "Il manque au moins un type de club.",
+      "templates": "Il manque un modèle actif de dossier annuel.",
+      "ranking": "Il manque la classification annuelle avec le composant dossier.",
+      "unions": "Il manque au moins une union ou un champ local.",
+      "emptyHint": "Les dossiers apparaîtront ici une fois la configuration prête.",
+      "go": {
+        "years": "Aller aux années ecclésiastiques",
+        "club-types": "Aller aux types de club",
+        "templates": "Aller aux modèles",
+        "ranking": "Aller à la classification annuelle",
+        "unions": "Aller aux unions"
       }
     }
   },

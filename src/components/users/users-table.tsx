@@ -17,23 +17,11 @@ import {
   buildRoleTranslator,
   type RoleTranslator,
 } from "@/lib/auth/role-labels";
-import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 import {
   getAdminUserDisplayName,
   getAdminUserSecondaryLabel,
-  sortAdminUsersByName,
 } from "@/lib/admin-users/display";
-
-function extractRoleNames(user: AdminUser): string[] {
-  const roles: string[] = [];
-  if (user.roles) roles.push(...user.roles);
-  if (user.users_roles) {
-    for (const ur of user.users_roles) {
-      if (ur.roles?.role_name) roles.push(ur.roles.role_name);
-    }
-  }
-  return [...new Set(roles)];
-}
+import { toUserListRoleBadges } from "@/lib/admin-users/list-role-badges";
 
 function getDisplayName(user: AdminUser, t: UsersTranslations): string {
   return getAdminUserDisplayName(user, {
@@ -94,7 +82,7 @@ function UserMobileCard({
   t: UsersTranslations;
   translateRole: RoleTranslator;
 }) {
-  const roleNames = extractRoleNames(user);
+  const roleBadges = toUserListRoleBadges(user, translateRole);
   const fullName = getDisplayName(user, t);
   const secondaryLabel = getSecondaryLabel(user, t);
   const union = user.union?.name;
@@ -158,11 +146,11 @@ function UserMobileCard({
         )}
       </div>
 
-      {roleNames.length > 0 && (
+      {roleBadges.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-1">
-          {roleNames.map((role) => (
-            <Badge key={role} variant="secondary" className="text-xs">
-              {translateRole(role)}
+          {roleBadges.map((badge) => (
+            <Badge key={badge.key} variant="secondary" className="text-xs">
+              {badge.label}
             </Badge>
           ))}
         </div>
@@ -191,9 +179,6 @@ export async function UsersTable({
   const t = await getTranslations("users");
   const tRoles = await getTranslations("roles");
   const translateRole = buildRoleTranslator(tRoles);
-  const sortedUsers = sortAdminUsersByName(users, {
-    deletedAccount: t("list.deletedAccount"),
-  });
 
   return (
     <>
@@ -215,13 +200,13 @@ export async function UsersTable({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sortedUsers.map((user, index) => {
-                const roleNames = extractRoleNames(user);
+              {users.map((user) => {
+                const roleBadges = toUserListRoleBadges(user, translateRole);
                 const fullName = getDisplayName(user, t);
                 const secondaryLabel = getSecondaryLabel(user, t);
 
                 return (
-                  <TableRow key={user.user_id} className={STAGGER_CLASSES} style={getStaggerStyle(index)}>
+                  <TableRow key={user.user_id}>
                     <TableCell className="pl-6">
                       <div className="flex items-center gap-3">
                         <UserAvatar
@@ -243,12 +228,12 @@ export async function UsersTable({
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="hidden md:table-cell">
+                    <TableCell className="hidden max-w-[280px] whitespace-normal md:table-cell">
                       <div className="flex flex-wrap gap-1">
-                        {roleNames.length > 0 ? (
-                          roleNames.map((role) => (
-                            <Badge key={role} variant="secondary" className="text-xs">
-                              {translateRole(role)}
+                        {roleBadges.length > 0 ? (
+                          roleBadges.map((badge) => (
+                            <Badge key={badge.key} variant="secondary" className="text-xs">
+                              {badge.label}
                             </Badge>
                           ))
                         ) : (
@@ -305,8 +290,8 @@ export async function UsersTable({
 
       {/* Mobile: descriptive cards */}
       <ul className="space-y-3 md:hidden" aria-label={t("list.ariaLabel")}>
-        {sortedUsers.map((user, index) => (
-          <li key={user.user_id} className={STAGGER_CLASSES} style={getStaggerStyle(index)}>
+        {users.map((user) => (
+          <li key={user.user_id}>
             <UserMobileCard
               user={user}
               showAdministrativeCompletion={showAdministrativeCompletion}

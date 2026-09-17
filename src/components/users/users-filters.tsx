@@ -1,25 +1,46 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import { useTranslations } from "next-intl";
 import type { ScopeMeta } from "@/lib/api/admin-users";
+import { useRoleLabel } from "@/lib/auth/role-labels";
+import {
+  withCurrentRoleFilterOption,
+  type UsersRoleFilterOption,
+} from "@/lib/admin-users/role-filter-options";
+import { usersScopeTypeMessageKey } from "@/lib/admin-users/scope-type-label";
 
 interface UsersFiltersProps {
   scope?: ScopeMeta | null;
+  roles: UsersRoleFilterOption[];
 }
 
-export function UsersFilters({ scope }: UsersFiltersProps) {
+function sortByTranslatedLabel(
+  options: UsersRoleFilterOption[],
+  translateRole: (roleName: string) => string,
+): UsersRoleFilterOption[] {
+  return [...options].sort((a, b) =>
+    translateRole(a.value).localeCompare(translateRole(b.value), undefined, {
+      sensitivity: "base",
+    }),
+  );
+}
+
+export function UsersFilters({ scope, roles }: UsersFiltersProps) {
   const t = useTranslations("users");
+  const translateRole = useRoleLabel();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -56,8 +77,30 @@ export function UsersFilters({ scope }: UsersFiltersProps) {
   const currentRole = searchParams.get("role") ?? "all";
   const currentActive = searchParams.get("active") ?? "all";
 
+  const roleOptions = useMemo(
+    () => withCurrentRoleFilterOption(roles, currentRole === "all" ? undefined : currentRole),
+    [currentRole, roles],
+  );
+
+  const globalRoles = useMemo(
+    () => sortByTranslatedLabel(
+      roleOptions.filter((role) => role.category === "GLOBAL"),
+      translateRole,
+    ),
+    [roleOptions, translateRole],
+  );
+
+  const clubRoles = useMemo(
+    () => sortByTranslatedLabel(
+      roleOptions.filter((role) => role.category === "CLUB"),
+      translateRole,
+    ),
+    [roleOptions, translateRole],
+  );
+
   const isScopeLocked =
     scope?.type === "UNION" || scope?.type === "LOCAL_FIELD" || scope?.type === "DIVISION";
+  const scopeTypeKey = usersScopeTypeMessageKey(scope?.type);
 
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -72,19 +115,36 @@ export function UsersFilters({ scope }: UsersFiltersProps) {
       </div>
 
       <Select value={currentRole} onValueChange={(v) => updateParam("role", v)}>
-        <SelectTrigger className="w-[160px]">
+        <SelectTrigger className="w-[200px]" aria-label={t("filters.rolePlaceholder")}>
           <SelectValue placeholder={t("filters.rolePlaceholder")} />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">{t("filters.allRoles")}</SelectItem>
-          <SelectItem value="super-admin">{t("filters.roleOptions.superAdmin")}</SelectItem>
-          <SelectItem value="admin">{t("filters.roleOptions.admin")}</SelectItem>
-          <SelectItem value="coordinator">{t("filters.roleOptions.coordinator")}</SelectItem>
+          {globalRoles.length > 0 ? (
+            <SelectGroup>
+              <SelectLabel>{t("filters.roleGroups.global")}</SelectLabel>
+              {globalRoles.map((role) => (
+                <SelectItem key={role.value} value={role.value}>
+                  {translateRole(role.value)}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          ) : null}
+          {clubRoles.length > 0 ? (
+            <SelectGroup>
+              <SelectLabel>{t("filters.roleGroups.club")}</SelectLabel>
+              {clubRoles.map((role) => (
+                <SelectItem key={role.value} value={role.value}>
+                  {translateRole(role.value)}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          ) : null}
         </SelectContent>
       </Select>
 
       <Select value={currentActive} onValueChange={(v) => updateParam("active", v)}>
-        <SelectTrigger className="w-[140px]">
+        <SelectTrigger className="w-[140px]" aria-label={t("filters.statusPlaceholder")}>
           <SelectValue placeholder={t("filters.statusPlaceholder")} />
         </SelectTrigger>
         <SelectContent>
@@ -94,11 +154,12 @@ export function UsersFilters({ scope }: UsersFiltersProps) {
         </SelectContent>
       </Select>
 
-      {isScopeLocked && (
+      {isScopeLocked && scopeTypeKey ? (
         <div className="text-xs text-muted-foreground">
-          {t("filters.scopeLabel")} <span className="font-medium">{scope?.type}</span>
+          {t("filters.scopeLabel")}{" "}
+          <span className="font-medium">{t(scopeTypeKey)}</span>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

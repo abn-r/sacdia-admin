@@ -58,6 +58,12 @@ export type AdminUser = {
     name?: string | null;
   } | null;
   roles?: string[];
+  club_assignments?: Array<{
+    assignment_id?: string | null;
+    role_name?: string | null;
+    section_name?: string | null;
+    club_name?: string | null;
+  }>;
   users_roles?: Array<{
     roles?: {
       role_name?: string | null;
@@ -112,16 +118,10 @@ export type AdminUsersQuery = {
   localFieldId?: number;
   page?: number;
   limit?: number;
+  sortBy?: "name" | "created_at";
+  sortOrder?: "asc" | "desc";
   q?: string;
   status?: "active" | "inactive" | "pending" | "approved";
-};
-
-export type AdminApprovalDecision = "approve" | "reject";
-
-export type UpdateAdminUserApprovalPayload = {
-  userId: string;
-  decision: AdminApprovalDecision;
-  reason?: string;
 };
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -229,6 +229,35 @@ function normalizeRoles(value: unknown): string[] {
   }
 
   return roles;
+}
+
+function normalizeClubAssignments(
+  value: unknown,
+): AdminUser["club_assignments"] {
+  if (!Array.isArray(value)) {
+    return undefined;
+  }
+
+  const rows: NonNullable<AdminUser["club_assignments"]> = [];
+
+  for (const item of value) {
+    const record = asRecord(item);
+    if (!record) {
+      continue;
+    }
+    const roleName = pickString(record.role_name);
+    if (!roleName) {
+      continue;
+    }
+    rows.push({
+      assignment_id: pickString(record.assignment_id),
+      role_name: roleName,
+      section_name: pickString(record.section_name),
+      club_name: pickString(record.club_name),
+    });
+  }
+
+  return rows.length > 0 ? rows : undefined;
 }
 
 function normalizeUsersRoles(value: unknown): AdminUser["users_roles"] | undefined {
@@ -471,6 +500,7 @@ function normalizeAdminUser(item: Record<string, unknown>): AdminUser | null {
           }
         : null,
     roles: uniqueRoles,
+    club_assignments: normalizeClubAssignments(item.club_assignments),
     users_roles: usersRoles,
     post_registration: normalizePostRegistration(item.post_registration),
     created_at: pickString(item.created_at) ?? pickString(item.createdAt),
@@ -614,7 +644,7 @@ function normalizeEndpointDetail(error: ApiError): string {
   return "Endpoint no publicado o metodo no habilitado en backend.";
 }
 
-function buildListParams(query: AdminUsersQuery) {
+export function buildListParams(query: AdminUsersQuery) {
   const params: Record<string, string | number | boolean | undefined> = {};
 
   const search =
@@ -648,6 +678,9 @@ function buildListParams(query: AdminUsersQuery) {
   if (typeof query.localFieldId === "number" && Number.isFinite(query.localFieldId)) {
     params.localFieldId = Math.floor(query.localFieldId);
   }
+
+  params.sortBy = query.sortBy === "created_at" ? "created_at" : "name";
+  params.sortOrder = query.sortOrder === "desc" ? "desc" : "asc";
 
   if (typeof query.page === "number" && Number.isFinite(query.page) && query.page > 0) {
     params.page = Math.floor(query.page);
@@ -797,149 +830,11 @@ export async function getAdminUserDetail(userId: string): Promise<AdminUserDetai
   return detail;
 }
 
-function normalizeApprovalPayload(payload: UpdateAdminUserApprovalPayload) {
-  const approved = payload.decision === "approve";
-  const rejectionReason =
-    !approved && payload.reason && payload.reason.trim().length > 0
-      ? payload.reason.trim()
-      : undefined;
-
-  return {
-    approved,
-    approval: approved ? 1 : 0,
-    status: approved ? "approved" : "rejected",
-    rejection_reason: rejectionReason,
-  };
-}
-
 export type UpdateAdminUserPayload = {
   access_app?: boolean;
   access_panel?: boolean;
   active?: boolean;
-  approval_status?: "pending" | "approved" | "rejected";
-  /** Numeric approval value accepted by PATCH /admin/users/:id (0=pending, 1=approved, -1=rejected) */
-  approval?: number;
-  /** Boolean approved flag accepted by some backend variants */
-  approved?: boolean;
 };
-
-export async function updateAdminUserApproval(payload: UpdateAdminUserApprovalPayload) {
-  const userId = payload.userId.trim();
-
-  if (!userId) {
-    throw new Error("Usuario invalido");
-  }
-
-  const data = normalizeApprovalPayload(payload);
-  const attempts = [
-    {
-      path: `/admin/users/${encodeURIComponent(userId)}/approval`,
-      body: {
-        approved: data.approved,
-        rejection_reason: data.rejection_reason,
-      },
-    },
-    {
-      path: `/admin/users/${encodeURIComponent(userId)}`,
-      body: {
-        approval: data.approval,
-        status: data.status,
-        rejection_reason: data.rejection_reason,
-      },
-    },
-  ] as const;
-
-  let lastKnownError: ApiError | null = null;
-
-  for (const attempt of attempts) {
-    try {
-      return await apiRequest<unknown>(attempt.path, {
-        method: "PATCH",
-        body: attempt.body,
-      });
-    } catch (error) {
-      if (error instanceof ApiError) {
-        lastKnownError = error;
-
-        if ([404, 405, 422].includes(error.status)) {
-          continue;
-        }
-
-        throw error;
-      }
-
-      throw error;
-    }
-  }
-
-  if (lastKnownError) {
-    throw lastKnownError;
-  }
-
-  throw new Error("No se pudo actualizar la aprobación del usuario");
-}
-
-/**
- * Client-side version of updateAdminUserApproval.
- * Uses apiRequestFromClient so it attaches the Bearer token from the browser cookie.
- * Tries PATCH /admin/users/:userId/approval first (dedicated endpoint), then falls
- * back to generic PATCH /admin/users/:userId on 404/405/422.
- */
-export async function updateAdminUserApprovalFromClient(payload: UpdateAdminUserApprovalPayload) {
-  const userId = payload.userId.trim();
-
-  if (!userId) {
-    throw new Error("Usuario invalido");
-  }
-
-  const data = normalizeApprovalPayload(payload);
-  const attempts = [
-    {
-      path: `/admin/users/${encodeURIComponent(userId)}/approval`,
-      body: {
-        approved: data.approved,
-        rejection_reason: data.rejection_reason,
-      },
-    },
-    {
-      path: `/admin/users/${encodeURIComponent(userId)}`,
-      body: {
-        approval: data.approval,
-        status: data.status,
-        rejection_reason: data.rejection_reason,
-      },
-    },
-  ] as const;
-
-  let lastKnownError: ApiError | null = null;
-
-  for (const attempt of attempts) {
-    try {
-      return await apiRequestFromClient<unknown>(attempt.path, {
-        method: "PATCH",
-        body: attempt.body,
-      });
-    } catch (error) {
-      if (error instanceof ApiError) {
-        lastKnownError = error;
-
-        if ([404, 405, 422].includes(error.status)) {
-          continue;
-        }
-
-        throw error;
-      }
-
-      throw error;
-    }
-  }
-
-  if (lastKnownError) {
-    throw lastKnownError;
-  }
-
-  throw new Error("No se pudo actualizar la aprobación del usuario");
-}
 
 export type AdminCreatableRole =
   | "user"
