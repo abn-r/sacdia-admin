@@ -58,15 +58,14 @@ export function LoginForm({ nextParam }: Props) {
     >
       {/* Mobile-only brand mark above form */}
       <div className="mb-8 flex items-center gap-3 lg:hidden">
-        <div className="grid size-10 place-items-center rounded-xl border border-border bg-card shadow-xs">
-          <Image
-            src="/svg/LogoSACDIA.svg"
-            alt="SACDIA"
-            width={22}
-            height={22}
-            priority
-          />
-        </div>
+        <Image
+          src="/app-icon.jpg"
+          alt="SACDIA"
+          width={40}
+          height={40}
+          className="size-10 rounded-xl"
+          priority
+        />
         <div className="leading-tight">
           <div className="text-base font-bold tracking-tight text-foreground">
             SACDIA

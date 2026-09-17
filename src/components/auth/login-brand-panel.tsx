@@ -38,16 +38,14 @@ export function LoginBrandPanel() {
       </svg>
 
       <div className="relative flex items-center gap-3">
-        <div className="grid size-10 place-items-center rounded-xl border border-white/30 bg-white/15 backdrop-blur-sm">
-          <Image
-            src="/svg/LogoSACDIA.svg"
-            alt="SACDIA"
-            width={24}
-            height={24}
-            style={{ filter: "brightness(0) invert(1)" }}
-            priority
-          />
-        </div>
+        <Image
+          src="/app-icon.jpg"
+          alt="SACDIA"
+          width={40}
+          height={40}
+          className="size-10 rounded-xl"
+          priority
+        />
         <div className="leading-tight">
           <div className="text-base font-bold tracking-tight">SACDIA</div>
           <div className="font-mono text-[11px] uppercase tracking-[0.08em] opacity-75">

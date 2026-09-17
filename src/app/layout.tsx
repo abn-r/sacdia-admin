@@ -17,7 +17,11 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: APP_CONFIG.meta.title,
   description: APP_CONFIG.meta.description,
-  icons: { icon: "/logo.ico" },
+  icons: {
+    icon: "/app-icon.jpg",
+    shortcut: "/app-icon.jpg",
+    apple: "/app-icon.jpg",
+  },
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: ReactNode }>) {

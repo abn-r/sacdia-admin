@@ -42,11 +42,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton asChild>
               <Link prefetch={false} href="/dashboard" aria-label={APP_CONFIG.name}>
                 <Image
-                  src="/svg/LogoSACDIA.svg"
+                  src="/app-icon.jpg"
                   alt=""
                   width={16}
                   height={16}
-                  className="size-4 shrink-0"
+                  className="size-4 shrink-0 rounded-sm"
                 />
                 <span className="font-semibold text-base">{APP_CONFIG.name}</span>
               </Link>
