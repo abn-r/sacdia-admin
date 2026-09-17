@@ -1,9 +1,8 @@
-import { Settings2 } from "lucide-react";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
-import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { AnnualFolderSetupNotice } from "@/components/annual-folders/annual-folder-setup-notice";
 import { AnnualBudgetConfigForm } from "@/components/annual-rankings/annual-budget-config-form";
 import { loadRankingConfigPageData } from "@/lib/annual-rankings/load-ranking-config-page-data";
 
@@ -29,10 +28,6 @@ export default async function EditAnnualRankingConfigPage({ params }: PageProps)
     { label: t("breadcrumbEdit") },
   ];
 
-  if (!data.loadError && !data.missingCatalogs && !config) {
-    notFound();
-  }
-
   if (data.loadError) {
     return (
       <div className="flex flex-col gap-6">
@@ -42,17 +37,8 @@ export default async function EditAnnualRankingConfigPage({ params }: PageProps)
     );
   }
 
-  if (data.missingCatalogs || !config) {
-    return (
-      <div className="flex flex-col gap-6">
-        <PageHeader title={t("editTitle")} breadcrumbs={breadcrumbs} />
-        <EmptyState
-          icon={Settings2}
-          title={t("unavailableTitle")}
-          description={t("unavailableDescription")}
-        />
-      </div>
-    );
+  if (!config) {
+    notFound();
   }
 
   return (
@@ -62,6 +48,8 @@ export default async function EditAnnualRankingConfigPage({ params }: PageProps)
         description={t("editDescription")}
         breadcrumbs={breadcrumbs}
       />
+
+      <AnnualFolderSetupNotice gap={data.createGap} />
 
       <AnnualBudgetConfigForm
         mode="edit"

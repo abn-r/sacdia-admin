@@ -1,8 +1,7 @@
-import { Settings2 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
-import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { AnnualFolderSetupNotice } from "@/components/annual-folders/annual-folder-setup-notice";
 import { AnnualBudgetConfigForm } from "@/components/annual-rankings/annual-budget-config-form";
 import { loadRankingConfigPageData } from "@/lib/annual-rankings/load-ranking-config-page-data";
 
@@ -29,15 +28,11 @@ export default async function NewAnnualRankingConfigPage() {
     );
   }
 
-  if (data.missingCatalogs) {
+  if (data.createGap) {
     return (
       <div className="flex flex-col gap-6">
         <PageHeader title={t("newTitle")} breadcrumbs={breadcrumbs} />
-        <EmptyState
-          icon={Settings2}
-          title={t("missingCatalogsTitle")}
-          description={t("missingCatalogsDescription")}
-        />
+        <AnnualFolderSetupNotice gap={data.createGap} />
       </div>
     );
   }

@@ -1,8 +1,7 @@
-import { Settings2 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
-import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { AnnualFolderSetupNotice } from "@/components/annual-folders/annual-folder-setup-notice";
 import { AnnualRankingConfigClientPage } from "@/components/annual-rankings/annual-ranking-config-client-page";
 import { loadRankingConfigPageData } from "@/lib/annual-rankings/load-ranking-config-page-data";
 
@@ -29,23 +28,19 @@ export default async function AnnualRankingConfigPage() {
         <EndpointErrorBanner state="missing" detail={data.loadError} />
       )}
 
-      {!data.loadError && data.missingCatalogs && (
-        <EmptyState
-          icon={Settings2}
-          title={t("missingCatalogsTitle")}
-          description={t("missingCatalogsDescription")}
-        />
-      )}
-
-      {!data.loadError && !data.missingCatalogs && (
-        <AnnualRankingConfigClientPage
-          initialConfigs={data.configs}
-          initialTiers={data.tiers}
-          unions={data.unions}
-          localFields={data.localFields}
-          clubTypes={data.clubTypes}
-          ecclesiasticalYears={data.ecclesiasticalYears}
-        />
+      {!data.loadError && (
+        <>
+          <AnnualFolderSetupNotice gap={data.createGap} />
+          <AnnualRankingConfigClientPage
+            initialConfigs={data.configs}
+            initialTiers={data.tiers}
+            unions={data.unions}
+            localFields={data.localFields}
+            clubTypes={data.clubTypes}
+            ecclesiasticalYears={data.ecclesiasticalYears}
+            createBlocked={data.createGap != null}
+          />
+        </>
       )}
     </div>
   );

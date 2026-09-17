@@ -26,7 +26,6 @@ import {
 import { configLabel } from "@/lib/annual-rankings/annual-ranking-config-utils";
 import type { AnnualRankingConfig } from "@/lib/api/annual-rankings";
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
-import { STAGGER_CLASSES, getStaggerStyle } from "@/lib/animations";
 import type { LocalField, Union } from "@/lib/api/geography";
 
 const ROUTE_BASE = "/dashboard/annual-folders/ranking-config";
@@ -37,6 +36,7 @@ interface AnnualBudgetConfigListProps {
   localFields: LocalField[];
   clubTypes: ClubType[];
   ecclesiasticalYears: EcclesiasticalYear[];
+  createBlocked?: boolean;
 }
 
 export function AnnualBudgetConfigList({
@@ -45,6 +45,7 @@ export function AnnualBudgetConfigList({
   localFields,
   clubTypes,
   ecclesiasticalYears,
+  createBlocked = false,
 }: AnnualBudgetConfigListProps) {
   const t = useTranslations("annual_folders.budgetConfigList");
   const router = useRouter();
@@ -62,12 +63,19 @@ export function AnnualBudgetConfigList({
             secciones para un alcance, año y tipo de club.
           </p>
         </div>
-        <Button asChild className="shrink-0">
-          <Link href={`${ROUTE_BASE}/new`}>
+        {createBlocked ? (
+          <Button className="shrink-0" disabled>
             <Plus className="size-4" />
             Nueva configuración
-          </Link>
-        </Button>
+          </Button>
+        ) : (
+          <Button asChild className="shrink-0">
+            <Link href={`${ROUTE_BASE}/new`}>
+              <Plus className="size-4" />
+              Nueva configuración
+            </Link>
+          </Button>
+        )}
       </div>
 
       {configs.length === 0 ? (
@@ -76,9 +84,11 @@ export function AnnualBudgetConfigList({
           title={t("emptyTitle")}
           description={t("emptyDescription")}
         >
-          <Button asChild size="sm">
-            <Link href={`${ROUTE_BASE}/new`}>Nueva configuración</Link>
-          </Button>
+          {!createBlocked && (
+            <Button asChild size="sm">
+              <Link href={`${ROUTE_BASE}/new`}>Nueva configuración</Link>
+            </Button>
+          )}
         </EmptyState>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-border/60 bg-card shadow-xs">
@@ -94,7 +104,7 @@ export function AnnualBudgetConfigList({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {configs.map((config, index) => {
+              {configs.map((config) => {
                 const { scopeName, year, clubType } = configLabel(
                   config,
                   unions,
@@ -104,11 +114,7 @@ export function AnnualBudgetConfigList({
                 );
 
                 return (
-                  <TableRow
-                    key={config.annual_ranking_config_id}
-                    className={STAGGER_CLASSES}
-                    style={getStaggerStyle(index)}
-                  >
+                  <TableRow key={config.annual_ranking_config_id}>
                     <TableCell>
                       <div className="flex flex-col gap-1">
                         <Badge variant="outline" className="w-fit">

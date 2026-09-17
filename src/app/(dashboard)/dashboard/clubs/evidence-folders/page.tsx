@@ -6,6 +6,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { extractRoles } from "@/lib/auth/roles";
 import { requireAdminUser } from "@/lib/auth/session";
 import { listClubTypes, listEcclesiasticalYears } from "@/lib/api/catalogs";
+import { listTemplates, type FolderTemplate } from "@/lib/api/annual-folders";
+import {
+  listAnnualRankingConfigs,
+  type AnnualRankingConfig,
+} from "@/lib/api/annual-rankings";
 import {
   listLocalFieldsForTerritory,
   listUnionsForTerritory,
@@ -51,22 +56,42 @@ export default async function ClubsEvidenceFoldersPage() {
   let ecclesiasticalYears: EcclesiasticalYear[] = [];
   let unions: Union[] = [];
   let localFields: LocalField[] = [];
+  let templates: FolderTemplate[] = [];
+  let rankingConfigs: AnnualRankingConfig[] = [];
   let loadError: string | null = null;
 
-  const [clubTypesResult, yearsResult, unionsResult, localFieldsResult] =
-    await Promise.allSettled([
-      listClubTypes(),
-      listEcclesiasticalYears(),
-      listUnionsForTerritory(currentUser),
-      listLocalFieldsForTerritory(currentUser),
-    ]);
+  const [
+    clubTypesResult,
+    yearsResult,
+    unionsResult,
+    localFieldsResult,
+    templatesResult,
+    rankingConfigsResult,
+  ] = await Promise.allSettled([
+    listClubTypes(),
+    listEcclesiasticalYears(),
+    listUnionsForTerritory(currentUser),
+    listLocalFieldsForTerritory(currentUser),
+    listTemplates(),
+    listAnnualRankingConfigs(),
+  ]);
 
   if (clubTypesResult.status === "fulfilled") clubTypes = clubTypesResult.value;
   else loadError = t("loadError");
 
   if (yearsResult.status === "fulfilled") ecclesiasticalYears = yearsResult.value;
+  else loadError = loadError ?? t("loadError");
+
   if (unionsResult.status === "fulfilled") unions = unionsResult.value;
   if (localFieldsResult.status === "fulfilled") localFields = localFieldsResult.value;
+  if (templatesResult.status === "fulfilled") templates = templatesResult.value;
+  else loadError = loadError ?? t("loadError");
+
+  if (rankingConfigsResult.status === "fulfilled") {
+    rankingConfigs = rankingConfigsResult.value;
+  } else {
+    loadError = loadError ?? t("loadError");
+  }
 
   return (
     <div className="space-y-6">
@@ -82,6 +107,8 @@ export default async function ClubsEvidenceFoldersPage() {
           ecclesiasticalYears={ecclesiasticalYears}
           unions={unions}
           localFields={localFields}
+          templates={templates}
+          rankingConfigs={rankingConfigs}
         />
       )}
     </div>

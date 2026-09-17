@@ -15,6 +15,10 @@ import {
   type RankingTier,
 } from "@/lib/api/annual-rankings";
 import { ApiError } from "@/lib/api/client";
+import {
+  findRankingConfigCreateGap,
+  type AnnualFolderGap,
+} from "@/lib/prerequisites/annual-folder-gaps";
 
 export type RankingConfigPageData = {
   loadError: string | null;
@@ -24,7 +28,7 @@ export type RankingConfigPageData = {
   localFields: LocalField[];
   clubTypes: ClubType[];
   ecclesiasticalYears: EcclesiasticalYear[];
-  missingCatalogs: boolean;
+  createGap: AnnualFolderGap | null;
 };
 
 async function listRankingConfigLocalFieldsForScope(
@@ -132,10 +136,12 @@ export async function loadRankingConfigPageData(): Promise<RankingConfigPageData
         : "No se pudo cargar la configuración anual de rankings.";
   }
 
-  const missingCatalogs =
-    (localFields.length === 0 && unions.length === 0) ||
-    clubTypes.length === 0 ||
-    ecclesiasticalYears.length === 0;
+  const createGap = findRankingConfigCreateGap({
+    unions,
+    localFields,
+    clubTypes,
+    ecclesiasticalYears,
+  });
 
   return {
     loadError,
@@ -145,6 +151,6 @@ export async function loadRankingConfigPageData(): Promise<RankingConfigPageData
     localFields,
     clubTypes,
     ecclesiasticalYears,
-    missingCatalogs,
+    createGap,
   };
 }

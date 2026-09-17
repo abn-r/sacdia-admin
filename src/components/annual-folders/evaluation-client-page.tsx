@@ -69,15 +69,19 @@ import type {
   FolderStatus,
   FolderEvidence,
   FolderSectionWithEvidences,
+  FolderTemplate,
   SectionEvaluation,
   UnionConfirmationDecision,
 } from "@/lib/api/annual-folders";
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
 import type { LocalField, Union } from "@/lib/api/geography";
+import type { AnnualRankingConfig } from "@/lib/api/annual-rankings";
 import {
   CLUBS_EVIDENCE_FOLDERS_BASE,
   clubsEvidenceFolderPath,
 } from "@/lib/clubs/evidence-folders-paths";
+import { AnnualFolderSetupNotice } from "@/components/annual-folders/annual-folder-setup-notice";
+import { findAnnualFolderSetupGap } from "@/lib/prerequisites/annual-folder-gaps";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -414,6 +418,8 @@ interface EvaluationClientPageProps {
   ecclesiasticalYears?: EcclesiasticalYear[];
   unions?: Union[];
   localFields?: LocalField[];
+  templates?: FolderTemplate[];
+  rankingConfigs?: AnnualRankingConfig[];
 }
 
 // Service rule, not catalog: confirm-union is director-union/assistant-union with no super-admin bypass.
@@ -427,9 +433,17 @@ export function EvaluationClientPage({
   ecclesiasticalYears = [],
   unions = [],
   localFields = [],
+  templates = [],
+  rankingConfigs = [],
 }: EvaluationClientPageProps) {
   const t = useTranslations("annual_folders");
   const tFolders = useTranslations("annual_folders.pageFolders");
+  const folderSetupGap = findAnnualFolderSetupGap({
+    ecclesiasticalYears,
+    clubTypes,
+    templates,
+    rankingConfigs,
+  });
   const isListMode = mode === "list";
   const isDetailMode = mode === "detail";
   const canConfirmUnion = currentUserRoles.some((role) =>
@@ -1053,6 +1067,7 @@ export function EvaluationClientPage({
 
   return (
     <div className="space-y-6">
+      {isListMode ? <AnnualFolderSetupNotice gap={folderSetupGap} /> : null}
       {/* Human-readable queue */}
       <div className="space-y-4">
         <div className="rounded-xl border bg-muted/20 p-4">
@@ -1277,8 +1292,9 @@ export function EvaluationClientPage({
               <FolderSearch className="mb-2 size-8 text-muted-foreground" />
               <p className="text-sm font-medium">No hay carpetas para mostrar</p>
               <p className="mt-1 max-w-md text-xs text-muted-foreground">
-                Probá cambiar el filtro de estado o buscar por otro nombre de
-                club, sección, campo o plantilla.
+                {folderSetupGap
+                  ? t("setup.emptyHint")
+                  : "Prueba cambiar el filtro de estado o buscar por otro nombre de club, sección, campo o plantilla."}
               </p>
             </div>
           ) : (

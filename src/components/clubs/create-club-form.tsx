@@ -24,6 +24,8 @@ import {
 } from "@/components/ui/select";
 import type { ClubActionState } from "@/lib/clubs/actions";
 import { LocationPicker } from "@/components/shared/location-picker";
+import { PrerequisiteNotice } from "@/components/shared/prerequisite-notice";
+import { useScreenAccess } from "@/lib/auth/screen-catalog/use-screen-access";
 import {
   filterChurchesByDistrict,
   filterDistrictsByLocalField,
@@ -31,12 +33,45 @@ import {
   type DistrictOption,
   type SelectOption,
 } from "@/lib/clubs/create-form-options";
+import {
+  findClubCreateGaps,
+  type ClubCreateGap,
+} from "@/lib/prerequisites/club-create-gaps";
+import { resolvePrerequisiteHref } from "@/lib/prerequisites/resolve-prerequisite-href";
 
-function SubmitButton() {
+function clubGapCopy(
+  t: ReturnType<typeof useTranslations<"clubs.create.prerequisites">>,
+  gap: ClubCreateGap,
+) {
+  switch (gap.id) {
+    case "local-fields":
+      return {
+        description: t("local-fields"),
+        actionLabel: t("go.local-fields"),
+      };
+    case "club-types":
+      return {
+        description: t("club-types"),
+        actionLabel: t("go.club-types"),
+      };
+    case "districts":
+      return {
+        description: t("districts", { name: gap.contextName ?? "" }),
+        actionLabel: t("go.districts"),
+      };
+    case "churches":
+      return {
+        description: t("churches", { name: gap.contextName ?? "" }),
+        actionLabel: t("go.churches"),
+      };
+  }
+}
+
+function SubmitButton({ disabled }: { disabled?: boolean }) {
   const { pending } = useFormStatus();
   const t = useTranslations("clubs");
   return (
-    <Button type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending || disabled}>
       {pending && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
       {t("create.submitButton")}
     </Button>
@@ -66,6 +101,8 @@ export function CreateClubForm({
 }: CreateClubFormProps) {
   const [state, action] = useActionState(formAction, initialState);
   const t = useTranslations("clubs");
+  const tPrereq = useTranslations("clubs.create.prerequisites");
+  const { subject } = useScreenAccess();
   const [localFieldValue, setLocalFieldValue] = useState("");
   const [districtValue, setDistrictValue] = useState("");
   const [churchValue, setChurchValue] = useState("");
@@ -80,6 +117,38 @@ export function CreateClubForm({
   const filteredChurches = useMemo(
     () => filterChurchesByDistrict(churches, selectedDistrictId),
     [churches, selectedDistrictId],
+  );
+  const createGaps = useMemo(
+    () =>
+      findClubCreateGaps({
+        localFields,
+        districts,
+        churches,
+        clubTypes,
+        selectedLocalFieldId,
+        selectedDistrictId,
+      }),
+    [
+      localFields,
+      districts,
+      churches,
+      clubTypes,
+      selectedLocalFieldId,
+      selectedDistrictId,
+    ],
+  );
+  const prerequisiteItems = useMemo(
+    () =>
+      createGaps.map((gap) => {
+        const copy = clubGapCopy(tPrereq, gap);
+        return {
+          id: gap.id,
+          description: copy.description,
+          href: resolvePrerequisiteHref(subject, gap.screenId),
+          actionLabel: copy.actionLabel,
+        };
+      }),
+    [createGaps, subject, tPrereq],
   );
 
   const fieldErrors = state.fieldErrors ?? {};
@@ -99,6 +168,12 @@ export function CreateClubForm({
           {state.error}
         </div>
       )}
+
+      <PrerequisiteNotice
+        title={tPrereq("title")}
+        items={prerequisiteItems}
+        contactAdminLabel={tPrereq("contactAdmin")}
+      />
 
       <Card>
         <CardHeader>
@@ -294,22 +369,26 @@ export function CreateClubForm({
         </CardContent>
       </Card>
 
-      {clubTypes.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">{t("create.sectionsTitle")}</CardTitle>
-            <CardDescription>{t("create.sectionsDescription")}</CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-3 sm:grid-cols-2">
-            {fieldErrors.sections && (
-              <p
-                role="alert"
-                className="text-xs text-destructive sm:col-span-2"
-              >
-                {fieldErrors.sections}
-              </p>
-            )}
-            {clubTypes.map((clubType, index) => {
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">{t("create.sectionsTitle")}</CardTitle>
+          <CardDescription>{t("create.sectionsDescription")}</CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-3 sm:grid-cols-2">
+          {fieldErrors.sections && (
+            <p
+              role="alert"
+              className="text-xs text-destructive sm:col-span-2"
+            >
+              {fieldErrors.sections}
+            </p>
+          )}
+          {clubTypes.length === 0 ? (
+            <p className="text-sm text-muted-foreground sm:col-span-2">
+              {tPrereq("club-types")}
+            </p>
+          ) : (
+            clubTypes.map((clubType, index) => {
               const checkboxId = `section_club_type_id_${index}`;
               return (
                 <div
@@ -333,10 +412,10 @@ export function CreateClubForm({
                   </div>
                 </div>
               );
-            })}
-          </CardContent>
-        </Card>
-      )}
+            })
+          )}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
@@ -357,7 +436,7 @@ export function CreateClubForm({
       </Card>
 
       <div className="flex justify-end">
-        <SubmitButton />
+        <SubmitButton disabled={createGaps.length > 0} />
       </div>
     </form>
   );

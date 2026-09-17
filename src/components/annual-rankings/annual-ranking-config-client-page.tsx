@@ -20,6 +20,7 @@ interface AnnualRankingConfigClientPageProps {
   localFields: LocalField[];
   clubTypes: ClubType[];
   ecclesiasticalYears: EcclesiasticalYear[];
+  createBlocked?: boolean;
 }
 
 export function AnnualRankingConfigClientPage({
@@ -29,6 +30,7 @@ export function AnnualRankingConfigClientPage({
   localFields,
   clubTypes,
   ecclesiasticalYears,
+  createBlocked = false,
 }: AnnualRankingConfigClientPageProps) {
   return (
     <Tabs defaultValue="budget" className="gap-6">
@@ -53,6 +55,7 @@ export function AnnualRankingConfigClientPage({
           localFields={localFields}
           clubTypes={clubTypes}
           ecclesiasticalYears={ecclesiasticalYears}
+          createBlocked={createBlocked}
         />
       </TabsContent>
 

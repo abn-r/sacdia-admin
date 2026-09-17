@@ -21,6 +21,8 @@ import {
   Copy,
 } from "lucide-react";
 import { toast } from "sonner";
+import { AnnualFolderSetupNotice } from "@/components/annual-folders/annual-folder-setup-notice";
+import { findAnnualFolderSetupGap } from "@/lib/prerequisites/annual-folder-gaps";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -185,6 +187,15 @@ export function TemplatesClientPage({
 
   const [templates, setTemplates] =
     useState<FolderTemplate[]>(initialTemplates);
+  const folderSetupGap = findAnnualFolderSetupGap({
+    ecclesiasticalYears,
+    clubTypes,
+    templates,
+    rankingConfigs,
+    includeTemplateGap: false,
+  });
+  const cannotCreateTemplate =
+    folderSetupGap?.id === "years" || folderSetupGap?.id === "club-types";
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Template CRUD state
@@ -1003,6 +1014,7 @@ export function TemplatesClientPage({
 
   return (
     <div className="space-y-5">
+      <AnnualFolderSetupNotice gap={folderSetupGap} />
       {/* Toolbar */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -1035,6 +1047,7 @@ export function TemplatesClientPage({
         </div>
         <Button
           size="sm"
+          disabled={cannotCreateTemplate}
           onClick={() => {
             setEditingTemplate(null);
             setTemplateFormOpen(true);
@@ -1160,7 +1173,7 @@ export function TemplatesClientPage({
               ? t("templates.noResultsDescription")
               : t("templates.noTemplatesDescription")}
           </p>
-          {!hasActiveFilters && (
+          {!hasActiveFilters && !cannotCreateTemplate && (
             <Button
               size="sm"
               className="mt-4"
