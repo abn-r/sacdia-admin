@@ -17,113 +17,64 @@ export type UserListRoleBadge = {
   label: string;
 };
 
-export type CompactClubAssignment = {
-  assignment_id?: string | null;
-  role_name?: string | null;
-  section_name?: string | null;
-  club_name?: string | null;
-};
-
-function rankClubRole(roleName: string): number {
+function rankRole(roleName: string): number {
   return CLUB_ROLE_RANK[roleName.trim().toLowerCase()] ?? 8;
 }
 
-function asAssignment(value: unknown): CompactClubAssignment | null {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return null;
-  }
-  const row = value as CompactClubAssignment;
-  const roleName = row.role_name?.trim();
-  if (!roleName) {
-    return null;
-  }
-  return {
-    assignment_id: row.assignment_id ?? null,
-    role_name: roleName,
-    section_name: row.section_name?.trim() || null,
-    club_name: row.club_name?.trim() || null,
-  };
-}
-
-export function normalizeListClubAssignments(
-  value: unknown,
-): CompactClubAssignment[] {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-  const rows = value
-    .map(asAssignment)
-    .filter((row): row is CompactClubAssignment => row !== null);
-
-  return rows.sort((a, b) => {
-    const rank = rankClubRole(a.role_name ?? "") - rankClubRole(b.role_name ?? "");
-    if (rank !== 0) {
-      return rank;
-    }
-    return (a.section_name ?? "").localeCompare(b.section_name ?? "", "es", {
-      sensitivity: "base",
-    });
-  });
-}
-
-function uniqueRoleNames(user: Pick<AdminUser, "roles" | "users_roles">): string[] {
+function uniqueRoleNames(
+  user: Pick<AdminUser, "roles" | "users_roles" | "club_assignments">,
+): string[] {
+  const seen = new Set<string>();
   const roles: string[] = [];
+
+  function add(raw: string | null | undefined) {
+    const role = raw?.trim();
+    if (!role) {
+      return;
+    }
+    const key = role.toLowerCase();
+    if (seen.has(key)) {
+      return;
+    }
+    seen.add(key);
+    roles.push(role);
+  }
+
   if (user.roles) {
-    roles.push(...user.roles);
+    for (const role of user.roles) {
+      add(role);
+    }
   }
   if (user.users_roles) {
     for (const ur of user.users_roles) {
-      if (ur.roles?.role_name) {
-        roles.push(ur.roles.role_name);
-      }
+      add(ur.roles?.role_name);
     }
   }
-  return [...new Set(roles.filter((role) => role.trim().length > 0))];
-}
-
-function formatClubBadge(
-  assignment: CompactClubAssignment,
-  translateRole: RoleTranslator,
-): string {
-  const roleLabel = translateRole(assignment.role_name) || assignment.role_name || "";
-  if (assignment.section_name) {
-    return `${roleLabel} · ${assignment.section_name}`;
+  if (Array.isArray(user.club_assignments)) {
+    for (const assignment of user.club_assignments) {
+      add(assignment?.role_name);
+    }
   }
-  return roleLabel;
+
+  return roles.sort((a, b) => {
+    const rank = rankRole(a) - rankRole(b);
+    if (rank !== 0) {
+      return rank;
+    }
+    return a.localeCompare(b, "es", { sensitivity: "base" });
+  });
 }
 
 /**
- * Roles column: one badge per club-section cargo (Director · Aventureros),
- * then leftover global roles. Falls back to unique slugs if the list
- * payload has no `club_assignments`.
+ * Roles column: cargo only (Director, Secretario, Miembro).
+ * Same cargo in several sections collapses to one badge.
  */
 export function toUserListRoleBadges(
   user: Pick<AdminUser, "roles" | "users_roles" | "club_assignments">,
   translateRole: RoleTranslator,
 ): UserListRoleBadge[] {
-  const assignments = normalizeListClubAssignments(user.club_assignments);
-  if (assignments.length > 0) {
-    const badges: UserListRoleBadge[] = assignments.map((assignment, index) => ({
-      key:
-        assignment.assignment_id ??
-        `${assignment.role_name}:${assignment.section_name ?? index}`,
-      label: formatClubBadge(assignment, translateRole),
-    }));
-
-    const clubSlugs = new Set(
-      assignments.map((assignment) => assignment.role_name?.toLowerCase()),
-    );
-    for (const role of uniqueRoleNames(user)) {
-      if (clubSlugs.has(role.toLowerCase())) {
-        continue;
-      }
-      badges.push({ key: `global:${role}`, label: translateRole(role) || role });
-    }
-    return badges;
-  }
-
   return uniqueRoleNames(user).map((role) => ({
-    key: role,
+    key: role.toLowerCase(),
     label: translateRole(role) || role,
   }));
 }

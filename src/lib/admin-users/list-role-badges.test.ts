@@ -15,7 +15,7 @@ const translate = (role: string | null | undefined) => {
 };
 
 describe("toUserListRoleBadges", () => {
-  it("shows one badge per club-section cargo instead of collapsing to unique slugs", () => {
+  it("collapses the same cargo across sections into one badge without section names", () => {
     const badges = toUserListRoleBadges(
       {
         roles: ["director", "member"],
@@ -43,14 +43,10 @@ describe("toUserListRoleBadges", () => {
       translate,
     );
 
-    expect(badges.map((badge) => badge.label)).toEqual([
-      "Director · Aventureros",
-      "Director · Conquistadores",
-      "Miembro · Guías Mayores",
-    ]);
+    expect(badges.map((badge) => badge.label)).toEqual(["Director", "Miembro"]);
   });
 
-  it("keeps deputy, secretary and counselor cargos visible with their section", () => {
+  it("keeps distinct cargos (deputy, secretary, counselor) as one badge each", () => {
     const badges = toUserListRoleBadges(
       {
         roles: ["member", "deputy-director", "secretary", "counselor"],
@@ -81,14 +77,14 @@ describe("toUserListRoleBadges", () => {
     );
 
     expect(badges.map((badge) => badge.label)).toEqual([
-      "Subdirector · Conquistadores",
-      "Secretario · Aventureros",
-      "Consejero · Guías Mayores",
-      "Miembro · Conquistadores",
+      "Subdirector",
+      "Secretario",
+      "Consejero",
+      "Miembro",
     ]);
   });
 
-  it("appends leftover global roles after club cargos", () => {
+  it("keeps global roles next to unique club cargos", () => {
     const badges = toUserListRoleBadges(
       {
         roles: ["director-lf", "member"],
@@ -104,15 +100,15 @@ describe("toUserListRoleBadges", () => {
     );
 
     expect(badges.map((badge) => badge.label)).toEqual([
-      "Miembro · Aventureros",
       "Director de campo local",
+      "Miembro",
     ]);
   });
 
   it("falls back to unique role slugs when club_assignments is missing", () => {
     const badges = toUserListRoleBadges(
       {
-        roles: ["director", "member"],
+        roles: ["director", "member", "director"],
       },
       translate,
     );
