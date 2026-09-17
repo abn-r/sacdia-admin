@@ -82,6 +82,22 @@ export const clubsScreens: ScreenDefinition[] = [
     ],
   },
   {
+    id: "annual_continuations",
+    // Embedded in club detail (sections tab). Dedicated catalog path so
+    // resolvePathEntry('/dashboard/clubs') stays clubs:read.
+    path: "/dashboard/clubs/annual-continuations",
+    titleKey: "enrollments",
+    surfaces: ["admin", "app"],
+    viewAny: { permissions: [CLUB_MEMBERS_APPROVE] },
+    capabilities: [
+      {
+        id: "enroll",
+        kind: "button",
+        gate: { permissions: [CLUB_MEMBERS_APPROVE] },
+      },
+    ],
+  },
+  {
     id: "coordination",
     surfaces: ["admin"],
     // coordination.controller.ts:44-55 class-level

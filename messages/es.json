@@ -1434,7 +1434,21 @@
         "designateNextYear": "Designar director del próximo año",
         "replaceDesignation": "Reemplazar designado",
         "noDesignation": "Nadie designado para el próximo año",
-        "designateHint": "No es director hasta que ese año entre en vigor."
+        "designateHint": "No es director hasta que ese año entre en vigor.",
+        "successionHeading": "Sucesión de director {year}",
+        "successionHint": "Termina el director de este año y nombra al nuevo ahora. No es la preelección del año que viene.",
+        "succeedNow": "Cambiar director ahora",
+        "succeedConfirm": "¿Terminar el director actual y nombrar al sucesor ahora?",
+        "continuationsHeading": "Inscripción anual",
+        "continuationsHint": "Incluye miembros de esta sección y saltos de tipo hacia aquí (Aventureros → Conquistadores, Conquistadores → Guías Mayores).",
+        "continuationsLoading": "Cargando candidatos…",
+        "continuationsEmpty": "Nadie pendiente de inscripción.",
+        "continuationsClass": "Clase sugerida",
+        "continuationsBlocked": "No elegible",
+        "continuationsSubmit": "Inscribir seleccionados",
+        "continuationsLoadError": "No se pudo cargar la lista de continuaciones.",
+        "continuationsSubmitError": "No se pudo inscribir a los seleccionados.",
+        "continuationsResult": "Inscritos: {enrolled}. Bloqueados: {blocked}. Fallidos: {failed}."
       },
       "roles": {
         "clubRolesTitle": "Roles del club",

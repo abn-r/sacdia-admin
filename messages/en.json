@@ -1428,7 +1428,21 @@
         "designateNextYear": "Designate next year director",
         "replaceDesignation": "Replace designee",
         "noDesignation": "No one designated for the next year",
-        "designateHint": "Not a director until that year takes effect."
+        "designateHint": "Not a director until that year takes effect.",
+        "successionHeading": "Director succession {year}",
+        "successionHint": "End this year's director and name the successor now. This is not next year's designation.",
+        "succeedNow": "Change director now",
+        "succeedConfirm": "End the current director and name the successor now?",
+        "continuationsHeading": "Annual enrollment",
+        "continuationsHint": "Includes members of this section and type jumps into it (Adventurers → Pathfinders, Pathfinders → Master Guides).",
+        "continuationsLoading": "Loading candidates…",
+        "continuationsEmpty": "No one pending enrollment.",
+        "continuationsClass": "Suggested class",
+        "continuationsBlocked": "Not eligible",
+        "continuationsSubmit": "Enroll selected",
+        "continuationsLoadError": "Could not load the continuations list.",
+        "continuationsSubmitError": "Could not enroll the selected members.",
+        "continuationsResult": "Enrolled: {enrolled}. Blocked: {blocked}. Failed: {failed}."
       },
       "roles": {
         "clubRolesTitle": "Club roles",

@@ -55,3 +55,17 @@ describe("coordination", () => {
     ).toBe(true);
   });
 });
+
+describe("annual continuations", () => {
+  it("lets club_members:approve view and enroll on admin and app", () => {
+    const director = buildUser(["director"], ["club_members:approve"]);
+    expect(canViewScreen(director, "annual_continuations")).toBe(true);
+    expect(canCapability(director, "annual_continuations", "enroll")).toBe(true);
+  });
+
+  it("hides enroll without club_members:approve", () => {
+    const reader = buildUser(["admin"], ["clubs:read"]);
+    expect(canViewScreen(reader, "annual_continuations")).toBe(false);
+    expect(canCapability(reader, "annual_continuations", "enroll")).toBe(false);
+  });
+});

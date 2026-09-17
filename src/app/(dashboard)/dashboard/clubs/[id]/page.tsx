@@ -38,10 +38,18 @@ export default async function ClubDetailPage({
   const canManageRoles = canCapability(user, "clubs", "manage_roles");
   const canCreateSections = canCreateClubSections(user);
   const canDesignate = canCapability(user, "clubs", "designate_director");
+  const canSucceedDirector = canCapability(user, "clubs", "succeed_director");
+  const canEnrollAnnualContinuations = canCapability(
+    user,
+    "annual_continuations",
+    "enroll",
+  );
   const detail = await loadClubDetail(id, {
     canManageRoles,
     canCreateSections,
     canDesignateNextDirector: canDesignate,
+    canSucceedDirector,
+    canEnrollAnnualContinuations,
   });
   if (!detail) notFound();
 

@@ -79,6 +79,10 @@ export type ClubDetailPayload = {
   canCreateSections: boolean;
   /** Whether the current user can designate a director for the next year. */
   canDesignateNextDirector: boolean;
+  /** Whether the current user can succeed the current-year director now. */
+  canSucceedDirector: boolean;
+  /** Whether the current user can enroll annual continuations (including type jumps). */
+  canEnrollAnnualContinuations: boolean;
   /** year_id of the next (not-yet-vigente) ecclesiastical year, or null if none exists. */
   nextYearId: number | null;
   /** Map of sectionId → designation row (or null) for the next year. */

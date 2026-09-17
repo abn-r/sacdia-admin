@@ -26,6 +26,7 @@ import {
   type ClubActionState,
 } from "@/lib/clubs/actions";
 import {
+  findSectionDirectorMember,
   getSectionOfficers,
   type ClubDetailPayload,
   type ClubSectionRaw,
@@ -34,6 +35,8 @@ import {
   type SectionOfficers,
 } from "@/lib/clubs/types";
 import type { ClubSectionMember } from "@/lib/api/clubs";
+import { AnnualContinuationsBlock } from "@/components/clubs/detail/annual-continuations-block";
+import { SuccessionBlock } from "@/components/clubs/detail/succession-block";
 
 interface SectionsTabProps {
   data: ClubDetailPayload;
@@ -360,6 +363,9 @@ function SectionCard({
   officers,
   canManage,
   canDesignate,
+  canSucceed,
+  canEnrollContinuations,
+  currentYearId,
   nextYearId,
   designation,
   members,
@@ -371,6 +377,9 @@ function SectionCard({
   officers: SectionOfficers;
   canManage: boolean;
   canDesignate: boolean;
+  canSucceed: boolean;
+  canEnrollContinuations: boolean;
+  currentYearId: number | null;
   nextYearId: number | null;
   designation: import("@/lib/api/clubs").ClubDirectorDesignation;
   members: ClubSectionMember[];
@@ -379,6 +388,7 @@ function SectionCard({
   const t = useTranslations("clubs.detail.sections");
   const translateRole = useRoleLabel();
   const isActive = section.active !== false;
+  const director = findSectionDirectorMember(members);
 
   return (
     <DetailSection
@@ -446,6 +456,23 @@ function SectionCard({
           members={members}
         />
       ) : null}
+
+      {canSucceed &&
+      currentYearId != null &&
+      section.club_section_id &&
+      director?.assignment_id ? (
+        <SuccessionBlock
+          clubId={clubId}
+          sectionId={section.club_section_id}
+          currentYearId={currentYearId}
+          currentAssignmentId={director.assignment_id}
+          members={members.filter((member) => member.user_id !== director.user_id)}
+        />
+      ) : null}
+
+      {canEnrollContinuations && section.club_section_id ? (
+        <AnnualContinuationsBlock sectionId={section.club_section_id} />
+      ) : null}
     </DetailSection>
   );
 }
@@ -486,6 +513,9 @@ export function SectionsTab({ data }: SectionsTabProps) {
             typeName={clubType.name}
             canManage={data.canCreateSections}
             canDesignate={data.canDesignateNextDirector}
+            canSucceed={data.canSucceedDirector}
+            canEnrollContinuations={data.canEnrollAnnualContinuations}
+            currentYearId={data.currentYearId}
             nextYearId={data.nextYearId}
             designation={designation}
             members={memberGroup?.members ?? []}

@@ -1464,6 +1464,20 @@ export interface IntlMessages {
         replaceDesignation: string;
         noDesignation: string;
         designateHint: string;
+        successionHeading: string;
+        successionHint: string;
+        succeedNow: string;
+        succeedConfirm: string;
+        continuationsHeading: string;
+        continuationsHint: string;
+        continuationsLoading: string;
+        continuationsEmpty: string;
+        continuationsClass: string;
+        continuationsBlocked: string;
+        continuationsSubmit: string;
+        continuationsLoadError: string;
+        continuationsSubmitError: string;
+        continuationsResult: string;
       };
       roles: {
         clubRolesTitle: string;

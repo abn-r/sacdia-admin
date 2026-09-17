@@ -75,7 +75,7 @@ export function dumpAppCatalog(): CatalogDump {
     screen.surfaces.includes("app"),
   )
     .map(dumpScreen)
-    .sort((a, b) => a.id.localeCompare(b.id));
+    .sort((left, right) => (left.id < right.id ? -1 : left.id > right.id ? 1 : 0));
   return { version: 1, aliases, screens };
 }
 

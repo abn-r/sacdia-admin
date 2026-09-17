@@ -94,6 +94,8 @@ export async function loadClubDetail(
     canManageRoles?: boolean;
     canCreateSections?: boolean;
     canDesignateNextDirector?: boolean;
+    canSucceedDirector?: boolean;
+    canEnrollAnnualContinuations?: boolean;
   } = {},
 ): Promise<ClubDetailPayload | null> {
   const club = await fetchClubById(Number(clubIdParam));
@@ -159,6 +161,8 @@ export async function loadClubDetail(
     canManageRoles: options.canManageRoles ?? false,
     canCreateSections: options.canCreateSections ?? false,
     canDesignateNextDirector: canDesignate,
+    canSucceedDirector: options.canSucceedDirector ?? false,
+    canEnrollAnnualContinuations: options.canEnrollAnnualContinuations ?? false,
     nextYearId,
     designationsBySectionId,
   };
