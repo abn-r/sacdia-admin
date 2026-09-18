@@ -1253,14 +1253,16 @@
       "placeholderName": "Club name",
       "placeholderDescription": "Optional description",
       "placeholderLocalField": "Select local field",
+      "localFieldLockedHint": "Your local field. It cannot be changed.",
       "placeholderDistrict": "Select district",
       "placeholderDistrictParent": "Select a local field first",
       "placeholderChurch": "Select church",
       "placeholderChurchParent": "Select a district first",
       "placeholderAddress": "Club address",
       "sectionsTitle": "Club sections",
-      "sectionsDescription": "Enable the sections this club will operate. All three are always created; unchecked types stay inactive.",
+      "sectionsDescription": "Adventurers and Pathfinders are optional. Master Guides stays active even without a director.",
       "sectionToggleHint": "Enable section.",
+      "sectionMasterGuidesHint": "Always on. People who don't enroll don't join association activities.",
       "prerequisites": {
         "title": "This club cannot be created yet",
         "contactAdmin": "Ask an administrator to add this.",
@@ -1388,15 +1390,16 @@
         "membersSub": "{count} active in sections",
         "sectionsLabel": "Sections",
         "sectionsRegistered": "{count} registered",
+        "sectionsActive": "{count, plural, one {# active} other {# active}}",
+        "sectionsActiveOfRegistered": "{active, plural, one {# active} other {# active}} · {total} registered",
         "sectionsEmpty": "No sections",
         "soulsLabel": "Souls target",
-        "soulsSub": "Sum of sections",
+        "soulsSub": "Sum of active sections",
         "reportsLabel": "Reports",
         "reportsSub": "{count} records",
         "reportsEmpty": "No reports"
       },
       "sidebar": {
-        "title": "Club status",
         "dash": "—"
       },
       "tabs": {
@@ -1432,6 +1435,7 @@
         "typeEyebrow": "Section type",
         "enableLabel": "Enable",
         "disableLabel": "Disable",
+        "masterGuidesLockedHint": "Master Guides cannot be turned off.",
         "enableMissing": "Enable section",
         "labelSoulsTarget": "Souls target",
         "labelFee": "Fee",
@@ -1532,7 +1536,8 @@
         "invalidFee": "Fee must be a non-negative integer.",
         "invalidSectionStatus": "Section status is invalid.",
         "sectionUpdated": "Section updated.",
-        "sectionUpdateFailed": "Could not update the section."
+        "sectionUpdateFailed": "Could not update the section.",
+        "masterGuidesLocked": "The Master Guides section cannot be deactivated."
       }
     },
     "pages": {

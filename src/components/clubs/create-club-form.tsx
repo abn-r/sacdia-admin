@@ -26,6 +26,7 @@ import type { ClubActionState } from "@/lib/clubs/actions";
 import { LocationPicker } from "@/components/shared/location-picker";
 import { PrerequisiteNotice } from "@/components/shared/prerequisite-notice";
 import { useScreenAccess } from "@/lib/auth/screen-catalog/use-screen-access";
+import { isMasterGuidesClubType } from "@/lib/clubs/club-type";
 import {
   filterChurchesByDistrict,
   filterDistrictsByLocalField,
@@ -86,6 +87,8 @@ interface CreateClubFormProps {
   formAction: (prev: ClubActionState, formData: FormData) => Promise<ClubActionState>;
   googleMapsApiKey: string;
   googleMapsMapId?: string;
+  initialLocalFieldId?: string;
+  lockLocalField?: boolean;
 }
 
 const initialState: ClubActionState = {};
@@ -98,12 +101,14 @@ export function CreateClubForm({
   formAction,
   googleMapsApiKey,
   googleMapsMapId,
+  initialLocalFieldId = "",
+  lockLocalField = false,
 }: CreateClubFormProps) {
   const [state, action] = useActionState(formAction, initialState);
   const t = useTranslations("clubs");
   const tPrereq = useTranslations("clubs.create.prerequisites");
   const { subject } = useScreenAccess();
-  const [localFieldValue, setLocalFieldValue] = useState("");
+  const [localFieldValue, setLocalFieldValue] = useState(initialLocalFieldId);
   const [districtValue, setDistrictValue] = useState("");
   const [churchValue, setChurchValue] = useState("");
 
@@ -224,10 +229,14 @@ export function CreateClubForm({
                 *
               </span>
             </Label>
+            {lockLocalField ? (
+              <input type="hidden" name="local_field_id" value={localFieldValue} />
+            ) : null}
             <Select
-              name="local_field_id"
-              required
+              name={lockLocalField ? undefined : "local_field_id"}
+              required={!lockLocalField}
               value={localFieldValue}
+              disabled={lockLocalField}
               onValueChange={(value) => {
                 setLocalFieldValue(value);
                 setDistrictValue("");
@@ -238,7 +247,16 @@ export function CreateClubForm({
                 id="local_field_id"
                 aria-required="true"
                 aria-invalid={ariaInvalid("local_field_id")}
-                aria-describedby={describedBy("local_field_id")}
+                aria-describedby={
+                  [
+                    describedBy("local_field_id"),
+                    lockLocalField && localFieldValue
+                      ? "local_field_id-locked"
+                      : undefined,
+                  ]
+                    .filter(Boolean)
+                    .join(" ") || undefined
+                }
               >
                 <SelectValue placeholder={t("create.placeholderLocalField")} />
               </SelectTrigger>
@@ -259,6 +277,11 @@ export function CreateClubForm({
                 {fieldErrors.local_field_id}
               </p>
             )}
+            {lockLocalField && localFieldValue ? (
+              <p id="local_field_id-locked" className="text-xs text-muted-foreground">
+                {t("create.localFieldLockedHint")}
+              </p>
+            ) : null}
           </div>
 
           <div className="space-y-2">
@@ -390,23 +413,39 @@ export function CreateClubForm({
           ) : (
             clubTypes.map((clubType, index) => {
               const checkboxId = `section_club_type_id_${index}`;
+              const isMasterGuides = isMasterGuidesClubType({
+                name: clubType.label,
+              });
               return (
                 <div
                   key={clubType.value}
                   className="space-y-3 rounded-md border border-border/60 p-4"
                 >
                   <div className="flex items-start gap-3">
+                    {isMasterGuides ? (
+                      <input type="hidden" name={checkboxId} value={clubType.value} />
+                    ) : null}
                     <input
                       id={checkboxId}
-                      name={checkboxId}
+                      name={isMasterGuides ? undefined : checkboxId}
                       type="checkbox"
                       value={clubType.value}
-                      className="mt-1 size-4 rounded border-input text-primary"
+                      defaultChecked={isMasterGuides}
+                      disabled={isMasterGuides}
+                      className="mt-1 size-4 rounded border-input text-primary disabled:opacity-80"
+                      aria-describedby={
+                        isMasterGuides ? `${checkboxId}-locked` : undefined
+                      }
                     />
                     <div className="space-y-1">
                       <Label htmlFor={checkboxId}>{clubType.label}</Label>
-                      <p className="text-xs text-muted-foreground">
-                        {t("create.sectionToggleHint")}
+                      <p
+                        id={isMasterGuides ? `${checkboxId}-locked` : undefined}
+                        className="text-xs text-muted-foreground"
+                      >
+                        {isMasterGuides
+                          ? t("create.sectionMasterGuidesHint")
+                          : t("create.sectionToggleHint")}
                       </p>
                     </div>
                   </div>

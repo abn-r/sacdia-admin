@@ -1253,14 +1253,16 @@
       "placeholderName": "Nome do clube",
       "placeholderDescription": "Descrição opcional",
       "placeholderLocalField": "Selecionar campo local",
+      "localFieldLockedHint": "Seu campo local. Não pode ser alterado.",
       "placeholderDistrict": "Selecionar distrito",
       "placeholderDistrictParent": "Selecione primeiro um campo local",
       "placeholderChurch": "Selecionar igreja",
       "placeholderChurchParent": "Selecione primeiro um distrito",
       "placeholderAddress": "Endereço do clube",
       "sectionsTitle": "Seções do clube",
-      "sectionsDescription": "Habilite as seções que este clube operará. As três sempre são criadas; as não marcadas ficam inativas.",
+      "sectionsDescription": "Aventureiros e Desbravadores são opcionais. Guias Maiores permanece ativa mesmo sem diretor.",
       "sectionToggleHint": "Habilitar seção.",
+      "sectionMasterGuidesHint": "Sempre ativa. Quem não se inscrever não participa das atividades da associação.",
       "prerequisites": {
         "title": "Ainda não é possível criar o clube",
         "contactAdmin": "Peça ao administrador que cadastre isto.",
@@ -1388,15 +1390,16 @@
         "membersSub": "{count} ativos nas seções",
         "sectionsLabel": "Seções",
         "sectionsRegistered": "{count} registradas",
+        "sectionsActive": "{count, plural, one {# ativa} other {# ativas}}",
+        "sectionsActiveOfRegistered": "{active, plural, one {# ativa} other {# ativas}} · {total} registradas",
         "sectionsEmpty": "Sem seções",
         "soulsLabel": "Alvo de almas",
-        "soulsSub": "Soma das seções",
+        "soulsSub": "Soma das seções ativas",
         "reportsLabel": "Relatórios",
         "reportsSub": "{count} registros",
         "reportsEmpty": "Sem relatórios"
       },
       "sidebar": {
-        "title": "Status do clube",
         "dash": "—"
       },
       "tabs": {
@@ -1432,6 +1435,7 @@
         "typeEyebrow": "Tipo de seção",
         "enableLabel": "Habilitar",
         "disableLabel": "Desabilitar",
+        "masterGuidesLockedHint": "Guias Maiores não pode ser desativada.",
         "enableMissing": "Habilitar seção",
         "labelSoulsTarget": "Meta de almas",
         "labelFee": "Taxa",
@@ -1532,7 +1536,8 @@
         "invalidFee": "A taxa deve ser um inteiro não negativo.",
         "invalidSectionStatus": "O status da seção é inválido.",
         "sectionUpdated": "Seção atualizada.",
-        "sectionUpdateFailed": "Não foi possível atualizar a seção."
+        "sectionUpdateFailed": "Não foi possível atualizar a seção.",
+        "masterGuidesLocked": "A seção de Guias Maiores não pode ser desativada."
       }
     },
     "pages": {

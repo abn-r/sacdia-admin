@@ -7,12 +7,16 @@ import {
   createClassCounselorAssignment,
   createClubRoleAssignment,
   createClubSection,
+  listClubSections,
   revokeClassCounselorAssignment,
   revokeClubRoleAssignment,
   updateClubSection,
   type ClassCounselorResponsibilityType,
+  type ClubSection,
 } from "@/lib/api/clubs";
 import { requireAdminUser } from "@/lib/auth/session";
+import { unwrapApiData } from "@/lib/api/unwrap";
+import { isMasterGuidesClubType } from "@/lib/clubs/club-type";
 
 export type DetailActionState = {
   ok?: boolean;
@@ -166,6 +170,30 @@ export async function toggleClubSectionActiveAction(
     const activeRaw = readString(formData, "active");
     if (activeRaw !== "true" && activeRaw !== "false") {
       return { error: t("invalidSectionStatus") };
+    }
+
+    if (activeRaw === "false") {
+      try {
+        const sections = unwrapApiData<unknown>(
+          await listClubSections(clubId, { includeInactive: true }),
+        );
+        const list = Array.isArray(sections) ? sections : [];
+        const section = list.find((row): row is ClubSection => {
+          if (!row || typeof row !== "object") return false;
+          return Number((row as ClubSection).club_section_id) === sectionId;
+        });
+        if (
+          section &&
+          isMasterGuidesClubType({
+            name: section.club_types?.name ?? section.club_type?.name ?? section.name,
+            slug: section.club_type?.slug,
+          })
+        ) {
+          return { error: t("masterGuidesLocked") };
+        }
+      } catch {
+        // If the catalog lookup fails, still send the PATCH; backend must reject GM off.
+      }
     }
 
     await updateClubSection(clubId, sectionId, {

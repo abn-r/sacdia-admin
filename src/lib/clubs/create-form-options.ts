@@ -1,3 +1,5 @@
+import { findMasterGuidesClubTypeId } from "@/lib/clubs/club-type";
+
 export type SelectOption = { label: string; value: number };
 export type DistrictOption = SelectOption & { localFieldId: number };
 export type ChurchOption = SelectOption & { districtId: number };
@@ -73,11 +75,37 @@ export function filterChurchesByDistrict(
   return churches.filter((church) => church.districtId === districtId);
 }
 
+/**
+ * Preselect the actor's local field when the territory is LF-scoped
+ * (`director-lf` / `assistant-lf`). If the picker has a single option,
+ * use that too so the chain district → church can open.
+ */
+export function resolveClubCreateLocalFieldDefault(
+  localFields: SelectOption[],
+  preferredId?: number | null,
+): { value: string; locked: boolean } {
+  if (
+    typeof preferredId === "number" &&
+    Number.isFinite(preferredId) &&
+    preferredId > 0 &&
+    localFields.some((field) => field.value === preferredId)
+  ) {
+    return { value: String(preferredId), locked: true };
+  }
+  if (localFields.length === 1) {
+    return { value: String(localFields[0]!.value), locked: true };
+  }
+  return { value: "", locked: false };
+}
+
 function readString(formData: FormData, fieldName: string) {
   return String(formData.get(fieldName) ?? "").trim();
 }
 
-export function collectSelectedClubSections(formData: FormData): SelectedClubSection[] {
+export function collectSelectedClubSections(
+  formData: FormData,
+  clubTypes: SelectOption[] = [],
+): SelectedClubSection[] {
   const indexes = Array.from(formData.keys())
     .map((key) => key.match(/^section_club_type_id_(\d+)$/)?.[1])
     .filter((value): value is string => Boolean(value))
@@ -85,7 +113,7 @@ export function collectSelectedClubSections(formData: FormData): SelectedClubSec
     .filter((value) => Number.isInteger(value))
     .sort((a, b) => a - b);
 
-  return indexes.flatMap((index) => {
+  const selected = indexes.flatMap((index) => {
     const clubTypeId = toPositiveNumber(
       readString(formData, `section_club_type_id_${index}`),
     );
@@ -93,4 +121,19 @@ export function collectSelectedClubSections(formData: FormData): SelectedClubSec
 
     return [{ clubTypeId }];
   });
+
+  const masterGuidesClubTypeId = findMasterGuidesClubTypeId(
+    clubTypes.map((clubType) => ({
+      club_type_id: clubType.value,
+      name: clubType.label,
+    })),
+  );
+  if (
+    masterGuidesClubTypeId != null &&
+    !selected.some((section) => section.clubTypeId === masterGuidesClubTypeId)
+  ) {
+    selected.push({ clubTypeId: masterGuidesClubTypeId });
+  }
+
+  return selected;
 }

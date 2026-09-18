@@ -1288,6 +1288,7 @@ export interface IntlMessages {
       placeholderName: string;
       placeholderDescription: string;
       placeholderLocalField: string;
+      localFieldLockedHint: string;
       placeholderDistrict: string;
       placeholderDistrictParent: string;
       placeholderChurch: string;
@@ -1296,6 +1297,7 @@ export interface IntlMessages {
       sectionsTitle: string;
       sectionsDescription: string;
       sectionToggleHint: string;
+      sectionMasterGuidesHint: string;
       prerequisites: {
         title: string;
         contactAdmin: string;
@@ -1423,6 +1425,8 @@ export interface IntlMessages {
         membersSub: string;
         sectionsLabel: string;
         sectionsRegistered: string;
+        sectionsActive: string;
+        sectionsActiveOfRegistered: string;
         sectionsEmpty: string;
         soulsLabel: string;
         soulsSub: string;
@@ -1431,7 +1435,6 @@ export interface IntlMessages {
         reportsEmpty: string;
       };
       sidebar: {
-        title: string;
         dash: string;
       };
       tabs: {
@@ -1467,6 +1470,7 @@ export interface IntlMessages {
         typeEyebrow: string;
         enableLabel: string;
         disableLabel: string;
+        masterGuidesLockedHint: string;
         enableMissing: string;
         labelSoulsTarget: string;
         labelFee: string;
@@ -1568,6 +1572,7 @@ export interface IntlMessages {
         invalidSectionStatus: string;
         sectionUpdated: string;
         sectionUpdateFailed: string;
+        masterGuidesLocked: string;
       };
     };
     pages: {

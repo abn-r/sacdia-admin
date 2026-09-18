@@ -1253,14 +1253,16 @@
       "placeholderName": "Nom du club",
       "placeholderDescription": "Description facultative",
       "placeholderLocalField": "Sélectionner un champ local",
+      "localFieldLockedHint": "Votre champ local. Impossible de le modifier.",
       "placeholderDistrict": "Sélectionner un district",
       "placeholderDistrictParent": "Sélectionnez d'abord un champ local",
       "placeholderChurch": "Sélectionner une église",
       "placeholderChurchParent": "Sélectionnez d'abord un district",
       "placeholderAddress": "Adresse du club",
       "sectionsTitle": "Sections du club",
-      "sectionsDescription": "Activez les sections que ce club opérera. Les trois sont toujours créées ; les types non cochés restent inactifs.",
+      "sectionsDescription": "Aventuriers et Éclaireurs sont facultatifs. Guides Maîtres reste active même sans directeur.",
       "sectionToggleHint": "Activer la section.",
+      "sectionMasterGuidesHint": "Toujours active. Qui ne s'inscrit pas ne participe pas aux activités d'association.",
       "prerequisites": {
         "title": "Ce club ne peut pas encore être créé",
         "contactAdmin": "Demandez à un administrateur de charger ceci.",
@@ -1388,15 +1390,16 @@
         "membersSub": "{count} actifs dans les sections",
         "sectionsLabel": "Sections",
         "sectionsRegistered": "{count} enregistrées",
+        "sectionsActive": "{count, plural, one {# active} other {# actives}}",
+        "sectionsActiveOfRegistered": "{active, plural, one {# active} other {# actives}} · {total} enregistrées",
         "sectionsEmpty": "Aucune section",
         "soulsLabel": "Objectif d'âmes",
-        "soulsSub": "Somme des sections",
+        "soulsSub": "Somme des sections actives",
         "reportsLabel": "Rapports",
         "reportsSub": "{count} enregistrements",
         "reportsEmpty": "Aucun rapport"
       },
       "sidebar": {
-        "title": "Statut du club",
         "dash": "—"
       },
       "tabs": {
@@ -1432,6 +1435,7 @@
         "typeEyebrow": "Type de section",
         "enableLabel": "Activer",
         "disableLabel": "Désactiver",
+        "masterGuidesLockedHint": "Guides Maîtres ne peut pas être désactivée.",
         "enableMissing": "Activer la section",
         "labelSoulsTarget": "Objectif d'âmes",
         "labelFee": "Cotisation",
@@ -1532,7 +1536,8 @@
         "invalidFee": "La cotisation doit être un entier positif.",
         "invalidSectionStatus": "Le statut de la section n'est pas valide.",
         "sectionUpdated": "Section mise à jour.",
-        "sectionUpdateFailed": "Impossible de mettre à jour la section."
+        "sectionUpdateFailed": "Impossible de mettre à jour la section.",
+        "masterGuidesLocked": "La section Guides Maîtres ne peut pas être désactivée."
       }
     },
     "pages": {

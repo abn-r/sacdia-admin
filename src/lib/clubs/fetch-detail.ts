@@ -4,18 +4,36 @@ import {
   getCurrentEcclesiasticalYear,
   listCatalogRoles,
 } from "@/lib/api/catalog-roles";
-import { listEcclesiasticalYears } from "@/lib/api/catalogs";
-import { listAdminClubTypes } from "@/lib/api/admin-club-types";
+import { listClubTypes, listEcclesiasticalYears } from "@/lib/api/catalogs";
+import { unwrapApiData } from "@/lib/api/unwrap";
 import {
   listNormalizedClubSectionMembers,
   getClubSectionDirectorDesignation,
   type ClubDirectorDesignation,
 } from "@/lib/api/clubs";
-import type { ClubFull, ClubDetailPayload, SectionMembersGroup } from "@/lib/clubs/types";
 import {
   getClubSections,
+  isClubSectionActive,
   resolveClubId,
+  resolveClubTypeSlots,
+  type ClubDetailPayload,
+  type ClubFull,
+  type ClubTypeOption,
+  type SectionMembersGroup,
 } from "@/lib/clubs/types";
+
+function toClubTypeOptions(payload: unknown): ClubTypeOption[] {
+  const items = unwrapApiData<unknown>(payload);
+  if (!Array.isArray(items)) return [];
+  return items.flatMap((item) => {
+    if (!item || typeof item !== "object") return [];
+    const row = item as { club_type_id?: unknown; name?: unknown };
+    const id = Number(row.club_type_id);
+    const name = typeof row.name === "string" ? row.name.trim() : "";
+    if (!Number.isInteger(id) || id <= 0 || !name) return [];
+    return [{ club_type_id: id, name }];
+  });
+}
 
 function unwrapClub(payload: unknown): ClubFull {
   const wrapped = payload as { data?: ClubFull } | ClubFull;
@@ -68,6 +86,7 @@ async function loadSectionMembers(
         clubTypeName,
         fee: section.fee ?? null,
         soulsTarget: section.souls_target ?? null,
+        active: isClubSectionActive(section),
         members,
       } satisfies SectionMembersGroup;
     }),
@@ -106,7 +125,7 @@ export async function loadClubDetail(
 
   const [clubTypes, leadership, clubRoles, currentYear, sectionMemberGroups, allYears] =
     await Promise.all([
-      listAdminClubTypes().catch(() => []),
+      listClubTypes().catch(() => []),
       getClubLeadership(clubId).catch(() => ({
         director: null,
         deputies: [],
@@ -145,10 +164,7 @@ export async function loadClubDetail(
   return {
     club,
     clubId,
-    clubTypes: clubTypes.map((type) => ({
-      club_type_id: type.club_type_id,
-      name: type.name,
-    })),
+    clubTypes: resolveClubTypeSlots(toClubTypeOptions(clubTypes), sections),
     sections,
     sectionMemberGroups,
     leadership,

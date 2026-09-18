@@ -5,6 +5,8 @@ import {
   clubSectionDisplayLabel,
   clubSectionTypeName,
   getSectionOfficers,
+  resolveClubTypeSlots,
+  summarizeClubSectionKpis,
 } from "@/lib/clubs/types";
 
 function member(
@@ -51,6 +53,83 @@ describe("club section display helpers", () => {
     );
     expect(clubSectionDisplayLabel("Panteras", "  ")).toBe("Panteras");
     expect(clubSectionDisplayLabel(null, "Aventureros")).toBe("Aventureros");
+  });
+});
+
+describe("club section KPIs", () => {
+  it("counts only active sections for the detail stats", () => {
+    expect(
+      summarizeClubSectionKpis([
+        {
+          active: true,
+          sectionName: "Aventureros",
+          members: [{}],
+          soulsTarget: 1,
+        },
+        {
+          active: false,
+          sectionName: "Conquistadores",
+          members: [{}, {}],
+          soulsTarget: 1,
+        },
+        {
+          active: false,
+          sectionName: "Guías Mayores",
+          members: [],
+          soulsTarget: 1,
+        },
+      ]),
+    ).toEqual({
+      membersTotal: 1,
+      sectionsActive: 1,
+      sectionsRegistered: 3,
+      soulsTotal: 1,
+      sectionNames: ["Aventureros"],
+    });
+  });
+});
+
+describe("resolveClubTypeSlots", () => {
+  it("uses the catalog when present", () => {
+    expect(
+      resolveClubTypeSlots(
+        [
+          { club_type_id: 1, name: "Aventureros" },
+          { club_type_id: 2, name: "Conquistadores" },
+          { club_type_id: 3, name: "Guías Mayores" },
+        ],
+        [{ club_section_id: 10, club_type_id: 1, active: true }],
+      ),
+    ).toEqual([
+      { club_type_id: 1, name: "Aventureros" },
+      { club_type_id: 2, name: "Conquistadores" },
+      { club_type_id: 3, name: "Guías Mayores" },
+    ]);
+  });
+
+  it("derives slots from existing sections when the catalog is empty", () => {
+    expect(
+      resolveClubTypeSlots(
+        [],
+        [
+          {
+            club_section_id: 178,
+            club_type_id: 1,
+            active: true,
+            club_types: { club_type_id: 1, name: "Aventureros" },
+          },
+          {
+            club_section_id: 179,
+            club_type_id: 2,
+            active: false,
+            club_types: { club_type_id: 2, name: "Conquistadores" },
+          },
+        ],
+      ),
+    ).toEqual([
+      { club_type_id: 1, name: "Aventureros" },
+      { club_type_id: 2, name: "Conquistadores" },
+    ]);
   });
 });
 

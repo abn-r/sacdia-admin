@@ -6,7 +6,7 @@ import { getTranslations } from "next-intl/server";
 import { getActionErrorMessage } from "@/lib/api/action-error";
 import { createClub } from "@/lib/api/clubs";
 import { listAdminClubTypes } from "@/lib/api/admin-club-types";
-import { canManageClubsByRole } from "@/lib/auth/permission-utils";
+import { canCreateClubs } from "@/lib/auth/permission-utils";
 import { requireAdminUser } from "@/lib/auth/session";
 import { listLocalFieldsForTerritory } from "@/lib/auth/territory-scope";
 
@@ -63,7 +63,7 @@ export async function bulkCreateClubsAction(
   const user = await requireAdminUser();
   const t = await getTranslations("clubs");
 
-  if (!canManageClubsByRole(user)) {
+  if (!canCreateClubs(user)) {
     return {
       results: [],
       created: 0,

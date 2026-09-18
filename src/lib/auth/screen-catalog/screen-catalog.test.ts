@@ -524,6 +524,17 @@ describe("resolvePathEntry", () => {
     expect(entry?.capabilityId).toBe("create");
   });
 
+  it("gates club create and import on clubs:create, not clubs:read", () => {
+    const create = resolvePathEntry("/dashboard/clubs/new");
+    expect(create?.screenId).toBe("clubs");
+    expect(create?.capabilityId).toBe("create");
+    expect(create?.access.permissions).toEqual(["clubs:create"]);
+
+    const bulk = resolvePathEntry("/dashboard/clubs/import");
+    expect(bulk?.capabilityId).toBe("bulk_create");
+    expect(bulk?.access.permissions).toEqual(["clubs:create"]);
+  });
+
   it("falls back to the screen viewAny for nested detail paths", () => {
     const entry = resolvePathEntry("/dashboard/users/abc-123");
     expect(entry?.screenId).toBe("users");

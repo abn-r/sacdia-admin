@@ -1259,14 +1259,16 @@
       "placeholderName": "Nombre del club",
       "placeholderDescription": "Descripción opcional",
       "placeholderLocalField": "Seleccionar campo local",
+      "localFieldLockedHint": "Tu campo local. No se puede cambiar.",
       "placeholderDistrict": "Seleccionar distrito",
       "placeholderDistrictParent": "Selecciona un campo local primero",
       "placeholderChurch": "Seleccionar iglesia",
       "placeholderChurchParent": "Selecciona un distrito primero",
       "placeholderAddress": "Dirección del club",
       "sectionsTitle": "Secciones del club",
-      "sectionsDescription": "Habilita las secciones que este club operará. Siempre se crean las tres; las no marcadas quedan inactivas.",
+      "sectionsDescription": "Aventureros y Conquistadores son opcionales. Guías Mayores queda activa siempre, aunque no tenga director.",
       "sectionToggleHint": "Habilitar sección.",
+      "sectionMasterGuidesHint": "Siempre activa. Quien no se inscriba no participa de las actividades de asociación.",
       "prerequisites": {
         "title": "No se puede crear el club todavía",
         "contactAdmin": "Pide al administrador que cargue esto.",
@@ -1394,15 +1396,16 @@
         "membersSub": "{count} activos en secciones",
         "sectionsLabel": "Secciones",
         "sectionsRegistered": "{count} registradas",
+        "sectionsActive": "{count, plural, one {# activa} other {# activas}}",
+        "sectionsActiveOfRegistered": "{active, plural, one {# activa} other {# activas}} · {total} registradas",
         "sectionsEmpty": "Sin secciones",
         "soulsLabel": "Blanco de almas",
-        "soulsSub": "Suma de las secciones",
+        "soulsSub": "Suma de las secciones activas",
         "reportsLabel": "Reportes",
         "reportsSub": "{count} registros",
         "reportsEmpty": "Sin reportes"
       },
       "sidebar": {
-        "title": "Estado del club",
         "dash": "—"
       },
       "tabs": {
@@ -1438,6 +1441,7 @@
         "typeEyebrow": "Tipo de sección",
         "enableLabel": "Habilitar",
         "disableLabel": "Deshabilitar",
+        "masterGuidesLockedHint": "Guías Mayores no se puede desactivar.",
         "enableMissing": "Habilitar sección",
         "labelSoulsTarget": "Blanco de almas",
         "labelFee": "Cuota",
@@ -1538,7 +1542,8 @@
         "invalidFee": "La cuota debe ser un número entero positivo.",
         "invalidSectionStatus": "El estado de la sección no es válido.",
         "sectionUpdated": "Sección actualizada.",
-        "sectionUpdateFailed": "No se pudo actualizar la sección."
+        "sectionUpdateFailed": "No se pudo actualizar la sección.",
+        "masterGuidesLocked": "No se puede desactivar la sección de Guías Mayores."
       }
     },
     "pages": {

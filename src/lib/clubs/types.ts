@@ -4,7 +4,7 @@ import type { ClubLeadership, LeadershipMember } from "@/lib/api/club-detail";
 export type ClubSectionRaw = {
   club_section_id?: number;
   club_type_id?: number;
-  club_type?: { name?: string; club_type_id?: number } | null;
+  club_type?: { name?: string; club_type_id?: number; slug?: string } | null;
   club_types?: { club_type_id?: number; name?: string } | null;
   name?: string | null;
   active?: boolean;
@@ -56,6 +56,7 @@ export type SectionMembersGroup = {
   clubTypeName: string;
   fee: number | null;
   soulsTarget: number | null;
+  active: boolean;
   members: ClubSectionMember[];
 };
 
@@ -89,11 +90,80 @@ export type ClubDetailPayload = {
   designationsBySectionId: Record<number, ClubDirectorDesignation>;
 };
 
+export const CLUB_SECTION_SLOT_MAX = 3;
+
+export function isClubSectionActive(
+  section: { active?: boolean } | null | undefined,
+): boolean {
+  return section?.active !== false;
+}
+
+export function clubSectionTypeId(section: ClubSectionRaw): number | null {
+  const id =
+    section.club_type_id ??
+    section.club_types?.club_type_id ??
+    section.club_type?.club_type_id;
+  return typeof id === "number" && Number.isInteger(id) && id > 0 ? id : null;
+}
+
 export function clubSectionTypeName(section: {
   club_types?: { name?: string | null } | null;
   club_type?: { name?: string | null } | null;
 }): string {
   return section.club_types?.name?.trim() || section.club_type?.name?.trim() || "";
+}
+
+/** Catalog slots for the sections tab. Falls back to existing rows if the actor cannot read the admin catalog. */
+export function resolveClubTypeSlots(
+  catalog: ClubTypeOption[],
+  sections: ClubSectionRaw[],
+  maxSlots = CLUB_SECTION_SLOT_MAX,
+): ClubTypeOption[] {
+  const fromCatalog = catalog.filter(
+    (item) => Number.isInteger(item.club_type_id) && item.club_type_id > 0,
+  );
+  if (fromCatalog.length > 0) {
+    return fromCatalog.slice(0, maxSlots);
+  }
+
+  const seen = new Set<number>();
+  const derived: ClubTypeOption[] = [];
+  for (const section of sections) {
+    const id = clubSectionTypeId(section);
+    if (id == null || seen.has(id)) continue;
+    seen.add(id);
+    derived.push({
+      club_type_id: id,
+      name: clubSectionTypeName(section) || `#${id}`,
+    });
+  }
+  return derived.slice(0, maxSlots);
+}
+
+export function summarizeClubSectionKpis(
+  groups: Array<{
+    active?: boolean;
+    sectionName: string;
+    members: readonly unknown[];
+    soulsTarget: number | null;
+  }>,
+) {
+  const activeGroups = groups.filter((group) => isClubSectionActive(group));
+  const soulsTotal = activeGroups.reduce<number | null>((total, group) => {
+    if (group.soulsTarget == null) return total;
+    return (total ?? 0) + group.soulsTarget;
+  }, null);
+
+  return {
+    membersTotal: activeGroups.reduce(
+      (total, group) => total + group.members.length,
+      0,
+    ),
+    sectionsActive: activeGroups.length,
+    sectionsRegistered: groups.length,
+    soulsTotal,
+    sectionNames: activeGroups.map((group) => group.sectionName),
+  };
 }
 
 export function clubSectionDisplayLabel(

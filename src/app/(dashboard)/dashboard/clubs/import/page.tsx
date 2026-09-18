@@ -10,7 +10,7 @@ const getTranslations = getTranslationsStrict as unknown as (
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { requireAdminUser } from "@/lib/auth/session";
-import { canManageClubsByRole } from "@/lib/auth/permission-utils";
+import { canCreateClubs } from "@/lib/auth/permission-utils";
 import { ClubsBulkImport } from "@/components/clubs/clubs-bulk-import";
 import { bulkCreateClubsAction } from "@/lib/clubs/bulk-import-actions";
 import { loadClubGeographyForTerritory } from "@/lib/clubs/territory-catalogs";
@@ -36,7 +36,7 @@ function toSelectOptions(items: RawCatalogItem[], idField: string): SelectOption
 
 export default async function ImportClubsPage() {
   const user = await requireAdminUser();
-  if (!canManageClubsByRole(user)) {
+  if (!canCreateClubs(user)) {
     redirect("/dashboard/clubs");
   }
 

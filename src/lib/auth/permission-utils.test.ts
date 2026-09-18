@@ -80,4 +80,30 @@ describe("permission-utils", () => {
     expect(permissionUtils.canViewAdministrativeCompletion(user)).toBe(true);
     expect(permissionUtils.canManageAdministrativeCompletion(user)).toBe(true);
   });
+
+  it("gates club create on clubs:create, not local-field roles", () => {
+    const creator = buildUser(["clubs:create"]);
+    const assistantAdmin = {
+      id: "actor",
+      email: "actor@example.com",
+      roles: ["assistant-admin"],
+      authorization: {
+        grants: { global_roles: [{ role_name: "assistant-admin" }] },
+        effective: { permissions: ["clubs:create"] },
+      },
+    } satisfies AuthUser;
+    const directorLf = {
+      id: "actor",
+      email: "actor@example.com",
+      roles: ["director-lf"],
+      authorization: {
+        grants: { global_roles: [{ role_name: "director-lf" }] },
+        effective: { permissions: ["clubs:read"] },
+      },
+    } satisfies AuthUser;
+
+    expect(permissionUtils.canCreateClubs(creator)).toBe(true);
+    expect(permissionUtils.canCreateClubs(assistantAdmin)).toBe(true);
+    expect(permissionUtils.canCreateClubs(directorLf)).toBe(false);
+  });
 });

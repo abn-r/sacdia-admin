@@ -221,4 +221,31 @@ describe("canAccessDashboardPath", () => {
       ),
     ).toBe(true);
   });
+
+  it("requires clubs:create for club new and import, not director-lf", () => {
+    expect(
+      canAccessDashboardPath(
+        buildUser(["director-lf"], ["clubs:read"]),
+        "/dashboard/clubs/new",
+      ),
+    ).toBe(false);
+    expect(
+      canAccessDashboardPath(
+        buildUser(["director-lf"], ["clubs:read"]),
+        "/dashboard/clubs/import",
+      ),
+    ).toBe(false);
+    expect(
+      canAccessDashboardPath(
+        buildUser(["assistant-admin"], ["clubs:create"]),
+        "/dashboard/clubs/new",
+      ),
+    ).toBe(true);
+    expect(
+      canAccessDashboardPath(
+        buildUser(["director-lf"], ["clubs:read"]),
+        "/dashboard/clubs",
+      ),
+    ).toBe(true);
+  });
 });

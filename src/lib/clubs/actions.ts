@@ -21,10 +21,16 @@ import {
 import { canCapability } from "@/lib/auth/screen-catalog";
 import { unwrapObject } from "@/lib/api/response";
 import { requireAdminUser } from "@/lib/auth/session";
-import { canManageClubsByRole } from "@/lib/auth/permission-utils";
+import { canCreateClubs } from "@/lib/auth/permission-utils";
 import { listLocalFieldsForTerritory } from "@/lib/auth/territory-scope";
 import type { AuthUser } from "@/lib/auth/types";
-import { collectSelectedClubSections } from "@/lib/clubs/create-form-options";
+import { unwrapApiData } from "@/lib/api/unwrap";
+import { listClubTypes } from "@/lib/api/catalogs";
+import {
+  collectSelectedClubSections,
+  toClubTypeOptions,
+  type SelectOption,
+} from "@/lib/clubs/create-form-options";
 import { listAdminClubTypes } from "@/lib/api/admin-club-types";
 
 type ClubsTranslator = Awaited<ReturnType<typeof getTranslations<"clubs">>>;
@@ -129,7 +135,11 @@ function parseOptionalPositiveNumber(
   return parsed;
 }
 
-function buildCreatePayload(t: ClubsTranslator, formData: FormData): ClubPayload {
+function buildCreatePayload(
+  t: ClubsTranslator,
+  formData: FormData,
+  clubTypes: SelectOption[] = [],
+): ClubPayload {
   const name = readString(formData, "name");
   if (!name) {
     throw new Error(t("validation.club_name_required"));
@@ -158,7 +168,7 @@ function buildCreatePayload(t: ClubsTranslator, formData: FormData): ClubPayload
     ),
     address: readString(formData, "address") || undefined,
     coordinates: parseCoordinates(t, formData),
-    enabled_club_type_ids: collectSelectedClubSections(formData).map(
+    enabled_club_type_ids: collectSelectedClubSections(formData, clubTypes).map(
       (section) => section.clubTypeId,
     ),
   };
@@ -167,6 +177,7 @@ function buildCreatePayload(t: ClubsTranslator, formData: FormData): ClubPayload
 function collectFieldErrors(
   t: ClubsTranslator,
   formData: FormData,
+  clubTypes: SelectOption[] = [],
 ): Record<string, string> {
   const errors: Record<string, string> = {};
 
@@ -199,11 +210,27 @@ function collectFieldErrors(
     errors.coordinates = t("validation.coordinates_invalid");
   }
 
-  if (collectSelectedClubSections(formData).length === 0) {
+  if (collectSelectedClubSections(formData, clubTypes).length === 0) {
     errors.sections = t("validation.sections_required");
   }
 
   return errors;
+}
+
+async function loadCreateClubTypeOptions(): Promise<SelectOption[]> {
+  try {
+    const items = unwrapApiData<unknown>(await listClubTypes());
+    if (!Array.isArray(items)) return [];
+    return toClubTypeOptions(
+      items.map((item) =>
+        item && typeof item === "object"
+          ? { ...(item as Record<string, unknown>), active: true }
+          : {},
+      ),
+    );
+  } catch {
+    return [];
+  }
 }
 
 function buildUpdatePayload(t: ClubsTranslator, formData: FormData) {
@@ -305,13 +332,18 @@ export async function createClubAction(
   const user = await requireAdminUser();
   const t = await getTranslations("clubs");
 
-  const fieldErrors = collectFieldErrors(t, formData);
+  if (!canCreateClubs(user)) {
+    return { error: t("errors.create_club_failed") };
+  }
+
+  const clubTypes = await loadCreateClubTypeOptions();
+  const fieldErrors = collectFieldErrors(t, formData, clubTypes);
   if (Object.keys(fieldErrors).length > 0) {
     return { fieldErrors };
   }
 
   try {
-    const payload = buildCreatePayload(t, formData);
+    const payload = buildCreatePayload(t, formData, clubTypes);
     await ensureClubPayloadInActorScope(user, payload);
     await createClub(payload);
   } catch (error) {
@@ -333,7 +365,12 @@ export async function createClubWithSectionsAction(
   const user = await requireAdminUser();
   const t = await getTranslations("clubs");
 
-  const fieldErrors = collectFieldErrors(t, formData);
+  if (!canCreateClubs(user)) {
+    return { error: t("errors.create_club_failed") };
+  }
+
+  const clubTypes = await loadCreateClubTypeOptions();
+  const fieldErrors = collectFieldErrors(t, formData, clubTypes);
   if (Object.keys(fieldErrors).length > 0) {
     return { fieldErrors };
   }
@@ -341,7 +378,7 @@ export async function createClubWithSectionsAction(
   let clubId: number | null = null;
 
   try {
-    const payload = buildCreatePayload(t, formData);
+    const payload = buildCreatePayload(t, formData, clubTypes);
     await ensureClubPayloadInActorScope(user, payload);
     const createdPayload = await createClub(payload);
     clubId = normalizeCreatedClubId(createdPayload);
@@ -934,7 +971,7 @@ export async function bulkCreateClubsAction(
   const user = await requireAdminUser();
   const t = await getTranslations("clubs");
 
-  if (!canManageClubsByRole(user)) {
+  if (!canCreateClubs(user)) {
     return {
       results: [],
       created: 0,

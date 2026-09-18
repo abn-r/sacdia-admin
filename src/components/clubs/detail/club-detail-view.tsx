@@ -1,11 +1,8 @@
 "use client";
 
-import type { ReactNode } from "react";
-import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { ArrowLeft, FileText, Flag, MapPin, Users } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { FileText, Flag, MapPin, Users } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/shared/page-header";
 import { ClubDetailHero } from "@/components/clubs/detail/hero";
@@ -19,10 +16,13 @@ import {
   CLUB_DETAIL_TABS,
   resolveClubDetailTab,
 } from "@/components/clubs/detail/tab-utils";
-import { UserDetailActionSidebar } from "@/components/users/detail/action-sidebar";
 import { UserDetailStats, type StatItem } from "@/components/users/detail/stats";
 import type { AnnualReport, QuarterlyReport } from "@/lib/api/reports";
-import type { ClubDetailPayload, ClubDetailTab } from "@/lib/clubs/types";
+import {
+  summarizeClubSectionKpis,
+  type ClubDetailPayload,
+  type ClubDetailTab,
+} from "@/lib/clubs/types";
 
 interface ClubDetailViewProps {
   data: ClubDetailPayload;
@@ -51,16 +51,11 @@ export function ClubDetailView({
   const district = clubLocationName(data.club.district, data.club.districts);
   const church = clubLocationName(data.club.church, data.club.churches);
   const address = data.club.address?.trim() || undefined;
-  const sectionNames = data.sectionMemberGroups.map((group) => group.sectionName);
-  const membersTotal = data.sectionMemberGroups.reduce(
-    (total, group) => total + group.members.length,
-    0,
-  );
-  const sectionsCount = data.sectionMemberGroups.length;
-  const soulsTotal = data.sectionMemberGroups.reduce<number | null>((total, group) => {
-    if (group.soulsTarget == null) return total;
-    return (total ?? 0) + group.soulsTarget;
-  }, null);
+  const kpis = summarizeClubSectionKpis(data.sectionMemberGroups);
+  const sectionNames = kpis.sectionNames;
+  const membersTotal = kpis.membersTotal;
+  const sectionsCount = kpis.sectionsActive;
+  const soulsTotal = kpis.soulsTotal;
   const reportsCount = annualReports.length + quarterlyReports.length;
 
   const statItems: StatItem[] = [
@@ -79,9 +74,14 @@ export function ClubDetailView({
       label: t("stats.sectionsLabel"),
       value: sectionsCount,
       sub:
-        sectionsCount === 0
+        kpis.sectionsRegistered === 0
           ? t("stats.sectionsEmpty")
-          : t("stats.sectionsRegistered", { count: sectionsCount }),
+          : kpis.sectionsRegistered > kpis.sectionsActive
+            ? t("stats.sectionsActiveOfRegistered", {
+                active: kpis.sectionsActive,
+                total: kpis.sectionsRegistered,
+              })
+            : t("stats.sectionsActive", { count: kpis.sectionsActive }),
       accent: (
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <MapPin className="size-3.5" />
@@ -170,103 +170,27 @@ export function ClubDetailView({
           ))}
         </TabsList>
 
-        <div className="mt-4 grid items-start gap-5 lg:grid-cols-[1fr_320px]">
-          <div className="min-w-0">
-            <TabsContent value="general" className="mt-0">
-              <GeneralTab data={data} />
-            </TabsContent>
-            <TabsContent value="sections" className="mt-0">
-              <SectionsTab data={data} />
-            </TabsContent>
-            <TabsContent value="roles" className="mt-0">
-              <RolesTab data={data} />
-            </TabsContent>
-            <TabsContent value="reports" className="mt-0">
-              <ReportsTab
-                annualReports={annualReports}
-                quarterlyReports={quarterlyReports}
-              />
-            </TabsContent>
-            <TabsContent value="history" className="mt-0">
-              <HistoryTab clubId={data.clubId} sections={data.sectionMemberGroups} />
-            </TabsContent>
-          </div>
-
-          <aside className="hidden lg:block">
-            <UserDetailActionSidebar
-              title={t("sidebar.title")}
-              sections={[
-                {
-                  items: [
-                    <SidebarRow
-                      key="status"
-                      label={tGeneral("labelStatus")}
-                      value={isActive ? tGeneral("statusActive") : tGeneral("statusInactive")}
-                    />,
-                    <SidebarRow
-                      key="members"
-                      label={t("stats.membersLabel")}
-                      value={membersTotal}
-                    />,
-                    <SidebarRow
-                      key="sections"
-                      label={t("stats.sectionsLabel")}
-                      value={sectionsCount}
-                    />,
-                    <SidebarRow
-                      key="localField"
-                      label={tGeneral("labelLocalField")}
-                      value={localField ?? t("sidebar.dash")}
-                    />,
-                    <SidebarRow
-                      key="district"
-                      label={tGeneral("labelDistrict")}
-                      value={district ?? t("sidebar.dash")}
-                    />,
-                    <SidebarRow
-                      key="church"
-                      label={tGeneral("labelChurch")}
-                      value={church ?? t("sidebar.dash")}
-                    />,
-                    <SidebarRow
-                      key="address"
-                      label={tGeneral("labelAddress")}
-                      value={address ?? t("sidebar.dash")}
-                    />,
-                  ],
-                },
-                {
-                  items: [
-                    <Button
-                      key="back"
-                      asChild
-                      variant="outline"
-                      size="sm"
-                      className="w-full justify-start"
-                    >
-                      <Link href="/dashboard/clubs">
-                        <ArrowLeft className="size-4" />
-                        {t("back")}
-                      </Link>
-                    </Button>,
-                  ],
-                },
-              ]}
+        <div className="mt-4 min-w-0">
+          <TabsContent value="general" className="mt-0">
+            <GeneralTab data={data} />
+          </TabsContent>
+          <TabsContent value="sections" className="mt-0">
+            <SectionsTab data={data} />
+          </TabsContent>
+          <TabsContent value="roles" className="mt-0">
+            <RolesTab data={data} />
+          </TabsContent>
+          <TabsContent value="reports" className="mt-0">
+            <ReportsTab
+              annualReports={annualReports}
+              quarterlyReports={quarterlyReports}
             />
-          </aside>
+          </TabsContent>
+          <TabsContent value="history" className="mt-0">
+            <HistoryTab clubId={data.clubId} sections={data.sectionMemberGroups} />
+          </TabsContent>
         </div>
       </Tabs>
-    </div>
-  );
-}
-
-function SidebarRow({ label, value }: { label: string; value: ReactNode }) {
-  return (
-    <div className="flex items-center justify-between gap-3 border-b border-dashed border-border/70 pb-2 last:border-b-0 last:pb-0">
-      <span className="text-xs uppercase tracking-wider text-muted-foreground">
-        {label}
-      </span>
-      <span className="text-sm font-medium text-foreground">{value}</span>
     </div>
   );
 }

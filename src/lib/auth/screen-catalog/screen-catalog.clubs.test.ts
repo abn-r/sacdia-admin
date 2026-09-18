@@ -56,6 +56,21 @@ describe("coordination", () => {
   });
 });
 
+describe("clubs create", () => {
+  it("lets clubs:create open new and import without a field-leadership role", () => {
+    const assistant = buildUser(["assistant-admin"], ["clubs:create"]);
+    expect(canCapability(assistant, "clubs", "create")).toBe(true);
+    expect(canCapability(assistant, "clubs", "bulk_create")).toBe(true);
+  });
+
+  it("hides create/import from director-lf without clubs:create", () => {
+    const director = buildUser(["director-lf"], ["clubs:read"]);
+    expect(canViewScreen(director, "clubs")).toBe(true);
+    expect(canCapability(director, "clubs", "create")).toBe(false);
+    expect(canCapability(director, "clubs", "bulk_create")).toBe(false);
+  });
+});
+
 describe("annual continuations", () => {
   it("lets club_members:approve view and enroll on admin and app", () => {
     const director = buildUser(["director"], ["club_members:approve"]);

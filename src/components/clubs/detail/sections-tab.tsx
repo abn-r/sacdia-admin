@@ -28,12 +28,16 @@ import {
 import {
   findSectionDirectorMember,
   getSectionOfficers,
+  isClubSectionActive,
+  clubSectionTypeName,
+  resolveClubTypeSlots,
   type ClubDetailPayload,
   type ClubSectionRaw,
   type SectionOfficerPerson,
   type SectionOfficerRole,
   type SectionOfficers,
 } from "@/lib/clubs/types";
+import { isMasterGuidesClubType } from "@/lib/clubs/club-type";
 import type { ClubSectionMember } from "@/lib/api/clubs";
 import { AnnualContinuationsBlock } from "@/components/clubs/detail/annual-continuations-block";
 import { SuccessionBlock } from "@/components/clubs/detail/succession-block";
@@ -41,8 +45,6 @@ import { SuccessionBlock } from "@/components/clubs/detail/succession-block";
 interface SectionsTabProps {
   data: ClubDetailPayload;
 }
-
-const MAX_SECTION_SLOTS = 3;
 
 function findSectionForType(
   sections: ClubSectionRaw[],
@@ -132,11 +134,13 @@ function SectionActiveToggle({
   sectionId,
   active,
   disabled,
+  locked,
 }: {
   clubId: number;
   sectionId: number;
   active: boolean;
   disabled: boolean;
+  locked?: boolean;
 }) {
   const t = useTranslations("clubs.detail.sections");
   const router = useRouter();
@@ -152,6 +156,24 @@ function SectionActiveToggle({
       router.refresh();
     }
   }, [state.ok, router]);
+
+  if (locked) {
+    return (
+      <div className="space-y-1">
+        <div className="flex items-center justify-end gap-2">
+          <span className="text-xs text-muted-foreground">
+            {t("masterGuidesLockedHint")}
+          </span>
+          <Switch
+            type="button"
+            checked={active}
+            disabled
+            aria-label={t("masterGuidesLockedHint")}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <form ref={formRef} action={action} className="space-y-2">
@@ -188,7 +210,7 @@ function OfficerPersonRow({
     <div className="flex items-center gap-3.5 rounded-xl border border-border bg-card p-3">
       <UserAvatar src={person.image} name={person.name} size={40} className="rounded-xl" />
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold text-foreground">{person.name}</p>
+        <p className="truncate text-sm font-bold text-foreground">{person.name}</p>
         <p className="mt-0.5 truncate text-xs text-muted-foreground">{roleLabel}</p>
       </div>
     </div>
@@ -302,7 +324,7 @@ function DesignationBlock({
       </p>
 
       {existingName ? (
-        <p className="truncate text-sm text-foreground">{existingName}</p>
+        <p className="truncate text-sm font-bold text-foreground">{existingName}</p>
       ) : (
         <p className="text-sm text-muted-foreground">{t("noDesignation")}</p>
       )}
@@ -387,8 +409,14 @@ function SectionCard({
 }) {
   const t = useTranslations("clubs.detail.sections");
   const translateRole = useRoleLabel();
-  const isActive = section.active !== false;
+  const isActive = isClubSectionActive(section);
   const director = findSectionDirectorMember(members);
+  const lockInactive =
+    isActive &&
+    isMasterGuidesClubType({
+      name: typeName || clubSectionTypeName(section),
+      slug: section.club_type?.slug,
+    });
 
   return (
     <DetailSection
@@ -411,6 +439,7 @@ function SectionCard({
             sectionId={section.club_section_id}
             active={isActive}
             disabled={!canManage}
+            locked={lockInactive}
           />
         </div>
       ) : null}
@@ -478,7 +507,7 @@ function SectionCard({
 }
 
 export function SectionsTab({ data }: SectionsTabProps) {
-  const slotTypes = data.clubTypes.slice(0, MAX_SECTION_SLOTS);
+  const slotTypes = resolveClubTypeSlots(data.clubTypes, data.sections);
 
   return (
     <div className="grid gap-3.5 md:grid-cols-2 xl:grid-cols-3">

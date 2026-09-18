@@ -6,6 +6,7 @@ import {
   CLUB_MEMBERS_APPROVE,
   CLUB_ROLES_ASSIGN,
   CLUB_ROLES_REVOKE,
+  CLUBS_CREATE,
   CLUBS_READ,
   COORDINATION_MANAGE,
   ECCLESIASTICAL_YEARS_UPDATE,
@@ -55,6 +56,19 @@ export const clubsScreens: ScreenDefinition[] = [
     surfaces: ["admin"],
     viewAny: { permissions: [CLUBS_READ] },
     capabilities: [
+      // POST /clubs — clubs.controller.ts @RequirePermissions('clubs:create')
+      {
+        id: "create",
+        kind: "route",
+        href: "/dashboard/clubs/new",
+        gate: { permissions: [CLUBS_CREATE] },
+      },
+      {
+        id: "bulk_create",
+        kind: "route",
+        href: "/dashboard/clubs/import",
+        gate: { permissions: [CLUBS_CREATE] },
+      },
       // POST/DELETE /clubs/:clubId/sections/:sectionId/roles*
       { id: "manage_roles", kind: "button", gate: { permissions: [CLUB_ROLES_ASSIGN] } },
       {

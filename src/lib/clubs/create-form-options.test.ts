@@ -7,6 +7,7 @@ import {
   toChurchOptions,
   toDistrictOptions,
   toLocalFieldOptions,
+  resolveClubCreateLocalFieldDefault,
 } from "@/lib/clubs/create-form-options";
 
 describe("club create form options", () => {
@@ -51,6 +52,31 @@ describe("club create form options", () => {
     expect(filterChurchesByDistrict(churches, 21)).toEqual([churches[1]]);
   });
 
+  it("preselects and locks the actor local field when it is in the picker", () => {
+    const fields = [
+      { label: "Norte", value: 10 },
+      { label: "Sur", value: 11 },
+    ];
+    expect(resolveClubCreateLocalFieldDefault(fields, 11)).toEqual({
+      value: "11",
+      locked: true,
+    });
+    expect(resolveClubCreateLocalFieldDefault(fields, 99)).toEqual({
+      value: "",
+      locked: false,
+    });
+    expect(resolveClubCreateLocalFieldDefault(fields, null)).toEqual({
+      value: "",
+      locked: false,
+    });
+  });
+
+  it("locks a single remaining local field even without a preferred id", () => {
+    expect(
+      resolveClubCreateLocalFieldDefault([{ label: "Norte", value: 10 }]),
+    ).toEqual({ value: "10", locked: true });
+  });
+
   it("normalizes active club type options for section assignment", () => {
     expect(
       toClubTypeOptions([
@@ -73,5 +99,42 @@ describe("club create form options", () => {
       { clubTypeId: 2 },
       { clubTypeId: 4 },
     ]);
+  });
+
+  it("always includes Guías Mayores even when it is missing from FormData", () => {
+    const formData = new FormData();
+    formData.set("section_club_type_id_0", "10");
+    const clubTypes = [
+      { label: "Aventureros", value: 10 },
+      { label: "Conquistadores", value: 20 },
+      { label: "Guías Mayores", value: 99 },
+    ];
+
+    expect(collectSelectedClubSections(formData, clubTypes)).toEqual([
+      { clubTypeId: 10 },
+      { clubTypeId: 99 },
+    ]);
+  });
+
+  it("does not duplicate Guías Mayores when the locked checkbox already submitted", () => {
+    const formData = new FormData();
+    formData.set("section_club_type_id_2", "99");
+    const clubTypes = [
+      { label: "Aventureros", value: 10 },
+      { label: "Guías Mayores", value: 99 },
+    ];
+
+    expect(collectSelectedClubSections(formData, clubTypes)).toEqual([
+      { clubTypeId: 99 },
+    ]);
+  });
+
+  it("treats Guías Mayores alone as a valid section selection", () => {
+    expect(
+      collectSelectedClubSections(new FormData(), [
+        { label: "Aventureros", value: 10 },
+        { label: "Guías Mayores", value: 99 },
+      ]),
+    ).toEqual([{ clubTypeId: 99 }]);
   });
 });
