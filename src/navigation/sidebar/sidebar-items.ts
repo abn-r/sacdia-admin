@@ -282,6 +282,13 @@ export const sidebarItems: NavGroup[] = [
             activeMatch: "prefix",
           },
           {
+            id: "institutional-certificate-requests",
+            title: "Bandeja institucional GM",
+            url: "/dashboard/institutional-certificate-requests",
+            icon: GraduationCap,
+            activeMatch: "prefix",
+          },
+          {
             id: "clubs-evidence-folders",
             title: "Evidencias",
             icon: FolderOpen,

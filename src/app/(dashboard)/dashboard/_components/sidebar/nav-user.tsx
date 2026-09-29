@@ -34,13 +34,15 @@ export function NavUser() {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground group-data-[collapsible=icon]:justify-center"
             >
-              <Avatar className="h-8 w-8 rounded-lg">
+              <Avatar className="size-8 shrink-0 rounded-lg">
                 <AvatarImage src={avatar || undefined} alt={name} />
-                <AvatarFallback className="rounded-lg">{getInitials(name)}</AvatarFallback>
+                <AvatarFallback className="rounded-lg text-xs font-medium">
+                  {getInitials(name).slice(0, 2)}
+                </AvatarFallback>
               </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
+              <div className="grid min-w-0 flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
                 <span className="truncate font-medium">{name}</span>
                 <span className="truncate text-muted-foreground text-xs">{user.email}</span>
               </div>

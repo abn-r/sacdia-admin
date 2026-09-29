@@ -37,7 +37,16 @@ export type UserClassEnrollment = {
   investiture_date: string | null;
   validated_at: string | null;
   active: boolean;
-  overall_progress?: number;
+  record_kind?: string | null;
+  course_open?: boolean;
+  overall_progress?: number | null;
+  certificate_proof?: { batch_id: string; file_id: string | null } | null;
+  progress_archive?: Array<{
+    section_name: string | null;
+    module_name: string | null;
+    score: number;
+    status: string;
+  }> | null;
   classes: {
     class_id: number;
     name: string;

@@ -54,8 +54,9 @@ export function formatEcclesiasticalYearLabel(
 ): string {
   if (!year) return "—";
   try {
-    const startYear = new Date(year.start_date).getFullYear();
-    const endYear = new Date(year.end_date).getFullYear();
+    const startYear = Number(/^(\d{4})/.exec(year.start_date)?.[1] ?? Number.NaN);
+    const endYear = Number(/^(\d{4})/.exec(year.end_date)?.[1] ?? Number.NaN);
+    if (Number.isNaN(startYear) || Number.isNaN(endYear)) return "—";
     return `${startYear}–${endYear}`;
   } catch {
     return "—";

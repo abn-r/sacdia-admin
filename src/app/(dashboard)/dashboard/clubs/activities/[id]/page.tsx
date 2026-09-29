@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Calendar, MapPin, Clock, Monitor, Link2 } from "lucide-react";
+import { ArrowLeft, Calendar, MapPin, Clock, Monitor, Link2, Users } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { AttendancePanel } from "@/components/activities/attendance-panel";
-import { ActivitySeriesPanel } from "@/components/activities/activity-series-panel";
+import { ActivityAudienceValue } from "@/components/activities/activity-audience-label";
 import { ApiError } from "@/lib/api/client";
 import { getActivity, getAttendance, PLATFORM_LABELS, ACTIVITY_TYPE_LABELS } from "@/lib/api/activities";
 import { normalizeActivity as normalizeActivityRecord } from "@/lib/activities/helpers";
@@ -196,10 +196,6 @@ export default async function ActivityDetailPage({ params }: { params: Params })
         </CardContent>
       </Card>
 
-      {activity.activity_series_id ? (
-        <ActivitySeriesPanel seriesId={activity.activity_series_id} />
-      ) : null}
-
       {/* Info card */}
       <Card className="gap-2 py-3 [--card-spacing:--spacing(3)]">
         <CardHeader className="pb-0">
@@ -255,6 +251,22 @@ export default async function ActivityDetailPage({ params }: { params: Params })
               )
             }
             icon={MapPin}
+          />
+          <InfoRow
+            label={t("pageDetail.info_audience")}
+            className="sm:col-span-2"
+            icon={Users}
+            value={
+              <ActivityAudienceValue
+                activity={activity}
+                withLogos
+                labels={{
+                  all: t("audience.all"),
+                  board: t("audience.board"),
+                  classes: t("audience.classes"),
+                }}
+              />
+            }
           />
           {activity.link_meet && (
             <InfoRow

@@ -34,6 +34,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { PermissionPicker } from "@/components/rbac/permission-picker";
+import { pickerScreenIdForKey } from "@/lib/rbac/permission-picker-groups";
 import { createRoleAction, updateRoleAction } from "@/lib/rbac/actions";
 import type { Permission, Role, RbacActionState } from "@/lib/rbac/types";
 
@@ -261,7 +262,7 @@ export function EditRoleForm({ role, allPermissions }: EditRoleFormProps) {
     Array.from(initialSelectedIds).flatMap((pid) => {
       const perm = allPermissions.find((p) => p.permission_id === pid);
       if (!perm) return [];
-      return [perm.permission_name.split(":")[0] ?? "other"];
+      return [pickerScreenIdForKey(perm.permission_name, "all")];
     }),
   );
 

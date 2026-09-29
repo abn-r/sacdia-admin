@@ -45,6 +45,8 @@ import {
   updateActivity,
 } from "@/lib/api/activities";
 import type { Activity, ActivitySeriesPreview } from "@/lib/api/activities";
+import { listClasses } from "@/lib/api/classes";
+import type { ProgressiveClass } from "@/lib/api/classes";
 import { ActivitySeriesPreviewList } from "@/components/activities/activity-series-preview";
 import { toDateKey } from "@/lib/activities/helpers";
 
@@ -126,6 +128,10 @@ export function ActivityFormDialog({
   const [preview, setPreview] = useState<ActivitySeriesPreview | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewError, setPreviewError] = useState(false);
+  const [audience, setAudience] = useState<"all" | "board" | "classes">("all");
+  const [classOptions, setClassOptions] = useState<ProgressiveClass[]>([]);
+  const [selectedClassIds, setSelectedClassIds] = useState<number[]>([]);
+  const [classesLoading, setClassesLoading] = useState(false);
   const tSeries = useTranslations("activities.series");
   const schema = useMemo(() => buildSchema(tVal), [tVal]);
 
@@ -186,6 +192,9 @@ export function ActivityFormDialog({
           platform: 0,
           link_meet: "",
         });
+        setAudience("all");
+        setClassOptions([]);
+        setSelectedClassIds([]);
       }
     }
   }, [open, activity, sections, form]);
@@ -231,6 +240,14 @@ export function ActivityFormDialog({
           toast.error(tSeries("dateRequired"));
           return;
         }
+        if (audience === "classes" && selectedClassIds.length === 0) {
+          toast.error(t("audience.classesRequired"));
+          return;
+        }
+        const audienceFields =
+          audience === "classes"
+            ? { audience: "classes" as const, classes: selectedClassIds }
+            : { audience };
         const payload = {
           name: values.name,
           description: values.description,
@@ -241,11 +258,11 @@ export function ActivityFormDialog({
           long: values.long,
           activity_time: values.activity_time,
           activity_date: values.activity_date,
-          activity_end_date: values.activity_end_date || undefined,
           activity_place: values.activity_place,
           image: values.image,
           platform: values.platform,
           link_meet: values.link_meet,
+          ...audienceFields,
           recurrence: {
             kind: repeatKind,
             interval_days: repeatKind === "interval" ? intervalDays : undefined,
@@ -256,6 +273,14 @@ export function ActivityFormDialog({
         const created = await createActivitySeries(clubId, payload);
         toast.success(tSeries("created", { count: created.created_count ?? preview?.count ?? 0 }));
       } else {
+        if (audience === "classes" && selectedClassIds.length === 0) {
+          toast.error(t("audience.classesRequired"));
+          return;
+        }
+        const audienceFields =
+          audience === "classes"
+            ? { audience: "classes" as const, classes: selectedClassIds }
+            : { audience };
         await createActivity(clubId, {
           name: values.name,
           description: values.description,
@@ -271,6 +296,7 @@ export function ActivityFormDialog({
           image: values.image,
           platform: values.platform,
           link_meet: values.link_meet,
+          ...audienceFields,
         });
         toast.success(t("toasts.created"));
       }
@@ -288,6 +314,33 @@ export function ActivityFormDialog({
   const platform = form.watch("platform");
   const clubTypeId = form.watch("club_type_id");
   const activityDate = form.watch("activity_date");
+
+  useEffect(() => {
+    if (!open || isEdit || audience !== "classes") return;
+    let cancelled = false;
+    setClassesLoading(true);
+    void listClasses({ clubTypeId: Number(clubTypeId), limit: 100 })
+      .then((result) => {
+        if (cancelled) return;
+        const rows = [...(result.data ?? [])].sort(
+          (a, b) => a.display_order - b.display_order,
+        );
+        setClassOptions(rows);
+        setSelectedClassIds(rows.map((row) => row.class_id));
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setClassOptions([]);
+        setSelectedClassIds([]);
+        toast.error(t("audience.classesError"));
+      })
+      .finally(() => {
+        if (!cancelled) setClassesLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, isEdit, audience, clubTypeId, t]);
 
   // Filter sections by selected club type
   const filteredSections = sections.filter(
@@ -313,7 +366,6 @@ export function ActivityFormDialog({
         long: form.getValues("long"),
         activity_time: form.getValues("activity_time"),
         activity_date: activityDate,
-        activity_end_date: form.getValues("activity_end_date") || undefined,
         activity_place: form.getValues("activity_place") || "place",
         ...(image ? { image } : {}),
         platform: form.getValues("platform"),
@@ -513,6 +565,87 @@ export function ActivityFormDialog({
                     </FormItem>
                   )}
                 />
+
+                <div className="space-y-2">
+                  <Label>{t("audience.label")}</Label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <Button
+                      type="button"
+                      variant={audience === "all" ? "default" : "outline"}
+                      onClick={() => setAudience("all")}
+                    >
+                      {t("audience.all")}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={audience === "board" ? "default" : "outline"}
+                      onClick={() => setAudience("board")}
+                    >
+                      {t("audience.board")}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={audience === "classes" ? "default" : "outline"}
+                      onClick={() => setAudience("classes")}
+                    >
+                      {t("audience.classes")}
+                    </Button>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {audience === "all"
+                      ? t("audience.allHelp")
+                      : audience === "board"
+                        ? t("audience.boardHelp")
+                        : t("audience.classesHelp")}
+                  </p>
+                  {audience === "classes" && (
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                      {classesLoading ? (
+                        <p className="col-span-full text-sm text-muted-foreground">
+                          {t("audience.classesHelp")}
+                        </p>
+                      ) : classOptions.length === 0 ? (
+                        <p className="col-span-full text-sm text-muted-foreground">
+                          {t("audience.classesEmpty")}
+                        </p>
+                      ) : (
+                        classOptions.map((item) => {
+                          const selected = selectedClassIds.includes(item.class_id);
+                          return (
+                            <button
+                              key={item.class_id}
+                              type="button"
+                              aria-pressed={selected}
+                              onClick={() =>
+                                setSelectedClassIds((current) =>
+                                  current.includes(item.class_id)
+                                    ? current.filter((id) => id !== item.class_id)
+                                    : [...current, item.class_id],
+                                )
+                              }
+                              className={cn(
+                                "flex items-center gap-2 rounded-md border px-2 py-2 text-left text-sm",
+                                selected
+                                  ? "border-primary bg-primary/10"
+                                  : "border-border",
+                              )}
+                            >
+                              {item.asset_code ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                  src={`/img/logos-clases/${item.asset_code}.png`}
+                                  alt=""
+                                  className="size-8 shrink-0 object-contain"
+                                />
+                              ) : null}
+                              <span>{item.name}</span>
+                            </button>
+                          );
+                        })
+                      )}
+                    </div>
+                  )}
+                </div>
               </>
             )}
 
@@ -553,7 +686,7 @@ export function ActivityFormDialog({
             />
 
             {/* Fecha */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className={repeat ? undefined : "grid grid-cols-2 gap-3"}>
               <FormField
                 control={form.control}
                 name="activity_date"
@@ -572,19 +705,21 @@ export function ActivityFormDialog({
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="activity_end_date"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{tSeries("endDate")}</FormLabel>
-                    <FormControl>
-                      <Input type="date" min={activityDate || toDateKey(new Date())} max={yearEnd || undefined} {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {!repeat ? (
+                <FormField
+                  control={form.control}
+                  name="activity_end_date"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{tSeries("endDate")}</FormLabel>
+                      <FormControl>
+                        <Input type="date" min={activityDate || toDateKey(new Date())} max={yearEnd || undefined} {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              ) : null}
             </div>
 
             {!isEdit ? (
@@ -616,7 +751,10 @@ export function ActivityFormDialog({
                   <Switch
                     id="repeat-activity"
                     checked={repeat}
-                    onCheckedChange={setRepeat}
+                    onCheckedChange={(checked) => {
+                      setRepeat(checked);
+                      if (checked) form.setValue("activity_end_date", "");
+                    }}
                   />
                 </div>
 
@@ -871,7 +1009,10 @@ export function ActivityFormDialog({
               >
                 Cancelar
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button
+                type="submit"
+                disabled={isSubmitting || (audience === "classes" && classesLoading)}
+              >
                 {isSubmitting
                   ? isEdit
                     ? tSeries("saving")

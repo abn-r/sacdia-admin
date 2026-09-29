@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslations } from "next-intl";
-import { CheckCircle2, Loader2, XCircle } from "lucide-react";
+import { AlertCircle, CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -27,53 +27,64 @@ import {
 } from "@/components/ui/form";
 import { ApiError } from "@/lib/api/client";
 import {
-  approveCertificateBulkImportBatch,
-  approveCertificateBulkImportItem,
-  rejectCertificateBulkImportBatch,
-  rejectCertificateBulkImportItem,
-  type CertificateBulkImportItem,
-} from "@/lib/api/certificate-bulk-imports";
+  approveInstitutionalCertificateRequest,
+  rejectInstitutionalCertificateRequest,
+} from "@/lib/api/institutional-certificate-requests";
 
 type Action = "approve" | "reject";
-type Scope = "batch" | "item";
 
 type FormValues = {
   comment: string;
   reason: string;
 };
 
-export interface CertificateBulkImportActionDialogProps {
-  open: boolean;
-  action: Action;
-  scope: Scope;
-  batchId: string;
-  itemId?: string;
-  title: string;
-  description: string;
-  reconciliation?: CertificateBulkImportItem["operational_reconciliation"];
-  onOpenChange: (open: boolean) => void;
-  onSuccess: () => void;
+// Backend error codes that indicate a revision conflict or immutable decision
+const REVISION_CONFLICT_CODE = "CERTIFICATE_IMPORT_REVISION_CONFLICT";
+const DECISION_IMMUTABLE_CODE = "CERTIFICATE_IMPORT_DECISION_IMMUTABLE";
+
+function extractErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return String(error ?? "");
 }
 
-function trimOptional(value?: string) {
+function isRevisionConflict(error: unknown): boolean {
+  return extractErrorMessage(error).includes(REVISION_CONFLICT_CODE);
+}
+
+function isDecisionImmutable(error: unknown): boolean {
+  return extractErrorMessage(error).includes(DECISION_IMMUTABLE_CODE);
+}
+
+function trimOptional(value?: string): string | undefined {
   const trimmed = value?.trim();
   return trimmed ? trimmed : undefined;
 }
 
-export function CertificateBulkImportActionDialog({
+export interface InstitutionalCertificateRequestActionDialogProps {
+  open: boolean;
+  action: Action;
+  requestId: string;
+  /** Current revision number — sent as expected_revision to detect conflicts */
+  currentRevision: number;
+  title: string;
+  description: string;
+  onOpenChange: (open: boolean) => void;
+  onSuccess: () => void;
+}
+
+export function InstitutionalCertificateRequestActionDialog({
   open,
   action,
-  scope,
-  batchId,
-  itemId,
+  requestId,
+  currentRevision,
   title,
   description,
-  reconciliation,
   onOpenChange,
   onSuccess,
-}: CertificateBulkImportActionDialogProps) {
-  const t = useTranslations("certificate_bulk_imports.actionDialog");
+}: InstitutionalCertificateRequestActionDialogProps) {
+  const t = useTranslations("institutional_certificate_requests.actionDialog");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [conflictError, setConflictError] = useState<string | null>(null);
   const isReject = action === "reject";
 
   const schema = useMemo(
@@ -94,43 +105,44 @@ export function CertificateBulkImportActionDialog({
 
   function handleClose(nextOpen: boolean) {
     if (isSubmitting) return;
-    if (!nextOpen) form.reset();
+    if (!nextOpen) {
+      form.reset();
+      setConflictError(null);
+    }
     onOpenChange(nextOpen);
   }
 
   const submit = form.handleSubmit(async (values) => {
     setIsSubmitting(true);
+    setConflictError(null);
+
     try {
       if (isReject) {
-        const reason = values.reason?.trim() ?? "";
-        if (scope === "item") {
-          if (!itemId) throw new Error("Missing item id");
-          await rejectCertificateBulkImportItem(batchId, itemId, { reason });
-        } else {
-          await rejectCertificateBulkImportBatch(batchId, { reason });
-        }
-        toast.success(t(scope === "item" ? "itemRejected" : "batchRejected"));
+        await rejectInstitutionalCertificateRequest(requestId, {
+          expected_revision: currentRevision,
+          reason: values.reason.trim(),
+        });
+        toast.success(t("rejected"));
       } else {
-        const payload = {
+        await approveInstitutionalCertificateRequest(requestId, {
+          expected_revision: currentRevision,
           comment: trimOptional(values.comment),
-          ...(reconciliation
-            ? {
-                reconcile_enrollment_id: reconciliation.enrollment_id,
-                expected_modified_at: reconciliation.modified_at,
-              }
-            : {}),
-        };
-        if (scope === "item") {
-          if (!itemId) throw new Error("Missing item id");
-          await approveCertificateBulkImportItem(batchId, itemId, payload);
-        } else {
-          await approveCertificateBulkImportBatch(batchId, payload);
-        }
-        toast.success(t(scope === "item" ? "itemApproved" : "batchApproved"));
+        });
+        // Approval = institutional validation approved, NOT "class registered"
+        toast.success(t("approved"));
       }
       form.reset();
       onSuccess();
     } catch (error) {
+      if (isRevisionConflict(error)) {
+        // Show conflict inline — do not close, do not show success
+        setConflictError(t("revisionConflict"));
+        return;
+      }
+      if (isDecisionImmutable(error)) {
+        setConflictError(t("decisionImmutable"));
+        return;
+      }
       const message = error instanceof ApiError ? error.message : t("genericError");
       toast.error(message);
     } finally {
@@ -151,10 +163,17 @@ export function CertificateBulkImportActionDialog({
             {title}
           </DialogTitle>
           <DialogDescription>{description}</DialogDescription>
-          {reconciliation && !isReject ? (
-            <p className="text-sm text-muted-foreground">{t("reconcileNotice")}</p>
-          ) : null}
         </DialogHeader>
+
+        {conflictError && (
+          <div
+            role="alert"
+            className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+          >
+            <AlertCircle className="mt-0.5 shrink-0" aria-hidden="true" />
+            <span>{conflictError}</span>
+          </div>
+        )}
 
         <Form {...form}>
           <form onSubmit={submit} className="flex flex-col gap-4">
@@ -213,7 +232,7 @@ export function CertificateBulkImportActionDialog({
                 disabled={isSubmitting}
               >
                 {isSubmitting && <Loader2 className="animate-spin" aria-hidden="true" />}
-                {isReject ? t("reject") : reconciliation ? t("reconcileApprove") : t("approve")}
+                {isReject ? t("reject") : t("approve")}
               </Button>
             </DialogFooter>
           </form>

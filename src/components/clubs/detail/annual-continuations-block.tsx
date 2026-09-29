@@ -10,8 +10,14 @@ import {
   type ContinuationListItem,
 } from "@/lib/api/annual-continuations";
 
-function classLabel(item: ContinuationListItem): string {
+function classLabel(
+  item: ContinuationListItem,
+  pathComplete: string,
+): string {
   const suggested = item.suggested_class;
+  if (suggested.status === "complete") {
+    return pathComplete;
+  }
   if (suggested.status === "resolved" && suggested.class_id != null) {
     return String(suggested.class_id);
   }
@@ -68,9 +74,10 @@ export function AnnualContinuationsBlock({ sectionId }: { sectionId: number }) {
         [...selected],
       );
       const enrolled = results.filter((row) => row.outcome === "enrolled").length;
+      const complete = results.filter((row) => row.outcome === "path_complete").length;
       const blocked = results.filter((row) => row.outcome === "blocked").length;
       const failed = results.filter((row) => row.outcome === "failed").length;
-      setNotice(t("continuationsResult", { enrolled, blocked, failed }));
+      setNotice(t("continuationsResult", { enrolled, complete, blocked, failed }));
       await load();
     } catch {
       setError(t("continuationsSubmitError"));
@@ -110,7 +117,7 @@ export function AnnualContinuationsBlock({ sectionId }: { sectionId: number }) {
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-medium">{item.name}</span>
                     <span className="block text-[11px] text-muted-foreground">
-                      {t("continuationsClass")}: {classLabel(item)}
+                      {t("continuationsClass")}: {classLabel(item, t("continuationsPathComplete"))}
                     </span>
                     {!eligible ? (
                       <span className="block text-[11px] text-destructive">

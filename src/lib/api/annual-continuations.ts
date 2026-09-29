@@ -1,7 +1,7 @@
 import { apiRequest, apiRequestFromClient } from "@/lib/api/client";
 
 export type ContinuationSuggestedClass = {
-  status: "pending" | "blocked" | "resolved";
+  status: "pending" | "blocked" | "resolved" | "complete";
   class_id?: number;
   code?: string;
 };
@@ -20,7 +20,7 @@ export type ContinuationListItem = {
 
 export type ContinuationUserResult = {
   user_id: string;
-  outcome: "enrolled" | "already_enrolled" | "blocked" | "failed";
+  outcome: "enrolled" | "path_complete" | "already_enrolled" | "blocked" | "failed";
   club_section_id: number;
   ecclesiastical_year_id: number;
   enrollment_id: number | null;

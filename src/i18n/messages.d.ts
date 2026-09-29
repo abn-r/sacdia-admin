@@ -2527,10 +2527,25 @@ export interface IntlMessages {
       ofLabel: string;
       selectedLabel: string;
       noMatches: string;
+      noSurfaceMatches: string;
       selectAllInGroup: string;
+      selectAllInBucket: string;
       destructiveAction: string;
       otherGroup: string;
       requiresRoles: string;
+      surfaceFilterLabel: string;
+      surfaceAll: string;
+      surfaceAdmin: string;
+      surfaceApp: string;
+      surfaceShared: string;
+      surfaceHint: string;
+      bucketView: string;
+      bucketRoutes: string;
+      bucketActions: string;
+      bucketSensitive: string;
+      bucketDestructive: string;
+      countLabel: string;
+      permissionKey: string;
     };
     userRolesPanel: {
       title: string;
@@ -4729,10 +4744,6 @@ export interface IntlMessages {
           healthTitle: string;
           healthBlockTitle: string;
           healthEmpty: string;
-          healthShow: string;
-          healthHide: string;
-          healthProtectedTitle: string;
-          healthProtectedDescription: string;
         };
         fields: {
           fullName: string;
@@ -6396,6 +6407,7 @@ export interface IntlMessages {
       colType: string;
       colTime: string;
       colPlace: string;
+      colAudience: string;
       colMode: string;
       colStatus: string;
       editTitle: string;
@@ -6461,6 +6473,7 @@ export interface IntlMessages {
       badge_in_person: string;
       info_date: string;
       info_place: string;
+      info_audience: string;
       info_time: string;
       info_mode: string;
       info_meet_link: string;
@@ -6474,6 +6487,18 @@ export interface IntlMessages {
       club_section_required: string;
       activity_place_required: string;
       image_required: string;
+    };
+    audience: {
+      label: string;
+      all: string;
+      board: string;
+      classes: string;
+      allHelp: string;
+      boardHelp: string;
+      classesHelp: string;
+      classesRequired: string;
+      classesError: string;
+      classesEmpty: string;
     };
     placeholders: {
       name: string;

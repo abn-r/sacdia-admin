@@ -39,16 +39,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton
+              asChild
+              tooltip={APP_CONFIG.name}
+              className="group-data-[collapsible=icon]:justify-center"
+            >
               <Link prefetch={false} href="/dashboard" aria-label={APP_CONFIG.name}>
-                <Image
-                  src="/app-icon.jpg"
-                  alt=""
-                  width={16}
-                  height={16}
-                  className="size-4 shrink-0 rounded-sm"
-                />
-                <span className="font-semibold text-base">{APP_CONFIG.name}</span>
+                <div className="size-5 shrink-0 overflow-hidden rounded-md group-data-[collapsible=icon]:size-4">
+                  <Image
+                    src="/app-icon.jpg"
+                    alt=""
+                    width={32}
+                    height={32}
+                    className="size-full object-cover"
+                  />
+                </div>
+                <span className="font-semibold text-base group-data-[collapsible=icon]:hidden">
+                  {APP_CONFIG.name}
+                </span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

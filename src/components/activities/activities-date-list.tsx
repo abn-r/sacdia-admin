@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Building2, ChevronRight, Clock, MapPin, Repeat } from "lucide-react";
+import { Building2, ChevronRight, Clock, MapPin, Repeat, Users } from "lucide-react";
 import { useMemo, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,7 @@ import {
   sortActivitiesByTime,
 } from "@/lib/activities/helpers";
 import { cn } from "@/lib/utils";
+import { activityAudienceText } from "@/components/activities/activity-audience-label";
 
 interface ActivitiesDateListProps {
   activities: Activity[];
@@ -74,6 +75,7 @@ function ActivityListCard({
   href: string;
 }) {
   const tSeries = useTranslations("activities.series");
+  const t = useTranslations("activities");
   const dateKey = getActivityDateKey(activity);
   const dateParts = dateKey ? getDateParts(dateKey) : null;
   const dateRangeLabel = formatDateRangeShort(activity);
@@ -147,6 +149,13 @@ function ActivityListCard({
               {activity.activity_place}
             </MetaItem>
           ) : null}
+          <MetaItem icon={Users} className="min-w-0">
+            {activityAudienceText(activity, {
+              all: t("audience.all"),
+              board: t("audience.board"),
+              classes: t("audience.classes"),
+            })}
+          </MetaItem>
         </div>
       </div>
 

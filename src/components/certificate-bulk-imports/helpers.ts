@@ -16,6 +16,20 @@ export function formatShortId(id: string): string {
   return id.length <= 8 ? id : id.slice(0, 8).toUpperCase();
 }
 
+export function formatCivilDate(value?: string | null): string {
+  if (!value) return "—";
+  const civil = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
+  const date = civil
+    ? new Date(Number(civil[1]), Number(civil[2]) - 1, Number(civil[3]))
+    : new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat("es-MX", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(date);
+}
+
 export function formatDateTime(value?: string | null): string {
   if (!value) return "—";
   const date = new Date(value);

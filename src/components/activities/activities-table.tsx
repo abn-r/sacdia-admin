@@ -18,6 +18,7 @@ import { Calendar } from "lucide-react";
 import { PLATFORM_LABELS, ACTIVITY_TYPE_LABELS } from "@/lib/api/activities";
 import type { Activity } from "@/lib/api/activities";
 import { activityDetailPath } from "@/lib/activities/helpers";
+import { activityAudienceText } from "@/components/activities/activity-audience-label";
 
 interface ActivitiesTableProps {
   items: Activity[];
@@ -61,6 +62,9 @@ export function ActivitiesTable({ items, onEdit, onDelete }: ActivitiesTableProp
               {t("table.colPlace")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              {t("table.colAudience")}
+            </TableHead>
+            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
               {t("table.colMode")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
@@ -94,6 +98,15 @@ export function ActivitiesTable({ items, onEdit, onDelete }: ActivitiesTableProp
                 <TableCell className="max-w-[160px] px-3 py-2.5 align-middle">
                   <span className="truncate text-sm text-muted-foreground">
                     {activity.activity_place ?? "—"}
+                  </span>
+                </TableCell>
+                <TableCell className="max-w-[220px] px-3 py-2.5 align-middle">
+                  <span className="line-clamp-2 text-sm text-muted-foreground">
+                    {activityAudienceText(activity, {
+                      all: t("audience.all"),
+                      board: t("audience.board"),
+                      classes: t("audience.classes"),
+                    })}
                   </span>
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle text-sm">

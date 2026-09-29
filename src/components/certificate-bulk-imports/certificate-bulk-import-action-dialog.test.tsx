@@ -118,4 +118,38 @@ describe("CertificateBulkImportActionDialog", () => {
       });
     });
   });
+
+  it("confirms accreditation on the current enrollment", async () => {
+    const user = userEvent.setup();
+    renderDialog({
+      action: "approve",
+      scope: "item",
+      itemId: "item-1",
+      title: "Aprobar fila",
+      description: "La fila se aplicará al perfil del miembro.",
+      reconciliation: {
+        enrollment_id: 40,
+        ecclesiastical_year_id: 2014,
+        enrollment_date: "2014-02-01T00:00:00.000Z",
+        investiture_status: "IN_PROGRESS",
+        modified_at: "2014-02-01T00:00:00.000Z",
+        record_kind: "OPERATIONAL",
+      },
+    });
+
+    expect(
+      screen.getByText(/inscripción vigente/i),
+    ).toBeInTheDocument();
+    await user.click(
+      screen.getByRole("button", { name: /acreditar sobre esta inscripción/i }),
+    );
+
+    await waitFor(() => {
+      expect(mockApproveItem).toHaveBeenCalledWith("batch-1", "item-1", {
+        comment: undefined,
+        reconcile_enrollment_id: 40,
+        expected_modified_at: "2014-02-01T00:00:00.000Z",
+      });
+    });
+  });
 });

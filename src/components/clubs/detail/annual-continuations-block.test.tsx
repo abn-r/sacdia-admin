@@ -112,7 +112,9 @@ describe("AnnualContinuationsBlock", () => {
     });
     expect(JSON.stringify(mockSubmit.mock.calls)).not.toContain("annual-enroll");
     expect(
-      screen.getByText("Inscritos: 1. Bloqueados: 0. Fallidos: 0."),
+      screen.getByText(
+        "Inscritos: 1. Recorrido completo: 0. Bloqueados: 0. Fallidos: 0.",
+      ),
     ).toBeTruthy();
   });
 });

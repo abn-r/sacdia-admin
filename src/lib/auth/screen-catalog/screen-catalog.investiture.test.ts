@@ -259,3 +259,71 @@ describe("certifications-list", () => {
     ).toBe(true);
   });
 });
+
+describe("institutional-certificate-requests", () => {
+  it("super-admin can view the institutional queue", () => {
+    expect(
+      canViewScreen(buildUser(["super-admin"], []), "institutional-certificate-requests"),
+    ).toBe(true);
+  });
+
+  it("director-lf cannot view the institutional queue", () => {
+    expect(
+      canViewScreen(buildUser(["director-lf"], []), "institutional-certificate-requests"),
+    ).toBe(false);
+  });
+
+  it("admin cannot view the institutional queue", () => {
+    expect(
+      canViewScreen(buildUser(["admin"], []), "institutional-certificate-requests"),
+    ).toBe(false);
+  });
+
+  it("assistant-admin cannot view the institutional queue", () => {
+    expect(
+      canViewScreen(
+        buildUser(["assistant-admin"], []),
+        "institutional-certificate-requests",
+      ),
+    ).toBe(false);
+  });
+
+  it("director-union cannot view the institutional queue", () => {
+    expect(
+      canViewScreen(
+        buildUser(["director-union"], []),
+        "institutional-certificate-requests",
+      ),
+    ).toBe(false);
+  });
+
+  it("super-admin can approve institutional requests", () => {
+    expect(
+      canCapability(
+        buildUser(["super-admin"], []),
+        "institutional-certificate-requests",
+        "approve",
+      ),
+    ).toBe(true);
+  });
+
+  it("super-admin can reject institutional requests", () => {
+    expect(
+      canCapability(
+        buildUser(["super-admin"], []),
+        "institutional-certificate-requests",
+        "reject",
+      ),
+    ).toBe(true);
+  });
+
+  it("director-lf cannot approve institutional requests even with all bulk roles", () => {
+    expect(
+      canCapability(
+        buildUser(["director-lf", "admin", "assistant-admin"], []),
+        "institutional-certificate-requests",
+        "approve",
+      ),
+    ).toBe(false);
+  });
+});

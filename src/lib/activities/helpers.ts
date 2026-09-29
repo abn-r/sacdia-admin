@@ -32,6 +32,25 @@ function pickDateString(value: unknown): string | null {
   return null;
 }
 
+function parseAudienceClasses(value: unknown): Activity["audience_classes"] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item) => {
+    if (!item || typeof item !== "object") return [];
+    const row = item as AnyRecord;
+    const classId = Number(row.class_id);
+    const name = pickString(row.name);
+    if (!Number.isInteger(classId) || classId <= 0 || !name) return [];
+    return [
+      {
+        class_id: classId,
+        name,
+        asset_code: pickString(row.asset_code),
+        club_type_id: Number(row.club_type_id) || undefined,
+      },
+    ];
+  });
+}
+
 export function normalizeActivity(
   raw: AnyRecord,
   clubName?: string | null,
@@ -63,6 +82,11 @@ export function normalizeActivity(
     link_meet: pickString(raw.link_meet),
     additional_data: pickString(raw.additional_data),
     classes: Array.isArray(raw.classes) ? (raw.classes as number[]) : [],
+    audience:
+      raw.audience === "board" || raw.audience === "classes"
+        ? raw.audience
+        : "all",
+    audience_classes: parseAudienceClasses(raw.audience_classes),
     active: raw.active !== false,
     created_at: pickString(raw.created_at),
     updated_at: pickString(raw.updated_at),

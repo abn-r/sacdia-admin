@@ -333,14 +333,6 @@ export default async function UserDetailPage({ params }: { params: Params }) {
               healthProps={{
                 num: "03",
                 title: t("sections.healthTitle"),
-                showLabel: t("sections.healthShow"),
-                hideLabel: t("sections.healthHide"),
-                protectedTitle: t("sections.healthProtectedTitle", {
-                  allergies: healthAllergies.length,
-                  diseases: healthDiseases.length,
-                  medicines: healthMedicines.length,
-                }),
-                protectedDescription: t("sections.healthProtectedDescription"),
                 emptyMessage: t("sections.healthEmpty"),
                 bloodLabel: t("fields.bloodType"),
                 bloodValue: formatBloodType(

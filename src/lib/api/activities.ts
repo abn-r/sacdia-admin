@@ -20,6 +20,13 @@ export type ActivityType = {
   description?: string | null;
 };
 
+export type ActivityAudienceClass = {
+  class_id: number;
+  name: string;
+  asset_code?: string | null;
+  club_type_id?: number;
+};
+
 export type Activity = {
   activity_id: number;
   name: string;
@@ -41,6 +48,8 @@ export type Activity = {
   link_meet?: string | null;
   additional_data?: string | null;
   classes?: number[];
+  audience?: "all" | "board" | "classes";
+  audience_classes?: ActivityAudienceClass[];
   active: boolean;
   created_at?: string | null;
   updated_at?: string | null;
@@ -79,6 +88,7 @@ export type CreateActivityPayload = {
   link_meet?: string;
   additional_data?: string;
   classes?: number[];
+  audience?: "all" | "board" | "classes";
   club_section_id: number;
 };
 

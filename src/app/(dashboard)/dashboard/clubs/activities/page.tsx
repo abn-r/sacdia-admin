@@ -78,7 +78,6 @@ export default async function ClubActivitiesPage({
   const localFieldId = readPositiveNumberParam(raw, "localFieldId");
   const clubId = readPositiveNumberParam(raw, "clubId");
   const sectionId = readPositiveNumberParam(raw, "sectionId");
-  const seriesId = readPositiveNumberParam(raw, "seriesId");
   const canCreate = canCapability(user, "activities", "create");
   const canEdit = canCapability(user, "activities", "update");
 
@@ -149,7 +148,6 @@ export default async function ClubActivitiesPage({
           limit: 200,
           active: true,
           ...(targetSection ? { clubTypeId: targetSection.club_type_id } : {}),
-          ...(seriesId ? { seriesId } : {}),
         });
         let activities = normalizeActivities(activitiesPayload, targetClub.name);
         if (targetSection) {

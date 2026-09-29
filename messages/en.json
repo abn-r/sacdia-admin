@@ -1456,11 +1456,12 @@
         "continuationsLoading": "Loading candidates…",
         "continuationsEmpty": "No one pending enrollment.",
         "continuationsClass": "Suggested class",
+        "continuationsPathComplete": "Path complete",
         "continuationsBlocked": "Not eligible",
         "continuationsSubmit": "Enroll selected",
         "continuationsLoadError": "Could not load the continuations list.",
         "continuationsSubmitError": "Could not enroll the selected members.",
-        "continuationsResult": "Enrolled: {enrolled}. Blocked: {blocked}. Failed: {failed}."
+        "continuationsResult": "Enrolled: {enrolled}. Path complete: {complete}. Blocked: {blocked}. Failed: {failed}."
       },
       "roles": {
         "clubRolesTitle": "Club roles",
@@ -2492,10 +2493,25 @@
       "ofLabel": "of",
       "selectedLabel": "permissions selected",
       "noMatches": "No permissions matching «{query}»",
-      "selectAllInGroup": "Select all permissions in {resource}",
+      "noSurfaceMatches": "Nothing on this surface.",
+      "selectAllInGroup": "Select visibility and actions for {resource}",
+      "selectAllInBucket": "Select {bucket} in {resource}",
       "destructiveAction": "Destructive action",
       "otherGroup": "Other permissions",
-      "requiresRoles": "The API requires role: {roles}"
+      "requiresRoles": "The API requires role: {roles}",
+      "surfaceFilterLabel": "Surface",
+      "surfaceAll": "All",
+      "surfaceAdmin": "Admin",
+      "surfaceApp": "App",
+      "surfaceShared": "Shared",
+      "surfaceHint": "A shared permission applies to both admin and app. The group check skips sensitive data and delete.",
+      "bucketView": "View screen",
+      "bucketRoutes": "Create and routes",
+      "bucketActions": "Actions",
+      "bucketSensitive": "Sensitive data",
+      "bucketDestructive": "Delete",
+      "countLabel": "{selected}/{total}",
+      "permissionKey": "{key}"
     },
     "userRolesPanel": {
       "title": "Global roles",
@@ -4611,6 +4627,9 @@
           "notCompleted": "—",
           "investedYes": "Yes",
           "investedNo": "No",
+          "historicalNote": "Historical certificate. This is not the current class.",
+          "viewProof": "View proof",
+          "archivedProgress": "Archived progress",
           "statusClass": {
             "IN_PROGRESS": "In progress",
             "SUBMITTED_FOR_VALIDATION": "Submitted for validation",
@@ -4674,11 +4693,7 @@
           "pastoralEmpty": "No club roles registered.",
           "healthTitle": "Health",
           "healthBlockTitle": "Medical information",
-          "healthEmpty": "No medical information registered.",
-          "healthShow": "Show",
-          "healthHide": "Hide",
-          "healthProtectedTitle": "Protected information",
-          "healthProtectedDescription": "Medical data is only shown to roles with explicit permission."
+          "healthEmpty": "No medical information registered."
         },
         "fields": {
           "fullName": "Full name",
@@ -6340,6 +6355,7 @@
       "colType": "Type",
       "colTime": "Time",
       "colPlace": "Location",
+      "colAudience": "Who",
       "colMode": "Mode",
       "colStatus": "Status",
       "editTitle": "Edit activity",
@@ -6405,6 +6421,7 @@
       "badge_in_person": "In-person",
       "info_date": "Date",
       "info_place": "Location",
+      "info_audience": "Who",
       "info_time": "Time",
       "info_mode": "Mode",
       "info_meet_link": "Meeting link",
@@ -6418,6 +6435,18 @@
       "club_section_required": "Select the section",
       "activity_place_required": "Location is required",
       "image_required": "Image URL is required"
+    },
+    "audience": {
+      "label": "Who is it for?",
+      "all": "Whole section",
+      "board": "Board",
+      "classes": "Classes",
+      "allHelp": "Every member of the section can see it.",
+      "boardHelp": "Only the director, deputy director, secretary, treasurer, and secretary-treasurer can see it.",
+      "classesHelp": "All classes start selected. Remove the ones that will not take part.",
+      "classesRequired": "Select at least one class",
+      "classesError": "Could not load classes",
+      "classesEmpty": "There are no classes for this section"
     },
     "placeholders": {
       "name": "Activity name",
@@ -7593,6 +7622,8 @@
       "commentPlaceholder": "Agregá una nota interna o visible para auditoría...",
       "cancel": "Cancelar",
       "approve": "Aprobar",
+      "reconcileNotice": "This approval invests the current enrollment. It keeps the identifier, the progress, and the enrollment date.",
+      "reconcileApprove": "Accredit this enrollment",
       "reject": "Rechazar",
       "batchApproved": "Lote aprobado correctamente",
       "batchRejected": "Lote rechazado para corrección",
@@ -8644,6 +8675,65 @@
       "productCreated": "Product created.",
       "markedPaid": "Folio marked as paid.",
       "delivered": "Delivery recorded."
+    }
+  },
+  "institutional_certificate_requests": {
+    "page": {
+      "title": "Bandeja institucional GM",
+      "description": "Solicitudes de validación institucional para Guía Mayor Avanzado (GM-02) e Instructor (GM-03).",
+      "loadError": "No se pudieron cargar las solicitudes institucionales.",
+      "emptyTitle": "Sin solicitudes pendientes",
+      "emptyDescription": "No hay solicitudes de validación institucional en espera de revisión."
+    },
+    "detailPage": {
+      "title": "Solicitud institucional",
+      "description": "Solicitud {requestId}: datos del solicitante, clase y comprobante.",
+      "breadcrumbList": "Bandeja institucional GM",
+      "loadError": "No se pudo cargar el detalle de la solicitud.",
+      "emptyTitle": "Solicitud no disponible",
+      "emptyDescription": "No encontramos datos para esta solicitud."
+    },
+    "actionDialog": {
+      "reasonRequired": "El motivo de rechazo es obligatorio",
+      "reasonMax": "Máximo 1000 caracteres",
+      "commentMax": "Máximo 1000 caracteres",
+      "revisionConflict": "La solicitud fue modificada por otro revisor. Recarga la página e intenta de nuevo.",
+      "decisionImmutable": "Esta solicitud ya tiene una decisión final y no puede modificarse.",
+      "reasonLabel": "Motivo de rechazo *",
+      "reasonPlaceholder": "Explica por qué no se aprueba la validación institucional...",
+      "commentLabel": "Comentario opcional",
+      "commentPlaceholder": "Agrega una nota interna o para auditoría...",
+      "cancel": "Cancelar",
+      "approve": "Aprobar validación",
+      "reject": "Rechazar",
+      "approved": "Validación institucional aprobada",
+      "rejected": "Solicitud rechazada",
+      "genericError": "No se pudo completar la acción"
+    },
+    "status": {
+      "PENDING_REVIEW": "Pendiente",
+      "APPROVED": "Validación aprobada",
+      "REJECTED": "Rechazada"
+    },
+    "labels": {
+      "applicant": "Solicitante",
+      "class": "Clase",
+      "assetCode": "Código",
+      "certificateDate": "Fecha del certificado",
+      "reviewedAt": "Fecha de revisión",
+      "ecclesiasticalYear": "Año eclesiástico",
+      "decisionReason": "Motivo de decisión",
+      "enrollmentCreated": "Inscripción creada",
+      "enrollmentCreatedNo": "No — esta aprobación es validación institucional, no inscripción de clase.",
+      "approvalBlockers": "Bloqueos del sistema",
+      "approvalBlockersNote": "Estos bloqueos son problemas del sistema, no del solicitante. No rechaces la solicitud por este motivo.",
+      "events": "Historial de eventos",
+      "noEvents": "Sin eventos registrados",
+      "proof": "Comprobante",
+      "proofLoading": "Cargando comprobante...",
+      "proofError": "No se pudo cargar el comprobante. El archivo puede no estar confirmado aún.",
+      "proofNotAvailable": "Comprobante no disponible",
+      "openProof": "Abrir"
     }
   }
 }

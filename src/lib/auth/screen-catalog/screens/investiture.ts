@@ -158,17 +158,41 @@ export const investitureScreens: ScreenDefinition[] = [
     surfaces: ["admin"],
     viewAny: roleOnlyAccess(CERTIFICATE_BULK_ROLES),
     capabilities: [
-      // POST admin/certificate-bulk-imports/:batchId/approve and .../items/:id/approve
+      // POST admin/certificate-bulk-imports/:batchId/items/:id/approve
+      // The batch approve route refuses; each row is decided alone.
       {
         id: "approve",
         kind: "button",
         gate: roleOnlyAccess(CERTIFICATE_BULK_ROLES),
       },
-      // POST .../reject and .../items/:id/reject
+      // POST .../items/:id/reject. The batch reject route refuses.
       {
         id: "reject",
         kind: "button",
         gate: roleOnlyAccess(CERTIFICATE_BULK_ROLES),
+      },
+    ],
+  },
+  {
+    /**
+     * Bandeja institucional GM-02 / GM-03.
+     * Exclusive to super-admin: approving here records institutional validation,
+     * NOT a class enrollment. enrollment_created is always false.
+     * POST /admin/certificate-import-institutional-requests/:id/approve|reject
+     */
+    id: "institutional-certificate-requests",
+    surfaces: ["admin"],
+    viewAny: roleOnlyAccess([SUPER_ADMIN_ROLE]),
+    capabilities: [
+      {
+        id: "approve",
+        kind: "button",
+        gate: roleOnlyAccess([SUPER_ADMIN_ROLE]),
+      },
+      {
+        id: "reject",
+        kind: "button",
+        gate: roleOnlyAccess([SUPER_ADMIN_ROLE]),
       },
     ],
   },

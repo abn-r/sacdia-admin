@@ -31,10 +31,18 @@ export function calculateAge(birthday: string | null | undefined): number | null
   return age >= 0 ? age : null;
 }
 
+function civilCalendarDate(dateStr: string): Date | null {
+  const civil = /^(\d{4})-(\d{2})-(\d{2})(?:T00:00:00(?:\.000)?Z)?$/.exec(dateStr);
+  if (!civil) return null;
+  return new Date(Number(civil[1]), Number(civil[2]) - 1, Number(civil[3]));
+}
+
 export function formatDateLong(dateStr: string | null | undefined, locale = "es-MX"): string {
   if (!dateStr) return "—";
   try {
-    return new Date(dateStr).toLocaleDateString(locale, {
+    const date = civilCalendarDate(dateStr) ?? new Date(dateStr);
+    if (Number.isNaN(date.getTime())) return "—";
+    return date.toLocaleDateString(locale, {
       day: "numeric",
       month: "long",
       year: "numeric",

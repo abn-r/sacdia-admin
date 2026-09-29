@@ -35,6 +35,7 @@ export type CertificateBulkImportFile = {
   file_type: string;
   uploaded_at: string;
   ocr_raw_text?: string | null;
+  jurisdiction?: string | null;
 };
 
 export type CertificateBulkImportItem = {
@@ -51,8 +52,19 @@ export type CertificateBulkImportItem = {
   reviewed_at?: string | null;
   applied_entity_type?: string | null;
   applied_entity_id?: number | null;
+  /** Populated when the backend already resolved an institutional blocker check */
+  approval_blockers?: string[];
+  operational_reconciliation?: {
+    enrollment_id: number;
+    ecclesiastical_year_id: number;
+    enrollment_date: string;
+    investiture_status: string;
+    modified_at: string;
+    record_kind: string;
+  } | null;
   honor?: { honor_id: number; name: string } | null;
-  class?: { class_id: number; name: string } | null;
+  /** Extended with asset_code for GM-01/GM-02/GM-03 branch logic */
+  class?: { class_id: number; name: string; asset_code?: string | null } | null;
 };
 
 export type CertificateBulkImportEvent = {
@@ -96,6 +108,8 @@ export type CertificateBulkImportsQuery = {
 
 export type ApproveCertificateBulkImportPayload = {
   comment?: string;
+  reconcile_enrollment_id?: number;
+  expected_modified_at?: string;
 };
 
 export type RejectCertificateBulkImportPayload = {
@@ -174,6 +188,27 @@ export async function rejectCertificateBulkImportItem(
   const res = await apiRequestFromClient<ApiEnvelope<CertificateBulkImportItem>>(
     `/admin/certificate-bulk-imports/${batchId}/items/${itemId}/reject`,
     { method: "POST", body: payload },
+  );
+  return unwrap(res);
+}
+
+export type FileDownloadUrl = {
+  file_id: string;
+  download_url: string;
+  expires_in: number;
+};
+
+/**
+ * Fetches a short-lived signed download URL for a batch file.
+ * Use this instead of rendering file_url directly — evidence files are private.
+ * Endpoint: GET /api/v1/certificate-bulk-imports/:batchId/files/:fileId/download
+ */
+export async function getCertificateBulkImportFileDownloadUrl(
+  batchId: string,
+  fileId: string,
+): Promise<FileDownloadUrl> {
+  const res = await apiRequestFromClient<ApiEnvelope<FileDownloadUrl>>(
+    `/certificate-bulk-imports/${batchId}/files/${fileId}/download`,
   );
   return unwrap(res);
 }

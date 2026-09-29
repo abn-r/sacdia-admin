@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { GraduationCap } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Card, CardContent } from "@/components/ui/card";
@@ -123,6 +124,7 @@ export async function UserDetailClassesTab({
                 clubByYear.get(row.ecclesiastical_year_id) ?? t("clubUnknown");
               const completedAt =
                 row.investiture_date ?? row.validated_at ?? null;
+              const historical = row.record_kind === "HISTORICAL_CERTIFICATE";
 
               return (
                 <TableRow key={row.enrollment_id}>
@@ -141,6 +143,30 @@ export async function UserDetailClassesTab({
                             {row.classes.club_types.name}
                           </p>
                         ) : null}
+                        {historical ? (
+                          <p className="text-xs text-muted-foreground">{t("historicalNote")}</p>
+                        ) : null}
+                        {row.certificate_proof?.batch_id ? (
+                          <Link
+                            href={`/dashboard/certificate-bulk-imports/${row.certificate_proof.batch_id}`}
+                            className="text-xs font-medium text-primary underline-offset-4 hover:underline"
+                          >
+                            {t("viewProof")}
+                          </Link>
+                        ) : null}
+                        {historical && (row.progress_archive?.length ?? 0) > 0 ? (
+                          <div className="mt-1">
+                            <p className="text-xs font-medium">{t("archivedProgress")}</p>
+                            <ul className="text-xs text-muted-foreground">
+                              {row.progress_archive?.map((entry) => (
+                                <li key={`${entry.module_name}-${entry.section_name}-${entry.score}`}>
+                                  {[entry.module_name, entry.section_name].filter(Boolean).join(" · ")}{" "}
+                                  ({entry.score})
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ) : null}
                       </div>
                     </div>
                   </TableCell>
@@ -151,7 +177,7 @@ export async function UserDetailClassesTab({
                     {formatEcclesiasticalYearLabel(row.ecclesiastical_year, locale)}
                   </TableCell>
                   <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
-                    {formatDateLong(row.enrollment_date, locale)}
+                    {historical ? t("notCompleted") : formatDateLong(row.enrollment_date, locale)}
                   </TableCell>
                   <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
                     {completedAt

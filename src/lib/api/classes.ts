@@ -15,6 +15,7 @@ export type ProgressiveClass = {
   max_points?: number | null;
   minimum_points?: number | null;
   active: boolean;
+  asset_code?: string | null;
 };
 
 /**

@@ -10,10 +10,6 @@ import {
 function stubHealthProps(): ResumenTabProps["healthProps"] {
   return {
     title: "Salud",
-    showLabel: "Mostrar",
-    hideLabel: "Ocultar",
-    protectedTitle: "Protegido",
-    protectedDescription: "Desc",
     emptyMessage: "Vacío",
     bloodLabel: "Sangre",
     bloodValue: "O+",
