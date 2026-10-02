@@ -55,6 +55,10 @@ const hugeiconsCompatAbsolute = path.join(
 // script-src (maps):
 //   maps.googleapis.com / maps.gstatic.com — Maps bootstrap + marker libs
 //
+// script-src / connect-src (PostHog):
+//   https://*.posthog.com — US cloud ingestion plus lazy SDK bundles.
+//   Session replay stays off in instrumentation-client.ts.
+//
 // img-src (maps):
 //   maps tile/sprites from googleapis + gstatic
 // frame-ancestors 'none' — redundant with X-Frame-Options: DENY but belt+
@@ -85,9 +89,11 @@ const googleMapsConnectSrc =
 const googleMapsImgSrc =
   "https://maps.googleapis.com https://maps.gstatic.com https://*.googleapis.com https://*.gstatic.com https://*.ggpht.com";
 
+const posthogOrigins = "https://*.posthog.com";
+
 const scriptSrc = isDev
-  ? `'self' 'unsafe-inline' 'unsafe-eval' ${googleMapsScriptSrc}`
-  : `'self' 'unsafe-inline' ${googleMapsScriptSrc}`;
+  ? `'self' 'unsafe-inline' 'unsafe-eval' ${googleMapsScriptSrc} ${posthogOrigins}`
+  : `'self' 'unsafe-inline' ${googleMapsScriptSrc} ${posthogOrigins}`;
 
 const cspValue = [
   `default-src 'self'`,
@@ -95,7 +101,7 @@ const cspValue = [
   `style-src 'self' 'unsafe-inline'`,
   `img-src 'self' data: blob: ${googleMapsImgSrc} https://lh3.googleusercontent.com https://avatars.githubusercontent.com https://pub-c8aa231ae66c46ff96fc5e811994d9d2.r2.dev https://pub-c0e79f5fa4634581867fab5b0fed605c.r2.dev https://5da196c051c48c7a4ebeea275a2b23d1.r2.cloudflarestorage.com`,
   `font-src 'self' data: https://fonts.gstatic.com`,
-  `connect-src 'self' ${backendOrigin} ${googleMapsConnectSrc} https://*.r2.cloudflarestorage.com https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.us.sentry.io`,
+  `connect-src 'self' ${backendOrigin} ${googleMapsConnectSrc} ${posthogOrigins} https://*.r2.cloudflarestorage.com https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.us.sentry.io`,
   `worker-src 'self' blob:`,
   `object-src 'self' blob:`,
   `frame-src 'self' blob:`,

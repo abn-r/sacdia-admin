@@ -243,7 +243,47 @@ export function getReportPdfUrl(reportId: MonthlyReportId): string {
  * Direct browser navigation cannot attach Authorization headers because the
  * admin token lives in an httpOnly cookie on the Next.js app origin.
  */
-export async function downloadMonthlyReportPdf(reportId: MonthlyReportId): Promise<Blob> {
+export function filenameFromContentDisposition(
+  header: string | null | undefined,
+  fallback: string,
+): string {
+  const parsed = readContentDispositionFilename(header);
+  return isSafePdfFileName(parsed) ? parsed : fallback;
+}
+
+function readContentDispositionFilename(
+  header: string | null | undefined,
+): string | null {
+  if (!header) return null;
+
+  const encoded = /filename\*\s*=\s*(?:UTF-8''|utf-8'')([^;]+)/i.exec(header);
+  if (encoded?.[1]) {
+    const raw = encoded[1].trim().replace(/^"|"$/g, "");
+    try {
+      return decodeURIComponent(raw);
+    } catch {
+      return raw;
+    }
+  }
+
+  const quoted = /filename\s*=\s*"([^"]+)"/i.exec(header);
+  if (quoted?.[1]) return quoted[1].trim();
+
+  const plain = /filename\s*=\s*([^;]+)/i.exec(header);
+  return plain?.[1]?.trim().replace(/^"|"$/g, "") ?? null;
+}
+
+function isSafePdfFileName(value: string | null): value is string {
+  return Boolean(
+    value &&
+      value.length <= 200 &&
+      /^[A-Za-z0-9._-]+\.pdf$/i.test(value),
+  );
+}
+
+export async function downloadMonthlyReportPdf(
+  reportId: MonthlyReportId,
+): Promise<{ blob: Blob; filename: string }> {
   const token = await getClientAuthToken();
   const headers: Record<string, string> = { Accept: "application/pdf" };
 
@@ -256,19 +296,24 @@ export async function downloadMonthlyReportPdf(reportId: MonthlyReportId): Promi
     throw new Error(`No se pudo descargar el PDF (${response.status})`);
   }
 
-  return response.blob();
+  const filename = filenameFromContentDisposition(
+    response.headers.get("Content-Disposition"),
+    `informe-mensual-${reportId}.pdf`,
+  );
+
+  return { blob: await response.blob(), filename };
 }
 
 export async function triggerMonthlyReportPdfDownload(
   reportId: MonthlyReportId,
-  filename = `informe-mensual-${reportId}.pdf`,
+  filename?: string,
 ): Promise<void> {
-  const blob = await downloadMonthlyReportPdf(reportId);
-  const url = URL.createObjectURL(blob);
+  const downloaded = await downloadMonthlyReportPdf(reportId);
+  const url = URL.createObjectURL(downloaded.blob);
   const anchor = document.createElement("a");
 
   anchor.href = url;
-  anchor.download = filename;
+  anchor.download = filename ?? downloaded.filename;
   document.body.appendChild(anchor);
   anchor.click();
   document.body.removeChild(anchor);

@@ -10,6 +10,8 @@ import {
   useState,
   type PropsWithChildren,
 } from "react";
+
+import { identifyAnalyticsUser, resetAnalyticsUser } from "@/lib/analytics/posthog";
 import type { AuthUser } from "@/lib/auth/types";
 
 type AuthContextValue = {
@@ -28,6 +30,7 @@ export function AuthProvider({ initialUser = null, children }: AuthProviderProps
   const [user, setUser] = useState<AuthUser | null>(initialUser);
   const [isLoading, setIsLoading] = useState(false);
   const hasInitialUser = useRef(initialUser !== null);
+  const identifiedUserId = useRef<string | null>(null);
 
   const refresh = useCallback(async () => {
     setIsLoading(true);
@@ -52,6 +55,21 @@ export function AuthProvider({ initialUser = null, children }: AuthProviderProps
     if (hasInitialUser.current) return;
     void refresh();
   }, [refresh]);
+
+  useEffect(() => {
+    const nextUserId = user?.id ?? null;
+
+    if (nextUserId) {
+      identifyAnalyticsUser(nextUserId);
+      identifiedUserId.current = nextUserId;
+      return;
+    }
+
+    if (identifiedUserId.current) {
+      resetAnalyticsUser();
+      identifiedUserId.current = null;
+    }
+  }, [user?.id]);
 
   const value = useMemo(
     () => ({

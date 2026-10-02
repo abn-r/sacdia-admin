@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
+import { resetAnalyticsUser } from "@/lib/analytics/posthog";
 import { getAuthUserAvatar, getAuthUserDisplayName } from "@/lib/auth/display-name";
 import { useAuth } from "@/lib/auth/auth-context";
 import { getInitials } from "@/lib/utils";
@@ -68,7 +69,7 @@ export function NavUser() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <a href="/api/auth/logout?next=/login">
+              <a href="/api/auth/logout?next=/login" onClick={() => resetAnalyticsUser()}>
                 <LogOut />
                 Cerrar sesión
               </a>

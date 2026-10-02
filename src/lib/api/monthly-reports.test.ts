@@ -12,8 +12,11 @@ vi.mock("@/lib/api/client", () => ({
   getClientAuthToken: vi.fn(),
 }));
 
+import { getClientAuthToken } from "@/lib/api/client";
 import {
   createOrGetDraftReport,
+  downloadMonthlyReportPdf,
+  filenameFromContentDisposition,
   generateReport,
   listMonthlyReports,
   regenerateReport,
@@ -31,6 +34,7 @@ const report = {
 describe("monthly reports API adapter", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.unstubAllGlobals();
   });
 
   it("unwraps and normalizes list responses to the UI report contract", async () => {
@@ -97,5 +101,46 @@ describe("monthly reports API adapter", () => {
         pdf_template_version: generated.pdf_template_version,
       }),
     );
+  });
+
+  it("reads the friendly PDF name from Content-Disposition", () => {
+    const filename = "informe-mensual-Senderos-Conquistadores-agosto-2026.pdf";
+
+    expect(
+      filenameFromContentDisposition(
+        `attachment; filename="${filename}"; filename*=UTF-8''${filename}`,
+        "informe-mensual-fallback.pdf",
+      ),
+    ).toBe(filename);
+  });
+
+  it("ignores an unsafe Content-Disposition filename", () => {
+    expect(
+      filenameFromContentDisposition(
+        'attachment; filename="../../secreto.pdf"',
+        "informe-mensual-fallback.pdf",
+      ),
+    ).toBe("informe-mensual-fallback.pdf");
+  });
+
+  it("returns the blob and the header filename together", async () => {
+    vi.mocked(getClientAuthToken).mockResolvedValue("token");
+    const blob = new Blob(["%PDF"]);
+    const filename = "informe-mensual-Senderos-Conquistadores-agosto-2026.pdf";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        headers: new Headers({
+          "Content-Disposition": `attachment; filename="${filename}"`,
+        }),
+        blob: async () => blob,
+      }),
+    );
+
+    await expect(downloadMonthlyReportPdf(report.monthly_report_id)).resolves.toEqual({
+      blob,
+      filename,
+    });
   });
 });
