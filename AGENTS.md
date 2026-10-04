@@ -40,7 +40,7 @@ Checklist antes de merge en cambios de UI:
 - [ ] Titulos de pagina via `<PageHeader>` (no `h1` sueltos con `font-bold`)
 - [ ] Colores con tokens semanticos (`bg-primary`, `text-muted-foreground`, etc.)
 - [ ] Componentes interactivos desde `@/components/ui/*`
-- [ ] Strings de UI en `messages/*.json` (4 idiomas + `messages.d.ts`)
+- [ ] Strings de UI en `messages/*.json` (4 idiomas + `src/i18n/messages.d.ts`)
 - [ ] `pnpm audit:design-system` sin errores en modo strict
 
 ```bash

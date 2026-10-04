@@ -1,7 +1,7 @@
 /**
  * Admin API client for merchandise camporee orders.
  * Distinct from inscription `/payment-orders`.
- * Contract: docs/plans/handoffs/camporee-orders-admin-handoff.md
+ * Contract: docs/features/camporee-orders.md in the sacdia workspace
  */
 import {
   API_BASE_URL,
