@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { ActivityDetailActions } from "@/components/activities/activity-detail-actions";
 import { AttendancePanel } from "@/components/activities/attendance-panel";
 import { ActivityAudienceValue } from "@/components/activities/activity-audience-label";
 import { ApiError } from "@/lib/api/client";

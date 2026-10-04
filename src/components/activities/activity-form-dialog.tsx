@@ -798,7 +798,7 @@ export function ActivityFormDialog({
                       <div className="space-y-1.5">
                         <Label>{tSeries("weekday")}</Label>
                         <div className="grid grid-cols-7 gap-1">
-                          {[1, 2, 3, 4, 5, 6, 7].map((day) => (
+                          {([1, 2, 3, 4, 5, 6, 7] as const).map((day) => (
                             <Button
                               key={day}
                               type="button"
