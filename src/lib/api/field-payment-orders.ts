@@ -2,7 +2,7 @@
  * Admin API client for field payment orders (insurance + camporee) and
  * insurance reassignment requests.
  * Backend: /payment-orders/..., /insurance/reassignments/...
- * Contract: docs/plans/handoffs/field-payment-orders-admin-handoff.md
+ * Contract: docs/api/ENDPOINTS-LIVE-REFERENCE.md (field-payment-orders) in the sacdia workspace
  */
 import { API_BASE_URL, apiRequest, getClientAuthToken } from "@/lib/api/client";
 import { unwrapApiData } from "@/lib/api/unwrap";
