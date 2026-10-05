@@ -16,6 +16,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # screen-catalog.app.test.ts compares the admin catalog with the Flutter fixture.
+      - name: Checkout sacdia-app (screen catalog fixture)
+        uses: actions/checkout@v4
+        with:
+          repository: abn-r/sacdia-app
+          ref: ${{ github.base_ref }}
+          path: .ci/sacdia-app
+          sparse-checkout: test/fixtures
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
@@ -32,3 +41,5 @@ jobs:
 
       - name: Run tests
         run: pnpm test
+        env:
+          SACDIA_APP_DIR: .ci/sacdia-app

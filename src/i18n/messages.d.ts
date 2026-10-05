@@ -155,6 +155,7 @@ export interface IntlMessages {
       materials_categories: string;
       materials_config: string;
       certificate_bulk_imports: string;
+      institutional_certificate_requests: string;
       coordination: string;
       coordinator_hub: string;
       app_members: string;
@@ -1264,6 +1265,7 @@ export interface IntlMessages {
       district: string;
       church: string;
       ecclesiastical_year: string;
+      version: string;
     };
     locationPicker: {
       searchLabel: string;
@@ -1491,6 +1493,7 @@ export interface IntlMessages {
         continuationsLoading: string;
         continuationsEmpty: string;
         continuationsClass: string;
+        continuationsPathComplete: string;
         continuationsBlocked: string;
         continuationsSubmit: string;
         continuationsLoadError: string;
@@ -2565,6 +2568,9 @@ export interface IntlMessages {
       removeDialogDescPre: string;
       removeDialogDescPost: string;
       remove: string;
+      administrativeGroup: string;
+      operationalGroup: string;
+      otherGroup: string;
     };
     pages: {
       root: {
@@ -4412,6 +4418,16 @@ export interface IntlMessages {
       statusActive: string;
       statusInactive: string;
       scopeLabel: string;
+      roleGroups: {
+        global: string;
+        club: string;
+      };
+      scopeTypes: {
+        ALL: string;
+        DIVISION: string;
+        UNION: string;
+        LOCAL_FIELD: string;
+      };
     };
     approval: {
       statusApproved: string;
@@ -4680,6 +4696,9 @@ export interface IntlMessages {
           notCompleted: string;
           investedYes: string;
           investedNo: string;
+          historicalNote: string;
+          viewProof: string;
+          archivedProgress: string;
           statusClass: {
             IN_PROGRESS: string;
             SUBMITTED_FOR_VALIDATION: string;
@@ -7674,6 +7693,8 @@ export interface IntlMessages {
       commentPlaceholder: string;
       cancel: string;
       approve: string;
+      reconcileNotice: string;
+      reconcileApprove: string;
       reject: string;
       batchApproved: string;
       batchRejected: string;
@@ -8725,6 +8746,65 @@ export interface IntlMessages {
       productCreated: string;
       markedPaid: string;
       delivered: string;
+    };
+  };
+  institutional_certificate_requests: {
+    page: {
+      title: string;
+      description: string;
+      loadError: string;
+      emptyTitle: string;
+      emptyDescription: string;
+    };
+    detailPage: {
+      title: string;
+      description: string;
+      breadcrumbList: string;
+      loadError: string;
+      emptyTitle: string;
+      emptyDescription: string;
+    };
+    actionDialog: {
+      reasonRequired: string;
+      reasonMax: string;
+      commentMax: string;
+      revisionConflict: string;
+      decisionImmutable: string;
+      reasonLabel: string;
+      reasonPlaceholder: string;
+      commentLabel: string;
+      commentPlaceholder: string;
+      cancel: string;
+      approve: string;
+      reject: string;
+      approved: string;
+      rejected: string;
+      genericError: string;
+    };
+    status: {
+      PENDING_REVIEW: string;
+      APPROVED: string;
+      REJECTED: string;
+    };
+    labels: {
+      applicant: string;
+      class: string;
+      assetCode: string;
+      certificateDate: string;
+      reviewedAt: string;
+      ecclesiasticalYear: string;
+      decisionReason: string;
+      enrollmentCreated: string;
+      enrollmentCreatedNo: string;
+      approvalBlockers: string;
+      approvalBlockersNote: string;
+      events: string;
+      noEvents: string;
+      proof: string;
+      proofLoading: string;
+      proofError: string;
+      proofNotAvailable: string;
+      openProof: string;
     };
   };
 }

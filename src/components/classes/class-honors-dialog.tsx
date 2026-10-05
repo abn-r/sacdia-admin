@@ -151,7 +151,7 @@ export function ClassHonorsDialog({
 
   async function handleModuleChange(relation: ClassHonorRelation, value: string) {
     const nextModuleId = value === NONE_MODULE ? null : Number(value);
-    if (value !== NONE_MODULE && (!Number.isFinite(nextModuleId) || nextModuleId <= 0)) {
+    if (nextModuleId !== null && (!Number.isFinite(nextModuleId) || nextModuleId <= 0)) {
       return;
     }
 
