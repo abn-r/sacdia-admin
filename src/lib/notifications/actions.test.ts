@@ -4,12 +4,12 @@ const {
   sendNotificationMock,
   broadcastNotificationMock,
   sendClubNotificationMock,
-  hasPermissionMock,
+  canCapabilityMock,
 } = vi.hoisted(() => ({
   sendNotificationMock: vi.fn(),
   broadcastNotificationMock: vi.fn(),
   sendClubNotificationMock: vi.fn(),
-  hasPermissionMock: vi.fn(),
+  canCapabilityMock: vi.fn(),
 }));
 
 vi.mock("next-intl/server", () => ({
@@ -36,8 +36,9 @@ vi.mock("@/lib/api/notifications", async () => {
   };
 });
 
-vi.mock("@/lib/auth/permission-utils", () => ({
-  hasPermission: hasPermissionMock,
+vi.mock("@/lib/auth/screen-catalog", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/auth/screen-catalog")>()),
+  canCapability: canCapabilityMock,
 }));
 
 import {
@@ -49,7 +50,7 @@ import {
 describe("sendDirectNotificationAction", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    hasPermissionMock.mockReturnValue(true);
+    canCapabilityMock.mockReturnValue(true);
   });
 
   it("sends the backend contract field userId, not legacy user_id", async () => {
@@ -69,7 +70,7 @@ describe("sendDirectNotificationAction", () => {
   });
 
   it("bloquea envío directo si falta notifications:send", async () => {
-    hasPermissionMock.mockReturnValue(false);
+    canCapabilityMock.mockReturnValue(false);
     const formData = new FormData();
     formData.set("user_id", "user-123");
     formData.set("title", "Hola");
@@ -85,11 +86,11 @@ describe("sendDirectNotificationAction", () => {
 describe("broadcastNotificationAction", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    hasPermissionMock.mockReturnValue(true);
+    canCapabilityMock.mockReturnValue(true);
   });
 
   it("bloquea broadcast si falta notifications:broadcast", async () => {
-    hasPermissionMock.mockReturnValue(false);
+    canCapabilityMock.mockReturnValue(false);
     const formData = new FormData();
     formData.set("title", "Aviso");
     formData.set("body", "Mensaje global");
@@ -104,11 +105,11 @@ describe("broadcastNotificationAction", () => {
 describe("clubNotificationAction", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    hasPermissionMock.mockReturnValue(true);
+    canCapabilityMock.mockReturnValue(true);
   });
 
   it("bloquea envío por club si falta notifications:club", async () => {
-    hasPermissionMock.mockReturnValue(false);
+    canCapabilityMock.mockReturnValue(false);
     const formData = new FormData();
     formData.set("instance_type", "pathfinders");
     formData.set("instance_id", "10");

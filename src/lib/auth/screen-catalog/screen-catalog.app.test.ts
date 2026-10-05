@@ -56,9 +56,12 @@ describe("app screens", () => {
 
 describe("app catalog dump", () => {
   it("matches the committed Flutter fixture", () => {
+    // Local workspace: ../sacdia-app. CI checks the app repo out and sets SACDIA_APP_DIR.
+    const appDir = process.env.SACDIA_APP_DIR ?? "../sacdia-app";
     const fixturePath = resolve(
       process.cwd(),
-      "../sacdia-app/test/fixtures/screen-catalog.snapshot.json",
+      appDir,
+      "test/fixtures/screen-catalog.snapshot.json",
     );
     expect(existsSync(fixturePath), fixturePath).toBe(true);
     const fixture = JSON.parse(readFileSync(fixturePath, "utf8"));
