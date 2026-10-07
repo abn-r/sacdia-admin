@@ -126,6 +126,7 @@
       "materials_categories": "Categories",
       "materials_config": "Settings",
       "certificate_bulk_imports": "Cargas por certificado",
+      "institutional_certificate_requests": "GM institutional inbox",
       "coordination": "Coordination",
       "coordinator_hub": "Coordination hub",
       "app_members": "Members",
@@ -1228,7 +1229,8 @@
       "local_field": "Local field",
       "district": "District",
       "church": "Church",
-      "ecclesiastical_year": "Ecclesiastical year"
+      "ecclesiastical_year": "Ecclesiastical year",
+      "version": "Version"
     },
     "locationPicker": {
       "searchLabel": "Search address",
@@ -2517,10 +2519,10 @@
       "permissionKey": "{key}"
     },
     "userRolesPanel": {
-      "title": "Global roles",
+      "title": "System roles",
       "subtitle": "Roles assigned to this user that determine their access level",
       "assignRole": "Assign role",
-      "emptyState": "This user has no global roles assigned.",
+      "emptyState": "No system role",
       "removeRoleTitle": "Remove {name}",
       "removeSrOnly": "Remove",
       "assignDialogTitle": "Assign global role",
@@ -2533,7 +2535,10 @@
       "removeDialogTitle": "Remove global role?",
       "removeDialogDescPre": "The role",
       "removeDialogDescPost": "will be removed from this user. This may significantly change their access level to the system.",
-      "remove": "Remove"
+      "remove": "Remove",
+      "administrativeGroup": "Administrative",
+      "operationalGroup": "Operational",
+      "otherGroup": "Other"
     },
     "pages": {
       "root": {
@@ -4361,7 +4366,17 @@
       "statusAll": "All",
       "statusActive": "Active",
       "statusInactive": "Inactive",
-      "scopeLabel": "Scope:"
+      "scopeLabel": "Scope:",
+      "roleGroups": {
+        "global": "Global roles",
+        "club": "Club roles"
+      },
+      "scopeTypes": {
+        "ALL": "All",
+        "DIVISION": "Division",
+        "UNION": "Union",
+        "LOCAL_FIELD": "Local field"
+      }
     },
     "approval": {
       "statusApproved": "Approved",

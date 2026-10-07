@@ -126,6 +126,7 @@
       "materials_categories": "Catégories",
       "materials_config": "Paramètres",
       "certificate_bulk_imports": "Cargas por certificado",
+      "institutional_certificate_requests": "Boîte institutionnelle GM",
       "coordination": "Coordination",
       "coordinator_hub": "Hub de coordination",
       "app_members": "Membres",
@@ -1228,7 +1229,8 @@
       "local_field": "Champ local",
       "district": "District",
       "church": "Église",
-      "ecclesiastical_year": "Année ecclésiastique"
+      "ecclesiastical_year": "Année ecclésiastique",
+      "version": "Version"
     },
     "locationPicker": {
       "searchLabel": "Rechercher une adresse",
@@ -2516,10 +2518,10 @@
       "permissionKey": "{key}"
     },
     "userRolesPanel": {
-      "title": "Rôles globaux",
+      "title": "Rôles système",
       "subtitle": "Rôles attribués à cet utilisateur qui déterminent son niveau d'accès",
       "assignRole": "Attribuer un rôle",
-      "emptyState": "Cet utilisateur n'a aucun rôle global attribué.",
+      "emptyState": "Aucun rôle système",
       "removeRoleTitle": "Retirer {name}",
       "removeSrOnly": "Retirer",
       "assignDialogTitle": "Attribuer un rôle global",
@@ -2532,7 +2534,10 @@
       "removeDialogTitle": "Retirer le rôle global ?",
       "removeDialogDescPre": "Le rôle",
       "removeDialogDescPost": "sera retiré de cet utilisateur. Cela peut modifier significativement son niveau d'accès au système.",
-      "remove": "Retirer"
+      "remove": "Retirer",
+      "administrativeGroup": "Administratifs",
+      "operationalGroup": "Opérationnels",
+      "otherGroup": "Autres"
     },
     "pages": {
       "root": {
@@ -4348,7 +4353,17 @@
       "statusAll": "Tous",
       "statusActive": "Actifs",
       "statusInactive": "Inactifs",
-      "scopeLabel": "Portée :"
+      "scopeLabel": "Portée :",
+      "roleGroups": {
+        "global": "Rôles globaux",
+        "club": "Rôles de club"
+      },
+      "scopeTypes": {
+        "ALL": "Tous",
+        "DIVISION": "Division",
+        "UNION": "Union",
+        "LOCAL_FIELD": "Champ local"
+      }
     },
     "approval": {
       "statusApproved": "Approuvé",

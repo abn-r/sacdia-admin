@@ -126,6 +126,7 @@
       "materials_categories": "Categorías",
       "materials_config": "Configuración",
       "certificate_bulk_imports": "Cargas por certificado",
+      "institutional_certificate_requests": "Bandeja institucional GM",
       "coordination": "Coordinación",
       "coordinator_hub": "Hub de coordinación",
       "app_members": "Miembros",
@@ -1234,7 +1235,8 @@
       "local_field": "Campo local",
       "district": "Distrito",
       "church": "Iglesia",
-      "ecclesiastical_year": "Año eclesiástico"
+      "ecclesiastical_year": "Año eclesiástico",
+      "version": "Versión"
     },
     "locationPicker": {
       "searchLabel": "Buscar dirección",
@@ -2523,10 +2525,10 @@
       "permissionKey": "{key}"
     },
     "userRolesPanel": {
-      "title": "Roles globales",
+      "title": "Roles de sistema",
       "subtitle": "Roles asignados a este usuario que determinan su nivel de acceso",
       "assignRole": "Asignar rol",
-      "emptyState": "Este usuario no tiene roles globales asignados.",
+      "emptyState": "Sin rol de sistema",
       "removeRoleTitle": "Remover {name}",
       "removeSrOnly": "Remover",
       "assignDialogTitle": "Asignar rol global",
@@ -2539,7 +2541,10 @@
       "removeDialogTitle": "Remover rol global?",
       "removeDialogDescPre": "Se removera el rol",
       "removeDialogDescPost": "de este usuario. Esto puede cambiar significativamente su nivel de acceso al sistema.",
-      "remove": "Remover"
+      "remove": "Remover",
+      "administrativeGroup": "Administrativos",
+      "operationalGroup": "Operativos",
+      "otherGroup": "Otros"
     },
     "pages": {
       "root": {
@@ -4386,7 +4391,17 @@
       "statusAll": "Todos",
       "statusActive": "Activos",
       "statusInactive": "Inactivos",
-      "scopeLabel": "Alcance:"
+      "scopeLabel": "Alcance:",
+      "roleGroups": {
+        "global": "Roles globales",
+        "club": "Roles de club"
+      },
+      "scopeTypes": {
+        "ALL": "Todos",
+        "DIVISION": "División",
+        "UNION": "Unión",
+        "LOCAL_FIELD": "Campo local"
+      }
     },
     "approval": {
       "statusApproved": "Aprobado",

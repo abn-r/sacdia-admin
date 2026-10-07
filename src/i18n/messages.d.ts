@@ -155,6 +155,7 @@ export interface IntlMessages {
       materials_categories: string;
       materials_config: string;
       certificate_bulk_imports: string;
+      institutional_certificate_requests: string;
       coordination: string;
       coordinator_hub: string;
       app_members: string;
@@ -1264,6 +1265,7 @@ export interface IntlMessages {
       district: string;
       church: string;
       ecclesiastical_year: string;
+      version: string;
     };
     locationPicker: {
       searchLabel: string;
@@ -2569,6 +2571,9 @@ export interface IntlMessages {
       removeDialogDescPre: string;
       removeDialogDescPost: string;
       remove: string;
+      administrativeGroup: string;
+      operationalGroup: string;
+      otherGroup: string;
     };
     pages: {
       root: {
@@ -4416,6 +4421,16 @@ export interface IntlMessages {
       statusActive: string;
       statusInactive: string;
       scopeLabel: string;
+      roleGroups: {
+        global: string;
+        club: string;
+      };
+      scopeTypes: {
+        ALL: string;
+        DIVISION: string;
+        UNION: string;
+        LOCAL_FIELD: string;
+      };
     };
     approval: {
       statusApproved: string;

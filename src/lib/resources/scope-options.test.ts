@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { ScopeLevel } from "@/lib/api/resources";
 import type { AuthUser } from "@/lib/auth/types";
 import {
   isResourceScopeAllowed,
@@ -113,7 +114,7 @@ describe("resolveResourceScopeOptions", () => {
 describe("isResourceScopeAllowed", () => {
   it("rejects a local-field actor targeting another field or a union", () => {
     const options = {
-      allowedScopeLevels: ["local_field"] as const,
+      allowedScopeLevels: ["local_field"] as ScopeLevel[],
       lockedScopeId: 12,
     };
 

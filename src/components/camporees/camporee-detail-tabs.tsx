@@ -431,7 +431,7 @@ export function CamporeeDetailTabs({
         in another Card+CardContent (px-6) shrinks the inner width and
         squishes the 8-column event-row grid
         (md:grid-cols-[88px_1fr_220px_180px_180px_140px_110px_auto]).
-        See docs/superpowers/specs/2026-05-20-camporee-timeline-admin-design.md.
+        See docs/features/camporees.md (sacdia workspace).
       */}
       <TabsContent value="events" className="mt-4">
         <CamporeeEventsTab

@@ -7,7 +7,7 @@ import { apiRequest } from "@/lib/api/client";
 // `certification_versions` has a `title` field. These types previously
 // declared `title`/`order`/`is_required`, which never matched the backend —
 // `catalog-normalize.ts` already mitigated this with `title ?? name` lookups.
-// See docs/plans/handoffs/configurable-certifications-admin-handoff.md.
+// See docs/api/ENDPOINTS-LIVE-REFERENCE.md (certifications) in the sacdia workspace.
 
 export type CertificationSection = {
   section_id: number;
@@ -145,9 +145,9 @@ export async function unenrollUserFromCertification(
 //
 // Aligned to sacdia-backend `feat/configurable-certifications`,
 // src/certifications/controllers/admin-certifications.controller.ts and DTOs
-// under src/certifications/dto/admin/*. See handoff doc for the full contract
+// under src/certifications/dto/admin/*. See the API reference for the full contract
 // (endpoints, permissions, error codes, state machine, publish criteria):
-// docs/plans/handoffs/configurable-certifications-admin-handoff.md
+// docs/api/ENDPOINTS-LIVE-REFERENCE.md (certifications) in the sacdia workspace
 
 export type CertificationVersionStatus = "DRAFT" | "PUBLISHED" | "RETIRED";
 
