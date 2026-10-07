@@ -1491,6 +1491,7 @@ export interface IntlMessages {
         continuationsLoading: string;
         continuationsEmpty: string;
         continuationsClass: string;
+        continuationsPathComplete: string;
         continuationsBlocked: string;
         continuationsSubmit: string;
         continuationsLoadError: string;
@@ -1512,6 +1513,9 @@ export interface IntlMessages {
         classLabel: string;
         responsibilityLabel: string;
         assignRole: string;
+        roleBlockedGuideMajorRequired: string;
+        roleBlockedMemberInGmSection: string;
+        roleEligibilityError: string;
         assignCounselor: string;
         noAssignments: string;
         noCounselors: string;
@@ -4680,6 +4684,9 @@ export interface IntlMessages {
           notCompleted: string;
           investedYes: string;
           investedNo: string;
+          historicalNote: string;
+          viewProof: string;
+          archivedProgress: string;
           statusClass: {
             IN_PROGRESS: string;
             SUBMITTED_FOR_VALIDATION: string;
@@ -7674,6 +7681,8 @@ export interface IntlMessages {
       commentPlaceholder: string;
       cancel: string;
       approve: string;
+      reconcileNotice: string;
+      reconcileApprove: string;
       reject: string;
       batchApproved: string;
       batchRejected: string;
@@ -8725,6 +8734,65 @@ export interface IntlMessages {
       productCreated: string;
       markedPaid: string;
       delivered: string;
+    };
+  };
+  institutional_certificate_requests: {
+    page: {
+      title: string;
+      description: string;
+      loadError: string;
+      emptyTitle: string;
+      emptyDescription: string;
+    };
+    detailPage: {
+      title: string;
+      description: string;
+      breadcrumbList: string;
+      loadError: string;
+      emptyTitle: string;
+      emptyDescription: string;
+    };
+    actionDialog: {
+      reasonRequired: string;
+      reasonMax: string;
+      commentMax: string;
+      revisionConflict: string;
+      decisionImmutable: string;
+      reasonLabel: string;
+      reasonPlaceholder: string;
+      commentLabel: string;
+      commentPlaceholder: string;
+      cancel: string;
+      approve: string;
+      reject: string;
+      approved: string;
+      rejected: string;
+      genericError: string;
+    };
+    status: {
+      PENDING_REVIEW: string;
+      APPROVED: string;
+      REJECTED: string;
+    };
+    labels: {
+      applicant: string;
+      class: string;
+      assetCode: string;
+      certificateDate: string;
+      reviewedAt: string;
+      ecclesiasticalYear: string;
+      decisionReason: string;
+      enrollmentCreated: string;
+      enrollmentCreatedNo: string;
+      approvalBlockers: string;
+      approvalBlockersNote: string;
+      events: string;
+      noEvents: string;
+      proof: string;
+      proofLoading: string;
+      proofError: string;
+      proofNotAvailable: string;
+      openProof: string;
     };
   };
 }

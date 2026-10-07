@@ -256,6 +256,30 @@ export async function listClubSectionMembers(
   });
 }
 
+export type AssignableRole = {
+  role_id: string;
+  role_name: string;
+  allowed: boolean;
+  violation_rule: string | null;
+  violation_code: string | null;
+};
+
+export type AssignableRolesResponse = {
+  guide_major_eligible: boolean;
+  section_kind: string;
+  roles: AssignableRole[];
+};
+
+export async function getAssignableRoles(
+  clubId: number,
+  sectionId: number,
+  userId: string,
+) {
+  return apiRequest<AssignableRolesResponse>(
+    `/clubs/${clubId}/sections/${sectionId}/members/${userId}/assignable-roles`,
+  );
+}
+
 export async function createClubRoleAssignment(
   clubId: number,
   sectionId: number,
