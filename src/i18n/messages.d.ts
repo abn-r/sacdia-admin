@@ -1515,6 +1515,9 @@ export interface IntlMessages {
         classLabel: string;
         responsibilityLabel: string;
         assignRole: string;
+        roleBlockedGuideMajorRequired: string;
+        roleBlockedMemberInGmSection: string;
+        roleEligibilityError: string;
         assignCounselor: string;
         noAssignments: string;
         noCounselors: string;

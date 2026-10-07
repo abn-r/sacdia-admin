@@ -34,7 +34,9 @@ import {
 } from "@/lib/clubs/detail-actions";
 import type { ClubDetailPayload } from "@/lib/clubs/types";
 import {
+  getAssignableRoles,
   listClassCounselorAssignments,
+  type AssignableRole,
   type ClassCounselorAssignment,
 } from "@/lib/api/clubs";
 import { listClasses } from "@/lib/api/classes";
@@ -89,6 +91,11 @@ export function RolesTab({ data }: RolesTabProps) {
     [],
   );
   const [loadingCounselors, setLoadingCounselors] = useState(false);
+  const [eligibilityState, setEligibilityState] = useState<{
+    key: string;
+    roles: Record<string, AssignableRole>;
+    failed: boolean;
+  } | null>(null);
 
   const [roleState, roleAction] = useActionState(assignClubRoleAction, {} as DetailActionState);
   const [revokeRoleState, revokeRoleAction] = useActionState(
@@ -129,6 +136,54 @@ export function RolesTab({ data }: RolesTabProps) {
     }
     router.refresh();
   }, [roleState.ok, revokeRoleState.ok, counselorState.ok, revokeCounselorState.ok, router]);
+
+  const eligibilityKey = `${sectionId}:${roleUserId}`;
+
+  useEffect(() => {
+    const parsedSectionId = Number(sectionId);
+    if (!parsedSectionId || !roleUserId) return;
+
+    let cancelled = false;
+    getAssignableRoles(data.clubId, parsedSectionId, roleUserId)
+      .then((payload) => {
+        if (cancelled) return;
+        setEligibilityState({
+          key: eligibilityKey,
+          roles: Object.fromEntries(
+            (payload.roles ?? []).map((role) => [role.role_id, role]),
+          ),
+          failed: false,
+        });
+      })
+      .catch(() => {
+        // Server still enforces the rules on submit; just stop filtering.
+        if (!cancelled) setEligibilityState({ key: eligibilityKey, roles: {}, failed: true });
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [sectionId, roleUserId, eligibilityKey, data.clubId]);
+
+  const currentEligibility =
+    roleUserId && eligibilityState?.key === eligibilityKey ? eligibilityState : null;
+  const eligibility = currentEligibility?.roles ?? {};
+  const eligibilityFailed = currentEligibility?.failed ?? false;
+  const roleBlocked = Boolean(roleId) && eligibility[roleId]?.allowed === false;
+
+  function blockedReason(role: AssignableRole | undefined) {
+    if (!role || role.allowed) return null;
+    return role.violation_code === "CLUB_ROLE_MEMBER_REQUIRES_GUIDE_MAJOR_SECTION"
+      ? t("roleBlockedMemberInGmSection")
+      : t("roleBlockedGuideMajorRequired");
+  }
+
+  const blockedRoles = data.clubRoles.filter(
+    (role) => eligibility[role.role_id]?.allowed === false,
+  );
+  const blockedHints = Array.from(
+    new Set(blockedRoles.map((role) => blockedReason(eligibility[role.role_id]))),
+  ).filter(Boolean);
 
   useEffect(() => {
     const parsedSectionId = Number(counselorSectionId);
@@ -252,16 +307,29 @@ export function RolesTab({ data }: RolesTabProps) {
                   </SelectTrigger>
                   <SelectContent>
                     {data.clubRoles.map((role) => (
-                      <SelectItem key={role.role_id} value={role.role_id}>
+                      <SelectItem
+                        key={role.role_id}
+                        value={role.role_id}
+                        disabled={eligibility[role.role_id]?.allowed === false}
+                        title={blockedReason(eligibility[role.role_id]) ?? undefined}
+                      >
                         {translateRole(role.name)}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                <input type="hidden" name="role_id" value={roleId} />
+                <input type="hidden" name="role_id" value={roleBlocked ? "" : roleId} />
+                {blockedHints.map((hint) => (
+                  <p key={hint} className="text-xs text-muted-foreground">
+                    {hint}
+                  </p>
+                ))}
+                {eligibilityFailed ? (
+                  <p className="text-xs text-muted-foreground">{t("roleEligibilityError")}</p>
+                ) : null}
               </div>
               <div className="flex items-end">
-                <Button type="submit" disabled={!data.currentYearId || !roleUserId || !roleId}>
+                <Button type="submit" disabled={!data.currentYearId || !roleUserId || !roleId || roleBlocked}>
                   <UserPlus className="size-4" />
                   {t("assignRole")}
                 </Button>
