@@ -1678,7 +1678,6 @@ export interface IntlMessages {
         emptyDescription: string;
         tabs: {
           honors: string;
-          modules: string;
           sections: string;
           certificates: string;
         };
@@ -1690,7 +1689,6 @@ export interface IntlMessages {
         };
         errors: {
           honors: string;
-          modules: string;
           generic: string;
         };
       };

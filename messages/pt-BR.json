@@ -1643,7 +1643,6 @@
         "emptyDescription": "Não há itens na fila no momento.",
         "tabs": {
           "honors": "Especialidades",
-          "modules": "Módulos",
           "sections": "Seções de classe",
           "certificates": "Certificados massivos"
         },
@@ -1655,7 +1654,6 @@
         },
         "errors": {
           "honors": "Não foi possível carregar as validações de especialidades.",
-          "modules": "Não foi possível carregar as validações de módulos.",
           "generic": "Não foi possível carregar as validações pendentes."
         }
       }

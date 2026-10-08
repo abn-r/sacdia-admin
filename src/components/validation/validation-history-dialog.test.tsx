@@ -125,7 +125,7 @@ interface RenderOpts {
 function renderDialog(opts: RenderOpts = {}) {
   const {
     open = true,
-    entityType = "class",
+    entityType = "honor",
     entityId = 42,
     title = "Juan Pérez — Salvavidas",
   } = opts;

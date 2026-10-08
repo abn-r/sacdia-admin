@@ -89,13 +89,6 @@ export type PendingValidationQuery = {
 
 // ─── Request payloads ─────────────────────────────────────────────────────────
 
-export type SubmitValidationPayload = {
-  entity_type: ValidationEntityType;
-  entity_id: number | string;
-  section_id?: number;
-  comment?: string;
-};
-
 export type ReviewValidationPayload = {
   action: ValidationAction;
   comment?: string;
@@ -153,20 +146,6 @@ export async function getValidationEligibility(
     return (res as { data: EligibilityResult }).data;
   }
   return res as EligibilityResult;
-}
-
-/**
- * POST /api/v1/validation/submit
- * Submit a class or honor for review.
- * Client-side only (mutation).
- */
-export async function submitValidation(
-  payload: SubmitValidationPayload,
-): Promise<unknown> {
-  return apiRequestFromClient<unknown>("/validation/submit", {
-    method: "POST",
-    body: payload,
-  });
 }
 
 /**

@@ -22,7 +22,7 @@ export type OperationsShortcutId =
 export const OPERATIONS_QUEUE_HREFS: Record<OperationsQueueId, string> = {
   roles: "/dashboard/requests/assignments",
   transfers: "/dashboard/requests/transfers",
-  classes: "/dashboard/clubs/validations?tab=modules",
+  classes: "/dashboard/clubs/validations?tab=sections",
   honors: "/dashboard/clubs/validations?tab=honors",
   folders: "/dashboard/annual-folders/evaluate",
 };

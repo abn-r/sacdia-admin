@@ -3,7 +3,8 @@ import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 
 import { ClubsValidationsClient } from "@/components/clubs/validations/clubs-validations-client";
-import type { ClubsValidationTab } from "@/components/clubs/validations/clubs-validations-client";
+import { resolveClubsValidationTab } from "@/components/clubs/validations/validation-tabs";
+import type { ClubsValidationTab } from "@/components/clubs/validations/validation-tabs";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { getPendingCertificateBulkImports } from "@/lib/api/certificate-bulk-imports";
@@ -14,20 +15,8 @@ import { requireAdminUser } from "@/lib/auth/session";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
-const VALID_TABS: ClubsValidationTab[] = [
-  "honors",
-  "modules",
-  "sections",
-  "certificates",
-];
-
 function readTab(raw: Record<string, string | string[] | undefined>): ClubsValidationTab {
-  const value = raw.tab;
-  const tab = Array.isArray(value) ? value[0] : value;
-  if (tab && VALID_TABS.includes(tab as ClubsValidationTab)) {
-    return tab as ClubsValidationTab;
-  }
-  return "honors";
+  return resolveClubsValidationTab(Array.isArray(raw.tab) ? raw.tab[0] : raw.tab);
 }
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -47,7 +36,6 @@ export default async function ClubsValidationsPage({
 
   let loadError: string | null = null;
   let honors: Awaited<ReturnType<typeof getPendingValidations>> = [];
-  let modules: Awaited<ReturnType<typeof getPendingValidations>> = [];
   let honorEvidence: Awaited<ReturnType<typeof getEvidencePending>>["data"] = [];
   let sectionEvidence: Awaited<ReturnType<typeof getEvidencePending>>["data"] = [];
   let certificateBatches: Awaited<
@@ -58,13 +46,11 @@ export default async function ClubsValidationsPage({
   try {
     const [
       honorsResult,
-      modulesResult,
       honorEvidenceResult,
       sectionEvidenceResult,
       certificatesResult,
     ] = await Promise.allSettled([
       getPendingValidations({ entity_type: "honor" }),
-      getPendingValidations({ entity_type: "class" }),
       getEvidencePending("honor", 1, 200),
       getEvidencePending("class", 1, 200),
       getPendingCertificateBulkImports({ page: 1, limit: 100 }),
@@ -77,15 +63,6 @@ export default async function ClubsValidationsPage({
         honorsResult.reason instanceof ApiError
           ? honorsResult.reason.message
           : t("errors.honors");
-    }
-
-    if (modulesResult.status === "fulfilled") {
-      modules = modulesResult.value;
-    } else if (!loadError) {
-      loadError =
-        modulesResult.reason instanceof ApiError
-          ? modulesResult.reason.message
-          : t("errors.modules");
     }
 
     if (honorEvidenceResult.status === "fulfilled") {
@@ -115,7 +92,6 @@ export default async function ClubsValidationsPage({
         <Suspense fallback={null}>
           <ClubsValidationsClient
             initialHonors={honors}
-            initialModules={modules}
             initialHonorEvidence={honorEvidence}
             initialSectionEvidence={sectionEvidence}
             certificateBatches={certificateBatches}

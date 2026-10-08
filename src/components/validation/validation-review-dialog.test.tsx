@@ -90,7 +90,7 @@ interface RenderOpts {
 function renderDialog(opts: RenderOpts = {}) {
   const {
     open = true,
-    entityType = "class",
+    entityType = "honor",
     entityId = 100,
     memberName = "Ana López",
     entityName = "Amigo de la Naturaleza",
@@ -179,7 +179,7 @@ describe("ValidationReviewDialog", () => {
         number,
         { action: ValidationAction; comment?: string },
       ];
-      expect(entityType).toBe("class");
+      expect(entityType).toBe("honor");
       expect(entityId).toBe(100);
       expect(payload.action).toBe("APPROVED");
       expect(payload.comment).toBeUndefined();

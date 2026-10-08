@@ -1643,7 +1643,6 @@
         "emptyDescription": "There are no items in the queue right now.",
         "tabs": {
           "honors": "Specialties",
-          "modules": "Modules",
           "sections": "Class sections",
           "certificates": "Bulk certificates"
         },
@@ -1655,7 +1654,6 @@
         },
         "errors": {
           "honors": "Could not load specialty validations.",
-          "modules": "Could not load module validations.",
           "generic": "Could not load pending validations."
         }
       }

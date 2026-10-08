@@ -1643,7 +1643,6 @@
         "emptyDescription": "Aucun élément dans la file pour le moment.",
         "tabs": {
           "honors": "Spécialités",
-          "modules": "Modules",
           "sections": "Sections de classe",
           "certificates": "Certificats massifs"
         },
@@ -1655,7 +1654,6 @@
         },
         "errors": {
           "honors": "Impossible de charger les validations de spécialités.",
-          "modules": "Impossible de charger les validations de modules.",
           "generic": "Impossible de charger les validations en attente."
         }
       }

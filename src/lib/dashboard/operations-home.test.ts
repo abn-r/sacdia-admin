@@ -3,6 +3,7 @@ import type { DashboardMetrics } from "@/lib/api/operations-dashboard";
 import {
   buildWorkQueue,
   hrefPath,
+  OPERATIONS_QUEUE_HREFS,
   OPERATIONS_SHORTCUTS,
 } from "@/lib/dashboard/operations-home";
 
@@ -85,5 +86,9 @@ describe("operations home queue", () => {
 
   it("has no shortcut to the retired enrollments queue", () => {
     expect(OPERATIONS_SHORTCUTS.map((shortcut) => shortcut.id)).not.toContain("enrollments");
+  });
+
+  it("sends the class queue to class section evidence", () => {
+    expect(OPERATIONS_QUEUE_HREFS.classes).toBe("/dashboard/clubs/validations?tab=sections");
   });
 });

@@ -1649,7 +1649,6 @@
         "emptyDescription": "No hay elementos en cola en este momento.",
         "tabs": {
           "honors": "Especialidades",
-          "modules": "Módulos",
           "sections": "Secciones de clase",
           "certificates": "Certificados masivos"
         },
@@ -1661,7 +1660,6 @@
         },
         "errors": {
           "honors": "No se pudieron cargar las validaciones de especialidades.",
-          "modules": "No se pudieron cargar las validaciones de módulos.",
           "generic": "No se pudieron cargar las validaciones pendientes."
         }
       }
