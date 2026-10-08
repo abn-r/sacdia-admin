@@ -51,7 +51,6 @@ export async function OperationsDashboardView({
   const clubsHref = firstAccessibleHref(user, ["/dashboard/clubs"]);
   const usersHref = firstAccessibleHref(user, ["/dashboard/users"]);
   const reportsHref = resolveReportsHref(user);
-  const enrollmentsHref = firstAccessibleHref(user, ["/dashboard/enrollments"]);
   const activitiesHref = firstAccessibleHref(user, ["/dashboard/clubs/activities"]);
   const honorsHref = firstAccessibleHref(user, ["/dashboard/clubs/validations?tab=honors"]);
 
@@ -175,13 +174,6 @@ export async function OperationsDashboardView({
                 people: fmt(summary.classes.distinct_people),
               })}
             </CardDescription>
-            {enrollmentsHref ? (
-              <CardAction>
-                <Button variant="outline" size="sm" asChild>
-                  <Link href={enrollmentsHref}>{tHome("formationAction")}</Link>
-                </Button>
-              </CardAction>
-            ) : null}
           </CardHeader>
           <CardContent>
             <ClassEnrollmentsChart items={summary.classes.by_class} compact showTable={false} />
@@ -278,7 +270,6 @@ export async function OperationsDashboardView({
         labels={{
           clubs: tHome("shortcuts.clubs"),
           users: tHome("shortcuts.users"),
-          enrollments: tHome("shortcuts.enrollments"),
           assignments: tHome("shortcuts.assignments"),
           validations: tHome("shortcuts.validations"),
           reports: tHome("shortcuts.reports"),

@@ -18,58 +18,6 @@ function buildUser(roles: string[], permissions: string[]): AuthUser {
   };
 }
 
-describe("enrollments", () => {
-  it("lets admin+coordinator with investiture:validate approve", () => {
-    expect(
-      canCapability(
-        buildUser(["coordinator"], ["investiture:read", "investiture:validate"]),
-        "enrollments",
-        "validate",
-      ),
-    ).toBe(true);
-  });
-
-  it("hides validate when the actor has the role but not the permission", () => {
-    expect(
-      canCapability(
-        buildUser(["coordinator"], ["investiture:read"]),
-        "enrollments",
-        "validate",
-      ),
-    ).toBe(false);
-  });
-
-  it("hides validate when the actor has the permission but not admin/coordinator", () => {
-    expect(
-      canCapability(
-        buildUser(["pastor"], ["investiture:read", "investiture:validate"]),
-        "enrollments",
-        "validate",
-      ),
-    ).toBe(false);
-  });
-
-  it("lets director-lf through the coordinator alias on validate", () => {
-    expect(
-      canCapability(
-        buildUser(["director-lf"], ["investiture:read", "investiture:validate"]),
-        "enrollments",
-        "validate",
-      ),
-    ).toBe(true);
-  });
-
-  it("lets assistant-admin through the admin alias on validate", () => {
-    expect(
-      canCapability(
-        buildUser(["assistant-admin"], ["investiture:validate"]),
-        "enrollments",
-        "validate",
-      ),
-    ).toBe(true);
-  });
-});
-
 describe("certifications-reviews", () => {
   it("shows certify only with certifications:certify (no @GlobalRoles)", () => {
     expect(

@@ -1763,7 +1763,6 @@
         "openQueue": "Atender",
         "coverageTitle": "Informes del mes",
         "coverageAction": "Ver supervisión",
-        "formationAction": "Ver inscripciones",
         "honorsAction": "Revisar especialidades",
         "activitiesAction": "Ver actividades",
         "shortcutsTitle": "Módulos",
@@ -1771,7 +1770,6 @@
         "shortcuts": {
           "clubs": "Clubes",
           "users": "Usuarios",
-          "enrollments": "Inscripciones",
           "assignments": "Asignaciones",
           "validations": "Validaciones",
           "reports": "Reportes",
@@ -6988,50 +6986,6 @@
     },
     "errors": {
       "load_failed": "No se pudieron cargar las métricas. Verifica que el backend esté disponible e inténtalo de nuevo."
-    }
-  },
-  "enrollments": {
-    "table": {
-      "col_member": "Miembro",
-      "col_class": "Clase",
-      "col_status": "Estado",
-      "col_enrollment_date": "Fecha inscripción",
-      "col_submitted_at": "Enviado el",
-      "col_actions": "Acciones",
-      "empty": "No hay inscripciones para mostrar.",
-      "status": {
-        "IN_PROGRESS": "En progreso",
-        "SUBMITTED_FOR_VALIDATION": "Pendiente validación",
-        "APPROVED": "Aprobado",
-        "REJECTED": "Rechazado",
-        "INVESTIDO": "Investido"
-      }
-    },
-    "actions": {
-      "approve": "Aprobar",
-      "reject": "Rechazar",
-      "view_user": "Ver usuario",
-      "reject_dialog_title": "Rechazar inscripción",
-      "reject_dialog_description": "Esta acción marcará la inscripción como rechazada. El miembro no podrá continuar con el proceso de investidura con esta inscripción.",
-      "reject_dialog_cancel": "Cancelar",
-      "reject_dialog_confirm": "Confirmar rechazo"
-    },
-    "toasts": {
-      "approved": "Inscripción aprobada correctamente.",
-      "rejected": "Inscripción rechazada correctamente."
-    },
-    "errors": {
-      "generic": "Ocurrió un error. Intenta de nuevo."
-    },
-    "page": {
-      "title": "Inscripciones",
-      "description": "Inscripciones enviadas para validación de investidura. Aprueba o rechaza cada solicitud.",
-      "searchPlaceholder": "Buscar por nombre o email...",
-      "errorEmptyTitle": "No se pueden mostrar inscripciones",
-      "emptyTitle": "No hay inscripciones pendientes",
-      "emptyDescription": "No existen inscripciones enviadas para validación de investidura en este momento.",
-      "countSingular": "inscripción pendiente de validación",
-      "countPlural": "inscripciones pendientes de validación"
     }
   },
   "rankings": {

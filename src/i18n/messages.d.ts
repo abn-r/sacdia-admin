@@ -1792,7 +1792,6 @@ export interface IntlMessages {
         openQueue: string;
         coverageTitle: string;
         coverageAction: string;
-        formationAction: string;
         honorsAction: string;
         activitiesAction: string;
         shortcutsTitle: string;
@@ -1800,7 +1799,6 @@ export interface IntlMessages {
         shortcuts: {
           clubs: string;
           users: string;
-          enrollments: string;
           assignments: string;
           validations: string;
           reports: string;
@@ -7017,50 +7015,6 @@ export interface IntlMessages {
     };
     errors: {
       load_failed: string;
-    };
-  };
-  enrollments: {
-    table: {
-      col_member: string;
-      col_class: string;
-      col_status: string;
-      col_enrollment_date: string;
-      col_submitted_at: string;
-      col_actions: string;
-      empty: string;
-      status: {
-        IN_PROGRESS: string;
-        SUBMITTED_FOR_VALIDATION: string;
-        APPROVED: string;
-        REJECTED: string;
-        INVESTIDO: string;
-      };
-    };
-    actions: {
-      approve: string;
-      reject: string;
-      view_user: string;
-      reject_dialog_title: string;
-      reject_dialog_description: string;
-      reject_dialog_cancel: string;
-      reject_dialog_confirm: string;
-    };
-    toasts: {
-      approved: string;
-      rejected: string;
-    };
-    errors: {
-      generic: string;
-    };
-    page: {
-      title: string;
-      description: string;
-      searchPlaceholder: string;
-      errorEmptyTitle: string;
-      emptyTitle: string;
-      emptyDescription: string;
-      countSingular: string;
-      countPlural: string;
     };
   };
   rankings: {

@@ -1757,7 +1757,6 @@
         "openQueue": "Open",
         "coverageTitle": "Monthly reports",
         "coverageAction": "Open supervision",
-        "formationAction": "Open enrollments",
         "honorsAction": "Review honors",
         "activitiesAction": "Open activities",
         "shortcutsTitle": "Modules",
@@ -1765,7 +1764,6 @@
         "shortcuts": {
           "clubs": "Clubs",
           "users": "Users",
-          "enrollments": "Enrollments",
           "assignments": "Assignments",
           "validations": "Validations",
           "reports": "Reports",
@@ -6961,50 +6959,6 @@
     },
     "errors": {
       "load_failed": "Could not load metrics. Please verify the backend is available and try again."
-    }
-  },
-  "enrollments": {
-    "table": {
-      "col_member": "Member",
-      "col_class": "Class",
-      "col_status": "Status",
-      "col_enrollment_date": "Enrollment date",
-      "col_submitted_at": "Submitted on",
-      "col_actions": "Actions",
-      "empty": "No enrollments to display.",
-      "status": {
-        "IN_PROGRESS": "In progress",
-        "SUBMITTED_FOR_VALIDATION": "Pending validation",
-        "APPROVED": "Approved",
-        "REJECTED": "Rejected",
-        "INVESTIDO": "Invested"
-      }
-    },
-    "actions": {
-      "approve": "Approve",
-      "reject": "Reject",
-      "view_user": "View user",
-      "reject_dialog_title": "Reject enrollment",
-      "reject_dialog_description": "This action will mark the enrollment as rejected. The member will not be able to continue the investiture process with this enrollment.",
-      "reject_dialog_cancel": "Cancel",
-      "reject_dialog_confirm": "Confirm rejection"
-    },
-    "toasts": {
-      "approved": "Enrollment approved successfully.",
-      "rejected": "Enrollment rejected successfully."
-    },
-    "errors": {
-      "generic": "An error occurred. Please try again."
-    },
-    "page": {
-      "title": "Enrollments",
-      "description": "Enrollments submitted for investiture validation. Approve or reject each request.",
-      "searchPlaceholder": "Search by name or email...",
-      "errorEmptyTitle": "Cannot display enrollments",
-      "emptyTitle": "No pending enrollments",
-      "emptyDescription": "There are no enrollments submitted for investiture validation at this time.",
-      "countSingular": "enrollment pending validation",
-      "countPlural": "enrollments pending validation"
     }
   },
   "rankings": {

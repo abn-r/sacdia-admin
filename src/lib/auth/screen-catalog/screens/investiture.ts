@@ -6,36 +6,13 @@ import {
   INVESTITURE_AUTHORIZER_ROLES,
   INVESTITURE_FIELD_CONFIG_ROLES,
   INVESTITURE_PASTOR_ASSIGN_ROLES,
-  INVESTITURE_READ,
-  INVESTITURE_VALIDATE,
   USER_CERTIFICATIONS_MANAGE,
   USER_CERTIFICATIONS_READ,
 } from "@/lib/auth/permissions";
 import { SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
 
-import type { CapabilityGate, NavAccess, ScreenDefinition } from "../types";
+import type { CapabilityGate, ScreenDefinition } from "../types";
 import { roleOnlyAccess } from "./_helpers";
-
-/**
- * GET /investiture/pending — @GlobalRoles('admin', 'coordinator')
- * plus aliases of GlobalRolesGuard. Super-admin is listed because the
- * existing viewAny already included it (evaluator also bypasses it).
- */
-const INVESTITURE_QUEUE_ROLES = [
-  SUPER_ADMIN_ROLE,
-  "admin",
-  "assistant-admin",
-  "coordinator",
-  "zone-coordinator",
-  "general-coordinator",
-] as const;
-
-/**
- * `@GlobalRoles('admin', 'coordinator')` on validate / reject / invest /
- * coordinator-approve / bulk (`investiture.controller.ts`).
- * director-lf / assistant-lf enter via coordinator alias.
- */
-const INVESTITURE_ADMIN_COORD_ROLES = ["admin", "coordinator"] as const;
 
 /**
  * Class-level `@GlobalRoles` on `AdminCertificateBulkImportsController`
@@ -74,34 +51,7 @@ const INVESTITURE_PASTORS_GATE: CapabilityGate = {
   exactRoles: true,
 };
 
-function investitureQueueAccess(): NavAccess {
-  return {
-    permissions: [INVESTITURE_READ],
-    roles: [...INVESTITURE_QUEUE_ROLES],
-  };
-}
-
-function adminCoordValidateGate(): NavAccess {
-  return {
-    permissions: [INVESTITURE_VALIDATE],
-    roles: [...INVESTITURE_ADMIN_COORD_ROLES],
-  };
-}
-
 export const investitureScreens: ScreenDefinition[] = [
-  {
-    id: "enrollments",
-    surfaces: ["admin"],
-    viewAny: investitureQueueAccess(),
-    capabilities: [
-      // POST /enrollments/:enrollmentId/validate — L603-607
-      {
-        id: "validate",
-        kind: "button",
-        gate: adminCoordValidateGate(),
-      },
-    ],
-  },
   {
     id: "certifications-list",
     surfaces: ["admin"],

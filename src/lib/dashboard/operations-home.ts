@@ -12,7 +12,6 @@ export type OperationsQueueId =
 export type OperationsShortcutId =
   | "clubs"
   | "users"
-  | "enrollments"
   | "assignments"
   | "validations"
   | "reports"
@@ -34,7 +33,6 @@ export const OPERATIONS_SHORTCUTS: Array<{
 }> = [
   { id: "clubs", hrefs: ["/dashboard/clubs"] },
   { id: "users", hrefs: ["/dashboard/users"] },
-  { id: "enrollments", hrefs: ["/dashboard/enrollments"] },
   { id: "assignments", hrefs: ["/dashboard/requests/assignments"] },
   { id: "validations", hrefs: ["/dashboard/clubs/validations"] },
   {

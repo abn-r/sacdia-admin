@@ -171,8 +171,6 @@ export const VALIDATION_SUBMIT = "validation:submit";
 export const VALIDATION_REVIEW = "validation:review";
 export const VALIDATION_READ   = "validation:read";
 
-export const INVESTITURE_READ = "investiture:read";
-export const INVESTITURE_VALIDATE = "investiture:validate";
 
 // --- Investidura por autorización (roles, no permisos: SkipPermissions en la API) ---
 /** Quienes pueden autorizar solicitudes. El servicio compara estos nombres literalmente. */

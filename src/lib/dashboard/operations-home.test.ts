@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import type { DashboardMetrics } from "@/lib/api/operations-dashboard";
-import { buildWorkQueue, hrefPath } from "@/lib/dashboard/operations-home";
+import {
+  buildWorkQueue,
+  hrefPath,
+  OPERATIONS_SHORTCUTS,
+} from "@/lib/dashboard/operations-home";
 
 function metrics(overrides: Partial<DashboardMetrics["queues"]>): DashboardMetrics {
   return {
@@ -77,5 +81,9 @@ describe("operations home queue", () => {
     expect(hrefPath("/dashboard/clubs/validations?tab=honors")).toBe(
       "/dashboard/clubs/validations",
     );
+  });
+
+  it("has no shortcut to the retired enrollments queue", () => {
+    expect(OPERATIONS_SHORTCUTS.map((shortcut) => shortcut.id)).not.toContain("enrollments");
   });
 });

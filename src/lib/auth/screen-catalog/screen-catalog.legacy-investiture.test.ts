@@ -2,11 +2,17 @@ import { describe, expect, it } from "vitest";
 
 import { collectSidebarLeaves, resolvePathEntry, SCREEN_CATALOG } from "./index";
 
-const RETIRED_SCREENS = ["investiture-pending", "investiture-pipeline", "investiture-config"];
+const RETIRED_SCREENS = [
+  "investiture-pending",
+  "investiture-pipeline",
+  "investiture-config",
+  "enrollments",
+];
 const RETIRED_PATHS = [
   "/dashboard/investiture",
   "/dashboard/investiture/pipeline",
   "/dashboard/investiture/config",
+  "/dashboard/enrollments",
 ];
 
 describe("fase 8 — pantallas de la vía anterior", () => {

@@ -138,30 +138,9 @@ describe("canAccessDashboardPath", () => {
     ).toBe(true);
   });
 
-  it("lets director-lf with investiture:read into enrollments via coordinator alias", () => {
+  it("no longer opens the retired enrollments queue", () => {
     expect(
-      canAccessDashboardPath(
-        buildUser(["director-lf"], ["investiture:read"]),
-        "/dashboard/enrollments",
-      ),
-    ).toBe(true);
-  });
-
-  it("allows admin with investiture:read into enrollments", () => {
-    expect(
-      canAccessDashboardPath(
-        buildUser(["admin"], ["investiture:read"]),
-        "/dashboard/enrollments",
-      ),
-    ).toBe(true);
-  });
-
-  it("does not treat classes:read as enrollments viewAny", () => {
-    expect(
-      canAccessDashboardPath(
-        buildUser(["admin"], ["classes:read"]),
-        "/dashboard/enrollments",
-      ),
+      canAccessDashboardPath(buildUser(["admin"], ["investiture:read"]), "/dashboard/enrollments"),
     ).toBe(false);
   });
 

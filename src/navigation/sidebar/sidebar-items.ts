@@ -141,13 +141,6 @@ export const sidebarItems: NavGroup[] = [
         activeMatch: "prefix",
       },
       {
-        id: "enrollments",
-        title: "Inscripciones",
-        url: "/dashboard/enrollments",
-        icon: ClipboardList,
-        activeMatch: "prefix",
-      },
-      {
         id: "requests",
         title: "Solicitudes",
         icon: ArrowUpDown,
