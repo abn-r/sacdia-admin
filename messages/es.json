@@ -8811,6 +8811,7 @@
       "pastor_quota_full": "Ese distrito ya tiene todos los cupos de pastor",
       "pastor_already_assigned": "Ese pastor ya está asignado a este distrito",
       "pastor_role_required": "Solo se puede asignar a un usuario con el rol de pastor",
+      "pastor_field_mismatch": "El pastor no pertenece al Campo del distrito.",
       "pastor_user_not_found": "Pastor no encontrado",
       "pastor_district_not_found": "Distrito no encontrado",
       "pastor_club_not_found": "Club no encontrado",
@@ -9024,7 +9025,7 @@
       "assignDialog": {
         "title": "Asignar pastor a {district}",
         "description": "Buscá a un pastor registrado y asignalo a este distrito.",
-        "hint": "Solo aparecen pastores registrados en tu Campo.",
+        "hint": "Solo aparecen pastores del Campo de este distrito.",
         "fieldLabel": "Pastor",
         "placeholder": "Buscar pastor",
         "searchPlaceholder": "Escribí nombre, apellido o correo",

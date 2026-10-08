@@ -27,6 +27,7 @@ export const INVESTITURE_REQUEST_ERROR_KEYS = {
   INVESTITURE_PASTOR_QUOTA_FULL: "errors.pastor_quota_full",
   INVESTITURE_PASTOR_ALREADY_ASSIGNED: "errors.pastor_already_assigned",
   INVESTITURE_PASTOR_ROLE_REQUIRED: "errors.pastor_role_required",
+  INVESTITURE_PASTOR_FIELD_MISMATCH: "errors.pastor_field_mismatch",
   INVESTITURE_PASTOR_USER_NOT_FOUND: "errors.pastor_user_not_found",
   INVESTITURE_PASTOR_DISTRICT_NOT_FOUND: "errors.pastor_district_not_found",
   INVESTITURE_PASTOR_CLUB_NOT_FOUND: "errors.pastor_club_not_found",

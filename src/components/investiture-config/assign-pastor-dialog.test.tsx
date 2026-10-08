@@ -76,11 +76,13 @@ describe("AssignPastorDialog", () => {
     vi.clearAllMocks();
   });
 
-  it("explains that only pastors of the actor's Field show up", () => {
+  it("explains that only pastors of the district's Field show up", () => {
     renderDialog();
 
     expect(screen.getByText("Asignar pastor a Distrito Norte")).toBeInTheDocument();
-    expect(screen.getByText("Solo aparecen pastores registrados en tu Campo.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Solo aparecen pastores del Campo de este distrito."),
+    ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Asignar" })).toBeDisabled();
   });
 
@@ -121,7 +123,7 @@ describe("AssignPastorDialog", () => {
       await vi.advanceTimersByTimeAsync(150);
     });
     expect(mockSearch).toHaveBeenCalledTimes(1);
-    expect(mockSearch).toHaveBeenCalledWith("ana");
+    expect(mockSearch).toHaveBeenCalledWith("ana", 5);
     expect(await screen.findByText("Ana Pérez")).toBeInTheDocument();
     expect(screen.getByText("anabel@example.org")).toBeInTheDocument();
   });

@@ -8840,6 +8840,7 @@ export interface IntlMessages {
       pastor_quota_full: string;
       pastor_already_assigned: string;
       pastor_role_required: string;
+      pastor_field_mismatch: string;
       pastor_user_not_found: string;
       pastor_district_not_found: string;
       pastor_club_not_found: string;

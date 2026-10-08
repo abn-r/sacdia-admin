@@ -119,7 +119,7 @@ function AssignPastorForm({
 
     let cancelled = false;
     const timer = setTimeout(() => {
-      searchPastorCandidates(normalized)
+      searchPastorCandidates(normalized, districtId)
         .then((candidates) => {
           if (!cancelled) setResult({ query: normalized, candidates, failed: false });
         })
@@ -132,7 +132,7 @@ function AssignPastorForm({
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [normalized, searchable]);
+  }, [normalized, searchable, districtId]);
 
   const current = searchable && result?.query === normalized ? result : null;
   const loading = searchable && current === null;

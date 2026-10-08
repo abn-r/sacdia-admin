@@ -8630,6 +8630,7 @@
       "pastor_quota_full": "Ce district a déjà toutes ses places de pasteur pourvues",
       "pastor_already_assigned": "Ce pasteur est déjà affecté à ce district",
       "pastor_role_required": "Seul un utilisateur ayant le rôle de pasteur peut être affecté",
+      "pastor_field_mismatch": "Le pasteur n'appartient pas au Champ du district.",
       "pastor_user_not_found": "Pasteur introuvable",
       "pastor_district_not_found": "District introuvable",
       "pastor_club_not_found": "Club introuvable",
@@ -8843,7 +8844,7 @@
       "assignDialog": {
         "title": "Affecter un pasteur à {district}",
         "description": "Recherchez un pasteur enregistré et affectez-le à ce district.",
-        "hint": "Seuls apparaissent les pasteurs enregistrés dans votre Champ.",
+        "hint": "Seuls apparaissent les pasteurs du Champ de ce district.",
         "fieldLabel": "Pasteur",
         "placeholder": "Rechercher un pasteur",
         "searchPlaceholder": "Saisissez un nom, prénom ou e-mail",

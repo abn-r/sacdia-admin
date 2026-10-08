@@ -8784,6 +8784,7 @@
       "pastor_quota_full": "That district already has all its pastor slots filled",
       "pastor_already_assigned": "That pastor is already assigned to this district",
       "pastor_role_required": "Only a user with the pastor role can be assigned",
+      "pastor_field_mismatch": "The pastor does not belong to the district's Field.",
       "pastor_user_not_found": "Pastor not found",
       "pastor_district_not_found": "District not found",
       "pastor_club_not_found": "Club not found",
@@ -8997,7 +8998,7 @@
       "assignDialog": {
         "title": "Assign pastor to {district}",
         "description": "Search for a registered pastor and assign them to this district.",
-        "hint": "Only pastors registered in your Field appear.",
+        "hint": "Only pastors from this district's Field appear.",
         "fieldLabel": "Pastor",
         "placeholder": "Search pastor",
         "searchPlaceholder": "Type a name, surname or email",
