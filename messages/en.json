@@ -8815,6 +8815,24 @@
       "rejected_by_system": "Rejected by the system",
       "removed": "Removed from the request",
       "closed_year": "Year closed unresolved"
+    },
+    "list": {
+      "title": "Investiture authorizations",
+      "description": "Pending requests from your district or Field.",
+      "yearPlaceholder": "Ecclesiastical year",
+      "columns": {
+        "club": "Club",
+        "section": "Section",
+        "district": "District",
+        "pending": "Pending",
+        "nextDate": "Next date",
+        "submitted": "Submitted"
+      },
+      "emptyTitle": "There are no pending requests",
+      "emptyDescription": "When a club board submits an investiture request, it will show up here.",
+      "noYearTitle": "There is no active ecclesiastical year",
+      "noYearDescription": "Pick an ecclesiastical year to see its requests.",
+      "noValue": "—"
     }
   }
 }

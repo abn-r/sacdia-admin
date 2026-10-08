@@ -8872,5 +8872,23 @@ export interface IntlMessages {
       removed: string;
       closed_year: string;
     };
+    list: {
+      title: string;
+      description: string;
+      yearPlaceholder: string;
+      columns: {
+        club: string;
+        section: string;
+        district: string;
+        pending: string;
+        nextDate: string;
+        submitted: string;
+      };
+      emptyTitle: string;
+      emptyDescription: string;
+      noYearTitle: string;
+      noYearDescription: string;
+      noValue: string;
+    };
   };
 }

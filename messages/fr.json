@@ -8661,6 +8661,24 @@
       "rejected_by_system": "Refusé par le système",
       "removed": "Retiré de la demande",
       "closed_year": "Année clôturée sans décision"
+    },
+    "list": {
+      "title": "Autorisations d'investiture",
+      "description": "Demandes en attente de votre district ou de votre Champ.",
+      "yearPlaceholder": "Année ecclésiastique",
+      "columns": {
+        "club": "Club",
+        "section": "Section",
+        "district": "District",
+        "pending": "En attente",
+        "nextDate": "Prochaine date",
+        "submitted": "Présentée"
+      },
+      "emptyTitle": "Aucune demande en attente",
+      "emptyDescription": "Lorsqu'une direction de club présentera une demande d'investiture, elle apparaîtra ici.",
+      "noYearTitle": "Aucune année ecclésiastique active",
+      "noYearDescription": "Choisissez une année ecclésiastique pour voir ses demandes.",
+      "noValue": "—"
     }
   }
 }

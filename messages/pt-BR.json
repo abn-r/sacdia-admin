@@ -8681,6 +8681,24 @@
       "rejected_by_system": "Rejeitado pelo sistema",
       "removed": "Retirado da solicitação",
       "closed_year": "Ano encerrado sem resolução"
+    },
+    "list": {
+      "title": "Autorizações de investidura",
+      "description": "Solicitações pendentes do seu distrito ou Campo.",
+      "yearPlaceholder": "Ano eclesiástico",
+      "columns": {
+        "club": "Clube",
+        "section": "Seção",
+        "district": "Distrito",
+        "pending": "Pendentes",
+        "nextDate": "Próxima data",
+        "submitted": "Apresentada"
+      },
+      "emptyTitle": "Não há solicitações pendentes",
+      "emptyDescription": "Quando uma diretoria apresentar uma solicitação de investidura, ela aparecerá aqui.",
+      "noYearTitle": "Não há um ano eclesiástico ativo",
+      "noYearDescription": "Escolha um ano eclesiástico para ver suas solicitações.",
+      "noValue": "—"
     }
   }
 }
