@@ -1,3 +1,4 @@
+import { isPastorOnlyUser, PASTOR_LANDING_PATH } from "@/lib/auth/roles";
 import {
   evaluateAccess,
   resolveAccessForPath,
@@ -27,6 +28,16 @@ export function canAccessDashboardPath(
   const path = (pathname.split("?")[0] ?? pathname).trim();
   if (!path) {
     return false;
+  }
+
+  // A pastor-only user opens just the authorization screen. `/dashboard` stays
+  // reachable so the home page can redirect them there.
+  if (isPastorOnlyUser(user)) {
+    return (
+      path === "/dashboard" ||
+      path === PASTOR_LANDING_PATH ||
+      path.startsWith(`${PASTOR_LANDING_PATH}/`)
+    );
   }
 
   const access = resolveNavAccessForPath(path);

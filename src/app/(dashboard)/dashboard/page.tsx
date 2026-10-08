@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation";
+
 import { ApiError } from "@/lib/api/client";
 import {
   fetchOperationsDashboard,
@@ -5,6 +7,7 @@ import {
 } from "@/lib/api/operations-dashboard";
 import { OperationsDashboardView } from "@/components/dashboard/operations-dashboard-view";
 import { OperationsDashboardError } from "@/components/dashboard/operations-dashboard-error";
+import { isPastorOnlyUser, PASTOR_LANDING_PATH } from "@/lib/auth/roles";
 import { requireAdminUser } from "@/lib/auth/session";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -15,6 +18,12 @@ export default async function DashboardHomePage({
   searchParams: SearchParams;
 }) {
   const user = await requireAdminUser();
+
+  // Pastors (and nothing else) land on the authorization screen: it is the only
+  // thing they can open for now.
+  if (isPastorOnlyUser(user)) {
+    redirect(PASTOR_LANDING_PATH);
+  }
 
   const raw = await searchParams;
   const query = parseOperationsDashboardSearchParams(raw);

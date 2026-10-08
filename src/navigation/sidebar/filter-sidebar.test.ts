@@ -190,6 +190,32 @@ describe("investiture authorization items", () => {
   });
 });
 
+describe("pastor-only sidebar", () => {
+  const everythingAllowed = {
+    isSuperAdmin: false,
+    canAny: () => true,
+    canAll: () => true,
+    hasAnyRole: () => true,
+  };
+
+  it("shows only the authorization list, even if every other gate would pass", () => {
+    const titles = collectTitles(
+      filterSidebarItems(sidebarItems, { ...everythingAllowed, pastorOnly: true }),
+    );
+    expect(titles).toContain("Autorizaciones");
+    expect(titles).not.toContain("Inicio");
+    expect(titles).not.toContain("Usuarios");
+    expect(titles).not.toContain("Ventana y porcentaje");
+    expect(titles).not.toContain("Pastores por distrito");
+  });
+
+  it("is unchanged when the flag is off", () => {
+    const titles = collectTitles(filterSidebarItems(sidebarItems, everythingAllowed));
+    expect(titles).toContain("Usuarios");
+    expect(titles).toContain("Autorizaciones");
+  });
+});
+
 function collectTitles(
   groups: ReturnType<typeof filterSidebarItems>,
 ): string[] {
