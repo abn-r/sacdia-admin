@@ -400,11 +400,21 @@ describe("investiture-pastors (district pastor assignment)", () => {
 });
 
 describe("pastor in the rest of the catalog", () => {
-  it("no screen other than investiture-requests lists pastor in its viewAny roles", () => {
+  // Pastors see only the authorization screen: investiture-requests in the
+  // panel and app-investiture-authorizer in the app (decision 2026-10-08).
+  const PASTOR_SCREENS = ["investiture-requests", "app-investiture-authorizer"];
+
+  it("no screen other than the authorization screens lists pastor in its viewAny roles", () => {
     const offenders = SCREEN_CATALOG.filter(
       (screen) =>
-        screen.id !== "investiture-requests" && (screen.viewAny.roles ?? []).includes("pastor"),
+        !PASTOR_SCREENS.includes(screen.id) && (screen.viewAny.roles ?? []).includes("pastor"),
     ).map((screen) => screen.id);
     expect(offenders).toEqual([]);
+  });
+
+  it("the app authorization screen is app-only and uses exact roles", () => {
+    const screen = SCREEN_CATALOG.find((s) => s.id === "app-investiture-authorizer");
+    expect(screen?.surfaces).toEqual(["app"]);
+    expect(screen?.viewAny.exactRoles).toBe(true);
   });
 });

@@ -162,6 +162,8 @@ export interface IntlMessages {
       app_club: string;
       app_units: string;
       app_grouped_class: string;
+      app_section_investiture: string;
+      app_investiture_authorizer: string;
       app_materials: string;
       app_classes: string;
       geography_divisions: string;

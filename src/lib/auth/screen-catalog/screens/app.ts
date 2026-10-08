@@ -85,7 +85,7 @@ export const appScreens: ScreenDefinition[] = [
     surfaces: ["app"],
     // Present/add/remove/change dates — investiture-authorization-requests
     // controller; the service checks the section board role.
-    viewAny: { roles: ["director", "secretary", "secretary-treasurer"] },
+    viewAny: roleOnlyAccess(["director", "secretary", "secretary-treasurer"]),
     capabilities: [],
   },
   {
@@ -95,6 +95,7 @@ export const appScreens: ScreenDefinition[] = [
     // GET/POST investiture-requests for authorizers; exact roles because the
     // backend compares pastor/director-lf/assistant-lf literally.
     viewAny: {
+      permissions: [],
       roles: ["pastor", "director-lf", "assistant-lf"],
       exactRoles: true,
     },
