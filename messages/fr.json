@@ -4893,7 +4893,6 @@
     "table": {
       "columns": {
         "member": "Membre",
-        "class": "Classe",
         "honor": "Spécialité",
         "section": "Section",
         "submitted": "Soumis",

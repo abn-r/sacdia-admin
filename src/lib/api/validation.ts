@@ -3,7 +3,7 @@ import { normalizePendingValidationsResponse } from "@/lib/api/validation-normal
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
 
-export type ValidationEntityType = "class" | "honor";
+export type ValidationEntityType = "honor";
 
 export type ValidationAction = "APPROVED" | "REJECTED";
 
@@ -110,7 +110,7 @@ export async function getPendingValidations(
   if (query.limit) params.limit = query.limit;
 
   const res = await apiRequest<unknown>("/validation/pending", { params });
-  return normalizePendingValidationsResponse(res, query.entity_type);
+  return normalizePendingValidationsResponse(res);
 }
 
 /**

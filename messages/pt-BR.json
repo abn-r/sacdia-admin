@@ -4893,7 +4893,6 @@
     "table": {
       "columns": {
         "member": "Membro",
-        "class": "Classe",
         "honor": "Especialidade",
         "section": "Seção",
         "submitted": "Enviado",

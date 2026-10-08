@@ -5027,7 +5027,6 @@
     "table": {
       "columns": {
         "member": "Member",
-        "class": "Class",
         "honor": "Honor",
         "section": "Section",
         "submitted": "Submitted",

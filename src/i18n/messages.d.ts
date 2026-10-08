@@ -5081,7 +5081,6 @@ export interface IntlMessages {
     table: {
       columns: {
         member: string;
-        class: string;
         honor: string;
         section: string;
         submitted: string;
