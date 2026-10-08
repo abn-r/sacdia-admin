@@ -269,7 +269,9 @@ describe("RequestDetailClientPage", () => {
         "La ventana del Campo está cerrada. Pedí al Campo que la amplíe para poder autorizar.",
       ),
     ).toBeInTheDocument();
-    expect(toastMock.error).toHaveBeenCalled();
+    expect(toastMock.error).toHaveBeenCalledWith(
+      "La ventana del Campo está cerrada. Pedí al Campo que la amplíe para poder autorizar.",
+    );
     expect(mockRefresh).not.toHaveBeenCalled();
   });
 

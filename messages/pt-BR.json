@@ -8658,6 +8658,7 @@
       "section_not_found": "Seção não encontrada",
       "outside_section": "A pessoa não pertence a esta seção",
       "window_closed": "A janela do Campo não permite apresentar nem adicionar pessoas",
+      "window_closed_authorize": "A janela do Campo está fechada. Peça ao Campo que a amplie para poder autorizar.",
       "date_outside_window": "A data de investidura fica fora da janela do Campo",
       "date_outside_year": "A data de investidura fica fora do ano eclesiástico",
       "date_invalid": "A data de investidura não é válida",

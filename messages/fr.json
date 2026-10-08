@@ -8638,6 +8638,7 @@
       "section_not_found": "Section introuvable",
       "outside_section": "La personne n'appartient pas à cette section",
       "window_closed": "La fenêtre du Champ ne permet pas de présenter ni d'ajouter des personnes",
+      "window_closed_authorize": "La fenêtre du Champ est fermée. Demandez au Champ de la prolonger pour pouvoir autoriser.",
       "date_outside_window": "La date d'investiture est en dehors de la fenêtre du Champ",
       "date_outside_year": "La date d'investiture est en dehors de l'année ecclésiastique",
       "date_invalid": "La date d'investiture n'est pas valide",

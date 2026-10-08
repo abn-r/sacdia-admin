@@ -64,7 +64,8 @@ export type InvestitureRequestErrorCode = keyof typeof INVESTITURE_REQUEST_ERROR
 export type InvestitureRequestErrorKey =
   | (typeof INVESTITURE_REQUEST_ERROR_KEYS)[InvestitureRequestErrorCode]
   | "errors.forbidden"
-  | "errors.generic";
+  | "errors.generic"
+  | "errors.window_closed_authorize";
 
 export type InvestitureRequestErrorTranslator = (key: InvestitureRequestErrorKey) => string;
 
@@ -97,11 +98,24 @@ export function getInvestitureRequestErrorMessageByCode(
   return t(isKnownCode(code) ? INVESTITURE_REQUEST_ERROR_KEYS[code] : "errors.generic");
 }
 
+export type InvestitureRequestErrorOptions = {
+  /**
+   * `resolve`: the authorizer is resolving a request. Some codes read
+   * differently there (a closed window blocks authorizing, not submitting).
+   */
+  context?: "resolve";
+};
+
 export function getInvestitureRequestErrorMessage(
   error: unknown,
   t: InvestitureRequestErrorTranslator,
+  options?: InvestitureRequestErrorOptions,
 ): string {
   const code = getInvestitureRequestErrorCode(error);
+
+  if (options?.context === "resolve" && code === "INVESTITURE_REQUEST_WINDOW_CLOSED") {
+    return t("errors.window_closed_authorize");
+  }
 
   if (code && isKnownCode(code)) {
     return t(INVESTITURE_REQUEST_ERROR_KEYS[code]);

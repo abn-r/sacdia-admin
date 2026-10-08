@@ -140,7 +140,7 @@ export function RequestDetailClientPage({ request, yearName }: RequestDetailClie
     } catch (error) {
       const code = getInvestitureRequestErrorCode(error);
       if (code && CLOSED_CODES.has(code)) setClosedCode(code);
-      toast.error(getInvestitureRequestErrorMessage(error, tRoot));
+      toast.error(getInvestitureRequestErrorMessage(error, tRoot, { context: "resolve" }));
       setConfirmOpen(false);
     } finally {
       setIsSubmitting(false);

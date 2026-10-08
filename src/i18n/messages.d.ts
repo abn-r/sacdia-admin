@@ -8848,6 +8848,7 @@ export interface IntlMessages {
       section_not_found: string;
       outside_section: string;
       window_closed: string;
+      window_closed_authorize: string;
       date_outside_window: string;
       date_outside_year: string;
       date_invalid: string;

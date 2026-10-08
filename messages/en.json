@@ -8792,6 +8792,7 @@
       "section_not_found": "Section not found",
       "outside_section": "The person does not belong to this section",
       "window_closed": "The Field window does not allow submitting or adding people",
+      "window_closed_authorize": "The Field's window is closed. Ask the Field to extend it so you can authorize.",
       "date_outside_window": "The investiture date falls outside the Field window",
       "date_outside_year": "The investiture date falls outside the ecclesiastical year",
       "date_invalid": "The investiture date is not valid",
