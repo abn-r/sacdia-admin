@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { CalendarRange, MapPinOff, ShieldCheck } from "lucide-react";
+import { CalendarRange, MapPin, ShieldCheck } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DataTableShell } from "@/components/shared/data-table-shell";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
@@ -102,7 +102,7 @@ export function RequestsListClientPage({
 
       {loadError && pastorWithoutDistricts && (
         <EmptyState
-          icon={MapPinOff}
+          icon={MapPin}
           title={t("noDistrictsTitle")}
           description={t("noDistrictsDescription")}
         />
