@@ -8,7 +8,7 @@ describe("getClientMessageNamespacesForDashboardPath", () => {
     dashboardHub: {},
     evidence_review: {},
     honors: {},
-    investiture: {},
+    investiture_requests: {},
     membership: {},
     nav: {},
     requests: {},
@@ -50,8 +50,8 @@ describe("getClientMessageNamespacesForDashboardPath", () => {
       namespaces: ["evidence_review", "classes", "honors", "users"],
     },
     {
-      pathname: "/dashboard/investiture/pipeline",
-      namespaces: ["investiture", "classes", "clubs", "users"],
+      pathname: "/dashboard/investiture-requests",
+      namespaces: ["investiture_requests", "classes", "clubs", "users"],
     },
   ])(
     "keeps required client i18n namespaces for $pathname",
