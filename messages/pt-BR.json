@@ -8699,6 +8699,66 @@
       "noYearTitle": "Não há um ano eclesiástico ativo",
       "noYearDescription": "Escolha um ano eclesiástico para ver suas solicitações.",
       "noValue": "—"
+    },
+    "detail": {
+      "titleFallback": "Solicitação de investidura",
+      "description": "{section} · {district} · {year}",
+      "noValue": "—",
+      "breadcrumbHome": "Dashboard",
+      "breadcrumbList": "Autorizações de investidura",
+      "windowClosedBanner": "A janela do Campo está fechada. Peça ao Campo que a amplie para poder autorizar.",
+      "readOnlyNotice": "Você pode consultar esta solicitação, mas não tem permissão para autorizar seus integrantes.",
+      "columns": {
+        "person": "Pessoa",
+        "class": "Classe",
+        "date": "Data da investidura",
+        "status": "Status",
+        "decision": "Decisão"
+      },
+      "resolvedBy": "Resolvido por {name}",
+      "resolvedBySystem": "Resolvido pelo Sistema",
+      "authorizationComment": "Comentário: {comment}",
+      "systemReasonFallback": "Ao verificar o progresso, esta pessoa não cumpria os requisitos mínimos. Revise as evidências de progresso.",
+      "decision": {
+        "groupLabel": "Decisão para {name}",
+        "none": "Sem decidir",
+        "invest": "Investir",
+        "reject": "Rejeitar",
+        "commentLabel": "Comentário (opcional)",
+        "commentPlaceholder": "Uma mensagem breve para esta pessoa",
+        "commentMax": "O comentário admite até 500 caracteres.",
+        "reasonLabel": "Motivo da rejeição",
+        "reasonPlaceholder": "Indique por que não é autorizado",
+        "reasonRequired": "O motivo é obrigatório para rejeitar.",
+        "reasonMax": "O motivo admite até 1000 caracteres."
+      },
+      "actionBar": {
+        "confirm": "Confirmar decisões ({count})",
+        "hint": "Escolha Investir ou Rejeitar para pelo menos uma pessoa."
+      },
+      "toasts": {
+        "resolved": "Decisões registradas."
+      }
+    },
+    "confirmDialog": {
+      "title": "Confirmar as decisões?",
+      "description": "As decisões confirmadas não podem ser desfeitas.",
+      "invest": "Serão investidos: {count}",
+      "reject": "Serão rejeitados: {count}",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar",
+      "confirming": "Confirmando…"
+    },
+    "summary": {
+      "title": "Resultado da resolução",
+      "dismiss": "Fechar o resultado",
+      "invested": "Investidos",
+      "rejectedByPerson": "Rejeitados por quem autoriza",
+      "rejectedBySystem": "Rejeitados pelo sistema",
+      "retired": "Retirados da solicitação",
+      "notApplied": "Não aplicadas",
+      "alreadyResolved": "Já havia sido resolvido",
+      "unknownPerson": "Pessoa sem nome"
     }
   }
 }

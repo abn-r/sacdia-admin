@@ -8679,6 +8679,66 @@
       "noYearTitle": "Aucune année ecclésiastique active",
       "noYearDescription": "Choisissez une année ecclésiastique pour voir ses demandes.",
       "noValue": "—"
+    },
+    "detail": {
+      "titleFallback": "Demande d'investiture",
+      "description": "{section} · {district} · {year}",
+      "noValue": "—",
+      "breadcrumbHome": "Dashboard",
+      "breadcrumbList": "Autorisations d'investiture",
+      "windowClosedBanner": "La fenêtre du Champ est fermée. Demandez au Champ de la prolonger pour pouvoir autoriser.",
+      "readOnlyNotice": "Vous pouvez consulter cette demande, mais vous n'avez pas le droit d'autoriser ses membres.",
+      "columns": {
+        "person": "Personne",
+        "class": "Classe",
+        "date": "Date d'investiture",
+        "status": "Statut",
+        "decision": "Décision"
+      },
+      "resolvedBy": "Résolu par {name}",
+      "resolvedBySystem": "Résolu par le Système",
+      "authorizationComment": "Commentaire : {comment}",
+      "systemReasonFallback": "Lors de la vérification de l'avancement, cette personne ne remplissait pas les exigences minimales. Examinez ses preuves d'avancement.",
+      "decision": {
+        "groupLabel": "Décision pour {name}",
+        "none": "Non décidé",
+        "invest": "Investir",
+        "reject": "Refuser",
+        "commentLabel": "Commentaire (facultatif)",
+        "commentPlaceholder": "Un court message pour cette personne",
+        "commentMax": "Le commentaire accepte jusqu'à 500 caractères.",
+        "reasonLabel": "Motif du refus",
+        "reasonPlaceholder": "Indiquez pourquoi ce n'est pas autorisé",
+        "reasonRequired": "Le motif est obligatoire pour refuser.",
+        "reasonMax": "Le motif accepte jusqu'à 1000 caractères."
+      },
+      "actionBar": {
+        "confirm": "Confirmer les décisions ({count})",
+        "hint": "Choisissez Investir ou Refuser pour au moins une personne."
+      },
+      "toasts": {
+        "resolved": "Décisions enregistrées."
+      }
+    },
+    "confirmDialog": {
+      "title": "Confirmer les décisions ?",
+      "description": "Les décisions confirmées ne peuvent pas être annulées.",
+      "invest": "Seront investies : {count}",
+      "reject": "Seront refusées : {count}",
+      "cancel": "Annuler",
+      "confirm": "Confirmer",
+      "confirming": "Confirmation…"
+    },
+    "summary": {
+      "title": "Résultat de la résolution",
+      "dismiss": "Fermer le résultat",
+      "invested": "Investies",
+      "rejectedByPerson": "Refusées par la personne qui autorise",
+      "rejectedBySystem": "Refusées par le système",
+      "retired": "Retirées de la demande",
+      "notApplied": "Non appliquées",
+      "alreadyResolved": "Elle avait déjà été résolue",
+      "unknownPerson": "Personne sans nom"
     }
   }
 }
