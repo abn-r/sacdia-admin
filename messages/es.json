@@ -8965,6 +8965,69 @@
         "invalid": "Ingresá un número entero entre 0 y 100.",
         "saved": "Porcentaje guardado."
       }
+    },
+    "pastors": {
+      "title": "Pastores por distrito",
+      "description": "Quiénes autorizan las investiduras de cada distrito.",
+      "breadcrumbHome": "Inicio",
+      "breadcrumbGroup": "Autorización de investiduras",
+      "localFieldLabel": "Campo",
+      "localFieldPlaceholder": "Seleccioná un Campo",
+      "selectLocalFieldTitle": "Seleccioná un Campo",
+      "selectLocalFieldDescription": "Elegí un Campo para ver y asignar los pastores de sus distritos.",
+      "noDistrictsTitle": "Este Campo no tiene distritos",
+      "noDistrictsDescription": "Cuando existan distritos vas a poder asignarles pastores.",
+      "quota": {
+        "title": "Cupo de pastores por distrito",
+        "description": "Cantidad máxima de pastores que pueden autorizar en cada distrito.",
+        "label": "Cupo",
+        "current": "{slots} pastores por distrito",
+        "readOnly": "Solo super-admin puede cambiar el cupo.",
+        "save": "Guardar cupo",
+        "saving": "Guardando…",
+        "saved": "Cupo guardado.",
+        "invalid": "Ingresá un número entero mayor o igual a 0."
+      },
+      "district": {
+        "count": "{count}/{slots} pastores",
+        "empty": "Todavía no hay pastores asignados.",
+        "full": "Cupo completo.",
+        "assign": "Asignar pastor"
+      },
+      "pastor": {
+        "canAuthorize": "Autoriza",
+        "roleMissing": "Sin rol de pastor",
+        "accountInactive": "Cuenta inactiva",
+        "inactiveHelp": "Ocupa cupo, no autoriza ni recibe correos",
+        "noName": "Sin nombre",
+        "noEmail": "Sin correo",
+        "remove": "Quitar",
+        "removeAria": "Quitar a {name}"
+      },
+      "removeDialog": {
+        "title": "¿Quitar pastor del distrito?",
+        "description": "{name} dejará de autorizar y de recibir correos de {district}. Se libera un cupo.",
+        "cancel": "Cancelar",
+        "confirm": "Quitar",
+        "removing": "Quitando…",
+        "removed": "Pastor quitado."
+      },
+      "assignDialog": {
+        "title": "Asignar pastor a {district}",
+        "description": "Buscá a un pastor registrado y asignalo a este distrito.",
+        "hint": "Solo aparecen pastores registrados en tu Campo.",
+        "fieldLabel": "Pastor",
+        "placeholder": "Buscar pastor",
+        "searchPlaceholder": "Escribí nombre, apellido o correo",
+        "minChars": "Escribí al menos 3 caracteres; cada palabra necesita 2 como mínimo.",
+        "searching": "Buscando…",
+        "noResults": "No hay pastores que coincidan.",
+        "searchError": "No se pudo buscar. Intentá de nuevo.",
+        "cancel": "Cancelar",
+        "assign": "Asignar",
+        "assigning": "Asignando…",
+        "assigned": "Pastor asignado."
+      }
     }
   }
 }

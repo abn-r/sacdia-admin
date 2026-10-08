@@ -8784,6 +8784,69 @@
         "invalid": "Saisissez un nombre entier entre 0 et 100.",
         "saved": "Pourcentage enregistré."
       }
+    },
+    "pastors": {
+      "title": "Pasteurs par district",
+      "description": "Qui autorise les investitures de chaque district.",
+      "breadcrumbHome": "Accueil",
+      "breadcrumbGroup": "Autorisation des investitures",
+      "localFieldLabel": "Champ",
+      "localFieldPlaceholder": "Sélectionnez un Champ",
+      "selectLocalFieldTitle": "Sélectionnez un Champ",
+      "selectLocalFieldDescription": "Choisissez un Champ pour voir et affecter les pasteurs de ses districts.",
+      "noDistrictsTitle": "Ce Champ n'a pas de districts",
+      "noDistrictsDescription": "Dès que des districts existeront, vous pourrez leur affecter des pasteurs.",
+      "quota": {
+        "title": "Quota de pasteurs par district",
+        "description": "Nombre maximum de pasteurs pouvant autoriser dans chaque district.",
+        "label": "Quota",
+        "current": "{slots} pasteurs par district",
+        "readOnly": "Seul le super-admin peut modifier le quota.",
+        "save": "Enregistrer le quota",
+        "saving": "Enregistrement…",
+        "saved": "Quota enregistré.",
+        "invalid": "Saisissez un nombre entier supérieur ou égal à 0."
+      },
+      "district": {
+        "count": "{count}/{slots} pasteurs",
+        "empty": "Aucun pasteur affecté pour l'instant.",
+        "full": "Quota complet.",
+        "assign": "Affecter un pasteur"
+      },
+      "pastor": {
+        "canAuthorize": "Autorise",
+        "roleMissing": "Sans rôle de pasteur",
+        "accountInactive": "Compte inactif",
+        "inactiveHelp": "Occupe une place, n'autorise pas et ne reçoit pas d'e-mails",
+        "noName": "Sans nom",
+        "noEmail": "Sans e-mail",
+        "remove": "Retirer",
+        "removeAria": "Retirer {name}"
+      },
+      "removeDialog": {
+        "title": "Retirer le pasteur du district ?",
+        "description": "{name} cessera d'autoriser et de recevoir les e-mails de {district}. Une place est libérée.",
+        "cancel": "Annuler",
+        "confirm": "Retirer",
+        "removing": "Retrait…",
+        "removed": "Pasteur retiré."
+      },
+      "assignDialog": {
+        "title": "Affecter un pasteur à {district}",
+        "description": "Recherchez un pasteur enregistré et affectez-le à ce district.",
+        "hint": "Seuls apparaissent les pasteurs enregistrés dans votre Champ.",
+        "fieldLabel": "Pasteur",
+        "placeholder": "Rechercher un pasteur",
+        "searchPlaceholder": "Saisissez un nom, prénom ou e-mail",
+        "minChars": "Saisissez au moins 3 caractères ; chaque mot en exige au moins 2.",
+        "searching": "Recherche…",
+        "noResults": "Aucun pasteur ne correspond.",
+        "searchError": "La recherche a échoué. Réessayez.",
+        "cancel": "Annuler",
+        "assign": "Affecter",
+        "assigning": "Affectation…",
+        "assigned": "Pasteur affecté."
+      }
     }
   }
 }

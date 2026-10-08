@@ -8938,6 +8938,69 @@
         "invalid": "Enter a whole number between 0 and 100.",
         "saved": "Percentage saved."
       }
+    },
+    "pastors": {
+      "title": "Pastors by district",
+      "description": "Who authorizes the investitures of each district.",
+      "breadcrumbHome": "Home",
+      "breadcrumbGroup": "Investiture authorization",
+      "localFieldLabel": "Field",
+      "localFieldPlaceholder": "Select a Field",
+      "selectLocalFieldTitle": "Select a Field",
+      "selectLocalFieldDescription": "Pick a Field to view and assign the pastors of its districts.",
+      "noDistrictsTitle": "This Field has no districts",
+      "noDistrictsDescription": "Once districts exist you will be able to assign pastors to them.",
+      "quota": {
+        "title": "Pastor quota per district",
+        "description": "Maximum number of pastors that can authorize in each district.",
+        "label": "Quota",
+        "current": "{slots} pastors per district",
+        "readOnly": "Only super-admin can change the quota.",
+        "save": "Save quota",
+        "saving": "Saving…",
+        "saved": "Quota saved.",
+        "invalid": "Enter a whole number greater than or equal to 0."
+      },
+      "district": {
+        "count": "{count}/{slots} pastors",
+        "empty": "No pastors assigned yet.",
+        "full": "Quota full.",
+        "assign": "Assign pastor"
+      },
+      "pastor": {
+        "canAuthorize": "Authorizes",
+        "roleMissing": "No pastor role",
+        "accountInactive": "Inactive account",
+        "inactiveHelp": "Takes a slot, does not authorize or receive emails",
+        "noName": "No name",
+        "noEmail": "No email",
+        "remove": "Remove",
+        "removeAria": "Remove {name}"
+      },
+      "removeDialog": {
+        "title": "Remove pastor from the district?",
+        "description": "{name} will stop authorizing and receiving emails for {district}. A slot is freed.",
+        "cancel": "Cancel",
+        "confirm": "Remove",
+        "removing": "Removing…",
+        "removed": "Pastor removed."
+      },
+      "assignDialog": {
+        "title": "Assign pastor to {district}",
+        "description": "Search for a registered pastor and assign them to this district.",
+        "hint": "Only pastors registered in your Field appear.",
+        "fieldLabel": "Pastor",
+        "placeholder": "Search pastor",
+        "searchPlaceholder": "Type a name, surname or email",
+        "minChars": "Type at least 3 characters; each word needs at least 2.",
+        "searching": "Searching…",
+        "noResults": "No pastors match.",
+        "searchError": "The search failed. Try again.",
+        "cancel": "Cancel",
+        "assign": "Assign",
+        "assigning": "Assigning…",
+        "assigned": "Pastor assigned."
+      }
     }
   }
 }

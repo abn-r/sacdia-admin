@@ -8995,5 +8995,68 @@ export interface IntlMessages {
         saved: string;
       };
     };
+    pastors: {
+      title: string;
+      description: string;
+      breadcrumbHome: string;
+      breadcrumbGroup: string;
+      localFieldLabel: string;
+      localFieldPlaceholder: string;
+      selectLocalFieldTitle: string;
+      selectLocalFieldDescription: string;
+      noDistrictsTitle: string;
+      noDistrictsDescription: string;
+      quota: {
+        title: string;
+        description: string;
+        label: string;
+        current: string;
+        readOnly: string;
+        save: string;
+        saving: string;
+        saved: string;
+        invalid: string;
+      };
+      district: {
+        count: string;
+        empty: string;
+        full: string;
+        assign: string;
+      };
+      pastor: {
+        canAuthorize: string;
+        roleMissing: string;
+        accountInactive: string;
+        inactiveHelp: string;
+        noName: string;
+        noEmail: string;
+        remove: string;
+        removeAria: string;
+      };
+      removeDialog: {
+        title: string;
+        description: string;
+        cancel: string;
+        confirm: string;
+        removing: string;
+        removed: string;
+      };
+      assignDialog: {
+        title: string;
+        description: string;
+        hint: string;
+        fieldLabel: string;
+        placeholder: string;
+        searchPlaceholder: string;
+        minChars: string;
+        searching: string;
+        noResults: string;
+        searchError: string;
+        cancel: string;
+        assign: string;
+        assigning: string;
+        assigned: string;
+      };
+    };
   };
 }
