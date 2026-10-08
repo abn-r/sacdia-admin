@@ -8951,4 +8951,49 @@ export interface IntlMessages {
       unknownPerson: string;
     };
   };
+  investiture_config: {
+    settings: {
+      title: string;
+      description: string;
+      breadcrumbHome: string;
+      breadcrumbGroup: string;
+      yearPlaceholder: string;
+      localFieldLabel: string;
+      localFieldPlaceholder: string;
+      selectLocalFieldTitle: string;
+      selectLocalFieldDescription: string;
+      noYearTitle: string;
+      noYearDescription: string;
+      window: {
+        title: string;
+        description: string;
+        range: string;
+        notOperational: string;
+        defaultNotice: string;
+        startLabel: string;
+        endLabel: string;
+        save: string;
+        saving: string;
+        readOnly: string;
+        required: string;
+        startAfterEnd: string;
+        outsideYear: string;
+        saved: string;
+      };
+      threshold: {
+        title: string;
+        description: string;
+        label: string;
+        help: string;
+        current: string;
+        defaultNotice: string;
+        save: string;
+        saving: string;
+        readOnly: string;
+        restricted: string;
+        invalid: string;
+        saved: string;
+      };
+    };
+  };
 }

@@ -8740,5 +8740,50 @@
       "alreadyResolved": "Elle avait déjà été résolue",
       "unknownPerson": "Personne sans nom"
     }
+  },
+  "investiture_config": {
+    "settings": {
+      "title": "Fenêtre et pourcentage d'investiture",
+      "description": "Définissez quand le Champ reçoit et autorise les demandes d'investiture et quel pourcentage de la classe est exigé.",
+      "breadcrumbHome": "Accueil",
+      "breadcrumbGroup": "Autorisation des investitures",
+      "yearPlaceholder": "Année ecclésiastique",
+      "localFieldLabel": "Champ",
+      "localFieldPlaceholder": "Sélectionnez un Champ",
+      "selectLocalFieldTitle": "Sélectionnez un Champ",
+      "selectLocalFieldDescription": "Choisissez un Champ pour voir ou modifier sa fenêtre et son pourcentage.",
+      "noYearTitle": "Aucune année ecclésiastique à configurer",
+      "noYearDescription": "Dès qu'une année ecclésiastique existera, vous pourrez définir la fenêtre et le pourcentage.",
+      "window": {
+        "title": "Fenêtre des demandes",
+        "description": "Période pendant laquelle le Champ permet de soumettre et d'autoriser des demandes d'investiture.",
+        "range": "Du {start} au {end}, inclus, dans le fuseau horaire du Champ.",
+        "notOperational": "Il n'y a pas de fenêtre opérationnelle pour cette année. Configurez-la pour permettre de soumettre et d'autoriser.",
+        "defaultNotice": "Pas encore configurée : la fenêtre par défaut de l'année est utilisée.",
+        "startLabel": "Début",
+        "endLabel": "Fin",
+        "save": "Enregistrer la fenêtre",
+        "saving": "Enregistrement…",
+        "readOnly": "Lecture seule : votre rôle ou l'état de l'année ne permettent pas de modifier la fenêtre.",
+        "required": "Indiquez une date valide.",
+        "startAfterEnd": "Le début ne peut pas être postérieur à la fin.",
+        "outsideYear": "La date doit être comprise dans l'année ecclésiastique ({start} au {end}).",
+        "saved": "Fenêtre enregistrée."
+      },
+      "threshold": {
+        "title": "Pourcentage minimum de la classe",
+        "description": "Pourcentage minimum d'avancement de la classe exigé pour inclure une personne dans une demande.",
+        "label": "Pourcentage minimum (%)",
+        "help": "Jusqu'au 30 juin, c'est le Champ qui le modifie ; ensuite, seulement le super-admin.",
+        "current": "Pourcentage en vigueur : {percent} %.",
+        "defaultNotice": "Pas encore configuré : la valeur par défaut est utilisée.",
+        "save": "Enregistrer le pourcentage",
+        "saving": "Enregistrement…",
+        "readOnly": "Lecture seule : votre rôle ou la date actuelle ne permettent pas de modifier le pourcentage.",
+        "restricted": "Seuls le Champ et le super-admin peuvent voir le pourcentage.",
+        "invalid": "Saisissez un nombre entier entre 0 et 100.",
+        "saved": "Pourcentage enregistré."
+      }
+    }
   }
 }

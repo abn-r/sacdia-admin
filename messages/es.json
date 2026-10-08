@@ -8921,5 +8921,50 @@
       "alreadyResolved": "Ya había sido resuelto",
       "unknownPerson": "Persona sin nombre"
     }
+  },
+  "investiture_config": {
+    "settings": {
+      "title": "Ventana y porcentaje de investidura",
+      "description": "Definí cuándo el Campo recibe y autoriza solicitudes de investidura y qué porcentaje de la clase se exige.",
+      "breadcrumbHome": "Inicio",
+      "breadcrumbGroup": "Autorización de investiduras",
+      "yearPlaceholder": "Año eclesiástico",
+      "localFieldLabel": "Campo",
+      "localFieldPlaceholder": "Seleccioná un Campo",
+      "selectLocalFieldTitle": "Seleccioná un Campo",
+      "selectLocalFieldDescription": "Elegí un Campo para ver o editar su ventana y su porcentaje.",
+      "noYearTitle": "No hay un año eclesiástico para configurar",
+      "noYearDescription": "Cuando exista un año eclesiástico vas a poder definir la ventana y el porcentaje.",
+      "window": {
+        "title": "Ventana de solicitudes",
+        "description": "Período en el que el Campo permite presentar y autorizar solicitudes de investidura.",
+        "range": "Del {start} al {end}, inclusive, en la zona del Campo.",
+        "notOperational": "No hay ventana operativa para este año. Configurala para permitir presentar y autorizar.",
+        "defaultNotice": "Todavía no se configuró: se usa la ventana por defecto del año.",
+        "startLabel": "Inicio",
+        "endLabel": "Fin",
+        "save": "Guardar ventana",
+        "saving": "Guardando…",
+        "readOnly": "Solo lectura: tu rol o el estado del año no permiten editar la ventana.",
+        "required": "Indicá una fecha válida.",
+        "startAfterEnd": "El inicio no puede ser posterior al fin.",
+        "outsideYear": "La fecha debe estar dentro del año eclesiástico ({start} al {end}).",
+        "saved": "Ventana guardada."
+      },
+      "threshold": {
+        "title": "Porcentaje mínimo de la clase",
+        "description": "Porcentaje mínimo de avance de la clase que se exige para incluir a una persona en una solicitud.",
+        "label": "Porcentaje mínimo (%)",
+        "help": "Hasta el 30 de junio lo edita el Campo; después solo super-admin.",
+        "current": "Porcentaje vigente: {percent} %.",
+        "defaultNotice": "Todavía no se configuró: se usa el valor por defecto.",
+        "save": "Guardar porcentaje",
+        "saving": "Guardando…",
+        "readOnly": "Solo lectura: tu rol o la fecha actual no permiten editar el porcentaje.",
+        "restricted": "Solo el Campo y super-admin pueden ver el porcentaje.",
+        "invalid": "Ingresá un número entero entre 0 y 100.",
+        "saved": "Porcentaje guardado."
+      }
+    }
   }
 }

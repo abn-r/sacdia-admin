@@ -8894,5 +8894,50 @@
       "alreadyResolved": "It had already been resolved",
       "unknownPerson": "Unnamed person"
     }
+  },
+  "investiture_config": {
+    "settings": {
+      "title": "Investiture window and percentage",
+      "description": "Define when the Field receives and authorizes investiture requests and which class percentage is required.",
+      "breadcrumbHome": "Home",
+      "breadcrumbGroup": "Investiture authorization",
+      "yearPlaceholder": "Ecclesiastical year",
+      "localFieldLabel": "Field",
+      "localFieldPlaceholder": "Select a Field",
+      "selectLocalFieldTitle": "Select a Field",
+      "selectLocalFieldDescription": "Pick a Field to view or edit its window and percentage.",
+      "noYearTitle": "There is no ecclesiastical year to configure",
+      "noYearDescription": "Once an ecclesiastical year exists you will be able to set the window and the percentage.",
+      "window": {
+        "title": "Request window",
+        "description": "Period in which the Field allows investiture requests to be submitted and authorized.",
+        "range": "From {start} to {end}, inclusive, in the Field's time zone.",
+        "notOperational": "There is no operational window for this year. Configure it to allow submitting and authorizing.",
+        "defaultNotice": "Not configured yet: the year's default window is in use.",
+        "startLabel": "Start",
+        "endLabel": "End",
+        "save": "Save window",
+        "saving": "Saving…",
+        "readOnly": "Read only: your role or the state of the year does not allow editing the window.",
+        "required": "Enter a valid date.",
+        "startAfterEnd": "The start cannot be later than the end.",
+        "outsideYear": "The date must be within the ecclesiastical year ({start} to {end}).",
+        "saved": "Window saved."
+      },
+      "threshold": {
+        "title": "Minimum class percentage",
+        "description": "Minimum class progress percentage required to include a person in a request.",
+        "label": "Minimum percentage (%)",
+        "help": "Until June 30 the Field edits it; afterwards only super-admin can.",
+        "current": "Current percentage: {percent} %.",
+        "defaultNotice": "Not configured yet: the default value is in use.",
+        "save": "Save percentage",
+        "saving": "Saving…",
+        "readOnly": "Read only: your role or the current date does not allow editing the percentage.",
+        "restricted": "Only the Field and super-admin can see the percentage.",
+        "invalid": "Enter a whole number between 0 and 100.",
+        "saved": "Percentage saved."
+      }
+    }
   }
 }

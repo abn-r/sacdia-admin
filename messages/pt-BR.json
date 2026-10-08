@@ -8760,5 +8760,50 @@
       "alreadyResolved": "Já havia sido resolvido",
       "unknownPerson": "Pessoa sem nome"
     }
+  },
+  "investiture_config": {
+    "settings": {
+      "title": "Janela e porcentagem de investidura",
+      "description": "Defina quando o Campo recebe e autoriza solicitações de investidura e qual porcentagem da classe é exigida.",
+      "breadcrumbHome": "Início",
+      "breadcrumbGroup": "Autorização de investiduras",
+      "yearPlaceholder": "Ano eclesiástico",
+      "localFieldLabel": "Campo",
+      "localFieldPlaceholder": "Selecione um Campo",
+      "selectLocalFieldTitle": "Selecione um Campo",
+      "selectLocalFieldDescription": "Escolha um Campo para ver ou editar sua janela e sua porcentagem.",
+      "noYearTitle": "Não há ano eclesiástico para configurar",
+      "noYearDescription": "Quando existir um ano eclesiástico, você poderá definir a janela e a porcentagem.",
+      "window": {
+        "title": "Janela de solicitações",
+        "description": "Período em que o Campo permite apresentar e autorizar solicitações de investidura.",
+        "range": "De {start} a {end}, inclusive, no fuso horário do Campo.",
+        "notOperational": "Não há janela operacional para este ano. Configure-a para permitir apresentar e autorizar.",
+        "defaultNotice": "Ainda não configurada: usa-se a janela padrão do ano.",
+        "startLabel": "Início",
+        "endLabel": "Fim",
+        "save": "Salvar janela",
+        "saving": "Salvando…",
+        "readOnly": "Somente leitura: seu papel ou o estado do ano não permitem editar a janela.",
+        "required": "Informe uma data válida.",
+        "startAfterEnd": "O início não pode ser posterior ao fim.",
+        "outsideYear": "A data deve estar dentro do ano eclesiástico ({start} a {end}).",
+        "saved": "Janela salva."
+      },
+      "threshold": {
+        "title": "Porcentagem mínima da classe",
+        "description": "Porcentagem mínima de progresso da classe exigida para incluir uma pessoa em uma solicitação.",
+        "label": "Porcentagem mínima (%)",
+        "help": "Até 30 de junho quem edita é o Campo; depois, somente o super-admin.",
+        "current": "Porcentagem vigente: {percent} %.",
+        "defaultNotice": "Ainda não configurada: usa-se o valor padrão.",
+        "save": "Salvar porcentagem",
+        "saving": "Salvando…",
+        "readOnly": "Somente leitura: seu papel ou a data atual não permitem editar a porcentagem.",
+        "restricted": "Somente o Campo e o super-admin podem ver a porcentagem.",
+        "invalid": "Informe um número inteiro entre 0 e 100.",
+        "saved": "Porcentagem salva."
+      }
+    }
   }
 }
