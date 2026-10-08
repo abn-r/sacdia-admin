@@ -8893,6 +8893,8 @@ export interface IntlMessages {
       emptyDescription: string;
       noYearTitle: string;
       noYearDescription: string;
+      noDistrictsTitle: string;
+      noDistrictsDescription: string;
       noValue: string;
     };
     detail: {

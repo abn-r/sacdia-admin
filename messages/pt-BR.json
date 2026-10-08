@@ -8703,6 +8703,8 @@
       "emptyDescription": "Quando uma diretoria apresentar uma solicitação de investidura, ela aparecerá aqui.",
       "noYearTitle": "Não há um ano eclesiástico ativo",
       "noYearDescription": "Escolha um ano eclesiástico para ver suas solicitações.",
+      "noDistrictsTitle": "Você ainda não tem distritos atribuídos",
+      "noDistrictsDescription": "Peça ao Campo que o atribua.",
       "noValue": "—"
     },
     "detail": {

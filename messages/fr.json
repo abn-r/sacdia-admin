@@ -8683,6 +8683,8 @@
       "emptyDescription": "Lorsqu'une direction de club présentera une demande d'investiture, elle apparaîtra ici.",
       "noYearTitle": "Aucune année ecclésiastique active",
       "noYearDescription": "Choisissez une année ecclésiastique pour voir ses demandes.",
+      "noDistrictsTitle": "Vous n'avez pas encore de districts assignés",
+      "noDistrictsDescription": "Demandez au Champ de vous en assigner.",
       "noValue": "—"
     },
     "detail": {

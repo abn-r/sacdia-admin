@@ -8837,6 +8837,8 @@
       "emptyDescription": "When a club board submits an investiture request, it will show up here.",
       "noYearTitle": "There is no active ecclesiastical year",
       "noYearDescription": "Pick an ecclesiastical year to see its requests.",
+      "noDistrictsTitle": "You don't have any districts assigned yet",
+      "noDistrictsDescription": "Ask the Field to assign you one.",
       "noValue": "—"
     },
     "detail": {

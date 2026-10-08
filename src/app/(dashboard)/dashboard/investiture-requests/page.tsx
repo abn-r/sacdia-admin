@@ -3,7 +3,10 @@ import {
   RequestsListClientPage,
   type RequestsListLoadError,
 } from "@/components/investiture-requests/requests-list-client-page";
-import { getInvestitureRequestErrorMessage } from "@/components/investiture-requests/investiture-request-errors";
+import {
+  getInvestitureRequestErrorCode,
+  getInvestitureRequestErrorMessage,
+} from "@/components/investiture-requests/investiture-request-errors";
 import { ApiError } from "@/lib/api/client";
 import {
   getActiveEcclesiasticalYearId,
@@ -14,6 +17,7 @@ import {
   listInvestitureRequestsForAuthorizer,
   type InvestitureRequest,
 } from "@/lib/api/investiture-requests";
+import { isPastorOnlyUser } from "@/lib/auth/roles";
 import { requireAdminUser } from "@/lib/auth/session";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -30,7 +34,7 @@ export default async function InvestitureRequestsPage({
 }: {
   searchParams: SearchParams;
 }) {
-  await requireAdminUser();
+  const user = await requireAdminUser();
   const t = await getTranslations("investiture_requests");
   const params = await searchParams;
 
@@ -53,6 +57,7 @@ export default async function InvestitureRequestsPage({
     } catch (error) {
       loadError = {
         status: error instanceof ApiError ? error.status : null,
+        code: getInvestitureRequestErrorCode(error),
         message: getInvestitureRequestErrorMessage(error, t),
       };
     }
@@ -64,6 +69,7 @@ export default async function InvestitureRequestsPage({
       yearId={yearId}
       years={years}
       loadError={loadError}
+      isPastorOnly={isPastorOnlyUser(user)}
     />
   );
 }
