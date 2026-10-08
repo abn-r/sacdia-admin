@@ -150,7 +150,10 @@
       "admin_local_field_delivery": "Livraison de matériel",
       "admin_campamentos_config_local": "Champ local",
       "admin_campamentos_config_union": "Union",
-      "admin_system_jobs_history": "Historique des tâches"
+      "admin_system_jobs_history": "Historique des tâches",
+      "investiture_requests": "Autorisations d'investiture",
+      "investiture_settings": "Fenêtre et pourcentage d'investiture",
+      "investiture_pastors": "Pasteurs par district"
     },
     "breadcrumbs": {
       "dashboard": "Tableau de bord",

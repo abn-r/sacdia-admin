@@ -39,8 +39,10 @@ function isItemAllowed(
       : checker.canAny(permissions));
 
   // Same alias expansion as the backend GlobalRolesGuard (admin ⇒ assistant-admin, …).
+  // `exactRoles` (service-level literal checks) skips the alias expansion.
   const rolesOk =
-    roles.length === 0 || checker.hasAnyRole(expandRequiredRoles(roles));
+    roles.length === 0 ||
+    checker.hasAnyRole(access.exactRoles ? roles : expandRequiredRoles(roles));
 
   return permissionsOk && rolesOk;
 }

@@ -180,6 +180,9 @@ export interface IntlMessages {
       admin_campamentos_config_local: string;
       admin_campamentos_config_union: string;
       admin_system_jobs_history: string;
+      investiture_requests: string;
+      investiture_settings: string;
+      investiture_pastors: string;
     };
     breadcrumbs: {
       dashboard: string;

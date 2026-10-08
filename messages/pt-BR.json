@@ -150,7 +150,10 @@
       "admin_local_field_delivery": "Entrega de materiais",
       "admin_campamentos_config_local": "Campo local",
       "admin_campamentos_config_union": "União",
-      "admin_system_jobs_history": "Histórico de jobs"
+      "admin_system_jobs_history": "Histórico de jobs",
+      "investiture_requests": "Autorizações de investidura",
+      "investiture_settings": "Janela e percentual de investidura",
+      "investiture_pastors": "Pastores por distrito"
     },
     "breadcrumbs": {
       "dashboard": "Painel",

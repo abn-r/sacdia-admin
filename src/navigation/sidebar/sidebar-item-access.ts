@@ -1,4 +1,4 @@
-import { getScreenViewAny } from "@/lib/auth/screen-catalog";
+import { getScreenViewAny, type CapabilityGate } from "@/lib/auth/screen-catalog";
 
 import type { NavAccess } from "./nav-access";
 
@@ -11,6 +11,6 @@ export { PAYMENT_ORDERS_PAGE_PERMISSIONS } from "@/lib/auth/screen-catalog";
  */
 export function getNavItemAccess(
   item: { id: string; access?: NavAccess },
-): NavAccess | undefined {
+): CapabilityGate | undefined {
   return item.access ?? getScreenViewAny(item.id);
 }

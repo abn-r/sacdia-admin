@@ -150,7 +150,10 @@
       "admin_local_field_delivery": "Materials delivery",
       "admin_campamentos_config_local": "Local field",
       "admin_campamentos_config_union": "Union",
-      "admin_system_jobs_history": "Job history"
+      "admin_system_jobs_history": "Job history",
+      "investiture_requests": "Investiture authorizations",
+      "investiture_settings": "Investiture window and percentage",
+      "investiture_pastors": "Pastors by district"
     },
     "breadcrumbs": {
       "dashboard": "Dashboard",

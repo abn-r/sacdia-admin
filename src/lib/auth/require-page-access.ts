@@ -2,16 +2,16 @@ import {
   evaluateAccess,
   resolveAccessForPath,
   subjectFromUser,
+  type CapabilityGate,
 } from "@/lib/auth/screen-catalog";
 import type { AuthUser } from "@/lib/auth/types";
-import type { NavAccess } from "@/navigation/sidebar/nav-access";
 
 /**
  * Page gate for a dashboard URL, read from the screen catalog:
  * exact route capability → exact screen path → longest prefix. Unmapped URLs
  * return `undefined` and callers fail closed.
  */
-export function resolveNavAccessForPath(pathname: string): NavAccess | undefined {
+export function resolveNavAccessForPath(pathname: string): CapabilityGate | undefined {
   return resolveAccessForPath(pathname);
 }
 

@@ -162,6 +162,34 @@ describe("filterSidebarItems", () => {
   });
 });
 
+describe("investiture authorization items", () => {
+  function titlesFor(roles: string[]) {
+    // Raw role names, as the evaluator subject holds them (no alias expansion).
+    return collectTitles(
+      filterSidebarItems(sidebarItems, {
+        isSuperAdmin: false,
+        canAny: () => false,
+        canAll: () => false,
+        hasAnyRole: (required) => required.some((role) => roles.includes(role)),
+      }),
+    );
+  }
+
+  it("shows the authorizer list to pastor and Campo directors, not to unión (exact roles)", () => {
+    expect(titlesFor(["pastor"])).toContain("Autorizaciones");
+    expect(titlesFor(["director-lf"])).toContain("Autorizaciones");
+    expect(titlesFor(["director-union"])).not.toContain("Autorizaciones");
+    expect(titlesFor(["admin"])).not.toContain("Autorizaciones");
+  });
+
+  it("shows settings to the lf/union/dia family and pastors screen to lf/union", () => {
+    expect(titlesFor(["director-dia"])).toContain("Ventana y porcentaje");
+    expect(titlesFor(["director-dia"])).not.toContain("Pastores por distrito");
+    expect(titlesFor(["assistant-union"])).toContain("Pastores por distrito");
+    expect(titlesFor(["pastor"])).not.toContain("Ventana y porcentaje");
+  });
+});
+
 function collectTitles(
   groups: ReturnType<typeof filterSidebarItems>,
 ): string[] {
