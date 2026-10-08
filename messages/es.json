@@ -8831,6 +8831,14 @@
       "reason_required": "El rechazo necesita un motivo",
       "conflicting_decision": "Hay que elegir una sola decisión por persona",
       "text_too_long": "El texto supera el límite permitido"
+    },
+    "status": {
+      "pending": "En espera de autorización",
+      "invested": "Investido",
+      "rejected_by_person": "Rechazado",
+      "rejected_by_system": "Rechazado por el sistema",
+      "removed": "Retirado de la solicitud",
+      "closed_year": "Año cerrado sin resolver"
     }
   }
 }

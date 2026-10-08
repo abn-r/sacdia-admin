@@ -8670,6 +8670,14 @@
       "reason_required": "A rejeição precisa de um motivo",
       "conflicting_decision": "É preciso escolher uma única decisão por pessoa",
       "text_too_long": "O texto excede o limite permitido"
+    },
+    "status": {
+      "pending": "Aguardando autorização",
+      "invested": "Investido",
+      "rejected_by_person": "Rejeitado",
+      "rejected_by_system": "Rejeitado pelo sistema",
+      "removed": "Retirado da solicitação",
+      "closed_year": "Ano encerrado sem resolução"
     }
   }
 }

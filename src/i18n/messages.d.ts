@@ -8861,5 +8861,13 @@ export interface IntlMessages {
       conflicting_decision: string;
       text_too_long: string;
     };
+    status: {
+      pending: string;
+      invested: string;
+      rejected_by_person: string;
+      rejected_by_system: string;
+      removed: string;
+      closed_year: string;
+    };
   };
 }

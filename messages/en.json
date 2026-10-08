@@ -8804,6 +8804,14 @@
       "reason_required": "A rejection needs a reason",
       "conflicting_decision": "Choose only one decision per person",
       "text_too_long": "The text exceeds the allowed limit"
+    },
+    "status": {
+      "pending": "Awaiting authorization",
+      "invested": "Invested",
+      "rejected_by_person": "Rejected",
+      "rejected_by_system": "Rejected by the system",
+      "removed": "Removed from the request",
+      "closed_year": "Year closed unresolved"
     }
   }
 }

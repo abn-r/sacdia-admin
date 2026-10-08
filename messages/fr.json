@@ -8650,6 +8650,14 @@
       "reason_required": "Le rejet nécessite un motif",
       "conflicting_decision": "Il faut choisir une seule décision par personne",
       "text_too_long": "Le texte dépasse la limite autorisée"
+    },
+    "status": {
+      "pending": "En attente d'autorisation",
+      "invested": "Investi",
+      "rejected_by_person": "Refusé",
+      "rejected_by_system": "Refusé par le système",
+      "removed": "Retiré de la demande",
+      "closed_year": "Année clôturée sans décision"
     }
   }
 }
