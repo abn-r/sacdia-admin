@@ -15,8 +15,14 @@ vi.mock("next-intl/server", () => ({
 }));
 
 const listDistrictsMock = vi.fn();
+vi.mock("@/lib/api/geography", () => ({
+  listDistricts: (...args: unknown[]) => listDistrictsMock(...args),
+}));
+
+// The admin districts API is restricted to admin/super-admin: the page must never call it.
+const listAdminDistrictsMock = vi.fn();
 vi.mock("@/lib/api/admin-districts", () => ({
-  listAdminDistricts: (...args: unknown[]) => listDistrictsMock(...args),
+  listAdminDistricts: (...args: unknown[]) => listAdminDistrictsMock(...args),
 }));
 
 const getQuotaMock = vi.fn();
@@ -69,16 +75,9 @@ const fields = [
   { local_field_id: 4, name: "Campo Sur", union_id: 1, active: true },
 ];
 
+// Shape of GET /catalogs/districts: only active rows, no `active` flag.
 function district(id: number, name: string, overrides: Record<string, unknown> = {}) {
-  return {
-    district_id: id,
-    name,
-    active: true,
-    local_field_id: 3,
-    created_at: null,
-    modified_at: null,
-    ...overrides,
-  };
+  return { district_id: id, name, local_field_id: 3, ...overrides };
 }
 
 async function render(search: Record<string, string> = {}) {
@@ -92,6 +91,7 @@ describe("InvestiturePastorsPage", () => {
     requireAdminUserMock.mockReset().mockResolvedValue({ id: "u1" });
     resolveScopeMock.mockReset().mockReturnValue({ scope: "single", localFieldId: 3 });
     listFieldsMock.mockReset().mockResolvedValue(fields);
+    listAdminDistrictsMock.mockReset();
     listDistrictsMock.mockReset().mockResolvedValue([district(6, "Distrito Sur"), district(5, "Distrito Norte")]);
     getQuotaMock.mockReset().mockResolvedValue({ slots: 2, configured: false, can_edit: false });
     listPastorsMock
@@ -107,7 +107,8 @@ describe("InvestiturePastorsPage", () => {
   it("lists the districts of the user's field with their pastors, sorted by name", async () => {
     const element = await render();
 
-    expect(listDistrictsMock).toHaveBeenCalledWith({ localFieldId: 3 });
+    expect(listDistrictsMock).toHaveBeenCalledWith(3);
+    expect(listAdminDistrictsMock).not.toHaveBeenCalled();
     expect(listPastorsMock).toHaveBeenCalledWith(5);
     expect(listPastorsMock).toHaveBeenCalledWith(6);
     expect(element.props.districts.map((entry) => entry.name)).toEqual([
@@ -119,15 +120,19 @@ describe("InvestiturePastorsPage", () => {
     expect(element.props.localFieldPicker).toBeNull();
   });
 
-  it("uses the pk districlub_type_id exposed by the districts catalog", async () => {
-    listDistrictsMock.mockResolvedValue([district(42, "Distrito Único")]);
+  it("uses the pk exposed by the districts catalog, accepting districlub_type_id too", async () => {
+    listDistrictsMock.mockResolvedValue([
+      district(42, "Distrito Único"),
+      { districlub_type_id: 43, name: "Distrito Raw", local_field_id: 3 },
+    ]);
 
     await render();
 
     expect(listPastorsMock).toHaveBeenCalledWith(42);
+    expect(listPastorsMock).toHaveBeenCalledWith(43);
   });
 
-  it("skips inactive districts and districts of other fields", async () => {
+  it("skips explicitly inactive districts and districts of other fields", async () => {
     listDistrictsMock.mockResolvedValue([
       district(5, "Activo"),
       district(6, "Inactivo", { active: false }),
@@ -170,7 +175,7 @@ describe("InvestiturePastorsPage", () => {
 
     const inScope = await render({ local_field_id: "4" });
     expect(inScope.props.localFieldId).toBe(4);
-    expect(listDistrictsMock).toHaveBeenCalledWith({ localFieldId: 4 });
+    expect(listDistrictsMock).toHaveBeenCalledWith(4);
 
     listDistrictsMock.mockClear();
     const outside = await render({ local_field_id: "99" });

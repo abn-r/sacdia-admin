@@ -6,8 +6,8 @@ import {
 } from "@/components/investiture-config/pastors-client-page";
 import { getInvestitureRequestErrorMessage } from "@/components/investiture-requests/investiture-request-errors";
 import { LocalFieldPicker } from "@/components/local-field-config/local-field-picker";
-import { listAdminDistricts } from "@/lib/api/admin-districts";
 import { ApiError } from "@/lib/api/client";
+import { listDistricts, type District } from "@/lib/api/geography";
 import {
   getPastorQuota,
   listDistrictPastors,
@@ -31,6 +31,22 @@ function parsePositiveInt(value: string | string[] | undefined): number | undefi
   if (!raw) return undefined;
   const parsed = Number(raw);
   return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
+}
+
+/** Catalog rows expose the PK as `district_id`; the raw column is `districlub_type_id`. */
+type CatalogDistrict = District & { districlub_type_id?: number };
+
+function toDistrictOption(
+  district: CatalogDistrict,
+): { districtId: number; name: string; localFieldId: number; active: boolean } | null {
+  const districtId = Number(district.districlub_type_id ?? district.district_id);
+  if (!Number.isInteger(districtId) || districtId <= 0) return null;
+  return {
+    districtId,
+    name: district.name,
+    localFieldId: district.local_field_id,
+    active: district.active !== false,
+  };
 }
 
 function toLoadError(error: unknown, t: ErrorTranslator): PastorsLoadError {
@@ -80,23 +96,26 @@ export default async function InvestiturePastorsPage({
 
   if (localFieldId !== null) {
     try {
-      // PK is `districlub_type_id`; `normalizeDistrict` exposes it as `district_id`.
-      const rows = (await listAdminDistricts({ localFieldId }))
-        .filter((district) => district.active && district.local_field_id === localFieldId)
+      // The public catalog (not /admin/districts, which is admin-only) so the roles that
+      // assign pastors can load the districts of their field.
+      const rows = (await listDistricts(localFieldId))
+        .map(toDistrictOption)
+        .filter((district): district is NonNullable<typeof district> => district !== null)
+        .filter((district) => district.active && district.localFieldId === localFieldId)
         .sort((left, right) => left.name.localeCompare(right.name));
 
       districts = await Promise.all(
         rows.map(async (district): Promise<DistrictPastorsEntry> => {
           try {
             return {
-              districtId: district.district_id,
+              districtId: district.districtId,
               name: district.name,
-              list: await listDistrictPastors(district.district_id),
+              list: await listDistrictPastors(district.districtId),
               error: null,
             };
           } catch (error) {
             return {
-              districtId: district.district_id,
+              districtId: district.districtId,
               name: district.name,
               list: null,
               error: toLoadError(error, t),
