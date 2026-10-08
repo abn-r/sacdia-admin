@@ -7659,6 +7659,10 @@
     "auditTimeline": {
       "emptyTitle": "No audit trail",
       "emptyDescription": "No events have been recorded for this batch yet."
+    },
+    "errors": {
+      "authorization_pending": "This person has a pending investiture request this year. The authorization must be resolved first.",
+      "ended_year_field_forbidden": "Only the Field of the request or the administration can credit this certificate."
     }
   },
   "campamentos": {

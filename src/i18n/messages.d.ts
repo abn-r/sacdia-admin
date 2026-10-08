@@ -7716,6 +7716,10 @@ export interface IntlMessages {
       emptyTitle: string;
       emptyDescription: string;
     };
+    errors: {
+      authorization_pending: string;
+      ended_year_field_forbidden: string;
+    };
   };
   campamentos: {
     pages: {

@@ -7525,6 +7525,10 @@
     "auditTimeline": {
       "emptyTitle": "Aucune piste d'audit",
       "emptyDescription": "Aucun événement n'a encore été enregistré pour ce lot."
+    },
+    "errors": {
+      "authorization_pending": "La personne a une demande d'investiture en attente cette année. L'autorisation doit d'abord être résolue.",
+      "ended_year_field_forbidden": "Seuls le Champ de la demande ou l'administration peuvent créditer ce certificat."
     }
   },
   "camporeeEvents": {

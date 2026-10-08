@@ -7525,6 +7525,10 @@
     "auditTimeline": {
       "emptyTitle": "Sem auditoria",
       "emptyDescription": "Ainda não há eventos registrados para este lote."
+    },
+    "errors": {
+      "authorization_pending": "A pessoa tem uma solicitação de investidura pendente neste ano. Primeiro é resolvida a autorização.",
+      "ended_year_field_forbidden": "Somente o Campo da solicitação ou a administração podem creditar este certificado."
     }
   },
   "campamentos": {

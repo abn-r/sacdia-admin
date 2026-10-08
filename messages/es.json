@@ -7686,6 +7686,10 @@
     "auditTimeline": {
       "emptyTitle": "Sin auditoría",
       "emptyDescription": "Todavía no hay eventos registrados para este lote."
+    },
+    "errors": {
+      "authorization_pending": "La persona tiene una solicitud de investidura pendiente en este año. Primero se resuelve la autorización.",
+      "ended_year_field_forbidden": "Solo el Campo de la solicitud o la administración pueden acreditar este certificado."
     }
   },
   "campamentos": {

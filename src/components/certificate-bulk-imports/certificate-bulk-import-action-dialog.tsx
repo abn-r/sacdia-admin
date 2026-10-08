@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslations } from "next-intl";
-import { CheckCircle2, Loader2, XCircle } from "lucide-react";
+import { CheckCircle2, Loader2, ShieldAlert, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -15,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -25,7 +26,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { ApiError } from "@/lib/api/client";
 import {
   approveCertificateBulkImportBatch,
   approveCertificateBulkImportItem,
@@ -33,6 +33,10 @@ import {
   rejectCertificateBulkImportItem,
   type CertificateBulkImportItem,
 } from "@/lib/api/certificate-bulk-imports";
+import {
+  getCertificateImportErrorMessage,
+  isCertificateImportInlineError,
+} from "./certificate-import-errors";
 
 type Action = "approve" | "reject";
 type Scope = "batch" | "item";
@@ -73,7 +77,9 @@ export function CertificateBulkImportActionDialog({
   onSuccess,
 }: CertificateBulkImportActionDialogProps) {
   const t = useTranslations("certificate_bulk_imports.actionDialog");
+  const tErrors = useTranslations("certificate_bulk_imports.errors");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [inlineError, setInlineError] = useState<string | null>(null);
   const isReject = action === "reject";
 
   const schema = useMemo(
@@ -94,12 +100,16 @@ export function CertificateBulkImportActionDialog({
 
   function handleClose(nextOpen: boolean) {
     if (isSubmitting) return;
-    if (!nextOpen) form.reset();
+    if (!nextOpen) {
+      form.reset();
+      setInlineError(null);
+    }
     onOpenChange(nextOpen);
   }
 
   const submit = form.handleSubmit(async (values) => {
     setIsSubmitting(true);
+    setInlineError(null);
     try {
       if (isReject) {
         const reason = values.reason?.trim() ?? "";
@@ -131,8 +141,12 @@ export function CertificateBulkImportActionDialog({
       form.reset();
       onSuccess();
     } catch (error) {
-      const message = error instanceof ApiError ? error.message : t("genericError");
-      toast.error(message);
+      const message = getCertificateImportErrorMessage(error, tErrors, t("genericError"));
+      if (isCertificateImportInlineError(error)) {
+        setInlineError(message);
+      } else {
+        toast.error(message);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -158,6 +172,13 @@ export function CertificateBulkImportActionDialog({
 
         <Form {...form}>
           <form onSubmit={submit} className="flex flex-col gap-4">
+            {inlineError && (
+              <Alert variant="destructive">
+                <ShieldAlert aria-hidden="true" />
+                <AlertDescription>{inlineError}</AlertDescription>
+              </Alert>
+            )}
+
             {isReject ? (
               <FormField
                 control={form.control}
