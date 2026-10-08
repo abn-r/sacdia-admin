@@ -64,6 +64,8 @@ function person(overrides: Partial<InvestitureRequestPerson>): InvestitureReques
   };
 }
 
+const HUMAN_REASON = "MOTIVO-HUMANO-SECRETO";
+
 const SYSTEM_TEXT =
   "Al comprobar el avance, esta persona no cubría los requisitos mínimos. Revisar sus evidencias de avance.";
 
@@ -102,7 +104,7 @@ const baseRequest: InvestitureRequest = {
       user_name: "Sara Lima",
       status: "REJECTED_BY_PERSON",
       can_authorize: false,
-      rejection_reason: null,
+      rejection_reason: HUMAN_REASON,
       resolved_by_name: "Pastor Gómez",
     }),
   ],
@@ -231,6 +233,8 @@ describe("RequestDetailClientPage", () => {
     const personRow = rowOf("Sara Lima");
     expect(within(personRow).getByText(/Pastor Gómez/)).toBeInTheDocument();
     expect(within(personRow).queryByText(/motivo/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(HUMAN_REASON)).not.toBeInTheDocument();
+    expect(document.body.textContent).not.toContain(HUMAN_REASON);
 
     const investedRow = rowOf("Marta Ruiz");
     expect(within(investedRow).getByText(/Pastor Gómez/)).toBeInTheDocument();
