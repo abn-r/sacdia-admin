@@ -101,12 +101,9 @@ function buildCreateFormData(t: ResourcesTranslator, formData: FormData): FormDa
     const content = readString(formData, "content");
     if (!content) throw new Error(t("validation.content_required"));
     out.set("content", content);
-  } else {
-    const file = formData.get("file");
-    if (file instanceof File && file.size > 0) {
-      out.set("file", file);
-    }
   }
+  // File resources (document/audio/image) never reach this action: the client
+  // uploads them straight to the backend so files skip Vercel functions.
 
   return out;
 }

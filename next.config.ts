@@ -131,12 +131,12 @@ const nextConfig: NextConfig = {
     config.resolve.alias["lucide-react"] = hugeiconsCompatAbsolute;
     return config;
   },
-  // Bumping default 1MB so Server Actions still work for non-file resource
-  // forms. File resources are uploaded through the backend API as multipart
-  // POST /resources so the browser does not PUT directly to R2.
+  // No Server Action receives files: resource uploads go from the browser
+  // straight to the backend (multipart POST /resources). 2mb covers the
+  // largest real payloads (long text resources, clubs bulk import rows).
   experimental: {
     serverActions: {
-      bodySizeLimit: "25mb",
+      bodySizeLimit: "2mb",
     },
   },
   async headers() {
