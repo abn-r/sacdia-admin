@@ -9,27 +9,15 @@ interface PdfEvidenceViewerProps {
   zoom: number;
 }
 
-async function fetchPdfBlob(fileUrl: string, fileName: string): Promise<Blob> {
-  const response = await fetch("/api/annual-folders/evidence/pdf", {
-    method: "POST",
-    credentials: "include",
+async function fetchPdfBlob(fileUrl: string): Promise<Blob> {
+  // Fetch the presigned R2 URL directly so the PDF never passes through a
+  // Vercel function. Requires a CORS rule on the bucket for the admin origin.
+  const response = await fetch(fileUrl, {
+    credentials: "same-origin",
     cache: "no-store",
-    headers: {
-      Accept: "application/pdf",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      url: fileUrl,
-      name: fileName,
-    }),
   });
 
   if (!response.ok) {
-    const contentType = response.headers.get("content-type") ?? "";
-    if (contentType.includes("application/json")) {
-      const payload = (await response.json()) as { error?: string };
-      throw new Error(payload.error ?? "No se pudo cargar el PDF");
-    }
     throw new Error(`No se pudo cargar el PDF (${response.status})`);
   }
 
@@ -64,7 +52,7 @@ export function PdfEvidenceViewer({
       setBlobUrl(null);
 
       try {
-        const blob = await fetchPdfBlob(fileUrl, fileName);
+        const blob = await fetchPdfBlob(fileUrl);
         objectUrl = URL.createObjectURL(blob);
         if (!cancelled) {
           setBlobUrl(objectUrl);
@@ -90,7 +78,7 @@ export function PdfEvidenceViewer({
         URL.revokeObjectURL(objectUrl);
       }
     };
-  }, [fileName, fileUrl]);
+  }, [fileUrl]);
 
   const viewerHeight = useMemo(
     () => `${Math.round(72 * zoom)}vh`,

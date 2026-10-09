@@ -24,8 +24,11 @@ export function PdfInlineViewer({ src, title, className }: PdfInlineViewerProps)
       setBlobUrl(null);
 
       try {
+        // Sources are presigned R2 URLs fetched straight from the browser.
+        // R2 CORS does not send Access-Control-Allow-Credentials, so
+        // credentials must stay same-origin or the request is blocked.
         const response = await fetch(src, {
-          credentials: "include",
+          credentials: "same-origin",
           cache: "no-store",
         });
 

@@ -105,18 +105,65 @@ function isPdfFile(fileType: string, fileUrl: string, fileName?: string): boolea
   return /\.pdf(?:$|[?#\s])/i.test(filePath);
 }
 
-function buildPdfViewerUrl(
-  type: EvidenceType,
-  evidenceId: number,
-  fileId: number,
-): string {
-  const params = new URLSearchParams({
-    type,
-    id: String(evidenceId),
-    fileId: String(fileId),
-  });
+interface FreshEvidencePdfViewerProps {
+  evidenceType: EvidenceType;
+  evidenceId: number;
+  file: EvidenceFile;
+  title: string;
+}
 
-  return `/api/evidence-review/pdf?${params.toString()}`;
+/**
+ * Presigned evidence URLs expire after 5 minutes, so re-read the evidence
+ * detail (browser → backend, no Vercel function) right before loading the
+ * PDF and fetch the fresh R2 URL directly. Falls back to the URL already in
+ * hand if the refresh fails.
+ */
+function FreshEvidencePdfViewer({
+  evidenceType,
+  evidenceId,
+  file,
+  title,
+}: FreshEvidencePdfViewerProps) {
+  const [resolved, setResolved] = useState<{ fileId: number; url: string } | null>(
+    null,
+  );
+  const fileId = file.evidence_file_id;
+  const fallbackUrl = file.file_url;
+  // Ignore a URL resolved for a previously selected file.
+  const src = resolved?.fileId === fileId ? resolved.url : null;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    getEvidenceDetail(evidenceType, evidenceId)
+      .then(
+        (detail) =>
+          detail.files.find((item) => item.evidence_file_id === fileId)
+            ?.file_url ?? fallbackUrl,
+      )
+      .catch(() => fallbackUrl)
+      .then((url) => {
+        if (!cancelled) setResolved({ fileId, url });
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [evidenceType, evidenceId, fileId, fallbackUrl]);
+
+  if (!src) {
+    return (
+      <div
+        className="flex h-[70vh] w-full items-center justify-center bg-muted/30"
+        aria-busy="true"
+        aria-label="Cargando PDF"
+      >
+        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  return <PdfInlineViewer title={title} src={src} className="h-[70vh] w-full" />;
 }
 
 // ─── File card ────────────────────────────────────────────────────────────────
@@ -230,10 +277,6 @@ function EvidenceFileViewerDialog({
       ? "Visor PDF"
       : "Archivo adjunto";
   const fileName = file?.file_name || "Archivo adjunto";
-  const pdfViewerUrl =
-    file && isPdf
-      ? buildPdfViewerUrl(evidenceType, evidenceId, file.evidence_file_id)
-      : null;
 
   function setZoom(nextZoom: number) {
     onZoomChange(Math.min(Math.max(nextZoom, 0.5), 3));
@@ -377,7 +420,7 @@ function EvidenceFileViewerDialog({
           </div>
         )}
 
-        {file && !isImage && isPdf && pdfViewerUrl && (
+        {file && !isImage && isPdf && (
           <div className="flex max-h-[calc(92vh-7rem)] flex-col">
             <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-2">
               <p className="truncate text-sm font-medium">{fileName}</p>
@@ -390,10 +433,11 @@ function EvidenceFileViewerDialog({
                 Descargar
               </a>
             </div>
-            <PdfInlineViewer
+            <FreshEvidencePdfViewer
+              evidenceType={evidenceType}
+              evidenceId={evidenceId}
+              file={file}
               title={`Visor PDF: ${fileName}`}
-              src={pdfViewerUrl}
-              className="h-[70vh] w-full"
             />
           </div>
         )}

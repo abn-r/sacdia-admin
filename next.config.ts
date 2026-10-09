@@ -101,7 +101,7 @@ const cspValue = [
   `style-src 'self' 'unsafe-inline'`,
   `img-src 'self' data: blob: ${googleMapsImgSrc} https://lh3.googleusercontent.com https://avatars.githubusercontent.com https://pub-c8aa231ae66c46ff96fc5e811994d9d2.r2.dev https://pub-c0e79f5fa4634581867fab5b0fed605c.r2.dev https://5da196c051c48c7a4ebeea275a2b23d1.r2.cloudflarestorage.com`,
   `font-src 'self' data: https://fonts.gstatic.com`,
-  `connect-src 'self' ${backendOrigin} ${googleMapsConnectSrc} ${posthogOrigins} https://*.r2.cloudflarestorage.com https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.us.sentry.io`,
+  `connect-src 'self' ${backendOrigin} ${googleMapsConnectSrc} ${posthogOrigins} https://*.r2.cloudflarestorage.com https://pub-c8aa231ae66c46ff96fc5e811994d9d2.r2.dev https://pub-c0e79f5fa4634581867fab5b0fed605c.r2.dev https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.us.sentry.io`,
   `worker-src 'self' blob:`,
   `object-src 'self' blob:`,
   `frame-src 'self' blob:`,

@@ -504,9 +504,15 @@ describe("EvidenceDetailDialog", () => {
     ).toBeInTheDocument();
 
     await waitFor(() => {
+      // PDF is fetched straight from the (fresh) presigned storage URL, never
+      // through a Vercel function proxy.
       expect(fetchMock).toHaveBeenCalledWith(
-        "/api/evidence-review/pdf?type=class&id=42&fileId=2",
-        expect.objectContaining({ credentials: "include" }),
+        "https://example.com/doc.pdf",
+        expect.objectContaining({ credentials: "same-origin" }),
+      );
+      expect(fetchMock).not.toHaveBeenCalledWith(
+        expect.stringContaining("/api/evidence-review/pdf"),
+        expect.anything(),
       );
       expect(screen.getByTestId("pdf-inline-viewer")).toBeInTheDocument();
     });
