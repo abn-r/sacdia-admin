@@ -9,7 +9,11 @@ export type SidebarPermissionChecker = {
   canAll: (permissions: string[]) => boolean;
   hasAnyRole: (roles: string[]) => boolean;
   isSuperAdmin: boolean;
+  /** Pastor-only user: only the authorization list is shown (decision 2026-10-08). */
+  pastorOnly?: boolean;
 };
+
+const PASTOR_SIDEBAR_ITEM_ID = "investiture-requests";
 
 function isItemAllowed(
   item: { id: string; access?: NavAccess },
@@ -17,6 +21,10 @@ function isItemAllowed(
 ): boolean {
   if (checker.isSuperAdmin) {
     return true;
+  }
+
+  if (checker.pastorOnly && item.id !== PASTOR_SIDEBAR_ITEM_ID) {
+    return false;
   }
 
   const access = getNavItemAccess(item);
@@ -39,8 +47,10 @@ function isItemAllowed(
       : checker.canAny(permissions));
 
   // Same alias expansion as the backend GlobalRolesGuard (admin ⇒ assistant-admin, …).
+  // `exactRoles` (service-level literal checks) skips the alias expansion.
   const rolesOk =
-    roles.length === 0 || checker.hasAnyRole(expandRequiredRoles(roles));
+    roles.length === 0 ||
+    checker.hasAnyRole(access.exactRoles ? roles : expandRequiredRoles(roles));
 
   return permissionsOk && rolesOk;
 }

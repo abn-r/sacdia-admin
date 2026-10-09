@@ -180,6 +180,9 @@ export interface IntlMessages {
       admin_campamentos_config_local: string;
       admin_campamentos_config_union: string;
       admin_system_jobs_history: string;
+      investiture_requests: string;
+      investiture_settings: string;
+      investiture_pastors: string;
     };
     breadcrumbs: {
       dashboard: string;
@@ -8808,6 +8811,66 @@ export interface IntlMessages {
       proofError: string;
       proofNotAvailable: string;
       openProof: string;
+    };
+  };
+  investiture_requests: {
+    errors: {
+      forbidden: string;
+      generic: string;
+      duration_min_not_met: string;
+      duration_expired: string;
+      class_threshold_edit_closed: string;
+      class_threshold_field_not_found: string;
+      class_threshold_year_not_found: string;
+      class_threshold_percent_invalid: string;
+      window_edit_closed: string;
+      window_field_not_found: string;
+      window_year_not_found: string;
+      window_date_invalid: string;
+      window_outside_year: string;
+      window_start_after_end: string;
+      pastor_quota_invalid: string;
+      pastor_quota_below_assignments: string;
+      pastor_quota_full: string;
+      pastor_already_assigned: string;
+      pastor_role_required: string;
+      pastor_user_not_found: string;
+      pastor_district_not_found: string;
+      pastor_club_not_found: string;
+      pastor_church_not_found: string;
+      pastor_not_assigned: string;
+      request_forbidden: string;
+      time_zone_invalid: string;
+      section_not_found: string;
+      outside_section: string;
+      window_closed: string;
+      date_outside_window: string;
+      date_outside_year: string;
+      date_invalid: string;
+      year_closed: string;
+      not_eligible: string;
+      class_not_eligible: string;
+      already_invested: string;
+      legacy_pipeline_active: string;
+      active_exists: string;
+      not_operational: string;
+      not_pending: string;
+      progress_locked: string;
+      not_found: string;
+      empty: string;
+      stale: string;
+      already_resolved: string;
+      reason_required: string;
+      conflicting_decision: string;
+      text_too_long: string;
+    };
+    status: {
+      pending: string;
+      invested: string;
+      rejected_by_person: string;
+      rejected_by_system: string;
+      removed: string;
+      closed_year: string;
     };
   };
 }

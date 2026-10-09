@@ -175,6 +175,34 @@ export function extractRoles(user: AuthUser | null | undefined): string[] {
   return extractLegacyRoles(resolved);
 }
 
+/** Role of the district pastor (global, no club). */
+export const PASTOR_ROLE = "pastor" as const;
+
+/**
+ * Where a pastor-only user lands and the only dashboard subtree they can open
+ * (decision 2026-10-08: the pastor sees just the authorization screen for now).
+ */
+export const PASTOR_LANDING_PATH = "/dashboard/investiture-requests" as const;
+
+/**
+ * True when the user's admin roles are exactly `{pastor}`. Non-admin roles
+ * (club assignments such as `director`) do not count; any other admin role
+ * (including super-admin) lifts the restriction.
+ */
+export function isPastorOnlyRoles(roles: Iterable<string>): boolean {
+  const adminRoles = new Set<string>();
+  for (const role of roles) {
+    if ((ALLOWED_ADMIN_ROLES as readonly string[]).includes(role)) {
+      adminRoles.add(role);
+    }
+  }
+  return adminRoles.size === 1 && adminRoles.has(PASTOR_ROLE);
+}
+
+export function isPastorOnlyUser(user: AuthUser | null | undefined): boolean {
+  return isPastorOnlyRoles(extractRoles(user));
+}
+
 export function hasAdminRole(user: AuthUser | null | undefined): boolean {
   const roleSet = new Set(extractRoles(user));
   return ALLOWED_ADMIN_ROLES.some((role) => roleSet.has(role));

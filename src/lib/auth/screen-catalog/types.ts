@@ -47,7 +47,7 @@ export type ScreenDefinition = {
   titleKey?: string;
   surfaces: ScreenSurface[];
   /** Enter the screen / see it in the sidebar. Verbs never imply this. */
-  viewAny: NavAccess;
+  viewAny: CapabilityGate;
   capabilities: ScreenCapability[];
 };
 

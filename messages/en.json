@@ -150,7 +150,10 @@
       "admin_local_field_delivery": "Materials delivery",
       "admin_campamentos_config_local": "Local field",
       "admin_campamentos_config_union": "Union",
-      "admin_system_jobs_history": "Job history"
+      "admin_system_jobs_history": "Job history",
+      "investiture_requests": "Investiture authorizations",
+      "investiture_settings": "Investiture window and percentage",
+      "investiture_pastors": "Pastors by district"
     },
     "breadcrumbs": {
       "dashboard": "Dashboard",
@@ -8752,6 +8755,66 @@
       "proofError": "No se pudo cargar el comprobante. El archivo puede no estar confirmado aún.",
       "proofNotAvailable": "Comprobante no disponible",
       "openProof": "Abrir"
+    }
+  },
+  "investiture_requests": {
+    "errors": {
+      "forbidden": "You do not have permission to perform this action.",
+      "generic": "The operation could not be completed. Please try again.",
+      "duration_min_not_met": "The minimum class duration has not been met yet",
+      "duration_expired": "The class duration has expired for this enrollment",
+      "class_threshold_edit_closed": "The class percentage can no longer be changed for this Field and year",
+      "class_threshold_field_not_found": "Field not found",
+      "class_threshold_year_not_found": "Ecclesiastical year not found",
+      "class_threshold_percent_invalid": "The percentage must be an integer between 0 and 100",
+      "window_edit_closed": "The investiture window can no longer be changed for this Field and year",
+      "window_field_not_found": "Field not found",
+      "window_year_not_found": "Ecclesiastical year not found",
+      "window_date_invalid": "The window date is not a valid day",
+      "window_outside_year": "The window must fall within the ecclesiastical year",
+      "window_start_after_end": "The window start cannot be later than its end",
+      "pastor_quota_invalid": "The number of slots must be an integer greater than or equal to 0",
+      "pastor_quota_below_assignments": "The number of slots cannot be lower than the pastors already assigned in a district",
+      "pastor_quota_full": "That district already has all its pastor slots filled",
+      "pastor_already_assigned": "That pastor is already assigned to this district",
+      "pastor_role_required": "Only a user with the pastor role can be assigned",
+      "pastor_user_not_found": "Pastor not found",
+      "pastor_district_not_found": "District not found",
+      "pastor_club_not_found": "Club not found",
+      "pastor_church_not_found": "The club's church is not available",
+      "pastor_not_assigned": "That pastor is not assigned to this district",
+      "request_forbidden": "You do not have permission for this investiture request",
+      "time_zone_invalid": "The request time zone is not valid",
+      "section_not_found": "Section not found",
+      "outside_section": "The person does not belong to this section",
+      "window_closed": "The Field window does not allow submitting or adding people",
+      "date_outside_window": "The investiture date falls outside the Field window",
+      "date_outside_year": "The investiture date falls outside the ecclesiastical year",
+      "date_invalid": "The investiture date is not valid",
+      "year_closed": "The ecclesiastical year does not allow changes to the request",
+      "not_eligible": "The person has not yet met the class progress",
+      "class_not_eligible": "This institutional class does not accept investiture requests",
+      "already_invested": "That person is already invested in this class",
+      "legacy_pipeline_active": "This enrollment is still in the previous investiture validation",
+      "active_exists": "That person already has an incompatible active request",
+      "not_operational": "A historical certificate is not part of this request",
+      "not_pending": "That person is no longer pending in the request",
+      "progress_locked": "Progress and evidence for this class are locked while the request is pending",
+      "not_found": "Investiture request not found",
+      "empty": "Choose at least one person",
+      "stale": "This request is no longer the active one for the section. Reload the list",
+      "already_resolved": "This person has already been resolved. Reload the request",
+      "reason_required": "A rejection needs a reason",
+      "conflicting_decision": "Choose only one decision per person",
+      "text_too_long": "The text exceeds the allowed limit"
+    },
+    "status": {
+      "pending": "Awaiting authorization",
+      "invested": "Invested",
+      "rejected_by_person": "Rejected",
+      "rejected_by_system": "Rejected by the system",
+      "removed": "Removed from the request",
+      "closed_year": "Year closed unresolved"
     }
   }
 }

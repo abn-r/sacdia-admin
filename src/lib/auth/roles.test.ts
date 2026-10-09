@@ -241,3 +241,62 @@ describe("extractRoles", () => {
     expect(extracted).toContain("coordinator");
   });
 });
+
+// ---------------------------------------------------------------------------
+// Suite C — pastor-only users (2026-10-08 decision)
+// ---------------------------------------------------------------------------
+describe("isPastorOnlyUser", () => {
+  let roles: typeof import("./roles");
+
+  beforeAll(async () => {
+    vi.stubEnv("NEXT_PUBLIC_RBAC_LEGACY_FALLBACK", "false");
+    vi.resetModules();
+    roles = await import("./roles");
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("is true when the only admin role is pastor", () => {
+    expect(roles.isPastorOnlyUser(buildUserWithAuthorizationGrants([{ role_name: "pastor" }]))).toBe(true);
+  });
+
+  it("ignores non-admin roles such as club assignments", () => {
+    const user: AuthUser = {
+      id: "u3",
+      email: "u@test.com",
+      authorization: {
+        grants: {
+          global_roles: [{ role_name: "pastor" }],
+          club_assignments: [{ role_name: "director" }],
+        },
+      },
+    };
+    expect(roles.isPastorOnlyUser(user)).toBe(true);
+  });
+
+  it("is false when pastor is combined with any other admin role", () => {
+    expect(
+      roles.isPastorOnlyUser(
+        buildUserWithAuthorizationGrants([{ role_name: "pastor" }, { role_name: "director-lf" }]),
+      ),
+    ).toBe(false);
+    expect(
+      roles.isPastorOnlyUser(
+        buildUserWithAuthorizationGrants([{ role_name: "pastor" }, { role_name: "super-admin" }]),
+      ),
+    ).toBe(false);
+  });
+
+  it("is false without pastor and for anonymous users", () => {
+    expect(roles.isPastorOnlyUser(buildUserWithAuthorizationGrants([{ role_name: "director-lf" }]))).toBe(false);
+    expect(roles.isPastorOnlyUser(buildUserWithAuthorizationGrants([]))).toBe(false);
+    expect(roles.isPastorOnlyUser(null)).toBe(false);
+  });
+
+  it("accepts a plain role list", () => {
+    expect(roles.isPastorOnlyRoles(["pastor"])).toBe(true);
+    expect(roles.isPastorOnlyRoles(new Set(["pastor", "admin"]))).toBe(false);
+  });
+});

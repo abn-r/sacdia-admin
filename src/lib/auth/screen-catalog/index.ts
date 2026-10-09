@@ -19,7 +19,7 @@ import { operationsScreens } from "./screens/operations";
 import { usersScreen } from "./screens/users";
 import type {
   AccessSubject,
-  NavAccess,
+  CapabilityGate,
   ScreenCapability,
   ScreenDefinition,
 } from "./types";
@@ -102,7 +102,7 @@ export function getCapability(
 }
 
 /** Sidebar / page-entry gate for a nav item id. `undefined` = unmapped (fail closed). */
-export function getScreenViewAny(screenId: string): NavAccess | undefined {
+export function getScreenViewAny(screenId: string): CapabilityGate | undefined {
   return getScreen(screenId)?.viewAny;
 }
 
@@ -130,7 +130,7 @@ export function bundleKeys(screen: ScreenDefinition): string[] {
 
 type PathEntry = {
   href: string;
-  access: NavAccess;
+  access: CapabilityGate;
   screenId: string;
   capabilityId?: string;
 };
@@ -195,7 +195,7 @@ export function resolvePathEntry(pathname: string): PathEntry | undefined {
   ).sort((left, right) => right.href.length - left.href.length)[0];
 }
 
-export function resolveAccessForPath(pathname: string): NavAccess | undefined {
+export function resolveAccessForPath(pathname: string): CapabilityGate | undefined {
   return resolvePathEntry(pathname)?.access;
 }
 

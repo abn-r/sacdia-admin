@@ -1,17 +1,18 @@
+import { isPastorOnlyUser, PASTOR_LANDING_PATH } from "@/lib/auth/roles";
 import {
   evaluateAccess,
   resolveAccessForPath,
   subjectFromUser,
+  type CapabilityGate,
 } from "@/lib/auth/screen-catalog";
 import type { AuthUser } from "@/lib/auth/types";
-import type { NavAccess } from "@/navigation/sidebar/nav-access";
 
 /**
  * Page gate for a dashboard URL, read from the screen catalog:
  * exact route capability → exact screen path → longest prefix. Unmapped URLs
  * return `undefined` and callers fail closed.
  */
-export function resolveNavAccessForPath(pathname: string): NavAccess | undefined {
+export function resolveNavAccessForPath(pathname: string): CapabilityGate | undefined {
   return resolveAccessForPath(pathname);
 }
 
@@ -27,6 +28,16 @@ export function canAccessDashboardPath(
   const path = (pathname.split("?")[0] ?? pathname).trim();
   if (!path) {
     return false;
+  }
+
+  // A pastor-only user opens just the authorization screen. `/dashboard` stays
+  // reachable so the home page can redirect them there.
+  if (isPastorOnlyUser(user)) {
+    return (
+      path === "/dashboard" ||
+      path === PASTOR_LANDING_PATH ||
+      path.startsWith(`${PASTOR_LANDING_PATH}/`)
+    );
   }
 
   const access = resolveNavAccessForPath(path);

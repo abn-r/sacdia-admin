@@ -7,6 +7,9 @@ import {
   INVESTITURE_CONFIG_DELETE,
   INVESTITURE_CONFIG_READ,
   INVESTITURE_CONFIG_UPDATE,
+  INVESTITURE_AUTHORIZER_ROLES,
+  INVESTITURE_FIELD_CONFIG_ROLES,
+  INVESTITURE_PASTOR_ASSIGN_ROLES,
   INVESTITURE_MARK_INVESTED,
   INVESTITURE_READ,
   INVESTITURE_VALIDATE,
@@ -15,7 +18,7 @@ import {
 } from "@/lib/auth/permissions";
 import { SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
 
-import type { NavAccess, ScreenDefinition } from "../types";
+import type { CapabilityGate, NavAccess, ScreenDefinition } from "../types";
 import { roleOnlyAccess } from "./_helpers";
 
 /**
@@ -85,6 +88,31 @@ const CERTIFICATE_BULK_ROLES = [
   "director-lf",
   "assistant-lf",
 ] as const;
+
+/**
+ * Investiture-by-authorization screens (`investiture-requests` controller and
+ * `classes/*investiture*` controllers). Roles only: the endpoints are
+ * `@SkipPermissions` or `@GlobalRoles`.
+ *
+ * - requests: the service compares `director-lf` / `assistant-lf` literally
+ *   (`FIELD_AUTHORIZER_ROLES`) and the pastor comes from the district
+ *   assignment, so the lf/union/dia alias table must not widen the gate.
+ * - pastors: `DistrictInvestiturePastorService.access()` resolves only Campo
+ *   and unión roles; `director-dia` would get a 403.
+ * - settings: `@GlobalRoles` with alias expansion; unión and división read,
+ *   the API decides who edits (`can_edit`).
+ */
+const INVESTITURE_REQUESTS_GATE: CapabilityGate = {
+  permissions: [],
+  roles: [...INVESTITURE_AUTHORIZER_ROLES],
+  exactRoles: true,
+};
+
+const INVESTITURE_PASTORS_GATE: CapabilityGate = {
+  permissions: [],
+  roles: [...INVESTITURE_PASTOR_ASSIGN_ROLES],
+  exactRoles: true,
+};
 
 function investitureQueueAccess(): NavAccess {
   return {
@@ -269,6 +297,25 @@ export const investitureScreens: ScreenDefinition[] = [
         gate: adminCoordValidateGate(),
       },
     ],
+  },
+  {
+    /** Authorizer list; `/dashboard/investiture-requests/[requestId]` is covered by prefix. */
+    id: "investiture-requests",
+    surfaces: ["admin"],
+    viewAny: INVESTITURE_REQUESTS_GATE,
+    capabilities: [],
+  },
+  {
+    id: "investiture-settings",
+    surfaces: ["admin"],
+    viewAny: roleOnlyAccess([...INVESTITURE_FIELD_CONFIG_ROLES]),
+    capabilities: [],
+  },
+  {
+    id: "investiture-pastors",
+    surfaces: ["admin"],
+    viewAny: INVESTITURE_PASTORS_GATE,
+    capabilities: [],
   },
   {
     id: "investiture-config",

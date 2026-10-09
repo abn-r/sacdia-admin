@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import type { AuthUser } from "@/lib/auth/types";
 
-import { canCapability, canViewScreen } from "./index";
+import { canAccessDashboardPath } from "@/lib/auth/require-page-access";
+
+import { canCapability, canViewScreen, SCREEN_CATALOG } from "./index";
 
 function buildUser(roles: string[], permissions: string[]): AuthUser {
   return {
@@ -325,5 +327,84 @@ describe("institutional-certificate-requests", () => {
         "approve",
       ),
     ).toBe(false);
+  });
+});
+
+describe("investiture-requests (authorization by the pastor or the Field)", () => {
+  it.each(["pastor", "director-lf", "assistant-lf"])("%s can view the list", (role) => {
+    expect(canViewScreen(buildUser([role], []), "investiture-requests")).toBe(true);
+  });
+
+  it.each(["director", "admin", "assistant-admin", "coordinator"])(
+    "%s cannot view the list",
+    (role) => {
+      expect(canViewScreen(buildUser([role], []), "investiture-requests")).toBe(false);
+    },
+  );
+
+  // The service compares roles literally (FIELD_AUTHORIZER_ROLES), so the gate
+  // is exactRoles: the lf/union/dia alias table must NOT widen it.
+  it.each(["director-union", "assistant-union", "director-dia", "assistant-dia"])(
+    "%s cannot view the list (no alias widening)",
+    (role) => {
+      expect(canViewScreen(buildUser([role], []), "investiture-requests")).toBe(false);
+    },
+  );
+
+  it("super-admin can view the list (evaluator bypass; the API answers 403 and the page shows the banner)", () => {
+    expect(canViewScreen(buildUser(["super-admin"], []), "investiture-requests")).toBe(true);
+  });
+
+  it("covers the detail route by prefix of the list path", () => {
+    const pastor = buildUser(["pastor"], []);
+    const admin = buildUser(["admin"], []);
+    expect(canAccessDashboardPath(pastor, "/dashboard/investiture-requests/9b0e")).toBe(true);
+    expect(canAccessDashboardPath(admin, "/dashboard/investiture-requests/9b0e")).toBe(false);
+  });
+});
+
+describe("investiture-settings (field window and percentage)", () => {
+  it.each([
+    "director-lf",
+    "assistant-lf",
+    "admin",
+    "assistant-admin",
+    "director-union",
+    "assistant-union",
+    "director-dia",
+    "assistant-dia",
+  ])("%s can view the settings", (role) => {
+    expect(canViewScreen(buildUser([role], []), "investiture-settings")).toBe(true);
+  });
+
+  it.each(["pastor", "director", "coordinator"])("%s cannot view the settings", (role) => {
+    expect(canViewScreen(buildUser([role], []), "investiture-settings")).toBe(false);
+  });
+});
+
+describe("investiture-pastors (district pastor assignment)", () => {
+  it.each(["director-lf", "assistant-lf", "director-union", "assistant-union"])(
+    "%s can view the pastors screen",
+    (role) => {
+      expect(canViewScreen(buildUser([role], []), "investiture-pastors")).toBe(true);
+    },
+  );
+
+  // The service only resolves lf and union assigners; dia gets a 403.
+  it.each(["pastor", "admin", "assistant-admin", "director-dia", "assistant-dia"])(
+    "%s cannot view the pastors screen",
+    (role) => {
+      expect(canViewScreen(buildUser([role], []), "investiture-pastors")).toBe(false);
+    },
+  );
+});
+
+describe("pastor in the rest of the catalog", () => {
+  it("no screen other than investiture-requests lists pastor in its viewAny roles", () => {
+    const offenders = SCREEN_CATALOG.filter(
+      (screen) =>
+        screen.id !== "investiture-requests" && (screen.viewAny.roles ?? []).includes("pastor"),
+    ).map((screen) => screen.id);
+    expect(offenders).toEqual([]);
   });
 });

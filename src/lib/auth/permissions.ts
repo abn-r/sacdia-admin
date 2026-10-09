@@ -179,6 +179,28 @@ export const INVESTITURE_CONFIG_CREATE = "investiture_config:create";
 export const INVESTITURE_CONFIG_UPDATE = "investiture_config:update";
 export const INVESTITURE_CONFIG_DELETE = "investiture_config:delete";
 
+// --- Investidura por autorización (roles, no permisos: SkipPermissions en la API) ---
+/** Quienes pueden autorizar solicitudes. El servicio compara estos nombres literalmente. */
+export const INVESTITURE_AUTHORIZER_ROLES = ["pastor", "director-lf", "assistant-lf"] as const;
+/** Ventana y porcentaje del Campo: `@GlobalRoles` con alias (unión y división consultan). */
+export const INVESTITURE_FIELD_CONFIG_ROLES = [
+  "director-lf",
+  "assistant-lf",
+  "admin",
+  "assistant-admin",
+  "director-union",
+  "assistant-union",
+  "director-dia",
+  "assistant-dia",
+] as const;
+/** Asignación de pastores por distrito. El servicio solo resuelve Campo y unión. */
+export const INVESTITURE_PASTOR_ASSIGN_ROLES = [
+  "director-lf",
+  "assistant-lf",
+  "director-union",
+  "assistant-union",
+] as const;
+
 // --- Finanzas ---
 export const FINANCES_READ = "finances:read";
 export const FINANCES_CREATE = "finances:create";

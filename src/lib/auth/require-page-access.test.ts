@@ -249,3 +249,32 @@ describe("canAccessDashboardPath", () => {
     ).toBe(true);
   });
 });
+
+describe("canAccessDashboardPath for pastor-only users", () => {
+  // Pastor has several read permissions in the seed; none of them may open
+  // anything besides the authorization screen (decision 2026-10-08).
+  const pastor = buildUser(
+    ["pastor"],
+    ["dashboard:read", "clubs:read", "reports:read", "catalogs:read", "classes:read"],
+  );
+
+  it("opens the authorization list and its detail", () => {
+    expect(canAccessDashboardPath(pastor, "/dashboard/investiture-requests")).toBe(true);
+    expect(canAccessDashboardPath(pastor, "/dashboard/investiture-requests/9b0e")).toBe(true);
+  });
+
+  it("keeps /dashboard reachable so the home page can redirect", () => {
+    expect(canAccessDashboardPath(pastor, "/dashboard")).toBe(true);
+  });
+
+  it("blocks every other dashboard page even with the permission", () => {
+    expect(canAccessDashboardPath(pastor, "/dashboard/clubs")).toBe(false);
+    expect(canAccessDashboardPath(pastor, "/dashboard/reports")).toBe(false);
+    expect(canAccessDashboardPath(pastor, "/dashboard/investiture-settings")).toBe(false);
+  });
+
+  it("does not restrict a pastor who also holds another admin role", () => {
+    const both = buildUser(["pastor", "director-lf"], ["dashboard:read", "clubs:read"]);
+    expect(canAccessDashboardPath(both, "/dashboard/clubs")).toBe(true);
+  });
+});

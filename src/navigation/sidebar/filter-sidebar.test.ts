@@ -162,6 +162,60 @@ describe("filterSidebarItems", () => {
   });
 });
 
+describe("investiture authorization items", () => {
+  function titlesFor(roles: string[]) {
+    // Raw role names, as the evaluator subject holds them (no alias expansion).
+    return collectTitles(
+      filterSidebarItems(sidebarItems, {
+        isSuperAdmin: false,
+        canAny: () => false,
+        canAll: () => false,
+        hasAnyRole: (required) => required.some((role) => roles.includes(role)),
+      }),
+    );
+  }
+
+  it("shows the authorizer list to pastor and Campo directors, not to unión (exact roles)", () => {
+    expect(titlesFor(["pastor"])).toContain("Autorizaciones");
+    expect(titlesFor(["director-lf"])).toContain("Autorizaciones");
+    expect(titlesFor(["director-union"])).not.toContain("Autorizaciones");
+    expect(titlesFor(["admin"])).not.toContain("Autorizaciones");
+  });
+
+  it("shows settings to the lf/union/dia family and pastors screen to lf/union", () => {
+    expect(titlesFor(["director-dia"])).toContain("Ventana y porcentaje");
+    expect(titlesFor(["director-dia"])).not.toContain("Pastores por distrito");
+    expect(titlesFor(["assistant-union"])).toContain("Pastores por distrito");
+    expect(titlesFor(["pastor"])).not.toContain("Ventana y porcentaje");
+  });
+});
+
+describe("pastor-only sidebar", () => {
+  const everythingAllowed = {
+    isSuperAdmin: false,
+    canAny: () => true,
+    canAll: () => true,
+    hasAnyRole: () => true,
+  };
+
+  it("shows only the authorization list, even if every other gate would pass", () => {
+    const titles = collectTitles(
+      filterSidebarItems(sidebarItems, { ...everythingAllowed, pastorOnly: true }),
+    );
+    expect(titles).toContain("Autorizaciones");
+    expect(titles).not.toContain("Inicio");
+    expect(titles).not.toContain("Usuarios");
+    expect(titles).not.toContain("Ventana y porcentaje");
+    expect(titles).not.toContain("Pastores por distrito");
+  });
+
+  it("is unchanged when the flag is off", () => {
+    const titles = collectTitles(filterSidebarItems(sidebarItems, everythingAllowed));
+    expect(titles).toContain("Usuarios");
+    expect(titles).toContain("Autorizaciones");
+  });
+});
+
 function collectTitles(
   groups: ReturnType<typeof filterSidebarItems>,
 ): string[] {

@@ -150,7 +150,10 @@
       "admin_local_field_delivery": "Entrega de materiais",
       "admin_campamentos_config_local": "Campo local",
       "admin_campamentos_config_union": "União",
-      "admin_system_jobs_history": "Histórico de jobs"
+      "admin_system_jobs_history": "Histórico de jobs",
+      "investiture_requests": "Autorizações de investidura",
+      "investiture_settings": "Janela e percentual de investidura",
+      "investiture_pastors": "Pastores por distrito"
     },
     "breadcrumbs": {
       "dashboard": "Painel",
@@ -8618,6 +8621,66 @@
       "proofError": "No se pudo cargar el comprobante. El archivo puede no estar confirmado aún.",
       "proofNotAvailable": "Comprobante no disponible",
       "openProof": "Abrir"
+    }
+  },
+  "investiture_requests": {
+    "errors": {
+      "forbidden": "Você não tem permissão para realizar esta ação.",
+      "generic": "Não foi possível concluir a operação. Tente novamente.",
+      "duration_min_not_met": "A duração mínima da classe ainda não foi cumprida",
+      "duration_expired": "A duração da classe expirou para esta matrícula",
+      "class_threshold_edit_closed": "O percentual da classe não pode mais ser alterado para este Campo e ano",
+      "class_threshold_field_not_found": "Campo não encontrado",
+      "class_threshold_year_not_found": "Ano eclesiástico não encontrado",
+      "class_threshold_percent_invalid": "O percentual deve ser um inteiro entre 0 e 100",
+      "window_edit_closed": "A janela de investidura não pode mais ser alterada para este Campo e ano",
+      "window_field_not_found": "Campo não encontrado",
+      "window_year_not_found": "Ano eclesiástico não encontrado",
+      "window_date_invalid": "A data da janela não é um dia válido",
+      "window_outside_year": "A janela deve ficar dentro do ano eclesiástico",
+      "window_start_after_end": "O início da janela não pode ser posterior ao fim",
+      "pastor_quota_invalid": "A quantidade de vagas deve ser um inteiro maior ou igual a 0",
+      "pastor_quota_below_assignments": "A quantidade de vagas não pode ser menor que os pastores já designados em um distrito",
+      "pastor_quota_full": "Esse distrito já tem todas as vagas de pastor preenchidas",
+      "pastor_already_assigned": "Esse pastor já está designado a este distrito",
+      "pastor_role_required": "Só é possível designar um usuário com a função de pastor",
+      "pastor_user_not_found": "Pastor não encontrado",
+      "pastor_district_not_found": "Distrito não encontrado",
+      "pastor_club_not_found": "Clube não encontrado",
+      "pastor_church_not_found": "A igreja do clube não está disponível",
+      "pastor_not_assigned": "Esse pastor não está designado a este distrito",
+      "request_forbidden": "Você não tem permissão para esta solicitação de investidura",
+      "time_zone_invalid": "O fuso horário da solicitação não é válido",
+      "section_not_found": "Seção não encontrada",
+      "outside_section": "A pessoa não pertence a esta seção",
+      "window_closed": "A janela do Campo não permite apresentar nem adicionar pessoas",
+      "date_outside_window": "A data de investidura fica fora da janela do Campo",
+      "date_outside_year": "A data de investidura fica fora do ano eclesiástico",
+      "date_invalid": "A data de investidura não é válida",
+      "year_closed": "O ano eclesiástico não admite alterações na solicitação",
+      "not_eligible": "A pessoa ainda não cumpre o progresso da classe",
+      "class_not_eligible": "Esta classe institucional não admite solicitações de investidura",
+      "already_invested": "Essa pessoa já está investida nesta classe",
+      "legacy_pipeline_active": "Esta matrícula continua na validação anterior de investidura",
+      "active_exists": "Essa pessoa já tem uma solicitação ativa incompatível",
+      "not_operational": "Um certificado histórico não entra nesta solicitação",
+      "not_pending": "Essa pessoa não está mais pendente na solicitação",
+      "progress_locked": "O progresso e as evidências desta classe ficam bloqueados enquanto a solicitação estiver pendente",
+      "not_found": "Solicitação de investidura não encontrada",
+      "empty": "É preciso escolher pelo menos uma pessoa",
+      "stale": "Esta solicitação não é mais a ativa da seção. É preciso recarregar a lista",
+      "already_resolved": "Esta pessoa já foi resolvida. É preciso recarregar a solicitação",
+      "reason_required": "A rejeição precisa de um motivo",
+      "conflicting_decision": "É preciso escolher uma única decisão por pessoa",
+      "text_too_long": "O texto excede o limite permitido"
+    },
+    "status": {
+      "pending": "Aguardando autorização",
+      "invested": "Investido",
+      "rejected_by_person": "Rejeitado",
+      "rejected_by_system": "Rejeitado pelo sistema",
+      "removed": "Retirado da solicitação",
+      "closed_year": "Ano encerrado sem resolução"
     }
   }
 }

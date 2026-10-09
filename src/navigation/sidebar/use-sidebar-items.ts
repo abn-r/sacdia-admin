@@ -2,13 +2,14 @@
 
 import { useMemo } from "react";
 
+import { isPastorOnlyRoles } from "@/lib/auth/roles";
 import { usePermissions } from "@/lib/auth/use-permissions";
 
 import { filterSidebarItems } from "./filter-sidebar";
 import { sidebarItems, type NavGroup } from "./sidebar-items";
 
 export function useSidebarItems(): NavGroup[] {
-  const { canAny, canAll, hasRole, isSuperAdmin } = usePermissions();
+  const { canAny, canAll, hasRole, isSuperAdmin, roles } = usePermissions();
 
   return useMemo(
     () =>
@@ -17,7 +18,8 @@ export function useSidebarItems(): NavGroup[] {
         canAll,
         hasAnyRole: (roles) => roles.some((role) => hasRole(role)),
         isSuperAdmin,
+        pastorOnly: isPastorOnlyRoles(roles),
       }),
-    [canAll, canAny, hasRole, isSuperAdmin],
+    [canAll, canAny, hasRole, isSuperAdmin, roles],
   );
 }
