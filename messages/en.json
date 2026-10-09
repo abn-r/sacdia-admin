@@ -133,6 +133,8 @@
       "app_club": "Club",
       "app_units": "Units",
       "app_grouped_class": "Grouped class",
+      "app_section_investiture": "Section investitures",
+      "app_investiture_authorizer": "Authorize investitures (app)",
       "app_materials": "Material orders",
       "app_classes": "Classes",
       "geography_divisions": "Divisions",
@@ -7659,6 +7661,10 @@
     "auditTimeline": {
       "emptyTitle": "No audit trail",
       "emptyDescription": "No events have been recorded for this batch yet."
+    },
+    "errors": {
+      "authorization_pending": "This person has a pending investiture request this year. The authorization must be resolved first.",
+      "ended_year_field_forbidden": "Only the Field of the request or the administration can credit this certificate."
     }
   },
   "campamentos": {
@@ -8778,6 +8784,7 @@
       "pastor_quota_full": "That district already has all its pastor slots filled",
       "pastor_already_assigned": "That pastor is already assigned to this district",
       "pastor_role_required": "Only a user with the pastor role can be assigned",
+      "pastor_field_mismatch": "The pastor does not belong to the district's Field.",
       "pastor_user_not_found": "Pastor not found",
       "pastor_district_not_found": "District not found",
       "pastor_club_not_found": "Club not found",
@@ -8788,6 +8795,7 @@
       "section_not_found": "Section not found",
       "outside_section": "The person does not belong to this section",
       "window_closed": "The Field window does not allow submitting or adding people",
+      "window_closed_authorize": "The Field's window is closed. Ask the Field to extend it so you can authorize.",
       "date_outside_window": "The investiture date falls outside the Field window",
       "date_outside_year": "The investiture date falls outside the ecclesiastical year",
       "date_invalid": "The investiture date is not valid",
@@ -8832,6 +8840,8 @@
       "emptyDescription": "When a club board submits an investiture request, it will show up here.",
       "noYearTitle": "There is no active ecclesiastical year",
       "noYearDescription": "Pick an ecclesiastical year to see its requests.",
+      "noDistrictsTitle": "You don't have any districts assigned yet",
+      "noDistrictsDescription": "Ask the Field to assign you one.",
       "noValue": "—"
     },
     "detail": {
@@ -8893,6 +8903,114 @@
       "notApplied": "Not applied",
       "alreadyResolved": "It had already been resolved",
       "unknownPerson": "Unnamed person"
+    }
+  },
+  "investiture_config": {
+    "settings": {
+      "title": "Investiture window and percentage",
+      "description": "Define when the Field receives and authorizes investiture requests and which class percentage is required.",
+      "breadcrumbHome": "Home",
+      "breadcrumbGroup": "Investiture authorization",
+      "yearPlaceholder": "Ecclesiastical year",
+      "localFieldLabel": "Field",
+      "localFieldPlaceholder": "Select a Field",
+      "selectLocalFieldTitle": "Select a Field",
+      "selectLocalFieldDescription": "Pick a Field to view or edit its window and percentage.",
+      "noYearTitle": "There is no ecclesiastical year to configure",
+      "noYearDescription": "Once an ecclesiastical year exists you will be able to set the window and the percentage.",
+      "window": {
+        "title": "Request window",
+        "description": "Period in which the Field allows investiture requests to be submitted and authorized.",
+        "range": "From {start} to {end}, inclusive, in the Field's time zone.",
+        "notOperational": "There is no operational window for this year. Configure it to allow submitting and authorizing.",
+        "defaultNotice": "Not configured yet: the year's default window is in use.",
+        "startLabel": "Start",
+        "endLabel": "End",
+        "save": "Save window",
+        "saving": "Saving…",
+        "readOnly": "Read only: your role or the state of the year does not allow editing the window.",
+        "required": "Enter a valid date.",
+        "startAfterEnd": "The start cannot be later than the end.",
+        "outsideYear": "The date must be within the ecclesiastical year ({start} to {end}).",
+        "saved": "Window saved."
+      },
+      "threshold": {
+        "title": "Minimum class percentage",
+        "description": "Minimum class progress percentage required to include a person in a request.",
+        "label": "Minimum percentage (%)",
+        "help": "Until June 30 the Field edits it; afterwards only super-admin can.",
+        "current": "Current percentage: {percent} %.",
+        "defaultNotice": "Not configured yet: the default value is in use.",
+        "save": "Save percentage",
+        "saving": "Saving…",
+        "readOnly": "Read only: your role or the current date does not allow editing the percentage.",
+        "restricted": "Only the Field and super-admin can see the percentage.",
+        "invalid": "Enter a whole number between 0 and 100.",
+        "saved": "Percentage saved."
+      }
+    },
+    "pastors": {
+      "title": "Pastors by district",
+      "description": "Who authorizes the investitures of each district.",
+      "breadcrumbHome": "Home",
+      "breadcrumbGroup": "Investiture authorization",
+      "localFieldLabel": "Field",
+      "localFieldPlaceholder": "Select a Field",
+      "selectLocalFieldTitle": "Select a Field",
+      "selectLocalFieldDescription": "Pick a Field to view and assign the pastors of its districts.",
+      "noDistrictsTitle": "This Field has no districts",
+      "noDistrictsDescription": "Once districts exist you will be able to assign pastors to them.",
+      "quota": {
+        "title": "Pastor quota per district",
+        "description": "Maximum number of pastors that can authorize in each district.",
+        "label": "Quota",
+        "current": "{slots} pastors per district",
+        "readOnly": "Only super-admin can change the quota.",
+        "save": "Save quota",
+        "saving": "Saving…",
+        "saved": "Quota saved.",
+        "invalid": "Enter a whole number greater than or equal to 0."
+      },
+      "district": {
+        "count": "{count}/{slots} pastors",
+        "empty": "No pastors assigned yet.",
+        "full": "Quota full.",
+        "assign": "Assign pastor"
+      },
+      "pastor": {
+        "canAuthorize": "Authorizes",
+        "roleMissing": "No pastor role",
+        "accountInactive": "Inactive account",
+        "inactiveHelp": "Takes a slot, does not authorize or receive emails",
+        "noName": "No name",
+        "noEmail": "No email",
+        "remove": "Remove",
+        "removeAria": "Remove {name}"
+      },
+      "removeDialog": {
+        "title": "Remove pastor from the district?",
+        "description": "{name} will stop authorizing and receiving emails for {district}. A slot is freed.",
+        "cancel": "Cancel",
+        "confirm": "Remove",
+        "removing": "Removing…",
+        "removed": "Pastor removed."
+      },
+      "assignDialog": {
+        "title": "Assign pastor to {district}",
+        "description": "Search for a registered pastor and assign them to this district.",
+        "hint": "Only pastors from this district's Field appear.",
+        "fieldLabel": "Pastor",
+        "placeholder": "Search pastor",
+        "searchPlaceholder": "Type a name, surname or email",
+        "minChars": "Type at least 3 characters; each word needs at least 2.",
+        "searching": "Searching…",
+        "noResults": "No pastors match.",
+        "searchError": "The search failed. Try again.",
+        "cancel": "Cancel",
+        "assign": "Assign",
+        "assigning": "Assigning…",
+        "assigned": "Pastor assigned."
+      }
     }
   }
 }

@@ -162,6 +162,8 @@ export interface IntlMessages {
       app_club: string;
       app_units: string;
       app_grouped_class: string;
+      app_section_investiture: string;
+      app_investiture_authorizer: string;
       app_materials: string;
       app_classes: string;
       geography_divisions: string;
@@ -7716,6 +7718,10 @@ export interface IntlMessages {
       emptyTitle: string;
       emptyDescription: string;
     };
+    errors: {
+      authorization_pending: string;
+      ended_year_field_forbidden: string;
+    };
   };
   campamentos: {
     pages: {
@@ -8834,6 +8840,7 @@ export interface IntlMessages {
       pastor_quota_full: string;
       pastor_already_assigned: string;
       pastor_role_required: string;
+      pastor_field_mismatch: string;
       pastor_user_not_found: string;
       pastor_district_not_found: string;
       pastor_club_not_found: string;
@@ -8844,6 +8851,7 @@ export interface IntlMessages {
       section_not_found: string;
       outside_section: string;
       window_closed: string;
+      window_closed_authorize: string;
       date_outside_window: string;
       date_outside_year: string;
       date_invalid: string;
@@ -8888,6 +8896,8 @@ export interface IntlMessages {
       emptyDescription: string;
       noYearTitle: string;
       noYearDescription: string;
+      noDistrictsTitle: string;
+      noDistrictsDescription: string;
       noValue: string;
     };
     detail: {
@@ -8949,6 +8959,114 @@ export interface IntlMessages {
       notApplied: string;
       alreadyResolved: string;
       unknownPerson: string;
+    };
+  };
+  investiture_config: {
+    settings: {
+      title: string;
+      description: string;
+      breadcrumbHome: string;
+      breadcrumbGroup: string;
+      yearPlaceholder: string;
+      localFieldLabel: string;
+      localFieldPlaceholder: string;
+      selectLocalFieldTitle: string;
+      selectLocalFieldDescription: string;
+      noYearTitle: string;
+      noYearDescription: string;
+      window: {
+        title: string;
+        description: string;
+        range: string;
+        notOperational: string;
+        defaultNotice: string;
+        startLabel: string;
+        endLabel: string;
+        save: string;
+        saving: string;
+        readOnly: string;
+        required: string;
+        startAfterEnd: string;
+        outsideYear: string;
+        saved: string;
+      };
+      threshold: {
+        title: string;
+        description: string;
+        label: string;
+        help: string;
+        current: string;
+        defaultNotice: string;
+        save: string;
+        saving: string;
+        readOnly: string;
+        restricted: string;
+        invalid: string;
+        saved: string;
+      };
+    };
+    pastors: {
+      title: string;
+      description: string;
+      breadcrumbHome: string;
+      breadcrumbGroup: string;
+      localFieldLabel: string;
+      localFieldPlaceholder: string;
+      selectLocalFieldTitle: string;
+      selectLocalFieldDescription: string;
+      noDistrictsTitle: string;
+      noDistrictsDescription: string;
+      quota: {
+        title: string;
+        description: string;
+        label: string;
+        current: string;
+        readOnly: string;
+        save: string;
+        saving: string;
+        saved: string;
+        invalid: string;
+      };
+      district: {
+        count: string;
+        empty: string;
+        full: string;
+        assign: string;
+      };
+      pastor: {
+        canAuthorize: string;
+        roleMissing: string;
+        accountInactive: string;
+        inactiveHelp: string;
+        noName: string;
+        noEmail: string;
+        remove: string;
+        removeAria: string;
+      };
+      removeDialog: {
+        title: string;
+        description: string;
+        cancel: string;
+        confirm: string;
+        removing: string;
+        removed: string;
+      };
+      assignDialog: {
+        title: string;
+        description: string;
+        hint: string;
+        fieldLabel: string;
+        placeholder: string;
+        searchPlaceholder: string;
+        minChars: string;
+        searching: string;
+        noResults: string;
+        searchError: string;
+        cancel: string;
+        assign: string;
+        assigning: string;
+        assigned: string;
+      };
     };
   };
 }

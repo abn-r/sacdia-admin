@@ -79,4 +79,26 @@ export const appScreens: ScreenDefinition[] = [
     viewAny: { permissions: [CLASSES_READ] },
     capabilities: [],
   },
+  {
+    id: "app-section-investiture",
+    path: "/home/investiture",
+    surfaces: ["app"],
+    // Present/add/remove/change dates — investiture-authorization-requests
+    // controller; the service checks the section board role.
+    viewAny: roleOnlyAccess(["director", "secretary", "secretary-treasurer"]),
+    capabilities: [],
+  },
+  {
+    id: "app-investiture-authorizer",
+    path: "/investiture/authorize",
+    surfaces: ["app"],
+    // GET/POST investiture-requests for authorizers; exact roles because the
+    // backend compares pastor/director-lf/assistant-lf literally.
+    viewAny: {
+      permissions: [],
+      roles: ["pastor", "director-lf", "assistant-lf"],
+      exactRoles: true,
+    },
+    capabilities: [],
+  },
 ];

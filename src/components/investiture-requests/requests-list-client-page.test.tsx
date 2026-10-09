@@ -135,6 +135,49 @@ describe("RequestsListClientPage", () => {
     expect(screen.queryByText("No hay solicitudes pendientes")).not.toBeInTheDocument();
   });
 
+  it("shows a no-districts empty state instead of the banner for a pastor without districts", () => {
+    renderPage({
+      requests: [],
+      isPastorOnly: true,
+      loadError: {
+        status: 403,
+        code: "INVESTITURE_REQUEST_FORBIDDEN",
+        message: "Tu rol no puede ver esta lista.",
+      },
+    });
+
+    expect(screen.getByText("Todavía no tenés distritos asignados")).toBeInTheDocument();
+    expect(screen.getByText("Pedí al Campo que te asigne.")).toBeInTheDocument();
+    expect(screen.queryByText("Acceso denegado")).not.toBeInTheDocument();
+    expect(screen.queryByText("Tu rol no puede ver esta lista.")).not.toBeInTheDocument();
+  });
+
+  it("keeps the forbidden banner for non-pastor roles", () => {
+    renderPage({
+      requests: [],
+      isPastorOnly: false,
+      loadError: {
+        status: 403,
+        code: "INVESTITURE_REQUEST_FORBIDDEN",
+        message: "Tu rol no puede ver esta lista.",
+      },
+    });
+
+    expect(screen.getByText("Acceso denegado")).toBeInTheDocument();
+    expect(screen.queryByText("Todavía no tenés distritos asignados")).not.toBeInTheDocument();
+  });
+
+  it("keeps the banner for a pastor when the failure is not a 403", () => {
+    renderPage({
+      requests: [],
+      isPastorOnly: true,
+      loadError: { status: 500, message: "Falló" },
+    });
+
+    expect(screen.getByText("Falló")).toBeInTheDocument();
+    expect(screen.queryByText("Todavía no tenés distritos asignados")).not.toBeInTheDocument();
+  });
+
   it("explains that there is no active year when yearId is null", () => {
     renderPage({ requests: [], yearId: null });
 

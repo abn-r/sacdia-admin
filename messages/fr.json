@@ -133,6 +133,8 @@
       "app_club": "Club",
       "app_units": "Unités",
       "app_grouped_class": "Classe groupée",
+      "app_section_investiture": "Investitures de la section",
+      "app_investiture_authorizer": "Autoriser les investitures (app)",
       "app_materials": "Commandes de matériel",
       "app_classes": "Classes",
       "geography_divisions": "Divisions",
@@ -7525,6 +7527,10 @@
     "auditTimeline": {
       "emptyTitle": "Aucune piste d'audit",
       "emptyDescription": "Aucun événement n'a encore été enregistré pour ce lot."
+    },
+    "errors": {
+      "authorization_pending": "La personne a une demande d'investiture en attente cette année. L'autorisation doit d'abord être résolue.",
+      "ended_year_field_forbidden": "Seuls le Champ de la demande ou l'administration peuvent créditer ce certificat."
     }
   },
   "camporeeEvents": {
@@ -8624,6 +8630,7 @@
       "pastor_quota_full": "Ce district a déjà toutes ses places de pasteur pourvues",
       "pastor_already_assigned": "Ce pasteur est déjà affecté à ce district",
       "pastor_role_required": "Seul un utilisateur ayant le rôle de pasteur peut être affecté",
+      "pastor_field_mismatch": "Le pasteur n'appartient pas au Champ du district.",
       "pastor_user_not_found": "Pasteur introuvable",
       "pastor_district_not_found": "District introuvable",
       "pastor_club_not_found": "Club introuvable",
@@ -8634,6 +8641,7 @@
       "section_not_found": "Section introuvable",
       "outside_section": "La personne n'appartient pas à cette section",
       "window_closed": "La fenêtre du Champ ne permet pas de présenter ni d'ajouter des personnes",
+      "window_closed_authorize": "La fenêtre du Champ est fermée. Demandez au Champ de la prolonger pour pouvoir autoriser.",
       "date_outside_window": "La date d'investiture est en dehors de la fenêtre du Champ",
       "date_outside_year": "La date d'investiture est en dehors de l'année ecclésiastique",
       "date_invalid": "La date d'investiture n'est pas valide",
@@ -8678,6 +8686,8 @@
       "emptyDescription": "Lorsqu'une direction de club présentera une demande d'investiture, elle apparaîtra ici.",
       "noYearTitle": "Aucune année ecclésiastique active",
       "noYearDescription": "Choisissez une année ecclésiastique pour voir ses demandes.",
+      "noDistrictsTitle": "Vous n'avez pas encore de districts assignés",
+      "noDistrictsDescription": "Demandez au Champ de vous en assigner.",
       "noValue": "—"
     },
     "detail": {
@@ -8739,6 +8749,114 @@
       "notApplied": "Non appliquées",
       "alreadyResolved": "Elle avait déjà été résolue",
       "unknownPerson": "Personne sans nom"
+    }
+  },
+  "investiture_config": {
+    "settings": {
+      "title": "Fenêtre et pourcentage d'investiture",
+      "description": "Définissez quand le Champ reçoit et autorise les demandes d'investiture et quel pourcentage de la classe est exigé.",
+      "breadcrumbHome": "Accueil",
+      "breadcrumbGroup": "Autorisation des investitures",
+      "yearPlaceholder": "Année ecclésiastique",
+      "localFieldLabel": "Champ",
+      "localFieldPlaceholder": "Sélectionnez un Champ",
+      "selectLocalFieldTitle": "Sélectionnez un Champ",
+      "selectLocalFieldDescription": "Choisissez un Champ pour voir ou modifier sa fenêtre et son pourcentage.",
+      "noYearTitle": "Aucune année ecclésiastique à configurer",
+      "noYearDescription": "Dès qu'une année ecclésiastique existera, vous pourrez définir la fenêtre et le pourcentage.",
+      "window": {
+        "title": "Fenêtre des demandes",
+        "description": "Période pendant laquelle le Champ permet de soumettre et d'autoriser des demandes d'investiture.",
+        "range": "Du {start} au {end}, inclus, dans le fuseau horaire du Champ.",
+        "notOperational": "Il n'y a pas de fenêtre opérationnelle pour cette année. Configurez-la pour permettre de soumettre et d'autoriser.",
+        "defaultNotice": "Pas encore configurée : la fenêtre par défaut de l'année est utilisée.",
+        "startLabel": "Début",
+        "endLabel": "Fin",
+        "save": "Enregistrer la fenêtre",
+        "saving": "Enregistrement…",
+        "readOnly": "Lecture seule : votre rôle ou l'état de l'année ne permettent pas de modifier la fenêtre.",
+        "required": "Indiquez une date valide.",
+        "startAfterEnd": "Le début ne peut pas être postérieur à la fin.",
+        "outsideYear": "La date doit être comprise dans l'année ecclésiastique ({start} au {end}).",
+        "saved": "Fenêtre enregistrée."
+      },
+      "threshold": {
+        "title": "Pourcentage minimum de la classe",
+        "description": "Pourcentage minimum d'avancement de la classe exigé pour inclure une personne dans une demande.",
+        "label": "Pourcentage minimum (%)",
+        "help": "Jusqu'au 30 juin, c'est le Champ qui le modifie ; ensuite, seulement le super-admin.",
+        "current": "Pourcentage en vigueur : {percent} %.",
+        "defaultNotice": "Pas encore configuré : la valeur par défaut est utilisée.",
+        "save": "Enregistrer le pourcentage",
+        "saving": "Enregistrement…",
+        "readOnly": "Lecture seule : votre rôle ou la date actuelle ne permettent pas de modifier le pourcentage.",
+        "restricted": "Seuls le Champ et le super-admin peuvent voir le pourcentage.",
+        "invalid": "Saisissez un nombre entier entre 0 et 100.",
+        "saved": "Pourcentage enregistré."
+      }
+    },
+    "pastors": {
+      "title": "Pasteurs par district",
+      "description": "Qui autorise les investitures de chaque district.",
+      "breadcrumbHome": "Accueil",
+      "breadcrumbGroup": "Autorisation des investitures",
+      "localFieldLabel": "Champ",
+      "localFieldPlaceholder": "Sélectionnez un Champ",
+      "selectLocalFieldTitle": "Sélectionnez un Champ",
+      "selectLocalFieldDescription": "Choisissez un Champ pour voir et affecter les pasteurs de ses districts.",
+      "noDistrictsTitle": "Ce Champ n'a pas de districts",
+      "noDistrictsDescription": "Dès que des districts existeront, vous pourrez leur affecter des pasteurs.",
+      "quota": {
+        "title": "Quota de pasteurs par district",
+        "description": "Nombre maximum de pasteurs pouvant autoriser dans chaque district.",
+        "label": "Quota",
+        "current": "{slots} pasteurs par district",
+        "readOnly": "Seul le super-admin peut modifier le quota.",
+        "save": "Enregistrer le quota",
+        "saving": "Enregistrement…",
+        "saved": "Quota enregistré.",
+        "invalid": "Saisissez un nombre entier supérieur ou égal à 0."
+      },
+      "district": {
+        "count": "{count}/{slots} pasteurs",
+        "empty": "Aucun pasteur affecté pour l'instant.",
+        "full": "Quota complet.",
+        "assign": "Affecter un pasteur"
+      },
+      "pastor": {
+        "canAuthorize": "Autorise",
+        "roleMissing": "Sans rôle de pasteur",
+        "accountInactive": "Compte inactif",
+        "inactiveHelp": "Occupe une place, n'autorise pas et ne reçoit pas d'e-mails",
+        "noName": "Sans nom",
+        "noEmail": "Sans e-mail",
+        "remove": "Retirer",
+        "removeAria": "Retirer {name}"
+      },
+      "removeDialog": {
+        "title": "Retirer le pasteur du district ?",
+        "description": "{name} cessera d'autoriser et de recevoir les e-mails de {district}. Une place est libérée.",
+        "cancel": "Annuler",
+        "confirm": "Retirer",
+        "removing": "Retrait…",
+        "removed": "Pasteur retiré."
+      },
+      "assignDialog": {
+        "title": "Affecter un pasteur à {district}",
+        "description": "Recherchez un pasteur enregistré et affectez-le à ce district.",
+        "hint": "Seuls apparaissent les pasteurs du Champ de ce district.",
+        "fieldLabel": "Pasteur",
+        "placeholder": "Rechercher un pasteur",
+        "searchPlaceholder": "Saisissez un nom, prénom ou e-mail",
+        "minChars": "Saisissez au moins 3 caractères ; chaque mot en exige au moins 2.",
+        "searching": "Recherche…",
+        "noResults": "Aucun pasteur ne correspond.",
+        "searchError": "La recherche a échoué. Réessayez.",
+        "cancel": "Annuler",
+        "assign": "Affecter",
+        "assigning": "Affectation…",
+        "assigned": "Pasteur affecté."
+      }
     }
   }
 }

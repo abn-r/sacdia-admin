@@ -133,6 +133,8 @@
       "app_club": "Club",
       "app_units": "Unidades",
       "app_grouped_class": "Clase agrupada",
+      "app_section_investiture": "Investiduras de la sección",
+      "app_investiture_authorizer": "Autorizar investiduras (app)",
       "app_materials": "Pedidos de materiales",
       "app_classes": "Clases",
       "geography_divisions": "Divisiones",
@@ -7686,6 +7688,10 @@
     "auditTimeline": {
       "emptyTitle": "Sin auditoría",
       "emptyDescription": "Todavía no hay eventos registrados para este lote."
+    },
+    "errors": {
+      "authorization_pending": "La persona tiene una solicitud de investidura pendiente en este año. Primero se resuelve la autorización.",
+      "ended_year_field_forbidden": "Solo el Campo de la solicitud o la administración pueden acreditar este certificado."
     }
   },
   "campamentos": {
@@ -8805,6 +8811,7 @@
       "pastor_quota_full": "Ese distrito ya tiene todos los cupos de pastor",
       "pastor_already_assigned": "Ese pastor ya está asignado a este distrito",
       "pastor_role_required": "Solo se puede asignar a un usuario con el rol de pastor",
+      "pastor_field_mismatch": "El pastor no pertenece al Campo del distrito.",
       "pastor_user_not_found": "Pastor no encontrado",
       "pastor_district_not_found": "Distrito no encontrado",
       "pastor_club_not_found": "Club no encontrado",
@@ -8815,6 +8822,7 @@
       "section_not_found": "Sección no encontrada",
       "outside_section": "La persona no pertenece a esta sección",
       "window_closed": "La ventana del Campo no permite presentar ni agregar personas",
+      "window_closed_authorize": "La ventana del Campo está cerrada. Pedí al Campo que la amplíe para poder autorizar.",
       "date_outside_window": "La fecha de investidura queda fuera de la ventana del Campo",
       "date_outside_year": "La fecha de investidura queda fuera del año eclesiástico",
       "date_invalid": "La fecha de investidura no es válida",
@@ -8859,6 +8867,8 @@
       "emptyDescription": "Cuando una directiva presente una solicitud de investidura, aparecerá acá.",
       "noYearTitle": "No hay un año eclesiástico activo",
       "noYearDescription": "Elegí un año eclesiástico para ver sus solicitudes.",
+      "noDistrictsTitle": "Todavía no tenés distritos asignados",
+      "noDistrictsDescription": "Pedí al Campo que te asigne.",
       "noValue": "—"
     },
     "detail": {
@@ -8920,6 +8930,114 @@
       "notApplied": "Sin aplicar",
       "alreadyResolved": "Ya había sido resuelto",
       "unknownPerson": "Persona sin nombre"
+    }
+  },
+  "investiture_config": {
+    "settings": {
+      "title": "Ventana y porcentaje de investidura",
+      "description": "Definí cuándo el Campo recibe y autoriza solicitudes de investidura y qué porcentaje de la clase se exige.",
+      "breadcrumbHome": "Inicio",
+      "breadcrumbGroup": "Autorización de investiduras",
+      "yearPlaceholder": "Año eclesiástico",
+      "localFieldLabel": "Campo",
+      "localFieldPlaceholder": "Seleccioná un Campo",
+      "selectLocalFieldTitle": "Seleccioná un Campo",
+      "selectLocalFieldDescription": "Elegí un Campo para ver o editar su ventana y su porcentaje.",
+      "noYearTitle": "No hay un año eclesiástico para configurar",
+      "noYearDescription": "Cuando exista un año eclesiástico vas a poder definir la ventana y el porcentaje.",
+      "window": {
+        "title": "Ventana de solicitudes",
+        "description": "Período en el que el Campo permite presentar y autorizar solicitudes de investidura.",
+        "range": "Del {start} al {end}, inclusive, en la zona del Campo.",
+        "notOperational": "No hay ventana operativa para este año. Configurala para permitir presentar y autorizar.",
+        "defaultNotice": "Todavía no se configuró: se usa la ventana por defecto del año.",
+        "startLabel": "Inicio",
+        "endLabel": "Fin",
+        "save": "Guardar ventana",
+        "saving": "Guardando…",
+        "readOnly": "Solo lectura: tu rol o el estado del año no permiten editar la ventana.",
+        "required": "Indicá una fecha válida.",
+        "startAfterEnd": "El inicio no puede ser posterior al fin.",
+        "outsideYear": "La fecha debe estar dentro del año eclesiástico ({start} al {end}).",
+        "saved": "Ventana guardada."
+      },
+      "threshold": {
+        "title": "Porcentaje mínimo de la clase",
+        "description": "Porcentaje mínimo de avance de la clase que se exige para incluir a una persona en una solicitud.",
+        "label": "Porcentaje mínimo (%)",
+        "help": "Hasta el 30 de junio lo edita el Campo; después solo super-admin.",
+        "current": "Porcentaje vigente: {percent} %.",
+        "defaultNotice": "Todavía no se configuró: se usa el valor por defecto.",
+        "save": "Guardar porcentaje",
+        "saving": "Guardando…",
+        "readOnly": "Solo lectura: tu rol o la fecha actual no permiten editar el porcentaje.",
+        "restricted": "Solo el Campo y super-admin pueden ver el porcentaje.",
+        "invalid": "Ingresá un número entero entre 0 y 100.",
+        "saved": "Porcentaje guardado."
+      }
+    },
+    "pastors": {
+      "title": "Pastores por distrito",
+      "description": "Quiénes autorizan las investiduras de cada distrito.",
+      "breadcrumbHome": "Inicio",
+      "breadcrumbGroup": "Autorización de investiduras",
+      "localFieldLabel": "Campo",
+      "localFieldPlaceholder": "Seleccioná un Campo",
+      "selectLocalFieldTitle": "Seleccioná un Campo",
+      "selectLocalFieldDescription": "Elegí un Campo para ver y asignar los pastores de sus distritos.",
+      "noDistrictsTitle": "Este Campo no tiene distritos",
+      "noDistrictsDescription": "Cuando existan distritos vas a poder asignarles pastores.",
+      "quota": {
+        "title": "Cupo de pastores por distrito",
+        "description": "Cantidad máxima de pastores que pueden autorizar en cada distrito.",
+        "label": "Cupo",
+        "current": "{slots} pastores por distrito",
+        "readOnly": "Solo super-admin puede cambiar el cupo.",
+        "save": "Guardar cupo",
+        "saving": "Guardando…",
+        "saved": "Cupo guardado.",
+        "invalid": "Ingresá un número entero mayor o igual a 0."
+      },
+      "district": {
+        "count": "{count}/{slots} pastores",
+        "empty": "Todavía no hay pastores asignados.",
+        "full": "Cupo completo.",
+        "assign": "Asignar pastor"
+      },
+      "pastor": {
+        "canAuthorize": "Autoriza",
+        "roleMissing": "Sin rol de pastor",
+        "accountInactive": "Cuenta inactiva",
+        "inactiveHelp": "Ocupa cupo, no autoriza ni recibe correos",
+        "noName": "Sin nombre",
+        "noEmail": "Sin correo",
+        "remove": "Quitar",
+        "removeAria": "Quitar a {name}"
+      },
+      "removeDialog": {
+        "title": "¿Quitar pastor del distrito?",
+        "description": "{name} dejará de autorizar y de recibir correos de {district}. Se libera un cupo.",
+        "cancel": "Cancelar",
+        "confirm": "Quitar",
+        "removing": "Quitando…",
+        "removed": "Pastor quitado."
+      },
+      "assignDialog": {
+        "title": "Asignar pastor a {district}",
+        "description": "Buscá a un pastor registrado y asignalo a este distrito.",
+        "hint": "Solo aparecen pastores del Campo de este distrito.",
+        "fieldLabel": "Pastor",
+        "placeholder": "Buscar pastor",
+        "searchPlaceholder": "Escribí nombre, apellido o correo",
+        "minChars": "Escribí al menos 3 caracteres; cada palabra necesita 2 como mínimo.",
+        "searching": "Buscando…",
+        "noResults": "No hay pastores que coincidan.",
+        "searchError": "No se pudo buscar. Intentá de nuevo.",
+        "cancel": "Cancelar",
+        "assign": "Asignar",
+        "assigning": "Asignando…",
+        "assigned": "Pastor asignado."
+      }
     }
   }
 }

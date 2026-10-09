@@ -129,10 +129,15 @@ export async function removeDistrictPastor(districtId: number, userId: string): 
   return unwrapApiData<DistrictPastor>(raw);
 }
 
-// GET /investiture-pastor-candidates?q=  (min 3 chars; the backend returns [] below that)
-export async function searchPastorCandidates(q: string): Promise<PastorCandidate[]> {
+// GET /investiture-pastor-candidates?q=&districtId=  (min 3 chars; the backend returns [] below that)
+// `districtId` scopes the result to the Field of the district being edited: assign only accepts
+// pastors of that Field.
+export async function searchPastorCandidates(
+  q: string,
+  districtId: number,
+): Promise<PastorCandidate[]> {
   const raw = await apiRequestFromClient<unknown>("/investiture-pastor-candidates", {
-    params: { q },
+    params: { q, districtId },
   });
   return unwrapApiData<PastorCandidate[]>(raw);
 }

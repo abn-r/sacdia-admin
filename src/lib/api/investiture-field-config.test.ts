@@ -93,11 +93,11 @@ describe("investiture-field-config API", () => {
     });
   });
 
-  it("searches pastor candidates with the q param", async () => {
+  it("searches pastor candidates with the q and districtId params", async () => {
     clientMock.mockResolvedValue(ok([{ user_id: "u1", user_name: "Ana", email: null }]));
-    const result = await searchPastorCandidates("ana");
+    const result = await searchPastorCandidates("ana", 5);
     expect(clientMock).toHaveBeenCalledWith("/investiture-pastor-candidates", {
-      params: { q: "ana" },
+      params: { q: "ana", districtId: 5 },
     });
     expect(result).toHaveLength(1);
   });

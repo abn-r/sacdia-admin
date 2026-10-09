@@ -24,9 +24,36 @@ describe("getInvestitureRequestErrorMessage", () => {
     ).toBe("t:errors.window_closed");
   });
 
+  it("uses an authorizer-specific text for a closed window in the resolve context only", () => {
+    const error = apiErrorWithCode("INVESTITURE_REQUEST_WINDOW_CLOSED");
+    expect(getInvestitureRequestErrorMessage(error, t, { context: "resolve" })).toBe(
+      "t:errors.window_closed_authorize",
+    );
+    expect(getInvestitureRequestErrorMessage(error, t)).toBe("t:errors.window_closed");
+  });
+
+  it("keeps the regular mapping for other codes in the resolve context", () => {
+    expect(
+      getInvestitureRequestErrorMessage(apiErrorWithCode("INVESTITURE_REQUEST_YEAR_CLOSED"), t, {
+        context: "resolve",
+      }),
+    ).toBe("t:errors.year_closed");
+  });
+
   it("reads the code from nested error payloads", () => {
     const error = new ApiError("x", 409, { error: { code: "INVESTITURE_PASTOR_QUOTA_FULL" } });
     expect(getInvestitureRequestErrorMessage(error, t)).toBe("t:errors.pastor_quota_full");
+  });
+
+  it("maps a pastor from another Field to its own message", () => {
+    const error = apiErrorWithCode("INVESTITURE_PASTOR_FIELD_MISMATCH", 400);
+    expect(getInvestitureRequestErrorMessage(error, t)).toBe("t:errors.pastor_field_mismatch");
+    expect(getInvestitureRequestErrorMessageByCode("INVESTITURE_PASTOR_FIELD_MISMATCH", t)).toBe(
+      "t:errors.pastor_field_mismatch",
+    );
+    expect(esMessages.investiture_requests.errors).toMatchObject({
+      pastor_field_mismatch: "El pastor no pertenece al Campo del distrito.",
+    });
   });
 
   it("returns the backend message for an unknown code", () => {
@@ -94,6 +121,7 @@ describe("investiture request error catalog", () => {
       ...Object.values(INVESTITURE_REQUEST_ERROR_KEYS).map((key) => key.replace("errors.", "")),
       "forbidden",
       "generic",
+      "window_closed_authorize",
     ];
     for (const key of keys) {
       expect(errors[key], key).toBeTruthy();

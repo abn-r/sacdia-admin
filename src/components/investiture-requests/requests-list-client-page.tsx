@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { CalendarRange, ShieldCheck } from "lucide-react";
+import { CalendarRange, MapPin, ShieldCheck } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DataTableShell } from "@/components/shared/data-table-shell";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
@@ -26,6 +26,8 @@ import { formatCivilDate, formatInstantDate } from "./format-date";
 
 export interface RequestsListLoadError {
   status: number | null;
+  /** Backend error code, when the failure carried one. */
+  code?: string | null;
   message: string;
 }
 
@@ -35,6 +37,12 @@ export interface RequestsListClientPageProps {
   yearId: number | null;
   years: EcclesiasticalYear[];
   loadError: RequestsListLoadError | null;
+  /**
+   * True when the viewer's only admin role is pastor. A pastor with no
+   * districts is refused by the backend (403 INVESTITURE_REQUEST_FORBIDDEN);
+   * that is an expected empty state for them, not an access problem.
+   */
+  isPastorOnly?: boolean;
 }
 
 const DETAIL_BASE_PATH = "/dashboard/investiture-requests";
@@ -55,6 +63,7 @@ export function RequestsListClientPage({
   yearId,
   years,
   loadError,
+  isPastorOnly = false,
 }: RequestsListClientPageProps) {
   const t = useTranslations("investiture_requests.list");
   const locale = useLocale();
@@ -68,6 +77,10 @@ export function RequestsListClientPage({
   }
 
   const noValue = t("noValue");
+  const pastorWithoutDistricts =
+    isPastorOnly &&
+    loadError?.status === 403 &&
+    (loadError.code == null || loadError.code === "INVESTITURE_REQUEST_FORBIDDEN");
 
   return (
     <div className="flex flex-col gap-6">
@@ -87,7 +100,15 @@ export function RequestsListClientPage({
         }
       />
 
-      {loadError && (
+      {loadError && pastorWithoutDistricts && (
+        <EmptyState
+          icon={MapPin}
+          title={t("noDistrictsTitle")}
+          description={t("noDistrictsDescription")}
+        />
+      )}
+
+      {loadError && !pastorWithoutDistricts && (
         <EndpointErrorBanner
           state={loadError.status === 403 ? "forbidden" : "missing"}
           detail={loadError.message}
