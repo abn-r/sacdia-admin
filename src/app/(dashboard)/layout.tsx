@@ -1,6 +1,8 @@
 import type { CSSProperties, ReactNode } from "react";
 
 import { cookies, headers } from "next/headers";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 
 import { AppSidebar } from "@/app/(dashboard)/dashboard/_components/sidebar/app-sidebar";
 import { HeaderUserMenu } from "@/app/(dashboard)/dashboard/_components/sidebar/header-user-menu";
@@ -13,6 +15,10 @@ import { AuthProvider } from "@/lib/auth/auth-context";
 import { QueryProvider } from "@/lib/providers/query-provider";
 import { canAccessDashboardPath } from "@/lib/auth/require-page-access";
 import { requireAdminUser } from "@/lib/auth/session";
+import {
+  getClientMessageNamespacesForDashboardPath,
+  pickMessages,
+} from "@/lib/i18n/client-messages";
 import { cn } from "@/lib/utils";
 import { getPreference } from "@/server/server-actions";
 
@@ -26,12 +32,19 @@ export default async function DashboardLayout({ children }: Readonly<{ children:
     "";
   const canOpenPage = canAccessDashboardPath(initialUser, pathname);
   const defaultOpen = cookieStore.get("sidebar_state")?.value !== "false";
-  const [variant, collapsible] = await Promise.all([
+  const [variant, collapsible, locale, messages] = await Promise.all([
     getPreference("sidebar_variant"),
     getPreference("sidebar_collapsible"),
+    getLocale(),
+    getMessages(),
   ]);
+  const clientMessages = pickMessages(
+    messages,
+    getClientMessageNamespacesForDashboardPath("/dashboard", messages),
+  );
 
   return (
+    <NextIntlClientProvider locale={locale} messages={clientMessages}>
     <AuthProvider initialUser={initialUser}>
       <QueryProvider>
       <SidebarProvider
@@ -81,5 +94,6 @@ export default async function DashboardLayout({ children }: Readonly<{ children:
       </SidebarProvider>
       </QueryProvider>
     </AuthProvider>
+    </NextIntlClientProvider>
   );
 }

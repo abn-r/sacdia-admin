@@ -8,6 +8,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { APP_CONFIG } from "@/config/app-config";
 import { fontVars, sansFont } from "@/lib/fonts/registry";
+import { pickMessages, ROOT_CLIENT_MESSAGE_NAMESPACES } from "@/lib/i18n/client-messages";
 import { PREFERENCE_DEFAULTS } from "@/lib/preferences/preferences-config";
 import { ThemeBootScript } from "@/scripts/theme-boot-script";
 import { PreferencesStoreProvider } from "@/stores/preferences/preferences-provider";
@@ -26,7 +27,10 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   const locale = await getLocale();
-  const messages = await getMessages();
+  // Only ship the namespaces public routes need (/login, 404, printable). The
+  // dashboard layout provides the full catalog; sending all ~380 KB here made
+  // every unauthenticated hit (uptime checks, bots) render a huge payload.
+  const messages = pickMessages(await getMessages(), ROOT_CLIENT_MESSAGE_NAMESPACES);
   const { theme_mode, theme_preset, content_layout, navbar_style, sidebar_variant, sidebar_collapsible, font } =
     PREFERENCE_DEFAULTS;
   const htmlLang = locale.startsWith("pt") ? "pt" : locale;
