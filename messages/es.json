@@ -8842,6 +8842,84 @@
       "rejected_by_system": "Rechazado por el sistema",
       "removed": "Retirado de la solicitud",
       "closed_year": "Año cerrado sin resolver"
+    },
+    "list": {
+      "title": "Autorizaciones de investidura",
+      "description": "Solicitudes pendientes de tu distrito o Campo.",
+      "yearPlaceholder": "Año eclesiástico",
+      "columns": {
+        "club": "Club",
+        "section": "Sección",
+        "district": "Distrito",
+        "pending": "Pendientes",
+        "nextDate": "Próxima fecha",
+        "submitted": "Presentada"
+      },
+      "emptyTitle": "No hay solicitudes pendientes",
+      "emptyDescription": "Cuando una directiva presente una solicitud de investidura, aparecerá acá.",
+      "noYearTitle": "No hay un año eclesiástico activo",
+      "noYearDescription": "Elegí un año eclesiástico para ver sus solicitudes.",
+      "noValue": "—"
+    },
+    "detail": {
+      "titleFallback": "Solicitud de investidura",
+      "description": "{section} · {district} · {year}",
+      "noValue": "—",
+      "breadcrumbHome": "Dashboard",
+      "breadcrumbList": "Autorizaciones de investidura",
+      "windowClosedBanner": "La ventana del Campo está cerrada. Pedí al Campo que la amplíe para poder autorizar.",
+      "readOnlyNotice": "Podés consultar esta solicitud, pero no tenés permiso para autorizar a sus integrantes.",
+      "columns": {
+        "person": "Persona",
+        "class": "Clase",
+        "date": "Fecha de investidura",
+        "status": "Estado",
+        "decision": "Decisión"
+      },
+      "resolvedBy": "Resuelto por {name}",
+      "resolvedBySystem": "Resuelto por Sistema",
+      "authorizationComment": "Comentario: {comment}",
+      "systemReasonFallback": "Al comprobar el avance, esta persona no cubría los requisitos mínimos. Revisar sus evidencias de avance.",
+      "decision": {
+        "groupLabel": "Decisión para {name}",
+        "none": "Sin decidir",
+        "invest": "Investir",
+        "reject": "Rechazar",
+        "commentLabel": "Comentario (opcional)",
+        "commentPlaceholder": "Un mensaje breve para esta persona",
+        "commentMax": "El comentario admite hasta 500 caracteres.",
+        "reasonLabel": "Motivo del rechazo",
+        "reasonPlaceholder": "Indicá por qué no se autoriza",
+        "reasonRequired": "El motivo es obligatorio para rechazar.",
+        "reasonMax": "El motivo admite hasta 1000 caracteres."
+      },
+      "actionBar": {
+        "confirm": "Confirmar decisiones ({count})",
+        "hint": "Elegí Investir o Rechazar para al menos una persona."
+      },
+      "toasts": {
+        "resolved": "Decisiones registradas."
+      }
+    },
+    "confirmDialog": {
+      "title": "¿Confirmar las decisiones?",
+      "description": "Las decisiones confirmadas no se pueden deshacer.",
+      "invest": "Se investirán: {count}",
+      "reject": "Se rechazarán: {count}",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar",
+      "confirming": "Confirmando…"
+    },
+    "summary": {
+      "title": "Resultado de la resolución",
+      "dismiss": "Cerrar el resultado",
+      "invested": "Investidos",
+      "rejectedByPerson": "Rechazados por quien autoriza",
+      "rejectedBySystem": "Rechazados por el sistema",
+      "retired": "Retirados de la solicitud",
+      "notApplied": "Sin aplicar",
+      "alreadyResolved": "Ya había sido resuelto",
+      "unknownPerson": "Persona sin nombre"
     }
   }
 }

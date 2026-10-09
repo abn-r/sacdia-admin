@@ -8815,6 +8815,84 @@
       "rejected_by_system": "Rejected by the system",
       "removed": "Removed from the request",
       "closed_year": "Year closed unresolved"
+    },
+    "list": {
+      "title": "Investiture authorizations",
+      "description": "Pending requests from your district or Field.",
+      "yearPlaceholder": "Ecclesiastical year",
+      "columns": {
+        "club": "Club",
+        "section": "Section",
+        "district": "District",
+        "pending": "Pending",
+        "nextDate": "Next date",
+        "submitted": "Submitted"
+      },
+      "emptyTitle": "There are no pending requests",
+      "emptyDescription": "When a club board submits an investiture request, it will show up here.",
+      "noYearTitle": "There is no active ecclesiastical year",
+      "noYearDescription": "Pick an ecclesiastical year to see its requests.",
+      "noValue": "—"
+    },
+    "detail": {
+      "titleFallback": "Investiture request",
+      "description": "{section} · {district} · {year}",
+      "noValue": "—",
+      "breadcrumbHome": "Dashboard",
+      "breadcrumbList": "Investiture authorizations",
+      "windowClosedBanner": "The Field's window is closed. Ask the Field to extend it so you can authorize.",
+      "readOnlyNotice": "You can view this request, but you are not allowed to authorize its members.",
+      "columns": {
+        "person": "Person",
+        "class": "Class",
+        "date": "Investiture date",
+        "status": "Status",
+        "decision": "Decision"
+      },
+      "resolvedBy": "Resolved by {name}",
+      "resolvedBySystem": "Resolved by System",
+      "authorizationComment": "Comment: {comment}",
+      "systemReasonFallback": "When progress was checked, this person did not meet the minimum requirements. Review their progress evidence.",
+      "decision": {
+        "groupLabel": "Decision for {name}",
+        "none": "Undecided",
+        "invest": "Invest",
+        "reject": "Reject",
+        "commentLabel": "Comment (optional)",
+        "commentPlaceholder": "A short message for this person",
+        "commentMax": "The comment allows up to 500 characters.",
+        "reasonLabel": "Reason for rejection",
+        "reasonPlaceholder": "Say why this is not authorized",
+        "reasonRequired": "A reason is required to reject.",
+        "reasonMax": "The reason allows up to 1000 characters."
+      },
+      "actionBar": {
+        "confirm": "Confirm decisions ({count})",
+        "hint": "Choose Invest or Reject for at least one person."
+      },
+      "toasts": {
+        "resolved": "Decisions recorded."
+      }
+    },
+    "confirmDialog": {
+      "title": "Confirm the decisions?",
+      "description": "Confirmed decisions cannot be undone.",
+      "invest": "To be invested: {count}",
+      "reject": "To be rejected: {count}",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "confirming": "Confirming…"
+    },
+    "summary": {
+      "title": "Resolution result",
+      "dismiss": "Close the result",
+      "invested": "Invested",
+      "rejectedByPerson": "Rejected by the authorizer",
+      "rejectedBySystem": "Rejected by the system",
+      "retired": "Withdrawn from the request",
+      "notApplied": "Not applied",
+      "alreadyResolved": "It had already been resolved",
+      "unknownPerson": "Unnamed person"
     }
   }
 }

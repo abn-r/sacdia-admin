@@ -8872,5 +8872,83 @@ export interface IntlMessages {
       removed: string;
       closed_year: string;
     };
+    list: {
+      title: string;
+      description: string;
+      yearPlaceholder: string;
+      columns: {
+        club: string;
+        section: string;
+        district: string;
+        pending: string;
+        nextDate: string;
+        submitted: string;
+      };
+      emptyTitle: string;
+      emptyDescription: string;
+      noYearTitle: string;
+      noYearDescription: string;
+      noValue: string;
+    };
+    detail: {
+      titleFallback: string;
+      description: string;
+      noValue: string;
+      breadcrumbHome: string;
+      breadcrumbList: string;
+      windowClosedBanner: string;
+      readOnlyNotice: string;
+      columns: {
+        person: string;
+        class: string;
+        date: string;
+        status: string;
+        decision: string;
+      };
+      resolvedBy: string;
+      resolvedBySystem: string;
+      authorizationComment: string;
+      systemReasonFallback: string;
+      decision: {
+        groupLabel: string;
+        none: string;
+        invest: string;
+        reject: string;
+        commentLabel: string;
+        commentPlaceholder: string;
+        commentMax: string;
+        reasonLabel: string;
+        reasonPlaceholder: string;
+        reasonRequired: string;
+        reasonMax: string;
+      };
+      actionBar: {
+        confirm: string;
+        hint: string;
+      };
+      toasts: {
+        resolved: string;
+      };
+    };
+    confirmDialog: {
+      title: string;
+      description: string;
+      invest: string;
+      reject: string;
+      cancel: string;
+      confirm: string;
+      confirming: string;
+    };
+    summary: {
+      title: string;
+      dismiss: string;
+      invested: string;
+      rejectedByPerson: string;
+      rejectedBySystem: string;
+      retired: string;
+      notApplied: string;
+      alreadyResolved: string;
+      unknownPerson: string;
+    };
   };
 }
