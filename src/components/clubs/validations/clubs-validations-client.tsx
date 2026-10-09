@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Award, BookOpen, FileText, Layers } from "lucide-react";
+import { Award, BookOpen, FileText } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CertificateBulkImportListPage } from "@/components/certificate-bulk-imports/certificate-bulk-import-list-page";
 import { EvidenceReviewPanel } from "@/components/clubs/validations/evidence-review-panel";
@@ -11,22 +11,12 @@ import type { CertificateBulkImportBatch } from "@/lib/api/certificate-bulk-impo
 import type { EvidenceItem } from "@/lib/api/evidence-review";
 import type { PendingValidation } from "@/lib/api/validation";
 
-export type ClubsValidationTab =
-  | "honors"
-  | "modules"
-  | "sections"
-  | "certificates";
+import { CLUBS_VALIDATION_TABS, type ClubsValidationTab } from "./validation-tabs";
 
-const TAB_VALUES: ClubsValidationTab[] = [
-  "honors",
-  "modules",
-  "sections",
-  "certificates",
-];
+export type { ClubsValidationTab } from "./validation-tabs";
 
 interface ClubsValidationsClientProps {
   initialHonors: PendingValidation[];
-  initialModules: PendingValidation[];
   initialHonorEvidence: EvidenceItem[];
   initialSectionEvidence: EvidenceItem[];
   certificateBatches: CertificateBulkImportBatch[];
@@ -36,7 +26,6 @@ interface ClubsValidationsClientProps {
 
 export function ClubsValidationsClient({
   initialHonors,
-  initialModules,
   initialHonorEvidence,
   initialSectionEvidence,
   certificateBatches,
@@ -48,7 +37,7 @@ export function ClubsValidationsClient({
   const searchParams = useSearchParams();
   const activeTab =
     (searchParams.get("tab") as ClubsValidationTab | null) ?? defaultTab;
-  const safeTab = TAB_VALUES.includes(activeTab) ? activeTab : defaultTab;
+  const safeTab = CLUBS_VALIDATION_TABS.includes(activeTab) ? activeTab : defaultTab;
 
   function handleTabChange(value: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -66,15 +55,6 @@ export function ClubsValidationsClient({
             {initialHonors.length > 0 && (
               <span className="inline-flex size-5 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
                 {initialHonors.length}
-              </span>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="modules" className="gap-2 whitespace-nowrap">
-            <Layers className="size-4" />
-            {t("tabs.modules")}
-            {initialModules.length > 0 && (
-              <span className="inline-flex size-5 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
-                {initialModules.length}
               </span>
             )}
           </TabsTrigger>
@@ -117,10 +97,6 @@ export function ClubsValidationsClient({
             initialItems={initialHonorEvidence}
           />
         </section>
-      </TabsContent>
-
-      <TabsContent value="modules">
-        <ValidationQueuePanel entityType="class" initialItems={initialModules} />
       </TabsContent>
 
       <TabsContent value="sections">

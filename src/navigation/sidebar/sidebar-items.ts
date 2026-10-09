@@ -141,13 +141,6 @@ export const sidebarItems: NavGroup[] = [
         activeMatch: "prefix",
       },
       {
-        id: "enrollments",
-        title: "Inscripciones",
-        url: "/dashboard/enrollments",
-        icon: ClipboardList,
-        activeMatch: "prefix",
-      },
-      {
         id: "requests",
         title: "Solicitudes",
         icon: ArrowUpDown,
@@ -236,34 +229,6 @@ export const sidebarItems: NavGroup[] = [
     id: 3,
     label: "Validación e investiduras",
     items: [
-      {
-        id: "investiture",
-        title: "Investidura",
-        icon: Sparkles,
-        subItems: [
-          {
-            id: "investiture-pending",
-            title: "Pendientes",
-            url: "/dashboard/investiture",
-            icon: Sparkles,
-            activeMatch: "exact",
-          },
-          {
-            id: "investiture-pipeline",
-            title: "Seguimiento",
-            url: "/dashboard/investiture/pipeline",
-            icon: ClipboardList,
-            activeMatch: "prefix",
-          },
-          {
-            id: "investiture-config",
-            title: "Configuración",
-            url: "/dashboard/investiture/config",
-            icon: Settings2,
-            activeMatch: "prefix",
-          },
-        ],
-      },
       {
         id: "investiture-authorization",
         title: "Autorización de investiduras",

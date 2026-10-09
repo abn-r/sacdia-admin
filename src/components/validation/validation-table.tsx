@@ -3,7 +3,6 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
-import { toast } from "sonner";
 import { CheckCircle2, XCircle, History, ClipboardList } from "lucide-react";
 import {
   Table,
@@ -83,11 +82,6 @@ export function ValidationTable({
   const memberName = activeValidation ? getMemberName(activeValidation) : "";
   const entityName = activeValidation?.entity?.name ?? "—";
 
-  const entityColumnHeader =
-    entityType === "class"
-      ? t("table.columns.class")
-      : t("table.columns.honor");
-
   return (
     <>
       <div className="overflow-x-auto rounded-xl border border-border/60 bg-card shadow-xs">
@@ -98,7 +92,7 @@ export function ValidationTable({
                 {t("table.columns.member")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                {entityColumnHeader}
+                {t("table.columns.honor")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 {t("table.columns.section")}

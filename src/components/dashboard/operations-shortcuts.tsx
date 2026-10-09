@@ -2,7 +2,6 @@ import Link from "next/link";
 import {
   Building2,
   CalendarDays,
-  ClipboardList,
   FileText,
   GraduationCap,
   Tent,
@@ -16,7 +15,6 @@ import type { OperationsShortcutId } from "@/lib/dashboard/operations-home";
 const SHORTCUT_ICONS: Record<OperationsShortcutId, typeof Building2> = {
   clubs: Building2,
   users: User,
-  enrollments: ClipboardList,
   assignments: UserPlus,
   validations: GraduationCap,
   reports: FileText,

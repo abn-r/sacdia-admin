@@ -101,10 +101,6 @@ export interface IntlMessages {
       insurance_by_section: string;
       insurance_expiring: string;
       validation: string;
-      investiture: string;
-      investiture_pending: string;
-      investiture_pipeline: string;
-      investiture_config: string;
       sla: string;
       year_end: string;
       notifications: string;
@@ -1682,7 +1678,6 @@ export interface IntlMessages {
         emptyDescription: string;
         tabs: {
           honors: string;
-          modules: string;
           sections: string;
           certificates: string;
         };
@@ -1694,7 +1689,6 @@ export interface IntlMessages {
         };
         errors: {
           honors: string;
-          modules: string;
           generic: string;
         };
       };
@@ -1796,7 +1790,6 @@ export interface IntlMessages {
         openQueue: string;
         coverageTitle: string;
         coverageAction: string;
-        formationAction: string;
         honorsAction: string;
         activitiesAction: string;
         shortcutsTitle: string;
@@ -1804,7 +1797,6 @@ export interface IntlMessages {
         shortcuts: {
           clubs: string;
           users: string;
-          enrollments: string;
           assignments: string;
           validations: string;
           reports: string;
@@ -3972,296 +3964,6 @@ export interface IntlMessages {
       filterClubType: string;
     };
   };
-  investiture: {
-    bulk: {
-      errors: {
-        approve_failed: string;
-        reject_failed: string;
-      };
-      validation: {
-        reason_required: string;
-        reason_max: string;
-      };
-      toasts: {
-        verb_approved: string;
-        verb_rejected: string;
-        succeeded_count: string;
-        failed_count: string;
-      };
-      selectedSingular: string;
-      selectedPlural: string;
-      approveSelected: string;
-      rejectSelected: string;
-      clearSelection: string;
-      approveTitle: string;
-      approveDescription: string;
-      rejectTitle: string;
-      rejectDescription: string;
-      reasonLabel: string;
-      reasonPlaceholder: string;
-      cancel: string;
-      confirmApprove: string;
-      confirmReject: string;
-    };
-    toasts: {
-      approved: string;
-      invested: string;
-      config_updated: string;
-      config_created: string;
-      config_deactivated: string;
-      catalogs_load_failed: string;
-      invested_member: string;
-      rejected_member: string;
-      validation_approved: string;
-      validation_rejected: string;
-    };
-    errors: {
-      approve: string;
-      invest: string;
-      config_update: string;
-      config_create: string;
-      config_deactivate: string;
-      unexpected: string;
-    };
-    validation: {
-      local_field_required: string;
-      year_required: string;
-      submission_deadline_required: string;
-      investiture_date_required: string;
-      comments_required: string;
-      reason_required: string;
-    };
-    configClient: {
-      countSingular: string;
-      countPlural: string;
-      refresh: string;
-      newConfig: string;
-      errorRefresh: string;
-    };
-    configTable: {
-      emptyTitle: string;
-      emptyDescription: string;
-      colLocalField: string;
-      colYear: string;
-      colSubmissionDeadline: string;
-      colInvestitureDate: string;
-      colStatus: string;
-      colActions: string;
-      statusActive: string;
-      statusInactive: string;
-      tooltipEdit: string;
-      tooltipDeactivate: string;
-      tooltipAlreadyInactive: string;
-      ariaEdit: string;
-      ariaDeactivate: string;
-      fieldFallback: string;
-      yearFallback: string;
-    };
-    client: {
-      allYears: string;
-      yearActive: string;
-      countSingular: string;
-      countPlural: string;
-      refresh: string;
-      errorRefresh: string;
-      selectYear: string;
-    };
-    pipeline: {
-      refresh: string;
-      errorRefresh: string;
-      tabAll: string;
-      tabSubmitted: string;
-      tabClubApproved: string;
-      tabCoordinatorApproved: string;
-      tabFieldApproved: string;
-      tabInvested: string;
-      tabRejected: string;
-      currentYear: string;
-      currentYearFallback: string;
-      tabAllCurrentYear: string;
-    };
-    historyDialog: {
-      title: string;
-      errorLoad: string;
-      emptyHistory: string;
-      system: string;
-      actionSubmitted: string;
-      actionClubApproved: string;
-      actionCoordinatorApproved: string;
-      actionFieldApproved: string;
-      actionInvested: string;
-      actionRejected: string;
-    };
-    history: {
-      emptyHistory: string;
-      system: string;
-      actionSubmitted: string;
-      actionApproved: string;
-      actionRejected: string;
-      actionReinvestitureRequested: string;
-    };
-    pendingTable: {
-      emptyTitle: string;
-      emptyDescription: string;
-      colMember: string;
-      colClass: string;
-      colClub: string;
-      colSubmitted: string;
-      colStatus: string;
-      colActions: string;
-      ariaHistory: string;
-      ariaApprove: string;
-      ariaReject: string;
-      ariaMarkInvested: string;
-      tooltipHistory: string;
-      tooltipApprove: string;
-      tooltipReject: string;
-      tooltipMarkInvested: string;
-      historyTitle: string;
-      errorLoadHistory: string;
-      enrollmentFallback: string;
-      colClassYear: string;
-      colClubSection: string;
-      colSubmittedBy: string;
-      viewDetail: string;
-      detailTitle: string;
-      detailMember: string;
-      detailClass: string;
-      detailClub: string;
-      detailSubmittedBy: string;
-      sectionUnknown: string;
-      unknownSubmitter: string;
-      roleDirector: string;
-      roleCounselor: string;
-      roleCoordinator: string;
-      roleAdmin: string;
-      roleUnknown: string;
-      errorLoadDetail: string;
-      progressTitle: string;
-      progressDescription: string;
-      progressSummary: string;
-      moduleSummary: string;
-      validatedBy: string;
-      progressValidated: string;
-      progressRejected: string;
-      progressPendingReview: string;
-      progressPending: string;
-      progressUnavailable: string;
-    };
-    statusBadge: {
-      inProgress: string;
-      submittedForValidation: string;
-      submitted: string;
-      clubApproved: string;
-      coordinatorApproved: string;
-      fieldApproved: string;
-      approved: string;
-      rejected: string;
-      invested: string;
-    };
-    pipelineStatusBadge: {
-      submitted: string;
-      clubApproved: string;
-      coordinatorApproved: string;
-      fieldApproved: string;
-      invested: string;
-      rejected: string;
-    };
-    page: {
-      title: string;
-      description: string;
-      errorFallback: string;
-      emptyTitle: string;
-      emptyDescription: string;
-    };
-    pageConfig: {
-      title: string;
-      description: string;
-      errorFallback: string;
-    };
-    pagePipeline: {
-      title: string;
-      description: string;
-      errorFallback: string;
-      emptyTitle: string;
-      emptyDescription: string;
-    };
-    investidoDialog: {
-      title: string;
-      description: string;
-      commentsLabel: string;
-      commentsPlaceholder: string;
-      cancel: string;
-      confirm: string;
-    };
-    pipelineRejectDialog: {
-      title: string;
-      description: string;
-      reasonLabel: string;
-      reasonPlaceholder: string;
-      cancel: string;
-      confirm: string;
-    };
-    configFormDialog: {
-      titleCreate: string;
-      titleEdit: string;
-      descriptionCreate: string;
-      descriptionEdit: string;
-      localFieldLabel: string;
-      loadingLocalFields: string;
-      localFieldPlaceholder: string;
-      ecclesiasticalYearLabel: string;
-      loadingYears: string;
-      yearPlaceholder: string;
-      submissionDeadlineLabel: string;
-      investitureDateLabel: string;
-      cancel: string;
-      submitCreate: string;
-      submitEdit: string;
-    };
-    deleteConfigDialog: {
-      title: string;
-      description: string;
-      fallbackDescription: string;
-      cancel: string;
-      confirm: string;
-    };
-    validateDialog: {
-      titleApprove: string;
-      titleReject: string;
-      descriptionApprove: string;
-      descriptionReject: string;
-      commentsLabel: string;
-      reasonLabel: string;
-      commentsPlaceholder: string;
-      reasonPlaceholder: string;
-      cancel: string;
-      confirmApprove: string;
-      confirmReject: string;
-    };
-    pipelineTable: {
-      emptyTitle: string;
-      emptyDescription: string;
-      enrollmentFallback: string;
-      selectAll: string;
-      selectRow: string;
-      colMember: string;
-      colClass: string;
-      colClub: string;
-      colSection: string;
-      colSubmitted: string;
-      colStatus: string;
-      colActions: string;
-      ariaHistory: string;
-      ariaApprove: string;
-      ariaReject: string;
-      ariaMarkInvested: string;
-      tooltipHistory: string;
-      tooltipApprove: string;
-      tooltipReject: string;
-      tooltipMarkInvested: string;
-    };
-  };
   evidence_review: {
     bulk: {
       clearSelectionAriaLabel: string;
@@ -5379,7 +5081,6 @@ export interface IntlMessages {
     table: {
       columns: {
         member: string;
-        class: string;
         honor: string;
         section: string;
         submitted: string;
@@ -7311,50 +7012,6 @@ export interface IntlMessages {
     };
     errors: {
       load_failed: string;
-    };
-  };
-  enrollments: {
-    table: {
-      col_member: string;
-      col_class: string;
-      col_status: string;
-      col_enrollment_date: string;
-      col_submitted_at: string;
-      col_actions: string;
-      empty: string;
-      status: {
-        IN_PROGRESS: string;
-        SUBMITTED_FOR_VALIDATION: string;
-        APPROVED: string;
-        REJECTED: string;
-        INVESTIDO: string;
-      };
-    };
-    actions: {
-      approve: string;
-      reject: string;
-      view_user: string;
-      reject_dialog_title: string;
-      reject_dialog_description: string;
-      reject_dialog_cancel: string;
-      reject_dialog_confirm: string;
-    };
-    toasts: {
-      approved: string;
-      rejected: string;
-    };
-    errors: {
-      generic: string;
-    };
-    page: {
-      title: string;
-      description: string;
-      searchPlaceholder: string;
-      errorEmptyTitle: string;
-      emptyTitle: string;
-      emptyDescription: string;
-      countSingular: string;
-      countPlural: string;
     };
   };
   rankings: {

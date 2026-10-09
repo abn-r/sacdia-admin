@@ -1,6 +1,5 @@
 import type {
   PendingValidation,
-  ValidationEntityType,
   ValidationStatus,
 } from "@/lib/api/validation";
 
@@ -14,14 +13,6 @@ type RawUser = {
   last_name?: string | null;
 };
 
-type RawEnrollment = {
-  enrollment_id: number;
-  submitted_at?: string | null;
-  investiture_status?: string | null;
-  users?: RawUser | null;
-  classes?: { class_id: number; name: string } | null;
-};
-
 type RawUserHonor = {
   user_honor_id: number;
   created_at?: string | null;
@@ -31,7 +22,6 @@ type RawUserHonor = {
 };
 
 type PendingReviewsResponse = {
-  classes?: RawEnrollment[];
   honors?: RawUserHonor[];
 };
 
@@ -46,21 +36,6 @@ function mapUser(user?: RawUser | null): PendingValidation["user"] {
     first_name: firstName,
     last_name: lastName || null,
     email: user.email ?? null,
-  };
-}
-
-function mapEnrollment(row: RawEnrollment): PendingValidation {
-  return {
-    validation_id: row.enrollment_id,
-    entity_type: "class",
-    entity_id: row.enrollment_id,
-    status: "PENDING",
-    submitted_at: row.submitted_at ?? null,
-    user: mapUser(row.users),
-    entity: row.classes
-      ? { id: row.classes.class_id, name: row.classes.name }
-      : null,
-    section: null,
   };
 }
 
@@ -79,7 +54,6 @@ function mapUserHonor(row: RawUserHonor): PendingValidation {
 
 export function normalizePendingValidationsResponse(
   payload: unknown,
-  entityType?: ValidationEntityType,
 ): PendingValidation[] {
   if (Array.isArray(payload)) {
     return payload as PendingValidation[];
@@ -92,13 +66,9 @@ export function normalizePendingValidationsResponse(
       return record.data as PendingValidation[];
     }
 
-    if ("classes" in record || "honors" in record) {
+    if ("honors" in record) {
       const typed = record as PendingReviewsResponse;
-      const classes = (typed.classes ?? []).map(mapEnrollment);
-      const honors = (typed.honors ?? []).map(mapUserHonor);
-      if (entityType === "class") return classes;
-      if (entityType === "honor") return honors;
-      return [...classes, ...honors];
+      return (typed.honors ?? []).map(mapUserHonor);
     }
   }
 

@@ -3,7 +3,7 @@ import { normalizePendingValidationsResponse } from "@/lib/api/validation-normal
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
 
-export type ValidationEntityType = "class" | "honor";
+export type ValidationEntityType = "honor";
 
 export type ValidationAction = "APPROVED" | "REJECTED";
 
@@ -89,13 +89,6 @@ export type PendingValidationQuery = {
 
 // ─── Request payloads ─────────────────────────────────────────────────────────
 
-export type SubmitValidationPayload = {
-  entity_type: ValidationEntityType;
-  entity_id: number | string;
-  section_id?: number;
-  comment?: string;
-};
-
 export type ReviewValidationPayload = {
   action: ValidationAction;
   comment?: string;
@@ -117,7 +110,7 @@ export async function getPendingValidations(
   if (query.limit) params.limit = query.limit;
 
   const res = await apiRequest<unknown>("/validation/pending", { params });
-  return normalizePendingValidationsResponse(res, query.entity_type);
+  return normalizePendingValidationsResponse(res);
 }
 
 /**
@@ -153,20 +146,6 @@ export async function getValidationEligibility(
     return (res as { data: EligibilityResult }).data;
   }
   return res as EligibilityResult;
-}
-
-/**
- * POST /api/v1/validation/submit
- * Submit a class or honor for review.
- * Client-side only (mutation).
- */
-export async function submitValidation(
-  payload: SubmitValidationPayload,
-): Promise<unknown> {
-  return apiRequestFromClient<unknown>("/validation/submit", {
-    method: "POST",
-    body: payload,
-  });
 }
 
 /**

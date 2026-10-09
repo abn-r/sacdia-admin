@@ -171,13 +171,6 @@ export const VALIDATION_SUBMIT = "validation:submit";
 export const VALIDATION_REVIEW = "validation:review";
 export const VALIDATION_READ   = "validation:read";
 
-export const INVESTITURE_READ = "investiture:read";
-export const INVESTITURE_VALIDATE = "investiture:validate";
-export const INVESTITURE_MARK_INVESTED = "investiture:mark_invested";
-export const INVESTITURE_CONFIG_READ = "investiture_config:read";
-export const INVESTITURE_CONFIG_CREATE = "investiture_config:create";
-export const INVESTITURE_CONFIG_UPDATE = "investiture_config:update";
-export const INVESTITURE_CONFIG_DELETE = "investiture_config:delete";
 
 // --- Investidura por autorización (roles, no permisos: SkipPermissions en la API) ---
 /** Quienes pueden autorizar solicitudes. El servicio compara estos nombres literalmente. */

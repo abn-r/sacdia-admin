@@ -81,37 +81,14 @@ describe("filterSidebarItems", () => {
     expect(titles).toContain("Categorías finanzas");
   });
 
-  it("hides enrollments when the actor has classes:read instead of investiture:read", () => {
+  it("never shows the retired enrollments queue", () => {
     const filtered = filterSidebarItems(sidebarItems, {
-      isSuperAdmin: false,
-      canAny: (permissions) => permissions.includes("classes:read"),
-      canAll: () => false,
-      hasAnyRole: (roles) => roles.includes("admin"),
+      isSuperAdmin: true,
+      canAny: () => true,
+      canAll: () => true,
+      hasAnyRole: () => true,
     });
-
     expect(collectTitles(filtered)).not.toContain("Inscripciones");
-  });
-
-  it("keeps enrollments for director-lf via coordinator alias", () => {
-    const filtered = filterSidebarItems(sidebarItems, {
-      isSuperAdmin: false,
-      canAny: (permissions) => permissions.includes("investiture:read"),
-      canAll: () => false,
-      hasAnyRole: (roles) => roles.includes("director-lf"),
-    });
-
-    expect(collectTitles(filtered)).toContain("Inscripciones");
-  });
-
-  it("keeps enrollments for admin with investiture:read", () => {
-    const filtered = filterSidebarItems(sidebarItems, {
-      isSuperAdmin: false,
-      canAny: (permissions) => permissions.includes("investiture:read"),
-      canAll: () => false,
-      hasAnyRole: (roles) => roles.includes("admin"),
-    });
-
-    expect(collectTitles(filtered)).toContain("Inscripciones");
   });
 
   it("hides year-end when the actor only has permissions:read", () => {
