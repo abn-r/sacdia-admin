@@ -4057,6 +4057,13 @@ export interface IntlMessages {
       meta_module: string;
       meta_description: string;
       meta_submitted: string;
+      meta_instructor: string;
+      instructor_kind_user: string;
+      instructor_kind_external: string;
+      instructor_none: string;
+      meta_completed_at: string;
+      completed_approximate: string;
+      completed_none: string;
     };
     rejectDialog: {
       title: string;

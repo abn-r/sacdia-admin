@@ -4027,7 +4027,14 @@
       "meta_section": "Sección",
       "meta_module": "Módulo: {name}",
       "meta_description": "Descripción",
-      "meta_submitted": "Enviado el"
+      "meta_submitted": "Enviado el",
+      "meta_instructor": "Instructor o instructora",
+      "instructor_kind_user": "Usuario del sistema",
+      "instructor_kind_external": "Externo, no verificado",
+      "instructor_none": "Sin instructor registrado",
+      "meta_completed_at": "Fecha de finalización",
+      "completed_approximate": "{date} (fecha aproximada)",
+      "completed_none": "Sin fecha"
     },
     "rejectDialog": {
       "title": "Rechazar evidencia",

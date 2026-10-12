@@ -3989,7 +3989,14 @@
       "meta_section": "Seção",
       "meta_module": "Módulo: {name}",
       "meta_description": "Descrição",
-      "meta_submitted": "Enviado em"
+      "meta_submitted": "Enviado em",
+      "meta_instructor": "Instrutor ou instrutora",
+      "instructor_kind_user": "Usuário do sistema",
+      "instructor_kind_external": "Externo, não verificado",
+      "instructor_none": "Sem instrutor registrado",
+      "meta_completed_at": "Data de conclusão",
+      "completed_approximate": "{date} (data aproximada)",
+      "completed_none": "Sem data"
     },
     "rejectDialog": {
       "title": "Rejeitar evidência",
