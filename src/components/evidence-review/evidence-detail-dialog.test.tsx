@@ -20,7 +20,7 @@
 
 import React from "react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, waitFor, cleanup } from "@testing-library/react";
+import { render, screen, waitFor, cleanup, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import messages from "../../../messages/es.json";
@@ -58,9 +58,13 @@ vi.mock("@/lib/api/evidence-review", async (importOriginal) => {
   };
 });
 
-vi.mock("@/lib/format-locale", () => ({
-  useFormatDateTime: () => (dateStr: string) => `formatted:${dateStr}`,
-}));
+vi.mock("@/lib/format-locale", async (importOriginal) => {
+  const original = await importOriginal<typeof import("@/lib/format-locale")>();
+  return {
+    ...original,
+    useFormatDateTime: () => (dateStr: string) => `formatted:${dateStr}`,
+  };
+});
 
 // EvidenceStatusBadge and EvidenceTypeBadge — render as simple text nodes
 vi.mock("@/components/evidence-review/evidence-status-badge", () => ({
@@ -518,5 +522,118 @@ describe("EvidenceDetailDialog", () => {
     });
 
     fetchMock.mockRestore();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Honor instructor and completion date
+// ---------------------------------------------------------------------------
+
+describe("EvidenceDetailDialog - honor instructor and completion date", () => {
+  function honorDetail(overrides: Record<string, unknown>): EvidenceDetail {
+    return {
+      ...STUB_HONOR_DETAIL_WITH_PACKET,
+      instructor: null,
+      completed_at: null,
+      validated_at: null,
+      ...overrides,
+    } as EvidenceDetail;
+  }
+
+  async function renderHonor(overrides: Record<string, unknown>) {
+    mockGetEvidenceDetail.mockResolvedValue(honorDetail(overrides));
+    const utils = renderDialog({ type: "honor", id: 77 });
+    await waitFor(() => {
+      expect(screen.getByTestId("honor-instructor")).toBeInTheDocument();
+    });
+    return utils;
+  }
+
+  afterEach(() => {
+    cleanup();
+  });
+
+  it("shows a system user instructor with the 'Usuario del sistema' badge", async () => {
+    await renderHonor({
+      instructor: { kind: "USER", user_id: "u-1", display_name: "Ana Pérez" },
+    });
+    const block = screen.getByTestId("honor-instructor");
+    expect(within(block).getByText("Instructor o instructora")).toBeInTheDocument();
+    expect(within(block).getByText("Ana Pérez")).toBeInTheDocument();
+    expect(within(block).getByText("Usuario del sistema")).toBeInTheDocument();
+    expect(within(block).queryByText("Externo, no verificado")).not.toBeInTheDocument();
+  });
+
+  it("shows an external instructor flagged as unverified", async () => {
+    await renderHonor({
+      instructor: { kind: "EXTERNAL", display_name: "Dr. Luis Gómez" },
+    });
+    const block = screen.getByTestId("honor-instructor");
+    expect(within(block).getByText("Dr. Luis Gómez")).toBeInTheDocument();
+    expect(within(block).getByText("Externo, no verificado")).toBeInTheDocument();
+    expect(within(block).queryByText("Usuario del sistema")).not.toBeInTheDocument();
+  });
+
+  it("shows 'Sin instructor registrado' when instructor is null", async () => {
+    await renderHonor({ instructor: null });
+    expect(screen.getByText("Sin instructor registrado")).toBeInTheDocument();
+  });
+
+  it("shows 'Sin instructor registrado' when the backend omits instructor", async () => {
+    const legacy = honorDetail({});
+    delete legacy.instructor;
+    delete legacy.completed_at;
+    mockGetEvidenceDetail.mockResolvedValue(legacy);
+    renderDialog({ type: "honor", id: 77 });
+    expect(await screen.findByText("Sin instructor registrado")).toBeInTheDocument();
+  });
+
+  it("formats completed_at as a long Spanish date", async () => {
+    await renderHonor({ completed_at: "2026-03-05" });
+    const block = screen.getByTestId("honor-completed-at");
+    expect(within(block).getByText("Fecha de finalización")).toBeInTheDocument();
+    expect(within(block).getByText("5 de marzo de 2026")).toBeInTheDocument();
+    expect(within(block).queryByText(/aproximada/)).not.toBeInTheDocument();
+  });
+
+  it("does not shift the day for ISO midnight UTC completed_at", async () => {
+    await renderHonor({ completed_at: "2026-03-05T00:00:00.000Z" });
+    expect(screen.getByText("5 de marzo de 2026")).toBeInTheDocument();
+  });
+
+  it("falls back to validated_at flagged as approximate", async () => {
+    await renderHonor({ completed_at: null, validated_at: "2026-04-01T12:00:00.000Z" });
+    const block = screen.getByTestId("honor-completed-at");
+    expect(
+      within(block).getByText("1 de abril de 2026 (fecha aproximada)"),
+    ).toBeInTheDocument();
+  });
+
+  it("shows 'Sin fecha' when there is neither completed_at nor a fallback", async () => {
+    await renderHonor({ completed_at: null, validated_at: null });
+    const block = screen.getByTestId("honor-completed-at");
+    expect(within(block).getByText("Sin fecha")).toBeInTheDocument();
+  });
+
+  it("never renders an email", async () => {
+    const { container } = await renderHonor({
+      instructor: {
+        kind: "USER",
+        user_id: "u-1",
+        display_name: "Ana Pérez",
+        email: "ana@example.com",
+      },
+    });
+    expect(container.ownerDocument.body.textContent).not.toMatch(/@/);
+  });
+
+  it("does not render instructor or completion blocks for class evidence", async () => {
+    mockGetEvidenceDetail.mockResolvedValue(STUB_DETAIL);
+    renderDialog();
+    await waitFor(() => {
+      expect(screen.getByText("Carlos Ruiz")).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("honor-instructor")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("honor-completed-at")).not.toBeInTheDocument();
   });
 });

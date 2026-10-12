@@ -93,10 +93,19 @@ export type HonorReviewPacket = {
   requirements: HonorRequirementReviewItem[];
 };
 
+/** Instructor declarado de una especialidad. Nunca incluye foto ni email. */
+export type HonorInstructor =
+  | { kind: "USER"; user_id: string; display_name: string }
+  | { kind: "EXTERNAL"; display_name: string };
+
 export type EvidenceDetail = EvidenceItem & {
   files: EvidenceFile[];
   validated_by_name: string | null;
   honor_review_packet?: HonorReviewPacket;
+  /** Solo `honor`. `null` = sin instructor; ausente en backends anteriores. */
+  instructor?: HonorInstructor | null;
+  /** Solo `honor`. `YYYY-MM-DD` o ISO; `null` en filas anteriores. */
+  completed_at?: string | null;
 };
 
 export type EvidenceHistoryEntry = {

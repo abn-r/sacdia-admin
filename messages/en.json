@@ -4002,7 +4002,14 @@
       "meta_section": "Section",
       "meta_module": "Module: {name}",
       "meta_description": "Description",
-      "meta_submitted": "Submitted on"
+      "meta_submitted": "Submitted on",
+      "meta_instructor": "Instructor",
+      "instructor_kind_user": "System user",
+      "instructor_kind_external": "External, unverified",
+      "instructor_none": "No instructor on record",
+      "meta_completed_at": "Completion date",
+      "completed_approximate": "{date} (approximate date)",
+      "completed_none": "No date"
     },
     "rejectDialog": {
       "title": "Reject evidence",

@@ -29,7 +29,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import {
   getEvidenceDetail,
   type EvidenceDetail,
@@ -39,7 +39,7 @@ import { EvidenceStatusBadge } from "@/components/evidence-review/evidence-statu
 import { EvidenceTypeBadge } from "@/components/evidence-review/evidence-type-badge";
 import { PdfInlineViewer } from "@/components/shared/pdf-inline-viewer";
 import { ApiError } from "@/lib/api/client";
-import { useFormatDateTime } from "@/lib/format-locale";
+import { formatCalendarDate, useFormatDateTime } from "@/lib/format-locale";
 import {
   getEvidenceDescription,
   getEvidenceEntityName,
@@ -609,6 +609,65 @@ function HonorReviewPacketSection({ packet }: HonorReviewPacketSectionProps) {
   );
 }
 
+// ─── Honor instructor and completion date ─────────────────────────────────────
+
+type HonorDeclarationDetail = Pick<
+  EvidenceDetail,
+  "instructor" | "completed_at" | "validated_at"
+>;
+
+function HonorDeclarationMeta({ detail }: { detail: HonorDeclarationDetail }) {
+  const t = useTranslations("evidence_review.detail");
+  const locale = useLocale();
+  const { instructor, completed_at, validated_at } = detail;
+
+  // Legacy rows have no completed_at: fall back to validated_at, flagged as approximate.
+  let completedLabel = t("completed_none");
+  if (completed_at) {
+    completedLabel = formatCalendarDate(completed_at, locale, "long");
+  } else if (validated_at) {
+    completedLabel = t("completed_approximate", {
+      date: formatCalendarDate(validated_at, locale, "long"),
+    });
+  }
+
+  return (
+    <>
+      <div className="flex items-start gap-2 text-sm" data-testid="honor-instructor">
+        <User className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+        <div>
+          <p className="text-xs text-muted-foreground">{t("meta_instructor")}</p>
+          {instructor ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="font-medium">{instructor.display_name}</p>
+              <Badge
+                variant={instructor.kind === "USER" ? "outline" : "warning"}
+                className="text-xs"
+              >
+                {instructor.kind === "USER"
+                  ? t("instructor_kind_user")
+                  : t("instructor_kind_external")}
+              </Badge>
+            </div>
+          ) : (
+            <p className="text-muted-foreground">{t("instructor_none")}</p>
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-start gap-2 text-sm" data-testid="honor-completed-at">
+        <Calendar className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+        <div>
+          <p className="text-xs text-muted-foreground">{t("meta_completed_at")}</p>
+          <p className={completed_at || validated_at ? undefined : "text-muted-foreground"}>
+            {completedLabel}
+          </p>
+        </div>
+      </div>
+    </>
+  );
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 interface EvidenceDetailDialogProps {
@@ -746,6 +805,8 @@ export function EvidenceDetailDialog({
                     </p>
                   </div>
                 </div>
+
+                {detail.type === "honor" && <HonorDeclarationMeta detail={detail} />}
 
                 {detail.validated_at && (
                   <div className="flex items-start gap-2 text-sm">

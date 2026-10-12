@@ -3989,7 +3989,14 @@
       "meta_section": "Section",
       "meta_module": "Module : {name}",
       "meta_description": "Description",
-      "meta_submitted": "Envoyé le"
+      "meta_submitted": "Envoyé le",
+      "meta_instructor": "Instructeur ou instructrice",
+      "instructor_kind_user": "Utilisateur du système",
+      "instructor_kind_external": "Externe, non vérifié",
+      "instructor_none": "Aucun instructeur enregistré",
+      "meta_completed_at": "Date d'achèvement",
+      "completed_approximate": "{date} (date approximative)",
+      "completed_none": "Aucune date"
     },
     "rejectDialog": {
       "title": "Rejeter la preuve",
