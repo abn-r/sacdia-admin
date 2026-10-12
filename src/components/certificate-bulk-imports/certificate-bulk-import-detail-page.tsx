@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
@@ -28,6 +28,14 @@ import {
 } from "@/components/certificate-bulk-imports/certificate-bulk-import-badges";
 import { CertificateBulkImportProgress } from "@/components/certificate-bulk-imports/certificate-bulk-import-progress";
 import {
+  InstructorConflictNotice,
+  InstructorLine,
+  OcrStateSummary,
+  PageCountText,
+  PageOfText,
+  ViewInProofButton,
+} from "@/components/certificate-bulk-imports/certificate-bulk-import-review-parts";
+import {
   confidenceLabel,
   confidencePercent,
   formatCivilDate,
@@ -36,7 +44,9 @@ import {
   formatUserName,
   getBatchCounts,
   isReviewableItem,
-  itemCatalogName,
+  itemCatalogLabel,
+  resolveProofTarget,
+  type ProofTarget,
 } from "@/components/certificate-bulk-imports/helpers";
 import { useScreenAccess } from "@/lib/auth/screen-catalog/use-screen-access";
 import {
@@ -57,6 +67,9 @@ const GM01_CODE = "GM-01";
  * These go to the institutional queue (super-admin only). */
 const GM_INSTITUTIONAL_CODES = ["GM-02", "GM-03"];
 
+/** What the proof viewer shows. `explicit` = opened from a row link (not the default). */
+type ViewerTarget = ProofTarget & { explicit: boolean; seq: number };
+
 type DialogState =
   | { action: "approve"; item: CertificateBulkImportItem }
   | { action: "reject"; item: CertificateBulkImportItem }
@@ -76,8 +89,14 @@ function isPdf(file: CertificateBulkImportFile) {
  */
 function SignedFileCardContent({
   file,
+  page,
+  explicitPage,
+  navigationKey,
 }: {
   file: CertificateBulkImportFile;
+  page: number;
+  explicitPage: boolean;
+  navigationKey: number;
 }) {
   const [downloadState, setDownloadState] = useState<
     | { phase: "loading" }
@@ -130,7 +149,15 @@ function SignedFileCardContent({
       <div className="flex items-center justify-between gap-3 border-b px-4 py-3">
         <div className="min-w-0">
           <p className="truncate text-base font-semibold">{file.file_name}</p>
-          <p className="text-xs text-muted-foreground">Subido {formatDateTime(file.uploaded_at)}</p>
+          <p className="text-xs text-muted-foreground">
+            Subido {formatDateTime(file.uploaded_at)}
+            {typeof file.page_count === "number" && file.page_count >= 1 && (
+              <> · <PageCountText count={file.page_count} /></>
+            )}
+            {explicitPage && isPdf(file) && (
+              <> · <PageOfText page={page} total={file.page_count} /></>
+            )}
+          </p>
         </div>
         <Button variant="outline" size="sm" asChild>
           <a href={download_url} target="_blank" rel="noreferrer">
@@ -151,6 +178,8 @@ function SignedFileCardContent({
           <PdfInlineViewer
             title={file.file_name}
             src={download_url}
+            initialPage={page}
+            navigationKey={navigationKey}
             className="h-[70vh] w-full rounded-lg border bg-background"
           />
         ) : (
@@ -164,10 +193,17 @@ function SignedFileCardContent({
   );
 }
 
-function ProofViewer({ files }: { files: CertificateBulkImportFile[] }) {
+function ProofViewer({
+  files,
+  target,
+  onSelectFile,
+}: {
+  files: CertificateBulkImportFile[];
+  target: ViewerTarget | null;
+  onSelectFile: (fileId: string) => void;
+}) {
   const t = useTranslations("certificate_bulk_imports.filesPanel");
-  const [activeFileId, setActiveFileId] = useState(files[0]?.file_id ?? "");
-  const activeFile = files.find((file) => file.file_id === activeFileId) ?? files[0];
+  const activeFile = files.find((file) => file.file_id === target?.fileId) ?? files[0];
 
   if (!activeFile) {
     return (
@@ -186,7 +222,12 @@ function ProofViewer({ files }: { files: CertificateBulkImportFile[] }) {
   return (
     <Card className="overflow-hidden py-0">
       <CardContent className="p-0">
-        <SignedFileCardContent file={activeFile} />
+        <SignedFileCardContent
+          file={activeFile}
+          page={target && target.fileId === activeFile.file_id ? target.page : 1}
+          explicitPage={Boolean(target?.explicit && target.fileId === activeFile.file_id)}
+          navigationKey={target?.seq ?? 0}
+        />
         {files.length > 1 && (
           <div className="flex gap-2 overflow-x-auto border-t p-3">
             {files.map((file) => (
@@ -195,9 +236,15 @@ function ProofViewer({ files }: { files: CertificateBulkImportFile[] }) {
                 type="button"
                 variant={file.file_id === activeFile.file_id ? "default" : "outline"}
                 size="sm"
-                onClick={() => setActiveFileId(file.file_id)}
+                onClick={() => onSelectFile(file.file_id)}
               >
                 {file.file_name}
+                {typeof file.page_count === "number" && file.page_count >= 1 && (
+                  <span className="opacity-70">
+                    {" · "}
+                    <PageCountText count={file.page_count} />
+                  </span>
+                )}
               </Button>
             ))}
           </div>
@@ -211,12 +258,17 @@ function ItemRow({
   item,
   canApprove,
   canReject,
+  proofTarget,
+  onViewProof,
   onApprove,
   onReject,
 }: {
   item: CertificateBulkImportItem;
   canApprove: boolean;
   canReject: boolean;
+  /** Where the row's proof link opens; null when the batch has no visible files. */
+  proofTarget: ProofTarget | null;
+  onViewProof: (target: ProofTarget) => void;
   onApprove: () => void;
   onReject: () => void;
 }) {
@@ -238,14 +290,22 @@ function ItemRow({
           </div>
           <div className="font-medium">{item.detected_name ?? "Sin nombre detectado"}</div>
           <div className="text-sm text-muted-foreground">
-            Catálogo: {itemCatalogName(item)}
+            Catálogo: {itemCatalogLabel(item)}
             {item.completed_at && (
-              <> · <span title="Fecha del certificado">Certificado: {formatCivilDate(item.completed_at)}</span></>
+              <> · <span title="Fecha del certificado">{item.item_type === "CLASS" ? "Fecha de investidura" : "Certificado"}: {formatCivilDate(item.completed_at)}</span></>
             )}
             {item.reviewed_at && (
               <> · <span title="Fecha de revisión">Revisado: {formatDateTime(item.reviewed_at)}</span></>
             )}
           </div>
+
+          {item.item_type === "HONOR" && <InstructorLine instructor={item.instructor} />}
+          {item.instructor_conflict && (
+            <InstructorConflictNotice approved={item.status === "APPROVED"} />
+          )}
+          {proofTarget && (
+            <ViewInProofButton page={proofTarget.page} onClick={() => onViewProof(proofTarget)} />
+          )}
 
           {/* GM-01: substitution notice */}
           {isGm01 && (
@@ -343,6 +403,8 @@ export function CertificateBulkImportDetailPage({
   const canApprove = canCapability("certificate-bulk-imports", "approve");
   const canReject = canCapability("certificate-bulk-imports", "reject");
   const [dialog, setDialog] = useState<DialogState>(null);
+  const [viewerTarget, setViewerTarget] = useState<ViewerTarget | null>(null);
+  const proofRef = useRef<HTMLDivElement>(null);
   const [, startTransition] = useTransition();
   const visibleBatch = useMemo(() => {
     const institutionalIds = new Set(
@@ -369,6 +431,15 @@ export function CertificateBulkImportDetailPage({
   const files = visibleBatch.files ?? [];
   const counts = useMemo(() => getBatchCounts(visibleBatch), [visibleBatch]);
 
+  function handleViewProof(target: ProofTarget) {
+    setViewerTarget((current) => ({ ...target, explicit: true, seq: (current?.seq ?? 0) + 1 }));
+    proofRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+  }
+
+  function handleSelectFile(fileId: string) {
+    setViewerTarget((current) => ({ fileId, page: 1, explicit: false, seq: (current?.seq ?? 0) + 1 }));
+  }
+
   function handleSuccess() {
     setDialog(null);
     startTransition(() => router.refresh());
@@ -389,7 +460,9 @@ export function CertificateBulkImportDetailPage({
       </Button>
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(420px,0.85fr)]">
-        <ProofViewer files={files} />
+        <div ref={proofRef} className="min-w-0">
+          <ProofViewer files={files} target={viewerTarget} onSelectFile={handleSelectFile} />
+        </div>
 
         <div className="flex min-w-0 flex-col gap-4">
           <Card>
@@ -400,6 +473,7 @@ export function CertificateBulkImportDetailPage({
                   <p className="text-sm text-muted-foreground">
                     Lote {formatShortId(batch.batch_id)} · Enviado {formatDateTime(batch.submitted_at)}
                   </p>
+                  <OcrStateSummary state={batch.ocr_state} errorCode={batch.ocr_error_code} />
                 </div>
                 <CertificateBatchStatusBadge status={batch.status} />
               </div>
@@ -436,6 +510,8 @@ export function CertificateBulkImportDetailPage({
                     item={item}
                     canApprove={canApprove}
                     canReject={canReject}
+                    proofTarget={resolveProofTarget(item, files)}
+                    onViewProof={handleViewProof}
                     onApprove={() => setDialog({ action: "approve", item })}
                     onReject={() => setDialog({ action: "reject", item })}
                   />

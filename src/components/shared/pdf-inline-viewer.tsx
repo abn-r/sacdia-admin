@@ -7,9 +7,19 @@ interface PdfInlineViewerProps {
   src: string;
   title: string;
   className?: string;
+  /** 1-based page to open on. Invalid values (< 1, non-integer) are ignored. */
+  initialPage?: number;
+  /** Change it to jump to `initialPage` again after the user scrolled away. */
+  navigationKey?: number | string;
 }
 
-export function PdfInlineViewer({ src, title, className }: PdfInlineViewerProps) {
+export function PdfInlineViewer({
+  src,
+  title,
+  className,
+  initialPage,
+  navigationKey,
+}: PdfInlineViewerProps) {
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -103,15 +113,23 @@ export function PdfInlineViewer({ src, title, className }: PdfInlineViewerProps)
     );
   }
 
+  // Open parameter understood by the browser PDF viewers; the blob is untouched.
+  const viewerUrl =
+    typeof initialPage === "number" && Number.isInteger(initialPage) && initialPage >= 1
+      ? `${blobUrl}#page=${initialPage}`
+      : blobUrl;
+
   return (
     <object
+      // A new key remounts the viewer so the browser honors the new fragment.
+      key={`${initialPage ?? ""}-${navigationKey ?? ""}`}
       data-testid="pdf-inline-viewer"
-      data={blobUrl}
+      data={viewerUrl}
       type="application/pdf"
       title={title}
       className={`bg-background ${viewerClassName}`}
     >
-      <iframe title={title} src={blobUrl} className={viewerClassName} />
+      <iframe title={title} src={viewerUrl} className={viewerClassName} />
     </object>
   );
 }

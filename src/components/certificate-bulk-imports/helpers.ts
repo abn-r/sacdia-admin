@@ -1,5 +1,6 @@
 import type {
   CertificateBulkImportBatch,
+  CertificateBulkImportFile,
   CertificateBulkImportItem,
   CertificateBulkImportUser,
 } from "@/lib/api/certificate-bulk-imports";
@@ -48,6 +49,13 @@ export function itemCatalogName(item: CertificateBulkImportItem): string {
   return item.honor?.name ?? item.class?.name ?? "Sin match";
 }
 
+/** "Categoría · Especialidad" or "Tipo de club · Clase"; just the name when the parent is missing. */
+export function itemCatalogLabel(item: CertificateBulkImportItem): string {
+  const name = itemCatalogName(item);
+  const parent = item.honor ? item.honor.category?.name : item.class?.club_type?.name;
+  return parent ? `${parent} · ${name}` : name;
+}
+
 export function getBatchCounts(batch: CertificateBulkImportBatch) {
   const items = batch.items ?? [];
   return {
@@ -73,4 +81,36 @@ export function confidenceLabel(value?: number | null): string {
 export function confidencePercent(value?: number | null): string {
   if (typeof value !== "number") return "—";
   return `${Math.round(value * 100)}%`;
+}
+
+export type ProofTarget = { fileId: string; page: number };
+
+/**
+ * Where "Ver en el comprobante" opens for a row (same rule as the member app):
+ * the file is `source_file_id` when it is still in `files`, otherwise the first
+ * file. `source_page` only counts when the file came from `source_file_id` and
+ * fits in `page_count` (unknown `page_count` only needs >= 1); any other case
+ * opens page 1, so inconsistent data never breaks the viewer.
+ * Returns null when the batch has no visible files.
+ */
+export function resolveProofTarget(
+  item: Pick<CertificateBulkImportItem, "source_file_id" | "source_page">,
+  files: readonly CertificateBulkImportFile[],
+): ProofTarget | null {
+  const first = files[0];
+  if (!first) return null;
+
+  const source = item.source_file_id
+    ? files.find((file) => file.file_id === item.source_file_id)
+    : undefined;
+  if (!source) return { fileId: first.file_id, page: 1 };
+
+  const page = item.source_page;
+  const pageCount = source.page_count;
+  const validPage =
+    typeof page === "number" &&
+    Number.isInteger(page) &&
+    page >= 1 &&
+    (typeof pageCount !== "number" || page <= pageCount);
+  return { fileId: source.file_id, page: validPage ? page : 1 };
 }

@@ -130,13 +130,19 @@ export function CertificateBulkImportActionDialog({
               }
             : {}),
         };
+        let instructorConflict = false;
         if (scope === "item") {
           if (!itemId) throw new Error("Missing item id");
-          await approveCertificateBulkImportItem(batchId, itemId, payload);
+          const approved = await approveCertificateBulkImportItem(batchId, itemId, payload);
+          instructorConflict = approved?.instructor_conflict === true;
         } else {
           await approveCertificateBulkImportBatch(batchId, payload);
         }
-        toast.success(t(scope === "item" ? "itemApproved" : "batchApproved"));
+        if (instructorConflict) {
+          toast.warning(t("itemApprovedInstructorConflict"));
+        } else {
+          toast.success(t(scope === "item" ? "itemApproved" : "batchApproved"));
+        }
       }
       form.reset();
       onSuccess();

@@ -7174,6 +7174,7 @@
       "batchApproved": "Lote aprobado correctamente",
       "batchRejected": "Lote rechazado para corrección",
       "itemApproved": "Fila aprobada correctamente",
+      "itemApprovedInstructorConflict": "Ligne approuvée. La spécialité avait déjà un autre instructeur ; l'existant a été conservé.",
       "itemRejected": "Fila rechazada para corrección",
       "genericError": "Impossible de terminer l'action"
     },
@@ -7184,6 +7185,37 @@
     "auditTimeline": {
       "emptyTitle": "Aucune piste d'audit",
       "emptyDescription": "Aucun événement n'a encore été enregistré pour ce lot."
+    },
+    "review": {
+      "instructorLabel": "Instructeur :",
+      "noInstructor": "Sans instructeur",
+      "instructorUser": "Utilisateur du système",
+      "instructorExternal": "Externe, non vérifié",
+      "conflictBadge": "Conflit d'instructeur",
+      "conflictPending": "Cette spécialité est déjà approuvée avec un autre instructeur ; l'existant sera conservé.",
+      "conflictApproved": "Cette spécialité était déjà approuvée avec un autre instructeur ; l'existant a été conservé.",
+      "viewInProof": "Voir dans le justificatif · p. {page}",
+      "pageCount": "{count, plural, one {# page} other {# pages}}",
+      "pageOf": "Ouvert à la page {page} sur {total}",
+      "pageOnly": "Ouvert à la page {page}",
+      "ocrState": {
+        "pending": { "label": "Lecture en attente", "description": "La lecture automatique est en file d'attente." },
+        "running": { "label": "Lecture en cours…", "description": "La lecture automatique est en cours." },
+        "done": { "label": "Lecture terminée", "description": "La lecture automatique est terminée." },
+        "empty": { "label": "Aucune ligne détectée", "description": "La lecture automatique n'a trouvé aucune ligne ; le membre les a ajoutées à la main." },
+        "failed": { "label": "Échec de la lecture", "description": "La lecture automatique n'a pas pu aboutir." }
+      },
+      "ocrErrors": {
+        "generic": "Le justificatif n'a pas pu être lu.",
+        "failed": "Le justificatif n'a pas pu être lu.",
+        "quota": "La limite du service de lecture a été atteinte ; réessayez plus tard.",
+        "unavailable": "Le service de lecture était indisponible.",
+        "fileTooLarge": "Un fichier est trop volumineux pour être lu.",
+        "unsupportedType": "Un fichier a un format illisible.",
+        "pdfTooManyPages": "Un PDF a plus de pages que permis.",
+        "pdfEncrypted": "Un PDF est protégé par mot de passe.",
+        "pdfInvalid": "Un PDF est endommagé ou invalide."
+      }
     },
     "errors": {
       "authorization_pending": "La personne a une demande d'investiture en attente cette année. L'autorisation doit d'abord être résolue.",

@@ -24,10 +24,12 @@ vi.mock("@/lib/api/certificate-bulk-imports", async (importOriginal) => {
 
 const mockToastSuccess = vi.fn();
 const mockToastError = vi.fn();
+const mockToastWarning = vi.fn();
 vi.mock("sonner", () => ({
   toast: {
     success: (message: string) => mockToastSuccess(message),
     error: (message: string) => mockToastError(message),
+    warning: (message: string) => mockToastWarning(message),
   },
 }));
 
@@ -118,6 +120,24 @@ describe("CertificateBulkImportActionDialog", () => {
         comment: "Validado contra comprobante",
       });
     });
+  });
+
+  it("warns that the existing instructor was kept when the response flags a conflict", async () => {
+    const user = userEvent.setup();
+    mockApproveItem.mockResolvedValue({ status: "APPROVED", instructor_conflict: true });
+    const { onSuccess } = renderDialog({
+      action: "approve",
+      scope: "item",
+      itemId: "item-1",
+      title: "Aprobar fila",
+      description: "La fila se aplicará al perfil del miembro.",
+    });
+
+    await user.click(screen.getByRole("button", { name: /aprobar/i }));
+
+    await waitFor(() => expect(onSuccess).toHaveBeenCalledOnce());
+    expect(mockToastWarning).toHaveBeenCalledWith(expect.stringMatching(/se conservó el existente/));
+    expect(mockToastSuccess).not.toHaveBeenCalled();
   });
 
   it("confirms accreditation on the current enrollment", async () => {

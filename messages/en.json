@@ -7308,6 +7308,7 @@
       "batchApproved": "Lote aprobado correctamente",
       "batchRejected": "Lote rechazado para corrección",
       "itemApproved": "Fila aprobada correctamente",
+      "itemApprovedInstructorConflict": "Row approved. The honor already had another instructor; the existing one was kept.",
       "itemRejected": "Fila rechazada para corrección",
       "genericError": "Could not complete the action"
     },
@@ -7318,6 +7319,37 @@
     "auditTimeline": {
       "emptyTitle": "No audit trail",
       "emptyDescription": "No events have been recorded for this batch yet."
+    },
+    "review": {
+      "instructorLabel": "Instructor:",
+      "noInstructor": "No instructor",
+      "instructorUser": "System user",
+      "instructorExternal": "External, not verified",
+      "conflictBadge": "Instructor conflict",
+      "conflictPending": "This honor is already approved with another instructor; the existing one will be kept.",
+      "conflictApproved": "This honor was already approved with another instructor; the existing one was kept.",
+      "viewInProof": "View in the proof · p. {page}",
+      "pageCount": "{count, plural, one {# page} other {# pages}}",
+      "pageOf": "Opened at page {page} of {total}",
+      "pageOnly": "Opened at page {page}",
+      "ocrState": {
+        "pending": { "label": "Reading queued", "description": "Automatic reading is queued." },
+        "running": { "label": "Reading…", "description": "Automatic reading is in progress." },
+        "done": { "label": "Reading complete", "description": "Automatic reading finished." },
+        "empty": { "label": "No rows detected", "description": "Automatic reading found no rows; the member added them by hand." },
+        "failed": { "label": "Reading failed", "description": "Automatic reading could not be completed." }
+      },
+      "ocrErrors": {
+        "generic": "The proof could not be read.",
+        "failed": "The proof could not be read.",
+        "quota": "The reading service limit was reached; try again later.",
+        "unavailable": "The reading service was unavailable.",
+        "fileTooLarge": "A file is too large to be read.",
+        "unsupportedType": "A file has a format that cannot be read.",
+        "pdfTooManyPages": "A PDF has more pages than allowed.",
+        "pdfEncrypted": "A PDF is password protected.",
+        "pdfInvalid": "A PDF is damaged or invalid."
+      }
     },
     "errors": {
       "authorization_pending": "This person has a pending investiture request this year. The authorization must be resolved first.",
