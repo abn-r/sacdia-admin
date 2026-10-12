@@ -122,6 +122,7 @@
       "materials_categories": "Categorias",
       "materials_config": "Configurações",
       "certificate_bulk_imports": "Cargas por certificado",
+      "honor_instructor_proposals": "Propostas de instrutor",
       "institutional_certificate_requests": "Caixa institucional GM",
       "coordination": "Coordenação",
       "coordinator_hub": "Hub de coordenação",
@@ -7188,6 +7189,100 @@
     "errors": {
       "authorization_pending": "A pessoa tem uma solicitação de investidura pendente neste ano. Primeiro é resolvida a autorização.",
       "ended_year_field_forbidden": "Somente o Campo da solicitação ou a administração podem creditar este certificado."
+    }
+  },
+  "honor_instructor_proposals": {
+    "page": {
+      "title": "Propostas de instrutor",
+      "description": "Mudanças de instrutor propostas por membros em especialidades já aprovadas. Aprove-as ou rejeite-as com um motivo."
+    },
+    "filter": {
+      "label": "Filtrar por status",
+      "PENDING": "Pendentes",
+      "APPROVED": "Aprovadas",
+      "REJECTED": "Rejeitadas"
+    },
+    "count": "{count, plural, =0 {Nenhuma proposta} one {# proposta} other {# propostas}}",
+    "refresh": "Atualizar",
+    "loading": "Carregando propostas",
+    "loadError": {
+      "title": "Não foi possível carregar a fila",
+      "description": "Ocorreu um erro ao consultar as propostas de instrutor.",
+      "retry": "Tentar novamente"
+    },
+    "empty": {
+      "PENDING": {
+        "title": "Sem propostas pendentes",
+        "description": "Nenhuma proposta de instrutor aguarda decisão."
+      },
+      "APPROVED": {
+        "title": "Sem propostas aprovadas",
+        "description": "Nenhuma proposta de instrutor foi aprovada ainda."
+      },
+      "REJECTED": {
+        "title": "Sem propostas rejeitadas",
+        "description": "Nenhuma proposta de instrutor foi rejeitada ainda."
+      }
+    },
+    "columns": {
+      "member": "Membro",
+      "honor": "Especialidade",
+      "current": "Instrutor atual",
+      "proposed": "Instrutor proposto",
+      "date": "Proposta",
+      "actions": "Ações"
+    },
+    "approvedOn": "Aprovada em {date}",
+    "instructor": {
+      "none": "Sem instrutor declarado",
+      "unnamed": "Sem nome",
+      "kindUser": "Usuário do sistema",
+      "kindExternal": "Externo, não verificado"
+    },
+    "actions": {
+      "approve": "Aprovar",
+      "reject": "Rejeitar"
+    },
+    "status": {
+      "PENDING": "Pendente",
+      "APPROVED": "Aprovada",
+      "REJECTED": "Rejeitada",
+      "WITHDRAWN": "Retirada"
+    },
+    "pagination": {
+      "pageOf": "Página {page} de {totalPages}",
+      "prev": "Página anterior",
+      "next": "Próxima página"
+    },
+    "approve": {
+      "title": "Aprovar proposta de instrutor",
+      "replace": "Substituir {current} por {proposed}. A mudança é aplicada à especialidade aprovada.",
+      "assign": "Definir {proposed} como instrutor da especialidade aprovada.",
+      "confirm": "Aprovar"
+    },
+    "reject": {
+      "title": "Rejeitar proposta de instrutor",
+      "description": "Você está rejeitando a proposta de {member} ({proposed}). A especialidade não muda e o membro verá o motivo.",
+      "reasonLabel": "Motivo da rejeição *",
+      "reasonPlaceholder": "Explique por que este instrutor não é aceito...",
+      "reasonInvalid": "O motivo é obrigatório e deve ter entre {min} e {max} caracteres.",
+      "confirm": "Rejeitar proposta"
+    },
+    "dialog": {
+      "cancel": "Cancelar"
+    },
+    "toast": {
+      "approved": "Proposta aprovada. O instrutor foi registrado.",
+      "rejected": "Proposta rejeitada."
+    },
+    "errors": {
+      "invalid": "Este instrutor não é mais elegível (foi desativado ou mudou de campo). Você só pode rejeitar a proposta com um motivo.",
+      "notPending": "A proposta não está mais pendente: alguém a resolveu ou o membro a substituiu. A fila foi atualizada.",
+      "notFound": "A proposta não existe mais. A fila foi atualizada.",
+      "notApproved": "A especialidade não está mais aprovada, então seu instrutor não pode ser alterado.",
+      "forbidden": "Você não tem acesso a esta proposta: o membro pertence a outro Campo Local.",
+      "reasonInvalid": "A solicitação não é válida. Verifique o motivo (de 3 a 500 caracteres).",
+      "generic": "Não foi possível concluir a ação. Tente novamente."
     }
   },
   "campamentos": {

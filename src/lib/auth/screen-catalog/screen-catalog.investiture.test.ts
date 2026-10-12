@@ -86,6 +86,29 @@ describe("certificate-bulk-imports", () => {
   });
 });
 
+describe("honor-instructor-proposals", () => {
+  it("is role-only like the certificate import: director-lf enters, coordinator does not", () => {
+    expect(
+      canViewScreen(buildUser(["director-lf"], []), "honor-instructor-proposals"),
+    ).toBe(true);
+    expect(
+      canViewScreen(buildUser(["coordinator"], []), "honor-instructor-proposals"),
+    ).toBe(false);
+    expect(
+      canAccessDashboardPath(
+        buildUser(["coordinator"], []),
+        "/dashboard/honor-instructor-proposals",
+      ),
+    ).toBe(false);
+  });
+
+  it("hides approve and reject when the actor has no matching role", () => {
+    const outsider = buildUser(["coordinator"], ["user_certifications:manage"]);
+    expect(canCapability(outsider, "honor-instructor-proposals", "approve")).toBe(false);
+    expect(canCapability(outsider, "honor-instructor-proposals", "reject")).toBe(false);
+  });
+});
+
 describe("certifications-list", () => {
   it("requires user_certifications:manage for the progress toggle", () => {
     expect(

@@ -151,6 +151,7 @@ export interface IntlMessages {
       materials_categories: string;
       materials_config: string;
       certificate_bulk_imports: string;
+      honor_instructor_proposals: string;
       institutional_certificate_requests: string;
       coordination: string;
       coordinator_hub: string;
@@ -7378,6 +7379,100 @@ export interface IntlMessages {
     errors: {
       authorization_pending: string;
       ended_year_field_forbidden: string;
+    };
+  };
+  honor_instructor_proposals: {
+    page: {
+      title: string;
+      description: string;
+    };
+    filter: {
+      label: string;
+      PENDING: string;
+      APPROVED: string;
+      REJECTED: string;
+    };
+    count: string;
+    refresh: string;
+    loading: string;
+    loadError: {
+      title: string;
+      description: string;
+      retry: string;
+    };
+    empty: {
+      PENDING: {
+        title: string;
+        description: string;
+      };
+      APPROVED: {
+        title: string;
+        description: string;
+      };
+      REJECTED: {
+        title: string;
+        description: string;
+      };
+    };
+    columns: {
+      member: string;
+      honor: string;
+      current: string;
+      proposed: string;
+      date: string;
+      actions: string;
+    };
+    approvedOn: string;
+    instructor: {
+      none: string;
+      unnamed: string;
+      kindUser: string;
+      kindExternal: string;
+    };
+    actions: {
+      approve: string;
+      reject: string;
+    };
+    status: {
+      PENDING: string;
+      APPROVED: string;
+      REJECTED: string;
+      WITHDRAWN: string;
+    };
+    pagination: {
+      pageOf: string;
+      prev: string;
+      next: string;
+    };
+    approve: {
+      title: string;
+      replace: string;
+      assign: string;
+      confirm: string;
+    };
+    reject: {
+      title: string;
+      description: string;
+      reasonLabel: string;
+      reasonPlaceholder: string;
+      reasonInvalid: string;
+      confirm: string;
+    };
+    dialog: {
+      cancel: string;
+    };
+    toast: {
+      approved: string;
+      rejected: string;
+    };
+    errors: {
+      invalid: string;
+      notPending: string;
+      notFound: string;
+      notApproved: string;
+      forbidden: string;
+      reasonInvalid: string;
+      generic: string;
     };
   };
   campamentos: {

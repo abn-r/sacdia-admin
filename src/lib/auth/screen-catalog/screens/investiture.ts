@@ -112,6 +112,27 @@ export const investitureScreens: ScreenDefinition[] = [
     ],
   },
   {
+    // D11 queue: same Campo Local reviewer as the certificate import
+    // (`AdminHonorInstructorProposalsController`, doc §4.9). SkipPermissions.
+    id: "honor-instructor-proposals",
+    surfaces: ["admin"],
+    viewAny: roleOnlyAccess(CERTIFICATE_BULK_ROLES),
+    capabilities: [
+      // POST admin/honor-instructor-proposals/:proposalId/approve
+      {
+        id: "approve",
+        kind: "button",
+        gate: roleOnlyAccess(CERTIFICATE_BULK_ROLES),
+      },
+      // POST admin/honor-instructor-proposals/:proposalId/reject
+      {
+        id: "reject",
+        kind: "button",
+        gate: roleOnlyAccess(CERTIFICATE_BULK_ROLES),
+      },
+    ],
+  },
+  {
     /**
      * Bandeja institucional GM-02 / GM-03.
      * Exclusive to super-admin: approving here records institutional validation,
