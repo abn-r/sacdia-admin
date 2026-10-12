@@ -277,6 +277,13 @@ export const sidebarItems: NavGroup[] = [
             activeMatch: "prefix",
           },
           {
+            id: "honor-instructor-proposals",
+            title: "Propuestas de instructor",
+            url: "/dashboard/honor-instructor-proposals",
+            icon: UserCog,
+            activeMatch: "prefix",
+          },
+          {
             id: "institutional-certificate-requests",
             title: "Bandeja institucional GM",
             url: "/dashboard/institutional-certificate-requests",

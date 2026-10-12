@@ -122,6 +122,7 @@
       "materials_categories": "Categorías",
       "materials_config": "Configuración",
       "certificate_bulk_imports": "Cargas por certificado",
+      "honor_instructor_proposals": "Propuestas de instructor",
       "institutional_certificate_requests": "Bandeja institucional GM",
       "coordination": "Coordinación",
       "coordinator_hub": "Hub de coordinación",
@@ -7388,6 +7389,100 @@
     "errors": {
       "authorization_pending": "La persona tiene una solicitud de investidura pendiente en este año. Primero se resuelve la autorización.",
       "ended_year_field_forbidden": "Solo el Campo de la solicitud o la administración pueden acreditar este certificado."
+    }
+  },
+  "honor_instructor_proposals": {
+    "page": {
+      "title": "Propuestas de instructor",
+      "description": "Cambios de instructor propuestos por miembros sobre especialidades ya aprobadas. Apruébalos o recházalos con un motivo."
+    },
+    "filter": {
+      "label": "Filtrar por estado",
+      "PENDING": "Pendientes",
+      "APPROVED": "Aprobadas",
+      "REJECTED": "Rechazadas"
+    },
+    "count": "{count, plural, =0 {Sin propuestas} one {# propuesta} other {# propuestas}}",
+    "refresh": "Actualizar",
+    "loading": "Cargando propuestas",
+    "loadError": {
+      "title": "No se pudo cargar la cola",
+      "description": "Ocurrió un error al consultar las propuestas de instructor.",
+      "retry": "Reintentar"
+    },
+    "empty": {
+      "PENDING": {
+        "title": "Sin propuestas pendientes",
+        "description": "No hay propuestas de instructor esperando decisión."
+      },
+      "APPROVED": {
+        "title": "Sin propuestas aprobadas",
+        "description": "Aún no se aprobó ninguna propuesta de instructor."
+      },
+      "REJECTED": {
+        "title": "Sin propuestas rechazadas",
+        "description": "Aún no se rechazó ninguna propuesta de instructor."
+      }
+    },
+    "columns": {
+      "member": "Miembro",
+      "honor": "Especialidad",
+      "current": "Instructor vigente",
+      "proposed": "Instructor propuesto",
+      "date": "Propuesta",
+      "actions": "Acciones"
+    },
+    "approvedOn": "Aprobada el {date}",
+    "instructor": {
+      "none": "Sin instructor declarado",
+      "unnamed": "Sin nombre",
+      "kindUser": "Usuario del sistema",
+      "kindExternal": "Externo, no verificado"
+    },
+    "actions": {
+      "approve": "Aprobar",
+      "reject": "Rechazar"
+    },
+    "status": {
+      "PENDING": "Pendiente",
+      "APPROVED": "Aprobada",
+      "REJECTED": "Rechazada",
+      "WITHDRAWN": "Retirada"
+    },
+    "pagination": {
+      "pageOf": "Página {page} de {totalPages}",
+      "prev": "Página anterior",
+      "next": "Página siguiente"
+    },
+    "approve": {
+      "title": "Aprobar propuesta de instructor",
+      "replace": "Reemplazar a {current} por {proposed}. El cambio se aplica a la especialidad aprobada.",
+      "assign": "Asignar a {proposed} como instructor de la especialidad aprobada.",
+      "confirm": "Aprobar"
+    },
+    "reject": {
+      "title": "Rechazar propuesta de instructor",
+      "description": "Se rechaza la propuesta de {member} ({proposed}). La especialidad no cambia y el miembro verá el motivo.",
+      "reasonLabel": "Motivo del rechazo *",
+      "reasonPlaceholder": "Explica por qué no se acepta este instructor...",
+      "reasonInvalid": "El motivo es obligatorio y debe tener entre {min} y {max} caracteres.",
+      "confirm": "Rechazar propuesta"
+    },
+    "dialog": {
+      "cancel": "Cancelar"
+    },
+    "toast": {
+      "approved": "Propuesta aprobada. El instructor quedó registrado.",
+      "rejected": "Propuesta rechazada."
+    },
+    "errors": {
+      "invalid": "Este instructor ya no es elegible (se desactivó o cambió de campo). Solo puedes rechazar la propuesta con un motivo.",
+      "notPending": "La propuesta ya no está pendiente: alguien la resolvió o el miembro la reemplazó. Se actualizó la cola.",
+      "notFound": "La propuesta ya no existe. Se actualizó la cola.",
+      "notApproved": "La especialidad ya no está aprobada, por lo que no se puede cambiar su instructor.",
+      "forbidden": "No tienes acceso a esta propuesta: el miembro pertenece a otro Campo Local.",
+      "reasonInvalid": "La solicitud no es válida. Revisa el motivo (entre 3 y 500 caracteres).",
+      "generic": "No se pudo completar la acción. Inténtalo de nuevo."
     }
   },
   "campamentos": {
