@@ -7342,6 +7342,7 @@
       "batchApproved": "Lote aprobado correctamente",
       "batchRejected": "Lote rechazado para corrección",
       "itemApproved": "Fila aprobada correctamente",
+      "itemApprovedInstructorConflict": "Fila aprobada. La especialidad ya tenía otro instructor; se conservó el existente.",
       "itemRejected": "Fila rechazada para corrección",
       "genericError": "No se pudo completar la acción"
     },
@@ -7352,6 +7353,37 @@
     "auditTimeline": {
       "emptyTitle": "Sin auditoría",
       "emptyDescription": "Todavía no hay eventos registrados para este lote."
+    },
+    "review": {
+      "instructorLabel": "Instructor:",
+      "noInstructor": "Sin instructor",
+      "instructorUser": "Usuario del sistema",
+      "instructorExternal": "Externo, no verificado",
+      "conflictBadge": "Conflicto de instructor",
+      "conflictPending": "Ya tiene esta especialidad aprobada con otro instructor; se conservará el existente.",
+      "conflictApproved": "Ya tenía esta especialidad aprobada con otro instructor; se conservó el existente.",
+      "viewInProof": "Ver en el comprobante · pág. {page}",
+      "pageCount": "{count, plural, one {# página} other {# páginas}}",
+      "pageOf": "Abierto en la página {page} de {total}",
+      "pageOnly": "Abierto en la página {page}",
+      "ocrState": {
+        "pending": { "label": "Lectura en cola", "description": "La lectura automática está en cola." },
+        "running": { "label": "Leyendo…", "description": "La lectura automática está en curso." },
+        "done": { "label": "Lectura completa", "description": "La lectura automática terminó." },
+        "empty": { "label": "Sin filas detectadas", "description": "La lectura automática no encontró filas; el miembro las agregó a mano." },
+        "failed": { "label": "Lectura fallida", "description": "La lectura automática no pudo completarse." }
+      },
+      "ocrErrors": {
+        "generic": "No se pudo leer el comprobante.",
+        "failed": "No se pudo leer el comprobante.",
+        "quota": "Se alcanzó el límite del servicio de lectura; conviene reintentar más tarde.",
+        "unavailable": "El servicio de lectura no estaba disponible.",
+        "fileTooLarge": "Un archivo es demasiado grande para leerse.",
+        "unsupportedType": "Un archivo tiene un formato que no se puede leer.",
+        "pdfTooManyPages": "Un PDF tiene más páginas de las permitidas.",
+        "pdfEncrypted": "Un PDF está protegido con contraseña.",
+        "pdfInvalid": "Un PDF está dañado o no es válido."
+      }
     },
     "errors": {
       "authorization_pending": "La persona tiene una solicitud de investidura pendiente en este año. Primero se resuelve la autorización.",

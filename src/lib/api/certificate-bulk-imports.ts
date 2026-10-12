@@ -36,6 +36,26 @@ export type CertificateBulkImportFile = {
   uploaded_at: string;
   ocr_raw_text?: string | null;
   jurisdiction?: string | null;
+  /** Pages in the file (images are 1). Null/absent for files created before M2. */
+  page_count?: number | null;
+};
+
+/** Estado de lectura OCR del lote. `null` = nunca se pidió; la clave puede faltar. */
+export type CertificateBulkImportOcrState =
+  | "pending"
+  | "running"
+  | "done"
+  | "empty"
+  | "failed";
+
+/**
+ * Instructor declared on a HONOR row. The admin never receives `photo_url` or
+ * the email. A deleted account arrives as "Usuario eliminado" in `display_name`.
+ */
+export type CertificateBulkImportInstructor = {
+  kind: "USER" | "EXTERNAL";
+  user_id?: string;
+  display_name: string;
 };
 
 export type CertificateBulkImportItem = {
@@ -62,9 +82,25 @@ export type CertificateBulkImportItem = {
     modified_at: string;
     record_kind: string;
   } | null;
-  honor?: { honor_id: number; name: string } | null;
+  honor?: {
+    honor_id: number;
+    name: string;
+    category?: { honor_category_id: number; name: string } | null;
+  } | null;
   /** Extended with asset_code for GM-01/GM-02/GM-03 branch logic */
-  class?: { class_id: number; name: string; asset_code?: string | null } | null;
+  class?: {
+    class_id: number;
+    name: string;
+    asset_code?: string | null;
+    club_type?: { club_type_id: number; name: string } | null;
+  } | null;
+  /** `null` = no instructor declared; absent = backend did not send it. */
+  instructor?: CertificateBulkImportInstructor | null;
+  /** An approved honor with another instructor already exists; the existing one is kept. */
+  instructor_conflict?: boolean;
+  /** File (of `files[]`) and page inside it where the OCR read this row. */
+  source_file_id?: string | null;
+  source_page?: number | null;
 };
 
 export type CertificateBulkImportEvent = {
@@ -83,6 +119,10 @@ export type CertificateBulkImportBatch = {
   user_id: string;
   local_field_id?: number | null;
   status: CertificateBulkImportBatchStatus;
+  /** Detail only. `null` = OCR never requested; the key may be missing. */
+  ocr_state?: CertificateBulkImportOcrState | null;
+  /** Only meaningful with `ocr_state: "failed"`, e.g. CERTIFICATE_IMPORT_OCR_QUOTA. */
+  ocr_error_code?: string | null;
   raw_ocr_payload?: unknown;
   submitted_at?: string | null;
   reviewed_at?: string | null;

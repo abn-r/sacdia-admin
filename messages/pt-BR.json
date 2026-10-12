@@ -7181,6 +7181,7 @@
       "batchApproved": "Lote aprobado correctamente",
       "batchRejected": "Lote rechazado para corrección",
       "itemApproved": "Fila aprobada correctamente",
+      "itemApprovedInstructorConflict": "Linha aprovada. A especialidade já tinha outro instrutor; o existente foi mantido.",
       "itemRejected": "Fila rechazada para corrección",
       "genericError": "Não foi possível concluir a ação"
     },
@@ -7191,6 +7192,37 @@
     "auditTimeline": {
       "emptyTitle": "Sem auditoria",
       "emptyDescription": "Ainda não há eventos registrados para este lote."
+    },
+    "review": {
+      "instructorLabel": "Instrutor:",
+      "noInstructor": "Sem instrutor",
+      "instructorUser": "Usuário do sistema",
+      "instructorExternal": "Externo, não verificado",
+      "conflictBadge": "Conflito de instrutor",
+      "conflictPending": "Esta especialidade já está aprovada com outro instrutor; o existente será mantido.",
+      "conflictApproved": "Esta especialidade já estava aprovada com outro instrutor; o existente foi mantido.",
+      "viewInProof": "Ver no comprovante · pág. {page}",
+      "pageCount": "{count, plural, one {# página} other {# páginas}}",
+      "pageOf": "Aberto na página {page} de {total}",
+      "pageOnly": "Aberto na página {page}",
+      "ocrState": {
+        "pending": { "label": "Leitura na fila", "description": "A leitura automática está na fila." },
+        "running": { "label": "Lendo…", "description": "A leitura automática está em andamento." },
+        "done": { "label": "Leitura concluída", "description": "A leitura automática terminou." },
+        "empty": { "label": "Nenhuma linha detectada", "description": "A leitura automática não encontrou linhas; o membro as adicionou manualmente." },
+        "failed": { "label": "Leitura com falha", "description": "A leitura automática não pôde ser concluída." }
+      },
+      "ocrErrors": {
+        "generic": "Não foi possível ler o comprovante.",
+        "failed": "Não foi possível ler o comprovante.",
+        "quota": "O limite do serviço de leitura foi atingido; tente novamente mais tarde.",
+        "unavailable": "O serviço de leitura estava indisponível.",
+        "fileTooLarge": "Um arquivo é grande demais para ser lido.",
+        "unsupportedType": "Um arquivo tem um formato que não pode ser lido.",
+        "pdfTooManyPages": "Um PDF tem mais páginas do que o permitido.",
+        "pdfEncrypted": "Um PDF está protegido por senha.",
+        "pdfInvalid": "Um PDF está danificado ou é inválido."
+      }
     },
     "errors": {
       "authorization_pending": "A pessoa tem uma solicitação de investidura pendente neste ano. Primeiro é resolvida a autorização.",

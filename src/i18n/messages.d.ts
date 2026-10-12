@@ -7371,6 +7371,7 @@ export interface IntlMessages {
       batchApproved: string;
       batchRejected: string;
       itemApproved: string;
+      itemApprovedInstructorConflict: string;
       itemRejected: string;
       genericError: string;
     };
@@ -7381,6 +7382,52 @@ export interface IntlMessages {
     auditTimeline: {
       emptyTitle: string;
       emptyDescription: string;
+    };
+    review: {
+      instructorLabel: string;
+      noInstructor: string;
+      instructorUser: string;
+      instructorExternal: string;
+      conflictBadge: string;
+      conflictPending: string;
+      conflictApproved: string;
+      viewInProof: string;
+      pageCount: string;
+      pageOf: string;
+      pageOnly: string;
+      ocrState: {
+        pending: {
+          label: string;
+          description: string;
+        };
+        running: {
+          label: string;
+          description: string;
+        };
+        done: {
+          label: string;
+          description: string;
+        };
+        empty: {
+          label: string;
+          description: string;
+        };
+        failed: {
+          label: string;
+          description: string;
+        };
+      };
+      ocrErrors: {
+        generic: string;
+        failed: string;
+        quota: string;
+        unavailable: string;
+        fileTooLarge: string;
+        unsupportedType: string;
+        pdfTooManyPages: string;
+        pdfEncrypted: string;
+        pdfInvalid: string;
+      };
     };
     errors: {
       authorization_pending: string;
