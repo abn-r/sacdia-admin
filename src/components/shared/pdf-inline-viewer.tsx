@@ -13,6 +13,16 @@ interface PdfInlineViewerProps {
   navigationKey?: number | string;
 }
 
+/**
+ * PDF open parameter understood by the browser PDF viewers (`#page=N`, 1-based).
+ * Invalid pages (< 1, non-integer, NaN) leave the URL untouched.
+ */
+export function buildPdfViewerUrl(blobUrl: string, page?: number): string {
+  return typeof page === "number" && Number.isInteger(page) && page >= 1
+    ? `${blobUrl}#page=${page}`
+    : blobUrl;
+}
+
 export function PdfInlineViewer({
   src,
   title,
@@ -113,23 +123,20 @@ export function PdfInlineViewer({
     );
   }
 
-  // Open parameter understood by the browser PDF viewers; the blob is untouched.
-  const viewerUrl =
-    typeof initialPage === "number" && Number.isInteger(initialPage) && initialPage >= 1
-      ? `${blobUrl}#page=${initialPage}`
-      : blobUrl;
+  const viewerUrl = buildPdfViewerUrl(blobUrl, initialPage);
 
+  // A plain <iframe> (no <object> wrapper, no nested fallback frame) is a full
+  // navigation to `viewerUrl`, so the browser PDF viewer parses `#page=N` as
+  // part of that load. The key carries the URL and the navigation counter: any
+  // new target discards the frame and loads a fresh document instead of
+  // mutating a live viewer, which cannot be told to jump afterwards.
   return (
-    <object
-      // A new key remounts the viewer so the browser honors the new fragment.
-      key={`${initialPage ?? ""}-${navigationKey ?? ""}`}
+    <iframe
+      key={`${viewerUrl}|${navigationKey ?? ""}`}
       data-testid="pdf-inline-viewer"
-      data={viewerUrl}
-      type="application/pdf"
+      src={viewerUrl}
       title={title}
       className={`bg-background ${viewerClassName}`}
-    >
-      <iframe title={title} src={viewerUrl} className={viewerClassName} />
-    </object>
+    />
   );
 }
