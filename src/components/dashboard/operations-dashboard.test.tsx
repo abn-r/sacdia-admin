@@ -11,6 +11,8 @@ import { OperationsBentoTile } from "@/components/dashboard/operations-bento-til
 import { OperationsKpiStrip } from "@/components/dashboard/operations-kpi-strip";
 import { OperationsWorkQueue } from "@/components/dashboard/operations-work-queue";
 import { OperationsGapTable } from "@/components/dashboard/operations-gap-table";
+import { SupervisionHome } from "@/components/dashboard/operations-home-supervision";
+import { DispatchHome } from "@/components/dashboard/operations-home-dispatch";
 
 global.ResizeObserver = class ResizeObserver {
   observe() {}
@@ -311,5 +313,143 @@ describe("OperationsGapTable", () => {
 
     expect(screen.getByText("Sin territorios")).toBeInTheDocument();
     expect(screen.queryByRole("table")).not.toBeInTheDocument();
+  });
+});
+
+const gapTableProps = {
+  headingId: "gap",
+  title: "Campos locales",
+  description: "Primero los que tienen brecha.",
+  columns: { name: "Nombre", reports: "Informes", nonOperational: "No operativos", pending: "Pendientes" },
+  empty: { title: "Sin territorios", description: "Nada aquí." },
+  rows: [
+    {
+      key: "local_field-1",
+      name: "Campo A",
+      href: "/dashboard?local_field_id=1",
+      reports: "40%",
+      missingLabel: "faltan 6",
+      nonOperational: "2",
+      pending: "5",
+      hasGap: true,
+    },
+  ],
+};
+
+const contextProps = {
+  headingId: "context",
+  title: "Contexto del periodo",
+  groups: [{ title: "Actividades", rows: [{ label: "Registradas", value: "8" }] }],
+};
+
+const dataQualityProps = {
+  title: "Calidad de datos",
+  description: "Notas.",
+  entries: [],
+  statusLabels: {
+    exact: "Exacto",
+    current_affiliation: "Afiliación actual",
+    unavailable: "No disponible",
+    not_applicable: "No aplica",
+  },
+};
+
+describe("SupervisionHome", () => {
+  it("leads with the gap table and hides empty pending queues", () => {
+    render(
+      <SupervisionHome
+        summary="9 de 12 campos locales entregaron el informe del mes."
+        gapTable={gapTableProps}
+        pending={{ headingId: "pending", title: "Pendientes", reviewLabel: "Revisar", labels: QUEUE_LABELS, items: [] }}
+        context={contextProps}
+        dataQuality={dataQualityProps}
+      />,
+    );
+
+    const headings = screen.getAllByRole("heading", { level: 2 });
+    expect(headings[0]).toHaveTextContent("Campos locales");
+    expect(screen.queryByRole("heading", { level: 2, name: "Pendientes" })).not.toBeInTheDocument();
+    expect(screen.getByText(/9 de 12 campos locales/)).toBeInTheDocument();
+  });
+
+  it("shows pending queues below the table when there are any", () => {
+    render(
+      <SupervisionHome
+        summary=""
+        gapTable={gapTableProps}
+        pending={{
+          headingId: "pending",
+          title: "Pendientes",
+          reviewLabel: "Revisar",
+          labels: QUEUE_LABELS,
+          items: [{ id: "folders", count: 7, href: "/dashboard/annual-folders/evaluate" }],
+        }}
+        context={contextProps}
+        dataQuality={dataQualityProps}
+      />,
+    );
+
+    const names = screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent);
+    expect(names.slice(0, 2)).toEqual(["Campos locales", "Pendientes"]);
+  });
+});
+
+describe("DispatchHome", () => {
+  it("leads with the work queue and shows its empty state", () => {
+    render(
+      <DispatchHome
+        queue={{
+          headingId: "queue",
+          title: "Por atender",
+          reviewLabel: "Revisar",
+          labels: QUEUE_LABELS,
+          items: [],
+          empty: { title: "Nada pendiente en tu alcance", description: "Aparece aquí." },
+        }}
+        lagging={{ headingId: "lagging", title: "Clubes que van atrás", rows: [] }}
+        summary="18 de 20 secciones entregaron el informe del mes."
+        context={contextProps}
+        dataQuality={dataQualityProps}
+      />,
+    );
+
+    expect(screen.getAllByRole("heading", { level: 2 })[0]).toHaveTextContent("Por atender");
+    expect(screen.getByText("Nada pendiente en tu alcance")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { level: 2, name: "Clubes que van atrás" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("lists lagging clubs with their reasons", () => {
+    render(
+      <DispatchHome
+        queue={{
+          headingId: "queue",
+          title: "Por atender",
+          reviewLabel: "Revisar",
+          labels: QUEUE_LABELS,
+          items: [{ id: "classes", count: 12, href: "/dashboard/clubs/validations?tab=sections" }],
+          empty: { title: "Nada pendiente", description: "x" },
+        }}
+        lagging={{
+          headingId: "lagging",
+          title: "Clubes que van atrás",
+          rows: [
+            {
+              key: "club-9",
+              name: "Club Águilas",
+              href: "/dashboard/clubs/9",
+              reasons: [{ label: "Sin informe del mes", tone: "danger" }],
+            },
+          ],
+        }}
+        summary=""
+        context={contextProps}
+        dataQuality={dataQualityProps}
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "Club Águilas" })).toHaveAttribute("href", "/dashboard/clubs/9");
+    expect(screen.getByText("Sin informe del mes")).toHaveClass("text-destructive");
   });
 });
