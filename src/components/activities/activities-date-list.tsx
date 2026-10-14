@@ -94,7 +94,7 @@ function ActivityListCard({
           className="flex w-14 shrink-0 flex-col items-center rounded-md border border-border/50 bg-muted/30 px-1.5 py-1.5 text-center"
           aria-hidden
         >
-          <span className="text-xs font-medium text-muted-foreground">
+          <span className="text-xs font-medium text-muted-foreground capitalize">
             {dateParts.weekday}
           </span>
           <span className="text-xl font-semibold tabular-nums leading-none">
