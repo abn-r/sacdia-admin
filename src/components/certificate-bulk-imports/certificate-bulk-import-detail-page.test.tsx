@@ -11,9 +11,13 @@ import type {
 } from "@/lib/api/certificate-bulk-imports";
 
 const mockDownload = vi.hoisted(() => vi.fn());
+const mockApproveItem = vi.hoisted(() => vi.fn());
+const mockRejectItem = vi.hoisted(() => vi.fn());
+const mockRefresh = vi.hoisted(() => vi.fn());
+const mockRouter = vi.hoisted(() => ({ refresh: mockRefresh, push: vi.fn() }));
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ refresh: vi.fn(), push: vi.fn() }),
+  useRouter: () => mockRouter,
 }));
 
 vi.mock("@/lib/auth/screen-catalog/use-screen-access", () => ({
@@ -25,6 +29,8 @@ vi.mock("@/lib/api/certificate-bulk-imports", async (importOriginal) => {
   return {
     ...original,
     getCertificateBulkImportFileDownloadUrl: (...args: unknown[]) => mockDownload(...args),
+    approveCertificateBulkImportItem: (...args: unknown[]) => mockApproveItem(...args),
+    rejectCertificateBulkImportItem: (...args: unknown[]) => mockRejectItem(...args),
   };
 });
 
@@ -65,22 +71,28 @@ function honorItem(overrides: Partial<CertificateBulkImportItem> = {}): Certific
   };
 }
 
-function renderPage(batch: Partial<CertificateBulkImportBatch> = {}) {
-  render(
+function batchOf(batch: Partial<CertificateBulkImportBatch> = {}): CertificateBulkImportBatch {
+  return {
+    batch_id: "batch-1",
+    user_id: "user-1",
+    status: "SUBMITTED",
+    files: [FILE_A, FILE_B],
+    items: [honorItem()],
+    events: [],
+    ...batch,
+  };
+}
+
+function pageElement(batch: CertificateBulkImportBatch) {
+  return (
     <NextIntlClientProvider locale="es" messages={messages}>
-      <CertificateBulkImportDetailPage
-        batch={{
-          batch_id: "batch-1",
-          user_id: "user-1",
-          status: "SUBMITTED",
-          files: [FILE_A, FILE_B],
-          items: [honorItem()],
-          events: [],
-          ...batch,
-        }}
-      />
-    </NextIntlClientProvider>,
+      <CertificateBulkImportDetailPage batch={batch} />
+    </NextIntlClientProvider>
   );
+}
+
+function renderPage(batch: Partial<CertificateBulkImportBatch> = {}) {
+  return render(pageElement(batchOf(batch)));
 }
 
 beforeEach(() => {
@@ -269,5 +281,89 @@ describe("ocr_state", () => {
   ])("renders nothing with %s", (_label, overrides) => {
     renderPage(overrides);
     expect(screen.queryByTestId("ocr-state")).not.toBeInTheDocument();
+  });
+});
+
+describe("deciding rows", () => {
+  const threeRows = (last: Partial<CertificateBulkImportItem> = {}) => [
+    honorItem({ item_id: "item-1", status: "APPROVED", detected_name: "Nudos" }),
+    honorItem({ item_id: "item-2", status: "REJECTED", detected_name: "Fogatas" }),
+    honorItem({ item_id: "item-3", status: "SUBMITTED", detected_name: "Primeros auxilios", ...last }),
+  ];
+
+  async function approveLastRow(user: ReturnType<typeof userEvent.setup>) {
+    await user.click(screen.getByRole("button", { name: "Aprobar" }));
+    const dialog = await screen.findByRole("dialog");
+    await user.click(within(dialog).getByRole("button", { name: "Aprobar" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+  }
+
+  beforeEach(() => {
+    mockApproveItem.mockResolvedValue({ item_id: "item-3", status: "APPROVED" });
+    mockRejectItem.mockResolvedValue({ item_id: "item-3", status: "REJECTED", rejection_reason: "Ilegible" });
+  });
+
+  it("reflects the last decision even when the server refresh brings nothing new", async () => {
+    const user = userEvent.setup();
+    renderPage({ items: threeRows() });
+    expect(screen.getByText("Pendientes").previousElementSibling).toHaveTextContent("1");
+
+    await approveLastRow(user);
+
+    // The props never changed (refresh is a no-op here), yet the row is decided.
+    expect(mockRefresh).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole("button", { name: "Aprobar" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Rechazar" })).not.toBeInTheDocument();
+    expect(screen.getByText("Pendientes").previousElementSibling).toHaveTextContent("0");
+    expect(screen.getByText("Aprobadas").previousElementSibling).toHaveTextContent("2");
+    expect(screen.getByText("Rechazadas").previousElementSibling).toHaveTextContent("1");
+  });
+
+  it("shows a rejection with its reason without waiting for the refresh", async () => {
+    const user = userEvent.setup();
+    renderPage({ items: threeRows() });
+
+    await user.click(screen.getByRole("button", { name: "Rechazar" }));
+    const dialog = await screen.findByRole("dialog");
+    await user.type(within(dialog).getByRole("textbox"), "Ilegible");
+    await user.click(within(dialog).getByRole("button", { name: "Rechazar" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+
+    expect(mockRejectItem).toHaveBeenCalledWith("batch-1", "item-3", { reason: "Ilegible" });
+    expect(screen.getByText("Motivo de rechazo: Ilegible")).toBeInTheDocument();
+    expect(screen.getByText("Rechazadas").previousElementSibling).toHaveTextContent("2");
+  });
+
+  it("asks the server again while it still returns the row as pending", async () => {
+    const user = userEvent.setup();
+    renderPage({ items: threeRows() });
+
+    await approveLastRow(user);
+    expect(mockRefresh).toHaveBeenCalledTimes(1);
+
+    await waitFor(() => expect(mockRefresh).toHaveBeenCalledTimes(2), { timeout: 4000 });
+  });
+
+  it("takes the server state, including the batch status, once it arrives", async () => {
+    const user = userEvent.setup();
+    const view = renderPage({ items: threeRows() });
+
+    await approveLastRow(user);
+    view.rerender(
+      pageElement(
+        batchOf({
+          status: "NEEDS_CORRECTION",
+          items: threeRows({ status: "APPROVED", reviewed_at: "2026-10-12T10:00:00Z" }),
+        }),
+      ),
+    );
+
+    expect(screen.getByText("Corrección")).toBeInTheDocument();
+    expect(screen.getByText("Pendientes").previousElementSibling).toHaveTextContent("0");
+    expect(screen.queryByRole("button", { name: "Aprobar" })).not.toBeInTheDocument();
+
+    // Server caught up: no extra refresh is scheduled.
+    await new Promise((resolve) => setTimeout(resolve, 1700));
+    expect(mockRefresh).toHaveBeenCalledTimes(1);
   });
 });
