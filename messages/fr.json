@@ -1747,7 +1747,7 @@
       "backToMyScope": "Revenir à mon périmètre",
       "home": {
         "title": "Accueil",
-        "description": "Files, couverture et accès aux modules de votre périmètre.",
+        "description": "Ce qui demande votre attention dans votre périmètre.",
         "inboxTitle": "À traiter",
         "inboxDescription": "Files avec une destination dans le panneau. Sans total agrégé.",
         "inboxEmptyTitle": "Rien en attente",
@@ -1768,7 +1768,37 @@
           "folders": "Dossiers annuels",
           "activities": "Activités",
           "camporees": "Camporees"
-        }
+        },
+        "summary": {
+          "childrenReported": "{reported} sur {total} {level, select, division {divisions} union {unions} local_field {champs locaux} other {clubs}} ont remis le rapport du mois.",
+          "sectionsReported": "{submitted} sections sur {expected} ont remis le rapport du mois.",
+          "noClosedMonth": "Aucun mois clôturé pour mesurer les rapports pour l’instant.",
+          "nonOperationalClubs": "{count, plural, one {# club non opérationnel.} other {# clubs non opérationnels.}}"
+        },
+        "gapTable": {
+          "title": "{level, select, division {Divisions} union {Unions} local_field {Champs locaux} other {Clubs}}",
+          "description": "Les rapports manquants et les clubs non opérationnels en premier.",
+          "columns": {
+            "name": "Nom",
+            "reports": "Rapports",
+            "nonOperational": "Non opérationnels",
+            "pending": "En attente"
+          },
+          "missingCount": "{count} manquants",
+          "emptyTitle": "Aucun territoire dans ce périmètre",
+          "emptyDescription": "Ce niveau n’a encore aucun territoire enfant enregistré."
+        },
+        "pendingTitle": "En attente",
+        "review": "Examiner",
+        "dispatchTitle": "À traiter",
+        "dispatchEmptyTitle": "Rien en attente dans votre périmètre",
+        "dispatchEmptyDescription": "Les nouvelles demandes et validations apparaissent ici.",
+        "laggingTitle": "Clubs en retard",
+        "lagReason": {
+          "missingReport": "Pas de rapport ce mois-ci",
+          "nonOperational": "Non opérationnel"
+        },
+        "periodContextTitle": "Contexte de la période"
       },
       "bento": {
         "groups": {

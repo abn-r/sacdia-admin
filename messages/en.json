@@ -1748,7 +1748,7 @@
       "backToMyScope": "Back to my scope",
       "home": {
         "title": "Home",
-        "description": "Queues, coverage, and shortcuts into the modules you can open.",
+        "description": "What needs attention in your scope.",
         "inboxTitle": "Needs attention",
         "inboxDescription": "Queues with a destination in the panel. No aggregated total.",
         "inboxEmptyTitle": "Nothing pending",
@@ -1769,7 +1769,37 @@
           "folders": "Annual folders",
           "activities": "Activities",
           "camporees": "Camporees"
-        }
+        },
+        "summary": {
+          "childrenReported": "{reported} of {total} {level, select, division {divisions} union {unions} local_field {local fields} other {clubs}} submitted this month’s report.",
+          "sectionsReported": "{submitted} of {expected} sections submitted this month’s report.",
+          "noClosedMonth": "There’s no closed month to measure reports yet.",
+          "nonOperationalClubs": "{count, plural, one {# non-operational club.} other {# non-operational clubs.}}"
+        },
+        "gapTable": {
+          "title": "{level, select, division {Divisions} union {Unions} local_field {Local fields} other {Clubs}}",
+          "description": "Missing reports and non-operational clubs come first.",
+          "columns": {
+            "name": "Name",
+            "reports": "Reports",
+            "nonOperational": "Non-operational",
+            "pending": "Pending"
+          },
+          "missingCount": "{count} missing",
+          "emptyTitle": "No territories in this scope",
+          "emptyDescription": "This level has no child territories registered yet."
+        },
+        "pendingTitle": "Pending",
+        "review": "Review",
+        "dispatchTitle": "To do",
+        "dispatchEmptyTitle": "Nothing pending in your scope",
+        "dispatchEmptyDescription": "New requests and validations show up here.",
+        "laggingTitle": "Clubs falling behind",
+        "lagReason": {
+          "missingReport": "No report this month",
+          "nonOperational": "Non-operational"
+        },
+        "periodContextTitle": "Period context"
       },
       "bento": {
         "groups": {

@@ -1754,7 +1754,7 @@
       "backToMyScope": "Volver a mi alcance",
       "home": {
         "title": "Inicio",
-        "description": "Pendientes, cobertura y acceso a los módulos de tu alcance.",
+        "description": "Lo que necesita atención en tu alcance.",
         "inboxTitle": "Para atender",
         "inboxDescription": "Colas con destino en el panel. Sin total agregado.",
         "inboxEmptyTitle": "Nada pendiente",
@@ -1775,7 +1775,37 @@
           "folders": "Carpetas anuales",
           "activities": "Actividades",
           "camporees": "Campamentos"
-        }
+        },
+        "summary": {
+          "childrenReported": "{reported} de {total} {level, select, division {divisiones} union {uniones} local_field {campos locales} other {clubes}} entregaron el informe del mes.",
+          "sectionsReported": "{submitted} de {expected} secciones entregaron el informe del mes.",
+          "noClosedMonth": "Todavía no hay un mes cerrado para medir los informes.",
+          "nonOperationalClubs": "{count, plural, one {# club no operativo.} other {# clubes no operativos.}}"
+        },
+        "gapTable": {
+          "title": "{level, select, division {Divisiones} union {Uniones} local_field {Campos locales} other {Clubes}}",
+          "description": "Primero los que tienen informes faltantes o clubes no operativos.",
+          "columns": {
+            "name": "Nombre",
+            "reports": "Informes",
+            "nonOperational": "No operativos",
+            "pending": "Pendientes"
+          },
+          "missingCount": "faltan {count}",
+          "emptyTitle": "Sin territorios en este alcance",
+          "emptyDescription": "Este nivel todavía no tiene territorios hijos registrados."
+        },
+        "pendingTitle": "Pendientes",
+        "review": "Revisar",
+        "dispatchTitle": "Por atender",
+        "dispatchEmptyTitle": "Nada pendiente en tu alcance",
+        "dispatchEmptyDescription": "Cuando llegue una solicitud o una validación, aparece aquí.",
+        "laggingTitle": "Clubes que van atrás",
+        "lagReason": {
+          "missingReport": "Sin informe del mes",
+          "nonOperational": "No operativo"
+        },
+        "periodContextTitle": "Contexto del periodo"
       },
       "bento": {
         "groups": {

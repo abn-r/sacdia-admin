@@ -1805,6 +1805,36 @@ export interface IntlMessages {
           activities: string;
           camporees: string;
         };
+        summary: {
+          childrenReported: string;
+          sectionsReported: string;
+          noClosedMonth: string;
+          nonOperationalClubs: string;
+        };
+        gapTable: {
+          title: string;
+          description: string;
+          columns: {
+            name: string;
+            reports: string;
+            nonOperational: string;
+            pending: string;
+          };
+          missingCount: string;
+          emptyTitle: string;
+          emptyDescription: string;
+        };
+        pendingTitle: string;
+        review: string;
+        dispatchTitle: string;
+        dispatchEmptyTitle: string;
+        dispatchEmptyDescription: string;
+        laggingTitle: string;
+        lagReason: {
+          missingReport: string;
+          nonOperational: string;
+        };
+        periodContextTitle: string;
       };
       bento: {
         groups: {
