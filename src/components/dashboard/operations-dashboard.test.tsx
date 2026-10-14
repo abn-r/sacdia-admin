@@ -113,7 +113,6 @@ describe("dashboardHub.operations translations", () => {
     expect(messages.dashboardHub.operations.bento.groups.operation).toBeTruthy();
     expect(messages.dashboardHub.operations.bento.stats.operationalClubs).toBeTruthy();
     expect(messages.dashboardHub.operations.errors.forbiddenDescription).toBeTruthy();
-    expect(messages.dashboardHub.operations.version.switchLabel).toBeTruthy();
   });
 });
 

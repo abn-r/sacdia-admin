@@ -1889,16 +1889,6 @@ export interface IntlMessages {
         missingReports: string;
         missingReportsHint: string;
       };
-      adminDiagnostic: {
-        title: string;
-        description: string;
-        operationalSections: string;
-        adminActiveClubs: string;
-        adminInactiveClubs: string;
-        operationalRate: string;
-        platformActiveAccounts: string;
-        platformInactiveAccounts: string;
-      };
       attention: {
         title: string;
         description: string;
@@ -1984,96 +1974,6 @@ export interface IntlMessages {
         serverTitle: string;
         serverDescription: string;
         goToLogin: string;
-      };
-      version: {
-        v1: string;
-        v2: string;
-        switchLabel: string;
-      };
-      v2: {
-        title: string;
-        description: string;
-        signals: {
-          title: string;
-          operativeGap: string;
-          operativeGapDetail: string;
-          reportDebt: string;
-          reportDebtDetail: string;
-          reportDebtUnavailable: string;
-          digitalGap: string;
-          digitalGapDetail: string;
-          workflowPressure: string;
-          workflowPressureDetail: string;
-        };
-        operationLens: {
-          title: string;
-          description: string;
-          operationalRate: string;
-          operationalClubs: string;
-          operationalSections: string;
-          adminActive: string;
-          adminInactive: string;
-        };
-        compliance: {
-          title: string;
-          description: string;
-          notApplicable: string;
-          coverage: string;
-          expected: string;
-          submitted: string;
-          missing: string;
-          draft: string;
-          generated: string;
-        };
-        people: {
-          title: string;
-          description: string;
-          institutional: string;
-          platformActive: string;
-          platformInactive: string;
-        };
-        formation: {
-          title: string;
-          description: string;
-          empty: string;
-        };
-        honors: {
-          title: string;
-          unavailable: string;
-          inProgress: string;
-          pendingReview: string;
-          approved: string;
-        };
-        activities: {
-          title: string;
-          description: string;
-          registered: string;
-          joint: string;
-          sections: string;
-        };
-        queues: {
-          title: string;
-          description: string;
-          roleAssignments: string;
-          transfers: string;
-          classValidations: string;
-          honorsReview: string;
-          annualFolders: string;
-        };
-        alerts: {
-          title: string;
-          description: string;
-          missingReports: string;
-          inspect: string;
-          openClub: string;
-        };
-        charts: {
-          territoryComparison: string;
-          territoryOperational: string;
-          territoryMissing: string;
-          territoryPeople: string;
-          nonOperationalClubs: string;
-        };
       };
     };
     birthday: {
