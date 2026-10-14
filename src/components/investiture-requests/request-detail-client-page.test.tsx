@@ -249,7 +249,7 @@ describe("RequestDetailClientPage", () => {
 
     expect(screen.queryByRole("radio")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Confirmar decisiones/ })).not.toBeInTheDocument();
-    expect(screen.getByText(/no tenés permiso para autorizar/i)).toBeInTheDocument();
+    expect(screen.getByText(/no tienes permiso para autorizar/i)).toBeInTheDocument();
   });
 
   it("shows a persistent banner when the window is closed", async () => {
@@ -266,11 +266,11 @@ describe("RequestDetailClientPage", () => {
 
     expect(
       await screen.findByText(
-        "La ventana del Campo está cerrada. Pedí al Campo que la amplíe para poder autorizar.",
+        "La ventana del Campo está cerrada. Pide al Campo que la amplíe para poder autorizar.",
       ),
     ).toBeInTheDocument();
     expect(toastMock.error).toHaveBeenCalledWith(
-      "La ventana del Campo está cerrada. Pedí al Campo que la amplíe para poder autorizar.",
+      "La ventana del Campo está cerrada. Pide al Campo que la amplíe para poder autorizar.",
     );
     expect(mockRefresh).not.toHaveBeenCalled();
   });

@@ -96,7 +96,7 @@ export function CertificateBulkImportListPage({
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <CardTitle>Cargas por certificado</CardTitle>
-              <p className="text-sm text-muted-foreground">Revisá OCR, comprobantes y filas detectadas.</p>
+              <p className="text-sm text-muted-foreground">Revisa OCR, comprobantes y filas detectadas.</p>
             </div>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
               <div className="relative">

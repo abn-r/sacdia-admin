@@ -146,8 +146,8 @@ describe("RequestsListClientPage", () => {
       },
     });
 
-    expect(screen.getByText("Todavía no tenés distritos asignados")).toBeInTheDocument();
-    expect(screen.getByText("Pedí al Campo que te asigne.")).toBeInTheDocument();
+    expect(screen.getByText("Todavía no tienes distritos asignados")).toBeInTheDocument();
+    expect(screen.getByText("Pide al Campo que te asigne.")).toBeInTheDocument();
     expect(screen.queryByText("Acceso denegado")).not.toBeInTheDocument();
     expect(screen.queryByText("Tu rol no puede ver esta lista.")).not.toBeInTheDocument();
   });
@@ -164,7 +164,7 @@ describe("RequestsListClientPage", () => {
     });
 
     expect(screen.getByText("Acceso denegado")).toBeInTheDocument();
-    expect(screen.queryByText("Todavía no tenés distritos asignados")).not.toBeInTheDocument();
+    expect(screen.queryByText("Todavía no tienes distritos asignados")).not.toBeInTheDocument();
   });
 
   it("keeps the banner for a pastor when the failure is not a 403", () => {
@@ -175,7 +175,7 @@ describe("RequestsListClientPage", () => {
     });
 
     expect(screen.getByText("Falló")).toBeInTheDocument();
-    expect(screen.queryByText("Todavía no tenés distritos asignados")).not.toBeInTheDocument();
+    expect(screen.queryByText("Todavía no tienes distritos asignados")).not.toBeInTheDocument();
   });
 
   it("explains that there is no active year when yearId is null", () => {

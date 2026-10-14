@@ -114,3 +114,52 @@ export function resolveProofTarget(
     (typeof pageCount !== "number" || page <= pageCount);
   return { fileId: source.file_id, page: validPage ? page : 1 };
 }
+
+/** What a reviewer decision changes on a row, taken from the API response. */
+export type ItemDecision = Pick<CertificateBulkImportItem, "status"> &
+  Partial<Pick<CertificateBulkImportItem, "rejection_reason" | "reviewed_at" | "instructor_conflict">>;
+
+/**
+ * Builds the local copy of a decision from the item the API returned. Only the
+ * fields a decision changes are kept (the approve response also carries
+ * unrelated columns). The status falls back to the action when the response has
+ * none, so a decision never leaves the row looking undecided.
+ */
+export function buildItemDecision(
+  action: "approve" | "reject",
+  decided?: Partial<CertificateBulkImportItem> | null,
+): ItemDecision {
+  const fallbackStatus = action === "approve" ? "APPROVED" : "REJECTED";
+  const decision: ItemDecision = {
+    status: decided?.status === "APPROVED" || decided?.status === "REJECTED" ? decided.status : fallbackStatus,
+  };
+  if (decided?.rejection_reason !== undefined) decision.rejection_reason = decided.rejection_reason;
+  if (decided?.reviewed_at !== undefined) decision.reviewed_at = decided.reviewed_at;
+  if (decided?.instructor_conflict !== undefined) decision.instructor_conflict = decided.instructor_conflict;
+  return decision;
+}
+
+/**
+ * Overlays locally known decisions on the rows the server sent. A decision only
+ * applies while the server row is still reviewable: once the server reports the
+ * row as decided, the server wins (and a later resubmission is never masked).
+ */
+export function applyItemDecisions(
+  items: readonly CertificateBulkImportItem[],
+  decisions: Readonly<Record<string, ItemDecision>>,
+): CertificateBulkImportItem[] {
+  return items.map((item) => {
+    const decision = decisions[item.item_id];
+    return decision && isReviewableItem(item) ? { ...item, ...decision } : item;
+  });
+}
+
+/** Ids of locally decided rows the server data has not caught up with yet. */
+export function undeliveredDecisionIds(
+  items: readonly CertificateBulkImportItem[],
+  decisions: Readonly<Record<string, ItemDecision>>,
+): string[] {
+  return items
+    .filter((item) => decisions[item.item_id] !== undefined && isReviewableItem(item))
+    .map((item) => item.item_id);
+}

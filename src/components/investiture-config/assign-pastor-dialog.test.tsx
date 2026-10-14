@@ -60,7 +60,7 @@ function setup() {
 
 async function openCombobox(user: ReturnType<typeof setup>) {
   await user.click(screen.getByRole("combobox"));
-  return screen.getByPlaceholderText("Escribí nombre, apellido o correo");
+  return screen.getByPlaceholderText("Escribe nombre, apellido o correo");
 }
 
 describe("AssignPastorDialog", () => {
@@ -97,7 +97,7 @@ describe("AssignPastorDialog", () => {
     });
     expect(mockSearch).not.toHaveBeenCalled();
     expect(
-      screen.getByText("Escribí al menos 3 caracteres; cada palabra necesita 2 como mínimo."),
+      screen.getByText("Escribe al menos 3 caracteres; cada palabra necesita 2 como mínimo."),
     ).toBeInTheDocument();
 
     await user.clear(input);
@@ -205,6 +205,6 @@ describe("AssignPastorDialog", () => {
     await act(async () => {
       await vi.advanceTimersByTimeAsync(400);
     });
-    expect(await screen.findByText("No se pudo buscar. Intentá de nuevo.")).toBeInTheDocument();
+    expect(await screen.findByText("No se pudo buscar. Intenta de nuevo.")).toBeInTheDocument();
   });
 });

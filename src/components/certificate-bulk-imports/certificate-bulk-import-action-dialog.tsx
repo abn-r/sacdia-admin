@@ -56,7 +56,12 @@ export interface CertificateBulkImportActionDialogProps {
   description: string;
   reconciliation?: CertificateBulkImportItem["operational_reconciliation"];
   onOpenChange: (open: boolean) => void;
-  onSuccess: () => void;
+  /**
+   * Called after the API accepted the decision. For `scope="item"` it carries the
+   * row returned by the API so the caller can reflect the decision immediately
+   * instead of waiting on a server re-render.
+   */
+  onSuccess: (decidedItem?: Partial<CertificateBulkImportItem>) => void;
 }
 
 function trimOptional(value?: string) {
@@ -110,12 +115,13 @@ export function CertificateBulkImportActionDialog({
   const submit = form.handleSubmit(async (values) => {
     setIsSubmitting(true);
     setInlineError(null);
+    let decidedItem: Partial<CertificateBulkImportItem> | undefined;
     try {
       if (isReject) {
         const reason = values.reason?.trim() ?? "";
         if (scope === "item") {
           if (!itemId) throw new Error("Missing item id");
-          await rejectCertificateBulkImportItem(batchId, itemId, { reason });
+          decidedItem = await rejectCertificateBulkImportItem(batchId, itemId, { reason });
         } else {
           await rejectCertificateBulkImportBatch(batchId, { reason });
         }
@@ -134,6 +140,7 @@ export function CertificateBulkImportActionDialog({
         if (scope === "item") {
           if (!itemId) throw new Error("Missing item id");
           const approved = await approveCertificateBulkImportItem(batchId, itemId, payload);
+          decidedItem = approved;
           instructorConflict = approved?.instructor_conflict === true;
         } else {
           await approveCertificateBulkImportBatch(batchId, payload);
@@ -145,7 +152,7 @@ export function CertificateBulkImportActionDialog({
         }
       }
       form.reset();
-      onSuccess();
+      onSuccess(decidedItem);
     } catch (error) {
       const message = getCertificateImportErrorMessage(error, tErrors, t("genericError"));
       if (isCertificateImportInlineError(error)) {

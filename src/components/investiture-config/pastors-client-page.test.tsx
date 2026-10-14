@@ -235,7 +235,7 @@ describe("PastorsClientPage", () => {
     await user.click(screen.getByRole("button", { name: "Guardar cupo" }));
 
     expect(
-      await screen.findByText("Ingresá un número entero mayor o igual a 0."),
+      await screen.findByText("Ingresa un número entero mayor o igual a 0."),
     ).toBeInTheDocument();
     expect(mockUpdateQuota).not.toHaveBeenCalled();
   });
@@ -282,7 +282,7 @@ describe("PastorsClientPage", () => {
   it("asks for a Field when none is selected", () => {
     renderPage({ localFieldId: null, districts: [] });
 
-    expect(screen.getByText("Seleccioná un Campo")).toBeInTheDocument();
+    expect(screen.getByText("Selecciona un Campo")).toBeInTheDocument();
     expect(screen.queryByText("Este Campo no tiene distritos")).not.toBeInTheDocument();
   });
 

@@ -4522,7 +4522,7 @@
         "downloadTemplate": "Descargar plantilla",
         "dropZone": {
           "title": "Arrastra y suelta tu archivo aquí",
-          "subtitle": "o hacé clic para seleccionar desde tu equipo",
+          "subtitle": "o haz clic para seleccionar desde tu equipo",
           "browse": "Seleccionar archivo",
           "accept": "Formatos aceptados: .xlsx, .csv — Máx. 5 MB y 500 filas"
         },
@@ -8583,8 +8583,8 @@
   },
   "investiture_requests": {
     "errors": {
-      "forbidden": "No tenés permiso para realizar esta acción.",
-      "generic": "No se pudo completar la operación. Intentá de nuevo.",
+      "forbidden": "No tienes permiso para realizar esta acción.",
+      "generic": "No se pudo completar la operación. Intenta de nuevo.",
       "duration_min_not_met": "Todavía no se cumplió la duración mínima de la clase",
       "duration_expired": "La duración de la clase venció para este enrollment",
       "class_threshold_edit_closed": "El porcentaje de la clase ya no se puede cambiar para este Campo y año",
@@ -8613,7 +8613,7 @@
       "section_not_found": "Sección no encontrada",
       "outside_section": "La persona no pertenece a esta sección",
       "window_closed": "La ventana del Campo no permite presentar ni agregar personas",
-      "window_closed_authorize": "La ventana del Campo está cerrada. Pedí al Campo que la amplíe para poder autorizar.",
+      "window_closed_authorize": "La ventana del Campo está cerrada. Pide al Campo que la amplíe para poder autorizar.",
       "date_outside_window": "La fecha de investidura queda fuera de la ventana del Campo",
       "date_outside_year": "La fecha de investidura queda fuera del año eclesiástico",
       "date_invalid": "La fecha de investidura no es válida",
@@ -8655,11 +8655,11 @@
         "submitted": "Presentada"
       },
       "emptyTitle": "No hay solicitudes pendientes",
-      "emptyDescription": "Cuando una directiva presente una solicitud de investidura, aparecerá acá.",
+      "emptyDescription": "Cuando una directiva presente una solicitud de investidura, aparecerá aquí.",
       "noYearTitle": "No hay un año eclesiástico activo",
-      "noYearDescription": "Elegí un año eclesiástico para ver sus solicitudes.",
-      "noDistrictsTitle": "Todavía no tenés distritos asignados",
-      "noDistrictsDescription": "Pedí al Campo que te asigne.",
+      "noYearDescription": "Elige un año eclesiástico para ver sus solicitudes.",
+      "noDistrictsTitle": "Todavía no tienes distritos asignados",
+      "noDistrictsDescription": "Pide al Campo que te asigne.",
       "noValue": "—"
     },
     "detail": {
@@ -8668,8 +8668,8 @@
       "noValue": "—",
       "breadcrumbHome": "Dashboard",
       "breadcrumbList": "Autorizaciones de investidura",
-      "windowClosedBanner": "La ventana del Campo está cerrada. Pedí al Campo que la amplíe para poder autorizar.",
-      "readOnlyNotice": "Podés consultar esta solicitud, pero no tenés permiso para autorizar a sus integrantes.",
+      "windowClosedBanner": "La ventana del Campo está cerrada. Pide al Campo que la amplíe para poder autorizar.",
+      "readOnlyNotice": "Puedes consultar esta solicitud, pero no tienes permiso para autorizar a sus integrantes.",
       "columns": {
         "person": "Persona",
         "class": "Clase",
@@ -8690,13 +8690,13 @@
         "commentPlaceholder": "Un mensaje breve para esta persona",
         "commentMax": "El comentario admite hasta 500 caracteres.",
         "reasonLabel": "Motivo del rechazo",
-        "reasonPlaceholder": "Indicá por qué no se autoriza",
+        "reasonPlaceholder": "Indica por qué no se autoriza",
         "reasonRequired": "El motivo es obligatorio para rechazar.",
         "reasonMax": "El motivo admite hasta 1000 caracteres."
       },
       "actionBar": {
         "confirm": "Confirmar decisiones ({count})",
-        "hint": "Elegí Investir o Rechazar para al menos una persona."
+        "hint": "Elige Investir o Rechazar para al menos una persona."
       },
       "toasts": {
         "resolved": "Decisiones registradas."
@@ -8726,14 +8726,14 @@
   "investiture_config": {
     "settings": {
       "title": "Ventana y porcentaje de investidura",
-      "description": "Definí cuándo el Campo recibe y autoriza solicitudes de investidura y qué porcentaje de la clase se exige.",
+      "description": "Define cuándo el Campo recibe y autoriza solicitudes de investidura y qué porcentaje de la clase se exige.",
       "breadcrumbHome": "Inicio",
       "breadcrumbGroup": "Autorización de investiduras",
       "yearPlaceholder": "Año eclesiástico",
       "localFieldLabel": "Campo",
-      "localFieldPlaceholder": "Seleccioná un Campo",
-      "selectLocalFieldTitle": "Seleccioná un Campo",
-      "selectLocalFieldDescription": "Elegí un Campo para ver o editar su ventana y su porcentaje.",
+      "localFieldPlaceholder": "Selecciona un Campo",
+      "selectLocalFieldTitle": "Selecciona un Campo",
+      "selectLocalFieldDescription": "Elige un Campo para ver o editar su ventana y su porcentaje.",
       "noYearTitle": "No hay un año eclesiástico para configurar",
       "noYearDescription": "Cuando exista un año eclesiástico vas a poder definir la ventana y el porcentaje.",
       "window": {
@@ -8747,7 +8747,7 @@
         "save": "Guardar ventana",
         "saving": "Guardando…",
         "readOnly": "Solo lectura: tu rol o el estado del año no permiten editar la ventana.",
-        "required": "Indicá una fecha válida.",
+        "required": "Indica una fecha válida.",
         "startAfterEnd": "El inicio no puede ser posterior al fin.",
         "outsideYear": "La fecha debe estar dentro del año eclesiástico ({start} al {end}).",
         "saved": "Ventana guardada."
@@ -8763,7 +8763,7 @@
         "saving": "Guardando…",
         "readOnly": "Solo lectura: tu rol o la fecha actual no permiten editar el porcentaje.",
         "restricted": "Solo el Campo y super-admin pueden ver el porcentaje.",
-        "invalid": "Ingresá un número entero entre 0 y 100.",
+        "invalid": "Ingresa un número entero entre 0 y 100.",
         "saved": "Porcentaje guardado."
       }
     },
@@ -8773,9 +8773,9 @@
       "breadcrumbHome": "Inicio",
       "breadcrumbGroup": "Autorización de investiduras",
       "localFieldLabel": "Campo",
-      "localFieldPlaceholder": "Seleccioná un Campo",
-      "selectLocalFieldTitle": "Seleccioná un Campo",
-      "selectLocalFieldDescription": "Elegí un Campo para ver y asignar los pastores de sus distritos.",
+      "localFieldPlaceholder": "Selecciona un Campo",
+      "selectLocalFieldTitle": "Selecciona un Campo",
+      "selectLocalFieldDescription": "Elige un Campo para ver y asignar los pastores de sus distritos.",
       "noDistrictsTitle": "Este Campo no tiene distritos",
       "noDistrictsDescription": "Cuando existan distritos vas a poder asignarles pastores.",
       "quota": {
@@ -8787,7 +8787,7 @@
         "save": "Guardar cupo",
         "saving": "Guardando…",
         "saved": "Cupo guardado.",
-        "invalid": "Ingresá un número entero mayor o igual a 0."
+        "invalid": "Ingresa un número entero mayor o igual a 0."
       },
       "district": {
         "count": "{count}/{slots} pastores",
@@ -8815,15 +8815,15 @@
       },
       "assignDialog": {
         "title": "Asignar pastor a {district}",
-        "description": "Buscá a un pastor registrado y asignalo a este distrito.",
+        "description": "Busca a un pastor registrado y asígnalo a este distrito.",
         "hint": "Solo aparecen pastores del Campo de este distrito.",
         "fieldLabel": "Pastor",
         "placeholder": "Buscar pastor",
-        "searchPlaceholder": "Escribí nombre, apellido o correo",
-        "minChars": "Escribí al menos 3 caracteres; cada palabra necesita 2 como mínimo.",
+        "searchPlaceholder": "Escribe nombre, apellido o correo",
+        "minChars": "Escribe al menos 3 caracteres; cada palabra necesita 2 como mínimo.",
         "searching": "Buscando…",
         "noResults": "No hay pastores que coincidan.",
-        "searchError": "No se pudo buscar. Intentá de nuevo.",
+        "searchError": "No se pudo buscar. Intenta de nuevo.",
         "cancel": "Cancelar",
         "assign": "Asignar",
         "assigning": "Asignando…",

@@ -36,6 +36,8 @@ import {
   ViewInProofButton,
 } from "@/components/certificate-bulk-imports/certificate-bulk-import-review-parts";
 import {
+  applyItemDecisions,
+  buildItemDecision,
   confidenceLabel,
   confidencePercent,
   formatCivilDate,
@@ -46,6 +48,8 @@ import {
   isReviewableItem,
   itemCatalogLabel,
   resolveProofTarget,
+  undeliveredDecisionIds,
+  type ItemDecision,
   type ProofTarget,
 } from "@/components/certificate-bulk-imports/helpers";
 import { useScreenAccess } from "@/lib/auth/screen-catalog/use-screen-access";
@@ -69,6 +73,10 @@ const GM_INSTITUTIONAL_CODES = ["GM-02", "GM-03"];
 
 /** What the proof viewer shows. `explicit` = opened from a row link (not the default). */
 type ViewerTarget = ProofTarget & { explicit: boolean; seq: number };
+
+/** If a refresh still returns rows the reviewer already decided, re-ask this many times. */
+const MAX_DECISION_REFRESH_RETRIES = 3;
+const DECISION_REFRESH_RETRY_MS = 1500;
 
 type DialogState =
   | { action: "approve"; item: CertificateBulkImportItem }
@@ -406,9 +414,17 @@ export function CertificateBulkImportDetailPage({
   const [viewerTarget, setViewerTarget] = useState<ViewerTarget | null>(null);
   const proofRef = useRef<HTMLDivElement>(null);
   const [, startTransition] = useTransition();
+  // Decisions taken in this session, kept until the server data reflects them.
+  const [decisions, setDecisions] = useState<Record<string, ItemDecision>>({});
+  const [retryTick, setRetryTick] = useState(0);
+  const retryCount = useRef(0);
+  const decidedItems = useMemo(
+    () => applyItemDecisions(batch.items ?? [], decisions),
+    [batch.items, decisions],
+  );
   const visibleBatch = useMemo(() => {
     const institutionalIds = new Set(
-      (batch.items ?? [])
+      decidedItems
         .filter((item) =>
           GM_INSTITUTIONAL_CODES.includes(item.class?.asset_code ?? ""),
         )
@@ -416,7 +432,7 @@ export function CertificateBulkImportDetailPage({
     );
     return {
       ...batch,
-      items: (batch.items ?? []).filter(
+      items: decidedItems.filter(
         (item) => !institutionalIds.has(item.item_id),
       ),
       files: (batch.files ?? []).filter(
@@ -426,7 +442,7 @@ export function CertificateBulkImportDetailPage({
         (event) => !event.item_id || !institutionalIds.has(event.item_id),
       ),
     };
-  }, [batch]);
+  }, [batch, decidedItems]);
   const items = visibleBatch.items ?? [];
   const files = visibleBatch.files ?? [];
   const counts = useMemo(() => getBatchCounts(visibleBatch), [visibleBatch]);
@@ -440,7 +456,49 @@ export function CertificateBulkImportDetailPage({
     setViewerTarget((current) => ({ fileId, page: 1, explicit: false, seq: (current?.seq ?? 0) + 1 }));
   }
 
-  function handleSuccess() {
+  // The server refresh is the source of truth, but it is fire-and-forget: if it
+  // is dropped or returns data from before the decision, the row would keep its
+  // buttons. So the decision is applied locally first, then reconciled.
+  const undelivered = useMemo(
+    () => undeliveredDecisionIds(batch.items ?? [], decisions),
+    [batch.items, decisions],
+  );
+  const hasUndelivered = undelivered.length > 0;
+
+  // Drop decisions the server has already confirmed (server data wins from now
+  // on, so a later resubmission is never masked). Adjusted during render, not in
+  // an effect, so there is no extra commit with stale rows.
+  const [seenItems, setSeenItems] = useState(batch.items);
+  if (seenItems !== batch.items) {
+    setSeenItems(batch.items);
+    const keep = new Set(undeliveredDecisionIds(batch.items ?? [], decisions));
+    if (Object.keys(decisions).some((id) => !keep.has(id))) {
+      setDecisions(Object.fromEntries(Object.entries(decisions).filter(([id]) => keep.has(id))));
+    }
+  }
+
+  // Re-ask the server while it still shows decided rows as pending.
+  useEffect(() => {
+    if (!hasUndelivered) {
+      retryCount.current = 0;
+      return;
+    }
+    if (retryCount.current >= MAX_DECISION_REFRESH_RETRIES) return;
+    const timer = setTimeout(() => {
+      retryCount.current += 1;
+      startTransition(() => router.refresh());
+      setRetryTick((tick) => tick + 1);
+    }, DECISION_REFRESH_RETRY_MS * (retryCount.current + 1));
+    return () => clearTimeout(timer);
+  }, [hasUndelivered, batch, retryTick, router]);
+
+  function handleSuccess(decidedItem?: Parameters<typeof buildItemDecision>[1]) {
+    if (dialog) {
+      const decision = buildItemDecision(dialog.action, decidedItem);
+      const itemId = dialog.item.item_id;
+      retryCount.current = 0;
+      setDecisions((current) => ({ ...current, [itemId]: decision }));
+    }
     setDialog(null);
     startTransition(() => router.refresh());
   }
