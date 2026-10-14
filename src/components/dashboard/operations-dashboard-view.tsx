@@ -154,6 +154,7 @@ export async function OperationsDashboardView({ data, query, user }: OperationsD
             reviewLabel: tHome("review"),
             labels: queueLabels,
             items: queueItems,
+            formatCount: (value: number) => fmt(value),
             empty: {
               title: tHome("dispatchEmptyTitle"),
               description: tHome("dispatchEmptyDescription"),
@@ -215,6 +216,7 @@ export async function OperationsDashboardView({ data, query, user }: OperationsD
             reviewLabel: tHome("review"),
             labels: queueLabels,
             items: queueItems,
+            formatCount: (value: number) => fmt(value),
           }}
           context={context}
           dataQuality={dataQuality}

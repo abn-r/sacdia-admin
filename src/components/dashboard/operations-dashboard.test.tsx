@@ -164,6 +164,7 @@ describe("OperationsWorkQueue", () => {
         title="Por atender"
         reviewLabel="Revisar"
         labels={QUEUE_LABELS}
+        formatCount={String}
         items={[
           { id: "classes", count: 12, href: "/dashboard/clubs/validations?tab=sections" },
           { id: "transfers", count: 1, href: "/dashboard/requests/transfers" },
@@ -185,6 +186,7 @@ describe("OperationsWorkQueue", () => {
         title="Por atender"
         reviewLabel="Revisar"
         labels={QUEUE_LABELS}
+        formatCount={String}
         items={[]}
         empty={{ title: "Nada pendiente en tu alcance", description: "Aparece aquí." }}
       />,
@@ -200,6 +202,7 @@ describe("OperationsWorkQueue", () => {
         title="Pendientes"
         reviewLabel="Revisar"
         labels={QUEUE_LABELS}
+        formatCount={String}
         items={[]}
       />,
     );
@@ -323,7 +326,7 @@ describe("SupervisionHome", () => {
       <SupervisionHome
         summary="9 de 12 campos locales entregaron el informe del mes."
         gapTable={gapTableProps}
-        pending={{ headingId: "pending", title: "Pendientes", reviewLabel: "Revisar", labels: QUEUE_LABELS, items: [] }}
+        pending={{ headingId: "pending", title: "Pendientes", reviewLabel: "Revisar", labels: QUEUE_LABELS, formatCount: String, items: [] }}
         context={contextProps}
         dataQuality={dataQualityProps}
       />,
@@ -345,6 +348,7 @@ describe("SupervisionHome", () => {
           title: "Pendientes",
           reviewLabel: "Revisar",
           labels: QUEUE_LABELS,
+          formatCount: String,
           items: [{ id: "folders", count: 7, href: "/dashboard/annual-folders/evaluate" }],
         }}
         context={contextProps}
@@ -366,6 +370,7 @@ describe("DispatchHome", () => {
           title: "Por atender",
           reviewLabel: "Revisar",
           labels: QUEUE_LABELS,
+          formatCount: String,
           items: [],
           empty: { title: "Nada pendiente en tu alcance", description: "Aparece aquí." },
         }}
@@ -391,6 +396,7 @@ describe("DispatchHome", () => {
           title: "Por atender",
           reviewLabel: "Revisar",
           labels: QUEUE_LABELS,
+          formatCount: String,
           items: [{ id: "classes", count: 12, href: "/dashboard/clubs/validations?tab=sections" }],
           empty: { title: "Nada pendiente", description: "x" },
         }}

@@ -18,6 +18,8 @@ export interface OperationsWorkQueueProps {
   labels: Record<OperationsQueueId, string>;
   /** Already filtered to queues with work that the user can open. */
   items: OperationsWorkItem[];
+  /** Formats a queue count with the active locale. */
+  formatCount: (value: number) => string;
   /** When set, an empty queue shows this state; otherwise the block is omitted. */
   empty?: { title: string; description: string };
 }
@@ -28,6 +30,7 @@ export function OperationsWorkQueue({
   reviewLabel,
   labels,
   items,
+  formatCount,
   empty,
 }: OperationsWorkQueueProps) {
   if (items.length === 0 && !empty) {
@@ -56,7 +59,7 @@ export function OperationsWorkQueue({
                     <span className="truncate font-medium text-sm">{labels[item.id]}</span>
                   </span>
                   <span className="flex shrink-0 items-center gap-3 text-sm">
-                    <span className="font-semibold tabular-nums">{item.count}</span>
+                    <span className="font-semibold tabular-nums">{formatCount(item.count)}</span>
                     <span className="inline-flex items-center gap-1 text-primary">
                       {reviewLabel}
                       <ArrowRight className="size-3.5" aria-hidden />
