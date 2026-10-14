@@ -106,6 +106,6 @@ No hay archivo de ejemplo en el repo. Variables leídas por el código:
 ## Documentación
 
 - Adaptador para agentes: `AGENTS.md` (orden de lectura del workspace `sacdia`)
-- Design system: `DESIGN-SYSTEM.md`
+- Design system: `DESIGN-SYSTEM.md` (también es el `DESIGN.md` de antislop: dirección de UI y diales en §0)
 - Baseline de bundle: `PERF-BASELINE.md`
 - Documentación funcional: `../docs/features/` y API en `../docs/api/`

@@ -35,6 +35,8 @@ Regla persistente: `.cursor/rules/admin-panel-workflow.mdc` (`alwaysApply: true`
 
 ## Design system (DESIGN-SYSTEM.md)
 
+`DESIGN-SYSTEM.md` es la dirección de diseño del panel: el `DESIGN.md` que espera antislop. Para trabajo de UI, léelo primero (§0 trae los diales) y usa antislop como filtro.
+
 Checklist antes de merge en cambios de UI:
 
 - [ ] Titulos de pagina via `<PageHeader>` (no `h1` sueltos con `font-bold`)

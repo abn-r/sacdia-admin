@@ -28,6 +28,27 @@
 > - **Dark mode** usa true black/OLED de la app (`#000000`, `#1A1A1A`, `#252525`, `#303030`).
 > - Los valores de marca son exactos; los `*-foreground` del panel se ajustan cuando hace falta para mantener contraste legible en web.
 
+> **Actualizado 2026-10-13 — Alineación antislop**. Radios por rol (§4.1), sin `rounded-3xl`/`rounded-4xl`. Labels en sentence case, sin `uppercase` + `tracking-*` (§3.2). Nueva §0 con diales y razones de Geist/Hugeicons. Audit: reglas `pill-radius` (error) y `uppercase-tracking`.
+
+---
+
+## 0. Dirección antislop
+
+Este documento es el `DESIGN.md` que espera el plugin antislop: la **dirección** del panel. antislop es el **filtro**. Si una regla de antislop choca con algo de aquí, se respeta esto y se anota la excepción.
+
+Dial: ENERGY 1 / RHYTHM 2 / MOTION 1
+
+- **ENERGY 1**: herramienta de trabajo; calmada, sin decoración que compita con los datos.
+- **RHYTHM 2**: cada sección toma la composición que pide su contenido; no se repite la misma plantilla de cards en toda la pantalla.
+- **MOTION 1**: solo hover/focus y transiciones funcionales (ver §9). Sin loops ni animaciones de entrada decorativas.
+
+Decisiones con razón escrita:
+
+- **Fuente — Geist** en todo el panel: sans neutra y legible para un panel denso en datos, con pesos reales y una variante mono pareada (Geist Mono) para valores tabulares y código.
+- **Iconos — Hugeicons**: decisión de identidad del panel, no default de librería. El alias `lucide-react` es solo compatibilidad (§8).
+- **Radios por rol**: ver §4.1.
+- **Labels en sentence case**: sin `uppercase` + `tracking-*` (ver §3.2).
+
 ---
 
 ## 1. Stack de UI
@@ -211,17 +232,18 @@ Cargadas via `next/font/google` en `src/lib/fonts/registry.ts`. `fontVars` va en
 
 ### 4.1 Radios de Borde
 
-Base `0.625rem` (10px) en `globals.css`. Tailwind v4 deriva `sm/md/lg/xl` desde `--radius`. Runtime **no** usa la escala Ember de 12px.
+Base `0.625rem` (10px) en `globals.css`; `rounded-lg` equivale a `--radius`. El radio se elige por **rol**, no por gusto: crece con el tamaño del contenedor y el pill queda reservado para etiquetas.
 
-| Token / clase | Valor efectivo | Uso |
-|---------------|----------------|-----|
-| `--radius` | `0.625rem` (10px) | Base |
-| `rounded-xl` | ~10–12px | Cards, skeleton |
-| `rounded-2xl` | overlays / accordion / select content | Dialogs, menus, accordion |
-| `rounded-4xl` | pill | Buttons, inputs, select trigger |
-| `rounded-full` | circulo | Avatars, dots, empty-state icon well |
+| Rol | Clase | Componentes |
+|-----|-------|-------------|
+| Etiqueta / estado | `rounded-full` | Badge, StatusBadge, Avatar, Switch, Radio, Progress, Slider, dots, Kbd |
+| Control | `rounded-lg` | Button, Input, InputGroup, InputOTP, Select trigger, NativeSelect, Combobox, Textarea, Toggle, ToggleGroup, Tabs list, Menubar, ítems del Sidebar |
+| Ítem dentro de superficie | `rounded-lg` | Ítems de DropdownMenu, ContextMenu, Menubar, Select, Combobox, Command; media de Attachment |
+| Superficie | `rounded-xl` | Card, tabla contenedora, Popover, HoverCard, menús, Select/Combobox content, Command, Tooltip, Accordion, Item, Attachment, Skeleton |
+| Overlay | `rounded-2xl` | Dialog, AlertDialog, Drawer, Command en dialog |
+| Interno concéntrico | `rounded-md` | Tab trigger y botones dentro de un contenedor con `p-[3px]` |
 
-**No** uses `rounded-md` en buttons/inputs nuevos: el primitivo es `rounded-4xl`.
+**Prohibido**: `rounded-3xl` y `rounded-4xl`. `pnpm audit:design-system --strict` falla con la regla `pill-radius`. `Sheet` no lleva radio (panel pegado al borde).
 
 ### 4.2 Grid del Dashboard
 
@@ -436,7 +458,7 @@ La sombra default paso de `shadow-sm` a `shadow-xs` en Fase 2. El border cambio 
 **Import:** `@/components/ui/input`
 
 - Altura: `h-9`
-- Border radius: `rounded-4xl`
+- Border radius: `rounded-lg` (control, ver §4.1)
 - Focus: `border-ring` + `ring-[3px] ring-ring/50`
 - Transicion: `color, border-color, box-shadow` a 150ms `--ease-out-expo`. `motion-reduce:transition-none`.
 - Con icono a la izquierda:
@@ -452,7 +474,7 @@ La sombra default paso de `shadow-sm` a `shadow-xs` en Fase 2. El border cambio 
 
 **Import:** `@/components/ui/select`
 
-- Mismo estilo que Input (`h-9`, `rounded-4xl`)
+- Mismo estilo que Input (`h-9`, `rounded-lg`)
 - Incluye icono Hugeicons `UnfoldMore` automatico
 - `appearance-none` para ocultar el select nativo
 
@@ -1945,3 +1967,5 @@ Antes de entregar cualquier nueva pantalla o componente, verificar:
 - [ ] Acciones en tabla con Tooltip (1-2 acciones) o DropdownMenu (3+)
 - [ ] No hay imports sin usar
 - [ ] `pnpm build` compila sin errores
+- [ ] Radios según el rol del elemento (§4.1); nada de `rounded-3xl`/`rounded-4xl`
+- [ ] Labels y encabezados en sentence case, sin `uppercase` + `tracking-*`
