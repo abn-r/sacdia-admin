@@ -200,7 +200,7 @@ describe("FieldConfigClientPage", () => {
     await user.type(input, "150");
     await user.click(screen.getByRole("button", { name: "Guardar porcentaje" }));
 
-    expect(await screen.findByText("Ingresá un número entero entre 0 y 100.")).toBeInTheDocument();
+    expect(await screen.findByText("Ingresa un número entero entre 0 y 100.")).toBeInTheDocument();
     expect(mockUpdateThreshold).not.toHaveBeenCalled();
   });
 
@@ -241,7 +241,7 @@ describe("FieldConfigClientPage", () => {
   it("asks for a local field when none is selected", () => {
     renderPage({ localFieldId: null, window: null, threshold: null });
 
-    expect(screen.getByText("Seleccioná un Campo")).toBeInTheDocument();
+    expect(screen.getByText("Selecciona un Campo")).toBeInTheDocument();
   });
 
   it("changes the year keeping the selected local field", async () => {
