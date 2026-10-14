@@ -74,13 +74,6 @@ export function buildWorkQueue(summary: DashboardMetrics): OperationsWorkItem[] 
     .sort((a, b) => b.count - a.count);
 }
 
-export function resolveReportsHref(user: AuthUser): string | undefined {
-  return firstAccessibleHref(user, [
-    "/dashboard/reports/supervision",
-    "/dashboard/reports",
-  ]);
-}
-
 export type HomeMode = "supervise" | "dispatch";
 
 /**
