@@ -1,6 +1,12 @@
 import type { AuthUser } from "@/lib/auth/types";
 import { canAccessDashboardPath } from "@/lib/auth/require-page-access";
-import type { DashboardMetrics } from "@/lib/api/operations-dashboard";
+import type {
+  ChildLevel,
+  DashboardMetrics,
+  OperationsDashboardChild,
+  OperationsDashboardQuery,
+  OperationsDashboardScope,
+} from "@/lib/api/operations-dashboard";
 
 export type OperationsQueueId =
   | "roles"
@@ -9,16 +15,6 @@ export type OperationsQueueId =
   | "honors"
   | "folders";
 
-export type OperationsShortcutId =
-  | "clubs"
-  | "users"
-  | "assignments"
-  | "validations"
-  | "reports"
-  | "folders"
-  | "activities"
-  | "camporees";
-
 export const OPERATIONS_QUEUE_HREFS: Record<OperationsQueueId, string> = {
   roles: "/dashboard/requests/assignments",
   transfers: "/dashboard/requests/transfers",
@@ -26,23 +22,6 @@ export const OPERATIONS_QUEUE_HREFS: Record<OperationsQueueId, string> = {
   honors: "/dashboard/clubs/validations?tab=honors",
   folders: "/dashboard/annual-folders/evaluate",
 };
-
-export const OPERATIONS_SHORTCUTS: Array<{
-  id: OperationsShortcutId;
-  hrefs: readonly string[];
-}> = [
-  { id: "clubs", hrefs: ["/dashboard/clubs"] },
-  { id: "users", hrefs: ["/dashboard/users"] },
-  { id: "assignments", hrefs: ["/dashboard/requests/assignments"] },
-  { id: "validations", hrefs: ["/dashboard/clubs/validations"] },
-  {
-    id: "reports",
-    hrefs: ["/dashboard/reports/supervision", "/dashboard/reports"],
-  },
-  { id: "folders", hrefs: ["/dashboard/annual-folders/evaluate"] },
-  { id: "activities", hrefs: ["/dashboard/clubs/activities"] },
-  { id: "camporees", hrefs: ["/dashboard/campamentos"] },
-];
 
 export type OperationsWorkItem = {
   id: OperationsQueueId;
@@ -102,17 +81,140 @@ export function resolveReportsHref(user: AuthUser): string | undefined {
   ]);
 }
 
-export function resolveAccessibleShortcuts(
-  user: AuthUser,
-): Array<{ id: OperationsShortcutId; href: string }> {
-  const resolved: Array<{ id: OperationsShortcutId; href: string }> = [];
+export type HomeMode = "supervise" | "dispatch";
 
-  for (const shortcut of OPERATIONS_SHORTCUTS) {
-    const href = firstAccessibleHref(user, shortcut.hrefs);
-    if (href) {
-      resolved.push({ id: shortcut.id, href });
-    }
+/**
+ * Dispatch (work queue first) only for the actor's own local field or
+ * coordinator scope. Wider levels and any drill-down supervise.
+ */
+export function resolveHomeMode(
+  scope: OperationsDashboardScope,
+  query: OperationsDashboardQuery,
+): HomeMode {
+  const drilledDown =
+    query.division_id !== undefined ||
+    query.union_id !== undefined ||
+    query.local_field_id !== undefined;
+  const dispatchLevel = scope.level === "local_field" || scope.level === "coordinator";
+  return dispatchLevel && !drilledDown ? "dispatch" : "supervise";
+}
+
+export type ChildGap = {
+  missingSections: number;
+  nonOperationalClubs: number;
+  pendingTotal: number;
+  hasGap: boolean;
+};
+
+function pendingTotal(queues: DashboardMetrics["queues"]): number {
+  return (
+    queues.role_assignments_pending +
+    queues.transfers_pending +
+    queues.class_validations_pending +
+    (queues.honors_review_pending ?? 0) +
+    queues.annual_folders_pending_union
+  );
+}
+
+export function childGap(
+  child: OperationsDashboardChild,
+  hasReportingMonth: boolean,
+): ChildGap {
+  const missingSections = hasReportingMonth ? child.monthly_reports.missing_sections : 0;
+  const nonOperationalClubs = child.operations.non_operational_clubs;
+  return {
+    missingSections,
+    nonOperationalClubs,
+    pendingTotal: pendingTotal(child.queues),
+    hasGap: missingSections > 0 || nonOperationalClubs > 0,
+  };
+}
+
+export type RankedChild = { child: OperationsDashboardChild; gap: ChildGap };
+
+export function rankChildrenByGap(
+  children: OperationsDashboardChild[],
+  hasReportingMonth: boolean,
+): RankedChild[] {
+  return children
+    .map((child) => ({ child, gap: childGap(child, hasReportingMonth) }))
+    .sort(
+      (a, b) =>
+        Number(b.gap.hasGap) - Number(a.gap.hasGap) ||
+        b.gap.missingSections - a.gap.missingSections ||
+        b.gap.nonOperationalClubs - a.gap.nonOperationalClubs ||
+        b.gap.pendingTotal - a.gap.pendingTotal ||
+        a.child.name.localeCompare(b.child.name, "es"),
+    );
+}
+
+export type LagReason = "missingReport" | "nonOperational";
+
+export function laggingClubs(
+  children: OperationsDashboardChild[],
+  hasReportingMonth: boolean,
+): Array<{ child: OperationsDashboardChild; reasons: LagReason[] }> {
+  return rankChildrenByGap(children, hasReportingMonth)
+    .filter(({ gap }) => gap.hasGap)
+    .map(({ child, gap }) => {
+      const reasons: LagReason[] = [];
+      if (gap.missingSections > 0) reasons.push("missingReport");
+      if (gap.nonOperationalClubs > 0) reasons.push("nonOperational");
+      return { child, reasons };
+    });
+}
+
+export type SummaryMessage =
+  | { key: "childrenReported"; values: { reported: number; total: number; level: ChildLevel } }
+  | { key: "sectionsReported"; values: { submitted: number; expected: number } }
+  | { key: "noClosedMonth"; values: Record<string, never> }
+  | { key: "nonOperationalClubs"; values: { count: number } };
+
+function nonOperationalMessage(summary: DashboardMetrics): SummaryMessage[] {
+  const count = summary.operations.non_operational_clubs;
+  return count > 0 ? [{ key: "nonOperationalClubs", values: { count } }] : [];
+}
+
+export function supervisionSummary(
+  children: OperationsDashboardChild[],
+  childLevel: ChildLevel,
+  summary: DashboardMetrics,
+  hasReportingMonth: boolean,
+): SummaryMessage[] {
+  if (!hasReportingMonth) {
+    return [{ key: "noClosedMonth", values: {} }, ...nonOperationalMessage(summary)];
   }
+  const expecting = children.filter((child) => child.monthly_reports.expected_sections > 0);
+  const reported = expecting.filter((child) => child.monthly_reports.missing_sections === 0);
+  const reportMessage: SummaryMessage[] =
+    expecting.length > 0
+      ? [
+          {
+            key: "childrenReported",
+            values: { reported: reported.length, total: expecting.length, level: childLevel },
+          },
+        ]
+      : [];
+  return [...reportMessage, ...nonOperationalMessage(summary)];
+}
 
-  return resolved;
+export function dispatchSummary(
+  summary: DashboardMetrics,
+  hasReportingMonth: boolean,
+): SummaryMessage[] {
+  if (!hasReportingMonth) {
+    return [{ key: "noClosedMonth", values: {} }, ...nonOperationalMessage(summary)];
+  }
+  const { expected_sections: expected, submitted_sections: submitted } = summary.monthly_reports;
+  const reportMessage: SummaryMessage[] =
+    expected > 0 ? [{ key: "sectionsReported", values: { submitted, expected } }] : [];
+  return [...reportMessage, ...nonOperationalMessage(summary)];
+}
+
+/** Pending queues with work AND a screen the user can open. */
+export function visibleWorkQueue(
+  summary: DashboardMetrics,
+  user: AuthUser,
+): OperationsWorkItem[] {
+  return buildWorkQueue(summary).filter((item) => firstAccessibleHref(user, [item.href]));
 }
