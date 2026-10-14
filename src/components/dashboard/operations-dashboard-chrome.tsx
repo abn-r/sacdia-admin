@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import {
   buildDashboardHref,
   buildResetScopeQuery,
+  scopePathLabels,
   type OperationsDashboardData,
   type OperationsDashboardQuery,
 } from "@/lib/api/operations-dashboard";
@@ -20,14 +21,6 @@ interface OperationsDashboardChromeProps {
   description: string;
 }
 
-function scopePathLabels(data: OperationsDashboardData): string[] {
-  const labels = data.meta.scope.path.map((node) => node.name);
-  if (data.meta.scope.level !== "all") {
-    labels.push(data.meta.scope.name);
-  }
-  return labels;
-}
-
 export async function OperationsDashboardChrome({
   data,
   query,
@@ -38,7 +31,7 @@ export async function OperationsDashboardChrome({
   const locale = await getLocale();
   const { meta } = data;
   const reportingMonth = meta.period.reporting_month;
-  const pathLabels = scopePathLabels(data);
+  const pathLabels = scopePathLabels(meta.scope);
   const breadcrumbText = pathLabels.join(" › ");
   const showBreadcrumb =
     breadcrumbText.length > 0 && breadcrumbText !== meta.scope.name;

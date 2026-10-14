@@ -3,7 +3,7 @@ import { unwrapApiData } from "@/lib/api/unwrap";
 
 // ─── Types (aligned with backend DTO) ─────────────────────────────────────────
 
-export type ScopeLevel = "all" | "division" | "union" | "local_field";
+export type ScopeLevel = "all" | "division" | "union" | "local_field" | "coordinator";
 export type ChildLevel = "division" | "union" | "local_field" | "club";
 export type MetricQuality =
   | "exact"
@@ -13,7 +13,7 @@ export type MetricQuality =
 export type HonorsAttribution = "current_affiliation" | "unavailable";
 
 export type OperationsDashboardScopePathNode = {
-  level: Exclude<ScopeLevel, "all">;
+  level: Exclude<ScopeLevel, "all" | "coordinator">;
   id: number;
   name: string;
 };
@@ -346,4 +346,16 @@ export async function fetchOperationsDashboard(
   });
 
   return unwrapApiData<OperationsDashboardData>(payload);
+}
+
+/**
+ * Breadcrumb labels for the current scope: the territorial path followed by
+ * the scope name. A coordinator has no territorial path, so only the name shows.
+ */
+export function scopePathLabels(scope: OperationsDashboardScope): string[] {
+  const labels = scope.path.map((node) => node.name);
+  if (scope.level !== "all") {
+    labels.push(scope.name);
+  }
+  return labels;
 }
