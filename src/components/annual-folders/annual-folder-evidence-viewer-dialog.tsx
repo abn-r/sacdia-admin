@@ -201,7 +201,7 @@ export function AnnualFolderEvidenceViewerDialog({
               {isImage && (
                 <div className="min-h-[24rem] flex-1 overflow-auto bg-muted/30">
                   <div className="flex min-h-full min-w-full items-start justify-center p-4">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    {/* eslint-disable-next-line @next/next/no-img-element -- full-size zoomable viewer (needs original pixels) of a presigned evidence URL */}
                     <img
                       src={evidence.file_url}
                       alt={currentFileLabel}

@@ -296,7 +296,7 @@ export default async function ActivityDetailPage({ params }: { params: Params })
             <CardTitle className="text-base">{t("pageDetail.card_image_title")}</CardTitle>
           </CardHeader>
           <CardContent>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
+            {/* eslint-disable-next-line @next/next/no-img-element -- backend returns activity.image as a presigned R2 URL */}
             <img
               src={activity.image}
               alt={activity.name}

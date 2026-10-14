@@ -81,7 +81,7 @@ export function FinanceEvidenceField({
             className="relative size-20 overflow-hidden rounded-lg border border-border bg-muted"
             title={label}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
+            {/* eslint-disable-next-line @next/next/no-img-element -- backend returns finance evidence as presigned URLs */}
             <img
               src={evidence.url}
               alt={label}
@@ -103,7 +103,7 @@ export function FinanceEvidenceField({
             className="relative size-20 overflow-hidden rounded-lg border border-border bg-muted"
             title={label}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
+            {/* eslint-disable-next-line @next/next/no-img-element -- blob: preview of a local upload */}
             <img
               src={URL.createObjectURL(file)}
               alt={label}

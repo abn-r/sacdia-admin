@@ -606,7 +606,7 @@ export function PaymentFormPage({
                     className="block"
                     aria-label={tV("openInNewTab")}
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    {/* eslint-disable-next-line @next/next/no-img-element -- voucher of unknown host/size (w-auto, no intrinsic dimensions), single preview */}
                     <img
                       src={currentVoucherUrl}
                       alt={tV("sectionTitle")}
@@ -673,7 +673,7 @@ export function PaymentFormPage({
                   {tV("selected")}
                 </div>
                 {pendingPreviewUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
+                  // eslint-disable-next-line @next/next/no-img-element -- blob: preview of a local upload
                   <img
                     src={pendingPreviewUrl}
                     alt={pendingFile.name}
