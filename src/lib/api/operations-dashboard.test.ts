@@ -10,8 +10,10 @@ import {
   formatMetricPercent,
   isValidPositiveInt,
   parseOperationsDashboardSearchParams,
+  scopePathLabels,
   serializeOperationsDashboardParams,
   type OperationsDashboardData,
+  type OperationsDashboardScope,
 } from "@/lib/api/operations-dashboard";
 
 vi.mock("@/lib/api/client", async (importOriginal) => {
@@ -347,5 +349,41 @@ describe("cached response semantics", () => {
   it("treats cached true as metadata only", () => {
     expect(stubDashboard.meta.cached).toBe(true);
     expect(stubDashboard.meta.computed_at).toBe("2026-07-15T12:00:00.000Z");
+  });
+});
+
+describe("scopePathLabels", () => {
+  it("returns no labels for the global scope", () => {
+    const scope: OperationsDashboardScope = {
+      level: "all",
+      id: null,
+      name: "Todos",
+      path: [],
+    };
+    expect(scopePathLabels(scope)).toEqual([]);
+  });
+
+  it("lists the path and ends with the current territory", () => {
+    const scope: OperationsDashboardScope = {
+      level: "local_field",
+      id: 100,
+      name: "Campo 100",
+      path: [
+        { level: "division", id: 1, name: "División 1" },
+        { level: "union", id: 10, name: "Unión 10" },
+        { level: "local_field", id: 100, name: "Campo 100" },
+      ],
+    };
+    expect(scopePathLabels(scope)).toEqual(["División 1", "Unión 10", "Campo 100", "Campo 100"]);
+  });
+
+  it("shows only the scope name for a coordinator, who has no territorial path", () => {
+    const scope: OperationsDashboardScope = {
+      level: "coordinator",
+      id: null,
+      name: "Zona Norte",
+      path: [],
+    };
+    expect(scopePathLabels(scope)).toEqual(["Zona Norte"]);
   });
 });
