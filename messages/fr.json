@@ -1189,6 +1189,9 @@
       "update_section_failed": "Impossible de mettre à jour la section",
       "sync_section_failed": "Impossible de synchroniser la section",
       "create_role_assignment_failed": "Impossible de créer l'affectation de rôle",
+      "create_class_assignment_failed": "Impossible de créer l'assignation de classe",
+      "update_class_assignment_failed": "Impossible de mettre à jour l'assignation de classe",
+      "revoke_class_assignment_failed": "Impossible de révoquer l'assignation de classe",
       "update_role_failed": "Impossible de mettre à jour le rôle",
       "remove_assignment_failed": "Impossible de supprimer l'affectation",
       "club_created_no_id": "Club créé, mais son ID n'a pas pu être résolu pour continuer avec les sections",
@@ -1222,6 +1225,9 @@
       "section_created_short": "Section créée",
       "section_updated": "Section mise à jour avec succès",
       "assignment_created": "Affectation créée avec succès",
+      "class_assignment_created": "Classe assignée avec succès",
+      "class_assignment_updated": "Assignation de classe mise à jour avec succès",
+      "class_assignment_revoked": "Assignation de classe révoquée avec succès",
       "assignment_removed": "Affectation supprimée avec succès",
       "role_updated": "Rôle mis à jour avec succès",
       "retry_failed_sections": "Vous pouvez continuer vers le détail du club et relancer les sections en échec",
@@ -1705,7 +1711,8 @@
       "description": "Attributions dans les 100 derniers utilisateurs",
       "noRolesFound": "Aucun rôle attribué trouvé dans l'échantillon.",
       "basedOn": "Basé sur les {count} derniers utilisateurs enregistrés",
-      "userCount": "{count, plural, one {{count} utilisateur} other {{count} utilisateurs}} — {percentage}%"
+      "userCount": "{count, plural, one {{count} utilisateur} other {{count} utilisateurs}} — {percentage}%",
+      "noRoleChip": "Sans rôle attribué : {count, plural, one {{count} utilisateur} other {{count} utilisateurs}} ({percentage}%)"
     },
     "quickLinks": {
       "title": "Accès rapides",
@@ -3261,7 +3268,11 @@
       "unexpected": "Une erreur inattendue s'est produite",
       "approve_member": "Impossible d'approuver l'inscription du membre",
       "approve_payment": "Impossible d'approuver le paiement",
-      "enroll_club": "Impossible d'inscrire le club"
+      "enroll_club": "Impossible d'inscrire le club",
+      "create_failed": "Impossible de créer la camporée",
+      "update_failed": "Impossible de mettre à jour la camporée",
+      "register_member_failed": "Impossible d'enregistrer le membre",
+      "remove_member_failed": "Impossible de retirer le membre"
     },
     "clubRegistration": {
       "statusOpen": "Inscription des clubs ouverte",
@@ -3673,6 +3684,18 @@
     },
     "enrollDialog": {
       "title": "Inscrire un club",
+      "description": "Choisissez un club du champ local et la section qui participera.",
+      "labelClub": "Club",
+      "placeholderClub": "Sélectionner un club",
+      "loadingClubs": "Chargement des clubs...",
+      "errorClubs": "Impossible de charger les clubs.",
+      "emptyClubs": "Aucun club enregistré dans ce champ local.",
+      "labelSection": "Section",
+      "placeholderSection": "Sélectionner une section",
+      "placeholderSectionPickClub": "Choisissez d'abord un club",
+      "loadingSections": "Chargement des sections...",
+      "errorSections": "Impossible de charger les sections.",
+      "emptySections": "Ce club n'a aucune section éligible pour cette camporée.",
       "labelSectionId": "Section",
       "placeholderSectionId": "Ex. 42",
       "helpSectionId": "Entrez l'ID de la section de club que vous souhaitez inscrire.",
@@ -3809,7 +3832,22 @@
       "coordinates_pair_required": "Saisissez latitude et longitude ensemble",
       "local_field_required": "Le champ local est obligatoire",
       "end_date_after_start": "La date de fin doit être égale ou postérieure à la date de début",
-      "end_date_after_start_full": "La date de fin doit être égale ou postérieure à la date de début"
+      "end_date_after_start_full": "La date de fin doit être égale ou postérieure à la date de début",
+      "field_required": "Le champ {field} est obligatoire",
+      "field_invalid": "La valeur de {field} n'est pas valide",
+      "dates_required": "Les dates de début et de fin sont obligatoires",
+      "no_changes": "Aucune modification n'a été effectuée",
+      "user_id_required": "L'utilisateur est obligatoire",
+      "camporee_type_invalid": "Le type de camporée n'est pas valide",
+      "insurance_invalid": "L'assurance sélectionnée n'est pas valide",
+      "member_remove_not_identified": "Impossible d'identifier le membre à retirer"
+    },
+    "fields": {
+      "local_field": "Champ local"
+    },
+    "success": {
+      "member_registered": "Membre enregistré avec succès",
+      "member_removed": "Membre retiré avec succès"
     }
   },
   "resources": {
@@ -4221,7 +4259,64 @@
         "description": "Gestion des utilisateurs du système.",
         "cannotShow": "Impossible d’afficher les utilisateurs",
         "emptyTitle": "Aucun utilisateur trouvé",
-        "emptyDescription": "Essayez d’ajuster les filtres de recherche."
+        "emptyDescription": "Essayez d’ajuster les filtres de recherche.",
+        "actions": {
+          "addUser": "Ajouter un utilisateur",
+          "bulkUpload": "Création en masse"
+        }
+      },
+      "new": {
+        "title": "Ajouter un utilisateur",
+        "description": "Créer un nouvel utilisateur et lui envoyer une invitation par e-mail.",
+        "breadcrumb": "Ajouter un utilisateur",
+        "fields": {
+          "name": "Prénom",
+          "paternal_last_name": "Nom de famille paternel",
+          "maternal_last_name": "Nom de famille maternel",
+          "email": "Adresse e-mail",
+          "role": "Rôle",
+          "country": "Pays",
+          "union": "Union",
+          "local_field": "Champ local"
+        },
+        "placeholders": {
+          "name": "Ex. María",
+          "paternal_last_name": "Ex. González",
+          "maternal_last_name": "Ex. Pérez",
+          "email": "utilisateur@exemple.com",
+          "role": "Sélectionnez un rôle",
+          "country": "Sélectionnez un pays",
+          "union": "Sélectionnez une union",
+          "local_field": "Sélectionnez un champ local"
+        },
+        "help": {
+          "maternal_last_name": "Facultatif. Laissez vide si non applicable.",
+          "role": "Vous ne pouvez attribuer que des rôles égaux ou inférieurs au vôtre.",
+          "union": "Sélectionnez d’abord un pays.",
+          "local_field": "Sélectionnez d’abord une union."
+        },
+        "actions": {
+          "submit": "Créer l’utilisateur",
+          "cancel": "Annuler",
+          "submitting": "Création…"
+        },
+        "toast": {
+          "success": "Utilisateur créé. Invitation envoyée à {email}.",
+          "inviteNotSent": "Utilisateur créé, mais l’e-mail d’invitation n’a pas pu être envoyé.",
+          "emailExists": "Un utilisateur avec cet e-mail existe déjà.",
+          "forbidden": "Vous n’avez pas la permission de créer ce rôle.",
+          "validationFailed": "Vérifiez les champs du formulaire.",
+          "generic": "Impossible de créer l’utilisateur. Réessayez."
+        },
+        "validation": {
+          "nameRequired": "Le prénom est obligatoire.",
+          "paternalRequired": "Le nom de famille paternel est obligatoire.",
+          "emailRequired": "L’e-mail est obligatoire.",
+          "emailInvalid": "Format d’e-mail invalide.",
+          "roleRequired": "Sélectionnez un rôle.",
+          "countryRequired": "Sélectionnez un pays.",
+          "unionRequired": "Sélectionnez une union."
+        }
       },
       "detail": {
         "title": "Détail de l'utilisateur",
@@ -4418,6 +4513,70 @@
           "sectionColumn": "Section",
           "roleColumn": "Rôle",
           "noRoleAssigned": "Aucun rôle assigné"
+        }
+      },
+      "bulk": {
+        "title": "Création en masse d’utilisateurs",
+        "description": "Créez plusieurs utilisateurs à la fois en téléversant un fichier Excel ou CSV avec les données requises.",
+        "breadcrumb": "Création en masse",
+        "downloadTemplate": "Télécharger le modèle",
+        "dropZone": {
+          "title": "Glissez-déposez votre fichier ici",
+          "subtitle": "ou cliquez pour le sélectionner sur votre ordinateur",
+          "browse": "Sélectionner un fichier",
+          "accept": "Formats acceptés : .xlsx, .csv. Max. 5 Mo et 500 lignes"
+        },
+        "preview": {
+          "title": "Aperçu du fichier",
+          "subtitle": "Les lignes restantes seront traitées sur le serveur.",
+          "showingRowsOf": "Affichage de {shown} sur {total} lignes",
+          "moreColumns": "colonnes supplémentaires",
+          "headersOk": "En-têtes valides",
+          "headersInvalid": "Le fichier ne contient pas la colonne 'email' requise.",
+          "emptyFile": "Le fichier ne contient aucune ligne de données.",
+          "tooManyRows": "Le fichier dépasse le maximum de 500 lignes."
+        },
+        "actions": {
+          "submit": "Traiter le fichier",
+          "cancel": "Annuler",
+          "uploadAnother": "Téléverser un autre fichier",
+          "filterAll": "Tous",
+          "filterSuccess": "Réussis",
+          "filterError": "Avec erreurs"
+        },
+        "results": {
+          "totalLabel": "Total",
+          "succeededLabel": "Réussis",
+          "failedLabel": "Échoués",
+          "inviteSent": "Invitation envoyée",
+          "inviteNotSent": "Utilisateur créé sans invitation",
+          "createdHeader": "Créé",
+          "emailHeader": "E-mail",
+          "rowHeader": "Ligne",
+          "detailHeader": "Détail",
+          "statusHeader": "Statut"
+        },
+        "statusBadges": {
+          "success": "Créé",
+          "error": "Erreur"
+        },
+        "errorCodes": {
+          "validationFailed": "Données invalides",
+          "duplicateInFile": "E-mail en double dans le fichier",
+          "emailAlreadyInUse": "E-mail déjà enregistré",
+          "invalidRole": "Rôle invalide",
+          "forbiddenRoleForActor": "Vous ne pouvez pas créer ce rôle",
+          "internalError": "Erreur interne"
+        },
+        "toast": {
+          "success": "Tous les utilisateurs ont été créés avec succès.",
+          "partialSuccess": "Import terminé avec quelques erreurs. Consultez les résultats.",
+          "allFailed": "Aucun utilisateur n’a pu être créé. Vérifiez les données du fichier.",
+          "fileTooLarge": "Fichier trop volumineux (max. 5 Mo).",
+          "fileTypeInvalid": "Format de fichier non pris en charge. Utilisez .xlsx ou .csv.",
+          "fileEmpty": "Le fichier ne contient aucune donnée.",
+          "tooManyRows": "Le fichier dépasse la limite de 500 lignes.",
+          "generic": "Une erreur s’est produite lors du traitement du fichier. Réessayez."
         }
       }
     }
@@ -5465,7 +5624,8 @@
       "categories_load_failed": "Impossible de charger les catégories",
       "transaction_updated": "Transaction mise à jour avec succès",
       "transaction_created": "Transaction créée avec succès",
-      "transaction_deleted": "Transaction supprimée avec succès"
+      "transaction_deleted": "Transaction supprimée avec succès",
+      "evidence_upload_failed": "Impossible de téléverser les preuves"
     },
     "validation": {
       "section_required": "Sélectionnez une section du club",
@@ -5481,7 +5641,8 @@
     "errors": {
       "delete_transaction_failed": "Impossible de supprimer la transaction",
       "update_transaction_failed": "Impossible de mettre à jour la transaction",
-      "create_transaction_failed": "Impossible de créer la transaction"
+      "create_transaction_failed": "Impossible de créer la transaction",
+      "upload_evidence_failed": "Impossible de téléverser la preuve"
     },
     "dashboard": {
       "filtersLabel": "Filtres :",
@@ -7690,6 +7851,26 @@
         "removeSuccess": "Juge retiré du roster.",
         "cancelEdit": "Annuler",
         "saveNotes": "Enregistrer"
+      },
+      "configLocalField": {
+        "title": "Configuration : champ local",
+        "description": "Variables opérationnelles pour les camporees de champ local.",
+        "breadcrumbRoot": "Camporees",
+        "templatesCardTitle": "Modèles d'événements",
+        "templatesCardDescription": "Bibliothèque réutilisable d'activités pour les camporees locaux.",
+        "templatesCardAction": "Voir les modèles",
+        "eventTypesCardTitle": "Types d'événement",
+        "eventTypesCardDescription": "Catalogue des types utilisés lors de la création d'activités et de modèles."
+      },
+      "configUnion": {
+        "title": "Configuration : union",
+        "description": "Variables opérationnelles pour les camporees d'union.",
+        "breadcrumbRoot": "Camporees",
+        "templatesCardTitle": "Modèles d'événements",
+        "templatesCardDescription": "Bibliothèque réutilisable d'activités pour les camporees d'union.",
+        "templatesCardAction": "Voir les modèles",
+        "eventTypesCardTitle": "Types d'événement",
+        "eventTypesCardDescription": "Catalogue des types utilisés lors de la création d'activités et de modèles."
       }
     }
   },

@@ -1189,6 +1189,9 @@
       "update_section_failed": "The section could not be updated",
       "sync_section_failed": "The section could not be synchronized",
       "create_role_assignment_failed": "The role assignment could not be created",
+      "create_class_assignment_failed": "The class assignment could not be created",
+      "update_class_assignment_failed": "The class assignment could not be updated",
+      "revoke_class_assignment_failed": "The class assignment could not be revoked",
       "update_role_failed": "The role could not be updated",
       "remove_assignment_failed": "The assignment could not be removed",
       "club_created_no_id": "Club created, but its ID could not be resolved to continue with sections",
@@ -1222,6 +1225,9 @@
       "section_created_short": "Section created",
       "section_updated": "Section updated successfully",
       "assignment_created": "Assignment created successfully",
+      "class_assignment_created": "Class assigned successfully",
+      "class_assignment_updated": "Class assignment updated successfully",
+      "class_assignment_revoked": "Class assignment revoked successfully",
       "assignment_removed": "Assignment removed successfully",
       "role_updated": "Role updated successfully",
       "retry_failed_sections": "You can continue to the club detail and retry the failed sections",
@@ -3262,7 +3268,11 @@
       "unexpected": "An unexpected error occurred",
       "approve_member": "Could not approve the member enrollment",
       "approve_payment": "Could not approve the payment",
-      "enroll_club": "Could not enroll the club"
+      "enroll_club": "Could not enroll the club",
+      "create_failed": "Could not create the camporee",
+      "update_failed": "Could not update the camporee",
+      "register_member_failed": "Could not register the member",
+      "remove_member_failed": "Could not remove the member"
     },
     "clubRegistration": {
       "statusOpen": "Club registration is open",
@@ -3822,7 +3832,22 @@
       "coordinates_pair_required": "Capture latitude and longitude together",
       "local_field_required": "Local field is required",
       "end_date_after_start": "End date must be equal to or after the start date",
-      "end_date_after_start_full": "End date must be equal to or after the start date"
+      "end_date_after_start_full": "End date must be equal to or after the start date",
+      "field_required": "{field} is required",
+      "field_invalid": "The value for {field} is invalid",
+      "dates_required": "Start and end dates are required",
+      "no_changes": "No changes were made",
+      "user_id_required": "User is required",
+      "camporee_type_invalid": "The camporee type is invalid",
+      "insurance_invalid": "The selected insurance is invalid",
+      "member_remove_not_identified": "Could not identify the member to remove"
+    },
+    "fields": {
+      "local_field": "Local field"
+    },
+    "success": {
+      "member_registered": "Member registered successfully",
+      "member_removed": "Member removed successfully"
     }
   },
   "resources": {
@@ -5599,7 +5624,8 @@
       "categories_load_failed": "Could not load the categories",
       "transaction_updated": "Transaction updated successfully",
       "transaction_created": "Transaction created successfully",
-      "transaction_deleted": "Transaction deleted successfully"
+      "transaction_deleted": "Transaction deleted successfully",
+      "evidence_upload_failed": "Could not upload the evidence files"
     },
     "validation": {
       "section_required": "Select a club section",
@@ -5615,7 +5641,8 @@
     "errors": {
       "delete_transaction_failed": "Could not delete the transaction",
       "update_transaction_failed": "Could not update the transaction",
-      "create_transaction_failed": "Could not create the transaction"
+      "create_transaction_failed": "Could not create the transaction",
+      "upload_evidence_failed": "Could not upload the evidence file"
     },
     "dashboard": {
       "filtersLabel": "Filters:",
