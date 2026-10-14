@@ -9,6 +9,7 @@
 
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
+import { RULES } from "./design-system-rules.mjs";
 
 const ROOT = path.resolve(import.meta.dirname, "..");
 const SRC = path.join(ROOT, "src");
@@ -20,59 +21,6 @@ const SCAN_EXT = new Set([".tsx", ".ts", ".css"]);
 /** @type {Array<{ severity: "error" | "warn", file: string, line: number, rule: string, excerpt: string }>} */
 const findings = [];
 
-const RULES = [
-  {
-    id: "h1-font-bold",
-    severity: "error",
-    description: "h1 must not use font-bold (use PageHeader + font-display font-normal)",
-    test: (line) => /<h1\b[^>]*\bfont-bold\b/i.test(line),
-    allow: (file) =>
-      file.includes("page-header.tsx") ||
-      file.endsWith(".test.tsx"),
-  },
-  {
-    id: "h1-font-semibold",
-    severity: "warn",
-    description: "h1 should use PageHeader or font-display font-normal",
-    test: (line) => /<h1\b[^>]*\bfont-semibold\b/i.test(line),
-    allow: (file) =>
-      file.includes("page-header.tsx") ||
-      file.endsWith(".test.tsx"),
-  },
-  {
-    id: "tailwind-palette-bg",
-    severity: "warn",
-    description: "Prefer semantic tokens over Tailwind palette bg-* colors",
-    test: (line) =>
-      /\bbg-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-\d{2,3}\b/.test(
-        line,
-      ),
-    allow: () => false,
-  },
-  {
-    id: "tailwind-palette-text",
-    severity: "warn",
-    description: "Prefer semantic tokens over Tailwind palette text-* colors",
-    test: (line) =>
-      /\btext-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-\d{2,3}\b/.test(
-        line,
-      ),
-    allow: () => false,
-  },
-  {
-    id: "hardcoded-spanish-ui",
-    severity: "warn",
-    description: "Possible hardcoded Spanish UI string in JSX props (use next-intl)",
-    test: (line) => {
-      if (!/^\s*(?:title|description|label|aria-label|placeholder)=/.test(line)) {
-        return false;
-      }
-      if (/useTranslations|getTranslations|\{t\(/.test(line)) return false;
-      return /[áéíóúñÁÉÍÓÚÑ¿¡]/.test(line) || /\b(Editar|Eliminar|Volver|Nuevo|No se pudo)\b/.test(line);
-    },
-    allow: (file) => file.endsWith(".test.tsx"),
-  },
-];
 
 async function walk(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
