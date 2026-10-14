@@ -187,7 +187,18 @@ const nextConfig: NextConfig = {
       },
     ],
     formats: ["image/avif", "image/webp"],
-    minimumCacheTTL: 3600,
+    // Catalog assets (honors, class logos, badges) are effectively immutable:
+    // a replaced image gets a new object key. R2 sends no Cache-Control, so
+    // this TTL is what the optimizer cache and the browser actually use.
+    minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
+    // Thumbnails render at 24-128 px. With explicit width/height next/image
+    // emits 1x/2x variants picked from `imageSizes`, so every rendered size
+    // and its 2x must exist here (28 -> 32/64, 40 -> 48/96, 48 -> 48/96,
+    // 64 -> 64/128, 96 -> 96/256, 128 -> 128/256) to avoid oversized variants.
+    imageSizes: [16, 24, 32, 48, 64, 96, 128, 256],
+    // Only used for fluid (`fill` / `sizes`) images. Dropped 2048/3840: no
+    // asset in the admin needs them and each width is a separate billed variant.
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
   },
 };
 

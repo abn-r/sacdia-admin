@@ -187,7 +187,7 @@ function FileCard({ file, index, onOpenViewer }: FileCardProps) {
           onClick={() => onOpenViewer(file)}
           className="block w-full text-left"
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+          {/* eslint-disable-next-line @next/next/no-img-element -- evidence file_url is presigned by the backend */}
           <img
             src={file.file_url}
             alt={fileLabel}
@@ -328,7 +328,7 @@ function EvidenceFileViewerDialog({
                       selected ? "border-primary ring-2 ring-primary/20" : "border-border"
                     }`}
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    {/* eslint-disable-next-line @next/next/no-img-element -- evidence file_url is presigned by the backend */}
                     <img
                       src={imageFile.file_url}
                       alt=""
@@ -404,7 +404,7 @@ function EvidenceFileViewerDialog({
                 className="min-h-[24rem] flex-1 overflow-auto bg-muted/30"
               >
                 <div className="flex min-h-full min-w-full items-start justify-center p-4">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {/* eslint-disable-next-line @next/next/no-img-element -- full-size zoomable viewer of a presigned evidence URL */}
                   <img
                     data-testid="evidence-viewer-image"
                     src={file.file_url}

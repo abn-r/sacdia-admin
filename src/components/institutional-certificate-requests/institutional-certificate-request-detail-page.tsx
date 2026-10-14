@@ -162,7 +162,7 @@ function SignedProofViewer({
       <CardContent className="p-0">
         <div className="flex min-h-[320px] items-center justify-center bg-muted/40 p-4">
           {isImage ? (
-            // eslint-disable-next-line @next/next/no-img-element
+            // eslint-disable-next-line @next/next/no-img-element -- presigned download_url (expiring signature would defeat the optimizer cache)
             <img
               src={download_url}
               alt={name}

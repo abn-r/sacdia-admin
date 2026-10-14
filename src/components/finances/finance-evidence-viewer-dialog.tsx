@@ -47,7 +47,7 @@ export function FinanceEvidenceViewerDialog({
               key={evidence.evidence_id}
               className="overflow-hidden rounded-xl border border-border bg-muted/30"
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
+              {/* eslint-disable-next-line @next/next/no-img-element -- backend returns finance evidence as presigned URLs */}
               <img
                 src={evidence.url}
                 alt={label}

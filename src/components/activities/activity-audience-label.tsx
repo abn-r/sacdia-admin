@@ -1,3 +1,4 @@
+import { CatalogThumbnail } from "@/components/shared/catalog-thumbnail";
 import type { Activity } from "@/lib/api/activities";
 
 const ASSET_CODE = /^(AV|CQ|GM)-\d{2}$/;
@@ -36,8 +37,7 @@ export function ActivityAudienceValue({
           return (
             <span key={item.class_id} className="inline-flex items-center gap-1.5">
               {logo ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={logo} alt="" className="size-7 object-contain" />
+                <CatalogThumbnail src={logo} size={28} fallback={null} />
               ) : null}
               <span>{item.name}</span>
             </span>

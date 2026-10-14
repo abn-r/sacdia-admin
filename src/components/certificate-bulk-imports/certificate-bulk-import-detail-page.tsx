@@ -176,7 +176,7 @@ function SignedFileCardContent({
       </div>
       <div className="flex min-h-[520px] items-center justify-center bg-muted/40 p-4">
         {isImage(file) ? (
-          // eslint-disable-next-line @next/next/no-img-element
+          // eslint-disable-next-line @next/next/no-img-element -- presigned download_url (expiring signature would defeat the optimizer cache)
           <img
             src={download_url}
             alt={file.file_name}

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Check, ChevronsUpDown, Loader2, X } from "lucide-react";
 
+import { CatalogThumbnail } from "@/components/shared/catalog-thumbnail";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -108,16 +109,7 @@ export function EventHonorsPicker({ value, onChange }: EventHonorsPickerProps) {
               key={honor.honor_id}
               className="flex items-center gap-3 rounded-lg border px-3 py-2"
             >
-              {honor.honor_image ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={honor.honor_image}
-                  alt=""
-                  className="size-8 shrink-0 object-contain"
-                />
-              ) : (
-                <span className="size-8 shrink-0 rounded-md border bg-muted" />
-              )}
+              <CatalogThumbnail src={honor.honor_image} size={32} />
               <span className="min-w-0 flex-1 truncate text-sm font-medium">
                 {honor.name}
               </span>
@@ -182,11 +174,10 @@ export function EventHonorsPicker({ value, onChange }: EventHonorsPickerProps) {
                           )}
                         />
                         {honor.honor_image ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
+                          <CatalogThumbnail
                             src={honor.honor_image}
-                            alt=""
-                            className="mr-2 size-6 object-contain"
+                            size={24}
+                            className="mr-2"
                           />
                         ) : null}
                         <span className="truncate">{honor.name}</span>

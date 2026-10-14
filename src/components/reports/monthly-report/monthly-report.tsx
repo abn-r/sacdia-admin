@@ -116,7 +116,7 @@ function BrandAsset({
 
   return (
     // The official local asset is deliberately not recreated when it is absent.
-    // eslint-disable-next-line @next/next/no-img-element
+    // eslint-disable-next-line @next/next/no-img-element -- local SVG brand asset, printed as-is (optimizer does not touch SVG)
     <img
       className={className}
       src={src}
