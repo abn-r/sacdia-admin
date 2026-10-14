@@ -201,7 +201,7 @@ export async function OperationsDashboardView({ data, query, user }: OperationsD
                 reports: hasReportingMonth ? pct(child.monthly_reports.coverage_pct) : "—",
                 missingLabel:
                   gap.missingSections > 0
-                    ? tHome("gapTable.missingCount", { count: fmt(gap.missingSections) })
+                    ? tHome("gapTable.missingCount", { count: gap.missingSections })
                     : undefined,
                 nonOperational: fmt(gap.nonOperationalClubs),
                 pending: fmt(gap.pendingTotal),

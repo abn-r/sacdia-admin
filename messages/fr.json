@@ -1765,7 +1765,7 @@
             "nonOperational": "Non opérationnels",
             "pending": "En attente"
           },
-          "missingCount": "{count} manquants",
+          "missingCount": "{count, plural, one {# manquant} other {# manquants}}",
           "emptyTitle": "Aucun territoire dans ce périmètre",
           "emptyDescription": "Ce niveau n’a encore aucun territoire enfant enregistré."
         },

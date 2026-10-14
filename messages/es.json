@@ -1772,7 +1772,7 @@
             "nonOperational": "No operativos",
             "pending": "Pendientes"
           },
-          "missingCount": "faltan {count}",
+          "missingCount": "{count, plural, one {falta #} other {faltan #}}",
           "emptyTitle": "Sin territorios en este alcance",
           "emptyDescription": "Este nivel todavía no tiene territorios hijos registrados."
         },

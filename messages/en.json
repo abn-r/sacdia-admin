@@ -1766,7 +1766,7 @@
             "nonOperational": "Non-operational",
             "pending": "Pending"
           },
-          "missingCount": "{count} missing",
+          "missingCount": "{count, plural, one {# missing} other {# missing}}",
           "emptyTitle": "No territories in this scope",
           "emptyDescription": "This level has no child territories registered yet."
         },

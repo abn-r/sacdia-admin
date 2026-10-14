@@ -1,7 +1,7 @@
 import React from "react";
 import { describe, it, expect, afterEach } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
-import { NextIntlClientProvider } from "next-intl";
+import { NextIntlClientProvider, createTranslator } from "next-intl";
 import es from "../../../messages/es.json";
 import en from "../../../messages/en.json";
 import fr from "../../../messages/fr.json";
@@ -116,6 +116,20 @@ describe("dashboardHub.operations translations", () => {
     expect(messages.dashboardHub.operations.home.dispatchTitle).toBeTruthy();
     expect(messages.dashboardHub.operations.home.gapTable.columns.reports).toBeTruthy();
     expect(messages.dashboardHub.operations.errors.forbiddenDescription).toBeTruthy();
+  });
+});
+
+describe("dashboard home messages", () => {
+  const translate = (locale: string, messages: typeof es) =>
+    createTranslator({ locale, messages, namespace: "dashboardHub.operations.home" });
+
+  it("pluralizes missing sections and formats numbers", () => {
+    const big = new Intl.NumberFormat("es").format(12345);
+    expect(translate("es", es)("gapTable.missingCount", { count: 1 })).toBe("falta 1");
+    expect(translate("es", es)("gapTable.missingCount", { count: 12345 })).toBe(`faltan ${big}`);
+    expect(translate("en", en)("gapTable.missingCount", { count: 1 })).toBe("1 missing");
+    expect(translate("fr", fr)("gapTable.missingCount", { count: 1 })).toBe("1 manquant");
+    expect(translate("pt-BR", ptBR)("gapTable.missingCount", { count: 2 })).toBe("faltam 2");
   });
 });
 
