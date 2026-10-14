@@ -1751,8 +1751,8 @@
         "honorsAction": "Revisar especialidades",
         "activitiesAction": "Ver atividades",
         "summary": {
-          "childrenReported": "{reported} de {total} {level, select, division {divisões} union {uniões} local_field {campos locais} other {clubes}} entregaram o relatório do mês.",
-          "sectionsReported": "{submitted} de {expected} seções entregaram o relatório do mês.",
+          "childrenReported": "{reported, number} de {total, number} {level, select, division {divisões} union {uniões} local_field {campos locais} other {clubes}} entregaram o relatório do mês.",
+          "sectionsReported": "{submitted, number} de {expected, number} seções entregaram o relatório do mês.",
           "noClosedMonth": "Ainda não há um mês fechado para medir os relatórios.",
           "nonOperationalClubs": "{count, plural, one {# clube não operacional.} other {# clubes não operacionais.}}"
         },

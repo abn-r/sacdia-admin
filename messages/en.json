@@ -1752,8 +1752,8 @@
         "honorsAction": "Review honors",
         "activitiesAction": "Open activities",
         "summary": {
-          "childrenReported": "{reported} of {total} {level, select, division {divisions} union {unions} local_field {local fields} other {clubs}} submitted this month’s report.",
-          "sectionsReported": "{submitted} of {expected} sections submitted this month’s report.",
+          "childrenReported": "{reported, number} of {total, number} {level, select, division {divisions} union {unions} local_field {local fields} other {clubs}} submitted this month’s report.",
+          "sectionsReported": "{submitted, number} of {expected, number} sections submitted this month’s report.",
           "noClosedMonth": "There’s no closed month to measure reports yet.",
           "nonOperationalClubs": "{count, plural, one {# non-operational club.} other {# non-operational clubs.}}"
         },

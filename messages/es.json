@@ -1758,8 +1758,8 @@
         "honorsAction": "Revisar especialidades",
         "activitiesAction": "Ver actividades",
         "summary": {
-          "childrenReported": "{reported} de {total} {level, select, division {divisiones} union {uniones} local_field {campos locales} other {clubes}} entregaron el informe del mes.",
-          "sectionsReported": "{submitted} de {expected} secciones entregaron el informe del mes.",
+          "childrenReported": "{reported, number} de {total, number} {level, select, division {divisiones} union {uniones} local_field {campos locales} other {clubes}} entregaron el informe del mes.",
+          "sectionsReported": "{submitted, number} de {expected, number} secciones entregaron el informe del mes.",
           "noClosedMonth": "Todavía no hay un mes cerrado para medir los informes.",
           "nonOperationalClubs": "{count, plural, one {# club no operativo.} other {# clubes no operativos.}}"
         },

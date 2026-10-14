@@ -131,6 +131,21 @@ describe("dashboard home messages", () => {
     expect(translate("fr", fr)("gapTable.missingCount", { count: 1 })).toBe("1 manquant");
     expect(translate("pt-BR", ptBR)("gapTable.missingCount", { count: 2 })).toBe("faltam 2");
   });
+
+  it("formats numbers in summary sentences", () => {
+    const big = new Intl.NumberFormat("es").format(12345);
+    const sections = translate("es", es)("summary.sectionsReported", { submitted: 12345, expected: 20000 });
+    expect(sections).toContain(big);
+    expect(sections).toContain(new Intl.NumberFormat("es").format(20000));
+    const children = translate("es", es)("summary.childrenReported", {
+      reported: 12345,
+      total: 20000,
+      level: "club",
+    });
+    expect(children).toBe(
+      `${big} de ${new Intl.NumberFormat("es").format(20000)} clubes entregaron el informe del mes.`,
+    );
+  });
 });
 
 const QUEUE_LABELS = {
