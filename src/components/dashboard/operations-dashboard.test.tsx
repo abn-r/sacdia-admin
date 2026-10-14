@@ -120,8 +120,13 @@ describe("dashboardHub.operations translations", () => {
 });
 
 describe("dashboard home messages", () => {
-  const translate = (locale: string, messages: typeof es) =>
-    createTranslator({ locale, messages, namespace: "dashboardHub.operations.home" });
+  // Locale files drift outside this namespace, so widen to the base shape.
+  const translate = (locale: string, messages: unknown) =>
+    createTranslator({
+      locale,
+      messages: messages as typeof es,
+      namespace: "dashboardHub.operations.home",
+    });
 
   it("pluralizes missing sections and formats numbers", () => {
     const big = new Intl.NumberFormat("es").format(12345);
