@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { shouldOptimizeImage } from "@/lib/images/optimizable-image";
 import { cn } from "@/lib/utils";
 
 interface UserAvatarProps {
@@ -36,6 +37,7 @@ export function UserAvatar({ src, name, email, size = 40, className, priority }:
           src={src}
           alt={name ?? email ?? "Usuario"}
           fill
+          unoptimized={!shouldOptimizeImage(src)}
           sizes={`${size}px`}
           className="object-cover"
           onError={() => setImgError(true)}
