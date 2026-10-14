@@ -10,6 +10,7 @@ import { ClassEnrollmentsChart } from "@/components/dashboard/class-enrollments-
 import { OperationsBentoTile } from "@/components/dashboard/operations-bento-tile";
 import { OperationsKpiStrip } from "@/components/dashboard/operations-kpi-strip";
 import { OperationsWorkQueue } from "@/components/dashboard/operations-work-queue";
+import { OperationsGapTable } from "@/components/dashboard/operations-gap-table";
 
 global.ResizeObserver = class ResizeObserver {
   observe() {}
@@ -239,5 +240,76 @@ describe("OperationsWorkQueue", () => {
     );
 
     expect(container).toBeEmptyDOMElement();
+  });
+});
+
+describe("OperationsGapTable", () => {
+  const columns = {
+    name: "Nombre",
+    reports: "Informes",
+    nonOperational: "No operativos",
+    pending: "Pendientes",
+  };
+
+  it("mutes rows without a gap and flags missing reports", () => {
+    render(
+      <OperationsGapTable
+        headingId="gap"
+        title="Campos locales"
+        description="Primero los que tienen brecha."
+        columns={columns}
+        empty={{ title: "Sin territorios", description: "Nada aquí." }}
+        rows={[
+          {
+            key: "local_field-1",
+            name: "Campo A",
+            href: "/dashboard?local_field_id=1",
+            reports: "40%",
+            missingLabel: "faltan 6",
+            nonOperational: "2",
+            pending: "5",
+            hasGap: true,
+          },
+          {
+            key: "local_field-2",
+            name: "Campo C",
+            href: "/dashboard?local_field_id=2",
+            reports: "100%",
+            nonOperational: "0",
+            pending: "0",
+            hasGap: false,
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByRole("heading", { level: 2, name: "Campos locales" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Campo A" })).toHaveAttribute(
+      "href",
+      "/dashboard?local_field_id=1",
+    );
+    expect(screen.getByText("faltan 6")).toHaveClass("text-destructive");
+    expect(screen.getByRole("link", { name: "Campo C" }).closest("tr")).toHaveClass(
+      "text-muted-foreground",
+    );
+    expect(screen.getByRole("link", { name: "Campo A" }).closest("tr")).not.toHaveClass(
+      "text-muted-foreground",
+    );
+  });
+
+  it("shows the empty state without rows", () => {
+    render(
+      <OperationsGapTable
+        headingId="gap"
+        title="Clubes"
+        description="x"
+        columns={columns}
+        empty={{ title: "Sin territorios", description: "Nada aquí." }}
+        rows={[]}
+      />,
+    );
+
+    expect(screen.getByText("Sin territorios")).toBeInTheDocument();
+    expect(screen.queryByRole("table")).not.toBeInTheDocument();
   });
 });
