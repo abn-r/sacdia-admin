@@ -9,6 +9,7 @@ import ptBR from "../../../messages/pt-BR.json";
 import { ClassEnrollmentsChart } from "@/components/dashboard/class-enrollments-chart";
 import { OperationsBentoTile } from "@/components/dashboard/operations-bento-tile";
 import { OperationsKpiStrip } from "@/components/dashboard/operations-kpi-strip";
+import { OperationsWorkQueue } from "@/components/dashboard/operations-work-queue";
 
 global.ResizeObserver = class ResizeObserver {
   observe() {}
@@ -178,5 +179,65 @@ describe("OperationsKpiStrip", () => {
       "href",
       "/dashboard/clubs",
     );
+  });
+});
+
+const QUEUE_LABELS = {
+  roles: "Asignaciones pendientes",
+  transfers: "Traslados pendientes",
+  classes: "Validaciones de clase",
+  honors: "Revisiones de especialidades",
+  folders: "Carpetas pendientes de Unión",
+};
+
+describe("OperationsWorkQueue", () => {
+  it("lists each queue with its count and a review link", () => {
+    render(
+      <OperationsWorkQueue
+        headingId="queue"
+        title="Por atender"
+        reviewLabel="Revisar"
+        labels={QUEUE_LABELS}
+        items={[
+          { id: "classes", count: 12, href: "/dashboard/clubs/validations?tab=sections" },
+          { id: "transfers", count: 1, href: "/dashboard/requests/transfers" },
+        ]}
+      />,
+    );
+
+    expect(screen.getByRole("heading", { level: 2, name: "Por atender" })).toBeInTheDocument();
+    const link = screen.getByRole("link", { name: /Validaciones de clase/ });
+    expect(link).toHaveAttribute("href", "/dashboard/clubs/validations?tab=sections");
+    expect(link).toHaveTextContent("12");
+    expect(link).toHaveTextContent("Revisar");
+  });
+
+  it("shows the empty state when given one and nothing is pending", () => {
+    render(
+      <OperationsWorkQueue
+        headingId="queue"
+        title="Por atender"
+        reviewLabel="Revisar"
+        labels={QUEUE_LABELS}
+        items={[]}
+        empty={{ title: "Nada pendiente en tu alcance", description: "Aparece aquí." }}
+      />,
+    );
+
+    expect(screen.getByText("Nada pendiente en tu alcance")).toBeInTheDocument();
+  });
+
+  it("renders nothing when empty and no empty state is given", () => {
+    const { container } = render(
+      <OperationsWorkQueue
+        headingId="queue"
+        title="Pendientes"
+        reviewLabel="Revisar"
+        labels={QUEUE_LABELS}
+        items={[]}
+      />,
+    );
+
+    expect(container).toBeEmptyDOMElement();
   });
 });
