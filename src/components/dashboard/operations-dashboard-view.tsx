@@ -100,7 +100,6 @@ export async function OperationsDashboardView({ data, query, user }: OperationsD
               {
                 label: t("honors.pendingReview"),
                 value: fmt(summary.honors.pending_review),
-                tone: (summary.honors.pending_review ?? 0) > 0 ? "warning" : "default",
               },
               { label: t("honors.approved"), value: fmt(summary.honors.approved) },
             ],

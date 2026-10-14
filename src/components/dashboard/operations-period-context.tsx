@@ -1,9 +1,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 
-type StatRow = { label: string; value: string; tone?: "default" | "warning" };
+type StatRow = { label: string; value: string };
 
 type ContextGroup = {
   title: string;
@@ -19,15 +18,11 @@ export interface OperationsPeriodContextProps {
   groups: ContextGroup[];
 }
 
-function StatRowView({ label, value, tone = "default" }: StatRow) {
+function StatRowView({ label, value }: StatRow) {
   return (
     <div className="flex items-center justify-between gap-3 text-sm">
       <span className="min-w-0 truncate text-muted-foreground">{label}</span>
-      <span
-        className={cn("shrink-0 font-medium tabular-nums", tone === "warning" && "text-destructive")}
-      >
-        {value}
-      </span>
+      <span className="shrink-0 font-medium tabular-nums">{value}</span>
     </div>
   );
 }
