@@ -1754,121 +1754,39 @@
       "backToMyScope": "Back to my scope",
       "home": {
         "title": "Home",
-        "description": "Queues, coverage, and shortcuts into the modules you can open.",
-        "inboxTitle": "Needs attention",
-        "inboxDescription": "Queues with a destination in the panel. No aggregated total.",
-        "inboxEmptyTitle": "Nothing pending",
-        "inboxEmptyDescription": "No queues have pending work in this scope.",
-        "openQueue": "Open",
-        "coverageTitle": "Monthly reports",
-        "coverageAction": "Open supervision",
+        "description": "What needs attention in your scope.",
         "honorsAction": "Review honors",
         "activitiesAction": "Open activities",
-        "shortcutsTitle": "Modules",
-        "shortcutsDescription": "The same screens as the menu, filtered by your access.",
-        "shortcuts": {
-          "clubs": "Clubs",
-          "users": "Users",
-          "assignments": "Assignments",
-          "validations": "Validations",
-          "reports": "Reports",
-          "folders": "Annual folders",
-          "activities": "Activities",
-          "camporees": "Camporees"
-        }
-      },
-      "bento": {
-        "groups": {
-          "operation": "Annual operation",
-          "operationDescription": "Clubs with at least one section enrolled in the ecclesiastical year.",
-          "adminClubs": "Administrative status",
-          "adminClubsDescription": "Administrative club record; does not imply annual operation.",
-          "people": "People and accounts",
-          "peopleDescription": "Institutional affiliation vs. platform account status.",
-          "reports": "Monthly reports",
-          "reportsDescription": "Last closed month snapshot by enrolled section.",
-          "reportsNotApplicable": "No closed month in the year; counts do not measure non-compliance.",
-          "queues": "Operational queues",
-          "queuesDescription": "Pending items by type; no aggregated total.",
-          "honors": "Honors",
-          "activities": "Registered activities",
-          "activitiesDescription": "System registration; does not confirm execution or attendance.",
-          "formation": "Formation by class",
-          "formationDescription": "{enrollments} enrollments · {people} distinct people"
+        "summary": {
+          "childrenReported": "{reported, number} of {total, number} {level, select, division {divisions} union {unions} local_field {local fields} other {clubs}} submitted this month’s report.",
+          "sectionsReported": "{submitted, number} of {expected, number} sections submitted this month’s report.",
+          "noClosedMonth": "There’s no closed month to measure reports yet.",
+          "nonOperationalClubs": "{count, plural, one {# non-operational club.} other {# non-operational clubs.}}"
         },
-        "honorsAttribution": {
-          "current_affiliation": "By current affiliation in the active year",
-          "unavailable": "Historical data unavailable in the contract"
+        "gapTable": {
+          "title": "{level, select, division {Divisions} union {Unions} local_field {Local fields} other {Clubs}}",
+          "description": "Missing reports and non-operational clubs come first.",
+          "columns": {
+            "name": "Name",
+            "reports": "Reports",
+            "nonOperational": "Non-operational",
+            "pending": "Pending"
+          },
+          "missingCount": "{count, plural, one {# missing} other {# missing}}",
+          "emptyTitle": "{level, select, division {No divisions in this scope} union {No unions in this scope} local_field {No local fields in this scope} other {No clubs in this scope}}",
+          "emptyDescription": "Nothing is registered at this level yet."
         },
-        "stats": {
-          "operationalClubs": "Operational clubs",
-          "operationalClubsDetail": "At least one enrolled section",
-          "operationalSections": "Operational sections",
-          "operationalRate": "Operational rate",
-          "nonOperationalClubs": "Non-operational clubs",
-          "adminClubsTotal": "Administrative clubs",
-          "adminActive": "Active",
-          "adminInactive": "Inactive",
-          "adminTotal": "Total",
-          "institutionalActive": "Institutionally active people",
-          "institutionalActiveDetail": "With an active institutional assignment",
-          "platformActive": "Active accounts",
-          "platformInactive": "Inactive accounts",
-          "monthlyCoverage": "Submitted coverage",
-          "monthlyCoverageDetail": "{submitted} of {expected} expected sections",
-          "noClosedMonth": "No closed month yet",
-          "expectedSections": "Expected sections",
-          "submittedSections": "Submitted",
-          "draftSections": "Draft",
-          "generatedSections": "Generated",
-          "missingSections": "Missing",
-          "roleAssignmentsPending": "Role assignments",
-          "transfersPending": "Transfers",
-          "classValidationsPending": "Class validations",
-          "honorsReviewPending": "Honor reviews",
-          "annualFoldersPending": "Union folders",
-          "honorsInProgress": "In progress",
-          "honorsPendingReview": "Pending review",
-          "honorsApproved": "Approved",
-          "activitiesRegistered": "Registered activities",
-          "activitiesRegisteredDetail": "Distinct activities in the year",
-          "activitiesJoint": "Joint",
-          "activitiesSections": "Participating sections",
-          "totalEnrollments": "Total enrollments",
-          "distinctPeople": "Distinct people"
+        "pendingTitle": "Pending",
+        "review": "Review",
+        "dispatchTitle": "To do",
+        "dispatchEmptyTitle": "Nothing pending in your scope",
+        "dispatchEmptyDescription": "New requests and validations show up here.",
+        "laggingTitle": "Clubs falling behind",
+        "lagReason": {
+          "missingReport": "No report this month",
+          "nonOperational": "Non-operational"
         },
-        "charts": {
-          "submitted": "Sub",
-          "draft": "Dft",
-          "generated": "Gen",
-          "missing": "Mis",
-          "expected": "Exp",
-          "registered": "Reg",
-          "joint": "Jnt",
-          "sections": "Sec"
-        }
-      },
-      "kpis": {
-        "sectionTitle": "Primary indicators",
-        "operationalClubs": "Operational clubs",
-        "operationalClubsHint": "With at least one enrolled section in the year",
-        "institutionalPeople": "Institutionally active people",
-        "institutionalPeopleHint": "Active institutional assignment in the year",
-        "monthlyCoverage": "Monthly coverage",
-        "monthlyCoverageHint": "Submitted reports over expected sections",
-        "noClosedMonthHint": "No closed month applies to the period",
-        "missingReports": "Missing reports",
-        "missingReportsHint": "Sections without a monthly report on record"
-      },
-      "adminDiagnostic": {
-        "title": "Administrative diagnostic",
-        "description": "Administrative status and annual operation as distinct concepts.",
-        "operationalSections": "Operational sections",
-        "adminActiveClubs": "Administratively active clubs",
-        "adminInactiveClubs": "Administratively inactive clubs",
-        "operationalRate": "Operational rate",
-        "platformActiveAccounts": "Active platform accounts",
-        "platformInactiveAccounts": "Inactive platform accounts"
+        "periodContextTitle": "Period context"
       },
       "attention": {
         "title": "Needs attention",
@@ -1908,31 +1826,6 @@
         "jointRegistered": "Joint registered",
         "participatingSections": "Participating sections"
       },
-      "territory": {
-        "title": "Territorial comparison",
-        "description": "Immediate children of the scope. Totals must not be rebuilt by summing rows.",
-        "columnTerritory": "Territory",
-        "columnAdminClubs": "Admin clubs",
-        "columnOperationalClubs": "Operational clubs",
-        "columnPeople": "People",
-        "columnClasses": "Classes (people)",
-        "columnCoverage": "Coverage",
-        "columnActivities": "Activities",
-        "columnPending": "Pending",
-        "pendingRole": "Roles",
-        "pendingTransfers": "Transfers",
-        "pendingClasses": "Classes",
-        "pendingHonors": "Honors",
-        "pendingFolders": "Folders",
-        "emptyTitle": "No child territories",
-        "emptyDescription": "There are no child entities at this scope level.",
-        "level": {
-          "division": "Division",
-          "union": "Union",
-          "local_field": "Local field",
-          "club": "Club"
-        }
-      },
       "dataQuality": {
         "title": "Data quality",
         "description": "Contractual notes on accuracy and attribution for each metric family.",
@@ -1955,96 +1848,6 @@
         "serverTitle": "Server error",
         "serverDescription": "The operations overview could not be loaded.",
         "goToLogin": "Go to sign in"
-      },
-      "version": {
-        "v1": "Bento view",
-        "v2": "Executive view",
-        "switchLabel": "Overview view"
-      },
-      "v2": {
-        "title": "Executive overview",
-        "description": "Decision signals, compliance, and operational pressure within the authorized scope.",
-        "signals": {
-          "title": "Priority signals",
-          "operativeGap": "Operational gap",
-          "operativeGapDetail": "Administrative clubs without enrolled sections this year · admin total {total}",
-          "reportDebt": "Report backlog",
-          "reportDebtDetail": "Sections without a report in the last closed month · expected {expected}",
-          "reportDebtUnavailable": "No closed month applies to this period",
-          "digitalGap": "Digital gap",
-          "digitalGapDetail": "Inactive accounts vs. {institutional} institutionally active people",
-          "workflowPressure": "Active queue types",
-          "workflowPressureDetail": "Queue types with pending items greater than zero"
-        },
-        "operationLens": {
-          "title": "Operations lens",
-          "description": "Annual operation vs. administrative club status.",
-          "operationalRate": "Operational rate",
-          "operationalClubs": "Operational clubs",
-          "operationalSections": "Operational sections",
-          "adminActive": "Admin active",
-          "adminInactive": "Admin inactive"
-        },
-        "compliance": {
-          "title": "Monthly compliance",
-          "description": "Coverage for the last closed month by enrolled section.",
-          "notApplicable": "No closed month; counts do not measure non-compliance.",
-          "coverage": "Submitted coverage",
-          "expected": "Expected",
-          "submitted": "Submitted",
-          "missing": "Missing",
-          "draft": "Draft",
-          "generated": "Generated"
-        },
-        "people": {
-          "title": "People and platform",
-          "description": "Institutional affiliation vs. account status.",
-          "institutional": "Institutionally active",
-          "platformActive": "Active accounts",
-          "platformInactive": "Inactive accounts"
-        },
-        "formation": {
-          "title": "Formation by class",
-          "description": "{enrollments} enrollments · {people} distinct people",
-          "empty": "No enrollments in the current scope."
-        },
-        "honors": {
-          "title": "Honors",
-          "unavailable": "Historical data unavailable in the year contract.",
-          "inProgress": "In progress",
-          "pendingReview": "Pending review",
-          "approved": "Approved"
-        },
-        "activities": {
-          "title": "Registered activities",
-          "description": "System registration; does not confirm execution or attendance.",
-          "registered": "Registered",
-          "joint": "Joint",
-          "sections": "Participating sections"
-        },
-        "queues": {
-          "title": "Operational queues",
-          "description": "Pending items by type; no aggregated total.",
-          "roleAssignments": "Role assignments",
-          "transfers": "Transfers",
-          "classValidations": "Class validations",
-          "honorsReview": "Honors review",
-          "annualFolders": "Union folders"
-        },
-        "alerts": {
-          "title": "Territorial alerts",
-          "description": "Territories with the highest report backlog in the last closed month.",
-          "missingReports": "{count} missing",
-          "inspect": "Inspect",
-          "openClub": "Open club"
-        },
-        "charts": {
-          "territoryComparison": "Territorial comparison",
-          "territoryOperational": "Operational clubs",
-          "territoryMissing": "Missing reports",
-          "territoryPeople": "Active people",
-          "nonOperationalClubs": "Non-operational clubs"
-        }
       }
     },
     "birthday": {

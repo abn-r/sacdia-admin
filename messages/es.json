@@ -1754,121 +1754,39 @@
       "backToMyScope": "Volver a mi alcance",
       "home": {
         "title": "Inicio",
-        "description": "Pendientes, cobertura y acceso a los módulos de tu alcance.",
-        "inboxTitle": "Para atender",
-        "inboxDescription": "Colas con destino en el panel. Sin total agregado.",
-        "inboxEmptyTitle": "Nada pendiente",
-        "inboxEmptyDescription": "No hay colas con trabajo pendiente en este alcance.",
-        "openQueue": "Atender",
-        "coverageTitle": "Informes del mes",
-        "coverageAction": "Ver supervisión",
+        "description": "Lo que necesita atención en tu alcance.",
         "honorsAction": "Revisar especialidades",
         "activitiesAction": "Ver actividades",
-        "shortcutsTitle": "Módulos",
-        "shortcutsDescription": "Las mismas pantallas del menú, según tu acceso.",
-        "shortcuts": {
-          "clubs": "Clubes",
-          "users": "Usuarios",
-          "assignments": "Asignaciones",
-          "validations": "Validaciones",
-          "reports": "Reportes",
-          "folders": "Carpetas anuales",
-          "activities": "Actividades",
-          "camporees": "Campamentos"
-        }
-      },
-      "bento": {
-        "groups": {
-          "operation": "Operación anual",
-          "operationDescription": "Clubes con sección matriculada en el año eclesiástico.",
-          "adminClubs": "Estado administrativo",
-          "adminClubsDescription": "Registro administrativo del club; no implica operación anual.",
-          "people": "Personas y cuentas",
-          "peopleDescription": "Afiliación institucional vs. estado de cuenta de plataforma.",
-          "reports": "Informes mensuales",
-          "reportsDescription": "Corte del último mes cerrado por sección matriculada.",
-          "reportsNotApplicable": "Sin mes cerrado en el año; los conteos no miden incumplimiento.",
-          "queues": "Colas operativas",
-          "queuesDescription": "Pendientes por tipo; sin total agregado.",
-          "honors": "Especialidades",
-          "activities": "Actividades registradas",
-          "activitiesDescription": "Registro en sistema; no confirma ejecución ni asistencia.",
-          "formation": "Formación por clase",
-          "formationDescription": "{enrollments} matrículas · {people} personas distintas"
+        "summary": {
+          "childrenReported": "{reported, number} de {total, number} {level, select, division {divisiones} union {uniones} local_field {campos locales} other {clubes}} entregaron el informe del mes.",
+          "sectionsReported": "{submitted, number} de {expected, number} secciones entregaron el informe del mes.",
+          "noClosedMonth": "Todavía no hay un mes cerrado para medir los informes.",
+          "nonOperationalClubs": "{count, plural, one {# club no operativo.} other {# clubes no operativos.}}"
         },
-        "stats": {
-          "operationalClubs": "Clubes operativos",
-          "operationalClubsDetail": "Al menos una sección matriculada",
-          "operationalSections": "Secciones operativas",
-          "operationalRate": "Tasa operacional",
-          "nonOperationalClubs": "Clubes no operativos",
-          "adminClubsTotal": "Clubes administrativos",
-          "adminActive": "Activos",
-          "adminInactive": "Inactivos",
-          "adminTotal": "Total",
-          "institutionalActive": "Personas institucionalmente activas",
-          "institutionalActiveDetail": "Con asignación institucional activa",
-          "platformActive": "Cuentas activas",
-          "platformInactive": "Cuentas inactivas",
-          "monthlyCoverage": "Cobertura enviada",
-          "monthlyCoverageDetail": "{submitted} de {expected} secciones esperadas",
-          "noClosedMonth": "Aún no hay un mes cerrado",
-          "expectedSections": "Secciones esperadas",
-          "submittedSections": "Enviados",
-          "draftSections": "Borrador",
-          "generatedSections": "Generados",
-          "missingSections": "Sin informe",
-          "roleAssignmentsPending": "Asignaciones de rol",
-          "transfersPending": "Traslados",
-          "classValidationsPending": "Validaciones de clase",
-          "honorsReviewPending": "Revisión de especialidades",
-          "annualFoldersPending": "Carpetas Unión",
-          "honorsInProgress": "En progreso",
-          "honorsPendingReview": "En revisión",
-          "honorsApproved": "Aprobadas",
-          "activitiesRegistered": "Actividades registradas",
-          "activitiesRegisteredDetail": "Actividades distintas en el año",
-          "activitiesJoint": "Conjuntas",
-          "activitiesSections": "Secciones participantes",
-          "totalEnrollments": "Matrículas totales",
-          "distinctPeople": "Personas distintas"
+        "gapTable": {
+          "title": "{level, select, division {Divisiones} union {Uniones} local_field {Campos locales} other {Clubes}}",
+          "description": "Primero los que tienen informes faltantes o clubes no operativos.",
+          "columns": {
+            "name": "Nombre",
+            "reports": "Informes",
+            "nonOperational": "No operativos",
+            "pending": "Pendientes"
+          },
+          "missingCount": "{count, plural, one {falta #} other {faltan #}}",
+          "emptyTitle": "{level, select, division {Sin divisiones en este alcance} union {Sin uniones en este alcance} local_field {Sin campos locales en este alcance} other {Sin clubes en este alcance}}",
+          "emptyDescription": "Este nivel todavía no tiene registros."
         },
-        "charts": {
-          "submitted": "Env",
-          "draft": "Bor",
-          "generated": "Gen",
-          "missing": "Fal",
-          "expected": "Esp",
-          "registered": "Reg",
-          "joint": "Conj",
-          "sections": "Sec"
+        "pendingTitle": "Pendientes",
+        "review": "Revisar",
+        "dispatchTitle": "Por atender",
+        "dispatchEmptyTitle": "Nada pendiente en tu alcance",
+        "dispatchEmptyDescription": "Cuando llegue una solicitud o una validación, aparece aquí.",
+        "laggingTitle": "Clubes que van atrás",
+        "lagReason": {
+          "missingReport": "Sin informe del mes",
+          "nonOperational": "No operativo"
         },
-        "honorsAttribution": {
-          "current_affiliation": "Por afiliación actual del año vigente",
-          "unavailable": "Histórico no disponible en el contrato"
-        }
-      },
-      "kpis": {
-        "sectionTitle": "Indicadores primarios",
-        "operationalClubs": "Clubes operativos",
-        "operationalClubsHint": "Con al menos una sección matriculada en el año",
-        "institutionalPeople": "Personas institucionalmente activas",
-        "institutionalPeopleHint": "Asignación institucional activa en el año",
-        "monthlyCoverage": "Cobertura mensual",
-        "monthlyCoverageHint": "Informes enviados sobre secciones esperadas",
-        "noClosedMonthHint": "Sin mes cerrado aplicable al periodo",
-        "missingReports": "Reportes faltantes",
-        "missingReportsHint": "Secciones sin informe mensual registrado"
-      },
-      "adminDiagnostic": {
-        "title": "Diagnóstico administrativo",
-        "description": "Estado administrativo y operación anual como conceptos distintos.",
-        "operationalSections": "Secciones operativas",
-        "adminActiveClubs": "Clubes administrativos activos",
-        "adminInactiveClubs": "Clubes administrativos inactivos",
-        "operationalRate": "Tasa operacional",
-        "platformActiveAccounts": "Cuentas de plataforma activas",
-        "platformInactiveAccounts": "Cuentas de plataforma inactivas"
+        "periodContextTitle": "Contexto del periodo"
       },
       "attention": {
         "title": "Requiere atención",
@@ -1908,31 +1826,6 @@
         "jointRegistered": "Conjuntas registradas",
         "participatingSections": "Secciones participantes"
       },
-      "territory": {
-        "title": "Comparación territorial",
-        "description": "Hijos inmediatos del alcance. Los totales no se reconstruyen sumando filas.",
-        "columnTerritory": "Territorio",
-        "columnAdminClubs": "Clubes admin.",
-        "columnOperationalClubs": "Clubes operativos",
-        "columnPeople": "Personas",
-        "columnClasses": "Clases (personas)",
-        "columnCoverage": "Cobertura",
-        "columnActivities": "Actividades",
-        "columnPending": "Pendientes",
-        "pendingRole": "Asign.",
-        "pendingTransfers": "Trasl.",
-        "pendingClasses": "Clases",
-        "pendingHonors": "Esp.",
-        "pendingFolders": "Carp.",
-        "emptyTitle": "Sin territorios hijos",
-        "emptyDescription": "No hay entidades hijas en este nivel de alcance.",
-        "level": {
-          "division": "División",
-          "union": "Unión",
-          "local_field": "Campo local",
-          "club": "Club"
-        }
-      },
       "dataQuality": {
         "title": "Calidad de datos",
         "description": "Notas contractuales sobre exactitud y atribución de cada familia métrica.",
@@ -1955,96 +1848,6 @@
         "serverTitle": "Error del servidor",
         "serverDescription": "No se pudo cargar el panorama operativo.",
         "goToLogin": "Ir a iniciar sesión"
-      },
-      "version": {
-        "v1": "Vista bento",
-        "v2": "Vista ejecutiva",
-        "switchLabel": "Vista del panorama"
-      },
-      "v2": {
-        "title": "Panorama ejecutivo",
-        "description": "Señales de decisión, cumplimiento y presión operativa en el alcance autorizado.",
-        "signals": {
-          "title": "Señales prioritarias",
-          "operativeGap": "Brecha operativa",
-          "operativeGapDetail": "Clubes administrativos sin sección matriculada en el año · total admin. {total}",
-          "reportDebt": "Deuda de informes",
-          "reportDebtDetail": "Secciones sin informe en el último mes cerrado · esperadas {expected}",
-          "reportDebtUnavailable": "Sin mes cerrado aplicable al periodo",
-          "digitalGap": "Brecha digital",
-          "digitalGapDetail": "Cuentas inactivas frente a {institutional} personas institucionalmente activas",
-          "workflowPressure": "Tipos de cola activos",
-          "workflowPressureDetail": "Tipos de cola con pendientes mayores a cero"
-        },
-        "operationLens": {
-          "title": "Lente de operación",
-          "description": "Operación anual vs. estado administrativo del club.",
-          "operationalRate": "Tasa operacional",
-          "operationalClubs": "Clubes operativos",
-          "operationalSections": "Secciones operativas",
-          "adminActive": "Admin. activos",
-          "adminInactive": "Admin. inactivos"
-        },
-        "compliance": {
-          "title": "Cumplimiento mensual",
-          "description": "Cobertura del último mes cerrado por sección matriculada.",
-          "notApplicable": "Sin mes cerrado; los conteos no miden incumplimiento.",
-          "coverage": "Cobertura enviada",
-          "expected": "Esperadas",
-          "submitted": "Enviadas",
-          "missing": "Faltantes",
-          "draft": "Borrador",
-          "generated": "Generadas"
-        },
-        "people": {
-          "title": "Personas y plataforma",
-          "description": "Afiliación institucional vs. estado de cuenta.",
-          "institutional": "Institucionalmente activas",
-          "platformActive": "Cuentas activas",
-          "platformInactive": "Cuentas inactivas"
-        },
-        "formation": {
-          "title": "Formación por clase",
-          "description": "{enrollments} matrículas · {people} personas distintas",
-          "empty": "Sin matrículas en el alcance actual."
-        },
-        "honors": {
-          "title": "Especialidades",
-          "unavailable": "Histórico no disponible en el contrato del año.",
-          "inProgress": "En progreso",
-          "pendingReview": "En revisión",
-          "approved": "Aprobadas"
-        },
-        "activities": {
-          "title": "Actividades registradas",
-          "description": "Registro en sistema; no confirma ejecución ni asistencia.",
-          "registered": "Registradas",
-          "joint": "Conjuntas",
-          "sections": "Secciones participantes"
-        },
-        "queues": {
-          "title": "Colas operativas",
-          "description": "Pendientes por tipo; sin total agregado.",
-          "roleAssignments": "Asignaciones de rol",
-          "transfers": "Traslados",
-          "classValidations": "Validaciones de clase",
-          "honorsReview": "Revisión de especialidades",
-          "annualFolders": "Carpetas Unión"
-        },
-        "alerts": {
-          "title": "Alertas territoriales",
-          "description": "Territorios con mayor deuda de informes en el último mes cerrado.",
-          "missingReports": "{count} sin informe",
-          "inspect": "Inspeccionar",
-          "openClub": "Abrir club"
-        },
-        "charts": {
-          "territoryComparison": "Comparación territorial",
-          "territoryOperational": "Clubes operativos",
-          "territoryMissing": "Informes faltantes",
-          "territoryPeople": "Personas activas",
-          "nonOperationalClubs": "Clubes no operativos"
-        }
       }
     },
     "birthday": {
