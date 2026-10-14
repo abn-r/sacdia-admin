@@ -239,7 +239,7 @@ export function InsuranceView({
             onValueChange={handleLocalFieldChange}
             disabled={isLocalFieldLocked}
           >
-            <SelectTrigger className="h-9 w-52">
+            <SelectTrigger className="h-9 w-52" aria-label={t("view.filter_local_field")}>
               <SelectValue placeholder={t("view.select_local_field_placeholder")} />
             </SelectTrigger>
             <SelectContent>
@@ -263,7 +263,7 @@ export function InsuranceView({
             onValueChange={handleClubChange}
             disabled={filteredClubs.length === 0}
           >
-            <SelectTrigger className="h-9 w-52">
+            <SelectTrigger className="h-9 w-52" aria-label={t("view.filter_club")}>
               <SelectValue placeholder={t("view.select_club_placeholder")} />
             </SelectTrigger>
             <SelectContent>
@@ -281,7 +281,7 @@ export function InsuranceView({
             onValueChange={handleSectionChange}
             disabled={!selectedClubId || sections.length === 0}
           >
-            <SelectTrigger className="h-9 w-48">
+            <SelectTrigger className="h-9 w-48" aria-label={t("view.filter_section")}>
               <SelectValue placeholder={t("view.select_section_placeholder")} />
             </SelectTrigger>
             <SelectContent>
