@@ -21,7 +21,7 @@ export function UserDetailActionSidebar({ title, sections, className }: ActionSi
         {sections.map((sec, idx) => (
           <div key={sec.heading ?? idx} className="flex flex-col gap-1.5">
             {sec.heading ? (
-              <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <div className="text-[11px] font-semibold text-muted-foreground">
                 {sec.heading}
               </div>
             ) : null}

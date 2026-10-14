@@ -51,19 +51,19 @@ export function CertificationsList({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("col_name")}
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("col_description")}
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("col_duration")}
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("col_modules")}
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("col_status")}
             </TableHead>
             <TableHead className="h-9 w-12 px-3" />

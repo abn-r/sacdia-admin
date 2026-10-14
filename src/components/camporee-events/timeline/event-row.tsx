@@ -191,7 +191,7 @@ export function EventRow({
           <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
             <span
               className={cn(
-                "inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10.5px] font-bold uppercase tracking-wide",
+                "inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10.5px] font-bold",
                 cat.tint,
               )}
             >

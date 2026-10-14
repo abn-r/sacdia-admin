@@ -33,22 +33,22 @@ export function CategoriesTable({ categorias }: CategoriesTableProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 Slug
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 Nombre
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 Ícono
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground text-right">
+              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground text-right">
                 Orden
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground text-right">
+              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground text-right">
                 Productos
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 Estado
               </TableHead>
               <TableHead className="h-9 w-24 px-3" />

@@ -182,7 +182,7 @@ function SortButton({
     <Button
       variant="ghost"
       size="sm"
-      className="-ml-3 h-8 gap-1 text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground"
+      className="-ml-3 h-8 gap-1 text-xs font-medium text-muted-foreground hover:text-foreground"
       onClick={() => onSort(field)}
     >
       {label}
@@ -401,17 +401,17 @@ export function ExpiringDashboard({ items, daysAhead }: ExpiringDashboardProps) 
                         />
                       </TableHead>
                       <TableHead>
-                        <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                        <span className="text-xs font-medium text-muted-foreground">
                           {t("expiring.col_club")}
                         </span>
                       </TableHead>
                       <TableHead className="hidden lg:table-cell">
-                        <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                        <span className="text-xs font-medium text-muted-foreground">
                           {t("expiring.col_type")}
                         </span>
                       </TableHead>
                       <TableHead className="hidden lg:table-cell">
-                        <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                        <span className="text-xs font-medium text-muted-foreground">
                           {t("expiring.col_policy")}
                         </span>
                       </TableHead>
@@ -434,7 +434,7 @@ export function ExpiringDashboard({ items, daysAhead }: ExpiringDashboardProps) 
                         />
                       </TableHead>
                       <TableHead>
-                        <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                        <span className="text-xs font-medium text-muted-foreground">
                           {t("expiring.col_status")}
                         </span>
                       </TableHead>

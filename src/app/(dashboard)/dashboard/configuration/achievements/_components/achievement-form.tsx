@@ -409,7 +409,7 @@ export function AchievementForm({
 
           {/* Live preview */}
           <div className="pt-2">
-            <p className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <p className="mb-3 text-xs font-medium text-muted-foreground">
               {t("labelPreview")}
             </p>
             <AchievementPreviewCard

@@ -231,19 +231,19 @@ export function CamporeeMembersPanel({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("membersPanel.colMember")}
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("membersPanel.colClub")}
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("membersPanel.colStatus")}
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("membersPanel.colType")}
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("membersPanel.colInsurance")}
               </TableHead>
               <TableHead className="h-9 w-28 px-3" />

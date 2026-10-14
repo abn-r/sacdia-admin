@@ -149,7 +149,7 @@ export function HistoryTab({ clubId, sections }: HistoryTabProps) {
             <Card key={item.audit_log_id} className="gap-2 px-4 py-3.5">
               <CardContent className="px-0 py-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <p className="font-mono text-[11px] uppercase tracking-wide text-muted-foreground">
+                  <p className="font-mono text-[11px] text-muted-foreground">
                     {created.toLocaleDateString(locale, {
                       day: "2-digit",
                       month: "short",

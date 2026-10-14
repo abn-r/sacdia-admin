@@ -30,7 +30,7 @@ export function CamporeeLeaderboard({ leaderboard }: CamporeeLeaderboardProps) {
     return (
       <div className="space-y-8">
         <header className="space-y-2">
-          <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
+          <p className="text-xs font-medium text-muted-foreground">
             {t("eyebrow")}
           </p>
           <h2 className="text-xl font-semibold tracking-tight">{t("title")}</h2>
@@ -43,7 +43,7 @@ export function CamporeeLeaderboard({ leaderboard }: CamporeeLeaderboardProps) {
   return (
     <div className="space-y-8">
       <header className="space-y-2">
-        <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
+        <p className="text-xs font-medium text-muted-foreground">
           {t("eyebrow")}
         </p>
         <div className="space-y-1">

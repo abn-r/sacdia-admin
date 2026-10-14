@@ -168,7 +168,7 @@ export function LineAvailabilityCell({
             <div className="space-y-1">
               <label
                 htmlFor={`disp-${lineId}`}
-                className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
+                className="text-xs font-medium text-muted-foreground"
               >
                 Disponibilidad
               </label>
@@ -194,7 +194,7 @@ export function LineAvailabilityCell({
               <div className="space-y-1">
                 <label
                   htmlFor={`qty-${lineId}`}
-                  className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
+                  className="text-xs font-medium text-muted-foreground"
                 >
                   Cantidad disponible (1–{qty})
                 </label>

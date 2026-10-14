@@ -50,7 +50,7 @@ export function SortableHeader<TField extends string>({
       onClick={() => onSort(field, nextDirection)}
       aria-label={ariaLabel}
       className={cn(
-        "inline-flex h-7 items-center gap-1.5 rounded-md px-1.5 text-xs font-medium uppercase tracking-wider text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "inline-flex h-7 items-center gap-1.5 rounded-md px-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         align === "right" && "ml-auto",
         isActive && "text-foreground",
         className,

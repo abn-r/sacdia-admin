@@ -188,7 +188,7 @@ export function ActivitiesCalendarGrid({
         {weekDayLabels.map((label) => (
           <div
             key={label}
-            className="px-2 py-2 text-center text-xs font-medium uppercase tracking-wide text-muted-foreground"
+            className="px-2 py-2 text-center text-xs font-medium text-muted-foreground"
           >
             {label}
           </div>

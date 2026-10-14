@@ -151,10 +151,10 @@ export function CertificationsAdminPanel({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("table.name")}
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("table.versions")}
               </TableHead>
               <TableHead className="h-9 w-48 px-3" />

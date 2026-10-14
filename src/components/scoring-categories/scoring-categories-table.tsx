@@ -78,7 +78,7 @@ function TableSkeleton() {
               (h) => (
                 <TableHead
                   key={h}
-                  className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground"
+                  className="h-9 px-3 text-xs font-medium text-muted-foreground"
                 >
                   {h}
                 </TableHead>
@@ -384,7 +384,7 @@ export function ScoringCategoriesTable({
                   </SortableHeader>
                 </TableHead>
                 {showOriginBadge && (
-                  <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                     {tTable("colOrigin")}
                   </TableHead>
                 )}
@@ -396,7 +396,7 @@ export function ScoringCategoriesTable({
                     {tTable("colStatus")}
                   </SortableHeader>
                 </TableHead>
-                <TableHead className="h-9 px-3 w-[100px] text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <TableHead className="h-9 px-3 w-[100px] text-xs font-medium text-muted-foreground">
                   {tTable("colActions")}
                 </TableHead>
               </TableRow>

@@ -32,7 +32,7 @@ function HeatBar({ events }: { events: CamporeeEvent[] }) {
   const maxB = Math.max(...buckets, 1);
   return (
     <div>
-      <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/80 mb-1">
+      <div className="text-xs font-semibold text-muted-foreground/80 mb-1">
         Distribución horaria · 06–24h
       </div>
       <div className="flex gap-[1px]">
@@ -70,7 +70,7 @@ const SECTION_NAMES: Section[] = [
 function DayBadge({ day }: { day: CamporeeDay }) {
   return (
     <div className="size-[52px] rounded-xl bg-primary text-primary-foreground grid place-items-center">
-      <div className="text-[9px] font-bold uppercase tracking-[0.14em] opacity-90 leading-none">
+      <div className="text-xs font-bold opacity-90 leading-none">
         Día
       </div>
       <div className="text-[22px] font-bold tracking-tight leading-none mt-0.5 tabular-nums">

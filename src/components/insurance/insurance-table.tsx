@@ -180,7 +180,7 @@ export function InsuranceTable({
                 {t("table.col_type")}
               </SortableHeader>
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("table.col_policy")}
             </TableHead>
             <TableHead

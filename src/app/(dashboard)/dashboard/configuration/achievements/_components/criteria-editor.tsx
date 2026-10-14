@@ -218,7 +218,7 @@ function CompoundConditionRow({
   return (
     <div className="rounded-lg border bg-muted/20 p-3 space-y-3">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+        <span className="text-xs font-medium text-muted-foreground">
           {t("conditionLabel", { index: index + 1 })}
         </span>
         <Button

@@ -75,25 +75,25 @@ export function TransfersTable({ requests, onRefresh }: TransfersTableProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("transfers.table.columns.requester")}
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("transfers.table.columns.from")}
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("transfers.table.columns.to")}
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("transfers.table.columns.reason")}
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("transfers.table.columns.status")}
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("transfers.table.columns.date")}
               </TableHead>
-              <TableHead className="h-9 px-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <TableHead className="h-9 px-3 text-right text-xs font-medium text-muted-foreground">
                 {t("transfers.table.columns.actions")}
               </TableHead>
             </TableRow>

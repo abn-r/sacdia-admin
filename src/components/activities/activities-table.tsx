@@ -49,25 +49,25 @@ export function ActivitiesTable({ items, onEdit, onDelete }: ActivitiesTableProp
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("table.colName")}
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("table.colType")}
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("table.colTime")}
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("table.colPlace")}
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("table.colAudience")}
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("table.colMode")}
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("table.colStatus")}
             </TableHead>
             <TableHead className="h-9 w-32 px-3" />

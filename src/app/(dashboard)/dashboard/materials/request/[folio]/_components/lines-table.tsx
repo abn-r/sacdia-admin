@@ -45,7 +45,7 @@ export function LinesTable({
       <header className="flex items-center justify-between border-b border-border/60 p-5">
         <h2
           id="partidas-heading"
-          className="text-sm font-semibold uppercase tracking-wide"
+          className="text-sm font-semibold"
         >
           Partidas
         </h2>
@@ -72,22 +72,22 @@ export function LinesTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="h-10 px-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <TableHead className="h-10 px-4 text-xs font-medium text-muted-foreground">
                 Producto
               </TableHead>
-              <TableHead className="h-10 px-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <TableHead className="h-10 px-4 text-xs font-medium text-muted-foreground">
                 SKU
               </TableHead>
-              <TableHead className="h-10 px-4 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <TableHead className="h-10 px-4 text-right text-xs font-medium text-muted-foreground">
                 Cant.
               </TableHead>
-              <TableHead className="h-10 px-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <TableHead className="h-10 px-4 text-xs font-medium text-muted-foreground">
                 Disponibilidad
               </TableHead>
-              <TableHead className="h-10 px-4 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <TableHead className="h-10 px-4 text-right text-xs font-medium text-muted-foreground">
                 Precio
               </TableHead>
-              <TableHead className="h-10 px-4 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <TableHead className="h-10 px-4 text-right text-xs font-medium text-muted-foreground">
                 Importe
               </TableHead>
             </TableRow>

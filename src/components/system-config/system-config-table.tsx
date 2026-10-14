@@ -54,19 +54,19 @@ export function SystemConfigTable({ configs, onEdit }: SystemConfigTableProps) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("col_key")}
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("col_value")}
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("col_description")}
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("col_type")}
             </TableHead>
-            <TableHead className="h-9 px-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <TableHead className="h-9 px-3 text-right text-xs font-medium text-muted-foreground">
               {t("col_actions")}
             </TableHead>
           </TableRow>

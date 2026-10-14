@@ -358,7 +358,7 @@ export function PermissionsMatrix({
                     </span>
                     <Badge
                       variant="outline"
-                      className="text-[10px] uppercase tracking-wide"
+                      className="text-xs"
                     >
                       {role.role_category === "CLUB"
                         ? t("categoryClub")
@@ -385,7 +385,7 @@ export function PermissionsMatrix({
                       className="sticky left-0 z-10 border-r bg-muted/40 px-3 py-2 text-left"
                     >
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-semibold uppercase tracking-wider text-foreground">
+                        <span className="text-xs font-semibold text-foreground">
                           {title}
                         </span>
                         <span className="font-mono text-[10px] text-muted-foreground">

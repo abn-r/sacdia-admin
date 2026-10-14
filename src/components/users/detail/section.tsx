@@ -14,7 +14,7 @@ export function DetailSection({ num, title, action, children, className }: Secti
   return (
     <Card className={cn("gap-4 py-5", className)}>
       <CardHeader className="flex flex-row items-center justify-between gap-3 px-6 pb-0">
-        <h3 className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+        <h3 className="inline-flex items-center gap-2 text-[11px] font-semibold text-muted-foreground">
           {num ? (
             <span className="font-mono text-muted-foreground/70">{num}</span>
           ) : null}
@@ -43,7 +43,7 @@ export function DetailField({ k, v, muted, className }: FieldProps) {
         className,
       )}
     >
-      <div className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+      <div className="mb-1 text-[11px] font-semibold text-muted-foreground">
         {k}
       </div>
       <div
@@ -92,7 +92,7 @@ export function DetailChipList({
       )}
     >
       <div className="mb-2 flex items-center gap-2">
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <span className="text-[11px] font-semibold text-muted-foreground">
           {k}
         </span>
         {items.length > 0 ? (

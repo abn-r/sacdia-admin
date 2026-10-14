@@ -72,7 +72,7 @@ export function TransactionsTableSkeleton() {
             ].map((h, i) => (
               <TableHead
                 key={i}
-                className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground"
+                className="h-9 px-3 text-xs font-medium text-muted-foreground"
               >
                 {h}
               </TableHead>
@@ -196,7 +196,7 @@ export function TransactionsTable({
                 {t("table.colDate")}
               </SortableHeader>
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("table.colDescription")}
             </TableHead>
             <TableHead
@@ -218,13 +218,13 @@ export function TransactionsTable({
                 {t("table.colCategory")}
               </SortableHeader>
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("table.colSection")}
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("table.colPeriod")}
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("table.colType")}
             </TableHead>
             <TableHead
@@ -247,7 +247,7 @@ export function TransactionsTable({
                 {t("table.colAmount")}
               </SortableHeader>
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("table.colEvidence")}
             </TableHead>
             <TableHead className="h-9 w-12 px-3" />

@@ -103,7 +103,7 @@ function PaymentSummary({ payments, t }: PaymentSummaryProps) {
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       {/* Total */}
       <div className="rounded-xl border border-border bg-card px-4 py-3 shadow-xs">
-        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+        <p className="text-xs font-medium text-muted-foreground">
           {t("paymentsPanel.summaryTotal")}
         </p>
         <p className="mt-1 text-xl font-bold tabular-nums">{formatCurrency(total)}</p>
@@ -120,7 +120,7 @@ function PaymentSummary({ payments, t }: PaymentSummaryProps) {
         const label = typeLabels[key];
         return (
           <div key={key} className="rounded-xl border border-border bg-card px-4 py-3 shadow-xs">
-            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <p className="text-xs font-medium text-muted-foreground">
               {label}
             </p>
             <p className="mt-1 text-lg font-semibold tabular-nums text-muted-foreground">
@@ -235,22 +235,22 @@ export function CamporeePaymentsPanel({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("paymentsPanel.colMember")}
                 </TableHead>
-                <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("paymentsPanel.colAmount")}
                 </TableHead>
-                <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("paymentsPanel.colType")}
                 </TableHead>
-                <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("paymentsPanel.colStatus")}
                 </TableHead>
-                <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("paymentsPanel.colReference")}
                 </TableHead>
-                <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("paymentsPanel.colDate")}
                 </TableHead>
                 <TableHead className="h-9 w-24 px-3" />

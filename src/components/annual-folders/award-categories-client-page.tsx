@@ -357,7 +357,7 @@ export function AwardCategoriesClientPage({
                               Nombre
                             </SortableHeader>
                           </TableHead>
-                          <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">Tipo club</TableHead>
+                          <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">Tipo club</TableHead>
                           <TableHead
                             className="h-9 w-24 px-3 text-center"
                             aria-sort={sortField === "min_points" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
@@ -375,14 +375,14 @@ export function AwardCategoriesClientPage({
                             </SortableHeader>
                           </TableHead>
                           {/* 8.4-C composite % columns */}
-                          <TableHead className="hidden h-9 w-24 px-3 text-center lg:table-cell text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                          <TableHead className="hidden h-9 w-24 px-3 text-center lg:table-cell text-xs font-medium text-muted-foreground">
                             % Min
                           </TableHead>
-                          <TableHead className="hidden h-9 w-24 px-3 text-center lg:table-cell text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                          <TableHead className="hidden h-9 w-24 px-3 text-center lg:table-cell text-xs font-medium text-muted-foreground">
                             % Max
                           </TableHead>
                           {/* 8.4-C Phase C tier column */}
-                          <TableHead className="hidden h-9 w-28 px-3 text-center xl:table-cell text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                          <TableHead className="hidden h-9 w-28 px-3 text-center xl:table-cell text-xs font-medium text-muted-foreground">
                             Nivel
                           </TableHead>
                           <TableHead
@@ -393,7 +393,7 @@ export function AwardCategoriesClientPage({
                               Estado
                             </SortableHeader>
                           </TableHead>
-                          <TableHead className="h-9 w-20 px-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">Acciones</TableHead>
+                          <TableHead className="h-9 w-20 px-3 text-right text-xs font-medium text-muted-foreground">Acciones</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>

@@ -66,7 +66,7 @@ export function ReceiptsSection({
     >
       <h2
         id="comprobantes-heading"
-        className="mb-4 text-sm font-semibold uppercase tracking-wide"
+        className="mb-4 text-sm font-semibold"
       >
         Comprobantes de pago
       </h2>

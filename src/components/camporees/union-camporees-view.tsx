@@ -155,22 +155,22 @@ export function UnionCampoReesView({ initialCamporees, unions }: UnionCampoReesV
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("unionList.colName")}
                 </TableHead>
-                <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("unionList.colUnion")}
                 </TableHead>
-                <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("unionList.colStartDate")}
                 </TableHead>
-                <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("unionList.colEndDate")}
                 </TableHead>
-                <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("unionList.colPlace")}
                 </TableHead>
-                <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("unionList.colStatus")}
                 </TableHead>
                 <TableHead className="h-9 w-24 px-3" />

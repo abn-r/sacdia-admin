@@ -54,7 +54,7 @@ export function SuccessionBlock({
 
   return (
     <div className="mt-4 space-y-2 rounded-xl border border-border/70 bg-card p-4">
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+      <p className="text-[11px] font-semibold text-muted-foreground">
         {t("successionHeading", { year: currentYearId })}
       </p>
       <p className="text-[11px] text-muted-foreground">{t("successionHint")}</p>

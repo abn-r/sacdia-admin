@@ -583,7 +583,7 @@ function KpiCard({
 }) {
   return (
     <div className="rounded-lg border bg-card px-5 py-4 space-y-1">
-      <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>
+      <p className="text-xs text-muted-foreground">{label}</p>
       <p
         className={cn(
           "text-3xl font-semibold tracking-tight",

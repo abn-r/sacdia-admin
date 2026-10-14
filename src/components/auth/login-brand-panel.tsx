@@ -48,14 +48,14 @@ export function LoginBrandPanel() {
         />
         <div className="leading-tight">
           <div className="text-base font-bold tracking-tight">SACDIA</div>
-          <div className="font-mono text-[11px] uppercase tracking-[0.08em] opacity-75">
+          <div className="font-mono text-[11px] opacity-75">
             {t("brand_subtitle")}
           </div>
         </div>
       </div>
 
       <div className="relative max-w-[480px]">
-        <div className="mb-5 font-mono text-[11px] uppercase tracking-[0.14em] text-primary-foreground/75">
+        <div className="mb-5 font-mono text-[11px] text-primary-foreground/75">
           {t("verse_reference")}
         </div>
         <p className="text-4xl font-semibold leading-[1.18] tracking-tight">
@@ -66,7 +66,7 @@ export function LoginBrandPanel() {
         </p>
       </div>
 
-      <div className="relative font-mono text-[11px] uppercase tracking-[0.06em] opacity-70">
+      <div className="relative font-mono text-[11px] opacity-70">
         {t("version_label")}
       </div>
     </aside>

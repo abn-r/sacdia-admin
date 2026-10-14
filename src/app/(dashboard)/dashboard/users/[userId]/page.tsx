@@ -651,7 +651,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
 function SidebarRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-3 border-b border-dashed border-border/70 pb-2 last:border-b-0 last:pb-0">
-      <span className="text-xs uppercase tracking-wider text-muted-foreground">
+      <span className="text-xs text-muted-foreground">
         {label}
       </span>
       <span className="text-sm font-medium text-foreground">{value}</span>
