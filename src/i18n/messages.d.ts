@@ -5379,6 +5379,9 @@ export interface IntlMessages {
     };
     view: {
       load_error: string;
+      filter_local_field: string;
+      filter_club: string;
+      filter_section: string;
       select_local_field_placeholder: string;
       local_field_all: string;
       select_club_placeholder: string;

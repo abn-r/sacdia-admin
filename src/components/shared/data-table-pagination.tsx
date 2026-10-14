@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -31,6 +32,7 @@ export function DataTablePagination({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const perPageLabelId = useId();
 
   function buildHref(newPage: number, newLimit?: number) {
     const params = new URLSearchParams(searchParams.toString());
@@ -53,9 +55,11 @@ export function DataTablePagination({
       </p>
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">{t("perPage")}</span>
+          <span id={perPageLabelId} className="text-sm text-muted-foreground">
+            {t("perPage")}
+          </span>
           <Select defaultValue={String(limit)} onValueChange={handleLimitChange}>
-            <SelectTrigger className="h-8 w-[70px]">
+            <SelectTrigger className="h-8 w-[70px]" aria-labelledby={perPageLabelId}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

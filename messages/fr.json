@@ -1629,7 +1629,7 @@
         "metadataTitle": "Clubs v2",
         "badge": "Vue catalogue",
         "title": "Clubs",
-        "description": "Liste opérationnelle avec filtres et tableau style catalogue.",
+        "description": "Recherchez et gérez les clubs de votre périmètre.",
         "switchToV2": "Essayer la vue catalogue (v2)",
         "switchToClassic": "Retour à la vue classique",
         "filtersTitle": "Filtres",
@@ -5350,6 +5350,9 @@
     },
     "view": {
       "load_error": "Impossible de charger les assurances",
+      "filter_local_field": "Champ local",
+      "filter_club": "Club",
+      "filter_section": "Section",
       "select_local_field_placeholder": "Sélectionner un champ local",
       "local_field_all": "Tous les champs",
       "select_club_placeholder": "Sélectionner un club",
