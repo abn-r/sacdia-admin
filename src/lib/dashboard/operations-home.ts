@@ -178,7 +178,10 @@ export function supervisionSummary(
     return [{ key: "noClosedMonth", values: {} }, ...nonOperationalMessage(summary)];
   }
   const expecting = children.filter((child) => child.monthly_reports.expected_sections > 0);
-  const reported = expecting.filter((child) => child.monthly_reports.missing_sections === 0);
+  // `missing_sections` excludes generated drafts, so it cannot tell "delivered".
+  const reported = expecting.filter(
+    (child) => child.monthly_reports.submitted_sections >= child.monthly_reports.expected_sections,
+  );
   const reportMessage: SummaryMessage[] =
     expecting.length > 0
       ? [

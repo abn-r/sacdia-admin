@@ -17,6 +17,7 @@ export function localeToBcp47(locale: Locale | string): string {
 export const SACDIA_DISPLAY_TIMEZONE = "America/Mexico_City";
 
 const ISO_DATE_PREFIX = /^(\d{4})-(\d{2})-(\d{2})/;
+const CALENDAR_DATE = /^\d{4}-\d{2}-\d{2}(T00:00:00(\.000)?Z)?$/;
 
 const MONTHS_SHORT: Record<Locale, readonly string[]> = {
   es: ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"],
@@ -221,7 +222,13 @@ export function formatDate(
 ): string {
   const date = value instanceof Date ? value : new Date(value);
   if (Number.isNaN(date.getTime())) return String(value);
-  return new Intl.DateTimeFormat(localeToBcp47(locale), options).format(date);
+  // Calendar dates ("YYYY-MM-DD" or a Prisma `date` column at UTC midnight) are
+  // not instants: format them in UTC so the local offset cannot shift the day.
+  const calendarOptions =
+    typeof value === "string" && CALENDAR_DATE.test(value.trim())
+      ? { ...options, timeZone: "UTC" }
+      : options;
+  return new Intl.DateTimeFormat(localeToBcp47(locale), calendarOptions).format(date);
 }
 
 export function formatDateTime(

@@ -246,8 +246,11 @@ export function InsuranceTable({
                 </TableCell>
 
                 {/* Provider */}
-                <TableCell className="max-w-[140px] px-3 py-2.5 align-middle">
-                  <span className="truncate text-sm text-muted-foreground">
+                <TableCell className="px-3 py-2.5 align-middle">
+                  <span
+                    className="block max-w-[140px] truncate text-sm text-muted-foreground"
+                    title={ins?.provider ?? undefined}
+                  >
                     {ins?.provider ?? "—"}
                   </span>
                 </TableCell>

@@ -1,12 +1,15 @@
-import { describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
   formatCalendarDate,
   formatCalendarDateRange,
+  formatDate,
   formatMxnAmount,
   formatTabularNumber,
   formatTimestamp,
   parseIsoDateParts,
 } from "@/lib/format-locale";
+
+const numericDate: Intl.DateTimeFormatOptions = { day: "2-digit", month: "2-digit", year: "numeric" };
 
 describe("parseIsoDateParts", () => {
   it("lee el prefijo YYYY-MM-DD aunque el valor traiga medianoche UTC", () => {
@@ -32,6 +35,28 @@ describe("formatCalendarDate", () => {
       "21 de agosto de 2026",
     );
     expect(formatCalendarDate("2026-08-21", "es", "numeric")).toBe("21/08/2026");
+  });
+});
+
+describe("formatDate", () => {
+  const originalTz = process.env.TZ;
+  beforeAll(() => {
+    process.env.TZ = "America/Mexico_City";
+  });
+  afterAll(() => {
+    process.env.TZ = originalTz;
+  });
+
+  it("conserva el día de calendario de una fecha YYYY-MM-DD", () => {
+    expect(formatDate("2026-01-01", "es")).toBe("01 ene 2026");
+  });
+
+  it("conserva el día de calendario de una columna date serializada a medianoche UTC", () => {
+    expect(formatDate("2026-08-19T00:00:00.000Z", "es", numericDate)).toBe("19/08/2026");
+  });
+
+  it("muestra los instantes con hora en la zona local", () => {
+    expect(formatDate("2026-08-19T02:30:00.000Z", "es", numericDate)).toBe("18/08/2026");
   });
 });
 

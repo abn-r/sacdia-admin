@@ -193,7 +193,7 @@ describe("supervisionSummary", () => {
     const messages = supervisionSummary(
       [
         child(1, "A"),
-        child(2, "B", { reports: { missing_sections: 1 } }),
+        child(2, "B", { reports: { submitted_sections: 1, missing_sections: 1 } }),
         child(3, "C", { reports: { expected_sections: 0, submitted_sections: 0 } }),
       ],
       "local_field",
@@ -204,6 +204,29 @@ describe("supervisionSummary", () => {
     expect(messages).toEqual([
       { key: "childrenReported", values: { reported: 1, total: 2, level: "local_field" } },
       { key: "nonOperationalClubs", values: { count: 2 } },
+    ]);
+  });
+
+  it("does not count generated reports that were never submitted as delivered", () => {
+    const messages = supervisionSummary(
+      [
+        child(1, "A", {
+          reports: {
+            expected_sections: 2,
+            submitted_sections: 0,
+            generated_sections: 2,
+            missing_sections: 0,
+            coverage_pct: 0,
+          },
+        }),
+      ],
+      "division",
+      metrics(),
+      true,
+    );
+
+    expect(messages).toEqual([
+      { key: "childrenReported", values: { reported: 0, total: 1, level: "division" } },
     ]);
   });
 
