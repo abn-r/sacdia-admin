@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import { UserAvatar } from "@/components/users/user-avatar";
 import {
   Table,
@@ -114,35 +116,27 @@ function UserMobileCard({
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-1.5">
-        <Badge
-          variant={user.active !== false ? "soft-success" : "outline"}
-          className="text-xs"
-        >
-          {user.active !== false
-            ? t("list.status.active")
-            : t("list.status.inactive")}
-        </Badge>
-        <Badge
-          variant={user.access_app ? "default" : "outline"}
-          className="text-xs"
-        >
-          App
-        </Badge>
-        <Badge
-          variant={user.access_panel ? "default" : "outline"}
-          className="text-xs"
-        >
-          Panel
-        </Badge>
+        <StatusBadge
+          intent={flagStatusIntent(user.active !== false)}
+          label={
+            user.active !== false
+              ? t("list.status.active")
+              : t("list.status.inactive")
+          }
+          size="sm"
+        />
+        <StatusBadge intent={flagStatusIntent(Boolean(user.access_app))} label="App" size="sm" />
+        <StatusBadge intent={flagStatusIntent(Boolean(user.access_panel))} label="Panel" size="sm" />
         {showAdministrativeCompletion && (
-          <Badge
-            variant={user.post_registration?.complete ? "default" : "outline"}
-            className="text-xs"
-          >
-            {user.post_registration?.complete
-              ? t("list.postReg.complete")
-              : t("list.postReg.pending")}
-          </Badge>
+          <StatusBadge
+            intent={flagStatusIntent(Boolean(user.post_registration?.complete))}
+            label={
+              user.post_registration?.complete
+                ? t("list.postReg.complete")
+                : t("list.postReg.pending")
+            }
+            size="sm"
+          />
         )}
       </div>
 
@@ -215,14 +209,14 @@ export async function UsersTable({
                           email={secondaryLabel}
                           size={32}
                         />
-                        <div className="min-w-0">
+                        <div className="min-w-0 max-w-[200px]">
                           <Link prefetch={false}
                             href={`/dashboard/users/${user.user_id}`}
                             className="block truncate text-sm font-medium hover:underline"
                           >
                             {fullName}
                           </Link>
-                          <p className="truncate text-xs text-muted-foreground">
+                          <p className="truncate text-xs text-muted-foreground" title={secondaryLabel}>
                             {secondaryLabel}
                           </p>
                         </div>
@@ -245,36 +239,29 @@ export async function UsersTable({
                       <LocationCell user={user} />
                     </TableCell>
                     <TableCell>
-                      <Badge variant={user.active !== false ? "soft-success" : "outline"} className="text-xs">
-                        {user.active !== false ? t("list.status.active") : t("list.status.inactive")}
-                      </Badge>
+                      <StatusBadge
+                        intent={flagStatusIntent(user.active !== false)}
+                        label={user.active !== false ? t("list.status.active") : t("list.status.inactive")}
+                        size="sm"
+                      />
                     </TableCell>
                     <TableCell className="hidden sm:table-cell">
                       <div className="flex gap-1">
-                        <Badge
-                          variant={user.access_app ? "default" : "outline"}
-                          className="text-xs"
-                        >
-                          App
-                        </Badge>
-                        <Badge
-                          variant={user.access_panel ? "default" : "outline"}
-                          className="text-xs"
-                        >
-                          Panel
-                        </Badge>
+                        <StatusBadge intent={flagStatusIntent(Boolean(user.access_app))} label="App" size="sm" />
+                        <StatusBadge intent={flagStatusIntent(Boolean(user.access_panel))} label="Panel" size="sm" />
                       </div>
                     </TableCell>
                     {showAdministrativeCompletion ? (
                       <TableCell className="hidden lg:table-cell">
-                        <Badge
-                          variant={user.post_registration?.complete ? "default" : "outline"}
-                          className="text-xs"
-                        >
-                          {user.post_registration?.complete
-                            ? t("list.postReg.completeDesktop")
-                            : t("list.postReg.pending")}
-                        </Badge>
+                        <StatusBadge
+                          intent={flagStatusIntent(Boolean(user.post_registration?.complete))}
+                          label={
+                            user.post_registration?.complete
+                              ? t("list.postReg.completeDesktop")
+                              : t("list.postReg.pending")
+                          }
+                          size="sm"
+                        />
                       </TableCell>
                     ) : null}
                     <TableCell className="hidden pr-6 text-xs text-muted-foreground md:table-cell">

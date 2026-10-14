@@ -5,7 +5,8 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Building2, Eye, MoreHorizontal, Pencil, Search } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -310,14 +311,15 @@ export function ClubsListClient({
                             : "—"}
                         </TableCell>
                         <TableCell>
-                          <Badge
-                            variant={club.active !== false ? "default" : "outline"}
-                            className="text-xs"
-                          >
-                            {club.active !== false
-                              ? tList("statusActive")
-                              : tList("statusInactive")}
-                          </Badge>
+                          <StatusBadge
+                            intent={flagStatusIntent(club.active !== false)}
+                            label={
+                              club.active !== false
+                                ? tList("statusActive")
+                                : tList("statusInactive")
+                            }
+                            size="sm"
+                          />
                         </TableCell>
                         {canEdit && (
                           <TableCell className="sticky right-0 z-10 border-l bg-background">

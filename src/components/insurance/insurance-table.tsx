@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { Pencil, Trash2, ExternalLink, ShieldCheck, Shield, ShieldAlert } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -28,12 +29,14 @@ function memberFullName(member: MemberInsurance): string {
 }
 
 function insuranceTypeBadge(type: InsuranceType | null | undefined) {
-  if (!type) return <Badge variant="outline">—</Badge>;
+  if (!type) return <span className="text-sm text-muted-foreground">—</span>;
 
-  const variants: Record<InsuranceType, "default" | "secondary" | "destructive"> = {
-    GENERAL_ACTIVITIES: "default",
-    CAMPOREE: "secondary",
-    HIGH_RISK: "destructive",
+  // The type is a category, not a state: neutral tags, with the risky one
+  // flagged as needing attention.
+  const variants: Record<InsuranceType, "outline" | "soft-warning"> = {
+    GENERAL_ACTIVITIES: "outline",
+    CAMPOREE: "outline",
+    HIGH_RISK: "soft-warning",
   };
 
   const icons: Record<InsuranceType, React.ReactNode> = {
@@ -274,13 +277,13 @@ export function InsuranceTable({
                 {/* Status */}
                 <TableCell className="px-3 py-2.5 align-middle">
                   {!ins ? (
-                    <Badge variant="outline">{t("table.status_no_insurance")}</Badge>
+                    <StatusBadge intent="neutral" label={t("table.status_no_insurance")} size="sm" />
                   ) : expired ? (
-                    <Badge variant="destructive">{t("table.status_expired")}</Badge>
+                    <StatusBadge intent="destructive" label={t("table.status_expired")} size="sm" />
                   ) : ins.active ? (
-                    <Badge variant="default">{t("table.status_active")}</Badge>
+                    <StatusBadge intent="success" label={t("table.status_active")} size="sm" />
                   ) : (
-                    <Badge variant="outline">{t("table.status_inactive")}</Badge>
+                    <StatusBadge intent="neutral" label={t("table.status_inactive")} size="sm" />
                   )}
                 </TableCell>
 

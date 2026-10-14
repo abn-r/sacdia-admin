@@ -44,6 +44,23 @@ afterEach(() => {
   cleanup();
 });
 
+describe("InsuranceTable status colors", () => {
+  it("shows current coverage as a success status, not with the brand accent", () => {
+    renderTable();
+
+    const status = screen.getByText(messages.insurance.table.status_active);
+
+    expect(status).toHaveClass("text-success-foreground");
+    expect(status).not.toHaveClass("bg-primary");
+  });
+
+  it("shows the insurance type as a neutral tag, not with the brand accent", () => {
+    renderTable();
+
+    expect(screen.getByText("Actividades generales")).not.toHaveClass("bg-primary");
+  });
+});
+
 describe("InsuranceTable provider cell", () => {
   it("truncates the provider inside its own width so it cannot overlap the next column", () => {
     renderTable();
