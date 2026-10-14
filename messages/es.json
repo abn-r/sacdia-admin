@@ -7148,8 +7148,8 @@
         "viewHistory": "Ver historial"
       },
       "errors": {
-        "bullmqLoad": "No se pudieron cargar las colas. Verifica que el backend este disponible e inténtalo de nuevo.",
-        "cronLoad": "No se pudieron cargar los cron jobs. Verifica que el backend este disponible e inténtalo de nuevo."
+        "bullmqLoad": "No se pudieron cargar las colas. Verifica que el backend esté disponible e inténtalo de nuevo.",
+        "cronLoad": "No se pudieron cargar los cron jobs. Verifica que el backend esté disponible e inténtalo de nuevo."
       }
     },
     "pageHistory": {
