@@ -7,8 +7,6 @@ import en from "../../../messages/en.json";
 import fr from "../../../messages/fr.json";
 import ptBR from "../../../messages/pt-BR.json";
 import { ClassEnrollmentsChart } from "@/components/dashboard/class-enrollments-chart";
-import { OperationsBentoTile } from "@/components/dashboard/operations-bento-tile";
-import { OperationsKpiStrip } from "@/components/dashboard/operations-kpi-strip";
 import { OperationsWorkQueue } from "@/components/dashboard/operations-work-queue";
 import { OperationsGapTable } from "@/components/dashboard/operations-gap-table";
 import { SupervisionHome } from "@/components/dashboard/operations-home-supervision";
@@ -114,74 +112,10 @@ describe("dashboardHub.operations translations", () => {
   it.each(locales)("includes operations keys in %s", (_locale, messages) => {
     expect(messages.dashboardHub.operations.title).toBeTruthy();
     expect(messages.dashboardHub.operations.home.title).toBeTruthy();
-    expect(messages.dashboardHub.operations.bento.groups.operation).toBeTruthy();
-    expect(messages.dashboardHub.operations.bento.stats.operationalClubs).toBeTruthy();
+    expect(messages.dashboardHub.operations.home.summary.childrenReported).toBeTruthy();
+    expect(messages.dashboardHub.operations.home.dispatchTitle).toBeTruthy();
+    expect(messages.dashboardHub.operations.home.gapTable.columns.reports).toBeTruthy();
     expect(messages.dashboardHub.operations.errors.forbiddenDescription).toBeTruthy();
-  });
-});
-
-describe("OperationsBentoTile", () => {
-  it("does not render a navigation chevron when the tile is not a link", () => {
-    render(
-      <OperationsBentoTile title="Informes mensuales">
-        <p>0 / 2</p>
-      </OperationsBentoTile>,
-    );
-
-    expect(screen.queryByRole("link")).not.toBeInTheDocument();
-  });
-
-  it("renders a link chevron only when href is provided", () => {
-    render(
-      <OperationsBentoTile title="Informes mensuales" href="/dashboard/reports" hrefLabel="Abrir informes">
-        <p>0 / 2</p>
-      </OperationsBentoTile>,
-    );
-
-    expect(screen.getByRole("link", { name: "Abrir informes" })).toHaveAttribute(
-      "href",
-      "/dashboard/reports",
-    );
-  });
-});
-
-describe("OperationsKpiStrip", () => {
-  it("renders compact metric cards without empty min-height stretch", () => {
-    const { container } = render(
-      <OperationsKpiStrip
-        heading="Indicadores primarios"
-        items={[
-          { id: "clubs", label: "Clubes operativos", value: "1", hint: "2 secciones · 50%" },
-          { id: "admin", label: "Estado administrativo", value: "2", hint: "2 Activos · 0 Inactivos" },
-        ]}
-      />,
-    );
-
-    expect(screen.getByRole("heading", { name: "Indicadores primarios" })).toBeInTheDocument();
-    expect(screen.getByText("Clubes operativos")).toBeInTheDocument();
-    expect(container.querySelector("[class*='min-h-']")).toBeNull();
-  });
-
-  it("turns metric cards into module links when href is provided", () => {
-    render(
-      <OperationsKpiStrip
-        heading="Indicadores primarios"
-        items={[
-          {
-            id: "clubs",
-            label: "Clubes operativos",
-            value: "1",
-            hint: "2 secciones",
-            href: "/dashboard/clubs",
-          },
-        ]}
-      />,
-    );
-
-    expect(screen.getByRole("link", { name: "Clubes operativos" })).toHaveAttribute(
-      "href",
-      "/dashboard/clubs",
-    );
   });
 });
 

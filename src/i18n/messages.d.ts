@@ -1784,27 +1784,8 @@ export interface IntlMessages {
       home: {
         title: string;
         description: string;
-        inboxTitle: string;
-        inboxDescription: string;
-        inboxEmptyTitle: string;
-        inboxEmptyDescription: string;
-        openQueue: string;
-        coverageTitle: string;
-        coverageAction: string;
         honorsAction: string;
         activitiesAction: string;
-        shortcutsTitle: string;
-        shortcutsDescription: string;
-        shortcuts: {
-          clubs: string;
-          users: string;
-          assignments: string;
-          validations: string;
-          reports: string;
-          folders: string;
-          activities: string;
-          camporees: string;
-        };
         summary: {
           childrenReported: string;
           sectionsReported: string;
@@ -1835,89 +1816,6 @@ export interface IntlMessages {
           nonOperational: string;
         };
         periodContextTitle: string;
-      };
-      bento: {
-        groups: {
-          operation: string;
-          operationDescription: string;
-          adminClubs: string;
-          adminClubsDescription: string;
-          people: string;
-          peopleDescription: string;
-          reports: string;
-          reportsDescription: string;
-          reportsNotApplicable: string;
-          queues: string;
-          queuesDescription: string;
-          honors: string;
-          activities: string;
-          activitiesDescription: string;
-          formation: string;
-          formationDescription: string;
-        };
-        stats: {
-          operationalClubs: string;
-          operationalClubsDetail: string;
-          operationalSections: string;
-          operationalRate: string;
-          nonOperationalClubs: string;
-          adminClubsTotal: string;
-          adminActive: string;
-          adminInactive: string;
-          adminTotal: string;
-          institutionalActive: string;
-          institutionalActiveDetail: string;
-          platformActive: string;
-          platformInactive: string;
-          monthlyCoverage: string;
-          monthlyCoverageDetail: string;
-          noClosedMonth: string;
-          expectedSections: string;
-          submittedSections: string;
-          draftSections: string;
-          generatedSections: string;
-          missingSections: string;
-          roleAssignmentsPending: string;
-          transfersPending: string;
-          classValidationsPending: string;
-          honorsReviewPending: string;
-          annualFoldersPending: string;
-          honorsInProgress: string;
-          honorsPendingReview: string;
-          honorsApproved: string;
-          activitiesRegistered: string;
-          activitiesRegisteredDetail: string;
-          activitiesJoint: string;
-          activitiesSections: string;
-          totalEnrollments: string;
-          distinctPeople: string;
-        };
-        charts: {
-          submitted: string;
-          draft: string;
-          generated: string;
-          missing: string;
-          expected: string;
-          registered: string;
-          joint: string;
-          sections: string;
-        };
-        honorsAttribution: {
-          current_affiliation: string;
-          unavailable: string;
-        };
-      };
-      kpis: {
-        sectionTitle: string;
-        operationalClubs: string;
-        operationalClubsHint: string;
-        institutionalPeople: string;
-        institutionalPeopleHint: string;
-        monthlyCoverage: string;
-        monthlyCoverageHint: string;
-        noClosedMonthHint: string;
-        missingReports: string;
-        missingReportsHint: string;
       };
       attention: {
         title: string;
@@ -1956,31 +1854,6 @@ export interface IntlMessages {
         registered: string;
         jointRegistered: string;
         participatingSections: string;
-      };
-      territory: {
-        title: string;
-        description: string;
-        columnTerritory: string;
-        columnAdminClubs: string;
-        columnOperationalClubs: string;
-        columnPeople: string;
-        columnClasses: string;
-        columnCoverage: string;
-        columnActivities: string;
-        columnPending: string;
-        pendingRole: string;
-        pendingTransfers: string;
-        pendingClasses: string;
-        pendingHonors: string;
-        pendingFolders: string;
-        emptyTitle: string;
-        emptyDescription: string;
-        level: {
-          division: string;
-          union: string;
-          local_field: string;
-          club: string;
-        };
       };
       dataQuality: {
         title: string;
