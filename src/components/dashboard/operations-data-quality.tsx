@@ -37,22 +37,18 @@ export function OperationsDataQuality({
   }
 
   return (
-    <details className="rounded-2xl bg-card ring-1 ring-foreground/10">
-      <summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-3 text-sm marker:content-none [&::-webkit-details-marker]:hidden">
-        <Info className="size-4 text-muted-foreground" aria-hidden />
-        <span className="font-medium">{title}</span>
-        <span className="text-muted-foreground">· {description}</span>
+    <details className="text-muted-foreground text-xs">
+      <summary className="inline-flex cursor-pointer list-none items-center gap-1.5 marker:content-none [&::-webkit-details-marker]:hidden">
+        <Info className="size-3.5" aria-hidden />
+        <span>{title}</span>
       </summary>
-      <ul className="grid gap-2 border-t px-4 py-3 sm:grid-cols-2">
+      <p className="mt-2">{description}</p>
+      <ul className="mt-2 space-y-1.5">
         {entries.map((entry) => (
-          <li key={entry.metric} className="rounded-xl border px-3 py-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="font-medium text-sm">{entry.metric}</span>
-              <Badge variant={qualityBadgeVariant(entry.status)}>
-                {statusLabels[entry.status]}
-              </Badge>
-            </div>
-            <p className="mt-1 text-muted-foreground text-sm">{entry.note}</p>
+          <li key={entry.metric} className="flex flex-wrap items-center gap-2">
+            <span className="font-medium text-foreground">{entry.metric}</span>
+            <Badge variant={qualityBadgeVariant(entry.status)}>{statusLabels[entry.status]}</Badge>
+            <span>{entry.note}</span>
           </li>
         ))}
       </ul>
